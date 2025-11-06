@@ -2,7 +2,11 @@
 
 <div align="right">
 
-**🌐 Language / Dil:** [English](README.md) | [Türkçe](README-tr.md) | [Changelog (EN)](changelog.json) | [Değişiklikler (TR)](changelog-tr.json)
+**🌐 Language / Dil:** 
+[![EN](https://img.shields.io/badge/Language-English-blue)](README.md) 
+[![TR](https://img.shields.io/badge/Dil-Türkçe-red)](README-tr.md) 
+[![Changelog](https://img.shields.io/badge/Changelog-EN-green)](changelog.json) 
+[![Değişiklikler](https://img.shields.io/badge/Değişiklikler-TR-orange)](changelog-tr.json)
 
 </div>
 
