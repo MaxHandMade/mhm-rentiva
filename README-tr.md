@@ -2,7 +2,7 @@
 
 <div align="right">
 
-**🌐 Dil / Language:** [🇹🇷 Türkçe](README-tr.md) | [🇬🇧 English](README.md) | [📋 Değişiklikler (TR)](changelog-tr.json) | [📋 Changelog (EN)](changelog.json)
+**🌐 Dil / Language:** [Türkçe](README-tr.md) | [English](README.md) | [Değişiklikler (TR)](changelog-tr.json) | [Changelog (EN)](changelog.json)
 
 </div>
 
