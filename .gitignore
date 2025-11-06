@@ -79,6 +79,7 @@ wp-config-local.php
 # ============================================
 .idea/
 .vscode/
+.cursor/
 *.sublime-project
 *.sublime-workspace
 *.code-workspace
