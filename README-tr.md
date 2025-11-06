@@ -1,5 +1,11 @@
 # MHM Rentiva - WordPress Araç Kiralama Eklentisi
 
+<div align="right">
+
+**🌐 Dil / Language:** [🇹🇷 Türkçe](README-tr.md) | [🇬🇧 English](README.md) | [📋 Değişiklikler (TR)](changelog-tr.json) | [📋 Changelog (EN)](changelog.json)
+
+</div>
+
 ![Version](https://img.shields.io/badge/version-4.3.8-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)

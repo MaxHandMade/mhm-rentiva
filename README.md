@@ -1,5 +1,11 @@
 # MHM Rentiva - WordPress Vehicle Rental Plugin
 
+<div align="right">
+
+**🌐 Language / Dil:** [🇬🇧 English](README.md) | [🇹🇷 Türkçe](README-tr.md) | [📋 Changelog (EN)](changelog.json) | [📋 Değişiklikler (TR)](changelog-tr.json)
+
+</div>
+
 ![Version](https://img.shields.io/badge/version-4.3.8-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
