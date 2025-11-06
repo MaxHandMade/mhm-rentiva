@@ -1,0 +1,372 @@
+/**
+ * Vehicle Gallery CSS
+ * 
+ * Araç galerisi meta box stilleri
+ */
+
+/* ===== ANA GALERİ KONTEYNER ===== */
+.mhm-vehicle-gallery-container {
+    padding: 0;
+}
+
+.mhm-gallery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.mhm-gallery-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #23282d;
+    margin: 0;
+}
+
+.mhm-gallery-add-btn {
+    background: #0073aa;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.mhm-gallery-add-btn:hover {
+    background: #005a87;
+}
+
+.mhm-gallery-add-btn .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+/* ===== GALERİ GRİD ===== */
+.mhm-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    margin-bottom: 15px;
+    min-height: 80px;
+}
+
+.mhm-gallery-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: move;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mhm-gallery-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mhm-gallery-item-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.mhm-gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.mhm-gallery-item-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.mhm-gallery-item:hover .mhm-gallery-item-overlay {
+    opacity: 1;
+}
+
+.mhm-gallery-item-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.mhm-gallery-remove-btn {
+    background: #dc3232;
+    color: #fff;
+    border: none;
+    padding: 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mhm-gallery-remove-btn:hover {
+    background: #a00;
+}
+
+.mhm-gallery-remove-btn .dashicons {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+}
+
+.mhm-gallery-item-number {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 2px;
+    line-height: 1;
+}
+
+/* ===== SORTABLE PLACEHOLDER ===== */
+.mhm-gallery-placeholder {
+    background: #f0f8ff;
+    border: 2px dashed #007cba;
+    border-radius: 4px;
+    aspect-ratio: 1;
+    opacity: 0.7;
+}
+
+/* ===== BOŞ GALERİ MESAJI ===== */
+.mhm-gallery-no-images {
+    text-align: center;
+    padding: 30px 15px;
+    color: #666;
+    font-style: italic;
+    background: #f9f9f9;
+    border: 1px dashed #ddd;
+    border-radius: 4px;
+}
+
+.mhm-gallery-no-images .dashicons {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+/* ===== LOADING GÖSTERGESİ ===== */
+.mhm-gallery-loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    display: none;
+}
+
+.mhm-gallery-loading .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== GALERİ ÖNİZLEME ===== */
+.mhm-gallery-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.mhm-gallery-preview-container {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.mhm-gallery-preview-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.mhm-gallery-preview-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.mhm-gallery-preview-close:hover {
+    background: rgba(255, 255, 255, 1);
+}
+
+.mhm-gallery-preview-close .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* ===== BİLDİRİMLER ===== */
+.mhm-gallery-notification {
+    position: fixed;
+    top: 32px;
+    right: 20px;
+    background: #fff;
+    border-left: 4px solid #0073aa;
+    padding: 12px 16px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 999999;
+    max-width: 300px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mhm-gallery-notification-success {
+    border-left-color: #46b450;
+}
+
+.mhm-gallery-notification-error {
+    border-left-color: #dc3232;
+}
+
+.mhm-gallery-notification-warning {
+    border-left-color: #ffb900;
+}
+
+.mhm-gallery-notification-message {
+    flex: 1;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.mhm-gallery-notification-close {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 2px;
+    transition: background-color 0.2s ease;
+}
+
+.mhm-gallery-notification-close:hover {
+    background: #f0f0f0;
+}
+
+.mhm-gallery-notification-close .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+/* ===== RESPONSIVE TASARIM ===== */
+@media (max-width: 768px) {
+    .mhm-gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        gap: 6px;
+    }
+
+    .mhm-gallery-item-number {
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+
+    .mhm-gallery-preview-overlay {
+        padding: 10px;
+    }
+
+    .mhm-gallery-notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
+
+/* ===== WORDPRESS ADMIN ENTEGRASYONU ===== */
+.postbox .mhm-vehicle-gallery-container {
+    padding: 12px;
+}
+
+.postbox .mhm-gallery-header {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+}
+
+/* ===== ACCESSIBILITY ===== */
+.mhm-gallery-item:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+.mhm-gallery-add-btn:focus,
+.mhm-gallery-remove-btn:focus,
+.mhm-gallery-preview-close:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+/* ===== DARK MODE DESTEĞI ===== */
+@media (prefers-color-scheme: dark) {
+    .mhm-gallery-title {
+        color: #f0f0f1;
+    }
+
+    .mhm-gallery-no-images {
+        background: #2c3338;
+        color: #a7aaad;
+        border-color: #3c434a;
+    }
+
+    .mhm-gallery-no-images .dashicons {
+        color: #6c7781;
+    }
+
+    .mhm-gallery-loading {
+        color: #a7aaad;
+    }
+}

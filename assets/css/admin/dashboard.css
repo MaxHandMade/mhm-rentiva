@@ -1,0 +1,1040 @@
+/**
+ * MHM Rentiva - Dashboard Main Styles
+ * Modern dashboard tasarımı
+ */
+
+/* Main Dashboard Container */
+.mhm-rentiva-dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.mhm-dashboard-content {
+    margin-top: 20px;
+}
+
+/* Quick Actions Panel */
+.mhm-quick-actions {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e1e5e9;
+}
+
+.mhm-quick-actions h2 {
+    margin: 0 0 20px 0;
+    color: #1d2327;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.quick-action-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #495057;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.quick-action-card:hover {
+    background: #e9ecef;
+    border-color: #dee2e6;
+    color: #212529;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.quick-action-card .dashicons {
+    font-size: 20px;
+    color: #6c757d;
+}
+
+.quick-action-card:hover .dashicons {
+    color: #495057;
+}
+
+.action-title {
+    font-size: 0.9em;
+}
+
+/* Dashboard Satırları */
+.mhm-dashboard-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+/* Dashboard Widget'ları */
+.mhm-dashboard-widget {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e1e5e9;
+    height: fit-content;
+}
+
+.mhm-dashboard-widget h3 {
+    margin: 0 0 20px 0;
+    color: #1d2327;
+    font-size: 1.2em;
+    font-weight: 600;
+    border-bottom: 2px solid #f1f3f4;
+    padding-bottom: 10px;
+}
+
+.widget-content {
+    margin-bottom: 20px;
+}
+
+.widget-footer {
+    border-top: 1px solid #f1f3f4;
+    padding-top: 15px;
+    text-align: center;
+}
+
+/* Tablo Stilleri */
+.mhm-dashboard-widget .wp-list-table {
+    margin: 0;
+    border: none;
+    box-shadow: none;
+}
+
+.mhm-dashboard-widget .wp-list-table th,
+.mhm-dashboard-widget .wp-list-table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.mhm-dashboard-widget .wp-list-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.85em;
+}
+
+.mhm-dashboard-widget .wp-list-table td {
+    font-size: 0.9em;
+}
+
+/* Durum Badge'leri */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-confirmed {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-completed {
+    background-color: #0073E6;
+    /* 🔵 Mavi - Tamamlanmış, bitmiş */
+    color: #fff;
+}
+
+.status-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-default {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+/* Araç Durumu Grid */
+.vehicle-status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.status-item.available {
+    background: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.status-item.reserved {
+    background: #fff3cd;
+    border-color: #ffeaa7;
+}
+
+.status-item.maintenance {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.status-item.inactive {
+    background: #e2e3e5;
+    border-color: #d6d8db;
+}
+
+.status-item .status-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.status-item .status-icon .dashicons {
+    font-size: 18px;
+    color: #495057;
+}
+
+.status-info {
+    flex: 1;
+}
+
+.status-number {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #1d2327;
+    line-height: 1;
+}
+
+.status-label {
+    font-size: 0.8em;
+    color: #6c757d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Gelir Grafiği */
+.revenue-chart-container {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.revenue-summary {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.summary-item {
+    text-align: center;
+}
+
+.summary-label {
+    display: block;
+    font-size: 0.8em;
+    color: #6c757d;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.summary-value {
+    display: block;
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #1d2327;
+}
+
+/* Müşteri İstatistikleri Grid */
+.customer-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.customer-stats-grid .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.customer-stats-grid .stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.customer-stats-grid .stat-icon .dashicons {
+    font-size: 18px;
+    color: white;
+}
+
+.customer-stats-grid .stat-info {
+    flex: 1;
+}
+
+.customer-stats-grid .stat-number {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #1d2327;
+    line-height: 1;
+}
+
+.customer-stats-grid .stat-label {
+    font-size: 0.8em;
+    color: #6c757d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Veri Yok Mesajı */
+.no-data {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 40px 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px dashed #dee2e6;
+}
+
+/* Responsive Tasarım */
+@media (max-width: 1200px) {
+    .mhm-dashboard-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .quick-actions-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .mhm-rentiva-dashboard {
+        padding: 0 15px;
+    }
+
+    .mhm-quick-actions,
+    .mhm-dashboard-widget {
+        padding: 20px;
+    }
+
+    .quick-actions-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .quick-action-card {
+        padding: 12px 15px;
+    }
+
+    .vehicle-status-grid,
+    .customer-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .revenue-summary {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .summary-item {
+        text-align: left;
+    }
+}
+
+@media (max-width: 480px) {
+    .mhm-rentiva-dashboard {
+        padding: 0 10px;
+    }
+
+    .mhm-quick-actions,
+    .mhm-dashboard-widget {
+        padding: 15px;
+    }
+
+    .mhm-dashboard-widget h3 {
+        font-size: 1.1em;
+    }
+
+    .quick-action-card {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .quick-action-card .dashicons {
+        font-size: 18px;
+    }
+
+    .action-title {
+        font-size: 0.85em;
+    }
+
+    .status-item,
+    .customer-stats-grid .stat-item {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .status-item .status-icon,
+    .customer-stats-grid .stat-icon {
+        width: 35px;
+        height: 35px;
+    }
+
+    .status-item .status-icon .dashicons,
+    .customer-stats-grid .stat-icon .dashicons {
+        font-size: 16px;
+    }
+
+    .status-number,
+    .customer-stats-grid .stat-number {
+        font-size: 1.3em;
+    }
+}
+
+/* Dark Mode Desteği */
+@media (prefers-color-scheme: dark) {
+
+    .mhm-quick-actions,
+    .mhm-dashboard-widget {
+        background: #1e1e1e;
+        border-color: #3c3c3c;
+        color: #ffffff;
+    }
+
+    .mhm-quick-actions h2,
+    .mhm-dashboard-widget h3 {
+        color: #ffffff;
+        border-bottom-color: #3c3c3c;
+    }
+
+    .quick-action-card {
+        background: #2d2d2d;
+        border-color: #3c3c3c;
+        color: #b3b3b3;
+    }
+
+    .quick-action-card:hover {
+        background: #3c3c3c;
+        border-color: #4c4c4c;
+        color: #ffffff;
+    }
+
+    .quick-action-card .dashicons {
+        color: #b3b3b3;
+    }
+
+    .quick-action-card:hover .dashicons {
+        color: #ffffff;
+    }
+
+    .status-item,
+    .customer-stats-grid .stat-item {
+        background: #2d2d2d;
+        border-color: #3c3c3c;
+    }
+
+    .status-item .status-icon,
+    .customer-stats-grid .stat-icon {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .status-item .status-icon .dashicons,
+    .customer-stats-grid .stat-icon .dashicons {
+        color: #b3b3b3;
+    }
+
+    .status-number,
+    .customer-stats-grid .stat-number {
+        color: #ffffff;
+    }
+
+    .status-label,
+    .customer-stats-grid .stat-label {
+        color: #b3b3b3;
+    }
+
+    .revenue-chart-container {
+        background: #2d2d2d;
+        border-color: #3c3c3c;
+    }
+
+    .revenue-summary {
+        border-top-color: #3c3c3c;
+    }
+
+    .summary-label {
+        color: #b3b3b3;
+    }
+
+    .summary-value {
+        color: #ffffff;
+    }
+
+    .no-data {
+        background: #2d2d2d;
+        border-color: #3c3c3c;
+        color: #b3b3b3;
+    }
+}
+
+/* WordPress Admin Dark Mode */
+body.wp-admin.wp-theme-dark .mhm-quick-actions,
+body.wp-admin.wp-theme-dark .mhm-dashboard-widget {
+    background: #1e1e1e;
+    border-color: #3c3c3c;
+    color: #ffffff;
+}
+
+body.wp-admin.wp-theme-dark .mhm-quick-actions h2,
+body.wp-admin.wp-theme-dark .mhm-dashboard-widget h3 {
+    color: #ffffff;
+    border-bottom-color: #3c3c3c;
+}
+
+body.wp-admin.wp-theme-dark .quick-action-card {
+    background: #2d2d2d;
+    border-color: #3c3c3c;
+    color: #b3b3b3;
+}
+
+body.wp-admin.wp-theme-dark .quick-action-card:hover {
+    background: #3c3c3c;
+    border-color: #4c4c4c;
+    color: #ffffff;
+}
+
+body.wp-admin.wp-theme-dark .quick-action-card .dashicons {
+    color: #b3b3b3;
+}
+
+body.wp-admin.wp-theme-dark .quick-action-card:hover .dashicons {
+    color: #ffffff;
+}
+
+body.wp-admin.wp-theme-dark .status-item,
+body.wp-admin.wp-theme-dark .customer-stats-grid .stat-item {
+    background: #2d2d2d;
+    border-color: #3c3c3c;
+}
+
+body.wp-admin.wp-theme-dark .status-item .status-icon,
+body.wp-admin.wp-theme-dark .customer-stats-grid .stat-icon {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.wp-admin.wp-theme-dark .status-item .status-icon .dashicons,
+body.wp-admin.wp-theme-dark .customer-stats-grid .stat-icon .dashicons {
+    color: #b3b3b3;
+}
+
+body.wp-admin.wp-theme-dark .status-number,
+body.wp-admin.wp-theme-dark .customer-stats-grid .stat-number {
+    color: #ffffff;
+}
+
+body.wp-admin.wp-theme-dark .status-label,
+body.wp-admin.wp-theme-dark .customer-stats-grid .stat-label {
+    color: #b3b3b3;
+}
+
+body.wp-admin.wp-theme-dark .revenue-chart-container {
+    background: #2d2d2d;
+    border-color: #3c3c3c;
+}
+
+body.wp-admin.wp-theme-dark .revenue-summary {
+    border-top-color: #3c3c3c;
+}
+
+body.wp-admin.wp-theme-dark .summary-label {
+    color: #b3b3b3;
+}
+
+body.wp-admin.wp-theme-dark .summary-value {
+    color: #ffffff;
+}
+
+body.wp-admin.wp-theme-dark .no-data {
+    background: #2d2d2d;
+    border-color: #3c3c3c;
+    color: #b3b3b3;
+}
+
+/* Animasyonlar */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mhm-dashboard-widget {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.mhm-dashboard-widget:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.mhm-dashboard-widget:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+/* Mesajlar Widget Stilleri */
+.message-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.message-stats-grid .stat-item {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.message-stats-grid .stat-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.message-stats-grid .stat-item.pending {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.message-stats-grid .stat-item.answered {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.message-stats-grid .stat-item.total {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.message-stats-grid .stat-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    backdrop-filter: blur(10px);
+}
+
+.message-stats-grid .stat-icon .dashicons {
+    font-size: 24px;
+    color: white;
+}
+
+.message-stats-grid .stat-number {
+    font-size: 2.2em;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.message-stats-grid .stat-label {
+    font-size: 0.85em;
+    font-weight: 500;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Son Mesajlar Listesi */
+.recent-messages {
+    margin-top: 20px;
+}
+
+.recent-messages h4 {
+    color: #1d2327;
+    font-size: 1.1em;
+    font-weight: 600;
+    margin: 0 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f0f0f1;
+}
+
+.message-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.message-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.message-item:hover {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    transform: translateX(5px);
+}
+
+.message-item.status-pending {
+    border-left: 4px solid #ff9800;
+}
+
+.message-item.status-answered {
+    border-left: 4px solid #4caf50;
+}
+
+.message-item.status-closed {
+    border-left: 4px solid #9e9e9e;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.customer-name {
+    font-weight: 600;
+    color: #1d2327;
+    font-size: 0.95em;
+}
+
+.message-date {
+    font-size: 0.8em;
+    color: #6c757d;
+    background: #e9ecef;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.message-preview {
+    color: #495057;
+    font-size: 0.9em;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.message-status {
+    text-align: right;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.status-pending {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.status-badge.status-answered {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-badge.status-closed {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Sistem Bildirimleri Widget */
+.notification-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.notification-item:hover {
+    background: #e3f2fd;
+    transform: translateX(3px);
+}
+
+.notification-item.warning {
+    border-left-color: #ff9800;
+    background: #fff8e1;
+}
+
+.notification-item.info {
+    border-left-color: #2196f3;
+    background: #e3f2fd;
+}
+
+.notification-item.success {
+    border-left-color: #4caf50;
+    background: #e8f5e8;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-item.warning .notification-icon {
+    background: #ff9800;
+    color: white;
+}
+
+.notification-item.info .notification-icon {
+    background: #2196f3;
+    color: white;
+}
+
+.notification-item.success .notification-icon {
+    background: #4caf50;
+    color: white;
+}
+
+.notification-icon .dashicons {
+    font-size: 18px;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    color: #1d2327;
+    margin-bottom: 4px;
+    font-size: 0.95em;
+}
+
+.notification-message {
+    color: #495057;
+    font-size: 0.9em;
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    font-size: 0.8em;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Grafik Container Stilleri */
+.mhm-rentiva-chart-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    position: relative;
+    overflow: hidden;
+}
+
+.mhm-rentiva-chart-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #22c55e, #3b82f6, #a855f7, #f59e0b, #ef4444, #10b981, #ec4899);
+}
+
+.mhm-rentiva-chart-container canvas {
+    border-radius: 8px;
+    background: white;
+    padding: 10px;
+}
+
+/* Revenue Summary Stilleri */
+.revenue-summary {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding: 15px;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.summary-label {
+    font-size: 0.9em;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* Widget Başlık İyileştirmeleri */
+.mhm-dashboard-widget h3 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 20px 0;
+    color: #1d2327;
+    font-size: 1.2em;
+    font-weight: 600;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f1;
+}
+
+.mhm-dashboard-widget h3::after {
+    content: "↗";
+    font-size: 0.8em;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.mhm-dashboard-widget:hover h3::after {
+    color: #2196f3;
+    transform: translate(2px, -2px);
+}
+
+/* Responsive Tasarım - Mesajlar Widget */
+@media (max-width: 768px) {
+    .message-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .message-stats-grid .stat-item {
+        padding: 15px;
+    }
+
+    .message-stats-grid .stat-number {
+        font-size: 1.8em;
+    }
+
+    .message-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .notification-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .notification-icon {
+        align-self: center;
+    }
+
+    .message-item:hover {
+        transform: none;
+    }
+
+    .notification-item:hover {
+        transform: none;
+    }
+}
+
+/* Print Stilleri */
+@media print {
+    .mhm-quick-actions {
+        display: none !important;
+    }
+
+    .mhm-dashboard-widget {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+}

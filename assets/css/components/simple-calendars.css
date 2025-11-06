@@ -1,0 +1,670 @@
+/**
+ * MHM Rentiva - Basit Takvim Stilleri (ChatGPT Tabanlı)
+ * Müşteriler ve Rezervasyon sayfaları için
+ */
+
+/* === TAKVIM CONTAINER === */
+.calendar-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 20px 0;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* === TAKVIM BAŞLIĞI === */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #0073aa;
+    color: white;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.calendar-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.calendar-header button {
+    background: white;
+    color: #0073aa;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+    font-size: 1rem;
+    min-width: 35px;
+    height: 35px;
+}
+
+.calendar-header button:hover {
+    background: #005f8d;
+    color: white;
+}
+
+/* === HAFTA GÜNLERİ === */
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    background: #f5f5f5;
+}
+
+.day-name {
+    background: #f5f5f5;
+    padding: 0.5rem;
+    font-weight: 600;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+/* === TAKVIM GRID === */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    background: #fff;
+    gap: 1px;
+    border: 1px solid #eee;
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+}
+
+.calendar-grid div {
+    padding: 1rem 0;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+    position: relative;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    background: #f8f9fa;
+    box-sizing: border-box;
+}
+
+.calendar-grid div:hover {
+    background: #b1b1b1;
+}
+
+/* === ÖNCEKI VE SONRAKI AY GÜNLERİ === */
+.calendar-grid .prev-date,
+.calendar-grid .next-date {
+    color: #ccc;
+    background: #f8f9fa;
+}
+
+.calendar-grid .prev-date:hover,
+.calendar-grid .next-date:hover {
+    background: #e9ecef;
+}
+
+/* === BUGÜN === */
+.calendar-grid .today {
+    background: #0073aa;
+    color: white;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.calendar-grid .today:hover {
+    background: #005f8d;
+}
+
+/* === REZERVASYONLU GÜNLER === */
+.calendar-grid .booked {
+    background: #dc3545;
+    color: white;
+    font-weight: bold;
+}
+
+.calendar-grid .booked:hover {
+    background: #c82333;
+}
+
+/* === REZERVASYON DURUM RENKLERİ === */
+.calendar-grid .has-booking {
+    position: relative;
+}
+
+/* EN GÜÇLÜ CSS - TÜM DİĞER STİLLERİN ÜZERİNE YAZAR */
+.calendar-container .calendar-grid div[class*="booking-confirmed"] {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 4px !important;
+    border: none !important;
+    position: relative !important;
+}
+
+.calendar-container .calendar-grid div[class*="booking-pending"] {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 4px !important;
+    border: none !important;
+    position: relative !important;
+}
+
+.calendar-container .calendar-grid div[class*="booking-cancelled"] {
+    background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 4px !important;
+    border: none !important;
+    position: relative !important;
+}
+
+/* Onaylı Rezervasyonlar - Yeşil */
+.booking-page .calendar-grid .booking-confirmed,
+.calendar-grid .has-booking.booking-confirmed,
+.calendar-grid div.booking-confirmed,
+div.booking-confirmed {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 4px !important;
+    border: none !important;
+    position: relative !important;
+}
+
+.calendar-grid .booking-confirmed:hover {
+    background: linear-gradient(135deg, #218838 0%, #1ea085 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3) !important;
+}
+
+/* Beklemede Rezervasyonlar - Sarı */
+.booking-page .calendar-grid .booking-pending,
+.calendar-grid .has-booking.booking-pending,
+.calendar-grid div.booking-pending,
+div.booking-pending {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 4px !important;
+    border: none !important;
+    position: relative !important;
+}
+
+.calendar-grid .booking-pending:hover {
+    background: linear-gradient(135deg, #e0a800 0%, #e8590c 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3) !important;
+}
+
+/* İptal Edilmiş Rezervasyonlar - Kırmızı */
+.booking-page .calendar-grid .booking-cancelled,
+.calendar-grid .has-booking.booking-cancelled {
+    background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 4px !important;
+    border: none !important;
+}
+
+.calendar-grid .booking-cancelled:hover {
+    background: linear-gradient(135deg, #c82333 0%, #d63031 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3) !important;
+}
+
+/* === REZERVASYON İKONU === */
+.booking-icon {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+/* === SPLIT DAY STİLLERİ === */
+.split-day {
+    position: relative;
+    overflow: hidden;
+}
+
+.split-day .day-number {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    z-index: 10;
+    color: #333;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 2px;
+    padding: 1px 3px;
+    min-width: 12px;
+    text-align: center;
+}
+
+.split-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.split-left,
+.split-right {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.split-left {
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.split-icon {
+    font-size: 0.6rem;
+    opacity: 0.9;
+}
+
+/* Split day renkleri - Sol taraf */
+.split-left.booking-confirmed {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+}
+
+.split-left.booking-pending {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+}
+
+.split-left.booking-cancelled {
+    background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
+}
+
+/* Split day renkleri - Sağ taraf */
+.split-right.booking-confirmed {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+}
+
+.split-right.booking-pending {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+}
+
+.split-right.booking-cancelled {
+    background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
+}
+
+/* === MÜŞTERİLER SAYFASI ÖZEL RENKLER === */
+.customers-page .calendar-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.customers-page .calendar-header button {
+    color: #667eea;
+}
+
+.customers-page .calendar-header button:hover {
+    background: #5a6fd8;
+    color: white;
+}
+
+.customers-page .calendar-grid .today {
+    background: #667eea;
+}
+
+.customers-page .calendar-grid .today:hover {
+    background: #5a6fd8;
+}
+
+.customers-page .calendar-grid .booked {
+    background: #e74c3c;
+}
+
+.customers-page .calendar-grid .booked:hover {
+    background: #c0392b;
+}
+
+/* === REZERVASYON SAYFASI ÖZEL RENKLER === */
+
+.booking-page .calendar-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.booking-page .calendar-header button {
+    color: #667eea;
+}
+
+.booking-page .calendar-header button:hover {
+    background: #5a6fd8;
+    color: white;
+}
+
+.booking-page .calendar-grid .today {
+    background: #667eea;
+}
+
+.booking-page .calendar-grid .today:hover {
+    background: #5a6fd8;
+}
+
+.booking-page .calendar-grid .booked {
+    background: #e74c3c;
+}
+
+.booking-page .calendar-grid .booked:hover {
+    background: #c0392b;
+}
+
+/* Rezervasyon sayfası için durum renkleri */
+.booking-page .calendar-grid .booking-confirmed {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 4px !important;
+    border: none !important;
+}
+
+.booking-page .calendar-grid .booking-pending {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 4px !important;
+    border: none !important;
+}
+
+.booking-page .calendar-grid .booking-cancelled {
+    background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
+    color: white !important;
+    font-weight: bold !important;
+    border-radius: 4px !important;
+    border: none !important;
+}
+
+/* Rezervasyon sayfası için genel boyut optimizasyonu - müşteriler ile aynı */
+.booking-page .calendar-grid div {
+    min-height: 50px;
+    font-size: 0.9rem;
+}
+
+.booking-page .day-name {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* === RESPONSIVE TASARIM === */
+@media (max-width: 1200px) {
+    .calendar-container {
+        margin: 10px 0;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .calendar-grid div {
+        min-height: 45px;
+        font-size: 0.85rem;
+        padding: 0.8rem 0.2rem;
+    }
+
+    /* Split day responsive */
+    .split-day .day-number {
+        font-size: 0.6rem;
+        padding: 1px 2px;
+    }
+
+    .split-icon {
+        font-size: 0.5rem;
+    }
+}
+
+/* === STATUS LEGEND (moved from inline styles) === */
+.calendar-legend {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.calendar-legend h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 14px;
+}
+
+.legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.legend-color.booking-pending {
+    background-color: #ffc107;
+}
+
+.legend-color.booking-confirmed {
+    background-color: #28a745;
+}
+
+.legend-color.booking-in_progress {
+    background-color: #fd7e14;
+}
+
+.legend-color.booking-completed {
+    background-color: #0073E6;
+}
+
+.legend-color.booking-cancelled {
+    background-color: #dc3545;
+}
+
+.legend-label {
+    font-size: 12px;
+    color: #555;
+}
+
+@media (max-width: 900px) {
+    .calendar-container {
+        margin: 5px 0;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .calendar-header {
+        padding: 0.8rem;
+    }
+
+    .calendar-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .calendar-header button {
+        padding: 5px 8px;
+        font-size: 0.9rem;
+        min-width: 32px;
+        height: 32px;
+    }
+
+    .calendar-grid div {
+        padding: 0.5rem 0.1rem;
+        font-size: 0.8rem;
+        min-height: 40px;
+    }
+
+    /* Split day responsive */
+    .split-day .day-number {
+        font-size: 0.55rem;
+        padding: 1px 2px;
+    }
+
+    .split-icon {
+        font-size: 0.45rem;
+    }
+
+    .day-name {
+        padding: 0.4rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .calendar-container {
+        margin: 5px;
+        width: calc(100% - 10px);
+        max-width: calc(100% - 10px);
+        box-sizing: border-box;
+    }
+
+    .calendar-header {
+        padding: 0.8rem;
+    }
+
+    .calendar-header h2 {
+        font-size: 1rem;
+    }
+
+    .calendar-header button {
+        padding: 4px 8px;
+        font-size: 0.9rem;
+        min-width: 30px;
+        height: 30px;
+    }
+
+    .calendar-grid div {
+        padding: 0.4rem 0.05rem;
+        font-size: 0.75rem;
+        min-height: 35px;
+    }
+
+    /* Split day responsive */
+    .split-day .day-number {
+        font-size: 0.5rem;
+        padding: 1px 2px;
+    }
+
+    .split-icon {
+        font-size: 0.4rem;
+    }
+
+    .day-name {
+        padding: 0.3rem;
+        font-size: 0.75rem;
+    }
+
+    /* Mobil ayarları - her iki sayfa için aynı */
+    .calendar-container {
+        margin: 5px;
+    }
+
+    .calendar-header {
+        padding: 0.6rem;
+    }
+
+    .calendar-header h2 {
+        font-size: 0.9rem;
+    }
+
+    .calendar-header button {
+        padding: 3px 6px;
+        font-size: 0.8rem;
+        min-width: 28px;
+        height: 28px;
+    }
+
+    .calendar-grid div {
+        padding: 0.5rem 0;
+        font-size: 0.75rem;
+        min-height: 35px;
+    }
+
+    .day-name {
+        padding: 0.3rem;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-header {
+        padding: 0.6rem;
+    }
+
+    .calendar-header h2 {
+        font-size: 0.9rem;
+    }
+
+    .calendar-grid div {
+        padding: 0.5rem 0;
+        font-size: 0.75rem;
+        min-height: 35px;
+    }
+
+    .day-name {
+        padding: 0.3rem;
+        font-size: 0.75rem;
+    }
+
+    .booking-icon {
+        font-size: 0.6rem;
+    }
+
+    /* Çok küçük ekranlar - her iki sayfa için aynı */
+    .calendar-container {
+        margin: 2px;
+    }
+
+    .calendar-header {
+        padding: 0.4rem;
+    }
+
+    .calendar-header h2 {
+        font-size: 0.8rem;
+    }
+
+    .calendar-header button {
+        padding: 2px 4px;
+        font-size: 0.7rem;
+        min-width: 24px;
+        height: 24px;
+    }
+
+    .calendar-grid div {
+        padding: 0.3rem 0;
+        font-size: 0.7rem;
+        min-height: 30px;
+    }
+
+    .day-name {
+        padding: 0.2rem;
+        font-size: 0.7rem;
+    }
+
+    .booking-icon {
+        font-size: 0.5rem;
+    }
+}

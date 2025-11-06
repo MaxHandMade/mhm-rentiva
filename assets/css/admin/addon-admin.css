@@ -1,0 +1,151 @@
+/* Ek Hizmetler Admin CSS */
+
+.mhm-rentiva-addon-admin {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Status indicators */
+.status-active {
+    color: #46b450;
+    font-weight: 600;
+}
+
+.status-inactive {
+    color: #dc3232;
+    font-weight: 600;
+}
+
+/* Addon list table */
+.wp-list-table .column-addon_price {
+    width: 120px;
+}
+
+.wp-list-table .column-addon_enabled {
+    width: 100px;
+}
+
+.wp-list-table .column-addon_required {
+    width: 80px;
+    text-align: center;
+}
+
+/* Meta box styles */
+.mhm-addon-meta-box {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.mhm-addon-meta-box h3 {
+    margin-top: 0;
+    color: #23282d;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.mhm-addon-meta-box .form-field {
+    margin-bottom: 15px;
+}
+
+.mhm-addon-meta-box label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.mhm-addon-meta-box input[type="text"],
+.mhm-addon-meta-box input[type="number"],
+.mhm-addon-meta-box textarea {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.mhm-addon-meta-box input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.mhm-addon-meta-box .description {
+    color: #666;
+    font-style: italic;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+/* Settings page */
+.mhm-rentiva-wrap {
+    max-width: 1200px;
+}
+
+.mhm-rentiva-wrap h1 {
+    color: #23282d;
+    margin-bottom: 20px;
+}
+
+.mhm-rentiva-wrap .form-table th {
+    width: 200px;
+    padding: 20px 10px 20px 0;
+    vertical-align: top;
+}
+
+.mhm-rentiva-wrap .form-table td {
+    padding: 15px 10px;
+}
+
+/* License limit warning */
+.notice.notice-warning.inline {
+    display: inline-block;
+    margin: 0 10px 0 0;
+    padding: 5px 10px;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+}
+
+.notice.notice-warning.inline p {
+    margin: 0;
+    color: #856404;
+}
+
+/* Button styles */
+.button.button-primary {
+    background: #0073aa;
+    border-color: #0073aa;
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.2s ease;
+}
+
+.button.button-primary:hover {
+    background: #005a87;
+    border-color: #005a87;
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+
+    .mhm-addon-meta-box input[type="text"],
+    .mhm-addon-meta-box input[type="number"],
+    .mhm-addon-meta-box textarea {
+        max-width: 100%;
+    }
+
+    .wp-list-table .column-addon_price,
+    .wp-list-table .column-addon_enabled,
+    .wp-list-table .column-addon_required {
+        width: auto;
+    }
+}

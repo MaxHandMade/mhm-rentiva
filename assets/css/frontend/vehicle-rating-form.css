@@ -1,0 +1,931 @@
+/* ========================================
+   Vehicle Rating Form Styles
+   ======================================== */
+
+/* Message Styles */
+.rv-message {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin: 1rem 0;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rv-message.success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.rv-message.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.rv-message.info {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+
+/* Review Actions */
+.rv-review-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.rv-edit-comment-btn,
+.rv-delete-comment-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rv-edit-comment-btn {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.rv-edit-comment-btn:hover {
+    background-color: #2563eb;
+}
+
+.rv-delete-comment-btn {
+    background-color: #ef4444;
+    color: white;
+}
+
+.rv-delete-comment-btn:hover {
+    background-color: #dc2626;
+}
+
+.rv-review-rating {
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.rv-star {
+    color: #d1d5db;
+    font-size: 14px;
+}
+
+.rv-star.active {
+    color: #fbbf24;
+}
+
+.rv-rating-form {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Rating Display */
+.rv-rating-display {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.rv-rating-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.rv-rating-stars {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.rv-star {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #d1d5db;
+    transition: color 0.2s ease;
+}
+
+.rv-star.rv-star-filled {
+    color: #fbbf24;
+}
+
+.rv-star.rv-star-half {
+    background: linear-gradient(90deg, #fbbf24 50%, #d1d5db 50%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.rv-rating-average {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.rv-rating-count {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+/* Rating Form */
+.rv-rating-form-container {
+    margin-bottom: 1.5rem;
+}
+
+.rv-rating-form-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.rv-rating-form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.rv-rating-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.rv-rating-label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.rv-rating-stars-input {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.rv-rating-stars-input input[type="radio"] {
+    display: none;
+}
+
+.rv-star-input {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #d1d5db;
+    transition: all 0.2s ease;
+    padding: 0.25rem;
+    border-radius: 4px;
+}
+
+.rv-star-input:hover {
+    color: #fbbf24;
+    background-color: #fef3c7;
+}
+
+.rv-star-input.active {
+    color: #fbbf24 !important;
+    background-color: #fef3c7;
+}
+
+.rv-rating-stars-input input[type="radio"]:checked~label,
+.rv-rating-stars-input input[type="radio"]:checked~label~label {
+    color: #fbbf24;
+}
+
+.rv-rating-stars-input input[type="radio"]:checked~label {
+    color: #fbbf24;
+}
+
+.rv-rating-stars-input input[type="radio"]:checked~label~label {
+    color: #d1d5db;
+}
+
+/* Hover efekti - seçili yıldızdan önceki tüm yıldızları doldur */
+.rv-rating-stars-input:hover input[type="radio"]:not(:checked)~label {
+    color: #fbbf24;
+}
+
+.rv-rating-stars-input:hover input[type="radio"]:not(:checked)~label~label {
+    color: #d1d5db;
+}
+
+/* Comment Area */
+.rv-rating-comment {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.rv-rating-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s ease;
+}
+
+.rv-rating-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.rv-rating-textarea::placeholder {
+    color: #9ca3af;
+}
+
+/* Submit Button */
+.rv-rating-submit {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.rv-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+}
+
+.rv-btn-primary {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.rv-btn-primary:hover {
+    background-color: #2563eb;
+}
+
+.rv-btn-primary:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Login Notice */
+.rv-rating-login-notice {
+    padding: 1rem;
+    background-color: #f3f4f6;
+    border-radius: 6px;
+    text-align: center;
+    color: #6b7280;
+}
+
+.rv-rating-login-notice a {
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+.rv-rating-login-notice a:hover {
+    text-decoration: underline;
+}
+
+/* Login Notice */
+.rv-rating-login-notice {
+    margin: 1.5rem 0;
+}
+
+/* Delete Button Styles */
+.rv-btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.rv-btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.rv-rating-submit {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.rv-login-required {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.rv-login-icon {
+    margin-bottom: 1rem;
+    color: #64748b;
+}
+
+.rv-login-required h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.rv-login-required p {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.rv-login-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.rv-login-actions .rv-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rv-login-actions .rv-btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+}
+
+.rv-login-actions .rv-btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.rv-login-actions .rv-btn-secondary {
+    background: white;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+}
+
+.rv-login-actions .rv-btn-secondary:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+}
+
+/* Ratings List */
+.rv-ratings-list {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.rv-rating-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background-color: #f9fafb;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+}
+
+.rv-rating-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rv-rating-item-user {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.rv-rating-item-date {
+    color: #6b7280;
+    font-size: 0.75rem;
+}
+
+.rv-rating-item-stars {
+    display: flex;
+    gap: 0.125rem;
+}
+
+.rv-rating-item-comment {
+    color: #374151;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* Loading States */
+.rv-rating-form.loading .rv-btn-primary {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.rv-rating-form.loading .rv-btn-primary::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 0.5rem;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Success/Error Messages */
+.rv-rating-message {
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.rv-rating-message.success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.rv-rating-message.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .rv-rating-form {
+        padding: 1rem;
+        margin: 0.5rem 0;
+    }
+
+    .rv-rating-summary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .rv-rating-average {
+        font-size: 1.25rem;
+    }
+
+    .rv-rating-stars-input {
+        gap: 0.125rem;
+    }
+
+    .rv-btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Modal Styles - Improved UX */
+.rv-login-modal,
+.rv-register-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.rv-modal-content {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    max-width: 450px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease-out;
+    border: 1px solid #e5e7eb;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.rv-modal-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    font-size: 1.75rem;
+    cursor: pointer;
+    color: #9ca3af;
+    line-height: 1;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.rv-modal-close:hover {
+    color: #374151;
+    background-color: #f3f4f6;
+}
+
+.rv-modal-content h3 {
+    margin: 0 0 2rem 0;
+    color: #111827;
+    font-size: 1.75rem;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 2px solid #f3f4f6;
+    padding-bottom: 1rem;
+}
+
+/* Login/Register Form Styles */
+.rv-login-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.rv-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.rv-btn-primary {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.rv-btn-primary:hover {
+    background-color: #2563eb;
+    color: white;
+}
+
+.rv-btn-secondary {
+    background-color: #6b7280;
+    color: white;
+}
+
+.rv-btn-secondary:hover {
+    background-color: #4b5563;
+    color: white;
+}
+
+/* Ratings List Styles */
+.rv-ratings-list {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.rv-ratings-header h4 {
+    margin: 0 0 1.5rem 0;
+    color: #111827;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.rv-rating-item {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+
+.rv-rating-item:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.rv-rating-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.rv-rating-user strong {
+    color: #111827;
+    font-size: 1rem;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.rv-rating-stars {
+    color: #fbbf24;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+.rv-rating-date {
+    color: #6b7280;
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+.rv-rating-comment {
+    color: #374151;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    font-style: italic;
+    margin-top: 0.5rem;
+    padding-left: 0.5rem;
+    border-left: 3px solid #e5e7eb;
+}
+
+.rv-no-ratings {
+    text-align: center;
+    color: #6b7280;
+    font-style: italic;
+    padding: 2rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px dashed #d1d5db;
+}
+
+.rv-loading-ratings {
+    text-align: center;
+    color: #6b7280;
+    padding: 2rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.rv-loading-ratings p {
+    margin: 0;
+    font-size: 0.875rem;
+    position: relative;
+}
+
+.rv-loading-ratings p::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .rv-rating-header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .rv-rating-date {
+        align-self: flex-start;
+    }
+
+    .rv-modal-content {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+}
+
+/* ========================================
+   Reviews Section Styles
+   ======================================== */
+
+.rv-reviews-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.rv-reviews-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.rv-reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.rv-review-item {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+}
+
+.rv-review-header {
+    margin-bottom: 0.75rem;
+}
+
+.rv-review-author {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.rv-review-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.rv-review-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.rv-review-author-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.rv-review-author-name {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 0.875rem;
+}
+
+.rv-review-date {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.rv-review-content {
+    color: #374151;
+    line-height: 1.6;
+    font-size: 0.875rem;
+}
+
+.rv-review-content p {
+    margin: 0 0 0.5rem 0;
+}
+
+.rv-review-content p:last-child {
+    margin-bottom: 0;
+}
+
+.rv-no-reviews {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.rv-no-reviews p {
+    margin: 0;
+}
+
+/* Guest Fields Styling */
+.rv-guest-fields {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.rv-guest-name,
+.rv-guest-email {
+    flex: 1;
+}
+
+.rv-rating-input-field {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.rv-rating-input-field:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.rv-rating-input-field::placeholder {
+    color: #9ca3af;
+}
+
+/* Responsive Design for Reviews */
+@media (max-width: 768px) {
+    .rv-review-author {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .rv-review-author-info {
+        align-items: flex-start;
+    }
+
+    .rv-guest-fields {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+}

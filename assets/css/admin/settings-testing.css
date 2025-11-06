@@ -1,0 +1,228 @@
+/**
+ * Settings Testing Styles
+ * 
+ * @since 4.0.0
+ */
+
+.mhm-settings-testing {
+    max-width: 1200px;
+}
+
+.mhm-settings-testing h2 {
+    color: #1d2327;
+    margin-bottom: 20px;
+}
+
+.mhm-settings-testing .test-controls {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f6f7f7;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.mhm-settings-testing .test-controls button {
+    margin-right: 10px;
+}
+
+.mhm-settings-testing .test-results {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mhm-settings-test-report {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.mhm-settings-test-report h2 {
+    color: #1d2327;
+    border-bottom: 2px solid #0073aa;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+
+.mhm-settings-test-report .test-category {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.mhm-settings-test-report .test-category h3 {
+    color: #1d2327;
+    margin: 0 0 15px 0;
+    padding: 10px 15px;
+    background: #0073aa;
+    color: #fff;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.mhm-settings-test-report .test-category p {
+    margin: 8px 0;
+    padding: 8px 12px;
+    background: #fff;
+    border-left: 4px solid #ddd;
+    border-radius: 0 4px 4px 0;
+}
+
+.mhm-settings-test-report .test-category p strong {
+    color: #1d2327;
+    font-weight: 600;
+}
+
+/* Test Status Styles */
+.mhm-settings-test-report .test-category p:contains("✅ PASS") {
+    border-left-color: #46b450;
+    background: #f0f8f0;
+}
+
+.mhm-settings-test-report .test-category p:contains("❌ FAIL") {
+    border-left-color: #dc3232;
+    background: #fef7f7;
+}
+
+/* Specific test result styling */
+.mhm-settings-test-report .test-category p:has(strong:contains("Settings Registered")) {
+    border-left-color: #0073aa;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Defaults Set")) {
+    border-left-color: #00a32a;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Can Save")) {
+    border-left-color: #dba617;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Class Exists")) {
+    border-left-color: #826eb4;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Enabled By Default")) {
+    border-left-color: #00a32a;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Can Check Limits")) {
+    border-left-color: #0073aa;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Can Get Remaining")) {
+    border-left-color: #dba617;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Can Get Limits")) {
+    border-left-color: #826eb4;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Required Fields Work")) {
+    border-left-color: #00a32a;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Email Validation Works")) {
+    border-left-color: #0073aa;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Number Validation Works")) {
+    border-left-color: #dba617;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Url Validation Works")) {
+    border-left-color: #826eb4;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Setting Exists")) {
+    border-left-color: #00a32a;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Can Change To Dark")) {
+    border-left-color: #1d2327;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Can Change To Light")) {
+    border-left-color: #f0f0f1;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Can Change To Auto")) {
+    border-left-color: #0073aa;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Css File Exists")) {
+    border-left-color: #00a32a;
+}
+
+.mhm-settings-test-report .test-category p:has(strong:contains("Js File Exists")) {
+    border-left-color: #0073aa;
+}
+
+/* Loading state */
+.mhm-settings-testing .test-controls button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .mhm-settings-testing .test-controls {
+        text-align: center;
+    }
+
+    .mhm-settings-testing .test-controls button {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .mhm-settings-test-report .test-category {
+        padding: 15px;
+    }
+
+    .mhm-settings-test-report .test-category h3 {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+}
+
+/* Dark mode support */
+body.mhm-dark-mode .mhm-settings-testing {
+    background-color: var(--mhm-dark-bg-primary);
+    color: var(--mhm-dark-text-primary);
+}
+
+body.mhm-dark-mode .mhm-settings-testing h2 {
+    color: var(--mhm-dark-text-primary);
+}
+
+body.mhm-dark-mode .mhm-settings-testing .test-controls {
+    background: var(--mhm-dark-bg-secondary);
+    border-color: var(--mhm-dark-border);
+}
+
+body.mhm-dark-mode .mhm-settings-testing .test-results {
+    background: var(--mhm-dark-bg-secondary);
+    border-color: var(--mhm-dark-border);
+}
+
+body.mhm-dark-mode .mhm-settings-test-report .test-category {
+    background: var(--mhm-dark-bg-tertiary);
+    border-color: var(--mhm-dark-border);
+}
+
+body.mhm-dark-mode .mhm-settings-test-report .test-category h3 {
+    background: var(--mhm-dark-accent);
+    color: var(--mhm-dark-text-primary);
+}
+
+body.mhm-dark-mode .mhm-settings-test-report .test-category p {
+    background: var(--mhm-dark-bg-primary);
+    color: var(--mhm-dark-text-primary);
+}
+
+body.mhm-dark-mode .mhm-settings-test-report .test-category p strong {
+    color: var(--mhm-dark-text-primary);
+}

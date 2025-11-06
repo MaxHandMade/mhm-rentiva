@@ -1,0 +1,310 @@
+/**
+ * Booking Edit Meta Box Styles
+ */
+
+/* Ek Hizmetler Grid Tasarımı */
+.mhm-addon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.mhm-addon-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.mhm-addon-card:hover {
+    border-color: #0073aa;
+    box-shadow: 0 2px 8px rgba(0, 115, 170, 0.1);
+}
+
+.mhm-addon-item {
+    display: block;
+    padding: 15px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.mhm-addon-item:hover {
+    background: #f8f9fa;
+}
+
+.mhm-addon-checkbox {
+    margin-right: 10px;
+    vertical-align: top;
+}
+
+.mhm-addon-content {
+    display: inline-block;
+    width: calc(100% - 30px);
+    vertical-align: top;
+}
+
+.mhm-addon-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.mhm-addon-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.mhm-addon-price {
+    font-weight: 600;
+    color: #059669;
+    font-size: 14px;
+}
+
+.mhm-addon-description {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.4;
+    margin-top: 5px;
+}
+
+.mhm-addon-total {
+    margin-top: 15px;
+    padding: 10px 15px;
+    background: #f0f9ff;
+    border: 1px solid #0ea5e9;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.required {
+    color: #dc2626;
+    font-weight: bold;
+}
+
+/* Rezervasyon Geçmişi Stilleri */
+.mhm-booking-history-box {
+    background: #fff;
+}
+
+.mhm-add-history-note {
+    background: #f8f9fa;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.mhm-history-form label {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.mhm-history-form textarea,
+.mhm-history-form select {
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.mhm-history-form textarea:focus,
+.mhm-history-form select:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+    outline: none;
+}
+
+.mhm-history-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.mhm-history-item {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.mhm-history-item:hover {
+    border-color: #0073aa;
+    box-shadow: 0 2px 4px rgba(0, 115, 170, 0.1);
+}
+
+.mhm-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.mhm-history-type {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 13px;
+}
+
+.mhm-history-date {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.mhm-history-content {
+    padding: 15px;
+}
+
+.mhm-history-content p {
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+    color: #374151;
+}
+
+.mhm-history-meta {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.mhm-history-user {
+    font-style: italic;
+}
+
+/* Geçmiş türü renkleri */
+.mhm-history-note {
+    border-left: 4px solid #6b7280;
+}
+
+.mhm-history-status_change {
+    border-left: 4px solid #3b82f6;
+}
+
+.mhm-history-payment_update {
+    border-left: 4px solid #10b981;
+}
+
+.mhm-history-customer_contact {
+    border-left: 4px solid #f59e0b;
+}
+
+.mhm-history-system {
+    border-left: 4px solid #8b5cf6;
+}
+
+.mhm-booking-edit-form {
+    background: #fff;
+    padding: 0;
+}
+
+.mhm-booking-edit-form h4 {
+    margin: 0 0 15px 0;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-left: 4px solid #0073aa;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.mhm-customer-info,
+.mhm-booking-details {
+    margin-bottom: 25px;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.mhm-field-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.mhm-field-group {
+    margin-bottom: 15px;
+}
+
+.mhm-field-group.mhm-field-half {
+    flex: 1;
+}
+
+.mhm-field-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+}
+
+.mhm-field-input,
+.mhm-field-select,
+.mhm-field-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.mhm-field-input:focus,
+.mhm-field-select:focus,
+.mhm-field-textarea:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px rgba(0, 115, 170, 0.1);
+}
+
+.mhm-field-readonly {
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border: 1px solid #e1e5e9;
+    border-radius: 4px;
+    color: #6b7280;
+    font-size: 14px;
+    font-style: italic;
+}
+
+.mhm-field-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .mhm-field-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .mhm-field-group.mhm-field-half {
+        flex: none;
+    }
+}
+
+/* Status colors */
+.mhm-field-select option[value="pending"] {
+    color: #f59e0b;
+}
+
+.mhm-field-select option[value="confirmed"] {
+    color: #10b981;
+}
+
+.mhm-field-select option[value="in_progress"] {
+    color: #3b82f6;
+}
+
+.mhm-field-select option[value="completed"] {
+    color: #6b7280;
+}
+
+.mhm-field-select option[value="cancelled"] {
+    color: #ef4444;
+}

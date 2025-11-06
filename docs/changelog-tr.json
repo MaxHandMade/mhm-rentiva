@@ -1,0 +1,361 @@
+[
+    {
+        "version": "4.3.8",
+        "date": "2025-11-06",
+        "type": "current",
+        "changes": [
+            "🌍 MERKEZİ PARA BİRİMİ SİSTEMİ: Birleşik para birimi sembol yönetimi için CurrencyHelper sınıfı oluşturuldu (47 para birimi)",
+            "🌐 MERKEZİ DİL SİSTEMİ: Birleşik locale/dil yönetimi için LanguageHelper sınıfı oluşturuldu (60+ dil)",
+            "🔧 PARA BİRİMİ TUTARLILIĞI: 14+ dosyada tüm hardcode para birimi sembol listeleri CurrencyHelper ile değiştirildi",
+            "🌍 DİL TUTARLILIĞI: Eklenti dosyalarında tüm hardcode locale eşlemeleri LanguageHelper ile değiştirildi",
+            "📊 AYAR BİRLEŞTİRME: Settings.php, SettingsCore.php, PayPalSettings.php artık merkezi para birimi listelerini kullanıyor",
+            "⚙️ MERKEZİ YÖNETİM: Para birimi ve dil tanımları tek kaynaktan yönetiliyor (CurrencyHelper, LanguageHelper)",
+            "🔗 FİLTRE HOOK'LARI: Şablon uyumluluğu için CurrencyHelper filter hook kaydedildi",
+            "📱 KÜRESEL HAZIRLIK: Eklenti artık tutarlı para birimi ve dil desteği ile küresel pazarlara tam hazır",
+            "✅ KOD KALİTESİ: Birden fazla dosyada tekrarlanan para birimi/dil tanımları kaldırıldı",
+            "🎯 BAKIM KOLAYLIĞI: Para birimleri ve diller için tek gerçek kaynak - genişletmesi kolay",
+            "💬 MESAJLAŞMA SİSTEMİ YENİDEN YAPILANDIRMA: Merkezi mesaj URL yönetimi için MessageUrlHelper sınıfı oluşturuldu",
+            "🔗 MESAJ URL'LERİ: Mesajlaşma sistemindeki tüm hardcode admin URL'leri dinamik MessageUrlHelper çağrıları ile değiştirildi",
+            "🐛 MESAJ ÖNBELLEK DÜZELTMESİ: MessageCache::clear_message_cache() artık TypeError'ı önlemek için int|string|null kabul ediyor",
+            "📝 MESAJ İÇERİK DÜZELTMESİ: get_thread_messages() artık WP_Query kullanıyor ve post_content'in her zaman yüklendiğini garanti ediyor",
+            "🔄 THREAD GÖRÜNTÜLEME DÜZELTMESİ: render_message_thread() fallback mantığı ve çoklu içerik yükleme yöntemleri ile geliştirildi",
+            "🔧 YANIT İŞLEVSELLİĞİ: SendReply.php doğru thread_id işleme için düzeltildi (UUID string desteği)",
+            "📋 TOPLU İŞLEM DÜZELTMESİ: handle_bulk_actions() çıktıdan önce taşınarak 'Headers already sent' hatası düzeltildi",
+            "🌐 MESAJ i18n: Mesajlaşma sistemi dosyalarındaki tüm Türkçe yorumlar İngilizce'ye çevrildi",
+            "✅ MESAJ URL'LERİ: Mesaj listesi, görüntüleme, yanıt, düzenleme ve ayar URL'leri artık merkezi MessageUrlHelper kullanıyor",
+            "🔗 FRONTEND ENTEGRASYONU: Frontend mesaj URL'leri artık dinamik oluşturma için AccountController::get_account_url() kullanıyor"
+        ]
+    },
+    {
+        "version": "4.3.7",
+        "date": "2025-10-30",
+        "type": "previous",
+        "changes": [
+            "🌐 REST API ENTEGRASYONU: Integration Settings sekmesine eksiksiz REST API ayarları entegrasyonu",
+            "🔑 API ANAHTARLARI YÖNETİMİ: Oluşturma, listeleme, iptal etme ve silme işlevselliği ile eksiksiz API anahtarı yönetim sistemi",
+            "📋 MEVCUT ENDPOINT'LER: Namespace ve method bilgisi ile gerçek zamanlı REST API endpoint'leri listesi",
+            "🔄 VARSayıLANLARA SIFIRLA: Tüm ayar sekmelerine varsayılanlara sıfırla butonu eklendi (General, Booking, Payment, Email, vb.)",
+            "🔒 REST API GÜVENLİĞİ: Rate limiting, token yönetimi, HTTPS zorunluluğu, IP whitelist/blacklist ayarları",
+            "⚙️ REST AYARLARI: Kapsamlı REST API yapılandırması (rate limitler, önbellek, geliştirme modu, güvenlik)",
+            "🎨 UI/UX İYİLEŞTİRMELERİ: DatePicker başlığı flexbox düzeni ile yeniden tasarlandı",
+            "📅 DATEPICKER STİLİ: Select-specific stiller kaldırıldı, başlık ortalaması iyileştirildi",
+            "🔧 FORM ETİKET DÜZELTMESİ: İletişim Bilgileri etiketleri (Ad, Soyad, E-posta, Telefon) görünürlük sorunu düzeltildi",
+            "✅ BUTON METNİ DÜZELTMESİ: Rezervasyon Yap butonu metni görünürlük ve doğrulama durumu düzeltildi",
+            "👤 KULLANICI ADI OLUŞTURMA: Kullanıcı adı artık e-posta yerine ad/soyaddan oluşturuluyor",
+            "🔐 MÜŞTERİ ROLÜ: WordPress Customer rol kayıt sistemi uygulandı",
+            "🐛 REZERVASYON AYARLARI DÜZELTMESİ: İptal Son Tarihi (Saat) alanı kaydetme sorunu çözüldü",
+            "🔧 SEKME SANİTİZASYONU: Sanitization mantığında Rezervasyon Yönetimi sekmesi tespiti düzeltildi",
+            "📝 KULLANICI OLUŞTURMA: BookingForm, ManualBooking, AddCustomerPage'de kullanıcı oluşturma güncellendi",
+            "🌍 i18n DESTEĞİ: Form etiketleri ve buton metinleri için fallback çevirileri eklendi",
+            "✅ FORM DOĞRULAMA: Rezervasyon Yap butonu doğrulaması sadeleştirildi (Şartlar checkbox'ı ile kontrol ediliyor)",
+            "🎯 KOD KALİTESİ: Sanitization ve benzersizlik kontrolleri ile kullanıcı adı oluşturma iyileştirildi",
+            "📱 RESPONSIVE: Daha iyi mobil uyumluluk için tarih seçici başlığı geliştirildi"
+        ]
+    },
+    {
+        "version": "4.3.6",
+        "date": "2025-10-23",
+        "type": "previous",
+        "changes": [
+            "🎛️ AYAR BİRLEŞTİRME: Eksiksiz ayar mimarisi temizliği ve optimizasyonu",
+            "🗑️ TEKRAR KALDIRMA: SettingsCore'dan 9 kullanılmayan register_* fonksiyonu kaldırıldı",
+            "🔧 SAHTE BÖLÜM DÜZELTMESİ: Var olmayan email_notifications ve booking_payment bölümleri kaldırıldı",
+            "✅ EKSİK BÖLÜMLER EKLENDİ: AddonSettings Rezervasyon sekmesine düzgün şekilde entegre edildi",
+            "🎯 AYAR DENETİMİ: Tüm 23 kayıtlı bölüm doğrulandı ve düzgün şekilde render edildi",
+            "📊 SİSTEM & PERFORMANS: 10+ ayar grubu birleştirildi ve optimize edildi",
+            "🎛️ SEKME İZOLASYONU: Granüler sekme-spesifik sanitization çapraz sekme çakışmalarını önler",
+            "🔒 CHECKBOX DÜZELTMESİ: Tüm ayar sekmelerinde checkbox kaydetme sorunları düzeltildi",
+            "📧 E-POSTA SİSTEMİ QA: Kapsamlı e-posta ayarları ve bildirimleri doğrulaması",
+            "🎨 E-POSTA ŞABLONLARI: Tüm 19 e-posta şablonu için modern responsive tasarım",
+            "📝 ŞABLON GEÇERSİZ KILMALAR: Admin ayarlardan e-posta konularını ve içeriğini geçersiz kılabilir",
+            "🌍 i18n GENİŞLETME: Küresel özelleştirme için 40+ frontend URL ve metin ayarları",
+            "🗂️ ENTEGRASYON AYARLARI: Bilgilendirici placeholder ile geleceğe hazır sekme",
+            "❌ RAPORLAR SEKMESİ KALDIRILDI: Tekrar ana Raporlar sayfasına birleştirildi",
+            "💬 YORUM AYARLARI: Frontend & Display sekmesine düzgün şekilde entegre edildi",
+            "⚡ PERFORMANS: 626+ satır ölü kod ve tekrarlanan fonksiyonlar kaldırıldı",
+            "🧹 KOD TEMİZLİĞİ: Bakım kolaylığı için 14+ ayar dosyası birleştirildi",
+            "✅ ÜRETİM HAZIR: Tüm ayarlar test edildi, doğrulandı ve tam işlevsel"
+        ]
+    },
+    {
+        "version": "4.3.5",
+        "date": "2025-10-16",
+        "type": "previous",
+        "changes": [
+            "🔧 ŞABLON YENİDEN YAPILANDIRMA: Tüm şablon dosyaları için eksiksiz WordPress Coding Standards uyumluluğu",
+            "🛡️ GÜVENLİK İYİLEŞTİRMELERİ: Kapsamlı XSS, SQL Injection ve CSRF koruması uygulaması",
+            "🌐 i18n UYUMLULUĞU: Uygun textdomain yükleme ile eksiksiz uluslararasılaştırma desteği",
+            "📝 KOD STANDARTLARI: Tüm şablonlar artık WordPress Coding Standards (WPCS) takip ediyor",
+            "🗂️ HESAP ŞABLONLARI: Güvenlik ve i18n uyumluluğu ile 9 hesap şablon dosyası yeniden yapılandırıldı",
+            "📧 E-POSTA ŞABLONLARI: Uygun escaping ve dil özellikleri ile 4 e-posta şablonu geliştirildi",
+            "💬 MESAJ ŞABLONLARI: Güvenlik ve i18n iyileştirmeleri ile 5 mesaj şablonu güncellendi",
+            "🎯 SHORTCODE ŞABLONLARI: Kapsamlı güvenlik düzeltmeleri ile 14 shortcode şablonu yeniden yapılandırıldı",
+            "📄 SAYFA ŞABLONLARI: Eksiksiz uyumluluk ile archive-vehicle.php ve single-vehicle.php güncellendi",
+            "🧪 TEST ŞABLONLARI: Güvenlik ve i18n uyumluluğu ile test-shortcodes.php geliştirildi",
+            "🔒 GÜVENLİK DÜZELTMELERİ: Nonce doğrulama, input sanitization ve output escaping eklendi",
+            "🌍 KÜRESEL HAZIRLIK: Küresel uyumluluk için tüm Türkçe yorumlar İngilizce'ye çevrildi",
+            "⚡ PERFORMANS: Şablon yükleme ve koşullu asset yönetimi optimize edildi",
+            "📱 RESPONSIVE: Tüm şablon dosyalarında mobil uyumluluk geliştirildi",
+            "✅ ÜRETİM HAZIR: Tüm şablonlar artık eksiksiz güvenlik uyumluluğu ile üretim hazır"
+        ]
+    },
+    {
+        "version": "4.3.4",
+        "date": "2025-10-09",
+        "type": "previous",
+        "changes": [
+            "📄 MAKBUZ YÜKLEME SİSTEMİ: Müşteriler için eksiksiz ödeme makbuzu yönetimi",
+            "📧 E-POSTA BİLDİRİMLERİ: Makbuz onayı/reddi için HTML e-posta şablonları",
+            "🎨 MODERN E-POSTA TASARIMI: Gradient başlıklı responsive HTML e-posta şablonları",
+            "🔒 GÜVENLİK İYİLEŞTİRMELERİ: Tüm e-posta içeriği için kapsamlı sanitization ve escaping",
+            "📱 MOBİL ÖNCELİKLİ E-POSTALAR: Tüm cihazlar için optimize edilmiş responsive e-posta şablonları",
+            "🌐 i18n UYUMLULUĞU: Uygun text domain'ler ile tüm e-posta içeriği tam uluslararasılaştırıldı",
+            "⚙️ ADMIN MAKBUZ İNCELEME: Admin makbuz onayı/reddi iş akışı için meta box",
+            "📊 REZERVASYON GEÇMİŞİ: Makbuz durumu takibi ile geliştirilmiş rezervasyon geçmişi",
+            "🔧 ŞABLON SİSTEMİ: Fallback desteği ile modüler e-posta şablon sistemi",
+            "📋 MÜŞTERİ BİLDİRİMLERİ: Makbuz durumu değişiklikleri için otomatik e-posta bildirimleri",
+            "🎯 UX İYİLEŞTİRMELERİ: Hesabım'da sadeleştirilmiş makbuz yükleme süreci",
+            "✅ ÜRETİM HAZIR: Güvenlik uyumluluğu ile eksiksiz makbuz yönetim sistemi"
+        ]
+    },
+    {
+        "version": "4.3.2",
+        "date": "2025-10-02",
+        "type": "previous",
+        "changes": [
+            "🧪 SHORTCODE TEST SAYFASI: Kategorilere göre organize edilmiş tüm 19 shortcode ile eksiksiz güncelleme",
+            "⚙️ SHORTCODE AYARLARI: Aktif Shortcode sayısı düzeltildi (6 → 19) ve sistem bilgileri iyileştirildi",
+            "🔧 KOŞULLU ASSET YÜKLEME: Uygun koşullu asset yükleme işlevselliği uygulandı",
+            "📊 SİSTEM BİLGİLERİ: Doğru shortcode sayımı ve önbellek durumu görüntüleme",
+            "🎯 ASSET OPTİMİZASYONU: Asset'ler artık shortcode'lar gerçekten kullanıldığında yükleniyor",
+            "🔍 DEBUG TEMİZLİĞİ: Tüm debug logları, console ifadeleri ve geçici kod kaldırıldı",
+            "📋 SHORTCODE SAYFALARI: Tüm 19 shortcode için shortcode tespiti güncellendi",
+            "🎨 UI İYİLEŞTİRMELERİ: Daha iyi organizasyon ile geliştirilmiş shortcode test sayfası",
+            "⚡ PERFORMANS: Koşullu yükleme sistemi ile asset yükleme optimize edildi",
+            "🔒 GÜVENLİK: Geliştirilmiş ayar doğrulama ve sanitization",
+            "📱 RESPONSIVE: Shortcode yönetimi için iyileştirilmiş admin arayüzü",
+            "✅ TEST EDİLDİ: Tüm shortcode ayarları ve koşullu yükleme doğrulandı"
+        ]
+    },
+    {
+        "version": "4.3.1",
+        "date": "2025-09-25",
+        "type": "previous",
+        "changes": [
+            "🌍 KÜRESEL UYUMLULUK: Eksiksiz i18n uluslararasılaştırma uygulaması",
+            "🔧 HARDCODE KALDIRMA: Tüm hardcode değerler dinamik filtreler ile değiştirildi",
+            "🌐 İNGİLİZCE ÖNCELİKLİ: Küresel eklenti için Türkçe terimler İngilizce'ye çevrildi",
+            "⚙️ FİLTRE SİSTEMİ: Tüm shortcode özellikleri için apply_filters() kullanarak dinamik yapılandırma",
+            "🎨 MÜSAİTLİK TAKVİMİ: Dinamik araç değiştirme ile modern araç kartı tasarımı",
+            "🔄 ARAÇ DEĞİŞTİRME: AJAX destekli araç bilgisi güncellemeleri (görsel, özellikler, fiyat)",
+            "📱 RESPONSIVE TASARIM: Takvim arayüzü için geliştirilmiş mobil uyumluluk",
+            "🎯 KOŞULLU RENDER: Araç özellikleri yalnızca veri mevcut olduğunda görüntülenir (varsayılan yok)",
+            "🧹 KOD TEMİZLİĞİ: Tüm debug logları, console ifadeleri ve kullanılmayan kod kaldırıldı",
+            "🔒 GÜVENLİK: Geliştirilmiş input sanitization ve output escaping",
+            "⚡ PERFORMANS: Minification desteği ile optimize edilmiş asset yükleme",
+            "📋 ŞABLON İYİLEŞTİRMELERİ: Uygun CSS sınıfları ile temiz HTML yapısı",
+            "🎨 UI/UX: Geliştirilmiş görsel hiyerarşi ile modern kart tabanlı düzen",
+            "🔧 JAVASCRIPT: Geliştirilmiş hata yönetimi ve kullanıcı geri bildirim sistemleri",
+            "📊 DİNAMİK FİYATLANDIRMA: Araç seçim modalında gerçek zamanlı fiyat güncellemeleri",
+            "✅ TEST EDİLDİ: Tüm işlevsellik farklı tarayıcılar ve cihazlarda doğrulandı"
+        ]
+    },
+    {
+        "version": "4.3.0",
+        "date": "2025-09-18",
+        "type": "previous",
+        "changes": [
+            "🗑️ SHORTCODE TEMİZLİĞİ: Daha temiz sistem için 9 kullanılmayan/tekrarlanan shortcode kaldırıldı",
+            "⚡ PERFORMANS: Shortcode kaydı optimize edildi ve bellek kullanımı azaltıldı",
+            "🎯 TEKRAR KALDIRMA: Shortcode'lar arasındaki gereksiz işlevsellik kaldırıldı",
+            "🔧 SİSTEM OPTİMİZASYONU: Sadeleştirilmiş shortcode mimarisi",
+            "📦 KALDIRILAN SHORTCODE'LAR:",
+            "   • rentiva_quick_booking (BookingForm ile aynı işlev)",
+            "   • rentiva_vehicle_detail (VehicleDetails ile aynı işlev)",
+            "   • rentiva_deposit_calculator (Kullanılmıyordu)",
+            "   • rentiva_vehicle_deposit (Kullanılmıyordu)",
+            "   • rentiva_vehicle_card (Dosya yoktu, sadece referans)",
+            "   • rentiva_vehicles (Dosya yoktu, sadece referans)",
+            "   • rentiva_pricing (VehicleDetails ve BookingForm'da zaten var)",
+            "   • rentiva_calendar (AvailabilityCalendar ile aynı işlev, daha gelişmiş)",
+            "✅ SONUÇ: 17 optimize edilmiş shortcode kaldı (26 idi)",
+            "🎨 REZERVASYON ONAYI: Eksiksiz CSS stil sistemi uygulandı",
+            "🔧 SINIF EŞLEŞTİRME: Şablon-CSS sınıf uyumsuzlukları düzeltildi",
+            "✅ EK HİZMET GÖRÜNTÜLEME: Ek hizmetlerde tekrarlanan onay işaretleri düzeltildi",
+            "🎯 BUTON STİLİ: Tutarlı görünüm için buton boyutları eşitlendi",
+            "📱 RESPONSIVE TASARIM: Onay sayfası için geliştirilmiş mobil uyumluluk",
+            "🎨 UI İYİLEŞTİRMELERİ: Uygun boşluklarla modern kart tabanlı düzen",
+            "🔧 DURUM GÖRÜNTÜLEME: Geliştirilmiş rezervasyon ve ödeme durumu göstergeleri",
+            "📋 BİLGİ BÖLÜMLERİ: İyileştirilmiş hesap bilgileri ve sonraki adımlar görüntüleme",
+            "🎨 RENK ŞEMASI: Onay sayfası boyunca tutarlı renk paleti",
+            "⚡ PERFORMANS: Optimize edilmiş CSS yükleme ve önbellek temizleme"
+        ]
+    },
+    {
+        "version": "4.2.2",
+        "date": "2025-09-11",
+        "type": "previous",
+        "changes": [
+            "🚨 KRİTİK DÜZELTME: 30 dakikalık otomatik iptal fonksiyonu düzeltildi",
+            "⏰ OTOMATİK İPTAL: Offline ödeme sonrası 30 dakika sonra otomatik rezervasyon iptali",
+            "🔄 CRON SİSTEMİ: WordPress Cron zamanlamaları düzeltildi ve optimize edildi",
+            "📊 REZERVASYON YÖNETİMİ: Bekleyen rezervasyonlar artık otomatik olarak temizleniyor",
+            "🎯 ARAÇ MÜSAİTLİĞİ: Araçlar artık gereksiz yere müsait değil olarak kalmayacak",
+            "⚡ PERFORMANS: Sistem performansı iyileştirildi, gereksiz rezervasyonlar temizlendi",
+            "🔧 META KEY DÜZELTMESİ: Ödeme durumu kontrolleri düzeltildi (unpaid → pending)",
+            "🛠️ DURUM BYPASS: Durum sınıfı sorunları bypass edildi, doğrudan meta güncelleme",
+            "📝 LOGLAMA: Otomatik iptal işlemleri için geliştirilmiş log sistemi",
+            "✅ TEST EDİLDİ: 3 rezervasyon başarıyla otomatik olarak iptal edildi"
+        ]
+    },
+    {
+        "version": "4.2.0",
+        "date": "2025-09-04",
+        "type": "previous",
+        "changes": [
+            "🎨 UI/UX İYİLEŞTİRMELERİ: Rezervasyon formu tasarım güncellemeleri",
+            "🔧 BUTON TASARIMI: Rezervasyon onay sayfası butonları eklenti tasarımına uyarlandı",
+            "📅 TARİH/SAAT SEÇİMİ: Dropdown renklendirme sorunları düzeltildi",
+            "🎯 MENÜ KONUMU: MHM Rentiva menüsü WordPress menüsünde üst konumlara taşındı",
+            "🗑️ KOD TEMİZLİĞİ: Kullanılmayan rezervasyon adım şablonları kaldırıldı",
+            "⚡ PERFORMANS: Eski booking-flow.js ve ilgili dosyalar temizlendi",
+            "🎨 RENK UYUMLULUĞU: Beyaz arka planlı butonlarda metin okunabilirliği sağlandı",
+            "📱 RESPONSIVE: Mobil cihazlarda buton düzeni iyileştirildi",
+            "🔧 CSS OPTİMİZASYONU: Rezervasyon formu ve onay sayfası stilleri güncellendi"
+        ]
+    },
+    {
+        "version": "4.1.1",
+        "date": "2025-08-28",
+        "type": "previous",
+        "changes": [
+            "☠️ ÖLÜ KOD TEMİZLİĞİ: 626+ satır kullanılmayan kod temizlendi (Ek Aşama)",
+            "🗑️ PORTAL API KALDIRILDI: Portal REST API tamamen kaldırıldı (552 satır - 5 dosya)",
+            "❌ Portal/Info, Portal/Upload, Portal/Helpers klasörü silindi",
+            "🔒 GÜVENLİK DÜZELTMESİ: Portal API izin callback'i düzeltildi (__return_true → rate limiting)",
+            "🐛 HATA DÜZELTMESİ: DeveloperTab.php tanımsız $company_website düzeltildi",
+            "🐛 FATAL HATA DÜZELTMESİ: register_portal_settings() hook kaydı kaldırıldı",
+            "🐛 FATAL HATA DÜZELTMESİ: maybe_render_messages() hook kaydı kaldırıldı",
+            "🧹 DEPRECATED TEMİZLİĞİ: 9 deprecated metod kaldırıldı",
+            "📉 KOD AZALTMA: -626 satır ölü kod, -25KB dosya boyutu",
+            "✅ My Account sistemi yalnızca AJAX kullanıyor (REST API değil)",
+            "🧪 TEST SUİTİ: Tüm testler hala %100 başarılı",
+            "📱 ÜRETİM HAZIR: Temiz ve optimize edilmiş kod"
+        ]
+    },
+    {
+        "version": "4.1.0",
+        "date": "2025-08-21",
+        "type": "previous",
+        "changes": [
+            "🎉 BÜYÜK GÜNCELLEME: Kapsamlı kod kalitesi, güvenlik ve performans iyileştirmeleri (Aşama 1-4 Tamamlandı)",
+            "🧪 TEST SUİTİ: 29 otomatik test (Aktivasyon 9, Güvenlik 8, Fonksiyonel 6, Performans 6) - %100 başarı",
+            "🔒 GÜVENLİK: 2,571+ escaping, 463+ sanitization, 123+ nonce, 150+ prepare()",
+            "🛡️ SQL INJECTION DÜZELTMESİ: MetaQueryHelper, Util.php prepared statements",
+            "🔐 XSS KORUMASI: 283/283 dosya ABSPATH korumalı (%100)",
+            "🚦 REST API GÜVENLİĞİ: Rate limiting, izin callback'leri düzeltildi",
+            "⚡ N+1 SORGUSU DÜZELTMESİ: Batch yükleme - get_alternative_vehicles optimize",
+            "🔄 AUTOLOADER: PSR-4 strict, glob() kaldırıldı, debug logging",
+            "🌐 MULTISITE: Önbellek izolasyonu, network aktivasyon hook'ları",
+            "🗄️ VERİTABANI TEMİZLİĞİ: DatabaseCleaner, orphaned meta temizliği",
+            "📊 DB ANALİZÖR: Eksiksiz analiz, optimizasyon önerileri",
+            "⏱️ KUYRUK SİSTEMİ: Arka plan işleme, WP-CLI",
+            "🔧 TAKSONOMİ MİGRASYONU: vehicle_cat → vehicle_category otomatik",
+            "🧹 SESSION DÜZELTMESİ: session_start() kaldırıldı",
+            "📈 BOOTSTRAP: Statik bayrak optimizasyonu",
+            "🔍 DEBUG: Üretim log spam düzeltmesi",
+            "📱 TEST UI: Admin sayfası, rapor indirme",
+            "🎯 VERSİYON SENKRONİZASYONU: Sabit standardizasyon",
+            "📖 DOKÜMANTASYON: Aşama 1-4 raporları"
+        ]
+    },
+    {
+        "version": "4.0.0",
+        "date": "2025-08-14",
+        "type": "previous",
+        "changes": [
+            "🔄 BÜYÜK BREAKING CHANGE: Token sistemi kaldırıldı, WordPress standart giriş sistemine geçildi",
+            "🔐 WORDPRESS GİRİŞ: Müşteriler artık wp-login.php ile standart WordPress hesabı kullanıyor",
+            "🛒 WOOCOMMERCE ENTEGRASYONU: WooCommerce My Account sistemi ile eksiksiz entegrasyon",
+            "📊 MY ACCOUNT SİSTEMİ: Dashboard, Rezervasyonlar, Favoriler, Ödeme Geçmişi sayfaları eklendi",
+            "🌍 KÜRESEL HAZIRLIK: Çoklu dil desteği, eklenti agnostik mimari",
+            "✉️ OTOMATİK HESAP: Rezervasyon müşterileri için otomatik WordPress hesap oluşturma",
+            "🔑 ŞİFRE YÖNETİMİ: WordPress standart şifre sıfırlama ve yönetim sistemi",
+            "🎨 YENİ SHORTCODE'LAR: [rentiva_my_account], [rentiva_my_bookings], [rentiva_my_favorites]",
+            "⚠️ DEPRECATION: Token tabanlı shortcode'lar kaldırıldı"
+        ]
+    },
+    {
+        "version": "3.1.0",
+        "date": "2025-08-07",
+        "type": "previous",
+        "changes": [
+            "📸 ARAÇ GALERİSİ: WordPress Medya Kütüphanesi entegrasyonu ile çoklu görsel yükleme sistemi",
+            "🖼️ Galeri: Maksimum 10 görsel, sürükle-bırak sıralama",
+            "🗂️ ARAÇ KATEGORİLERİ: Yönetim paneli eklendi"
+        ]
+    },
+    {
+        "version": "3.0.2",
+        "date": "2025-07-31",
+        "type": "previous",
+        "changes": [
+            "🎨 UI/UX İYİLEŞTİRMELERİ: Dashboard sayfası düzeni düzeltildi",
+            "🌈 RENK SİSTEMİ: İstatistik kartları renkleri düzeltildi"
+        ]
+    },
+    {
+        "version": "3.0.1",
+        "date": "2025-07-24",
+        "type": "previous",
+        "changes": [
+            "🏗️ MODÜLER YAPI: Tüm proje modüler mimariye göre yeniden organize edildi",
+            "📝 SHORTCODE SİSTEMİ: 22 shortcode'un kapsamlı analizi"
+        ]
+    },
+    {
+        "version": "3.0.0",
+        "date": "2025-07-17",
+        "type": "previous",
+        "changes": [
+            "Hakkında sayfası eklendi",
+            "Mesajlaşma sistemi eklendi",
+            "WordPress 6.6 uyumluluğu"
+        ]
+    },
+    {
+        "version": "2.5.0",
+        "date": "2025-07-10",
+        "type": "previous",
+        "changes": [
+            "Stripe ödeme entegrasyonu",
+            "Müşteri portalı iyileştirmeleri"
+        ]
+    },
+    {
+        "version": "2.0.0",
+        "date": "2025-07-03",
+        "type": "previous",
+        "changes": [
+            "PayTR ödeme sistemi",
+            "Çoklu dil desteği"
+        ]
+    },
+    {
+        "version": "1.5.0",
+        "date": "2025-06-26",
+        "type": "previous",
+        "changes": [
+            "Temel raporlama sistemi"
+        ]
+    },
+    {
+        "version": "1.0.0",
+        "date": "2025-06-19",
+        "type": "previous",
+        "changes": [
+            "İlk versiyon yayınlandı"
+        ]
+    }
+]
+

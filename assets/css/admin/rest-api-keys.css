@@ -1,0 +1,134 @@
+/**
+ * REST API Keys Management Styles
+ */
+
+/* Section separator */
+.mhm-rest-api-section-separator {
+    margin: 30px 0;
+}
+
+/* API Keys Management */
+.mhm-api-keys-section {
+    margin-top: 30px;
+}
+
+.mhm-api-keys-create-form {
+    background: #f9f9f9;
+    padding: 20px;
+    border: 1px solid #ddd;
+    margin-bottom: 30px;
+}
+
+.mhm-api-keys-list-container {
+    margin-top: 20px;
+}
+
+.mhm-api-keys-refresh-btn {
+    margin-bottom: 10px;
+}
+
+/* Endpoints Section */
+.mhm-endpoints-section {
+    margin-top: 30px;
+}
+
+.mhm-endpoints-refresh-btn {
+    margin-bottom: 10px;
+}
+
+/* Modal styles */
+#mhm-new-key-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#mhm-new-key-modal .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 5px;
+    max-width: 600px;
+    width: 90%;
+}
+
+#mhm-new-key-modal .modal-key-display {
+    background: #f5f5f5;
+    padding: 15px;
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    font-family: monospace;
+    word-break: break-all;
+}
+
+#mhm-new-key-modal .modal-close-btn {
+    margin-left: 10px;
+}
+
+/* Status badges */
+.status-success {
+    color: #46b450;
+    font-weight: bold;
+}
+
+.status-warning {
+    color: #ffb900;
+    font-weight: bold;
+}
+
+.status-error {
+    color: #dc3232;
+    font-weight: bold;
+}
+
+.status-info {
+    color: #2271b1;
+    font-weight: bold;
+}
+
+/* Delete button warning color */
+.mhm-delete-key-btn {
+    color: #dc3232;
+}
+
+/* Reset button section */
+.mhm-rest-settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.mhm-rest-settings-header h2 {
+    margin: 0;
+}
+
+.mhm-rest-settings-header p {
+    margin: 5px 0 0 0;
+}
+
+/* Spin animation for loading */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.mhm-spin {
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+}
+
+.mhm-resetting {
+    opacity: 0.7;
+    cursor: not-allowed;
+}

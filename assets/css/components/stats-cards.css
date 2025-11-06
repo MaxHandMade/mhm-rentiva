@@ -1,0 +1,918 @@
+/**
+ * MHM Rentiva - Stats Cards Bileşeni
+ * 
+ * Tüm istatistik kartları için ortak stiller.
+ * Farklı türler için modifier sınıfları kullanılır.
+ */
+
+/* === TEMEL STATS CARD YAPISI === */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--mhm-space-6);
+    margin-bottom: var(--mhm-space-8);
+}
+
+.stat-card {
+    background: var(--mhm-bg-card);
+    border: 1px solid var(--mhm-border-primary);
+    border-radius: var(--mhm-radius-lg);
+    padding: var(--mhm-space-6);
+    box-shadow: var(--mhm-shadow-sm);
+    transition: all var(--mhm-duration-200) var(--mhm-ease-out);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: var(--mhm-space-4);
+    min-height: 120px;
+}
+
+.stat-card:hover {
+    box-shadow: var(--mhm-shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--mhm-border-secondary);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--mhm-primary);
+    transition: all var(--mhm-duration-200) var(--mhm-ease-out);
+}
+
+/* === STATS CARD İÇERİK === */
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--mhm-space-4);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--mhm-radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--mhm-text-xl);
+    color: var(--mhm-white);
+    position: relative;
+    overflow: hidden;
+    background: var(--mhm-primary) !important;
+    flex-shrink: 0;
+}
+
+.stat-icon .dashicons {
+    font-size: 24px;
+    color: white;
+    line-height: 1;
+}
+
+/* ::before pseudo-element kaldırıldı - ikonları kapatıyordu */
+
+/* İkon hover efektleri */
+.stat-icon:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+.stat-icon:hover .dashicons {
+    animation: pulse 0.6s ease-in-out;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.stat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--mhm-space-2);
+}
+
+.stat-number {
+    font-size: var(--mhm-text-3xl);
+    font-weight: var(--mhm-font-bold);
+    color: var(--mhm-text-primary);
+    line-height: var(--mhm-leading-tight);
+    margin: 0;
+}
+
+.stat-label {
+    font-size: var(--mhm-text-sm);
+    color: var(--mhm-text-secondary);
+    font-weight: var(--mhm-font-medium);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-change {
+    display: flex;
+    align-items: center;
+    gap: var(--mhm-space-1);
+    font-size: var(--mhm-text-sm);
+    font-weight: var(--mhm-font-medium);
+    margin-top: var(--mhm-space-2);
+}
+
+.stat-change.positive {
+    color: var(--mhm-success);
+}
+
+.stat-change.negative {
+    color: var(--mhm-error);
+}
+
+.stat-trend {
+    font-size: var(--mhm-text-sm);
+    color: var(--mhm-text-secondary);
+    margin-top: var(--mhm-space-1);
+}
+
+.trend-text {
+    display: inline-block;
+    padding: 4px 8px;
+    background: var(--mhm-gray-100);
+    border-radius: var(--mhm-radius-base);
+    font-weight: var(--mhm-font-medium);
+    color: var(--mhm-text-secondary);
+}
+
+.stat-change.neutral {
+    color: var(--mhm-text-tertiary);
+}
+
+.stat-change i {
+    font-size: var(--mhm-text-xs);
+}
+
+/* === STATS CARD TÜRLERİ === */
+
+/* Dashboard Stats */
+.stat-card.dashboard {
+    --card-color: var(--mhm-primary);
+}
+
+.stat-card.dashboard .stat-icon::before {
+    background: linear-gradient(135deg, var(--mhm-primary), var(--mhm-primary-light));
+}
+
+.stat-card.dashboard::before {
+    background: var(--mhm-primary);
+}
+
+/* Vehicle Stats */
+.stat-card.vehicle {
+    --card-color: var(--mhm-secondary);
+}
+
+.stat-card.vehicle .stat-icon::before {
+    background: linear-gradient(135deg, var(--mhm-secondary), var(--mhm-secondary-light));
+}
+
+.stat-card.vehicle::before {
+    background: var(--mhm-secondary);
+}
+
+/* Booking Stats */
+.stat-card.booking {
+    --card-color: var(--mhm-info);
+}
+
+/* Eski CSS kuralları kaldırıldı - yeni kuralları eziyordu */
+
+/* Customer Stats - Specific Cards */
+.stat-card.stat-card-total {
+    --card-color: var(--mhm-primary);
+}
+
+.stat-card.stat-card-total .stat-icon {
+    background: linear-gradient(135deg, #2271b1, #72aee6) !important;
+    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.3) !important;
+}
+
+.stat-card.stat-card-total::before {
+    background: var(--mhm-primary);
+}
+
+.stat-card.stat-card-active {
+    --card-color: var(--mhm-success);
+}
+
+.stat-card.stat-card-active .stat-icon {
+    background: linear-gradient(135deg, #00a32a, #4caf50) !important;
+    box-shadow: 0 4px 12px rgba(0, 163, 42, 0.3) !important;
+}
+
+.stat-card.stat-card-active::before {
+    background: var(--mhm-success);
+}
+
+.stat-card.stat-card-new {
+    --card-color: var(--mhm-warning);
+}
+
+.stat-card.stat-card-new .stat-icon {
+    background: linear-gradient(135deg, #dba617, #f4d03f) !important;
+    box-shadow: 0 4px 12px rgba(219, 166, 23, 0.3) !important;
+}
+
+.stat-card.stat-card-new::before {
+    background: var(--mhm-warning);
+}
+
+.stat-card.stat-card-average {
+    --card-color: var(--mhm-info);
+}
+
+.stat-card.stat-card-average .stat-icon {
+    background: linear-gradient(135deg, #72aee6, #a8d8ff) !important;
+    box-shadow: 0 4px 12px rgba(114, 174, 230, 0.3) !important;
+}
+
+.stat-card.stat-card-average::before {
+    background: var(--mhm-info);
+}
+
+/* Reports Stats - Specific Cards */
+.stat-card.stat-card-total-bookings {
+    --card-color: var(--mhm-primary);
+}
+
+.stat-card.stat-card-total-bookings .stat-icon {
+    background: linear-gradient(135deg, #2271b1, #72aee6) !important;
+    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.3) !important;
+}
+
+.stat-card.stat-card-total-bookings::before {
+    background: var(--mhm-primary);
+}
+
+.stat-card.stat-card-monthly-revenue {
+    --card-color: var(--mhm-success);
+}
+
+.stat-card.stat-card-monthly-revenue .stat-icon {
+    background: linear-gradient(135deg, #00a32a, #4caf50) !important;
+    box-shadow: 0 4px 12px rgba(0, 163, 42, 0.3) !important;
+}
+
+.stat-card.stat-card-monthly-revenue::before {
+    background: var(--mhm-success);
+}
+
+.stat-card.stat-card-active-bookings {
+    --card-color: var(--mhm-warning);
+}
+
+.stat-card.stat-card-active-bookings .stat-icon {
+    background: linear-gradient(135deg, #dba617, #f4d03f) !important;
+    box-shadow: 0 4px 12px rgba(219, 166, 23, 0.3) !important;
+}
+
+.stat-card.stat-card-active-bookings::before {
+    background: var(--mhm-warning);
+}
+
+.stat-card.stat-card-occupancy-rate {
+    --card-color: #673ab7;
+}
+
+.stat-card.stat-card-occupancy-rate .stat-icon {
+    background: linear-gradient(135deg, #673ab7, #9c27b0) !important;
+    box-shadow: 0 4px 12px rgba(103, 58, 183, 0.3) !important;
+}
+
+.stat-card.stat-card-occupancy-rate::before {
+    background: #673ab7;
+}
+
+/* Messages Stats - Specific Cards */
+.stat-card.stat-card-total-messages {
+    --card-color: #9c27b0;
+}
+
+.stat-card.stat-card-total-messages .stat-icon {
+    background: linear-gradient(135deg, #9c27b0, #ba68c8) !important;
+    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3) !important;
+}
+
+.stat-card.stat-card-total-messages::before {
+    background: #9c27b0;
+}
+
+.stat-card.stat-card-pending-messages {
+    --card-color: var(--mhm-warning);
+}
+
+.stat-card.stat-card-pending-messages .stat-icon {
+    background: linear-gradient(135deg, #dba617, #f4d03f) !important;
+    box-shadow: 0 4px 12px rgba(219, 166, 23, 0.3) !important;
+}
+
+.stat-card.stat-card-pending-messages::before {
+    background: var(--mhm-warning);
+}
+
+.stat-card.stat-card-answered-messages {
+    --card-color: var(--mhm-success);
+}
+
+.stat-card.stat-card-answered-messages .stat-icon {
+    background: linear-gradient(135deg, #00a32a, #4caf50) !important;
+    box-shadow: 0 4px 12px rgba(0, 163, 42, 0.3) !important;
+}
+
+.stat-card.stat-card-avg-response-time .stat-icon {
+    background: linear-gradient(135deg, #72aee6, #a8d8ff) !important;
+    box-shadow: 0 4px 12px rgba(114, 174, 230, 0.3) !important;
+}
+
+/* Vehicle Stats - Specific Cards */
+.stat-card.stat-card-reserved {
+    --card-color: var(--mhm-primary);
+}
+
+.stat-card.stat-card-reserved .stat-icon {
+    background: linear-gradient(135deg, #2271b1, #72aee6) !important;
+    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.3) !important;
+}
+
+.stat-card.stat-card-reserved::before {
+    background: var(--mhm-primary);
+}
+
+.stat-card.stat-card-passive {
+    --card-color: var(--mhm-error);
+}
+
+.stat-card.stat-card-passive .stat-icon {
+    background: linear-gradient(135deg, #d63638, #ff6b6b) !important;
+    box-shadow: 0 4px 12px rgba(214, 54, 56, 0.3) !important;
+}
+
+.stat-card.stat-card-passive::before {
+    background: var(--mhm-error);
+}
+
+.stat-card.stat-card-maintenance {
+    --card-color: var(--mhm-warning);
+}
+
+.stat-card.stat-card-maintenance .stat-icon {
+    background: linear-gradient(135deg, #dba617, #f4d03f) !important;
+    box-shadow: 0 4px 12px rgba(219, 166, 23, 0.3) !important;
+}
+
+.stat-card.stat-card-maintenance::before {
+    background: var(--mhm-warning);
+}
+
+.stat-card.stat-card-revenue {
+    --card-color: var(--mhm-success);
+}
+
+.stat-card.stat-card-revenue .stat-icon {
+    background: linear-gradient(135deg, #00a32a, #4caf50) !important;
+    box-shadow: 0 4px 12px rgba(0, 163, 42, 0.3) !important;
+}
+
+.stat-card.stat-card-revenue::before {
+    background: var(--mhm-success);
+}
+
+/* Addon Stats - Specific Cards */
+.stat-card.stat-card-total-addons {
+    --card-color: var(--mhm-primary);
+}
+
+.stat-card.stat-card-total-addons .stat-icon {
+    background: linear-gradient(135deg, #2271b1, #72aee6) !important;
+    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.3) !important;
+}
+
+.stat-card.stat-card-total-addons::before {
+    background: var(--mhm-primary);
+}
+
+.stat-card.stat-card-active-addons {
+    --card-color: var(--mhm-success);
+}
+
+.stat-card.stat-card-active-addons .stat-icon {
+    background: linear-gradient(135deg, #00a32a, #4caf50) !important;
+    box-shadow: 0 4px 12px rgba(0, 163, 42, 0.3) !important;
+}
+
+.stat-card.stat-card-active-addons::before {
+    background: var(--mhm-success);
+}
+
+.stat-card.stat-card-avg-price {
+    --card-color: var(--mhm-warning);
+}
+
+.stat-card.stat-card-avg-price .stat-icon {
+    background: linear-gradient(135deg, #dba617, #f4d03f) !important;
+    box-shadow: 0 4px 12px rgba(219, 166, 23, 0.3) !important;
+}
+
+.stat-card.stat-card-avg-price::before {
+    background: var(--mhm-warning);
+}
+
+.stat-card.stat-card-total-value {
+    --card-color: #673ab7;
+}
+
+.stat-card.stat-card-total-value .stat-icon {
+    background: linear-gradient(135deg, #673ab7, #9c27b0) !important;
+    box-shadow: 0 4px 12px rgba(103, 58, 183, 0.3) !important;
+}
+
+.stat-card.stat-card-total-value::before {
+    background: #673ab7;
+}
+
+/* Booking Stats - Specific Cards */
+.stat-card.stat-card-pending {
+    --card-color: var(--mhm-warning);
+}
+
+.stat-card.stat-card-pending .stat-icon {
+    background: linear-gradient(135deg, #dba617, #f4d03f) !important;
+    box-shadow: 0 4px 12px rgba(219, 166, 23, 0.3) !important;
+}
+
+.stat-card.stat-card-pending::before {
+    background: var(--mhm-warning);
+}
+
+.stat-card.stat-card-confirmed {
+    --card-color: var(--mhm-success);
+}
+
+.stat-card.stat-card-confirmed .stat-icon {
+    background: linear-gradient(135deg, #00a32a, #4caf50) !important;
+    box-shadow: 0 4px 12px rgba(0, 163, 42, 0.3) !important;
+}
+
+.stat-card.stat-card-confirmed::before {
+    background: var(--mhm-success);
+}
+
+.stat-card.stat-card-completed {
+    --card-color: var(--mhm-primary);
+}
+
+.stat-card.stat-card-completed .stat-icon {
+    background: linear-gradient(135deg, #2271b1, #72aee6) !important;
+    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.3) !important;
+}
+
+.stat-card.stat-card-completed::before {
+    background: var(--mhm-primary);
+}
+
+.stat-card.stat-card-revenue {
+    --card-color: var(--mhm-success);
+}
+
+.stat-card.stat-card-revenue .stat-icon {
+    background: linear-gradient(135deg, #00a32a, #4caf50) !important;
+    box-shadow: 0 4px 12px rgba(0, 163, 42, 0.3) !important;
+}
+
+.stat-card.stat-card-revenue::before {
+    background: var(--mhm-success);
+}
+
+.stat-card.stat-card-answered-messages::before {
+    background: var(--mhm-success);
+}
+
+/* Dashboard Stats - Specific Cards */
+.stat-card.stat-card-total-bookings {
+    --card-color: var(--mhm-primary);
+}
+
+.stat-card.stat-card-total-bookings .stat-icon {
+    background: linear-gradient(135deg, #2271b1, #72aee6) !important;
+    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.3) !important;
+}
+
+.stat-card.stat-card-total-bookings::before {
+    background: var(--mhm-primary);
+}
+
+.stat-card.stat-card-total-revenue {
+    --card-color: var(--mhm-success);
+}
+
+.stat-card.stat-card-total-revenue .stat-icon {
+    background: linear-gradient(135deg, #00a32a, #4caf50) !important;
+    box-shadow: 0 4px 12px rgba(0, 163, 42, 0.3) !important;
+}
+
+.stat-card.stat-card-total-revenue::before {
+    background: var(--mhm-success);
+}
+
+.stat-card.stat-card-total-vehicles {
+    --card-color: var(--mhm-info);
+}
+
+.stat-card.stat-card-total-vehicles .stat-icon {
+    background: linear-gradient(135deg, #72aee6, #a8d8ff) !important;
+    box-shadow: 0 4px 12px rgba(114, 174, 230, 0.3) !important;
+}
+
+.stat-card.stat-card-total-vehicles::before {
+    background: var(--mhm-info);
+}
+
+.stat-card.stat-card-total-customers {
+    --card-color: var(--mhm-warning);
+}
+
+.stat-card.stat-card-total-customers .stat-icon {
+    background: linear-gradient(135deg, #dba617, #f4d03f) !important;
+    box-shadow: 0 4px 12px rgba(219, 166, 23, 0.3) !important;
+}
+
+.stat-card.stat-card-total-customers::before {
+    background: var(--mhm-warning);
+}
+
+/* Message Stats */
+.stat-card.message {
+    --card-color: #9c27b0;
+}
+
+.stat-card.message .stat-icon::before {
+    background: linear-gradient(135deg, #9c27b0, #ba68c8);
+}
+
+.stat-card.message::before {
+    background: #9c27b0;
+}
+
+/* Email Stats */
+.stat-card.email {
+    --card-color: #ff5722;
+}
+
+.stat-card.email .stat-icon::before {
+    background: linear-gradient(135deg, #ff5722, #ff8a65);
+}
+
+.stat-card.email::before {
+    background: #ff5722;
+}
+
+/* Addon Stats */
+.stat-card.addon {
+    --card-color: #607d8b;
+}
+
+.stat-card.addon .stat-icon::before {
+    background: linear-gradient(135deg, #607d8b, #90a4ae);
+}
+
+.stat-card.addon::before {
+    background: #607d8b;
+}
+
+/* Reports Stats */
+.stat-card.reports {
+    --card-color: #795548;
+}
+
+.stat-card.reports .stat-icon::before {
+    background: linear-gradient(135deg, #795548, #a1887f);
+}
+
+.stat-card.reports::before {
+    background: #795548;
+}
+
+/* === STATS CARD BOYUTLARI === */
+
+.stat-card.small {
+    padding: var(--mhm-space-4);
+}
+
+.stat-card.small .stat-icon {
+    width: 36px;
+    height: 36px;
+    font-size: var(--mhm-text-lg);
+}
+
+.stat-card.small .stat-number {
+    font-size: var(--mhm-text-2xl);
+}
+
+.stat-card.large {
+    padding: var(--mhm-space-8);
+}
+
+.stat-card.large .stat-icon {
+    width: 64px;
+    height: 64px;
+    font-size: var(--mhm-text-2xl);
+}
+
+.stat-card.large .stat-number {
+    font-size: var(--mhm-text-4xl);
+}
+
+/* === STATS CARD DURUMLARI === */
+
+.stat-card.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.stat-card.loading .stat-number {
+    background: var(--mhm-gray-200);
+    color: transparent;
+    border-radius: var(--mhm-radius-base);
+    animation: shimmer var(--mhm-duration-1500) var(--mhm-ease-in-out) infinite;
+}
+
+.stat-card.error {
+    border-color: var(--mhm-error);
+}
+
+.stat-card.error::before {
+    background: var(--mhm-error);
+}
+
+.stat-card.success {
+    border-color: var(--mhm-success);
+}
+
+.stat-card.success::before {
+    background: var(--mhm-success);
+}
+
+/* === RESPONSIVE TASARIM === */
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: var(--mhm-space-4);
+    }
+
+    .stat-card {
+        padding: var(--mhm-space-4);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: var(--mhm-text-lg);
+    }
+
+    .stat-number {
+        font-size: var(--mhm-text-2xl);
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        gap: var(--mhm-space-3);
+    }
+
+    .stat-card {
+        padding: var(--mhm-space-3);
+    }
+
+    .stat-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--mhm-space-2);
+    }
+
+    .stat-icon {
+        width: 36px;
+        height: 36px;
+        font-size: var(--mhm-text-base);
+    }
+
+    .stat-number {
+        font-size: var(--mhm-text-xl);
+    }
+}
+
+/* === KARANLIK MOD === */
+
+@media (prefers-color-scheme: dark) {
+    .stat-card {
+        background: var(--mhm-bg-card);
+        border-color: var(--mhm-border-primary);
+    }
+
+    .stat-card:hover {
+        border-color: var(--mhm-border-secondary);
+    }
+
+    .stat-card.loading .stat-number {
+        background: var(--mhm-gray-700);
+    }
+}
+
+/* WordPress Admin Dark Mode */
+body.wp-admin.wp-theme-dark .stat-card {
+    background: var(--mhm-bg-card);
+    border-color: var(--mhm-border-primary);
+}
+
+body.wp-admin.wp-theme-dark .stat-card:hover {
+    border-color: var(--mhm-border-secondary);
+}
+
+body.wp-admin.wp-theme-dark .stat-card.loading .stat-number {
+    background: var(--mhm-gray-700);
+}
+
+/* === ANİMASYONLAR === */
+
+.stat-card {
+    animation: fadeInUp var(--mhm-duration-500) var(--mhm-ease-out);
+}
+
+.stat-card:nth-child(1) {
+    animation-delay: 0ms;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: 100ms;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: 200ms;
+}
+
+.stat-card:nth-child(4) {
+    animation-delay: 300ms;
+}
+
+.stat-card:nth-child(5) {
+    animation-delay: 400ms;
+}
+
+.stat-card:nth-child(6) {
+    animation-delay: 500ms;
+}
+
+/* Email Template Stats - Specific Cards */
+.stat-card.stat-card-total-templates .stat-icon {
+    background: linear-gradient(135deg, #2271b1, #72aee6) !important;
+    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.3) !important;
+}
+
+.stat-card.stat-card-active-templates .stat-icon {
+    background: linear-gradient(135deg, #00a32a, #4caf50) !important;
+    box-shadow: 0 4px 12px rgba(0, 163, 42, 0.3) !important;
+}
+
+.stat-card.stat-card-monthly-sent .stat-icon {
+    background: linear-gradient(135deg, #dba617, #f4d03f) !important;
+    box-shadow: 0 4px 12px rgba(219, 166, 23, 0.3) !important;
+}
+
+.stat-card.stat-card-success-rate .stat-icon {
+    background: linear-gradient(135deg, #673ab7, #9c27b0) !important;
+    box-shadow: 0 4px 12px rgba(103, 58, 183, 0.3) !important;
+}
+
+/* === ACCESSIBILITY === */
+
+.stat-card:focus-within {
+    outline: 2px solid var(--mhm-border-focus);
+    outline-offset: 2px;
+}
+
+.stat-card[role="button"] {
+    cursor: pointer;
+}
+
+.stat-card[role="button"]:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card[role="button"]:active {
+    transform: translateY(0);
+}
+
+/* === DEPOSIT STATS CARDS === */
+
+/* Depozito Rezervasyonları */
+.stat-card.stat-card-deposit-bookings {
+    --card-color: var(--mhm-primary);
+}
+
+.stat-card.stat-card-deposit-bookings .stat-icon {
+    background: linear-gradient(135deg, #2271b1, #72aee6) !important;
+    box-shadow: 0 4px 12px rgba(34, 113, 177, 0.3) !important;
+}
+
+.stat-card.stat-card-deposit-bookings::before {
+    background: var(--mhm-primary);
+}
+
+/* Bekleyen Depozitolar */
+.stat-card.stat-card-pending-deposits {
+    --card-color: var(--mhm-warning);
+}
+
+.stat-card.stat-card-pending-deposits .stat-icon {
+    background: linear-gradient(135deg, #dba617, #f4d03f) !important;
+    box-shadow: 0 4px 12px rgba(219, 166, 23, 0.3) !important;
+}
+
+.stat-card.stat-card-pending-deposits::before {
+    background: var(--mhm-warning);
+}
+
+/* Tamamlanan Depozitolar */
+.stat-card.stat-card-completed-deposits {
+    --card-color: var(--mhm-success);
+}
+
+.stat-card.stat-card-completed-deposits .stat-icon {
+    background: linear-gradient(135deg, #00a32a, #4caf50) !important;
+    box-shadow: 0 4px 12px rgba(0, 163, 42, 0.3) !important;
+}
+
+.stat-card.stat-card-completed-deposits::before {
+    background: var(--mhm-success);
+}
+
+/* Depozito Oranı */
+.stat-card.stat-card-deposit-ratio {
+    --card-color: #673ab7;
+}
+
+.stat-card.stat-card-deposit-ratio .stat-icon {
+    background: linear-gradient(135deg, #673ab7, #9c27b0) !important;
+    box-shadow: 0 4px 12px rgba(103, 58, 183, 0.3) !important;
+}
+
+.stat-card.stat-card-deposit-ratio::before {
+    background: #673ab7;
+}
+
+/* Favorites Stats - Specific Cards */
+.stat-card.stat-card-total-favorites {
+    --card-color: #e91e63;
+}
+
+.stat-card.stat-card-total-favorites .stat-icon {
+    background: linear-gradient(135deg, #e91e63, #f06292) !important;
+    box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3) !important;
+}
+
+.stat-card.stat-card-total-favorites::before {
+    background: #e91e63;
+}
+
+/* === PRINT STYLES === */
+
+@media print {
+    .stat-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid var(--mhm-gray-400);
+    }
+
+    .stat-card::before {
+        display: none;
+    }
+
+    .stat-icon {
+        background: var(--mhm-gray-200) !important;
+        color: var(--mhm-gray-600) !important;
+    }
+}

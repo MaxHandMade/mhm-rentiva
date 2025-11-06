@@ -1,0 +1,184 @@
+/*
+ * MHM Rentiva - Merkezi Stil Kütüphanesi (core.css)
+ * 
+ * Bu dosya yeni modüler CSS yapısının ana dosyasıdır.
+ * CSS değişkenleri ve animasyonlar ayrı dosyalarda tutulmaktadır.
+ * 
+ * İçe Aktarılan Dosyalar:
+ * - css-variables.css: Tasarım token'ları
+ * - animations.css: Merkezi animasyonlar
+ * - components/stats-cards.css: İstatistik kartları
+ * - components/calendars.css: Takvim bileşenleri
+ */
+
+/* Import CSS Variables */
+@import url('./css-variables.css');
+
+/* Import Animations */
+@import url('./animations.css');
+
+/* Import Components */
+@import url('../components/stats-cards.css');
+@import url('../components/calendars.css');
+
+/* =================================================================
+   1. Base Styles and Grid System
+   ================================================================= */
+
+/* =================================================================
+     2. Base Styles and Grid System
+     ================================================================= */
+.mhm-rentiva-wrap {
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    color: var(--text-color);
+}
+
+.mhm-rentiva-wrap h1,
+.mhm-rentiva-wrap h2,
+.mhm-rentiva-wrap h3,
+.mhm-rentiva-wrap h4,
+.mhm-rentiva-wrap h5,
+.mhm-rentiva-wrap h6 {
+    color: var(--text-heading-color);
+    font-weight: 500;
+}
+
+.mhm-rentiva-wrap .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -12px;
+    margin-left: -12px;
+}
+
+.mhm-rentiva-wrap [class*="col-"] {
+    position: relative;
+    width: 100%;
+    padding-right: 12px;
+    padding-left: 12px;
+}
+
+/* Example Grid Sizes */
+@media (min-width: 992px) {
+    .mhm-rentiva-wrap .col-lg-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    .mhm-rentiva-wrap .col-lg-4 {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+
+    .mhm-rentiva-wrap .col-lg-3 {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+}
+
+/* =================================================================
+     3. Components: Card
+     ================================================================= */
+.mhm-rentiva-wrap .card {
+    background-color: var(--bg-card);
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: var(--spacing-base);
+}
+
+.mhm-rentiva-wrap .card-header {
+    padding: 1rem 1.5rem;
+    background-color: transparent;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-heading-color);
+}
+
+.mhm-rentiva-wrap .card-body {
+    padding: 1.5rem;
+}
+
+/* =================================================================
+     4. Components: Button
+     ================================================================= */
+.mhm-rentiva-wrap .btn {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 0.45rem 0.9rem;
+    font-size: var(--font-size-base);
+    border-radius: 2px;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.mhm-rentiva-wrap .btn-primary {
+    color: #fff;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.mhm-rentiva-wrap .btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+/* Other button colors (secondary, success, danger) can be added here */
+
+/* =================================================================
+     5. Components: Form Elements
+     ================================================================= */
+.mhm-rentiva-wrap .form-control {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + .9rem + 2px);
+    padding: .45rem .9rem;
+    font-size: var(--font-size-base);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-color);
+    background-color: var(--bg-card);
+    background-clip: padding-box;
+    border: 1px solid var(--border-color);
+    border-radius: 2px;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.mhm-rentiva-wrap .form-control:focus {
+    color: var(--text-color);
+    background-color: var(--bg-card);
+    border-color: var(--primary-color);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(68, 137, 228, 0.25);
+}
+
+/* =================================================================
+     6. Components: Table
+     ================================================================= */
+.mhm-rentiva-wrap .table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.mhm-rentiva-wrap .table th,
+.mhm-rentiva-wrap .table td {
+    padding: 0.75rem;
+    vertical-align: top;
+    border-top: 1px solid var(--border-color);
+}
+
+.mhm-rentiva-wrap .table thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid var(--border-color);
+    font-weight: 600;
+    color: var(--text-heading-color);
+}

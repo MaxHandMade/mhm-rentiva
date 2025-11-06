@@ -1,0 +1,245 @@
+/**
+ * Messages Settings CSS
+ */
+
+/* Tab System - Support both standalone and integrated modes */
+.mhm-settings-tabs .nav-tab-wrapper,
+.mhm-messages-settings-container .mhm-messages-subtabs {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ccd0d4;
+    padding-bottom: 0;
+}
+
+.mhm-settings-tabs .nav-tab,
+.mhm-messages-settings-container .mhm-subtab {
+    background: #f1f1f1;
+    border: 1px solid #ccd0d4;
+    border-bottom: none;
+    color: #50575e;
+    text-decoration: none;
+    padding: 8px 12px;
+    margin-right: 5px;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.mhm-settings-tabs .nav-tab:hover,
+.mhm-messages-settings-container .mhm-subtab:hover {
+    background: #fafafa;
+    color: #135e96;
+}
+
+.mhm-settings-tabs .nav-tab-active,
+.mhm-messages-settings-container .mhm-subtab.active {
+    background: #fff;
+    border-bottom: 1px solid #fff;
+    color: #135e96;
+    font-weight: 600;
+}
+
+.mhm-settings-tabs .nav-tab-active:hover,
+.mhm-messages-settings-container .mhm-subtab.active:hover {
+    background: #fff;
+    color: #135e96;
+}
+
+/* Tab Content - Support both standalone and integrated modes */
+.mhm-settings-tabs .tab-content,
+.mhm-messages-settings-container .mhm-subtab-content {
+    display: none;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-top: none;
+    padding: 20px;
+    border-radius: 0 0 4px 4px;
+    margin-top: -1px;
+}
+
+.mhm-settings-tabs .tab-content.active,
+.mhm-messages-settings-container .mhm-subtab-content.active {
+    display: block;
+}
+
+.mhm-settings-tabs .tab-content h2 {
+    margin-top: 0;
+    color: #23282d;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Form Styling */
+.mhm-settings-tabs .form-table {
+    margin-top: 20px;
+}
+
+.mhm-settings-tabs .form-table th {
+    width: 200px;
+    padding: 15px 10px 15px 0;
+    vertical-align: top;
+    font-weight: 600;
+}
+
+.mhm-settings-tabs .form-table td {
+    padding: 15px 10px;
+    vertical-align: top;
+}
+
+.mhm-settings-tabs .form-table input[type="text"],
+.mhm-settings-tabs .form-table input[type="email"],
+.mhm-settings-tabs .form-table input[type="number"] {
+    width: 100%;
+    max-width: 400px;
+}
+
+.mhm-settings-tabs .form-table .small-text {
+    width: 80px;
+}
+
+.mhm-settings-tabs .form-table .large-text {
+    width: 100%;
+    max-width: 600px;
+}
+
+.mhm-settings-tabs .form-table textarea {
+    width: 100%;
+    max-width: 600px;
+    min-height: 100px;
+}
+
+/* Category and Status Management */
+.mhm-settings-tabs .mhm-category-item,
+.mhm-settings-tabs .mhm-status-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.mhm-settings-tabs .mhm-category-item input,
+.mhm-settings-tabs .mhm-status-item input {
+    flex: 1;
+    margin-right: 10px;
+    max-width: none;
+}
+
+.mhm-settings-tabs .remove-category-btn,
+.mhm-settings-tabs .remove-status-btn {
+    background: #dc3232;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.3s ease;
+}
+
+.mhm-settings-tabs .remove-category-btn:hover,
+.mhm-settings-tabs .remove-status-btn:hover {
+    background: #a00;
+}
+
+.mhm-settings-tabs .mhm-add-item {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f0f8ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.mhm-settings-tabs .mhm-add-item input {
+    flex: 1;
+    margin-right: 10px;
+    max-width: 300px;
+}
+
+.mhm-settings-tabs .mhm-add-item .button {
+    margin-left: 10px;
+}
+
+/* Checkbox Styling */
+.mhm-settings-tabs .form-table label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.mhm-settings-tabs .form-table label input[type="checkbox"] {
+    margin-right: 8px;
+    width: auto;
+    max-width: none;
+}
+
+/* Description Text */
+.mhm-settings-tabs .description {
+    color: #666;
+    font-style: italic;
+    margin-top: 5px;
+    font-size: 13px;
+}
+
+/* Submit Button */
+.mhm-settings-tabs .submit {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.mhm-settings-tabs .button-primary {
+    background: #0073aa;
+    border-color: #0073aa;
+    box-shadow: 0 1px 0 #006799;
+    color: #fff;
+    text-decoration: none;
+    text-shadow: 0 -1px 1px #006799, 1px 0 1px #006799, 0 1px 1px #006799, -1px 0 1px #006799;
+    padding: 8px 12px;
+    border-radius: 3px;
+    font-size: 13px;
+    line-height: 2.15384615;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mhm-settings-tabs .button-primary:hover {
+    background: #005a87;
+    border-color: #005a87;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .mhm-settings-tabs .nav-tab {
+        display: block;
+        margin-bottom: 5px;
+        margin-right: 0;
+        text-align: center;
+    }
+
+    .mhm-settings-tabs .mhm-category-item,
+    .mhm-settings-tabs .mhm-status-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .mhm-settings-tabs .mhm-category-item input,
+    .mhm-settings-tabs .mhm-status-item input {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .mhm-settings-tabs .mhm-add-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .mhm-settings-tabs .mhm-add-item input {
+        margin-right: 0;
+        margin-bottom: 10px;
+        max-width: none;
+    }
+}

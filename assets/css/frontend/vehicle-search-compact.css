@@ -1,0 +1,372 @@
+/* Vehicle Search Compact Form Styles - MHM Rentiva Theme */
+.rv-search-form-compact {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 30px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+.rv-search-form-compact::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+}
+
+/* Header */
+.rv-search-header-compact {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.rv-search-header-compact h3 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: -0.025em;
+}
+
+/* Main Search Row */
+.rv-search-main-row {
+    display: grid !important;
+    grid-template-columns: 2fr 1fr 1fr auto !important;
+    gap: 20px !important;
+    align-items: end !important;
+    margin-bottom: 25px !important;
+}
+
+/* Form Fields */
+.rv-search-field {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-height: 70px;
+    /* Booking form'daki gibi sabit yükseklik */
+}
+
+.rv-search-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+    letter-spacing: 0.025em;
+}
+
+.rv-search-field input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1e293b;
+    background: #ffffff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    height: 44px;
+    /* Booking form'daki gibi sabit yükseklik */
+    box-sizing: border-box;
+}
+
+.rv-search-field input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+
+.rv-search-field input::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+/* Search Button */
+.rv-search-submit {
+    display: flex;
+    align-items: end;
+}
+
+.rv-search-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    min-width: 120px;
+    justify-content: center;
+    height: 44px;
+    /* Input'larla aynı yükseklik */
+    box-sizing: border-box;
+}
+
+.rv-search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+}
+
+.rv-search-btn:active {
+    transform: translateY(0);
+}
+
+.rv-search-icon {
+    font-size: 16px;
+}
+
+/* Advanced Filters Toggle */
+.rv-advanced-filters-compact {
+    margin-top: 20px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 20px;
+}
+
+.rv-toggle-filters-compact {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    margin: 0 auto;
+}
+
+.rv-toggle-filters-compact:hover {
+    background: #f1f5f9;
+    color: #3b82f6;
+}
+
+.rv-toggle-icon {
+    transition: transform 0.3s ease;
+    font-size: 12px;
+}
+
+.rv-advanced-filters-compact.active .rv-toggle-icon {
+    transform: rotate(180deg);
+}
+
+/* Advanced Filters Content */
+.rv-advanced-content-compact {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.rv-advanced-row-compact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.rv-advanced-row-compact .rv-search-field {
+    margin-bottom: 0;
+}
+
+.rv-advanced-row-compact .rv-search-field input,
+.rv-advanced-row-compact .rv-search-field select {
+    background: #ffffff;
+}
+
+/* Select Fields */
+.rv-search-field select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1e293b;
+    background: #ffffff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+}
+
+.rv-search-field select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .rv-search-main-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .rv-search-keyword {
+        grid-column: 1 / -1;
+        /* Full width on tablet */
+    }
+
+    .rv-search-submit {
+        align-items: stretch;
+    }
+
+    .rv-search-btn {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .rv-search-main-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .rv-search-keyword {
+        grid-column: 1;
+    }
+
+    .rv-search-form-compact {
+        padding: 20px;
+        margin: 0 10px;
+    }
+
+    .rv-search-header-compact h3 {
+        font-size: 24px;
+    }
+
+    .rv-advanced-row-compact {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rv-search-form-compact {
+        padding: 15px;
+        border-radius: 12px;
+    }
+
+    .rv-search-header-compact h3 {
+        font-size: 20px;
+    }
+
+    .rv-search-field input,
+    .rv-search-field select {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+
+    .rv-search-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+}
+
+/* Animation for toggle */
+.rv-advanced-content-compact {
+    display: none;
+    /* Initially hidden */
+}
+
+.rv-advanced-filters-compact.active .rv-advanced-content-compact {
+    display: block;
+}
+
+/* Loading State */
+.rv-search-btn.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.rv-search-btn.loading .rv-search-icon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error States */
+.rv-search-field.error input,
+.rv-search-field.error select {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.rv-search-field .error-message {
+    color: #ef4444;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+/* Success States */
+.rv-search-field.success input,
+.rv-search-field.success select {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Focus States */
+.rv-search-field:focus-within label {
+    color: #3b82f6;
+}
+
+/* Dark Mode Support (if needed) */
+@media (prefers-color-scheme: dark) {
+    .rv-search-form-compact {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .rv-search-header-compact h3 {
+        color: #f1f5f9;
+    }
+
+    .rv-search-field label {
+        color: #cbd5e1;
+    }
+
+    .rv-search-field input,
+    .rv-search-field select {
+        background: #334155;
+        border-color: #475569;
+        color: #f1f5f9;
+    }
+
+    .rv-search-field input::placeholder {
+        color: #64748b;
+    }
+
+    .rv-advanced-content-compact {
+        background: #1e293b;
+        border-color: #475569;
+    }
+}

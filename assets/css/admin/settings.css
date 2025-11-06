@@ -1,0 +1,413 @@
+/* MHM Rentiva Settings Layout */
+.mhm-settings-page {
+    margin: 20px 0;
+}
+
+.mhm-settings-layout {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Left Menu */
+.mhm-settings-sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 6px;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mhm-settings-nav {
+    margin: 0;
+    padding: 0;
+}
+
+.mhm-settings-nav-item {
+    display: block;
+    padding: 12px 16px;
+    color: #23282d;
+    text-decoration: none;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.mhm-settings-nav-item:hover {
+    background-color: #f8f9fa;
+    color: #0073aa;
+    text-decoration: none;
+}
+
+.mhm-settings-nav-item.active {
+    background-color: #0073aa;
+    color: #fff;
+    border-left: 4px solid #005177;
+}
+
+/* Settings Tab Header with Reset Button */
+.mhm-settings-tab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.mhm-settings-tab-header h2 {
+    margin: 0 0 5px 0;
+}
+
+.mhm-settings-tab-header p {
+    margin: 0;
+}
+
+.mhm-reset-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.mhm-reset-tab-btn .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.mhm-reset-tab-btn.mhm-resetting {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Spin animation for loading */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.mhm-spin {
+    animation: spin 1s linear infinite;
+}
+
+.mhm-settings-nav-item:last-child {
+    border-bottom: none;
+}
+
+/* Ana İçerik */
+.mhm-settings-content {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .mhm-settings-layout {
+        flex-direction: column;
+    }
+
+    .mhm-settings-sidebar {
+        width: 100%;
+        order: 2;
+    }
+
+    .mhm-settings-content {
+        order: 1;
+    }
+
+    .mhm-settings-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .mhm-settings-nav-item {
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+        border: 1px solid #ccd0d4;
+        border-radius: 4px;
+        margin: 2px;
+    }
+}
+
+/* Form Stilleri */
+.mhm-settings-form {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.mhm-settings-form-container {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.mhm-settings-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.mhm-settings-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.mhm-settings-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #23282d;
+}
+
+.mhm-form-group {
+    margin-bottom: 20px;
+}
+
+.mhm-form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #23282d;
+}
+
+.mhm-form-group input,
+.mhm-form-group select,
+.mhm-form-group textarea {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.mhm-form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.mhm-form-group .description {
+    font-size: 13px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.mhm-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mhm-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mhm-checkbox-item input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.mhm-category-list,
+.mhm-status-list {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    background: #f9f9f9;
+}
+
+.mhm-category-item,
+.mhm-status-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.mhm-category-item:last-child,
+.mhm-status-item:last-child {
+    margin-bottom: 0;
+}
+
+.mhm-category-item input,
+.mhm-status-item input {
+    width: auto;
+    margin: 0;
+}
+
+.mhm-category-item .label,
+.mhm-status-item .label {
+    flex: 1;
+    margin: 0;
+}
+
+.mhm-category-item .remove-btn,
+.mhm-status-item .remove-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.mhm-category-item .remove-btn:hover,
+.mhm-status-item .remove-btn:hover {
+    background: #c82333;
+}
+
+.mhm-add-item {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.mhm-add-item input {
+    flex: 1;
+    max-width: 200px;
+}
+
+.mhm-add-item .button {
+    padding: 8px 16px;
+    background: #007cba;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.mhm-add-item .button:hover {
+    background: #005a87;
+}
+
+.mhm-settings-actions {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+    text-align: right;
+}
+
+.mhm-email-template {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.mhm-email-template .template-header {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    font-weight: 500;
+    color: #495057;
+}
+
+.mhm-email-template .template-content {
+    padding: 15px;
+}
+
+.mhm-email-template textarea {
+    width: 100%;
+    max-width: none;
+    min-height: 150px;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.mhm-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.mhm-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.mhm-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.mhm-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.mhm-toggle-slider {
+    background-color: #007cba;
+}
+
+input:checked+.mhm-toggle-slider:before {
+    transform: translateX(26px);
+}
+
+.mhm-toggle-label {
+    margin-left: 10px;
+    font-size: 14px;
+    color: #23282d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .mhm-settings-form {
+        padding: 15px;
+    }
+
+    .mhm-form-group input,
+    .mhm-form-group select,
+    .mhm-form-group textarea {
+        max-width: none;
+    }
+
+    .mhm-add-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .mhm-add-item input {
+        max-width: none;
+        margin-bottom: 10px;
+    }
+
+    .mhm-settings-actions {
+        text-align: center;
+    }
+}

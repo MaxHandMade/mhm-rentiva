@@ -1,0 +1,182 @@
+# WordPress Plugin - MHM Rentiva
+# Files and directories to exclude from Git
+
+# ============================================
+# WordPress Core Files (NOT part of plugin)
+# ============================================
+/wp-admin/
+/wp-includes/
+/wp-content/themes/
+/wp-content/plugins/*/
+!/wp-content/plugins/mhm-rentiva/
+/wp-content/uploads/
+/wp-content/upgrade/
+/wp-content/backup-db/
+/wp-content/advanced-cache.php
+/wp-content/wp-config.php
+/wp-content/db.php
+/wp-content/object-cache.php
+/wp-content/debug.log
+/wp-content/.htaccess
+
+# ============================================
+# Development & Testing Files
+# ============================================
+*.log
+*.tmp
+*.temp
+*.cache
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# Node.js & Package Managers
+# ============================================
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# ============================================
+# Composer & PHP Dependencies
+# ============================================
+vendor/
+composer.lock
+composer.phar
+
+# ============================================
+# Build & Distribution Files
+# ============================================
+*.zip
+*.tar.gz
+*.rar
+dist/
+build/
+release/
+
+# ============================================
+# Environment & Configuration Files
+# ============================================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+wp-config.php
+wp-config-local.php
+.htaccess
+
+# ============================================
+# IDE & Editor Files
+# ============================================
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+.project
+.classpath
+.settings/
+
+# ============================================
+# OS Files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ============================================
+# Backup & Temporary Files
+# ============================================
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+*.sql
+*.dump
+backup/
+backups/
+temp/
+tmp/
+
+# ============================================
+# Test Files & Reports
+# ============================================
+test_*.php
+*_test.php
+*_test_*.php
+test-*.php
+tests/
+phpunit.xml
+.phpunit.result.cache
+coverage/
+*.coverage
+
+# ============================================
+# Documentation Build Files
+# ============================================
+docs/_build/
+docs/.doctrees/
+docs/.venv/
+
+# ============================================
+# WordPress Specific
+# ============================================
+wp-config-sample.php
+wp-content/debug.log
+wp-content/uploads/
+wp-content/upgrade/
+wp-content/backup-db/
+wp-content/cache/
+wp-content/blogs.dir/
+wp-content/upgrade/
+wp-content/backups/
+
+# ============================================
+# Plugin Specific Exclusions
+# ============================================
+# Development config files
+mhm_dev_suite.yaml
+*.yaml.local
+*.yml.local
+
+# Test/debug files
+test_*.php
+debug_*.php
+*_debug.php
+*_test.php
+
+# Pre-release reports (internal use)
+PRE_RELEASE_CHECK_REPORT.md
+
+# Live test checklists (internal use)
+LIVE-TEST-CHECKLIST.md
+
+# Proposal documents (internal use)
+API_KEYS_MANAGEMENT_PROPOSAL.md
+
+# ============================================
+# Keep Important Files
+# ============================================
+!README.md
+!README-tr.md
+!changelog.json
+!changelog-tr.json
+!TODO.md
+!docs/
+!.gitignore
+

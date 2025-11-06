@@ -1,0 +1,602 @@
+/**
+ * Vehicles List Styles - SADECE LİSTE LAYOUT
+ * 
+ * Araç listesi shortcode'u için CSS stilleri - sadece liste düzeni
+ * 
+ * @since 3.0.1
+ * @updated 2025-01-16 - Liste düzeni düzeltmeleri
+ * @updated 2025-01-16 - Padding ve yükseklik optimizasyonları
+ * @updated 2025-01-16 - Rating yıldızları sarı yapıldı, araç resmi büyütüldü
+ * @updated 2025-01-16 - Rating yıldızları için color property düzeltmesi
+ * @updated 2025-01-16 - Favori buton görsel durumu düzeltmesi
+ */
+
+/* CSS Variables */
+:root {
+    --rv-list-gap: 2rem;
+    --rv-list-padding: 1rem;
+    --rv-list-radius: 12px;
+    --rv-list-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --rv-list-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --rv-list-transition: all 0.3s ease;
+
+    /* Core variables for compatibility */
+    --rv-text-primary: #1f2937;
+    --rv-text-secondary: #6b7280;
+    --rv-bg-secondary: #f9fafb;
+    --rv-border-light: #e5e7eb;
+    --rv-radius-md: 8px;
+}
+
+/* Main Container */
+.rv-vehicles-list-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: var(--rv-list-padding);
+}
+
+/* Header */
+.rv-vehicles-list__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--rv-border-light, #e5e7eb);
+}
+
+.rv-vehicles-list__title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--rv-text-primary, #1f2937);
+    margin: 0;
+}
+
+.rv-vehicles-list__count {
+    font-size: 1rem;
+    color: var(--rv-text-secondary, #6b7280);
+    background: var(--rv-bg-secondary, #f9fafb);
+    padding: 0.5rem 1rem;
+    border-radius: var(--rv-radius-md, 8px);
+    border: 1px solid var(--rv-border-light, #e5e7eb);
+}
+
+/* Wrapper Layout - Liste için (SADECE TEK SÜTUN) */
+.rv-vehicles-list__wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rv-list-gap);
+    width: 100%;
+}
+
+/* Liste Layout - Her zaman tek sütun (yukarıdan aşağıya) */
+.rv-vehicles-list--columns-1,
+.rv-vehicles-list--columns-2,
+.rv-vehicles-list--columns-3,
+.rv-vehicles-list--columns-4 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2.5rem !important;
+}
+
+/* Liste Layout - Araç Kartı Stilleri (YATAY DÜZEN) */
+.rv-vehicle-card--list {
+    background: #fff;
+    border: 1px solid var(--rv-border-light, #e5e7eb);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    padding: 1.5rem;
+    min-height: 190px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: var(--rv-list-transition);
+    transition: all 0.3s ease;
+}
+
+.rv-vehicle-card--list:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Liste Layout - Sol Taraf: Resim */
+.rv-vehicle-card--list .rv-vehicle-card__image {
+    width: 240px;
+    height: 150px;
+    margin-right: 1.5rem;
+    margin-bottom: 0;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__image-link:hover .rv-vehicle-card__img {
+    transform: scale(1.05);
+}
+
+/* Liste Layout - Rating Overlay */
+.rv-vehicle-card--list .rv-vehicle-card__rating-overlay {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.rv-vehicle-card--list .rv-stars {
+    display: flex;
+    gap: 1px;
+    color: #fbbf24;
+    font-size: 0.875rem;
+}
+
+.rv-vehicle-card--list .rv-rating-count {
+    color: var(--rv-text-secondary, #6b7280);
+    font-size: 0.75rem;
+}
+
+/* Liste Layout - Sağ Taraf: İçerik */
+.rv-vehicle-card--list .rv-vehicle-card__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 150px;
+    padding-left: 0;
+}
+
+/* Liste Layout - Header */
+.rv-vehicle-card--list .rv-vehicle-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    gap: 0.75rem;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__title-section {
+    flex: 1;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+    max-height: none;
+    overflow: visible;
+    display: block;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__title-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__title-link:hover {
+    color: #3b82f6;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__category {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+/* Liste Layout - Favori Butonu */
+.rv-vehicle-card--list .rv-vehicle-card__favorite {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    color: #ef4444;
+    opacity: 0.6;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__favorite.is-favorited {
+    opacity: 1;
+    color: #ef4444;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__favorite:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.1);
+    transform: scale(1.1);
+}
+
+.rv-vehicle-card--list .rv-heart-icon {
+    fill: none;
+    stroke: currentColor;
+    transition: all 0.2s ease;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__favorite.is-favorited .rv-heart-icon {
+    fill: currentColor;
+}
+
+/* Liste Layout - Özellikler */
+.rv-vehicle-card--list .rv-vehicle-card__features {
+    display: flex;
+    gap: 1rem;
+    margin: 0.5rem 0 0.75rem 0;
+    flex-wrap: wrap;
+}
+
+.rv-vehicle-card--list .rv-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.rv-vehicle-card--list .rv-feature-item .rv-icon {
+    color: #6b7280;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.rv-vehicle-card--list .rv-feature-text {
+    font-weight: 400;
+    font-size: 0.875rem;
+    line-height: 1.2;
+}
+
+/* Liste Layout - Footer */
+.rv-vehicle-card--list .rv-vehicle-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__price {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.rv-vehicle-card--list .rv-price-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #3b82f6;
+    line-height: 1;
+}
+
+.rv-vehicle-card--list .rv-price-period {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.rv-vehicle-card--list .rv-vehicle-card__actions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.rv-vehicle-card--list .rv-btn-booking {
+    background: #3b82f6;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.rv-vehicle-card--list .rv-btn-booking:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    color: white;
+    text-decoration: none;
+}
+
+/* Empty State */
+.rv-vehicles-list__empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: var(--rv-bg-secondary, #f9fafb);
+    border-radius: var(--rv-list-radius);
+    border: 2px dashed var(--rv-border-light, #e5e7eb);
+}
+
+.rv-vehicles-list__empty-icon {
+    color: var(--rv-text-secondary, #6b7280);
+    margin-bottom: 1rem;
+}
+
+.rv-vehicles-list__empty-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--rv-text-primary, #1f2937);
+    margin: 0 0 0.5rem 0;
+}
+
+.rv-vehicles-list__empty-message {
+    color: var(--rv-text-secondary, #6b7280);
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablet (768px - 900px) */
+@media (max-width: 900px) {
+    .rv-vehicles-list-container {
+        padding: 0.75rem;
+    }
+
+    .rv-vehicles-list__wrapper {
+        gap: 1.5rem;
+    }
+
+    .rv-vehicles-list--columns-3,
+    .rv-vehicles-list--columns-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .rv-vehicle-card--list {
+        min-height: 140px;
+        padding: 1.25rem;
+    }
+
+    .rv-vehicle-card--list .rv-vehicle-card__image {
+        width: 200px;
+        height: 130px;
+        margin-right: 1.25rem;
+    }
+
+    .rv-vehicle-card--list .rv-vehicle-card__content {
+        height: 130px;
+    }
+}
+
+/* Mobile (768px ve altı) */
+@media (max-width: 768px) {
+    .rv-vehicles-list-container {
+        padding: 0.5rem;
+    }
+
+    .rv-vehicles-list__header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .rv-vehicles-list__title {
+        font-size: 1.5rem;
+    }
+
+
+    /* Mobile'da liste layout'u tek sütunlu hale getir */
+    .rv-vehicle-card--list {
+        flex-direction: row;
+        min-height: 140px;
+        max-height: none;
+        padding: 1rem;
+    }
+
+    .rv-vehicle-card--list .rv-vehicle-card__image {
+        width: 140px;
+        height: 100px;
+        margin-right: 1rem;
+        margin-bottom: 0;
+    }
+
+    .rv-vehicle-card--list .rv-vehicle-card__content {
+        padding-left: 0;
+        height: auto;
+    }
+
+    .rv-vehicle-card--list .rv-vehicle-card__footer {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        min-height: auto;
+    }
+
+    .rv-vehicle-card--list .rv-vehicle-card__price {
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    .rv-vehicle-card--list .rv-btn-booking {
+        width: auto;
+        flex-shrink: 0;
+    }
+}
+
+/* Small Mobile (480px ve altı) */
+@media (max-width: 480px) {
+    .rv-vehicles-list-container {
+        padding: 0.25rem;
+    }
+
+    .rv-vehicles-list__wrapper {
+        gap: 0.75rem;
+    }
+
+    .rv-vehicles-list__header {
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .rv-vehicles-list__title {
+        font-size: 1.25rem;
+    }
+
+    .rv-vehicles-list__count {
+        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+    }
+
+    .rv-vehicle-card--list {
+        flex-direction: column;
+        min-height: auto;
+        padding: 0.75rem;
+    }
+
+    .rv-vehicle-card--list .rv-vehicle-card__image {
+        width: 100%;
+        height: 180px;
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+
+    .rv-vehicle-card--list .rv-vehicle-card__content {
+        height: auto;
+        padding-left: 0;
+    }
+
+    .rv-vehicle-card--list .rv-vehicle-card__footer {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .rv-vehicle-card--list .rv-btn-booking {
+        width: 100%;
+    }
+}
+
+/* Focus States */
+.rv-vehicles-list__wrapper .rv-vehicle-card--list:focus-within {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: var(--rv-list-radius);
+}
+
+/* Print Styles */
+@media print {
+    .rv-vehicles-list__header {
+        border-bottom: 1px solid #000;
+    }
+
+    .rv-vehicles-list__wrapper {
+        display: block;
+    }
+
+    .rv-vehicle-card--list {
+        break-inside: avoid;
+        margin-bottom: 1rem;
+        border: 1px solid #000;
+        padding: 0.5rem;
+    }
+
+    .rv-vehicle-card--list .rv-vehicle-card__actions {
+        display: none;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --rv-list-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        --rv-list-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .rv-vehicles-list__header {
+        border-bottom: 3px solid currentColor;
+    }
+
+    .rv-vehicles-list__count {
+        border: 2px solid currentColor;
+    }
+
+    .rv-vehicles-list__empty {
+        border: 3px solid currentColor;
+    }
+}
+
+/* 2 sütunlu layout için buton genişliği düzeltmesi */
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-2 .rv-vehicle-card--list .rv-btn-booking {
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.9rem !important;
+    min-width: 140px !important;
+    max-width: 200px !important;
+    white-space: nowrap !important;
+    width: auto !important;
+    flex-shrink: 0 !important;
+}
+
+/* 2 sütunlu layout için footer düzeltmesi */
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-2 .rv-vehicle-card--list .rv-vehicle-card__footer {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    padding: 0.75rem 0 !important;
+}
+
+.rv-vehicles-list__wrapper.rv-vehicles-list--columns-2 .rv-vehicle-card--list .rv-vehicle-card__price {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+/* Availability Status Styles */
+.rv-vehicle-card__availability {
+    margin: 0.5rem 0;
+    text-align: left;
+}
+
+.rv-availability-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.rv-availability-status--available {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.rv-availability-status--unavailable {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}

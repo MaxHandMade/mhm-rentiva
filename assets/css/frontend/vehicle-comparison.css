@@ -1,0 +1,827 @@
+/**
+ * Vehicle Comparison CSS
+ * 
+ * Araç karşılaştırma tablosu için stiller
+ */
+
+/* ===== GENEL STİLLER ===== */
+.rv-vehicle-comparison {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 20px 0;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* ===== HEADER ===== */
+.rv-comparison-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+}
+
+.rv-comparison-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.rv-comparison-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ===== ARAÇ EKLEME BÖLÜMÜ ===== */
+.rv-add-vehicle-section {
+    padding: 20px 25px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.rv-add-vehicle-form {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    max-width: 100%;
+}
+
+.rv-form-row {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+}
+
+.rv-vehicle-select {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    transition: border-color 0.3s ease;
+}
+
+.rv-vehicle-select:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.rv-add-vehicle-btn {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.rv-add-vehicle-btn:hover {
+    background: #229954;
+    transform: translateY(-1px);
+}
+
+/* ===== KARŞILAŞTIRMA TABLOSU ===== */
+.rv-comparison-table-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+
+.rv-comparison-table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.rv-comparison-table th,
+.rv-comparison-table td {
+    padding: 15px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e1e5e9;
+    vertical-align: top;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+}
+
+.rv-comparison-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.rv-feature-column {
+    width: 200px;
+    min-width: 200px;
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    padding: 15px 12px;
+    min-height: 50px;
+    line-height: 1.4;
+    border-right: 2px solid #e1e5e9;
+}
+
+.rv-vehicle-column {
+    width: 300px;
+    min-width: 300px;
+    text-align: center;
+    background: white;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    padding: 15px 12px;
+    min-height: 50px;
+    line-height: 1.4;
+    vertical-align: top;
+}
+
+/* ===== ARAÇ BAŞLIKLARI ===== */
+.rv-vehicle-header {
+    position: relative;
+    padding: 20px 8px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-bottom: 2px solid #e1e5e9;
+}
+
+.rv-vehicle-header h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 10px 0 10px;
+    line-height: 1.3;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-align: center;
+}
+
+.rv-remove-vehicle {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.rv-remove-vehicle:hover {
+    background: #c0392b;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+}
+
+.rv-remove-vehicle-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    z-index: 5;
+}
+
+.rv-remove-vehicle-btn:hover {
+    background: #c0392b;
+    transform: scale(1.1);
+}
+
+.rv-vehicle-image-container {
+    position: relative;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.rv-vehicle-image {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.rv-vehicle-image img {
+    width: 100%;
+    max-width: 180px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.rv-vehicle-image img:hover {
+    transform: scale(1.05);
+}
+
+.rv-vehicle-title {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1.3;
+    text-align: center;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rv-book-now-btn {
+    display: block !important;
+    background: #007cba !important;
+    color: white !important;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 124, 186, 0.3);
+    margin: 10px auto;
+    text-align: center;
+    width: 100%;
+    max-width: 160px;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.rv-book-now-btn:hover {
+    background: #005a87 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 124, 186, 0.4);
+    text-decoration: none;
+    color: white;
+}
+
+/* ===== ÖZELLİK SATIRLARI ===== */
+.rv-feature-row {
+    transition: background-color 0.2s ease;
+}
+
+.rv-feature-row:hover {
+    background: #e3f2fd !important;
+}
+
+.rv-feature-row:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.rv-feature-name {
+    font-weight: 600;
+    color: #2c3e50;
+    background: #f8f9fa !important;
+    font-size: 14px;
+}
+
+.rv-feature-value {
+    text-align: center;
+    background: white;
+    font-size: 14px;
+    color: #495057;
+}
+
+/* ===== ÖZELLİK DEĞERLERİ ===== */
+.rv-price {
+    font-weight: 700;
+    color: #27ae60;
+    font-size: 18px;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    padding: 8px 12px;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.rv-no-price {
+    color: #95a5a6;
+    font-style: italic;
+    font-size: 14px;
+}
+
+.rv-seats,
+.rv-doors {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+    display: inline-block;
+}
+
+.rv-feature-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 14px;
+}
+
+.rv-feature-status.available {
+    background: #d4edda;
+    color: #155724;
+}
+
+.rv-feature-status.not-available {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.rv-feature-text {
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+/* ===== MODERN BADGE TASARIMI ===== */
+.rv-feature-list,
+.rv-equipment-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+}
+
+.rv-feature-badge,
+.rv-equipment-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: capitalize;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+    transition: all 0.3s ease;
+}
+
+.rv-equipment-badge {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
+}
+
+.rv-feature-badge:hover,
+.rv-equipment-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Features ve Equipment için özel satır yüksekliği */
+.rv-comparison-table tr[data-feature="features"] td,
+.rv-comparison-table tr[data-feature="equipment"] td {
+    vertical-align: top;
+    padding: 15px 8px;
+}
+
+/* ===== CARDS LAYOUT ===== */
+.rv-comparison-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 25px;
+}
+
+.rv-vehicle-card {
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.rv-vehicle-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.rv-card-header {
+    position: relative;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.rv-card-header .rv-remove-vehicle-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.rv-card-header .rv-vehicle-image {
+    margin-bottom: 15px;
+}
+
+.rv-card-header .rv-vehicle-image img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.rv-card-header .rv-vehicle-title {
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.rv-card-features {
+    padding: 20px;
+}
+
+.rv-feature-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.rv-feature-item:last-child {
+    border-bottom: none;
+}
+
+.rv-feature-label {
+    font-weight: 500;
+    color: #6c757d;
+    flex: 1;
+}
+
+.rv-feature-value {
+    flex: 1;
+    text-align: right;
+}
+
+/* ===== NO VEHICLES ===== */
+.rv-no-vehicles {
+    text-align: center;
+    padding: 60px 25px;
+    color: #6c757d;
+}
+
+.rv-no-vehicles-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.rv-no-vehicles h4 {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+    color: #2c3e50;
+}
+
+.rv-no-vehicles p {
+    margin: 0 0 30px 0;
+    font-size: 16px;
+}
+
+/* ===== MESAJLAR ===== */
+.rv-messages {
+    padding: 0 25px 25px;
+}
+
+.rv-hidden {
+    display: none !important;
+}
+
+.rv-success-message,
+.rv-error-message {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.rv-success-message.rv-hidden,
+.rv-error-message.rv-hidden {
+    display: none !important;
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.rv-success-message {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.rv-error-message {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .rv-comparison-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .rv-comparison-title {
+        font-size: 20px;
+    }
+
+    .rv-form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .rv-vehicle-select {
+        width: 100%;
+    }
+
+    .rv-add-vehicle-btn {
+        width: 100%;
+    }
+
+    .rv-comparison-table {
+        font-size: 14px;
+        min-width: 600px;
+    }
+
+    .rv-comparison-table th,
+    .rv-comparison-table td {
+        padding: 10px 8px;
+    }
+
+    .rv-feature-column {
+        width: 150px;
+        min-width: 150px;
+    }
+
+    .rv-vehicle-column {
+        width: 200px;
+        min-width: 200px;
+    }
+
+    .rv-vehicle-image img {
+        height: 80px;
+    }
+
+    .rv-vehicle-title {
+        font-size: 14px;
+    }
+
+    .rv-comparison-cards {
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+
+    .rv-feature-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .rv-feature-value {
+        text-align: left;
+    }
+}
+
+@media (max-width: 480px) {
+    .rv-vehicle-comparison {
+        margin: 10px;
+        border-radius: 8px;
+    }
+
+    .rv-comparison-header,
+    .rv-add-vehicle-section {
+        padding: 15px;
+    }
+
+    .rv-comparison-title {
+        font-size: 18px;
+    }
+
+    .rv-comparison-table th,
+    .rv-comparison-table td {
+        padding: 8px 5px;
+        font-size: 12px;
+    }
+
+    .rv-feature-column {
+        width: 120px;
+        min-width: 120px;
+    }
+
+    .rv-vehicle-column {
+        width: 150px;
+        min-width: 150px;
+    }
+
+    .rv-vehicle-image img {
+        height: 60px;
+    }
+
+    .rv-vehicle-title {
+        font-size: 12px;
+    }
+
+    .rv-book-now-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+
+    .rv-comparison-cards {
+        padding: 15px;
+    }
+
+    .rv-card-header,
+    .rv-card-features {
+        padding: 15px;
+    }
+}
+
+/* ===== DARK MODE ===== */
+@media (prefers-color-scheme: dark) {
+    .rv-vehicle-comparison {
+        background: #2c3e50;
+        color: #e1e5e9;
+    }
+
+    .rv-comparison-header {
+        background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+    }
+
+    .rv-add-vehicle-section {
+        background: #34495e;
+        border-bottom-color: #4a5f7a;
+    }
+
+    .rv-vehicle-select {
+        background: #34495e;
+        border-color: #4a5f7a;
+        color: #e1e5e9;
+    }
+
+    .rv-comparison-table th {
+        background: #34495e;
+        color: #e1e5e9;
+    }
+
+    .rv-feature-column {
+        background: #34495e !important;
+        color: #e1e5e9;
+    }
+
+    .rv-vehicle-column {
+        background: #2c3e50;
+    }
+
+    .rv-feature-row:nth-child(even) {
+        background: #34495e;
+    }
+
+    .rv-feature-name {
+        background: #34495e !important;
+        color: #e1e5e9;
+    }
+
+    .rv-feature-value {
+        background: #2c3e50;
+    }
+
+    .rv-vehicle-card {
+        background: #2c3e50;
+        border-color: #4a5f7a;
+    }
+
+    .rv-card-header {
+        background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        border-bottom-color: #4a5f7a;
+    }
+
+    .rv-feature-item {
+        border-bottom-color: #4a5f7a;
+    }
+
+    .rv-feature-label {
+        color: #bdc3c7;
+    }
+
+    .rv-feature-text {
+        color: #e1e5e9;
+    }
+}
+
+/* ===== ANIMASYONLAR ===== */
+.rv-vehicle-comparison {
+    animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rv-vehicle-card {
+    animation: slideInUp 0.4s ease;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+.rv-remove-vehicle-btn:focus,
+.rv-add-vehicle-btn:focus,
+.rv-book-now-btn:focus {
+    outline: 2px solid #3498db;
+    outline-offset: 2px;
+}
+
+.rv-vehicle-select:focus {
+    outline: none;
+}
+
+/* ===== PRINT STİLLERİ ===== */
+@media print {
+    .rv-vehicle-comparison {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+
+    .rv-add-vehicle-section,
+    .rv-remove-vehicle-btn,
+    .rv-book-now-btn {
+        display: none;
+    }
+
+    .rv-comparison-table {
+        font-size: 12px;
+    }
+
+    .rv-comparison-table th,
+    .rv-comparison-table td {
+        padding: 8px;
+    }
+}

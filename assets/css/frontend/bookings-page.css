@@ -1,0 +1,358 @@
+/* My Bookings Sayfası Stilleri */
+
+.rv-bookings-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: "Work Sans", "Noto Sans", sans-serif;
+}
+
+/* Ana sayfa container'ını kaldır - mhm-account-content zaten var */
+.rv-bookings-page {
+    background: transparent;
+}
+
+/* Header */
+.rv-bookings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 16px;
+    margin-bottom: 20px;
+}
+
+.rv-bookings-header h1 {
+    color: #0d171b;
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.015em;
+}
+
+.rv-btn-new-booking {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 84px;
+    height: 32px;
+    padding: 0 16px;
+    background: #e7eff3;
+    color: #0d171b;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.rv-btn-new-booking:hover {
+    background: #cfdfe7;
+    color: #0d171b;
+}
+
+/* Filter Section */
+.rv-filter-section {
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.rv-filter-section h3 {
+    color: #0d171b;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    letter-spacing: -0.015em;
+}
+
+.rv-filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 480px;
+}
+
+.rv-filter-row {
+    display: flex;
+    flex: 1;
+}
+
+.rv-filter-select,
+.rv-search-input {
+    width: 100%;
+    min-width: 160px;
+    height: 56px;
+    padding: 15px;
+    background: #f8fafc;
+    border: 1px solid #cfdfe7;
+    border-radius: 8px;
+    color: #0d171b;
+    font-size: 16px;
+    transition: border-color 0.2s ease;
+}
+
+.rv-filter-select:focus,
+.rv-search-input:focus {
+    outline: none;
+    border-color: #4c809a;
+}
+
+.rv-search-input::placeholder {
+    color: #4c809a;
+}
+
+/* Bookings Section */
+.rv-bookings-section {
+    margin-bottom: 32px;
+}
+
+.rv-bookings-section h3 {
+    color: #0d171b;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 16px;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.015em;
+}
+
+/* Table */
+.rv-table-wrapper {
+    padding: 0 16px 12px;
+    overflow-x: auto;
+}
+
+.rv-bookings-table {
+    width: 100%;
+    background: #f8fafc;
+    border: 1px solid #cfdfe7;
+    border-radius: 8px;
+    overflow: hidden;
+    border-collapse: collapse;
+}
+
+.rv-bookings-table thead {
+    background: #f8fafc;
+}
+
+.rv-bookings-table th {
+    padding: 12px 16px;
+    text-align: left;
+    color: #0d171b;
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 1px solid #cfdfe7;
+}
+
+.rv-bookings-table tbody tr {
+    border-top: 1px solid #cfdfe7;
+    transition: background 0.2s ease;
+}
+
+.rv-bookings-table tbody tr:hover {
+    background: #e7eff3;
+}
+
+.rv-bookings-table td {
+    padding: 16px;
+    color: #4c809a;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+/* Specific Columns */
+.rv-booking-id {
+    font-weight: 500;
+    color: #4c809a;
+}
+
+.rv-vehicle-thumb img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1px solid #e7eff3;
+}
+
+.rv-vehicle-name {
+    color: #4c809a;
+    font-weight: 400;
+}
+
+.rv-booking-date {
+    color: #4c809a;
+}
+
+/* Status Badge */
+.rv-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 84px;
+    height: 32px;
+    padding: 0 16px;
+    background: #e7eff3;
+    color: #0d171b;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    text-transform: capitalize;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-confirmed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-in_progress {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-completed {
+    background-color: #0073E6;
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.status-cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Price Badge */
+.rv-price-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 84px;
+    height: 32px;
+    padding: 0 16px;
+    background: #e7eff3;
+    color: #0d171b;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+}
+
+/* Actions */
+.rv-btn-view {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    height: 32px;
+    padding: 0 16px;
+    background: #3b82f6;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.rv-btn-view:hover {
+    background: #2563eb;
+    color: white;
+}
+
+/* Empty State */
+.rv-no-bookings {
+    padding: 60px 16px;
+}
+
+.rv-empty-state {
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.rv-empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.rv-empty-state h3 {
+    color: #0d171b;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+}
+
+.rv-empty-state p {
+    color: #4c809a;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0 0 24px 0;
+}
+
+.rv-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    height: 40px;
+    padding: 0 24px;
+    background: #3b82f6;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.rv-btn-primary:hover {
+    background: #2563eb;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .rv-table-wrapper {
+        overflow-x: scroll;
+    }
+
+    .rv-bookings-table {
+        min-width: 900px;
+    }
+}
+
+@media (max-width: 768px) {
+    .rv-bookings-page {
+        padding: 12px;
+    }
+
+    .rv-bookings-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .rv-bookings-header h1 {
+        font-size: 24px;
+    }
+
+    .rv-btn-new-booking {
+        width: 100%;
+    }
+
+    .rv-filter-form {
+        max-width: 100%;
+    }
+
+    /* Tablo kolonlarını gizle */
+    .rv-bookings-table th:nth-child(2),
+    .rv-bookings-table td:nth-child(2) {
+        display: none;
+    }
+
+    .rv-bookings-table th:nth-child(7),
+    .rv-bookings-table td:nth-child(7) {
+        display: none;
+    }
+}

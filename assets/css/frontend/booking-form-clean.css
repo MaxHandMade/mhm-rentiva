@@ -1,0 +1,2235 @@
+﻿/**
+ * Booking Form CSS
+ * 
+ * Advanced booking form styles - developed based on QuickBooking CSS structure
+ * Modern, responsive and user-friendly design
+ * 
+ * @updated 2025-01-16 - Cache busting ve AbstractShortcode entegrasyonu
+ * @updated 2025-01-16 - Price calculation grid design improved
+ * @updated 2025-01-16 - Sticky sidebar added (scrollbar removed)
+ * @updated 2025-01-16 - Disabled button styling improved
+ * @updated 2025-01-16 - Alternative vehicles styling improved (light green background)
+ * @updated 2025-01-16 - Mobile responsive design improved (input widths, payment cards, grid layout)
+ * @updated 2025-01-16 - Make Booking button text visibility fix
+ */
+
+
+/* ===== LOGGED IN USER INFO (v4.0.0) ===== */
+.rv-logged-in-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.rv-logged-in-info::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #00d4ff, #00ff88, #ff6b6b);
+    border-radius: 12px 12px 0 0;
+}
+
+.rv-logged-in-info .rv-info-message {
+    color: #ffffff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.rv-logged-in-info .rv-icon {
+    font-size: 28px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.rv-logged-in-info strong {
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover efekti */
+.rv-logged-in-info:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+}
+
+/* ===== FORM CONTAINER ===== */
+.rv-booking-form-wrapper {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.rv-booking-form {
+    background: #fff;
+    border-radius: 0;
+    box-shadow: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ===== TWO COLUMN LAYOUT ===== */
+.rv-booking-form-content {
+    display: grid !important;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) !important;
+    gap: 2rem !important;
+    align-items: start !important;
+}
+
+.rv-booking-form-left,
+.rv-booking-form-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Sticky Sidebar */
+.rv-booking-form-right {
+    position: sticky;
+    top: 2rem;
+    align-self: flex-start;
+}
+
+.rv-booking-form-left .rv-form-section,
+.rv-booking-form-right .rv-form-section {
+    margin-bottom: 0;
+}
+
+.rv-form-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.rv-form-title {
+    margin: 0;
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1e293b;
+    border-bottom: 3px solid #3b82f6;
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+/* ===== FORM SECTIONS ===== */
+.rv-form-section {
+    margin-bottom: 20px;
+    padding: 0;
+    background: #fff;
+    border-radius: 0;
+    border: none;
+}
+
+.rv-section-title {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rv-section-title::before {
+    content: '';
+    width: 4px;
+    height: 24px;
+    background: #3b82f6;
+    border-radius: 2px;
+}
+
+.rv-subsection-title {
+    margin: 1rem 0 0.75rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* ===== FORM ELEMENTS ===== */
+.rv-field-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .rv-field-group {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}
+
+.rv-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.rv-field-dates {
+    grid-template-columns: 1fr 1fr;
+}
+
+.rv-field-times {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Special styling for name fields */
+.rv-name-fields {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .rv-name-fields {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+}
+
+.rv-field-contact {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.rv-label {
+    display: block !important;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.875rem;
+    visibility: visible !important;
+}
+
+.rv-label .required {
+    color: #ef4444;
+    margin-left: 0.25rem;
+}
+
+/* Ensure labels are visible in Contact Information section */
+.rv-contact-info .rv-label,
+.rv-contact-info .rv-field .rv-label,
+.rv-contact-info .rv-field-group .rv-field .rv-label {
+    display: block !important;
+    visibility: visible !important;
+    color: #374151 !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    opacity: 1 !important;
+    text-indent: 0 !important;
+    line-height: 1.5 !important;
+    height: auto !important;
+    width: auto !important;
+    overflow: visible !important;
+    clip: auto !important;
+    position: static !important;
+}
+
+.rv-input,
+.rv-select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+/* Select dropdown options styling */
+.rv-select option {
+    background-color: #ffffff;
+    color: #1e293b;
+    padding: 0.5rem;
+}
+
+.rv-select option:hover {
+    background-color: #f3f4f6;
+    color: #1e293b;
+}
+
+.rv-select option:checked,
+.rv-select option:selected {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+
+.rv-input:focus,
+.rv-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+
+.rv-input:hover,
+.rv-select:hover {
+    border-color: #9ca3af;
+}
+
+.rv-input.error,
+.rv-select.error {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Special styling for date inputs */
+.rv-input[type="date"] {
+    position: relative;
+    cursor: pointer;
+    padding-right: 2.5rem;
+}
+
+.rv-input[type="date"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+    opacity: 0;
+    background: transparent;
+}
+
+/* ===== VEHICLE SELECTION ===== */
+.rv-vehicle-selection {
+    position: relative;
+}
+
+.rv-selected-vehicle-preview {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.rv-selected-vehicle {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    min-height: 180px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.rv-selected-vehicle:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Vehicle List Style - Left Side: Image */
+.rv-selected-vehicle .rv-vehicle-image-wrapper {
+    width: 250px;
+    height: 150px;
+    margin-right: 1.5rem;
+    margin-bottom: 0;
+    margin-left: 0;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.rv-selected-vehicle .rv-vehicle-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.rv-selected-vehicle .rv-vehicle-image-wrapper:hover .rv-vehicle-image {
+    transform: scale(1.05);
+}
+
+/* Rating Overlay */
+.rv-selected-vehicle .rv-vehicle-card__rating-overlay {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.rv-selected-vehicle .rv-stars {
+    display: flex;
+    gap: 1px;
+}
+
+.rv-selected-vehicle .rv-star {
+    fill: none;
+    stroke: #d1d5db;
+    transition: all 0.2s ease;
+}
+
+.rv-selected-vehicle .rv-star.rv-star-filled {
+    fill: #fbbf24;
+    stroke: #fbbf24;
+}
+
+.rv-selected-vehicle .rv-rating-count {
+    color: #6b7280;
+    font-size: 0.75rem;
+}
+
+/* Vehicle List Style - Right Side: Content */
+.rv-selected-vehicle .rv-vehicle-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 160px;
+    padding-left: 0.5rem;
+}
+
+/* Header - Removed (no title) */
+
+.rv-selected-vehicle .rv-vehicle-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+    max-height: none;
+    overflow: visible;
+    display: block;
+}
+
+.rv-selected-vehicle .rv-vehicle-excerpt {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+/* Favorite Button - Top right corner */
+.rv-selected-vehicle .rv-vehicle-card__favorite {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    color: #ef4444;
+    opacity: 0.6;
+    z-index: 10;
+}
+
+.rv-selected-vehicle .rv-vehicle-card__favorite:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.1);
+    transform: scale(1.1);
+}
+
+.rv-selected-vehicle .rv-heart-icon {
+    fill: none;
+    stroke: currentColor;
+    transition: all 0.2s ease;
+}
+
+.rv-selected-vehicle .rv-vehicle-card__favorite.favorited .rv-heart-icon {
+    fill: currentColor;
+}
+
+/* Features */
+.rv-selected-vehicle .rv-vehicle-features {
+    display: flex;
+    gap: 1rem;
+    margin: 0.5rem 0;
+}
+
+.rv-selected-vehicle .rv-feature-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+/* Meta info now uses rv-feature-tag class */
+
+/* Availability Status */
+.rv-availability-status {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rv-availability-status.hidden {
+    display: none;
+}
+
+.rv-availability-status.loading {
+    background: #f0f9ff;
+    border: 1px solid #0ea5e9;
+    color: #0c4a6e;
+}
+
+.rv-availability-status.success {
+    background: #f0fdf4;
+    border: 1px solid #22c55e;
+    color: #166534;
+}
+
+.rv-availability-status.error {
+    background: #fef2f2;
+    border: 1px solid #ef4444;
+    color: #dc2626;
+}
+
+.rv-availability-status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.rv-availability-status.loading::before {
+    background: #0ea5e9;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.rv-availability-status.success::before {
+    background: #22c55e;
+}
+
+.rv-availability-status.error::before {
+    background: #ef4444;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Footer */
+.rv-selected-vehicle .rv-vehicle-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.rv-selected-vehicle .rv-vehicle-card__price {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.rv-selected-vehicle .rv-price-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #3b82f6;
+    line-height: 1;
+}
+
+.rv-selected-vehicle .rv-price-period {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.rv-vehicle-image {
+    width: 100px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rv-vehicle-details h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.rv-vehicle-excerpt {
+    margin: 0 0 0.5rem 0;
+    color: #64748b;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.rv-vehicle-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.rv-feature-tag {
+    padding: 0.25rem 0.5rem;
+    background: #e0f2fe;
+    color: #0369a1;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.rv-vehicle-price {
+    margin: 0;
+    font-size: 1rem;
+    color: #059669;
+    font-weight: 600;
+}
+
+/* ===== ADDONS ===== */
+.rv-addons .rv-section-title {
+    color: #1e293b;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    position: relative;
+    padding-left: 1rem;
+}
+
+.rv-addons .rv-section-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    border-radius: 2px;
+}
+
+.rv-addons-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.rv-addon-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fff;
+    min-height: 100px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.rv-addon-item:hover {
+    border-color: #3b82f6;
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.rv-addon-item:has(.rv-addon-checkbox:checked) {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.rv-addon-checkbox {
+    margin: 0;
+    width: 20px;
+    height: 20px;
+    accent-color: #3b82f6;
+    cursor: pointer;
+}
+
+.rv-addon-content {
+    flex: 1;
+}
+
+.rv-addon-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.rv-addon-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.rv-addon-price {
+    font-weight: 700;
+    color: #059669;
+    font-size: 1rem;
+}
+
+.rv-addon-description {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+/* ===== PRICE CALCULATION ===== */
+.rv-price-calculation {
+    margin: 2rem 0;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.rv-price-breakdown {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem 2rem;
+    align-items: center;
+}
+
+.rv-price-item {
+    display: contents;
+}
+
+.rv-price-label {
+    font-weight: 500;
+    color: #374151;
+    text-align: left;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+}
+
+.rv-price-value {
+    font-weight: 600;
+    color: #1e293b;
+    text-align: right;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 120px;
+}
+
+.rv-total-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #059669;
+    border-top: 2px solid #e2e8f0;
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+/* Special grid positioning for total price */
+.rv-price-item.rv-total-price .rv-price-label {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #059669;
+    border-top: 2px solid #e2e8f0;
+    border-bottom: none;
+    padding-top: 1rem;
+    padding-bottom: 0;
+    margin-top: 1rem;
+}
+
+.rv-price-item.rv-total-price .rv-price-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #059669;
+    border-top: 2px solid #e2e8f0;
+    border-bottom: none;
+    padding-top: 1rem;
+    padding-bottom: 0;
+    margin-top: 1rem;
+}
+
+/* Special styling for deposit and remaining */
+.rv-price-item.rv-deposit-summary .rv-price-label,
+.rv-price-item.rv-remaining-summary .rv-price-label {
+    color: #7c3aed;
+    font-weight: 600;
+}
+
+.rv-price-item.rv-deposit-summary .rv-price-value,
+.rv-price-item.rv-remaining-summary .rv-price-value {
+    color: #7c3aed;
+    font-weight: 600;
+}
+
+.rv-price-actions {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+/* ===== PAYMENT OPTIONS ===== */
+.rv-payment-type-selection {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .rv-payment-type-selection {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}
+
+.rv-payment-type {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.rv-payment-type:hover {
+    border-color: #3b82f6;
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.rv-payment-type:has(input:checked) {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.rv-payment-type input[type="radio"] {
+    margin: 0;
+    width: 20px;
+    height: 20px;
+    accent-color: #3b82f6;
+    cursor: pointer;
+}
+
+.rv-payment-type-label {
+    flex: 1;
+}
+
+.rv-payment-type-label strong {
+    display: block;
+    font-size: 1rem;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.rv-payment-type-label small {
+    display: block;
+    font-size: 0.875rem;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+.rv-payment-methods {
+    margin-top: 2rem;
+}
+
+.rv-payment-method-selection {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .rv-payment-method-selection {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}
+
+.rv-payment-method {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.rv-payment-method:hover {
+    border-color: #3b82f6;
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.rv-payment-method:has(input:checked) {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.rv-payment-method input[type="radio"] {
+    margin: 0;
+    width: 20px;
+    height: 20px;
+    accent-color: #3b82f6;
+    cursor: pointer;
+}
+
+.rv-payment-method-label {
+    flex: 1;
+}
+
+.rv-payment-method-label strong {
+    display: block;
+    font-size: 1rem;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.rv-payment-method-label small {
+    display: block;
+    font-size: 0.875rem;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+.rv-online-payment-details {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.rv-payment-gateway-title {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.rv-payment-gateways {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .rv-payment-gateways {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}
+
+.rv-payment-gateway {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.rv-payment-gateway:hover {
+    border-color: #3b82f6;
+    background: #f8fafc;
+}
+
+.rv-payment-gateway:has(input:checked) {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.rv-payment-gateway input[type="radio"] {
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    accent-color: #3b82f6;
+    cursor: pointer;
+}
+
+.rv-gateway-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rv-gateway-icon {
+    font-size: 1.25rem;
+}
+
+.rv-gateway-name {
+    font-weight: 500;
+    color: #1e293b;
+}
+
+/* ===== FORM ACTIONS ===== */
+.rv-form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e5e7eb;
+}
+
+.rv-booking-form-right .rv-form-actions {
+    margin-top: 0;
+    padding-top: 1.5rem;
+    border-top: 2px solid #e5e7eb;
+    justify-content: stretch;
+}
+
+.rv-booking-form-right .rv-form-actions .rv-btn {
+    width: 100%;
+}
+
+.rv-btn {
+    padding: 1rem 2rem;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 140px;
+    position: relative;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: 0.025em;
+    color: #ffffff !important;
+}
+
+.rv-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.rv-btn:hover::before {
+    opacity: 1;
+}
+
+.rv-btn:disabled,
+.rv-btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    background-color: #9ca3af !important;
+    border-color: #9ca3af !important;
+    color: #6b7280 !important;
+}
+
+.rv-btn:disabled:hover,
+.rv-btn[disabled]:hover {
+    background-color: #9ca3af !important;
+    border-color: #9ca3af !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Primary Button - Rezervasyon Yapmak */
+.rv-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    box-shadow:
+        0 4px 15px rgba(102, 126, 234, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.rv-btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow:
+        0 8px 25px rgba(102, 126, 234, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+
+.rv-btn-text {
+    display: block !important;
+    visibility: visible !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.rv-btn-loading {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rv-btn-loading .rv-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* ===== MESSAGES ===== */
+.rv-messages {
+    margin-top: 1.5rem;
+}
+
+.rv-success-message,
+.rv-error-message {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rv-success-message {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    color: #16a34a;
+}
+
+.rv-error-message {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+}
+
+/* ===== SPINNER ===== */
+.rv-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e0f2fe;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablet */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .rv-booking-form-right {
+        top: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .rv-booking-form-wrapper {
+        max-width: 100%;
+        margin: 20px auto;
+        padding: 0 15px;
+    }
+
+    .rv-booking-form {
+        padding: 0;
+    }
+
+    .rv-booking-form-content {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+
+    /* Selected Vehicle - Mobile */
+    .rv-selected-vehicle {
+        flex-direction: column;
+        min-height: auto;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .rv-selected-vehicle .rv-vehicle-image-wrapper {
+        width: 100%;
+        height: 160px;
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+
+    .rv-selected-vehicle .rv-vehicle-details {
+        height: auto;
+        padding-left: 0;
+    }
+
+    .rv-selected-vehicle .rv-vehicle-card__footer {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .rv-booking-form-left,
+    .rv-booking-form-right {
+        gap: 1.5rem;
+    }
+
+    /* Disable sticky on mobile */
+    .rv-booking-form-right {
+        position: static;
+    }
+
+    .rv-form-section {
+        padding: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Better responsive for input fields */
+    .rv-field-group {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        margin-bottom: 1rem;
+    }
+
+    .rv-field-dates,
+    .rv-field-times {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    /* Input and select widths */
+    .rv-input,
+    .rv-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+    }
+
+    /* Payment options - daha kompakt */
+    .rv-payment-type-selection {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    .rv-payment-method-selection {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    .rv-payment-gateways {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    /* Payment cards - more compact */
+    .rv-payment-type,
+    .rv-payment-method {
+        padding: 1rem !important;
+        margin-bottom: 0 !important;
+    }
+
+    .rv-payment-gateway {
+        padding: 0.75rem !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Addons - daha kompakt */
+    .rv-addons-list {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    .rv-addon-item {
+        padding: 1rem !important;
+    }
+
+    /* Form actions */
+    .rv-form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .rv-booking-form-right .rv-form-actions {
+        padding-top: 1rem;
+    }
+
+    .rv-btn {
+        width: 100% !important;
+        min-width: auto;
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    /* Vehicle info */
+    .rv-vehicle-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .rv-vehicle-image {
+        width: 100%;
+        height: 150px;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .rv-addons .rv-section-title {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .rv-booking-form-wrapper {
+        padding: 0 10px;
+        margin: 10px auto;
+    }
+
+    .rv-booking-form {
+        padding: 0;
+        margin: 0;
+    }
+
+    .rv-form-section {
+        padding: 0;
+        margin-bottom: 1rem;
+    }
+
+    /* More compact input fields */
+    .rv-input,
+    .rv-select {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.85rem;
+        border-radius: 4px;
+    }
+
+    /* Date fields single column */
+    .rv-field-dates,
+    .rv-field-times {
+        grid-template-columns: 1fr !important;
+        gap: 0.5rem !important;
+    }
+
+    /* Smaller payment cards */
+    .rv-payment-type,
+    .rv-payment-method {
+        padding: 0.75rem !important;
+    }
+
+    .rv-payment-gateway {
+        padding: 0.625rem !important;
+    }
+
+    /* Addons daha kÃ¼Ã§Ã¼k */
+    .rv-addon-item {
+        padding: 0.75rem !important;
+    }
+
+    /* Price calculation */
+    .rv-price-calculation {
+        padding: 0.75rem;
+        margin: 1rem 0;
+    }
+
+    .rv-price-breakdown {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .rv-price-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .rv-price-label,
+    .rv-price-value {
+        border-bottom: none;
+        padding: 0;
+        min-width: auto;
+        justify-content: flex-start;
+        font-size: 0.9rem;
+    }
+
+    .rv-price-value {
+        text-align: right;
+        justify-content: flex-end;
+    }
+
+    .rv-price-item.rv-total-price {
+        border-top: 2px solid #e2e8f0;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+    }
+
+    .rv-price-item.rv-total-price .rv-price-label,
+    .rv-price-item.rv-total-price .rv-price-value {
+        border-top: none;
+        margin-top: 0;
+        padding-top: 0;
+        font-size: 1.1rem;
+    }
+
+    .rv-form-title {
+        font-size: 1.25rem;
+    }
+
+    /* Button daha kÃ¼Ã§Ã¼k */
+    .rv-btn {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* AraÃ§ resmi daha kÃ¼Ã§Ã¼k */
+    .rv-selected-vehicle .rv-vehicle-image-wrapper {
+        height: 140px;
+    }
+
+    .rv-selected-vehicle {
+        padding: 0.75rem;
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+.rv-input:focus,
+.rv-select:focus,
+.rv-btn:focus {
+    outline: none;
+    /*color: #ffffff !important;*/
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow:
+        0 4px 15px rgba(102, 126, 234, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+
+.rv-addon-item:focus-within,
+.rv-payment-method:focus-within,
+.rv-payment-type:focus-within,
+.rv-payment-gateway:focus-within {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .rv-booking-form {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+
+    .rv-form-actions,
+    .rv-btn-loading {
+        display: none;
+    }
+
+    .rv-form-section {
+        break-inside: avoid;
+    }
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+@media (prefers-color-scheme: dark) {
+    .rv-booking-form {
+        background: #1f2937;
+        color: #f9fafb;
+    }
+
+    .rv-form-section {
+        background: #374151;
+        border-color: #4b5563;
+    }
+
+    .rv-section-title {
+        color: #f9fafb;
+    }
+
+    .rv-input,
+    .rv-select {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+    }
+
+    .rv-input:focus,
+    .rv-select:focus {
+        border-color: #3b82f6;
+        background: #374151;
+    }
+}
+
+/* ===== AVAILABILITY STATUS ===== */
+.rv-availability-status {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.rv-booking-form-left .rv-availability-status {
+    margin: 0;
+}
+
+.rv-availability-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rv-availability-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+}
+
+/* Alternatif araÃ§lar wrapper - aÃ§Ä±k yeÅŸil arka plan */
+.rv-alternatives-wrapper {
+    background: #f0fdf4 !important;
+    border: 1px solid #bbf7d0 !important;
+    border-radius: 8px !important;
+    padding: 15px !important;
+    margin-top: 15px !important;
+}
+
+.rv-availability-error-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.rv-loading-message {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rv-availability-status .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+/* ===== ALTERNATIVE VEHICLES ===== */
+.rv-alternative-vehicles {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.rv-alternative-vehicle {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.rv-alternative-vehicle:hover {
+    border-color: #007cba;
+    box-shadow: 0 2px 8px rgba(0, 124, 186, 0.15);
+    transform: translateY(-2px);
+}
+
+.rv-alternative-vehicle-image {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+}
+
+.rv-alternative-vehicle-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.rv-alternative-vehicle-info h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.rv-alternative-vehicle-price {
+    color: #007cba;
+    font-weight: 600;
+    margin: 0.25rem 0;
+}
+
+.rv-alternative-vehicle-total {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0.25rem 0 0.75rem 0;
+}
+
+.rv-select-alternative-btn {
+    width: 100%;
+    background: #007cba;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.rv-select-alternative-btn:hover {
+    background: #005a87;
+}
+
+.rv-select-alternative-btn:active {
+    transform: translateY(1px);
+}
+
+/* ===== RESPONSIVE ALTERNATIVES ===== */
+@media (max-width: 768px) {
+    .rv-alternative-vehicles {
+        grid-template-columns: 1fr;
+    }
+
+    .rv-alternative-vehicle {
+        padding: 0.75rem;
+    }
+
+    .rv-alternative-vehicle-image {
+        height: 100px;
+    }
+}
+
+/* ====================================
+   RATING VE FAVORITE STYLES
+   (VehiclesList'ten kopyalandÄ±)
+   ==================================== */
+
+/* Section Header - Rating ve Favorite iÃ§in */
+.rv-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+/* Vehicle Image Wrapper */
+.rv-vehicle-image-wrapper {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Rating Overlay on Vehicle Image */
+.rv-vehicle-card__rating-overlay {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    padding: 0.375rem 0.75rem;
+    border-radius: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.rv-stars {
+    display: flex;
+    gap: 0.125rem;
+    align-items: center;
+}
+
+.rv-star {
+    color: #d1d5db;
+    stroke: #d1d5db;
+}
+
+.rv-star-filled {
+    color: #fbbf24;
+    fill: #fbbf24;
+    stroke: #fbbf24;
+}
+
+.rv-star-half {
+    fill: #fbbf24;
+    stroke: #fbbf24;
+    background: linear-gradient(90deg, #fbbf24 50%, #d1d5db 50%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.rv-rating-count {
+    font-size: 0.75rem;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+/* Favorite Button */
+.rv-vehicle-card__favorite {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease-in-out;
+    color: #ef4444;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rv-vehicle-card__favorite:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.1);
+    transform: scale(1.1);
+}
+
+.rv-vehicle-card__favorite.favorited {
+    opacity: 1;
+}
+
+.rv-heart-icon {
+    fill: none;
+    stroke: currentColor;
+    transition: all 0.2s ease-in-out;
+}
+
+.rv-heart-icon.favorited,
+.rv-vehicle-card__favorite.favorited .rv-heart-icon {
+    fill: currentColor;
+}
+
+/* Loading State */
+.rv-vehicle-card__favorite.is-loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Responsive Rating & Favorite */
+@media (max-width: 768px) {
+    .rv-section-header {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .rv-vehicle-card__favorite {
+        padding: 0.375rem;
+    }
+
+    .rv-heart-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .rv-vehicle-card__rating-overlay {
+        top: 0.5rem;
+        left: 0.5rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .rv-star {
+        width: 12px;
+        height: 12px;
+    }
+
+    .rv-rating-count {
+        font-size: 0.7rem;
+    }
+}
+
+/* GiriÅŸ yapmÄ±ÅŸ kullanÄ±cÄ± bilgileri - Temiz gÃ¶rÃ¼nÃ¼m */
+.rv-logged-in-info {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.rv-user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.rv-user-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.rv-user-name strong {
+    color: #0f172a;
+}
+
+.rv-user-email {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-family: 'Courier New', monospace;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .rv-logged-in-info {
+        padding: 0.75rem;
+    }
+
+    .rv-user-name {
+        font-size: 0.9rem;
+    }
+
+    .rv-user-email {
+        font-size: 0.8rem;
+    }
+}
+
+/* Button Animations */
+@keyframes buttonPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+    }
+}
+
+.rv-btn-primary:active:not(:disabled) {
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    animation: buttonPulse 0.6s ease-out;
+    transform: translateY(-1px) scale(0.98);
+}
+
+/* ========================================
+   Field Hints for Date Inputs
+   ======================================== */
+
+.rv-field-hint {
+    display: block;
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 400;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.rv-field input[type="date"]:placeholder-shown+.rv-field-hint,
+.rv-field input[type="date"]:not(:placeholder-shown)+.rv-field-hint {
+    display: none;
+}
+
+/* Alternative approach for date inputs */
+.rv-field input[type="date"]:invalid {
+    color: #6c757d;
+}
+
+.rv-field input[type="date"]:invalid::before {
+    content: attr(data-placeholder);
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Date input styling */
+.rv-date-input {
+    cursor: pointer;
+    background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3e%3cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.rv-date-input:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%234f46e5'%3e%3cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3e%3c/svg%3e");
+}
+
+/* ===== CUSTOM JQUERY UI DATEPICKER STYLES ===== */
+.ui-datepicker {
+    background: #ffffff !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    padding: 0 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+    font-size: 14px !important;
+    z-index: 9999 !important;
+    min-width: 280px !important;
+}
+
+/* ===== DATEPICKER HEADER - REDESIGNED ===== */
+.ui-datepicker .ui-datepicker-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 0 !important;
+    min-height: 64px !important;
+    height: 64px !important;
+    text-align: center !important;
+    position: relative !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: visible !important;
+}
+
+/* Title - Perfectly centered between arrows */
+.ui-datepicker .ui-datepicker-title {
+    font-weight: 700 !important;
+    font-size: 17px !important;
+    line-height: 1.5 !important;
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+    letter-spacing: 0.5px !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-block !important;
+    width: auto !important;
+    position: relative !important;
+    z-index: 5 !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+}
+
+/* Navigation Arrows - Fixed positions on sides */
+.ui-datepicker .ui-datepicker-prev,
+.ui-datepicker .ui-datepicker-next {
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 36px !important;
+    height: 36px !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+    border: 2px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+    z-index: 10 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.ui-datepicker .ui-datepicker-prev:hover,
+.ui-datepicker .ui-datepicker-next:hover {
+    background: rgba(255, 255, 255, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    transform: translateY(-50%) scale(1.05) !important;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.ui-datepicker .ui-datepicker-prev {
+    left: 16px !important;
+    right: auto !important;
+}
+
+.ui-datepicker .ui-datepicker-next {
+    right: 16px !important;
+    left: auto !important;
+}
+
+/* Hide "Previous" and "Next" text labels completely */
+.ui-datepicker .ui-datepicker-prev span,
+.ui-datepicker .ui-datepicker-next span,
+.ui-datepicker .ui-datepicker-prev a span,
+.ui-datepicker .ui-datepicker-next a span,
+.ui-datepicker .ui-datepicker-prev .ui-button-text,
+.ui-datepicker .ui-datepicker-next .ui-button-text {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    text-indent: -9999px !important;
+    position: absolute !important;
+    clip: rect(0, 0, 0, 0) !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    opacity: 0 !important;
+}
+
+/* Hide any direct text content in prev/next buttons */
+.ui-datepicker .ui-datepicker-prev,
+.ui-datepicker .ui-datepicker-next {
+    font-size: 0 !important;
+    color: transparent !important;
+    text-indent: -9999px !important;
+}
+
+/* Hide text in anchor elements */
+.ui-datepicker .ui-datepicker-prev a,
+.ui-datepicker .ui-datepicker-next a {
+    font-size: 0 !important;
+    text-indent: -9999px !important;
+    color: transparent !important;
+}
+
+.ui-datepicker .ui-datepicker-prev .ui-icon,
+.ui-datepicker .ui-datepicker-next .ui-icon {
+    background: none !important;
+    width: 18px !important;
+    height: 18px !important;
+    text-indent: 0 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+}
+
+.ui-datepicker .ui-datepicker-prev .ui-icon::before {
+    content: '←' !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+    display: block !important;
+    visibility: visible !important;
+}
+
+.ui-datepicker .ui-datepicker-next .ui-icon::before {
+    content: '→' !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Ensure icon container is visible */
+.ui-datepicker .ui-datepicker-prev .ui-icon,
+.ui-datepicker .ui-datepicker-next .ui-icon {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.ui-datepicker table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.ui-datepicker th,
+.ui-datepicker td {
+    padding: 8px;
+    text-align: center;
+    border: none;
+}
+
+.ui-datepicker th {
+    background: #f8f9fa;
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ui-datepicker td a {
+    display: block;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    border-radius: 50%;
+    text-decoration: none;
+    color: #374151;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin: 0 auto;
+}
+
+.ui-datepicker td a:hover {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.ui-datepicker .ui-datepicker-today a {
+    background: #fef3c7;
+    color: #d97706;
+    font-weight: 600;
+}
+
+.ui-datepicker .ui-datepicker-current-day a,
+.ui-datepicker .ui-state-active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.ui-datepicker .ui-datepicker-other-month a {
+    color: #d1d5db;
+}
+
+.ui-datepicker .ui-datepicker-buttonpane {
+    background: #f8f9fa !important;
+    border-top: 1px solid #e5e7eb !important;
+    padding: 12px 16px !important;
+    border-radius: 0 0 10px 10px !important;
+    text-align: center !important;
+}
+
+.ui-datepicker .ui-datepicker-buttonpane button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    font-size: 13px !important;
+    margin: 0 4px !important;
+    transition: opacity 0.2s ease !important;
+}
+
+.ui-datepicker .ui-datepicker-buttonpane button:hover {
+    opacity: 0.9 !important;
+}
+
+/* Month/Year Select Dropdowns */
+.ui-datepicker select {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 4px !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    padding: 4px 8px !important;
+    margin: 0 2px !important;
+    text-align: center !important;
+    text-align-last: center !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+}
+
+.ui-datepicker select option {
+    background: #3b82f6 !important;
+    color: #ffffff !important;
+    text-align: center !important;
+}
+
+/* Responsive DatePicker */
+@media (max-width: 768px) {
+    .ui-datepicker {
+        min-width: 260px;
+        font-size: 13px;
+    }
+
+    .ui-datepicker .ui-datepicker-header {
+        padding: 12px;
+    }
+
+    .ui-datepicker .ui-datepicker-title {
+        font-size: 15px;
+    }
+
+    .ui-datepicker td a {
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        font-size: 13px;
+    }
+}
