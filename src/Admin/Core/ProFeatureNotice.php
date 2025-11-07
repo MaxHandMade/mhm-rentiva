@@ -22,12 +22,25 @@ final class ProFeatureNotice
      */
     public static function displayDeveloperModeBanner(array $features = []): void
     {
-        // Don't show if Pro license is active (real license, not developer mode)
-        if (Mode::isPro() && !self::isDeveloperMode()) {
-            return;
+        $license = LicenseManager::instance();
+        $license_data = $license->get();
+        
+        // BUG FIX 2: Don't show if Pro license is active (real license, not developer mode)
+        // Check if there's a real license key (not just developer mode)
+        $has_real_license = !empty($license_data['key']) && 
+                           ($license_data['status'] ?? '') === 'active' &&
+                           !empty($license_data['activation_id']);
+        
+        if ($has_real_license) {
+            return; // Real license active, don't show developer mode banner
+        }
+        
+        // Also check if developer mode is manually disabled
+        $disable_dev_mode = get_option('mhm_rentiva_disable_dev_mode', false);
+        if ($disable_dev_mode) {
+            return; // Developer mode disabled, don't show banner
         }
 
-        $license = LicenseManager::instance();
         if (!$license->isDevelopmentEnvironment()) {
             return;
         }
