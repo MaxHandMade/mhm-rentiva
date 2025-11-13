@@ -122,7 +122,7 @@ final class VehicleColumns
                 $config = $status_config[$v] ?? ['color' => 'var(--mhm-muted-color, #6c757d)', 'icon' => '', 'class' => 'status-default'];
                 $label = self::get_vehicle_status_values()[$v] ?? '—';
                 
-                echo '<span class="vehicle-status ' . esc_attr($config['class']) . '" style="color: ' . esc_attr($config['color']) . '; font-weight: bold;">';
+                echo '<span class="vehicle-status ' . esc_attr($config['class']) . '" data-status="' . esc_attr($v) . '" style="color: ' . esc_attr($config['color']) . '; font-weight: bold;">';
                 echo $config['icon'] ? $config['icon'] . ' ' : '';
                 echo esc_html($label);
                 echo '</span>';
@@ -176,11 +176,6 @@ final class VehicleColumns
         
         // New status values
         foreach ($status_values as $value => $label) {
-            echo '  <option value="' . esc_attr($value) . '"' . selected($current, $value, false) . '>' . esc_html($label) . '</option>';
-        }
-        
-        // Legacy status values (backward compatibility)
-        foreach ($legacy_values as $value => $label) {
             echo '  <option value="' . esc_attr($value) . '"' . selected($current, $value, false) . '>' . esc_html($label) . '</option>';
         }
         
@@ -376,7 +371,7 @@ final class VehicleColumns
             LEFT JOIN {$wpdb->postmeta} pm_status ON v.ID = pm_status.post_id AND pm_status.meta_key = %s
             WHERE v.post_type = %s AND v.post_status = %s
             ORDER BY v.ID
-        ", '_mhm_vehicle_status', 'vehicle', 'publish'));
+        ", '_mhm_vehicle_status', '_mhm_vehicle_availability', 'vehicle', 'publish'));
         
         // Debug log removed
 
@@ -384,14 +379,15 @@ final class VehicleColumns
         $vehicle_stats = $wpdb->get_row($wpdb->prepare(
             "SELECT 
                 COUNT(DISTINCT v.ID) as total_vehicles,
-                COUNT(DISTINCT CASE WHEN pm_status.meta_value = 'inactive' THEN v.ID END) as passive,
-                COUNT(DISTINCT CASE WHEN pm_status.meta_value = 'maintenance' THEN v.ID END) as maintenance,
-                COUNT(DISTINCT CASE WHEN pm_status.meta_value = 'inactive' AND v.post_date >= %s THEN v.ID END) as passive_this_month,
-                COUNT(DISTINCT CASE WHEN pm_status.meta_value = 'maintenance' AND v.post_date >= %s THEN v.ID END) as maintenance_this_month,
+                COUNT(DISTINCT CASE WHEN (pm_status.meta_value = 'inactive' OR (pm_status.meta_value IS NULL AND pm_legacy.meta_value = 'passive')) THEN v.ID END) as passive,
+                COUNT(DISTINCT CASE WHEN (pm_status.meta_value = 'maintenance' OR (pm_status.meta_value IS NULL AND pm_legacy.meta_value = 'maintenance')) THEN v.ID END) as maintenance,
+                COUNT(DISTINCT CASE WHEN (pm_status.meta_value = 'inactive' OR (pm_status.meta_value IS NULL AND pm_legacy.meta_value = 'passive')) AND v.post_date >= %s THEN v.ID END) as passive_this_month,
+                COUNT(DISTINCT CASE WHEN (pm_status.meta_value = 'maintenance' OR (pm_status.meta_value IS NULL AND pm_legacy.meta_value = 'maintenance')) AND v.post_date >= %s THEN v.ID END) as maintenance_this_month,
                 COUNT(DISTINCT pm_booking.meta_value) as reserved,
                 COUNT(DISTINCT CASE WHEN b.post_date >= %s THEN pm_booking.meta_value END) as reserved_this_week
              FROM {$wpdb->posts} v
              LEFT JOIN {$wpdb->postmeta} pm_status ON v.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_vehicle_status'
+             LEFT JOIN {$wpdb->postmeta} pm_legacy ON v.ID = pm_legacy.post_id AND pm_legacy.meta_key = '_mhm_vehicle_availability'
              LEFT JOIN {$wpdb->posts} b ON b.post_type = 'vehicle_booking' AND b.post_status = 'publish'
              LEFT JOIN {$wpdb->postmeta} pm_booking ON b.ID = pm_booking.post_id AND pm_booking.meta_key = '_mhm_vehicle_id'
              WHERE v.post_type = 'vehicle' AND v.post_status = 'publish'",
@@ -656,7 +652,6 @@ final class VehicleColumns
                                             $status_colors = [
                                                 'pending' => 'status-pending',      // 🟡 Yellow
                                                 'confirmed' => 'status-confirmed',  // 🟢 Green
-                                                'in_progress' => 'status-in-progress', // 🟠 Orange
                                                 'completed' => 'status-completed',  // 🔵 Blue
                                                 'cancelled' => 'status-cancelled'   // 🔴 Red
                                             ];
@@ -706,10 +701,6 @@ final class VehicleColumns
                     <div class="legend-item">
                         <span class="legend-color status-confirmed"></span>
                         <span class="legend-label"><?php esc_html_e('Confirmed', 'mhm-rentiva'); ?></span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color status-in-progress"></span>
-                        <span class="legend-label"><?php esc_html_e('In Progress', 'mhm-rentiva'); ?></span>
                     </div>
                     <div class="legend-item">
                         <span class="legend-color status-completed"></span>
@@ -1273,11 +1264,6 @@ final class VehicleColumns
                 }
                 
                 // Legacy values (backward compatibility)
-                $legacy_values = self::get_legacy_status_values();
-                foreach ($legacy_values as $value => $label) {
-                    echo '<option value="' . esc_attr($value) . '">' . esc_html($label) . '</option>';
-                }
-                
                 echo '</select>';
                 echo '</label>';
                 echo '</div>';
@@ -1323,25 +1309,31 @@ final class VehicleColumns
         ];
 
         foreach ($meta_fields as $field_name => $config) {
-            if (isset($_POST[$field_name])) {
-                $value = wp_unslash($_POST[$field_name]);
-                
-                // Null check
-                if ($value === null) {
-                    $value = '';
-                }
-                
-                // Null safety for sanitize_text_field
-                if ($config['sanitize'] === 'sanitize_text_field') {
-                    $sanitized_value = sanitize_text_field((string) ($value ?: ''));
-                } else {
-                    $sanitized_value = call_user_func($config['sanitize'], $value);
-                }
-                
-                // Don't save empty values
-                if (!empty($sanitized_value)) {
-                    update_post_meta($post_id, $config['key'], $sanitized_value);
-                }
+            if (!isset($_POST[$field_name])) {
+                continue;
+            }
+
+            $value = wp_unslash($_POST[$field_name]);
+
+            if ($value === null) {
+                $value = '';
+            }
+
+            if ($config['sanitize'] === 'sanitize_text_field') {
+                $sanitized_value = sanitize_text_field((string) ($value ?: ''));
+            } else {
+                $sanitized_value = call_user_func($config['sanitize'], $value);
+            }
+
+            if ($field_name === 'mhm_available') {
+                $normalized_status = self::normalize_availability($sanitized_value);
+                update_post_meta($post_id, '_mhm_vehicle_status', $normalized_status);
+                update_post_meta($post_id, '_mhm_vehicle_availability', $normalized_status);
+                continue;
+            }
+
+            if ($sanitized_value !== '' && $sanitized_value !== null) {
+                update_post_meta($post_id, $config['key'], $sanitized_value);
             }
         }
     }
@@ -1384,7 +1376,7 @@ final class VehicleColumns
     private static function get_legacy_status_values(): array
     {
         return [
-            'passive' => __('Inactive', 'mhm-rentiva')
+            'passive' => __('Passive', 'mhm-rentiva')
         ];
     }
     
@@ -1394,8 +1386,6 @@ final class VehicleColumns
     private static function normalize_availability($value): string
     {
         $status_values = array_keys(self::get_vehicle_status_values());
-        $legacy_values = array_keys(self::get_legacy_status_values());
-        
         // Old format: '1' -> 'active', '0' -> 'passive'
         if ($value === '1') return 'active';
         if ($value === '0') return 'passive';

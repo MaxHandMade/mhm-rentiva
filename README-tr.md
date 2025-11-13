@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.3.8-blue.svg)
+![Version](https://img.shields.io/badge/version-4.3.9-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -311,16 +311,22 @@ POST /bookings
 
 ## 📝 Değişiklik Geçmişi
 
-### Son Versiyon: 4.3.8 (2025-11-06)
+### Son Versiyon: 4.3.9 (2025-11-13)
 
-**🌍 MERKEZİ PARA BİRİMİ VE DİL SİSTEMİ:**
-- Birleşik para birimi yönetimi için CurrencyHelper sınıfı (47 para birimi)
-- Birleşik dil yönetimi için LanguageHelper sınıfı (60+ dil)
-- Tüm hardcode listeler merkezi helper'lar ile değiştirildi
+**❤️ FAVORİLER & BİLDİRİMLER**
+- Grid, liste ve Hesabım sayfalarında favori işlemleri için tek tip nonce/AJAX doğrulaması sağlandı
+- “Tüm favorileri temizle” akışı ve kart/sayaç güncellemeleri daha kararlı hale getirildi
+- Tüm frontend shortcode’larında toast bildirim tasarımları standartlaştırıldı
 
-**💬 MESAJLAŞMA SİSTEMİ YENİDEN YAPILANDIRMA:**
-- Merkezi URL yönetimi için MessageUrlHelper
-- Mesaj önbelleği ve içerik görüntüleme sorunları düzeltildi
+**🛠 ARAÇ YÖNETİMİ DÜZENLEMELERİ**
+- İlk kurulumlarda araç detay/özellik/ekipman alanları otomatik olarak oluşturuluyor
+- Quick Edit müsaitlik/durum senkronizasyonu düzeltildi, eski “Passive / In Progress” etiketleri kaldırıldı
+- Araç listesinde yıl ve kilometre ikonları doğru SVG’lerle eşleştirildi, yedek simge eklendi
+
+**🧭 DÖKÜMANTASYON & UX**
+- `docs/site` altında admin ve başlangıç dökümanları genişletildi
+- Hesabım > Favoriler sekmesinde responsive kart düzeni ve SVG özellik ikonları iyileştirildi
+- Grid/liste CSS’lerinde başlık hizası, mobil butonlar ve takvim boşlukları yeniden düzenlendi
 
 Tam değişiklik geçmişi için [changelog-tr.json](changelog-tr.json) dosyasına bakın.
 

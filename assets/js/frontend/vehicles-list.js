@@ -294,12 +294,12 @@
 
             // Show notification
             setTimeout(function () {
-                $notification.addClass('is-visible');
+                $notification.addClass('rv-notification--show');
             }, 100);
 
             // Hide notification after 3 seconds
             setTimeout(function () {
-                $notification.removeClass('is-visible');
+                $notification.removeClass('rv-notification--show');
                 setTimeout(function () {
                     $notification.remove();
                 }, 300);
@@ -349,50 +349,55 @@
 var notificationCSS = `
     .rv-notification {
         position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 12px 16px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        top: 1.5rem;
+        right: 1.5rem;
         z-index: 9999;
-        max-width: 300px;
-        font-size: 14px;
-        line-height: 1.4;
-        /* Animasyon kaldırıldı - hemen görünsün */
+        min-width: 220px;
+        padding: 0.875rem 1.25rem;
+        border-radius: 10px;
+        background-color: rgba(31, 41, 55, 0.92);
+        color: #ffffff;
+        font-size: 0.95rem;
+        font-weight: 500;
+        box-shadow: 0 18px 30px rgba(15, 23, 42, 0.18);
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.25s ease, transform 0.25s ease;
     }
     
-    .rv-notification.is-visible {
-        /* Animasyon yok */
+    .rv-notification--show {
+        opacity: 1;
+        transform: translateY(0);
     }
     
     .rv-notification--success {
-        border-left: 4px solid #10b981;
-        color: #065f46;
-        background: #ecfdf5;
+        background-color: rgba(16, 185, 129, 0.95);
+        color: #0b1f17;
     }
     
     .rv-notification--error {
-        border-left: 4px solid #ef4444;
-        color: #991b1b;
-        background: #fef2f2;
+        background-color: rgba(248, 113, 113, 0.95);
+        color: #2f0c0c;
     }
     
     .rv-notification--warning {
-        border-left: 4px solid #f59e0b;
-        color: #92400e;
-        background: #fffbeb;
+        background-color: rgba(251, 191, 36, 0.95);
+        color: #2b1b02;
     }
     
     .rv-notification--info {
-        border-left: 4px solid #3b82f6;
-        color: #1e40af;
-        background: #eff6ff;
+        background-color: rgba(96, 165, 250, 0.95);
+        color: #0b1a2b;
     }
     
-    .rv-heart-icon.loading {
-        /* Animasyon kaldırıldı */
+    @media (max-width: 600px) {
+        .rv-notification {
+            left: 1rem;
+            right: 1rem;
+            top: auto;
+            bottom: 1.5rem;
+            text-align: center;
+        }
     }
     
     .rv-heart-icon.favorited {

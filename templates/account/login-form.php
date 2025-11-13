@@ -13,12 +13,6 @@ if (!defined('ABSPATH')) {
 }
 
 // Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
 ?>
 
 <div class="mhm-rentiva-login-page">

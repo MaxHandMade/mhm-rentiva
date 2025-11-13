@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.3.8-blue.svg)
+![Version](https://img.shields.io/badge/version-4.3.9-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1894,19 +1894,22 @@ Fixes #123
 
 ## 📝 Changelog
 
-### Latest Version: 4.3.8 (2025-01-28)
+### Latest Version: 4.3.9 (2025-11-13)
 
-**🌍 CENTRALIZED CURRENCY & LANGUAGE SYSTEM:**
-- CurrencyHelper class for unified currency management (47 currencies)
-- LanguageHelper class for unified language management (60+ languages)
-- All hardcoded lists replaced with centralized helpers
-- Settings unification across all files
+**❤️ FAVORITES & NOTIFICATIONS**
+- Unified nonce validation and AJAX handlers for favorites on grid, list, and My Account pages
+- Added reliable “clear all favorites” workflow and consistent card removal/count updates
+- Standardized toast notification styling across all frontend shortcodes
 
-**💬 MESSAGES SYSTEM REFACTORING:**
-- MessageUrlHelper for centralized URL management
-- Fixed message cache and content display issues
-- Enhanced thread display and reply functionality
-- Complete i18n support
+**🛠 VEHICLE MANAGEMENT FIXES**
+- Auto-populate vehicle detail/feature/equipment fields on fresh installs
+- Fixed Quick Edit availability/status sync issues and removed legacy “Passive / In Progress” labels
+- Corrected vehicle list feature icons for year and mileage with graceful fallbacks
+
+**🧭 DOCUMENTATION & UX**
+- Expanded admin/getting-started documentation within `docs/site`
+- Improved My Account favorites layout with responsive cards and SVG feature icons
+- Refined vehicle grid/list CSS for title alignment, mobile buttons, and calendar spacing
 
 For complete changelog, see [changelog.json](changelog.json)
 

@@ -1,3 +1,190 @@
+(function ($) {
+    'use strict';
+
+    const FavoritesModule = {
+        init() {
+            this.$page = $('.mhm-rentiva-account-page');
+            if (!this.$page.length) {
+                return;
+            }
+            this.bindEvents();
+        },
+
+        bindEvents() {
+            const self = this;
+
+            $(document).on('click', '#clear-all-favorites', function (event) {
+                event.preventDefault();
+                self.clearAllFavorites($(this));
+            });
+
+            $(document).on('click', '.rv-vehicle-card__favorite', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                self.toggleFavorite($(this));
+            });
+        },
+
+        toggleFavorite($button) {
+            const vehicleId = $button.data('vehicle-id');
+            if (!vehicleId) {
+                return;
+            }
+
+            const isFavorited = $button.hasClass('is-favorited');
+            const action = isFavorited ? 'mhm_rentiva_remove_favorite' : 'mhm_rentiva_add_favorite';
+
+            this.sendRequest({
+                action,
+                vehicle_id: vehicleId,
+                nonce: window.mhmRentivaAccount?.nonce || ''
+            })
+                .done((response) => {
+                    console.log('[Rentiva][Account] toggle favorite response:', response);
+                    if (response.success) {
+                        this.handleFavoriteResponse($button, response.data);
+                    } else {
+                        this.showNotification(response.data?.message || this.getString('error'), 'error');
+                    }
+                })
+                .fail((jqXHR) => {
+                    console.error('[Rentiva][Account] toggle favorite error:', jqXHR);
+                    this.showNotification(this.getString('error'), 'error');
+                });
+        },
+
+        clearAllFavorites($button) {
+            if (!window.mhmRentivaAccount?.ajaxUrl) {
+                this.showNotification(this.getString('error'), 'error');
+                return;
+            }
+
+            $button.prop('disabled', true).addClass('is-loading');
+
+            this.sendRequest({
+                action: 'mhm_rentiva_clear_favorites',
+                nonce: window.mhmRentivaAccount?.nonce || ''
+            })
+                .done((response) => {
+                    if (response.success) {
+                        this.removeAllFavoriteCards();
+                        this.updateFavoriteCounter(0);
+                        this.showNotification(response.data?.message || this.getString('favoritesCleared'), 'success');
+                    } else {
+                        this.showNotification(response.data?.message || this.getString('error'), 'error');
+                    }
+                })
+                .fail(() => {
+                    this.showNotification(this.getString('error'), 'error');
+                })
+                .always(() => {
+                    $button.prop('disabled', false).removeClass('is-loading');
+                });
+        },
+
+        sendRequest(data) {
+            const ajaxUrl = window.mhmRentivaAccount?.ajaxUrl || window.mhmRentivaVehiclesGrid?.ajaxUrl;
+            if (!ajaxUrl) {
+                const deferred = $.Deferred();
+                deferred.reject('missing_ajax_url');
+                return deferred.promise();
+            }
+
+            return $.ajax({
+                url: ajaxUrl,
+                type: 'POST',
+                data,
+                dataType: 'json'
+            });
+        },
+
+        getString(key) {
+            return window.mhmRentivaAccount?.i18n?.[key]
+                || window.mhmRentivaVehiclesGrid?.i18n?.[key]
+                || '';
+        },
+
+        handleFavoriteResponse($button, data) {
+            if (!data || !data.vehicle_id) {
+                return;
+            }
+
+            const $card = $('.rv-vehicle-card[data-vehicle-id="' + data.vehicle_id + '"]');
+            if (!$card.length) {
+                return;
+            }
+
+            if (data.action === 'removed') {
+                $card.fadeOut(200, () => {
+                    $card.remove();
+                    this.updateFavoriteCounter(data.favorites_count || 0);
+                    if (!$('.rv-vehicle-card').length) {
+                        this.showEmptyState();
+                    }
+                });
+            } else {
+                $card.find('.rv-vehicle-card__favorite').addClass('is-favorited');
+            }
+
+            this.showNotification(data.message || 'Updated', 'success');
+        },
+
+        removeAllFavoriteCards() {
+            $('.rv-vehicle-card').fadeOut(200, function () {
+                $(this).remove();
+            });
+            this.showEmptyState();
+        },
+
+        showEmptyState() {
+            const $container = $('.account-section');
+            if ($container.length && !$container.find('.rv-vehicle-card').length) {
+                const emptyHtml = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                        </div>
+                        <h3>${window.mhmRentivaVehiclesGrid?.i18n?.no_favorites || 'No favorite vehicles yet'}</h3>
+                        <p>${window.mhmRentivaVehiclesGrid?.i18n?.login_required || 'You can add vehicles to favorites using the heart icon.'}</p>
+                    </div>
+                `;
+                $container.html(emptyHtml);
+            }
+        },
+
+        updateFavoriteCounter(count) {
+            $('.view-all-link').text(count + ' ' + (count === 1 ? 'vehicle in your favorites' : 'vehicles in your favorites'));
+        },
+
+        showNotification(message, type) {
+            type = type || 'info';
+            const $notification = $('<div class="rv-notification rv-notification--' + type + '">' + message + '</div>');
+            $('body').append($notification);
+
+            setTimeout(function () {
+                $notification.addClass('rv-notification--show');
+            }, 100);
+
+            setTimeout(function () {
+                $notification.removeClass('rv-notification--show');
+                setTimeout(function () {
+                    $notification.remove();
+                }, 300);
+            }, 3000);
+        }
+    };
+
+    FavoritesModule.getString = function (key) {
+        return window.mhmRentivaAccount?.i18n?.[key] || window.mhmRentivaVehiclesGrid?.i18n?.[key] || '';
+    };
+
+    $(document).ready(function () {
+        FavoritesModule.init();
+    });
+
+})(jQuery);
 /**
  * My Account - JavaScript
  * 

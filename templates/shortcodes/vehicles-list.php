@@ -154,6 +154,10 @@ $booking_url = $booking_url ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_p
                                                 <circle cx="12" cy="12" r="10"/>
                                                 <path d="M12 6v6l4 2"/>
                                             </svg>
+                                        <?php else: ?>
+                                            <svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="20 6 9 17 4 12"/>
+                                            </svg>
                                         <?php endif; ?>
                                         <span class="rv-feature-text"><?php echo esc_html($feature['value'] ?? $feature['text'] ?? ''); ?></span>
                                     </div>

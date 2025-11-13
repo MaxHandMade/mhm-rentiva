@@ -500,7 +500,7 @@ final class VehiclesList extends AbstractShortcode
             $features[] = [
                 'key' => 'year',
                 'text' => $year,
-                'icon' => 'year'
+                'icon' => 'calendar'
             ];
         }
 
@@ -519,7 +519,7 @@ final class VehiclesList extends AbstractShortcode
             $features[] = [
                 'key' => 'mileage',
                 'text' => $formatted_mileage . ' km',
-                'icon' => 'mileage'
+                'icon' => 'speedometer'
             ];
         }
 
@@ -945,12 +945,14 @@ final class VehiclesList extends AbstractShortcode
     public static function ajax_toggle_favorite(): void
     {
         try {
-            // Nonce check
-            if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_vehicles_list')) {
+            $nonce = sanitize_text_field($_POST['nonce'] ?? '');
+            if (
+                empty($nonce) ||
+                (!wp_verify_nonce($nonce, 'mhm_rentiva_vehicles_list') && !wp_verify_nonce($nonce, 'mhm_rentiva_toggle_favorite'))
+            ) {
                 throw new \Exception(__('Security error', 'mhm-rentiva'));
             }
 
-            // User check
             if (!is_user_logged_in()) {
                 throw new \Exception(__('You must be logged in', 'mhm-rentiva'));
             }
@@ -961,7 +963,10 @@ final class VehiclesList extends AbstractShortcode
             }
 
             $user_id = get_current_user_id();
-            $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true) ?: [];
+            $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
+            if (!is_array($favorites)) {
+                $favorites = array_filter(array_map('intval', (array) $favorites));
+            }
 
             $key = array_search($vehicle_id, $favorites);
             if ($key !== false) {
@@ -973,6 +978,7 @@ final class VehiclesList extends AbstractShortcode
             } else {
                 // Add to favorites
                 $favorites[] = $vehicle_id;
+                 $favorites = array_values(array_unique(array_map('intval', $favorites)));
                 $message = __('Added to favorites', 'mhm-rentiva');
                 $action = 'added';
             }

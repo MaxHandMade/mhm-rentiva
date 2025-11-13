@@ -565,14 +565,14 @@ class VehiclesGrid extends AbstractShortcode
             'mhm-rentiva-vehicles-grid',
             MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicles-grid.js',
             ['jquery'],
-            MHM_RENTIVA_VERSION,
+            MHM_RENTIVA_VERSION . '-' . filemtime(MHM_RENTIVA_PLUGIN_PATH . 'assets/js/frontend/vehicles-grid.js'),
             true
         );
 
         // Localize script
         wp_localize_script('mhm-rentiva-vehicles-grid', 'mhmRentivaVehiclesGrid', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('mhm_rentiva_vehicles_grid'),
+            'nonce' => wp_create_nonce('mhm_rentiva_toggle_favorite'),
             'bookingUrl' => self::get_booking_url(),
             'loginUrl' => self::get_login_url(),
             'isUserLoggedIn' => is_user_logged_in(),
@@ -705,8 +705,6 @@ class VehiclesGrid extends AbstractShortcode
      */
     public static function ajax_toggle_favorite(): void
     {
-        check_ajax_referer('mhm_rentiva_vehicles_grid', 'nonce');
-
         $vehicle_id = intval($_POST['vehicle_id'] ?? 0);
         
         if (!$vehicle_id || !get_post($vehicle_id)) {
@@ -717,10 +715,19 @@ class VehiclesGrid extends AbstractShortcode
             wp_send_json_error(['message' => __('You need to login', 'mhm-rentiva')]);
         }
 
+        $nonce = sanitize_text_field($_POST['nonce'] ?? '');
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'mhm_rentiva_toggle_favorite')) {
+            wp_send_json_error(['message' => __('Security check failed', 'mhm-rentiva')]);
+        }
+
         $user_id = get_current_user_id();
-        $favorites = get_user_meta($user_id, '_mhm_rentiva_favorites', true) ?: [];
-        
-        if (in_array($vehicle_id, $favorites)) {
+        $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
+
+        if (!is_array($favorites)) {
+            $favorites = array_filter(array_map('intval', (array) $favorites));
+        }
+
+        if (in_array($vehicle_id, $favorites, true)) {
             $favorites = array_diff($favorites, [$vehicle_id]);
             $action = 'removed';
             $message = __('Removed from favorites', 'mhm-rentiva');
@@ -730,7 +737,9 @@ class VehiclesGrid extends AbstractShortcode
             $message = __('Added to favorites', 'mhm-rentiva');
         }
 
-        update_user_meta($user_id, '_mhm_rentiva_favorites', array_unique($favorites));
+        $favorites = array_values(array_unique(array_map('intval', $favorites)));
+
+        update_user_meta($user_id, 'mhm_rentiva_favorites', $favorites);
 
         wp_send_json_success([
             'message' => $message,
@@ -878,8 +887,13 @@ class VehiclesGrid extends AbstractShortcode
             return false;
         }
         
-        $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true) ?: [];
-        return in_array($vehicle_id, $favorites);
+        $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
+
+        if (!is_array($favorites)) {
+            $favorites = array_filter(array_map('intval', (array) $favorites));
+        }
+
+        return in_array($vehicle_id, $favorites, true);
     }
 
 }

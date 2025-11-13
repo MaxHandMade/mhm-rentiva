@@ -881,6 +881,76 @@ final class VehicleMeta extends AbstractMetaBox
      */
     private static function ensure_default_options(array &$available_details, array &$available_features, array &$available_equipment): void
     {
+        $default_details   = self::get_default_details();
+        $default_features  = self::get_default_features();
+        $default_equipment = self::get_default_equipment();
+
+        // Ensure core option sets exist (fresh installs may not have them yet)
+        if (get_option('mhm_vehicle_details', []) === []) {
+            update_option('mhm_vehicle_details', $default_details);
+        }
+        if (get_option('mhm_vehicle_features', []) === []) {
+            update_option('mhm_vehicle_features', $default_features);
+        }
+        if (get_option('mhm_vehicle_equipment', []) === []) {
+            update_option('mhm_vehicle_equipment', $default_equipment);
+        }
+
+        // Ensure selected keys are populated; otherwise fall back to defaults
+        $selected_details = (array) get_option('mhm_selected_details', []);
+        if (empty($selected_details)) {
+            $selected_details = array_keys($default_details);
+            update_option('mhm_selected_details', $selected_details);
+        }
+
+        $selected_features = (array) get_option('mhm_selected_features', []);
+        if (empty($selected_features)) {
+            $selected_features = array_keys($default_features);
+            update_option('mhm_selected_features', $selected_features);
+        }
+
+        $selected_equipment = (array) get_option('mhm_selected_equipment', []);
+        if (empty($selected_equipment)) {
+            $selected_equipment = array_keys($default_equipment);
+            update_option('mhm_selected_equipment', $selected_equipment);
+        }
+
+        // Populate available arrays when empty (fresh install fallback)
+        if (empty($available_details)) {
+            foreach ($selected_details as $key) {
+                if (isset($default_details[$key])) {
+                    $available_details[$key] = $default_details[$key];
+                }
+            }
+
+            if (empty($available_details)) {
+                $available_details = $default_details;
+            }
+        }
+
+        if (empty($available_features)) {
+            foreach ($selected_features as $key) {
+                if (isset($default_features[$key])) {
+                    $available_features[$key] = $default_features[$key];
+                }
+            }
+
+            if (empty($available_features)) {
+                $available_features = $default_features;
+            }
+        }
+
+        if (empty($available_equipment)) {
+            foreach ($selected_equipment as $key) {
+                if (isset($default_equipment[$key])) {
+                    $available_equipment[$key] = $default_equipment[$key];
+                }
+            }
+
+            if (empty($available_equipment)) {
+                $available_equipment = $default_equipment;
+            }
+        }
     }
 
     /**

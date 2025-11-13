@@ -132,24 +132,6 @@ final class TestAdminPage
                     </div>
                 </div>
             <?php endif; ?>
-
-            <style>
-                .mhm-test-page { max-width: 1400px; }
-                .mhm-test-controls { background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,0.04); }
-                .test-options { margin: 20px 0; }
-                .test-options label { display: block; margin: 10px 0; font-size: 14px; }
-                .test-options input[type="checkbox"] { margin-right: 8px; }
-                .test-actions { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; }
-                .test-actions button { margin-right: 10px; }
-                .mhm-test-welcome { margin: 20px 0; }
-                .welcome-panel { background: #fff; padding: 30px; border: 1px solid #ccd0d4; box-shadow: 0 1px 1px rgba(0,0,0,0.04); }
-                .welcome-panel h2 { margin-top: 0; font-size: 24px; }
-                .welcome-panel ul { margin: 20px 0; padding-left: 20px; }
-                .welcome-panel ul li { margin: 8px 0; font-size: 14px; }
-                .test-export-options { margin: 30px 0; padding: 20px; background: #f5f5f5; border-radius: 5px; }
-                .test-export-options h3 { margin-top: 0; }
-                .test-export-options .button { margin-right: 10px; }
-            </style>
         </div>
         <?php
     }

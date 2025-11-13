@@ -1,8 +1,22 @@
 [
     {
+        "version": "4.3.9",
+        "date": "2025-11-13",
+        "type": "current",
+        "changes": [
+            "❤️ FAVORİLER: Grid, liste ve Hesabım favorilerinde nonce/AJAX süreçleri birleştirildi; tüm favorileri temizleme akışı güçlendirildi",
+            "💬 BİLDİRİMLER: Tüm frontend shortcode'larında toast stili ve animasyonları standart hale getirildi",
+            "🎨 ARAYÜZ: Grid/liste kart hizaları, mobil butonlar, takvim boşlukları ve Hesabım favori kartları iyileştirildi",
+            "🚗 ARAÇ LİSTESİ: Yıl ve kilometre ikon eşleştirmeleri düzeltildi, varsayılan simge desteği eklendi",
+            "🧰 VARSAYILAN VERİ: Yeni kurulumlarda araç detay/özellik/ekipman alanları otomatik dolduruluyor",
+            "⚙️ QUICK EDIT: Durum/müsaitlik senkronizasyonu düzeltildi, eski Passive / In Progress etiketleri kaldırıldı",
+            "📚 DÖKÜMANTASYON: docs/site altında admin rehberleri, başlangıç adımları ve test checklistleri güncellendi"
+        ]
+    },
+    {
         "version": "4.3.8",
         "date": "2025-11-06",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🌍 MERKEZİ PARA BİRİMİ SİSTEMİ: Birleşik para birimi sembol yönetimi için CurrencyHelper sınıfı oluşturuldu (47 para birimi)",
             "🌐 MERKEZİ DİL SİSTEMİ: Birleşik locale/dil yönetimi için LanguageHelper sınıfı oluşturuldu (60+ dil)",
@@ -358,4 +372,3 @@
         ]
     }
 ]
-

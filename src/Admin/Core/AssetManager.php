@@ -733,6 +733,16 @@ final class AssetManager
                 ]
             ]);
         }
+
+        // Test Suite
+        if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-tests') {
+            wp_enqueue_style(
+                'mhm-test-suite',
+                MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/test-suite.css',
+                ['mhm-core-css'],
+                MHM_RENTIVA_VERSION
+            );
+        }
         
         // Settings
         if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-settings') {

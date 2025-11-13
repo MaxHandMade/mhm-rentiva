@@ -69,19 +69,12 @@
                 }
 
                 // Available
-                var available = $row.find('.column-mhm_available').text().trim();
-                if (available !== '—') {
-                    var available_value = 'active'; // default
-                    const labels = (window.mhmVehicleQuickEdit && window.mhmVehicleQuickEdit.labels) || {};
-
-                    if (available.includes(labels.passive || 'Passive')) {
-                        available_value = 'passive';
-                    } else if (available.includes(labels.maintenance || 'Maintenance')) {
-                        available_value = 'maintenance';
-                    } else if (available.includes(labels.active || 'Active')) {
-                        available_value = 'active';
+                var availableElement = $row.find('.column-mhm_available span.vehicle-status');
+                if (availableElement.length) {
+                    var availableValue = availableElement.data('status');
+                    if (availableValue) {
+                        $('.mhm_available').val(availableValue);
                     }
-                    $('.mhm_available').val(available_value);
                 }
 
             }, 100);

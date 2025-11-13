@@ -246,6 +246,7 @@
     border-radius: 8px;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 115, 230, 0.25);
+    box-sizing: border-box;
 }
 
 .rv-btn-book:hover {
@@ -271,6 +272,7 @@
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     margin-top: 16px;
+    box-sizing: border-box;
 }
 
 .rv-description h3 {
@@ -361,6 +363,7 @@
     font-weight: 600;
     margin: 0 0 24px 0;
     color: #1a1a1a;
+    text-align: center;
 }
 
 /* Hata Mesajı */
@@ -636,6 +639,10 @@
     align-items: center;
     gap: 12px;
     justify-content: center;
+    padding: 12px;
+    margin: 12px 0 16px;
+    background: #f3f4f6;
+    border-radius: 8px;
 }
 
 .rv-calendar-nav-btn {

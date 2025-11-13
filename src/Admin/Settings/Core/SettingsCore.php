@@ -2126,6 +2126,11 @@ final class SettingsCore
      */
     public static function check_general_rate_limit(): void
     {
+        // Allow trusted administrators to operate without rate limiting in the dashboard
+        if (is_user_logged_in() && current_user_can('manage_options')) {
+            return;
+        }
+
         if (!RateLimiter::is_allowed('general', RateLimiter::get_general_limit())) {
             RateLimiter::log_violation('general', RateLimiter::get_client_ip(), RateLimiter::get_general_limit());
             RateLimiter::block_ip();

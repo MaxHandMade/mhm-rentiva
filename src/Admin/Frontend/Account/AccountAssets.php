@@ -41,6 +41,7 @@ final class AccountAssets
         wp_localize_script('mhm-rentiva-my-account', 'mhmRentivaAccount', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('mhm_rentiva_account'),
+            'toggleNonce' => wp_create_nonce('mhm_rentiva_toggle_favorite'),
             'accountUrl' => AccountController::get_account_url(),
             'i18n' => [
                 'loading' => __('Loading...', 'mhm-rentiva'),
@@ -51,6 +52,7 @@ final class AccountAssets
                 'deletedSuccessfully' => __('Deleted successfully!', 'mhm-rentiva'),
                 'addedToFavorites' => __('Added to favorites!', 'mhm-rentiva'),
                 'removedFromFavorites' => __('Removed from favorites!', 'mhm-rentiva'),
+                'favoritesCleared' => __('All favorites cleared', 'mhm-rentiva'),
             ],
         ]);
     }

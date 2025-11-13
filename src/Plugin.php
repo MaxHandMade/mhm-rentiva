@@ -33,10 +33,6 @@ final class Plugin
             return;
         }
         
-        // Activation hook
-        register_activation_hook(MHM_RENTIVA_PLUGIN_FILE, [self::class, 'activate']);
-        register_deactivation_hook(MHM_RENTIVA_PLUGIN_FILE, [self::class, 'deactivate']);
-        
         // Mark bootstrap flag and create instance
         self::$bootstrapped = true;
         self::$instance = new self();

@@ -7,9 +7,8 @@ Bu dosya, eklentinin geliştirilmesi ve iyileştirilmesi için yapılacaklar lis
 ## 🔄 Aktif Geliştirmeler
 
 ### Yüksek Öncelik
-- [x] Pre-release kontrol raporu hazırlandı
-- [x] Inline JavaScript düzeltmeleri yapıldı
-- [x] TODO.md dosyası oluşturuldu
+- [ ] `docs/checklists/testing-checklists.md` üzerinden lokal kabul testlerini tamamla
+- [ ] Canlı ortama çıkış öncesi ödeme/e-posta doğrulamasını planla (checklist hazırlığı bitti, uygulama bekliyor)
 
 ### Orta Öncelik
 - [ ] Admin panel inline CSS'lerini optimize et (opsiyonel)
@@ -52,6 +51,6 @@ Bu dosya, eklentinin geliştirilmesi ve iyileştirilmesi için yapılacaklar lis
 
 ---
 
-**Son Güncelleme**: 2025-11-06  
-**Versiyon**: 4.3.8
+**Son Güncelleme**: 2025-11-13
+**Versiyon**: 4.3.9
 

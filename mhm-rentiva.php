@@ -98,7 +98,10 @@ if (is_admin() && isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'
 if (version_compare(PHP_VERSION, '7.4', '<')) {
     add_action('admin_notices', function() {
         echo '<div class="notice notice-error"><p>';
-        echo esc_html__('MHM Rentiva plugin requires PHP 7.4 or higher. Your version: ' . PHP_VERSION, 'mhm-rentiva');
+        printf(
+            esc_html__('MHM Rentiva plugin requires PHP 7.4 or higher. Your version: %s', 'mhm-rentiva'),
+            esc_html(PHP_VERSION)
+        );
         echo '</p></div>';
     });
     return;
@@ -106,7 +109,7 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 
 // Version constant
 if (!defined('MHM_RENTIVA_VERSION')) {
-    define('MHM_RENTIVA_VERSION', '4.3.8');
+    define('MHM_RENTIVA_VERSION', '4.3.9');
 }
 
 // Plugin file constant

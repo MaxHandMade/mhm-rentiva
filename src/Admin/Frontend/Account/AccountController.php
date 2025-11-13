@@ -63,7 +63,9 @@ final class AccountController
         add_action('wp_ajax_mhm_rentiva_update_account', [self::class, 'ajax_update_account']);
         add_action('wp_ajax_mhm_rentiva_add_favorite', [self::class, 'ajax_add_favorite']);
         add_action('wp_ajax_mhm_rentiva_remove_favorite', [self::class, 'ajax_remove_favorite']);
+        add_action('wp_ajax_mhm_rentiva_clear_favorites', [self::class, 'ajax_clear_favorites']);
         add_action('wp_ajax_mhm_cancel_booking', [self::class, 'ajax_cancel_booking']);
+        add_action('wp_ajax_mhm_rentiva_clear_favorites', [self::class, 'ajax_clear_favorites']);
         
         // Assets
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_assets']);
@@ -446,6 +448,29 @@ final class AccountController
         return ShortcodeUrlManager::get_page_url('rentiva_my_account');
     }
 
+    /**
+     * AJAX: Clear all favorites
+     */
+    public static function ajax_clear_favorites(): void
+    {
+        $nonce = sanitize_text_field($_POST['nonce'] ?? '');
+        if (empty($nonce) || !wp_verify_nonce($nonce, 'mhm_rentiva_account')) {
+            wp_send_json_error(['message' => __('Security error.', 'mhm-rentiva')], 400);
+        }
+
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('You must be logged in', 'mhm-rentiva')], 403);
+        }
+
+        $user_id = get_current_user_id();
+        delete_user_meta($user_id, 'mhm_rentiva_favorites');
+
+        wp_send_json_success([
+            'message' => __('All favorites cleared', 'mhm-rentiva'),
+            'favorites_count' => 0,
+        ]);
+    }
+
 
     /**
      * AJAX: Upload payment receipt (deposit slip)
@@ -619,18 +644,24 @@ final class AccountController
 
             $user_id = get_current_user_id();
             $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
-            
+
             if (!is_array($favorites)) {
                 $favorites = [];
             }
-            
-            if (!in_array($vehicle_id, $favorites)) {
+
+            $favorites = array_map('intval', $favorites);
+
+            if (!in_array($vehicle_id, $favorites, true)) {
                 $favorites[] = $vehicle_id;
+                $favorites = array_values(array_unique($favorites));
                 update_user_meta($user_id, 'mhm_rentiva_favorites', $favorites);
             }
 
             wp_send_json_success([
-                'message' => __('Vehicle added to favorites.', 'mhm-rentiva')
+                'message' => __('Vehicle added to favorites.', 'mhm-rentiva'),
+                'vehicle_id' => $vehicle_id,
+                'favorites_count' => count($favorites),
+                'action' => 'added',
             ]);
 
         } catch (\Exception $e) {
@@ -656,16 +687,24 @@ final class AccountController
             $user_id = get_current_user_id();
             
             $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
-            
-            if (is_array($favorites)) {
-                $favorites = array_filter($favorites, function($id) use ($vehicle_id) {
-                    return $id != $vehicle_id;
-                });
-                update_user_meta($user_id, 'mhm_rentiva_favorites', array_values($favorites));
+
+            if (!is_array($favorites)) {
+                $favorites = [];
             }
 
+            $favorites = array_map('intval', $favorites);
+            $favorites = array_filter($favorites, static function (int $id) use ($vehicle_id): bool {
+                return $id !== $vehicle_id;
+            });
+            $favorites = array_values($favorites);
+
+            update_user_meta($user_id, 'mhm_rentiva_favorites', $favorites);
+
             wp_send_json_success([
-                'message' => __('Vehicle removed from favorites.', 'mhm-rentiva')
+                'message' => __('Vehicle removed from favorites.', 'mhm-rentiva'),
+                'vehicle_id' => $vehicle_id,
+                'favorites_count' => count($favorites),
+                'action' => 'removed',
             ]);
 
         } catch (\Exception $e) {

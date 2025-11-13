@@ -1,8 +1,22 @@
 [
     {
+        "version": "4.3.9",
+        "date": "2025-11-13",
+        "type": "current",
+        "changes": [
+            "❤️ FAVORITES: Unified nonce handling, AJAX toggle, and clear-all endpoints across grid, list, and My Account favorites",
+            "💬 NOTIFICATIONS: Standardized toast styling/animation for all frontend shortcodes",
+            "🎨 UI POLISH: Improved vehicle grid/list layouts, mobile buttons, calendar spacing, and responsive account favorites",
+            "🚗 VEHICLE LIST: Corrected year and mileage icon mappings with default icon fallback",
+            "🧰 DEFAULT METADATA: Auto-populate vehicle details, features, and equipment on fresh installs",
+            "⚙️ QUICK EDIT: Fixed availability/status sync, removed legacy Passive/In Progress labels, and ensured accurate counts",
+            "📚 DOCUMENTATION: Expanded docs/site with admin page guides, getting-started steps, and updated testing checklists"
+        ]
+    },
+    {
         "version": "4.3.8",
         "date": "2025-11-06",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🌍 CENTRALIZED CURRENCY SYSTEM: CurrencyHelper class created for unified currency symbol management (47 currencies)",
             "🌐 CENTRALIZED LANGUAGE SYSTEM: LanguageHelper class created for unified locale/language management (60+ languages)",
