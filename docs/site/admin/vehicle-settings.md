@@ -21,6 +21,11 @@
 - Araç arama, rezervasyon, müşteri portalı gibi sayfaların hangi WordPress sayfasına bağlı olduğunu belirler.
 - Kurulum rehberindeki zorunlu sayfa listesi ile eşleşmediğinde ilgili kısa kodlar çalışmaz; bu yüzden bu sekmenin eksiksiz doldurulması gerekir.
 
+### 5. Kart Öğeleri (Visible Card Items)
+- `Vehicle Display` bölümündeki **Visible Card Items** paneli, grid/list kartlarında (ve Hesabım > Favoriler’de) gösterilecek bilgileri yönetir.
+- Sol taraftaki liste kartta görünen alanları belirtir; sürükle-bırak ile sıralamayı değiştirebilir, sağdaki “Available” kolonuna taşıyarak öğeyi gizleyebilirsiniz.
+- Detay, Feature ve Equipment alanlarının tamamı – custom ekledikleriniz dahil – bu panelde seçilebilir. Kartta gösterilmeyecek bir alanı Vehicle Settings’te kapatırsanız, burada da otomatik olarak listeden çıkar.
+
 ## Kullanım İpuçları
 
 - **Yeni Alan Eklerken:** Custom detail/feature/equipment ekledikten sonra ön yüzde görünmesi için kısa kod şablonlarını güncellemeniz gerekebilir.

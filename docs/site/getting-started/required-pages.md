@@ -19,6 +19,8 @@ Rentiva, müşteri portalı ve rezervasyon akışını çalıştırmak için bir
 | Araç Karşılaştırma | `[rentiva_vehicle_comparison]` | `/rentiva/vehicle-comparison/` | Seçilen araçların kıyas tablosu |
 | Testimonial Listesi | `[rentiva_testimonials]` | `/rentiva/testimonials/` | Varsayılan testimonial grid |
 
+> **Önemli:** Rezervasyon tamamlandıktan sonra onay ekranının açılabilmesi için **Rezervasyon Onayı** sayfasını mutlaka oluşturup yayınlayın. Bu sayfayı `Settings > Shortcode Pages > Booking Confirmation` alanında seçmezseniz, yönlendirme WordPress ana sayfasına düşer.
+
 ## Sayfaların Otomatik Oluşturu lması
 
 Rentiva’nın bazı sürümlerinde “Page Setup” aracı tüm sayfaları tek tuşla ekleyebilir. Eğer araç yoksa, sayfaları manuel oluşturup kısa kodu Gutenberg veya klasik editörde eklemeniz yeterli.

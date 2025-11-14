@@ -111,7 +111,7 @@ $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true) ?: [];
 
                                     <?php if (!empty($vehicle_data['features'])): ?>
                                         <div class="rv-vehicle-card__features">
-                                            <?php foreach (array_slice($vehicle_data['features'], 0, 3) as $feature): ?>
+                                            <?php foreach ($vehicle_data['features'] as $feature): ?>
                                                 <div class="rv-feature-item">
                                                     <?php
                                                     $icon_type = $feature['icon'] ?? '';

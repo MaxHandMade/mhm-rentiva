@@ -264,6 +264,13 @@ final class Plugin
             if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\LogRetention')) {
                 \MHMRentiva\Admin\PostTypes\Maintenance\LogRetention::register();
         }
+
+        // Setup Wizard
+        $setup_wizard_file = plugin_dir_path(dirname(__FILE__)) . 'src/Admin/Setup/SetupWizard.php';
+        if (file_exists($setup_wizard_file)) {
+            require_once $setup_wizard_file;
+            \MHMRentiva\Admin\Setup\SetupWizard::register();
+        }
     }
 
     /**

@@ -1313,18 +1313,18 @@ final class VehicleColumns
                 continue;
             }
 
-            $value = wp_unslash($_POST[$field_name]);
-
-            if ($value === null) {
-                $value = '';
-            }
-
-            if ($config['sanitize'] === 'sanitize_text_field') {
-                $sanitized_value = sanitize_text_field((string) ($value ?: ''));
-            } else {
-                $sanitized_value = call_user_func($config['sanitize'], $value);
-            }
-
+                $value = wp_unslash($_POST[$field_name]);
+                
+                if ($value === null) {
+                    $value = '';
+                }
+                
+                if ($config['sanitize'] === 'sanitize_text_field') {
+                    $sanitized_value = sanitize_text_field((string) ($value ?: ''));
+                } else {
+                    $sanitized_value = call_user_func($config['sanitize'], $value);
+                }
+                
             if ($field_name === 'mhm_available') {
                 $normalized_status = self::normalize_availability($sanitized_value);
                 update_post_meta($post_id, '_mhm_vehicle_status', $normalized_status);
@@ -1333,7 +1333,7 @@ final class VehicleColumns
             }
 
             if ($sanitized_value !== '' && $sanitized_value !== null) {
-                update_post_meta($post_id, $config['key'], $sanitized_value);
+                    update_post_meta($post_id, $config['key'], $sanitized_value);
             }
         }
     }

@@ -311,22 +311,25 @@ POST /bookings
 
 ## 📝 Değişiklik Geçmişi
 
-### Son Versiyon: 4.3.9 (2025-11-13)
+### Son Versiyon: 4.4.0 (2025-11-14)
 
-**❤️ FAVORİLER & BİLDİRİMLER**
-- Grid, liste ve Hesabım sayfalarında favori işlemleri için tek tip nonce/AJAX doğrulaması sağlandı
-- “Tüm favorileri temizle” akışı ve kart/sayaç güncellemeleri daha kararlı hale getirildi
-- Tüm frontend shortcode’larında toast bildirim tasarımları standartlaştırıldı
+**🧙 KURULUM SİHİRBAZI GENİŞLEMESİ**
+- Sistem Kontrolü’nden Summary & Tests’e kadar 7 adımlık yeni akış, tutarlı geri butonları ve tek bir menü girişi ile tamamlandı
+- Lisans adımı artık LicenseManager durumunu okuyor; Zorunlu Sayfalar listesi Login/Register/Contact kontrollerini ve Shortcode Pages kısayolunu içeriyor
+- Ödeme ve Frontend adımları ana ayarlardaki para birimi/konum dropdown’larını kullanarak doğru varsayılanları uygular
 
-**🛠 ARAÇ YÖNETİMİ DÜZENLEMELERİ**
-- İlk kurulumlarda araç detay/özellik/ekipman alanları otomatik olarak oluşturuluyor
-- Quick Edit müsaitlik/durum senkronizasyonu düzeltildi, eski “Passive / In Progress” etiketleri kaldırıldı
-- Araç listesinde yıl ve kilometre ikonları doğru SVG’lerle eşleştirildi, yedek simge eklendi
+**🩺 SİSTEM KONTROLÜ & GÜVENİLİRLİK**
+- E-posta teslim tespiti FluentSMTP, WP Mail SMTP, Post SMTP vb. eklentileri tanır; yalnızca gerçek SMTP katmanı yoksa uyarı gösterir
+- HTTPS ve bellek satırları yapılması gereken değişiklikleri net mesajlarla açıklar, böylece canlıya çıkmadan önce yapılacaklar listesi hazır olur
 
-**🧭 DÖKÜMANTASYON & UX**
-- `docs/site` altında admin ve başlangıç dökümanları genişletildi
-- Hesabım > Favoriler sekmesinde responsive kart düzeni ve SVG özellik ikonları iyileştirildi
-- Grid/liste CSS’lerinde başlık hizası, mobil butonlar ve takvim boşlukları yeniden düzenlendi
+**📚 DÖKÜMANTASYON & UX**
+- `docs/site/getting-started/setup-wizard.md` altında ayrıntılı bir sihirbaz rehberi eklendi ve admin indeksine bağlantı verildi
+- Sekme stilleri hizalandı, Summary butonları daha görünür hâle getirildi ve yinelenen menü girişleri kaldırıldı
+- Zorunlu Sayfalar tablosu giriş/kayıt/iletişim kontrollerini göstererek ilk kurulum kapsamını genişletir
+
+**📋 SHORTCODE KAPSAMI**
+- Zorunlu Sayfalar adımı artık Login (`[rentiva_login_form]`), Register (`[rentiva_register_form]`) ve Contact (`[rentiva_contact]`) shortcode’larını doğrular ve gerekirse otomatik oluşturur
+- Shortcode dokümantasyonu ve kurulum yönergeleri bu yeni sayfaları vurgulayacak şekilde güncellendi
 
 Tam değişiklik geçmişi için [changelog-tr.json](changelog-tr.json) dosyasına bakın.
 

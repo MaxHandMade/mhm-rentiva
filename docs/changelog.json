@@ -1,8 +1,22 @@
 [
     {
+        "version": "4.4.0",
+        "date": "2025-11-14",
+        "type": "current",
+        "changes": [
+            "🧙 SETUP WIZARD: Expanded to seven guided steps with consistent back buttons, login/register/contact checks, and a Shortcode Pages shortcut",
+            "🔐 LICENSE SYNC: Wizard now reads the real LicenseManager state so active keys appear as Ready without re-entering",
+            "💳 PAYMENT & FRONTEND: Wizard steps reuse the same currency and position dropdowns as the main settings for accurate defaults",
+            "🩺 SYSTEM CHECK: Email Delivery detection recognises SMTP providers (FluentSMTP, WP Mail SMTP, Post SMTP, etc.) before raising warnings",
+            "📚 DOCUMENTATION: Added docs/site/getting-started/setup-wizard guide and linked it from the admin documentation index",
+            "🎨 UI POLISH: Unified wizard tab styling, added universal back buttons, and removed duplicate menu entries for a cleaner experience",
+            "📋 SHORTCODES: Required Pages step validates/login/register/contact shortcodes and the docs highlight the mandatory shortcode mappings"
+        ]
+    },
+    {
         "version": "4.3.9",
         "date": "2025-11-13",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "❤️ FAVORITES: Unified nonce handling, AJAX toggle, and clear-all endpoints across grid, list, and My Account favorites",
             "💬 NOTIFICATIONS: Standardized toast styling/animation for all frontend shortcodes",

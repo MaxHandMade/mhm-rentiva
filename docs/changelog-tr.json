@@ -1,8 +1,22 @@
 [
     {
+        "version": "4.4.0",
+        "date": "2025-11-14",
+        "type": "current",
+        "changes": [
+            "🧙 KURULUM SİHİRBAZI: Tutarlı geri butonları, giriş/kayıt/iletişim kontrolleri ve Shortcode Pages kısayolu ile yedi adımlı rehber genişletildi",
+            "🔐 LİSANS SENKRONİZASYONU: Sihirbaz artık gerçek LicenseManager durumunu okuyor; aktif anahtarlar yeniden girmeden Ready görünüyor",
+            "💳 ÖDEME & FRONTEND: Sihirbaz adımları ana ayarlardaki para birimi/konum dropdown'larını kullanıyor, varsayılanlar birebir eşleşiyor",
+            "🩺 SİSTEM KONTROLÜ: E-posta teslim tespiti FluentSMTP, WP Mail SMTP, Post SMTP vb. sağlayıcıları uyarıdan önce algılıyor",
+            "📚 DÖKÜMANTASYON: docs/site/getting-started/setup-wizard rehberi eklendi ve admin doküman indeksine linklendi",
+            "🎨 ARAYÜZ POLİSAJI: Sekme stilleri birleştirildi, evrensel geri butonları eklendi ve yinelenen menü girdileri kaldırıldı",
+            "📋 SHORTCODE'LAR: Zorunlu Sayfalar adımı login/register/contact shortcode'larını doğruluyor ve dokümanlar zorunlu eşleştirmeleri vurguluyor"
+        ]
+    },
+    {
         "version": "4.3.9",
         "date": "2025-11-13",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "❤️ FAVORİLER: Grid, liste ve Hesabım favorilerinde nonce/AJAX süreçleri birleştirildi; tüm favorileri temizleme akışı güçlendirildi",
             "💬 BİLDİRİMLER: Tüm frontend shortcode'larında toast stili ve animasyonları standart hale getirildi",

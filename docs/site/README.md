@@ -13,6 +13,7 @@ Rentiva’yı başarıyla kurup işletmeniz için ihtiyacınız olan tüm adıml
   - [Rentiva’yı İlk Kez Kurarken 12 Adım](getting-started/first-install.md)
   - [Zorunlu Sayfalar ve Kısa Kodlar](getting-started/required-pages.md)
   - [Kurulum Sonrası Kontrol Listesi](getting-started/post-install-checklist.md)
+  - [Kurulum Sihirbazı Rehberi](getting-started/setup-wizard.md)
 - **Konfigürasyon**
   - (Yapım aşamasında) Ödeme Ağ Geçitleri, E-posta Şablonları, Lisanslama
 - **Yönetim**

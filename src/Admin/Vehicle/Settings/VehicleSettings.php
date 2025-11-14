@@ -800,7 +800,7 @@ final class VehicleSettings
     /**
      * Default features
      */
-    private static function get_default_features(): array
+    public static function get_default_features(): array
     {
         return [
             'air_conditioning' => __('Air Conditioning', 'mhm-rentiva'),
@@ -824,7 +824,7 @@ final class VehicleSettings
     /**
      * Default equipment
      */
-    private static function get_default_equipment(): array
+    public static function get_default_equipment(): array
     {
         return [
             'spare_tire' => __('Spare Tire', 'mhm-rentiva'),
@@ -848,7 +848,7 @@ final class VehicleSettings
     /**
      * Default details
      */
-    private static function get_default_details(): array
+    public static function get_default_details(): array
     {
         return [
             'price_per_day' => __('Daily Price', 'mhm-rentiva'),
@@ -870,7 +870,7 @@ final class VehicleSettings
     /**
      * Default selected details (checkbox states)
      */
-    private static function get_default_selected_details(): array
+    public static function get_default_selected_details(): array
     {
         return ['price_per_day', 'year', 'mileage', 'license_plate', 'color', 'brand', 'model', 'seats', 'doors', 'transmission', 'fuel_type', 'engine_size', 'availability'];
     }
@@ -878,7 +878,7 @@ final class VehicleSettings
     /**
      * Default selected features (checkbox states)
      */
-    private static function get_default_selected_features(): array
+    public static function get_default_selected_features(): array
     {
         return ['air_conditioning', 'power_steering', 'abs_brakes', 'airbags', 'central_locking', 'electric_windows', 'power_mirrors', 'fog_lights', 'cruise_control', 'bluetooth', 'usb_port', 'navigation', 'sunroof', 'leather_seats', 'heated_seats'];
     }
@@ -886,7 +886,7 @@ final class VehicleSettings
     /**
      * Default selected equipment (checkbox states)
      */
-    private static function get_default_selected_equipment(): array
+    public static function get_default_selected_equipment(): array
     {
         return ['spare_tire', 'jack', 'first_aid_kit', 'fire_extinguisher', 'warning_triangle', 'jumper_cables', 'ice_scraper', 'car_cover', 'child_seat', 'gps_tracker', 'dashcam', 'phone_holder', 'charger', 'cleaning_kit', 'emergency_kit'];
     }

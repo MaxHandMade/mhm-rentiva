@@ -150,6 +150,16 @@ final class Menu
             [\MHMRentiva\Admin\About\About::class, 'render_page']
         );
 
+        // Setup Wizard submenu
+        add_submenu_page(
+            'mhm-rentiva',
+            __('Setup Wizard', 'mhm-rentiva'),
+            __('Setup Wizard', 'mhm-rentiva'),
+            'manage_options',
+            'mhm-rentiva-setup',
+            [\MHMRentiva\Admin\Setup\SetupWizard::class, 'render_page']
+        );
+
         // 13. Settings submenu (at the bottom)
         add_submenu_page(
             'mhm-rentiva',

@@ -2,6 +2,8 @@
 
 namespace MHMRentiva\Admin\Settings\Core;
 
+use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -245,7 +247,10 @@ final class SettingsSanitizer
         // This prevents resetting settings from other tabs when saving one tab
         
         // Detect which tab was submitted by checking for tab-specific fields
-        $is_vehicle_tab = isset($input['mhm_rentiva_vehicle_base_price']) || isset($input['mhm_rentiva_vehicle_show_images']) || isset($input['mhm_rentiva_vehicle_min_rental_days']);
+        $is_vehicle_tab = isset($input['mhm_rentiva_vehicle_base_price'])
+            || isset($input['mhm_rentiva_vehicle_show_images'])
+            || isset($input['mhm_rentiva_vehicle_min_rental_days'])
+            || isset($input['mhm_rentiva_vehicle_card_fields']);
         $is_booking_tab = isset($input['mhm_rentiva_booking_cancellation_deadline_hours']) || isset($input['mhm_rentiva_booking_payment_deadline_minutes']) || isset($input['mhm_rentiva_booking_auto_cancel_enabled']);
         $is_customer_tab = isset($input['mhm_rentiva_customer_registration_enabled']) || isset($input['mhm_rentiva_customer_email_verification']);
         $is_email_tab = isset($input['mhm_rentiva_email_from_name']) || isset($input['mhm_rentiva_email_from_address']) || isset($input['mhm_rentiva_email_test_mode']) || isset($input['mhm_rentiva_email_send_enabled']) || isset($input['mhm_rentiva_email_auto_send']) || isset($input['mhm_rentiva_email_log_enabled']);
@@ -1435,6 +1440,35 @@ final class SettingsSanitizer
         $out['mhm_rentiva_vehicle_show_features'] = isset($input['mhm_rentiva_vehicle_show_features']) && $input['mhm_rentiva_vehicle_show_features'] === '1' ? '1' : '0';
         $out['mhm_rentiva_vehicle_show_availability'] = isset($input['mhm_rentiva_vehicle_show_availability']) && $input['mhm_rentiva_vehicle_show_availability'] === '1' ? '1' : '0';
         
+        // Feature selection - handle array input
+        $card_field_payload = $input['mhm_rentiva_vehicle_card_fields'] ?? null;
+
+        if ($card_field_payload === null && isset($input['mhm_rentiva_vehicle_feature_fields'])) {
+            // Legacy migration: map old icon keys to detail keys
+            $legacy = $input['mhm_rentiva_vehicle_feature_fields'];
+            if (is_array($legacy)) {
+                $map = [
+                    'fuel'       => ['type' => VehicleFeatureHelper::TYPE_DETAIL, 'key' => 'fuel_type'],
+                    'gear'       => ['type' => VehicleFeatureHelper::TYPE_DETAIL, 'key' => 'transmission'],
+                    'people'     => ['type' => VehicleFeatureHelper::TYPE_DETAIL, 'key' => 'seats'],
+                    'calendar'   => ['type' => VehicleFeatureHelper::TYPE_DETAIL, 'key' => 'year'],
+                    'speedometer'=> ['type' => VehicleFeatureHelper::TYPE_DETAIL, 'key' => 'mileage'],
+                ];
+                $converted = [];
+                foreach ($legacy as $icon_key) {
+                    $icon_key = is_string($icon_key) ? sanitize_key($icon_key) : '';
+                    if ($icon_key !== '' && isset($map[$icon_key])) {
+                        $converted[] = $map[$icon_key];
+                    }
+                }
+                if (!empty($converted)) {
+                    $card_field_payload = $converted;
+                }
+            }
+        }
+
+        $out['mhm_rentiva_vehicle_card_fields'] = VehicleFeatureHelper::sanitize_card_field_selection($card_field_payload);
+
         // Comparison fields - handle array input
         if (isset($input['comparison_fields']) && is_array($input['comparison_fields'])) {
             $out['comparison_fields'] = self::sanitize_comparison_fields($input['comparison_fields']);

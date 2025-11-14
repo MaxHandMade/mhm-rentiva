@@ -4,12 +4,18 @@ Bu doküman, canlıya çıkmadan önce yapılacak **lokal kabul testleri** ve ca
 
 ---
 
+## ✅ Kurulum Öncesi Hızlı Kontrol
+- [ ] `Settings > Shortcode Pages` ekranında tüm zorunlu sayfalar seçili (özellikle `[rentiva_booking_confirmation]`).
+- [ ] `Pages` menüsünde “Booking Confirmation” sayfası yayımlı ve kısa kodu içeriyor.
+- [ ] Page cache (ShortcodeUrlManager) temizlendi ya da sayfalar kaydedilerek URL’ler güncellendi.
+
 ## ✅ Lokal Kabul Testleri
 
 ### 1. Araç Yönetimi
 - [x] En az 3 farklı araç oluştur (kategori, fiyat, özellik kombinasyonları değişken olmalı).
 - [x] Her araç için galeriye 2–3 görsel ekle ve sürükle-bırak sıralamayı doğrula.
 - [x] `Vehicle Settings` ekranında özellik/ekipman aç-kapa yap, araç düzenleme ekranında yansımasını kontrol et.
+- [x] `Vehicle Display > Visible Card Items` panelinde alanları sürükle-bırak yap, grid/list/favorilerde sıra ve görünürlük değişikliklerinin yansıdığını doğrula.
 - [x] Araç liste ekranında “Quick Edit” ile fiyat veya durum güncelle; değişikliğin kaydedildiğini doğrula.
 
 ### 2. Rezervasyon Akışı

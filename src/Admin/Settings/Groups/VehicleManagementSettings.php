@@ -2,6 +2,8 @@
 
 namespace MHMRentiva\Admin\Settings\Groups;
 
+use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -114,6 +116,14 @@ final class VehicleManagementSettings
             'mhm_rentiva_vehicle_show_features',
             __('Show Vehicle Features', 'mhm-rentiva'),
             [self::class, 'render_show_features_field'],
+            'mhm_rentiva_settings',
+            'mhm_rentiva_vehicle_display_section'
+        );
+
+        add_settings_field(
+            'mhm_rentiva_vehicle_card_fields',
+            __('Visible Card Items', 'mhm-rentiva'),
+            [self::class, 'render_card_fields_field'],
             'mhm_rentiva_settings',
             'mhm_rentiva_vehicle_display_section'
         );
@@ -272,6 +282,107 @@ final class VehicleManagementSettings
     {
         $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_show_features', '1');
         echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_vehicle_show_features]" value="1"' . checked($value, '1', false) . '> ' . esc_html__('Display vehicle features in listings', 'mhm-rentiva') . '</label>';
+    }
+
+    /**
+     * Feature selection field
+     */
+    public static function render_card_fields_field(): void
+    {
+        $available_map = VehicleFeatureHelper::get_available_fields_map();
+        $selected      = VehicleFeatureHelper::get_selected_card_fields();
+
+        // Build lookup for quick label resolution.
+        $available_flat = [];
+        foreach ($available_map as $type => $fields) {
+            foreach ($fields as $key => $field) {
+                $available_flat[$type . ':' . $key] = $field;
+            }
+        }
+
+        $selected_items = [];
+        foreach ($selected as $item) {
+            $id = $item['type'] . ':' . $item['key'];
+            if (!isset($available_flat[$id])) {
+                continue;
+            }
+            $selected_items[] = [
+                'type' => $item['type'],
+                'key'  => $item['key'],
+                'label'=> $available_flat[$id]['label'],
+            ];
+            unset($available_flat[$id]);
+        }
+
+        $available_items = [];
+        foreach ($available_flat as $id => $data) {
+            $available_items[] = [
+                'type'  => $data['type'],
+                'key'   => $data['key'] ?? $id,
+                'label' => $data['label'],
+            ];
+        }
+
+        $hidden_value = esc_attr(wp_json_encode($selected));
+
+        echo '<div class="mhm-card-fields-wrapper">';
+        echo '<input type="hidden" id="mhm-vehicle-card-fields-input" name="mhm_rentiva_settings[mhm_rentiva_vehicle_card_fields]" value="' . $hidden_value . '" />';
+
+        echo '<div class="mhm-card-fields-columns">';
+
+        echo '<div class="mhm-card-fields-column">';
+        echo '<h4>' . esc_html__('Visible Items', 'mhm-rentiva') . '</h4>';
+        echo '<p class="description">' . esc_html__('Drag to reorder or click to remove items from the vehicle card.', 'mhm-rentiva') . '</p>';
+        echo '<ul id="mhm-card-fields-selected" class="mhm-card-fields-list">';
+        if (!empty($selected_items)) {
+            foreach ($selected_items as $item) {
+                echo self::render_card_field_list_item($item['type'], $item['key'], $item['label'], true);
+            }
+        }
+        echo '</ul>';
+        echo '</div>';
+
+        echo '<div class="mhm-card-fields-column">';
+        echo '<h4>' . esc_html__('Available Items', 'mhm-rentiva') . '</h4>';
+        echo '<p class="description">' . esc_html__('Drag items here to hide them from the card. Only fields enabled on the Vehicle Settings page are listed.', 'mhm-rentiva') . '</p>';
+        echo '<ul id="mhm-card-fields-available" class="mhm-card-fields-list">';
+        if (!empty($available_items)) {
+            foreach ($available_items as $item) {
+                echo self::render_card_field_list_item($item['type'], $item['key'], $item['label'], false);
+            }
+        }
+        echo '</ul>';
+        echo '</div>';
+
+        echo '</div>'; // columns
+
+        echo '<p class="description mhm-card-fields-footer">' .
+             esc_html__('Tip: The order you set here applies to vehicle grids, list views and the My Account favorites grid.', 'mhm-rentiva') .
+             '</p>';
+
+        echo '</div>'; // wrapper
+    }
+
+    /**
+     * Render a sortable list item.
+     */
+    private static function render_card_field_list_item(string $type, string $key, string $label, bool $selected): string
+    {
+        $type  = sanitize_key($type);
+        $key   = sanitize_key($key);
+        $label = esc_html($label);
+
+        $remove_button = $selected
+            ? '<button type="button" class="button-link remove-field" aria-label="' . esc_attr__('Remove item', 'mhm-rentiva') . '">&times;</button>'
+            : '';
+
+        return sprintf(
+            '<li class="mhm-card-field-item" data-field-type="%1$s" data-field-key="%2$s"><span class="mhm-card-field-label">%3$s</span>%4$s</li>',
+            esc_attr($type),
+            esc_attr($key),
+            $label,
+            $remove_button
+        );
     }
 
     /**

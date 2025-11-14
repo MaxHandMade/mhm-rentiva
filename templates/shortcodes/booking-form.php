@@ -124,9 +124,11 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
                 <?php if ($show_vehicle_info): ?>
                     <div class="rv-form-section rv-selected-vehicle">
                         <!-- Favorite Button - Top right corner -->
-                        <button class="rv-vehicle-card__favorite <?php echo ($selected_vehicle['favorite'] ?? false) ? 'favorited' : ''; ?>" 
+                        <button type="button"
+                                class="rv-vehicle-card__favorite <?php echo ($selected_vehicle['favorite'] ?? false) ? 'favorited is-favorited' : ''; ?>" 
                                 data-vehicle-id="<?php echo esc_attr($selected_vehicle['id']); ?>" 
-                                aria-label="<?php echo ($selected_vehicle['favorite'] ?? false) ? esc_html__('Remove from favorites', 'mhm-rentiva') : esc_html__('Add to favorites', 'mhm-rentiva'); ?>">
+                                aria-label="<?php echo ($selected_vehicle['favorite'] ?? false) ? esc_html__('Remove from favorites', 'mhm-rentiva') : esc_html__('Add to favorites', 'mhm-rentiva'); ?>"
+                                aria-pressed="<?php echo ($selected_vehicle['favorite'] ?? false) ? 'true' : 'false'; ?>">
                             <svg class="rv-heart-icon <?php echo ($selected_vehicle['favorite'] ?? false) ? 'favorited' : ''; ?>" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                             </svg>
@@ -180,27 +182,45 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
                                 <div class="rv-vehicle-features">
                                     <?php if (!empty($selected_vehicle['features'])): ?>
                                         <?php foreach ($selected_vehicle['features'] as $feature): ?>
-                                            <span class="rv-feature-tag"><?php echo esc_html($feature); ?></span>
+                                            <div class="rv-feature-tag rv-feature-item">
+                                                <?php if ($feature['icon'] === 'fuel'): ?>
+                                                    <svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path d="M3 2h3l2 6h3l2-6h3l2 6h3l1 6H4l1-6z"/>
+                                                        <path d="M6 8h12"/>
+                                                        <path d="M6 12h12"/>
+                                                    </svg>
+                                                <?php elseif ($feature['icon'] === 'gear'): ?>
+                                                    <svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <circle cx="12" cy="12" r="3"/>
+                                                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                                    </svg>
+                                                <?php elseif ($feature['icon'] === 'people'): ?>
+                                                    <svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                                        <circle cx="9" cy="7" r="4"/>
+                                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                                    </svg>
+                                                <?php elseif ($feature['icon'] === 'calendar'): ?>
+                                                    <svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                                    </svg>
+                                                <?php elseif ($feature['icon'] === 'speedometer'): ?>
+                                                    <svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <circle cx="12" cy="12" r="10"/>
+                                                        <path d="M12 6v6l4 2"/>
+                                                    </svg>
+                                                <?php else: ?>
+                                                    <svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <polyline points="20 6 9 17 4 12"/>
+                                                    </svg>
+                                                <?php endif; ?>
+                                                <span class="rv-feature-text"><?php echo esc_html($feature['text']); ?></span>
+                                            </div>
                                         <?php endforeach; ?>
-                                    <?php endif; ?>
-                                    
-                                    <!-- Additional Meta Information -->
-                                    <?php if (!empty($selected_vehicle['year'])): ?>
-                                        <span class="rv-feature-tag">
-                                            <?php echo esc_html($selected_vehicle['year']); ?>
-                                        </span>
-                                    <?php endif; ?>
-                                    
-                                    <?php if (!empty($selected_vehicle['mileage'])): ?>
-                                        <span class="rv-feature-tag">
-                                            <?php echo esc_html($selected_vehicle['mileage']); ?> <?php echo esc_html(esc_html__('km', 'mhm-rentiva')); ?>
-                                        </span>
-                                    <?php endif; ?>
-                                    
-                                    <?php if (!empty($selected_vehicle['seats'])): ?>
-                                        <span class="rv-feature-tag">
-                                            <?php echo esc_html($selected_vehicle['seats']); ?> <?php echo esc_html(esc_html__('people', 'mhm-rentiva')); ?>
-                                        </span>
                                     <?php endif; ?>
                                 </div>
                                 <p class="rv-vehicle-price">
@@ -651,6 +671,18 @@ window.mhmRentivaBookingForm = {
     currency_symbol: '<?php echo esc_js(apply_filters('mhm_rentiva/currency_symbol', '₺')); ?>',
     enable_deposit: <?php echo $enable_deposit ? 'true' : 'false'; ?>,
     default_payment: '<?php echo esc_js($default_payment); ?>',
+    favorites: {
+        ajaxUrl: '<?php echo esc_js(admin_url('admin-ajax.php')); ?>',
+        nonce: '<?php echo esc_js(wp_create_nonce('mhm_rentiva_toggle_favorite')); ?>',
+        strings: {
+            added: '<?php echo esc_js(__('Added to favorites', 'mhm-rentiva')); ?>',
+            removed: '<?php echo esc_js(__('Removed from favorites', 'mhm-rentiva')); ?>',
+            login_required: '<?php echo esc_js(__('Please log in to manage favorites.', 'mhm-rentiva')); ?>',
+            error: '<?php echo esc_js(__('An error occurred while updating favorites.', 'mhm-rentiva')); ?>',
+            add_label: '<?php echo esc_js(__('Add to favorites', 'mhm-rentiva')); ?>',
+            remove_label: '<?php echo esc_js(__('Remove from favorites', 'mhm-rentiva')); ?>'
+        }
+    },
     messages: {
         loading: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_loading', __('Loading...', 'mhm-rentiva'))); ?>',
         error: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_error', __('An error occurred.', 'mhm-rentiva'))); ?>',

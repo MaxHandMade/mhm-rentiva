@@ -6,6 +6,7 @@ use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
+use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
 use DateTime;
 use DateInterval;
 
@@ -26,6 +27,7 @@ if (!defined('ABSPATH')) {
 final class VehicleDetails extends AbstractShortcode
 {
     public const SHORTCODE = 'rentiva_vehicle_details';
+    private const CACHE_VERSION = 'card_fields_v1';
 
     /**
      * Register shortcode
@@ -215,7 +217,7 @@ final class VehicleDetails extends AbstractShortcode
         }
         
         // Cache check
-        $cache_key = 'vehicle_details_' . $vehicle_id . '_' . md5(serialize($atts));
+        $cache_key = 'vehicle_details_' . self::CACHE_VERSION . '_' . $vehicle_id . '_' . md5(serialize($atts));
         $cached_data = get_transient($cache_key);
         
         if ($cached_data !== false) {
@@ -268,6 +270,7 @@ final class VehicleDetails extends AbstractShortcode
             
             // Features
             'features' => self::get_features($vehicle_id),
+            'card_features' => VehicleFeatureHelper::collect_items($vehicle_id),
             
             // Category
             'categories' => self::get_categories($vehicle_id),
@@ -329,6 +332,7 @@ final class VehicleDetails extends AbstractShortcode
             
             // Features
             'features' => [],
+            'card_features' => [],
             
             // Category
             'categories' => [],

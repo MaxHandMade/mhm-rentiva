@@ -21,6 +21,7 @@
 - Standart WordPress listesine ek olarak şu kolonlar bulunur: `License Plate`, `Price/Day`, `Seats`, `Transmission`, `Fuel`, `Available`.
 - `Available` kolonundaki etiketler (Active, Inactive, Maintenance) Quick Edit ile güncellenebilir.
 - Liste üstündeki filtreler, durumlara göre arama yapmanıza izin verir.
+- Grid, list ve favori kartlarında gösterilecek rozetler `Vehicle Settings > Visible Card Items` panelinden yönetilir. Burada sürükle-bırak ile sıraladığınız alanlar (detay/feature/equipment) ön yüzde aynı sırayla görüntülenir; listeden kaldırdıklarınız tüm kartlarda gizlenir.
 
 ### 4. Quick Edit
 - Başlık, slug, kategori gibi standart alanların yanında Rentiva’ya özel alanlar da (License Plate, Price/Day, Seats, Transmission, Fuel, Available) hızlıca düzenlenebilir.

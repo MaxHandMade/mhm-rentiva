@@ -2,6 +2,8 @@
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
+use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
+
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
@@ -269,157 +271,7 @@ class VehiclesGrid extends AbstractShortcode
      */
     private static function get_vehicle_features(int $vehicle_id): array
     {
-        $features = [];
-
-        // Fuel type
-        $fuel_type = get_post_meta($vehicle_id, '_mhm_rentiva_fuel_type', true);
-        if (empty($fuel_type)) {
-            $fuel_type = get_post_meta($vehicle_id, 'fuel_type', true);
-        }
-        if (empty($fuel_type)) {
-            $fuel_type = get_post_meta($vehicle_id, '_mhm_rentiva_yakit_turu', true);
-        }
-
-        if ($fuel_type) {
-            $fuel_lower = strtolower($fuel_type);
-            switch ($fuel_lower) {
-                case 'petrol':
-                case 'gasoline':
-                case 'benzin':
-                    $fuel_display = __('Petrol', 'mhm-rentiva');
-                    break;
-                case 'diesel':
-                case 'dizel':
-                    $fuel_display = __('Diesel', 'mhm-rentiva');
-                    break;
-                case 'electric':
-                case 'elektrik':
-                    $fuel_display = __('Electric', 'mhm-rentiva');
-                    break;
-                case 'hybrid':
-                case 'hibrit':
-                    $fuel_display = __('Hybrid', 'mhm-rentiva');
-                    break;
-                case 'lpg':
-                    $fuel_display = __('LPG', 'mhm-rentiva');
-                    break;
-                case 'cng':
-                    $fuel_display = __('CNG', 'mhm-rentiva');
-                    break;
-                default:
-                    if (in_array($fuel_lower, ['benzin', 'dizel', 'elektrik', 'hibrit', 'lpg', 'cng'])) {
-                        $fuel_display = $fuel_type;
-                    }
-                    break;
-            }
-
-            if (isset($fuel_display)) {
-                $features[] = [
-                    'key' => 'fuel_type',
-                    'text' => $fuel_display,
-                    'icon' => 'fuel'
-                ];
-            }
-        }
-
-        // Transmission type
-        $transmission = get_post_meta($vehicle_id, '_mhm_rentiva_transmission', true);
-        if (empty($transmission)) {
-            $transmission = get_post_meta($vehicle_id, 'transmission', true);
-        }
-        if (empty($transmission)) {
-            $transmission = get_post_meta($vehicle_id, '_mhm_rentiva_vites', true);
-        }
-
-        if ($transmission) {
-            $transmission_lower = strtolower($transmission);
-            switch ($transmission_lower) {
-                case 'automatic':
-                case 'auto':
-                case 'otomatik':
-                    $transmission_text = __('Automatic', 'mhm-rentiva');
-                    break;
-                case 'manual':
-                case 'manuel':
-                    $transmission_text = __('Manual', 'mhm-rentiva');
-                    break;
-                case 'cvt':
-                    $transmission_text = __('CVT', 'mhm-rentiva');
-                    break;
-                case 'semi-automatic':
-                case 'semi-automatic':
-                    $transmission_text = __('Semi-Automatic', 'mhm-rentiva');
-                    break;
-                default:
-                    if (in_array($transmission_lower, ['automatic', 'manual', 'semi-automatic'])) {
-                        $transmission_text = $transmission;
-                    }
-                    break;
-            }
-
-            if (isset($transmission_text)) {
-                $features[] = [
-                    'key' => 'transmission',
-                    'text' => $transmission_text,
-                    'icon' => 'gear'
-                ];
-            }
-        }
-
-        // Seat count
-        $seats = get_post_meta($vehicle_id, '_mhm_rentiva_seats', true);
-        if (empty($seats)) {
-            $seats = get_post_meta($vehicle_id, 'seat_count', true);
-        }
-        if (empty($seats)) {
-            $seats = get_post_meta($vehicle_id, '_mhm_rentiva_koltuk_sayisi', true);
-        }
-
-        if ($seats) {
-            $features[] = [
-                'key' => 'seats',
-                'text' => $seats . ' ' . __('People', 'mhm-rentiva'),
-                'icon' => 'people'
-            ];
-        }
-
-        // Year information
-        $year = get_post_meta($vehicle_id, '_mhm_rentiva_year', true);
-        if (empty($year)) {
-            $year = get_post_meta($vehicle_id, 'year', true);
-        }
-        if (empty($year)) {
-            $year = get_post_meta($vehicle_id, '_mhm_rentiva_yil', true);
-        }
-
-        if ($year) {
-            $features[] = [
-                'key' => 'year',
-                'text' => $year,
-                'icon' => 'calendar'
-            ];
-        }
-
-        // Kilometre bilgisi
-        $mileage = get_post_meta($vehicle_id, '_mhm_rentiva_mileage', true);
-        if (empty($mileage)) {
-            $mileage = get_post_meta($vehicle_id, 'kilometre', true);
-        }
-        if (empty($mileage)) {
-            $mileage = get_post_meta($vehicle_id, '_mhm_rentiva_kilometre', true);
-        }
-
-        if ($mileage && is_numeric($mileage)) {
-            // Format mileage (1000 -> 1.000 km)
-            $formatted_mileage = number_format(intval($mileage), 0, ',', '.');
-            $features[] = [
-                'key' => 'mileage',
-                'text' => $formatted_mileage . ' km',
-                'icon' => 'speedometer'
-            ];
-        }
-
-        return $features;
+        return VehicleFeatureHelper::collect_items($vehicle_id);
     }
 
     /**

@@ -111,6 +111,13 @@
                 }
             });
 
+            // Favorite toggle within booking form
+            this.form.on('click', '.rv-vehicle-card__favorite', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleFavoriteToggle($(e.currentTarget));
+            });
+
             // Automatic calculation and availability check on date and time changes
             this.form.on('change', '#pickup_date, #dropoff_date, #pickup_time, #dropoff_time, #vehicle_id', () => {
                 this.autoCheckAvailability();
@@ -182,6 +189,54 @@
                 const isChecked = termsCheckbox.is(':checked');
                 this.submitBtn.prop('disabled', !isChecked);
             }
+        }
+
+        handleFavoriteToggle($button) {
+            const vehicleId = $button.data('vehicle-id');
+            const favoritesConfig = this.getFavoritesConfig();
+
+            if (!vehicleId) {
+                return;
+            }
+
+            if (!favoritesConfig.nonce) {
+                this.showToast(favoritesConfig?.strings?.login_required || 'Please log in to manage favorites.', 'error');
+                return;
+            }
+
+            $button.prop('disabled', true);
+
+            $.ajax({
+                url: favoritesConfig.ajaxUrl || this.getAjaxUrl(),
+                type: 'POST',
+                data: {
+                    action: 'mhm_rentiva_toggle_favorite',
+                    vehicle_id: vehicleId,
+                    nonce: favoritesConfig.nonce
+                },
+                success: (response) => {
+                    if (response.success) {
+                        const isAdded = response.data.action === 'added';
+                        $button.toggleClass('is-favorited favorited', isAdded);
+                        $button.attr('aria-pressed', isAdded ? 'true' : 'false');
+                        $button.attr('aria-label', isAdded ? (favoritesConfig.strings?.remove_label || '') : (favoritesConfig.strings?.add_label || ''));
+                        $button.find('.rv-heart-icon').toggleClass('favorited', isAdded);
+
+                        this.showToast(
+                            response.data.message || (isAdded ? favoritesConfig.strings?.added : favoritesConfig.strings?.removed),
+                            'success'
+                        );
+                    } else {
+                        this.showToast(response.data?.message || favoritesConfig.strings?.error || this.getMessage('error'), 'error');
+                    }
+                },
+                error: () => {
+                    this.showToast(favoritesConfig.strings?.error || this.getMessage('error'), 'error');
+                },
+                complete: () => {
+                    $button.prop('disabled', false);
+                }
+            });
         }
 
         setupDateValidation() {
@@ -743,16 +798,13 @@
                             // Direct success message and redirect
                             this.showSuccess(response.data?.message || this.getMessage('success'));
 
-                            if (response.data?.booking_id && response.data?.confirmation_url) {
-                                // Open booking confirmation page in new tab
-                                window.open(response.data.confirmation_url, '_blank');
+                            if (response.data?.confirmation_url) {
+                                window.location.href = response.data.confirmation_url;
+                                return;
+                            }
 
-                                // Redirect current page to login page
-                                if (response.data?.redirect_url) {
-                                    setTimeout(() => {
-                                        window.location.href = response.data.redirect_url;
-                                    }, 2000);
-                                }
+                            if (response.data?.redirect_url) {
+                                window.location.href = response.data.redirect_url;
                             }
                         }
                     } else {
@@ -825,6 +877,35 @@
 
         getMessage(key) {
             return window.mhmRentivaBookingForm?.strings?.[key] || key;
+        }
+
+        getFavoritesConfig() {
+            return window.mhmRentivaBookingForm?.favorites || {};
+        }
+
+        getAjaxUrl() {
+            return window.mhmRentivaBookingForm?.ajax_url ||
+                window.mhmRentivaBookingForm?.ajaxUrl ||
+                (window.location.origin + '/wp-admin/admin-ajax.php');
+        }
+
+        showToast(message, type = 'info') {
+            if (!message) {
+                return;
+            }
+
+            const $notification = $(`<div class="rv-notification rv-notification--${type}">${message}</div>`);
+
+            $('body').append($notification);
+
+            setTimeout(() => {
+                $notification.addClass('rv-notification--show');
+            }, 50);
+
+            setTimeout(() => {
+                $notification.removeClass('rv-notification--show');
+                setTimeout(() => $notification.remove(), 300);
+            }, 3000);
         }
 
         /**

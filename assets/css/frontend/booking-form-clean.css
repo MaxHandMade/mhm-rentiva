@@ -1775,7 +1775,8 @@
     transform: scale(1.1);
 }
 
-.rv-vehicle-card__favorite.favorited {
+.rv-vehicle-card__favorite.favorited,
+.rv-vehicle-card__favorite.is-favorited {
     opacity: 1;
 }
 
@@ -1786,7 +1787,8 @@
 }
 
 .rv-heart-icon.favorited,
-.rv-vehicle-card__favorite.favorited .rv-heart-icon {
+.rv-vehicle-card__favorite.favorited .rv-heart-icon,
+.rv-vehicle-card__favorite.is-favorited .rv-heart-icon {
     fill: currentColor;
 }
 
@@ -2231,5 +2233,64 @@
         height: 28px;
         line-height: 28px;
         font-size: 13px;
+    }
+}
+
+/* ===== NOTIFICATION TOASTS ===== */
+.rv-notification {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    min-width: 220px;
+    padding: 0.875rem 1.25rem;
+    border-radius: 10px;
+    background-color: rgba(31, 41, 55, 0.92);
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    box-shadow: 0 18px 30px rgba(15, 23, 42, 0.18);
+    opacity: 0;
+    transform: translateY(-15px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.rv-notification--show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.rv-notification--success {
+    background-color: rgba(16, 185, 129, 0.95);
+}
+
+.rv-notification--error {
+    background-color: rgba(239, 68, 68, 0.95);
+}
+
+.rv-notification--info {
+    background-color: rgba(59, 130, 246, 0.95);
+}
+
+.rv-notification::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .rv-notification {
+        left: 1rem;
+        right: 1rem;
+        top: auto;
+        bottom: 1.5rem;
+        transform: translateY(15px);
+    }
+
+    .rv-notification--show {
+        transform: translateY(0);
     }
 }

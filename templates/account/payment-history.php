@@ -151,4 +151,3 @@ $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
     </div>
 </div>
 
-<?php get_footer(); ?>

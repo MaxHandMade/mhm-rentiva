@@ -2,7 +2,7 @@
 /*
 Plugin Name: MHM Rentiva
 Description: Vehicle rental management plugin independent of WooCommerce.
-Version: 4.3.8
+Version: 4.4.0
 Author: MHM Development Team
 Text Domain: mhm-rentiva
 Domain Path: /languages
@@ -109,7 +109,7 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 
 // Version constant
 if (!defined('MHM_RENTIVA_VERSION')) {
-    define('MHM_RENTIVA_VERSION', '4.3.9');
+    define('MHM_RENTIVA_VERSION', '4.4.0');
 }
 
 // Plugin file constant
@@ -219,6 +219,9 @@ function mhm_rentiva_single_site_activation() {
     if (class_exists('MHMRentiva\\Admin\\Frontend\\Shortcodes\\VehiclesList')) {
         MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::on_plugin_activation();
     }
+
+    // Trigger setup wizard redirect on new installations
+    update_option('mhm_rentiva_setup_redirect', '1');
 }
 
 // Activation hook - CPT and taxonomy registration + rewrite flush + Multisite support

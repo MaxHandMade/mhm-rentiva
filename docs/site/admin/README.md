@@ -4,6 +4,7 @@ Bu bölüm, Rentiva’nın WordPress yönetim paneline eklediği ana menülerin 
 
 ## İçindekiler
 
+- [Setup Wizard](../getting-started/setup-wizard.md) – İlk kurulum akışı, sistem kontrolleri ve hızlı ayar asistanı
 - [Vehicles](vehicles.md) – Araç envanterini yönetme, hızlı düzenleme ve takvim görünümü
 - [Vehicle Settings](vehicle-settings.md) – Alan/hizmet tercihleri, kısa kod sayfaları, özellik setleri
 - [Bookings](bookings.md) – Rezervasyon listeleme, durum yönetimi, takvim ve manuel kayıtlar

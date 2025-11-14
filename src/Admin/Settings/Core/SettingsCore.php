@@ -2,6 +2,8 @@
 
 namespace MHMRentiva\Admin\Settings\Core;
 
+use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -72,6 +74,13 @@ final class SettingsCore
             MHM_RENTIVA_VERSION
         );
 
+        wp_enqueue_style(
+            'mhm-rentiva-card-fields',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-card-fields.css',
+            ['mhm-rentiva-settings'],
+            MHM_RENTIVA_VERSION
+        );
+
         // Dark Mode JavaScript
         wp_enqueue_script(
             'mhm-rentiva-dark-mode',
@@ -93,6 +102,14 @@ final class SettingsCore
             'mhm-rentiva-settings-form-handler',
             MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/settings-form-handler.js',
             ['jquery'],
+            MHM_RENTIVA_VERSION,
+            true
+        );
+
+        wp_enqueue_script(
+            'mhm-rentiva-card-fields',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-card-fields.js',
+            ['jquery', 'jquery-ui-sortable'],
             MHM_RENTIVA_VERSION,
             true
         );
@@ -319,6 +336,7 @@ final class SettingsCore
             'mhm_rentiva_booking_send_confirmation_emails' => '1',
             'mhm_rentiva_booking_send_reminder_emails' => '1',
             'mhm_rentiva_booking_admin_notifications' => '1',
+            'mhm_rentiva_booking_default_payment_method' => 'offline',
 
             'comparison_fields'               => [],
             // Email settings managed in EmailSettings class
@@ -372,6 +390,7 @@ final class SettingsCore
             'mhm_rentiva_vehicle_default_sort'         => 'price_asc',
             'mhm_rentiva_vehicle_show_images'          => '1',
             'mhm_rentiva_vehicle_show_features'        => '1',
+            'mhm_rentiva_vehicle_card_fields'          => VehicleFeatureHelper::get_default_card_fields(),
             'mhm_rentiva_vehicle_show_availability'    => '1',
             'mhm_rentiva_vehicle_min_rental_days'      => 1,
             'mhm_rentiva_vehicle_max_rental_days'      => 30,
@@ -401,6 +420,9 @@ final class SettingsCore
             'mhm_rentiva_email_reminder_hours'           => 24,
             'mhm_rentiva_email_from_name'                => get_bloginfo('name'),
             'mhm_rentiva_email_from_address'             => get_option('admin_email'),
+            'mhm_rentiva_email_send_enabled'             => '1',
+            'mhm_rentiva_email_auto_send'                => '1',
+            'mhm_rentiva_email_log_enabled'              => '1',
             
             // Security Settings (Rate Limiting & Performance)
             'mhm_rentiva_rate_limit_enabled'                => '1',

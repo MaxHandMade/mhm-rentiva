@@ -6,6 +6,7 @@ use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Vehicle\PostType\Vehicle as PT_Vehicle;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
+use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
 
 /**
  * Booking Form Shortcode
@@ -166,7 +167,19 @@ final class BookingForm extends AbstractShortcode
                 'check_availability' => __('🔍 Checking availability...', 'mhm-rentiva'),
                 'daily_price' => __('Daily Price', 'mhm-rentiva'),
                 'total' => __('Total', 'mhm-rentiva'),
-            ]
+            ],
+            'favorites' => [
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('mhm_rentiva_toggle_favorite'),
+                'strings' => [
+                    'added' => __('Added to favorites', 'mhm-rentiva'),
+                    'removed' => __('Removed from favorites', 'mhm-rentiva'),
+                    'login_required' => __('Please log in to manage favorites.', 'mhm-rentiva'),
+                    'error' => __('An error occurred while updating favorites.', 'mhm-rentiva'),
+                    'add_label' => __('Add to favorites', 'mhm-rentiva'),
+                    'remove_label' => __('Remove from favorites', 'mhm-rentiva'),
+                ],
+            ],
         ]);
     }
 
@@ -314,31 +327,6 @@ final class BookingForm extends AbstractShortcode
         $image_id = get_post_thumbnail_id($vehicle_id);
         $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'medium') : '';
 
-        // Vehicle features
-        $features = [];
-        $fuel_type = get_post_meta($vehicle_id, '_mhm_rentiva_fuel_type', true);
-        $transmission = get_post_meta($vehicle_id, '_mhm_rentiva_transmission', true);
-
-        // Fuel type translation
-        if ($fuel_type) {
-            $fuel_translations = [
-                'petrol' => __('Petrol', 'mhm-rentiva'),
-                'diesel' => __('Diesel', 'mhm-rentiva'),
-                'hybrid' => __('Hybrid', 'mhm-rentiva'),
-                'electric' => __('Electric', 'mhm-rentiva')
-            ];
-            $features[] = $fuel_translations[$fuel_type] ?? $fuel_type;
-        }
-
-        // Transmission type translation
-        if ($transmission) {
-            $transmission_translations = [
-                'auto' => __('Otomatik', 'mhm-rentiva'),
-                'manual' => __('Manuel', 'mhm-rentiva')
-            ];
-            $features[] = $transmission_translations[$transmission] ?? $transmission;
-        }
-
         // Deposit calculation
         $deposit_amount = 0;
         if (class_exists('\MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator')) {
@@ -373,7 +361,7 @@ final class BookingForm extends AbstractShortcode
             'rating' => $rating,
             'favorite' => $is_favorited,
             'image_url' => $image_url,
-            'features' => $features,
+            'features' => VehicleFeatureHelper::collect_items($vehicle_id),
             'permalink' => get_permalink($vehicle_id) ?: '',
             'deposit_amount' => $deposit_amount,
             // Meta information
@@ -1064,12 +1052,7 @@ final class BookingForm extends AbstractShortcode
             return $custom_redirect;
         }
 
-        // ⭐ v4.0.1: Redirect to login page (booking confirmation will open in separate tab)
-        $login_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_account');
-        if (!$login_url) {
-            $login_url = ShortcodeUrlManager::get_page_url('rentiva_my_account');
-        }
-        return $login_url;
+        return '';
     }
 
     /**

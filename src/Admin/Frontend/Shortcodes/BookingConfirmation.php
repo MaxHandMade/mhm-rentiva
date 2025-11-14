@@ -210,9 +210,26 @@ final class BookingConfirmation extends AbstractShortcode
      */
     public static function get_confirmation_url(int $booking_id): string
     {
-        // Booking confirmation page URL
         $confirmation_url = ShortcodeUrlManager::get_page_url('rentiva_booking_confirmation');
+
+        if (self::is_fallback_url($confirmation_url)) {
+            ShortcodeUrlManager::clear_cache('rentiva_booking_confirmation');
+            $confirmation_url = ShortcodeUrlManager::get_page_url('rentiva_booking_confirmation');
+        }
+
         return add_query_arg(['booking_id' => $booking_id], $confirmation_url);
+    }
+
+    private static function is_fallback_url(string $url): bool
+    {
+        $home_url = trailingslashit(home_url('/'));
+        $candidate = trailingslashit($url);
+
+        if (ShortcodeUrlManager::page_exists('rentiva_booking_confirmation')) {
+            return false;
+        }
+
+        return $candidate === $home_url;
     }
 
     /**
