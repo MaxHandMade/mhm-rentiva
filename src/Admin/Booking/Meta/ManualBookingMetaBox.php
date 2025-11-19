@@ -656,6 +656,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
         $booking_data = [
             'post_type' => 'vehicle_booking',
             'post_status' => 'publish',
+            /* translators: %s placeholder. */
             'post_title' => sprintf(__('Manual Booking - %s', 'mhm-rentiva'), get_the_title($vehicle_id)),
             'post_content' => $notes,
             'meta_input' => [

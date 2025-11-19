@@ -16,29 +16,29 @@ if (!defined('ABSPATH')) {
 /**
  * Base Elementor Widget Class
  * 
- * Tüm MHM Rentiva Elementor widget'ları için temel sınıf
+ * Base class shared by all MHM Rentiva Elementor widgets.
  * 
  * @since 3.0.1
  */
 abstract class ElementorWidgetBase extends Widget_Base
 {
     /**
-     * Widget kategori
+     * Widget category slug.
      */
     protected string $widget_category = 'mhm-rentiva';
     
     /**
-     * Widget icon
+     * Widget icon slug.
      */
     protected string $widget_icon = 'eicon-car';
     
     /**
-     * Widget keywords
+     * Widget keywords.
      */
     protected array $widget_keywords = ['mhm', 'rentiva', 'vehicle', 'rental'];
 
     /**
-     * Widget'ın kategorisini döndürür
+     * Return widget categories.
      */
     public function get_categories(): array
     {
@@ -46,7 +46,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Widget icon'unu döndürür
+     * Return widget icon.
      */
     public function get_icon(): string
     {
@@ -54,7 +54,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Widget keywords'lerini döndürür
+     * Return widget keywords.
      */
     public function get_keywords(): array
     {
@@ -62,7 +62,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Widget'ın script dependencies'lerini döndürür
+     * Return script dependencies for the widget.
      */
     public function get_script_depends(): array
     {
@@ -70,7 +70,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Widget'ın style dependencies'lerini döndürür
+     * Return style dependencies for the widget.
      */
     public function get_style_depends(): array
     {
@@ -78,17 +78,17 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Content tab'ı için kontrolleri ekler
+     * Register content tab controls.
      */
     abstract protected function register_content_controls(): void;
 
     /**
-     * Style tab'ı için kontrolleri ekler
+     * Register style tab controls.
      */
     abstract protected function register_style_controls(): void;
 
     /**
-     * Widget kontrollerini kaydeder
+     * Register widget controls.
      */
     protected function register_controls(): void
     {
@@ -97,7 +97,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Vehicle selection control'ü ekler
+     * Add vehicle selection control.
      * 
      * @param string $control_id Control ID
      * @param string $label Control label
@@ -105,8 +105,8 @@ abstract class ElementorWidgetBase extends Widget_Base
      */
     protected function add_vehicle_selection_control(
         string $control_id = 'vehicle_id',
-        string $label = 'Araç Seçin',
-        string $description = 'Gösterilecek aracı seçin'
+        string $label = 'Select Vehicle',
+        string $description = 'Choose which vehicle to display'
     ): void {
         $this->add_control(
             $control_id,
@@ -123,14 +123,14 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Layout selection control'ü ekler
+     * Add layout selection control.
      * 
      * @param string $control_id Control ID
      * @param string $label Control label
      */
     protected function add_layout_control(
         string $control_id = 'layout',
-        string $label = 'Düzen'
+        string $label = 'Layout'
     ): void {
         $this->add_control(
             $control_id,
@@ -139,30 +139,30 @@ abstract class ElementorWidgetBase extends Widget_Base
                 'type' => Controls_Manager::SELECT,
                 'default' => 'default',
                 'options' => [
-                    'default' => 'Varsayılan',
-                    'compact' => 'Kompakt',
-                    'grid' => 'Izgara',
-                    'featured' => 'Öne Çıkan',
+                    'default' => 'Default',
+                    'compact' => 'Compact',
+                    'grid' => 'Grid',
+                    'featured' => 'Featured',
                 ],
             ]
         );
     }
 
     /**
-     * Display options control'ü ekler
+     * Add display options controls.
      * 
-     * @param array $options Gösterilecek seçenekler
+     * @param array $options Options to display
      */
     protected function add_display_options_control(array $options = []): void
     {
         $default_options = [
-            'show_image' => 'Görsel Göster',
-            'show_title' => 'Başlık Göster',
-            'show_price' => 'Fiyat Göster',
-            'show_features' => 'Özellikler Göster',
-            'show_rating' => 'Değerlendirme Göster',
-            'show_booking_btn' => 'Rezervasyon Butonu Göster',
-            'show_favorite_btn' => 'Favori Butonu Göster',
+            'show_image' => 'Show image',
+            'show_title' => 'Show title',
+            'show_price' => 'Show price',
+            'show_features' => 'Show features',
+            'show_rating' => 'Show rating',
+            'show_booking_btn' => 'Show booking button',
+            'show_favorite_btn' => 'Show favorite button',
         ];
 
         $options = array_merge($default_options, $options);
@@ -170,7 +170,7 @@ abstract class ElementorWidgetBase extends Widget_Base
         $this->add_control(
             'display_options',
             [
-                'label' => 'Gösterim Seçenekleri',
+                'label' => 'Display Options',
                 'type' => Controls_Manager::HEADING,
                 'separator' => 'before',
             ]
@@ -182,8 +182,8 @@ abstract class ElementorWidgetBase extends Widget_Base
                 [
                     'label' => $label,
                     'type' => Controls_Manager::SWITCHER,
-                    'label_on' => 'Evet',
-                    'label_off' => 'Hayır',
+                    'label_on' => 'Yes',
+                    'label_off' => 'No',
                     'return_value' => 'yes',
                     'default' => 'yes',
                 ]
@@ -192,7 +192,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Typography control'ü ekler
+     * Add typography control.
      * 
      * @param string $selector CSS selector
      * @param string $label Control label
@@ -212,7 +212,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Border control'ü ekler
+     * Add border control.
      * 
      * @param string $selector CSS selector
      * @param string $label Control label
@@ -232,7 +232,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Box shadow control'ü ekler
+     * Add box shadow control.
      * 
      * @param string $selector CSS selector
      * @param string $label Control label
@@ -252,7 +252,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Background control'ü ekler
+     * Add background control.
      * 
      * @param string $selector CSS selector
      * @param string $label Control label
@@ -273,7 +273,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Araç seçeneklerini döndürür
+     * Retrieve vehicle options.
      * 
      * @return array Vehicle options
      */
@@ -296,7 +296,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Varsayılan araç ID'sini döndürür
+     * Get default vehicle ID.
      * 
      * @return int Default vehicle ID
      */
@@ -314,7 +314,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Shortcode attribute'larını hazırlar
+     * Prepare shortcode attributes.
      * 
      * @param array $settings Elementor settings
      * @return array Shortcode attributes
@@ -349,7 +349,7 @@ abstract class ElementorWidgetBase extends Widget_Base
     }
 
     /**
-     * Shortcode'u render eder
+     * Render shortcode.
      * 
      * @param string $shortcode_tag Shortcode tag
      * @param array $atts Shortcode attributes

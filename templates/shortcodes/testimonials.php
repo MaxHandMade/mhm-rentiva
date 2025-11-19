@@ -51,6 +51,7 @@ $class = $atts['class'] ?? apply_filters('mhm_rentiva/testimonials/class', '');
             <div class="rv-testimonials-count">
                 <?php 
                 printf(
+                    /* translators: %d placeholder. */
                     esc_html(_n('%d review', '%d reviews', $total_count, 'mhm-rentiva')),
                     $total_count
                 );

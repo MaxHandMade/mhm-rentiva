@@ -182,6 +182,7 @@ final class ShortcodeUrlManager
             echo '<div class="notice notice-warning is-dismissible">';
             echo '<p><strong>MHM Rentiva:</strong> ';
             printf(
+                /* translators: %s placeholder. */
                 __('No page found containing the <code>[%s]</code> shortcode. ', 'mhm-rentiva'),
                 esc_html($shortcode)
             );

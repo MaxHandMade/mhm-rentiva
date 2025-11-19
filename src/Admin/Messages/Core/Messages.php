@@ -535,6 +535,7 @@ final class Messages
         }
 
         wp_send_json_success([
+            /* translators: %d placeholder. */
             'message' => sprintf(__('%d messages processed successfully.', 'mhm-rentiva'), $success_count),
             'processed' => $success_count,
             'total' => count($message_ids)
@@ -1082,6 +1083,7 @@ final class Messages
         $email_subject = sprintf(__('[%1$s] %2$s', 'mhm-rentiva'), get_bloginfo('name'), $subject);
         /* translators: 1: Customer name, 2: Message content, 3: Admin name, 4: Site name */
         $email_message = sprintf(
+            /* translators: 1: %1$s; 2: %2$s; 3: %3$s; 4: %4$s. */
             __("Hello %1\$s,\n\n%2\$s\n\nThis message was sent by %3\$s.\n\n---\n%4\$s", 'mhm-rentiva'),
             $customer_name ?: $customer_email,
             $content,
@@ -1276,7 +1278,8 @@ final class Messages
                                 <option value="0"><?php _e('No booking', 'mhm-rentiva'); ?></option>
                                 <?php foreach ($bookings as $booking): ?>
                                     <option value="<?php echo esc_attr($booking->ID); ?>" <?php selected($meta['booking_id'], $booking->ID); ?>>
-                                        <?php echo esc_html(sprintf(__('Booking #%d - %s', 'mhm-rentiva'), $booking->ID, get_the_title($booking->ID))); ?>
+                                        /* translators: 1: %d; 2: %s. */
+                                        <?php echo esc_html(sprintf(__('Booking #%1$d - %2$s', 'mhm-rentiva'), $booking->ID, get_the_title($booking->ID))); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -1477,7 +1480,9 @@ final class Messages
                 'reopen_nonce' => wp_create_nonce('mhm_message_reopen'),
                 'strings' => [
                     'confirm_delete' => __('Are you sure you want to delete these messages?', 'mhm-rentiva'),
+                    /* translators: %d placeholder. */
                     'confirm_mark_read' => __('Are you sure you want to mark %d messages as read?', 'mhm-rentiva'),
+                    /* translators: %d placeholder. */
                     'confirm_mark_unread' => __('Are you sure you want to mark %d messages as unread?', 'mhm-rentiva'),
                     'confirm_status_change' => __('Are you sure you want to change the status?', 'mhm-rentiva'),
                     'loading' => __('Loading...', 'mhm-rentiva'),

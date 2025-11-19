@@ -251,6 +251,7 @@ final class DepositManagementAjax
 
         if ($refund_amount > 0) {
             wp_send_json_success([
+                /* translators: %s placeholder. */
                 'message' => sprintf(__('Refund completed successfully. Refund amount: %s', 'mhm-rentiva'), self::format_price($refund_amount))
             ]);
         } else {
@@ -316,7 +317,7 @@ final class DepositManagementAjax
 
     private static function format_price(float $price): string
     {
-        $currency = Settings::get('currency', 'TRY');
+        $currency = Settings::get('currency', 'USD');
         $position = Settings::get('currency_position', 'right_space');
         $amount = number_format_i18n($price, 2);
         $symbol = $currency;

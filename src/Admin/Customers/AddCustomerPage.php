@@ -49,6 +49,7 @@ final class AddCustomerPage
                 echo '<h1>' . esc_html__('Add New Customer', 'mhm-rentiva') . '</h1>';
                 echo '<div class="notice notice-warning">';
                 echo '<p>' . sprintf(
+                    /* translators: %d placeholder. */
                     __('You can add up to %d customers in Lite version. Enter your license key to upgrade to Pro.', 'mhm-rentiva'),
                     $max
                 ) . '</p>';

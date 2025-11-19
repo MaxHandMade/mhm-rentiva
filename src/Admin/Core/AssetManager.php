@@ -356,6 +356,7 @@ final class AssetManager
                 'dropoff_after_pickup' => __('Dropoff date must be after pickup date', 'mhm-rentiva'),
                 'pickup_not_past' => __('Pickup date cannot be in the past', 'mhm-rentiva'),
                 'dismiss' => __('Dismiss this notice', 'mhm-rentiva'),
+                /* translators: Dynamic value. */
                 'confirmStatusChange' => __('Are you sure you want to change the booking status to "%s"?', 'mhm-rentiva'),
                 'changing' => __('Changing status...', 'mhm-rentiva'),
             ],
@@ -697,7 +698,9 @@ final class AssetManager
             wp_localize_script('mhm-booking-bulk-actions', 'mhmBookingBulkActions', [
                 'strings' => [
                     'no_items_selected' => __('Please select at least one item to perform this action on.', 'mhm-rentiva'),
+                    /* translators: %d placeholder. */
                     'confirm_bulk_trash' => __('Move %d selected bookings to Trash?', 'mhm-rentiva'),
+                    /* translators: %d placeholder. */
                     'confirm_bulk_delete' => __('Permanently delete %d selected bookings?', 'mhm-rentiva'),
                     'confirm_single_trash' => __('Move this booking to Trash?', 'mhm-rentiva'),
                     'confirm_single_delete' => __('Permanently delete this booking?', 'mhm-rentiva'),
@@ -812,8 +815,11 @@ final class AssetManager
                 'strings' => [
                     'error' => __('An error occurred', 'mhm-rentiva'),
                     'no_items_selected' => __('Please select at least one item', 'mhm-rentiva'),
+                    /* translators: %d placeholder. */
                     'confirm_mark_read' => __('Mark %d message(s) as read?', 'mhm-rentiva'),
+                    /* translators: %d placeholder. */
                     'confirm_mark_unread' => __('Mark %d message(s) as unread?', 'mhm-rentiva'),
+                    /* translators: %d placeholder. */
                     'confirm_delete' => __('Delete %d message(s)? This action cannot be undone.', 'mhm-rentiva'),
                     'processing' => __('Processing...', 'mhm-rentiva'),
                     'justNow' => __('Just now', 'mhm-rentiva'),
@@ -902,6 +908,7 @@ final class AssetManager
                     'loadError' => __('Error loading customer data', 'mhm-rentiva'),
                     'selectAction' => __('Please select an action', 'mhm-rentiva'),
                     'selectCustomer' => __('Please select at least one customer', 'mhm-rentiva'),
+                    /* translators: %d placeholder. */
                     'confirmBulkAction' => __('Are you sure you want to perform this action for %d customer(s)?', 'mhm-rentiva'),
                     'actionError' => __('Error performing action', 'mhm-rentiva'),
                     'actionSuccess' => __('Operation completed successfully', 'mhm-rentiva'),

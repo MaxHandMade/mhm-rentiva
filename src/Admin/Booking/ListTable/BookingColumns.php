@@ -332,7 +332,7 @@ final class BookingColumns
         
         $orderby = $q->get('orderby');
         if ($orderby === 'mhm_booking_total') {
-            // Hem eski hem yeni meta key'leri kontrol et
+            // Check both old and new meta keys
             $q->set('meta_query', [
                 'relation' => 'OR',
                 ['key' => '_booking_total_price', 'compare' => 'EXISTS'],
@@ -340,7 +340,7 @@ final class BookingColumns
             ]);
             $q->set('orderby', 'meta_value_num');
         } elseif ($orderby === 'mhm_booking_dates') {
-            // Hem eski hem yeni meta key'leri kontrol et
+            // Check both old and new meta keys
             $q->set('meta_query', [
                 'relation' => 'OR',
                 ['key' => '_booking_start_ts', 'compare' => 'EXISTS'],
@@ -348,7 +348,7 @@ final class BookingColumns
             ]);
             $q->set('orderby', 'meta_value_num');
         } elseif ($orderby === 'mhm_booking_payment') {
-            // Hem eski hem yeni meta key'leri kontrol et
+            // Check both old and new meta keys
             $q->set('meta_query', [
                 'relation' => 'OR',
                 ['key' => '_booking_payment_amount', 'compare' => 'EXISTS'],
@@ -413,7 +413,7 @@ final class BookingColumns
         if (isset($_GET['mhm_booking_status']) && $_GET['mhm_booking_status'] !== '') {
             $val = self::sanitize_text_field_safe((string) $_GET['mhm_booking_status']);
             if (in_array($val, Status::allowed(), true)) {
-                // Hem eski hem yeni meta key'leri kontrol et
+                // Check both old and new meta keys
                 $meta[] = [
                     'relation' => 'OR',
                     ['key' => '_booking_status', 'value' => $val, 'compare' => '='],
@@ -445,7 +445,7 @@ final class BookingColumns
                         ['key' => '_mhm_offline_receipt_id', 'compare' => 'EXISTS']
                     ];
                 } else {
-                    // Hem eski hem yeni meta key'leri kontrol et
+                    // Check both old and new meta keys
                     $meta[] = [
                         'relation' => 'OR',
                         ['key' => '_booking_payment_gateway', 'value' => $val, 'compare' => '='],
@@ -461,7 +461,7 @@ final class BookingColumns
     }
 
     /**
-     * Ödeme durumu için Türkçe etiket döndür
+     * Return localized label for payment status.
      */
     private static function get_payment_status_label(string $status): string
     {
@@ -477,7 +477,7 @@ final class BookingColumns
     }
 
     /**
-     * Ödeme yöntemi için Türkçe etiket döndür
+     * Return localized label for payment gateway.
      */
     private static function get_payment_gateway_label(string $gateway): string
     {
@@ -499,7 +499,7 @@ final class BookingColumns
     }
     
     /**
-     * Para birimi sembolünü al (Dashboard ile aynı)
+     * Retrieve currency symbol (shared with Dashboard).
      */
     /**
      * Get currency symbol
@@ -512,7 +512,7 @@ final class BookingColumns
     }
 
     /**
-     * Tarihi DD.MM.YYYY formatında göster
+     * Format date for display according to settings.
      */
     private static function format_date_for_display(string $date): string
     {
@@ -563,7 +563,7 @@ final class BookingColumns
     }
 
     /**
-     * Rezervasyon istatistik kartlarını ekle
+     * Output booking statistics cards.
      */
     public static function add_booking_stats_cards(): void
     {
@@ -594,7 +594,7 @@ final class BookingColumns
         ?>
         <div class="mhm-stats-cards">
             <div class="stats-grid">
-                <!-- Bekleyen Rezervasyonlar -->
+                <!-- Pending bookings -->
                 <div class="stat-card stat-card-pending">
                     <div class="stat-icon">
                         <span class="dashicons dashicons-clock"></span>
@@ -608,7 +608,7 @@ final class BookingColumns
                     </div>
                 </div>
 
-                <!-- Onaylanan Rezervasyonlar -->
+                <!-- Confirmed bookings -->
                 <div class="stat-card stat-card-confirmed">
                     <div class="stat-icon">
                         <span class="dashicons dashicons-yes-alt"></span>
@@ -622,7 +622,7 @@ final class BookingColumns
                     </div>
                 </div>
 
-                <!-- Tamamlanan Rezervasyonlar -->
+                <!-- Completed bookings -->
                 <div class="stat-card stat-card-completed">
                     <div class="stat-icon">
                         <span class="dashicons dashicons-yes"></span>
@@ -636,7 +636,7 @@ final class BookingColumns
                     </div>
                 </div>
 
-                <!-- Aylık Gelir -->
+                <!-- Monthly Revenue -->
                 <div class="stat-card stat-card-revenue">
                     <div class="stat-icon">
                         <span class="dashicons dashicons-money-alt"></span>
@@ -657,13 +657,13 @@ final class BookingColumns
     }
 
     /**
-     * Rezervasyon istatistik verilerini al
+     * Collect booking statistics data.
      */
     private static function get_booking_stats(): array
     {
         global $wpdb;
         
-        // Bekleyen rezervasyonlar (hem eski hem yeni meta key'leri kontrol et)
+        // Pending bookings (check both old and new meta keys)
         $pending = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->postmeta} pm 
              INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
@@ -672,7 +672,7 @@ final class BookingColumns
             'vehicle_booking', 'publish', '_booking_status', 'pending', '_mhm_status', 'pending'
         ));
 
-        // Onaylanan rezervasyonlar (hem eski hem yeni meta key'leri kontrol et)
+        // Confirmed bookings (check both old and new meta keys)
         $confirmed = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->postmeta} pm 
              INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
@@ -681,7 +681,7 @@ final class BookingColumns
             'vehicle_booking', 'publish', '_booking_status', 'confirmed', '_mhm_status', 'confirmed'
         ));
 
-        // Tamamlanan rezervasyonlar (hem eski hem yeni meta key'leri kontrol et)
+        // Completed bookings (check both old and new meta keys)
         $completed = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->postmeta} pm 
              INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
@@ -690,7 +690,7 @@ final class BookingColumns
             'vehicle_booking', 'publish', '_booking_status', 'completed', '_mhm_status', 'completed'
         ));
 
-        // Bu hafta bekleyen rezervasyonlar (hem eski hem yeni meta key'leri kontrol et)
+        // Pending bookings this week (check both old and new meta keys)
         $pending_this_week = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->postmeta} pm 
              INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
@@ -701,7 +701,7 @@ final class BookingColumns
             date('Y-m-d', strtotime('-7 days'))
         ));
 
-        // Bu ay onaylanan rezervasyonlar (hem eski hem yeni meta key'leri kontrol et)
+        // Confirmed bookings this month (check both old and new meta keys)
         $confirmed_this_month = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->postmeta} pm 
              INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
@@ -712,7 +712,7 @@ final class BookingColumns
             date('Y-m-01')
         ));
 
-        // Bu ay tamamlanan rezervasyonlar (hem eski hem yeni meta key'leri kontrol et)
+        // Completed bookings this month (check both old and new meta keys)
         $completed_this_month = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->postmeta} pm 
              INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
@@ -755,7 +755,7 @@ final class BookingColumns
     }
 
     /**
-     * Gelir trendini hesapla
+     * Calculate revenue trend.
      */
     private static function calculate_revenue_trend(int $trend_range_days): float
     {
@@ -796,7 +796,7 @@ final class BookingColumns
             'vehicle_booking', '_mhm_total_price', $previous_period_start, $previous_period_end
         ));
         
-        // Trend hesaplama
+        // Calculate revenue trend.
         if ($previous_revenue > 0) {
             $trend = (($current_revenue - $previous_revenue) / $previous_revenue) * 100;
             return round($trend, 1);
@@ -808,7 +808,7 @@ final class BookingColumns
     }
 
     /**
-     * Aylık rezervasyon takvimini ekle
+     * Render monthly booking calendar.
      */
     public static function add_booking_calendar(): void
     {
@@ -842,7 +842,7 @@ final class BookingColumns
         $days_in_month = date('t', mktime(0, 0, 0, $current_month, 1, $current_year));
         $today = date('j');
         
-        // Rezervasyon verilerini al
+        // Fetch booking entries for calendar
         $booking_days = self::get_booking_calendar_days($current_month, $current_year);
         
         
@@ -864,12 +864,12 @@ final class BookingColumns
             </div>
             <div id="calendarDays" class="calendar-grid">
                 <?php
-                // Ayın ilk gününün haftanın hangi günü olduğunu bul
+                // Determine day-of-week for the first day of the month
                 $first_day_of_month = date('w', mktime(0, 0, 0, $current_month, 1, $current_year));
-                // Pazartesi = 1, Pazar = 0 olacak şekilde düzenle
+                // Normalize so Monday = 1, Sunday = 0
                 $first_day_of_month = ($first_day_of_month == 0) ? 6 : $first_day_of_month - 1;
                 
-                // Önceki ayın son günleri
+                // Previous month's trailing days
                 $prev_month = $current_month == 1 ? 12 : $current_month - 1;
                 $prev_year = $current_month == 1 ? $current_year - 1 : $current_year;
                 $prev_days_in_month = cal_days_in_month(CAL_GREGORIAN, $prev_month, $prev_year);
@@ -879,7 +879,7 @@ final class BookingColumns
                     echo '<div class="prev-date">' . $day . '</div>';
                 }
                 
-                // Bu ayın günleri
+                // Current month's days
                 for ($day = 1; $day <= $days_in_month; $day++) {
                     $is_today = ($day == $today && $current_month == date('n') && $current_year == date('Y'));
                     $booking_data = $booking_days[$day] ?? null;
@@ -887,7 +887,7 @@ final class BookingColumns
                     $classes = [];
                     if ($is_today) $classes[] = 'today';
                     
-                    // Split day desteği
+                    // Support split-day display
                     if ($booking_data) {
                         $classes[] = 'has-booking';
                         
@@ -928,7 +928,7 @@ final class BookingColumns
                     echo '</div>';
                 }
                 
-                // Sonraki ayın ilk günleri
+                // Next month's leading days
                 $last_day_of_month = date('w', mktime(0, 0, 0, $current_month, (int)$days_in_month, $current_year));
                 $last_day_of_month = ($last_day_of_month == 0) ? 6 : $last_day_of_month - 1;
                 $next_days = 6 - $last_day_of_month;
@@ -939,7 +939,7 @@ final class BookingColumns
                 ?>
             </div>
             
-            <!-- ✅ Status Renk Bilgilendirmesi -->
+            <!-- Status Color Information -->
             <div class="calendar-legend">
                 <h4><?php esc_html_e('Status Legend', 'mhm-rentiva'); ?></h4>
                 <div class="legend-items">
@@ -1031,7 +1031,7 @@ final class BookingColumns
     }
 
     /**
-     * Takvim için rezervasyon verilerini al
+     * Fetch booking data for calendar view.
      */
     private static function get_calendar_bookings(int $month, int $year): array
     {
@@ -1064,7 +1064,7 @@ final class BookingColumns
             ];
         }
         
-        // Eğer rezervasyon yoksa örnek veri ekle
+        // Provide sample entries if no bookings exist
         if (empty($bookings)) {
             $bookings = [
                 [
@@ -1084,11 +1084,11 @@ final class BookingColumns
     }
 
     /**
-     * Takvim için rezervasyon günlerini al
+     * Build calendar day status map.
      */
     private static function get_booking_calendar_days(int $month, int $year): array
     {
-        // Mevcut rezervasyonları al
+        // Retrieve relevant bookings
         $bookings = get_posts([
             'post_type' => 'vehicle_booking',
             'post_status' => 'publish',
@@ -1109,14 +1109,14 @@ final class BookingColumns
         $day_statuses = [];
         
         foreach ($bookings as $booking) {
-            // Pickup tarihini al
+            // Pickup date
             $pickup_date = get_post_meta($booking->ID, '_mhm_pickup_date', true) ?: get_post_meta($booking->ID, '_booking_pickup_date', true);
             
             if (!$pickup_date) {
                 continue;
             }
             
-            // Tarih formatını normalize et
+            // Normalize date format
             $pickup_timestamp = strtotime($pickup_date);
             if (!$pickup_timestamp) {
                 continue;
@@ -1126,17 +1126,17 @@ final class BookingColumns
             $pickup_year = (int) date('Y', $pickup_timestamp);
             $pickup_day = (int) date('j', $pickup_timestamp);
             
-            // Sadece istenen ay ve yıldaki rezervasyonları al
+            // Only consider bookings within requested month/year
             if ($pickup_month !== $month || $pickup_year !== $year) {
                 continue;
             }
             
-            // Durum bilgisini al
+            // Retrieve status information
             $status = get_post_meta($booking->ID, '_mhm_status', true) ?: 
                      get_post_meta($booking->ID, '_booking_status', true) ?: 
                      'pending';
             
-            // Split day desteği - Aynı günde farklı durumlar varsa
+            // Split-day handling when multiple statuses exist
             if (!isset($day_statuses[$pickup_day])) {
                 $day_statuses[$pickup_day] = [
                     'type' => 'single',
@@ -1146,11 +1146,11 @@ final class BookingColumns
             } else {
                 $current = $day_statuses[$pickup_day];
                 
-                // Eğer aynı durum varsa sayıyı artır
+                // Same status: increase count
                 if ($current['type'] === 'single' && $current['status'] === $status) {
                     $day_statuses[$pickup_day]['count']++;
                 } 
-                // Farklı durum varsa split day yap
+                // Different status: convert to split-day
                 else if ($current['type'] === 'single' && $current['status'] !== $status) {
                     $day_statuses[$pickup_day] = [
                         'type' => 'split',
@@ -1160,12 +1160,12 @@ final class BookingColumns
                         'right_count' => 1
                     ];
                 }
-                // Zaten split day ise sağ tarafı güncelle
+                // Already split: bump appropriate side
                 else if ($current['type'] === 'split') {
                     if ($current['right_status'] === $status) {
                         $day_statuses[$pickup_day]['right_count']++;
                     } else {
-                        // Üçüncü durum - sol tarafı güncelle
+                        // Third status fallback: increment left side
                         $day_statuses[$pickup_day]['left_count']++;
                     }
                 }
@@ -1176,7 +1176,7 @@ final class BookingColumns
     }
 
     /**
-     * Durum önceliğini belirle
+     * Priority mapping for statuses.
      */
     private static function get_status_priority(string $status): int
     {
@@ -1193,7 +1193,7 @@ final class BookingColumns
     }
 
     /**
-     * Durum ikonu al
+     * Return display icon for a status.
      */
     private static function get_status_icon(string $status): string
     {
@@ -1210,7 +1210,7 @@ final class BookingColumns
     }
 
     /**
-     * Durum etiketi al
+     * Return descriptive label for status icon.
      */
     private static function get_status_label(string $status): string
     {
@@ -1227,7 +1227,7 @@ final class BookingColumns
     }
 
     /**
-     * Rezervasyon ID filtresi
+     * Render booking ID filter input.
      */
     public static function booking_id_filter(string $post_type): void
     {
@@ -1241,7 +1241,7 @@ final class BookingColumns
     }
 
     /**
-     * Araç plaka filtresi
+     * Render vehicle license plate filter.
      */
     public static function license_plate_filter(string $post_type): void
     {
@@ -1255,7 +1255,7 @@ final class BookingColumns
     }
 
     /**
-     * Özel filtreleri uygula
+     * Apply custom filters to query.
      */
     public static function apply_custom_filters(\WP_Query $q): void
     {
@@ -1268,7 +1268,7 @@ final class BookingColumns
 
         $meta_query = $q->get('meta_query') ?: [];
 
-        // Rezervasyon ID filtresi
+        // Booking ID filter
         if (isset($_GET['mhm_booking_id']) && $_GET['mhm_booking_id'] !== '') {
             $booking_id = intval($_GET['mhm_booking_id']);
             if ($booking_id > 0) {
@@ -1276,11 +1276,11 @@ final class BookingColumns
             }
         }
 
-        // Araç plaka filtresi
+        // License plate filter
         if (isset($_GET['mhm_license_plate']) && $_GET['mhm_license_plate'] !== '') {
             $license_plate = self::sanitize_text_field_safe($_GET['mhm_license_plate']);
             
-            // Araç plakasına göre araç ID'lerini bul
+            // Lookup vehicle IDs by license plate fragment
             global $wpdb;
             $vehicle_ids = $wpdb->get_col($wpdb->prepare("
                 SELECT DISTINCT p.ID 
@@ -1293,7 +1293,7 @@ final class BookingColumns
             ", '%' . $wpdb->esc_like($license_plate) . '%'));
             
             if (!empty($vehicle_ids)) {
-                // Bu araçlara ait rezervasyonları bul
+                // Collect bookings for those vehicles
                 $vehicle_ids_placeholder = implode(',', array_fill(0, count($vehicle_ids), '%d'));
                 $booking_ids = $wpdb->get_col($wpdb->prepare("
                     SELECT DISTINCT p.ID 
@@ -1308,11 +1308,11 @@ final class BookingColumns
                 if (!empty($booking_ids)) {
                     $q->set('post__in', $booking_ids);
                 } else {
-                    // Hiç rezervasyon bulunamadı
+                    // No bookings found
                     $q->set('post__in', [0]);
                 }
             } else {
-                // Hiç araç bulunamadı
+                // No vehicles found
                 $q->set('post__in', [0]);
             }
         }
@@ -1323,11 +1323,11 @@ final class BookingColumns
     }
 
     /**
-     * AJAX: Müşteri bilgilerini getir
+     * AJAX: Retrieve customer information payload.
      */
     public static function ajax_get_booking_customer_info(): void
     {
-        // Nonce kontrolü
+        // Nonce validation
         if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_booking_list_nonce')) {
             wp_send_json_error(['message' => __('Security error', 'mhm-rentiva')]);
         }
@@ -1338,7 +1338,7 @@ final class BookingColumns
             wp_send_json_error(['message' => __('Invalid booking ID', 'mhm-rentiva')]);
         }
 
-        // Müşteri bilgilerini al
+        // Pull customer meta fields
         $customer_name = get_post_meta($booking_id, '_booking_customer_name', true) ?: 
                         get_post_meta($booking_id, '_mhm_customer_name', true);
         
@@ -1348,7 +1348,7 @@ final class BookingColumns
         $customer_phone = get_post_meta($booking_id, '_booking_customer_phone', true) ?: 
                          get_post_meta($booking_id, '_mhm_customer_phone', true);
 
-        // Eğer müşteri bilgileri yoksa, kullanıcı ID'sinden al
+        // If meta empty, try resolving via user account
         if (!$customer_name) {
             $user_id = get_post_meta($booking_id, '_mhm_customer_user_id', true);
             if ($user_id) {
@@ -1369,11 +1369,11 @@ final class BookingColumns
     }
 
     /**
-     * Başlık sütununu müşteri bilgileri ile değiştir
+     * Replace booking title with customer details.
      */
     public static function modify_booking_title(string $title, int $post_id = null): string
     {
-        // Sadece admin panelinde ve vehicle_booking post type'ında çalışsın
+        // Apply only within admin booking list context
         if (!is_admin() || !$post_id) {
             return $title;
         }
@@ -1383,14 +1383,14 @@ final class BookingColumns
             return $title;
         }
 
-        // Müşteri bilgilerini al - ad/soyad ayrı alanlardan
+        // Gather customer info (first/last name fields preferred)
         $customer_first_name = get_post_meta($post_id, '_mhm_customer_first_name', true);
         $customer_last_name = get_post_meta($post_id, '_mhm_customer_last_name', true);
         
         if ($customer_first_name && $customer_last_name) {
             $customer_name = trim($customer_first_name . ' ' . $customer_last_name);
         } else {
-            // Fallback: eski sistem için
+            // Fallback to legacy meta fields
             $customer_name = get_post_meta($post_id, '_booking_customer_name', true) ?: 
                             get_post_meta($post_id, '_mhm_customer_name', true);
         }
@@ -1401,7 +1401,7 @@ final class BookingColumns
         $customer_phone = get_post_meta($post_id, '_booking_customer_phone', true) ?: 
                          get_post_meta($post_id, '_mhm_customer_phone', true);
 
-        // Eğer müşteri bilgileri yoksa, kullanıcı ID'sinden al
+        // If still empty, resolve via related WP user
         if (!$customer_name) {
             $user_id = get_post_meta($post_id, '_mhm_customer_user_id', true);
             if ($user_id) {
@@ -1414,12 +1414,12 @@ final class BookingColumns
             }
         }
 
-        // Müşteri adı yoksa orijinal başlığı döndür
+        // Without a customer name, keep original title
         if (!$customer_name) {
             return $title;
         }
 
-        // Müşteri bilgilerini sadece metin olarak döndür - telefon öncelikli
+        // Return plain text summary prioritizing phone over email
         $new_title = $customer_name;
         
         if ($customer_phone) {

@@ -151,7 +151,10 @@ if ($profile_editable !== '1') {
                                autocomplete="new-password">
                         <div class="password-requirements">
                             <small>
-                                <?php printf(esc_html__('Minimum %d characters', 'mhm-rentiva'), $password_min_length); ?>
+                                <?php
+                                /* translators: %d: minimum password length. */
+                                printf(esc_html__('Minimum %d characters', 'mhm-rentiva'), $password_min_length);
+                                ?>
                                 <?php if ($password_special === '1'): ?>
                                     <?php esc_html_e('including uppercase, lowercase, number, and special character', 'mhm-rentiva'); ?>
                                 <?php endif; ?>

@@ -388,6 +388,7 @@ final class VehicleFeatureHelper
                 if ($count <= 0) {
                     return null;
                 }
+                /* translators: %d placeholder. */
                 $text = sprintf(__('%d People', 'mhm-rentiva'), $count);
                 $icon = 'people';
                 break;
@@ -397,6 +398,7 @@ final class VehicleFeatureHelper
                 if ($count <= 0) {
                     return null;
                 }
+                /* translators: %d placeholder. */
                 $text = sprintf(__('%d Doors', 'mhm-rentiva'), $count);
                 break;
 

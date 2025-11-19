@@ -53,12 +53,14 @@ final class SendMessage
             
             if ($limits['this_month_count'] >= $monthly_limit) {
                 return new WP_REST_Response([
+                    /* translators: %d placeholder. */
                     'error' => sprintf(__('Monthly message limit of %d in Lite version', 'mhm-rentiva'), $monthly_limit)
                 ], 403);
             }
             
             if ($limits['today_count'] >= $daily_limit) {
                 return new WP_REST_Response([
+                    /* translators: %d placeholder. */
                     'error' => sprintf(__('Daily message limit of %d in Lite version', 'mhm-rentiva'), $daily_limit)
                 ], 403);
             }

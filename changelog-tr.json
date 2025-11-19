@@ -1,8 +1,20 @@
 [
     {
+        "version": "4.4.1",
+        "date": "2025-11-19",
+        "type": "current",
+        "changes": [
+            "🌍 KÜRESEL UYUMLULUK: Elementor widget'ları, Gutenberg blokları, ödeme ağ geçitleri, rezervasyon yardımcıları ve şablonlardaki tüm Türkçe metinler İngilizce'ye çevrildi.",
+            "🧩 ELEMENTOR & GUTENBERG: Vehicles List, Booking Form ve Vehicle Card widget'ları İngilizce başlık/açıklama/kontrol etiketleri sunuyor; Gutenberg scriptleri aynı terminoloji ile Poedit uyarılarını temizliyor.",
+            "📝 i18n KALİTE KONTROLÜ: Booking e-postaları, Hesabım sayfaları ve admin bildirimleri için çevirmen açıklamaları ile sıralı placeholder düzenleri eklendi; wp i18n / Poedit uyarıları kaldırıldı.",
+            "💱 PARA BİRİMİ & DEPOZİTO: Depozito meta kutuları ve yardımcılar fiyatları Ayarlar'daki para birimine (USD varsayılan) göre formatlıyor ve hardcode TRY yerine veri öznitelikleri kullanıyor.",
+            "📚 DÖKÜMANTASYON: README ve değişiklik kayıtları 4.4.1 küresel uyumluluk sürümünü anlatacak şekilde güncellendi."
+        ]
+    },
+    {
         "version": "4.4.0",
         "date": "2025-11-14",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🧙 KURULUM SİHİRBAZI: Tutarlı geri butonları, giriş/kayıt/iletişim kontrolleri ve Shortcode Pages kısayolu ile yedi adımlı rehber genişletildi",
             "🔐 LİSANS SENKRONİZASYONU: Sihirbaz artık gerçek LicenseManager durumunu okuyor; aktif anahtarlar yeniden girmeden Ready görünüyor",

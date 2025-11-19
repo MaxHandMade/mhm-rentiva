@@ -141,6 +141,7 @@ final class CancellationHandler
             return new \WP_Error(
                 'cancellation_failed',
                 sprintf(
+                    /* translators: %s placeholder. */
                     __('Cancellation failed: %s', 'mhm-rentiva'),
                     $e->getMessage()
                 )
@@ -201,7 +202,8 @@ final class CancellationHandler
                 return new \WP_Error(
                     'deadline_passed',
                     sprintf(
-                        __('Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup. Only %.1f hours remaining.', 'mhm-rentiva'),
+                        /* translators: 1: required hours before pickup, 2: hours remaining until pickup. */
+                        __('Cancellation deadline has passed. Bookings must be cancelled at least %1$d hours before pickup. Only %2$.1f hours remaining.', 'mhm-rentiva'),
                         $deadline_hours,
                         max(0, $hours_until_pickup)
                     )
@@ -293,6 +295,7 @@ final class CancellationHandler
 
         // Email subject
         $subject = sprintf(
+            /* translators: %s placeholder. */
             __('Booking Cancellation Confirmation - %s', 'mhm-rentiva'),
             get_bloginfo('name')
         );
@@ -329,6 +332,7 @@ final class CancellationHandler
         if ($admin_notifications === '1') {
             $admin_email = get_option('admin_email');
             $admin_subject = sprintf(
+                /* translators: %d placeholder. */
                 __('[ADMIN] Booking Cancelled - #%d', 'mhm-rentiva'),
                 $booking_id
             );
@@ -360,6 +364,7 @@ final class CancellationHandler
         $html = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">';
         $html .= '<div style="max-width: 600px; margin: 0 auto; padding: 20px; background: #f9f9f9;">';
         $html .= '<h2 style="color: #dc3545;">' . esc_html__('Booking Cancelled', 'mhm-rentiva') . '</h2>';
+        /* translators: %s placeholder. */
         $html .= '<p>' . sprintf(esc_html__('Hello %s,', 'mhm-rentiva'), esc_html($customer_name)) . '</p>';
         $html .= '<p>' . esc_html__('Your booking has been cancelled successfully.', 'mhm-rentiva') . '</p>';
         
@@ -494,12 +499,14 @@ final class CancellationHandler
             
             if ($can_cancel) {
                 $message = sprintf(
-                    __('You can cancel until %s (%d hours before pickup)', 'mhm-rentiva'),
+                    /* translators: 1: %s; 2: %d. */
+                    __('You can cancel until %1$s (%2$d hours before pickup)', 'mhm-rentiva'),
                     $cancellation_deadline->format('Y-m-d H:i'),
                     $deadline_hours
                 );
             } else {
                 $message = sprintf(
+                    /* translators: %d placeholder. */
                     __('Cancellation deadline has passed. Bookings must be cancelled at least %d hours before pickup.', 'mhm-rentiva'),
                     $deadline_hours
                 );

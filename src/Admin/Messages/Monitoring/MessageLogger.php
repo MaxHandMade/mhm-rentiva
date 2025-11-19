@@ -411,6 +411,7 @@ final class MessageLogger
         
         wp_send_json_success([
             'deleted_count' => $deleted_count,
+            /* translators: %d placeholder. */
             'message' => sprintf(__('%d log records deleted.', 'mhm-rentiva'), $deleted_count)
         ]);
     }

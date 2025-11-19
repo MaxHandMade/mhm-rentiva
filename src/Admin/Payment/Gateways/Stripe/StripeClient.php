@@ -13,9 +13,9 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * ✅ STRIPE CLIENT - PaymentGatewayInterface Implementation
- * 
- * Stripe payment gateway implementasyonu
+ * ✅ STRIPE CLIENT - PaymentGatewayInterface implementation.
+ *
+ * Provides a mocked Stripe payment gateway implementation.
  */
 final class StripeClient implements PaymentGatewayInterface
 {
@@ -41,11 +41,11 @@ final class StripeClient implements PaymentGatewayInterface
     }
 
     /**
-     * Payment işlemi gerçekleştir
-     * 
-     * @param array $payment_data Payment verileri
-     * @return PaymentResult Payment sonucu
-     * @throws PaymentException Payment hatası
+     * Process payment request.
+     *
+     * @param array $payment_data Payment data
+     * @return PaymentResult
+     * @throws PaymentException
      */
     public function processPayment(array $payment_data): PaymentResult
     {
@@ -92,12 +92,12 @@ final class StripeClient implements PaymentGatewayInterface
     }
 
     /**
-     * Refund işlemi gerçekleştir
-     * 
-     * @param string $transaction_id Transaction ID
-     * @param float|null $amount Refund amount (opsiyonel, tüm tutar için null)
-     * @return RefundResult Refund sonucu
-     * @throws PaymentException Payment hatası
+     * Process refund request.
+     *
+     * @param string $transaction_id
+     * @param float|null $amount Optional partial amount (null for full)
+     * @return RefundResult
+     * @throws PaymentException
      */
     public function refund(string $transaction_id, ?float $amount = null): RefundResult
     {
@@ -132,11 +132,11 @@ final class StripeClient implements PaymentGatewayInterface
     }
 
     /**
-     * Payment durumunu sorgula
-     * 
-     * @param string $transaction_id Transaction ID
-     * @return PaymentStatus Payment durumu
-     * @throws PaymentException Payment hatası
+     * Retrieve payment status.
+     *
+     * @param string $transaction_id
+     * @return PaymentStatus
+     * @throws PaymentException
      */
     public function getPaymentStatus(string $transaction_id): PaymentStatus
     {
@@ -158,11 +158,11 @@ final class StripeClient implements PaymentGatewayInterface
     }
 
     /**
-     * Webhook doğrula
-     * 
-     * @param array $payload Webhook payload
-     * @param string $signature Webhook signature
-     * @return bool Doğrulama durumu
+     * Verify webhook signature.
+     *
+     * @param array $payload
+     * @param string $signature
+     * @return bool
      */
     public function verifyWebhook(array $payload, string $signature): bool
     {
@@ -171,9 +171,7 @@ final class StripeClient implements PaymentGatewayInterface
     }
 
     /**
-     * Gateway'in aktif olup olmadığını kontrol et
-     * 
-     * @return bool Aktif durumu
+     * Determine if gateway is active.
      */
     public function isActive(): bool
     {
@@ -181,9 +179,9 @@ final class StripeClient implements PaymentGatewayInterface
     }
 
     /**
-     * Gateway'in desteklediği currency'leri al
-     * 
-     * @return array Desteklenen currency'ler
+     * Supported currencies.
+     *
+     * @return array
      */
     public function getSupportedCurrencies(): array
     {
@@ -191,9 +189,9 @@ final class StripeClient implements PaymentGatewayInterface
     }
 
     /**
-     * Gateway'in desteklediği payment method'ları al
-     * 
-     * @return array Desteklenen payment method'lar
+     * Supported payment methods.
+     *
+     * @return array
      */
     public function getSupportedPaymentMethods(): array
     {
@@ -201,10 +199,10 @@ final class StripeClient implements PaymentGatewayInterface
     }
 
     /**
-     * Gateway ayarlarını doğrula
-     * 
-     * @return bool Doğrulama durumu
-     * @throws PaymentException Configuration hatası
+     * Validate gateway configuration.
+     *
+     * @return bool
+     * @throws PaymentException
      */
     public function validateConfiguration(): bool
     {
@@ -224,9 +222,7 @@ final class StripeClient implements PaymentGatewayInterface
     }
 
     /**
-     * Gateway adını al
-     * 
-     * @return string Gateway adı
+     * Get gateway label.
      */
     public function getGatewayName(): string
     {
@@ -234,9 +230,7 @@ final class StripeClient implements PaymentGatewayInterface
     }
 
     /**
-     * Gateway version'ını al
-     * 
-     * @return string Gateway version
+     * Get gateway version.
      */
     public function getGatewayVersion(): string
     {

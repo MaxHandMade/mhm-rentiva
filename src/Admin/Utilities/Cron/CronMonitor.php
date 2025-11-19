@@ -168,6 +168,7 @@ final class CronMonitor
         if (!$hook_exists) {
             return [
                 'success' => false,
+                /* translators: Dynamic value. */
                 'message' => sprintf(__('Cron hook "%s" is not registered. The function may not be active.', 'mhm-rentiva'), $hook)
             ];
         }
@@ -185,6 +186,7 @@ final class CronMonitor
             return [
                 'success' => false,
                 'message' => sprintf(
+                    /* translators: Dynamic value. */
                     __('Cron hook "%s" is not registered. The associated class may not be loaded. Ensure the plugin is fully activated.', 'mhm-rentiva'),
                     $hook
                 )
@@ -199,12 +201,14 @@ final class CronMonitor
             
             return [
                 'success' => true,
-                'message' => sprintf(__('Cron job "%s" executed successfully in %s ms', 'mhm-rentiva'), $hook, $execution_time),
+                /* translators: 1: cron hook name; 2: execution time in milliseconds. */
+                'message' => sprintf(__('Cron job "%1$s" executed successfully in %2$s ms', 'mhm-rentiva'), $hook, $execution_time),
                 'execution_time' => $execution_time
             ];
         } catch (\Throwable $e) {
             return [
                 'success' => false,
+                /* translators: %s placeholder. */
                 'message' => sprintf(__('Error executing cron job: %s', 'mhm-rentiva'), $e->getMessage())
             ];
         }

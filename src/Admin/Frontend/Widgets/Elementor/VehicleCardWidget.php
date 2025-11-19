@@ -14,15 +14,15 @@ if (!defined('ABSPATH')) {
 
 /**
  * Vehicle Card Elementor Widget
- * 
- * Tekil araç kartını Elementor'da widget olarak gösterir
- * 
+ *
+ * Displays a single vehicle card inside Elementor.
+ *
  * @since 3.0.1
  */
 class VehicleCardWidget extends ElementorWidgetBase
 {
     /**
-     * Widget'ın adını döndürür
+     * Widget slug.
      */
     public function get_name(): string
     {
@@ -30,7 +30,7 @@ class VehicleCardWidget extends ElementorWidgetBase
     }
 
     /**
-     * Widget'ın başlığını döndürür
+     * Widget title.
      */
     public function get_title(): string
     {
@@ -38,7 +38,7 @@ class VehicleCardWidget extends ElementorWidgetBase
     }
 
     /**
-     * Widget'ın açıklamasını döndürür
+     * Widget description.
      */
     public function get_description(): string
     {
@@ -46,7 +46,7 @@ class VehicleCardWidget extends ElementorWidgetBase
     }
 
     /**
-     * Widget keywords'lerini döndürür
+     * Widget keywords.
      */
     public function get_keywords(): array
     {
@@ -56,7 +56,7 @@ class VehicleCardWidget extends ElementorWidgetBase
     }
 
     /**
-     * Content tab'ı için kontrolleri kaydeder
+     * Register content controls.
      */
     protected function register_content_controls(): void
     {
@@ -105,7 +105,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->start_controls_section(
             'rating_section',
             [
-                'label' => __('Değerlendirme', 'mhm-rentiva'),
+                'label' => __('Rating', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -118,7 +118,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->start_controls_section(
             'advanced_section',
             [
-                'label' => __('Gelişmiş Seçenekler', 'mhm-rentiva'),
+                'label' => __('Advanced Options', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -126,21 +126,21 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'custom_css_class',
             [
-                'label' => __('Özel CSS Sınıfı', 'mhm-rentiva'),
+                'label' => __('Custom CSS Class', 'mhm-rentiva'),
                 'type' => Controls_Manager::TEXT,
                 'default' => '',
-                'title' => __('Özel CSS sınıfı ekleyin', 'mhm-rentiva'),
-                'description' => __('Bu widget için özel CSS sınıfı ekleyin', 'mhm-rentiva'),
+                'title' => __('Add custom CSS class', 'mhm-rentiva'),
+                'description' => __('Attach a custom CSS class to this widget.', 'mhm-rentiva'),
             ]
         );
 
         $this->add_control(
             'enable_animation',
             [
-                'label' => __('Animasyon Etkinleştir', 'mhm-rentiva'),
+                'label' => __('Enable Animation', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => 'yes',
                 'default' => 'yes',
             ]
@@ -150,7 +150,7 @@ class VehicleCardWidget extends ElementorWidgetBase
     }
 
     /**
-     * Style tab'ı için kontrolleri kaydeder
+     * Register style controls.
      */
     protected function register_style_controls(): void
     {
@@ -158,7 +158,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->start_controls_section(
             'card_style_section',
             [
-                'label' => __('Kart Stili', 'mhm-rentiva'),
+                'label' => __('Card Style', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_STYLE,
             ]
         );
@@ -166,7 +166,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'card_background',
             [
-                'label' => __('Arka Plan Rengi', 'mhm-rentiva'),
+                'label' => __('Background Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-vehicle-card' => 'background-color: {{VALUE}}',
@@ -175,12 +175,12 @@ class VehicleCardWidget extends ElementorWidgetBase
             ]
         );
 
-        $this->add_border_control('.rv-vehicle-card', __('Kenar Çizgisi', 'mhm-rentiva'));
+        $this->add_border_control('.rv-vehicle-card', __('Border', 'mhm-rentiva'));
 
         $this->add_control(
             'border_radius',
             [
-                'label' => __('Köşe Yuvarlaklığı', 'mhm-rentiva'),
+                'label' => __('Border Radius', 'mhm-rentiva'),
                 'type' => Controls_Manager::DIMENSIONS,
                 'size_units' => ['px', '%'],
                 'selectors' => [
@@ -197,12 +197,12 @@ class VehicleCardWidget extends ElementorWidgetBase
             ]
         );
 
-        $this->add_box_shadow_control('.rv-vehicle-card', __('Gölge', 'mhm-rentiva'));
+        $this->add_box_shadow_control('.rv-vehicle-card', __('Shadow', 'mhm-rentiva'));
 
         $this->add_control(
             'card_padding',
             [
-                'label' => __('İç Boşluk', 'mhm-rentiva'),
+                'label' => __('Padding', 'mhm-rentiva'),
                 'type' => Controls_Manager::DIMENSIONS,
                 'size_units' => ['px', 'em', '%'],
                 'selectors' => [
@@ -225,7 +225,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->start_controls_section(
             'title_style_section',
             [
-                'label' => __('Başlık Stili', 'mhm-rentiva'),
+                'label' => __('Title Style', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_STYLE,
             ]
         );
@@ -233,7 +233,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'title_color',
             [
-                'label' => __('Renk', 'mhm-rentiva'),
+                'label' => __('Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-vehicle-card__title' => 'color: {{VALUE}}',
@@ -245,7 +245,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'title_hover_color',
             [
-                'label' => __('Hover Rengi', 'mhm-rentiva'),
+                'label' => __('Hover Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-vehicle-card__title-link:hover' => 'color: {{VALUE}}',
@@ -254,12 +254,12 @@ class VehicleCardWidget extends ElementorWidgetBase
             ]
         );
 
-        $this->add_typography_control('.rv-vehicle-card__title', __('Tipografi', 'mhm-rentiva'));
+        $this->add_typography_control('.rv-vehicle-card__title', __('Typography', 'mhm-rentiva'));
 
         $this->add_control(
             'title_margin',
             [
-                'label' => __('Dış Boşluk', 'mhm-rentiva'),
+                'label' => __('Margin', 'mhm-rentiva'),
                 'type' => Controls_Manager::DIMENSIONS,
                 'size_units' => ['px', 'em', '%'],
                 'selectors' => [
@@ -274,7 +274,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->start_controls_section(
             'price_style_section',
             [
-                'label' => __('Fiyat Stili', 'mhm-rentiva'),
+                'label' => __('Price Style', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_STYLE,
             ]
         );
@@ -282,7 +282,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'price_color',
             [
-                'label' => __('Renk', 'mhm-rentiva'),
+                'label' => __('Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-price-amount' => 'color: {{VALUE}}',
@@ -294,7 +294,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'price_period_color',
             [
-                'label' => __('Dönem Rengi', 'mhm-rentiva'),
+                'label' => __('Period Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-price-period' => 'color: {{VALUE}}',
@@ -303,7 +303,7 @@ class VehicleCardWidget extends ElementorWidgetBase
             ]
         );
 
-        $this->add_typography_control('.rv-price-amount', __('Tipografi', 'mhm-rentiva'));
+        $this->add_typography_control('.rv-price-amount', __('Typography', 'mhm-rentiva'));
 
         $this->end_controls_section();
 
@@ -311,7 +311,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->start_controls_section(
             'button_style_section',
             [
-                'label' => __('Buton Stili', 'mhm-rentiva'),
+                'label' => __('Button Style', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_STYLE,
             ]
         );
@@ -319,7 +319,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'primary_button_color',
             [
-                'label' => __('Birincil Buton Rengi', 'mhm-rentiva'),
+                'label' => __('Primary Button Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-btn--primary' => 'background-color: {{VALUE}}',
@@ -331,7 +331,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'primary_button_hover_color',
             [
-                'label' => __('Birincil Buton Hover Rengi', 'mhm-rentiva'),
+                'label' => __('Primary Button Hover Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-btn--primary:hover' => 'background-color: {{VALUE}}',
@@ -343,7 +343,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'secondary_button_color',
             [
-                'label' => __('İkincil Buton Rengi', 'mhm-rentiva'),
+                'label' => __('Secondary Button Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-btn--secondary' => 'color: {{VALUE}}; border-color: {{VALUE}}',
@@ -355,7 +355,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'button_border_radius',
             [
-                'label' => __('Köşe Yuvarlaklığı', 'mhm-rentiva'),
+                'label' => __('Border Radius', 'mhm-rentiva'),
                 'type' => Controls_Manager::DIMENSIONS,
                 'size_units' => ['px', '%'],
                 'selectors' => [
@@ -372,7 +372,7 @@ class VehicleCardWidget extends ElementorWidgetBase
             ]
         );
 
-        $this->add_typography_control('.rv-btn', __('Tipografi', 'mhm-rentiva'));
+        $this->add_typography_control('.rv-btn', __('Typography', 'mhm-rentiva'));
 
         $this->end_controls_section();
 
@@ -380,7 +380,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->start_controls_section(
             'badge_style_section',
             [
-                'label' => __('Rozet Stili', 'mhm-rentiva'),
+                'label' => __('Badge Style', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_STYLE,
             ]
         );
@@ -388,7 +388,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'badge_background',
             [
-                'label' => __('Arka Plan Rengi', 'mhm-rentiva'),
+                'label' => __('Background Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-vehicle-card__badge' => 'background-color: {{VALUE}}',
@@ -400,7 +400,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'badge_text_color',
             [
-                'label' => __('Metin Rengi', 'mhm-rentiva'),
+                'label' => __('Text Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-vehicle-card__badge' => 'color: {{VALUE}}',
@@ -412,7 +412,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'badge_border_radius',
             [
-                'label' => __('Köşe Yuvarlaklığı', 'mhm-rentiva'),
+                'label' => __('Border Radius', 'mhm-rentiva'),
                 'type' => Controls_Manager::DIMENSIONS,
                 'size_units' => ['px', '%'],
                 'selectors' => [
@@ -429,52 +429,52 @@ class VehicleCardWidget extends ElementorWidgetBase
             ]
         );
 
-        $this->add_typography_control('.rv-vehicle-card__badge', __('Tipografi', 'mhm-rentiva'));
+        $this->add_typography_control('.rv-vehicle-card__badge', __('Typography', 'mhm-rentiva'));
 
         $this->end_controls_section();
     }
 
     /**
-     * Widget'ı render eder
+     * Render widget output.
      */
     protected function render(): void
     {
         $settings = $this->get_settings_for_display();
         
-        // Shortcode attribute'larını hazırla
+        // Prepare shortcode attributes
         $atts = $this->prepare_shortcode_attributes($settings);
         
-        // Özel CSS sınıfı ekle
+        // Append custom CSS class
         if (!empty($settings['custom_css_class'])) {
             $atts['class'] = $settings['custom_css_class'];
         }
         
-        // Animasyon kontrolü
+        // Animation toggle
         if ($settings['enable_animation'] !== 'yes') {
             $atts['disable_animation'] = '1';
         }
         
-        // Shortcode'u render et
-        $shortcode_output = '<div class="rv-notice">Vehicle Card shortcode kaldırıldı.</div>';
+        // Shortcode render placeholder
+        $shortcode_output = '<div class="rv-notice">' . esc_html__('Vehicle Card shortcode has been removed.', 'mhm-rentiva') . '</div>';
         
-        // Widget wrapper'ı ekle
+        // Widget wrapper
         echo '<div class="elementor-widget-rv-vehicle-card">';
         echo $shortcode_output;
         echo '</div>';
     }
 
     /**
-     * Buton seçenekleri kontrolünü ekler
+     * Register button option controls.
      */
     protected function add_button_options_control(): void
     {
         $this->add_control(
             'show_booking_btn',
             [
-                'label' => __('Rezervasyon Butonu Göster', 'mhm-rentiva'),
+                'label' => __('Show Booking Button', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -483,10 +483,10 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'button_text',
             [
-                'label' => __('Buton Metni', 'mhm-rentiva'),
+                'label' => __('Button Text', 'mhm-rentiva'),
                 'type' => Controls_Manager::TEXT,
-                'default' => __('Rezervasyon Yap', 'mhm-rentiva'),
-                'placeholder' => __('Buton metnini girin', 'mhm-rentiva'),
+                'default' => __('Book Now', 'mhm-rentiva'),
+                'placeholder' => __('Enter button text', 'mhm-rentiva'),
                 'condition' => [
                     'show_booking_btn' => '1',
                 ],
@@ -496,13 +496,13 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'button_style',
             [
-                'label' => __('Buton Stili', 'mhm-rentiva'),
+                'label' => __('Button Style', 'mhm-rentiva'),
                 'type' => Controls_Manager::SELECT,
                 'default' => 'primary',
                 'options' => [
-                    'primary' => __('Birincil', 'mhm-rentiva'),
-                    'secondary' => __('İkincil', 'mhm-rentiva'),
-                    'outline' => __('Çerçeveli', 'mhm-rentiva'),
+                    'primary' => __('Primary', 'mhm-rentiva'),
+                    'secondary' => __('Secondary', 'mhm-rentiva'),
+                    'outline' => __('Outlined', 'mhm-rentiva'),
                 ],
                 'condition' => [
                     'show_booking_btn' => '1',
@@ -513,10 +513,10 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'show_favorite',
             [
-                'label' => __('Favori Butonu Göster', 'mhm-rentiva'),
+                'label' => __('Show Favorite Button', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -524,17 +524,17 @@ class VehicleCardWidget extends ElementorWidgetBase
     }
 
     /**
-     * Değerlendirme seçenekleri kontrolünü ekler
+     * Register rating option controls.
      */
     protected function add_rating_options_control(): void
     {
         $this->add_control(
             'show_rating',
             [
-                'label' => __('Yıldız Değerlendirmesi Göster', 'mhm-rentiva'),
+                'label' => __('Show Star Rating', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -543,13 +543,13 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'rating_position',
             [
-                'label' => __('Yıldız Konumu', 'mhm-rentiva'),
+                'label' => __('Rating Position', 'mhm-rentiva'),
                 'type' => Controls_Manager::SELECT,
                 'default' => 'overlay',
                 'options' => [
-                    'overlay' => __('Resim Üzeri', 'mhm-rentiva'),
-                    'below_image' => __('Resim Altı', 'mhm-rentiva'),
-                    'footer' => __('Alt Kısım', 'mhm-rentiva'),
+                    'overlay' => __('Image Overlay', 'mhm-rentiva'),
+                    'below_image' => __('Below Image', 'mhm-rentiva'),
+                    'footer' => __('Footer Area', 'mhm-rentiva'),
                 ],
                 'condition' => [
                     'show_rating' => '1',
@@ -560,10 +560,10 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'show_rating_count',
             [
-                'label' => __('Değerlendirme Sayısını Göster', 'mhm-rentiva'),
+                'label' => __('Show Rating Count', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
                 'condition' => [
@@ -575,7 +575,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'custom_rating',
             [
-                'label' => __('Özel Değerlendirme', 'mhm-rentiva'),
+                'label' => __('Custom Rating', 'mhm-rentiva'),
                 'type' => Controls_Manager::SLIDER,
                 'size_units' => [''],
                 'range' => [
@@ -589,7 +589,7 @@ class VehicleCardWidget extends ElementorWidgetBase
                     'unit' => '',
                     'size' => 0,
                 ],
-                'description' => __('0 = Otomatik, 0.1-5.0 = Özel değer', 'mhm-rentiva'),
+                'description' => __('0 = Automatic, 0.1-5.0 = Custom value', 'mhm-rentiva'),
                 'condition' => [
                     'show_rating' => '1',
                 ],
@@ -598,17 +598,17 @@ class VehicleCardWidget extends ElementorWidgetBase
     }
 
     /**
-     * Gelişmiş display seçenekleri kontrolünü ekler
+     * Register advanced display option controls.
      */
     protected function add_display_options_control(array $options = []): void
     {
         $this->add_control(
             'show_image',
             [
-                'label' => __('Resim Göster', 'mhm-rentiva'),
+                'label' => __('Show Image', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -617,10 +617,10 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'show_title',
             [
-                'label' => __('Başlık Göster', 'mhm-rentiva'),
+                'label' => __('Show Title', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -629,10 +629,10 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'show_category',
             [
-                'label' => __('Kategori Göster', 'mhm-rentiva'),
+                'label' => __('Show Category', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -641,10 +641,10 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'show_features',
             [
-                'label' => __('Özellikler Göster', 'mhm-rentiva'),
+                'label' => __('Show Features', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -653,7 +653,7 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'max_features',
             [
-                'label' => __('Maksimum Özellik Sayısı', 'mhm-rentiva'),
+                'label' => __('Maximum Feature Count', 'mhm-rentiva'),
                 'type' => Controls_Manager::NUMBER,
                 'min' => 1,
                 'max' => 10,
@@ -668,10 +668,10 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'show_price',
             [
-                'label' => __('Fiyat Göster', 'mhm-rentiva'),
+                'label' => __('Show Price', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -680,14 +680,14 @@ class VehicleCardWidget extends ElementorWidgetBase
         $this->add_control(
             'price_format',
             [
-                'label' => __('Fiyat Formatı', 'mhm-rentiva'),
+                'label' => __('Price Format', 'mhm-rentiva'),
                 'type' => Controls_Manager::SELECT,
                 'default' => 'daily',
                 'options' => [
-                    'daily' => __('Günlük', 'mhm-rentiva'),
-                    'hourly' => __('Saatlik', 'mhm-rentiva'),
-                    'weekly' => __('Haftalık', 'mhm-rentiva'),
-                    'monthly' => __('Aylık', 'mhm-rentiva'),
+                    'daily' => __('Daily', 'mhm-rentiva'),
+                    'hourly' => __('Hourly', 'mhm-rentiva'),
+                    'weekly' => __('Weekly', 'mhm-rentiva'),
+                    'monthly' => __('Monthly', 'mhm-rentiva'),
                 ],
                 'condition' => [
                     'show_price' => '1',
@@ -697,7 +697,7 @@ class VehicleCardWidget extends ElementorWidgetBase
     }
 
     /**
-     * Widget'ın JavaScript kodunu döndürür
+     * Render widget template JS (unused).
      */
     protected function content_template(): void
     {

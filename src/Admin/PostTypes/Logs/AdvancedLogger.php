@@ -468,9 +468,13 @@ final class AdvancedLogger
         $body_parts = [
             __('A critical error was detected on your site.', 'mhm-rentiva'),
             '',
+            /* translators: %d placeholder. */
             sprintf(__('Log ID: %d', 'mhm-rentiva'), $log_id),
+            /* translators: %s placeholder. */
             sprintf(__('Message: %s', 'mhm-rentiva'), $message),
+            /* translators: %s placeholder. */
             sprintf(__('Timestamp: %s', 'mhm-rentiva'), current_time('Y-m-d H:i:s')),
+            /* translators: %s placeholder. */
             sprintf(__('Site URL: %s', 'mhm-rentiva'), home_url()),
         ];
 

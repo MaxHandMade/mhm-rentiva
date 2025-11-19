@@ -344,15 +344,19 @@ final class MonitoringManager
         // WordPress version check
         global $wp_version;
         if (version_compare($wp_version, '5.0', '>=')) {
+            /* translators: %s placeholder. */
             $checks[] = ['status' => 'ok', 'message' => sprintf(__('WordPress version is compatible: %s', 'mhm-rentiva'), $wp_version)];
         } else {
+            /* translators: %s placeholder. */
             $checks[] = ['status' => 'warning', 'message' => sprintf(__('WordPress version is outdated: %s (5.0+ recommended)', 'mhm-rentiva'), $wp_version)];
         }
 
         // PHP version check
         if (version_compare(PHP_VERSION, '7.4', '>=')) {
+            /* translators: %s placeholder. */
             $checks[] = ['status' => 'ok', 'message' => sprintf(__('PHP version is compatible: %s', 'mhm-rentiva'), PHP_VERSION)];
         } else {
+            /* translators: %s placeholder. */
             $checks[] = ['status' => 'warning', 'message' => sprintf(__('PHP version is outdated: %s (7.4+ recommended)', 'mhm-rentiva'), PHP_VERSION)];
         }
 
@@ -360,8 +364,10 @@ final class MonitoringManager
         $memory_limit = ini_get('memory_limit');
         $memory_bytes = wp_convert_hr_to_bytes($memory_limit);
         if ($memory_bytes >= 256 * 1024 * 1024) { // 256MB
+            /* translators: %s placeholder. */
             $checks[] = ['status' => 'ok', 'message' => sprintf(__('Memory limit is sufficient: %s', 'mhm-rentiva'), $memory_limit)];
         } else {
+            /* translators: %s placeholder. */
             $checks[] = ['status' => 'warning', 'message' => sprintf(__('Memory limit is low: %s (256MB+ recommended)', 'mhm-rentiva'), $memory_limit)];
         }
 
@@ -384,8 +390,10 @@ final class MonitoringManager
         foreach ($plugin_files as $file) {
             $file_path = MHM_RENTIVA_PLUGIN_PATH . $file;
             if (file_exists($file_path)) {
+                /* translators: %s placeholder. */
                 $checks[] = ['status' => 'ok', 'message' => sprintf(__('File exists: %s', 'mhm-rentiva'), basename($file))];
             } else {
+                /* translators: %s placeholder. */
                 $checks[] = ['status' => 'error', 'message' => sprintf(__('File not found: %s', 'mhm-rentiva'), basename($file))];
             }
         }

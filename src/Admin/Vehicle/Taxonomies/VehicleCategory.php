@@ -148,6 +148,7 @@ final class VehicleCategory
                 $selected = $selected ? self::sanitize_text_field_safe($selected) : 0;
                 
                 wp_dropdown_categories([
+                    /* translators: %1$s placeholder. */
                     'show_option_all' => sprintf(__('All %1$s', 'mhm-rentiva'), $taxonomy->labels->name),
                     'taxonomy' => self::TAXONOMY,
                     'name' => self::TAXONOMY,

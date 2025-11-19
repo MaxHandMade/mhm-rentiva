@@ -96,6 +96,7 @@ final class LockoutManager
             return new \WP_Error(
                 'account_locked',
                 sprintf(
+                    /* translators: %d placeholder. */
                     __('Account is locked due to too many failed login attempts. Please try again in %d minutes.', 'mhm-rentiva'),
                     $lockout_minutes
                 )
@@ -119,6 +120,7 @@ final class LockoutManager
         // Log the lockout
         if (class_exists('\MHMRentiva\Logs\AdvancedLogger')) {
             \MHMRentiva\Logs\AdvancedLogger::warning(
+                /* translators: %d placeholder. */
                 sprintf(__('Account locked for user ID: %d', 'mhm-rentiva'), $user_id),
                 ['user_id' => $user_id, 'lockout_duration' => $lockout_duration],
                 \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SECURITY

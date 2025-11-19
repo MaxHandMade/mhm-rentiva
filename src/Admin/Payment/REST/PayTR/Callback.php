@@ -63,6 +63,7 @@ final class Callback
                 'amount_kurus' => (int) $payment_amount,
                 'currency'     => 'TRY',
                 'oid'          => $merchant_oid,
+                /* translators: %d placeholder. */
                 'message'      => sprintf(__('PayTR callback successful (installment: %d)', 'mhm-rentiva'), (int) $installment),
                 'context'      => [
                     'raw'         => [

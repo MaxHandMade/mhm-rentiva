@@ -28,7 +28,12 @@ $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true) ?: [];
     <div class="mhm-account-content">
         <div class="section-header">
             <h2><?php _e('My Favorite Vehicles', 'mhm-rentiva'); ?></h2>
-            <span class="view-all-link"><?php printf(esc_html__('%d vehicles in your favorites', 'mhm-rentiva'), count($favorites)); ?></span>
+            <span class="view-all-link">
+                <?php
+                /* translators: %d: favorite vehicles count. */
+                printf(esc_html__('%d vehicles in your favorites', 'mhm-rentiva'), count($favorites));
+                ?>
+            </span>
         </div>
 
         <?php if (empty($favorites)): ?>

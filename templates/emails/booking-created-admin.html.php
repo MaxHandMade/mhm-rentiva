@@ -12,7 +12,12 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php printf(esc_html__('New Reservation - #%s', 'mhm-rentiva'), esc_html($data['booking']['id'] ?? '')); ?></title>
+    <title>
+        <?php
+        /* translators: %s: booking ID. */
+        printf(esc_html__('New Reservation - #%s', 'mhm-rentiva'), esc_html($data['booking']['id'] ?? ''));
+        ?>
+    </title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; }
         .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -34,7 +39,12 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
     <div class="container">
         <div class="header">
             <h1><?php esc_html_e('New Reservation Request', 'mhm-rentiva'); ?></h1>
-            <p><?php printf(esc_html__('Reservation #%s created', 'mhm-rentiva'), esc_html($data['booking']['id'] ?? '')); ?></p>
+            <p>
+                <?php
+                /* translators: %s: booking ID. */
+                printf(esc_html__('Reservation #%s created', 'mhm-rentiva'), esc_html($data['booking']['id'] ?? ''));
+                ?>
+            </p>
             <p style="margin-top: 15px; font-size: 14px; opacity: 0.9;"><?php echo esc_html(\MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_brand_name', get_bloginfo('name'))); ?></p>
         </div>
         

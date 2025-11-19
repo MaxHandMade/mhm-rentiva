@@ -2,7 +2,7 @@
 /*
 Plugin Name: MHM Rentiva
 Description: Vehicle rental management plugin independent of WooCommerce.
-Version: 4.4.0
+Version: 4.4.1
 Author: MHM Development Team
 Text Domain: mhm-rentiva
 Domain Path: /languages
@@ -99,6 +99,7 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
     add_action('admin_notices', function() {
         echo '<div class="notice notice-error"><p>';
         printf(
+            /* translators: %s: detected PHP version number. */
             esc_html__('MHM Rentiva plugin requires PHP 7.4 or higher. Your version: %s', 'mhm-rentiva'),
             esc_html(PHP_VERSION)
         );
@@ -109,7 +110,7 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 
 // Version constant
 if (!defined('MHM_RENTIVA_VERSION')) {
-    define('MHM_RENTIVA_VERSION', '4.4.0');
+    define('MHM_RENTIVA_VERSION', '4.4.1');
 }
 
 // Plugin file constant

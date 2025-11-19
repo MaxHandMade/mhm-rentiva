@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// WP_List_Table sınıfını yükle (admin panelinde)
+// Ensure WP_List_Table is loaded in admin context
 if (!class_exists('WP_List_Table')) {
     require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 }
@@ -14,8 +14,8 @@ if (!class_exists('WP_List_Table')) {
 /**
  * Abstract ListTable Base Class
  * 
- * WordPress ListTable sınıfları için merkezi base class.
- * Ortak işlevleri ve yapısal tekrarı elimine eder.
+ * Central base class for WordPress ListTable implementations.
+ * Eliminates repeated structure and shared logic.
  * 
  * @abstract
  */
@@ -49,7 +49,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Abstract methods - Alt sınıflarda implement edilmeli
+     * Abstract methods - must be implemented by child classes
      */
     abstract protected function get_singular_name(): string;
     abstract protected function get_plural_name(): string;
@@ -58,13 +58,12 @@ abstract class AbstractListTable extends \WP_List_Table
     abstract protected function get_total_count(): int;
 
     /**
-     * Column headers'ı hazırla
+     * Prepare column headers and data
      */
     public function prepare_items(): void
     {
-        // Bulk actions'ı handle et (data'yı yüklemeden önce)
-        // NOT: Redirect yapılırsa, bu fonksiyon yarıda kesilir ve sayfa yenilenir
-        // Bu yüzden redirect'i render_page() başında yapmak daha güvenli
+        // Process bulk actions before loading data
+        // NOTE: Redirects terminate this function, so handle redirects early
         if (isset($_POST['action']) || isset($_POST['action2'])) {
             $this->handle_bulk_actions();
         }
@@ -84,33 +83,33 @@ abstract class AbstractListTable extends \WP_List_Table
             'per_page' => $per_page,
         ]);
 
-        // Data'yı getir
+        // Retrieve data
         $this->items = $this->get_paginated_data($per_page, $current_page);
     }
 
     /**
-     * Paginated data'yı getir
+     * Retrieve paginated data
      */
     protected function get_paginated_data(int $per_page, int $current_page): array
     {
         $offset = ($current_page - 1) * $per_page;
         $args = $this->get_data_query_args();
         
-        // Pagination ekle
+        // Add pagination
         $args['posts_per_page'] = $per_page;
         $args['offset'] = $offset;
         
-        // Sorting ekle
+        // Add sorting
         $orderby = sanitize_key($_GET['orderby'] ?? 'date');
         $order = sanitize_key($_GET['order'] ?? 'desc');
         $args = $this->apply_sorting($args, $orderby, $order);
         
-        // Search ekle
+        // Add search
         if (!empty($_GET['s'])) {
             $args['s'] = self::sanitize_text_field_safe($_GET['s']);
         }
         
-        // Custom filters ekle
+        // Add custom filters
         $args = $this->apply_custom_filters($args);
         
         $query = new \WP_Query($args);
@@ -118,7 +117,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Sorting uygula
+     * Apply sorting
      */
     protected function apply_sorting(array $args, string $orderby, string $order): array
     {
@@ -136,7 +135,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Custom filters uygula (override edilebilir)
+     * Apply custom filters (override in subclasses)
      */
     protected function apply_custom_filters(array $args): array
     {
@@ -144,7 +143,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Bulk actions'ı handle et (public yapıldı - dışarıdan çağrılabilir)
+     * Handle bulk actions (public so it can be triggered externally)
      */
     public function handle_bulk_actions(): void
     {
@@ -167,7 +166,7 @@ abstract class AbstractListTable extends \WP_List_Table
         $success_count = $this->process_bulk_action($action, $item_ids);
 
         if ($success_count > 0) {
-            // Cache'i temizle (mesajlar için)
+            // Clear cache if subclass provides a hook
             if (method_exists($this, 'clear_cache_after_bulk_action')) {
                 $this->clear_cache_after_bulk_action($action, $item_ids);
             }
@@ -213,7 +212,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Bulk action'ı işle (override edilebilir)
+     * Process a bulk action (override in subclasses)
      */
     protected function process_bulk_action(string $action, array $item_ids): int
     {
@@ -221,15 +220,16 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Bulk action success message'ı al (override edilebilir)
+     * Get bulk action success message (override in subclasses)
      */
     protected function get_bulk_success_message(string $action, int $count): string
     {
+        /* translators: %d placeholder. */
         return sprintf(__('%d items processed.', 'mhm-rentiva'), $count);
     }
 
     /**
-     * Bulk action name'i al (override edilebilir)
+     * Get bulk action name (override in subclasses)
      */
     protected function get_bulk_action_name(): string
     {
@@ -237,7 +237,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Error message göster
+     * Show error admin notice
      */
     protected function show_error(string $message): void
     {
@@ -249,7 +249,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Success message göster
+     * Show success admin notice
      */
     protected function show_success(string $message): void
     {
@@ -261,7 +261,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Extra table navigation (override edilebilir)
+     * Extra table navigation (override in subclasses)
      */
     public function extra_tablenav($which): void
     {
@@ -273,26 +273,27 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Custom filters render et (override edilebilir)
+     * Render custom filters (override in subclasses)
      */
     protected function render_custom_filters(): void
     {
-        // Alt sınıflarda implement edilebilir
+        // Child classes can provide custom filters here
     }
 
     /**
-     * No items message (override edilebilir)
+     * No items message (override in subclasses)
      */
     public function no_items(): void
     {
         printf(
+            /* translators: %s placeholder. */
             __('No %s created yet.', 'mhm-rentiva'),
             $this->get_plural_name()
         );
     }
 
     /**
-     * Checkbox column (ortak)
+     * Checkbox column (shared)
      */
     protected function column_cb($item): string
     {
@@ -305,7 +306,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Item ID'sini al (override edilebilir)
+     * Get item ID (override in subclasses)
      */
     protected function get_item_id($item): string
     {
@@ -316,7 +317,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Date column formatı (ortak)
+     * Shared date column formatter
      */
     protected function format_date(string $date, string $format = 'd.m.Y'): string
     {
@@ -333,15 +334,15 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Price formatı (ortak)
+     * Shared price formatter
      */
-    protected function format_price(float $price, string $currency = 'TRY'): string
+    protected function format_price(float $price, string $currency = 'USD'): string
     {
         return number_format($price, 2, ',', '.') . ' ' . $currency;
     }
 
     /**
-     * Status badge render et (ortak)
+     * Render status badge (shared)
      */
     protected function render_status_badge(string $status, array $status_labels = []): string
     {
@@ -356,7 +357,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Row actions render et (ortak)
+     * Render row actions (shared)
      */
     protected function render_row_actions(array $actions): string
     {
@@ -364,7 +365,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * View link oluştur (ortak)
+     * Create shared “view” link
      */
     protected function create_view_link(string $page, string $item_id, string $text = ''): string
     {
@@ -380,7 +381,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Edit link oluştur (ortak)
+     * Create shared “edit” link
      */
     protected function create_edit_link(string $page, string $item_id, string $text = ''): string
     {
@@ -396,7 +397,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Delete link oluştur (ortak)
+     * Create shared “delete” link
      */
     protected function create_delete_link(string $item_id, string $text = '', string $confirm_message = ''): string
     {
@@ -417,7 +418,7 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Nonce field render et (ortak)
+     * Render shared nonce field.
      */
     protected function render_nonce_field(): void
     {
@@ -425,21 +426,21 @@ abstract class AbstractListTable extends \WP_List_Table
     }
 
     /**
-     * Search box render et (ortak)
+     * Render shared search box.
      */
     protected function render_search_box(): void
     {
         $search_term = self::sanitize_text_field_safe($_GET['s'] ?? '');
         
         echo '<p class="search-box">';
-        echo '<label class="screen-reader-text" for="' . esc_attr($this->get_search_input_id()) . '">' . __('Ara:', 'mhm-rentiva') . '</label>';
+        echo '<label class="screen-reader-text" for="' . esc_attr($this->get_search_input_id()) . '">' . __('Search:', 'mhm-rentiva') . '</label>';
         echo '<input type="search" id="' . esc_attr($this->get_search_input_id()) . '" name="s" value="' . esc_attr($search_term) . '" />';
-        submit_button(__('Ara', 'mhm-rentiva'), '', '', false, ['id' => 'search-submit']);
+        submit_button(__('Search', 'mhm-rentiva'), '', '', false, ['id' => 'search-submit']);
         echo '</p>';
     }
 
     /**
-     * Search input ID'sini al (override edilebilir)
+     * Retrieve search input ID (override as needed).
      */
     protected function get_search_input_id(): string
     {

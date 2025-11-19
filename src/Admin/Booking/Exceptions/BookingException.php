@@ -50,6 +50,7 @@ final class BookingException extends MHMException
     public static function notFound(int $booking_id, array $context = []): self
     {
         return new self(
+            /* translators: %d placeholder. */
             sprintf(__('Booking #%d not found.', 'mhm-rentiva'), $booking_id),
             self::CODE_NOT_FOUND,
             null,
@@ -89,6 +90,7 @@ final class BookingException extends MHMException
     public static function conflict(string $reason, array $context = []): self
     {
         return new self(
+            /* translators: %s placeholder. */
             sprintf(__('Booking conflict: %s', 'mhm-rentiva'), $reason),
             self::CODE_CONFLICT,
             null,
@@ -106,6 +108,7 @@ final class BookingException extends MHMException
     public static function unauthorized(int $user_id, array $context = []): self
     {
         return new self(
+            /* translators: %d placeholder. */
             sprintf(__('User #%d is unauthorized for this booking.', 'mhm-rentiva'), $user_id),
             self::CODE_UNAUTHORIZED,
             null,
@@ -123,6 +126,7 @@ final class BookingException extends MHMException
     public static function validationFailed(array $errors, array $context = []): self
     {
         return new self(
+            /* translators: %s placeholder. */
             sprintf(__('Validation failed: %s', 'mhm-rentiva'), implode(', ', $errors)),
             self::CODE_VALIDATION_FAILED,
             null,
@@ -140,6 +144,7 @@ final class BookingException extends MHMException
     public static function paymentFailed(string $reason, array $context = []): self
     {
         return new self(
+            /* translators: %s placeholder. */
             sprintf(__('Payment failed: %s', 'mhm-rentiva'), $reason),
             self::CODE_PAYMENT_FAILED,
             null,

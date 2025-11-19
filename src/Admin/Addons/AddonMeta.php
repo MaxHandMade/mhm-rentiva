@@ -36,6 +36,7 @@ final class AddonMeta extends AbstractMetaBox
                     'addon_price' => [
                         'type' => 'number',
                         'label' => __('Price', 'mhm-rentiva'),
+                        /* translators: %s placeholder. */
                         'description' => sprintf(__('Fixed price for this additional service. Will be added to booking total. (%s)', 'mhm-rentiva'), \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD')),
                         'step' => '0.01',
                         'min' => '0',

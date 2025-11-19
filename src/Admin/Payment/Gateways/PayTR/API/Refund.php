@@ -15,7 +15,7 @@ final class Refund
     private const REFUND_ENDPOINT = 'https://www.paytr.com/odeme/iade';
 
     /**
-     * PayTR iade işlemi yapar
+     * Execute a PayTR refund request.
      */
     public static function processRefund(array $args): array
     {
@@ -24,7 +24,7 @@ final class Refund
         $merchantSalt = Config::merchantSalt();
 
         if ($merchantId === '' || $merchantKey === '' || $merchantSalt === '') {
-            return ['ok' => false, 'message' => 'PayTR kimlik bilgileri eksik'];
+            return ['ok' => false, 'message' => __('PayTR credentials are missing.', 'mhm-rentiva')];
         }
 
         $merchantOid = (string) ($args['merchant_oid'] ?? '');
@@ -35,7 +35,7 @@ final class Refund
             return ['ok' => false, 'message' => __('Invalid refund input', 'mhm-rentiva')];
         }
 
-        // Hash oluştur (PayTR dokümantasyonuna göre)
+        // Build signature hash (per PayTR documentation)
         $hashStr = $merchantId . $merchantOid . $amount . $merchantSalt;
         $hash = base64_encode(hash_hmac('sha256', $hashStr, $merchantKey, true));
 
@@ -56,7 +56,7 @@ final class Refund
         ]);
 
         if (is_wp_error($response)) {
-            Logger::error('PayTR iade hatası: ' . $response->get_error_message());
+            Logger::error('PayTR refund error: ' . $response->get_error_message());
             return ['ok' => false, 'message' => $response->get_error_message()];
         }
 
@@ -65,14 +65,14 @@ final class Refund
         $json = json_decode($raw, true);
 
         if (!is_array($json)) {
-            Logger::error('PayTR iade geçersiz yanıt: ' . $raw);
-            return ['ok' => false, 'message' => __('Invalid PayTR response', 'mhm-rentiva'), 'code' => (string) $code];
+            Logger::error('Invalid PayTR refund response: ' . $raw);
+            return ['ok' => false, 'message' => __('Invalid PayTR response.', 'mhm-rentiva'), 'code' => (string) $code];
         }
 
         if (isset($json['status']) && $json['status'] === 'success') {
             $refundId = (string) ($json['refund_id'] ?? ($json['merchant_oid'] ?? $merchantOid));
             
-            Logger::info('PayTR iade başarılı: ' . $merchantOid . ' - Tutar: ' . $amount . ' kuruş');
+            Logger::info('PayTR refund successful: ' . $merchantOid . ' - Amount: ' . $amount . ' kuruş');
             
             return [
                 'ok' => true,
@@ -83,20 +83,20 @@ final class Refund
             ];
         }
 
-        $message = (string) ($json['err_msg'] ?? 'PayTR iade hatası');
+        $message = (string) ($json['err_msg'] ?? __('PayTR refund error.', 'mhm-rentiva'));
         $code = (string) ($json['err_no'] ?? '');
         
-        Logger::error('PayTR iade hatası: ' . $message . ' (Kod: ' . $code . ')');
+        Logger::error('PayTR refund error: ' . $message . ' (Code: ' . $code . ')');
         
         return ['ok' => false, 'message' => $message, 'code' => $code];
     }
 
     /**
-     * Tam iade yapar
+     * Perform a full refund.
      */
     public static function fullRefund(string $merchantOid, string $reason = ''): array
     {
-        // Tam iade için önce ödeme tutarını sorgula
+        // Query payment amount before attempting a full refund
         $inquiry = Inquiry::checkPaymentStatus($merchantOid);
         
         if (!$inquiry['ok']) {
@@ -116,7 +116,7 @@ final class Refund
     }
 
     /**
-     * Kısmi iade yapar
+     * Perform a partial refund.
      */
     public static function partialRefund(string $merchantOid, int $amount, string $reason = ''): array
     {
@@ -132,7 +132,7 @@ final class Refund
     }
 
     /**
-     * İade durumunu kontrol eder
+     * Determine if refund succeeded.
      */
     public static function isRefundSuccessful(array $refundResult): bool
     {
@@ -140,7 +140,7 @@ final class Refund
     }
 
     /**
-     * İade tutarını alır
+     * Retrieve refunded amount (in kuruş).
      */
     public static function getRefundAmount(array $refundResult): int
     {
@@ -148,7 +148,7 @@ final class Refund
     }
 
     /**
-     * İade ID'sini alır
+     * Retrieve refund identifier.
      */
     public static function getRefundId(array $refundResult): string
     {

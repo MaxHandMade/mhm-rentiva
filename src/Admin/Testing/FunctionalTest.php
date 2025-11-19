@@ -79,12 +79,14 @@ final class FunctionalTest
         
         if ($pass) {
             $message = sprintf(
+                /* translators: %d placeholder. */
                 esc_html__('✅ All %d shortcodes successfully registered', 'mhm-rentiva'),
                 count($registered)
             );
         } else {
             $message = sprintf(
-                esc_html__('⚠️ %d/%d shortcodes registered. Missing: %s', 'mhm-rentiva'),
+                /* translators: 1: registered shortcode count; 2: expected shortcode count; 3: missing shortcode list. */
+                esc_html__('⚠️ %1$d/%2$d shortcodes registered. Missing: %3$s', 'mhm-rentiva'),
                 count($registered),
                 count($expected_shortcodes),
                 esc_html(implode(', ', $missing))
@@ -126,12 +128,14 @@ final class FunctionalTest
         
         if ($pass) {
             $message = sprintf(
+                /* translators: %d placeholder. */
                 esc_html__('✅ %d AJAX endpoints registered and functional', 'mhm-rentiva'),
                 $registered
             );
         } else {
             $message = sprintf(
-                esc_html__('⚠️ Only %d/%d AJAX endpoints found', 'mhm-rentiva'),
+                /* translators: 1: registered AJAX endpoints; 2: expected AJAX endpoints. */
+                esc_html__('⚠️ Only %1$d/%2$d AJAX endpoints found', 'mhm-rentiva'),
                 $registered,
                 count($ajax_actions)
             );
@@ -173,12 +177,14 @@ final class FunctionalTest
         
         if ($pass) {
             $message = sprintf(
+                /* translators: %d placeholder. */
                 esc_html__('✅ %d REST API endpoints registered and functional', 'mhm-rentiva'),
                 $registered_count
             );
         } else {
             $message = $has_namespace ? 
                 sprintf(
+                    /* translators: %d placeholder. */
                     esc_html__('⚠️ Only %d REST endpoints found (expected at least 2)', 'mhm-rentiva'),
                     $registered_count
                 ) :
@@ -304,6 +310,7 @@ final class FunctionalTest
         
         if ($pass) {
             $message = sprintf(
+                /* translators: %s placeholder. */
                 esc_html__('✅ Cache system working (%s)', 'mhm-rentiva'),
                 esc_html($test_method)
             );

@@ -42,7 +42,12 @@ $favorites = SettingsCore::get('mhm_rentiva_customer_favorites', '1');
         
         <!-- Welcome Header -->
         <div class="account-header">
-            <h1><?php printf(__('Welcome back, %s!', 'mhm-rentiva'), esc_html($user->display_name)); ?></h1>
+            <h1>
+                <?php
+                /* translators: %s: customer display name. */
+                printf(__('Welcome back, %s!', 'mhm-rentiva'), esc_html($user->display_name));
+                ?>
+            </h1>
             <p class="account-subtitle"><?php echo esc_html($welcome_message); ?></p>
         </div>
         
@@ -151,7 +156,13 @@ $favorites = SettingsCore::get('mhm_rentiva_customer_favorites', '1');
                                 <?php endif; ?>
                                 <div class="vehicle-info">
                                     <h4><?php echo $vehicle ? esc_html($vehicle->post_title) : esc_html__('Vehicle Not Found', 'mhm-rentiva'); ?></h4>
-                                    <p class="booking-number"><?php printf(esc_html__('Booking #%s', 'mhm-rentiva'), esc_html($booking->ID)); ?></p>
+                                    /* translators: %s placeholder. */
+                                    <p class="booking-number">
+                                        <?php
+                                        /* translators: %s: booking post ID. */
+                                        printf(esc_html__('Booking #%s', 'mhm-rentiva'), esc_html($booking->ID));
+                                        ?>
+                                    </p>
                                 </div>
                             </div>
                             

@@ -651,7 +651,10 @@ final class SearchResults extends AbstractShortcode
                         <?php endfor; ?>
                     </div>
                     <span class="rv-rating-count">
-                        <?php printf(_n('(%d review)', '(%d reviews)', $vehicle['rating']['count'] ?? 0, 'mhm-rentiva'), $vehicle['rating']['count'] ?? 0); ?>
+                        <?php
+                        /* translators: %d: number of reviews. */
+                        printf(_n('(%d review)', '(%d reviews)', $vehicle['rating']['count'] ?? 0, 'mhm-rentiva'), $vehicle['rating']['count'] ?? 0);
+                        ?>
                     </span>
                 </div>
                 <?php endif; ?>

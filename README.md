@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.3.9-blue.svg)
+![Version](https://img.shields.io/badge/version-4.4.1-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1894,25 +1894,26 @@ Fixes #123
 
 ## 📝 Changelog
 
-### Latest Version: 4.4.0 (2025-11-14)
+### Latest Version: 4.4.1 (2025-11-19)
 
-**🧙 SETUP WIZARD EXPANSION**
-- Introduced a full 7-step onboarding flow (System Check → Summary) with consistent back buttons and a single menu entry
-- License step now reads the real LicenseManager status, while Required Pages tracks Login/Register/Contact and offers a Shortcode Pages shortcut
-- Payment Gateways and Frontend & Display steps reuse the same currency/position dropdowns as the main settings for accurate defaults
+**🌍 GLOBAL READINESS**
+- Completed English translations across Elementor widgets, Gutenberg blocks, payment gateways, booking helpers, and templates.
+- Removed remaining TRY-specific copy and ensured every UI string passes through WordPress i18n helpers.
 
-**🩺 SYSTEM CHECK & RELIABILITY**
-- Email delivery detection recognises FluentSMTP, WP Mail SMTP, Post SMTP and other providers, only warning when no SMTP layer is active
-- HTTPS/memory rows include actionable remediation messages so admins know exactly what to fix before going live
+**🧩 ELEMENTOR & GUTENBERG**
+- Vehicles List, Booking Form, and Vehicle Card widgets expose English titles, descriptions, control labels, and documentation-ready tooltips.
+- Gutenberg block scripts mirror the same terminology, eliminating Poedit “unterminated string” or untranslated warnings.
 
-**📚 DOCUMENTATION & UX**
-- Added a dedicated Setup Wizard guide (`docs/site/getting-started/setup-wizard.md`) and linked it from the admin docs index
-- Polished wizard pill styles, ensured Summary actions are easy to access, and removed duplicate menu entries for a cleaner UI
-- Required Pages table surfaces login/register/contact checks for better first-time setup coverage
+**📝 I18N QA**
+- Added translator comments and positional placeholders throughout booking emails, account pages, and admin notices.
+- `wp i18n make-pot` and Poedit now build clean catalogs with zero warning lines.
 
-**📋 SHORTCODE COVERAGE**
-- Required Pages step now validates and auto-creates Login (`[rentiva_login_form]`), Register (`[rentiva_register_form]`) and Contact (`[rentiva_contact]`) shortcodes
-- Shortcode documentation and setup instructions were updated so newcomers know which pages must include which shortcodes
+**💱 CURRENCY & DEPOSIT EXPERIENCE**
+- Deposit meta boxes and helpers format totals via Settings-based currency (USD fallback) and semantic `data-field` selectors instead of hardcoded “TRY”.
+- JavaScript updates respect localized symbols immediately when admins switch currency/locale combinations.
+
+**📚 DOCUMENTATION**
+- README badges and changelog entries now document the 4.4.1 global readiness release.
 
 For complete changelog, see [changelog.json](changelog.json)
 

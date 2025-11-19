@@ -86,6 +86,7 @@ final class DeveloperTab extends AbstractTab
         echo '<h4>' . __('About Us', 'mhm-rentiva') . '</h4>';
         $company_name = __('MHM (MaxHandMade)', 'mhm-rentiva');
         echo '<p>' . sprintf(
+            /* translators: %s: company name. */
             __('%s is an expert team that has been developing WordPress-based solutions and custom software projects since 2014. We specialize in e-commerce, reservation systems, corporate websites, and mobile applications.', 'mhm-rentiva'),
             $company_name
         ) . '</p>';

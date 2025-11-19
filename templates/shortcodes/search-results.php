@@ -38,6 +38,7 @@ $max_pages = $results['max_pages'] ?? 1;
                 <?php 
                 if ($total_results > 0) {
                     printf(
+                        /* translators: %d placeholder. */
                         _n('%d vehicle found', '%d vehicles found', $total_results, 'mhm-rentiva'),
                         $total_results
                     );
@@ -49,7 +50,10 @@ $max_pages = $results['max_pages'] ?? 1;
             
             <?php if (!empty($search_params['keyword'])): ?>
                 <p class="rv-search-query">
-                    <?php printf(esc_html__('Results for: %s', 'mhm-rentiva'), '<strong>' . esc_html($search_params['keyword']) . '</strong>'); ?>
+                    <?php
+                    /* translators: %s: search keyword wrapped in strong tags. */
+                    printf(esc_html__('Results for: %s', 'mhm-rentiva'), '<strong>' . esc_html($search_params['keyword']) . '</strong>');
+                    ?>
                 </p>
             <?php endif; ?>
         </div>

@@ -78,6 +78,7 @@ final class ValidationException extends MHMException
     public static function requiredField(string $field_name, array $context = []): self
     {
         return new self(
+            /* translators: %s: field label. */
             sprintf(__('"%s" field is required.', 'mhm-rentiva'), $field_name),
             self::CODE_REQUIRED_FIELD,
             null,
@@ -105,6 +106,7 @@ final class ValidationException extends MHMException
                 'field_name' => $field_name,
                 'expected_format' => $expected_format
             ]),
+            /* translators: %s placeholder. */
             [$field_name => sprintf(__('Invalid format. Expected: %s', 'mhm-rentiva'), $expected_format)]
         );
     }
@@ -156,6 +158,7 @@ final class ValidationException extends MHMException
                 'field_name' => $field_name,
                 'value' => $value
             ]),
+            /* translators: %s placeholder. */
             [$field_name => sprintf(__('This value already exists: %s', 'mhm-rentiva'), $value)]
         );
     }
@@ -181,6 +184,7 @@ final class ValidationException extends MHMException
                 'expected_type' => $expected_type,
                 'actual_type' => $actual_type
             ]),
+            /* translators: %s placeholder. */
             [$field_name => sprintf(__('Invalid type. Expected: %s', 'mhm-rentiva'), $expected_type)]
         );
     }
@@ -206,6 +210,7 @@ final class ValidationException extends MHMException
                 'length' => $length,
                 'max_length' => $max_length
             ]),
+            /* translators: %d placeholder. */
             [$field_name => sprintf(__('Too long. Max: %d characters', 'mhm-rentiva'), $max_length)]
         );
     }
@@ -231,6 +236,7 @@ final class ValidationException extends MHMException
                 'length' => $length,
                 'min_length' => $min_length
             ]),
+            /* translators: %d placeholder. */
             [$field_name => sprintf(__('Too short. Min: %d characters', 'mhm-rentiva'), $min_length)]
         );
     }
@@ -256,6 +262,7 @@ final class ValidationException extends MHMException
                 'value' => $value,
                 'allowed_values' => $allowed_values
             ]),
+            /* translators: %s placeholder. */
             [$field_name => sprintf(__('Invalid choice. Allowed: %s', 'mhm-rentiva'), implode(', ', $allowed_values))]
         );
     }
@@ -270,6 +277,7 @@ final class ValidationException extends MHMException
     public static function multipleErrors(array $errors, array $context = []): self
     {
         return new self(
+            /* translators: %d placeholder. */
             sprintf(__('Validation failed: %d errors', 'mhm-rentiva'), count($errors)),
             self::CODE_REQUIRED_FIELD,
             null,

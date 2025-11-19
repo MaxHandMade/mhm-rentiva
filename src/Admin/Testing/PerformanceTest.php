@@ -59,14 +59,16 @@ final class PerformanceTest
         
         if ($pass) {
             $message = sprintf(
-                esc_html__('✅ Query completed in %.2f ms. Found %d vehicles. Performance: %s', 'mhm-rentiva'),
+                /* translators: 1: query duration in ms; 2: vehicle count; 3: performance label. */
+                esc_html__('✅ Query completed in %1$.2f ms. Found %2$d vehicles. Performance: %3$s', 'mhm-rentiva'),
                 $query_time,
                 $vehicles_count,
                 esc_html($efficiency)
             );
         } else {
             $message = sprintf(
-                esc_html__('⚠️ Query took %.2f ms (exceeds 100ms limit). Found %d vehicles. Performance: %s', 'mhm-rentiva'),
+                /* translators: 1: query duration in ms; 2: vehicle count; 3: performance label. */
+                esc_html__('⚠️ Query took %1$.2f ms (exceeds 100ms limit). Found %2$d vehicles. Performance: %3$s', 'mhm-rentiva'),
                 $query_time,
                 $vehicles_count,
                 esc_html($efficiency)
@@ -124,7 +126,8 @@ final class PerformanceTest
             'test' => __('Cache Hit Rate', 'mhm-rentiva'),
             'status' => $pass ? 'pass' : 'warning',
             'message' => sprintf(
-                esc_html__('Cache hit rate: %.1f%% (%d/%d)', 'mhm-rentiva'),
+                /* translators: 1: %.1f; 2: %d; 3: %d. */
+                esc_html__('Cache hit rate: %1$.1f%% (%2$d/%3$d)', 'mhm-rentiva'),
                 $hit_rate,
                 $hits,
                 $test_iterations
@@ -156,6 +159,7 @@ final class PerformanceTest
             'test' => __('Memory Usage', 'mhm-rentiva'),
             'status' => $pass ? 'pass' : 'warning',
             'message' => sprintf(
+                /* translators: 1: %1$d; 2: %2$d; 3: %.1f. */
                 esc_html__('Memory usage: %1$d MB / %2$d MB (%.1f%%)', 'mhm-rentiva'),
                 $usage_mb,
                 $limit_mb,
@@ -225,6 +229,7 @@ final class PerformanceTest
         
         if ($pass) {
             $message = sprintf(
+                /* translators: 1: %1$d; 2: %2$d; 3: %3$d. */
                 esc_html__('✅ Frontend assets: %1$d KB (CSS: %2$d KB, JS: %3$d KB) - Optimal', 'mhm-rentiva'),
                 $frontend_total_kb,
                 round($frontend_css_size / 1024, 2),
@@ -232,6 +237,7 @@ final class PerformanceTest
             );
         } else {
             $message = sprintf(
+                /* translators: 1: %1$d; 2: %2$d; 3: %4$d. */
                 esc_html__('⚠️ Frontend assets: %1$d KB exceeds recommended limit (%2$d KB). Consider optimization (CSS: %3$d KB, JS: %4$d KB)', 'mhm-rentiva'),
                 $frontend_total_kb,
                 $recommended_limit_kb,
@@ -244,6 +250,7 @@ final class PerformanceTest
         if ($frontend_total_kb > 0) {
             $admin_total_kb = round(($admin_css_size + $admin_js_size) / 1024, 2);
             $message .= sprintf(
+                /* translators: 1: %1$d; 2: %2$d; 3: %3$d. */
                 ' | ' . esc_html__('Admin: %1$d KB (CSS: %2$d KB, JS: %3$d KB)', 'mhm-rentiva'),
                 $admin_total_kb,
                 round($admin_css_size / 1024, 2),
@@ -327,6 +334,7 @@ final class PerformanceTest
             'test' => __('Autoloader Performance', 'mhm-rentiva'),
             'status' => $pass ? 'pass' : 'warning',
             'message' => sprintf(
+                /* translators: 1: %1$d; 2: %2$d; 3: %.2f. */
                 esc_html__('%1$d/%2$d class loaded in %.2f ms', 'mhm-rentiva'),
                 $loaded,
                 count($test_classes),

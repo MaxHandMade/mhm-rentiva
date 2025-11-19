@@ -71,6 +71,7 @@ final class Webhook
             'gateway' => 'paypal',
             'action' => 'webhook_received',
             'status' => 'info',
+            /* translators: %s placeholder. */
             'message' => sprintf(__('PayPal webhook received: %s', 'mhm-rentiva'), $event_type),
             'context' => [
                 'event_type' => $event_type,
@@ -98,6 +99,7 @@ final class Webhook
                     'gateway' => 'paypal',
                     'action' => 'webhook_unhandled_event',
                     'status' => 'info',
+                    /* translators: %s placeholder. */
                     'message' => sprintf(__('Unhandled PayPal webhook event: %s', 'mhm-rentiva'), $event_type),
                 ]);
                 break;

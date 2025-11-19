@@ -15,7 +15,7 @@ final class Inquiry
     private const INQUIRY_ENDPOINT = 'https://www.paytr.com/odeme/durumbilgisi';
 
     /**
-     * PayTR ödeme durumu sorgular
+     * Query PayTR payment status.
      */
     public static function inquire(array $args): array
     {
@@ -24,15 +24,15 @@ final class Inquiry
         $merchantSalt = Config::merchantSalt();
 
         if ($merchantId === '' || $merchantKey === '' || $merchantSalt === '') {
-            return ['ok' => false, 'message' => 'PayTR kimlik bilgileri eksik'];
+            return ['ok' => false, 'message' => __('PayTR credentials are missing.', 'mhm-rentiva')];
         }
 
         $merchantOid = (string) ($args['merchant_oid'] ?? '');
         if ($merchantOid === '') {
-            return ['ok' => false, 'message' => 'Merchant OID eksik'];
+            return ['ok' => false, 'message' => __('Merchant OID is missing.', 'mhm-rentiva')];
         }
 
-        // Hash oluştur
+        // Build signature hash
         $hashStr = $merchantId . $merchantOid . $merchantSalt;
         $hash = base64_encode(hash_hmac('sha256', $hashStr, $merchantKey, true));
 
@@ -48,7 +48,7 @@ final class Inquiry
         ]);
 
         if (is_wp_error($response)) {
-            Logger::error('PayTR sorgu hatası: ' . $response->get_error_message());
+            Logger::error('PayTR inquiry error: ' . $response->get_error_message());
             return ['ok' => false, 'message' => $response->get_error_message()];
         }
 
@@ -57,17 +57,17 @@ final class Inquiry
         $json = json_decode($raw, true);
 
         if (!is_array($json)) {
-            Logger::error('PayTR geçersiz yanıt: ' . $raw);
-            return ['ok' => false, 'message' => __('Invalid PayTR response', 'mhm-rentiva'), 'code' => (string) $code];
+            Logger::error('Invalid PayTR response: ' . $raw);
+            return ['ok' => false, 'message' => __('Invalid PayTR response.', 'mhm-rentiva'), 'code' => (string) $code];
         }
 
         if (isset($json['status']) && $json['status'] === 'success') {
-            // Ödeme durumunu normalize et
+            // Normalize payment status values
             $paid = isset($json['payment_status']) ? ((string) $json['payment_status'] === 'paid') : false;
             $amount = isset($json['payment_amount']) ? (int) $json['payment_amount'] : 0;
             $installment = isset($json['installment_count']) ? (int) $json['installment_count'] : 0;
 
-            Logger::info('PayTR ödeme durumu sorgulandı: ' . $merchantOid . ' - ' . ($paid ? 'Ödendi' : 'Ödenmedi'));
+            Logger::info('PayTR payment status checked: ' . $merchantOid . ' - ' . ($paid ? 'paid' : 'unpaid'));
 
             return [
                 'ok' => true,
@@ -79,16 +79,16 @@ final class Inquiry
             ];
         }
 
-        $message = (string) ($json['err_msg'] ?? 'PayTR sorgu hatası');
+        $message = (string) ($json['err_msg'] ?? __('PayTR inquiry error.', 'mhm-rentiva'));
         $code = (string) ($json['err_no'] ?? '');
         
-        Logger::error('PayTR sorgu hatası: ' . $message . ' (Kod: ' . $code . ')');
+        Logger::error('PayTR inquiry error: ' . $message . ' (Code: ' . $code . ')');
         
         return ['ok' => false, 'message' => $message, 'code' => $code];
     }
 
     /**
-     * Ödeme durumunu kontrol eder
+     * Check payment status quickly via merchant OID.
      */
     public static function checkPaymentStatus(string $merchantOid): array
     {
@@ -96,7 +96,7 @@ final class Inquiry
     }
 
     /**
-     * Ödeme başarılı mı kontrol eder
+     * Determine if payment is successful.
      */
     public static function isPaymentSuccessful(array $inquiryResult): bool
     {
@@ -104,7 +104,7 @@ final class Inquiry
     }
 
     /**
-     * Ödeme tutarını alır
+     * Retrieve payment amount.
      */
     public static function getPaymentAmount(array $inquiryResult): int
     {
@@ -112,7 +112,7 @@ final class Inquiry
     }
 
     /**
-     * Taksit sayısını alır
+     * Retrieve installment count.
      */
     public static function getInstallmentCount(array $inquiryResult): int
     {

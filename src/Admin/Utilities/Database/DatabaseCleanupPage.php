@@ -154,6 +154,7 @@ final class DatabaseCleanupPage
         
         wp_send_json_success([
             'message' => sprintf(
+                /* translators: 1: %1$d; 2: %2$s. */
                 esc_html__('%1$d orphaned meta records cleaned. Backup table: %2$s', 'mhm-rentiva'),
                 $result['deleted'] ?? 0,
                 $result['backup_table'] ?? 'N/A'
@@ -177,6 +178,7 @@ final class DatabaseCleanupPage
         
         wp_send_json_success([
             'message' => sprintf(
+                /* translators: %1$d placeholder. */
                 esc_html__('%1$d expired transients cleaned.', 'mhm-rentiva'),
                 $result['deleted'] ?? 0
             ),
@@ -199,6 +201,7 @@ final class DatabaseCleanupPage
         
         wp_send_json_success([
             'message' => sprintf(
+                /* translators: 1: %1$d; 2: %2$s. */
                 esc_html__('%1$d options optimized. Memory saved: %2$s', 'mhm-rentiva'),
                 $result['updated'] ?? 0,
                 size_format($result['memory_saved_bytes'] ?? 0)
@@ -224,6 +227,7 @@ final class DatabaseCleanupPage
         
         wp_send_json_success([
             'message' => sprintf(
+                /* translators: 1: %1$d; 2: %2$.2f. */
                 esc_html__('%1$d tables optimized in %2$.2f seconds', 'mhm-rentiva'),
                 count($result),
                 $total_time / 1000
@@ -247,6 +251,7 @@ final class DatabaseCleanupPage
         
         wp_send_json_success([
             'message' => sprintf(
+                /* translators: 1: %1$d; 2: %2$s. */
                 esc_html__('%1$d invalid meta records cleaned. Backup table: %2$s', 'mhm-rentiva'),
                 $result['deleted'] ?? 0,
                 $result['backup_table'] ?? 'N/A'

@@ -452,7 +452,8 @@ final class Reports
         echo '<div class="overview-header">';
         echo '<h2>' . esc_html__('Overview Dashboard', 'mhm-rentiva') . '</h2>';
         echo '<p class="overview-description">' . sprintf(
-            esc_html__('Key metrics and trends for %s to %s', 'mhm-rentiva'),
+            /* translators: 1: %s; 2: %s. */
+            esc_html__('Key metrics and trends for %1$s to %2$s', 'mhm-rentiva'),
             date('d.m.Y', strtotime($start_date)),
             date('d.m.Y', strtotime($end_date))
         ) . '</p>';
@@ -832,7 +833,8 @@ final class Reports
         echo '<div class="overview-header">';
         echo '<h2>' . esc_html__('Revenue Report', 'mhm-rentiva') . '</h2>';
         echo '<p class="overview-description">' . sprintf(
-            esc_html__('Revenue analysis and trends for %s to %s', 'mhm-rentiva'),
+            /* translators: 1: %s; 2: %s. */
+            esc_html__('Revenue analysis and trends for %1$s to %2$s', 'mhm-rentiva'),
             date('d.m.Y', strtotime($start_date)),
             date('d.m.Y', strtotime($end_date))
         ) . '</p>';
@@ -956,7 +958,8 @@ final class Reports
         echo '<div class="overview-header">';
         echo '<h2>' . esc_html__('Booking Report', 'mhm-rentiva') . '</h2>';
         echo '<p class="overview-description">' . sprintf(
-            esc_html__('Booking analysis and status distribution for %s to %s', 'mhm-rentiva'),
+            /* translators: 1: %s; 2: %s. */
+            esc_html__('Booking analysis and status distribution for %1$s to %2$s', 'mhm-rentiva'),
             date('d.m.Y', strtotime($start_date)),
             date('d.m.Y', strtotime($end_date))
         ) . '</p>';
@@ -1073,7 +1076,8 @@ final class Reports
         echo '<div class="overview-header">';
         echo '<h2>' . esc_html__('Vehicle Report', 'mhm-rentiva') . '</h2>';
         echo '<p class="overview-description">' . sprintf(
-            esc_html__('Vehicle performance and rental analysis for %s to %s', 'mhm-rentiva'),
+            /* translators: 1: %s; 2: %s. */
+            esc_html__('Vehicle performance and rental analysis for %1$s to %2$s', 'mhm-rentiva'),
             date('d.m.Y', strtotime($start_date)),
             date('d.m.Y', strtotime($end_date))
         ) . '</p>';
@@ -1240,7 +1244,8 @@ final class Reports
         echo '<div class="overview-header">';
         echo '<h2>' . esc_html__('Customer Report', 'mhm-rentiva') . '</h2>';
         echo '<p class="overview-description">' . sprintf(
-            esc_html__('Customer analysis and spending patterns for %s to %s', 'mhm-rentiva'),
+            /* translators: 1: %s; 2: %s. */
+            esc_html__('Customer analysis and spending patterns for %1$s to %2$s', 'mhm-rentiva'),
             date('d.m.Y', strtotime($start_date)),
             date('d.m.Y', strtotime($end_date))
         ) . '</p>';

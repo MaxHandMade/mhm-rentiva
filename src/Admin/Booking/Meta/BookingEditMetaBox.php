@@ -46,7 +46,7 @@ final class BookingEditMetaBox extends AbstractMetaBox
     {
         global $post, $pagenow;
         
-        // Sadece mevcut rezervasyonları düzenlerken göster
+        // Display only when editing an existing booking
         if ($pagenow !== 'post.php' || !$post || !$post->ID || $post->post_type !== 'vehicle_booking') {
             return [];
         }
@@ -63,10 +63,10 @@ final class BookingEditMetaBox extends AbstractMetaBox
 
     public static function register(): void
     {
-        // Meta box'ı ekle
+        // Register meta box
         add_action('add_meta_boxes', [self::class, 'add_meta_boxes']);
         
-        // Scripts ve styles
+        // Scripts and styles
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_scripts']);
         
         // Save handler
@@ -77,7 +77,7 @@ final class BookingEditMetaBox extends AbstractMetaBox
     {
         global $post, $pagenow;
         
-        // Sadece mevcut rezervasyonları düzenlerken göster
+        // Display only when editing an existing booking
         if ($pagenow !== 'post.php' || !$post || !$post->ID || $post->post_type !== 'vehicle_booking') {
             return;
         }
@@ -96,7 +96,7 @@ final class BookingEditMetaBox extends AbstractMetaBox
     {
         global $post_type;
         
-        // Sadece rezervasyon düzenleme sayfasında yükle
+        // Load assets only on the booking edit screen
         if ($hook === 'post.php' && $post_type === 'vehicle_booking') {
             wp_enqueue_style(
                 'mhm-booking-edit-meta',
@@ -114,7 +114,7 @@ final class BookingEditMetaBox extends AbstractMetaBox
             );
             
             
-            // AJAX için localize
+            // Localize script for AJAX usage
             wp_localize_script('mhm-booking-edit-meta', 'mhmBookingEdit', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('mhm_booking_edit_nonce'),
@@ -131,7 +131,7 @@ final class BookingEditMetaBox extends AbstractMetaBox
     {
         wp_nonce_field('mhm_booking_edit_action', 'mhm_booking_edit_meta_nonce');
         
-        // Mevcut rezervasyon verilerini al
+        // Fetch current booking data
         $vehicle_id = get_post_meta($post->ID, '_mhm_vehicle_id', true) ?: get_post_meta($post->ID, '_booking_vehicle_id', true);
         $customer_name = get_post_meta($post->ID, '_mhm_customer_name', true) ?: get_post_meta($post->ID, '_booking_customer_name', true);
         $customer_first_name = get_post_meta($post->ID, '_mhm_customer_first_name', true) ?: get_post_meta($post->ID, '_booking_customer_first_name', true);
@@ -150,7 +150,7 @@ final class BookingEditMetaBox extends AbstractMetaBox
         
         echo '<div class="mhm-booking-edit-form">';
         
-        // Araç bilgisi (read-only)
+        // Vehicle information (read-only)
         echo '<div class="mhm-field-group">';
         echo '<label class="mhm-field-label">' . __('Vehicle', 'mhm-rentiva') . '</label>';
         if ($vehicle_id) {
@@ -161,7 +161,7 @@ final class BookingEditMetaBox extends AbstractMetaBox
         }
         echo '</div>';
         
-        // Müşteri bilgileri
+        // Customer information
         echo '<div class="mhm-customer-info">';
         echo '<h4>' . __('Customer Information', 'mhm-rentiva') . '</h4>';
         
@@ -191,7 +191,7 @@ final class BookingEditMetaBox extends AbstractMetaBox
         
         echo '</div>';
         
-        // Rezervasyon detayları
+        // Booking details
         echo '<div class="mhm-booking-details">';
         echo '<h4>' . __('Booking Details', 'mhm-rentiva') . '</h4>';
         
@@ -237,11 +237,11 @@ final class BookingEditMetaBox extends AbstractMetaBox
         echo '</div>';
         echo '</div>';
         
-        // Ek Hizmetler Seçimi
+        // Additional services selection
         echo '<div class="mhm-field-group">';
         echo '<label class="mhm-field-label">' . __('Additional Services', 'mhm-rentiva') . '</label>';
         
-        // Mevcut ek hizmetleri al
+        // Fetch current add-ons
         $addons = get_posts([
             'post_type' => 'vehicle_addon',
             'post_status' => 'publish',
@@ -261,7 +261,7 @@ final class BookingEditMetaBox extends AbstractMetaBox
             ];
         }
         
-        // Mevcut seçili ek hizmetleri al
+        // Fetch currently selected add-ons
         $selected_addons = get_post_meta($post->ID, '_mhm_selected_addons', true) ?: [];
         
         if (!empty($available_addons)) {
@@ -320,27 +320,27 @@ final class BookingEditMetaBox extends AbstractMetaBox
     }
 
     /**
-     * Rezervasyon detaylarını kaydet
+     * Persist booking edits.
      */
     public static function save_booking_details(int $post_id): void
     {
-        // Nonce kontrolü
+        // Nonce validation
         if (!isset($_POST['mhm_booking_edit_meta_nonce']) || 
             !wp_verify_nonce($_POST['mhm_booking_edit_meta_nonce'], 'mhm_booking_edit_action')) {
             return;
         }
 
-        // Yetki kontrolü
+        // Capability check
         if (!current_user_can('edit_post', $post_id)) {
             return;
         }
 
-        // Post type kontrolü
+        // Ensure post type is vehicle_booking
         if (get_post_type($post_id) !== 'vehicle_booking') {
             return;
         }
 
-        // Verileri al ve kaydet
+        // Fetch and persist data
         $customer_first_name = static::sanitize_text_field_safe($_POST['mhm_edit_customer_first_name'] ?? '');
         $customer_last_name = static::sanitize_text_field_safe($_POST['mhm_edit_customer_last_name'] ?? '');
         $customer_name = trim($customer_first_name . ' ' . $customer_last_name);
@@ -355,7 +355,7 @@ final class BookingEditMetaBox extends AbstractMetaBox
         $payment_method = static::sanitize_text_field_safe($_POST['mhm_edit_payment_method'] ?? 'offline');
         $notes = sanitize_textarea_field((string) ($_POST['mhm_edit_notes'] ?? ''));
         
-        // Ek hizmetler işleme
+        // Process selected add-ons
         $selected_addons = array_map('intval', $_POST['mhm_edit_selected_addons'] ?? []);
         $addon_details = [];
         $addon_total = 0;
@@ -375,7 +375,7 @@ final class BookingEditMetaBox extends AbstractMetaBox
             }
         }
 
-        // Meta verilerini güncelle
+        // Update meta values
         update_post_meta($post_id, '_mhm_customer_name', $customer_name);
         update_post_meta($post_id, '_mhm_customer_first_name', $customer_first_name);
         update_post_meta($post_id, '_mhm_customer_last_name', $customer_last_name);
@@ -390,21 +390,21 @@ final class BookingEditMetaBox extends AbstractMetaBox
         update_post_meta($post_id, '_mhm_guests', $guests);
         update_post_meta($post_id, '_mhm_payment_method', $payment_method);
         
-        // Ek hizmetler meta verilerini kaydet
+        // Save add-on meta data
         update_post_meta($post_id, '_mhm_selected_addons', $selected_addons);
         update_post_meta($post_id, '_mhm_addon_details', $addon_details);
         update_post_meta($post_id, '_mhm_addon_total', $addon_total);
 
-        // Durum güncelle
+        // Update status
         $old_status = get_post_meta($post_id, '_mhm_status', true);
         Status::update_status($post_id, $status, get_current_user_id());
         
-        // Durum değişikliği notu ekle
+        // Append automatic status change note
         if ($old_status !== $status) {
             \MHMRentiva\Admin\Booking\Meta\BookingMeta::auto_add_status_change_note($post_id, $old_status, $status);
         }
 
-        // Notları güncelle
+        // Update booking notes if changed
         if ($notes !== get_post_field('post_content', $post_id)) {
             wp_update_post([
                 'ID' => $post_id,
@@ -412,7 +412,7 @@ final class BookingEditMetaBox extends AbstractMetaBox
             ]);
         }
 
-        // Eski meta key'leri de güncelle (uyumluluk için)
+        // Update legacy meta keys for backward compatibility
         update_post_meta($post_id, '_booking_customer_name', $customer_name);
         update_post_meta($post_id, '_booking_customer_email', $customer_email);
         update_post_meta($post_id, '_booking_customer_phone', $customer_phone);

@@ -85,6 +85,7 @@ final class AddonBooking
         // Check required addons are selected
         foreach ($available_addons as $addon) {
             if ($addon['required'] && !in_array($addon['id'], $selected_addons, true)) {
+                /* translators: %d placeholder. */
                 $errors[] = sprintf(__('"%s" additional service is required.', 'mhm-rentiva'), $addon['title']);
             }
         }

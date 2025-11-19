@@ -102,7 +102,7 @@ final class Util
      */
     public static function has_overlap(int $vehicle_id, int $start_ts, int $end_ts): bool
     {
-        // ⚡ OPTİMİZE EDİLMİŞ: Direkt SQL sorgusu - çok daha hızlı
+        // ⚡ Optimized: direct SQL query for faster checks
         global $wpdb;
         
         $result = $wpdb->get_var($wpdb->prepare("
@@ -142,7 +142,7 @@ final class Util
             $wpdb->esc_like('_mhm_') . '%'
         ));
 
-        // Çakışma kontrolü - Doğru tarih aralığı kontrolü
+        // Conflict check with accurate date interval handling
         $overlap_query = $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->postmeta} pm1
              INNER JOIN {$wpdb->postmeta} pm2 ON pm1.post_id = pm2.post_id
@@ -181,7 +181,7 @@ final class Util
      */
     public static function check_availability(int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): array
     {
-        // Araç varlığını kontrol et
+        // Validate vehicle existence
         if (get_post_type($vehicle_id) !== 'vehicle') {
             return [
                 'ok' => false,
@@ -190,7 +190,7 @@ final class Util
             ];
         }
 
-        // Araç uygunluk durumunu kontrol et
+        // Validate vehicle availability status
         if (!self::is_vehicle_available($vehicle_id)) {
             return [
                 'ok' => false,
@@ -199,7 +199,7 @@ final class Util
             ];
         }
 
-        // Tarih/saat parse et
+        // Parse date/time
         $datetime_result = self::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
         if (is_wp_error($datetime_result)) {
@@ -219,7 +219,7 @@ final class Util
             return $cached_result;
         }
 
-        // Çakışma kontrolü
+        // Overlap detection
         if (self::has_overlap($vehicle_id, $start_ts, $end_ts)) {
             $result = [
                 'ok' => false,
@@ -227,7 +227,7 @@ final class Util
                 'message' => __('This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle.', 'mhm-rentiva'),
             ];
         } else {
-            // Gün ve fiyat hesapla
+            // Calculate days and pricing
             $days = self::rental_days($start_ts, $end_ts);
             $price_per_day = (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
             $total_price = self::total_price($vehicle_id, $days);
@@ -283,11 +283,11 @@ final class Util
 
         // Find available vehicles
         
-        // ⚡ OPTİMİZE EDİLMİŞ: Sadece aktif araçları çek - limit ekle
+        // ⚡ Optimized: fetch only active vehicles with a sane limit
         $all_vehicles = get_posts([
             'post_type' => 'vehicle',
             'post_status' => 'publish',
-            'posts_per_page' => 20, // ← Limit: maksimum 20 araç
+            'posts_per_page' => 20, // Limit to at most 20 vehicles
             'exclude' => [$original_vehicle_id],
             'meta_query' => [
                 [
@@ -304,13 +304,13 @@ final class Util
         ]);
         
         
-        // ⚡ OPTİMİZE EDİLMİŞ: Meta query zaten filtrelemiş, direkt kullan
+        // ⚡ Optimized: meta query already filtered – use directly
         $available_vehicles = $all_vehicles;
 
         $alternatives = [];
         $days = self::rental_days($start_ts, $end_ts);
 
-        // ⚡ OPTİMİZE EDİLMİŞ: Batch meta fetch - N+1 problemi çözüldü
+        // ⚡ Optimized: batch meta fetch to avoid N+1 queries
         $vehicle_ids = array_map(function($v) { return $v->ID; }, $available_vehicles);
         $vehicle_meta = [];
         
@@ -336,18 +336,18 @@ final class Util
             $has_overlap = self::has_overlap($vehicle->ID, $start_ts, $end_ts);
             
             if (!$has_overlap) {
-                // ⚡ OPTİMİZE EDİLMİŞ: Batch'ten al, ayrı sorgu yok
+                // ⚡ Optimized: reuse batch meta result
                 $price_per_day = (float) ($vehicle_meta[$vehicle->ID]['_mhm_rentiva_price_per_day'] ?? 0);
                 $total_price = $price_per_day * $days;
                 
-                // Get vehicle features from batch - düzgün array olarak işle
+                // Extract vehicle features from batch results
                 $features_raw = $vehicle_meta[$vehicle->ID]['_mhm_rentiva_features'] ?? '';
                 $features = [];
                 
                 if (is_array($features_raw)) {
                     $features = $features_raw;
                 } elseif (is_string($features_raw) && !empty($features_raw)) {
-                    // Serialize edilmiş string ise unserialize et
+                    // Unserialize if stored as serialized string
                     $unserialized = maybe_unserialize($features_raw);
                     $features = is_array($unserialized) ? $unserialized : [];
                 }
@@ -380,7 +380,7 @@ final class Util
             return $b['similarity_score'] <=> $a['similarity_score'];
         });
 
-        // ⚡ OPTİMİZE EDİLMİŞ: Limit daha erken uygula
+        // ⚡ Optimized: apply limit as early as possible
         return array_slice($alternatives, 0, min($limit, 5)); // Maksimum 5 alternatif
     }
 
@@ -435,12 +435,12 @@ final class Util
     }
 
     /**
-     * Atomic uygunluk kontrolü (lock ile)
+     * Atomic availability check (with locking).
      */
     public static function check_availability_locked(int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): array
     {
         return \MHMRentiva\Admin\Booking\Helpers\Locker::withLock($vehicle_id, function() use ($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time) {
-            // Araç varlığını kontrol et
+            // Validate vehicle existence
             if (get_post_type($vehicle_id) !== 'vehicle') {
                 return [
                     'ok' => false,
@@ -449,7 +449,7 @@ final class Util
                 ];
             }
 
-            // Araç uygunluk durumunu kontrol et
+            // Validate vehicle availability status
             if (!self::is_vehicle_available($vehicle_id)) {
                 return [
                     'ok' => false,
@@ -472,7 +472,7 @@ final class Util
             $start_ts = $datetime_result['start_ts'];
             $end_ts = $datetime_result['end_ts'];
 
-            // Atomic çakışma kontrolü
+            // Atomic overlap detection
             if (self::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
                 return [
                     'ok' => false,
@@ -481,7 +481,7 @@ final class Util
                 ];
             }
 
-            // Gün ve fiyat hesapla
+            // Calculate rental days and pricing
             $days = self::rental_days($start_ts, $end_ts);
             $price_per_day = (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
             $total_price = self::total_price($vehicle_id, $days);

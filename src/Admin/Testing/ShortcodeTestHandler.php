@@ -60,6 +60,7 @@ final class ShortcodeTestHandler
         try {
             // Check if shortcode is registered
             if (!shortcode_exists($shortcode)) {
+                /* translators: Dynamic value. */
                 wp_send_json_error(sprintf(__('Shortcode "%s" is not registered.', 'mhm-rentiva'), $shortcode));
                 return;
             }

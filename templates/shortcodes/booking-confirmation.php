@@ -226,6 +226,7 @@ $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('re
                     $payment_deadline = get_post_meta($booking_id, '_mhm_payment_deadline', true);
                     if ($payment_deadline) {
                         printf(
+                            /* translators: %s placeholder. */
                             esc_html__('You must complete your payment by %s. If payment is not made within this period, your booking will be automatically cancelled.', 'mhm-rentiva'),
                             date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($payment_deadline))
                         );

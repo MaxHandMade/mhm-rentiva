@@ -4,7 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo esc_html(sprintf(__('Refund for Booking #%s', 'mhm-rentiva'), (string)($data['booking']['id'] ?? ''))); ?></title>
+    <title>
+        <?php
+        /* translators: %s: booking ID. */
+        echo esc_html(sprintf(__('Refund for Booking #%s', 'mhm-rentiva'), (string) ($data['booking']['id'] ?? '')));
+        ?>
+    </title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background: #f5f5f5; }
         .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }

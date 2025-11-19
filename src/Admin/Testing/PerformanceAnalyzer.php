@@ -153,6 +153,7 @@ final class PerformanceAnalyzer
             $recommendations[] = [
                 'type' => 'warning',
                 'message' => sprintf(
+                    /* translators: %.3f placeholder. */
                     esc_html__('Shortcode running very slow (%.3fs). Query optimization required.', 'mhm-rentiva'),
                     round($analysis['duration'], 3)
                 ),
@@ -161,6 +162,7 @@ final class PerformanceAnalyzer
             $recommendations[] = [
                 'type' => 'info',
                 'message' => sprintf(
+                    /* translators: %.3f placeholder. */
                     esc_html__('Shortcode running at medium speed (%.3fs). Improvement recommended.', 'mhm-rentiva'),
                     round($analysis['duration'], 3)
                 ),
@@ -172,6 +174,7 @@ final class PerformanceAnalyzer
             $recommendations[] = [
                 'type' => 'warning',
                 'message' => sprintf(
+                    /* translators: %d placeholder. */
                     esc_html__('Too many database queries (%d). Check for N+1 problem.', 'mhm-rentiva'),
                     $analysis['queries']
                 ),
@@ -179,6 +182,7 @@ final class PerformanceAnalyzer
         } elseif ($analysis['queries'] > 5) {
             $recommendations[] = [
                 'type' => 'info',
+                /* translators: %d placeholder. */
                 'message' => __('Medium level database queries (%d). Consider optimization.', 'mhm-rentiva'),
             ];
         }
@@ -188,6 +192,7 @@ final class PerformanceAnalyzer
             $recommendations[] = [
                 'type' => 'warning',
                 'message' => sprintf(
+                    /* translators: %.2f placeholder. */
                     esc_html__('High memory usage (%.2f MB). Check for memory leak.', 'mhm-rentiva'),
                     round($analysis['memory_usage'] / 1024 / 1024, 2)
                 ),
@@ -199,6 +204,7 @@ final class PerformanceAnalyzer
             $recommendations[] = [
                 'type' => 'info',
                 'message' => sprintf(
+                    /* translators: %.2f placeholder. */
                     esc_html__('Large output size (%.2f KB). Consider lazy loading.', 'mhm-rentiva'),
                     round($analysis['output_size'] / 1024, 2)
                 ),

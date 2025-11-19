@@ -628,6 +628,7 @@ final class CustomersPage
         
         // Şimdilik başarı mesajı döndür
         wp_send_json_success([
+            /* translators: %d placeholder. */
             'message' => sprintf(__('%d customers processed.', 'mhm-rentiva'), count($customer_ids))
         ]);
     }

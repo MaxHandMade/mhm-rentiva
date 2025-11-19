@@ -80,6 +80,7 @@ final class MessageNotifications
             return;
         }
 
+        /* translators: %s placeholder. */
         $subject = sprintf(__('New Customer Message: %s', 'mhm-rentiva'), $message->post_title);
 
         $message_content = self::get_admin_message_template($message, $meta);
@@ -105,6 +106,7 @@ final class MessageNotifications
             return;
         }
 
+        /* translators: %s placeholder. */
         $subject = sprintf(__('Support Reply: %s', 'mhm-rentiva'), $message->post_title);
 
         $message_content = self::get_customer_reply_template($message, $meta);
@@ -134,6 +136,7 @@ final class MessageNotifications
         $old_status_label = $statuses[$old_status] ?? $old_status;
         $new_status_label = $statuses[$new_status] ?? $new_status;
 
+        /* translators: %s placeholder. */
         $subject = sprintf(__('Message Status Updated: %s', 'mhm-rentiva'), $message->post_title);
 
         $message_content = self::get_customer_status_change_template($message, $meta, $old_status_label, $new_status_label);
@@ -237,6 +240,7 @@ final class MessageNotifications
         
         /* translators: 1: Customer name, 2: Message title, 3: Old status, 4: New status, 5: Messages URL */
         return sprintf(
+            /* translators: %1$s placeholder. */
             '<h2>' . __('Message Status Updated', 'mhm-rentiva') . '</h2><p>' . __('Hello %1$s,', 'mhm-rentiva') . '</p><p>' . __('The status of your message has been updated:', 'mhm-rentiva') . '</p><h4>%2$s</h4><p><strong>' . __('Old Status:', 'mhm-rentiva') . '</strong> %3$s</p><p><strong>' . __('New Status:', 'mhm-rentiva') . '</strong> %4$s</p><p><a href="%5$s">' . __('View My Messages', 'mhm-rentiva') . '</a></p>',
             esc_html($meta['customer_name']),
             esc_html($message->post_title),
@@ -257,6 +261,7 @@ final class MessageNotifications
 
         $auto_reply_message = MessagesSettings::get_setting('auto_reply_message', __('Your message has been received. We will get back to you as soon as possible.', 'mhm-rentiva'));
         
+        /* translators: %s placeholder. */
         $subject = sprintf(__('Automatic Reply: %s', 'mhm-rentiva'), $message->post_title);
 
         // Get email settings from Settings (real settings)

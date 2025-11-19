@@ -387,6 +387,7 @@ final class LicenseManager
         ];
         $r = wp_remote_request($url, $args);
         if (is_wp_error($r)) {
+            /* translators: %s placeholder. */
             return new WP_Error('license_connection', sprintf(__('Could not connect to license server: %s', 'mhm-rentiva'), $r->get_error_message()));
         }
         
@@ -405,7 +406,8 @@ final class LicenseManager
                 $error_message = $json['message'] ?? $error_message;
             } else {
                 // If JSON decode failed, include raw response
-                $error_message = sprintf(__('License server returned error (HTTP %d): %s', 'mhm-rentiva'), $code, substr($body_content, 0, 200));
+                /* translators: 1: %d; 2: %s. */
+                $error_message = sprintf(__('License server returned error (HTTP %1$d): %2$s', 'mhm-rentiva'), $code, substr($body_content, 0, 200));
             }
             
             return new WP_Error($error_code, $error_message);
@@ -417,6 +419,7 @@ final class LicenseManager
         }
         
         // Fallback for unexpected responses
+        /* translators: %d placeholder. */
         return new WP_Error('license_http', sprintf(__('Unexpected response from license server (HTTP %d).', 'mhm-rentiva'), $code));
     }
 

@@ -368,6 +368,7 @@ final class LicenseAdmin
                     'license_connection' => __('Could not connect to license server. Please check your internet connection and try again.', 'mhm-rentiva'),
                     'license_http' => __('License server error. Please try again later.', 'mhm-rentiva'),
                     'missing_parameters' => __('Missing required parameters.', 'mhm-rentiva'),
+                    /* translators: %s placeholder. */
                     default => sprintf(__('License activation failed: %s', 'mhm-rentiva'), esc_html($error_message)),
                 };
                 echo '<div class="notice notice-error is-dismissible">';

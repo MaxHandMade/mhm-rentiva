@@ -35,7 +35,12 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
         <div class="header">
             <div class="icon">✅</div>
             <h1><?php esc_html_e('Your Payment Has Been Approved!', 'mhm-rentiva'); ?></h1>
-            <p><?php printf(esc_html__('Your payment for Reservation #%s has been successfully verified.', 'mhm-rentiva'), esc_html($data['booking']['id'] ?? '')); ?></p>
+            <p>
+                <?php
+                /* translators: %s: booking ID. */
+                printf(esc_html__('Your payment for Reservation #%s has been successfully verified.', 'mhm-rentiva'), esc_html($data['booking']['id'] ?? ''));
+                ?>
+            </p>
             <p style="margin-top: 15px; font-size: 14px; opacity: 0.9;"><?php echo esc_html(\MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_brand_name', get_bloginfo('name'))); ?></p>
         </div>
         
@@ -45,7 +50,12 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
                 <p><?php esc_html_e('Your bank transfer has been approved and your reservation is now active.', 'mhm-rentiva'); ?></p>
             </div>
 
-            <p><?php printf(esc_html__('Dear %s,', 'mhm-rentiva'), '<strong>' . esc_html($data['customer']['name'] ?? '') . '</strong>'); ?></p>
+            <p>
+                <?php
+                /* translators: %s: customer name HTML. */
+                printf(esc_html__('Dear %s,', 'mhm-rentiva'), '<strong>' . esc_html($data['customer']['name'] ?? '') . '</strong>');
+                ?>
+            </p>
 
             <p><?php esc_html_e('Your bank transfer for your reservation has been successfully verified. Your reservation is now confirmed and we are ready for vehicle delivery on the specified date.', 'mhm-rentiva'); ?></p>
 

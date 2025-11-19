@@ -1,7 +1,7 @@
 /**
  * Gutenberg Blocks JavaScript
  * 
- * MHM Rentiva Gutenberg block'ları için JavaScript
+ * JavaScript powering MHM Rentiva Gutenberg blocks.
  * 
  * @package MHMRentiva
  * @since 3.0.1
@@ -18,14 +18,14 @@
 
     // Vehicle Card Block
     registerBlockType('mhm-rentiva/vehicle-card', {
-        title: __('Araç Kartı', 'mhm-rentiva'),
-        description: __('Tekil araç kartını gösterir', 'mhm-rentiva'),
+        title: __('Vehicle Card', 'mhm-rentiva'),
+        description: __('Displays a single vehicle card.', 'mhm-rentiva'),
         icon: 'car',
         category: 'mhm-rentiva',
         keywords: [
-            __('araç', 'mhm-rentiva'),
-            __('kart', 'mhm-rentiva'),
-            __('kiralama', 'mhm-rentiva'),
+            __('vehicle', 'mhm-rentiva'),
+            __('card', 'mhm-rentiva'),
+            __('rental', 'mhm-rentiva'),
         ],
         supports: {
             align: ['wide', 'full'],
@@ -88,7 +88,7 @@
             },
             buttonText: {
                 type: 'string',
-                default: __('Rezervasyon Yap', 'mhm-rentiva'),
+                default: __('Make a reservation', 'mhm-rentiva'),
             },
             buttonStyle: {
                 type: 'string',
@@ -107,140 +107,140 @@
             const { attributes, setAttributes } = props;
             const blockProps = useBlockProps();
 
-            // Vehicle options (bu gerçek uygulamada AJAX ile yüklenecek)
+            // Vehicle options (in real application, this will be loaded via AJAX)
             const vehicleOptions = window.mhmRentivaGutenberg?.vehicleOptions || [
-                { value: 0, label: __('Araç Seçin', 'mhm-rentiva') },
+                { value: 0, label: __('Select vehicle', 'mhm-rentiva') },
             ];
 
             const layoutOptions = [
-                { value: 'default', label: __('Varsayılan', 'mhm-rentiva') },
-                { value: 'compact', label: __('Kompakt', 'mhm-rentiva') },
-                { value: 'grid', label: __('Izgara', 'mhm-rentiva') },
-                { value: 'featured', label: __('Öne Çıkan', 'mhm-rentiva') },
+                { value: 'default', label: __('Default', 'mhm-rentiva') },
+                { value: 'compact', label: __('Compact', 'mhm-rentiva') },
+                { value: 'grid', label: __('Grid', 'mhm-rentiva') },
+                { value: 'featured', label: __('Featured', 'mhm-rentiva') },
             ];
 
             const ratingPositionOptions = [
-                { value: 'overlay', label: __('Resim Üzeri', 'mhm-rentiva') },
-                { value: 'below_image', label: __('Resim Altı', 'mhm-rentiva') },
-                { value: 'footer', label: __('Alt Kısım', 'mhm-rentiva') },
+                { value: 'overlay', label: __('On image', 'mhm-rentiva') },
+                { value: 'below_image', label: __('Below image', 'mhm-rentiva') },
+                { value: 'footer', label: __('Footer', 'mhm-rentiva') },
             ];
 
             const buttonStyleOptions = [
-                { value: 'primary', label: __('Birincil', 'mhm-rentiva') },
-                { value: 'secondary', label: __('İkincil', 'mhm-rentiva') },
-                { value: 'outline', label: __('Çerçeveli', 'mhm-rentiva') },
+                { value: 'primary', label: __('Primary', 'mhm-rentiva') },
+                { value: 'secondary', label: __('Secondary', 'mhm-rentiva') },
+                { value: 'outline', label: __('Outline', 'mhm-rentiva') },
             ];
 
             const priceFormatOptions = [
-                { value: 'daily', label: __('Günlük', 'mhm-rentiva') },
-                { value: 'hourly', label: __('Saatlik', 'mhm-rentiva') },
-                { value: 'weekly', label: __('Haftalık', 'mhm-rentiva') },
-                { value: 'monthly', label: __('Aylık', 'mhm-rentiva') },
+                { value: 'daily', label: __('Daily', 'mhm-rentiva') },
+                { value: 'hourly', label: __('Hourly', 'mhm-rentiva') },
+                { value: 'weekly', label: __('Weekly', 'mhm-rentiva') },
+                { value: 'monthly', label: __('Monthly', 'mhm-rentiva') },
             ];
 
             return createElement('div', blockProps, [
                 createElement(InspectorControls, { key: 'inspector' }, [
                     createElement(PanelBody, {
-                        title: __('İçerik Ayarları', 'mhm-rentiva'),
+                        title: __('Content Settings', 'mhm-rentiva'),
                         initialOpen: true,
                     }, [
                         createElement(SelectControl, {
-                            label: __('Araç Seçin', 'mhm-rentiva'),
+                            label: __('Select vehicle', 'mhm-rentiva'),
                             value: attributes.vehicleId,
                             options: vehicleOptions,
                             onChange: (value) => setAttributes({ vehicleId: parseInt(value) }),
                         }),
                         createElement(SelectControl, {
-                            label: __('Düzen', 'mhm-rentiva'),
+                            label: __('Layout', 'mhm-rentiva'),
                             value: attributes.layout,
                             options: layoutOptions,
                             onChange: (value) => setAttributes({ layout: value }),
                         }),
                     ]),
                     createElement(PanelBody, {
-                        title: __('Gösterim Seçenekleri', 'mhm-rentiva'),
+                        title: __('Display Options', 'mhm-rentiva'),
                         initialOpen: false,
                     }, [
                         createElement(ToggleControl, {
-                            label: __('Görsel Göster', 'mhm-rentiva'),
+                            label: __('Show image', 'mhm-rentiva'),
                             checked: attributes.showImage,
                             onChange: (value) => setAttributes({ showImage: value }),
                         }),
                         createElement(ToggleControl, {
-                            label: __('Başlık Göster', 'mhm-rentiva'),
+                            label: __('Show title', 'mhm-rentiva'),
                             checked: attributes.showTitle,
                             onChange: (value) => setAttributes({ showTitle: value }),
                         }),
                         createElement(ToggleControl, {
-                            label: __('Kategori Göster', 'mhm-rentiva'),
+                            label: __('Show category', 'mhm-rentiva'),
                             checked: attributes.showCategory,
                             onChange: (value) => setAttributes({ showCategory: value }),
                         }),
                         createElement(ToggleControl, {
-                            label: __('Fiyat Göster', 'mhm-rentiva'),
+                            label: __('Show price', 'mhm-rentiva'),
                             checked: attributes.showPrice,
                             onChange: (value) => setAttributes({ showPrice: value }),
                         }),
                         createElement(SelectControl, {
-                            label: __('Fiyat Formatı', 'mhm-rentiva'),
+                            label: __('Price format', 'mhm-rentiva'),
                             value: attributes.priceFormat,
                             options: priceFormatOptions,
                             onChange: (value) => setAttributes({ priceFormat: value }),
                             disabled: !attributes.showPrice,
                         }),
                         createElement(ToggleControl, {
-                            label: __('Özellikler Göster', 'mhm-rentiva'),
+                            label: __('Show features', 'mhm-rentiva'),
                             checked: attributes.showFeatures,
                             onChange: (value) => setAttributes({ showFeatures: value }),
                         }),
                     ]),
                     createElement(PanelBody, {
-                        title: __('Değerlendirme', 'mhm-rentiva'),
+                        title: __('Ratings', 'mhm-rentiva'),
                         initialOpen: false,
                     }, [
                         createElement(ToggleControl, {
-                            label: __('Yıldız Değerlendirmesi Göster', 'mhm-rentiva'),
+                            label: __('Show star rating', 'mhm-rentiva'),
                             checked: attributes.showRating,
                             onChange: (value) => setAttributes({ showRating: value }),
                         }),
                         createElement(SelectControl, {
-                            label: __('Yıldız Konumu', 'mhm-rentiva'),
+                            label: __('Star position', 'mhm-rentiva'),
                             value: attributes.ratingPosition,
                             options: ratingPositionOptions,
                             onChange: (value) => setAttributes({ ratingPosition: value }),
                             disabled: !attributes.showRating,
                         }),
                         createElement(ToggleControl, {
-                            label: __('Değerlendirme Sayısını Göster', 'mhm-rentiva'),
+                            label: __('Show rating count', 'mhm-rentiva'),
                             checked: attributes.showRatingCount,
                             onChange: (value) => setAttributes({ showRatingCount: value }),
                             disabled: !attributes.showRating,
                         }),
                     ]),
                     createElement(PanelBody, {
-                        title: __('Buton ve Etkileşim', 'mhm-rentiva'),
+                        title: __('Buttons & Interaction', 'mhm-rentiva'),
                         initialOpen: false,
                     }, [
                         createElement(ToggleControl, {
-                            label: __('Rezervasyon Butonu Göster', 'mhm-rentiva'),
+                            label: __('Show booking button', 'mhm-rentiva'),
                             checked: attributes.showBookingBtn,
                             onChange: (value) => setAttributes({ showBookingBtn: value }),
                         }),
                         createElement(components.TextControl, {
-                            label: __('Buton Metni', 'mhm-rentiva'),
+                            label: __('Button text', 'mhm-rentiva'),
                             value: attributes.buttonText,
                             onChange: (value) => setAttributes({ buttonText: value }),
                             disabled: !attributes.showBookingBtn,
                         }),
                         createElement(SelectControl, {
-                            label: __('Buton Stili', 'mhm-rentiva'),
+                            label: __('Button style', 'mhm-rentiva'),
                             value: attributes.buttonStyle,
                             options: buttonStyleOptions,
                             onChange: (value) => setAttributes({ buttonStyle: value }),
                             disabled: !attributes.showBookingBtn,
                         }),
                         createElement(ToggleControl, {
-                            label: __('Favori Butonu Göster', 'mhm-rentiva'),
+                            label: __('Show favorite button', 'mhm-rentiva'),
                             checked: attributes.showFavoriteBtn,
                             onChange: (value) => setAttributes({ showFavoriteBtn: value }),
                         }),
@@ -263,15 +263,15 @@
                             marginBottom: '10px',
                             color: '#333',
                         },
-                    }, __('Araç Kartı', 'mhm-rentiva')),
+                    }, __('Vehicle Card', 'mhm-rentiva')),
                     createElement('div', {
                         style: {
                             fontSize: '14px',
                             color: '#666',
                         },
                     }, attributes.vehicleId
-                        ? __('Seçilen Araç ID: ' + attributes.vehicleId, 'mhm-rentiva')
-                        : __('Lütfen bir araç seçin', 'mhm-rentiva')
+                        ? __('Selected vehicle ID: ' + attributes.vehicleId, 'mhm-rentiva')
+                        : __('Please select a vehicle', 'mhm-rentiva')
                     ),
                     createElement('div', {
                         style: {
@@ -279,7 +279,7 @@
                             color: '#999',
                             marginTop: '10px',
                         },
-                    }, __('Düzen: ' + attributes.layout, 'mhm-rentiva')),
+                    }, __('Layout: ', 'mhm-rentiva') + attributes.layout),
                 ]),
             ]);
         },

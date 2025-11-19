@@ -153,10 +153,12 @@ class DepositCalculator
         
         if ($type === 'percentage') {
             $percentage = self::extract_percentage($deposit_value);
+            /* translators: %.1f placeholder. */
             return sprintf(__('%.1f%% of total amount', 'mhm-rentiva'), $percentage);
         } elseif ($type === 'fixed') {
             $amount = self::extract_fixed_amount($deposit_value);
-            return sprintf(__('Fixed %s %s', 'mhm-rentiva'), number_format($amount, 0, ',', '.'), \MHMRentiva\Admin\Reports\Reports::get_currency_symbol());
+            /* translators: 1: %s; 2: %s. */
+            return sprintf(__('Fixed %1$s %2$s', 'mhm-rentiva'), number_format($amount, 0, ',', '.'), \MHMRentiva\Admin\Reports\Reports::get_currency_symbol());
         }
         
         return __('No deposit', 'mhm-rentiva');
@@ -259,7 +261,8 @@ class DepositCalculator
             'remaining_amount' => round($remaining_amount, 2), // Total amount minus deposit
             'deposit_type' => $deposit_type,
             'payment_display' => $deposit_amount > 0 ? 
-                sprintf(__('Deposit: %s %s', 'mhm-rentiva'), number_format($deposit_amount, 2, ',', '.'), \MHMRentiva\Admin\Reports\Reports::get_currency_symbol()) : 
+                /* translators: 1: %s; 2: %s. */
+                sprintf(__('Deposit: %1$s %2$s', 'mhm-rentiva'), number_format($deposit_amount, 2, ',', '.'), \MHMRentiva\Admin\Reports\Reports::get_currency_symbol()) : 
                 __('No Deposit', 'mhm-rentiva'),
             'vehicle_total' => round($vehicle_total, 2),
             'addon_total' => round($addon_total, 2)

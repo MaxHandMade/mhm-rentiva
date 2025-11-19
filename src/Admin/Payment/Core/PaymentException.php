@@ -75,6 +75,7 @@ final class PaymentException extends MHMException
     public static function invalidAmount(float $amount, array $context = []): self
     {
         return new self(
+            /* translators: %s placeholder. */
             sprintf(__('Invalid amount: %s', 'mhm-rentiva'), number_format($amount, 2)),
             self::CODE_INVALID_AMOUNT,
             null,
@@ -92,6 +93,7 @@ final class PaymentException extends MHMException
     public static function cardDeclined(string $reason, array $context = []): self
     {
         return new self(
+            /* translators: %s placeholder. */
             sprintf(__('Card declined: %s', 'mhm-rentiva'), $reason),
             self::CODE_CARD_DECLINED,
             null,
@@ -112,6 +114,7 @@ final class PaymentException extends MHMException
         return new self(
             /* translators: 1: Required amount, 2: Available amount */
             sprintf(
+                /* translators: 1: %1$s; 2: %2$s. */
                 __('Insufficient funds. Required: %1$s, Available: %2$s', 'mhm-rentiva'),
                 number_format($required_amount, 2),
                 number_format($available_amount, 2)
@@ -135,6 +138,7 @@ final class PaymentException extends MHMException
     public static function expiredCard(string $expiry_date, array $context = []): self
     {
         return new self(
+            /* translators: %s placeholder. */
             sprintf(__('Card expired: %s', 'mhm-rentiva'), $expiry_date),
             self::CODE_EXPIRED_CARD,
             null,
@@ -152,6 +156,7 @@ final class PaymentException extends MHMException
     public static function invalidCard(string $reason, array $context = []): self
     {
         return new self(
+            /* translators: %s placeholder. */
             sprintf(__('Invalid card: %s', 'mhm-rentiva'), $reason),
             self::CODE_INVALID_CARD,
             null,
@@ -169,6 +174,7 @@ final class PaymentException extends MHMException
     public static function networkError(string $reason, array $context = []): self
     {
         return new self(
+            /* translators: %s placeholder. */
             sprintf(__('Network error: %s', 'mhm-rentiva'), $reason),
             self::CODE_NETWORK_ERROR,
             null,
@@ -186,6 +192,7 @@ final class PaymentException extends MHMException
     public static function timeout(int $timeout_seconds, array $context = []): self
     {
         return new self(
+            /* translators: %d placeholder. */
             sprintf(__('Payment timeout: %d seconds', 'mhm-rentiva'), $timeout_seconds),
             self::CODE_TIMEOUT,
             null,
@@ -203,6 +210,7 @@ final class PaymentException extends MHMException
     public static function configurationError(string $config_key, array $context = []): self
     {
         return new self(
+            /* translators: %s placeholder. */
             sprintf(__('Payment configuration error: %s', 'mhm-rentiva'), $config_key),
             self::CODE_CONFIGURATION_ERROR,
             null,

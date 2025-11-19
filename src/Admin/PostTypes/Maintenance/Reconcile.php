@@ -244,6 +244,7 @@ final class Reconcile
                     'action'     => 'reconcile',
                     'status'     => 'success',
                     'booking_id' => $bid,
+                    /* translators: %s placeholder. */
                     'message'    => sprintf(__('Reconciled: payment status %s', 'mhm-rentiva'), $st),
                 ]);
             }
@@ -429,6 +430,7 @@ final class Reconcile
                 'gateway' => 'system',
                 'action'  => 'orphan_detected',
                 'status'  => 'error',
+                /* translators: %s placeholder. */
                 'message' => sprintf(__('Record with OID but no booking: %s', 'mhm-rentiva'), $oid),
                 'context' => ['log_id' => (int) $lid],
             ]);

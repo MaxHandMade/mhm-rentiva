@@ -76,6 +76,7 @@ final class Actions
 
         if (!isset($_GET['mhm_purged']) || (string) $_GET['mhm_purged'] !== '1') return;
         $count = isset($_GET['mhm_purge_count']) ? (int) $_GET['mhm_purge_count'] : 0;
+        /* translators: %d placeholder. */
         echo '<div class="notice notice-success is-dismissible"><p>' . sprintf(esc_html__('%d old records deleted.', 'mhm-rentiva'), (int) $count) . '</p></div>';
     }
 

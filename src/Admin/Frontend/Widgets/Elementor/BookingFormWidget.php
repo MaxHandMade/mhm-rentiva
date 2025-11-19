@@ -12,14 +12,14 @@ if (!defined('ABSPATH')) {
 /**
  * Booking Form Elementor Widget
  * 
- * Rezervasyon formunu Elementor'da widget olarak gösterir
+ * Displays the booking form as an Elementor widget.
  * 
  * @since 3.0.1
  */
 class BookingFormWidget extends ElementorWidgetBase
 {
     /**
-     * Widget'ın adını döndürür
+     * Return widget slug.
      */
     public function get_name(): string
     {
@@ -27,23 +27,23 @@ class BookingFormWidget extends ElementorWidgetBase
     }
 
     /**
-     * Widget'ın başlığını döndürür
+     * Return widget title.
      */
     public function get_title(): string
     {
-        return __('Rezervasyon Formu', 'mhm-rentiva');
+        return __('Booking Form', 'mhm-rentiva');
     }
 
     /**
-     * Widget'ın açıklamasını döndürür
+     * Return widget description.
      */
     public function get_description(): string
     {
-        return __('Gelişmiş rezervasyon formu - araç seçimi, ek hizmetler, depozito sistemi', 'mhm-rentiva');
+        return __('Advanced booking form with vehicle selection, add-ons, and deposit flow.', 'mhm-rentiva');
     }
 
     /**
-     * Widget keywords'lerini döndürür
+     * Return widget keywords.
      */
     public function get_keywords(): array
     {
@@ -53,7 +53,7 @@ class BookingFormWidget extends ElementorWidgetBase
     }
 
     /**
-     * Content tab'ı için kontrolleri kaydeder
+     * Register content tab controls.
      */
     protected function register_content_controls(): void
     {
@@ -61,7 +61,7 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->start_controls_section(
             'general_section',
             [
-                'label' => __('Genel Ayarlar', 'mhm-rentiva'),
+                'label' => __('General Settings', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -69,16 +69,16 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->add_control(
             'form_title',
             [
-                'label' => __('Form Başlığı', 'mhm-rentiva'),
+                'label' => __('Form Title', 'mhm-rentiva'),
                 'type' => Controls_Manager::TEXT,
-                'default' => __('Rezervasyon Formu', 'mhm-rentiva'),
+                'default' => __('Booking Form', 'mhm-rentiva'),
             ]
         );
 
         $this->add_vehicle_selection_control(
             'vehicle_id',
-            __('Belirli Araç', 'mhm-rentiva'),
-            __('Boş bırakırsanız kullanıcı araç seçebilir', 'mhm-rentiva')
+            __('Specific Vehicle', 'mhm-rentiva'),
+            __('Leave empty to allow users to choose a vehicle.', 'mhm-rentiva')
         );
 
         $this->end_controls_section();
@@ -87,7 +87,7 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->start_controls_section(
             'form_options_section',
             [
-                'label' => __('Form Seçenekleri', 'mhm-rentiva'),
+                'label' => __('Form Options', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -95,10 +95,10 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->add_control(
             'show_vehicle_selector',
             [
-                'label' => __('Araç Seçici Göster', 'mhm-rentiva'),
+                'label' => __('Show Vehicle Selector', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -107,10 +107,10 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->add_control(
             'show_vehicle_info',
             [
-                'label' => __('Araç Bilgisi Göster', 'mhm-rentiva'),
+                'label' => __('Show Vehicle Info', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -119,10 +119,10 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->add_control(
             'show_addons',
             [
-                'label' => __('Ek Hizmetler Göster', 'mhm-rentiva'),
+                'label' => __('Show Add-ons', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -131,10 +131,10 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->add_control(
             'show_payment_options',
             [
-                'label' => __('Ödeme Seçenekleri Göster', 'mhm-rentiva'),
+                'label' => __('Show Payment Options', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -146,7 +146,7 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->start_controls_section(
             'booking_settings_section',
             [
-                'label' => __('Rezervasyon Ayarları', 'mhm-rentiva'),
+                'label' => __('Booking Settings', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -190,7 +190,7 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->start_controls_section(
             'payment_section',
             [
-                'label' => __('Ödeme Ayarları', 'mhm-rentiva'),
+                'label' => __('Payment Settings', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -198,10 +198,10 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->add_control(
             'enable_deposit',
             [
-                'label' => __('Depozito Sistemi Aktif', 'mhm-rentiva'),
+                'label' => __('Enable Deposit System', 'mhm-rentiva'),
                 'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Evet', 'mhm-rentiva'),
-                'label_off' => __('Hayır', 'mhm-rentiva'),
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
                 'return_value' => '1',
                 'default' => '1',
             ]
@@ -210,12 +210,12 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->add_control(
             'default_payment',
             [
-                'label' => __('Varsayılan Ödeme Türü', 'mhm-rentiva'),
+                'label' => __('Default Payment Type', 'mhm-rentiva'),
                 'type' => Controls_Manager::SELECT,
                 'default' => 'deposit',
                 'options' => [
-                    'deposit' => __('Depozito', 'mhm-rentiva'),
-                    'full' => __('Tam Ödeme', 'mhm-rentiva'),
+                    'deposit' => __('Deposit', 'mhm-rentiva'),
+                    'full' => __('Full Payment', 'mhm-rentiva'),
                 ],
             ]
         );
@@ -226,7 +226,7 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->start_controls_section(
             'advanced_section',
             [
-                'label' => __('Gelişmiş Ayarlar', 'mhm-rentiva'),
+                'label' => __('Advanced Settings', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -234,17 +234,17 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->add_control(
             'redirect_url',
             [
-                'label' => __('Başarı Sonrası Yönlendirme', 'mhm-rentiva'),
+                'label' => __('Redirect After Success', 'mhm-rentiva'),
                 'type' => Controls_Manager::TEXT,
                 'default' => '',
-                'placeholder' => __('https://ornek.com/tesekkurler', 'mhm-rentiva'),
+                'placeholder' => __('https://example.com/thank-you', 'mhm-rentiva'),
             ]
         );
 
         $this->add_control(
             'custom_css_class',
             [
-                'label' => __('Özel CSS Sınıfı', 'mhm-rentiva'),
+                'label' => __('Custom CSS Class', 'mhm-rentiva'),
                 'type' => Controls_Manager::TEXT,
                 'default' => '',
             ]
@@ -254,15 +254,15 @@ class BookingFormWidget extends ElementorWidgetBase
     }
 
     /**
-     * Style tab'ı için kontrolleri kaydeder
+     * Register style tab controls.
      */
     protected function register_style_controls(): void
     {
-        // Form Styles
+        // Form styles
         $this->start_controls_section(
             'form_style_section',
             [
-                'label' => __('Form Stili', 'mhm-rentiva'),
+                'label' => __('Form Style', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_STYLE,
             ]
         );
@@ -270,7 +270,7 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->add_control(
             'form_background',
             [
-                'label' => __('Arka Plan Rengi', 'mhm-rentiva'),
+                'label' => __('Background Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-booking-form' => 'background-color: {{VALUE}}',
@@ -281,7 +281,7 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->add_control(
             'form_border_radius',
             [
-                'label' => __('Köşe Yuvarlaklığı', 'mhm-rentiva'),
+                'label' => __('Border Radius', 'mhm-rentiva'),
                 'type' => Controls_Manager::DIMENSIONS,
                 'size_units' => ['px', '%'],
                 'selectors' => [
@@ -294,11 +294,11 @@ class BookingFormWidget extends ElementorWidgetBase
 
         $this->end_controls_section();
 
-        // Button Styles
+        // Button styles
         $this->start_controls_section(
             'button_style_section',
             [
-                'label' => __('Buton Stili', 'mhm-rentiva'),
+                'label' => __('Button Style', 'mhm-rentiva'),
                 'tab' => Controls_Manager::TAB_STYLE,
             ]
         );
@@ -306,7 +306,7 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->add_control(
             'button_color',
             [
-                'label' => __('Buton Rengi', 'mhm-rentiva'),
+                'label' => __('Button Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-btn-submit' => 'background-color: {{VALUE}}',
@@ -317,7 +317,7 @@ class BookingFormWidget extends ElementorWidgetBase
         $this->add_control(
             'button_hover_color',
             [
-                'label' => __('Buton Hover Rengi', 'mhm-rentiva'),
+                'label' => __('Button Hover Color', 'mhm-rentiva'),
                 'type' => Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .rv-btn-submit:hover' => 'background-color: {{VALUE}}',
@@ -325,36 +325,36 @@ class BookingFormWidget extends ElementorWidgetBase
             ]
         );
 
-        $this->add_typography_control('.rv-btn-submit', __('Buton Tipografi', 'mhm-rentiva'));
+        $this->add_typography_control('.rv-btn-submit', __('Button Typography', 'mhm-rentiva'));
 
         $this->end_controls_section();
     }
 
     /**
-     * Widget'ı render eder
+     * Render widget output.
      */
     protected function render(): void
     {
         $settings = $this->get_settings_for_display();
         
-        // Shortcode attribute'larını hazırla
+        // Prepare shortcode attributes
         $atts = $this->prepare_shortcode_attributes($settings);
         
-        // Shortcode'u render et
+        // Render shortcode output
         $shortcode_output = $this->render_shortcode('rentiva_booking_form', $atts);
         
-        // Widget wrapper'ı ekle
+        // Output widget wrapper
         echo '<div class="elementor-widget-rv-booking-form">';
         echo $shortcode_output;
         echo '</div>';
     }
 
     /**
-     * Widget'ın JavaScript kodunu döndürür
+     * Return widget JavaScript code.
      */
     protected function content_template(): void
     {
-        // JavaScript template (gerekirse)
+        // JavaScript template (if needed)
     }
 }
 

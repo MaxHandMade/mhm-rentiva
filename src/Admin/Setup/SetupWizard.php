@@ -1128,10 +1128,12 @@ final class SetupWizard
 
         if ($timestamp >= time()) {
             $remaining = human_time_diff(time(), $timestamp);
+            /* translators: 1: %1$s; 2: %2$s. */
             return sprintf(__('Expires %1$s (%2$s remaining)', 'mhm-rentiva'), $date, $remaining);
         }
 
         $since = human_time_diff($timestamp, time());
+        /* translators: 1: %1$s; 2: %2$s. */
         return sprintf(__('Expired %1$s (%2$s ago)', 'mhm-rentiva'), $date, $since);
     }
 

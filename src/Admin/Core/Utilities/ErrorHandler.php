@@ -9,9 +9,9 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * ✅ KOD KALİTESİ İYİLEŞTİRMESİ - Error Handling Helper
- * 
- * Tutarsız error handling paternlerini merkezi olarak yönetir
+ * ✅ CODE QUALITY IMPROVEMENT - Error Handling Helper
+ *
+ * Centralizes inconsistent error-handling patterns.
  */
 final class ErrorHandler
 {
@@ -38,11 +38,11 @@ final class ErrorHandler
     public const LEVEL_CRITICAL = 'critical';
 
     /**
-     * Güvenlik hatası - wp_die ile sonlandır
+     * Security error – terminate with wp_die.
      */
     public static function security_error(string $message, string $title = ''): void
     {
-        // ✅ KULLANICI DENEYİMİ İYİLEŞTİRMESİ - User-friendly security error
+        // ✅ UX IMPROVEMENT - User-friendly security error
         $user_message = UXHelper::get_user_friendly_error(
             UXHelper::ERROR_TYPE_PERMISSION,
             'access_denied',
@@ -55,11 +55,11 @@ final class ErrorHandler
     }
 
     /**
-     * Yetki hatası - wp_die ile sonlandır
+     * Permission error – terminate with wp_die.
      */
     public static function permission_error(string $message = ''): void
     {
-        // ✅ KULLANICI DENEYİMİ İYİLEŞTİRMESİ - User-friendly permission error
+        // ✅ UX IMPROVEMENT - User-friendly permission error
         $user_message = $message ?: UXHelper::get_user_friendly_error(
             UXHelper::ERROR_TYPE_PERMISSION,
             'access_denied'
@@ -70,7 +70,7 @@ final class ErrorHandler
     }
 
     /**
-     * Doğrulama hatası - WP_Error döndür
+     * Validation error – return WP_Error.
      */
     public static function validation_error(string $message, string $code = 'validation_error'): \WP_Error
     {
@@ -79,7 +79,7 @@ final class ErrorHandler
     }
 
     /**
-     * Veritabanı hatası - Exception fırlat
+     * Database error – throw exception.
      */
     public static function database_error(string $message, \Exception $previous = null): void
     {
@@ -88,7 +88,7 @@ final class ErrorHandler
     }
 
     /**
-     * İş mantığı hatası - Exception fırlat
+     * Business logic error – throw exception.
      */
     public static function business_error(string $message, string $code = ''): void
     {
@@ -97,7 +97,7 @@ final class ErrorHandler
     }
 
     /**
-     * Sistem hatası - Exception fırlat
+     * System error – throw exception.
      */
     public static function system_error(string $message, \Exception $previous = null): void
     {
@@ -106,7 +106,7 @@ final class ErrorHandler
     }
 
     /**
-     * REST API hatası - WP_REST_Response döndür
+     * REST API error – return WP_REST_Response.
      */
     public static function rest_error(string $message, int $status_code = 400, string $code = 'error'): \WP_REST_Response
     {
@@ -119,7 +119,7 @@ final class ErrorHandler
     }
 
     /**
-     * AJAX hatası - wp_send_json_error
+     * AJAX error – wp_send_json_error.
      */
     public static function ajax_error(string $message, int $status_code = 400): void
     {
@@ -128,7 +128,7 @@ final class ErrorHandler
     }
 
     /**
-     * AJAX başarı - wp_send_json_success
+     * AJAX success – wp_send_json_success.
      */
     public static function ajax_success(array $data = [], string $message = ''): void
     {
@@ -140,7 +140,7 @@ final class ErrorHandler
     }
 
     /**
-     * Hata logla
+     * Log error message.
      */
     public static function log_error(string $message, string $type = self::TYPE_SYSTEM, string $level = self::LEVEL_MEDIUM): void
     {
@@ -156,7 +156,7 @@ final class ErrorHandler
     }
 
     /**
-     * Exception'ı yakala ve logla
+     * Catch exception and log.
      */
     public static function catch_exception(\Exception $e, string $context = ''): void
     {
@@ -165,7 +165,7 @@ final class ErrorHandler
     }
 
     /**
-     * WordPress hata mesajı göster
+     * Display WordPress admin notice.
      */
     public static function show_admin_notice(string $message, string $type = 'error'): void
     {
@@ -179,7 +179,7 @@ final class ErrorHandler
     }
 
     /**
-     * Frontend hata mesajı göster
+     * Display frontend notice.
      */
     public static function show_frontend_notice(string $message, string $type = 'error'): string
     {
@@ -192,7 +192,7 @@ final class ErrorHandler
     }
 
     /**
-     * Hata durumunu kontrol et ve uygun response döndür
+     * Handle generic error result and normalize response.
      */
     public static function handle_error(mixed $result, string $fallback_message = ''): mixed
     {

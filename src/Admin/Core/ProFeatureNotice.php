@@ -57,6 +57,7 @@ final class ProFeatureNotice
         echo '<div class="notice notice-info mhm-dev-mode-banner" style="background: #2271b1; color: #fff; border-left: 4px solid #135e96; padding: 12px;">';
         echo '<p style="margin: 0; font-size: 14px;">';
         echo '<strong style="font-size: 15px;">🚀 ' . esc_html__('Developer Mode Active', 'mhm-rentiva') . '</strong><br>';
+        /* translators: %s placeholder. */
         echo '<span style="opacity: 0.95;">' . esc_html(sprintf(__('All Pro features are enabled including %s.', 'mhm-rentiva'), $feature_text)) . '</span>';
         echo '</p>';
         echo '</div>';
@@ -82,13 +83,15 @@ final class ProFeatureNotice
         } elseif (!empty($pro_features)) {
             $feature_list = implode(', ', array_slice($pro_features, 0, -1)) . ' ' . __('and', 'mhm-rentiva') . ' ' . end($pro_features);
             $message = sprintf(
-                __('You are using Rentiva Lite. %s %s available in Pro version. <a href="%s">Enter your license key</a> to enable.', 'mhm-rentiva'),
+                /* translators: 1: %s; 2: %s. */
+                __('You are using Rentiva Lite. %1$s %2$s available in Pro version. <a href="%s">Enter your license key</a> to enable.', 'mhm-rentiva'),
                 $feature_list,
                 count($pro_features) === 1 ? __('is', 'mhm-rentiva') : __('are', 'mhm-rentiva'),
                 esc_url($license_url)
             );
         } else {
             $message = sprintf(
+                /* translators: Dynamic value. */
                 __('You are using Rentiva Lite. This feature is available in Pro version. <a href="%s">Enter your license key</a> to enable.', 'mhm-rentiva'),
                 esc_url($license_url)
             );
@@ -111,6 +114,7 @@ final class ProFeatureNotice
             return;
         }
 
+        /* translators: %s placeholder. */
         $badge_text = $feature_name ? sprintf(__('%s (Pro)', 'mhm-rentiva'), $feature_name) : __('Pro', 'mhm-rentiva');
         
         echo '<span class="mhm-pro-badge" style="display: inline-block; background: #2271b1; color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-left: 6px; vertical-align: middle;">';
@@ -230,11 +234,13 @@ final class ProFeatureNotice
             echo '<div class="notice ' . esc_attr($notice_class) . ' mhm-limit-notice">';
             echo '<p style="margin: 0; font-size: 14px;">';
             echo '<strong>' . esc_html($icon) . ' ' . esc_html__('Rentiva Lite Limit', 'mhm-rentiva') . ':</strong> ';
+            /* translators: 1: %1$d; 2: %2$d; 3: %3$d. */
             echo esc_html(sprintf(__('You have used %1$d out of %2$d vehicles (%3$d%%).', 'mhm-rentiva'), $current, $max, $percentage));
             if ($exceeded) {
                 echo ' <strong>' . esc_html__('Limit reached!', 'mhm-rentiva') . '</strong> ';
             }
             echo sprintf(
+                /* translators: Dynamic value. */
                 __('<a href="%s">Enter your license key</a> to upgrade to Pro for unlimited vehicles.', 'mhm-rentiva'),
                 esc_url($license_url)
             );
@@ -252,11 +258,13 @@ final class ProFeatureNotice
             echo '<div class="notice ' . esc_attr($notice_class) . ' mhm-limit-notice">';
             echo '<p style="margin: 0; font-size: 14px;">';
             echo '<strong>' . esc_html($icon) . ' ' . esc_html__('Rentiva Lite Limit', 'mhm-rentiva') . ':</strong> ';
+            /* translators: 1: %1$d; 2: %2$d; 3: %3$d. */
             echo esc_html(sprintf(__('You have used %1$d out of %2$d bookings (%3$d%%).', 'mhm-rentiva'), $current, $max, $percentage));
             if ($exceeded) {
                 echo ' <strong>' . esc_html__('Limit reached!', 'mhm-rentiva') . '</strong> ';
             }
             echo sprintf(
+                /* translators: Dynamic value. */
                 __('<a href="%s">Enter your license key</a> to upgrade to Pro for unlimited bookings.', 'mhm-rentiva'),
                 esc_url($license_url)
             );
@@ -274,11 +282,13 @@ final class ProFeatureNotice
             echo '<div class="notice ' . esc_attr($notice_class) . ' mhm-limit-notice">';
             echo '<p style="margin: 0; font-size: 14px;">';
             echo '<strong>' . esc_html($icon) . ' ' . esc_html__('Rentiva Lite Limit', 'mhm-rentiva') . ':</strong> ';
+            /* translators: 1: %1$d; 2: %2$d; 3: %3$d. */
             echo esc_html(sprintf(__('You have used %1$d out of %2$d customers (%3$d%%).', 'mhm-rentiva'), $current, $max, $percentage));
             if ($exceeded) {
                 echo ' <strong>' . esc_html__('Limit reached!', 'mhm-rentiva') . '</strong> ';
             }
             echo sprintf(
+                /* translators: Dynamic value. */
                 __('<a href="%s">Enter your license key</a> to upgrade to Pro for unlimited customers.', 'mhm-rentiva'),
                 esc_url($license_url)
             );

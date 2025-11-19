@@ -48,6 +48,7 @@ final class SecurityTest
             'test' => __('Nonce Usage', 'mhm-rentiva'),
             'status' => $pass ? 'pass' : 'warning',
             'message' => sprintf(
+                /* translators: %d placeholder. */
                 esc_html__('Total %d nonce checks found', 'mhm-rentiva'),
                 $total
             ),
@@ -74,6 +75,7 @@ final class SecurityTest
             'test' => __('Input Sanitization', 'mhm-rentiva'),
             'status' => $pass ? 'pass' : 'warning',
             'message' => sprintf(
+                /* translators: %d placeholder. */
                 esc_html__('✅ %d sanitization usages', 'mhm-rentiva'),
                 $total
             ),
@@ -100,6 +102,7 @@ final class SecurityTest
             'test' => __('Output Escaping', 'mhm-rentiva'),
             'status' => $pass ? 'pass' : 'warning',
             'message' => sprintf(
+                /* translators: %d placeholder. */
                 esc_html__('✅ %d escaping usages (Excellent!)', 'mhm-rentiva'),
                 $total
             ),
@@ -133,6 +136,7 @@ final class SecurityTest
             'status' => $pass ? 'pass' : 'fail',
             'message' => $pass ? 
                 sprintf(
+                    /* translators: %d placeholder. */
                     esc_html__('✅ $wpdb->prepare() used %d times', 'mhm-rentiva'),
                     $prepare_count
                 ) : 
@@ -188,7 +192,8 @@ final class SecurityTest
             'test' => __('XSS Protection (ABSPATH)', 'mhm-rentiva'),
             'status' => $pass ? 'pass' : 'warning',
             'message' => sprintf(
-                esc_html__('✅ %.1f%% files protected (%d/%d)', 'mhm-rentiva'),
+                /* translators: 1: percentage of protected files; 2: protected file count; 3: total file count. */
+                esc_html__('✅ %1$.1f%% files protected (%2$d/%3$d)', 'mhm-rentiva'),
                 $coverage,
                 $abspath_count,
                 $total_files
@@ -261,6 +266,7 @@ final class SecurityTest
             'test' => __('Permission Checks', 'mhm-rentiva'),
             'status' => $pass ? 'pass' : 'warning',
             'message' => sprintf(
+                /* translators: %d placeholder. */
                 esc_html__('✅ %d permission checks found', 'mhm-rentiva'),
                 $capability_checks
             ),

@@ -15,13 +15,13 @@ final class Refunds
     private const REFUND_ENDPOINT = '/v2/payments/captures/%s/refund';
 
     /**
-     * PayPal iade işlemi yapar
+     * Create a PayPal refund request.
      */
     public static function createRefund(string $captureId, array $refundData): array|WP_Error
     {
         $token = Auth::getAccessToken();
         if (empty($token)) {
-            return new WP_Error('paypal_auth', 'PayPal token alınamadı');
+            return new WP_Error('paypal_auth', __('Unable to obtain PayPal token.', 'mhm-rentiva'));
         }
 
         $baseUrl = Config::apiUrl();
@@ -40,7 +40,7 @@ final class Refunds
         ]);
 
         if (is_wp_error($response)) {
-            Logger::error('PayPal iade hatası: ' . $response->get_error_message());
+            Logger::error('PayPal refund error: ' . $response->get_error_message());
             return $response;
         }
 
@@ -49,22 +49,22 @@ final class Refunds
         $data = json_decode($body, true);
 
         if ($code !== 201) {
-            Logger::error("PayPal iade hatası: {$code} - {$body}");
-            return new WP_Error('paypal_refund_error', "PayPal iade hatası: {$code}");
+            Logger::error("PayPal refund error: {$code} - {$body}");
+            return new WP_Error('paypal_refund_error', sprintf(__('PayPal refund error: %s', 'mhm-rentiva'), $code));
         }
 
-        Logger::info('PayPal iade oluşturuldu: ' . ($data['id'] ?? 'unknown'));
+        Logger::info('PayPal refund created: ' . ($data['id'] ?? 'unknown'));
         return $data;
     }
 
     /**
-     * PayPal iade detaylarını alır
+     * Retrieve PayPal refund details.
      */
     public static function getRefund(string $refundId): array|WP_Error
     {
         $token = Auth::getAccessToken();
         if (empty($token)) {
-            return new WP_Error('paypal_auth', 'PayPal token alınamadı');
+            return new WP_Error('paypal_auth', __('Unable to obtain PayPal token.', 'mhm-rentiva'));
         }
 
         $baseUrl = Config::apiUrl();
@@ -78,7 +78,7 @@ final class Refunds
         ]);
 
         if (is_wp_error($response)) {
-            Logger::error('PayPal iade detay hatası: ' . $response->get_error_message());
+            Logger::error('PayPal refund details error: ' . $response->get_error_message());
             return $response;
         }
 
@@ -87,22 +87,22 @@ final class Refunds
         $data = json_decode($body, true);
 
         if ($code !== 200) {
-            Logger::error("PayPal iade detay hatası: {$code} - {$body}");
-            return new WP_Error('paypal_refund_error', "PayPal iade detay hatası: {$code}");
+            Logger::error("PayPal refund details error: {$code} - {$body}");
+            return new WP_Error('paypal_refund_error', sprintf(__('PayPal refund details error: %s', 'mhm-rentiva'), $code));
         }
 
         return $data;
     }
 
     /**
-     * Tam iade yapar
+     * Perform a full refund.
      */
     public static function fullRefund(string $captureId, string $reason = ''): array|WP_Error
     {
         $refundData = [
             'amount' => [
-                'currency_code' => 'TRY',
-                'value' => '0.00', // Tam iade için amount gerekmez
+                'currency_code' => 'USD',
+                'value' => '0.00', // Amount not required for full refund
             ],
         ];
 
@@ -114,9 +114,9 @@ final class Refunds
     }
 
     /**
-     * Kısmi iade yapar
+     * Perform a partial refund.
      */
-    public static function partialRefund(string $captureId, float $amount, string $currency = 'TRY', string $reason = ''): array|WP_Error
+    public static function partialRefund(string $captureId, float $amount, string $currency = 'USD', string $reason = ''): array|WP_Error
     {
         $refundData = [
             'amount' => [
@@ -133,7 +133,7 @@ final class Refunds
     }
 
     /**
-     * İade durumunu kontrol eder
+     * Check if refund completed.
      */
     public static function isRefundCompleted(array $refundData): bool
     {
@@ -141,7 +141,7 @@ final class Refunds
     }
 
     /**
-     * İade tutarını alır
+     * Get refund amount.
      */
     public static function getRefundAmount(array $refundData): float
     {
@@ -153,10 +153,10 @@ final class Refunds
     }
 
     /**
-     * İade para birimini alır
+     * Get refund currency.
      */
     public static function getRefundCurrency(array $refundData): string
     {
-        return $refundData['amount']['currency_code'] ?? 'TRY';
+        return $refundData['amount']['currency_code'] ?? 'USD';
     }
 }

@@ -42,12 +42,14 @@ final class ActivationTest
         
         if ($pass) {
             $message = sprintf(
+                /* translators: 1: %1$s; 2: %2$s. */
                 esc_html__('✅ PHP %1$s >= %2$s', 'mhm-rentiva'),
                 esc_html($current),
                 esc_html($required)
             );
         } else {
             $message = sprintf(
+                /* translators: 1: %1$s; 2: %2$s. */
                 esc_html__('❌ PHP %1$s < %2$s', 'mhm-rentiva'),
                 esc_html($current),
                 esc_html($required)
@@ -73,11 +75,13 @@ final class ActivationTest
         
         if ($pass) {
             $message = sprintf(
+                /* translators: %s placeholder. */
                 esc_html__('✅ Main file exists: %s', 'mhm-rentiva'),
                 esc_html($main_file)
             );
         } else {
             $message = sprintf(
+                /* translators: %s placeholder. */
                 esc_html__('❌ Main file not found: %s', 'mhm-rentiva'),
                 esc_html($main_file)
             );
@@ -118,12 +122,14 @@ final class ActivationTest
         
         if ($pass) {
             $message = sprintf(
+                /* translators: 1: %1$d; 2: %2$d. */
                 esc_html__('✅ %1$d/%2$d classes loaded', 'mhm-rentiva'),
                 count($loaded),
                 count($test_classes)
             );
         } else {
             $message = sprintf(
+                /* translators: %d placeholder. */
                 esc_html__('❌ %d classes failed to load', 'mhm-rentiva'),
                 count($failed)
             );
@@ -192,12 +198,14 @@ final class ActivationTest
         
         if ($pass) {
             $message = sprintf(
+                /* translators: 1: %1$d; 2: %2$d. */
                 esc_html__('✅ %1$d/%2$d CPTs registered', 'mhm-rentiva'),
                 count($registered),
                 count($cpts)
             );
         } else {
             $message = sprintf(
+                /* translators: %d placeholder. */
                 esc_html__('⚠️ %d critical CPTs missing', 'mhm-rentiva'),
                 count($critical_cpts) - count($critical_registered)
             );
@@ -266,6 +274,7 @@ final class ActivationTest
             
             if ($taxonomy_rewrite_found) {
                 $message = sprintf(
+                    /* translators: %d placeholder. */
                     esc_html__('✅ Vehicle taxonomy rewrite rules found (%d rules). Vehicle post type uses query string (by design)', 'mhm-rentiva'),
                     count($vehicle_rules)
                 );
@@ -289,6 +298,7 @@ final class ActivationTest
             
             if ($pass) {
                 $message = sprintf(
+                    /* translators: %d placeholder. */
                     esc_html__('✅ %d vehicle rewrite rules found', 'mhm-rentiva'),
                     count($vehicle_rules)
                 );

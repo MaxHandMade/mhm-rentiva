@@ -13,9 +13,9 @@ if (!defined('ABSPATH')) {
  * Contact Form Shortcode
  * 
  * [rentiva_contact] - General contact form
- * [rentiva_contact type="booking"] - Rezervasyon sorgusu formu
- * [rentiva_contact type="support"] - Teknik destek formu
- * [rentiva_contact type="feedback"] - Geri bildirim formu
+ * [rentiva_contact type="booking"] - Booking inquiry form
+ * [rentiva_contact type="support"] - Technical support form
+ * [rentiva_contact type="feedback"] - Feedback form
  */
 final class ContactForm extends AbstractShortcode
 {
@@ -55,7 +55,7 @@ final class ContactForm extends AbstractShortcode
             'redirect_url'         => '',            // Redirect after success
             'email_to'             => '',            // Custom email address
             'auto_reply'           => '1',           // Send auto reply
-            'theme'                => 'default',     // Tema (default, compact, detailed)
+            'theme'                => 'default',     // Theme (default, compact, detailed)
             'class'                => '',            // Custom CSS class
         ];
     }
@@ -120,7 +120,7 @@ final class ContactForm extends AbstractShortcode
             $priorities = self::get_priority_options();
         }
 
-        // E-posta adresleri
+        // Email recipients
         $email_recipients = self::get_email_recipients($atts['type'], $atts['email_to']);
 
         return [
@@ -161,7 +161,7 @@ final class ContactForm extends AbstractShortcode
                 'email_template' => 'contact-support'
             ],
             'feedback' => [
-                'title' => __('Geri Bildirim', 'mhm-rentiva'),
+                'title' => __('Feedback', 'mhm-rentiva'),
                 'description' => __('Share your experience with us. Your feedback is valuable to us.', 'mhm-rentiva'),
                 'icon' => 'dashicons-star-filled',
                 'required_fields' => ['name', 'email', 'rating', 'message'],
@@ -200,17 +200,17 @@ final class ContactForm extends AbstractShortcode
         return [
             'low' => [
                 'label' => __('Low', 'mhm-rentiva'),
-                'description' => __('Genel sorular', 'mhm-rentiva'),
+                'description' => __('General inquiries', 'mhm-rentiva'),
                 'color' => '#00a32a'
             ],
             'medium' => [
-                'label' => __('Orta', 'mhm-rentiva'),
+                'label' => __('Medium', 'mhm-rentiva'),
                 'description' => __('Important issues', 'mhm-rentiva'),
                 'color' => '#dba617'
             ],
             'high' => [
                 'label' => __('High', 'mhm-rentiva'),
-                'description' => __('Acil durumlar', 'mhm-rentiva'),
+                'description' => __('Emergency cases', 'mhm-rentiva'),
                 'color' => '#d63638'
             ]
         ];
@@ -245,8 +245,8 @@ final class ContactForm extends AbstractShortcode
             // Rate limiting check
             \MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
                 'contact_form_submission',
-                3, // 3 istek
-                300, // 5 dakika
+                3, // 3 requests
+                300, // 5 minutes
                 __('You have sent too many contact forms. Please wait 5 minutes.', 'mhm-rentiva')
             );
 
@@ -389,21 +389,22 @@ final class ContactForm extends AbstractShortcode
 
         foreach ($required_fields as $field) {
             if (empty($data[$field])) {
+                /* translators: %s placeholder. */
                 $errors[$field] = sprintf(__('%s field is required.', 'mhm-rentiva'), self::get_field_label($field));
             }
         }
 
-        // E-posta validasyonu
+        // Email validation
         if (!empty($data['email']) && !is_email($data['email'])) {
             $errors['email'] = __('Please enter a valid email address.', 'mhm-rentiva');
         }
 
-        // Telefon validasyonu
+        // Phone validation
         if (!empty($data['phone']) && !preg_match('/^[\+]?[0-9\s\-\(\)]{10,}$/', $data['phone'])) {
             $errors['phone'] = __('Please enter a valid phone number.', 'mhm-rentiva');
         }
 
-        // Rating validasyonu
+        // Rating validation
         if ($data['type'] === 'feedback' && ($data['rating'] < 1 || $data['rating'] > 5)) {
             $errors['rating'] = __('Please rate between 1-5.', 'mhm-rentiva');
         }
@@ -430,15 +431,15 @@ final class ContactForm extends AbstractShortcode
     private static function get_field_label(string $field): string
     {
         $labels = [
-            'name' => __('Ad Soyad', 'mhm-rentiva'),
-            'email' => __('E-posta', 'mhm-rentiva'),
-            'phone' => __('Telefon', 'mhm-rentiva'),
+            'name' => __('Full Name', 'mhm-rentiva'),
+            'email' => __('Email', 'mhm-rentiva'),
+            'phone' => __('Phone', 'mhm-rentiva'),
             'company' => __('Company', 'mhm-rentiva'),
             'vehicle_id' => __('Vehicle', 'mhm-rentiva'),
-            'preferred_date' => __('Tercih Edilen Tarih', 'mhm-rentiva'),
+            'preferred_date' => __('Preferred Date', 'mhm-rentiva'),
             'priority' => __('Priority', 'mhm-rentiva'),
             'rating' => __('Rating', 'mhm-rentiva'),
-            'message' => __('Mesaj', 'mhm-rentiva')
+            'message' => __('Message', 'mhm-rentiva')
         ];
 
         return $labels[$field] ?? $field;
@@ -468,6 +469,7 @@ final class ContactForm extends AbstractShortcode
     {
         $post_data = [
             'post_type' => 'mhm_contact_message',
+            /* translators: %s placeholder. */
             'post_title' => sprintf(__('Contact Message - %s', 'mhm-rentiva'), $data['name']),
             'post_content' => $data['message'],
             'post_status' => 'private',
@@ -493,7 +495,7 @@ final class ContactForm extends AbstractShortcode
         $message_id = wp_insert_post($post_data);
 
         if (is_wp_error($message_id)) {
-            throw new Exception(__('Mesaj kaydedilemedi.', 'mhm-rentiva'));
+            throw new Exception(__('Unable to save the message.', 'mhm-rentiva'));
         }
 
         return $message_id;
@@ -526,12 +528,12 @@ final class ContactForm extends AbstractShortcode
     {
         $message = '<html><body>';
         $message .= '<h2>' . esc_html($form_config['title']) . '</h2>';
-        $message .= '<p><strong>' . __('Mesaj ID:', 'mhm-rentiva') . '</strong> ' . $message_id . '</p>';
+        $message .= '<p><strong>' . __('Message ID:', 'mhm-rentiva') . '</strong> ' . $message_id . '</p>';
         $message .= '<p><strong>' . __('From:', 'mhm-rentiva') . '</strong> ' . esc_html($data['name']) . '</p>';
-        $message .= '<p><strong>' . __('E-posta:', 'mhm-rentiva') . '</strong> ' . esc_html($data['email']) . '</p>';
+        $message .= '<p><strong>' . __('Email:', 'mhm-rentiva') . '</strong> ' . esc_html($data['email']) . '</p>';
 
         if (!empty($data['phone'])) {
-            $message .= '<p><strong>' . __('Telefon:', 'mhm-rentiva') . '</strong> ' . esc_html($data['phone']) . '</p>';
+            $message .= '<p><strong>' . __('Phone:', 'mhm-rentiva') . '</strong> ' . esc_html($data['phone']) . '</p>';
         }
 
         if (!empty($data['company'])) {
@@ -544,7 +546,7 @@ final class ContactForm extends AbstractShortcode
         }
 
         if (!empty($data['preferred_date'])) {
-            $message .= '<p><strong>' . __('Tercih Edilen Tarih:', 'mhm-rentiva') . '</strong> ' . esc_html($data['preferred_date']) . '</p>';
+            $message .= '<p><strong>' . __('Preferred Date:', 'mhm-rentiva') . '</strong> ' . esc_html($data['preferred_date']) . '</p>';
         }
 
         if (!empty($data['priority'])) {
@@ -557,7 +559,7 @@ final class ContactForm extends AbstractShortcode
             $message .= '<p><strong>' . __('Rating:', 'mhm-rentiva') . '</strong> ' . $data['rating'] . '/5 ⭐</p>';
         }
 
-        $message .= '<h3>' . __('Mesaj:', 'mhm-rentiva') . '</h3>';
+        $message .= '<h3>' . __('Message:', 'mhm-rentiva') . '</h3>';
         $message .= '<p>' . nl2br(esc_html($data['message'])) . '</p>';
 
         if (!empty($data['attachment'])) {
@@ -565,7 +567,7 @@ final class ContactForm extends AbstractShortcode
         }
 
         $message .= '<hr>';
-        $message .= '<p><small>' . __('IP Adresi:', 'mhm-rentiva') . ' ' . esc_html($data['ip_address']) . '</small></p>';
+        $message .= '<p><small>' . __('IP Address:', 'mhm-rentiva') . ' ' . esc_html($data['ip_address']) . '</small></p>';
         $message .= '<p><small>' . __('Sent Date:', 'mhm-rentiva') . ' ' . esc_html($data['timestamp']) . '</small></p>';
         $message .= '</body></html>';
 
@@ -574,6 +576,7 @@ final class ContactForm extends AbstractShortcode
 
     private static function send_auto_reply(array $data): bool
     {
+        /* translators: %s placeholder. */
         $subject = sprintf(__('[%s] Your Message Received', 'mhm-rentiva'), get_bloginfo('name'));
 
         $message = '<html><body>';

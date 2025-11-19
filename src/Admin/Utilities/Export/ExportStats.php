@@ -158,7 +158,8 @@ final class ExportStats
             'total_records' => number_format($stats['total_records_exported']),
             'last_export' => $stats['last_export_date'] ? 
                 sprintf(
-                    __('%s (%s format)', 'mhm-rentiva'),
+                    /* translators: 1: %s; 2: %s. */
+                    __('%1$s (%2$s format)', 'mhm-rentiva'),
                     date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($stats['last_export_date'])),
                     strtoupper($stats['last_export_format'] ?? '')
                 ) : 

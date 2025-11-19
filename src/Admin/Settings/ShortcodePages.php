@@ -440,6 +440,7 @@ final class ShortcodePages
         }
 
         wp_send_json_success([
+            /* translators: %d placeholder. */
             'message' => sprintf(__('%d pages found.', 'mhm-rentiva'), count($debug_info)),
             'pages' => $debug_info
         ]);

@@ -93,24 +93,43 @@ abstract class AbstractPostType
             'menu_name' => $plural,
             'name_admin_bar' => $singular,
             'add_new' => __('Add New', 'mhm-rentiva'),
+            /* translators: %s placeholder. */
             'add_new_item' => sprintf(__('Add New %s', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'edit_item' => sprintf(__('Edit %s', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'new_item' => sprintf(__('New %s', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'view_item' => sprintf(__('View %s', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'search_items' => sprintf(__('Search %s', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'not_found' => sprintf(__('No %s found', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'not_found_in_trash' => sprintf(__('No %s found in Trash', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'all_items' => sprintf(__('All %s', 'mhm-rentiva'), $plural),
+            /* translators: %s placeholder. */
             'archives' => sprintf(__('%s Archive', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'attributes' => sprintf(__('%s Attributes', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'insert_into_item' => sprintf(__('Insert into %s', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'uploaded_to_this_item' => sprintf(__('Uploaded to this %s', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'featured_image' => sprintf(__('%s Image', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'set_featured_image' => sprintf(__('Set %s image', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'remove_featured_image' => sprintf(__('Remove %s image', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'use_featured_image' => sprintf(__('Use as %s image', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'filter_items_list' => sprintf(__('Filter %s list', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'items_list_navigation' => sprintf(__('%s list navigation', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'items_list' => sprintf(__('%s list', 'mhm-rentiva'), $singular),
         ];
     }
@@ -121,6 +140,7 @@ abstract class AbstractPostType
     public static function change_title_placeholder(string $title, \WP_Post $post): string
     {
         if ($post->post_type === static::get_post_type()) {
+            /* translators: %s placeholder. */
             return sprintf(__('Enter %s name...', 'mhm-rentiva'), static::get_singular_name());
         }
         return $title;
@@ -140,21 +160,27 @@ abstract class AbstractPostType
             
             $messages[static::get_post_type()] = [
                 0  => '', // Unused. Messages start at index 1.
+                /* translators: %s placeholder. */
                 1  => sprintf(__('%s updated.', 'mhm-rentiva'), $singular),
                 2  => __('Custom field updated.', 'mhm-rentiva'),
                 3  => __('Custom field deleted.', 'mhm-rentiva'),
                 4  => sprintf(__('%s updated.', 'mhm-rentiva'), $singular),
                 /* translators: 1: Post type singular name, 2: Revision date and time */
                 5  => isset($_GET['revision']) ? sprintf(__('%1$s restored to revision from %2$s.', 'mhm-rentiva'), $singular, wp_post_revision_title((int) $_GET['revision'], false)) : false,
+                /* translators: %s placeholder. */
                 6  => sprintf(__('%s published.', 'mhm-rentiva'), $singular),
+                /* translators: %s placeholder. */
                 7  => sprintf(__('%s saved as draft.', 'mhm-rentiva'), $singular),
+                /* translators: %s placeholder. */
                 8  => sprintf(__('%s submitted.', 'mhm-rentiva'), $singular),
                 /* translators: 1: Post type singular name, 2: Scheduled date */
                 9  => sprintf(
+                    /* translators: 1: %1$s; 2: %2$s. */
                     __('%1$s scheduled for: %2$s.', 'mhm-rentiva'),
                     $singular,
                     '<strong>' . wp_date(__('M j, Y @ G:i'), strtotime($post->post_date)) . '</strong>'
                 ),
+                /* translators: %s placeholder. */
                 10 => sprintf(__('%s draft updated.', 'mhm-rentiva'), $singular),
             ];
         }
@@ -183,11 +209,15 @@ abstract class AbstractPostType
             'singular_name' => $singular,
             'search_items' => sprintf(__('Search %s', 'mhm-rentiva'), $singular),
             'all_items' => sprintf(__('All %s', 'mhm-rentiva'), $plural),
+            /* translators: %s placeholder. */
             'parent_item' => sprintf(__('Parent %s', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'parent_item_colon' => sprintf(__('Parent %s:', 'mhm-rentiva'), $singular),
             'edit_item' => sprintf(__('Edit %s', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'update_item' => sprintf(__('Update %s', 'mhm-rentiva'), $singular),
             'add_new_item' => sprintf(__('Add New %s', 'mhm-rentiva'), $singular),
+            /* translators: %s placeholder. */
             'new_item_name' => sprintf(__('New %s Name', 'mhm-rentiva'), $singular),
             'menu_name' => $plural,
         ];

@@ -645,6 +645,7 @@ final class BookingForm extends AbstractShortcode
             $booking_data = [
                 'post_type' => 'vehicle_booking',
                 'post_status' => 'publish',
+                /* translators: %s placeholder. */
                 'post_title' => sprintf(__('Booking - %s', 'mhm-rentiva'), get_the_title($vehicle_id)),
                 'meta_input' => [
                     '_mhm_vehicle_id' => $vehicle_id,
@@ -820,6 +821,7 @@ final class BookingForm extends AbstractShortcode
             if ($pickup_datetime > $max_booking_date) {
                 wp_send_json_error([
                     'message' => sprintf(
+                        /* translators: %d placeholder. */
                         __('Booking too far in advance. Maximum advance booking is %d days.', 'mhm-rentiva'),
                         $advance_booking_days
                     )
@@ -846,6 +848,7 @@ final class BookingForm extends AbstractShortcode
             if ($days < $min_rental_days) {
                 wp_send_json_error([
                     'message' => sprintf(
+                        /* translators: %d placeholder. */
                         __('Minimum rental period is %d days.', 'mhm-rentiva'),
                         $min_rental_days
                     )
@@ -855,6 +858,7 @@ final class BookingForm extends AbstractShortcode
             if ($days > $max_rental_days) {
                 wp_send_json_error([
                     'message' => sprintf(
+                        /* translators: %d placeholder. */
                         __('Maximum rental period is %d days.', 'mhm-rentiva'),
                         $max_rental_days
                     )

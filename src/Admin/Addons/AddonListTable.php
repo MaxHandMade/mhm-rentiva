@@ -404,6 +404,7 @@ final class AddonListTable extends AbstractListTable
                 'error_occurred' => __('An error occurred. Please try again.', 'mhm-rentiva'),
                 'license_warning_title' => __('License Limit', 'mhm-rentiva'),
                 'license_warning_message' => sprintf(
+                    /* translators: %d placeholder. */
                     __('You can add maximum %d additional services in Lite version.', 'mhm-rentiva'),
                     AddonManager::MAX_ADDONS_LITE
                 ),

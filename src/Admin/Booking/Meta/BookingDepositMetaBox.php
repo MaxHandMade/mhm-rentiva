@@ -40,14 +40,14 @@ final class BookingDepositMetaBox extends AbstractMetaBox
     }
 
     /**
-     * Meta box'ı kaydet
+     * Register meta box hooks.
      */
     public static function register(): void
     {
-        // Meta box'ı sadece mevcut rezervasyonlarda göster
+        // Show meta box only for existing bookings
         add_action('add_meta_boxes', [self::class, 'add_meta_boxes']);
         
-        // Scripts yükleme
+        // Load required assets
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_scripts']);
         
         // AJAX handlers
@@ -57,13 +57,13 @@ final class BookingDepositMetaBox extends AbstractMetaBox
     }
 
     /**
-     * Meta box'ı ekle - sadece mevcut rezervasyonlarda
+     * Add meta box – only on existing bookings.
      */
     public static function add_meta_boxes(): void
     {
         global $post, $pagenow;
         
-        // Sadece mevcut rezervasyonlarda göster (yeni rezervasyon oluştururken değil)
+        // Only display on existing bookings (not while creating a new booking)
         if (!$post || !$post->ID || $pagenow === 'post-new.php') {
             return;
         }
@@ -82,9 +82,9 @@ final class BookingDepositMetaBox extends AbstractMetaBox
     {
         global $post_type;
         
-        // Sadece booking edit sayfasında yükle
+        // Load assets only on booking edit screen
         if (($hook === 'post.php' || $hook === 'post-new.php') && $post_type === 'vehicle_booking') {
-            // CSS dosyasını yükle
+            // Enqueue CSS
             wp_enqueue_style(
                 'mhm-deposit-management',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/deposit-management.css',
@@ -119,7 +119,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
         // Nonce field
         wp_nonce_field('mhm_rentiva_deposit_management_action', 'mhm_rentiva_deposit_management_nonce');
 
-        // Depozito bilgilerini al
+        // Fetch deposit details
         $payment_type = get_post_meta($post->ID, '_mhm_payment_type', true);
         $payment_method = get_post_meta($post->ID, '_mhm_payment_method', true);
         $deposit_amount = floatval(get_post_meta($post->ID, '_mhm_deposit_amount', true));
@@ -131,13 +131,13 @@ final class BookingDepositMetaBox extends AbstractMetaBox
         $cancellation_deadline = get_post_meta($post->ID, '_mhm_cancellation_deadline', true);
         $payment_deadline = get_post_meta($post->ID, '_mhm_payment_deadline', true);
 
-        // Rezervasyon durumu
+        // Booking/payment status
         $booking_status = get_post_meta($post->ID, '_mhm_status', true);
         $payment_status = get_post_meta($post->ID, '_mhm_payment_status', true);
 
         echo '<div class="deposit-management-metabox">';
 
-        // Depozito sistemi kullanılıyor mu kontrol et
+        // Check if the booking was created with the deposit system
         if (!$payment_type) {
             echo '<div class="notice notice-info">';
             echo '<p>' . __('This booking was created with the old system. Deposit system information is not available.', 'mhm-rentiva') . '</p>';
@@ -146,10 +146,10 @@ final class BookingDepositMetaBox extends AbstractMetaBox
             return;
         }
 
-        // Depozito bilgileri grid
+        // Deposit details grid
         echo '<div class="deposit-info-grid">';
         
-        // Ödeme türü
+        // Payment type
         echo '<div class="deposit-info-item">';
         echo '<div class="deposit-info-label">' . __('Payment Type', 'mhm-rentiva') . '</div>';
         echo '<div class="deposit-info-value">';
@@ -161,7 +161,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
         echo '</div>';
         echo '</div>';
 
-        // Ödeme yöntemi
+        // Payment method
         echo '<div class="deposit-info-item">';
         echo '<div class="deposit-info-label">' . __('Payment Method', 'mhm-rentiva') . '</div>';
         echo '<div class="deposit-info-value">';
@@ -173,36 +173,36 @@ final class BookingDepositMetaBox extends AbstractMetaBox
         echo '</div>';
         echo '</div>';
 
-        // Toplam tutar
+        // Total amount
         echo '<div class="deposit-info-item">';
         echo '<div class="deposit-info-label">' . __('Total Amount', 'mhm-rentiva') . '</div>';
-        echo '<div class="deposit-info-value">' . esc_html(self::format_price($total_amount)) . '</div>';
+        echo '<div class="deposit-info-value" data-field="total-amount">' . esc_html(self::format_price($total_amount)) . '</div>';
         echo '</div>';
 
-        // Depozito tutarı
+        // Deposit amount
         if ($payment_type === 'deposit') {
             echo '<div class="deposit-info-item">';
             echo '<div class="deposit-info-label">' . __('Deposit Amount', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-info-value">' . esc_html(self::format_price($deposit_amount)) . '</div>';
+            echo '<div class="deposit-info-value" data-field="deposit-amount">' . esc_html(self::format_price($deposit_amount)) . '</div>';
             echo '</div>';
 
-            // Kalan tutar
+            // Remaining amount
             echo '<div class="deposit-info-item">';
             echo '<div class="deposit-info-label">' . __('Remaining Amount', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-info-value">' . esc_html(self::format_price($remaining_amount)) . '</div>';
+            echo '<div class="deposit-info-value" data-field="remaining-amount">' . esc_html(self::format_price($remaining_amount)) . '</div>';
             echo '</div>';
         }
 
-        // Rezervasyon günleri
+        // Rental days
         $rental_days = (int) get_post_meta($post->ID, '_mhm_rental_days', true);
         if ($rental_days > 0) {
             echo '<div class="deposit-info-item">';
             echo '<div class="deposit-info-label">' . __('Rental Days', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-info-value">' . esc_html((string) $rental_days) . ' ' . __('days', 'mhm-rentiva') . '</div>';
+            echo '<div class="deposit-info-value" data-field="rental-days" data-suffix="' . esc_attr__('days', 'mhm-rentiva') . '">' . esc_html((string) $rental_days) . ' ' . __('days', 'mhm-rentiva') . '</div>';
             echo '</div>';
         }
 
-        // Depozito türü
+        // Deposit type
         if ($deposit_type) {
             echo '<div class="deposit-info-item">';
             echo '<div class="deposit-info-label">' . __('Deposit Type', 'mhm-rentiva') . '</div>';
@@ -212,7 +212,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
 
         echo '</div>';
 
-        // Ödeme durumu
+        // Payment status
         echo '<div class="payment-status-section">';
         echo '<h4>' . __('Payment Status', 'mhm-rentiva') . '</h4>';
         echo '<div class="payment-status-indicator ' . esc_attr($payment_status ?: 'unpaid') . '">';
@@ -220,7 +220,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
         echo '</div>';
         echo '</div>';
 
-        // İptal politikası
+        // Cancellation policy
         if ($cancellation_policy && $cancellation_deadline) {
             echo '<div class="cancellation-policy-section">';
             echo '<h4>' . __('Cancellation Policy', 'mhm-rentiva') . '</h4>';
@@ -236,7 +236,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
             echo '</div>';
         }
 
-        // Ödeme son tarihi (çevrim dışı ödemeler için)
+        // Payment deadline (offline payments)
         if ($payment_deadline && $payment_method === 'offline') {
             echo '<div class="payment-deadline-section">';
             echo '<h4>' . __('Payment Deadline', 'mhm-rentiva') . '</h4>';
@@ -250,10 +250,10 @@ final class BookingDepositMetaBox extends AbstractMetaBox
             echo '</div>';
         }
 
-        // Depozito timeline
+        // Deposit timeline
         self::render_deposit_timeline($post->ID);
 
-        // Depozito işlemleri
+        // Deposit actions
         self::render_deposit_actions($post->ID, $payment_type, $remaining_amount, $payment_status, $booking_status);
 
         echo '</div>';
@@ -265,7 +265,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
         echo '<h4>' . __('Deposit History', 'mhm-rentiva') . '</h4>';
         echo '<div class="deposit-timeline">';
 
-        // Rezervasyon oluşturuldu
+        // Booking created
         $post = get_post($post_id);
         if ($post) {
             echo '<div class="deposit-timeline-item completed">';
@@ -277,7 +277,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
             echo '</div>';
         }
 
-        // Ödeme durumu
+        // Payment state
         $payment_status = get_post_meta($post_id, '_mhm_payment_status', true);
         if ($payment_status === 'paid') {
             echo '<div class="deposit-timeline-item completed">';
@@ -296,12 +296,13 @@ final class BookingDepositMetaBox extends AbstractMetaBox
             echo '</div>';
         }
 
-        // Kalan tutar ödemesi
+        // Remaining balance payment
         $remaining_amount = floatval(get_post_meta($post_id, '_mhm_remaining_amount', true));
         if ($remaining_amount > 0) {
             echo '<div class="deposit-timeline-item pending">';
             echo '<div class="deposit-timeline-content">';
             echo '<div class="deposit-timeline-title">' . __('Remaining Amount Payment', 'mhm-rentiva') . '</div>';
+            /* translators: %s placeholder. */
             echo '<div class="deposit-timeline-description">' . sprintf(__('Remaining amount: %s', 'mhm-rentiva'), self::format_price($remaining_amount)) . '</div>';
             echo '</div>';
             echo '</div>';
@@ -323,7 +324,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
         echo '<div class="deposit-actions-section">';
         echo '<div class="deposit-actions">';
 
-        // Kalan tutar ödeme butonu
+        // Remaining balance button
         if ($payment_type === 'deposit' && $remaining_amount > 0 && $payment_status === 'paid') {
             echo '<button type="button" class="deposit-action-btn primary" id="process-remaining-payment" data-booking-id="' . esc_attr((string) $post_id) . '">';
             echo '<span class="dashicons dashicons-money-alt"></span>';
@@ -331,7 +332,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
             echo '</button>';
         }
 
-        // İptal butonu
+        // Cancel button
         if (in_array($booking_status, ['pending', 'confirmed'], true)) {
             echo '<button type="button" class="deposit-action-btn warning" id="cancel-booking" data-booking-id="' . esc_attr((string) $post_id) . '">';
             echo '<span class="dashicons dashicons-no"></span>';
@@ -339,7 +340,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
             echo '</button>';
         }
 
-        // İade butonu
+        // Refund button
         if ($payment_status === 'paid' && in_array($booking_status, ['cancelled'], true)) {
             echo '<button type="button" class="deposit-action-btn danger" id="process-refund" data-booking-id="' . esc_attr((string) $post_id) . '">';
             echo '<span class="dashicons dashicons-undo"></span>';
@@ -353,29 +354,28 @@ final class BookingDepositMetaBox extends AbstractMetaBox
 
     public static function save_meta(int $post_id, \WP_Post $post): void
     {
-        // Nonce kontrolü
+        // Nonce check
         if (!isset($_POST['mhm_rentiva_deposit_management_nonce']) || 
             !wp_verify_nonce($_POST['mhm_rentiva_deposit_management_nonce'], 'mhm_rentiva_deposit_management_action')) {
             return;
         }
 
-        // Yetki kontrolü
+        // Capability check
         if (!current_user_can('edit_post', $post_id)) {
             return;
         }
 
-        // Autosave ve revision kontrolü
+        // Autosave / revision guard
         if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
             return;
         }
 
-        // Depozito işlemleri burada işlenecek
-        // AJAX ile yapılacak işlemler için burada sadece meta verileri güncellenebilir
+        // Deposit actions are handled over AJAX; only meta can be stored here if needed.
     }
 
     private static function format_price(float $price): string
     {
-        $currency = Settings::get('currency', 'TRY');
+        $currency = Settings::get('currency', 'USD');
         $position = Settings::get('currency_position', 'right_space');
         $amount = number_format_i18n($price, 2);
         $symbol = $currency;

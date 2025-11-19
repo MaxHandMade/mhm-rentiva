@@ -645,6 +645,7 @@ final class VehicleColumns
                                         
                                         if ($is_booked) {
                                             $booking_data = $bookings[$vehicle['id']][$date];
+                                            /* translators: %s placeholder. */
                                             $title = sprintf(__('Reserved: %s', 'mhm-rentiva'), $booking_data['customer_name']);
                                             
                                             // Status-based color system

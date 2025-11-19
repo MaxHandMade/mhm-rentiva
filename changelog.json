@@ -1,8 +1,20 @@
 [
     {
+        "version": "4.4.1",
+        "date": "2025-11-19",
+        "type": "current",
+        "changes": [
+            "🌍 GLOBAL READINESS: Completed English translations across Elementor widgets, Gutenberg blocks, payment gateways, booking helpers, and templates.",
+            "🧩 ELEMENTOR & GUTENBERG: Vehicles List, Booking Form, and Vehicle Card widgets expose English titles, descriptions, and control labels; Gutenberg scripts mirror the same terminology to satisfy Poedit.",
+            "📝 I18N QA: Added translator comments and positional placeholders throughout booking emails, account pages, and admin notices to eliminate wp i18n / Poedit warnings.",
+            "💱 CURRENCY & DEPOSITS: Deposit meta boxes and helpers now format prices via Settings-based currency (USD fallback) and semantic data attributes instead of hardcoded TRY.",
+            "📚 DOCUMENTATION: README badges and release notes updated to describe the 4.4.1 global readiness push."
+        ]
+    },
+    {
         "version": "4.4.0",
         "date": "2025-11-14",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🧙 SETUP WIZARD: Expanded to seven guided steps with consistent back buttons, login/register/contact checks, and a Shortcode Pages shortcut",
             "🔐 LICENSE SYNC: Wizard now reads the real LicenseManager state so active keys appear as Ready without re-entering",

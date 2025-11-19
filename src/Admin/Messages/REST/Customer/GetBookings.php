@@ -59,6 +59,7 @@ final class GetBookings
                 'pickup_date' => $pickup_formatted,
                 'dropoff_date' => $dropoff_formatted,
                 'label' => sprintf(
+                    /* translators: 1: %1$s; 2: %2$s; 3: %3$s; 4: %4$s. */
                     __('%1$s - %2$s (%3$s to %4$s)', 'mhm-rentiva'),
                     $booking_id_display,
                     $vehicle_title,

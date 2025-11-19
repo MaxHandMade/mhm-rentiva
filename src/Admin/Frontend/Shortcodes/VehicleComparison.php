@@ -98,6 +98,7 @@ final class VehicleComparison extends AbstractShortcode
             'removeVehicle' => __('Remove', 'mhm-rentiva'),
             'bookNow' => __('Book Now', 'mhm-rentiva'),
             'one_vehicle_compared' => __('1 vehicle being compared', 'mhm-rentiva'),
+            /* translators: %d placeholder. */
             'multiple_vehicles_compared' => __('%d vehicles being compared', 'mhm-rentiva'),
         ];
     }

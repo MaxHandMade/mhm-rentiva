@@ -825,19 +825,21 @@ final class AccountController
         // ⭐ Send welcome email (if enabled)
         $send_welcome_email = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_welcome_email', '1') === '1';
         if ($send_welcome_email) {
+            /* translators: %s: site name. */
             $subject = sprintf(__('Welcome to %s!', 'mhm-rentiva'), get_bloginfo('name'));
             $message = sprintf(
-                __('Hello %s,
+                /* translators: 1: customer name; 2: site name; 3: username; 4: email; 5: site/team signature. */
+                __('Hello %1$s,
 
-Welcome to %s! Your account has been created successfully.
+Welcome to %2$s! Your account has been created successfully.
 
 You can now log in and start booking vehicles.
 
-Username: %s
-Email: %s
+Username: %3$s
+Email: %4$s
 
 Best regards,
-%s Team', 'mhm-rentiva'),
+%5$s Team', 'mhm-rentiva'),
                 $first_name ?: $username,
                 get_bloginfo('name'),
                 $username,
@@ -905,6 +907,7 @@ Best regards,
         // Password validation based on security settings
         $password_min_length = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_password_min_length', 8);
         if (strlen($password) < (int) $password_min_length) {
+            /* translators: %d placeholder. */
             wp_die(sprintf(__('Password must be at least %d characters.', 'mhm-rentiva'), $password_min_length));
             return;
         }
@@ -950,17 +953,18 @@ Best regards,
             if ($send_welcome_email) {
                 $subject = sprintf(__('Welcome to %s!', 'mhm-rentiva'), get_bloginfo('name'));
                 $message = sprintf(
-                    __('Hello %s,
+                    /* translators: 1: customer name; 2: site name; 3: username; 4: email; 5: site/team signature. */
+                    __('Hello %1$s,
 
-Welcome to %s! Your account has been created successfully.
+Welcome to %2$s! Your account has been created successfully.
 
 Please verify your email address to activate your account. We have sent you a verification link.
 
-Username: %s
-Email: %s
+Username: %3$s
+Email: %4$s
 
 Best regards,
-%s Team', 'mhm-rentiva'),
+%5$s Team', 'mhm-rentiva'),
                     $first_name ?: $username,
                     get_bloginfo('name'),
                     $username,
@@ -1030,17 +1034,18 @@ Best regards,
             // Different message if email verification is required
             if ($email_verification === '1') {
                 $message = sprintf(
-                    __('Hello %s,
+                    /* translators: 1: customer name; 2: site name; 3: username; 4: email; 5: site/team signature. */
+                    __('Hello %1$s,
 
-Welcome to %s! Your account has been created successfully.
+Welcome to %2$s! Your account has been created successfully.
 
 Please verify your email address to activate your account. We have sent you a verification link.
 
-Username: %s
-Email: %s
+Username: %3$s
+Email: %4$s
 
 Best regards,
-%s Team', 'mhm-rentiva'),
+%5$s Team', 'mhm-rentiva'),
                     $first_name ?: $username,
                     get_bloginfo('name'),
                     $username,
@@ -1049,17 +1054,18 @@ Best regards,
                 );
             } else {
                 $message = sprintf(
-                    __('Hello %s,
+                    /* translators: 1: customer name; 2: site name; 3: username; 4: email; 5: site/team signature. */
+                    __('Hello %1$s,
 
-Welcome to %s! Your account has been created successfully.
+Welcome to %2$s! Your account has been created successfully.
 
 You can now log in and start booking vehicles.
 
-Username: %s
-Email: %s
+Username: %3$s
+Email: %4$s
 
 Best regards,
-%s Team', 'mhm-rentiva'),
+%5$s Team', 'mhm-rentiva'),
                     $first_name ?: $username,
                     get_bloginfo('name'),
                     $username,
@@ -1104,6 +1110,7 @@ Best regards,
 
         $subject = __('Verify Your Email Address', 'mhm-rentiva');
         $message = sprintf(
+            /* translators: %s placeholder. */
             __('Please click the following link to verify your email address: %s', 'mhm-rentiva'),
             $verification_url
         );

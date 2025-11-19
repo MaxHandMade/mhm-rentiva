@@ -114,6 +114,7 @@ final class Restrictions
             $max   = Mode::maxVehicles();
             printf(
                 '<div class="notice notice-info"><p>%s</p></div>',
+                /* translators: 1: %1$d; 2: %2$d. */
                 esc_html(sprintf(__('Rentiva Lite: %1$d/%2$d vehicles used. Enter your license for unlimited vehicles and online payments.', 'mhm-rentiva'), $count, $max))
             );
         }
@@ -168,6 +169,7 @@ final class Restrictions
             $max = Mode::maxBookings();
             printf(
                 '<div class="notice notice-warning"><p>%s</p></div>',
+                /* translators: 1: %1$d; 2: %2$d. */
                 esc_html(sprintf(__('Rentiva Lite: %1$d/%2$d bookings used. Activate your license to remove this limit.', 'mhm-rentiva'), $cnt, $max))
             );
         }
@@ -301,6 +303,7 @@ final class Restrictions
         }
 
         $message = $feature_name
+            /* translators: %s placeholder. */
             ? sprintf(__('%s is available in Pro version. Enter your license key to enable.', 'mhm-rentiva'), $feature_name)
             : __('This feature is available in Pro version. Enter your license key to enable.', 'mhm-rentiva');
 

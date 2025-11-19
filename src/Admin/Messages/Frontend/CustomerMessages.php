@@ -206,7 +206,12 @@ final class CustomerMessages
             <div class="container">
                 <div class="header">
                     <h1><?php _e('My Messages', 'mhm-rentiva'); ?></h1>
-                    <p><?php printf(__('Hello %s, you can manage your support messages here.', 'mhm-rentiva'), esc_html($customer_data['name'])); ?></p>
+                    <p>
+                        <?php
+                        /* translators: %s: customer name. */
+                        printf(__('Hello %s, you can manage your support messages here.', 'mhm-rentiva'), esc_html($customer_data['name']));
+                        ?>
+                    </p>
                 </div>
                 <div class="content">
                     <div id="messages-container">

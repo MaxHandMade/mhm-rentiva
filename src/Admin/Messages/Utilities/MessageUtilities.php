@@ -277,6 +277,7 @@ final class MessageUtilities
             'subject' => $message->post_title,
             'content' => $message->post_content,
             'date' => $message->post_date,
+            /* translators: %s placeholder. */
             'date_human' => sprintf(__('%s ago', 'mhm-rentiva'), human_time_diff(strtotime($message->post_date), current_time('timestamp'))),
             'customer_name' => $meta['customer_name'],
             'customer_email' => $meta['customer_email'],
@@ -324,11 +325,13 @@ final class MessageUtilities
 
             if ($today_count >= $daily_limit) {
                 $result['can_send'] = false;
+                /* translators: %d placeholder. */
                 $result['reason'] = sprintf(__('Daily message limit of %d exceeded', 'mhm-rentiva'), $daily_limit);
             }
 
             if ($counts['total'] >= $monthly_limit) {
                 $result['can_send'] = false;
+                /* translators: %d placeholder. */
                 $result['reason'] = sprintf(__('Monthly message limit of %d exceeded', 'mhm-rentiva'), $monthly_limit);
             }
 

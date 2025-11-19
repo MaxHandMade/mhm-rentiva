@@ -614,7 +614,7 @@ final class BookingMeta extends AbstractMetaBox
         $refunded  = (int) get_post_meta($post->ID, '_mhm_refunded_amount', true);
 
         if ($currency === '') {
-            $currency = is_callable([Settings::class, 'get']) ? (string) Settings::get('currency', 'TRY') : 'TRY';
+            $currency = is_callable([Settings::class, 'get']) ? (string) Settings::get('currency', 'USD') : 'USD';
         }
         $gatewayLabel = $gateway !== '' ? $gateway : ($receiptId ? 'offline' : '—');
 
@@ -838,9 +838,13 @@ final class BookingMeta extends AbstractMetaBox
         
         // Default subjects
         $default_subjects = [
+            /* translators: %s placeholder. */
             'booking_confirmation' => sprintf(__('Booking Confirmation - %s', 'mhm-rentiva'), $vehicle_name),
+            /* translators: %s placeholder. */
             'payment_reminder' => sprintf(__('Payment Reminder - %s', 'mhm-rentiva'), $vehicle_name),
+            /* translators: %s placeholder. */
             'booking_reminder' => sprintf(__('Booking Reminder - %s', 'mhm-rentiva'), $vehicle_name),
+            /* translators: %s placeholder. */
             'booking_cancelled' => sprintf(__('Booking Cancelled - %s', 'mhm-rentiva'), $vehicle_name),
             'custom' => $subject ?: __('Message from ' . get_bloginfo('name'), 'mhm-rentiva')
         ];
@@ -848,28 +852,32 @@ final class BookingMeta extends AbstractMetaBox
         // Default messages
         $default_messages = [
             'booking_confirmation' => sprintf(
-                __('Hello %s,<br><br>Your booking for %s has been confirmed.<br><br>Pickup Date: %s<br>Return Date: %s<br>Total Amount: %s<br><br>Thank you for choosing us!', 'mhm-rentiva'),
+                /* translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date; 5: total amount. */
+                __('Hello %1$s,<br><br>Your booking for %2$s has been confirmed.<br><br>Pickup Date: %3$s<br>Return Date: %4$s<br>Total Amount: %5$s<br><br>Thank you for choosing us!', 'mhm-rentiva'),
                 $customer_name,
                 $vehicle_name,
                 $pickup_date,
                 $dropoff_date,
-                number_format((float)$total_amount, 2) . ' TRY'
+                self::format_price((float) $total_amount)
             ),
             'payment_reminder' => sprintf(
-                __('Hello %s,<br><br>This is a reminder about your payment for %s.<br><br>Total Amount: %s<br><br>Please complete your payment as soon as possible.', 'mhm-rentiva'),
+                /* translators: 1: customer name; 2: vehicle name; 3: total amount. */
+                __('Hello %1$s,<br><br>This is a reminder about your payment for %2$s.<br><br>Total Amount: %3$s<br><br>Please complete your payment as soon as possible.', 'mhm-rentiva'),
                 $customer_name,
                 $vehicle_name,
-                number_format((float)$total_amount, 2) . ' TRY'
+                self::format_price((float) $total_amount)
             ),
             'booking_reminder' => sprintf(
-                __('Hello %s,<br><br>This is a reminder about your upcoming booking for %s.<br><br>Pickup Date: %s<br>Return Date: %s<br><br>We look forward to serving you!', 'mhm-rentiva'),
+                /* translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date. */
+                __('Hello %1$s,<br><br>This is a reminder about your upcoming booking for %2$s.<br><br>Pickup Date: %3$s<br>Return Date: %4$s<br><br>We look forward to serving you!', 'mhm-rentiva'),
                 $customer_name,
                 $vehicle_name,
                 $pickup_date,
                 $dropoff_date
             ),
             'booking_cancelled' => sprintf(
-                __('Hello %s,<br><br>We regret to inform you that your booking for %s has been cancelled.<br><br>If you have any questions, please contact us.', 'mhm-rentiva'),
+                /* translators: 1: customer name; 2: vehicle name. */
+                __('Hello %1$s,<br><br>We regret to inform you that your booking for %2$s has been cancelled.<br><br>If you have any questions, please contact us.', 'mhm-rentiva'),
                 $customer_name,
                 $vehicle_name
             ),
@@ -1016,6 +1024,7 @@ final class BookingMeta extends AbstractMetaBox
                 echo '<div class="mhm-history-content">';
                 echo '<p>' . esc_html($note['note']) . '</p>';
                 echo '<div class="mhm-history-meta">';
+                /* translators: %s placeholder. */
                 echo '<span class="mhm-history-user">' . sprintf(__('By %s', 'mhm-rentiva'), esc_html($user_name)) . '</span>';
                 echo '</div>';
                 echo '</div>';
@@ -1239,7 +1248,8 @@ final class BookingMeta extends AbstractMetaBox
         $new_label = $status_labels[$new_status] ?? $new_status;
         
         $note = sprintf(
-            __('Status changed from %s to %s', 'mhm-rentiva'),
+            /* translators: 1: %s; 2: %s. */
+            __('Status changed from %1$s to %2$s', 'mhm-rentiva'),
             $old_label,
             $new_label
         );
@@ -1264,7 +1274,8 @@ final class BookingMeta extends AbstractMetaBox
         $new_label = $status_labels[$new_status] ?? $new_status;
         
         $note = sprintf(
-            __('Payment status changed from %s to %s', 'mhm-rentiva'),
+            /* translators: 1: %s; 2: %s. */
+            __('Payment status changed from %1$s to %2$s', 'mhm-rentiva'),
             $old_label,
             $new_label
         );
@@ -1284,7 +1295,7 @@ final class BookingMeta extends AbstractMetaBox
             return;
         }
         
-        // URL'den mesaj parametresini al
+        // Fetch message parameter from URL
         $message = $_GET['message'] ?? '';
         
         switch ($message) {
@@ -1299,7 +1310,7 @@ final class BookingMeta extends AbstractMetaBox
 
     private static function format_price(float $price): string
     {
-        $currency = Settings::get('currency', 'TRY');
+        $currency = Settings::get('currency', 'USD');
         $position = Settings::get('currency_position', 'right_space');
         $amount = number_format_i18n($price, 2);
         $symbol = $currency;
@@ -1350,7 +1361,7 @@ final class BookingMeta extends AbstractMetaBox
             $("#mhm-custom-update-button").on("click", function(e) {
                 e.preventDefault();
                 
-                // Form verilerini manuel olarak topla
+                // Collect form data manually
                 var formData = {
                     action: "mhm_rentiva_update_booking",
                     booking_id: ' . $post_id . ',
@@ -1402,39 +1413,23 @@ final class BookingMeta extends AbstractMetaBox
                                 
                                 // ✅ Update Deposit Management field
                                 if (data.rental_days) {
-                                    $(".deposit-info-value").each(function() {
-                                        var text = $(this).text();
-                                        if (text.includes("days")) {
-                                            $(this).text(data.rental_days + " days");
-                                        }
+                                    $(".deposit-info-value[data-field=\"rental-days\"]").each(function() {
+                                        var suffix = $(this).data("suffix") || "";
+                                        var spacer = suffix ? " " : "";
+                                        $(this).text(data.rental_days + spacer + suffix);
                                     });
                                 }
                                 
                                 if (data.total_price) {
-                                    $(".deposit-info-value").each(function() {
-                                        var text = $(this).text();
-                                        if (text.includes("TRY") && text.includes(",")) {
-                                            $(this).text(data.total_price);
-                                        }
-                                    });
+                                    $(".deposit-info-value[data-field=\"total-amount\"]").text(data.total_price);
                                 }
                                 
                                 if (data.deposit_amount) {
-                                    $(".deposit-info-value").each(function() {
-                                        var text = $(this).text();
-                                        if (text.includes("TRY") && text.includes("800")) {
-                                            $(this).text(data.deposit_amount);
-                                        }
-                                    });
+                                    $(".deposit-info-value[data-field=\"deposit-amount\"]").text(data.deposit_amount);
                                 }
                                 
                                 if (data.remaining_amount) {
-                                    $(".deposit-info-value").each(function() {
-                                        var text = $(this).text();
-                                        if (text.includes("TRY") && text.includes("3,200")) {
-                                            $(this).text(data.remaining_amount);
-                                        }
-                                    });
+                                    $(".deposit-info-value[data-field=\"remaining-amount\"]").text(data.remaining_amount);
                                 }
                             }
                             
@@ -1524,7 +1519,7 @@ final class BookingMeta extends AbstractMetaBox
         $old_status = get_post_meta($booking_id, '_mhm_status', true);
         update_post_meta($booking_id, '_mhm_status', $status);
         
-        // Action tetikle
+        // Trigger action
         if ($old_status !== $status) {
             do_action('mhm_rentiva_booking_status_changed', $booking_id, $old_status, $status);
         }
@@ -1535,7 +1530,7 @@ final class BookingMeta extends AbstractMetaBox
         $updated_deposit_amount = get_post_meta($booking_id, '_mhm_deposit_amount', true);
         $updated_remaining_amount = get_post_meta($booking_id, '_mhm_remaining_amount', true);
         
-        // Format verileri
+        // Format data
         $formatted_total_price = self::format_price((float) $updated_total_price);
         $formatted_deposit_amount = self::format_price((float) $updated_deposit_amount);
         $formatted_remaining_amount = self::format_price((float) $updated_remaining_amount);
@@ -1546,7 +1541,8 @@ final class BookingMeta extends AbstractMetaBox
         // Date/time change check
         if ($old_pickup_date !== $pickup_date || $old_pickup_time !== $pickup_time) {
             $changes[] = sprintf(
-                __('Pickup date/time changed from %s %s to %s %s', 'mhm-rentiva'),
+                /* translators: 1: %s; 2: %s; 3: %s; 4: %s. */
+                __('Pickup date/time changed from %1$s %2$s to %3$s %4$s', 'mhm-rentiva'),
                 date_i18n(get_option('date_format'), strtotime($old_pickup_date)),
                 $old_pickup_time,
                 date_i18n(get_option('date_format'), strtotime($pickup_date)),
@@ -1556,7 +1552,8 @@ final class BookingMeta extends AbstractMetaBox
         
         if ($old_dropoff_date !== $dropoff_date || $old_dropoff_time !== $dropoff_time) {
             $changes[] = sprintf(
-                __('Dropoff date/time changed from %s %s to %s %s', 'mhm-rentiva'),
+                /* translators: 1: %s; 2: %s; 3: %s; 4: %s. */
+                __('Dropoff date/time changed from %1$s %2$s to %3$s %4$s', 'mhm-rentiva'),
                 date_i18n(get_option('date_format'), strtotime($old_dropoff_date)),
                 $old_dropoff_time,
                 date_i18n(get_option('date_format'), strtotime($dropoff_date)),
@@ -1567,7 +1564,8 @@ final class BookingMeta extends AbstractMetaBox
         // Guest count change
         if ($old_guests != $guests) {
             $changes[] = sprintf(
-                __('Number of guests changed from %d to %d', 'mhm-rentiva'),
+                /* translators: 1: %d; 2: %d. */
+                __('Number of guests changed from %1$d to %2$d', 'mhm-rentiva'),
                 $old_guests,
                 $guests
             );
@@ -1576,7 +1574,8 @@ final class BookingMeta extends AbstractMetaBox
         // Payment method change
         if ($old_payment_method !== $payment_method) {
             $changes[] = sprintf(
-                __('Payment method changed from %s to %s', 'mhm-rentiva'),
+                /* translators: 1: %s; 2: %s. */
+                __('Payment method changed from %1$s to %2$s', 'mhm-rentiva'),
                 $old_payment_method,
                 $payment_method
             );
@@ -1696,7 +1695,7 @@ final class BookingMeta extends AbstractMetaBox
             return;
         }
 
-        // Notu ekle
+        // Add note
         $result = self::add_history_note($booking_id, $note_content, $note_type);
 
         if ($result) {
@@ -1728,7 +1727,7 @@ final class BookingMeta extends AbstractMetaBox
             return;
         }
 
-        // POST verilerini kontrol et
+        // Check POST data
         if (!isset($_POST['post_type']) || $_POST['post_type'] !== 'vehicle_booking') {
             return;
         }

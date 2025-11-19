@@ -334,12 +334,14 @@ final class AddonManager
         
         if ($count >= self::MAX_ADDONS_LITE) {
             return sprintf(
+                /* translators: %d placeholder. */
                 __('You can add maximum %d additional services in Lite version. Upgrade to Pro version for more additional services.', 'mhm-rentiva'),
                 self::MAX_ADDONS_LITE
             );
         }
 
         $remaining = self::MAX_ADDONS_LITE - $count;
+        /* translators: %d placeholder. */
         return sprintf(__('You can add %d more additional services in Lite version.', 'mhm-rentiva'), $remaining);
     }
 
@@ -400,12 +402,14 @@ final class AddonManager
         if ($error_count > 0) {
             /* translators: 1: Successful count, 2: Failed count */
             wp_send_json_error(sprintf(
+                /* translators: 1: %1$d; 2: %2$d. */
                 __('%1$d additional services processed, %2$d additional services failed.', 'mhm-rentiva'),
                 $success_count,
                 $error_count
             ));
         } else {
             wp_send_json_success(sprintf(
+                /* translators: %d placeholder. */
                 __('%d additional services successfully processed.', 'mhm-rentiva'),
                 $success_count
             ));

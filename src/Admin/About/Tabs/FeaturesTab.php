@@ -39,22 +39,38 @@ final class FeaturesTab extends AbstractTab
                 'features' => [
                     [
                         'name' => __('Maximum Vehicles', 'mhm-rentiva'),
-                        'lite' => sprintf(__('%d vehicles', 'mhm-rentiva'), 3),
+                        'lite' => sprintf(
+                            /* translators: %d: maximum number of vehicles allowed in Lite version. */
+                            __('%d vehicles', 'mhm-rentiva'),
+                            3
+                        ),
                         'pro' => __('Unlimited', 'mhm-rentiva'),
                     ],
                     [
                         'name' => __('Maximum Bookings', 'mhm-rentiva'),
-                        'lite' => sprintf(__('%d bookings', 'mhm-rentiva'), 50),
+                        'lite' => sprintf(
+                            /* translators: %d: maximum number of bookings allowed in Lite version. */
+                            __('%d bookings', 'mhm-rentiva'),
+                            50
+                        ),
                         'pro' => __('Unlimited', 'mhm-rentiva'),
                     ],
                     [
                         'name' => __('Maximum Customers', 'mhm-rentiva'),
-                        'lite' => sprintf(__('%d customers', 'mhm-rentiva'), 3),
+                        'lite' => sprintf(
+                            /* translators: %d: maximum number of customers allowed in Lite version. */
+                            __('%d customers', 'mhm-rentiva'),
+                            3
+                        ),
                         'pro' => __('Unlimited', 'mhm-rentiva'),
                     ],
                     [
                         'name' => __('Maximum Addons', 'mhm-rentiva'),
-                        'lite' => sprintf(__('%d addon services', 'mhm-rentiva'), 4),
+                        'lite' => sprintf(
+                            /* translators: %d: maximum number of addon services allowed in Lite version. */
+                            __('%d addon services', 'mhm-rentiva'),
+                            4
+                        ),
                         'pro' => __('Unlimited', 'mhm-rentiva'),
                     ],
                     [
@@ -131,11 +147,61 @@ final class FeaturesTab extends AbstractTab
                         [
                             'title' => __('Quick Comparison', 'mhm-rentiva'),
                             'content' => [
-                                ['type' => 'key-value', 'label' => __('Maximum Vehicles:', 'mhm-rentiva'), 'value' => sprintf(__('Lite: %d, Pro: %s', 'mhm-rentiva'), 3, __('Unlimited', 'mhm-rentiva')), 'data_key' => ''],
-                                ['type' => 'key-value', 'label' => __('Maximum Bookings:', 'mhm-rentiva'), 'value' => sprintf(__('Lite: %d, Pro: %s', 'mhm-rentiva'), 50, __('Unlimited', 'mhm-rentiva')), 'data_key' => ''],
-                                ['type' => 'key-value', 'label' => __('Payment Gateways:', 'mhm-rentiva'), 'value' => sprintf(__('Lite: %s, Pro: %s', 'mhm-rentiva'), __('Offline + PayPal', 'mhm-rentiva'), __('All (Stripe, PayPal, PayTR, Offline)', 'mhm-rentiva')), 'data_key' => ''],
-                                ['type' => 'key-value', 'label' => __('Advanced Reports:', 'mhm-rentiva'), 'value' => sprintf(__('Lite: %s, Pro: %s', 'mhm-rentiva'), __('Not available', 'mhm-rentiva'), __('Available', 'mhm-rentiva')), 'data_key' => ''],
-                                ['type' => 'key-value', 'label' => __('Messaging System:', 'mhm-rentiva'), 'value' => sprintf(__('Lite: %s, Pro: %s', 'mhm-rentiva'), __('Not available', 'mhm-rentiva'), __('Available', 'mhm-rentiva')), 'data_key' => ''],
+                                [
+                                    'type' => 'key-value',
+                                    'label' => __('Maximum Vehicles:', 'mhm-rentiva'),
+                                    'value' => sprintf(
+                                        /* translators: 1: Lite plan value, 2: Pro plan value. */
+                                        __('Lite: %1$d, Pro: %2$s', 'mhm-rentiva'),
+                                        3,
+                                        __('Unlimited', 'mhm-rentiva')
+                                    ),
+                                    'data_key' => '',
+                                ],
+                                [
+                                    'type' => 'key-value',
+                                    'label' => __('Maximum Bookings:', 'mhm-rentiva'),
+                                    'value' => sprintf(
+                                        /* translators: 1: Lite plan value, 2: Pro plan value. */
+                                        __('Lite: %1$d, Pro: %2$s', 'mhm-rentiva'),
+                                        50,
+                                        __('Unlimited', 'mhm-rentiva')
+                                    ),
+                                    'data_key' => '',
+                                ],
+                                [
+                                    'type' => 'key-value',
+                                    'label' => __('Payment Gateways:', 'mhm-rentiva'),
+                                    'value' => sprintf(
+                                        /* translators: 1: Lite plan value, 2: Pro plan value. */
+                                        __('Lite: %1$s, Pro: %2$s', 'mhm-rentiva'),
+                                        __('Offline + PayPal', 'mhm-rentiva'),
+                                        __('All (Stripe, PayPal, PayTR, Offline)', 'mhm-rentiva')
+                                    ),
+                                    'data_key' => '',
+                                ],
+                                [
+                                    'type' => 'key-value',
+                                    'label' => __('Advanced Reports:', 'mhm-rentiva'),
+                                    'value' => sprintf(
+                                        /* translators: 1: Lite plan value, 2: Pro plan value. */
+                                        __('Lite: %1$s, Pro: %2$s', 'mhm-rentiva'),
+                                        __('Not available', 'mhm-rentiva'),
+                                        __('Available', 'mhm-rentiva')
+                                    ),
+                                    'data_key' => '',
+                                ],
+                                [
+                                    'type' => 'key-value',
+                                    'label' => __('Messaging System:', 'mhm-rentiva'),
+                                    'value' => sprintf(
+                                        /* translators: 1: Lite plan value, 2: Pro plan value. */
+                                        __('Lite: %1$s, Pro: %2$s', 'mhm-rentiva'),
+                                        __('Not available', 'mhm-rentiva'),
+                                        __('Available', 'mhm-rentiva')
+                                    ),
+                                    'data_key' => '',
+                                ],
                             ],
                         ],
                         [

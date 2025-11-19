@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.3.9-blue.svg)
+![Version](https://img.shields.io/badge/version-4.4.1-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -311,25 +311,26 @@ POST /bookings
 
 ## 📝 Değişiklik Geçmişi
 
-### Son Versiyon: 4.4.0 (2025-11-14)
+### Son Versiyon: 4.4.1 (2025-11-19)
 
-**🧙 KURULUM SİHİRBAZI GENİŞLEMESİ**
-- Sistem Kontrolü’nden Summary & Tests’e kadar 7 adımlık yeni akış, tutarlı geri butonları ve tek bir menü girişi ile tamamlandı
-- Lisans adımı artık LicenseManager durumunu okuyor; Zorunlu Sayfalar listesi Login/Register/Contact kontrollerini ve Shortcode Pages kısayolunu içeriyor
-- Ödeme ve Frontend adımları ana ayarlardaki para birimi/konum dropdown’larını kullanarak doğru varsayılanları uygular
+**🌍 KÜRESEL UYUMLULUK**
+- Elementor widget’ları, Gutenberg blokları, ödeme ağ geçitleri, rezervasyon yardımcıları ve şablonlardaki tüm Türkçe açıklamalar/etiketler İngilizce’ye taşındı.
+- Kalan TRY ifadeleri kaldırıldı; tüm arayüz metinleri WordPress i18n yardımcıları üzerinden geçiyor.
 
-**🩺 SİSTEM KONTROLÜ & GÜVENİLİRLİK**
-- E-posta teslim tespiti FluentSMTP, WP Mail SMTP, Post SMTP vb. eklentileri tanır; yalnızca gerçek SMTP katmanı yoksa uyarı gösterir
-- HTTPS ve bellek satırları yapılması gereken değişiklikleri net mesajlarla açıklar, böylece canlıya çıkmadan önce yapılacaklar listesi hazır olur
+**🧩 ELEMENTOR & GUTENBERG**
+- Vehicles List, Booking Form ve Vehicle Card widget’ları İngilizce başlık/açıklama/kontrol etiketleri ve Poedit uyumlu ipuçları sunuyor.
+- Gutenberg blok scriptleri aynı terminolojiyi kullanarak “unterminated string” veya çevrilmemiş metin uyarılarını ortadan kaldırıyor.
 
-**📚 DÖKÜMANTASYON & UX**
-- `docs/site/getting-started/setup-wizard.md` altında ayrıntılı bir sihirbaz rehberi eklendi ve admin indeksine bağlantı verildi
-- Sekme stilleri hizalandı, Summary butonları daha görünür hâle getirildi ve yinelenen menü girişleri kaldırıldı
-- Zorunlu Sayfalar tablosu giriş/kayıt/iletişim kontrollerini göstererek ilk kurulum kapsamını genişletir
+**📝 i18n KALİTE KONTROLÜ**
+- Booking e-postaları, Hesabım sayfaları ve admin bildirimleri için çevirmen açıklamaları ile sıralı placeholder düzenleri eklendi.
+- `wp i18n make-pot` ve Poedit çıktıları artık sıfır uyarı satırı ile oluşturuluyor.
 
-**📋 SHORTCODE KAPSAMI**
-- Zorunlu Sayfalar adımı artık Login (`[rentiva_login_form]`), Register (`[rentiva_register_form]`) ve Contact (`[rentiva_contact]`) shortcode’larını doğrular ve gerekirse otomatik oluşturur
-- Shortcode dokümantasyonu ve kurulum yönergeleri bu yeni sayfaları vurgulayacak şekilde güncellendi
+**💱 PARA BİRİMİ & DEPOZİTO DENEYİMİ**
+- Depozito meta kutuları ve yardımcılar tutarları Ayarlar’daki para birimine (USD varsayılan) göre formatlıyor, `data-field` seçicileri kullanıyor.
+- JavaScript güncellemeleri, yönetici para birimini değiştirdiğinde sembolleri anında güncelliyor.
+
+**📚 DÖKÜMANTASYON**
+- README ve değişiklik kayıtları 4.4.1 sürümündeki küresel uyumluluk odaklı yenilikleri yansıtacak şekilde güncellendi.
 
 Tam değişiklik geçmişi için [changelog-tr.json](changelog-tr.json) dosyasına bakın.
 

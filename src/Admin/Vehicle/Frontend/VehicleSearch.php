@@ -457,11 +457,17 @@ final class VehicleSearch
         $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
         
         return [
+            /* translators: %s placeholder. */
             '0-100' => sprintf(__('0 - 100 %s', 'mhm-rentiva'), $currency_symbol),
+            /* translators: %s placeholder. */
             '100-200' => sprintf(__('100 - 200 %s', 'mhm-rentiva'), $currency_symbol),
+            /* translators: %s placeholder. */
             '200-300' => sprintf(__('200 - 300 %s', 'mhm-rentiva'), $currency_symbol),
+            /* translators: %s placeholder. */
             '300-500' => sprintf(__('300 - 500 %s', 'mhm-rentiva'), $currency_symbol),
+            /* translators: %s placeholder. */
             '500-1000' => sprintf(__('500 - 1000 %s', 'mhm-rentiva'), $currency_symbol),
+            /* translators: %s placeholder. */
             '1000+' => sprintf(__('1000+ %s', 'mhm-rentiva'), $currency_symbol),
         ];
     }

@@ -11,14 +11,14 @@ if (!defined('ABSPATH')) {
 /**
  * Vehicle Card Gutenberg Block
  * 
- * Tekil araç kartını Gutenberg block olarak gösterir
+ * Outputs a single vehicle card as a Gutenberg block.
  * 
  * @since 3.0.1
  */
 class VehicleCardBlock extends GutenbergBlockBase
 {
     /**
-     * Block adını döndürür
+     * Return block name.
      */
     protected function get_block_name(): string
     {
@@ -26,7 +26,7 @@ class VehicleCardBlock extends GutenbergBlockBase
     }
 
     /**
-     * Block attribute'larını döndürür
+     * Return block attributes.
      */
     protected function get_block_attributes(): array
     {
@@ -50,26 +50,26 @@ class VehicleCardBlock extends GutenbergBlockBase
     }
 
     /**
-     * Block'u render eder
-     * 
+     * Render block output.
+     *
      * @param array $attributes Block attributes
      * @param string $content Block content
-     * @return string Rendered block
+     * @return string Rendered block markup
      */
     public function render_block(array $attributes, string $content): string
     {
-        // Shortcode attribute'larını hazırla
+        // Prepare shortcode attributes
         $atts = $this->prepare_shortcode_attributes($attributes);
         
-        // Shortcode'u render et
-        $shortcode_output = '<div class="rv-notice">Vehicle Card shortcode kaldırıldı.</div>';
+        // Render shortcode (placeholder text because block is deprecated)
+        $shortcode_output = '<div class="rv-notice">' . esc_html__('Vehicle Card shortcode has been removed.', 'mhm-rentiva') . '</div>';
         
-        // Block wrapper'ı ekle
+        // Wrap content with standard block container
         return $this->wrap_block_content($shortcode_output, $attributes);
     }
 
     /**
-     * Buton seçenekleri attribute'larını döndürür
+     * Return button option attributes.
      */
     protected function get_button_options_attributes(): array
     {
@@ -95,7 +95,7 @@ class VehicleCardBlock extends GutenbergBlockBase
     }
 
     /**
-     * Değerlendirme seçenekleri attribute'larını döndürür
+     * Return rating option attributes.
      */
     protected function get_rating_options_attributes(): array
     {
@@ -123,7 +123,7 @@ class VehicleCardBlock extends GutenbergBlockBase
     }
 
     /**
-     * Gelişmiş display seçenekleri attribute'larını döndürür
+     * Return advanced display option attributes.
      */
     protected function get_display_options_attributes(array $options = []): array
     {

@@ -176,6 +176,7 @@ final class AddonSettings
 
         $existing_count = wp_count_posts('vehicle_addon')->publish;
         if ($existing_count > 0) {
+            /* translators: %d: existing additional services count. */
             echo '<p class="description">' . sprintf(esc_html__('There are already %d additional services. Click the button below to create new default services.', 'mhm-rentiva'), $existing_count) . '</p>';
             echo '<button type="button" class="button" id="create-default-addons">' . esc_html__('Create Default Additional Services', 'mhm-rentiva') . '</button>';
         } else {

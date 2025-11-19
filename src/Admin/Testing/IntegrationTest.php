@@ -75,6 +75,7 @@ final class IntegrationTest
         
         if ($pass) {
             $message = sprintf(
+                /* translators: %s placeholder. */
                 esc_html__('✅ Email system components available (enabled: %s)', 'mhm-rentiva'),
                 $email_enabled ? esc_html__('yes', 'mhm-rentiva') : esc_html__('no', 'mhm-rentiva')
             );
@@ -148,6 +149,7 @@ final class IntegrationTest
         if ($pass) {
             if ($enabled_gateways > 0) {
                 $message = sprintf(
+                    /* translators: 1: %1$d; 2: %2$s; 3: %3$d; 4: %4$s. */
                     esc_html__('✅ %1$d payment gateways available (%2$s), %3$d enabled (%4$s)', 'mhm-rentiva'),
                     $total_gateways,
                     esc_html(implode(', ', $available_names)),
@@ -157,6 +159,7 @@ final class IntegrationTest
             } else {
                 $settings_link = admin_url('admin.php?page=mhm-rentiva-settings&tab=payment');
                 $message = sprintf(
+                    /* translators: 1: %1$d; 2: %2$s; 3: %3$s. */
                     esc_html__('✅ %1$d payment gateways available (%2$s). None enabled yet (%3$s)', 'mhm-rentiva'),
                     $total_gateways,
                     esc_html(implode(', ', $available_names)),
@@ -165,6 +168,7 @@ final class IntegrationTest
             }
         } else {
             $message = sprintf(
+                /* translators: 1: %1$d; 2: %2$d. */
                 esc_html__('⚠️ Only %1$d/%2$d payment gateways found. Expected at least 2 gateways', 'mhm-rentiva'),
                 $total_gateways,
                 count($gateways)
@@ -206,11 +210,13 @@ final class IntegrationTest
         
         if ($pass) {
             $message = sprintf(
+                /* translators: %s placeholder. */
                 esc_html__('✅ Required roles found: %s', 'mhm-rentiva'),
                 esc_html(implode(', ', $roles_found))
             );
         } else {
             $message = sprintf(
+                /* translators: %s placeholder. */
                 esc_html__('⚠️ Missing roles: %s', 'mhm-rentiva'),
                 esc_html(implode(', ', $roles_missing))
             );
@@ -273,6 +279,7 @@ final class IntegrationTest
         $pass = $total_translations > 100 && $has_textdomain;
         
         $message = sprintf(
+            /* translators: 1: %1$d; 2: %2$s; 3: %3$s. */
             esc_html__('%1$d translation functions found, textdomain: %2$s, lang files: %3$s', 'mhm-rentiva'),
             $total_translations,
             $has_textdomain ? esc_html__('yes', 'mhm-rentiva') : esc_html__('no', 'mhm-rentiva'),
@@ -343,6 +350,7 @@ final class IntegrationTest
             $message = esc_html__('✅ Database integrity check passed', 'mhm-rentiva');
         } else {
             $message = sprintf(
+                /* translators: 1: %1$d; 2: %2$d. */
                 esc_html__('⚠️ %1$d missing tables, %2$d orphaned meta entries', 'mhm-rentiva'),
                 count($missing_tables),
                 (int) $orphaned_meta

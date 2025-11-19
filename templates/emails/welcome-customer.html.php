@@ -4,7 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo esc_html(sprintf(__('Welcome to %s', 'mhm-rentiva'), (string)($data['site']['name'] ?? get_bloginfo('name')))); ?></title>
+    <title>
+        <?php
+        /* translators: %s: site name. */
+        echo esc_html(sprintf(__('Welcome to %s', 'mhm-rentiva'), (string) ($data['site']['name'] ?? get_bloginfo('name'))));
+        ?>
+    </title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background: #f5f5f5; }
         .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -23,7 +28,12 @@
         </div>
 
         <div class="content">
-            <p><?php echo esc_html(sprintf(__('Hello %s, thanks for joining us!', 'mhm-rentiva'), (string)($data['customer']['name'] ?? ''))); ?></p>
+            <p>
+                <?php
+                /* translators: %s: customer name. */
+                echo esc_html(sprintf(__('Hello %s, thanks for joining us!', 'mhm-rentiva'), (string) ($data['customer']['name'] ?? '')));
+                ?>
+            </p>
             <p><?php esc_html_e('You can access your account anytime using the button below:', 'mhm-rentiva'); ?></p>
             <?php $account_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_account'); ?>
             <p style="text-align:center"><a class="cta-button" href="<?php echo esc_url($account_url); ?>"><?php esc_html_e('My Account', 'mhm-rentiva'); ?></a></p>

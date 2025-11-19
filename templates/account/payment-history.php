@@ -31,7 +31,12 @@ $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
     <div class="mhm-account-content">
         <div class="section-header">
             <h2><?php _e('Payment History', 'mhm-rentiva'); ?></h2>
-            <span class="view-all-link"><?php printf(esc_html__('%d payments listed', 'mhm-rentiva'), count($payments)); ?></span>
+            <span class="view-all-link">
+                <?php
+                /* translators: %d: total payments count. */
+                printf(esc_html__('%d payments listed', 'mhm-rentiva'), count($payments));
+                ?>
+            </span>
         </div>
 
         <?php if (empty($payments)): ?>

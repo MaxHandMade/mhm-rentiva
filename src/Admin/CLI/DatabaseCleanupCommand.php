@@ -45,27 +45,31 @@ class DatabaseCleanupCommand
         
         // Orphaned Postmeta
         \WP_CLI::log(sprintf(
-            __('Orphaned Postmeta: %d records (~%s)', 'mhm-rentiva'),
+            /* translators: 1: %d; 2: %s. */
+            __('Orphaned Postmeta: %1$d records (~%2$s)', 'mhm-rentiva'),
             $analysis['orphaned_postmeta']['count'],
             size_format($analysis['orphaned_postmeta']['total_size_estimate'])
         ));
         
         // Expired Transients
         \WP_CLI::log(sprintf(
-            __('Expired Transients: %d records (~%s)', 'mhm-rentiva'),
+            /* translators: 1: %d; 2: %s. */
+            __('Expired Transients: %1$d records (~%2$s)', 'mhm-rentiva'),
             $analysis['expired_transients']['count'],
             size_format($analysis['expired_transients']['total_size_estimate'])
         ));
         
         // Autoload Options
         \WP_CLI::log(sprintf(
-            __('Autoload Options: %d options (%s)', 'mhm-rentiva'),
+            /* translators: 1: %d; 2: %s. */
+            __('Autoload Options: %1$d options (%2$s)', 'mhm-rentiva'),
             $analysis['unused_options']['autoload_options'],
             size_format($analysis['unused_options']['autoload_size'])
         ));
         
         // Invalid Meta Keys
         \WP_CLI::log(sprintf(
+            /* translators: %d placeholder. */
             __('Invalid Meta Keys: %d unique keys', 'mhm-rentiva'),
             $analysis['invalid_meta_keys']['count']
         ));
@@ -76,12 +80,14 @@ class DatabaseCleanupCommand
         foreach ($analysis['table_stats'] as $key => $stats) {
             if ($stats['exists']) {
                 \WP_CLI::log(sprintf(
-                    __('  - %s: %d rows (%.2f MB)', 'mhm-rentiva'),
+                    /* translators: 1: %s; 2: %d; 3: %.2f. */
+                    __('  - %1$s: %2$d rows (%3$.2f MB)', 'mhm-rentiva'),
                     $key,
                     $stats['rows'],
                     $stats['size_mb']
                 ));
             } else {
+                /* translators: %s placeholder. */
                 \WP_CLI::warning(sprintf(__('  - %s: NOT EXISTS', 'mhm-rentiva'), $key));
             }
         }
@@ -120,12 +126,14 @@ class DatabaseCleanupCommand
         
         if ($dry_run) {
             \WP_CLI::success(sprintf(
+                /* translators: %d placeholder. */
                 __('Would delete %d orphaned meta records', 'mhm-rentiva'),
                 $result['would_delete']
             ));
         } else {
             \WP_CLI::success(sprintf(
-                __('Deleted %d orphaned meta records. Backup: %s', 'mhm-rentiva'),
+                /* translators: 1: %d; 2: %s. */
+                __('Deleted %1$d orphaned meta records. Backup: %2$s', 'mhm-rentiva'),
                 $result['deleted'],
                 $result['backup_table']
             ));
@@ -156,8 +164,10 @@ class DatabaseCleanupCommand
         $result = DatabaseCleaner::cleanup_expired_transients($dry_run);
         
         if ($dry_run) {
+            /* translators: %d placeholder. */
             \WP_CLI::success(sprintf(__('Would delete %d expired transients', 'mhm-rentiva'), $result['would_delete']));
         } else {
+            /* translators: %d placeholder. */
             \WP_CLI::success(sprintf(__('Deleted %d expired transients', 'mhm-rentiva'), $result['deleted']));
         }
     }

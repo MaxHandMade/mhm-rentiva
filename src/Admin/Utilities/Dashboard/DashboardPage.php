@@ -1250,6 +1250,7 @@ final class DashboardPage
                 'type' => 'warning',
                 'icon' => 'dashicons-email-alt',
                 'title' => esc_html__('Pending Messages', 'mhm-rentiva'),
+                /* translators: %d placeholder. */
                 'message' => sprintf(esc_html__('%d pending messages', 'mhm-rentiva'), $message_stats['pending']),
                 'time' => esc_html__('Now', 'mhm-rentiva')
             ];
@@ -1261,6 +1262,7 @@ final class DashboardPage
                 'type' => 'info',
                 'icon' => 'dashicons-calendar-alt',
                 'title' => esc_html__('Active Bookings', 'mhm-rentiva'),
+                /* translators: %d placeholder. */
                 'message' => sprintf(esc_html__('%d total bookings', 'mhm-rentiva'), $booking_stats['total_bookings']),
                 'time' => esc_html__('Current', 'mhm-rentiva')
             ];
@@ -1272,6 +1274,7 @@ final class DashboardPage
                 'type' => 'warning',
                 'icon' => 'dashicons-money-alt',
                 'title' => esc_html__('Pending Payments', 'mhm-rentiva'),
+                /* translators: %d placeholder. */
                 'message' => sprintf(esc_html__('%d pending payments', 'mhm-rentiva'), count($pending_payments)),
                 'time' => esc_html__('Current', 'mhm-rentiva')
             ];
@@ -1283,6 +1286,7 @@ final class DashboardPage
                 'type' => 'warning',
                 'icon' => 'dashicons-hammer',
                 'title' => esc_html__('Vehicles Under Maintenance', 'mhm-rentiva'),
+                /* translators: %d placeholder. */
                 'message' => sprintf(esc_html__('%d vehicles in maintenance', 'mhm-rentiva'), $vehicle_stats['maintenance']),
                 'time' => esc_html__('Current', 'mhm-rentiva')
             ];
@@ -1315,6 +1319,7 @@ final class DashboardPage
                 'type' => 'warning',
                 'icon' => 'dashicons-update',
                 'title' => esc_html__('System Updates Available', 'mhm-rentiva'),
+                /* translators: %d placeholder. */
                 'message' => sprintf(esc_html__('%d updates available', 'mhm-rentiva'), $system_issues),
                 'time' => esc_html__('Current', 'mhm-rentiva')
             ];

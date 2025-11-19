@@ -31,7 +31,7 @@ final class BookingRefundMetaBox
         $gateway    = (string) get_post_meta($bid, '_mhm_payment_gateway', true);
         $payStatus  = (string) get_post_meta($bid, '_mhm_payment_status', true);
         $paidKurus  = (int) get_post_meta($bid, '_mhm_payment_amount', true);
-        $currency   = (string) get_post_meta($bid, '_mhm_payment_currency', true) ?: \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'TRY');
+        $currency   = (string) get_post_meta($bid, '_mhm_payment_currency', true) ?: \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD');
         $refunded   = (int) get_post_meta($bid, '_mhm_refunded_amount', true);
         $remaining  = max(0, $paidKurus - $refunded);
 

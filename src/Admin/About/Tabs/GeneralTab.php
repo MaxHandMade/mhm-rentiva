@@ -97,6 +97,7 @@ final class GeneralTab extends AbstractTab
                     } elseif ($days_remaining === 1) {
                         $expires_value .= ' (' . __('1 day remaining', 'mhm-rentiva') . ')';
                     } else {
+                        /* translators: %d placeholder. */
                         $expires_value .= ' (' . sprintf(__('%d days remaining', 'mhm-rentiva'), $days_remaining) . ')';
                     }
                 } else {

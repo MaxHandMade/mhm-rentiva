@@ -673,12 +673,16 @@ final class MessageListTable extends AbstractListTable
     {
         switch ($action) {
             case 'mark_read':
+                /* translators: %d placeholder. */
                 return sprintf(__('%d messages marked as read.', 'mhm-rentiva'), $count);
             case 'mark_unread':
+                /* translators: %d placeholder. */
                 return sprintf(__('%d messages marked as unread.', 'mhm-rentiva'), $count);
             case 'change_status':
+                /* translators: %d placeholder. */
                 return sprintf(__('%d messages status updated.', 'mhm-rentiva'), $count);
             case 'delete':
+                /* translators: %d placeholder. */
                 return sprintf(__('%d messages deleted.', 'mhm-rentiva'), $count);
             default:
                 return parent::get_bulk_success_message($action, $count);

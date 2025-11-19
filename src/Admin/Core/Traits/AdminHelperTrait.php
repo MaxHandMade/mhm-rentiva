@@ -207,6 +207,7 @@ trait AdminHelperTrait
         
         echo '<div class="tablenav-pages">';
         echo '<span class="displaying-num">' . sprintf(
+            /* translators: %s placeholder. */
             _n('%s item', '%s items', $total_items, 'mhm-rentiva'),
             number_format_i18n($total_items)
         ) . '</span>';

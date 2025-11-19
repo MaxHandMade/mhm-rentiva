@@ -276,8 +276,10 @@ final class CustomersListTable extends AbstractListTable
     {
         switch ($action) {
             case 'export':
+                /* translators: %d placeholder. */
                 return sprintf(__('%d customers exported.', 'mhm-rentiva'), $count);
             case 'delete':
+                /* translators: %d placeholder. */
                 return sprintf(__('%d customers deleted.', 'mhm-rentiva'), $count);
             default:
                 return parent::get_bulk_success_message($action, $count);

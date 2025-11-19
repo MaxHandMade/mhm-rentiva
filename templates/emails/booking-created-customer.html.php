@@ -29,7 +29,12 @@
     <div class="container">
         <div class="header">
             <h1><?php esc_html_e('Booking Confirmed!', 'mhm-rentiva'); ?></h1>
-            <p><?php printf(esc_html__('Dear %s, your booking has been successfully created.', 'mhm-rentiva'), esc_html($data['customer']['name'] ?? '')); ?></p>
+            <p>
+                <?php
+                /* translators: %s: customer name. */
+                printf(esc_html__('Dear %s, your booking has been successfully created.', 'mhm-rentiva'), esc_html($data['customer']['name'] ?? ''));
+                ?>
+            </p>
             <p style="margin-top: 15px; font-size: 14px; opacity: 0.9;"><?php echo esc_html(\MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_brand_name', get_bloginfo('name'))); ?></p>
         </div>
         
@@ -244,8 +249,13 @@
             <p><strong><?php echo esc_html(\MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_brand_name', get_bloginfo('name'))); ?></strong></p>
             <p><?php esc_html_e('This email was sent automatically. Please do not reply.', 'mhm-rentiva'); ?></p>
             <p style="font-size: 12px; color: #999; margin-top: 10px;">
-                <?php printf(esc_html__('If you have any questions, please contact us at %s', 'mhm-rentiva'), 
-                    '<a href="mailto:' . esc_attr(\MHMRentiva\Admin\Settings\Core\SettingsCore::get_support_email()) . '">' . esc_html(\MHMRentiva\Admin\Settings\Core\SettingsCore::get_support_email()) . '</a>'); ?>
+                <?php
+                printf(
+                    /* translators: %s: support email HTML link. */
+                    esc_html__('If you have any questions, please contact us at %s', 'mhm-rentiva'),
+                    '<a href="mailto:' . esc_attr(\MHMRentiva\Admin\Settings\Core\SettingsCore::get_support_email()) . '">' . esc_html(\MHMRentiva\Admin\Settings\Core\SettingsCore::get_support_email()) . '</a>'
+                );
+                ?>
             </p>
         </div>
     </div>

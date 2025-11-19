@@ -52,6 +52,7 @@ final class BackgroundProcessor
     public static function queue_report_generation(string $report_type, array $params, int $user_id = 0): string
     {
         if (!isset(self::REPORT_TYPES[$report_type])) {
+            /* translators: %s placeholder. */
             throw new \InvalidArgumentException(sprintf(__('Invalid report type: %s', 'mhm-rentiva'), $report_type));
         }
 
@@ -201,6 +202,7 @@ final class BackgroundProcessor
                 break;
                 
             default:
+                /* translators: %s placeholder. */
                 $result = ['success' => false, 'error' => sprintf(__('Unknown report type: %s', 'mhm-rentiva'), $report_type)];
         }
 
@@ -547,10 +549,12 @@ final class BackgroundProcessor
                             break;
                             
                         default:
+                            /* translators: %s placeholder. */
                             $errors[] = sprintf(__('Unknown operation: %s', 'mhm-rentiva'), $operation);
                     }
                 } catch (\Exception $e) {
-                    $errors[] = sprintf(__('Error processing ID %d: %s', 'mhm-rentiva'), $id, $e->getMessage());
+                    /* translators: 1: %d; 2: %s. */
+                    $errors[] = sprintf(__('Error processing ID %1$d: %2$s', 'mhm-rentiva'), $id, $e->getMessage());
                 }
             }
             
@@ -700,12 +704,14 @@ final class BackgroundProcessor
         }
 
         $subject = sprintf(
+            /* translators: %s placeholder. */
             __('MHM Rentiva: %s Completed', 'mhm-rentiva'),
             self::REPORT_TYPES[$job_data['report_type']] ?? $job_data['report_type']
         );
 
         /* translators: 1: User name, 2: Report type, 3: Report type label, 4: Creation date, 5: Processing time */
         $message = sprintf(
+            /* translators: 1: %1$s; 2: %2$s; 3: %3$s; 4: %4$s; 5: %5$s. */
             __('Hello %1$s,
 
 Your %2$s report has been successfully completed.
@@ -742,12 +748,14 @@ MHM Rentiva Team', 'mhm-rentiva'),
         $download_url = $upload_dir['baseurl'] . '/mhm-rentiva-exports/' . basename($file_path);
         
         $subject = sprintf(
+            /* translators: %s placeholder. */
             __('MHM Rentiva: %s Export Completed', 'mhm-rentiva'),
             ucfirst($file_prefix)
         );
 
         /* translators: 1: User name, 2: Data type, 3: File name, 4: Format, 5: Creation date, 6: Download URL */
         $message = sprintf(
+            /* translators: 1: %1$s; 2: %2$s; 3: %3$s; 4: %4$s; 5: %5$s; 6: %6$s. */
             __('Hello %1$s,
 
 Your %2$s data export has been successfully completed.

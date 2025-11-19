@@ -1040,7 +1040,8 @@ final class DatabaseCleaner
             'restored' => (int) ($restored ?: 0),
             'target_table' => $target_table,
             'message' => sprintf(
-                __('Restored %d records to %s', 'mhm-rentiva'),
+                /* translators: 1: %d; 2: %s. */
+                __('Restored %1$d records to %2$s', 'mhm-rentiva'),
                 $restored ?: 0,
                 $target_table
             )
@@ -1228,7 +1229,8 @@ final class DatabaseCleaner
             'tables_count' => count($existing_tables),
             'rows_count' => $total_rows,
             'message' => sprintf(
-                __('Full backup created successfully: %d tables, %d rows', 'mhm-rentiva'),
+                /* translators: 1: %d; 2: %d. */
+                __('Full backup created successfully: %1$d tables, %2$d rows', 'mhm-rentiva'),
                 count($existing_tables),
                 $total_rows
             )
@@ -1368,8 +1370,10 @@ final class DatabaseCleaner
             'executed' => $executed,
             'errors' => $errors,
             'message' => empty($errors) 
+                /* translators: %d placeholder. */
                 ? sprintf(__('Restored %d queries successfully', 'mhm-rentiva'), $executed)
-                : sprintf(__('Restored %d queries, %d errors occurred', 'mhm-rentiva'), $executed, count($errors))
+                /* translators: 1: %d; 2: %d. */
+                : sprintf(__('Restored %1$d queries, %2$d errors occurred', 'mhm-rentiva'), $executed, count($errors))
         ];
     }
 
@@ -1483,6 +1487,7 @@ final class DatabaseCleaner
             $octal_perms = substr(sprintf('%o', $perms), -4);
             // Check if directory is world-writable (security risk)
             if (($perms & 0002) || ($perms & 0020)) {
+                /* translators: %s placeholder. */
                 $issues[] = sprintf(__('Directory permissions (%s) are too permissive', 'mhm-rentiva'), $octal_perms);
             }
         }

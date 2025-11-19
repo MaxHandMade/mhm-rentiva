@@ -45,6 +45,7 @@ $wrapper_class = $wrapper_class ?? '';
         <?php if ($total_vehicles > 0): ?>
             <div class="rv-vehicles-grid__count">
                 <?php printf(
+                    /* translators: %d placeholder. */
                     _n('%d vehicle', '%d vehicles', $total_vehicles, 'mhm-rentiva'),
                     $total_vehicles
                 ); ?>

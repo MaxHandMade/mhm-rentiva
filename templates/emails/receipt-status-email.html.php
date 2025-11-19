@@ -253,6 +253,7 @@ $status_icon = ($status === 'approved') ? '✓' : '✗';
             <p>
                 <?php 
                 printf(
+                    /* translators: %s placeholder. */
                     esc_html__('This email was sent from %s', 'mhm-rentiva'),
                     '<a href="' . esc_url($site_url) . '" style="color: #667eea;">' . esc_html(\MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_brand_name', get_bloginfo('name'))) . '</a>'
                 );
