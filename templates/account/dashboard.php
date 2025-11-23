@@ -156,7 +156,6 @@ $favorites = SettingsCore::get('mhm_rentiva_customer_favorites', '1');
                                 <?php endif; ?>
                                 <div class="vehicle-info">
                                     <h4><?php echo $vehicle ? esc_html($vehicle->post_title) : esc_html__('Vehicle Not Found', 'mhm-rentiva'); ?></h4>
-                                    /* translators: %s placeholder. */
                                     <p class="booking-number">
                                         <?php
                                         /* translators: %s: booking post ID. */
