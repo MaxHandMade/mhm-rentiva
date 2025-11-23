@@ -89,7 +89,7 @@ if ((!empty($payment_gateway) && $payment_gateway === 'offline') || (!empty($pay
 
 // URLs
 $account_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_account_url();
-$booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list') ?: home_url('/vehicles/');
+$booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
 ?>
 
 <div class="rv-booking-confirmation">

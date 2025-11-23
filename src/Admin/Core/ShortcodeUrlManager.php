@@ -34,7 +34,17 @@ final class ShortcodeUrlManager
             return self::$page_cache[$shortcode];
         }
 
-        // Find page ID
+        // 1. PRIORITY: Check Frontend Settings for custom URL
+        $settings = get_option('mhm_rentiva_settings', []);
+        $setting_key = self::get_setting_key_for_shortcode($shortcode);
+        
+        if ($setting_key && !empty($settings[$setting_key])) {
+            $url = esc_url($settings[$setting_key]);
+            self::$page_cache[$shortcode] = $url;
+            return $url;
+        }
+
+        // 2. FALLBACK: Find page containing the shortcode
         $page_id = self::find_page_by_shortcode($shortcode);
         
         if ($page_id) {
@@ -43,13 +53,37 @@ final class ShortcodeUrlManager
             return $url;
         }
 
-        // Show warning if page not found and return fallback
+        // 3. FINAL FALLBACK: Show warning and return home page
         self::show_admin_notice_missing_page($shortcode);
         
-        // Fallback: Home page
         $fallback = home_url('/');
         self::$page_cache[$shortcode] = $fallback;
         return $fallback;
+    }
+
+    /**
+     * Get Frontend Settings key for shortcode
+     * 
+     * Maps shortcode names to their corresponding Frontend Settings option keys
+     * 
+     * @param string $shortcode Shortcode name
+     * @return string|null Settings key or null if not mapped
+     */
+    private static function get_setting_key_for_shortcode(string $shortcode): ?string
+    {
+        $mapping = [
+            'rentiva_booking_form' => 'mhm_rentiva_booking_url',
+            'rentiva_login_form' => 'mhm_rentiva_login_url',
+            'rentiva_register_form' => 'mhm_rentiva_register_url',
+            'rentiva_my_account' => 'mhm_rentiva_my_account_url',
+            'rentiva_my_bookings' => 'mhm_rentiva_my_bookings_url',
+            'rentiva_my_favorites' => 'mhm_rentiva_my_favorites_url',
+            'rentiva_vehicles_list' => 'mhm_rentiva_vehicles_list_url',
+            'rentiva_search' => 'mhm_rentiva_search_url',
+            'rentiva_contact' => 'mhm_rentiva_contact_url',
+        ];
+
+        return $mapping[$shortcode] ?? null;
     }
 
     /**
