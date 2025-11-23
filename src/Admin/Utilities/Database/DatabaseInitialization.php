@@ -741,6 +741,11 @@ final class DatabaseInitialization
                 add_option($key, $value);
             }
         }
+
+        // Secure Token Key
+        if (!get_option('mhm_rentiva_secret_key')) {
+            add_option('mhm_rentiva_secret_key', wp_generate_password(64, true, true));
+        }
     }
     
     /**

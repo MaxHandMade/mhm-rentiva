@@ -104,11 +104,9 @@ final class Plugin
             }
             
         // Styles - Compatible loading with AssetManager
-        $styles_file = plugin_dir_path(dirname(__FILE__)) . 'src/Admin/Core/Utilities/Styles.php';
-        if (file_exists($styles_file)) {
-            require_once $styles_file;
-            // Use Styles if AssetManager is not loaded
-            if (!$this->is_class_available('MHMRentiva\Admin\Core\AssetManager')) {
+        // Use Styles if AssetManager is not loaded
+        if (!$this->is_class_available('MHMRentiva\Admin\Core\AssetManager')) {
+            if ($this->is_class_available('MHMRentiva\Admin\Core\Utilities\Styles')) {
                 $styles = new \MHMRentiva\Admin\Core\Utilities\Styles(
                     MHM_RENTIVA_PLUGIN_DIR, 
                     MHM_RENTIVA_PLUGIN_URL
@@ -123,23 +121,13 @@ final class Plugin
      */
     private function initialize_post_types(): void
     {
-        // Load AbstractPostType
-        $abstract_file = __DIR__ . '/Admin/Core/PostTypes/AbstractPostType.php';
-        if (file_exists($abstract_file)) {
-            require_once $abstract_file;
-        }
-        
-        // Vehicle post type - Manual loading
-        $vehicle_file = __DIR__ . '/Admin/Vehicle/PostType/Vehicle.php';
-        if (file_exists($vehicle_file)) {
-            require_once $vehicle_file;
+        // Vehicle post type
+        if ($this->is_class_available('MHMRentiva\Admin\Vehicle\PostType\Vehicle')) {
             \MHMRentiva\Admin\Vehicle\PostType\Vehicle::register();
         }
         
-        // Booking post type - Manual loading
-        $booking_file = __DIR__ . '/Admin/Booking/PostType/Booking.php';
-        if (file_exists($booking_file)) {
-            require_once $booking_file;
+        // Booking post type
+        if ($this->is_class_available('MHMRentiva\Admin\Booking\PostType\Booking')) {
             \MHMRentiva\Admin\Booking\PostType\Booking::register();
         }
         
@@ -153,30 +141,20 @@ final class Plugin
      */
     private function initialize_admin_services(): void
     {
-        // Settings - Manual loading
-        $settings_file = plugin_dir_path(dirname(__FILE__)) . 'src/Admin/Settings/Settings.php';
-        if (file_exists($settings_file)) {
-            require_once $settings_file;
+        // Settings
+        if ($this->is_class_available('MHMRentiva\Admin\Settings\Settings')) {
             \MHMRentiva\Admin\Settings\Settings::register();
         }
 
-        // ShortcodeUrlManager - Manual loading
-        $shortcode_url_manager_file = plugin_dir_path(dirname(__FILE__)) . 'src/Admin/Core/ShortcodeUrlManager.php';
-        if (file_exists($shortcode_url_manager_file)) {
-            require_once $shortcode_url_manager_file;
-        }
+        // ShortcodeUrlManager is autoloaded when used
 
-        // Shortcode Pages - Manual loading
-        $shortcode_pages_file = plugin_dir_path(dirname(__FILE__)) . 'src/Admin/Settings/ShortcodePages.php';
-        if (file_exists($shortcode_pages_file)) {
-            require_once $shortcode_pages_file;
+        // Shortcode Pages
+        if ($this->is_class_available('MHMRentiva\Admin\Settings\ShortcodePages')) {
             \MHMRentiva\Admin\Settings\ShortcodePages::register();
         }
 
-        // Shortcode Settings - Manual loading
-        $shortcode_settings_file = plugin_dir_path(dirname(__FILE__)) . 'src/Admin/Settings/ShortcodeSettings.php';
-        if (file_exists($shortcode_settings_file)) {
-            require_once $shortcode_settings_file;
+        // Shortcode Settings
+        if ($this->is_class_available('MHMRentiva\Admin\Settings\ShortcodeSettings')) {
             \MHMRentiva\Admin\Settings\ShortcodeSettings::register();
         }
             
@@ -188,10 +166,8 @@ final class Plugin
             \MHMRentiva\Admin\Emails\Core\Templates::register();
         }
             
-        // Admin menu - Manual loading
-        $menu_file = plugin_dir_path(dirname(__FILE__)) . 'src/Admin/Utilities/Menu/Menu.php';
-        if (file_exists($menu_file)) {
-            require_once $menu_file;
+        // Admin menu
+        if ($this->is_class_available('MHMRentiva\Admin\Utilities\Menu\Menu')) {
             \MHMRentiva\Admin\Utilities\Menu\Menu::register();
         }
             
@@ -202,14 +178,9 @@ final class Plugin
             
             // Meta boxes
             
-            $abstract_meta_box_file = dirname(__FILE__) . '/Admin/Core/MetaBoxes/AbstractMetaBox.php';
-            if (file_exists($abstract_meta_box_file)) {
-                require_once $abstract_meta_box_file;
-            }
-            
-            $vehicle_meta_file = dirname(__FILE__) . '/Admin/Vehicle/Meta/VehicleMeta.php';
-            if (file_exists($vehicle_meta_file)) {
-                require_once $vehicle_meta_file;
+            // Meta boxes
+            if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta')) {
+                \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::register();
             }
             
             if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta')) {
@@ -230,16 +201,12 @@ final class Plugin
                 \MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::register();
             }
             
-            // List table columns - Manual loading
-            $vehicle_columns_file = plugin_dir_path(dirname(__FILE__)) . 'src/Admin/Vehicle/ListTable/VehicleColumns.php';
-            if (file_exists($vehicle_columns_file)) {
-                require_once $vehicle_columns_file;
+            // List table columns
+            if ($this->is_class_available('MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns')) {
                 \MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::register();
             }
             
-            $booking_columns_file = plugin_dir_path(dirname(__FILE__)) . 'src/Admin/Booking/ListTable/BookingColumns.php';
-            if (file_exists($booking_columns_file)) {
-                require_once $booking_columns_file;
+            if ($this->is_class_available('MHMRentiva\Admin\Booking\ListTable\BookingColumns')) {
                 \MHMRentiva\Admin\Booking\ListTable\BookingColumns::register();
             }
             
@@ -266,9 +233,7 @@ final class Plugin
         }
 
         // Setup Wizard
-        $setup_wizard_file = plugin_dir_path(dirname(__FILE__)) . 'src/Admin/Setup/SetupWizard.php';
-        if (file_exists($setup_wizard_file)) {
-            require_once $setup_wizard_file;
+        if ($this->is_class_available('MHMRentiva\Admin\Setup\SetupWizard')) {
             \MHMRentiva\Admin\Setup\SetupWizard::register();
         }
     }
@@ -385,11 +350,9 @@ final class Plugin
             Admin\Core\Utilities\DebugHelper::register();
         }
         
-        // Vehicle Settings (admin only) - Manual loading
+        // Vehicle Settings (admin only)
         if (is_admin()) {
-            $vehicle_settings_file = plugin_dir_path(dirname(__FILE__)) . 'src/Admin/Vehicle/Settings/VehicleSettings.php';
-            if (file_exists($vehicle_settings_file)) {
-                require_once $vehicle_settings_file;
+            if ($this->is_class_available('Admin\Vehicle\Settings\VehicleSettings')) {
                 Admin\Vehicle\Settings\VehicleSettings::register();
             }
         }
@@ -617,10 +580,8 @@ final class Plugin
     private function initialize_frontend_services(): void
     {
         // ⭐ Load AbstractShortcode first - Required for other shortcodes
-        $abstract_shortcode_path = MHM_RENTIVA_PLUGIN_PATH . 'src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php';
-        if (file_exists($abstract_shortcode_path) && !class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\AbstractShortcode')) {
-            require_once $abstract_shortcode_path;
-        }
+        // Autoloader handles this now
+
         
         // ⭐ Shortcode Service Provider - Manages all shortcodes centrally (v3.0.1)
         if ($this->is_class_available('MHMRentiva\Admin\Core\ShortcodeServiceProvider')) {

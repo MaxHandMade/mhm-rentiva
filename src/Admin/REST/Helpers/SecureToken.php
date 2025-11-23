@@ -14,11 +14,6 @@ if (!defined('ABSPATH')) {
 final class SecureToken
 {
     /**
-     * Token imzalama anahtarı
-     */
-    private const SECRET_KEY = 'mhm_rentiva_secure_token_key_2024';
-    
-    /**
      * Token süresi (varsayılan 24 saat)
      */
     private const DEFAULT_EXPIRY_HOURS = 24;
@@ -235,9 +230,18 @@ final class SecureToken
      */
     private static function get_secret_key(): string
     {
+        // Veritabanından anahtarı al
+        $key = get_option('mhm_rentiva_secret_key');
+        
+        // Eğer anahtar yoksa oluştur (Fallback)
+        if (!$key) {
+            $key = wp_generate_password(64, true, true);
+            update_option('mhm_rentiva_secret_key', $key);
+        }
+
         // WordPress salt'ını kullan
         $wp_secret = defined('SECRET_KEY') ? SECRET_KEY : 'mhm-rentiva-fallback-key';
-        return self::SECRET_KEY . '_' . $wp_secret;
+        return $key . '_' . $wp_secret;
     }
     
     /**

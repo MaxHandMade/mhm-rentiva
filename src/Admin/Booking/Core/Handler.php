@@ -12,19 +12,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Core\Helpers\Sanitizer;
+
 final class Handler
 {
-    /**
-     * Safe sanitize text field that handles null values
-     */
-    public static function sanitize_text_field_safe($value)
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        return sanitize_text_field((string) $value);
-    }
-
     public static function register(): void
     {
         add_action('admin_post_mhm_rentiva_booking', [self::class, 'handle']);
@@ -57,8 +48,8 @@ final class Handler
         $selected_addons = isset($_POST['selected_addons']) ? array_map('absint', (array) $_POST['selected_addons']) : [];
         
         // Deposit system fields
-        $payment_type = isset($_POST['payment_type']) ? self::sanitize_text_field_safe($_POST['payment_type']) : 'deposit';
-        $payment_method = isset($_POST['payment_method']) ? self::sanitize_text_field_safe($_POST['payment_method']) : 'online';
+        $payment_type = isset($_POST['payment_type']) ? Sanitizer::text_field_safe($_POST['payment_type']) : 'deposit';
+        $payment_method = isset($_POST['payment_method']) ? Sanitizer::text_field_safe($_POST['payment_method']) : 'online';
 
         // Basic validation
         if (!$vehicle_id || !$pickup_date || !$pickup_time || !$dropoff_date || !$dropoff_time || 
@@ -131,7 +122,7 @@ final class Handler
                 'payment_type' => $payment_type,
                 'payment_method' => $payment_method,
                 'client_ip' => self::get_client_ip(),
-                'user_agent' => self::sanitize_text_field_safe($_SERVER['HTTP_USER_AGENT'] ?? ''),
+                'user_agent' => Sanitizer::text_field_safe($_SERVER['HTTP_USER_AGENT'] ?? ''),
             ];
 
             $booking_id = self::create_booking_atomic($booking_data);

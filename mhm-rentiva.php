@@ -2,13 +2,15 @@
 /*
 Plugin Name: MHM Rentiva
 Description: Vehicle rental management plugin independent of WooCommerce.
-Version: 4.4.1
+Version: 4.4.2
 Author: MHM Development Team
 Text Domain: mhm-rentiva
 Domain Path: /languages
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
 
 if (!defined('ABSPATH')) {
@@ -51,19 +53,21 @@ if (!function_exists('mhm_rentiva_override_wp_sanitize_functions')) {
  */
 function mhm_rentiva_sanitize_text_field_safe($value)
 {
-    // ✅ CRITICAL: Null check FIRST - before any processing
+    // Use central Sanitizer if available (PSR-4 autoloader might not be ready yet in some hooks)
+    if (class_exists('MHMRentiva\Admin\Core\Helpers\Sanitizer')) {
+        return \MHMRentiva\Admin\Core\Helpers\Sanitizer::text_field_safe($value);
+    }
+
+    // Fallback implementation
     if ($value === null) {
         return '';
     }
-    // ✅ Empty string check
     if ($value === '') {
         return '';
     }
-    // ✅ Convert to string if not already - prevents strlen() errors
     if (!is_string($value) && !is_numeric($value)) {
         return '';
     }
-    // ✅ Now safe to call WordPress core function
     return sanitize_text_field((string) $value);
 }
 
@@ -110,7 +114,7 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 
 // Version constant
 if (!defined('MHM_RENTIVA_VERSION')) {
-    define('MHM_RENTIVA_VERSION', '4.4.1');
+    define('MHM_RENTIVA_VERSION', '4.4.2');
 }
 
 // Plugin file constant
