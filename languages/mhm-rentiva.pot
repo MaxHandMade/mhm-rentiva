@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-23T19:33:24+01:00\n"
+"POT-Creation-Date: 2025-11-23T19:59:45+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -134,7 +134,7 @@ msgstr ""
 #: src/Admin/Settings/SettingsView.php:1286
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:72
 #: templates/shortcodes/availability-calendar.php:377
-#: templates/shortcodes/booking-form.php:687
+#: templates/shortcodes/booking-form.php:693
 #: templates/shortcodes/testimonials.php:220
 #: templates/shortcodes/vehicle-rating-form.php:54
 msgid "Loading..."
@@ -149,7 +149,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:711
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:168
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:633
-#: templates/shortcodes/booking-form.php:688
+#: templates/shortcodes/booking-form.php:694
 #: templates/shortcodes/testimonials.php:221
 msgid "An error occurred."
 msgstr ""
@@ -784,7 +784,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:173
 #: src/Admin/Core/AssetManager.php:394
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:236
-#: templates/shortcodes/booking-form.php:695
+#: templates/shortcodes/booking-form.php:701
 msgid "Calculating..."
 msgstr ""
 
@@ -1432,7 +1432,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1198
 #: src/Admin/Emails/Core/EmailTemplates.php:513
 #: src/Admin/Messages/Core/Messages.php:1492
-#: templates/shortcodes/booking-form.php:647
+#: templates/shortcodes/booking-form.php:653
 msgid "Processing..."
 msgstr ""
 
@@ -1560,7 +1560,7 @@ msgstr ""
 #: src/Admin/Utilities/Menu/Menu.php:80
 #: templates/account/booking-detail.php:146
 #: templates/shortcodes/booking-confirmation.php:175
-#: templates/shortcodes/booking-form.php:310
+#: templates/shortcodes/booking-form.php:316
 msgid "Additional Services"
 msgstr ""
 
@@ -1938,7 +1938,7 @@ msgstr ""
 #: templates/account/bookings.php:93
 #: templates/account/bookings.php:155
 #: templates/account/bookings.php:248
-#: templates/account/dashboard.php:147
+#: templates/account/dashboard.php:153
 #: templates/emails/booking-created-customer.html.php:115
 #: templates/shortcodes/booking-confirmation.php:33
 msgid "Pending"
@@ -1960,7 +1960,7 @@ msgstr ""
 #: templates/account/bookings.php:94
 #: templates/account/bookings.php:156
 #: templates/account/bookings.php:249
-#: templates/account/dashboard.php:135
+#: templates/account/dashboard.php:141
 #: templates/shortcodes/booking-confirmation.php:34
 msgid "Confirmed"
 msgstr ""
@@ -1999,7 +1999,7 @@ msgstr ""
 #: templates/account/bookings.php:96
 #: templates/account/bookings.php:158
 #: templates/account/bookings.php:251
-#: templates/account/dashboard.php:139
+#: templates/account/dashboard.php:145
 #: templates/emails/booking-created-admin.html.php:104
 #: templates/emails/booking-created-customer.html.php:114
 #: templates/shortcodes/booking-confirmation.php:36
@@ -2021,7 +2021,7 @@ msgstr ""
 #: templates/account/bookings.php:97
 #: templates/account/bookings.php:159
 #: templates/account/bookings.php:252
-#: templates/account/dashboard.php:143
+#: templates/account/dashboard.php:149
 #: templates/emails/booking-created-admin.html.php:106
 #: templates/shortcodes/booking-confirmation.php:37
 #: templates/shortcodes/booking-confirmation.php:74
@@ -2462,7 +2462,7 @@ msgstr ""
 #: src/Admin/Setup/SetupWizard.php:430
 #: src/Admin/Utilities/Export/ExportFilters.php:66
 #: templates/shortcodes/booking-confirmation.php:49
-#: templates/shortcodes/booking-form.php:583
+#: templates/shortcodes/booking-form.php:589
 msgid "PayPal"
 msgstr ""
 
@@ -2474,7 +2474,7 @@ msgstr ""
 #: src/Admin/Setup/SetupWizard.php:455
 #: src/Admin/Utilities/Export/ExportFilters.php:67
 #: templates/shortcodes/booking-confirmation.php:50
-#: templates/shortcodes/booking-form.php:597
+#: templates/shortcodes/booking-form.php:603
 msgid "PayTR"
 msgstr ""
 
@@ -2483,7 +2483,7 @@ msgstr ""
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:101
 #: src/Admin/Setup/SetupWizard.php:405
 #: src/Admin/Utilities/Export/ExportFilters.php:68
-#: templates/shortcodes/booking-form.php:569
+#: templates/shortcodes/booking-form.php:575
 msgid "Stripe"
 msgstr ""
 
@@ -2704,7 +2704,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:218
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:238
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:281
-#: templates/shortcodes/booking-form.php:493
+#: templates/shortcodes/booking-form.php:499
 msgid "Full Payment"
 msgstr ""
 
@@ -2718,7 +2718,7 @@ msgstr ""
 #: templates/admin/booking-meta/booking-status.php:135
 #: templates/admin/booking-meta/payment-box.php:60
 #: templates/shortcodes/booking-confirmation.php:200
-#: templates/shortcodes/booking-form.php:516
+#: templates/shortcodes/booking-form.php:522
 msgid "Payment Method"
 msgstr ""
 
@@ -2913,16 +2913,16 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:170
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:256
 #: templates/account/account-details.php:69
-#: templates/account/register-form.php:61
-#: templates/shortcodes/booking-form.php:407
+#: templates/account/register-form.php:67
+#: templates/shortcodes/booking-form.php:413
 msgid "First Name"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:175
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:261
 #: templates/account/account-details.php:77
-#: templates/account/register-form.php:76
-#: templates/shortcodes/booking-form.php:422
+#: templates/account/register-form.php:82
+#: templates/shortcodes/booking-form.php:428
 msgid "Last Name"
 msgstr ""
 
@@ -2939,7 +2939,7 @@ msgstr ""
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:306
 #: templates/admin/booking-meta/booking-status.php:82
 #: templates/shortcodes/booking-confirmation.php:259
-#: templates/shortcodes/booking-form.php:453
+#: templates/shortcodes/booking-form.php:459
 #: templates/shortcodes/contact-form.php:96
 msgid "Phone"
 msgstr ""
@@ -2959,7 +2959,7 @@ msgstr ""
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:305
 #: templates/admin/booking-meta/booking-status.php:89
 #: templates/shortcodes/booking-confirmation.php:254
-#: templates/shortcodes/booking-form.php:438
+#: templates/shortcodes/booking-form.php:444
 #: templates/shortcodes/contact-form.php:84
 msgid "Email"
 msgstr ""
@@ -2979,7 +2979,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:423
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:282
 #: templates/admin/booking-meta/booking-status.php:101
-#: templates/shortcodes/booking-form.php:243
+#: templates/shortcodes/booking-form.php:249
 #: templates/shortcodes/vehicle-search-compact.php:38
 msgid "Pickup Date"
 msgstr ""
@@ -2988,7 +2988,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:428
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:288
 #: templates/admin/booking-meta/booking-status.php:107
-#: templates/shortcodes/booking-form.php:273
+#: templates/shortcodes/booking-form.php:279
 msgid "Pickup Time"
 msgstr ""
 
@@ -2996,7 +2996,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:435
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:295
 #: templates/admin/booking-meta/booking-status.php:115
-#: templates/shortcodes/booking-form.php:257
+#: templates/shortcodes/booking-form.php:263
 #: templates/shortcodes/vehicle-search-compact.php:44
 msgid "Return Date"
 msgstr ""
@@ -3005,7 +3005,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:440
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:301
 #: templates/admin/booking-meta/booking-status.php:121
-#: templates/shortcodes/booking-form.php:287
+#: templates/shortcodes/booking-form.php:293
 msgid "Return Time"
 msgstr ""
 
@@ -3047,7 +3047,7 @@ msgstr ""
 #: src/Admin/Utilities/Export/ExportFilters.php:65
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:294
 #: templates/emails/booking-created-customer.html.php:97
-#: templates/shortcodes/booking-form.php:541
+#: templates/shortcodes/booking-form.php:547
 msgid "Offline Payment"
 msgstr ""
 
@@ -3588,7 +3588,7 @@ msgstr ""
 #: src/Admin/Frontend/Blocks/Gutenberg/GutenbergIntegration.php:101
 #: src/Admin/Frontend/Blocks/Gutenberg/GutenbergIntegration.php:145
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:178
-#: templates/shortcodes/booking-form.php:94
+#: templates/shortcodes/booking-form.php:100
 msgid "Select Vehicle"
 msgstr ""
 
@@ -4623,7 +4623,7 @@ msgstr ""
 #: src/Admin/Reports/Reports.php:63
 #: src/Admin/Reports/Reports.php:974
 #: src/Admin/Reports/Reports.php:1413
-#: templates/account/dashboard.php:62
+#: templates/account/dashboard.php:68
 msgid "Total Bookings"
 msgstr ""
 
@@ -4698,7 +4698,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:958
 #: templates/account/account-details.php:87
-#: templates/account/register-form.php:107
+#: templates/account/register-form.php:113
 msgid "Email Address"
 msgstr ""
 
@@ -5031,7 +5031,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1325
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:205
-#: templates/shortcodes/booking-form.php:697
+#: templates/shortcodes/booking-form.php:703
 msgid "Payment completed successfully!"
 msgstr ""
 
@@ -5834,7 +5834,7 @@ msgstr ""
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:123
 #: templates/account/bookings.php:195
 #: templates/account/bookings.php:288
-#: templates/account/dashboard.php:229
+#: templates/account/dashboard.php:234
 msgid "View"
 msgstr ""
 
@@ -6093,8 +6093,8 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:163
 #: templates/account/favorites.php:187
 #: templates/shortcodes/availability-calendar.php:148
-#: templates/shortcodes/booking-form.php:104
-#: templates/shortcodes/booking-form.php:228
+#: templates/shortcodes/booking-form.php:110
+#: templates/shortcodes/booking-form.php:234
 #: templates/shortcodes/vehicles-grid.php:230
 #: templates/shortcodes/vehicles-list.php:194
 msgid "/day"
@@ -6287,7 +6287,7 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:54
 #: src/Admin/Emails/Core/EmailTemplates.php:239
 #: src/Admin/Emails/Templates/BookingNotifications.php:20
-#: templates/account/dashboard.php:343
+#: templates/account/dashboard.php:348
 msgid "Booking Notifications"
 msgstr ""
 
@@ -7072,7 +7072,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:155
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:788
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:834
-#: templates/shortcodes/booking-form.php:678
+#: templates/shortcodes/booking-form.php:684
 msgid "Added to favorites"
 msgstr ""
 
@@ -7085,7 +7085,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:156
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:789
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:828
-#: templates/shortcodes/booking-form.php:679
+#: templates/shortcodes/booking-form.php:685
 msgid "Removed from favorites"
 msgstr ""
 
@@ -7123,7 +7123,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountRenderer.php:304
 #: src/Admin/Frontend/Account/WooCommerceIntegration.php:54
 #: src/Admin/Frontend/Account/WooCommerceIntegration.php:131
-#: templates/account/dashboard.php:90
+#: templates/account/dashboard.php:96
 msgid "Favorite Vehicles"
 msgstr ""
 
@@ -7174,7 +7174,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:74
 #: src/Admin/Settings/ShortcodePages.php:506
 #: src/Admin/Setup/SetupWizard.php:847
-#: templates/shortcodes/booking-form.php:65
+#: templates/shortcodes/booking-form.php:71
 msgid "Booking Form"
 msgstr ""
 
@@ -7430,27 +7430,27 @@ msgid "🔍 Checking availability..."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:177
-#: templates/shortcodes/booking-form.php:680
+#: templates/shortcodes/booking-form.php:686
 msgid "Please log in to manage favorites."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:178
-#: templates/shortcodes/booking-form.php:681
+#: templates/shortcodes/booking-form.php:687
 msgid "An error occurred while updating favorites."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:179
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:162
-#: templates/shortcodes/booking-form.php:130
-#: templates/shortcodes/booking-form.php:682
+#: templates/shortcodes/booking-form.php:136
+#: templates/shortcodes/booking-form.php:688
 #: templates/shortcodes/vehicles-list.php:108
 msgid "Add to favorites"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:180
 #: templates/account/favorites.php:90
-#: templates/shortcodes/booking-form.php:130
-#: templates/shortcodes/booking-form.php:683
+#: templates/shortcodes/booking-form.php:136
+#: templates/shortcodes/booking-form.php:689
 msgid "Remove from favorites"
 msgstr ""
 
@@ -7475,12 +7475,12 @@ msgid "Availability check failed"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:204
-#: templates/shortcodes/booking-form.php:696
+#: templates/shortcodes/booking-form.php:702
 msgid "Redirecting to payment page..."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:206
-#: templates/shortcodes/booking-form.php:739
+#: templates/shortcodes/booking-form.php:745
 msgid "Payment cancelled. Your booking is in pending status."
 msgstr ""
 
@@ -7489,7 +7489,7 @@ msgid "Payment status is unknown. Please check."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:208
-#: templates/shortcodes/booking-form.php:699
+#: templates/shortcodes/booking-form.php:705
 msgid "Popup blocked. Redirecting to payment page..."
 msgstr ""
 
@@ -7511,7 +7511,7 @@ msgid "Return date must be after pickup date."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:217
-#: templates/shortcodes/booking-form.php:690
+#: templates/shortcodes/booking-form.php:696
 #: assets/js/admin/gutenberg-blocks.js:274
 msgid "Please select a vehicle"
 msgstr ""
@@ -8216,7 +8216,7 @@ msgid "Previous Image"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:302
-#: templates/account/dashboard.php:158
+#: templates/account/dashboard.php:164
 msgid "Vehicle Not Found"
 msgstr ""
 
@@ -12064,7 +12064,9 @@ msgstr ""
 #: src/Admin/Settings/Core/SettingsSanitizer.php:1544
 #: src/Admin/Settings/Core/SettingsSanitizer.php:1547
 #: templates/account/register-form.php:28
+#: templates/account/register-form.php:32
 #: templates/shortcodes/booking-form.php:36
+#: templates/shortcodes/booking-form.php:40
 msgid "I accept the terms of use and privacy policy."
 msgstr ""
 
@@ -16418,7 +16420,7 @@ msgid "Monthly Customers"
 msgstr ""
 
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:214
-#: templates/account/dashboard.php:262
+#: templates/account/dashboard.php:267
 msgid "Quick Actions"
 msgstr ""
 
@@ -16427,7 +16429,7 @@ msgid "Add New Vehicle"
 msgstr ""
 
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:226
-#: templates/account/dashboard.php:291
+#: templates/account/dashboard.php:296
 #: templates/shortcodes/booking-confirmation.php:319
 msgid "New Booking"
 msgstr ""
@@ -16439,7 +16441,7 @@ msgid "Settings"
 msgstr ""
 
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:277
-#: templates/account/dashboard.php:99
+#: templates/account/dashboard.php:105
 msgid "Recent Bookings"
 msgstr ""
 
@@ -16537,7 +16539,7 @@ msgid "Now"
 msgstr ""
 
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:1264
-#: templates/account/dashboard.php:72
+#: templates/account/dashboard.php:78
 msgid "Active Bookings"
 msgstr ""
 
@@ -17347,7 +17349,7 @@ msgid "All Payment Statuses"
 msgstr ""
 
 #: src/Admin/Utilities/Export/ExportFilters.php:409
-#: templates/shortcodes/booking-form.php:557
+#: templates/shortcodes/booking-form.php:563
 msgid "Payment Gateway"
 msgstr ""
 
@@ -17544,12 +17546,12 @@ msgid "Deposit: %1$s %2$s"
 msgstr ""
 
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:280
-#: templates/shortcodes/booking-form.php:486
+#: templates/shortcodes/booking-form.php:492
 msgid "Deposit Payment"
 msgstr ""
 
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:293
-#: templates/shortcodes/booking-form.php:527
+#: templates/shortcodes/booking-form.php:533
 msgid "Online Payment"
 msgstr ""
 
@@ -18336,13 +18338,13 @@ msgid "Contact support to change your email address."
 msgstr ""
 
 #: templates/account/account-details.php:101
-#: templates/shortcodes/booking-form.php:380
+#: templates/shortcodes/booking-form.php:386
 #: templates/shortcodes/contact-form.php:277
 msgid "Contact Information"
 msgstr ""
 
 #: templates/account/account-details.php:105
-#: templates/account/register-form.php:122
+#: templates/account/register-form.php:128
 msgid "Phone Number"
 msgstr ""
 
@@ -18367,19 +18369,19 @@ msgid "New Password"
 msgstr ""
 
 #: templates/account/account-details.php:149
-#: templates/account/register-form.php:151
+#: templates/account/register-form.php:157
 msgid "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character"
 msgstr ""
 
 #. translators: %d: minimum password length.
 #: templates/account/account-details.php:156
-#: templates/account/register-form.php:156
+#: templates/account/register-form.php:162
 #, php-format
 msgid "Minimum %d characters"
 msgstr ""
 
 #: templates/account/account-details.php:159
-#: templates/account/register-form.php:158
+#: templates/account/register-form.php:164
 msgid "including uppercase, lowercase, number, and special character"
 msgstr ""
 
@@ -18526,126 +18528,131 @@ msgid "You haven't made any vehicle bookings yet. Start exploring our fleet!"
 msgstr ""
 
 #: templates/account/bookings.php:307
-#: templates/account/dashboard.php:251
-#: templates/account/dashboard.php:277
+#: templates/account/dashboard.php:256
+#: templates/account/dashboard.php:282
 msgid "Browse Vehicles"
 msgstr ""
 
+#: templates/account/dashboard.php:30
+#: templates/account/dashboard.php:34
+msgid "Welcome to our vehicle rental service!"
+msgstr ""
+
 #. translators: %s: customer display name.
-#: templates/account/dashboard.php:48
+#: templates/account/dashboard.php:54
 #, php-format
 msgid "Welcome back, %s!"
 msgstr ""
 
-#: templates/account/dashboard.php:101
+#: templates/account/dashboard.php:107
 msgid "View All"
 msgstr ""
 
 #. translators: %s: booking post ID.
-#: templates/account/dashboard.php:163
+#: templates/account/dashboard.php:168
 #, php-format
 msgid "Booking #%s"
 msgstr ""
 
-#: templates/account/dashboard.php:171
+#: templates/account/dashboard.php:176
 msgid "Pickup:"
 msgstr ""
 
-#: templates/account/dashboard.php:180
+#: templates/account/dashboard.php:185
 msgid "Return:"
 msgstr ""
 
-#: templates/account/dashboard.php:239
+#: templates/account/dashboard.php:244
 msgid "No Bookings Yet"
 msgstr ""
 
-#: templates/account/dashboard.php:240
+#: templates/account/dashboard.php:245
 msgid "You haven't made any vehicle bookings yet. Browse our fleet and make your first booking!"
 msgstr ""
 
-#: templates/account/dashboard.php:278
+#: templates/account/dashboard.php:283
 msgid "Explore our fleet"
 msgstr ""
 
-#: templates/account/dashboard.php:292
+#: templates/account/dashboard.php:297
 msgid "Make a new reservation"
 msgstr ""
 
-#: templates/account/dashboard.php:305
+#: templates/account/dashboard.php:310
 msgid "Contact Support"
 msgstr ""
 
-#: templates/account/dashboard.php:306
+#: templates/account/dashboard.php:311
 msgid "We're here to help"
 msgstr ""
 
-#: templates/account/dashboard.php:319
+#: templates/account/dashboard.php:324
 msgid "Communication Preferences"
 msgstr ""
 
-#: templates/account/dashboard.php:320
+#: templates/account/dashboard.php:325
 msgid "Manage your email notification preferences"
 msgstr ""
 
-#: templates/account/dashboard.php:332
+#: templates/account/dashboard.php:337
 msgid "Welcome Emails"
 msgstr ""
 
-#: templates/account/dashboard.php:333
+#: templates/account/dashboard.php:338
 msgid "Receive welcome emails for new features and updates"
 msgstr ""
 
-#: templates/account/dashboard.php:344
+#: templates/account/dashboard.php:349
 msgid "Receive notifications about your bookings"
 msgstr ""
 
-#: templates/account/dashboard.php:354
+#: templates/account/dashboard.php:359
 msgid "Marketing Emails"
 msgstr ""
 
-#: templates/account/dashboard.php:355
+#: templates/account/dashboard.php:360
 msgid "Receive promotional offers and special deals"
 msgstr ""
 
-#: templates/account/dashboard.php:362
+#: templates/account/dashboard.php:367
 msgid "Save Preferences"
 msgstr ""
 
-#: templates/account/dashboard.php:377
+#: templates/account/dashboard.php:382
 msgid "Privacy Controls"
 msgstr ""
 
-#: templates/account/dashboard.php:378
+#: templates/account/dashboard.php:383
 msgid "Manage your personal data and privacy settings"
 msgstr ""
 
-#: templates/account/dashboard.php:383
+#: templates/account/dashboard.php:388
 msgid "Data Export"
 msgstr ""
 
-#: templates/account/dashboard.php:384
+#: templates/account/dashboard.php:389
 msgid "Download a copy of all your personal data"
 msgstr ""
 
-#: templates/account/dashboard.php:386
+#: templates/account/dashboard.php:391
 msgid "Export My Data"
 msgstr ""
 
-#: templates/account/dashboard.php:391
-#: templates/account/dashboard.php:394
+#: templates/account/dashboard.php:396
+#: templates/account/dashboard.php:399
 msgid "Withdraw Consent"
 msgstr ""
 
-#: templates/account/dashboard.php:392
+#: templates/account/dashboard.php:397
 msgid "Withdraw your consent for data processing"
 msgstr ""
 
-#: templates/account/dashboard.php:399
-#: templates/account/dashboard.php:402
+#: templates/account/dashboard.php:404
+#: templates/account/dashboard.php:407
 msgid "Delete Account"
 msgstr ""
 
-#: templates/account/dashboard.php:400
+#: templates/account/dashboard.php:405
 msgid "Permanently delete your account and all associated data"
 msgstr ""
 
@@ -18689,7 +18696,7 @@ msgid "Email or Username"
 msgstr ""
 
 #: templates/account/login-form.php:35
-#: templates/account/register-form.php:138
+#: templates/account/register-form.php:144
 msgid "Password"
 msgstr ""
 
@@ -18720,8 +18727,8 @@ msgid "Create an account to manage your bookings, save favorite vehicles, and en
 msgstr ""
 
 #: templates/account/login-form.php:77
-#: templates/account/register-form.php:48
-#: templates/account/register-form.php:218
+#: templates/account/register-form.php:54
+#: templates/account/register-form.php:224
 msgid "Create Account"
 msgstr ""
 
@@ -18819,7 +18826,7 @@ msgstr ""
 #: templates/emails/booking-cancelled.html.php:115
 #: templates/emails/booking-created-admin.html.php:95
 #: templates/emails/booking-created-customer.html.php:66
-#: templates/shortcodes/booking-form.php:358
+#: templates/shortcodes/booking-form.php:364
 msgid "Total Amount:"
 msgstr ""
 
@@ -18831,73 +18838,73 @@ msgstr ""
 msgid "Re-upload"
 msgstr ""
 
-#: templates/account/register-form.php:34
+#: templates/account/register-form.php:40
 msgid "Registration Disabled"
 msgstr ""
 
-#: templates/account/register-form.php:34
+#: templates/account/register-form.php:40
 msgid "Customer registration is currently disabled."
 msgstr ""
 
-#: templates/account/register-form.php:49
+#: templates/account/register-form.php:55
 msgid "Fill out the form below to create a new account."
 msgstr ""
 
-#: templates/account/register-form.php:69
+#: templates/account/register-form.php:75
 msgid "Enter your first name"
 msgstr ""
 
-#: templates/account/register-form.php:84
+#: templates/account/register-form.php:90
 msgid "Enter your last name"
 msgstr ""
 
-#: templates/account/register-form.php:92
+#: templates/account/register-form.php:98
 msgid "Username"
 msgstr ""
 
-#: templates/account/register-form.php:100
+#: templates/account/register-form.php:106
 msgid "Choose a username"
 msgstr ""
 
-#: templates/account/register-form.php:115
+#: templates/account/register-form.php:121
 msgid "example@email.com"
 msgstr ""
 
-#: templates/account/register-form.php:131
+#: templates/account/register-form.php:137
 msgid "+90 (538) 556 41 58"
 msgstr ""
 
-#: templates/account/register-form.php:146
+#: templates/account/register-form.php:152
 msgid "Choose a strong password"
 msgstr ""
 
-#: templates/account/register-form.php:166
+#: templates/account/register-form.php:172
 msgid "Confirm Password"
 msgstr ""
 
-#: templates/account/register-form.php:174
+#: templates/account/register-form.php:180
 msgid "Re-enter your password"
 msgstr ""
 
-#: templates/account/register-form.php:188
-#: templates/shortcodes/booking-form.php:626
+#: templates/account/register-form.php:194
+#: templates/shortcodes/booking-form.php:632
 msgid "Privacy Policy"
 msgstr ""
 
-#: templates/account/register-form.php:205
+#: templates/account/register-form.php:211
 msgid "I consent to the processing of my personal data for the purpose of providing rental services and communication."
 msgstr ""
 
-#: templates/account/register-form.php:213
+#: templates/account/register-form.php:219
 msgid "I want to be informed about campaigns and opportunities."
 msgstr ""
 
-#: templates/account/register-form.php:224
-#: templates/shortcodes/booking-form.php:467
+#: templates/account/register-form.php:230
+#: templates/shortcodes/booking-form.php:473
 msgid "Already have an account?"
 msgstr ""
 
-#: templates/account/register-form.php:226
+#: templates/account/register-form.php:232
 msgid "Sign in"
 msgstr ""
 
@@ -19035,7 +19042,7 @@ msgid "Deposit Amount:"
 msgstr ""
 
 #: templates/emails/booking-created-customer.html.php:84
-#: templates/shortcodes/booking-form.php:368
+#: templates/shortcodes/booking-form.php:374
 msgid "Remaining Amount:"
 msgstr ""
 
@@ -19448,7 +19455,7 @@ msgid "Select Vehicle:"
 msgstr ""
 
 #: templates/shortcodes/availability-calendar.php:224
-#: templates/shortcodes/booking-form.php:97
+#: templates/shortcodes/booking-form.php:103
 #: templates/shortcodes/contact-form.php:123
 msgid "Select vehicle..."
 msgstr ""
@@ -19540,112 +19547,112 @@ msgstr ""
 msgid "You can view and manage your bookings from your account."
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:45
+#: templates/shortcodes/booking-form.php:51
 msgid "You must provide consent for data processing before making a booking. Please update your account settings."
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:91
+#: templates/shortcodes/booking-form.php:97
 msgid "Vehicle Selection"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:238
+#: templates/shortcodes/booking-form.php:244
 msgid "Date and Time"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:249
+#: templates/shortcodes/booking-form.php:255
 msgid "Select pickup date"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:263
+#: templates/shortcodes/booking-form.php:269
 msgid "Select return date"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:276
-#: templates/shortcodes/booking-form.php:290
+#: templates/shortcodes/booking-form.php:282
+#: templates/shortcodes/booking-form.php:296
 msgid "Select time"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:338
+#: templates/shortcodes/booking-form.php:344
 msgid "Price Calculation"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:342
+#: templates/shortcodes/booking-form.php:348
 msgid "Daily Price:"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:346
+#: templates/shortcodes/booking-form.php:352
 msgid "Number of Days:"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:350
+#: templates/shortcodes/booking-form.php:356
 msgid "Vehicle Total:"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:354
+#: templates/shortcodes/booking-form.php:360
 msgid "Additional Services:"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:364
+#: templates/shortcodes/booking-form.php:370
 msgid "Deposit to Pay:"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:469
+#: templates/shortcodes/booking-form.php:475
 msgid "Login here"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:480
+#: templates/shortcodes/booking-form.php:486
 msgid "Payment Options"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:487
+#: templates/shortcodes/booking-form.php:493
 msgid "Pay deposit for booking, pay remaining amount at vehicle delivery"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:494
+#: templates/shortcodes/booking-form.php:500
 msgid "Pay full amount now"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:528
+#: templates/shortcodes/booking-form.php:534
 msgid "Secure payment with credit card"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:542
+#: templates/shortcodes/booking-form.php:548
 msgid "Cash or bank transfer payment (within 30 minutes)"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:609
+#: templates/shortcodes/booking-form.php:615
 msgid "No payment methods are currently available. Please contact the administrator."
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:642
+#: templates/shortcodes/booking-form.php:648
 msgid "Make Booking"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:689
+#: templates/shortcodes/booking-form.php:695
 msgid "Booking successful"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:691
+#: templates/shortcodes/booking-form.php:697
 msgid "Please select dates"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:692
+#: templates/shortcodes/booking-form.php:698
 msgid "Invalid date range"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:693
+#: templates/shortcodes/booking-form.php:699
 msgid "Please select payment type"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:694
+#: templates/shortcodes/booking-form.php:700
 msgid "Please select payment method"
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:698
+#: templates/shortcodes/booking-form.php:704
 msgid "Payment cancelled."
 msgstr ""
 
-#: templates/shortcodes/booking-form.php:730
+#: templates/shortcodes/booking-form.php:736
 msgid "Payment completed successfully! Your booking is confirmed."
 msgstr ""
 
