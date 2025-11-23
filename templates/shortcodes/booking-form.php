@@ -34,6 +34,12 @@ $registration_required = SettingsCore::get('mhm_rentiva_customer_registration_re
 $phone_required = SettingsCore::get('mhm_rentiva_customer_phone_required', '0');
 $terms_required = SettingsCore::get('mhm_rentiva_customer_terms_required', '0');
 $terms_text = SettingsCore::get('mhm_rentiva_customer_terms_text', __('I accept the terms of use and privacy policy.', 'mhm-rentiva'));
+
+// ⭐ If the saved text is the default English text, use the translated version
+if ($terms_text === 'I accept the terms of use and privacy policy.') {
+    $terms_text = __('I accept the terms of use and privacy policy.', 'mhm-rentiva');
+}
+
 $data_consent_required = SettingsCore::get('mhm_rentiva_customer_data_consent', '0');
 
 // Check data consent requirement for logged-in users
