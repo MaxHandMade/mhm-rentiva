@@ -33,7 +33,7 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 $registration_required = SettingsCore::get('mhm_rentiva_customer_registration_required', '0');
 $phone_required = SettingsCore::get('mhm_rentiva_customer_phone_required', '0');
 $terms_required = SettingsCore::get('mhm_rentiva_customer_terms_required', '0');
-$terms_text = SettingsCore::get('mhm_rentiva_customer_terms_text', 'I accept the terms of use and privacy policy.');
+$terms_text = SettingsCore::get('mhm_rentiva_customer_terms_text', __('I accept the terms of use and privacy policy.', 'mhm-rentiva'));
 $data_consent_required = SettingsCore::get('mhm_rentiva_customer_data_consent', '0');
 
 // Check data consent requirement for logged-in users

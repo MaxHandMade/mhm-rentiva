@@ -1541,10 +1541,10 @@ final class SettingsSanitizer
             if ($terms_val !== null && $terms_val !== '' && (is_string($terms_val) || is_numeric($terms_val))) {
                 $out['mhm_rentiva_customer_terms_text'] = \MHMRentiva\Admin\Settings\Core\SettingsHelper::sanitize_textarea_field_safe($terms_val);
             } else {
-                $out['mhm_rentiva_customer_terms_text'] = $defaults['mhm_rentiva_customer_terms_text'] ?? 'I accept the terms of use and privacy policy.';
+                $out['mhm_rentiva_customer_terms_text'] = $defaults['mhm_rentiva_customer_terms_text'] ?? __('I accept the terms of use and privacy policy.', 'mhm-rentiva');
             }
         } else {
-            $out['mhm_rentiva_customer_terms_text'] = $defaults['mhm_rentiva_customer_terms_text'] ?? 'I accept the terms of use and privacy policy.';
+            $out['mhm_rentiva_customer_terms_text'] = $defaults['mhm_rentiva_customer_terms_text'] ?? __('I accept the terms of use and privacy policy.', 'mhm-rentiva');
         }
 
         // Account Settings

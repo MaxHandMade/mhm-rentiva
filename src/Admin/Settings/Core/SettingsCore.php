@@ -402,7 +402,7 @@ final class SettingsCore
             'mhm_rentiva_customer_email_verification'        => '1',
             'mhm_rentiva_customer_phone_required'            => '1',
             'mhm_rentiva_customer_terms_required'            => '1',
-            'mhm_rentiva_customer_terms_text'                => 'I accept the terms of use and privacy policy.',
+            'mhm_rentiva_customer_terms_text'                => __('I accept the terms of use and privacy policy.', 'mhm-rentiva'),
             'mhm_rentiva_customer_auto_login'                => '1',
             'mhm_rentiva_customer_welcome_email'             => '1',
             'mhm_rentiva_customer_booking_notifications'     => '1',

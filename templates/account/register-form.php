@@ -25,7 +25,7 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 $registration_enabled = SettingsCore::get('mhm_rentiva_customer_registration_enabled', '1');
 $phone_required = SettingsCore::get('mhm_rentiva_customer_phone_required', '0');
 $terms_required = SettingsCore::get('mhm_rentiva_customer_terms_required', '0');
-$terms_text = SettingsCore::get('mhm_rentiva_customer_terms_text', 'I accept the terms of use and privacy policy.');
+$terms_text = SettingsCore::get('mhm_rentiva_customer_terms_text', __('I accept the terms of use and privacy policy.', 'mhm-rentiva'));
 $password_min_length = SettingsCore::get('mhm_rentiva_customer_password_min_length', 8);
 $password_special = SettingsCore::get('mhm_rentiva_customer_password_require_special', '0');
 
