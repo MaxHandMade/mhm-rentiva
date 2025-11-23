@@ -52,16 +52,18 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 == Changelog ==
 
 = 4.4.2 =
-*   Compliance: Added WordPress.org standard `readme.txt`.
-*   Compliance: Added License headers to main plugin file.
-*   Verified: Passed automated syntax and class existence checks.
+*   Security: Removed hardcoded secure token and implemented dynamic key generation.
+*   Refactoring: Separated settings page view logic into SettingsView class.
+*   Bug Fix: Resolved automatic booking cancellation cron job issue.
+*   Compliance: Added WordPress.org standard readme.txt and license headers.
+*   Cleanup: Centralized sanitization helpers and removed manual require_once calls.
 
 = 4.4.1 =
-*   Security Fix: Removed hardcoded secure token and implemented dynamic key generation.
-*   Refactor: Separated settings page view logic for better performance and maintainability.
-*   Fix: Resolved automatic booking cancellation cron job issue.
-*   Improvement: Centralized sanitization helper methods.
-*   Cleanup: Removed unnecessary manual file inclusions.
+*   Global Readiness: Completed English translations across Elementor widgets, Gutenberg blocks, payment gateways.
+*   Elementor & Gutenberg: Vehicles List, Booking Form, and Vehicle Card widgets expose English titles.
+*   I18n QA: Added translator comments and positional placeholders.
+*   Currency & Deposits: Deposit meta boxes and helpers now format prices via Settings-based currency.
+*   Documentation: README badges and release notes updated.
 
 = 4.4.0 =
 *   Major update: Improved booking algorithm.
