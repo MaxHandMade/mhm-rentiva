@@ -291,13 +291,16 @@ final class DashboardPage
             echo '<tbody>';
             
             foreach ($recent_bookings as $booking) {
-                $status_class = self::get_booking_status_class($booking['status']);
+                $status = $booking['status'] ?? 'pending';
+                $status_class = self::get_booking_status_class($status);
+                // Get translated status label
+                $status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
                 echo '<tr>';
                 echo '<td><strong>#' . esc_html($booking['id']) . '</strong></td>';
                 echo '<td>' . esc_html($booking['customer_name']) . '</td>';
                 echo '<td>' . esc_html($booking['vehicle_title']) . '</td>';
                 echo '<td>' . esc_html($booking['pickup_date']) . '</td>';
-                echo '<td><span class="status-badge ' . esc_attr($status_class) . '">' . esc_html($booking['status']) . '</span></td>';
+                echo '<td><span class="status-badge ' . esc_attr($status_class) . '">' . esc_html($status_label) . '</span></td>';
                 echo '</tr>';
             }
             
@@ -1553,12 +1556,13 @@ final class DashboardPage
         $labels = [
             'unpaid' => esc_html__('Unpaid', 'mhm-rentiva'),
             'paid' => esc_html__('Paid', 'mhm-rentiva'),
+            'pending' => esc_html__('Pending', 'mhm-rentiva'),
             'refunded' => esc_html__('Refunded', 'mhm-rentiva'),
             'failed' => esc_html__('Failed', 'mhm-rentiva'),
             'pending_verification' => esc_html__('Pending Verification', 'mhm-rentiva'),
         ];
 
-        return $labels[$status] ?? ucfirst($status);
+        return $labels[$status] ?? esc_html(ucfirst($status));
     }
 
     /**

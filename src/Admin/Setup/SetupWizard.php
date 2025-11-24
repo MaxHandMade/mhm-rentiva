@@ -24,7 +24,6 @@ final class SetupWizard
         add_action('admin_post_mhm_rentiva_setup_save_license', [self::class, 'handle_save_license']);
         add_action('admin_post_mhm_rentiva_setup_create_pages', [self::class, 'handle_create_pages']);
         add_action('admin_post_mhm_rentiva_setup_save_email', [self::class, 'handle_save_email']);
-        add_action('admin_post_mhm_rentiva_setup_save_payments', [self::class, 'handle_save_payments']);
         add_action('admin_post_mhm_rentiva_setup_save_frontend', [self::class, 'handle_save_frontend']);
         add_action('admin_post_mhm_rentiva_setup_finish', [self::class, 'handle_finish']);
         add_action('admin_post_mhm_rentiva_setup_skip', [self::class, 'handle_skip']);
@@ -87,9 +86,6 @@ final class SetupWizard
                         break;
                     case 'email':
                         self::render_step_email();
-                        break;
-                    case 'payments':
-                        self::render_step_payments();
                         break;
                     case 'frontend':
                         self::render_step_frontend();
@@ -369,49 +365,6 @@ final class SetupWizard
         <?php
     }
 
-    private static function render_step_payments(): void
-    {
-        $offline_enabled = SettingsCore::get('mhm_rentiva_offline_enabled', '1');
-        $offline_instructions = SettingsCore::get('mhm_rentiva_offline_instructions', '');
-        $default_method = SettingsCore::get('mhm_rentiva_booking_default_payment_method', 'offline');
-        $payment_options = [
-            'offline' => __('Offline / Manual', 'mhm-rentiva'),
-        ];
-        ?>
-        <h2><?php esc_html_e('Step 5: Payment Gateways', 'mhm-rentiva'); ?></h2>
-        <p><?php esc_html_e('Configure offline payment methods. Online payments are now handled via WooCommerce integration.', 'mhm-rentiva'); ?></p>
-        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-            <?php wp_nonce_field('mhm_rentiva_setup_payments'); ?>
-            <input type="hidden" name="action" value="mhm_rentiva_setup_save_payments">
-
-            <h3><?php esc_html_e('Offline / Manual Payments', 'mhm-rentiva'); ?></h3>
-            <table class="form-table">
-                <tr>
-                    <th><?php esc_html_e('Enable Offline Payments', 'mhm-rentiva'); ?></th>
-                    <td><label><input type="checkbox" name="offline_enabled" value="1" <?php checked($offline_enabled, '1'); ?> /> <?php esc_html_e('Allow bank transfer / cash on pickup', 'mhm-rentiva'); ?></label></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('Instructions', 'mhm-rentiva'); ?></th>
-                    <td><textarea name="offline_instructions" rows="4" class="large-text"><?php echo esc_textarea($offline_instructions); ?></textarea></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('Default Payment Method', 'mhm-rentiva'); ?></th>
-                    <td>
-                        <select name="default_payment_method">
-                            <?php foreach ($payment_options as $key => $label): ?>
-                                <option value="<?php echo esc_attr($key); ?>" <?php selected($default_method, $key); ?>><?php echo esc_html($label); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-
-            <?php submit_button(__('Save and Continue', 'mhm-rentiva')); ?>
-            <a class="button button-secondary" href="<?php echo esc_url(self::step_url('email')); ?>">&larr; <?php esc_html_e('Back to Email', 'mhm-rentiva'); ?></a>
-        </form>
-        <?php
-    }
-
     private static function render_step_frontend(): void
     {
         // Check if WooCommerce is active and use its currency
@@ -441,7 +394,7 @@ final class SetupWizard
         $show_features = SettingsCore::get('mhm_rentiva_vehicle_show_features', '1');
         $show_availability = SettingsCore::get('mhm_rentiva_vehicle_show_availability', '1');
         ?>
-        <h2><?php esc_html_e('Step 6: Frontend & Display', 'mhm-rentiva'); ?></h2>
+        <h2><?php esc_html_e('Step 5: Frontend & Display', 'mhm-rentiva'); ?></h2>
         <p><?php esc_html_e('Fine tune the visible defaults that appear on booking forms and vehicle cards.', 'mhm-rentiva'); ?></p>
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('mhm_rentiva_setup_frontend'); ?>
@@ -508,7 +461,7 @@ final class SetupWizard
                 </tr>
             </table>
             <?php submit_button(__('Save and Continue', 'mhm-rentiva')); ?>
-            <a class="button button-secondary" href="<?php echo esc_url(self::step_url('payments')); ?>">&larr; <?php esc_html_e('Back to Payments', 'mhm-rentiva'); ?></a>
+            <a class="button button-secondary" href="<?php echo esc_url(self::step_url('email')); ?>">&larr; <?php esc_html_e('Back to Email', 'mhm-rentiva'); ?></a>
         </form>
         <?php
     }
@@ -612,27 +565,6 @@ final class SetupWizard
         $settings['mhm_rentiva_email_log_enabled'] = isset($_POST['log_enabled']) ? '1' : '0';
         update_option('mhm_rentiva_settings', $settings);
 
-        wp_safe_redirect(self::step_url('payments', ['saved' => '1']));
-        exit;
-    }
-
-    public static function handle_save_payments(): void
-    {
-        if (!current_user_can('manage_options')) {
-            wp_die(__('You are not allowed to perform this action.', 'mhm-rentiva'));
-        }
-        check_admin_referer('mhm_rentiva_setup_payments');
-
-        $settings = get_option('mhm_rentiva_settings', []);
-        $settings['mhm_rentiva_offline_enabled'] = isset($_POST['offline_enabled']) ? '1' : '0';
-        $settings['mhm_rentiva_offline_instructions'] = sanitize_textarea_field(wp_unslash($_POST['offline_instructions'] ?? ''));
-
-        $allowed_methods = ['offline'];
-        $default_method = sanitize_key(wp_unslash($_POST['default_payment_method'] ?? 'offline'));
-        $settings['mhm_rentiva_booking_default_payment_method'] = in_array($default_method, $allowed_methods, true) ? $default_method : 'offline';
-
-        update_option('mhm_rentiva_settings', $settings);
-
         wp_safe_redirect(self::step_url('frontend', ['saved' => '1']));
         exit;
     }
@@ -724,7 +656,6 @@ final class SetupWizard
             'license'  => __('License', 'mhm-rentiva'),
             'pages'    => __('Required Pages', 'mhm-rentiva'),
             'email'    => __('Email Settings', 'mhm-rentiva'),
-            'payments' => __('Payment Gateways', 'mhm-rentiva'),
             'frontend' => __('Frontend & Display', 'mhm-rentiva'),
             'summary'  => __('Summary & Tests', 'mhm-rentiva'),
         ];
