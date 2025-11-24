@@ -23,8 +23,9 @@
                 // Price/Day
                 var price_per_day = $row.find('.column-mhm_price_per_day').text().trim();
                 if (price_per_day !== '—') {
-                    // Get numeric value (remove dots and commas)
-                    var numeric_price = price_per_day.replace(/[.,]/g, '').replace(/\s/g, '');
+                    // Get numeric value (extract only digits, removing all formatting and currency symbols)
+                    // This handles formats like "2.000 ₺", "1,000 $", "500 €", etc.
+                    var numeric_price = price_per_day.replace(/[^\d]/g, ''); // Keep only digits
                     $('.mhm_price_per_day').val(numeric_price);
                 }
 

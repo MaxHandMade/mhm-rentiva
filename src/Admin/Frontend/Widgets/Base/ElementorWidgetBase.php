@@ -87,6 +87,8 @@ abstract class ElementorWidgetBase extends Widget_Base
      */
     abstract protected function register_style_controls(): void;
 
+
+
     /**
      * Register widget controls.
      */
@@ -336,12 +338,16 @@ abstract class ElementorWidgetBase extends Widget_Base
         // Display options
         $display_options = [
             'show_image', 'show_title', 'show_price', 'show_features',
-            'show_rating', 'show_booking_btn', 'show_favorite_btn'
+            'show_rating', 'show_booking_btn', 'show_favorite_btn',
+            'show_category', 'show_badges', 'show_description', 
+            'show_availability', 'show_compare_btn'
         ];
 
         foreach ($display_options as $option) {
             if (isset($settings[$option])) {
-                $atts[$option] = $settings[$option] === 'yes' ? '1' : '0';
+                $val = $settings[$option];
+                // Support both 'yes' (Elementor default) and '1' (custom)
+                $atts[$option] = ($val === 'yes' || $val === '1' || $val === 1 || $val === true) ? '1' : '0';
             }
         }
 

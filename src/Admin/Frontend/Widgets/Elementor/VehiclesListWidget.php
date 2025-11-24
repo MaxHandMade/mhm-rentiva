@@ -56,6 +56,16 @@ class VehiclesListWidget extends ElementorWidgetBase
     }
 
     /**
+     * Retrieve the list of styles the widget depends on.
+     *
+     * @return array Widget styles dependencies.
+     */
+    public function get_style_depends(): array
+    {
+        return ['mhm-rentiva-elementor', 'mhm-rentiva-vehicles-list'];
+    }
+
+    /**
      * Register content tab controls.
      */
     protected function register_content_controls(): void

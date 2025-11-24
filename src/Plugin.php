@@ -214,9 +214,6 @@ final class Plugin
             if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox')) {
                 \MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox::register();
             }
-            if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingPortalMetaBox')) {
-                \MHMRentiva\Admin\Booking\Meta\BookingPortalMetaBox::register();
-            }
             if ($this->is_class_available('\MHMRentiva\Admin\Utilities\Actions\Actions')) {
                 \MHMRentiva\Admin\Utilities\Actions\Actions::register();
             }
@@ -497,8 +494,20 @@ final class Plugin
     {
         $type = $data['post_type'] ?? '';
         
+        // Skip limit check if:
+        // 1. Post ID exists (updating existing post, not creating new)
+        // 2. Post is being deleted/trashed
+        // 3. Post status is trash or deleted
+        $post_id = $postarr['ID'] ?? 0;
+        $post_status = $data['post_status'] ?? '';
+        
+        if ($post_id > 0 || in_array($post_status, ['trash', 'delete'], true)) {
+            return $data;
+        }
+        
         if (class_exists(Admin\Licensing\Mode::class) && class_exists(Admin\Licensing\Restrictions::class)) {
             if (Admin\Licensing\Mode::isLite()) {
+                // Only check limits when creating NEW posts (not updating/deleting)
                 if ($type === 'vehicle' && Admin\Licensing\Restrictions::vehicleCount() >= Admin\Licensing\Mode::maxVehicles()) {
                     wp_die(esc_html__('Rentiva Lite version allows you to add up to 3 vehicles. Activate your license to add more vehicles.', 'mhm-rentiva'), 403);
                 }

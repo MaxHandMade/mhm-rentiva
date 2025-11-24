@@ -80,6 +80,13 @@ final class BookingColumns
                 MHM_RENTIVA_VERSION
             );
             
+            wp_enqueue_style(
+                'mhm-booking-calendar',
+                MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/booking-calendar.css',
+                [],
+                MHM_RENTIVA_VERSION
+            );
+            
             // Load statistics cards CSS
             wp_enqueue_style(
                 'mhm-stats-cards',
@@ -819,112 +826,223 @@ final class BookingColumns
             $current_year = (int) date('Y');
         }
         
-        // Month names - Manual for global compatibility
+        // Dynamic month names (i18n supported)
         $month_names = [
-            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+            1 => __('January', 'mhm-rentiva'),
+            2 => __('February', 'mhm-rentiva'),
+            3 => __('March', 'mhm-rentiva'),
+            4 => __('April', 'mhm-rentiva'),
+            5 => __('May', 'mhm-rentiva'),
+            6 => __('June', 'mhm-rentiva'),
+            7 => __('July', 'mhm-rentiva'),
+            8 => __('August', 'mhm-rentiva'),
+            9 => __('September', 'mhm-rentiva'),
+            10 => __('October', 'mhm-rentiva'),
+            11 => __('November', 'mhm-rentiva'),
+            12 => __('December', 'mhm-rentiva')
         ];
         
-        $current_month_name = $month_names[$current_month];
-        $days_in_month = date('t', mktime(0, 0, 0, $current_month, 1, $current_year));
-        $today = date('j');
+        $days_in_month = cal_days_in_month(CAL_GREGORIAN, $current_month, $current_year);
+        $today = (int) date('j');
+        $current_month_num = (int) date('n');
+        $current_year_num = (int) date('Y');
         
         // Fetch booking entries for calendar
         $booking_days = self::get_booking_calendar_days($current_month, $current_year);
         
-        
         ?>
-        <div class="calendar-container booking-page">
+        <div class="mhm-calendars booking-calendar-page">
+            <!-- Calendar Header -->
             <div class="calendar-header">
-                <button id="prevMonth">&lt;</button>
-                <h2 id="monthYear"><?php echo esc_html($current_month_name . ' ' . $current_year); ?></h2>
-                <button id="nextMonth">&gt;</button>
-            </div>
-            <div class="calendar-days">
-                <div class="day-name"><?php _e('Mon', 'mhm-rentiva'); ?></div>
-                <div class="day-name"><?php _e('Tue', 'mhm-rentiva'); ?></div>
-                <div class="day-name"><?php _e('Wed', 'mhm-rentiva'); ?></div>
-                <div class="day-name"><?php _e('Thu', 'mhm-rentiva'); ?></div>
-                <div class="day-name"><?php _e('Fri', 'mhm-rentiva'); ?></div>
-                <div class="day-name"><?php _e('Sat', 'mhm-rentiva'); ?></div>
-                <div class="day-name"><?php _e('Sun', 'mhm-rentiva'); ?></div>
-            </div>
-            <div id="calendarDays" class="calendar-grid">
-                <?php
-                // Determine day-of-week for the first day of the month
-                $first_day_of_month = date('w', mktime(0, 0, 0, $current_month, 1, $current_year));
-                // Normalize so Monday = 1, Sunday = 0
-                $first_day_of_month = ($first_day_of_month == 0) ? 6 : $first_day_of_month - 1;
+                <h2><?php esc_html_e('Monthly Reservation Calendar', 'mhm-rentiva'); ?></h2>
                 
-                // Previous month's trailing days
-                $prev_month = $current_month == 1 ? 12 : $current_month - 1;
-                $prev_year = $current_month == 1 ? $current_year - 1 : $current_year;
-                $prev_days_in_month = cal_days_in_month(CAL_GREGORIAN, $prev_month, $prev_year);
-                
-                for ($i = $first_day_of_month; $i > 0; $i--) {
-                    $day = $prev_days_in_month - $i + 1;
-                    echo '<div class="prev-date">' . $day . '</div>';
-                }
-                
-                // Current month's days
-                for ($day = 1; $day <= $days_in_month; $day++) {
-                    $is_today = ($day == $today && $current_month == date('n') && $current_year == date('Y'));
-                    $booking_data = $booking_days[$day] ?? null;
+                <!-- Month Navigation -->
+                <div class="calendar-navigation">
+                    <?php
+                    $prev_month = $current_month == 1 ? 12 : $current_month - 1;
+                    $prev_year = $current_month == 1 ? $current_year - 1 : $current_year;
+                    $next_month = $current_month == 12 ? 1 : $current_month + 1;
+                    $next_year = $current_month == 12 ? $current_year + 1 : $current_year;
+                    ?>
                     
-                    $classes = [];
-                    if ($is_today) $classes[] = 'today';
+                    <a href="<?php echo esc_url(add_query_arg(['month' => $prev_month, 'year' => $prev_year])); ?>" 
+                       class="calendar-nav-btn prev-btn" data-action="prev">
+                        <span class="dashicons dashicons-arrow-left-alt2"></span>
+                        <?php echo esc_html($month_names[$prev_month]); ?>
+                    </a>
                     
-                    // Support split-day display
-                    if ($booking_data) {
-                        $classes[] = 'has-booking';
+                    <div class="calendar-current">
+                        <strong><?php echo esc_html($month_names[$current_month] . ' ' . $current_year); ?></strong>
+                    </div>
+                    
+                    <a href="<?php echo esc_url(add_query_arg(['month' => $next_month, 'year' => $next_year])); ?>" 
+                       class="calendar-nav-btn next-btn" data-action="next">
+                        <?php echo esc_html($month_names[$next_month]); ?>
+                        <span class="dashicons dashicons-arrow-right-alt2"></span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="calendar-container">
+                <div class="calendar-grid-wrapper">
+                    <?php
+                    // Get WordPress week start setting (0 = Sunday, 1 = Monday, etc.)
+                    $week_start = (int) get_option('start_of_week', 1);
+                    
+                    // Day names - Reorder based on WordPress setting
+                    $all_day_names = [
+                        __('Sun', 'mhm-rentiva'),
+                        __('Mon', 'mhm-rentiva'), 
+                        __('Tue', 'mhm-rentiva'), 
+                        __('Wed', 'mhm-rentiva'), 
+                        __('Thu', 'mhm-rentiva'), 
+                        __('Fri', 'mhm-rentiva'), 
+                        __('Sat', 'mhm-rentiva')
+                    ];
+                    
+                    // Reorder days based on week start
+                    $day_names = array_merge(
+                        array_slice($all_day_names, $week_start),
+                        array_slice($all_day_names, 0, $week_start)
+                    );
+                    
+                    // Current month's days only - positioned in 7-column grid
+                    for ($day = 1; $day <= $days_in_month; $day++) {
+                        $is_today = ($day == $today && $current_month == $current_month_num && $current_year == $current_year_num);
+                        $booking_data = $booking_days[$day] ?? null;
                         
-                        if ($booking_data['type'] === 'single') {
-                            $classes[] = 'booking-' . $booking_data['status'];
-                            $data_attrs = 'data-status="' . esc_attr($booking_data['status']) . '" data-count="' . $booking_data['count'] . '"';
+                        // Get day name for this date and calculate grid column
+                        $day_of_week = date('w', mktime(0, 0, 0, $current_month, $day, $current_year));
+                        $day_name_index = ($day_of_week - $week_start + 7) % 7;
+                        $day_name = $day_names[$day_name_index];
+                        
+                        // Calculate grid column (1-7) based on day of week
+                        $grid_column = $day_name_index + 1;
+                        
+                        $classes = ['day-cell'];
+                        if ($is_today) {
+                            $classes[] = 'today';
+                        }
+                        
+                        // Booking status classes
+                        if ($booking_data) {
+                            $classes[] = 'booked';
+                            
+                            if ($booking_data['type'] === 'single') {
+                                $status = $booking_data['status'] ?? 'pending';
+                                $status_class = [
+                                    'pending' => 'status-pending',
+                                    'confirmed' => 'status-confirmed',
+                                    'in_progress' => 'status-in-progress',
+                                    'completed' => 'status-completed',
+                                    'cancelled' => 'status-cancelled'
+                                ][$status] ?? 'status-pending';
+                                $classes[] = $status_class;
+                                
+                                $status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
+                                $title = sprintf(__('Reservations: %s (%d)', 'mhm-rentiva'), $status_label, $booking_data['count']);
+                                
+                                // Get all bookings for popup data
+                                $all_bookings = $booking_data['bookings'] ?? [];
+                                
+                                // Data attributes for popup - include all bookings as JSON
+                                $data_attrs = '';
+                                if (!empty($all_bookings)) {
+                                    // Add first booking for backward compatibility
+                                    $first_booking = $all_bookings[0];
+                                    $data_attrs = sprintf(
+                                        'data-booking-id="%s" data-customer-name="%s" data-customer-email="%s" data-customer-phone="%s" data-vehicle-title="%s" data-vehicle-plate="%s" data-total-price="%s" data-status="%s" data-status-label="%s" data-start-date="%s" data-end-date="%s" data-created-date="%s" data-bookings="%s"',
+                                        esc_attr($first_booking['booking_id'] ?? ''),
+                                        esc_attr($first_booking['customer_name'] ?? ''),
+                                        esc_attr($first_booking['customer_email'] ?? ''),
+                                        esc_attr($first_booking['customer_phone'] ?? ''),
+                                        esc_attr($first_booking['vehicle_title'] ?? ''),
+                                        esc_attr($first_booking['vehicle_plate'] ?? ''),
+                                        esc_attr($first_booking['total_price'] ?? ''),
+                                        esc_attr($first_booking['status'] ?? ''),
+                                        esc_attr(\MHMRentiva\Admin\Booking\Core\Status::get_label($first_booking['status'] ?? 'pending')),
+                                        esc_attr($first_booking['start_date'] ?? ''),
+                                        esc_attr($first_booking['end_date'] ?? ''),
+                                        esc_attr($first_booking['created_date'] ?? ''),
+                                        esc_attr(wp_json_encode($all_bookings))
+                                    );
+                                }
+                                
+                                echo '<div class="' . esc_attr(implode(' ', $classes)) . '" style="grid-column: ' . esc_attr($grid_column) . ';" title="' . esc_attr($title) . '" ' . $data_attrs . ' data-booking-popup>';
+                                echo '<span class="day-name">' . esc_html($day_name) . '</span>';
+                                echo '<span class="day-number">' . esc_html($day) . '</span>';
+                                echo '<span class="dashicons dashicons-calendar-alt booking-icon"></span>';
+                                echo '</div>';
+                            } else {
+                                // Multi-status day - show all statuses as equal segments
+                                $classes[] = 'multi-status-day';
+                                $statuses = $booking_data['statuses'] ?? [];
+                                $status_count = count($statuses);
+                                
+                                // Build title with all statuses
+                                $title_parts = [];
+                                foreach ($statuses as $status => $count) {
+                                    $status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
+                                    $title_parts[] = sprintf('%s (%d)', $status_label, $count);
+                                }
+                                $title = __('Reservations: ', 'mhm-rentiva') . implode(', ', $title_parts);
+                                
+                                // Get all bookings for popup data
+                                $all_bookings = $booking_data['bookings'] ?? [];
+                                
+                                // Data attributes for popup - include all bookings as JSON
+                                $data_attrs = '';
+                                if (!empty($all_bookings)) {
+                                    // Add first booking for backward compatibility
+                                    $first_booking = $all_bookings[0];
+                                    $data_attrs = sprintf(
+                                        'data-booking-id="%s" data-customer-name="%s" data-customer-email="%s" data-customer-phone="%s" data-vehicle-title="%s" data-vehicle-plate="%s" data-total-price="%s" data-status="%s" data-status-label="%s" data-start-date="%s" data-end-date="%s" data-created-date="%s" data-bookings="%s"',
+                                        esc_attr($first_booking['booking_id'] ?? ''),
+                                        esc_attr($first_booking['customer_name'] ?? ''),
+                                        esc_attr($first_booking['customer_email'] ?? ''),
+                                        esc_attr($first_booking['customer_phone'] ?? ''),
+                                        esc_attr($first_booking['vehicle_title'] ?? ''),
+                                        esc_attr($first_booking['vehicle_plate'] ?? ''),
+                                        esc_attr($first_booking['total_price'] ?? ''),
+                                        esc_attr($first_booking['status'] ?? ''),
+                                        esc_attr(\MHMRentiva\Admin\Booking\Core\Status::get_label($first_booking['status'] ?? 'pending')),
+                                        esc_attr($first_booking['start_date'] ?? ''),
+                                        esc_attr($first_booking['end_date'] ?? ''),
+                                        esc_attr($first_booking['created_date'] ?? ''),
+                                        esc_attr(wp_json_encode($all_bookings))
+                                    );
+                                }
+                                
+                                echo '<div class="' . esc_attr(implode(' ', $classes)) . '" style="grid-column: ' . esc_attr($grid_column) . ';" title="' . esc_attr($title) . '" ' . $data_attrs . ' data-booking-popup>';
+                                echo '<span class="day-name">' . esc_html($day_name) . '</span>';
+                                echo '<span class="day-number">' . esc_html($day) . '</span>';
+                                echo '<span class="dashicons dashicons-calendar-alt booking-icon"></span>';
+                                echo '<div class="status-segments" data-segments="' . esc_attr($status_count) . '">';
+                                
+                                foreach ($statuses as $status => $count) {
+                                    $status_class = [
+                                        'pending' => 'status-pending',
+                                        'confirmed' => 'status-confirmed',
+                                        'in_progress' => 'status-in-progress',
+                                        'completed' => 'status-completed',
+                                        'cancelled' => 'status-cancelled'
+                                    ][$status] ?? 'status-pending';
+                                    echo '<div class="status-segment ' . esc_attr($status_class) . '"></div>';
+                                }
+                                
+                                echo '</div>';
+                                echo '</div>';
+                            }
                         } else {
-                            $classes[] = 'split-day';
-                            $classes[] = 'booking-' . $booking_data['left_status'] . '-' . $booking_data['right_status'];
-                            $data_attrs = 'data-left-status="' . esc_attr($booking_data['left_status']) . '" data-right-status="' . esc_attr($booking_data['right_status']) . '" data-left-count="' . $booking_data['left_count'] . '" data-right-count="' . $booking_data['right_count'] . '"';
-                        }
-                    } else {
-                        $data_attrs = 'data-status=""';
-                    }
-                    
-                    echo '<div class="' . implode(' ', $classes) . '" data-day="' . $day . '" ' . $data_attrs . '>';
-                    
-                    if ($booking_data && $booking_data['type'] === 'split') {
-                        // Split day HTML
-                        echo '<div class="day-number">' . $day . '</div>';
-                        echo '<div class="split-container">';
-                        echo '<div class="split-left booking-' . $booking_data['left_status'] . '" title="' . esc_attr(self::get_status_label($booking_data['left_status'])) . ' (' . $booking_data['left_count'] . ')">';
-                        echo '<span class="split-icon">' . self::get_status_icon($booking_data['left_status']) . '</span>';
-                        echo '</div>';
-                        echo '<div class="split-right booking-' . $booking_data['right_status'] . '" title="' . esc_attr(self::get_status_label($booking_data['right_status'])) . ' (' . $booking_data['right_count'] . ')">';
-                        echo '<span class="split-icon">' . self::get_status_icon($booking_data['right_status']) . '</span>';
-                        echo '</div>';
-                        echo '</div>';
-                    } else {
-                        // Normal day HTML
-                        echo $day;
-                        if ($booking_data && $booking_data['type'] === 'single') {
-                            $icon = self::get_status_icon($booking_data['status']);
-                            echo '<span class="booking-icon" title="' . esc_attr(self::get_status_label($booking_data['status'])) . ' (' . $booking_data['count'] . ')">' . $icon . '</span>';
+                            echo '<div class="' . esc_attr(implode(' ', $classes)) . '" style="grid-column: ' . esc_attr($grid_column) . ';" title="' . esc_attr__('Available', 'mhm-rentiva') . '">';
+                            echo '<span class="day-name">' . esc_html($day_name) . '</span>';
+                            echo '<span class="day-number">' . esc_html($day) . '</span>';
+                            echo '</div>';
                         }
                     }
-                    
-                    echo '</div>';
-                }
-                
-                // Next month's leading days
-                $last_day_of_month = date('w', mktime(0, 0, 0, $current_month, (int)$days_in_month, $current_year));
-                $last_day_of_month = ($last_day_of_month == 0) ? 6 : $last_day_of_month - 1;
-                $next_days = 6 - $last_day_of_month;
-                
-                for ($j = 1; $j <= $next_days; $j++) {
-                    echo '<div class="next-date">' . $j . '</div>';
-                }
-                ?>
+                    ?>
+                </div>
             </div>
             
             <!-- Status Color Information -->
@@ -932,89 +1050,177 @@ final class BookingColumns
                 <h4><?php esc_html_e('Status Legend', 'mhm-rentiva'); ?></h4>
                 <div class="legend-items">
                     <div class="legend-item">
-                        <span class="legend-color booking-pending"></span>
+                        <span class="legend-color status-pending"></span>
                         <span class="legend-label"><?php esc_html_e('Pending', 'mhm-rentiva'); ?></span>
                     </div>
                     <div class="legend-item">
-                        <span class="legend-color booking-confirmed"></span>
+                        <span class="legend-color status-confirmed"></span>
                         <span class="legend-label"><?php esc_html_e('Confirmed', 'mhm-rentiva'); ?></span>
                     </div>
                     <div class="legend-item">
-                        <span class="legend-color booking-in_progress"></span>
+                        <span class="legend-color status-in-progress"></span>
                         <span class="legend-label"><?php esc_html_e('In Progress', 'mhm-rentiva'); ?></span>
                     </div>
                     <div class="legend-item">
-                        <span class="legend-color booking-completed"></span>
+                        <span class="legend-color status-completed"></span>
                         <span class="legend-label"><?php esc_html_e('Completed', 'mhm-rentiva'); ?></span>
                     </div>
                     <div class="legend-item">
-                        <span class="legend-color booking-cancelled"></span>
+                        <span class="legend-color status-cancelled"></span>
                         <span class="legend-label"><?php esc_html_e('Cancelled', 'mhm-rentiva'); ?></span>
                     </div>
                 </div>
             </div>
         </div>
         
-        <style>
-        /* ✅ Legend Stilleri */
-        .calendar-legend {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
+        <!-- Booking Popup Modal -->
+        <div id="mhm-booking-popup" class="mhm-popup-modal" style="display: none;">
+            <div class="mhm-popup-overlay"></div>
+            <div class="mhm-popup-content">
+                <div class="mhm-popup-header">
+                    <h3><?php esc_html_e('Booking Details', 'mhm-rentiva'); ?></h3>
+                    <button class="mhm-popup-close" type="button">
+                        <span class="dashicons dashicons-no-alt"></span>
+                    </button>
+                </div>
+                <div class="mhm-popup-body">
+                    <div id="popup-bookings-list">
+                        <!-- Bookings will be rendered here by JavaScript -->
+                    </div>
+                </div>
+                <div class="mhm-popup-footer">
+                    <button class="button button-secondary mhm-popup-close">
+                        <?php esc_html_e('Close', 'mhm-rentiva'); ?>
+                    </button>
+                </div>
+            </div>
+        </div>
         
-        .calendar-legend h4 {
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 14px;
-        }
-        
-        .legend-items {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 3px;
-            display: inline-block;
-        }
-        
-        .legend-color.booking-pending {
-            background-color: #ffc107;
-        }
-        
-        .legend-color.booking-confirmed {
-            background-color: #28a745;
-        }
-        
-        .legend-color.booking-in_progress {
-            background-color: #fd7e14;
-        }
-        
-        .legend-color.booking-completed {
-            background-color: #0073E6;
-        }
-        
-        .legend-color.booking-cancelled {
-            background-color: #dc3545;
-        }
-        
-        .legend-label {
-            font-size: 12px;
-            color: #555;
-        }
-        </style>
+        <script>
+        jQuery(document).ready(function($) {
+            // Open popup
+            $('[data-booking-popup]').on('click', function(e) {
+                e.preventDefault();
+                
+                var $this = $(this);
+                var bookingsJson = $this.data('bookings');
+                var bookings = [];
+                
+                // Parse bookings from JSON
+                if (bookingsJson) {
+                    try {
+                        bookings = typeof bookingsJson === 'string' ? JSON.parse(bookingsJson) : bookingsJson;
+                    } catch (e) {
+                        console.error('Error parsing bookings JSON:', e);
+                        // Fallback to single booking data
+                        bookings = [{
+                            booking_id: $this.data('booking-id'),
+                            customer_name: $this.data('customer-name'),
+                            customer_email: $this.data('customer-email'),
+                            customer_phone: $this.data('customer-phone'),
+                            vehicle_title: $this.data('vehicle-title'),
+                            vehicle_plate: $this.data('vehicle-plate'),
+                            total_price: $this.data('total-price'),
+                            status: $this.data('status'),
+                            status_label: $this.data('status-label') || $this.data('status'),
+                            start_date: $this.data('start-date'),
+                            end_date: $this.data('end-date'),
+                            created_date: $this.data('created-date')
+                        }];
+                    }
+                } else {
+                    // Fallback to single booking data
+                    bookings = [{
+                        booking_id: $this.data('booking-id'),
+                        customer_name: $this.data('customer-name'),
+                        customer_email: $this.data('customer-email'),
+                        customer_phone: $this.data('customer-phone'),
+                        vehicle_title: $this.data('vehicle-title'),
+                        vehicle_plate: $this.data('vehicle-plate'),
+                        total_price: $this.data('total-price'),
+                        status: $this.data('status'),
+                        status_label: $this.data('status-label') || $this.data('status'),
+                        start_date: $this.data('start-date'),
+                        end_date: $this.data('end-date'),
+                        created_date: $this.data('created-date')
+                    }];
+                }
+                
+                // Render bookings list
+                var html = '';
+                if (bookings.length === 0) {
+                    html = '<p>' + '<?php echo esc_js(__('No bookings found.', 'mhm-rentiva')); ?>' + '</p>';
+                } else if (bookings.length === 1) {
+                    // Single booking - show in grid format
+                    var booking = bookings[0];
+                    html = '<div class="booking-info-grid">';
+                    html += '<div class="info-item"><label><?php echo esc_js(__('Customer Name:', 'mhm-rentiva')); ?></label><span>' + (booking.customer_name || '—') + '</span></div>';
+                    html += '<div class="info-item"><label><?php echo esc_js(__('Email:', 'mhm-rentiva')); ?></label><span>' + (booking.customer_email || '—') + '</span></div>';
+                    html += '<div class="info-item"><label><?php echo esc_js(__('Phone:', 'mhm-rentiva')); ?></label><span>' + (booking.customer_phone || '—') + '</span></div>';
+                    html += '<div class="info-item"><label><?php echo esc_js(__('Vehicle:', 'mhm-rentiva')); ?></label><span>' + (booking.vehicle_title || '—') + '</span></div>';
+                    html += '<div class="info-item"><label><?php echo esc_js(__('Plate:', 'mhm-rentiva')); ?></label><span>' + (booking.vehicle_plate || '—') + '</span></div>';
+                    html += '<div class="info-item"><label><?php echo esc_js(__('Start Date:', 'mhm-rentiva')); ?></label><span>' + (booking.start_date || '—') + '</span></div>';
+                    html += '<div class="info-item"><label><?php echo esc_js(__('End Date:', 'mhm-rentiva')); ?></label><span>' + (booking.end_date || '—') + '</span></div>';
+                    html += '<div class="info-item"><label><?php echo esc_js(__('Total Price:', 'mhm-rentiva')); ?></label><span>' + (booking.total_price || '—') + '</span></div>';
+                    html += '<div class="info-item"><label><?php echo esc_js(__('Status:', 'mhm-rentiva')); ?></label><span>' + (booking.status_label || booking.status || '—') + '</span></div>';
+                    html += '<div class="info-item"><label><?php echo esc_js(__('Created:', 'mhm-rentiva')); ?></label><span>' + (booking.created_date || '—') + '</span></div>';
+                    html += '</div>';
+                    html += '<div class="mhm-popup-footer mhm-popup-footer-inline">';
+                    html += '<button class="button button-primary popup-edit-booking-btn" data-booking-id="' + (booking.booking_id || '') + '" type="button"><?php echo esc_js(__('Edit Booking', 'mhm-rentiva')); ?></button>';
+                    html += '</div>';
+                } else {
+                    // Multiple bookings - show as list
+                    html = '<div class="bookings-list">';
+                    bookings.forEach(function(booking, index) {
+                        html += '<div class="booking-item' + (index > 0 ? ' booking-item-separator' : '') + '">';
+                        html += '<div class="booking-info-grid">';
+                        html += '<div class="info-item"><label><?php echo esc_js(__('Customer Name:', 'mhm-rentiva')); ?></label><span>' + (booking.customer_name || '—') + '</span></div>';
+                        html += '<div class="info-item"><label><?php echo esc_js(__('Email:', 'mhm-rentiva')); ?></label><span>' + (booking.customer_email || '—') + '</span></div>';
+                        html += '<div class="info-item"><label><?php echo esc_js(__('Phone:', 'mhm-rentiva')); ?></label><span>' + (booking.customer_phone || '—') + '</span></div>';
+                        html += '<div class="info-item"><label><?php echo esc_js(__('Vehicle:', 'mhm-rentiva')); ?></label><span>' + (booking.vehicle_title || '—') + '</span></div>';
+                        html += '<div class="info-item"><label><?php echo esc_js(__('Plate:', 'mhm-rentiva')); ?></label><span>' + (booking.vehicle_plate || '—') + '</span></div>';
+                        html += '<div class="info-item"><label><?php echo esc_js(__('Start Date:', 'mhm-rentiva')); ?></label><span>' + (booking.start_date || '—') + '</span></div>';
+                        html += '<div class="info-item"><label><?php echo esc_js(__('End Date:', 'mhm-rentiva')); ?></label><span>' + (booking.end_date || '—') + '</span></div>';
+                        html += '<div class="info-item"><label><?php echo esc_js(__('Total Price:', 'mhm-rentiva')); ?></label><span>' + (booking.total_price || '—') + '</span></div>';
+                        html += '<div class="info-item"><label><?php echo esc_js(__('Status:', 'mhm-rentiva')); ?></label><span>' + (booking.status_label || booking.status || '—') + '</span></div>';
+                        html += '<div class="info-item"><label><?php echo esc_js(__('Created:', 'mhm-rentiva')); ?></label><span>' + (booking.created_date || '—') + '</span></div>';
+                        html += '</div>';
+                        html += '<div class="booking-item-footer">';
+                        html += '<button class="button button-primary popup-edit-booking-btn" data-booking-id="' + (booking.booking_id || '') + '" type="button"><?php echo esc_js(__('Edit Booking', 'mhm-rentiva')); ?></button>';
+                        html += '</div>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+                
+                $('#popup-bookings-list').html(html);
+                
+                // Add Edit booking link as click event
+                $('.popup-edit-booking-btn').off('click').on('click', function(e) {
+                    e.preventDefault();
+                    var bookingId = $(this).data('booking-id');
+                    if (bookingId) {
+                        window.location.href = 'post.php?post=' + bookingId + '&action=edit';
+                    }
+                });
+                
+                // Show popup
+                $('#mhm-booking-popup').fadeIn(300);
+            });
+            
+            // Close popup
+            $('.mhm-popup-close, .mhm-popup-overlay').on('click', function() {
+                $('#mhm-booking-popup').fadeOut(300);
+            });
+            
+            // Close with ESC key
+            $(document).on('keydown', function(e) {
+                if (e.keyCode === 27) {
+                    $('#mhm-booking-popup').fadeOut(300);
+                }
+            });
+        });
+        </script>
         <?php
     }
 
@@ -1076,29 +1282,52 @@ final class BookingColumns
      */
     private static function get_booking_calendar_days(int $month, int $year): array
     {
-        // Retrieve relevant bookings
-        $bookings = get_posts([
-            'post_type' => 'vehicle_booking',
-            'post_status' => 'publish',
-            'numberposts' => -1,
-            'meta_query' => [
-                'relation' => 'OR',
-                [
-                    'key' => '_mhm_pickup_date',
-                    'compare' => 'EXISTS'
-                ],
-                [
-                    'key' => '_booking_pickup_date',
-                    'compare' => 'EXISTS'
-                ]
-            ]
-        ]);
+        global $wpdb;
+        
+        // Retrieve relevant bookings with all details for popup
+        $start_date = sprintf('%04d-%02d-01', $year, $month);
+        $end_date = sprintf('%04d-%02d-%02d', $year, $month, date('t', mktime(0, 0, 0, $month, 1, $year)));
+        
+        $bookings = $wpdb->get_results($wpdb->prepare("
+            SELECT 
+                p.ID as booking_id,
+                pm_vehicle.meta_value as vehicle_id,
+                pm_start.meta_value as pickup_date,
+                pm_end.meta_value as dropoff_date,
+                pm_customer.meta_value as customer_name,
+                pm_customer_email.meta_value as customer_email,
+                pm_customer_phone.meta_value as customer_phone,
+                pm_total_price.meta_value as total_price,
+                pm_status.meta_value as status,
+                p.post_date as created_date
+            FROM {$wpdb->posts} p
+            LEFT JOIN {$wpdb->postmeta} pm_vehicle ON p.ID = pm_vehicle.post_id 
+                AND (pm_vehicle.meta_key = '_mhm_vehicle_id' OR pm_vehicle.meta_key = '_booking_vehicle_id')
+            LEFT JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id 
+                AND (pm_start.meta_key = '_mhm_pickup_date' OR pm_start.meta_key = '_booking_pickup_date')
+            LEFT JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id 
+                AND (pm_end.meta_key = '_mhm_dropoff_date' OR pm_end.meta_key = '_booking_dropoff_date')
+            LEFT JOIN {$wpdb->postmeta} pm_customer ON p.ID = pm_customer.post_id 
+                AND (pm_customer.meta_key = '_mhm_customer_name' OR pm_customer.meta_key = '_customer_name')
+            LEFT JOIN {$wpdb->postmeta} pm_customer_email ON p.ID = pm_customer_email.post_id 
+                AND (pm_customer_email.meta_key = '_mhm_customer_email' OR pm_customer_email.meta_key = '_customer_email')
+            LEFT JOIN {$wpdb->postmeta} pm_customer_phone ON p.ID = pm_customer_phone.post_id 
+                AND (pm_customer_phone.meta_key = '_mhm_customer_phone' OR pm_customer_phone.meta_key = '_customer_phone')
+            LEFT JOIN {$wpdb->postmeta} pm_total_price ON p.ID = pm_total_price.post_id 
+                AND (pm_total_price.meta_key = '_mhm_total_price' OR pm_total_price.meta_key = '_total_price')
+            LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id 
+                AND (pm_status.meta_key = '_mhm_status' OR pm_status.meta_key = '_booking_status')
+            WHERE p.post_type = 'vehicle_booking'
+                AND p.post_status = 'publish'
+                AND pm_start.meta_value >= %s
+                AND pm_start.meta_value <= %s
+        ", $start_date, $end_date . ' 23:59:59'));
         
         $day_statuses = [];
         
         foreach ($bookings as $booking) {
             // Pickup date
-            $pickup_date = get_post_meta($booking->ID, '_mhm_pickup_date', true) ?: get_post_meta($booking->ID, '_booking_pickup_date', true);
+            $pickup_date = $booking->pickup_date;
             
             if (!$pickup_date) {
                 continue;
@@ -1120,43 +1349,99 @@ final class BookingColumns
             }
             
             // Retrieve status information
-            $status = get_post_meta($booking->ID, '_mhm_status', true) ?: 
-                     get_post_meta($booking->ID, '_booking_status', true) ?: 
-                     'pending';
+            $status = $booking->status ?: 'pending';
             
-            // Split-day handling when multiple statuses exist
+            // Get vehicle info
+            $vehicle_id = (int) $booking->vehicle_id;
+            $vehicle_title = $vehicle_id ? get_the_title($vehicle_id) : '';
+            // Check both plate meta keys
+            $vehicle_plate = '';
+            if ($vehicle_id) {
+                $vehicle_plate = get_post_meta($vehicle_id, '_mhm_vehicle_plate', true) ?: 
+                                get_post_meta($vehicle_id, '_mhm_rentiva_license_plate', true) ?: '';
+            }
+            
+            // Format dates
+            $start_date_formatted = $booking->pickup_date ? date_i18n(get_option('date_format'), strtotime($booking->pickup_date)) : '';
+            $end_date_formatted = $booking->dropoff_date ? date_i18n(get_option('date_format'), strtotime($booking->dropoff_date)) : '';
+            $created_date_formatted = $booking->created_date ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($booking->created_date)) : '';
+            
+            // Format price
+            $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
+            $total_price_formatted = $booking->total_price ? number_format_i18n((float) $booking->total_price, 2) . ' ' . $currency_symbol : '';
+            
+            // Get translated status label
+            $status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
+            
+            // Booking data for popup
+            $booking_data = [
+                'booking_id' => $booking->booking_id,
+                'customer_name' => $booking->customer_name ?: '',
+                'customer_email' => $booking->customer_email ?: '',
+                'customer_phone' => $booking->customer_phone ?: '',
+                'vehicle_id' => $vehicle_id,
+                'vehicle_title' => $vehicle_title,
+                'vehicle_plate' => $vehicle_plate ?: '',
+                'start_date' => $start_date_formatted,
+                'end_date' => $end_date_formatted,
+                'total_price' => $total_price_formatted,
+                'status' => $status,
+                'status_label' => $status_label,
+                'created_date' => $created_date_formatted
+            ];
+            
+            // Multi-status handling - collect all unique statuses for the day
             if (!isset($day_statuses[$pickup_day])) {
                 $day_statuses[$pickup_day] = [
-                    'type' => 'single',
-                    'status' => $status,
-                    'count' => 1
+                    'type' => 'multi',
+                    'statuses' => [$status => 1],
+                    'bookings' => [$booking_data]
                 ];
             } else {
                 $current = $day_statuses[$pickup_day];
                 
-                // Same status: increase count
-                if ($current['type'] === 'single' && $current['status'] === $status) {
-                    $day_statuses[$pickup_day]['count']++;
-                } 
-                // Different status: convert to split-day
-                else if ($current['type'] === 'single' && $current['status'] !== $status) {
+                if ($current['type'] === 'multi') {
+                    // Increment count for existing status or add new status
+                    if (isset($current['statuses'][$status])) {
+                        $current['statuses'][$status]++;
+                    } else {
+                        $current['statuses'][$status] = 1;
+                    }
+                    // Add booking data
+                    if (!isset($current['bookings'])) {
+                        $current['bookings'] = [];
+                    }
+                    $current['bookings'][] = $booking_data;
+                    $day_statuses[$pickup_day] = $current;
+                } else {
+                    // Legacy single status - convert to multi
+                    $old_status = $current['status'] ?? 'pending';
+                    $old_count = $current['count'] ?? 1;
+                    $old_bookings = $current['bookings'] ?? [];
                     $day_statuses[$pickup_day] = [
-                        'type' => 'split',
-                        'left_status' => $current['status'],
-                        'right_status' => $status,
-                        'left_count' => $current['count'],
-                        'right_count' => 1
+                        'type' => 'multi',
+                        'statuses' => [
+                            $old_status => $old_count,
+                            $status => 1
+                        ],
+                        'bookings' => array_merge($old_bookings, [$booking_data])
                     ];
                 }
-                // Already split: bump appropriate side
-                else if ($current['type'] === 'split') {
-                    if ($current['right_status'] === $status) {
-                        $day_statuses[$pickup_day]['right_count']++;
-                    } else {
-                        // Third status fallback: increment left side
-                        $day_statuses[$pickup_day]['left_count']++;
-                    }
-                }
+            }
+        }
+        
+        // Normalize: convert single-status multi to 'single' type for backward compatibility
+        foreach ($day_statuses as $day => $data) {
+            if ($data['type'] === 'multi' && count($data['statuses']) === 1) {
+                $status = array_key_first($data['statuses']);
+                $count = $data['statuses'][$status];
+                $bookings = $data['bookings'] ?? [];
+                $day_statuses[$day] = [
+                    'type' => 'single',
+                    'status' => $status,
+                    'count' => $count,
+                    'bookings' => $bookings
+                ];
             }
         }
         

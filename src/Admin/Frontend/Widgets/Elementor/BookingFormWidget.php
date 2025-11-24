@@ -53,6 +53,16 @@ class BookingFormWidget extends ElementorWidgetBase
     }
 
     /**
+     * Retrieve the list of styles the widget depends on.
+     *
+     * @return array Widget styles dependencies.
+     */
+    public function get_style_depends(): array
+    {
+        return ['mhm-rentiva-elementor', 'mhm-rentiva-booking-form'];
+    }
+
+    /**
      * Register content tab controls.
      */
     protected function register_content_controls(): void
@@ -99,8 +109,8 @@ class BookingFormWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
 
@@ -111,8 +121,8 @@ class BookingFormWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
 
@@ -123,8 +133,8 @@ class BookingFormWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
 
@@ -135,8 +145,8 @@ class BookingFormWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
 
@@ -202,8 +212,8 @@ class BookingFormWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
 
@@ -327,7 +337,70 @@ class BookingFormWidget extends ElementorWidgetBase
 
         $this->add_typography_control('.rv-btn-submit', __('Button Typography', 'mhm-rentiva'));
 
+
+        
         $this->end_controls_section();
+    }
+
+    /**
+     * Prepare shortcode attributes.
+     * 
+     * @param array $settings Elementor settings
+     * @return array Shortcode attributes
+     */
+    protected function prepare_shortcode_attributes(array $settings): array
+    {
+        $atts = [];
+
+        // General
+        if (!empty($settings['form_title'])) {
+            $atts['title'] = $settings['form_title'];
+        }
+        if (!empty($settings['vehicle_id'])) {
+            $atts['vehicle_id'] = $settings['vehicle_id'];
+        }
+
+        // Display options
+        $display_options = [
+            'show_vehicle_selector', 'show_vehicle_info', 'show_addons', 'show_payment_options'
+        ];
+
+        foreach ($display_options as $option) {
+            if (isset($settings[$option])) {
+                $val = $settings[$option];
+                $atts[$option] = ($val === 'yes' || $val === '1' || $val === 1 || $val === true) ? '1' : '0';
+            }
+        }
+
+        // Booking settings
+        if (!empty($settings['default_days'])) {
+            $atts['default_days'] = $settings['default_days'];
+        }
+        if (!empty($settings['min_days'])) {
+            $atts['min_days'] = $settings['min_days'];
+        }
+        if (!empty($settings['max_days'])) {
+            $atts['max_days'] = $settings['max_days'];
+        }
+
+        // Payment settings
+        if (isset($settings['enable_deposit'])) {
+            $val = $settings['enable_deposit'];
+            $atts['enable_deposit'] = ($val === 'yes' || $val === '1' || $val === 1 || $val === true) ? '1' : '0';
+        }
+        if (!empty($settings['default_payment'])) {
+            $atts['default_payment'] = $settings['default_payment'];
+        }
+
+        // Advanced
+        if (!empty($settings['redirect_url'])) {
+            $atts['redirect_url'] = $settings['redirect_url'];
+        }
+        if (!empty($settings['custom_css_class'])) {
+            $atts['class'] = $settings['custom_css_class'];
+        }
+
+        return $atts;
     }
 
     /**

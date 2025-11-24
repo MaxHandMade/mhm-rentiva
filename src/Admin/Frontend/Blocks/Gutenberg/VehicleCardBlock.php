@@ -61,8 +61,18 @@ class VehicleCardBlock extends GutenbergBlockBase
         // Prepare shortcode attributes
         $atts = $this->prepare_shortcode_attributes($attributes);
         
-        // Render shortcode (placeholder text because block is deprecated)
-        $shortcode_output = '<div class="rv-notice">' . esc_html__('Vehicle Card shortcode has been removed.', 'mhm-rentiva') . '</div>';
+        // Map 'id' to 'ids' for VehiclesList shortcode
+        if (isset($atts['id'])) {
+            $atts['ids'] = $atts['id'];
+            unset($atts['id']);
+        }
+        
+        // Force single item display
+        $atts['limit'] = '1';
+        $atts['columns'] = '1';
+        
+        // Render shortcode
+        $shortcode_output = $this->render_shortcode('rentiva_vehicles_list', $atts);
         
         // Wrap content with standard block container
         return $this->wrap_block_content($shortcode_output, $attributes);

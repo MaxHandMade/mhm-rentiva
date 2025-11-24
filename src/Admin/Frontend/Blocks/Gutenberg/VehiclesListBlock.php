@@ -60,6 +60,11 @@ class VehiclesListBlock extends GutenbergBlockBase
         // Shortcode attribute'larını hazırla
         $atts = $this->prepare_shortcode_attributes($attributes);
         
+        // Add ids if present
+        if (!empty($attributes['ids'])) {
+            $atts['ids'] = $attributes['ids'];
+        }
+        
         // Shortcode'u render et
         $shortcode_output = $this->render_shortcode('rentiva_vehicles_list', $atts);
         
@@ -88,6 +93,10 @@ class VehiclesListBlock extends GutenbergBlockBase
                 'enum' => ['date', 'title', 'price', 'rating', 'rand'],
             ],
             'exclude' => [
+                'type' => 'string',
+                'default' => '',
+            ],
+            'ids' => [
                 'type' => 'string',
                 'default' => '',
             ],

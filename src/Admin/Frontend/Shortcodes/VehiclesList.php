@@ -96,6 +96,9 @@ final class VehiclesList extends AbstractShortcode
             'enable_ajax_filtering' => '0',
             'enable_infinite_scroll' => '0',
             'image_size' => 'medium',
+            'ids' => '', // Comma separated vehicle IDs
+            'max_features' => '5',
+            'price_format' => 'daily',
             'class' => '',
             'custom_css_class' => '',
         ];
@@ -230,6 +233,13 @@ final class VehiclesList extends AbstractShortcode
             $args['orderby'] = 'meta_value_num';
         }
 
+        // Filter by specific IDs
+        if (!empty($atts['ids'])) {
+            $ids = array_map('intval', explode(',', $atts['ids']));
+            $args['post__in'] = $ids;
+            $args['orderby'] = 'post__in'; // Preserve order of IDs
+        }
+
         $posts = get_posts($args);
         $vehicles = [];
 
@@ -260,12 +270,13 @@ final class VehiclesList extends AbstractShortcode
             'permalink' => get_permalink($vehicle_id) ?: '',
             'image_url' => self::get_vehicle_image($vehicle_id, $atts['image_size']),
             'price' => self::get_vehicle_price($vehicle_id),
-            'features' => self::get_vehicle_features($vehicle_id),
+            'features' => self::get_limited_features($vehicle_id, intval($atts['max_features'])),
             'category' => self::get_vehicle_category($vehicle_id),
             'rating' => self::get_vehicle_rating($vehicle_id),
             'availability' => self::check_vehicle_availability($vehicle_id),
             'badge' => self::get_vehicle_badge($vehicle_id),
             'is_featured' => get_post_meta($vehicle_id, '_mhm_rentiva_featured', true) === '1',
+            'price_format' => $atts['price_format'],
         ];
     }
 
@@ -376,6 +387,18 @@ final class VehiclesList extends AbstractShortcode
     public static function get_vehicle_features(int $vehicle_id): array
     {
         return VehicleFeatureHelper::collect_items($vehicle_id);
+    }
+
+    /**
+     * Gets limited vehicle features
+     */
+    public static function get_limited_features(int $vehicle_id, int $limit = 5): array
+    {
+        $features = self::get_vehicle_features($vehicle_id);
+        if ($limit > 0 && count($features) > $limit) {
+            return array_slice($features, 0, $limit);
+        }
+        return $features;
     }
 
     /**

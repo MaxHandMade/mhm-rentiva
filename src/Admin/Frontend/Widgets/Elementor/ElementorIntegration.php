@@ -90,7 +90,7 @@ class ElementorIntegration
             wp_enqueue_style(
                 'mhm-rentiva-elementor',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/elementor-widgets.css',
-                ['elementor-frontend'],
+                ['elementor-frontend', 'mhm-core-css'],
                 MHM_RENTIVA_VERSION
             );
         }
@@ -111,7 +111,7 @@ class ElementorIntegration
             wp_enqueue_script(
                 'mhm-rentiva-elementor',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/elementor-widgets.js',
-                ['elementor-frontend'],
+                ['elementor-frontend', 'mhm-core-js'],
                 MHM_RENTIVA_VERSION,
                 true
             );

@@ -56,6 +56,15 @@ class VehicleCardWidget extends ElementorWidgetBase
     }
 
     /**
+     * Retrieve the list of styles the widget depends on.
+     *
+     * @return array Widget styles dependencies.
+     */
+    public function get_style_depends(): array
+    {
+        return ['mhm-rentiva-elementor', 'mhm-rentiva-vehicles-list'];
+    }
+    /**
      * Register content controls.
      */
     protected function register_content_controls(): void
@@ -454,8 +463,26 @@ class VehicleCardWidget extends ElementorWidgetBase
             $atts['disable_animation'] = '1';
         }
         
-        // Shortcode render placeholder
-        $shortcode_output = '<div class="rv-notice">' . esc_html__('Vehicle Card shortcode has been removed.', 'mhm-rentiva') . '</div>';
+        // Use Vehicles List shortcode with limit=1 and specific ID
+        // This simulates a single vehicle card
+        $atts['limit'] = '1';
+        $atts['columns'] = '1';
+        
+        // If vehicle ID is set, use it
+        if (!empty($settings['vehicle_id'])) {
+            $atts['ids'] = $settings['vehicle_id'];
+        }
+
+        // Pass max_features and price_format
+        if (!empty($settings['max_features'])) {
+            $atts['max_features'] = $settings['max_features'];
+        }
+        if (!empty($settings['price_format'])) {
+            $atts['price_format'] = $settings['price_format'];
+        }
+        
+        // Render shortcode
+        $shortcode_output = $this->render_shortcode('rentiva_vehicles_list', $atts);
         
         // Widget wrapper
         echo '<div class="elementor-widget-rv-vehicle-card">';
@@ -475,8 +502,8 @@ class VehicleCardWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
 
@@ -488,7 +515,7 @@ class VehicleCardWidget extends ElementorWidgetBase
                 'default' => __('Book Now', 'mhm-rentiva'),
                 'placeholder' => __('Enter button text', 'mhm-rentiva'),
                 'condition' => [
-                    'show_booking_btn' => '1',
+                    'show_booking_btn' => 'yes',
                 ],
             ]
         );
@@ -505,7 +532,7 @@ class VehicleCardWidget extends ElementorWidgetBase
                     'outline' => __('Outlined', 'mhm-rentiva'),
                 ],
                 'condition' => [
-                    'show_booking_btn' => '1',
+                    'show_booking_btn' => 'yes',
                 ],
             ]
         );
@@ -517,8 +544,8 @@ class VehicleCardWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
     }
@@ -535,8 +562,8 @@ class VehicleCardWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
 
@@ -552,7 +579,7 @@ class VehicleCardWidget extends ElementorWidgetBase
                     'footer' => __('Footer Area', 'mhm-rentiva'),
                 ],
                 'condition' => [
-                    'show_rating' => '1',
+                    'show_rating' => 'yes',
                 ],
             ]
         );
@@ -567,7 +594,7 @@ class VehicleCardWidget extends ElementorWidgetBase
                 'return_value' => '1',
                 'default' => '1',
                 'condition' => [
-                    'show_rating' => '1',
+                    'show_rating' => 'yes',
                 ],
             ]
         );
@@ -591,7 +618,7 @@ class VehicleCardWidget extends ElementorWidgetBase
                 ],
                 'description' => __('0 = Automatic, 0.1-5.0 = Custom value', 'mhm-rentiva'),
                 'condition' => [
-                    'show_rating' => '1',
+                    'show_rating' => 'yes',
                 ],
             ]
         );
@@ -609,8 +636,8 @@ class VehicleCardWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
 
@@ -621,8 +648,8 @@ class VehicleCardWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
 
@@ -633,8 +660,8 @@ class VehicleCardWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
 
@@ -645,8 +672,8 @@ class VehicleCardWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
 
@@ -660,7 +687,7 @@ class VehicleCardWidget extends ElementorWidgetBase
                 'step' => 1,
                 'default' => 3,
                 'condition' => [
-                    'show_features' => '1',
+                    'show_features' => 'yes',
                 ],
             ]
         );
@@ -672,8 +699,8 @@ class VehicleCardWidget extends ElementorWidgetBase
                 'type' => Controls_Manager::SWITCHER,
                 'label_on' => __('Yes', 'mhm-rentiva'),
                 'label_off' => __('No', 'mhm-rentiva'),
-                'return_value' => '1',
-                'default' => '1',
+                'return_value' => 'yes',
+                'default' => 'yes',
             ]
         );
 
@@ -690,7 +717,7 @@ class VehicleCardWidget extends ElementorWidgetBase
                     'monthly' => __('Monthly', 'mhm-rentiva'),
                 ],
                 'condition' => [
-                    'show_price' => '1',
+                    'show_price' => 'yes',
                 ],
             ]
         );

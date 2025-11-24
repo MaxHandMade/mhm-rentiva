@@ -75,7 +75,12 @@ final class VehicleColumns
             case 'mhm_price_per_day':
                 $v = get_post_meta($post_id, '_mhm_rentiva_price_per_day', true);
                 $n = is_numeric($v) ? (int) $v : null;
-                echo $n !== null ? esc_html(number_format_i18n($n, 0)) : '—';
+                if ($n !== null) {
+                    $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
+                    echo esc_html(number_format_i18n($n, 0) . ' ' . $currency_symbol);
+                } else {
+                    echo '—';
+                }
                 break;
 
             case 'mhm_seats':
@@ -660,15 +665,19 @@ final class VehicleColumns
                                             $status_class = $status_colors[$status] ?? 'status-pending';
                                             $class = 'day-cell booked ' . $status_class;
                                             
+                                            // Get translated status label
+                                            $status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
+                                            
                                             // Data attributes for popup
                                             $data_attrs = sprintf(
-                                                'data-booking-id="%s" data-customer-name="%s" data-customer-email="%s" data-customer-phone="%s" data-total-price="%s" data-status="%s" data-start-date="%s" data-end-date="%s" data-created-date="%s"',
+                                                'data-booking-id="%s" data-customer-name="%s" data-customer-email="%s" data-customer-phone="%s" data-total-price="%s" data-status="%s" data-status-label="%s" data-start-date="%s" data-end-date="%s" data-created-date="%s"',
                                                 esc_attr($booking_data['booking_id']),
                                                 esc_attr($booking_data['customer_name']),
                                                 esc_attr($booking_data['customer_email']),
                                                 esc_attr($booking_data['customer_phone']),
                                                 esc_attr($booking_data['total_price']),
                                                 esc_attr($booking_data['status']),
+                                                esc_attr($status_label),
                                                 esc_attr($booking_data['start_date']),
                                                 esc_attr($booking_data['end_date']),
                                                 esc_attr($booking_data['created_date'])
@@ -706,10 +715,6 @@ final class VehicleColumns
                     <div class="legend-item">
                         <span class="legend-color status-completed"></span>
                         <span class="legend-label"><?php esc_html_e('Completed', 'mhm-rentiva'); ?></span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color status-cancelled"></span>
-                        <span class="legend-label"><?php esc_html_e('Cancelled', 'mhm-rentiva'); ?></span>
                     </div>
                 </div>
             </div>
@@ -785,6 +790,7 @@ final class VehicleColumns
                 var customerPhone = $this.data('customer-phone');
                 var totalPrice = $this.data('total-price');
                 var status = $this.data('status');
+                var statusLabel = $this.data('status-label') || status; // Use translated label if available
                 var startDate = $this.data('start-date');
                 var endDate = $this.data('end-date');
                 var createdDate = $this.data('created-date');
@@ -796,7 +802,7 @@ final class VehicleColumns
                 $('#popup-start-date').text(startDate || '—');
                 $('#popup-end-date').text(endDate || '—');
                 $('#popup-total-price').text(totalPrice ? totalPrice + ' €' : '—');
-                $('#popup-status').text(status || '—');
+                $('#popup-status').text(statusLabel || '—');
                 $('#popup-created-date').text(createdDate || '—');
                 
                 // Add Edit booking link as click event
@@ -1098,7 +1104,7 @@ final class VehicleColumns
                 AND pm_start.meta_value <= %s
                 AND pm_end.meta_value >= %s
                 AND pm_vehicle.meta_value IS NOT NULL
-                AND pm_status.meta_value = 'confirmed'
+                AND pm_status.meta_value IN ('pending', 'confirmed', 'completed')
         ", $end_date, $start_date));
         
         
