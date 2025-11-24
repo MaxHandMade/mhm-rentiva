@@ -37,11 +37,7 @@ final class CronMonitor
                 'description' => __('Automatically cancels unpaid bookings after payment deadline', 'mhm-rentiva'),
                 'schedule' => 'mhm_rentiva_15min',
             ],
-            'mhm_rentiva_reconcile_event' => [
-                'name' => __('Payment Reconciliation', 'mhm-rentiva'),
-                'description' => __('Reconciles payment statuses with payment gateways (PayTR, Stripe)', 'mhm-rentiva'),
-                'schedule' => 'mhm_rentiva_10min',
-            ],
+
             'mhm_data_retention_cleanup' => [
                 'name' => __('Data Retention Cleanup', 'mhm-rentiva'),
                 'description' => __('Cleans up expired data according to retention policies', 'mhm-rentiva'),
@@ -147,7 +143,7 @@ final class CronMonitor
         // Check if hook is a plugin hook
         $plugin_hooks = [
             'mhm_rentiva_auto_cancel_event',
-            'mhm_rentiva_reconcile_event',
+
             'mhm_data_retention_cleanup',
             'mhm_send_scheduled_notifications',
             'mhm_rentiva_license_daily',

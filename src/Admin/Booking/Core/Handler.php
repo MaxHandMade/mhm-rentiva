@@ -138,6 +138,20 @@ final class Handler
             }
 
             // Success redirection
+            if (class_exists('WooCommerce')) {
+                // Get payment details from booking meta
+                $deposit_amount = floatval(get_post_meta($booking_id, '_mhm_deposit_amount', true));
+                $total_amount = floatval(get_post_meta($booking_id, '_mhm_total_price', true));
+                $payment_type = get_post_meta($booking_id, '_mhm_payment_type', true);
+                
+                $amount_to_pay = $payment_type === 'deposit' ? $deposit_amount : $total_amount;
+                
+                if (\MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge::add_booking_to_cart($booking_id, $amount_to_pay)) {
+                    wp_redirect(wc_get_checkout_url());
+                    exit;
+                }
+            }
+
             self::redirect_success($booking_id);
 
         } catch (\Exception $e) {

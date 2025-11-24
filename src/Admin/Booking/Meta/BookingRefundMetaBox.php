@@ -36,7 +36,7 @@ final class BookingRefundMetaBox
         $remaining  = max(0, $paidKurus - $refunded);
 
         // Only show when refundable
-        if (!in_array($gateway, ['paytr','stripe'], true) || $paidKurus <= 0) {
+        if ($gateway !== 'offline' || $paidKurus <= 0) {
             echo '<p class="description">' . esc_html__('No refundable payment found for this booking.', 'mhm-rentiva') . '</p>';
             return;
         }

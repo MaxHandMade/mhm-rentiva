@@ -115,7 +115,7 @@ final class Restrictions
             printf(
                 '<div class="notice notice-info"><p>%s</p></div>',
                 /* translators: 1: %1$d; 2: %2$d. */
-                esc_html(sprintf(__('Rentiva Lite: %1$d/%2$d vehicles used. Enter your license for unlimited vehicles and online payments.', 'mhm-rentiva'), $count, $max))
+                esc_html(sprintf(__('Rentiva Lite: %1$d/%2$d vehicles used. Enter your license for unlimited vehicles and advanced features.', 'mhm-rentiva'), $count, $max))
             );
         }
     }
@@ -228,7 +228,7 @@ final class Restrictions
             return;
         }
         echo '<div class="notice notice-info"><p>' .
-            esc_html__('You are using Rentiva Lite. Online payments (Stripe, PayTR), Export, advanced reports and higher booking limits are available in Pro version.', 'mhm-rentiva') .
+            esc_html__('You are using Rentiva Lite. WooCommerce integration, Export, advanced reports and higher booking limits are available in Pro version.', 'mhm-rentiva') .
             '</p></div>';
     }
 

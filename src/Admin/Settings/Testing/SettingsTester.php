@@ -158,6 +158,9 @@ final class SettingsTester
     /**
      * Test payment settings
      */
+    /**
+     * Test payment settings
+     */
     private static function test_payment_settings(): array
     {
         $results = [];
@@ -167,31 +170,19 @@ final class SettingsTester
         
         // Test if payment defaults are set
         $results['defaults_set'] = self::check_defaults_set([
-            'mhm_rentiva_stripe_enabled',
-            'mhm_rentiva_paypal_enabled',
-            'mhm_rentiva_paytr_enabled',
             'mhm_rentiva_offline_enabled',
         ]);
         
         // Test if payment settings can be saved
         $results['can_save'] = self::test_settings_save([
-            'mhm_rentiva_stripe_enabled' => '0',
-            'mhm_rentiva_paypal_enabled' => '0',
-            'mhm_rentiva_paytr_enabled' => '0',
             'mhm_rentiva_offline_enabled' => '1',
         ]);
         
         // Test if payment gateway classes exist
-        $results['stripe_class_exists'] = class_exists('\MHMRentiva\Admin\Payment\Settings\StripeSettings');
-        $results['paypal_class_exists'] = class_exists('\MHMRentiva\Admin\Payment\Settings\PayPalSettings');
-        $results['paytr_class_exists'] = class_exists('\MHMRentiva\Admin\Payment\Settings\PayTRSettings');
         $results['offline_class_exists'] = class_exists('\MHMRentiva\Admin\Payment\Settings\OfflinePaymentSettings');
         
         // Test at least one payment method is available
         $results['payment_method_available'] = (
-            $results['stripe_class_exists'] || 
-            $results['paypal_class_exists'] || 
-            $results['paytr_class_exists'] || 
             $results['offline_class_exists']
         );
         

@@ -119,8 +119,6 @@ final class VehicleFeatureHelper
     {
         $result = [
             self::TYPE_DETAIL    => [],
-            self::TYPE_FEATURE   => [],
-            self::TYPE_EQUIPMENT => [],
         ];
 
         // Details
@@ -137,42 +135,6 @@ final class VehicleFeatureHelper
                 'label'    => self::sanitize_label($all_details[$key], $key),
                 'meta_key' => self::map_detail_meta_key($key),
                 'type'     => self::TYPE_DETAIL,
-                'key'      => $key,
-            ];
-        }
-
-        // Features
-        $selected_features = (array) get_option('mhm_selected_features', VehicleSettings::get_default_selected_features());
-        $all_features      = (array) get_option('mhm_vehicle_features', VehicleSettings::get_default_features());
-
-        foreach ($selected_features as $key) {
-            $key = sanitize_key($key);
-            if ($key === '' || !isset($all_features[$key])) {
-                continue;
-            }
-
-            $result[self::TYPE_FEATURE][$key] = [
-                'label'    => self::sanitize_label($all_features[$key], $key),
-                'meta_key' => '_mhm_rentiva_features',
-                'type'     => self::TYPE_FEATURE,
-                'key'      => $key,
-            ];
-        }
-
-        // Equipment
-        $selected_equipment = (array) get_option('mhm_selected_equipment', VehicleSettings::get_default_selected_equipment());
-        $all_equipment      = (array) get_option('mhm_vehicle_equipment', VehicleSettings::get_default_equipment());
-
-        foreach ($selected_equipment as $key) {
-            $key = sanitize_key($key);
-            if ($key === '' || !isset($all_equipment[$key])) {
-                continue;
-            }
-
-            $result[self::TYPE_EQUIPMENT][$key] = [
-                'label'    => self::sanitize_label($all_equipment[$key], $key),
-                'meta_key' => '_mhm_rentiva_equipment',
-                'type'     => self::TYPE_EQUIPMENT,
                 'key'      => $key,
             ];
         }

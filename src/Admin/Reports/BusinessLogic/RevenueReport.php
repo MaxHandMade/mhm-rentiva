@@ -97,9 +97,6 @@ final class RevenueReport
     {
         $labels = [
             'offline' => __('Havale/EFT', 'mhm-rentiva'),
-            'paytr' => __('PayTR', 'mhm-rentiva'),
-            'stripe' => __('Stripe', 'mhm-rentiva'),
-            'paypal' => __('PayPal', 'mhm-rentiva'),
             'system' => __('Sistem', 'mhm-rentiva'),
             'my_account' => __('My Account', 'mhm-rentiva'),
         ];

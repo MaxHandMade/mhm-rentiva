@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.4.2-blue.svg)
+![Version](https://img.shields.io/badge/version-4.4.3-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -46,7 +46,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 
 - **Araç Yönetimi**: Galeri, kategoriler, fiyatlandırma ve müsaitlik ile eksiksiz araç envanter yönetimi
 - **Rezervasyon Sistemi**: Gerçek zamanlı müsaitlik kontrolü, rezervasyon yönetimi ve otomatik iptal
-- **Ödeme İşleme**: Makbuz yönetimi ile çoklu ödeme ağ geçitleri (Stripe, PayPal, PayTR, Offline)
+- **Ödeme İşleme**: Makbuz yönetimi ve WooCommerce entegrasyonu ile offline ödeme ağ geçidi
 - **Müşteri Portalı**: Rezervasyon geçmişi, favoriler ve mesajlaşma ile tam özellikli müşteri hesap sistemi
 - **Analitik ve Raporlama**: Gelir, müşteri ve araç içgörüleri ile kapsamlı analitik dashboard
 - **E-posta Sistemi**: Özelleştirilebilir HTML şablonları ile otomatik e-posta bildirimleri
@@ -97,10 +97,15 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 
 **Desteklenen Ödeme Ağ Geçitleri:**
 
-1. **Stripe** (Kredi/Banka Kartları)
-2. **PayPal** (PayPal & Kredi Kartları)
-3. **PayTR** (Türk Ödeme Ağ Geçidi)
-4. **Offline Ödeme** (Banka havalesi, nakit veya diğer offline yöntemler)
+1. **Offline Ödeme** (Banka havalesi, nakit veya diğer offline yöntemler)
+   - Makbuz yükleme sistemi
+   - Yönetici onay iş akışı
+   - Belirlenen sürede onaylanmazsa otomatik rezervasyon iptali
+
+2. **WooCommerce Entegrasyonu**
+   - WooCommerce ile sorunsuz entegrasyon
+   - WooCommerce tarafından desteklenen herhangi bir ödeme ağ geçidini kullanın
+   - Sipariş durumuna göre otomatik rezervasyon durumu güncellemeleri
 
 ### 👥 Müşteri Yönetimi
 
@@ -167,21 +172,13 @@ Eklenti shortcode'lar için sayfaları otomatik olarak oluşturur veya manuel ol
 **Konum**: `Rentiva > Settings > Booking`
 
 - **İptal Son Tarihi**: Rezervasyon başlangıcından önceki saatler (varsayılan: 24)
-- **Ödeme Son Tarihi**: Ödemeyi tamamlamak için dakika (varsayılan: 30)
 
 ### Ödeme Ayarları
 
-**Konum**: `Rentiva > Settings > Payment`
-
-**Stripe Ayarları:**
-- Test/Canlı mod geçişi
-- Publishable key
-- Secret key
-
-**PayPal Ayarları:**
-- Sandbox/Canlı mod geçişi
-- Client ID
-- Client Secret
+**Offline Ödeme Ayarları:**
+- Offline ödemeleri Etkinleştir/Devre Dışı Bırak
+- Başlık ve açıklama ayarla
+- Müşteriler için talimatları yapılandır
 
 ---
 
@@ -266,28 +263,18 @@ POST /bookings
 
 ---
 
-## 💳 Ödeme Ağ Geçitleri
 
-### Stripe
+### 💳 Ödeme Ağ Geçitleri
 
-**Kurulum**:
-1. Stripe Dashboard'dan API anahtarlarını alın
-2. `Rentiva > Settings > Payment > Stripe` sayfasına gidin
-3. Publishable Key ve Secret Key'i girin
-4. Test/Canlı modu ayarlayın
+**Offline Ödeme**:
+- Varsayılan olarak etkindir
+- Banka havalesi ve nakit ödemeler için idealdir
+- Müşteriler ödeme makbuzu yükleyebilir
 
-**Desteklenen Para Birimleri**: USD, EUR, GBP, TRY
-
-### PayPal
-
-**Kurulum**:
-1. PayPal Developer Dashboard'da PayPal App oluşturun
-2. Client ID ve Secret'ı alın
-3. `Rentiva > Settings > Payment > PayPal` sayfasına gidin
-4. Kimlik bilgilerini girin
-5. Sandbox/Canlı modu ayarlayın
-
-**Desteklenen Para Birimleri**: USD, EUR, TRY, GBP, CAD, AUD
+**WooCommerce Entegrasyonu**:
+- Pro sürümde mevcuttur
+- WooCommerce ödeme altyapısını kullanır
+- Kredi kartı ve diğer online ödeme yöntemleri için WooCommerce eklentilerini kullanabilirsiniz
 
 ---
 

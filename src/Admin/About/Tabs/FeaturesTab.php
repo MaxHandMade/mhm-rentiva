@@ -75,8 +75,8 @@ final class FeaturesTab extends AbstractTab
                     ],
                     [
                         'name' => __('Payment Gateways', 'mhm-rentiva'),
-                        'lite' => __('Offline + PayPal', 'mhm-rentiva'),
-                        'pro' => __('All (Stripe, PayPal, PayTR, Offline)', 'mhm-rentiva'),
+                        'lite' => __('Offline', 'mhm-rentiva'),
+                        'pro' => __('Offline', 'mhm-rentiva'),
                     ],
                     [
                         'name' => __('Export Formats', 'mhm-rentiva'),
@@ -116,8 +116,6 @@ final class FeaturesTab extends AbstractTab
                     __('Advanced Reporting (FEATURE_REPORTS_ADV)', 'mhm-rentiva'),
                     __('Messaging System (FEATURE_MESSAGES)', 'mhm-rentiva'),
                     __('Full REST API Access', 'mhm-rentiva'),
-                    __('Stripe Payment Gateway', 'mhm-rentiva'),
-                    __('PayTR Payment Gateway', 'mhm-rentiva'),
                     __('Excel Export (XLS)', 'mhm-rentiva'),
                     __('XML Export', 'mhm-rentiva'),
                     __('PDF Export', 'mhm-rentiva'),
@@ -175,8 +173,8 @@ final class FeaturesTab extends AbstractTab
                                     'value' => sprintf(
                                         /* translators: 1: Lite plan value, 2: Pro plan value. */
                                         __('Lite: %1$s, Pro: %2$s', 'mhm-rentiva'),
-                                        __('Offline + PayPal', 'mhm-rentiva'),
-                                        __('All (Stripe, PayPal, PayTR, Offline)', 'mhm-rentiva')
+                                        __('Offline', 'mhm-rentiva'),
+                                        __('Offline', 'mhm-rentiva')
                                     ),
                                     'data_key' => '',
                                 ],
@@ -210,7 +208,6 @@ final class FeaturesTab extends AbstractTab
                                 ['type' => 'key-value', 'label' => __('Advanced Reporting:', 'mhm-rentiva'), 'value' => '✓', 'data_key' => ''],
                                 ['type' => 'key-value', 'label' => __('Messaging System:', 'mhm-rentiva'), 'value' => '✓', 'data_key' => ''],
                                 ['type' => 'key-value', 'label' => __('Full REST API:', 'mhm-rentiva'), 'value' => '✓', 'data_key' => ''],
-                                ['type' => 'key-value', 'label' => __('Stripe & PayTR:', 'mhm-rentiva'), 'value' => '✓', 'data_key' => ''],
                                 ['type' => 'key-value', 'label' => __('Excel/XML/PDF Export:', 'mhm-rentiva'), 'value' => '✓', 'data_key' => ''],
                             ],
                         ],

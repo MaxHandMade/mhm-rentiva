@@ -2,9 +2,7 @@
 
 namespace MHMRentiva\Admin\Payment\Refunds;
 
-use MHMRentiva\Admin\Payment\Refunds\PayTR\PayTRRefund;
-use MHMRentiva\Admin\Payment\Refunds\Stripe\StripeRefund;
-use MHMRentiva\Admin\Payment\Refunds\PayPal\PayPalRefund;
+
 use MHMRentiva\Admin\PostTypes\Logs\Logger;
 use MHMRentiva\Admin\Emails\Notifications\RefundNotifications;
 
@@ -141,22 +139,19 @@ final class Service
      */
     private static function processGatewayRefund(int $bookingId, string $gateway, int $amount, string $reason): array
     {
-        switch ($gateway) {
-            case 'paytr':
-                return PayTRRefund::partialRefund($bookingId, $amount, $reason);
-
-            case 'stripe':
-                return StripeRefund::partialRefund($bookingId, $amount, $reason);
-
-            case 'paypal':
-                return PayPalRefund::partialRefund($bookingId, $amount, $reason);
-
-            default:
-                return [
-                    'ok' => false,
-                    'message' => __('Unsupported payment gateway', 'mhm-rentiva')
-                ];
+        if ($gateway === 'offline') {
+            return [
+                'ok' => true,
+                'id' => 'manual_' . uniqid(),
+                'amount' => $amount,
+                'message' => __('Manual refund recorded', 'mhm-rentiva')
+            ];
         }
+
+        return [
+            'ok' => false,
+            'message' => __('Unsupported payment gateway', 'mhm-rentiva')
+        ];
     }
 
     /**
@@ -164,22 +159,18 @@ final class Service
      */
     private static function processGatewayFullRefund(int $bookingId, string $gateway, string $reason): array
     {
-        switch ($gateway) {
-            case 'paytr':
-                return PayTRRefund::fullRefund($bookingId, $reason);
-
-            case 'stripe':
-                return StripeRefund::fullRefund($bookingId, $reason);
-
-            case 'paypal':
-                return PayPalRefund::fullRefund($bookingId, $reason);
-
-            default:
-                return [
-                    'ok' => false,
-                    'message' => __('Unsupported payment gateway', 'mhm-rentiva')
-                ];
+        if ($gateway === 'offline') {
+            return [
+                'ok' => true,
+                'id' => 'manual_' . uniqid(),
+                'message' => __('Manual full refund recorded', 'mhm-rentiva')
+            ];
         }
+
+        return [
+            'ok' => false,
+            'message' => __('Unsupported payment gateway', 'mhm-rentiva')
+        ];
     }
 
     /**

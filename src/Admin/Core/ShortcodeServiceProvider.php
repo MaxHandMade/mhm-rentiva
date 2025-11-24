@@ -269,11 +269,7 @@ final class ShortcodeServiceProvider
     {
         foreach ($dependencies as $dependency) {
             switch ($dependency) {
-                case 'payment':
-                    if (!class_exists('\MHMRentiva\Admin\Payment\Gateways\Stripe\Client')) {
-                        return false;
-                    }
-                    break;
+
 
                 case 'deposit':
                     if (!class_exists('\MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator')) {

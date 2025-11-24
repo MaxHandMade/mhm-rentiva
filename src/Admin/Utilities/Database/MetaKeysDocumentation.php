@@ -388,7 +388,7 @@ final class MetaKeysDocumentation
                     ],
                     '_mhm_payment_gateway' => [
                         'type' => 'string',
-                        'values' => ['stripe', 'paytr', 'paypal', 'offline'],
+                        'values' => ['offline'],
                         'description' => 'Payment gateway',
                         'required' => true,
                         'usage' => 'Payment management'

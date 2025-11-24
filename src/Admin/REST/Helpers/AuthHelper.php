@@ -39,7 +39,7 @@ final class AuthHelper
      * 
      * @param WP_REST_Request $request REST request object
      * @param int $booking_id Booking ID (for nonce validation)
-     * @param string $gateway_prefix Gateway prefix (e.g. 'paypal', 'paytr')
+     * @param string $gateway_prefix Gateway prefix (e.g. 'offline')
      * @return bool|WP_Error True if successful, WP_Error if error
      */
     public static function verifyAuth(WP_REST_Request $request, int $booking_id = 0, string $gateway_prefix = ''): bool|WP_Error

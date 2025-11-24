@@ -63,9 +63,7 @@ final class ExportFilters
     {
         return [
             'offline' => __('Offline Payment', 'mhm-rentiva'),
-            'paypal' => __('PayPal', 'mhm-rentiva'),
-            'paytr' => __('PayTR', 'mhm-rentiva'),
-            'stripe' => __('Stripe', 'mhm-rentiva'),
+            'woocommerce' => __('WooCommerce', 'mhm-rentiva'),
         ];
     }
 

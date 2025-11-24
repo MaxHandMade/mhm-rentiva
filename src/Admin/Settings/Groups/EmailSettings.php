@@ -24,6 +24,10 @@ class EmailSettings
             'mhm_rentiva_settings'
         );
 
+        if (class_exists('WooCommerce')) {
+            return;
+        }
+
         // General Email Settings
         add_settings_field(
             'mhm_rentiva_email_from_name',
@@ -136,6 +140,14 @@ class EmailSettings
 
     public static function render_section_description(): void
     {
+        if (class_exists('WooCommerce')) {
+            echo '<div class="notice notice-info inline" style="margin: 10px 0;">';
+            echo '<p><strong>' . esc_html__('WooCommerce Active:', 'mhm-rentiva') . '</strong> ';
+            echo esc_html__('Email notifications are handled by WooCommerce. These settings are disabled.', 'mhm-rentiva');
+            echo '</p></div>';
+            return;
+        }
+
         echo '<p>' . esc_html(self::SECTION_DESCRIPTION) . '</p>';
         echo '<div class="notice notice-info inline" style="margin: 10px 0;">';
         echo '<p><strong>' . esc_html__('Note:', 'mhm-rentiva') . '</strong> ';

@@ -23,19 +23,6 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
 
 // Get customer experience settings
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
-
-// Enqueue jQuery for JavaScript functionality
-wp_enqueue_script('jquery');
-
-$welcome_message = SettingsCore::get('mhm_rentiva_customer_welcome_message', __('Welcome to our vehicle rental service!', 'mhm-rentiva'));
-
-// ⭐ If the saved text is the default English text, use the translated version
-if ($welcome_message === 'Welcome to our vehicle rental service!') {
-    $welcome_message = __('Welcome to our vehicle rental service!', 'mhm-rentiva');
-}
-
-$booking_history = SettingsCore::get('mhm_rentiva_customer_booking_history', '1');
-$favorites = SettingsCore::get('mhm_rentiva_customer_favorites', '1');
 ?>
 
 <div class="mhm-rentiva-account-page">

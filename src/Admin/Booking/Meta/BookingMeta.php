@@ -604,9 +604,7 @@ final class BookingMeta extends AbstractMetaBox
         }
         
         $currency  = (string) get_post_meta($post->ID, '_mhm_payment_currency', true);
-        $pi        = (string) get_post_meta($post->ID, '_mhm_stripe_payment_intent', true);
         $gateway   = (string) get_post_meta($post->ID, '_mhm_payment_gateway', true);
-        $paytrOid  = (string) get_post_meta($post->ID, '_mhm_paytr_merchant_oid', true);
         $receiptId = (int) get_post_meta($post->ID, '_mhm_offline_receipt_id', true);
 
         $refundId  = (string) get_post_meta($post->ID, '_mhm_refund_id', true);
@@ -632,9 +630,7 @@ final class BookingMeta extends AbstractMetaBox
             'deposit_amount' => $deposit_amount,
             'remaining_amount' => $remaining_amount,
             'gatewayLabel' => $gatewayLabel,
-            'pi' => $pi,
             'gateway' => $gateway,
-            'paytrOid' => $paytrOid,
             'refundId' => $refundId,
             'refundSt' => $refundSt,
             'refunded' => $refunded
@@ -654,10 +650,6 @@ final class BookingMeta extends AbstractMetaBox
             }
             
             echo '<p><strong>' . esc_html__('Payment Method', 'mhm-rentiva') . ':</strong> ' . esc_html(strtoupper($gatewayLabel)) . '</p>';
-            echo '<p><strong>' . esc_html__('Stripe Payment Intent', 'mhm-rentiva') . ':</strong> ' . ($pi ? '<code>' . esc_html($pi) . '</code>' : '—') . '</p>';
-            if ($gateway === 'paytr') {
-                echo '<p><strong>' . esc_html__('PayTR Merchant OID', 'mhm-rentiva') . ':</strong> ' . ($paytrOid ? '<code>' . esc_html($paytrOid) . '</code>' : '—') . '</p>';
-            }
 
             if ($refundId) {
                 echo '<p><strong>' . esc_html__('Last Refund', 'mhm-rentiva') . ':</strong><br/>';
@@ -666,7 +658,7 @@ final class BookingMeta extends AbstractMetaBox
         }
 
         // Refund button (only when paid)
-        if ($payStatus === 'paid' && $pi) {
+        if ($payStatus === 'paid') {
             $nonce = wp_create_nonce('wp_rest');
             $rest  = esc_url_raw(get_rest_url(null, 'mhm-rentiva/v1/payments/refund'));
             echo '<hr/>';

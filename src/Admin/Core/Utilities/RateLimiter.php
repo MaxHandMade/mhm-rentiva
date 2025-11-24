@@ -34,36 +34,7 @@ final class RateLimiter
                 'max_per_hour' => \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_rate_limit_payment_minute() * 6,
                 'max_per_day' => \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_rate_limit_payment_minute() * 33
             ],
-        'payment_paypal' => [
-            'max_per_minute' => 10,
-            'max_per_hour' => 50,
-            'max_per_day' => 200
-        ],
-        'payment_paypal_ip' => [
-            'max_per_minute' => 10,
-            'max_per_hour' => 50,
-            'max_per_day' => 200
-        ],
-        'payment_paypal_booking' => [
-            'max_per_minute' => 5,
-            'max_per_hour' => 30,
-            'max_per_day' => 100
-        ],
-        'payment_paytr' => [
-            'max_per_minute' => 8,
-            'max_per_hour' => 40,
-            'max_per_day' => 150
-        ],
-        'payment_paytr_ip' => [
-            'max_per_minute' => 8,
-            'max_per_hour' => 40,
-            'max_per_day' => 150
-        ],
-        'payment_paytr_booking' => [
-            'max_per_minute' => 3,
-            'max_per_hour' => 20,
-            'max_per_day' => 80
-        ],
+
         'file_upload' => [
             'max_per_minute' => 5,
             'max_per_hour' => 30,
@@ -308,69 +279,7 @@ final class RateLimiter
         return true;
     }
 
-    /**
-     * PayPal için rate limit kontrolü (IP + Booking bazlı)
-     * 
-     * @param string $ip Client IP
-     * @param int $booking_id Booking ID
-     * @return bool|WP_Error Rate limit durumu
-     */
-    public static function checkPayPalLimit(string $ip, int $booking_id): bool|\WP_Error
-    {
-        // IP bazlı kontrol
-        $ipCheck = self::check($ip, 'payment_paypal_ip');
-        if (!$ipCheck) {
-            return new \WP_Error(
-                'rate_limit_exceeded',
-                __('Çok fazla deneme. Lütfen birkaç dakika bekleyin ve tekrar deneyin.', 'mhm-rentiva'),
-                ['status' => 429, 'type' => 'ip_limit']
-            );
-        }
 
-        // Booking bazlı kontrol
-        $bookingCheck = self::check($ip . '_booking_' . $booking_id, 'payment_paypal_booking');
-        if (!$bookingCheck) {
-            return new \WP_Error(
-                'rate_limit_exceeded',
-                __('Bu rezervasyon için çok fazla deneme. Lütfen bekleyin ve tekrar deneyin.', 'mhm-rentiva'),
-                ['status' => 429, 'type' => 'booking_limit']
-            );
-        }
-
-        return true;
-    }
-
-    /**
-     * PayTR için rate limit kontrolü (IP + Booking bazlı)
-     * 
-     * @param string $ip Client IP
-     * @param int $booking_id Booking ID
-     * @return bool|WP_Error Rate limit durumu
-     */
-    public static function checkPayTRLimit(string $ip, int $booking_id): bool|\WP_Error
-    {
-        // IP bazlı kontrol
-        $ipCheck = self::check($ip, 'payment_paytr_ip');
-        if (!$ipCheck) {
-            return new \WP_Error(
-                'rate_limit_exceeded',
-                __('Çok fazla deneme. Lütfen birkaç dakika bekleyin ve tekrar deneyin.', 'mhm-rentiva'),
-                ['status' => 429, 'type' => 'ip_limit']
-            );
-        }
-
-        // Booking bazlı kontrol
-        $bookingCheck = self::check($ip . '_booking_' . $booking_id, 'payment_paytr_booking');
-        if (!$bookingCheck) {
-            return new \WP_Error(
-                'rate_limit_exceeded',
-                __('Bu rezervasyon için çok fazla deneme. Lütfen bekleyin ve tekrar deneyin.', 'mhm-rentiva'),
-                ['status' => 429, 'type' => 'booking_limit']
-            );
-        }
-
-        return true;
-    }
 
 
     /**

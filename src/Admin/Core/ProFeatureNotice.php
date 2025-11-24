@@ -150,13 +150,9 @@ final class ProFeatureNotice
                 __('Unlimited Messages', 'mhm-rentiva'),
             ],
             'settings' => [
-                __('Stripe Payment Gateway', 'mhm-rentiva'),
-                __('PayTR Payment Gateway', 'mhm-rentiva'),
                 __('Advanced Payment Settings', 'mhm-rentiva'),
             ],
             'payments' => [
-                __('Stripe Integration', 'mhm-rentiva'),
-                __('PayTR Integration', 'mhm-rentiva'),
                 __('Advanced Payment Processing', 'mhm-rentiva'),
             ],
         ];

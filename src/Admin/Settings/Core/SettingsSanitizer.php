@@ -135,7 +135,7 @@ final class SettingsSanitizer
         // This prevents conflicts when saving one tab (e.g., System) from affecting other tabs (e.g., Email)
 
         // IMPORTANT: Handle offline checkbox only when Payment tab is submitted
-        $is_payment_tab = isset($input['mhm_rentiva_stripe_enabled']) || isset($input['mhm_rentiva_paypal_enabled']) || isset($input['mhm_rentiva_paytr_enabled']) || isset($input['mhm_rentiva_offline_enabled']) || isset($input['mhm_rentiva_booking_default_payment_method']);
+        $is_payment_tab = isset($input['mhm_rentiva_offline_enabled']) || isset($input['mhm_rentiva_booking_default_payment_method']);
         if ($is_payment_tab) {
             if (!isset($input['mhm_rentiva_offline_enabled']) || $input['mhm_rentiva_offline_enabled'] === null) {
                 $input['mhm_rentiva_offline_enabled'] = '0';
@@ -145,12 +145,13 @@ final class SettingsSanitizer
         // ✅ Ensure timeout values are captured early (before sanitization methods)
         // Capture timeout values from input to ensure they are saved even if value is 0
         // Check both original input array and extracted array
+        // ✅ Ensure timeout values are captured early (before sanitization methods)
+        // Capture timeout values from input to ensure they are saved even if value is 0
+        // Check both original input array and extracted array
         $timeout_values = [];
         $timeout_keys = [
             'mhm_rentiva_booking_payment_gateway_timeout_minutes',
-            'mhm_rentiva_booking_payment_deadline_minutes',
-            'mhm_rentiva_paypal_timeout',
-            'mhm_rentiva_paytr_timeout_limit'
+            'mhm_rentiva_booking_payment_deadline_minutes'
         ];
         
         foreach ($timeout_keys as $key) {
@@ -163,8 +164,6 @@ final class SettingsSanitizer
                     $timeout_values[$key] = $value_str === '' ? 0 : max(0, min(60, intval($value_str)));
                 } elseif ($key === 'mhm_rentiva_booking_payment_deadline_minutes') {
                     $timeout_values[$key] = $value_str === '' ? 0 : max(0, min(1440, intval($value_str)));
-                } elseif ($key === 'mhm_rentiva_paypal_timeout' || $key === 'mhm_rentiva_paytr_timeout_limit') {
-                    $timeout_values[$key] = $value_str === '' ? 0 : max(0, min(120, absint($value_str)));
                 }
             }
             // Also check in original mhm_rentiva_settings array if it exists
@@ -176,8 +175,6 @@ final class SettingsSanitizer
                     $timeout_values[$key] = $value_str === '' ? 0 : max(0, min(60, intval($value_str)));
                 } elseif ($key === 'mhm_rentiva_booking_payment_deadline_minutes') {
                     $timeout_values[$key] = $value_str === '' ? 0 : max(0, min(1440, intval($value_str)));
-                } elseif ($key === 'mhm_rentiva_paypal_timeout' || $key === 'mhm_rentiva_paytr_timeout_limit') {
-                    $timeout_values[$key] = $value_str === '' ? 0 : max(0, min(120, absint($value_str)));
                 }
             }
         }
@@ -254,7 +251,7 @@ final class SettingsSanitizer
         $is_booking_tab = isset($input['mhm_rentiva_booking_cancellation_deadline_hours']) || isset($input['mhm_rentiva_booking_payment_deadline_minutes']) || isset($input['mhm_rentiva_booking_auto_cancel_enabled']);
         $is_customer_tab = isset($input['mhm_rentiva_customer_registration_enabled']) || isset($input['mhm_rentiva_customer_email_verification']);
         $is_email_tab = isset($input['mhm_rentiva_email_from_name']) || isset($input['mhm_rentiva_email_from_address']) || isset($input['mhm_rentiva_email_test_mode']) || isset($input['mhm_rentiva_email_send_enabled']) || isset($input['mhm_rentiva_email_auto_send']) || isset($input['mhm_rentiva_email_log_enabled']);
-        $is_payment_tab = isset($input['mhm_rentiva_stripe_enabled']) || isset($input['mhm_rentiva_paypal_enabled']) || isset($input['mhm_rentiva_paytr_enabled']) || isset($input['mhm_rentiva_offline_enabled']) || isset($input['mhm_rentiva_booking_default_payment_method']);
+        $is_payment_tab = isset($input['mhm_rentiva_offline_enabled']) || isset($input['mhm_rentiva_booking_default_payment_method']);
         $is_frontend_tab = isset($input['mhm_rentiva_booking_url']) || isset($input['mhm_rentiva_login_url']) || isset($input['mhm_rentiva_register_url']) || isset($input['mhm_rentiva_my_account_url']) || isset($input['mhm_rentiva_text_book_now']) || isset($input['mhm_rentiva_text_view_details']) || isset($input['mhm_rentiva_text_added_to_favorites']) || isset($input['mhm_rentiva_text_make_booking']) || isset($input['mhm_rentiva_text_login_here']);
         $is_maintenance_tab = isset($input['mhm_rentiva_auto_cancel_enabled']) || isset($input['mhm_rentiva_log_cleanup_enabled']);
         $is_reconcile_tab = isset($input['mhm_rentiva_reconcile_enabled']) || isset($input['mhm_rentiva_reconcile_frequency']) || isset($input['mhm_rentiva_reconcile_timeout']);
@@ -284,17 +281,8 @@ final class SettingsSanitizer
 
         // Payment settings - only if payment tab submitted
         if ($is_payment_tab) {
-            // Stripe settings
-            $out = array_merge($out, self::sanitize_stripe_settings($input, $defaults));
-
-            // PayTR settings
-            $out = array_merge($out, self::sanitize_paytr_settings($input, $defaults));
-
             // Offline Payment settings
             $out = array_merge($out, self::sanitize_offline_settings($input, $defaults));
-
-            // PayPal settings
-            $out = array_merge($out, self::sanitize_paypal_settings($input, $defaults));
         }
 
         // Maintenance settings - only if maintenance tab submitted
@@ -351,9 +339,7 @@ final class SettingsSanitizer
         // Process timeout values from input if not already captured
         $timeout_keys = [
             'mhm_rentiva_booking_payment_gateway_timeout_minutes',
-            'mhm_rentiva_booking_payment_deadline_minutes',
-            'mhm_rentiva_paypal_timeout',
-            'mhm_rentiva_paytr_timeout_limit'
+            'mhm_rentiva_booking_payment_deadline_minutes'
         ];
         
         foreach ($timeout_keys as $key) {
@@ -364,8 +350,6 @@ final class SettingsSanitizer
                     $out[$key] = $value_str === '' ? 0 : max(0, min(60, intval($value_str)));
                 } elseif ($key === 'mhm_rentiva_booking_payment_deadline_minutes') {
                     $out[$key] = $value_str === '' ? 0 : max(0, min(1440, intval($value_str)));
-                } elseif ($key === 'mhm_rentiva_paypal_timeout' || $key === 'mhm_rentiva_paytr_timeout_limit') {
-                    $out[$key] = $value_str === '' ? 0 : max(0, min(120, absint($value_str)));
                 }
             }
         }
@@ -576,157 +560,7 @@ final class SettingsSanitizer
         return $out;
     }
 
-    private static function sanitize_stripe_settings($input, $defaults): array
-    {
-        $out = [];
 
-        if (isset($input['mhm_rentiva_stripe_enabled'])) {
-            $out['mhm_rentiva_stripe_enabled'] = $input['mhm_rentiva_stripe_enabled'] === '1' ? '1' : '0';
-        } else {
-            // Keep current value, don't use default value
-            $current_settings = get_option('mhm_rentiva_settings', []);
-            $out['mhm_rentiva_stripe_enabled'] = $current_settings['mhm_rentiva_stripe_enabled'] ?? $defaults['mhm_rentiva_stripe_enabled'];
-        }
-
-        if (isset($input['mhm_rentiva_stripe_mode'])) {
-            $mode = self::sanitize_text_field_safe( $input['mhm_rentiva_stripe_mode']);
-            $out['mhm_rentiva_stripe_mode'] = in_array($mode, ['test', 'live'], true) ? $mode : 'test';
-        } else {
-            $out['mhm_rentiva_stripe_mode'] = $defaults['mhm_rentiva_stripe_mode'];
-        }
-
-        // Test mode settings
-        if (isset($input['mhm_rentiva_stripe_test_mode'])) {
-            $out['mhm_rentiva_stripe_test_mode'] = $input['mhm_rentiva_stripe_test_mode'] === '1' ? '1' : '0';
-        } else {
-            $current_settings = get_option('mhm_rentiva_settings', []);
-            $out['mhm_rentiva_stripe_test_mode'] = $current_settings['mhm_rentiva_stripe_test_mode'] ?? $defaults['mhm_rentiva_stripe_test_mode'];
-        }
-
-        if (isset($input['mhm_rentiva_stripe_publishable_key'])) {
-            $out['mhm_rentiva_stripe_publishable_key'] = self::sanitize_text_field_safe( $input['mhm_rentiva_stripe_publishable_key']);
-        } else {
-            $out['mhm_rentiva_stripe_publishable_key'] = $defaults['mhm_rentiva_stripe_publishable_key'];
-        }
-
-        if (isset($input['mhm_rentiva_stripe_secret_key'])) {
-            $out['mhm_rentiva_stripe_secret_key'] = self::sanitize_text_field_safe( $input['mhm_rentiva_stripe_secret_key']);
-        } else {
-            $out['mhm_rentiva_stripe_secret_key'] = $defaults['mhm_rentiva_stripe_secret_key'];
-        }
-
-        // Stripe test keys
-        if (isset($input['mhm_rentiva_stripe_pk_test'])) {
-            $out['mhm_rentiva_stripe_pk_test'] = self::sanitize_text_field_safe( $input['mhm_rentiva_stripe_pk_test']);
-        } else {
-            $out['mhm_rentiva_stripe_pk_test'] = $defaults['mhm_rentiva_stripe_pk_test'];
-        }
-
-        if (isset($input['mhm_rentiva_stripe_sk_test'])) {
-            $out['mhm_rentiva_stripe_sk_test'] = self::sanitize_text_field_safe( $input['mhm_rentiva_stripe_sk_test']);
-        } else {
-            $out['mhm_rentiva_stripe_sk_test'] = $defaults['mhm_rentiva_stripe_sk_test'];
-        }
-
-        if (isset($input['mhm_rentiva_stripe_webhook_secret_test'])) {
-            $out['mhm_rentiva_stripe_webhook_secret_test'] = self::sanitize_text_field_safe( $input['mhm_rentiva_stripe_webhook_secret_test']);
-        } else {
-            $out['mhm_rentiva_stripe_webhook_secret_test'] = $defaults['mhm_rentiva_stripe_webhook_secret_test'];
-        }
-
-        // Stripe live keys
-        if (isset($input['mhm_rentiva_stripe_pk_live'])) {
-            $out['mhm_rentiva_stripe_pk_live'] = self::sanitize_text_field_safe( $input['mhm_rentiva_stripe_pk_live']);
-        } else {
-            $out['mhm_rentiva_stripe_pk_live'] = $defaults['mhm_rentiva_stripe_pk_live'];
-        }
-
-        if (isset($input['mhm_rentiva_stripe_sk_live'])) {
-            $out['mhm_rentiva_stripe_sk_live'] = self::sanitize_text_field_safe( $input['mhm_rentiva_stripe_sk_live']);
-        } else {
-            $out['mhm_rentiva_stripe_sk_live'] = $defaults['mhm_rentiva_stripe_sk_live'];
-        }
-
-        if (isset($input['mhm_rentiva_stripe_webhook_secret_live'])) {
-            $out['mhm_rentiva_stripe_webhook_secret_live'] = self::sanitize_text_field_safe( $input['mhm_rentiva_stripe_webhook_secret_live']);
-        } else {
-            $out['mhm_rentiva_stripe_webhook_secret_live'] = $defaults['mhm_rentiva_stripe_webhook_secret_live'];
-        }
-
-        return $out;
-    }
-
-    private static function sanitize_paytr_settings($input, $defaults): array
-    {
-        $out = [];
-
-        if (isset($input['mhm_rentiva_paytr_enabled'])) {
-            $out['mhm_rentiva_paytr_enabled'] = $input['mhm_rentiva_paytr_enabled'] === '1' ? '1' : '0';
-        } else {
-            // Keep current value, don't use default value
-            $current_settings = get_option('mhm_rentiva_settings', []);
-            $out['mhm_rentiva_paytr_enabled'] = $current_settings['mhm_rentiva_paytr_enabled'] ?? $defaults['mhm_rentiva_paytr_enabled'];
-        }
-
-        if (isset($input['mhm_rentiva_paytr_merchant_id'])) {
-            $out['mhm_rentiva_paytr_merchant_id'] = self::sanitize_text_field_safe( $input['mhm_rentiva_paytr_merchant_id']);
-        } else {
-            $out['mhm_rentiva_paytr_merchant_id'] = $defaults['mhm_rentiva_paytr_merchant_id'];
-        }
-
-        if (isset($input['mhm_rentiva_paytr_merchant_key'])) {
-            $out['mhm_rentiva_paytr_merchant_key'] = self::sanitize_text_field_safe( $input['mhm_rentiva_paytr_merchant_key']);
-        } else {
-            $out['mhm_rentiva_paytr_merchant_key'] = $defaults['mhm_rentiva_paytr_merchant_key'];
-        }
-
-        if (isset($input['mhm_rentiva_paytr_merchant_salt'])) {
-            $out['mhm_rentiva_paytr_merchant_salt'] = self::sanitize_text_field_safe( $input['mhm_rentiva_paytr_merchant_salt']);
-        } else {
-            $out['mhm_rentiva_paytr_merchant_salt'] = $defaults['mhm_rentiva_paytr_merchant_salt'];
-        }
-
-        // Test mode settings
-        if (isset($input['mhm_rentiva_paytr_test_mode'])) {
-            $out['mhm_rentiva_paytr_test_mode'] = $input['mhm_rentiva_paytr_test_mode'] === '1' ? '1' : '0';
-        } else {
-            $current_settings = get_option('mhm_rentiva_settings', []);
-            $out['mhm_rentiva_paytr_test_mode'] = $current_settings['mhm_rentiva_paytr_test_mode'] ?? $defaults['mhm_rentiva_paytr_test_mode'];
-        }
-
-        // PayTR additional settings
-        if (isset($input['mhm_rentiva_paytr_no_installment'])) {
-            $out['mhm_rentiva_paytr_no_installment'] = $input['mhm_rentiva_paytr_no_installment'] === '1' ? '1' : '0';
-        } else {
-            $current_settings = get_option('mhm_rentiva_settings', []);
-            $out['mhm_rentiva_paytr_no_installment'] = $current_settings['mhm_rentiva_paytr_no_installment'] ?? $defaults['mhm_rentiva_paytr_no_installment'];
-        }
-
-        if (isset($input['mhm_rentiva_paytr_max_installment'])) {
-            $out['mhm_rentiva_paytr_max_installment'] = self::sanitize_text_field_safe( $input['mhm_rentiva_paytr_max_installment']);
-        } else {
-            $out['mhm_rentiva_paytr_max_installment'] = $defaults['mhm_rentiva_paytr_max_installment'];
-        }
-
-        if (isset($input['mhm_rentiva_paytr_non_3d'])) {
-            $out['mhm_rentiva_paytr_non_3d'] = $input['mhm_rentiva_paytr_non_3d'] === '1' ? '1' : '0';
-        } else {
-            $current_settings = get_option('mhm_rentiva_settings', []);
-            $out['mhm_rentiva_paytr_non_3d'] = $current_settings['mhm_rentiva_paytr_non_3d'] ?? $defaults['mhm_rentiva_paytr_non_3d'];
-        }
-
-        // PayTR timeout is handled in main sanitize() function via $timeout_values
-        // Skipping here to avoid conflicts - will be applied at the end
-
-        if (isset($input['mhm_rentiva_paytr_debug_on'])) {
-            $out['mhm_rentiva_paytr_debug_on'] = $input['mhm_rentiva_paytr_debug_on'] === '1' ? '1' : '0';
-        } else {
-            $current_settings = get_option('mhm_rentiva_settings', []);
-            $out['mhm_rentiva_paytr_debug_on'] = $current_settings['mhm_rentiva_paytr_debug_on'] ?? $defaults['mhm_rentiva_paytr_debug_on'];
-        }
-
-        return $out;
-    }
 
     private static function sanitize_maintenance_settings($input, $defaults): array
     {
@@ -962,9 +796,6 @@ final class SettingsSanitizer
         // Checkbox handling: If form is submitted but checkbox is not in POST, it means unchecked
         // Check if this is a form submission - if $input is not empty and contains other settings, it's a form submission
         $is_form_submission = !empty($input) && (
-            isset($input['mhm_rentiva_stripe_enabled']) || 
-            isset($input['mhm_rentiva_paytr_enabled']) || 
-            isset($input['mhm_rentiva_paypal_enabled']) ||
             isset($input['mhm_rentiva_currency']) ||
             isset($_POST['mhm_rentiva_settings'])
         );
@@ -1008,96 +839,7 @@ final class SettingsSanitizer
         return $out;
     }
 
-    private static function sanitize_paypal_settings($input, $defaults): array
-    {
-        $out = [];
 
-        if (isset($input['mhm_rentiva_paypal_enabled'])) {
-            $out['mhm_rentiva_paypal_enabled'] = $input['mhm_rentiva_paypal_enabled'] === '1' ? '1' : '0';
-        } else {
-            // Keep current value, don't use default value
-            $current_settings = get_option('mhm_rentiva_settings', []);
-            $out['mhm_rentiva_paypal_enabled'] = $current_settings['mhm_rentiva_paypal_enabled'] ?? $defaults['mhm_rentiva_paypal_enabled'];
-        }
-
-        if (isset($input['mhm_rentiva_paypal_mode'])) {
-            $mode = self::sanitize_text_field_safe( $input['mhm_rentiva_paypal_mode']);
-            $out['mhm_rentiva_paypal_mode'] = in_array($mode, ['sandbox', 'live'], true) ? $mode : 'sandbox';
-        } else {
-            $out['mhm_rentiva_paypal_mode'] = $defaults['mhm_rentiva_paypal_mode'];
-        }
-
-        if (isset($input['mhm_rentiva_paypal_client_id'])) {
-            $out['mhm_rentiva_paypal_client_id'] = self::sanitize_text_field_safe( $input['mhm_rentiva_paypal_client_id']);
-        } else {
-            $out['mhm_rentiva_paypal_client_id'] = $defaults['mhm_rentiva_paypal_client_id'];
-        }
-
-        if (isset($input['mhm_rentiva_paypal_client_secret'])) {
-            $out['mhm_rentiva_paypal_client_secret'] = self::sanitize_text_field_safe( $input['mhm_rentiva_paypal_client_secret']);
-        } else {
-            $out['mhm_rentiva_paypal_client_secret'] = $defaults['mhm_rentiva_paypal_client_secret'];
-        }
-
-        // Test mode settings
-        if (isset($input['mhm_rentiva_paypal_test_mode'])) {
-            $out['mhm_rentiva_paypal_test_mode'] = $input['mhm_rentiva_paypal_test_mode'] === '1' ? '1' : '0';
-        } else {
-            $current_settings = get_option('mhm_rentiva_settings', []);
-            $out['mhm_rentiva_paypal_test_mode'] = $current_settings['mhm_rentiva_paypal_test_mode'] ?? $defaults['mhm_rentiva_paypal_test_mode'];
-        }
-
-        // PayPal test keys
-        if (isset($input['mhm_rentiva_paypal_client_id_test'])) {
-            $out['mhm_rentiva_paypal_client_id_test'] = self::sanitize_text_field_safe( $input['mhm_rentiva_paypal_client_id_test']);
-        } else {
-            $out['mhm_rentiva_paypal_client_id_test'] = $defaults['mhm_rentiva_paypal_client_id_test'];
-        }
-
-        if (isset($input['mhm_rentiva_paypal_client_secret_test'])) {
-            $out['mhm_rentiva_paypal_client_secret_test'] = self::sanitize_text_field_safe( $input['mhm_rentiva_paypal_client_secret_test']);
-        } else {
-            $out['mhm_rentiva_paypal_client_secret_test'] = $defaults['mhm_rentiva_paypal_client_secret_test'];
-        }
-
-        // PayPal live keys
-        if (isset($input['mhm_rentiva_paypal_client_id_live'])) {
-            $out['mhm_rentiva_paypal_client_id_live'] = self::sanitize_text_field_safe( $input['mhm_rentiva_paypal_client_id_live']);
-        } else {
-            $out['mhm_rentiva_paypal_client_id_live'] = $defaults['mhm_rentiva_paypal_client_id_live'];
-        }
-
-        if (isset($input['mhm_rentiva_paypal_client_secret_live'])) {
-            $out['mhm_rentiva_paypal_client_secret_live'] = self::sanitize_text_field_safe( $input['mhm_rentiva_paypal_client_secret_live']);
-        } else {
-            $out['mhm_rentiva_paypal_client_secret_live'] = $defaults['mhm_rentiva_paypal_client_secret_live'];
-        }
-
-        // PayPal additional settings
-        if (isset($input['mhm_rentiva_paypal_currency'])) {
-            $out['mhm_rentiva_paypal_currency'] = self::sanitize_text_field_safe( $input['mhm_rentiva_paypal_currency']);
-        } else {
-            $out['mhm_rentiva_paypal_currency'] = $defaults['mhm_rentiva_paypal_currency'];
-        }
-
-        if (isset($input['mhm_rentiva_paypal_webhook_id'])) {
-            $out['mhm_rentiva_paypal_webhook_id'] = self::sanitize_text_field_safe( $input['mhm_rentiva_paypal_webhook_id']);
-        } else {
-            $out['mhm_rentiva_paypal_webhook_id'] = $defaults['mhm_rentiva_paypal_webhook_id'];
-        }
-
-        if (isset($input['mhm_rentiva_paypal_debug_mode'])) {
-            $out['mhm_rentiva_paypal_debug_mode'] = $input['mhm_rentiva_paypal_debug_mode'] === '1' ? '1' : '0';
-        } else {
-            $current_settings = get_option('mhm_rentiva_settings', []);
-            $out['mhm_rentiva_paypal_debug_mode'] = $current_settings['mhm_rentiva_paypal_debug_mode'] ?? $defaults['mhm_rentiva_paypal_debug_mode'];
-        }
-
-        // PayPal timeout is handled in main sanitize() function via $timeout_values
-        // Skipping here to avoid conflicts - will be applied at the end
-
-        return $out;
-    }
 
     /**
      * Sanitize Frontend URL & Text Settings

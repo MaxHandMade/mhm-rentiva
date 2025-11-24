@@ -1,8 +1,18 @@
 [
     {
+        "version": "4.4.3",
+        "date": "2025-11-24",
+        "type": "current",
+        "changes": [
+            "🗑️ ESKİ KOD TEMİZLİĞİ: Offline ödemeler ve WooCommerce entegrasyonuna odaklanmak için tüm eski ödeme ağ geçidi kodları (Stripe, PayPal, PayTR) kaldırıldı.",
+            "🧹 TEMİZLİK: Eski ağ geçitleriyle ilgili kullanılmayan varlıklar ve rate limit mantığı temizlendi.",
+            "📚 DÖKÜMANTASYON: README ve dokümantasyon yeni ödeme sistemi odağını yansıtacak şekilde güncellendi."
+        ]
+    },
+    {
         "version": "4.4.2",
         "date": "2025-11-23",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🔒 GÜVENLİK: Hardcoded secure token kaldırıldı ve gelişmiş güvenlik için dinamik anahtar üretimi eklendi.",
             "🏗️ REFACTORING: Ayarlar sayfası görünüm mantığı, daha iyi bakım için SettingsView sınıfına ayrıldı.",

@@ -43,8 +43,7 @@ final class MetaBox
         $action  = (string) get_post_meta($post->ID, '_mhm_log_action', true);
         $status  = (string) get_post_meta($post->ID, '_mhm_log_status', true);
         $bid     = (int) get_post_meta($post->ID, '_mhm_log_booking_id', true);
-        $code    = (string) get_post_meta($post->ID, '_mhm_log_code', true);
-        $oid     = (string) get_post_meta($post->ID, '_mhm_log_oid', true);
+
         $ak      = (int) get_post_meta($post->ID, '_mhm_log_amount_kurus', true);
         $cur     = (string) get_post_meta($post->ID, '_mhm_log_currency', true);
 
@@ -52,8 +51,7 @@ final class MetaBox
         if ($gateway) echo '<strong>' . esc_html($gateway) . '</strong> ';
         if ($action)  echo '<code>' . esc_html($action) . '</code> ';
         if ($status)  echo '<span>[' . esc_html($status) . ']</span> ';
-        if ($code)    echo '<span style="margin-left:8px;">' . esc_html__('Code', 'mhm-rentiva') . ': <code>' . esc_html($code) . '</code></span> ';
-        if ($oid)     echo '<span style="margin-left:8px;">' . esc_html__('Order ID', 'mhm-rentiva') . ': <code>' . esc_html($oid) . '</code></span> ';
+
         if ($bid) {
             $link = get_edit_post_link($bid);
             if ($link) {

@@ -371,106 +371,18 @@ final class SetupWizard
 
     private static function render_step_payments(): void
     {
-        $stripe_enabled = SettingsCore::get('mhm_rentiva_stripe_enabled', '0');
-        $stripe_mode = SettingsCore::get('mhm_rentiva_stripe_mode', 'test');
-        $stripe_pk = SettingsCore::get('mhm_rentiva_stripe_publishable_key', '');
-        $stripe_sk = SettingsCore::get('mhm_rentiva_stripe_secret_key', '');
-
-        $paypal_enabled = SettingsCore::get('mhm_rentiva_paypal_enabled', '0');
-        $paypal_mode = SettingsCore::get('mhm_rentiva_paypal_mode', 'sandbox');
-        $paypal_client_id = SettingsCore::get('mhm_rentiva_paypal_client_id', '');
-        $paypal_client_secret = SettingsCore::get('mhm_rentiva_paypal_client_secret', '');
-
-        $paytr_enabled = SettingsCore::get('mhm_rentiva_paytr_enabled', '0');
-        $paytr_id = SettingsCore::get('mhm_rentiva_paytr_merchant_id', '');
-        $paytr_key = SettingsCore::get('mhm_rentiva_paytr_merchant_key', '');
-        $paytr_salt = SettingsCore::get('mhm_rentiva_paytr_merchant_salt', '');
-
         $offline_enabled = SettingsCore::get('mhm_rentiva_offline_enabled', '1');
         $offline_instructions = SettingsCore::get('mhm_rentiva_offline_instructions', '');
         $default_method = SettingsCore::get('mhm_rentiva_booking_default_payment_method', 'offline');
         $payment_options = [
             'offline' => __('Offline / Manual', 'mhm-rentiva'),
-            'stripe'  => __('Stripe (Credit Card)', 'mhm-rentiva'),
-            'paypal'  => __('PayPal', 'mhm-rentiva'),
-            'paytr'   => __('PayTR', 'mhm-rentiva'),
         ];
         ?>
         <h2><?php esc_html_e('Step 5: Payment Gateways', 'mhm-rentiva'); ?></h2>
-        <p><?php esc_html_e('Enable the gateways you plan to use and paste your sandbox keys. You can switch to live mode from the full settings later.', 'mhm-rentiva'); ?></p>
+        <p><?php esc_html_e('Configure offline payment methods. Online payments are now handled via WooCommerce integration.', 'mhm-rentiva'); ?></p>
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('mhm_rentiva_setup_payments'); ?>
             <input type="hidden" name="action" value="mhm_rentiva_setup_save_payments">
-
-            <h3><?php esc_html_e('Stripe', 'mhm-rentiva'); ?></h3>
-            <table class="form-table">
-                <tr>
-                    <th><?php esc_html_e('Enable Stripe', 'mhm-rentiva'); ?></th>
-                    <td><label><input type="checkbox" name="stripe_enabled" value="1" <?php checked($stripe_enabled, '1'); ?> /> <?php esc_html_e('Allow card payments via Stripe', 'mhm-rentiva'); ?></label></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('Mode', 'mhm-rentiva'); ?></th>
-                    <td>
-                        <select name="stripe_mode">
-                            <option value="test" <?php selected($stripe_mode, 'test'); ?>><?php esc_html_e('Test', 'mhm-rentiva'); ?></option>
-                            <option value="live" <?php selected($stripe_mode, 'live'); ?>><?php esc_html_e('Live', 'mhm-rentiva'); ?></option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('Publishable Key', 'mhm-rentiva'); ?></th>
-                    <td><input type="text" name="stripe_pk" class="regular-text" value="<?php echo esc_attr($stripe_pk); ?>" /></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('Secret Key', 'mhm-rentiva'); ?></th>
-                    <td><input type="text" name="stripe_sk" class="regular-text" value="<?php echo esc_attr($stripe_sk); ?>" /></td>
-                </tr>
-            </table>
-
-            <h3><?php esc_html_e('PayPal', 'mhm-rentiva'); ?></h3>
-            <table class="form-table">
-                <tr>
-                    <th><?php esc_html_e('Enable PayPal', 'mhm-rentiva'); ?></th>
-                    <td><label><input type="checkbox" name="paypal_enabled" value="1" <?php checked($paypal_enabled, '1'); ?> /> <?php esc_html_e('Enable PayPal checkout', 'mhm-rentiva'); ?></label></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('Mode', 'mhm-rentiva'); ?></th>
-                    <td>
-                        <select name="paypal_mode">
-                            <option value="sandbox" <?php selected($paypal_mode, 'sandbox'); ?>><?php esc_html_e('Sandbox', 'mhm-rentiva'); ?></option>
-                            <option value="live" <?php selected($paypal_mode, 'live'); ?>><?php esc_html_e('Live', 'mhm-rentiva'); ?></option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('Client ID', 'mhm-rentiva'); ?></th>
-                    <td><input type="text" name="paypal_client_id" class="regular-text" value="<?php echo esc_attr($paypal_client_id); ?>" /></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('Client Secret', 'mhm-rentiva'); ?></th>
-                    <td><input type="text" name="paypal_client_secret" class="regular-text" value="<?php echo esc_attr($paypal_client_secret); ?>" /></td>
-                </tr>
-            </table>
-
-            <h3><?php esc_html_e('PayTR', 'mhm-rentiva'); ?></h3>
-            <table class="form-table">
-                <tr>
-                    <th><?php esc_html_e('Enable PayTR', 'mhm-rentiva'); ?></th>
-                    <td><label><input type="checkbox" name="paytr_enabled" value="1" <?php checked($paytr_enabled, '1'); ?> /> <?php esc_html_e('Enable PayTR iframe payments', 'mhm-rentiva'); ?></label></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('Merchant ID', 'mhm-rentiva'); ?></th>
-                    <td><input type="text" name="paytr_id" class="regular-text" value="<?php echo esc_attr($paytr_id); ?>" /></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('Merchant Key', 'mhm-rentiva'); ?></th>
-                    <td><input type="text" name="paytr_key" class="regular-text" value="<?php echo esc_attr($paytr_key); ?>" /></td>
-                </tr>
-                <tr>
-                    <th><?php esc_html_e('Merchant Salt', 'mhm-rentiva'); ?></th>
-                    <td><input type="text" name="paytr_salt" class="regular-text" value="<?php echo esc_attr($paytr_salt); ?>" /></td>
-                </tr>
-            </table>
 
             <h3><?php esc_html_e('Offline / Manual Payments', 'mhm-rentiva'); ?></h3>
             <table class="form-table">
@@ -684,27 +596,10 @@ final class SetupWizard
         check_admin_referer('mhm_rentiva_setup_payments');
 
         $settings = get_option('mhm_rentiva_settings', []);
-        $settings['mhm_rentiva_stripe_enabled'] = isset($_POST['stripe_enabled']) ? '1' : '0';
-        $stripe_mode = sanitize_text_field(wp_unslash($_POST['stripe_mode'] ?? 'test'));
-        $settings['mhm_rentiva_stripe_mode'] = in_array($stripe_mode, ['test', 'live'], true) ? $stripe_mode : 'test';
-        $settings['mhm_rentiva_stripe_publishable_key'] = sanitize_text_field(wp_unslash($_POST['stripe_pk'] ?? ''));
-        $settings['mhm_rentiva_stripe_secret_key'] = sanitize_text_field(wp_unslash($_POST['stripe_sk'] ?? ''));
-
-        $settings['mhm_rentiva_paypal_enabled'] = isset($_POST['paypal_enabled']) ? '1' : '0';
-        $paypal_mode = sanitize_text_field(wp_unslash($_POST['paypal_mode'] ?? 'sandbox'));
-        $settings['mhm_rentiva_paypal_mode'] = in_array($paypal_mode, ['sandbox', 'live'], true) ? $paypal_mode : 'sandbox';
-        $settings['mhm_rentiva_paypal_client_id'] = sanitize_text_field(wp_unslash($_POST['paypal_client_id'] ?? ''));
-        $settings['mhm_rentiva_paypal_client_secret'] = sanitize_text_field(wp_unslash($_POST['paypal_client_secret'] ?? ''));
-
-        $settings['mhm_rentiva_paytr_enabled'] = isset($_POST['paytr_enabled']) ? '1' : '0';
-        $settings['mhm_rentiva_paytr_merchant_id'] = sanitize_text_field(wp_unslash($_POST['paytr_id'] ?? ''));
-        $settings['mhm_rentiva_paytr_merchant_key'] = sanitize_text_field(wp_unslash($_POST['paytr_key'] ?? ''));
-        $settings['mhm_rentiva_paytr_merchant_salt'] = sanitize_text_field(wp_unslash($_POST['paytr_salt'] ?? ''));
-
         $settings['mhm_rentiva_offline_enabled'] = isset($_POST['offline_enabled']) ? '1' : '0';
         $settings['mhm_rentiva_offline_instructions'] = sanitize_textarea_field(wp_unslash($_POST['offline_instructions'] ?? ''));
 
-        $allowed_methods = ['offline', 'stripe', 'paypal', 'paytr'];
+        $allowed_methods = ['offline'];
         $default_method = sanitize_key(wp_unslash($_POST['default_payment_method'] ?? 'offline'));
         $settings['mhm_rentiva_booking_default_payment_method'] = in_array($default_method, $allowed_methods, true) ? $default_method : 'offline';
 
@@ -1217,9 +1112,7 @@ final class SetupWizard
     {
         $settings = get_option('mhm_rentiva_settings', []);
         $gateways = [
-            $settings['mhm_rentiva_stripe_enabled'] ?? '0',
-            $settings['mhm_rentiva_paypal_enabled'] ?? '0',
-            $settings['mhm_rentiva_paytr_enabled'] ?? '0',
+
             $settings['mhm_rentiva_offline_enabled'] ?? '0',
         ];
 

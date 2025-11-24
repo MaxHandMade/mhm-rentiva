@@ -434,24 +434,15 @@ final class BookingColumns
         }
         if (isset($_GET['mhm_payment_gateway']) && $_GET['mhm_payment_gateway'] !== '') {
             $val = self::sanitize_text_field_safe((string) $_GET['mhm_payment_gateway']);
-            if (in_array($val, ['stripe','paytr','offline'], true)) {
-                if ($val === 'offline') {
-                    // Special case for offline: include legacy with receipt id
-                    $meta[] = [
-                        'relation' => 'OR',
-                        ['key' => '_booking_payment_gateway', 'value' => 'offline', 'compare' => '='],
-                        ['key' => '_mhm_payment_gateway', 'value' => 'offline', 'compare' => '='],
-                        ['key' => '_booking_offline_receipt_id', 'compare' => 'EXISTS'],
-                        ['key' => '_mhm_offline_receipt_id', 'compare' => 'EXISTS']
-                    ];
-                } else {
-                    // Check both old and new meta keys
-                    $meta[] = [
-                        'relation' => 'OR',
-                        ['key' => '_booking_payment_gateway', 'value' => $val, 'compare' => '='],
-                        ['key' => '_mhm_payment_gateway', 'value' => $val, 'compare' => '=']
-                    ];
-                }
+            if ($val === 'offline') {
+                // Special case for offline: include legacy with receipt id
+                $meta[] = [
+                    'relation' => 'OR',
+                    ['key' => '_booking_payment_gateway', 'value' => 'offline', 'compare' => '='],
+                    ['key' => '_mhm_payment_gateway', 'value' => 'offline', 'compare' => '='],
+                    ['key' => '_booking_offline_receipt_id', 'compare' => 'EXISTS'],
+                    ['key' => '_mhm_offline_receipt_id', 'compare' => 'EXISTS']
+                ];
             }
         }
         if (!empty($meta)) {
@@ -483,9 +474,6 @@ final class BookingColumns
     {
         $labels = [
             'offline' => __('Offline', 'mhm-rentiva'),
-            'paypal' => __('PayPal', 'mhm-rentiva'),
-            'paytr' => __('PayTR', 'mhm-rentiva'),
-            'stripe' => __('Stripe', 'mhm-rentiva'),
         ];
 
         return $labels[$gateway] ?? strtoupper($gateway);

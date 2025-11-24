@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
 final class VehicleDetails extends AbstractShortcode
 {
     public const SHORTCODE = 'rentiva_vehicle_details';
-    private const CACHE_VERSION = 'card_fields_v1';
+    private const CACHE_VERSION = 'card_fields_v4';
 
     /**
      * Register shortcode
@@ -265,7 +265,7 @@ final class VehicleDetails extends AbstractShortcode
             'price_per_day' => get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true),
             'price_per_week' => get_post_meta($vehicle_id, '_mhm_rentiva_price_per_week', true),
             'price_per_month' => get_post_meta($vehicle_id, '_mhm_rentiva_price_per_month', true),
-            'currency' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD'),
+            'currency' => function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD'),
             'currency_symbol' => self::get_currency_symbol(),
             
             // Features
@@ -560,9 +560,12 @@ final class VehicleDetails extends AbstractShortcode
         
         $calendar_html = '<div class="rv-calendar-grid">';
         
-        // Day names
-        $day_names = [
-            __('Sun', 'mhm-rentiva'), 
+        // Get WordPress week start setting (0 = Sunday, 1 = Monday, etc.)
+        $week_start = (int) get_option('start_of_week', 1);
+        
+        // Day names - Reorder based on WordPress setting
+        $all_day_names = [
+            __('Sun', 'mhm-rentiva'),
             __('Mon', 'mhm-rentiva'), 
             __('Tue', 'mhm-rentiva'), 
             __('Wed', 'mhm-rentiva'), 
@@ -570,6 +573,13 @@ final class VehicleDetails extends AbstractShortcode
             __('Fri', 'mhm-rentiva'), 
             __('Sat', 'mhm-rentiva')
         ];
+        
+        // Reorder days based on week start
+        $day_names = array_merge(
+            array_slice($all_day_names, $week_start),
+            array_slice($all_day_names, 0, $week_start)
+        );
+        
         $calendar_html .= '<div class="rv-calendar-header">';
         foreach ($day_names as $day_name) {
             $calendar_html .= '<div class="rv-calendar-day-name">' . $day_name . '</div>';
@@ -579,8 +589,9 @@ final class VehicleDetails extends AbstractShortcode
         // Calendar days
         $calendar_html .= '<div class="rv-calendar-days">';
         
-        // Empty days for first week
-        for ($i = 0; $i < $first_day; $i++) {
+        // Empty days for first week (adjust based on week start setting)
+        $first_day_adjusted = ($first_day - $week_start + 7) % 7;
+        for ($i = 0; $i < $first_day_adjusted; $i++) {
             $calendar_html .= '<div class="rv-calendar-day empty"></div>';
         }
         

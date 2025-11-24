@@ -307,14 +307,13 @@ final class Export
         $output = fopen('php://output', 'w');
 
         // Add BOM for Excel compatibility
-        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+        fprintf($output, "%s", chr(0xEF).chr(0xBB).chr(0xBF));
 
         if ($post_type === 'vehicle_booking') {
             $headers = [
                 'ID','Date','Status','Payment Status','Gateway',
                 'Total','Paid Amount','Currency',
                 'Name','Email','Phone',
-                'PayTR OID','Stripe PI','Stripe Charge',
             ];
         } elseif ($post_type === 'vehicle') {
             $headers = [
@@ -327,7 +326,7 @@ final class Export
         } else {
             $headers = [
                 'ID','Date','Gateway','Action','Status',
-                'Booking ID','Code','OID',
+                'Booking ID',
                 'Amount (kurus)','Currency','Message',
             ];
         }
@@ -350,9 +349,6 @@ final class Export
                     $name   = (string) get_post_meta($pid, '_mhm_customer_name', true);
                     $email  = (string) get_post_meta($pid, '_mhm_customer_email', true);
                     $phone  = (string) get_post_meta($pid, '_mhm_customer_phone', true);
-                    $oid    = (string) get_post_meta($pid, '_mhm_paytr_merchant_oid', true);
-                    $pi     = (string) get_post_meta($pid, '_mhm_stripe_payment_intent', true);
-                    $chg    = (string) get_post_meta($pid, '_mhm_stripe_charge_id', true);
                     fputcsv($output, [
                         $pid,
                         $date,
@@ -363,9 +359,9 @@ final class Export
                         number_format($paidk / 100, 2, '.', ''),
                         strtoupper($cur ?: ''),
                         $name, $email, $phone,
-                        $oid, $pi, $chg,
                     ]);
-                } elseif ($post_type === 'vehicle') {
+                }
+                elseif ($post_type === 'vehicle') {
                     $post = get_post($pid);
                     $title = $post ? $post->post_title : '';
                     $brand = (string) get_post_meta($pid, '_mhm_rentiva_brand', true);
@@ -412,14 +408,12 @@ final class Export
                     $act    = (string) get_post_meta($pid, '_mhm_log_action', true);
                     $st     = (string) get_post_meta($pid, '_mhm_log_status', true);
                     $bid    = (int) get_post_meta($pid, '_mhm_log_booking_id', true);
-                    $code   = (string) get_post_meta($pid, '_mhm_log_code', true);
-                    $oid    = (string) get_post_meta($pid, '_mhm_log_oid', true);
                     $ak     = (int) get_post_meta($pid, '_mhm_log_amount_kurus', true);
                     $cur    = (string) get_post_meta($pid, '_mhm_log_currency', true);
                     $msg    = (string) get_post_meta($pid, '_mhm_log_message', true);
                     fputcsv($output, [
                         $pid, $date, $gw, $act, $st,
-                        $bid, $code, $oid,
+                        $bid,
                         $ak, strtoupper($cur ?: ''), $msg,
                     ]);
                 }
@@ -452,7 +446,6 @@ final class Export
                 'ID','Date','Status','Payment Status','Gateway',
                 'Total','Paid Amount','Currency',
                 'Name','Email','Phone',
-                'PayTR OID','Stripe PI','Stripe Charge',
             ];
         } elseif ($post_type === 'vehicle') {
             $headers = [
@@ -465,7 +458,7 @@ final class Export
         } else {
             $headers = [
                 'ID','Date','Gateway','Action','Status',
-                'Booking ID','Code','OID',
+                'Booking ID',
                 'Amount (kurus)','Currency','Message',
             ];
         }
@@ -495,15 +488,18 @@ final class Export
                     $name   = (string) get_post_meta($pid, '_mhm_customer_name', true);
                     $email  = (string) get_post_meta($pid, '_mhm_customer_email', true);
                     $phone  = (string) get_post_meta($pid, '_mhm_customer_phone', true);
-                    $oid    = (string) get_post_meta($pid, '_mhm_paytr_merchant_oid', true);
-                    $pi     = (string) get_post_meta($pid, '_mhm_stripe_payment_intent', true);
-                    $chg    = (string) get_post_meta($pid, '_mhm_stripe_charge_id', true);
                     $row = [
-                        $pid, $date, $status, $pstat, $gw,
+                        $pid,
+                        $date,
+                        $status,
+                        $pstat,
+                        $gw,
                         number_format($total, 2, '.', ''),
                         number_format($paidk / 100, 2, '.', ''),
                         strtoupper($cur ?: ''),
-                        $name, $email, $phone, $oid, $pi, $chg,
+                        $name,
+                        $email,
+                        $phone,
                     ];
                 } elseif ($post_type === 'vehicle') {
                     $post = get_post($pid);
@@ -584,12 +580,11 @@ final class Export
                 'ID','Date','Status','Payment Status','Gateway',
                 'Total','Paid Amount','Currency',
                 'Name','Email','Phone',
-                'PayTR OID','Stripe PI','Stripe Charge',
             ];
         } else {
             $headers = [
                 'ID','Date','Gateway','Action','Status',
-                'Booking ID','Code','OID',
+                'Booking ID',
                 'Amount (kurus)','Currency','Message',
             ];
         }
@@ -612,10 +607,7 @@ final class Export
                     $name   = (string) get_post_meta($pid, '_mhm_contact_name', true);
                     $email  = (string) get_post_meta($pid, '_mhm_contact_email', true);
                     $phone  = (string) get_post_meta($pid, '_mhm_contact_phone', true);
-                    $oid    = (string) get_post_meta($pid, '_mhm_paytr_merchant_oid', true);
-                    $pi     = (string) get_post_meta($pid, '_mhm_stripe_payment_intent', true);
-                    $chg    = (string) get_post_meta($pid, '_mhm_stripe_charge_id', true);
-                    fputcsv($out, [
+                    $row = [
                         $pid,
                         $date,
                         $status,
@@ -624,9 +616,11 @@ final class Export
                         number_format($total, 2, '.', ''),
                         number_format($paidk / 100, 2, '.', ''),
                         strtoupper($cur ?: ''),
-                        $name, $email, $phone,
-                        $oid, $pi, $chg,
-                    ]);
+                        $name,
+                        $email,
+                        $phone,
+                    ];
+                    fputcsv($out, $row);
                 } else {
                     $p      = get_post($pid);
                     $date   = $p ? $p->post_date_gmt : '';
@@ -634,14 +628,12 @@ final class Export
                     $act    = (string) get_post_meta($pid, '_mhm_log_action', true);
                     $st     = (string) get_post_meta($pid, '_mhm_log_status', true);
                     $bid    = (int) get_post_meta($pid, '_mhm_log_booking_id', true);
-                    $code   = (string) get_post_meta($pid, '_mhm_log_code', true);
-                    $oid    = (string) get_post_meta($pid, '_mhm_log_oid', true);
                     $ak     = (int) get_post_meta($pid, '_mhm_log_amount_kurus', true);
                     $cur    = (string) get_post_meta($pid, '_mhm_log_currency', true);
                     $msg    = (string) get_post_meta($pid, '_mhm_log_message', true);
                     fputcsv($out, [
                         $pid, $date, $gw, $act, $st,
-                        $bid, $code, $oid,
+                        $bid,
                         $ak, strtoupper($cur ?: ''), $msg,
                     ]);
                 }
@@ -692,12 +684,11 @@ final class Export
                 'ID','Date','Status','Payment Status','Gateway',
                 'Total','Paid Amount','Currency',
                 'Name','Email','Phone',
-                'PayTR OID','Stripe PI','Stripe Charge',
             ];
         } else {
             $headers = [
                 'ID','Date','Gateway','Action','Status',
-                'Booking ID','Code','OID',
+                'Booking ID',
                 'Amount (kurus)','Currency','Message',
             ];
         }
@@ -720,9 +711,6 @@ final class Export
                     $name   = (string) get_post_meta($pid, '_mhm_contact_name', true);
                     $email  = (string) get_post_meta($pid, '_mhm_contact_email', true);
                     $phone  = (string) get_post_meta($pid, '_mhm_contact_phone', true);
-                    $oid    = (string) get_post_meta($pid, '_mhm_paytr_merchant_oid', true);
-                    $pi     = (string) get_post_meta($pid, '_mhm_stripe_payment_intent', true);
-                    $chg    = (string) get_post_meta($pid, '_mhm_stripe_charge_id', true);
                     self::xls_row([
                         $pid,
                         $date,
@@ -732,8 +720,9 @@ final class Export
                         number_format($total, 2, '.', ''),
                         number_format($paidk / 100, 2, '.', ''),
                         strtoupper($cur ?: ''),
-                        $name, $email, $phone,
-                        $oid, $pi, $chg,
+                        $name,
+                        $email,
+                        $phone,
                     ]);
                 } else {
                     $p      = get_post($pid);
@@ -742,14 +731,12 @@ final class Export
                     $act    = (string) get_post_meta($pid, '_mhm_log_action', true);
                     $st     = (string) get_post_meta($pid, '_mhm_log_status', true);
                     $bid    = (int) get_post_meta($pid, '_mhm_log_booking_id', true);
-                    $code   = (string) get_post_meta($pid, '_mhm_log_code', true);
-                    $oid    = (string) get_post_meta($pid, '_mhm_log_oid', true);
                     $ak     = (int) get_post_meta($pid, '_mhm_log_amount_kurus', true);
                     $cur    = (string) get_post_meta($pid, '_mhm_log_currency', true);
                     $msg    = (string) get_post_meta($pid, '_mhm_log_message', true);
                     self::xls_row([
                         $pid, $date, $gw, $act, $st,
-                        $bid, $code, $oid,
+                        $bid,
                         $ak, strtoupper($cur ?: ''), $msg,
                     ]);
                 }

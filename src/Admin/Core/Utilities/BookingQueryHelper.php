@@ -54,38 +54,7 @@ final class BookingQueryHelper
         return $query->have_posts() ? (int) $query->posts[0] : 0;
     }
 
-    /**
-     * PayTR merchant OID ile booking bulma
-     * 
-     * @param string $oid PayTR merchant OID
-     * @return int Booking ID
-     */
-    public static function findBookingByPayTROid(string $oid): int
-    {
-        return self::findBookingByMeta('_mhm_paytr_merchant_oid', $oid);
-    }
 
-    /**
-     * Stripe payment intent ile booking bulma
-     * 
-     * @param string $intent Stripe payment intent ID
-     * @return int Booking ID
-     */
-    public static function findBookingByStripeIntent(string $intent): int
-    {
-        return self::findBookingByMeta('_mhm_stripe_payment_intent', $intent);
-    }
-
-    /**
-     * PayPal transaction ID ile booking bulma
-     * 
-     * @param string $transaction_id PayPal transaction ID
-     * @return int Booking ID
-     */
-    public static function findBookingByPayPalTransaction(string $transaction_id): int
-    {
-        return self::findBookingByMeta('_mhm_paypal_transaction_id', $transaction_id);
-    }
 
     /**
      * Customer email ile booking'leri bulma
@@ -272,22 +241,6 @@ final class BookingQueryHelper
         $gateway = get_post_meta($booking_id, '_mhm_payment_gateway', true);
         if (!empty($gateway)) {
             return $gateway;
-        }
-
-        // Payment intent'ten gateway'i çıkar
-        $intent = get_post_meta($booking_id, '_mhm_stripe_payment_intent', true);
-        if (!empty($intent)) {
-            return 'stripe';
-        }
-
-        $oid = get_post_meta($booking_id, '_mhm_paytr_merchant_oid', true);
-        if (!empty($oid)) {
-            return 'paytr';
-        }
-
-        $transaction = get_post_meta($booking_id, '_mhm_paypal_transaction_id', true);
-        if (!empty($transaction)) {
-            return 'paypal';
         }
 
         return 'unknown';

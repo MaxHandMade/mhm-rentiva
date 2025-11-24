@@ -97,30 +97,12 @@ final class IntegrationTest
     /**
      * Test: Payment Gateways
      */
+    /**
+     * Test: Payment Gateways
+     */
     public static function test_payment_gateways(): array
     {
         $gateways = [];
-        
-        // Stripe - Check Settings class and Client class
-        $has_stripe_settings = class_exists('MHMRentiva\\Admin\\Payment\\Settings\\StripeSettings');
-        $has_stripe_client = class_exists('MHMRentiva\\Payments\\StripeClient') || 
-                            class_exists('MHMRentiva\\Admin\\Payment\\Gateways\\Stripe\\Client');
-        $has_stripe = $has_stripe_settings || $has_stripe_client;
-        $stripe_enabled = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_stripe_enabled', '0') === '1';
-        $gateways['stripe'] = ['exists' => $has_stripe, 'enabled' => $stripe_enabled];
-        
-        // PayPal - Check Settings class
-        $has_paypal_settings = class_exists('MHMRentiva\\Admin\\Payment\\Settings\\PayPalSettings');
-        $has_paypal = $has_paypal_settings;
-        $paypal_enabled = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_paypal_enabled', '0') === '1';
-        $gateways['paypal'] = ['exists' => $has_paypal, 'enabled' => $paypal_enabled];
-        
-        // PayTR - Check Settings class and Client class
-        $has_paytr_settings = class_exists('MHMRentiva\\Admin\\Payment\\Settings\\PayTRSettings');
-        $has_paytr_client = class_exists('MHMRentiva\\Admin\\Payment\\Gateways\\PayTR\\Client');
-        $has_paytr = $has_paytr_settings || $has_paytr_client;
-        $paytr_enabled = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_paytr_enabled', '0') === '1';
-        $gateways['paytr'] = ['exists' => $has_paytr, 'enabled' => $paytr_enabled];
         
         // Offline - Check Settings class - CORRECT KEY: mhm_rentiva_offline_enabled
         $has_offline_settings = class_exists('MHMRentiva\\Admin\\Payment\\Settings\\OfflinePaymentSettings');
@@ -132,7 +114,7 @@ final class IntegrationTest
         $total_gateways = count(array_filter($gateways, fn($g) => $g['exists']));
         $enabled_gateways = count(array_filter($gateways, fn($g) => $g['enabled']));
         
-        $pass = $total_gateways >= 2; // At least 2 gateways should exist
+        $pass = $total_gateways >= 1; // At least 1 gateway (offline) should exist
         
         // Gateway isimlerini listele
         $available_names = [];
@@ -169,7 +151,7 @@ final class IntegrationTest
         } else {
             $message = sprintf(
                 /* translators: 1: %1$d; 2: %2$d. */
-                esc_html__('⚠️ Only %1$d/%2$d payment gateways found. Expected at least 2 gateways', 'mhm-rentiva'),
+                esc_html__('⚠️ Only %1$d/%2$d payment gateways found. Expected at least 1 gateway', 'mhm-rentiva'),
                 $total_gateways,
                 count($gateways)
             );

@@ -21,7 +21,7 @@ abstract class AbstractGatewayConfig
     
     /**
      * Returns gateway prefix (overridden in child classes)
-     * Examples: 'paytr', 'paypal', 'stripe'
+     * Examples: 'offline'
      */
     abstract protected static function getGatewayPrefix(): string;
     

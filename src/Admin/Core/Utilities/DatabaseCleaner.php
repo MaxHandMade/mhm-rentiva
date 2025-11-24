@@ -111,9 +111,7 @@ final class DatabaseCleaner
         '_mhm_contact_phone',
         '_mhm_client_ip',
         '_mhm_user_agent',
-        '_mhm_stripe_payment_intent',
-        '_mhm_paypal_transaction_id',
-        '_mhm_paytr_merchant_oid',
+
         '_mhm_customer_id',
         
         // Addon meta keys

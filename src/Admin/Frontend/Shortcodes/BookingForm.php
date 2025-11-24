@@ -44,12 +44,7 @@ final class BookingForm extends AbstractShortcode
         add_action('wp_ajax_nopriv_mhm_rentiva_check_availability', [self::class, 'ajax_check_availability']);
         
         // Payment processing AJAX handlers
-        add_action('wp_ajax_mhm_rentiva_stripe_checkout', [self::class, 'ajax_stripe_checkout']);
-        add_action('wp_ajax_nopriv_mhm_rentiva_stripe_checkout', [self::class, 'ajax_stripe_checkout']);
-        add_action('wp_ajax_mhm_rentiva_paypal_checkout', [self::class, 'ajax_paypal_checkout']);
-        add_action('wp_ajax_nopriv_mhm_rentiva_paypal_checkout', [self::class, 'ajax_paypal_checkout']);
-        add_action('wp_ajax_mhm_rentiva_paytr_checkout', [self::class, 'ajax_paytr_checkout']);
-        add_action('wp_ajax_nopriv_mhm_rentiva_paytr_checkout', [self::class, 'ajax_paytr_checkout']);
+
     }
 
     protected static function get_shortcode_tag(): string
@@ -670,7 +665,7 @@ final class BookingForm extends AbstractShortcode
                     '_mhm_created_via' => 'booking_form_shortcode',
                     '_mhm_payment_type' => $payment_type,
                     '_mhm_payment_method' => $payment_method,
-                    '_mhm_payment_gateway' => ($payment_method === 'online') ? $payment_gateway : 'offline',
+                    '_mhm_payment_gateway' => ($payment_method === 'online') ? $payment_gateway : ($payment_method === 'woocommerce' ? 'woocommerce' : 'offline'),
                     '_mhm_payment_status' => 'pending', // Pending for offline payments
                     '_mhm_deposit_amount' => $deposit_result['deposit_amount'],
                     '_mhm_remaining_amount' => $deposit_result['remaining_amount'],
@@ -682,7 +677,7 @@ final class BookingForm extends AbstractShortcode
                     '_mhm_cancellation_policy' => '24_hours',
                     '_mhm_cancellation_deadline' => date('Y-m-d H:i:s', strtotime('+24 hours')),
                     '_mhm_payment_deadline' => $payment_method === 'offline' ? 
-                        date('Y-m-d H:i:s', strtotime('+30 minutes')) : null,
+                        date('Y-m-d H:i:s', strtotime('+30 minutes')) : '',
                 ]
             ];
 
@@ -706,6 +701,50 @@ final class BookingForm extends AbstractShortcode
             // Debug: Log email sending
 
             // Payment processing check
+            if (class_exists('WooCommerce')) {
+                // WooCommerce Integration
+                // ✅ Fix: Use raw numeric values instead of formatted string
+                $amount_to_pay = 0.0;
+                
+                if ($payment_type === 'deposit') {
+                    $amount_to_pay = floatval($deposit_result['deposit_amount']);
+                } else {
+                    $amount_to_pay = floatval($deposit_result['total_amount']);
+                }
+
+                try {
+                    if (\MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge::add_booking_to_cart($booking_id, $amount_to_pay)) {
+                        wp_send_json_success([
+                            'booking_id' => $booking_id,
+                            'message' => __('Booking created. Redirecting to payment page...', 'mhm-rentiva'),
+                            'payment_required' => true,
+                            'payment_url' => wc_get_checkout_url(),
+                            'redirect_url' => wc_get_checkout_url(),
+                            'payment_method' => 'woocommerce', // ✅ Fix: Add payment method to top level for JS check
+                            'confirmation_url' => \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::get_confirmation_url($booking_id),
+                            'booking_data' => [
+                                'vehicle_id' => $vehicle_id,
+                                'pickup_date' => $pickup_date,
+                                'dropoff_date' => $dropoff_date,
+                                'days' => $days,
+                                'total_price' => $deposit_result['total_amount'],
+                                'deposit_amount' => $deposit_result['deposit_amount'],
+                                'remaining_amount' => $deposit_result['remaining_amount'],
+                                'payment_type' => $payment_type,
+                                'payment_method' => 'woocommerce',
+                                'addons' => $selected_addons,
+                            ]
+                        ]);
+                        return;
+                    }
+                } catch (\Exception $e) {
+                    // Log error but continue to fallback (or show error)
+                    error_log('MHM Rentiva WC Error: ' . $e->getMessage());
+                    wp_send_json_error(['message' => 'WooCommerce Error: ' . $e->getMessage()]);
+                    return;
+                }
+            }
+
             if ($payment_method === 'online' && $payment_gateway) {
                 // Create payment URL for online payment
                 $payment_url = self::create_payment_url($booking_id, $deposit_result, $payment_gateway);
@@ -974,289 +1013,13 @@ final class BookingForm extends AbstractShortcode
      */
     private static function create_payment_url(int $booking_id, array $deposit_result, string $payment_gateway): string
     {
-        $payment_data = [
-            'booking_id' => $booking_id,
-            'amount' => $deposit_result['deposit_amount'],
-            'total_amount' => $deposit_result['total_amount'],
-            'currency' => 'USD',
-            'payment_type' => 'deposit',
-            'gateway' => $payment_gateway,
-            'return_url' => self::get_redirect_url($booking_id),
-            'cancel_url' => wp_get_referer() ?: home_url(),
-        ];
-
-        // Create payment URL based on gateway
-        switch ($payment_gateway) {
-            case 'stripe':
-                return self::create_stripe_payment_url($payment_data);
-            case 'paypal':
-                return self::create_paypal_payment_url($payment_data);
-            case 'paytr':
-                return self::create_paytr_payment_url($payment_data);
-            default:
-                return self::get_redirect_url($booking_id);
-        }
+        // Only offline payment is supported here (WooCommerce is handled separately)
+        return self::get_redirect_url($booking_id);
     }
 
-    /**
-     * Create Stripe payment URL
-     */
-    private static function create_stripe_payment_url(array $payment_data): string
-    {
-        // Create Stripe Checkout Session
-        $session_data = [
-            'booking_id' => $payment_data['booking_id'],
-            'amount' => $payment_data['amount'],
-            'currency' => $payment_data['currency'],
-            'return_url' => $payment_data['return_url'],
-            'cancel_url' => $payment_data['cancel_url'],
-        ];
 
-        // Stripe session creation process will be done here
-        // For now, returning placeholder URL
-        return add_query_arg([
-            'action' => 'mhm_rentiva_stripe_checkout',
-            'booking_id' => $payment_data['booking_id'],
-            'amount' => $payment_data['amount'],
-            'nonce' => wp_create_nonce('mhm_rentiva_stripe_checkout')
-        ], admin_url('admin-ajax.php'));
-    }
 
-    /**
-     * Create PayPal payment URL
-     */
-    private static function create_paypal_payment_url(array $payment_data): string
-    {
-        // Create PayPal Order
-        return add_query_arg([
-            'action' => 'mhm_rentiva_paypal_checkout',
-            'booking_id' => $payment_data['booking_id'],
-            'amount' => $payment_data['amount'],
-            'nonce' => wp_create_nonce('mhm_rentiva_paypal_checkout')
-        ], admin_url('admin-ajax.php'));
-    }
 
-    /**
-     * Create PayTR payment URL
-     */
-    private static function create_paytr_payment_url(array $payment_data): string
-    {
-        // Create PayTR Token
-        return add_query_arg([
-            'action' => 'mhm_rentiva_paytr_checkout',
-            'booking_id' => $payment_data['booking_id'],
-            'amount' => $payment_data['amount'],
-            'nonce' => wp_create_nonce('mhm_rentiva_paytr_checkout')
-        ], admin_url('admin-ajax.php'));
-    }
-
-    private static function get_redirect_url(int $booking_id, string $custom_redirect = ''): string
-    {
-        if (!empty($custom_redirect)) {
-            return $custom_redirect;
-        }
-
-        return '';
-    }
-
-    /**
-     * Stripe Checkout AJAX Handler
-     */
-    public static function ajax_stripe_checkout(): void
-    {
-        try {
-            // Nonce check
-            if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_stripe_checkout')) {
-                wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
-            }
-
-            $booking_id = (int) ($_POST['booking_id'] ?? 0);
-            $amount = (float) ($_POST['amount'] ?? 0);
-
-            if (!$booking_id || !$amount) {
-                wp_send_json_error(['message' => __('Invalid booking or amount.', 'mhm-rentiva')]);
-            }
-
-            // Get booking information
-            $booking = get_post($booking_id);
-            if (!$booking || $booking->post_type !== 'vehicle_booking') {
-                wp_send_json_error(['message' => __('Booking not found.', 'mhm-rentiva')]);
-            }
-
-            // Create Stripe Checkout Session
-            $checkout_url = self::create_stripe_checkout_session($booking_id, $amount);
-            
-            wp_send_json_success([
-                'checkout_url' => $checkout_url,
-                'message' => __('Stripe payment page ready.', 'mhm-rentiva')
-            ]);
-
-        } catch (Exception $e) {
-            wp_send_json_error(['message' => __('Could not create payment page.', 'mhm-rentiva')]);
-        }
-    }
-
-    /**
-     * PayPal Checkout AJAX Handler
-     */
-    public static function ajax_paypal_checkout(): void
-    {
-        try {
-            // Nonce check
-            if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_paypal_checkout')) {
-                wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
-            }
-
-            $booking_id = (int) ($_POST['booking_id'] ?? 0);
-            $amount = (float) ($_POST['amount'] ?? 0);
-
-            if (!$booking_id || !$amount) {
-                wp_send_json_error(['message' => __('Invalid booking or amount.', 'mhm-rentiva')]);
-            }
-
-            // Create PayPal Order
-            $checkout_url = self::create_paypal_order($booking_id, $amount);
-            
-            wp_send_json_success([
-                'checkout_url' => $checkout_url,
-                'message' => __('PayPal payment page ready.', 'mhm-rentiva')
-            ]);
-
-        } catch (Exception $e) {
-            wp_send_json_error(['message' => __('Could not create payment page.', 'mhm-rentiva')]);
-        }
-    }
-
-    /**
-     * PayTR Checkout AJAX Handler
-     */
-    public static function ajax_paytr_checkout(): void
-    {
-        try {
-            // Nonce check
-            if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_paytr_checkout')) {
-                wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
-            }
-
-            $booking_id = (int) ($_POST['booking_id'] ?? 0);
-            $amount = (float) ($_POST['amount'] ?? 0);
-
-            if (!$booking_id || !$amount) {
-                wp_send_json_error(['message' => __('Invalid booking or amount.', 'mhm-rentiva')]);
-            }
-
-            // Create PayTR Token
-            $checkout_url = self::create_paytr_token($booking_id, $amount);
-            
-            wp_send_json_success([
-                'checkout_url' => $checkout_url,
-                'message' => __('PayTR payment page ready.', 'mhm-rentiva')
-            ]);
-
-        } catch (Exception $e) {
-            wp_send_json_error(['message' => __('Could not create payment page.', 'mhm-rentiva')]);
-        }
-    }
-
-    /**
-     * Create Stripe Checkout Session
-     */
-    private static function create_stripe_checkout_session(int $booking_id, float $amount): string
-    {
-        // Real Stripe API integration will be done here
-        // For now, returning placeholder URL
-        
-        $session_data = [
-            'booking_id' => $booking_id,
-            'amount' => $amount,
-            'currency' => 'try',
-            'success_url' => self::get_payment_success_url($booking_id),
-            'cancel_url' => self::get_payment_cancel_url($booking_id),
-        ];
-
-        // Real implementation will use Stripe SDK
-        // return $stripe->checkout->sessions->create($session_data)->url;
-        
-        return add_query_arg([
-            'booking_id' => $booking_id,
-            'amount' => $amount,
-            'gateway' => 'stripe'
-        ], home_url('/stripe-checkout/'));
-    }
-
-    /**
-     * Creates PayPal Order
-     */
-    private static function create_paypal_order(int $booking_id, float $amount): string
-    {
-        // Real PayPal API integration will be implemented here
-        // For now, returning placeholder URL
-        
-        $order_data = [
-            'booking_id' => $booking_id,
-            'amount' => $amount,
-            'currency' => 'TRY',
-            'return_url' => self::get_payment_success_url($booking_id),
-            'cancel_url' => self::get_payment_cancel_url($booking_id),
-        ];
-
-        // Real implementation will use PayPal SDK
-        // return $paypal->orders->create($order_data)->links[0]->href;
-        
-        return add_query_arg([
-            'booking_id' => $booking_id,
-            'amount' => $amount,
-            'gateway' => 'paypal'
-        ], home_url('/paypal-checkout/'));
-    }
-
-    /**
-     * Creates PayTR Token
-     */
-    private static function create_paytr_token(int $booking_id, float $amount): string
-    {
-        // Real PayTR API integration will be implemented here
-        // For now, returning placeholder URL
-        
-        $token_data = [
-            'booking_id' => $booking_id,
-            'amount' => $amount,
-            'currency' => 'TRY',
-            'success_url' => self::get_payment_success_url($booking_id),
-            'fail_url' => self::get_payment_cancel_url($booking_id),
-        ];
-
-        // Real implementation will use PayTR API
-        // return $paytr->createToken($token_data);
-        
-        return add_query_arg([
-            'booking_id' => $booking_id,
-            'amount' => $amount,
-            'gateway' => 'paytr'
-        ], home_url('/paytr-checkout/'));
-    }
-
-    /**
-     * Payment success URL
-     */
-    private static function get_payment_success_url(int $booking_id): string
-    {
-        return add_query_arg([
-            'booking_id' => $booking_id,
-            'payment_status' => 'success'
-        ], self::get_redirect_url($booking_id));
-    }
-
-    /**
-     * Payment cancel URL
-     */
-    private static function get_payment_cancel_url(int $booking_id): string
-    {
-        return add_query_arg([
-            'booking_id' => $booking_id,
-            'payment_status' => 'cancelled'
-        ], wp_get_referer() ?: home_url());
-    }
 
     /**
      * Availability Check AJAX Handler

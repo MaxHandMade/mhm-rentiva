@@ -54,8 +54,8 @@ final class Status
         $allowed_transitions = [
             self::DRAFT => [self::PENDING_PAYMENT, self::CANCELLED],
             self::PENDING_PAYMENT => [self::CONFIRMED, self::CANCELLED], // Payment made or time expired
-            self::PENDING => [self::CONFIRMED, self::CANCELLED],
-            self::CONFIRMED => [self::IN_PROGRESS, self::CANCELLED, self::NO_SHOW],
+            self::PENDING => [self::CONFIRMED, self::COMPLETED, self::CANCELLED], // ✅ Allow direct completion
+            self::CONFIRMED => [self::IN_PROGRESS, self::COMPLETED, self::CANCELLED, self::NO_SHOW], // ✅ Allow direct completion
             self::IN_PROGRESS => [self::COMPLETED, self::CANCELLED],
             self::COMPLETED => [self::REFUNDED],
             self::CANCELLED => [self::PENDING_PAYMENT, self::CONFIRMED, self::PENDING], // Re-booking

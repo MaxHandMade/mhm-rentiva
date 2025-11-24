@@ -810,14 +810,7 @@ final class SettingsView
         // Payment Gateway Status
         self::render_section_clean('mhm_rentiva_payment_gateway_status_section');
         
-        // Stripe settings
-        self::render_section_clean('mhm_rentiva_stripe_section');
-        
-        // PayPal settings
-        self::render_section_clean('mhm_rentiva_paypal_section');
-        
-        // PayTR settings
-        self::render_section_clean('mhm_rentiva_paytr_section');
+
         
         // Offline payment settings
         self::render_section_clean('mhm_rentiva_offline_section');

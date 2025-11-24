@@ -196,7 +196,7 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
                 <?php if (($atts['show_price'] ?? true) && ($price_per_day ?? 0)) : ?>
                     <div class="rv-price-badge">
                         <span class="rv-price-amount"><?php echo esc_html(($currency_symbol ?? '$') . number_format($price_per_day)); ?></span>
-                        <span class="rv-price-period">/day</span>
+                        <span class="rv-price-period"><?php esc_html_e('/day', 'mhm-rentiva'); ?></span>
                     </div>
                 <?php endif; ?>
             </div>

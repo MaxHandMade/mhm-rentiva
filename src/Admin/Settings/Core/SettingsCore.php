@@ -187,77 +187,9 @@ final class SettingsCore
             'mhm_rentiva_general_section'
         );
 
-        // ⭐ Site Information Section
-        add_settings_section(
-            'mhm_rentiva_site_info_section',
-            __('Site Information', 'mhm-rentiva'),
-            [self::class, 'render_site_info_section_description'],
-            self::PAGE
-        );
 
-        add_settings_field(
-            'mhm_rentiva_site_url',
-            __('Site URL', 'mhm-rentiva'),
-            [self::class, 'render_site_url_field'],
-            self::PAGE,
-            'mhm_rentiva_site_info_section'
-        );
 
-        add_settings_field(
-            'mhm_rentiva_home_url',
-            __('Home URL', 'mhm-rentiva'),
-            [self::class, 'render_home_url_field'],
-            self::PAGE,
-            'mhm_rentiva_site_info_section'
-        );
 
-        add_settings_field(
-            'mhm_rentiva_admin_email',
-            __('Admin Email', 'mhm-rentiva'),
-            [self::class, 'render_admin_email_field'],
-            self::PAGE,
-            'mhm_rentiva_site_info_section'
-        );
-
-        add_settings_field(
-            'mhm_rentiva_site_language',
-            __('Site Language', 'mhm-rentiva'),
-            [self::class, 'render_site_language_field'],
-            self::PAGE,
-            'mhm_rentiva_site_info_section'
-        );
-
-        // ⭐ Date & Time Section
-        add_settings_section(
-            'mhm_rentiva_datetime_section',
-            __('Date & Time Settings', 'mhm-rentiva'),
-            [self::class, 'render_datetime_section_description'],
-            self::PAGE
-        );
-
-        add_settings_field(
-            'mhm_rentiva_date_format',
-            __('Date Format', 'mhm-rentiva'),
-            [self::class, 'render_date_format_field'],
-            self::PAGE,
-            'mhm_rentiva_datetime_section'
-        );
-
-        add_settings_field(
-            'mhm_rentiva_start_of_week',
-            __('Start of Week', 'mhm-rentiva'),
-            [self::class, 'render_start_of_week_field'],
-            self::PAGE,
-            'mhm_rentiva_datetime_section'
-        );
-
-        add_settings_field(
-            'mhm_rentiva_default_rental_days',
-            __('Default Rental Days', 'mhm-rentiva'),
-            [self::class, 'render_default_rental_days_field'],
-            self::PAGE,
-            'mhm_rentiva_datetime_section'
-        );
 
         add_settings_field(
             'mhm_rentiva_brand_name',
@@ -276,37 +208,7 @@ final class SettingsCore
             'mhm_rentiva_general_section'
         );
 
-        // ⭐ System Information Section
-        add_settings_section(
-            'mhm_rentiva_system_info_section',
-            __('System Information', 'mhm-rentiva'),
-            [self::class, 'render_system_info_section_description'],
-            self::PAGE
-        );
 
-        add_settings_field(
-            'mhm_rentiva_plugin_version',
-            __('Plugin Version', 'mhm-rentiva'),
-            [self::class, 'render_plugin_version_field'],
-            self::PAGE,
-            'mhm_rentiva_system_info_section'
-        );
-
-        add_settings_field(
-            'mhm_rentiva_wp_version',
-            __('WordPress Version', 'mhm-rentiva'),
-            [self::class, 'render_wp_version_field'],
-            self::PAGE,
-            'mhm_rentiva_system_info_section'
-        );
-
-        add_settings_field(
-            'mhm_rentiva_php_version',
-            __('PHP Version', 'mhm-rentiva'),
-            [self::class, 'render_php_version_field'],
-            self::PAGE,
-            'mhm_rentiva_system_info_section'
-        );
 
         // Email settings now managed in EmailSettings class
     }
@@ -471,27 +373,8 @@ final class SettingsCore
             'mhm_rentiva_brand_logo_url'      => '',
             'mhm_rentiva_email_primary_color' => '#1e88e5',
             'mhm_rentiva_email_footer_text'   => '© {Y} {site}',
-            'mhm_rentiva_stripe_enabled'      => '0',
-            'mhm_rentiva_stripe_mode'         => 'test',
-            'mhm_rentiva_stripe_test_mode'    => '1',
-            'mhm_rentiva_stripe_publishable_key' => '',
-            'mhm_rentiva_stripe_secret_key'   => '',
-            'mhm_rentiva_stripe_pk_test'      => '',
-            'mhm_rentiva_stripe_sk_test'      => '',
-            'mhm_rentiva_stripe_webhook_secret_test' => '',
-            'mhm_rentiva_stripe_pk_live'      => '',
-            'mhm_rentiva_stripe_sk_live'      => '',
-            'mhm_rentiva_stripe_webhook_secret_live' => '',
-            'mhm_rentiva_paytr_enabled'       => '0',
-            'mhm_rentiva_paytr_test_mode'     => '1',
-            'mhm_rentiva_paytr_merchant_id'   => '',
-            'mhm_rentiva_paytr_merchant_key'  => '',
-            'mhm_rentiva_paytr_merchant_salt' => '',
-            'mhm_rentiva_paytr_no_installment' => '0',
-            'mhm_rentiva_paytr_max_installment' => '12',
-            'mhm_rentiva_paytr_non_3d'        => '0',
-            'mhm_rentiva_paytr_timeout_limit' => 30,
-            'mhm_rentiva_paytr_debug_on'      => '0',
+
+
             'mhm_rentiva_auto_cancel_enabled' => '1',
             'mhm_rentiva_auto_cancel_minutes' => 30,
             'mhm_rentiva_reconcile_enabled' => '0',
@@ -503,19 +386,7 @@ final class SettingsCore
             'mhm_rentiva_offline_enabled'     => '1',
             'mhm_rentiva_offline_instructions' => __('You can make payments via bank transfer. Please don\'t forget to write your reservation number in the description.', 'mhm-rentiva'),
             'mhm_rentiva_offline_accounts'    => '',
-            'mhm_rentiva_paypal_enabled'      => '0',
-            'mhm_rentiva_paypal_mode'         => 'sandbox',
-            'mhm_rentiva_paypal_test_mode'    => '1',
-            'mhm_rentiva_paypal_client_id'    => '',
-            'mhm_rentiva_paypal_client_secret' => '',
-            'mhm_rentiva_paypal_client_id_test' => '',
-            'mhm_rentiva_paypal_client_secret_test' => '',
-            'mhm_rentiva_paypal_client_id_live' => '',
-            'mhm_rentiva_paypal_client_secret_live' => '',
-            'mhm_rentiva_paypal_currency' => 'USD',
-            'mhm_rentiva_paypal_webhook_id' => '',
-            'mhm_rentiva_paypal_debug_mode' => '0',
-            'mhm_rentiva_paypal_timeout' => 30,
+
             
             // Clean Data on Uninstall
             'mhm_rentiva_clean_data_on_uninstall' => '0',
@@ -733,10 +604,7 @@ final class SettingsCore
             case 'payment':
                 // Payment settings keys
                 foreach (array_keys($all_defaults) as $key) {
-                    if (strpos($key, 'mhm_rentiva_stripe_') === 0 ||
-                        strpos($key, 'mhm_rentiva_paypal_') === 0 ||
-                        strpos($key, 'mhm_rentiva_paytr_') === 0 ||
-                        strpos($key, 'mhm_rentiva_offline_') === 0 ||
+                    if (strpos($key, 'mhm_rentiva_offline_') === 0 ||
                         strpos($key, 'mhm_rentiva_booking_default_payment_method') === 0) {
                         $tab_keys[] = $key;
                     }
@@ -845,6 +713,11 @@ final class SettingsCore
      */
     public static function render_currency_field(): void
     {
+        if (class_exists('WooCommerce')) {
+            echo '<p class="description"><strong>' . esc_html__('Managed by WooCommerce:', 'mhm-rentiva') . '</strong> ' . get_woocommerce_currency() . '</p>';
+            return;
+        }
+
         $currency = self::get('mhm_rentiva_currency', 'USD');
         // Use centralized currency list from CurrencyHelper
         $currencies = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_list_for_dropdown();
@@ -862,6 +735,11 @@ final class SettingsCore
      */
     public static function render_currency_position_field(): void
     {
+        if (class_exists('WooCommerce')) {
+            echo '<p class="description">' . esc_html__('Currency position is managed by WooCommerce settings.', 'mhm-rentiva') . '</p>';
+            return;
+        }
+
         $position = self::get('mhm_rentiva_currency_position', 'right_space');
         $positions = [
             'left' => 'Left ($100)',
@@ -1002,23 +880,6 @@ final class SettingsCore
      */
     public static function register_payment_settings(): void
     {
-        // Register Stripe Settings
-        if (class_exists('\MHMRentiva\Admin\Payment\Settings\StripeSettings')) {
-            \MHMRentiva\Admin\Payment\Settings\StripeSettings::register_general_payment_settings();
-            \MHMRentiva\Admin\Payment\Settings\StripeSettings::register_payment_gateway_status();
-            \MHMRentiva\Admin\Payment\Settings\StripeSettings::register();
-        }
-        
-        // Register PayPal Settings
-        if (class_exists('\MHMRentiva\Admin\Payment\Settings\PayPalSettings')) {
-            \MHMRentiva\Admin\Payment\Settings\PayPalSettings::register();
-        }
-        
-        // Register PayTR Settings
-        if (class_exists('\MHMRentiva\Admin\Payment\Settings\PayTRSettings')) {
-            \MHMRentiva\Admin\Payment\Settings\PayTRSettings::register();
-        }
-        
         // Register Offline Payment Settings
         if (class_exists('\MHMRentiva\Admin\Payment\Settings\OfflinePaymentSettings')) {
             \MHMRentiva\Admin\Payment\Settings\OfflinePaymentSettings::register();

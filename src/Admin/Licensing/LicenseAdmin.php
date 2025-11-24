@@ -59,7 +59,7 @@ final class LicenseAdmin
 
         echo '<div class="wrap mhm-rentiva-wrap">';
         echo '<h1>' . esc_html__('License Management', 'mhm-rentiva') . '</h1>';
-        echo '<p class="description">' . esc_html__('Enter your license key to enable Pro features (online payments, unlimited vehicles, export, advanced reports).', 'mhm-rentiva') . '</p>';
+        echo '<p class="description">' . esc_html__('Enter your license key to enable Pro features (unlimited vehicles/bookings, export, advanced reports).', 'mhm-rentiva') . '</p>';
 
 
         // Developer mode warning - only show if no real license is active
@@ -183,7 +183,7 @@ final class LicenseAdmin
                 echo '</div>';
             }
             
-            echo '<p>' . esc_html__('All Pro features active: Online payments, unlimited vehicles, export, advanced reports.', 'mhm-rentiva') . '</p>';
+            echo '<p>' . esc_html__('All Pro features active: Unlimited vehicles/bookings, export, advanced reports.', 'mhm-rentiva') . '</p>';
         } else {
             echo '<div class="notice notice-warning inline">';
             echo '<p><strong>' . esc_html__('⚠️ Lite Version', 'mhm-rentiva') . '</strong></p>';
@@ -194,7 +194,7 @@ final class LicenseAdmin
             echo '<li>' . esc_html__('Maximum 3 vehicles can be added', 'mhm-rentiva') . '</li>';
             echo '<li>' . esc_html__('Maximum 50 bookings can be made', 'mhm-rentiva') . '</li>';
             echo '<li>' . esc_html__('Maximum 3 customers can be added', 'mhm-rentiva') . '</li>';
-            echo '<li>' . esc_html__('Offline payment + PayPal available', 'mhm-rentiva') . '</li>';
+            echo '<li>' . esc_html__('Offline payment + WooCommerce integration available', 'mhm-rentiva') . '</li>';
             echo '<li>' . esc_html__('Export feature not available', 'mhm-rentiva') . '</li>';
             echo '<li>' . esc_html__('Report range limited to 30 days', 'mhm-rentiva') . '</li>';
             echo '</ul>';
@@ -393,7 +393,7 @@ final class LicenseAdmin
             __('Maximum Vehicle Count', 'mhm-rentiva') => ['Lite: 3', 'Pro: Unlimited'],
             __('Maximum Bookings', 'mhm-rentiva') => ['Lite: 50', 'Pro: Unlimited'],
             __('Maximum Customers', 'mhm-rentiva') => ['Lite: 3', 'Pro: Unlimited'],
-            __('Payment Gateways', 'mhm-rentiva') => ['Lite: Offline + PayPal', 'Pro: PayTR + Stripe + PayPal + Offline'],
+            __('Payment Gateways', 'mhm-rentiva') => ['Lite: Offline + WooCommerce', 'Pro: Offline + WooCommerce'],
             __('Report Range', 'mhm-rentiva') => ['Lite: 30 days', 'Pro: Unlimited'],
             __('Export Feature', 'mhm-rentiva') => ['Lite: ❌', 'Pro: ✅'],
             __('Messaging System', 'mhm-rentiva') => ['Lite: ❌', 'Pro: ✅'],

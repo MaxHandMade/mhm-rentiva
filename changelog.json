@@ -1,8 +1,18 @@
 [
     {
+        "version": "4.4.3",
+        "date": "2025-11-24",
+        "type": "current",
+        "changes": [
+            "🗑️ LEGACY REMOVAL: Removed all legacy payment gateway code (Stripe, PayPal, PayTR) to focus on Offline payments and WooCommerce integration.",
+            "🧹 CLEANUP: Removed unused assets and rate limiting logic related to legacy gateways.",
+            "📚 DOCUMENTATION: Updated READMEs and documentation to reflect the new payment system focus."
+        ]
+    },
+    {
         "version": "4.4.2",
         "date": "2025-11-23",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🔒 SECURITY: Removed hardcoded secure token and implemented dynamic key generation for enhanced security.",
             "🏗️ REFACTORING: Separated settings page view logic into SettingsView class for better maintainability.",

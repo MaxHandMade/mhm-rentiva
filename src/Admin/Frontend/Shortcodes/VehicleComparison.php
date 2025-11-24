@@ -604,11 +604,54 @@ final class VehicleComparison extends AbstractShortcode
      */
     private static function get_feature_label(string $feature_key): string
     {
-        // Create dynamic label - replace underscores with spaces and capitalize the first letter
-        $label = str_replace('_', ' ', $feature_key);
-        $label = ucwords($label);
+        // Normalize the key: convert to lowercase and replace spaces with underscores
+        $normalized_key = strtolower(str_replace(' ', '_', trim($feature_key)));
         
-        return $label;
+        $labels = [
+            'availability' => __('Availability', 'mhm-rentiva'),
+            'available' => __('Available', 'mhm-rentiva'),
+            'brand' => __('Brand', 'mhm-rentiva'),
+            'model' => __('Model', 'mhm-rentiva'),
+            'price_per_day' => __('Daily Price', 'mhm-rentiva'),
+            'fuel_type' => __('Fuel Type', 'mhm-rentiva'),
+            'transmission' => __('Transmission', 'mhm-rentiva'),
+            'seats' => __('Seats', 'mhm-rentiva'),
+            'doors' => __('Doors', 'mhm-rentiva'),
+            'engine_size' => __('Engine Size', 'mhm-rentiva'),
+            'year' => __('Model Year', 'mhm-rentiva'),
+            'mileage' => __('Mileage', 'mhm-rentiva'),
+            'color' => __('Color', 'mhm-rentiva'),
+            'deposit' => __('Deposit', 'mhm-rentiva'),
+            'license_plate' => __('License Plate', 'mhm-rentiva'),
+            'rating_average' => __('Rating Average', 'mhm-rentiva'),
+            'rating_count' => __('Rating Count', 'mhm-rentiva'),
+            'gallery_images' => __('Gallery Images', 'mhm-rentiva'),
+            'air_conditioning' => __('Air Conditioning', 'mhm-rentiva'),
+            'gps' => __('GPS', 'mhm-rentiva'),
+            'bluetooth' => __('Bluetooth', 'mhm-rentiva'),
+            'usb_port' => __('USB Port', 'mhm-rentiva'),
+            'sunroof' => __('Sunroof', 'mhm-rentiva'),
+            // Common vehicle features
+            'power_steering' => __('Power Steering', 'mhm-rentiva'),
+            'central_locking' => __('Central Locking', 'mhm-rentiva'),
+            'cruise_control' => __('Cruise Control', 'mhm-rentiva'),
+            'airbags' => __('Airbags', 'mhm-rentiva'),
+            'abs_brakes' => __('ABS Brakes', 'mhm-rentiva'),
+            'abs' => __('ABS Brakes', 'mhm-rentiva'), // Fallback
+            'fog_lights' => __('Fog Lights', 'mhm-rentiva'),
+            'parking_sensors' => __('Parking Sensors', 'mhm-rentiva'),
+            'backup_camera' => __('Backup Camera', 'mhm-rentiva'),
+            'leather_seats' => __('Leather Seats', 'mhm-rentiva'),
+            'heated_seats' => __('Heated Seats', 'mhm-rentiva'),
+            'electric_windows' => __('Electric Windows', 'mhm-rentiva'),
+            'electric_mirrors' => __('Electric Mirrors', 'mhm-rentiva'), // Fallback
+            'power_mirrors' => __('Power Mirrors', 'mhm-rentiva'),
+            'alloy_wheels' => __('Alloy Wheels', 'mhm-rentiva'),
+            'roof_rack' => __('Roof Rack', 'mhm-rentiva'),
+            'navigation' => __('Navigation', 'mhm-rentiva'),
+        ];
+        
+        return $labels[$normalized_key] ?? ucfirst(str_replace('_', ' ', $normalized_key));
     }
 
     /**

@@ -791,8 +791,13 @@
                             this.showSuccess(response.data?.message || this.getMessage('redirecting_to_payment'));
 
                             setTimeout(() => {
-                                // Open payment page in new window
-                                this.openPaymentWindow(response.data.payment_url, response.data.redirect_url);
+                                // WooCommerce redirection should happen in the same window
+                                if (response.data.payment_method === 'woocommerce' || response.data.payment_url.includes('checkout')) {
+                                    window.location.href = response.data.payment_url;
+                                } else {
+                                    // Open other payment gateways in new window (if needed)
+                                    this.openPaymentWindow(response.data.payment_url, response.data.redirect_url);
+                                }
                             }, 1500);
                         } else {
                             // Direct success message and redirect

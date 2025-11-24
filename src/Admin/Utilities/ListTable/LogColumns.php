@@ -84,11 +84,7 @@ final class LogColumns
                 break;
             case 'message':
                 $msg = self::sanitize_text_field_safe(get_post_field('post_content', $post_id));
-                $code = (string) get_post_meta($post_id, '_mhm_log_code', true);
-                $oid  = (string) get_post_meta($post_id, '_mhm_log_oid', true);
                 $bits = [];
-                if ($code !== '') $bits[] = '[' . esc_html($code) . ']';
-                if ($oid !== '')  $bits[] = 'OID: ' . esc_html($oid);
                 if ($msg !== '')  $bits[] = esc_html(wp_strip_all_tags($msg));
                 echo implode(' ', $bits) ?: '—';
                 break;

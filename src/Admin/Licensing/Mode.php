@@ -10,9 +10,6 @@ final class Mode
 {
     // Gateways
     public const FEATURE_GATEWAY_OFFLINE = 'gateway_offline';
-    public const FEATURE_GATEWAY_PAYTR   = 'gateway_paytr';
-    public const FEATURE_GATEWAY_STRIPE  = 'gateway_stripe';
-    public const FEATURE_GATEWAY_PAYPAL  = 'gateway_paypal';
 
     // Pro-only features
     public const FEATURE_EXPORT          = 'export';
@@ -53,10 +50,7 @@ final class Mode
 
         switch ($feature) {
             case self::FEATURE_GATEWAY_OFFLINE:
-            case self::FEATURE_GATEWAY_PAYPAL:
                 return true;
-            case self::FEATURE_GATEWAY_PAYTR:
-            case self::FEATURE_GATEWAY_STRIPE:
             case self::FEATURE_EXPORT:
             case self::FEATURE_REPORTS_ADV:
             case self::FEATURE_MESSAGES:
@@ -127,15 +121,6 @@ final class Mode
 
         if (self::featureEnabled(self::FEATURE_GATEWAY_OFFLINE)) {
             $allowed[] = 'offline';
-        }
-        if (self::featureEnabled(self::FEATURE_GATEWAY_PAYPAL)) {
-            $allowed[] = 'paypal';
-        }
-        if (self::featureEnabled(self::FEATURE_GATEWAY_PAYTR)) {
-            $allowed[] = 'paytr';
-        }
-        if (self::featureEnabled(self::FEATURE_GATEWAY_STRIPE)) {
-            $allowed[] = 'stripe';
         }
 
         return apply_filters('mhm_rentiva_allowed_gateways', $allowed, self::isPro());

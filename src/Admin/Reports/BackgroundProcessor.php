@@ -372,12 +372,11 @@ final class BackgroundProcessor
                         __('ID', 'mhm-rentiva'), __('Date', 'mhm-rentiva'), __('Status', 'mhm-rentiva'), __('Payment Status', 'mhm-rentiva'), __('Gateway', 'mhm-rentiva'),
                         __('Total', 'mhm-rentiva'), __('Paid Amount', 'mhm-rentiva'), __('Currency', 'mhm-rentiva'),
                         __('Name', 'mhm-rentiva'), __('Email', 'mhm-rentiva'), __('Phone', 'mhm-rentiva'),
-                        __('PayTR OID', 'mhm-rentiva'), __('Stripe PI', 'mhm-rentiva'), __('Stripe Charge', 'mhm-rentiva'),
                     ];
                 } else {
                     $headers = [
                         __('ID', 'mhm-rentiva'), __('Date', 'mhm-rentiva'), __('Gateway', 'mhm-rentiva'), __('Action', 'mhm-rentiva'), __('Status', 'mhm-rentiva'),
-                        __('Booking ID', 'mhm-rentiva'), __('Code', 'mhm-rentiva'), __('OID', 'mhm-rentiva'),
+                        __('Booking ID', 'mhm-rentiva'),
                         __('Amount (kurus)', 'mhm-rentiva'), __('Currency', 'mhm-rentiva'), __('Message', 'mhm-rentiva'),
                     ];
                 }
@@ -402,16 +401,13 @@ final class BackgroundProcessor
                             $name   = (string) get_post_meta($pid, '_mhm_contact_name', true);
                             $email  = (string) get_post_meta($pid, '_mhm_contact_email', true);
                             $phone  = (string) get_post_meta($pid, '_mhm_contact_phone', true);
-                            $oid    = (string) get_post_meta($pid, '_mhm_paytr_merchant_oid', true);
-                            $pi     = (string) get_post_meta($pid, '_mhm_stripe_payment_intent', true);
-                            $chg    = (string) get_post_meta($pid, '_mhm_stripe_charge_id', true);
                             
                             fputcsv($out, [
                                 $pid, $date, $status, $pstat, $gw,
                                 number_format($total, 2, '.', ''),
                                 number_format($paidk / 100, 2, '.', ''),
                                 strtoupper($cur ?: ''),
-                                $name, $email, $phone, $oid, $pi, $chg,
+                                $name, $email, $phone,
                             ]);
                         } else {
                             // Log export logic
@@ -421,15 +417,13 @@ final class BackgroundProcessor
                             $action = (string) get_post_meta($pid, '_mhm_log_action', true);
                             $status = (string) get_post_meta($pid, '_mhm_log_status', true);
                             $booking_id = (string) get_post_meta($pid, '_mhm_log_booking_id', true);
-                            $code = (string) get_post_meta($pid, '_mhm_log_code', true);
-                            $oid = (string) get_post_meta($pid, '_mhm_log_oid', true);
                             $amount = (int) get_post_meta($pid, '_mhm_log_amount_kurus', true);
                             $currency = (string) get_post_meta($pid, '_mhm_log_currency', true);
                             $message = (string) get_post_meta($pid, '_mhm_log_message', true);
                             
                             fputcsv($out, [
                                 $pid, $date, $gw, $action, $status,
-                                $booking_id, $code, $oid,
+                                $booking_id,
                                 $amount, $currency, $message
                             ]);
                         }

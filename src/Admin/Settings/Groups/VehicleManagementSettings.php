@@ -219,6 +219,11 @@ final class VehicleManagementSettings
      */
     public static function render_tax_inclusive_field(): void
     {
+        if (class_exists('WooCommerce')) {
+            echo '<p class="description">' . esc_html__('Tax settings are managed by WooCommerce.', 'mhm-rentiva') . '</p>';
+            return;
+        }
+
         $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_tax_inclusive', '0');
         echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_vehicle_tax_inclusive]" value="1"' . checked($value, '1', false) . '> ' . esc_html__('Include tax in displayed prices', 'mhm-rentiva') . '</label>';
     }
@@ -228,6 +233,11 @@ final class VehicleManagementSettings
      */
     public static function render_tax_rate_field(): void
     {
+        if (class_exists('WooCommerce')) {
+            echo '<p class="description">' . esc_html__('Tax rates are managed by WooCommerce settings.', 'mhm-rentiva') . '</p>';
+            return;
+        }
+
         $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_tax_rate', 18);
         echo '<input type="number" name="mhm_rentiva_settings[mhm_rentiva_vehicle_tax_rate]" value="' . esc_attr($value) . '" step="0.01" min="0" max="100" class="regular-text" />';
         echo '<p class="description">' . esc_html__('Tax rate percentage (e.g., 18 for 18%)', 'mhm-rentiva') . '</p>';

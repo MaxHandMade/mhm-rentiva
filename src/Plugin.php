@@ -226,7 +226,7 @@ final class Plugin
                 \MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::register();
             }
             if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\Reconcile')) {
-                \MHMRentiva\Admin\PostTypes\Maintenance\Reconcile::register();
+
             }
             if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\LogRetention')) {
                 \MHMRentiva\Admin\PostTypes\Maintenance\LogRetention::register();
@@ -367,12 +367,7 @@ final class Plugin
         if ($this->is_class_available('Admin\REST\Availability')) {
             Admin\REST\Availability::register();
         }
-        if (class_exists(REST\PayTR::class)) {
-            REST\PayTR::register();
-        }
-        if (class_exists(REST\PayPal::class)) {
-            REST\PayPal::register();
-        }
+
         // ☠️ DEAD CODE REMOVED: Portal API (552 lines) - deprecated in v4.0.0, not used anywhere
         // My Account system uses direct AJAX (admin-ajax.php), not REST API
         
@@ -383,23 +378,14 @@ final class Plugin
         if (class_exists(Admin\Frontend\Account\WooCommerceIntegration::class)) {
             Admin\Frontend\Account\WooCommerceIntegration::register();
         }
-        if (class_exists(REST\Payments::class)) {
-            REST\Payments::register();
-        }
-        if (class_exists(REST\StripeWebhook::class)) {
-            REST\StripeWebhook::register();
+        if (class_exists(Admin\Payment\WooCommerce\WooCommerceBridge::class)) {
+            Admin\Payment\WooCommerce\WooCommerceBridge::register();
         }
 
+
+
         // Payment Clients
-        if (class_exists(Admin\Payment\Gateways\PayTR\Client::class)) {
-            Admin\Payment\Gateways\PayTR\Client::register();
-        }
-        if (class_exists(Admin\Payment\Gateways\Stripe\Client::class)) {
-            Admin\Payment\Gateways\Stripe\Client::register();
-        }
-        if (class_exists(Admin\Payment\Gateways\PayPal\Client::class)) {
-            Admin\Payment\Gateways\PayPal\Client::register();
-        }
+
         if (class_exists(Admin\Payment\Gateways\Offline\Handler::class)) {
             Admin\Payment\Gateways\Offline\Handler::register();
         }

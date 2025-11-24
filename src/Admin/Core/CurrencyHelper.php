@@ -90,7 +90,12 @@ final class CurrencyHelper
     public static function get_currency_symbol(?string $currency_code = null): string
     {
         if ($currency_code === null) {
-            $currency_code = SettingsCore::get('mhm_rentiva_currency', 'USD');
+            // If WooCommerce is active, use WooCommerce currency
+            if (function_exists('get_woocommerce_currency')) {
+                $currency_code = get_woocommerce_currency();
+            } else {
+                $currency_code = SettingsCore::get('mhm_rentiva_currency', 'USD');
+            }
         }
 
         $currency_code = strtoupper(trim($currency_code));

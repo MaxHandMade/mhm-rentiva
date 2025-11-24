@@ -41,7 +41,7 @@ final class RefundValidator
      */
     public static function validateGateway(string $gateway): array
     {
-        $supportedGateways = ['paytr', 'stripe', 'paypal'];
+        $supportedGateways = ['offline'];
         
         if (!in_array($gateway, $supportedGateways, true)) {
             return [
@@ -110,39 +110,7 @@ final class RefundValidator
      */
     public static function validateGatewaySpecific(int $bookingId, string $gateway): array
     {
-        switch ($gateway) {
-            case 'paytr':
-                $merchantOid = (string) get_post_meta($bookingId, '_mhm_paytr_merchant_oid', true);
-                if (empty($merchantOid)) {
-                    return [
-                        'valid' => false,
-                        'message' => __('PayTR merchant OID missing', 'mhm-rentiva')
-                    ];
-                }
-                break;
-
-            case 'stripe':
-                $paymentIntent = (string) get_post_meta($bookingId, '_mhm_stripe_payment_intent', true);
-                $chargeId = (string) get_post_meta($bookingId, '_mhm_stripe_charge_id', true);
-                if (empty($paymentIntent) && empty($chargeId)) {
-                    return [
-                        'valid' => false,
-                        'message' => __('Stripe payment identifiers missing', 'mhm-rentiva')
-                    ];
-                }
-                break;
-
-            case 'paypal':
-                $captureId = (string) get_post_meta($bookingId, '_mhm_paypal_payment_id', true);
-                if (empty($captureId)) {
-                    return [
-                        'valid' => false,
-                        'message' => __('PayPal capture ID missing', 'mhm-rentiva')
-                    ];
-                }
-                break;
-        }
-
+        // No specific validation needed for offline refunds
         return [
             'valid' => true,
             'gateway' => $gateway
