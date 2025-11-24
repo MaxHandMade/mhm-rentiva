@@ -22,8 +22,10 @@ final class NotificationManager
      */
     public static function init(): void
     {
-        add_action('init', [self::class, 'schedule_notifications']);
+        // Register cron hook - must be registered before scheduling
         add_action('mhm_send_scheduled_notifications', [self::class, 'process_notification_queue']);
+        // Schedule notifications - use higher priority to ensure SettingsCore is loaded
+        add_action('init', [self::class, 'schedule_notifications'], 99);
     }
 
     /**
@@ -39,23 +41,30 @@ final class NotificationManager
      */
     public static function schedule_notifications(): void
     {
-        if (!wp_next_scheduled('mhm_send_scheduled_notifications')) {
-            $frequency = self::get_notification_frequency();
-            
-            switch ($frequency) {
-                case 'immediate':
-                    // Send immediately - no scheduling needed
-                    break;
-                case 'hourly':
-                    wp_schedule_event(time(), 'hourly', 'mhm_send_scheduled_notifications');
-                    break;
-                case 'daily':
-                    wp_schedule_event(time(), 'daily', 'mhm_send_scheduled_notifications');
-                    break;
-                case 'weekly':
-                    wp_schedule_event(time(), 'weekly', 'mhm_send_scheduled_notifications');
-                    break;
+        // Get frequency, but if immediate, default to hourly for queue processing
+        $frequency_setting = SettingsCore::get('mhm_rentiva_customer_notification_frequency', 'immediate');
+        $frequency = ($frequency_setting === 'immediate') ? 'hourly' : $frequency_setting;
+
+        // Check if already scheduled with correct frequency
+        $next_scheduled = wp_next_scheduled('mhm_send_scheduled_notifications');
+        if ($next_scheduled) {
+            $current_schedule = wp_get_schedule('mhm_send_scheduled_notifications');
+            // If schedule matches frequency, keep it
+            if ($current_schedule === $frequency) {
+                return;
             }
+            // Otherwise, unschedule and reschedule
+            wp_unschedule_event($next_scheduled, 'mhm_send_scheduled_notifications');
+        }
+
+        // Schedule based on frequency (always schedule, even if immediate, for queue processing)
+        $result = wp_schedule_event(time(), $frequency, 'mhm_send_scheduled_notifications');
+        
+        if ($result === false) {
+            $error = error_get_last();
+            error_log('NotificationManager: Failed to schedule notifications with frequency: ' . $frequency . '. Error: ' . print_r($error, true));
+        } else {
+            error_log('NotificationManager: Successfully scheduled notifications with frequency: ' . $frequency);
         }
     }
 

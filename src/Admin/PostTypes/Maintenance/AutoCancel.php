@@ -18,8 +18,17 @@ final class AutoCancel
 
     public static function register(): void
     {
-        // Add custom schedules
+        // Add custom schedules - register immediately so it's available when wp_schedule_event is called
+        // The filter is lazy-loaded, so it will be applied when wp_get_schedules() is called
+        // Use priority 1 to ensure it's registered before other plugins
         add_filter('cron_schedules', [self::class, 'schedules'], 1);
+        
+        // Also ensure it's registered on plugins_loaded if not already
+        if (!did_action('plugins_loaded')) {
+            add_action('plugins_loaded', function() {
+                add_filter('cron_schedules', [self::class, 'schedules'], 1);
+            }, 1);
+        }
         
         // Schedule event if not scheduled
         add_action('init', [self::class, 'maybe_schedule'], 100);
@@ -49,28 +58,56 @@ final class AutoCancel
 
     public static function maybe_schedule(): void
     {
-        // If already scheduled, don't create again
-        if (wp_next_scheduled(self::EVENT)) {
+        // Ensure schedule filter is applied before checking schedules
+        add_filter('cron_schedules', [self::class, 'schedules'], 1);
+        
+        // Get schedules (this will trigger the filter)
+        $schedules = wp_get_schedules();
+        
+        if (!isset($schedules[self::SCHEDULE])) {
+            error_log('AutoCancel: Custom schedule ' . self::SCHEDULE . ' not found in available schedules. Available: ' . implode(', ', array_keys($schedules)));
             return;
         }
 
-        // Ensure schedule exists
-        $schedules = wp_get_schedules();
-        if (!isset($schedules[self::SCHEDULE])) {
-            // Force add filter if not present
-            add_filter('cron_schedules', [self::class, 'schedules']);
+        // If already scheduled, check if it's using the correct schedule
+        $next_scheduled = wp_next_scheduled(self::EVENT);
+        if ($next_scheduled) {
+            $current_schedule = wp_get_schedule(self::EVENT);
+            // If schedule is wrong, unschedule and reschedule
+            if ($current_schedule !== self::SCHEDULE) {
+                wp_unschedule_event($next_scheduled, self::EVENT);
+                $next_scheduled = false; // Force reschedule
+            } else {
+                // Verify the schedule is still valid
+                $verify_schedule = wp_get_schedule(self::EVENT);
+                if ($verify_schedule === self::SCHEDULE) {
+                    return; // Already scheduled correctly
+                }
+                // Schedule is invalid, unschedule it
+                wp_unschedule_event($next_scheduled, self::EVENT);
+                $next_scheduled = false;
+            }
         }
 
-        // Create new recurring event
-        $result = wp_schedule_event(time(), self::SCHEDULE, self::EVENT);
-        
-        if ($result) {
-            error_log('AutoCancel: Recurring event scheduled successfully for ' . self::SCHEDULE);
-        } else {
-            error_log('AutoCancel: Failed to schedule recurring event for ' . self::SCHEDULE);
-            // Fallback to hourly if custom schedule fails
-            wp_schedule_event(time(), 'hourly', self::EVENT);
+        // Double-check schedule exists before scheduling
+        // Force filter application by calling wp_get_schedules() multiple times
+        $schedules = wp_get_schedules();
+        if (!isset($schedules[self::SCHEDULE])) {
+            error_log('AutoCancel: Schedule ' . self::SCHEDULE . ' not available when attempting to schedule event. Available: ' . implode(', ', array_keys($schedules)));
+            return;
         }
+
+        // Verify schedule details
+        $schedule_info = $schedules[self::SCHEDULE];
+        if (!isset($schedule_info['interval']) || $schedule_info['interval'] !== 300) {
+            error_log('AutoCancel: Schedule ' . self::SCHEDULE . ' has incorrect interval: ' . ($schedule_info['interval'] ?? 'missing'));
+            return;
+        }
+
+        // Use direct cron array manipulation to avoid WordPress's schedule validation
+        // This bypasses the invalid_schedule error that occurs when wp_schedule_event()
+        // checks the schedule before the filter is applied
+        self::direct_schedule_event();
     }
 
     public static function run(): void
@@ -168,5 +205,63 @@ final class AutoCancel
             }
         }
         wp_reset_postdata();
+    }
+
+    /**
+     * Direct schedule event - bypasses wp_schedule_event's schedule validation
+     * This method directly manipulates the cron array to avoid the invalid_schedule error
+     */
+    private static function direct_schedule_event(): void
+    {
+        // Ensure schedule filter is applied
+        add_filter('cron_schedules', [self::class, 'schedules'], 1);
+        $schedules = wp_get_schedules();
+        
+        if (!isset($schedules[self::SCHEDULE])) {
+            error_log('AutoCancel: Cannot schedule - schedule ' . self::SCHEDULE . ' not available');
+            return;
+        }
+
+        // Get cron array
+        $cron = _get_cron_array();
+        if ($cron === false) {
+            $cron = [];
+        }
+
+        // Remove any existing events for this hook
+        foreach ($cron as $timestamp => $cronhooks) {
+            if (isset($cronhooks[self::EVENT])) {
+                unset($cron[$timestamp][self::EVENT]);
+                // Clean up empty timestamps
+                if (empty($cron[$timestamp])) {
+                    unset($cron[$timestamp]);
+                }
+            }
+        }
+
+        // Calculate next run time (5 minutes from now)
+        $next_run = time() + 300;
+        
+        // Add to cron array with proper structure
+        $cron[$next_run][self::EVENT][md5(serialize([]))] = [
+            'schedule' => self::SCHEDULE,
+            'args' => [],
+        ];
+
+        // Sort by timestamp
+        ksort($cron);
+        
+        // Save cron array
+        _set_cron_array($cron);
+        
+        // Verify it was scheduled
+        $verify_next = wp_next_scheduled(self::EVENT);
+        $verify_schedule = wp_get_schedule(self::EVENT);
+        
+        if ($verify_next && $verify_schedule === self::SCHEDULE) {
+            error_log('AutoCancel: Successfully scheduled recurring event for ' . self::SCHEDULE . ' (next run: ' . date('Y-m-d H:i:s', $verify_next) . ')');
+        } else {
+            error_log('AutoCancel: Direct schedule failed. Next: ' . ($verify_next ? date('Y-m-d H:i:s', $verify_next) : 'none') . ', Schedule: ' . ($verify_schedule ?: 'none'));
+        }
     }
 }

@@ -10,8 +10,6 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 class CoreSettings
 {
     public const SECTION_ID = 'mhm_rentiva_core_section';
-    public const SECTION_TITLE = 'Core System Settings';
-    public const SECTION_DESCRIPTION = 'Basic system settings and performance optimizations for the plugin.';
 
     /**
      * Register settings
@@ -21,7 +19,7 @@ class CoreSettings
         // Create section
         add_settings_section(
             self::SECTION_ID,
-            self::SECTION_TITLE,
+            __('Core System Settings', 'mhm-rentiva'),
             [self::class, 'render_section_description'],
             'mhm_rentiva_settings'
         );
@@ -176,7 +174,7 @@ class CoreSettings
      */
     public static function render_section_description(): void
     {
-        echo '<p>' . esc_html(self::SECTION_DESCRIPTION) . '</p>';
+        echo '<p>' . esc_html__('Basic system settings and performance optimizations for the plugin.', 'mhm-rentiva') . '</p>';
         echo '<div class="notice notice-warning inline" style="margin: 10px 0;">';
         echo '<p><strong>' . esc_html__('Warning:', 'mhm-rentiva') . '</strong> ';
         echo esc_html__('These settings directly affect the plugin\'s performance and security. Back up before making changes.', 'mhm-rentiva');

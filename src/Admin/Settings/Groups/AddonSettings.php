@@ -9,8 +9,6 @@ if (!defined('ABSPATH')) {
 final class AddonSettings
 {
     public const SECTION_ID = 'mhm_rentiva_addons_section';
-    public const SECTION_TITLE = 'Additional Services Settings';
-    public const SECTION_DESCRIPTION = 'Configure general settings for additional services.';
 
     /**
      * Safe sanitize text field that handles null values
@@ -28,7 +26,7 @@ final class AddonSettings
         // Additional Services Section
         add_settings_section(
             self::SECTION_ID,
-            self::SECTION_TITLE,
+            __('Additional Services Settings', 'mhm-rentiva'),
             [self::class, 'render_section_description'],
             'mhm_rentiva_settings'
         );
@@ -87,7 +85,7 @@ final class AddonSettings
      */
     public static function render_section_description(): void
     {
-        echo '<p>' . esc_html(self::SECTION_DESCRIPTION) . '</p>';
+        echo '<p>' . esc_html__('Configure general settings for additional services.', 'mhm-rentiva') . '</p>';
         echo '<div class="notice notice-info inline" style="margin: 10px 0;">';
         echo '<p><strong>' . esc_html__('Note:', 'mhm-rentiva') . '</strong> ';
         echo esc_html__('These settings determine the general behavior of additional services. Use the "Additional Services" page from the left menu to add, edit, or delete additional services.', 'mhm-rentiva');

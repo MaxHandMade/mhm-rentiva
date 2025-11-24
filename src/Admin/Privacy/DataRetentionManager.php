@@ -23,9 +23,10 @@ final class DataRetentionManager
     public static function init(): void
     {
         add_action('wp_scheduled_delete', [self::class, 'cleanup_expired_data']);
-        add_action('init', [self::class, 'schedule_cleanup']);
-        // Register cron hook for scheduled cleanup
+        // Register cron hook for scheduled cleanup - must be registered before scheduling
         add_action('mhm_data_retention_cleanup', [self::class, 'cleanup_expired_data']);
+        // Schedule cleanup - use higher priority to ensure SettingsCore is loaded
+        add_action('init', [self::class, 'schedule_cleanup'], 99);
     }
 
     /**
@@ -41,8 +42,19 @@ final class DataRetentionManager
      */
     public static function schedule_cleanup(): void
     {
-        if (!wp_next_scheduled('mhm_data_retention_cleanup')) {
-            wp_schedule_event(time(), 'daily', 'mhm_data_retention_cleanup');
+        // Check if already scheduled
+        $next_scheduled = wp_next_scheduled('mhm_data_retention_cleanup');
+        if ($next_scheduled) {
+            return; // Already scheduled
+        }
+
+        // Schedule the event
+        $result = wp_schedule_event(time(), 'daily', 'mhm_data_retention_cleanup');
+        
+        if ($result === false) {
+            error_log('DataRetentionManager: Failed to schedule cleanup event. Error: ' . print_r(error_get_last(), true));
+        } else {
+            error_log('DataRetentionManager: Successfully scheduled cleanup event');
         }
     }
 

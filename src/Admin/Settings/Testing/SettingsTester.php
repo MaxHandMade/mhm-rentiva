@@ -836,21 +836,85 @@ final class SettingsTester
     }
 
     /**
+     * Get category label
+     */
+    private static function get_category_label(string $category): string
+    {
+        $labels = [
+            'general' => __('General', 'mhm-rentiva'),
+            'vehicle' => __('Vehicle', 'mhm-rentiva'),
+            'booking' => __('Booking', 'mhm-rentiva'),
+            'customer' => __('Customer', 'mhm-rentiva'),
+            'payment' => __('Payment', 'mhm-rentiva'),
+            'email' => __('Email', 'mhm-rentiva'),
+            'system' => __('System', 'mhm-rentiva'),
+            'frontend' => __('Frontend', 'mhm-rentiva'),
+            'notification' => __('Notification', 'mhm-rentiva'),
+            'security' => __('Security', 'mhm-rentiva'),
+            'dark_mode' => __('Dark mode', 'mhm-rentiva'),
+            'rate_limiting' => __('Rate limiting', 'mhm-rentiva'),
+            'form_validation' => __('Form validation', 'mhm-rentiva'),
+        ];
+        
+        return $labels[$category] ?? ucfirst(str_replace('_', ' ', $category));
+    }
+
+    /**
+     * Get test label
+     */
+    private static function get_test_label(string $test): string
+    {
+        $labels = [
+            'settings_registered' => __('Settings Registered', 'mhm-rentiva'),
+            'defaults_set' => __('Defaults Set', 'mhm-rentiva'),
+            'can_save' => __('Can Save', 'mhm-rentiva'),
+            'class_exists' => __('Class Exists', 'mhm-rentiva'),
+            'offline_class_exists' => __('Offline Class Exists', 'mhm-rentiva'),
+            'payment_method_available' => __('Payment Method Available', 'mhm-rentiva'),
+            'email_address_valid' => __('Email Address Valid', 'mhm-rentiva'),
+            'template_directory_exists' => __('Template Directory Exists', 'mhm-rentiva'),
+            'cache_enabled_method' => __('Cache Enabled Method', 'mhm-rentiva'),
+            'cache_ttl_method' => __('Cache TTL Method', 'mhm-rentiva'),
+            'cache_manager_exists' => __('Cache Manager Exists', 'mhm-rentiva'),
+            'urls_valid' => __('URLs Valid', 'mhm-rentiva'),
+            'templates_exist' => __('Templates Exist', 'mhm-rentiva'),
+            'wp_mail_available' => __('WP Mail Available', 'mhm-rentiva'),
+            'template_exists' => __('Template Exists', 'mhm-rentiva'),
+            'setting_exists' => __('Setting Exists', 'mhm-rentiva'),
+            'can_change_to_dark' => __('Can Change to Dark', 'mhm-rentiva'),
+            'can_change_to_light' => __('Can Change to Light', 'mhm-rentiva'),
+            'can_change_to_auto' => __('Can Change to Auto', 'mhm-rentiva'),
+            'css_file_exists' => __('CSS File Exists', 'mhm-rentiva'),
+            'js_file_exists' => __('JS File Exists', 'mhm-rentiva'),
+            'enabled_by_default' => __('Enabled by Default', 'mhm-rentiva'),
+            'can_check_limits' => __('Can Check Limits', 'mhm-rentiva'),
+            'can_get_remaining' => __('Can Get Remaining', 'mhm-rentiva'),
+            'can_get_limits' => __('Can Get Limits', 'mhm-rentiva'),
+            'required_fields_work' => __('Required Fields Work', 'mhm-rentiva'),
+            'email_validation_works' => __('Email Validation Works', 'mhm-rentiva'),
+            'number_validation_works' => __('Number Validation Works', 'mhm-rentiva'),
+            'url_validation_works' => __('URL Validation Works', 'mhm-rentiva'),
+        ];
+        
+        return $labels[$test] ?? ucfirst(str_replace('_', ' ', $test));
+    }
+
+    /**
      * Generate test report
      */
     public static function generate_report(): string
     {
         $results = self::test_all_settings();
         $report = '<div class="mhm-settings-test-report">';
-        $report .= '<h2>Settings Test Report</h2>';
+        $report .= '<h2>' . esc_html__('Settings Test Report', 'mhm-rentiva') . '</h2>';
         
         foreach ($results as $category => $tests) {
             $report .= '<div class="test-category">';
-            $report .= '<h3>' . ucfirst(str_replace('_', ' ', $category)) . '</h3>';
+            $report .= '<h3>' . esc_html(self::get_category_label($category)) . '</h3>';
             
             foreach ($tests as $test => $result) {
-                $status = $result ? '✅ PASS' : '❌ FAIL';
-                $report .= '<p><strong>' . ucfirst(str_replace('_', ' ', $test)) . ':</strong> ' . $status . '</p>';
+                $status = $result ? '✅ ' . esc_html__('PASS', 'mhm-rentiva') : '❌ ' . esc_html__('FAIL', 'mhm-rentiva');
+                $report .= '<p><strong>' . esc_html(self::get_test_label($test)) . ':</strong> ' . $status . '</p>';
             }
             
             $report .= '</div>';

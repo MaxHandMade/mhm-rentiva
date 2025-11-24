@@ -752,9 +752,23 @@ final class DatabaseInitialization
      * Schedule cron jobs
      */
     private static function schedule_cron_jobs(): void {
+        // Ensure custom schedules are registered before scheduling
+        if (class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel')) {
+            add_filter('cron_schedules', ['\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel', 'schedules'], 1);
+        }
+        
         // Auto cancel cron job
         if (!wp_next_scheduled('mhm_rentiva_auto_cancel_event')) {
-            wp_schedule_event(time(), 'mhm_rentiva_5min', 'mhm_rentiva_auto_cancel_event');
+            // Verify schedule exists before scheduling
+            $schedules = wp_get_schedules();
+            if (isset($schedules['mhm_rentiva_5min'])) {
+                $result = wp_schedule_event(time(), 'mhm_rentiva_5min', 'mhm_rentiva_auto_cancel_event');
+                if ($result === false) {
+                    error_log('DatabaseInitialization: Failed to schedule auto cancel event');
+                }
+            } else {
+                error_log('DatabaseInitialization: Custom schedule mhm_rentiva_5min not available during activation');
+            }
         }
     }
     

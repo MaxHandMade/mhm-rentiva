@@ -35,7 +35,7 @@ final class CronMonitor
             'mhm_rentiva_auto_cancel_event' => [
                 'name' => __('Auto Cancel Bookings', 'mhm-rentiva'),
                 'description' => __('Automatically cancels unpaid bookings after payment deadline', 'mhm-rentiva'),
-                'schedule' => 'mhm_rentiva_15min',
+                'schedule' => 'mhm_rentiva_5min',
             ],
 
             'mhm_data_retention_cleanup' => [
@@ -76,11 +76,23 @@ final class CronMonitor
                     $schedule_name = wp_get_schedule($hook);
                     $next_run = wp_next_scheduled($hook);
                     
+                    // Get translated schedule name
+                    $schedule_display = __('Not scheduled', 'mhm-rentiva');
+                    if ($schedule_name) {
+                        $schedules = wp_get_schedules();
+                        if (isset($schedules[$schedule_name]['display'])) {
+                            $schedule_display = $schedules[$schedule_name]['display'];
+                        } else {
+                            $schedule_display = $schedule_name;
+                        }
+                    }
+                    
                     $plugin_crons[] = [
                         'hook' => $hook,
                         'name' => $info['name'],
                         'description' => $info['description'],
-                        'schedule' => $schedule_name ?: __('Not scheduled', 'mhm-rentiva'),
+                        'schedule' => $schedule_display,
+                        'schedule_key' => $schedule_name ?: '',
                         'next_run' => $next_run ?: 0,
                         'next_run_formatted' => $next_run ? date_i18n('Y-m-d H:i:s', $next_run) : __('Not scheduled', 'mhm-rentiva'),
                         'is_scheduled' => $next_run > 0,
@@ -109,6 +121,7 @@ final class CronMonitor
                     'name' => $info['name'],
                     'description' => $info['description'],
                     'schedule' => __('Not scheduled', 'mhm-rentiva'),
+                    'schedule_key' => '',
                     'next_run' => 0,
                     'next_run_formatted' => __('Not scheduled', 'mhm-rentiva'),
                     'is_scheduled' => false,
@@ -227,6 +240,60 @@ final class CronMonitor
             'interval' => $schedule['interval'] ?? 0,
             'interval_formatted' => human_time_diff(0, $schedule['interval'] ?? 0),
         ];
+    }
+
+    /**
+     * Test all cron jobs to verify they are registered and can run
+     * 
+     * @return array Test results for each cron job
+     */
+    public static function test_all_cron_jobs(): array
+    {
+        $results = [];
+        $plugin_hooks = [
+            'mhm_rentiva_auto_cancel_event',
+            'mhm_data_retention_cleanup',
+            'mhm_send_scheduled_notifications',
+            'mhm_rentiva_license_daily',
+            'mhm_rentiva_email_log_purge_event',
+            'mhm_rentiva_log_purge_event',
+        ];
+
+        // Ensure all plugin hooks are loaded
+        if (!did_action('init')) {
+            do_action('init');
+        }
+
+        foreach ($plugin_hooks as $hook) {
+            $is_scheduled = wp_next_scheduled($hook) > 0;
+            $is_registered = has_action($hook) !== false;
+            $schedule_key = wp_get_schedule($hook);
+            $next_run = wp_next_scheduled($hook);
+            
+            // Get translated schedule name
+            $schedule_display = __('Not scheduled', 'mhm-rentiva');
+            if ($schedule_key) {
+                $schedules = wp_get_schedules();
+                if (isset($schedules[$schedule_key]['display'])) {
+                    $schedule_display = $schedules[$schedule_key]['display'];
+                } else {
+                    $schedule_display = $schedule_key;
+                }
+            }
+            
+            $results[$hook] = [
+                'hook' => $hook,
+                'is_scheduled' => $is_scheduled,
+                'is_registered' => $is_registered,
+                'schedule' => $schedule_display,
+                'schedule_key' => $schedule_key ?: '',
+                'next_run' => $next_run ?: 0,
+                'next_run_formatted' => $next_run ? date_i18n('Y-m-d H:i:s', $next_run) : __('Not scheduled', 'mhm-rentiva'),
+                'status' => $is_scheduled && $is_registered ? 'active' : ($is_registered ? 'registered_but_not_scheduled' : 'not_registered'),
+            ];
+        }
+
+        return $results;
     }
 }
 

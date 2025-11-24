@@ -259,6 +259,13 @@ final class CustomerManagementSettings
     public static function render_terms_text_field(): void
     {
         $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_terms_text');
+        
+        // If value is empty or equals the English default, use translated default
+        $default_text = __('I accept the terms of use and privacy policy.', 'mhm-rentiva');
+        if (empty($value) || $value === 'I accept the terms of use and privacy policy.') {
+            $value = $default_text;
+        }
+        
         echo '<textarea name="mhm_rentiva_settings[mhm_rentiva_customer_terms_text]" rows="3" cols="50" class="large-text">' . esc_textarea($value) . '</textarea>';
         echo '<p class="description">' . esc_html__('Custom text for terms and conditions checkbox. Use {privacy_policy} for privacy policy link.', 'mhm-rentiva') . '</p>';
     }

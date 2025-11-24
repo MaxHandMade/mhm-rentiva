@@ -12,14 +12,12 @@ if (!defined('ABSPATH')) {
 class EmailSettings
 {
     public const SECTION_ID = 'mhm_rentiva_email_section';
-    public const SECTION_TITLE = 'Email Settings';
-    public const SECTION_DESCRIPTION = 'Configure email sending and template settings.';
 
     public static function register(): void
     {
         add_settings_section(
             self::SECTION_ID,
-            self::SECTION_TITLE,
+            __('Email Settings', 'mhm-rentiva'),
             [self::class, 'render_section_description'],
             'mhm_rentiva_settings'
         );
@@ -148,7 +146,7 @@ class EmailSettings
             return;
         }
 
-        echo '<p>' . esc_html(self::SECTION_DESCRIPTION) . '</p>';
+        echo '<p>' . esc_html__('Configure email sending and template settings.', 'mhm-rentiva') . '</p>';
         echo '<div class="notice notice-info inline" style="margin: 10px 0;">';
         echo '<p><strong>' . esc_html__('Note:', 'mhm-rentiva') . '</strong> ';
         echo esc_html__('These settings affect all email sending. In test mode, emails are only sent to the test address.', 'mhm-rentiva');

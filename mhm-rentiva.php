@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: MHM Rentiva
-Description: Vehicle rental management plugin independent of WooCommerce.
+Description: Vehicle rental management plugin with offline payments and optional WooCommerce integration.
 Version: 4.4.3
 Author: MHM Development Team
 Text Domain: mhm-rentiva

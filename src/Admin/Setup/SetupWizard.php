@@ -414,14 +414,26 @@ final class SetupWizard
 
     private static function render_step_frontend(): void
     {
-        $currency = SettingsCore::get('mhm_rentiva_currency', 'USD');
+        // Check if WooCommerce is active and use its currency
+        if (class_exists('WooCommerce')) {
+            $currency = get_woocommerce_currency();
+            $is_woocommerce_currency = true;
+        } else {
+            $currency = SettingsCore::get('mhm_rentiva_currency', 'USD');
+            $is_woocommerce_currency = false;
+        }
+        
         $currency_position = SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
         $currencies = CurrencyHelper::get_currency_list_for_dropdown();
+        
+        // Get currency symbol for position examples
+        $currency_symbol = CurrencyHelper::get_currency_symbol($currency);
+        
         $positions = [
-            'left'        => __('Left ($100)', 'mhm-rentiva'),
-            'left_space'  => __('Left Space ($ 100)', 'mhm-rentiva'),
-            'right'       => __('Right (100$)', 'mhm-rentiva'),
-            'right_space' => __('Right Space (100 $)', 'mhm-rentiva'),
+            'left'        => sprintf(__('Left (%s100)', 'mhm-rentiva'), $currency_symbol),
+            'left_space'  => sprintf(__('Left Space (%s 100)', 'mhm-rentiva'), $currency_symbol),
+            'right'       => sprintf(__('Right (100%s)', 'mhm-rentiva'), $currency_symbol),
+            'right_space' => sprintf(__('Right Space (100 %s)', 'mhm-rentiva'), $currency_symbol),
         ];
         $default_days = (int) SettingsCore::get('mhm_rentiva_default_rental_days', 1);
         $min_days = (int) SettingsCore::get('mhm_rentiva_vehicle_min_rental_days', 1);
@@ -438,13 +450,29 @@ final class SetupWizard
                 <tr>
                     <th><?php esc_html_e('Currency', 'mhm-rentiva'); ?></th>
                     <td>
-                        <select name="currency">
-                            <?php foreach ($currencies as $code => $label): ?>
-                                <option value="<?php echo esc_attr($code); ?>" <?php selected($currency, $code); ?>>
-                                    <?php echo esc_html($label); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <?php if ($is_woocommerce_currency): ?>
+                            <p class="description">
+                                <strong><?php esc_html_e('Managed by WooCommerce:', 'mhm-rentiva'); ?></strong> 
+                                <?php echo esc_html($currencies[$currency] ?? $currency); ?>
+                            </p>
+                            <p class="description">
+                                <?php
+                                printf(
+                                    /* translators: %s: link to WooCommerce settings */
+                                    esc_html__('To change the currency, please visit %s.', 'mhm-rentiva'),
+                                    '<a href="' . esc_url(admin_url('admin.php?page=wc-settings')) . '" target="_blank">' . esc_html__('WooCommerce Settings', 'mhm-rentiva') . '</a>'
+                                );
+                                ?>
+                            </p>
+                        <?php else: ?>
+                            <select name="currency">
+                                <?php foreach ($currencies as $code => $label): ?>
+                                    <option value="<?php echo esc_attr($code); ?>" <?php selected($currency, $code); ?>>
+                                        <?php echo esc_html($label); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <tr>

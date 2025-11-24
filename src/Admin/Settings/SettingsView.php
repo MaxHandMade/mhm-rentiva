@@ -1289,6 +1289,12 @@ final class SettingsView
             'actions_text' => esc_html__('Actions', 'mhm-rentiva'),
             'scheduled_text' => esc_html__('Scheduled', 'mhm-rentiva'),
             'not_scheduled_text' => esc_html__('Not Scheduled', 'mhm-rentiva'),
+            'testing_text' => esc_html__('Testing...', 'mhm-rentiva'),
+            'test_results_text' => esc_html__('Test Results', 'mhm-rentiva'),
+            'active_text' => esc_html__('Active', 'mhm-rentiva'),
+            'registered_not_scheduled_text' => esc_html__('Registered but not scheduled', 'mhm-rentiva'),
+            'not_registered_text' => esc_html__('Not registered', 'mhm-rentiva'),
+            'hook_not_registered_text' => esc_html__('Hook is not registered - cannot run', 'mhm-rentiva'),
         ]);
 
         echo '<div class="mhm-cron-monitor-page">';
@@ -1300,6 +1306,12 @@ final class SettingsView
         echo esc_html__('Refresh List', 'mhm-rentiva');
         echo '</button>';
         
+        echo '<button type="button" class="button button-secondary" id="mhm-test-cron-jobs-btn" style="margin-bottom: 15px; margin-left: 10px;">';
+        echo '<span class="dashicons dashicons-admin-tools"></span> ';
+        echo esc_html__('Test All Cron Jobs', 'mhm-rentiva');
+        echo '</button>';
+        
+        echo '<div id="mhm-cron-test-results" style="margin-top: 15px; margin-bottom: 15px;"></div>';
         echo '<div id="mhm-cron-list" style="margin-top: 10px;"></div>';
         echo '</div>';
     }

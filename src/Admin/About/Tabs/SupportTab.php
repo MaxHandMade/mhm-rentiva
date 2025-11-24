@@ -184,10 +184,24 @@ final class SupportTab extends AbstractTab
      */
     public static function get_changelog(): array
     {
-        $changelog_file = MHM_RENTIVA_PLUGIN_DIR . 'changelog.json';
+        // Detect current WordPress locale
+        $locale = get_locale();
+        
+        // Use Turkish changelog if locale is Turkish
+        $changelog_filename = 'changelog.json';
+        if (strpos($locale, 'tr_') === 0) {
+            $changelog_filename = 'changelog-tr.json';
+        }
+        
+        $changelog_file = MHM_RENTIVA_PLUGIN_DIR . $changelog_filename;
 
         if (!file_exists($changelog_file)) {
-            return self::get_default_changelog();
+            // Fallback to default changelog.json if localized version doesn't exist
+            $changelog_file = MHM_RENTIVA_PLUGIN_DIR . 'changelog.json';
+            
+            if (!file_exists($changelog_file)) {
+                return self::get_default_changelog();
+            }
         }
 
         $changelog = json_decode(file_get_contents($changelog_file), true);

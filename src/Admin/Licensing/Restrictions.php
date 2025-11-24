@@ -33,9 +33,6 @@ final class Restrictions
         // Clamp export/report args
         add_filter('mhm_rentiva_export_args', [self::class, 'clampExportArgs']);
 
-        // Settings info
-        add_action('admin_notices', [self::class, 'settingsInfoNotice']);
-
         // Minimal admin CSS (overlay for Pro-locked groups)
         add_action('admin_head', [self::class, 'printAdminCss']);
     }
@@ -214,22 +211,6 @@ final class Restrictions
         }
         $args['limit'] = min((int) ($args['limit'] ?? 1000), Mode::reportsMaxRows());
         return $args;
-    }
-
-    /**
-     * Show settings info notice for Lite version
-     */
-    public static function settingsInfoNotice(): void
-    {
-        if (!Mode::isLite()) {
-            return;
-        }
-        if (!isset($_GET['page']) || $_GET['page'] !== 'mhm-rentiva-settings') {
-            return;
-        }
-        echo '<div class="notice notice-info"><p>' .
-            esc_html__('You are using Rentiva Lite. WooCommerce integration, Export, advanced reports and higher booking limits are available in Pro version.', 'mhm-rentiva') .
-            '</p></div>';
     }
 
     /**

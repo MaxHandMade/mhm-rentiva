@@ -243,46 +243,51 @@ final class Plugin
      */
     private function initialize_remaining_services(): void
     {
-            // Logs
-            if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Logs\PostType')) {
-                \MHMRentiva\Admin\PostTypes\Logs\PostType::register();
-            }
-            if ($this->is_class_available('\MHMRentiva\Admin\Utilities\ListTable\LogColumns')) {
-                \MHMRentiva\Admin\Utilities\ListTable\LogColumns::register();
-            }
-            if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Logs\MetaBox')) {
-                \MHMRentiva\Admin\PostTypes\Logs\MetaBox::register();
-            }
-
-            // Export
-            if ($this->is_class_available('\MHMRentiva\Admin\Utilities\Export\Export')) {
-                \MHMRentiva\Admin\Utilities\Export\Export::register();
-                \MHMRentiva\Admin\Utilities\Export\ExportStats::register();
-            }
-
-            // Booking
-            if ($this->is_class_available('\MHMRentiva\Admin\Booking\Core\Handler')) {
-                \MHMRentiva\Admin\Booking\Core\Handler::register();
-            }
-            if ($this->is_class_available('\MHMRentiva\Admin\Booking\Core\Status')) {
-                \MHMRentiva\Admin\Booking\Core\Status::register();
-            }
-            if ($this->is_class_available('\MHMRentiva\Admin\Booking\Core\Hooks')) {
-                \MHMRentiva\Admin\Booking\Core\Hooks::register();
-            }
-
-            // Reports
-            if ($this->is_class_available('\MHMRentiva\Admin\Reports\Reports')) {
-                \MHMRentiva\Admin\Reports\Reports::register();
+        // REST API
+        if ($this->is_class_available('\\MHMRentiva\\Admin\\REST\\Availability')) {
+            \MHMRentiva\Admin\REST\Availability::register();
         }
 
-            // Email Logs
-            if ($this->is_class_available('MHMRentiva\\Admin\\Emails\\PostTypes\\EmailLog')) {
-                \MHMRentiva\Admin\Emails\PostTypes\EmailLog::register();
-            }
-            if ($this->is_class_available('\\MHMRentiva\\Admin\\PostTypes\\Maintenance\\EmailLogRetention')) {
-                \MHMRentiva\Admin\PostTypes\Maintenance\EmailLogRetention::register();
-            }
+        // Logs
+        if ($this->is_class_available('\\MHMRentiva\\Admin\\PostTypes\\Logs\\PostType')) {
+            \MHMRentiva\Admin\PostTypes\Logs\PostType::register();
+        }
+        if ($this->is_class_available('\\MHMRentiva\\Admin\\Utilities\\ListTable\\LogColumns')) {
+            \MHMRentiva\Admin\Utilities\ListTable\LogColumns::register();
+        }
+        if ($this->is_class_available('\\MHMRentiva\\Admin\\PostTypes\\Logs\\MetaBox')) {
+            \MHMRentiva\Admin\PostTypes\Logs\MetaBox::register();
+        }
+
+        // Export
+        if ($this->is_class_available('\\MHMRentiva\\Admin\\Utilities\\Export\\Export')) {
+            \MHMRentiva\Admin\Utilities\Export\Export::register();
+            \MHMRentiva\Admin\Utilities\Export\ExportStats::register();
+        }
+
+        // Booking
+        if ($this->is_class_available('\\MHMRentiva\\Admin\\Booking\\Core\\Handler')) {
+            \MHMRentiva\Admin\Booking\Core\Handler::register();
+        }
+        if ($this->is_class_available('\\MHMRentiva\\Admin\\Booking\\Core\\Status')) {
+            \MHMRentiva\Admin\Booking\Core\Status::register();
+        }
+        if ($this->is_class_available('\\MHMRentiva\\Admin\\Booking\\Core\\Hooks')) {
+            \MHMRentiva\Admin\Booking\Core\Hooks::register();
+        }
+
+        // Reports
+        if ($this->is_class_available('\\MHMRentiva\\Admin\\Reports\\Reports')) {
+            \MHMRentiva\Admin\Reports\Reports::register();
+        }
+
+        // Email Logs
+        if ($this->is_class_available('MHMRentiva\\\\Admin\\\\Emails\\\\PostTypes\\\\EmailLog')) {
+            \MHMRentiva\Admin\Emails\PostTypes\EmailLog::register();
+        }
+        if ($this->is_class_available('MHMRentiva\\Admin\\PostTypes\\Maintenance\\EmailLogRetention')) {
+            \MHMRentiva\Admin\PostTypes\Maintenance\EmailLogRetention::register();
+        }
     }
 
     /**

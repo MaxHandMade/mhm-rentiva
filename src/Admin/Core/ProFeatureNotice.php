@@ -150,10 +150,17 @@ final class ProFeatureNotice
                 __('Unlimited Messages', 'mhm-rentiva'),
             ],
             'settings' => [
-                __('Advanced Payment Settings', 'mhm-rentiva'),
+                __('Excel Export (XLS)', 'mhm-rentiva'),
+                __('XML Export', 'mhm-rentiva'),
+                __('PDF Export', 'mhm-rentiva'),
+                __('Advanced Reports', 'mhm-rentiva'),
+                __('Unlimited Date Range', 'mhm-rentiva'),
+                __('Unlimited Report Rows', 'mhm-rentiva'),
+                __('Messaging System', 'mhm-rentiva'),
+                __('Unlimited Vehicles/Bookings/Customers', 'mhm-rentiva'),
             ],
             'payments' => [
-                __('Advanced Payment Processing', 'mhm-rentiva'),
+                // Payment features (Offline and WooCommerce) are available in both Lite and Pro versions
             ],
         ];
 

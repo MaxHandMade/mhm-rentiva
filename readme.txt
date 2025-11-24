@@ -8,17 +8,17 @@ Stable tag: 4.4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-MHM Rentiva is a powerful and flexible vehicle rental management plugin independent of WooCommerce.
+MHM Rentiva is a powerful and flexible vehicle rental management plugin with offline payment support and optional WooCommerce integration.
 
 == Description ==
 
-MHM Rentiva is a comprehensive vehicle rental management solution designed for car rental agencies. It operates independently of WooCommerce, providing a dedicated and streamlined experience for managing your fleet and bookings.
+MHM Rentiva is a comprehensive vehicle rental management solution designed for car rental agencies, bike rentals, and equipment rental businesses. It provides a dedicated and streamlined experience for managing your fleet and bookings with built-in offline payment support and optional WooCommerce integration for online payments.
 
 **Key Features:**
 
 *   **Vehicle Management:** Easily add, edit, and manage your vehicle fleet with detailed attributes (transmission, fuel type, seats, etc.).
 *   **Booking System:** Robust booking engine with calendar view, availability checking, and automatic price calculation.
-*   **Payment Integration:** Built-in support for Offline payments and seamless WooCommerce integration.
+*   **Payment Integration:** Built-in offline payment system with receipt upload and admin approval. Optional WooCommerce integration for online payment gateways.
 *   **Customer Management:** Manage customer information and booking history.
 *   **Email Notifications:** Customizable email templates for booking confirmations, cancellations, and more.
 *   **Shortcode Support:** Easy-to-use shortcodes to display vehicle lists, search forms, and booking wizards anywhere on your site.
@@ -34,7 +34,7 @@ MHM Rentiva is a comprehensive vehicle rental management solution designed for c
 == Frequently Asked Questions ==
 
 = Does this plugin require WooCommerce? =
-No, MHM Rentiva is a standalone plugin and does not require WooCommerce to function.
+No, MHM Rentiva works independently and includes a built-in offline payment system. WooCommerce integration is optional and only needed if you want to accept online payments through WooCommerce payment gateways.
 
 = Can I accept credit card payments? =
 Yes, the plugin supports "Offline Payment" natively. For online payments (credit cards, etc.), you can use our seamless WooCommerce integration to leverage any payment gateway supported by WooCommerce.
@@ -51,6 +51,13 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 
 == Changelog ==
 
+= 4.4.3 =
+*   Legacy Removal: Removed all legacy payment gateway code (Stripe, PayPal, PayTR) to focus on Offline payments and WooCommerce integration.
+*   Cleanup: Removed unused assets and rate limiting logic related to legacy gateways.
+*   Documentation: Updated READMEs and documentation to reflect the new payment system focus.
+*   Bug Fix: Fixed changelog language detection to show Turkish changelog for Turkish users.
+*   UI Fix: Fixed duplicate toggle buttons in changelog display.
+
 = 4.4.2 =
 *   Security: Removed hardcoded secure token and implemented dynamic key generation.
 *   Refactoring: Separated settings page view logic into SettingsView class.
@@ -64,10 +71,6 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 *   I18n QA: Added translator comments and positional placeholders.
 *   Currency & Deposits: Deposit meta boxes and helpers now format prices via Settings-based currency.
 *   Documentation: README badges and release notes updated.
-
-= 4.4.0 =
-*   Major update: Improved booking algorithm.
-*   Added PayTR integration.
 
 == Upgrade Notice ==
 

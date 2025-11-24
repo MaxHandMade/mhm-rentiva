@@ -15,6 +15,7 @@ final class CronMonitorPage
     {
         add_action('wp_ajax_mhm_list_cron_jobs', [self::class, 'ajax_list_cron_jobs']);
         add_action('wp_ajax_mhm_run_cron_job', [self::class, 'ajax_run_cron_job']);
+        add_action('wp_ajax_mhm_test_cron_jobs', [self::class, 'ajax_test_cron_jobs']);
     }
 
     /**
@@ -61,6 +62,25 @@ final class CronMonitorPage
         } else {
             wp_send_json_error($result['message']);
         }
+    }
+
+    /**
+     * AJAX - Test all cron jobs
+     */
+    public static function ajax_test_cron_jobs(): void
+    {
+        check_ajax_referer('mhm_cron_monitor', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
+        }
+        
+        $results = CronMonitor::test_all_cron_jobs();
+        
+        wp_send_json_success([
+            'results' => $results,
+            'count' => count($results)
+        ]);
     }
 }
 

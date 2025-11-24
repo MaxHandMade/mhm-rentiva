@@ -250,6 +250,11 @@
                 const $content = $item.find('.changelog-content');
                 const $header = $item.find('.changelog-header');
 
+                // Check if toggle already exists to prevent duplicates
+                if ($header.find('.changelog-toggle').length > 0) {
+                    return; // Skip if toggle already added
+                }
+
                 // Add toggle button
                 const $toggle = $('<button>', {
                     class: 'changelog-toggle',
