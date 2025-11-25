@@ -20,6 +20,32 @@
 - **Durum Değiştirme Paneli:** Confirm, Complete, Cancel, Refund gibi aksiyonlar.
 - **Mesajlaşma:** Rezervasyonla ilişkilendirilmiş müşteri mesajlarına hızlı erişim.
 
+### Versiyon 4.4.4 Yeni Özellikler
+
+**Rezervasyon Referans Numarası:**
+- Her rezervasyon için benzersiz bir referans numarası otomatik oluşturulur (format: `BK-00001`).
+- Bu numara rezervasyon detay ekranında görüntülenir ve müşteri ile iletişimde kullanılabilir.
+
+**Rezervasyon Tipi:**
+- Rezervasyonlar artık "Online" veya "Manuel" olarak işaretlenir.
+- Online rezervasyonlar: Müşteri tarafından web sitesi üzerinden oluşturulan rezervasyonlar.
+- Manuel rezervasyonlar: Admin tarafından manuel olarak oluşturulan rezervasyonlar.
+
+**Özel Notlar / Talepler:**
+- Rezervasyon detay ekranında "Özel Notlar / Talepler" alanı eklendi.
+- Bu alan müşteri talepleri, özel istekler veya notlar için kullanılabilir.
+- Hem admin hem de müşteri tarafından görüntülenebilir ve düzenlenebilir.
+
+**Araç Seçimi (Düzenlenebilir):**
+- Rezervasyon düzenleme ekranında araç alanı artık düzenlenebilir.
+- Araç seçiminde plaka numarası da gösterilir, böylece benzer isimli araçlar arasında karışıklık önlenir.
+- Araç değişikliği yapıldığında fiyatlar otomatik olarak yeniden hesaplanır.
+
+**WooCommerce İade Entegrasyonu:**
+- WooCommerce'de iade yapıldığında rezervasyon durumu otomatik olarak güncellenir.
+- İade tutarı rezervasyon meta verilerine kaydedilir.
+- İade işlemi için e-posta bildirimleri otomatik gönderilir.
+
 ## Manuel Rezervasyon Oluşturma
 - Ekranın üst kısmındaki `Add New Booking` butonuyla açılan form sayesinde:
   - Müşteri seçebilir veya yeni müşteri oluşturabilirsiniz.
