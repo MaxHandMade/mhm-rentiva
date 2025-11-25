@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.4.3-blue.svg)
+![Version](https://img.shields.io/badge/version-4.4.4-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1166,26 +1166,46 @@ Fixes #123
 
 ## 📝 Changelog
 
-### Latest Version: 4.4.1 (2025-11-19)
+### Latest Version: 4.4.4 (2025-11-25)
 
-**🌍 GLOBAL READINESS**
-- Completed English translations across Elementor widgets, Gutenberg blocks, payment gateways, booking helpers, and templates.
-- Removed remaining TRY-specific copy and ensured every UI string passes through WordPress i18n helpers.
+**🚗 VEHICLE MANAGEMENT ENHANCEMENTS**
+- **Configurable Vehicle Limits:** All hardcoded vehicle limits are now configurable (engine size: 0.0-20.0L, seats: max 100, doors: max 20, gallery: max 50 images)
+- **New Fuel Types:** Added LPG, CNG, and Hydrogen fuel types to support alternative fuel vehicles
+- **New Transmission Types:** Added Semi-Automatic and CVT transmission options for modern vehicles
 
-**🧩 ELEMENTOR & GUTENBERG**
-- Vehicles List, Booking Form, and Vehicle Card widgets expose English titles, descriptions, control labels, and documentation-ready tooltips.
-- Gutenberg block scripts mirror the same terminology, eliminating Poedit “unterminated string” or untranslated warnings.
+**💳 WOOCOMMERCE INTEGRATION IMPROVEMENTS**
+- **Complete Refund Integration:** Automatic booking status updates when refunds are processed in WooCommerce
+- **Refund System:** RefundValidator now supports WooCommerce payments (previously only offline)
+- **Dynamic Currency:** Currency defaults now dynamically retrieved from WooCommerce or plugin settings (no hardcoded TRY)
 
-**📝 I18N QA**
-- Added translator comments and positional placeholders throughout booking emails, account pages, and admin notices.
-- `wp i18n make-pot` and Poedit now build clean catalogs with zero warning lines.
+**✅ BOOKING SYSTEM ENHANCEMENTS**
+- **Thank You Page:** New dedicated thank you page shortcode `[rentiva_thank_you]` for booking confirmations
+- **Booking Reference:** Added unique booking reference number with BK- prefix
+- **Booking Type:** Added booking type field (Online/Manual)
+- **Special Notes:** Added special notes/requests field for customer communication
+- **Vehicle Selection:** Vehicle field in booking edit is now editable with license plate display
 
-**💱 CURRENCY & DEPOSIT EXPERIENCE**
-- Deposit meta boxes and helpers format totals via Settings-based currency (USD fallback) and semantic `data-field` selectors instead of hardcoded “TRY”.
-- JavaScript updates respect localized symbols immediately when admins switch currency/locale combinations.
+**📱 FORM IMPROVEMENTS**
+- **Form Cleanup:** Removed redundant fields from booking form (Contact Info, Payment Method, Terms checkbox) - now handled by WooCommerce
+- **Checkout Integration:** Payment type options (Deposit/Full Payment) moved to WooCommerce checkout page
+- **Single Column Layout:** Booking form redesigned as single-column layout for better mobile experience
+- **Time Fields:** Pickup time is now mandatory, return time automatically matches pickup time and is non-editable
 
-**📚 DOCUMENTATION**
-- README badges and changelog entries now document the 4.4.1 global readiness release.
+**🎨 UI/UX IMPROVEMENTS**
+- **Modern UI:** Availability check result area redesigned with modern gradients, icons, and animations
+- **Better Mobile Experience:** Improved responsive design for mobile devices
+
+**🔒 SYSTEM RELIABILITY**
+- **Duplicate Prevention:** Enhanced atomic overlap checking to prevent duplicate reservations for same vehicle/dates
+- **Auto-Cancel:** Fixed automatic cancellation system for unpaid bookings (30-minute deadline)
+- **Meta Key Standardization:** Unified date/time meta keys with backward compatibility
+- **Availability Validation:** Added final availability check before WooCommerce payment processing
+
+**📧 EMAIL SYSTEM**
+- **Template Auto-Loading:** Fixed email template auto-loading in admin booking edit page
+
+**🌍 INTERNATIONALIZATION**
+- **Translation Updates:** Updated .pot file with all new translatable strings
 
 For complete changelog, see [changelog.json](changelog.json)
 

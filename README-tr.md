@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.4.3-blue.svg)
+![Version](https://img.shields.io/badge/version-4.4.4-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -298,26 +298,46 @@ POST /bookings
 
 ## 📝 Değişiklik Geçmişi
 
-### Son Versiyon: 4.4.1 (2025-11-19)
+### Son Versiyon: 4.4.4 (2025-11-25)
 
-**🌍 KÜRESEL UYUMLULUK**
-- Elementor widget’ları, Gutenberg blokları, ödeme ağ geçitleri, rezervasyon yardımcıları ve şablonlardaki tüm Türkçe açıklamalar/etiketler İngilizce’ye taşındı.
-- Kalan TRY ifadeleri kaldırıldı; tüm arayüz metinleri WordPress i18n yardımcıları üzerinden geçiyor.
+**🚗 ARAÇ YÖNETİMİ İYİLEŞTİRMELERİ**
+- **Ayarlanabilir Araç Limitleri:** Tüm hardcode araç limitleri ayarlanabilir hale getirildi (motor hacmi: 0.0-20.0L, koltuk: max 100, kapı: max 20, galeri: max 50 resim)
+- **Yeni Yakıt Tipleri:** Alternatif yakıtlı araçlar için LPG, CNG ve Hidrojen yakıt tipleri eklendi
+- **Yeni Vites Tipleri:** Modern araçlar için Yarı Otomatik ve CVT vites seçenekleri eklendi
 
-**🧩 ELEMENTOR & GUTENBERG**
-- Vehicles List, Booking Form ve Vehicle Card widget’ları İngilizce başlık/açıklama/kontrol etiketleri ve Poedit uyumlu ipuçları sunuyor.
-- Gutenberg blok scriptleri aynı terminolojiyi kullanarak “unterminated string” veya çevrilmemiş metin uyarılarını ortadan kaldırıyor.
+**💳 WOOCOMMERCE ENTEGRASYONU İYİLEŞTİRMELERİ**
+- **Eksiksiz İade Entegrasyonu:** WooCommerce'de iade yapıldığında rezervasyon durumu otomatik güncelleniyor
+- **İade Sistemi:** RefundValidator artık WooCommerce ödemelerini destekliyor (önceden sadece offline)
+- **Dinamik Para Birimi:** Para birimi varsayılanları artık WooCommerce veya eklenti ayarlarından dinamik olarak alınıyor (hardcode TRY yok)
 
-**📝 i18n KALİTE KONTROLÜ**
-- Booking e-postaları, Hesabım sayfaları ve admin bildirimleri için çevirmen açıklamaları ile sıralı placeholder düzenleri eklendi.
-- `wp i18n make-pot` ve Poedit çıktıları artık sıfır uyarı satırı ile oluşturuluyor.
+**✅ REZERVASYON SİSTEMİ İYİLEŞTİRMELERİ**
+- **Teşekkür Sayfası:** Rezervasyon onayları için yeni özel teşekkür sayfası shortcode'u `[rentiva_thank_you]` eklendi
+- **Rezervasyon Referansı:** BK- öneki ile benzersiz rezervasyon referans numarası eklendi
+- **Rezervasyon Tipi:** Rezervasyon tipi alanı eklendi (Online/Manuel)
+- **Özel Notlar:** Müşteri iletişimi için özel notlar/talepler alanı eklendi
+- **Araç Seçimi:** Rezervasyon düzenlemede araç alanı artık düzenlenebilir ve plaka gösteriliyor
 
-**💱 PARA BİRİMİ & DEPOZİTO DENEYİMİ**
-- Depozito meta kutuları ve yardımcılar tutarları Ayarlar’daki para birimine (USD varsayılan) göre formatlıyor, `data-field` seçicileri kullanıyor.
-- JavaScript güncellemeleri, yönetici para birimini değiştirdiğinde sembolleri anında güncelliyor.
+**📱 FORM İYİLEŞTİRMELERİ**
+- **Form Temizliği:** Rezervasyon formundan gereksiz alanlar kaldırıldı (İletişim Bilgileri, Ödeme Yöntemi, Hizmet Şartları) - artık WooCommerce tarafından yönetiliyor
+- **Checkout Entegrasyonu:** Ödeme tipi seçenekleri (Depozito/Tam Ödeme) WooCommerce checkout sayfasına taşındı
+- **Tek Sütun Düzen:** Rezervasyon formu daha iyi mobil deneyim için tek sütun düzen olarak yeniden tasarlandı
+- **Saat Alanları:** Teslim alma saati artık zorunlu, teslim etme saati otomatik olarak teslim alma saatine eşitleniyor ve düzenlenemez
 
-**📚 DÖKÜMANTASYON**
-- README ve değişiklik kayıtları 4.4.1 sürümündeki küresel uyumluluk odaklı yenilikleri yansıtacak şekilde güncellendi.
+**🎨 ARAYÜZ İYİLEŞTİRMELERİ**
+- **Modern Arayüz:** Müsaitlik kontrol sonuç alanı modern gradyanlar, ikonlar ve animasyonlarla yeniden tasarlandı
+- **Daha İyi Mobil Deneyim:** Mobil cihazlar için geliştirilmiş responsive tasarım
+
+**🔒 SİSTEM GÜVENİLİRLİĞİ**
+- **Tekrar Önleme:** Aynı araç/tarihler için tekrar rezervasyonları önlemek için geliştirilmiş atomik çakışma kontrolü
+- **Otomatik İptal:** Ödenmemiş rezervasyonlar için otomatik iptal sistemi düzeltildi (30 dakikalık süre)
+- **Meta Key Standardizasyonu:** Tarih/saat meta key'leri geriye dönük uyumluluk ile birleştirildi
+- **Müsaitlik Doğrulama:** WooCommerce ödeme işlemeden önce son müsaitlik kontrolü eklendi
+
+**📧 E-POSTA SİSTEMİ**
+- **Şablon Otomatik Yükleme:** Admin rezervasyon düzenleme sayfasında e-posta şablonu otomatik yükleme düzeltildi
+
+**🌍 ULUSLARARASILAŞTIRMA**
+- **Çeviri Güncellemeleri:** Tüm yeni çevrilebilir dizelerle .pot dosyası güncellendi
 
 Tam değişiklik geçmişi için [changelog-tr.json](changelog-tr.json) dosyasına bakın.
 
