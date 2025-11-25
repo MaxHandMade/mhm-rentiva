@@ -11,6 +11,79 @@ if (!defined('ABSPATH')) {
 final class VehicleMeta extends AbstractMetaBox
 {
     /**
+     * ⭐ Get maximum seats limit (configurable from settings, default: 100)
+     */
+    private static function get_max_seats(): int
+    {
+        return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+            'mhm_rentiva_vehicle_max_seats',
+            100 // Default: 100 (supports buses)
+        );
+    }
+
+    /**
+     * ⭐ Get maximum doors limit (configurable from settings, default: 20)
+     */
+    private static function get_max_doors(): int
+    {
+        return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+            'mhm_rentiva_vehicle_max_doors',
+            20 // Default: 20
+        );
+    }
+
+    /**
+     * ⭐ Get minimum engine size (configurable from settings, default: 0.0 for electric vehicles)
+     */
+    private static function get_min_engine_size(): float
+    {
+        return (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+            'mhm_rentiva_vehicle_min_engine_size',
+            0.0 // Default: 0.0 (supports electric vehicles)
+        );
+    }
+
+    /**
+     * ⭐ Get maximum engine size (configurable from settings, default: 20.0 for large engines)
+     */
+    private static function get_max_engine_size(): float
+    {
+        return (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+            'mhm_rentiva_vehicle_max_engine_size',
+            20.0 // Default: 20.0 (supports large engines)
+        );
+    }
+
+    /**
+     * ⭐ Get available fuel types
+     */
+    public static function get_fuel_types(): array
+    {
+        return [
+            'petrol' => __('Petrol', 'mhm-rentiva'),
+            'diesel' => __('Diesel', 'mhm-rentiva'),
+            'hybrid' => __('Hybrid', 'mhm-rentiva'),
+            'electric' => __('Electric', 'mhm-rentiva'),
+            'lpg' => __('LPG', 'mhm-rentiva'),
+            'cng' => __('CNG', 'mhm-rentiva'),
+            'hydrogen' => __('Hydrogen', 'mhm-rentiva'),
+        ];
+    }
+
+    /**
+     * ⭐ Get available transmission types
+     */
+    public static function get_transmission_types(): array
+    {
+        return [
+            'auto' => __('Automatic', 'mhm-rentiva'),
+            'manual' => __('Manual', 'mhm-rentiva'),
+            'semi_auto' => __('Semi-Automatic', 'mhm-rentiva'),
+            'cvt' => __('CVT', 'mhm-rentiva'),
+        ];
+    }
+
+    /**
      * Safe sanitize text field that handles null values
      */
     public static function sanitize_text_field_safe($value)
@@ -133,7 +206,8 @@ final class VehicleMeta extends AbstractMetaBox
                     'removeImage' => __('Remove Image', 'mhm-rentiva'),
                     'setAsFeatured' => __('Set as Featured Image', 'mhm-rentiva'),
                     'noImages' => __('No images added yet', 'mhm-rentiva'),
-                    'maxImages' => __('You can add maximum 10 images', 'mhm-rentiva'),
+                    // ⭐ maxImages string will be set dynamically in VehicleGallery.php
+                    'maxImages' => '', // Placeholder, will be set by VehicleGallery
                     'confirmRemove' => __('Are you sure you want to remove this image?', 'mhm-rentiva'),
                     'uploading' => __('Uploading...', 'mhm-rentiva'),
                     'uploadError' => __('Error occurred while uploading image', 'mhm-rentiva'),
@@ -526,23 +600,27 @@ final class VehicleMeta extends AbstractMetaBox
 
             case 'mhm_rentiva_seats':
                 $seats = intval($value);
-                return max(1, min(20, $seats));
+                $max_seats = self::get_max_seats();
+                return max(1, min($max_seats, $seats));
 
             case 'mhm_rentiva_doors':
                 $doors = intval($value);
-                return max(2, min(8, $doors));
+                $max_doors = self::get_max_doors();
+                return max(2, min($max_doors, $doors));
 
             case 'mhm_rentiva_transmission':
-                $allowed = ['auto', 'manual'];
+                $allowed = array_keys(self::get_transmission_types());
                 return in_array($value, $allowed, true) ? $value : 'auto';
 
             case 'mhm_rentiva_fuel_type':
-                $allowed = ['petrol', 'diesel', 'hybrid', 'electric'];
+                $allowed = array_keys(self::get_fuel_types());
                 return in_array($value, $allowed, true) ? $value : 'petrol';
 
             case 'mhm_rentiva_engine_size':
                 $engine = floatval($value);
-                return max(0.8, min(8.0, $engine));
+                $min_engine = self::get_min_engine_size();
+                $max_engine = self::get_max_engine_size();
+                return max($min_engine, min($max_engine, $engine));
 
             case 'mhm_rentiva_color':
                 return self::sanitize_text_field_safe($value);
@@ -713,7 +791,9 @@ final class VehicleMeta extends AbstractMetaBox
             'show_in_rest' => true,
             'sanitize_callback' => function($value) {
                 $engine = floatval($value);
-                return max(0.8, min(8.0, $engine));
+                $min_engine = self::get_min_engine_size();
+                $max_engine = self::get_max_engine_size();
+                return max($min_engine, min($max_engine, $engine));
             },
         ]);
 

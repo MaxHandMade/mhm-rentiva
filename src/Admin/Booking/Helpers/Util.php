@@ -105,6 +105,10 @@ final class Util
         // ⚡ Optimized: direct SQL query for faster checks
         global $wpdb;
         
+        $current_time = current_time('mysql');
+        
+        // ⭐ Exclude pending bookings with expired payment deadline
+        // Only count pending bookings that haven't expired their payment deadline
         $result = $wpdb->get_var($wpdb->prepare("
             SELECT COUNT(*) 
             FROM {$wpdb->posts} p
@@ -112,6 +116,7 @@ final class Util
             INNER JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = '_mhm_status'
             INNER JOIN {$wpdb->postmeta} pm3 ON p.ID = pm3.post_id AND pm3.meta_key = '_mhm_start_ts'
             INNER JOIN {$wpdb->postmeta} pm4 ON p.ID = pm4.post_id AND pm4.meta_key = '_mhm_end_ts'
+            LEFT JOIN {$wpdb->postmeta} pm5 ON p.ID = pm5.post_id AND pm5.meta_key = '_mhm_payment_deadline'
             WHERE p.post_type = 'vehicle_booking' 
             AND p.post_status = 'publish'
             AND pm1.meta_value = %d
@@ -121,7 +126,13 @@ final class Util
                 (pm3.meta_value < %d AND pm4.meta_value >= %d) OR
                 (pm3.meta_value >= %d AND pm4.meta_value <= %d)
             )
-        ", $vehicle_id, $start_ts, $start_ts, $end_ts, $end_ts, $start_ts, $end_ts));
+            AND (
+                pm2.meta_value != 'pending' OR 
+                pm5.meta_value IS NULL OR 
+                pm5.meta_value = '' OR 
+                pm5.meta_value > %s
+            )
+        ", $vehicle_id, $start_ts, $start_ts, $end_ts, $end_ts, $start_ts, $end_ts, $current_time));
         
         return (int) $result > 0;
     }
@@ -143,11 +154,15 @@ final class Util
         ));
 
         // Conflict check with accurate date interval handling
+        // ⭐ Exclude pending bookings with expired payment deadline
+        $current_time = current_time('mysql');
+        
         $overlap_query = $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->postmeta} pm1
              INNER JOIN {$wpdb->postmeta} pm2 ON pm1.post_id = pm2.post_id
              INNER JOIN {$wpdb->postmeta} pm3 ON pm1.post_id = pm3.post_id
              INNER JOIN {$wpdb->postmeta} pm4 ON pm1.post_id = pm4.post_id
+             LEFT JOIN {$wpdb->postmeta} pm5 ON pm1.post_id = pm5.post_id AND pm5.meta_key = '_mhm_payment_deadline'
              INNER JOIN {$wpdb->posts} p ON pm1.post_id = p.ID
              WHERE p.post_type = 'vehicle_booking'
              AND p.post_status = 'publish'
@@ -158,8 +173,14 @@ final class Util
                  (pm3.meta_value <= %d AND pm4.meta_value > %d) OR
                  (pm3.meta_value < %d AND pm4.meta_value >= %d) OR
                  (pm3.meta_value >= %d AND pm4.meta_value <= %d)
+             )
+             AND (
+                 pm2.meta_value != 'pending' OR 
+                 pm5.meta_value IS NULL OR 
+                 pm5.meta_value = '' OR 
+                 pm5.meta_value > %s
              )",
-            $vehicle_id, $start_ts, $start_ts, $end_ts, $end_ts, $start_ts, $end_ts
+            $vehicle_id, $start_ts, $start_ts, $end_ts, $end_ts, $start_ts, $end_ts, $current_time
         );
 
         $count = (int) $wpdb->get_var($overlap_query);
@@ -213,9 +234,25 @@ final class Util
         $start_ts = $datetime_result['start_ts'];
         $end_ts = $datetime_result['end_ts'];
 
-        // Check from cache
+        // ⭐ Check from cache (but with shorter TTL for critical checks)
+        // Cache is useful for performance but can show stale data
+        // For critical operations, we'll use has_overlap_locked instead
         $cached_result = \MHMRentiva\Admin\Booking\Helpers\Cache::getAvailability($vehicle_id, $start_ts, $end_ts);
         if ($cached_result !== null) {
+            // ⚠️ Cache hit - but verify with real-time check if result is "available"
+            // This prevents showing stale "available" data when a booking was just created
+            if ($cached_result['ok'] === true) {
+                // Double-check with real-time overlap detection (no cache)
+                // This ensures we don't show stale "available" data
+                if (self::has_overlap($vehicle_id, $start_ts, $end_ts)) {
+                    // Cache was stale - return unavailable
+                    return [
+                        'ok' => false,
+                        'code' => 'unavailable',
+                        'message' => __('This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle.', 'mhm-rentiva'),
+                    ];
+                }
+            }
             return $cached_result;
         }
 
@@ -280,15 +317,36 @@ final class Util
         $original_price = (float) get_post_meta($original_vehicle_id, '_mhm_rentiva_price_per_day', true);
         $original_features = get_post_meta($original_vehicle_id, '_mhm_rentiva_features', true);
         $original_features = is_array($original_features) ? $original_features : [];
+        
+        // ⭐ Get original vehicle category and location (if available)
+        $original_category = '';
+        $original_location = '';
+        
+        // Check for vehicle category taxonomy
+        $vehicle_categories = wp_get_post_terms($original_vehicle_id, 'vehicle_category', ['fields' => 'ids']);
+        if (!empty($vehicle_categories) && !is_wp_error($vehicle_categories)) {
+            $original_category = $vehicle_categories[0];
+        }
+        
+        // Check for vehicle location (meta or taxonomy)
+        $original_location = get_post_meta($original_vehicle_id, '_mhm_rentiva_location', true);
+        if (empty($original_location)) {
+            // Try taxonomy
+            $vehicle_locations = wp_get_post_terms($original_vehicle_id, 'vehicle_location', ['fields' => 'ids']);
+            if (!empty($vehicle_locations) && !is_wp_error($vehicle_locations)) {
+                $original_location = $vehicle_locations[0];
+            }
+        }
 
         // Find available vehicles
         
         // ⚡ Optimized: fetch only active vehicles with a sane limit
-        $all_vehicles = get_posts([
+        // ⭐ Build query args with category/location filtering if available
+        $query_args = [
             'post_type' => 'vehicle',
             'post_status' => 'publish',
             'posts_per_page' => 20, // Limit to at most 20 vehicles
-            'exclude' => [$original_vehicle_id],
+            'post__not_in' => [$original_vehicle_id],
             'meta_query' => [
                 [
                     'key' => '_mhm_vehicle_availability',
@@ -301,7 +359,45 @@ final class Util
                     'compare' => '>'
                 ]
             ]
-        ]);
+        ];
+        
+        // ⭐ Filter by category if original vehicle has a category
+        if (!empty($original_category)) {
+            $query_args['tax_query'] = [
+                [
+                    'taxonomy' => 'vehicle_category',
+                    'field' => 'term_id',
+                    'terms' => $original_category,
+                    'operator' => 'IN'
+                ]
+            ];
+        }
+        
+        // ⭐ Filter by location if original vehicle has a location
+        if (!empty($original_location)) {
+            // If location is a term ID (taxonomy)
+            if (is_numeric($original_location)) {
+                if (!isset($query_args['tax_query'])) {
+                    $query_args['tax_query'] = [];
+                }
+                $query_args['tax_query'][] = [
+                    'taxonomy' => 'vehicle_location',
+                    'field' => 'term_id',
+                    'terms' => $original_location,
+                    'operator' => 'IN'
+                ];
+                $query_args['tax_query']['relation'] = 'AND';
+            } else {
+                // If location is a meta value
+                $query_args['meta_query'][] = [
+                    'key' => '_mhm_rentiva_location',
+                    'value' => $original_location,
+                    'compare' => '='
+                ];
+            }
+        }
+        
+        $all_vehicles = get_posts($query_args);
         
         
         // ⚡ Optimized: meta query already filtered – use directly
@@ -352,12 +448,35 @@ final class Util
                     $features = is_array($unserialized) ? $unserialized : [];
                 }
 
-                // Calculate similarity score
+                // ⭐ Get vehicle category and location for similarity calculation
+                $vehicle_category = '';
+                $vehicle_location = '';
+                
+                $vehicle_categories = wp_get_post_terms($vehicle->ID, 'vehicle_category', ['fields' => 'ids']);
+                if (!empty($vehicle_categories) && !is_wp_error($vehicle_categories)) {
+                    $vehicle_category = $vehicle_categories[0];
+                }
+                
+                $vehicle_location_meta = get_post_meta($vehicle->ID, '_mhm_rentiva_location', true);
+                if (!empty($vehicle_location_meta)) {
+                    $vehicle_location = $vehicle_location_meta;
+                } else {
+                    $vehicle_locations = wp_get_post_terms($vehicle->ID, 'vehicle_location', ['fields' => 'ids']);
+                    if (!empty($vehicle_locations) && !is_wp_error($vehicle_locations)) {
+                        $vehicle_location = $vehicle_locations[0];
+                    }
+                }
+                
+                // Calculate similarity score (now includes category and location)
                 $similarity_score = self::calculate_vehicle_similarity(
                     $original_features,
                     $features,
                     $original_price,
-                    $price_per_day
+                    $price_per_day,
+                    $original_category,
+                    $vehicle_category,
+                    $original_location,
+                    $vehicle_location
                 );
 
                 $alternatives[] = [
@@ -386,24 +505,55 @@ final class Util
 
     /**
      * Calculate vehicle similarity score
+     * ⭐ Enhanced with category and location matching
      */
-    private static function calculate_vehicle_similarity(array $original_features, array $alternative_features, float $original_price, float $alternative_price): float
-    {
+    private static function calculate_vehicle_similarity(
+        array $original_features, 
+        array $alternative_features, 
+        float $original_price, 
+        float $alternative_price,
+        $original_category = '',
+        $alternative_category = '',
+        $original_location = '',
+        $alternative_location = ''
+    ): float {
         $score = 0;
         $max_score = 100;
 
-        // Price similarity (40%)
+        // Price similarity (30% - reduced from 40%)
         $price_diff = abs($original_price - $alternative_price);
-        $price_score = max(0, 40 - ($price_diff / $original_price * 40));
+        $price_score = max(0, 30 - ($price_diff / max($original_price, 1) * 30));
         $score += $price_score;
 
-        // Feature similarity (60%)
+        // Feature similarity (40% - reduced from 60%)
         if (!empty($original_features) && !empty($alternative_features)) {
             $common_features = array_intersect($original_features, $alternative_features);
-            $feature_score = (count($common_features) / count($original_features)) * 60;
+            $feature_score = (count($common_features) / max(count($original_features), 1)) * 40;
             $score += $feature_score;
         } else {
-            $score += 30; // Default score
+            $score += 20; // Default score (reduced from 30)
+        }
+        
+        // ⭐ Category similarity (20% - NEW)
+        if (!empty($original_category) && !empty($alternative_category)) {
+            if ($original_category == $alternative_category) {
+                $score += 20; // Same category - full points
+            } else {
+                $score += 5; // Different category - minimal points
+            }
+        } elseif (empty($original_category) && empty($alternative_category)) {
+            $score += 10; // Both have no category - partial points
+        }
+        
+        // ⭐ Location similarity (10% - NEW)
+        if (!empty($original_location) && !empty($alternative_location)) {
+            if ($original_location == $alternative_location) {
+                $score += 10; // Same location - full points
+            } else {
+                $score += 2; // Different location - minimal points
+            }
+        } elseif (empty($original_location) && empty($alternative_location)) {
+            $score += 5; // Both have no location - partial points
         }
 
         return min($score, $max_score);

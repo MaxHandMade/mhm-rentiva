@@ -116,7 +116,7 @@ final class CancellationHandler
             if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
                 $vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
                 if ($vehicle_id > 0) {
-                    Cache::clear($vehicle_id);
+                    Cache::invalidateVehicle($vehicle_id);
                 }
             }
 

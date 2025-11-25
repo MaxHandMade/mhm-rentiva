@@ -812,8 +812,7 @@ final class SettingsView
         
 
         
-        // Offline payment settings
-        self::render_section_clean('mhm_rentiva_offline_section');
+        // ⭐ Offline payment removed - WooCommerce handles all payments
         
         $payment_content = ob_get_clean();
         

@@ -320,8 +320,25 @@ final class BookingQueryHelper
         
         // Eğer yeni key'lerde veri yoksa, eski key'lerden dene
         if (empty($first_name)) {
-            $first_name = get_post_meta($booking_id, '_booking_customer_first_name', true) ?: 
-                         get_post_meta($booking_id, '_mhm_contact_name', true) ?: '';
+            $first_name = get_post_meta($booking_id, '_booking_customer_first_name', true);
+        }
+        
+        // If still empty, try full name fields
+        if (empty($first_name) && empty($last_name)) {
+            $full_name = get_post_meta($booking_id, '_booking_customer_name', true) ?: 
+                        get_post_meta($booking_id, '_mhm_customer_name', true) ?:
+                        get_post_meta($booking_id, '_mhm_contact_name', true);
+            
+            if ($full_name) {
+                // Try to split full name into first and last name
+                $name_parts = explode(' ', trim($full_name), 2);
+                if (count($name_parts) >= 2) {
+                    $first_name = $name_parts[0];
+                    $last_name = $name_parts[1];
+                } else {
+                    $first_name = $full_name;
+                }
+            }
         }
         
         if (empty($email)) {
@@ -332,6 +349,55 @@ final class BookingQueryHelper
         if (empty($phone)) {
             $phone = get_post_meta($booking_id, '_booking_customer_phone', true) ?: 
                     get_post_meta($booking_id, '_mhm_contact_phone', true) ?: '';
+        }
+
+        // If still empty, try WooCommerce order
+        if ((empty($first_name) || empty($email)) && function_exists('wc_get_order')) {
+            // ⭐ Check multiple order ID meta keys (WooCommerce integration)
+            $order_id = get_post_meta($booking_id, '_mhm_woocommerce_order_id', true) ?: 
+                       get_post_meta($booking_id, '_mhm_wc_order_id', true) ?: 
+                       get_post_meta($booking_id, '_mhm_order_id', true) ?: 
+                       get_post_meta($booking_id, '_booking_order_id', true);
+            
+            if ($order_id) {
+                $order = wc_get_order($order_id);
+                if ($order) {
+                    if (empty($first_name)) {
+                        $first_name = $order->get_billing_first_name();
+                    }
+                    if (empty($last_name)) {
+                        $last_name = $order->get_billing_last_name();
+                    }
+                    if (empty($email)) {
+                        $email = $order->get_billing_email();
+                    }
+                    if (empty($phone)) {
+                        $phone = $order->get_billing_phone();
+                    }
+                }
+            }
+        }
+
+        // If still empty, try WordPress user
+        if (empty($first_name) || empty($email)) {
+            $user_id = get_post_meta($booking_id, '_mhm_customer_user_id', true);
+            if ($user_id) {
+                $user = get_userdata($user_id);
+                if ($user) {
+                    if (empty($first_name)) {
+                        $first_name = $user->first_name;
+                    }
+                    if (empty($last_name)) {
+                        $last_name = $user->last_name;
+                    }
+                    if (empty($email)) {
+                        $email = $user->user_email;
+                    }
+                    if (empty($phone)) {
+                        $phone = get_user_meta($user_id, 'phone', true);
+                    }
+                }
+            }
         }
 
         return [

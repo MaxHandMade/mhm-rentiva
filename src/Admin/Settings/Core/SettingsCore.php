@@ -238,7 +238,15 @@ final class SettingsCore
             'mhm_rentiva_booking_send_confirmation_emails' => '1',
             'mhm_rentiva_booking_send_reminder_emails' => '1',
             'mhm_rentiva_booking_admin_notifications' => '1',
-            'mhm_rentiva_booking_default_payment_method' => 'offline',
+            'mhm_rentiva_booking_default_payment_method' => 'woocommerce',
+            'mhm_rentiva_booking_thank_you_page' => '',
+
+            // ⭐ Vehicle Limits (configurable)
+            'mhm_rentiva_vehicle_max_seats' => 100,
+            'mhm_rentiva_vehicle_max_doors' => 20,
+            'mhm_rentiva_vehicle_min_engine_size' => 0.0,
+            'mhm_rentiva_vehicle_max_engine_size' => 20.0,
+            'mhm_rentiva_vehicle_max_gallery_images' => 50,
 
             'comparison_fields'               => [],
             // Email settings managed in EmailSettings class
@@ -383,9 +391,7 @@ final class SettingsCore
             'mhm_rentiva_log_cleanup_enabled' => '1',
             'mhm_rentiva_debug_mode' => '0',
             'mhm_rentiva_log_max_size' => 10,
-            'mhm_rentiva_offline_enabled'     => '1',
-            'mhm_rentiva_offline_instructions' => __('You can make payments via bank transfer. Please don\'t forget to write your reservation number in the description.', 'mhm-rentiva'),
-            'mhm_rentiva_offline_accounts'    => '',
+            // ⭐ Offline payment removed - WooCommerce handles all payments
 
             
             // Clean Data on Uninstall
@@ -881,9 +887,7 @@ final class SettingsCore
     public static function register_payment_settings(): void
     {
         // Register Offline Payment Settings
-        if (class_exists('\MHMRentiva\Admin\Payment\Settings\OfflinePaymentSettings')) {
-            \MHMRentiva\Admin\Payment\Settings\OfflinePaymentSettings::register();
-        }
+        // ⭐ Offline payment removed - WooCommerce handles all payments
     }
 
     /**

@@ -211,11 +211,24 @@ final class VehiclesList extends AbstractShortcode
 
         // Category filter
         if (!empty($atts['category'])) {
-            $args['meta_query'][] = [
-                'key' => '_mhm_rentiva_category',
-                'value' => self::sanitize_text_field_safe($atts['category']),
-                'compare' => 'LIKE'
-            ];
+            $categories = explode(',', $atts['category']);
+            if (count($categories) > 1) {
+                $cat_query = ['relation' => 'OR'];
+                foreach ($categories as $cat) {
+                    $cat_query[] = [
+                        'key' => '_mhm_rentiva_category',
+                        'value' => trim($cat),
+                        'compare' => 'LIKE'
+                    ];
+                }
+                $args['meta_query'][] = $cat_query;
+            } else {
+                $args['meta_query'][] = [
+                    'key' => '_mhm_rentiva_category',
+                    'value' => self::sanitize_text_field_safe($atts['category']),
+                    'compare' => 'LIKE'
+                ];
+            }
         }
 
         // Featured vehicles filter

@@ -154,11 +154,15 @@ final class BookingForm extends AbstractShortcode
                 'priceCalculated' => __('💰 Price calculated successfully', 'mhm-rentiva'),
                 'vehicleNotAvailable' => __('❌ Vehicle is not available for selected dates', 'mhm-rentiva'),
                 'checkingAvailability' => __('🔍 Checking vehicle availability...', 'mhm-rentiva'),
+                'checking_availability' => __('🔍 Checking availability...', 'mhm-rentiva'), // ⭐ Added for JavaScript compatibility
                 'findingAlternatives' => __('🔍 Finding alternative vehicles...', 'mhm-rentiva'),
                 'noAlternatives' => __('❌ No alternative vehicles found', 'mhm-rentiva'),
+                'alternative_vehicles' => __('Alternative Vehicles', 'mhm-rentiva'), // ⭐ Added for JavaScript compatibility
                 'vehicle_unavailable_with_alternatives' => __('❌ Selected vehicle is not available, but we found similar vehicles for you:', 'mhm-rentiva'),
                 'select_this_vehicle' => __('Select This Vehicle', 'mhm-rentiva'),
                 'vehicle_available' => __('✅ Great! This vehicle is available for your selected dates.', 'mhm-rentiva'),
+                'vehicle_not_available' => __('❌ Vehicle is not available for the selected dates. Please choose different dates.', 'mhm-rentiva'), // ⭐ Added for JavaScript compatibility
+                'availability_check_failed' => __('Availability check failed', 'mhm-rentiva'), // ⭐ Added for JavaScript compatibility
                 'check_availability' => __('🔍 Checking availability...', 'mhm-rentiva'),
                 'daily_price' => __('Daily Price', 'mhm-rentiva'),
                 'total' => __('Total', 'mhm-rentiva'),
@@ -201,7 +205,7 @@ final class BookingForm extends AbstractShortcode
             'payment_cancelled' => __('Payment cancelled. Your booking is in pending status.', 'mhm-rentiva'),
             'payment_status_unknown' => __('Payment status is unknown. Please check.', 'mhm-rentiva'),
             'popup_blocked_redirecting' => __('Popup blocked. Redirecting to payment page...', 'mhm-rentiva'),
-            'select_payment_gateway' => __('Please select a payment gateway.', 'mhm-rentiva'),
+            // ⭐ Removed: select_payment_gateway - WooCommerce handles payment gateway selection
             
             // Booking messages
             'booking_created' => __('Your booking has been successfully created!', 'mhm-rentiva'),
@@ -392,7 +396,8 @@ final class BookingForm extends AbstractShortcode
     private static function get_time_options(): array
     {
         $options = [];
-        for ($hour = 8; $hour <= 20; $hour++) {
+        // Generate time options from 00:00 to 23:00 (full day)
+        for ($hour = 0; $hour <= 23; $hour++) {
             $time = sprintf('%02d:00', $hour);
             $options[] = [
                 'value' => $time,
@@ -452,31 +457,71 @@ final class BookingForm extends AbstractShortcode
             $dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($_POST['dropoff_date'] ?? '');
             $pickup_time = self::sanitize_text_field_safe($_POST['pickup_time'] ?? '');
             $dropoff_time = self::sanitize_text_field_safe($_POST['dropoff_time'] ?? '');
-            $guests = max(1, intval($_POST['guests'] ?? 1));
-            // Get first/last name fields
-            $customer_first_name = self::sanitize_text_field_safe($_POST['customer_first_name'] ?? '');
-            $customer_last_name = self::sanitize_text_field_safe($_POST['customer_last_name'] ?? '');
-            $customer_name = trim($customer_first_name . ' ' . $customer_last_name);
-            $customer_email = \MHMRentiva\Admin\Core\SecurityHelper::validate_email($_POST['customer_email'] ?? '');
-            $customer_phone = \MHMRentiva\Admin\Core\SecurityHelper::validate_phone($_POST['customer_phone'] ?? '');
-            $payment_type = self::sanitize_text_field_safe($_POST['payment_type'] ?? 'deposit');
-            $payment_method = self::sanitize_text_field_safe($_POST['payment_method'] ?? 'online');
-            $payment_gateway = self::sanitize_text_field_safe($_POST['payment_gateway'] ?? '');
             
-            // ⭐ Terms & Conditions validation (if required)
-            $terms_required = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_terms_required', '0') === '1';
-            if ($terms_required) {
-                // Accept 'on', '1', 'true', or any truthy value
-                $terms_value = $_POST['terms_accepted'] ?? '';
-                $terms_accepted = !empty($terms_value) && ($terms_value === 'on' || $terms_value === '1' || $terms_value === 'true');
-                
-                if (!$terms_accepted) {
-                    wp_send_json_error([
-                        'message' => __('You must accept the terms and conditions to complete your booking.', 'mhm-rentiva'),
-                        'debug' => 'Terms not accepted. Received: ' . var_export($terms_value, true)
-                    ]);
+            // Validate pickup time (required)
+            if (empty($pickup_time)) {
+                wp_send_json_error(['message' => __('Pickup time is required.', 'mhm-rentiva')]);
+                return;
+            }
+            
+            // Ensure dropoff time matches pickup time (security measure)
+            if (empty($dropoff_time)) {
+                $dropoff_time = $pickup_time;
+            }
+            
+            $guests = max(1, intval($_POST['guests'] ?? 1));
+            
+            // ⭐ WooCommerce Integration: Customer information is optional
+            // WooCommerce checkout will collect customer information
+            // We only use customer info if user is logged in (for cart data)
+            $customer_first_name = '';
+            $customer_last_name = '';
+            $customer_name = '';
+            $customer_email = '';
+            $customer_phone = '';
+            $user_id = 0;
+            
+            // If user is logged in, get their information (optional, for cart data)
+            if (is_user_logged_in()) {
+                $current_user = wp_get_current_user();
+                $user_id = $current_user->ID;
+                $customer_first_name = $current_user->first_name ?: $current_user->display_name;
+                $customer_last_name = $current_user->last_name ?: '';
+                $customer_name = trim($customer_first_name . ' ' . $customer_last_name);
+                $customer_email = $current_user->user_email;
+                $customer_phone = get_user_meta($current_user->ID, 'billing_phone', true) ?: get_user_meta($current_user->ID, 'mhm_rentiva_phone', true) ?: '';
+            }
+            
+            // If form fields are provided (for logged-in users or manual entry), use them
+            if (!empty($_POST['customer_first_name'])) {
+                $customer_first_name = self::sanitize_text_field_safe($_POST['customer_first_name']);
+            }
+            if (!empty($_POST['customer_last_name'])) {
+                $customer_last_name = self::sanitize_text_field_safe($_POST['customer_last_name']);
+            }
+            if (!empty($_POST['customer_email'])) {
+                $customer_email_raw = self::sanitize_text_field_safe($_POST['customer_email']);
+                // Only validate if email is provided and not empty
+                if (!empty($customer_email_raw) && is_email($customer_email_raw)) {
+                    $customer_email = sanitize_email($customer_email_raw);
                 }
             }
+            if (!empty($_POST['customer_phone'])) {
+                $customer_phone = self::sanitize_text_field_safe($_POST['customer_phone']);
+            }
+            
+            // Update customer name if we have first/last name
+            if (!empty($customer_first_name) || !empty($customer_last_name)) {
+                $customer_name = trim($customer_first_name . ' ' . $customer_last_name);
+            }
+            $payment_type = self::sanitize_text_field_safe($_POST['payment_type'] ?? 'deposit');
+            // ⭐ WooCommerce only - payment_method and payment_gateway removed
+            $payment_method = 'woocommerce';
+            $payment_gateway = 'woocommerce';
+            
+            // ⭐ Terms & Conditions validation removed - WooCommerce handles this on checkout page
+            // If WooCommerce is not active, terms validation would be handled here
+            // But since we're using WooCommerce, validation happens on checkout
             
             // ✅ JavaScript AJAX: 'addons' (array), Normal form submit: 'selected_addons' (array)
             $selected_addons = [];
@@ -518,11 +563,17 @@ final class BookingForm extends AbstractShortcode
                 wp_send_json_error(['message' => __('Please select dates.', 'mhm-rentiva')]);
             }
 
-            // Skip validation for admin users
+            // ⭐ WooCommerce Integration: Customer information validation removed
+            // WooCommerce checkout will handle customer information collection and validation
+            // We only validate if WooCommerce is NOT active (fallback for non-WooCommerce installations)
             $is_admin = current_user_can('manage_options');
             
-            if (!$is_admin && (empty($customer_first_name) || empty($customer_last_name) || empty($customer_email) || empty($customer_phone))) {
-                wp_send_json_error(['message' => __('Please fill in contact information.', 'mhm-rentiva')]);
+            // Only validate customer info if WooCommerce is NOT active (legacy support)
+            if (!class_exists('WooCommerce') && !$is_admin) {
+                if (empty($customer_first_name) || empty($customer_last_name) || empty($customer_email) || empty($customer_phone)) {
+                    wp_send_json_error(['message' => __('Please fill in contact information.', 'mhm-rentiva')]);
+                    return;
+                }
             }
             
             // If admin, use current user information
@@ -543,7 +594,8 @@ final class BookingForm extends AbstractShortcode
                 wp_send_json_error(['message' => __('Return date must be after pickup date.', 'mhm-rentiva')]);
             }
 
-            // ⭐ AVAILABILITY CHECK - CONFLICT CHECK
+            // ⭐ AVAILABILITY CHECK - CONFLICT CHECK (with cache)
+            // This provides user feedback and pricing info
             $availability_result = \MHMRentiva\Admin\Booking\Helpers\Util::check_availability(
                 $vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time
             );
@@ -558,70 +610,32 @@ final class BookingForm extends AbstractShortcode
             // Calculate number of days
             $days = $start_date->diff($end_date)->days;
             
-            // ⭐ Check or create customer account
-            $user = get_user_by('email', $customer_email);
-            $is_new_user = false;
-            $user_id = 0;
-
-            if (!$user) {
-                // Generate username from first name + last name
-                $base_username = trim(strtolower($customer_first_name . '.' . $customer_last_name));
-                $base_username = sanitize_user($base_username, true);
-                
-                // If username is empty or invalid, use email prefix as fallback
-                if (empty($base_username) || !validate_username($base_username)) {
-                    $email_parts = explode('@', $customer_email);
-                    $base_username = sanitize_user($email_parts[0], true);
-                }
-                
-                // Ensure username is unique
-                $username = $base_username;
-                $counter = 1;
-                while (username_exists($username)) {
-                    $username = $base_username . $counter;
-                    $counter++;
-                }
-                
-                // Create automatic WordPress account
-                $user_id = wp_create_user(
-                    $username,
-                    wp_generate_password(12, true, true),
-                    $customer_email
-                );
-                
-                if (!is_wp_error($user_id)) {
-                    // Determine safe default role
-                    $default_role = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_default_role', 'customer');
-                    if (!get_role($default_role)) {
-                        $default_role = 'customer';
-                    }
-                    // Update user information
-                    wp_update_user([
-                        'ID' => $user_id,
-                        'display_name' => $customer_name,
-                        'first_name' => $customer_first_name,
-                        'last_name' => $customer_last_name,
-                        'role' => $default_role,
-                    ]);
-                    // Ensure role is set even if wp_update_user ignores role
-                    $wp_user_obj = new \WP_User($user_id);
-                    if (!in_array($default_role, (array) $wp_user_obj->roles, true)) {
-                        $wp_user_obj->set_role($default_role);
-                    }
-                    
-                    // Save meta data
-                    update_user_meta($user_id, 'mhm_rentiva_phone', $customer_phone);
-                    update_user_meta($user_id, 'mhm_rentiva_customer', true);
-                    
-                    $is_new_user = true;
-                    
-                    // Send password reset email (WordPress automatic)
-                    wp_new_user_notification($user_id, null, 'user');
-                } else {
-                    // User could not be created but continue (booking can be made)
-                }
+            // ⭐ ATOMIC OVERLAP CHECK - Final check before creating booking to prevent race conditions
+            // This is the authoritative check - no cache, real-time database query
+            // Parse dates to timestamps for atomic check
+            $start_ts = strtotime($pickup_date . ' ' . $pickup_time);
+            $end_ts = strtotime($dropoff_date . ' ' . $dropoff_time);
+            
+            // Clear cache before atomic check to ensure fresh data
+            if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+                \MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+            }
+            
+            // Use locked overlap check to prevent concurrent bookings
+            if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
+                wp_send_json_error([
+                    'message' => __('This vehicle is already booked for the selected dates. Please choose different dates or select another vehicle.', 'mhm-rentiva'),
+                    'code' => 'unavailable'
+                ]);
+            }
+            
+            // ⭐ WooCommerce Integration: User account creation removed
+            // WooCommerce checkout will handle user account creation
+            // We only get user ID if user is already logged in
+            if (is_user_logged_in()) {
+                $user_id = get_current_user_id();
             } else {
-                $user_id = $user->ID;
+                $user_id = 0; // Will be set when order is created in WooCommerce checkout
             }
             
             // Calculate deposit
@@ -636,70 +650,10 @@ final class BookingForm extends AbstractShortcode
                 wp_send_json_error(['message' => __('Price could not be calculated.', 'mhm-rentiva')]);
             }
 
-            // Create booking
-            $booking_data = [
-                'post_type' => 'vehicle_booking',
-                'post_status' => 'publish',
-                /* translators: %s placeholder. */
-                'post_title' => sprintf(__('Booking - %s', 'mhm-rentiva'), get_the_title($vehicle_id)),
-                'meta_input' => [
-                    '_mhm_vehicle_id' => $vehicle_id,
-                    // ✅ Fixed: Compatible with admin panel meta keys
-                    '_mhm_start_date' => $pickup_date,
-                    '_mhm_end_date' => $dropoff_date,
-                    '_mhm_pickup_date' => $pickup_date,  // Compatible with Handler.php
-                    '_mhm_dropoff_date' => $dropoff_date, // Compatible with Handler.php
-                    '_mhm_start_ts' => strtotime($pickup_date . ' ' . $pickup_time), // For admin panel
-                    '_mhm_end_ts' => strtotime($dropoff_date . ' ' . $dropoff_time), // For admin panel
-                    '_mhm_start_time' => $pickup_time,
-                    '_mhm_end_time' => $dropoff_time,
-                    '_mhm_guests' => $guests,
-                    '_mhm_customer_user_id' => $user_id, // ✅ Link User ID
-                    '_mhm_customer_name' => $customer_name,
-                    '_mhm_customer_first_name' => $customer_first_name,
-                    '_mhm_customer_last_name' => $customer_last_name,
-                    '_mhm_customer_email' => $customer_email,
-                    '_mhm_customer_phone' => $customer_phone,
-                    '_mhm_status' => 'pending',
-                    '_mhm_booking_type' => 'booking_form',
-                    '_mhm_created_via' => 'booking_form_shortcode',
-                    '_mhm_payment_type' => $payment_type,
-                    '_mhm_payment_method' => $payment_method,
-                    '_mhm_payment_gateway' => ($payment_method === 'online') ? $payment_gateway : ($payment_method === 'woocommerce' ? 'woocommerce' : 'offline'),
-                    '_mhm_payment_status' => 'pending', // Pending for offline payments
-                    '_mhm_deposit_amount' => $deposit_result['deposit_amount'],
-                    '_mhm_remaining_amount' => $deposit_result['remaining_amount'],
-                    '_mhm_deposit_type' => $deposit_result['deposit_type'],
-                    '_mhm_payment_display' => $deposit_result['payment_display'],
-                    '_mhm_total_price' => $deposit_result['total_amount'],
-                    '_mhm_rental_days' => $days,
-                    '_mhm_selected_addons' => $selected_addons,
-                    '_mhm_cancellation_policy' => '24_hours',
-                    '_mhm_cancellation_deadline' => date('Y-m-d H:i:s', strtotime('+24 hours')),
-                    '_mhm_payment_deadline' => $payment_method === 'offline' ? 
-                        date('Y-m-d H:i:s', strtotime('+30 minutes')) : '',
-                ]
-            ];
-
-            $booking_id = wp_insert_post($booking_data);
-
-            if (is_wp_error($booking_id)) {
-                wp_send_json_error(['message' => __('Booking could not be created.', 'mhm-rentiva')]);
-            }
-
-            // Booking History - "Booking created" note
-            \MHMRentiva\Admin\Booking\Meta\BookingMeta::add_history_note(
-                $booking_id,
-                __('Booking created', 'mhm-rentiva'),
-                'system'
-            );
-            update_post_meta($booking_id, '_mhm_booking_created', '1');
-
-        // ✅ Trigger email notifications
-        do_action('mhm_rentiva_booking_created', $booking_id, $booking_data);
+            // ⭐ WOOCOMMERCE INTEGRATION: Don't create booking yet - store booking data in cart
+            // Booking will be created when order is processed (woocommerce_checkout_order_processed)
+            // This prevents reserving the vehicle before payment is completed
             
-            // Debug: Log email sending
-
             // Payment processing check
             if (class_exists('WooCommerce')) {
                 // WooCommerce Integration
@@ -712,16 +666,46 @@ final class BookingForm extends AbstractShortcode
                     $amount_to_pay = floatval($deposit_result['total_amount']);
                 }
 
+                // Prepare booking data to store in cart (will be used to create booking after payment)
+                // ⭐ Customer information is optional - WooCommerce checkout will collect it
+                $booking_data_for_cart = [
+                    'vehicle_id' => $vehicle_id,
+                    'pickup_date' => $pickup_date,
+                    'dropoff_date' => $dropoff_date,
+                    'pickup_time' => $pickup_time,
+                    'dropoff_time' => $dropoff_time,
+                    'guests' => $guests,
+                    'customer_user_id' => $user_id, // 0 if not logged in, will be set by WooCommerce
+                    'customer_name' => $customer_name ?: '', // Optional - WooCommerce will collect
+                    'customer_first_name' => $customer_first_name ?: '', // Optional - WooCommerce will collect
+                    'customer_last_name' => $customer_last_name ?: '', // Optional - WooCommerce will collect
+                    'customer_email' => $customer_email ?: '', // Optional - WooCommerce will collect
+                    'customer_phone' => $customer_phone ?: '', // Optional - WooCommerce will collect
+                    'payment_type' => $payment_type,
+                    'payment_method' => 'woocommerce',
+                    'payment_gateway' => 'woocommerce',
+                    'deposit_amount' => $deposit_result['deposit_amount'],
+                    'remaining_amount' => $deposit_result['remaining_amount'],
+                    'deposit_type' => $deposit_result['deposit_type'],
+                    'payment_display' => $deposit_result['payment_display'],
+                    'total_price' => $deposit_result['total_amount'],
+                    'rental_days' => $days,
+                    'selected_addons' => $selected_addons,
+                    'cancellation_policy' => '24_hours',
+                    'cancellation_deadline' => date('Y-m-d H:i:s', strtotime('+24 hours')),
+                    'payment_deadline' => self::get_payment_deadline('woocommerce'),
+                ];
+
                 try {
-                    if (\MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge::add_booking_to_cart($booking_id, $amount_to_pay)) {
+                    // Add booking data to cart (without creating booking yet)
+                    // Booking will be created when order is processed (woocommerce_checkout_order_processed)
+                    if (\MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge::add_booking_data_to_cart($booking_data_for_cart, $amount_to_pay)) {
                         wp_send_json_success([
-                            'booking_id' => $booking_id,
-                            'message' => __('Booking created. Redirecting to payment page...', 'mhm-rentiva'),
+                            'message' => __('Redirecting to payment page...', 'mhm-rentiva'),
                             'payment_required' => true,
                             'payment_url' => wc_get_checkout_url(),
                             'redirect_url' => wc_get_checkout_url(),
-                            'payment_method' => 'woocommerce', // ✅ Fix: Add payment method to top level for JS check
-                            'confirmation_url' => \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::get_confirmation_url($booking_id),
+                            'payment_method' => 'woocommerce',
                             'booking_data' => [
                                 'vehicle_id' => $vehicle_id,
                                 'pickup_date' => $pickup_date,
@@ -745,52 +729,12 @@ final class BookingForm extends AbstractShortcode
                 }
             }
 
-            if ($payment_method === 'online' && $payment_gateway) {
-                // Create payment URL for online payment
-                $payment_url = self::create_payment_url($booking_id, $deposit_result, $payment_gateway);
-                
-                wp_send_json_success([
-                    'booking_id' => $booking_id,
-                    'message' => __('Booking created. Redirecting to payment page...', 'mhm-rentiva'),
-                    'payment_required' => true,
-                    'payment_url' => $payment_url,
-                    'redirect_url' => self::get_redirect_url($booking_id, $_POST['redirect_url'] ?? ''),
-                    'confirmation_url' => \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::get_confirmation_url($booking_id),
-                    'booking_data' => [
-                        'vehicle_id' => $vehicle_id,
-                        'pickup_date' => $pickup_date,
-                        'dropoff_date' => $dropoff_date,
-                        'days' => $days,
-                        'total_price' => $deposit_result['total_amount'],
-                        'deposit_amount' => $deposit_result['deposit_amount'],
-                        'remaining_amount' => $deposit_result['remaining_amount'],
-                        'payment_type' => $payment_type,
-                        'payment_method' => $payment_method,
-                        'payment_gateway' => $payment_gateway,
-                        'addons' => $selected_addons,
-                    ]
-                ]);
-            } else {
-                // Direct success for offline payment
-                wp_send_json_success([
-                    'booking_id' => $booking_id,
-                    'message' => __('Booking created successfully. Payment details will be sent via email.', 'mhm-rentiva'),
-                    'payment_required' => false,
-                    'redirect_url' => self::get_redirect_url($booking_id, $_POST['redirect_url'] ?? ''),
-                    'confirmation_url' => \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::get_confirmation_url($booking_id),
-                    'booking_data' => [
-                        'vehicle_id' => $vehicle_id,
-                        'pickup_date' => $pickup_date,
-                        'dropoff_date' => $dropoff_date,
-                        'days' => $days,
-                        'total_price' => $deposit_result['total_amount'],
-                        'deposit_amount' => $deposit_result['deposit_amount'],
-                        'remaining_amount' => $deposit_result['remaining_amount'],
-                        'payment_type' => $payment_type,
-                        'payment_method' => $payment_method,
-                        'addons' => $selected_addons,
-                    ]
-                ]);
+            // ⭐ WooCommerce only - All payments go through WooCommerce
+            // This code should not be reached if WooCommerce is active (should be handled above)
+            // But keeping as fallback for non-WooCommerce installations (legacy support)
+            if (!class_exists('WooCommerce')) {
+                wp_send_json_error(['message' => __('WooCommerce is required for payment processing.', 'mhm-rentiva')]);
+                return;
             }
 
         } catch (InvalidArgumentException $e) {
@@ -1010,16 +954,42 @@ final class BookingForm extends AbstractShortcode
 
     /**
      * Create payment URL
+     * ⭐ DEPRECATED: WooCommerce handles all payments
+     * Kept for backward compatibility only
      */
     private static function create_payment_url(int $booking_id, array $deposit_result, string $payment_gateway): string
     {
-        // Only offline payment is supported here (WooCommerce is handled separately)
+        // WooCommerce handles all payments - this method should not be called
         return self::get_redirect_url($booking_id);
     }
 
 
 
 
+
+    /**
+     * Get payment deadline based on payment method and settings
+     * 
+     * @param string $payment_method Payment method (woocommerce only)
+     * @return string Payment deadline in 'Y-m-d H:i:s' format
+     */
+    private static function get_payment_deadline(string $payment_method): string
+    {
+        // Get payment deadline minutes from settings (default: 30 minutes)
+        $deadline_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+            'mhm_rentiva_booking_payment_deadline_minutes',
+            30
+        );
+        
+        // Minimum 5 minutes
+        if ($deadline_minutes < 5) {
+            $deadline_minutes = 5;
+        }
+        
+        // Set deadline for WooCommerce payments
+        // This ensures auto-cancellation works for all bookings
+        return date('Y-m-d H:i:s', strtotime("+{$deadline_minutes} minutes"));
+    }
 
     /**
      * Availability Check AJAX Handler
@@ -1054,6 +1024,12 @@ final class BookingForm extends AbstractShortcode
                 wp_send_json_error(['message' => __('Invalid data.', 'mhm-rentiva')]);
             }
 
+            // ⭐ Clear cache before checking to ensure fresh data
+            // This prevents showing stale availability data when a booking was just created
+            if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+                \MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+            }
+            
             // ⭐ ADVANCED AVAILABILITY CHECK - With alternative suggestions
             $result = \MHMRentiva\Admin\Booking\Helpers\Util::check_availability_with_alternatives(
                 $vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time

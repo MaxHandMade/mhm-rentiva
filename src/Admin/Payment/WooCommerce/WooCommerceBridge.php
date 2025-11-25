@@ -26,14 +26,89 @@ class WooCommerceBridge
         
         // Order processing
         add_action('woocommerce_checkout_create_order_line_item', [self::class, 'add_order_item_meta'], 10, 4);
+        // ⭐ Create booking when order is processed - use multiple hooks for reliability
+        add_action('woocommerce_checkout_order_processed', [self::class, 'create_booking_from_order'], 10, 3);
+        add_action('woocommerce_new_order', [self::class, 'create_booking_from_order_new'], 10, 1); // Alternative hook
+        add_action('woocommerce_thankyou', [self::class, 'create_booking_from_order_thankyou'], 10, 1); // Fallback hook
         add_action('woocommerce_order_status_changed', [self::class, 'handle_order_status_change'], 10, 4);
+        // ⭐ WooCommerce refund hook - handles actual refund amounts
+        add_action('woocommerce_refund_created', [self::class, 'handle_order_refunded'], 10, 2);
         
         // Hide quantity input for booking items
         add_filter('woocommerce_cart_item_quantity', [self::class, 'disable_cart_quantity'], 10, 3);
+        
+        // Checkout custom fields
+        add_filter('woocommerce_checkout_fields', [self::class, 'add_checkout_payment_type_field'], 10, 1);
+        add_action('woocommerce_checkout_update_order_meta', [self::class, 'save_checkout_payment_type'], 10, 2);
+        add_action('woocommerce_review_order_before_payment', [self::class, 'display_payment_type_field'], 10);
+        
+        // ⭐ Validate availability before checkout (PREVENT PAYMENT)
+        add_action('woocommerce_check_cart_items', [self::class, 'validate_cart_availability'], 10);
+        add_action('woocommerce_checkout_process', [self::class, 'validate_checkout_availability'], 10);
+        
+        // AJAX handlers for payment type change
+        add_action('wp_ajax_mhm_update_booking_payment_type', [self::class, 'ajax_update_payment_type']);
+        add_action('wp_ajax_nopriv_mhm_update_booking_payment_type', [self::class, 'ajax_update_payment_type']);
     }
 
     /**
-     * Add booking to WooCommerce cart
+     * Add booking data to WooCommerce cart (without creating booking yet)
+     * Booking will be created when order is processed
+     * 
+     * @param array $booking_data Booking data array
+     * @param float $amount Amount to charge (deposit or full)
+     * @return bool Success
+     */
+    public static function add_booking_data_to_cart(array $booking_data, float $amount): bool
+    {
+        if (!class_exists('WooCommerce')) {
+            return false;
+        }
+
+        // Initialize WooCommerce session and cart if missing (common in admin-post.php)
+        if (!isset(WC()->cart) || null === WC()->cart) {
+            if (function_exists('wc_load_cart')) {
+                wc_load_cart();
+            } elseif (function_exists('WC') && isset(WC()->session)) {
+                // Fallback manual load
+                if (!WC()->session->has_session()) {
+                    WC()->session->set_customer_session_cookie(true);
+                }
+                WC()->cart = new \WC_Cart();
+                WC()->cart->get_cart(); // Load cart from session
+            }
+        }
+
+        if (!isset(WC()->cart)) {
+            return false;
+        }
+
+        $product_id = self::get_booking_product_id();
+        if (!$product_id) {
+            return false;
+        }
+
+        // Empty cart first (optional, depending on business logic)
+        // WC()->cart->empty_cart();
+
+        // Store booking data in cart item (will be used to create booking after payment)
+        $cart_item_data = [
+            'mhm_booking_data' => $booking_data, // ⭐ Store full booking data instead of booking_id
+            'mhm_booking_price' => $amount,
+            'mhm_booking_pending' => true // Flag to indicate booking is not created yet
+        ];
+
+        try {
+            WC()->cart->add_to_cart($product_id, 1, 0, [], $cart_item_data);
+            return true;
+        } catch (\Exception $e) {
+            error_log('MHM Rentiva: Failed to add to cart - ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Add booking to WooCommerce cart (legacy method - for existing bookings)
      * 
      * @param int $booking_id Booking ID
      * @param float $amount Amount to charge (deposit or full)
@@ -120,6 +195,12 @@ class WooCommerceBridge
             $cart_item['mhm_booking_id'] = $values['mhm_booking_id'];
             $cart_item['mhm_booking_price'] = $values['mhm_booking_price'];
         }
+        // ⭐ Also restore pending booking data
+        if (isset($values['mhm_booking_data'])) {
+            $cart_item['mhm_booking_data'] = $values['mhm_booking_data'];
+            $cart_item['mhm_booking_price'] = $values['mhm_booking_price'];
+            $cart_item['mhm_booking_pending'] = $values['mhm_booking_pending'] ?? true;
+        }
         return $cart_item;
     }
 
@@ -158,6 +239,30 @@ class WooCommerceBridge
                 'value' => $type_label
             ];
         }
+        // ⭐ Handle pending booking (from cart data)
+        elseif (isset($cart_item['mhm_booking_data'])) {
+            $booking_data = $cart_item['mhm_booking_data'];
+            $vehicle_id = $booking_data['vehicle_id'];
+            
+            $item_data[] = [
+                'key' => __('Vehicle', 'mhm-rentiva'),
+                'value' => get_the_title($vehicle_id)
+            ];
+            
+            $item_data[] = [
+                'key' => __('Dates', 'mhm-rentiva'),
+                'value' => $booking_data['pickup_date'] . ' - ' . $booking_data['dropoff_date']
+            ];
+
+            // Add Payment Type info
+            $payment_type = $booking_data['payment_type'] ?? 'deposit';
+            $type_label = $payment_type === 'deposit' ? __('Deposit Payment', 'mhm-rentiva') : __('Full Payment', 'mhm-rentiva');
+            
+            $item_data[] = [
+                'key' => __('Payment Type', 'mhm-rentiva'),
+                'value' => $type_label
+            ];
+        }
         return $item_data;
     }
 
@@ -178,16 +283,224 @@ class WooCommerceBridge
     }
 
     /**
-     * Save booking ID to order item meta
+     * Save booking ID or booking data to order item meta
      */
     public static function add_order_item_meta($item, $cart_item_key, $values, $order)
     {
+        error_log('MHM Rentiva: add_order_item_meta called for order ID: ' . $order->get_id());
+        error_log('MHM Rentiva: Cart item values keys: ' . implode(', ', array_keys($values)));
+        
+        // Handle existing booking (legacy)
         if (isset($values['mhm_booking_id'])) {
+            error_log('MHM Rentiva: Legacy booking ID found: ' . $values['mhm_booking_id']);
             $item->add_meta_data('_mhm_booking_id', $values['mhm_booking_id']);
             
             // Also link order to booking
             update_post_meta($values['mhm_booking_id'], '_mhm_wc_order_id', $order->get_id());
         }
+        // ⭐ Handle pending booking (from cart data)
+        elseif (isset($values['mhm_booking_data'])) {
+            error_log('MHM Rentiva: Pending booking data found, saving to order item meta');
+            $item->add_meta_data('_mhm_booking_data', $values['mhm_booking_data']);
+            $item->add_meta_data('_mhm_booking_pending', $values['mhm_booking_pending'] ?? true);
+            $item->add_meta_data('_mhm_booking_price', $values['mhm_booking_price'] ?? 0);
+        } else {
+            error_log('MHM Rentiva: WARNING - No booking data found in cart item values');
+        }
+    }
+
+    /**
+     * Create booking from order when checkout is processed
+     * This ensures booking is only created after order is placed (not before payment)
+     */
+    public static function create_booking_from_order($order_id, $data = null, $order = null)
+    {
+        if (!class_exists('WooCommerce')) {
+            error_log('MHM Rentiva: WooCommerce not available in create_booking_from_order');
+            return;
+        }
+
+        // Get order object if not provided
+        if (!$order) {
+            $order = wc_get_order($order_id);
+        }
+        
+        if (!$order) {
+            error_log('MHM Rentiva: Could not get order object for order ID: ' . $order_id);
+            return;
+        }
+
+        // Check if booking already created (prevent duplicate creation)
+        $existing_booking_id = $order->get_meta('_mhm_booking_id', true);
+        if ($existing_booking_id) {
+            error_log('MHM Rentiva: Booking already exists for order ID: ' . $order_id . ', booking ID: ' . $existing_booking_id);
+            return;
+        }
+
+        error_log('MHM Rentiva: create_booking_from_order called for order ID: ' . $order_id);
+        
+        $items = $order->get_items();
+        
+        if (empty($items)) {
+            error_log('MHM Rentiva: No items found in order ' . $order_id);
+            return;
+        }
+        
+        foreach ($items as $item) {
+            // Check if this is a pending booking (not yet created)
+            // ⭐ WooCommerce stores meta as serialized, so we need to get it properly
+            $booking_data = $item->get_meta('_mhm_booking_data', true);
+            $is_pending = $item->get_meta('_mhm_booking_pending', true);
+            
+            // If booking_data is a string (serialized), unserialize it
+            if (is_string($booking_data) && !empty($booking_data)) {
+                $unserialized = maybe_unserialize($booking_data);
+                if (is_array($unserialized)) {
+                    $booking_data = $unserialized;
+                }
+            }
+            
+            error_log('MHM Rentiva: Order item ID ' . $item->get_id() . ' - booking_data: ' . (empty($booking_data) ? 'EMPTY' : (is_array($booking_data) ? 'ARRAY' : gettype($booking_data))) . ', is_pending: ' . ($is_pending ? 'true' : 'false'));
+            
+            if ($booking_data && is_array($booking_data) && $is_pending) {
+                error_log('MHM Rentiva: Creating booking from order data for order ID: ' . $order_id);
+                // Create booking from cart data
+                $booking_id = self::create_booking_from_data($booking_data, $order_id);
+                
+                if ($booking_id) {
+                    // Update order item meta to link booking
+                    $item->update_meta_data('_mhm_booking_id', $booking_id);
+                    $item->update_meta_data('_mhm_booking_pending', false);
+                    $item->save();
+                    
+                    // Update order meta
+                    $order->update_meta_data('_mhm_booking_id', $booking_id);
+                    $order->save();
+                    
+                    // Clear availability cache
+                    if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+                        \MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($booking_data['vehicle_id']);
+                    }
+                    
+                    // Trigger booking created action (with booking_data for addons)
+                    // Note: AddonManager::save_booking_addons expects 2 parameters: booking_id and booking_data
+                    do_action('mhm_rentiva_booking_created', $booking_id, $booking_data);
+                }
+            }
+        }
+        
+        error_log('MHM Rentiva: create_booking_from_order completed for order ID: ' . $order_id);
+    }
+
+    /**
+     * Alternative hook handler for woocommerce_new_order
+     */
+    public static function create_booking_from_order_new($order_id)
+    {
+        error_log('MHM Rentiva: create_booking_from_order_new called for order ID: ' . $order_id);
+        self::create_booking_from_order($order_id);
+    }
+
+    /**
+     * Fallback hook handler for woocommerce_thankyou (after payment)
+     */
+    public static function create_booking_from_order_thankyou($order_id)
+    {
+        error_log('MHM Rentiva: create_booking_from_order_thankyou called for order ID: ' . $order_id);
+        self::create_booking_from_order($order_id);
+    }
+
+    /**
+     * Create booking from booking data array
+     */
+    private static function create_booking_from_data(array $booking_data, int $order_id): ?int
+    {
+        // Parse dates to timestamps
+        $start_ts = strtotime($booking_data['pickup_date'] . ' ' . $booking_data['pickup_time']);
+        $end_ts = strtotime($booking_data['dropoff_date'] . ' ' . $booking_data['dropoff_time']);
+        
+        // ⭐ CRITICAL: Final atomic overlap check before creating booking
+        // Clear cache first to ensure fresh data
+        if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+            \MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($booking_data['vehicle_id']);
+        }
+        
+        // Use locked overlap check to prevent concurrent bookings
+        if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($booking_data['vehicle_id'], $start_ts, $end_ts)) {
+            error_log('MHM Rentiva: Cannot create booking - vehicle already booked for selected dates. Order ID: ' . $order_id . ', Vehicle ID: ' . $booking_data['vehicle_id']);
+            // ⚠️ Cancel the WooCommerce order if booking cannot be created
+            $order = wc_get_order($order_id);
+            if ($order) {
+                $order->update_status('cancelled', __('Booking cancelled: Vehicle already booked for selected dates.', 'mhm-rentiva'));
+            }
+            return null;
+        }
+        
+        // Create booking post
+        $post_data = [
+            'post_type' => 'vehicle_booking',
+            'post_status' => 'publish',
+            'post_title' => sprintf(__('Booking - %s', 'mhm-rentiva'), get_the_title($booking_data['vehicle_id'])),
+            'meta_input' => [
+                '_mhm_vehicle_id' => $booking_data['vehicle_id'],
+                // ⭐ Standard meta keys (for queries and compatibility)
+                '_mhm_start_date' => $booking_data['pickup_date'],
+                '_mhm_end_date' => $booking_data['dropoff_date'],
+                '_mhm_start_ts' => $start_ts,
+                '_mhm_end_ts' => $end_ts,
+                '_mhm_start_time' => $booking_data['pickup_time'],
+                '_mhm_end_time' => $booking_data['dropoff_time'],
+                // ⭐ User-friendly meta keys (pickup/dropoff for clarity)
+                '_mhm_pickup_date' => $booking_data['pickup_date'],
+                '_mhm_dropoff_date' => $booking_data['dropoff_date'],
+                '_mhm_pickup_time' => $booking_data['pickup_time'],
+                '_mhm_dropoff_time' => $booking_data['dropoff_time'],
+                '_mhm_guests' => $booking_data['guests'],
+                '_mhm_customer_user_id' => $booking_data['customer_user_id'],
+                '_mhm_customer_name' => $booking_data['customer_name'],
+                '_mhm_customer_first_name' => $booking_data['customer_first_name'],
+                '_mhm_customer_last_name' => $booking_data['customer_last_name'],
+                '_mhm_customer_email' => $booking_data['customer_email'],
+                '_mhm_customer_phone' => $booking_data['customer_phone'],
+                '_mhm_status' => 'pending',
+                '_mhm_booking_type' => 'booking_form',
+                '_mhm_created_via' => 'woocommerce_checkout',
+                '_mhm_woocommerce_order_id' => $order_id,
+                '_mhm_payment_type' => $booking_data['payment_type'],
+                '_mhm_payment_method' => $booking_data['payment_method'],
+                '_mhm_payment_gateway' => $booking_data['payment_gateway'],
+                '_mhm_payment_status' => 'pending',
+                '_mhm_deposit_amount' => $booking_data['deposit_amount'],
+                '_mhm_remaining_amount' => $booking_data['remaining_amount'],
+                '_mhm_deposit_type' => $booking_data['deposit_type'],
+                '_mhm_payment_display' => $booking_data['payment_display'],
+                '_mhm_total_price' => $booking_data['total_price'],
+                '_mhm_rental_days' => $booking_data['rental_days'],
+                '_mhm_selected_addons' => $booking_data['selected_addons'],
+                '_mhm_cancellation_policy' => $booking_data['cancellation_policy'] ?? '24_hours',
+                '_mhm_cancellation_deadline' => $booking_data['cancellation_deadline'] ?? date('Y-m-d H:i:s', strtotime('+24 hours')),
+                // ⭐ Ensure payment_deadline is always set for auto-cancellation
+                '_mhm_payment_deadline' => !empty($booking_data['payment_deadline']) ? $booking_data['payment_deadline'] : self::get_payment_deadline(),
+            ]
+        ];
+        
+        $booking_id = wp_insert_post($post_data);
+        
+        if (is_wp_error($booking_id)) {
+            error_log('MHM Rentiva: Failed to create booking from order - ' . $booking_id->get_error_message());
+            return null;
+        }
+        
+        // Add booking history note
+        if (class_exists('MHMRentiva\Admin\Booking\Meta\BookingMeta')) {
+            \MHMRentiva\Admin\Booking\Meta\BookingMeta::add_history_note(
+                $booking_id,
+                __('Booking created from WooCommerce order', 'mhm-rentiva'),
+                'system'
+            );
+        }
+        
+        return $booking_id;
     }
 
     /**
@@ -228,8 +541,10 @@ class WooCommerceBridge
                         break;
 
                     case 'refunded':
-                        // Order refunded
+                        // Order refunded - update status only (amount handled by handle_order_refunded)
                         Status::update_status($booking_id, 'refunded', get_current_user_id());
+                        // ⭐ Also update payment status
+                        update_post_meta($booking_id, '_mhm_payment_status', 'refunded');
                         break;
                 }
 
@@ -260,4 +575,644 @@ class WooCommerceBridge
         }
         return $product_quantity;
     }
+
+    /**
+     * Check if cart contains booking items
+     */
+    private static function cart_has_booking(): bool
+    {
+        if (!function_exists('WC') || !WC()->cart) {
+            return false;
+        }
+
+        foreach (WC()->cart->get_cart() as $cart_item) {
+            if (isset($cart_item['mhm_booking_id'])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get booking ID from cart
+     */
+    private static function get_booking_id_from_cart(): ?int
+    {
+        if (!function_exists('WC') || !WC()->cart) {
+            return null;
+        }
+
+        foreach (WC()->cart->get_cart() as $cart_item) {
+            if (isset($cart_item['mhm_booking_id'])) {
+                return (int) $cart_item['mhm_booking_id'];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get booking data from cart (for pending bookings)
+     */
+    private static function get_booking_data_from_cart(): ?array
+    {
+        if (!function_exists('WC') || !WC()->cart) {
+            return null;
+        }
+
+        foreach (WC()->cart->get_cart() as $cart_item) {
+            if (isset($cart_item['mhm_booking_data']) && isset($cart_item['mhm_booking_pending']) && $cart_item['mhm_booking_pending']) {
+                return $cart_item['mhm_booking_data'];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Add payment type field to checkout (using custom display method)
+     */
+    public static function add_checkout_payment_type_field($fields)
+    {
+        // We'll use custom display method instead of adding to standard fields
+        return $fields;
+    }
+
+    /**
+     * Display payment type field in checkout
+     */
+    public static function display_payment_type_field()
+    {
+        if (!self::cart_has_booking()) {
+            return;
+        }
+
+        // Get booking data from cart (may be pending booking or existing booking)
+        $booking_data = self::get_booking_data_from_cart();
+        $booking_id = self::get_booking_id_from_cart();
+        
+        if (!$booking_data && !$booking_id) {
+            return;
+        }
+
+        // Get payment type and totals
+        if ($booking_id) {
+            // Existing booking
+            $current_payment_type = get_post_meta($booking_id, '_mhm_payment_type', true) ?: 'deposit';
+            $total_price = (float) get_post_meta($booking_id, '_mhm_total_price', true);
+            $deposit_amount = (float) get_post_meta($booking_id, '_mhm_deposit_amount', true);
+            $remaining_amount = (float) get_post_meta($booking_id, '_mhm_remaining_amount', true);
+        } else {
+            // Pending booking (from cart data)
+            $current_payment_type = $booking_data['payment_type'] ?? 'deposit';
+            $total_price = (float) ($booking_data['total_price'] ?? 0);
+            $deposit_amount = (float) ($booking_data['deposit_amount'] ?? 0);
+            $remaining_amount = (float) ($booking_data['remaining_amount'] ?? 0);
+        }
+
+        if ($total_price <= 0) {
+            return; // No price to show
+        }
+
+        ?>
+        <div id="mhm-booking-payment-type" class="mhm-checkout-payment-type" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; font-weight: 600;">
+                <?php echo esc_html__('Payment Options', 'mhm-rentiva'); ?>
+            </h3>
+            
+            <div class="mhm-payment-type-options" style="display: flex; flex-direction: column; gap: 10px;">
+                <label style="display: flex; align-items: flex-start; padding: 12px; border: 2px solid <?php echo $current_payment_type === 'deposit' ? '#0073aa' : '#dee2e6'; ?>; border-radius: 4px; cursor: pointer; background: <?php echo $current_payment_type === 'deposit' ? '#e7f3ff' : '#fff'; ?>; transition: all 0.3s;">
+                    <input type="radio" 
+                           name="mhm_booking_payment_type" 
+                           value="deposit" 
+                           <?php checked($current_payment_type, 'deposit'); ?>
+                           style="margin-right: 10px; margin-top: 2px;"
+                           data-booking-id="<?php echo esc_attr($booking_id); ?>"
+                           data-amount="<?php echo esc_attr($deposit_amount); ?>">
+                    <div style="flex: 1;">
+                        <strong style="display: block; margin-bottom: 4px;">
+                            <?php echo esc_html__('Deposit Payment', 'mhm-rentiva'); ?>
+                        </strong>
+                        <small style="display: block; color: #666; font-size: 13px;">
+                            <?php echo esc_html__('Pay deposit for booking, pay remaining amount at vehicle delivery', 'mhm-rentiva'); ?>
+                        </small>
+                        <div style="margin-top: 8px; font-weight: 600; color: #0073aa;">
+                            <?php echo wc_price($deposit_amount); ?>
+                            <?php if ($remaining_amount > 0): ?>
+                                <span style="font-size: 12px; color: #666; font-weight: normal;">
+                                    (<?php echo esc_html__('Remaining:', 'mhm-rentiva'); ?> <?php echo wc_price($remaining_amount); ?>)
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </label>
+                
+                <label style="display: flex; align-items: flex-start; padding: 12px; border: 2px solid <?php echo $current_payment_type === 'full' ? '#0073aa' : '#dee2e6'; ?>; border-radius: 4px; cursor: pointer; background: <?php echo $current_payment_type === 'full' ? '#e7f3ff' : '#fff'; ?>; transition: all 0.3s;">
+                    <input type="radio" 
+                           name="mhm_booking_payment_type" 
+                           value="full" 
+                           <?php checked($current_payment_type, 'full'); ?>
+                           style="margin-right: 10px; margin-top: 2px;"
+                           data-booking-id="<?php echo esc_attr($booking_id); ?>"
+                           data-amount="<?php echo esc_attr($total_price); ?>">
+                    <div style="flex: 1;">
+                        <strong style="display: block; margin-bottom: 4px;">
+                            <?php echo esc_html__('Full Payment', 'mhm-rentiva'); ?>
+                        </strong>
+                        <small style="display: block; color: #666; font-size: 13px;">
+                            <?php echo esc_html__('Pay full amount now', 'mhm-rentiva'); ?>
+                        </small>
+                        <div style="margin-top: 8px; font-weight: 600; color: #0073aa;">
+                            <?php echo wc_price($total_price); ?>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            $('input[name="mhm_booking_payment_type"]').on('change', function() {
+                const paymentType = $(this).val();
+                const bookingId = $(this).data('booking-id') || 0; // ⭐ Allow 0 for pending bookings
+                const amount = parseFloat($(this).data('amount'));
+
+                // Update cart price via AJAX
+                $.ajax({
+                    url: wc_checkout_params.ajax_url || '<?php echo esc_js(admin_url('admin-ajax.php')); ?>',
+                    type: 'POST',
+                    data: {
+                        action: 'mhm_update_booking_payment_type',
+                        booking_id: bookingId, // ⭐ Can be 0 for pending bookings
+                        payment_type: paymentType,
+                        nonce: '<?php echo wp_create_nonce('mhm_booking_payment_type'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Trigger cart update
+                            $('body').trigger('update_checkout');
+                        } else {
+                            console.error('MHM Rentiva: Payment type update failed', response);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('MHM Rentiva: AJAX error', error);
+                    }
+                });
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * Save payment type from checkout
+     * ⭐ Supports both existing bookings and pending bookings (cart data)
+     */
+    public static function save_checkout_payment_type($order_id, $data)
+    {
+        if (!isset($_POST['mhm_booking_payment_type'])) {
+            return;
+        }
+
+        $payment_type = sanitize_text_field($_POST['mhm_booking_payment_type']);
+        
+        // Always save to order meta
+        update_post_meta($order_id, '_mhm_wc_payment_type', $payment_type);
+        update_post_meta($order_id, '_mhm_booking_payment_type', $payment_type);
+        
+        // ⭐ Handle existing booking (has booking_id)
+        $booking_id = self::get_booking_id_from_cart();
+        if ($booking_id) {
+            update_post_meta($booking_id, '_mhm_payment_type', $payment_type);
+        }
+        
+        // ⭐ Handle pending booking (cart data) - update cart data before booking creation
+        if (!$booking_id && function_exists('WC') && WC()->cart) {
+            foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+                if (isset($cart_item['mhm_booking_data']) && isset($cart_item['mhm_booking_pending']) && $cart_item['mhm_booking_pending']) {
+                    // Update payment type in cart data (will be used when creating booking)
+                    $booking_data = $cart_item['mhm_booking_data'];
+                    $booking_data['payment_type'] = $payment_type;
+                    WC()->cart->cart_contents[$cart_item_key]['mhm_booking_data'] = $booking_data;
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * AJAX handler to update payment type and cart price
+     * ⭐ Supports both existing bookings and pending bookings (cart data)
+     */
+    public static function ajax_update_payment_type()
+    {
+        check_ajax_referer('mhm_booking_payment_type', 'nonce');
+
+        $booking_id = absint($_POST['booking_id'] ?? 0);
+        $payment_type = sanitize_text_field($_POST['payment_type'] ?? 'deposit');
+
+        if (!function_exists('WC') || !WC()->cart) {
+            wp_send_json_error(__('Cart not available', 'mhm-rentiva'));
+            return;
+        }
+
+        $amount_to_pay = 0;
+        $cart_updated = false;
+
+        // ⭐ Handle pending booking (from cart data) - NO booking_id yet
+        if (!$booking_id) {
+            // Find cart item with pending booking data
+            foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+                if (isset($cart_item['mhm_booking_data']) && isset($cart_item['mhm_booking_pending']) && $cart_item['mhm_booking_pending']) {
+                    $booking_data = $cart_item['mhm_booking_data'];
+                    
+                    // Update payment type in cart data
+                    $booking_data['payment_type'] = $payment_type;
+                    
+                    // Calculate amount to charge based on payment type
+                    $total_price = (float) ($booking_data['total_price'] ?? 0);
+                    $deposit_amount = (float) ($booking_data['deposit_amount'] ?? 0);
+                    $amount_to_pay = $payment_type === 'deposit' ? $deposit_amount : $total_price;
+                    
+                    // Update cart item data
+                    WC()->cart->cart_contents[$cart_item_key]['mhm_booking_data'] = $booking_data;
+                    WC()->cart->cart_contents[$cart_item_key]['mhm_booking_price'] = $amount_to_pay;
+                    WC()->cart->cart_contents[$cart_item_key]['data']->set_price($amount_to_pay);
+                    
+                    $cart_updated = true;
+                    break;
+                }
+            }
+        } else {
+            // ⭐ Handle existing booking (has booking_id)
+            // Update booking payment type in database
+            update_post_meta($booking_id, '_mhm_payment_type', $payment_type);
+
+            // Get booking totals
+            $total_price = (float) get_post_meta($booking_id, '_mhm_total_price', true);
+            $deposit_amount = (float) get_post_meta($booking_id, '_mhm_deposit_amount', true);
+
+            // Calculate amount to charge
+            $amount_to_pay = $payment_type === 'deposit' ? $deposit_amount : $total_price;
+
+            // Update cart item price
+            foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+                if (isset($cart_item['mhm_booking_id']) && $cart_item['mhm_booking_id'] == $booking_id) {
+                    WC()->cart->cart_contents[$cart_item_key]['mhm_booking_price'] = $amount_to_pay;
+                    WC()->cart->cart_contents[$cart_item_key]['data']->set_price($amount_to_pay);
+                    $cart_updated = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$cart_updated) {
+            wp_send_json_error(__('Booking not found in cart', 'mhm-rentiva'));
+            return;
+        }
+
+        // Recalculate cart totals
+        WC()->cart->calculate_totals();
+
+        wp_send_json_success([
+            'message' => __('Payment type updated', 'mhm-rentiva'),
+            'amount' => $amount_to_pay,
+            'formatted_amount' => wc_price($amount_to_pay)
+        ]);
+    }
+
+    /**
+     * Get payment deadline for auto-cancellation
+     * 
+     * @return string Payment deadline in 'Y-m-d H:i:s' format
+     */
+    private static function get_payment_deadline(): string
+    {
+        // Get payment deadline minutes from settings (default: 30 minutes)
+        $deadline_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+            'mhm_rentiva_booking_payment_deadline_minutes',
+            30
+        );
+        
+        // Minimum 5 minutes
+        if ($deadline_minutes < 5) {
+            $deadline_minutes = 5;
+        }
+        
+        // Set deadline for WooCommerce payments
+        // This ensures auto-cancellation works for all bookings
+        return date('Y-m-d H:i:s', strtotime("+{$deadline_minutes} minutes"));
+    }
+
+    /**
+     * ⭐ Validate cart items availability (runs on cart page)
+     * Prevents adding unavailable vehicles to cart
+     */
+    public static function validate_cart_availability()
+    {
+        if (!function_exists('WC') || !WC()->cart) {
+            return;
+        }
+
+        foreach (WC()->cart->get_cart() as $cart_item) {
+            // Check pending booking (from cart data)
+            if (isset($cart_item['mhm_booking_data']) && isset($cart_item['mhm_booking_pending']) && $cart_item['mhm_booking_pending']) {
+                $booking_data = $cart_item['mhm_booking_data'];
+                $vehicle_id = (int) ($booking_data['vehicle_id'] ?? 0);
+                
+                if (!$vehicle_id) {
+                    continue;
+                }
+
+                // Parse dates to timestamps
+                $start_ts = strtotime($booking_data['pickup_date'] . ' ' . ($booking_data['pickup_time'] ?? '00:00'));
+                $end_ts = strtotime($booking_data['dropoff_date'] . ' ' . ($booking_data['dropoff_time'] ?? '23:59'));
+
+                if (!$start_ts || !$end_ts) {
+                    continue;
+                }
+
+                // Clear cache to ensure fresh data
+                if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+                    \MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+                }
+
+                // Check for overlap (locked check for real-time availability)
+                if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
+                    $vehicle_title = get_the_title($vehicle_id);
+                    $pickup_date = date_i18n(get_option('date_format'), $start_ts);
+                    $dropoff_date = date_i18n(get_option('date_format'), $end_ts);
+                    
+                    wc_add_notice(
+                        sprintf(
+                            /* translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date */
+                            __('Sorry, the vehicle "%1$s" is no longer available for the selected dates (%2$s - %3$s). Please select different dates or another vehicle.', 'mhm-rentiva'),
+                            $vehicle_title,
+                            $pickup_date,
+                            $dropoff_date
+                        ),
+                        'error'
+                    );
+                    
+                    // Remove invalid cart item
+                    WC()->cart->remove_cart_item($cart_item['key']);
+                }
+            }
+            // Check existing booking
+            elseif (isset($cart_item['mhm_booking_id'])) {
+                $booking_id = (int) $cart_item['mhm_booking_id'];
+                $vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+                
+                if (!$vehicle_id) {
+                    continue;
+                }
+
+                // ⭐ Use consistent meta keys - prefer pickup/dropoff for clarity
+                $pickup_date = get_post_meta($booking_id, '_mhm_pickup_date', true) ?: get_post_meta($booking_id, '_mhm_start_date', true);
+                $pickup_time = get_post_meta($booking_id, '_mhm_pickup_time', true) ?: get_post_meta($booking_id, '_mhm_start_time', true) ?: '00:00';
+                $dropoff_date = get_post_meta($booking_id, '_mhm_dropoff_date', true) ?: get_post_meta($booking_id, '_mhm_end_date', true);
+                $dropoff_time = get_post_meta($booking_id, '_mhm_dropoff_time', true) ?: get_post_meta($booking_id, '_mhm_end_time', true) ?: '23:59';
+
+                if (!$pickup_date || !$dropoff_date) {
+                    continue;
+                }
+
+                $start_ts = strtotime($pickup_date . ' ' . $pickup_time);
+                $end_ts = strtotime($dropoff_date . ' ' . $dropoff_time);
+
+                if (!$start_ts || !$end_ts) {
+                    continue;
+                }
+
+                // Clear cache to ensure fresh data
+                if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+                    \MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+                }
+
+                // Check for overlap (exclude current booking from check)
+                // Note: For existing bookings, we should check if dates have changed
+                // For now, we'll do a basic check - if booking status is cancelled, remove from cart
+                $booking_status = get_post_meta($booking_id, '_mhm_status', true);
+                if ($booking_status === 'cancelled') {
+                    $vehicle_title = get_the_title($vehicle_id);
+                    wc_add_notice(
+                        sprintf(
+                            /* translators: %s: Vehicle title */
+                            __('Sorry, booking for vehicle "%s" has been cancelled. Please select another vehicle.', 'mhm-rentiva'),
+                            $vehicle_title
+                        ),
+                        'error'
+                    );
+                    WC()->cart->remove_cart_item($cart_item['key']);
+                }
+            }
+        }
+    }
+
+    /**
+     * ⭐ Validate checkout availability (runs BEFORE payment processing)
+     * CRITICAL: This prevents payment from being processed if vehicle is no longer available
+     */
+    public static function validate_checkout_availability()
+    {
+        if (!function_exists('WC') || !WC()->cart) {
+            return;
+        }
+
+        foreach (WC()->cart->get_cart() as $cart_item) {
+            // Check pending booking (from cart data) - MOST IMPORTANT CHECK
+            if (isset($cart_item['mhm_booking_data']) && isset($cart_item['mhm_booking_pending']) && $cart_item['mhm_booking_pending']) {
+                $booking_data = $cart_item['mhm_booking_data'];
+                $vehicle_id = (int) ($booking_data['vehicle_id'] ?? 0);
+                
+                if (!$vehicle_id) {
+                    continue;
+                }
+
+                // Parse dates to timestamps
+                $start_ts = strtotime($booking_data['pickup_date'] . ' ' . ($booking_data['pickup_time'] ?? '00:00'));
+                $end_ts = strtotime($booking_data['dropoff_date'] . ' ' . ($booking_data['dropoff_time'] ?? '23:59'));
+
+                if (!$start_ts || !$end_ts) {
+                    wc_add_notice(
+                        __('Invalid booking dates. Please try again.', 'mhm-rentiva'),
+                        'error'
+                    );
+                    continue;
+                }
+
+                // ⭐ CRITICAL: Clear cache and check availability BEFORE payment
+                if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+                    \MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+                }
+
+                // Use locked overlap check to prevent concurrent bookings
+                if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
+                    $vehicle_title = get_the_title($vehicle_id);
+                    $pickup_date = date_i18n(get_option('date_format'), $start_ts);
+                    $dropoff_date = date_i18n(get_option('date_format'), $end_ts);
+                    
+                    // ⭐ This error will STOP checkout process - NO PAYMENT WILL BE PROCESSED
+                    wc_add_notice(
+                        sprintf(
+                            /* translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date */
+                            __('Sorry, the vehicle "%1$s" is no longer available for the selected dates (%2$s - %3$s). The vehicle may have been booked by another customer. Please select different dates or another vehicle.', 'mhm-rentiva'),
+                            $vehicle_title,
+                            $pickup_date,
+                            $dropoff_date
+                        ),
+                        'error'
+                    );
+                    
+                    // Log for debugging
+                    error_log('MHM Rentiva: Checkout validation failed - vehicle no longer available. Vehicle ID: ' . $vehicle_id . ', Dates: ' . $pickup_date . ' - ' . $dropoff_date);
+                }
+            }
+            // Check existing booking
+            elseif (isset($cart_item['mhm_booking_id'])) {
+                $booking_id = (int) $cart_item['mhm_booking_id'];
+                $vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+                
+                if (!$vehicle_id) {
+                    continue;
+                }
+
+                // Check if booking was cancelled
+                $booking_status = get_post_meta($booking_id, '_mhm_status', true);
+                if ($booking_status === 'cancelled') {
+                    $vehicle_title = get_the_title($vehicle_id);
+                    wc_add_notice(
+                        sprintf(
+                            /* translators: %s: Vehicle title */
+                            __('Sorry, booking for vehicle "%s" has been cancelled. Please select another vehicle.', 'mhm-rentiva'),
+                            $vehicle_title
+                        ),
+                        'error'
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * ⭐ Handle WooCommerce order refund (when refund is actually created)
+     * This hook is triggered when a refund is created in WooCommerce
+     * 
+     * @param int $refund_id Refund ID
+     * @param array $args Refund arguments
+     */
+    public static function handle_order_refunded(int $refund_id, array $args): void
+    {
+        if (!class_exists('WooCommerce')) {
+            return;
+        }
+
+        $order_id = $args['order_id'] ?? 0;
+        if (!$order_id) {
+            return;
+        }
+
+        $order = wc_get_order($order_id);
+        if (!$order) {
+            return;
+        }
+
+        // Get booking ID from order
+        $booking_id = self::get_booking_id_from_order($order);
+        if (!$booking_id) {
+            return;
+        }
+
+        // Get refund amount (in order currency, convert to smallest unit)
+        $refund_amount = $order->get_total_refunded();
+        $currency = $order->get_currency();
+        
+        // Convert to smallest currency unit (kurus/cent)
+        // WooCommerce stores amounts as floats, we need to convert to smallest unit
+        $refund_amount_kurus = (int) round($refund_amount * 100);
+
+        // Get total paid amount
+        $total_paid = (float) $order->get_total();
+        $total_paid_kurus = (int) round($total_paid * 100);
+
+        // Update booking refund meta
+        update_post_meta($booking_id, '_mhm_refunded_amount', $refund_amount_kurus);
+        update_post_meta($booking_id, '_mhm_payment_currency', $currency);
+        
+        // Determine payment status
+        if ($refund_amount_kurus >= $total_paid_kurus) {
+            // Full refund
+            update_post_meta($booking_id, '_mhm_payment_status', 'refunded');
+            Status::update_status($booking_id, 'refunded', get_current_user_id());
+        } else {
+            // Partial refund
+            update_post_meta($booking_id, '_mhm_payment_status', 'partially_refunded');
+        }
+
+        // Save refund transaction ID
+        $refund = wc_get_order($refund_id);
+        if ($refund) {
+            $refund_reason = $refund->get_reason() ?: '';
+            add_post_meta($booking_id, '_mhm_refund_txn_id', (string) $refund_id);
+            update_post_meta($booking_id, '_mhm_refund_reason', $refund_reason);
+        }
+
+        // Send refund notification
+        if (class_exists('\MHMRentiva\Admin\Emails\Notifications\RefundNotifications')) {
+            try {
+                $payment_status = $refund_amount_kurus >= $total_paid_kurus ? 'refunded' : 'partially_refunded';
+                $refund_reason = $refund ? $refund->get_reason() : '';
+                \MHMRentiva\Admin\Emails\Notifications\RefundNotifications::notify(
+                    $booking_id,
+                    $refund_amount_kurus,
+                    $currency,
+                    $payment_status,
+                    $refund_reason
+                );
+            } catch (\Throwable $e) {
+                error_log('MHM Rentiva: Refund notification error: ' . $e->getMessage());
+            }
+        }
+
+        // Add log
+        $logs = get_post_meta($booking_id, '_mhm_booking_logs', true) ?: [];
+        $logs[] = [
+            'action' => 'wc_refund_created',
+            'timestamp' => current_time('mysql'),
+            'user_id' => get_current_user_id() ?: 0,
+            'data' => [
+                'order_id' => $order_id,
+                'refund_id' => $refund_id,
+                'refund_amount' => $refund_amount,
+                'currency' => $currency,
+            ]
+        ];
+        update_post_meta($booking_id, '_mhm_booking_logs', $logs);
+    }
+
+    /**
+     * ⭐ Get booking ID from WooCommerce order
+     * 
+     * @param \WC_Order $order WooCommerce order object
+     * @return int|null Booking ID or null if not found
+     */
+    private static function get_booking_id_from_order(\WC_Order $order): ?int
+    {
+        // First check order meta
+        $booking_id = (int) $order->get_meta('_mhm_booking_id');
+        if ($booking_id > 0) {
+            return $booking_id;
+        }
+
+        // Check order items
+        $items = $order->get_items();
+        foreach ($items as $item) {
+            $booking_id = (int) $item->get_meta('_mhm_booking_id');
+            if ($booking_id > 0) {
+                return $booking_id;
+            }
+        }
+
+        return null;
+    }
 }
+

@@ -319,9 +319,7 @@ final class Plugin
         if (class_exists(Admin\Emails\Notifications\ReminderScheduler::class)) {
             Admin\Emails\Notifications\ReminderScheduler::register();
         }
-        if (class_exists(Admin\Emails\Notifications\OfflineNotifications::class)) {
-            Admin\Emails\Notifications\OfflineNotifications::register();
-        }
+        // ⭐ Offline payment notifications removed - WooCommerce handles all payments
         if (class_exists(Admin\Emails\Notifications\RefundNotifications::class)) {
             Admin\Emails\Notifications\RefundNotifications::register();
         }
@@ -388,9 +386,7 @@ final class Plugin
 
         // Payment Clients
 
-        if (class_exists(Admin\Payment\Gateways\Offline\Handler::class)) {
-            Admin\Payment\Gateways\Offline\Handler::register();
-        }
+        // ⭐ Offline payment removed - WooCommerce handles all payments
 
         // About page
         if (class_exists(Admin\About\About::class)) {

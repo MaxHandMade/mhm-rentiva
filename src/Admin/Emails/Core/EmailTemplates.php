@@ -370,13 +370,7 @@ final class EmailTemplates
     private static function save_offline_payment(): void
     {
         $fields = [
-            'mhm_rentiva_offline_email_admin_enabled' => 'checkbox',
-            'mhm_rentiva_offline_email_admin_to' => 'email',
-            'mhm_rentiva_offline_email_admin_subject' => 'text',
-            'mhm_rentiva_offline_email_admin_body' => 'html',
-            'mhm_rentiva_offline_email_customer_enabled' => 'checkbox',
-            'mhm_rentiva_offline_email_customer_subject_approved' => 'text',
-            'mhm_rentiva_offline_email_customer_body_approved' => 'html',
+            // ⭐ Offline payment email templates removed - WooCommerce handles all payments
             'mhm_rentiva_offline_email_customer_subject_rejected' => 'text',
             'mhm_rentiva_offline_email_customer_body_rejected' => 'html',
         ];

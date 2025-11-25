@@ -413,13 +413,9 @@ final class VehicleSearch
      */
     private static function get_fuel_types(): array
     {
-        return [
-            '' => __('All Fuel Types', 'mhm-rentiva'),
-            'petrol' => __('Petrol', 'mhm-rentiva'),
-            'diesel' => __('Diesel', 'mhm-rentiva'),
-            'hybrid' => __('Hybrid', 'mhm-rentiva'),
-            'electric' => __('Electric', 'mhm-rentiva'),
-        ];
+        $fuel_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
+        $result = ['' => __('All Fuel Types', 'mhm-rentiva')];
+        return array_merge($result, $fuel_types);
     }
 
     /**
@@ -427,11 +423,9 @@ final class VehicleSearch
      */
     private static function get_transmissions(): array
     {
-        return [
-            '' => __('All Transmission Types', 'mhm-rentiva'),
-            'auto' => __('Automatic', 'mhm-rentiva'),
-            'manual' => __('Manual', 'mhm-rentiva'),
-        ];
+        $transmission_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
+        $result = ['' => __('All Transmission Types', 'mhm-rentiva')];
+        return array_merge($result, $transmission_types);
     }
 
     /**

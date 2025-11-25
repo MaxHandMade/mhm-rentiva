@@ -52,6 +52,34 @@
         $('#mhm_edit_status').each(function () {
             $(this).data('previous-value', $(this).val());
         });
+
+        // Update license plate display when vehicle is changed
+        $('#mhm_booking_edit_vehicle_id').on('change', function () {
+            const selectedOption = $(this).find('option:selected');
+            const optionText = selectedOption.text();
+            
+            // Extract plate from option text (format: "Vehicle Name (PLATE)")
+            const plateMatch = optionText.match(/\(([^)]+)\)$/);
+            const plate = plateMatch ? plateMatch[1] : '';
+            
+            // Update or create description element
+            let $description = $(this).siblings('p.description');
+            if ($description.length === 0) {
+                $description = $('<p class="description"></p>');
+                $(this).after($description);
+            }
+            
+            if (plate) {
+                const strings = (window.mhmBookingEdit && window.mhmBookingEdit.text) || {};
+                const label = strings.currentLicensePlate || 'Current License Plate:';
+                $description.html(label + ' <strong>' + plate + '</strong>');
+            } else {
+                $description.html('');
+            }
+        });
+        
+        // Trigger on page load to show current plate
+        $('#mhm_booking_edit_vehicle_id').trigger('change');
     });
 
     /**

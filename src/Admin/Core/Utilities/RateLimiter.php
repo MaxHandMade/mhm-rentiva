@@ -7,14 +7,14 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * ✅ RATE LIMITER - API Endpoint Güvenliği
+ * ✅ RATE LIMITER - API Endpoint Security
  * 
- * API endpoint'lerini brute force saldırılarına karşı korur
+ * Protects API endpoints against brute force attacks
  */
 final class RateLimiter
 {
     /**
-     * Rate limit konfigürasyonları
+     * Rate limit configurations
      */
     private static function get_rate_limits(): array
     {
@@ -54,15 +54,15 @@ final class RateLimiter
     }
 
     /**
-     * Rate limit kontrolü yap
+     * Check rate limit
      * 
      * @param string $identifier Client identifier (IP, user_id, etc.)
      * @param string $action Action type
-     * @return bool Rate limit aşıldı mı?
+     * @return bool Is rate limit exceeded?
      */
     public static function check(string $identifier, string $action = 'general'): bool
     {
-        // Rate limiter etkin değilse her zaman true döndür
+        // Return true always if rate limiter is not enabled
         if (!\MHMRentiva\Admin\Settings\Groups\CoreSettings::is_rate_limit_enabled()) {
             return true;
         }
@@ -70,26 +70,26 @@ final class RateLimiter
         $rate_limits = self::get_rate_limits();
         $limits = $rate_limits[$action] ?? $rate_limits['general'];
         
-        // Her zaman dilimi için kontrol et
+        // Check for each timeframe
         $checks = [
             'minute' => self::checkTimeframe($identifier, $action, 'minute', $limits['max_per_minute'], MINUTE_IN_SECONDS),
             'hour' => self::checkTimeframe($identifier, $action, 'hour', $limits['max_per_hour'], HOUR_IN_SECONDS),
             'day' => self::checkTimeframe($identifier, $action, 'day', $limits['max_per_day'], DAY_IN_SECONDS)
         ];
 
-        // Herhangi bir zaman diliminde limit aşıldıysa false döndür
+        // Return false if limit exceeded in any timeframe
         return !in_array(false, $checks, true);
     }
 
     /**
-     * Belirli bir zaman dilimi için rate limit kontrolü
+     * Rate limit check for a specific timeframe
      * 
      * @param string $identifier Client identifier
      * @param string $action Action type
-     * @param string $timeframe Zaman dilimi (minute, hour, day)
-     * @param int $max_requests Max request sayısı
-     * @param int $duration Saniye cinsinden süre
-     * @return bool Limit aşıldı mı?
+     * @param string $timeframe Timeframe (minute, hour, day)
+     * @param int $max_requests Max request count
+     * @param int $duration Duration in seconds
+     * @return bool Is limit exceeded?
      */
     private static function checkTimeframe(string $identifier, string $action, string $timeframe, int $max_requests, int $duration): bool
     {
@@ -97,23 +97,23 @@ final class RateLimiter
         $current_requests = (int) get_transient($cache_key);
 
         if ($current_requests >= $max_requests) {
-            // Rate limit aşıldı - log kaydet
+            // Rate limit exceeded - log it
             self::logRateLimitExceeded($identifier, $action, $timeframe, $current_requests, $max_requests);
             return false;
         }
 
-        // Request sayısını artır
+        // Increment request count
         set_transient($cache_key, $current_requests + 1, $duration);
         
         return true;
     }
 
     /**
-     * Rate limit cache key oluştur
+     * Create rate limit cache key 
      * 
      * @param string $identifier Client identifier
      * @param string $action Action type
-     * @param string $timeframe Zaman dilimi
+     * @param string $timeframe Timeframe
      * @return string Cache key
      */
     private static function getCacheKey(string $identifier, string $action, string $timeframe): string
@@ -123,13 +123,13 @@ final class RateLimiter
     }
 
     /**
-     * Rate limit aşımını logla
+     * Log rate limit exceedance
      * 
      * @param string $identifier Client identifier
      * @param string $action Action type
-     * @param string $timeframe Zaman dilimi
-     * @param int $current_requests Mevcut request sayısı
-     * @param int $max_requests Max request sayısı
+     * @param string $timeframe Timeframe
+     * @param int $current_requests Current request count
+     * @param int $max_requests Max request count
      */
     private static function logRateLimitExceeded(string $identifier, string $action, string $timeframe, int $current_requests, int $max_requests): void
     {
@@ -148,11 +148,11 @@ final class RateLimiter
     }
 
     /**
-     * Rate limit istatistiklerini al
+     * Get rate limit statistics
      * 
      * @param string $identifier Client identifier
      * @param string $action Action type
-     * @return array Rate limit istatistikleri
+     * @return array Rate limit statistics
      */
     public static function getStats(string $identifier, string $action = 'general'): array
     {
@@ -176,11 +176,11 @@ final class RateLimiter
     }
 
     /**
-     * Rate limit'i temizle (admin için)
+     * Clear rate limit (for admin)
      * 
      * @param string $identifier Client identifier
      * @param string $action Action type
-     * @return bool Başarı durumu
+     * @return bool Success status
      */
     public static function clear(string $identifier, string $action = 'general'): bool
     {
@@ -198,12 +198,12 @@ final class RateLimiter
     }
 
     /**
-     * Rate limit'i reset et (belirli bir süre için)
+     * Reset rate limit (for a specific duration)
      * 
      * @param string $identifier Client identifier
      * @param string $action Action type
-     * @param int $duration_seconds Reset süresi (saniye)
-     * @return bool Başarı durumu
+     * @param int $duration_seconds Reset duration (seconds)
+     * @return bool Success status
      */
     public static function reset(string $identifier, string $action = 'general', int $duration_seconds = 3600): bool
     {
@@ -221,7 +221,7 @@ final class RateLimiter
     }
 
     /**
-     * Client IP adresini al
+     * Get Client IP address
      * 
      * @return string Client IP
      */
@@ -253,10 +253,10 @@ final class RateLimiter
     }
 
     /**
-     * Rate limit middleware (REST API için)
+     * Rate limit middleware (for REST API)
      * 
      * @param string $action Action type
-     * @return bool|WP_Error Rate limit durumu
+     * @return bool|WP_Error Rate limit status
      */
     public static function middleware(string $action = 'general')
     {
@@ -267,7 +267,7 @@ final class RateLimiter
             
             return new \WP_Error(
                 'rate_limit_exceeded',
-                __('Çok fazla istek gönderildi. Lütfen daha sonra tekrar deneyin.', 'mhm-rentiva'),
+                __('Too many requests. Please try again later.', 'mhm-rentiva'),
                 [
                     'status' => 429,
                     'retry_after' => 60, // 1 dakika
@@ -283,7 +283,7 @@ final class RateLimiter
 
 
     /**
-     * Rate limit bilgilerini response header'ına ekle
+     * Add rate limit info to response header
      * 
      * @param string $identifier Client identifier
      * @param string $action Action type
@@ -306,10 +306,10 @@ final class RateLimiter
     }
 
     /**
-     * Rate limit konfigürasyonunu al
+     * Get rate limit configuration
      * 
      * @param string $action Action type
-     * @return array Rate limit konfigürasyonu
+     * @return array Rate limit configuration
      */
     public static function getConfig(string $action = 'general'): array
     {
@@ -318,11 +318,11 @@ final class RateLimiter
     }
 
     /**
-     * Rate limit konfigürasyonunu güncelle
+     * Update rate limit configuration
      * 
      * @param string $action Action type
-     * @param array $config Yeni konfigürasyon
-     * @return bool Başarı durumu
+     * @param array $config New configuration
+     * @return bool Success status
      */
     public static function updateConfig(string $action, array $config): bool
     {
@@ -331,15 +331,15 @@ final class RateLimiter
             return false;
         }
 
-        // Bu method runtime'da config değiştirmek için
-        // Gerçek implementasyonda config dosyasından okunmalı
+        // This method is for changing config at runtime
+        // In real implementation should be read from config file
         return true;
     }
 
     /**
-     * Rate limit durumunu kontrol et (admin dashboard için)
+     * Check rate limit status (for admin dashboard)
      * 
-     * @return array Genel rate limit durumu
+     * @return array Global rate limit status
      */
     public static function getGlobalStats(): array
     {

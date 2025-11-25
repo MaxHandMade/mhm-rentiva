@@ -100,6 +100,14 @@ class VehiclesListBlock extends GutenbergBlockBase
                 'type' => 'string',
                 'default' => '',
             ],
+            'category' => [
+                'type' => 'string',
+                'default' => '',
+            ],
+            'featured' => [
+                'type' => 'boolean',
+                'default' => false,
+            ],
         ];
     }
 
@@ -131,28 +139,7 @@ class VehiclesListBlock extends GutenbergBlockBase
      */
     protected function get_display_options_attributes(array $options = []): array
     {
-        return [
-            'show_image' => [
-                'type' => 'boolean',
-                'default' => true,
-            ],
-            'show_title' => [
-                'type' => 'boolean',
-                'default' => true,
-            ],
-            'show_price' => [
-                'type' => 'boolean',
-                'default' => true,
-            ],
-            'show_features' => [
-                'type' => 'boolean',
-                'default' => true,
-            ],
-            'show_rating' => [
-                'type' => 'boolean',
-                'default' => true,
-            ],
-        ];
+        return parent::get_display_options_attributes($options);
     }
 
     /**
@@ -169,11 +156,46 @@ class VehiclesListBlock extends GutenbergBlockBase
                 'type' => 'boolean',
                 'default' => true,
             ],
-            'enable_lazy_load' => [
+            'enableAjaxFiltering' => [
+                'type' => 'boolean',
+                'default' => false,
+            ],
+            'enableInfiniteScroll' => [
+                'type' => 'boolean',
+                'default' => false,
+            ],
+            'enableLazyLoad' => [
                 'type' => 'boolean',
                 'default' => true,
             ],
         ];
+    }
+
+    /**
+     * Prepare Shortcode attributes
+     */
+    protected function prepare_shortcode_attributes(array $attributes): array
+    {
+        $atts = parent::prepare_shortcode_attributes($attributes);
+
+        if (!empty($attributes['category'])) {
+            $atts['category'] = $attributes['category'];
+        }
+        if (isset($attributes['featured'])) {
+            $atts['featured'] = $attributes['featured'] ? '1' : '0';
+        }
+        
+        if (isset($attributes['enableAjaxFiltering'])) {
+            $atts['enable_ajax_filtering'] = $attributes['enableAjaxFiltering'] ? '1' : '0';
+        }
+        if (isset($attributes['enableInfiniteScroll'])) {
+            $atts['enable_infinite_scroll'] = $attributes['enableInfiniteScroll'] ? '1' : '0';
+        }
+        if (isset($attributes['enableLazyLoad'])) {
+            $atts['enable_lazy_load'] = $attributes['enableLazyLoad'] ? '1' : '0';
+        }
+
+        return $atts;
     }
 }
 

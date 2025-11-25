@@ -721,6 +721,42 @@ class VehicleCardWidget extends ElementorWidgetBase
                 ],
             ]
         );
+
+        $this->add_control(
+            'show_badges',
+            [
+                'label' => __('Show Badges', 'mhm-rentiva'),
+                'type' => Controls_Manager::SWITCHER,
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
+                'return_value' => 'yes',
+                'default' => 'yes',
+            ]
+        );
+
+        $this->add_control(
+            'show_description',
+            [
+                'label' => __('Show Description', 'mhm-rentiva'),
+                'type' => Controls_Manager::SWITCHER,
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
+                'return_value' => 'yes',
+                'default' => 'no',
+            ]
+        );
+
+        $this->add_control(
+            'show_availability',
+            [
+                'label' => __('Show Availability', 'mhm-rentiva'),
+                'type' => Controls_Manager::SWITCHER,
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
+                'return_value' => 'yes',
+                'default' => 'yes',
+            ]
+        );
     }
 
     /**

@@ -1072,7 +1072,7 @@ final class SetupWizard
         $settings = get_option('mhm_rentiva_settings', []);
         $gateways = [
 
-            $settings['mhm_rentiva_offline_enabled'] ?? '0',
+            '0', // ⭐ Offline payment removed - WooCommerce handles all payments
         ];
 
         return in_array('1', $gateways, true);

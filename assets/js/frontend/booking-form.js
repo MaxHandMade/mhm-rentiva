@@ -137,13 +137,26 @@
             });
 
             // Automatically update dropoff time when pickup time changes
+            // Dropoff time is disabled and always matches pickup time
             this.form.on('change', '#pickup_time', (e) => {
                 const pickupTime = $(e.target).val();
                 if (pickupTime) {
+                    // Update both visible (disabled) select and hidden input
                     $('#dropoff_time').val(pickupTime);
+                    $('#dropoff_time_hidden').val(pickupTime);
+                } else {
+                    $('#dropoff_time').val('');
+                    $('#dropoff_time_hidden').val('');
                 }
                 // Don't do availability check on time change
             });
+
+            // Initialize dropoff time on page load if pickup time is already selected
+            const initialPickupTime = $('#pickup_time').val();
+            if (initialPickupTime) {
+                $('#dropoff_time').val(initialPickupTime);
+                $('#dropoff_time_hidden').val(initialPickupTime);
+            }
 
             // Vehicle selection change
             this.form.on('change', '#vehicle_id', (e) => {
@@ -347,6 +360,13 @@
 
             // Set initial online payment details display
             this.updatePaymentMethodDisplay();
+
+            // Initialize dropoff time to match pickup time if pickup time is already selected
+            const initialPickupTime = $('#pickup_time').val();
+            if (initialPickupTime) {
+                $('#dropoff_time').val(initialPickupTime);
+                $('#dropoff_time_hidden').val(initialPickupTime);
+            }
         }
 
         updateVehiclePreview(selectElement) {
@@ -505,7 +525,7 @@
                 pickup_date: $('#pickup_date').val(),
                 dropoff_date: $('#dropoff_date').val(),
                 pickup_time: $('#pickup_time').val(),
-                dropoff_time: $('#dropoff_time').val(),
+                dropoff_time: $('#dropoff_time_hidden').val() || $('#pickup_time').val(), // Always match pickup time
                 guests: $('#guests').val() || 1,
                 customer_first_name: $('#customer_first_name').val(),
                 terms_accepted: $('#rv-terms-accepted').is(':checked') ? 'on' : '',
@@ -685,6 +705,14 @@
             // Tarih validasyonu
             const pickupDate = $('#pickup_date').val();
             const dropoffDate = $('#dropoff_date').val();
+            const pickupTime = $('#pickup_time').val();
+
+            // Pickup time validation (required)
+            if (!pickupTime) {
+                $('#pickup_time').addClass('error');
+                this.showError(this.getMessage('selectPickupTime') || __('Please select pickup time.', 'mhm-rentiva'));
+                isValid = false;
+            }
 
             if (pickupDate && dropoffDate) {
                 const pickup = new Date(pickupDate);
@@ -947,8 +975,9 @@
                 }
             }
 
-            // Loading status
-            availabilityStatus.html(`<div class="rv-loading-message"><span class="rv-spinner"></span> ${this.getMessage('checking_availability')}</div>`);
+            // Loading status - Modern loading card
+            availabilityStatus.removeClass('success error').addClass('loading');
+            availabilityStatus.html(`<div class="rv-loading-message"><span class="rv-spinner"></span> <span>${this.getMessage('checking_availability')}</span></div>`);
 
 
             // Debug log for AJAX data
@@ -970,11 +999,12 @@
                     availabilityStatus.removeClass('hidden'); // Show in all cases
 
                     if (response.success) {
-                        // Available
+                        // Available - Modern success card
+                        availabilityStatus.removeClass('loading error').addClass('success');
                         availabilityStatus.html(`
                             <div class="rv-availability-success">
                                 <span class="dashicons dashicons-yes-alt"></span>
-                                ${this.getMessage('vehicle_available')}
+                                <span>${this.getMessage('vehicle_available')}</span>
                             </div>
                         `);
 
@@ -988,41 +1018,39 @@
                         if (response.data?.alternatives && response.data.alternatives.length > 0) {
                             message = this.getMessage('vehicle_unavailable_with_alternatives');
                             alternativesHtml = `
-                                <div class="rv-alternatives-wrapper" style="display: flex; gap: 15px; margin-top: 15px; padding: 15px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
+                                <div class="rv-alternatives-wrapper">
+                                    <div class="rv-alternatives-title">${this.getMessage('alternative_vehicles') || __('Alternative Vehicles', 'mhm-rentiva')}</div>
+                                    <div class="rv-alternatives-grid">
                             `;
 
                             response.data.alternatives.forEach(vehicle => {
                                 alternativesHtml += `
-                                    <div class="rv-alternative-vehicle-card" data-vehicle-id="${vehicle.id}" style="flex: 1; background: white; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 4px 16px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)';">
-                                        <div class="rv-vehicle-image" style="width: 100%; height: 100px; overflow: hidden;">
-                                            <img src="${vehicle.image || window.location.origin + '/wp-content/plugins/mhm-rentiva/assets/images/no-image.png'}" alt="${vehicle.title}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <div class="rv-alternative-vehicle-card" data-vehicle-id="${vehicle.id}">
+                                        <div class="rv-alternative-vehicle-image">
+                                            <img src="${vehicle.image || window.location.origin + '/wp-content/plugins/mhm-rentiva/assets/images/no-image.png'}" alt="${vehicle.title}">
                                         </div>
-                                        <div class="rv-vehicle-content" style="padding: 12px;">
-                                            <h5 style="margin: 0 0 8px 0; font-size: 13px; color: #333; font-weight: 600; line-height: 1.2;">${vehicle.title}</h5>
+                                        <div class="rv-alternative-vehicle-content">
+                                            <h5 class="rv-alternative-vehicle-title">${vehicle.title}</h5>
                                             
                                             ${vehicle.features && vehicle.features.length > 0 ? `
-                                                <div class="rv-vehicle-features" style="margin-bottom: 8px;">
-                                                    <div style="display: flex; flex-wrap: wrap; gap: 4px;">
-                                                        ${vehicle.features.map(feature => `
-                                                            <span style="background: #f0f9ff; color: #0369a1; padding: 2px 6px; border-radius: 12px; font-size: 9px; font-weight: 500; border: 1px solid #bae6fd;">
-                                                                ${feature.replace(/_/g, ' ')}
-                                                            </span>
-                                                        `).join('')}
-                                                    </div>
+                                                <div class="rv-alternative-vehicle-features">
+                                                    ${vehicle.features.map(feature => `
+                                                        <span class="rv-alternative-feature-tag">${feature.replace(/_/g, ' ')}</span>
+                                                    `).join('')}
                                                 </div>
                                             ` : ''}
                                             
-                                            <div class="rv-price-details" style="margin-bottom: 10px;">
-                                                <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                                                    <span style="font-size: 11px; color: #666;">${this.getMessage('daily_price')}:</span>
-                                                    <span style="font-size: 11px; color: #007cba; font-weight: 600;">${this.formatPrice(vehicle.price_per_day)} ${window.mhmRentivaBookingForm?.currency_symbol || ''}</span>
+                                            <div class="rv-alternative-price-details">
+                                                <div class="rv-alternative-price-row">
+                                                    <span class="rv-alternative-price-label">${this.getMessage('daily_price')}:</span>
+                                                    <span class="rv-alternative-price-value">${this.formatPrice(vehicle.price_per_day)} ${window.mhmRentivaBookingForm?.currency_symbol || ''}</span>
                                                 </div>
-                                                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 3px; border-top: 1px solid #eee;">
-                                                    <span style="font-size: 12px; color: #333; font-weight: 600;">${this.getMessage('total')}:</span>
-                                                    <span style="font-size: 13px; color: #28a745; font-weight: 700;">${this.formatPrice(vehicle.total_price)} ${window.mhmRentivaBookingForm?.currency_symbol || ''}</span>
+                                                <div class="rv-alternative-price-row rv-alternative-price-total">
+                                                    <span class="rv-alternative-price-label">${this.getMessage('total')}:</span>
+                                                    <span class="rv-alternative-price-amount">${this.formatPrice(vehicle.total_price)} ${window.mhmRentivaBookingForm?.currency_symbol || ''}</span>
                                                 </div>
                                             </div>
-                                            <button type="button" class="rv-select-alternative-btn" data-vehicle-id="${vehicle.id}" style="background: #007cba; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.2s ease;" onmouseover="this.style.background='#005a87';" onmouseout="this.style.background='#007cba';">
+                                            <button type="button" class="rv-select-alternative-btn" data-vehicle-id="${vehicle.id}">
                                                 ${this.getMessage('select_this_vehicle')}
                                             </button>
                                         </div>
@@ -1031,10 +1059,13 @@
                             });
 
                             alternativesHtml += `
+                                    </div>
                                 </div>
                             `;
                         }
 
+                        // Not available - Modern error card
+                        availabilityStatus.removeClass('loading success').addClass('error');
                         availabilityStatus.html(`
                             <div class="rv-availability-error">
                                 <div class="rv-availability-error-header">
@@ -1058,7 +1089,16 @@
                 error: (xhr, status, error) => {
                     console.error('🔍 AJAX Error:', { xhr, status, error });
                     console.error('🔍 Response Text:', xhr.responseText);
-                    availabilityStatus.html(`<div class="rv-availability-error"><span class="dashicons dashicons-warning"></span> ${this.getMessage('availability_check_failed')}</div>`);
+                    // Error state - Modern error card
+                    availabilityStatus.removeClass('loading success').addClass('error');
+                    availabilityStatus.html(`
+                        <div class="rv-availability-error">
+                            <div class="rv-availability-error-header">
+                                <span class="dashicons dashicons-warning"></span>
+                                <strong>${this.getMessage('availability_check_failed')}</strong>
+                            </div>
+                        </div>
+                    `);
 
                     // ❌ Availability check failed - disable button
                     this.submitBtn.prop('disabled', true);

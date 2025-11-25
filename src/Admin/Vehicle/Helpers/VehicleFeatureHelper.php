@@ -323,23 +323,18 @@ final class VehicleFeatureHelper
 
         switch ($key) {
             case 'fuel_type':
-                $map = [
-                    'petrol'   => __('Petrol', 'mhm-rentiva'),
-                    'diesel'   => __('Diesel', 'mhm-rentiva'),
-                    'hybrid'   => __('Hybrid', 'mhm-rentiva'),
-                    'electric' => __('Electric', 'mhm-rentiva'),
-                ];
+                $map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
                 $raw = sanitize_key($raw);
                 $text = $map[$raw] ?? ucfirst($raw);
                 $icon = 'fuel';
                 break;
 
             case 'transmission':
-                $map = [
-                    'auto'     => __('Automatic', 'mhm-rentiva'),
-                    'automatic'=> __('Automatic', 'mhm-rentiva'),
-                    'manual'   => __('Manual', 'mhm-rentiva'),
-                ];
+                $map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
+                // Backward compatibility for 'automatic' key
+                if ($raw === 'automatic') {
+                    $raw = 'auto';
+                }
                 $raw = sanitize_key($raw);
                 $text = $map[$raw] ?? ucfirst($raw);
                 $icon = 'gear';

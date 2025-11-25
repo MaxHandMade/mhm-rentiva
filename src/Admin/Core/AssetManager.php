@@ -595,11 +595,19 @@ final class AssetManager
                 true
             );
             
+            // ⭐ Get max gallery images from settings (default: 50)
+            $max_gallery_images = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+                'mhm_rentiva_vehicle_max_gallery_images',
+                50
+            );
+
             wp_localize_script('mhm-vehicle-gallery', 'mhmVehicleGallery', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('mhm_gallery_nonce'),
+                'maxImages' => $max_gallery_images,
                 'strings' => [
-                    'maxImages' => __('Maximum 10 images allowed', 'mhm-rentiva'),
+                    /* translators: %d placeholder. */
+                    'maxImages' => sprintf(__('Maximum %d images allowed', 'mhm-rentiva'), $max_gallery_images),
                     'selectImages' => __('Select Images', 'mhm-rentiva'),
                     'addImages' => __('Add to Gallery', 'mhm-rentiva'),
                     'uploadError' => __('Error uploading image', 'mhm-rentiva'),
