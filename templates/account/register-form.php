@@ -179,7 +179,7 @@ $login_url = esc_url(SettingsCore::get('mhm_rentiva_login_url', $login_url ?? wp
                 required
                 placeholder="<?php esc_attr_e('Re-enter your password', 'mhm-rentiva'); ?>"
                 autocomplete="new-password"
-                oninput="this.setCustomValidity(this.value !== document.getElementById('rv_password').value ? 'Passwords do not match' : '')"
+                autocomplete="new-password"
             >
         </div>
 

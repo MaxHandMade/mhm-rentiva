@@ -2,7 +2,6 @@
 
 namespace MHMRentiva\Admin\Emails\Core;
 
-use MHMRentiva\Admin\Core\Utilities\BookingQueryHelper;
 use MHMRentiva\Admin\Settings\Settings;
 
 if (!defined('ABSPATH')) {
@@ -11,6 +10,49 @@ if (!defined('ABSPATH')) {
 
 final class Mailer
 {
+    /**
+     * Booking data provider instance
+     * 
+     * @var BookingDataProviderInterface|null
+     */
+    private static ?BookingDataProviderInterface $booking_data_provider = null;
+
+    /**
+     * Get booking data provider instance
+     * 
+     * Uses filter hook to allow addons to provide custom implementations
+     * 
+     * @return BookingDataProviderInterface Booking data provider
+     */
+    private static function get_booking_data_provider(): BookingDataProviderInterface
+    {
+        if (self::$booking_data_provider === null) {
+            /**
+             * Filter: Allow addons to provide custom booking data provider
+             * 
+             * @param BookingDataProviderInterface|null $provider Booking data provider instance
+             * @return BookingDataProviderInterface Modified booking data provider instance
+             * 
+             * @example
+             * add_filter('mhm_rentiva_booking_data_provider', function($provider) {
+             *     if (class_exists('MyCustomBookingProvider')) {
+             *         return new MyCustomBookingProvider();
+             *     }
+             *     return $provider;
+             * });
+             */
+            $provider = apply_filters('mhm_rentiva_booking_data_provider', null);
+            
+            if ($provider instanceof BookingDataProviderInterface) {
+                self::$booking_data_provider = $provider;
+            } else {
+                // Default: Use BookingQueryHelperAdapter
+                self::$booking_data_provider = new BookingQueryHelperAdapter();
+            }
+        }
+        
+        return self::$booking_data_provider;
+    }
     public static function register(): void
     {
         // Placeholder for future hooks
@@ -164,13 +206,14 @@ final class Mailer
             return null;
         }
 
-        // Get data using BookingQueryHelper
-        $customer_info = BookingQueryHelper::getBookingCustomerInfo($booking_id);
-        $vehicle_info = BookingQueryHelper::getBookingVehicleInfo($booking_id);
-        $date_info = BookingQueryHelper::getBookingDateInfo($booking_id);
-        $payment_status = BookingQueryHelper::getBookingPaymentStatus($booking_id);
-        $payment_gateway = BookingQueryHelper::getBookingPaymentGateway($booking_id);
-        $total_price = BookingQueryHelper::getBookingTotalPrice($booking_id);
+        // ⭐ Get data using interface-based provider (loose coupling)
+        $provider = self::get_booking_data_provider();
+        $customer_info = $provider->getBookingCustomerInfo($booking_id);
+        $vehicle_info = $provider->getBookingVehicleInfo($booking_id);
+        $date_info = $provider->getBookingDateInfo($booking_id);
+        $payment_status = $provider->getBookingPaymentStatus($booking_id);
+        $payment_gateway = $provider->getBookingPaymentGateway($booking_id);
+        $total_price = $provider->getBookingTotalPrice($booking_id);
         
         // Get payment information
         $payment_type = get_post_meta($booking_id, '_mhm_payment_type', true);
@@ -297,8 +340,6 @@ final class Mailer
             return $cached_stats;
         }
         
-        global $wpdb;
-        
         // Check if logging is enabled
         if (!\MHMRentiva\Admin\Settings\Groups\EmailSettings::is_log_enabled()) {
             $stats = [
@@ -313,28 +354,63 @@ final class Mailer
             return $stats;
         }
         
-        $where_clause = '';
-        if (!empty($key)) {
-            $where_clause = $wpdb->prepare("AND pm.meta_value LIKE %s", '%' . $key . '%');
-        }
-        
+        // ⭐ Using WP_Query instead of raw SQL for better maintainability
         $date_threshold = date('Y-m-d H:i:s', strtotime("-{$days} days"));
         
-        // Optimized query
-        $results = $wpdb->get_results($wpdb->prepare("
-            SELECT 
-                COUNT(*) as total_sent,
-                SUM(CASE WHEN pm.meta_value = 'success' THEN 1 ELSE 0 END) as successful,
-                SUM(CASE WHEN pm.meta_value = 'failed' THEN 1 ELSE 0 END) as failed
-            FROM {$wpdb->postmeta} pm
-            INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-            WHERE p.post_type = 'mhm_email_log'
-            AND pm.meta_key = '_mhm_email_status'
-            AND p.post_date >= %s
-            {$where_clause}
-        ", $date_threshold));
+        // Build meta query
+        $meta_query = [
+            [
+                'key' => '_mhm_email_status',
+                'compare' => 'EXISTS',
+            ],
+        ];
         
-        $stats = $results[0] ?? (object) ['total_sent' => 0, 'successful' => 0, 'failed' => 0];
+        // Filter by template key if provided
+        if (!empty($key)) {
+            $meta_query[] = [
+                'key' => '_mhm_email_key',
+                'value' => $key,
+                'compare' => 'LIKE',
+            ];
+        }
+        
+        // Query for all emails in date range
+        $query = new \WP_Query([
+            'post_type' => 'mhm_email_log',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            'date_query' => [
+                [
+                    'after' => $date_threshold,
+                    'inclusive' => true,
+                ],
+            ],
+            'meta_query' => $meta_query,
+            'no_found_rows' => false,
+        ]);
+        
+        // Calculate statistics from results
+        $total_sent = $query->found_posts ?? 0;
+        $successful = 0;
+        $failed = 0;
+        
+        if ($query->have_posts()) {
+            foreach ($query->posts as $post_id) {
+                $status = get_post_meta($post_id, '_mhm_email_status', true);
+                if ($status === 'success') {
+                    $successful++;
+                } elseif ($status === 'failed') {
+                    $failed++;
+                }
+            }
+        }
+        
+        $stats = (object) [
+            'total_sent' => $total_sent,
+            'successful' => $successful,
+            'failed' => $failed,
+        ];
         
         $final_stats = [
             'total_sent' => (int) $stats->total_sent,

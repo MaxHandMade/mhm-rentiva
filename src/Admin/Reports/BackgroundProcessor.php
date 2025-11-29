@@ -14,18 +14,37 @@ if (!defined('ABSPATH')) {
 final class BackgroundProcessor
 {
     /**
-     * Report types
+     * Get report types (with filter hook support)
+     * 
+     * @return array<string, string> Report type key => Label mapping
      */
-    private const REPORT_TYPES = [
-        'booking_report' => 'Booking Report',
-        'customer_report' => 'Customer Report', 
-        'vehicle_report' => 'Vehicle Report',
-        'revenue_report' => 'Revenue Report',
-        'export_booking_data' => 'Booking Export',
-        'export_customer_data' => 'Customer Export',
-        'export_vehicle_data' => 'Vehicle Export',
-        'bulk_operations' => 'Bulk Operations'
-    ];
+    private static function get_report_types(): array
+    {
+        $report_types = [
+            'booking_report' => __('Booking Report', 'mhm-rentiva'),
+            'customer_report' => __('Customer Report', 'mhm-rentiva'), 
+            'vehicle_report' => __('Vehicle Report', 'mhm-rentiva'),
+            'revenue_report' => __('Revenue Report', 'mhm-rentiva'),
+            'export_booking_data' => __('Booking Export', 'mhm-rentiva'),
+            'export_customer_data' => __('Customer Export', 'mhm-rentiva'),
+            'export_vehicle_data' => __('Vehicle Export', 'mhm-rentiva'),
+            'bulk_operations' => __('Bulk Operations', 'mhm-rentiva')
+        ];
+        
+        /**
+         * Filter: Allow addons and third-party plugins to add custom report types
+         * 
+         * @param array<string, string> $report_types Report type key => Label mapping
+         * @return array Modified report types array
+         * 
+         * @example
+         * add_filter('mhm_rentiva_report_types', function($types) {
+         *     $types['custom_report'] = __('Custom Report', 'my-plugin');
+         *     return $types;
+         * });
+         */
+        return apply_filters('mhm_rentiva_report_types', $report_types);
+    }
     
     /**
      * Class availability cache
@@ -51,7 +70,9 @@ final class BackgroundProcessor
      */
     public static function queue_report_generation(string $report_type, array $params, int $user_id = 0): string
     {
-        if (!isset(self::REPORT_TYPES[$report_type])) {
+        $report_types = self::get_report_types();
+        
+        if (!isset($report_types[$report_type])) {
             /* translators: %s placeholder. */
             throw new \InvalidArgumentException(sprintf(__('Invalid report type: %s', 'mhm-rentiva'), $report_type));
         }
@@ -168,42 +189,68 @@ final class BackgroundProcessor
         $report_type = $job_data['report_type'];
         $params = $job_data['params'];
 
-        switch ($report_type) {
-            case 'booking_report':
-                $result = self::generate_booking_report($params);
-                break;
-                
-            case 'customer_report':
-                $result = self::generate_customer_report($params);
-                break;
-                
-            case 'vehicle_report':
-                $result = self::generate_vehicle_report($params);
-                break;
-                
-            case 'revenue_report':
-                $result = self::generate_revenue_report($params);
-                break;
-                
-            case 'export_booking_data':
-                $result = self::export_booking_data_background($params);
-                break;
-                
-            case 'export_customer_data':
-                $result = self::export_customer_data_background($params);
-                break;
-                
-            case 'export_vehicle_data':
-                $result = self::export_vehicle_data_background($params);
-                break;
-                
-            case 'bulk_operations':
-                $result = self::process_bulk_operations($params);
-                break;
-                
-            default:
-                /* translators: %s placeholder. */
-                $result = ['success' => false, 'error' => sprintf(__('Unknown report type: %s', 'mhm-rentiva'), $report_type)];
+        // Check if custom report generation is handled via action hook
+        $custom_result = null;
+        
+        /**
+         * Action: Allow addons to handle custom report generation
+         * 
+         * @param string $report_type Report type key
+         * @param array  $params      Report parameters
+         * @param array  $job_data    Full job data
+         * @param mixed  $result      Reference to result array (set to array with 'success' key to handle)
+         * 
+         * @example
+         * add_action('mhm_rentiva_generate_report', function($type, $params, $job_data, &$result) {
+         *     if ($type === 'custom_report') {
+         *         $result = ['success' => true, 'data' => custom_report_data()];
+         *     }
+         * }, 10, 4);
+         */
+        do_action_ref_array('mhm_rentiva_generate_report', [&$report_type, &$params, &$job_data, &$custom_result]);
+        
+        // If custom handler provided result, use it
+        if ($custom_result !== null && is_array($custom_result) && isset($custom_result['success'])) {
+            $result = $custom_result;
+        } else {
+            // Default report generation
+            switch ($report_type) {
+                case 'booking_report':
+                    $result = self::generate_booking_report($params);
+                    break;
+                    
+                case 'customer_report':
+                    $result = self::generate_customer_report($params);
+                    break;
+                    
+                case 'vehicle_report':
+                    $result = self::generate_vehicle_report($params);
+                    break;
+                    
+                case 'revenue_report':
+                    $result = self::generate_revenue_report($params);
+                    break;
+                    
+                case 'export_booking_data':
+                    $result = self::export_booking_data_background($params);
+                    break;
+                    
+                case 'export_customer_data':
+                    $result = self::export_customer_data_background($params);
+                    break;
+                    
+                case 'export_vehicle_data':
+                    $result = self::export_vehicle_data_background($params);
+                    break;
+                    
+                case 'bulk_operations':
+                    $result = self::process_bulk_operations($params);
+                    break;
+                    
+                default:
+                    /* translators: %s placeholder. */
+                    $result = ['success' => false, 'error' => sprintf(__('Unknown report type: %s', 'mhm-rentiva'), $report_type)];
+            }
         }
 
         $end_time = microtime(true);

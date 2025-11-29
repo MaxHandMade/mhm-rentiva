@@ -19,60 +19,9 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
     mhm_rentiva_load_textdomain();
 }
 
-// Get settings from comments settings (needed for wp_localize_script)
-$comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
-
-// Load CSS and JS files - load in wp_head
-add_action('wp_head', function() use ($comments_settings) {
-    wp_enqueue_style(
-        'mhm-rentiva-vehicle-rating-form-template',
-        MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicle-rating-form.css',
-        [],
-        MHM_RENTIVA_VERSION
-    );
-    
-    wp_enqueue_script(
-        'mhm-rentiva-vehicle-rating-form-template',
-        MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicle-rating-form.js',
-        ['jquery'],
-        MHM_RENTIVA_VERSION,
-        true
-    );
-    
-    // Localize script with all required data
-    wp_localize_script(
-        'mhm-rentiva-vehicle-rating-form-template',
-        'mhmVehicleRating',
-        [
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('mhm_rentiva_rating_nonce'),
-            'is_logged_in' => is_user_logged_in(),
-            'current_user_id' => get_current_user_id(),
-            'current_user' => wp_get_current_user(),
-            'no_ratings' => esc_html__('No reviews yet.', 'mhm-rentiva'),
-            'reviews_title' => esc_html__('Reviews', 'mhm-rentiva'),
-            'loading' => esc_html__('Loading...', 'mhm-rentiva'),
-            'error' => esc_html__('An error occurred', 'mhm-rentiva'),
-            'success' => esc_html__('Rating submitted successfully', 'mhm-rentiva'),
-            'login_required' => esc_html__('You must log in to rate', 'mhm-rentiva'),
-            'invalid_rating' => esc_html__('Please select a rating', 'mhm-rentiva'),
-            'strings' => [
-                'edit_loaded' => esc_html__('Your comment has been loaded for editing.', 'mhm-rentiva'),
-                'delete_confirm' => esc_html__('Are you sure you want to delete this comment?', 'mhm-rentiva'),
-                'delete_success' => esc_html__('Your comment has been deleted successfully!', 'mhm-rentiva'),
-                'delete_error' => esc_html__('Error deleting comment: ', 'mhm-rentiva'),
-                'delete_error_retry' => esc_html__('Error deleting comment. Please try again.', 'mhm-rentiva'),
-                'unknown_error' => esc_html__('Unknown error', 'mhm-rentiva'),
-                'deleting' => esc_html__('Deleting...', 'mhm-rentiva'),
-                'delete' => esc_html__('Delete', 'mhm-rentiva'),
-            ],
-            'settings' => [
-                'allow_editing' => ($comments_settings['display']['allow_editing'] ?? true),
-                'allow_deletion' => ($comments_settings['display']['allow_deletion'] ?? true),
-            ],
-        ]
-    );
-}, 1);
+// ⭐ Asset management removed - VehicleRatingForm Controller handles asset loading
+// Assets are enqueued via VehicleRatingForm::enqueue_assets() method
+// Localized data is provided via VehicleRatingForm::get_localized_strings() method
 
 // Use the data array passed to template
 $data = $data ?? [];

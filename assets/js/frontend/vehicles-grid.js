@@ -179,9 +179,6 @@
 
             // Create notification element
             var $notification = $('<div class="rv-notification rv-notification--' + type + '">' + message + '</div>');
-            if (window.console && console.log) {
-                console.log('[Rentiva][Grid] notification:', type, message);
-            }
 
             // Add to page
             $('body').append($notification);

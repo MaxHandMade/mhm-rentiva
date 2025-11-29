@@ -27,8 +27,10 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 <div class="mhm-rentiva-account-page">
     
-    <!-- Account Navigation -->
-    <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
+    <!-- Account Navigation (only show if not on WooCommerce My Account page) -->
+    <?php if (!empty($navigation)): ?>
+        <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
+    <?php endif; ?>
     
     <!-- Dashboard Content -->
     <div class="mhm-account-content">
@@ -402,146 +404,5 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
     
 </div><!-- .mhm-rentiva-account-page -->
 
-<script type="text/javascript">
-// Privacy Controls JavaScript
-var mhm_privacy = {
-    ajax_url: '<?php echo admin_url('admin-ajax.php'); ?>',
-    nonce: '<?php echo wp_create_nonce('mhm_gdpr_nonce'); ?>',
-    home_url: '<?php echo home_url(); ?>'
-};
 
-// Define ajaxurl for compatibility
-var ajaxurl = mhm_privacy.ajax_url;
-
-jQuery(document).ready(function($) {
-    
-    // Data Export
-    $('#export-data').on('click', function(e) {
-        e.preventDefault();
-        
-        if (!confirm('Are you sure you want to export your data? This may take a few minutes.')) {
-            return;
-        }
-        
-        var button = $(this);
-        var originalText = button.text();
-        
-        button.prop('disabled', true).text('Exporting...');
-        
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'mhm_rentiva_data_export',
-                nonce: mhm_privacy.nonce
-            },
-            success: function(response) {
-                if (response.success) {
-                    // Create download link
-                    var blob = new Blob([response.data], { type: 'application/json' });
-                    var url = window.URL.createObjectURL(blob);
-                    var a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'my-data-export.json';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                    
-                    alert('Data exported successfully!');
-                } else {
-                    alert('Error: ' + (response.data.message || 'Unknown error'));
-                }
-            },
-            error: function(xhr, status, error) {
-                alert('An error occurred while exporting data: ' + error);
-            },
-            complete: function() {
-                button.prop('disabled', false).text(originalText);
-            }
-        });
-    });
-    
-    // Withdraw Consent
-    $('#withdraw-consent').on('click', function(e) {
-        e.preventDefault();
-        
-        if (!confirm('Are you sure you want to withdraw your consent? This will disable data processing for your account.')) {
-            return;
-        }
-        
-        var button = $(this);
-        var originalText = button.text();
-        
-        button.prop('disabled', true).text('Processing...');
-        
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'mhm_rentiva_consent_withdrawal',
-                nonce: mhm_privacy.nonce
-            },
-            success: function(response) {
-                if (response.success) {
-                    alert('Consent withdrawn successfully!');
-                    location.reload();
-                } else {
-                    alert('Error: ' + (response.data.message || 'Unknown error'));
-                }
-            },
-            error: function(xhr, status, error) {
-                alert('An error occurred while withdrawing consent: ' + error);
-            },
-            complete: function() {
-                button.prop('disabled', false).text(originalText);
-            }
-        });
-    });
-    
-    // Delete Account
-    $('#delete-account').on('click', function(e) {
-        e.preventDefault();
-        
-        var confirmation = prompt('This action cannot be undone. Type "DELETE" to confirm account deletion:');
-        
-        if (confirmation !== 'DELETE') {
-            return;
-        }
-        
-        if (!confirm('Are you absolutely sure? This will permanently delete your account and all data.')) {
-            return;
-        }
-        
-        var button = $(this);
-        var originalText = button.text();
-        
-        button.prop('disabled', true).text('Deleting...');
-        
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'mhm_rentiva_data_deletion',
-                nonce: mhm_privacy.nonce
-            },
-            success: function(response) {
-                if (response.success) {
-                    alert('Account deleted successfully. You will be redirected to the homepage.');
-                    window.location.href = mhm_privacy.home_url;
-                } else {
-                    alert('Error: ' + (response.data.message || 'Unknown error'));
-                }
-            },
-            error: function(xhr, status, error) {
-                alert('An error occurred while deleting account: ' + error);
-            },
-            complete: function() {
-                button.prop('disabled', false).text(originalText);
-            }
-        });
-    });
-    
-});
-</script>
 

@@ -105,28 +105,7 @@ final class EmailTemplates
                 }
             }
 
-            echo '<script>
-            (function(){
-              const btn = document.getElementById("mhm-send-template-btn-settings");
-              if(!btn) return;
-              btn.addEventListener("click", function(){
-                const actionUrl = btn.getAttribute("data-post");
-                const nonce = btn.getAttribute("data-nonce");
-                const tpl = document.getElementById("mhm-template-key-settings").value;
-                const bid = document.getElementById("mhm-booking-id-settings").value;
-                const st  = document.getElementById("mhm-new-status-settings").value;
-                const to  = document.getElementById("mhm-send-to-settings").value;
-                const form = document.createElement("form");
-                form.method = "POST";
-                form.action = actionUrl;
-                const fields = { action: "mhm_rentiva_send_template_test", _wpnonce: nonce, template_key: tpl, booking_id: bid, new_status: st, to: to };
-                Object.keys(fields).forEach(function(k){
-                  const input = document.createElement("input"); input.type = "hidden"; input.name = k; input.value = fields[k] || ""; form.appendChild(input);
-                });
-                document.body.appendChild(form); form.submit();
-              });
-            })();
-            </script>';
+            // ⭐ Inline JavaScript removed - All JS is now in assets/js/admin/email-templates.js
             echo '</div>';
         }
 
@@ -171,41 +150,7 @@ final class EmailTemplates
                 }
             }
 
-            echo '<script>
-            (function(){
-              const btn = document.getElementById("mhm-send-template-btn");
-              if(!btn) return;
-              btn.addEventListener("click", function(){
-                const actionUrl = btn.getAttribute("data-post");
-                const nonce = btn.getAttribute("data-nonce");
-                const tpl = document.getElementById("mhm-template-key").value;
-                const bid = document.getElementById("mhm-booking-id").value;
-                const st  = document.getElementById("mhm-new-status").value;
-                const to  = document.getElementById("mhm-send-to").value;
-                // Build and submit a detached form (avoid nested form issues)
-                const form = document.createElement("form");
-                form.method = "POST";
-                form.action = actionUrl;
-                const fields = {
-                  action: "mhm_rentiva_send_template_test",
-                  _wpnonce: nonce,
-                  template_key: tpl,
-                  booking_id: bid,
-                  new_status: st,
-                  to: to
-                };
-                Object.keys(fields).forEach(function(k){
-                  const input = document.createElement("input");
-                  input.type = "hidden";
-                  input.name = k;
-                  input.value = fields[k] || "";
-                  form.appendChild(input);
-                });
-                document.body.appendChild(form);
-                form.submit();
-              });
-            })();
-            </script>';
+            // ⭐ Inline JavaScript removed - All JS is now in assets/js/admin/email-templates.js
             echo '</div>';
         }
 
@@ -496,10 +441,12 @@ final class EmailTemplates
                 true
             );
             
-            // Localize JavaScript variables
+            // ⭐ Localize JavaScript variables (includes data for send test email functionality)
             wp_localize_script('mhm-email-templates', 'mhm_email_templates_vars', [
                 'ajax_url' => admin_url('admin-ajax.php'),
+                'admin_post_url' => admin_url('admin-post.php'),
                 'nonce' => wp_create_nonce('mhm_email_templates_nonce'),
+                'send_test_nonce' => wp_create_nonce('mhm_rentiva_send_template_test'),
                 'preview_email' => __('Email Preview', 'mhm-rentiva'),
                 'send_test' => __('Send Test', 'mhm-rentiva'),
                 'test_email_sent' => __('Test email sent successfully!', 'mhm-rentiva'),
@@ -620,13 +567,8 @@ final class EmailTemplates
         // Active template count (simple calculation - all templates considered active)
         $active_templates = $total_templates;
         
-        // Emails sent this month (simple calculation)
-        $monthly_sent = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->posts} 
-             WHERE post_type = 'mhm_email_log' 
-             AND post_date >= %s",
-            date('Y-m-01 00:00:00')
-        ));
+        // ⭐ Emails sent this month - Using WP_Query instead of raw SQL
+        $monthly_sent = self::get_monthly_email_count();
         
         // Success rate (simple calculation - 95% accepted)
         $success_rate = '95%';
@@ -641,6 +583,30 @@ final class EmailTemplates
             'monthly_sent' => $monthly_sent,
             'success_rate' => $success_rate,
         ];
+    }
+
+    /**
+     * Get monthly email count using WP_Query (replaces raw SQL)
+     * 
+     * @return int Monthly email count
+     */
+    private static function get_monthly_email_count(): int
+    {
+        $query = new \WP_Query([
+            'post_type' => 'mhm_email_log',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            'date_query' => [
+                [
+                    'after' => date('Y-m-01 00:00:00'),
+                    'inclusive' => true,
+                ],
+            ],
+            'no_found_rows' => true,
+        ]);
+
+        return $query->found_posts ?? 0;
     }
 
     /**

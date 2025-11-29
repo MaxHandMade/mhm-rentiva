@@ -7,35 +7,35 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #1d2327;
+    color: var(--mhm-text-primary);
 }
 
 .mhm-rentiva-wrap select {
     width: 100%;
     padding: 0.5rem;
-    border: 1px solid #8c8f94;
-    border-radius: 4px;
-    background-color: #fff;
+    border: 1px solid var(--mhm-border-primary);
+    border-radius: var(--mhm-radius-sm);
+    background-color: var(--mhm-bg-card);
     font-size: 14px;
 }
 
 .mhm-rentiva-wrap select:focus {
-    border-color: #2271b1;
-    box-shadow: 0 0 0 1px #2271b1;
+    border-color: var(--mhm-primary);
+    box-shadow: 0 0 0 1px var(--mhm-primary);
     outline: none;
 }
 
 .mhm-rentiva-wrap .booking-summary {
-    border-top: 1px solid #c3c4c7;
+    border-top: 1px solid var(--mhm-border-secondary);
     padding-top: 1rem;
     margin-top: 1rem;
 }
 
 .mhm-rentiva-wrap .booking-summary h4 {
     margin: 0 0 0.5rem 0;
-    color: #1d2327;
+    color: var(--mhm-text-primary);
     font-size: 14px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
 }
 
 .mhm-rentiva-wrap .booking-summary p {
@@ -45,17 +45,17 @@
 }
 
 .mhm-rentiva-wrap .booking-summary strong {
-    color: #1d2327;
+    color: var(--mhm-text-primary);
     font-weight: 500;
 }
 
 .mhm-rentiva-wrap .booking-summary a {
-    color: #2271b1;
+    color: var(--mhm-primary);
     text-decoration: none;
 }
 
 .mhm-rentiva-wrap .booking-summary a:hover {
-    color: #135e96;
+    color: var(--mhm-primary-dark);
     text-decoration: underline;
 }
 
@@ -67,20 +67,20 @@
 }
 
 .mhm-payment-box strong {
-    color: #1d2327;
+    color: var(--mhm-text-primary);
     font-weight: 500;
 }
 
 .mhm-payment-box code {
-    background-color: #f0f0f1;
+    background-color: var(--mhm-bg-hover);
     padding: 0.2rem 0.4rem;
-    border-radius: 3px;
+    border-radius: var(--mhm-radius-sm);
     font-family: Consolas, Monaco, monospace;
     font-size: 12px;
 }
 
 .mhm-payment-box .description {
-    color: #646970;
+    color: var(--mhm-text-secondary);
     font-style: italic;
     font-size: 13px;
 }
@@ -93,25 +93,25 @@
 #mhm-refund-msg {
     margin: 0.5rem 0;
     padding: 0.5rem;
-    border-radius: 4px;
+    border-radius: var(--mhm-radius-sm);
 }
 
 #mhm-refund-msg.notice-success {
-    background-color: #d1e7dd;
-    border-left: 4px solid #28a745;
-    color: #0f5132;
+    background-color: var(--mhm-success-bg);
+    border-left: 4px solid var(--mhm-success);
+    color: var(--mhm-success-dark);
 }
 
 #mhm-refund-msg.notice-error {
-    background-color: #f8d7da;
-    border-left: 4px solid #dc3545;
-    color: #721c24;
+    background-color: var(--mhm-error-bg);
+    border-left: 4px solid var(--mhm-error);
+    color: var(--mhm-error-dark);
 }
 
 #mhm-refund-msg.notice-info {
-    background-color: #d1ecf1;
-    border-left: 4px solid #17a2b8;
-    color: #0c5460;
+    background-color: var(--mhm-bg-secondary);
+    border-left: 4px solid var(--mhm-primary);
+    color: var(--mhm-primary-dark);
 }
 
 /* Offline Payment Box */
@@ -127,7 +127,7 @@
 .mhm-offline-box form {
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #c3c4c7;
+    border-top: 1px solid var(--mhm-border-secondary);
 }
 
 .mhm-offline-box form .button {

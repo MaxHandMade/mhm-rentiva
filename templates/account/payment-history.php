@@ -26,7 +26,9 @@ $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
 ?>
 
 <div class="mhm-rentiva-account-page">
-    <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
+    <?php if (!empty($navigation)): ?>
+        <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
+    <?php endif; ?>
     
     <div class="mhm-account-content">
         <div class="section-header">

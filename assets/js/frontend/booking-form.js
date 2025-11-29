@@ -40,6 +40,8 @@
             this.priceElements = {
                 dailyPrice: $('#rv-daily-price'),
                 daysCount: $('#rv-days-count'),
+                taxLabel: $('#rv-tax-label'),
+                taxAmount: $('#rv-tax-amount'),
                 vehicleTotal: $('#rv-vehicle-total'),
                 addonsTotal: $('#rv-addons-total'),
                 totalAmount: $('#rv-total-amount'),
@@ -567,43 +569,82 @@
             const currencySymbol = data.currency_symbol || window.mhmRentivaBookingForm?.currency_symbol;
 
             // Daily price
+            // If tax inclusive: vehicle_price from meta is already tax-inclusive, so show it as-is
+            // If tax exclusive: vehicle_price from meta is tax-exclusive, show it as-is
+            // Note: vehicle_total already includes tax calculation, so for display we use vehicle_price
             this.priceElements.dailyPrice.text(this.formatPrice(data.vehicle_price) + ' ' + currencySymbol);
 
             // Days count
             this.priceElements.daysCount.text(data.days);
 
-            // Vehicle total
-            this.priceElements.vehicleTotal.text(this.formatPrice(data.vehicle_total) + ' ' + currencySymbol);
+            // Determine if we need to show detailed breakdown
+            const hasTax = data.tax_enabled && data.tax_amount !== undefined && data.tax_amount > 0;
+            const hasAddons = data.addon_total > 0;
+            const showDetailedBreakdown = hasTax || hasAddons;
+
+            // Tax information - only show if tax is enabled and amount > 0
+            if (hasTax) {
+                const taxRate = data.tax_rate || 0;
+                const taxLabel = window.mhmRentivaBookingForm?.strings?.tax || 'Tax';
+                const taxIncludedLabel = window.mhmRentivaBookingForm?.strings?.tax_included || 'Tax (included)';
+                const taxLabelText = taxRate > 0
+                    ? (data.tax_inclusive
+                        ? taxIncludedLabel + ' (' + taxRate + '%):'
+                        : taxLabel + ' (' + taxRate + '%):')
+                    : taxLabel + ':';
+                this.priceElements.taxLabel.text(taxLabelText);
+                this.priceElements.taxAmount.text(this.formatPrice(data.tax_amount) + ' ' + currencySymbol);
+                $('.rv-tax-summary').show();
+            } else {
+                $('.rv-tax-summary').hide();
+            }
+
+            // Vehicle total - only show if tax or addons exist (to show breakdown)
+            if (showDetailedBreakdown) {
+                this.priceElements.vehicleTotal.text(this.formatPrice(data.vehicle_total) + ' ' + currencySymbol);
+                $('.rv-vehicle-total-detailed').show();
+            } else {
+                $('.rv-vehicle-total-detailed').hide();
+            }
 
             // Add-ons
-            if (data.addon_total > 0) {
+            if (hasAddons) {
                 this.priceElements.addonsTotal.text(this.formatPrice(data.addon_total) + ' ' + currencySymbol);
                 $('.rv-addons-price').show();
             } else {
                 $('.rv-addons-price').hide();
             }
 
-            // Total amount
+            // Total amount (always shown)
             this.priceElements.totalAmount.text(this.formatPrice(data.total_price) + ' ' + currencySymbol);
 
-            // Deposit information
-            const paymentType = $('input[name="payment_type"]:checked').val();
-            if (paymentType === 'deposit' && data.deposit_amount !== undefined) {
-                // If deposit payment is selected
+            // Deposit information - always show if deposit is enabled and amount exists
+            // Check both radio buttons and hidden field
+            const paymentTypeRadio = $('input[name="payment_type"]:checked').val();
+            const paymentTypeHidden = $('input[name="payment_type"][type="hidden"]').val();
+            const paymentType = paymentTypeRadio || paymentTypeHidden || 'deposit'; // Default to deposit
+
+            // Always show deposit if enabled and deposit_amount is provided
+            // enable_deposit can be true, '1', or undefined (default to true)
+            const depositEnabled = window.mhmRentivaBookingForm?.enable_deposit !== false &&
+                window.mhmRentivaBookingForm?.enable_deposit !== '0' &&
+                window.mhmRentivaBookingForm?.enable_deposit !== 0;
+
+            // Show deposit if: enabled AND (payment type is deposit OR deposit_amount exists)
+            if (depositEnabled && (paymentType === 'deposit' || data.deposit_amount !== undefined) &&
+                data.deposit_amount !== undefined && data.deposit_amount > 0) {
+                // Show deposit information
                 this.priceElements.depositAmount.text(this.formatPrice(data.deposit_amount) + ' ' + currencySymbol);
-                this.priceElements.remainingAmount.text(this.formatPrice(data.remaining_amount) + ' ' + currencySymbol);
                 $('.rv-deposit-summary').show();
-                if (data.remaining_amount > 0) {
+
+                if (data.remaining_amount !== undefined && data.remaining_amount > 0) {
+                    this.priceElements.remainingAmount.text(this.formatPrice(data.remaining_amount) + ' ' + currencySymbol);
                     $('.rv-remaining-summary').show();
                 } else {
                     $('.rv-remaining-summary').hide();
                 }
-            } else if (paymentType === 'full' && data.deposit_amount !== undefined) {
-                // If full payment is selected - hide deposit fields completely
-                $('.rv-deposit-summary').hide();
-                $('.rv-remaining-summary').hide();
             } else {
-                // If no payment type is selected, hide fields
+                // Hide deposit fields
                 $('.rv-deposit-summary').hide();
                 $('.rv-remaining-summary').hide();
             }
@@ -710,7 +751,7 @@
             // Pickup time validation (required)
             if (!pickupTime) {
                 $('#pickup_time').addClass('error');
-                this.showError(this.getMessage('selectPickupTime') || __('Please select pickup time.', 'mhm-rentiva'));
+                this.showError(this.getMessage('selectPickupTime') || 'Please select pickup time.');
                 isValid = false;
             }
 
@@ -1019,7 +1060,7 @@
                             message = this.getMessage('vehicle_unavailable_with_alternatives');
                             alternativesHtml = `
                                 <div class="rv-alternatives-wrapper">
-                                    <div class="rv-alternatives-title">${this.getMessage('alternative_vehicles') || __('Alternative Vehicles', 'mhm-rentiva')}</div>
+                                    <div class="rv-alternatives-title">${this.getMessage('alternative_vehicles') || 'Alternative Vehicles'}</div>
                                     <div class="rv-alternatives-grid">
                             `;
 

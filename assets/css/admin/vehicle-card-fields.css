@@ -18,13 +18,13 @@
     padding: 0;
     list-style: none;
     min-height: 48px;
-    border: 1px solid #dcdcde;
+    border: 1px solid var(--mhm-border-secondary);
     border-radius: 6px;
-    background: #fff;
+    background: var(--mhm-bg-card);
 }
 
 .mhm-card-fields-list.is-empty {
-    background: #f8f9fa;
+    background: var(--mhm-bg-secondary);
     border-style: dashed;
 }
 
@@ -34,8 +34,8 @@
     justify-content: space-between;
     padding: 10px 12px;
     cursor: grab;
-    border-bottom: 1px solid #f0f0f1;
-    background: #fff;
+    border-bottom: 1px solid var(--mhm-border-secondary);
+    background: var(--mhm-bg-card);
 }
 
 .mhm-card-field-item:last-child {
@@ -43,27 +43,27 @@
 }
 
 .mhm-card-field-item:hover {
-    background: #f8f9fb;
+    background: var(--mhm-bg-hover);
 }
 
 .mhm-card-field-label {
-    font-weight: 600;
-    color: #1d2327;
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-primary);
 }
 
 .mhm-card-field-item .remove-field {
     font-size: 18px;
     line-height: 1;
     margin-left: 8px;
-    color: #7a869a;
+    color: var(--mhm-text-secondary);
 }
 
 .mhm-card-field-item .remove-field:hover {
-    color: #d63638;
+    color: var(--mhm-error);
 }
 
 .mhm-card-fields-placeholder {
-    border: 2px dashed #3858e9;
+    border: 2px dashed var(--mhm-primary);
     background: rgba(56, 88, 233, 0.08);
     height: 42px;
     margin: 10px;

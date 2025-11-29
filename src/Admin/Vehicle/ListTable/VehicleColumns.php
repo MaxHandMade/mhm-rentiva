@@ -1113,7 +1113,7 @@ final class VehicleColumns
             // ⭐ Get customer info using BookingQueryHelper (handles WooCommerce & WordPress integration)
             $customer_info = [];
             if (class_exists('\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper')) {
-                $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo($booking->booking_id);
+                $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo((int) $booking->booking_id);
             }
             
             // Build customer name from first_name and last_name

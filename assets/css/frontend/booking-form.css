@@ -11,7 +11,29 @@
  * @updated 2025-01-16 - Alternative vehicles styling improved (light green background)
  * @updated 2025-01-16 - Mobile responsive design improved (input widths, payment cards, grid layout)
  * @updated 2025-01-16 - Make Booking button text visibility fix
+ * @updated 2025-01-XX - Inline CSS removed, utility classes added (rv-hidden, rv-select-disabled, rv-description-hint)
  */
+
+/* ===== UTILITY CLASSES (Replaces inline styles) ===== */
+.rv-hidden {
+    display: none !important;
+}
+
+.rv-select-disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.rv-description-hint {
+    display: block;
+    margin-top: 5px;
+    color: var(--mhm-gray-500);
+    font-size: 0.875rem;
+}
+
+.rv-form-actions {
+    margin-top: 20px;
+}
 
 
 /* ===== LOGGED IN USER INFO (v4.0.0) ===== */
@@ -38,7 +60,7 @@
 }
 
 .rv-logged-in-info .rv-info-message {
-    color: #ffffff;
+    color: var(--mhm-white);
     margin: 0;
     display: flex;
     align-items: center;
@@ -74,7 +96,7 @@
 }
 
 .rv-booking-form {
-    background: #fff;
+    background: var(--mhm-white);
     border-radius: 0;
     box-shadow: none;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -100,8 +122,8 @@
     margin: 0;
     font-size: 1.875rem;
     font-weight: 700;
-    color: #1e293b;
-    border-bottom: 3px solid #3b82f6;
+    color: var(--mhm-gray-900);
+    border-bottom: 3px solid var(--mhm-primary);
     padding-bottom: 0.5rem;
     display: inline-block;
 }
@@ -110,7 +132,7 @@
 .rv-form-section {
     margin-bottom: 20px;
     padding: 0;
-    background: #fff;
+    background: var(--mhm-white);
     border-radius: 0;
     border: none;
 }
@@ -129,7 +151,7 @@
     content: '';
     width: 4px;
     height: 24px;
-    background: #3b82f6;
+    background: var(--mhm-primary);
     border-radius: 2px;
 }
 
@@ -137,7 +159,7 @@
     margin: 1rem 0 0.75rem 0;
     font-size: 1rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--mhm-gray-700);
 }
 
 /* ===== FORM ELEMENTS ===== */
@@ -189,13 +211,13 @@
     display: block !important;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--mhm-gray-700);
     font-size: 0.875rem;
     visibility: visible !important;
 }
 
 .rv-label .required {
-    color: #ef4444;
+    color: var(--mhm-error);
     margin-left: 0.25rem;
 }
 
@@ -205,7 +227,7 @@
 .rv-contact-info .rv-field-group .rv-field .rv-label {
     display: block !important;
     visibility: visible !important;
-    color: #374151 !important;
+    color: var(--mhm-gray-700) !important;
     font-size: 0.875rem !important;
     font-weight: 600 !important;
     opacity: 1 !important;
@@ -222,36 +244,36 @@
 .rv-select {
     width: 100%;
     padding: 0.875rem 1rem;
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--mhm-gray-200);
     border-radius: 8px;
     font-size: 1rem;
     transition: all 0.3s ease;
-    background: #ffffff;
+    background: var(--mhm-white);
     box-sizing: border-box;
 }
 
 /* Select dropdown options styling */
 .rv-select option {
-    background-color: #ffffff;
-    color: #1e293b;
+    background-color: var(--mhm-white);
+    color: var(--mhm-gray-900);
     padding: 0.5rem;
 }
 
 .rv-select option:hover {
-    background-color: #f3f4f6;
-    color: #1e293b;
+    background-color: var(--mhm-gray-50);
+    color: var(--mhm-gray-900);
 }
 
 .rv-select option:checked,
 .rv-select option:selected {
-    background-color: #3b82f6;
-    color: #ffffff;
+    background-color: var(--mhm-primary);
+    color: var(--mhm-white);
 }
 
 .rv-input:focus,
 .rv-select:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: var(--mhm-primary);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     transform: translateY(-1px);
 }
@@ -263,7 +285,7 @@
 
 .rv-input.error,
 .rv-select.error {
-    border-color: #ef4444;
+    border-color: var(--mhm-error);
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
@@ -297,7 +319,7 @@
 .rv-selected-vehicle-preview {
     margin-top: 1rem;
     padding: 1.5rem;
-    background: #fff;
+    background: var(--mhm-white);
     border-radius: 12px;
     border: 2px solid #e2e8f0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -306,8 +328,8 @@
 .rv-selected-vehicle {
     margin-bottom: 1.5rem;
     padding: 1rem;
-    background: #fff;
-    border: 1px solid #e5e7eb;
+    background: var(--mhm-white);
+    border: 1px solid var(--mhm-gray-200);
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -360,7 +382,7 @@
     gap: 0.25rem;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--mhm-gray-700);
 }
 
 .rv-selected-vehicle .rv-stars {
@@ -380,7 +402,7 @@
 }
 
 .rv-selected-vehicle .rv-rating-count {
-    color: #6b7280;
+    color: var(--mhm-gray-500);
     font-size: 0.75rem;
 }
 
@@ -409,7 +431,7 @@
 
 .rv-selected-vehicle .rv-vehicle-excerpt {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--mhm-gray-500);
     margin-bottom: 0.5rem;
 }
 
@@ -424,7 +446,7 @@
     padding: 0.25rem;
     border-radius: 4px;
     transition: all 0.2s ease;
-    color: #ef4444;
+    color: var(--mhm-error);
     opacity: 0.6;
     z-index: 10;
 }
@@ -457,8 +479,8 @@
     align-items: center;
     gap: 0.25rem;
     font-size: 0.875rem;
-    color: #6b7280;
-    background: #f3f4f6;
+    color: var(--mhm-gray-500);
+    background: var(--mhm-gray-50);
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
 }
@@ -495,7 +517,7 @@
 /* Success State - Modern Green Card */
 .rv-availability-success {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: #ffffff;
+    color: var(--mhm-white);
     padding: 1.25rem 1.5rem;
     display: flex;
     align-items: center;
@@ -508,7 +530,7 @@
     font-size: 24px;
     width: 24px;
     height: 24px;
-    color: #ffffff;
+    color: var(--mhm-white);
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     padding: 8px;
@@ -531,8 +553,8 @@
 
 /* Error State - Modern Red Card */
 .rv-availability-error {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--mhm-error) 0%, #dc2626 100%);
+    color: var(--mhm-white);
     padding: 1.25rem 1.5rem;
     border-radius: 12px;
     box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3), 0 4px 6px -2px rgba(239, 68, 68, 0.2);
@@ -549,7 +571,7 @@
     font-size: 24px;
     width: 24px;
     height: 24px;
-    color: #ffffff;
+    color: var(--mhm-white);
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     padding: 8px;
@@ -572,8 +594,8 @@
 
 /* Loading State - Modern Blue Card */
 .rv-loading-message {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--mhm-primary) 0%, #2563eb 100%);
+    color: var(--mhm-white);
     padding: 1.25rem 1.5rem;
     display: flex;
     align-items: center;
@@ -588,7 +610,7 @@
     width: 20px;
     height: 20px;
     border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #ffffff;
+    border-top-color: var(--mhm-white);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
     flex-shrink: 0;
@@ -607,7 +629,7 @@
     align-items: center;
     margin-top: auto;
     padding-top: 0.75rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--mhm-gray-200);
 }
 
 .rv-selected-vehicle .rv-vehicle-card__price {
@@ -620,13 +642,13 @@
 .rv-selected-vehicle .rv-price-amount {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #3b82f6;
+    color: var(--mhm-primary);
     line-height: 1;
 }
 
 .rv-selected-vehicle .rv-price-period {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--mhm-gray-500);
 }
 
 .rv-vehicle-image {
@@ -640,7 +662,7 @@
 .rv-vehicle-details h4 {
     margin: 0 0 0.5rem 0;
     font-size: 1.25rem;
-    color: #1e293b;
+    color: var(--mhm-gray-900);
     font-weight: 700;
 }
 
@@ -676,7 +698,7 @@
 
 /* ===== ADDONS ===== */
 .rv-addons .rv-section-title {
-    color: #1e293b;
+    color: var(--mhm-gray-900);
     font-size: 1.125rem;
     font-weight: 600;
     margin-bottom: 1.25rem;
@@ -692,7 +714,7 @@
     transform: translateY(-50%);
     width: 4px;
     height: 20px;
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    background: linear-gradient(135deg, var(--mhm-primary), #1d4ed8);
     border-radius: 2px;
 }
 
@@ -707,24 +729,24 @@
     align-items: flex-start;
     gap: 1rem;
     padding: 1.5rem;
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--mhm-gray-200);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: #fff;
+    background: var(--mhm-white);
     min-height: 100px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .rv-addon-item:hover {
-    border-color: #3b82f6;
+    border-color: var(--mhm-primary);
     background: #f8fafc;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
 .rv-addon-item:has(.rv-addon-checkbox:checked) {
-    border-color: #3b82f6;
+    border-color: var(--mhm-primary);
     background: #eff6ff;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
@@ -733,7 +755,7 @@
     margin: 0;
     width: 20px;
     height: 20px;
-    accent-color: #3b82f6;
+    accent-color: var(--mhm-primary);
     cursor: pointer;
 }
 
@@ -750,7 +772,7 @@
 
 .rv-addon-title {
     font-weight: 600;
-    color: #1e293b;
+    color: var(--mhm-gray-900);
     font-size: 1rem;
     margin: 0;
 }
@@ -772,7 +794,7 @@
 .rv-price-calculation {
     margin: 2rem 0;
     padding: 2rem;
-    background: #fff;
+    background: var(--mhm-white);
     border-radius: 12px;
     border: 2px solid #e2e8f0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -791,7 +813,7 @@
 
 .rv-price-label {
     font-weight: 500;
-    color: #374151;
+    color: var(--mhm-gray-700);
     text-align: left;
     padding: 0.75rem 0;
     border-bottom: 1px solid #f1f5f9;
@@ -801,7 +823,7 @@
 
 .rv-price-value {
     font-weight: 600;
-    color: #1e293b;
+    color: var(--mhm-gray-900);
     text-align: right;
     padding: 0.75rem 0;
     border-bottom: 1px solid #f1f5f9;
@@ -881,22 +903,22 @@
     align-items: flex-start;
     gap: 1rem;
     padding: 1.5rem;
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--mhm-gray-200);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: #fff;
+    background: var(--mhm-white);
 }
 
 .rv-payment-type:hover {
-    border-color: #3b82f6;
+    border-color: var(--mhm-primary);
     background: #f8fafc;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
 .rv-payment-type:has(input:checked) {
-    border-color: #3b82f6;
+    border-color: var(--mhm-primary);
     background: #eff6ff;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
@@ -905,7 +927,7 @@
     margin: 0;
     width: 20px;
     height: 20px;
-    accent-color: #3b82f6;
+    accent-color: var(--mhm-primary);
     cursor: pointer;
 }
 
@@ -916,7 +938,7 @@
 .rv-payment-type-label strong {
     display: block;
     font-size: 1rem;
-    color: #1e293b;
+    color: var(--mhm-gray-900);
     margin-bottom: 0.25rem;
 }
 
@@ -950,22 +972,22 @@
     align-items: flex-start;
     gap: 1rem;
     padding: 1.5rem;
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--mhm-gray-200);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: #fff;
+    background: var(--mhm-white);
 }
 
 .rv-payment-method:hover {
-    border-color: #3b82f6;
+    border-color: var(--mhm-primary);
     background: #f8fafc;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
 .rv-payment-method:has(input:checked) {
-    border-color: #3b82f6;
+    border-color: var(--mhm-primary);
     background: #eff6ff;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
@@ -974,7 +996,7 @@
     margin: 0;
     width: 20px;
     height: 20px;
-    accent-color: #3b82f6;
+    accent-color: var(--mhm-primary);
     cursor: pointer;
 }
 
@@ -985,7 +1007,7 @@
 .rv-payment-method-label strong {
     display: block;
     font-size: 1rem;
-    color: #1e293b;
+    color: var(--mhm-gray-900);
     margin-bottom: 0.25rem;
 }
 
@@ -1008,7 +1030,7 @@
     margin: 0 0 1rem 0;
     font-size: 1rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--mhm-gray-700);
 }
 
 .rv-payment-gateways {
@@ -1029,20 +1051,20 @@
     align-items: center;
     gap: 0.75rem;
     padding: 1rem;
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--mhm-gray-200);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: #fff;
+    background: var(--mhm-white);
 }
 
 .rv-payment-gateway:hover {
-    border-color: #3b82f6;
+    border-color: var(--mhm-primary);
     background: #f8fafc;
 }
 
 .rv-payment-gateway:has(input:checked) {
-    border-color: #3b82f6;
+    border-color: var(--mhm-primary);
     background: #eff6ff;
 }
 
@@ -1050,7 +1072,7 @@
     margin: 0;
     width: 18px;
     height: 18px;
-    accent-color: #3b82f6;
+    accent-color: var(--mhm-primary);
     cursor: pointer;
 }
 
@@ -1066,7 +1088,7 @@
 
 .rv-gateway-name {
     font-weight: 500;
-    color: #1e293b;
+    color: var(--mhm-gray-900);
 }
 
 /* ===== FORM ACTIONS ===== */
@@ -1076,13 +1098,13 @@
     justify-content: center;
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 2px solid #e5e7eb;
+    border-top: 2px solid var(--mhm-gray-200);
 }
 
 .rv-form-actions {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
-    border-top: 2px solid #e5e7eb;
+    border-top: 2px solid var(--mhm-gray-200);
     justify-content: stretch;
 }
 
@@ -1108,7 +1130,7 @@
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     letter-spacing: 0.025em;
-    color: #ffffff !important;
+    color: var(--mhm-white) !important;
 }
 
 .rv-btn::before {
@@ -1135,7 +1157,7 @@
     transform: none !important;
     background-color: #9ca3af !important;
     border-color: #9ca3af !important;
-    color: #6b7280 !important;
+    color: var(--mhm-gray-500) !important;
 }
 
 .rv-btn:disabled:hover,
@@ -1149,7 +1171,7 @@
 /* Primary Button - Rezervasyon Yapmak */
 .rv-btn-primary {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #ffffff;
+    color: var(--mhm-white);
     border: 2px solid rgba(255, 255, 255, 0.2);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     box-shadow:
@@ -1159,7 +1181,7 @@
 
 .rv-btn-primary:hover:not(:disabled) {
     background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
-    color: #ffffff !important;
+    color: var(--mhm-white) !important;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     transform: translateY(-3px) scale(1.02);
     box-shadow:
@@ -1172,7 +1194,7 @@
 .rv-btn-text {
     display: block !important;
     visibility: visible !important;
-    color: #ffffff !important;
+    color: var(--mhm-white) !important;
     font-weight: 600 !important;
     opacity: 1 !important;
     position: relative !important;
@@ -1224,7 +1246,7 @@
 .rv-error-message {
     background: linear-gradient(135deg, #fef2f2 0%, #fef7f7 100%);
     border: 1px solid #fca5a5;
-    border-left-color: #ef4444;
+    border-left-color: var(--mhm-error);
     color: #dc2626;
 }
 
@@ -1256,7 +1278,7 @@
     flex: 1;
     min-width: 250px;
     background: white;
-    border: 1px solid #ddd;
+    border: 1px solid var(--mhm-gray-200);
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -1291,7 +1313,7 @@
     width: 20px;
     height: 20px;
     border: 2px solid #e0f2fe;
-    border-top: 2px solid #3b82f6;
+    border-top: 2px solid var(--mhm-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -1379,7 +1401,7 @@
         width: 100%;
         padding: 0.75rem 1rem;
         font-size: 0.9rem;
-        border: 1px solid #e5e7eb;
+        border: 1px solid var(--mhm-gray-200);
         border-radius: 6px;
     }
 
@@ -1576,7 +1598,7 @@
 .rv-select:focus,
 .rv-btn:focus {
     outline: none;
-    /*color: #ffffff !important;*/
+    /*color: var(--mhm-white) !important;*/
     border-color: rgba(255, 255, 255, 0.5);
     box-shadow:
         0 4px 15px rgba(102, 126, 234, 0.3),
@@ -1589,7 +1611,7 @@
 .rv-payment-method:focus-within,
 .rv-payment-type:focus-within,
 .rv-payment-gateway:focus-within {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid var(--mhm-primary);
     outline-offset: 2px;
 }
 
@@ -1597,7 +1619,7 @@
 @media print {
     .rv-booking-form {
         box-shadow: none;
-        border: 1px solid #000;
+        border: 1px solid var(--mhm-black);
     }
 
     .rv-form-actions,
@@ -1618,7 +1640,7 @@
     }
 
     .rv-form-section {
-        background: #374151;
+        background: var(--mhm-gray-700);
         border-color: #4b5563;
     }
 
@@ -1628,15 +1650,15 @@
 
     .rv-input,
     .rv-select {
-        background: #374151;
+        background: var(--mhm-gray-700);
         border-color: #4b5563;
         color: #f9fafb;
     }
 
     .rv-input:focus,
     .rv-select:focus {
-        border-color: #3b82f6;
-        background: #374151;
+        border-color: var(--mhm-primary);
+        background: var(--mhm-gray-700);
     }
 }
 
@@ -1663,7 +1685,7 @@
 .rv-alternatives-title {
     font-size: 1rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--mhm-white);
     margin-bottom: 1rem;
     letter-spacing: 0.025em;
 }
@@ -1692,7 +1714,7 @@
     width: 100%;
     height: 140px;
     overflow: hidden;
-    background: #f3f4f6;
+    background: var(--mhm-gray-50);
 }
 
 .rv-alternative-vehicle-image img {
@@ -1713,7 +1735,7 @@
 .rv-alternative-vehicle-title {
     margin: 0 0 0.75rem 0;
     font-size: 0.9375rem;
-    color: #1e293b;
+    color: var(--mhm-gray-900);
     font-weight: 600;
     line-height: 1.3;
 }
@@ -1739,7 +1761,7 @@
 .rv-alternative-price-details {
     margin-bottom: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--mhm-gray-200);
 }
 
 .rv-alternative-price-row {
@@ -1755,18 +1777,18 @@
 
 .rv-alternative-price-row.rv-alternative-price-total {
     padding-top: 0.5rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--mhm-gray-200);
     margin-top: 0.5rem;
 }
 
 .rv-alternative-price-label {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--mhm-gray-500);
 }
 
 .rv-alternative-price-value {
     font-size: 0.75rem;
-    color: #3b82f6;
+    color: var(--mhm-primary);
     font-weight: 600;
 }
 
@@ -1777,8 +1799,8 @@
 }
 
 .rv-select-alternative-btn {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--mhm-primary) 0%, #2563eb 100%);
+    color: var(--mhm-white);
     border: none;
     padding: 0.625rem 1rem;
     border-radius: 8px;
@@ -1809,7 +1831,7 @@
 }
 
 .rv-alternative-vehicle {
-    background: #fff;
+    background: var(--mhm-white);
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     padding: 1rem;
@@ -1840,7 +1862,7 @@
 .rv-alternative-vehicle-info h4 {
     margin: 0 0 0.5rem 0;
     font-size: 1.1rem;
-    color: #333;
+    color: var(--mhm-gray-800);
 }
 
 .rv-alternative-vehicle-price {
@@ -1850,7 +1872,7 @@
 }
 
 .rv-alternative-vehicle-total {
-    color: #666;
+    color: var(--mhm-gray-500);
     font-size: 0.9rem;
     margin: 0.25rem 0 0.75rem 0;
 }
@@ -1953,7 +1975,7 @@
 
 .rv-rating-count {
     font-size: 0.75rem;
-    color: #ffffff;
+    color: var(--mhm-white);
     font-weight: 500;
 }
 
@@ -1965,7 +1987,7 @@
     padding: 0.5rem;
     border-radius: 50%;
     transition: all 0.2s ease-in-out;
-    color: #ef4444;
+    color: var(--mhm-error);
     opacity: 0.7;
     display: flex;
     align-items: center;
@@ -2052,7 +2074,7 @@
 .rv-user-name {
     font-size: 1rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--mhm-gray-900);
 }
 
 .rv-user-name strong {
@@ -2096,7 +2118,7 @@
 }
 
 .rv-btn-primary:active:not(:disabled) {
-    color: #ffffff !important;
+    color: var(--mhm-white) !important;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
     animation: buttonPulse 0.6s ease-out;
     transform: translateY(-1px) scale(0.98);
@@ -2134,7 +2156,7 @@
 /* Date input styling */
 .rv-date-input {
     cursor: pointer;
-    background-color: #ffffff;
+    background-color: var(--mhm-white);
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3e%3cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 12px center;
@@ -2148,8 +2170,8 @@
 
 /* ===== MODERN JQUERY UI DATEPICKER STYLES ===== */
 .ui-datepicker {
-    background: #ffffff;
-    border: 2px solid #e5e7eb;
+    background: var(--mhm-white);
+    border: 2px solid var(--mhm-gray-200);
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     padding: 0;
@@ -2161,8 +2183,8 @@
 
 /* ===== DATEPICKER HEADER - REDESIGNED ===== */
 .ui-datepicker .ui-datepicker-header {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-    color: #ffffff !important;
+    background: linear-gradient(135deg, var(--mhm-primary) 0%, #2563eb 100%) !important;
+    color: var(--mhm-white) !important;
     border: none !important;
     border-radius: 10px 10px 0 0 !important;
     padding: 0 !important;
@@ -2182,7 +2204,7 @@
     font-weight: 700 !important;
     font-size: 17px !important;
     line-height: 1.5 !important;
-    color: #ffffff !important;
+    color: var(--mhm-white) !important;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
     letter-spacing: 0.5px !important;
     text-align: center !important;
@@ -2278,7 +2300,7 @@
     width: 18px !important;
     height: 18px !important;
     text-indent: 0 !important;
-    color: #ffffff !important;
+    color: var(--mhm-white) !important;
     font-weight: 700 !important;
     margin: 0 !important;
     display: flex !important;
@@ -2327,7 +2349,7 @@
 
 .ui-datepicker th {
     background: #f8f9fa;
-    color: #6b7280;
+    color: var(--mhm-gray-500);
     font-weight: 600;
     font-size: 12px;
     text-transform: uppercase;
@@ -2341,14 +2363,14 @@
     line-height: 32px;
     border-radius: 50%;
     text-decoration: none;
-    color: #374151;
+    color: var(--mhm-gray-700);
     font-weight: 500;
     transition: all 0.2s ease;
     margin: 0 auto;
 }
 
 .ui-datepicker td a:hover {
-    background: #e5e7eb;
+    background: var(--mhm-gray-200);
     color: #111827;
 }
 
@@ -2361,7 +2383,7 @@
 .ui-datepicker .ui-datepicker-current-day a,
 .ui-datepicker .ui-state-active {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #ffffff;
+    color: var(--mhm-white);
     font-weight: 600;
 }
 
@@ -2371,7 +2393,7 @@
 
 .ui-datepicker .ui-datepicker-buttonpane {
     background: #f8f9fa;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--mhm-gray-200);
     padding: 12px 16px;
     border-radius: 0 0 10px 10px;
     text-align: center;
@@ -2379,7 +2401,7 @@
 
 .ui-datepicker .ui-datepicker-buttonpane button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #ffffff;
+    color: var(--mhm-white);
     border: none;
     padding: 8px 16px;
     border-radius: 6px;
@@ -2399,7 +2421,7 @@
     background: rgba(255, 255, 255, 0.15) !important;
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
     border-radius: 4px !important;
-    color: #ffffff !important;
+    color: var(--mhm-white) !important;
     font-weight: 600 !important;
     padding: 4px 8px !important;
     margin: 0 2px !important;
@@ -2411,8 +2433,8 @@
 }
 
 .ui-datepicker select option {
-    background: #3b82f6 !important;
-    color: #ffffff !important;
+    background: var(--mhm-primary) !important;
+    color: var(--mhm-white) !important;
     text-align: center !important;
 }
 
@@ -2449,7 +2471,7 @@
     padding: 0.875rem 1.25rem;
     border-radius: 10px;
     background-color: rgba(31, 41, 55, 0.92);
-    color: #ffffff;
+    color: var(--mhm-white);
     font-size: 0.95rem;
     font-weight: 500;
     box-shadow: 0 18px 30px rgba(15, 23, 42, 0.18);

@@ -18,32 +18,8 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
     mhm_rentiva_load_textdomain();
 }
 
-// Load rating form assets
-add_action('wp_enqueue_scripts', function() {
-    // Vehicle details shortcode will load its own assets
-    
-    // Only load rating form assets
-    wp_enqueue_style(
-        'mhm-rentiva-vehicle-rating-form',
-        plugin_dir_url(dirname(__FILE__)) . 'assets/css/frontend/vehicle-rating-form.css',
-        [],
-        MHM_RENTIVA_VERSION
-    );
-    
-    wp_enqueue_script(
-        'mhm-rentiva-vehicle-rating-form',
-        plugin_dir_url(dirname(__FILE__)) . 'assets/js/frontend/vehicle-rating-form.js',
-        ['jquery'],
-        MHM_RENTIVA_VERSION,
-        true
-    );
-    
-    
-    wp_localize_script('mhm-rentiva-vehicle-rating-form', 'mhm_rentiva_ajax', [
-        'ajax_url' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('mhm_rentiva_nonce')
-    ]);
-});
+// ⭐ Asset management removed - VehicleRatingForm shortcode handles asset loading
+// The shortcode [rentiva_vehicle_rating_form] will automatically enqueue assets via VehicleRatingForm::enqueue_assets()
 
 get_header(); ?>
 

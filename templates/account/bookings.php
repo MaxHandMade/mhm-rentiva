@@ -64,8 +64,10 @@ $current_page_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_ac
 
 <div class="mhm-rentiva-account-page">
     
-    <!-- Account Navigation -->
-    <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
+    <!-- Account Navigation (only show if not on WooCommerce My Account page) -->
+    <?php if (!empty($navigation)): ?>
+        <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
+    <?php endif; ?>
     
     <!-- Bookings Content -->
     <div class="mhm-account-content">

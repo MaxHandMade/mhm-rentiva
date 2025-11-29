@@ -220,6 +220,11 @@ function mhm_rentiva_single_site_activation() {
     // Refresh permalinks
     flush_rewrite_rules();
     
+    // Flush WooCommerce endpoints if WooCommerce is active
+    if (class_exists('WooCommerce') && class_exists('MHMRentiva\\Admin\\Frontend\\Account\\WooCommerceIntegration')) {
+        \MHMRentiva\Admin\Frontend\Account\WooCommerceIntegration::flush_rewrite_rules();
+    }
+    
     // Create rating table
     if (class_exists('MHMRentiva\\Admin\\Frontend\\Shortcodes\\VehiclesList')) {
         MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::on_plugin_activation();

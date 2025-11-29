@@ -358,6 +358,60 @@ jQuery(document).ready(function ($) {
         }
     };
 
+    // Send test email handler (moved from inline script in EmailTemplates.php)
+    var sendTestEmail = {
+        init: function () {
+            this.bindEvents();
+        },
+
+        bindEvents: function () {
+            // Settings page send button
+            $('#mhm-send-template-btn-settings').on('click', function (e) {
+                e.preventDefault();
+                sendTestEmail.submitForm('mhm-template-key-settings', 'mhm-booking-id-settings', 'mhm-new-status-settings', 'mhm-send-to-settings');
+            });
+
+            // Main page send button
+            $('#mhm-send-template-btn').on('click', function (e) {
+                e.preventDefault();
+                sendTestEmail.submitForm('mhm-template-key', 'mhm-booking-id', 'mhm-new-status', 'mhm-send-to');
+            });
+        },
+
+        submitForm: function (templateKeyId, bookingIdId, statusId, toId) {
+            const actionUrl = mhm_email_templates_vars.admin_post_url;
+            const nonce = mhm_email_templates_vars.send_test_nonce;
+            const tpl = document.getElementById(templateKeyId).value;
+            const bid = document.getElementById(bookingIdId).value;
+            const st = document.getElementById(statusId).value;
+            const to = document.getElementById(toId).value;
+
+            // Build and submit a detached form (avoid nested form issues)
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = actionUrl;
+            const fields = {
+                action: 'mhm_rentiva_send_template_test',
+                _wpnonce: nonce,
+                template_key: tpl,
+                booking_id: bid,
+                new_status: st,
+                to: to
+            };
+
+            Object.keys(fields).forEach(function (k) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = k;
+                input.value = fields[k] || '';
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    };
+
     // Initialize
     emailPreview.init();
     testEmail.init();
@@ -365,6 +419,7 @@ jQuery(document).ready(function ($) {
     emailVariables.init();
     tabManagement.init();
     statsAnimation.init();
+    sendTestEmail.init();
 
     // Modal close events
     $(document).on('click', '.template-edit-close, .template-edit-modal', function (e) {

@@ -5,7 +5,7 @@
 }
 
 .mhm-rentiva-reports-filters {
-    background: #fff;
+    background: var(--mhm-white);
     padding: 20px;
     margin-bottom: 20px;
     border: 1px solid #ddd;
@@ -45,22 +45,10 @@
 }
 
 .mhm-rentiva-reports-filters .button-primary {
-    background: #0073aa;
+    background: var(--mhm-primary);
     color: white;
 }
 
-.mhm-rentiva-reports-filters .button-primary:hover {
-    background: #005a87;
-}
-
-.mhm-rentiva-reports-filters .button:not(.button-primary) {
-    background: #f1f1f1;
-    color: #333;
-}
-
-.mhm-rentiva-reports-filters .button:not(.button-primary):hover {
-    background: #e1e1e1;
-}
 
 /* Dashboard Stats */
 .mhm-rentiva-dashboard-stats {
@@ -71,7 +59,7 @@
 }
 
 .stat-item {
-    background: #fff;
+    background: var(--mhm-white);
     padding: 25px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -89,7 +77,7 @@
     display: block;
     font-size: 2.5em;
     font-weight: 700;
-    color: #2271b1;
+    color: var(--mhm-primary);
     margin-bottom: 8px;
     line-height: 1;
 }
@@ -147,7 +135,7 @@
 }
 
 .analytics-card {
-    background: #fff;
+    background: var(--mhm-white);
     border: 1px solid #e1e5e9;
     border-radius: 12px;
     padding: 25px;
@@ -294,11 +282,11 @@
 }
 
 .bookings-analytics {
-    border-left: 5px solid #0073aa;
+    border-left: 5px solid var(--mhm-primary);
 }
 
 .bookings-analytics .chart-bar.confirmed {
-    background: linear-gradient(135deg, #0073aa 0%, #00a0d2 100%);
+    background: linear-gradient(135deg, var(--mhm-primary) 0%, #00a0d2 100%);
 }
 
 .bookings-analytics .chart-bar.pending {
@@ -306,23 +294,23 @@
 }
 
 .bookings-analytics .chart-bar.cancelled {
-    background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+    background: linear-gradient(135deg, var(--mhm-error) 0%, #e74c3c 100%);
 }
 
 .bookings-analytics .chart-bar.completed {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    background: linear-gradient(135deg, var(--mhm-success) 0%, #20c997 100%);
 }
 
 .bookings-analytics .card-header h3 {
-    color: #0073aa;
+    color: var(--mhm-primary);
 }
 
 .customers-analytics {
-    border-left: 5px solid #dba617;
+    border-left: 5px solid var(--mhm-warning);
 }
 
 .customers-analytics .chart-bar.new {
-    background: linear-gradient(135deg, #dba617 0%, #ffc107 100%);
+    background: linear-gradient(135deg, var(--mhm-warning) 0%, #ffc107 100%);
 }
 
 .customers-analytics .chart-bar.returning {
@@ -334,11 +322,11 @@
 }
 
 .customers-analytics .chart-bar.total {
-    background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+    background: linear-gradient(135deg, var(--mhm-error) 0%, #e74c3c 100%);
 }
 
 .customers-analytics .card-header h3 {
-    color: #dba617;
+    color: var(--mhm-warning);
 }
 
 .vehicles-analytics {
@@ -367,7 +355,7 @@
 
 /* Chart Containers */
 .chart-container {
-    background: #fff;
+    background: var(--mhm-white);
     padding: 20px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -398,7 +386,7 @@
 }
 
 .chart-container.bookings-chart {
-    border-left: 4px solid #0073aa;
+    border-left: 4px solid var(--mhm-primary);
 }
 
 /* Report Sections */
@@ -406,7 +394,7 @@
 .mhm-rentiva-booking-report,
 .mhm-rentiva-vehicle-report,
 .mhm-rentiva-customer-report {
-    background: #fff;
+    background: var(--mhm-white);
     border: 1px solid #ddd;
     border-radius: 8px;
     overflow: hidden;
@@ -521,7 +509,7 @@
     width: 20px;
     height: 20px;
     border: 2px solid #f3f3f3;
-    border-top: 2px solid #2271b1;
+    border-top: 2px solid var(--mhm-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-right: 10px;

@@ -380,6 +380,8 @@ final class Plugin
         }
         if (class_exists(Admin\Payment\WooCommerce\WooCommerceBridge::class)) {
             Admin\Payment\WooCommerce\WooCommerceBridge::register();
+        } else {
+            error_log('MHM Rentiva: WooCommerceBridge class NOT FOUND!');
         }
 
 

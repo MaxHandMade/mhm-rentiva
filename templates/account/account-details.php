@@ -37,7 +37,9 @@ if ($profile_editable !== '1') {
 <div class="mhm-rentiva-account-page">
     
     <!-- Account Navigation -->
-    <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
+    <?php if (!empty($navigation)): ?>
+        <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
+    <?php endif; ?>
     
     <!-- Account Details Content -->
     <div class="mhm-account-content">
@@ -168,7 +170,7 @@ if ($profile_editable !== '1') {
                                id="confirm_password" 
                                name="confirm_password" 
                                autocomplete="new-password"
-                               oninput="this.setCustomValidity(this.value !== document.getElementById('new_password').value ? 'Passwords do not match' : '')">
+                               autocomplete="new-password">
                     </div>
                 </div>
             </div>

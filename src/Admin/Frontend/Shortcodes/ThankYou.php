@@ -224,8 +224,70 @@ final class ThankYou extends AbstractShortcode
             }
         }
         
-        // Fallback to booking confirmation page
+        // ⭐ Try to find or create thank you page automatically
+        $thank_you_page_id = self::find_or_create_thank_you_page();
+        if ($thank_you_page_id) {
+            $thank_you_url = get_permalink($thank_you_page_id);
+            if ($thank_you_url) {
+                return add_query_arg(['booking_id' => $booking_id], $thank_you_url);
+            }
+        }
+        
+        // Last fallback: Use booking confirmation page
         return \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::get_confirmation_url($booking_id);
+    }
+
+    /**
+     * Find or create thank you page
+     */
+    private static function find_or_create_thank_you_page(): ?int
+    {
+        // Try to find existing thank you page with shortcode
+        $existing_page = self::locate_shortcode_page('rentiva_thank_you');
+        if ($existing_page) {
+            return $existing_page;
+        }
+
+        // Create new thank you page
+        $page_data = [
+            'post_title' => __('Thank You', 'mhm-rentiva'),
+            'post_content' => '[rentiva_thank_you]',
+            'post_status' => 'publish',
+            'post_type' => 'page',
+        ];
+
+        $page_id = wp_insert_post($page_data);
+        if (is_wp_error($page_id) || !$page_id) {
+            return null;
+        }
+
+        // Save to settings
+        $settings = get_option('mhm_rentiva_settings', []);
+        $settings['mhm_rentiva_booking_thank_you_page'] = (string) $page_id;
+        update_option('mhm_rentiva_settings', $settings);
+
+        return $page_id;
+    }
+
+    /**
+     * Locate page with shortcode
+     */
+    private static function locate_shortcode_page(string $shortcode): ?int
+    {
+        $pages = get_posts([
+            'post_type' => 'page',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            's' => '[' . $shortcode . ']',
+        ]);
+
+        foreach ($pages as $page) {
+            if (has_shortcode($page->post_content, $shortcode)) {
+                return $page->ID;
+            }
+        }
+
+        return null;
     }
 }
 

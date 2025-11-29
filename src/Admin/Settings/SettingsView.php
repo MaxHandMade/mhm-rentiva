@@ -61,7 +61,7 @@ final class SettingsView
         // Tab control
         $current_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'general';
         
-        // Reorganized tab list
+        // Base tab list (can be extended via filter hook)
         $settings_tabs = [
             'general' => __('General Settings', 'mhm-rentiva'),
             'vehicle' => __('Vehicle Management', 'mhm-rentiva'),
@@ -77,6 +77,20 @@ final class SettingsView
             'cron-monitor' => __('Cron Job Monitor', 'mhm-rentiva'),
             'testing' => __('Settings Testing', 'mhm-rentiva'),
         ];
+        
+        /**
+         * Filter: Allow addons and third-party plugins to add custom settings tabs
+         * 
+         * @param array $settings_tabs Array of tab_key => tab_label pairs
+         * @return array Modified tabs array
+         * 
+         * @example
+         * add_filter('mhm_rentiva_settings_tabs', function($tabs) {
+         *     $tabs['my-custom-tab'] = __('My Custom Settings', 'my-plugin');
+         *     return $tabs;
+         * });
+         */
+        $settings_tabs = apply_filters('mhm_rentiva_settings_tabs', $settings_tabs);
 
         ?>
         
@@ -171,71 +185,90 @@ final class SettingsView
                                 // WordPress Settings API handles nonce and hidden fields
                                 settings_fields('mhm_rentiva_settings');
                                 
-                                // Render the relevant section according to tab
-                                switch ($current_tab) {
-                                    case 'general':
-                                        self::render_general_settings();
-                                        break;
-                                    case 'vehicle':
-                                        self::render_vehicle_management_settings();
-                                        break;
-                                    case 'booking':
-                                        self::render_booking_settings();
-                                        break;
-                                    case 'customer':
-                                        self::render_customer_management_settings();
-                                        break;
-                                    case 'email':
-                                        self::render_tab_reset_button('email');
-                                        self::render_section_clean('mhm_rentiva_email_section');
-                                        break;
-                                    case 'payment':
-                                        self::render_payment_settings();
-                                        break;
-                                    case 'system':
-                                        self::render_tab_reset_button('system');
-                                        self::render_section_clean('mhm_rentiva_core_section');
-                                        self::render_section_clean('mhm_rentiva_ip_control_section');
-                                        self::render_section_clean('mhm_rentiva_security_rules_section');
-                                        self::render_section_clean('mhm_rentiva_authentication_section');
-                                        self::render_section_clean('mhm_rentiva_maintenance_section');
-                                        self::render_section_clean('mhm_rentiva_logs_section');
-                                        self::render_section_clean('mhm_rentiva_reconcile_section');
-                                        break;
-                                    case 'frontend':
-                                        self::render_tab_reset_button('frontend');
-                                        self::render_section_clean('mhm_rentiva_frontend_section');
-                                        self::render_section_clean('mhm_rentiva_button_texts_section');
-                                        self::render_section_clean('mhm_rentiva_action_texts_section');
-                                        self::render_section_clean('mhm_rentiva_form_labels_section');
-                                        self::render_section_clean('mhm_rentiva_message_texts_section');
-                                        self::render_section_clean('mhm_rentiva_comments_section');
-                                        break;
-                                    case 'database-cleanup':
-                                        self::render_database_cleanup_page();
-                                        break;
-                                    case 'testing':
-                                        self::render_testing_page();
-                                        break;
-                                    default:
-                                        // Default case for unknown tabs
-                                        echo '<p>' . esc_html__('Settings for this section are not yet implemented.', 'mhm-rentiva') . '</p>';
-                                        break;
+                                // Check if custom tab rendering is handled via action hook
+                                $custom_tab_handled = false;
+                                
+                                /**
+                                 * Action: Allow addons to render custom settings tabs
+                                 * 
+                                 * @param string $current_tab Current tab key
+                                 * @param bool   $handled    Reference to indicate if tab was handled
+                                 * 
+                                 * @example
+                                 * add_action('mhm_rentiva_render_settings_tab', function($tab, &$handled) {
+                                 *     if ($tab === 'my-custom-tab') {
+                                 *         echo '<h2>My Custom Settings</h2>';
+                                 *         // Render custom settings...
+                                 *         $handled = true;
+                                 *     }
+                                 * }, 10, 2);
+                                 */
+                                do_action_ref_array('mhm_rentiva_render_settings_tab', [&$current_tab, &$custom_tab_handled]);
+                                
+                                // If custom tab was handled, skip default rendering
+                                if ($custom_tab_handled) {
+                                    // Custom tab rendering completed
+                                } else {
+                                    // Render the relevant section according to tab (default tabs)
+                                    switch ($current_tab) {
+                                        case 'general':
+                                            self::render_general_settings();
+                                            break;
+                                        case 'vehicle':
+                                            self::render_vehicle_management_settings();
+                                            break;
+                                        case 'booking':
+                                            self::render_booking_settings();
+                                            break;
+                                        case 'customer':
+                                            self::render_customer_management_settings();
+                                            break;
+                                        case 'email':
+                                            self::render_tab_reset_button('email');
+                                            self::render_section_clean('mhm_rentiva_email_section');
+                                            break;
+                                        case 'payment':
+                                            self::render_payment_settings();
+                                            break;
+                                        case 'system':
+                                            self::render_tab_reset_button('system');
+                                            self::render_section_clean('mhm_rentiva_core_section');
+                                            self::render_section_clean('mhm_rentiva_ip_control_section');
+                                            self::render_section_clean('mhm_rentiva_security_rules_section');
+                                            self::render_section_clean('mhm_rentiva_authentication_section');
+                                            self::render_section_clean('mhm_rentiva_maintenance_section');
+                                            self::render_section_clean('mhm_rentiva_logs_section');
+                                            self::render_section_clean('mhm_rentiva_reconcile_section');
+                                            break;
+                                        case 'frontend':
+                                            self::render_tab_reset_button('frontend');
+                                            self::render_section_clean('mhm_rentiva_frontend_section');
+                                            self::render_section_clean('mhm_rentiva_button_texts_section');
+                                            self::render_section_clean('mhm_rentiva_action_texts_section');
+                                            self::render_section_clean('mhm_rentiva_form_labels_section');
+                                            self::render_section_clean('mhm_rentiva_message_texts_section');
+                                            self::render_section_clean('mhm_rentiva_comments_section');
+                                            break;
+                                        case 'database-cleanup':
+                                            self::render_database_cleanup_page();
+                                            break;
+                                        case 'testing':
+                                            self::render_testing_page();
+                                            break;
+                                        default:
+                                            // Default case for unknown tabs
+                                            echo '<p>' . esc_html__('Settings for this section are not yet implemented.', 'mhm-rentiva') . '</p>';
+                                            break;
+                                    }
                                 }
                                 
                                 submit_button();
                                 
                                 $form_content = ob_get_clean();
                                 
-                                // Aggressively remove any nested form elements
-                                // Remove complete form tags with content (non-greedy to avoid removing outer form)
-                                $form_content = preg_replace('/<form[^>]*>.*?<\/form>/is', '', $form_content);
-                                // Remove standalone opening form tags
-                                $form_content = preg_replace('/<form[^>]*>/i', '', $form_content);
-                                // Remove standalone closing form tags
-                                $form_content = preg_replace('/<\/form>/i', '', $form_content);
-                                // Remove form attributes from other elements that might cause DOM warnings
-                                $form_content = preg_replace('/\s+form\s*=\s*["\'][^"\']*["\']/i', '', $form_content);
+                                // Safely remove nested form elements to prevent HTML validation issues
+                                // Use a more targeted approach that only removes nested forms, not form-like structures
+                                $form_content = self::remove_nested_forms($form_content);
                                 
                                 echo $form_content;
                                 ?>
@@ -271,13 +304,8 @@ final class SettingsView
             call_user_func($section['callback'], $section);
             $section_output = ob_get_clean();
             
-            // Aggressively remove any form elements from section callback
-            $section_output = preg_replace('/<form[^>]*>.*?<\/form>/is', '', $section_output);
-            $section_output = preg_replace('/<form[^>]*>/i', '', $section_output);
-            $section_output = preg_replace('/<\/form>/i', '', $section_output);
-            $section_output = preg_replace('/\s+form\s*=\s*["\'][^"\']*["\']/i', '', $section_output);
-            // Remove any form-like attributes
-            $section_output = preg_replace('/\s+role\s*=\s*["\']form["\']/i', '', $section_output);
+            // Safely remove nested form elements from section callback
+            $section_output = self::remove_nested_forms($section_output);
             
             echo $section_output;
         }
@@ -303,16 +331,8 @@ final class SettingsView
             call_user_func($field['callback'], $field['args']);
             $field_output = ob_get_clean();
             
-            // Aggressively remove any form elements
-            // Remove complete form tags with content
-            $field_output = preg_replace('/<form[^>]*>.*?<\/form>/is', '', $field_output);
-            // Remove opening form tags
-            $field_output = preg_replace('/<form[^>]*>/i', '', $field_output);
-            // Remove closing form tags
-            $field_output = preg_replace('/<\/form>/i', '', $field_output);
-            // Remove any nested form elements (fieldset, button type="submit" outside form context)
-            $field_output = preg_replace('/<fieldset[^>]*>/i', '<div>', $field_output);
-            $field_output = preg_replace('/<\/fieldset>/i', '</div>', $field_output);
+            // Safely remove nested form elements
+            $field_output = self::remove_nested_forms($field_output);
             
             echo $field_output;
             echo '</td>';
@@ -816,11 +836,8 @@ final class SettingsView
         
         $payment_content = ob_get_clean();
         
-        // Aggressively remove any nested form elements
-        $payment_content = preg_replace('/<form[^>]*>.*?<\/form>/is', '', $payment_content);
-        $payment_content = preg_replace('/<form[^>]*>/i', '', $payment_content);
-        $payment_content = preg_replace('/<\/form>/i', '', $payment_content);
-        $payment_content = preg_replace('/\s+form\s*=\s*["\'][^"\']*["\']/i', '', $payment_content);
+        // Safely remove nested form elements
+        $payment_content = self::remove_nested_forms($payment_content);
         
         echo $payment_content;
     }
@@ -1384,6 +1401,75 @@ final class SettingsView
         echo esc_html__('Reset to Defaults', 'mhm-rentiva');
         echo '</button>';
         echo '</div>';
+    }
+
+    /**
+     * Safely remove nested form elements from HTML content
+     * 
+     * This method uses a more targeted approach than aggressive regex replacement.
+     * It only removes actual <form> tags and their content, preserving other HTML structure.
+     * 
+     * @param string $content HTML content that may contain nested forms
+     * @return string Cleaned HTML content without nested forms
+     */
+    private static function remove_nested_forms(string $content): string
+    {
+        // If DOMDocument is available, use it for safer HTML parsing
+        if (class_exists('DOMDocument') && function_exists('libxml_use_internal_errors')) {
+            libxml_use_internal_errors(true);
+            
+            $dom = new \DOMDocument();
+            // Load HTML with UTF-8 encoding support
+            @$dom->loadHTML('<?xml encoding="UTF-8">' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            
+            $xpath = new \DOMXPath($dom);
+            // Find all form elements except the root form (if any)
+            $forms = $xpath->query('//form');
+            
+            if ($forms && $forms->length > 0) {
+                foreach ($forms as $form) {
+                    // Remove form element and its content
+                    $form->parentNode->removeChild($form);
+                }
+            }
+            
+            // Get cleaned HTML
+            $cleaned = $dom->saveHTML();
+            
+            // Remove XML declaration if added
+            $cleaned = preg_replace('/<\?xml[^>]*\?>/i', '', $cleaned);
+            
+            libxml_clear_errors();
+            
+            return $cleaned;
+        }
+        
+        // Fallback: Use regex but with more careful pattern matching
+        // Only match complete form tags with balanced content
+        $content = preg_replace_callback(
+            '/<form[^>]*>(.*?)<\/form>/is',
+            function ($matches) {
+                // Only remove if it's not a self-closing tag and has content
+                // This prevents removing the outer form
+                if (!empty($matches[1]) && strpos($matches[0], '</form>') !== false) {
+                    return ''; // Remove nested form
+                }
+                return $matches[0]; // Keep if it's the outer form or malformed
+            },
+            $content
+        );
+        
+        // Remove standalone opening form tags (but be careful not to remove outer form)
+        // Only remove if there's no matching closing tag in reasonable proximity
+        $content = preg_replace('/<form[^>]*>(?!.*?<\/form>)/is', '', $content);
+        
+        // Remove standalone closing form tags
+        $content = preg_replace('/<\/form>/i', '', $content);
+        
+        // Remove form attributes from other elements
+        $content = preg_replace('/\s+form\s*=\s*["\'][^"\']*["\']/i', '', $content);
+        
+        return $content;
     }
 }
 

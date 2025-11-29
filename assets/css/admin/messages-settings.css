@@ -6,50 +6,50 @@
 .mhm-settings-tabs .nav-tab-wrapper,
 .mhm-messages-settings-container .mhm-messages-subtabs {
     margin-bottom: 20px;
-    border-bottom: 1px solid #ccd0d4;
+    border-bottom: 1px solid var(--mhm-border-secondary);
     padding-bottom: 0;
 }
 
 .mhm-settings-tabs .nav-tab,
 .mhm-messages-settings-container .mhm-subtab {
-    background: #f1f1f1;
-    border: 1px solid #ccd0d4;
+    background: var(--mhm-bg-secondary);
+    border: 1px solid var(--mhm-border-secondary);
     border-bottom: none;
-    color: #50575e;
+    color: var(--mhm-text-secondary);
     text-decoration: none;
     padding: 8px 12px;
     margin-right: 5px;
     border-radius: 4px 4px 0 0;
-    transition: all 0.3s ease;
+    transition: all var(--mhm-duration-300) ease;
     display: inline-block;
 }
 
 .mhm-settings-tabs .nav-tab:hover,
 .mhm-messages-settings-container .mhm-subtab:hover {
-    background: #fafafa;
-    color: #135e96;
+    background: var(--mhm-bg-hover);
+    color: var(--mhm-primary);
 }
 
 .mhm-settings-tabs .nav-tab-active,
 .mhm-messages-settings-container .mhm-subtab.active {
-    background: #fff;
-    border-bottom: 1px solid #fff;
-    color: #135e96;
-    font-weight: 600;
+    background: var(--mhm-bg-card);
+    border-bottom: 1px solid var(--mhm-bg-card);
+    color: var(--mhm-primary);
+    font-weight: var(--mhm-font-semibold);
 }
 
 .mhm-settings-tabs .nav-tab-active:hover,
 .mhm-messages-settings-container .mhm-subtab.active:hover {
-    background: #fff;
-    color: #135e96;
+    background: var(--mhm-bg-card);
+    color: var(--mhm-primary);
 }
 
 /* Tab Content - Support both standalone and integrated modes */
 .mhm-settings-tabs .tab-content,
 .mhm-messages-settings-container .mhm-subtab-content {
     display: none;
-    background: #fff;
-    border: 1px solid #ccd0d4;
+    background: var(--mhm-bg-card);
+    border: 1px solid var(--mhm-border-secondary);
     border-top: none;
     padding: 20px;
     border-radius: 0 0 4px 4px;
@@ -63,8 +63,8 @@
 
 .mhm-settings-tabs .tab-content h2 {
     margin-top: 0;
-    color: #23282d;
-    border-bottom: 1px solid #eee;
+    color: var(--mhm-text-primary);
+    border-bottom: 1px solid var(--mhm-border-secondary);
     padding-bottom: 10px;
 }
 
@@ -77,7 +77,7 @@
     width: 200px;
     padding: 15px 10px 15px 0;
     vertical-align: top;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
 }
 
 .mhm-settings-tabs .form-table td {
@@ -114,9 +114,9 @@
     align-items: center;
     margin-bottom: 10px;
     padding: 10px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    background: var(--mhm-bg-hover);
+    border: 1px solid var(--mhm-border-secondary);
+    border-radius: var(--mhm-radius-sm);
 }
 
 .mhm-settings-tabs .mhm-category-item input,
@@ -128,27 +128,27 @@
 
 .mhm-settings-tabs .remove-category-btn,
 .mhm-settings-tabs .remove-status-btn {
-    background: #dc3232;
-    color: #fff;
+    background: var(--mhm-error);
+    color: var(--mhm-white);
     border: none;
     padding: 5px 10px;
     border-radius: 3px;
     cursor: pointer;
     font-size: 12px;
-    transition: background 0.3s ease;
+    transition: background var(--mhm-duration-300) ease;
 }
 
 .mhm-settings-tabs .remove-category-btn:hover,
 .mhm-settings-tabs .remove-status-btn:hover {
-    background: #a00;
+    background: var(--mhm-error-dark);
 }
 
 .mhm-settings-tabs .mhm-add-item {
     margin-top: 20px;
     padding: 15px;
-    background: #f0f8ff;
-    border: 1px solid #b3d9ff;
-    border-radius: 4px;
+    background: var(--mhm-bg-secondary);
+    border: 1px solid var(--mhm-primary-light);
+    border-radius: var(--mhm-radius-sm);
     display: flex;
     align-items: center;
 }
@@ -178,7 +178,7 @@
 
 /* Description Text */
 .mhm-settings-tabs .description {
-    color: #666;
+    color: var(--mhm-text-secondary);
     font-style: italic;
     margin-top: 5px;
     font-size: 13px;
@@ -188,27 +188,27 @@
 .mhm-settings-tabs .submit {
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--mhm-border-secondary);
 }
 
 .mhm-settings-tabs .button-primary {
-    background: #0073aa;
-    border-color: #0073aa;
-    box-shadow: 0 1px 0 #006799;
-    color: #fff;
+    background: var(--mhm-primary);
+    border-color: var(--mhm-primary);
+    box-shadow: 0 1px 0 var(--mhm-primary-dark);
+    color: var(--mhm-white);
     text-decoration: none;
-    text-shadow: 0 -1px 1px #006799, 1px 0 1px #006799, 0 1px 1px #006799, -1px 0 1px #006799;
+    text-shadow: 0 -1px 1px var(--mhm-primary-dark), 1px 0 1px var(--mhm-primary-dark), 0 1px 1px var(--mhm-primary-dark), -1px 0 1px var(--mhm-primary-dark);
     padding: 8px 12px;
     border-radius: 3px;
     font-size: 13px;
     line-height: 2.15384615;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all var(--mhm-duration-300) ease;
 }
 
 .mhm-settings-tabs .button-primary:hover {
-    background: #005a87;
-    border-color: #005a87;
+    background: var(--mhm-primary-dark);
+    border-color: var(--mhm-primary-dark);
 }
 
 /* Responsive Design */

@@ -327,15 +327,31 @@ final class ContactForm extends AbstractShortcode
     }
 
     /**
+     * Script object name override
+     * JS dosyası mhmContactForm objesini bekliyor
+     */
+    protected static function get_script_object_name(): string
+    {
+        return 'mhmContactForm';
+    }
+
+    /**
      * Localized data override
      */
     protected static function get_localized_data(): array
     {
         return [
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('mhm_rentiva_contact_nonce'),
+            'nonce' => wp_create_nonce('mhm_contact_form'),
             'maxFileSize' => wp_max_upload_size(),
             'allowedFileTypes' => ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx'],
+            'messages' => [
+                'submitting' => __('Sending...', 'mhm-rentiva'),
+                'success' => __('Your message has been sent successfully.', 'mhm-rentiva'),
+                'error' => __('An error occurred while sending message.', 'mhm-rentiva'),
+                'required_fields' => __('Please fill in all required fields.', 'mhm-rentiva'),
+                'confirm_reset' => __('Are you sure you want to reset the form?', 'mhm-rentiva'),
+            ],
             'strings' => static::get_localized_strings(),
         ];
     }
@@ -346,14 +362,17 @@ final class ContactForm extends AbstractShortcode
     protected static function get_localized_strings(): array
     {
         return [
+            'submitting' => __('Sending...', 'mhm-rentiva'),
             'sending' => __('Sending...', 'mhm-rentiva'),
             'success' => __('Your message has been sent successfully!', 'mhm-rentiva'),
             'error' => __('An error occurred while sending message.', 'mhm-rentiva'),
             'validation_error' => __('Please fill in all required fields.', 'mhm-rentiva'),
+            'required_fields' => __('Please fill in all required fields.', 'mhm-rentiva'),
             'file_too_large' => __('File size is too large.', 'mhm-rentiva'),
             'invalid_file_type' => __('Invalid file type.', 'mhm-rentiva'),
             'captcha_error' => __('CAPTCHA verification failed.', 'mhm-rentiva'),
             'loading' => __('Loading...', 'mhm-rentiva'),
+            'confirm_reset' => __('Are you sure you want to reset the form?', 'mhm-rentiva'),
         ];
     }
 
