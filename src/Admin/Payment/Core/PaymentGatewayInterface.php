@@ -49,8 +49,8 @@ interface PaymentGatewayInterface
     /**
      * Get payment/checkout URL
      * 
-     * @return string|null Checkout URL or null if not available
+     * @return string Checkout URL or empty string if not available
      */
-    public function get_payment_url(): ?string;
+    public function get_checkout_url(): string;
 }
 

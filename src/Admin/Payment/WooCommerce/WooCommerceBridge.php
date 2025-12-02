@@ -1602,6 +1602,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface
     /**
      * Get payment/checkout URL
      * 
+     * Implements PaymentGatewayInterface::get_checkout_url()
+     * 
      * @return string URL to redirect user for payment
      */
     public function get_checkout_url(): string
