@@ -1,13 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: MHM Rentiva 3.1.0\n"
+"Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2025-10-12T02:18:26+02:00\n"
-<<<<<<< HEAD
+"POT-Creation-Date: 2025-11-25T18:46:38+01:00\n"
 "PO-Revision-Date: 2025-11-30 00:33+0000\n"
-=======
-"PO-Revision-Date: 2025-11-25 16:30+0000\n"
->>>>>>> 1a3d3a0a7888d65de1b82200523cb228987c55f0
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
 "Language: tr_TR\n"
