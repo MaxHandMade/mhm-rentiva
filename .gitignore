@@ -30,3 +30,7 @@ languages/*.mo
 
 # Ignore zip releases
 *.zip
+
+# Test documentation (keep local only)
+TEST-GUIDE.md
+TEST-CHECKLIST.md
