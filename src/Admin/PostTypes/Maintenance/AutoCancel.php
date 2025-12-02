@@ -158,26 +158,33 @@ final class AutoCancel
         ]);
 
         if (!$q->have_posts()) {
+            // Debug: Log when no expired bookings found
+            error_log('🔍 AutoCancel: No expired bookings found. Current Time: ' . $current_time . ', Deadline Minutes: ' . $minutes);
             return;
         }
         
-        error_log('🔍 AutoCancel: Found ' . count($q->posts) . ' expired bookings. Current Time: ' . $current_time);
+        error_log('🔍 AutoCancel: Found ' . count($q->posts) . ' expired bookings. Current Time: ' . $current_time . ', Booking IDs: ' . implode(', ', $q->posts));
 
         foreach ($q->posts as $bid) {
             $bid = (int) $bid;
             
             // Double check status
             $bookingStatus = (string) get_post_meta($bid, '_mhm_status', true);
+            $payStatus = (string) get_post_meta($bid, '_mhm_payment_status', true);
+            $payment_deadline = (string) get_post_meta($bid, '_mhm_payment_deadline', true);
+            
+            // Debug log
+            error_log("🔍 AutoCancel: Checking booking #$bid - Status: $bookingStatus, Payment Status: $payStatus, Deadline: $payment_deadline");
             
             // Only cancel pending bookings
             if ($bookingStatus !== 'pending') {
+                error_log("⏭️ AutoCancel: Skipping booking #$bid - Status is '$bookingStatus' (not 'pending')");
                 continue;
             }
             
-            $payStatus = (string) get_post_meta($bid, '_mhm_payment_status', true);
-            
             // Skip if not pending payment
             if ($payStatus !== 'pending') {
+                error_log("⏭️ AutoCancel: Skipping booking #$bid - Payment status is '$payStatus' (not 'pending')");
                 continue;
             }
 
@@ -185,8 +192,15 @@ final class AutoCancel
             try {
                 $newStatus = 'cancelled';
                 update_post_meta($bid, '_mhm_status', $newStatus);
+                update_post_meta($bid, '_mhm_payment_status', 'cancelled');
                 update_post_meta($bid, '_mhm_auto_cancelled', current_time('timestamp'));
                 update_post_meta($bid, '_mhm_auto_cancelled_reason', 'Payment deadline expired (' . $minutes . ' minutes)');
+                
+                // Clear availability cache
+                $vehicle_id = (int) get_post_meta($bid, '_mhm_vehicle_id', true);
+                if ($vehicle_id && class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+                    \MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+                }
                 
                 // Log action
                 if (class_exists(Logger::class)) {
@@ -196,7 +210,7 @@ final class AutoCancel
                     ], 'system');
                 }
                 
-                error_log("MHM AutoCancel: Booking $bid cancelled. Deadline expired.");
+                error_log("✅ AutoCancel: Booking #$bid cancelled. Deadline expired. Vehicle ID: $vehicle_id");
                 
                 do_action('mhm_rentiva_booking_auto_cancelled', $bid, $newStatus);
                 

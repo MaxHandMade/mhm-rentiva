@@ -289,16 +289,14 @@ class DepositCalculator
      */
     public static function get_payment_methods(): array
     {
-        // Check if WooCommerce is active
-        if (class_exists('WooCommerce')) {
-            return [
-                'woocommerce' => __('Pay via WooCommerce', 'mhm-rentiva')
-            ];
+        // ⭐ WooCommerce only - All payments go through WooCommerce
+        if (!class_exists('WooCommerce')) {
+            // WooCommerce is required
+            return [];
         }
 
         return [
-            'online' => __('Online Payment', 'mhm-rentiva'),
-            'offline' => __('Offline Payment', 'mhm-rentiva')
+            'woocommerce' => __('Pay via WooCommerce', 'mhm-rentiva')
         ];
     }
 

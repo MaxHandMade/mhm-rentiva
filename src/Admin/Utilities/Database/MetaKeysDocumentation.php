@@ -381,15 +381,15 @@ final class MetaKeysDocumentation
                 'keys' => [
                     '_mhm_payment_method' => [
                         'type' => 'string',
-                        'values' => ['online', 'offline', 'cash'],
-                        'description' => 'Payment method',
+                        'values' => ['woocommerce'],
+                        'description' => 'Payment method (WooCommerce only)',
                         'required' => true,
                         'usage' => 'Payment management'
                     ],
                     '_mhm_payment_gateway' => [
                         'type' => 'string',
-                        'values' => ['offline'],
-                        'description' => 'Payment gateway',
+                        'values' => ['woocommerce'],
+                        'description' => 'Payment gateway (WooCommerce only)',
                         'required' => true,
                         'usage' => 'Payment management'
                     ],
@@ -412,7 +412,7 @@ final class MetaKeysDocumentation
                         'values' => 'datetime',
                         'description' => 'Payment deadline',
                         'required' => false,
-                        'usage' => 'Offline payment control'
+                        'usage' => 'Payment deadline control (for auto-cancellation)'
                     ],
                     '_mhm_payment_display' => [
                         'type' => 'string',

@@ -694,6 +694,24 @@ final class DatabaseInitialization
             'description' => __('Cancellation policy', 'mhm-rentiva')
         ]);
         
+        register_post_meta('vehicle_booking', '_mhm_booking_reference', [
+            'type' => 'string',
+            'single' => true,
+            'sanitize_callback' => [self::class, 'sanitize_array_meta'],
+            'auth_callback' => '__return_true',
+            'show_in_rest' => true,
+            'description' => __('Booking reference number', 'mhm-rentiva')
+        ]);
+        
+        register_post_meta('vehicle_booking', '_mhm_special_notes', [
+            'type' => 'string',
+            'single' => true,
+            'sanitize_callback' => 'sanitize_textarea_field',
+            'auth_callback' => '__return_true',
+            'show_in_rest' => true,
+            'description' => __('Special notes or customer requests', 'mhm-rentiva')
+        ]);
+        
         register_post_meta('vehicle', '_mhm_removed_details', [
             'type' => 'array',
             'single' => true,

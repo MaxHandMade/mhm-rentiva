@@ -13,6 +13,11 @@ if (!defined('ABSPATH')) {
 final class BookingColumns
 {
     /**
+     * Flag to prevent infinite loop in title filter
+     */
+    private static $in_title_filter = false;
+
+    /**
      * Safe sanitize text field that handles null values
      */
     public static function sanitize_text_field_safe($value)
@@ -441,14 +446,10 @@ final class BookingColumns
         }
         if (isset($_GET['mhm_payment_gateway']) && $_GET['mhm_payment_gateway'] !== '') {
             $val = self::sanitize_text_field_safe((string) $_GET['mhm_payment_gateway']);
-            if ($val === 'offline') {
-                // Special case for offline: include legacy with receipt id
+            if ($val === 'woocommerce') {
+                // ⭐ WooCommerce only - All payments go through WooCommerce
                 $meta[] = [
-                    'relation' => 'OR',
-                    ['key' => '_booking_payment_gateway', 'value' => 'offline', 'compare' => '='],
-                    ['key' => '_mhm_payment_gateway', 'value' => 'offline', 'compare' => '='],
-                    ['key' => '_booking_offline_receipt_id', 'compare' => 'EXISTS'],
-                    ['key' => '_mhm_offline_receipt_id', 'compare' => 'EXISTS']
+                    ['key' => '_mhm_payment_gateway', 'value' => 'woocommerce', 'compare' => '=']
                 ];
             }
         }
@@ -873,20 +874,20 @@ final class BookingColumns
                     
                     <div class="calendar-current">
                         <strong><?php echo esc_html($month_names[$current_month] . ' ' . $current_year); ?></strong>
-                    </div>
+            </div>
                     
                     <a href="<?php echo esc_url(add_query_arg(['month' => $next_month, 'year' => $next_year])); ?>" 
                        class="calendar-nav-btn next-btn" data-action="next">
                         <?php echo esc_html($month_names[$next_month]); ?>
                         <span class="dashicons dashicons-arrow-right-alt2"></span>
                     </a>
-                </div>
+            </div>
             </div>
 
             <!-- Calendar Grid -->
             <div class="calendar-container">
                 <div class="calendar-grid-wrapper">
-                    <?php
+                <?php
                     // Get WordPress week start setting (0 = Sunday, 1 = Monday, etc.)
                     $week_start = (int) get_option('start_of_week', 1);
                     
@@ -908,10 +909,10 @@ final class BookingColumns
                     );
                     
                     // Current month's days only - positioned in 7-column grid
-                    for ($day = 1; $day <= $days_in_month; $day++) {
+                for ($day = 1; $day <= $days_in_month; $day++) {
                         $is_today = ($day == $today && $current_month == $current_month_num && $current_year == $current_year_num);
-                        $booking_data = $booking_days[$day] ?? null;
-                        
+                    $booking_data = $booking_days[$day] ?? null;
+                    
                         // Get day name for this date and calculate grid column
                         $day_of_week = date('w', mktime(0, 0, 0, $current_month, $day, $current_year));
                         $day_name_index = ($day_of_week - $week_start + 7) % 7;
@@ -926,10 +927,10 @@ final class BookingColumns
                         }
                         
                         // Booking status classes
-                        if ($booking_data) {
+                    if ($booking_data) {
                             $classes[] = 'booked';
-                            
-                            if ($booking_data['type'] === 'single') {
+                        
+                        if ($booking_data['type'] === 'single') {
                                 $status = $booking_data['status'] ?? 'pending';
                                 $status_class = [
                                     'pending' => 'status-pending',
@@ -974,7 +975,7 @@ final class BookingColumns
                                 echo '<span class="day-number">' . esc_html($day) . '</span>';
                                 echo '<span class="dashicons dashicons-calendar-alt booking-icon"></span>';
                                 echo '</div>';
-                            } else {
+                    } else {
                                 // Multi-status day - show all statuses as equal segments
                                 $classes[] = 'multi-status-day';
                                 $statuses = $booking_data['statuses'] ?? [];
@@ -1029,9 +1030,9 @@ final class BookingColumns
                                         'cancelled' => 'status-cancelled'
                                     ][$status] ?? 'status-pending';
                                     echo '<div class="status-segment ' . esc_attr($status_class) . '"></div>';
-                                }
-                                
-                                echo '</div>';
+                    }
+                    
+                    echo '</div>';
                                 echo '</div>';
                             }
                         } else {
@@ -1373,12 +1374,37 @@ final class BookingColumns
             // Get translated status label
             $status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
             
+            // ⭐ Get customer info using BookingQueryHelper (handles WooCommerce & WordPress integration)
+            $customer_info = [];
+            if (class_exists('\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper')) {
+                $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo($booking->booking_id);
+            }
+            
+            // Build customer name from first_name and last_name
+            $customer_name = '';
+            if (!empty($customer_info['first_name']) && !empty($customer_info['last_name'])) {
+                $customer_name = trim($customer_info['first_name'] . ' ' . $customer_info['last_name']);
+            } elseif (!empty($customer_info['first_name'])) {
+                $customer_name = $customer_info['first_name'];
+            } elseif (!empty($customer_info['last_name'])) {
+                $customer_name = $customer_info['last_name'];
+            }
+            
+            // Fallback to SQL result if BookingQueryHelper didn't find anything
+            if (empty($customer_name)) {
+                $customer_name = $booking->customer_name ?: '';
+            }
+            
+            // Use customer info from BookingQueryHelper (prioritizes WooCommerce/WordPress data)
+            $customer_email = !empty($customer_info['email']) ? $customer_info['email'] : ($booking->customer_email ?: '');
+            $customer_phone = !empty($customer_info['phone']) ? $customer_info['phone'] : ($booking->customer_phone ?: '');
+            
             // Booking data for popup
             $booking_data = [
                 'booking_id' => $booking->booking_id,
-                'customer_name' => $booking->customer_name ?: '',
-                'customer_email' => $booking->customer_email ?: '',
-                'customer_phone' => $booking->customer_phone ?: '',
+                'customer_name' => $customer_name,
+                'customer_email' => $customer_email,
+                'customer_phone' => $customer_phone,
                 'vehicle_id' => $vehicle_id,
                 'vehicle_title' => $vehicle_title,
                 'vehicle_plate' => $vehicle_plate ?: '',
@@ -1642,37 +1668,34 @@ final class BookingColumns
     }
 
     /**
-     * Replace booking title with customer details.
+     * Get booking title display text for list table
      */
-    public static function modify_booking_title(string $title, int $post_id = null): string
+    public static function get_booking_title_display(int $post_id): string
     {
-        // Apply only within admin booking list context
-        if (!is_admin() || !$post_id) {
-            return $title;
+        // Use BookingQueryHelper to get customer info (handles multiple meta keys)
+        $customer_info = [];
+        if (class_exists('\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper')) {
+            $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo($post_id);
         }
-
-        global $post_type;
-        if ($post_type !== 'vehicle_booking') {
-            return $title;
-        }
-
-        // Gather customer info (first/last name fields preferred)
-        $customer_first_name = get_post_meta($post_id, '_mhm_customer_first_name', true);
-        $customer_last_name = get_post_meta($post_id, '_mhm_customer_last_name', true);
         
+        $customer_first_name = $customer_info['first_name'] ?? '';
+        $customer_last_name = $customer_info['last_name'] ?? '';
+        $customer_email = $customer_info['email'] ?? '';
+        $customer_phone = $customer_info['phone'] ?? '';
+        
+        // Build customer name
         if ($customer_first_name && $customer_last_name) {
             $customer_name = trim($customer_first_name . ' ' . $customer_last_name);
+        } elseif ($customer_first_name) {
+            $customer_name = $customer_first_name;
+        } elseif ($customer_last_name) {
+            $customer_name = $customer_last_name;
         } else {
             // Fallback to legacy meta fields
             $customer_name = get_post_meta($post_id, '_booking_customer_name', true) ?: 
-                            get_post_meta($post_id, '_mhm_customer_name', true);
+                            get_post_meta($post_id, '_mhm_customer_name', true) ?:
+                            get_post_meta($post_id, '_mhm_contact_name', true);
         }
-        
-        $customer_email = get_post_meta($post_id, '_booking_customer_email', true) ?: 
-                         get_post_meta($post_id, '_mhm_customer_email', true);
-        
-        $customer_phone = get_post_meta($post_id, '_booking_customer_phone', true) ?: 
-                         get_post_meta($post_id, '_mhm_customer_phone', true);
 
         // If still empty, resolve via related WP user
         if (!$customer_name) {
@@ -1680,16 +1703,59 @@ final class BookingColumns
             if ($user_id) {
                 $user = get_userdata($user_id);
                 if ($user) {
-                    $customer_name = $user->display_name ?: $user->first_name . ' ' . $user->last_name;
+                    $customer_name = $user->display_name ?: trim($user->first_name . ' ' . $user->last_name);
+                    if (empty($customer_email)) {
                     $customer_email = $user->user_email;
+                    }
+                    if (empty($customer_phone)) {
                     $customer_phone = get_user_meta($user_id, 'phone', true);
+                    }
                 }
             }
         }
 
-        // Without a customer name, keep original title
+        // If still no customer name, try WooCommerce order
+        if (!$customer_name && function_exists('wc_get_order')) {
+            // Try multiple order ID meta keys
+            $order_id = get_post_meta($post_id, '_mhm_order_id', true) ?: 
+                       get_post_meta($post_id, '_mhm_wc_order_id', true) ?: 
+                       get_post_meta($post_id, '_booking_order_id', true);
+            
+            if ($order_id) {
+                $order = wc_get_order($order_id);
+                if ($order) {
+                    $customer_name = trim($order->get_billing_first_name() . ' ' . $order->get_billing_last_name());
+                    if (empty($customer_email)) {
+                        $customer_email = $order->get_billing_email();
+                    }
+                    if (empty($customer_phone)) {
+                        $customer_phone = $order->get_billing_phone();
+                    }
+                }
+            }
+        }
+
+        // If still no customer name, try to extract from email
+        if (!$customer_name && $customer_email) {
+            // Extract name from email (part before @)
+            $email_parts = explode('@', $customer_email);
+            if (!empty($email_parts[0])) {
+                $customer_name = $email_parts[0];
+                // Replace dots and underscores with spaces, capitalize first letter
+                $customer_name = str_replace(['.', '_', '-'], ' ', $customer_name);
+                $customer_name = ucwords(strtolower($customer_name));
+            }
+        }
+
+        // Without a customer name, use default title
         if (!$customer_name) {
-            return $title;
+            // Get post title directly from database to avoid infinite loop with the_title filter
+            $post = get_post($post_id);
+            $default_title = $post ? $post->post_title : '';
+            if (empty($default_title) || $default_title === __('Auto Draft', 'mhm-rentiva')) {
+                return sprintf(__('Booking #%d', 'mhm-rentiva'), $post_id);
+            }
+            return $default_title;
         }
 
         // Return plain text summary prioritizing phone over email
@@ -1702,5 +1768,39 @@ final class BookingColumns
         }
 
         return $new_title;
+    }
+
+    /**
+     * Replace booking title with customer details.
+     */
+    public static function modify_booking_title(string $title, int $post_id = null): string
+    {
+        // Prevent infinite loop
+        if (self::$in_title_filter) {
+            return $title;
+        }
+
+        // Apply only within admin booking list context
+        if (!is_admin() || !$post_id) {
+            return $title;
+        }
+
+        // Check if we're on the booking list page
+        $screen = get_current_screen();
+        if (!$screen || $screen->post_type !== 'vehicle_booking' || $screen->base !== 'edit') {
+            return $title;
+        }
+
+        // Set flag to prevent recursion
+        self::$in_title_filter = true;
+
+        // Use the shared function to get booking title display
+        $new_title = self::get_booking_title_display($post_id);
+        
+        // Reset flag
+        self::$in_title_filter = false;
+        
+        // If we got a valid title, return it; otherwise keep original
+        return !empty($new_title) ? $new_title : $title;
     }
 }

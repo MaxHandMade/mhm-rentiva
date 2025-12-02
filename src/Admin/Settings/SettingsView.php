@@ -227,16 +227,6 @@ final class SettingsView
                                 
                                 $form_content = ob_get_clean();
                                 
-                                // Aggressively remove any nested form elements
-                                // Remove complete form tags with content (non-greedy to avoid removing outer form)
-                                $form_content = preg_replace('/<form[^>]*>.*?<\/form>/is', '', $form_content);
-                                // Remove standalone opening form tags
-                                $form_content = preg_replace('/<form[^>]*>/i', '', $form_content);
-                                // Remove standalone closing form tags
-                                $form_content = preg_replace('/<\/form>/i', '', $form_content);
-                                // Remove form attributes from other elements that might cause DOM warnings
-                                $form_content = preg_replace('/\s+form\s*=\s*["\'][^"\']*["\']/i', '', $form_content);
-                                
                                 echo $form_content;
                                 ?>
                             </form>
@@ -271,14 +261,6 @@ final class SettingsView
             call_user_func($section['callback'], $section);
             $section_output = ob_get_clean();
             
-            // Aggressively remove any form elements from section callback
-            $section_output = preg_replace('/<form[^>]*>.*?<\/form>/is', '', $section_output);
-            $section_output = preg_replace('/<form[^>]*>/i', '', $section_output);
-            $section_output = preg_replace('/<\/form>/i', '', $section_output);
-            $section_output = preg_replace('/\s+form\s*=\s*["\'][^"\']*["\']/i', '', $section_output);
-            // Remove any form-like attributes
-            $section_output = preg_replace('/\s+role\s*=\s*["\']form["\']/i', '', $section_output);
-            
             echo $section_output;
         }
         
@@ -302,17 +284,6 @@ final class SettingsView
             ob_start();
             call_user_func($field['callback'], $field['args']);
             $field_output = ob_get_clean();
-            
-            // Aggressively remove any form elements
-            // Remove complete form tags with content
-            $field_output = preg_replace('/<form[^>]*>.*?<\/form>/is', '', $field_output);
-            // Remove opening form tags
-            $field_output = preg_replace('/<form[^>]*>/i', '', $field_output);
-            // Remove closing form tags
-            $field_output = preg_replace('/<\/form>/i', '', $field_output);
-            // Remove any nested form elements (fieldset, button type="submit" outside form context)
-            $field_output = preg_replace('/<fieldset[^>]*>/i', '<div>', $field_output);
-            $field_output = preg_replace('/<\/fieldset>/i', '</div>', $field_output);
             
             echo $field_output;
             echo '</td>';
@@ -804,16 +775,48 @@ final class SettingsView
         echo '</button>';
         echo '</div>';
         
+        // WooCommerce Integration Notice
+        $woocommerce_active = class_exists('WooCommerce');
+        if (!$woocommerce_active) {
+            ?>
+            <div class="notice notice-warning inline" style="margin: 20px 0;">
+                <p>
+                    <strong><?php esc_html_e('⚠️ WooCommerce Required', 'mhm-rentiva'); ?></strong><br>
+                    <?php esc_html_e('MHM Rentiva uses WooCommerce for all payment processing. To accept payments, you need to install and activate WooCommerce.', 'mhm-rentiva'); ?>
+                </p>
+                <p>
+                    <?php if (current_user_can('install_plugins')): ?>
+                        <a class="button button-primary" href="<?php echo esc_url(admin_url('plugin-install.php?s=woocommerce&tab=search&type=term')); ?>">
+                            <?php esc_html_e('Install WooCommerce', 'mhm-rentiva'); ?>
+                        </a>
+                    <?php endif; ?>
+                    <a class="button button-secondary" href="https://woocommerce.com/" target="_blank" rel="noopener noreferrer">
+                        <?php esc_html_e('Learn More About WooCommerce', 'mhm-rentiva'); ?>
+                    </a>
+                </p>
+            </div>
+            <?php
+        } else {
+            ?>
+            <div class="notice notice-info inline" style="margin: 20px 0;">
+                <p>
+                    <strong><?php esc_html_e('✅ WooCommerce Integration Active', 'mhm-rentiva'); ?></strong><br>
+                    <?php esc_html_e('All payments are processed through WooCommerce. You can use any payment gateway supported by WooCommerce (Stripe, PayPal, Bank Transfer, etc.).', 'mhm-rentiva'); ?>
+                </p>
+                <p>
+                    <a class="button button-secondary" href="<?php echo esc_url(admin_url('admin.php?page=wc-settings&tab=checkout')); ?>" target="_blank">
+                        <?php esc_html_e('Configure WooCommerce Payment Gateways', 'mhm-rentiva'); ?>
+                    </a>
+                </p>
+            </div>
+            <?php
+        }
+        
         // General Payment Settings
         self::render_section_clean('mhm_rentiva_general_payment_section');
         
         // Payment Gateway Status
         self::render_section_clean('mhm_rentiva_payment_gateway_status_section');
-        
-
-        
-        // Offline payment settings
-        self::render_section_clean('mhm_rentiva_offline_section');
         
         $payment_content = ob_get_clean();
         

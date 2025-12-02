@@ -54,6 +54,9 @@ final class Plugin
         // Load language files
         add_action('plugins_loaded', [$this, 'load_textdomain']);
         
+        // Ensure theme support for thumbnails
+        add_action('after_setup_theme', [$this, 'setup_theme_support']);
+        
         // Register Customer role (also for existing installations)
         // Priority 20: Run after WooCommerce and other plugins that might register customer role
         add_action('init', [self::class, 'register_customer_role'], 20);
@@ -157,6 +160,8 @@ final class Plugin
         if ($this->is_class_available('MHMRentiva\Admin\Settings\ShortcodeSettings')) {
             \MHMRentiva\Admin\Settings\ShortcodeSettings::register();
         }
+
+
             
         // Email templates
         if ($this->is_class_available('\MHMRentiva\Admin\Emails\Core\EmailTemplates')) {
@@ -319,9 +324,7 @@ final class Plugin
         if (class_exists(Admin\Emails\Notifications\ReminderScheduler::class)) {
             Admin\Emails\Notifications\ReminderScheduler::register();
         }
-        if (class_exists(Admin\Emails\Notifications\OfflineNotifications::class)) {
-            Admin\Emails\Notifications\OfflineNotifications::register();
-        }
+        // ⭐ Offline payment notifications removed - WooCommerce handles all payments
         if (class_exists(Admin\Emails\Notifications\RefundNotifications::class)) {
             Admin\Emails\Notifications\RefundNotifications::register();
         }
@@ -388,9 +391,7 @@ final class Plugin
 
         // Payment Clients
 
-        if (class_exists(Admin\Payment\Gateways\Offline\Handler::class)) {
-            Admin\Payment\Gateways\Offline\Handler::register();
-        }
+        // ⭐ Offline payment removed - WooCommerce handles all payments
 
         // About page
         if (class_exists(Admin\About\About::class)) {
@@ -485,6 +486,16 @@ final class Plugin
     {
         $mainFile = dirname(__DIR__) . '/mhm-rentiva.php';
         load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename($mainFile)) . '/languages');
+    }
+
+    /**
+     * Setup theme support
+     */
+    public function setup_theme_support(): void
+    {
+        if (!current_theme_supports('post-thumbnails')) {
+            add_theme_support('post-thumbnails');
+        }
     }
 
     /**
@@ -680,8 +691,10 @@ final class Plugin
      */
     private function initialize_elementor_integration(): void
     {
-        // Initialize Elementor integration
+        // Initialize Elementor widgets
         \MHMRentiva\Admin\Frontend\Widgets\Elementor\ElementorIntegration::init();
+        
+
     }
 
     /**

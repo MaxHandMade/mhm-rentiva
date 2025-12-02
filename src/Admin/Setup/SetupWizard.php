@@ -20,6 +20,7 @@ final class SetupWizard
     public static function register(): void
     {
         add_action('admin_init', [self::class, 'maybe_redirect']);
+        add_action('admin_notices', [self::class, 'show_permalink_notice']);
 
         add_action('admin_post_mhm_rentiva_setup_save_license', [self::class, 'handle_save_license']);
         add_action('admin_post_mhm_rentiva_setup_create_pages', [self::class, 'handle_create_pages']);
@@ -27,6 +28,7 @@ final class SetupWizard
         add_action('admin_post_mhm_rentiva_setup_save_frontend', [self::class, 'handle_save_frontend']);
         add_action('admin_post_mhm_rentiva_setup_finish', [self::class, 'handle_finish']);
         add_action('admin_post_mhm_rentiva_setup_skip', [self::class, 'handle_skip']);
+        add_action('admin_post_mhm_rentiva_dismiss_permalink_notice', [self::class, 'handle_dismiss_permalink_notice']);
     }
 
     public static function register_menu(): void
@@ -496,6 +498,29 @@ final class SetupWizard
             <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-settings&tab=email-templates')); ?>"><?php esc_html_e('Send Test Email', 'mhm-rentiva'); ?></a>
         </div>
 
+        <?php
+        // Check if permalink structure is set to plain (not SEO-friendly)
+        $permalink_structure = get_option('permalink_structure');
+        $is_plain_permalink = empty($permalink_structure);
+        
+        if ($is_plain_permalink || $permalink_structure === ''):
+        ?>
+        <div class="notice notice-warning inline" style="margin: 20px 0;">
+            <p>
+                <strong><?php esc_html_e('⚠️ Important: Permalink Settings', 'mhm-rentiva'); ?></strong><br>
+                <?php esc_html_e('Your WordPress permalink structure is set to "Plain". For the frontend pages to work correctly, please update your permalink settings to a SEO-friendly structure (e.g., "Post name").', 'mhm-rentiva'); ?>
+            </p>
+            <p>
+                <a class="button button-primary" href="<?php echo esc_url(admin_url('options-permalink.php')); ?>" target="_blank">
+                    <?php esc_html_e('Open Permalink Settings', 'mhm-rentiva'); ?>
+                </a>
+                <span class="description" style="margin-left: 10px;">
+                    <?php esc_html_e('After updating, click "Save Changes" to refresh permalinks.', 'mhm-rentiva'); ?>
+                </span>
+            </p>
+        </div>
+        <?php endif; ?>
+
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('mhm_rentiva_setup_finish'); ?>
             <input type="hidden" name="action" value="mhm_rentiva_setup_finish">
@@ -606,6 +631,12 @@ final class SetupWizard
         update_option(self::OPTION_COMPLETED, '1');
         delete_option(self::OPTION_REDIRECT);
 
+        // Check permalink structure and set a transient notice if needed
+        $permalink_structure = get_option('permalink_structure');
+        if (empty($permalink_structure)) {
+            set_transient('mhm_rentiva_permalink_notice', '1', HOUR_IN_SECONDS);
+        }
+
         wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-dashboard'));
         exit;
     }
@@ -618,6 +649,17 @@ final class SetupWizard
         check_admin_referer('mhm_rentiva_setup_skip');
         update_option(self::OPTION_COMPLETED, '1');
         delete_option(self::OPTION_REDIRECT);
+        wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-dashboard'));
+        exit;
+    }
+
+    public static function handle_dismiss_permalink_notice(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You are not allowed to perform this action.', 'mhm-rentiva'));
+        }
+        check_admin_referer('mhm_rentiva_dismiss_permalink_notice');
+        delete_transient('mhm_rentiva_permalink_notice');
         wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-dashboard'));
         exit;
     }
@@ -642,6 +684,52 @@ final class SetupWizard
                 exit;
             }
         }
+    }
+
+    public static function show_permalink_notice(): void
+    {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        // Only show notice if transient is set (after setup completion)
+        if (!get_transient('mhm_rentiva_permalink_notice')) {
+            return;
+        }
+
+        // Check if permalink structure is still plain
+        $permalink_structure = get_option('permalink_structure');
+        if (!empty($permalink_structure)) {
+            // Permalink is already set, delete transient
+            delete_transient('mhm_rentiva_permalink_notice');
+            return;
+        }
+
+        // Show notice only on MHM Rentiva pages
+        $screen = get_current_screen();
+        if (!$screen || strpos($screen->id, 'mhm-rentiva') === false) {
+            return;
+        }
+
+        $permalink_url = admin_url('options-permalink.php');
+        ?>
+        <div class="notice notice-warning is-dismissible">
+            <p>
+                <strong><?php esc_html_e('⚠️ Important: Permalink Settings Required', 'mhm-rentiva'); ?></strong>
+            </p>
+            <p>
+                <?php esc_html_e('Your WordPress permalink structure is set to "Plain". For the frontend pages (booking form, account pages, etc.) to work correctly, please update your permalink settings to a SEO-friendly structure.', 'mhm-rentiva'); ?>
+            </p>
+            <p>
+                <a class="button button-primary" href="<?php echo esc_url($permalink_url); ?>">
+                    <?php esc_html_e('Open Permalink Settings', 'mhm-rentiva'); ?>
+                </a>
+                <a class="button button-link" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=mhm_rentiva_dismiss_permalink_notice'), 'mhm_rentiva_dismiss_permalink_notice')); ?>">
+                    <?php esc_html_e('Dismiss', 'mhm-rentiva'); ?>
+                </a>
+            </p>
+        </div>
+        <?php
     }
 
     private static function is_wizard_page(): bool
@@ -1072,7 +1160,7 @@ final class SetupWizard
         $settings = get_option('mhm_rentiva_settings', []);
         $gateways = [
 
-            $settings['mhm_rentiva_offline_enabled'] ?? '0',
+            '0', // ⭐ Offline payment removed - WooCommerce handles all payments
         ];
 
         return in_array('1', $gateways, true);

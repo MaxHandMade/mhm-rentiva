@@ -69,8 +69,8 @@ final class BookingEditMetaBox extends AbstractMetaBox
         // Scripts and styles
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_scripts']);
         
-        // Save handler
-        add_action('save_post', [self::class, 'save_booking_details']);
+        // Save handler - Higher priority to run before other save hooks
+        add_action('save_post', [self::class, 'save_booking_details'], 5);
     }
     
     public static function add_meta_boxes(): void
@@ -141,17 +141,81 @@ final class BookingEditMetaBox extends AbstractMetaBox
         $guests = get_post_meta($post->ID, '_mhm_guests', true) ?: get_post_meta($post->ID, '_booking_guests', true) ?: 1;
         $status = Status::get($post->ID);
         
+        // Additional booking information
+        $booking_reference = get_post_meta($post->ID, '_mhm_booking_reference', true);
+        if (empty($booking_reference)) {
+            $booking_prefix = __('BK-', 'mhm-rentiva');
+            $booking_reference = $booking_prefix . str_pad((string) $post->ID, 6, '0', STR_PAD_LEFT);
+        }
+        $booking_type = get_post_meta($post->ID, '_mhm_booking_type', true) ?: 'online';
+        $rental_days = get_post_meta($post->ID, '_mhm_rental_days', true);
+        $special_notes = get_post_meta($post->ID, '_mhm_special_notes', true) ?: '';
+        
+        // Calculate rental days if not set
+        if (empty($rental_days) && $pickup_date && $dropoff_date) {
+            $start = new \DateTime($pickup_date);
+            $end = new \DateTime($dropoff_date);
+            $rental_days = $start->diff($end)->days ?: 1;
+        }
+        
         echo '<div class="mhm-booking-edit-form">';
         
-        // Vehicle information (read-only)
+        // Booking reference and type (info grid - similar to deposit info grid)
+        echo '<div class="mhm-booking-info-grid">';
+        
+        echo '<div class="mhm-booking-info-item">';
+        echo '<div class="mhm-booking-info-label">' . __('Booking Reference', 'mhm-rentiva') . '</div>';
+        echo '<div class="mhm-booking-info-value">';
+        echo '<span class="mhm-booking-reference-badge">' . esc_html($booking_reference) . '</span>';
+        echo '</div>';
+        echo '</div>';
+        
+        echo '<div class="mhm-booking-info-item">';
+        echo '<div class="mhm-booking-info-label">' . __('Booking Type', 'mhm-rentiva') . '</div>';
+        echo '<div class="mhm-booking-info-value">';
+        $booking_type_class = $booking_type === 'manual' ? 'manual' : 'online';
+        $booking_type_label = $booking_type === 'manual' ? __('Manual', 'mhm-rentiva') : __('Online', 'mhm-rentiva');
+        echo '<span class="mhm-booking-type-badge ' . esc_attr($booking_type_class) . '">' . esc_html($booking_type_label) . '</span>';
+        echo '</div>';
+        echo '</div>';
+        
+        echo '</div>';
+        
+        // Vehicle selection (editable)
         echo '<div class="mhm-field-group">';
-        echo '<label class="mhm-field-label">' . __('Vehicle', 'mhm-rentiva') . '</label>';
-        if ($vehicle_id) {
-            $vehicle = get_post($vehicle_id);
-            echo '<div class="mhm-field-readonly">' . esc_html($vehicle ? $vehicle->post_title : __('Unknown Vehicle', 'mhm-rentiva')) . '</div>';
-        } else {
-            echo '<div class="mhm-field-readonly">' . __('No vehicle assigned', 'mhm-rentiva') . '</div>';
+        echo '<label for="mhm_edit_vehicle_id" class="mhm-field-label">' . __('Vehicle', 'mhm-rentiva') . '</label>';
+        
+        // Get all available vehicles
+        $vehicles = get_posts([
+            'post_type' => 'vehicle',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC',
+        ]);
+        
+        echo '<select id="mhm_booking_edit_vehicle_id" name="mhm_edit_vehicle_id" class="mhm-field-select">';
+        echo '<option value="">' . __('Select Vehicle', 'mhm-rentiva') . '</option>';
+        
+        foreach ($vehicles as $vehicle_option) {
+            $plate = get_post_meta($vehicle_option->ID, '_mhm_rentiva_license_plate', true);
+            $plate_display = $plate ? ' (' . esc_html($plate) . ')' : '';
+            $selected = ($vehicle_id == $vehicle_option->ID) ? 'selected' : '';
+            echo '<option value="' . esc_attr($vehicle_option->ID) . '" ' . $selected . '>' . esc_html($vehicle_option->post_title) . $plate_display . '</option>';
         }
+        
+        echo '</select>';
+        
+        // Show current vehicle plate if exists
+        if ($vehicle_id) {
+            $current_plate = get_post_meta($vehicle_id, '_mhm_rentiva_license_plate', true);
+            if ($current_plate) {
+                echo '<div class="mhm-vehicle-info-section">';
+                echo '<p class="description">' . sprintf(__('Current License Plate: %s', 'mhm-rentiva'), '<strong>' . esc_html($current_plate) . '</strong>') . '</p>';
+                echo '</div>';
+            }
+        }
+        
         echo '</div>';
         
         // Booking details
@@ -264,6 +328,13 @@ final class BookingEditMetaBox extends AbstractMetaBox
         }
         echo '</div>';
         
+        // Special notes/requests
+        echo '<div class="mhm-field-group mhm-special-notes-section">';
+        echo '<label for="mhm_edit_special_notes" class="mhm-field-label">' . __('Special Notes / Requests', 'mhm-rentiva') . '</label>';
+        echo '<textarea id="mhm_booking_edit_special_notes" name="mhm_edit_special_notes" class="mhm-field-textarea" rows="4" placeholder="' . esc_attr__('Enter any special notes or customer requests...', 'mhm-rentiva') . '">' . esc_textarea($special_notes) . '</textarea>';
+        echo '<p class="description">' . __('Add any special notes or customer requests for this booking.', 'mhm-rentiva') . '</p>';
+        echo '</div>';
+        
         echo '</div>';
         
         echo '</div>';
@@ -274,9 +345,37 @@ final class BookingEditMetaBox extends AbstractMetaBox
      */
     public static function save_booking_details(int $post_id): void
     {
-        // Nonce validation
-        if (!isset($_POST['mhm_booking_edit_meta_nonce']) || 
-            !wp_verify_nonce($_POST['mhm_booking_edit_meta_nonce'], 'mhm_booking_edit_action')) {
+        // Autosave and revision check
+        if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
+            return;
+        }
+
+        // Nonce validation - Check if this is our form or WordPress standard form
+        $nonce_valid = false;
+        
+        // Check our custom nonce
+        if (isset($_POST['mhm_booking_edit_meta_nonce']) && 
+            wp_verify_nonce($_POST['mhm_booking_edit_meta_nonce'], 'mhm_booking_edit_action')) {
+            $nonce_valid = true;
+        }
+        
+        // Check WordPress standard nonce (for standard Update button)
+        if (!$nonce_valid && isset($_POST['_wpnonce'])) {
+            // Try different WordPress nonce formats
+            if (wp_verify_nonce($_POST['_wpnonce'], 'update-post_' . $post_id) ||
+                wp_verify_nonce($_POST['_wpnonce'], 'update-post') ||
+                wp_verify_nonce($_POST['_wpnonce'], 'post_' . $post_id)) {
+                $nonce_valid = true;
+            }
+        }
+        
+        // If we have our form fields, allow save even without nonce (for compatibility)
+        // This ensures special_notes and other fields are always saved
+        $has_our_fields = isset($_POST['mhm_edit_special_notes']) || 
+                          isset($_POST['mhm_edit_pickup_date']) || 
+                          isset($_POST['mhm_edit_vehicle_id']);
+        
+        if (!$nonce_valid && !$has_our_fields) {
             return;
         }
 
@@ -291,12 +390,45 @@ final class BookingEditMetaBox extends AbstractMetaBox
         }
 
         // Fetch and persist data
+        $new_vehicle_id = absint($_POST['mhm_edit_vehicle_id'] ?? 0);
         $pickup_date = static::sanitize_text_field_safe($_POST['mhm_edit_pickup_date'] ?? '');
         $pickup_time = static::sanitize_text_field_safe($_POST['mhm_edit_pickup_time'] ?? '');
         $dropoff_date = static::sanitize_text_field_safe($_POST['mhm_edit_dropoff_date'] ?? '');
         $dropoff_time = static::sanitize_text_field_safe($_POST['mhm_edit_dropoff_time'] ?? '');
         $guests = max(1, intval($_POST['mhm_edit_guests'] ?? 1));
         $status = static::sanitize_text_field_safe($_POST['mhm_edit_status'] ?? 'pending');
+        
+        // Get special notes - always save if field exists
+        $special_notes = isset($_POST['mhm_edit_special_notes']) ? sanitize_textarea_field($_POST['mhm_edit_special_notes']) : '';
+        
+        // Debug: Log if special_notes is being processed
+        if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+            error_log('BookingEditMetaBox::save_booking_details - special_notes: ' . ($special_notes ?: '(empty)'));
+            error_log('BookingEditMetaBox::save_booking_details - POST keys: ' . implode(', ', array_keys($_POST)));
+        }
+        
+        // Update vehicle if changed
+        $old_vehicle_id = get_post_meta($post_id, '_mhm_vehicle_id', true);
+        if ($new_vehicle_id > 0 && $new_vehicle_id != $old_vehicle_id) {
+            // Verify vehicle exists
+            $vehicle_post = get_post($new_vehicle_id);
+            if ($vehicle_post && $vehicle_post->post_type === 'vehicle') {
+                update_post_meta($post_id, '_mhm_vehicle_id', $new_vehicle_id);
+                update_post_meta($post_id, '_booking_vehicle_id', $new_vehicle_id); // Legacy support
+                
+                // Update booking title to reflect new vehicle
+                $new_title = sprintf(__('Booking - %s', 'mhm-rentiva'), $vehicle_post->post_title);
+                wp_update_post([
+                    'ID' => $post_id,
+                    'post_title' => $new_title,
+                ]);
+                
+                // Recalculate booking costs if dates are set
+                if ($pickup_date && $dropoff_date) {
+                    \MHMRentiva\Admin\Booking\Meta\BookingMeta::recalculate_booking_costs($post_id, $pickup_date, $dropoff_date);
+                }
+            }
+        }
         
         // Process selected add-ons
         $selected_addons = array_map('intval', $_POST['mhm_edit_selected_addons'] ?? []);
@@ -326,6 +458,15 @@ final class BookingEditMetaBox extends AbstractMetaBox
         update_post_meta($post_id, '_mhm_end_time', $dropoff_time);
         update_post_meta($post_id, '_mhm_dropoff_time', $dropoff_time);
         update_post_meta($post_id, '_mhm_guests', $guests);
+        update_post_meta($post_id, '_mhm_special_notes', $special_notes);
+        
+        // Recalculate rental days if dates changed
+        if ($pickup_date && $dropoff_date) {
+            $start = new \DateTime($pickup_date);
+            $end = new \DateTime($dropoff_date);
+            $rental_days = $start->diff($end)->days ?: 1;
+            update_post_meta($post_id, '_mhm_rental_days', $rental_days);
+        }
         
         // Save add-on meta data
         update_post_meta($post_id, '_mhm_selected_addons', $selected_addons);

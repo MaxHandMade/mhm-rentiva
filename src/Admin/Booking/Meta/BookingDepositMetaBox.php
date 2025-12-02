@@ -206,7 +206,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
         if ($deposit_type) {
             echo '<div class="deposit-info-item">';
             echo '<div class="deposit-info-label">' . __('Deposit Type', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-info-value">' . esc_html(ucfirst($deposit_type)) . '</div>';
+            echo '<div class="deposit-info-value">' . esc_html(self::get_deposit_type_label($deposit_type)) . '</div>';
             echo '</div>';
         }
 
@@ -237,7 +237,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
         }
 
         // Payment deadline (offline payments)
-        if ($payment_deadline && $payment_method === 'offline') {
+        if ($payment_deadline) { // ⭐ Show deadline for all payment methods (WooCommerce)
             echo '<div class="payment-deadline-section">';
             echo '<h4>' . __('Payment Deadline', 'mhm-rentiva') . '</h4>';
             echo '<p><strong>' . __('Deadline:', 'mhm-rentiva') . '</strong> ' . esc_html(date('d.m.Y H:i', strtotime($payment_deadline))) . '</p>';
@@ -404,5 +404,21 @@ final class BookingDepositMetaBox extends AbstractMetaBox
         ];
 
         return $labels[$status] ?? ucfirst($status);
+    }
+
+    /**
+     * Get translated deposit type label
+     */
+    private static function get_deposit_type_label(string $deposit_type): string
+    {
+        $labels = [
+            'full_payment' => __('Full Payment', 'mhm-rentiva'),
+            'percentage' => __('Percentage', 'mhm-rentiva'),
+            'fixed' => __('Fixed Amount', 'mhm-rentiva'),
+            'both' => __('Both', 'mhm-rentiva'),
+            'none' => __('None', 'mhm-rentiva'),
+        ];
+
+        return $labels[$deposit_type] ?? ucfirst(str_replace('_', ' ', $deposit_type));
     }
 }

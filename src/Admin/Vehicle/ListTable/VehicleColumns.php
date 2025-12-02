@@ -89,18 +89,13 @@ final class VehicleColumns
                 break;
 
             case 'mhm_transmission':
-                $map = ['auto' => __('Automatic', 'mhm-rentiva'), 'manual' => __('Manual', 'mhm-rentiva')];
+                $map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
                 $v = (string) get_post_meta($post_id, '_mhm_rentiva_transmission', true);
                 echo isset($map[$v]) ? esc_html($map[$v]) : '—';
                 break;
 
             case 'mhm_fuel_type':
-                $map = [
-                    'petrol'  => __('Petrol', 'mhm-rentiva'),
-                    'diesel'  => __('Diesel', 'mhm-rentiva'),
-                    'hybrid'  => __('Hybrid', 'mhm-rentiva'),
-                    'electric'=> __('Electric', 'mhm-rentiva'),
-                ];
+                $map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
                 $v = (string) get_post_meta($post_id, '_mhm_rentiva_fuel_type', true);
                 echo isset($map[$v]) ? esc_html($map[$v]) : '—';
                 break;
@@ -1115,6 +1110,31 @@ final class VehicleColumns
                 continue;
             }
             
+            // ⭐ Get customer info using BookingQueryHelper (handles WooCommerce & WordPress integration)
+            $customer_info = [];
+            if (class_exists('\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper')) {
+                $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo($booking->booking_id);
+            }
+            
+            // Build customer name from first_name and last_name
+            $customer_name = '';
+            if (!empty($customer_info['first_name']) && !empty($customer_info['last_name'])) {
+                $customer_name = trim($customer_info['first_name'] . ' ' . $customer_info['last_name']);
+            } elseif (!empty($customer_info['first_name'])) {
+                $customer_name = $customer_info['first_name'];
+            } elseif (!empty($customer_info['last_name'])) {
+                $customer_name = $customer_info['last_name'];
+            }
+            
+            // Fallback to SQL result if BookingQueryHelper didn't find anything
+            if (empty($customer_name)) {
+                $customer_name = $booking->customer_name ?: '';
+            }
+            
+            // Use customer info from BookingQueryHelper (prioritizes WooCommerce/WordPress data)
+            $customer_email = !empty($customer_info['email']) ? $customer_info['email'] : ($booking->customer_email ?: '');
+            $customer_phone = !empty($customer_info['phone']) ? $customer_info['phone'] : ($booking->customer_phone ?: '');
+            
             // Normalize date format
             $start_date = self::normalize_date($booking->start_date);
             $end_date = self::normalize_date($booking->end_date);
@@ -1130,11 +1150,11 @@ final class VehicleColumns
             while ($current <= $end) {
                 $date = $current->format('Y-m-d');
                 $result[$booking->vehicle_id][$date] = [
-                    'customer_name' => $booking->customer_name ?: __('Reserved', 'mhm-rentiva'),
+                    'customer_name' => $customer_name ?: __('Reserved', 'mhm-rentiva'),
                     'booking_id' => $booking->booking_id,
                     'booking_title' => $booking->booking_title,
-                    'customer_email' => $booking->customer_email,
-                    'customer_phone' => $booking->customer_phone,
+                    'customer_email' => $customer_email,
+                    'customer_phone' => $customer_phone,
                     'total_price' => $booking->total_price,
                     'status' => $booking->status,
                     'start_date' => $start_date,
@@ -1217,24 +1237,27 @@ final class VehicleColumns
                 break;
 
             case 'mhm_seats':
+                $max_seats = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_max_seats', 100);
                 echo '<fieldset class="inline-edit-col-left">';
                 echo '<div class="inline-edit-col">';
                 echo '<label>';
                 echo '<span class="title">' . esc_html__('Seats', 'mhm-rentiva') . '</span>';
-                echo '<input type="number" name="mhm_seats" class="mhm_seats" value="" min="1" max="20" />';
+                echo '<input type="number" name="mhm_seats" class="mhm_seats" value="" min="1" max="' . esc_attr($max_seats) . '" />';
                 echo '</label>';
                 echo '</div>';
                 echo '</fieldset>';
                 break;
 
             case 'mhm_transmission':
+                $transmission_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
                 echo '<fieldset class="inline-edit-col-left">';
                 echo '<div class="inline-edit-col">';
                 echo '<label>';
                 echo '<span class="title">' . esc_html__('Transmission', 'mhm-rentiva') . '</span>';
                 echo '<select name="mhm_transmission" class="mhm_transmission">';
-                echo '<option value="auto">' . esc_html__('Automatic', 'mhm-rentiva') . '</option>';
-                echo '<option value="manual">' . esc_html__('Manual', 'mhm-rentiva') . '</option>';
+                foreach ($transmission_types as $type_key => $type_label) {
+                    echo '<option value="' . esc_attr($type_key) . '">' . esc_html($type_label) . '</option>';
+                }
                 echo '</select>';
                 echo '</label>';
                 echo '</div>';
@@ -1242,15 +1265,15 @@ final class VehicleColumns
                 break;
 
             case 'mhm_fuel_type':
+                $fuel_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
                 echo '<fieldset class="inline-edit-col-left">';
                 echo '<div class="inline-edit-col">';
                 echo '<label>';
                 echo '<span class="title">' . esc_html__('Fuel', 'mhm-rentiva') . '</span>';
                 echo '<select name="mhm_fuel_type" class="mhm_fuel_type">';
-                echo '<option value="petrol">' . esc_html__('Petrol', 'mhm-rentiva') . '</option>';
-                echo '<option value="diesel">' . esc_html__('Diesel', 'mhm-rentiva') . '</option>';
-                echo '<option value="hybrid">' . esc_html__('Hybrid', 'mhm-rentiva') . '</option>';
-                echo '<option value="electric">' . esc_html__('Electric', 'mhm-rentiva') . '</option>';
+                foreach ($fuel_types as $fuel_key => $fuel_label) {
+                    echo '<option value="' . esc_attr($fuel_key) . '">' . esc_html($fuel_label) . '</option>';
+                }
                 echo '</select>';
                 echo '</label>';
                 echo '</div>';

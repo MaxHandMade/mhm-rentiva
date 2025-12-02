@@ -214,9 +214,7 @@ final class EmailPreview
             $context['status'] = 'completed';
             $context['reason'] = '';
         }
-        if ($template_key === 'offline_receipt_uploaded_admin') {
-            $context['receipt_url'] = home_url('/');
-        }
+        // ⭐ Offline payment template context removed - WooCommerce handles all payments
         if ($template_key === 'message_received_admin' || $template_key === 'message_replied_customer') {
             $context['message'] = [
                 'subject' => __('Sample Subject', 'mhm-rentiva'),

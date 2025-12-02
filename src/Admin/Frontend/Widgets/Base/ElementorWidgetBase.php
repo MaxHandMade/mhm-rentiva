@@ -47,10 +47,12 @@ abstract class ElementorWidgetBase extends Widget_Base
 
     /**
      * Return widget icon.
+     * Override this in child classes to set custom icon.
      */
     public function get_icon(): string
     {
-        return $this->widget_icon;
+        // Child classes should override this method
+        return 'eicon-apps';
     }
 
     /**

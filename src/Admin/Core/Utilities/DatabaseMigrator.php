@@ -431,4 +431,36 @@ final class DatabaseMigrator
             echo '</p></div>';
         }
     }
+    /**
+     * Creates rating database table
+     */
+    public static function create_rating_table(): void
+    {
+        global $wpdb;
+        
+        $table_name = $wpdb->prefix . 'mhm_rentiva_ratings';
+        
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            vehicle_id bigint(20) NOT NULL,
+            user_id bigint(20) DEFAULT NULL,
+            user_ip varchar(45) DEFAULT NULL,
+            rating decimal(2,1) NOT NULL,
+            comment text DEFAULT NULL,
+            status varchar(20) DEFAULT 'approved',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY unique_vehicle_user (vehicle_id, user_id),
+            KEY vehicle_id (vehicle_id),
+            KEY user_id (user_id),
+            KEY rating (rating),
+            KEY status (status)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
 }

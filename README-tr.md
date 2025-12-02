@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.4.3-blue.svg)
+![Version](https://img.shields.io/badge/version-4.4.5-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -131,6 +131,52 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 **Para Birimi Desteği:**
 - **47 Para Birimi**: 47 farklı para birimi desteği
 - **Merkezi Yönetim**: Birleşik para birimi yönetimi için `CurrencyHelper` sınıfı
+
+### 🎨 Elementor Widget'leri Entegrasyonu
+
+**Eksiksiz Widget Paketi (19 Widget):**
+
+**Araç Widget'leri:**
+- **Araç Arama Widget'ı**: Gelişmiş filtrelerle araç arama
+- **Araç Kartı Widget'ı**: Özelleştirilebilir düzen ile tek araç görüntüleme
+- **Araçlar Listesi Widget'ı**: Gelişmiş sorgu seçenekleri ile grid veya liste görünümü
+- **Araç Detayları Widget'ı**: Detaylı araç bilgisi görüntüleme
+- **Araç Karşılaştırma Widget'ı**: Yan yana araç karşılaştırma
+- **Araç Değerlendirme Widget'ı**: Araç değerlendirme ve yorum görüntüleme
+- **Arama Sonuçları Widget'ı**: Filtreleme ile arama sonuçları görüntüleme
+- **Müsaitlik Takvimi Widget'ı**: İnteraktif müsaitlik takvimi
+
+**Rezervasyon Widget'leri:**
+- **Rezervasyon Formu Widget'ı**: Araç seçimi, ek hizmetler ve ödeme seçenekleri ile eksiksiz rezervasyon formu
+- **Rezervasyon Onayı Widget'ı**: Rezervasyon onayı görüntüleme
+- **Teşekkür Widget'ı**: Rezervasyon tamamlandıktan sonra teşekkür sayfası
+
+**Hesap Widget'leri:**
+- **Hesabım Widget'ı**: Müşteri hesap dashboard'u
+- **Rezervasyonlarım Widget'ı**: Müşteri rezervasyon geçmişi
+- **Favorilerim Widget'ı**: Favori araçlar yönetimi
+- **Ödeme Geçmişi Widget'ı**: Ödeme işlem geçmişi
+- **Hesap Detayları Widget'ı**: Hesap profil düzenleme
+
+**Kimlik Doğrulama Widget'leri:**
+- **Giriş Formu Widget'ı**: Müşteri giriş formu
+- **Kayıt Formu Widget'ı**: Müşteri kayıt formu
+
+**Diğer Widget'ler:**
+- **İletişim Formu Widget'ı**: İletişim formu entegrasyonu
+- **Müşteri Yorumları Widget'ı**: Müşteri yorumları görüntüleme
+
+**Widget Özellikleri:**
+- **Yerel Elementor Entegrasyonu**: Elementor 3.5+ API ile tam uyumluluk
+- **Özel Kategori**: Tüm widget'ler "MHM Rentiva" kategorisi altında organize edildi
+- **Gelişmiş Kontroller**: Tipografi, renkler, kenarlıklar, gölgeler ve boşluk dahil kapsamlı stil seçenekleri
+- **Canlı Önizleme**: Elementor editöründe gerçek zamanlı önizleme
+- **Sürükle-Bırak Builder**: Kolay widget yerleştirme ve düzenleme
+- **Responsive Kontroller**: Elementor'un responsive kontrolleri ile tam responsive tasarım
+- **Özel Stil**: Widget görünümü ve düzeni üzerinde tam kontrol
+- **Sorgu Seçenekleri**: Araç widget'ları için gelişmiş sorgu ayarları (kategoriler, etiketler, öne çıkan, vb.)
+- **Düzen Seçenekleri**: Birden fazla düzen seçeneği (grid, liste, kart, vb.)
+- **Varlık Yönetimi**: Widget'lar kullanıldığında otomatik CSS/JS yükleme
 
 ---
 
@@ -298,26 +344,17 @@ POST /bookings
 
 ## 📝 Değişiklik Geçmişi
 
-### Son Versiyon: 4.4.1 (2025-11-19)
+### Son Versiyon: 4.4.5 (2025-11-25)
 
-**🌍 KÜRESEL UYUMLULUK**
-- Elementor widget’ları, Gutenberg blokları, ödeme ağ geçitleri, rezervasyon yardımcıları ve şablonlardaki tüm Türkçe açıklamalar/etiketler İngilizce’ye taşındı.
-- Kalan TRY ifadeleri kaldırıldı; tüm arayüz metinleri WordPress i18n yardımcıları üzerinden geçiyor.
+**📦 VERSİYON GÜNCELLEMESİ**
+- Bakım ve kararlılık iyileştirmeleri için versiyon 4.4.5'e yükseltildi.
 
-**🧩 ELEMENTOR & GUTENBERG**
-- Vehicles List, Booking Form ve Vehicle Card widget’ları İngilizce başlık/açıklama/kontrol etiketleri ve Poedit uyumlu ipuçları sunuyor.
-- Gutenberg blok scriptleri aynı terminolojiyi kullanarak “unterminated string” veya çevrilmemiş metin uyarılarını ortadan kaldırıyor.
-
-**📝 i18n KALİTE KONTROLÜ**
-- Booking e-postaları, Hesabım sayfaları ve admin bildirimleri için çevirmen açıklamaları ile sıralı placeholder düzenleri eklendi.
-- `wp i18n make-pot` ve Poedit çıktıları artık sıfır uyarı satırı ile oluşturuluyor.
-
-**💱 PARA BİRİMİ & DEPOZİTO DENEYİMİ**
-- Depozito meta kutuları ve yardımcılar tutarları Ayarlar’daki para birimine (USD varsayılan) göre formatlıyor, `data-field` seçicileri kullanıyor.
-- JavaScript güncellemeleri, yönetici para birimini değiştirdiğinde sembolleri anında güncelliyor.
-
-**📚 DÖKÜMANTASYON**
-- README ve değişiklik kayıtları 4.4.1 sürümündeki küresel uyumluluk odaklı yenilikleri yansıtacak şekilde güncellendi.
+**🎨 ELEMENTOR WIDGET'LERİ İYİLEŞTİRMESİ**
+- Tüm eklenti özelliklerini kapsayan 19 kapsamlı widget ile geliştirilmiş Elementor entegrasyonu
+- Tüm widget'ler Elementor'da özel "MHM Rentiva" kategorisi altında organize edildi
+- Tüm widget'lere gelişmiş stil ve özelleştirme seçenekleri eklendi
+- Mobil öncelikli yaklaşımla tam responsive tasarım
+- Elementor'un canlı önizleme ve sürükle-bırak builder'ı ile sorunsuz entegrasyon
 
 Tam değişiklik geçmişi için [changelog-tr.json](changelog-tr.json) dosyasına bakın.
 

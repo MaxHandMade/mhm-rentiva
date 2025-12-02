@@ -199,25 +199,99 @@
 
 .mhm-booking-edit-form {
     background: #fff;
-    padding: 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 10px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .mhm-booking-edit-form h4 {
-    margin: 0 0 15px 0;
-    padding: 10px 15px;
+    margin: 0 0 20px 0;
+    padding: 12px 15px;
     background: #f8f9fa;
-    border-left: 4px solid #0073aa;
+    border-left: 4px solid #007cba;
+    border-radius: 6px;
     font-size: 14px;
     font-weight: 600;
-    color: #1e293b;
+    color: #495057;
 }
 
 .mhm-customer-info,
 .mhm-booking-details {
     margin-bottom: 25px;
-    border: 1px solid #e1e5e9;
+    padding: 20px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
-    overflow: hidden;
+}
+
+/* Booking Info Grid - Similar to Deposit Info Grid */
+.mhm-booking-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.mhm-booking-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.mhm-booking-info-label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mhm-booking-info-value {
+    font-size: 14px;
+    color: #212529;
+    font-weight: 500;
+}
+
+/* Booking Type Badge */
+.mhm-booking-type-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mhm-booking-type-badge.online {
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+}
+
+.mhm-booking-type-badge.manual {
+    background: #fff3e0;
+    color: #f57c00;
+    border: 1px solid #ffcc02;
+}
+
+/* Booking Reference Badge */
+.mhm-booking-reference-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #f0f9ff;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
 }
 
 .mhm-field-row {
@@ -263,17 +337,68 @@
 
 .mhm-field-readonly {
     padding: 8px 12px;
-    background: #f8f9fa;
+    background: #fff;
     border: 1px solid #e1e5e9;
     border-radius: 4px;
-    color: #6b7280;
+    color: #495057;
     font-size: 14px;
-    font-style: italic;
+    font-weight: 500;
+}
+
+/* Vehicle Info Section */
+.mhm-vehicle-info-section {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f0f9ff;
+    border-radius: 6px;
+    border-left: 4px solid #0ea5e9;
+}
+
+.mhm-vehicle-info-section .description {
+    margin: 8px 0 0 0;
+    color: #0369a1;
+    font-size: 13px;
+}
+
+.mhm-vehicle-info-section .description strong {
+    color: #0c4a6e;
+    font-weight: 600;
 }
 
 .mhm-field-textarea {
     resize: vertical;
     min-height: 80px;
+}
+
+/* Special Notes Section */
+.mhm-special-notes-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fff8e1;
+    border-radius: 6px;
+    border-left: 4px solid #ff9800;
+}
+
+.mhm-special-notes-section .mhm-field-label {
+    color: #e65100;
+    font-weight: 600;
+}
+
+.mhm-special-notes-section .description {
+    color: #f57c00;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+/* Status Badge Styles */
+.mhm-field-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 35px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 /* Responsive */
@@ -285,6 +410,10 @@
 
     .mhm-field-group.mhm-field-half {
         flex: none;
+    }
+    
+    .mhm-booking-info-grid {
+        grid-template-columns: 1fr;
     }
 }
 

@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.4.3-blue.svg)
+![Version](https://img.shields.io/badge/version-4.4.5-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -420,17 +420,49 @@ wp mhm-rentiva cleanup full --execute   # Full cleanup
 
 ### 🎨 Elementor Widgets Integration
 
-**Available Widgets:**
-- **Vehicle Card Widget**: Single vehicle display
-- **Vehicles List Widget**: List of vehicles
-- **Booking Form Widget**: Booking form integration
+**Complete Widget Suite (19 Widgets):**
+
+**Vehicle Widgets:**
+- **Vehicle Search Widget**: Advanced vehicle search with filters
+- **Vehicle Card Widget**: Single vehicle display with customizable layout
+- **Vehicles List Widget**: Grid or list view of vehicles with advanced query options
+- **Vehicle Details Widget**: Detailed vehicle information display
+- **Vehicle Comparison Widget**: Side-by-side vehicle comparison
+- **Vehicle Rating Widget**: Vehicle rating and review display
+- **Search Results Widget**: Search results display with filtering
+- **Availability Calendar Widget**: Interactive availability calendar
+
+**Booking Widgets:**
+- **Booking Form Widget**: Complete booking form with vehicle selection, addons, and payment options
+- **Booking Confirmation Widget**: Booking confirmation display
+- **Thank You Widget**: Thank you page after booking completion
+
+**Account Widgets:**
+- **My Account Widget**: Customer account dashboard
+- **My Bookings Widget**: Customer booking history
+- **My Favorites Widget**: Favorite vehicles management
+- **Payment History Widget**: Payment transaction history
+- **Account Details Widget**: Account profile editing
+
+**Authentication Widgets:**
+- **Login Form Widget**: Customer login form
+- **Register Form Widget**: Customer registration form
+
+**Other Widgets:**
+- **Contact Form Widget**: Contact form integration
+- **Testimonials Widget**: Customer testimonials display
 
 **Widget Features:**
-- Native Elementor integration
-- Custom widget category
-- Live preview
-- Drag & drop builder
-- Responsive controls
+- **Native Elementor Integration**: Full compatibility with Elementor 3.5+ API
+- **Dedicated Category**: All widgets organized under "MHM Rentiva" category
+- **Advanced Controls**: Comprehensive styling options including typography, colors, borders, shadows, and spacing
+- **Live Preview**: Real-time preview in Elementor editor
+- **Drag & Drop Builder**: Easy widget placement and arrangement
+- **Responsive Controls**: Full responsive design with Elementor's responsive controls
+- **Custom Styling**: Complete control over widget appearance and layout
+- **Query Options**: Advanced query settings for vehicle widgets (categories, tags, featured, etc.)
+- **Layout Options**: Multiple layout choices (grid, list, card, etc.)
+- **Asset Management**: Automatic CSS/JS loading only when widgets are used
 
 ### 📊 About Page & System Information
 
@@ -1166,26 +1198,17 @@ Fixes #123
 
 ## 📝 Changelog
 
-### Latest Version: 4.4.1 (2025-11-19)
+### Latest Version: 4.4.5 (2025-11-25)
 
-**🌍 GLOBAL READINESS**
-- Completed English translations across Elementor widgets, Gutenberg blocks, payment gateways, booking helpers, and templates.
-- Removed remaining TRY-specific copy and ensured every UI string passes through WordPress i18n helpers.
+**📦 VERSION UPDATE**
+- Version bump to 4.4.5 for maintenance and stability improvements.
 
-**🧩 ELEMENTOR & GUTENBERG**
-- Vehicles List, Booking Form, and Vehicle Card widgets expose English titles, descriptions, control labels, and documentation-ready tooltips.
-- Gutenberg block scripts mirror the same terminology, eliminating Poedit “unterminated string” or untranslated warnings.
-
-**📝 I18N QA**
-- Added translator comments and positional placeholders throughout booking emails, account pages, and admin notices.
-- `wp i18n make-pot` and Poedit now build clean catalogs with zero warning lines.
-
-**💱 CURRENCY & DEPOSIT EXPERIENCE**
-- Deposit meta boxes and helpers format totals via Settings-based currency (USD fallback) and semantic `data-field` selectors instead of hardcoded “TRY”.
-- JavaScript updates respect localized symbols immediately when admins switch currency/locale combinations.
-
-**📚 DOCUMENTATION**
-- README badges and changelog entries now document the 4.4.1 global readiness release.
+**🎨 ELEMENTOR WIDGETS ENHANCEMENT**
+- Enhanced Elementor integration with 19 comprehensive widgets covering all plugin features
+- All widgets organized under dedicated "MHM Rentiva" category in Elementor
+- Advanced styling and customization options added to all widgets
+- Full responsive design with mobile-first approach
+- Seamless integration with Elementor's live preview and drag-and-drop builder
 
 For complete changelog, see [changelog.json](changelog.json)
 

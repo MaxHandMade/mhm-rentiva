@@ -43,6 +43,14 @@ class BookingFormWidget extends ElementorWidgetBase
     }
 
     /**
+     * Widget icon.
+     */
+    public function get_icon(): string
+    {
+        return 'eicon-date';
+    }
+
+    /**
      * Return widget keywords.
      */
     public function get_keywords(): array

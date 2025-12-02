@@ -59,10 +59,11 @@
     function openMediaLibrary() {
         // Mevcut galeri görsellerini al
         const existingImages = getExistingGalleryImages();
-        const maxImages = 10;
+        // ⭐ Get max images from localized data (configurable from settings)
+        const maxImages = window.mhmVehicleGallery?.maxImages || 50;
 
         if (existingImages.length >= maxImages) {
-            showNotice(window.mhmVehicleGallery?.strings?.maxImages || 'Maximum 10 images allowed', 'warning');
+            showNotice(window.mhmVehicleGallery?.strings?.maxImages || `Maximum ${maxImages} images allowed`, 'warning');
             return;
         }
 

@@ -157,9 +157,7 @@ final class SettingsTester
 
     /**
      * Test payment settings
-     */
-    /**
-     * Test payment settings
+     * ⭐ WooCommerce only - All payments go through WooCommerce
      */
     private static function test_payment_settings(): array
     {
@@ -168,23 +166,31 @@ final class SettingsTester
         // Test if payment settings are registered
         $results['settings_registered'] = self::check_settings_registered('mhm_rentiva_settings');
         
-        // Test if payment defaults are set
+        // ⭐ Offline payment settings removed - WooCommerce handles all payments
+        // Test if WooCommerce is available
+        $woocommerce_active = class_exists('WooCommerce');
+        
+        // Test if payment defaults are set (check booking payment deadline which is payment-related)
         $results['defaults_set'] = self::check_defaults_set([
-            'mhm_rentiva_offline_enabled',
+            'mhm_rentiva_booking_payment_deadline_minutes',
         ]);
         
-        // Test if payment settings can be saved
+        // Test if payment settings can be saved (test with a dummy setting to verify save mechanism)
         $results['can_save'] = self::test_settings_save([
-            'mhm_rentiva_offline_enabled' => '1',
+            // Test with a valid setting that exists (not offline_enabled)
+            'mhm_rentiva_booking_payment_deadline_minutes' => 30,
         ]);
         
-        // Test if payment gateway classes exist
-        $results['offline_class_exists'] = class_exists('\MHMRentiva\Admin\Payment\Settings\OfflinePaymentSettings');
+        // Test if WooCommerce is active (replaces offline_class_exists)
+        $results['woocommerce_active'] = $woocommerce_active;
         
-        // Test at least one payment method is available
-        $results['payment_method_available'] = (
-            $results['offline_class_exists']
-        );
+        // Test if at least one payment method is available (WooCommerce gateways)
+        if ($woocommerce_active && function_exists('WC')) {
+            $gateways = WC()->payment_gateways()->get_available_payment_gateways();
+            $results['payment_method_available'] = !empty($gateways);
+        } else {
+            $results['payment_method_available'] = false;
+        }
         
         return $results;
     }
@@ -869,7 +875,7 @@ final class SettingsTester
             'defaults_set' => __('Defaults Set', 'mhm-rentiva'),
             'can_save' => __('Can Save', 'mhm-rentiva'),
             'class_exists' => __('Class Exists', 'mhm-rentiva'),
-            'offline_class_exists' => __('Offline Class Exists', 'mhm-rentiva'),
+            'woocommerce_active' => __('WooCommerce Active', 'mhm-rentiva'),
             'payment_method_available' => __('Payment Method Available', 'mhm-rentiva'),
             'email_address_valid' => __('Email Address Valid', 'mhm-rentiva'),
             'template_directory_exists' => __('Template Directory Exists', 'mhm-rentiva'),

@@ -27,7 +27,7 @@ final class CurrencyHelper
      */
     public static function get_all_currency_symbols(): array
     {
-        return [
+        $currencies = [
             'TRY' => '₺',
             'USD' => '$',
             'EUR' => '€',
@@ -79,6 +79,8 @@ final class CurrencyHelper
             'TL' => '₺',
             'LIRA' => '₺',
         ];
+        
+        return apply_filters('mhm_rentiva_supported_currencies', $currencies);
     }
 
     /**
@@ -159,7 +161,7 @@ final class CurrencyHelper
      */
     public static function get_currency_list_for_dropdown(): array
     {
-        return [
+        $currencies = [
             'TRY' => 'Turkish Lira (₺)',
             'USD' => 'US Dollar ($)',
             'EUR' => 'Euro (€)',
@@ -208,6 +210,8 @@ final class CurrencyHelper
             'EGP' => 'Egyptian Pound (£)',
             'ILS' => 'Israeli Shekel (₪)',
         ];
+        
+        return apply_filters('mhm_rentiva_currency_list_dropdown', $currencies);
     }
 }
 

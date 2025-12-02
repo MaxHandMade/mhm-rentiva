@@ -31,13 +31,35 @@ class ElementorIntegration
         $manager = $widgets_manager ?? \Elementor\Plugin::instance()->widgets_manager;
 
         // Register widgets (Elementor 3.5+ API)
+        // Vehicle widgets
+        $manager->register(new VehicleSearchWidget());
         $manager->register(new VehicleCardWidget());
         $manager->register(new VehiclesListWidget());
-        $manager->register(new BookingFormWidget());
+        $manager->register(new VehicleDetailsWidget());
+        $manager->register(new VehicleComparisonWidget());
+        $manager->register(new VehicleRatingWidget());
+        $manager->register(new SearchResultsWidget());
+        $manager->register(new AvailabilityCalendarWidget());
         
-        // Other widgets will be added here
-        // $manager->register(new VehicleSearchWidget());
-        // $manager->register(new QuickBookingWidget());
+        // Booking widgets
+        $manager->register(new BookingFormWidget());
+        $manager->register(new BookingConfirmationWidget());
+        $manager->register(new ThankYouWidget());
+        
+        // Account widgets
+        $manager->register(new MyAccountWidget());
+        $manager->register(new MyBookingsWidget());
+        $manager->register(new MyFavoritesWidget());
+        $manager->register(new PaymentHistoryWidget());
+        $manager->register(new AccountDetailsWidget());
+        
+        // Auth widgets
+        $manager->register(new LoginFormWidget());
+        $manager->register(new RegisterFormWidget());
+        
+        // Other widgets
+        $manager->register(new ContactFormWidget());
+        $manager->register(new TestimonialsWidget());
     }
 
     /**
@@ -104,6 +126,8 @@ class ElementorIntegration
         if (!self::is_elementor_active()) {
             return;
         }
+
+
 
         // Load JS file if exists
         $js_file = MHM_RENTIVA_PLUGIN_DIR . 'assets/js/frontend/elementor-widgets.js';
@@ -200,8 +224,8 @@ class ElementorIntegration
         add_action('elementor/elements/categories_registered', [self::class, 'register_category'], 10);
         
         // Load CSS/JS
-        add_action('wp_enqueue_scripts', [self::class, 'enqueue_styles'], 10);
-        add_action('wp_enqueue_scripts', [self::class, 'enqueue_scripts'], 10);
+        add_action('elementor/frontend/after_enqueue_styles', [self::class, 'enqueue_styles'], 10);
+        add_action('elementor/frontend/after_enqueue_scripts', [self::class, 'enqueue_scripts'], 10);
         add_action('elementor/editor/before_enqueue_styles', [self::class, 'enqueue_editor_styles'], 10);
         add_action('elementor/editor/before_enqueue_scripts', [self::class, 'enqueue_editor_scripts'], 10);
     }

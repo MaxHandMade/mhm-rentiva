@@ -90,7 +90,6 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
 
     <div class="rv-booking-form">
         <form class="rv-booking-form-content" method="post" onsubmit="return false;">
-        <div class="rv-booking-form-left">
             <?php if ($show_vehicle_selector && empty($selected_vehicle)): ?>
                 <!-- Vehicle Selection -->
                 <div class="rv-form-section rv-vehicle-selection">
@@ -276,9 +275,9 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
                 <div class="rv-field-group rv-field-times">
                     <div class="rv-field">
                         <label for="pickup_time" class="rv-label">
-                            <?php echo esc_html__('Pickup Time', 'mhm-rentiva'); ?>
+                            <?php echo esc_html__('Pickup Time', 'mhm-rentiva'); ?> <span class="required">*</span>
                         </label>
-                        <select id="pickup_time" name="pickup_time" class="rv-select">
+                        <select id="pickup_time" name="pickup_time" class="rv-select" required>
                             <option value=""><?php echo esc_html__('Select time', 'mhm-rentiva'); ?></option>
                             <?php foreach ($time_options as $option): ?>
                                 <option value="<?php echo esc_attr($option['value']); ?>">
@@ -292,14 +291,18 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
                         <label for="dropoff_time" class="rv-label">
                             <?php echo esc_html__('Return Time', 'mhm-rentiva'); ?>
                         </label>
-                        <select id="dropoff_time" name="dropoff_time" class="rv-select">
-                            <option value=""><?php echo esc_html__('Select time', 'mhm-rentiva'); ?></option>
+                        <select id="dropoff_time" name="dropoff_time" class="rv-select" disabled readonly style="background-color: #f5f5f5; cursor: not-allowed;">
+                            <option value=""><?php echo esc_html__('Select pickup time first', 'mhm-rentiva'); ?></option>
                             <?php foreach ($time_options as $option): ?>
                                 <option value="<?php echo esc_attr($option['value']); ?>">
                                     <?php echo esc_html($option['label']); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                        <input type="hidden" id="dropoff_time_hidden" name="dropoff_time" value="">
+                        <small class="description" style="display: block; margin-top: 5px; color: #666; font-size: 0.875rem;">
+                            <?php echo esc_html__('Return time is automatically set to match pickup time.', 'mhm-rentiva'); ?>
+                        </small>
                     </div>
                 </div>
 
@@ -377,287 +380,36 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
                     <?php endif; ?>
                 </div>
 
-            </div>
-        </div>
+                <!-- Hidden fields for logged-in users (WooCommerce will handle guest users) -->
+                <?php if ($is_logged_in): ?>
+                    <input type="hidden" id="customer_first_name" name="customer_first_name" value="<?php echo esc_attr($current_user->first_name ?: explode(' ', $user_name)[0]); ?>">
+                    <input type="hidden" id="customer_last_name" name="customer_last_name" value="<?php echo esc_attr($current_user->last_name ?: (count(explode(' ', $user_name)) > 1 ? implode(' ', array_slice(explode(' ', $user_name), 1)) : '')); ?>">
+                    <input type="hidden" id="customer_email" name="customer_email" value="<?php echo esc_attr($user_email); ?>">
+                    <input type="hidden" id="customer_phone" name="customer_phone" value="<?php echo esc_attr($user_phone); ?>">
+                <?php endif; ?>
 
-        <div class="rv-booking-form-right">
-            <!-- Contact Information -->
-            <div class="rv-form-section rv-contact-info">
-                <h3 class="rv-section-title"><?php echo esc_html__('Contact Information', 'mhm-rentiva'); ?></h3>
-                
-                <div class="rv-field-group">
-                    <?php if ($is_logged_in): ?>
-                        <!-- ⭐ Logged in user info - Name and email only -->
-                        <div class="rv-logged-in-info">
-                            <div class="rv-user-details">
-                                <div class="rv-user-name">
-                                    <strong><?php echo esc_html($user_name); ?></strong>
-                                </div>
-                                <div class="rv-user-email">
-                                    <?php echo esc_html($user_email); ?>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Hidden fields -->
-                        <input type="hidden" id="customer_first_name" name="customer_first_name" value="<?php echo esc_attr($current_user->first_name ?: explode(' ', $user_name)[0]); ?>">
-                        <input type="hidden" id="customer_last_name" name="customer_last_name" value="<?php echo esc_attr($current_user->last_name ?: (count(explode(' ', $user_name)) > 1 ? implode(' ', array_slice(explode(' ', $user_name), 1)) : '')); ?>">
-                        <input type="hidden" id="customer_email" name="customer_email" value="<?php echo esc_attr($user_email); ?>">
-                        <input type="hidden" id="customer_phone" name="customer_phone" value="<?php echo esc_attr($user_phone); ?>">
-                    <?php else: ?>
-                        <!-- Guest user manual input -->
-                        <div class="rv-field-group rv-name-fields">
-                            <div class="rv-field">
-                                <label for="customer_first_name" class="rv-label">
-                                    <?php 
-                                    $first_name_label = SettingsCore::get('mhm_rentiva_text_first_name', '');
-                                    $first_name_label = !empty($first_name_label) ? $first_name_label : __('First Name', 'mhm-rentiva');
-                                    echo esc_html($first_name_label); 
-                                    ?> <span class="required">*</span>
-                                </label>
-                                <input type="text" 
-                                       id="customer_first_name" 
-                                       name="customer_first_name" 
-                                       class="rv-input" 
-                                       required>
-                            </div>
-                            
-                            <div class="rv-field">
-                                <label for="customer_last_name" class="rv-label">
-                                    <?php 
-                                    $last_name_label = SettingsCore::get('mhm_rentiva_text_last_name', '');
-                                    $last_name_label = !empty($last_name_label) ? $last_name_label : __('Last Name', 'mhm-rentiva');
-                                    echo esc_html($last_name_label); 
-                                    ?> <span class="required">*</span>
-                                </label>
-                                <input type="text" 
-                                       id="customer_last_name" 
-                                       name="customer_last_name" 
-                                       class="rv-input" 
-                                       required>
-                            </div>
-                        </div>
-                        
-                        <div class="rv-field">
-                            <label for="customer_email" class="rv-label">
-                                <?php 
-                                $email_label = SettingsCore::get('mhm_rentiva_text_email', '');
-                                $email_label = !empty($email_label) ? $email_label : __('Email', 'mhm-rentiva');
-                                echo esc_html($email_label); 
-                                ?> <span class="required">*</span>
-                            </label>
-                            <input type="email" 
-                                   id="customer_email" 
-                                   name="customer_email" 
-                                   class="rv-input" 
-                                   required>
-                        </div>
-                        
-                        <div class="rv-field">
-                            <label for="customer_phone" class="rv-label">
-                                <?php 
-                                $phone_label = SettingsCore::get('mhm_rentiva_text_phone', '');
-                                $phone_label = !empty($phone_label) ? $phone_label : __('Phone', 'mhm-rentiva');
-                                echo esc_html($phone_label); 
-                                ?>
-                                <?php if ($phone_required === '1'): ?><span class="required">*</span><?php endif; ?>
-                            </label>
-                            <input type="tel" 
-                                   id="customer_phone" 
-                                   name="customer_phone" 
-                                   class="rv-input"
-                                   <?php if ($phone_required === '1'): ?>required<?php endif; ?>>
-                        </div>
-                        
-                        <?php if ($registration_required === '1' && !$is_logged_in): ?>
-                        <div class="rv-login-prompt">
-                            <p><?php echo esc_html(SettingsCore::get('mhm_rentiva_text_already_have_account', __('Already have an account?', 'mhm-rentiva'))); ?></p>
-                            <a href="<?php echo esc_url(SettingsCore::get('mhm_rentiva_login_url', wp_login_url(get_permalink()))); ?>" class="rv-login-link">
-                                <?php echo esc_html(SettingsCore::get('mhm_rentiva_text_login_here', __('Login here', 'mhm-rentiva'))); ?>
-                            </a>
-                        </div>
-                        <?php endif; ?>
-                    <?php endif; ?>
+                <?php 
+                // Payment type selection moved to WooCommerce checkout page
+                // Default to deposit payment
+                ?>
+                <input type="hidden" name="payment_type" value="deposit">
+                <input type="hidden" name="redirect_url" value="<?php echo esc_attr($redirect_url); ?>">
+
+                <!-- Form Buttons -->
+                <div class="rv-form-actions" style="margin-top: 20px;">
+                    <button type="button" class="rv-submit-btn rv-btn rv-btn-primary">
+                        <span class="rv-btn-text"><?php 
+                        $make_booking_text = SettingsCore::get('mhm_rentiva_text_make_booking', '');
+                        $make_booking_text = !empty($make_booking_text) ? $make_booking_text : __('Make Booking', 'mhm-rentiva');
+                        echo esc_html($make_booking_text); 
+                        ?></span>
+                        <span class="rv-btn-loading" style="display: none;">
+                            <span class="rv-spinner"></span>
+                            <?php echo esc_html(SettingsCore::get('mhm_rentiva_text_processing', __('Processing...', 'mhm-rentiva'))); ?>
+                        </span>
+                    </button>
                 </div>
             </div>
-
-            <?php if ($show_payment_options && $enable_deposit): ?>
-                <!-- Payment Options -->
-                <div class="rv-form-section rv-payment-options">
-                    <h3 class="rv-section-title"><?php echo esc_html__('Payment Options', 'mhm-rentiva'); ?></h3>
-                    
-                    <div class="rv-payment-type-selection">
-                        <label class="rv-payment-type">
-                            <input type="radio" name="payment_type" value="deposit" <?php checked($default_payment, 'deposit'); ?>>
-                            <span class="rv-payment-type-label">
-                                <strong><?php echo esc_html__('Deposit Payment', 'mhm-rentiva'); ?></strong>
-                                <small><?php echo esc_html__('Pay deposit for booking, pay remaining amount at vehicle delivery', 'mhm-rentiva'); ?></small>
-                            </span>
-                        </label>
-                        <label class="rv-payment-type">
-                            <input type="radio" name="payment_type" value="full" <?php checked($default_payment, 'full'); ?>>
-                            <span class="rv-payment-type-label">
-                                <strong><?php echo esc_html__('Full Payment', 'mhm-rentiva'); ?></strong>
-                                <small><?php echo esc_html__('Pay full amount now', 'mhm-rentiva'); ?></small>
-                            </span>
-                        </label>
-                    </div>
-
-                    <!-- Payment Method -->
-                    <?php
-                    // ✅ Check payment method availability from backend settings
-                    // Using full class name instead of 'use' statement (template file)
-                    
-                    // Check which payment methods are enabled
-                    $stripe_enabled = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_stripe_enabled', '0') === '1';
-                    $paypal_enabled = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_paypal_enabled', '0') === '1';
-                    $paytr_enabled = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_paytr_enabled', '0') === '1';
-                    $offline_enabled = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_offline_enabled', '0') === '1';
-                    
-                    $has_online_gateway = $stripe_enabled || $paypal_enabled || $paytr_enabled;
-                    $has_any_payment = $has_online_gateway || $offline_enabled;
-                    
-                    if ($has_any_payment):
-                    ?>
-                    <div class="rv-payment-methods">
-                        <h4 class="rv-subsection-title"><?php echo esc_html__('Payment Method', 'mhm-rentiva'); ?></h4>
-                        <div class="rv-payment-method-selection">
-                            <?php 
-                            $first_method = true;
-                            
-                            // Online Payment option (if at least one gateway is enabled)
-                            if ($has_online_gateway): 
-                            ?>
-                            <label class="rv-payment-method">
-                                <input type="radio" name="payment_method" value="online" <?php echo $first_method ? 'checked' : ''; ?>>
-                                <span class="rv-payment-method-label">
-                                    <strong><?php echo esc_html__('Online Payment', 'mhm-rentiva'); ?></strong>
-                                    <small><?php echo esc_html__('Secure payment with credit card', 'mhm-rentiva'); ?></small>
-                                </span>
-                            </label>
-                            <?php 
-                            $first_method = false;
-                            endif; 
-                            
-                            // Offline Payment option (if enabled)
-                            if ($offline_enabled): 
-                            ?>
-                            <label class="rv-payment-method">
-                                <input type="radio" name="payment_method" value="offline" <?php echo $first_method ? 'checked' : ''; ?>>
-                                <span class="rv-payment-method-label">
-                                    <strong><?php echo esc_html__('Offline Payment', 'mhm-rentiva'); ?></strong>
-                                    <small><?php echo esc_html__('Cash or bank transfer payment (within 30 minutes)', 'mhm-rentiva'); ?></small>
-                                </span>
-                            </label>
-                            <?php 
-                            $first_method = false;
-                            endif; 
-                            ?>
-                        </div>
-
-                        <!-- Online Payment Details -->
-                        <?php
-                        // ✅ Show online payment gateway selection (if at least one is enabled)
-                        if ($has_online_gateway):
-                        ?>
-                        <div class="rv-online-payment-details">
-                            <h5 class="rv-payment-gateway-title"><?php echo esc_html__('Payment Gateway', 'mhm-rentiva'); ?></h5>
-                            <div class="rv-payment-gateways">
-                                <?php 
-                                $first_gateway = true;
-                                
-                                // Stripe Gateway
-                                if ($stripe_enabled): 
-                                ?>
-                                <label class="rv-payment-gateway">
-                                    <input type="radio" name="payment_gateway" value="stripe" <?php echo $first_gateway ? 'checked' : ''; ?>>
-                                    <span class="rv-gateway-label">
-                                        <span class="rv-gateway-icon">💳</span>
-                                        <span class="rv-gateway-name"><?php echo esc_html__('Stripe', 'mhm-rentiva'); ?></span>
-                                    </span>
-                                </label>
-                                <?php 
-                                $first_gateway = false;
-                                endif; 
-                                
-                                // PayPal Gateway
-                                if ($paypal_enabled): 
-                                ?>
-                                <label class="rv-payment-gateway">
-                                    <input type="radio" name="payment_gateway" value="paypal" <?php echo $first_gateway ? 'checked' : ''; ?>>
-                                    <span class="rv-gateway-label">
-                                        <span class="rv-gateway-icon">🅿️</span>
-                                        <span class="rv-gateway-name"><?php echo esc_html__('PayPal', 'mhm-rentiva'); ?></span>
-                                    </span>
-                                </label>
-                                <?php 
-                                $first_gateway = false;
-                                endif; 
-                                
-                                // PayTR Gateway
-                                if ($paytr_enabled): 
-                                ?>
-                                <label class="rv-payment-gateway">
-                                    <input type="radio" name="payment_gateway" value="paytr" <?php echo $first_gateway ? 'checked' : ''; ?>>
-                                    <span class="rv-gateway-label">
-                                        <span class="rv-gateway-icon">🏦</span>
-                                        <span class="rv-gateway-name"><?php echo esc_html__('PayTR', 'mhm-rentiva'); ?></span>
-                                    </span>
-                                </label>
-                                <?php 
-                                $first_gateway = false;
-                                endif; 
-                                ?>
-                            </div>
-                        </div>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <div class="rv-payment-error">
-                            <p><?php echo esc_html__('No payment methods are currently available. Please contact the administrator.', 'mhm-rentiva'); ?></p>
-                        </div>
-                    <?php endif; ?>
-                    </div>
-                </div>
-            <?php endif; ?>
-
-            <!-- Terms & Conditions (before booking button) - ALWAYS SHOW IF REQUIRED -->
-            <?php if ($terms_required === '1'): ?>
-            <div class="rv-form-section rv-terms-section">
-                <div class="rv-field rv-terms-checkbox">
-                    <label style="display: block; margin: 10px 0; font-weight: 500;">
-                        <input type="checkbox" name="terms_accepted" id="rv-terms-accepted" value="on" required style="margin-right: 8px;">
-                        <?php 
-                        // Replace {privacy_policy} with actual link
-                        $display_text = str_replace(
-                            '{privacy_policy}', 
-                            '<a href="' . esc_url(get_privacy_policy_url()) . '" target="_blank" style="color: #0073aa; text-decoration: underline;">' . esc_html__('Privacy Policy', 'mhm-rentiva') . '</a>',
-                            esc_html($terms_text)
-                        );
-                        echo $display_text;
-                        ?>
-                        <span style="color: #d63638; margin-left: 4px;">*</span>
-                    </label>
-                </div>
-            </div>
-            <?php endif; ?>
-
-            <!-- Form Buttons -->
-            <div class="rv-form-actions">
-                <button type="button" class="rv-submit-btn rv-btn rv-btn-primary">
-                    <span class="rv-btn-text"><?php 
-                    $make_booking_text = SettingsCore::get('mhm_rentiva_text_make_booking', '');
-                    $make_booking_text = !empty($make_booking_text) ? $make_booking_text : __('Make Booking', 'mhm-rentiva');
-                    echo esc_html($make_booking_text); 
-                    ?></span>
-                    <span class="rv-btn-loading" style="display: none;">
-                        <span class="rv-spinner"></span>
-                        <?php echo esc_html(SettingsCore::get('mhm_rentiva_text_processing', __('Processing...', 'mhm-rentiva'))); ?>
-                    </span>
-                </button>
-            </div>
-
-            <!-- Hidden Fields -->
-            <input type="hidden" name="redirect_url" value="<?php echo esc_attr($redirect_url); ?>">
-        </div>
         </form>
 
         <!-- Messages -->

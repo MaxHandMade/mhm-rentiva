@@ -3,6 +3,7 @@
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
+use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
 
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Core\Utilities\Templates;
@@ -120,30 +121,43 @@ final class VehiclesList extends AbstractShortcode
     }
 
     /**
-     * Loads asset files
+     * Override asset handle
      */
-    protected static function enqueue_assets(): void
+    protected static function get_asset_handle(): string
     {
-        // CSS - Only vehicles-list.css (vehicle-card-v2.css conflicts, removed)
-        wp_enqueue_style(
-            'mhm-rentiva-vehicles-list',
-            MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicles-list.css',
-            [],
-            MHM_RENTIVA_VERSION . '.' . time() // Cache busting
-        );
-        
-        
-        // JavaScript
-        wp_enqueue_script(
-            'mhm-rentiva-vehicles-list',
-            MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicles-list.js',
-            ['jquery'],
-            MHM_RENTIVA_VERSION,
-            true
-        );
+        return 'mhm-rentiva-vehicles-list';
+    }
 
-        // Localize script
-        wp_localize_script('mhm-rentiva-vehicles-list', 'mhmRentivaVehiclesList', [
+    /**
+     * Override CSS filename
+     */
+    protected static function get_css_filename(): string
+    {
+        return 'vehicles-list.css';
+    }
+
+    /**
+     * Override JS filename
+     */
+    protected static function get_js_filename(): string
+    {
+        return 'vehicles-list.js';
+    }
+
+    /**
+     * Override script object name
+     */
+    protected static function get_script_object_name(): string
+    {
+        return 'mhmRentivaVehiclesList';
+    }
+
+    /**
+     * Override localized data
+     */
+    protected static function get_localized_data(): array
+    {
+        return [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('mhm_rentiva_vehicles_list'),
             'bookingUrl' => self::get_booking_url(),
@@ -166,7 +180,7 @@ final class VehiclesList extends AbstractShortcode
                 'per_day' => __('/day', 'mhm-rentiva'),
                 'no_vehicles_found_yet' => __('No vehicles found yet.', 'mhm-rentiva'),
             ],
-        ]);
+        ];
     }
 
     /**
@@ -211,11 +225,24 @@ final class VehiclesList extends AbstractShortcode
 
         // Category filter
         if (!empty($atts['category'])) {
-            $args['meta_query'][] = [
-                'key' => '_mhm_rentiva_category',
-                'value' => self::sanitize_text_field_safe($atts['category']),
-                'compare' => 'LIKE'
-            ];
+            $categories = explode(',', $atts['category']);
+            if (count($categories) > 1) {
+                $cat_query = ['relation' => 'OR'];
+                foreach ($categories as $cat) {
+                    $cat_query[] = [
+                        'key' => '_mhm_rentiva_category',
+                        'value' => trim($cat),
+                        'compare' => 'LIKE'
+                    ];
+                }
+                $args['meta_query'][] = $cat_query;
+            } else {
+                $args['meta_query'][] = [
+                    'key' => '_mhm_rentiva_category',
+                    'value' => self::sanitize_text_field_safe($atts['category']),
+                    'compare' => 'LIKE'
+                ];
+            }
         }
 
         // Featured vehicles filter
@@ -326,22 +353,8 @@ final class VehiclesList extends AbstractShortcode
      */
     public static function get_vehicle_price(int $vehicle_id): array
     {
-        // Check price meta keys in order
-        $daily_price = get_post_meta($vehicle_id, '_mhm_rentiva_daily_price', true);
-        
-        // Try alternative meta keys
-        if (empty($daily_price)) {
-            $daily_price = get_post_meta($vehicle_id, 'daily_price', true);
-        }
-        if (empty($daily_price)) {
-            $daily_price = get_post_meta($vehicle_id, '_mhm_rentiva_price', true);
-        }
-        if (empty($daily_price)) {
-            $daily_price = get_post_meta($vehicle_id, 'price', true);
-        }
-        if (empty($daily_price)) {
-            $daily_price = get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
-        }
+        // Check price meta keys in order using Helper
+        $daily_price = VehicleDataHelper::get_price_per_day($vehicle_id);
         
         $currency = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD');
         $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
@@ -543,46 +556,7 @@ final class VehiclesList extends AbstractShortcode
         return ($deleted1 ?: 0) + ($deleted2 ?: 0);
     }
 
-    /**
-     * Creates rating table on plugin activation
-     */
-    public static function on_plugin_activation(): void
-    {
-        self::create_rating_table();
-    }
-
-    /**
-     * Creates rating database table
-     */
-    public static function create_rating_table(): void
-    {
-        global $wpdb;
-        
-        $table_name = $wpdb->prefix . 'mhm_rentiva_ratings';
-        
-        $charset_collate = $wpdb->get_charset_collate();
-        
-        $sql = "CREATE TABLE $table_name (
-            id bigint(20) NOT NULL AUTO_INCREMENT,
-            vehicle_id bigint(20) NOT NULL,
-            user_id bigint(20) DEFAULT NULL,
-            user_ip varchar(45) DEFAULT NULL,
-            rating decimal(2,1) NOT NULL,
-            comment text DEFAULT NULL,
-            status varchar(20) DEFAULT 'approved',
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
-            UNIQUE KEY unique_vehicle_user (vehicle_id, user_id),
-            KEY vehicle_id (vehicle_id),
-            KEY user_id (user_id),
-            KEY rating (rating),
-            KEY status (status)
-        ) $charset_collate;";
-        
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
-    }
+    // Table creation logic moved to DatabaseMigrator
 
     /**
      * Saves user rating

@@ -134,13 +134,8 @@ final class SettingsSanitizer
         // Checkboxes are now handled individually in their respective tab-specific sanitize functions
         // This prevents conflicts when saving one tab (e.g., System) from affecting other tabs (e.g., Email)
 
-        // IMPORTANT: Handle offline checkbox only when Payment tab is submitted
-        $is_payment_tab = isset($input['mhm_rentiva_offline_enabled']) || isset($input['mhm_rentiva_booking_default_payment_method']);
-        if ($is_payment_tab) {
-            if (!isset($input['mhm_rentiva_offline_enabled']) || $input['mhm_rentiva_offline_enabled'] === null) {
-                $input['mhm_rentiva_offline_enabled'] = '0';
-            }
-        }
+        // ⭐ Offline payment settings removed - WooCommerce handles all payments
+        $is_payment_tab = isset($input['mhm_rentiva_booking_default_payment_method']);
 
         // ✅ Ensure timeout values are captured early (before sanitization methods)
         // Capture timeout values from input to ensure they are saved even if value is 0
@@ -251,7 +246,7 @@ final class SettingsSanitizer
         $is_booking_tab = isset($input['mhm_rentiva_booking_cancellation_deadline_hours']) || isset($input['mhm_rentiva_booking_payment_deadline_minutes']) || isset($input['mhm_rentiva_booking_auto_cancel_enabled']);
         $is_customer_tab = isset($input['mhm_rentiva_customer_registration_enabled']) || isset($input['mhm_rentiva_customer_email_verification']);
         $is_email_tab = isset($input['mhm_rentiva_email_from_name']) || isset($input['mhm_rentiva_email_from_address']) || isset($input['mhm_rentiva_email_test_mode']) || isset($input['mhm_rentiva_email_send_enabled']) || isset($input['mhm_rentiva_email_auto_send']) || isset($input['mhm_rentiva_email_log_enabled']);
-        $is_payment_tab = isset($input['mhm_rentiva_offline_enabled']) || isset($input['mhm_rentiva_booking_default_payment_method']);
+        $is_payment_tab = isset($input['mhm_rentiva_booking_default_payment_method']); // ⭐ Offline settings removed
         $is_frontend_tab = isset($input['mhm_rentiva_booking_url']) || isset($input['mhm_rentiva_login_url']) || isset($input['mhm_rentiva_register_url']) || isset($input['mhm_rentiva_my_account_url']) || isset($input['mhm_rentiva_text_book_now']) || isset($input['mhm_rentiva_text_view_details']) || isset($input['mhm_rentiva_text_added_to_favorites']) || isset($input['mhm_rentiva_text_make_booking']) || isset($input['mhm_rentiva_text_login_here']);
         $is_maintenance_tab = isset($input['mhm_rentiva_auto_cancel_enabled']) || isset($input['mhm_rentiva_log_cleanup_enabled']);
         $is_reconcile_tab = isset($input['mhm_rentiva_reconcile_enabled']) || isset($input['mhm_rentiva_reconcile_frequency']) || isset($input['mhm_rentiva_reconcile_timeout']);
@@ -800,16 +795,7 @@ final class SettingsSanitizer
             isset($_POST['mhm_rentiva_settings'])
         );
         
-        if (isset($input['mhm_rentiva_offline_enabled'])) {
-            $out['mhm_rentiva_offline_enabled'] = $input['mhm_rentiva_offline_enabled'] === '1' ? '1' : '0';
-        } elseif ($is_form_submission) {
-            // Form was submitted but checkbox not in POST, means unchecked
-            $out['mhm_rentiva_offline_enabled'] = '0';
-        } else {
-            // Keep current value, don't use default value
-            $current_settings = get_option('mhm_rentiva_settings', []);
-            $out['mhm_rentiva_offline_enabled'] = $current_settings['mhm_rentiva_offline_enabled'] ?? $defaults['mhm_rentiva_offline_enabled'];
-        }
+        // ⭐ Offline payment settings removed - WooCommerce handles all payments
 
         if (isset($input['mhm_rentiva_offline_instructions'])) {
             $instructions_val = $input['mhm_rentiva_offline_instructions'];

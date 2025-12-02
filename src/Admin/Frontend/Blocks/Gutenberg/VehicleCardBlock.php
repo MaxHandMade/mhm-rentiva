@@ -84,22 +84,14 @@ class VehicleCardBlock extends GutenbergBlockBase
     protected function get_button_options_attributes(): array
     {
         return [
-            'show_booking_btn' => [
-                'type' => 'boolean',
-                'default' => true,
-            ],
-            'button_text' => [
+            'buttonText' => [
                 'type' => 'string',
                 'default' => __('Book Now', 'mhm-rentiva'),
             ],
-            'button_style' => [
+            'buttonStyle' => [
                 'type' => 'string',
                 'default' => 'primary',
                 'enum' => ['primary', 'secondary', 'outline'],
-            ],
-            'show_favorite' => [
-                'type' => 'boolean',
-                'default' => true,
             ],
         ];
     }
@@ -110,20 +102,16 @@ class VehicleCardBlock extends GutenbergBlockBase
     protected function get_rating_options_attributes(): array
     {
         return [
-            'show_rating' => [
-                'type' => 'boolean',
-                'default' => true,
-            ],
-            'rating_position' => [
+            'ratingPosition' => [
                 'type' => 'string',
                 'default' => 'overlay',
                 'enum' => ['overlay', 'below_image', 'footer'],
             ],
-            'show_rating_count' => [
+            'showRatingCount' => [
                 'type' => 'boolean',
                 'default' => true,
             ],
-            'custom_rating' => [
+            'customRating' => [
                 'type' => 'number',
                 'default' => 0,
                 'minimum' => 0,
@@ -140,22 +128,38 @@ class VehicleCardBlock extends GutenbergBlockBase
         return array_merge(
             parent::get_display_options_attributes($options),
             [
-                'show_category' => [
-                    'type' => 'boolean',
-                    'default' => true,
-                ],
-                'max_features' => [
+                'maxFeatures' => [
                     'type' => 'number',
                     'default' => 3,
                     'minimum' => 1,
                     'maximum' => 10,
                 ],
-                'price_format' => [
+                'priceFormat' => [
                     'type' => 'string',
                     'default' => 'daily',
                     'enum' => ['daily', 'hourly', 'weekly', 'monthly'],
                 ],
             ]
         );
+    }
+
+    /**
+     * Prepare Shortcode attributes
+     */
+    protected function prepare_shortcode_attributes(array $attributes): array
+    {
+        $atts = parent::prepare_shortcode_attributes($attributes);
+
+        if (!empty($attributes['buttonText'])) {
+            $atts['booking_btn_text'] = $attributes['buttonText'];
+        }
+        if (!empty($attributes['maxFeatures'])) {
+            $atts['max_features'] = $attributes['maxFeatures'];
+        }
+        if (!empty($attributes['priceFormat'])) {
+            $atts['price_format'] = $attributes['priceFormat'];
+        }
+
+        return $atts;
     }
 }

@@ -49,7 +49,10 @@ final class Handler
         
         // Deposit system fields
         $payment_type = isset($_POST['payment_type']) ? Sanitizer::text_field_safe($_POST['payment_type']) : 'deposit';
-        $payment_method = isset($_POST['payment_method']) ? Sanitizer::text_field_safe($_POST['payment_method']) : 'online';
+        // ⭐ Get default payment method from DepositCalculator (WooCommerce only)
+        $available_methods = DepositCalculator::get_payment_methods();
+        $default_payment_method = !empty($available_methods) ? array_key_first($available_methods) : 'woocommerce';
+        $payment_method = isset($_POST['payment_method']) ? Sanitizer::text_field_safe($_POST['payment_method']) : $default_payment_method;
 
         // Basic validation
         if (!$vehicle_id || !$pickup_date || !$pickup_time || !$dropoff_date || !$dropoff_time || 
@@ -187,6 +190,38 @@ final class Handler
 
     private static function redirect_success(int $booking_id): void
     {
+        // ⭐ Use ThankYou shortcode URL helper if available
+        if (class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\ThankYou')) {
+            $thank_you_url = \MHMRentiva\Admin\Frontend\Shortcodes\ThankYou::get_thank_you_url($booking_id);
+            if (!empty($thank_you_url)) {
+                wp_safe_redirect($thank_you_url);
+                exit;
+            }
+        }
+        
+        // ⭐ Fallback: Check for custom thank you page from settings
+        $thank_you_page = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_thank_you_page', '');
+        
+        if (!empty($thank_you_page) && is_numeric($thank_you_page)) {
+            $thank_you_url = get_permalink((int) $thank_you_page);
+            if ($thank_you_url) {
+                // Add booking ID as query parameter
+                $thank_you_url = add_query_arg('booking_id', $booking_id, $thank_you_url);
+                wp_safe_redirect($thank_you_url);
+                exit;
+            }
+        }
+        
+        // Final fallback: Use booking confirmation page
+        if (class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation')) {
+            $confirmation_url = \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::get_confirmation_url($booking_id);
+            if (!empty($confirmation_url)) {
+                wp_safe_redirect($confirmation_url);
+                exit;
+            }
+        }
+        
+        // Last resort: referer or home
         $referer = wp_get_referer();
         if (!$referer) {
             $referer = home_url();
@@ -311,13 +346,13 @@ final class Handler
                 '_mhm_deposit_type' => $deposit_result['deposit_type'],
                 '_mhm_payment_display' => $deposit_result['payment_display'],
                 
-                // Cancellation policy (24 hours)
-                '_mhm_cancellation_policy' => '24_hours',
-                '_mhm_cancellation_deadline' => date('Y-m-d H:i:s', strtotime('+24 hours')),
+                // ⭐ Cancellation policy from settings (default: 24 hours)
+                '_mhm_cancellation_policy' => self::get_cancellation_policy(),
+                '_mhm_cancellation_deadline' => self::get_cancellation_deadline(),
                 
-                // 30 minutes waiting time for offline payment
-                '_mhm_payment_deadline' => $booking_data['payment_method'] === 'offline' ? 
-                    date('Y-m-d H:i:s', strtotime('+30 minutes')) : null,
+                // ⭐ Payment deadline from settings (default: 30 minutes)
+                // This ensures auto-cancellation works for all bookings
+                '_mhm_payment_deadline' => self::get_payment_deadline(),
             ];
 
             foreach ($meta_fields as $key => $value) {
@@ -331,8 +366,15 @@ final class Handler
             // Clear related caches
             \MHMRentiva\Admin\Core\Utilities\CacheManager::clear_booking_cache($booking_id);
 
-            // Trigger booking created action
-            do_action('mhm_rentiva_booking_created', $booking_id);
+            // Trigger booking created action (with booking_data for addons)
+            // Note: AddonManager::save_booking_addons expects 2 parameters: booking_id and booking_data
+            $booking_data_for_action = [
+                'selected_addons' => $booking_data['selected_addons'] ?? [],
+                'vehicle_id' => $booking_data['vehicle_id'],
+                'pickup_date' => $booking_data['pickup_date'],
+                'dropoff_date' => $booking_data['dropoff_date'],
+            ];
+            do_action('mhm_rentiva_booking_created', $booking_id, $booking_data_for_action);
 
             return $booking_id;
         });
@@ -359,5 +401,75 @@ final class Handler
 
         wp_redirect($url);
         exit;
+    }
+
+    /**
+     * ⭐ Get cancellation policy from settings
+     * 
+     * @return string Cancellation policy (e.g., '24_hours', '48_hours', 'no_refund')
+     */
+    private static function get_cancellation_policy(): string
+    {
+        // Get deadline hours from settings (consistent with SettingsCore)
+        $deadline_hours = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+            'mhm_rentiva_booking_cancellation_deadline_hours',
+            24 // Default: 24 hours
+        );
+        
+        // Map hours to policy string
+        if ($deadline_hours >= 168) {
+            return '7_days';
+        } elseif ($deadline_hours >= 72) {
+            return '72_hours';
+        } elseif ($deadline_hours >= 48) {
+            return '48_hours';
+        } elseif ($deadline_hours > 0) {
+            return '24_hours';
+        } else {
+            return 'no_refund';
+        }
+    }
+
+    /**
+     * ⭐ Get cancellation deadline based on settings
+     * 
+     * @return string Cancellation deadline in 'Y-m-d H:i:s' format
+     */
+    private static function get_cancellation_deadline(): string
+    {
+        // Get deadline hours from settings (consistent with SettingsCore)
+        $deadline_hours = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+            'mhm_rentiva_booking_cancellation_deadline_hours',
+            24 // Default: 24 hours
+        );
+        
+        if ($deadline_hours <= 0) {
+            // No cancellation - set deadline to past date
+            return date('Y-m-d H:i:s', strtotime('-1 day'));
+        }
+        
+        return date('Y-m-d H:i:s', strtotime("+{$deadline_hours} hours"));
+    }
+
+    /**
+     * ⭐ Get payment deadline from settings (consistent with WooCommerceBridge)
+     * 
+     * @return string Payment deadline in 'Y-m-d H:i:s' format
+     */
+    private static function get_payment_deadline(): string
+    {
+        // Get payment deadline minutes from settings (default: 30 minutes)
+        $deadline_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+            'mhm_rentiva_booking_payment_deadline_minutes',
+            30
+        );
+        
+        // Minimum 5 minutes
+        if ($deadline_minutes < 5) {
+            $deadline_minutes = 5;
+        }
+        
+        // This ensures auto-cancellation works for all bookings
+        return date('Y-m-d H:i:s', strtotime("+{$deadline_minutes} minutes"));
     }
 }

@@ -107,16 +107,24 @@ final class VehicleGallery extends AbstractMetaBox
             MHM_RENTIVA_VERSION
         );
 
+        // ⭐ Get max gallery images from settings (default: 50)
+        $max_gallery_images = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+            'mhm_rentiva_vehicle_max_gallery_images',
+            50 // Default: 50 images
+        );
+
         wp_localize_script('mhm-vehicle-gallery', 'mhmVehicleGallery', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('mhm_vehicle_gallery_nonce'),
+            'maxImages' => $max_gallery_images,
             'strings' => [
                 'selectImages' => __('Select Images', 'mhm-rentiva'),
                 'addImages' => __('Add Image', 'mhm-rentiva'),
                 'removeImage' => __('Remove Image', 'mhm-rentiva'),
                 'setAsFeatured' => __('Set as Featured Image', 'mhm-rentiva'),
                 'noImages' => __('No images added yet', 'mhm-rentiva'),
-                'maxImages' => __('You can add maximum 10 images', 'mhm-rentiva'),
+                /* translators: %d placeholder. */
+                'maxImages' => sprintf(__('You can add maximum %d images', 'mhm-rentiva'), $max_gallery_images),
                 'confirmRemove' => __('Are you sure you want to remove this image?', 'mhm-rentiva'),
                 'uploading' => __('Uploading...', 'mhm-rentiva'),
                 'uploadError' => __('Error occurred while uploading image', 'mhm-rentiva'),

@@ -509,7 +509,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
         $dropoff_time = self::sanitize_text_field_safe($_POST['dropoff_time'] ?? '');
         $guests = max(1, intval($_POST['guests'] ?? 1));
         $payment_type = self::sanitize_text_field_safe($_POST['payment_type'] ?? 'deposit');
-        $payment_method = self::sanitize_text_field_safe($_POST['payment_method'] ?? 'offline');
+        $payment_method = self::sanitize_text_field_safe($_POST['payment_method'] ?? 'woocommerce');
         $status = self::sanitize_text_field_safe($_POST['status'] ?? 'confirmed');
         $notes = sanitize_textarea_field((string) ($_POST['notes'] ?? ''));
 
@@ -692,9 +692,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox
                 '_mhm_selected_addons' => $selected_addons,
                 '_mhm_cancellation_policy' => '24_hours',
                 '_mhm_cancellation_deadline' => date('Y-m-d H:i:s', strtotime('+' . apply_filters('mhm_rentiva_cancellation_deadline_hours', '24') . ' hours')),
-                '_mhm_payment_status' => $payment_method === 'offline' ? 'pending_verification' : 'unpaid',
-                '_mhm_payment_deadline' => $payment_method === 'offline' ? 
-                    date('Y-m-d H:i:s', strtotime('+' . apply_filters('mhm_rentiva_payment_deadline_minutes', '30') . ' minutes')) : null,
+                '_mhm_payment_status' => 'pending', // ⭐ WooCommerce handles payment status
+                '_mhm_payment_deadline' => date('Y-m-d H:i:s', strtotime('+' . apply_filters('mhm_rentiva_payment_deadline_minutes', '30') . ' minutes')),
             ]
         ];
 

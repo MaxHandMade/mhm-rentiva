@@ -45,19 +45,7 @@ final class Templates
             'file'    => 'welcome-customer',
         ],
         
-        // Offline payment notifications
-        'offline_receipt_uploaded_admin' => [
-            'subject' => 'New Receipt Uploaded for Booking #{{booking.id}} - {{site.name}}',
-            'file'    => 'offline-receipt-uploaded-admin',
-        ],
-        'offline_verified_approved_customer' => [
-            'subject' => 'Payment Confirmed for Booking #{{booking.id}} - {{site.name}}',
-            'file'    => 'offline-verified-approved-customer',
-        ],
-        'offline_verified_rejected_customer' => [
-            'subject' => 'Payment Could Not Be Verified for Booking #{{booking.id}} - {{site.name}}',
-            'file'    => 'offline-verified-rejected-customer',
-        ],
+        // ⭐ Offline payment notifications removed - WooCommerce handles all payments
         
         // Message notifications
         'message_received_admin' => [
@@ -81,10 +69,7 @@ final class Templates
         'booking_status_changed_admin' => 'booking_status',
         'booking_reminder_customer' => 'booking_reminder',
         'welcome_customer' => 'welcome_email',
-        // Offline payment
-        'offline_receipt_uploaded_admin' => 'offline_email_admin',
-        'offline_verified_approved_customer' => 'offline_email_customer_subject_approved',
-        'offline_verified_rejected_customer' => 'offline_email_customer_subject_rejected',
+        // ⭐ Offline payment overrides removed - WooCommerce handles all payments
         // Refunds
         'refund_customer' => 'refund_customer',
         'refund_admin' => 'refund_admin',
@@ -240,15 +225,7 @@ final class Templates
         }
         // Special cases where option keys differ
         switch ($key) {
-            case 'offline_verified_approved_customer':
-                $opt = 'mhm_rentiva_offline_email_customer_subject_approved';
-                break;
-            case 'offline_verified_rejected_customer':
-                $opt = 'mhm_rentiva_offline_email_customer_subject_rejected';
-                break;
-            case 'offline_receipt_uploaded_admin':
-                $opt = 'mhm_rentiva_offline_email_admin_subject';
-                break;
+            // ⭐ Offline payment cases removed - WooCommerce handles all payments
             case 'refund_customer':
                 $opt = 'mhm_rentiva_refund_customer_subject';
                 break;
@@ -289,15 +266,7 @@ final class Templates
     private static function getBodyOverride(string $key, array $context): ?string
     {
         switch ($key) {
-            case 'offline_verified_approved_customer':
-                $opt = 'mhm_rentiva_offline_email_customer_body_approved';
-                break;
-            case 'offline_verified_rejected_customer':
-                $opt = 'mhm_rentiva_offline_email_customer_body_rejected';
-                break;
-            case 'offline_receipt_uploaded_admin':
-                $opt = 'mhm_rentiva_offline_email_admin_body';
-                break;
+            // ⭐ Offline payment cases removed - WooCommerce handles all payments
             case 'refund_customer':
                 $opt = 'mhm_rentiva_refund_customer_body';
                 break;

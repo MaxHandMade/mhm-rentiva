@@ -1,8 +1,48 @@
 [
     {
+        "version": "4.4.5",
+        "date": "2025-11-25",
+        "type": "current",
+        "changes": [
+            "📦 VERSİYON GÜNCELLEMESİ: Bakım ve kararlılık iyileştirmeleri için versiyon 4.4.5'e yükseltildi.",
+            "🎨 ELEMENTOR WIDGET'LERİ: Tüm eklenti özelliklerini kapsayan 19 kapsamlı widget ile geliştirilmiş Elementor entegrasyonu - araç görüntüleme, rezervasyon formları, hesap yönetimi ve daha fazlası.",
+            "🧩 WIDGET KATEGORİSİ: Tüm MHM Rentiva widget'leri Elementor'da kolay keşif için özel 'MHM Rentiva' kategorisi altında organize edildi.",
+            "⚙️ WIDGET KONTROLLERİ: Tüm Elementor widget'lerine düzen, tipografi, renkler ve boşluk üzerinde tam kontrol ile gelişmiş stil ve özelleştirme seçenekleri eklendi.",
+            "📱 RESPONSIVE TASARIM: Elementor'un responsive kontroller desteği ile mobil öncelikli yaklaşımla tam responsive tüm Elementor widget'leri.",
+            "🔧 WIDGET ENTEGRASYONU: Elementor'un canlı önizleme, sürükle-bırak builder ve şablon sistemi ile sorunsuz entegrasyon."
+        ]
+    },
+    {
+        "version": "4.4.4",
+        "date": "2025-11-25",
+        "type": "previous",
+        "changes": [
+            "🚗 ARAÇ LİMİTLERİ: Tüm hardcode araç limitleri ayarlanabilir hale getirildi (motor hacmi: 0.0-20.0L, koltuk: max 100, kapı: max 20, galeri: max 50 resim).",
+            "⛽ YAKIT TİPLERİ: Alternatif yakıtlı araçlar için LPG, CNG ve Hidrojen yakıt tipleri eklendi.",
+            "⚙️ VİTES TİPLERİ: Modern araçlar için Yarı Otomatik ve CVT vites seçenekleri eklendi.",
+            "💳 WOOCOMMERCE İADE: Eksiksiz WooCommerce iade entegrasyonu - WooCommerce'de iade yapıldığında rezervasyon durumu otomatik güncelleniyor.",
+            "🔄 İADE SİSTEMİ: RefundValidator artık WooCommerce ödemelerini destekliyor (önceden sadece offline).",
+            "💱 DİNAMİK PARA BİRİMİ: Para birimi varsayılanları artık WooCommerce veya eklenti ayarlarından dinamik olarak alınıyor (hardcode TRY yok).",
+            "✅ TEŞEKKÜR SAYFASI: Rezervasyon onayları için yeni özel teşekkür sayfası shortcode'u [rentiva_thank_you] eklendi.",
+            "📝 REZERVASYON İYİLEŞTİRMELERİ: Rezervasyon referans numarası (BK- öneki), rezervasyon tipi (Online/Manuel) ve özel notlar/talepler alanları eklendi.",
+            "🚗 ARAÇ SEÇİMİ: Rezervasyon düzenlemede araç alanı artık düzenlenebilir ve karışıklığı önlemek için plaka gösteriliyor.",
+            "🧹 FORM TEMİZLİĞİ: Rezervasyon formundan gereksiz alanlar kaldırıldı (İletişim Bilgileri, Ödeme Yöntemi, Hizmet Şartları) - artık WooCommerce tarafından yönetiliyor.",
+            "💳 CHECKOUT ENTEGRASYONU: Ödeme tipi seçenekleri (Depozito/Tam Ödeme) WooCommerce checkout sayfasına taşındı.",
+            "📱 TEK SÜTUN FORM: Rezervasyon formu daha iyi mobil deneyim için tek sütun düzen olarak yeniden tasarlandı.",
+            "⏰ SAAT ALANLARI: Teslim alma saati artık zorunlu, teslim etme saati otomatik olarak teslim alma saatine eşitleniyor ve düzenlenemez.",
+            "🎨 MODERN ARAYÜZ: Müsaitlik kontrol sonuç alanı modern gradyanlar, ikonlar ve animasyonlarla yeniden tasarlandı.",
+            "🔒 TEKRAR ÖNLEME: Aynı araç/tarihler için tekrar rezervasyonları önlemek için geliştirilmiş atomik çakışma kontrolü.",
+            "⏰ OTOMATİK İPTAL: Ödenmemiş rezervasyonlar için otomatik iptal sistemi düzeltildi (30 dakikalık süre).",
+            "🔑 META KEY STANDARDİZASYONU: Tarih/saat meta key'leri birleştirildi (_mhm_start_date, _mhm_end_date, _mhm_start_time, _mhm_end_time) geriye dönük uyumluluk ile.",
+            "🛡️ MÜSAİTLİK DOĞRULAMA: Müsait olmayan araçlar için ödeme alınmasını önlemek için WooCommerce ödeme işlemeden önce son müsaitlik kontrolü eklendi.",
+            "📧 E-POSTA SİSTEMİ: Admin rezervasyon düzenleme sayfasında e-posta şablonu otomatik yükleme düzeltildi.",
+            "🌍 i18n: Tüm yeni çevrilebilir dizelerle .pot dosyası güncellendi."
+        ]
+    },
+    {
         "version": "4.4.3",
         "date": "2025-11-24",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🗑️ ESKİ KOD TEMİZLİĞİ: Offline ödemeler ve WooCommerce entegrasyonuna odaklanmak için tüm eski ödeme ağ geçidi kodları (Stripe, PayPal, PayTR) kaldırıldı.",
             "🧹 TEMİZLİK: Eski ağ geçitleriyle ilgili kullanılmayan varlıklar ve rate limit mantığı temizlendi.",

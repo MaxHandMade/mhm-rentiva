@@ -4,7 +4,7 @@ Tags: car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.4.3
+Stable tag: 4.4.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,36 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 
 == Changelog ==
 
+= 4.4.5 =
+*   Version Update: Version bump to 4.4.5 for maintenance and stability improvements.
+*   Elementor Widgets: Enhanced Elementor integration with 19 comprehensive widgets covering all plugin features.
+*   Widget Category: All MHM Rentiva widgets organized under dedicated "MHM Rentiva" category in Elementor.
+*   Widget Controls: Advanced styling and customization options added to all Elementor widgets.
+*   Responsive Design: All Elementor widgets fully responsive with mobile-first approach.
+*   Widget Integration: Seamless integration with Elementor's live preview, drag-and-drop builder, and template system.
+
+= 4.4.4 =
+*   Vehicle Limits: All hardcoded vehicle limits made configurable (engine size: 0.0-20.0L, seats: max 100, doors: max 20, gallery: max 50 images).
+*   Fuel Types: Added LPG, CNG, and Hydrogen fuel types to support alternative fuel vehicles.
+*   Transmission Types: Added Semi-Automatic and CVT transmission options for modern vehicles.
+*   WooCommerce Refunds: Complete WooCommerce refund integration - automatic booking status updates when refunds are processed.
+*   Refund System: RefundValidator now supports WooCommerce payments (previously only offline).
+*   Dynamic Currency: Currency defaults now dynamically retrieved from WooCommerce or plugin settings.
+*   Thank You Page: New dedicated thank you page shortcode [rentiva_thank_you] for booking confirmations.
+*   Booking Enhancements: Added booking reference number, booking type, and special notes/requests fields.
+*   Vehicle Selection: Vehicle field in booking edit is now editable with license plate display.
+*   Form Cleanup: Removed redundant fields from booking form - now handled by WooCommerce.
+*   Checkout Integration: Payment type options moved to WooCommerce checkout page.
+*   Single Column Form: Booking form redesigned as single-column layout for better mobile experience.
+*   Time Fields: Pickup time is now mandatory, return time automatically matches pickup time.
+*   Modern UI: Availability check result area redesigned with modern gradients and animations.
+*   Duplicate Prevention: Enhanced atomic overlap checking to prevent duplicate reservations.
+*   Auto-Cancel: Fixed automatic cancellation system for unpaid bookings.
+*   Meta Key Standardization: Unified date/time meta keys with backward compatibility.
+*   Availability Validation: Added final availability check before WooCommerce payment processing.
+*   Email System: Fixed email template auto-loading in admin booking edit page.
+*   i18n: Updated .pot file with all new translatable strings.
+
 = 4.4.3 =
 *   Legacy Removal: Removed all legacy payment gateway code (Stripe, PayPal, PayTR) to focus on Offline payments and WooCommerce integration.
 *   Cleanup: Removed unused assets and rate limiting logic related to legacy gateways.
@@ -73,6 +103,12 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 *   Documentation: README badges and release notes updated.
 
 == Upgrade Notice ==
+
+= 4.4.5 =
+This is a maintenance update with stability improvements. Recommended for all users.
+
+= 4.4.4 =
+This update includes major improvements: configurable vehicle limits, WooCommerce refund integration, enhanced booking form, and better mobile experience. Recommended for all users.
 
 = 4.4.2 =
 This update ensures WordPress standards compliance and includes verified stability improvements.

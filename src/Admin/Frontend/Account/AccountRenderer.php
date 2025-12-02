@@ -422,7 +422,7 @@ final class AccountRenderer
             
             // Fallback gateway if empty (manual/offline)
             if (empty($payment_gateway)) {
-                $payment_gateway = $payment_method ?: 'offline';
+                $payment_gateway = $payment_method ?: 'woocommerce';
             }
 
             // Build date with time if available

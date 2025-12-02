@@ -1,8 +1,48 @@
 [
     {
+        "version": "4.4.5",
+        "date": "2025-11-25",
+        "type": "current",
+        "changes": [
+            "📦 VERSION UPDATE: Version bump to 4.4.5 for maintenance and stability improvements.",
+            "🎨 ELEMENTOR WIDGETS: Enhanced Elementor integration with 19 comprehensive widgets covering all plugin features - vehicle display, booking forms, account management, and more.",
+            "🧩 WIDGET CATEGORY: All MHM Rentiva widgets organized under dedicated 'MHM Rentiva' category in Elementor for easy discovery.",
+            "⚙️ WIDGET CONTROLS: Advanced styling and customization options added to all Elementor widgets with full control over layout, typography, colors, and spacing.",
+            "📱 RESPONSIVE DESIGN: All Elementor widgets fully responsive with mobile-first approach and Elementor's responsive controls support.",
+            "🔧 WIDGET INTEGRATION: Seamless integration with Elementor's live preview, drag-and-drop builder, and template system."
+        ]
+    },
+    {
+        "version": "4.4.4",
+        "date": "2025-11-25",
+        "type": "previous",
+        "changes": [
+            "🚗 VEHICLE LIMITS: All hardcoded vehicle limits made configurable (engine size: 0.0-20.0L, seats: max 100, doors: max 20, gallery: max 50 images).",
+            "⛽ FUEL TYPES: Added LPG, CNG, and Hydrogen fuel types to support alternative fuel vehicles.",
+            "⚙️ TRANSMISSION TYPES: Added Semi-Automatic and CVT transmission options for modern vehicles.",
+            "💳 WOOCOMMERCE REFUNDS: Complete WooCommerce refund integration - automatic booking status updates when refunds are processed in WooCommerce.",
+            "🔄 REFUND SYSTEM: RefundValidator now supports WooCommerce payments (previously only offline).",
+            "💱 DYNAMIC CURRENCY: Currency defaults now dynamically retrieved from WooCommerce or plugin settings (no hardcoded TRY).",
+            "✅ THANK YOU PAGE: New dedicated thank you page shortcode [rentiva_thank_you] for booking confirmations.",
+            "📝 BOOKING ENHANCEMENTS: Added booking reference number (BK- prefix), booking type (Online/Manual), and special notes/requests fields.",
+            "🚗 VEHICLE SELECTION: Vehicle field in booking edit is now editable with license plate display to avoid confusion.",
+            "🧹 FORM CLEANUP: Removed redundant fields from booking form (Contact Info, Payment Method, Terms checkbox) - now handled by WooCommerce.",
+            "💳 CHECKOUT INTEGRATION: Payment type options (Deposit/Full Payment) moved to WooCommerce checkout page.",
+            "📱 SINGLE COLUMN FORM: Booking form redesigned as single-column layout for better mobile experience.",
+            "⏰ TIME FIELDS: Pickup time is now mandatory, return time automatically matches pickup time and is non-editable.",
+            "🎨 MODERN UI: Availability check result area redesigned with modern gradients, icons, and animations.",
+            "🔒 DUPLICATE PREVENTION: Enhanced atomic overlap checking to prevent duplicate reservations for same vehicle/dates.",
+            "⏰ AUTO-CANCEL: Fixed automatic cancellation system for unpaid bookings (30-minute deadline).",
+            "🔑 META KEY STANDARDIZATION: Unified date/time meta keys (_mhm_start_date, _mhm_end_date, _mhm_start_time, _mhm_end_time) with backward compatibility.",
+            "🛡️ AVAILABILITY VALIDATION: Added final availability check before WooCommerce payment processing to prevent payment for unavailable vehicles.",
+            "📧 EMAIL SYSTEM: Fixed email template auto-loading in admin booking edit page.",
+            "🌍 i18n: Updated .pot file with all new translatable strings."
+        ]
+    },
+    {
         "version": "4.4.3",
         "date": "2025-11-24",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🗑️ LEGACY REMOVAL: Removed all legacy payment gateway code (Stripe, PayPal, PayTR) to focus on Offline payments and WooCommerce integration.",
             "🧹 CLEANUP: Removed unused assets and rate limiting logic related to legacy gateways.",

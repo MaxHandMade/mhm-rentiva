@@ -3,7 +3,6 @@
 namespace MHMRentiva\Admin\Emails\Core;
 
 use MHMRentiva\Admin\Emails\Templates\BookingNotifications;
-use MHMRentiva\Admin\Emails\Templates\OfflinePayment;
 use MHMRentiva\Admin\Emails\Templates\RefundEmails;
 use MHMRentiva\Admin\Emails\Templates\EmailPreview;
 
@@ -52,7 +51,6 @@ final class EmailTemplates
         // Define email template types
         $email_types = [
             'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
-            'offline_payment' => __('Offline Payment Emails', 'mhm-rentiva'),
             'refund_emails' => __('Refund Emails', 'mhm-rentiva'),
             'preview' => __('Email Preview', 'mhm-rentiva'),
         ];
@@ -105,28 +103,7 @@ final class EmailTemplates
                 }
             }
 
-            echo '<script>
-            (function(){
-              const btn = document.getElementById("mhm-send-template-btn-settings");
-              if(!btn) return;
-              btn.addEventListener("click", function(){
-                const actionUrl = btn.getAttribute("data-post");
-                const nonce = btn.getAttribute("data-nonce");
-                const tpl = document.getElementById("mhm-template-key-settings").value;
-                const bid = document.getElementById("mhm-booking-id-settings").value;
-                const st  = document.getElementById("mhm-new-status-settings").value;
-                const to  = document.getElementById("mhm-send-to-settings").value;
-                const form = document.createElement("form");
-                form.method = "POST";
-                form.action = actionUrl;
-                const fields = { action: "mhm_rentiva_send_template_test", _wpnonce: nonce, template_key: tpl, booking_id: bid, new_status: st, to: to };
-                Object.keys(fields).forEach(function(k){
-                  const input = document.createElement("input"); input.type = "hidden"; input.name = k; input.value = fields[k] || ""; form.appendChild(input);
-                });
-                document.body.appendChild(form); form.submit();
-              });
-            })();
-            </script>';
+            echo '</div>';
             echo '</div>';
         }
 
@@ -171,41 +148,7 @@ final class EmailTemplates
                 }
             }
 
-            echo '<script>
-            (function(){
-              const btn = document.getElementById("mhm-send-template-btn");
-              if(!btn) return;
-              btn.addEventListener("click", function(){
-                const actionUrl = btn.getAttribute("data-post");
-                const nonce = btn.getAttribute("data-nonce");
-                const tpl = document.getElementById("mhm-template-key").value;
-                const bid = document.getElementById("mhm-booking-id").value;
-                const st  = document.getElementById("mhm-new-status").value;
-                const to  = document.getElementById("mhm-send-to").value;
-                // Build and submit a detached form (avoid nested form issues)
-                const form = document.createElement("form");
-                form.method = "POST";
-                form.action = actionUrl;
-                const fields = {
-                  action: "mhm_rentiva_send_template_test",
-                  _wpnonce: nonce,
-                  template_key: tpl,
-                  booking_id: bid,
-                  new_status: st,
-                  to: to
-                };
-                Object.keys(fields).forEach(function(k){
-                  const input = document.createElement("input");
-                  input.type = "hidden";
-                  input.name = k;
-                  input.value = fields[k] || "";
-                  form.appendChild(input);
-                });
-                document.body.appendChild(form);
-                form.submit();
-              });
-            })();
-            </script>';
+            echo '</div>';
             echo '</div>';
         }
 
@@ -216,12 +159,17 @@ final class EmailTemplates
         
         if ($current_type === 'booking_notifications') {
             BookingNotifications::render();
-        } elseif ($current_type === 'offline_payment') {
-            OfflinePayment::render();
         } elseif ($current_type === 'refund_emails') {
             RefundEmails::render();
         } elseif ($current_type === 'preview') {
             EmailPreview::render();
+        } else {
+            // Fallback for removed offline_payment tab
+            echo '<div class="notice notice-info inline">';
+            echo '<p><strong>' . esc_html__('Offline Payment Emails Removed', 'mhm-rentiva') . '</strong></p>';
+            echo '<p>' . esc_html__('Offline payment functionality has been removed. All payments are now processed through WooCommerce. Please configure payment gateways in WooCommerce settings.', 'mhm-rentiva') . '</p>';
+            echo '<p><a href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=checkout')) . '" class="button button-secondary" target="_blank">' . esc_html__('Configure WooCommerce Payment Gateways', 'mhm-rentiva') . '</a></p>';
+            echo '</div>';
         }
         
         submit_button(__('Save Changes', 'mhm-rentiva'));
@@ -237,7 +185,6 @@ final class EmailTemplates
         // E-posta şablon türlerini tanımla
         $email_types = [
             'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
-            'offline_payment' => __('Offline Payment Emails', 'mhm-rentiva'),
             'refund_emails' => __('Refund Emails', 'mhm-rentiva'),
             'preview' => __('Email Preview', 'mhm-rentiva'),
         ];
@@ -270,12 +217,17 @@ final class EmailTemplates
         // Render content (without form)
         if ($current_type === 'booking_notifications') {
             BookingNotifications::render();
-        } elseif ($current_type === 'offline_payment') {
-            OfflinePayment::render();
         } elseif ($current_type === 'refund_emails') {
             RefundEmails::render();
         } elseif ($current_type === 'preview') {
             EmailPreview::render();
+        } else {
+            // Fallback for removed offline_payment tab
+            echo '<div class="notice notice-info inline">';
+            echo '<p><strong>' . esc_html__('Offline Payment Emails Removed', 'mhm-rentiva') . '</strong></p>';
+            echo '<p>' . esc_html__('Offline payment functionality has been removed. All payments are now processed through WooCommerce. Please configure payment gateways in WooCommerce settings.', 'mhm-rentiva') . '</p>';
+            echo '<p><a href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=checkout')) . '" class="button button-secondary" target="_blank">' . esc_html__('Configure WooCommerce Payment Gateways', 'mhm-rentiva') . '</a></p>';
+            echo '</div>';
         }
         
     }
@@ -324,11 +276,10 @@ final class EmailTemplates
         // Process only active tab
         if ($current_tab === 'booking_notifications') {
             self::save_booking_notifications();
-        } elseif ($current_tab === 'offline_payment') {
-            self::save_offline_payment();
         } elseif ($current_tab === 'refund_emails') {
             self::save_refund_emails();
         }
+        // ⭐ Offline payment tab removed - WooCommerce handles all payments
 
         // Success message - success flag instead of redirect
         // Don't redirect when called from settings page
@@ -367,22 +318,8 @@ final class EmailTemplates
         self::save_email_fields($fields);
     }
 
-    private static function save_offline_payment(): void
-    {
-        $fields = [
-            'mhm_rentiva_offline_email_admin_enabled' => 'checkbox',
-            'mhm_rentiva_offline_email_admin_to' => 'email',
-            'mhm_rentiva_offline_email_admin_subject' => 'text',
-            'mhm_rentiva_offline_email_admin_body' => 'html',
-            'mhm_rentiva_offline_email_customer_enabled' => 'checkbox',
-            'mhm_rentiva_offline_email_customer_subject_approved' => 'text',
-            'mhm_rentiva_offline_email_customer_body_approved' => 'html',
-            'mhm_rentiva_offline_email_customer_subject_rejected' => 'text',
-            'mhm_rentiva_offline_email_customer_body_rejected' => 'html',
-        ];
-        
-        self::save_email_fields($fields);
-    }
+    // ⭐ Offline payment email templates removed - WooCommerce handles all payments
+    // private static function save_offline_payment() method removed
 
     private static function save_refund_emails(): void
     {
@@ -607,10 +544,7 @@ final class EmailTemplates
                 'booking_reminder' => __('Booking Reminder', 'mhm-rentiva'),
                 'booking_cancellation' => __('Booking Cancellation', 'mhm-rentiva'),
             ],
-            'offline_payment' => [
-                'offline_payment_request' => __('Offline Payment Request', 'mhm-rentiva'),
-                'offline_payment_confirmation' => __('Offline Payment Confirmation', 'mhm-rentiva'),
-            ],
+            // ⭐ Offline payment templates removed - WooCommerce handles all payments
             'refund_emails' => [
                 'refund_customer' => __('Customer Refund Email', 'mhm-rentiva'),
                 'refund_admin' => __('Admin Refund Email', 'mhm-rentiva'),
@@ -626,13 +560,21 @@ final class EmailTemplates
         // Active template count (simple calculation - all templates considered active)
         $active_templates = $total_templates;
         
-        // Emails sent this month (simple calculation)
-        $monthly_sent = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->posts} 
-             WHERE post_type = 'mhm_email_log' 
-             AND post_date >= %s",
-            date('Y-m-01 00:00:00')
-        ));
+        // Emails sent this month
+        $args = [
+            'post_type' => 'mhm_email_log',
+            'post_status' => 'any',
+            'date_query' => [
+                [
+                    'after' => 'first day of this month',
+                    'inclusive' => true,
+                ],
+            ],
+            'fields' => 'ids',
+            'posts_per_page' => -1,
+        ];
+        $query = new \WP_Query($args);
+        $monthly_sent = $query->found_posts;
         
         // Success rate (simple calculation - 95% accepted)
         $success_rate = '95%';

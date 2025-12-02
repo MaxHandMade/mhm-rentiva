@@ -38,15 +38,16 @@ final class RefundValidator
 
     /**
      * Validates payment gateway
+     * ⭐ WooCommerce only - All payments go through WooCommerce
      */
     public static function validateGateway(string $gateway): array
     {
-        $supportedGateways = ['offline'];
+        $supportedGateways = ['woocommerce'];
         
         if (!in_array($gateway, $supportedGateways, true)) {
             return [
                 'valid' => false,
-                'message' => __('Unsupported payment method for refund', 'mhm-rentiva')
+                'message' => __('Unsupported payment method for refund. Only WooCommerce payments are supported.', 'mhm-rentiva')
             ];
         }
 
@@ -107,10 +108,45 @@ final class RefundValidator
 
     /**
      * Performs gateway-specific validation
+     * ⭐ WooCommerce only - All payments go through WooCommerce
      */
     public static function validateGatewaySpecific(int $bookingId, string $gateway): array
     {
-        // No specific validation needed for offline refunds
+        if ($gateway === 'woocommerce') {
+            // ⭐ For WooCommerce, check if order exists and can be refunded
+            $order_id = (int) get_post_meta($bookingId, '_mhm_woocommerce_order_id', true);
+            if (empty($order_id)) {
+                // Try alternative meta keys for backward compatibility
+                $order_id = (int) get_post_meta($bookingId, '_mhm_wc_order_id', true);
+                if (empty($order_id)) {
+                    $order_id = (int) get_post_meta($bookingId, '_mhm_order_id', true);
+                }
+            }
+
+            if (empty($order_id) || !class_exists('WooCommerce')) {
+                return [
+                    'valid' => false,
+                    'message' => __('WooCommerce order not found for this booking', 'mhm-rentiva')
+                ];
+            }
+
+            $order = wc_get_order($order_id);
+            if (!$order) {
+                return [
+                    'valid' => false,
+                    'message' => __('WooCommerce order not found', 'mhm-rentiva')
+                ];
+            }
+
+            // Check if order can be refunded
+            if (!$order->is_editable()) {
+                return [
+                    'valid' => false,
+                    'message' => __('Order cannot be refunded (already completed or cancelled)', 'mhm-rentiva')
+                ];
+            }
+        }
+
         return [
             'valid' => true,
             'gateway' => $gateway

@@ -46,6 +46,14 @@ class VehiclesListWidget extends ElementorWidgetBase
     }
 
     /**
+     * Widget icon.
+     */
+    public function get_icon(): string
+    {
+        return 'eicon-products';
+    }
+
+    /**
      * Return widget keywords.
      */
     public function get_keywords(): array
@@ -249,6 +257,42 @@ class VehiclesListWidget extends ElementorWidgetBase
                 'default' => '',
                 'placeholder' => __('e.g. 1,2,3', 'mhm-rentiva'),
                 'description' => __('Comma separated vehicle IDs to hide.', 'mhm-rentiva'),
+            ]
+        );
+
+        $this->add_control(
+            'ids',
+            [
+                'label' => __('Include Vehicle IDs', 'mhm-rentiva'),
+                'type' => Controls_Manager::TEXT,
+                'default' => '',
+                'placeholder' => __('e.g. 1,2,3', 'mhm-rentiva'),
+                'description' => __('Comma separated vehicle IDs to show.', 'mhm-rentiva'),
+            ]
+        );
+
+        $this->add_control(
+            'category',
+            [
+                'label' => __('Category', 'mhm-rentiva'),
+                'type' => Controls_Manager::SELECT2,
+                'options' => $this->get_vehicle_categories(),
+                'multiple' => true,
+                'label_block' => true,
+                'placeholder' => __('All Categories', 'mhm-rentiva'),
+                'description' => __('Select categories to display.', 'mhm-rentiva'),
+            ]
+        );
+
+        $this->add_control(
+            'featured',
+            [
+                'label' => __('Featured Only', 'mhm-rentiva'),
+                'type' => Controls_Manager::SWITCHER,
+                'label_on' => __('Yes', 'mhm-rentiva'),
+                'label_off' => __('No', 'mhm-rentiva'),
+                'return_value' => 'yes',
+                'default' => 'no',
             ]
         );
     }
@@ -698,6 +742,10 @@ class VehiclesListWidget extends ElementorWidgetBase
             $atts['featured'] = $settings['featured'] === 'yes' ? '1' : '0';
         }
 
+        if (isset($settings['ids']) && $settings['ids'] !== '') {
+            $atts['ids'] = $settings['ids'];
+        }
+
         // Layout
         if (isset($settings['layout']) && $settings['layout'] !== '') {
             // Ensure layout stored as string
@@ -767,6 +815,25 @@ class VehiclesListWidget extends ElementorWidgetBase
     protected function content_template(): void
     {
         // JavaScript template (gerekirse)
+    }
+    /**
+     * Get vehicle categories.
+     */
+    protected function get_vehicle_categories(): array
+    {
+        $terms = get_terms([
+            'taxonomy' => 'vehicle_category',
+            'hide_empty' => false,
+        ]);
+
+        $options = [];
+        if (!is_wp_error($terms)) {
+            foreach ($terms as $term) {
+                $options[$term->slug] = $term->name;
+            }
+        }
+
+        return $options;
     }
 }
 

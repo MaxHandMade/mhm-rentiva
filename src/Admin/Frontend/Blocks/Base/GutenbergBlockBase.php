@@ -137,6 +137,11 @@ abstract class GutenbergBlockBase
             'showRating' => 'Rating',
             'showBookingBtn' => 'Booking Button',
             'showFavoriteBtn' => 'Favorite Button',
+            'showCategory' => 'Category',
+            'showBadges' => 'Badges',
+            'showDescription' => 'Description',
+            'showAvailability' => 'Availability',
+            'showCompareBtn' => 'Compare Button',
         ];
 
         $options = array_merge($default_options, $options);
@@ -226,6 +231,11 @@ abstract class GutenbergBlockBase
             'showRating' => 'show_rating',
             'showBookingBtn' => 'show_booking_btn',
             'showFavoriteBtn' => 'show_favorite_btn',
+            'showCategory' => 'show_category',
+            'showBadges' => 'show_badges',
+            'showDescription' => 'show_description',
+            'showAvailability' => 'show_availability',
+            'showCompareBtn' => 'show_compare_btn',
         ];
 
         foreach ($display_options as $block_attr => $shortcode_attr) {

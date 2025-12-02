@@ -311,17 +311,17 @@ final class MessageListTable extends AbstractListTable
         $actions = [
             'view' => sprintf(
                 '<a href="%s">%s</a>',
-                MessageUrlHelper::get_message_view_url($item['id']),
+                MessageUrlHelper::get_message_view_url((int) $item['id']),
                 __('View', 'mhm-rentiva')
             ),
             'edit' => sprintf(
                 '<a href="%s">%s</a>',
-                MessageUrlHelper::get_message_edit_url($item['id']),
+                MessageUrlHelper::get_message_edit_url((int) $item['id']),
                 __('Edit', 'mhm-rentiva')
             ),
             'reply' => sprintf(
                 '<a href="%s">%s</a>',
-                MessageUrlHelper::get_message_reply_url($item['id']),
+                MessageUrlHelper::get_message_reply_url((int) $item['id']),
                 __('Reply', 'mhm-rentiva')
             ),
         ];
@@ -350,7 +350,7 @@ final class MessageListTable extends AbstractListTable
             '<strong>%s%s<a href="%s">%s</a>%s</strong>%s',
             $unread_indicator,
             $indent,
-            MessageUrlHelper::get_message_view_url($item['id']),
+            MessageUrlHelper::get_message_view_url((int) $item['id']),
             esc_html($item['subject']),
             $status_badge,
             $this->row_actions($actions)

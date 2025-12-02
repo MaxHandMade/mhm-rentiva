@@ -364,7 +364,65 @@ jQuery(document).ready(function ($) {
     templateSettings.init();
     emailVariables.init();
     tabManagement.init();
+    tabManagement.init();
     statsAnimation.init();
+    
+    // Quick Send (migrated from inline JS)
+    var quickSend = {
+        init: function() {
+            this.bindEvents();
+        },
+        bindEvents: function() {
+            // Settings tab variant
+            const btnSettings = document.getElementById("mhm-send-template-btn-settings");
+            if (btnSettings) {
+                btnSettings.addEventListener("click", function() {
+                    quickSend.handleSend(this, "mhm-template-key-settings", "mhm-booking-id-settings", "mhm-new-status-settings", "mhm-send-to-settings");
+                });
+            }
+            
+            // Standalone page variant
+            const btnStandalone = document.getElementById("mhm-send-template-btn");
+            if (btnStandalone) {
+                btnStandalone.addEventListener("click", function() {
+                    quickSend.handleSend(this, "mhm-template-key", "mhm-booking-id", "mhm-new-status", "mhm-send-to");
+                });
+            }
+        },
+        handleSend: function(btn, tplId, bidId, stId, toId) {
+            const actionUrl = btn.getAttribute("data-post");
+            const nonce = btn.getAttribute("data-nonce");
+            const tpl = document.getElementById(tplId).value;
+            const bid = document.getElementById(bidId).value;
+            const st  = document.getElementById(stId).value;
+            const to  = document.getElementById(toId).value;
+            
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = actionUrl;
+            
+            const fields = { 
+                action: "mhm_rentiva_send_template_test", 
+                _wpnonce: nonce, 
+                template_key: tpl, 
+                booking_id: bid, 
+                new_status: st, 
+                to: to 
+            };
+            
+            Object.keys(fields).forEach(function(k){
+                const input = document.createElement("input"); 
+                input.type = "hidden"; 
+                input.name = k; 
+                input.value = fields[k] || ""; 
+                form.appendChild(input);
+            });
+            
+            document.body.appendChild(form); 
+            form.submit();
+        }
+    };
+    quickSend.init();
 
     // Modal close events
     $(document).on('click', '.template-edit-close, .template-edit-modal', function (e) {

@@ -104,17 +104,14 @@ final class IntegrationTest
     {
         $gateways = [];
         
-        // Offline - Check Settings class - CORRECT KEY: mhm_rentiva_offline_enabled
-        $has_offline_settings = class_exists('MHMRentiva\\Admin\\Payment\\Settings\\OfflinePaymentSettings');
-        $has_offline = $has_offline_settings;
-        // Real setting key: mhm_rentiva_offline_enabled (not mhm_rentiva_offline_payment_enabled!)
-        $offline_enabled = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_offline_enabled', '0') === '1';
-        $gateways['offline'] = ['exists' => $has_offline, 'enabled' => $offline_enabled];
+        // ⭐ WooCommerce only - All payments go through WooCommerce
+        $has_woocommerce = class_exists('WooCommerce');
+        $gateways['woocommerce'] = ['exists' => $has_woocommerce, 'enabled' => $has_woocommerce];
         
         $total_gateways = count(array_filter($gateways, fn($g) => $g['exists']));
         $enabled_gateways = count(array_filter($gateways, fn($g) => $g['enabled']));
         
-        $pass = $total_gateways >= 1; // At least 1 gateway (offline) should exist
+        $pass = $total_gateways >= 1; // At least 1 gateway (WooCommerce) should exist
         
         // Gateway isimlerini listele
         $available_names = [];

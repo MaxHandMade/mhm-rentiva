@@ -86,7 +86,7 @@ final class Messages
                     <ul>
                         <?php foreach ($recent_messages as $message): ?>
                             <li>
-                                <a href="<?php echo esc_url(MessageUrlHelper::get_message_view_url($message->ID)); ?>">
+                                <a href="<?php echo esc_url(MessageUrlHelper::get_message_view_url((int) $message->ID)); ?>">
                                     <strong><?php echo esc_html($message->customer_name); ?></strong>
                                     <br>
                                     <small><?php echo esc_html($message->post_title); ?></small>

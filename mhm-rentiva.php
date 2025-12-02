@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: MHM Rentiva
-Description: Vehicle rental management plugin with offline payments and optional WooCommerce integration.
-Version: 4.4.3
+Description: Vehicle rental management plugin with WooCommerce payment integration.
+Version: 4.4.5
 Author: MHM Development Team
 Text Domain: mhm-rentiva
 Domain Path: /languages
@@ -17,36 +17,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// ✅ CRITICAL: Override WordPress core sanitize functions to handle null values
-// This MUST be done BEFORE WordPress loads any other files
-if (!function_exists('mhm_rentiva_override_wp_sanitize_functions')) {
-    function mhm_rentiva_override_wp_sanitize_functions() {
-        // Create a compatibility layer for sanitize_text_field
-        if (!function_exists('mhm_rentiva_safe_sanitize_text_field')) {
-            function mhm_rentiva_safe_sanitize_text_field($str) {
-                // Handle null values
-                if ($str === null) {
-                    $str = '';
-                }
-                // Call original WordPress function
-                return sanitize_text_field($str);
-            }
-        }
-        
-        // Create a compatibility layer for sanitize_email
-        if (!function_exists('mhm_rentiva_safe_sanitize_email')) {
-            function mhm_rentiva_safe_sanitize_email($email) {
-                // Handle null values
-                if ($email === null) {
-                    $email = '';
-                }
-                // Call original WordPress function
-                return sanitize_email($email);
-            }
-        }
-    }
-    add_action('plugins_loaded', 'mhm_rentiva_override_wp_sanitize_functions', -9999);
-}
+// Global sanitization overrides removed.
 
 /**
  * Safe sanitize text field that handles null values
@@ -71,29 +42,7 @@ function mhm_rentiva_sanitize_text_field_safe($value)
     return sanitize_text_field((string) $value);
 }
 
-// ✅ CRITICAL: Clean $_POST and $_REQUEST at the ABSOLUTE EARLIEST moment
-// This runs IMMEDIATELY when plugin file is loaded - before ANY WordPress hooks
-if (is_admin() && isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_GET['page']) && strpos($_GET['page'], 'mhm_rentiva') !== false) {
-        // Clean $_POST array recursively
-        if (isset($_POST) && is_array($_POST)) {
-            array_walk_recursive($_POST, function(&$value) {
-                if ($value === null) {
-                    $value = '';
-                }
-            });
-        }
-        
-        // Clean $_REQUEST array recursively  
-        if (isset($_REQUEST) && is_array($_REQUEST)) {
-            array_walk_recursive($_REQUEST, function(&$value) {
-                if ($value === null) {
-                    $value = '';
-                }
-            });
-        }
-    }
-}
+// Recursive $_POST/$_REQUEST cleaning removed.
 
 // ✅ Database cleaning removed - was causing infinite loop
 // Null cleaning is handled in SettingsSanitizer and immediate POST cleaning above
@@ -114,7 +63,7 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 
 // Version constant
 if (!defined('MHM_RENTIVA_VERSION')) {
-    define('MHM_RENTIVA_VERSION', '4.4.3');
+    define('MHM_RENTIVA_VERSION', '4.4.5');
 }
 
 // Plugin file constant
@@ -221,8 +170,8 @@ function mhm_rentiva_single_site_activation() {
     flush_rewrite_rules();
     
     // Create rating table
-    if (class_exists('MHMRentiva\\Admin\\Frontend\\Shortcodes\\VehiclesList')) {
-        MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::on_plugin_activation();
+    if (class_exists('MHMRentiva\Admin\Core\Utilities\DatabaseMigrator')) {
+        \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::create_rating_table();
     }
 
     // Trigger setup wizard redirect on new installations
