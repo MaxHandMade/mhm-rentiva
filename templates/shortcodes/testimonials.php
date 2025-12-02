@@ -211,16 +211,4 @@ $class = $atts['class'] ?? apply_filters('mhm_rentiva/testimonials/class', '');
 </div>
 
 
-<script>
-// JavaScript variables to define
-window.mhmRentivaTestimonials = {
-    ajax_url: '<?php echo esc_js(admin_url('admin-ajax.php')); ?>',
-    nonce: '<?php echo esc_js(wp_create_nonce('mhm_rentiva_testimonials_nonce')); ?>',
-    messages: {
-        loading: '<?php echo esc_js(esc_html__('Loading...', 'mhm-rentiva')); ?>',
-        error: '<?php echo esc_js(esc_html__('An error occurred.', 'mhm-rentiva')); ?>',
-        noTestimonials: '<?php echo esc_js(esc_html__('No reviews yet', 'mhm-rentiva')); ?>',
-        loadMore: '<?php echo esc_js(esc_html__('Load More Reviews', 'mhm-rentiva')); ?>'
-    }
-};
-</script>
+

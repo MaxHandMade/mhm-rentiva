@@ -293,16 +293,7 @@ set_transient($captcha_key, $captcha_answer, 10 * MINUTE_IN_SECONDS);
 </div>
 
 <?php
-// JavaScript localization
-wp_localize_script('mhm-rentiva-contact-form', 'mhmContactForm', [
-    'ajaxUrl' => admin_url('admin-ajax.php'),
-    'nonce' => wp_create_nonce('mhm_contact_form'),
-    'messages' => [
-        'submitting' => esc_html__('Sending...', 'mhm-rentiva'),
-        'success' => esc_html__('Your message has been sent successfully.', 'mhm-rentiva'),
-        'error' => esc_html__('An error occurred while sending message.', 'mhm-rentiva'),
-        'required_fields' => esc_html__('Please fill in all required fields.', 'mhm-rentiva'),
-        'confirm_reset' => esc_html__('Are you sure you want to reset the form?', 'mhm-rentiva')
-    ]
-]);
+// ⭐ JavaScript localization removed - ContactForm Controller handles asset loading
+// Assets are enqueued via ContactForm::enqueue_assets() method
+// Localized data is provided via ContactForm::get_localized_strings() method
 ?>

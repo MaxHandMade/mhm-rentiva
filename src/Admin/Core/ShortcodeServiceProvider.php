@@ -27,9 +27,14 @@ final class ShortcodeServiceProvider
     private array $registered_shortcodes = [];
 
     /**
-     * Shortcode registry - definitions of all shortcodes
+     * Get shortcode registry with filter hook support
+     * 
+     * @return array<string, array<string, array<string, mixed>>> Shortcode registry array
      */
-    private const SHORTCODE_REGISTRY = [
+    private static function get_shortcode_registry(): array
+    {
+        // Base shortcode registry
+        $registry = [
         // Booking Shortcodes
         'reservation' => [
             'rentiva_booking_form' => [
@@ -177,6 +182,26 @@ final class ShortcodeServiceProvider
         // Financial Shortcodes - Removed (not used)
         // 'financial' => [], // Deposit shortcodes are not used
     ];
+        
+        /**
+         * Filter: Allow addons and third-party plugins to register custom shortcodes
+         * 
+         * @param array<string, array<string, array<string, mixed>>> $registry Shortcode registry array
+         * @return array Modified shortcode registry
+         * 
+         * @example
+         * add_filter('mhm_rentiva_shortcodes', function($registry) {
+         *     $registry['custom']['rentiva_custom_shortcode'] = [
+         *         'class' => '\MyPlugin\CustomShortcode',
+         *         'priority' => 10,
+         *         'dependencies' => [],
+         *         'requires_auth' => false,
+         *     ];
+         *     return $registry;
+         * });
+         */
+        return apply_filters('mhm_rentiva_shortcodes', $registry);
+    }
 
     /**
      * Private constructor for singleton
@@ -211,7 +236,8 @@ final class ShortcodeServiceProvider
      */
     private function register_all_shortcodes(): void
     {
-        foreach (self::SHORTCODE_REGISTRY as $group => $shortcodes) {
+        $registry = self::get_shortcode_registry();
+        foreach ($registry as $group => $shortcodes) {
             foreach ($shortcodes as $tag => $config) {
                 $this->register_shortcode($tag, $config);
             }
@@ -321,8 +347,9 @@ final class ShortcodeServiceProvider
     public static function get_shortcode_groups(): array
     {
         $groups = [];
+        $registry = self::get_shortcode_registry();
         
-        foreach (self::SHORTCODE_REGISTRY as $group => $shortcodes) {
+        foreach ($registry as $group => $shortcodes) {
             $groups[$group] = [
                 'name' => self::get_group_name($group),
                 'shortcodes' => array_keys($shortcodes),
@@ -354,7 +381,8 @@ final class ShortcodeServiceProvider
      */
     public static function get_shortcode_info(string $tag): ?array
     {
-        foreach (self::SHORTCODE_REGISTRY as $group => $shortcodes) {
+        $registry = self::get_shortcode_registry();
+        foreach ($registry as $group => $shortcodes) {
             if (isset($shortcodes[$tag])) {
                 return array_merge($shortcodes[$tag], [
                     'tag' => $tag,
@@ -381,7 +409,8 @@ final class ShortcodeServiceProvider
     public static function get_total_count(): int
     {
         $count = 0;
-        foreach (self::SHORTCODE_REGISTRY as $shortcodes) {
+        $registry = self::get_shortcode_registry();
+        foreach ($registry as $shortcodes) {
             $count += count($shortcodes);
         }
         return $count;

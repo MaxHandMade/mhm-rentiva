@@ -169,7 +169,7 @@ class Testimonials {
 
         // AJAX request
         jQuery.ajax({
-            url: window.mhmRentivaTestimonials?.ajax_url || ajaxurl || window.location.origin + '/wp-admin/admin-ajax.php',
+            url: window.mhmRentivaTestimonials?.ajaxUrl || ajaxurl || window.location.origin + '/wp-admin/admin-ajax.php',
             type: 'POST',
             data: {
                 action: 'mhm_rentiva_load_testimonials',
@@ -189,11 +189,11 @@ class Testimonials {
                         $loadMoreBtn.closest('.rv-testimonials-load-more').hide();
                     }
                 } else {
-                    this.showError(response.data?.message || (window.mhmRentivaTestimonials?.messages?.error || 'Testimonials could not be loaded'));
+                    this.showError(response.data?.message || (window.mhmRentivaTestimonials?.strings?.error || 'Testimonials could not be loaded'));
                 }
             },
             error: () => {
-                this.showError(window.mhmRentivaTestimonials?.messages?.error || 'An error occurred while loading testimonials');
+                this.showError(window.mhmRentivaTestimonials?.strings?.error || 'An error occurred while loading testimonials');
             },
             complete: () => {
                 this.isLoading = false;

@@ -7,66 +7,66 @@
 .mhm-rentiva-dashboard {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 var(--mhm-space-5);
 }
 
 .mhm-dashboard-content {
-    margin-top: 20px;
+    margin-top: var(--mhm-space-5);
 }
 
 /* Quick Actions Panel */
 .mhm-quick-actions {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e1e5e9;
+    background: var(--mhm-bg-card);
+    border-radius: var(--mhm-radius-xl);
+    padding: var(--mhm-space-6);
+    margin-bottom: var(--mhm-space-8);
+    box-shadow: var(--mhm-shadow-base);
+    border: 1px solid var(--mhm-border-primary);
 }
 
 .mhm-quick-actions h2 {
-    margin: 0 0 20px 0;
-    color: #1d2327;
+    margin: 0 0 var(--mhm-space-5) 0;
+    color: var(--mhm-text-primary);
     font-size: 1.3em;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
 }
 
 .quick-actions-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+    gap: var(--mhm-space-4);
 }
 
 .quick-action-card {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 15px 20px;
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
+    gap: var(--mhm-space-3);
+    padding: var(--mhm-space-4) var(--mhm-space-5);
+    background: var(--mhm-bg-secondary);
+    border: 1px solid var(--mhm-border-secondary);
+    border-radius: var(--mhm-radius-lg);
     text-decoration: none;
-    color: #495057;
-    transition: all 0.3s ease;
-    font-weight: 500;
+    color: var(--mhm-text-secondary);
+    transition: all var(--mhm-duration-300) ease;
+    font-weight: var(--mhm-font-medium);
 }
 
 .quick-action-card:hover {
-    background: #e9ecef;
-    border-color: #dee2e6;
-    color: #212529;
+    background: var(--mhm-bg-tertiary);
+    border-color: var(--mhm-border-primary);
+    color: var(--mhm-text-primary);
     text-decoration: none;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--mhm-shadow-md);
 }
 
 .quick-action-card .dashicons {
     font-size: 20px;
-    color: #6c757d;
+    color: var(--mhm-text-tertiary);
 }
 
 .quick-action-card:hover .dashicons {
-    color: #495057;
+    color: var(--mhm-text-secondary);
 }
 
 .action-title {
@@ -77,36 +77,36 @@
 .mhm-dashboard-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    margin-bottom: 30px;
+    gap: var(--mhm-space-8);
+    margin-bottom: var(--mhm-space-8);
 }
 
 /* Dashboard Widget'ları */
 .mhm-dashboard-widget {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e1e5e9;
+    background: var(--mhm-bg-card);
+    border-radius: var(--mhm-radius-xl);
+    padding: var(--mhm-space-6);
+    box-shadow: var(--mhm-shadow-base);
+    border: 1px solid var(--mhm-border-primary);
     height: fit-content;
 }
 
 .mhm-dashboard-widget h3 {
-    margin: 0 0 20px 0;
-    color: #1d2327;
+    margin: 0 0 var(--mhm-space-5) 0;
+    color: var(--mhm-text-primary);
     font-size: 1.2em;
-    font-weight: 600;
-    border-bottom: 2px solid #f1f3f4;
-    padding-bottom: 10px;
+    font-weight: var(--mhm-font-semibold);
+    border-bottom: 2px solid var(--mhm-gray-100);
+    padding-bottom: var(--mhm-space-2);
 }
 
 .widget-content {
-    margin-bottom: 20px;
+    margin-bottom: var(--mhm-space-5);
 }
 
 .widget-footer {
-    border-top: 1px solid #f1f3f4;
-    padding-top: 15px;
+    border-top: 1px solid var(--mhm-border-primary);
+    padding-top: var(--mhm-space-4);
     text-align: center;
 }
 
@@ -119,14 +119,14 @@
 
 .mhm-dashboard-widget .wp-list-table th,
 .mhm-dashboard-widget .wp-list-table td {
-    padding: 12px 8px;
-    border-bottom: 1px solid #f1f3f4;
+    padding: var(--mhm-space-3) var(--mhm-space-2);
+    border-bottom: 1px solid var(--mhm-border-primary);
 }
 
 .mhm-dashboard-widget .wp-list-table th {
-    background: #f8f9fa;
-    font-weight: 600;
-    color: #495057;
+    background: var(--mhm-bg-secondary);
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-secondary);
     font-size: 0.85em;
 }
 
@@ -137,10 +137,10 @@
 /* Durum Badge'leri */
 .status-badge {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: var(--mhm-space-1) var(--mhm-space-2);
+    border-radius: var(--mhm-radius-base);
     font-size: 0.8em;
-    font-weight: 500;
+    font-weight: var(--mhm-font-medium);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -161,9 +161,9 @@
 }
 
 .status-completed {
-    background-color: #0073E6;
+    background-color: var(--mhm-success);
     /* 🔵 Mavi - Tamamlanmış, bitmiş */
-    color: #fff;
+    color: var(--mhm-white);
 }
 
 .status-cancelled {
@@ -172,25 +172,25 @@
 }
 
 .status-default {
-    background: #f8f9fa;
-    color: #6c757d;
+    background: var(--mhm-bg-secondary);
+    color: var(--mhm-text-tertiary);
 }
 
 /* Araç Durumu Grid */
 .vehicle-status-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    gap: var(--mhm-space-4);
 }
 
 .status-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 15px;
-    border-radius: 8px;
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
+    gap: var(--mhm-space-3);
+    padding: var(--mhm-space-4);
+    border-radius: var(--mhm-radius-lg);
+    background: var(--mhm-bg-secondary);
+    border: 1px solid var(--mhm-border-primary);
 }
 
 .status-item.available {
@@ -216,7 +216,7 @@
 .status-item .status-icon {
     width: 40px;
     height: 40px;
-    border-radius: 8px;
+    border-radius: var(--mhm-radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -225,7 +225,7 @@
 
 .status-item .status-icon .dashicons {
     font-size: 18px;
-    color: #495057;
+    color: var(--mhm-text-secondary);
 }
 
 .status-info {
@@ -234,34 +234,34 @@
 
 .status-number {
     font-size: 1.5em;
-    font-weight: 700;
-    color: #1d2327;
+    font-weight: var(--mhm-font-bold);
+    color: var(--mhm-text-primary);
     line-height: 1;
 }
 
 .status-label {
     font-size: 0.8em;
-    color: #6c757d;
-    font-weight: 500;
+    color: var(--mhm-text-tertiary);
+    font-weight: var(--mhm-font-medium);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 /* Gelir Grafiği */
 .revenue-chart-container {
-    margin: 20px 0;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
+    margin: var(--mhm-space-5) 0;
+    padding: var(--mhm-space-5);
+    background: var(--mhm-bg-secondary);
+    border-radius: var(--mhm-radius-lg);
+    border: 1px solid var(--mhm-border-primary);
 }
 
 .revenue-summary {
     display: flex;
     justify-content: space-between;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #e9ecef;
+    margin-top: var(--mhm-space-4);
+    padding-top: var(--mhm-space-4);
+    border-top: 1px solid var(--mhm-border-primary);
 }
 
 .summary-item {
@@ -271,39 +271,39 @@
 .summary-label {
     display: block;
     font-size: 0.8em;
-    color: #6c757d;
-    font-weight: 500;
-    margin-bottom: 5px;
+    color: var(--mhm-text-tertiary);
+    font-weight: var(--mhm-font-medium);
+    margin-bottom: var(--mhm-space-1);
 }
 
 .summary-value {
     display: block;
     font-size: 1.1em;
-    font-weight: 700;
-    color: #1d2327;
+    font-weight: var(--mhm-font-bold);
+    color: var(--mhm-text-primary);
 }
 
 /* Müşteri İstatistikleri Grid */
 .customer-stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    gap: var(--mhm-space-4);
 }
 
 .customer-stats-grid .stat-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 15px;
-    border-radius: 8px;
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
+    gap: var(--mhm-space-3);
+    padding: var(--mhm-space-4);
+    border-radius: var(--mhm-radius-lg);
+    background: var(--mhm-bg-secondary);
+    border: 1px solid var(--mhm-border-primary);
 }
 
 .customer-stats-grid .stat-icon {
     width: 40px;
     height: 40px;
-    border-radius: 8px;
+    border-radius: var(--mhm-radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -312,7 +312,7 @@
 
 .customer-stats-grid .stat-icon .dashicons {
     font-size: 18px;
-    color: white;
+    color: var(--mhm-white);
 }
 
 .customer-stats-grid .stat-info {
@@ -321,15 +321,15 @@
 
 .customer-stats-grid .stat-number {
     font-size: 1.5em;
-    font-weight: 700;
-    color: #1d2327;
+    font-weight: var(--mhm-font-bold);
+    color: var(--mhm-text-primary);
     line-height: 1;
 }
 
 .customer-stats-grid .stat-label {
     font-size: 0.8em;
-    color: #6c757d;
-    font-weight: 500;
+    color: var(--mhm-text-tertiary);
+    font-weight: var(--mhm-font-medium);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -337,19 +337,19 @@
 /* Veri Yok Mesajı */
 .no-data {
     text-align: center;
-    color: #6c757d;
+    color: var(--mhm-text-tertiary);
     font-style: italic;
     padding: 40px 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px dashed #dee2e6;
+    background: var(--mhm-bg-secondary);
+    border-radius: var(--mhm-radius-lg);
+    border: 1px dashed var(--mhm-border-secondary);
 }
 
 /* Responsive Tasarım */
 @media (max-width: 1200px) {
     .mhm-dashboard-row {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: var(--mhm-space-5);
     }
 
     .quick-actions-grid {
@@ -364,27 +364,27 @@
 
     .mhm-quick-actions,
     .mhm-dashboard-widget {
-        padding: 20px;
+        padding: var(--mhm-space-5);
     }
 
     .quick-actions-grid {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: var(--mhm-space-3);
     }
 
     .quick-action-card {
-        padding: 12px 15px;
+        padding: var(--mhm-space-3) 15px;
     }
 
     .vehicle-status-grid,
     .customer-stats-grid {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: var(--mhm-space-3);
     }
 
     .revenue-summary {
         flex-direction: column;
-        gap: 10px;
+        gap: var(--mhm-space-2);
     }
 
     .summary-item {
@@ -407,8 +407,8 @@
     }
 
     .quick-action-card {
-        padding: 10px 12px;
-        gap: 10px;
+        padding: 10px var(--mhm-space-3);
+        gap: var(--mhm-space-2);
     }
 
     .quick-action-card .dashicons {
@@ -421,8 +421,8 @@
 
     .status-item,
     .customer-stats-grid .stat-item {
-        padding: 12px;
-        gap: 10px;
+        padding: var(--mhm-space-3);
+        gap: var(--mhm-space-2);
     }
 
     .status-item .status-icon,
@@ -440,175 +440,6 @@
     .customer-stats-grid .stat-number {
         font-size: 1.3em;
     }
-}
-
-/* Dark Mode Desteği */
-@media (prefers-color-scheme: dark) {
-
-    .mhm-quick-actions,
-    .mhm-dashboard-widget {
-        background: #1e1e1e;
-        border-color: #3c3c3c;
-        color: #ffffff;
-    }
-
-    .mhm-quick-actions h2,
-    .mhm-dashboard-widget h3 {
-        color: #ffffff;
-        border-bottom-color: #3c3c3c;
-    }
-
-    .quick-action-card {
-        background: #2d2d2d;
-        border-color: #3c3c3c;
-        color: #b3b3b3;
-    }
-
-    .quick-action-card:hover {
-        background: #3c3c3c;
-        border-color: #4c4c4c;
-        color: #ffffff;
-    }
-
-    .quick-action-card .dashicons {
-        color: #b3b3b3;
-    }
-
-    .quick-action-card:hover .dashicons {
-        color: #ffffff;
-    }
-
-    .status-item,
-    .customer-stats-grid .stat-item {
-        background: #2d2d2d;
-        border-color: #3c3c3c;
-    }
-
-    .status-item .status-icon,
-    .customer-stats-grid .stat-icon {
-        background: rgba(255, 255, 255, 0.1);
-    }
-
-    .status-item .status-icon .dashicons,
-    .customer-stats-grid .stat-icon .dashicons {
-        color: #b3b3b3;
-    }
-
-    .status-number,
-    .customer-stats-grid .stat-number {
-        color: #ffffff;
-    }
-
-    .status-label,
-    .customer-stats-grid .stat-label {
-        color: #b3b3b3;
-    }
-
-    .revenue-chart-container {
-        background: #2d2d2d;
-        border-color: #3c3c3c;
-    }
-
-    .revenue-summary {
-        border-top-color: #3c3c3c;
-    }
-
-    .summary-label {
-        color: #b3b3b3;
-    }
-
-    .summary-value {
-        color: #ffffff;
-    }
-
-    .no-data {
-        background: #2d2d2d;
-        border-color: #3c3c3c;
-        color: #b3b3b3;
-    }
-}
-
-/* WordPress Admin Dark Mode */
-body.wp-admin.wp-theme-dark .mhm-quick-actions,
-body.wp-admin.wp-theme-dark .mhm-dashboard-widget {
-    background: #1e1e1e;
-    border-color: #3c3c3c;
-    color: #ffffff;
-}
-
-body.wp-admin.wp-theme-dark .mhm-quick-actions h2,
-body.wp-admin.wp-theme-dark .mhm-dashboard-widget h3 {
-    color: #ffffff;
-    border-bottom-color: #3c3c3c;
-}
-
-body.wp-admin.wp-theme-dark .quick-action-card {
-    background: #2d2d2d;
-    border-color: #3c3c3c;
-    color: #b3b3b3;
-}
-
-body.wp-admin.wp-theme-dark .quick-action-card:hover {
-    background: #3c3c3c;
-    border-color: #4c4c4c;
-    color: #ffffff;
-}
-
-body.wp-admin.wp-theme-dark .quick-action-card .dashicons {
-    color: #b3b3b3;
-}
-
-body.wp-admin.wp-theme-dark .quick-action-card:hover .dashicons {
-    color: #ffffff;
-}
-
-body.wp-admin.wp-theme-dark .status-item,
-body.wp-admin.wp-theme-dark .customer-stats-grid .stat-item {
-    background: #2d2d2d;
-    border-color: #3c3c3c;
-}
-
-body.wp-admin.wp-theme-dark .status-item .status-icon,
-body.wp-admin.wp-theme-dark .customer-stats-grid .stat-icon {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-body.wp-admin.wp-theme-dark .status-item .status-icon .dashicons,
-body.wp-admin.wp-theme-dark .customer-stats-grid .stat-icon .dashicons {
-    color: #b3b3b3;
-}
-
-body.wp-admin.wp-theme-dark .status-number,
-body.wp-admin.wp-theme-dark .customer-stats-grid .stat-number {
-    color: #ffffff;
-}
-
-body.wp-admin.wp-theme-dark .status-label,
-body.wp-admin.wp-theme-dark .customer-stats-grid .stat-label {
-    color: #b3b3b3;
-}
-
-body.wp-admin.wp-theme-dark .revenue-chart-container {
-    background: #2d2d2d;
-    border-color: #3c3c3c;
-}
-
-body.wp-admin.wp-theme-dark .revenue-summary {
-    border-top-color: #3c3c3c;
-}
-
-body.wp-admin.wp-theme-dark .summary-label {
-    color: #b3b3b3;
-}
-
-body.wp-admin.wp-theme-dark .summary-value {
-    color: #ffffff;
-}
-
-body.wp-admin.wp-theme-dark .no-data {
-    background: #2d2d2d;
-    border-color: #3c3c3c;
-    color: #b3b3b3;
 }
 
 /* Animasyonlar */
@@ -640,19 +471,19 @@ body.wp-admin.wp-theme-dark .no-data {
 .message-stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-bottom: 20px;
+    gap: var(--mhm-space-4);
+    margin-bottom: var(--mhm-space-5);
 }
 
 .message-stats-grid .stat-item {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: var(--mhm-radius-xl);
+    padding: var(--mhm-space-5);
     text-align: center;
-    color: white;
+    color: var(--mhm-white);
     position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: all var(--mhm-duration-300) ease;
 }
 
 .message-stats-grid .stat-item:hover {
@@ -686,19 +517,19 @@ body.wp-admin.wp-theme-dark .no-data {
 
 .message-stats-grid .stat-icon .dashicons {
     font-size: 24px;
-    color: white;
+    color: var(--mhm-white);
 }
 
 .message-stats-grid .stat-number {
     font-size: 2.2em;
-    font-weight: 700;
+    font-weight: var(--mhm-font-bold);
     margin: 0;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .message-stats-grid .stat-label {
     font-size: 0.85em;
-    font-weight: 500;
+    font-weight: var(--mhm-font-medium);
     opacity: 0.9;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -706,16 +537,16 @@ body.wp-admin.wp-theme-dark .no-data {
 
 /* Son Mesajlar Listesi */
 .recent-messages {
-    margin-top: 20px;
+    margin-top: var(--mhm-space-5);
 }
 
 .recent-messages h4 {
-    color: #1d2327;
+    color: var(--mhm-text-primary);
     font-size: 1.1em;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
     margin: 0 0 15px 0;
     padding-bottom: 8px;
-    border-bottom: 2px solid #f0f0f1;
+    border-bottom: 2px solid var(--mhm-gray-100);
 }
 
 .message-list {
@@ -725,12 +556,12 @@ body.wp-admin.wp-theme-dark .no-data {
 }
 
 .message-item {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
+    background: var(--mhm-bg-secondary);
+    border: 1px solid var(--mhm-border-primary);
+    border-radius: var(--mhm-radius-lg);
     padding: 15px;
     margin-bottom: 10px;
-    transition: all 0.3s ease;
+    transition: all var(--mhm-duration-300) ease;
     position: relative;
 }
 
@@ -760,21 +591,21 @@ body.wp-admin.wp-theme-dark .no-data {
 }
 
 .customer-name {
-    font-weight: 600;
-    color: #1d2327;
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-primary);
     font-size: 0.95em;
 }
 
 .message-date {
     font-size: 0.8em;
-    color: #6c757d;
-    background: #e9ecef;
+    color: var(--mhm-text-tertiary);
+    background: var(--mhm-border-primary);
     padding: 2px 8px;
     border-radius: 12px;
 }
 
 .message-preview {
-    color: #495057;
+    color: var(--mhm-text-secondary);
     font-size: 0.9em;
     line-height: 1.4;
     margin-bottom: 8px;
@@ -789,7 +620,7 @@ body.wp-admin.wp-theme-dark .no-data {
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.75em;
-    font-weight: 500;
+    font-weight: var(--mhm-font-medium);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -798,243 +629,4 @@ body.wp-admin.wp-theme-dark .no-data {
     background: #fff3cd;
     color: #856404;
     border: 1px solid #ffeaa7;
-}
-
-.status-badge.status-answered {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.status-badge.status-closed {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-/* Sistem Bildirimleri Widget */
-.notification-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.notification-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    transition: all 0.3s ease;
-    border-left: 4px solid transparent;
-}
-
-.notification-item:hover {
-    background: #e3f2fd;
-    transform: translateX(3px);
-}
-
-.notification-item.warning {
-    border-left-color: #ff9800;
-    background: #fff8e1;
-}
-
-.notification-item.info {
-    border-left-color: #2196f3;
-    background: #e3f2fd;
-}
-
-.notification-item.success {
-    border-left-color: #4caf50;
-    background: #e8f5e8;
-}
-
-.notification-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.notification-item.warning .notification-icon {
-    background: #ff9800;
-    color: white;
-}
-
-.notification-item.info .notification-icon {
-    background: #2196f3;
-    color: white;
-}
-
-.notification-item.success .notification-icon {
-    background: #4caf50;
-    color: white;
-}
-
-.notification-icon .dashicons {
-    font-size: 18px;
-}
-
-.notification-content {
-    flex: 1;
-}
-
-.notification-title {
-    font-weight: 600;
-    color: #1d2327;
-    margin-bottom: 4px;
-    font-size: 0.95em;
-}
-
-.notification-message {
-    color: #495057;
-    font-size: 0.9em;
-    line-height: 1.4;
-    margin-bottom: 4px;
-}
-
-.notification-time {
-    font-size: 0.8em;
-    color: #6c757d;
-    font-style: italic;
-}
-
-/* Grafik Container Stilleri */
-.mhm-rentiva-chart-container {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    border-radius: 12px;
-    padding: 20px;
-    margin: 20px 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e2e8f0;
-    position: relative;
-    overflow: hidden;
-}
-
-.mhm-rentiva-chart-container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #22c55e, #3b82f6, #a855f7, #f59e0b, #ef4444, #10b981, #ec4899);
-}
-
-.mhm-rentiva-chart-container canvas {
-    border-radius: 8px;
-    background: white;
-    padding: 10px;
-}
-
-/* Revenue Summary Stilleri */
-.revenue-summary {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-    padding: 15px;
-    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-    border-radius: 8px;
-    border: 1px solid #cbd5e1;
-}
-
-.summary-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
-.summary-label {
-    font-size: 0.9em;
-    color: #64748b;
-    font-weight: 500;
-}
-
-.summary-value {
-    font-size: 1.2em;
-    font-weight: 700;
-    color: #1e293b;
-}
-
-/* Widget Başlık İyileştirmeleri */
-.mhm-dashboard-widget h3 {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 0 0 20px 0;
-    color: #1d2327;
-    font-size: 1.2em;
-    font-weight: 600;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #f0f0f1;
-}
-
-.mhm-dashboard-widget h3::after {
-    content: "↗";
-    font-size: 0.8em;
-    color: #6c757d;
-    transition: all 0.3s ease;
-}
-
-.mhm-dashboard-widget:hover h3::after {
-    color: #2196f3;
-    transform: translate(2px, -2px);
-}
-
-/* Responsive Tasarım - Mesajlar Widget */
-@media (max-width: 768px) {
-    .message-stats-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .message-stats-grid .stat-item {
-        padding: 15px;
-    }
-
-    .message-stats-grid .stat-number {
-        font-size: 1.8em;
-    }
-
-    .message-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-    }
-
-    .notification-item {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .notification-icon {
-        align-self: center;
-    }
-
-    .message-item:hover {
-        transform: none;
-    }
-
-    .notification-item:hover {
-        transform: none;
-    }
-}
-
-/* Print Stilleri */
-@media print {
-    .mhm-quick-actions {
-        display: none !important;
-    }
-
-    .mhm-dashboard-widget {
-        break-inside: avoid;
-        box-shadow: none;
-        border: 1px solid #ccc;
-    }
 }

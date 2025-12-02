@@ -6,35 +6,35 @@
 .mhm-addon-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 15px;
-    margin: 15px 0;
+    gap: var(--mhm-space-3);
+    margin: var(--mhm-space-3) 0;
 }
 
 .mhm-addon-card {
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background: #fff;
-    transition: all 0.2s ease;
+    border: 1px solid var(--mhm-border-secondary);
+    border-radius: var(--mhm-radius-md);
+    background: var(--mhm-bg-card);
+    transition: all var(--mhm-duration-200) ease;
 }
 
 .mhm-addon-card:hover {
-    border-color: #0073aa;
-    box-shadow: 0 2px 8px rgba(0, 115, 170, 0.1);
+    border-color: var(--mhm-primary);
+    box-shadow: var(--mhm-shadow-sm);
 }
 
 .mhm-addon-item {
     display: block;
-    padding: 15px;
+    padding: var(--mhm-space-3);
     cursor: pointer;
     margin: 0;
 }
 
 .mhm-addon-item:hover {
-    background: #f8f9fa;
+    background: var(--mhm-bg-hover);
 }
 
 .mhm-addon-checkbox {
-    margin-right: 10px;
+    margin-right: var(--mhm-space-2);
     vertical-align: top;
 }
 
@@ -48,74 +48,74 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: var(--mhm-space-2);
 }
 
 .mhm-addon-title {
-    font-weight: 600;
-    color: #1e293b;
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-primary);
     font-size: 14px;
 }
 
 .mhm-addon-price {
-    font-weight: 600;
-    color: #059669;
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-success);
     font-size: 14px;
 }
 
 .mhm-addon-description {
-    color: #64748b;
+    color: var(--mhm-text-secondary);
     font-size: 13px;
     line-height: 1.4;
-    margin-top: 5px;
+    margin-top: var(--mhm-space-1);
 }
 
 .mhm-addon-total {
-    margin-top: 15px;
+    margin-top: var(--mhm-space-3);
     padding: 10px 15px;
-    background: #f0f9ff;
-    border: 1px solid #0ea5e9;
-    border-radius: 6px;
+    background: var(--mhm-bg-secondary);
+    border: 1px solid var(--mhm-primary-light);
+    border-radius: var(--mhm-radius-md);
     text-align: center;
 }
 
 .required {
-    color: #dc2626;
+    color: var(--mhm-error);
     font-weight: bold;
 }
 
 /* Rezervasyon Geçmişi Stilleri */
 .mhm-booking-history-box {
-    background: #fff;
+    background: var(--mhm-bg-card);
 }
 
 .mhm-add-history-note {
-    background: #f8f9fa;
-    padding: 15px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    margin-bottom: 20px;
+    background: var(--mhm-bg-hover);
+    padding: var(--mhm-space-3);
+    border: 1px solid var(--mhm-border-secondary);
+    border-radius: var(--mhm-radius-md);
+    margin-bottom: var(--mhm-space-4);
 }
 
 .mhm-history-form label {
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 5px;
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-primary);
+    margin-bottom: var(--mhm-space-1);
     display: block;
 }
 
 .mhm-history-form textarea,
 .mhm-history-form select {
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border: 1px solid var(--mhm-border-primary);
+    border-radius: var(--mhm-radius-sm);
     padding: 8px 12px;
     font-size: 14px;
 }
 
 .mhm-history-form textarea:focus,
 .mhm-history-form select:focus {
-    border-color: #0073aa;
-    box-shadow: 0 0 0 1px #0073aa;
+    border-color: var(--mhm-primary);
+    box-shadow: 0 0 0 1px var(--mhm-primary);
     outline: none;
 }
 
@@ -125,16 +125,16 @@
 }
 
 .mhm-history-item {
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    background: #fff;
-    transition: all 0.2s ease;
+    border: 1px solid var(--mhm-border-secondary);
+    border-radius: var(--mhm-radius-md);
+    margin-bottom: var(--mhm-space-2);
+    background: var(--mhm-bg-card);
+    transition: all var(--mhm-duration-200) ease;
 }
 
 .mhm-history-item:hover {
-    border-color: #0073aa;
-    box-shadow: 0 2px 4px rgba(0, 115, 170, 0.1);
+    border-color: var(--mhm-primary);
+    box-shadow: var(--mhm-shadow-sm);
 }
 
 .mhm-history-header {
@@ -142,34 +142,34 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 15px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e2e8f0;
+    background: var(--mhm-bg-hover);
+    border-bottom: 1px solid var(--mhm-border-secondary);
 }
 
 .mhm-history-type {
-    font-weight: 600;
-    color: #1e293b;
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-primary);
     font-size: 13px;
 }
 
 .mhm-history-date {
-    color: #64748b;
+    color: var(--mhm-text-secondary);
     font-size: 12px;
 }
 
 .mhm-history-content {
-    padding: 15px;
+    padding: var(--mhm-space-3);
 }
 
 .mhm-history-content p {
     margin: 0 0 10px 0;
     line-height: 1.5;
-    color: #374151;
+    color: var(--mhm-text-primary);
 }
 
 .mhm-history-meta {
     font-size: 12px;
-    color: #64748b;
+    color: var(--mhm-text-secondary);
 }
 
 .mhm-history-user {
@@ -178,64 +178,64 @@
 
 /* Geçmiş türü renkleri */
 .mhm-history-note {
-    border-left: 4px solid #6b7280;
+    border-left: 4px solid var(--mhm-text-secondary);
 }
 
 .mhm-history-status_change {
-    border-left: 4px solid #3b82f6;
+    border-left: 4px solid var(--mhm-primary);
 }
 
 .mhm-history-payment_update {
-    border-left: 4px solid #10b981;
+    border-left: 4px solid var(--mhm-success);
 }
 
 .mhm-history-customer_contact {
-    border-left: 4px solid #f59e0b;
+    border-left: 4px solid var(--mhm-warning);
 }
 
 .mhm-history-system {
-    border-left: 4px solid #8b5cf6;
+    border-left: 4px solid var(--mhm-purple);
 }
 
 .mhm-booking-edit-form {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
+    background: var(--mhm-bg-card);
+    border: 1px solid var(--mhm-border-primary);
+    border-radius: var(--mhm-radius-md);
+    padding: var(--mhm-space-4);
     margin: 10px 0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--mhm-shadow-sm);
 }
 
 .mhm-booking-edit-form h4 {
     margin: 0 0 20px 0;
     padding: 12px 15px;
-    background: #f8f9fa;
-    border-left: 4px solid #007cba;
-    border-radius: 6px;
+    background: var(--mhm-bg-hover);
+    border-left: 4px solid var(--mhm-primary);
+    border-radius: var(--mhm-radius-md);
     font-size: 14px;
-    font-weight: 600;
-    color: #495057;
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-primary);
 }
 
 .mhm-customer-info,
 .mhm-booking-details {
     margin-bottom: 25px;
     padding: 20px;
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
+    background: var(--mhm-bg-hover);
+    border: 1px solid var(--mhm-border-secondary);
+    border-radius: var(--mhm-radius-md);
 }
 
 /* Booking Info Grid - Similar to Deposit Info Grid */
 .mhm-booking-info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+    gap: var(--mhm-space-3);
     margin-bottom: 20px;
     padding: 15px;
-    background: #fff;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
+    background: var(--mhm-bg-card);
+    border-radius: var(--mhm-radius-md);
+    border: 1px solid var(--mhm-border-secondary);
 }
 
 .mhm-booking-info-item {
@@ -245,8 +245,8 @@
 }
 
 .mhm-booking-info-label {
-    font-weight: 600;
-    color: #495057;
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-secondary);
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -254,7 +254,7 @@
 
 .mhm-booking-info-value {
     font-size: 14px;
-    color: #212529;
+    color: var(--mhm-text-primary);
     font-weight: 500;
 }
 
@@ -262,46 +262,46 @@
 .mhm-booking-type-badge {
     display: inline-block;
     padding: 4px 8px;
-    border-radius: 4px;
+    border-radius: var(--mhm-radius-sm);
     font-size: 11px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .mhm-booking-type-badge.online {
-    background: #e3f2fd;
-    color: #1976d2;
-    border: 1px solid #bbdefb;
+    background: var(--mhm-bg-secondary);
+    color: var(--mhm-primary);
+    border: 1px solid var(--mhm-primary-light);
 }
 
 .mhm-booking-type-badge.manual {
-    background: #fff3e0;
-    color: #f57c00;
-    border: 1px solid #ffcc02;
+    background: var(--mhm-warning-bg);
+    color: var(--mhm-warning);
+    border: 1px solid var(--mhm-warning-border);
 }
 
 /* Booking Reference Badge */
 .mhm-booking-reference-badge {
     display: inline-block;
     padding: 6px 12px;
-    background: #f0f9ff;
-    color: #0369a1;
-    border: 1px solid #bae6fd;
-    border-radius: 4px;
+    background: var(--mhm-bg-secondary);
+    color: var(--mhm-primary-dark);
+    border: 1px solid var(--mhm-primary-light);
+    border-radius: var(--mhm-radius-sm);
     font-size: 13px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
     font-family: 'Courier New', monospace;
 }
 
 .mhm-field-row {
     display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
+    gap: var(--mhm-space-3);
+    margin-bottom: var(--mhm-space-3);
 }
 
 .mhm-field-group {
-    margin-bottom: 15px;
+    margin-bottom: var(--mhm-space-3);
 }
 
 .mhm-field-group.mhm-field-half {
@@ -310,9 +310,9 @@
 
 .mhm-field-label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #374151;
+    margin-bottom: var(--mhm-space-1);
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-primary);
     font-size: 13px;
 }
 
@@ -321,26 +321,26 @@
 .mhm-field-textarea {
     width: 100%;
     padding: 8px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border: 1px solid var(--mhm-border-primary);
+    border-radius: var(--mhm-radius-sm);
     font-size: 14px;
-    transition: border-color 0.2s ease;
+    transition: border-color var(--mhm-duration-200) ease;
 }
 
 .mhm-field-input:focus,
 .mhm-field-select:focus,
 .mhm-field-textarea:focus {
     outline: none;
-    border-color: #0073aa;
-    box-shadow: 0 0 0 1px rgba(0, 115, 170, 0.1);
+    border-color: var(--mhm-primary);
+    box-shadow: 0 0 0 1px var(--mhm-primary-light);
 }
 
 .mhm-field-readonly {
     padding: 8px 12px;
-    background: #fff;
-    border: 1px solid #e1e5e9;
-    border-radius: 4px;
-    color: #495057;
+    background: var(--mhm-bg-card);
+    border: 1px solid var(--mhm-border-secondary);
+    border-radius: var(--mhm-radius-sm);
+    color: var(--mhm-text-secondary);
     font-size: 14px;
     font-weight: 500;
 }
@@ -349,20 +349,20 @@
 .mhm-vehicle-info-section {
     margin: 20px 0;
     padding: 15px;
-    background: #f0f9ff;
-    border-radius: 6px;
-    border-left: 4px solid #0ea5e9;
+    background: var(--mhm-bg-secondary);
+    border-radius: var(--mhm-radius-md);
+    border-left: 4px solid var(--mhm-primary);
 }
 
 .mhm-vehicle-info-section .description {
     margin: 8px 0 0 0;
-    color: #0369a1;
+    color: var(--mhm-primary-dark);
     font-size: 13px;
 }
 
 .mhm-vehicle-info-section .description strong {
-    color: #0c4a6e;
-    font-weight: 600;
+    color: var(--mhm-primary-dark);
+    font-weight: var(--mhm-font-semibold);
 }
 
 .mhm-field-textarea {
@@ -374,18 +374,18 @@
 .mhm-special-notes-section {
     margin-top: 20px;
     padding: 15px;
-    background: #fff8e1;
-    border-radius: 6px;
-    border-left: 4px solid #ff9800;
+    background: var(--mhm-warning-bg);
+    border-radius: var(--mhm-radius-md);
+    border-left: 4px solid var(--mhm-warning);
 }
 
 .mhm-special-notes-section .mhm-field-label {
-    color: #e65100;
-    font-weight: 600;
+    color: var(--mhm-warning-dark);
+    font-weight: var(--mhm-font-semibold);
 }
 
 .mhm-special-notes-section .description {
-    color: #f57c00;
+    color: var(--mhm-warning-dark);
     font-size: 12px;
     margin-top: 8px;
 }
@@ -411,7 +411,7 @@
     .mhm-field-group.mhm-field-half {
         flex: none;
     }
-    
+
     .mhm-booking-info-grid {
         grid-template-columns: 1fr;
     }
@@ -419,21 +419,21 @@
 
 /* Status colors */
 .mhm-field-select option[value="pending"] {
-    color: #f59e0b;
+    color: var(--mhm-warning);
 }
 
 .mhm-field-select option[value="confirmed"] {
-    color: #10b981;
+    color: var(--mhm-success);
 }
 
 .mhm-field-select option[value="in_progress"] {
-    color: #3b82f6;
+    color: var(--mhm-primary);
 }
 
 .mhm-field-select option[value="completed"] {
-    color: #6b7280;
+    color: var(--mhm-text-secondary);
 }
 
 .mhm-field-select option[value="cancelled"] {
-    color: #ef4444;
+    color: var(--mhm-error);
 }

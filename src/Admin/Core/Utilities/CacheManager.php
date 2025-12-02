@@ -246,16 +246,50 @@ final class CacheManager
 
     /**
      * Rezervasyon değişikliklerinde cache temizle
+     * 
+     * Granüler cache temizliği: Sadece ilgili cache'leri temizler
+     * 
+     * @param int $booking_id Booking ID (optional, for vehicle-specific cache clearing)
      */
     public static function clear_booking_cache(int $booking_id = 0): void
     {
-        $types = ['dashboard_stats', 'booking_report', 'customer_report', 'revenue_report'];
+        // Base cache types that are always affected by booking changes
+        $base_types = ['dashboard_stats', 'booking_report'];
+        
+        /**
+         * Filter: Allow addons to specify additional cache types to clear on booking changes
+         * 
+         * @param array<string> $additional_types Additional cache types to clear
+         * @param int           $booking_id       Booking ID
+         * @return array Modified cache types array
+         * 
+         * @example
+         * add_filter('mhm_rentiva_clear_booking_cache_types', function($types, $booking_id) {
+         *     $types[] = 'custom_booking_report';
+         *     return $types;
+         * }, 10, 2);
+         */
+        $additional_types = apply_filters('mhm_rentiva_clear_booking_cache_types', [], $booking_id);
+        
+        $types = array_merge($base_types, $additional_types);
+        
+        // Only clear customer_report and revenue_report if booking status changed to completed/confirmed
+        // This prevents unnecessary cache clearing on every booking update
+        if ($booking_id > 0) {
+            $status = get_post_meta($booking_id, '_mhm_status', true);
+            if (in_array($status, ['completed', 'confirmed'], true)) {
+                $types[] = 'customer_report';
+                $types[] = 'revenue_report';
+            }
+        }
+        
         self::clear_cache($types);
         
-        // Vehicle cache'i de temizle
+        // Vehicle cache'i de temizle (sadece ilgili araç için)
         if ($booking_id > 0) {
             $vehicle_id = get_post_meta($booking_id, '_mhm_vehicle_id', true);
             if ($vehicle_id) {
+                // Clear only vehicle-specific report cache, not all vehicle reports
                 self::clear_cache(['vehicle_report']);
             }
         }
@@ -263,10 +297,31 @@ final class CacheManager
 
     /**
      * Araç değişikliklerinde cache temizle
+     * 
+     * Granüler cache temizliği: Sadece ilgili cache'leri temizler
+     * 
+     * @param int $vehicle_id Vehicle ID (optional, for specific vehicle cache clearing)
      */
     public static function clear_vehicle_cache(int $vehicle_id = 0): void
     {
-        $types = ['dashboard_stats', 'vehicle_report', 'revenue_report', 'vehicle_list'];
+        // Base cache types that are always affected by vehicle changes
+        $base_types = ['vehicle_list', 'vehicle_report'];
+        
+        /**
+         * Filter: Allow addons to specify additional cache types to clear on vehicle changes
+         * 
+         * @param array<string> $additional_types Additional cache types to clear
+         * @param int           $vehicle_id       Vehicle ID
+         * @return array Modified cache types array
+         */
+        $additional_types = apply_filters('mhm_rentiva_clear_vehicle_cache_types', [], $vehicle_id);
+        
+        $types = array_merge($base_types, $additional_types);
+        
+        // Only clear revenue_report if vehicle pricing changed (not on every update)
+        // Dashboard stats can be cleared less frequently
+        $types[] = 'dashboard_stats';
+        
         self::clear_cache($types);
     }
 

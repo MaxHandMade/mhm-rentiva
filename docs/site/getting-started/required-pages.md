@@ -8,6 +8,7 @@ Rentiva, müşteri portalı ve rezervasyon akışını çalıştırmak için bir
 | Araç Detay (Template) | — | — | Tekil araç şablonu `templates/single-vehicle.php` üzerinden yüklenir |
 | Rezervasyon Formu | `[rentiva_booking_form]` | `/rentiva/booking-form/` | Çok adımlı rezervasyon, add-on seçimi ve müşteri bilgileri |
 | Rezervasyon Onayı | `[rentiva_booking_confirmation]` | `/rentiva/booking-confirmation/` | Ödeme sonrası özet ve durum bilgisi |
+| Teşekkür Sayfası | `[rentiva_thank_you]` | `/rentiva/thank-you/` | Rezervasyon onayı için özel teşekkür sayfası (v4.4.4+) |
 | Müşteri Paneli (Dashboard) | `[rentiva_my_account]` | `/rentiva/account/dashboard/` | WooCommerce benzeri müşteri ana ekranı |
 | Rezervasyon Geçmişi | `[rentiva_my_bookings]` | `/rentiva/account/bookings/` | Müşteri rezervasyon listesi ve filtreleri |
 | Favorilerim | `[rentiva_favorites]` | `/rentiva/account/favorites/` | Favori araçlar |
@@ -20,6 +21,8 @@ Rentiva, müşteri portalı ve rezervasyon akışını çalıştırmak için bir
 | Testimonial Listesi | `[rentiva_testimonials]` | `/rentiva/testimonials/` | Varsayılan testimonial grid |
 
 > **Önemli:** Rezervasyon tamamlandıktan sonra onay ekranının açılabilmesi için **Rezervasyon Onayı** sayfasını mutlaka oluşturup yayınlayın. Bu sayfayı `Settings > Shortcode Pages > Booking Confirmation` alanında seçmezseniz, yönlendirme WordPress ana sayfasına düşer.
+
+> **Versiyon 4.4.4:** Yeni **Teşekkür Sayfası** (`[rentiva_thank_you]`) shortcode'u eklendi. Bu sayfa rezervasyon onayı için özel bir teşekkür ekranı sunar. `Settings > Booking > Thank You Page` ayarından bu sayfayı seçebilirsiniz.
 
 ## Sayfaların Otomatik Oluşturu lması
 

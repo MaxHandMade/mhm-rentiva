@@ -17,9 +17,11 @@
 - Rezervasyon formu doğrulama ayarları, müşteri onayı vb.
 
 ### 3. Payments
-- Stripe, PayPal, PayTR ve Offline ödeme yapılandırmaları (API anahtarları, sandbox/live switch).
+- **WooCommerce Entegrasyonu:** WooCommerce ile tam entegrasyon. WooCommerce destekli tüm ödeme ağ geçitlerini kullanabilirsiniz.
+- **Offline Ödeme:** Banka havalesi, nakit veya diğer offline yöntemler için makbuz yükleme sistemi.
 - Depozito ve kısmi ödeme seçenekleri.
-- Webhook URL ve güvenlik ayarları; başarısız ödemede alınacak aksiyonlar.
+- **Versiyon 4.4.4:** Para birimi artık WooCommerce veya eklenti ayarlarından dinamik olarak alınır (hardcode değer yok).
+- **Versiyon 4.4.4:** WooCommerce iade entegrasyonu - WooCommerce'de iade yapıldığında rezervasyon durumu otomatik güncellenir.
 
 ### 4. Emails
 - Gönderici adı/adresi, SMTP testi, global email enable toggle.

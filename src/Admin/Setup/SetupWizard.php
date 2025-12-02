@@ -178,6 +178,39 @@ final class SetupWizard
         <h2><?php esc_html_e('Step 2: License Activation', 'mhm-rentiva'); ?></h2>
         <p><?php esc_html_e('Activate your license to unlock Pro features (online payments, unlimited vehicles, advanced export and more).', 'mhm-rentiva'); ?></p>
 
+        <?php
+        // ⭐ Show error messages if any
+        if (isset($_GET['error'])) {
+            $error_code = sanitize_text_field($_GET['error']);
+            $error_message = isset($_GET['message']) ? urldecode(sanitize_text_field($_GET['message'])) : '';
+            
+            $error_text = '';
+            switch ($error_code) {
+                case 'empty_key':
+                    $error_text = __('Please enter a license key.', 'mhm-rentiva');
+                    break;
+                case 'license_activation_failed':
+                    $error_text = $error_message ?: __('License activation failed. Please check your key and try again.', 'mhm-rentiva');
+                    break;
+                case 'invalid_key':
+                    $error_text = __('Invalid license key. Please check your key and try again.', 'mhm-rentiva');
+                    break;
+                case 'already_activated':
+                    $error_text = __('This license is already activated on another site. Maximum 1 activation allowed.', 'mhm-rentiva');
+                    break;
+                default:
+                    $error_text = $error_message ?: __('License activation failed. Please try again.', 'mhm-rentiva');
+            }
+            
+            echo '<div class="notice notice-error inline"><p>' . esc_html($error_text) . '</p></div>';
+        }
+        
+        // ⭐ Show success message if license was activated
+        if (isset($_GET['license']) && $_GET['license'] === 'activated') {
+            echo '<div class="notice notice-success inline"><p>' . esc_html__('License activated successfully!', 'mhm-rentiva') . '</p></div>';
+        }
+        ?>
+
         <?php if ($is_active): ?>
             <div class="mhm-license-card mhm-license-card--active">
                 <div class="mhm-license-card__status"><?php esc_html_e('✅ Pro license active on this site', 'mhm-rentiva'); ?></div>
@@ -545,9 +578,32 @@ final class SetupWizard
         }
         check_admin_referer('mhm_rentiva_setup_license');
         $key = isset($_POST['license_key']) ? sanitize_text_field(wp_unslash($_POST['license_key'])) : '';
-        update_option('mhm_rentiva_license_key', $key);
-        wp_safe_redirect(self::step_url('pages', ['updated' => '1']));
-        exit;
+        
+        if (empty($key)) {
+            wp_safe_redirect(self::step_url('license', ['error' => 'empty_key']));
+            exit;
+        }
+        
+        // ⭐ Use LicenseManager to activate license (same as License Admin page)
+        $license_manager = class_exists(LicenseManager::class) ? LicenseManager::instance() : null;
+        if ($license_manager) {
+            $result = $license_manager->activate($key);
+            
+            if (is_wp_error($result)) {
+                $error_code = $result->get_error_code();
+                wp_safe_redirect(self::step_url('license', ['error' => $error_code, 'message' => urlencode($result->get_error_message())]));
+                exit;
+            }
+            
+            // Success - redirect to next step
+            wp_safe_redirect(self::step_url('pages', ['updated' => '1', 'license' => 'activated']));
+            exit;
+        } else {
+            // Fallback: just save the key if LicenseManager is not available
+            update_option('mhm_rentiva_license_key', $key);
+            wp_safe_redirect(self::step_url('pages', ['updated' => '1']));
+            exit;
+        }
     }
 
     public static function handle_create_pages(): void

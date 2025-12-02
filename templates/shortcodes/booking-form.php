@@ -27,33 +27,16 @@ $time_options = $time_options ?? [];
 $guest_options = $guest_options ?? [];
 $addons = $addons ?? [];
 
-// Get customer management settings
-use MHMRentiva\Admin\Settings\Core\SettingsCore;
+// ⭐ Logic moved to Controller (BookingForm::prepare_template_data)
+// Template now only receives pre-processed data
 
-$registration_required = SettingsCore::get('mhm_rentiva_customer_registration_required', '0');
-$phone_required = SettingsCore::get('mhm_rentiva_customer_phone_required', '0');
-$terms_required = SettingsCore::get('mhm_rentiva_customer_terms_required', '0');
-$terms_text = SettingsCore::get('mhm_rentiva_customer_terms_text', __('I accept the terms of use and privacy policy.', 'mhm-rentiva'));
-
-// ⭐ If the saved text is the default English text, use the translated version
-if ($terms_text === 'I accept the terms of use and privacy policy.') {
-    $terms_text = __('I accept the terms of use and privacy policy.', 'mhm-rentiva');
-}
-
-$data_consent_required = SettingsCore::get('mhm_rentiva_customer_data_consent', '0');
-
-// Check data consent requirement for logged-in users
-if (is_user_logged_in() && $data_consent_required === '1') {
-    $user_id = get_current_user_id();
-    $consent_given = get_user_meta($user_id, 'mhm_data_consent_given', true);
-    
-    if ($consent_given !== '1') {
-        echo '<div class="rv-error">' . esc_html__('You must provide consent for data processing before making a booking. Please update your account settings.', 'mhm-rentiva') . '</div>';
+// Error check (validation error from controller)
+if (isset($validation_error) && !empty($validation_error)) {
+    echo '<div class="rv-error">' . esc_html($validation_error) . '</div>';
         return;
-    }
 }
 
-// Error check
+// Error check (general error)
 if (isset($error)) {
     echo '<div class="rv-error">' . esc_html($error) . '</div>';
     return;
@@ -70,12 +53,19 @@ $class = $atts['class'] ?? '';
 $redirect_url = $atts['redirect_url'] ?? '';
 $form_title = $atts['form_title'] ?? esc_html__('Booking Form', 'mhm-rentiva');
 
-// ⭐ Get logged in user information
-$current_user = wp_get_current_user();
-$is_logged_in = is_user_logged_in();
-$user_name = $is_logged_in ? $current_user->display_name : '';
-$user_email = $is_logged_in ? $current_user->user_email : '';
-$user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phone', true) : '';
+// ⭐ Get user data from controller (pre-processed)
+$user_data = $user_data ?? [];
+$is_logged_in = $user_data['is_logged_in'] ?? false;
+$user_name = $user_data['user_name'] ?? '';
+$user_email = $user_data['user_email'] ?? '';
+$user_phone = $user_data['user_phone'] ?? '';
+
+// Get customer settings from controller
+$customer_settings = $customer_settings ?? [];
+$registration_required = $customer_settings['registration_required'] ?? '0';
+$phone_required = $customer_settings['phone_required'] ?? '0';
+$terms_required = $customer_settings['terms_required'] ?? '0';
+$terms_text = $customer_settings['terms_text'] ?? __('I accept the terms of use and privacy policy.', 'mhm-rentiva');
 ?>
 
 <div class="rv-booking-form-wrapper <?php echo esc_attr($class); ?>" 
@@ -113,7 +103,7 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
                     </div>
                     
                     <!-- Selected Vehicle Preview -->
-                    <div class="rv-selected-vehicle-preview" style="display: none;">
+                    <div class="rv-selected-vehicle-preview rv-hidden">
                         <div class="rv-vehicle-info">
                             <img class="rv-vehicle-image" src="" alt="">
                             <div class="rv-vehicle-details">
@@ -291,7 +281,7 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
                         <label for="dropoff_time" class="rv-label">
                             <?php echo esc_html__('Return Time', 'mhm-rentiva'); ?>
                         </label>
-                        <select id="dropoff_time" name="dropoff_time" class="rv-select" disabled readonly style="background-color: #f5f5f5; cursor: not-allowed;">
+                        <select id="dropoff_time" name="dropoff_time" class="rv-select rv-select-disabled" disabled readonly>
                             <option value=""><?php echo esc_html__('Select pickup time first', 'mhm-rentiva'); ?></option>
                             <?php foreach ($time_options as $option): ?>
                                 <option value="<?php echo esc_attr($option['value']); ?>">
@@ -300,7 +290,7 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
                             <?php endforeach; ?>
                         </select>
                         <input type="hidden" id="dropoff_time_hidden" name="dropoff_time" value="">
-                        <small class="description" style="display: block; margin-top: 5px; color: #666; font-size: 0.875rem;">
+                        <small class="rv-description rv-description-hint">
                             <?php echo esc_html__('Return time is automatically set to match pickup time.', 'mhm-rentiva'); ?>
                         </small>
                     </div>
@@ -355,11 +345,15 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
                         <span class="rv-price-label"><?php echo esc_html__('Number of Days:', 'mhm-rentiva'); ?></span>
                         <span class="rv-price-value" id="rv-days-count">-</span>
                     </div>
-                    <div class="rv-price-item">
+                    <div class="rv-price-item rv-tax-summary" style="display: none;">
+                        <span class="rv-price-label" id="rv-tax-label"><?php echo esc_html__('Tax:', 'mhm-rentiva'); ?></span>
+                        <span class="rv-price-value" id="rv-tax-amount">-</span>
+                    </div>
+                    <div class="rv-price-item rv-vehicle-total-detailed" style="display: none;">
                         <span class="rv-price-label"><?php echo esc_html__('Vehicle Total:', 'mhm-rentiva'); ?></span>
                         <span class="rv-price-value" id="rv-vehicle-total">-</span>
                     </div>
-                    <div class="rv-price-item rv-addons-price" style="display: none;">
+                    <div class="rv-price-item rv-addons-price rv-hidden">
                         <span class="rv-price-label"><?php echo esc_html__('Additional Services:', 'mhm-rentiva'); ?></span>
                         <span class="rv-price-value" id="rv-addons-total">-</span>
                     </div>
@@ -380,10 +374,10 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
                     <?php endif; ?>
                 </div>
 
-                <!-- Hidden fields for logged-in users (WooCommerce will handle guest users) -->
+                <!-- Hidden fields for logged-in users (Payment gateway will handle guest users) -->
                 <?php if ($is_logged_in): ?>
-                    <input type="hidden" id="customer_first_name" name="customer_first_name" value="<?php echo esc_attr($current_user->first_name ?: explode(' ', $user_name)[0]); ?>">
-                    <input type="hidden" id="customer_last_name" name="customer_last_name" value="<?php echo esc_attr($current_user->last_name ?: (count(explode(' ', $user_name)) > 1 ? implode(' ', array_slice(explode(' ', $user_name), 1)) : '')); ?>">
+                    <input type="hidden" id="customer_first_name" name="customer_first_name" value="<?php echo esc_attr($user_data['first_name'] ?: explode(' ', $user_name)[0]); ?>">
+                    <input type="hidden" id="customer_last_name" name="customer_last_name" value="<?php echo esc_attr($user_data['last_name'] ?: (count(explode(' ', $user_name)) > 1 ? implode(' ', array_slice(explode(' ', $user_name), 1)) : '')); ?>">
                     <input type="hidden" id="customer_email" name="customer_email" value="<?php echo esc_attr($user_email); ?>">
                     <input type="hidden" id="customer_phone" name="customer_phone" value="<?php echo esc_attr($user_phone); ?>">
                 <?php endif; ?>
@@ -396,16 +390,16 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
                 <input type="hidden" name="redirect_url" value="<?php echo esc_attr($redirect_url); ?>">
 
                 <!-- Form Buttons -->
-                <div class="rv-form-actions" style="margin-top: 20px;">
+                <div class="rv-form-actions">
                     <button type="button" class="rv-submit-btn rv-btn rv-btn-primary">
                         <span class="rv-btn-text"><?php 
-                        $make_booking_text = SettingsCore::get('mhm_rentiva_text_make_booking', '');
+                        $make_booking_text = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_make_booking', '');
                         $make_booking_text = !empty($make_booking_text) ? $make_booking_text : __('Make Booking', 'mhm-rentiva');
                         echo esc_html($make_booking_text); 
                         ?></span>
-                        <span class="rv-btn-loading" style="display: none;">
+                        <span class="rv-btn-loading rv-hidden">
                             <span class="rv-spinner"></span>
-                            <?php echo esc_html(SettingsCore::get('mhm_rentiva_text_processing', __('Processing...', 'mhm-rentiva'))); ?>
+                            <?php echo esc_html(\MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_processing', __('Processing...', 'mhm-rentiva'))); ?>
                         </span>
                     </button>
                 </div>
@@ -414,92 +408,15 @@ $user_phone = $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phon
 
         <!-- Messages -->
         <div class="rv-messages">
-            <div class="rv-success-message" style="display: none;"></div>
-            <div class="rv-error-message" style="display: none;"></div>
+            <div class="rv-success-message rv-hidden"></div>
+            <div class="rv-error-message rv-hidden"></div>
         </div>
     </div>
 </div>
 
-<script>
-// Define JavaScript variables
-window.mhmRentivaBookingForm = {
-    ajax_url: '<?php echo esc_js(admin_url('admin-ajax.php')); ?>',
-    nonce: '<?php echo esc_js(wp_create_nonce('mhm_rentiva_booking_form_nonce')); ?>',
-    depositNonce: '<?php echo esc_js(wp_create_nonce('mhm_rentiva_booking_action')); ?>',
-    currency_symbol: '<?php echo esc_js(apply_filters('mhm_rentiva/currency_symbol', '₺')); ?>',
-    enable_deposit: <?php echo $enable_deposit ? 'true' : 'false'; ?>,
-    default_payment: '<?php echo esc_js($default_payment); ?>',
-    favorites: {
-        ajaxUrl: '<?php echo esc_js(admin_url('admin-ajax.php')); ?>',
-        nonce: '<?php echo esc_js(wp_create_nonce('mhm_rentiva_toggle_favorite')); ?>',
-        strings: {
-            added: '<?php echo esc_js(__('Added to favorites', 'mhm-rentiva')); ?>',
-            removed: '<?php echo esc_js(__('Removed from favorites', 'mhm-rentiva')); ?>',
-            login_required: '<?php echo esc_js(__('Please log in to manage favorites.', 'mhm-rentiva')); ?>',
-            error: '<?php echo esc_js(__('An error occurred while updating favorites.', 'mhm-rentiva')); ?>',
-            add_label: '<?php echo esc_js(__('Add to favorites', 'mhm-rentiva')); ?>',
-            remove_label: '<?php echo esc_js(__('Remove from favorites', 'mhm-rentiva')); ?>'
-        }
-    },
-    messages: {
-        loading: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_loading', __('Loading...', 'mhm-rentiva'))); ?>',
-        error: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_error', __('An error occurred.', 'mhm-rentiva'))); ?>',
-        success: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_booking_success', __('Booking successful', 'mhm-rentiva'))); ?>',
-        selectVehicle: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_select_vehicle', __('Please select a vehicle', 'mhm-rentiva'))); ?>',
-        selectDates: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_select_dates', __('Please select dates', 'mhm-rentiva'))); ?>',
-        invalidDates: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_invalid_dates', __('Invalid date range', 'mhm-rentiva'))); ?>',
-        selectPaymentType: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_select_payment_type', __('Please select payment type', 'mhm-rentiva'))); ?>',
-        selectPaymentMethod: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_select_payment_method', __('Please select payment method', 'mhm-rentiva'))); ?>',
-        calculating: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_calculating', __('Calculating...', 'mhm-rentiva'))); ?>',
-        paymentRedirect: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_payment_redirect', __('Redirecting to payment page...', 'mhm-rentiva'))); ?>',
-        paymentSuccess: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_payment_success', __('Payment completed successfully!', 'mhm-rentiva'))); ?>',
-        paymentCancelled: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_payment_cancelled', __('Payment cancelled.', 'mhm-rentiva'))); ?>',
-        popupBlocked: '<?php echo esc_js(SettingsCore::get('mhm_rentiva_text_popup_blocked', __('Popup blocked. Redirecting to payment page...', 'mhm-rentiva'))); ?>'
-    },
-    currency: {
-        symbol: '<?php echo esc_js(apply_filters('mhm_rentiva/currency_symbol', '₺')); ?>',
-        position: 'after'
-    },
-    locale: '<?php echo esc_js(get_locale()); ?>'
-};
-</script>
-
 <?php
-// Check payment status messages
-$payment_status = $_GET['payment_status'] ?? '';
-$booking_id = $_GET['booking_id'] ?? '';
-
-if ($payment_status && $booking_id): ?>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const paymentStatus = '<?php echo esc_js($payment_status); ?>';
-        const bookingId = '<?php echo esc_js($booking_id); ?>';
-        
-        // Save payment status to localStorage (for popup)
-        localStorage.setItem('mhm_rentiva_payment_status', paymentStatus);
-        
-        // Show page message
-        const form = document.querySelector('.rv-booking-form-inner');
-        if (form) {
-            const messagesContainer = form.querySelector('.rv-messages');
-            if (messagesContainer) {
-                if (paymentStatus === 'success') {
-                    messagesContainer.querySelector('.rv-success-message').innerHTML = 
-                        '<?php echo esc_js(esc_html__('Payment completed successfully! Your booking is confirmed.', 'mhm-rentiva')); ?>';
-                    messagesContainer.querySelector('.rv-success-message').style.display = 'block';
-                    
-                    // Update booking status
-                    setTimeout(() => {
-                        window.location.href = window.location.href.split('?')[0];
-                    }, 3000);
-                } else if (paymentStatus === 'cancelled') {
-                    messagesContainer.querySelector('.rv-error-message').innerHTML = 
-                        '<?php echo esc_js(esc_html__('Payment cancelled. Your booking is in pending status.', 'mhm-rentiva')); ?>';
-                    messagesContainer.querySelector('.rv-error-message').style.display = 'block';
-                }
-            }
-        }
-    });
-    </script>
-<?php endif; ?>
+// ⭐ Inline JavaScript removed - All JS is now in assets/js/frontend/booking-form.js
+// Payment status handling is done via JavaScript in the external file
+// Data is passed via wp_localize_script in BookingForm::enqueue_assets()
+?>
 

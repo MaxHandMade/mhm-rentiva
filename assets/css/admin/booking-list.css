@@ -7,79 +7,81 @@
 .mhm-booking-list .badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    border-radius: 2px;
+    border-radius: var(--mhm-radius-sm);
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: var(--mhm-font-medium);
     text-align: center;
     white-space: nowrap;
-    color: white;
+    color: var(--mhm-white);
 }
 
 /* Yeni sütunlar için stiller */
 .mhm-booking-list .booking-id {
     font-family: monospace;
-    font-weight: bold;
-    color: #666;
+    font-weight: var(--mhm-font-bold);
+    color: var(--mhm-text-secondary);
     font-size: 0.9rem;
 }
 
 .mhm-booking-list .license-plate {
     font-family: monospace;
-    font-weight: bold;
-    background-color: #f8f9fa;
+    font-weight: var(--mhm-font-bold);
+    background-color: var(--mhm-bg-secondary);
     padding: 0.2rem 0.4rem;
-    border-radius: 3px;
+    border-radius: var(--mhm-radius-sm);
     font-size: 0.85rem;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--mhm-border-secondary);
 }
 
 .mhm-booking-list .booking-type {
     display: inline-block;
     padding: 0.2rem 0.5rem;
-    border-radius: 3px;
+    border-radius: var(--mhm-radius-sm);
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: var(--mhm-font-medium);
     text-align: center;
 }
 
 .mhm-booking-list .booking-type.online {
     background-color: #e3f2fd;
+    /* Keep specific color or add to vars */
     color: #1976d2;
     border: 1px solid #bbdefb;
 }
 
 .mhm-booking-list .booking-type.manual {
     background-color: #fff3e0;
+    /* Keep specific color or add to vars */
     color: #f57c00;
     border: 1px solid #ffcc02;
 }
 
 /* Depozito bedeli sütunu için stiller */
 .mhm-booking-list .deposit-amount {
-    font-weight: bold;
-    color: #28a745;
+    font-weight: var(--mhm-font-bold);
+    color: var(--mhm-success);
     font-size: 0.9rem;
 }
 
 /* Kalan tutar sütunu için stiller */
 .mhm-booking-list .remaining-amount {
-    font-weight: bold;
-    color: #dc3545;
+    font-weight: var(--mhm-font-bold);
+    color: var(--mhm-error);
     font-size: 0.9rem;
 }
 
 .mhm-booking-list .remaining-amount.paid {
-    color: #28a745;
+    color: var(--mhm-success);
 }
 
 /* Başlık sütununda müşteri bilgileri için stiller */
 .mhm-booking-list .column-title strong a {
-    color: #0073aa;
+    color: var(--mhm-primary);
     text-decoration: none;
 }
 
 .mhm-booking-list .column-title strong a:hover {
-    color: #005177;
+    color: var(--mhm-primary-dark);
     text-decoration: underline;
 }
 
@@ -93,8 +95,8 @@
 .mhm-booking-list .postform {
     margin-right: 8px;
     padding: 4px 8px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
+    border: 1px solid var(--mhm-border-primary);
+    border-radius: var(--mhm-radius-sm);
     font-size: 13px;
     min-width: 150px;
     /* Minimum genişlik eklendi */
@@ -103,8 +105,8 @@
 }
 
 .mhm-booking-list .postform:focus {
-    border-color: #0073aa;
-    box-shadow: 0 0 0 1px #0073aa;
+    border-color: var(--mhm-primary);
+    box-shadow: 0 0 0 1px var(--mhm-primary);
     outline: none;
 }
 
@@ -172,46 +174,47 @@
 
 /* Status badge colors */
 .mhm-booking-list .badge.status-draft {
-    background-color: #6c757d;
+    background-color: var(--mhm-gray-500);
 }
 
 .mhm-booking-list .badge.status-pending {
-    background-color: #ffc107;
+    background-color: var(--mhm-warning);
     /* 🟡 Sarı - Dikkat çekici, bekleyen */
     color: #000;
 }
 
 .mhm-booking-list .badge.status-confirmed {
-    background-color: #28a745;
+    background-color: var(--mhm-success);
     /* 🟢 Yeşil - Başarılı, onaylanmış */
-    color: #fff;
+    color: var(--mhm-white);
 }
 
 .mhm-booking-list .badge.status-in_progress {
     background-color: #fd7e14;
+    /* Orange */
     /* 🟠 Turuncu - Aktif, devam eden */
-    color: #fff;
+    color: var(--mhm-white);
 }
 
 .mhm-booking-list .badge.status-completed {
-    background-color: #0073E6;
+    background-color: var(--mhm-primary);
     /* 🔵 Mavi - Tamamlanmış, bitmiş */
-    color: #fff;
+    color: var(--mhm-white);
 }
 
 .mhm-booking-list .badge.status-cancelled {
-    background-color: #dc3545;
+    background-color: var(--mhm-error);
     /* 🔴 Kırmızı - İptal, hata */
-    color: #fff;
+    color: var(--mhm-white);
 }
 
 .mhm-booking-list .badge.status-refunded {
-    background-color: #ffc107;
+    background-color: var(--mhm-warning);
     color: #000;
 }
 
 .mhm-booking-list .badge.status-no_show {
-    background-color: #dc3545;
+    background-color: var(--mhm-error);
 }
 
 /* Payment status styling */
@@ -221,20 +224,20 @@
 }
 
 .mhm-booking-list .payment-info .payment-status {
-    font-weight: 500;
-    color: #1d2327;
+    font-weight: var(--mhm-font-medium);
+    color: var(--mhm-text-primary);
     margin-bottom: 0.2rem;
 }
 
 .mhm-booking-list .payment-info .amount {
-    font-weight: 600;
-    color: #1d2327;
+    font-weight: var(--mhm-font-bold);
+    color: var(--mhm-text-primary);
     margin-bottom: 0.1rem;
 }
 
 .mhm-booking-list .payment-info .gateway {
     font-size: 0.8rem;
-    color: #646970;
+    color: var(--mhm-text-secondary);
     font-style: italic;
 }
 
@@ -244,15 +247,15 @@
 }
 
 .mhm-booking-list .vehicle-info .vehicle-name {
-    font-weight: 500;
-    color: #1d2327;
+    font-weight: var(--mhm-font-medium);
+    color: var(--mhm-text-primary);
     display: block;
     margin-bottom: 0.2rem;
 }
 
 .mhm-booking-list .vehicle-info .vehicle-plate {
     font-size: 0.8rem;
-    color: #646970;
+    color: var(--mhm-text-secondary);
     font-family: monospace;
 }
 
@@ -263,19 +266,19 @@
 }
 
 .mhm-booking-list .date-info .date-range {
-    font-weight: 500;
-    color: #1d2327;
+    font-weight: var(--mhm-font-medium);
+    color: var(--mhm-text-primary);
 }
 
 .mhm-booking-list .date-info .time-info {
     font-size: 0.8rem;
-    color: #646970;
+    color: var(--mhm-text-secondary);
 }
 
 /* Total amount styling */
 .mhm-booking-list .total-amount {
-    font-weight: 600;
-    color: #1d2327;
+    font-weight: var(--mhm-font-bold);
+    color: var(--mhm-text-primary);
     font-size: 0.9rem;
 }
 

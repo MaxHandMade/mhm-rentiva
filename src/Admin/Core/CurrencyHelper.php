@@ -22,12 +22,13 @@ final class CurrencyHelper
      * Get all supported currency codes and symbols
      * 
      * This list must match exactly with SettingsCore::render_currency_field()
+     * Can be extended via 'mhm_rentiva_currency_symbols' filter hook
      * 
      * @return array<string, string> Currency code => Symbol mapping
      */
     public static function get_all_currency_symbols(): array
     {
-        $currencies = [
+        $symbols = [
             'TRY' => '₺',
             'USD' => '$',
             'EUR' => '€',
@@ -80,7 +81,20 @@ final class CurrencyHelper
             'LIRA' => '₺',
         ];
         
-        return apply_filters('mhm_rentiva_supported_currencies', $currencies);
+        /**
+         * Filter: Allow addons and third-party plugins to add custom currency symbols
+         * 
+         * @param array<string, string> $symbols Currency code => Symbol mapping
+         * @return array Modified currency symbols array
+         * 
+         * @example
+         * add_filter('mhm_rentiva_currency_symbols', function($symbols) {
+         *     $symbols['BTC'] = '₿';
+         *     $symbols['ETH'] = 'Ξ';
+         *     return $symbols;
+         * });
+         */
+        return apply_filters('mhm_rentiva_currency_symbols', $symbols);
     }
 
     /**
@@ -156,6 +170,7 @@ final class CurrencyHelper
      * Get currency list for dropdowns (code => display name with symbol)
      * 
      * This matches SettingsCore::render_currency_field() format
+     * Can be extended via 'mhm_rentiva_currency_list' filter hook
      * 
      * @return array<string, string> Currency code => Display name mapping
      */
@@ -211,7 +226,20 @@ final class CurrencyHelper
             'ILS' => 'Israeli Shekel (₪)',
         ];
         
-        return apply_filters('mhm_rentiva_currency_list_dropdown', $currencies);
+        /**
+         * Filter: Allow addons and third-party plugins to add custom currencies to dropdown
+         * 
+         * @param array<string, string> $currencies Currency code => Display name mapping
+         * @return array Modified currency list array
+         * 
+         * @example
+         * add_filter('mhm_rentiva_currency_list', function($currencies) {
+         *     $currencies['BTC'] = 'Bitcoin (₿)';
+         *     $currencies['ETH'] = 'Ethereum (Ξ)';
+         *     return $currencies;
+         * });
+         */
+        return apply_filters('mhm_rentiva_currency_list', $currencies);
     }
 }
 

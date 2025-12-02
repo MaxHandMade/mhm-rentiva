@@ -26,7 +26,11 @@ msgstr ""
 
 #. Description of the plugin
 #: mhm-rentiva.php
+<<<<<<< HEAD
 msgid "Vehicle rental management plugin with WooCommerce payment integration."
+=======
+msgid "Vehicle rental management plugin with offline payments and optional WooCommerce integration."
+>>>>>>> 1a3d3a0a7888d65de1b82200523cb228987c55f0
 msgstr ""
 
 #. Author of the plugin
@@ -14616,10 +14620,15 @@ msgid "Class Exists"
 msgstr ""
 
 #: src/Admin/Settings/Testing/SettingsTester.php:872
+<<<<<<< HEAD
 #: src/Admin/Settings/Testing/SettingsTester.php:182
 #. translators: This test was removed - WooCommerce handles all payments
 # msgid "Offline Class Exists"
 # msgstr ""
+=======
+msgid "Offline Class Exists"
+msgstr ""
+>>>>>>> 1a3d3a0a7888d65de1b82200523cb228987c55f0
 
 #: src/Admin/Settings/Testing/SettingsTester.php:873
 msgid "Payment Method Available"
@@ -19600,6 +19609,7 @@ msgstr ""
 
 #: assets/js/frontend/booking-form.js:713
 msgid "Please select pickup time."
+<<<<<<< HEAD
 msgstr ""
 
 #: src/Admin/Settings/SettingsView.php:813
@@ -19644,4 +19654,6 @@ msgstr ""
 
 #: src/Admin/Settings/Testing/SettingsTester.php:878
 msgid "WooCommerce Active"
+=======
+>>>>>>> 1a3d3a0a7888d65de1b82200523cb228987c55f0
 msgstr ""

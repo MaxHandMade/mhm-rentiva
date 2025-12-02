@@ -24,8 +24,11 @@
 - Grid, list ve favori kartlarında gösterilecek rozetler `Vehicle Settings > Visible Card Items` panelinden yönetilir. Burada sürükle-bırak ile sıraladığınız alanlar (detay/feature/equipment) ön yüzde aynı sırayla görüntülenir; listeden kaldırdıklarınız tüm kartlarda gizlenir.
 
 ### 4. Quick Edit
-- Başlık, slug, kategori gibi standart alanların yanında Rentiva’ya özel alanlar da (License Plate, Price/Day, Seats, Transmission, Fuel, Available) hızlıca düzenlenebilir.
-- `Available` dropdown’ı otomatik olarak mevcut statüyü seçili getirir. Kaydettiğinizde hem `_mhm_vehicle_status` hem `_mhm_vehicle_availability` meta alanları eşzamanlanır.
+- Başlık, slug, kategori gibi standart alanların yanında Rentiva'ya özel alanlar da (License Plate, Price/Day, Seats, Transmission, Fuel, Available) hızlıca düzenlenebilir.
+- `Available` dropdown'ı otomatik olarak mevcut statüyü seçili getirir. Kaydettiğinizde hem `_mhm_vehicle_status` hem `_mhm_vehicle_availability` meta alanları eşzamanlanır.
+- **Versiyon 4.4.4 Güncellemesi:** Seats, Doors ve Engine Size alanları için minimum/maksimum değerler artık ayarlardan yapılandırılabilir (varsayılan: Seats max 100, Doors max 20, Engine Size 0.0-20.0L).
+- **Yeni Yakıt Tipleri:** LPG, CNG ve Hidrojen yakıt tipleri eklendi. Alternatif yakıtlı araçlar için bu seçenekleri kullanabilirsiniz.
+- **Yeni Vites Tipleri:** Yarı Otomatik ve CVT (Continuously Variable Transmission) vites seçenekleri eklendi. Modern araçlar için bu seçenekleri kullanabilirsiniz.
 
 ## Sık Yapılan İşlemler
 

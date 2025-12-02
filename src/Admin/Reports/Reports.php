@@ -8,6 +8,7 @@ use MHMRentiva\Admin\Reports\BusinessLogic\RevenueReport;
 use MHMRentiva\Admin\Vehicle\Reports\VehicleReport;
 use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Reports\Repository\ReportRepository;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -98,44 +99,21 @@ final class Reports
             global $wpdb;
 
             // Total bookings
-            $total_bookings = (int) $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-                'vehicle_booking', 'publish'
-            ));
+            $total_bookings = ReportRepository::get_total_bookings_count();
 
             // This month revenue - ONLY COMPLETED AND CONFIRMED BOOKINGS
             $current_month_start = date('Y-m-01');
             $current_month_end = date('Y-m-t');
-            $monthly_revenue = (float) $wpdb->get_var($wpdb->prepare(
-                "SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
-                 FROM {$wpdb->postmeta} pm
-                 INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-                 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-                 WHERE p.post_type = 'vehicle_booking'
-                 AND p.post_status = 'publish'
-                 AND pm.meta_key = '_mhm_total_price'
-                 AND pm_status.meta_key = '_mhm_status'
-                 AND pm_status.meta_value IN ('completed', 'confirmed')
-                 AND p.post_date >= %s
-                 AND p.post_date < %s",
-                $current_month_start, date('Y-m-d', strtotime($current_month_end . ' +1 day'))
-            ));
+            $monthly_revenue = ReportRepository::get_monthly_revenue_amount(
+                $current_month_start, 
+                date('Y-m-d', strtotime($current_month_end . ' +1 day'))
+            );
 
             // Active bookings
-            $active_bookings = (int) $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->postmeta} pm
-                 INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-                 WHERE p.post_type = 'vehicle_booking'
-                 AND p.post_status = 'publish'
-                 AND pm.meta_key = '_mhm_status'
-                 AND pm.meta_value IN ('confirmed', 'in_progress')"
-            ));
+            $active_bookings = ReportRepository::get_active_bookings_count();
 
             // Occupancy rate (simple calculation)
-            $total_vehicles = (int) $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-                'vehicle', 'publish'
-            ));
+            $total_vehicles = ReportRepository::get_total_vehicles_count();
 
             $occupancy_rate = 0;
             if ($total_vehicles > 0 && $active_bookings > 0) {
@@ -373,9 +351,19 @@ final class Reports
         // Debug: Date filtering check
         if (defined('WP_DEBUG') && WP_DEBUG) {
             
-            // Check available dates in database
+            // Check available dates in database (using prepared statement for security)
             global $wpdb;
-            $available_dates = $wpdb->get_results("SELECT DATE(post_date) as date, COUNT(*) as count FROM {$wpdb->posts} WHERE post_type = 'vehicle_booking' AND post_status = 'publish' GROUP BY DATE(post_date) ORDER BY date DESC LIMIT 10");
+            $available_dates = $wpdb->get_results($wpdb->prepare(
+                "SELECT DATE(post_date) as date, COUNT(*) as count 
+                 FROM {$wpdb->posts} 
+                 WHERE post_type = %s 
+                 AND post_status = %s 
+                 GROUP BY DATE(post_date) 
+                 ORDER BY date DESC 
+                 LIMIT 10",
+                'vehicle_booking',
+                'publish'
+            ));
         }
 
         echo '<div class="mhm-rentiva-reports-filters">';
@@ -401,7 +389,7 @@ final class Reports
         echo '</form>';
         echo '</div>';
 
-        // Report tabs
+        // Base report tabs (can be extended via filter hook)
         $tabs = [
             'overview' => __('Overview', 'mhm-rentiva'),
             'revenue' => __('Revenue Report', 'mhm-rentiva'),
@@ -409,6 +397,20 @@ final class Reports
             'vehicles' => __('Vehicle Report', 'mhm-rentiva'),
             'customers' => __('Customer Report', 'mhm-rentiva'),
         ];
+        
+        /**
+         * Filter: Allow addons and third-party plugins to add custom report tabs
+         * 
+         * @param array<string, string> $tabs Array of tab_key => tab_label pairs
+         * @return array Modified tabs array
+         * 
+         * @example
+         * add_filter('mhm_rentiva_report_tabs', function($tabs) {
+         *     $tabs['custom-report'] = __('Custom Report', 'my-plugin');
+         *     return $tabs;
+         * });
+         */
+        $tabs = apply_filters('mhm_rentiva_report_tabs', $tabs);
 
         $current_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'overview';
 
@@ -422,23 +424,54 @@ final class Reports
 
         // Tab content
         echo '<div class="tab-content">';
-        switch ($current_tab) {
-            case 'overview':
-                self::render_overview_tab($start_date, $end_date);
-                break;
-            case 'revenue':
-                self::render_revenue_tab($start_date, $end_date);
-                break;
-            case 'bookings':
-                self::render_bookings_tab($start_date, $end_date);
-                break;
-            case 'vehicles':
-                self::render_vehicles_tab($start_date, $end_date);
-                break;
-            case 'customers':
-                self::render_customers_tab($start_date, $end_date);
-                break;
+        
+        // Check if custom tab rendering is handled via action hook
+        $custom_tab_handled = false;
+        
+        /**
+         * Action: Allow addons to render custom report tabs
+         * 
+         * @param string $current_tab Current tab key
+         * @param string $start_date  Start date filter
+         * @param string $end_date    End date filter
+         * @param bool   $handled     Reference to indicate if tab was handled
+         * 
+         * @example
+         * add_action('mhm_rentiva_render_report_tab', function($tab, $start_date, $end_date, &$handled) {
+         *     if ($tab === 'custom-report') {
+         *         echo '<h2>Custom Report</h2>';
+         *         // Render custom report...
+         *         $handled = true;
+         *     }
+         * }, 10, 4);
+         */
+        do_action_ref_array('mhm_rentiva_render_report_tab', [&$current_tab, &$start_date, &$end_date, &$custom_tab_handled]);
+        
+        // If custom tab was handled, skip default rendering
+        if (!$custom_tab_handled) {
+            switch ($current_tab) {
+                case 'overview':
+                    self::render_overview_tab($start_date, $end_date);
+                    break;
+                case 'revenue':
+                    self::render_revenue_tab($start_date, $end_date);
+                    break;
+                case 'bookings':
+                    self::render_bookings_tab($start_date, $end_date);
+                    break;
+                case 'vehicles':
+                    self::render_vehicles_tab($start_date, $end_date);
+                    break;
+                case 'customers':
+                    self::render_customers_tab($start_date, $end_date);
+                    break;
+                default:
+                    // Default case for unknown tabs
+                    echo '<p>' . esc_html__('Report for this section is not yet implemented.', 'mhm-rentiva') . '</p>';
+                    break;
+            }
         }
+        
         echo '</div>';
 
         echo '</div>';
@@ -650,32 +683,8 @@ final class Reports
             'total' => 0
         ];
         
-        // Get customer data based on date range
-        global $wpdb;
-        
-        // Find customers who made bookings in selected date range
-        $real_customers = $wpdb->get_results($wpdb->prepare("
-            SELECT 
-                pm_email.meta_value as customer_email,
-                pm_name.meta_value as customer_name,
-                COUNT(*) as booking_count,
-                SUM(CAST(pm_price.meta_value AS DECIMAL(10,2))) as total_spent,
-                MAX(p.post_date) as last_booking
-            FROM {$wpdb->posts} p
-            LEFT JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id 
-                AND pm_email.meta_key = '_mhm_customer_email'
-            LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id 
-                AND pm_name.meta_key = '_mhm_customer_name'
-            LEFT JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id 
-                AND pm_price.meta_key = '_mhm_total_price'
-            WHERE p.post_type = 'vehicle_booking'
-                AND p.post_status = 'publish'
-                AND pm_email.meta_value IS NOT NULL
-                AND pm_email.meta_value != ''
-                AND DATE(p.post_date) BETWEEN %s AND %s
-            GROUP BY pm_email.meta_value
-            ORDER BY total_spent DESC
-        ", $start_date, $end_date));
+        // ⭐ Use Repository for customer data (replaces raw SQL)
+        $real_customers = ReportRepository::get_customer_spending_data($start_date, $end_date);
         
         if (!empty($real_customers)) {
             $customer_segments['total'] = count($real_customers);
@@ -734,39 +743,15 @@ final class Reports
             'hatchback' => 0,
             'sedan' => 0,
             'suv' => 0,
-            'coupe' => 0
         ];
         
         // Get vehicle categories based on date range
         global $wpdb;
         
-        $vehicle_categories = $wpdb->get_results($wpdb->prepare("
-            SELECT 
-                t.name as category_name,
-                COUNT(DISTINCT p.ID) as vehicle_count,
-                COUNT(DISTINCT b.ID) as booking_count
-            FROM {$wpdb->terms} t
-            LEFT JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
-            LEFT JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
-            LEFT JOIN {$wpdb->posts} p ON tr.object_id = p.ID 
-                AND p.post_type = 'vehicle' 
-                AND p.post_status = 'publish'
-            LEFT JOIN {$wpdb->posts} b ON p.ID = (
-                SELECT pm_vehicle.meta_value 
-                FROM {$wpdb->postmeta} pm_vehicle 
-                WHERE pm_vehicle.post_id = b.ID 
-                AND pm_vehicle.meta_key = '_mhm_vehicle_id'
-            )
-            AND b.post_type = 'vehicle_booking'
-            AND b.post_status = 'publish'
-            AND DATE(b.post_date) BETWEEN %s AND %s
-            WHERE tt.taxonomy = 'vehicle_category'
-            GROUP BY t.term_id, t.name
-            ORDER BY vehicle_count DESC
-        ", $start_date, $end_date));
+        $vehicle_categories_data = ReportRepository::get_vehicle_category_performance($start_date, $end_date);
         
-        if (!empty($vehicle_categories)) {
-            foreach ($vehicle_categories as $category) {
+        if (!empty($vehicle_categories_data)) {
+            foreach ($vehicle_categories_data as $category) {
                 $category_name = strtolower($category->category_name);
                 $booking_count = (int)$category->booking_count; // Number of bookings in date range
                 
@@ -1107,29 +1092,7 @@ final class Reports
         // Get vehicle categories based on date range
         global $wpdb;
         
-        $vehicle_categories_data = $wpdb->get_results($wpdb->prepare("
-            SELECT 
-                t.name as category_name,
-                COUNT(DISTINCT b.ID) as booking_count
-            FROM {$wpdb->terms} t
-            LEFT JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
-            LEFT JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
-            LEFT JOIN {$wpdb->posts} p ON tr.object_id = p.ID 
-                AND p.post_type = 'vehicle' 
-                AND p.post_status = 'publish'
-            LEFT JOIN {$wpdb->posts} b ON p.ID = (
-                SELECT pm_vehicle.meta_value 
-                FROM {$wpdb->postmeta} pm_vehicle 
-                WHERE pm_vehicle.post_id = b.ID 
-                AND pm_vehicle.meta_key = '_mhm_vehicle_id'
-            )
-            AND b.post_type = 'vehicle_booking'
-            AND b.post_status = 'publish'
-            AND DATE(b.post_date) BETWEEN %s AND %s
-            WHERE tt.taxonomy = 'vehicle_category'
-            GROUP BY t.term_id, t.name
-            ORDER BY booking_count DESC
-        ", $start_date, $end_date));
+        $vehicle_categories_data = ReportRepository::get_vehicle_category_performance($start_date, $end_date);
         
         if (!empty($vehicle_categories_data)) {
             foreach ($vehicle_categories_data as $category) {
@@ -1259,32 +1222,8 @@ final class Reports
             'total' => 0
         ];
         
-        // Get customer data based on date range
-        global $wpdb;
-        
-        // Find customers who made bookings in selected date range
-        $real_customers = $wpdb->get_results($wpdb->prepare("
-            SELECT 
-                pm_email.meta_value as customer_email,
-                pm_name.meta_value as customer_name,
-                COUNT(*) as booking_count,
-                SUM(CAST(pm_price.meta_value AS DECIMAL(10,2))) as total_spent,
-                MAX(p.post_date) as last_booking
-            FROM {$wpdb->posts} p
-            LEFT JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id 
-                AND pm_email.meta_key = '_mhm_customer_email'
-            LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id 
-                AND pm_name.meta_key = '_mhm_customer_name'
-            LEFT JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id 
-                AND pm_price.meta_key = '_mhm_total_price'
-            WHERE p.post_type = 'vehicle_booking'
-                AND p.post_status = 'publish'
-                AND pm_email.meta_value IS NOT NULL
-                AND pm_email.meta_value != ''
-                AND DATE(p.post_date) BETWEEN %s AND %s
-            GROUP BY pm_email.meta_value
-            ORDER BY total_spent DESC
-        ", $start_date, $end_date));
+        // ⭐ Use Repository for customer data (replaces raw SQL)
+        $real_customers = ReportRepository::get_customer_spending_data($start_date, $end_date);
         
         if (!empty($real_customers)) {
             $customer_segments['total'] = count($real_customers);

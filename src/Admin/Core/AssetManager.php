@@ -18,17 +18,14 @@ final class AssetManager
         'mhm-css-variables' => [
             'url' => 'assets/css/core/css-variables.css',
             'deps' => [],
-            'version' => MHM_RENTIVA_VERSION
         ],
         'mhm-core-css' => [
             'url' => 'assets/css/core/core.css',
             'deps' => ['mhm-css-variables'],
-            'version' => MHM_RENTIVA_VERSION
         ],
         'mhm-animations' => [
             'url' => 'assets/css/core/animations.css',
             'deps' => ['mhm-css-variables'],
-            'version' => MHM_RENTIVA_VERSION
         ]
     ];
 
@@ -39,12 +36,10 @@ final class AssetManager
         'mhm-stats-cards' => [
             'url' => 'assets/css/components/stats-cards.css',
             'deps' => ['mhm-core-css'],
-            'version' => MHM_RENTIVA_VERSION
         ],
         'mhm-calendars' => [
             'url' => 'assets/css/components/calendars.css',
             'deps' => ['mhm-core-css'],
-            'version' => MHM_RENTIVA_VERSION
         ]
     ];
 
@@ -55,31 +50,26 @@ final class AssetManager
         'mhm-core-js' => [
             'url' => 'assets/js/core/core.js',
             'deps' => ['jquery'],
-            'version' => MHM_RENTIVA_VERSION,
             'in_footer' => true
         ],
         'mhm-utilities' => [
             'url' => 'assets/js/core/utilities.js',
             'deps' => ['jquery', 'mhm-core-js'],
-            'version' => MHM_RENTIVA_VERSION,
             'in_footer' => true
         ],
         'mhm-i18n' => [
             'url' => 'assets/js/core/i18n.js',
             'deps' => ['jquery', 'mhm-core-js'],
-            'version' => MHM_RENTIVA_VERSION,
             'in_footer' => true
         ],
         'mhm-performance' => [
             'url' => 'assets/js/core/performance.js',
             'deps' => ['jquery', 'mhm-utilities'],
-            'version' => MHM_RENTIVA_VERSION,
             'in_footer' => true
         ],
         'mhm-module-loader' => [
             'url' => 'assets/js/core/module-loader.js',
             'deps' => ['jquery', 'mhm-core-js'],
-            'version' => MHM_RENTIVA_VERSION,
             'in_footer' => true
         ]
     ];
@@ -142,7 +132,7 @@ final class AssetManager
                 $handle,
                 MHM_RENTIVA_PLUGIN_URL . $asset['url'],
                 $asset['deps'],
-                $asset['version']
+                self::get_file_version($asset['url'])
             );
         }
     }
@@ -157,7 +147,7 @@ final class AssetManager
                 $handle,
                 MHM_RENTIVA_PLUGIN_URL . $asset['url'],
                 $asset['deps'],
-                $asset['version'],
+                self::get_file_version($asset['url']),
                 $asset['in_footer'] ?? true
             );
         }
@@ -178,7 +168,7 @@ final class AssetManager
                 $component,
                 MHM_RENTIVA_PLUGIN_URL . $asset['url'],
                 $asset['deps'],
-                $asset['version']
+                self::get_file_version($asset['url'])
             );
         }
     }
@@ -210,7 +200,7 @@ final class AssetManager
                 'mhm-' . $component,
                 MHM_RENTIVA_PLUGIN_URL . $asset['url'],
                 $asset['deps'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version($asset['url']),
                 true
             );
             
@@ -381,7 +371,7 @@ final class AssetManager
                 'mhm-manual-booking-meta',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/manual-booking-meta.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/manual-booking-meta.js'),
                 true
             );
             
@@ -420,7 +410,7 @@ final class AssetManager
                 'mhm-booking-edit-meta',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-edit-meta.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/booking-edit-meta.js'),
                 true
             );
             
@@ -453,7 +443,7 @@ final class AssetManager
                 'chart-js',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/vendor/chart.min.js',
                 [],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/vendor/chart.min.js'),
                 true
             );
             
@@ -461,7 +451,7 @@ final class AssetManager
                 'mhm-dashboard',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dashboard.js',
                 ['jquery', 'chart-js'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/dashboard.js'),
                 true
             );
             
@@ -488,7 +478,7 @@ final class AssetManager
                 'chart-js',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/vendor/chart.min.js',
                 [],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/vendor/chart.min.js'),
                 true
             );
             
@@ -496,7 +486,7 @@ final class AssetManager
                 'mhm-reports-charts',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/reports-charts.js',
                 ['jquery', 'chart-js'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/reports-charts.js'),
                 true
             );
             
@@ -529,7 +519,7 @@ final class AssetManager
                 'mhm-deposit-management',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/deposit-management.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/deposit-management.js'),
                 true
             );
             
@@ -553,7 +543,7 @@ final class AssetManager
                 'mhm-gutenberg-blocks',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/gutenberg-blocks.js',
                 ['wp-blocks', 'wp-element', 'wp-components', 'wp-i18n', 'wp-block-editor'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/gutenberg-blocks.js'),
                 true
             );
             
@@ -568,7 +558,7 @@ final class AssetManager
                 'mhm-shortcode-settings',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/shortcode-settings.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/shortcode-settings.js'),
                 true
             );
             
@@ -591,7 +581,7 @@ final class AssetManager
                 'mhm-vehicle-gallery',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-gallery.js',
                 ['jquery', 'jquery-ui-sortable'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/vehicle-gallery.js'),
                 true
             );
             
@@ -634,7 +624,7 @@ final class AssetManager
                 'mhm-messages-settings',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/messages-settings.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/messages-settings.js'),
                 true
             );
             
@@ -664,7 +654,7 @@ final class AssetManager
                 'mhm-customers-calendar',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers-calendar.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/customers-calendar.js'),
                 true
             );
             
@@ -682,7 +672,7 @@ final class AssetManager
                 'mhm-booking-calendar',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-calendar.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/booking-calendar.js'),
                 true
             );
             
@@ -700,7 +690,7 @@ final class AssetManager
                 'mhm-booking-bulk-actions',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-bulk-actions.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/booking-bulk-actions.js'),
                 true
             );
             wp_localize_script('mhm-booking-bulk-actions', 'mhmBookingBulkActions', [
@@ -723,7 +713,7 @@ final class AssetManager
                 'mhm-monitoring',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/monitoring.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/monitoring.js'),
                 true
             );
             
@@ -751,7 +741,7 @@ final class AssetManager
                 'mhm-test-suite',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/test-suite.css',
                 ['mhm-core-css'],
-                MHM_RENTIVA_VERSION
+                self::get_file_version('assets/css/admin/test-suite.css')
             );
         }
         
@@ -761,7 +751,7 @@ final class AssetManager
                 'mhm-settings',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/settings.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/settings.js'),
                 true
             );
             
@@ -812,7 +802,7 @@ final class AssetManager
                 'mhm-messages-admin',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/messages-admin.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/messages-admin.js'),
                 true
             );
             
@@ -846,7 +836,7 @@ final class AssetManager
                 'mhm-addon-list',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-list.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/addon-list.js'),
                 true
             );
             
@@ -876,7 +866,7 @@ final class AssetManager
                 'mhm-about',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/about.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/about.js'),
                 true
             );
             
@@ -901,7 +891,7 @@ final class AssetManager
                 'mhm-customers',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/customers.js'),
                 true
             );
             
@@ -948,7 +938,7 @@ final class AssetManager
                 'mhm-email-templates',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/email-templates.js'),
                 true
             );
             
@@ -982,7 +972,7 @@ final class AssetManager
                 'mhm-message-list',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/message-list.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/message-list.js'),
                 true
             );
             
@@ -1019,7 +1009,7 @@ final class AssetManager
                 'mhm-export',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/export.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/export.js'),
                 true
             );
             
@@ -1055,7 +1045,7 @@ final class AssetManager
                 'mhm-booking-meta',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-meta.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/booking-meta.js'),
                 true
             );
             
@@ -1069,7 +1059,7 @@ final class AssetManager
                 'mhm-addon-admin',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-admin.js',
                 ['jquery'],
-                MHM_RENTIVA_VERSION,
+                self::get_file_version('assets/js/admin/addon-admin.js'),
                 true
             );
             
@@ -1279,5 +1269,26 @@ final class AssetManager
         }
     }
 
-
+    /**
+     * Get file version based on file modification time
+     * This ensures browser cache is invalidated only when files actually change
+     * 
+     * @param string $file_path Relative path from plugin root (e.g., 'assets/css/core/core.css')
+     * @return string|int File modification timestamp or plugin version as fallback
+     */
+    private static function get_file_version(string $file_path): string
+    {
+        $full_path = MHM_RENTIVA_PLUGIN_DIR . $file_path;
+        
+        // If file exists, use file modification time for cache busting
+        if (file_exists($full_path)) {
+            $filemtime = filemtime($full_path);
+            if ($filemtime !== false) {
+                return (string) $filemtime;
+            }
+        }
+        
+        // Fallback to plugin version if file doesn't exist or filemtime fails
+        return MHM_RENTIVA_VERSION;
+    }
 }

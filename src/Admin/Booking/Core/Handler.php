@@ -358,6 +358,14 @@ final class Handler
             foreach ($meta_fields as $key => $value) {
                 update_post_meta($booking_id, $key, $value);
             }
+            
+            // ⭐ Ensure payment_deadline is set (double-check)
+            $payment_deadline = get_post_meta($booking_id, '_mhm_payment_deadline', true);
+            if (empty($payment_deadline)) {
+                $deadline = self::get_payment_deadline();
+                update_post_meta($booking_id, '_mhm_payment_deadline', $deadline);
+                error_log("MHM Rentiva: Payment deadline was missing for booking #$booking_id, set to: $deadline");
+            }
 
             // ✅ CACHE OPTIMIZATION - Centralized cache clearing
             // Invalidate availability cache for this vehicle
@@ -454,7 +462,7 @@ final class Handler
     /**
      * ⭐ Get payment deadline from settings (consistent with WooCommerceBridge)
      * 
-     * @return string Payment deadline in 'Y-m-d H:i:s' format
+     * @return string Payment deadline in 'Y-m-d H:i:s' format (WordPress timezone)
      */
     private static function get_payment_deadline(): string
     {
@@ -469,7 +477,10 @@ final class Handler
             $deadline_minutes = 5;
         }
         
-        // This ensures auto-cancellation works for all bookings
-        return date('Y-m-d H:i:s', strtotime("+{$deadline_minutes} minutes"));
+        // ⭐ Use current_time() instead of date() to match WordPress timezone
+        // This ensures consistency with AutoCancel which uses current_time('mysql')
+        $current_timestamp = current_time('timestamp');
+        $deadline_timestamp = $current_timestamp + ($deadline_minutes * 60);
+        return date('Y-m-d H:i:s', $deadline_timestamp);
     }
 }

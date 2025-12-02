@@ -6,13 +6,13 @@
 
 /* Status indicators */
 .status-active {
-    color: #46b450;
-    font-weight: 600;
+    color: var(--mhm-success);
+    font-weight: var(--mhm-font-semibold);
 }
 
 .status-inactive {
-    color: #dc3232;
-    font-weight: 600;
+    color: var(--mhm-error);
+    font-weight: var(--mhm-font-semibold);
 }
 
 /* Addon list table */
@@ -31,29 +31,29 @@
 
 /* Meta box styles */
 .mhm-addon-meta-box {
-    background: #fff;
-    border: 1px solid #ccd0d4;
-    border-radius: 4px;
-    padding: 20px;
-    margin: 20px 0;
+    background: var(--mhm-bg-card);
+    border: 1px solid var(--mhm-border-secondary);
+    border-radius: var(--mhm-radius-md);
+    padding: var(--mhm-space-5);
+    margin: var(--mhm-space-5) 0;
 }
 
 .mhm-addon-meta-box h3 {
     margin-top: 0;
-    color: #23282d;
+    color: var(--mhm-text-primary);
     font-size: 14px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
 }
 
 .mhm-addon-meta-box .form-field {
-    margin-bottom: 15px;
+    margin-bottom: var(--mhm-space-4);
 }
 
 .mhm-addon-meta-box label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #23282d;
+    margin-bottom: var(--mhm-space-1);
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-primary);
 }
 
 .mhm-addon-meta-box input[type="text"],
@@ -62,20 +62,20 @@
     width: 100%;
     max-width: 400px;
     padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1px solid var(--mhm-border-primary);
+    border-radius: var(--mhm-radius-sm);
     font-size: 14px;
 }
 
 .mhm-addon-meta-box input[type="checkbox"] {
-    margin-right: 8px;
+    margin-right: var(--mhm-space-2);
 }
 
 .mhm-addon-meta-box .description {
-    color: #666;
+    color: var(--mhm-text-secondary);
     font-style: italic;
     font-size: 13px;
-    margin-top: 5px;
+    margin-top: var(--mhm-space-1);
 }
 
 /* Settings page */
@@ -84,8 +84,8 @@
 }
 
 .mhm-rentiva-wrap h1 {
-    color: #23282d;
-    margin-bottom: 20px;
+    color: var(--mhm-text-primary);
+    margin-bottom: var(--mhm-space-5);
 }
 
 .mhm-rentiva-wrap .form-table th {
@@ -103,35 +103,35 @@
     display: inline-block;
     margin: 0 10px 0 0;
     padding: 5px 10px;
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    border-radius: 4px;
+    background: var(--mhm-warning-bg);
+    border: 1px solid var(--mhm-warning-border);
+    border-radius: var(--mhm-radius-sm);
 }
 
 .notice.notice-warning.inline p {
     margin: 0;
-    color: #856404;
+    color: var(--mhm-warning-text);
 }
 
 /* Button styles */
 .button.button-primary {
-    background: #0073aa;
-    border-color: #0073aa;
-    color: #fff;
+    background: var(--mhm-primary);
+    border-color: var(--mhm-primary);
+    color: var(--mhm-white);
     text-decoration: none;
     padding: 8px 16px;
-    border-radius: 4px;
+    border-radius: var(--mhm-radius-sm);
     font-size: 13px;
     line-height: 1.4;
     cursor: pointer;
     border: 1px solid;
-    transition: all 0.2s ease;
+    transition: all var(--mhm-duration-200) ease;
 }
 
 .button.button-primary:hover {
-    background: #005a87;
-    border-color: #005a87;
-    color: #fff;
+    background: var(--mhm-primary-dark);
+    border-color: var(--mhm-primary-dark);
+    color: var(--mhm-white);
 }
 
 /* Responsive */

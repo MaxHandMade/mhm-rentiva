@@ -183,8 +183,7 @@ final class AccountRenderer
 
         $user = wp_get_current_user();
         
-        // Load only CSS files (JavaScript is handled in template)
-        // Scripts are dequeued in AccountController::enqueue_assets()
+        // Load CSS files
         wp_enqueue_style(
             'mhm-customer-messages',
             MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/customer-messages.css',
@@ -198,6 +197,54 @@ final class AccountRenderer
             [],
             MHM_RENTIVA_VERSION
         );
+        
+        // ⭐ Load JavaScript file (required for messages functionality)
+        wp_enqueue_script(
+            'mhm-rentiva-account-messages',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-messages.js',
+            ['jquery'],
+            MHM_RENTIVA_VERSION,
+            true
+        );
+        
+        // ⭐ Localize JavaScript (required for REST API calls)
+        wp_localize_script('mhm-rentiva-account-messages', 'mhmRentivaMessages', [
+            'restUrl' => rest_url('mhm-rentiva/v1/'),
+            'restNonce' => wp_create_nonce('wp_rest'),
+            'customerEmail' => $user->user_email,
+            'customerName' => $user->display_name ?: $user->user_login,
+            'i18n' => [
+                'threadIdNotFound' => __('Thread ID not found.', 'mhm-rentiva'),
+                'confirmClose' => __('Are you sure you want to close this conversation? You won\'t be able to send more messages.', 'mhm-rentiva'),
+                'closing' => __('Closing...', 'mhm-rentiva'),
+                'messageClosed' => __('Message closed successfully.', 'mhm-rentiva'),
+                'closeFailed' => __('Failed to close message.', 'mhm-rentiva'),
+                'loadingMessages' => __('Loading messages...', 'mhm-rentiva'),
+                'noMessages' => __('No messages found yet.', 'mhm-rentiva'),
+                'loadFailed' => __('Failed to load messages.', 'mhm-rentiva'),
+                'loginRequired' => __('Please login to access your messages.', 'mhm-rentiva'),
+                'permissionDenied' => __('You do not have permission to access messages.', 'mhm-rentiva'),
+                'new' => __('New', 'mhm-rentiva'),
+                'customer' => __('Customer', 'mhm-rentiva'),
+                'administrator' => __('Administrator', 'mhm-rentiva'),
+                'loadingThread' => __('Loading thread...', 'mhm-rentiva'),
+                'threadLoadFailed' => __('Failed to load thread.', 'mhm-rentiva'),
+                'noMessagesFound' => __('No messages found.', 'mhm-rentiva'),
+                'closeMessage' => __('Close Message', 'mhm-rentiva'),
+                'conversationClosed' => __('This conversation is closed.', 'mhm-rentiva'),
+                'replySent' => __('Reply sent successfully.', 'mhm-rentiva'),
+                'replyFailed' => __('Failed to send reply.', 'mhm-rentiva'),
+                'messageSent' => __('Message sent successfully.', 'mhm-rentiva'),
+                'messageFailed' => __('Failed to send message.', 'mhm-rentiva'),
+                'sending' => __('Sending...', 'mhm-rentiva'),
+                'sendMessage' => __('Send Message', 'mhm-rentiva'),
+                'sendReply' => __('Send Reply', 'mhm-rentiva'),
+                'cancel' => __('Cancel', 'mhm-rentiva'),
+                'backToMessages' => __('Back to Messages', 'mhm-rentiva'),
+                'newMessage' => __('New Message', 'mhm-rentiva'),
+                'yourReply' => __('Your Reply:', 'mhm-rentiva'),
+            ],
+        ]);
         
         $data = [
             'user' => $user,
@@ -283,9 +330,16 @@ final class AccountRenderer
 
     /**
      * Get navigation menu
+     * Returns empty array if WooCommerce My Account page is active (to avoid duplicate navigation)
      */
     private static function get_navigation(): array
     {
+        // ⭐ Don't show custom navigation on WooCommerce My Account page
+        // WooCommerce already provides its own navigation menu
+        if (self::is_woocommerce_account_page()) {
+            return [];
+        }
+        
         // Main account page URL
         $base_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_account');
         
@@ -326,6 +380,26 @@ final class AccountRenderer
                 'icon' => '🚪',
             ],
         ];
+    }
+
+    /**
+     * Check if current page is WooCommerce My Account page
+     * 
+     * @return bool True if WooCommerce My Account page is active
+     */
+    private static function is_woocommerce_account_page(): bool
+    {
+        if (!class_exists('WooCommerce') || !function_exists('wc_get_page_id')) {
+            return false;
+        }
+        
+        $account_page_id = wc_get_page_id('myaccount');
+        if (!$account_page_id || $account_page_id <= 0) {
+            return false;
+        }
+        
+        // Check if we're on the WooCommerce My Account page
+        return is_page($account_page_id) || is_account_page();
     }
 
     /**

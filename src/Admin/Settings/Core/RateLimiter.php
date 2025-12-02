@@ -20,10 +20,36 @@ final class RateLimiter
 
     /**
      * Check if request is within rate limit
+     * 
+     * @param string $key    Rate limit key (e.g., 'booking', 'payment', 'general')
+     * @param int    $limit  Rate limit (requests per window)
+     * @param int    $window Time window in seconds (default: 60)
+     * @return bool True if allowed, false if rate limit exceeded
      */
     public static function is_allowed(string $key, int $limit, int $window = 60): bool
     {
         if (!self::is_enabled()) {
+            return true;
+        }
+
+        // Get current user role for role-based rate limiting
+        $user_role = null;
+        if (is_user_logged_in()) {
+            $user = wp_get_current_user();
+            $user_role = $user->roles[0] ?? null;
+        }
+
+        // Allow bypass for administrators (optional, can be filtered)
+        /**
+         * Filter: Allow bypassing rate limits for specific roles
+         * 
+         * @param bool        $bypass    Whether to bypass rate limit
+         * @param string      $key       Rate limit key
+         * @param string|null $user_role Current user role
+         * @return bool Modified bypass status
+         */
+        $bypass = apply_filters('mhm_rentiva_rate_limit_bypass', false, $key, $user_role);
+        if ($bypass && $user_role === 'administrator') {
             return true;
         }
 
@@ -88,26 +114,70 @@ final class RateLimiter
 
     /**
      * Get general rate limit
+     * 
+     * @param string|null $user_role Optional user role for role-based limits
+     * @return int Rate limit per minute
      */
-    public static function get_general_limit(): int
+    public static function get_general_limit(?string $user_role = null): int
     {
-        return (int) SettingsCore::get('mhm_rentiva_rate_limit_requests_per_minute', 60);
+        $base_limit = (int) SettingsCore::get('mhm_rentiva_rate_limit_requests_per_minute', 60);
+        
+        /**
+         * Filter: Allow customization of general rate limit based on user role or other factors
+         * 
+         * @param int         $base_limit Base rate limit from settings
+         * @param string|null $user_role  Current user role (if provided)
+         * @return int Modified rate limit
+         * 
+         * @example
+         * add_filter('mhm_rentiva_rate_limit_general', function($limit, $role) {
+         *     if ($role === 'administrator') {
+         *         return $limit * 2; // Admins get double limit
+         *     }
+         *     return $limit;
+         * }, 10, 2);
+         */
+        return (int) apply_filters('mhm_rentiva_rate_limit_general', $base_limit, $user_role);
     }
 
     /**
      * Get booking rate limit
+     * 
+     * @param string|null $user_role Optional user role for role-based limits
+     * @return int Rate limit per minute
      */
-    public static function get_booking_limit(): int
+    public static function get_booking_limit(?string $user_role = null): int
     {
-        return (int) SettingsCore::get('mhm_rentiva_rate_limit_booking_per_minute', 5);
+        $base_limit = (int) SettingsCore::get('mhm_rentiva_rate_limit_booking_per_minute', 5);
+        
+        /**
+         * Filter: Allow customization of booking rate limit
+         * 
+         * @param int         $base_limit Base rate limit from settings
+         * @param string|null $user_role  Current user role (if provided)
+         * @return int Modified rate limit
+         */
+        return (int) apply_filters('mhm_rentiva_rate_limit_booking', $base_limit, $user_role);
     }
 
     /**
      * Get payment rate limit
+     * 
+     * @param string|null $user_role Optional user role for role-based limits
+     * @return int Rate limit per minute
      */
-    public static function get_payment_limit(): int
+    public static function get_payment_limit(?string $user_role = null): int
     {
-        return (int) SettingsCore::get('mhm_rentiva_rate_limit_payment_per_minute', 3);
+        $base_limit = (int) SettingsCore::get('mhm_rentiva_rate_limit_payment_per_minute', 3);
+        
+        /**
+         * Filter: Allow customization of payment rate limit
+         * 
+         * @param int         $base_limit Base rate limit from settings
+         * @param string|null $user_role  Current user role (if provided)
+         * @return int Modified rate limit
+         */
+        return (int) apply_filters('mhm_rentiva_rate_limit_payment', $base_limit, $user_role);
     }
 
     /**

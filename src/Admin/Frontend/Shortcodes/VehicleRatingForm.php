@@ -64,43 +64,76 @@ final class VehicleRatingForm extends AbstractShortcode
 
     protected static function get_js_filename(): string
     {
-        return 'vehicle-rating-form.js?v=' . rand(1000000, 9999999); // Cache busting
+        return 'vehicle-rating-form.js';
     }
 
     /**
-     * Enqueue assets
+     * Override enqueue_scripts to use file-based versioning
+     * Parent class already handles CSS and JS loading, we just need to ensure proper versioning
      */
-    protected static function enqueue_assets(): void
+    protected static function enqueue_scripts(): void
     {
-        parent::enqueue_assets();
+        $handle = static::get_asset_handle();
+        $js_files = static::get_js_files();
         
-        // Manually load CSS file
-        $css_url = MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicle-rating-form.css';
+        foreach ($js_files as $js_file) {
+            if (static::asset_exists($js_file)) {
+                // Use file-based versioning for better cache management
+                $version = static::get_file_version($js_file);
+                
+                wp_enqueue_script(
+                    $handle,
+                    MHM_RENTIVA_PLUGIN_URL . $js_file,
+                    static::get_js_dependencies(),
+                    $version,
+                    true
+                );
+                
+                // Localize script with correct object name
+                static::localize_script($handle);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Override enqueue_styles to use file-based versioning
+     */
+    protected static function enqueue_styles(): void
+    {
+        $handle = static::get_asset_handle();
+        $css_files = static::get_css_files();
         
-        wp_enqueue_style(
-            'mhm-rentiva-vehicle-rating-form-manual',
-            $css_url,
-            [],
-            MHM_RENTIVA_VERSION
-        );
-        
-        // Manually load JavaScript file
-        $js_url = MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicle-rating-form.js';
-        
-        wp_enqueue_script(
-            'mhm-rentiva-vehicle-rating-form-manual',
-            $js_url,
-            ['jquery'],
-            MHM_RENTIVA_VERSION,
-            true
-        );
-        
-        // Localize script
-        wp_localize_script(
-            'mhm-rentiva-vehicle-rating-form-manual',
-            'mhmVehicleRating',
-            static::get_localized_strings()
-        );
+        foreach ($css_files as $css_file) {
+            if (static::asset_exists($css_file)) {
+                // Use file-based versioning for better cache management
+                $version = static::get_file_version($css_file);
+                
+                wp_enqueue_style(
+                    $handle,
+                    MHM_RENTIVA_PLUGIN_URL . $css_file,
+                    static::get_css_dependencies(),
+                    $version
+                );
+                break;
+            }
+        }
+    }
+
+    /**
+     * Get file version based on file modification time
+     * Falls back to plugin version if file doesn't exist
+     * 
+     * @param string $file_path Relative path to file (e.g., 'assets/js/frontend/vehicle-rating-form.js')
+     * @return string Version string
+     */
+    private static function get_file_version(string $file_path): string
+    {
+        $full_path = MHM_RENTIVA_PLUGIN_PATH . $file_path;
+        if (file_exists($full_path)) {
+            return (string) filemtime($full_path);
+        }
+        return MHM_RENTIVA_VERSION; // Fallback to plugin version
     }
 
     protected static function get_script_object_name(): string
@@ -108,20 +141,41 @@ final class VehicleRatingForm extends AbstractShortcode
         return 'mhmVehicleRating';
     }
 
-    protected static function get_localized_strings(): array
+    /**
+     * Override get_localized_data to include all required data
+     */
+    protected static function get_localized_data(): array
     {
         // Get settings from Comments settings
         $comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
         $display_settings = $comments_settings['display'] ?? [];
         
         return [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('mhm_rentiva_rating_nonce'),
+            'is_logged_in' => is_user_logged_in(),
+            'current_user_id' => get_current_user_id(),
+            'current_user' => wp_get_current_user(),
+            'no_ratings' => __('No reviews yet.', 'mhm-rentiva'),
+            'reviews_title' => __('Reviews', 'mhm-rentiva'),
+            'strings' => static::get_localized_strings(),
+            'settings' => [
+                'allow_editing' => $display_settings['allow_editing'] ?? true,
+                'allow_deletion' => $display_settings['allow_deletion'] ?? true,
+                'show_ratings' => $display_settings['show_ratings'] ?? true,
+                'show_avatars' => $display_settings['show_avatars'] ?? true
+            ],
+        ];
+    }
+
+    protected static function get_localized_strings(): array
+    {
+        return [
             'loading' => __('Loading...', 'mhm-rentiva'),
             'error' => __('An error occurred', 'mhm-rentiva'),
             'success' => __('Rating submitted successfully', 'mhm-rentiva'),
             'login_required' => __('You must log in to rate', 'mhm-rentiva'),
             'invalid_rating' => __('Please select a rating', 'mhm-rentiva'),
-            'no_ratings' => __('No reviews yet.', 'mhm-rentiva'),
-            'reviews_title' => __('Reviews', 'mhm-rentiva'),
             'edit_loaded' => __('Your comment has been loaded for editing. Make your changes and click "Update Rating".', 'mhm-rentiva'),
             'delete_confirm' => __('Are you sure you want to delete this comment?', 'mhm-rentiva'),
             'deleting' => __('Deleting...', 'mhm-rentiva'),
@@ -130,28 +184,12 @@ final class VehicleRatingForm extends AbstractShortcode
             'delete_error_retry' => __('Error deleting comment. Please try again.', 'mhm-rentiva'),
             'unknown_error' => __('Unknown error', 'mhm-rentiva'),
             'delete' => __('Delete', 'mhm-rentiva'),
-            'is_logged_in' => is_user_logged_in(),
-            'current_user_id' => get_current_user_id(),
-            'current_user' => wp_get_current_user(),
-            'settings' => [
-                'allow_editing' => $display_settings['allow_editing'] ?? true,
-                'allow_deletion' => $display_settings['allow_deletion'] ?? true,
-                'show_ratings' => $display_settings['show_ratings'] ?? true,
-                'show_avatars' => $display_settings['show_avatars'] ?? true
-            ],
-            'debug_info' => [
-                'php_is_logged_in' => is_user_logged_in(),
-                'php_current_user_id' => get_current_user_id(),
-                'php_wp_get_current_user' => wp_get_current_user()->ID ?? 'null'
-            ]
         ];
     }
 
     public static function render(array $atts = [], ?string $content = null): string
     {
-        
-        // Manually load assets
-        static::enqueue_assets();
+        // Assets are automatically loaded via parent::render() -> enqueue_assets_once()
         
         $defaults = [
             'vehicle_id' => apply_filters('mhm_rentiva/rating_form/vehicle_id', ''),

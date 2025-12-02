@@ -3,6 +3,7 @@
 namespace MHMRentiva\Admin\Payment\WooCommerce;
 
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Payment\Core\PaymentGatewayInterface;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -12,8 +13,9 @@ if (!defined('ABSPATH')) {
  * WooCommerce Bridge Class
  * 
  * Handles all interactions between MHM Rentiva and WooCommerce.
+ * Implements PaymentGatewayInterface for loose coupling.
  */
-class WooCommerceBridge
+final class WooCommerceBridge implements PaymentGatewayInterface
 {
     public const PRODUCT_SKU = 'mhm-rentiva-booking';
     
@@ -24,13 +26,25 @@ class WooCommerceBridge
         add_filter('woocommerce_get_item_data', [self::class, 'get_item_data'], 10, 2);
         add_action('woocommerce_before_calculate_totals', [self::class, 'calculate_totals'], 10, 1);
         
+        // ⭐ Fix tax calculation - tax should be calculated on total price, not deposit
+        add_filter('woocommerce_cart_item_price', [self::class, 'adjust_cart_item_price_display'], 10, 3);
+        add_filter('woocommerce_cart_item_subtotal', [self::class, 'adjust_cart_item_subtotal_display'], 10, 3);
+        add_filter('woocommerce_cart_item_thumbnail', [self::class, 'display_vehicle_image'], 10, 3);
+        
+        // ⭐ Override tax calculation for booking items
+        add_filter('woocommerce_cart_item_get_taxes', [self::class, 'adjust_cart_item_taxes'], 10, 2);
+        add_action('woocommerce_cart_calculate_fees', [self::class, 'adjust_tax_calculation'], 10, 1);
+        
         // Order processing
         add_action('woocommerce_checkout_create_order_line_item', [self::class, 'add_order_item_meta'], 10, 4);
-        // ⭐ Create booking when order is processed - use multiple hooks for reliability
+        // ⭐ Create booking when order is processed - use primary hook with fallback
         add_action('woocommerce_checkout_order_processed', [self::class, 'create_booking_from_order'], 10, 3);
-        add_action('woocommerce_new_order', [self::class, 'create_booking_from_order_new'], 10, 1); // Alternative hook
-        add_action('woocommerce_thankyou', [self::class, 'create_booking_from_order_thankyou'], 10, 1); // Fallback hook
+        // Fallback hook if primary fails (thankyou page load)
+        add_action('woocommerce_thankyou', [self::class, 'create_booking_from_order_fallback'], 5, 1);
         add_action('woocommerce_order_status_changed', [self::class, 'handle_order_status_change'], 10, 4);
+        
+        // ⭐ Redirect to Rentiva thank you page after WooCommerce order received
+        add_filter('woocommerce_get_checkout_order_received_url', [self::class, 'redirect_to_thank_you_page'], 10, 2);
         // ⭐ WooCommerce refund hook - handles actual refund amounts
         add_action('woocommerce_refund_created', [self::class, 'handle_order_refunded'], 10, 2);
         
@@ -42,6 +56,9 @@ class WooCommerceBridge
         add_action('woocommerce_checkout_update_order_meta', [self::class, 'save_checkout_payment_type'], 10, 2);
         add_action('woocommerce_review_order_before_payment', [self::class, 'display_payment_type_field'], 10);
         
+        // Enqueue checkout CSS
+        add_action('wp_enqueue_scripts', [self::class, 'enqueue_checkout_styles'], 20);
+        
         // ⭐ Validate availability before checkout (PREVENT PAYMENT)
         add_action('woocommerce_check_cart_items', [self::class, 'validate_cart_availability'], 10);
         add_action('woocommerce_checkout_process', [self::class, 'validate_checkout_availability'], 10);
@@ -52,14 +69,26 @@ class WooCommerceBridge
     }
 
     /**
-     * Add booking data to WooCommerce cart (without creating booking yet)
-     * Booking will be created when order is processed
-     * 
-     * @param array $booking_data Booking data array
-     * @param float $amount Amount to charge (deposit or full)
-     * @return bool Success
+     * Enqueue checkout styles
      */
-    public static function add_booking_data_to_cart(array $booking_data, float $amount): bool
+    public static function enqueue_checkout_styles(): void
+    {
+        if (function_exists('is_checkout') && is_checkout()) {
+            wp_enqueue_style(
+                'mhm-woocommerce-checkout',
+                MHM_RENTIVA_PLUGIN_URL . 'assets/css/payment/woocommerce-checkout.css',
+                [],
+                MHM_RENTIVA_VERSION
+            );
+        }
+    }
+
+    /**
+     * Ensure WooCommerce session and cart are initialized
+     * 
+     * @return bool True if cart is available, false otherwise
+     */
+    private static function ensure_wc_session(): bool
     {
         if (!class_exists('WooCommerce')) {
             return false;
@@ -79,7 +108,66 @@ class WooCommerceBridge
             }
         }
 
-        if (!isset(WC()->cart)) {
+        return isset(WC()->cart);
+    }
+
+    /**
+     * Get normalized booking data from cart item
+     * Returns booking ID, booking data, vehicle ID in a consistent format
+     * 
+     * @param array $cart_item Cart item array
+     * @return array{booking_id: int|null, booking_data: array|null, vehicle_id: int|null}
+     */
+    private static function get_normalized_booking_data(array $cart_item): array
+    {
+        $booking_id = null;
+        $booking_data = null;
+        $vehicle_id = null;
+
+        // Check for existing booking (legacy)
+        if (isset($cart_item['mhm_booking_id'])) {
+            $booking_id = (int) $cart_item['mhm_booking_id'];
+            $vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+        }
+        // Check for pending booking (from cart data)
+        elseif (isset($cart_item['mhm_booking_data']) && is_array($cart_item['mhm_booking_data'])) {
+            $booking_data = $cart_item['mhm_booking_data'];
+            $vehicle_id = (int) ($booking_data['vehicle_id'] ?? 0);
+        }
+
+        return [
+            'booking_id' => $booking_id,
+            'booking_data' => $booking_data,
+            'vehicle_id' => $vehicle_id,
+        ];
+    }
+
+    /**
+     * Convert date and time strings to timestamp
+     * 
+     * @param string $date Date string (Y-m-d format)
+     * @param string $time Time string (H:i format, optional)
+     * @return int|null Timestamp or null on failure
+     */
+    private static function parse_datetime_to_timestamp(string $date, string $time = ''): ?int
+    {
+        $datetime = trim($date . ' ' . $time);
+        $timestamp = strtotime($datetime);
+        
+        return $timestamp !== false ? $timestamp : null;
+    }
+
+    /**
+     * Add booking data to WooCommerce cart (without creating booking yet)
+     * Booking will be created when order is processed
+     * 
+     * @param array $booking_data Booking data array
+     * @param float $amount Amount to charge (deposit or full)
+     * @return bool Success
+     */
+    public static function add_booking_data_to_cart(array $booking_data, float $amount): bool
+    {
+        if (!self::ensure_wc_session()) {
             return false;
         }
 
@@ -116,25 +204,7 @@ class WooCommerceBridge
      */
     public static function add_booking_to_cart(int $booking_id, float $amount): bool
     {
-        if (!class_exists('WooCommerce')) {
-            return false;
-        }
-
-        // Initialize WooCommerce session and cart if missing (common in admin-post.php)
-        if (!isset(WC()->cart) || null === WC()->cart) {
-            if (function_exists('wc_load_cart')) {
-                wc_load_cart();
-            } elseif (function_exists('WC') && isset(WC()->session)) {
-                // Fallback manual load
-                if (!WC()->session->has_session()) {
-                    WC()->session->set_customer_session_cookie(true);
-                }
-                WC()->cart = new \WC_Cart();
-                WC()->cart->get_cart(); // Load cart from session
-            }
-        }
-
-        if (!isset(WC()->cart)) {
+        if (!self::ensure_wc_session()) {
             return false;
         }
 
@@ -209,20 +279,58 @@ class WooCommerceBridge
      */
     public static function get_item_data($item_data, $cart_item)
     {
-        if (isset($cart_item['mhm_booking_id'])) {
-            $booking_id = $cart_item['mhm_booking_id'];
-            $vehicle_id = get_post_meta($booking_id, '_mhm_vehicle_id', true);
+        $normalized = self::get_normalized_booking_data($cart_item);
+        $booking_id = $normalized['booking_id'];
+        $booking_data = $normalized['booking_data'];
+        $vehicle_id = $normalized['vehicle_id'];
+
+        // Check if we're on checkout or cart page - hide vehicle image on both
+        $is_checkout = function_exists('is_checkout') && is_checkout();
+        $is_cart = function_exists('is_cart') && is_cart();
+        $hide_image = $is_checkout || $is_cart;
+
+        if ($booking_id) {
             $pickup_date = get_post_meta($booking_id, '_mhm_pickup_date', true);
             $dropoff_date = get_post_meta($booking_id, '_mhm_dropoff_date', true);
+            $pickup_time = get_post_meta($booking_id, '_mhm_pickup_time', true);
+            $dropoff_time = get_post_meta($booking_id, '_mhm_dropoff_time', true);
+            
+            // Vehicle image - hide on checkout page
+            if (!$is_checkout) {
+                $vehicle_image = get_the_post_thumbnail_url($vehicle_id, 'thumbnail');
+                if ($vehicle_image) {
+                    $item_data[] = [
+                        'key' => __('Vehicle Image', 'mhm-rentiva'),
+                        'value' => '<img src="' . esc_url($vehicle_image) . '" alt="' . esc_attr(get_the_title($vehicle_id)) . '" style="max-width: 80px; height: auto; border-radius: 4px;">'
+                    ];
+                }
+            }
             
             $item_data[] = [
                 'key' => __('Vehicle', 'mhm-rentiva'),
                 'value' => get_the_title($vehicle_id)
             ];
             
+            // Pickup date and time
+            $pickup_display = $pickup_date;
+            if ($pickup_time) {
+                $pickup_display .= ' ' . $pickup_time;
+            }
+            
+            // Dropoff date and time
+            $dropoff_display = $dropoff_date;
+            if ($dropoff_time) {
+                $dropoff_display .= ' ' . $dropoff_time;
+            }
+            
             $item_data[] = [
-                'key' => __('Dates', 'mhm-rentiva'),
-                'value' => $pickup_date . ' - ' . $dropoff_date
+                'key' => __('Pickup Date & Time', 'mhm-rentiva'),
+                'value' => $pickup_display
+            ];
+            
+            $item_data[] = [
+                'key' => __('Return Date & Time', 'mhm-rentiva'),
+                'value' => $dropoff_display
             ];
 
             $item_data[] = [
@@ -238,20 +346,58 @@ class WooCommerceBridge
                 'key' => __('Payment Type', 'mhm-rentiva'),
                 'value' => $type_label
             ];
+            
+            // Add remaining amount for deposit payments
+            if ($payment_type === 'deposit') {
+                $remaining_amount = (float) get_post_meta($booking_id, '_mhm_remaining_amount', true);
+                if ($remaining_amount > 0) {
+                    $item_data[] = [
+                        'key' => __('Remaining Amount', 'mhm-rentiva'),
+                        'value' => wc_price($remaining_amount)
+                    ];
+                }
+            }
         }
         // ⭐ Handle pending booking (from cart data)
-        elseif (isset($cart_item['mhm_booking_data'])) {
-            $booking_data = $cart_item['mhm_booking_data'];
-            $vehicle_id = $booking_data['vehicle_id'];
+        elseif ($booking_data && $vehicle_id) {
+            // Vehicle image - hide on checkout and cart pages
+            if (!$hide_image) {
+                $vehicle_image = get_the_post_thumbnail_url($vehicle_id, 'thumbnail');
+                if ($vehicle_image) {
+                    $item_data[] = [
+                        'key' => __('Vehicle Image', 'mhm-rentiva'),
+                        'value' => '<img src="' . esc_url($vehicle_image) . '" alt="' . esc_attr(get_the_title($vehicle_id)) . '" class="mhm-vehicle-thumbnail" style="max-width: 80px; height: auto; border-radius: 4px;">'
+                    ];
+                }
+            }
             
             $item_data[] = [
                 'key' => __('Vehicle', 'mhm-rentiva'),
                 'value' => get_the_title($vehicle_id)
             ];
             
+            // Pickup date and time
+            $pickup_time = $booking_data['pickup_time'] ?? '';
+            $pickup_display = $booking_data['pickup_date'];
+            if ($pickup_time) {
+                $pickup_display .= ' ' . $pickup_time;
+            }
+            
+            // Dropoff date and time
+            $dropoff_time = $booking_data['dropoff_time'] ?? '';
+            $dropoff_display = $booking_data['dropoff_date'];
+            if ($dropoff_time) {
+                $dropoff_display .= ' ' . $dropoff_time;
+            }
+            
             $item_data[] = [
-                'key' => __('Dates', 'mhm-rentiva'),
-                'value' => $booking_data['pickup_date'] . ' - ' . $booking_data['dropoff_date']
+                'key' => __('Pickup Date & Time', 'mhm-rentiva'),
+                'value' => $pickup_display
+            ];
+            
+            $item_data[] = [
+                'key' => __('Return Date & Time', 'mhm-rentiva'),
+                'value' => $dropoff_display
             ];
 
             // Add Payment Type info
@@ -262,12 +408,24 @@ class WooCommerceBridge
                 'key' => __('Payment Type', 'mhm-rentiva'),
                 'value' => $type_label
             ];
+            
+            // Add remaining amount for deposit payments
+            if ($payment_type === 'deposit') {
+                $remaining_amount = (float) ($booking_data['remaining_amount'] ?? 0);
+                if ($remaining_amount > 0) {
+                    $item_data[] = [
+                        'key' => __('Remaining Amount', 'mhm-rentiva'),
+                        'value' => wc_price($remaining_amount)
+                    ];
+                }
+            }
         }
         return $item_data;
     }
 
     /**
      * Override price in cart
+     * ⭐ IMPORTANT: Set price to deposit amount for payment, but tax should be calculated on total price
      */
     public static function calculate_totals($cart)
     {
@@ -275,11 +433,142 @@ class WooCommerceBridge
             return;
         }
 
-        foreach ($cart->get_cart() as $cart_item) {
+        foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
             if (isset($cart_item['mhm_booking_price'])) {
+                // Set cart item price to deposit amount (for payment)
                 $cart_item['data']->set_price($cart_item['mhm_booking_price']);
+                
+                // ⭐ Store total price in cart item data for tax calculation
+                if (isset($cart_item['mhm_booking_data'])) {
+                    $booking_data = $cart_item['mhm_booking_data'];
+                    $total_price = (float) ($booking_data['total_price'] ?? 0);
+                    if ($total_price > 0) {
+                        // Store total price for tax calculation
+                        $cart->cart_contents[$cart_item_key]['mhm_booking_total_price'] = $total_price;
+                    }
+                } elseif (isset($cart_item['mhm_booking_id'])) {
+                    $booking_id = $cart_item['mhm_booking_id'];
+                    $total_price = (float) get_post_meta($booking_id, '_mhm_total_price', true);
+                    if ($total_price > 0) {
+                        $cart->cart_contents[$cart_item_key]['mhm_booking_total_price'] = $total_price;
+                    }
+                }
             }
         }
+    }
+    
+    /**
+     * ⭐ Display vehicle image in cart/checkout
+     * Note: Let WooCommerce show default product image, we just override with vehicle image when available
+     */
+    public static function display_vehicle_image($image, $cart_item, $cart_item_key)
+    {
+        $normalized = self::get_normalized_booking_data($cart_item);
+        $vehicle_id = $normalized['vehicle_id'];
+        
+        if ($vehicle_id) {
+            $vehicle_image = get_the_post_thumbnail_url($vehicle_id, 'woocommerce_thumbnail');
+            if ($vehicle_image) {
+                return '<img src="' . esc_url($vehicle_image) . '" alt="' . esc_attr(get_the_title($vehicle_id)) . '" class="mhm-vehicle-thumbnail" style="max-width: 80px; height: auto; border-radius: 4px;">';
+            }
+        }
+        
+        return $image;
+    }
+    
+    /**
+     * ⭐ Adjust tax calculation - tax should be calculated on total price, not deposit
+     * Override WooCommerce tax calculation for booking items
+     */
+    public static function adjust_tax_calculation($cart)
+    {
+        if (is_admin() && !defined('DOING_AJAX')) {
+            return;
+        }
+        
+        if (!wc_tax_enabled()) {
+            return;
+        }
+        
+        // Get tax rates
+        $tax_rates = \WC_Tax::get_rates();
+        if (empty($tax_rates)) {
+            return;
+        }
+        
+        $tax_inclusive = wc_prices_include_tax();
+        $first_rate = reset($tax_rates);
+        $rate = (float) ($first_rate['rate'] ?? 0);
+        
+        if ($rate <= 0) {
+            return;
+        }
+        
+        foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+            if (isset($cart_item['mhm_booking_total_price']) && isset($cart_item['mhm_booking_price'])) {
+                $total_price = (float) $cart_item['mhm_booking_total_price'];
+                $deposit_price = (float) $cart_item['mhm_booking_price'];
+                
+                // Only adjust if deposit is less than total (deposit payment)
+                if ($total_price > $deposit_price && $total_price > 0) {
+                    // Calculate tax on total price
+                    if ($tax_inclusive) {
+                        // Tax is included in price - extract it
+                        $tax_amount_on_total = ($total_price * $rate) / (100 + $rate);
+                    } else {
+                        // Tax is added to price
+                        $tax_amount_on_total = ($total_price * $rate) / 100;
+                    }
+                    
+                    // Calculate proportional tax on deposit
+                    $tax_proportion = $deposit_price / $total_price;
+                    $tax_on_deposit = $tax_amount_on_total * $tax_proportion;
+                    
+                    // Store calculated tax for later use
+                    $cart->cart_contents[$cart_item_key]['mhm_calculated_tax'] = $tax_on_deposit;
+                    $cart->cart_contents[$cart_item_key]['mhm_total_tax'] = $tax_amount_on_total;
+                }
+            }
+        }
+    }
+    
+    /**
+     * ⭐ Override cart item taxes - use calculated tax from total price
+     */
+    public static function adjust_cart_item_taxes($taxes, $cart_item)
+    {
+        if (isset($cart_item['mhm_calculated_tax'])) {
+            // Get tax rates to find rate ID
+            $tax_rates = \WC_Tax::get_rates();
+            if (!empty($tax_rates)) {
+                $first_rate = reset($tax_rates);
+                $rate_id = $first_rate['id'] ?? 1;
+                
+                // Override tax with calculated tax from total price
+                $taxes = [];
+                $taxes[$rate_id] = (float) $cart_item['mhm_calculated_tax'];
+            }
+        }
+        
+        return $taxes;
+    }
+    
+    /**
+     * ⭐ Adjust cart item price display (show deposit but calculate tax on total)
+     */
+    public static function adjust_cart_item_price_display($price, $cart_item, $cart_item_key)
+    {
+        // Price display is already correct (shows deposit)
+        return $price;
+    }
+    
+    /**
+     * ⭐ Adjust cart item subtotal display
+     */
+    public static function adjust_cart_item_subtotal_display($subtotal, $cart_item, $cart_item_key)
+    {
+        // Subtotal display is already correct (shows deposit)
+        return $subtotal;
     }
 
     /**
@@ -393,20 +682,32 @@ class WooCommerceBridge
     }
 
     /**
-     * Alternative hook handler for woocommerce_new_order
-     */
-    public static function create_booking_from_order_new($order_id)
-    {
-        error_log('MHM Rentiva: create_booking_from_order_new called for order ID: ' . $order_id);
-        self::create_booking_from_order($order_id);
-    }
-
-    /**
      * Fallback hook handler for woocommerce_thankyou (after payment)
+     * Only creates booking if it wasn't created by the primary hook
      */
-    public static function create_booking_from_order_thankyou($order_id)
+    public static function create_booking_from_order_fallback($order_id): void
     {
-        error_log('MHM Rentiva: create_booking_from_order_thankyou called for order ID: ' . $order_id);
+        if (!class_exists('WooCommerce')) {
+            return;
+        }
+
+        $order = wc_get_order($order_id);
+        if (!$order) {
+            return;
+        }
+
+        // Check if booking already exists (prevent duplicate creation)
+        $existing_booking_id = $order->get_meta('_mhm_booking_id', true);
+        if ($existing_booking_id) {
+            return; // Already created by primary hook
+        }
+
+        // Only attempt to create if order is paid/processing (fallback safety check)
+        if (!$order->is_paid() && $order->get_status() !== 'processing') {
+            return;
+        }
+
+        error_log('MHM Rentiva: Fallback hook triggered for order ID: ' . $order_id);
         self::create_booking_from_order($order_id);
     }
 
@@ -416,8 +717,13 @@ class WooCommerceBridge
     private static function create_booking_from_data(array $booking_data, int $order_id): ?int
     {
         // Parse dates to timestamps
-        $start_ts = strtotime($booking_data['pickup_date'] . ' ' . $booking_data['pickup_time']);
-        $end_ts = strtotime($booking_data['dropoff_date'] . ' ' . $booking_data['dropoff_time']);
+        $start_ts = self::parse_datetime_to_timestamp($booking_data['pickup_date'], $booking_data['pickup_time']);
+        $end_ts = self::parse_datetime_to_timestamp($booking_data['dropoff_date'], $booking_data['dropoff_time']);
+        
+        if (!$start_ts || !$end_ts) {
+            error_log('MHM Rentiva: Invalid dates in booking data for order ID: ' . $order_id);
+            return null;
+        }
         
         // ⭐ CRITICAL: Final atomic overlap check before creating booking
         // Clear cache first to ensure fresh data
@@ -477,7 +783,7 @@ class WooCommerceBridge
                 '_mhm_total_price' => $booking_data['total_price'],
                 '_mhm_rental_days' => $booking_data['rental_days'],
                 '_mhm_selected_addons' => $booking_data['selected_addons'],
-                '_mhm_cancellation_policy' => $booking_data['cancellation_policy'] ?? '24_hours',
+                '_mhm_cancellation_policy' => $booking_data['cancellation_policy'] ?? self::get_default_cancellation_policy(),
                 '_mhm_cancellation_deadline' => $booking_data['cancellation_deadline'] ?? date('Y-m-d H:i:s', strtotime('+24 hours')),
                 // ⭐ Ensure payment_deadline is always set for auto-cancellation
                 '_mhm_payment_deadline' => !empty($booking_data['payment_deadline']) ? $booking_data['payment_deadline'] : self::get_payment_deadline(),
@@ -489,6 +795,15 @@ class WooCommerceBridge
         if (is_wp_error($booking_id)) {
             error_log('MHM Rentiva: Failed to create booking from order - ' . $booking_id->get_error_message());
             return null;
+        }
+        
+        // ⭐ Ensure payment_deadline is set (meta_input may not always work)
+        // Double-check and set payment_deadline if missing
+        $payment_deadline = get_post_meta($booking_id, '_mhm_payment_deadline', true);
+        if (empty($payment_deadline)) {
+            $deadline = self::get_payment_deadline();
+            update_post_meta($booking_id, '_mhm_payment_deadline', $deadline);
+            error_log("MHM Rentiva: Payment deadline was missing for booking #$booking_id, set to: $deadline");
         }
         
         // Add booking history note
@@ -570,7 +885,7 @@ class WooCommerceBridge
      */
     public static function disable_cart_quantity($product_quantity, $cart_item_key, $cart_item)
     {
-        if (isset($cart_item['mhm_booking_id'])) {
+        if (isset($cart_item['mhm_booking_id']) || isset($cart_item['mhm_booking_data'])) {
             return sprintf('%s <input type="hidden" name="cart[%s][qty]" value="1" />', $cart_item['quantity'], $cart_item_key);
         }
         return $product_quantity;
@@ -586,7 +901,7 @@ class WooCommerceBridge
         }
 
         foreach (WC()->cart->get_cart() as $cart_item) {
-            if (isset($cart_item['mhm_booking_id'])) {
+            if (isset($cart_item['mhm_booking_id']) || isset($cart_item['mhm_booking_data'])) {
                 return true;
             }
         }
@@ -673,31 +988,30 @@ class WooCommerceBridge
         }
 
         ?>
-        <div id="mhm-booking-payment-type" class="mhm-checkout-payment-type" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
-            <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; font-weight: 600;">
+        <div id="mhm-booking-payment-type" class="mhm-checkout-payment-type">
+            <h3>
                 <?php echo esc_html__('Payment Options', 'mhm-rentiva'); ?>
             </h3>
             
-            <div class="mhm-payment-type-options" style="display: flex; flex-direction: column; gap: 10px;">
-                <label style="display: flex; align-items: flex-start; padding: 12px; border: 2px solid <?php echo $current_payment_type === 'deposit' ? '#0073aa' : '#dee2e6'; ?>; border-radius: 4px; cursor: pointer; background: <?php echo $current_payment_type === 'deposit' ? '#e7f3ff' : '#fff'; ?>; transition: all 0.3s;">
+            <div class="mhm-payment-type-options">
+                <label class="mhm-payment-type-option <?php echo $current_payment_type === 'deposit' ? 'selected' : ''; ?>">
                     <input type="radio" 
                            name="mhm_booking_payment_type" 
                            value="deposit" 
                            <?php checked($current_payment_type, 'deposit'); ?>
-                           style="margin-right: 10px; margin-top: 2px;"
-                           data-booking-id="<?php echo esc_attr($booking_id); ?>"
+                           data-booking-id="<?php echo esc_attr($booking_id ?: 0); ?>"
                            data-amount="<?php echo esc_attr($deposit_amount); ?>">
-                    <div style="flex: 1;">
-                        <strong style="display: block; margin-bottom: 4px;">
+                    <div class="mhm-payment-type-option-content">
+                        <strong class="mhm-payment-type-option-title">
                             <?php echo esc_html__('Deposit Payment', 'mhm-rentiva'); ?>
                         </strong>
-                        <small style="display: block; color: #666; font-size: 13px;">
+                        <small class="mhm-payment-type-option-description">
                             <?php echo esc_html__('Pay deposit for booking, pay remaining amount at vehicle delivery', 'mhm-rentiva'); ?>
                         </small>
-                        <div style="margin-top: 8px; font-weight: 600; color: #0073aa;">
+                        <div class="mhm-payment-type-option-price">
                             <?php echo wc_price($deposit_amount); ?>
                             <?php if ($remaining_amount > 0): ?>
-                                <span style="font-size: 12px; color: #666; font-weight: normal;">
+                                <span class="mhm-payment-type-option-price-remaining">
                                     (<?php echo esc_html__('Remaining:', 'mhm-rentiva'); ?> <?php echo wc_price($remaining_amount); ?>)
                                 </span>
                             <?php endif; ?>
@@ -705,22 +1019,21 @@ class WooCommerceBridge
                     </div>
                 </label>
                 
-                <label style="display: flex; align-items: flex-start; padding: 12px; border: 2px solid <?php echo $current_payment_type === 'full' ? '#0073aa' : '#dee2e6'; ?>; border-radius: 4px; cursor: pointer; background: <?php echo $current_payment_type === 'full' ? '#e7f3ff' : '#fff'; ?>; transition: all 0.3s;">
+                <label class="mhm-payment-type-option <?php echo $current_payment_type === 'full' ? 'selected' : ''; ?>">
                     <input type="radio" 
                            name="mhm_booking_payment_type" 
                            value="full" 
                            <?php checked($current_payment_type, 'full'); ?>
-                           style="margin-right: 10px; margin-top: 2px;"
-                           data-booking-id="<?php echo esc_attr($booking_id); ?>"
+                           data-booking-id="<?php echo esc_attr($booking_id ?: 0); ?>"
                            data-amount="<?php echo esc_attr($total_price); ?>">
-                    <div style="flex: 1;">
-                        <strong style="display: block; margin-bottom: 4px;">
+                    <div class="mhm-payment-type-option-content">
+                        <strong class="mhm-payment-type-option-title">
                             <?php echo esc_html__('Full Payment', 'mhm-rentiva'); ?>
                         </strong>
-                        <small style="display: block; color: #666; font-size: 13px;">
+                        <small class="mhm-payment-type-option-description">
                             <?php echo esc_html__('Pay full amount now', 'mhm-rentiva'); ?>
                         </small>
-                        <div style="margin-top: 8px; font-weight: 600; color: #0073aa;">
+                        <div class="mhm-payment-type-option-price">
                             <?php echo wc_price($total_price); ?>
                         </div>
                     </div>
@@ -730,10 +1043,22 @@ class WooCommerceBridge
 
         <script type="text/javascript">
         jQuery(document).ready(function($) {
+            // Function to update selected state visual
+            function updateSelectedState() {
+                $('.mhm-payment-type-option').removeClass('selected');
+                $('.mhm-payment-type-option:has(input[type="radio"]:checked)').addClass('selected');
+            }
+            
+            // Update on page load
+            updateSelectedState();
+            
             $('input[name="mhm_booking_payment_type"]').on('change', function() {
                 const paymentType = $(this).val();
                 const bookingId = $(this).data('booking-id') || 0; // ⭐ Allow 0 for pending bookings
                 const amount = parseFloat($(this).data('amount'));
+
+                // Update selected state immediately for better UX
+                updateSelectedState();
 
                 // Update cart price via AJAX
                 $.ajax({
@@ -747,6 +1072,8 @@ class WooCommerceBridge
                     },
                     success: function(response) {
                         if (response.success) {
+                            // Update selected state again after AJAX (in case DOM was updated)
+                            updateSelectedState();
                             // Trigger cart update
                             $('body').trigger('update_checkout');
                         } else {
@@ -881,9 +1208,28 @@ class WooCommerceBridge
     }
 
     /**
+     * Get default cancellation policy from settings
+     * 
+     * @return string Cancellation policy string
+     */
+    private static function get_default_cancellation_policy(): string
+    {
+        if (class_exists('MHMRentiva\Admin\Booking\Core\Handler')) {
+            // Use reflection to call private method
+            $reflection = new \ReflectionClass('MHMRentiva\Admin\Booking\Core\Handler');
+            $method = $reflection->getMethod('get_cancellation_policy');
+            $method->setAccessible(true);
+            return $method->invoke(null);
+        }
+        
+        // Fallback to default
+        return '24_hours';
+    }
+
+    /**
      * Get payment deadline for auto-cancellation
      * 
-     * @return string Payment deadline in 'Y-m-d H:i:s' format
+     * @return string Payment deadline in 'Y-m-d H:i:s' format (WordPress timezone)
      */
     private static function get_payment_deadline(): string
     {
@@ -898,9 +1244,11 @@ class WooCommerceBridge
             $deadline_minutes = 5;
         }
         
-        // Set deadline for WooCommerce payments
-        // This ensures auto-cancellation works for all bookings
-        return date('Y-m-d H:i:s', strtotime("+{$deadline_minutes} minutes"));
+        // ⭐ Use current_time() instead of date() to match WordPress timezone
+        // This ensures consistency with AutoCancel which uses current_time('mysql')
+        $current_timestamp = current_time('timestamp');
+        $deadline_timestamp = $current_timestamp + ($deadline_minutes * 60);
+        return date('Y-m-d H:i:s', $deadline_timestamp);
     }
 
     /**
@@ -924,17 +1272,14 @@ class WooCommerceBridge
                 }
 
                 // Parse dates to timestamps
-                $start_ts = strtotime($booking_data['pickup_date'] . ' ' . ($booking_data['pickup_time'] ?? '00:00'));
-                $end_ts = strtotime($booking_data['dropoff_date'] . ' ' . ($booking_data['dropoff_time'] ?? '23:59'));
+                $start_ts = self::parse_datetime_to_timestamp($booking_data['pickup_date'], $booking_data['pickup_time'] ?? '00:00');
+                $end_ts = self::parse_datetime_to_timestamp($booking_data['dropoff_date'], $booking_data['dropoff_time'] ?? '23:59');
 
                 if (!$start_ts || !$end_ts) {
                     continue;
                 }
 
-                // Clear cache to ensure fresh data
-                if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
-                    \MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
-                }
+                // Note: Cache should NOT be invalidated on read operations - only when booking is created/updated
 
                 // Check for overlap (locked check for real-time availability)
                 if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
@@ -976,17 +1321,14 @@ class WooCommerceBridge
                     continue;
                 }
 
-                $start_ts = strtotime($pickup_date . ' ' . $pickup_time);
-                $end_ts = strtotime($dropoff_date . ' ' . $dropoff_time);
+                $start_ts = self::parse_datetime_to_timestamp($pickup_date, $pickup_time);
+                $end_ts = self::parse_datetime_to_timestamp($dropoff_date, $dropoff_time);
 
                 if (!$start_ts || !$end_ts) {
                     continue;
                 }
 
-                // Clear cache to ensure fresh data
-                if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
-                    \MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
-                }
+                // Note: Cache should NOT be invalidated on read operations - only when booking is created/updated
 
                 // Check for overlap (exclude current booking from check)
                 // Note: For existing bookings, we should check if dates have changed
@@ -1029,8 +1371,8 @@ class WooCommerceBridge
                 }
 
                 // Parse dates to timestamps
-                $start_ts = strtotime($booking_data['pickup_date'] . ' ' . ($booking_data['pickup_time'] ?? '00:00'));
-                $end_ts = strtotime($booking_data['dropoff_date'] . ' ' . ($booking_data['dropoff_time'] ?? '23:59'));
+                $start_ts = self::parse_datetime_to_timestamp($booking_data['pickup_date'], $booking_data['pickup_time'] ?? '00:00');
+                $end_ts = self::parse_datetime_to_timestamp($booking_data['dropoff_date'], $booking_data['dropoff_time'] ?? '23:59');
 
                 if (!$start_ts || !$end_ts) {
                     wc_add_notice(
@@ -1040,10 +1382,8 @@ class WooCommerceBridge
                     continue;
                 }
 
-                // ⭐ CRITICAL: Clear cache and check availability BEFORE payment
-                if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
-                    \MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
-                }
+                // ⭐ CRITICAL: Note: Cache invalidation should happen when booking is created, not on validation
+                // has_overlap_locked will check the database directly for real-time availability
 
                 // Use locked overlap check to prevent concurrent bookings
                 if (\MHMRentiva\Admin\Booking\Helpers\Util::has_overlap_locked($vehicle_id, $start_ts, $end_ts)) {
@@ -1213,6 +1553,214 @@ class WooCommerceBridge
         }
 
         return null;
+    }
+
+    // ⭐ PaymentGatewayInterface implementation methods
+
+    /**
+     * Check if this payment gateway is available/active
+     * 
+     * @return bool True if gateway is available
+     */
+    public function is_available(): bool
+    {
+        return class_exists('WooCommerce');
+    }
+
+    /**
+     * Get gateway name/identifier
+     * 
+     * @return string Gateway identifier
+     */
+    public function get_gateway_name(): string
+    {
+        return 'woocommerce';
+    }
+
+    /**
+     * Get gateway display name
+     * 
+     * @return string Human-readable gateway name
+     */
+    public function get_display_name(): string
+    {
+        return __('WooCommerce', 'mhm-rentiva');
+    }
+
+    /**
+     * Add booking data to payment system (cart, session, etc.)
+     * 
+     * @param array<string, mixed> $booking_data Booking data array
+     * @param float $amount Amount to charge
+     * @return bool True on success, false on failure
+     */
+    public function add_booking_to_payment(array $booking_data, float $amount): bool
+    {
+        return self::add_booking_data_to_cart($booking_data, $amount);
+    }
+
+    /**
+     * Get payment/checkout URL
+     * 
+     * @return string URL to redirect user for payment
+     */
+    public function get_checkout_url(): string
+    {
+        if (!function_exists('wc_get_checkout_url')) {
+            return '';
+        }
+        return wc_get_checkout_url();
+    }
+
+    /**
+     * Process payment for a booking
+     * 
+     * @param int $booking_id Booking ID
+     * @param float $amount Payment amount
+     * @param array<string, mixed> $payment_data Additional payment data
+     * @return array<string, mixed> Payment result with 'success', 'message', 'transaction_id', etc.
+     */
+    public function process_payment(int $booking_id, float $amount, array $payment_data = []): array
+    {
+        // With WooCommerce, payment is processed by WC itself.
+        // We just ensure the order exists and is linked to the booking.
+        if ($booking_id <= 0) {
+            return [
+                'success' => false,
+                'message' => __('Invalid booking ID.', 'mhm-rentiva'),
+            ];
+        }
+
+        // Check if order already exists for this booking
+        $order_id = (int) get_post_meta($booking_id, '_mhm_wc_order_id', true);
+        if ($order_id > 0) {
+            $order = wc_get_order($order_id);
+            if ($order && $order->is_paid()) {
+                return [
+                    'success' => true,
+                    'message' => __('Payment already processed by WooCommerce.', 'mhm-rentiva'),
+                    'transaction_id' => (string) $order_id,
+                ];
+            }
+        }
+
+        // If no order exists, add booking to cart and redirect to checkout
+        $booking_data = [
+            'booking_id' => $booking_id,
+            'vehicle_id' => (int) get_post_meta($booking_id, '_mhm_vehicle_id', true),
+            'pickup_date' => get_post_meta($booking_id, '_mhm_pickup_date', true),
+            'dropoff_date' => get_post_meta($booking_id, '_mhm_dropoff_date', true),
+            'payment_type' => get_post_meta($booking_id, '_mhm_payment_type', true) ?: 'deposit',
+        ];
+
+        if (self::add_booking_data_to_cart($booking_data, $amount)) {
+            return [
+                'success' => true,
+                'message' => __('Redirecting to checkout...', 'mhm-rentiva'),
+                'redirect_url' => $this->get_checkout_url(),
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => __('Failed to add booking to cart.', 'mhm-rentiva'),
+        ];
+    }
+
+    /**
+     * Validate payment data before processing
+     * 
+     * @param array<string, mixed> $payment_data Payment data to validate
+     * @return array<string, mixed> Validation result with 'valid' (bool) and 'errors' (array)
+     */
+    public function validate_payment_data(array $payment_data): array
+    {
+        $errors = [];
+
+        // Check if WooCommerce is available
+        if (!class_exists('WooCommerce')) {
+            $errors[] = __('WooCommerce is not installed or activated.', 'mhm-rentiva');
+        }
+
+        // Validate booking data if present
+        if (isset($payment_data['booking_id'])) {
+            $booking_id = (int) $payment_data['booking_id'];
+            if ($booking_id <= 0 || !get_post($booking_id)) {
+                $errors[] = __('Invalid booking ID.', 'mhm-rentiva');
+            }
+        }
+
+        // Validate amount
+        if (isset($payment_data['amount'])) {
+            $amount = (float) $payment_data['amount'];
+            if ($amount <= 0) {
+                $errors[] = __('Invalid payment amount.', 'mhm-rentiva');
+            }
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors,
+        ];
+    }
+
+    /**
+     * Redirect to Rentiva thank you page after WooCommerce order received
+     * 
+     * @param string $url Default WooCommerce order received URL
+     * @param WC_Order $order WooCommerce order object
+     * @return string Thank you page URL
+     */
+    public static function redirect_to_thank_you_page(string $url, $order): string
+    {
+        if (!is_a($order, 'WC_Order')) {
+            return $url;
+        }
+
+        // Get booking ID from order
+        $booking_id = (int) $order->get_meta('_mhm_booking_id');
+        
+        // If booking ID not found in order meta, try to get from order items
+        if (!$booking_id) {
+            $items = $order->get_items();
+            foreach ($items as $item) {
+                $booking_id = (int) $item->get_meta('_mhm_booking_id');
+                if ($booking_id) {
+                    break;
+                }
+            }
+        }
+
+        // If still no booking ID, try to find booking by order ID (optimized query)
+        if (!$booking_id) {
+            $order_id = $order->get_id();
+            
+            // Use direct meta query instead of get_posts for better performance
+            global $wpdb;
+            $booking_id = $wpdb->get_var($wpdb->prepare(
+                "SELECT post_id 
+                FROM {$wpdb->postmeta} 
+                WHERE meta_key = '_mhm_woocommerce_order_id' 
+                AND meta_value = %d 
+                LIMIT 1",
+                $order_id
+            ));
+            
+            if ($booking_id) {
+                $booking_id = (int) $booking_id;
+            }
+        }
+
+        // If booking ID found, redirect to Rentiva thank you page
+        if ($booking_id && class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\ThankYou')) {
+            $thank_you_url = \MHMRentiva\Admin\Frontend\Shortcodes\ThankYou::get_thank_you_url($booking_id);
+            if (!empty($thank_you_url)) {
+                return $thank_you_url;
+            }
+        }
+
+        // Fallback: return default WooCommerce URL
+        return $url;
     }
 }
 

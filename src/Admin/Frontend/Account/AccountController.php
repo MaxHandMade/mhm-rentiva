@@ -323,8 +323,108 @@ final class AccountController
                 wp_deregister_script('mhm-customer-messages');
                 wp_deregister_script('mhm-customer-messages-standalone');
             }, 999);
+
+            // Enqueue Account Messages JS
+            wp_enqueue_script(
+                'mhm-rentiva-account-messages',
+                MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-messages.js',
+                ['jquery'],
+                MHM_RENTIVA_VERSION,
+                true
+            );
+
+            // Localize Account Messages JS
+            $current_user = wp_get_current_user();
+            wp_localize_script('mhm-rentiva-account-messages', 'mhmRentivaMessages', [
+                'restUrl' => rest_url('mhm-rentiva/v1/'),
+                'restNonce' => wp_create_nonce('wp_rest'),
+                'customerEmail' => $current_user->user_email,
+                'customerName' => $current_user->display_name ?: $current_user->user_login,
+                'i18n' => [
+                    'threadIdNotFound' => __('Thread ID not found.', 'mhm-rentiva'),
+                    'confirmClose' => __('Are you sure you want to close this conversation? You won\'t be able to send more messages.', 'mhm-rentiva'),
+                    'closing' => __('Closing...', 'mhm-rentiva'),
+                    'messageClosed' => __('Message closed successfully.', 'mhm-rentiva'),
+                    'closeFailed' => __('Failed to close message.', 'mhm-rentiva'),
+                    'loadingMessages' => __('Loading messages...', 'mhm-rentiva'),
+                    'noMessages' => __('No messages found yet.', 'mhm-rentiva'),
+                    'loadFailed' => __('Failed to load messages.', 'mhm-rentiva'),
+                    'loginRequired' => __('Please login to access your messages.', 'mhm-rentiva'),
+                    'permissionDenied' => __('You do not have permission to access messages.', 'mhm-rentiva'),
+                    'new' => __('New', 'mhm-rentiva'),
+                    'customer' => __('Customer', 'mhm-rentiva'),
+                    'administrator' => __('Administrator', 'mhm-rentiva'),
+                    'loadingThread' => __('Loading thread...', 'mhm-rentiva'),
+                    'threadLoadFailed' => __('Failed to load thread.', 'mhm-rentiva'),
+                    'noMessagesFound' => __('No messages found.', 'mhm-rentiva'),
+                    'closeMessage' => __('Close Message', 'mhm-rentiva'),
+                    'conversationClosed' => __('This conversation is closed.', 'mhm-rentiva'),
+                    'fillRequired' => __('Please fill in all required fields.', 'mhm-rentiva'),
+                    'sending' => __('Sending...', 'mhm-rentiva'),
+                    'messageSent' => __('Message sent successfully.', 'mhm-rentiva'),
+                    'messageSendFailed' => __('Message could not be sent.', 'mhm-rentiva'),
+                    'errorOccurred' => __('An error occurred. Please try again.', 'mhm-rentiva'),
+                    'enterReply' => __('Please enter your reply.', 'mhm-rentiva'),
+                    'replySent' => __('Reply sent successfully.', 'mhm-rentiva'),
+                    'replyFailed' => __('Failed to send reply.', 'mhm-rentiva'),
+                ]
+            ]);
         }
         
+        // Enqueue Account Privacy JS on Dashboard
+        if ($endpoint === 'dashboard' || empty($endpoint)) {
+            wp_enqueue_script(
+                'mhm-rentiva-account-privacy',
+                MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-privacy.js',
+                ['jquery'],
+                MHM_RENTIVA_VERSION,
+                true
+            );
+
+            wp_localize_script('mhm-rentiva-account-privacy', 'mhmRentivaPrivacy', [
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('mhm_gdpr_nonce'),
+                'homeUrl' => home_url(),
+                'i18n' => [
+                    'confirmExport' => __('Are you sure you want to export your data? This may take a few minutes.', 'mhm-rentiva'),
+                    'exporting' => __('Exporting...', 'mhm-rentiva'),
+                    'exportSuccess' => __('Data exported successfully!', 'mhm-rentiva'),
+                    'exportError' => __('An error occurred while exporting data', 'mhm-rentiva'),
+                    'confirmWithdraw' => __('Are you sure you want to withdraw your consent? This will disable data processing for your account.', 'mhm-rentiva'),
+                    'processing' => __('Processing...', 'mhm-rentiva'),
+                    'withdrawSuccess' => __('Consent withdrawn successfully!', 'mhm-rentiva'),
+                    'withdrawError' => __('An error occurred while withdrawing consent', 'mhm-rentiva'),
+                    'confirmDeletePrompt' => __('This action cannot be undone. Type "DELETE" to confirm account deletion:', 'mhm-rentiva'),
+                    'confirmDeleteFinal' => __('Are you absolutely sure? This will permanently delete your account and all data.', 'mhm-rentiva'),
+                    'deleting' => __('Deleting...', 'mhm-rentiva'),
+                    'deleteSuccess' => __('Account deleted successfully. You will be redirected to the homepage.', 'mhm-rentiva'),
+                    'deleteError' => __('An error occurred while deleting account', 'mhm-rentiva'),
+                    'error' => __('Error', 'mhm-rentiva'),
+                    'unknownError' => __('Unknown error', 'mhm-rentiva'),
+                ]
+            ]);
+        }
+
+        // Enqueue Booking Cancellation JS on Booking Detail
+        if ($endpoint === 'booking-detail') {
+            wp_enqueue_script(
+                'mhm-rentiva-booking-cancellation',
+                MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/booking-cancellation.js',
+                ['jquery'],
+                MHM_RENTIVA_VERSION,
+                true
+            );
+
+            wp_localize_script('mhm-rentiva-booking-cancellation', 'mhmRentivaCancellation', [
+                'ajaxUrl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('mhm_cancel_booking_nonce'),
+                'i18n' => [
+                    'cancelling' => __('Cancelling...', 'mhm-rentiva'),
+                    'error' => __('An error occurred. Please try again.', 'mhm-rentiva'),
+                ]
+            ]);
+        }
+
         // Load CSS file
         wp_enqueue_style(
             'mhm-rentiva-my-account',
@@ -377,6 +477,18 @@ final class AccountController
                 'uploading' => __('Uploading...', 'mhm-rentiva'),
                 'upload_success' => __('Receipt uploaded successfully.', 'mhm-rentiva'),
                 'upload_error' => __('Receipt upload failed.', 'mhm-rentiva'),
+                'savedSuccessfully' => __('Account details saved successfully.', 'mhm-rentiva'),
+                'removedFromFavorites' => __('Vehicle removed from favorites.', 'mhm-rentiva'),
+                'addedToFavorites' => __('Vehicle added to favorites.', 'mhm-rentiva'),
+                'favoritesCleared' => __('All favorites cleared.', 'mhm-rentiva'),
+                'passwords_do_not_match' => __('Passwords do not match.', 'mhm-rentiva'),
+                'cancel_changes_confirm' => __('Are you sure you want to cancel changes?', 'mhm-rentiva'),
+                'no_favorites' => __('No favorite vehicles yet.', 'mhm-rentiva'),
+                'login_required' => __('You can add vehicles to favorites using the heart icon.', 'mhm-rentiva'),
+                'cancel_booking' => __('Cancel Booking', 'mhm-rentiva'),
+                'save_changes' => __('Save Changes', 'mhm-rentiva'),
+                'favorites_count_single' => __('vehicle in your favorites', 'mhm-rentiva'),
+                'favorites_count_plural' => __('vehicles in your favorites', 'mhm-rentiva'),
             ],
         ]);
     }

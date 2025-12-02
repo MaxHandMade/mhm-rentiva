@@ -22,9 +22,14 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
 final class DatabaseCleaner
 {
     /**
-     * List of used meta keys (reference)
+     * Get valid meta keys list (with filter hook support)
+     * 
+     * @return array<string> Array of valid meta key strings
      */
-    private const VALID_META_KEYS = [
+    private static function get_valid_meta_keys(): array
+    {
+        // Base valid meta keys
+        $valid_keys = [
         // Vehicle meta keys
         '_mhm_vehicle_availability',
         '_mhm_vehicle_status',
@@ -136,7 +141,26 @@ final class DatabaseCleaner
         '_mhm_message_status',
         '_mhm_thread_id',
         '_mhm_is_read',
-    ];
+        ];
+        
+        /**
+         * Filter: Allow addons and third-party plugins to add custom valid meta keys
+         * 
+         * This is CRITICAL to prevent DatabaseCleaner from deleting valid meta keys
+         * added by addons or custom implementations.
+         * 
+         * @param array<string> $valid_keys Array of valid meta key strings
+         * @return array Modified valid meta keys array
+         * 
+         * @example
+         * add_filter('mhm_rentiva_valid_meta_keys', function($keys) {
+         *     $keys[] = '_mhm_custom_addon_meta';
+         *     $keys[] = '_mhm_payment_custom_field';
+         *     return $keys;
+         * });
+         */
+        return apply_filters('mhm_rentiva_valid_meta_keys', $valid_keys);
+    }
 
     /**
      * Create cleanup report (pre-backup analysis)
@@ -264,7 +288,8 @@ final class DatabaseCleaner
     {
         global $wpdb;
         
-        $placeholders = implode(',', array_fill(0, count(self::VALID_META_KEYS), '%s'));
+        $valid_keys = self::get_valid_meta_keys();
+        $placeholders = implode(',', array_fill(0, count($valid_keys), '%s'));
         
         $invalid_keys = $wpdb->get_results($wpdb->prepare("
             SELECT DISTINCT meta_key, COUNT(*) as count
@@ -274,7 +299,7 @@ final class DatabaseCleaner
             GROUP BY meta_key
             ORDER BY count DESC
             LIMIT 50
-        ", self::VALID_META_KEYS), ARRAY_A);
+        ", $valid_keys), ARRAY_A);
         
         return [
             'count' => count($invalid_keys),

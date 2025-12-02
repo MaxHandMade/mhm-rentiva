@@ -1377,7 +1377,7 @@ final class BookingColumns
             // ⭐ Get customer info using BookingQueryHelper (handles WooCommerce & WordPress integration)
             $customer_info = [];
             if (class_exists('\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper')) {
-                $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo($booking->booking_id);
+                $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo((int) $booking->booking_id);
             }
             
             // Build customer name from first_name and last_name
@@ -1675,7 +1675,7 @@ final class BookingColumns
         // Use BookingQueryHelper to get customer info (handles multiple meta keys)
         $customer_info = [];
         if (class_exists('\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper')) {
-            $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo($post_id);
+            $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo((int) $post_id);
         }
         
         $customer_first_name = $customer_info['first_name'] ?? '';

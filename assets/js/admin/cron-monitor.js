@@ -17,10 +17,8 @@ jQuery(document).ready(function ($) {
         refreshCronList();
     });
 
-    // Test All Cron Jobs
     $(document).on('click', '#mhm-test-cron-jobs-btn', function (e) {
         e.preventDefault();
-        console.log('Test button clicked');
         testAllCronJobs();
     });
 

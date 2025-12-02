@@ -38,16 +38,16 @@ final class RefundValidator
 
     /**
      * Validates payment gateway
-     * ⭐ WooCommerce only - All payments go through WooCommerce
+     * ⭐ Now supports both 'offline' and 'woocommerce' payment methods
      */
     public static function validateGateway(string $gateway): array
     {
-        $supportedGateways = ['woocommerce'];
+        $supportedGateways = ['offline', 'woocommerce'];
         
         if (!in_array($gateway, $supportedGateways, true)) {
             return [
                 'valid' => false,
-                'message' => __('Unsupported payment method for refund. Only WooCommerce payments are supported.', 'mhm-rentiva')
+                'message' => __('Unsupported payment method for refund', 'mhm-rentiva')
             ];
         }
 
@@ -108,7 +108,7 @@ final class RefundValidator
 
     /**
      * Performs gateway-specific validation
-     * ⭐ WooCommerce only - All payments go through WooCommerce
+     * ⭐ Now handles both 'offline' and 'woocommerce' gateways
      */
     public static function validateGatewaySpecific(int $bookingId, string $gateway): array
     {
@@ -147,6 +147,7 @@ final class RefundValidator
             }
         }
 
+        // No specific validation needed for offline refunds
         return [
             'valid' => true,
             'gateway' => $gateway

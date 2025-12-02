@@ -136,10 +136,19 @@ final class Service
 
     /**
      * Processes refund based on gateway
-     * ⭐ WooCommerce only - All payments go through WooCommerce
+     * ⭐ Now supports both 'offline' and 'woocommerce' gateways
      */
     private static function processGatewayRefund(int $bookingId, string $gateway, int $amount, string $reason): array
     {
+        if ($gateway === 'offline') {
+            return [
+                'ok' => true,
+                'id' => 'manual_' . uniqid(),
+                'amount' => $amount,
+                'message' => __('Manual refund recorded', 'mhm-rentiva')
+            ];
+        }
+
         if ($gateway === 'woocommerce') {
             // ⭐ For WooCommerce, refund should be processed through WooCommerce UI
             // This method is called when admin manually processes refund from Rentiva panel
@@ -216,10 +225,18 @@ final class Service
 
     /**
      * Processes full refund based on gateway
-     * ⭐ WooCommerce only - All payments go through WooCommerce
+     * ⭐ Now supports both 'offline' and 'woocommerce' gateways
      */
     private static function processGatewayFullRefund(int $bookingId, string $gateway, string $reason): array
     {
+        if ($gateway === 'offline') {
+            return [
+                'ok' => true,
+                'id' => 'manual_' . uniqid(),
+                'message' => __('Manual full refund recorded', 'mhm-rentiva')
+            ];
+        }
+
         if ($gateway === 'woocommerce') {
             // ⭐ For WooCommerce, process full refund through WooCommerce
             

@@ -27,5 +27,23 @@ Rentiva’yı başarıyla kurup işletmeniz için ihtiyacınız olan tüm adıml
 
 Bu dökümantasyon yaşayan bir kaynaktır. Test ve canlı doğrulama senaryoları [checklist](../checklists/testing-checklists.md) dosyasında tutulur; yeni sürümlerde güncelleme notları eklenecektir.
 
+## Versiyon Güncellemeleri
+
+### Versiyon 4.4.4 (25 Kasım 2025)
+
+**Yeni Özellikler:**
+- Ayarlanabilir araç limitleri
+- Yeni yakıt tipleri (LPG, CNG, Hidrojen)
+- Yeni vites tipleri (Yarı Otomatik, CVT)
+- WooCommerce iade entegrasyonu
+- Teşekkür sayfası shortcode'u
+- Rezervasyon referans numarası
+- Özel notlar/talepler alanı
+- Düzenlenebilir araç seçimi
+- Tek sütun rezervasyon formu
+- Modern müsaitlik kontrol arayüzü
+
+**Detaylı Bilgi:** [Versiyon 4.4.4 Güncellemeleri](admin/version-4.4.4-updates.md)
+
 Öneri ve katkılarınız için [GitHub deposu](https://github.com/) üzerinden issue/pull request açabilirsiniz.
 

@@ -2,6 +2,8 @@
 
 namespace MHMRentiva\Admin\Reports\BusinessLogic;
 
+use MHMRentiva\Admin\Reports\Repository\ReportRepository;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -17,53 +19,13 @@ final class RevenueReport
 
         if ($data === false) {
             // ✅ OPTIMIZED QUERY - Günlük gelir verisi (SADECE COMPLETED VE CONFIRMED)
-            $daily_revenue = $wpdb->get_results($wpdb->prepare(
-                "SELECT DATE(p.post_date) as date, SUM(CAST(pm.meta_value AS DECIMAL(10,2))) as revenue
-                 FROM {$wpdb->posts} p
-                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_mhm_total_price'
-                 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
-                 WHERE p.post_type = 'vehicle_booking'
-                 AND p.post_status = 'publish'
-                 AND pm_status.meta_value IN ('completed', 'confirmed')
-                 AND DATE(p.post_date) BETWEEN %s AND %s
-                 GROUP BY DATE(p.post_date)
-                 ORDER BY date",
-                $start_date, $end_date
-            ));
+            $daily_revenue = ReportRepository::get_daily_revenue_data($start_date, $end_date);
 
             // ✅ OPTIMIZED QUERY - Ödeme yöntemi dağılımı
-            $payment_methods = $wpdb->get_results($wpdb->prepare(
-                "SELECT 
-                    COALESCE(pm_method.meta_value, 'unknown') as method, 
-                    SUM(COALESCE(pm_price.meta_value, 0)) as revenue, 
-                    COUNT(*) as count
-                 FROM {$wpdb->posts} p
-                 LEFT JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = '_mhm_total_price'
-                 LEFT JOIN {$wpdb->postmeta} pm_method ON p.ID = pm_method.post_id AND pm_method.meta_key = '_mhm_payment_gateway'
-                 WHERE p.post_type = 'vehicle_booking'
-                 AND p.post_status = 'publish'
-                 AND DATE(p.post_date) BETWEEN %s AND %s
-                 GROUP BY pm_method.meta_value
-                 HAVING method != 'unknown'
-                 ORDER BY revenue DESC",
-                $start_date, $end_date
-            ));
+            $payment_methods = ReportRepository::get_payment_method_distribution($start_date, $end_date);
 
             // Aylık karşılaştırma
-            $monthly_comparison = $wpdb->get_results($wpdb->prepare(
-                "SELECT DATE_FORMAT(p.post_date, '%Y-%m') as month,
-                        SUM(pm.meta_value) as revenue,
-                        COUNT(*) as bookings
-                 FROM {$wpdb->postmeta} pm
-                 INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-                 WHERE p.post_type = 'vehicle_booking'
-                 AND p.post_status = 'publish'
-                 AND pm.meta_key = '_mhm_total_price'
-                 AND DATE(p.post_date) BETWEEN %s AND %s
-                 GROUP BY DATE_FORMAT(p.post_date, '%Y-%m')
-                 ORDER BY month",
-                $start_date, $end_date
-            ));
+            $monthly_comparison = ReportRepository::get_monthly_revenue_comparison($start_date, $end_date);
 
             // Toplam gelir hesapla
             $total_revenue = array_sum(array_column($daily_revenue, 'revenue'));
@@ -95,40 +57,51 @@ final class RevenueReport
 
     public static function get_payment_method_label(string $method): string
     {
+        // Base payment method labels
         $labels = [
             'offline' => __('Havale/EFT', 'mhm-rentiva'),
             'system' => __('Sistem', 'mhm-rentiva'),
             'my_account' => __('My Account', 'mhm-rentiva'),
+            'woocommerce' => __('WooCommerce', 'mhm-rentiva'),
+            'stripe' => __('Stripe', 'mhm-rentiva'),
+            'paypal' => __('PayPal', 'mhm-rentiva'),
         ];
-
-        return $labels[$method] ?? ucfirst($method);
+        
+        /**
+         * Filter: Allow addons and payment gateways to add custom payment method labels
+         * 
+         * @param array<string, string> $labels Payment method key => Label mapping
+         * @param string                $method Current payment method being labeled
+         * @return array Modified labels array
+         * 
+         * @example
+         * add_filter('mhm_rentiva_payment_method_labels', function($labels, $method) {
+         *     $labels['custom_gateway'] = __('Custom Payment Gateway', 'my-plugin');
+         *     return $labels;
+         * }, 10, 2);
+         */
+        $labels = apply_filters('mhm_rentiva_payment_method_labels', $labels, $method);
+        
+        // If label exists, return it; otherwise return formatted method name
+        if (isset($labels[$method])) {
+            return $labels[$method];
+        }
+        
+        /**
+         * Filter: Allow custom formatting for unknown payment methods
+         * 
+         * @param string $formatted_label Default formatted label (ucfirst)
+         * @param string $method         Payment method key
+         * @return string Modified label
+         */
+        return apply_filters('mhm_rentiva_payment_method_label_unknown', ucfirst(str_replace('_', ' ', $method)), $method);
     }
 
     public static function get_revenue_by_period(string $start_date, string $end_date, string $period = 'daily'): array
     {
         global $wpdb;
 
-        $date_format = match($period) {
-            'monthly' => '%Y-%m',
-            'weekly' => '%Y-%u',
-            'yearly' => '%Y',
-            default => '%Y-%m-%d'
-        };
-
-        $data = $wpdb->get_results($wpdb->prepare(
-            "SELECT DATE_FORMAT(p.post_date, %s) as period,
-                    SUM(pm.meta_value) as revenue,
-                    COUNT(*) as bookings
-             FROM {$wpdb->postmeta} pm
-             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-             WHERE p.post_type = 'vehicle_booking'
-             AND p.post_status = 'publish'
-             AND pm.meta_key = '_mhm_total_price'
-             AND DATE(p.post_date) BETWEEN %s AND %s
-             GROUP BY DATE_FORMAT(p.post_date, %s)
-             ORDER BY period",
-            $date_format, $start_date, $end_date, $date_format
-        ));
+        $data = ReportRepository::get_revenue_by_period($start_date, $end_date, $period);
 
         return $data;
     }
@@ -168,23 +141,7 @@ final class RevenueReport
         global $wpdb;
 
         // Araç bazlı gelir
-        $vehicle_revenue = $wpdb->get_results($wpdb->prepare(
-            "SELECT pm_vehicle.meta_value as vehicle_id,
-                    SUM(pm_price.meta_value) as revenue,
-                    COUNT(*) as bookings
-             FROM {$wpdb->postmeta} pm_price
-             INNER JOIN {$wpdb->postmeta} pm_vehicle ON pm_price.post_id = pm_vehicle.post_id
-             INNER JOIN {$wpdb->posts} p ON pm_price.post_id = p.ID
-             WHERE p.post_type = 'vehicle_booking'
-             AND p.post_status = 'publish'
-             AND pm_price.meta_key = '_mhm_total_price'
-             AND pm_vehicle.meta_key = '_mhm_vehicle_id'
-             AND DATE(p.post_date) BETWEEN %s AND %s
-             GROUP BY pm_vehicle.meta_value
-             ORDER BY revenue DESC
-             LIMIT %d",
-            $start_date, $end_date, $limit
-        ));
+        $vehicle_revenue = ReportRepository::get_top_revenue_sources($start_date, $end_date, $limit);
 
         // Araç başlıklarını ekle
         foreach ($vehicle_revenue as &$vehicle) {

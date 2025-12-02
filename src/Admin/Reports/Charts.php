@@ -14,12 +14,18 @@ class Charts
      */
     public static function enqueue_scripts(): void
     {
-        // ✅ Enqueue Chart.js library
+        // ✅ Enqueue Chart.js library from local package (no CDN dependency)
+        // This ensures GDPR compliance and works in offline/intranet environments
+        $chart_js_path = MHM_RENTIVA_PLUGIN_URL . 'assets/js/vendor/chart.min.js';
+        $chart_js_version = file_exists(MHM_RENTIVA_PLUGIN_DIR . 'assets/js/vendor/chart.min.js') 
+            ? filemtime(MHM_RENTIVA_PLUGIN_DIR . 'assets/js/vendor/chart.min.js') 
+            : MHM_RENTIVA_VERSION;
+        
         wp_enqueue_script(
             'chart-js',
-            'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
+            $chart_js_path,
             [],
-            '4.4.0',
+            $chart_js_version,
             true
         );
 

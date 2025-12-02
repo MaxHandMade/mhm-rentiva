@@ -23,7 +23,9 @@ $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true) ?: [];
 ?>
 
 <div class="mhm-rentiva-account-page">
-    <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
+    <?php if (!empty($navigation)): ?>
+        <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
+    <?php endif; ?>
     
     <div class="mhm-account-content">
         <div class="section-header">

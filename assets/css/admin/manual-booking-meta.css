@@ -24,16 +24,16 @@
 }
 
 .mhm-manual-booking-form {
-    padding: 20px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    padding: var(--mhm-space-5);
+    background: var(--mhm-bg-card);
+    border: 1px solid var(--mhm-border-secondary);
+    border-radius: var(--mhm-radius-md);
     margin: 20px 0;
 }
 
 .mhm-booking-fields {
     display: grid;
-    gap: 20px;
+    gap: var(--mhm-space-5);
 }
 
 .mhm-field-group {
@@ -43,32 +43,32 @@
 }
 
 .mhm-field-label {
-    font-weight: 600;
-    color: #23282d;
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-primary);
     font-size: 14px;
 }
 
 .mhm-field-label .required {
-    color: #d63638;
+    color: var(--mhm-error);
 }
 
 .mhm-field-input,
 .mhm-field-select,
 .mhm-field-textarea {
     padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1px solid var(--mhm-border-primary);
+    border-radius: var(--mhm-radius-sm);
     font-size: 14px;
-    background: #fff;
-    transition: border-color 0.2s ease;
+    background: var(--mhm-bg-card);
+    transition: border-color var(--mhm-duration-200) ease;
 }
 
 .mhm-field-input:focus,
 .mhm-field-select:focus,
 .mhm-field-textarea:focus {
-    border-color: #0073aa;
+    border-color: var(--mhm-primary);
     outline: none;
-    box-shadow: 0 0 0 1px #0073aa;
+    box-shadow: 0 0 0 1px var(--mhm-primary);
 }
 
 .mhm-field-textarea {
@@ -80,7 +80,7 @@
 .mhm-datetime-fields {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: var(--mhm-space-5);
 }
 
 .mhm-field-half {
@@ -89,16 +89,16 @@
 
 /* Fiyat Hesaplama */
 .mhm-price-calculation {
-    background: #fff;
-    border: 1px solid #0073aa;
-    border-radius: 4px;
+    background: var(--mhm-bg-card);
+    border: 1px solid var(--mhm-primary);
+    border-radius: var(--mhm-radius-sm);
     padding: 16px;
     margin: 20px 0;
 }
 
 .mhm-price-calculation h4 {
     margin: 0 0 12px 0;
-    color: #0073aa;
+    color: var(--mhm-primary);
     font-size: 16px;
 }
 
@@ -112,18 +112,18 @@
     display: flex;
     justify-content: space-between;
     padding: 8px 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--mhm-border-secondary);
 }
 
 .mhm-price-item:last-child {
     border-bottom: none;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
     font-size: 16px;
-    color: #0073aa;
+    color: var(--mhm-primary);
 }
 
 .mhm-price-label {
-    color: #666;
+    color: var(--mhm-text-secondary);
 }
 
 .mhm-price-value {
@@ -135,35 +135,35 @@
     display: flex;
     gap: 12px;
     padding: 20px 0 0 0;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--mhm-border-secondary);
 }
 
 .mhm-booking-actions .button {
     padding: 8px 16px;
     font-size: 14px;
-    border-radius: 4px;
+    border-radius: var(--mhm-radius-sm);
 }
 
 .mhm-booking-actions .button-primary {
-    background: #0073aa;
-    border-color: #0073aa;
-    color: #fff;
+    background: var(--mhm-primary);
+    border-color: var(--mhm-primary);
+    color: var(--mhm-white);
 }
 
 .mhm-booking-actions .button-primary:hover {
-    background: #005a87;
-    border-color: #005a87;
+    background: var(--mhm-primary-dark);
+    border-color: var(--mhm-primary-dark);
 }
 
 .mhm-booking-actions .button-secondary {
-    background: #f1f1f1;
-    border-color: #ddd;
-    color: #333;
+    background: var(--mhm-bg-secondary);
+    border-color: var(--mhm-border-primary);
+    color: var(--mhm-text-primary);
 }
 
 .mhm-booking-actions .button-secondary:hover {
-    background: #e1e1e1;
-    border-color: #999;
+    background: var(--mhm-bg-hover);
+    border-color: var(--mhm-border-secondary);
 }
 
 /* Loading State */
@@ -173,35 +173,35 @@
 }
 
 .mhm-calculating .mhm-booking-actions .button {
-    background: #ccc !important;
-    border-color: #ccc !important;
-    color: #666 !important;
+    background: var(--mhm-bg-secondary) !important;
+    border-color: var(--mhm-border-secondary) !important;
+    color: var(--mhm-text-secondary) !important;
 }
 
 /* Error/Success Messages */
 .mhm-message {
     padding: 12px;
-    border-radius: 4px;
+    border-radius: var(--mhm-radius-sm);
     margin: 12px 0;
     font-size: 14px;
 }
 
 .mhm-message.success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
+    background: var(--mhm-success-bg);
+    border: 1px solid var(--mhm-success-light);
+    color: var(--mhm-success-dark);
 }
 
 .mhm-message.error {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
+    background: var(--mhm-error-bg);
+    border: 1px solid var(--mhm-error-light);
+    color: var(--mhm-error-dark);
 }
 
 .mhm-message.info {
-    background: #d1ecf1;
-    border: 1px solid #bee5eb;
-    color: #0c5460;
+    background: var(--mhm-bg-secondary);
+    border: 1px solid var(--mhm-primary-light);
+    color: var(--mhm-primary-dark);
 }
 
 /* Responsive */
@@ -227,21 +227,21 @@
 .mhm-field-input.error,
 .mhm-field-select.error,
 .mhm-field-textarea.error {
-    border-color: #d63638;
-    box-shadow: 0 0 0 1px #d63638;
+    border-color: var(--mhm-error);
+    box-shadow: 0 0 0 1px var(--mhm-error);
 }
 
 .mhm-field-error {
-    color: #d63638;
+    color: var(--mhm-error);
     font-size: 12px;
     margin-top: 4px;
 }
 
 /* Vehicle Info */
 .mhm-vehicle-info {
-    background: #f0f8ff;
-    border: 1px solid #b3d9ff;
-    border-radius: 4px;
+    background: var(--mhm-bg-secondary);
+    border: 1px solid var(--mhm-primary-light);
+    border-radius: var(--mhm-radius-sm);
     padding: 12px;
     margin: 12px 0;
     font-size: 14px;
@@ -249,7 +249,7 @@
 
 .mhm-vehicle-info h5 {
     margin: 0 0 8px 0;
-    color: #0073aa;
+    color: var(--mhm-primary);
 }
 
 .mhm-vehicle-details {
@@ -264,21 +264,21 @@
 }
 
 .mhm-vehicle-detail strong {
-    color: #333;
+    color: var(--mhm-text-primary);
 }
 
 /* Ek Hizmetler Stilleri */
 .mhm-addon-selection {
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1px solid var(--mhm-border-secondary);
+    border-radius: var(--mhm-radius-sm);
     padding: 16px;
-    background: #fff;
+    background: var(--mhm-bg-card);
     margin-top: 8px;
 }
 
 .mhm-addon-selection .description {
     margin: 0 0 16px 0;
-    color: #666;
+    color: var(--mhm-text-secondary);
     font-style: italic;
     font-size: 13px;
 }
@@ -287,9 +287,9 @@
     display: flex;
     align-items: flex-start;
     padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--mhm-border-secondary);
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--mhm-duration-200) ease;
 }
 
 .mhm-addon-item:last-child {
@@ -297,8 +297,8 @@
 }
 
 .mhm-addon-item:hover {
-    background-color: #f9f9f9;
-    border-radius: 4px;
+    background-color: var(--mhm-bg-hover);
+    border-radius: var(--mhm-radius-sm);
     padding-left: 8px;
     padding-right: 8px;
 }
@@ -322,89 +322,89 @@
 }
 
 .mhm-addon-title {
-    font-weight: 600;
-    color: #23282d;
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-primary);
     font-size: 14px;
     line-height: 1.4;
 }
 
 .mhm-addon-title .required {
-    color: #d63638;
+    color: var(--mhm-error);
     font-weight: 700;
 }
 
 .mhm-addon-price {
-    color: #0073aa;
-    font-weight: 600;
+    color: var(--mhm-primary);
+    font-weight: var(--mhm-font-semibold);
     font-size: 14px;
 }
 
 .mhm-addon-description {
     font-size: 12px;
-    color: #666;
+    color: var(--mhm-text-secondary);
     line-height: 1.4;
     margin-top: 2px;
 }
 
 .mhm-addon-total {
-    background: #f0f8ff;
-    border: 1px solid #b3d9ff;
-    border-radius: 4px;
+    background: var(--mhm-bg-secondary);
+    border: 1px solid var(--mhm-primary-light);
+    border-radius: var(--mhm-radius-sm);
     padding: 12px;
     margin-top: 16px;
     text-align: center;
 }
 
 .mhm-addon-total strong {
-    color: #0073aa;
+    color: var(--mhm-primary);
     font-size: 14px;
 }
 
 .mhm-addon-total-amount {
-    color: #0073aa;
+    color: var(--mhm-primary);
     font-weight: 700;
     font-size: 16px;
 }
 
 /* Ek Hizmetler Seçili Durum */
 .mhm-addon-item:has(.mhm-addon-checkbox:checked) {
-    background-color: #e8f4fd;
-    border-left: 3px solid #0073aa;
+    background-color: var(--mhm-bg-secondary);
+    border-left: 3px solid var(--mhm-primary);
     padding-left: 9px;
 }
 
 .mhm-addon-item:has(.mhm-addon-checkbox:checked) .mhm-addon-title {
-    color: #0073aa;
+    color: var(--mhm-primary);
 }
 
 /* Ek Hizmetler Zorunlu Durum */
 .mhm-addon-item:has(.mhm-addon-checkbox:disabled) {
-    background-color: #f8f9fa;
-    border-left: 3px solid #28a745;
+    background-color: var(--mhm-bg-hover);
+    border-left: 3px solid var(--mhm-success);
 }
 
 .mhm-addon-item:has(.mhm-addon-checkbox:disabled) .mhm-addon-title {
-    color: #28a745;
+    color: var(--mhm-success);
 }
 
 .mhm-addon-item:has(.mhm-addon-checkbox:disabled) .mhm-addon-price {
-    color: #28a745;
+    color: var(--mhm-success);
 }
 
 /* Yeni müşteri alanları */
 #mhm_new_customer_fields {
     margin-top: 15px;
     padding: 15px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    background: var(--mhm-bg-card);
+    border: 1px solid var(--mhm-border-secondary);
+    border-radius: var(--mhm-radius-sm);
 }
 
 #mhm_new_customer_fields h4 {
     margin: 0 0 15px 0;
-    color: #333;
+    color: var(--mhm-text-primary);
     font-size: 14px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
 }
 
 #mhm_new_customer_fields .mhm-field-group {

@@ -40,7 +40,6 @@
                 nonce: window.mhmRentivaAccount?.nonce || ''
             })
                 .done((response) => {
-                    console.log('[Rentiva][Account] toggle favorite response:', response);
                     if (response.success) {
                         this.handleFavoriteResponse($button, response.data);
                     } else {
@@ -48,7 +47,6 @@
                     }
                 })
                 .fail((jqXHR) => {
-                    console.error('[Rentiva][Account] toggle favorite error:', jqXHR);
                     this.showNotification(this.getString('error'), 'error');
                 });
         },
@@ -126,7 +124,7 @@
                 $card.find('.rv-vehicle-card__favorite').addClass('is-favorited');
             }
 
-            this.showNotification(data.message || 'Updated', 'success');
+            this.showNotification(data.message || this.getString('success'), 'success');
         },
 
         removeAllFavoriteCards() {
@@ -146,8 +144,8 @@
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                             </svg>
                         </div>
-                        <h3>${window.mhmRentivaVehiclesGrid?.i18n?.no_favorites || 'No favorite vehicles yet'}</h3>
-                        <p>${window.mhmRentivaVehiclesGrid?.i18n?.login_required || 'You can add vehicles to favorites using the heart icon.'}</p>
+                        <h3>${this.getString('no_favorites')}</h3>
+                        <p>${this.getString('login_required')}</p>
                     </div>
                 `;
                 $container.html(emptyHtml);
@@ -155,7 +153,8 @@
         },
 
         updateFavoriteCounter(count) {
-            $('.view-all-link').text(count + ' ' + (count === 1 ? 'vehicle in your favorites' : 'vehicles in your favorites'));
+            const text = count === 1 ? this.getString('favorites_count_single') : this.getString('favorites_count_plural');
+            $('.view-all-link').text(count + ' ' + text);
         },
 
         showNotification(message, type) {
@@ -258,7 +257,7 @@
                     this.showMessage(this.config.i18n.error, 'error');
                 },
                 complete: () => {
-                    $submitBtn.prop('disabled', false).text(window.mhmRentivaMyAccount?.strings?.save_changes || 'Save Changes');
+                    $submitBtn.prop('disabled', false).text(this.config.i18n.save_changes);
                 }
             });
         }
@@ -385,12 +384,12 @@
                         }, 1500);
                     } else {
                         this.showMessage(response.data.message || this.config.i18n.error, 'error');
-                        $btn.prop('disabled', false).text(window.mhmRentivaMyAccount?.strings?.cancel_booking || 'Cancel Booking');
+                        $btn.prop('disabled', false).text(this.config.i18n.cancel_booking);
                     }
                 },
                 error: () => {
                     this.showMessage(this.config.i18n.error, 'error');
-                    $btn.prop('disabled', false).text('Cancel Booking');
+                    $btn.prop('disabled', false).text(this.config.i18n.cancel_booking);
                 }
             });
         }
@@ -410,34 +409,41 @@
          * Form validasyonu
          */
         initAccountForm() {
-            const $form = $('#mhm-account-details-form');
+            this.setupPasswordValidation('#mhm-account-details-form', '#new_password', '#confirm_password');
+            this.setupPasswordValidation('#mhm-rentiva-register-form', '#rv_password', '#rv_password_confirm');
 
-            if ($form.length === 0) {
-                return;
-            }
-
-            // Şifre eşleşme kontrolü
-            const $newPassword = $('#new_password');
-            const $confirmPassword = $('#confirm_password');
-
-            $confirmPassword.on('blur', function () {
-                const newPwd = $newPassword.val();
-                const confirmPwd = $confirmPassword.val();
-
-                if (newPwd !== '' && confirmPwd !== '' && newPwd !== confirmPwd) {
-                    $confirmPassword[0].setCustomValidity(window.mhmRentivaMyAccount?.strings?.passwords_do_not_match || 'Passwords do not match');
-                } else {
-                    $confirmPassword[0].setCustomValidity('');
-                }
-            });
-
-            // Reset butonu
-            $form.find('button[type="reset"]').on('click', function (e) {
+            // Reset button for account form
+            $('#mhm-account-details-form').find('button[type="reset"]').on('click', (e) => {
                 e.preventDefault();
-                if (confirm(window.mhmRentivaMyAccount?.strings?.cancel_changes_confirm || 'Are you sure you want to cancel changes?')) {
-                    $form[0].reset();
+                if (confirm(this.config.i18n.cancel_changes_confirm)) {
+                    $('#mhm-account-details-form')[0].reset();
                 }
             });
+        }
+
+        /**
+         * Setup password validation for a form
+         */
+        setupPasswordValidation(formSelector, passSelector, confirmSelector) {
+            const $form = $(formSelector);
+            if ($form.length === 0) return;
+
+            const $pass = $(passSelector);
+            const $confirm = $(confirmSelector);
+
+            const validate = () => {
+                const pass = $pass.val();
+                const confirm = $confirm.val();
+
+                if (pass !== '' && confirm !== '' && pass !== confirm) {
+                    $confirm[0].setCustomValidity(window.mhmRentivaMyAccount?.strings?.passwords_do_not_match || 'Passwords do not match');
+                } else {
+                    $confirm[0].setCustomValidity('');
+                }
+            };
+
+            $confirm.on('blur input', validate);
+            $pass.on('blur input', validate);
         }
 
         /**

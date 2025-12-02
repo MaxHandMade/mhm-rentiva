@@ -543,7 +543,7 @@ final class BookingMeta extends AbstractMetaBox
     public static function render_customer_email_box(\WP_Post $post): void
     {
         // Use BookingQueryHelper to get customer info (handles multiple meta keys)
-        $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo($post->ID);
+        $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo((int) $post->ID);
         $customer_email = $customer_info['email'] ?? '';
         $customer_first_name = $customer_info['first_name'] ?? '';
         $customer_last_name = $customer_info['last_name'] ?? '';

@@ -1,23 +1,23 @@
 /* Deposit Management Meta Box Styles */
 .deposit-management-metabox {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
+    background: var(--mhm-bg-card);
+    border: 1px solid var(--mhm-border-primary);
+    border-radius: var(--mhm-radius-md);
+    padding: var(--mhm-space-5);
     margin: 10px 0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--mhm-shadow-sm);
 }
 
 /* Deposit Info Grid */
 .deposit-info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+    gap: var(--mhm-space-3);
     margin-bottom: 25px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
+    padding: var(--mhm-space-3);
+    background: var(--mhm-bg-hover);
+    border-radius: var(--mhm-radius-md);
+    border: 1px solid var(--mhm-border-secondary);
 }
 
 .deposit-info-item {
@@ -27,8 +27,8 @@
 }
 
 .deposit-info-label {
-    font-weight: 600;
-    color: #495057;
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-secondary);
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -36,7 +36,7 @@
 
 .deposit-info-value {
     font-size: 14px;
-    color: #212529;
+    color: var(--mhm-text-primary);
     font-weight: 500;
 }
 
@@ -44,122 +44,122 @@
 .payment-type-badge {
     display: inline-block;
     padding: 4px 8px;
-    border-radius: 4px;
+    border-radius: var(--mhm-radius-sm);
     font-size: 11px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .payment-type-badge.deposit {
-    background: #e3f2fd;
-    color: #1976d2;
-    border: 1px solid #bbdefb;
+    background: var(--mhm-bg-secondary);
+    color: var(--mhm-primary);
+    border: 1px solid var(--mhm-primary-light);
 }
 
 .payment-type-badge.full {
-    background: #e8f5e8;
-    color: #2e7d32;
-    border: 1px solid #c8e6c9;
+    background: var(--mhm-success-bg);
+    color: var(--mhm-success-dark);
+    border: 1px solid var(--mhm-success-light);
 }
 
 /* Payment Method Badges */
 .payment-method-badge {
     display: inline-block;
     padding: 4px 8px;
-    border-radius: 4px;
+    border-radius: var(--mhm-radius-sm);
     font-size: 11px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .payment-method-badge.online {
-    background: #fff3e0;
-    color: #f57c00;
-    border: 1px solid #ffcc02;
+    background: var(--mhm-warning-bg);
+    color: var(--mhm-warning);
+    border: 1px solid var(--mhm-warning-border);
 }
 
 .payment-method-badge.offline {
-    background: #f3e5f5;
-    color: #7b1fa2;
-    border: 1px solid #ce93d8;
+    background: var(--mhm-purple-bg);
+    color: var(--mhm-purple);
+    border: 1px solid var(--mhm-purple-light);
 }
 
 /* Payment Status Section */
 .payment-status-section {
     margin: 20px 0;
     padding: 15px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    border-left: 4px solid #007cba;
+    background: var(--mhm-bg-hover);
+    border-radius: var(--mhm-radius-md);
+    border-left: 4px solid var(--mhm-primary);
 }
 
 .payment-status-section h4 {
     margin: 0 0 10px 0;
-    color: #495057;
+    color: var(--mhm-text-secondary);
     font-size: 14px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
 }
 
 .payment-status-indicator {
     display: inline-block;
     padding: 6px 12px;
-    border-radius: 4px;
+    border-radius: var(--mhm-radius-sm);
     font-size: 12px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .payment-status-indicator.unpaid {
-    background: #ffebee;
-    color: #c62828;
-    border: 1px solid #ffcdd2;
+    background: var(--mhm-error-bg);
+    color: var(--mhm-error);
+    border: 1px solid var(--mhm-error-light);
 }
 
 .payment-status-indicator.paid {
-    background: #e8f5e8;
-    color: #2e7d32;
-    border: 1px solid #c8e6c9;
+    background: var(--mhm-success-bg);
+    color: var(--mhm-success-dark);
+    border: 1px solid var(--mhm-success-light);
 }
 
 .payment-status-indicator.pending_verification {
-    background: #fff3e0;
-    color: #f57c00;
-    border: 1px solid #ffcc02;
+    background: var(--mhm-warning-bg);
+    color: var(--mhm-warning);
+    border: 1px solid var(--mhm-warning-border);
 }
 
 .payment-status-indicator.refunded {
-    background: #f3e5f5;
-    color: #7b1fa2;
-    border: 1px solid #ce93d8;
+    background: var(--mhm-purple-bg);
+    color: var(--mhm-purple);
+    border: 1px solid var(--mhm-purple-light);
 }
 
 /* Cancellation Policy Section */
 .cancellation-policy-section {
     margin: 20px 0;
     padding: 15px;
-    background: #fff8e1;
-    border-radius: 6px;
-    border-left: 4px solid #ff9800;
+    background: var(--mhm-warning-bg);
+    border-radius: var(--mhm-radius-md);
+    border-left: 4px solid var(--mhm-warning);
 }
 
 .cancellation-policy-section h4 {
     margin: 0 0 10px 0;
-    color: #e65100;
+    color: var(--mhm-warning-dark);
     font-size: 14px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
 }
 
 .cancellation-available {
-    color: #2e7d32;
+    color: var(--mhm-success);
     font-weight: 500;
     margin: 5px 0 0 0;
 }
 
 .cancellation-expired {
-    color: #c62828;
+    color: var(--mhm-error);
     font-weight: 500;
     margin: 5px 0 0 0;
 }
@@ -168,20 +168,20 @@
 .payment-deadline-section {
     margin: 20px 0;
     padding: 15px;
-    background: #ffebee;
-    border-radius: 6px;
-    border-left: 4px solid #f44336;
+    background: var(--mhm-error-bg);
+    border-radius: var(--mhm-radius-md);
+    border-left: 4px solid var(--mhm-error);
 }
 
 .payment-deadline-section h4 {
     margin: 0 0 10px 0;
-    color: #c62828;
+    color: var(--mhm-error);
     font-size: 14px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
 }
 
 .payment-expired {
-    color: #c62828;
+    color: var(--mhm-error);
     font-weight: 500;
     margin: 5px 0 0 0;
 }
@@ -190,16 +190,16 @@
 .deposit-timeline-section {
     margin: 20px 0;
     padding: 15px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
+    background: var(--mhm-bg-hover);
+    border-radius: var(--mhm-radius-md);
+    border: 1px solid var(--mhm-border-secondary);
 }
 
 .deposit-timeline-section h4 {
     margin: 0 0 15px 0;
-    color: #495057;
+    color: var(--mhm-text-secondary);
     font-size: 14px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
 }
 
 .deposit-timeline {
@@ -214,7 +214,7 @@
     top: 0;
     bottom: 0;
     width: 2px;
-    background: #dee2e6;
+    background: var(--mhm-border-secondary);
 }
 
 .deposit-timeline-item {
@@ -231,43 +231,43 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    border: 2px solid #fff;
-    box-shadow: 0 0 0 2px #dee2e6;
+    border: 2px solid var(--mhm-white);
+    box-shadow: 0 0 0 2px var(--mhm-border-secondary);
 }
 
 .deposit-timeline-item.completed::before {
-    background: #28a745;
-    box-shadow: 0 0 0 2px #28a745;
+    background: var(--mhm-success);
+    box-shadow: 0 0 0 2px var(--mhm-success);
 }
 
 .deposit-timeline-item.pending::before {
-    background: #ffc107;
-    box-shadow: 0 0 0 2px #ffc107;
+    background: var(--mhm-warning);
+    box-shadow: 0 0 0 2px var(--mhm-warning);
 }
 
 .deposit-timeline-content {
-    background: #fff;
+    background: var(--mhm-bg-card);
     padding: 12px 15px;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: var(--mhm-radius-md);
+    border: 1px solid var(--mhm-border-secondary);
+    box-shadow: var(--mhm-shadow-sm);
 }
 
 .deposit-timeline-title {
-    font-weight: 600;
-    color: #495057;
+    font-weight: var(--mhm-font-semibold);
+    color: var(--mhm-text-secondary);
     font-size: 13px;
     margin-bottom: 5px;
 }
 
 .deposit-timeline-description {
-    color: #6c757d;
+    color: var(--mhm-text-secondary);
     font-size: 12px;
     margin-bottom: 5px;
 }
 
 .deposit-timeline-date {
-    color: #adb5bd;
+    color: var(--mhm-text-secondary);
     font-size: 11px;
     font-style: italic;
 }
@@ -276,9 +276,9 @@
 .deposit-actions-section {
     margin: 20px 0;
     padding: 15px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
+    background: var(--mhm-bg-hover);
+    border-radius: var(--mhm-radius-md);
+    border: 1px solid var(--mhm-border-secondary);
 }
 
 .deposit-actions {
@@ -293,55 +293,55 @@
     gap: 6px;
     padding: 8px 16px;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--mhm-radius-sm);
     font-size: 12px;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--mhm-duration-200) ease;
     text-decoration: none;
 }
 
 .deposit-action-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--mhm-shadow-sm);
 }
 
 .deposit-action-btn.primary {
-    background: #007cba;
-    color: #fff;
+    background: var(--mhm-primary);
+    color: var(--mhm-white);
 }
 
 .deposit-action-btn.primary:hover {
-    background: #005a87;
+    background: var(--mhm-primary-dark);
 }
 
 .deposit-action-btn.warning {
-    background: #ff9800;
-    color: #fff;
+    background: var(--mhm-warning);
+    color: var(--mhm-white);
 }
 
 .deposit-action-btn.warning:hover {
-    background: #f57c00;
+    background: var(--mhm-warning-dark);
 }
 
 .deposit-action-btn.danger {
-    background: #f44336;
-    color: #fff;
+    background: var(--mhm-error);
+    color: var(--mhm-white);
 }
 
 .deposit-action-btn.danger:hover {
-    background: #d32f2f;
+    background: var(--mhm-error-dark);
 }
 
 .deposit-action-btn.secondary {
-    background: #6c757d;
-    color: #fff;
+    background: var(--mhm-text-secondary);
+    color: var(--mhm-white);
 }
 
 .deposit-action-btn.secondary:hover {
-    background: #5a6268;
+    background: var(--mhm-text-primary);
 }
 
 .deposit-action-btn .dashicons {

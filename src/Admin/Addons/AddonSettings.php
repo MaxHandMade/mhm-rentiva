@@ -14,8 +14,26 @@ final class AddonSettings
 
     public static function register(): void
     {
-        // WordPress Settings API is not used - manual form processing
+        // WordPress Settings API registration
+        add_action('admin_init', [self::class, 'register_settings']);
         add_action('wp_ajax_mhm_create_default_addons', [self::class, 'ajax_create_default_addons']);
+    }
+
+    /**
+     * Register WordPress Settings API
+     */
+    public static function register_settings(): void
+    {
+        // Register setting group
+        register_setting(
+            'mhm_rentiva_addon_settings',
+            'mhm_rentiva_addon_settings',
+            [
+                'type' => 'array',
+                'sanitize_callback' => [self::class, 'sanitize'],
+                'default' => self::defaults(),
+            ]
+        );
     }
 
     public static function defaults(): array
@@ -85,12 +103,8 @@ final class AddonSettings
             wp_die(__('Insufficient permissions.', 'mhm-rentiva'));
         }
 
-        // Handle form submission - manual POST processing (for standalone page only)
-        if (!$in_tab && isset($_POST['submit']) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'mhm_rentiva_addon_settings_save')) {
-            $settings = self::sanitize($_POST['mhm_rentiva_addon_settings'] ?? []);
-            update_option('mhm_rentiva_addon_settings', $settings);
-            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved successfully.', 'mhm-rentiva') . '</p></div>';
-        }
+        // ⭐ WordPress Settings API handles form submission automatically
+        // No manual POST processing needed
 
         // Add wrapper for standalone page only
         if (!$in_tab) {
@@ -98,12 +112,11 @@ final class AddonSettings
             echo '<h1>' . esc_html__('Additional Service Settings', 'mhm-rentiva') . '</h1>';
         }
 
-        // Nonce field - always required (even within a tab)
-        wp_nonce_field('mhm_rentiva_addon_settings_save');
-
         // Form wrapper - for standalone page only
         if (!$in_tab) {
-            echo '<form method="post" action="' . esc_url(admin_url('admin.php?page=mhm-rentiva-settings&tab=addons')) . '">';
+            echo '<form method="post" action="options.php">';
+            // WordPress Settings API handles nonce and hidden fields
+            settings_fields('mhm_rentiva_addon_settings');
         }
 
         // Form fields
@@ -163,9 +176,7 @@ final class AddonSettings
 
         // Submit button - for standalone page only (main page button is used within a tab)
         if (!$in_tab) {
-            echo '<p class="submit">';
-            echo '<input type="submit" name="submit" class="button-primary" value="' . esc_attr__('Save Settings', 'mhm-rentiva') . '" />';
-            echo '</p>';
+            submit_button(__('Save Settings', 'mhm-rentiva'));
             echo '</form>';
         }
 
@@ -189,39 +200,8 @@ final class AddonSettings
             echo '</div>';
         }
 
-        // AJAX script for creating default addons
-        ?>
-        <script type="text/javascript">
-        jQuery(document).ready(function($) {
-            $('#create-default-addons').on('click', function(e) {
-                e.preventDefault();
-
-                if (!confirm('<?php echo esc_js(__('Are you sure you want to create default additional services?', 'mhm-rentiva')); ?>')) {
-                    return;
-                }
-
-                $(this).prop('disabled', true).text('<?php echo esc_js(__('Creating...', 'mhm-rentiva')); ?>');
-
-                $.post(ajaxurl, {
-                    action: 'mhm_create_default_addons',
-                    nonce: '<?php echo wp_create_nonce('mhm_create_default_addons'); ?>'
-                })
-                .done(function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('<?php echo esc_js(__('An error occurred. Please try again.', 'mhm-rentiva')); ?>');
-                        $('#create-default-addons').prop('disabled', false).text('<?php echo esc_js(__('Create Default Additional Services', 'mhm-rentiva')); ?>');
-                    }
-                })
-                .fail(function() {
-                    alert('<?php echo esc_js(__('An error occurred. Please try again.', 'mhm-rentiva')); ?>');
-                    $('#create-default-addons').prop('disabled', false).text('<?php echo esc_js(__('Create Default Additional Services', 'mhm-rentiva')); ?>');
-                });
-            });
-        });
-        </script>
-        <?php
+        // ⭐ Inline JavaScript removed - AJAX script is now in assets/js/admin/addon-settings.js
+        // Data is passed via wp_localize_script in enqueue_scripts method
     }
 
     public static function ajax_create_default_addons(): void

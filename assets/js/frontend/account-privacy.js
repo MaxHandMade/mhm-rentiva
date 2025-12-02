@@ -1,0 +1,143 @@
+/**
+ * Account Privacy JavaScript
+ * 
+ * Handles privacy controls (GDPR) in My Account dashboard
+ */
+jQuery(document).ready(function ($) {
+
+    // Check if configuration exists
+    if (typeof mhmRentivaPrivacy === 'undefined') {
+        return;
+    }
+
+    // Define ajaxurl for compatibility if not already defined
+    var ajaxurl = mhmRentivaPrivacy.ajaxUrl;
+
+    // Data Export
+    $('#export-data').on('click', function (e) {
+        e.preventDefault();
+
+        if (!confirm(mhmRentivaPrivacy.i18n.confirmExport)) {
+            return;
+        }
+
+        var button = $(this);
+        var originalText = button.text();
+
+        button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.exporting);
+
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'mhm_rentiva_data_export',
+                nonce: mhmRentivaPrivacy.nonce
+            },
+            success: function (response) {
+                if (response.success) {
+                    // Create download link
+                    var blob = new Blob([response.data], { type: 'application/json' });
+                    var url = window.URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'my-data-export.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+
+                    alert(mhmRentivaPrivacy.i18n.exportSuccess);
+                } else {
+                    alert(mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError));
+                }
+            },
+            error: function (xhr, status, error) {
+                alert(mhmRentivaPrivacy.i18n.exportError + ': ' + error);
+            },
+            complete: function () {
+                button.prop('disabled', false).text(originalText);
+            }
+        });
+    });
+
+    // Withdraw Consent
+    $('#withdraw-consent').on('click', function (e) {
+        e.preventDefault();
+
+        if (!confirm(mhmRentivaPrivacy.i18n.confirmWithdraw)) {
+            return;
+        }
+
+        var button = $(this);
+        var originalText = button.text();
+
+        button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.processing);
+
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'mhm_rentiva_consent_withdrawal',
+                nonce: mhmRentivaPrivacy.nonce
+            },
+            success: function (response) {
+                if (response.success) {
+                    alert(mhmRentivaPrivacy.i18n.withdrawSuccess);
+                    location.reload();
+                } else {
+                    alert(mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError));
+                }
+            },
+            error: function (xhr, status, error) {
+                alert(mhmRentivaPrivacy.i18n.withdrawError + ': ' + error);
+            },
+            complete: function () {
+                button.prop('disabled', false).text(originalText);
+            }
+        });
+    });
+
+    // Delete Account
+    $('#delete-account').on('click', function (e) {
+        e.preventDefault();
+
+        var confirmation = prompt(mhmRentivaPrivacy.i18n.confirmDeletePrompt);
+
+        if (confirmation !== 'DELETE') {
+            return;
+        }
+
+        if (!confirm(mhmRentivaPrivacy.i18n.confirmDeleteFinal)) {
+            return;
+        }
+
+        var button = $(this);
+        var originalText = button.text();
+
+        button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.deleting);
+
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'mhm_rentiva_data_deletion',
+                nonce: mhmRentivaPrivacy.nonce
+            },
+            success: function (response) {
+                if (response.success) {
+                    alert(mhmRentivaPrivacy.i18n.deleteSuccess);
+                    window.location.href = mhmRentivaPrivacy.homeUrl;
+                } else {
+                    alert(mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError));
+                }
+            },
+            error: function (xhr, status, error) {
+                alert(mhmRentivaPrivacy.i18n.deleteError + ': ' + error);
+            },
+            complete: function () {
+                button.prop('disabled', false).text(originalText);
+            }
+        });
+    });
+
+});

@@ -23,9 +23,9 @@
 
 .customers-header h1 {
     font-size: 2.5rem;
-    font-weight: 700;
-    margin: 0 0 10px 0;
-    color: white;
+    font-weight: var(--mhm-font-bold);
+    margin: 0 0 var(--mhm-space-3) 0;
+    color: var(--mhm-white);
 }
 
 .customers-header .description {
@@ -38,97 +38,100 @@
 /* Aksiyon Butonları */
 .customers-actions {
     display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
+    gap: var(--mhm-space-4);
+    margin-bottom: var(--mhm-space-5);
     flex-wrap: wrap;
 }
 
 .customers-actions .button {
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 500;
+    padding: var(--mhm-space-3) var(--mhm-space-5);
+    border-radius: var(--mhm-radius-lg);
+    font-weight: var(--mhm-font-medium);
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: all var(--mhm-duration-300) ease;
     border: none;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--mhm-space-2);
 }
 
 .customers-actions .button-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--mhm-primary);
+    color: var(--mhm-white);
     border: none;
 }
 
 .customers-actions .button-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--mhm-shadow-lg);
+    background: var(--mhm-primary-dark);
 }
 
 .customers-actions .button-secondary {
-    background: white;
-    color: #667eea;
-    border: 2px solid #667eea;
+    background: var(--mhm-bg-card);
+    color: var(--mhm-primary);
+    border: 2px solid var(--mhm-primary);
 }
 
 .customers-actions .button-secondary:hover {
-    background: #667eea;
-    color: white;
+    background: var(--mhm-primary);
+    color: var(--mhm-white);
     transform: translateY(-2px);
 }
 
 /* Filtreler */
 .customers-filters {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e1e5e9;
+    background: var(--mhm-bg-card);
+    border-radius: var(--mhm-radius-xl);
+    padding: var(--mhm-space-6);
+    margin-bottom: var(--mhm-space-5);
+    box-shadow: var(--mhm-shadow-base);
+    border: 1px solid var(--mhm-border-primary);
 }
 
 .customers-filters h3 {
-    margin: 0 0 20px 0;
-    color: #2c3e50;
+    margin: 0 0 var(--mhm-space-5) 0;
+    color: var(--mhm-text-primary);
     font-size: 1.3rem;
-    font-weight: 600;
+    font-weight: var(--mhm-font-semibold);
 }
 
 .filters-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 2fr auto;
-    gap: 15px;
+    gap: var(--mhm-space-4);
     align-items: end;
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: var(--mhm-space-2);
 }
 
 .filter-group label {
-    font-weight: 500;
-    color: #5a6c7d;
+    font-weight: var(--mhm-font-medium);
+    color: var(--mhm-text-secondary);
     font-size: 0.9rem;
 }
 
 .filter-group input,
 .filter-group select {
-    padding: 10px 12px;
-    border: 2px solid #e1e5e9;
-    border-radius: 8px;
+    padding: var(--mhm-space-3);
+    border: 2px solid var(--mhm-border-primary);
+    border-radius: var(--mhm-radius-lg);
     font-size: 0.95rem;
-    transition: all 0.3s ease;
+    transition: all var(--mhm-duration-300) ease;
+    background-color: var(--mhm-bg-input);
+    color: var(--mhm-text-primary);
 }
 
 .filter-group input:focus,
 .filter-group select:focus {
-    border-color: #667eea;
+    border-color: var(--mhm-primary);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px var(--mhm-primary-light);
 }
 
 
@@ -151,39 +154,39 @@
 
 /* Hata Mesajları */
 .customers-error {
-    background: #fee;
-    border: 1px solid #fcc;
-    color: #c33;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    background: var(--mhm-error-bg);
+    border: 1px solid var(--mhm-error);
+    color: var(--mhm-error);
+    padding: var(--mhm-space-4);
+    border-radius: var(--mhm-radius-lg);
+    margin-bottom: var(--mhm-space-5);
 }
 
 .customers-success {
-    background: #efe;
-    border: 1px solid #cfc;
-    color: #3c3;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    background: var(--mhm-success-bg);
+    border: 1px solid var(--mhm-success);
+    color: var(--mhm-success);
+    padding: var(--mhm-space-4);
+    border-radius: var(--mhm-radius-lg);
+    margin-bottom: var(--mhm-space-5);
 }
 
 /* Loading States */
 .customers-loading {
     text-align: center;
-    padding: 40px;
-    color: #7f8c8d;
+    padding: var(--mhm-space-8);
+    color: var(--mhm-text-tertiary);
 }
 
 .customers-loading .spinner {
     display: inline-block;
     width: 20px;
     height: 20px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #667eea;
+    border: 3px solid var(--mhm-bg-secondary);
+    border-top: 3px solid var(--mhm-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-right: 10px;
+    margin-right: var(--mhm-space-3);
 }
 
 @keyframes spin {
@@ -199,24 +202,25 @@
 /* Bulk Actions */
 .bulk-actions {
     display: flex;
-    gap: 10px;
+    gap: var(--mhm-space-3);
     align-items: center;
-    margin-bottom: 15px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    margin-bottom: var(--mhm-space-4);
+    padding: var(--mhm-space-4);
+    background: var(--mhm-bg-secondary);
+    border-radius: var(--mhm-radius-lg);
 }
 
 .bulk-actions select,
 .bulk-actions .button {
-    padding: 8px 12px;
-    border-radius: 6px;
+    padding: var(--mhm-space-2) var(--mhm-space-3);
+    border-radius: var(--mhm-radius-md);
     font-size: 0.9rem;
 }
 
 .bulk-actions select {
-    border: 1px solid #ddd;
-    background: white;
+    border: 1px solid var(--mhm-border-primary);
+    background: var(--mhm-bg-card);
+    color: var(--mhm-text-primary);
 }
 
 /* Pagination */
@@ -224,16 +228,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-    padding: 20px;
+    gap: var(--mhm-space-3);
+    margin-top: var(--mhm-space-5);
+    padding: var(--mhm-space-5);
 }
 
 .customers-pagination .button {
-    padding: 8px 12px;
-    border-radius: 6px;
+    padding: var(--mhm-space-2) var(--mhm-space-3);
+    border-radius: var(--mhm-radius-md);
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: all var(--mhm-duration-300) ease;
 }
 
 .customers-pagination .button:hover {
@@ -242,16 +246,16 @@
 
 /* Müşteri Kayıt Tarihleri Takvim Stilleri */
 .calendar-container .customer-registered {
-    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--mhm-success) 0%, var(--mhm-success-dark) 100%);
+    color: var(--mhm-white);
     position: relative;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    border-radius: var(--mhm-radius-lg);
+    box-shadow: var(--mhm-shadow-sm);
 }
 
 .calendar-container .customer-registered:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    box-shadow: var(--mhm-shadow-md);
     z-index: 10;
 }
 
@@ -286,16 +290,16 @@
     position: absolute;
     top: -5px;
     left: -5px;
-    background: #dc3545;
-    color: white;
+    background: var(--mhm-error);
+    color: var(--mhm-white);
     border-radius: 50%;
     width: 18px;
     height: 18px;
     font-size: 10px;
-    font-weight: bold;
+    font-weight: var(--mhm-font-bold);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid white;
+    border: 2px solid var(--mhm-white);
     z-index: 2;
 }
