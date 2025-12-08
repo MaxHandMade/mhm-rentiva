@@ -158,13 +158,38 @@
      */
     function initializeFormValidation() {
         const $form = $('#rv-search-filters-compact');
+        
+        if ($form.length === 0) return;
 
         // Handle form submission
         $form.on('submit', function (e) {
-            // Validate form - allow submission even without dates
-            if (!validateForm()) {
-                e.preventDefault();
-                return false;
+            // Get form values
+            const pickupValue = $('#rv-pickup-date').val();
+            const returnValue = $('#rv-return-date').val();
+            
+            // Only validate date range if both dates are provided
+            if (pickupValue && returnValue) {
+                const pickupDate = new Date(pickupValue);
+                const returnDate = new Date(returnValue);
+                
+                if (returnDate <= pickupDate) {
+                    e.preventDefault();
+                    alert('Return date must be after pickup date');
+                    return false;
+                }
+            }
+            
+            // Validate pickup date is not in the past (if provided)
+            if (pickupValue) {
+                const pickupDate = new Date(pickupValue);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (pickupDate < today) {
+                    e.preventDefault();
+                    alert('Pickup date cannot be in the past');
+                    return false;
+                }
             }
 
             // Add loading state
@@ -172,18 +197,37 @@
             $btn.addClass('loading').prop('disabled', true);
 
             // Form will submit normally via GET method
-            // Remove loading state after 3 seconds (fallback in case of error)
+            // Remove loading state after 5 seconds (fallback in case of error)
             setTimeout(() => {
                 $btn.removeClass('loading').prop('disabled', false);
-            }, 3000);
+            }, 5000);
             
-            // Allow form to submit normally
+            // Allow form to submit normally - don't prevent default
             return true;
         });
 
-        // Real-time validation
-        $form.find('input, select').on('blur', function () {
-            validateField($(this));
+        // Real-time validation (optional - for UX)
+        $form.find('input[type="text"], select').on('blur', function () {
+            const $field = $(this);
+            const fieldName = $field.attr('name');
+            const value = $field.val();
+            
+            // Only validate dates if they have values
+            if (fieldName === 'pickup_date' && value) {
+                const pickupDate = new Date(value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (pickupDate < today) {
+                    $field.closest('.rv-search-field').addClass('error');
+                    if (!$field.next('.error-message').length) {
+                        $field.after('<div class="error-message">Pickup date cannot be in the past</div>');
+                    }
+                } else {
+                    $field.closest('.rv-search-field').removeClass('error');
+                    $field.next('.error-message').remove();
+                }
+            }
         });
     }
 
