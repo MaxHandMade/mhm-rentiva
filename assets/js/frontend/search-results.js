@@ -40,27 +40,27 @@
         const $layoutContainer = $('#rv-results-layout-container');
         const $wrapper = $('#rv-results-grid-content');
         const $activeBtn = $('.rv-view-btn.active');
-        
+
         if ($layoutContainer.length === 0 || $activeBtn.length === 0) {
             return; // Not on search results page
         }
-        
+
         const activeView = $activeBtn.data('view');
         const containerClass = $layoutContainer.attr('class') || '';
         const wrapperDisplay = $wrapper.length > 0 ? $wrapper.css('display') : '';
-        
+
         // Check if container class matches active button
         const hasGridClass = containerClass.includes('rv-layout-grid');
         const hasListClass = containerClass.includes('rv-layout-list');
-        
+
         // Check if wrapper display matches expected layout
         const needsGrid = activeView === 'grid' && (wrapperDisplay !== 'grid' || !hasGridClass || hasListClass);
         const needsList = activeView === 'list' && (wrapperDisplay !== 'flex' || !hasListClass || hasGridClass);
-        
+
         if (needsGrid) {
             // Button says grid but wrapper/container doesn't match
             $layoutContainer.removeClass('rv-layout-list rv-layout-grid').addClass('rv-layout-grid');
-            
+
             // Force CSS with inline styles as last resort
             if ($wrapper.length > 0) {
                 $wrapper.css({
@@ -69,7 +69,7 @@
                     'gap': '24px',
                     'flex-direction': 'unset'
                 });
-                
+
                 // Ensure cards are flex in grid view
                 $wrapper.find('.rv-vehicle-card').css({
                     'display': 'flex',
@@ -77,14 +77,14 @@
                     'grid-template-columns': 'unset'
                 });
             }
-            
+
             // Force reflow
             $layoutContainer[0].offsetHeight;
             console.log('Force synced: Set container to grid layout (wrapper was:', wrapperDisplay, ')');
         } else if (needsList) {
             // Button says list but wrapper/container doesn't match
             $layoutContainer.removeClass('rv-layout-grid rv-layout-list').addClass('rv-layout-list');
-            
+
             // Force CSS with inline styles as last resort
             if ($wrapper.length > 0) {
                 $wrapper.css({
@@ -93,7 +93,7 @@
                     'gap': '20px',
                     'grid-template-columns': 'unset'
                 });
-                
+
                 // Ensure cards are grid in list view
                 $wrapper.find('.rv-vehicle-card').css({
                     'display': 'grid',
@@ -101,7 +101,7 @@
                     'flex-direction': 'unset'
                 });
             }
-            
+
             // Force reflow
             $layoutContainer[0].offsetHeight;
             console.log('Force synced: Set container to list layout (wrapper was:', wrapperDisplay, ')');
@@ -214,19 +214,19 @@
         // Force sync: Update container class and button state
         $viewBtns.removeClass('active');
         $(`.rv-view-btn[data-view="${viewToUse}"]`).addClass('active');
-        
+
         // Debug: Check current wrapper display before update
         const $wrapper = $('#rv-results-grid-content');
         if ($wrapper.length > 0) {
             const currentDisplay = $wrapper.css('display');
             console.log('Before updateLayout - Wrapper display:', currentDisplay, 'View to use:', viewToUse);
         }
-        
+
         updateLayout(viewToUse, true); // Save to localStorage
-        
+
         // Debug: Check wrapper display after update
         if ($wrapper.length > 0) {
-            setTimeout(function() {
+            setTimeout(function () {
                 const afterDisplay = $wrapper.css('display');
                 console.log('After updateLayout - Wrapper display:', afterDisplay, 'Expected:', viewToUse === 'grid' ? 'grid' : 'flex');
             }, 100);
@@ -270,7 +270,7 @@
             $layoutContainer.removeClass('rv-layout-grid rv-layout-list');
             // Add the correct layout class
             $layoutContainer.addClass(`rv-layout-${view}`);
-            
+
             // ALWAYS apply inline styles - this overrides any CSS conflicts
             if ($wrapper.length > 0) {
                 if (view === 'grid') {
@@ -284,17 +284,23 @@
                         wrapperEl.style.setProperty('flex-direction', 'unset', 'important');
                         wrapperEl.style.setProperty('width', '100%', 'important');
                     }
-                    
+
                     // Ensure all cards are flex in grid view
-                    $wrapper.find('.rv-vehicle-card').each(function() {
+                    $wrapper.find('.rv-vehicle-card').each(function () {
                         const cardEl = this;
                         cardEl.style.setProperty('display', 'flex', 'important');
                         cardEl.style.setProperty('flex-direction', 'column', 'important');
                         cardEl.style.setProperty('grid-template-columns', 'unset', 'important');
                         cardEl.style.setProperty('height', '100%', 'important');
                     });
-                    
+
+                    // Debug: Log all applied styles
                     console.log('Applied grid layout with !important inline styles');
+                    console.log('Wrapper display:', wrapperEl.style.display);
+                    console.log('Wrapper grid-template-columns:', wrapperEl.style.getPropertyValue('grid-template-columns'));
+                    console.log('Wrapper computed display:', window.getComputedStyle(wrapperEl).display);
+                    console.log('Wrapper computed grid-template-columns:', window.getComputedStyle(wrapperEl).gridTemplateColumns);
+                    console.log('Card count:', $wrapper.find('.rv-vehicle-card').length);
                 } else {
                     // List layout: wrapper is flex column, cards are grid
                     const wrapperEl = $wrapper[0];
@@ -305,9 +311,9 @@
                         wrapperEl.style.setProperty('grid-template-columns', 'unset', 'important');
                         wrapperEl.style.setProperty('width', '100%', 'important');
                     }
-                    
+
                     // Ensure all cards are grid in list view
-                    $wrapper.find('.rv-vehicle-card').each(function() {
+                    $wrapper.find('.rv-vehicle-card').each(function () {
                         const cardEl = this;
                         cardEl.style.setProperty('display', 'grid', 'important');
                         cardEl.style.setProperty('grid-template-columns', '280px 1fr', 'important');
@@ -316,11 +322,11 @@
                         cardEl.style.setProperty('align-items', 'stretch', 'important');
                         cardEl.style.setProperty('flex-direction', 'unset', 'important');
                     });
-                    
+
                     console.log('Applied list layout with !important inline styles');
                 }
             }
-            
+
             // Force a reflow to ensure styles are applied
             $layoutContainer[0].offsetHeight;
         } else {
@@ -606,8 +612,10 @@
                 $mainContainer.html(data.html);
             }
 
-            // Ensure layout wrapper state is correct
-            updateLayout(currentLayout);
+            // Ensure layout wrapper state is correct - use setTimeout to ensure DOM is ready
+            setTimeout(function() {
+                updateLayout(currentLayout, false); // false = don't overwrite localStorage
+            }, 50);
 
         } else if (data.vehicles && data.vehicles.length > 0) {
             // JSON fallback (client-side rendering)

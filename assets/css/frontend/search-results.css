@@ -385,10 +385,8 @@
 /* The Internal Content Wrapper */
 .rv-vehicle-grid-wrapper {
     width: 100%;
-    /* Default to grid layout if no parent class is set */
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 24px;
+    /* Layout is controlled by JavaScript inline styles and parent class */
+    /* Default removed to prevent conflicts with inline styles */
 }
 
 /* Ensure wrapper respects parent layout class - highest priority */
