@@ -1,8 +1,9 @@
 /* Vehicle Search Compact Form Styles - MHM Rentiva Theme */
 .rv-search-form-compact {
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
+    max-width: 1200px !important;
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
     padding: 30px;
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 16px;
@@ -11,6 +12,17 @@
     position: relative;
     overflow: hidden;
     box-sizing: border-box;
+    display: block !important;
+}
+
+/* Ensure parent containers don't override centering */
+.elementor-widget-shortcode .rv-search-form-compact,
+.elementor-element .rv-search-form-compact,
+.elementor-widget-container .rv-search-form-compact {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 1200px !important;
+    width: 100% !important;
 }
 
 .rv-search-form-compact::before {
@@ -42,9 +54,12 @@
     flex-wrap: nowrap;
     gap: 12px !important;
     align-items: flex-end !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
     margin-bottom: 0 !important;
-    justify-content: center;
+    justify-content: center !important;
     width: 100%;
+    max-width: 100%;
 }
 
 /* Form Fields */
