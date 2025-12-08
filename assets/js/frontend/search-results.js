@@ -214,7 +214,23 @@
         // Force sync: Update container class and button state
         $viewBtns.removeClass('active');
         $(`.rv-view-btn[data-view="${viewToUse}"]`).addClass('active');
+        
+        // Debug: Check current wrapper display before update
+        const $wrapper = $('#rv-results-grid-content');
+        if ($wrapper.length > 0) {
+            const currentDisplay = $wrapper.css('display');
+            console.log('Before updateLayout - Wrapper display:', currentDisplay, 'View to use:', viewToUse);
+        }
+        
         updateLayout(viewToUse, true); // Save to localStorage
+        
+        // Debug: Check wrapper display after update
+        if ($wrapper.length > 0) {
+            setTimeout(function() {
+                const afterDisplay = $wrapper.css('display');
+                console.log('After updateLayout - Wrapper display:', afterDisplay, 'Expected:', viewToUse === 'grid' ? 'grid' : 'flex');
+            }, 100);
+        }
 
         // Handle button clicks
         $viewBtns.on('click', function () {
