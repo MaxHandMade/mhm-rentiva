@@ -35,21 +35,6 @@ $booking_url = $booking_url ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_p
 ?>
 
 <div class="rv-vehicles-list-container <?php echo esc_attr($wrapper_class); ?>">
-    
-    <!-- Header -->
-    <div class="rv-vehicles-list__header">
-        <h2 class="rv-vehicles-list__title">
-            <?php echo esc_html($atts['title'] ?? esc_html__('Our Vehicles', 'mhm-rentiva')); ?>
-        </h2>
-        <?php if ($total_vehicles > 0): ?>
-            <div class="rv-vehicles-list__count">
-                <?php printf(
-                    esc_html(_n('%d vehicle', '%d vehicles', $total_vehicles, 'mhm-rentiva')),
-                    $total_vehicles
-                ); ?>
-            </div>
-        <?php endif; ?>
-    </div>
 
     <?php if ($has_vehicles): ?>
         

@@ -36,22 +36,6 @@ $wrapper_class = $wrapper_class ?? '';
 ?>
 
 <div class="rv-vehicles-grid-container <?php echo esc_attr($wrapper_class); ?>">
-    
-    <!-- Header -->
-    <div class="rv-vehicles-grid__header">
-        <h2 class="rv-vehicles-grid__title">
-            <?php echo esc_html($atts['title'] ?? esc_html__('Our Vehicles', 'mhm-rentiva')); ?>
-        </h2>
-        <?php if ($total_vehicles > 0): ?>
-            <div class="rv-vehicles-grid__count">
-                <?php printf(
-                    /* translators: %d placeholder. */
-                    _n('%d vehicle', '%d vehicles', $total_vehicles, 'mhm-rentiva'),
-                    $total_vehicles
-                ); ?>
-            </div>
-        <?php endif; ?>
-    </div>
 
     <?php if ($has_vehicles): ?>
         
