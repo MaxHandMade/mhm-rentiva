@@ -154,6 +154,11 @@ final class SearchResults extends AbstractShortcode
                 'back_to_search' => __('Back to Search', 'mhm-rentiva'),
                 'added_to_favorites' => __('Added to favorites', 'mhm-rentiva'),
                 'removed_from_favorites' => __('Removed from favorites', 'mhm-rentiva'),
+                'per_day' => __('/day', 'mhm-rentiva'),
+                'seats' => __('seats', 'mhm-rentiva'),
+                'review' => __('review', 'mhm-rentiva'),
+                'reviews' => __('reviews', 'mhm-rentiva'),
+                'view_details' => __('View Details', 'mhm-rentiva'),
             ],
             'favorite_nonce' => wp_create_nonce('mhm_rentiva_toggle_favorite'),
         ]);

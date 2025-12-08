@@ -568,7 +568,7 @@
             }
                     <div class="rv-price-badge">
                         <span class="rv-price-amount">${esc(vehicle.currency_symbol)}${parseFloat(vehicle.price_per_day).toLocaleString()}</span>
-                        <span class="rv-price-period">/day</span>
+                        <span class="rv-price-period">${mhmRentivaSearchResults.i18n.per_day || '/day'}</span>
                     </div>
                 </div>
                 
@@ -607,7 +607,7 @@
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                                 </svg>
-                                ${esc(vehicle.seats)} seats
+                                ${esc(vehicle.seats)} ${mhmRentivaSearchResults.i18n.seats || 'seats'}
                             </span>
                         ` : ''}
                     </div>
@@ -620,14 +620,14 @@
             ).join('')}
                             </div>
                             <span class="rv-rating-count">
-                                (${vehicle.rating.count} ${vehicle.rating.count === 1 ? 'review' : 'reviews'})
+                                (${vehicle.rating.count} ${vehicle.rating.count === 1 ? (mhmRentivaSearchResults.i18n.review || 'review') : (mhmRentivaSearchResults.i18n.reviews || 'reviews')})
                             </span>
                         </div>
                     ` : ''}
                     
                     <div class="rv-vehicle-actions">
-                        <a href="${esc(vehicle.url)}" class="rv-btn rv-btn-primary">View Details</a>
-                        <button type="button" class="rv-btn rv-btn-secondary rv-add-to-favorites" data-vehicle-id="${vehicle.id}">
+                        <a href="${esc(vehicle.url)}" class="rv-btn rv-btn-primary">${mhmRentivaSearchResults.i18n.view_details || 'View Details'}</a>
+                        <button type="button" class="rv-btn rv-btn-secondary rv-add-to-favorites ${vehicle.is_favorite ? 'active' : ''}" data-vehicle-id="${vehicle.id}">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                             </svg>
