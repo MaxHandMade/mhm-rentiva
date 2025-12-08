@@ -33,7 +33,8 @@
      * Initialize jQuery UI Date Pickers
      */
     function initializeDatePickers() {
-        const datePickerOptions = {
+        // Use localized datepicker options from PHP if available, otherwise fallback to defaults
+        const defaultOptions = {
             dateFormat: 'yy-mm-dd',
             minDate: 0, // Today
             showButtonPanel: true,
@@ -56,6 +57,11 @@
             changeYear: true,
             yearRange: 'c-2:c+2'
         };
+        
+        // Merge with localized options from PHP (i18n support)
+        const datePickerOptions = (typeof mhmRentivaSearch !== 'undefined' && mhmRentivaSearch.datepicker_options) 
+            ? { ...defaultOptions, ...mhmRentivaSearch.datepicker_options }
+            : defaultOptions;
 
         // Initialize pickup date picker
         $('#rv-pickup-date').datepicker({
@@ -123,7 +129,7 @@
 
         // Automatically update return time when pickup time changes
         // Return time is disabled and always matches pickup time
-        $('#rv-pickup-time').on('change', function(e) {
+        $('#rv-pickup-time').on('change', function (e) {
             const pickupTime = $(e.target).val();
             if (pickupTime) {
                 // Update both visible (disabled) select and hidden input
@@ -181,7 +187,7 @@
      */
     function initializeFormValidation() {
         const $form = $('#rv-search-filters-compact');
-        
+
         if ($form.length === 0) return;
 
         // Handle form submission
@@ -189,27 +195,27 @@
             // Get form values
             const pickupValue = $('#rv-pickup-date').val();
             const returnValue = $('#rv-return-date').val();
-            
+
             // Only validate date range if both dates are provided
             if (pickupValue && returnValue) {
                 const pickupDate = new Date(pickupValue);
                 const returnDate = new Date(returnValue);
-                
+
                 if (returnDate <= pickupDate) {
                     e.preventDefault();
                     alert('Return date must be after pickup date');
                     return false;
                 }
             }
-            
+
             // Validate pickup date is not in the past (if provided)
             // Compare date strings directly to avoid timezone issues
             if (pickupValue) {
                 const today = new Date();
-                const todayStr = today.getFullYear() + '-' + 
-                                String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                                String(today.getDate()).padStart(2, '0');
-                
+                const todayStr = today.getFullYear() + '-' +
+                    String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(today.getDate()).padStart(2, '0');
+
                 // pickupValue is already in YYYY-MM-DD format from datepicker
                 if (pickupValue < todayStr) {
                     e.preventDefault();
@@ -227,7 +233,7 @@
             setTimeout(() => {
                 $btn.removeClass('loading').prop('disabled', false);
             }, 5000);
-            
+
             // Allow form to submit normally - don't prevent default
             return true;
         });
@@ -237,15 +243,15 @@
             const $field = $(this);
             const fieldName = $field.attr('name');
             const value = $field.val();
-            
+
             // Only validate dates if they have values
             // Compare date strings directly to avoid timezone issues
             if (fieldName === 'pickup_date' && value) {
                 const today = new Date();
-                const todayStr = today.getFullYear() + '-' + 
-                                String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                                String(today.getDate()).padStart(2, '0');
-                
+                const todayStr = today.getFullYear() + '-' +
+                    String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(today.getDate()).padStart(2, '0');
+
                 // value is already in YYYY-MM-DD format from datepicker
                 if (value < todayStr) {
                     $field.closest('.rv-search-field').addClass('error');
@@ -369,7 +375,7 @@
         // Allow form submission even without dates (show all available vehicles)
         const pickupValue = $('#rv-pickup-date').val();
         const returnValue = $('#rv-return-date').val();
-        
+
         // Only validate date range if both dates are provided
         if (pickupValue && returnValue) {
             if (!validateDateRange()) {
