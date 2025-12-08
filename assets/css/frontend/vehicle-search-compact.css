@@ -5,7 +5,6 @@
     padding: 30px;
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     position: relative;
@@ -19,13 +18,11 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
 }
 
-/* Header */
+/* Header - Hidden per user request */
 .rv-search-header-compact {
-    text-align: center;
-    margin-bottom: 30px;
+    display: none;
 }
 
 .rv-search-header-compact h3 {
@@ -38,11 +35,12 @@
 
 /* Main Search Row */
 .rv-search-main-row {
-    display: grid !important;
-    grid-template-columns: 2fr 1fr 1fr auto !important;
-    gap: 20px !important;
-    align-items: end !important;
-    margin-bottom: 25px !important;
+    display: flex !important;
+    /* Force flex for horizontal alignment */
+    flex-wrap: nowrap;
+    gap: 12px !important;
+    align-items: flex-end !important;
+    margin-bottom: 0 !important;
 }
 
 /* Form Fields */
@@ -50,21 +48,26 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    min-height: 70px;
-    /* Booking form'daki gibi sabit yükseklik */
+    flex: 1;
+    /* Distribute space */
+    min-width: 140px;
+    min-height: auto;
+    /* Allow auto height */
+    margin-bottom: 0;
 }
 
 .rv-search-field label {
     font-size: 13px;
     font-weight: 600;
     color: #475569;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     letter-spacing: 0.025em;
+    white-space: nowrap;
 }
 
 .rv-search-field input {
     width: 100%;
-    padding: 14px 16px;
+    padding: 12px 16px;
     border: 2px solid #e2e8f0;
     border-radius: 10px;
     font-size: 15px;
@@ -73,8 +76,8 @@
     background: #ffffff;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    height: 44px;
-    /* Booking form'daki gibi sabit yükseklik */
+    height: 48px;
+    /* Standardize height */
     box-sizing: border-box;
 }
 
@@ -90,17 +93,66 @@
     font-weight: 400;
 }
 
+/* Date & Time Wrapper */
+.rv-datetime-wrapper {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.rv-date-input {
+    flex: 2;
+    /* Date takes ~66% */
+    min-width: 0;
+    /* Prevent overflow */
+}
+
+.rv-time-select {
+    flex: 1;
+    /* Time takes ~33% */
+    min-width: 80px;
+    padding: 12px 8px;
+    /* Slightly tighter padding */
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e293b;
+    background: #ffffff;
+    cursor: pointer;
+    box-sizing: border-box;
+    height: 48px;
+    /* Match combined input height */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23334155' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 28px;
+}
+
+.rv-time-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
 /* Search Button */
 .rv-search-submit {
-    display: flex;
-    align-items: end;
+    display: block;
+    /* Let button handling sizing */
+    margin-bottom: 0;
 }
 
 .rv-search-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 14px 24px;
+    padding: 0 32px;
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     color: white;
     border: none;
@@ -110,11 +162,13 @@
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    min-width: 120px;
+    min-width: auto;
     justify-content: center;
-    height: 44px;
-    /* Input'larla aynı yükseklik */
+    height: 48px;
+    /* Match input height explicitly */
     box-sizing: border-box;
+    white-space: nowrap;
+    margin-bottom: 0px;
 }
 
 .rv-search-btn:hover {
@@ -131,41 +185,16 @@
     font-size: 16px;
 }
 
-/* Advanced Filters Toggle */
+/* Advanced Filters Toggle - Hidden per user request */
 .rv-advanced-filters-compact {
+    display: none;
     margin-top: 20px;
     border-top: 1px solid #e2e8f0;
     padding-top: 20px;
 }
 
 .rv-toggle-filters-compact {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: none;
-    border: none;
-    color: #64748b;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    margin: 0 auto;
-}
-
-.rv-toggle-filters-compact:hover {
-    background: #f1f5f9;
-    color: #3b82f6;
-}
-
-.rv-toggle-icon {
-    transition: transform 0.3s ease;
-    font-size: 12px;
-}
-
-.rv-advanced-filters-compact.active .rv-toggle-icon {
-    transform: rotate(180deg);
+    display: none;
 }
 
 /* Advanced Filters Content */
@@ -216,29 +245,22 @@
 /* Responsive Design */
 @media (max-width: 1024px) {
     .rv-search-main-row {
+        display: grid !important;
         grid-template-columns: 1fr 1fr;
-        gap: 15px;
+        gap: 15px !important;
     }
 
     .rv-search-keyword {
         grid-column: 1 / -1;
-        /* Full width on tablet */
-    }
-
-    .rv-search-submit {
-        align-items: stretch;
-    }
-
-    .rv-search-btn {
-        width: 100%;
-        min-width: auto;
     }
 }
 
 @media (max-width: 768px) {
     .rv-search-main-row {
-        grid-template-columns: 1fr;
-        gap: 15px;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        /* Stack vertically */
+        gap: 15px !important;
     }
 
     .rv-search-keyword {
@@ -250,6 +272,11 @@
         margin: 0 10px;
     }
 
+    .rv-search-btn {
+        width: 100%;
+        margin-top: 5px;
+    }
+
     .rv-search-header-compact h3 {
         font-size: 24px;
     }
@@ -257,6 +284,23 @@
     .rv-advanced-row-compact {
         grid-template-columns: 1fr;
         gap: 15px;
+    }
+
+    .rv-datetime-wrapper {
+        flex-wrap: nowrap;
+        gap: 8px;
+    }
+
+    .rv-date-input {
+        flex: 1.5;
+        min-width: 0;
+    }
+
+    .rv-time-select {
+        flex: 1;
+        min-width: 90px;
+        font-size: 13px;
+        padding: 12px 24px 12px 8px;
     }
 }
 
@@ -279,6 +323,26 @@
     .rv-search-btn {
         padding: 12px 20px;
         font-size: 14px;
+    }
+
+    .rv-datetime-wrapper {
+        flex-wrap: nowrap;
+        gap: 6px;
+    }
+
+    .rv-date-input {
+        flex: 1.2;
+        min-width: 0;
+        font-size: 13px;
+        padding: 10px 12px;
+    }
+
+    .rv-time-select {
+        flex: 0.8;
+        min-width: 85px;
+        font-size: 12px;
+        padding: 10px 22px 10px 6px;
+        height: auto;
     }
 }
 
@@ -339,34 +403,232 @@
     color: #3b82f6;
 }
 
-/* Dark Mode Support (if needed) */
-@media (prefers-color-scheme: dark) {
-    .rv-search-form-compact {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        border-color: rgba(255, 255, 255, 0.1);
-    }
+/* ===== MODERN JQUERY UI DATEPICKER STYLES (Matched to Booking Form) ===== */
+.ui-datepicker {
+    background: #ffffff !important;
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    padding: 0 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+    font-size: 14px !important;
+    z-index: 9999 !important;
+    min-width: 280px !important;
+}
 
-    .rv-search-header-compact h3 {
-        color: #f1f5f9;
-    }
+/* ===== DATEPICKER HEADER ===== */
+.ui-datepicker .ui-datepicker-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 0 !important;
+    min-height: 64px !important;
+    height: 64px !important;
+    text-align: center !important;
+    position: relative !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: visible !important;
+}
 
-    .rv-search-field label {
-        color: #cbd5e1;
-    }
+/* Title */
+.ui-datepicker .ui-datepicker-title {
+    font-weight: 700 !important;
+    font-size: 17px !important;
+    line-height: 1.5 !important;
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+    letter-spacing: 0.5px !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-block !important;
+    width: auto !important;
+    position: relative !important;
+    z-index: 5 !important;
+    white-space: nowrap !important;
+}
 
-    .rv-search-field input,
-    .rv-search-field select {
-        background: #334155;
-        border-color: #475569;
-        color: #f1f5f9;
-    }
+/* Navigation Arrows */
+.ui-datepicker .ui-datepicker-prev,
+.ui-datepicker .ui-datepicker-next {
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 36px !important;
+    height: 36px !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+    border: 2px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+    z-index: 10 !important;
+}
 
-    .rv-search-field input::placeholder {
-        color: #64748b;
-    }
+.ui-datepicker .ui-datepicker-prev:hover,
+.ui-datepicker .ui-datepicker-next:hover {
+    background: rgba(255, 255, 255, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    transform: translateY(-50%) scale(1.05) !important;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
+}
 
-    .rv-advanced-content-compact {
-        background: #1e293b;
-        border-color: #475569;
-    }
+.ui-datepicker .ui-datepicker-prev {
+    left: 16px !important;
+    right: auto !important;
+}
+
+.ui-datepicker .ui-datepicker-next {
+    right: 16px !important;
+    left: auto !important;
+}
+
+/* Icons for arrows */
+.ui-datepicker .ui-datepicker-prev::before {
+    content: '' !important;
+    display: block !important;
+    width: 8px !important;
+    height: 8px !important;
+    border-left: 2px solid #ffffff !important;
+    border-bottom: 2px solid #ffffff !important;
+    transform: rotate(45deg) !important;
+    margin-left: 2px !important;
+}
+
+.ui-datepicker .ui-datepicker-next::before {
+    content: '' !important;
+    display: block !important;
+    width: 8px !important;
+    height: 8px !important;
+    border-right: 2px solid #ffffff !important;
+    border-top: 2px solid #ffffff !important;
+    transform: rotate(45deg) !important;
+    margin-right: 2px !important;
+}
+
+/* Hide default text/icons */
+.ui-datepicker .ui-datepicker-prev span,
+.ui-datepicker .ui-datepicker-next span {
+    display: none !important;
+}
+
+/* Calendar Table */
+.ui-datepicker-calendar {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 4px !important;
+    padding: 8px !important;
+    margin: 0 !important;
+}
+
+.ui-datepicker-calendar th {
+    color: #64748b !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 10px 0 !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.ui-datepicker-calendar td {
+    padding: 0 !important;
+    text-align: center !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.ui-datepicker-calendar td a,
+.ui-datepicker-calendar td span {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    height: 40px !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    color: #334155 !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    border-radius: 50% !important;
+    border: 1px solid transparent !important;
+    transition: all 0.2s ease !important;
+}
+
+.ui-datepicker-calendar td a:hover {
+    background-color: #eff6ff !important;
+    color: #3b82f6 !important;
+    transform: scale(1.1) !important;
+    font-weight: 600 !important;
+}
+
+.ui-datepicker-calendar .ui-state-active {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4) !important;
+    border: none !important;
+    transform: scale(1.05) !important;
+}
+
+.ui-datepicker-calendar .ui-state-highlight {
+    background-color: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+.ui-datepicker-today a.ui-state-highlight {
+    font-weight: 700 !important;
+    color: #3b82f6 !important;
+    background-color: #eff6ff !important;
+    border-color: #bfdbfe !important;
+}
+
+/* Button Pane */
+.ui-datepicker-buttonpane {
+    border-top: 1px solid #e2e8f0 !important;
+    padding: 12px !important;
+    margin: 0 !important;
+}
+
+.ui-datepicker-buttonpane button {
+    background: #64748b !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 8px 16px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    margin: 0 4px !important;
+    opacity: 1 !important;
+    width: auto !important;
+}
+
+.ui-datepicker-buttonpane button:hover {
+    background: #475569 !important;
+    transform: translateY(-1px) !important;
+}
+
+.ui-datepicker-buttonpane button.ui-datepicker-current {
+    float: left !important;
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+.ui-datepicker-buttonpane button.ui-datepicker-close {
+    float: right !important;
+    background: #3b82f6 !important;
+    color: #ffffff !important;
 }
