@@ -161,6 +161,7 @@
 
         // Handle form submission
         $form.on('submit', function (e) {
+            // Validate form - allow submission even without dates
             if (!validateForm()) {
                 e.preventDefault();
                 return false;
@@ -170,10 +171,14 @@
             const $btn = $('.rv-search-btn');
             $btn.addClass('loading').prop('disabled', true);
 
-            // Remove loading state after 3 seconds (fallback)
+            // Form will submit normally via GET method
+            // Remove loading state after 3 seconds (fallback in case of error)
             setTimeout(() => {
                 $btn.removeClass('loading').prop('disabled', false);
             }, 3000);
+            
+            // Allow form to submit normally
+            return true;
         });
 
         // Real-time validation
@@ -280,16 +285,23 @@
         $form.find('.rv-search-field').removeClass('error success');
         $form.find('.error-message').remove();
 
-        // Validate required fields
+        // Validate required fields only
         $requiredFields.each(function () {
             if (!validateField($(this))) {
                 isValid = false;
             }
         });
 
-        // Validate date range
-        if (!validateDateRange()) {
-            isValid = false;
+        // Validate date range only if dates are provided
+        // Allow form submission even without dates (show all available vehicles)
+        const pickupValue = $('#rv-pickup-date').val();
+        const returnValue = $('#rv-return-date').val();
+        
+        // Only validate date range if both dates are provided
+        if (pickupValue && returnValue) {
+            if (!validateDateRange()) {
+                isValid = false;
+            }
         }
 
         return isValid;

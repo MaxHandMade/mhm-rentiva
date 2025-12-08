@@ -111,7 +111,7 @@
     flex: 1;
     /* Time takes ~33% */
     min-width: 80px;
-    padding: 12px 8px;
+    padding: 12px 28px 12px 8px;
     /* Slightly tighter padding */
     border: 2px solid #e2e8f0;
     border-radius: 10px;
@@ -123,7 +123,9 @@
     box-sizing: border-box;
     height: 48px;
     /* Match combined input height */
-    overflow: hidden;
+    line-height: 24px;
+    /* Fix text clipping */
+    overflow: visible;
     text-overflow: ellipsis;
     white-space: nowrap;
     appearance: none;
@@ -132,7 +134,6 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23334155' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 8px center;
-    padding-right: 28px;
 }
 
 .rv-time-select:focus {
@@ -301,6 +302,8 @@
         min-width: 90px;
         font-size: 13px;
         padding: 12px 24px 12px 8px;
+        line-height: 24px;
+        height: 48px;
     }
 }
 
@@ -342,7 +345,8 @@
         min-width: 85px;
         font-size: 12px;
         padding: 10px 22px 10px 6px;
-        height: auto;
+        line-height: 20px;
+        height: 40px;
     }
 }
 
