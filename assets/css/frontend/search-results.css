@@ -122,6 +122,17 @@
     overflow-x: hidden;
 }
 
+/* Hide scrollbar but keep scroll functionality */
+.rv-filters-sidebar::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+}
+
+.rv-filters-sidebar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
 .rv-filters-header {
     display: flex;
     justify-content: space-between;
