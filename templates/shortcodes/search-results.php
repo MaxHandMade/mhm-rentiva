@@ -152,12 +152,12 @@ $max_pages = $results['max_pages'] ?? 1;
                 <div class="rv-filter-group">
                     <h4 class="rv-filter-title"><?php esc_html_e('Fuel Type', 'mhm-rentiva'); ?></h4>
                     <div class="rv-filter-options">
-                        <?php foreach ($filter_options['fuel_types'] as $fuel_type): ?>
+                        <?php foreach ($filter_options['fuel_types'] as $fuel_key => $fuel_label): ?>
                             <label class="rv-filter-option">
-                                <input type="checkbox" name="fuel_type[]" value="<?php echo esc_attr($fuel_type); ?>" 
-                                       <?php checked(in_array($fuel_type, (array)($search_params['fuel_type'] ?? []))); ?>>
+                                <input type="checkbox" name="fuel_type[]" value="<?php echo esc_attr($fuel_key); ?>" 
+                                       <?php checked(in_array($fuel_key, (array)($search_params['fuel_type'] ?? []))); ?>>
                                 <span class="rv-checkbox-custom"></span>
-                                <span class="rv-option-label"><?php echo esc_html($fuel_type); ?></span>
+                                <span class="rv-option-label"><?php echo esc_html($fuel_label); ?></span>
                             </label>
                         <?php endforeach; ?>
                     </div>
@@ -169,12 +169,12 @@ $max_pages = $results['max_pages'] ?? 1;
                 <div class="rv-filter-group">
                     <h4 class="rv-filter-title"><?php esc_html_e('Transmission', 'mhm-rentiva'); ?></h4>
                     <div class="rv-filter-options">
-                        <?php foreach ($filter_options['transmissions'] as $transmission): ?>
+                        <?php foreach ($filter_options['transmissions'] as $transmission_key => $transmission_label): ?>
                             <label class="rv-filter-option">
-                                <input type="checkbox" name="transmission[]" value="<?php echo esc_attr($transmission); ?>" 
-                                       <?php checked(in_array($transmission, (array)($search_params['transmission'] ?? []))); ?>>
+                                <input type="checkbox" name="transmission[]" value="<?php echo esc_attr($transmission_key); ?>" 
+                                       <?php checked(in_array($transmission_key, (array)($search_params['transmission'] ?? []))); ?>>
                                 <span class="rv-checkbox-custom"></span>
-                                <span class="rv-option-label"><?php echo esc_html($transmission); ?></span>
+                                <span class="rv-option-label"><?php echo esc_html($transmission_label); ?></span>
                             </label>
                         <?php endforeach; ?>
                     </div>
@@ -240,23 +240,27 @@ $max_pages = $results['max_pages'] ?? 1;
             </div>
 
             <!-- Results Container -->
-            <div class="rv-results-container" id="rv-results-container">
-                <?php if (!empty($vehicles)): ?>
-                    <div class="rv-vehicles-<?php echo esc_attr($atts['layout'] ?? 'grid'); ?>" id="rv-vehicles-list">
+            <!-- PERMANENT LAYOUT WRAPPER: Holds the state (Grid/List) -->
+            <div id="rv-results-layout-container" class="rv-layout-<?php echo esc_attr($atts['layout'] ?? 'grid'); ?>">
+                
+                <!-- CONTENT TARGET: AJAX updates replace content inside here -->
+                <div id="rv-results-grid-content" class="rv-vehicle-grid-wrapper">
+                    <?php if (!empty($vehicles)): ?>
                         <?php foreach ($vehicles as $vehicle): ?>
                             <?php echo \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::render_vehicle_card($vehicle, $atts['layout'] ?? 'grid'); ?>
                         <?php endforeach; ?>
-                    </div>
-                <?php else: ?>
-                    <div class="rv-no-results">
-                        <div class="rv-no-results-icon">🚗</div>
-                        <h3><?php esc_html_e('No vehicles found', 'mhm-rentiva'); ?></h3>
-                        <p><?php esc_html_e('Try adjusting your search criteria or filters.', 'mhm-rentiva'); ?></p>
-                        <a href="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search')); ?>" class="rv-back-to-search">
-                            <?php esc_html_e('Back to Search', 'mhm-rentiva'); ?>
-                        </a>
-                    </div>
-                <?php endif; ?>
+                    <?php else: ?>
+                        <div class="rv-no-results">
+                            <div class="rv-no-results-icon">🚗</div>
+                            <h3><?php esc_html_e('No vehicles found', 'mhm-rentiva'); ?></h3>
+                            <p><?php esc_html_e('Try adjusting your search criteria or filters.', 'mhm-rentiva'); ?></p>
+                            <a href="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search')); ?>" class="rv-back-to-search">
+                                <?php esc_html_e('Back to Search', 'mhm-rentiva'); ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
             </div>
 
             <!-- Pagination -->

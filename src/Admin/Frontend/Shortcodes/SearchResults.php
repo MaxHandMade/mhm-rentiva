@@ -50,9 +50,6 @@ final class SearchResults extends AbstractShortcode
         add_action('wp_ajax_mhm_rentiva_filter_results', [self::class, 'ajax_filter_results']);
         add_action('wp_ajax_nopriv_mhm_rentiva_filter_results', [self::class, 'ajax_filter_results']);
         
-        add_action('wp_ajax_mhm_rentiva_update_filters', [self::class, 'ajax_update_filters']);
-        add_action('wp_ajax_nopriv_mhm_rentiva_update_filters', [self::class, 'ajax_update_filters']);
-        
         add_action('wp_ajax_mhm_rentiva_toggle_favorite', [self::class, 'ajax_toggle_favorite']);
     }
 
@@ -159,6 +156,12 @@ final class SearchResults extends AbstractShortcode
                 'review' => __('review', 'mhm-rentiva'),
                 'reviews' => __('reviews', 'mhm-rentiva'),
                 'view_details' => __('View Details', 'mhm-rentiva'),
+                'previous' => __('Previous', 'mhm-rentiva'),
+                'next' => __('Next', 'mhm-rentiva'),
+                'error' => __('Error', 'mhm-rentiva'),
+                'try_again' => __('Try Again', 'mhm-rentiva'),
+                'vehicle_found' => __('%d vehicle found', 'mhm-rentiva'),
+                'vehicles_found' => __('%d vehicles found', 'mhm-rentiva'),
             ],
             'favorite_nonce' => wp_create_nonce('mhm_rentiva_toggle_favorite'),
         ]);
@@ -441,23 +444,43 @@ final class SearchResults extends AbstractShortcode
     {
         global $wpdb;
 
-        // Fuel types
-        $fuel_types = $wpdb->get_col("
+        // Fuel types - Get keys and convert to labels
+        $fuel_type_keys = $wpdb->get_col("
             SELECT DISTINCT meta_value 
             FROM {$wpdb->postmeta} 
             WHERE meta_key = '_mhm_rentiva_fuel_type' 
             AND meta_value != '' 
             ORDER BY meta_value ASC
         ");
+        
+        $fuel_types_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
+        $fuel_types = [];
+        foreach ($fuel_type_keys as $key) {
+            if (isset($fuel_types_map[$key])) {
+                $fuel_types[$key] = $fuel_types_map[$key];
+            } else {
+                $fuel_types[$key] = $key; // Fallback to key if label not found
+            }
+        }
 
-        // Transmission types
-        $transmissions = $wpdb->get_col("
+        // Transmission types - Get keys and convert to labels
+        $transmission_keys = $wpdb->get_col("
             SELECT DISTINCT meta_value 
             FROM {$wpdb->postmeta} 
             WHERE meta_key = '_mhm_rentiva_transmission' 
             AND meta_value != '' 
             ORDER BY meta_value ASC
         ");
+        
+        $transmissions_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
+        $transmissions = [];
+        foreach ($transmission_keys as $key) {
+            if (isset($transmissions_map[$key])) {
+                $transmissions[$key] = $transmissions_map[$key];
+            } else {
+                $transmissions[$key] = $key; // Fallback to key if label not found
+            }
+        }
 
         // Seat counts
         $seats = $wpdb->get_col("

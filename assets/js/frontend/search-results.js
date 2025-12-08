@@ -650,7 +650,8 @@
 
         // Previous button
         if (pagination.has_prev) {
-            html += `<a href="?page=${pagination.prev_page}" class="prev page-numbers">← Previous</a>`;
+            const prevText = mhmRentivaSearchResults.i18n.previous || 'Previous';
+            html += `<a href="?page=${pagination.prev_page}" class="prev page-numbers">← ${prevText}</a>`;
         }
 
         // Page numbers
@@ -664,7 +665,8 @@
 
         // Next button
         if (pagination.has_next) {
-            html += `<a href="?page=${pagination.next_page}" class="next page-numbers">Next →</a>`;
+            const nextText = mhmRentivaSearchResults.i18n.next || 'Next';
+            html += `<a href="?page=${pagination.next_page}" class="next page-numbers">${nextText} →</a>`;
         }
 
         html += '</div>';
@@ -679,8 +681,8 @@
         if ($title.length === 0) return;
 
         const text = total === 1 ?
-            '1 vehicle found' :
-            `${total} vehicles found`;
+            (mhmRentivaSearchResults.i18n.vehicle_found || '%d vehicle found').replace('%d', '1') :
+            (mhmRentivaSearchResults.i18n.vehicles_found || '%d vehicles found').replace('%d', total);
 
         $title.text(text);
     }
@@ -704,7 +706,7 @@
                 if (response.success) {
                     // Toggle active class
                     $btn.toggleClass('active');
-                    
+
                     // Update color based on state
                     if (response.data.action === 'added') {
                         $btn.css('color', '#e74c3c');
@@ -765,13 +767,16 @@
     function showError(message) {
         const $container = $('#rv-results-grid-content');
 
+        const errorText = mhmRentivaSearchResults.i18n.error || 'Error';
+        const tryAgainText = mhmRentivaSearchResults.i18n.try_again || 'Try Again';
+        
         const html = `
             <div class="rv-error-message">
                 <div class="rv-error-icon">⚠️</div>
-                <h3>Error</h3>
+                <h3>${errorText}</h3>
                 <p>${message}</p>
                 <button type="button" class="rv-btn rv-btn-primary" onclick="location.reload()">
-                    Try Again
+                    ${tryAgainText}
                 </button>
             </div>
         `;
