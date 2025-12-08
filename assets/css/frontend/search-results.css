@@ -153,6 +153,14 @@
     color: #5a67d8;
 }
 
+/* Global Sidebar Input Constraint */
+.rv-filters-sidebar input,
+.rv-filters-sidebar select,
+.rv-filters-sidebar button {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 /* Filter Groups */
 .rv-filter-group {
     margin-bottom: 24px;
@@ -299,19 +307,25 @@
 }
 
 /* Mileage Range */
+/* Mileage Range */
 .rv-mileage-range {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
+    /* Allow wrapping on small screens */
 }
 
 .rv-mileage-range input {
     flex: 1;
-    padding: 8px 12px;
+    min-width: 60px;
+    /* Allow shrinking */
+    padding: 8px 10px;
     border: 2px solid #e1e5e9;
     border-radius: 6px;
     font-size: 13px;
     transition: border-color 0.3s ease;
+    /* width: 100%; removed to prevent forced stacking */
 }
 
 .rv-mileage-range input:focus {
@@ -323,6 +337,7 @@
     font-size: 12px;
     color: #666;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 /* Results Main Area */
@@ -359,133 +374,125 @@
     }
 }
 
-/* Vehicles Grid */
-.rv-vehicles-grid {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
-    gap: 24px !important;
-    width: 100% !important;
+/* =========================================
+   NEW ROBUST LAYOUT SYSTEM (2025 Refactor)
+   ========================================= */
+
+/* =========================================
+   NEW ROBUST LAYOUT SYSTEM (2025 Refactor)
+   ========================================= */
+
+/* The Internal Content Wrapper */
+.rv-vehicle-grid-wrapper {
+    width: 100%;
+    /* Default to grid layout if no parent class is set */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
 }
 
-/* Vehicles List */
-.rv-vehicles-list {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 16px !important;
-    width: 100% !important;
-}
-
-/* Vehicle Cards */
+/* Base Card Styles */
 .rv-vehicle-card {
     background: white;
+    border: 1px solid #e1e5e9;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     overflow: hidden;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     position: relative;
+    /* Ensure sizing behaves */
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .rv-vehicle-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
-/* Grid Card */
-.rv-vehicle-card-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    width: 100% !important;
-    max-width: none !important;
+/* --- GRID VIEW MODE --- */
+.rv-layout-grid .rv-vehicle-grid-wrapper {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
 }
 
-.rv-vehicle-card-grid .rv-vehicle-image {
-    position: relative;
+.rv-layout-grid .rv-vehicle-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.rv-layout-grid .rv-vehicle-card .rv-vehicle-image {
+    width: 100%;
     height: 200px;
+    position: relative;
     overflow: hidden;
 }
 
-.rv-vehicle-card-grid .rv-vehicle-image img {
+.rv-layout-grid .rv-vehicle-card .rv-vehicle-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.5s ease;
 }
 
-.rv-vehicle-card-grid:hover .rv-vehicle-image img {
+.rv-layout-grid .rv-vehicle-card:hover .rv-vehicle-image img {
     transform: scale(1.05);
 }
 
-/* List Card */
-.rv-vehicle-card-list {
-    display: grid !important;
-    grid-template-columns: 200px 1fr !important;
-    gap: 20px !important;
-    padding: 20px !important;
-    width: 100% !important;
-    max-width: none !important;
-}
-
-.rv-vehicle-card-list .rv-vehicle-image {
-    position: relative;
-    height: 150px;
-    overflow: hidden;
-    border-radius: 8px;
-}
-
-.rv-vehicle-card-list .rv-vehicle-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* No Image */
-.rv-no-image {
-    width: 100%;
-    height: 100%;
-    background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ccc;
-}
-
-/* Price Badge */
-.rv-price-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.rv-price-amount {
-    font-size: 16px;
-}
-
-.rv-price-period {
-    font-size: 12px;
-    opacity: 0.9;
-}
-
-/* Vehicle Info */
-.rv-vehicle-info {
+.rv-layout-grid .rv-vehicle-card .rv-vehicle-info {
     padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    flex: 1;
 }
 
-.rv-vehicle-card-list .rv-vehicle-info {
-    padding: 0;
+/* --- LIST VIEW MODE --- */
+.rv-layout-list .rv-vehicle-grid-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
+.rv-layout-list .rv-vehicle-card {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+    min-height: 220px;
+    align-items: stretch;
+}
+
+.rv-layout-list .rv-vehicle-card .rv-vehicle-image {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    border-right: 1px solid #f0f0f0;
+}
+
+.rv-layout-list .rv-vehicle-card .rv-vehicle-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.rv-layout-list .rv-vehicle-card:hover .rv-vehicle-image img {
+    transform: scale(1.05);
+}
+
+.rv-layout-list .rv-vehicle-card .rv-vehicle-info {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+
+/* Common Internal Elements */
 .rv-vehicle-title {
     margin: 0;
     font-size: 18px;
@@ -523,15 +530,16 @@
 /* Vehicle Features */
 .rv-vehicle-features {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     flex-wrap: wrap;
+    margin-top: 4px;
 }
 
 .rv-feature {
     display: flex;
     align-items: center;
-    gap: 4px;
-    color: #666;
+    gap: 6px;
+    color: #555;
     font-size: 13px;
     font-weight: 500;
 }
@@ -541,6 +549,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-top: auto;
 }
 
 .rv-stars {
@@ -566,7 +575,13 @@
 .rv-vehicle-actions {
     display: flex;
     gap: 12px;
+    margin-top: 16px;
+}
+
+/* List View Specific Overrides for Actions */
+.rv-layout-list .rv-vehicle-actions {
     margin-top: auto;
+    justify-content: flex-start;
 }
 
 .rv-btn {
@@ -588,6 +603,13 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     flex: 1;
+    white-space: nowrap;
+}
+
+.rv-layout-list .rv-btn-primary {
+    flex: 0 1 auto;
+    /* Don't stretch unnecessarily in list view */
+    min-width: 140px;
 }
 
 .rv-btn-primary:hover {
@@ -596,18 +618,107 @@
 }
 
 .rv-btn-secondary {
-    background: #f8f9fa;
+    background: white;
     color: #666;
-    border: 2px solid #e1e5e9;
+    border: 1px solid #e1e5e9;
     width: 44px;
     height: 44px;
     padding: 0;
+    flex-shrink: 0;
 }
 
 .rv-btn-secondary:hover {
-    background: #e9ecef;
+    background: #f8f9fa;
     border-color: #667eea;
     color: #667eea;
+}
+
+/* No Image Placeholder */
+.rv-no-image {
+    width: 100%;
+    height: 100%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ccc;
+}
+
+/* Price Badge */
+.rv-price-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.rv-price-amount {
+    font-size: 16px;
+    color: #667eea;
+}
+
+.rv-price-period {
+    font-size: 12px;
+    color: #666;
+    font-weight: normal;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+
+    /* Grid becomes 1 column */
+    .rv-layout-grid .rv-vehicle-grid-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    /* List becomes stacked */
+    .rv-layout-list .rv-vehicle-card {
+        grid-template-columns: 1fr;
+        /* Stack */
+        display: flex;
+        flex-direction: column;
+        height: auto;
+    }
+
+    .rv-layout-list .rv-vehicle-card .rv-vehicle-image {
+        width: 100%;
+        height: 200px;
+        /* Fixed height for mobile */
+        border-right: none;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .rv-layout-list .rv-vehicle-card .rv-vehicle-info {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    /* Common Mobile Adjustments */
+    .rv-vehicle-actions {
+        flex-wrap: wrap;
+    }
+
+    .rv-btn-primary {
+        width: 100%;
+        flex: 1 1 100%;
+    }
+
+    .rv-btn-secondary {
+        width: 100%;
+        flex: 1 1 100%;
+        border-radius: 6px;
+    }
 }
 
 /* No Results */

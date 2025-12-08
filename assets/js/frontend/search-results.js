@@ -106,7 +106,8 @@
 
         // Load saved preference, but sync with PHP initial layout if different
         const savedView = localStorage.getItem('mhm_rentiva_view_mode');
-        const viewToUse = savedView && savedView === 'list' || savedView === 'grid' ? savedView : initialLayout;
+        // Validate savedView is either 'grid' or 'list', otherwise use initialLayout
+        const viewToUse = (savedView === 'list' || savedView === 'grid') ? savedView : initialLayout;
 
         // Sync buttons and layout
         $viewBtns.removeClass('active');
@@ -146,9 +147,13 @@
         const $layoutContainer = $('#rv-results-layout-container');
 
         if ($layoutContainer.length > 0) {
-            $layoutContainer
-                .removeClass('rv-layout-grid rv-layout-list')
-                .addClass(`rv-layout-${view}`);
+            // Remove all layout classes first
+            $layoutContainer.removeClass('rv-layout-grid rv-layout-list');
+            // Add the correct layout class
+            $layoutContainer.addClass(`rv-layout-${view}`);
+            
+            // Force a reflow to ensure CSS is applied
+            $layoutContainer[0].offsetHeight;
         } else {
             console.warn('Layout container #rv-results-layout-container not found');
         }
