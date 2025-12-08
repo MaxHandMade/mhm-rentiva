@@ -182,3 +182,16 @@
     font-weight: 600;
     color: var(--text-heading-color);
 }
+
+/* =================================================================
+   7. Fix: Hide calendar in footer (jQuery UI DatePicker bug fix)
+   ================================================================= */
+footer .ui-datepicker,
+.site-footer .ui-datepicker,
+#footer .ui-datepicker,
+footer .calendar-container,
+.site-footer .calendar-container,
+#footer .calendar-container {
+    display: none !important;
+    visibility: hidden !important;
+}
