@@ -414,7 +414,7 @@
 .rv-layout-grid .rv-vehicle-grid-wrapper {
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
-    gap: 24px;
+    gap: 24px !important;
     flex-direction: unset !important;
 }
 
@@ -423,6 +423,9 @@
     flex-direction: column !important;
     height: 100%;
     grid-template-columns: unset !important;
+    grid-template-rows: unset !important;
+    min-height: unset !important;
+    align-items: unset !important;
 }
 
 .rv-layout-grid .rv-vehicle-card .rv-vehicle-image {
@@ -455,7 +458,8 @@
 .rv-layout-list .rv-vehicle-grid-wrapper {
     display: flex !important;
     flex-direction: column !important;
-    gap: 20px;
+    gap: 20px !important;
+    grid-template-columns: unset !important;
 }
 
 .rv-layout-list .rv-vehicle-card {
@@ -465,6 +469,7 @@
     min-height: 220px;
     align-items: stretch;
     flex-direction: unset !important;
+    height: unset !important;
 }
 
 .rv-layout-list .rv-vehicle-card .rv-vehicle-image {

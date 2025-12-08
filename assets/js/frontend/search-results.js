@@ -18,7 +18,41 @@
         initializeViewToggle();
         initializeFavorites();
         initializePagination();
+        
+        // Force sync layout on page load (double-check after all initialization)
+        setTimeout(function() {
+            forceSyncLayout();
+        }, 100);
     });
+    
+    /**
+     * Force sync layout - ensures container class matches active button
+     */
+    function forceSyncLayout() {
+        const $layoutContainer = $('#rv-results-layout-container');
+        const $activeBtn = $('.rv-view-btn.active');
+        
+        if ($layoutContainer.length === 0 || $activeBtn.length === 0) {
+            return; // Not on search results page
+        }
+        
+        const activeView = $activeBtn.data('view');
+        const containerClass = $layoutContainer.attr('class') || '';
+        
+        // Check if container class matches active button
+        const hasGridClass = containerClass.includes('rv-layout-grid');
+        const hasListClass = containerClass.includes('rv-layout-list');
+        
+        if (activeView === 'grid' && !hasGridClass) {
+            // Button says grid but container doesn't have grid class
+            $layoutContainer.removeClass('rv-layout-list').addClass('rv-layout-grid');
+            console.log('Force synced: Set container to grid layout');
+        } else if (activeView === 'list' && !hasListClass) {
+            // Button says list but container doesn't have list class
+            $layoutContainer.removeClass('rv-layout-grid').addClass('rv-layout-list');
+            console.log('Force synced: Set container to list layout');
+        }
+    }
 
     /**
      * Initialize results page
@@ -95,7 +129,7 @@
 
         // Check which button is currently active (from PHP)
         let activeButtonView = null;
-        $viewBtns.each(function() {
+        $viewBtns.each(function () {
             if ($(this).hasClass('active')) {
                 activeButtonView = $(this).data('view');
             }
@@ -165,7 +199,7 @@
             $layoutContainer.removeClass('rv-layout-grid rv-layout-list');
             // Add the correct layout class
             $layoutContainer.addClass(`rv-layout-${view}`);
-            
+
             // Force a reflow to ensure CSS is applied
             $layoutContainer[0].offsetHeight;
         } else {
