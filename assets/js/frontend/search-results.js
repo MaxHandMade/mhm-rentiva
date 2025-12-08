@@ -279,10 +279,14 @@
                     const wrapperEl = $wrapper[0];
                     if (wrapperEl) {
                         wrapperEl.style.setProperty('display', 'grid', 'important');
-                        wrapperEl.style.setProperty('grid-template-columns', 'repeat(auto-fill, minmax(300px, 1fr))', 'important');
+                        // Use auto-fit instead of auto-fill for better responsiveness
+                        // Reduce min width to 280px to allow more columns
+                        wrapperEl.style.setProperty('grid-template-columns', 'repeat(auto-fit, minmax(280px, 1fr))', 'important');
                         wrapperEl.style.setProperty('gap', '24px', 'important');
                         wrapperEl.style.setProperty('flex-direction', 'unset', 'important');
                         wrapperEl.style.setProperty('width', '100%', 'important');
+                        wrapperEl.style.setProperty('max-width', '100%', 'important');
+                        wrapperEl.style.setProperty('box-sizing', 'border-box', 'important');
                     }
 
                     // Ensure all cards are flex in grid view
@@ -300,7 +304,23 @@
                     console.log('Wrapper grid-template-columns:', wrapperEl.style.getPropertyValue('grid-template-columns'));
                     console.log('Wrapper computed display:', window.getComputedStyle(wrapperEl).display);
                     console.log('Wrapper computed grid-template-columns:', window.getComputedStyle(wrapperEl).gridTemplateColumns);
+                    console.log('Wrapper computed width:', window.getComputedStyle(wrapperEl).width);
                     console.log('Card count:', $wrapper.find('.rv-vehicle-card').length);
+                    
+                    // Check first card's display
+                    const firstCard = $wrapper.find('.rv-vehicle-card').first()[0];
+                    if (firstCard) {
+                        console.log('First card inline display:', firstCard.style.display);
+                        console.log('First card computed display:', window.getComputedStyle(firstCard).display);
+                        console.log('First card computed width:', window.getComputedStyle(firstCard).width);
+                    }
+                    
+                    // Check parent container
+                    const parentContainer = wrapperEl.parentElement;
+                    if (parentContainer) {
+                        console.log('Parent container width:', window.getComputedStyle(parentContainer).width);
+                        console.log('Parent container display:', window.getComputedStyle(parentContainer).display);
+                    }
                 } else {
                     // List layout: wrapper is flex column, cards are grid
                     const wrapperEl = $wrapper[0];
