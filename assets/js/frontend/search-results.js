@@ -523,9 +523,9 @@
                 <div class="rv-no-results">
                     <div class="rv-no-results-icon">🚗</div>
                     <h3>${mhmRentivaSearchResults.i18n.no_results || 'No vehicles found'}</h3>
-                    <p>Try adjusting your search criteria or filters.</p>
+                    <p>${mhmRentivaSearchResults.i18n.try_adjusting || 'Try adjusting your search criteria or filters.'}</p>
                     <a href="${mhmRentivaSearchResults.search_page_url || '#'}" class="rv-back-to-search">
-                        Back to Search
+                        ${mhmRentivaSearchResults.i18n.back_to_search || 'Back to Search'}
                     </a>
                 </div>
              `;
@@ -710,7 +710,9 @@
         // Update clear button text
         const $clearBtn = $('#rv-clear-filters');
         if (activeFilters > 0) {
-            $clearBtn.text(`Clear All (${activeFilters})`);
+            const clearAllText = mhmRentivaSearchResults.i18n.clear_all || 'Clear All';
+            const clearAllWithCount = (mhmRentivaSearchResults.i18n.clear_all_with_count || 'Clear All (%d)').replace('%d', activeFilters);
+            $clearBtn.text(clearAllWithCount);
             $clearBtn.show();
         } else {
             $clearBtn.hide();

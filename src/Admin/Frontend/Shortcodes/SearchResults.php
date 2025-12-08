@@ -146,6 +146,10 @@ final class SearchResults extends AbstractShortcode
                 'error' => __('An error occurred. Please try again.', 'mhm-rentiva'),
                 'filter_applied' => __('Filter applied', 'mhm-rentiva'),
                 'clear_filters' => __('Clear all filters', 'mhm-rentiva'),
+                'clear_all' => __('Clear All', 'mhm-rentiva'),
+                'clear_all_with_count' => __('Clear All (%d)', 'mhm-rentiva'),
+                'try_adjusting' => __('Try adjusting your search criteria or filters.', 'mhm-rentiva'),
+                'back_to_search' => __('Back to Search', 'mhm-rentiva'),
             ],
         ]);
     }
@@ -562,7 +566,8 @@ final class SearchResults extends AbstractShortcode
             return '';
         }
 
-        $card_class = $layout === 'list' ? 'rv-vehicle-card-list' : 'rv-vehicle-card-grid';
+        // Parent container controls layout now. Card class is neutral.
+        $card_class = '';
         
         ob_start();
         ?>
