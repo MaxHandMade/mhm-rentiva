@@ -451,7 +451,7 @@
 
 /* --- LIST VIEW MODE --- */
 .rv-layout-list .rv-vehicle-grid-wrapper {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     gap: 20px;
 }
