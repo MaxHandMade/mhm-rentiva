@@ -113,32 +113,18 @@
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    padding: 24px;
+    padding: 20px;
     position: sticky;
     top: 20px;
     height: fit-content;
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-/* Hide scrollbar but keep scroll functionality */
-.rv-filters-sidebar::-webkit-scrollbar {
-    width: 0;
-    background: transparent;
-}
-
-.rv-filters-sidebar {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
 }
 
 .rv-filters-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
     border-bottom: 1px solid #e1e5e9;
 }
 
@@ -176,12 +162,12 @@
 
 /* Filter Groups */
 .rv-filter-group {
-    margin-bottom: 24px;
+    margin-bottom: 18px;
 }
 
 .rv-filter-title {
-    margin: 0 0 12px 0;
-    font-size: 14px;
+    margin: 0 0 10px 0;
+    font-size: 13px;
     font-weight: 600;
     color: #333;
     text-transform: uppercase;
