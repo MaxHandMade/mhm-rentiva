@@ -93,6 +93,14 @@
 
         if ($viewBtns.length === 0) return;
 
+        // Check which button is currently active (from PHP)
+        let activeButtonView = null;
+        $viewBtns.each(function() {
+            if ($(this).hasClass('active')) {
+                activeButtonView = $(this).data('view');
+            }
+        });
+
         // Get initial layout from PHP (container class) or default to grid
         let initialLayout = 'grid';
         if ($layoutContainer.length > 0) {
@@ -104,15 +112,21 @@
             }
         }
 
-        // Load saved preference, but sync with PHP initial layout if different
-        const savedView = localStorage.getItem('mhm_rentiva_view_mode');
-        // Validate savedView is either 'grid' or 'list', otherwise use initialLayout
-        const viewToUse = (savedView === 'list' || savedView === 'grid') ? savedView : initialLayout;
+        // Priority: Active button > Saved preference > Container class > Default
+        let viewToUse = initialLayout;
+        if (activeButtonView && (activeButtonView === 'grid' || activeButtonView === 'list')) {
+            viewToUse = activeButtonView;
+        } else {
+            const savedView = localStorage.getItem('mhm_rentiva_view_mode');
+            if (savedView === 'list' || savedView === 'grid') {
+                viewToUse = savedView;
+            }
+        }
 
-        // Sync buttons and layout
+        // Force sync: Update container class and button state
         $viewBtns.removeClass('active');
         $(`.rv-view-btn[data-view="${viewToUse}"]`).addClass('active');
-        updateLayout(viewToUse, false); // false = don't save to localStorage yet
+        updateLayout(viewToUse, true); // Save to localStorage
 
         // Handle button clicks
         $viewBtns.on('click', function () {
