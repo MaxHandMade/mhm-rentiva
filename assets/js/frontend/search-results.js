@@ -18,13 +18,21 @@
         initializeViewToggle();
         initializeFavorites();
         initializePagination();
-        
-        // Force sync layout on page load (double-check after all initialization)
-        setTimeout(function() {
+
+        // Force sync layout on page load (multiple checks to ensure it works)
+        setTimeout(function () {
             forceSyncLayout();
-        }, 100);
+        }, 50);
+        
+        setTimeout(function () {
+            forceSyncLayout();
+        }, 200);
+        
+        setTimeout(function () {
+            forceSyncLayout();
+        }, 500);
     });
-    
+
     /**
      * Force sync layout - ensures container class matches active button
      */
@@ -43,13 +51,17 @@
         const hasGridClass = containerClass.includes('rv-layout-grid');
         const hasListClass = containerClass.includes('rv-layout-list');
         
-        if (activeView === 'grid' && !hasGridClass) {
-            // Button says grid but container doesn't have grid class
-            $layoutContainer.removeClass('rv-layout-list').addClass('rv-layout-grid');
+        if (activeView === 'grid' && (!hasGridClass || hasListClass)) {
+            // Button says grid but container doesn't have grid class or has list class
+            $layoutContainer.removeClass('rv-layout-list rv-layout-grid').addClass('rv-layout-grid');
+            // Force reflow
+            $layoutContainer[0].offsetHeight;
             console.log('Force synced: Set container to grid layout');
-        } else if (activeView === 'list' && !hasListClass) {
-            // Button says list but container doesn't have list class
-            $layoutContainer.removeClass('rv-layout-grid').addClass('rv-layout-list');
+        } else if (activeView === 'list' && (!hasListClass || hasGridClass)) {
+            // Button says list but container doesn't have list class or has grid class
+            $layoutContainer.removeClass('rv-layout-grid rv-layout-list').addClass('rv-layout-list');
+            // Force reflow
+            $layoutContainer[0].offsetHeight;
             console.log('Force synced: Set container to list layout');
         }
     }

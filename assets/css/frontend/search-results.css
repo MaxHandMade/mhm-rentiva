@@ -391,6 +391,21 @@
     gap: 24px;
 }
 
+/* Ensure wrapper respects parent layout class - highest priority */
+#rv-results-layout-container.rv-layout-grid .rv-vehicle-grid-wrapper {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+    gap: 24px !important;
+    flex-direction: unset !important;
+}
+
+#rv-results-layout-container.rv-layout-list .rv-vehicle-grid-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+    grid-template-columns: unset !important;
+}
+
 /* Base Card Styles */
 .rv-vehicle-card {
     background: white;
@@ -411,6 +426,7 @@
 }
 
 /* --- GRID VIEW MODE --- */
+#rv-results-layout-container.rv-layout-grid .rv-vehicle-grid-wrapper,
 .rv-layout-grid .rv-vehicle-grid-wrapper {
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
@@ -418,6 +434,7 @@
     flex-direction: unset !important;
 }
 
+#rv-results-layout-container.rv-layout-grid .rv-vehicle-card,
 .rv-layout-grid .rv-vehicle-card {
     display: flex !important;
     flex-direction: column !important;
@@ -455,6 +472,7 @@
 }
 
 /* --- LIST VIEW MODE --- */
+#rv-results-layout-container.rv-layout-list .rv-vehicle-grid-wrapper,
 .rv-layout-list .rv-vehicle-grid-wrapper {
     display: flex !important;
     flex-direction: column !important;
@@ -462,6 +480,7 @@
     grid-template-columns: unset !important;
 }
 
+#rv-results-layout-container.rv-layout-list .rv-vehicle-card,
 .rv-layout-list .rv-vehicle-card {
     display: grid !important;
     grid-template-columns: 280px 1fr !important;
