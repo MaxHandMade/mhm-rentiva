@@ -47,13 +47,18 @@
         
         const activeView = $activeBtn.data('view');
         const containerClass = $layoutContainer.attr('class') || '';
+        const wrapperDisplay = $wrapper.length > 0 ? $wrapper.css('display') : '';
         
         // Check if container class matches active button
         const hasGridClass = containerClass.includes('rv-layout-grid');
         const hasListClass = containerClass.includes('rv-layout-list');
         
-        if (activeView === 'grid' && (!hasGridClass || hasListClass)) {
-            // Button says grid but container doesn't have grid class or has list class
+        // Check if wrapper display matches expected layout
+        const needsGrid = activeView === 'grid' && (wrapperDisplay !== 'grid' || !hasGridClass || hasListClass);
+        const needsList = activeView === 'list' && (wrapperDisplay !== 'flex' || !hasListClass || hasGridClass);
+        
+        if (needsGrid) {
+            // Button says grid but wrapper/container doesn't match
             $layoutContainer.removeClass('rv-layout-list rv-layout-grid').addClass('rv-layout-grid');
             
             // Force CSS with inline styles as last resort
@@ -75,9 +80,9 @@
             
             // Force reflow
             $layoutContainer[0].offsetHeight;
-            console.log('Force synced: Set container to grid layout');
-        } else if (activeView === 'list' && (!hasListClass || hasGridClass)) {
-            // Button says list but container doesn't have list class or has grid class
+            console.log('Force synced: Set container to grid layout (wrapper was:', wrapperDisplay, ')');
+        } else if (needsList) {
+            // Button says list but wrapper/container doesn't match
             $layoutContainer.removeClass('rv-layout-grid rv-layout-list').addClass('rv-layout-list');
             
             // Force CSS with inline styles as last resort
@@ -99,7 +104,7 @@
             
             // Force reflow
             $layoutContainer[0].offsetHeight;
-            console.log('Force synced: Set container to list layout');
+            console.log('Force synced: Set container to list layout (wrapper was:', wrapperDisplay, ')');
         }
     }
 
