@@ -657,6 +657,16 @@
     color: #667eea;
 }
 
+.rv-add-to-favorites.active {
+    color: #e74c3c !important;
+    border-color: #e74c3c;
+    background: #fff5f5;
+}
+
+.rv-add-to-favorites.active svg {
+    fill: currentColor;
+}
+
 /* No Image Placeholder */
 .rv-no-image {
     width: 100%;

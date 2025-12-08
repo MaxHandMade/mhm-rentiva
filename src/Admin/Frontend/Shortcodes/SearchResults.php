@@ -52,6 +52,8 @@ final class SearchResults extends AbstractShortcode
         
         add_action('wp_ajax_mhm_rentiva_update_filters', [self::class, 'ajax_update_filters']);
         add_action('wp_ajax_nopriv_mhm_rentiva_update_filters', [self::class, 'ajax_update_filters']);
+        
+        add_action('wp_ajax_mhm_rentiva_toggle_favorite', [self::class, 'ajax_toggle_favorite']);
     }
 
     protected static function get_shortcode_tag(): string
@@ -150,7 +152,10 @@ final class SearchResults extends AbstractShortcode
                 'clear_all_with_count' => __('Clear All (%d)', 'mhm-rentiva'),
                 'try_adjusting' => __('Try adjusting your search criteria or filters.', 'mhm-rentiva'),
                 'back_to_search' => __('Back to Search', 'mhm-rentiva'),
+                'added_to_favorites' => __('Added to favorites', 'mhm-rentiva'),
+                'removed_from_favorites' => __('Removed from favorites', 'mhm-rentiva'),
             ],
+            'favorite_nonce' => wp_create_nonce('mhm_rentiva_toggle_favorite'),
         ]);
     }
 
@@ -372,6 +377,16 @@ final class SearchResults extends AbstractShortcode
         $featured_image_id = get_post_thumbnail_id($vehicle_id);
         $featured_image_url = $featured_image_id ? wp_get_attachment_image_url($featured_image_id, 'medium') : '';
 
+        // Check if vehicle is in user's favorites
+        $is_favorite = false;
+        if (is_user_logged_in()) {
+            $user_id = get_current_user_id();
+            $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
+            if (is_array($favorites)) {
+                $is_favorite = in_array($vehicle_id, array_map('intval', $favorites), true);
+            }
+        }
+
         return [
             'id' => $vehicle_id,
             'title' => $vehicle->post_title,
@@ -391,6 +406,7 @@ final class SearchResults extends AbstractShortcode
             'transmission' => get_post_meta($vehicle_id, '_mhm_rentiva_transmission', true),
             'seats' => get_post_meta($vehicle_id, '_mhm_rentiva_seats', true),
             'mileage' => get_post_meta($vehicle_id, '_mhm_rentiva_mileage', true),
+            'is_favorite' => $is_favorite,
             'rating' => [
                 'average' => (float) get_post_meta($vehicle_id, '_mhm_rentiva_rating_average', true),
                 'count' => (int) get_post_meta($vehicle_id, '_mhm_rentiva_rating_count', true),
@@ -541,6 +557,67 @@ final class SearchResults extends AbstractShortcode
     }
 
     /**
+     * AJAX: Toggle favorite
+     */
+    public static function ajax_toggle_favorite(): void
+    {
+        try {
+            if (!is_user_logged_in()) {
+                wp_send_json_error(['message' => __('You must be logged in', 'mhm-rentiva')]);
+                return;
+            }
+
+            $nonce = sanitize_text_field($_POST['nonce'] ?? '');
+            if (empty($nonce) || !wp_verify_nonce($nonce, 'mhm_rentiva_toggle_favorite')) {
+                wp_send_json_error(['message' => __('Security check failed', 'mhm-rentiva')]);
+                return;
+            }
+
+            $vehicle_id = intval($_POST['vehicle_id'] ?? 0);
+            if (!$vehicle_id) {
+                wp_send_json_error(['message' => __('Invalid vehicle ID', 'mhm-rentiva')]);
+                return;
+            }
+
+            $user_id = get_current_user_id();
+            $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
+
+            if (!is_array($favorites)) {
+                $favorites = array_filter(array_map('intval', (array) $favorites));
+            }
+
+            $key = array_search($vehicle_id, $favorites);
+            if ($key !== false) {
+                // Remove from favorites
+                unset($favorites[$key]);
+                $favorites = array_values($favorites);
+                $message = __('Removed from favorites', 'mhm-rentiva');
+                $action = 'removed';
+            } else {
+                // Add to favorites
+                $favorites[] = $vehicle_id;
+                $favorites = array_values(array_unique(array_map('intval', $favorites)));
+                $message = __('Added to favorites', 'mhm-rentiva');
+                $action = 'added';
+            }
+
+            update_user_meta($user_id, 'mhm_rentiva_favorites', $favorites);
+
+            wp_send_json_success([
+                'message' => $message,
+                'action' => $action,
+                'vehicle_id' => $vehicle_id,
+                'favorites_count' => count($favorites)
+            ]);
+
+        } catch (\Exception $e) {
+            wp_send_json_error([
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
      * Renders vehicles list
      */
     private static function render_vehicles_list(array $vehicles, string $layout): string
@@ -669,7 +746,7 @@ final class SearchResults extends AbstractShortcode
                     <a href="<?php echo esc_url($vehicle['url'] ?? '#'); ?>" class="rv-btn rv-btn-primary">
                         <?php _e('View Details', 'mhm-rentiva'); ?>
                     </a>
-                    <button type="button" class="rv-btn rv-btn-secondary rv-add-to-favorites" data-vehicle-id="<?php echo esc_attr($vehicle['id'] ?? 0); ?>">
+                    <button type="button" class="rv-btn rv-btn-secondary rv-add-to-favorites <?php echo !empty($vehicle['is_favorite']) ? 'active' : ''; ?>" data-vehicle-id="<?php echo esc_attr($vehicle['id'] ?? 0); ?>">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                         </svg>

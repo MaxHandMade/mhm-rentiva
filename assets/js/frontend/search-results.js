@@ -244,7 +244,7 @@
 
             if (!vehicleId) return;
 
-            // Toggle favorite
+            // Toggle favorite via AJAX
             toggleFavorite(vehicleId, $btn);
         });
     }
@@ -689,15 +689,41 @@
      * Toggle favorite
      */
     function toggleFavorite(vehicleId, $btn) {
-        $btn.toggleClass('active');
+        // Disable button during request
+        $btn.prop('disabled', true);
 
-        if ($btn.hasClass('active')) {
-            $btn.css('color', '#e74c3c');
-            showNotification('Added to favorites');
-        } else {
-            $btn.css('color', '');
-            showNotification('Removed from favorites');
-        }
+        $.ajax({
+            url: mhmRentivaSearchResults.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'mhm_rentiva_toggle_favorite',
+                vehicle_id: vehicleId,
+                nonce: mhmRentivaSearchResults.favorite_nonce
+            },
+            success: function (response) {
+                if (response.success) {
+                    // Toggle active class
+                    $btn.toggleClass('active');
+                    
+                    // Update color based on state
+                    if (response.data.action === 'added') {
+                        $btn.css('color', '#e74c3c');
+                        showNotification(mhmRentivaSearchResults.i18n.added_to_favorites || 'Added to favorites');
+                    } else {
+                        $btn.css('color', '');
+                        showNotification(mhmRentivaSearchResults.i18n.removed_from_favorites || 'Removed from favorites');
+                    }
+                } else {
+                    showError(response.data.message || 'An error occurred');
+                }
+            },
+            error: function () {
+                showError('Network error. Please try again.');
+            },
+            complete: function () {
+                $btn.prop('disabled', false);
+            }
+        });
     }
 
     /**
