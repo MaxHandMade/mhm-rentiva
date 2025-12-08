@@ -18,95 +18,8 @@
         initializeViewToggle();
         initializeFavorites();
         initializePagination();
-
-        // Force sync layout on page load (multiple checks to ensure it works)
-        setTimeout(function () {
-            forceSyncLayout();
-        }, 50);
-
-        setTimeout(function () {
-            forceSyncLayout();
-        }, 200);
-
-        setTimeout(function () {
-            forceSyncLayout();
-        }, 500);
     });
 
-    /**
-     * Force sync layout - ensures container class matches active button
-     */
-    function forceSyncLayout() {
-        const $layoutContainer = $('#rv-results-layout-container');
-        const $wrapper = $('#rv-results-grid-content');
-        const $activeBtn = $('.rv-view-btn.active');
-
-        if ($layoutContainer.length === 0 || $activeBtn.length === 0) {
-            return; // Not on search results page
-        }
-
-        const activeView = $activeBtn.data('view');
-        const containerClass = $layoutContainer.attr('class') || '';
-        const wrapperDisplay = $wrapper.length > 0 ? $wrapper.css('display') : '';
-
-        // Check if container class matches active button
-        const hasGridClass = containerClass.includes('rv-layout-grid');
-        const hasListClass = containerClass.includes('rv-layout-list');
-
-        // Check if wrapper display matches expected layout
-        const needsGrid = activeView === 'grid' && (wrapperDisplay !== 'grid' || !hasGridClass || hasListClass);
-        const needsList = activeView === 'list' && (wrapperDisplay !== 'flex' || !hasListClass || hasGridClass);
-
-        if (needsGrid) {
-            // Button says grid but wrapper/container doesn't match
-            $layoutContainer.removeClass('rv-layout-list rv-layout-grid').addClass('rv-layout-grid');
-
-            // Force CSS with inline styles as last resort
-            if ($wrapper.length > 0) {
-                $wrapper.css({
-                    'display': 'grid',
-                    'grid-template-columns': 'repeat(auto-fill, minmax(300px, 1fr))',
-                    'gap': '24px',
-                    'flex-direction': 'unset'
-                });
-
-                // Ensure cards are flex in grid view
-                $wrapper.find('.rv-vehicle-card').css({
-                    'display': 'flex',
-                    'flex-direction': 'column',
-                    'grid-template-columns': 'unset'
-                });
-            }
-
-            // Force reflow
-            $layoutContainer[0].offsetHeight;
-            console.log('Force synced: Set container to grid layout (wrapper was:', wrapperDisplay, ')');
-        } else if (needsList) {
-            // Button says list but wrapper/container doesn't match
-            $layoutContainer.removeClass('rv-layout-grid rv-layout-list').addClass('rv-layout-list');
-
-            // Force CSS with inline styles as last resort
-            if ($wrapper.length > 0) {
-                $wrapper.css({
-                    'display': 'flex',
-                    'flex-direction': 'column',
-                    'gap': '20px',
-                    'grid-template-columns': 'unset'
-                });
-
-                // Ensure cards are grid in list view
-                $wrapper.find('.rv-vehicle-card').css({
-                    'display': 'grid',
-                    'grid-template-columns': '280px 1fr',
-                    'flex-direction': 'unset'
-                });
-            }
-
-            // Force reflow
-            $layoutContainer[0].offsetHeight;
-            console.log('Force synced: Set container to list layout (wrapper was:', wrapperDisplay, ')');
-        }
-    }
 
     /**
      * Initialize results page
@@ -215,29 +128,13 @@
         $viewBtns.removeClass('active');
         $(`.rv-view-btn[data-view="${viewToUse}"]`).addClass('active');
 
-        // Debug: Check current wrapper display before update
-        const $wrapper = $('#rv-results-grid-content');
-        if ($wrapper.length > 0) {
-            const currentDisplay = $wrapper.css('display');
-            console.log('Before updateLayout - Wrapper display:', currentDisplay, 'View to use:', viewToUse);
-        }
-
         updateLayout(viewToUse, true); // Save to localStorage
-
-        // Debug: Check wrapper display after update
-        if ($wrapper.length > 0) {
-            setTimeout(function () {
-                const afterDisplay = $wrapper.css('display');
-                console.log('After updateLayout - Wrapper display:', afterDisplay, 'Expected:', viewToUse === 'grid' ? 'grid' : 'flex');
-            }, 100);
-        }
 
         // Handle button clicks
         $viewBtns.on('click', function () {
             const view = $(this).data('view');
 
             if (!view || (view !== 'grid' && view !== 'list')) {
-                console.warn('Invalid view mode:', view);
                 return;
             }
 
@@ -257,7 +154,6 @@
      */
     function updateLayout(view, saveToStorage = true) {
         if (view !== 'grid' && view !== 'list') {
-            console.warn('Invalid view mode:', view);
             return;
         }
 
@@ -297,30 +193,6 @@
                         cardEl.style.setProperty('grid-template-columns', 'unset', 'important');
                         cardEl.style.setProperty('height', '100%', 'important');
                     });
-
-                    // Debug: Log all applied styles
-                    console.log('Applied grid layout with !important inline styles');
-                    console.log('Wrapper display:', wrapperEl.style.display);
-                    console.log('Wrapper grid-template-columns:', wrapperEl.style.getPropertyValue('grid-template-columns'));
-                    console.log('Wrapper computed display:', window.getComputedStyle(wrapperEl).display);
-                    console.log('Wrapper computed grid-template-columns:', window.getComputedStyle(wrapperEl).gridTemplateColumns);
-                    console.log('Wrapper computed width:', window.getComputedStyle(wrapperEl).width);
-                    console.log('Card count:', $wrapper.find('.rv-vehicle-card').length);
-                    
-                    // Check first card's display
-                    const firstCard = $wrapper.find('.rv-vehicle-card').first()[0];
-                    if (firstCard) {
-                        console.log('First card inline display:', firstCard.style.display);
-                        console.log('First card computed display:', window.getComputedStyle(firstCard).display);
-                        console.log('First card computed width:', window.getComputedStyle(firstCard).width);
-                    }
-                    
-                    // Check parent container
-                    const parentContainer = wrapperEl.parentElement;
-                    if (parentContainer) {
-                        console.log('Parent container width:', window.getComputedStyle(parentContainer).width);
-                        console.log('Parent container display:', window.getComputedStyle(parentContainer).display);
-                    }
                 } else {
                     // List layout: wrapper is flex column, cards are grid
                     const wrapperEl = $wrapper[0];
@@ -342,15 +214,11 @@
                         cardEl.style.setProperty('align-items', 'stretch', 'important');
                         cardEl.style.setProperty('flex-direction', 'unset', 'important');
                     });
-
-                    console.log('Applied list layout with !important inline styles');
                 }
             }
 
             // Force a reflow to ensure styles are applied
             $layoutContainer[0].offsetHeight;
-        } else {
-            console.warn('Layout container #rv-results-layout-container not found');
         }
 
         // Save preference to localStorage if requested
@@ -577,7 +445,6 @@
             },
             error: function (xhr, status, error) {
                 showError('Network error. Please try again.');
-                console.error('AJAX Error:', error);
             },
             complete: function () {
                 isLoading = false;
