@@ -215,16 +215,6 @@
                 }
             }
 
-            // Check if form action is valid
-            const formAction = $form.attr('action');
-            if (!formAction || formAction === '#' || formAction === window.location.href) {
-                // If action is invalid, prevent submission and show error
-                e.preventDefault();
-                console.error('Form action URL is invalid:', formAction);
-                alert('Search results page not found. Please contact administrator.');
-                return false;
-            }
-
             // Add loading state
             const $btn = $('.rv-search-btn');
             $btn.addClass('loading').prop('disabled', true);
