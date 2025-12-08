@@ -392,6 +392,21 @@ final class SearchResults extends AbstractShortcode
             }
         }
 
+        // Get fuel type and transmission labels
+        $fuel_type_key = get_post_meta($vehicle_id, '_mhm_rentiva_fuel_type', true);
+        $transmission_key = get_post_meta($vehicle_id, '_mhm_rentiva_transmission', true);
+        
+        $fuel_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
+        $transmissions = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
+        
+        $fuel_type_label = !empty($fuel_type_key) && isset($fuel_types[$fuel_type_key]) 
+            ? $fuel_types[$fuel_type_key] 
+            : $fuel_type_key;
+        
+        $transmission_label = !empty($transmission_key) && isset($transmissions[$transmission_key]) 
+            ? $transmissions[$transmission_key] 
+            : $transmission_key;
+
         return [
             'id' => $vehicle_id,
             'title' => $vehicle->post_title,
@@ -407,8 +422,8 @@ final class SearchResults extends AbstractShortcode
             'brand' => get_post_meta($vehicle_id, '_mhm_rentiva_brand', true),
             'model' => get_post_meta($vehicle_id, '_mhm_rentiva_model', true),
             'year' => get_post_meta($vehicle_id, '_mhm_rentiva_year', true),
-            'fuel_type' => get_post_meta($vehicle_id, '_mhm_rentiva_fuel_type', true),
-            'transmission' => get_post_meta($vehicle_id, '_mhm_rentiva_transmission', true),
+            'fuel_type' => $fuel_type_label,
+            'transmission' => $transmission_label,
             'seats' => get_post_meta($vehicle_id, '_mhm_rentiva_seats', true),
             'mileage' => get_post_meta($vehicle_id, '_mhm_rentiva_mileage', true),
             'is_favorite' => $is_favorite,
