@@ -26,27 +26,60 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
     </div>
 
         <form class="rv-search-filters-compact" id="rv-search-filters-compact" method="get" action="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search_results')); ?>">
-            <div class="rv-search-main-row" style="display: flex !important; gap: 20px !important; align-items: stretch !important;">
+            <div class="rv-search-main-row">
                 <!-- Keyword -->
-                <div class="rv-search-field rv-search-keyword" style="flex: 1.2;">
+                <div class="rv-search-field rv-search-keyword">
                     <label for="rv-keyword"><?php echo esc_html__('Vehicle Name', 'mhm-rentiva'); ?></label>
                     <input type="text" id="rv-keyword" name="keyword" placeholder="<?php echo esc_attr__('Search vehicles...', 'mhm-rentiva'); ?>" value="<?php echo esc_attr($_GET['keyword'] ?? ''); ?>" />
                 </div>
                 
-                <!-- Pickup Date -->
-                <div class="rv-search-field rv-search-date" style="flex: 1;">
-                    <label for="rv-pickup-date"><?php echo esc_html__('Pickup Date', 'mhm-rentiva'); ?></label>
-                    <input type="text" id="rv-pickup-date" name="pickup_date" placeholder="<?php echo esc_attr__('Select date', 'mhm-rentiva'); ?>" value="<?php echo esc_attr($_GET['pickup_date'] ?? ''); ?>" readonly />
+                <!-- Pickup Date & Time -->
+                <div class="rv-search-field rv-search-datetime">
+                    <label for="rv-pickup-date"><?php echo esc_html__('Pickup Date & Time', 'mhm-rentiva'); ?></label>
+                    <div class="rv-datetime-wrapper">
+                        <input type="text" id="rv-pickup-date" name="pickup_date" class="rv-date-input" placeholder="<?php echo esc_attr__('Date', 'mhm-rentiva'); ?>" value="<?php echo esc_attr($_GET['pickup_date'] ?? ''); ?>" readonly />
+                        <select name="pickup_time" id="rv-pickup-time" class="rv-time-select">
+                            <?php 
+                            $selected_pickup = $_GET['pickup_time'] ?? '10:00';
+                            for($i=0; $i<24; $i++) {
+                                foreach(['00', '30'] as $min) {
+                                    $time = sprintf('%02d:%s', $i, $min);
+                                    echo '<option value="' . $time . '" ' . selected($selected_pickup, $time, false) . '>' . $time . '</option>';
+                                }
+                            }
+                            ?>
+                        </select>
+                    </div>
                 </div>
                 
-                <!-- Return Date -->
-                <div class="rv-search-field rv-search-date" style="flex: 1;">
-                    <label for="rv-return-date"><?php echo esc_html__('Return Date', 'mhm-rentiva'); ?></label>
-                    <input type="text" id="rv-return-date" name="return_date" placeholder="<?php echo esc_attr__('Select date', 'mhm-rentiva'); ?>" value="<?php echo esc_attr($_GET['return_date'] ?? ''); ?>" readonly />
+                <!-- Return Date & Time -->
+                <div class="rv-search-field rv-search-datetime">
+                    <label for="rv-return-date"><?php echo esc_html__('Return Date & Time', 'mhm-rentiva'); ?></label>
+                    <div class="rv-datetime-wrapper">
+                        <input type="text" id="rv-return-date" name="return_date" class="rv-date-input" placeholder="<?php echo esc_attr__('Date', 'mhm-rentiva'); ?>" value="<?php echo esc_attr($_GET['return_date'] ?? ''); ?>" readonly />
+                        <select name="return_time" id="rv-return-time" class="rv-time-select rv-time-select-disabled" disabled readonly>
+                            <option value=""><?php echo esc_html__('Select pickup time first', 'mhm-rentiva'); ?></option>
+                            <?php 
+                            $selected_return = $_GET['return_time'] ?? '';
+                            $selected_pickup = $_GET['pickup_time'] ?? '';
+                            // If pickup time is set, use it as default for return time
+                            if (!$selected_return && $selected_pickup) {
+                                $selected_return = $selected_pickup;
+                            }
+                            for($i=0; $i<24; $i++) {
+                                foreach(['00', '30'] as $min) {
+                                    $time = sprintf('%02d:%s', $i, $min);
+                                    echo '<option value="' . $time . '" ' . selected($selected_return, $time, false) . '>' . $time . '</option>';
+                                }
+                            }
+                            ?>
+                        </select>
+                        <input type="hidden" id="rv-return-time-hidden" name="return_time" value="<?php echo esc_attr($selected_return); ?>" />
+                    </div>
                 </div>
                 
                 <!-- Search Button -->
-                <div class="rv-search-field rv-search-submit" style="flex: 0 0 auto;">
+                <div class="rv-search-field rv-search-submit">
                     <button type="submit" class="rv-search-btn">
                         <span class="rv-search-icon">🔍</span>
                         <?php echo esc_html__('Search', 'mhm-rentiva'); ?>

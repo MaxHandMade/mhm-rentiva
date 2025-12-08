@@ -118,6 +118,27 @@
         if (pickupDate) {
             $('#rv-return-date').datepicker('option', 'minDate', pickupDate);
         }
+
+        // Automatically update return time when pickup time changes
+        // Return time is disabled and always matches pickup time
+        $('#rv-pickup-time').on('change', function(e) {
+            const pickupTime = $(e.target).val();
+            if (pickupTime) {
+                // Update both visible (disabled) select and hidden input
+                $('#rv-return-time').val(pickupTime);
+                $('#rv-return-time-hidden').val(pickupTime);
+            } else {
+                $('#rv-return-time').val('');
+                $('#rv-return-time-hidden').val('');
+            }
+        });
+
+        // Initialize return time on page load if pickup time is already selected
+        const initialPickupTime = $('#rv-pickup-time').val();
+        if (initialPickupTime) {
+            $('#rv-return-time').val(initialPickupTime);
+            $('#rv-return-time-hidden').val(initialPickupTime);
+        }
     }
 
     /**

@@ -142,6 +142,21 @@
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+/* Disabled time select styling */
+.rv-time-select-disabled,
+.rv-time-select:disabled {
+    background-color: #f8fafc !important;
+    color: #64748b !important;
+    cursor: not-allowed !important;
+    opacity: 0.7;
+}
+
+.rv-time-select-disabled:focus,
+.rv-time-select:disabled:focus {
+    border-color: #e2e8f0 !important;
+    box-shadow: none !important;
+}
+
 /* Search Button */
 .rv-search-submit {
     display: block;
