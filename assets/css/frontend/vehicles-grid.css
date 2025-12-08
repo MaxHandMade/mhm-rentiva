@@ -46,8 +46,11 @@
 /* ===== MAIN CONTAINER ===== */
 .rv-vehicles-grid-container {
     width: 100%;
+    max-width: 100%;
     margin: 0 auto;
     padding: 1rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 /* ===== HEADER ===== */
@@ -81,6 +84,10 @@
     display: grid !important;
     gap: var(--rv-grid-gap);
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 /* Grid Column Variations */
@@ -110,6 +117,11 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .rv-vehicle-card:hover {
@@ -197,11 +209,15 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 /* Card Header */
 .rv-vehicle-card__header {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.2rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -228,7 +244,7 @@
     font-size: var(--rv-font-size-lg);
     font-weight: var(--rv-font-weight-semibold);
     color: var(--rv-text);
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 0.2rem 0;
     line-height: 1.35;
     min-height: 4.6rem;
     /* 3 satır için alan (1.125rem font * 1.35 line * 3) */
@@ -239,6 +255,9 @@
     line-clamp: 3;
     overflow: hidden;
     text-overflow: ellipsis;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
 }
 
 .rv-vehicle-card__title a {
@@ -283,6 +302,10 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 0.75rem;
+    min-width: 0;
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .rv-feature-item {
@@ -291,6 +314,9 @@
     gap: 0.5rem;
     font-size: var(--rv-font-size-sm);
     color: var(--rv-text-light);
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .rv-icon {
@@ -300,6 +326,9 @@
 
 .rv-feature-text {
     font-weight: var(--rv-font-weight-medium);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
 }
 
 /* Description */
@@ -318,6 +347,9 @@
     gap: 1rem;
     padding-top: 1rem;
     border-top: 1px solid var(--rv-border);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 /* Price */
@@ -330,6 +362,10 @@
     font-weight: var(--rv-font-weight-semibold);
     color: var(--rv-primary);
     text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .rv-price-amount {
@@ -356,6 +392,10 @@
     font-size: var(--rv-font-size-base);
     transition: var(--rv-transition);
     text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .rv-btn-booking:hover {
@@ -430,10 +470,17 @@
     .rv-vehicles-grid-container {
         padding: 1rem;
         margin: 0 auto;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     .rv-vehicles-grid {
         gap: 1.25rem !important;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .rv-vehicles-grid--columns-2,
@@ -460,11 +507,17 @@
 
     .rv-vehicle-card__content {
         padding: 1rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .rv-vehicle-card__features {
         grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
         gap: 0.5rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .rv-vehicle-card__footer {
@@ -484,10 +537,17 @@
 @media (max-width: 768px) and (min-width: 601px) {
     .rv-vehicles-grid-container {
         padding: 0.875rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     .rv-vehicles-grid {
         gap: 1rem !important;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .rv-vehicles-grid--columns-2,
@@ -503,6 +563,9 @@
 
     .rv-vehicle-card__content {
         padding: 0.875rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 }
 
@@ -511,6 +574,10 @@
     .rv-vehicles-grid-container {
         padding: 0.75rem;
         margin: 0 auto;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     .rv-vehicles-grid__header {
@@ -538,11 +605,18 @@
     .rv-vehicles-grid--columns-4 {
         grid-template-columns: 1fr !important;
         gap: 1.25rem !important;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .rv-vehicle-card {
         border-radius: 6px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
     }
 
     .rv-vehicle-card__header {
@@ -556,17 +630,26 @@
 
     .rv-vehicle-card__content {
         padding: 1rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .rv-vehicle-card__title {
         font-size: 1.1rem;
         margin-bottom: 0.5rem;
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .rv-vehicle-card__features {
         grid-template-columns: repeat(2, 1fr);
         gap: 0.75rem;
         margin-bottom: 0.75rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .rv-vehicle-card__footer {
@@ -595,6 +678,10 @@
     .rv-vehicles-grid-container {
         padding: 0.5rem;
         margin: 0 auto;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     .rv-vehicles-grid__header {
@@ -628,23 +715,35 @@
 
     .rv-vehicle-card__content {
         padding: 0.75rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .rv-vehicle-card__header {
         min-height: auto;
         gap: 0.5rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .rv-vehicle-card__title {
         font-size: 1rem;
         margin-bottom: 0.375rem;
         min-height: auto;
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .rv-vehicle-card__features {
         grid-template-columns: 1fr;
         gap: 0.5rem;
         margin-bottom: 0.5rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .rv-feature-item {
@@ -691,6 +790,10 @@
 @media (max-width: 360px) {
     .rv-vehicles-grid-container {
         padding: 0.375rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     .rv-vehicles-grid {
@@ -712,10 +815,16 @@
 
     .rv-vehicle-card__content {
         padding: 0.625rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .rv-vehicle-card__title {
         font-size: 0.9rem;
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     .rv-feature-item {
