@@ -60,6 +60,7 @@
         // Initialize pickup date picker
         $('#rv-pickup-date').datepicker({
             ...datePickerOptions,
+            appendTo: 'body', // Ensure datepicker is appended to body, not footer
             beforeShow: function (input, inst) {
                 // Booking form'daki gibi - aşağıya açılması için
                 setTimeout(function () {
@@ -91,6 +92,7 @@
         // Initialize return date picker
         $('#rv-return-date').datepicker({
             ...datePickerOptions,
+            appendTo: 'body', // Ensure datepicker is appended to body, not footer
             beforeShow: function (input, inst) {
                 // Booking form'daki gibi - aşağıya açılması için
                 setTimeout(function () {
@@ -211,6 +213,16 @@
                     alert('Pickup date cannot be in the past');
                     return false;
                 }
+            }
+
+            // Check if form action is valid
+            const formAction = $form.attr('action');
+            if (!formAction || formAction === '#' || formAction === window.location.href) {
+                // If action is invalid, prevent submission and show error
+                e.preventDefault();
+                console.error('Form action URL is invalid:', formAction);
+                alert('Search results page not found. Please contact administrator.');
+                return false;
             }
 
             // Add loading state

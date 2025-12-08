@@ -651,3 +651,16 @@
     background: #3b82f6 !important;
     color: #ffffff !important;
 }
+
+/* Fix: Hide datepicker if it appears in footer */
+footer .ui-datepicker,
+.site-footer .ui-datepicker,
+#footer .ui-datepicker,
+footer .ui-datepicker-div,
+.site-footer .ui-datepicker-div,
+#footer .ui-datepicker-div {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}

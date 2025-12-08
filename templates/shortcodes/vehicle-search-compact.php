@@ -25,7 +25,14 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
         <h3><?php echo esc_html__('Find Your Perfect Vehicle', 'mhm-rentiva'); ?></h3>
     </div>
 
-        <form class="rv-search-filters-compact" id="rv-search-filters-compact" method="get" action="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search_results')); ?>">
+        <?php 
+        $search_results_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search_results');
+        // Fallback to current page if search results page not found
+        if (empty($search_results_url) || $search_results_url === home_url('/')) {
+            $search_results_url = get_permalink(); // Use current page as fallback
+        }
+        ?>
+        <form class="rv-search-filters-compact" id="rv-search-filters-compact" method="get" action="<?php echo esc_url($search_results_url); ?>">
             <div class="rv-search-main-row">
                 <!-- Keyword -->
                 <div class="rv-search-field rv-search-keyword">
