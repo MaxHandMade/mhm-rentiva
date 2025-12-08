@@ -64,7 +64,7 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
                     <label for="rv-return-date"><?php echo esc_html__('Return Date & Time', 'mhm-rentiva'); ?></label>
                     <div class="rv-datetime-wrapper">
                         <input type="text" id="rv-return-date" name="return_date" class="rv-date-input" placeholder="<?php echo esc_attr__('Date', 'mhm-rentiva'); ?>" value="<?php echo esc_attr($_GET['return_date'] ?? ''); ?>" readonly />
-                        <select name="return_time" id="rv-return-time" class="rv-time-select rv-time-select-disabled" disabled readonly>
+                        <select id="rv-return-time" class="rv-time-select rv-time-select-disabled" disabled readonly>
                             <option value=""><?php echo esc_html__('Select pickup time first', 'mhm-rentiva'); ?></option>
                             <?php 
                             $selected_return = $_GET['return_time'] ?? '';

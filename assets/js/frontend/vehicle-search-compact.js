@@ -203,12 +203,15 @@
             }
             
             // Validate pickup date is not in the past (if provided)
+            // Compare date strings directly to avoid timezone issues
             if (pickupValue) {
-                const pickupDate = new Date(pickupValue);
                 const today = new Date();
-                today.setHours(0, 0, 0, 0);
+                const todayStr = today.getFullYear() + '-' + 
+                                String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                                String(today.getDate()).padStart(2, '0');
                 
-                if (pickupDate < today) {
+                // pickupValue is already in YYYY-MM-DD format from datepicker
+                if (pickupValue < todayStr) {
                     e.preventDefault();
                     alert('Pickup date cannot be in the past');
                     return false;
@@ -236,12 +239,15 @@
             const value = $field.val();
             
             // Only validate dates if they have values
+            // Compare date strings directly to avoid timezone issues
             if (fieldName === 'pickup_date' && value) {
-                const pickupDate = new Date(value);
                 const today = new Date();
-                today.setHours(0, 0, 0, 0);
+                const todayStr = today.getFullYear() + '-' + 
+                                String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                                String(today.getDate()).padStart(2, '0');
                 
-                if (pickupDate < today) {
+                // value is already in YYYY-MM-DD format from datepicker
+                if (value < todayStr) {
                     $field.closest('.rv-search-field').addClass('error');
                     if (!$field.next('.error-message').length) {
                         $field.after('<div class="error-message">Pickup date cannot be in the past</div>');
