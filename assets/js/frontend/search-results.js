@@ -242,13 +242,47 @@
 
         // TARGET THE NEW PERMANENT WRAPPER
         const $layoutContainer = $('#rv-results-layout-container');
+        const $wrapper = $('#rv-results-grid-content');
 
         if ($layoutContainer.length > 0) {
             // Remove all layout classes first
             $layoutContainer.removeClass('rv-layout-grid rv-layout-list');
             // Add the correct layout class
             $layoutContainer.addClass(`rv-layout-${view}`);
-
+            
+            // Force CSS with inline styles to ensure it works
+            if ($wrapper.length > 0) {
+                if (view === 'grid') {
+                    $wrapper.css({
+                        'display': 'grid',
+                        'grid-template-columns': 'repeat(auto-fill, minmax(300px, 1fr))',
+                        'gap': '24px',
+                        'flex-direction': 'unset'
+                    });
+                    
+                    // Ensure cards are flex in grid view
+                    $wrapper.find('.rv-vehicle-card').css({
+                        'display': 'flex',
+                        'flex-direction': 'column',
+                        'grid-template-columns': 'unset'
+                    });
+                } else {
+                    $wrapper.css({
+                        'display': 'flex',
+                        'flex-direction': 'column',
+                        'gap': '20px',
+                        'grid-template-columns': 'unset'
+                    });
+                    
+                    // Ensure cards are grid in list view
+                    $wrapper.find('.rv-vehicle-card').css({
+                        'display': 'grid',
+                        'grid-template-columns': '280px 1fr',
+                        'flex-direction': 'unset'
+                    });
+                }
+            }
+            
             // Force a reflow to ensure CSS is applied
             $layoutContainer[0].offsetHeight;
         } else {
