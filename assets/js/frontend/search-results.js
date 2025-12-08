@@ -416,11 +416,15 @@
             $('.rv-view-btn.active').data('view') ||
             'grid';
 
+        // Get sort value from select (it's outside the form)
+        const sortValue = $('#rv-sort-select').val() || '';
+
         const data = {
             action: 'mhm_rentiva_filter_results',
             nonce: mhmRentivaSearchResults.nonce,
             layout: currentLayout,
             per_page: 12,
+            sort: sortValue,
             ...getCurrentFilters()
         };
 
@@ -500,7 +504,7 @@
             }
 
             // Ensure layout wrapper state is correct - use setTimeout to ensure DOM is ready
-            setTimeout(function() {
+            setTimeout(function () {
                 updateLayout(currentLayout, false); // false = don't overwrite localStorage
             }, 50);
 
