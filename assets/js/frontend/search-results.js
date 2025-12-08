@@ -275,48 +275,49 @@
             if ($wrapper.length > 0) {
                 if (view === 'grid') {
                     // Grid layout: wrapper is grid, cards are flex
-                    $wrapper.attr('style', 
-                        'display: grid !important; ' +
-                        'grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important; ' +
-                        'gap: 24px !important; ' +
-                        'flex-direction: unset !important; ' +
-                        'width: 100% !important;'
-                    );
+                    // Use css() method which supports !important via setProperty
+                    const wrapperEl = $wrapper[0];
+                    if (wrapperEl) {
+                        wrapperEl.style.setProperty('display', 'grid', 'important');
+                        wrapperEl.style.setProperty('grid-template-columns', 'repeat(auto-fill, minmax(300px, 1fr))', 'important');
+                        wrapperEl.style.setProperty('gap', '24px', 'important');
+                        wrapperEl.style.setProperty('flex-direction', 'unset', 'important');
+                        wrapperEl.style.setProperty('width', '100%', 'important');
+                    }
                     
                     // Ensure all cards are flex in grid view
                     $wrapper.find('.rv-vehicle-card').each(function() {
-                        $(this).attr('style',
-                            'display: flex !important; ' +
-                            'flex-direction: column !important; ' +
-                            'grid-template-columns: unset !important; ' +
-                            'height: 100% !important;'
-                        );
+                        const cardEl = this;
+                        cardEl.style.setProperty('display', 'flex', 'important');
+                        cardEl.style.setProperty('flex-direction', 'column', 'important');
+                        cardEl.style.setProperty('grid-template-columns', 'unset', 'important');
+                        cardEl.style.setProperty('height', '100%', 'important');
                     });
                     
-                    console.log('Applied grid layout with inline styles');
+                    console.log('Applied grid layout with !important inline styles');
                 } else {
                     // List layout: wrapper is flex column, cards are grid
-                    $wrapper.attr('style',
-                        'display: flex !important; ' +
-                        'flex-direction: column !important; ' +
-                        'gap: 20px !important; ' +
-                        'grid-template-columns: unset !important; ' +
-                        'width: 100% !important;'
-                    );
+                    const wrapperEl = $wrapper[0];
+                    if (wrapperEl) {
+                        wrapperEl.style.setProperty('display', 'flex', 'important');
+                        wrapperEl.style.setProperty('flex-direction', 'column', 'important');
+                        wrapperEl.style.setProperty('gap', '20px', 'important');
+                        wrapperEl.style.setProperty('grid-template-columns', 'unset', 'important');
+                        wrapperEl.style.setProperty('width', '100%', 'important');
+                    }
                     
                     // Ensure all cards are grid in list view
                     $wrapper.find('.rv-vehicle-card').each(function() {
-                        $(this).attr('style',
-                            'display: grid !important; ' +
-                            'grid-template-columns: 280px 1fr !important; ' +
-                            'gap: 0 !important; ' +
-                            'min-height: 220px !important; ' +
-                            'align-items: stretch !important; ' +
-                            'flex-direction: unset !important;'
-                        );
+                        const cardEl = this;
+                        cardEl.style.setProperty('display', 'grid', 'important');
+                        cardEl.style.setProperty('grid-template-columns', '280px 1fr', 'important');
+                        cardEl.style.setProperty('gap', '0', 'important');
+                        cardEl.style.setProperty('min-height', '220px', 'important');
+                        cardEl.style.setProperty('align-items', 'stretch', 'important');
+                        cardEl.style.setProperty('flex-direction', 'unset', 'important');
                     });
                     
-                    console.log('Applied list layout with inline styles');
+                    console.log('Applied list layout with !important inline styles');
                 }
             }
             
