@@ -89,97 +89,80 @@
      */
     function initializeViewToggle() {
         const $viewBtns = $('.rv-view-btn');
+        const $layoutContainer = $('#rv-results-layout-container');
 
         if ($viewBtns.length === 0) return;
 
+        // Get initial layout from PHP (container class) or default to grid
+        let initialLayout = 'grid';
+        if ($layoutContainer.length > 0) {
+            const containerClass = $layoutContainer.attr('class') || '';
+            if (containerClass.includes('rv-layout-list')) {
+                initialLayout = 'list';
+            } else if (containerClass.includes('rv-layout-grid')) {
+                initialLayout = 'grid';
+            }
+        }
+
+        // Load saved preference, but sync with PHP initial layout if different
+        const savedView = localStorage.getItem('mhm_rentiva_view_mode');
+        const viewToUse = savedView && savedView === 'list' || savedView === 'grid' ? savedView : initialLayout;
+
+        // Sync buttons and layout
+        $viewBtns.removeClass('active');
+        $(`.rv-view-btn[data-view="${viewToUse}"]`).addClass('active');
+        updateLayout(viewToUse, false); // false = don't save to localStorage yet
+
+        // Handle button clicks
         $viewBtns.on('click', function () {
             const view = $(this).data('view');
+
+            if (!view || (view !== 'grid' && view !== 'list')) {
+                console.warn('Invalid view mode:', view);
+                return;
+            }
 
             // Update active state
             $viewBtns.removeClass('active');
             $(this).addClass('active');
 
             // Update layout
-            updateLayout(view);
-
-            // Store preference
-            localStorage.setItem('mhm_rentiva_view_mode', view);
+            updateLayout(view, true); // true = save to localStorage
         });
-
-        // Load saved preference
-        const savedView = localStorage.getItem('mhm_rentiva_view_mode');
-        if (savedView) {
-            $viewBtns.removeClass('active');
-            $(`.rv-view-btn[data-view="${savedView}"]`).addClass('active');
-            updateLayout(savedView);
-        }
     }
 
     /**
      * Update layout based on view mode
+     * @param {string} view - 'grid' or 'list'
+     * @param {boolean} saveToStorage - Whether to save to localStorage
      */
-    function updateLayout(view) {
-        const $container = $('#rv-results-container');
-        const $vehiclesList = $container.find('#rv-vehicles-list');
-
-        if ($vehiclesList.length === 0) return;
-
-        // Remove existing layout classes
-        $vehiclesList.removeClass('rv-vehicles-grid rv-vehicles-list');
-        $vehiclesList.find('.rv-vehicle-card').removeClass('rv-vehicle-card-grid rv-vehicle-card-list');
-
-        if (view === 'list') {
-            $vehiclesList.addClass('rv-vehicles-list');
-            $vehiclesList.find('.rv-vehicle-card').addClass('rv-vehicle-card-list');
-        } else {
-            $vehiclesList.addClass('rv-vehicles-grid');
-            $vehiclesList.find('.rv-vehicle-card').addClass('rv-vehicle-card-grid');
+    function updateLayout(view, saveToStorage = true) {
+        if (view !== 'grid' && view !== 'list') {
+            console.warn('Invalid view mode:', view);
+            return;
         }
 
-        // Force CSS update
-        $vehiclesList[0].offsetHeight; // Trigger reflow
+        // TARGET THE NEW PERMANENT WRAPPER
+        const $layoutContainer = $('#rv-results-layout-container');
 
-        // Force layout update with timeout
-        setTimeout(() => {
-            if (view === 'list') {
-                $vehiclesList.css({
-                    'display': 'flex',
-                    'flex-direction': 'column',
-                    'gap': '16px'
-                });
-            } else {
-                $vehiclesList.css({
-                    'display': 'grid',
-                    'grid-template-columns': 'repeat(auto-fill, minmax(300px, 1fr))',
-                    'gap': '24px'
-                });
-            }
-        }, 10);
-
-    }
-
-    /**
-     * Apply layout to existing elements
-     */
-    function applyLayout(view) {
-        const $container = $('#rv-results-container');
-        const $vehiclesList = $container.find('#rv-vehicles-list');
-
-        if ($vehiclesList.length === 0) return;
-
-        // Remove existing layout classes
-        $vehiclesList.removeClass('rv-vehicles-grid rv-vehicles-list');
-        $vehiclesList.find('.rv-vehicle-card').removeClass('rv-vehicle-card-grid rv-vehicle-card-list');
-
-        if (view === 'list') {
-            $vehiclesList.addClass('rv-vehicles-list');
-            $vehiclesList.find('.rv-vehicle-card').addClass('rv-vehicle-card-list');
+        if ($layoutContainer.length > 0) {
+            $layoutContainer
+                .removeClass('rv-layout-grid rv-layout-list')
+                .addClass(`rv-layout-${view}`);
         } else {
-            $vehiclesList.addClass('rv-vehicles-grid');
-            $vehiclesList.find('.rv-vehicle-card').addClass('rv-vehicle-card-grid');
+            console.warn('Layout container #rv-results-layout-container not found');
         }
 
+        // Save preference to localStorage if requested
+        if (saveToStorage) {
+            localStorage.setItem('mhm_rentiva_view_mode', view);
+        }
+
+        // Update active state of buttons
+        $('.rv-view-btn').removeClass('active');
+        $(`.rv-view-btn[data-view="${view}"]`).addClass('active');
     }
+
 
     /**
      * Initialize favorites functionality
@@ -380,8 +363,14 @@
             success: function (response) {
                 if (response.success) {
                     updateResultsContainer(response.data);
-                    updatePagination(response.data.pagination);
-                    updateResultsCount(response.data.total);
+
+                    if (response.data.pagination) {
+                        updatePagination(response.data.pagination);
+                    }
+
+                    if (response.data.total !== undefined) {
+                        updateResultsCount(response.data.total);
+                    }
                 } else {
                     showError(response.data.message || 'An error occurred');
                 }
@@ -429,49 +418,61 @@
      * Update results container
      */
     function updateResultsContainer(data) {
-        const $container = $('#rv-results-container');
-        const currentLayout = localStorage.getItem('mhm_rentiva_view_mode') ||
-            $('.rv-view-btn.active').data('view') ||
-            'grid';
+        // Target the inner content area
+        const $resultsContent = $('#rv-results-grid-content');
+        const $mainContainer = $('#rv-results-container'); // Fallback
 
+        const currentLayout = localStorage.getItem('mhm_rentiva_view_mode') || 'grid';
 
+        // Update the content
         if (data.html) {
-            $container.html(data.html);
-            // Apply layout after HTML update
-            setTimeout(() => {
-                applyLayout(currentLayout);
-            }, 100);
+            if ($resultsContent.length > 0) {
+                $resultsContent.html(data.html);
+            } else if ($mainContainer.length > 0) {
+                $mainContainer.html(data.html);
+            }
+
+            // Ensure layout wrapper state is correct
+            updateLayout(currentLayout);
+
         } else if (data.vehicles && data.vehicles.length > 0) {
-            // Generate HTML from vehicle data
+            // JSON fallback (client-side rendering)
             const html = generateVehiclesHtml(data.vehicles, currentLayout);
-            $container.html(html);
+
+            if ($resultsContent.length > 0) {
+                $resultsContent.html(html);
+            } else if ($mainContainer.length > 0) {
+                $mainContainer.html(html);
+            }
         } else {
-            $container.html(`
+            // Empty state
+            const emptyHtml = `
                 <div class="rv-no-results">
                     <div class="rv-no-results-icon">🚗</div>
-                    <h3>${mhmRentivaSearchResults.i18n.no_results}</h3>
+                    <h3>${mhmRentivaSearchResults.i18n.no_results || 'No vehicles found'}</h3>
                     <p>Try adjusting your search criteria or filters.</p>
-                    <a href="${mhmRentivaSearchResults.search_page_url || mhmRentivaSearchResults.current_url.replace('/results/', '/')}" class="rv-back-to-search">
+                    <a href="${mhmRentivaSearchResults.search_page_url || '#'}" class="rv-back-to-search">
                         Back to Search
                     </a>
                 </div>
-            `);
+             `;
+
+            if ($resultsContent.length > 0) {
+                $resultsContent.html(emptyHtml);
+            } else if ($mainContainer.length > 0) {
+                $mainContainer.html(emptyHtml);
+            }
         }
     }
 
     /**
-     * Generate vehicles HTML
+     * Generate vehicles HTML (String builder fallback)
      */
     function generateVehiclesHtml(vehicles, layout) {
-        const containerClass = layout === 'list' ? 'rv-vehicles-list' : 'rv-vehicles-grid';
-
-        let html = `<div class="${containerClass}" id="rv-vehicles-list">`;
-
+        let html = '';
         vehicles.forEach(vehicle => {
             html += generateVehicleCardHtml(vehicle, layout);
         });
-
-        html += '</div>';
         return html;
     }
 
@@ -479,38 +480,45 @@
      * Generate individual vehicle card HTML
      */
     function generateVehicleCardHtml(vehicle, layout) {
-        const cardClass = layout === 'list' ? 'rv-vehicle-card-list' : 'rv-vehicle-card-grid';
+        const esc = (str) => str || '';
 
         return `
-            <div class="rv-vehicle-card ${cardClass}" data-vehicle-id="${vehicle.id}">
+            <div class="rv-vehicle-card" data-vehicle-id="${vehicle.id}">
                 <div class="rv-vehicle-image">
-                    ${vehicle.featured_image.url ?
-                `<img src="${vehicle.featured_image.url}" alt="${vehicle.featured_image.alt}" loading="lazy">` :
-                `<div class="rv-no-image"><svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 19V5h14v14H5z"/><path d="M7 7h10v6H7z"/></svg></div>`
+                    ${vehicle.featured_image && vehicle.featured_image.url ?
+                `<img src="${vehicle.featured_image.url}" alt="${esc(vehicle.featured_image.alt)}" loading="lazy">` :
+                `<div class="rv-no-image">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 19V5h14v14H5z"/><path d="M7 7h10v6H7z"/>
+                    </svg>
+                 </div>`
             }
                     <div class="rv-price-badge">
-                        <span class="rv-price-amount">${vehicle.currency_symbol}${parseFloat(vehicle.price_per_day).toLocaleString()}</span>
+                        <span class="rv-price-amount">${esc(vehicle.currency_symbol)}${parseFloat(vehicle.price_per_day).toLocaleString()}</span>
                         <span class="rv-price-period">/day</span>
                     </div>
                 </div>
+                
                 <div class="rv-vehicle-info">
                     <h3 class="rv-vehicle-title">
-                        <a href="${vehicle.url}">${vehicle.title}</a>
+                        <a href="${esc(vehicle.url)}">${esc(vehicle.title)}</a>
                     </h3>
-                    ${vehicle.brand || vehicle.model || vehicle.year ? `
+                    
+                    ${(vehicle.brand || vehicle.model || vehicle.year) ? `
                         <p class="rv-vehicle-meta">
-                            ${vehicle.brand ? `<span class="rv-brand">${vehicle.brand}</span>` : ''}
-                            ${vehicle.model ? `<span class="rv-model">${vehicle.model}</span>` : ''}
-                            ${vehicle.year ? `<span class="rv-year">${vehicle.year}</span>` : ''}
+                            ${vehicle.brand ? `<span class="rv-brand">${esc(vehicle.brand)}</span>` : ''}
+                            ${vehicle.model ? `<span class="rv-model">${esc(vehicle.model)}</span>` : ''}
+                            ${vehicle.year ? `<span class="rv-year">${esc(vehicle.year)}</span>` : ''}
                         </p>
                     ` : ''}
+                    
                     <div class="rv-vehicle-features">
                         ${vehicle.fuel_type ? `
                             <span class="rv-feature">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
                                 </svg>
-                                ${vehicle.fuel_type}
+                                ${esc(vehicle.fuel_type)}
                             </span>
                         ` : ''}
                         ${vehicle.transmission ? `
@@ -518,7 +526,7 @@
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                                 </svg>
-                                ${vehicle.transmission}
+                                ${esc(vehicle.transmission)}
                             </span>
                         ` : ''}
                         ${vehicle.seats ? `
@@ -526,11 +534,12 @@
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                                 </svg>
-                                ${vehicle.seats} seats
+                                ${esc(vehicle.seats)} seats
                             </span>
                         ` : ''}
                     </div>
-                    ${vehicle.rating && vehicle.rating.average > 0 ? `
+                    
+                    ${(vehicle.rating && vehicle.rating.average > 0) ? `
                         <div class="rv-vehicle-rating">
                             <div class="rv-stars">
                                 ${Array(5).fill().map((_, i) =>
@@ -542,8 +551,9 @@
                             </span>
                         </div>
                     ` : ''}
+                    
                     <div class="rv-vehicle-actions">
-                        <a href="${vehicle.url}" class="rv-btn rv-btn-primary">View Details</a>
+                        <a href="${esc(vehicle.url)}" class="rv-btn rv-btn-primary">View Details</a>
                         <button type="button" class="rv-btn rv-btn-secondary rv-add-to-favorites" data-vehicle-id="${vehicle.id}">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -603,28 +613,9 @@
     }
 
     /**
-     * Update layout
-     */
-    function updateLayout(layout) {
-        const $container = $('#rv-vehicles-list');
-        if ($container.length === 0) return;
-
-        $container.removeClass('rv-vehicles-grid rv-vehicles-list')
-            .addClass(`rv-vehicles-${layout}`);
-
-        // Update individual cards
-        $container.find('.rv-vehicle-card')
-            .removeClass('rv-vehicle-card-grid rv-vehicle-card-list')
-            .addClass(`rv-vehicle-card-${layout}`);
-    }
-
-    /**
      * Toggle favorite
      */
     function toggleFavorite(vehicleId, $btn) {
-        // This would typically make an AJAX call to add/remove from favorites
-        // For now, we'll just toggle the visual state
-
         $btn.toggleClass('active');
 
         if ($btn.hasClass('active')) {
@@ -657,28 +648,23 @@
      * Show loading indicator
      */
     function showLoadingIndicator() {
-        const $indicator = $('#rv-loading-indicator');
-        if ($indicator.length === 0) return;
-
-        $indicator.show();
+        $('#rv-loading-indicator').show();
     }
 
     /**
      * Hide loading indicator
      */
     function hideLoadingIndicator() {
-        const $indicator = $('#rv-loading-indicator');
-        if ($indicator.length === 0) return;
-
-        $indicator.hide();
+        $('#rv-loading-indicator').hide();
     }
 
     /**
      * Show error message
      */
     function showError(message) {
-        const $container = $('#rv-results-container');
-        $container.html(`
+        const $container = $('#rv-results-grid-content');
+
+        const html = `
             <div class="rv-error-message">
                 <div class="rv-error-icon">⚠️</div>
                 <h3>Error</h3>
@@ -687,14 +673,19 @@
                     Try Again
                 </button>
             </div>
-        `);
+        `;
+
+        if ($container.length > 0) {
+            $container.html(html);
+        } else {
+            $('#rv-results-container').html(html);
+        }
     }
 
     /**
      * Show notification
      */
     function showNotification(message) {
-        // Simple notification implementation
         const $notification = $(`
             <div class="rv-notification">
                 ${message}
