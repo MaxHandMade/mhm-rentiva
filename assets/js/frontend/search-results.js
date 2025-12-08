@@ -23,11 +23,11 @@
         setTimeout(function () {
             forceSyncLayout();
         }, 50);
-        
+
         setTimeout(function () {
             forceSyncLayout();
         }, 200);
-        
+
         setTimeout(function () {
             forceSyncLayout();
         }, 500);
@@ -38,6 +38,7 @@
      */
     function forceSyncLayout() {
         const $layoutContainer = $('#rv-results-layout-container');
+        const $wrapper = $('#rv-results-grid-content');
         const $activeBtn = $('.rv-view-btn.active');
         
         if ($layoutContainer.length === 0 || $activeBtn.length === 0) {
@@ -54,12 +55,48 @@
         if (activeView === 'grid' && (!hasGridClass || hasListClass)) {
             // Button says grid but container doesn't have grid class or has list class
             $layoutContainer.removeClass('rv-layout-list rv-layout-grid').addClass('rv-layout-grid');
+            
+            // Force CSS with inline styles as last resort
+            if ($wrapper.length > 0) {
+                $wrapper.css({
+                    'display': 'grid',
+                    'grid-template-columns': 'repeat(auto-fill, minmax(300px, 1fr))',
+                    'gap': '24px',
+                    'flex-direction': 'unset'
+                });
+                
+                // Ensure cards are flex in grid view
+                $wrapper.find('.rv-vehicle-card').css({
+                    'display': 'flex',
+                    'flex-direction': 'column',
+                    'grid-template-columns': 'unset'
+                });
+            }
+            
             // Force reflow
             $layoutContainer[0].offsetHeight;
             console.log('Force synced: Set container to grid layout');
         } else if (activeView === 'list' && (!hasListClass || hasGridClass)) {
             // Button says list but container doesn't have list class or has grid class
             $layoutContainer.removeClass('rv-layout-grid rv-layout-list').addClass('rv-layout-list');
+            
+            // Force CSS with inline styles as last resort
+            if ($wrapper.length > 0) {
+                $wrapper.css({
+                    'display': 'flex',
+                    'flex-direction': 'column',
+                    'gap': '20px',
+                    'grid-template-columns': 'unset'
+                });
+                
+                // Ensure cards are grid in list view
+                $wrapper.find('.rv-vehicle-card').css({
+                    'display': 'grid',
+                    'grid-template-columns': '280px 1fr',
+                    'flex-direction': 'unset'
+                });
+            }
+            
             // Force reflow
             $layoutContainer[0].offsetHeight;
             console.log('Force synced: Set container to list layout');
