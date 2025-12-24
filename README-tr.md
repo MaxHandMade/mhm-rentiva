@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.4.5-blue.svg)
+![Version](https://img.shields.io/badge/version-4.5.0-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -344,17 +344,16 @@ POST /bookings
 
 ## 📝 Değişiklik Geçmişi
 
-### Son Versiyon: 4.4.5 (2025-11-25)
+### Son Versiyon: 4.5.0 (2025-12-24)
 
-**📦 VERSİYON GÜNCELLEMESİ**
-- Bakım ve kararlılık iyileştirmeleri için versiyon 4.4.5'e yükseltildi.
+**🚀 VERSİYON GÜNCELLEMESİ**
+- Kullanıcı Hesabı ve Ödeme Geçmişi iyileştirmelerine odaklanan 4.5.0 sürümüne büyük güncelleme.
 
-**🎨 ELEMENTOR WIDGET'LERİ İYİLEŞTİRMESİ**
-- Tüm eklenti özelliklerini kapsayan 19 kapsamlı widget ile geliştirilmiş Elementor entegrasyonu
-- Tüm widget'ler Elementor'da özel "MHM Rentiva" kategorisi altında organize edildi
-- Tüm widget'lere gelişmiş stil ve özelleştirme seçenekleri eklendi
-- Mobil öncelikli yaklaşımla tam responsive tasarım
-- Elementor'un canlı önizleme ve sürükle-bırak builder'ı ile sorunsuz entegrasyon
+**🔧 HESAP & ÖDEME**
+- Hesap sayfaları için özelleştirilebilir endpoint'ler eklendi.
+- Ödeme Geçmişi, makbuz yönetimi (yükleme, önizleme, silme) ile geliştirildi.
+- Hesabım'daki Rezervasyonlar tablosu için modern arayüz.
+- Hesap Detayları sayfasındaki şifre göster/gizle butonları düzeltildi.
 
 Tam değişiklik geçmişi için [changelog-tr.json](changelog-tr.json) dosyasına bakın.
 

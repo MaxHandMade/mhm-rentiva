@@ -113,6 +113,71 @@ final class BookingConfirmation extends AbstractShortcode
         $payment_method = get_post_meta($booking_id, '_mhm_payment_method', true);
         $payment_status = get_post_meta($booking_id, '_mhm_payment_status', true);
 
+        // Enhance data with WooCommerce Order details if available
+        $order_id = (int) get_post_meta($booking_id, '_mhm_wc_order_id', true);
+        if (!$order_id) {
+            $order_id = (int) get_post_meta($booking_id, '_mhm_woocommerce_order_id', true);
+        }
+        
+        if ($order_id && function_exists('wc_get_order')) {
+            $order = wc_get_order($order_id);
+            if ($order) {
+                // Get correct payment method title (e.g., "Credit Card" instead of "stripe")
+                $payment_method_title = $order->get_payment_method_title();
+                if (!empty($payment_method_title)) {
+                    $payment_method = $payment_method_title;
+                }
+
+                // Get customer details from billing address
+                $billing_first_name = $order->get_billing_first_name();
+                $billing_last_name = $order->get_billing_last_name();
+                $billing_phone = $order->get_billing_phone();
+                
+                if (!empty($billing_first_name) || !empty($billing_last_name)) {
+                    $customer_name = trim($billing_first_name . ' ' . $billing_last_name);
+                    $customer_first_name = $billing_first_name;
+                    $customer_last_name = $billing_last_name;
+                }
+                
+                if (!empty($billing_phone)) {
+                    $customer_phone = $billing_phone;
+                }
+            }
+        }
+
+        // Fallback: If customer data is still missing, try to get from WP User (post author)
+        if (empty($customer_phone) || empty($customer_name) || trim($customer_name) === html_entity_decode(get_the_author_meta('display_name', $booking->post_author))) {
+            $author_id = $booking->post_author;
+            if ($author_id) {
+                // Try to get billing phone from user meta (WooCommerce standard)
+                if (empty($customer_phone)) {
+                    $customer_phone = get_user_meta($author_id, 'billing_phone', true);
+                }
+
+                // If name looks like username or is empty, try to get real name
+                $user_info = get_userdata($author_id);
+                if ($user_info) {
+                    $u_first_name = $user_info->first_name;
+                    $u_last_name = $user_info->last_name;
+                    
+                    if (!empty($u_first_name) || !empty($u_last_name)) {
+                        // Use user profile name if available
+                        $customer_name = trim($u_first_name . ' ' . $u_last_name);
+                        $customer_first_name = $u_first_name;
+                        $customer_last_name = $u_last_name;
+                    } elseif (empty($customer_name)) {
+                        // Fallback to display name if completely empty
+                        $customer_name = $user_info->display_name;
+                    }
+                }
+            }
+        }
+
+        // Fix "woocommerce" payment method label
+        if (!empty($payment_method) && (strtolower($payment_method) === 'woocommerce' || strtolower($payment_method) === 'wc_payment_method')) {
+            $payment_method = __('Online Payment', 'mhm-rentiva');
+        }
+
         // Vehicle image
         $vehicle_image = get_the_post_thumbnail_url($vehicle_id, 'medium');
         if (!$vehicle_image) {

@@ -51,8 +51,8 @@ final class Plugin
      */
     private function __construct()
     {
-        // Load language files
-        add_action('plugins_loaded', [$this, 'load_textdomain']);
+        // Load language files immediately (since we are already in plugins_loaded hook)
+        $this->load_textdomain();
         
         // Ensure theme support for thumbnails
         add_action('after_setup_theme', [$this, 'setup_theme_support']);
@@ -486,8 +486,20 @@ final class Plugin
      */
     public function load_textdomain(): void
     {
-        $mainFile = dirname(__DIR__) . '/mhm-rentiva.php';
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename($mainFile)) . '/languages');
+        $domain = 'mhm-rentiva';
+        $locale = determine_locale();
+        $locale = apply_filters('plugin_locale', $locale, $domain);
+
+        // Force load from local directory first (to avoid global overrides)
+        $mofile = dirname(__DIR__) . '/languages/' . $domain . '-' . $locale . '.mo';
+        
+        if (file_exists($mofile)) {
+            load_textdomain($domain, $mofile);
+        } else {
+            // Fallback to standard loading
+            $mainFile = dirname(__DIR__) . '/mhm-rentiva.php';
+            load_plugin_textdomain($domain, false, dirname(plugin_basename($mainFile)) . '/languages');
+        }
     }
 
     /**

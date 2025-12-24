@@ -39,7 +39,7 @@ $booking_url = $booking_url ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_p
     <?php if ($has_vehicles): ?>
         
         <!-- Vehicles List - ONLY LIST LAYOUT -->
-        <div class="rv-vehicles-list__wrapper <?php echo esc_attr($layout_class . ' ' . $columns_class); ?>" data-columns="<?php echo esc_attr($atts['columns']); ?>">
+        <div id="rv-vehicles-list" class="rv-vehicles-list__wrapper <?php echo esc_attr($layout_class . ' ' . $columns_class); ?>" data-columns="<?php echo esc_attr($atts['columns']); ?>">
             
             <?php foreach ($vehicles as $vehicle): ?>
                 <div class="rv-vehicle-card rv-vehicle-card--list" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">

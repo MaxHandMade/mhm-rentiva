@@ -9,8 +9,9 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Header */
+/* Header - Hidden per user request */
 .rv-search-header {
+    display: none;
     text-align: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
@@ -31,16 +32,16 @@
     line-height: 1.5;
 }
 
-/* Form */
+/* Form Layout Default (Mobile First approach essentially, but we override for desktop) */
 .rv-search-filters {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .rv-search-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
 }
 
 .rv-search-field {
@@ -63,6 +64,9 @@
     font-size: 14px;
     transition: all 0.3s ease;
     background: #fff;
+    width: 100%;
+    /* Ensure full width in container */
+    box-sizing: border-box;
 }
 
 .rv-search-field input:focus,
@@ -91,7 +95,7 @@
     display: flex;
     gap: 15px;
     justify-content: center;
-    margin-top: 30px;
+    margin-top: 20px;
     padding-top: 20px;
     border-top: 1px solid #f0f0f0;
 }
@@ -137,6 +141,127 @@
 .rv-reset-btn:hover {
     background: #e9ecef;
     border-color: #ccc;
+}
+
+/* 
+   RESPONSIVE LAYOUTS 
+   ========================================================================== 
+*/
+
+/* Desktop: Horizontal Layout */
+@media (min-width: 1024px) {
+    .rv-search-form {
+        padding: 24px;
+        max-width: 100%;
+    }
+
+    /* Flex container for all inputs */
+    .rv-search-filters {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 12px;
+        margin-bottom: 0;
+        align-items: flex-end;
+        /* Aligns inputs and button to button */
+    }
+
+    /* Remove grid structure */
+    .rv-search-row {
+        display: contents;
+    }
+
+    .rv-search-keyword {
+        grid-column: auto;
+    }
+
+    .rv-search-field {
+        flex: 1;
+        min-width: 140px;
+        margin-bottom: 0;
+        justify-content: flex-end;
+    }
+
+    .rv-search-field label {
+        white-space: nowrap;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .rv-search-field input,
+    .rv-search-field select {
+        padding: 12px 16px;
+        /* Standardize padding */
+        height: 46px;
+        /* Explicit height for alignment */
+    }
+
+    .rv-search-keyword input {
+        padding: 12px 16px;
+        /* Reset special padding */
+        font-size: 14px;
+    }
+
+    /* Action buttons inline */
+    .rv-search-actions {
+        display: inline-flex;
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+        margin-left: 12px;
+        align-items: flex-end;
+    }
+
+    .rv-search-btn {
+        height: 46px;
+        /* Match input height */
+        padding: 0 30px;
+        margin-bottom: 0px;
+        white-space: nowrap;
+    }
+
+    /* Hide Reset Button on Desktop */
+    .rv-reset-btn {
+        display: none !important;
+    }
+}
+
+/* Tablet (Portrait): Grid 2 Columns */
+@media (max-width: 1023px) {
+    .rv-search-filters {
+        display: block;
+    }
+
+    .rv-search-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .rv-search-keyword {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Mobile: Stacked 1 Column */
+@media (max-width: 768px) {
+    .rv-search-form {
+        padding: 15px;
+    }
+
+    .rv-search-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .rv-search-btn,
+    .rv-reset-btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .rv-search-actions {
+        flex-direction: column;
+        padding-top: 15px;
+    }
 }
 
 /* Loading spinner */
@@ -346,66 +471,6 @@
     margin: 0 0 25px 0;
     color: #666;
     line-height: 1.5;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .rv-search-form {
-        padding: 15px;
-        margin: 10px;
-    }
-
-    .rv-search-header h3 {
-        font-size: 24px;
-    }
-
-    .rv-search-row {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-    .rv-search-actions {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .rv-search-btn,
-    .rv-reset-btn {
-        width: 100%;
-        max-width: 300px;
-    }
-
-    .rv-results-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .rv-results-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .rv-results-pagination {
-        flex-wrap: wrap;
-    }
-}
-
-@media (max-width: 480px) {
-    .rv-search-form {
-        padding: 10px;
-        margin: 5px;
-    }
-
-    .rv-search-header h3 {
-        font-size: 20px;
-    }
-
-    .rv-search-description {
-        font-size: 14px;
-    }
-
-    .rv-result-card-specs {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* Loading States */

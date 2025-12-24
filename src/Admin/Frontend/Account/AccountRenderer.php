@@ -303,6 +303,9 @@ final class AccountRenderer
     /**
      * Booking detail render
      */
+    /**
+     * Booking detail render
+     */
     public static function render_booking_detail(int $booking_id): string
     {
         $booking = get_post($booking_id);
@@ -319,10 +322,35 @@ final class AccountRenderer
             return '<p>' . __('You do not have permission to view this booking.', 'mhm-rentiva') . '</p>';
         }
         
+        $navigation = self::get_navigation();
+        
+        // If navigation is empty (e.g. WooCommerce integration), provide minimal nav for breadcrumbs
+        if (empty($navigation)) {
+            $dashboard_url = home_url('/');
+            $bookings_url = home_url('/');
+            
+            if (class_exists('WooCommerce') && function_exists('wc_get_endpoint_url')) {
+                $my_account_url = wc_get_page_permalink('myaccount');
+                $dashboard_url = $my_account_url;
+                $bookings_slug = AccountController::get_endpoint_slug('bookings', 'rentiva-bookings');
+                $bookings_url = wc_get_endpoint_url($bookings_slug, '', $my_account_url);
+            } else {
+                 $dashboard_url = AccountController::get_account_url();
+                 $bookings_url = AccountController::get_booking_view_url($booking_id); // Fallback, though typically not empty in standalone
+                 // Actually for standalone get_navigation shouldn't be empty unless something is wrong.
+                 // But for WooCommerce it returns empty array intentionally.
+            }
+            
+            $navigation = [
+                'dashboard' => ['url' => $dashboard_url],
+                'bookings' => ['url' => $bookings_url],
+            ];
+        }
+        
         $data = [
             'booking' => $booking,
             'booking_id' => $booking_id,
-            'navigation' => self::get_navigation(),
+            'navigation' => $navigation,
         ];
         
         return Templates::render('account/booking-detail', $data, true);
@@ -506,13 +534,44 @@ final class AccountRenderer
             $date_formatted = $date_str ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($date_str)) : get_the_date('', $booking->ID);
             
             if ($payment_status) {
+                // Translate Status
+                $status_labels = [
+                    'pending' => __('Pending', 'mhm-rentiva'),
+                    'completed' => __('Completed', 'mhm-rentiva'),
+                    'cancelled' => __('Cancelled', 'mhm-rentiva'),
+                ];
+                $status_label = $status_labels[$payment_status] ?? ucfirst($payment_status);
+
+                // Format Gateway/Method 
+                $woocommerce_method_title = '';
+                
+                // Try to get method title from WooCommerce Order if exists
+                $wc_order_id = get_post_meta($booking->ID, '_mhm_woocommerce_order_id', true);
+                if ($wc_order_id && function_exists('wc_get_order')) {
+                    $order = wc_get_order($wc_order_id);
+                    if ($order) {
+                        $woocommerce_method_title = $order->get_payment_method_title();
+                    }
+                }
+
+                // If we found a real title, use it. Otherwise fallback to existing method or gateway
+                if (!empty($woocommerce_method_title)) {
+                    $method_display = $woocommerce_method_title;
+                } elseif (!empty($payment_method) && $payment_method !== 'manual') {
+                    $method_display = ucfirst($payment_method);
+                } else {
+                    // Fallback to gateway name if method is empty
+                     $method_display = $payment_gateway === 'woocommerce' ? 'WooCommerce' : ucfirst($payment_gateway);
+                }
+                
                 $payments[] = [
                     'booking_id' => $booking->ID,
                     'booking_title' => get_the_title($booking->ID),
                     'date' => $date_formatted,
                     'status' => $payment_status,
-                    'method' => $payment_method,
-                    'gateway' => $payment_gateway,
+                    'status_label' => $status_label,
+                    'method' => $method_display,
+                    // 'gateway' => $gateway_label, // Removed as requested
                     'amount' => $payment_type === 'deposit' ? $deposit_amount : $total_price,
                     'total' => $total_price,
                     'type' => $payment_type,

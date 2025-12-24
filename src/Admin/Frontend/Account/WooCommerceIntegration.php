@@ -34,10 +34,13 @@ final class WooCommerceIntegration
         add_filter('woocommerce_get_query_vars', [self::class, 'add_query_vars']);
         
         // Render content
-        add_action('woocommerce_account_rentiva-bookings_endpoint', [self::class, 'render_bookings']);
-        add_action('woocommerce_account_rentiva-favorites_endpoint', [self::class, 'render_favorites']);
-        add_action('woocommerce_account_rentiva-payment-history_endpoint', [self::class, 'render_payment_history']);
-        add_action('woocommerce_account_rentiva-messages_endpoint', [self::class, 'render_messages']);
+        // We use dynamic hooks based on slugs, but add_action doesn't support dynamic tag names clearly in definition
+        // So we hook into 'woocommerce_account_{slug}_endpoint' dynamically in a method or use a loop if possible.
+        // However, since slugs can change, we should hook to the *current* slug.
+        add_action('woocommerce_account_' . self::get_endpoint_slug('bookings', 'rentiva-bookings') . '_endpoint', [self::class, 'render_bookings']);
+        add_action('woocommerce_account_' . self::get_endpoint_slug('favorites', 'rentiva-favorites') . '_endpoint', [self::class, 'render_favorites']);
+        add_action('woocommerce_account_' . self::get_endpoint_slug('payment_history', 'rentiva-payment-history') . '_endpoint', [self::class, 'render_payment_history']);
+        add_action('woocommerce_account_' . self::get_endpoint_slug('messages', 'rentiva-messages') . '_endpoint', [self::class, 'render_messages']);
         
         // Endpoint titles
         add_filter('the_title', [self::class, 'endpoint_title'], 10, 2);
@@ -68,14 +71,14 @@ final class WooCommerceIntegration
             
             // Insert Rentiva items after 'orders' or 'dashboard'
             if (!$inserted && ($key === 'orders' || $key === 'dashboard')) {
-                $new_items['rentiva-bookings'] = __('Vehicle Bookings', 'mhm-rentiva');
-                $new_items['rentiva-favorites'] = __('Favorite Vehicles', 'mhm-rentiva');
-                $new_items['rentiva-payment-history'] = __('Vehicle Payments', 'mhm-rentiva');
+                $new_items[self::get_endpoint_slug('bookings', 'rentiva-bookings')] = __('Vehicle Bookings', 'mhm-rentiva');
+                $new_items[self::get_endpoint_slug('favorites', 'rentiva-favorites')] = __('Favorite Vehicles', 'mhm-rentiva');
+                $new_items[self::get_endpoint_slug('payment_history', 'rentiva-payment-history')] = __('Vehicle Payments', 'mhm-rentiva');
                 
                 // Add Messages if feature is enabled
                 if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && 
                     \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES)) {
-                    $new_items['rentiva-messages'] = __('Messages', 'mhm-rentiva');
+                    $new_items[self::get_endpoint_slug('messages', 'rentiva-messages')] = __('Messages', 'mhm-rentiva');
                 }
                 
                 $inserted = true;
@@ -85,15 +88,15 @@ final class WooCommerceIntegration
         // If orders/dashboard not found, add at the beginning
         if (!$inserted) {
             $rentiva_items = [
-                'rentiva-bookings' => __('Vehicle Bookings', 'mhm-rentiva'),
-                'rentiva-favorites' => __('Favorite Vehicles', 'mhm-rentiva'),
-                'rentiva-payment-history' => __('Vehicle Payments', 'mhm-rentiva'),
+                self::get_endpoint_slug('bookings', 'rentiva-bookings') => __('Vehicle Bookings', 'mhm-rentiva'),
+                self::get_endpoint_slug('favorites', 'rentiva-favorites') => __('Favorite Vehicles', 'mhm-rentiva'),
+                self::get_endpoint_slug('payment_history', 'rentiva-payment-history') => __('Vehicle Payments', 'mhm-rentiva'),
             ];
             
             // Add Messages if feature is enabled
             if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && 
                 \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES)) {
-                $rentiva_items['rentiva-messages'] = __('Messages', 'mhm-rentiva');
+                $rentiva_items[self::get_endpoint_slug('messages', 'rentiva-messages')] = __('Messages', 'mhm-rentiva');
             }
             
             $new_items = array_merge($rentiva_items, $new_items);
@@ -114,10 +117,10 @@ final class WooCommerceIntegration
     public static function add_endpoints(): void
     {
         // WooCommerce My Account endpoints - use EP_PAGES only
-        add_rewrite_endpoint('rentiva-bookings', EP_PAGES);
-        add_rewrite_endpoint('rentiva-favorites', EP_PAGES);
-        add_rewrite_endpoint('rentiva-payment-history', EP_PAGES);
-        add_rewrite_endpoint('rentiva-messages', EP_PAGES);
+        add_rewrite_endpoint(self::get_endpoint_slug('bookings', 'rentiva-bookings'), EP_PAGES);
+        add_rewrite_endpoint(self::get_endpoint_slug('favorites', 'rentiva-favorites'), EP_PAGES);
+        add_rewrite_endpoint(self::get_endpoint_slug('payment_history', 'rentiva-payment-history'), EP_PAGES);
+        add_rewrite_endpoint(self::get_endpoint_slug('messages', 'rentiva-messages'), EP_PAGES);
     }
 
     /**
@@ -125,10 +128,10 @@ final class WooCommerceIntegration
      */
     public static function add_query_vars(array $vars): array
     {
-        $vars['rentiva-bookings'] = 'rentiva-bookings';
-        $vars['rentiva-favorites'] = 'rentiva-favorites';
-        $vars['rentiva-payment-history'] = 'rentiva-payment-history';
-        $vars['rentiva-messages'] = 'rentiva-messages';
+        $vars[self::get_endpoint_slug('bookings', 'rentiva-bookings')] = self::get_endpoint_slug('bookings', 'rentiva-bookings');
+        $vars[self::get_endpoint_slug('favorites', 'rentiva-favorites')] = self::get_endpoint_slug('favorites', 'rentiva-favorites');
+        $vars[self::get_endpoint_slug('payment_history', 'rentiva-payment-history')] = self::get_endpoint_slug('payment_history', 'rentiva-payment-history');
+        $vars[self::get_endpoint_slug('messages', 'rentiva-messages')] = self::get_endpoint_slug('messages', 'rentiva-messages');
         
         return $vars;
     }
@@ -138,6 +141,13 @@ final class WooCommerceIntegration
      */
     public static function render_bookings(): void
     {
+        // Check if viewing specific booking details
+        if (isset($_GET['endpoint']) && $_GET['endpoint'] === 'booking-detail' && !empty($_GET['booking_id'])) {
+            $booking_id = (int) $_GET['booking_id'];
+            echo AccountRenderer::render_booking_detail($booking_id);
+            return;
+        }
+
         echo do_shortcode('[rentiva_my_bookings]');
     }
 
@@ -174,10 +184,10 @@ final class WooCommerceIntegration
     {
         global $wp_query;
         
-        $is_endpoint = isset($wp_query->query_vars['rentiva-bookings']) ||
-                      isset($wp_query->query_vars['rentiva-favorites']) ||
-                      isset($wp_query->query_vars['rentiva-payment-history']) ||
-                      isset($wp_query->query_vars['rentiva-messages']);
+        $is_endpoint = isset($wp_query->query_vars[self::get_endpoint_slug('bookings', 'rentiva-bookings')]) ||
+                      isset($wp_query->query_vars[self::get_endpoint_slug('favorites', 'rentiva-favorites')]) ||
+                      isset($wp_query->query_vars[self::get_endpoint_slug('payment_history', 'rentiva-payment-history')]) ||
+                      isset($wp_query->query_vars[self::get_endpoint_slug('messages', 'rentiva-messages')]);
         
         if (!$is_endpoint || !in_the_loop()) {
             return $title;
@@ -185,13 +195,13 @@ final class WooCommerceIntegration
         
         $endpoint_title = '';
         
-        if (isset($wp_query->query_vars['rentiva-bookings'])) {
+        if (isset($wp_query->query_vars[self::get_endpoint_slug('bookings', 'rentiva-bookings')])) {
             $endpoint_title = __('Vehicle Bookings', 'mhm-rentiva');
-        } elseif (isset($wp_query->query_vars['rentiva-favorites'])) {
+        } elseif (isset($wp_query->query_vars[self::get_endpoint_slug('favorites', 'rentiva-favorites')])) {
             $endpoint_title = __('Favorite Vehicles', 'mhm-rentiva');
-        } elseif (isset($wp_query->query_vars['rentiva-payment-history'])) {
+        } elseif (isset($wp_query->query_vars[self::get_endpoint_slug('payment_history', 'rentiva-payment-history')])) {
             $endpoint_title = __('Vehicle Payments', 'mhm-rentiva');
-        } elseif (isset($wp_query->query_vars['rentiva-messages'])) {
+        } elseif (isset($wp_query->query_vars[self::get_endpoint_slug('messages', 'rentiva-messages')])) {
             $endpoint_title = __('Messages', 'mhm-rentiva');
         }
         
@@ -224,10 +234,37 @@ final class WooCommerceIntegration
         // Flush if not flushed before or version changed
         if (!$flushed || version_compare($saved_version, $current_version, '<')) {
             self::add_endpoints();
-            flush_rewrite_rules(false); // false = don't write to .htaccess, just update rules
+            flush_rewrite_rules(); // Make sure to hard flush
             update_option($flush_key, true);
             update_option($version_key, $current_version);
         }
     }
-}
 
+    /**
+     * Get endpoint slug with translation and option support
+     * 
+     * Priority:
+     * 1. Database option (custom user setting)
+     * 2. Translation file (po/mo) via _x()
+     * 3. Default hardcoded value
+     * 
+     * @param string $key Identifier key (e.g., 'bookings')
+     * @param string $default Default slug in English
+     * @return string Sanitized slug
+     */
+    public static function get_endpoint_slug(string $key, string $default): string
+    {
+        // 1. Check database option
+        $option_key = 'mhm_rentiva_endpoint_' . $key;
+        $slug = get_option($option_key);
+
+        if (empty($slug)) {
+            // 2. Use translation if no option set
+            // context 'endpoint slug' helps translators know this is part of URL
+            $slug = _x($default, 'endpoint slug', 'mhm-rentiva');
+        }
+
+        return sanitize_title($slug);
+    }
+
+}

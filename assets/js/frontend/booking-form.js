@@ -388,12 +388,12 @@
                 price.text(this.formatPrice(vehiclePrice) + ' ' + this.getMessage('per_day'));
 
                 if (vehicleImage) {
-                    image.attr('src', vehicleImage).show();
+                    image.attr('src', vehicleImage).removeClass('rv-hidden').show();
                 } else {
-                    image.hide();
+                    image.addClass('rv-hidden').hide();
                 }
 
-                preview.show();
+                preview.removeClass('rv-hidden').show();
             } else {
                 preview.hide();
             }
@@ -491,10 +491,12 @@
             this.autoAvailabilityTimeout = setTimeout(() => {
                 const formData = this.getFormData();
 
-                // Check if vehicle, date AND time fields are filled
-                if (formData.vehicle_id && formData.pickup_date && formData.dropoff_date && formData.pickup_time && formData.dropoff_time) {
-                    this.checkAvailability();
-                } else {
+                // Check if vehicle AND dates are filled (time is optional for initial check)
+                if (formData.vehicle_id && formData.pickup_date && formData.dropoff_date) {
+                    this.calculatePrice(); // Check calculation even without time
+                    if (formData.pickup_time && formData.dropoff_time) {
+                        this.checkAvailability();
+                    }
                 }
             }, 300); // Check with 300ms delay
         }
@@ -907,23 +909,25 @@
         }
 
         showError(message) {
-            this.errorEl.html(`<div class="rv-error-message">${message}</div>`).show();
-            this.successEl.hide();
+            this.errorEl.html(message).removeClass('rv-hidden').css('display', 'flex');
+            this.successEl.hide().addClass('rv-hidden');
 
             // Auto hide after 8 seconds
             setTimeout(() => {
-                this.errorEl.fadeOut();
+                this.errorEl.fadeOut(() => {
+                    this.errorEl.addClass('rv-hidden').css('display', '');
+                });
             }, 8000);
         }
 
         showSuccess(message) {
-            this.successEl.html(`<div class="rv-success-message">${message}</div>`).show();
-            this.errorEl.hide();
+            this.successEl.html(message).removeClass('rv-hidden').css('display', 'flex');
+            this.errorEl.hide().addClass('rv-hidden');
         }
 
         hideMessages() {
-            this.errorEl.hide();
-            this.successEl.hide();
+            this.errorEl.hide().addClass('rv-hidden');
+            this.successEl.hide().addClass('rv-hidden');
         }
 
         calculateDays(startDate, endDate) {
@@ -1238,13 +1242,13 @@
                 ? `${window.mhmRentivaBookingForm?.strings?.booking_created_with_id || 'Your booking has been successfully created!'} ${bookingId}`
                 : window.mhmRentivaBookingForm?.strings?.booking_created || 'Your booking has been successfully created!';
 
-            $('.rv-success-message').text(successMessage).show();
+            $('.rv-success-message').text(successMessage).removeClass('rv-hidden').css('display', 'flex');
 
             // Clean URL
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
         } else if (booking === 'error' && message) {
-            $('.rv-error-message').text(decodeURIComponent(message)).show();
+            $('.rv-error-message').text(decodeURIComponent(message)).removeClass('rv-hidden').css('display', 'flex');
 
             // Clean URL
             const newUrl = window.location.pathname;

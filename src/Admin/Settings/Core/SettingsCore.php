@@ -252,6 +252,13 @@ final class SettingsCore
             // Email settings managed in EmailSettings class
             
             // Frontend URL & Text Settings (Global i18n support)
+            // Account Endpoints (Dynamic Slugs)
+            'mhm_rentiva_endpoint_bookings'        => 'rentiva-bookings',
+            'mhm_rentiva_endpoint_favorites'       => 'rentiva-favorites',
+            'mhm_rentiva_endpoint_payment_history' => 'rentiva-payment-history',
+            'mhm_rentiva_endpoint_edit_account'    => 'rentiva-edit-account',
+            'mhm_rentiva_endpoint_messages'        => 'rentiva-messages',
+
             'mhm_rentiva_booking_url'                     => '',
             'mhm_rentiva_login_url'                       => '',
             'mhm_rentiva_register_url'                    => '',
@@ -646,6 +653,7 @@ final class SettingsCore
                         strpos($key, 'mhm_rentiva_search_url') === 0 ||
                         strpos($key, 'mhm_rentiva_contact_url') === 0 ||
                         strpos($key, 'mhm_rentiva_text_') === 0 ||
+                        strpos($key, 'mhm_rentiva_endpoint_') === 0 ||
                         strpos($key, 'comparison_fields') === 0) {
                         $tab_keys[] = $key;
                     }
@@ -948,6 +956,54 @@ final class SettingsCore
             __('Frontend URL and Text Settings', 'mhm-rentiva'),
             [self::class, 'render_frontend_section_description'],
             self::PAGE
+        );
+
+        // Account Endpoint Slugs Section
+        add_settings_section(
+            'mhm_rentiva_frontend_endpoints_section',
+            __('Account Endpoint Slugs (URL Customization)', 'mhm-rentiva'),
+            [self::class, 'render_frontend_endpoints_section_description'],
+            self::PAGE
+        );
+
+        add_settings_field(
+            'mhm_rentiva_endpoint_bookings',
+            __('Bookings Endpoint', 'mhm-rentiva'),
+            [self::class, 'render_endpoint_bookings_field'],
+            self::PAGE,
+            'mhm_rentiva_frontend_endpoints_section'
+        );
+
+        add_settings_field(
+            'mhm_rentiva_endpoint_favorites',
+            __('Favorites Endpoint', 'mhm-rentiva'),
+            [self::class, 'render_endpoint_favorites_field'],
+            self::PAGE,
+            'mhm_rentiva_frontend_endpoints_section'
+        );
+
+        add_settings_field(
+            'mhm_rentiva_endpoint_payment_history',
+            __('Payment History Endpoint', 'mhm-rentiva'),
+            [self::class, 'render_endpoint_payment_history_field'],
+            self::PAGE,
+            'mhm_rentiva_frontend_endpoints_section'
+        );
+
+        add_settings_field(
+            'mhm_rentiva_endpoint_messages',
+            __('Messages Endpoint', 'mhm-rentiva'),
+            [self::class, 'render_endpoint_messages_field'],
+            self::PAGE,
+            'mhm_rentiva_frontend_endpoints_section'
+        );
+
+        add_settings_field(
+            'mhm_rentiva_endpoint_edit_account',
+            __('Edit Account Endpoint', 'mhm-rentiva'),
+            [self::class, 'render_endpoint_edit_account_field'],
+            self::PAGE,
+            'mhm_rentiva_frontend_endpoints_section'
         );
 
         add_settings_field(
@@ -1310,7 +1366,7 @@ final class SettingsCore
     public static function render_booking_url_field(): void
     {
         $value = self::get('mhm_rentiva_booking_url', '');
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_booking_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/booking/" />';
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_booking_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/booking/" />';
         echo '<p class="description">' . __('Example: https://example.com/booking/ or /booking-form/ (auto-detected if left empty)', 'mhm-rentiva') . '</p>';
     }
 
@@ -1320,7 +1376,7 @@ final class SettingsCore
     public static function render_login_url_field(): void
     {
         $value = self::get('mhm_rentiva_login_url', '');
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_login_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/login/" />';
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_login_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/login/" />';
         echo '<p class="description">' . __('Example: https://example.com/login/ or /member-login/ (WordPress default login page is used if left empty)', 'mhm-rentiva') . '</p>';
     }
 
@@ -1330,7 +1386,7 @@ final class SettingsCore
     public static function render_register_url_field(): void
     {
         $value = self::get('mhm_rentiva_register_url', '');
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_register_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/register/" />';
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_register_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/register/" />';
         echo '<p class="description">' . __('Example: https://example.com/register/ or /kayit/ (auto-detected if left empty)', 'mhm-rentiva') . '</p>';
     }
 
@@ -1340,7 +1396,7 @@ final class SettingsCore
     public static function render_my_account_url_field(): void
     {
         $value = self::get('mhm_rentiva_my_account_url', '');
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_my_account_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/my-account/" />';
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_my_account_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/my-account/" />';
         echo '<p class="description">' . __('Example: https://example.com/my-account/ or /hesabim/ (auto-detected if left empty)', 'mhm-rentiva') . '</p>';
     }
 
@@ -1350,7 +1406,7 @@ final class SettingsCore
     public static function render_my_bookings_url_field(): void
     {
         $value = self::get('mhm_rentiva_my_bookings_url', '');
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_my_bookings_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/my-bookings/" />';
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_my_bookings_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/my-bookings/" />';
         echo '<p class="description">' . __('Example: https://example.com/my-bookings/ or /rezervasyonlarim/ (auto-detected if left empty)', 'mhm-rentiva') . '</p>';
     }
 
@@ -1360,7 +1416,7 @@ final class SettingsCore
     public static function render_my_favorites_url_field(): void
     {
         $value = self::get('mhm_rentiva_my_favorites_url', '');
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_my_favorites_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/my-favorites/" />';
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_my_favorites_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/my-favorites/" />';
         echo '<p class="description">' . __('Example: https://example.com/my-favorites/ or /favorilerim/ (auto-detected if left empty)', 'mhm-rentiva') . '</p>';
     }
 
@@ -1370,7 +1426,7 @@ final class SettingsCore
     public static function render_vehicles_list_url_field(): void
     {
         $value = self::get('mhm_rentiva_vehicles_list_url', '');
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_vehicles_list_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/vehicles/" />';
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_vehicles_list_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/vehicles/" />';
         echo '<p class="description">' . __('Example: https://example.com/vehicles/ or /araclar/ (auto-detected if left empty)', 'mhm-rentiva') . '</p>';
     }
 
@@ -1380,7 +1436,7 @@ final class SettingsCore
     public static function render_search_url_field(): void
     {
         $value = self::get('mhm_rentiva_search_url', '');
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_search_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/search/" />';
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_search_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/search/" />';
         echo '<p class="description">' . __('Example: https://example.com/search/ or /arama/ (auto-detected if left empty)', 'mhm-rentiva') . '</p>';
     }
 
@@ -1390,7 +1446,7 @@ final class SettingsCore
     public static function render_contact_url_field(): void
     {
         $value = self::get('mhm_rentiva_contact_url', '');
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_contact_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/contact/" />';
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_contact_url]" value="' . esc_attr($value) . '" class="regular-text" placeholder="https://example.com/contact/" />';
         echo '<p class="description">' . __('Example: https://example.com/contact/ or /iletisim/ (auto-detected if left empty)', 'mhm-rentiva') . '</p>';
     }
 
@@ -2205,6 +2261,50 @@ final class SettingsCore
             return '';
         }
         return sanitize_text_field((string) $value);
+    }
+    public static function render_frontend_endpoints_section_description(): void
+    {
+        echo '<p>';
+        echo esc_html__('Customize the URL slugs for the My Account endpoints. These are the parts of the URL that appear after the main My Account page URL.', 'mhm-rentiva');
+        echo '<br>';
+        echo '<strong>' . esc_html__('Important:', 'mhm-rentiva') . '</strong> ';
+        echo esc_html__('After changing these settings, you may need to go to Settings > Permalinks and click "Save Changes" to refresh the permalinks structure.', 'mhm-rentiva');
+        echo '</p>';
+    }
+
+    public static function render_endpoint_bookings_field(): void
+    {
+        $value = self::get('mhm_rentiva_endpoint_bookings', 'rentiva-bookings');
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_endpoint_bookings]" value="' . esc_attr($value) . '" class="regular-text" />';
+        echo '<p class="description">' . esc_html__('Default: rentiva-bookings', 'mhm-rentiva') . '</p>';
+    }
+
+    public static function render_endpoint_favorites_field(): void
+    {
+        $value = self::get('mhm_rentiva_endpoint_favorites', 'rentiva-favorites');
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_endpoint_favorites]" value="' . esc_attr($value) . '" class="regular-text" />';
+        echo '<p class="description">' . esc_html__('Default: rentiva-favorites', 'mhm-rentiva') . '</p>';
+    }
+
+    public static function render_endpoint_payment_history_field(): void
+    {
+        $value = self::get('mhm_rentiva_endpoint_payment_history', 'rentiva-payment-history');
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_endpoint_payment_history]" value="' . esc_attr($value) . '" class="regular-text" />';
+        echo '<p class="description">' . esc_html__('Default: rentiva-payment-history', 'mhm-rentiva') . '</p>';
+    }
+
+    public static function render_endpoint_messages_field(): void
+    {
+        $value = self::get('mhm_rentiva_endpoint_messages', 'rentiva-messages');
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_endpoint_messages]" value="' . esc_attr($value) . '" class="regular-text" />';
+        echo '<p class="description">' . esc_html__('Default: rentiva-messages', 'mhm-rentiva') . '</p>';
+    }
+
+    public static function render_endpoint_edit_account_field(): void
+    {
+        $value = self::get('mhm_rentiva_endpoint_edit_account', 'rentiva-edit-account');
+        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_endpoint_edit_account]" value="' . esc_attr($value) . '" class="regular-text" />';
+        echo '<p class="description">' . esc_html__('Default: rentiva-edit-account', 'mhm-rentiva') . '</p>';
     }
 }
 

@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.4.5-blue.svg)
+![Version](https://img.shields.io/badge/version-4.5.0-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1198,19 +1198,18 @@ Fixes #123
 
 ## 📝 Changelog
 
-### Latest Version: 4.4.5 (2025-11-25)
+### Latest Version: 4.5.0 (2025-12-24)
 
-**📦 VERSION UPDATE**
-- Version bump to 4.4.5 for maintenance and stability improvements.
+**🚀 VERSION UPDATE**
+- Major update to 4.5.0 focusing on User Account and Payment History improvements.
 
-**🎨 ELEMENTOR WIDGETS ENHANCEMENT**
-- Enhanced Elementor integration with 19 comprehensive widgets covering all plugin features
-- All widgets organized under dedicated "MHM Rentiva" category in Elementor
-- Advanced styling and customization options added to all widgets
-- Full responsive design with mobile-first approach
-- Seamless integration with Elementor's live preview and drag-and-drop builder
+**🔧 ACCOUNT & PAYMENT**
+- Added customizable endpoints for account pages.
+- Enhanced Payment History with receipt management (upload, preview, remove).
+- Modernized UI for Bookings table in My Account.
+- Fixed password toggle buttons on Account Details page.
 
-For complete changelog, see [changelog.json](changelog.json)
+Full changelog available in [changelog.json](changelog.json).
 
 ---
 

@@ -91,7 +91,7 @@ $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
                                     <div class="meta-item">
                                         <span class="meta-label"><?php esc_html_e('Status:', 'mhm-rentiva'); ?></span>
                                         <span class="payment-status status-<?php echo esc_attr($payment['status']); ?>">
-                                            <?php echo esc_html(ucfirst($payment['status'])); ?>
+                                            <?php echo esc_html($payment['status_label'] ?? ucfirst($payment['status'])); ?>
                                         </span>
                                     </div>
                                     
@@ -100,15 +100,6 @@ $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
                                             <span class="meta-label"><?php esc_html_e('Payment Method:', 'mhm-rentiva'); ?></span>
                                             <span class="payment-method">
                                                 <?php echo esc_html($payment['method']); ?>
-                                            </span>
-                                        </div>
-                                    <?php endif; ?>
-                                    
-                                    <?php if (!empty($payment['gateway'])): ?>
-                                        <div class="meta-item">
-                                            <span class="meta-label"><?php esc_html_e('Payment Gateway:', 'mhm-rentiva'); ?></span>
-                                            <span class="payment-gateway">
-                                                <?php echo esc_html($payment['gateway']); ?>
                                             </span>
                                         </div>
                                     <?php endif; ?>
@@ -124,7 +115,7 @@ $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
                                 </div>
                                 
                                 <div class="payment-actions">
-                                    <a href="<?php echo esc_url(add_query_arg(['endpoint' => 'booking-detail', 'booking_id' => (int)($payment['booking_id'] ?? 0)], \MHMRentiva\Admin\Frontend\Account\AccountController::get_account_url())); ?>" class="btn btn-secondary btn-sm">
+                                    <a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url((int)($payment['booking_id'] ?? 0))); ?>" class="btn btn-secondary btn-sm">
                                         <?php esc_html_e('Booking Details', 'mhm-rentiva'); ?>
                                     </a>
 
@@ -132,21 +123,32 @@ $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
                     $receipt = $payment['receipt'] ?? [];
                     $has_receipt = !empty($receipt['attachment_id']);
                     ?>
-                    <?php if (!$has_receipt): ?>
-                        <label class="btn btn-primary btn-sm" style="margin-left:8px;">
-                            <?php esc_html_e('Upload Receipt', 'mhm-rentiva'); ?>
-                            <input type="file" accept="image/jpeg,image/png,application/pdf" class="mhm-upload-receipt" data-booking-id="<?php echo esc_attr($payment['booking_id']); ?>" style="display:none;">
-                        </label>
+                    <?php if (!empty($payment['receipt']['url'])): ?>
+                        <div class="receipt-preview-wrapper" style="display: flex; align-items: center; gap: 10px;">
+                            <a href="<?php echo esc_url($payment['receipt']['url']); ?>" target="_blank" class="receipt-thumbnail" style="display: block; width: 40px; height: 40px; border-radius: 4px; overflow: hidden; border: 1px solid #ddd;">
+                                <?php 
+                                $ext = pathinfo($payment['receipt']['url'], PATHINFO_EXTENSION);
+                                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'gif'])): ?>
+                                    <img src="<?php echo esc_url($payment['receipt']['url']); ?>" alt="Receipt" style="width: 100%; height: 100%; object-fit: cover;">
+                                <?php else: ?>
+                                    <span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: #f5f5f5; font-size: 10px; color: #666; font-weight: bold;">
+                                        <?php echo esc_html(strtoupper($ext)); ?>
+                                    </span>
+                                <?php endif; ?>
+                            </a>
+                            
+                            <div class="receipt-actions">
+                                <button type="button" class="btn btn-danger btn-sm remove-receipt-btn" data-booking-id="<?php echo esc_attr($payment['booking_id']); ?>" style="padding: 4px 8px; font-size: 11px; line-height: 1;">
+                                    <?php esc_html_e('Remove', 'mhm-rentiva'); ?>
+                                </button>
+                            </div>
+                        </div>
                     <?php else: ?>
-                        <a class="btn btn-secondary btn-sm" style="margin-left:8px;" href="<?php echo esc_url($receipt['url']); ?>" target="_blank" rel="noopener">
-                            <?php esc_html_e('View Receipt', 'mhm-rentiva'); ?>
-                        </a>
-                        <?php if (($receipt['status'] ?? '') === 'rejected'): ?>
-                            <label class="btn btn-primary btn-sm" style="margin-left:8px;">
-                                <?php esc_html_e('Re-upload', 'mhm-rentiva'); ?>
-                                <input type="file" accept="image/jpeg,image/png,application/pdf" class="mhm-upload-receipt" data-booking-id="<?php echo esc_attr($payment['booking_id']); ?>" style="display:none;">
-                            </label>
-                        <?php endif; ?>
+                        <?php $is_paid = ($payment['status'] === 'paid'); // Assuming 'paid' is the status that disables upload ?>
+                        <label class="btn btn-primary btn-sm mhm-upload-label <?php echo $is_paid ? 'disabled' : ''; ?>" style="margin-left:8px;">
+                            <?php esc_html_e('Upload Receipt', 'mhm-rentiva'); ?>
+                            <input type="file" class="mhm-upload-receipt" data-booking-id="<?php echo esc_attr($payment['booking_id']); ?>" accept="image/*,.pdf" style="display: none;" <?php disabled($is_paid); ?>>
+                        </label>
                     <?php endif; ?>
                                 </div>
                             </div>

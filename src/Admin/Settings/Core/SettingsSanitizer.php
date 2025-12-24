@@ -834,6 +834,24 @@ final class SettingsSanitizer
     {
         $out = [];
 
+        // Endpoint Slugs
+        $endpoint_fields = [
+            'mhm_rentiva_endpoint_bookings',
+            'mhm_rentiva_endpoint_favorites',
+            'mhm_rentiva_endpoint_payment_history',
+            'mhm_rentiva_endpoint_messages',
+            'mhm_rentiva_endpoint_edit_account',
+        ];
+
+        foreach ($endpoint_fields as $field) {
+            if (isset($input[$field])) {
+                // Use sanitize_title to ensure valid URL slugs
+                $out[$field] = sanitize_title($input[$field]);
+            } else {
+                $out[$field] = $defaults[$field] ?? '';
+            }
+        }
+
         // Frontend URLs
         $url_fields = [
             'mhm_rentiva_booking_url',
@@ -849,7 +867,8 @@ final class SettingsSanitizer
 
         foreach ($url_fields as $field) {
             if (isset($input[$field])) {
-                $out[$field] = esc_url_raw($input[$field]);
+                // Use sanitize_text_field instead of esc_url_raw to allow relative paths
+                $out[$field] = self::sanitize_text_field_safe($input[$field]);
             } else {
                 $out[$field] = $defaults[$field] ?? '';
             }

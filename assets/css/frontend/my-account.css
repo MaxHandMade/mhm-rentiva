@@ -355,34 +355,123 @@
    ========================================================================= */
 .bookings-table-wrapper {
     overflow-x: auto;
+    background: var(--account-bg);
+    border-radius: var(--account-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-top: 15px;
 }
 
 .mhm-bookings-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .mhm-bookings-table thead {
-    background: var(--account-bg-light);
+    background: #f8fafc;
 }
 
 .mhm-bookings-table th {
-    padding: 15px;
+    padding: 1.25rem 1.5rem;
     text-align: left;
-    font-size: 13px;
+    font-size: 0.875rem;
     font-weight: 600;
-    color: var(--account-text);
-    border-bottom: 2px solid var(--account-border);
+    color: var(--account-text-light);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
 }
 
-.mhm-bookings-table td {
-    padding: 15px;
-    border-bottom: 1px solid var(--account-border);
-    font-size: 14px;
+.mhm-bookings-table tbody tr {
+    transition: background-color 0.2s ease;
 }
 
 .mhm-bookings-table tbody tr:hover {
-    background: var(--account-bg-light);
+    background-color: #f1f5f9;
+}
+
+.mhm-bookings-table td {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.95rem;
+    color: var(--account-text);
+    vertical-align: middle;
+}
+
+.mhm-bookings-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Specific Columns */
+.rv-booking-id {
+    font-family: monospace;
+    font-weight: 600;
+    color: var(--account-primary);
+}
+
+.rv-vehicle-thumb {
+    width: 80px;
+}
+
+.rv-vehicle-thumb img {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rv-vehicle-name {
+    font-weight: 600;
+    min-width: 150px;
+}
+
+.rv-booking-date {
+    color: var(--account-text-light);
+    white-space: nowrap;
+}
+
+.rv-booking-status {
+    text-align: center;
+}
+
+.rv-price-badge {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--account-text);
+    white-space: nowrap;
+}
+
+.btn-view,
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: white;
+    color: var(--account-text);
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-view:hover,
+.btn-secondary:hover {
+    background: #f8fafc;
+    border-color: var(--account-primary);
+    color: var(--account-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+}
+
+.btn-view::after,
+.btn-secondary::after {
+    content: '→';
+    font-family: system-ui;
 }
 
 .mhm-account-content .rv-vehicles-grid-container {
@@ -476,9 +565,6 @@
     line-height: 1.6;
 }
 
-/* ============================================================================
-   QUICK ACTIONS
-   ========================================================================= */
 .quick-actions {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -832,6 +918,105 @@
     display: flex;
     gap: 15px;
     margin-top: 30px;
+}
+
+/* ============================================================================
+   PASSWORD TOGGLE FIX (Review)
+   ========================================================================= */
+.form-field {
+    position: relative;
+}
+
+/* Reset styles for WP/WooCommerce toggle buttons */
+button.wp-hide-pw,
+.woocommerce-password-toggle,
+.show-password-input {
+    position: absolute !important;
+    top: 50% !important;
+    right: 10px !important;
+    transform: translateY(-50%) !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 10px !important;
+    margin: 0 !important;
+    color: var(--account-text-light) !important;
+    cursor: pointer !important;
+    z-index: 10 !important;
+    font-size: 16px !important;
+    line-height: normal !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: auto !important;
+    display: block !important;
+    /* Ensure it is visible */
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Ensure Dashicons are visible inside */
+button.wp-hide-pw .dashicons,
+.woocommerce-password-toggle .dashicons,
+.show-password-input:before {
+    font-family: 'dashicons';
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    border: none;
+    box-shadow: none;
+    text-decoration: none;
+    vertical-align: top;
+    display: inline-block;
+    color: inherit;
+    font-size: 20px;
+    content: "\f177";
+    /* Dashicons 'visibility' icon */
+}
+
+/* Toggle state: hidden */
+button.wp-hide-pw .dashicons-hidden:before,
+.woocommerce-password-toggle .dashicons-hidden:before {
+    content: "\f160";
+    /* Dashicons 'hidden' icon */
+}
+
+button.wp-hide-pw:hover,
+.woocommerce-password-toggle:hover,
+.show-password-input:hover {
+    color: var(--account-primary) !important;
+    background: transparent !important;
+}
+
+/* Add padding to input to prevent text overlap */
+input[type="password"],
+input[type="text"].password-input {
+    padding-right: 40px !important;
+}
+
+.password-input-wrapper {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.password-input-wrapper input {
+    width: 100% !important;
+    padding-right: 45px !important;
+    /* Space for icon */
+}
+
+.password-input-wrapper .show-password-input,
+.password-input-wrapper .wp-hide-pw,
+.password-input-wrapper .woocommerce-password-toggle {
+    position: absolute !important;
+    top: 50% !important;
+    right: 5px !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
+    z-index: 20 !important;
+    left: auto !important;
+    /* Ensure it doesn't get pushed */
 }
 
 /* ============================================================================

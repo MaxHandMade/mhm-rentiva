@@ -5,15 +5,24 @@
  * Modern, responsive ve kullanıcı dostu tasarım
  */
 
-/* ===== ANA CONTAINER ===== */
+/* ===== ANA CONTAINER & VARS ===== */
 .rv-booking-confirmation {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 40px;
     background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #374151;
+    box-sizing: border-box;
+    /* Ensure padding doesn't affect width calculations */
+}
+
+.rv-booking-confirmation *,
+.rv-booking-confirmation *::before,
+.rv-booking-confirmation *::after {
+    box-sizing: border-box;
 }
 
 /* ===== BAŞLIK ALANI ===== */
@@ -26,11 +35,27 @@
 
 .rv-success-icon {
     margin-bottom: 20px;
+    animation: rv-bounce-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .rv-success-icon svg {
     display: block;
     margin: 0 auto;
+    width: 64px;
+    height: 64px;
+    filter: drop-shadow(0 4px 12px rgba(16, 185, 129, 0.3));
+}
+
+.rv-confirmation-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin: 0 0 10px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
 }
 
 .rv-confirmation-message {
@@ -38,26 +63,12 @@
     color: #6b7280;
     margin-top: 10px;
     line-height: 1.5;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.rv-confirmation-title {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #2c3e50;
-    margin: 0 0 10px 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.rv-confirmation-subtitle {
-    font-size: 1.1rem;
-    color: #7f8c8d;
-    margin: 0;
-}
-
-/* ===== BAŞARI MESAJI ===== */
+/* ===== BAŞARI & HATA MESAJLARI ===== */
 .rv-success-message {
     background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
     color: white;
@@ -94,19 +105,44 @@
     font-weight: bold;
 }
 
-/* ===== REZERVASYON DETAYLARI ===== */
-.rv-booking-details {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 25px;
-    margin-bottom: 25px;
+/* ===== GRID & SECTIONS ===== */
+.rv-booking-confirmation h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 24px 0;
+    line-height: 1.3;
 }
 
+.rv-booking-details,
+.rv-payment-info,
+.rv-customer-info,
+.rv-account-info,
+.rv-next-steps {
+    background: #ffffff;
+    border: 1px solid #f3f4f6;
+    border-radius: 12px;
+    padding: 25px;
+    /* Consistent padding */
+    margin-bottom: 32px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+/* Specific overrides for sections if needed from modern block */
+.rv-booking-details {
+    background: #f8f9fa;
+    border: none;
+    box-shadow: none;
+    /* Modern block had different style, let's stick to valid one */
+}
+
+/* GRID SYSTEM */
 .rv-details-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
     margin-bottom: 20px;
+    width: 100%;
 }
 
 .rv-detail-row {
@@ -115,14 +151,9 @@
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     border-left: 4px solid #667eea;
-}
-
-.rv-detail-item {
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    border-left: 4px solid #667eea;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .rv-detail-label {
@@ -139,8 +170,63 @@
     font-weight: 600;
     color: #2c3e50;
     margin: 0;
+    word-break: break-word;
+    /* Prevent overflow */
 }
 
+/* ===== VEHICLE INFO ===== */
+.rv-vehicle-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    /* Allow wrapping on very small screens */
+}
+
+.rv-vehicle-thumb {
+    width: 80px;
+    height: 55px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #f3f4f6;
+    flex-shrink: 0;
+}
+
+.rv-vehicle-info span {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.3;
+}
+
+/* ===== PRICES ===== */
+.rv-price {
+    font-family: 'Inter', monospace;
+}
+
+.total-cost {
+    font-size: 1.4rem;
+    color: #3b82f6;
+    font-weight: 800;
+}
+
+.deposit-paid {
+    color: #059669 !important;
+}
+
+.remaining-amount {
+    color: #dc2626 !important;
+}
+
+.booking-ref {
+    font-family: monospace;
+    font-weight: bold;
+    color: #3b82f6 !important;
+    font-size: 1.2rem;
+}
+
+/* ===== ADDONS & STATUS ===== */
 .rv-addons-list {
     list-style: none;
     padding: 0;
@@ -162,23 +248,48 @@
     font-size: 1.1rem;
 }
 
-/* Override any theme styles that might add extra checkmarks */
-.addon-check::before,
-.addon-check::after {
-    content: none !important;
+.rv-payment-status,
+.rv-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.rv-addons-list li::before,
-.rv-addons-list li::after {
-    content: none !important;
+.status-pending {
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fcd34d;
 }
 
+.status-confirmed {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #6ee7b7;
+}
+
+.status-completed {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #93c5fd;
+}
+
+.status-cancelled {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+}
+
+/* ===== BANK INFO & WARNING ===== */
 .rv-bank-info {
-    background: #fef3c7;
-    border: 1px solid #f59e0b;
-    border-radius: 8px;
-    padding: 20px;
     margin-top: 20px;
+    background: #fffbeb;
+    border: 1px solid #f59e0b;
+    border-radius: 12px;
+    padding: 24px;
 }
 
 .rv-bank-info h3 {
@@ -196,6 +307,7 @@
     font-size: 0.9rem;
     line-height: 1.6;
     color: #374151;
+    border: 1px solid #e5e7eb;
 }
 
 .rv-payment-warning {
@@ -219,12 +331,10 @@
     line-height: 1.5;
 }
 
+/* ===== ACCOUNT INFO ===== */
 .rv-account-info {
     background: #f8fafc;
-    border-radius: 10px;
-    padding: 25px;
-    margin-bottom: 25px;
-    border: 1px solid #e2e8f0;
+    border-color: #e2e8f0;
 }
 
 .rv-info-box {
@@ -256,13 +366,7 @@
 .rv-info-content h3 {
     color: #1e40af;
     margin-bottom: 10px;
-    font-size: 1.3rem;
-}
-
-.rv-info-content p {
-    color: #6b7280;
-    margin-bottom: 15px;
-    line-height: 1.5;
+    font-size: 1.2rem;
 }
 
 .rv-info-content ul {
@@ -277,21 +381,14 @@
     font-size: 0.95rem;
 }
 
+/* ===== NEXT STEPS ===== */
 .rv-next-steps {
     background: #f0f9ff;
-    border-radius: 10px;
-    padding: 25px;
-    margin-bottom: 25px;
-    border: 1px solid #bae6fd;
-}
-
-.rv-steps-list {
-    margin-top: 20px;
+    border-color: #bae6fd;
 }
 
 .rv-step {
     display: flex;
-    align-items: flex-start;
     gap: 15px;
     margin-bottom: 20px;
 }
@@ -310,10 +407,6 @@
     font-size: 0.9rem;
 }
 
-.rv-step-content {
-    flex: 1;
-}
-
 .rv-step-content h4 {
     color: #1e40af;
     margin-bottom: 5px;
@@ -327,390 +420,85 @@
     margin: 0;
 }
 
-.rv-btn {
+/* ===== CUSTOMER INFO ===== */
+.rv-customer-info {
+    background: #f8f9fa;
+}
+
+/* ===== BUTTONS & ACTIONS ===== */
+.rv-confirmation-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.rv-btn,
+.rv-action-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 14px 28px;
-    border-radius: 8px;
+    border-radius: 10px;
     text-decoration: none;
     font-weight: 600;
     font-size: 1rem;
     transition: all 0.2s ease;
     border: none;
     cursor: pointer;
+    min-width: 180px;
+    text-align: center;
     gap: 8px;
-    min-width: 160px;
-    height: 48px;
-    box-sizing: border-box;
 }
 
 .rv-btn-primary {
     background: #3b82f6;
     color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .rv-btn-primary:hover {
     background: #2563eb;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.4);
+    color: white;
 }
 
 .rv-btn-secondary {
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background: white;
+    color: #4b5563;
+    border: 2px solid #e5e7eb;
 }
 
 .rv-btn-secondary:hover {
-    background: #e5e7eb;
     border-color: #9ca3af;
-}
-
-.rv-vehicle-thumb {
-    width: 60px;
-    height: 40px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-right: 12px;
-    border: 1px solid #e5e7eb;
-}
-
-.booking-ref {
-    font-family: monospace;
-    font-weight: bold;
-    color: #3b82f6 !important;
-}
-
-.deposit-paid {
-    color: #059669 !important;
-}
-
-.remaining-amount {
-    color: #dc2626 !important;
-}
-
-.rv-payment-status {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.status-confirmed {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.status-completed {
-    background-color: #0073E6;
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-.status-cancelled {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-/* ===== FİYAT BİLGİLERİ ===== */
-.rv-price-summary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 25px;
-}
-
-.rv-price-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin: 0 0 15px 0;
-    text-align: center;
-}
-
-.rv-price-breakdown {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.rv-price-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.rv-price-item:last-child {
-    border-bottom: none;
-    font-weight: 700;
-    font-size: 1.1rem;
-    padding-top: 15px;
-    border-top: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.rv-price-label {
-    font-size: 0.95rem;
-}
-
-.rv-price-amount {
-    font-size: 1rem;
-    font-weight: 600;
-}
-
-/* ===== AKSIYON BUTONLARI ===== */
-.rv-confirmation-actions {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 30px;
-    padding-top: 25px;
-    border-top: 2px solid #e8f2ff;
-    align-items: center;
-}
-
-.rv-action-btn {
-    display: inline-flex;
-    align-items: center;
-    padding: 12px 24px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-    min-width: 140px;
-    justify-content: center;
-    gap: 8px;
-}
-
-.rv-print-btn {
-    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
-}
-
-.rv-print-btn:hover {
+    background: #f9fafb;
+    color: #111827;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(116, 185, 255, 0.4);
 }
 
-.rv-download-btn {
-    background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
-}
-
-.rv-download-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
-}
-
-.rv-share-btn {
-    background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3);
-}
-
-.rv-share-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(253, 121, 168, 0.4);
-}
-
-.rv-back-btn {
-    background: linear-gradient(135deg, #636e72 0%, #2d3436 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(99, 110, 114, 0.3);
-}
-
-.rv-back-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 110, 114, 0.4);
-}
-
-.rv-action-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-/* ===== İKONLAR ===== */
-.rv-action-btn::before {
-    font-size: 1.1rem;
-}
-
-.rv-print-btn::before {
-    content: '🖨';
-}
-
-.rv-download-btn::before {
-    content: '⬇';
-}
-
-.rv-share-btn::before {
-    content: '📤';
-}
-
-.rv-back-btn::before {
-    content: '←';
-}
-
-/* ===== MÜŞTERİ BİLGİLERİ ===== */
-.rv-customer-info {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 25px;
-}
-
-.rv-customer-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #2c3e50;
-    margin: 0 0 15px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.rv-customer-title::before {
-    content: '👤';
-    font-size: 1.3rem;
-}
-
-.rv-customer-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-/* ===== REZERVASYON DURUMU ===== */
-.rv-booking-status {
-    text-align: center;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-weight: 600;
-}
-
-.rv-status-confirmed {
-    background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
-    color: white;
-}
-
-.rv-status-pending {
-    background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
-    color: white;
-}
-
-.rv-status-cancelled {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-    color: white;
-}
-
-/* ===== RESPONSIVE TASARIM ===== */
-@media (max-width: 768px) {
-    .rv-booking-confirmation {
-        margin: 10px;
-        padding: 15px;
+/* ===== ANIMATIONS ===== */
+@keyframes rv-bounce-in {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
     }
 
-    .rv-confirmation-title {
-        font-size: 1.8rem;
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
     }
 
-    .rv-details-grid {
-        grid-template-columns: 1fr;
+    70% {
+        transform: scale(0.9);
     }
 
-    .rv-confirmation-actions {
-        flex-direction: column;
-        align-items: center;
+    100% {
+        transform: scale(1);
     }
-
-    .rv-action-btn {
-        width: 100%;
-        max-width: 300px;
-    }
-
-    .rv-customer-details {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .rv-confirmation-title {
-        font-size: 1.5rem;
-    }
-
-    .rv-detail-item {
-        padding: 12px;
-    }
-
-    .rv-action-btn {
-        padding: 10px 20px;
-        font-size: 0.9rem;
-    }
-}
-
-/* ===== PRINT STYLES ===== */
-@media print {
-    .rv-booking-confirmation {
-        box-shadow: none;
-        max-width: none;
-        margin: 0;
-        padding: 0;
-    }
-
-    .rv-confirmation-actions,
-    .rv-print-hidden {
-        display: none !important;
-    }
-
-    .rv-booking-details,
-    .rv-price-summary,
-    .rv-customer-info {
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }
-
-    .rv-confirmation-title {
-        color: #000 !important;
-        background: none !important;
-        -webkit-text-fill-color: initial !important;
-    }
-
-    .rv-price-summary {
-        background: #f8f9fa !important;
-        color: #000 !important;
-    }
-
-    .rv-price-item {
-        border-bottom-color: #ddd !important;
-    }
-}
-
-/* ===== LOADING STATES ===== */
-.rv-loading {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #667eea;
-    border-radius: 50%;
-    animation: rv-spin 1s linear infinite;
 }
 
 @keyframes rv-spin {
@@ -723,38 +511,136 @@
     }
 }
 
-/* ===== ACCESSIBILITY ===== */
-.rv-action-btn:focus {
-    outline: 2px solid #667eea;
-    outline-offset: 2px;
-}
-
-.rv-booking-confirmation *:focus {
-    outline: 2px solid #667eea;
-    outline-offset: 2px;
-}
-
-/* ===== DARK MODE SUPPORT ===== */
-@media (prefers-color-scheme: dark) {
+/* ===== RESPONSIVE DESIGN (UPDATED) ===== */
+@media (max-width: 900px) {
     .rv-booking-confirmation {
-        background: #2c3e50;
-        color: #ecf0f1;
+        margin: 20px auto;
+        padding: 30px;
+        width: 95%;
+        /* Fluid width on smaller desktops */
+    }
+}
+
+@media (max-width: 768px) {
+    .rv-booking-confirmation {
+        margin: 15px auto;
+        padding: 20px;
+        border-radius: 12px;
+        width: 96%;
     }
 
-    .rv-booking-details {
-        background: #34495e;
+    .rv-confirmation-title {
+        font-size: 1.75rem;
     }
 
-    .rv-detail-item {
-        background: #2c3e50;
-        color: #ecf0f1;
+    /* Stack grid items individually on tablets/mobile */
+    .rv-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rv-vehicle-info {
+        flex-direction: row;
+        /* Keep image next to text usually fits */
+    }
+
+    .rv-info-box {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .rv-confirmation-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .rv-btn,
+    .rv-action-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .rv-booking-confirmation {
+        margin: 10px auto;
+        padding: 15px;
+    }
+
+    .rv-confirmation-title {
+        font-size: 1.5rem;
+    }
+
+    .rv-detail-item,
+    .rv-detail-row {
+        padding: 12px;
+    }
+
+    .rv-vehicle-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .rv-vehicle-thumb {
+        width: 100%;
+        height: 150px;
+        /* Larger image on mobile stack */
+        margin-bottom: 10px;
     }
 
     .rv-detail-value {
-        color: #ecf0f1;
+        font-size: 1rem;
+    }
+}
+
+/* ===== DARK MODE ===== */
+@media (prefers-color-scheme: dark) {
+    .rv-booking-confirmation {
+        background: #1f2937;
+        color: #f3f4f6;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .rv-booking-confirmation h2 {
+        color: #f3f4f6;
+    }
+
+    .rv-booking-details,
+    .rv-payment-info,
+    .rv-customer-info,
+    .rv-account-info,
+    .rv-next-steps {
+        background: #374151;
+        border-color: #4b5563;
+    }
+
+    .rv-detail-row {
+        background: #1f2937;
+        border: 1px solid #4b5563;
     }
 
     .rv-detail-label {
-        color: #bdc3c7;
+        color: #9ca3af;
+    }
+
+    .rv-detail-value {
+        color: #f3f4f6;
+    }
+
+    .rv-vehicle-info span {
+        color: #f3f4f6;
+    }
+
+    .rv-btn-secondary {
+        background: #374151;
+        color: #f3f4f6;
+        border-color: #4b5563;
+    }
+
+    .rv-btn-secondary:hover {
+        background: #4b5563;
+    }
+
+    .rv-step-content p {
+        color: #9ca3af;
     }
 }

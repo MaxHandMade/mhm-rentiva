@@ -4,7 +4,7 @@ Tags: car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.4.5
+Stable tag: 4.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,13 +51,25 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 
 == Changelog ==
 
+= 4.5.0 =
+*   Version Update: Major update to 4.5.0 focusing on User Account and Payment History improvements.
+*   Account Endpoints: Added customizable endpoints for Bookings, Favorites, Payments, Messages, and Edit Account.
+*   Payment History: Enhanced with receipt upload preview and "Remove Receipt" functionality.
+*   Receipt Management: Secure backend logic for deleting receipt attachments.
+*   Booking Details: Improved "View" button functionality in My Account.
+*   UI Modernization: Redesigned Bookings table with better spacing and hover effects.
+*   Password Toggles: Fixed visibility and styling of password toggles on Account Details page.
+*   Bug Fixes: Resolved Fatal Error in BookingColumns.php and WooCommerce endpoint conflicts.
+*   URL Handling: Updated settings to allow relative paths.
+*   Payment Display: Improved status translation and payment method display.
+
 = 4.4.5 =
 *   Version Update: Version bump to 4.4.5 for maintenance and stability improvements.
-*   Elementor Widgets: Enhanced Elementor integration with 19 comprehensive widgets covering all plugin features.
-*   Widget Category: All MHM Rentiva widgets organized under dedicated "MHM Rentiva" category in Elementor.
-*   Widget Controls: Advanced styling and customization options added to all Elementor widgets.
-*   Responsive Design: All Elementor widgets fully responsive with mobile-first approach.
-*   Widget Integration: Seamless integration with Elementor's live preview, drag-and-drop builder, and template system.
+*   Elementor Widgets: Enhanced Elementor integration with 19 comprehensive widgets.
+*   Widget Category: All widgets organized under "MHM Rentiva" category.
+*   Widget Controls: Advanced styling options added to all widgets.
+*   Responsive Design: Mobile-first approach for all widgets.
+*   Widget Integration: Seamless live preview and drag-and-drop support.
 
 = 4.4.4 =
 *   Vehicle Limits: All hardcoded vehicle limits made configurable (engine size: 0.0-20.0L, seats: max 100, doors: max 20, gallery: max 50 images).
@@ -103,6 +115,9 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 *   Documentation: README badges and release notes updated.
 
 == Upgrade Notice ==
+
+= 4.5.0 =
+This major update includes significant improvements to the User Account area, Payment History features, and crucial bug fixes. Recommended for all users.
 
 = 4.4.5 =
 This is a maintenance update with stability improvements. Recommended for all users.

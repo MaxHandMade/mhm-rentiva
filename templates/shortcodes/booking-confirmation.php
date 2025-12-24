@@ -101,7 +101,7 @@ $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('re
                 <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </div>
-        <h1><?php esc_html_e('Booking Confirmation', 'mhm-rentiva'); ?></h1>
+        <h1 class="rv-confirmation-title"><?php esc_html_e('Booking Confirmation', 'mhm-rentiva'); ?></h1>
         <p class="rv-confirmation-message">
             <?php esc_html_e('Your booking has been successfully completed! Your details are below.', 'mhm-rentiva'); ?>
         </p>

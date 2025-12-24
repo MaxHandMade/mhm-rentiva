@@ -1786,6 +1786,10 @@ final class BookingColumns
         }
 
         // Check if we're on the booking list page
+        if (!function_exists('get_current_screen')) {
+            return $title;
+        }
+        
         $screen = get_current_screen();
         if (!$screen || $screen->post_type !== 'vehicle_booking' || $screen->base !== 'edit') {
             return $title;

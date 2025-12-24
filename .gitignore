@@ -22,7 +22,7 @@ wp-config.php
 debug.log
 
 # Plugin specific
-docs/site/
+
 
 # Language files - keep only pot, tr_TR po and mo files
 languages/*-backup-*.pot~
@@ -39,3 +39,6 @@ languages/mhm-rentiva-en_US.*
 # Test documentation (keep local only)
 TEST-GUIDE.md
 TEST-CHECKLIST.md
+
+# Documentation
+docs/

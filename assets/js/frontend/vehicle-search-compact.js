@@ -57,9 +57,9 @@
             changeYear: true,
             yearRange: 'c-2:c+2'
         };
-        
+
         // Merge with localized options from PHP (i18n support)
-        const datePickerOptions = (typeof mhmRentivaSearch !== 'undefined' && mhmRentivaSearch.datepicker_options) 
+        const datePickerOptions = (typeof mhmRentivaSearch !== 'undefined' && mhmRentivaSearch.datepicker_options)
             ? { ...defaultOptions, ...mhmRentivaSearch.datepicker_options }
             : defaultOptions;
 

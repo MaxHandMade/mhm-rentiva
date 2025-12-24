@@ -1,8 +1,25 @@
 [
     {
+        "version": "4.5.0",
+        "date": "2025-12-24",
+        "type": "current",
+        "changes": [
+            "🚀 VERSİYON GÜNCELLEMESİ: Kullanıcı Hesabı ve Ödeme Geçmişi iyileştirmelerine odaklanan 4.5.0 sürümüne büyük güncelleme.",
+            "🔧 HESAP ENDPOINT'LERİ: Rezervasyonlar, Favoriler, Ödemeler, Mesajlar ve Hesap Düzenleme için özelleştirilebilir uç noktalar eklendi.",
+            "💳 ÖDEME GEÇMİŞİ: Ödeme Geçmişi sayfası, makbuz yükleme önizlemesi ve güvenli AJAX kullanan \"Makbuzu Kaldır\" işlevi ile geliştirildi.",
+            "🧾 MAKBUZ YÖNETİMİ: Kullanıcı tarafından talep edildiğinde makbuz eklerini güvenli bir şekilde silmek için backend mantığı eklendi.",
+            "📊 REZERVASYON DETAYLARI: Hesabım sayfasındaki \"Görünüm\" butonunun Rezervasyon Detay görünümüne doğru şekilde link vermesi sağlandı.",
+            "🎨 ARAYÜZ MODERNİZASYONU: Hesabım sayfasındaki Rezervasyonlar tablosu daha iyi boşluklar, tipografi ve hover efektleri ile yeniden tasarlandı.",
+            "🔒 ŞİFRE BUTONLARI: Hesap Detayları sayfasındaki şifre göster/gizle butonlarının görünürlüğü ve \"mavi kutu\" sorunu Dashicons yüklenerek ve stiller sıfırlanarak düzeltildi.",
+            "🛠️ HATA DÜZELTMELERİ: BookingColumns.php içindeki Fatal Error ve WooCommerce uç nokta çakışmaları çözüldü.",
+            "🔗 URL YÖNETİMİ: SettingsSanitizer, uç nokta ayarları için göreceli yollara izin verecek şekilde güncellendi.",
+            "💱 ÖDEME GÖSTERİMİ: Ödeme durumu çevirisi iyileştirildi ve ağ geçidi adları yerine gerçek ödeme yöntemi adlarının (örn. Kredi Kartı) gösterilmesi sağlandı."
+        ]
+    },
+    {
         "version": "4.4.5",
         "date": "2025-11-25",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "📦 VERSİYON GÜNCELLEMESİ: Bakım ve kararlılık iyileştirmeleri için versiyon 4.4.5'e yükseltildi.",
             "🎨 ELEMENTOR WIDGET'LERİ: Tüm eklenti özelliklerini kapsayan 19 kapsamlı widget ile geliştirilmiş Elementor entegrasyonu - araç görüntüleme, rezervasyon formları, hesap yönetimi ve daha fazlası.",

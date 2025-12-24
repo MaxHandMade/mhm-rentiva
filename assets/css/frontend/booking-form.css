@@ -93,6 +93,23 @@
     max-width: 1200px;
     margin: 40px auto;
     padding: 0 20px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .rv-booking-form-wrapper {
+        margin: 20px auto;
+        padding: 0 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rv-booking-form-wrapper {
+        margin: 10px auto;
+        padding: 0 5px;
+        /* Minimal padding for small screens */
+    }
 }
 
 .rv-booking-form {
@@ -100,6 +117,8 @@
     border-radius: 0;
     box-shadow: none;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* ===== TWO COLUMN LAYOUT ===== */
@@ -172,8 +191,15 @@
 
 @media (max-width: 768px) {
     .rv-field-group {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
         gap: 0.75rem;
+    }
+
+    .rv-input,
+    .rv-select {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 }
 
@@ -2518,4 +2544,36 @@
     .rv-notification--show {
         transform: translateY(0);
     }
+}
+
+/* ===== DATEPICKER FIXES ===== */
+/* Robust fix for "V" symbols (theme icons) appearing in datepicker headers */
+#ui-datepicker-div .ui-datepicker-calendar th::after,
+#ui-datepicker-div .ui-datepicker-calendar th::before,
+#ui-datepicker-div .ui-datepicker-calendar td::after,
+#ui-datepicker-div .ui-datepicker-calendar td::before,
+#ui-datepicker-div thead th::after,
+#ui-datepicker-div thead th::before,
+#ui-datepicker-div thead tr::after,
+#ui-datepicker-div thead tr::before,
+#ui-datepicker-div th span::after,
+#ui-datepicker-div th span::before {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+    border: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+}
+
+/* Force cache update: 2025-12-23 14:15 */
+/* Force cache update: 2025-12-23 14:18 */
+/* Fix for "V" symbols (repeating background image) on input fields */
+#pickup_date,
+#dropoff_date,
+.mhm-rentiva-booking-form input.rv-input {
+    background-image: none !important;
+    background-color: #fff !important;
+    background-repeat: no-repeat !important;
 }

@@ -64,8 +64,12 @@ final class AccountController
         add_action('wp_ajax_mhm_rentiva_add_favorite', [self::class, 'ajax_add_favorite']);
         add_action('wp_ajax_mhm_rentiva_remove_favorite', [self::class, 'ajax_remove_favorite']);
         add_action('wp_ajax_mhm_rentiva_clear_favorites', [self::class, 'ajax_clear_favorites']);
-        add_action('wp_ajax_mhm_cancel_booking', [self::class, 'ajax_cancel_booking']);
         add_action('wp_ajax_mhm_rentiva_clear_favorites', [self::class, 'ajax_clear_favorites']);
+        add_action('wp_ajax_mhm_cancel_booking', [self::class, 'ajax_cancel_booking']);
+        
+        // Receipt management
+        add_action('wp_ajax_mhm_rentiva_upload_receipt', [self::class, 'ajax_upload_receipt']);
+        add_action('wp_ajax_mhm_rentiva_remove_receipt', [self::class, 'ajax_remove_receipt']);
         
         // Assets
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_assets']);
@@ -96,15 +100,48 @@ final class AccountController
     }
 
     /**
+     * Get endpoint slug with translation and option support
+     * 
+     * Priority:
+     * 1. Database option (custom user setting)
+     * 2. Translation file (po/mo) via _x()
+     * 3. Default hardcoded value
+     * 
+     * @param string $key Identifier key (e.g., 'bookings')
+     * @param string $default Default slug in English
+     * @return string Sanitized slug
+     */
+    public static function get_endpoint_slug(string $key, string $default): string
+    {
+        // 1. Check database option
+        $option_key = 'mhm_rentiva_endpoint_' . $key;
+        $slug = get_option($option_key);
+
+        if (empty($slug)) {
+            // 2. Use translation if no option set
+            // context 'endpoint slug' helps translators know this is part of URL
+            $slug = _x($default, 'endpoint slug', 'mhm-rentiva');
+        }
+
+        return sanitize_title($slug);
+    }
+
+    /**
      * Add rewrite endpoints
      */
     public static function add_endpoints(): void
     {
-        add_rewrite_endpoint('bookings', EP_ROOT | EP_PAGES);
-        add_rewrite_endpoint('favorites', EP_ROOT | EP_PAGES);
-        add_rewrite_endpoint('payment-history', EP_ROOT | EP_PAGES);
-        add_rewrite_endpoint('edit-account', EP_ROOT | EP_PAGES);
-        add_rewrite_endpoint('messages', EP_ROOT | EP_PAGES);
+        // If WooCommerce is active, do not register standalone endpoints to avoid conflicts
+        // WooCommerceIntegration class handles endpoints for WooCommerce My Account
+        if (class_exists('WooCommerce')) {
+            return;
+        }
+
+        add_rewrite_endpoint(self::get_endpoint_slug('bookings', 'rentiva-bookings'), EP_ROOT | EP_PAGES);
+        add_rewrite_endpoint(self::get_endpoint_slug('favorites', 'rentiva-favorites'), EP_ROOT | EP_PAGES);
+        add_rewrite_endpoint(self::get_endpoint_slug('payment_history', 'rentiva-payment-history'), EP_ROOT | EP_PAGES);
+        add_rewrite_endpoint(self::get_endpoint_slug('edit_account', 'rentiva-edit-account'), EP_ROOT | EP_PAGES);
+        add_rewrite_endpoint(self::get_endpoint_slug('messages', 'rentiva-messages'), EP_ROOT | EP_PAGES);
     }
 
     /**
@@ -145,8 +182,39 @@ final class AccountController
         // Load assets (in all cases)
         self::enqueue_assets();
         
-        // Render the relevant page based on endpoint
-        $endpoint = get_query_var('endpoint') ?: self::sanitize_text_field_safe($_GET['endpoint'] ?? 'dashboard');
+        // Determine the current endpoint dynamically
+        global $wp_query;
+        $endpoint = '';
+
+        $slugs = [
+            'bookings'        => self::get_endpoint_slug('bookings', 'rentiva-bookings'),
+            'favorites'       => self::get_endpoint_slug('favorites', 'rentiva-favorites'),
+            'payment-history' => self::get_endpoint_slug('payment_history', 'rentiva-payment-history'),
+            'edit-account'    => self::get_endpoint_slug('edit_account', 'rentiva-edit-account'),
+            'messages'        => self::get_endpoint_slug('messages', 'rentiva-messages'),
+        ];
+
+        // Check query vars for dynamic slugs
+        foreach ($slugs as $key => $slug) {
+            if (isset($wp_query->query_vars[$slug])) {
+                $endpoint = $key;
+                break;
+            }
+        }
+
+        // Fallback to query parameter (supporting both old logical names and new dynamic slugs)
+        if (empty($endpoint)) {
+            $req_endpoint = self::sanitize_text_field_safe($_GET['endpoint'] ?? '');
+            
+            // Check if request matches any dynamic slug
+            $found_key = array_search($req_endpoint, $slugs);
+            if ($found_key !== false) {
+                $endpoint = $found_key;
+            } else {
+                // Check if it matches logical hardcoded keys (backward compatibility)
+                $endpoint = $req_endpoint ?: 'dashboard';
+            }
+        }
         
         switch ($endpoint) {
             case 'bookings':
@@ -155,10 +223,12 @@ final class AccountController
             case 'favorites':
                 return AccountRenderer::render_favorites($atts);
             
-            case 'payment-history':
+            case 'payment-history': // Maps to 'payment-history' key in slugs array
+            case 'payment_history': // Alternative logical name
                 return AccountRenderer::render_payment_history($atts);
             
-            case 'edit-account':
+            case 'edit-account': // Maps to 'edit-account' key
+            case 'edit_account': // Alternative
                 return AccountRenderer::render_account_details($atts);
             
             case 'messages':
@@ -314,8 +384,11 @@ final class AccountController
     public static function enqueue_assets(): void
     {
         // Check if we're on messages endpoint - dequeue customer-messages scripts
+        $messages_slug = self::get_endpoint_slug('messages', 'rentiva-messages');
         $endpoint = get_query_var('endpoint') ?: self::sanitize_text_field_safe($_GET['endpoint'] ?? '');
-        if ($endpoint === 'messages') {
+        
+        // Check both logical name and dynamic slug query var
+        if ($endpoint === 'messages' || get_query_var($messages_slug) !== '') {
             // Prevent customer-messages.js from loading (we use REST API in template)
             add_action('wp_enqueue_scripts', function() {
                 wp_dequeue_script('mhm-customer-messages');
@@ -332,6 +405,9 @@ final class AccountController
                 MHM_RENTIVA_VERSION,
                 true
             );
+
+            // Enqueue Dashicons for password toggles
+            wp_enqueue_style('dashicons');
 
             // Localize Account Messages JS
             $current_user = wp_get_current_user();
@@ -662,6 +738,53 @@ final class AccountController
             'attachment_id' => $attach_id,
             'url' => wp_get_attachment_url($attach_id),
         ]);
+    }
+
+    /**
+     * AJAX: Remove payment receipt
+     */
+    public static function ajax_remove_receipt(): void
+    {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('You must be logged in.', 'mhm-rentiva')], 403);
+        }
+
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(self::sanitize_text_field_safe($_POST['nonce']), 'mhm_rentiva_upload_receipt')) {
+            wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')], 400);
+        }
+
+        $user_id = get_current_user_id();
+        $booking_id = isset($_POST['booking_id']) ? (int) $_POST['booking_id'] : 0;
+        
+        if ($booking_id <= 0) {
+            wp_send_json_error(['message' => __('Invalid booking ID.', 'mhm-rentiva')], 400);
+        }
+
+        // Ownership check
+        $booking_author = (int) get_post_field('post_author', $booking_id);
+        if ($booking_author !== $user_id && !current_user_can('edit_post', $booking_id)) {
+            wp_send_json_error(['message' => __('You are not allowed to remove receipt for this booking.', 'mhm-rentiva')], 403);
+        }
+
+        $attachment_id = (int) get_post_meta($booking_id, '_mhm_receipt_attachment_id', true);
+        if (!$attachment_id) {
+            wp_send_json_error(['message' => __('No receipt found to remove.', 'mhm-rentiva')], 404);
+        }
+
+        // Remove attachment
+        $deleted = wp_delete_attachment($attachment_id, true);
+        
+        if ($deleted) {
+            // Clean up meta
+            delete_post_meta($booking_id, '_mhm_receipt_attachment_id');
+            delete_post_meta($booking_id, '_mhm_receipt_status');
+            delete_post_meta($booking_id, '_mhm_receipt_uploaded_by');
+            delete_post_meta($booking_id, '_mhm_receipt_uploaded_at');
+            
+            wp_send_json_success(['message' => __('Receipt removed successfully.', 'mhm-rentiva')]);
+        } else {
+            wp_send_json_error(['message' => __('Failed to remove receipt file.', 'mhm-rentiva')], 500);
+        }
     }
 
 
@@ -1352,6 +1475,34 @@ Best regards,
             'message' => __('Booking cancelled successfully. A confirmation email has been sent.', 'mhm-rentiva'),
             'booking_id' => $booking_id
         ]);
+    }
+    /**
+     * Get booking view URL
+     * Handles both standalone and WooCommerce environments
+     * 
+     * @param int $booking_id Booking ID
+     * @return string URL
+     */
+    public static function get_booking_view_url(int $booking_id): string
+    {
+        // WooCommerce Integration
+        if (class_exists('WooCommerce') && function_exists('wc_get_endpoint_url')) {
+            // Get base bookings URL
+            $bookings_slug = self::get_endpoint_slug('bookings', 'rentiva-bookings');
+            $url = wc_get_endpoint_url($bookings_slug, '', wc_get_page_permalink('myaccount'));
+            
+            // Add params for detail view
+            return add_query_arg([
+                'endpoint' => 'booking-detail', 
+                'booking_id' => $booking_id
+            ], $url);
+        }
+        
+        // Standalone
+        return add_query_arg([
+            'endpoint' => 'booking-detail', 
+            'booking_id' => $booking_id
+        ], self::get_account_url());
     }
 }
 

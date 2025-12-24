@@ -219,7 +219,7 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
                             </div>
                             
                             <div class="booking-actions">
-                                <a href="<?php echo esc_url(add_query_arg(['endpoint' => 'booking-detail', 'booking_id' => $booking->ID], \MHMRentiva\Admin\Frontend\Account\AccountController::get_account_url())); ?>" class="btn-view">
+                                <a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url($booking->ID)); ?>" class="btn-view">
                                     <?php esc_html_e('View', 'mhm-rentiva'); ?>
                                 </a>
                             </div>

@@ -205,6 +205,7 @@
             this.bindEvents();
             this.initFavorites();
             this.initAccountForm();
+            this.initPasswordToggles();
         }
 
         bindEvents() {
@@ -219,20 +220,30 @@
 
             // Receipt upload
             $(document).on('change', '.mhm-upload-receipt', (e) => this.handleReceiptUpload(e));
+
+            // Receipt remove
+            $(document).on('click', '.remove-receipt-btn', (e) => this.handleReceiptRemove(e));
         }
 
         /**
-         * Hesap bilgilerini güncelle
+         * Remove receipt
          */
-        handleAccountUpdate(e) {
+        handleReceiptRemove(e) {
             e.preventDefault();
 
-            const $form = $(e.currentTarget);
-            const $submitBtn = $form.find('button[type="submit"]');
-            const formData = new FormData($form[0]);
+            if (!confirm(this.config.i18n.confirm_remove_receipt || 'Are you sure you want to remove this receipt?')) {
+                return;
+            }
 
-            // Loading state
-            $submitBtn.prop('disabled', true).text(this.config.i18n.loading);
+            const $btn = $(e.currentTarget);
+            const bookingId = $btn.data('booking-id');
+
+            if (!bookingId) {
+                this.showMessage(this.config.i18n.error, 'error');
+                return;
+            }
+
+            $btn.prop('disabled', true).addClass('is-loading');
 
             $.ajax({
                 url: this.config.ajaxUrl,
@@ -303,6 +314,46 @@
                     $label.removeClass('is-loading');
                     $label.contents().filter(function () { return this.nodeType === 3; }).first().replaceWith(originalText + ' ');
                     $(input).val('');
+                }
+            });
+        }
+
+        /**
+         * Remove receipt
+         */
+        handleReceiptRemove(e) {
+            e.preventDefault();
+
+            if (!confirm(this.config.i18n.confirm_remove_receipt || 'Are you sure you want to remove this receipt?')) {
+                return;
+            }
+
+            const $btn = $(e.currentTarget);
+            const bookingId = $btn.data('booking-id');
+            const $wrapper = $btn.closest('.receipt-wrapper');
+
+            $btn.prop('disabled', true).addClass('is-loading');
+
+            $.ajax({
+                url: this.config.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'mhm_rentiva_remove_receipt',
+                    nonce: this.config.uploadNonce,
+                    booking_id: bookingId
+                },
+                success: (res) => {
+                    if (res && res.success) {
+                        this.showMessage(res.data.message || 'Receipt removed successfully.', 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        this.showMessage((res && res.data && res.data.message) || 'Failed to remove receipt.', 'error');
+                        $btn.prop('disabled', false).removeClass('is-loading');
+                    }
+                },
+                error: () => {
+                    this.showMessage('An error occurred.', 'error');
+                    $btn.prop('disabled', false).removeClass('is-loading');
                 }
             });
         }
@@ -419,6 +470,34 @@
                     $('#mhm-account-details-form')[0].reset();
                 }
             });
+        }
+
+        /**
+         * Initialize password toggles wrapper
+         */
+        initPasswordToggles() {
+            // Wait for WP/Woo scripts to inject buttons
+            setTimeout(() => {
+                $('input[type="password"]').each((i, el) => {
+                    const $input = $(el);
+                    const $wrapper = $input.closest('.form-field');
+
+                    // Find the toggle button injected by WP or WooCommerce
+                    // Usually it's immediately after the input or inside the wrapper
+                    const $toggle = $input.next('.show-password-input, .wp-hide-pw')
+                        || $wrapper.find('.show-password-input, .wp-hide-pw, .woocommerce-password-toggle');
+
+                    if ($toggle.length) {
+                        // Create a specific container for input + toggle
+                        if (!$input.parent().hasClass('password-input-wrapper')) {
+                            // Wrap input first
+                            $input.wrap('<div class="password-input-wrapper"></div>');
+                            // Move toggle inside wrapper
+                            $input.parent().append($toggle);
+                        }
+                    }
+                });
+            }, 500); // Small delay to ensure other scripts ran
         }
 
         /**

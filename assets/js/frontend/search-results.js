@@ -733,16 +733,31 @@
      */
     function updateActiveFiltersCount() {
         const $form = $('#rv-filters-form');
-        const activeFilters = $form.find('input:checked, input[type="number"]:not([value=""]), select:not([value=""])').length;
+        if ($form.length === 0) return;
+
+        let activeFilters = 0;
+
+        // Count checked checkboxes
+        activeFilters += $form.find('input[type="checkbox"]:checked').length;
+
+        // Count number inputs with actual values (not empty, not 0)
+        $form.find('input[type="number"]').each(function () {
+            const value = $(this).val();
+            if (value && value !== '' && parseFloat(value) > 0) {
+                activeFilters++;
+            }
+        });
 
         // Update clear button text
         const $clearBtn = $('#rv-clear-filters');
+        const clearAllText = mhmRentivaSearchResults.i18n.clear_all || 'Clear All';
+
         if (activeFilters > 0) {
-            const clearAllText = mhmRentivaSearchResults.i18n.clear_all || 'Clear All';
             const clearAllWithCount = (mhmRentivaSearchResults.i18n.clear_all_with_count || 'Clear All (%d)').replace('%d', activeFilters);
             $clearBtn.text(clearAllWithCount);
             $clearBtn.show();
         } else {
+            $clearBtn.text(clearAllText);
             $clearBtn.hide();
         }
     }
@@ -769,7 +784,7 @@
 
         const errorText = mhmRentivaSearchResults.i18n.error || 'Error';
         const tryAgainText = mhmRentivaSearchResults.i18n.try_again || 'Try Again';
-        
+
         const html = `
             <div class="rv-error-message">
                 <div class="rv-error-icon">⚠️</div>

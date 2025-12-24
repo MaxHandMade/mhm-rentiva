@@ -91,10 +91,10 @@ $custom_class = trim($atts['class'] ?? '');
                                                 <?php if (!empty($vehicle['image_url'])): ?>
                                                     <img src="<?php echo esc_url($vehicle['image_url']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>" class="rv-vehicle-image">
                                                 <?php endif; ?>
-                                                <button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
-                                                    <span class="dashicons dashicons-dismiss"></span>
-                                                </button>
                                             </div>
+                                            <button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
+                                                <span class="dashicons dashicons-dismiss"></span>
+                                            </button>
                                             <h4><?php echo esc_html($vehicle['title']); ?></h4>
                                             <a href="<?php echo esc_url($vehicle['permalink']); ?>" class="rv-book-now-btn" style="display: inline-block !important; background: #27ae60 !important; color: white !important; padding: 8px 16px !important; border-radius: 6px !important; text-decoration: none !important; font-size: 13px !important; font-weight: 600 !important; margin-top: 5px !important; margin-bottom: 10px !important; text-align: center !important; width: 100% !important; max-width: 140px !important;">
                                                 <?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>

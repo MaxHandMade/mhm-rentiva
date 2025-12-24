@@ -274,9 +274,9 @@ final class ShortcodePages
     {
         $shortcodes = [
             'rentiva_my_account' => [
-                'title' => 'My Account',
-                'slug' => 'my-account',
-                'description' => 'User account management page - bookings, profile information and account settings'
+                'title' => __('Rentiva Panel', 'mhm-rentiva'),
+                'slug' => 'rentiva-panel',
+                'description' => __('Vehicle rental management panel (redirects to WooCommerce Account if installed)', 'mhm-rentiva')
             ],
             'rentiva_my_bookings' => [
                 'title' => 'My Bookings',

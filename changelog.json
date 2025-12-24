@@ -1,8 +1,25 @@
 [
     {
+        "version": "4.5.0",
+        "date": "2025-12-24",
+        "type": "current",
+        "changes": [
+            "🚀 VERSION UPDATE: Major update to 4.5.0 focusing on User Account and Payment History improvements.",
+            "🔧 ACCOUNT ENDPOINTS: Added customizable endpoints for Bookings, Favorites, Payments, Messages, and Edit Account.",
+            "💳 PAYMENT HISTORY: Enhanced Payment History page with receipt upload preview and \"Remove Receipt\" functionality using secure AJAX.",
+            "🧾 RECEIPT MANAGEMENT: Added backend logic to securely delete receipt attachments when requested by the user.",
+            "📊 BOOKING DETAILS: Improved \"View\" button functionality in My Account to correctly link to the Booking Detail view.",
+            "🎨 UI MODERNIZATION: Redesigned the Bookings table in My Account with improved spacing, typography, and hover effects.",
+            "🔒 PASSWORD TOGGLES: Fixed \"blue box\" issue and visibility of password toggle buttons on Account Details page by enqueuing Dashicons and resetting default styles.",
+            "🛠️ BUG FIXES: Resolved Fatal Error in BookingColumns.php and WooCommerce endpoint conflicts.",
+            "🔗 URL HANDLING: Updated SettingsSanitizer to allow relative paths for endpoint settings.",
+            "💱 PAYMENT DISPLAY: Improved payment status translation and display of real payment method names (e.g., Credit Card) instead of gateway slugs."
+        ]
+    },
+    {
         "version": "4.4.5",
         "date": "2025-11-25",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "📦 VERSION UPDATE: Version bump to 4.4.5 for maintenance and stability improvements.",
             "🎨 ELEMENTOR WIDGETS: Enhanced Elementor integration with 19 comprehensive widgets covering all plugin features - vehicle display, booking forms, account management, and more.",

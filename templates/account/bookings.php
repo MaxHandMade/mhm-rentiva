@@ -192,7 +192,7 @@ $current_page_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_ac
                             </span>
                         </td>
                         <td class="rv-booking-actions">
-                            <a href="<?php echo esc_url(add_query_arg(['endpoint' => 'booking-detail', 'booking_id' => $booking->ID], $current_page_url)); ?>" 
+                            <a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url($booking->ID)); ?>" 
                                class="btn btn-secondary">
                                 <?php esc_html_e('View', 'mhm-rentiva'); ?>
                             </a>
@@ -285,7 +285,7 @@ $current_page_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_ac
                             </span>
                         </td>
                         <td class="rv-booking-actions">
-                            <a href="<?php echo esc_url(add_query_arg(['endpoint' => 'booking-detail', 'booking_id' => $booking->ID], $current_page_url)); ?>" 
+                            <a href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url($booking->ID)); ?>" 
                                class="btn btn-secondary">
                                 <?php esc_html_e('View', 'mhm-rentiva'); ?>
                             </a>
