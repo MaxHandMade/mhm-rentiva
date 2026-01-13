@@ -20,9 +20,13 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
 $user_id = get_current_user_id();
 $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true) ?: [];
 
+$wrapper_class = 'mhm-rentiva-account-page';
+if (empty($navigation)) {
+    $wrapper_class .= ' mhm-integrated';
+}
 ?>
 
-<div class="mhm-rentiva-account-page">
+<div class="<?php echo esc_attr($wrapper_class); ?>">
     <?php if (!empty($navigation)): ?>
         <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
     <?php endif; ?>

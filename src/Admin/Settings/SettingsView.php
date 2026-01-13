@@ -247,6 +247,7 @@ final class SettingsView
                                             self::render_section_clean('mhm_rentiva_action_texts_section');
                                             self::render_section_clean('mhm_rentiva_form_labels_section');
                                             self::render_section_clean('mhm_rentiva_message_texts_section');
+                                            self::render_section_clean('mhm_rentiva_frontend_endpoints_section');
                                             self::render_section_clean('mhm_rentiva_comments_section');
                                             break;
                                         case 'database-cleanup':

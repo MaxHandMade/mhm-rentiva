@@ -37,9 +37,14 @@ $navigation = $navigation ?? [];
 // REST API URL - use helper for consistency
 $rest_url = \MHMRentiva\Admin\Messages\Core\MessageUrlHelper::get_rest_url();
 $rest_nonce = wp_create_nonce('wp_rest');
+
+$wrapper_class = 'mhm-rentiva-account-page';
+if (empty($navigation)) {
+    $wrapper_class .= ' mhm-integrated';
+}
 ?>
 
-<div class="mhm-rentiva-account-page">
+<div class="<?php echo esc_attr($wrapper_class); ?>">
     
     <!-- Account Navigation -->
     <?php if (!empty($navigation)): ?>

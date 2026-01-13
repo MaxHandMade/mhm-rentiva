@@ -60,9 +60,15 @@ $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
 // Booking form page URL
 $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_booking_form');
 $current_page_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_account_url();
+
+$wrapper_class = 'mhm-rentiva-account-page';
+$is_integrated = empty($navigation);
+if ($is_integrated) {
+    $wrapper_class .= ' mhm-integrated';
+}
 ?>
 
-<div class="mhm-rentiva-account-page">
+<div class="<?php echo esc_attr($wrapper_class); ?>">
     
     <!-- Account Navigation (only show if not on WooCommerce My Account page) -->
     <?php if (!empty($navigation)): ?>
@@ -122,7 +128,9 @@ $current_page_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_ac
                 <thead>
                     <tr>
                         <th><?php esc_html_e('Reservation ID', 'mhm-rentiva'); ?></th>
+                        <?php if (!$is_integrated): ?>
                         <th><?php esc_html_e('Vehicle Picture', 'mhm-rentiva'); ?></th>
+                        <?php endif; ?>
                         <th><?php esc_html_e('Service Name/Type', 'mhm-rentiva'); ?></th>
                         <th><?php esc_html_e('Reservation Date/Time', 'mhm-rentiva'); ?></th>
                         <th><?php esc_html_e('Status', 'mhm-rentiva'); ?></th>
@@ -170,9 +178,11 @@ $current_page_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_ac
                     ?>
                     <tr>
                         <td class="rv-booking-id">#<?php echo esc_html($booking->ID); ?></td>
+                        <?php if (!$is_integrated): ?>
                         <td class="rv-vehicle-thumb">
                             <img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle->post_title ?? ''); ?>">
                         </td>
+                        <?php endif; ?>
                         <td class="rv-vehicle-name"><?php echo esc_html($vehicle->post_title ?? esc_html__('N/A', 'mhm-rentiva')); ?></td>
                         <td class="rv-booking-date"><?php echo esc_html($formatted_date); ?></td>
                         <td class="rv-booking-status">
@@ -215,7 +225,9 @@ $current_page_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_ac
                 <thead>
                     <tr>
                         <th><?php esc_html_e('Reservation ID', 'mhm-rentiva'); ?></th>
+                        <?php if (!$is_integrated): ?>
                         <th><?php esc_html_e('Vehicle Picture', 'mhm-rentiva'); ?></th>
+                        <?php endif; ?>
                         <th><?php esc_html_e('Service Name/Type', 'mhm-rentiva'); ?></th>
                         <th><?php esc_html_e('Reservation Date/Time', 'mhm-rentiva'); ?></th>
                         <th><?php esc_html_e('Status', 'mhm-rentiva'); ?></th>
@@ -263,9 +275,11 @@ $current_page_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_ac
                     ?>
                     <tr>
                         <td class="rv-booking-id">#<?php echo esc_html($booking->ID); ?></td>
+                        <?php if (!$is_integrated): ?>
                         <td class="rv-vehicle-thumb">
                             <img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle->post_title ?? ''); ?>">
                         </td>
+                        <?php endif; ?>
                         <td class="rv-vehicle-name"><?php echo esc_html($vehicle->post_title ?? esc_html__('N/A', 'mhm-rentiva')); ?></td>
                         <td class="rv-booking-date"><?php echo esc_html($formatted_date); ?></td>
                         <td class="rv-booking-status">

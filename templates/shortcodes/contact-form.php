@@ -37,15 +37,7 @@ $show_attachment = $atts['show_attachment'] ?? '1';
 $show_captcha = $atts['show_captcha'] ?? '1';
 $theme = $atts['theme'] ?? 'default';
 $class = $atts['class'] ?? '';
-
-// Simple math question for CAPTCHA
-$captcha_num1 = rand(1, 10);
-$captcha_num2 = rand(1, 10);
-$captcha_answer = $captcha_num1 + $captcha_num2;
-
-// Store CAPTCHA answer using transient API (WordPress standard)
-$captcha_key = 'mhm_captcha_' . wp_generate_password(12, false);
-set_transient($captcha_key, $captcha_answer, 10 * MINUTE_IN_SECONDS);
+$unique_id = uniqid('rv_contact_');
 ?>
 
 <div class="rv-contact-form rv-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($class); ?>" 
@@ -70,20 +62,20 @@ set_transient($captcha_key, $captcha_answer, 10 * MINUTE_IN_SECONDS);
 
             <div class="rv-form-row">
                 <div class="rv-form-group">
-                    <label for="rv-contact-name" class="rv-form-label">
+                    <label for="rv-contact-name-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
                         <span class="dashicons dashicons-admin-users"></span>
                         <?php echo esc_html__('Full Name', 'mhm-rentiva'); ?> <span class="rv-required">*</span>
                     </label>
-                    <input type="text" id="rv-contact-name" name="name" class="rv-form-input" 
+                    <input type="text" id="rv-contact-name-<?php echo esc_attr($unique_id); ?>" name="name" class="rv-form-input" 
                            value="<?php echo esc_attr($current_user->display_name ?? ''); ?>" required>
                 </div>
 
                 <div class="rv-form-group">
-                    <label for="rv-contact-email" class="rv-form-label">
+                    <label for="rv-contact-email-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
                         <span class="dashicons dashicons-email-alt"></span>
                         <?php echo esc_html__('Email', 'mhm-rentiva'); ?> <span class="rv-required">*</span>
                     </label>
-                    <input type="email" id="rv-contact-email" name="email" class="rv-form-input" 
+                    <input type="email" id="rv-contact-email-<?php echo esc_attr($unique_id); ?>" name="email" class="rv-form-input" 
                            value="<?php echo esc_attr($current_user->user_email ?? ''); ?>" required>
                 </div>
             </div>
@@ -91,22 +83,22 @@ set_transient($captcha_key, $captcha_answer, 10 * MINUTE_IN_SECONDS);
             <?php if ($show_phone === '1') : ?>
                 <div class="rv-form-row">
                     <div class="rv-form-group">
-                        <label for="rv-contact-phone" class="rv-form-label">
+                        <label for="rv-contact-phone-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
                             <span class="dashicons dashicons-phone"></span>
                             <?php echo esc_html__('Phone', 'mhm-rentiva'); ?>
                             <?php if ($type === 'booking') : ?><span class="rv-required">*</span><?php endif; ?>
                         </label>
-                        <input type="tel" id="rv-contact-phone" name="phone" class="rv-form-input" 
-                               placeholder="+90 538 556 41 58">
+                        <input type="tel" id="rv-contact-phone-<?php echo esc_attr($unique_id); ?>" name="phone" class="rv-form-input" 
+                               placeholder="<?php echo esc_attr__('+90 5XX XXX XX XX', 'mhm-rentiva'); ?>">
                     </div>
 
                     <?php if ($show_company === '1') : ?>
                         <div class="rv-form-group">
-                            <label for="rv-contact-company" class="rv-form-label">
+                            <label for="rv-contact-company-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
                                 <span class="dashicons dashicons-building"></span>
                                 <?php echo esc_html__('Company', 'mhm-rentiva'); ?>
                             </label>
-                            <input type="text" id="rv-contact-company" name="company" class="rv-form-input" 
+                            <input type="text" id="rv-contact-company-<?php echo esc_attr($unique_id); ?>" name="company" class="rv-form-input" 
                                    placeholder="<?php echo esc_attr__('Company name', 'mhm-rentiva'); ?>">
                         </div>
                     <?php endif; ?>
@@ -115,11 +107,11 @@ set_transient($captcha_key, $captcha_answer, 10 * MINUTE_IN_SECONDS);
 
             <?php if ($show_vehicle_selector === '1' && !empty($vehicles)) : ?>
                 <div class="rv-form-group">
-                    <label for="rv-contact-vehicle" class="rv-form-label">
+                    <label for="rv-contact-vehicle-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
                         <span class="dashicons dashicons-car"></span>
                         <?php echo esc_html__('Vehicle', 'mhm-rentiva'); ?>
                     </label>
-                    <select id="rv-contact-vehicle" name="vehicle_id" class="rv-form-select">
+                    <select id="rv-contact-vehicle-<?php echo esc_attr($unique_id); ?>" name="vehicle_id" class="rv-form-select">
                         <option value=""><?php echo esc_html__('Select vehicle...', 'mhm-rentiva'); ?></option>
                         <?php foreach ($vehicles as $vehicle) : ?>
                             <option value="<?php echo esc_attr($vehicle['id']); ?>">
@@ -132,21 +124,21 @@ set_transient($captcha_key, $captcha_answer, 10 * MINUTE_IN_SECONDS);
 
             <?php if ($type === 'booking') : ?>
                 <div class="rv-form-group">
-                    <label for="rv-contact-preferred-date" class="rv-form-label">
+                    <label for="rv-contact-preferred-date-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
                         <span class="dashicons dashicons-calendar-alt"></span>
                         <?php echo esc_html__('Preferred Date', 'mhm-rentiva'); ?>
                     </label>
-                    <input type="date" id="rv-contact-preferred-date" name="preferred_date" class="rv-form-input">
+                    <input type="date" id="rv-contact-preferred-date-<?php echo esc_attr($unique_id); ?>" name="preferred_date" class="rv-form-input">
                 </div>
             <?php endif; ?>
 
             <?php if ($show_priority === '1' && !empty($priorities)) : ?>
                 <div class="rv-form-group">
-                    <label for="rv-contact-priority" class="rv-form-label">
+                    <label for="rv-contact-priority-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
                         <span class="dashicons dashicons-flag"></span>
                         <?php echo esc_html__('Priority', 'mhm-rentiva'); ?> <span class="rv-required">*</span>
                     </label>
-                    <select id="rv-contact-priority" name="priority" class="rv-form-select" required>
+                    <select id="rv-contact-priority-<?php echo esc_attr($unique_id); ?>" name="priority" class="rv-form-select" required>
                         <option value=""><?php echo esc_html__('Select priority...', 'mhm-rentiva'); ?></option>
                         <?php foreach ($priorities as $key => $priority) : ?>
                             <option value="<?php echo esc_attr($key); ?>" 
@@ -177,24 +169,24 @@ set_transient($captcha_key, $captcha_answer, 10 * MINUTE_IN_SECONDS);
             <?php endif; ?>
 
             <div class="rv-form-group">
-                <label for="rv-contact-message" class="rv-form-label">
+                <label for="rv-contact-message-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
                     <span class="dashicons dashicons-edit"></span>
                     <?php echo esc_html__('Message', 'mhm-rentiva'); ?> <span class="rv-required">*</span>
                 </label>
-                <textarea id="rv-contact-message" name="message" class="rv-form-textarea" rows="6" 
+                <textarea id="rv-contact-message-<?php echo esc_attr($unique_id); ?>" name="message" class="rv-form-textarea" rows="6" 
                           placeholder="<?php echo esc_attr__('Write your message here...', 'mhm-rentiva'); ?>" required></textarea>
             </div>
 
             <?php if ($show_attachment === '1') : ?>
                 <div class="rv-form-group">
-                    <label for="rv-contact-attachment" class="rv-form-label">
+                    <label for="rv-contact-attachment-<?php echo esc_attr($unique_id); ?>" class="rv-form-label">
                         <span class="dashicons dashicons-paperclip"></span>
                         <?php echo esc_html__('Attachment', 'mhm-rentiva'); ?>
                     </label>
                     <div class="rv-file-upload-container">
-                        <input type="file" id="rv-contact-attachment" name="attachment" class="rv-file-input" 
+                        <input type="file" id="rv-contact-attachment-<?php echo esc_attr($unique_id); ?>" name="attachment" class="rv-file-input" 
                                accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx">
-                        <label for="rv-contact-attachment" class="rv-file-upload-label">
+                        <label for="rv-contact-attachment-<?php echo esc_attr($unique_id); ?>" class="rv-file-upload-label">
                             <span class="dashicons dashicons-cloud-upload"></span>
                             <?php echo esc_html__('Choose File', 'mhm-rentiva'); ?>
                         </label>
@@ -209,23 +201,6 @@ set_transient($captcha_key, $captcha_answer, 10 * MINUTE_IN_SECONDS);
                         <?php echo esc_html__('Supported formats: JPG, PNG, GIF, PDF, DOC, DOCX (Max: ', 'mhm-rentiva'); ?>
                         <?php echo esc_html(size_format(wp_max_upload_size())); ?>)
                     </small>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($show_captcha === '1') : ?>
-                <div class="rv-form-group">
-                    <label for="rv-contact-captcha" class="rv-form-label">
-                        <span class="dashicons dashicons-shield"></span>
-                        <?php echo esc_html__('Security Code', 'mhm-rentiva'); ?> <span class="rv-required">*</span>
-                    </label>
-                    <div class="rv-captcha-container">
-                        <div class="rv-captcha-question">
-                            <?php echo esc_html($captcha_num1); ?> + <?php echo esc_html($captcha_num2); ?> = ?
-                        </div>
-                        <input type="hidden" name="captcha_key" value="<?php echo esc_attr($captcha_key); ?>">
-                        <input type="number" id="rv-contact-captcha" name="captcha" class="rv-form-input rv-captcha-input" 
-                               placeholder="<?php echo esc_attr__('Result', 'mhm-rentiva'); ?>" required>
-                    </div>
                 </div>
             <?php endif; ?>
 
@@ -278,15 +253,15 @@ set_transient($captcha_key, $captcha_answer, 10 * MINUTE_IN_SECONDS);
         <div class="rv-contact-details">
             <div class="rv-contact-item">
                 <span class="dashicons dashicons-email-alt"></span>
-                <span><?php echo esc_html($email_recipients[0] ?? get_option('admin_email')); ?></span>
+                <span><?php echo esc_html($support_email); ?></span>
             </div>
             <div class="rv-contact-item">
                 <span class="dashicons dashicons-phone"></span>
-                <span><?php echo esc_html(get_option('mhm_rentiva_phone', '+90 538 556 41 58')); ?></span>
+                <span><?php echo esc_html($support_phone); ?></span>
             </div>
             <div class="rv-contact-item">
                 <span class="dashicons dashicons-clock"></span>
-                <span><?php echo esc_html__('24/7 Support', 'mhm-rentiva'); ?></span>
+                <span><?php echo esc_html($support_hours); ?></span>
             </div>
         </div>
     </div>

@@ -12,6 +12,7 @@
  * @updated 2025-01-16 - Mobile responsive design improved (input widths, payment cards, grid layout)
  * @updated 2025-01-16 - Make Booking button text visibility fix
  * @updated 2025-01-XX - Inline CSS removed, utility classes added (rv-hidden, rv-select-disabled, rv-description-hint)
+ * @updated 2025-01-XX - RTL Support added (Logical Properties)
  */
 
 /* ===== UTILITY CLASSES (Replaces inline styles) ===== */
@@ -52,8 +53,8 @@
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     height: 2px;
     background: linear-gradient(90deg, #00d4ff, #00ff88, #ff6b6b);
     border-radius: 12px 12px 0 0;
@@ -244,7 +245,7 @@
 
 .rv-label .required {
     color: var(--mhm-error);
-    margin-left: 0.25rem;
+    margin-inline-start: 0.25rem;
 }
 
 /* Ensure labels are visible in Contact Information section */
@@ -319,14 +320,14 @@
 .rv-input[type="date"] {
     position: relative;
     cursor: pointer;
-    padding-right: 2.5rem;
+    padding-inline-end: 2.5rem;
 }
 
 .rv-input[type="date"]::-webkit-calendar-picker-indicator {
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     bottom: 0;
     width: 100%;
     height: 100%;
@@ -374,9 +375,9 @@
 .rv-selected-vehicle .rv-vehicle-image-wrapper {
     width: 250px;
     height: 150px;
-    margin-right: 1.5rem;
+    margin-inline-end: 1.5rem;
     margin-bottom: 0;
-    margin-left: 0;
+    margin-inline-start: 0;
     flex-shrink: 0;
     border-radius: 8px;
     overflow: hidden;
@@ -398,7 +399,7 @@
 .rv-selected-vehicle .rv-vehicle-card__rating-overlay {
     position: absolute;
     top: 0.5rem;
-    left: 0.5rem;
+    inset-inline-start: 0.5rem;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(4px);
     border-radius: 4px;
@@ -439,7 +440,7 @@
     flex-direction: column;
     justify-content: space-between;
     height: 160px;
-    padding-left: 0.5rem;
+    padding-inline-start: 0.5rem;
 }
 
 /* Header - Removed (no title) */
@@ -465,7 +466,7 @@
 .rv-selected-vehicle .rv-vehicle-card__favorite {
     position: absolute;
     top: 1rem;
-    right: 1rem;
+    inset-inline-end: 1rem;
     background: none;
     border: none;
     cursor: pointer;
@@ -718,7 +719,7 @@
 .rv-vehicle-price {
     margin: 0;
     font-size: 1rem;
-    color: #059669;
+    color: #3b82f6;
     font-weight: 600;
 }
 
@@ -729,13 +730,13 @@
     font-weight: 600;
     margin-bottom: 1.25rem;
     position: relative;
-    padding-left: 1rem;
+    padding-inline-start: 1rem;
 }
 
 .rv-addons .rv-section-title::before {
     content: '';
     position: absolute;
-    left: 0;
+    inset-inline-start: 0;
     top: 50%;
     transform: translateY(-50%);
     width: 4px;
@@ -2570,10 +2571,71 @@
 /* Force cache update: 2025-12-23 14:15 */
 /* Force cache update: 2025-12-23 14:18 */
 /* Fix for "V" symbols (repeating background image) on input fields */
-#pickup_date,
-#dropoff_date,
-.mhm-rentiva-booking-form input.rv-input {
+/* Fix for "V" symbols (repeating background image) on input fields */
+.rv-booking-form input.rv-date-input,
+.rv-booking-form input.rv-input.hasDatepicker,
+.rv-booking-form input[type="date"] {
     background-image: none !important;
     background-color: #fff !important;
     background-repeat: no-repeat !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* =========================================
+   MODAL OVERRIDES (Applied when inside Booking Modal)
+   ========================================= */
+
+/* Force Vertical Layout for Vehicle Card inside Modal */
+#rv-booking-modal .rv-selected-vehicle {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: auto !important;
+    align-items: flex-start !important;
+}
+
+/* Full Width Image */
+#rv-booking-modal .rv-selected-vehicle .rv-vehicle-image-wrapper {
+    width: 100% !important;
+    height: 200px !important;
+    margin: 0 0 15px 0 !important;
+    flex: none !important;
+}
+
+/* Full Width Details */
+#rv-booking-modal .rv-selected-vehicle .rv-vehicle-details {
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex: none !important;
+}
+
+/* Features List Wrap */
+#rv-booking-modal .rv-vehicle-features {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-bottom: 15px !important;
+}
+
+#rv-booking-modal .rv-feature-tag {
+    white-space: nowrap !important;
+    width: auto !important;
+    flex: 0 0 auto !important;
+}
+
+/* Single Column Inputs */
+#rv-booking-modal .rv-field-group {
+    grid-template-columns: 1fr !important;
+}
+
+/* Ghost Datepicker Fix */
+#ui-datepicker-div {
+    display: none;
+    /* Hide by default, jQuery will show() it */
+    z-index: 99999 !important;
 }

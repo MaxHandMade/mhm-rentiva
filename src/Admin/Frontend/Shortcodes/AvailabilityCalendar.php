@@ -148,7 +148,7 @@ final class AvailabilityCalendar extends AbstractShortcode
                     $handle,
                     $js_url,
                     static::get_js_dependencies(),
-                    MHM_RENTIVA_VERSION,
+                    MHM_RENTIVA_VERSION . '.' . time(), // Cache busting force
                     true
                 );
                 
@@ -159,20 +159,24 @@ final class AvailabilityCalendar extends AbstractShortcode
                     [
                         'ajaxUrl' => admin_url('admin-ajax.php'),
                         'nonce' => wp_create_nonce('mhm_rentiva_availability_nonce'),
+                        'accountNonce' => wp_create_nonce('mhm_rentiva_account'),
+                        'isUserLoggedIn' => is_user_logged_in(),
                         'currencySymbol' => \MHMRentiva\Admin\Reports\Reports::get_currency_symbol(),
                         'pluginUrl' => plugin_dir_url(__FILE__) . '../../../',
                         'dateFormat' => get_option('date_format', 'd.m.Y'),
                         'timeFormat' => get_option('time_format', 'H:i'),
                         'locale' => get_locale(),
+                        'locale' => get_locale(),
                         'messages' => [
                             'error' => __('An error occurred.', 'mhm-rentiva'),
                             'success' => __('Operation successful.', 'mhm-rentiva')
-                        ]
+                        ],
+                        'strings' => static::get_localized_strings() // Inject strings directly
                     ]
                 );
                 
-                // Localize script
-                static::localize_script($handle);
+                // Redundant Abstract localization removed to prevent object name mismatch issues
+                // static::localize_script($handle);
                 break;
             }
         }
@@ -194,13 +198,16 @@ final class AvailabilityCalendar extends AbstractShortcode
      */
     protected static function enqueue_assets(): void
     {
-        
         // Load CSS
         static::enqueue_styles();
         
         // Load JS
         static::enqueue_scripts();
-        
+
+        // Enqueue Booking Form Assets (Required for modal)
+        if (class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\BookingForm')) {
+            \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::enqueue_assets();
+        }
     }
 
     /**
@@ -246,9 +253,24 @@ final class AvailabilityCalendar extends AbstractShortcode
             'loading' => __('Loading...', 'mhm-rentiva'),
             'error' => __('An error occurred', 'mhm-rentiva'),
             'available' => __('Available', 'mhm-rentiva'),
-            'unavailable' => __('Unavailable', 'mhm-rentiva'),
+            'unavailable' => __('Vehicle Unavailable', 'mhm-rentiva'),
+            'outOfOrderMessage' => __('This vehicle is currently out of order and cannot be booked. Please choose another vehicle.', 'mhm-rentiva'),
+            'chooseAnother' => __('Choose Another Vehicle', 'mhm-rentiva'),
             'booked' => __('Booked', 'mhm-rentiva'),
             'maintenance' => __('Maintenance', 'mhm-rentiva'),
+            'booking_form' => __('Booking Form', 'mhm-rentiva'),
+            'unknown_error' => __('Unknown error', 'mhm-rentiva'),
+            // Flattened strings
+            'select_vehicle' => __('Select Vehicle', 'mhm-rentiva'),
+            'close' => __('Close', 'mhm-rentiva'),
+            'per_day' => __('/day', 'mhm-rentiva'),
+            'monday' => __('Mon', 'mhm-rentiva'),
+            'tuesday' => __('Tue', 'mhm-rentiva'),
+            'wednesday' => __('Wed', 'mhm-rentiva'),
+            'thursday' => __('Thu', 'mhm-rentiva'),
+            'friday' => __('Fri', 'mhm-rentiva'),
+            'saturday' => __('Sat', 'mhm-rentiva'),
+            'sunday' => __('Sun', 'mhm-rentiva'),
         ];
     }
 
@@ -391,15 +413,8 @@ final class AvailabilityCalendar extends AbstractShortcode
                 
                 $price = 0;
                 
-                // Get price directly from meta fields
-                $daily_price = get_post_meta($vehicle_id, '_mhm_rentiva_daily_price', true);
-                $price_per_day = get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
-                
-                if ($daily_price) {
-                    $price = floatval($daily_price);
-                } elseif ($price_per_day) {
-                    $price = floatval($price_per_day);
-                }
+                // Get price using helper
+                $price = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
                 
                 
                 $vehicles_list[] = [
@@ -476,6 +491,16 @@ final class AvailabilityCalendar extends AbstractShortcode
                 ORDER BY pm_start.meta_value ASC
             ", $vehicle_id, $end_date, $start_date));
 
+            // Get global vehicle status
+            $global_status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
+            if (empty($global_status)) {
+                $global_status = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true); // Legacy
+            }
+            
+            // Normalize status (simple normalization, can be extracted to helper if needed)
+            if ($global_status === '1' || $global_status === 'evet') $global_status = 'active';
+            if ($global_status === '0' || $global_status === 'hayir') $global_status = 'maintenance';
+
             // Process bookings for all months
             for ($i = 0; $i < $months_to_show; $i++) {
                 $month_start = date('Y-m-01', strtotime($current_month));
@@ -505,11 +530,34 @@ final class AvailabilityCalendar extends AbstractShortcode
                     
                     // State determination
                     if ($day_occupancy > 0) {
-                        if ($day_occupancy >= 1) { // If vehicle capacity is 1
+                        // Check if any booking is maintenance
+                        $is_maintenance = false;
+                        foreach ($bookings as $booking) {
+                            if ($current_date >= $booking->start_date && $current_date <= $booking->end_date) {
+                                if ($booking->status === 'maintenance') {
+                                    $is_maintenance = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if ($is_maintenance) {
+                            $day_status = 'maintenance';
+                        } elseif ($day_occupancy >= 1) { // If vehicle capacity is 1
                             $day_status = 'booked';
                         } else {
                             $day_status = 'partial';
                         }
+                    }
+                    
+                    // Global Status Override
+                    // If vehicle is in global maintenance mode, all days are maintenance
+                    if ($global_status === 'maintenance') {
+                        $day_status = 'maintenance';
+                    }
+                    // If vehicle is inactive, available days become unavailable
+                    if ($global_status === 'inactive' && $day_status === 'available') {
+                        $day_status = 'unavailable';
                     }
                     
                     $days[$current_date] = [
@@ -562,18 +610,11 @@ final class AvailabilityCalendar extends AbstractShortcode
 
     private static function get_pricing_data(int $vehicle_id, string $start_month, int $months_to_show): array
     {
-        // Integration with pricing shortcode
-        if (class_exists('MHM\Admin\Vehicle\Frontend\VehiclePricing')) {
-            return self::get_pricing_data_from_shortcode($vehicle_id, $start_month, $months_to_show);
-        }
-        
-        // Fallback: Simple price calculation
-        return self::get_simple_pricing_data($vehicle_id, $start_month, $months_to_show);
+        return self::calculate_calendar_pricing($vehicle_id, $start_month, $months_to_show);
     }
 
-    private static function get_pricing_data_from_shortcode(int $vehicle_id, string $start_month, int $months_to_show): array
+    private static function calculate_calendar_pricing(int $vehicle_id, string $start_month, int $months_to_show): array
     {
-        // Use pricing shortcode's price calculation method
         $pricing_data = [];
         $current_month = $start_month;
 
@@ -581,7 +622,6 @@ final class AvailabilityCalendar extends AbstractShortcode
             $month_start = date('Y-m-01', strtotime($current_month));
             $month_end = date('Y-m-t', strtotime($current_month));
 
-            // Get pricing data from pricing shortcode
             $base_price = self::get_vehicle_base_price($vehicle_id);
             $weekend_price = self::get_vehicle_weekend_price($vehicle_id);
             $seasonal_prices = self::get_vehicle_seasonal_prices($vehicle_id);
@@ -647,66 +687,6 @@ final class AvailabilityCalendar extends AbstractShortcode
         return $pricing_data;
     }
 
-    private static function get_simple_pricing_data(int $vehicle_id, string $start_month, int $months_to_show): array
-    {
-        // Basit fiyat hesaplama (fallback)
-        $pricing_data = [];
-        $current_month = $start_month;
-
-        for ($i = 0; $i < $months_to_show; $i++) {
-            $month_start = date('Y-m-01', strtotime($current_month));
-            $month_end = date('Y-m-t', strtotime($current_month));
-
-            // Get vehicle pricing information - Use correct meta fields
-            $base_price = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true) ?: 0);
-            $weekend_price = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_week', true) ?: $base_price);
-            $seasonal_prices = []; // Seasonal pricing meta field not yet available
-
-            $days = [];
-            $current_date = $month_start;
-            
-            while ($current_date <= $month_end) {
-                $is_weekend = in_array(date('N', strtotime($current_date)), [6, 7]);
-                $day_price = $base_price;
-                
-                // Weekend price
-                if ($is_weekend) {
-                    $day_price = $weekend_price;
-                }
-                
-                // Check seasonal prices
-                foreach ($seasonal_prices as $season) {
-                    if ($current_date >= $season['start_date'] && $current_date <= $season['end_date']) {
-                        $day_price = $season['price'];
-                        break;
-                    }
-                }
-                
-                $days[$current_date] = [
-                    'base_price' => $base_price,
-                    'day_price' => $day_price,
-                    'is_weekend' => $is_weekend,
-                    'has_discount' => $day_price < $base_price,
-                    'discount_amount' => $base_price - $day_price
-                ];
-                
-                $current_date = date('Y-m-d', strtotime($current_date . ' +1 day'));
-            }
-
-            $pricing_data[$current_month] = [
-                'month_name' => self::get_month_name($current_month),
-                'year' => date('Y', strtotime($current_month)),
-                'days' => $days,
-                'base_price' => $base_price,
-                'weekend_price' => $weekend_price
-            ];
-
-            $current_month = date('Y-m', strtotime($current_month . ' +1 month'));
-        }
-
-        return $pricing_data;
-    }
-
     private static function get_vehicle_base_price(int $vehicle_id): float
     {
         $price = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true) ?: 0);
@@ -715,8 +695,11 @@ final class AvailabilityCalendar extends AbstractShortcode
 
     private static function get_vehicle_weekend_price(int $vehicle_id): float
     {
-        // Weekend pricing not yet in separate meta field, use daily price
-        return floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true) ?: 0);
+        $base_price = self::get_vehicle_base_price($vehicle_id);
+        // Get multiplier from settings, default to 1.2
+        $multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_weekend_multiplier', 1.2);
+        
+        return $base_price * $multiplier;
     }
 
     private static function get_vehicle_seasonal_prices(int $vehicle_id): array
@@ -823,33 +806,54 @@ final class AvailabilityCalendar extends AbstractShortcode
             $mileage = get_post_meta($vehicle_id, '_mhm_rentiva_mileage', true);
             $seats = get_post_meta($vehicle_id, '_mhm_rentiva_seats', true);
             
-            if ($fuel_type) $specs['fuel'] = $fuel_type;
-            if ($transmission) $specs['transmission'] = $transmission;
+            if ($fuel_type) $specs['fuel'] = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_fuel_type_label($fuel_type);
+            if ($transmission) $specs['transmission'] = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_transmission_label($transmission);
             if ($year) $specs['year'] = $year;
-            if ($mileage) $specs['mileage'] = $mileage . ' km';
-            if ($seats) $specs['seats'] = $seats . ' people';
+            if ($mileage) $specs['mileage'] = sprintf(__('%s miles', 'mhm-rentiva'), $mileage);
+            if ($seats) $specs['seats'] = sprintf(__('%d people', 'mhm-rentiva'), $seats);
 
             // Fiyat
-            $price = 0;
-            $daily_price = get_post_meta($vehicle_id, '_mhm_rentiva_daily_price', true);
-            if ($daily_price) {
-                $price = floatval($daily_price);
-            } else {
-                $price_per_day = get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
-                if ($price_per_day) {
-                    $price = floatval($price_per_day);
-                }
-            }
+            $price = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
 
-            $response_data = [
+            $data = [
                 'id' => $vehicle_id,
                 'title' => $vehicle->post_title,
-                'image' => $image_url,
+                'image' => $image_url ?: '',
                 'specs' => $specs,
-                'price' => number_format($price, 0, ',', '.')
+                'price' => number_format($price, 0, ',', '.'),
+                'is_favorite' => false
             ];
 
-            wp_send_json_success($response_data);
+            if (is_user_logged_in()) {
+                $user_id = get_current_user_id();
+                $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
+                if (is_array($favorites) && in_array($vehicle_id, $favorites)) {
+                    $data['is_favorite'] = true;
+                }
+            }
+            
+            // Availability Check
+            $status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
+            // Backward compatibility
+            if (empty($status)) {
+                $status = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+            }
+            
+            // Normalize status
+            if ($status === '1' || $status === 'evet' || $status === 'yes') $status = 'active';
+            if ($status === '0' || $status === 'hayir' || $status === 'no') $status = 'maintenance';
+            if (empty($status)) $status = 'active'; // Default
+            
+            $data['status'] = $status;
+            $data['is_available'] = ($status === 'active');
+            
+            $status_labels = [
+                'active' => __('Available', 'mhm-rentiva'),
+                'maintenance' => __('Out of Order', 'mhm-rentiva')
+            ];
+            $data['status_text'] = $status_labels[$status] ?? __('Unavailable', 'mhm-rentiva');
+
+            wp_send_json_success($data);
 
         } catch (Exception $e) {
             wp_send_json_error(['message' => __('An error occurred while retrieving vehicle information.', 'mhm-rentiva')]);

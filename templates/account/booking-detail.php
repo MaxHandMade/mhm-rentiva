@@ -60,9 +60,15 @@ $status_text = [
 
 $status_display = $status_text[$status] ?? ucfirst($status);
 $status_class = 'status-' . $status;
+
+$is_integrated = $is_integrated ?? false;
+$wrapper_class = 'rv-account-page';
+if ($is_integrated) {
+    $wrapper_class .= ' mhm-integrated';
+}
 ?>
 
-<div class="rv-account-page">
+<div class="<?php echo esc_attr($wrapper_class); ?>">
     <!-- Breadcrumb -->
     <div class="rv-breadcrumb">
         <a href="<?php echo esc_url($navigation['dashboard']['url']); ?>"><?php esc_html_e('Dashboard', 'mhm-rentiva'); ?></a>
@@ -183,9 +189,7 @@ $status_class = 'status-' . $status;
         </button>
         <?php endif; ?>
         
-        <a href="<?php echo esc_url($navigation['dashboard']['url']); ?>" class="rv-btn rv-btn-primary">
-            <?php esc_html_e('View Dashboard', 'mhm-rentiva'); ?>
-        </a>
+
     </div>
     
     <?php if ($can_cancel): ?>
@@ -194,6 +198,14 @@ $status_class = 'status-' . $status;
         <p style="margin: 0; font-size: 14px; color: #856404;">
             ℹ️ <?php echo esc_html($cancellation_info['message']); ?>
         </p>
+        <?php 
+        $refund_policy = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_refund_policy', '');
+        if (!empty($refund_policy)): 
+        ?>
+        <p style="margin: 10px 0 0 0; font-size: 13px; color: #856404; font-style: italic;">
+            <?php echo esc_html($refund_policy); ?>
+        </p>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
 </div>

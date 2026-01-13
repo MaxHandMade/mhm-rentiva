@@ -166,6 +166,14 @@ final class BookingForm extends AbstractShortcode
     }
 
     /**
+     * Expose asset loading for other components
+     */
+    public static function enqueue_assets(): void
+    {
+        parent::enqueue_assets();
+    }
+
+    /**
      * Get file version based on file modification time
      * Falls back to plugin version if file doesn't exist
      * 
@@ -204,7 +212,15 @@ final class BookingForm extends AbstractShortcode
             'payment_cancelled' => __('Payment cancelled. Your booking is in pending status.', 'mhm-rentiva'),
             'payment_status_unknown' => __('Payment status is unknown. Please check.', 'mhm-rentiva'),
             'popup_blocked_redirecting' => __('Popup blocked. Redirecting to payment page...', 'mhm-rentiva'),
-            // ⭐ Removed: select_payment_gateway - WooCommerce handles payment gateway selection
+            'select_payment_gateway' => __('Please select a payment gateway.', 'mhm-rentiva'),
+            'selectPaymentType' => __('Please select a payment type.', 'mhm-rentiva'),
+            'selectPaymentMethod' => __('Please select a payment method.', 'mhm-rentiva'),
+            'login_required' => __('Please log in to manage favorites.', 'mhm-rentiva'),
+            'added_to_favorites' => __('Added to favorites', 'mhm-rentiva'),
+            'removed_from_favorites' => __('Removed from favorites', 'mhm-rentiva'),
+            'add_to_favorites' => __('Add to favorites', 'mhm-rentiva'),
+            'remove_from_favorites' => __('Remove from favorites', 'mhm-rentiva'),
+            'terms_error' => __('You must accept the terms and conditions to complete your booking.', 'mhm-rentiva'),
             
             // Booking messages
             'booking_created' => __('Your booking has been successfully created!', 'mhm-rentiva'),
@@ -461,6 +477,21 @@ final class BookingForm extends AbstractShortcode
 
         $result = [];
         foreach ($vehicles as $vehicle) {
+            // Check vehicle status - only show active vehicles
+            $status = get_post_meta($vehicle->ID, '_mhm_vehicle_status', true);
+            
+            // Fallback for legacy data
+            if (empty($status)) {
+                $old_status = get_post_meta($vehicle->ID, '_mhm_vehicle_availability', true);
+                if ($old_status === '0' || $old_status === 'passive' || $old_status === 'inactive') {
+                    $status = 'inactive';
+                }
+            }
+
+            if ($status && $status !== 'active') {
+                continue;
+            }
+
             $result[] = [
                 'id' => $vehicle->ID,
                 'title' => $vehicle->post_title,
@@ -532,6 +563,23 @@ final class BookingForm extends AbstractShortcode
 
             // Input validation
             $vehicle_id = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id($_POST['vehicle_id'] ?? 0);
+            
+            // Check vehicle status
+            $vehicle_status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
+            
+            // Fallback for legacy data
+            if (empty($vehicle_status)) {
+                $old_status = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+                if ($old_status === '0' || $old_status === 'passive' || $old_status === 'inactive') {
+                    $vehicle_status = 'inactive';
+                }
+            }
+
+            if ($vehicle_status && $vehicle_status !== 'active') {
+                wp_send_json_error(['message' => __('Selected vehicle is not available (Status: ' . $vehicle_status . ').', 'mhm-rentiva')]);
+                return;
+            }
+
             $pickup_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($_POST['pickup_date'] ?? '');
             $dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($_POST['dropoff_date'] ?? '');
             $pickup_time = self::sanitize_text_field_safe($_POST['pickup_time'] ?? '');

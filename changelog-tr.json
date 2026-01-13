@@ -1,8 +1,23 @@
 [
     {
+        "version": "4.5.3",
+        "date": "2026-01-14",
+        "type": "current",
+        "changes": [
+            "🛠️ AYARLAR TEMİZLİĞİ: Daha temiz bir yönetici arayüzü için ayarlardaki gereksiz kısımlar (Buton metinleri, Form etiketleri) kaldırıldı.",
+            "📝 İADE POLİTİKASI: Sistem Mesajlarına özelleştirilebilir İade Politikası metin ayarı eklendi.",
+            "🔗 URL AYARLARI: \"Frontend URL and Text Settings\" başlığı netlik için \"Sayfa URL Ayarları\" olarak yeniden adlandırıldı.",
+            "🐛 ENDPOINT DÜZELTMESİ: Özel uç nokta slug'larının `AccountController` içinde yanlış çalışma sorunu giderildi.",
+            "🎨 ARAYÜZ İYİLEŞTİRMESİ: Rezervasyon Detay görünümünden gereksiz \"Paneli Görüntüle\" butonu kaldırıldı.",
+            "🔧 POT OLUŞTURMA: Ayar oluşturma mantığı standart döngülere dönüştürülerek `make-pot` sorunları giderildi.",
+            "🛡️ GITIGNORE: Geliştirme araçları gitignore listesine eklendi.",
+            "🇹🇷 YERELLEŞTİRME: \"Sayfa URL Ayarları\" POT dosyasına eklendi ve Türkçe çeviri desteği iyileştirildi."
+        ]
+    },
+    {
         "version": "4.5.0",
         "date": "2025-12-24",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🚀 VERSİYON GÜNCELLEMESİ: Kullanıcı Hesabı ve Ödeme Geçmişi iyileştirmelerine odaklanan 4.5.0 sürümüne büyük güncelleme.",
             "🔧 HESAP ENDPOINT'LERİ: Rezervasyonlar, Favoriler, Ödemeler, Mesajlar ve Hesap Düzenleme için özelleştirilebilir uç noktalar eklendi.",

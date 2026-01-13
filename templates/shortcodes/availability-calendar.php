@@ -59,8 +59,29 @@ if (empty($vehicles_list)) {
 <?php
 // Get vehicle price
 $vehicle_price = 0;
+$is_available = true;
+$status_text = '';
+
 if ($vehicle_id > 0) {
     $vehicle_price = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true) ?: 0);
+    
+    // Check Status
+    $status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
+    if (empty($status)) {
+        $old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+        if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
+            $status = 'inactive';
+        } elseif ($old_availability === '1' || $old_availability === 'active') {
+            $status = 'active';
+        } elseif ($old_availability === 'maintenance') {
+            $status = 'maintenance';
+        } else {
+            $status = 'active'; // Default
+        }
+    }
+    
+    $is_available = ($status === 'active');
+    $status_text = $is_available ? __("Available", "mhm-rentiva") : __("Out of Order", "mhm-rentiva");
 }
 ?>
 
@@ -71,11 +92,6 @@ if ($vehicle_id > 0) {
      data-months-to-show="<?php echo esc_attr($months_to_show); ?>">
     
     <!-- Calendar Header -->
-    <div class="rv-availability-header">
-        <div class="rv-header-top">
-            <h3 class="rv-availability-title">
-                <span class="dashicons dashicons-calendar-alt"></span>
-                <?php echo esc_html__('Availability Calendar', 'mhm-rentiva'); ?>
             </h3>
         </div>
 
@@ -106,14 +122,33 @@ if ($vehicle_id > 0) {
                         <span class="rv-rating-count">(<?php echo esc_html($vehicle_rating['rating_count']); ?>)</span>
                     </div>
                     <?php endif; ?>
+                    
+                    <!-- Availability Badge -->
+                    <?php if (!$is_available): ?>
+                    <div class="rv-badge-wrapper" style="position: absolute; top: 10px; left: 10px; z-index: 10;">
+                        <span class="rv-badge rv-badge--unavailable" style="background-color: #ef4444; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <?php echo esc_html($status_text); ?>
+                        </span>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 
                 <!-- Vehicle Details -->
                 <div class="rv-vehicle-details">
                     <div class="rv-vehicle-header">
                         <h4 class="rv-vehicle-title"><?php echo esc_html($vehicle->post_title); ?></h4>
-                        <button class="rv-favorite-btn" data-vehicle-id="<?php echo esc_attr($vehicle->ID); ?>">
-                            <span class="dashicons dashicons-heart"></span>
+                        <?php
+                        $is_favorite = false;
+                        if (is_user_logged_in()) {
+                            $user_id = get_current_user_id();
+                            $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
+                            if (is_array($favorites) && in_array($vehicle->ID, $favorites)) {
+                                $is_favorite = true;
+                            }
+                        }
+                        ?>
+                        <button class="rv-favorite-btn <?php echo $is_favorite ? 'active' : ''; ?>" data-vehicle-id="<?php echo esc_attr($vehicle->ID); ?>" title="<?php echo esc_attr__('Add to favorites', 'mhm-rentiva'); ?>">
+                            <span class="dashicons <?php echo $is_favorite ? 'dashicons-heart' : 'dashicons-heart'; ?>" style="<?php echo $is_favorite ? 'color: #e74c3c;' : ''; ?>"></span>
                         </button>
                     </div>
                     
@@ -125,19 +160,42 @@ if ($vehicle_id > 0) {
                         $year = get_post_meta($vehicle->ID, '_mhm_rentiva_year', true);
                         $mileage = get_post_meta($vehicle->ID, '_mhm_rentiva_mileage', true);
                         $seats = get_post_meta($vehicle->ID, '_mhm_rentiva_seats', true);
+
+                        // Mappings
+                        $fuel_types = [
+                            'gasoline' => __('Gasoline', 'mhm-rentiva'),
+                            'petrol'   => __('Gasoline', 'mhm-rentiva'),
+                            'diesel'   => __('Diesel', 'mhm-rentiva'),
+                            'lpg'      => __('LPG', 'mhm-rentiva'),
+                            'electric' => __('Electric', 'mhm-rentiva'),
+                            'hybrid'   => __('Hybrid', 'mhm-rentiva')
+                        ];
+                        $transmission_types = [
+                            'manual'    => __('Manual', 'mhm-rentiva'),
+                            'auto'      => __('Automatic', 'mhm-rentiva'),
+                            'semi_auto' => __('Semi-Automatic', 'mhm-rentiva')
+                        ];
+
+                        $display_fuel = $fuel_types[$fuel_type] ?? $fuel_type;
+                        $display_transmission = $transmission_types[$transmission] ?? $transmission;
                         ?>
-                        <?php if ($fuel_type) : ?>
-                        <span class="rv-spec-badge"><?php echo esc_html($fuel_type); ?></span>
+
+                        <?php if ($display_fuel) : ?>
+                        <span class="rv-spec-badge"><?php echo esc_html($display_fuel); ?></span>
                         <?php endif; ?>
-                        <?php if ($transmission) : ?>
-                        <span class="rv-spec-badge"><?php echo esc_html($transmission); ?></span>
+                        
+                        <?php if ($display_transmission) : ?>
+                        <span class="rv-spec-badge"><?php echo esc_html($display_transmission); ?></span>
                         <?php endif; ?>
+                        
                         <?php if ($year) : ?>
                         <span class="rv-spec-badge"><?php echo esc_html($year); ?></span>
                         <?php endif; ?>
+                        
                         <?php if ($mileage) : ?>
-                        <span class="rv-spec-badge"><?php echo esc_html($mileage); ?></span>
+                        <span class="rv-spec-badge"><?php echo esc_html($mileage); ?> <?php echo esc_html__('miles', 'mhm-rentiva'); ?></span>
                         <?php endif; ?>
+                        
                         <?php if ($seats) : ?>
                         <span class="rv-spec-badge"><?php echo esc_html($seats); ?> <?php echo esc_html__('people', 'mhm-rentiva'); ?></span>
                         <?php endif; ?>
@@ -164,14 +222,14 @@ if ($vehicle_id > 0) {
 
 
         <!-- Calendar Controls -->
-        <div class="rv-calendar-controls">
+        <div class="rv-calendar-controls" style="<?php echo !$is_available ? 'display: none;' : ''; ?>">
             <button type="button" class="rv-control-btn rv-prev-months" data-action="prev">
                 <span class="dashicons dashicons-arrow-left-alt2"></span>
                 <?php echo esc_html__('Previous', 'mhm-rentiva'); ?>
             </button>
             
             <div class="rv-month-display">
-                <span class="rv-month-name"><?php echo esc_html(date('F Y', strtotime($start_month))); ?></span>
+                <span class="rv-month-name"><?php echo esc_html(wp_date('F Y', strtotime($start_month))); ?></span>
             </div>
             
             <button type="button" class="rv-control-btn rv-next-months" data-action="next">
@@ -182,7 +240,7 @@ if ($vehicle_id > 0) {
     </div>
 
     <!-- Status Legend -->
-    <div class="rv-availability-legend">
+    <div class="rv-availability-legend" style="<?php echo !$is_available ? 'display: none;' : ''; ?>">
         <div class="rv-legend-item">
             <span class="rv-legend-color rv-status-available"></span>
             <span class="rv-legend-text"><?php echo esc_html__('Available', 'mhm-rentiva'); ?></span>
@@ -208,7 +266,12 @@ if ($vehicle_id > 0) {
     </div>
 
     <!-- Calendar Grid -->
-    <div class="rv-availability-grid">
+    <div class="rv-calendar-hint" style="<?php echo !$is_available ? 'display: none;' : ''; ?>">
+        <span class="dashicons dashicons-info-outline"></span>
+        <?php echo esc_html__('Click on start and end dates to select your rental period.', 'mhm-rentiva'); ?>
+    </div>
+
+    <div class="rv-availability-grid" style="<?php echo !$is_available ? 'display: none;' : ''; ?>">
         <?php if (empty($availability_data)) : ?>
             <div class="rv-no-data-message">
                 <div class="rv-no-data-content">
@@ -242,7 +305,7 @@ if ($vehicle_id > 0) {
                         <?php echo esc_html($month_data['month_name'] . ' ' . $month_data['year']); ?>
                     </h4>
                 </div>
-
+                <!-- ... Weekdays and Days are handled in JS or below ... -->
                 <!-- Weekday Headers -->
                 <div class="rv-calendar-weekdays">
                     <div class="rv-weekday"><?php echo esc_html__('Mon', 'mhm-rentiva'); ?></div>
@@ -332,6 +395,17 @@ if ($vehicle_id > 0) {
                     ?>
                 </div>
             </div>
+        <?php endif; ?>
+    </div>
+    
+    <div class="rv-calendar-unavailable-message" style="text-align: center; padding: 40px; background: #fff; border: 1px solid #ddd; border-radius: 8px; margin-top: 20px; <?php echo $is_available ? 'display: none;' : ''; ?>">
+        <div style="font-size: 48px; margin-bottom: 20px;">🚫</div>
+        <h3 style="color: #e74c3c; margin-bottom: 10px;"><?php echo esc_html__('Vehicle Unavailable', 'mhm-rentiva'); ?></h3>
+        <p><?php echo esc_html__('This vehicle is currently out of order and cannot be booked. Please choose another vehicle.', 'mhm-rentiva'); ?></p>
+        <?php if (count($vehicles_list) > 1) : ?>
+            <button class="rv-switch-vehicle-btn rv-btn rv-btn-primary" type="button" data-vehicles='<?php echo esc_attr(json_encode($vehicles_list)); ?>' style="margin-top: 20px;">
+                <?php echo esc_html__('Choose Another Vehicle', 'mhm-rentiva'); ?>
+            </button>
         <?php endif; ?>
     </div>
 

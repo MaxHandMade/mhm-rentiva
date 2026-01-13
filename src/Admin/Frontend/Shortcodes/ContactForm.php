@@ -51,7 +51,6 @@ final class ContactForm extends AbstractShortcode
             'show_vehicle_selector' => '0',          // Show vehicle selector (for booking)
             'show_priority'        => '0',           // Show priority selector (for support)
             'show_attachment'      => '1',           // Show file attachment
-            'show_captcha'         => '1',           // Show CAPTCHA
             'redirect_url'         => '',            // Redirect after success
             'email_to'             => '',            // Custom email address
             'auto_reply'           => '1',           // Send auto reply
@@ -130,6 +129,9 @@ final class ContactForm extends AbstractShortcode
             'priorities' => $priorities,
             'email_recipients' => $email_recipients,
             'current_user' => wp_get_current_user(),
+            'support_phone' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_contact_phone', '+90 555 555 55 55'),
+            'support_hours' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_contact_hours', __('7/24 Support', 'mhm-rentiva')),
+            'support_email' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_support_email', get_option('admin_email')),
         ];
     }
 
@@ -243,26 +245,35 @@ final class ContactForm extends AbstractShortcode
             );
             
             // Rate limiting check
-            \MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
+                $limit_time = 300; // 5 minutes
+                \MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
                 'contact_form_submission',
-                3, // 3 requests
-                300, // 5 minutes
-                __('You have sent too many contact forms. Please wait 5 minutes.', 'mhm-rentiva')
+                50, // 50 requests (Increased for testing)
+                $limit_time,
+                /* translators: %d placeholder. */
+                sprintf(__('You have sent too many contact forms. Please wait %d minutes.', 'mhm-rentiva'), ceil($limit_time / 60))
             );
 
             $form_data = self::sanitize_contact_form_data($_POST);
+
+            // Handle file upload
+            if (!empty($_FILES['attachment']['name'])) {
+                $upload_result = self::handle_file_upload($_FILES['attachment']);
+                
+                if ($upload_result['success']) {
+                    $form_data['attachment'] = $upload_result['url'];
+                } else {
+                    self::ajax_error($upload_result['message']);
+                    return;
+                }
+            }
+
             $validation_result = self::validate_form_data($form_data);
 
             if (!$validation_result['valid']) {
                 self::ajax_error($validation_result['message'], [
                     'errors' => $validation_result['errors']
                 ]);
-                return;
-            }
-
-            // CAPTCHA check
-            if (!self::verify_captcha($form_data['captcha'] ?? '', $form_data['captcha_key'] ?? '')) {
-                self::ajax_error(__('CAPTCHA verification failed.', 'mhm-rentiva'));
                 return;
             }
 
@@ -342,7 +353,7 @@ final class ContactForm extends AbstractShortcode
     {
         return [
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('mhm_contact_form'),
+            'nonce' => wp_create_nonce('mhm_rentiva_contact_form_nonce'),
             'maxFileSize' => wp_max_upload_size(),
             'allowedFileTypes' => ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx'],
             'messages' => [
@@ -370,7 +381,6 @@ final class ContactForm extends AbstractShortcode
             'required_fields' => __('Please fill in all required fields.', 'mhm-rentiva'),
             'file_too_large' => __('File size is too large.', 'mhm-rentiva'),
             'invalid_file_type' => __('Invalid file type.', 'mhm-rentiva'),
-            'captcha_error' => __('CAPTCHA verification failed.', 'mhm-rentiva'),
             'loading' => __('Loading...', 'mhm-rentiva'),
             'confirm_reset' => __('Are you sure you want to reset the form?', 'mhm-rentiva'),
         ];
@@ -393,7 +403,6 @@ final class ContactForm extends AbstractShortcode
             'rating' => intval($data['rating'] ?? 0),
             'message' => ($data['message'] ?? '') !== null ? sanitize_textarea_field((string) ($data['message'] ?? '')) : '',
             'attachment' => self::sanitize_text_field_safe($data['attachment'] ?? ''),
-            'captcha' => self::sanitize_text_field_safe($data['captcha'] ?? ''),
             'auto_reply' => self::sanitize_text_field_safe($data['auto_reply'] ?? '1'),
             'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
@@ -464,26 +473,6 @@ final class ContactForm extends AbstractShortcode
         return $labels[$field] ?? $field;
     }
 
-    private static function verify_captcha(string $captcha_response, string $captcha_key): bool
-    {
-        // Simple math CAPTCHA (real application should use reCAPTCHA)
-        if (empty($captcha_response) || empty($captcha_key)) {
-            return false;
-        }
-
-        // Get correct answer from transient
-        $correct_answer = get_transient($captcha_key);
-        
-        if ($correct_answer === false) {
-            return false; // CAPTCHA expired
-        }
-        
-        // Delete CAPTCHA after use
-        delete_transient($captcha_key);
-        
-        return $captcha_response === $correct_answer;
-    }
-
     private static function save_contact_message(array $data): int
     {
         $post_data = [
@@ -540,7 +529,67 @@ final class ContactForm extends AbstractShortcode
             'Reply-To: ' . $data['name'] . ' <' . $data['email'] . '>'
         ];
 
-        return wp_mail($email_recipients, $subject, $message, $headers);
+        if (!empty($data['attachment'])) {
+            $attachment_path = self::resolve_attachment_path($data['attachment']);
+            if ($attachment_path) {
+                $attachments[] = $attachment_path;
+            }
+        }
+
+        return wp_mail($email_recipients, $subject, $message, $headers, $attachments);
+    }
+
+    /**
+     * Resolve attachment URL to local file path using multiple strategies
+     */
+    private static function resolve_attachment_path(string $url): ?string
+    {
+        if (empty($url)) {
+            return null;
+        }
+
+        $strategies = [];
+        $upload_dir = wp_upload_dir();
+        
+        // Strategy 1: Direct Upload Dir Replacement
+        $strategies[] = function() use ($url, $upload_dir) {
+            return str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $url);
+        };
+
+        // Strategy 2: Site URL -> ABSPATH Replacement
+        $strategies[] = function() use ($url) {
+            return str_replace(site_url(), ABSPATH, $url);
+        };
+
+        // Strategy 3: Path Component Replacement (Robust for XAMPP/Localhost)
+        $strategies[] = function() use ($url, $upload_dir) {
+            $url_path = wp_parse_url($url, PHP_URL_PATH);
+            $base_path = wp_parse_url($upload_dir['baseurl'], PHP_URL_PATH);
+            
+            if ($url_path && $base_path && strpos($url_path, $base_path) !== false) {
+                return str_replace($base_path, $upload_dir['basedir'], $url_path);
+            }
+            return null;
+        };
+
+        foreach ($strategies as $strategy) {
+            $path = $strategy();
+            if ($path) {
+                // Formatting: Normalize slashes and decode functionality
+                $clean_path = wp_normalize_path(urldecode($path));
+                if (file_exists($clean_path)) {
+                    return $clean_path;
+                }
+                
+                // Try without decoding just in case
+                $raw_path = wp_normalize_path($path);
+                if (file_exists($raw_path)) {
+                    return $raw_path;
+                }
+            }
+        }
+
+        return null;
     }
 
     private static function build_email_message(array $data, array $form_config, int $message_id): string

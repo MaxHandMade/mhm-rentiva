@@ -250,6 +250,38 @@ final class VehicleComparison extends AbstractShortcode
             'image_url' => $image_url,
             'permalink' => get_permalink($vehicle_id) ?: '',
             'features' => $features,
+            'availability' => self::check_vehicle_availability($vehicle_id),
+        ];
+    }
+
+    /**
+     * Checks vehicle availability
+     */
+    private static function check_vehicle_availability(int $vehicle_id): array
+    {
+        $status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
+        
+        // Fallback for older data or if status is not set
+        if (empty($status)) {
+            $old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+            // Handle legacy values
+            if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
+                $status = 'inactive';
+            } elseif ($old_availability === '1' || $old_availability === 'active') {
+                $status = 'active';
+            } elseif ($old_availability === 'maintenance') {
+                $status = 'maintenance';
+            } else {
+                $status = 'active'; // Default
+            }
+        }
+        
+        $is_available = ($status === 'active');
+        
+        return [
+            'is_available' => $is_available,
+            'status' => $status,
+            'text' => $is_available ? __('Available', 'mhm-rentiva') : __('Out of Order', 'mhm-rentiva')
         ];
     }
 

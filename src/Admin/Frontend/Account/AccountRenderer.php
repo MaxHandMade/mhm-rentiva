@@ -49,6 +49,9 @@ final class AccountRenderer
             'active_bookings_count' => count($active_bookings),
             'recent_bookings' => array_slice($bookings, 0, 5),
             'navigation' => self::get_navigation(),
+            'favorites' => SettingsCore::get('mhm_rentiva_customer_favorites', '1'),
+            'booking_history' => SettingsCore::get('mhm_rentiva_customer_booking_history', '1'),
+            'welcome_message' => SettingsCore::get('mhm_rentiva_customer_dashboard_welcome', __('Welcome to your dashboard. From your account dashboard you can view your recent orders, manage your shipping and billing addresses, and edit your password and account details.', 'mhm-rentiva')),
         ];
         
         // Include template directly (required for JavaScript)
@@ -78,7 +81,7 @@ final class AccountRenderer
         $data = [
             'user' => $user,
             'bookings' => $bookings,
-            'navigation' => self::get_navigation(),
+            'navigation' => (isset($atts['hide_nav']) && $atts['hide_nav']) ? [] : self::get_navigation(),
         ];
         
         return Templates::render('account/bookings', $data, true);
@@ -126,7 +129,7 @@ final class AccountRenderer
             'user' => $user,
             'favorites' => $favorites,
             'columns' => (int) ($atts['columns'] ?? 3),
-            'navigation' => self::get_navigation(),
+            'navigation' => (isset($atts['hide_nav']) && $atts['hide_nav']) ? [] : self::get_navigation(),
         ];
         
         return Templates::render('account/favorites', $data, true);
@@ -145,7 +148,7 @@ final class AccountRenderer
         $data = [
             'user' => $user,
             'payments' => $payments,
-            'navigation' => self::get_navigation(),
+            'navigation' => (isset($atts['hide_nav']) && $atts['hide_nav']) ? [] : self::get_navigation(),
         ];
         
         return Templates::render('account/payment-history', $data, true);
@@ -250,7 +253,7 @@ final class AccountRenderer
             'user' => $user,
             'customer_email' => $user->user_email,
             'customer_name' => $user->display_name ?: $user->user_login,
-            'navigation' => self::get_navigation(),
+            'navigation' => (isset($atts['hide_nav']) && $atts['hide_nav']) ? [] : self::get_navigation(),
         ];
         
         // Include template directly (required for JavaScript - whitespace must be preserved)
@@ -306,7 +309,7 @@ final class AccountRenderer
     /**
      * Booking detail render
      */
-    public static function render_booking_detail(int $booking_id): string
+    public static function render_booking_detail(int $booking_id, bool $hide_nav = false): string
     {
         $booking = get_post($booking_id);
         
@@ -322,7 +325,7 @@ final class AccountRenderer
             return '<p>' . __('You do not have permission to view this booking.', 'mhm-rentiva') . '</p>';
         }
         
-        $navigation = self::get_navigation();
+        $navigation = $hide_nav ? [] : self::get_navigation();
         
         // If navigation is empty (e.g. WooCommerce integration), provide minimal nav for breadcrumbs
         if (empty($navigation)) {
@@ -351,6 +354,7 @@ final class AccountRenderer
             'booking' => $booking,
             'booking_id' => $booking_id,
             'navigation' => $navigation,
+            'is_integrated' => $hide_nav,
         ];
         
         return Templates::render('account/booking-detail', $data, true);

@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.5.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.5.3-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -344,16 +344,16 @@ POST /bookings
 
 ## 📝 Değişiklik Geçmişi
 
-### Son Versiyon: 4.5.0 (2025-12-24)
+### Son Versiyon: 4.5.3 (2026-01-14)
 
 **🚀 VERSİYON GÜNCELLEMESİ**
-- Kullanıcı Hesabı ve Ödeme Geçmişi iyileştirmelerine odaklanan 4.5.0 sürümüne büyük güncelleme.
+- Ayarlar arayüzü temizliği, İade Politikası metni ve URL ayarları isimlendirme iyileştirmelerini içeren 4.5.3 sürümü.
 
-**🔧 HESAP & ÖDEME**
-- Hesap sayfaları için özelleştirilebilir endpoint'ler eklendi.
-- Ödeme Geçmişi, makbuz yönetimi (yükleme, önizleme, silme) ile geliştirildi.
-- Hesabım'daki Rezervasyonlar tablosu için modern arayüz.
-- Hesap Detayları sayfasındaki şifre göster/gizle butonları düzeltildi.
+**🛠️ YENİLİKLER**
+- **SADELEŞTİRME**: Ayarlar panelinden gereksiz metin alanları kaldırıldı.
+- **İADE POLİTİKASI**: Sistem mesajları altına özelleştirilebilir iade metni eklendi.
+- **URL AYARLARI**: "Page URL Settings" olarak başlık güncellendi.
+- **GELİŞTİRİCİ**: `gitignore` güncellemeleri ve çeviri dosyası iyileştirmeleri.
 
 Tam değişiklik geçmişi için [changelog-tr.json](changelog-tr.json) dosyasına bakın.
 

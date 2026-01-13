@@ -33,7 +33,6 @@ if (!defined('ABSPATH')) {
                         <label class="mhm-detail-label"><?php esc_html_e('Availability Status', 'mhm-rentiva'); ?></label>
                         <select id="_mhm_vehicle_status" name="_mhm_vehicle_status" class="mhm-availability-dropdown">
                             <option value="active" <?php selected($available, 'active'); ?> data-icon="✅"><?php esc_html_e('Active', 'mhm-rentiva'); ?></option>
-                            <option value="inactive" <?php selected($available, 'inactive'); ?> data-icon="❌"><?php esc_html_e('Inactive', 'mhm-rentiva'); ?></option>
                             <option value="maintenance" <?php selected($available, 'maintenance'); ?> data-icon="🔧"><?php esc_html_e('Maintenance', 'mhm-rentiva'); ?></option>
                         </select>
                     </div>

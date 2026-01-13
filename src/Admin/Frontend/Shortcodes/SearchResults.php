@@ -600,6 +600,37 @@ final class SearchResults extends AbstractShortcode
     }
 
     /**
+     * Check vehicle availability
+     */
+    private static function check_vehicle_availability(int $vehicle_id): array
+    {
+        $status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
+        
+        // Fallback for older data or if status is not set
+        if (empty($status)) {
+            $old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+            // Handle legacy values
+            if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
+                $status = 'inactive';
+            } elseif ($old_availability === '1' || $old_availability === 'active') {
+                $status = 'active';
+            } elseif ($old_availability === 'maintenance') {
+                $status = 'maintenance';
+            } else {
+                $status = 'active'; // Default
+            }
+        }
+        
+        $is_available = ($status === 'active');
+        
+        return [
+            'is_available' => $is_available,
+            'status' => $status,
+            'text' => $is_available ? __("Available", "mhm-rentiva") : __("Out of Order", "mhm-rentiva")
+        ];
+    }
+
+    /**
      * AJAX: Toggle favorite
      */
     public static function ajax_toggle_favorite(): void
@@ -686,6 +717,11 @@ final class SearchResults extends AbstractShortcode
             return '';
         }
 
+        // Check availability
+        $availability = self::check_vehicle_availability((int)$vehicle['id']);
+        $is_available = $availability['is_available'];
+        $status_text = $availability['text'];
+
         // Parent container controls layout now. Card class is neutral.
         $card_class = '';
         
@@ -708,6 +744,22 @@ final class SearchResults extends AbstractShortcode
                     </div>
                 <?php endif; ?>
                 
+                <!-- Availability Badge -->
+                <?php if (!$is_available): ?>
+                    <div class="rv-badge-wrapper" style="position: absolute; top: 10px; left: 10px; z-index: 10;">
+                        <span class="rv-badge rv-badge--unavailable" style="
+                            background-color: #ef4444; 
+                            color: #fff; 
+                            padding: 4px 8px; 
+                            border-radius: 4px; 
+                            font-size: 12px; 
+                            font-weight: 600;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <?php echo esc_html($status_text); ?>
+                        </span>
+                    </div>
+                <?php endif; ?>
+
                 <!-- Price Badge -->
                 <div class="rv-price-badge">
                     <span class="rv-price-amount"><?php echo esc_html($vehicle['currency_symbol'] ?? '$'); ?><?php echo esc_html(number_format($vehicle['price_per_day'] ?? 0)); ?></span>
@@ -786,14 +838,34 @@ final class SearchResults extends AbstractShortcode
 
                 <!-- Actions -->
                 <div class="rv-vehicle-actions">
-                    <a href="<?php echo esc_url($vehicle['url'] ?? '#'); ?>" class="rv-btn rv-btn-primary">
-                        <?php _e('View Details', 'mhm-rentiva'); ?>
+                    <?php 
+                    $btn_class = 'rv-btn rv-btn-primary';
+                    $btn_href = esc_url($vehicle['url'] ?? '#');
+                    $btn_attrs = '';
+                    $btn_text = __('View Details', 'mhm-rentiva');
+
+                    if (!$is_available) {
+                        $btn_class .= ' rv-btn-disabled';
+                        $btn_href = 'javascript:void(0);';
+                        $btn_attrs = 'aria-disabled="true" style="opacity: 0.6; pointer-events: none; cursor: not-allowed; background-color: #95a5a6; border-color: #95a5a6;"';
+                        $btn_text = __('Out of Order', 'mhm-rentiva'); // Or keep View Details but disabled? Usually better to indicate why.
+                        // Actually, let's keep "View Details" but disabled, or "Unavailable".
+                        // User request: "kullanım dışı ve rezervasyon butonları".
+                        // Let's use the status text.
+                        //$btn_text = $status_text; 
+                    }
+                    ?>
+                    <a href="<?php echo $btn_href; ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo $btn_attrs; ?>>
+                        <?php echo esc_html($btn_text); ?>
                     </a>
+                    
+                    <?php if ($is_available): // Hide favorite for unavailable? Or allow it? Allowing is fine. ?>
                     <button type="button" class="rv-btn rv-btn-secondary rv-add-to-favorites <?php echo !empty($vehicle['is_favorite']) ? 'active' : ''; ?>" data-vehicle-id="<?php echo esc_attr($vehicle['id'] ?? 0); ?>">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                         </svg>
                     </button>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

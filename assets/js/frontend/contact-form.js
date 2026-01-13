@@ -19,6 +19,7 @@
             this.initRatingStars();
             this.initFileUpload();
             this.initFormSubmission();
+            this.initResetButton();
         }
 
         /**
@@ -40,34 +41,83 @@
         }
 
         /**
+         * Reset Button Handler
+         */
+        initResetButton() {
+            const resetButtons = document.querySelectorAll('.rv-reset-button');
+            resetButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (confirm(mhmContactForm.messages.confirm_reset)) {
+                        const form = btn.closest('form');
+                        this.resetForm(form);
+                    }
+                });
+            });
+        }
+
+        /**
+         * Helper to reset form and UI elements
+         */
+        resetForm(form) {
+            // Native form reset
+            form.reset();
+
+            // Clear messages
+            this.clearMessages(form);
+
+            // Reset File Upload UI
+            const fileInfo = form.querySelector('.rv-file-info');
+            if (fileInfo) {
+                fileInfo.style.display = 'none';
+                const fileInput = form.querySelector('.rv-file-input');
+                if (fileInput) fileInput.value = '';
+                const fileName = form.querySelector('.rv-file-name');
+                if (fileName) fileName.textContent = '';
+            }
+
+            // Reset Rating Stars UI
+            const ratingStars = form.querySelectorAll('.rv-rating-star');
+            ratingStars.forEach(star => star.classList.remove('active'));
+        }
+
+        /**
+         * File upload handling
+         */
+        /**
          * File upload handling
          */
         initFileUpload() {
-            const fileInput = document.getElementById('rv-contact-attachment');
-            const fileInfo = document.querySelector('.rv-file-info');
-            const fileName = document.querySelector('.rv-file-name');
-            const fileRemove = document.querySelector('.rv-file-remove');
+            const forms = document.querySelectorAll('.rv-contact-form form');
 
-            if (fileInput && fileInfo && fileName && fileRemove) {
-                fileInput.addEventListener('change', function () {
-                    if (this.files.length > 0) {
-                        fileName.textContent = this.files[0].name;
-                        fileInfo.style.display = 'flex';
-                    }
-                });
+            forms.forEach(form => {
+                const fileInput = form.querySelector('.rv-file-input');
+                const fileInfo = form.querySelector('.rv-file-info');
+                const fileName = form.querySelector('.rv-file-name');
+                const fileRemove = form.querySelector('.rv-file-remove');
 
-                fileRemove.addEventListener('click', function () {
-                    fileInput.value = '';
-                    fileInfo.style.display = 'none';
-                });
-            }
+                if (fileInput && fileInfo && fileName && fileRemove) {
+                    fileInput.addEventListener('change', function () {
+                        if (this.files.length > 0) {
+                            fileName.textContent = this.files[0].name;
+                            fileInfo.style.display = 'flex';
+                        }
+                    });
+
+                    fileRemove.addEventListener('click', function () {
+                        fileInput.value = '';
+                        fileInfo.style.display = 'none';
+                    });
+                }
+            });
         }
 
         /**
          * Form submission handling
          */
         initFormSubmission() {
-            const forms = document.querySelectorAll('.rv-contact-form');
+            // Select the actual <form> element inside the wrapper
+            const forms = document.querySelectorAll('.rv-contact-form form');
 
             forms.forEach(form => {
                 form.addEventListener('submit', (e) => {
@@ -81,16 +131,16 @@
          * Handle form submission
          */
         handleFormSubmit(form) {
-            const submitBtn = form.querySelector('.rv-form-submit');
+            const submitBtn = form.querySelector('.rv-submit-button');
             const originalText = submitBtn.textContent;
 
             // Disable button and show loading
             submitBtn.disabled = true;
-            submitBtn.textContent = mhmContactForm.messages.submitting || mhmContactForm.strings?.submitting || 'Submitting...';
+            submitBtn.textContent = mhmContactForm.messages.submitting;
 
             // Collect form data
             const formData = new FormData(form);
-            formData.append('action', 'mhm_rentiva_contact_form_submit');
+            formData.append('action', 'mhm_rentiva_submit_contact_form');
             formData.append('nonce', mhmContactForm.nonce);
 
             // Submit via AJAX
@@ -101,15 +151,16 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        this.showSuccessMessage(form, data.data.message || (mhmContactForm.strings?.success || 'Your message has been sent successfully.'));
-                        form.reset();
+                        this.resetForm(form);
+                        this.showSuccessMessage(form, (data.data && data.data.message) || mhmContactForm.messages.success);
                     } else {
-                        this.showErrorMessage(form, data.data.message || (mhmContactForm.strings?.error || 'An error occurred while sending your message.'));
+                        const errorMessage = (data.data && data.data.message) || mhmContactForm.messages.error;
+                        this.showErrorMessage(form, errorMessage);
                     }
                 })
                 .catch(error => {
                     console.error('Form submission error:', error);
-                    this.showErrorMessage(form, mhmContactForm.strings?.error || 'An error occurred while sending your message.');
+                    this.showErrorMessage(form, mhmContactForm.messages.error);
                 })
                 .finally(() => {
                     // Re-enable button
@@ -128,7 +179,12 @@
             successDiv.className = 'rv-form-message rv-success';
             successDiv.innerHTML = `<span class="dashicons dashicons-yes"></span> ${message}`;
 
-            form.insertBefore(successDiv, form.firstChild);
+            const actionsDiv = form.querySelector('.rv-form-actions');
+            if (actionsDiv) {
+                actionsDiv.parentNode.insertBefore(successDiv, actionsDiv);
+            } else {
+                form.insertBefore(successDiv, form.firstChild);
+            }
 
             // Auto-hide after 5 seconds
             setTimeout(() => {
@@ -146,7 +202,12 @@
             errorDiv.className = 'rv-form-message rv-error';
             errorDiv.innerHTML = `<span class="dashicons dashicons-warning"></span> ${message}`;
 
-            form.insertBefore(errorDiv, form.firstChild);
+            const actionsDiv = form.querySelector('.rv-form-actions');
+            if (actionsDiv) {
+                actionsDiv.parentNode.insertBefore(errorDiv, actionsDiv);
+            } else {
+                form.insertBefore(errorDiv, form.firstChild);
+            }
         }
 
         /**

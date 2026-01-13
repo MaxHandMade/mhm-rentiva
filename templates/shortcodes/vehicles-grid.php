@@ -117,8 +117,13 @@ $wrapper_class = $wrapper_class ?? '';
                                     <?php if ($vehicle['is_featured']): ?>
                                         <span class="rv-badge rv-badge--featured"><?php echo esc_html(esc_html__('Featured', 'mhm-rentiva')); ?></span>
                                     <?php endif; ?>
-                                    <?php if (!$vehicle['meta']['available']): ?>
-                                        <span class="rv-badge rv-badge--unavailable"><?php echo esc_html(esc_html__('Unavailable', 'mhm-rentiva')); ?></span>
+                                    <?php 
+                                    // Use robust availability data
+                                    $is_available = $vehicle['availability']['is_available'] ?? true;
+                                    $availability_text = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
+                                    ?>
+                                    <?php if (!$is_available): ?>
+                                        <span class="rv-badge rv-badge--unavailable"><?php echo esc_html($availability_text); ?></span>
                                     <?php endif; ?>
                                 </div>
                             <?php endif; ?>
@@ -171,7 +176,7 @@ $wrapper_class = $wrapper_class ?? '';
                                                 <polyline points="20 6 9 17 4 12"/>
                                             </svg>
                                          <?php endif; ?>
-                                        <span class="rv-feature-text"><?php echo esc_html($feature['text']); ?></span>
+                                        <span class="rv-feature-text"><?php echo esc_html($feature['value'] ?? $feature['text'] ?? ''); ?></span>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
@@ -183,13 +188,26 @@ $wrapper_class = $wrapper_class ?? '';
                         $show_availability_shortcode = ($atts['show_availability'] ?? null);
                         // Global setting takes priority, shortcode can override only if explicitly set
                         $show_availability_final = $show_availability_shortcode !== null ? ($show_availability_shortcode === '1') : $show_availability_global;
+                        
+                        // Check availability from controller data
+                        if (isset($vehicle['availability']) && is_array($vehicle['availability'])) {
+                            $is_available = $vehicle['availability']['is_available'] ?? true;
+                            $status_text_from_data = $vehicle['availability']['text'] ?? null;
+                        } else {
+                            // Fallback for older version
+                            $is_available = $vehicle['meta']['available'] ?? true;
+                            $status_text_from_data = null;
+                        }
                         ?>
                         <?php if ($show_availability_final): ?>
                             <div class="rv-vehicle-card__availability">
                                 <?php 
-                                $is_available = $vehicle['availability']['is_available'] ?? true;
                                 $status_class = $is_available ? 'available' : 'unavailable';
-                                $status_text = $is_available ? __('Available', 'mhm-rentiva') : __('Unavailable', 'mhm-rentiva');
+                                if ($status_text_from_data) {
+                                    $status_text = $status_text_from_data;
+                                } else {
+                                    $status_text = $is_available ? __('Available', 'mhm-rentiva') : __('Unavailable', 'mhm-rentiva');
+                                }
                                 ?>
                                 <span class="rv-availability-status rv-availability-status--<?php echo esc_attr($status_class); ?>">
                                     <?php echo esc_html($status_text); ?>
@@ -217,7 +235,18 @@ $wrapper_class = $wrapper_class ?? '';
 
                             <!-- Booking Button -->
                             <?php if (($atts['show_booking_btn'] ?? '1') === '1'): ?>
-                                <a href="<?php echo esc_url($vehicle['permalink']); ?>" class="rv-btn-booking">
+                                <?php 
+                                $btn_class = 'rv-btn-booking';
+                                $btn_href = esc_url($vehicle['permalink']);
+                                $btn_attrs = '';
+                                
+                                if (!$is_available) {
+                                    $btn_class .= ' rv-btn-disabled';
+                                    $btn_href = 'javascript:void(0);';
+                                    $btn_attrs = 'aria-disabled="true" tabindex="-1" style="opacity: 0.6; pointer-events: none; cursor: not-allowed;"';
+                                }
+                                ?>
+                                <a href="<?php echo $btn_href; ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo $btn_attrs; ?>>
                                     <?php echo esc_html($atts['booking_btn_text'] ?? esc_html__('Book Now', 'mhm-rentiva')); ?>
                                 </a>
                             <?php endif; ?>

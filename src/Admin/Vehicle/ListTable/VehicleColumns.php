@@ -68,12 +68,12 @@ final class VehicleColumns
     {
         switch ($column) {
             case 'mhm_license_plate':
-                $v = get_post_meta($post_id, '_mhm_rentiva_license_plate', true);
+                $v = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE, true);
                 echo !empty($v) ? esc_html($v) : '—';
                 break;
 
             case 'mhm_price_per_day':
-                $v = get_post_meta($post_id, '_mhm_rentiva_price_per_day', true);
+                $v = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_PRICE_PER_DAY, true);
                 $n = is_numeric($v) ? (int) $v : null;
                 if ($n !== null) {
                     $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
@@ -84,29 +84,29 @@ final class VehicleColumns
                 break;
 
             case 'mhm_seats':
-                $v = (int) get_post_meta($post_id, '_mhm_rentiva_seats', true);
+                $v = (int) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_SEATS, true);
                 echo $v > 0 ? esc_html((string) $v) : '—';
                 break;
 
             case 'mhm_transmission':
                 $map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
-                $v = (string) get_post_meta($post_id, '_mhm_rentiva_transmission', true);
+                $v = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_TRANSMISSION, true);
                 echo isset($map[$v]) ? esc_html($map[$v]) : '—';
                 break;
 
             case 'mhm_fuel_type':
                 $map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
-                $v = (string) get_post_meta($post_id, '_mhm_rentiva_fuel_type', true);
+                $v = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FUEL_TYPE, true);
                 echo isset($map[$v]) ? esc_html($map[$v]) : '—';
                 break;
 
             case 'mhm_available':
                 // Check new meta key first
-                $v = get_post_meta($post_id, '_mhm_vehicle_status', true);
+                $v = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS, true);
                 
                 // Use old meta key if new one is empty
                 if (empty($v)) {
-                    $v = get_post_meta($post_id, '_mhm_vehicle_availability', true);
+                    $v = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_AVAILABILITY, true);
                 }
                 
                 // Backward compatibility - use normalize function
@@ -147,10 +147,10 @@ final class VehicleColumns
         }
         $orderby = $q->get('orderby');
         if ($orderby === 'mhm_price_per_day') {
-            $q->set('meta_key', '_mhm_rentiva_price_per_day');
+            $q->set('meta_key', \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_PRICE_PER_DAY);
             $q->set('orderby', 'meta_value_num');
         } elseif ($orderby === 'mhm_seats') {
-            $q->set('meta_key', '_mhm_rentiva_seats');
+            $q->set('meta_key', \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_SEATS);
             $q->set('orderby', 'meta_value_num');
         }
     }
@@ -213,7 +213,7 @@ final class VehicleColumns
         
         $q->set('meta_query', [
             [
-                'key'   => '_mhm_vehicle_availability',
+                'key'   => \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_AVAILABILITY,
                 'value' => $val,
                 'compare' => '='
             ]
@@ -371,7 +371,7 @@ final class VehicleColumns
             LEFT JOIN {$wpdb->postmeta} pm_status ON v.ID = pm_status.post_id AND pm_status.meta_key = %s
             WHERE v.post_type = %s AND v.post_status = %s
             ORDER BY v.ID
-        ", '_mhm_vehicle_status', '_mhm_vehicle_availability', 'vehicle', 'publish'));
+        ", \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS, 'vehicle', 'publish'));
         
         // Debug log removed
 
@@ -386,14 +386,19 @@ final class VehicleColumns
                 COUNT(DISTINCT pm_booking.meta_value) as reserved,
                 COUNT(DISTINCT CASE WHEN b.post_date >= %s THEN pm_booking.meta_value END) as reserved_this_week
              FROM {$wpdb->posts} v
-             LEFT JOIN {$wpdb->postmeta} pm_status ON v.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_vehicle_status'
-             LEFT JOIN {$wpdb->postmeta} pm_legacy ON v.ID = pm_legacy.post_id AND pm_legacy.meta_key = '_mhm_vehicle_availability'
-             LEFT JOIN {$wpdb->posts} b ON b.post_type = 'vehicle_booking' AND b.post_status = 'publish'
-             LEFT JOIN {$wpdb->postmeta} pm_booking ON b.ID = pm_booking.post_id AND pm_booking.meta_key = '_mhm_vehicle_id'
-             WHERE v.post_type = 'vehicle' AND v.post_status = 'publish'",
+             LEFT JOIN {$wpdb->postmeta} pm_status ON v.ID = pm_status.post_id AND pm_status.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_legacy ON v.ID = pm_legacy.post_id AND pm_legacy.meta_key = %s
+             LEFT JOIN {$wpdb->posts} b ON b.post_type = %s AND b.post_status = %s
+             LEFT JOIN {$wpdb->postmeta} pm_booking ON b.ID = pm_booking.post_id AND pm_booking.meta_key = %s
+             WHERE v.post_type = %s AND v.post_status = %s",
             date('Y-m-01'), // passive_this_month
             date('Y-m-01'), // maintenance_this_month  
-            date('Y-m-d', strtotime('-7 days')) // reserved_this_week
+            date('Y-m-d', strtotime('-7 days')), // reserved_this_week
+            \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
+            \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_AVAILABILITY,
+            'vehicle_booking', 'publish',
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
+            'vehicle', 'publish'
         ));
 
         $total_vehicles = (int) ($vehicle_stats->total_vehicles ?? 0);
@@ -1395,7 +1400,6 @@ final class VehicleColumns
     {
         return [
             'active' => __('Active', 'mhm-rentiva'),
-            'inactive' => __('Inactive', 'mhm-rentiva'),
             'maintenance' => __('Maintenance', 'mhm-rentiva')
         ];
     }

@@ -64,22 +64,26 @@ final class BookingReport
 
         // SINGLE MASTER QUERY - Index-aware optimized query
         $master_query = $wpdb->prepare("
-            SELECT 
+            SELECT  
                 p.ID,
                 p.post_date,
                 COALESCE(pm_status.meta_value, 'unknown') as status,
                 COALESCE(pm_start.meta_value, 0) as start_ts,
                 COALESCE(pm_end.meta_value, 0) as end_ts
             FROM {$wpdb->posts} p
-            LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
-            LEFT JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key = '_mhm_start_ts'
-            LEFT JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key = '_mhm_end_ts'
+            LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+            LEFT JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key = %s
+            LEFT JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key = %s
             WHERE p.post_type = 'vehicle_booking'
             AND p.post_status = 'publish'
             AND p.post_date >= %s 
             AND p.post_date < %s
             ORDER BY p.post_date DESC
-        ", $start_date . ' 00:00:00', date('Y-m-d', strtotime($end_date) + 86400) . ' 00:00:00');
+        ", 
+        \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+        \MHMRentiva\Admin\Core\MetaKeys::BOOKING_START_TS,
+        \MHMRentiva\Admin\Core\MetaKeys::BOOKING_END_TS,
+        $start_date . ' 00:00:00', date('Y-m-d', strtotime($end_date) + 86400) . ' 00:00:00');
         
         $bookings = $wpdb->get_results($master_query);
         
@@ -462,28 +466,30 @@ final class BookingReport
                 p.ID, 
                 p.post_title, 
                 p.post_date,
-                MAX(CASE WHEN pm.meta_key = '_mhm_vehicle_id' THEN pm.meta_value END) as vehicle_id,
-                MAX(CASE WHEN pm.meta_key = '_mhm_status' THEN pm.meta_value END) as status,
-                MAX(CASE WHEN pm.meta_key = '_mhm_total_price' THEN pm.meta_value END) as total_price,
-                MAX(CASE WHEN pm.meta_key = '_mhm_contact_email' THEN pm.meta_value END) as customer_email,
-                MAX(CASE WHEN pm.meta_key = '_mhm_contact_name' THEN pm.meta_value END) as customer_name,
-                MAX(CASE WHEN pm.meta_key = '_mhm_start_ts' THEN pm.meta_value END) as start_date,
-                MAX(CASE WHEN pm.meta_key = '_mhm_end_ts' THEN pm.meta_value END) as end_date
+                MAX(CASE WHEN pm.meta_key = %s THEN pm.meta_value END) as vehicle_id,
+                MAX(CASE WHEN pm.meta_key = %s THEN pm.meta_value END) as status,
+                MAX(CASE WHEN pm.meta_key = %s THEN pm.meta_value END) as total_price,
+                MAX(CASE WHEN pm.meta_key = %s THEN pm.meta_value END) as customer_email,
+                MAX(CASE WHEN pm.meta_key = %s THEN pm.meta_value END) as customer_name,
+                MAX(CASE WHEN pm.meta_key = %s THEN pm.meta_value END) as start_date,
+                MAX(CASE WHEN pm.meta_key = %s THEN pm.meta_value END) as end_date
             FROM {$wpdb->posts} p
             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
             WHERE p.ID IN ({$placeholders})
             AND pm.meta_key IN (
-                '_mhm_vehicle_id',
-                '_mhm_status', 
-                '_mhm_total_price',
-                '_mhm_contact_email',
-                '_mhm_contact_name',
-                '_mhm_start_ts',
-                '_mhm_end_ts'
+                %s, %s, %s, %s, %s, %s, %s
             )
             GROUP BY p.ID, p.post_title, p.post_date
             ORDER BY p.post_date DESC
-        ", $booking_ids);
+        ", array_merge($booking_ids, [
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE,
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_CONTACT_EMAIL,
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_CONTACT_NAME,
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_START_TS,
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_END_TS
+        ]));
         
         return $wpdb->get_results($query);
     }

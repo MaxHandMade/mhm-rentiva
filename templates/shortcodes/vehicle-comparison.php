@@ -95,8 +95,34 @@ $custom_class = trim($atts['class'] ?? '');
                                             <button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
                                                 <span class="dashicons dashicons-dismiss"></span>
                                             </button>
+                                            
+                                            <?php 
+                                            $is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
+                                            $status_text = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
+                                            
+                                            if (!$is_available): 
+                                            ?>
+                                                <span class="rv-badge rv-badge--unavailable" style="margin-bottom: 5px; display: inline-block;">
+                                                    <?php echo esc_html($status_text); ?>
+                                                </span>
+                                            <?php endif; ?>
+
                                             <h4><?php echo esc_html($vehicle['title']); ?></h4>
-                                            <a href="<?php echo esc_url($vehicle['permalink']); ?>" class="rv-book-now-btn" style="display: inline-block !important; background: #27ae60 !important; color: white !important; padding: 8px 16px !important; border-radius: 6px !important; text-decoration: none !important; font-size: 13px !important; font-weight: 600 !important; margin-top: 5px !important; margin-bottom: 10px !important; text-align: center !important; width: 100% !important; max-width: 140px !important;">
+                                            <?php 
+                                            $is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
+                                            $btn_style = 'display: inline-block !important; background: #27ae60 !important; color: white !important; padding: 8px 16px !important; border-radius: 6px !important; text-decoration: none !important; font-size: 13px !important; font-weight: 600 !important; margin-top: 5px !important; margin-bottom: 10px !important; text-align: center !important; width: 100% !important; max-width: 140px !important;';
+                                            $btn_class = 'rv-book-now-btn';
+                                            $btn_href = esc_url($vehicle['permalink']);
+                                            $btn_attrs = '';
+
+                                            if (!$is_available) {
+                                                $btn_style = str_replace('#27ae60', '#95a5a6', $btn_style) . ' opacity: 0.6; pointer-events: none; cursor: not-allowed;';
+                                                $btn_class .= ' rv-btn-disabled';
+                                                $btn_href = 'javascript:void(0);';
+                                                $btn_attrs = 'aria-disabled="true" tabindex="-1"';
+                                            }
+                                            ?>
+                                            <a href="<?php echo $btn_href; ?>" class="<?php echo esc_attr($btn_class); ?>" style="<?php echo esc_attr($btn_style); ?>" <?php echo $btn_attrs; ?>>
                                                 <?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
                                             </a>
                                         </div>
@@ -136,6 +162,101 @@ $custom_class = trim($atts['class'] ?? '');
                     </table>
                 </div>
 
+                <!-- Mobile List Layout (Visible on small screens only) -->
+                <div class="rv-comparison-mobile-list">
+                    <?php foreach ($vehicles as $vehicle): ?>
+                        <div class="rv-mobile-card-item">
+                            
+                            <!-- Mobile Header: Image, Title, Badge, Toggle -->
+                            <div class="rv-mobile-card-header-wrapper">
+                                <div class="rv-mobile-card-image">
+                                    <?php if (!empty($vehicle['image_url'])): ?>
+                                        <img src="<?php echo esc_url($vehicle['image_url']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>">
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <div class="rv-mobile-card-info">
+                                    <h4 class="rv-mobile-title"><?php echo esc_html($vehicle['title']); ?></h4>
+                                    
+                                    <?php 
+                                    $is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
+                                    $status_text = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
+                                    if (!$is_available): 
+                                    ?>
+                                        <span class="rv-badge rv-badge--unavailable" style="margin-bottom: 5px;">
+                                            <?php echo esc_html($status_text); ?>
+                                        </span>
+                                    <?php endif; ?>
+
+                                    <?php 
+                                    $price = $vehicle['features']['price_per_day'] ?? 0;
+                                    if ($show_prices && $price > 0): 
+                                    ?>
+                                        <div class="rv-mobile-price">
+                                            <?php echo esc_html(number_format($price, 0, ',', '.')); ?>
+                                            <?php echo esc_html($vehicle['features']['currency_symbol'] ?? '$'); ?> 
+                                            <span class="rv-period">/ <?php echo esc_html__('day', 'mhm-rentiva'); ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
+                                    <span class="dashicons dashicons-dismiss"></span>
+                                </button>
+                            </div>
+
+                            <!-- Accordion Toggle -->
+                            <button type="button" class="rv-mobile-accordion-toggle" onclick="this.parentElement.classList.toggle('active');">
+                                <span><?php echo esc_html__('Show Features', 'mhm-rentiva'); ?></span>
+                                <span class="dashicons dashicons-arrow-down-alt2"></span>
+                            </button>
+
+                            <!-- Accordion Content -->
+                            <div class="rv-mobile-accordion-content">
+                                <div class="rv-mobile-features-list">
+                                    <?php foreach ($features as $feature_key => $feature_label): ?>
+                                        <div class="rv-mobile-feature-row">
+                                            <span class="rv-mobile-label"><?php echo esc_html($feature_label); ?></span>
+                                            <span class="rv-mobile-value">
+                                                <?php 
+                                                $value = $vehicle['features'][$feature_key] ?? '-';
+                                                
+                                                if ($feature_key === 'price_per_day') {
+                                                     if ($value > 0) {
+                                                        echo esc_html(number_format($value, 0, ',', '.') . ' ' . ($vehicle['features']['currency_symbol'] ?? '$'));
+                                                     } else { echo '-'; }
+                                                } else {
+                                                    echo esc_html($value);
+                                                }
+                                                ?>
+                                            </span>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                
+                                <div class="rv-mobile-actions">
+                                    <?php 
+                                    $btn_style = ''; 
+                                    $btn_class = 'rv-book-now-btn rv-mobile-btn';
+                                    $btn_href = esc_url($vehicle['permalink']);
+                                    $btn_attrs = '';
+    
+                                    if (!$is_available) {
+                                        $btn_class .= ' rv-btn-disabled';
+                                        $btn_href = 'javascript:void(0);';
+                                        $btn_attrs = 'aria-disabled="true"';
+                                    }
+                                    ?>
+                                    <a href="<?php echo $btn_href; ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo $btn_attrs; ?>>
+                                        <?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
             <!-- Card Layout -->
             <?php else: ?>
                 <div class="rv-comparison-cards">
@@ -149,6 +270,18 @@ $custom_class = trim($atts['class'] ?? '');
                                 <button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
                                     <span class="dashicons dashicons-dismiss"></span>
                                 </button>
+                                <?php 
+                                $is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
+                                $status_text = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
+                                
+                                if (!$is_available): 
+                                ?>
+                                    <div style="width: 100%; text-align: center; margin-top: 5px;">
+                                        <span class="rv-badge rv-badge--unavailable" style="display: inline-block;">
+                                            <?php echo esc_html($status_text); ?>
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             
                             <div class="rv-card-features">
@@ -180,7 +313,19 @@ $custom_class = trim($atts['class'] ?? '');
                             </div>
                             
                             <div class="rv-card-actions">
-                                <a href="<?php echo esc_url($vehicle['permalink']); ?>" class="rv-book-now-btn">
+                                <?php 
+                                $is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
+                                $btn_class = 'rv-book-now-btn';
+                                $btn_href = esc_url($vehicle['permalink']);
+                                $btn_attrs = '';
+
+                                if (!$is_available) {
+                                    $btn_class .= ' rv-btn-disabled';
+                                    $btn_href = 'javascript:void(0);';
+                                    $btn_attrs = 'aria-disabled="true" tabindex="-1" style="opacity: 0.6; pointer-events: none; cursor: not-allowed;"';
+                                }
+                                ?>
+                                <a href="<?php echo $btn_href; ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo $btn_attrs; ?>>
                                     <?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
                                 </a>
                             </div>

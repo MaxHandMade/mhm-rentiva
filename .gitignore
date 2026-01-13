@@ -42,3 +42,11 @@ TEST-CHECKLIST.md
 
 # Documentation
 docs/
+
+# Temporary utilities
+reset_endpoints.php
+mhm-tools.php
+debug_slug.php
+flush_rules.php
+update_refund_text.php
+test-i18n.php

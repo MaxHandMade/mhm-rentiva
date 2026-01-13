@@ -94,4 +94,40 @@ class VehicleDataHelper
         }
         return '';
     }
+    /**
+     * Get fuel type label
+     * 
+     * @param string $key Fuel type key
+     * @return string Translated label
+     */
+    public static function get_fuel_type_label(string $key): string
+    {
+        $types = [
+            'gasoline' => __('Gasoline', 'mhm-rentiva'),
+            'petrol'   => __('Gasoline', 'mhm-rentiva'), // Legacy
+            'diesel'   => __('Diesel', 'mhm-rentiva'),
+            'lpg'      => __('LPG', 'mhm-rentiva'),
+            'electric' => __('Electric', 'mhm-rentiva'),
+            'hybrid'   => __('Hybrid', 'mhm-rentiva')
+        ];
+        
+        return $types[$key] ?? $key;
+    }
+
+    /**
+     * Get transmission label
+     * 
+     * @param string $key Transmission key
+     * @return string Translated label
+     */
+    public static function get_transmission_label(string $key): string
+    {
+        $types = [
+            'manual'    => __('Manual', 'mhm-rentiva'),
+            'auto'      => __('Automatic', 'mhm-rentiva'),
+            'semi_auto' => __('Semi-Automatic', 'mhm-rentiva')
+        ];
+        
+        return $types[$key] ?? $key;
+    }
 }

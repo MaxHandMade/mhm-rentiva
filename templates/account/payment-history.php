@@ -23,9 +23,13 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 $currency_code = SettingsCore::get('mhm_rentiva_currency', 'USD');
 $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
 
+$wrapper_class = 'mhm-rentiva-account-page';
+if (empty($navigation)) {
+    $wrapper_class .= ' mhm-integrated';
+}
 ?>
 
-<div class="mhm-rentiva-account-page">
+<div class="<?php echo esc_attr($wrapper_class); ?>">
     <?php if (!empty($navigation)): ?>
         <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
     <?php endif; ?>

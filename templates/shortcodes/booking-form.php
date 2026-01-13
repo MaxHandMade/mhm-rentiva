@@ -66,6 +66,9 @@ $registration_required = $customer_settings['registration_required'] ?? '0';
 $phone_required = $customer_settings['phone_required'] ?? '0';
 $terms_required = $customer_settings['terms_required'] ?? '0';
 $terms_text = $customer_settings['terms_text'] ?? __('I accept the terms of use and privacy policy.', 'mhm-rentiva');
+
+// Generate unique ID for this form instance to prevent collisions
+$unique_id = uniqid('rv_booking_');
 ?>
 
 <div class="rv-booking-form-wrapper <?php echo esc_attr($class); ?>" 
@@ -85,10 +88,10 @@ $terms_text = $customer_settings['terms_text'] ?? __('I accept the terms of use 
                 <div class="rv-form-section rv-vehicle-selection">
                     <h3 class="rv-section-title"><?php echo esc_html__('Vehicle Selection', 'mhm-rentiva'); ?></h3>
                     <div class="rv-field-group">
-                        <label for="vehicle_id" class="rv-label">
+                        <label for="vehicle_id-<?php echo esc_attr($unique_id); ?>" class="rv-label">
                             <?php echo esc_html__('Select Vehicle', 'mhm-rentiva'); ?> <span class="required">*</span>
                         </label>
-                        <select name="vehicle_id" id="vehicle_id" class="rv-select" required>
+                        <select name="vehicle_id" id="vehicle_id-<?php echo esc_attr($unique_id); ?>" class="rv-select rv-vehicle-select" required>
                             <option value=""><?php echo esc_html__('Select vehicle...', 'mhm-rentiva'); ?></option>
                             <?php foreach ($vehicles as $vehicle): ?>
                                 <option value="<?php echo esc_attr($vehicle['id']); ?>" 
@@ -234,13 +237,13 @@ $terms_text = $customer_settings['terms_text'] ?? __('I accept the terms of use 
                 
                 <div class="rv-field-group rv-field-dates">
                     <div class="rv-field">
-                        <label for="pickup_date" class="rv-label">
+                        <label for="pickup_date-<?php echo esc_attr($unique_id); ?>" class="rv-label">
                             <?php echo esc_html__('Pickup Date', 'mhm-rentiva'); ?> <span class="required">*</span>
                         </label>
                         <input type="text" 
-                               id="pickup_date" 
+                               id="pickup_date-<?php echo esc_attr($unique_id); ?>" 
                                name="pickup_date" 
-                               class="rv-input rv-date-input" 
+                               class="rv-input rv-date-input rv-pickup-date" 
                                placeholder="<?php echo esc_attr__('Select pickup date', 'mhm-rentiva'); ?>"
                                value="<?php echo esc_attr($atts['start_date'] ?? ''); ?>"
                                readonly
@@ -248,13 +251,13 @@ $terms_text = $customer_settings['terms_text'] ?? __('I accept the terms of use 
                     </div>
                     
                     <div class="rv-field">
-                        <label for="dropoff_date" class="rv-label">
+                        <label for="dropoff_date-<?php echo esc_attr($unique_id); ?>" class="rv-label">
                             <?php echo esc_html__('Return Date', 'mhm-rentiva'); ?> <span class="required">*</span>
                         </label>
                         <input type="text" 
-                               id="dropoff_date" 
+                               id="dropoff_date-<?php echo esc_attr($unique_id); ?>" 
                                name="dropoff_date" 
-                               class="rv-input rv-date-input" 
+                               class="rv-input rv-date-input rv-dropoff-date" 
                                placeholder="<?php echo esc_attr__('Select return date', 'mhm-rentiva'); ?>"
                                value="<?php echo esc_attr($atts['end_date'] ?? ''); ?>"
                                readonly
@@ -264,10 +267,10 @@ $terms_text = $customer_settings['terms_text'] ?? __('I accept the terms of use 
 
                 <div class="rv-field-group rv-field-times">
                     <div class="rv-field">
-                        <label for="pickup_time" class="rv-label">
+                        <label for="pickup_time-<?php echo esc_attr($unique_id); ?>" class="rv-label">
                             <?php echo esc_html__('Pickup Time', 'mhm-rentiva'); ?> <span class="required">*</span>
                         </label>
-                        <select id="pickup_time" name="pickup_time" class="rv-select" required>
+                        <select id="pickup_time-<?php echo esc_attr($unique_id); ?>" name="pickup_time" class="rv-select rv-pickup-time" required>
                             <option value=""><?php echo esc_html__('Select time', 'mhm-rentiva'); ?></option>
                             <?php foreach ($time_options as $option): ?>
                                 <option value="<?php echo esc_attr($option['value']); ?>">
@@ -278,10 +281,10 @@ $terms_text = $customer_settings['terms_text'] ?? __('I accept the terms of use 
                     </div>
                     
                     <div class="rv-field">
-                        <label for="dropoff_time" class="rv-label">
+                        <label for="dropoff_time-<?php echo esc_attr($unique_id); ?>" class="rv-label">
                             <?php echo esc_html__('Return Time', 'mhm-rentiva'); ?>
                         </label>
-                        <select id="dropoff_time" name="dropoff_time" class="rv-select rv-select-disabled" disabled readonly>
+                        <select id="dropoff_time-<?php echo esc_attr($unique_id); ?>" name="dropoff_time" class="rv-select rv-select-disabled rv-dropoff-time" disabled readonly>
                             <option value=""><?php echo esc_html__('Select pickup time first', 'mhm-rentiva'); ?></option>
                             <?php foreach ($time_options as $option): ?>
                                 <option value="<?php echo esc_attr($option['value']); ?>">
@@ -289,7 +292,7 @@ $terms_text = $customer_settings['terms_text'] ?? __('I accept the terms of use 
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <input type="hidden" id="dropoff_time_hidden" name="dropoff_time" value="">
+                        <input type="hidden" id="dropoff_time_hidden-<?php echo esc_attr($unique_id); ?>" name="dropoff_time" class="rv-dropoff-time-hidden" value="">
                         <small class="rv-description rv-description-hint">
                             <?php echo esc_html__('Return time is automatically set to match pickup time.', 'mhm-rentiva'); ?>
                         </small>
@@ -339,47 +342,47 @@ $terms_text = $customer_settings['terms_text'] ?? __('I accept the terms of use 
                 <div class="rv-price-breakdown">
                     <div class="rv-price-item">
                         <span class="rv-price-label"><?php echo esc_html__('Daily Price:', 'mhm-rentiva'); ?></span>
-                        <span class="rv-price-value" id="rv-daily-price">-</span>
+                        <span class="rv-price-value rv-daily-price" id="rv-daily-price-<?php echo esc_attr($unique_id); ?>">-</span>
                     </div>
                     <div class="rv-price-item">
                         <span class="rv-price-label"><?php echo esc_html__('Number of Days:', 'mhm-rentiva'); ?></span>
-                        <span class="rv-price-value" id="rv-days-count">-</span>
+                        <span class="rv-price-value rv-days-count" id="rv-days-count-<?php echo esc_attr($unique_id); ?>">-</span>
                     </div>
                     <div class="rv-price-item rv-tax-summary" style="display: none;">
-                        <span class="rv-price-label" id="rv-tax-label"><?php echo esc_html__('Tax:', 'mhm-rentiva'); ?></span>
-                        <span class="rv-price-value" id="rv-tax-amount">-</span>
+                        <span class="rv-price-label rv-tax-label" id="rv-tax-label-<?php echo esc_attr($unique_id); ?>"><?php echo esc_html__('Tax:', 'mhm-rentiva'); ?></span>
+                        <span class="rv-price-value rv-tax-amount" id="rv-tax-amount-<?php echo esc_attr($unique_id); ?>">-</span>
                     </div>
                     <div class="rv-price-item rv-vehicle-total-detailed" style="display: none;">
                         <span class="rv-price-label"><?php echo esc_html__('Vehicle Total:', 'mhm-rentiva'); ?></span>
-                        <span class="rv-price-value" id="rv-vehicle-total">-</span>
+                        <span class="rv-price-value rv-vehicle-total" id="rv-vehicle-total-<?php echo esc_attr($unique_id); ?>">-</span>
                     </div>
                     <div class="rv-price-item rv-addons-price rv-hidden">
                         <span class="rv-price-label"><?php echo esc_html__('Additional Services:', 'mhm-rentiva'); ?></span>
-                        <span class="rv-price-value" id="rv-addons-total">-</span>
+                        <span class="rv-price-value rv-addons-total" id="rv-addons-total-<?php echo esc_attr($unique_id); ?>">-</span>
                     </div>
                     <div class="rv-price-item rv-total-price">
                         <span class="rv-price-label"><?php echo esc_html__('Total Amount:', 'mhm-rentiva'); ?></span>
-                        <span class="rv-price-value" id="rv-total-amount">-</span>
+                        <span class="rv-price-value rv-total-amount" id="rv-total-amount-<?php echo esc_attr($unique_id); ?>">-</span>
                     </div>
                     
                     <?php if ($enable_deposit): ?>
                         <div class="rv-price-item rv-deposit-summary" style="display: none;">
                             <span class="rv-price-label"><?php echo esc_html__('Deposit to Pay:', 'mhm-rentiva'); ?></span>
-                            <span class="rv-price-value" id="rv-deposit-amount">-</span>
+                            <span class="rv-price-value rv-deposit-amount" id="rv-deposit-amount-<?php echo esc_attr($unique_id); ?>">-</span>
                         </div>
                         <div class="rv-price-item rv-remaining-summary" style="display: none;">
                             <span class="rv-price-label"><?php echo esc_html__('Remaining Amount:', 'mhm-rentiva'); ?></span>
-                            <span class="rv-price-value" id="rv-remaining-amount">-</span>
+                            <span class="rv-price-value rv-remaining-amount" id="rv-remaining-amount-<?php echo esc_attr($unique_id); ?>">-</span>
                         </div>
                     <?php endif; ?>
                 </div>
 
                 <!-- Hidden fields for logged-in users (Payment gateway will handle guest users) -->
                 <?php if ($is_logged_in): ?>
-                    <input type="hidden" id="customer_first_name" name="customer_first_name" value="<?php echo esc_attr($user_data['first_name'] ?: explode(' ', $user_name)[0]); ?>">
-                    <input type="hidden" id="customer_last_name" name="customer_last_name" value="<?php echo esc_attr($user_data['last_name'] ?: (count(explode(' ', $user_name)) > 1 ? implode(' ', array_slice(explode(' ', $user_name), 1)) : '')); ?>">
-                    <input type="hidden" id="customer_email" name="customer_email" value="<?php echo esc_attr($user_email); ?>">
-                    <input type="hidden" id="customer_phone" name="customer_phone" value="<?php echo esc_attr($user_phone); ?>">
+                    <input type="hidden" id="customer_first_name" name="customer_first_name" class="rv-customer-first-name" value="<?php echo esc_attr($user_data['first_name'] ?: explode(' ', $user_name)[0]); ?>">
+                    <input type="hidden" id="customer_last_name" name="customer_last_name" class="rv-customer-last-name" value="<?php echo esc_attr($user_data['last_name'] ?: (count(explode(' ', $user_name)) > 1 ? implode(' ', array_slice(explode(' ', $user_name), 1)) : '')); ?>">
+                    <input type="hidden" id="customer_email" name="customer_email" class="rv-customer-email" value="<?php echo esc_attr($user_email); ?>">
+                    <input type="hidden" id="customer_phone" name="customer_phone" class="rv-customer-phone" value="<?php echo esc_attr($user_phone); ?>">
                 <?php endif; ?>
 
                 <?php 
@@ -390,6 +393,7 @@ $terms_text = $customer_settings['terms_text'] ?? __('I accept the terms of use 
                 <input type="hidden" name="redirect_url" value="<?php echo esc_attr($redirect_url); ?>">
 
                 <!-- Form Buttons -->
+
                 <div class="rv-form-actions">
                     <button type="button" class="rv-submit-btn rv-btn rv-btn-primary">
                         <span class="rv-btn-text"><?php 

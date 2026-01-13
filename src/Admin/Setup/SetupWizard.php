@@ -840,7 +840,7 @@ final class SetupWizard
 
     private static function get_required_pages(): array
     {
-        return [
+        $pages = [
             [
                 'label' => __('Booking Form', 'mhm-rentiva'),
                 'shortcode' => 'rentiva_booking_form',
@@ -852,41 +852,43 @@ final class SetupWizard
                 'recommended_url' => '/rentiva/booking-confirmation/',
             ],
             [
-                'label' => __('My Account (Dashboard)', 'mhm-rentiva'),
-                'shortcode' => 'rentiva_my_account',
-                'recommended_url' => '/rentiva/account/dashboard/',
-            ],
-            [
-                'label' => __('My Bookings', 'mhm-rentiva'),
-                'shortcode' => 'rentiva_my_bookings',
-                'recommended_url' => '/rentiva/account/bookings/',
-            ],
-            [
-                'label' => __('Favorites', 'mhm-rentiva'),
-                'shortcode' => 'rentiva_my_favorites',
-                'recommended_url' => '/rentiva/account/favorites/',
-            ],
-            [
-                'label' => __('Payment History', 'mhm-rentiva'),
-                'shortcode' => 'rentiva_payment_history',
-                'recommended_url' => '/rentiva/account/payments/',
-            ],
-            [
-                'label' => __('Login Form', 'mhm-rentiva'),
-                'shortcode' => 'rentiva_login_form',
-                'recommended_url' => '/rentiva/account/login/',
-            ],
-            [
-                'label' => __('Registration Form', 'mhm-rentiva'),
-                'shortcode' => 'rentiva_register_form',
-                'recommended_url' => '/rentiva/account/register/',
-            ],
-            [
                 'label' => __('Contact Form', 'mhm-rentiva'),
                 'shortcode' => 'rentiva_contact',
                 'recommended_url' => '/rentiva/contact/',
             ],
         ];
+
+        // Only require separate account pages if WooCommerce is NOT active
+        // When WooCommerce is active, we integrate into its My Account page
+        if (!class_exists('WooCommerce')) {
+            $pages[] = [
+                'label' => __('My Bookings', 'mhm-rentiva'),
+                'shortcode' => 'rentiva_my_bookings',
+                'recommended_url' => '/rentiva/account/bookings/',
+            ];
+            $pages[] = [
+                'label' => __('Favorites', 'mhm-rentiva'),
+                'shortcode' => 'rentiva_my_favorites',
+                'recommended_url' => '/rentiva/account/favorites/',
+            ];
+            $pages[] = [
+                'label' => __('Payment History', 'mhm-rentiva'),
+                'shortcode' => 'rentiva_payment_history',
+                'recommended_url' => '/rentiva/account/payments/',
+            ];
+            $pages[] = [
+                'label' => __('Login Form', 'mhm-rentiva'),
+                'shortcode' => 'rentiva_login_form',
+                'recommended_url' => '/rentiva/account/login/',
+            ];
+            $pages[] = [
+                'label' => __('Registration Form', 'mhm-rentiva'),
+                'shortcode' => 'rentiva_register_form',
+                'recommended_url' => '/rentiva/account/register/',
+            ];
+        }
+
+        return $pages;
     }
 
     private static function locate_shortcode_page(string $shortcode)
@@ -1044,9 +1046,17 @@ final class SetupWizard
         $wp_version = get_bloginfo('version');
         $wp_ok = version_compare($wp_version, '6.0', '>=');
         $db_version = $wpdb instanceof \wpdb ? $wpdb->db_version() : __('Unknown', 'mhm-rentiva');
+        $db_version = $wpdb instanceof \wpdb ? $wpdb->db_version() : __('Unknown', 'mhm-rentiva');
         $memory_mb = self::memory_limit_mb();
 
         $checks = [
+            [
+                'label' => __('WooCommerce', 'mhm-rentiva'),
+                'current' => class_exists('WooCommerce') ? __('Installed', 'mhm-rentiva') : __('Missing', 'mhm-rentiva'),
+                'expected' => __('Active', 'mhm-rentiva'),
+                'status' => class_exists('WooCommerce') ? 'ok' : 'fail',
+                'message' => class_exists('WooCommerce') ? '' : __('WooCommerce is required for payments and account management.', 'mhm-rentiva'),
+            ],
             [
                 'label' => __('PHP Version', 'mhm-rentiva'),
                 'current' => PHP_VERSION,

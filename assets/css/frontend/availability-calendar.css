@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Availability Calendar Styles
  * 
  * @package MHMRentiva
@@ -94,9 +94,9 @@
     font-size: 28px;
 }
 
-/* ===== ARAÇ KARTI LAYOUT ===== */
+/* ===== ARAÃ‡ KARTI LAYOUT ===== */
 
-/* ===== ARAÇ KARTI ===== */
+/* ===== ARAÃ‡ KARTI ===== */
 .rv-vehicle-card {
     background: #fff;
     border: 1px solid #e1e5e9;
@@ -213,7 +213,7 @@
 .rv-vehicle-price {
     font-size: 18px;
     font-weight: 600;
-    color: #28a745;
+    color: #3b82f6;
     margin-top: auto;
 }
 
@@ -260,7 +260,7 @@
     text-align: center;
 }
 
-/* ===== ARAÇ BİLGİLERİ ===== */
+/* ===== ARAÃ‡ BÄ°LGÄ°LERÄ° ===== */
 .rv-vehicle-info {
     background: #f8f9fa;
     padding: 15px;
@@ -282,7 +282,7 @@
     line-height: 1.5;
 }
 
-/* ===== TAKVİM KONTROLLERİ ===== */
+/* ===== TAKVÄ°M KONTROLLERÄ° ===== */
 .rv-calendar-controls {
     display: flex;
     justify-content: center;
@@ -330,7 +330,7 @@
     color: #1a1a1a;
 }
 
-/* ===== DURUM AÇIKLAMASI ===== */
+/* ===== DURUM AÃ‡IKLAMASI ===== */
 .rv-availability-legend {
     display: flex;
     justify-content: center;
@@ -380,7 +380,7 @@
     background: #17a2b8;
 }
 
-/* ===== TAKVİM GRID ===== */
+/* ===== TAKVÄ°M GRID ===== */
 .rv-month-container {
     background: #fff;
     border: 1px solid #e1e5e9;
@@ -395,7 +395,7 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
-    /* ===== AY BAŞLIĞI ===== */
+    /* ===== AY BAÅLIÄI ===== */
     .rv-month-header {
         display: flex;
         justify-content: space-between;
@@ -434,7 +434,7 @@
         color: #721c24;
     }
 
-    /* ===== HAFTA GÜNLERİ ===== */
+    /* ===== HAFTA GÃœNLERÄ° ===== */
     .rv-calendar-weekdays {
         display: grid !important;
         grid-template-columns: repeat(7, 1fr) !important;
@@ -453,7 +453,7 @@
         display: block !important;
     }
 
-    /* İstatistik güncellemeleri için */
+    /* Ä°statistik gÃ¼ncellemeleri iÃ§in */
     .rv-total-available {
         display: block !important;
     }
@@ -531,7 +531,7 @@
         padding: 20px;
     }
 
-    /* Modal içindeki booking form stilleri */
+    /* Modal iÃ§indeki booking form stilleri */
     .rv-modal-body .rv-booking-form {
         max-width: none;
         margin: 0;
@@ -540,7 +540,7 @@
         border-radius: 0;
     }
 
-    /* Araç resmi boyutunu düzelt */
+    /* AraÃ§ resmi boyutunu dÃ¼zelt */
     .rv-modal-body .rv-vehicle-image {
         max-width: 200px;
         max-height: 150px;
@@ -551,7 +551,7 @@
         margin-bottom: 1rem;
     }
 
-    /* Form elemanlarını düzenle */
+    /* Form elemanlarÄ±nÄ± dÃ¼zenle */
     .rv-modal-body .rv-form-group {
         margin-bottom: 1rem;
     }
@@ -580,7 +580,7 @@
         font-size: 0.85rem;
     }
 
-    /* Butonları düzenle */
+    /* ButonlarÄ± dÃ¼zenle */
     .rv-modal-body .rv-btn {
         padding: 0.75rem 1.5rem;
         border: none;
@@ -621,7 +621,7 @@
     }
 
 
-    /* ===== TAKVİM GÜNLERİ ===== */
+    /* ===== TAKVÄ°M GÃœNLERÄ° ===== */
     .rv-calendar-days {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
@@ -661,7 +661,7 @@
         box-shadow: none;
     }
 
-    /* ===== GÜN DURUM RENKLERİ ===== */
+    /* ===== GÃœN DURUM RENKLERÄ° ===== */
     .rv-calendar-day.rv-day-available {
         background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
         border-left: 4px solid #28a745;
@@ -747,7 +747,7 @@
         z-index: 10;
     }
 
-    /* ===== ETKİLEŞİMLİ ÖĞELER ===== */
+    /* ===== ETKÄ°LEÅÄ°MLÄ° Ã–ÄELER ===== */
     .rv-calendar-day:active {
         transform: translateY(-1px);
         transition: transform 0.1s ease;
@@ -794,7 +794,7 @@
         }
     }
 
-    /* ===== ANİMASYONLAR ===== */
+    /* ===== ANÄ°MASYONLAR ===== */
     @keyframes fadeInUp {
         from {
             opacity: 0;
@@ -865,7 +865,7 @@
         animation: bounce 0.5s ease-in-out;
     }
 
-    /* Gün numarası */
+    /* GÃ¼n numarasÄ± */
     .rv-day-number {
         font-size: 16px;
         font-weight: 700;
@@ -907,7 +907,7 @@
         margin-top: 2px;
     }
 
-    /* Rezervasyon göstergeleri */
+    /* Rezervasyon gÃ¶stergeleri */
     .rv-day-indicators {
         position: absolute;
         top: 4px;
@@ -988,7 +988,7 @@
         box-shadow: none;
     }
 
-    /* ===== SEÇİLEN TARİHLER ===== */
+    /* ===== SEÃ‡Ä°LEN TARÄ°HLER ===== */
     .rv-selected-dates {
         background: #e3f2fd;
         border: 2px solid #2196f3;
@@ -1079,7 +1079,7 @@
         box-shadow: none;
     }
 
-    /* ===== YÜKLEME VE HATA ===== */
+    /* ===== YÃœKLEME VE HATA ===== */
     .rv-availability-loading,
     .rv-availability-error,
     .rv-no-data-message {
@@ -1155,7 +1155,7 @@
         font-weight: 500;
     }
 
-    /* ===== İSTATİSTİKLER ===== */
+    /* ===== Ä°STATÄ°STÄ°KLER ===== */
     .rv-availability-stats {
         margin-top: 30px;
     }
@@ -1407,167 +1407,476 @@
         flex-direction: column;
         text-align: center;
     }
+}
 
-    @media (max-width: 480px) {
-        .rv-availability-calendar {
-            padding: 10px;
-        }
+/* Closing dangling block if any */
 
-        .rv-availability-title {
-            font-size: 18px;
-        }
-
-
-        .rv-vehicle-card {
-            padding: 10px;
-            margin-bottom: 15px;
-        }
-
-        .rv-vehicle-card-content {
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .rv-vehicle-image {
-            width: 100%;
-            height: 150px;
-        }
-
-        .rv-vehicle-title {
-            font-size: 16px;
-        }
-
-        .rv-vehicle-specs {
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .rv-spec-badge {
-            font-size: 11px;
-            padding: 3px 6px;
-        }
-
-        .rv-vehicle-price {
-            font-size: 16px;
-            text-align: center;
-        }
-
-        .rv-calendar-day {
-            min-height: 50px;
-            padding: 4px;
-        }
-
-        .rv-day-number {
-            font-size: 11px;
-        }
-
-        .rv-price-amount {
-            font-size: 9px;
-        }
-
-        .rv-weekday {
-            padding: 8px 4px;
-            font-size: 10px;
-        }
-
-        .rv-availability-legend {
-            gap: 10px;
-        }
-
-        .rv-legend-item {
-            gap: 4px;
-        }
-
-        .rv-legend-color {
-            width: 12px;
-            height: 12px;
-        }
-
-        .rv-legend-text {
-            font-size: 12px;
-        }
+@media (max-width: 768px) {
+    .rv-availability-calendar {
+        padding: 10px;
     }
 
-    /* ===== TOOLTIP ===== */
-    .rv-calendar-day[data-tooltip] {
-        position: relative;
+    .rv-availability-title {
+        font-size: 18px;
     }
 
-    .rv-calendar-day[data-tooltip]:hover::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #1a1a1a;
-        color: #fff;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 12px;
-        white-space: nowrap;
-        z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    /* FORCE MOBILE LAYOUT */
+    .rv-vehicle-card-content {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        align-items: center !important;
     }
 
-    .rv-calendar-day[data-tooltip]:hover::before {
-        content: '';
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%) translateY(100%);
-        border: 5px solid transparent;
-        border-top-color: #1a1a1a;
-        z-index: 1000;
+    /* CALENDAR CONTROLS & GRID RESPONSIVENESS */
+    .rv-calendar-controls {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        gap: 5px !important;
+        width: 100% !important;
+        padding: 0 5px !important;
+        flex-wrap: nowrap !important;
     }
 
-    /* ===== ANIMASYONLAR ===== */
-    .rv-availability-calendar * {
-        transition: all 0.3s ease;
+    .rv-control-btn {
+        width: auto !important;
+        flex: 0 0 auto !important;
+        font-size: 11px !important;
+        padding: 5px 8px !important;
+        white-space: nowrap !important;
+    }
+
+    .rv-month-display {
+        font-size: 14px !important;
+        flex: 1 1 auto !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .rv-availability-grid {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 5px !important;
+    }
+
+    .rv-calendar-days {
+        gap: 2px !important;
     }
 
     .rv-calendar-day {
-        transition: all 0.2s ease;
+        min-height: 40px !important;
+        padding: 2px !important;
     }
 
-    .rv-calendar-day:active {
-        transform: scale(0.98);
+    .rv-day-number {
+        font-size: 10px !important;
     }
 
-    /* ===== ACCESSIBILITY ===== */
-    .rv-calendar-day:focus {
-        outline: 2px solid #0073aa;
-        outline-offset: 2px;
+    .rv-price-amount {
+        font-size: 8px !important;
+        display: block !important;
     }
 
-    .rv-control-btn:focus,
-    .rv-vehicle-dropdown:focus,
-    .rv-book-now-btn:focus {
-        outline: 2px solid #0073aa;
-        outline-offset: 2px;
+    .rv-vehicle-image {
+        width: 100% !important;
+        height: auto !important;
+        max-width: 100% !important;
     }
 
-    /* ===== PRINT STYLES ===== */
-    @media print {
-        .rv-availability-calendar {
-            box-shadow: none;
-            border: 1px solid #ccc;
-        }
+    .rv-vehicle-specs {
+        justify-content: center !important;
+        width: 100% !important;
+    }
 
-        .rv-calendar-controls,
-        .rv-booking-actions,
-        .rv-availability-loading,
-        .rv-availability-error {
-            display: none;
-        }
+    .rv-vehicle-details {
+        width: 100% !important;
+        text-align: center !important;
+    }
 
-        .rv-calendar-day {
-            min-height: 40px;
-            border: 1px solid #ccc;
-        }
+    .rv-vehicle-image {
+        width: 100%;
+        height: 150px;
+    }
 
-        .rv-calendar-day:hover {
-            transform: none;
-            box-shadow: none;
-        }
+    .rv-vehicle-title {
+        font-size: 16px;
+    }
+
+    .rv-vehicle-specs {
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .rv-spec-badge {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+
+    .rv-vehicle-price {
+        font-size: 16px;
+        text-align: center;
+    }
+
+    .rv-calendar-day {
+        min-height: 50px;
+        padding: 4px;
+    }
+
+    .rv-day-number {
+        font-size: 11px;
+    }
+
+    .rv-price-amount {
+        font-size: 9px;
+    }
+
+    .rv-weekday {
+        padding: 8px 4px;
+        font-size: 10px;
+    }
+
+    .rv-availability-legend {
+        gap: 10px;
+    }
+
+    .rv-legend-item {
+        gap: 4px;
+    }
+
+    .rv-legend-color {
+        width: 12px;
+        height: 12px;
+    }
+
+    .rv-legend-text {
+        font-size: 12px;
+    }
+}
+
+/* ===== TOOLTIP ===== */
+.rv-calendar-day[data-tooltip] {
+    position: relative;
+}
+
+.rv-calendar-day[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a1a;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.rv-calendar-day[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    border: 5px solid transparent;
+    border-top-color: #1a1a1a;
+    z-index: 1000;
+}
+
+
+/* ===== NOTIFICATION TOASTS ===== */
+.rv-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10001;
+    /* Above modal */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 300px;
+    max-width: 400px;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    border-left: 4px solid #ddd;
+}
+
+.rv-notification.show {
+    transform: translateX(0);
+}
+
+.rv-notification.success {
+    border-left-color: #28a745;
+}
+
+.rv-notification.success .dashicons {
+    color: #28a745;
+}
+
+.rv-notification.error {
+    border-left-color: #dc3545;
+}
+
+.rv-notification.error .dashicons {
+    color: #dc3545;
+}
+
+.rv-notification.warning {
+    border-left-color: #ffc107;
+}
+
+.rv-notification.warning .dashicons {
+    color: #ffc107;
+}
+
+.rv-notification-message {
+    flex: 1;
+    font-size: 14px;
+    color: #333;
+}
+
+.rv-notification-close {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    color: #999;
+}
+
+.rv-notification-close:hover {
+    color: #666;
+}
+
+/* Booking Modal Styles */
+#rv-booking-modal.rv-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    display: none;
+    /* Changed to none for initial state, JS sets flex */
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    /* Prevent body scroll interaction */
+}
+
+/* JS toggles this class or sets style directly */
+#rv-booking-modal.rv-modal-overlay[style*="display: block"],
+#rv-booking-modal.rv-modal-overlay[style*="display: flex"] {
+    display: flex !important;
+}
+
+
+#rv-booking-modal .rv-modal-content {
+    background: #fff;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    position: relative;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#rv-booking-modal .rv-modal-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+#rv-booking-modal .rv-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+#rv-booking-modal .rv-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+}
+
+#rv-booking-modal .rv-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    width: 100%;
+    flex: 1;
+}
+
+#rv-booking-modal .rv-booking-form-loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+/* =========================================
+   Fix for Booking Form inside Modal 
+   ========================================= */
+
+/* Reset Booking Form Container */
+#rv-booking-modal .rv-booking-form {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+/* Force Vehicle Card to Vertical Layout (Image Top, Details Bottom) */
+#rv-booking-modal .rv-selected-vehicle {
+    display: flex !important;
+    flex-direction: column !important;
+    /* Forces stacking */
+    height: auto !important;
+    min-height: auto !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    align-items: flex-start !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Image Wrapper Full Width */
+#rv-booking-modal .rv-selected-vehicle .rv-vehicle-image-wrapper {
+    width: 100% !important;
+    height: 200px !important;
+    /* Fixed height for consistency */
+    margin: 0 0 15px 0 !important;
+    flex: none !important;
+}
+
+#rv-booking-modal .rv-selected-vehicle .rv-vehicle-image {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 8px !important;
+}
+
+/* Details Wrapper Full Width */
+#rv-booking-modal .rv-selected-vehicle .rv-vehicle-details {
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    gap: 15px !important;
+    width: 100% !important;
+    flex: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Features List - Row Layout with Wrap */
+#rv-booking-modal .rv-vehicle-features {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+#rv-booking-modal .rv-feature-tag {
+    margin: 0 !important;
+    width: auto !important;
+    display: inline-flex !important;
+    font-size: 13px !important;
+    padding: 6px 10px !important;
+    background: #f3f4f6 !important;
+    border-radius: 4px !important;
+}
+
+/* Remove Favorite Button Absolute Positioning Conflict if any */
+#rv-booking-modal .rv-vehicle-card__favorite {
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 20 !important;
+}
+
+/* Fix Inputs Grid to Single Column */
+#rv-booking-modal .rv-field-group {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    gap: 15px !important;
+}
+
+#rv-booking-modal .rv-input,
+#rv-booking-modal .rv-select {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Price Display */
+#rv-booking-modal .rv-price-display {
+    margin-top: 15px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #10b981;
+    display: block !important;
+    width: 100% !important;
+    text-align: right !important;
+}
+
+/* HIDE GHOST CALENDAR */
+#ui-datepicker-div {
+    display: none;
+    z-index: 99999 !important;
+}
+
+/* User Interaction Hint */
+.rv-calendar-hint {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 4px solid #1976d2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.rv-calendar-hint .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #1976d2;
+}
+
+@media (max-width: 768px) {
+    .rv-calendar-hint {
+        font-size: 12px;
+        padding: 10px;
+        margin-bottom: 15px;
     }
 }

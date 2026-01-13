@@ -161,7 +161,8 @@
 .rv-rating-label {
     font-size: 14px;
     color: #646970;
-    margin-left: 10px;
+    margin-inline-start: 10px;
+    /* Logical property */
 }
 
 /* ===== FILE UPLOAD ===== */
@@ -428,7 +429,8 @@
 
 .rv-error-list {
     margin: 0;
-    padding-left: 20px;
+    padding-inline-start: 20px;
+    /* Logical property */
     color: #d63638;
 }
 

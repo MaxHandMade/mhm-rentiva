@@ -39,7 +39,7 @@ $booking_url = $booking_url ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_p
     <?php if ($has_vehicles): ?>
         
         <!-- Vehicles List - ONLY LIST LAYOUT -->
-        <div id="rv-vehicles-list" class="rv-vehicles-list__wrapper <?php echo esc_attr($layout_class . ' ' . $columns_class); ?>" data-columns="<?php echo esc_attr($atts['columns']); ?>">
+        <div class="rv-vehicles-list__wrapper <?php echo esc_attr($layout_class . ' ' . $columns_class); ?>" data-columns="<?php echo esc_attr($atts['columns']); ?>">
             
             <?php foreach ($vehicles as $vehicle): ?>
                 <div class="rv-vehicle-card rv-vehicle-card--list" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
@@ -85,7 +85,44 @@ $booking_url = $booking_url ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_p
                                 <?php endif; ?>
                             </div>
                             
-                            <?php if (($atts['show_favorite_btn'] ?? '1') === '1'): ?>
+                            <div class="rv-vehicle-card__header-actions">
+                                <?php 
+                                // Availability Badge Logic
+                                $show_availability_global = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_show_availability', '1') === '1';
+                                $show_availability_shortcode = ($atts['show_availability'] ?? null);
+                                $show_availability_final = $show_availability_shortcode !== null ? ($show_availability_shortcode === '1') : $show_availability_global;
+
+                                // Check availability
+                                if (is_array($vehicle['availability'])) {
+                                    $is_available = $vehicle['availability']['is_available'] ?? true;
+                                    $status_text_from_data = $vehicle['availability']['text'] ?? null;
+                                } else {
+                                    $is_available = (bool) $vehicle['availability'];
+                                    $status_text_from_data = null;
+                                }
+                                
+                                // Always show if unavailable, otherwise respect setting
+                                if (!$is_available || $show_availability_final): 
+                                    $status_class = $is_available ? 'available' : 'unavailable';
+                                    if ($status_text_from_data) {
+                                        $status_text = $status_text_from_data;
+                                    } else {
+                                        $status_text = $is_available ? __('Available', 'mhm-rentiva') : __('Unavailable', 'mhm-rentiva');
+                                    }
+                                    
+                                    // Only show 'Available' text if strictly requested by setting. 
+                                    // Always show 'Unavailable' badge.
+                                    if (!$is_available || $show_availability_final):
+                                ?>
+                                    <span class="rv-badge rv-badge--<?php echo esc_attr($status_class); ?> rv-badge--list-view" style="margin-right: 10px;">
+                                        <?php echo esc_html($status_text); ?>
+                                    </span>
+                                <?php 
+                                    endif;
+                                endif; 
+                                ?>
+
+                                <?php if (($atts['show_favorite_btn'] ?? '1') === '1'): ?>
                                 <?php 
                                 $is_favorite = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::is_favorite($vehicle['id']);
                                 $favorite_class = $is_favorite ? 'is-favorited' : '';
@@ -96,6 +133,7 @@ $booking_url = $booking_url ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_p
                                     </svg>
                                 </button>
                             <?php endif; ?>
+                            </div>
                         </div>
                         
                         <!-- Middle Section: Features -->
@@ -150,25 +188,13 @@ $booking_url = $booking_url ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_p
                             </div>
                         <?php endif; ?>
                         
-                        <!-- Availability Status -->
+                        <!-- Availability Status (Previously at bottom, now moved to header) -->
                         <?php 
-                        $show_availability_global = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_show_availability', '1') === '1';
-                        $show_availability_shortcode = ($atts['show_availability'] ?? null);
-                        // Global setting takes priority, shortcode can override only if explicitly set
-                        $show_availability_final = $show_availability_shortcode !== null ? ($show_availability_shortcode === '1') : $show_availability_global;
+                        /* 
+                           Availability badge moved to header section (see lines 87-98) as per user request. 
+                           The code block here is removed to avoid duplication.
+                        */
                         ?>
-                        <?php if ($show_availability_final): ?>
-                            <div class="rv-vehicle-card__availability">
-                                <?php 
-                                $is_available = $vehicle['availability']['is_available'] ?? true;
-                                $status_class = $is_available ? 'available' : 'unavailable';
-                                $status_text = $is_available ? __('Available', 'mhm-rentiva') : __('Unavailable', 'mhm-rentiva');
-                                ?>
-                                <span class="rv-availability-status rv-availability-status--<?php echo esc_attr($status_class); ?>">
-                                    <?php echo esc_html($status_text); ?>
-                                </span>
-                            </div>
-                        <?php endif; ?>
                         
                         <!-- Bottom Section: Price and Button -->
                         <?php if (($atts['show_price'] ?? '1') === '1' || ($atts['show_booking_btn'] ?? '1') === '1'): ?>
@@ -182,7 +208,18 @@ $booking_url = $booking_url ?? \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_p
                                 
                                 <?php if (($atts['show_booking_btn'] ?? '1') === '1'): ?>
                                     <div class="rv-vehicle-card__actions">
-                                        <a href="<?php echo esc_url(add_query_arg('vehicle_id', $vehicle['id'], $booking_url)); ?>" class="rv-btn rv-btn-primary rv-btn-booking" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
+                                        <?php 
+                                        $btn_class = 'rv-btn rv-btn-primary rv-btn-booking';
+                                        $btn_href = esc_url(add_query_arg('vehicle_id', $vehicle['id'], $booking_url));
+                                        $btn_attrs = '';
+                                        
+                                        if (!$is_available) {
+                                            $btn_class .= ' rv-btn-disabled';
+                                            $btn_href = 'javascript:void(0);';
+                                            $btn_attrs = 'aria-disabled="true" tabindex="-1" style="opacity: 0.6; pointer-events: none; cursor: not-allowed;"';
+                                        }
+                                        ?>
+                                        <a href="<?php echo $btn_href; ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo $btn_attrs; ?> data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
                                             <?php echo esc_html($atts['booking_btn_text'] ?? esc_html__('Book Now', 'mhm-rentiva')); ?>
                                         </a>
                                     </div>

@@ -727,3 +727,59 @@
         text-align: center;
     }
 }
+
+.rv-heart-icon.favorited {
+    fill: #ef4444;
+    color: #ef4444;
+}
+
+/* Animation overrides */
+.rv-vehicle-card {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+}
+
+.rv-vehicle-card__img {
+    opacity: 1 !important;
+    transition: none !important;
+}
+
+/* Disabled Button Style */
+.rv-btn-disabled {
+    opacity: 0.6 !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+    background: #9ca3af !important;
+    border-color: #9ca3af !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+/* Header Actions (Badge + Favorite) */
+.rv-vehicle-card__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    /* Push to right */
+}
+
+.rv-badge--list-view {
+    font-size: 0.75rem !important;
+    padding: 2px 8px !important;
+    border-radius: 4px !important;
+    white-space: nowrap;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.rv-badge--unavailable {
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
+}
+
+.rv-badge--featured {
+    background-color: #f59e0b !important;
+    color: #ffffff !important;
+}

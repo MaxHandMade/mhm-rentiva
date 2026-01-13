@@ -77,7 +77,7 @@
             var $icon = $button.find('.rv-heart-icon');
 
             if (!vehicleId) {
-                this.showNotification(mhmRentivaVehiclesList.strings?.invalid_vehicle_id || mhmRentivaVehiclesList.i18n?.invalid_vehicle_id || 'Invalid vehicle ID', 'error');
+                this.showNotification(mhmRentivaVehiclesList.strings?.invalid_vehicle_id || mhmRentivaVehiclesList.i18n?.invalid_vehicle_id, 'error');
                 return;
             }
 
@@ -119,11 +119,11 @@
                         $(document).trigger('mhm_rentiva_favorite_toggled', [vehicleId, action]);
 
                     } else {
-                        MHMRentivaVehiclesList.showNotification(response.data.message || (mhmRentivaVehiclesList.strings?.error_occurred || mhmRentivaVehiclesList.i18n?.error_occurred || 'An error occurred'), 'error');
+                        MHMRentivaVehiclesList.showNotification(response.data.message || (mhmRentivaVehiclesList.strings?.error_occurred || mhmRentivaVehiclesList.i18n?.error_occurred), 'error');
                     }
                 },
                 error: function () {
-                    MHMRentivaVehiclesList.showNotification(mhmRentivaVehiclesList.strings?.connection_error || mhmRentivaVehiclesList.i18n?.connection_error || 'Connection error', 'error');
+                    MHMRentivaVehiclesList.showNotification(mhmRentivaVehiclesList.strings?.connection_error || mhmRentivaVehiclesList.i18n?.connection_error, 'error');
                 },
                 complete: function () {
                     $button.prop('disabled', false);
@@ -137,7 +137,7 @@
             var bookingUrl = $button.attr('href') || mhmRentivaVehiclesList.bookingUrl;
 
             if (!bookingUrl || bookingUrl === '#') {
-                this.showNotification(mhmRentivaVehiclesList.strings?.booking_url_not_configured || mhmRentivaVehiclesList.i18n?.booking_url_not_configured || 'Booking URL is not configured', 'error');
+                this.showNotification(mhmRentivaVehiclesList.strings?.booking_url_not_configured || mhmRentivaVehiclesList.i18n?.booking_url_not_configured, 'error');
                 return;
             }
 
@@ -344,81 +344,3 @@
     });
 
 })(jQuery);
-
-// CSS for notifications (injected dynamically) - ANİMASYONSUZ
-var notificationCSS = `
-    .rv-notification {
-        position: fixed;
-        top: 1.5rem;
-        right: 1.5rem;
-        z-index: 9999;
-        min-width: 220px;
-        padding: 0.875rem 1.25rem;
-        border-radius: 10px;
-        background-color: rgba(31, 41, 55, 0.92);
-        color: #ffffff;
-        font-size: 0.95rem;
-        font-weight: 500;
-        box-shadow: 0 18px 30px rgba(15, 23, 42, 0.18);
-        opacity: 0;
-        transform: translateY(-10px);
-        transition: opacity 0.25s ease, transform 0.25s ease;
-    }
-    
-    .rv-notification--show {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    
-    .rv-notification--success {
-        background-color: rgba(16, 185, 129, 0.95);
-        color: #0b1f17;
-    }
-    
-    .rv-notification--error {
-        background-color: rgba(248, 113, 113, 0.95);
-        color: #2f0c0c;
-    }
-    
-    .rv-notification--warning {
-        background-color: rgba(251, 191, 36, 0.95);
-        color: #2b1b02;
-    }
-    
-    .rv-notification--info {
-        background-color: rgba(96, 165, 250, 0.95);
-        color: #0b1a2b;
-    }
-    
-    @media (max-width: 600px) {
-        .rv-notification {
-            left: 1rem;
-            right: 1rem;
-            top: auto;
-            bottom: 1.5rem;
-            text-align: center;
-        }
-    }
-    
-    .rv-heart-icon.favorited {
-        fill: #ef4444;
-        color: #ef4444;
-    }
-    
-    /* TÜM ANİMASYONLAR KALDIRILDI */
-    .rv-vehicle-card {
-        opacity: 1 !important;
-        transform: none !important;
-        animation: none !important;
-    }
-    
-    .rv-vehicle-card__img {
-        opacity: 1 !important;
-        transition: none !important;
-    }
-`;
-
-// Inject CSS
-var style = document.createElement('style');
-style.textContent = notificationCSS;
-document.head.appendChild(style);

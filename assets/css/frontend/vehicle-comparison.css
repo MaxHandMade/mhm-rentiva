@@ -325,9 +325,9 @@
 /* ===== ÖZELLİK DEĞERLERİ ===== */
 .rv-price {
     font-weight: 700;
-    color: #27ae60;
+    color: #3b82f6;
     font-size: 18px;
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
     padding: 8px 12px;
     border-radius: 8px;
     display: inline-block;
@@ -585,23 +585,59 @@
     }
 
     .rv-comparison-table {
-        font-size: 14px;
-        min-width: 600px;
+        font-size: 13px;
+        /* Slightly smaller text */
+        min-width: auto;
+        /* Allow flexible width */
+    }
+
+    .rv-comparison-table-wrapper {
+        -webkit-overflow-scrolling: touch;
+        /* Smooth scroll on iOS */
     }
 
     .rv-comparison-table th,
     .rv-comparison-table td {
-        padding: 10px 8px;
+        padding: 8px 4px;
+        /* Reduced padding */
     }
 
     .rv-feature-column {
-        width: 150px;
-        min-width: 150px;
+        width: 110px;
+        /* Reduced from 150px */
+        min-width: 110px;
+        position: sticky;
+        /* Keep first column visible */
+        left: 0;
+        z-index: 10;
+        background-color: #f8f9fa;
+        /* Ensure opacity */
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+        /* Subtle shadow separator */
+    }
+
+    /* Mobile Badge Adjustments */
+    .rv-vehicle-header .rv-badge {
+        display: inline-block;
+        margin: 4px auto;
+        font-size: 0.65rem;
+        padding: 2px 4px;
+        width: auto;
+        max-width: 100%;
+        white-space: normal;
+        line-height: 1.1;
+    }
+
+    .rv-vehicle-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .rv-vehicle-column {
-        width: 200px;
-        min-width: 200px;
+        width: 160px;
+        /* Reduced from 200px */
+        min-width: 160px;
     }
 
     .rv-vehicle-image img {
@@ -820,4 +856,197 @@
     .rv-comparison-table td {
         padding: 8px;
     }
+}
+
+/* Disabled Button Style */
+.rv-btn-disabled {
+    opacity: 0.6 !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+    background: #9ca3af !important;
+    border-color: #9ca3af !important;
+    border-color: #9ca3af !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+/* Badge Styles */
+.rv-badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.rv-badge--unavailable {
+    background-color: #ef4444;
+    color: #ffffff;
+}
+
+/* ===== MOBILE LIST VIEW (ACCORDION) ===== */
+
+/* Show/Hide Logic */
+.rv-comparison-mobile-list {
+    display: none;
+}
+
+@media (max-width: 768px) {
+
+    /* Hide Table on Mobile */
+    .rv-comparison-table-wrapper {
+        display: none !important;
+    }
+
+    /* Show Mobile list */
+    .rv-comparison-mobile-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 0;
+    }
+
+    .rv-comparison-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+}
+
+/* Base Mobile Card Styles (can be global or scoped) */
+.rv-mobile-card-item {
+    background: #fff;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.rv-mobile-card-header-wrapper {
+    display: flex;
+    padding: 15px;
+    gap: 15px;
+    position: relative;
+    align-items: center;
+}
+
+.rv-mobile-card-image {
+    width: 80px;
+    height: 60px;
+    flex-shrink: 0;
+}
+
+.rv-mobile-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.rv-mobile-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.rv-mobile-title {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.rv-mobile-price {
+    font-size: 15px;
+    font-weight: 700;
+    color: #27ae60;
+}
+
+.rv-mobile-price .rv-period {
+    font-size: 12px;
+    color: #95a5a6;
+    font-weight: normal;
+}
+
+.rv-mobile-accordion-toggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border: none;
+    border-top: 1px solid #e1e5e9;
+    color: #3498db;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.rv-mobile-accordion-toggle:hover {
+    background: #e9ecef;
+}
+
+.rv-mobile-accordion-content {
+    display: none;
+    padding: 0;
+    border-top: 1px solid #e1e5e9;
+    background: #fff;
+}
+
+.rv-mobile-card-item.active .rv-mobile-accordion-content {
+    display: block;
+    animation: rvSlideDown 0.3s ease;
+}
+
+@keyframes rvSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rv-mobile-feature-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border-bottom: 1px solid #f1f3f4;
+    font-size: 14px;
+}
+
+.rv-mobile-feature-row:last-child {
+    border-bottom: none;
+}
+
+.rv-mobile-label {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+.rv-mobile-value {
+    font-weight: 600;
+    color: #2c3e50;
+    text-align: right;
+}
+
+.rv-mobile-actions {
+    padding: 15px;
+    background: #f8f9fa;
+    text-align: center;
+    border-top: 1px solid #e1e5e9;
+}
+
+.rv-mobile-btn {
+    width: 100%;
+    display: block;
+    text-align: center;
+    padding: 10px;
 }

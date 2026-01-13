@@ -1121,6 +1121,33 @@ final class SettingsSanitizer
             $out['mhm_rentiva_timezone'] = $defaults['mhm_rentiva_timezone'] ?? wp_timezone_string();
         }
 
+        // ⭐ Company & Support Info
+        if (isset($input['mhm_rentiva_support_email'])) {
+            $out['mhm_rentiva_support_email'] = sanitize_email($input['mhm_rentiva_support_email']);
+        } else {
+            $out['mhm_rentiva_support_email'] = $defaults['mhm_rentiva_support_email'] ?? '';
+        }
+
+        if (isset($input['mhm_rentiva_contact_phone'])) {
+            $out['mhm_rentiva_contact_phone'] = self::sanitize_text_field_safe($input['mhm_rentiva_contact_phone']);
+        } else {
+            $out['mhm_rentiva_contact_phone'] = $defaults['mhm_rentiva_contact_phone'] ?? '';
+        }
+
+        if (isset($input['mhm_rentiva_contact_hours'])) {
+            $out['mhm_rentiva_contact_hours'] = self::sanitize_text_field_safe($input['mhm_rentiva_contact_hours']);
+        } else {
+            $out['mhm_rentiva_contact_hours'] = $defaults['mhm_rentiva_contact_hours'] ?? '';
+        }
+
+        // Brand Name
+        if (isset($input['mhm_rentiva_brand_name'])) {
+            $brand = self::sanitize_text_field_safe($input['mhm_rentiva_brand_name']);
+            $out['mhm_rentiva_brand_name'] = $brand !== '' ? $brand : ($defaults['mhm_rentiva_brand_name'] ?? get_bloginfo('name'));
+        } else {
+            $out['mhm_rentiva_brand_name'] = $defaults['mhm_rentiva_brand_name'] ?? get_bloginfo('name');
+        }
+
         return $out;
     }
 

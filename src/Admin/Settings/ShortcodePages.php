@@ -273,11 +273,6 @@ final class ShortcodePages
     private static function get_shortcode_info(string $shortcode): ?array
     {
         $shortcodes = [
-            'rentiva_my_account' => [
-                'title' => __('Rentiva Panel', 'mhm-rentiva'),
-                'slug' => 'rentiva-panel',
-                'description' => __('Vehicle rental management panel (redirects to WooCommerce Account if installed)', 'mhm-rentiva')
-            ],
             'rentiva_my_bookings' => [
                 'title' => 'My Bookings',
                 'slug' => 'my-bookings',
@@ -494,7 +489,6 @@ final class ShortcodePages
                         <?php
                         $all_shortcodes = [
                             // Account Management Shortcodes
-                            'rentiva_my_account' => __('My Account', 'mhm-rentiva'),
                             'rentiva_my_bookings' => __('My Bookings', 'mhm-rentiva'),
                             'rentiva_my_favorites' => __('My Favorites', 'mhm-rentiva'),
                             'rentiva_payment_history' => __('Payment History', 'mhm-rentiva'),

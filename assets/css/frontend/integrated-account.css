@@ -1,0 +1,47 @@
+/* 
+   FIX: Integrated Tables Overflow 
+*/
+
+.mhm-rentiva-account-page.mhm-integrated .mhm-bookings-table {
+    table-layout: auto;
+    width: 100%;
+}
+
+.mhm-rentiva-account-page.mhm-integrated .mhm-bookings-table th,
+.mhm-rentiva-account-page.mhm-integrated .mhm-bookings-table td {
+    white-space: normal;
+    /* Allow wrapping */
+    padding: 0.75rem 0.5rem;
+    /* Reduce padding */
+    font-size: 0.85rem;
+    /* Slightly smaller font */
+}
+
+/* Ensure vehicle name wraps and doesn't take too much space */
+.mhm-rentiva-account-page.mhm-integrated .rv-vehicle-name {
+    min-width: auto;
+    max-width: 150px;
+    word-wrap: break-word;
+}
+
+/* Status badge compact */
+.mhm-rentiva-account-page.mhm-integrated .rv-booking-status .status-badge {
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    /* Keep badge single line */
+}
+
+/* Actions column compact */
+.mhm-rentiva-account-page.mhm-integrated .rv-booking-actions .btn {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+}
+
+/* Ensure horizontal scroll if it STILL overflows (safety net) */
+.mhm-rentiva-account-page.mhm-integrated .bookmarks-table-wrapper,
+.mhm-rentiva-account-page.mhm-integrated .rv-table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    display: block;
+}

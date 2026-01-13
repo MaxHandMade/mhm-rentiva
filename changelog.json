@@ -1,8 +1,23 @@
 [
     {
+        "version": "4.5.3",
+        "date": "2026-01-14",
+        "type": "current",
+        "changes": [
+            "🛠️ SETTINGS CLEANUP: Removed redundancy in settings (Button texts, Form labels) for a cleaner admin interface.",
+            "📝 REFUND POLICY: Added customizable Refund Policy text setting in System Messages.",
+            "🔗 URL SETTINGS: Renamed \"Frontend URL and Text Settings\" to \"Page URL Settings\" for clarity.",
+            "🐛 ENDPOINT FIX: Resolved issue where custom endpoint slugs were not being respected in `AccountController`.",
+            "🎨 UI IMPROVEMENT: Removed redundant \"View Dashboard\" button from Booking Details view.",
+            "🔧 POT GENERATION: Fixed `make-pot` issues by refactoring settings rendering logic to standard loops.",
+            "🛡️ GITIGNORE: Added development tools to gitignore.",
+            "🇹🇷 LOCALIZATION: Added \"Page URL Settings\" to POT file and improved Turkish translation support."
+        ]
+    },
+    {
         "version": "4.5.0",
         "date": "2025-12-24",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🚀 VERSION UPDATE: Major update to 4.5.0 focusing on User Account and Payment History improvements.",
             "🔧 ACCOUNT ENDPOINTS: Added customizable endpoints for Bookings, Favorites, Payments, Messages, and Edit Account.",

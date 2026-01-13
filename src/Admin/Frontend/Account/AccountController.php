@@ -51,7 +51,7 @@ final class AccountController
         $instance = self::instance();
         
         // Register shortcodes
-        add_shortcode('rentiva_my_account', [self::class, 'render_my_account']);
+        // add_shortcode('rentiva_my_account', [self::class, 'render_my_account']); // Removed
         add_shortcode('rentiva_my_bookings', [self::class, 'render_my_bookings']);
         add_shortcode('rentiva_my_favorites', [self::class, 'render_my_favorites']);
         add_shortcode('rentiva_payment_history', [self::class, 'render_payment_history']);
@@ -113,9 +113,10 @@ final class AccountController
      */
     public static function get_endpoint_slug(string $key, string $default): string
     {
-        // 1. Check database option
+        // 1. Check database option in mhm_rentiva_settings array
+        $settings = get_option('mhm_rentiva_settings', []);
         $option_key = 'mhm_rentiva_endpoint_' . $key;
-        $slug = get_option($option_key);
+        $slug = $settings[$option_key] ?? '';
 
         if (empty($slug)) {
             // 2. Use translation if no option set
@@ -147,105 +148,7 @@ final class AccountController
     /**
      * My Account shortcode render
      */
-    public static function render_my_account(array $atts = []): string
-    {
-        $defaults = [
-            'redirect_to' => '',
-            'show_register' => '1',
-        ];
-        
-        $atts = shortcode_atts($defaults, $atts, 'rentiva_my_account');
-        
-        
-        // Login check
-        if (!is_user_logged_in()) {
-            return self::render_login_form($atts);
-        }
-        
-        // If WooCommerce exists, redirect to its My Account page
-        if (class_exists('WooCommerce') && function_exists('wc_get_page_id')) {
-            $account_page_id = wc_get_page_id('myaccount');
-            if ($account_page_id && $account_page_id > 0 && !is_page($account_page_id)) {
-                ob_start();
-                ?>
-                <div class="mhm-woo-redirect">
-                    <p><?php _e('Redirecting to your account...', 'mhm-rentiva'); ?></p>
-                    <script>
-                        window.location.href = '<?php echo esc_url(get_permalink($account_page_id)); ?>';
-                    </script>
-                </div>
-                <?php
-                return ob_get_clean();
-            }
-        }
-        
-        // Load assets (in all cases)
-        self::enqueue_assets();
-        
-        // Determine the current endpoint dynamically
-        global $wp_query;
-        $endpoint = '';
-
-        $slugs = [
-            'bookings'        => self::get_endpoint_slug('bookings', 'rentiva-bookings'),
-            'favorites'       => self::get_endpoint_slug('favorites', 'rentiva-favorites'),
-            'payment-history' => self::get_endpoint_slug('payment_history', 'rentiva-payment-history'),
-            'edit-account'    => self::get_endpoint_slug('edit_account', 'rentiva-edit-account'),
-            'messages'        => self::get_endpoint_slug('messages', 'rentiva-messages'),
-        ];
-
-        // Check query vars for dynamic slugs
-        foreach ($slugs as $key => $slug) {
-            if (isset($wp_query->query_vars[$slug])) {
-                $endpoint = $key;
-                break;
-            }
-        }
-
-        // Fallback to query parameter (supporting both old logical names and new dynamic slugs)
-        if (empty($endpoint)) {
-            $req_endpoint = self::sanitize_text_field_safe($_GET['endpoint'] ?? '');
-            
-            // Check if request matches any dynamic slug
-            $found_key = array_search($req_endpoint, $slugs);
-            if ($found_key !== false) {
-                $endpoint = $found_key;
-            } else {
-                // Check if it matches logical hardcoded keys (backward compatibility)
-                $endpoint = $req_endpoint ?: 'dashboard';
-            }
-        }
-        
-        switch ($endpoint) {
-            case 'bookings':
-                return AccountRenderer::render_bookings($atts);
-            
-            case 'favorites':
-                return AccountRenderer::render_favorites($atts);
-            
-            case 'payment-history': // Maps to 'payment-history' key in slugs array
-            case 'payment_history': // Alternative logical name
-                return AccountRenderer::render_payment_history($atts);
-            
-            case 'edit-account': // Maps to 'edit-account' key
-            case 'edit_account': // Alternative
-                return AccountRenderer::render_account_details($atts);
-            
-            case 'messages':
-                return AccountRenderer::render_messages($atts);
-            
-            case 'booking-detail':
-                $booking_id = (int) ($_GET['booking_id'] ?? 0);
-                if ($booking_id > 0) {
-                    return AccountRenderer::render_booking_detail($booking_id);
-                }
-                return '<p>' . __('Invalid booking ID.', 'mhm-rentiva') . '</p>';
-            
-            case 'dashboard':
-            default:
-                return AccountRenderer::render_dashboard($atts);
-        }
-    }
+    // render_my_account method has been removed.
 
     /**
      * My Bookings shortcode render
@@ -261,6 +164,7 @@ final class AccountController
             'status' => '', // all, confirmed, completed, cancelled
             'orderby' => 'date',
             'order' => 'DESC',
+            'hide_nav' => false,
         ];
         
         $atts = shortcode_atts($defaults, $atts, 'rentiva_my_bookings');
@@ -282,6 +186,7 @@ final class AccountController
         $defaults = [
             'columns' => '3',
             'limit' => '12',
+            'hide_nav' => false,
         ];
         
         $atts = shortcode_atts($defaults, $atts, 'rentiva_my_favorites');
@@ -302,6 +207,7 @@ final class AccountController
         
         $defaults = [
             'limit' => '20',
+            'hide_nav' => false,
         ];
         
         $atts = shortcode_atts($defaults, $atts, 'rentiva_payment_history');
@@ -1488,20 +1394,15 @@ Best regards,
         // WooCommerce Integration
         if (class_exists('WooCommerce') && function_exists('wc_get_endpoint_url')) {
             // Get base bookings URL
-            $bookings_slug = self::get_endpoint_slug('bookings', 'rentiva-bookings');
-            $url = wc_get_endpoint_url($bookings_slug, '', wc_get_page_permalink('myaccount'));
-            
-            // Add params for detail view
-            return add_query_arg([
-                'endpoint' => 'booking-detail', 
-                'booking_id' => $booking_id
-            ], $url);
+            // Get view booking URL
+            $view_slug = self::get_endpoint_slug('view_booking', 'view-vehicle-booking');
+            return wc_get_endpoint_url($view_slug, $booking_id, wc_get_page_permalink('myaccount'));
         }
         
         // Standalone
         return add_query_arg([
-            'endpoint' => 'booking-detail', 
-            'booking_id' => $booking_id
+            'action' => 'view_booking', 
+            'id' => $booking_id
         ], self::get_account_url());
     }
 }

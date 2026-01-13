@@ -2,7 +2,7 @@
 /*
 Plugin Name: MHM Rentiva
 Description: Vehicle rental management plugin with WooCommerce payment integration.
-Version: 4.5.0
+Version: 4.5.3
 Author: MHM Development Team
 Text Domain: mhm-rentiva
 Domain Path: /languages
@@ -63,7 +63,7 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 
 // Version constant
 if (!defined('MHM_RENTIVA_VERSION')) {
-    define('MHM_RENTIVA_VERSION', '4.5.0');
+    define('MHM_RENTIVA_VERSION', '4.5.2');
 }
 
 // Plugin file constant
@@ -185,6 +185,19 @@ register_activation_hook(__FILE__, function () {
         wp_die(esc_html__('MHM Rentiva plugin requires PHP 7.4 or higher.', 'mhm-rentiva'));
     }
     
+    // Check for WooCommerce dependency
+    if (!class_exists('WooCommerce')) {
+        wp_die(
+            /* translators: %s: Plugin Name */
+            sprintf(
+                esc_html__('%s requires WooCommerce to be installed and active.', 'mhm-rentiva'),
+                'MHM Rentiva'
+            ),
+            esc_html__('Plugin Dependency Check', 'mhm-rentiva'),
+            ['back_link' => true]
+        );
+    }
+    
     // Multisite check
     if (is_multisite()) {
         // Network-wide activation
@@ -203,6 +216,19 @@ register_activation_hook(__FILE__, function () {
     
     // Single site activation
     mhm_rentiva_single_site_activation();
+});
+
+// Runtime dependency check
+add_action('admin_notices', function() {
+    if (!class_exists('WooCommerce')) {
+        echo '<div class="notice notice-error"><p>';
+        printf(
+            /* translators: %s: Plugin Name */
+            esc_html__('%s requires WooCommerce to be installed and active. Please install WooCommerce to use this plugin.', 'mhm-rentiva'),
+            '<strong>MHM Rentiva</strong>'
+        );
+        echo '</p></div>';
+    }
 });
 
 // When new blog is created in Multisite

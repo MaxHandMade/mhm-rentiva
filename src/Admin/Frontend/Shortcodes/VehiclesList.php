@@ -31,6 +31,11 @@ if (!defined('ABSPATH')) {
 final class VehiclesList extends AbstractShortcode
 {
     /**
+     * Default placeholder image (Base64 SVG)
+     */
+    private const DEFAULT_PLACEHOLDER_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5WZWhpY2xlIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+
+    /**
      * Safe sanitize text field that handles null values
      */
     public static function sanitize_text_field_safe($value)
@@ -163,7 +168,7 @@ final class VehiclesList extends AbstractShortcode
             'bookingUrl' => self::get_booking_url(),
             'loginUrl' => self::get_login_url(),
             'text' => self::get_text(),
-            'i18n' => [
+            'strings' => [
                 'loading' => __('Loading...', 'mhm-rentiva'),
                 'no_vehicles' => __('No vehicles found', 'mhm-rentiva'),
                 'error' => __('An error occurred', 'mhm-rentiva'),
@@ -345,7 +350,7 @@ final class VehiclesList extends AbstractShortcode
         }
         
         // Fallback: Use data URI (1x1 transparent pixel with text)
-        return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5WZWhpY2xlIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+        return self::DEFAULT_PLACEHOLDER_IMAGE;
     }
 
     /**
@@ -538,24 +543,6 @@ final class VehiclesList extends AbstractShortcode
         return $result1 !== false && $result2 !== false;
     }
 
-    /**
-     * Resets all vehicles ratings (for testing)
-     */
-    public static function reset_all_ratings(): int
-    {
-        global $wpdb;
-        
-        $deleted1 = $wpdb->delete($wpdb->postmeta, [
-            'meta_key' => '_mhm_rentiva_rating_average'
-        ], ['%s']);
-        
-        $deleted2 = $wpdb->delete($wpdb->postmeta, [
-            'meta_key' => '_mhm_rentiva_rating_count'
-        ], ['%s']);
-        
-        return ($deleted1 ?: 0) + ($deleted2 ?: 0);
-    }
-
     // Table creation logic moved to DatabaseMigrator
 
     /**
@@ -692,10 +679,35 @@ final class VehiclesList extends AbstractShortcode
     /**
      * Checks vehicle availability
      */
-    private static function check_vehicle_availability(int $vehicle_id): bool
+    /**
+     * Checks vehicle availability
+     */
+    private static function check_vehicle_availability(int $vehicle_id): array
     {
-        // Simple availability check - should be date-based in real application
-        return true;
+        $status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
+        
+        // Fallback for older data or if status is not set
+        if (empty($status)) {
+            $old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+            // Handle legacy values
+            if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
+                $status = 'inactive';
+            } elseif ($old_availability === '1' || $old_availability === 'active') {
+                $status = 'active';
+            } elseif ($old_availability === 'maintenance') {
+                $status = 'maintenance';
+            } else {
+                $status = 'active'; // Default
+            }
+        }
+        
+        $is_available = ($status === 'active');
+        
+        return [
+            'is_available' => $is_available,
+            'status' => $status,
+            'text' => $is_available ? __('Available', 'mhm-rentiva') : __('Out of Order', 'mhm-rentiva')
+        ];
     }
 
     /**

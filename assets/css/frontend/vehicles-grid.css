@@ -1161,3 +1161,14 @@
     color: #991b1b;
     border: 1px solid #fca5a5;
 }
+
+/* Disabled Button Style */
+.rv-btn-disabled {
+    opacity: 0.6 !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+    background: #9ca3af !important;
+    border-color: #9ca3af !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
