@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Groups;
 
@@ -17,6 +19,54 @@ if (!defined('ABSPATH')) {
  */
 final class VehicleManagementSettings
 {
+    public const SECTION_PRICING = 'mhm_rentiva_vehicle_pricing_section';
+    public const SECTION_DISPLAY = 'mhm_rentiva_vehicle_display_section';
+    public const SECTION_AVAILABILITY = 'mhm_rentiva_vehicle_availability_section';
+
+    /**
+     * Get default settings
+     *
+     * @return array
+     */
+    public static function get_default_settings(): array
+    {
+        return [
+            'mhm_rentiva_vehicle_base_price'           => 1.0,
+            'mhm_rentiva_vehicle_weekend_multiplier'   => 1.2,
+            'mhm_rentiva_vehicle_tax_inclusive'        => '0',
+            'mhm_rentiva_vehicle_tax_rate'             => 18,
+            'mhm_rentiva_vehicle_cards_per_page'       => 12,
+            'mhm_rentiva_vehicle_default_sort'         => 'price_asc',
+            'mhm_rentiva_vehicle_show_images'          => '1',
+            'mhm_rentiva_vehicle_show_features'        => '1',
+            'mhm_rentiva_vehicle_card_fields'          => class_exists('\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper') ? \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_default_card_fields() : [],
+            'mhm_rentiva_vehicle_show_availability'    => '1',
+            'mhm_rentiva_vehicle_min_rental_days'      => 1,
+            'mhm_rentiva_vehicle_max_rental_days'      => 30,
+            'mhm_rentiva_vehicle_advance_booking_days' => 365,
+            'mhm_rentiva_vehicle_allow_same_day'       => '1',
+        ];
+    }
+
+    /**
+     * Render the vehicle settings section
+     */
+    public static function render_settings_section(): void
+    {
+        // Vehicle Pricing Settings
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_PRICING);
+
+        // Vehicle Display Settings
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_DISPLAY);
+
+        // Vehicle Availability Settings
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_AVAILABILITY);
+
+        // Vehicle Comparison Settings
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\VehicleComparisonSettings')) {
+            \MHMRentiva\Admin\Settings\SettingsView::render_section_clean('mhm_rentiva_vehicle_comparison_section');
+        }
+    }
     /**
      * Register settings
      */
@@ -267,7 +317,7 @@ final class VehicleManagementSettings
             'year_desc' => __('Year: Newest First', 'mhm-rentiva'),
             'year_asc' => __('Year: Oldest First', 'mhm-rentiva'),
         ];
-        
+
         echo '<select name="mhm_rentiva_settings[mhm_rentiva_vehicle_default_sort]" class="regular-text">';
         foreach ($options as $option_value => $option_label) {
             echo '<option value="' . esc_attr($option_value) . '" ' . selected($value, $option_value, false) . '>' . esc_html($option_label) . '</option>';
@@ -319,7 +369,7 @@ final class VehicleManagementSettings
             $selected_items[] = [
                 'type' => $item['type'],
                 'key'  => $item['key'],
-                'label'=> $available_flat[$id]['label'],
+                'label' => $available_flat[$id]['label'],
             ];
             unset($available_flat[$id]);
         }
@@ -367,8 +417,8 @@ final class VehicleManagementSettings
         echo '</div>'; // columns
 
         echo '<p class="description mhm-card-fields-footer">' .
-             esc_html__('Tip: The order you set here applies to vehicle grids, list views and the My Account favorites grid.', 'mhm-rentiva') .
-             '</p>';
+            esc_html__('Tip: The order you set here applies to vehicle grids, list views and the My Account favorites grid.', 'mhm-rentiva') .
+            '</p>';
 
         echo '</div>'; // wrapper
     }

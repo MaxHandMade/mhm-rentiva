@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.5.3-blue.svg)
+![Version](https://img.shields.io/badge/version-4.5.4-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1198,7 +1198,16 @@ Fixes #123
 
 ## 📝 Changelog
 
-### Latest Version: 4.5.0 (2025-12-24)
+### Latest Version: 4.5.4 (2026-01-15)
+
+**🚀 REFACTORING & UX IMPROVEMENTS**
+- **Settings Refactoring**: Major refactoring of the settings core to improve modularity and maintainability.
+- **WooCommerce Compatibility**: Conditional logic to hide Payment Settings when WooCommerce is active, while keeping specific Notification settings accessible.
+- **Email Settings Restoration**: Fixed an issue where Email Settings were inaccessible when WooCommerce was active.
+- **Bug Fix**: Restored missing `OfflinePayment.php` class to fix Fatal Error in Offline Payment Emails tab.
+- **Localization**: Updated POT file with new strings.
+
+### Version: 4.5.3 (2026-01-14)
 
 **🚀 VERSION UPDATE**
 - Major update to 4.5.0 focusing on User Account and Payment History improvements.

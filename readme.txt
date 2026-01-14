@@ -4,7 +4,7 @@ Tags: car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.5.0
+Stable tag: 4.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,6 +50,13 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.5.4 =
+* Refactoring: Major settings core refactoring for improved structure.
+* UX: Payment Settings hidden appropriately when WooCommerce is active.
+* Fix: Restored access to Email Settings when WooCommerce is active.
+* Bug Fix: Fixed Fatal Error in Offline Payment Emails tab (missing class).
+* i18n: Regenerated POT file with new localized strings.
 
 = 4.5.0 =
 *   Version Update: Major update to 4.5.0 focusing on User Account and Payment History improvements.
@@ -115,6 +122,9 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 *   Documentation: README badges and release notes updated.
 
 == Upgrade Notice ==
+
+= 4.5.4 =
+Critical bug fix for Email Settings/Templates and extensive code refactoring. Recommended update.
 
 = 4.5.0 =
 This major update includes significant improvements to the User Account area, Payment History features, and crucial bug fixes. Recommended for all users.

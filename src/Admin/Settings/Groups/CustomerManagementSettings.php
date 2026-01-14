@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Groups;
 
@@ -15,6 +17,61 @@ if (!defined('ABSPATH')) {
  */
 final class CustomerManagementSettings
 {
+    public const SECTION_REGISTRATION = 'mhm_rentiva_customer_registration_section';
+    public const SECTION_ACCOUNT = 'mhm_rentiva_customer_account_section';
+    public const SECTION_COMMUNICATION = 'mhm_rentiva_customer_communication_section';
+    public const SECTION_SECURITY = 'mhm_rentiva_customer_security_section';
+    public const SECTION_PRIVACY = 'mhm_rentiva_customer_privacy_section';
+    public const SECTION_EXPERIENCE = 'mhm_rentiva_customer_experience_section';
+
+    /**
+     * Get default settings for customer management
+     *
+     * @return array
+     */
+    public static function get_default_settings(): array
+    {
+        return [
+            'mhm_rentiva_customer_registration_enabled'      => '1',
+            'mhm_rentiva_customer_email_verification'        => '0',
+            'mhm_rentiva_customer_phone_required'            => '0',
+            'mhm_rentiva_customer_terms_required'            => '1',
+            'mhm_rentiva_customer_terms_text'                => __('I accept the terms of use and privacy policy.', 'mhm-rentiva'),
+            'mhm_rentiva_customer_auto_login'                => '1',
+            'mhm_rentiva_customer_welcome_email'             => '1',
+            'mhm_rentiva_customer_booking_notifications'     => '1',
+            'mhm_rentiva_customer_password_min_length'       => 6,
+            'mhm_rentiva_customer_password_require_special'  => '0',
+            'mhm_rentiva_customer_gdpr_compliance'           => '0',
+            'mhm_rentiva_customer_default_role'              => 'customer',
+            'mhm_rentiva_customer_notification_frequency'    => 'immediate',
+        ];
+    }
+
+    /**
+     * Render the customer settings section
+     */
+    public static function render_settings_section(): void
+    {
+        // Customer Registration Section
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_REGISTRATION);
+
+        // Customer Account Section
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_ACCOUNT);
+
+        // Customer Communication Section
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_COMMUNICATION);
+
+        // Customer Security Section
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_SECURITY);
+
+        // Customer Privacy Section
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_PRIVACY);
+
+        // Customer Experience Section
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_EXPERIENCE);
+    }
+
     /**
      * Register settings
      */
@@ -259,13 +316,13 @@ final class CustomerManagementSettings
     public static function render_terms_text_field(): void
     {
         $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_terms_text');
-        
+
         // If value is empty or equals the English default, use translated default
         $default_text = __('I accept the terms of use and privacy policy.', 'mhm-rentiva');
         if (empty($value) || $value === 'I accept the terms of use and privacy policy.') {
             $value = $default_text;
         }
-        
+
         echo '<textarea name="mhm_rentiva_settings[mhm_rentiva_customer_terms_text]" rows="3" cols="50" class="large-text">' . esc_textarea($value) . '</textarea>';
         echo '<p class="description">' . esc_html__('Custom text for terms and conditions checkbox. Use {privacy_policy} for privacy policy link.', 'mhm-rentiva') . '</p>';
     }
@@ -335,7 +392,7 @@ final class CustomerManagementSettings
             'subscriber' => __('Subscriber', 'mhm-rentiva'),
             'contributor' => __('Contributor', 'mhm-rentiva'),
         ];
-        
+
         echo '<select name="mhm_rentiva_settings[mhm_rentiva_customer_default_role]">';
         foreach ($roles as $key => $label) {
             echo '<option value="' . esc_attr($key) . '"' . selected($value, $key, false) . '>' . esc_html($label) . '</option>';
@@ -353,7 +410,7 @@ final class CustomerManagementSettings
             'weekly' => __('Weekly Digest', 'mhm-rentiva'),
             'disabled' => __('Disabled', 'mhm-rentiva'),
         ];
-        
+
         echo '<select name="mhm_rentiva_settings[mhm_rentiva_customer_notification_frequency]">';
         foreach ($frequencies as $key => $label) {
             echo '<option value="' . esc_attr($key) . '"' . selected($value, $key, false) . '>' . esc_html($label) . '</option>';

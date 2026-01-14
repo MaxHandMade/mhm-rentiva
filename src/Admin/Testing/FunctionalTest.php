@@ -51,9 +51,7 @@ final class FunctionalTest
             // Account Management Shortcodes
             'rentiva_my_account',
             'rentiva_my_bookings',
-            'rentiva_my_favorites',
             'rentiva_payment_history',
-            'rentiva_account_details',
             'rentiva_login_form',
             'rentiva_register_form',
             

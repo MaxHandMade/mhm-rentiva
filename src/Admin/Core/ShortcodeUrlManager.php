@@ -121,7 +121,7 @@ final class ShortcodeUrlManager
             'rentiva_my_bookings',
             'rentiva_my_favorites', 
             'rentiva_payment_history',
-            'rentiva_account_details',
+            // 'rentiva_account_details', // Removed
             'rentiva_login_form',
             'rentiva_register_form',
             
@@ -245,7 +245,7 @@ final class ShortcodeUrlManager
             $shortcodes = [
                 // Account Management Shortcodes
                 'rentiva_my_account', 'rentiva_my_bookings', 'rentiva_my_favorites', 
-                'rentiva_payment_history', 'rentiva_account_details', 'rentiva_login_form',
+                'rentiva_payment_history', 'rentiva_login_form',
                 'rentiva_register_form',
                 
                 // Booking Shortcodes
@@ -283,7 +283,7 @@ final class ShortcodeUrlManager
         $shortcodes = [
             // Account Management Shortcodes
             'rentiva_my_account', 'rentiva_my_bookings', 'rentiva_my_favorites', 
-            'rentiva_payment_history', 'rentiva_account_details', 'rentiva_login_form',
+            'rentiva_payment_history', 'rentiva_login_form',
             'rentiva_register_form',
             
             // Booking Shortcodes

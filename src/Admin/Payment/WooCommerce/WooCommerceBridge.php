@@ -43,8 +43,6 @@ final class WooCommerceBridge implements PaymentGatewayInterface
         add_action('woocommerce_thankyou', [self::class, 'create_booking_from_order_fallback'], 5, 1);
         add_action('woocommerce_order_status_changed', [self::class, 'handle_order_status_change'], 10, 4);
         
-        // ⭐ Redirect to Rentiva thank you page after WooCommerce order received
-        add_filter('woocommerce_get_checkout_order_received_url', [self::class, 'redirect_to_thank_you_page'], 10, 2);
         // ⭐ WooCommerce refund hook - handles actual refund amounts
         add_action('woocommerce_refund_created', [self::class, 'handle_order_refunded'], 10, 2);
         
@@ -1706,63 +1704,6 @@ final class WooCommerceBridge implements PaymentGatewayInterface
         ];
     }
 
-    /**
-     * Redirect to Rentiva thank you page after WooCommerce order received
-     * 
-     * @param string $url Default WooCommerce order received URL
-     * @param WC_Order $order WooCommerce order object
-     * @return string Thank you page URL
-     */
-    public static function redirect_to_thank_you_page(string $url, $order): string
-    {
-        if (!is_a($order, 'WC_Order')) {
-            return $url;
-        }
 
-        // Get booking ID from order
-        $booking_id = (int) $order->get_meta('_mhm_booking_id');
-        
-        // If booking ID not found in order meta, try to get from order items
-        if (!$booking_id) {
-            $items = $order->get_items();
-            foreach ($items as $item) {
-                $booking_id = (int) $item->get_meta('_mhm_booking_id');
-                if ($booking_id) {
-                    break;
-                }
-            }
-        }
-
-        // If still no booking ID, try to find booking by order ID (optimized query)
-        if (!$booking_id) {
-            $order_id = $order->get_id();
-            
-            // Use direct meta query instead of get_posts for better performance
-            global $wpdb;
-            $booking_id = $wpdb->get_var($wpdb->prepare(
-                "SELECT post_id 
-                FROM {$wpdb->postmeta} 
-                WHERE meta_key = '_mhm_woocommerce_order_id' 
-                AND meta_value = %d 
-                LIMIT 1",
-                $order_id
-            ));
-            
-            if ($booking_id) {
-                $booking_id = (int) $booking_id;
-            }
-        }
-
-        // If booking ID found, redirect to Rentiva thank you page
-        if ($booking_id && class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\ThankYou')) {
-            $thank_you_url = \MHMRentiva\Admin\Frontend\Shortcodes\ThankYou::get_thank_you_url($booking_id);
-            if (!empty($thank_you_url)) {
-                return $thank_you_url;
-            }
-        }
-
-        // Fallback: return default WooCommerce URL
-        return $url;
-    }
 }
 

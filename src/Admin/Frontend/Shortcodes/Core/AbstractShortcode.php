@@ -157,23 +157,8 @@ abstract class AbstractShortcode
      */
     protected static function should_load_assets_conditionally(): bool
     {
-        // Check ShortcodeSettings class
-        if (!class_exists('\MHMRentiva\Admin\Settings\ShortcodeSettings')) {
-            return true; // Load by default
-        }
-        
-        // Check global conditional loading setting
-        $load_conditionally = \MHMRentiva\Admin\Settings\ShortcodeSettings::get_shortcode_setting('global', 'load_assets_conditionally', true);
-        
-        if (!$load_conditionally) {
-            return true; // If conditional loading is off, always load
-        }
-        
-        // Conditional loading check for the shortcode itself
-        $shortcode_tag = static::get_shortcode_tag();
-        $shortcode_conditional = \MHMRentiva\Admin\Settings\ShortcodeSettings::get_shortcode_setting($shortcode_tag, 'load_conditionally', true);
-        
-        return $shortcode_conditional;
+        // Default to true (optimize performance) but allow easy disabling via filter
+        return apply_filters('mhm_rentiva_shortcode_load_assets_conditionally', true, static::get_shortcode_tag());
     }
 
     /**

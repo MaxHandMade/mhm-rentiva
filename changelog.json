@@ -1,8 +1,20 @@
 [
     {
+        "version": "4.5.4",
+        "date": "2026-01-15",
+        "type": "current",
+        "changes": [
+            "🚀 REFACTORING: Major refactoring of the settings core to improve modularity and maintainability.",
+            "🛍️ WOOCOMMERCE: Conditional logic to hide Payment Settings when WooCommerce is active.",
+            "📧 EMAIL SETTINGS: Fixed inaccessible Email Settings when WooCommerce active.",
+            "🐛 BUG FIX: Restored missing OfflinePayment.php class (Fatal Error fix).",
+            "🌍 LOCALIZATION: Updated POT file with new strings."
+        ]
+    },
+    {
         "version": "4.5.3",
         "date": "2026-01-14",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🛠️ SETTINGS CLEANUP: Removed redundancy in settings (Button texts, Form labels) for a cleaner admin interface.",
             "📝 REFUND POLICY: Added customizable Refund Policy text setting in System Messages.",

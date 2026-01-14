@@ -41,7 +41,6 @@ TEST-GUIDE.md
 TEST-CHECKLIST.md
 
 # Documentation
-docs/
 
 # Temporary utilities
 reset_endpoints.php
@@ -50,3 +49,4 @@ debug_slug.php
 flush_rules.php
 update_refund_text.php
 test-i18n.php
+wp-stubs.php

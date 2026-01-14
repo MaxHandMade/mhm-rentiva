@@ -1,8 +1,20 @@
 [
     {
+        "version": "4.5.4",
+        "date": "2026-01-15",
+        "type": "current",
+        "changes": [
+            "🚀 REFACTORING: Ayarlar çekirdeğinde modülerlik ve bakım için büyük çaplı yeniden yapılandırma.",
+            "🛍️ WOOCOMMERCE: WooCommerce aktif olduğunda Ödeme Ayarlarının gizlenmesi sağlandı.",
+            "📧 E-POSTA AYARLARI: WooCommerce etkinken erişilemeyen E-posta Ayarları erişimi düzeltildi.",
+            "🐛 HATA DÜZELTMESİ: Eksik OfflinePayment.php sınıfı geri yüklendi (Fatal Error düzeltmesi).",
+            "🌍 YERELLEŞTİRME: POT dosyası yeni metinlerle güncellendi."
+        ]
+    },
+    {
         "version": "4.5.3",
         "date": "2026-01-14",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🛠️ AYARLAR TEMİZLİĞİ: Daha temiz bir yönetici arayüzü için ayarlardaki gereksiz kısımlar (Buton metinleri, Form etiketleri) kaldırıldı.",
             "📝 İADE POLİTİKASI: Sistem Mesajlarına özelleştirilebilir İade Politikası metin ayarı eklendi.",

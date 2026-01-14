@@ -44,14 +44,13 @@ class ElementorIntegration
         // Booking widgets
         $manager->register(new BookingFormWidget());
         $manager->register(new BookingConfirmationWidget());
-        $manager->register(new ThankYouWidget());
+
         
         // Account widgets
         $manager->register(new MyAccountWidget());
         $manager->register(new MyBookingsWidget());
         $manager->register(new MyFavoritesWidget());
         $manager->register(new PaymentHistoryWidget());
-        $manager->register(new AccountDetailsWidget());
         
         // Auth widgets
         $manager->register(new LoginFormWidget());

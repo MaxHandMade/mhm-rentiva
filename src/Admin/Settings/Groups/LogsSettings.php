@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Groups;
 
@@ -11,6 +13,22 @@ if (!defined('ABSPATH')) {
 
 final class LogsSettings
 {
+    /**
+     * Get default settings for logs
+     *
+     * @return array
+     */
+    public static function get_default_settings(): array
+    {
+        return [
+            'mhm_rentiva_log_level'            => 'error',
+            'mhm_rentiva_log_cleanup_enabled'  => '1',
+            'mhm_rentiva_log_retention_days'   => 30,
+            'mhm_rentiva_debug_mode'           => '0',
+            'mhm_rentiva_log_max_size'         => 10,
+        ];
+    }
+
     /**
      * Safe sanitize text field that handles null values
      */
@@ -84,11 +102,11 @@ final class LogsSettings
     {
         $level = get_option('mhm_rentiva_log_level', 'error');
         $allowed_levels = ['error', 'warning', 'info', 'debug'];
-        
+
         if (!in_array($level, $allowed_levels, true)) {
             return 'error';
         }
-        
+
         return self::sanitize_text_field_safe($level);
     }
 

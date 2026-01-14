@@ -55,9 +55,10 @@ final class AccountController
         add_shortcode('rentiva_my_bookings', [self::class, 'render_my_bookings']);
         add_shortcode('rentiva_my_favorites', [self::class, 'render_my_favorites']);
         add_shortcode('rentiva_payment_history', [self::class, 'render_payment_history']);
-        add_shortcode('rentiva_account_details', [self::class, 'render_account_details']);
+        // add_shortcode('rentiva_account_details', [self::class, 'render_account_details']); // Removed
         add_shortcode('rentiva_login_form', [self::class, 'render_login_form']);
         add_shortcode('rentiva_register_form', [self::class, 'render_register_form']);
+        add_shortcode('rentiva_messages', [self::class, 'render_messages']);
         
         // AJAX handlers
         add_action('wp_ajax_mhm_rentiva_update_account', [self::class, 'ajax_update_account']);
@@ -141,7 +142,7 @@ final class AccountController
         add_rewrite_endpoint(self::get_endpoint_slug('bookings', 'rentiva-bookings'), EP_ROOT | EP_PAGES);
         add_rewrite_endpoint(self::get_endpoint_slug('favorites', 'rentiva-favorites'), EP_ROOT | EP_PAGES);
         add_rewrite_endpoint(self::get_endpoint_slug('payment_history', 'rentiva-payment-history'), EP_ROOT | EP_PAGES);
-        add_rewrite_endpoint(self::get_endpoint_slug('edit_account', 'rentiva-edit-account'), EP_ROOT | EP_PAGES);
+        // add_rewrite_endpoint(self::get_endpoint_slug('edit_account', 'rentiva-edit-account'), EP_ROOT | EP_PAGES); // Removed
         add_rewrite_endpoint(self::get_endpoint_slug('messages', 'rentiva-messages'), EP_ROOT | EP_PAGES);
     }
 
@@ -218,18 +219,38 @@ final class AccountController
     }
 
     /**
-     * Account Details shortcode render
+     * Messages shortcode render
      */
-    public static function render_account_details(array $atts = []): string
+    public static function render_messages(array $atts = []): string
     {
         if (!is_user_logged_in()) {
-            return '<p>' . __('Please login to edit your account.', 'mhm-rentiva') . '</p>';
+            return '<p>' . __('Please login to view your messages.', 'mhm-rentiva') . '</p>';
         }
-        
+
+        $defaults = [
+            'hide_nav' => false,
+        ];
+
+        $atts = shortcode_atts($defaults, $atts, 'rentiva_messages');
+
+        // We need to trigger enqueue_assets manually to ensure scripts are loaded
+        // mimicking the logic in enqueue_assets for the 'messages' endpoint
+        add_filter('mhm_rentiva_force_messages_assets', '__return_true');
         self::enqueue_assets();
         
-        return AccountRenderer::render_account_details($atts);
+        return AccountRenderer::render_messages($atts);
     }
+
+    /**
+     * Account Details shortcode render (Removed)
+     */
+    /*
+    public static function render_account_details(array $atts = []): string
+    {
+        // Removed as per request
+        return '';
+    }
+    */
 
     /**
      * Login Form shortcode render
@@ -294,7 +315,7 @@ final class AccountController
         $endpoint = get_query_var('endpoint') ?: self::sanitize_text_field_safe($_GET['endpoint'] ?? '');
         
         // Check both logical name and dynamic slug query var
-        if ($endpoint === 'messages' || get_query_var($messages_slug) !== '') {
+        if ($endpoint === 'messages' || get_query_var($messages_slug) !== '' || apply_filters('mhm_rentiva_force_messages_assets', false)) {
             // Prevent customer-messages.js from loading (we use REST API in template)
             add_action('wp_enqueue_scripts', function() {
                 wp_dequeue_script('mhm-customer-messages');

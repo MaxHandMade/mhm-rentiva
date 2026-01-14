@@ -263,6 +263,7 @@ final class ShortcodePages
             return $special_shortcodes[$shortcode];
         }
 
+
         // Standard format for other shortcodes
         return '[' . $shortcode . ']';
     }
@@ -288,11 +289,7 @@ final class ShortcodePages
                 'slug' => 'payment-history',
                 'description' => 'User payment history'
             ],
-            'rentiva_account_details' => [
-                'title' => 'Account Details',
-                'slug' => 'account-details',
-                'description' => 'Account information editing page'
-            ],
+            // 'rentiva_account_details' => [...], // Removed as per request
             'rentiva_login_form' => [
                 'title' => 'Login Form',
                 'slug' => 'login-form',
@@ -398,7 +395,7 @@ final class ShortcodePages
                         $shortcodes = [
                             // Account Management Shortcodes
                             'rentiva_my_account', 'rentiva_my_bookings', 'rentiva_my_favorites', 
-                            'rentiva_payment_history', 'rentiva_account_details', 'rentiva_login_form',
+                            'rentiva_payment_history', 'rentiva_login_form',
                             'rentiva_register_form',
                             
                             // Booking Shortcodes
@@ -492,7 +489,7 @@ final class ShortcodePages
                             'rentiva_my_bookings' => __('My Bookings', 'mhm-rentiva'),
                             'rentiva_my_favorites' => __('My Favorites', 'mhm-rentiva'),
                             'rentiva_payment_history' => __('Payment History', 'mhm-rentiva'),
-                            'rentiva_account_details' => __('Account Details', 'mhm-rentiva'),
+                            // 'rentiva_account_details' => __('Account Details', 'mhm-rentiva'), // Removed
                             'rentiva_login_form' => __('Login Form', 'mhm-rentiva'),
                             'rentiva_register_form' => __('Registration Form', 'mhm-rentiva'),
                             

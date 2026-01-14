@@ -1674,6 +1674,8 @@ input[type="text"].password-input {
     border-radius: 0;
     box-shadow: none;
     border: none;
+    width: 100%;
+    flex: 1;
 }
 
 .rv-account-page.mhm-integrated .rv-booking-details {
@@ -1690,7 +1692,10 @@ input[type="text"].password-input {
 
 .mhm-rentiva-account-page.mhm-integrated .mhm-bookings-table th,
 .mhm-rentiva-account-page.mhm-integrated .mhm-bookings-table td {
-    white-space: normal; /* Allow wrapping */
-    padding: 0.75rem 0.5rem; /* Reduce padding */
-    font-size: 0.85rem; /* Slightly smaller font */
+    white-space: normal;
+    /* Allow wrapping */
+    padding: 0.75rem 0.5rem;
+    /* Reduce padding */
+    font-size: 0.85rem;
+    /* Slightly smaller font */
 }

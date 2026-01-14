@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Groups;
 
@@ -15,6 +17,47 @@ if (!defined('ABSPATH')) {
  */
 final class BookingSettings
 {
+    public const SECTION_BASIC = 'mhm_rentiva_booking_basic_section';
+    public const SECTION_TIME = 'mhm_rentiva_booking_time_section';
+    public const SECTION_NOTIFICATION = 'mhm_rentiva_booking_notification_section';
+    public const SECTION_ADDONS = 'mhm_rentiva_addons_section';
+
+    /**
+     * Get default settings
+     * 
+     * @return array
+     */
+    public static function get_default_settings(): array
+    {
+        return [
+            'mhm_rentiva_booking_cancellation_deadline_hours' => 24,
+            'mhm_rentiva_booking_payment_deadline_minutes' => 30,
+            'mhm_rentiva_booking_auto_cancel_enabled' => '1',
+            'mhm_rentiva_booking_send_confirmation_emails' => '1',
+            'mhm_rentiva_booking_send_reminder_emails' => '1',
+            'mhm_rentiva_booking_admin_notifications' => '1',
+            'mhm_rentiva_booking_default_payment_method' => 'woocommerce',
+            'mhm_rentiva_booking_thank_you_page' => '',
+        ];
+    }
+
+    /**
+     * Render the booking settings section
+     */
+    public static function render_settings_section(): void
+    {
+        // Basic booking settings
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_BASIC);
+
+        // Time management settings
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_TIME);
+
+        // Notification settings
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_NOTIFICATION);
+
+        // Additional Services settings
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_ADDONS);
+    }
     /**
      * Register settings
      */

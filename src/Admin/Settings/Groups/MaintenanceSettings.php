@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Groups;
 
@@ -11,6 +13,20 @@ if (!defined('ABSPATH')) {
 
 final class MaintenanceSettings
 {
+    /**
+     * Get default settings for maintenance
+     *
+     * @return array
+     */
+    public static function get_default_settings(): array
+    {
+        return [
+            'mhm_rentiva_auto_cancel_enabled'     => '1',
+            'mhm_rentiva_auto_cancel_minutes'     => 30,
+            'mhm_rentiva_clean_data_on_uninstall' => '0',
+        ];
+    }
+
     public static function register(): void
     {
         $group = SettingsCore::PAGE;

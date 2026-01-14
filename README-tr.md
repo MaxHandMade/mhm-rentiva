@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.5.3-blue.svg)
+![Version](https://img.shields.io/badge/version-4.5.4-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -344,7 +344,16 @@ POST /bookings
 
 ## 📝 Değişiklik Geçmişi
 
-### Son Versiyon: 4.5.3 (2026-01-14)
+### Son Versiyon: 4.5.4 (2026-01-15)
+
+**🚀 REFACTORING & KULLANICI DENEYİMİ**
+- **Ayarlar Refactoring**: Modülerlik ve bakım kolaylığı için ayarlar çekirdeğinde büyük çaplı refactoring yapıldı.
+- **WooCommerce Uyumluluğu**: WooCommerce aktif olduğunda Ödeme Ayarları sekmesinin gizlenmesi sağlandı.
+- **E-posta Ayarları**: WooCommerce etkinken e-posta ayarlarının erişilememesi sorunu düzeltildi; artık MHM Rentiva bildirim ayarlarına (mesaj vb.) erişilebilir.
+- **Hata Düzeltmesi**: Çevrimdışı Ödeme E-postaları sekmesindeki Fatal Error hatası (eksik `OfflinePayment.php` sınıfı) giderildi.
+- **Yerelleştirme**: POT dosyası yeni metinlerle güncellendi.
+
+### Versiyon: 4.5.3 (2026-01-14)
 
 **🚀 VERSİYON GÜNCELLEMESİ**
 - Ayarlar arayüzü temizliği, İade Politikası metni ve URL ayarları isimlendirme iyileştirmelerini içeren 4.5.3 sürümü.

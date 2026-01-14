@@ -12,6 +12,42 @@ class CoreSettings
     public const SECTION_ID = 'mhm_rentiva_core_section';
 
     /**
+     * Get default settings for core system
+     *
+     * @return array
+     */
+    public static function get_default_settings(): array
+    {
+        return [
+            // Rate Limiting
+            'mhm_rentiva_rate_limit_enabled'                => '1',
+            'mhm_rentiva_rate_limit_requests_per_minute'    => 60,
+            'mhm_rentiva_rate_limit_booking_per_minute'     => 5,
+            'mhm_rentiva_rate_limit_payment_per_minute'     => 3,
+            'mhm_rentiva_rate_limit_block_duration'         => 15,
+            'mhm_rentiva_rate_limit_general_minute'         => 60,
+            'mhm_rentiva_rate_limit_booking_minute'         => 5,
+            'mhm_rentiva_rate_limit_payment_minute'         => 3,
+
+            // Cache Settings
+            'mhm_rentiva_cache_enabled'                     => '1',
+            'mhm_rentiva_cache_default_ttl'                 => 1,
+            'mhm_rentiva_cache_lists_ttl'                   => 5,
+            'mhm_rentiva_cache_reports_ttl'                 => 15,
+            'mhm_rentiva_cache_charts_ttl'                  => 10,
+
+            // Database Settings
+            'mhm_rentiva_db_auto_optimize'                  => '0',
+            'mhm_rentiva_db_performance_threshold'          => 100,
+
+            // WordPress Optimization
+            'mhm_rentiva_wp_optimization_enabled'           => '1',
+            'mhm_rentiva_wp_memory_limit'                   => 256,
+            'mhm_rentiva_wp_meta_query_limit'               => 5,
+        ];
+    }
+
+    /**
      * Register settings
      */
     public static function register(): void

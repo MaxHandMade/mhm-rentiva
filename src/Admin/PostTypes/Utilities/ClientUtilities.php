@@ -7,20 +7,20 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * ✅ CLIENT UTILITIES - Merkezi İstemci Bilgileri Sınıfı
+ * ✅ CLIENT UTILITIES - Central Client Information Class
  * 
- * Tüm PostTypes sınıfları için ortak istemci bilgilerini merkezileştirir
+ * Centralizes client information for all PostTypes classes
  */
 final class ClientUtilities
 {
     /**
-     * İstemci IP adresini güvenli şekilde alır
+     * Get client IP address securely
      * 
-     * Proxy ve load balancer desteği ile
+     * With proxy and load balancer support
      */
     public static function get_client_ip(): string
     {
-        // Proxy header'larını kontrol et
+        // Check proxy headers
         $ip_headers = [
             'HTTP_CF_CONNECTING_IP',     // Cloudflare
             'HTTP_CLIENT_IP',           // Proxy
@@ -36,13 +36,13 @@ final class ClientUtilities
             if (!empty($_SERVER[$header])) {
                 $ip = $_SERVER[$header];
                 
-                // X-Forwarded-For birden fazla IP içerebilir (virgülle ayrılmış)
+                // X-Forwarded-For can contain multiple IPs (comma separated)
                 if (strpos($ip, ',') !== false) {
                     $ips = explode(',', $ip);
                     $ip = trim($ips[0]);
                 }
                 
-                // IP adresini doğrula
+                // Validate IP address
                 if (self::is_valid_ip($ip)) {
                     return sanitize_text_field($ip);
                 }
@@ -53,7 +53,7 @@ final class ClientUtilities
     }
 
     /**
-     * User agent bilgisini güvenli şekilde alır
+     * Get user agent securely
      */
     public static function get_user_agent(): string
     {
@@ -61,7 +61,7 @@ final class ClientUtilities
     }
 
     /**
-     * Referer bilgisini güvenli şekilde alır
+     * Get referer securely
      */
     public static function get_referer(): string
     {
@@ -69,7 +69,7 @@ final class ClientUtilities
     }
 
     /**
-     * İstemci bilgilerini toplu olarak alır
+     * Get client info collectively
      */
     public static function get_client_info(): array
     {
@@ -84,16 +84,16 @@ final class ClientUtilities
     }
 
     /**
-     * IP adresinin geçerli olup olmadığını kontrol eder
+     * Check if IP address is valid
      */
     private static function is_valid_ip(string $ip): bool
     {
-        // IPv4 ve IPv6 desteği
+        // IPv4 and IPv6 support
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
             return true;
         }
         
-        // Private IP'ler de kabul edilebilir (local development için)
+        // Private IPs are acceptable (for local development)
         if (filter_var($ip, FILTER_VALIDATE_IP)) {
             return true;
         }
@@ -102,10 +102,10 @@ final class ClientUtilities
     }
 
     /**
-     * IP adresini maskeleyerek gizlilik korur
+     * Mask IP address for privacy
      * 
-     * @param string $ip IP adresi
-     * @param int $mask_last_octets Son kaç oktet maskelenecek (default: 1)
+     * @param string $ip IP address
+     * @param int $mask_last_octets How many octets to mask from the end (default: 1)
      */
     public static function mask_ip(string $ip, int $mask_last_octets = 1): string
     {
@@ -115,7 +115,7 @@ final class ClientUtilities
 
         $parts = explode('.', $ip);
         if (count($parts) !== 4) {
-            return $ip; // IPv6 veya geçersiz format
+            return $ip; // IPv6 or invalid format
         }
 
         for ($i = count($parts) - $mask_last_octets; $i < count($parts); $i++) {
@@ -126,7 +126,7 @@ final class ClientUtilities
     }
 
     /**
-     * İstemci lokasyon bilgisini alır (IP tabanlı)
+     * Get client location info (IP based)
      * 
      * @return array ['country' => string, 'region' => string, 'city' => string]
      */
@@ -142,7 +142,7 @@ final class ClientUtilities
             ];
         }
 
-        // Geobytes API kullanımı (ücretsiz)
+        // Use Geobytes API (free)
         $response = wp_remote_get("http://ip-api.com/json/{$ip}?fields=status,message,country,regionName,city");
         
         if (is_wp_error($response)) {
@@ -171,7 +171,7 @@ final class ClientUtilities
     }
 
     /**
-     * IP adresinin private olup olmadığını kontrol eder
+     * Check if IP address is private
      */
     private static function is_private_ip(string $ip): bool
     {
@@ -179,7 +179,7 @@ final class ClientUtilities
     }
 
     /**
-     * Bot tespiti yapar
+     * Detect bot
      */
     public static function is_bot(): bool
     {

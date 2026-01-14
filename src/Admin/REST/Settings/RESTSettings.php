@@ -275,7 +275,7 @@ final class RESTSettings
     /**
      * Perform security check
      */
-    public static function check_security(WP_REST_Request $request): bool
+    public static function check_security(\WP_REST_Request $request): bool
     {
         $security_settings = self::get_security_settings();
         $dev_settings = self::get_development_settings();
@@ -464,5 +464,129 @@ final class RESTSettings
         }
         
         return $sanitized;
+    }
+
+    /**
+     * Render settings section
+     */
+    public static function render_settings_section(): void
+    {
+        echo '<div class="mhm-rest-settings-header">';
+        echo '<div>';
+        echo '<h2>' . esc_html__('REST API Settings', 'mhm-rentiva') . '</h2>';
+        echo '<p>' . esc_html__('Configure REST API security, performance and behavior settings.', 'mhm-rentiva') . '</p>';
+        echo '</div>';
+        echo '<button type="button" id="mhm-reset-rest-settings-btn" class="button button-secondary">';
+        echo '<span class="dashicons dashicons-update"></span> ';
+        echo esc_html__('Reset to Defaults', 'mhm-rentiva');
+        echo '</button>';
+        echo '</div>';
+        
+        // Rate Limiting
+        echo '<table class="form-table">';
+        echo '<tr><th scope="row">' . esc_html__('Rate Limiting', 'mhm-rentiva') . '</th><td>';
+        
+        $rate_settings = self::get_rate_limit_settings();
+        
+        echo '<label><input type="checkbox" name="mhm_rentiva_rest_settings[rate_limiting][enabled]" value="1"' . checked($rate_settings['enabled'], true, false) . '> ' . esc_html__('Rate limiting enabled', 'mhm-rentiva') . '</label><br><br>';
+        
+        echo '<label for="rest_default_limit">' . esc_html__('Default Limit (Requests/Minute)', 'mhm-rentiva') . '</label><br>';
+        echo '<input type="number" id="rest_default_limit" name="mhm_rentiva_rest_settings[rate_limiting][default_limit]" value="' . esc_attr($rate_settings['default_limit']) . '" min="1" max="1000" style="width: 150px;">';
+        echo '<p class="description">' . esc_html__('Maximum number of requests per minute for normal users.', 'mhm-rentiva') . '</p>';
+        
+        echo '<br><br><label for="rest_strict_limit">' . esc_html__('Strict Limit (Requests/Minute)', 'mhm-rentiva') . '</label><br>';
+        echo '<input type="number" id="rest_strict_limit" name="mhm_rentiva_rest_settings[rate_limiting][strict_limit]" value="' . esc_attr($rate_settings['strict_limit']) . '" min="1" max="100" style="width: 150px;">';
+        echo '<p class="description">' . esc_html__('Strict limit for non-admin users.', 'mhm-rentiva') . '</p>';
+        
+        echo '<br><br><label for="rest_burst_limit">' . esc_html__('Burst Limit (Requests/5 Minutes)', 'mhm-rentiva') . '</label><br>';
+        echo '<input type="number" id="rest_burst_limit" name="mhm_rentiva_rest_settings[rate_limiting][burst_limit]" value="' . esc_attr($rate_settings['burst_limit']) . '" min="1" max="1000" style="width: 150px;">';
+        echo '<p class="description">' . esc_html__('Burst limit for short-term intensive usage.', 'mhm-rentiva') . '</p>';
+        
+        echo '</td></tr>';
+        
+        echo '<tr><th scope="row">' . esc_html__('Token Settings', 'mhm-rentiva') . '</th><td>';
+        
+        $token_settings = self::get_token_settings();
+        
+        echo '<label for="rest_token_expiry">' . esc_html__('Default Token Duration (Hours)', 'mhm-rentiva') . '</label><br>';
+        echo '<input type="number" id="rest_token_expiry" name="mhm_rentiva_rest_settings[tokens][default_expiry_hours]" value="' . esc_attr($token_settings['default_expiry_hours']) . '" min="1" max="168" style="width: 150px;">';
+        echo '<p class="description">' . esc_html__('Default token validity period.', 'mhm-rentiva') . '</p>';
+        
+        echo '<br><br><label><input type="checkbox" name="mhm_rentiva_rest_settings[tokens][refresh_enabled]" value="1"' . checked($token_settings['refresh_enabled'], true, false) . '> ' . esc_html__('Token refresh enabled', 'mhm-rentiva') . '</label>';
+        echo '<p class="description">' . esc_html__('Allow users to refresh their tokens.', 'mhm-rentiva') . '</p>';
+        
+        echo '</td></tr>';
+        
+        echo '<tr><th scope="row">' . esc_html__('Security Settings', 'mhm-rentiva') . '</th><td>';
+        
+        $security_settings = self::get_security_settings();
+        
+        echo '<label><input type="checkbox" name="mhm_rentiva_rest_settings[security][require_https]" value="1"' . checked($security_settings['require_https'], true, false) . '> ' . esc_html__('HTTPS required', 'mhm-rentiva') . '</label>';
+        echo '<p class="description">' . esc_html__('Require HTTPS for all REST API requests.', 'mhm-rentiva') . '</p>';
+        
+        echo '<br><br><label><input type="checkbox" name="mhm_rentiva_rest_settings[security][user_agent_validation]" value="1"' . checked($security_settings['user_agent_validation'], true, false) . '> ' . esc_html__('User Agent Validation', 'mhm-rentiva') . '</label>';
+        echo '<p class="description">' . esc_html__('Block suspicious user agents (bots, curl, etc.).', 'mhm-rentiva') . '</p>';
+        
+        echo '<br><br><label for="rest_ip_whitelist">' . esc_html__('IP Whitelist (Comma separated)', 'mhm-rentiva') . '</label><br>';
+        echo '<textarea id="rest_ip_whitelist" name="mhm_rentiva_rest_settings[security][ip_whitelist]" rows="3" cols="50" placeholder="192.168.1.1, 10.0.0.1">' . esc_textarea(implode(', ', $security_settings['ip_whitelist'])) . '</textarea>';
+        echo '<p class="description">' . esc_html__('Only allow requests from these IPs. If left blank, all IPs are allowed.', 'mhm-rentiva') . '</p>';
+        
+        echo '<br><br><label><input type="checkbox" name="mhm_rentiva_rest_settings[security][ip_blacklist_enabled]" value="1"' . checked($security_settings['ip_blacklist_enabled'], true, false) . '> ' . esc_html__('IP Blacklist enabled', 'mhm-rentiva') . '</label>';
+        echo '<p class="description">' . esc_html__('Block requests from specified IPs.', 'mhm-rentiva') . '</p>';
+        
+        echo '<br><br><label for="rest_ip_blacklist">' . esc_html__('IP Blacklist (Comma separated)', 'mhm-rentiva') . '</label><br>';
+        echo '<textarea id="rest_ip_blacklist" name="mhm_rentiva_rest_settings[security][ip_blacklist]" rows="3" cols="50" placeholder="192.168.1.100, 10.0.0.50, 172.16.1.200">' . esc_textarea(implode(', ', $security_settings['ip_blacklist'])) . '</textarea>';
+        echo '<p class="description">' . esc_html__('Block all requests from these IPs. Example: 192.168.1.100, 10.0.0.50', 'mhm-rentiva') . '</p>';
+        
+        echo '</td></tr>';
+        
+        echo '<tr><th scope="row">' . esc_html__('Cache Settings', 'mhm-rentiva') . '</th><td>';
+        
+        $cache_settings = self::get_cache_settings();
+        
+        echo '<label><input type="checkbox" name="mhm_rentiva_rest_settings[cache][enabled]" value="1"' . checked($cache_settings['enabled'], true, false) . '> ' . esc_html__('API Cache enabled', 'mhm-rentiva') . '</label><br><br>';
+        
+        echo '<label for="rest_cache_duration">' . esc_html__('Cache Duration (Seconds)', 'mhm-rentiva') . '</label><br>';
+        echo '<input type="number" id="rest_cache_duration" name="mhm_rentiva_rest_settings[cache][duration_seconds]" value="' . esc_attr($cache_settings['duration_seconds']) . '" min="60" max="3600" style="width: 150px;">';
+        echo '<p class="description">' . esc_html__('Duration for which API responses are cached.', 'mhm-rentiva') . '</p>';
+        
+        echo '</td></tr>';
+        
+        echo '<tr><th scope="row">' . esc_html__('Developer Mode', 'mhm-rentiva') . '</th><td>';
+        
+        $dev_settings = self::get_development_settings();
+        $wp_debug_status = self::is_wp_debug_enabled() ? 
+            '<span style="color: #46b450;">✓ Active</span>' : 
+            '<span style="color: #dc3232;">✗ Inactive</span>';
+        
+        echo '<p><strong>WordPress Debug Status:</strong> ' . $wp_debug_status . '</p>';
+        
+        echo '<label><input type="checkbox" name="mhm_rentiva_rest_settings[development][debug_mode]" value="1"' . checked($dev_settings['debug_mode'], true, false) . '> ' . esc_html__('Debug mode enabled', 'mhm-rentiva') . '</label>';
+        echo '<p class="description">' . esc_html__('Enable REST API debug information.', 'mhm-rentiva') . '</p>';
+        
+        echo '<br><br><label><input type="checkbox" name="mhm_rentiva_rest_settings[development][auto_enable_on_debug]" value="1"' . checked($dev_settings['auto_enable_on_debug'], true, false) . '> ' . esc_html__('Auto enable if WP_DEBUG is active', 'mhm-rentiva') . '</label>';
+        echo '<p class="description">' . esc_html__('Automatically enable developer features if WordPress debug mode is active.', 'mhm-rentiva') . '</p>';
+        
+        echo '<br><br><label><input type="checkbox" name="mhm_rentiva_rest_settings[development][rate_limit_bypass]" value="1"' . checked($dev_settings['rate_limit_bypass'], true, false) . '> ' . esc_html__('Rate limit bypass', 'mhm-rentiva') . '</label>';
+        echo '<p class="description">' . esc_html__('Bypass rate limiting in developer mode.', 'mhm-rentiva') . '</p>';
+        
+        echo '<br><br><label><input type="checkbox" name="mhm_rentiva_rest_settings[development][security_bypass]" value="1"' . checked($dev_settings['security_bypass'], true, false) . '> ' . esc_html__('Security bypass', 'mhm-rentiva') . '</label>';
+        echo '<p class="description">' . esc_html__('Bypass security checks in developer mode (WARNING: Use only in development environment!).', 'mhm-rentiva') . '</p>';
+        
+        echo '<br><br><label><input type="checkbox" name="mhm_rentiva_rest_settings[development][cors_all_origins]" value="1"' . checked($dev_settings['cors_all_origins'], true, false) . '> ' . esc_html__('Allow CORS from all origins', 'mhm-rentiva') . '</label>';
+        echo '<p class="description">' . esc_html__('Allow CORS requests from all origins in developer mode.', 'mhm-rentiva') . '</p>';
+        
+        echo '<br><br><label><input type="checkbox" name="mhm_rentiva_rest_settings[development][verbose_logging]" value="1"' . checked($dev_settings['verbose_logging'], true, false) . '> ' . esc_html__('Verbose logging', 'mhm-rentiva') . '</label>';
+        echo '<p class="description">' . esc_html__('Detailed logging for all REST API requests and responses.', 'mhm-rentiva') . '</p>';
+        
+        echo '</td></tr>';
+        
+        echo '</table>';
+        
+        // SettingsView::render_api_keys_section() and SettingsView::render_endpoints_section()
+        // should be called from SettingsView or moved here too. 
+        // For now, I will keep them effectively available via class checks or just return null if not needed here.
+        // But since I'm moving the main tab logic, I should probably also consider if these need to enter here.
+        // SettingsView calls them sequentially.
     }
 }

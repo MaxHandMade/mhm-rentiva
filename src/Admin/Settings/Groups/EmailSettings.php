@@ -13,6 +13,31 @@ class EmailSettings
 {
     public const SECTION_ID = 'mhm_rentiva_email_section';
 
+    /**
+     * Get default settings for email
+     *
+     * @return array
+     */
+    public static function get_default_settings(): array
+    {
+        return [
+            'mhm_rentiva_email_from_name'            => get_bloginfo('name'),
+            'mhm_rentiva_email_from_address'         => get_option('admin_email'),
+            'mhm_rentiva_email_reply_to'             => get_option('admin_email'),
+            'mhm_rentiva_email_send_enabled'         => '1',
+            'mhm_rentiva_email_test_mode'            => '0',
+            'mhm_rentiva_email_test_address'         => get_option('admin_email'),
+            'mhm_rentiva_email_template_path'        => 'mhm-rentiva/emails/',
+            'mhm_rentiva_email_auto_send'            => '1',
+            'mhm_rentiva_email_log_enabled'          => '1',
+            'mhm_rentiva_email_log_retention_days'   => 30,
+            'mhm_rentiva_email_booking_confirmation' => '1',
+            'mhm_rentiva_email_booking_reminder'     => '1',
+            'mhm_rentiva_email_booking_cancellation' => '1',
+            'mhm_rentiva_email_reminder_hours'       => 24,
+        ];
+    }
+
     public static function register(): void
     {
         add_settings_section(
@@ -22,9 +47,9 @@ class EmailSettings
             'mhm_rentiva_settings'
         );
 
-        if (class_exists('WooCommerce')) {
-            return;
-        }
+        // if (class_exists('WooCommerce')) {
+        //    return;
+        // }
 
         // General Email Settings
         add_settings_field(
@@ -141,17 +166,18 @@ class EmailSettings
         if (class_exists('WooCommerce')) {
             echo '<div class="notice notice-info inline" style="margin: 10px 0;">';
             echo '<p><strong>' . esc_html__('WooCommerce Active:', 'mhm-rentiva') . '</strong> ';
-            echo esc_html__('Email notifications are handled by WooCommerce. These settings are disabled.', 'mhm-rentiva');
+            echo esc_html__('WooCommerce manages transactional emails. The settings below apply to MHM Rentiva internal notifications (e.g. Messages, Staff Alerts).', 'mhm-rentiva');
             echo '</p></div>';
-            return;
+            // Allow processing to continue
+        } else {
+            echo '<p>' . esc_html__('Configure email sending and template settings.', 'mhm-rentiva') . '</p>';
         }
 
-        echo '<p>' . esc_html__('Configure email sending and template settings.', 'mhm-rentiva') . '</p>';
         echo '<div class="notice notice-info inline" style="margin: 10px 0;">';
         echo '<p><strong>' . esc_html__('Note:', 'mhm-rentiva') . '</strong> ';
         echo esc_html__('These settings affect all email sending. In test mode, emails are only sent to the test address.', 'mhm-rentiva');
         echo '</p></div>';
-        
+
         // Link to email templates
         $email_templates_url = admin_url('admin.php?page=mhm-rentiva-settings&tab=email-templates');
         echo '<div class="notice notice-info inline" style="margin: 10px 0;">';

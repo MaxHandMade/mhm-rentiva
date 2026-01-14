@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Groups;
 
@@ -11,6 +13,21 @@ if (!defined('ABSPATH')) {
 
 final class ReconcileSettings
 {
+    /**
+     * Get default settings
+     *
+     * @return array
+     */
+    public static function get_default_settings(): array
+    {
+        return [
+            'mhm_rentiva_reconcile_enabled'       => '0',
+            'mhm_rentiva_reconcile_frequency'     => 'daily',
+            'mhm_rentiva_reconcile_timeout'       => 30,
+            'mhm_rentiva_reconcile_notify_errors' => '1',
+        ];
+    }
+
     /**
      * Safe sanitize text field that handles null values
      */
@@ -81,7 +98,7 @@ final class ReconcileSettings
             'daily' => __('Daily', 'mhm-rentiva'),
             'weekly' => __('Weekly', 'mhm-rentiva')
         ];
-        
+
         echo '<select name="mhm_rentiva_reconcile_frequency">';
         foreach ($frequencies as $freq => $label) {
             echo '<option value="' . esc_attr($freq) . '"' . selected($val, $freq, false) . '>' . esc_html($label) . '</option>';
@@ -180,7 +197,7 @@ final class ReconcileSettings
             'daily' => __('Daily', 'mhm-rentiva'),
             'weekly' => __('Weekly', 'mhm-rentiva')
         ];
-        
+
         return $labels[$frequency] ?? __('Daily', 'mhm-rentiva');
     }
 }

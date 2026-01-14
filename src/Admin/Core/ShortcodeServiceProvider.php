@@ -56,12 +56,7 @@ final class ShortcodeServiceProvider
                 'dependencies' => ['booking'],
                 'requires_auth' => false,
             ],
-            'rentiva_thank_you' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\ThankYou',
-                'priority' => 10,
-                'dependencies' => ['booking'],
-                'requires_auth' => false,
-            ],
+
         ],
 
         // Vehicle Display Shortcodes
@@ -176,6 +171,13 @@ final class ShortcodeServiceProvider
                 'priority' => 10,
                 'dependencies' => ['booking'],
                 'requires_auth' => false,
+            ],
+            'rentiva_messages' => [
+                'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
+                'method' => 'render_messages',
+                'priority' => 10,
+                'dependencies' => [],
+                'requires_auth' => true,
             ],
         ],
 

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Core;
 
@@ -17,7 +19,7 @@ final class SettingsCore
     {
         // Basic WordPress hooks
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_assets']);
-        
+
         // Dark Mode support
         add_action('wp_head', [self::class, 'apply_dark_mode_frontend']);
         add_action('admin_head', [self::class, 'apply_dark_mode_admin']);
@@ -29,8 +31,8 @@ final class SettingsCore
         add_action('init', [self::class, 'init_security_management']);
         add_action('init', [self::class, 'init_privacy_management']);
         add_action('init', [self::class, 'init_notification_management']);
-        
-        
+
+
         // Register settings groups - reorganized
         add_action('admin_init', [self::class, 'init']);
         add_action('admin_init', [self::class, 'register_general_settings']);
@@ -42,7 +44,7 @@ final class SettingsCore
         add_action('admin_init', [self::class, 'register_system_settings']);
         add_action('admin_init', [self::class, 'register_frontend_settings']);
         add_action('admin_init', [self::class, 'register_integration_settings']);
-        
+
         // Hook to flush rewrite rules when settings change
         add_action('updated_option', [self::class, 'on_update_option'], 10, 3);
     }
@@ -99,7 +101,7 @@ final class SettingsCore
             'nonce' => wp_create_nonce('mhm_dark_mode_nonce'),
             'currentMode' => get_option('mhm_rentiva_dark_mode', 'auto')
         ]);
-        
+
         // ✅ CRITICAL: Enqueue settings form handler to prevent null values
         wp_enqueue_script(
             'mhm-rentiva-settings-form-handler',
@@ -142,82 +144,8 @@ final class SettingsCore
             ]
         );
 
-        \add_settings_section(
-            'mhm_rentiva_general_section',
-            __('General Settings', 'mhm-rentiva'),
-            [self::class, 'render_general_section_description'],
-            self::PAGE
-        );
+        // General Fields are now registered via GeneralSettings::register()
 
-        \add_settings_field(
-            'mhm_rentiva_currency',
-            __('Currency', 'mhm-rentiva'),
-            [self::class, 'render_currency_field'],
-            self::PAGE,
-            'mhm_rentiva_general_section'
-        );
-
-        add_settings_field(
-            'mhm_rentiva_currency_position',
-            __('Currency Position', 'mhm-rentiva'),
-            [self::class, 'render_currency_position_field'],
-            self::PAGE,
-            'mhm_rentiva_general_section'
-        );
-
-        add_settings_field(
-            'mhm_rentiva_dark_mode',
-            __('Dark Mode', 'mhm-rentiva'),
-            [self::class, 'render_dark_mode_field'],
-            self::PAGE,
-            'mhm_rentiva_general_section'
-        );
-
-
-        add_settings_field(
-            'mhm_rentiva_support_email',
-            __('Support Email', 'mhm-rentiva'),
-            [self::class, 'render_support_email_field'],
-            self::PAGE,
-            'mhm_rentiva_general_section'
-        );
-
-        add_settings_field(
-            'mhm_rentiva_contact_phone',
-            __('Contact Phone', 'mhm-rentiva'),
-            [self::class, 'render_contact_phone_field'],
-            self::PAGE,
-            'mhm_rentiva_general_section'
-        );
-
-        add_settings_field(
-            'mhm_rentiva_contact_hours',
-            __('Support Hours', 'mhm-rentiva'),
-            [self::class, 'render_contact_hours_field'],
-            self::PAGE,
-            'mhm_rentiva_general_section'
-        );
-
-
-
-
-
-        add_settings_field(
-            'mhm_rentiva_brand_name',
-            __('Brand Name', 'mhm-rentiva'),
-            [self::class, 'render_brand_name_field'],
-            self::PAGE,
-            'mhm_rentiva_general_section'
-        );
-
-        // Clean Data on Uninstall setting
-        add_settings_field(
-            'mhm_rentiva_clean_data_on_uninstall',
-            __('Clean Data on Uninstall', 'mhm-rentiva'),
-            [self::class, 'render_clean_data_on_uninstall_field'],
-            self::PAGE,
-            'mhm_rentiva_general_section'
-        );
 
 
 
@@ -226,43 +154,32 @@ final class SettingsCore
 
     public static function defaults(): array
     {
-        return [
-            'mhm_rentiva_currency'            => 'USD',
-            'mhm_rentiva_currency_position'   => 'right_space', // left, right, left_space, right_space
-            // ⭐ Company & Support
-            'mhm_rentiva_support_email'       => 'destek@maxhandmade.com',
-            'mhm_rentiva_contact_phone'       => '+90 555 555 55 55',
-            'mhm_rentiva_contact_hours'       => __('7/24 Support', 'mhm-rentiva'),
-            'mhm_rentiva_date_format'         => 'Y-m-d',
-            'mhm_rentiva_default_rental_days' => 1,
-            
-            // ⭐ Site Information
-            'mhm_rentiva_site_url'            => get_option('siteurl', ''),
-            'mhm_rentiva_home_url'            => get_option('home', ''),
-            'mhm_rentiva_admin_email'         => get_option('admin_email', ''),
-            'mhm_rentiva_site_language'       => get_locale(),
-            'mhm_rentiva_start_of_week'       => get_option('start_of_week', 1),
+        $defaults = [
+            // General Settings (Managed by GeneralSettings class)
+            // This merges the array returned by GeneralSettings::get_default_settings() into the main defaults
+        ];
 
-            // ⭐ Booking Settings (Only actively used settings)
-            'mhm_rentiva_booking_cancellation_deadline_hours' => 24,
-            'mhm_rentiva_booking_payment_deadline_minutes' => 30,
-            'mhm_rentiva_booking_auto_cancel_enabled' => '1',
-            'mhm_rentiva_booking_send_confirmation_emails' => '1',
-            'mhm_rentiva_booking_send_reminder_emails' => '1',
-            'mhm_rentiva_booking_admin_notifications' => '1',
-            'mhm_rentiva_booking_default_payment_method' => 'woocommerce',
-            'mhm_rentiva_booking_thank_you_page' => '',
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\GeneralSettings')) {
+            $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\GeneralSettings::get_default_settings());
+        }
 
-            // ⭐ Vehicle Limits (configurable)
-            'mhm_rentiva_vehicle_max_seats' => 100,
-            'mhm_rentiva_vehicle_max_doors' => 20,
-            'mhm_rentiva_vehicle_min_engine_size' => 0.0,
-            'mhm_rentiva_vehicle_max_engine_size' => 20.0,
-            'mhm_rentiva_vehicle_max_gallery_images' => 50,
+        // ⭐ Booking Settings (Managed by BookingSettings class)
 
+
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\BookingSettings')) {
+            $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\BookingSettings::get_default_settings());
+        }
+
+
+
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings')) {
+            $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::get_default_settings());
+        }
+
+        return array_merge($defaults, [
             'comparison_fields'               => [],
             // Email settings managed in EmailSettings class
-            
+
             // Frontend URL & Text Settings (Global i18n support)
             // Account Endpoints (Dynamic Slugs)
             'mhm_rentiva_endpoint_bookings'        => 'rentiva-bookings',
@@ -309,7 +226,7 @@ final class SettingsCore
             'mhm_rentiva_text_payment_success'            => '',
             'mhm_rentiva_text_payment_cancelled'          => '',
             'mhm_rentiva_text_popup_blocked'              => '',
-            
+
             // Vehicle Management Settings
             'mhm_rentiva_vehicle_base_price'           => 1.0,
             'mhm_rentiva_vehicle_weekend_multiplier'   => 1.2,
@@ -325,188 +242,86 @@ final class SettingsCore
             'mhm_rentiva_vehicle_max_rental_days'      => 30,
             'mhm_rentiva_vehicle_advance_booking_days' => 365,
             'mhm_rentiva_vehicle_allow_same_day'       => '1',
-            
-            // Customer Management Settings (Only actively used settings)
-            'mhm_rentiva_customer_registration_enabled'      => '1',
-            'mhm_rentiva_customer_email_verification'        => '1',
-            'mhm_rentiva_customer_phone_required'            => '1',
-            'mhm_rentiva_customer_terms_required'            => '1',
-            'mhm_rentiva_customer_terms_text'                => __('I accept the terms of use and privacy policy.', 'mhm-rentiva'),
-            'mhm_rentiva_customer_auto_login'                => '1',
-            'mhm_rentiva_customer_welcome_email'             => '1',
-            'mhm_rentiva_customer_booking_notifications'     => '1',
-            'mhm_rentiva_customer_password_min_length'       => 8,
-            'mhm_rentiva_customer_password_require_special'  => '1',
-            'mhm_rentiva_customer_gdpr_compliance'           => '1',
-            'mhm_rentiva_customer_default_role'              => 'customer',
-            'mhm_rentiva_customer_notification_frequency'    => 'immediate',
-            
-            // Notification Settings
-            'mhm_rentiva_email_booking_confirmation'     => '1',
-            'mhm_rentiva_email_payment_confirmation'     => '1',
-            'mhm_rentiva_email_booking_reminder'         => '1',
-            'mhm_rentiva_email_booking_cancellation'     => '1',
-            'mhm_rentiva_email_reminder_hours'           => 24,
-            'mhm_rentiva_email_from_name'                => get_bloginfo('name'),
-            'mhm_rentiva_email_from_address'             => get_option('admin_email'),
-            'mhm_rentiva_email_send_enabled'             => '1',
-            'mhm_rentiva_email_auto_send'                => '1',
-            'mhm_rentiva_email_log_enabled'              => '1',
-            
-            // Security Settings (Rate Limiting & Performance)
-            'mhm_rentiva_rate_limit_enabled'                => '1',
-            'mhm_rentiva_rate_limit_requests_per_minute'    => 60,
-            'mhm_rentiva_rate_limit_booking_per_minute'     => 5,
-            'mhm_rentiva_rate_limit_payment_per_minute'     => 3,
-            'mhm_rentiva_rate_limit_block_duration'         => 15,
-            'mhm_rentiva_rate_limit_general_minute'         => 60,
-            'mhm_rentiva_rate_limit_booking_minute'         => 5,
-            'mhm_rentiva_rate_limit_payment_minute'         => 3,
-            // Cache Settings
-            'mhm_rentiva_cache_enabled'                     => '1',
-            'mhm_rentiva_cache_default_ttl'                 => 1,
-            'mhm_rentiva_cache_lists_ttl'                   => 5,
-            'mhm_rentiva_cache_reports_ttl'                 => 15,
-            'mhm_rentiva_cache_charts_ttl'                  => 10,
-            // Database Settings
-            'mhm_rentiva_db_auto_optimize'                  => '0',
-            'mhm_rentiva_db_performance_threshold'          => 100,
-            // WordPress Optimization
-            'mhm_rentiva_wp_optimization_enabled'           => '1',
-            'mhm_rentiva_wp_memory_limit'                   => 256,
-            'mhm_rentiva_wp_meta_query_limit'               => 5,
-            // IP Control & Security
-            'mhm_rentiva_ip_whitelist_enabled'              => '0',
-            'mhm_rentiva_ip_whitelist'                      => '',
-            'mhm_rentiva_ip_blacklist_enabled'              => '1',
-            'mhm_rentiva_ip_blacklist'                      => '',
-            'mhm_rentiva_country_restriction_enabled'       => '0',
-            'mhm_rentiva_allowed_countries'                 => '',
-            'mhm_rentiva_brute_force_protection'            => '1',
-            'mhm_rentiva_max_login_attempts'                => 5,
-            'mhm_rentiva_login_lockout_duration'            => 30,
-            'mhm_rentiva_sql_injection_protection'          => '1',
-            'mhm_rentiva_xss_protection'                    => '1',
-            'mhm_rentiva_csrf_protection'                   => '1',
-            'mhm_rentiva_strong_passwords'                  => '1',
-            'mhm_rentiva_password_expiry_days'              => 0,
-            'mhm_rentiva_two_factor_auth'                   => '0',
-            'mhm_rentiva_session_security'                  => '1',
-            // Reconciliation Settings
-            'mhm_rentiva_reconcile_frequency'               => 'daily',
-            'mhm_rentiva_reconcile_timeout'                 => 30,
-            'mhm_rentiva_reconcile_notify_errors'           => '1',
+
+            // ⭐ Customer Settings (Managed by CustomerManagementSettings class)
+        ]);
+
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings')) {
+            $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::get_default_settings());
+        }
+
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\PaymentSettings')) {
+            $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\PaymentSettings::get_default_settings());
+        }
+
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\EmailSettings')) {
+            $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_default_settings());
+        }
+
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\CoreSettings')) {
+            $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_default_settings());
+        }
+
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\SecuritySettings')) {
+            $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\SecuritySettings::get_default_settings());
+        }
+
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\ReconcileSettings')) {
+            $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\ReconcileSettings::get_default_settings());
+        }
+
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\LogsSettings')) {
+            $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\LogsSettings::get_default_settings());
+        }
+
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\MaintenanceSettings')) {
+            $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\MaintenanceSettings::get_default_settings());
+        }
+
+        return array_merge($defaults, [
+            // Branding Settings
             'mhm_rentiva_brand_name'          => get_bloginfo('name'),
             'mhm_rentiva_brand_logo_url'      => '',
+
+            // Email Styling (Frontend)
             'mhm_rentiva_email_primary_color' => '#1e88e5',
             'mhm_rentiva_email_footer_text'   => '© {Y} {site}',
 
+            // Use vehicle pricing class if available (for complex nested structure)
+            'vehicle_pricing' => class_exists('\MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings')
+                ? \MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings::get_default_settings()
+                : [],
+        ]);
+    }
 
-            'mhm_rentiva_auto_cancel_enabled' => '1',
-            'mhm_rentiva_auto_cancel_minutes' => 30,
-            'mhm_rentiva_reconcile_enabled' => '0',
-            'mhm_rentiva_log_level' => 'info',
-            'mhm_rentiva_log_retention_days'  => 30,
-            'mhm_rentiva_log_cleanup_enabled' => '1',
-            'mhm_rentiva_debug_mode' => '0',
-            'mhm_rentiva_log_max_size' => 10,
-            // ⭐ Offline payment removed - WooCommerce handles all payments
+    /**
+     * Set a setting value
+     * 
+     * @param string $key Setting key
+     * @param mixed $value Setting value
+     * @return bool Success status
+     */
+    public static function set(string $key, $value): bool
+    {
+        $settings = self::get_all();
+        $settings[$key] = $value;
+        return update_option('mhm_rentiva_settings', $settings);
+    }
 
-            
-            // Clean Data on Uninstall
-            'mhm_rentiva_clean_data_on_uninstall' => '0',
-            
-            
-            // Vehicle Pricing settings - integrated from VehiclePricingSettings
-            'vehicle_pricing' => [
-                'seasonal_multipliers' => [
-                    'spring' => [
-                        'name' => __('Spring', 'mhm-rentiva'),
-                        'months' => [3, 4, 5],
-                        'multiplier' => 1.0,
-                        'description' => __('Standard pricing', 'mhm-rentiva')
-                    ],
-                    'summer' => [
-                        'name' => __('Summer', 'mhm-rentiva'),
-                        'months' => [6, 7, 8],
-                        'multiplier' => 1.3,
-                        'description' => __('High season pricing', 'mhm-rentiva')
-                    ],
-                    'autumn' => [
-                        'name' => __('Autumn', 'mhm-rentiva'),
-                        'months' => [9, 10, 11],
-                        'multiplier' => 1.1,
-                        'description' => __('Mid season pricing', 'mhm-rentiva')
-                    ],
-                    'winter' => [
-                        'name' => __('Winter', 'mhm-rentiva'),
-                        'months' => [12, 1, 2],
-                        'multiplier' => 0.8,
-                        'description' => __('Low season pricing', 'mhm-rentiva')
-                    ]
-                ],
-                
-                'discount_options' => [
-                    'weekly' => [
-                        'name' => __('Weekly Discount', 'mhm-rentiva'),
-                        'description' => __('7 days and above rental', 'mhm-rentiva'),
-                        'min_days' => 7,
-                        'discount_percent' => 10,
-                        'type' => 'percentage',
-                        'enabled' => true
-                    ],
-                    'monthly' => [
-                        'name' => __('Monthly Discount', 'mhm-rentiva'),
-                        'description' => __('30 days and above rental', 'mhm-rentiva'),
-                        'min_days' => 30,
-                        'discount_percent' => 20,
-                        'type' => 'percentage',
-                        'enabled' => true
-                    ],
-                    'early_booking' => [
-                        'name' => __('Early Booking', 'mhm-rentiva'),
-                        'description' => __('30 days advance booking', 'mhm-rentiva'),
-                        'advance_days' => 30,
-                        'discount_percent' => 5,
-                        'type' => 'percentage',
-                        'enabled' => true
-                    ],
-                    'loyalty' => [
-                        'name' => __('Loyalty Discount', 'mhm-rentiva'),
-                        'description' => __('Regular customer discount', 'mhm-rentiva'),
-                        'discount_percent' => 15,
-                        'type' => 'percentage',
-                        'enabled' => false
-                    ]
-                ],
-                
-                'addon_services' => [],
-                
-                'currency_settings' => [
-                    'default_currency' => 'USD'
-                ],
-                
-                'deposit_settings' => [
-                    'enable_deposit' => true,
-                    'deposit_type' => 'both', // 'fixed', 'percentage', 'both'
-                    'allow_no_deposit' => true,
-                    'required_for_booking' => false,
-                    'show_deposit_in_listing' => true,
-                    'show_deposit_in_detail' => true,
-                    'deposit_refund_policy' => __('Deposit is non-refundable, deducted from total rental amount.', 'mhm-rentiva'),
-                    'deposit_payment_methods' => ['credit_card', 'cash', 'bank_transfer']
-                ],
-                
-                'general_settings' => [
-                    'min_rental_days' => 1,
-                    'max_rental_days' => 365,
-                    'default_rental_days' => 3,
-                    'price_calculation_method' => 'daily',
-                    'round_prices' => true,
-                    'decimal_places' => 2
-                ]
-            ]
-        ];
+    /**
+     * Delete a setting
+     * 
+     * @param string $key Setting key
+     * @return bool Success status
+     */
+    public static function delete(string $key): bool
+    {
+        $settings = self::get_all();
+        if (isset($settings[$key])) {
+            unset($settings[$key]);
+            return update_option('mhm_rentiva_settings', $settings);
+        }
+        return true;
     }
 
     public static function get_all(): array
@@ -514,17 +329,17 @@ final class SettingsCore
         // ✅ Get from main settings option
         $main_settings = get_option('mhm_rentiva_settings', []);
         $defaults = self::defaults();
-        
+
         // Fill missing keys with default values
         foreach ($defaults as $key => $default_value) {
             if (!isset($main_settings[$key])) {
                 $main_settings[$key] = $default_value;
             }
         }
-        
+
         return $main_settings;
     }
-    
+
     /**
      * Reset settings for a specific tab to defaults
      * 
@@ -536,17 +351,17 @@ final class SettingsCore
         if (!current_user_can('manage_options')) {
             return false;
         }
-        
+
         $defaults = self::defaults();
         $main_settings = get_option('mhm_rentiva_settings', []);
-        
+
         // Define tab-specific settings keys
         $tab_keys = self::get_tab_settings_keys($tab);
-        
+
         if (empty($tab_keys)) {
             return false;
         }
-        
+
         // Reset only tab-specific keys to their defaults
         foreach ($tab_keys as $key) {
             if (isset($defaults[$key])) {
@@ -556,10 +371,10 @@ final class SettingsCore
                 // unset($main_settings[$key]);
             }
         }
-        
+
         return update_option('mhm_rentiva_settings', $main_settings) !== false;
     }
-    
+
     /**
      * Get settings keys for a specific tab
      * 
@@ -570,7 +385,7 @@ final class SettingsCore
     {
         $all_defaults = self::defaults();
         $tab_keys = [];
-        
+
         switch ($tab) {
             case 'general':
                 // General settings keys
@@ -588,7 +403,7 @@ final class SettingsCore
                     'mhm_rentiva_clean_data_on_uninstall'
                 ];
                 break;
-                
+
             case 'vehicle':
                 // Vehicle settings keys (all keys starting with mhm_rentiva_vehicle_)
                 foreach (array_keys($all_defaults) as $key) {
@@ -597,7 +412,7 @@ final class SettingsCore
                     }
                 }
                 break;
-                
+
             case 'booking':
                 // Booking settings keys
                 foreach (array_keys($all_defaults) as $key) {
@@ -606,7 +421,7 @@ final class SettingsCore
                     }
                 }
                 break;
-                
+
             case 'customer':
                 // Customer settings keys
                 foreach (array_keys($all_defaults) as $key) {
@@ -615,7 +430,7 @@ final class SettingsCore
                     }
                 }
                 break;
-                
+
             case 'email':
                 // Email settings keys
                 foreach (array_keys($all_defaults) as $key) {
@@ -624,21 +439,24 @@ final class SettingsCore
                     }
                 }
                 break;
-                
+
             case 'payment':
                 // Payment settings keys
                 foreach (array_keys($all_defaults) as $key) {
-                    if (strpos($key, 'mhm_rentiva_offline_') === 0 ||
-                        strpos($key, 'mhm_rentiva_booking_default_payment_method') === 0) {
+                    if (
+                        strpos($key, 'mhm_rentiva_offline_') === 0 ||
+                        strpos($key, 'mhm_rentiva_booking_default_payment_method') === 0
+                    ) {
                         $tab_keys[] = $key;
                     }
                 }
                 break;
-                
+
             case 'system':
                 // System & Performance settings keys
                 foreach (array_keys($all_defaults) as $key) {
-                    if (strpos($key, 'mhm_rentiva_rate_limit_') === 0 ||
+                    if (
+                        strpos($key, 'mhm_rentiva_rate_limit_') === 0 ||
                         strpos($key, 'mhm_rentiva_cache_') === 0 ||
                         strpos($key, 'mhm_rentiva_db_') === 0 ||
                         strpos($key, 'mhm_rentiva_auto_') === 0 ||
@@ -647,16 +465,18 @@ final class SettingsCore
                         strpos($key, 'mhm_rentiva_ip_') === 0 ||
                         strpos($key, 'mhm_rentiva_security_') === 0 ||
                         strpos($key, 'mhm_rentiva_authentication_') === 0 ||
-                        strpos($key, 'mhm_rentiva_maintenance_') === 0) {
+                        strpos($key, 'mhm_rentiva_maintenance_') === 0
+                    ) {
                         $tab_keys[] = $key;
                     }
                 }
                 break;
-                
+
             case 'frontend':
                 // Frontend URL & Text settings keys
                 foreach (array_keys($all_defaults) as $key) {
-                    if (strpos($key, 'mhm_rentiva_booking_url') === 0 ||
+                    if (
+                        strpos($key, 'mhm_rentiva_booking_url') === 0 ||
                         strpos($key, 'mhm_rentiva_login_url') === 0 ||
                         strpos($key, 'mhm_rentiva_register_url') === 0 ||
                         strpos($key, 'mhm_rentiva_my_') === 0 ||
@@ -665,15 +485,16 @@ final class SettingsCore
                         strpos($key, 'mhm_rentiva_contact_url') === 0 ||
                         strpos($key, 'mhm_rentiva_text_') === 0 ||
                         strpos($key, 'mhm_rentiva_endpoint_') === 0 ||
-                        strpos($key, 'comparison_fields') === 0) {
+                        strpos($key, 'comparison_fields') === 0
+                    ) {
                         $tab_keys[] = $key;
                     }
                 }
                 break;
         }
-        
+
         // Filter to only include keys that exist in defaults
-        return array_filter($tab_keys, function($key) use ($all_defaults) {
+        return array_filter($tab_keys, function ($key) use ($all_defaults) {
             return array_key_exists($key, $all_defaults);
         });
     }
@@ -682,15 +503,15 @@ final class SettingsCore
     {
         // ✅ REMOVED: Standalone option check - all settings now in mhm_rentiva_settings array
         // This prevents conflicts with old standalone options
-        
+
         // ✅ Get from main settings option
         $main_settings = get_option('mhm_rentiva_settings', []);
         $defaults = self::defaults();
-        
+
         // Check if key exists in main settings
         if (isset($main_settings[$key])) {
             $value = $main_settings[$key];
-            
+
             // If default exists, check if we should use default instead
             if (isset($defaults[$key])) {
                 $default_type = gettype($defaults[$key]);
@@ -711,149 +532,21 @@ final class SettingsCore
                     }
                 }
             }
-            
+
             return $value;
         }
-        
+
         // ✅ Use defaults array if available
         if (isset($defaults[$key])) {
             return $defaults[$key];
         }
-        
+
         // ✅ Last resort: use provided default parameter
         return $default;
     }
 
 
-    /**
-     * General Settings Section Description
-     */
-    public static function render_general_section_description(): void
-    {
-        echo '<p>' . esc_html__('Configure general system settings.', 'mhm-rentiva') . '</p>';
-    }
 
-    /**
-     * Currency Field
-     */
-    public static function render_currency_field(): void
-    {
-        if (class_exists('WooCommerce')) {
-            echo '<p class="description"><strong>' . esc_html__('Managed by WooCommerce:', 'mhm-rentiva') . '</strong> ' . get_woocommerce_currency() . '</p>';
-            return;
-        }
-
-        $currency = self::get('mhm_rentiva_currency', 'USD');
-        // Use centralized currency list from CurrencyHelper
-        $currencies = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_list_for_dropdown();
-        
-        echo '<select name="mhm_rentiva_settings[mhm_rentiva_currency]">';
-        foreach ($currencies as $code => $name) {
-            echo '<option value="' . esc_attr($code) . '"' . selected($currency, $code, false) . '>' . esc_html($name) . '</option>';
-        }
-        echo '</select>';
-        echo '<p class="description">' . esc_html__('Currency to be used throughout the system.', 'mhm-rentiva') . '</p>';
-    }
-
-    /**
-     * Currency Position Field
-     */
-    public static function render_currency_position_field(): void
-    {
-        if (class_exists('WooCommerce')) {
-            echo '<p class="description">' . esc_html__('Currency position is managed by WooCommerce settings.', 'mhm-rentiva') . '</p>';
-            return;
-        }
-
-        $position = self::get('mhm_rentiva_currency_position', 'right_space');
-        $positions = [
-            'left' => 'Left ($100)',
-            'left_space' => 'Left Space ($ 100)',
-            'right' => 'Right (100$)',
-            'right_space' => 'Right Space (100 $)'
-        ];
-        
-        echo '<select name="mhm_rentiva_settings[mhm_rentiva_currency_position]">';
-        foreach ($positions as $pos => $name) {
-            echo '<option value="' . esc_attr($pos) . '"' . selected($position, $pos, false) . '>' . esc_html($name) . '</option>';
-        }
-        echo '</select>';
-    }
-
-    /**
-     * Date Format Field
-     */
-    public static function render_date_format_field(): void
-    {
-        $format = self::get('mhm_rentiva_date_format', 'Y-m-d');
-        $formats = [
-            'Y-m-d' => '2024-01-15',
-            'd-m-Y' => '15-01-2024',
-            'm/d/Y' => '01/15/2024',
-            'd/m/Y' => '15/01/2024'
-        ];
-        
-        echo '<select name="mhm_rentiva_settings[mhm_rentiva_date_format]">';
-        foreach ($formats as $fmt => $example) {
-            echo '<option value="' . esc_attr($fmt) . '"' . selected($format, $fmt, false) . '>' . esc_html($example) . '</option>';
-        }
-        echo '</select>';
-    }
-
-    /**
-     * Default Rental Days Field
-     */
-    public static function render_default_rental_days_field(): void
-    {
-        $days = self::get('mhm_rentiva_default_rental_days', 1);
-        echo '<input type="number" name="mhm_rentiva_settings[mhm_rentiva_default_rental_days]" value="' . esc_attr($days) . '" min="1" max="365" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Default rental duration in booking form (days).', 'mhm-rentiva') . '</p>';
-    }
-
-    /**
-     * Brand Name Field
-     */
-    public static function render_brand_name_field(): void
-    {
-        $brand = self::get('mhm_rentiva_brand_name', get_bloginfo('name'));
-        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_brand_name]" value="' . esc_attr($brand) . '" class="regular-text" />';
-        echo '<p class="description">' . esc_html__('Brand name to appear in emails and documents.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_contact_phone_field(): void
-    {
-        $phone = self::get('mhm_rentiva_contact_phone', '+90 555 555 55 55');
-        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_contact_phone]" value="' . esc_attr($phone) . '" class="regular-text" />';
-        echo '<p class="description">' . esc_html__('Phone number for contact form footer.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_contact_hours_field(): void
-    {
-        $hours = self::get('mhm_rentiva_contact_hours', __('7/24 Support', 'mhm-rentiva'));
-        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_contact_hours]" value="' . esc_attr($hours) . '" class="regular-text" />';
-        echo '<p class="description">' . esc_html__('Working hours text for contact form footer.', 'mhm-rentiva') . '</p>';
-    }
-
-    /**
-     * Clean Data on Uninstall Field
-     */
-    public static function render_clean_data_on_uninstall_field(): void
-    {
-        $enabled = self::get('mhm_rentiva_clean_data_on_uninstall', '0');
-        echo '<label>';
-        echo '<input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_clean_data_on_uninstall]" value="1"' . checked($enabled, '1', false) . '> ';
-        echo esc_html__('Clean all plugin data and database tables when the plugin is deleted from WordPress.', 'mhm-rentiva');
-        echo '</label>';
-        echo '<p class="description">';
-        echo '<strong>' . esc_html__('Important:', 'mhm-rentiva') . '</strong> ';
-        echo esc_html__('If enabled, when you delete the plugin from WordPress (Plugins > Installed Plugins > Delete), all plugin data including vehicles, bookings, settings, custom tables, and related database records will be permanently removed. This action is irreversible. Make sure you have a backup before enabling this option.', 'mhm-rentiva');
-        echo '</p>';
-        echo '<div class="notice notice-warning inline" style="margin-top: 10px;">';
-        echo '<p><strong>' . esc_html__('⚠️ Warning:', 'mhm-rentiva') . '</strong> ';
-        echo esc_html__('This will delete all plugin-related files and database records when the plugin is uninstalled. This cannot be undone.', 'mhm-rentiva');
-        echo '</p>';
-        echo '</div>';
-    }
 
     // Email settings now managed in EmailSettings class
 
@@ -864,7 +557,7 @@ final class SettingsCore
     {
         // General settings already defined in init() function
         // Additional general settings can be added here
-        
+
         // Register additional general settings if needed
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\GeneralSettings')) {
             \MHMRentiva\Admin\Settings\Groups\GeneralSettings::register();
@@ -879,11 +572,11 @@ final class SettingsCore
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings')) {
             \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::register();
         }
-        
+
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\VehicleComparisonSettings')) {
             \MHMRentiva\Admin\Settings\Groups\VehicleComparisonSettings::register();
         }
-        
+
         // Vehicle pricing settings
         if (class_exists('\MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings')) {
             // Register VehiclePricingSettings if class exists
@@ -898,7 +591,7 @@ final class SettingsCore
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\BookingSettings')) {
             \MHMRentiva\Admin\Settings\Groups\BookingSettings::register();
         }
-        
+
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\AddonSettings')) {
             \MHMRentiva\Admin\Settings\Groups\AddonSettings::register();
         }
@@ -941,19 +634,19 @@ final class SettingsCore
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\CoreSettings')) {
             \MHMRentiva\Admin\Settings\Groups\CoreSettings::register();
         }
-        
+
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\SecuritySettings')) {
             \MHMRentiva\Admin\Settings\Groups\SecuritySettings::register();
         }
-        
+
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\MaintenanceSettings')) {
             \MHMRentiva\Admin\Settings\Groups\MaintenanceSettings::register();
         }
-        
+
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\LogsSettings')) {
             \MHMRentiva\Admin\Settings\Groups\LogsSettings::register();
         }
-        
+
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\ReconcileSettings')) {
             \MHMRentiva\Admin\Settings\Groups\ReconcileSettings::register();
         }
@@ -1053,7 +746,7 @@ final class SettingsCore
             self::PAGE,
             'mhm_rentiva_message_texts_section'
         );
-        
+
         // Account Endpoint Slugs Section (Moved to bottom)
         add_settings_section(
             'mhm_rentiva_frontend_endpoints_section',
@@ -1109,7 +802,7 @@ final class SettingsCore
             self::PAGE,
             'mhm_rentiva_frontend_endpoints_section'
         );
-        
+
         // Register Comments Settings
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup')) {
             \MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::register();
@@ -1222,111 +915,13 @@ final class SettingsCore
     public static function render_refund_policy_text_field(): void
     {
         $value = self::get('mhm_rentiva_text_refund_policy', '');
-        echo '<textarea name="mhm_rentiva_settings[mhm_rentiva_text_refund_policy]" rows="3" class="large-text" placeholder="If cancelled, refund will be processed within 5-7 business days.">' . esc_textarea($value) . '</textarea>';
-        echo '<p class="description">' . __('Default: "If cancelled, refund will be processed within 5-7 business days."', 'mhm-rentiva') . '</p>';
+        echo '<textarea name="mhm_rentiva_settings[mhm_rentiva_text_refund_policy]" rows="3" class="large-text" placeholder="' . esc_attr__('If cancelled, refund will be processed within 5-7 business days.', 'mhm-rentiva') . '">' . esc_textarea($value) . '</textarea>';
+        echo '<p class="description">' . sprintf(__('Default: "%s"', 'mhm-rentiva'), __('If cancelled, refund will be processed within 5-7 business days.', 'mhm-rentiva')) . '</p>';
     }
 
 
 
-    /**
-     * Dark Mode Settings Field
-     */
-    public static function render_dark_mode_field(): void
-    {
-        $value = get_option('mhm_rentiva_dark_mode', 'auto');
-        $options = [
-            'auto' => __('Automatic (System Preference)', 'mhm-rentiva'),
-            'light' => __('Light Mode', 'mhm-rentiva'),
-            'dark' => __('Dark Mode', 'mhm-rentiva'),
-        ];
-        
-        echo '<select name="mhm_rentiva_settings[mhm_rentiva_dark_mode]" id="mhm_rentiva_dark_mode">';
-        foreach ($options as $key => $label) {
-            echo '<option value="' . esc_attr($key) . '"' . selected($value, $key, false) . '>' . esc_html($label) . '</option>';
-        }
-        echo '</select>';
-        echo '<p class="description">' . esc_html__('Choose your preferred theme mode. Automatic follows your system preference.', 'mhm-rentiva') . '</p>';
-        
-        echo '<div style="margin-top: 10px;">';
-        echo '<button type="button" id="mhm-test-dark-mode" class="button button-secondary">' . esc_html__('Test Dark Mode', 'mhm-rentiva') . '</button>';
-        echo '<span id="mhm-dark-mode-status" style="margin-left: 10px; font-weight: bold;"></span>';
-        echo '</div>';
-        
-        // JavaScript for testing
-        echo '<script>
-        jQuery(document).ready(function($) {
-            $("#mhm-test-dark-mode").on("click", function() {
-                var currentMode = $("#mhm_rentiva_dark_mode").val();
-                var status = $("#mhm-dark-mode-status");
-                
-                if (!document.body) {
-                    status.text("❌ Body not ready").css("color", "#d63638");
-                    return;
-                }
-                
-                if (currentMode === "dark") {
-                    document.body.classList.add("wp-theme-dark");
-                    status.text("✅ Dark Mode Active").css("color", "#00a32a");
-                } else if (currentMode === "light") {
-                    document.body.classList.remove("wp-theme-dark");
-                    status.text("✅ Light Mode Active").css("color", "#00a32a");
-                } else {
-                    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-                        document.body.classList.add("wp-theme-dark");
-                        status.text("✅ Auto Mode: Dark (System)").css("color", "#00a32a");
-                    } else {
-                        document.body.classList.remove("wp-theme-dark");
-                        status.text("✅ Auto Mode: Light (System)").css("color", "#00a32a");
-                    }
-                }
-                
-                var testElement = $("<div>").css({
-                    "position": "fixed",
-                    "top": "50%",
-                    "left": "50%",
-                    "transform": "translate(-50%, -50%)",
-                    "background": "var(--mhm-tooltip-bg)",
-                    "color": "var(--mhm-tooltip-color)",
-                    "padding": "20px",
-                    "border-radius": "8px",
-                    "z-index": "9999",
-                    "box-shadow": "var(--mhm-tooltip-shadow)"
-                }).text("Dark Mode Test - CSS Variables Working!");
-                
-                $("body").append(testElement);
-                setTimeout(function() {
-                    testElement.fadeOut(500, function() {
-                        testElement.remove();
-                    });
-                }, 2000);
-                
-                $.post(ajaxurl, {
-                    action: "mhm_save_dark_mode",
-                    dark_mode: currentMode,
-                    nonce: "' . wp_create_nonce('mhm_dark_mode_nonce') . '"
-                }, function(response) {
-                    if (response.success) {
-                        console.log("Dark mode setting saved:", currentMode);
-                    } else {
-                        console.error("Failed to save dark mode:", response);
-                    }
-                }).fail(function(xhr, status, error) {
-                    console.error("AJAX error:", error);
-                });
-            });
-        });
-        </script>';
-    }
 
-    /**
-     * ⭐ Company & Support URL Fields
-     */
-    public static function render_support_email_field(): void
-    {
-        $value = self::get('mhm_rentiva_support_email', 'destek@maxhandmade.com');
-        echo '<input type="email" name="mhm_rentiva_settings[mhm_rentiva_support_email]" value="' . esc_attr($value) . '" class="regular-text" />';
-        echo '<p class="description">' . esc_html__('Email address to be used for customer support', 'mhm-rentiva') . '</p>';
-    }
 
     /**
      * Get support email
@@ -1350,7 +945,7 @@ final class SettingsCore
     public static function add_dark_mode_body_class($classes): array
     {
         $dark_mode = self::get_dark_mode();
-        
+
         if ($dark_mode === 'dark') {
             $classes[] = 'wp-theme-dark';
         } elseif ($dark_mode === 'light') {
@@ -1359,7 +954,7 @@ final class SettingsCore
         } elseif ($dark_mode === 'auto') {
             $classes[] = 'mhm-auto-dark-mode';
         }
-        
+
         return $classes;
     }
 
@@ -1369,7 +964,7 @@ final class SettingsCore
     public static function apply_dark_mode_frontend(): void
     {
         $dark_mode = self::get_dark_mode();
-        
+
         if ($dark_mode === 'auto') {
             echo '<style>
             .mhm-auto-dark-mode {
@@ -1405,7 +1000,7 @@ final class SettingsCore
     public static function apply_dark_mode_admin(): void
     {
         $dark_mode = self::get_dark_mode();
-        
+
         if ($dark_mode === 'auto') {
             echo '<style>
             .mhm-auto-dark-mode {
@@ -1451,7 +1046,7 @@ final class SettingsCore
         }
 
         $dark_mode = self::sanitize_text_field_safe($_POST['mode'] ?? 'auto');
-        
+
         if (!in_array($dark_mode, ['auto', 'light', 'dark'])) {
             wp_send_json_error(__('Invalid dark mode value', 'mhm-rentiva'));
             return;
@@ -1512,7 +1107,7 @@ final class SettingsCore
         // Apply rate limiting to specific actions
         add_action('wp_ajax_mhm_booking_request', [self::class, 'check_booking_rate_limit'], 1);
         add_action('wp_ajax_nopriv_mhm_booking_request', [self::class, 'check_booking_rate_limit'], 1);
-        
+
         add_action('wp_ajax_mhm_payment_request', [self::class, 'check_payment_rate_limit'], 1);
         add_action('wp_ajax_nopriv_mhm_payment_request', [self::class, 'check_payment_rate_limit'], 1);
 
@@ -1584,47 +1179,14 @@ final class SettingsCore
         }
     }
 
-    // ========================================
-    // SITE INFORMATION RENDER FUNCTIONS
-    // ========================================
-    
-    public static function render_site_info_section_description(): void
-    {
-        echo '<p>' . esc_html__('Basic site information and configuration settings.', 'mhm-rentiva') . '</p>';
-    }
 
-    public static function render_site_url_field(): void
-    {
-        $value = self::get('mhm_rentiva_site_url', get_option('siteurl', ''));
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_site_url]" value="' . esc_attr($value) . '" class="regular-text" readonly />';
-        echo '<p class="description">' . esc_html__('WordPress site URL (read-only)', 'mhm-rentiva') . '</p>';
-    }
 
-    public static function render_home_url_field(): void
-    {
-        $value = self::get('mhm_rentiva_home_url', get_option('home', ''));
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_home_url]" value="' . esc_attr($value) . '" class="regular-text" readonly />';
-        echo '<p class="description">' . esc_html__('WordPress home URL (read-only)', 'mhm-rentiva') . '</p>';
-    }
 
-    public static function render_admin_email_field(): void
-    {
-        $value = self::get('mhm_rentiva_admin_email', get_option('admin_email', ''));
-        echo '<input type="email" name="mhm_rentiva_settings[mhm_rentiva_admin_email]" value="' . esc_attr($value) . '" class="regular-text" readonly />';
-        echo '<p class="description">' . esc_html__('WordPress admin email address (read-only)', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_site_language_field(): void
-    {
-        $value = self::get('mhm_rentiva_site_language', get_locale());
-        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_site_language]" value="' . esc_attr($value) . '" class="regular-text" readonly />';
-        echo '<p class="description">' . esc_html__('WordPress site language (read-only)', 'mhm-rentiva') . '</p>';
-    }
 
     // ========================================
     // DATE & TIME RENDER FUNCTIONS
     // ========================================
-    
+
     public static function render_datetime_section_description(): void
     {
         echo '<p>' . esc_html__('Date and time format settings for the entire system.', 'mhm-rentiva') . '</p>';
@@ -1642,7 +1204,7 @@ final class SettingsCore
             5 => __('Friday', 'mhm-rentiva'),
             6 => __('Saturday', 'mhm-rentiva'),
         ];
-        
+
         echo '<select name="mhm_rentiva_settings[mhm_rentiva_start_of_week]" disabled>';
         foreach ($days as $day_num => $day_name) {
             echo '<option value="' . esc_attr($day_num) . '"' . selected($value, $day_num, false) . '>' . esc_html($day_name) . '</option>';
@@ -1654,7 +1216,7 @@ final class SettingsCore
     // ========================================
     // SYSTEM INFORMATION RENDER FUNCTIONS
     // ========================================
-    
+
     public static function render_system_info_section_description(): void
     {
         echo '<p>' . esc_html__('System version information and technical details.', 'mhm-rentiva') . '</p>';
@@ -1806,7 +1368,7 @@ final class SettingsCore
         if ($option !== 'mhm_rentiva_settings') {
             return;
         }
-        
+
         // List of endpoint keys to check
         $endpoints = [
             'mhm_rentiva_endpoint_bookings',
@@ -1816,26 +1378,25 @@ final class SettingsCore
             'mhm_rentiva_endpoint_edit_account',
             'mhm_rentiva_endpoint_view_booking'
         ];
-        
+
         $should_flush = false;
-        
+
         foreach ($endpoints as $key) {
             $old_val = $old_value[$key] ?? '';
             $new_val = $value[$key] ?? '';
-            
+
             if ($old_val !== $new_val) {
                 $should_flush = true;
                 break;
             }
         }
-        
+
         if ($should_flush) {
-             // Flush rewrite rules
-             flush_rewrite_rules();
-             
-             // Also force WooCommerce integration to re-register endpoints on next load
-             update_option('mhm_rentiva_woocommerce_endpoints_flushed', false);
+            // Flush rewrite rules
+            flush_rewrite_rules();
+
+            // Also force WooCommerce integration to re-register endpoints on next load
+            update_option('mhm_rentiva_woocommerce_endpoints_flushed', false);
         }
     }
 }
-

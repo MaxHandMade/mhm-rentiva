@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Groups;
 
@@ -15,6 +17,38 @@ if (!defined('ABSPATH')) {
  */
 final class SecuritySettings
 {
+    /**
+     * Get default settings for security
+     *
+     * @return array
+     */
+    public static function get_default_settings(): array
+    {
+        return [
+            // IP Control
+            'mhm_rentiva_ip_whitelist_enabled'              => '0',
+            'mhm_rentiva_ip_whitelist'                      => '',
+            'mhm_rentiva_ip_blacklist_enabled'              => '1',
+            'mhm_rentiva_ip_blacklist'                      => '',
+            'mhm_rentiva_country_restriction_enabled'       => '0',
+            'mhm_rentiva_allowed_countries'                 => '',
+
+            // Security Rules
+            'mhm_rentiva_brute_force_protection'            => '1',
+            'mhm_rentiva_max_login_attempts'                => 5,
+            'mhm_rentiva_login_lockout_duration'            => 30,
+            'mhm_rentiva_sql_injection_protection'          => '1',
+            'mhm_rentiva_xss_protection'                    => '1',
+            'mhm_rentiva_csrf_protection'                   => '1',
+
+            // Authentication
+            'mhm_rentiva_strong_passwords'                  => '1',
+            'mhm_rentiva_password_expiry_days'              => 0,
+            'mhm_rentiva_two_factor_auth'                   => '0',
+            'mhm_rentiva_session_security'                  => '1',
+        ];
+    }
+
     /**
      * Register settings
      */

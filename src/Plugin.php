@@ -156,11 +156,6 @@ final class Plugin
             \MHMRentiva\Admin\Settings\ShortcodePages::register();
         }
 
-        // Shortcode Settings
-        if ($this->is_class_available('MHMRentiva\Admin\Settings\ShortcodeSettings')) {
-            \MHMRentiva\Admin\Settings\ShortcodeSettings::register();
-        }
-
 
             
         // Email templates

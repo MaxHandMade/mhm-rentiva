@@ -155,21 +155,17 @@ final class AccountRenderer
     }
 
     /**
-     * Account Details render
+     * Account Details render (Removed)
+     * 
+     * @see WooCommerce My Account
      */
+    /*
     public static function render_account_details(array $atts = []): string
     {
-        $user = wp_get_current_user();
-        
-        $data = [
-            'user' => $user,
-            'phone' => get_user_meta($user->ID, 'mhm_rentiva_phone', true),
-            'address' => get_user_meta($user->ID, 'mhm_rentiva_address', true),
-            'navigation' => self::get_navigation(),
-        ];
-        
-        return Templates::render('account/account-details', $data, true);
+        // Removed as per request (redundant with WooCommerce)
+        return '';
     }
+    */
 
     /**
      * Messages render
@@ -366,9 +362,9 @@ final class AccountRenderer
      */
     private static function get_navigation(): array
     {
-        // ⭐ Don't show custom navigation on WooCommerce My Account page
-        // WooCommerce already provides its own navigation menu
-        if (self::is_woocommerce_account_page()) {
+        // ⭐ Don't show custom navigation if WooCommerce is active
+        // WooCommerce provides its own navigation which is preferred
+        if (class_exists('WooCommerce')) {
             return [];
         }
         
