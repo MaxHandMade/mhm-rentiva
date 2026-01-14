@@ -1680,51 +1680,17 @@ input[type="text"].password-input {
     box-shadow: none;
     border: 1px solid #e2e8f0;
     /* margin: 0; keeping margin might be good for spacing */
-}/ *    
-       F I X :   I n t e g r a t e d   T a b l e s   O v e r f l o w    
- * /  
-  
- . m h m - r e n t i v a - a c c o u n t - p a g e . m h m - i n t e g r a t e d   . m h m - b o o k i n g s - t a b l e   {  
-         t a b l e - l a y o u t :   a u t o ;  
-         w i d t h :   1 0 0 % ;  
- }  
-  
- . m h m - r e n t i v a - a c c o u n t - p a g e . m h m - i n t e g r a t e d   . m h m - b o o k i n g s - t a b l e   t h ,  
- . m h m - r e n t i v a - a c c o u n t - p a g e . m h m - i n t e g r a t e d   . m h m - b o o k i n g s - t a b l e   t d   {  
-         w h i t e - s p a c e :   n o r m a l ;  
-         / *   A l l o w   w r a p p i n g   * /  
-         p a d d i n g :   0 . 7 5 r e m   0 . 5 r e m ;  
-         / *   R e d u c e   p a d d i n g   * /  
-         f o n t - s i z e :   0 . 8 5 r e m ;  
-         / *   S l i g h t l y   s m a l l e r   f o n t   * /  
- }  
-  
- / *   E n s u r e   v e h i c l e   n a m e   w r a p s   a n d   d o e s n ' t   t a k e   t o o   m u c h   s p a c e   * /  
- . m h m - r e n t i v a - a c c o u n t - p a g e . m h m - i n t e g r a t e d   . r v - v e h i c l e - n a m e   {  
-         m i n - w i d t h :   a u t o ;  
-         m a x - w i d t h :   1 5 0 p x ;  
-         w o r d - w r a p :   b r e a k - w o r d ;  
- }  
-  
- / *   S t a t u s   b a d g e   c o m p a c t   * /  
- . m h m - r e n t i v a - a c c o u n t - p a g e . m h m - i n t e g r a t e d   . r v - b o o k i n g - s t a t u s   . s t a t u s - b a d g e   {  
-         p a d d i n g :   2 p x   8 p x ;  
-         f o n t - s i z e :   0 . 7 5 r e m ;  
-         w h i t e - s p a c e :   n o w r a p ;  
-         / *   K e e p   b a d g e   s i n g l e   l i n e   * /  
- }  
-  
- / *   A c t i o n s   c o l u m n   c o m p a c t   * /  
- . m h m - r e n t i v a - a c c o u n t - p a g e . m h m - i n t e g r a t e d   . r v - b o o k i n g - a c t i o n s   . b t n   {  
-         p a d d i n g :   4 p x   1 0 p x ;  
-         f o n t - s i z e :   0 . 8 r e m ;  
- }  
-  
- / *   E n s u r e   h o r i z o n t a l   s c r o l l   i f   i t   S T I L L   o v e r f l o w s   ( s a f e t y   n e t )   * /  
- . m h m - r e n t i v a - a c c o u n t - p a g e . m h m - i n t e g r a t e d   . b o o k m a r k s - t a b l e - w r a p p e r ,  
- . m h m - r e n t i v a - a c c o u n t - p a g e . m h m - i n t e g r a t e d   . r v - t a b l e - w r a p p e r   {  
-         o v e r f l o w - x :   a u t o ;  
-         w i d t h :   1 0 0 % ;  
-         d i s p l a y :   b l o c k ;  
- }  
- 
+}
+
+/* FIX: Integrated Tables Overflow */
+.mhm-rentiva-account-page.mhm-integrated .mhm-bookings-table {
+    table-layout: auto;
+    width: 100%;
+}
+
+.mhm-rentiva-account-page.mhm-integrated .mhm-bookings-table th,
+.mhm-rentiva-account-page.mhm-integrated .mhm-bookings-table td {
+    white-space: normal; /* Allow wrapping */
+    padding: 0.75rem 0.5rem; /* Reduce padding */
+    font-size: 0.85rem; /* Slightly smaller font */
+}
