@@ -1,8 +1,21 @@
 [
     {
-        "version": "4.5.4",
+        "version": "4.5.5",
         "date": "2026-01-15",
         "type": "current",
+        "changes": [
+            "🎨 ÖN YÜZ GÜZELLEŞTİRME: \"Kullanım Dışı\" rozet mantığı ve yerleşimi düzeltildi. Araç Detay sayfasında mobilde taşma sorunları giderildi.",
+            "💄 ARAMA ARAYÜZÜ: Arama Sonuçlarında buton renkleri standartlaştırıldı (mavi tema) ve \"Kullanım Dışı\" durumu göstergeleri eklendi.",
+            "⚖️ KARŞILAŞTIRMA ARAYÜZÜ: Karşılaştırma Sayfasında kart hizalamaları iyileştirildi, buton stilleri düzeltildi ve satır içi stiller temizlendi.",
+            "❤️ FAVORİLER ARAYÜZÜ: Favorilerim sayfasında müsait olmayan araçlar için \"Kullanım Dışı\" rozeti ve pasif rezervasyon butonu eklendi.",
+            "📅 REZERVASYONLAR ARAYÜZÜ: Yatay kaydırmayı önlemek için tablo düzeni optimize edildi (kısa başlıklar, kompakt butonlar).",
+            "🌍 YERELLEŞTİRME: POT dosyasına eksik çeviri metinleri eklendi."
+        ]
+    },
+    {
+        "version": "4.5.4",
+        "date": "2026-01-15",
+        "type": "previous",
         "changes": [
             "🚀 REFACTORING: Ayarlar çekirdeğinde modülerlik ve bakım için büyük çaplı yeniden yapılandırma.",
             "🛍️ WOOCOMMERCE: WooCommerce aktif olduğunda Ödeme Ayarlarının gizlenmesi sağlandı.",

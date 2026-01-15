@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "POT-Creation-Date: 2025-11-25T18:46:38+01:00\n"
-"PO-Revision-Date: 2026-01-15 02:23+0300\n"
+"PO-Revision-Date: 2026-01-15 14:38+0000\n"
 "Last-Translator: MaxHandMade <destek@maxhandmade.com>\n"
 "Language-Team: Türkçe\n"
 "Language: tr_TR\n"
@@ -11,67 +11,67 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Loco https://localise.biz/\n"
 "X-Domain: mhm-rentiva\n"
 "X-Loco-Version: 2.8.0; wp-6.9; php-8.2.12\n"
 
 #. translators: 1: %s; 2: %d; 3: %.2f.
 #: src/Admin/CLI/DatabaseCleanupCommand.php:84
-#, fuzzy
+#, fuzzy, php-format
 msgid "  - %1$s: %2$d rows (%3$.2f MB)"
 msgstr "  - %1$s: %2$d satır (%3$.2f MB)"
 
 #. translators: %s placeholder.
 #: src/Admin/CLI/DatabaseCleanupCommand.php:91
-#, fuzzy
+#, fuzzy, php-format
 msgid "  - %s: NOT EXISTS"
 msgstr "  - %s: YOK"
 
 #. translators: 1: Field name, 2: Expected format
 #: src/Admin/Core/Exceptions/ValidationException.php:102
-#, fuzzy
+#, fuzzy, php-format
 msgid "\"%1$s\" field has invalid format. Expected: %2$s"
 msgstr "\"%1$s\" alanı geçersiz biçime sahip. Beklenen: %2$s"
 
 #. translators: 1: Field name, 2: Expected type, 3: Actual type
 #: src/Admin/Core/Exceptions/ValidationException.php:179
-#, fuzzy
+#, fuzzy, php-format
 msgid "\"%1$s\" field has invalid type. Expected: %2$s, Actual: %3$s"
 msgstr "\"%1$s\" alanı geçersiz türe sahip. Beklenen: %2$s, Gerçek: %3$s"
 
 #. translators: 1: Field name, 2: Allowed values
 #: src/Admin/Core/Exceptions/ValidationException.php:257
-#, fuzzy
+#, fuzzy, php-format
 msgid "\"%1$s\" invalid choice. Allowed: %2$s"
 msgstr "\"%1$s\" geçersiz seçim. İzin verildi: %2$s"
 
 #. translators: 1: Field name, 2: Current length, 3: Maximum length
 #: src/Admin/Core/Exceptions/ValidationException.php:205
-#, fuzzy
+#, fuzzy, php-format
 msgid "\"%1$s\" is too long. Current: %2$d, Max: %3$d"
 msgstr "\"%1$s\" çok uzun. Akım: %2$d, Maks: %3$d"
 
 #. translators: 1: Field name, 2: Current length, 3: Minimum length
 #: src/Admin/Core/Exceptions/ValidationException.php:231
-#, fuzzy
+#, fuzzy, php-format
 msgid "\"%1$s\" is too short. Current: %2$d, Min: %3$d"
 msgstr "\"%1$s\" çok kısa. Akım: %2$d, Min: %3$d"
 
 #. translators: 1: Field name, 2: Value
 #: src/Admin/Core/Exceptions/ValidationException.php:154
-#, fuzzy
+#, fuzzy, php-format
 msgid "\"%1$s\" value already exists: %2$s"
 msgstr "\"%1$s\" değeri zaten mevcut: %2$s"
 
 #. translators: 1: Field name, 2: Minimum value, 3: Maximum value
 #: src/Admin/Core/Exceptions/ValidationException.php:128
-#, fuzzy
+#, fuzzy, php-format
 msgid "\"%1$s\" value is out of range. Min: %2$s, Max: %3$s"
 msgstr "\"%1$s\" değeri aralık dışında. Min: %2$s, Maks: %3$s"
 
 #. translators: %d placeholder.
 #: src/Admin/Booking/Addons/AddonBooking.php:89
-#, fuzzy
+#, fuzzy, php-format
 msgid "\"%s\" additional service is required."
 msgstr "\"%s\" ek hizmet gereklidir."
 
@@ -83,61 +83,61 @@ msgstr "\"%s\" alanı zorunludur."
 
 #. translators: %.1f placeholder.
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:157
-#, fuzzy
+#, fuzzy, php-format
 msgid "%.1f%% of total amount"
 msgstr "%.1f%% of toplam tutar"
 
 #. translators: 1: %1$d; 2: %2$d.
 #: src/Admin/Addons/AddonManager.php:406
-#, fuzzy
+#, fuzzy, php-format
 msgid "%1$d additional services processed, %2$d additional services failed."
 msgstr "%1$d ek hizmetler işlendi, %2$d ek hizmetler başarısız oldu."
 
 #. translators: %1$d placeholder.
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:182
-#, fuzzy
+#, fuzzy, php-format
 msgid "%1$d expired transients cleaned."
 msgstr "%d süresi dolan geçişler temizlendi."
 
 #. translators: 1: %1$d; 2: %2$s.
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:255
-#, fuzzy
+#, fuzzy, php-format
 msgid "%1$d invalid meta records cleaned. Backup table: %2$s"
 msgstr "%1$d geçersiz meta kayıtları temizlendi. Yedek tablo: %2$s"
 
 #. translators: 1: %1$d; 2: %2$s.
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:205
-#, fuzzy
+#, fuzzy, php-format
 msgid "%1$d options optimized. Memory saved: %2$s"
 msgstr "%d seçenekler optimize edildi. Kaydedilen bellek: %s"
 
 #. translators: 1: %1$d; 2: %2$s.
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:158
-#, fuzzy
+#, fuzzy, php-format
 msgid "%1$d orphaned meta records cleaned. Backup table: %2$s"
 msgstr "%d yetim meta kayıtları temizlendi. Yedek tablo: %s"
 
 #. translators: 1: %1$d; 2: %2$.2f.
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:231
-#, fuzzy
+#, fuzzy, php-format
 msgid "%1$d tables optimized in %2$.2f seconds"
 msgstr "%d tablolar %.2f saniye içinde optimize edildi"
 
 #. translators: 1: %1$d; 2: %2$s; 3: %3$s.
 #: src/Admin/Testing/IntegrationTest.php:262
-#, fuzzy
+#, fuzzy, php-format
 msgid "%1$d translation functions found, textdomain: %2$s, lang files: %3$s"
 msgstr "%1$d çeviri işlevi bulundu, metin alanı: %2$s, dil dosyaları: %3$s"
 
 #. translators: 1: %1$d; 2: %2$d; 3: %.2f.
 #: src/Admin/Testing/PerformanceTest.php:338
-#, fuzzy
+#, fuzzy, php-format
 msgid "%1$d/%2$d class loaded in %.2f ms"
 msgstr "%1$d/%2$d sınıfı %.2f ms içinde yüklendi"
 
 #. translators: 1: %s; 2: %s.
 #: src/Admin/Utilities/Export/ExportStats.php:162
-#, fuzzy
+#, fuzzy, php-format
 msgid "%1$s (%2$s format)"
 msgstr "%1$s (%2$s formatı)"
 
@@ -161,43 +161,43 @@ msgstr "%1$s planlanan: %2$s."
 
 #. translators: %d placeholder.
 #: src/Admin/Addons/AddonManager.php:413
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d additional services successfully processed."
 msgstr "%d ek hizmetler başarıyla işlendi."
 
 #. translators: %d: maximum number of addon services allowed in Lite version.
 #: src/Admin/About/Tabs/FeaturesTab.php:71
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d addon services"
 msgstr "%d ek hizmetler"
 
 #. translators: %d: maximum number of bookings allowed in Lite version.
 #: src/Admin/About/Tabs/FeaturesTab.php:53
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d bookings"
 msgstr "%d rezervasyon"
 
 #. translators: %d: maximum number of customers allowed in Lite version.
 #: src/Admin/About/Tabs/FeaturesTab.php:62
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d customers"
 msgstr "%d müşteri"
 
 #. translators: %d placeholder.
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:283
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d customers deleted."
 msgstr "%d müşteriler silindi."
 
 #. translators: %d placeholder.
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:280
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d customers exported."
 msgstr "%d ihraç edilen müşteriler."
 
 #. translators: %d placeholder.
 #: src/Admin/Customers/CustomersPage.php:632
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d customers processed."
 msgstr "%d müşteriler işlendi."
 
@@ -206,89 +206,89 @@ msgstr "%d müşteriler işlendi."
 #: src/Admin/About/Tabs/GeneralTab.php:125
 #: src/Admin/Licensing/LicenseAdmin.php:144
 #: src/Admin/Licensing/LicenseAdmin.php:174
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d days remaining"
 msgstr "%d gün kaldı"
 
 #. translators: %d placeholder.
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:359
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d Doors"
 msgstr "%d Kapılar"
 
 #. translators: %d placeholder.
 #: src/Admin/Core/Utilities/AbstractListTable.php:228
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d items processed."
 msgstr "%d öğeler işlendi."
 
 #. translators: %d placeholder.
 #: src/Admin/Messages/Monitoring/MessageLogger.php:415
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d log records deleted."
 msgstr "%d günlük kayıtları silindi."
 
 #. translators: %d placeholder.
 #: src/Admin/Messages/Admin/MessageListTable.php:686
 #: src/Admin/Messages/Core/Messages.php:743
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d messages deleted."
 msgstr "%d mesajlar silindi."
 
 #. translators: %d placeholder.
 #: src/Admin/Messages/Admin/MessageListTable.php:677
 #: src/Admin/Messages/Core/Messages.php:744
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d messages marked as read."
 msgstr "%d okundu olarak işaretlenmiş mesajlar."
 
 #. translators: %d placeholder.
 #: src/Admin/Messages/Admin/MessageListTable.php:680
 #: src/Admin/Messages/Core/Messages.php:745
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d messages marked as unread."
 msgstr "%d okunmamış olarak işaretlenmiş mesajlar."
 
 #. translators: %d placeholder.
 #: src/Admin/Messages/Core/Messages.php:539
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d messages processed successfully."
 msgstr "%d mesaj başarıyla işlendi."
 
 #. translators: %d placeholder.
 #: src/Admin/Messages/Admin/MessageListTable.php:683
 #: src/Admin/Messages/Core/Messages.php:746
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d messages status updated."
 msgstr "%d mesaj durumu güncellendi."
 
 #. translators: %d placeholder.
 #: src/Admin/Actions/Actions.php:80 src/Admin/Utilities/Actions/Actions.php:98
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d old records deleted."
 msgstr "%d eski kayıtlar silindi."
 
 #. translators: %d placeholder.
 #: src/Admin/Settings/ShortcodePages.php:436
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d pages found."
 msgstr "%d sayfa bulundu."
 
 #. translators: %d: total payments count.
 #: templates/account/payment-history.php:43
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d payments listed"
 msgstr "%d ödemeler listelenmiştir"
 
 #. translators: %d placeholder.
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:1257
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d pending messages"
 msgstr "%d bekleyen mesajlar"
 
 #. translators: %d placeholder.
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:1281
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d pending payments"
 msgstr "%d bekleyen ödemeler"
 
@@ -319,14 +319,14 @@ msgstr "%d toplam rezervasyonlar"
 
 #. translators: %d placeholder.
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:1326
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d updates available"
 msgstr "%d güncellemeler mevcut"
 
 #. translators: %d placeholder.
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:163
 #: templates/shortcodes/search-results.php:42
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d vehicle found"
 msgid_plural "%d vehicles found"
 msgstr[0] "%d araç bulundu"
@@ -334,7 +334,7 @@ msgstr[1] "%d araç bulundu"
 
 #. translators: %d: maximum number of vehicles allowed in Lite version.
 #: src/Admin/About/Tabs/FeaturesTab.php:44
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d vehicles"
 msgstr "%d araçlar"
 
@@ -342,7 +342,7 @@ msgstr "%d araçlar"
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:102
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:717
 #: templates/shortcodes/vehicle-comparison.php:74
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d vehicles being compared"
 msgstr "%d karşılaştırılan araçlar"
 
@@ -353,13 +353,13 @@ msgstr "%d araç bulundu"
 
 #. translators: %d placeholder.
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:1293
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d vehicles in maintenance"
 msgstr "%d bakımdaki araçlar"
 
 #. translators: %d: favorite vehicles count.
 #: templates/account/favorites.php:40
-#, fuzzy
+#, fuzzy, php-format
 msgid "%d vehicles in your favorites"
 msgstr "%d favorilerinizdeki araçlar"
 
@@ -427,7 +427,7 @@ msgstr ""
 #. translators: %s placeholder.
 #: src/Admin/Licensing/Restrictions.php:288
 #: src/Admin/Licensing/Restrictions.php:307
-#, fuzzy
+#, fuzzy, php-format
 msgid "%s is available in Pro version. Enter your license key to enable."
 msgstr ""
 "%s Pro sürümünde mevcuttur. Etkinleştirmek için lisans anahtarınızı girin."
@@ -464,13 +464,13 @@ msgid "%s published."
 msgstr "%s yayımlandı."
 
 #: mhm-rentiva.php:193
-#, fuzzy
+#, fuzzy, php-format
 msgid "%s requires WooCommerce to be installed and active."
 msgstr "%s WooCommerce'in kurulu ve etkin olması gerekir."
 
 #. translators: %s: Plugin Name
 #: mhm-rentiva.php:227
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "%s requires WooCommerce to be installed and active. Please install "
 "WooCommerce to use this plugin."
@@ -480,7 +480,7 @@ msgstr ""
 
 #. translators: %s placeholder.
 #: src/Admin/Core/PostTypes/AbstractPostType.php:173
-#, fuzzy
+#, fuzzy, php-format
 msgid "%s saved as draft."
 msgstr "%s taslak olarak kaydedildi."
 
@@ -499,7 +499,7 @@ msgstr "%s güncellendi."
 
 #. translators: %d: number of reviews.
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:833
-#, fuzzy
+#, fuzzy, php-format
 msgid "(%d review)"
 msgid_plural "(%d reviews)"
 msgstr[0] "(%d inceleme)"
@@ -740,7 +740,7 @@ msgstr "8+ Koltuk"
 
 #. translators: Dynamic value.
 #: src/Admin/Core/ProFeatureNotice.php:271
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "<a href=\"%s\">Enter your license key</a> to upgrade to Pro for unlimited "
 "bookings."
@@ -750,7 +750,7 @@ msgstr ""
 
 #. translators: Dynamic value.
 #: src/Admin/Core/ProFeatureNotice.php:295
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "<a href=\"%s\">Enter your license key</a> to upgrade to Pro for unlimited "
 "customers."
@@ -760,7 +760,7 @@ msgstr ""
 
 #. translators: Dynamic value.
 #: src/Admin/Core/ProFeatureNotice.php:247
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "<a href=\"%s\">Enter your license key</a> to upgrade to Pro for unlimited "
 "vehicles."
@@ -865,25 +865,25 @@ msgstr "[%1$s] %2$s"
 
 #. translators: 1: Site name, 2: Form title, 3: Message subject
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:518
-#, fuzzy
+#, fuzzy, php-format
 msgid "[%1$s] %2$s - %3$s"
 msgstr "%1$s %2$s: %3$s"
 
 #. translators: %s placeholder.
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:648
-#, fuzzy
+#, fuzzy, php-format
 msgid "[%s] Your Message Received"
 msgstr "[%s] Mesajınız Alındı"
 
 #. translators: %d placeholder.
 #: src/Admin/Booking/Helpers/CancellationHandler.php:336
-#, fuzzy
+#, fuzzy, php-format
 msgid "[ADMIN] Booking Cancelled - #%d"
 msgstr "[YÖNETİCİ] Rezervasyon İptal Edildi - #%d"
 
 #. translators: %s: Log entry title
 #: src/Admin/PostTypes/Logs/AdvancedLogger.php:464
-#, fuzzy
+#, fuzzy, php-format
 msgid "[MHM Rentiva] Critical Error: %s"
 msgstr "[MHM Rentiva] Kritik Hata: %s"
 
@@ -1019,7 +1019,7 @@ msgstr "Hesap Bilgileri"
 
 #. translators: %d placeholder.
 #: src/Admin/Auth/LockoutManager.php:100
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Account is locked due to too many failed login attempts. Please try again in "
 "%d minutes."
@@ -1029,7 +1029,7 @@ msgstr ""
 
 #. translators: %d placeholder.
 #: src/Admin/Auth/LockoutManager.php:124 src/Admin/Auth/LockoutManager.php:129
-#, fuzzy
+#, fuzzy, php-format
 msgid "Account locked for user ID: %d"
 msgstr "Kullanıcı kimliği için hesap kilitlendi: %d"
 
@@ -1046,6 +1046,10 @@ msgstr "Hesap Durumu:"
 #, fuzzy
 msgid "Account updated successfully."
 msgstr "Hesap başarıyla güncellendi."
+
+#: templates/account/bookings.php:141 templates/account/bookings.php:243
+msgid "Act"
+msgstr "Eylem"
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:771
 #: src/Admin/Reports/BackgroundProcessor.php:425
@@ -1475,7 +1479,7 @@ msgstr "Yönetici Para İadesi E-postası"
 
 #. translators: 1: %1$d; 2: %2$d; 3: %3$d.
 #: src/Admin/Testing/PerformanceTest.php:254
-#, fuzzy
+#, fuzzy, php-format
 msgid "Admin: %1$d KB (CSS: %2$d KB, JS: %3$d KB)"
 msgstr "Yönetici: %1$d KB (CSS: %2$d KB, JS: %3$d KB)"
 
@@ -1655,7 +1659,7 @@ msgstr "Tümü"
 
 #. translators: %1$s placeholder.
 #: src/Admin/Vehicle/Taxonomies/VehicleCategory.php:152
-#, fuzzy
+#, fuzzy, php-format
 msgid "All %1$s"
 msgstr "Tüm %1$s"
 
@@ -1767,7 +1771,7 @@ msgstr ""
 
 #. translators: %s placeholder.
 #: src/Admin/Core/ProFeatureNotice.php:61
-#, fuzzy
+#, fuzzy, php-format
 msgid "All Pro features are enabled including %s."
 msgstr "%s dahil olmak üzere tüm Pro özellikleri etkinleştirilmiştir."
 
@@ -1940,7 +1944,7 @@ msgstr "Zaten hesabınız var mı?"
 
 #. translators: %s: License page URL
 #: src/Admin/Setup/SetupWizard.php:279
-#, fuzzy
+#, fuzzy, php-format
 msgid "Already have an active license? Review it on the %s."
 msgstr "Zaten aktif bir lisansınız mı var? %s adresinden inceleyin."
 
@@ -2348,7 +2352,7 @@ msgstr ""
 
 #. translators: Dynamic value.
 #: src/Admin/Core/AssetManager.php:350 src/Admin/Core/AssetManager.php:420
-#, fuzzy
+#, fuzzy, php-format
 msgid "Are you sure you want to change the booking status to \"%s\"?"
 msgstr ""
 "Rezervasyon durumunu \"%s\" olarak değiştirmek istediğinizden emin misiniz?"
@@ -2456,13 +2460,13 @@ msgstr ""
 
 #. translators: %d placeholder.
 #: src/Admin/Messages/Core/Messages.php:1484
-#, fuzzy
+#, fuzzy, php-format
 msgid "Are you sure you want to mark %d messages as read?"
 msgstr "%d mesajı okundu olarak işaretlemek istediğinizden emin misiniz?"
 
 #. translators: %d placeholder.
 #: src/Admin/Messages/Core/Messages.php:1486
-#, fuzzy
+#, fuzzy, php-format
 msgid "Are you sure you want to mark %d messages as unread?"
 msgstr "%d mesajı okunmamış olarak işaretlemek istediğinizden emin misiniz?"
 
@@ -2473,7 +2477,7 @@ msgstr "Bu sayfayı çöpe taşımak istediğinizden emin misiniz?"
 
 #. translators: %d placeholder.
 #: src/Admin/Core/AssetManager.php:910
-#, fuzzy
+#, fuzzy, php-format
 msgid "Are you sure you want to perform this action for %d customer(s)?"
 msgstr ""
 "Bu işlemi %d müşteri(ler) için gerçekleştirmek istediğinizden emin misiniz?"
@@ -2719,7 +2723,7 @@ msgstr "Otomatik Yükleme Seçenekleri"
 
 #. translators: 1: %d; 2: %s.
 #: src/Admin/CLI/DatabaseCleanupCommand.php:65
-#, fuzzy
+#, fuzzy, php-format
 msgid "Autoload Options: %1$d options (%2$s)"
 msgstr "Otomatik Yükleme Seçenekleri: %1$d seçenek (%2$s)"
 
@@ -2792,7 +2796,7 @@ msgstr "Müşterilere gönderilecek otomatik cevap mesajı"
 
 #. translators: %s placeholder.
 #: src/Admin/Messages/Notifications/MessageNotifications.php:265
-#, fuzzy
+#, fuzzy, php-format
 msgid "Automatic Reply: %s"
 msgstr "Otomatik Cevap: %s"
 
@@ -3290,13 +3294,13 @@ msgid "Booking #"
 msgstr "Rezervasyon #"
 
 #: src/Admin/Messages/Core/Messages.php:1282
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking #%1$d - %2$s"
 msgstr "Rezervasyon #%1$d - %2$s"
 
 #. translators: 1: booking ID; 2: site name.
 #: templates/emails/booking-status-changed-customer.html.php:10
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking #%1$s Status Updated - %2$s"
 msgstr "Rezervasyon #%1$s Durumu Güncellendi - %2$s"
 
@@ -3307,7 +3311,7 @@ msgstr "Rezervasyon #%d"
 
 #. translators: %d placeholder.
 #: src/Admin/Booking/Exceptions/BookingException.php:54
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking #%d not found."
 msgstr "Rezervasyon #%d bulunamadı."
 
@@ -3319,13 +3323,13 @@ msgstr "Rezervasyon #%s"
 
 #. translators: %s: booking ID.
 #: templates/emails/booking-reminder-customer.html.php:10
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking #%s Reminder"
 msgstr "Rezervasyon #%s Hatırlatma"
 
 #. translators: %s: booking ID.
 #: templates/emails/booking-status-changed-admin.html.php:10
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking #%s Status Updated"
 msgstr "Rezervasyon #%s Durumu Güncellendi"
 
@@ -3343,7 +3347,7 @@ msgstr "Rezervasyon #{booking_id} durumu güncellendi"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:420
 #: src/Admin/Booking/Meta/BookingMeta.php:1387
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:747
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking - %s"
 msgstr "Rezervasyon - %s"
 
@@ -3354,7 +3358,7 @@ msgstr "30 gün önceden rezervasyon"
 
 #. translators: 1: %s; 2: %s.
 #: src/Admin/Reports/Reports.php:947
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking analysis and status distribution for %1$s to %2$s"
 msgstr "%1$s ila %2$s için rezervasyon analizi ve durum dağılımı"
 
@@ -3380,7 +3384,7 @@ msgstr "Rezervasyon İptal Onayı"
 
 #. translators: %s placeholder.
 #: src/Admin/Booking/Helpers/CancellationHandler.php:299
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking Cancellation Confirmation - %s"
 msgstr "Rezervasyon İptal Onayı - %s"
 
@@ -3392,7 +3396,7 @@ msgstr "Rezervasyon İptal Edildi"
 
 #. translators: %s placeholder.
 #: src/Admin/Booking/Meta/BookingMeta.php:707
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking Cancelled - %s"
 msgstr "Rezervasyon İptal Edildi - %s"
 
@@ -3425,7 +3429,7 @@ msgstr "Rezervasyon onayı"
 
 #. translators: %s placeholder.
 #: src/Admin/Booking/Meta/BookingMeta.php:701
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking Confirmation - %s"
 msgstr "Rezervasyon Onayı - %s"
 
@@ -3436,7 +3440,7 @@ msgstr "Rezervasyon Onaylandı!"
 
 #. translators: %s placeholder.
 #: src/Admin/Booking/Exceptions/BookingException.php:94
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking conflict: %s"
 msgstr "Rezervasyon çakışması: %s"
 
@@ -3635,7 +3639,7 @@ msgstr "Rezervasyon hatırlatma"
 
 #. translators: %s placeholder.
 #: src/Admin/Booking/Meta/BookingMeta.php:705
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking Reminder - %s"
 msgstr "Rezervasyon Hatırlatma - %s"
 
@@ -3656,7 +3660,7 @@ msgstr "Rezervasyon Talep Limiti (Dakika)"
 
 #. translators: 1: Vehicle title, 2: Customer name, 3: Pickup date, 4: Dropoff date
 #: src/Admin/Booking/Core/Handler.php:300
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking Request: %1$s (%2$s) between %3$s - %4$s dates."
 msgstr "Rezervasyon Talebi: %3$s - %4$s tarihleri arasında %1$s (%2$s)."
 
@@ -3709,7 +3713,7 @@ msgstr "Rezervasyon Özeti"
 
 #. translators: %d placeholder.
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:932
-#, fuzzy
+#, fuzzy, php-format
 msgid "Booking too far in advance. Maximum advance booking is %d days."
 msgstr ""
 "Çok önceden rezervasyon yapmak. Maksimum önceden rezervasyon süresi %d "
@@ -3998,7 +4002,7 @@ msgstr "Önbellek Isabet Oranı"
 
 #. translators: 1: %.1f; 2: %d; 3: %d.
 #: src/Admin/Testing/PerformanceTest.php:130
-#, fuzzy
+#, fuzzy, php-format
 msgid "Cache hit rate: %1$.1f%% (%2$d/%3$d)"
 msgstr "Önbellek isabet oranı: %1$.1f%% (%2$d/%3$d)"
 
@@ -4136,7 +4140,7 @@ msgstr "İptal Son Tarihi (Saat)"
 
 #. translators: 1: required hours before pickup, 2: hours remaining until pickup.
 #: src/Admin/Booking/Helpers/CancellationHandler.php:206
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Cancellation deadline has passed. Bookings must be cancelled at least %1$d "
 "hours before pickup. Only %2$.1f hours remaining."
@@ -4146,7 +4150,7 @@ msgstr ""
 
 #. translators: %d placeholder.
 #: src/Admin/Booking/Helpers/CancellationHandler.php:510
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Cancellation deadline has passed. Bookings must be cancelled at least %d "
 "hours before pickup."
@@ -4161,7 +4165,7 @@ msgstr "Son İptal Tarihi:"
 
 #. translators: %s placeholder.
 #: src/Admin/Booking/Helpers/CancellationHandler.php:145
-#, fuzzy
+#, fuzzy, php-format
 msgid "Cancellation failed: %s"
 msgstr "İptal başarısız: %s"
 
@@ -4253,13 +4257,13 @@ msgstr "kart"
 
 #. translators: %s placeholder.
 #: src/Admin/Payment/Core/PaymentException.php:97
-#, fuzzy
+#, fuzzy, php-format
 msgid "Card declined: %s"
 msgstr "Kart reddedildi: %s"
 
 #. translators: %s placeholder.
 #: src/Admin/Payment/Core/PaymentException.php:142
-#, fuzzy
+#, fuzzy, php-format
 msgid "Card expired: %s"
 msgstr "Kartın süresi doldu: %s"
 
@@ -5031,7 +5035,7 @@ msgstr "İletişim Bilgileri"
 
 #. translators: %s placeholder.
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:481
-#, fuzzy
+#, fuzzy, php-format
 msgid "Contact Message - %s"
 msgstr "İletişim Mesajı - %s"
 
@@ -5176,7 +5180,7 @@ msgstr ""
 
 #. translators: %s placeholder.
 #: src/Admin/Licensing/LicenseManager.php:391
-#, fuzzy
+#, fuzzy, php-format
 msgid "Could not connect to license server: %s"
 msgstr "Lisans sunucusuna bağlanılamadı: %s"
 
@@ -5333,7 +5337,7 @@ msgstr "Hırvatistan kunası"
 
 #. translators: Dynamic value.
 #: src/Admin/Utilities/Cron/CronMonitor.php:199
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Cron hook \"%s\" is not registered. The associated class may not be loaded. "
 "Ensure the plugin is fully activated."
@@ -5343,7 +5347,7 @@ msgstr ""
 
 #. translators: Dynamic value.
 #: src/Admin/Utilities/Cron/CronMonitor.php:181
-#, fuzzy
+#, fuzzy, php-format
 msgid "Cron hook \"%s\" is not registered. The function may not be active."
 msgstr "Cron kancası \"%s\" kayıtlı değil. İşlev etkin olmayabilir."
 
@@ -5691,7 +5695,7 @@ msgstr "Müşteri başarıyla eklendi."
 
 #. translators: 1: %s; 2: %s.
 #: src/Admin/Reports/Reports.php:1211
-#, fuzzy
+#, fuzzy, php-format
 msgid "Customer analysis and spending patterns for %1$s to %2$s"
 msgstr "%1$s ila %2$s için müşteri analizi ve harcama alışkanlıkları"
 
@@ -5959,13 +5963,13 @@ msgstr "Günlük Özet"
 
 #. translators: %d placeholder.
 #: src/Admin/Messages/Utilities/MessageUtilities.php:329
-#, fuzzy
+#, fuzzy, php-format
 msgid "Daily message limit of %d exceeded"
 msgstr "Günlük mesaj sınırı %d aşıldı"
 
 #. translators: %d placeholder.
 #: src/Admin/Messages/REST/Customer/SendMessage.php:64
-#, fuzzy
+#, fuzzy, php-format
 msgid "Daily message limit of %d in Lite version"
 msgstr "Lite sürümünde %d günlük mesaj sınırı"
 
@@ -6172,6 +6176,10 @@ msgstr "Tarih Formatı"
 msgid "Date Range"
 msgstr "Tarih aralığı"
 
+#: templates/account/bookings.php:138 templates/account/bookings.php:240
+msgid "Date/Time"
+msgstr "Tarih/Saat"
+
 #: src/Admin/Messages/Core/Messages.php:973
 #: src/Admin/Messages/Core/Messages.php:1227
 #: templates/messages/admin-message-email.html.php:47
@@ -6227,18 +6235,18 @@ msgstr "Son tarih :"
 
 #. translators: %s: customer name HTML.
 #: templates/emails/offline-verified-approved-customer.html.php:56
-#, fuzzy
+#, fuzzy, php-format
 msgid "Dear %s,"
 msgstr "Sevgili %s,"
 
 #. translators: %s: customer name.
 #: templates/emails/booking-created-customer.html.php:35
-#, fuzzy
+#, fuzzy, php-format
 msgid "Dear %s, your booking has been successfully created."
 msgstr "Sayın %s, rezervasyonunuz başarıyla oluşturulmuştur."
 
 #: templates/shortcodes/thank-you.php:87
-#, fuzzy
+#, fuzzy, php-format
 msgid "Dear %s, your reservation has been successfully received!"
 msgstr "Sayın %s, rezervasyonunuz başarıyla alınmıştır!"
 
@@ -6466,13 +6474,13 @@ msgstr "Seçilen mesajlar silinsin mi? Bu eylem geri alınamaz."
 
 #. translators: 1: %d; 2: %s.
 #: src/Admin/CLI/DatabaseCleanupCommand.php:136
-#, fuzzy
+#, fuzzy, php-format
 msgid "Deleted %1$d orphaned meta records. Backup: %2$s"
 msgstr "Silinen %1$d yetim meta kaydı. Yedekleme: %2$s"
 
 #. translators: %d placeholder.
 #: src/Admin/CLI/DatabaseCleanupCommand.php:171
-#, fuzzy
+#, fuzzy, php-format
 msgid "Deleted %d expired transients"
 msgstr "Silinen %d süresi dolmuş geçici dosyalar"
 
@@ -6611,7 +6619,7 @@ msgstr "Depozito:"
 
 #. translators: 1: %s; 2: %s.
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:265
-#, fuzzy
+#, fuzzy, php-format
 msgid "Deposit: %1$s %2$s"
 msgstr "Depozito: %1$s %2$s"
 
@@ -6712,7 +6720,7 @@ msgstr "Dizel"
 
 #. translators: %s placeholder.
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1514
-#, fuzzy
+#, fuzzy, php-format
 msgid "Directory permissions (%s) are too permissive"
 msgstr "Dizin izinleri (%s) çok geniş"
 
@@ -6993,7 +7001,7 @@ msgstr "Bırakma tarihi teslim alma tarihinden sonra olmalıdır"
 
 #. translators: 1: %s; 2: %s; 3: %s; 4: %s.
 #: src/Admin/Booking/Meta/BookingMeta.php:1439
-#, fuzzy
+#, fuzzy, php-format
 msgid "Dropoff date/time changed from %1$s %2$s to %3$s %4$s"
 msgstr "Bırakma tarihi/saati %s %s'den %s %s'e değiştirildi"
 
@@ -7789,7 +7797,7 @@ msgstr "Yorum silinirken hata oluştu: "
 
 #. translators: %s placeholder.
 #: src/Admin/Utilities/Cron/CronMonitor.php:221
-#, fuzzy
+#, fuzzy, php-format
 msgid "Error executing cron job: %s"
 msgstr "Cron işi yürütülürken hata oluştu: %s"
 
@@ -7883,7 +7891,7 @@ msgstr "Eylem gerçekleştirilirken hata oluştu"
 
 #. translators: 1: %d; 2: %s.
 #: src/Admin/Reports/BackgroundProcessor.php:598
-#, fuzzy
+#, fuzzy, php-format
 msgid "Error processing ID %1$d: %2$s"
 msgstr "Hata işleme kimliği %1$d: %2$s"
 
@@ -8078,7 +8086,7 @@ msgstr "Süresi Doldu"
 
 #. translators: 1: %1$s; 2: %2$s.
 #: src/Admin/Setup/SetupWizard.php:1145
-#, fuzzy
+#, fuzzy, php-format
 msgid "Expired %1$s (%2$s ago)"
 msgstr "Süresi doldu %1$s (%2$s önce)"
 
@@ -8088,13 +8096,13 @@ msgstr "Süresi dolan geçişler"
 
 #. translators: 1: %d; 2: %s.
 #: src/Admin/CLI/DatabaseCleanupCommand.php:57
-#, fuzzy
+#, fuzzy, php-format
 msgid "Expired Transients: %1$d records (~%2$s)"
 msgstr "Süresi dolan geçici kayıtlar: %1$d kayıt (~%2$s)"
 
 #. translators: 1: %1$s; 2: %2$s.
 #: src/Admin/Setup/SetupWizard.php:1140
-#, fuzzy
+#, fuzzy, php-format
 msgid "Expires %1$s (%2$s remaining)"
 msgstr "Sona erme tarihi %1$s (%2$s kaldı)"
 
@@ -8595,6 +8603,10 @@ msgstr "Şubat"
 msgid "February"
 msgstr "Şubat"
 
+#: templates/account/bookings.php:140 templates/account/bookings.php:242
+msgid "Fee"
+msgstr "Ücret"
+
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:166
 msgid "Feedback"
 msgstr "Geri Bildirim"
@@ -8611,7 +8623,7 @@ msgstr "Alan adları başarıyla güncellendi!"
 
 #. translators: %s placeholder.
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:394
-#, fuzzy
+#, fuzzy, php-format
 msgid "File exists: %s"
 msgstr "Dosya mevcut: %s"
 
@@ -8621,7 +8633,7 @@ msgstr "Dosya bulunamadı."
 
 #. translators: %s placeholder.
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:397
-#, fuzzy
+#, fuzzy, php-format
 msgid "File not found: %s"
 msgstr "Dosya bulunamadı: %s"
 
@@ -8758,7 +8770,7 @@ msgstr "İlk kez rezervasyon"
 
 #. translators: 1: %s; 2: %s.
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:161
-#, fuzzy
+#, fuzzy, php-format
 msgid "Fixed %1$s %2$s"
 msgstr "Sabit %1$s %2$s"
 
@@ -8774,7 +8786,7 @@ msgstr "Yalnızca Sabit Tutar"
 
 #. translators: %s placeholder.
 #: src/Admin/Addons/AddonMeta.php:40
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Fixed price for this additional service. Will be added to booking total. (%s)"
 msgstr ""
@@ -8917,7 +8929,7 @@ msgstr "Yakıt türü (benzinli/dizel/hibrit/elektrikli)"
 
 #. translators: 1: %d; 2: %d.
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1256
-#, fuzzy
+#, fuzzy, php-format
 msgid "Full backup created successfully: %1$d tables, %2$d rows"
 msgstr "Tam yedekleme başarıyla oluşturuldu: %1$d tablo, %2$d satır"
 
@@ -9225,7 +9237,7 @@ msgstr "Merhaba %1$s,"
 
 #. translators: 1: %1$s; 2: %2$s; 3: %3$s; 4: %4$s.
 #: src/Admin/Messages/Core/Messages.php:1087
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Hello %1$s,\n"
 "\n"
@@ -9248,7 +9260,7 @@ msgstr ""
 #. translators: 1: customer name; 2: site name; 3: username; 4: email; 5: site/team signature.
 #: src/Admin/Frontend/Account/AccountController.php:1119
 #: src/Admin/Frontend/Account/AccountController.php:1200
-#, fuzzy
+#, fuzzy, php-format
 #| msgid ""
 #| "Hello %1$s,\n"
 #| "\n"
@@ -9292,7 +9304,7 @@ msgstr ""
 #. translators: 1: customer name; 2: site name; 3: username; 4: email; 5: site/team signature.
 #: src/Admin/Frontend/Account/AccountController.php:994
 #: src/Admin/Frontend/Account/AccountController.php:1220
-#, fuzzy
+#, fuzzy, php-format
 #| msgid ""
 #| "Hello %1$s,\n"
 #| "\n"
@@ -9352,22 +9364,36 @@ msgid ""
 msgstr ""
 "Merhaba %1$s,\n"
 "\n"
-"%2$s] veri aktarımınız başarıyla tamamlandı.\n"
+"%2$s veri dışa aktarma işleminiz başarıyla tamamlandı.\n"
 "\n"
 "Dosya Detayları:\n"
 "- Dosya Adı: %3$s\n"
 "- Format: %4$s\n"
-"- Oluşturma Tarihi: %5$s\n"
+"- Oluşturulma Tarihi: %5$s\n"
 "\n"
-"Dosyayı indirmek için aşağıdaki linke tıklayabilirsiniz:\n"
+"Dosyayı indirmek için aşağıdaki bağlantıya tıklayabilirsiniz:\n"
 "%6$s\n"
 "\n"
-"Not: Bu dosya 7 gün boyunca erişilebilir olacaktır.\n"
+"Not: Bu dosyaya 7 gün boyunca erişilebilir.\n"
 "\n"
 "MHM Rentiva Ekibi"
 
 #. translators: 1: %1$s; 2: %2$s; 3: %3$s; 4: %4$s; 5: %5$s.
 #: src/Admin/Reports/BackgroundProcessor.php:756
+#, fuzzy, php-format
+#| msgid ""
+#| "Hello %1$s,\n"
+#| "\n"
+#| "Your %2$s report has been successfully completed.\n"
+#| "\n"
+#| "Report Details:\n"
+#| "- Report Type: %3$s\n"
+#| "- Creation Date: %4$s\n"
+#| "- Processing Time: %5$s ms\n"
+#| "\n"
+#| "You can view the report by logging into the admin panel.\n"
+#| "\n"
+#| "MHM Rentiva Team"
 msgid ""
 "Hello %1$s,\n"
 "\n"
@@ -9397,7 +9423,7 @@ msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name; 3: total amount.
 #: src/Admin/Booking/Meta/BookingMeta.php:724
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Hello %1$s,<br><br>This is a reminder about your payment for %2$s.<br><br>"
 "Total Amount: %3$s<br><br>Please complete your payment as soon as possible."
@@ -9408,7 +9434,7 @@ msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date.
 #: src/Admin/Booking/Meta/BookingMeta.php:731
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Hello %1$s,<br><br>This is a reminder about your upcoming booking for %2$s."
 "<br><br>Pickup Date: %3$s<br>Return Date: %4$s<br><br>We look forward to "
@@ -9420,7 +9446,7 @@ msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name.
 #: src/Admin/Booking/Meta/BookingMeta.php:739
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Hello %1$s,<br><br>We regret to inform you that your booking for %2$s has "
 "been cancelled.<br><br>If you have any questions, please contact us."
@@ -9431,7 +9457,7 @@ msgstr ""
 
 #. translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date; 5: total amount.
 #: src/Admin/Booking/Meta/BookingMeta.php:715
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Hello %1$s,<br><br>Your booking for %2$s has been confirmed.<br><br>Pickup "
 "Date: %3$s<br>Return Date: %4$s<br>Total Amount: %5$s<br><br>Thank you for "
@@ -9452,13 +9478,13 @@ msgstr "Merhaba %s,"
 
 #. translators: %s: customer name.
 #: templates/emails/welcome-customer.html.php:34
-#, fuzzy
+#, fuzzy, php-format
 msgid "Hello %s, thanks for joining us!"
 msgstr "Merhaba %s, bize katıldığınız için teşekkürler!"
 
 #. translators: %s: customer name.
 #: src/Admin/Messages/Frontend/CustomerMessages.php:212
-#, fuzzy
+#, fuzzy, php-format
 msgid "Hello %s, you can manage your support messages here."
 msgstr "Merhaba %s, destek mesajlarınızı buradan yönetebilirsiniz."
 
@@ -9493,7 +9519,7 @@ msgstr "Yüksek"
 
 #. translators: %.2f placeholder.
 #: src/Admin/Testing/PerformanceAnalyzer.php:196
-#, fuzzy
+#, fuzzy, php-format
 msgid "High memory usage (%.2f MB). Check for memory leak."
 msgstr ""
 "Yüksek bellek kullanımı (%.2f MB). Bellek sızıntısı olup olmadığını kontrol "
@@ -9645,10 +9671,7 @@ msgstr "Buz Kazıyıcı"
 msgid "Icelandic"
 msgstr "İzlandaca"
 
-#: src/Admin/Messages/Admin/MessageListTable.php:230
-#: src/Admin/Reports/BackgroundProcessor.php:419
-#: src/Admin/Reports/BackgroundProcessor.php:425
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:284
+#: templates/account/bookings.php:133 templates/account/bookings.php:235
 msgid "ID"
 msgstr "ID"
 
@@ -9695,7 +9718,7 @@ msgid "If this option is disabled, no emails will be sent."
 msgstr "Bu seçenek devre dışı bırakılırsa, hiçbir e-posta gönderilmeyecektir."
 
 #: templates/shortcodes/thank-you.php:210
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "If you have any questions or need assistance, please contact us at %s or "
 "visit your account page."
@@ -9719,7 +9742,7 @@ msgstr "Herhangi bir sorunuz varsa, lütfen bizimle iletişime geçin"
 
 #. translators: %s: support email HTML link.
 #: templates/emails/booking-created-customer.html.php:255
-#, fuzzy
+#, fuzzy, php-format
 msgid "If you have any questions, please contact us at %s"
 msgstr ""
 "Herhangi bir sorunuz varsa, lütfen %s adresinden bizimle iletişime geçin"
@@ -9776,6 +9799,10 @@ msgstr "Görüntüler başarıyla yeniden sıralandı"
 #, fuzzy
 msgid "Images successfully reordered!"
 msgstr "Görüntüler başarıyla yeniden sıralandı!"
+
+#: templates/account/bookings.php:135 templates/account/bookings.php:237
+msgid "Img"
+msgstr "Görsel"
 
 #: src/Admin/Settings/Groups/CustomerManagementSettings.php:408
 msgid "Immediate"
@@ -9914,7 +9941,7 @@ msgstr "Yüklü"
 
 #. translators: 1: %1$s; 2: %2$s.
 #: src/Admin/Payment/Core/PaymentException.php:118
-#, fuzzy
+#, fuzzy, php-format
 msgid "Insufficient funds. Required: %1$s, Available: %2$s"
 msgstr "Yetersiz fon. Gerekli: %1$s, Kullanılabilir: %2$s"
 
@@ -9971,7 +9998,7 @@ msgstr "Geçersiz ek hizmet seçimi."
 
 #. translators: %s placeholder.
 #: src/Admin/Payment/Core/PaymentException.php:79
-#, fuzzy
+#, fuzzy, php-format
 msgid "Invalid amount: %s"
 msgstr "Geçersiz tutar: %s"
 
@@ -10042,13 +10069,13 @@ msgstr "Geçersiz toplu işlem parametreleri"
 
 #. translators: %s placeholder.
 #: src/Admin/Payment/Core/PaymentException.php:160
-#, fuzzy
+#, fuzzy, php-format
 msgid "Invalid card: %s"
 msgstr "Geçersiz kart: %s"
 
 #. translators: %s placeholder.
 #: src/Admin/Core/Exceptions/ValidationException.php:266
-#, fuzzy
+#, fuzzy, php-format
 msgid "Invalid choice. Allowed: %s"
 msgstr "Geçersiz seçim. İzin verildi: %s"
 
@@ -10146,7 +10173,7 @@ msgstr "Geçersiz format."
 
 #. translators: %s placeholder.
 #: src/Admin/Core/Exceptions/ValidationException.php:110
-#, fuzzy
+#, fuzzy, php-format
 msgid "Invalid format. Expected: %s"
 msgstr "Geçersiz biçim. Beklenen: %s"
 
@@ -10186,7 +10213,7 @@ msgstr "Geçersiz Meta Anahtarlar"
 
 #. translators: %d placeholder.
 #: src/Admin/CLI/DatabaseCleanupCommand.php:73
-#, fuzzy
+#, fuzzy, php-format
 msgid "Invalid Meta Keys: %d unique keys"
 msgstr "Geçersiz Meta Anahtarlar: %d benzersiz anahtar"
 
@@ -10269,13 +10296,13 @@ msgstr "Geçersiz rapor türü"
 
 #. translators: %s placeholder.
 #: src/Admin/Reports/BackgroundProcessor.php:77
-#, fuzzy
+#, fuzzy, php-format
 msgid "Invalid report type: %s"
 msgstr "Geçersiz rapor türü: %s"
 
 #. translators: 1: Current status, 2: Target status
 #: src/Admin/Booking/Exceptions/BookingException.php:73
-#, fuzzy
+#, fuzzy, php-format
 msgid "Invalid status transition from \"%1$s\" to \"%2$s\"."
 msgstr "\"%1$s\" dan \"%2$s\" e geçersiz durum geçişi."
 
@@ -10296,7 +10323,7 @@ msgstr "Geçersiz iş parçacığı verileri"
 
 #. translators: %s placeholder.
 #: src/Admin/Core/Exceptions/ValidationException.php:188
-#, fuzzy
+#, fuzzy, php-format
 msgid "Invalid type. Expected: %s"
 msgstr "Geçersiz tür. Beklenen: %s"
 
@@ -10492,7 +10519,7 @@ msgstr "Anahtar kimliği gereklidir."
 
 #. translators: 1: %s; 2: %s.
 #: src/Admin/Reports/Reports.php:489
-#, fuzzy
+#, fuzzy, php-format
 msgid "Key metrics and trends for %1$s to %2$s"
 msgstr "%1$s ile %2$s arasındaki temel ölçütler ve eğilimler"
 
@@ -10541,7 +10568,7 @@ msgstr "Dil:"
 
 #. translators: %.2f placeholder.
 #: src/Admin/Testing/PerformanceAnalyzer.php:208
-#, fuzzy
+#, fuzzy, php-format
 msgid "Large output size (%.2f KB). Consider lazy loading."
 msgstr "Büyük çıktı boyutu (%.2f KB). Gecikmeli yüklemeyi düşünün."
 
@@ -10650,7 +10677,7 @@ msgid "Left ($100)"
 msgstr "Sol ($100)"
 
 #: src/Admin/Setup/SetupWizard.php:421
-#, fuzzy
+#, fuzzy, php-format
 msgid "Left (%s100)"
 msgstr "Sol (%s100)"
 
@@ -10713,7 +10740,7 @@ msgstr "Lisans etkinleştirme başarısız oldu. Lütfen tekrar deneyin."
 
 #. translators: %s placeholder.
 #: src/Admin/Licensing/LicenseAdmin.php:372
-#, fuzzy
+#, fuzzy, php-format
 msgid "License activation failed: %s"
 msgstr "Lisans etkinleştirme başarısız: %s"
 
@@ -10815,7 +10842,7 @@ msgstr "Lisans sunucusu hatası. Lütfen daha sonra tekrar deneyin."
 
 #. translators: 1: %d; 2: %s.
 #: src/Admin/Licensing/LicenseManager.php:410
-#, fuzzy
+#, fuzzy, php-format
 msgid "License server returned error (HTTP %1$d): %2$s"
 msgstr "Lisans sunucusu hata döndürdü (HTTP %1$d): %2$s"
 
@@ -10921,7 +10948,7 @@ msgstr "Lite ve Pro özellik karşılaştırması"
 #. translators: 1: Lite plan value, 2: Pro plan value.
 #: src/Admin/About/Tabs/FeaturesTab.php:153
 #: src/Admin/About/Tabs/FeaturesTab.php:164
-#, fuzzy
+#, fuzzy, php-format
 msgid "Lite: %1$d, Pro: %2$s"
 msgstr "Lite: %1$d, Pro: %2$s"
 
@@ -10929,7 +10956,7 @@ msgstr "Lite: %1$d, Pro: %2$s"
 #: src/Admin/About/Tabs/FeaturesTab.php:175
 #: src/Admin/About/Tabs/FeaturesTab.php:186
 #: src/Admin/About/Tabs/FeaturesTab.php:197
-#, fuzzy
+#, fuzzy, php-format
 msgid "Lite: %1$s, Pro: %2$s"
 msgstr "Lite: %1$s, Pro: %2$s"
 
@@ -11030,7 +11057,7 @@ msgstr "Günlük dışa aktarma özelliği yakında geliyor"
 
 #. translators: %d placeholder.
 #: src/Admin/PostTypes/Logs/AdvancedLogger.php:472
-#, fuzzy
+#, fuzzy, php-format
 msgid "Log ID: %d"
 msgstr "Günlük Kimliği: %d"
 
@@ -11257,7 +11284,7 @@ msgstr "Manuel"
 
 #. translators: %s placeholder.
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:660
-#, fuzzy
+#, fuzzy, php-format
 msgid "Manual Booking - %s"
 msgstr "Manuel Rezervasyon - %s"
 
@@ -11512,7 +11539,7 @@ msgstr "Maksimum Kiralama Süresi (Gün)"
 
 #. translators: %d placeholder.
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:969
-#, fuzzy
+#, fuzzy, php-format
 msgid "Maximum rental period is %d days."
 msgstr "Maksimum kiralama süresi %d gündür."
 
@@ -11567,19 +11594,19 @@ msgstr "Orta"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/PerformanceAnalyzer.php:186
-#, fuzzy
+#, fuzzy, php-format
 msgid "Medium level database queries (%d). Consider optimization."
 msgstr "Orta düzey veritabanı sorguları (%d). Optimizasyonu düşünün."
 
 #. translators: %s placeholder.
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:371
-#, fuzzy
+#, fuzzy, php-format
 msgid "Memory limit is low: %s (256MB+ recommended)"
 msgstr "Bellek sınırı düşük: %s (256MB+ önerilir)"
 
 #. translators: %s placeholder.
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:368
-#, fuzzy
+#, fuzzy, php-format
 msgid "Memory limit is sufficient: %s"
 msgstr "Bellek sınırı yeterli: %s"
 
@@ -11600,7 +11627,7 @@ msgstr "Bellek Kullanımı:"
 
 #. translators: 1: %1$d; 2: %2$d; 3: %.1f.
 #: src/Admin/Testing/PerformanceTest.php:163
-#, fuzzy
+#, fuzzy, php-format
 msgid "Memory usage: %1$d MB / %2$d MB (%.1f%%)"
 msgstr "Bellek kullanımı: %1$d MB / %2$d MB (%.1f%%)"
 
@@ -11762,7 +11789,7 @@ msgstr "Mesaj durumu güncellendi."
 
 #. translators: %s placeholder.
 #: src/Admin/Messages/Notifications/MessageNotifications.php:140
-#, fuzzy
+#, fuzzy, php-format
 msgid "Message Status Updated: %s"
 msgstr "Mesaj Durumu Güncellendi: %s"
 
@@ -11990,13 +12017,13 @@ msgstr "MHM Rentiva Test Paketi"
 
 #. translators: %s placeholder.
 #: src/Admin/Reports/BackgroundProcessor.php:749
-#, fuzzy
+#, fuzzy, php-format
 msgid "MHM Rentiva: %s Completed"
 msgstr "MHM Rentiva: %s Tamamlandı"
 
 #. translators: %s placeholder.
 #: src/Admin/Reports/BackgroundProcessor.php:793
-#, fuzzy
+#, fuzzy, php-format
 msgid "MHM Rentiva: %s Export Completed"
 msgstr "MHM Rentiva: %s İhracat Tamamlandı"
 
@@ -12059,7 +12086,7 @@ msgstr "Min Fiyat"
 #. translators: %d: minimum password length.
 #: templates/account/account-details.php:158
 #: templates/account/register-form.php:162
-#, fuzzy
+#, fuzzy, php-format
 msgid "Minimum %d characters"
 msgstr "En az %d karakter"
 
@@ -12117,7 +12144,7 @@ msgstr "Minimum Kiralama Süresi (Gün)"
 
 #. translators: %d placeholder.
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:959
-#, fuzzy
+#, fuzzy, php-format
 msgid "Minimum rental period is %d days."
 msgstr "Minimum kiralama süresi %d gündür."
 
@@ -12239,13 +12266,13 @@ msgstr "Aylık İndirim"
 
 #. translators: %d placeholder.
 #: src/Admin/Messages/Utilities/MessageUtilities.php:335
-#, fuzzy
+#, fuzzy, php-format
 msgid "Monthly message limit of %d exceeded"
 msgstr "Aylık mesaj sınırı %d aşıldı"
 
 #. translators: %d placeholder.
 #: src/Admin/Messages/REST/Customer/SendMessage.php:57
-#, fuzzy
+#, fuzzy, php-format
 msgid "Monthly message limit of %d in Lite version"
 msgstr "Lite sürümünde %d aylık mesaj sınırı"
 
@@ -12275,7 +12302,7 @@ msgstr "En Çok Kiralanan Araçlar"
 
 #. translators: %d placeholder.
 #: src/Admin/Core/AssetManager.php:700
-#, fuzzy
+#, fuzzy, php-format
 msgid "Move %d selected bookings to Trash?"
 msgstr "Seçili %d rezervasyonu Çöp Kutusu'na taşımak ister misiniz?"
 
@@ -12427,7 +12454,7 @@ msgstr ""
 
 #. translators: %s placeholder.
 #: src/Admin/Payment/Core/PaymentException.php:178
-#, fuzzy
+#, fuzzy, php-format
 msgid "Network error: %s"
 msgstr "Ağ hatası: %s"
 
@@ -12502,7 +12529,7 @@ msgstr "Yeni Müşteri Mesajı"
 
 #. translators: %s placeholder.
 #: src/Admin/Messages/Notifications/MessageNotifications.php:84
-#, fuzzy
+#, fuzzy, php-format
 msgid "New Customer Message: %s"
 msgstr "Yeni Müşteri Mesajı: %s"
 
@@ -12545,7 +12572,7 @@ msgstr "Yeni mesaj alındı: {{subject}}"
 
 #. translators: %s: message subject.
 #: templates/emails/message-received-admin.html.php:10
-#, fuzzy
+#, fuzzy, php-format
 msgid "New Message · %s"
 msgstr "Yeni Mesaj · %s"
 
@@ -12555,7 +12582,7 @@ msgstr "Yeni Şifre"
 
 #. translators: %s: booking ID.
 #: templates/emails/offline-receipt-uploaded-admin.html.php:10
-#, fuzzy
+#, fuzzy, php-format
 msgid "New Receipt · Booking #%s"
 msgstr "Yeni Makbuz · Rezervasyon No %s"
 
@@ -12565,7 +12592,7 @@ msgstr "Yeni Rezervasyon"
 
 #. translators: %s: booking ID.
 #: templates/emails/booking-created-admin.html.php:18
-#, fuzzy
+#, fuzzy, php-format
 msgid "New Reservation - #%s"
 msgstr "Yeni Rezervasyon - #%s"
 
@@ -12683,7 +12710,7 @@ msgstr "hayır"
 
 #. translators: %s placeholder.
 #: src/Admin/Core/Utilities/AbstractListTable.php:290
-#, fuzzy
+#, fuzzy, php-format
 msgid "No %s created yet."
 msgstr "Henüz %s oluşturulmadı."
 
@@ -12922,7 +12949,7 @@ msgstr "Yeni bildirim yok."
 
 #. translators: %s placeholder.
 #: src/Admin/Core/ShortcodeUrlManager.php:220
-#, fuzzy
+#, fuzzy, php-format
 msgid "No page found containing the <code>[%s]</code> shortcode. "
 msgstr "<code>%s</code> ] kısa kodunu içeren sayfa bulunamadı. "
 
@@ -13272,7 +13299,7 @@ msgstr "Kisi sayisi"
 
 #. translators: 1: %d; 2: %d.
 #: src/Admin/Booking/Meta/BookingMeta.php:1451
-#, fuzzy
+#, fuzzy, php-format
 msgid "Number of guests changed from %1$d to %2$d"
 msgstr "Konuk sayısı %d'dan %d'e değiştirildi"
 
@@ -13557,7 +13584,7 @@ msgstr "Orphaned Post Meta"
 
 #. translators: 1: %d; 2: %s.
 #: src/Admin/CLI/DatabaseCleanupCommand.php:49
-#, fuzzy
+#, fuzzy, php-format
 msgid "Orphaned Postmeta: %1$d records (~%2$s)"
 msgstr "Yetim Postmeta: %1$d kayıt (~%2$s)"
 
@@ -13588,9 +13615,13 @@ msgstr "Kullanım Dışı"
 
 #. translators: 1: Minimum value, 2: Maximum value
 #: src/Admin/Core/Exceptions/ValidationException.php:138
-#, fuzzy
+#, fuzzy, php-format
 msgid "Out of range. Min: %1$s, Max: %2$s"
 msgstr "Aralık dışı. Min: %1$s, Maks: %2$s"
+
+#: templates/account/favorites.php:114
+msgid "Out of Use"
+msgstr "Kullanım Dışı"
 
 #: assets/js/admin/gutenberg-blocks.js:131
 msgid "Outline"
@@ -13862,7 +13893,7 @@ msgstr "Ödeme Yapılandırması"
 
 #. translators: %s placeholder.
 #: src/Admin/Payment/Core/PaymentException.php:214
-#, fuzzy
+#, fuzzy, php-format
 msgid "Payment configuration error: %s"
 msgstr "Ödeme yapılandırma hatası: %s"
 
@@ -13921,12 +13952,12 @@ msgstr "Ödeme ağ geçidi"
 
 #. translators: 1: Payment gateway name, 2: Error reason
 #: src/Admin/Payment/Core/PaymentException.php:58
-#, fuzzy
+#, fuzzy, php-format
 msgid "Payment gateway \"%1$s\" error: %2$s"
 msgstr "Ödeme ağ geçidi \"%1$s\" hatası: %2$s"
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:854
-#, fuzzy
+#, fuzzy, php-format
 msgid "Payment gateway error: %s"
 msgstr "Ödeme ağ geçidi hatası: %s"
 
@@ -13992,7 +14023,7 @@ msgstr "Kullanılabilir Ödeme Yöntemi"
 
 #. translators: 1: %s; 2: %s.
 #: src/Admin/Booking/Meta/BookingMeta.php:1461
-#, fuzzy
+#, fuzzy, php-format
 msgid "Payment method changed from %1$s to %2$s"
 msgstr "Ödeme yöntemi %s'dan %s'e değiştirildi"
 
@@ -14040,7 +14071,7 @@ msgstr "Ödeme hatırlatıcısı"
 
 #. translators: %s placeholder.
 #: src/Admin/Booking/Meta/BookingMeta.php:703
-#, fuzzy
+#, fuzzy, php-format
 msgid "Payment Reminder - %s"
 msgstr "Ödeme Hatırlatması - %s"
 
@@ -14070,7 +14101,7 @@ msgstr "Ödeme durumu"
 
 #. translators: 1: %s; 2: %s.
 #: src/Admin/Booking/Meta/BookingMeta.php:1137
-#, fuzzy
+#, fuzzy, php-format
 msgid "Payment status changed from %1$s to %2$s"
 msgstr "Ödeme durumu %s'dan %s'e değiştirildi"
 
@@ -14096,7 +14127,7 @@ msgstr "Ödeme sistemleri, kargo şirketleri, SMS hizmetleri"
 
 #. translators: %d placeholder.
 #: src/Admin/Payment/Core/PaymentException.php:196
-#, fuzzy
+#, fuzzy, php-format
 msgid "Payment timeout: %d seconds"
 msgstr "Ödeme zaman aşımı: %d saniye"
 
@@ -14124,7 +14155,7 @@ msgstr "Ödeme Güncellemesi"
 
 #. translators: %s: booking ID.
 #: templates/emails/offline-verified-rejected-customer.html.php:10
-#, fuzzy
+#, fuzzy, php-format
 msgid "Payment Verification Failed · Booking #%s"
 msgstr "Ödeme Doğrulaması Başarısız · Rezervasyon Numarası %s"
 
@@ -14311,7 +14342,7 @@ msgstr "Dönem Rengi"
 
 #. translators: %d placeholder.
 #: src/Admin/Core/AssetManager.php:702
-#, fuzzy
+#, fuzzy, php-format
 msgid "Permanently delete %d selected bookings?"
 msgstr "Seçilen %d rezervasyonu kalıcı olarak silmek ister misiniz?"
 
@@ -14465,13 +14496,13 @@ msgstr "PHP Sürüm Kontrolü"
 
 #. translators: %s placeholder.
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:357
-#, fuzzy
+#, fuzzy, php-format
 msgid "PHP version is compatible: %s"
 msgstr "PHP sürümü uyumludur: %s"
 
 #. translators: %s placeholder.
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:360
-#, fuzzy
+#, fuzzy, php-format
 msgid "PHP version is outdated: %s (7.4+ recommended)"
 msgstr "PHP sürümü güncel değil: %s (7.4+ önerilir)"
 
@@ -14507,7 +14538,7 @@ msgstr "Teslim alma tarihi geçmişte olamaz"
 
 #. translators: 1: %s; 2: %s; 3: %s; 4: %s.
 #: src/Admin/Booking/Meta/BookingMeta.php:1428
-#, fuzzy
+#, fuzzy, php-format
 msgid "Pickup date/time changed from %1$s %2$s to %3$s %4$s"
 msgstr "Teslim alma tarihi/saati %s %s'den %s %s'e değiştirildi"
 
@@ -14608,7 +14639,7 @@ msgstr "Lütfen ehliyetinizi ve kimliğinizi yanınızda getirin"
 
 #. translators: %s placeholder.
 #: src/Admin/Frontend/Account/AccountController.php:1276
-#, fuzzy
+#, fuzzy, php-format
 msgid "Please click the following link to verify your email address: %s"
 msgstr ""
 "E-posta adresinizi doğrulamak için lütfen aşağıdaki bağlantıya tıklayın: %s"
@@ -15648,7 +15679,7 @@ msgstr "İade Tutarı"
 
 #. translators: %s: maximum refund amount
 #: src/Admin/Payment/Refunds/Service.php:191
-#, fuzzy
+#, fuzzy, php-format
 msgid "Refund amount exceeds maximum refundable amount (%s)"
 msgstr "İade tutarı, iade edilebilir maksimum tutarı aşıyor (%s)"
 
@@ -15669,7 +15700,7 @@ msgstr "Para iadesi tamamlandı (veya sıraya alındı). Lütfen sayfayı yenile
 
 #. translators: %s placeholder.
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:255
-#, fuzzy
+#, fuzzy, php-format
 msgid "Refund completed successfully. Refund amount: %s"
 msgstr "Para iadesi başarıyla tamamlandı. İade tutarı: %s"
 
@@ -15696,7 +15727,7 @@ msgstr "Geri ödeme başarısız oldu."
 
 #. translators: %s: booking ID.
 #: templates/emails/refund-customer.html.php:10
-#, fuzzy
+#, fuzzy, php-format
 msgid "Refund for Booking #%s"
 msgstr "Rezervasyon #%s için geri ödeme"
 
@@ -15742,7 +15773,7 @@ msgstr "Rentiva panelinden işlenen geri ödeme"
 
 #. translators: %s: booking ID.
 #: templates/emails/refund-admin.html.php:10
-#, fuzzy
+#, fuzzy, php-format
 msgid "Refund Processed · Booking #%s"
 msgstr "İade İşlemleri Tamamlandı · Rezervasyon No %s"
 
@@ -15870,7 +15901,7 @@ msgstr "Kalan Miktar:"
 
 #. translators: %s placeholder.
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:306
-#, fuzzy
+#, fuzzy, php-format
 msgid "Remaining amount: %s"
 msgstr "Kalan miktar: %s"
 
@@ -16036,7 +16067,7 @@ msgstr ""
 
 #. translators: 1: %1$d; 2: %2$d.
 #: src/Admin/Licensing/Restrictions.php:170
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Rentiva Lite: %1$d/%2$d bookings used. Activate your license to remove this "
 "limit."
@@ -16046,7 +16077,7 @@ msgstr ""
 
 #. translators: 1: %1$d; 2: %2$d.
 #: src/Admin/Licensing/Restrictions.php:115
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Rentiva Lite: %1$d/%2$d vehicles used. Enter your license for unlimited "
 "vehicles and advanced features."
@@ -16114,7 +16145,7 @@ msgstr "Cevap Adresi"
 
 #. translators: %s: original message subject.
 #: templates/emails/message-replied-customer.html.php:10
-#, fuzzy
+#, fuzzy, php-format
 msgid "Reply: %s"
 msgstr "Yanıt: %s"
 
@@ -16341,7 +16372,7 @@ msgstr "Rezerve"
 
 #. translators: %s placeholder.
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:654
-#, fuzzy
+#, fuzzy, php-format
 msgid "Reserved: %s"
 msgstr "Rezerve edilmiştir: %s"
 
@@ -16395,19 +16426,19 @@ msgstr "Geri Yükle"
 
 #. translators: 1: %d; 2: %d.
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1399
-#, fuzzy
+#, fuzzy, php-format
 msgid "Restored %1$d queries, %2$d errors occurred"
 msgstr "Geri yüklenen %1$d sorgu, %2$d hata oluştu"
 
 #. translators: 1: %d; 2: %s.
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1067
-#, fuzzy
+#, fuzzy, php-format
 msgid "Restored %1$d records to %2$s"
 msgstr "%1$d kaydı %2$s olarak geri yüklendi"
 
 #. translators: %d placeholder.
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1397
-#, fuzzy
+#, fuzzy, php-format
 msgid "Restored %d queries successfully"
 msgstr "Geri yüklenen %d sorgu başarıyla"
 
@@ -16492,7 +16523,7 @@ msgstr "Gelir"
 
 #. translators: 1: %s; 2: %s.
 #: src/Admin/Reports/Reports.php:822
-#, fuzzy
+#, fuzzy, php-format
 msgid "Revenue analysis and trends for %1$s to %2$s"
 msgstr "%1$s ile %2$s arasındaki gelir analizi ve eğilimleri"
 
@@ -17528,6 +17559,10 @@ msgstr "Eylül"
 msgid "Serbian"
 msgstr "Sırpça"
 
+#: templates/account/bookings.php:137 templates/account/bookings.php:239
+msgid "Service"
+msgstr "Hizmet"
+
 #: templates/account/bookings.php:134 templates/account/bookings.php:231
 #, fuzzy
 msgid "Service Name/Type"
@@ -17688,7 +17723,7 @@ msgstr "Kısa kod"
 
 #. translators: Dynamic value.
 #: src/Admin/Testing/ShortcodeTestHandler.php:64
-#, fuzzy
+#, fuzzy, php-format
 msgid "Shortcode \"%s\" is not registered."
 msgstr "\"%s\" kısa kodu kayıtlı değil."
 
@@ -17722,13 +17757,13 @@ msgstr "Kısa Kod Kaydı"
 
 #. translators: %.3f placeholder.
 #: src/Admin/Testing/PerformanceAnalyzer.php:166
-#, fuzzy
+#, fuzzy, php-format
 msgid "Shortcode running at medium speed (%.3fs). Improvement recommended."
 msgstr "Kısa kod orta hızda çalışıyor (%.3fs). İyileştirme önerilir."
 
 #. translators: %.3f placeholder.
 #: src/Admin/Testing/PerformanceAnalyzer.php:157
-#, fuzzy
+#, fuzzy, php-format
 msgid "Shortcode running very slow (%.3fs). Query optimization required."
 msgstr ""
 "Kısa kod çok yavaş çalışıyor (%.3f saniye). Sorgu optimizasyonu gerekiyor."
@@ -18033,7 +18068,7 @@ msgstr "SMTP/Sağlayıcı algılandı"
 #. translators: %s: Vehicle title
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1340
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1424
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Sorry, booking for vehicle \"%s\" has been cancelled. Please select another "
 "vehicle."
@@ -18043,7 +18078,7 @@ msgstr ""
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1291
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates "
 "(%2$s - %3$s). Please select different dates or another vehicle."
@@ -18053,7 +18088,7 @@ msgstr ""
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1396
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates "
 "(%2$s - %3$s). The vehicle may have been booked by another customer. Please "
@@ -18242,7 +18277,7 @@ msgstr "Durum Değişikliği"
 
 #. translators: 1: %s; 2: %s.
 #: src/Admin/Booking/Meta/BookingMeta.php:1111
-#, fuzzy
+#, fuzzy, php-format
 msgid "Status changed from %1$s to %2$s"
 msgstr "Durum %s 'dan %s oldu"
 
@@ -18512,7 +18547,7 @@ msgstr "Destek Yanıt"
 
 #. translators: %s placeholder.
 #: src/Admin/Messages/Notifications/MessageNotifications.php:110
-#, fuzzy
+#, fuzzy, php-format
 msgid "Support Reply: %s"
 msgstr "Destek Yanıtı: %s"
 
@@ -18912,7 +18947,7 @@ msgstr "E-posta şablonlarının bulunduğu tema klasörü yolu."
 
 #. translators: %d: existing additional services count.
 #: src/Admin/Addons/AddonSettings.php:191
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "There are already %d additional services. Click the button below to create "
 "new default services."
@@ -19041,7 +19076,7 @@ msgstr "Bu e-posta otomatik olarak gönderilmiştir. Lütfen cevap vermeyin."
 
 #. translators: %s placeholder.
 #: templates/emails/receipt-status-email.html.php:257
-#, fuzzy
+#, fuzzy, php-format
 msgid "This email was sent from %s"
 msgstr "Bu e-posta %s adresinden gönderilmiştir"
 
@@ -19156,7 +19191,7 @@ msgstr "Bu durum zaten mevcut"
 
 #. translators: %s placeholder.
 #: src/Admin/Core/Exceptions/ValidationException.php:162
-#, fuzzy
+#, fuzzy, php-format
 msgid "This value already exists: %s"
 msgstr "Bu değer zaten mevcut: %s"
 
@@ -19325,7 +19360,7 @@ msgstr "Dakika cinsinden hız sınırlaması için zaman penceresi."
 
 #. translators: %s placeholder.
 #: src/Admin/PostTypes/Logs/AdvancedLogger.php:476
-#, fuzzy
+#, fuzzy, php-format
 msgid "Timestamp: %s"
 msgstr "Zaman damgası: %s"
 
@@ -19369,7 +19404,7 @@ msgstr "Başlık Tipografi"
 
 #. translators: %s: link to WooCommerce settings
 #: src/Admin/Setup/SetupWizard.php:450
-#, fuzzy
+#, fuzzy, php-format
 msgid "To change the currency, please visit %s."
 msgstr "Para birimini değiştirmek için lütfen %s adresini ziyaret edin."
 
@@ -19399,7 +19434,7 @@ msgstr "Belirteç Ayarları"
 
 #. translators: %d placeholder.
 #: src/Admin/Core/Exceptions/ValidationException.php:214
-#, fuzzy
+#, fuzzy, php-format
 msgid "Too long. Max: %d characters"
 msgstr "Çok uzun. Maks: %d karakter"
 
@@ -19415,7 +19450,7 @@ msgstr "Çok fazla rezervasyon talebi var. Lütfen 5 dakika bekleyin."
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/PerformanceAnalyzer.php:178
-#, fuzzy
+#, fuzzy, php-format
 msgid "Too many database queries (%d). Check for N+1 problem."
 msgstr "Çok fazla veritabanı sorgusu (%d). N+1 sorununu kontrol edin."
 
@@ -19442,7 +19477,7 @@ msgstr "Çok fazla istek var. Lütfen bekleyin."
 
 #. translators: %d placeholder.
 #: src/Admin/Core/Exceptions/ValidationException.php:240
-#, fuzzy
+#, fuzzy, php-format
 msgid "Too short. Min: %d characters"
 msgstr "Çok kısa. Min: %d karakter"
 
@@ -19475,7 +19510,7 @@ msgstr "toplam"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/SecurityTest.php:52
-#, fuzzy
+#, fuzzy, php-format
 msgid "Total %d nonce checks found"
 msgstr "Toplam %d nonce kontrolü bulundu"
 
@@ -19739,7 +19774,7 @@ msgstr "Kullanım dışı"
 
 #. translators: %d placeholder.
 #: src/Admin/Licensing/LicenseManager.php:423
-#, fuzzy
+#, fuzzy, php-format
 msgid "Unexpected response from license server (HTTP %d)."
 msgstr "Lisans sunucusundan beklenmedik yanıt (HTTP %d)."
 
@@ -19782,13 +19817,13 @@ msgstr "Bilinmeyen hata"
 
 #. translators: %s placeholder.
 #: src/Admin/Reports/BackgroundProcessor.php:594
-#, fuzzy
+#, fuzzy, php-format
 msgid "Unknown operation: %s"
 msgstr "Bilinmeyen işlem: %s"
 
 #. translators: %s placeholder.
 #: src/Admin/Reports/BackgroundProcessor.php:252
-#, fuzzy
+#, fuzzy, php-format
 msgid "Unknown report type: %s"
 msgstr "Bilinmeyen rapor türü: %s"
 
@@ -20031,7 +20066,7 @@ msgstr "Kullanıcı"
 
 #. translators: %d placeholder.
 #: src/Admin/Booking/Exceptions/BookingException.php:112
-#, fuzzy
+#, fuzzy, php-format
 msgid "User #%d is unauthorized for this booking."
 msgstr "Kullanıcı #%d bu rezervasyon için yetkisizdir."
 
@@ -20103,13 +20138,13 @@ msgstr "Eklenti lisansını günlük olarak doğrular"
 
 #. translators: %d placeholder.
 #: src/Admin/Core/Exceptions/ValidationException.php:281
-#, fuzzy
+#, fuzzy, php-format
 msgid "Validation failed: %d errors"
 msgstr "Doğrulama başarısız oldu: %d hata"
 
 #. translators: %s placeholder.
 #: src/Admin/Booking/Exceptions/BookingException.php:130
-#, fuzzy
+#, fuzzy, php-format
 msgid "Validation failed: %s"
 msgstr "Doğrulama başarısız oldu: %s"
 
@@ -20141,7 +20176,7 @@ msgstr "araba"
 
 #. translators: 1: Vehicle ID, 2: Pickup date, 3: Dropoff date
 #: src/Admin/Booking/Core/Handler.php:290
-#, fuzzy
+#, fuzzy, php-format
 msgid "Vehicle #%1$d – %2$s → %3$s"
 msgstr "Araç #%1$d - %2$s → %3$s"
 
@@ -20429,7 +20464,7 @@ msgstr "Araç Performansı"
 
 #. translators: 1: %s; 2: %s.
 #: src/Admin/Reports/Reports.php:1065
-#, fuzzy
+#, fuzzy, php-format
 msgid "Vehicle performance and rental analysis for %1$s to %2$s"
 msgstr "%1$s ila %2$s için araç performansı ve kiralama analizi"
 
@@ -20718,17 +20753,7 @@ msgstr "Rezervasyonları Görüntüle"
 msgid "View Category"
 msgstr "Kategoriyi Görüntüle"
 
-#: src/Admin/Core/AssetManager.php:1030
-#: src/Admin/Frontend/Account/AccountRenderer.php:121
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:158
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:845
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:696
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:103
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:468
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:176
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:796
-#: src/Admin/Utilities/Export/Export.php:970
-#: src/Admin/Utilities/Export/ExportHistory.php:219
+#: templates/account/favorites.php:195
 msgid "View Details"
 msgstr "Detayları göster"
 
@@ -21267,13 +21292,13 @@ msgstr "WordPress Versiyonu"
 
 #. translators: %s placeholder.
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:348
-#, fuzzy
+#, fuzzy, php-format
 msgid "WordPress version is compatible: %s"
 msgstr "WordPress sürümü uyumludur: %s"
 
 #. translators: %s placeholder.
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:351
-#, fuzzy
+#, fuzzy, php-format
 msgid "WordPress version is outdated: %s (5.0+ recommended)"
 msgstr "WordPress sürümü güncel değil: %s (5.0+ önerilir)"
 
@@ -21292,13 +21317,13 @@ msgstr "İletişim formu altbilgisi için çalışma saatleri metni."
 
 #. translators: %d placeholder.
 #: src/Admin/CLI/DatabaseCleanupCommand.php:168
-#, fuzzy
+#, fuzzy, php-format
 msgid "Would delete %d expired transients"
 msgstr "%d süresi dolmuş geçici veriyi siler"
 
 #. translators: %d placeholder.
 #: src/Admin/CLI/DatabaseCleanupCommand.php:130
-#, fuzzy
+#, fuzzy, php-format
 msgid "Would delete %d orphaned meta records"
 msgstr "%d yetim meta kaydı silinecektir"
 
@@ -21516,7 +21541,7 @@ msgstr ""
 
 #. translators: 1: %s; 2: %s.
 #: src/Admin/Core/ProFeatureNotice.php:87
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "You are using Rentiva Lite. %1$s %2$s available in Pro version. <a "
 "href=\"%s\">Enter your license key</a> to enable."
@@ -21526,7 +21551,7 @@ msgstr ""
 
 #. translators: Dynamic value.
 #: src/Admin/Core/ProFeatureNotice.php:95
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "You are using Rentiva Lite. This feature is available in Pro version. <a "
 "href=\"%s\">Enter your license key</a> to enable."
@@ -21542,7 +21567,7 @@ msgstr ""
 
 #. translators: %d placeholder.
 #: src/Admin/Addons/AddonManager.php:345
-#, fuzzy
+#, fuzzy, php-format
 msgid "You can add %d more additional services in Lite version."
 msgstr "Lite sürümünde %d daha fazla ek hizmet ekleyebilirsiniz."
 
@@ -21574,7 +21599,7 @@ msgstr "En fazla %d resim ekleyebilirsiniz"
 #: src/Admin/Customers/AddCustomerPage.php:195
 #: src/Admin/Licensing/Restrictions.php:372
 #: src/Admin/Licensing/Restrictions.php:399
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "You can add up to %d customers in Lite version. Enter your license key to "
 "upgrade to Pro."
@@ -21606,7 +21631,7 @@ msgstr ""
 
 #. translators: 1: %s; 2: %d.
 #: src/Admin/Booking/Helpers/CancellationHandler.php:503
-#, fuzzy
+#, fuzzy, php-format
 msgid "You can cancel until %1$s (%2$d hours before pickup)"
 msgstr "%1$s (%2$d saat öncesine kadar) iptal edebilirsiniz."
 
@@ -21765,19 +21790,19 @@ msgstr ""
 
 #. translators: 1: %1$d; 2: %2$d; 3: %3$d.
 #: src/Admin/Core/ProFeatureNotice.php:265
-#, fuzzy
+#, fuzzy, php-format
 msgid "You have used %1$d out of %2$d bookings (%3$d%%)."
 msgstr "%2$d rezervasyondan (%3$d%%) %1$d'ını kullandınız."
 
 #. translators: 1: %1$d; 2: %2$d; 3: %3$d.
 #: src/Admin/Core/ProFeatureNotice.php:289
-#, fuzzy
+#, fuzzy, php-format
 msgid "You have used %1$d out of %2$d customers (%3$d%%)."
 msgstr "%2$d müşteriden (%3$d%%) %1$d'ını kullandınız."
 
 #. translators: 1: %1$d; 2: %2$d; 3: %3$d.
 #: src/Admin/Core/ProFeatureNotice.php:241
-#, fuzzy
+#, fuzzy, php-format
 msgid "You have used %1$d out of %2$d vehicles (%3$d%%)."
 msgstr "%2$d araçtan %1$d tanesini kullandınız (%3$d%%)."
 
@@ -21868,7 +21893,7 @@ msgstr ""
 
 #. translators: %s placeholder.
 #: templates/shortcodes/booking-confirmation.php:230
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "You must complete your payment by %s. If payment is not made within this "
 "period, your booking will be automatically cancelled."
@@ -22094,7 +22119,7 @@ msgstr "Adınız:"
 
 #. translators: %s: booking ID.
 #: templates/emails/offline-verified-approved-customer.html.php:41
-#, fuzzy
+#, fuzzy, php-format
 msgid "Your payment for Reservation #%s has been successfully verified."
 msgstr "Rezervasyon #%s için yaptığınız ödeme başarıyla doğrulandı."
 
@@ -22257,19 +22282,19 @@ msgstr "⏭️ Çoklu site kurulumu değil"
 
 #. translators: 1: %1$d; 2: %2$d.
 #: src/Admin/Testing/IntegrationTest.php:333
-#, fuzzy
+#, fuzzy, php-format
 msgid "⚠️ %1$d missing tables, %2$d orphaned meta entries"
 msgstr "⚠️ %1$d eksik tablo, %2$d yetim meta girişi"
 
 #. translators: 1: registered shortcode count; 2: expected shortcode count; 3: missing shortcode list.
 #: src/Admin/Testing/FunctionalTest.php:87
-#, fuzzy
+#, fuzzy, php-format
 msgid "⚠️ %1$d/%2$d shortcodes registered. Missing: %3$s"
 msgstr "⚠️ %1$d/%2$d kısa kod kaydedildi. Eksik: %3$s"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/ActivationTest.php:209
-#, fuzzy
+#, fuzzy, php-format
 msgid "⚠️ %d critical CPTs missing"
 msgstr "⚠️ %d kritik CPT eksik"
 
@@ -22280,7 +22305,7 @@ msgstr "⚠️ ErrorHandler eksik veya eksik"
 
 #. translators: 1: %1$d; 2: %2$d; 3: %4$d.
 #: src/Admin/Testing/PerformanceTest.php:241
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "⚠️ Frontend assets: %1$d KB exceeds recommended limit (%2$d KB). Consider "
 "optimization (CSS: %3$d KB, JS: %4$d KB)"
@@ -22310,7 +22335,7 @@ msgstr "⚠️ Lite Sürümü"
 
 #. translators: %s placeholder.
 #: src/Admin/Testing/IntegrationTest.php:199
-#, fuzzy
+#, fuzzy, php-format
 msgid "⚠️ Missing roles: %s"
 msgstr "⚠️ Eksik roller: %s"
 
@@ -22325,27 +22350,27 @@ msgstr ""
 
 #. translators: 1: registered AJAX endpoints; 2: expected AJAX endpoints.
 #: src/Admin/Testing/FunctionalTest.php:136
-#, fuzzy
+#, fuzzy, php-format
 msgid "⚠️ Only %1$d/%2$d AJAX endpoints found"
 msgstr "⚠️ Yalnızca %1$d/%2$d AJAX uç noktası bulundu"
 
 #. translators: 1: %1$d; 2: %2$d.
 #: src/Admin/Testing/IntegrationTest.php:151
-#, fuzzy
+#, fuzzy, php-format
 msgid "⚠️ Only %1$d/%2$d payment gateways found. Expected at least 1 gateway"
 msgstr ""
 "⚠️ Yalnızca %1$d/%2$d ödeme ağ geçidi bulundu. En az 2 ağ geçidi bekleniyordu"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/FunctionalTest.php:186
-#, fuzzy
+#, fuzzy, php-format
 msgid "⚠️ Only %d REST endpoints found (expected at least 2)"
 msgstr ""
 "⚠️ Yalnızca %d REST uç noktası bulundu (en az 2 tane olması bekleniyordu)"
 
 #. translators: 1: query duration in ms; 2: vehicle count; 3: performance label.
 #: src/Admin/Testing/PerformanceTest.php:71
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "⚠️ Query took %1$.2f ms (exceeds 100ms limit). Found %2$d vehicles. "
 "Performance: %3$s"
@@ -22390,80 +22415,80 @@ msgstr "⚠️ Uyarı:"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/SecurityTest.php:140
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ $wpdb->prepare() used %d times"
 msgstr "✅ $wpdb->prepare() %d kez kullanıldı"
 
 #. translators: 1: percentage of protected files; 2: protected file count; 3: total file count.
 #: src/Admin/Testing/SecurityTest.php:196
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ %1$.1f%% files protected (%2$d/%3$d)"
 msgstr "✅ %1$.1f%% dosya koruma altında (%2$d/%3$d)"
 
 #. translators: 1: %1$d; 2: %2$s; 3: %3$d; 4: %4$s.
 #: src/Admin/Testing/IntegrationTest.php:132
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ %1$d payment gateways available (%2$s), %3$d enabled (%4$s)"
 msgstr "✅ %1$d ödeme ağ geçidi mevcut (%2$s), %3$d etkin (%4$s)"
 
 #. translators: 1: %1$d; 2: %2$s; 3: %3$s.
 #: src/Admin/Testing/IntegrationTest.php:142
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ %1$d payment gateways available (%2$s). None enabled yet (%3$s)"
 msgstr ""
 "✅ %1$d ödeme ağ geçidi mevcuttur (%2$s). Henüz etkinleştirilen yok (%3$s)"
 
 #. translators: 1: %1$d; 2: %2$d.
 #: src/Admin/Testing/ActivationTest.php:126
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ %1$d/%2$d classes loaded"
 msgstr "✅ %1$d/%2$d sınıf yüklendi"
 
 #. translators: 1: %1$d; 2: %2$d.
 #: src/Admin/Testing/ActivationTest.php:202
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ %1$d/%2$d CPTs registered"
 msgstr "✅ %1$d/%2$d CPT kaydı"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/FunctionalTest.php:130
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ %d AJAX endpoints registered and functional"
 msgstr "✅ %d AJAX uç noktaları kaydedildi ve çalışır durumda"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/SecurityTest.php:106
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ %d escaping usages (Excellent!)"
 msgstr "✅ %d kaçış kullanımları (Mükemmel!)"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/SecurityTest.php:270
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ %d permission checks found"
 msgstr "✅ %d izin kontrolü bulundu"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/FunctionalTest.php:179
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ %d REST API endpoints registered and functional"
 msgstr "✅ %d REST API uç noktaları kaydedildi ve çalışır durumda"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/SecurityTest.php:79
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ %d sanitization usages"
 msgstr "✅ %d sanitasyon kullanımları"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/ActivationTest.php:302
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ %d vehicle rewrite rules found"
 msgstr "✅ %d araç yeniden yazma kuralı bulundu"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/FunctionalTest.php:81
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ All %d shortcodes successfully registered"
 msgstr "✅ Tüm %d kısa kodlar başarıyla kaydedildi"
 
@@ -22479,7 +22504,7 @@ msgstr "✅ Mevcut"
 
 #. translators: %s placeholder.
 #: src/Admin/Testing/FunctionalTest.php:312
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ Cache system working (%s)"
 msgstr "✅ Önbellek sistemi çalışıyor (%s)"
 
@@ -22500,7 +22525,7 @@ msgstr "✅ Geliştirici modu ayarı güncellendi."
 
 #. translators: %s placeholder.
 #: src/Admin/Testing/IntegrationTest.php:79
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ Email system components available (enabled: %s)"
 msgstr "✅ E-posta sistemi bileşenleri mevcut (etkin: %s)"
 
@@ -22516,7 +22541,7 @@ msgstr "✅ ErrorHandler sınıfı mevcut ve işlevsel"
 
 #. translators: 1: %1$d; 2: %2$d; 3: %3$d.
 #: src/Admin/Testing/PerformanceTest.php:233
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ Frontend assets: %1$d KB (CSS: %2$d KB, JS: %3$d KB) - Optimal"
 msgstr "✅ Ön uç varlıkları: %1$d KB (CSS: %2$d KB, JS: %3$d KB) - Optimal"
 
@@ -22531,7 +22556,7 @@ msgstr "✅ Lisans başarıyla etkinleştirildi!"
 
 #. translators: %s placeholder.
 #: src/Admin/Testing/ActivationTest.php:79
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ Main file exists: %s"
 msgstr "✅ Ana dosya mevcut: %s"
 
@@ -22542,7 +22567,7 @@ msgstr "✅ Çoklu site işlevleri mevcuttur"
 
 #. translators: 1: %1$s; 2: %2$s.
 #: src/Admin/Testing/ActivationTest.php:46
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ PHP %1$s >= %2$s"
 msgstr "✅ PHP %1$s >= %2$s"
 
@@ -22563,7 +22588,7 @@ msgstr "✅ Bu sitede aktif Pro lisansı"
 
 #. translators: 1: query duration in ms; 2: vehicle count; 3: performance label.
 #: src/Admin/Testing/PerformanceTest.php:63
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ Query completed in %1$.2f ms. Found %2$d vehicles. Performance: %3$s"
 msgstr ""
 "✅ Sorgu %1$.2f ms içinde tamamlandı. %2$d araç bulundu. Performans: %3$s"
@@ -22585,7 +22610,7 @@ msgstr "✅ Gerekli dizinler mevcuttur"
 
 #. translators: %s placeholder.
 #: src/Admin/Testing/IntegrationTest.php:193
-#, fuzzy
+#, fuzzy, php-format
 msgid "✅ Required roles found: %s"
 msgstr "✅ Gerekli roller bulundu: %s"
 
@@ -22623,7 +22648,7 @@ msgstr ""
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/ActivationTest.php:278
-#, fuzzy
+#, fuzzy, php-format
 msgid ""
 "✅ Vehicle taxonomy rewrite rules found (%d rules). Vehicle post type uses "
 "query string (by design)"
@@ -22643,7 +22668,7 @@ msgstr "❌ $wpdb->prepare() kullanımı bulunamadı"
 
 #. translators: %d placeholder.
 #: src/Admin/Testing/ActivationTest.php:133
-#, fuzzy
+#, fuzzy, php-format
 msgid "❌ %d classes failed to load"
 msgstr "❌ %d sınıf yüklenemedi"
 
@@ -22669,7 +22694,7 @@ msgstr "❌ Veritabanı erişim sorunu"
 
 #. translators: %s placeholder.
 #: src/Admin/Testing/ActivationTest.php:85
-#, fuzzy
+#, fuzzy, php-format
 msgid "❌ Main file not found: %s"
 msgstr "❌ Ana dosya bulunamadı: %s"
 
@@ -22685,7 +22710,7 @@ msgstr "❌ Mevcut değil"
 
 #. translators: 1: %1$s; 2: %2$s.
 #: src/Admin/Testing/ActivationTest.php:53
-#, fuzzy
+#, fuzzy, php-format
 msgid "❌ PHP %1$s < %2$s"
 msgstr "❌ PHP %1$s < %2$s"
 

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Reports\Repository;
 
@@ -21,7 +23,8 @@ class ReportRepository
         global $wpdb;
         return (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-            'vehicle_booking', 'publish'
+            'vehicle_booking',
+            'publish'
         ));
     }
 
@@ -43,7 +46,8 @@ class ReportRepository
              AND pm_status.meta_value IN ('completed', 'confirmed')
              AND p.post_date >= %s
              AND p.post_date < %s",
-            $start_date, $end_date
+            $start_date,
+            $end_date
         ));
     }
 
@@ -71,7 +75,8 @@ class ReportRepository
         global $wpdb;
         return (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-            'vehicle', 'publish'
+            'vehicle',
+            'publish'
         ));
     }
 
@@ -89,10 +94,11 @@ class ReportRepository
              WHERE p.post_type = 'vehicle_booking'
              AND p.post_status = 'publish'
              AND pm_status.meta_value IN ('completed', 'confirmed')
-             AND DATE(p.post_date) BETWEEN %s AND %s
+             AND p.post_date >= %s AND p.post_date <= %s
              GROUP BY DATE(p.post_date)
              ORDER BY date",
-            $start_date, $end_date
+            $start_date . ' 00:00:00',
+            $end_date . ' 23:59:59'
         ));
     }
 
@@ -112,11 +118,12 @@ class ReportRepository
              LEFT JOIN {$wpdb->postmeta} pm_method ON p.ID = pm_method.post_id AND pm_method.meta_key = '_mhm_payment_gateway'
              WHERE p.post_type = 'vehicle_booking'
              AND p.post_status = 'publish'
-             AND DATE(p.post_date) BETWEEN %s AND %s
+             AND p.post_date >= %s AND p.post_date <= %s
              GROUP BY pm_method.meta_value
              HAVING method != 'unknown'
              ORDER BY revenue DESC",
-            $start_date, $end_date
+            $start_date . ' 00:00:00',
+            $end_date . ' 23:59:59'
         ));
     }
 
@@ -135,10 +142,11 @@ class ReportRepository
              WHERE p.post_type = 'vehicle_booking'
              AND p.post_status = 'publish'
              AND pm.meta_key = '_mhm_total_price'
-             AND DATE(p.post_date) BETWEEN %s AND %s
+             AND p.post_date >= %s AND p.post_date <= %s
              GROUP BY DATE_FORMAT(p.post_date, '%Y-%m')
              ORDER BY month",
-            $start_date, $end_date
+            $start_date . ' 00:00:00',
+            $end_date . ' 23:59:59'
         ));
     }
 
@@ -149,7 +157,7 @@ class ReportRepository
     {
         global $wpdb;
 
-        $date_format = match($period) {
+        $date_format = match ($period) {
             'monthly' => '%Y-%m',
             'weekly' => '%Y-%u',
             'yearly' => '%Y',
@@ -165,10 +173,13 @@ class ReportRepository
              WHERE p.post_type = 'vehicle_booking'
              AND p.post_status = 'publish'
              AND pm.meta_key = '_mhm_total_price'
-             AND DATE(p.post_date) BETWEEN %s AND %s
+             AND p.post_date >= %s AND p.post_date <= %s
              GROUP BY DATE_FORMAT(p.post_date, %s)
              ORDER BY period",
-            $date_format, $start_date, $end_date, $date_format
+            $date_format,
+            $start_date . ' 00:00:00',
+            $end_date . ' 23:59:59',
+            $date_format
         ));
     }
 
@@ -189,11 +200,13 @@ class ReportRepository
              AND p.post_status = 'publish'
              AND pm_price.meta_key = '_mhm_total_price'
              AND pm_vehicle.meta_key = '_mhm_vehicle_id'
-             AND DATE(p.post_date) BETWEEN %s AND %s
+             AND p.post_date >= %s AND p.post_date <= %s
              GROUP BY pm_vehicle.meta_value
              ORDER BY revenue DESC
              LIMIT %d",
-            $start_date, $end_date, $limit
+            $start_date . ' 00:00:00',
+            $end_date . ' 23:59:59',
+            $limit
         ));
     }
 
@@ -221,11 +234,12 @@ class ReportRepository
             )
             AND b.post_type = 'vehicle_booking'
             AND b.post_status = 'publish'
-            AND DATE(b.post_date) BETWEEN %s AND %s
+            AND b.post_date >= %s AND b.post_date <= %s
             WHERE tt.taxonomy = 'vehicle_category'
             GROUP BY t.term_id, t.name
             ORDER BY booking_count DESC",
-            $start_date, $end_date
+            $start_date . ' 00:00:00',
+            $end_date . ' 23:59:59'
         ));
     }
 
@@ -253,10 +267,11 @@ class ReportRepository
             AND p.post_status = 'publish'
             AND pm_email.meta_value IS NOT NULL
             AND pm_email.meta_value != ''
-            AND DATE(p.post_date) BETWEEN %s AND %s
+            AND p.post_date >= %s AND p.post_date <= %s
             GROUP BY pm_email.meta_value
             ORDER BY total_spent DESC",
-            $start_date, $end_date
+            $start_date . ' 00:00:00',
+            $end_date . ' 23:59:59'
         ));
     }
 }

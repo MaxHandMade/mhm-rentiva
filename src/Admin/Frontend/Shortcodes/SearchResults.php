@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
@@ -45,11 +47,11 @@ final class SearchResults extends AbstractShortcode
     public static function register(): void
     {
         parent::register();
-        
+
         // AJAX handlers
         add_action('wp_ajax_mhm_rentiva_filter_results', [self::class, 'ajax_filter_results']);
         add_action('wp_ajax_nopriv_mhm_rentiva_filter_results', [self::class, 'ajax_filter_results']);
-        
+
         add_action('wp_ajax_mhm_rentiva_toggle_favorite', [self::class, 'ajax_toggle_favorite']);
     }
 
@@ -81,13 +83,13 @@ final class SearchResults extends AbstractShortcode
     {
         // Get search criteria from URL parameters
         $search_params = self::get_search_params_from_url();
-        
+
         // Get search results
         $results = self::perform_search($search_params, $atts);
-        
+
         // Prepare filter options
         $filter_options = self::get_filter_options($search_params);
-        
+
         // Prepare template data
         return [
             'atts' => $atts,
@@ -218,7 +220,7 @@ final class SearchResults extends AbstractShortcode
                 'key' => '_mhm_rentiva_price_per_day',
                 'type' => 'NUMERIC',
             ];
-            
+
             if ($params['min_price'] > 0 && $params['max_price'] > 0) {
                 $price_query['value'] = [$params['min_price'], $params['max_price']];
                 $price_query['compare'] = 'BETWEEN';
@@ -229,7 +231,7 @@ final class SearchResults extends AbstractShortcode
                 $price_query['value'] = $params['max_price'];
                 $price_query['compare'] = '<=';
             }
-            
+
             $args['meta_query'][] = $price_query;
         }
 
@@ -279,7 +281,7 @@ final class SearchResults extends AbstractShortcode
                 'key' => '_mhm_rentiva_year',
                 'type' => 'NUMERIC',
             ];
-            
+
             if ($params['year_min'] > 0 && $params['year_max'] > 0) {
                 $year_query['value'] = [$params['year_min'], $params['year_max']];
                 $year_query['compare'] = 'BETWEEN';
@@ -290,7 +292,7 @@ final class SearchResults extends AbstractShortcode
                 $year_query['value'] = $params['year_max'];
                 $year_query['compare'] = '<=';
             }
-            
+
             $args['meta_query'][] = $year_query;
         }
 
@@ -342,7 +344,7 @@ final class SearchResults extends AbstractShortcode
 
         // Execute query
         $query = new \WP_Query($args);
-        
+
         // Format results
         $vehicles = [];
         if ($query->have_posts()) {
@@ -354,7 +356,7 @@ final class SearchResults extends AbstractShortcode
         }
 
         $current_page = $params['page'] ?? 1;
-        
+
         return [
             'vehicles' => $vehicles,
             'total' => $query->found_posts,
@@ -398,16 +400,16 @@ final class SearchResults extends AbstractShortcode
         // Get fuel type and transmission labels
         $fuel_type_key = get_post_meta($vehicle_id, '_mhm_rentiva_fuel_type', true);
         $transmission_key = get_post_meta($vehicle_id, '_mhm_rentiva_transmission', true);
-        
+
         $fuel_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
         $transmissions = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
-        
-        $fuel_type_label = !empty($fuel_type_key) && isset($fuel_types[$fuel_type_key]) 
-            ? $fuel_types[$fuel_type_key] 
+
+        $fuel_type_label = !empty($fuel_type_key) && isset($fuel_types[$fuel_type_key])
+            ? $fuel_types[$fuel_type_key]
             : $fuel_type_key;
-        
-        $transmission_label = !empty($transmission_key) && isset($transmissions[$transmission_key]) 
-            ? $transmissions[$transmission_key] 
+
+        $transmission_label = !empty($transmission_key) && isset($transmissions[$transmission_key])
+            ? $transmissions[$transmission_key]
             : $transmission_key;
 
         return [
@@ -452,7 +454,7 @@ final class SearchResults extends AbstractShortcode
             AND meta_value != '' 
             ORDER BY meta_value ASC
         ");
-        
+
         $fuel_types_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
         $fuel_types = [];
         foreach ($fuel_type_keys as $key) {
@@ -471,7 +473,7 @@ final class SearchResults extends AbstractShortcode
             AND meta_value != '' 
             ORDER BY meta_value ASC
         ");
-        
+
         $transmissions_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
         $transmissions = [];
         foreach ($transmission_keys as $key) {
@@ -591,7 +593,6 @@ final class SearchResults extends AbstractShortcode
                 'pagination' => $results['pagination'],
                 'total' => $results['total'],
             ]);
-
         } catch (Exception $e) {
             wp_send_json_error([
                 'message' => $e->getMessage(),
@@ -605,7 +606,7 @@ final class SearchResults extends AbstractShortcode
     private static function check_vehicle_availability(int $vehicle_id): array
     {
         $status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
-        
+
         // Fallback for older data or if status is not set
         if (empty($status)) {
             $old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
@@ -620,9 +621,9 @@ final class SearchResults extends AbstractShortcode
                 $status = 'active'; // Default
             }
         }
-        
+
         $is_available = ($status === 'active');
-        
+
         return [
             'is_available' => $is_available,
             'status' => $status,
@@ -683,7 +684,6 @@ final class SearchResults extends AbstractShortcode
                 'vehicle_id' => $vehicle_id,
                 'favorites_count' => count($favorites)
             ]);
-
         } catch (\Exception $e) {
             wp_send_json_error([
                 'message' => $e->getMessage()
@@ -724,26 +724,26 @@ final class SearchResults extends AbstractShortcode
 
         // Parent container controls layout now. Card class is neutral.
         $card_class = '';
-        
+
         ob_start();
-        ?>
+?>
         <div class="rv-vehicle-card <?php echo esc_attr($card_class); ?>" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
-            
+
             <!-- Vehicle Image -->
             <div class="rv-vehicle-image">
                 <?php if (!empty($vehicle['featured_image']['url'])): ?>
-                    <img src="<?php echo esc_url($vehicle['featured_image']['url']); ?>" 
-                         alt="<?php echo esc_attr($vehicle['featured_image']['alt']); ?>"
-                         loading="lazy">
+                    <img src="<?php echo esc_url($vehicle['featured_image']['url']); ?>"
+                        alt="<?php echo esc_attr($vehicle['featured_image']['alt']); ?>"
+                        loading="lazy">
                 <?php else: ?>
                     <div class="rv-no-image">
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 19V5h14v14H5z"/>
-                            <path d="M7 7h10v6H7z"/>
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 19V5h14v14H5z" />
+                            <path d="M7 7h10v6H7z" />
                         </svg>
                     </div>
                 <?php endif; ?>
-                
+
                 <!-- Availability Badge -->
                 <?php if (!$is_available): ?>
                     <div class="rv-badge-wrapper" style="position: absolute; top: 10px; left: 10px; z-index: 10;">
@@ -774,19 +774,19 @@ final class SearchResults extends AbstractShortcode
                         <?php echo esc_html($vehicle['title'] ?? ''); ?>
                     </a>
                 </h3>
-                
+
                 <?php if (!empty($vehicle['brand']) || !empty($vehicle['model'])): ?>
-                <p class="rv-vehicle-meta">
-                    <?php if (!empty($vehicle['brand'])): ?>
-                        <span class="rv-brand"><?php echo esc_html($vehicle['brand']); ?></span>
-                    <?php endif; ?>
-                    <?php if (!empty($vehicle['model'])): ?>
-                        <span class="rv-model"><?php echo esc_html($vehicle['model']); ?></span>
-                    <?php endif; ?>
-                    <?php if (!empty($vehicle['year'])): ?>
-                        <span class="rv-year"><?php echo esc_html($vehicle['year']); ?></span>
-                    <?php endif; ?>
-                </p>
+                    <p class="rv-vehicle-meta">
+                        <?php if (!empty($vehicle['brand'])): ?>
+                            <span class="rv-brand"><?php echo esc_html($vehicle['brand']); ?></span>
+                        <?php endif; ?>
+                        <?php if (!empty($vehicle['model'])): ?>
+                            <span class="rv-model"><?php echo esc_html($vehicle['model']); ?></span>
+                        <?php endif; ?>
+                        <?php if (!empty($vehicle['year'])): ?>
+                            <span class="rv-year"><?php echo esc_html($vehicle['year']); ?></span>
+                        <?php endif; ?>
+                    </p>
                 <?php endif; ?>
 
                 <!-- Vehicle Features -->
@@ -794,25 +794,25 @@ final class SearchResults extends AbstractShortcode
                     <?php if (!empty($vehicle['fuel_type'])): ?>
                         <span class="rv-feature">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
                             </svg>
                             <?php echo esc_html($vehicle['fuel_type']); ?>
                         </span>
                     <?php endif; ?>
-                    
+
                     <?php if (!empty($vehicle['transmission'])): ?>
                         <span class="rv-feature">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                             </svg>
                             <?php echo esc_html($vehicle['transmission']); ?>
                         </span>
                     <?php endif; ?>
-                    
+
                     <?php if (!empty($vehicle['seats'])): ?>
                         <span class="rv-feature">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                             </svg>
                             <?php echo esc_html($vehicle['seats']); ?> <?php _e('seats', 'mhm-rentiva'); ?>
                         </span>
@@ -821,24 +821,24 @@ final class SearchResults extends AbstractShortcode
 
                 <!-- Rating -->
                 <?php if (!empty($vehicle['rating']['average']) && $vehicle['rating']['average'] > 0): ?>
-                <div class="rv-vehicle-rating">
-                    <div class="rv-stars">
-                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                            <span class="rv-star <?php echo $i <= $vehicle['rating']['average'] ? 'filled' : ''; ?>">★</span>
-                        <?php endfor; ?>
+                    <div class="rv-vehicle-rating">
+                        <div class="rv-stars">
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <span class="rv-star <?php echo $i <= $vehicle['rating']['average'] ? 'filled' : ''; ?>">★</span>
+                            <?php endfor; ?>
+                        </div>
+                        <span class="rv-rating-count">
+                            <?php
+                            /* translators: %d: number of reviews. */
+                            printf(_n('(%d review)', '(%d reviews)', $vehicle['rating']['count'] ?? 0, 'mhm-rentiva'), $vehicle['rating']['count'] ?? 0);
+                            ?>
+                        </span>
                     </div>
-                    <span class="rv-rating-count">
-                        <?php
-                        /* translators: %d: number of reviews. */
-                        printf(_n('(%d review)', '(%d reviews)', $vehicle['rating']['count'] ?? 0, 'mhm-rentiva'), $vehicle['rating']['count'] ?? 0);
-                        ?>
-                    </span>
-                </div>
                 <?php endif; ?>
 
                 <!-- Actions -->
                 <div class="rv-vehicle-actions">
-                    <?php 
+                    <?php
                     $btn_class = 'rv-btn rv-btn-primary';
                     $btn_href = esc_url($vehicle['url'] ?? '#');
                     $btn_attrs = '';
@@ -847,29 +847,26 @@ final class SearchResults extends AbstractShortcode
                     if (!$is_available) {
                         $btn_class .= ' rv-btn-disabled';
                         $btn_href = 'javascript:void(0);';
-                        $btn_attrs = 'aria-disabled="true" style="opacity: 0.6; pointer-events: none; cursor: not-allowed; background-color: #95a5a6; border-color: #95a5a6;"';
-                        $btn_text = __('Out of Order', 'mhm-rentiva'); // Or keep View Details but disabled? Usually better to indicate why.
-                        // Actually, let's keep "View Details" but disabled, or "Unavailable".
-                        // User request: "kullanım dışı ve rezervasyon butonları".
-                        // Let's use the status text.
-                        //$btn_text = $status_text; 
+                        $btn_attrs = 'aria-disabled="true" tabindex="-1"';
+                        // Keep pure View Details text, do not override with status
                     }
                     ?>
                     <a href="<?php echo $btn_href; ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo $btn_attrs; ?>>
                         <?php echo esc_html($btn_text); ?>
                     </a>
-                    
-                    <?php if ($is_available): // Hide favorite for unavailable? Or allow it? Allowing is fine. ?>
-                    <button type="button" class="rv-btn rv-btn-secondary rv-add-to-favorites <?php echo !empty($vehicle['is_favorite']) ? 'active' : ''; ?>" data-vehicle-id="<?php echo esc_attr($vehicle['id'] ?? 0); ?>">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                        </svg>
-                    </button>
+
+                    <?php if ($is_available): // Hide favorite for unavailable? Or allow it? Allowing is fine. 
+                    ?>
+                        <button type="button" class="rv-btn rv-btn-secondary rv-add-to-favorites <?php echo !empty($vehicle['is_favorite']) ? 'active' : ''; ?>" data-vehicle-id="<?php echo esc_attr($vehicle['id'] ?? 0); ?>">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                            </svg>
+                        </button>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
-        <?php
+<?php
         return ob_get_clean();
     }
 }

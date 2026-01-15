@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva;
 
@@ -17,7 +19,7 @@ final class Plugin
     public const VERSION = MHM_RENTIVA_VERSION;
 
     private static ?self $instance = null;
-    
+
     /**
      * Bootstrap flag (performance optimization - static flag instead of DB query)
      */
@@ -32,7 +34,7 @@ final class Plugin
         if (self::$instance !== null || self::$bootstrapped) {
             return;
         }
-        
+
         // Mark bootstrap flag and create instance
         self::$bootstrapped = true;
         self::$instance = new self();
@@ -53,10 +55,10 @@ final class Plugin
     {
         // Load language files immediately (since we are already in plugins_loaded hook)
         $this->load_textdomain();
-        
+
         // Ensure theme support for thumbnails
         add_action('after_setup_theme', [$this, 'setup_theme_support']);
-        
+
         // Register Customer role (also for existing installations)
         // Priority 20: Run after WooCommerce and other plugins that might register customer role
         add_action('init', [self::class, 'register_customer_role'], 20);
@@ -71,14 +73,14 @@ final class Plugin
 
         // Initialize services
         $this->initialize_core_services();
-        
+
         // Register currency helper filter hooks
         \MHMRentiva\Admin\Core\CurrencyHelper::register_hooks();
-        
+
         if (is_admin()) {
             $this->initialize_admin_services();
         }
-        
+
         // Initialize PostTypes after admin services
         $this->initialize_post_types();
 
@@ -86,7 +88,7 @@ final class Plugin
         $this->initialize_additional_services();
         $this->initialize_deposit_services();
         $this->initialize_system_services();
-        
+
         // Frontend services (also works outside admin)
         $this->initialize_frontend_services();
     }
@@ -100,18 +102,18 @@ final class Plugin
         if ($this->is_class_available('MHMRentiva\Admin\Core\AssetManager')) {
             \MHMRentiva\Admin\Core\AssetManager::init();
         }
-        
+
         // WordPress optimizer
-            if ($this->is_class_available('\MHMRentiva\Admin\Core\Utilities\WordPressOptimizer')) {
-                \MHMRentiva\Admin\Core\Utilities\WordPressOptimizer::register();
-            }
-            
+        if ($this->is_class_available('\MHMRentiva\Admin\Core\Utilities\WordPressOptimizer')) {
+            \MHMRentiva\Admin\Core\Utilities\WordPressOptimizer::register();
+        }
+
         // Styles - Compatible loading with AssetManager
         // Use Styles if AssetManager is not loaded
         if (!$this->is_class_available('MHMRentiva\Admin\Core\AssetManager')) {
             if ($this->is_class_available('MHMRentiva\Admin\Core\Utilities\Styles')) {
                 $styles = new \MHMRentiva\Admin\Core\Utilities\Styles(
-                    MHM_RENTIVA_PLUGIN_DIR, 
+                    MHM_RENTIVA_PLUGIN_DIR,
                     MHM_RENTIVA_PLUGIN_URL
                 );
                 $styles->register();
@@ -128,12 +130,12 @@ final class Plugin
         if ($this->is_class_available('MHMRentiva\Admin\Vehicle\PostType\Vehicle')) {
             \MHMRentiva\Admin\Vehicle\PostType\Vehicle::register();
         }
-        
+
         // Booking post type
         if ($this->is_class_available('MHMRentiva\Admin\Booking\PostType\Booking')) {
             \MHMRentiva\Admin\Booking\PostType\Booking::register();
         }
-        
+
         if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory')) {
             \MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory::register();
         }
@@ -157,7 +159,7 @@ final class Plugin
         }
 
 
-            
+
         // Email templates
         if ($this->is_class_available('\MHMRentiva\Admin\Emails\Core\EmailTemplates')) {
             \MHMRentiva\Admin\Emails\Core\EmailTemplates::register();
@@ -165,68 +167,65 @@ final class Plugin
         if ($this->is_class_available('\MHMRentiva\Admin\Emails\Core\Templates')) {
             \MHMRentiva\Admin\Emails\Core\Templates::register();
         }
-            
+
         // Admin menu
         if ($this->is_class_available('MHMRentiva\Admin\Utilities\Menu\Menu')) {
             \MHMRentiva\Admin\Utilities\Menu\Menu::register();
         }
-            
+
         // Admin optimizer
         if ($this->is_class_available('\MHMRentiva\Admin\Utilities\Performance\AdminOptimizer')) {
             \MHMRentiva\Admin\Utilities\Performance\AdminOptimizer::register();
         }
-            
-            // Meta boxes
-            
-            // Meta boxes
-            if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta')) {
-                \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::register();
-            }
-            
-            if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta')) {
-                \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::register();
-            }
-            // BookingMeta registration - directly
-            \MHMRentiva\Admin\Booking\Meta\BookingMeta::register();
-            
-            // Register manual booking meta box
-            if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\ManualBookingMetaBox')) {
-                \MHMRentiva\Admin\Booking\Meta\ManualBookingMetaBox::register();
-            }
-            // Register booking edit meta box
-            if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingEditMetaBox')) {
-                \MHMRentiva\Admin\Booking\Meta\BookingEditMetaBox::register();
-            }
-            if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox')) {
-                \MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::register();
-            }
-            
-            // List table columns
-            if ($this->is_class_available('MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns')) {
-                \MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::register();
-            }
-            
-            if ($this->is_class_available('MHMRentiva\Admin\Booking\ListTable\BookingColumns')) {
-                \MHMRentiva\Admin\Booking\ListTable\BookingColumns::register();
-            }
-            
-            // Booking admin metaboxes/actions
-            if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox')) {
-                \MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox::register();
-            }
-            if ($this->is_class_available('\MHMRentiva\Admin\Utilities\Actions\Actions')) {
-                \MHMRentiva\Admin\Utilities\Actions\Actions::register();
-            }
-            
-            // Maintenance
-            if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel')) {
-                \MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::register();
-            }
-            if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\Reconcile')) {
 
-            }
-            if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\LogRetention')) {
-                \MHMRentiva\Admin\PostTypes\Maintenance\LogRetention::register();
+        // Meta boxes
+
+        // Meta boxes
+        if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta')) {
+            \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::register();
+        }
+
+
+        // BookingMeta registration - directly
+        \MHMRentiva\Admin\Booking\Meta\BookingMeta::register();
+
+        // Register manual booking meta box
+        if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\ManualBookingMetaBox')) {
+            \MHMRentiva\Admin\Booking\Meta\ManualBookingMetaBox::register();
+        }
+        // Register booking edit meta box
+        if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingEditMetaBox')) {
+            \MHMRentiva\Admin\Booking\Meta\BookingEditMetaBox::register();
+        }
+        if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox')) {
+            \MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::register();
+        }
+
+        // List table columns
+        if ($this->is_class_available('MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns')) {
+            \MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::register();
+        }
+
+        if ($this->is_class_available('MHMRentiva\Admin\Booking\ListTable\BookingColumns')) {
+            \MHMRentiva\Admin\Booking\ListTable\BookingColumns::register();
+        }
+
+        // Booking admin metaboxes/actions
+        if ($this->is_class_available('\MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox')) {
+            \MHMRentiva\Admin\Booking\Meta\BookingRefundMetaBox::register();
+        }
+        if ($this->is_class_available('\MHMRentiva\Admin\Utilities\Actions\Actions')) {
+            \MHMRentiva\Admin\Utilities\Actions\Actions::register();
+        }
+
+        // Maintenance
+        if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel')) {
+            \MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::register();
+        }
+        if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\Reconcile')) {
+        }
+        if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\LogRetention')) {
+            \MHMRentiva\Admin\PostTypes\Maintenance\LogRetention::register();
         }
 
         // Setup Wizard
@@ -302,9 +301,7 @@ final class Plugin
         if (class_exists(Admin\Messages\Admin\MessageListTable::class)) {
             Admin\Messages\Admin\MessageListTable::register();
         }
-        if (class_exists(Admin\Messages\Frontend\CustomerMessages::class)) {
-            Admin\Messages\Frontend\CustomerMessages::register();
-        }
+
         if (class_exists(Admin\Messages\REST\Messages::class)) {
             Admin\Messages\REST\Messages::register();
         }
@@ -344,25 +341,25 @@ final class Plugin
         if ($this->is_class_available('Admin\REST\ErrorHandler')) {
             Admin\REST\ErrorHandler::register();
         }
-        
+
         // Debug Helper
         if ($this->is_class_available('Admin\Core\Utilities\DebugHelper')) {
             Admin\Core\Utilities\DebugHelper::register();
         }
-        
+
         // Vehicle Settings (admin only)
         if (is_admin()) {
             if ($this->is_class_available('Admin\Vehicle\Settings\VehicleSettings')) {
                 Admin\Vehicle\Settings\VehicleSettings::register();
             }
         }
-        
-        
+
+
         // REST API Fixer
         if ($this->is_class_available('Admin\Core\Utilities\RestApiFixer')) {
             Admin\Core\Utilities\RestApiFixer::register();
         }
-        
+
         // REST API
         if ($this->is_class_available('Admin\REST\Availability')) {
             Admin\REST\Availability::register();
@@ -370,7 +367,7 @@ final class Plugin
 
         // ☠️ DEAD CODE REMOVED: Portal API (552 lines) - deprecated in v4.0.0, not used anywhere
         // My Account system uses direct AJAX (admin-ajax.php), not REST API
-        
+
         // ⭐ New Account System (WordPress Login)
         if (class_exists(Admin\Frontend\Account\AccountController::class)) {
             Admin\Frontend\Account\AccountController::register();
@@ -431,30 +428,30 @@ final class Plugin
     {
         // Database migration
         add_action('admin_init', [Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations']);
-        
+
         // Taxonomy migration (vehicle_cat → vehicle_category)
         add_action('admin_init', [Admin\Core\Utilities\TaxonomyMigrator::class, 'migrate_vehicle_cat_to_vehicle_category'], 5);
-        
+
         // Database cleanup page (admin only)
         if (is_admin() && class_exists('MHMRentiva\\Admin\\Utilities\\Database\\DatabaseCleanupPage')) {
             Admin\Utilities\Database\DatabaseCleanupPage::register();
         }
-        
+
         // Cron monitor (admin only)
         if (is_admin() && class_exists('MHMRentiva\\Admin\\Utilities\\Cron\\CronMonitorPage')) {
             Admin\Utilities\Cron\CronMonitorPage::register();
         }
-        
+
         // API Keys Page (admin only)
         if (is_admin() && class_exists('MHMRentiva\\Admin\\Settings\\APIKeysPage')) {
             Admin\Settings\APIKeysPage::register();
         }
-        
+
         // Uninstall page (admin only)
         if (is_admin() && class_exists('MHMRentiva\\Admin\\Utilities\\Uninstall\\UninstallPage')) {
             Admin\Utilities\Uninstall\UninstallPage::register();
         }
-        
+
         // Test suite page (development only)
         if (defined('WP_DEBUG') && WP_DEBUG && is_admin() && class_exists('MHMRentiva\\Admin\\Testing\\TestAdminPage')) {
             Admin\Testing\TestAdminPage::register();
@@ -462,16 +459,16 @@ final class Plugin
 
         // Template loading
         add_action('template_redirect', [$this, 'load_vehicle_templates']);
-        
+
         // REST API
         add_action('rest_api_init', [$this, 'register_rest_api']);
 
         // Plugin deactivation hook
         register_deactivation_hook(dirname(__DIR__) . '/mhm-rentiva.php', [Admin\Licensing\LicenseManager::class, 'deactivatePluginHook']);
-        
+
         // Shortcode URL cache temizleme
         add_action('save_post', [Admin\Core\ShortcodeUrlManager::class, 'clear_cache_on_page_update']);
-        add_action('delete_post', function($post_id) {
+        add_action('delete_post', function ($post_id) {
             Admin\Core\ShortcodeUrlManager::clear_cache();
         });
     }
@@ -487,7 +484,7 @@ final class Plugin
 
         // Force load from local directory first (to avoid global overrides)
         $mofile = dirname(__DIR__) . '/languages/' . $domain . '-' . $locale . '.mo';
-        
+
         if (file_exists($mofile)) {
             load_textdomain($domain, $mofile);
         } else {
@@ -513,18 +510,18 @@ final class Plugin
     public function enforce_limits(array $data, array $postarr): array
     {
         $type = $data['post_type'] ?? '';
-        
+
         // Skip limit check if:
         // 1. Post ID exists (updating existing post, not creating new)
         // 2. Post is being deleted/trashed
         // 3. Post status is trash or deleted
         $post_id = $postarr['ID'] ?? 0;
         $post_status = $data['post_status'] ?? '';
-        
+
         if ($post_id > 0 || in_array($post_status, ['trash', 'delete'], true)) {
             return $data;
         }
-        
+
         if (class_exists(Admin\Licensing\Mode::class) && class_exists(Admin\Licensing\Restrictions::class)) {
             if (Admin\Licensing\Mode::isLite()) {
                 // Only check limits when creating NEW posts (not updating/deleting)
@@ -536,7 +533,7 @@ final class Plugin
                 }
             }
         }
-        
+
         return $data;
     }
 
@@ -545,7 +542,7 @@ final class Plugin
 
 
 
-    
+
     /**
      * Load vehicle templates
      */
@@ -555,12 +552,12 @@ final class Plugin
         if (isset($_GET['vehicle']) && !empty($_GET['vehicle'])) {
             $vehicle_slug = mhm_rentiva_sanitize_text_field_safe(wp_unslash($_GET['vehicle'] ?? ''));
             $vehicle_post = get_page_by_path($vehicle_slug, OBJECT, 'vehicle');
-            
+
             if ($vehicle_post && $vehicle_post->post_status === 'publish') {
                 global $post;
                 $post = $vehicle_post;
                 setup_postdata($post);
-                
+
                 $template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/single-vehicle.php';
                 if (file_exists($template_path)) {
                     include $template_path;
@@ -568,7 +565,7 @@ final class Plugin
                 }
             }
         }
-        
+
         // Normal single vehicle template
         if (is_singular('vehicle')) {
             $template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/single-vehicle.php';
@@ -577,9 +574,8 @@ final class Plugin
                 exit;
             }
         }
-        
     }
-    
+
     /**
      * Initialize deposit services
      */
@@ -602,7 +598,7 @@ final class Plugin
         // ⭐ Load AbstractShortcode first - Required for other shortcodes
         // Autoloader handles this now
 
-        
+
         // ⭐ Shortcode Service Provider - Manages all shortcodes centrally (v3.0.1)
         if ($this->is_class_available('MHMRentiva\Admin\Core\ShortcodeServiceProvider')) {
             \MHMRentiva\Admin\Core\ShortcodeServiceProvider::register();
@@ -630,7 +626,7 @@ final class Plugin
     public function invalidate_cache_on_save(int $post_id): void
     {
         $post_type = get_post_type($post_id);
-        
+
         if ($post_type === 'vehicle') {
             // Clear vehicle caches
             \MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags([
@@ -653,7 +649,7 @@ final class Plugin
     public function invalidate_cache_on_delete(int $post_id): void
     {
         $post_type = get_post_type($post_id);
-        
+
         if ($post_type === 'vehicle') {
             // Clear vehicle caches
             \MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags([
@@ -676,7 +672,7 @@ final class Plugin
     public function invalidate_cache_on_meta_update(int $meta_id, int $post_id, string $meta_key, $meta_value): void
     {
         $post_type = get_post_type($post_id);
-        
+
         // Vehicle meta changes
         if ($post_type === 'vehicle' && strpos($meta_key, '_mhm_rentiva_') === 0) {
             \MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags([
@@ -685,7 +681,7 @@ final class Plugin
                 'availability_calendar'
             ]);
         }
-        
+
         // Booking meta changes
         if ($post_type === 'vehicle_booking' && strpos($meta_key, '_mhm_') === 0) {
             \MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags([
@@ -702,8 +698,6 @@ final class Plugin
     {
         // Initialize Elementor widgets
         \MHMRentiva\Admin\Frontend\Widgets\Elementor\ElementorIntegration::init();
-        
-
     }
 
     /**
@@ -723,14 +717,14 @@ final class Plugin
         // Register post types
         \MHMRentiva\Admin\Vehicle\PostType\Vehicle::register();
         \MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory::register();
-        
+
         // Register Customer role
         self::register_customer_role();
-        
+
         // Flush rewrite rules
         flush_rewrite_rules();
     }
-    
+
     /**
      * Register Customer role
      * 
@@ -746,11 +740,11 @@ final class Plugin
             // WordPress add_role() safely handles existing roles (returns null, no error)
             return;
         }
-        
+
         // Get subscriber role capabilities as base
         $subscriber = get_role('subscriber');
         $capabilities = $subscriber ? $subscriber->capabilities : ['read' => true];
-        
+
         // Add Customer role with subscriber-like capabilities
         // Note: If role already exists, add_role() safely returns null without error
         $result = add_role(
@@ -758,7 +752,7 @@ final class Plugin
             __('Customer', 'mhm-rentiva'),
             $capabilities
         );
-        
+
         // Optional: Log if role creation failed (shouldn't happen if check above works)
         if ($result === null && !get_role('customer')) {
             error_log('MHM Rentiva: Failed to create customer role (may already exist from another plugin)');

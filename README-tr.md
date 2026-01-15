@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.5.4-blue.svg)
+![Version](https://img.shields.io/badge/version-4.5.5-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -344,7 +344,17 @@ POST /bookings
 
 ## 📝 Değişiklik Geçmişi
 
-### Son Versiyon: 4.5.4 (2026-01-15)
+### Son Versiyon: 4.5.5 (2026-01-15)
+
+**🎨 ÖN YÜZ İYİLEŞTİRMELERİ & DÜZELTMELER**
+- **Araç Detay**: "Kullanım Dışı" rozet mantığı ve yerleşimi düzeltildi. Mobilde taşma sorunları giderildi.
+- **Arama Sonuçları**: Buton renkleri standartlaştırıldı (mavi tema) ve "Kullanım Dışı" durumu eklendi.
+- **Karşılaştırma Sayfası**: Kart hizalamaları düzeltildi, buton stilleri iyileştirildi ve satır içi stiller temizlendi.
+- **Favorilerim**: Müsait olmayan araçlar için "Kullanım Dışı" rozeti ve pasif rezervasyon butonu eklendi.
+- **Rezervasyonlarım**: Tablo düzeni optimize edildi (kısa başlıklar, kompakt butonlar) ve gereksiz kaydırma önlendi.
+- **Yerelleştirme**: POT dosyasına eksik çeviri metinleri eklendi.
+
+### Versiyon: 4.5.4 (2026-01-15)
 
 **🚀 REFACTORING & KULLANICI DENEYİMİ**
 - **Ayarlar Refactoring**: Modülerlik ve bakım kolaylığı için ayarlar çekirdeğinde büyük çaplı refactoring yapıldı.

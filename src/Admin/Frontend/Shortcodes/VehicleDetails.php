@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
@@ -7,8 +9,10 @@ use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use DateTime;
 use DateInterval;
+use MHMRentiva\Admin\Core\AssetManager;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -27,7 +31,7 @@ if (!defined('ABSPATH')) {
 final class VehicleDetails extends AbstractShortcode
 {
     public const SHORTCODE = 'rentiva_vehicle_details';
-    private const CACHE_VERSION = 'card_fields_v4';
+    private const CACHE_VERSION = 'card_fields_v6';
 
     /**
      * Register shortcode
@@ -35,7 +39,7 @@ final class VehicleDetails extends AbstractShortcode
     public static function register(): void
     {
         parent::register();
-        
+
         add_action('wp_ajax_mhm_rentiva_get_calendar', [self::class, 'ajax_get_calendar']);
         add_action('wp_ajax_nopriv_mhm_rentiva_get_calendar', [self::class, 'ajax_get_calendar']);
     }
@@ -113,15 +117,15 @@ final class VehicleDetails extends AbstractShortcode
             'mhm-rentiva-vehicle-details',
             MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicle-details.css',
             static::get_css_dependencies(),
-            MHM_RENTIVA_VERSION
+            AssetManager::get_file_version('assets/css/frontend/vehicle-details.css')
         );
-        
+
         // JavaScript
         wp_enqueue_script(
             'mhm-rentiva-vehicle-details',
             MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicle-details.js',
             static::get_js_dependencies(),
-            MHM_RENTIVA_VERSION,
+            AssetManager::get_file_version('assets/js/frontend/vehicle-details.js'),
             true
         );
 
@@ -151,7 +155,7 @@ final class VehicleDetails extends AbstractShortcode
     protected static function get_js_config(): array
     {
         return [
-            'currency_symbol' => self::get_currency_symbol(),
+            'currency_symbol' => CurrencyHelper::get_currency_symbol(),
             'locale' => self::get_js_locale(),
         ];
     }
@@ -211,21 +215,21 @@ final class VehicleDetails extends AbstractShortcode
     {
         // Get vehicle ID
         $vehicle_id = self::get_vehicle_id($atts);
-        
+
         if (!$vehicle_id) {
             return [];
         }
-        
+
         // Cache check
         $cache_key = 'vehicle_details_' . self::CACHE_VERSION . '_' . $vehicle_id . '_' . md5(serialize($atts));
         $cached_data = get_transient($cache_key);
-        
+
         if ($cached_data !== false) {
             return $cached_data;
         }
-        
+
         $vehicle = get_post($vehicle_id);
-        
+
         if (!$vehicle || $vehicle->post_type !== 'vehicle') {
             // If vehicle not found, return safe default values
             return self::get_default_template_data($atts);
@@ -234,21 +238,29 @@ final class VehicleDetails extends AbstractShortcode
         // Inject custom texts from settings if not already set via shortcode attribute
         $text_settings = self::get_text();
         $atts['booking_btn_text'] = $atts['booking_btn_text'] ?? $text_settings['book_now'];
-        
+
+        // Availability Check
+        $availability = self::check_vehicle_availability($vehicle_id);
+
         $template_data = [
             'vehicle_id' => $vehicle_id,
             'vehicle' => $vehicle,
             'atts' => $atts,
-            
+
+            // Availability
+            'is_available' => $availability['is_available'],
+            'status' => $availability['status'],
+            'status_text' => $availability['text'],
+
             // Basic Information
             'title' => $vehicle->post_title,
             'content' => $vehicle->post_content,
             'excerpt' => $vehicle->post_excerpt,
-            
+
             // Images
             'featured_image' => self::get_featured_image($vehicle_id),
             'gallery' => self::get_gallery($vehicle_id),
-            
+
             // Meta Information
             'brand' => get_post_meta($vehicle_id, '_mhm_rentiva_brand', true),
             'model' => get_post_meta($vehicle_id, '_mhm_rentiva_model', true),
@@ -260,31 +272,31 @@ final class VehicleDetails extends AbstractShortcode
             'mileage' => self::get_meta_with_fallback($vehicle_id, ['_mhm_rentiva_mileage', 'kilometre', '_mhm_rentiva_kilometre', 'mileage']),
             'color' => get_post_meta($vehicle_id, '_mhm_rentiva_color', true),
             'license_plate' => get_post_meta($vehicle_id, '_mhm_rentiva_license_plate', true),
-            
+
             // Price
             'price_per_day' => get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true),
             'price_per_week' => get_post_meta($vehicle_id, '_mhm_rentiva_price_per_week', true),
             'price_per_month' => get_post_meta($vehicle_id, '_mhm_rentiva_price_per_month', true),
-            'currency' => function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD'),
-            'currency_symbol' => self::get_currency_symbol(),
-            
+            'currency' => function_exists('get_woocommerce_currency') ? \get_woocommerce_currency() : \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD'),
+            'currency_symbol' => CurrencyHelper::get_currency_symbol(),
+
             // Features
             'features' => self::get_features($vehicle_id),
             'card_features' => VehicleFeatureHelper::collect_items($vehicle_id),
-            
+
             // Category
             'categories' => self::get_categories($vehicle_id),
-            
+
             // Booking URL - Redirect to existing booking form
             'booking_url' => self::get_booking_url($vehicle_id),
-            
+
             // Rating
             'rating' => self::get_vehicle_rating($vehicle_id),
         ];
-        
+
         // Cache save (15 minutes) (cache duration)
         set_transient($cache_key, $template_data, 15 * MINUTE_IN_SECONDS);
-        
+
         return $template_data;
     }
 
@@ -297,12 +309,17 @@ final class VehicleDetails extends AbstractShortcode
             'vehicle_id' => 0,
             'vehicle' => null,
             'atts' => $atts,
-            
+
+            // Availability
+            'is_available' => false,
+            'status' => 'inactive',
+            'status_text' => '',
+
             // Basic Information
             'title' => __('Vehicle Not Found', 'mhm-rentiva'),
             'content' => __('The requested vehicle could not be found.', 'mhm-rentiva'),
             'excerpt' => '',
-            
+
             // Images
             'featured_image' => [
                 'url' => self::get_placeholder_image_url(),
@@ -310,7 +327,7 @@ final class VehicleDetails extends AbstractShortcode
                 'title' => ''
             ],
             'gallery' => [],
-            
+
             // Meta Information
             'brand' => '',
             'model' => '',
@@ -322,24 +339,24 @@ final class VehicleDetails extends AbstractShortcode
             'mileage' => '',
             'color' => '',
             'license_plate' => '',
-            
+
             // Price
             'price_per_day' => 0,
             'price_per_week' => 0,
             'price_per_month' => 0,
             'currency' => 'USD',
             'currency_symbol' => '$',
-            
+
             // Features
             'features' => [],
             'card_features' => [],
-            
+
             // Category
             'categories' => [],
-            
+
             // Booking URL
             'booking_url' => ShortcodeUrlManager::get_page_url('rentiva_booking_form'),
-            
+
             // Rating
             'rating' => [
                 'average' => 0,
@@ -355,7 +372,7 @@ final class VehicleDetails extends AbstractShortcode
     private static function get_featured_image(int $vehicle_id): array
     {
         $image_id = get_post_thumbnail_id($vehicle_id);
-        
+
         if (!$image_id) {
             return [
                 'url' => self::get_placeholder_image_url(),
@@ -388,12 +405,12 @@ final class VehicleDetails extends AbstractShortcode
             '_mhm_gallery',
             'mhm_gallery'
         ];
-        
+
         $gallery_ids = [];
-        
+
         foreach ($possible_keys as $key) {
             $meta_value = get_post_meta($vehicle_id, $key, true);
-            
+
             if (!empty($meta_value)) {
                 if (is_array($meta_value)) {
                     $gallery_ids = $meta_value;
@@ -404,13 +421,13 @@ final class VehicleDetails extends AbstractShortcode
                         $gallery_ids = array_column($gallery_data, 'id');
                     }
                 }
-                
+
                 if (!empty($gallery_ids)) {
                     break;
                 }
             }
         }
-        
+
         if (empty($gallery_ids)) {
             // Use featured image as gallery
             $featured_image_id = get_post_thumbnail_id($vehicle_id);
@@ -445,7 +462,7 @@ final class VehicleDetails extends AbstractShortcode
     {
         // Meta field get (stored as array)
         $features = get_post_meta($vehicle_id, '_mhm_rentiva_features', true);
-        
+
         if (empty($features) || !is_array($features)) {
             return [];
         }
@@ -461,7 +478,7 @@ final class VehicleDetails extends AbstractShortcode
     private static function get_categories(int $vehicle_id): array
     {
         $terms = get_the_terms($vehicle_id, 'vehicle_category');
-        
+
         if (empty($terms) || is_wp_error($terms)) {
             return [];
         }
@@ -479,46 +496,35 @@ final class VehicleDetails extends AbstractShortcode
         return $categories;
     }
 
-    /**
-     * Get currency symbol
-     * 
-     * @deprecated Use CurrencyHelper::get_currency_symbol() instead
-     */
-    private static function get_currency_symbol(): string
-    {
-        return \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-    }
+
 
     /**
      * Vehicle rating get
      */
+    /**
+     * Vehicle rating get - Optimized with SQL aggregation
+     */
     private static function get_vehicle_rating(int $vehicle_id): array
     {
-        // Calculate current rating from WordPress comments system
-        $comments = get_comments([
-            'post_id' => $vehicle_id,
-            'status' => 'approve',
-            'meta_query' => [
-                [
-                    'key' => 'mhm_rating',
-                    'compare' => 'EXISTS'
-                ]
-            ]
-        ]);
+        global $wpdb;
 
-        $total_rating = 0;
-        $count = 0;
+        // Calculate current rating directly from database
+        $stats = $wpdb->get_row($wpdb->prepare(
+            "SELECT 
+                COUNT(*) as count, 
+                AVG(CAST(meta_value AS DECIMAL(10,1))) as average
+             FROM {$wpdb->comments} c
+             INNER JOIN {$wpdb->commentmeta} cm ON c.comment_ID = cm.comment_id
+             WHERE c.comment_post_ID = %d
+             AND c.comment_approved = '1'
+             AND cm.meta_key = 'mhm_rating'
+             AND cm.meta_value > 0",
+            $vehicle_id
+        ));
 
-        foreach ($comments as $comment) {
-            $rating = intval(get_comment_meta($comment->comment_ID, 'mhm_rating', true));
-            if ($rating > 0) {
-                $total_rating += $rating;
-                $count++;
-            }
-        }
+        $count = (int) ($stats->count ?? 0);
+        $average = $count > 0 ? round((float) $stats->average, 1) : 0;
 
-        $average = $count > 0 ? round($total_rating / $count, 1) : 0;
-        
         return [
             'average' => $average,
             'count' => $count,
@@ -554,52 +560,52 @@ final class VehicleDetails extends AbstractShortcode
         $current_year = $year ?? (int) date('Y');
         $days_in_month = date('t', mktime(0, 0, 0, $current_month, 1, $current_year));
         $first_day = date('w', mktime(0, 0, 0, $current_month, 1, $current_year));
-        
+
         // Get booked days
         $booked_days = self::get_booked_days($vehicle_id, $current_month, $current_year);
-        
+
         $calendar_html = '<div class="rv-calendar-grid">';
-        
+
         // Get WordPress week start setting (0 = Sunday, 1 = Monday, etc.)
         $week_start = (int) get_option('start_of_week', 1);
-        
+
         // Day names - Reorder based on WordPress setting
         $all_day_names = [
             __('Sun', 'mhm-rentiva'),
-            __('Mon', 'mhm-rentiva'), 
-            __('Tue', 'mhm-rentiva'), 
-            __('Wed', 'mhm-rentiva'), 
-            __('Thu', 'mhm-rentiva'), 
-            __('Fri', 'mhm-rentiva'), 
+            __('Mon', 'mhm-rentiva'),
+            __('Tue', 'mhm-rentiva'),
+            __('Wed', 'mhm-rentiva'),
+            __('Thu', 'mhm-rentiva'),
+            __('Fri', 'mhm-rentiva'),
             __('Sat', 'mhm-rentiva')
         ];
-        
+
         // Reorder days based on week start
         $day_names = array_merge(
             array_slice($all_day_names, $week_start),
             array_slice($all_day_names, 0, $week_start)
         );
-        
+
         $calendar_html .= '<div class="rv-calendar-header">';
         foreach ($day_names as $day_name) {
             $calendar_html .= '<div class="rv-calendar-day-name">' . $day_name . '</div>';
         }
         $calendar_html .= '</div>';
-        
+
         // Calendar days
         $calendar_html .= '<div class="rv-calendar-days">';
-        
+
         // Empty days for first week (adjust based on week start setting)
         $first_day_adjusted = ($first_day - $week_start + 7) % 7;
         for ($i = 0; $i < $first_day_adjusted; $i++) {
             $calendar_html .= '<div class="rv-calendar-day empty"></div>';
         }
-        
+
         // Days of the month
         for ($day = 1; $day <= $days_in_month; $day++) {
             $is_booked = in_array($day, $booked_days);
             $is_today = ($day == date('j') && $current_month == date('n') && $current_year == date('Y'));
-            
+
             $class = 'rv-calendar-day';
             if ($is_booked) {
                 $class .= ' booked';
@@ -607,13 +613,13 @@ final class VehicleDetails extends AbstractShortcode
             if ($is_today) {
                 $class .= ' today';
             }
-            
+
             $calendar_html .= '<div class="' . $class . '">' . $day . '</div>';
         }
-        
+
         $calendar_html .= '</div>';
         $calendar_html .= '</div>';
-        
+
         return $calendar_html;
     }
 
@@ -623,10 +629,10 @@ final class VehicleDetails extends AbstractShortcode
     private static function get_booked_days(int $vehicle_id, int $month, int $year): array
     {
         global $wpdb;
-        
+
         $start_date = sprintf('%04d-%02d-01', $year, $month);
         $end_date = sprintf('%04d-%02d-%02d', $year, $month, date('t', mktime(0, 0, 0, $month, 1, $year)));
-        
+
         // Get bookings from WordPress post meta
         $bookings = $wpdb->get_results($wpdb->prepare("
             SELECT p.ID, pm_start.meta_value as start_date, pm_end.meta_value as end_date, pm_status.meta_value as status
@@ -645,13 +651,13 @@ final class VehicleDetails extends AbstractShortcode
                 (pm_end.meta_value >= %s AND pm_end.meta_value <= %s)
             )
         ", $vehicle_id, $start_date, $start_date, $start_date, $end_date, $start_date, $end_date));
-        
+
         $booked_days = [];
-        
+
         foreach ($bookings as $booking) {
             $start = new DateTime($booking->start_date);
             $end = new DateTime($booking->end_date);
-            
+
             while ($start <= $end) {
                 if ($start->format('n') == $month && $start->format('Y') == $year) {
                     $booked_days[] = (int) $start->format('j');
@@ -659,7 +665,7 @@ final class VehicleDetails extends AbstractShortcode
                 $start->add(new DateInterval('P1D'));
             }
         }
-        
+
         return array_unique($booked_days);
     }
 
@@ -685,7 +691,7 @@ final class VehicleDetails extends AbstractShortcode
         // Fallback: Redirect to vehicles list page with vehicle_id parameter
         return add_query_arg('vehicle_id', $vehicle_id, ShortcodeUrlManager::get_page_url('rentiva_vehicles_list'));
     }
-    
+
     /**
      * Get texts with fallback to i18n defaults
      */
@@ -714,14 +720,14 @@ final class VehicleDetails extends AbstractShortcode
             'no-image.jpg',
             'no-image.png'
         ];
-        
+
         foreach ($possible_files as $filename) {
             $file_path = MHM_RENTIVA_PLUGIN_DIR . 'assets/images/' . $filename;
             if (file_exists($file_path)) {
                 return MHM_RENTIVA_PLUGIN_URL . 'assets/images/' . $filename;
             }
         }
-        
+
         // Fallback: Use WordPress default placeholder (1x1 transparent pixel)
         // This prevents 404 errors and ensures the page loads correctly
         return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5WZWhpY2xlIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
@@ -757,13 +763,9 @@ final class VehicleDetails extends AbstractShortcode
 
         // Generate calendar HTML
         $calendar_html = self::render_monthly_calendar($vehicle_id, $month, $year);
-        // Manual month names for global compatibility
-        $month_names = [
-            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
-        ];
-        $month_year = $month_names[$month] . ' ' . $year;
+
+        // Localized month name using WordPress locale
+        $month_year = date_i18n('F Y', mktime(0, 0, 0, $month, 10, $year));
 
         wp_send_json_success([
             'calendar_html' => $calendar_html,
@@ -771,6 +773,34 @@ final class VehicleDetails extends AbstractShortcode
         ]);
     }
 
+    /**
+     * Check vehicle availability
+     */
+    private static function check_vehicle_availability(int $vehicle_id): array
+    {
+        $status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
 
+        // Fallback for older data or if status is not set
+        if (empty($status)) {
+            $old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+            // Handle legacy values
+            if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
+                $status = 'inactive';
+            } elseif ($old_availability === '1' || $old_availability === 'active') {
+                $status = 'active';
+            } elseif ($old_availability === 'maintenance') {
+                $status = 'maintenance';
+            } else {
+                $status = 'active'; // Default
+            }
+        }
+
+        $is_available = ($status === 'active');
+
+        return [
+            'is_available' => $is_available,
+            'status' => $status,
+            'text' => $is_available ? __("Available", "mhm-rentiva") : __("Out of Order", "mhm-rentiva")
+        ];
+    }
 }
-

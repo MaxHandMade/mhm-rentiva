@@ -65,7 +65,7 @@
 
 .rv-sort-select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #007cba;
 }
 
 /* View Toggle */
@@ -95,7 +95,7 @@
 }
 
 .rv-view-btn.active {
-    background: #667eea;
+    background: #007cba;
     color: white;
     box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
 }
@@ -138,7 +138,7 @@
 .rv-clear-filters {
     background: none;
     border: none;
-    color: #667eea;
+    color: #007cba;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
@@ -149,7 +149,7 @@
 
 .rv-clear-filters:hover {
     background: #f0f2ff;
-    color: #5a67d8;
+    color: #005a87;
 }
 
 /* Global Sidebar Input Constraint */
@@ -198,7 +198,7 @@
 
 .rv-price-inputs input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #007cba;
 }
 
 .rv-price-separator {
@@ -252,8 +252,8 @@
 }
 
 .rv-filter-option input[type="checkbox"]:checked+.rv-checkbox-custom {
-    background: #667eea;
-    border-color: #667eea;
+    background: #007cba;
+    border-color: #007cba;
 }
 
 .rv-filter-option input[type="checkbox"]:checked+.rv-checkbox-custom::after {
@@ -297,7 +297,7 @@
 
 .rv-year-inputs input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #007cba;
 }
 
 .rv-year-separator {
@@ -329,7 +329,7 @@
 
 .rv-mileage-range input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #007cba;
 }
 
 .rv-mileage-unit {
@@ -357,7 +357,7 @@
     width: 24px;
     height: 24px;
     border: 3px solid #f3f3f3;
-    border-top: 3px solid #667eea;
+    border-top: 3px solid #007cba;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-right: 12px;
@@ -624,7 +624,7 @@
 }
 
 .rv-btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #007cba;
     color: white;
     flex: 1;
     white-space: nowrap;
@@ -637,8 +637,18 @@
 }
 
 .rv-btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 124, 186, 0.3);
+}
+
+.rv-btn-primary.rv-btn-disabled,
+.rv-btn.rv-btn-disabled {
+    background: #95a5a6 !important;
+    border-color: #95a5a6 !important;
+    color: white !important;
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 .rv-btn-secondary {
@@ -653,8 +663,8 @@
 
 .rv-btn-secondary:hover {
     background: #f8f9fa;
-    border-color: #667eea;
-    color: #667eea;
+    border-color: #007cba;
+    color: #007cba;
 }
 
 .rv-add-to-favorites.active {
@@ -783,7 +793,7 @@
 .rv-back-to-search {
     display: inline-block;
     padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #007cba;
     color: white;
     text-decoration: none;
     border-radius: 8px;
@@ -793,7 +803,7 @@
 
 .rv-back-to-search:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 124, 186, 0.3);
 }
 
 /* Pagination */

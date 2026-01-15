@@ -43,10 +43,57 @@ TEST-CHECKLIST.md
 # Documentation
 
 # Temporary utilities
+# WordPress & Plugin defaults
+*.log
+*.tmp
+*.bak
+*.swp
+.vscode/
+.idea/
+.cursor/
+.DS_Store
+Thumbs.db
+
+# Node modules & Build
+node_modules/
+dist/
+build/
+
+# Composer
+vendor/
+
+# Local config
+wp-config.php
+debug.log
+
+# Plugin specific
+
+
+# Language files - keep only pot, tr_TR po and mo files
+languages/*-backup-*.pot~
+languages/*-backup-*.po~
+languages/*.mo
+!languages/mhm-rentiva-tr_TR.mo
+languages/*.l10n.php
+languages/*-*.json
+languages/mhm-rentiva-en_US.*
+
+# Ignore zip releases
+*.zip
+
+# Test documentation (keep local only)
+TEST-GUIDE.md
+TEST-CHECKLIST.md
+
+# Documentation
+
+# Temporary utilities
 reset_endpoints.php
 mhm-tools.php
 debug_slug.php
 flush_rules.php
 update_refund_text.php
 test-i18n.php
+wp-stubs.php
+stubs.php
 wp-stubs.php

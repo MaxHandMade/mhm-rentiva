@@ -134,12 +134,16 @@
 }
 
 .rv-bookings-table th {
-    padding: 12px 16px;
+    padding: 10px 8px;
+    /* Reduced from 12px 16px */
     text-align: left;
     color: #0d171b;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 13px;
+    /* Slightly smaller */
+    font-weight: 600;
     border-bottom: 1px solid #cfdfe7;
+    white-space: nowrap;
+    /* Prevent wrapping for headers */
 }
 
 .rv-bookings-table tbody tr {
@@ -152,9 +156,11 @@
 }
 
 .rv-bookings-table td {
-    padding: 16px;
+    padding: 10px 8px;
+    /* Reduced from 16px */
     color: #4c809a;
-    font-size: 14px;
+    font-size: 13px;
+    /* Slightly smaller */
     vertical-align: middle;
 }
 
@@ -239,25 +245,31 @@
 }
 
 /* Actions */
-.rv-btn-view {
+/* Icon Only Button */
+.rv-btn-icon-only {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 60px;
+    width: 32px;
     height: 32px;
-    padding: 0 16px;
-    background: #3b82f6;
-    color: white;
-    font-size: 14px;
-    font-weight: 500;
-    border-radius: 8px;
-    text-decoration: none;
+    min-width: 32px;
+    padding: 0;
+    border-radius: 6px;
+    color: #4c809a;
+    background: transparent;
+    border: 1px solid #cfdfe7;
     transition: all 0.2s ease;
 }
 
-.rv-btn-view:hover {
-    background: #2563eb;
-    color: white;
+.rv-btn-icon-only:hover {
+    background: #e7eff3;
+    color: #007cba;
+    border-color: #007cba;
+}
+
+.rv-btn-icon-only svg {
+    width: 16px;
+    height: 16px;
 }
 
 /* Empty State */
@@ -318,7 +330,10 @@
     }
 
     .rv-bookings-table {
-        min-width: 900px;
+        /* min-width: 900px; - Removed to prevent forced scroll on medium screens if content fits */
+        width: 100%;
+        display: table;
+        /* Ensure table layout */
     }
 }
 

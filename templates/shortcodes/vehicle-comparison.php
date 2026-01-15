@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Vehicle Comparison Template
  * 
@@ -13,7 +14,8 @@ if (!defined('ABSPATH')) {
 
 // Load plugin textdomain
 if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
+    function mhm_rentiva_load_textdomain()
+    {
         load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
     }
     mhm_rentiva_load_textdomain();
@@ -38,7 +40,7 @@ $custom_class = trim($atts['class'] ?? '');
 ?>
 
 <div class="rv-vehicle-comparison rv-vehicle-comparison-container rv-layout-table" data-max-vehicles="<?php echo esc_attr($max_vehicles); ?>" data-features='<?php echo esc_attr(wp_json_encode($features)); ?>' data-all-vehicles='<?php echo esc_attr(wp_json_encode($all_vehicles)); ?>'>
-    
+
     <!-- Add Vehicle Section -->
     <div class="rv-add-vehicle-section">
         <div class="rv-add-vehicle-form">
@@ -61,12 +63,12 @@ $custom_class = trim($atts['class'] ?? '');
     <!-- Comparison Content -->
     <?php if ($has_vehicles): ?>
         <div class="rv-comparison-content">
-            
+
             <!-- Comparison Header -->
             <div class="rv-comparison-header">
                 <h3><?php echo esc_html__('Vehicle Comparison', 'mhm-rentiva'); ?></h3>
                 <div class="rv-comparison-count">
-                    <?php 
+                    <?php
                     $count = count($vehicles);
                     if ($count === 1) {
                         echo esc_html__('1 vehicle being compared', 'mhm-rentiva');
@@ -95,28 +97,30 @@ $custom_class = trim($atts['class'] ?? '');
                                             <button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
                                                 <span class="dashicons dashicons-dismiss"></span>
                                             </button>
-                                            
-                                            <?php 
-                                            $is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
-                                            $status_text = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
-                                            
-                                            if (!$is_available): 
-                                            ?>
-                                                <span class="rv-badge rv-badge--unavailable" style="margin-bottom: 5px; display: inline-block;">
-                                                    <?php echo esc_html($status_text); ?>
-                                                </span>
-                                            <?php endif; ?>
+
+                                            <div class="rv-vehicle-status-container">
+                                                <?php
+                                                $is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
+                                                $status_text = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
+
+                                                if (!$is_available):
+                                                ?>
+                                                    <span class="rv-badge rv-badge--unavailable">
+                                                        <?php echo esc_html($status_text); ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
 
                                             <h4><?php echo esc_html($vehicle['title']); ?></h4>
-                                            <?php 
+                                            <?php
                                             $is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
-                                            $btn_style = 'display: inline-block !important; background: #27ae60 !important; color: white !important; padding: 8px 16px !important; border-radius: 6px !important; text-decoration: none !important; font-size: 13px !important; font-weight: 600 !important; margin-top: 5px !important; margin-bottom: 10px !important; text-align: center !important; width: 100% !important; max-width: 140px !important;';
+                                            $btn_style = 'display: inline-block !important; color: white !important; padding: 8px 16px !important; border-radius: 6px !important; text-decoration: none !important; font-size: 13px !important; font-weight: 600 !important; margin-top: 5px !important; margin-bottom: 10px !important; text-align: center !important; width: 100% !important; max-width: 140px !important;';
                                             $btn_class = 'rv-book-now-btn';
                                             $btn_href = esc_url($vehicle['permalink']);
                                             $btn_attrs = '';
 
                                             if (!$is_available) {
-                                                $btn_style = str_replace('#27ae60', '#95a5a6', $btn_style) . ' opacity: 0.6; pointer-events: none; cursor: not-allowed;';
+                                                $btn_style .= ' background: #95a5a6 !important; opacity: 0.6; pointer-events: none; cursor: not-allowed;';
                                                 $btn_class .= ' rv-btn-disabled';
                                                 $btn_href = 'javascript:void(0);';
                                                 $btn_attrs = 'aria-disabled="true" tabindex="-1"';
@@ -136,9 +140,9 @@ $custom_class = trim($atts['class'] ?? '');
                                     <td class="rv-feature-label"><?php echo esc_html($feature_label); ?></td>
                                     <?php foreach ($vehicles as $vehicle): ?>
                                         <td class="rv-feature-value">
-                                            <?php 
+                                            <?php
                                             $value = $vehicle['features'][$feature_key] ?? '-';
-                                            
+
                                             // Special formatting for specific fields
                                             if ($feature_key === 'price_per_day' && $show_prices) {
                                                 if ($value > 0) {
@@ -166,7 +170,7 @@ $custom_class = trim($atts['class'] ?? '');
                 <div class="rv-comparison-mobile-list">
                     <?php foreach ($vehicles as $vehicle): ?>
                         <div class="rv-mobile-card-item">
-                            
+
                             <!-- Mobile Header: Image, Title, Badge, Toggle -->
                             <div class="rv-mobile-card-header-wrapper">
                                 <div class="rv-mobile-card-image">
@@ -174,27 +178,27 @@ $custom_class = trim($atts['class'] ?? '');
                                         <img src="<?php echo esc_url($vehicle['image_url']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>">
                                     <?php endif; ?>
                                 </div>
-                                
+
                                 <div class="rv-mobile-card-info">
                                     <h4 class="rv-mobile-title"><?php echo esc_html($vehicle['title']); ?></h4>
-                                    
-                                    <?php 
+
+                                    <?php
                                     $is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
                                     $status_text = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
-                                    if (!$is_available): 
+                                    if (!$is_available):
                                     ?>
                                         <span class="rv-badge rv-badge--unavailable" style="margin-bottom: 5px;">
                                             <?php echo esc_html($status_text); ?>
                                         </span>
                                     <?php endif; ?>
 
-                                    <?php 
+                                    <?php
                                     $price = $vehicle['features']['price_per_day'] ?? 0;
-                                    if ($show_prices && $price > 0): 
+                                    if ($show_prices && $price > 0):
                                     ?>
                                         <div class="rv-mobile-price">
                                             <?php echo esc_html(number_format($price, 0, ',', '.')); ?>
-                                            <?php echo esc_html($vehicle['features']['currency_symbol'] ?? '$'); ?> 
+                                            <?php echo esc_html($vehicle['features']['currency_symbol'] ?? '$'); ?>
                                             <span class="rv-period">/ <?php echo esc_html__('day', 'mhm-rentiva'); ?></span>
                                         </div>
                                     <?php endif; ?>
@@ -218,13 +222,15 @@ $custom_class = trim($atts['class'] ?? '');
                                         <div class="rv-mobile-feature-row">
                                             <span class="rv-mobile-label"><?php echo esc_html($feature_label); ?></span>
                                             <span class="rv-mobile-value">
-                                                <?php 
+                                                <?php
                                                 $value = $vehicle['features'][$feature_key] ?? '-';
-                                                
+
                                                 if ($feature_key === 'price_per_day') {
-                                                     if ($value > 0) {
+                                                    if ($value > 0) {
                                                         echo esc_html(number_format($value, 0, ',', '.') . ' ' . ($vehicle['features']['currency_symbol'] ?? '$'));
-                                                     } else { echo '-'; }
+                                                    } else {
+                                                        echo '-';
+                                                    }
                                                 } else {
                                                     echo esc_html($value);
                                                 }
@@ -233,14 +239,14 @@ $custom_class = trim($atts['class'] ?? '');
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
-                                
+
                                 <div class="rv-mobile-actions">
-                                    <?php 
-                                    $btn_style = ''; 
+                                    <?php
+                                    $btn_style = '';
                                     $btn_class = 'rv-book-now-btn rv-mobile-btn';
                                     $btn_href = esc_url($vehicle['permalink']);
                                     $btn_attrs = '';
-    
+
                                     if (!$is_available) {
                                         $btn_class .= ' rv-btn-disabled';
                                         $btn_href = 'javascript:void(0);';
@@ -252,12 +258,12 @@ $custom_class = trim($atts['class'] ?? '');
                                     </a>
                                 </div>
                             </div>
-                            
+
                         </div>
                     <?php endforeach; ?>
                 </div>
 
-            <!-- Card Layout -->
+                <!-- Card Layout -->
             <?php else: ?>
                 <div class="rv-comparison-cards">
                     <?php foreach ($vehicles as $vehicle): ?>
@@ -270,11 +276,11 @@ $custom_class = trim($atts['class'] ?? '');
                                 <button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
                                     <span class="dashicons dashicons-dismiss"></span>
                                 </button>
-                                <?php 
+                                <?php
                                 $is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
                                 $status_text = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
-                                
-                                if (!$is_available): 
+
+                                if (!$is_available):
                                 ?>
                                     <div style="width: 100%; text-align: center; margin-top: 5px;">
                                         <span class="rv-badge rv-badge--unavailable" style="display: inline-block;">
@@ -283,15 +289,15 @@ $custom_class = trim($atts['class'] ?? '');
                                     </div>
                                 <?php endif; ?>
                             </div>
-                            
+
                             <div class="rv-card-features">
                                 <?php foreach ($features as $feature_key => $feature_label): ?>
                                     <div class="rv-feature-item">
                                         <span class="rv-feature-label"><?php echo esc_html($feature_label); ?>:</span>
                                         <span class="rv-feature-value">
-                                            <?php 
+                                            <?php
                                             $value = $vehicle['features'][$feature_key] ?? '-';
-                                            
+
                                             // Special formatting for specific fields
                                             if ($feature_key === 'price_per_day' && $show_prices) {
                                                 if ($value > 0) {
@@ -311,9 +317,9 @@ $custom_class = trim($atts['class'] ?? '');
                                     </div>
                                 <?php endforeach; ?>
                             </div>
-                            
+
                             <div class="rv-card-actions">
-                                <?php 
+                                <?php
                                 $is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
                                 $btn_class = 'rv-book-now-btn';
                                 $btn_href = esc_url($vehicle['permalink']);

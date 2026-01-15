@@ -2,7 +2,7 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MHM Rentiva 4.5.3\n"
+"Project-Id-Version: MHM Rentiva 4.5.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19710,3 +19710,36 @@ msgstr ""
 #: assets/js/admin/gutenberg-blocks.js:282
 msgid "Layout: "
 msgstr ""
+
+#: templates/account/bookings.php:133 templates/account/bookings.php:235
+msgid "ID"
+msgstr ""
+
+#: templates/account/bookings.php:135 templates/account/bookings.php:237
+msgid "Img"
+msgstr ""
+
+#: templates/account/bookings.php:137 templates/account/bookings.php:239
+msgid "Service"
+msgstr ""
+
+#: templates/account/bookings.php:138 templates/account/bookings.php:240
+msgid "Date/Time"
+msgstr ""
+
+#: templates/account/bookings.php:140 templates/account/bookings.php:242
+msgid "Fee"
+msgstr ""
+
+#: templates/account/bookings.php:141 templates/account/bookings.php:243
+msgid "Act"
+msgstr ""
+
+#: templates/account/favorites.php:114
+msgid "Out of Use"
+msgstr ""
+
+#: templates/account/favorites.php:195
+msgid "View Details"
+msgstr ""
+

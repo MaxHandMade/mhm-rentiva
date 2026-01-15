@@ -6,6 +6,7 @@ namespace MHMRentiva\Admin\Settings;
 
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
+use MHMRentiva\Admin\Settings\SettingsHandler;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -32,32 +33,19 @@ final class SettingsView
             \MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice('settings');
         }
 
+        // Process actions
+        SettingsHandler::handle();
+
+        // Display settings errors/notices
+        settings_errors('mhm_rentiva_messages');
+
         // ✅ WordPress Settings API standard messages
         if (isset($_GET['settings-updated']) && Settings::sanitize_text_field_safe(wp_unslash($_GET['settings-updated'] ?? '')) === 'true') {
-            echo '<div class="notice notice-success is-dismissible" style="margin: 20px 0;"><p><strong>' .
-                esc_html__('✅ Settings saved successfully!', 'mhm-rentiva') .
-                '</strong></p></div>';
-        }
-
-        // ✅ Special handling for email templates (separate form)
-        if (isset($_POST['email_templates_action']) && Settings::sanitize_text_field_safe(wp_unslash($_POST['email_templates_action'] ?? '')) === 'save' && wp_verify_nonce($_POST['_wpnonce'], Settings::GROUP . '-options')) {
-            \MHMRentiva\Admin\Emails\Core\EmailTemplates::handle_save_templates();
-            echo '<div class="notice notice-success is-dismissible" style="margin: 20px 0;"><p><strong>' .
-                esc_html__('✅ Email templates saved successfully!', 'mhm-rentiva') .
-                '</strong></p></div>';
-        }
-
-        // ✅ Special handling for REST Settings (separate option, separate form)
-        if (isset($_POST['option_page']) && $_POST['option_page'] === 'mhm_rentiva_rest_settings' && isset($_POST['action']) && $_POST['action'] === 'update' && wp_verify_nonce($_POST['_wpnonce'], 'mhm_rentiva_rest_settings-options')) {
-            // REST Settings are handled by WordPress Settings API automatically
-            // The sanitize_callback in RESTSettings::init() will handle the sanitization
-            if (isset($_POST['mhm_rentiva_rest_settings']) && is_array($_POST['mhm_rentiva_rest_settings'])) {
-                $rest_settings = \MHMRentiva\Admin\REST\Settings\RESTSettings::sanitize_settings($_POST['mhm_rentiva_rest_settings']);
-                update_option('mhm_rentiva_rest_settings', $rest_settings);
-            }
-            echo '<div class="notice notice-success is-dismissible" style="margin: 20px 0;"><p><strong>' .
-                esc_html__('✅ REST API Settings saved successfully!', 'mhm-rentiva') .
-                '</strong></p></div>';
+            // Standard WP "Settings saved" notice is usually handled by WP, but if we want custom or additional:
+            // settings_errors() above usually handles this if add_settings_error is used.
+            // But for standard option page updates, WP redirects with settings-updated=true.
+            // We can keep a simple notice if settings_errors didn't output anything, or rely on it.
+            // Let's keep it consistent with WP behavior.
         }
 
         // Tab control

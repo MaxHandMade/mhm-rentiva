@@ -1,8 +1,21 @@
 [
     {
-        "version": "4.5.4",
+        "version": "4.5.5",
         "date": "2026-01-15",
         "type": "current",
+        "changes": [
+            "🎨 FRONTEND POLISH: Fixed \"Out of Use\" badge logic and standardizing placement. Fixed mobile overflow issues on Vehicle Details.",
+            "💄 SEARCH UI: Standardized button colors (blue theme) and added \"Out of Use\" status indicators on Search Results.",
+            "⚖️ COMPARISON UI: Improved card alignment, button styling, and removed inline styles on Comparison Page.",
+            "❤️ FAVORITES UI: Added \"Out of Use\" badge and disabled booking button for unavailable vehicles on My Favorites.",
+            "📅 BOOKINGS UI: Optimized table layout (shortened headers, compact buttons) to prevent horizontal scrolling.",
+            "🌍 LOCALIZATION: Added missing strings to POT file."
+        ]
+    },
+    {
+        "version": "4.5.4",
+        "date": "2026-01-15",
+        "type": "previous",
         "changes": [
             "🚀 REFACTORING: Major refactoring of the settings core to improve modularity and maintainability.",
             "🛍️ WOOCOMMERCE: Conditional logic to hide Payment Settings when WooCommerce is active.",

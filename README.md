@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.5.4-blue.svg)
+![Version](https://img.shields.io/badge/version-4.5.5-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -798,7 +798,29 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 - **Revenue Charts**: Visual revenue representation
 - **Recent Activity**: Latest bookings and payments
 - **Quick Actions**: Quick links to common tasks
-- **System Status**: Plugin health indicators
+
+---
+
+## 📝 Changelog
+
+### Version: 4.5.5 (2026-01-15)
+
+**🎨 FRONTEND POLISH & UI FIXES**
+- **Vehicle Details**: Fixed "Out of Use" badge logic and standardizing placement. Fixed mobile overflow issues.
+- **Search Results**: Standardized button colors (blue theme) and added "Out of Use" status indicators.
+- **Comparison Page**: Improved card alignment, button styling, and removed inline styles.
+- **My Favorites**: Added "Out of Use" badge and disabled booking button for unavailable vehicles.
+- **Bookings Page**: Optimized table layout (shortened headers, compact buttons) to prevent horizontal scrolling.
+- **Localization**: Added missing strings to POT file.
+
+### Version: 4.5.4 (2026-01-15)
+
+**🚀 REFACTORING & USER EXPERIENCE**
+- **Settings Refactoring**: Major refactoring of settings core for better modularity and maintainability.
+- **WooCommerce Compatibility**: Payment Settings tab now correctly hides when WooCommerce is active.
+- **Email Settings**: Fixed issue where email settings were inaccessible when WooCommerce was active; now MHM Rentiva notification settings (messages etc.) are accessible.
+- **Bug Fix**: Fixed Fatal Error in Offline Payment Emails tab (missing `OfflinePayment.php` class).
+- **Localization**: Updated POT file with new strings.- **System Status**: Plugin health indicators
 
 ### 🔧 Shortcode Management
 
