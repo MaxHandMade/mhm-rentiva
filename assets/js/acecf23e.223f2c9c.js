@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkwebsite=globalThis.webpackChunkwebsite||[]).push([[1903],{1912(e){e.exports=JSON.parse('{"blogBasePath":"/mhm-rentiva/blog","blogTitle":"Blog","authorsListPath":"/mhm-rentiva/blog/authors"}')}}]);
