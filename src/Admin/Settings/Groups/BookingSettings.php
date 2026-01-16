@@ -141,6 +141,14 @@ final class BookingSettings
             'mhm_rentiva_booking_notification_section'
         );
 
+        add_settings_field(
+            'mhm_rentiva_booking_buffer_time',
+            __('Buffer Time (Minutes)', 'mhm-rentiva'),
+            [self::class, 'render_buffer_time_field'],
+            'mhm_rentiva_settings',
+            'mhm_rentiva_booking_time_section'
+        );
+
         // REMOVED: reminder_hours_before (no reminder system)
 
         add_settings_field(
@@ -212,5 +220,12 @@ final class BookingSettings
     {
         $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_admin_notifications');
         echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_booking_admin_notifications]" value="1"' . checked($value, '1', false) . '> ' . esc_html__('Send email notifications to admin when new bookings are created', 'mhm-rentiva') . '</label>';
+    }
+
+    public static function render_buffer_time_field(): void
+    {
+        $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_buffer_time', '60');
+        echo '<input type="number" name="mhm_rentiva_settings[mhm_rentiva_booking_buffer_time]" value="' . esc_attr($value) . '" min="0" max="1440" step="15" class="small-text" /> ' . esc_html__('minutes', 'mhm-rentiva');
+        echo '<p class="description">' . esc_html__('Minimum time gap required between bookings for cleaning and preparation.', 'mhm-rentiva') . '</p>';
     }
 }

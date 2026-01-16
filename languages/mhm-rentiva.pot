@@ -19743,3 +19743,239 @@ msgstr ""
 msgid "View Details"
 msgstr ""
 
+
+#: scanned-from-transfer-module
+msgid "Pickup Location"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Select Pickup"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Dropoff Location"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Select Dropoff"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Time"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Adults"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Children"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Big Bags"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Small Bags"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Search Transfer"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Search failed. Please try again."
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Booking failed. Please try again."
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Vehicle not available or price changed. Please search again."
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Invalid date time."
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Deposit: %s (%s%%)"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Transfer added to cart successfully."
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Failed to add to cart."
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Transfer Locations"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Transfer Routes"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Transfer Settings"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Settings saved."
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Full Payment Required"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Deposit (Percentage)"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Select how customers should pay for transfers."
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Deposit Rate (%)"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Percentage of total price to be paid as deposit."
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Edit Location"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Add New Location"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Update Location"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Add Location"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "No locations found."
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Edit Route"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Add New Route"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Origin"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Select Origin"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Destination"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Select Destination"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Distance (KM)"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Duration (Minutes)"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Pricing Method"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Fixed Price"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Distance Based (KM)"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Update Route"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Add Route"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Route"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Distance/Time"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Pricing"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "No routes found."
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Price per KM"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Total Price"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Transfer Settings (VIP Module)"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Service Type"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Rental Only"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Transfer Only"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Both (Rental & Transfer)"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Max Passengers"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Net capacity excluding driver."
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Luggage Score Capacity"
+msgstr ""
+
+#: scanned-from-transfer-module
+msgid "Validations: Small Bag = 1, Big Bag = 2.5 points."
+msgstr ""

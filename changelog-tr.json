@@ -1,5 +1,19 @@
 [
     {
+        "version": "4.6.0",
+        "date": "2026-01-16",
+        "type": "current",
+        "changes": [
+            "🚀 YENİ MODÜL: VIP Transfer Modülü (Şoförlü Araç Kiralama) eklendi.",
+            "🗺️ ROTA YÖNETİMİ: Admin panelinde Konum (Location) ve Rota (Route) yönetimi.",
+            "💰 ESNEK FİYATLANDIRMA: Sabit (Fixed) veya Mesafe (Distance) bazlı fiyat hesaplama motoru.",
+            "💳 ÖDEME & SEPET: Transferler için Depozito veya Tam Ödeme seçenekleriyle WooCommerce sepet entegrasyonu.",
+            "🔍 GELİŞMİŞ ARAMA: [mhm_rentiva_transfer_search] shortcode ile AJAX tabanlı transfer arama formu.",
+            "🛡️ OPERASYONEL KONTROL: Araç müsaitlik kontrolünde Buffer süresi (Hazırlık payı) desteği.",
+            "🔒 VERİ BÜTÜNLÜĞÜ: Transfer rezervasyonlarında kalkış/varış ve yolcu bilgilerinin siparişe işlenmesi."
+        ]
+    },
+    {
         "version": "4.5.5",
         "date": "2026-01-15",
         "type": "current",

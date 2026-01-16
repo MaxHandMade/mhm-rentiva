@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Booking\Helpers;
 
@@ -15,7 +17,7 @@ final class Util
     {
         try {
             $timezone = wp_timezone();
-            
+
             // Date format check
             // Use default times if time values are empty
             if (empty($pickup_time)) {
@@ -25,37 +27,38 @@ final class Util
                 $dropoff_time = apply_filters('mhm_rentiva_default_dropoff_time', '10:00');
             }
 
-            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $pickup_date) || 
+            if (
+                !preg_match('/^\d{4}-\d{2}-\d{2}$/', $pickup_date) ||
                 !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dropoff_date) ||
-                !preg_match('/^\d{2}:\d{2}$/', $pickup_time) || 
-                !preg_match('/^\d{2}:\d{2}$/', $dropoff_time)) {
+                !preg_match('/^\d{2}:\d{2}$/', $pickup_time) ||
+                !preg_match('/^\d{2}:\d{2}$/', $dropoff_time)
+            ) {
                 throw new \InvalidArgumentException(__('Invalid date/time format.', 'mhm-rentiva'));
             }
-            
+
             // Create DateTime
             $pickup_string = $pickup_date . ' ' . $pickup_time;
             $dropoff_string = $dropoff_date . ' ' . $dropoff_time;
-            
+
             $pickup_datetime = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $pickup_string, $timezone);
             $dropoff_datetime = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $dropoff_string, $timezone);
-            
+
             if (!$pickup_datetime || !$dropoff_datetime) {
                 throw new \InvalidArgumentException(__('Invalid date/time format.', 'mhm-rentiva'));
             }
-            
+
             $start_ts = $pickup_datetime->getTimestamp();
             $end_ts = $dropoff_datetime->getTimestamp();
-            
+
             // Date validation
             if ($end_ts <= $start_ts) {
                 throw new \InvalidArgumentException(__('End date must be after start date.', 'mhm-rentiva'));
             }
-            
+
             return [
                 'start_ts' => $start_ts,
                 'end_ts' => $end_ts,
             ];
-            
         } catch (\Exception $e) {
             return new \WP_Error('invalid_datetime', __('Invalid date/time format.', 'mhm-rentiva'));
         }
@@ -69,16 +72,16 @@ final class Util
         // Convert Unix timestamps to DateTime objects
         $start_date = new \DateTime();
         $start_date->setTimestamp($start_ts);
-        
+
         $end_date = new \DateTime();
         $end_date->setTimestamp($end_ts);
-        
+
         // Calculate date difference
         $interval = $start_date->diff($end_date);
-        
+
         // Get number of days (only days, ignore hours)
         $days = $interval->days;
-        
+
         // Minimum 1 day
         return max(1, $days);
     }
@@ -89,11 +92,11 @@ final class Util
     public static function total_price(int $vehicle_id, int $days): float
     {
         $price_per_day = (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
-        
+
         if ($price_per_day <= 0) {
             return 0.0;
         }
-        
+
         return $price_per_day * $days;
     }
 
@@ -104,12 +107,17 @@ final class Util
     {
         // ⚡ Optimized: direct SQL query for faster checks
         global $wpdb;
-        
+
+        // ⭐ Get buffer time (default 60 minutes) and convert to seconds
+        $buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_buffer_time', '60');
+        $buffer_seconds = $buffer_minutes * 60;
+
         $current_time = current_time('mysql');
-        
+
         // ⭐ Exclude pending bookings with expired payment deadline
         // Only count pending bookings that haven't expired their payment deadline
-        $result = $wpdb->get_var($wpdb->prepare("
+        $result = $wpdb->get_var($wpdb->prepare(
+            "
             SELECT COUNT(*) 
             FROM {$wpdb->posts} p
             INNER JOIN {$wpdb->postmeta} pm1 ON p.ID = pm1.post_id AND pm1.meta_key = '_mhm_vehicle_id'
@@ -122,9 +130,9 @@ final class Util
             AND pm1.meta_value = %d
             AND pm2.meta_value IN ('pending', 'confirmed', 'in_progress')
             AND (
-                (pm3.meta_value <= %d AND pm4.meta_value > %d) OR
-                (pm3.meta_value < %d AND pm4.meta_value >= %d) OR
-                (pm3.meta_value >= %d AND pm4.meta_value <= %d)
+                (pm3.meta_value <= %d AND (CAST(pm4.meta_value AS UNSIGNED) + %d) > %d) OR -- New start overlaps with existing range + buffer
+                (pm3.meta_value < %d AND (CAST(pm4.meta_value AS UNSIGNED) + %d) >= %d) OR -- New end overlaps with existing range + buffer 
+                (pm3.meta_value >= %d AND (CAST(pm4.meta_value AS UNSIGNED) + %d) <= %d)   -- Existing range is inside new range
             )
             AND (
                 pm2.meta_value != 'pending' OR 
@@ -132,8 +140,24 @@ final class Util
                 pm5.meta_value = '' OR 
                 pm5.meta_value > %s
             )
-        ", $vehicle_id, $start_ts, $start_ts, $end_ts, $end_ts, $start_ts, $end_ts, $current_time));
-        
+        ",
+            $vehicle_id,
+            $end_ts,
+            $buffer_seconds,
+            $start_ts,     // Group 1
+            $start_ts,
+            $buffer_seconds,
+            $end_ts,     // Group 2 (Logic check: Start < New End ?) Actually logic is: Existing Start < New End AND Existing End > New Start.
+            // Let's stick to standard overlap logic:
+            // (StartA <= EndB) AND (EndA >= StartB)
+            // Here A = Existing (with buffer), B = New
+            // (ExistingStart <= NewEnd) AND ((ExistingEnd + Buffer) > NewStart)
+            $start_ts,
+            $buffer_seconds,
+            $end_ts,     // Group 3 is redundant if Group 1 covers general overlap.
+            $current_time
+        ));
+
         return (int) $result > 0;
     }
 
@@ -156,7 +180,7 @@ final class Util
         // Conflict check with accurate date interval handling
         // ⭐ Exclude pending bookings with expired payment deadline
         $current_time = current_time('mysql');
-        
+
         $overlap_query = $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->postmeta} pm1
              INNER JOIN {$wpdb->postmeta} pm2 ON pm1.post_id = pm2.post_id
@@ -180,7 +204,14 @@ final class Util
                  pm5.meta_value = '' OR 
                  pm5.meta_value > %s
              )",
-            $vehicle_id, $start_ts, $start_ts, $end_ts, $end_ts, $start_ts, $end_ts, $current_time
+            $vehicle_id,
+            $start_ts,
+            $start_ts,
+            $end_ts,
+            $end_ts,
+            $start_ts,
+            $end_ts,
+            $current_time
         );
 
         $count = (int) $wpdb->get_var($overlap_query);
@@ -295,12 +326,12 @@ final class Util
         try {
             // Parse date/time
             $datetime_result = self::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
-            
+
             // WP_Error check
             if (is_wp_error($datetime_result)) {
                 return [];
             }
-            
+
             $start_ts = $datetime_result['start_ts'];
             $end_ts = $datetime_result['end_ts'];
         } catch (\InvalidArgumentException $e) {
@@ -317,17 +348,17 @@ final class Util
         $original_price = (float) get_post_meta($original_vehicle_id, '_mhm_rentiva_price_per_day', true);
         $original_features = get_post_meta($original_vehicle_id, '_mhm_rentiva_features', true);
         $original_features = is_array($original_features) ? $original_features : [];
-        
+
         // ⭐ Get original vehicle category and location (if available)
         $original_category = '';
         $original_location = '';
-        
+
         // Check for vehicle category taxonomy
         $vehicle_categories = wp_get_post_terms($original_vehicle_id, 'vehicle_category', ['fields' => 'ids']);
         if (!empty($vehicle_categories) && !is_wp_error($vehicle_categories)) {
             $original_category = $vehicle_categories[0];
         }
-        
+
         // Check for vehicle location (meta or taxonomy)
         $original_location = get_post_meta($original_vehicle_id, '_mhm_rentiva_location', true);
         if (empty($original_location)) {
@@ -339,7 +370,7 @@ final class Util
         }
 
         // Find available vehicles
-        
+
         // ⚡ Optimized: fetch only active vehicles with a sane limit
         // ⭐ Build query args with category/location filtering if available
         $query_args = [
@@ -360,7 +391,7 @@ final class Util
                 ]
             ]
         ];
-        
+
         // ⭐ Filter by category if original vehicle has a category
         if (!empty($original_category)) {
             $query_args['tax_query'] = [
@@ -372,7 +403,7 @@ final class Util
                 ]
             ];
         }
-        
+
         // ⭐ Filter by location if original vehicle has a location
         if (!empty($original_location)) {
             // If location is a term ID (taxonomy)
@@ -396,10 +427,10 @@ final class Util
                 ];
             }
         }
-        
+
         $all_vehicles = get_posts($query_args);
-        
-        
+
+
         // ⚡ Optimized: meta query already filtered – use directly
         $available_vehicles = $all_vehicles;
 
@@ -407,9 +438,11 @@ final class Util
         $days = self::rental_days($start_ts, $end_ts);
 
         // ⚡ Optimized: batch meta fetch to avoid N+1 queries
-        $vehicle_ids = array_map(function($v) { return $v->ID; }, $available_vehicles);
+        $vehicle_ids = array_map(function ($v) {
+            return $v->ID;
+        }, $available_vehicles);
         $vehicle_meta = [];
-        
+
         if (!empty($vehicle_ids)) {
             global $wpdb;
             $ids_placeholder = implode(',', array_fill(0, count($vehicle_ids), '%d'));
@@ -420,7 +453,7 @@ final class Util
                  AND meta_key IN ('_mhm_rentiva_price_per_day', '_mhm_rentiva_features')",
                 $vehicle_ids
             ), ARRAY_A);
-            
+
             // Organize meta
             foreach ($meta_results as $meta) {
                 $vehicle_meta[$meta['post_id']][$meta['meta_key']] = $meta['meta_value'];
@@ -430,16 +463,16 @@ final class Util
         foreach ($available_vehicles as $vehicle) {
             // Availability check for this vehicle
             $has_overlap = self::has_overlap($vehicle->ID, $start_ts, $end_ts);
-            
+
             if (!$has_overlap) {
                 // ⚡ Optimized: reuse batch meta result
                 $price_per_day = (float) ($vehicle_meta[$vehicle->ID]['_mhm_rentiva_price_per_day'] ?? 0);
                 $total_price = $price_per_day * $days;
-                
+
                 // Extract vehicle features from batch results
                 $features_raw = $vehicle_meta[$vehicle->ID]['_mhm_rentiva_features'] ?? '';
                 $features = [];
-                
+
                 if (is_array($features_raw)) {
                     $features = $features_raw;
                 } elseif (is_string($features_raw) && !empty($features_raw)) {
@@ -451,12 +484,12 @@ final class Util
                 // ⭐ Get vehicle category and location for similarity calculation
                 $vehicle_category = '';
                 $vehicle_location = '';
-                
+
                 $vehicle_categories = wp_get_post_terms($vehicle->ID, 'vehicle_category', ['fields' => 'ids']);
                 if (!empty($vehicle_categories) && !is_wp_error($vehicle_categories)) {
                     $vehicle_category = $vehicle_categories[0];
                 }
-                
+
                 $vehicle_location_meta = get_post_meta($vehicle->ID, '_mhm_rentiva_location', true);
                 if (!empty($vehicle_location_meta)) {
                     $vehicle_location = $vehicle_location_meta;
@@ -466,7 +499,7 @@ final class Util
                         $vehicle_location = $vehicle_locations[0];
                     }
                 }
-                
+
                 // Calculate similarity score (now includes category and location)
                 $similarity_score = self::calculate_vehicle_similarity(
                     $original_features,
@@ -495,7 +528,7 @@ final class Util
         }
 
         // Sort by similarity score (high to low)
-        usort($alternatives, function($a, $b) {
+        usort($alternatives, function ($a, $b) {
             return $b['similarity_score'] <=> $a['similarity_score'];
         });
 
@@ -508,9 +541,9 @@ final class Util
      * ⭐ Enhanced with category and location matching
      */
     private static function calculate_vehicle_similarity(
-        array $original_features, 
-        array $alternative_features, 
-        float $original_price, 
+        array $original_features,
+        array $alternative_features,
+        float $original_price,
         float $alternative_price,
         $original_category = '',
         $alternative_category = '',
@@ -533,7 +566,7 @@ final class Util
         } else {
             $score += 20; // Default score (reduced from 30)
         }
-        
+
         // ⭐ Category similarity (20% - NEW)
         if (!empty($original_category) && !empty($alternative_category)) {
             if ($original_category == $alternative_category) {
@@ -544,7 +577,7 @@ final class Util
         } elseif (empty($original_category) && empty($alternative_category)) {
             $score += 10; // Both have no category - partial points
         }
-        
+
         // ⭐ Location similarity (10% - NEW)
         if (!empty($original_location) && !empty($alternative_location)) {
             if ($original_location == $alternative_location) {
@@ -568,11 +601,11 @@ final class Util
         $availability_result = self::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
         // If vehicle is not available, add alternative suggestions
-        
+
         if (!$availability_result['ok']) {
-            
+
             $alternatives = self::get_alternative_vehicles($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
-            
+
             if (!empty($alternatives)) {
                 $availability_result['alternatives'] = $alternatives;
                 $availability_result['message'] = __('❌ Selected vehicle is not available, but we found similar vehicles for you:', 'mhm-rentiva');
@@ -589,7 +622,7 @@ final class Util
      */
     public static function check_availability_locked(int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): array
     {
-        return \MHMRentiva\Admin\Booking\Helpers\Locker::withLock($vehicle_id, function() use ($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time) {
+        return \MHMRentiva\Admin\Booking\Helpers\Locker::withLock($vehicle_id, function () use ($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time) {
             // Validate vehicle existence
             if (get_post_type($vehicle_id) !== 'vehicle') {
                 return [

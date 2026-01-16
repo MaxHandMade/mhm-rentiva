@@ -2,7 +2,7 @@
 /*
 Plugin Name: MHM Rentiva
 Description: Vehicle rental management plugin with WooCommerce payment integration.
-Version: 4.5.5
+Version: 4.6.0
 Author: MHM Development Team
 Text Domain: mhm-rentiva
 Domain Path: /languages
@@ -39,8 +39,12 @@ function mhm_rentiva_sanitize_text_field_safe($value)
     if (!is_string($value) && !is_numeric($value)) {
         return '';
     }
-    return sanitize_text_field((string) $value);
+    return sanitize_text_field($value);
 }
+
+// Define Plugin Constants
+define('MHM_RENTIVA_VERSION', '4.6.0');
+
 
 // Recursive $_POST/$_REQUEST cleaning removed.
 
@@ -62,9 +66,7 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 }
 
 // Version constant
-if (!defined('MHM_RENTIVA_VERSION')) {
-    define('MHM_RENTIVA_VERSION', '4.5.5');
-}
+
 
 // Plugin file constant
 if (!defined('MHM_RENTIVA_PLUGIN_FILE')) {
@@ -137,16 +139,20 @@ add_action('plugins_loaded', function () {
             $bootstrapped = true;
         } catch (Exception $e) {
             add_action('admin_notices', function () use ($e) {
-                echo '<div class="notice notice-error"><p>';
+                echo '<div class="notice notice-error">
+        <p>';
                 echo esc_html__('MHM Rentiva plugin error on startup: ', 'mhm-rentiva') . esc_html($e->getMessage());
-                echo '</p></div>';
+                echo '</p>
+    </div>';
             });
         }
     } else {
         add_action('admin_notices', function () {
-            echo '<div class="notice notice-error"><p>';
+            echo '<div class="notice notice-error">
+        <p>';
             echo esc_html__('MHM Rentiva plugin failed to load. Please reinstall the plugin.', 'mhm-rentiva');
-            echo '</p></div>';
+            echo '</p>
+    </div>';
         });
     }
 }, -10); // Priority -10: Load very early (critical for AJAX)
@@ -224,13 +230,15 @@ register_activation_hook(__FILE__, function () {
 // Runtime dependency check
 add_action('admin_notices', function () {
     if (!class_exists('WooCommerce')) {
-        echo '<div class="notice notice-error"><p>';
+        echo '<div class="notice notice-error">
+            <p>';
         printf(
             /* translators: %s: Plugin Name */
             esc_html__('%s requires WooCommerce to be installed and active. Please install WooCommerce to use this plugin.', 'mhm-rentiva'),
             '<strong>MHM Rentiva</strong>'
         );
-        echo '</p></div>';
+        echo '</p>
+        </div>';
     }
 });
 

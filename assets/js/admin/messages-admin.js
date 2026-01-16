@@ -25,7 +25,7 @@
             // Reply form - always use delegate binding to handle dynamically loaded forms
             $(document).on('submit', '#message-reply-form', function (e) {
                 if (window.mhm_rentiva_config?.debug) {
-                    console.log('[MessagesAdmin] Reply form submit event triggered');
+
                 }
                 return self.handleReplySubmit.call(self, e);
             });
@@ -33,7 +33,7 @@
             // Also try to bind if form already exists (for immediate binding)
             const $replyForm = $('#message-reply-form');
             if ($replyForm.length > 0 && window.mhm_rentiva_config?.debug) {
-                console.log('[MessagesAdmin] Reply form found on init, handler already bound via delegate');
+
             }
 
             // Auto-save draft
@@ -256,7 +256,7 @@
             e.stopPropagation();
 
             if (window.mhm_rentiva_config?.debug) {
-                console.log('[MessagesAdmin] Reply form submitted');
+
             }
 
             const $form = $(e.target);
@@ -304,7 +304,7 @@
             });
 
             if (window.mhm_rentiva_config?.debug) {
-                console.log('[MessagesAdmin] Sending AJAX request:', ajaxData);
+
             }
 
             $.ajax({
@@ -313,7 +313,7 @@
                 data: ajaxData,
                 success: function (response) {
                     if (window.mhm_rentiva_config?.debug) {
-                        console.log('[MessagesAdmin] AJAX success response:', response);
+
                     }
 
                     if (response.success) {
@@ -547,11 +547,11 @@
     // Initialize when document is ready
     $(document).ready(function () {
         if (window.mhm_rentiva_config?.debug) {
-            console.log('[MessagesAdmin] Initializing...');
+
         }
         MessagesAdmin.init();
         if (window.mhm_rentiva_config?.debug) {
-            console.log('[MessagesAdmin] Initialized');
+
         }
     });
 

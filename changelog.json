@@ -1,5 +1,19 @@
 [
     {
+        "version": "4.6.0",
+        "date": "2026-01-16",
+        "type": "current",
+        "changes": [
+            "🚀 NEW MODULE: VIP Transfer Module (Chauffeur Service) added.",
+            "🗺️ ROUTE MANAGEMENT: Location and Route management in Admin Panel.",
+            "💰 FLEXIBLE PRICING: Fixed or Distance-based pricing engine.",
+            "💳 CART & PAYMENT: WooCommerce cart integration with Deposit or Full Payment options.",
+            "🔍 ADVANCED SEARCH: AJAX-based transfer search form via [mhm_rentiva_transfer_search] shortcode.",
+            "🛡️ OPERATIONAL CONTROL: Buffer time support for vehicle availability checks.",
+            "🔒 DATA INTEGRITY: Saving transfer specifics (origin/dest, pax) to booking orders."
+        ]
+    },
+    {
         "version": "4.5.5",
         "date": "2026-01-15",
         "type": "current",

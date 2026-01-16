@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Utilities\Menu;
 
@@ -11,16 +13,19 @@ final class Menu
     public static function register(): void
     {
         add_action('admin_menu', [self::class, 'add_menu'], 5); // Priority 5 to run earliest
-        
+
         // Parent menu fix - Keep menu open when editing Vehicle and Booking
         add_filter('parent_file', [self::class, 'fix_parent_file']);
         add_filter('submenu_file', [self::class, 'fix_submenu_file']);
-        
+
         // Register customers page hooks
         \MHMRentiva\Admin\Customers\CustomersPage::register();
-        
+
         // Register dashboard page hooks
         \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage::register();
+
+        // Register Transfer Admin pages
+        \MHMRentiva\Admin\Transfer\TransferAdmin::register();
     }
 
     public static function add_menu(): void
@@ -100,7 +105,7 @@ final class Menu
             'mhm-rentiva-customers',
             [\MHMRentiva\Admin\Customers\CustomersPage::class, 'render']
         );
-        
+
 
 
         // 8. Reports submenu (Pro feature)
@@ -179,62 +184,62 @@ final class Menu
     {
         return 'mhm-rentiva';
     }
-    
+
     /**
      * Fix parent menu - For Vehicle and Booking post types
      */
     public static function fix_parent_file($parent_file)
     {
         global $current_screen;
-        
+
         if (!$current_screen || !$parent_file) {
             return $parent_file;
         }
-        
+
         // When in Vehicle post type editor
         if ($current_screen->post_type === 'vehicle') {
             return 'mhm-rentiva';
         }
-        
+
         // When in Vehicle addon post type editor
         if ($current_screen->post_type === 'vehicle_addon') {
             return 'mhm-rentiva';
         }
-        
+
         // When in Booking post type editor
         if ($current_screen->post_type === 'vehicle_booking') {
             return 'mhm-rentiva';
         }
-        
+
         return $parent_file;
     }
-    
+
     /**
      * Fix submenu - Mark active page
      */
     public static function fix_submenu_file($submenu_file)
     {
         global $current_screen, $pagenow;
-        
+
         if (!$current_screen || $submenu_file === null) {
             return $submenu_file;
         }
-        
+
         // When in Vehicle post type editor, make "Vehicles" active
         if ($current_screen->post_type === 'vehicle' && ($pagenow === 'post.php' || $pagenow === 'post-new.php')) {
             return 'edit.php?post_type=vehicle';
         }
-        
+
         // When in Vehicle addon editor, make "Additional Services" active
         if ($current_screen->post_type === 'vehicle_addon' && ($pagenow === 'post.php' || $pagenow === 'post-new.php')) {
             return 'edit.php?post_type=vehicle_addon';
         }
-        
+
         // When in Booking editor, make "Bookings" active
         if ($current_screen->post_type === 'vehicle_booking' && ($pagenow === 'post.php' || $pagenow === 'post-new.php')) {
             return 'edit.php?post_type=vehicle_booking';
         }
-        
+
         return $submenu_file;
     }
 

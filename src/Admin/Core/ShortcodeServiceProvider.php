@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core;
 
@@ -35,156 +37,166 @@ final class ShortcodeServiceProvider
     {
         // Base shortcode registry
         $registry = [
-        // Booking Shortcodes
-        'reservation' => [
-            'rentiva_booking_form' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\BookingForm',
-                'priority' => 10,
-                'dependencies' => ['deposit'], // Payment dependency kaldırıldı
-                'requires_auth' => false,
-            ],
-            // rentiva_quick_booking kaldırıldı - rentiva_booking_form kullanın
-            'rentiva_availability_calendar' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => false,
-            ],
-            'rentiva_booking_confirmation' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation',
-                'priority' => 10,
-                'dependencies' => ['booking'],
-                'requires_auth' => false,
+            // Booking Shortcodes
+            'reservation' => [
+                'rentiva_booking_form' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\BookingForm',
+                    'priority' => 10,
+                    'dependencies' => ['deposit'], // Payment dependency kaldırıldı
+                    'requires_auth' => false,
+                ],
+                // rentiva_quick_booking kaldırıldı - rentiva_booking_form kullanın
+                'rentiva_availability_calendar' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_booking_confirmation' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation',
+                    'priority' => 10,
+                    'dependencies' => ['booking'],
+                    'requires_auth' => false,
+                ],
+
             ],
 
-        ],
+            // Vehicle Display Shortcodes
+            'vehicle' => [
+                'rentiva_vehicle_details' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_vehicles_list' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_vehicles_grid' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesGrid',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_search' => [
+                    'class' => '\MHMRentiva\Admin\Vehicle\Frontend\VehicleSearch',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_search_results' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_vehicle_comparison' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehicleComparison',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => false,
+                ],
+            ],
 
-        // Vehicle Display Shortcodes
-        'vehicle' => [
-            'rentiva_vehicle_details' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => false,
+            // Account Management Shortcodes
+            'account' => [
+                'rentiva_my_account' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
+                    'method' => 'render_my_account',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => false, // Kendi içinde kontrol ediyor
+                ],
+                'rentiva_my_bookings' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
+                    'method' => 'render_my_bookings',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => true,
+                ],
+                'rentiva_my_favorites' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
+                    'method' => 'render_my_favorites',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => true,
+                ],
+                'rentiva_payment_history' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
+                    'method' => 'render_payment_history',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => true,
+                ],
+                'rentiva_account_details' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
+                    'method' => 'render_account_details',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => true,
+                ],
+                'rentiva_login_form' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
+                    'method' => 'render_login_form',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_register_form' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
+                    'method' => 'render_register_form',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => false,
+                ],
             ],
-            'rentiva_vehicles_list' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => false,
-            ],
-            'rentiva_vehicles_grid' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesGrid',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => false,
-            ],
-            'rentiva_search' => [
-                'class' => '\MHMRentiva\Admin\Vehicle\Frontend\VehicleSearch',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => false,
-            ],
-            'rentiva_search_results' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => false,
-            ],
-            'rentiva_vehicle_comparison' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehicleComparison',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => false,
-            ],
-        ],
 
-        // Account Management Shortcodes
-        'account' => [
-            'rentiva_my_account' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                'method' => 'render_my_account',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => false, // Kendi içinde kontrol ediyor
+            // Transfer Shortcodes
+            'transfer' => [
+                'mhm_rentiva_transfer_search' => [
+                    'class' => '\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => false,
+                ],
             ],
-            'rentiva_my_bookings' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                'method' => 'render_my_bookings',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => true,
-            ],
-            'rentiva_my_favorites' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                'method' => 'render_my_favorites',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => true,
-            ],
-            'rentiva_payment_history' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                'method' => 'render_payment_history',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => true,
-            ],
-            'rentiva_account_details' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                'method' => 'render_account_details',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => true,
-            ],
-            'rentiva_login_form' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                'method' => 'render_login_form',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => false,
-            ],
-            'rentiva_register_form' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                'method' => 'render_register_form',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => false,
-            ],
-        ],
 
-        // Support and Contact Shortcodes
-        'support' => [
-            'rentiva_contact' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\ContactForm',
-                'priority' => 10,
-                'dependencies' => ['email'],
-                'requires_auth' => false,
+            // Support and Contact Shortcodes
+            'support' => [
+                'rentiva_contact' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\ContactForm',
+                    'priority' => 10,
+                    'dependencies' => ['email'],
+                    'requires_auth' => false,
+                ],
+                'rentiva_testimonials' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\Testimonials',
+                    'priority' => 10,
+                    'dependencies' => ['booking'],
+                    'requires_auth' => false,
+                ],
+                'rentiva_vehicle_rating_form' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehicleRatingForm',
+                    'priority' => 10,
+                    'dependencies' => ['booking'],
+                    'requires_auth' => false,
+                ],
+                'rentiva_messages' => [
+                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
+                    'method' => 'render_messages',
+                    'priority' => 10,
+                    'dependencies' => [],
+                    'requires_auth' => true,
+                ],
             ],
-            'rentiva_testimonials' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\Testimonials',
-                'priority' => 10,
-                'dependencies' => ['booking'],
-                'requires_auth' => false,
-            ],
-            'rentiva_vehicle_rating_form' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehicleRatingForm',
-                'priority' => 10,
-                'dependencies' => ['booking'],
-                'requires_auth' => false,
-            ],
-            'rentiva_messages' => [
-                'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                'method' => 'render_messages',
-                'priority' => 10,
-                'dependencies' => [],
-                'requires_auth' => true,
-            ],
-        ],
 
-        // Financial Shortcodes - Removed (not used)
-        // 'financial' => [], // Deposit shortcodes are not used
-    ];
-        
+            // Financial Shortcodes - Removed (not used)
+            // 'financial' => [], // Deposit shortcodes are not used
+        ];
+
         /**
          * Filter: Allow addons and third-party plugins to register custom shortcodes
          * 
@@ -253,12 +265,12 @@ final class ShortcodeServiceProvider
     {
         // Ensure AbstractShortcode is loaded first
         if (!class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\AbstractShortcode')) {
-            $abstract_path = MHM_RENTIVA_PLUGIN_PATH . 'src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php';
+            $abstract_path = trailingslashit(dirname(__DIR__, 3)) . 'src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php';
             if (file_exists($abstract_path)) {
                 require_once $abstract_path;
             }
         }
-        
+
         // Check if class exists
         if (!class_exists($config['class'])) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -350,7 +362,7 @@ final class ShortcodeServiceProvider
     {
         $groups = [];
         $registry = self::get_shortcode_registry();
-        
+
         foreach ($registry as $group => $shortcodes) {
             $groups[$group] = [
                 'name' => self::get_group_name($group),

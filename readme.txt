@@ -4,7 +4,7 @@ Tags: car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.5.4
+Stable tag: 4.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,7 @@ MHM Rentiva is a comprehensive vehicle rental management solution designed for c
 *   **Customer Management:** Manage customer information and booking history.
 *   **Email Notifications:** Customizable email templates for booking confirmations, cancellations, and more.
 *   **Shortcode Support:** Easy-to-use shortcodes to display vehicle lists, search forms, and booking wizards anywhere on your site.
+*   **VIP Transfer Module:** Integrated point-to-point transfer booking system with distance-based pricing and vehicle selection.
 *   **REST API:** Full REST API support for mobile app or external integrations.
 
 == Installation ==
@@ -50,6 +51,22 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.6.0 =
+* New Module: VIP Transfer Module (Chauffeur Service).
+* Transfer: Point-to-point booking with distance or fixed pricing.
+* Transfer: Pickup/Dropoff location management and route definitions.
+* Transfer: Seamless integration with WooCommerce Cart and Checkout.
+* Search: New AJAX-based transfer search shortcode [mhm_rentiva_transfer_search].
+* Feature: Added Buffer Time logic for operational control.
+
+= 4.5.5 =
+* Frontend Polish: Fixed "Out of Use" badge logic and mobile overflow on Vehicle Details.
+* Search UI: Standardized button colors and added status indicators.
+* Comparison UI: Improved card alignment and styling.
+* Favorites UI: Added "Out of Use" badge and disabled booking for unavailable vehicles.
+* Bookings UI: Optimized table layout to prevent horizontal scrolling.
+* Localization: Added missing strings to POT file.
 
 = 4.5.4 =
 * Refactoring: Major settings core refactoring for improved structure.
@@ -122,6 +139,12 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 *   Documentation: README badges and release notes updated.
 
 == Upgrade Notice ==
+
+= 4.6.0 =
+Major Update: Introducing VIP Transfer Module with point-to-point booking, distance pricing, and WooCommerce partial payment support.
+
+= 4.5.5 =
+Frontend enhancements for mobile responsiveness, better UI consistency across Search/Favorites/Bookings, and localization updates.
 
 = 4.5.4 =
 Critical bug fix for Email Settings/Templates and extensive code refactoring. Recommended update.

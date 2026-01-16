@@ -12,14 +12,7 @@
  */
 
 /* Import CSS Variables */
-@import url('./css-variables.css');
 
-/* Import Animations */
-@import url('./animations.css');
-
-/* Import Components */
-@import url('../components/stats-cards.css');
-@import url('../components/calendars.css');
 
 /* =================================================================
    1. Base Styles and Grid System

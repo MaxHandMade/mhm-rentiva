@@ -29,7 +29,7 @@ jQuery(document).ready(function ($) {
         });
 
         if (window.mhm_rentiva_config?.debug) {
-            console.log('MHM Rentiva: Form inputs cleaned before submission');
+
         }
         return true;
     }
@@ -39,7 +39,7 @@ jQuery(document).ready(function ($) {
      */
     $('#mhm-settings-main-form').on('submit', function (e) {
         if (window.mhm_rentiva_config?.debug) {
-            console.log('MHM Rentiva: Form submit detected');
+
         }
         cleanFormInputs(this);
     });
@@ -49,13 +49,13 @@ jQuery(document).ready(function ($) {
      */
     $('form[action="options.php"]').on('submit', function (e) {
         if (window.mhm_rentiva_config?.debug) {
-            console.log('MHM Rentiva: WordPress options form submit detected');
+
         }
         cleanFormInputs(this);
     });
 
     if (window.mhm_rentiva_config?.debug) {
-        console.log('MHM Rentiva: Settings form handler initialized');
+
     }
 });
 
