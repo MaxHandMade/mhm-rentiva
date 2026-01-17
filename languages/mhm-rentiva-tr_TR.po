@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "POT-Creation-Date: 2025-11-25T18:46:38+01:00\n"
-"PO-Revision-Date: 2026-01-15 14:38+0000\n"
+"PO-Revision-Date: 2026-01-17 00:28+0000\n"
 "Last-Translator: MaxHandMade <destek@maxhandmade.com>\n"
 "Language-Team: Türkçe\n"
 "Language: tr_TR\n"
@@ -1216,6 +1216,10 @@ msgstr "Resim Ekle"
 msgid "Add images for vehicle gallery"
 msgstr "Araç galerisi için resim ekleyin"
 
+#: scanned-from-transfer-module
+msgid "Add Location"
+msgstr "Konum ekle"
+
 #: src/Admin/Core/PostTypes/AbstractPostType.php:95
 #: src/Admin/Emails/PostTypes/EmailLog.php:25
 #: src/Admin/PostTypes/Logs/PostType.php:24
@@ -1248,6 +1252,10 @@ msgstr "Yeni Müşteri Ekleyin"
 msgid "Add New Email Log"
 msgstr "Yeni E-Posta Günlüğü Ekle"
 
+#: scanned-from-transfer-module
+msgid "Add New Location"
+msgstr "Yeni Konum Ekle"
+
 #: src/Admin/PostTypes/Logs/PostType.php:25
 #, fuzzy
 msgid "Add New Log"
@@ -1262,6 +1270,10 @@ msgstr "Yeni Mesaj Ekle"
 msgid "Add new meta keys according to this documentation"
 msgstr "Bu belgelere göre yeni meta anahtarlar ekleyin"
 
+#: scanned-from-transfer-module
+msgid "Add New Route"
+msgstr "Yeni Rota Ekle"
+
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:220
 msgid "Add New Vehicle"
 msgstr "Yeni Araç Ekle"
@@ -1274,6 +1286,10 @@ msgstr "Not Ekle"
 #: src/Admin/Vehicle/Taxonomies/VehicleCategory.php:64
 msgid "Add or remove categories"
 msgstr "Kategori ekle veya kaldır"
+
+#: scanned-from-transfer-module
+msgid "Add Route"
+msgstr "Plan Ekle"
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:468
 #: src/Admin/Settings/SettingsView.php:840
@@ -1490,6 +1506,10 @@ msgstr "Yönetici: %1$d KB (CSS: %2$d KB, JS: %3$d KB)"
 #: templates/messages/message-thread-view.html.php:63
 msgid "Administrator"
 msgstr "Yönetici"
+
+#: scanned-from-transfer-module
+msgid "Adults"
+msgstr "Yetişkin"
 
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:354
 #, fuzzy
@@ -3207,6 +3227,10 @@ msgstr ""
 "Aşağıda tüm MHM Rentiva kısa kodlarının ve hangi sayfalarda "
 "kullanıldıklarının bir listesi bulunmaktadır."
 
+#: scanned-from-transfer-module
+msgid "Big Bags"
+msgstr "Büyük Çanta"
+
 #: templates/account/messages.php:117
 msgid "Billing"
 msgstr "Faturalandırma"
@@ -3507,6 +3531,11 @@ msgstr "Rezervasyon Detayları:"
 #, fuzzy
 msgid "Booking Export"
 msgstr "Rezervasyon İhracatı"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Booking failed. Please try again."
+msgstr "Rezervasyon başarısız. Lütfen tekrar deneyin."
 
 #: src/Admin/Frontend/Blocks/Gutenberg/BookingFormBlock.php:37
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:261
@@ -3819,6 +3848,11 @@ msgstr "Boşnakça"
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:417
 msgid "Both"
 msgstr "Her ikisi de"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Both (Rental & Transfer)"
+msgstr "Her ikisi de (Kiralama ve Transfer)"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:645
 #: src/Admin/Settings/Groups/VehicleComparisonSettings.php:281
@@ -4400,6 +4434,10 @@ msgstr "Sistem sağlığı kontrol ediliyor..."
 #, fuzzy
 msgid "Child Seat"
 msgstr "Çocuk Koltuğu"
+
+#: scanned-from-transfer-module
+msgid "Children"
+msgstr "Çocuk"
 
 #: src/Admin/Core/LanguageHelper.php:50
 msgid "Chinese (Simplified)"
@@ -6509,6 +6547,11 @@ msgstr "Teslimat oranı"
 msgid "Deposit"
 msgstr "Depozito"
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Deposit (Percentage)"
+msgstr "Depozito (Yüzde)"
+
 #: src/Admin/Booking/ListTable/BookingColumns.php:63
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:185
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:247
@@ -6583,6 +6626,11 @@ msgstr "Para yatırma oranı (yüzde)"
 msgid "Deposit Rate"
 msgstr "Mevduat oranı"
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Deposit Rate (%)"
+msgstr "Mevduat Oranı (%)"
+
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:447
 #, fuzzy
 msgid "Deposit Refund Policy"
@@ -6623,6 +6671,11 @@ msgstr "Depozito:"
 msgid "Deposit: %1$s %2$s"
 msgstr "Depozito: %1$s %2$s"
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Deposit: %s (%s%%)"
+msgstr "Depozito: %s (%s%%)"
+
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:231
 msgid "Descending"
 msgstr "Azalan"
@@ -6637,6 +6690,10 @@ msgstr "Açıklama"
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:251
 msgid "Deselect All"
 msgstr "Hepsini Seçimden Çıkar"
+
+#: scanned-from-transfer-module
+msgid "Destination"
+msgstr "Hedef"
 
 #: src/Admin/About/Tabs/FeaturesTab.php:218
 #, fuzzy
@@ -6881,6 +6938,21 @@ msgstr "Kullanıcı ödeme işlemlerini görüntüler."
 msgid "Displays vehicle comparison table."
 msgstr "Araç karşılaştırma tablosunu görüntüler."
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Distance (KM)"
+msgstr "Mesafe (KM)"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Distance Based (KM)"
+msgstr "Mesafeye Göre (KM)"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Distance/Time"
+msgstr "Mesafe/Süre"
+
 #: src/Admin/Utilities/Database/MetaKeysDocumentation.php:655
 #, fuzzy
 msgid "Do not add unnecessary meta keys"
@@ -7011,6 +7083,10 @@ msgstr "Bırakma tarihi/saati %s %s'den %s %s'e değiştirildi"
 msgid "Dropoff Date:"
 msgstr "Teslim Tarihi:"
 
+#: scanned-from-transfer-module
+msgid "Dropoff Location"
+msgstr "Bırakma konumu"
+
 #: src/Admin/CLI/DatabaseCleanupCommand.php:216
 #, fuzzy
 msgid "Dry run complete. Use --execute to apply changes."
@@ -7038,6 +7114,11 @@ msgstr "Yinelenen kategori adlarına izin verilmez"
 #, fuzzy
 msgid "Duplicate status names are not allowed"
 msgstr "Yinelenen durum adlarına izin verilmez"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Duration (Minutes)"
+msgstr "Süre (Dakika)"
 
 #: src/Admin/REST/Settings/RESTSettings.php:551
 #, fuzzy
@@ -7131,6 +7212,10 @@ msgstr "E-posta Şablonlarını Düzenle"
 msgid "Edit Field Names"
 msgstr "Alan Adlarını Düzenle"
 
+#: scanned-from-transfer-module
+msgid "Edit Location"
+msgstr "Konum Düzenle"
+
 #: src/Admin/PostTypes/Logs/PostType.php:26
 #, fuzzy
 msgid "Edit Log"
@@ -7147,6 +7232,10 @@ msgstr "Mesaj Düzenle"
 #, fuzzy
 msgid "Edit Names"
 msgstr "İsimleri Düzenle"
+
+#: scanned-from-transfer-module
+msgid "Edit Route"
+msgstr "Planı Düzenle"
 
 #: src/Admin/Core/AssetManager.php:959
 msgid "Edit Template"
@@ -8350,6 +8439,11 @@ msgstr "Rezervasyon sepetine eklenemedi."
 msgid "Failed to add note."
 msgstr "Not eklenemedi."
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Failed to add to cart."
+msgstr "Sepete ekleme başarısız."
+
 #: src/Admin/Booking/Helpers/CancellationHandler.php:218
 #, fuzzy
 msgid "Failed to check cancellation deadline."
@@ -8784,6 +8878,10 @@ msgstr "Sabit Miktar"
 msgid "Fixed Amount Only"
 msgstr "Yalnızca Sabit Tutar"
 
+#: scanned-from-transfer-module
+msgid "Fixed Price"
+msgstr "Sabit Fiyat"
+
 #. translators: %s placeholder.
 #: src/Admin/Addons/AddonMeta.php:40
 #, fuzzy, php-format
@@ -8965,6 +9063,11 @@ msgstr "Ad Soyad"
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:281
 msgid "Full Payment"
 msgstr "Tam ödeme"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Full Payment Required"
+msgstr "Tam Ödeme Gerekli"
 
 #: src/Admin/Emails/Notifications/RefundNotifications.php:25
 #, fuzzy
@@ -10135,6 +10238,11 @@ msgid "Invalid date selection. Please check your pickup and return dates."
 msgstr ""
 "Geçersiz tarih seçimi. Lütfen teslim alma ve iade tarihlerinizi kontrol edin."
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Invalid date time."
+msgstr "Geçersiz tarih ve saat."
+
 #: src/Admin/Booking/Helpers/Util.php:32 src/Admin/Booking/Helpers/Util.php:43
 #: src/Admin/Booking/Helpers/Util.php:60
 #, fuzzy
@@ -11174,6 +11282,11 @@ msgstr "Sadakat İndirimi"
 msgid "LPG"
 msgstr "LPG"
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Luggage Score Capacity"
+msgstr "Bagaj Puanı Kapasitesi"
+
 #: src/Admin/Core/LanguageHelper.php:81
 msgid "Macedonian"
 msgstr "Makedon Denarı"
@@ -11385,6 +11498,11 @@ msgstr "Maksimum Giriş Denemeleri"
 #, fuzzy
 msgid "Max mileage"
 msgstr "Maksimum kilometre"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Max Passengers"
+msgstr "Maksimum Yolcu Sayısı"
 
 #: templates/shortcodes/vehicle-search-compact.php:111
 msgid "Max Price"
@@ -12452,6 +12570,11 @@ msgstr ""
 "Anahtarı devre dışı bırakmak veya değiştirmek mi istiyorsunuz? Ana menüden "
 "Lisans sayfasını kullanın."
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Net capacity excluding driver."
+msgstr "Sürücü hariç net kapasite."
+
 #. translators: %s placeholder.
 #: src/Admin/Payment/Core/PaymentException.php:178
 #, fuzzy, php-format
@@ -12905,6 +13028,10 @@ msgstr "Henüz resim eklenmedi"
 msgid "No items selected."
 msgstr "Henüz bir öge seçilmemiş."
 
+#: scanned-from-transfer-module
+msgid "No locations found."
+msgstr "Yer bulunamadı."
+
 #: src/Admin/Core/AssetManager.php:732
 msgid "No logs found"
 msgstr "Herhangi bir günlük kaydı bulunamadı"
@@ -13016,6 +13143,11 @@ msgstr "Henüz Yorum Yok"
 #: templates/shortcodes/vehicle-rating-form.php:192
 msgid "No reviews yet."
 msgstr "Henüz değerlendirme yok."
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "No routes found."
+msgstr "Hiçbir rota bulunamadı."
 
 #: src/Admin/Licensing/LicenseManager.php:291
 #, fuzzy
@@ -13571,6 +13703,10 @@ msgstr "Siparişin tutarı tamamen iade edildi"
 #, fuzzy
 msgid "Order updated!"
 msgstr "Sipariş güncellendi!"
+
+#: scanned-from-transfer-module
+msgid "Origin"
+msgstr "Nereden"
 
 #: src/Admin/Settings/SettingsView.php:972
 #, fuzzy
@@ -14290,6 +14426,11 @@ msgstr "kişi"
 msgid "Percentage"
 msgstr "Yüzde"
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Percentage of total price to be paid as deposit."
+msgstr "Toplam fiyatın depozito olarak ödenecek yüzdesi."
+
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:416
 #, fuzzy
 msgid "Percentage Only"
@@ -14551,6 +14692,10 @@ msgstr "Teslim alma tarihi/saati %s %s'den %s %s'e değiştirildi"
 #: templates/emails/offline-verified-approved-customer.html.php:73
 msgid "Pickup Date:"
 msgstr "Teslim Tarihi:"
+
+#: scanned-from-transfer-module
+msgid "Pickup Location"
+msgstr "Teslim Alma Konumu"
 
 #: templates/shortcodes/thank-you.php:197
 #, fuzzy
@@ -15111,6 +15256,11 @@ msgstr "Fiyat biçimi"
 msgid "Price Not Specified"
 msgstr "Fiyat Belirtilmedi"
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Price per KM"
+msgstr "KM başına fiyat"
+
 #: templates/shortcodes/search-results.php:116
 msgid "Price Range"
 msgstr "Fiyat Aralığı"
@@ -15148,10 +15298,19 @@ msgstr "Fiyat: Düşükten Yükseğe"
 msgid "Prices Include Tax"
 msgstr "Fiyatlara vergi dahildir"
 
+#: scanned-from-transfer-module
+msgid "Pricing"
+msgstr "Fiyatlandırma"
+
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:765
 #, fuzzy
 msgid "Pricing data updated."
 msgstr "Fiyatlandırma verileri güncellendi."
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Pricing Method"
+msgstr "Fiyatlandırma Yöntemi"
 
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:538
 #: assets/js/admin/gutenberg-blocks.js:129
@@ -16012,6 +16171,11 @@ msgstr "Kiralama Günleri"
 msgid "Rental of 30 days or more"
 msgstr "30 gün veya daha uzun süreli kiralama"
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Rental Only"
+msgstr "Sadece Kiralama"
+
 #: templates/emails/booking-created-admin.html.php:91
 #: templates/emails/booking-created-customer.html.php:62
 msgid "Rental Period:"
@@ -16631,6 +16795,10 @@ msgstr "Romence"
 msgid "Roof Rack"
 msgstr "Tavan Rafı"
 
+#: scanned-from-transfer-module
+msgid "Route"
+msgstr "Rota"
+
 #: src/Admin/About/Tabs/SystemTab.php:124
 msgid "Row Count"
 msgstr "Satır sayısı"
@@ -16820,6 +16988,11 @@ msgstr "Kategori Ara"
 msgid "Search Email Logs"
 msgstr "E-posta Günlüklerini Ara"
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Search failed. Please try again."
+msgstr "Arama başarısız. Lütfen tekrar deneyin."
+
 #: src/Admin/PostTypes/Logs/PostType.php:29
 msgid "Search Logs"
 msgstr "Loglarda  Ara"
@@ -16837,6 +17010,10 @@ msgstr "Sayfa Ara"
 #: templates/shortcodes/vehicle-search.php:126
 msgid "Search Results"
 msgstr "Arama Sonuçları"
+
+#: scanned-from-transfer-module
+msgid "Search Transfer"
+msgstr "Transfer Ara"
 
 #: src/Admin/Vehicle/Frontend/VehicleSearch.php:99
 #: templates/shortcodes/vehicle-search.php:110
@@ -17110,6 +17287,16 @@ msgstr "Görüntülenecek kategorileri seçin."
 msgid "Select Comparison Fields"
 msgstr "Karşılaştırma Alanlarını Seçin"
 
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Select Destination"
+msgstr "Hedef Seç"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Select Dropoff"
+msgstr "Teslimat Noktasını Seç"
+
 #: src/Admin/Utilities/Export/Export.php:1009
 #, fuzzy
 msgid "Select Export Type"
@@ -17120,6 +17307,11 @@ msgstr "Dışa Aktarım Türünü Seçin"
 msgid "Select fields to use on vehicles. You can also add custom fields."
 msgstr ""
 "Araçlarda kullanılacak alanları seçin. Özel alanlar da ekleyebilirsiniz."
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Select how customers should pay for transfers."
+msgstr "Müşterilerin transferler için nasıl ödeme yapacağını seçin."
 
 #: src/Admin/Core/AssetManager.php:601
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:121
@@ -17136,6 +17328,16 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1192
 msgid "Select None"
 msgstr "Hiçbirini Seçme"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Select Origin"
+msgstr "Kaynak Seç"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Select Pickup"
+msgstr "Alış Seç"
 
 #: templates/shortcodes/booking-form.php:247
 msgid "Select pickup date"
@@ -17568,6 +17770,10 @@ msgstr "Hizmet"
 msgid "Service Name/Type"
 msgstr "Hizmet Adı/Türü"
 
+#: scanned-from-transfer-module
+msgid "Service Type"
+msgstr "Hizmet Türü"
+
 #. translators: %s placeholder.
 #: src/Admin/Core/PostTypes/AbstractPostType.php:123
 #, php-format
@@ -17654,6 +17860,10 @@ msgstr "Ayarlar başarıyla kaydedildi!"
 #: src/Admin/Addons/AddonSettings.php:94
 msgid "Settings saved successfully."
 msgstr "Ayarlar başarıyla kaydedildi."
+
+#: scanned-from-transfer-module
+msgid "Settings saved."
+msgstr "Ayarlar kaydedildi."
 
 #: src/Admin/Settings/Testing/SettingsTester.php:915
 #, fuzzy
@@ -18054,6 +18264,10 @@ msgstr "Slovakça"
 #: src/Admin/Core/LanguageHelper.php:73
 msgid "Slovenian"
 msgstr "Slovence"
+
+#: scanned-from-transfer-module
+msgid "Small Bags"
+msgstr "Küçük Çanta"
 
 #: src/Admin/Setup/SetupWizard.php:1121
 #, fuzzy
@@ -19343,6 +19557,10 @@ msgstr "Per"
 msgid "Thursday"
 msgstr "Perşembe"
 
+#: scanned-from-transfer-module
+msgid "Time"
+msgstr "Saat"
+
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php:353
 #, fuzzy
 msgid "Time limit in hours for editing comments (0 = no limit)."
@@ -19592,6 +19810,10 @@ msgstr "Toplam Mesaj"
 msgid "Total Meta Key Count:"
 msgstr "Toplam Meta Anahtar Sayısı:"
 
+#: scanned-from-transfer-module
+msgid "Total Price"
+msgstr "Toplam Fiyat"
+
 #: src/Admin/Utilities/Database/DatabaseInitialization.php:558
 msgid "Total price"
 msgstr "Toplam Fiyat"
@@ -19653,6 +19875,36 @@ msgstr "Toplam:"
 #, fuzzy
 msgid "Track Your Booking"
 msgstr "Rezervasyonunuzu Takip Edin"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Transfer added to cart successfully."
+msgstr "Transfer sepetine başarıyla eklendi."
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Transfer Locations"
+msgstr "Transfer Yerleri"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Transfer Only"
+msgstr "Sadece Transfer"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Transfer Routes"
+msgstr "Transfer Güzergâhları"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Transfer Settings"
+msgstr "Aktarım Ayarları"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Transfer Settings (VIP Module)"
+msgstr "Transfer Ayarları (VIP Modülü)"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:649
 #: src/Admin/Settings/Groups/VehicleComparisonSettings.php:285
@@ -19953,6 +20205,10 @@ msgstr "Kategoriyi Güncelle"
 msgid "Update Date:"
 msgstr "Güncelleme Tarihi:"
 
+#: scanned-from-transfer-module
+msgid "Update Location"
+msgstr "Konum Güncelle"
+
 #: src/Admin/Messages/Core/Messages.php:1292
 msgid "Update Message"
 msgstr "Mesajı Güncelle"
@@ -19965,6 +20221,11 @@ msgstr "PHP'yi 7.4 veya üstü bir sürüme güncelleyin."
 #: templates/shortcodes/vehicle-rating-form.php:260
 msgid "Update Rating"
 msgstr "Puanı Güncelle"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Update Route"
+msgstr "Rotayı Güncelle"
 
 #: templates/account/account-details.php:49
 #, fuzzy
@@ -20147,6 +20408,11 @@ msgstr "Doğrulama başarısız oldu: %d hata"
 #, fuzzy, php-format
 msgid "Validation failed: %s"
 msgstr "Doğrulama başarısız oldu: %s"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Validations: Small Bag = 1, Big Bag = 2.5 points."
+msgstr "Doğrulamalar: Küçük Çanta = 1, Büyük Çanta = 2,5 puan."
 
 #: src/Admin/Core/AssetManager.php:345 src/Admin/Core/AssetManager.php:425
 #, fuzzy
@@ -20436,6 +20702,11 @@ msgstr "Araç modeli"
 #, fuzzy
 msgid "Vehicle Name"
 msgstr "Araç Adı"
+
+#: scanned-from-transfer-module
+#, fuzzy
+msgid "Vehicle not available or price changed. Please search again."
+msgstr "Araç mevcut değil veya fiyat değişti. Lütfen tekrar arayın."
 
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:302
 #: templates/account/dashboard.php:153
