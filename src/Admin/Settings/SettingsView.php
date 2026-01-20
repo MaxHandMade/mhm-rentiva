@@ -56,9 +56,12 @@ final class SettingsView
             'general' => __('General Settings', 'mhm-rentiva'),
             'vehicle' => __('Vehicle Management', 'mhm-rentiva'),
             'booking' => __('Booking Management', 'mhm-rentiva'),
+            'addons' => __('Extra Service Settings', 'mhm-rentiva'),
             'customer' => __('Customer Management', 'mhm-rentiva'),
             'payment' => __('Payment Settings', 'mhm-rentiva'),
-            'email' => __('Email & Notifications', 'mhm-rentiva'),
+            'payment' => __('Payment Settings', 'mhm-rentiva'),
+            'email' => __('Email Configuration', 'mhm-rentiva'),
+            'email-templates' => __('Notification Templates', 'mhm-rentiva'),
             'messages' => __('Messages Settings', 'mhm-rentiva'),
             'system' => __('System & Performance', 'mhm-rentiva'),
             'frontend' => __('Frontend & Display', 'mhm-rentiva'),
@@ -117,6 +120,9 @@ final class SettingsView
                                 echo '<input type="hidden" name="option_page" value="' . esc_attr(Settings::GROUP) . '" />';
                                 echo '<input type="hidden" name="current_tab" value="' . esc_attr(sanitize_key($_GET['type'] ?? 'booking_notifications')) . '" />';
                                 echo '<input type="hidden" name="email_templates_action" value="save" />';
+
+                                // Standardized Header for Templates
+                                self::render_tab_reset_button('email-templates');
 
                                 // Render email templates content
                                 self::render_email_templates_tab();
@@ -215,6 +221,9 @@ final class SettingsView
                                         case 'booking':
                                             self::render_booking_settings();
                                             break;
+                                        case 'addons':
+                                            self::render_addon_settings();
+                                            break;
                                         case 'customer':
                                             self::render_customer_management_settings();
                                             break;
@@ -237,6 +246,8 @@ final class SettingsView
                                             break;
                                         case 'frontend':
                                             self::render_tab_reset_button('frontend');
+                                            self::render_section_clean('mhm_rentiva_vehicle_display_section');
+                                            self::render_section_clean('mhm_rentiva_vehicle_comparison_section');
                                             self::render_section_clean('mhm_rentiva_frontend_section');
                                             self::render_section_clean('mhm_rentiva_button_texts_section');
                                             self::render_section_clean('mhm_rentiva_action_texts_section');
@@ -489,16 +500,24 @@ final class SettingsView
     public static function render_vehicle_management_settings(): void
     {
         echo '<div class="mhm-settings-tab-header">';
-        echo '<div>';
+        echo '<div class="mhm-settings-title-group">';
         echo '<h2>' . esc_html__('Vehicle Management Settings', 'mhm-rentiva') . '</h2>';
-        echo '<p>' . esc_html__('Configure vehicle pricing, display options, and availability settings.', 'mhm-rentiva') . '</p>';
+        echo '<p class="description">' . esc_html__('Configure vehicle pricing, display options, and availability settings.', 'mhm-rentiva') . '</p>';
         echo '</div>';
+
+        echo '<div class="mhm-settings-header-actions">';
+        echo '<a href="https://maxhandmade.github.io/mhm-rentiva-docs/" target="_blank" class="button button-secondary mhm-docs-btn">';
+        echo '<span class="dashicons dashicons-book-alt"></span> ';
+        echo esc_html__('Documentation', 'mhm-rentiva');
+        echo '</a>';
+
         echo '<button type="button" class="button button-secondary mhm-reset-tab-btn" data-tab="vehicle">';
-        echo '<span class="dashicons dashicons-update"></span> ';
+        echo '<span class="dashicons dashicons-image-rotate"></span> ';
         echo esc_html__('Reset to Defaults', 'mhm-rentiva');
         echo '</button>';
         echo '</div>';
-
+        echo '</div>';
+        echo '<hr class="wp-header-end">';
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings')) {
             \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::render_settings_section();
         } else {
@@ -522,16 +541,24 @@ final class SettingsView
     public static function render_customer_management_settings(): void
     {
         echo '<div class="mhm-settings-tab-header">';
-        echo '<div>';
+        echo '<div class="mhm-settings-title-group">';
         echo '<h2>' . esc_html__('Customer Management Settings', 'mhm-rentiva') . '</h2>';
-        echo '<p>' . esc_html__('Configure customer registration, account management, and communication settings.', 'mhm-rentiva') . '</p>';
+        echo '<p class="description">' . esc_html__('Configure customer registration, account management, and communication settings.', 'mhm-rentiva') . '</p>';
         echo '</div>';
+
+        echo '<div class="mhm-settings-header-actions">';
+        echo '<a href="https://maxhandmade.github.io/mhm-rentiva-docs/" target="_blank" class="button button-secondary mhm-docs-btn">';
+        echo '<span class="dashicons dashicons-book-alt"></span> ';
+        echo esc_html__('Documentation', 'mhm-rentiva');
+        echo '</a>';
+
         echo '<button type="button" class="button button-secondary mhm-reset-tab-btn" data-tab="customer">';
-        echo '<span class="dashicons dashicons-update"></span> ';
+        echo '<span class="dashicons dashicons-image-rotate"></span> ';
         echo esc_html__('Reset to Defaults', 'mhm-rentiva');
         echo '</button>';
         echo '</div>';
-
+        echo '</div>';
+        echo '<hr class="wp-header-end">';
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings')) {
             \MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::render_settings_section();
         } else {
@@ -564,16 +591,24 @@ final class SettingsView
         ob_start();
 
         echo '<div class="mhm-settings-tab-header">';
-        echo '<div>';
+        echo '<div class="mhm-settings-title-group">';
         echo '<h2>' . esc_html__('Payment Settings', 'mhm-rentiva') . '</h2>';
-        echo '<p>' . esc_html__('Configure payment gateways and payment processing settings.', 'mhm-rentiva') . '</p>';
+        echo '<p class="description">' . esc_html__('Configure payment gateways and payment processing settings.', 'mhm-rentiva') . '</p>';
         echo '</div>';
+
+        echo '<div class="mhm-settings-header-actions">';
+        echo '<a href="https://maxhandmade.github.io/mhm-rentiva-docs/" target="_blank" class="button button-secondary mhm-docs-btn">';
+        echo '<span class="dashicons dashicons-book-alt"></span> ';
+        echo esc_html__('Documentation', 'mhm-rentiva');
+        echo '</a>';
+
         echo '<button type="button" class="button button-secondary mhm-reset-tab-btn" data-tab="payment">';
-        echo '<span class="dashicons dashicons-update"></span> ';
+        echo '<span class="dashicons dashicons-image-rotate"></span> ';
         echo esc_html__('Reset to Defaults', 'mhm-rentiva');
         echo '</button>';
         echo '</div>';
-
+        echo '</div>';
+        echo '<hr class="wp-header-end">';
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\PaymentSettings')) {
             \MHMRentiva\Admin\Settings\Groups\PaymentSettings::render_settings_section();
         } else {
@@ -640,15 +675,24 @@ final class SettingsView
     ?>
         <div class="mhm-messages-settings-container">
             <div class="mhm-settings-tab-header">
-                <div>
+                <div class="mhm-settings-title-group">
                     <h2><?php echo esc_html__('Messages Settings', 'mhm-rentiva'); ?></h2>
-                    <p><?php echo esc_html__('Configure message system settings, email notifications, categories, and statuses.', 'mhm-rentiva'); ?></p>
+                    <p class="description"><?php echo esc_html__('Configure message system settings, email notifications, categories, and statuses.', 'mhm-rentiva'); ?></p>
                 </div>
-                <button type="button" class="button button-secondary mhm-reset-messages-btn">
-                    <span class="dashicons dashicons-update"></span>
-                    <?php echo esc_html__('Reset to Defaults', 'mhm-rentiva'); ?>
-                </button>
+
+                <div class="mhm-settings-header-actions">
+                    <a href="https://maxhandmade.github.io/mhm-rentiva-docs/" target="_blank" class="button button-secondary mhm-docs-btn">
+                        <span class="dashicons dashicons-book-alt"></span>
+                        <?php echo esc_html__('Documentation', 'mhm-rentiva'); ?>
+                    </a>
+
+                    <button type="button" class="button button-secondary mhm-reset-messages-btn">
+                        <span class="dashicons dashicons-image-rotate"></span>
+                        <?php echo esc_html__('Reset to Defaults', 'mhm-rentiva'); ?>
+                    </button>
+                </div>
             </div>
+            <hr class="wp-header-end">
 
             <!-- Sub-tabs Navigation -->
             <nav class="mhm-messages-subtabs">
@@ -955,7 +999,7 @@ final class SettingsView
             'download_text' => esc_html__('Download', 'mhm-rentiva'),
             'restore_text' => esc_html__('Restore', 'mhm-rentiva'),
             'delete_text' => esc_html__('Delete', 'mhm-rentiva'),
-            'no_backups_text' => esc_html__('No backups found.', 'mhm-rentiva'),
+            'no_backups_text' => __('No backups found.', 'mhm-rentiva'),
             'type_invalid_meta_text' => esc_html__('Invalid Meta', 'mhm-rentiva'),
             'type_orphaned_meta_text' => esc_html__('Orphaned Meta', 'mhm-rentiva'),
             'type_custom_text' => esc_html__('Custom', 'mhm-rentiva'),
@@ -1088,12 +1132,24 @@ final class SettingsView
     public static function render_general_settings(): void
     {
         echo '<div class="mhm-settings-tab-header">';
-        echo '<div></div>'; // Empty div for spacing
+        echo '<div class="mhm-settings-title-group">';
+        echo '<h2>' . esc_html__('General Settings', 'mhm-rentiva') . '</h2>';
+        echo '<p class="description">' . esc_html__('Configure general system settings.', 'mhm-rentiva') . '</p>';
+        echo '</div>';
+
+        echo '<div class="mhm-settings-header-actions">';
+        echo '<a href="https://maxhandmade.github.io/mhm-rentiva-docs/" target="_blank" class="button button-secondary mhm-docs-btn">';
+        echo '<span class="dashicons dashicons-book-alt"></span> ';
+        echo esc_html__('Documentation', 'mhm-rentiva');
+        echo '</a>';
+
         echo '<button type="button" class="button button-secondary mhm-reset-tab-btn" data-tab="general">';
-        echo '<span class="dashicons dashicons-update"></span> ';
+        echo '<span class="dashicons dashicons-image-rotate"></span> ';
         echo esc_html__('Reset to Defaults', 'mhm-rentiva');
         echo '</button>';
         echo '</div>';
+        echo '</div>';
+        echo '<hr class="wp-header-end">';
 
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\GeneralSettings')) {
             \MHMRentiva\Admin\Settings\Groups\GeneralSettings::render_settings_section();
@@ -1112,16 +1168,24 @@ final class SettingsView
     public static function render_booking_settings(): void
     {
         echo '<div class="mhm-settings-tab-header">';
-        echo '<div>';
+        echo '<div class="mhm-settings-title-group">';
         echo '<h2>' . esc_html__('Booking Management Settings', 'mhm-rentiva') . '</h2>';
-        echo '<p>' . esc_html__('Configure booking times, notifications, and payment settings.', 'mhm-rentiva') . '</p>';
+        echo '<p class="description">' . esc_html__('Configure booking times, notifications, and payment settings.', 'mhm-rentiva') . '</p>';
         echo '</div>';
+
+        echo '<div class="mhm-settings-header-actions">';
+        echo '<a href="https://maxhandmade.github.io/mhm-rentiva-docs/" target="_blank" class="button button-secondary mhm-docs-btn">';
+        echo '<span class="dashicons dashicons-book-alt"></span> ';
+        echo esc_html__('Documentation', 'mhm-rentiva');
+        echo '</a>';
+
         echo '<button type="button" class="button button-secondary mhm-reset-tab-btn" data-tab="booking">';
-        echo '<span class="dashicons dashicons-update"></span> ';
+        echo '<span class="dashicons dashicons-image-rotate"></span> ';
         echo esc_html__('Reset to Defaults', 'mhm-rentiva');
         echo '</button>';
         echo '</div>';
-
+        echo '</div>';
+        echo '<hr class="wp-header-end">';
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\BookingSettings')) {
             \MHMRentiva\Admin\Settings\Groups\BookingSettings::render_settings_section();
         } else {
@@ -1147,13 +1211,71 @@ final class SettingsView
      */
     public static function render_tab_reset_button(string $tab): void
     {
+        $titles = [
+            'email' => __('Email Configuration', 'mhm-rentiva'),
+            'email-templates' => __('Notification Templates', 'mhm-rentiva'),
+            'system' => __('System & Performance', 'mhm-rentiva'),
+            'frontend' => __('Frontend & Display', 'mhm-rentiva'),
+        ];
+        $descriptions = [
+            'email' => __('Configure email templates and notifications.', 'mhm-rentiva'),
+            'system' => __('Configure system settings, maintenance, and security.', 'mhm-rentiva'),
+            'frontend' => __('Customize frontend display and text options.', 'mhm-rentiva'),
+            'email-templates' => __('Customize the content and subject of your email notifications.', 'mhm-rentiva'),
+        ];
+
+        $title = $titles[$tab] ?? __('Settings', 'mhm-rentiva');
+        $desc = $descriptions[$tab] ?? __('Configure settings for this section.', 'mhm-rentiva');
+
         echo '<div class="mhm-settings-tab-header">';
-        echo '<div></div>'; // Empty div for spacing
-        echo '<button type="button" class="button button-secondary mhm-reset-tab-btn" data-tab="' . esc_attr($tab) . '">';
-        echo '<span class="dashicons dashicons-update"></span> ';
-        echo esc_html__('Reset to Defaults', 'mhm-rentiva');
-        echo '</button>';
+        echo '<div class="mhm-settings-title-group">';
+        echo '<h2>' . esc_html($title) . '</h2>';
+        echo '<p class="description">' . esc_html($desc) . '</p>';
         echo '</div>';
+
+        echo '<div class="mhm-settings-header-actions">';
+        echo '<a href="https://maxhandmade.github.io/mhm-rentiva-docs/" target="_blank" class="button button-secondary mhm-docs-btn">';
+        echo '<span class="dashicons dashicons-book-alt"></span> ';
+        echo esc_html__('Documentation', 'mhm-rentiva');
+        echo '</a>';
+
+        // For email tab (general) and templates tab, we use the global reset link logic
+        // We use a simple button link because the JS handling for "Reset" via data-tab might not support the specific logic we need for templates (redirects etc)
+        // actually, SettingsHandler handles the reset logic based on tab, so simply submitting or redirecting to the reset URL is fine.
+
+        if ($tab === 'email' || $tab === 'email-templates') {
+            $reset_args = [
+                'page' => 'mhm-rentiva-settings',
+                'tab' => $tab, // Use current tab
+                'reset_defaults' => 'true',
+                '_wpnonce' => wp_create_nonce('mhm_rentiva_reset_defaults')
+            ];
+
+            if ($tab === 'email-templates') {
+                if (isset($_GET['type'])) {
+                    $reset_args['type'] = sanitize_key($_GET['type']);
+                }
+                if (isset($_GET['view'])) {
+                    $reset_args['view'] = sanitize_key($_GET['view']);
+                }
+            }
+
+            $reset_url = add_query_arg($reset_args, admin_url('admin.php'));
+
+            echo '<a href="' . esc_url($reset_url) . '" class="button button-secondary" onclick="return confirm(\'' . esc_js($tab === 'email-templates' ? __('Are you sure? All email templates will be reset to default settings.', 'mhm-rentiva') : __('Are you sure? General email settings will be reset.', 'mhm-rentiva')) . '\');">';
+            echo '<span class="dashicons dashicons-image-rotate"></span> ';
+            echo esc_html__('Reset to Defaults', 'mhm-rentiva');
+            echo '</a>';
+            echo '</button>';
+        } else {
+            echo '<button type="button" class="button button-secondary mhm-reset-tab-btn" data-tab="' . esc_attr($tab) . '">';
+            echo '<span class="dashicons dashicons-image-rotate"></span> ';
+            echo esc_html__('Reset to Defaults', 'mhm-rentiva');
+            echo '</button>';
+        }
+        echo '</div>';
+        echo '</div>';
+        echo '<hr class="wp-header-end">';
     }
 
     /**
@@ -1223,5 +1345,37 @@ final class SettingsView
         $content = preg_replace('/\s+form\s*=\s*["\'][^"\']*["\']/i', '', $content);
 
         return $content;
+    }
+    /**
+     * Render Addon (Extra Service) Settings
+     */
+    public static function render_addon_settings(): void
+    {
+        echo '<div class="mhm-settings-tab-header">';
+        echo '<div class="mhm-settings-title-group">';
+        echo '<h2>' . esc_html__('Extra Service Settings', 'mhm-rentiva') . '</h2>';
+        echo '<p class="description">' . esc_html__('Configure additional services behavior and display options.', 'mhm-rentiva') . '</p>';
+        echo '</div>';
+
+        echo '<div class="mhm-settings-header-actions">';
+        echo '<a href="https://maxhandmade.github.io/mhm-rentiva-docs/" target="_blank" class="button button-secondary mhm-docs-btn">';
+        echo '<span class="dashicons dashicons-book-alt"></span> ';
+        echo esc_html__('Documentation', 'mhm-rentiva');
+        echo '</a>';
+
+        echo '<button type="button" class="button button-secondary mhm-reset-tab-btn" data-tab="addons">';
+        echo '<span class="dashicons dashicons-image-rotate"></span> ';
+        echo esc_html__('Reset to Defaults', 'mhm-rentiva');
+        echo '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '<hr class="wp-header-end">';
+
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\AddonSettings')) {
+            \MHMRentiva\Admin\Settings\Groups\AddonSettings::render_settings_section();
+        } else {
+            // Fallback
+            self::render_section_clean('mhm_rentiva_addons_section');
+        }
     }
 }

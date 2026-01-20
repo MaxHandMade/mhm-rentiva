@@ -38,6 +38,8 @@ final class BookingSettings
             'mhm_rentiva_booking_admin_notifications' => '1',
             'mhm_rentiva_booking_default_payment_method' => 'woocommerce',
             'mhm_rentiva_booking_thank_you_page' => '',
+            'mhm_rentiva_send_auto_cancel_email' => '0',
+            'mhm_rentiva_default_rental_days' => 1,
         ];
     }
 
@@ -54,9 +56,6 @@ final class BookingSettings
 
         // Notification settings
         \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_NOTIFICATION);
-
-        // Additional Services settings
-        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_ADDONS);
     }
     /**
      * Register settings
@@ -77,6 +76,14 @@ final class BookingSettings
             __('Basic Booking Settings', 'mhm-rentiva'),
             [self::class, 'render_basic_section_description'],
             'mhm_rentiva_settings'
+        );
+
+        add_settings_field(
+            'mhm_rentiva_default_rental_days',
+            __('Default Rental Days', 'mhm-rentiva'),
+            [self::class, 'render_default_rental_days_field'],
+            'mhm_rentiva_settings',
+            'mhm_rentiva_booking_basic_section'
         );
 
         // Time Management Settings Section
@@ -158,6 +165,14 @@ final class BookingSettings
             'mhm_rentiva_settings',
             'mhm_rentiva_booking_notification_section'
         );
+
+        add_settings_field(
+            'mhm_rentiva_send_auto_cancel_email',
+            __('Send Auto Cancel Email', 'mhm-rentiva'),
+            [self::class, 'render_send_auto_cancel_email_field'],
+            'mhm_rentiva_settings',
+            'mhm_rentiva_booking_notification_section'
+        );
     }
 
     /**
@@ -222,10 +237,26 @@ final class BookingSettings
         echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_booking_admin_notifications]" value="1"' . checked($value, '1', false) . '> ' . esc_html__('Send email notifications to admin when new bookings are created', 'mhm-rentiva') . '</label>';
     }
 
+    public static function render_send_auto_cancel_email_field(): void
+    {
+        $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_send_auto_cancel_email', '0');
+        echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_send_auto_cancel_email]" value="1"' . checked($value, '1', false) . '> ' . esc_html__('Send notification to customer when booking is auto-cancelled due to timeout.', 'mhm-rentiva') . '</label>';
+    }
+
     public static function render_buffer_time_field(): void
     {
         $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_buffer_time', '60');
         echo '<input type="number" name="mhm_rentiva_settings[mhm_rentiva_booking_buffer_time]" value="' . esc_attr($value) . '" min="0" max="1440" step="15" class="small-text" /> ' . esc_html__('minutes', 'mhm-rentiva');
         echo '<p class="description">' . esc_html__('Minimum time gap required between bookings for cleaning and preparation.', 'mhm-rentiva') . '</p>';
+    }
+
+    /**
+     * Default Rental Days Field
+     */
+    public static function render_default_rental_days_field(): void
+    {
+        $days = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_default_rental_days', 1);
+        echo '<input type="number" name="mhm_rentiva_settings[mhm_rentiva_default_rental_days]" value="' . esc_attr($days) . '" min="1" max="365" class="small-text" />';
+        echo '<p class="description">' . esc_html__('Default rental duration in booking form (days).', 'mhm-rentiva') . __('Default selected days in the booking form.', 'mhm-rentiva') . '</p>';
     }
 }

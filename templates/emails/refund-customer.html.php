@@ -1,65 +1,48 @@
-<?php if (!defined('ABSPATH')) { exit; } ?>
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <?php
-        /* translators: %s: booking ID. */
-        echo esc_html(sprintf(__('Refund for Booking #%s', 'mhm-rentiva'), (string) ($data['booking']['id'] ?? '')));
-        ?>
-    </title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
-        .header h1 { margin: 0; font-size: 22px; }
-        .content { padding: 30px; }
-        .detail-row { display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { font-weight: bold; color: #555; }
-        .detail-value { color: #333; }
-        .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 14px; }
-        .badge { display:inline-block; padding:6px 10px; border-radius:999px; background:#e8f5e9; color:#2e7d32; font-weight:600; font-size:12px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1><?php esc_html_e('Refund Processed', 'mhm-rentiva'); ?></h1>
-            <p style="margin-top: 8px; opacity:.9; font-size:14px;">#<?php echo esc_html((string)($data['booking']['id'] ?? '')); ?> · <?php echo esc_html($data['site']['name'] ?? get_bloginfo('name')); ?></p>
-        </div>
-
-        <div class="content">
-            <p><?php esc_html_e('We have processed your refund for the booking below.', 'mhm-rentiva'); ?></p>
-
-            <div class="detail-row">
-                <span class="detail-label"><?php esc_html_e('Amount:', 'mhm-rentiva'); ?></span>
-                <span class="detail-value"><span class="badge"><?php echo esc_html($data['amount'] ?? ''); ?></span></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?php esc_html_e('Status:', 'mhm-rentiva'); ?></span>
-                <span class="detail-value"><?php echo esc_html(ucfirst((string)($data['status'] ?? ''))); ?></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?php esc_html_e('Booking No:', 'mhm-rentiva'); ?></span>
-                <span class="detail-value">#<?php echo esc_html((string)($data['booking']['id'] ?? '')); ?></span>
-            </div>
-
-            <?php if (!empty($data['reason'])): ?>
-            <p style="margin-top:16px;"><strong><?php esc_html_e('Reason:', 'mhm-rentiva'); ?></strong> <?php echo esc_html((string)$data['reason']); ?></p>
-            <?php endif; ?>
-
-            <p style="margin-top:20px; font-size:13px; color:#666;"><?php esc_html_e('The amount will be reflected in your account depending on your bank’s processes.', 'mhm-rentiva'); ?></p>
-        </div>
-
-        <div class="footer">
-            <p><strong><?php echo esc_html(\MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_brand_name', get_bloginfo('name'))); ?></strong></p>
-            <p><?php esc_html_e('If you have any questions, please reply to this email.', 'mhm-rentiva'); ?></p>
-        </div>
+<?php if (!defined('ABSPATH')) {
+    exit;
+} ?>
+<div class="refund-customer-email">
+    <div class="intro" style="margin-bottom: 20px;">
+        <p><?php
+            /* translators: %s: booking ID */
+            printf(esc_html__('Your refund for booking #%s has been processed.', 'mhm-rentiva'), esc_html($data['booking']['id'] ?? ''));
+            ?></p>
     </div>
-</body>
-</html>
 
+    <h2 style="color: #555; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;"><?php esc_html_e('Refund Details', 'mhm-rentiva'); ?></h2>
 
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <tr>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #777; width: 40%;"><strong><?php esc_html_e('Booking No:', 'mhm-rentiva'); ?></strong></td>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right;">#<?php echo esc_html((string)($data['booking']['id'] ?? '')); ?></td>
+        </tr>
+        <tr>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #777;"><strong><?php esc_html_e('Refund Amount:', 'mhm-rentiva'); ?></strong></td>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right; color: #28a745; font-weight: bold;"><?php echo esc_html($data['amount'] ?? ''); ?></td>
+        </tr>
+        <tr>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #777;"><strong><?php esc_html_e('Status:', 'mhm-rentiva'); ?></strong></td>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right;"><?php
+                                                                                            $status = $data['status'] ?? 'pending';
+                                                                                            $status_labels = [
+                                                                                                'pending' => esc_html__('Pending', 'mhm-rentiva'),
+                                                                                                'completed' => esc_html__('Completed', 'mhm-rentiva'),
+                                                                                                'processing' => esc_html__('Processing', 'mhm-rentiva'),
+                                                                                            ];
+                                                                                            echo esc_html($status_labels[$status] ?? ucfirst($status));
+                                                                                            ?></td>
+        </tr>
+        <?php if (!empty($data['reason'])): ?>
+            <tr>
+                <td style="padding: 12px 0; color: #777;"><strong><?php esc_html_e('Reason:', 'mhm-rentiva'); ?></strong></td>
+                <td style="padding: 12px 0; text-align: right;"><?php echo esc_html((string)$data['reason']); ?></td>
+            </tr>
+        <?php endif; ?>
+    </table>
+
+    <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 6px; margin: 20px 0;">
+        <p style="margin: 0;"><?php esc_html_e('The refund will be credited to your original payment method. Processing time may vary depending on your bank.', 'mhm-rentiva'); ?></p>
+    </div>
+
+    <p style="color: #666; font-size: 14px;"><?php esc_html_e('If you have any questions about this refund, please contact us.', 'mhm-rentiva'); ?></p>
+</div>

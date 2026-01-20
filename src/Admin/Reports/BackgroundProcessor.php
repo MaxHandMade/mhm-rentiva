@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Reports;
 
@@ -22,7 +24,7 @@ final class BackgroundProcessor
     {
         $report_types = [
             'booking_report' => __('Booking Report', 'mhm-rentiva'),
-            'customer_report' => __('Customer Report', 'mhm-rentiva'), 
+            'customer_report' => __('Customer Report', 'mhm-rentiva'),
             'vehicle_report' => __('Vehicle Report', 'mhm-rentiva'),
             'revenue_report' => __('Revenue Report', 'mhm-rentiva'),
             'export_booking_data' => __('Booking Export', 'mhm-rentiva'),
@@ -30,7 +32,7 @@ final class BackgroundProcessor
             'export_vehicle_data' => __('Vehicle Export', 'mhm-rentiva'),
             'bulk_operations' => __('Bulk Operations', 'mhm-rentiva')
         ];
-        
+
         /**
          * Filter: Allow addons and third-party plugins to add custom report types
          * 
@@ -45,12 +47,12 @@ final class BackgroundProcessor
          */
         return apply_filters('mhm_rentiva_report_types', $report_types);
     }
-    
+
     /**
      * Class availability cache
      */
     private static ?bool $logger_available = null;
-    
+
     /**
      * Checks if the logger is available (cached)
      * 
@@ -59,9 +61,9 @@ final class BackgroundProcessor
     private static function is_logger_available(): bool
     {
         if (self::$logger_available === null) {
-            self::$logger_available = class_exists(\MHMRentiva\Logs\AdvancedLogger::class);
+            self::$logger_available = class_exists('\MHMRentiva\Logs\AdvancedLogger');
         }
-        
+
         return self::$logger_available;
     }
 
@@ -71,17 +73,17 @@ final class BackgroundProcessor
     public static function queue_report_generation(string $report_type, array $params, int $user_id = 0): string
     {
         $report_types = self::get_report_types();
-        
+
         if (!isset($report_types[$report_type])) {
             /* translators: %s placeholder. */
             throw new \InvalidArgumentException(sprintf(__('Invalid report type: %s', 'mhm-rentiva'), $report_type));
         }
 
         $user_id = $user_id ?: get_current_user_id();
-        
+
         // Generate Job ID
         $job_id = uniqid('mhm_report_', true);
-        
+
         // Prepare Job data
         $job_data = [
             'job_id' => $job_id,
@@ -107,12 +109,14 @@ final class BackgroundProcessor
         // Log job creation
         // Removed info log
         // if (self::is_logger_available()) {
-        //     \MHMRentiva\Logs\AdvancedLogger::info('Background report job queued', [
+        //     $logger = '\MHMRentiva\Logs\AdvancedLogger';
+        //     $category = defined("$logger::CATEGORY_SYSTEM") ? constant("$logger::CATEGORY_SYSTEM") : 'system';
+        //     $logger::info('Background report job queued', [
         //         'job_id' => $job_id,
         //         'report_type' => $report_type,
         //         'user_id' => $user_id,
         //         'estimated_time' => $job_data['estimated_time']
-        //     ], \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SYSTEM);
+        //     ], $category);
         // }
 
         return $job_id;
@@ -124,12 +128,14 @@ final class BackgroundProcessor
     public static function process_report_job(string $job_id): void
     {
         $job_data = self::get_job_from_db($job_id);
-        
+
         if (!$job_data) {
             if (self::is_logger_available()) {
-                \MHMRentiva\Logs\AdvancedLogger::error('Background job not found', [
+                $logger = '\MHMRentiva\Logs\AdvancedLogger';
+                $category = defined("$logger::CATEGORY_SYSTEM") ? constant("$logger::CATEGORY_SYSTEM") : 'system';
+                call_user_func([$logger, 'error'], 'Background job not found', [
                     'job_id' => $job_id
-                ], \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SYSTEM);
+                ], $category);
             }
             return;
         }
@@ -140,42 +146,36 @@ final class BackgroundProcessor
         try {
             // Process according to report type
             $result = self::generate_report_by_type($job_data);
-            
+
             if ($result['success']) {
                 self::update_job_status($job_id, 'completed', 100, $result['data']);
-                
+
                 // Send email to user
                 self::notify_user_job_completed($job_data, $result);
-                
-                // Removed info log
-                // if (self::is_logger_available()) {
-                //     \MHMRentiva\Logs\AdvancedLogger::info('Background report job completed', [
-                //         'job_id' => $job_id,
-                //         'report_type' => $job_data['report_type'],
-                //         'execution_time' => $result['execution_time'] ?? 0
-                //     ], \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SYSTEM);
-                // }
             } else {
                 self::update_job_status($job_id, 'failed', 0, null, $result['error']);
-                
+
                 if (self::is_logger_available()) {
-                    \MHMRentiva\Logs\AdvancedLogger::error('Background report job failed', [
+                    $logger = '\MHMRentiva\Logs\AdvancedLogger';
+                    $category = defined("$logger::CATEGORY_SYSTEM") ? constant("$logger::CATEGORY_SYSTEM") : 'system';
+                    call_user_func([$logger, 'error'], 'Background report job failed', [
                         'job_id' => $job_id,
                         'report_type' => $job_data['report_type'],
                         'error' => $result['error']
-                    ], \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SYSTEM);
+                    ], $category);
                 }
             }
-
         } catch (\Exception $e) {
             self::update_job_status($job_id, 'failed', 0, null, $e->getMessage());
-            
+
             if (self::is_logger_available()) {
-                \MHMRentiva\Logs\AdvancedLogger::error('Background report job exception', [
+                $logger = '\MHMRentiva\Logs\AdvancedLogger';
+                $category = defined("$logger::CATEGORY_SYSTEM") ? constant("$logger::CATEGORY_SYSTEM") : 'system';
+                call_user_func([$logger, 'error'], 'Background report job exception', [
                     'job_id' => $job_id,
                     'exception' => $e->getMessage(),
                     'trace' => $e->getTraceAsString()
-                ], \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SYSTEM);
+                ], $category);
             }
         }
     }
@@ -191,7 +191,7 @@ final class BackgroundProcessor
 
         // Check if custom report generation is handled via action hook
         $custom_result = null;
-        
+
         /**
          * Action: Allow addons to handle custom report generation
          * 
@@ -208,7 +208,7 @@ final class BackgroundProcessor
          * }, 10, 4);
          */
         do_action_ref_array('mhm_rentiva_generate_report', [&$report_type, &$params, &$job_data, &$custom_result]);
-        
+
         // If custom handler provided result, use it
         if ($custom_result !== null && is_array($custom_result) && isset($custom_result['success'])) {
             $result = $custom_result;
@@ -218,35 +218,35 @@ final class BackgroundProcessor
                 case 'booking_report':
                     $result = self::generate_booking_report($params);
                     break;
-                    
+
                 case 'customer_report':
                     $result = self::generate_customer_report($params);
                     break;
-                    
+
                 case 'vehicle_report':
                     $result = self::generate_vehicle_report($params);
                     break;
-                    
+
                 case 'revenue_report':
                     $result = self::generate_revenue_report($params);
                     break;
-                    
+
                 case 'export_booking_data':
                     $result = self::export_booking_data_background($params);
                     break;
-                    
+
                 case 'export_customer_data':
                     $result = self::export_customer_data_background($params);
                     break;
-                    
+
                 case 'export_vehicle_data':
                     $result = self::export_vehicle_data_background($params);
                     break;
-                    
+
                 case 'bulk_operations':
                     $result = self::process_bulk_operations($params);
                     break;
-                    
+
                 default:
                     /* translators: %s placeholder. */
                     $result = ['success' => false, 'error' => sprintf(__('Unknown report type: %s', 'mhm-rentiva'), $report_type)];
@@ -267,13 +267,13 @@ final class BackgroundProcessor
         try {
             $start_date = $params['start_date'] ?? date('Y-m-01');
             $end_date = $params['end_date'] ?? date('Y-m-d');
-            
+
             $data = \MHMRentiva\Admin\Reports\BusinessLogic\BookingReport::get_data($start_date, $end_date);
-            
+
             // Save to cache
             $cache_key = "mhm_booking_report_bg_{$start_date}_{$end_date}";
             \MHMRentiva\Admin\Core\Utilities\CacheManager::set_cache_object($cache_key, $data, 24 * HOUR_IN_SECONDS);
-            
+
             return [
                 'success' => true,
                 'data' => [
@@ -283,7 +283,6 @@ final class BackgroundProcessor
                     'date_range' => $data['date_range'] ?? []
                 ]
             ];
-            
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
@@ -297,13 +296,13 @@ final class BackgroundProcessor
         try {
             $start_date = $params['start_date'] ?? date('Y-m-01');
             $end_date = $params['end_date'] ?? date('Y-m-d');
-            
+
             $data = \MHMRentiva\Admin\Reports\BusinessLogic\CustomerReport::get_data($start_date, $end_date);
-            
+
             // Save to cache
             $cache_key = "mhm_customer_report_bg_{$start_date}_{$end_date}";
             \MHMRentiva\Admin\Core\Utilities\CacheManager::set_cache_object($cache_key, $data, 24 * HOUR_IN_SECONDS);
-            
+
             return [
                 'success' => true,
                 'data' => [
@@ -313,7 +312,6 @@ final class BackgroundProcessor
                     'date_range' => $data['date_range'] ?? []
                 ]
             ];
-            
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
@@ -327,13 +325,13 @@ final class BackgroundProcessor
         try {
             $start_date = $params['start_date'] ?? date('Y-m-01');
             $end_date = $params['end_date'] ?? date('Y-m-d');
-            
+
             $data = \MHMRentiva\Admin\Vehicle\Reports\VehicleReport::get_data($start_date, $end_date);
-            
+
             // Save to cache
             $cache_key = "mhm_vehicle_report_bg_{$start_date}_{$end_date}";
             \MHMRentiva\Admin\Core\Utilities\CacheManager::set_cache_object($cache_key, $data, 24 * HOUR_IN_SECONDS);
-            
+
             return [
                 'success' => true,
                 'data' => [
@@ -343,7 +341,6 @@ final class BackgroundProcessor
                     'date_range' => $data['date_range'] ?? []
                 ]
             ];
-            
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
@@ -357,13 +354,13 @@ final class BackgroundProcessor
         try {
             $start_date = $params['start_date'] ?? date('Y-m-01');
             $end_date = $params['end_date'] ?? date('Y-m-d');
-            
+
             $data = \MHMRentiva\Admin\Reports\BusinessLogic\RevenueReport::get_data($start_date, $end_date);
-            
+
             // Save to cache
             $cache_key = "mhm_revenue_report_bg_{$start_date}_{$end_date}";
             \MHMRentiva\Admin\Core\Utilities\CacheManager::set_cache_object($cache_key, $data, 24 * HOUR_IN_SECONDS);
-            
+
             return [
                 'success' => true,
                 'data' => [
@@ -373,7 +370,6 @@ final class BackgroundProcessor
                     'date_range' => $data['date_range'] ?? []
                 ]
             ];
-            
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
@@ -389,52 +385,66 @@ final class BackgroundProcessor
             $format = $params['format'] ?? 'csv';
             $query_args = $params['query_args'] ?? [];
             $user_id = $params['user_id'] ?? get_current_user_id();
-            
+
             // ✅ Use stream methods from Export.php
             $filename_prefix = $post_type === 'vehicle_booking' ? 'bookings' : 'logs';
             $stamp = gmdate('Ymd-His');
-            
+
             // Create file path
             $upload_dir = wp_upload_dir();
             $export_dir = $upload_dir['basedir'] . '/mhm-rentiva-exports/';
-            
+
             if (!file_exists($export_dir)) {
                 wp_mkdir_p($export_dir);
             }
-            
+
             $filename = $export_dir . $filename_prefix . '-' . $stamp . '.' . $format;
-            
+
             if ($format === 'csv') {
                 $out = fopen($filename, 'w');
                 if (!$out) {
                     throw new \Exception(__('Cannot create export file', 'mhm-rentiva'));
                 }
-                
+
                 // UTF-8 BOM for Excel compatibility
                 fwrite($out, "\xEF\xBB\xBF");
-                
+
                 // CSV headers
                 if ($post_type === 'vehicle_booking') {
                     $headers = [
-                        __('ID', 'mhm-rentiva'), __('Date', 'mhm-rentiva'), __('Status', 'mhm-rentiva'), __('Payment Status', 'mhm-rentiva'), __('Gateway', 'mhm-rentiva'),
-                        __('Total', 'mhm-rentiva'), __('Paid Amount', 'mhm-rentiva'), __('Currency', 'mhm-rentiva'),
-                        __('Name', 'mhm-rentiva'), __('Email', 'mhm-rentiva'), __('Phone', 'mhm-rentiva'),
+                        __('ID', 'mhm-rentiva'),
+                        __('Date', 'mhm-rentiva'),
+                        __('Status', 'mhm-rentiva'),
+                        __('Payment Status', 'mhm-rentiva'),
+                        __('Gateway', 'mhm-rentiva'),
+                        __('Total', 'mhm-rentiva'),
+                        __('Paid Amount', 'mhm-rentiva'),
+                        __('Currency', 'mhm-rentiva'),
+                        __('Name', 'mhm-rentiva'),
+                        __('Email', 'mhm-rentiva'),
+                        __('Phone', 'mhm-rentiva'),
                     ];
                 } else {
                     $headers = [
-                        __('ID', 'mhm-rentiva'), __('Date', 'mhm-rentiva'), __('Gateway', 'mhm-rentiva'), __('Action', 'mhm-rentiva'), __('Status', 'mhm-rentiva'),
+                        __('ID', 'mhm-rentiva'),
+                        __('Date', 'mhm-rentiva'),
+                        __('Gateway', 'mhm-rentiva'),
+                        __('Action', 'mhm-rentiva'),
+                        __('Status', 'mhm-rentiva'),
                         __('Booking ID', 'mhm-rentiva'),
-                        __('Amount (kurus)', 'mhm-rentiva'), __('Currency', 'mhm-rentiva'), __('Message', 'mhm-rentiva'),
+                        __('Amount (kurus)', 'mhm-rentiva'),
+                        __('Currency', 'mhm-rentiva'),
+                        __('Message', 'mhm-rentiva'),
                     ];
                 }
                 fputcsv($out, $headers);
-                
+
                 // Data export
                 $paged = 1;
                 do {
                     $q = new \WP_Query(array_merge($query_args, ['paged' => $paged]));
                     if (!$q->have_posts()) break;
-                    
+
                     foreach ($q->posts as $pid) {
                         $pid = (int) $pid;
                         if ($post_type === 'vehicle_booking') {
@@ -448,13 +458,19 @@ final class BackgroundProcessor
                             $name   = (string) get_post_meta($pid, '_mhm_contact_name', true);
                             $email  = (string) get_post_meta($pid, '_mhm_contact_email', true);
                             $phone  = (string) get_post_meta($pid, '_mhm_contact_phone', true);
-                            
+
                             fputcsv($out, [
-                                $pid, $date, $status, $pstat, $gw,
+                                $pid,
+                                $date,
+                                $status,
+                                $pstat,
+                                $gw,
                                 number_format($total, 2, '.', ''),
                                 number_format($paidk / 100, 2, '.', ''),
                                 strtoupper($cur ?: ''),
-                                $name, $email, $phone,
+                                $name,
+                                $email,
+                                $phone,
                             ]);
                         } else {
                             // Log export logic
@@ -467,23 +483,29 @@ final class BackgroundProcessor
                             $amount = (int) get_post_meta($pid, '_mhm_log_amount_kurus', true);
                             $currency = (string) get_post_meta($pid, '_mhm_log_currency', true);
                             $message = (string) get_post_meta($pid, '_mhm_log_message', true);
-                            
+
                             fputcsv($out, [
-                                $pid, $date, $gw, $action, $status,
+                                $pid,
+                                $date,
+                                $gw,
+                                $action,
+                                $status,
                                 $booking_id,
-                                $amount, $currency, $message
+                                $amount,
+                                $currency,
+                                $message
                             ]);
                         }
                     }
                     $paged++;
                 } while ($paged <= $q->max_num_pages);
-                
+
                 fclose($out);
             }
-            
+
             // ✅ Send email to user
             self::send_export_email($user_id, $filename, $filename_prefix, $format);
-            
+
             return [
                 'success' => true,
                 'data' => [
@@ -494,7 +516,6 @@ final class BackgroundProcessor
                     'download_url' => $upload_dir['baseurl'] . '/mhm-rentiva-exports/' . basename($filename)
                 ]
             ];
-            
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
@@ -509,10 +530,10 @@ final class BackgroundProcessor
             $start_date = $params['start_date'] ?? date('Y-m-01');
             $end_date = $params['end_date'] ?? date('Y-m-d');
             $format = $params['format'] ?? 'csv';
-            
+
             // Run export in background
             \MHMRentiva\Admin\Reports\BusinessLogic\CustomerReport::export_customer_data($start_date, $end_date, $format);
-            
+
             return [
                 'success' => true,
                 'data' => [
@@ -521,7 +542,6 @@ final class BackgroundProcessor
                     'date_range' => "{$start_date} - {$end_date}"
                 ]
             ];
-            
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
@@ -536,10 +556,10 @@ final class BackgroundProcessor
             $start_date = $params['start_date'] ?? date('Y-m-01');
             $end_date = $params['end_date'] ?? date('Y-m-d');
             $format = $params['format'] ?? 'csv';
-            
+
             // Run export in background
             \MHMRentiva\Admin\Vehicle\Reports\VehicleReport::export_vehicle_data($start_date, $end_date, $format);
-            
+
             return [
                 'success' => true,
                 'data' => [
@@ -548,7 +568,6 @@ final class BackgroundProcessor
                     'date_range' => "{$start_date} - {$end_date}"
                 ]
             ];
-            
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
@@ -562,14 +581,14 @@ final class BackgroundProcessor
         try {
             $operation = $params['operation'] ?? '';
             $ids = $params['ids'] ?? [];
-            
+
             if (empty($operation) || empty($ids)) {
                 return ['success' => false, 'error' => __('Invalid bulk operation parameters', 'mhm-rentiva')];
             }
-            
+
             $processed = 0;
             $errors = [];
-            
+
             foreach ($ids as $id) {
                 try {
                     switch ($operation) {
@@ -577,18 +596,18 @@ final class BackgroundProcessor
                             wp_delete_post($id, true);
                             $processed++;
                             break;
-                            
+
                         case 'update_status':
                             $status = $params['status'] ?? __('confirmed', 'mhm-rentiva');
                             update_post_meta($id, '_mhm_status', $status);
                             $processed++;
                             break;
-                            
+
                         case 'bulk_export':
                             // Bulk export operation
                             $processed++;
                             break;
-                            
+
                         default:
                             /* translators: %s placeholder. */
                             $errors[] = sprintf(__('Unknown operation: %s', 'mhm-rentiva'), $operation);
@@ -598,7 +617,7 @@ final class BackgroundProcessor
                     $errors[] = sprintf(__('Error processing ID %1$d: %2$s', 'mhm-rentiva'), $id, $e->getMessage());
                 }
             }
-            
+
             return [
                 'success' => true,
                 'data' => [
@@ -608,7 +627,6 @@ final class BackgroundProcessor
                     'errors' => $errors
                 ]
             ];
-            
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
@@ -631,7 +649,7 @@ final class BackgroundProcessor
         ];
 
         $base_time = $base_times[$report_type] ?? 30;
-        
+
         // Time estimation based on date range
         if (isset($params['start_date']) && isset($params['end_date'])) {
             $days = (strtotime($params['end_date']) - strtotime($params['start_date'])) / (60 * 60 * 24);
@@ -744,10 +762,13 @@ final class BackgroundProcessor
             return;
         }
 
+        $report_types = self::get_report_types();
+        $report_label = $report_types[$job_data['report_type']] ?? $job_data['report_type'];
+
         $subject = sprintf(
             /* translators: %s placeholder. */
             __('MHM Rentiva: %s Completed', 'mhm-rentiva'),
-            self::REPORT_TYPES[$job_data['report_type']] ?? $job_data['report_type']
+            $report_label
         );
 
         /* translators: 1: User name, 2: Report type, 3: Report type label, 4: Creation date, 5: Processing time */
@@ -766,15 +787,15 @@ You can view the report by logging into the admin panel.
 
 MHM Rentiva Team', 'mhm-rentiva'),
             $user->display_name,
-            self::REPORT_TYPES[$job_data['report_type']] ?? $job_data['report_type'],
-            self::REPORT_TYPES[$job_data['report_type']] ?? $job_data['report_type'],
+            $report_label,
+            $report_label,
             $job_data['created_at'],
             $result['execution_time'] ?? 0
         );
 
         wp_mail($user->user_email, $subject, $message);
     }
-    
+
     /**
      * Send email to user when export is complete
      */
@@ -787,7 +808,7 @@ MHM Rentiva Team', 'mhm-rentiva'),
 
         $upload_dir = wp_upload_dir();
         $download_url = $upload_dir['baseurl'] . '/mhm-rentiva-exports/' . basename($file_path);
-        
+
         $subject = sprintf(
             /* translators: %s placeholder. */
             __('MHM Rentiva: %s Export Completed', 'mhm-rentiva'),
@@ -796,22 +817,8 @@ MHM Rentiva Team', 'mhm-rentiva'),
 
         /* translators: 1: User name, 2: Data type, 3: File name, 4: Format, 5: Creation date, 6: Download URL */
         $message = sprintf(
-            /* translators: 1: %1$s; 2: %2$s; 3: %3$s; 4: %4$s; 5: %5$s; 6: %6$s. */
-            __('Hello %1$s,
-
-Your %2$s data export has been successfully completed.
-
-File Details:
-- File Name: %3$s
-- Format: %4$s
-- Creation Date: %5$s
-
-You can click the link below to download the file:
-%6$s
-
-Note: This file will be accessible for 7 days.
-
-MHM Rentiva Team', 'mhm-rentiva'),
+            /* translators: 1: %1$s name; 2: %2$s type; 3: %3$s filename; 4: %4$s format; 5: %5$s date; 6: %6$s url */
+            __("Hello %1\$s,\n\nYour %2\$s data export has been successfully completed.\n\nFile Details:\n- File Name: %3\$s\n- Format: %4\$s\n- Creation Date: %5\$s\n\nYou can click the link below to download the file:\n%6\$s\n\nNote: This file will be accessible for 7 days.\n\nMHM Rentiva Team", 'mhm-rentiva'),
             $user->display_name,
             ucfirst($file_prefix),
             basename($file_path),

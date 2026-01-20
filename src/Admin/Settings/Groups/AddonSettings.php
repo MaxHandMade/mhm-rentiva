@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Groups;
 
@@ -21,6 +23,14 @@ final class AddonSettings
         return sanitize_text_field((string) $value);
     }
 
+    /**
+     * Render the addon settings section
+     */
+    public static function render_settings_section(): void
+    {
+        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_ID);
+    }
+
     public static function register(): void
     {
         // Additional Services Section
@@ -31,7 +41,7 @@ final class AddonSettings
             'mhm_rentiva_settings'
         );
 
-        
+
         // Additional services settings - Lite Version Additional Service Limit
 
 
@@ -59,22 +69,6 @@ final class AddonSettings
             'mhm_rentiva_addon_display_order',
             __('Additional Services Display Order', 'mhm-rentiva'),
             [self::class, 'render_display_order_field'],
-            'mhm_rentiva_settings',
-            self::SECTION_ID
-        );
-
-        add_settings_field(
-            'mhm_rentiva_addon_tax_inclusive',
-            __('Prices Include Tax', 'mhm-rentiva'),
-            [self::class, 'render_tax_inclusive_field'],
-            'mhm_rentiva_settings',
-            self::SECTION_ID
-        );
-
-        add_settings_field(
-            'mhm_rentiva_addon_tax_rate',
-            __('Tax Rate (%)', 'mhm-rentiva'),
-            [self::class, 'render_tax_rate_field'],
             'mhm_rentiva_settings',
             self::SECTION_ID
         );
@@ -141,29 +135,5 @@ final class AddonSettings
         }
         echo '</select>';
         echo '<p class="description">' . esc_html__('The order in which additional services are displayed to customers.', 'mhm-rentiva') . '</p>';
-    }
-
-    /**
-     * Tax inclusive field
-     */
-    public static function render_tax_inclusive_field(): void
-    {
-        $value = self::sanitize_text_field_safe(get_option('mhm_rentiva_addon_tax_inclusive', '1'));
-        echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_addon_tax_inclusive]" value="1"' . checked($value, '1', false) . '> ' . esc_html__('Yes, tax included', 'mhm-rentiva') . '</label>';
-        echo '<p class="description">' . esc_html__('Display additional service prices with tax included.', 'mhm-rentiva') . '</p>';
-    }
-
-    /**
-     * Tax rate field
-     */
-    public static function render_tax_rate_field(): void
-    {
-        $value = floatval(get_option('mhm_rentiva_addon_tax_rate', '20.00'));
-        
-        // Validate and sanitize the tax rate
-        $value = max(0, min(100, $value));
-        
-        echo '<input type="number" name="mhm_rentiva_settings[mhm_rentiva_addon_tax_rate]" value="' . esc_attr($value) . '" min="0" max="100" step="0.01" class="small-text" /> %';
-        echo '<p class="description">' . esc_html__('The applicable tax rate for additional services.', 'mhm-rentiva') . '</p>';
     }
 }

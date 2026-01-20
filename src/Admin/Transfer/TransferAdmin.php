@@ -65,6 +65,46 @@ final class TransferAdmin
     }
 
     /**
+     * Get available location types
+     * 
+     * @return array
+     */
+    public static function get_location_types(): array
+    {
+        $default_types = [
+            'airport'     => __('Airport', 'mhm-rentiva'),
+            'hotel'       => __('Hotel', 'mhm-rentiva'),
+            'port'        => __('Port / Cruise', 'mhm-rentiva'),
+            'station'     => __('Train / Bus Station', 'mhm-rentiva'),
+            'city_center' => __('City Center', 'mhm-rentiva'),
+            'hospital'    => __('Hospital / Clinic', 'mhm-rentiva'),
+        ];
+
+        // Merge with custom types from database
+        $custom_types_raw = get_option('mhm_transfer_custom_types', '');
+
+        // Handle String Input (Lines)
+        if (is_string($custom_types_raw) && !empty($custom_types_raw)) {
+            $lines = explode("\n", $custom_types_raw);
+            $custom_types = [];
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if (empty($line)) continue;
+                // Slug: sanitize title, Label: line
+                $slug = sanitize_title($line);
+                $custom_types[$slug] = $line;
+            }
+            $default_types = array_merge($default_types, $custom_types);
+        }
+        // Backward compatibility if it was saved as array mainly
+        elseif (is_array($custom_types_raw) && !empty($custom_types_raw)) {
+            $default_types = array_merge($default_types, $custom_types_raw);
+        }
+
+        return apply_filters('mhm_rentiva_location_types', $default_types);
+    }
+
+    /**
      * Render Settings Page
      */
     public static function render_settings_page(): void
@@ -75,6 +115,14 @@ final class TransferAdmin
 
         $deposit_type = get_option('mhm_transfer_deposit_type', 'full_payment');
         $deposit_rate = get_option('mhm_transfer_deposit_rate', '20');
+        $custom_types = get_option('mhm_transfer_custom_types', '');
+        // If array (legacy), implode it for display
+        if (is_array($custom_types)) {
+            $custom_types = implode("\n", $custom_types); // Values only? Or keys? Assuming values for simplicity if array was ['slug'=>'Label']
+            // Actually, if it was array, it might be key=>value. 
+            // For safety, let's just treat as string mostly. 
+            // If the user saves via this new form, it becomes string.
+        }
 ?>
         <div class="wrap">
             <h1><?php echo esc_html__('Transfer Settings', 'mhm-rentiva'); ?></h1>
@@ -98,6 +146,13 @@ final class TransferAdmin
                         <td>
                             <input name="mhm_transfer_deposit_rate" type="number" id="mhm_transfer_deposit_rate" value="<?php echo esc_attr($deposit_rate); ?>" class="regular-text" min="1" max="100" step="1">
                             <p class="description"><?php echo esc_html__('Percentage of total price to be paid as deposit.', 'mhm-rentiva'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mhm_transfer_custom_types"><?php echo esc_html__('Custom Location Types', 'mhm-rentiva'); ?></label></th>
+                        <td>
+                            <textarea name="mhm_transfer_custom_types" id="mhm_transfer_custom_types" rows="5" class="large-text code"><?php echo esc_textarea($custom_types); ?></textarea>
+                            <p class="description"><?php echo esc_html__('Enter custom location types, one per line. (e.g. Stadium, Exhibition Center)', 'mhm-rentiva'); ?></p>
                         </td>
                     </tr>
                 </table>
@@ -130,6 +185,11 @@ final class TransferAdmin
 
         update_option('mhm_transfer_deposit_type', sanitize_text_field($_POST['mhm_transfer_deposit_type']));
         update_option('mhm_transfer_deposit_rate', intval($_POST['mhm_transfer_deposit_rate']));
+
+        // Save Custom Types as Text
+        if (isset($_POST['mhm_transfer_custom_types'])) {
+            update_option('mhm_transfer_custom_types', sanitize_textarea_field($_POST['mhm_transfer_custom_types']));
+        }
 
         wp_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-settings&updated=true'));
         exit;
@@ -178,7 +238,8 @@ final class TransferAdmin
                                     <label for="type"><?php echo esc_html__('Type', 'mhm-rentiva'); ?></label>
                                     <select name="type" id="type">
                                         <?php
-                                        $types = ['airport' => 'Airport', 'hotel' => 'Hotel', 'generic' => 'Generic'];
+                                        $types = self::get_location_types();
+
                                         foreach ($types as $key => $label) {
                                             echo '<option value="' . esc_attr($key) . '" ' . selected($edit_location ? $edit_location->type : '', $key, false) . '>' . esc_html($label) . '</option>';
                                         }

@@ -176,6 +176,10 @@ final class SettingsCore
             $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::get_default_settings());
         }
 
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\FrontendSettings')) {
+            $defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\FrontendSettings::get_default_settings());
+        }
+
         return array_merge($defaults, [
             'comparison_fields'               => [],
             // Email settings managed in EmailSettings class
@@ -232,12 +236,6 @@ final class SettingsCore
             'mhm_rentiva_vehicle_weekend_multiplier'   => 1.2,
             'mhm_rentiva_vehicle_tax_inclusive'        => '0',
             'mhm_rentiva_vehicle_tax_rate'             => 18,
-            'mhm_rentiva_vehicle_cards_per_page'       => 12,
-            'mhm_rentiva_vehicle_default_sort'         => 'price_asc',
-            'mhm_rentiva_vehicle_show_images'          => '1',
-            'mhm_rentiva_vehicle_show_features'        => '1',
-            'mhm_rentiva_vehicle_card_fields'          => VehicleFeatureHelper::get_default_card_fields(),
-            'mhm_rentiva_vehicle_show_availability'    => '1',
             'mhm_rentiva_vehicle_min_rental_days'      => 1,
             'mhm_rentiva_vehicle_max_rental_days'      => 30,
             'mhm_rentiva_vehicle_advance_booking_days' => 365,
@@ -393,21 +391,23 @@ final class SettingsCore
                     'mhm_rentiva_currency',
                     'mhm_rentiva_currency_position',
                     'mhm_rentiva_support_email',
-                    'mhm_rentiva_date_format',
-                    'mhm_rentiva_default_rental_days',
-                    'mhm_rentiva_site_url',
-                    'mhm_rentiva_home_url',
-                    'mhm_rentiva_admin_email',
-                    'mhm_rentiva_site_language',
-                    'mhm_rentiva_start_of_week',
-                    'mhm_rentiva_clean_data_on_uninstall'
+                    'mhm_rentiva_site_language'
                 ];
                 break;
 
             case 'vehicle':
                 // Vehicle settings keys (all keys starting with mhm_rentiva_vehicle_)
+                // EXCLUDE display settings which are now in Frontend settings
+                $display_keys = [
+                    'mhm_rentiva_vehicle_cards_per_page',
+                    'mhm_rentiva_vehicle_default_sort',
+                    'mhm_rentiva_vehicle_show_images',
+                    'mhm_rentiva_vehicle_show_features',
+                    'mhm_rentiva_vehicle_card_fields',
+                    'mhm_rentiva_vehicle_show_availability'
+                ];
                 foreach (array_keys($all_defaults) as $key) {
-                    if (strpos($key, 'mhm_rentiva_vehicle_') === 0) {
+                    if (strpos($key, 'mhm_rentiva_vehicle_') === 0 && !in_array($key, $display_keys, true)) {
                         $tab_keys[] = $key;
                     }
                 }
@@ -488,6 +488,21 @@ final class SettingsCore
                         strpos($key, 'comparison_fields') === 0
                     ) {
                         $tab_keys[] = $key;
+                    }
+                }
+
+                // Add migrated vehicle display settings
+                $display_keys = [
+                    'mhm_rentiva_vehicle_cards_per_page',
+                    'mhm_rentiva_vehicle_default_sort',
+                    'mhm_rentiva_vehicle_show_images',
+                    'mhm_rentiva_vehicle_show_features',
+                    'mhm_rentiva_vehicle_card_fields',
+                    'mhm_rentiva_vehicle_show_availability'
+                ];
+                foreach ($display_keys as $dk) {
+                    if (isset($all_defaults[$dk])) {
+                        $tab_keys[] = $dk;
                     }
                 }
                 break;
@@ -571,10 +586,6 @@ final class SettingsCore
     {
         if (class_exists('\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings')) {
             \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::register();
-        }
-
-        if (class_exists('\MHMRentiva\Admin\Settings\Groups\VehicleComparisonSettings')) {
-            \MHMRentiva\Admin\Settings\Groups\VehicleComparisonSettings::register();
         }
 
         // Vehicle pricing settings
@@ -669,6 +680,11 @@ final class SettingsCore
      */
     public static function register_frontend_settings(): void
     {
+        // Register Vehicle Display Settings
+        if (class_exists('\MHMRentiva\Admin\Settings\Groups\FrontendSettings')) {
+            \MHMRentiva\Admin\Settings\Groups\FrontendSettings::register();
+        }
+
         add_settings_section(
             'mhm_rentiva_frontend_section',
             __('Page URL Settings', 'mhm-rentiva'),

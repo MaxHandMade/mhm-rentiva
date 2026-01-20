@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Utilities\ListTable;
 
@@ -77,7 +79,8 @@ final class LogColumns
                 $ak  = (int) get_post_meta($post_id, '_mhm_log_amount_kurus', true);
                 $cur = (string) get_post_meta($post_id, '_mhm_log_currency', true);
                 if ($ak > 0) {
-                    echo esc_html(number_format_i18n($ak / 100, 2) . ' ' . strtoupper($cur ?: 'TRY'));
+                    $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol($cur ?: null);
+                    echo esc_html(number_format_i18n($ak / 100, 2) . ' ' . $currency_symbol);
                 } else {
                     echo '—';
                 }
@@ -110,7 +113,7 @@ final class LogColumns
         echo '<label for="mhm_log_status" class="screen-reader-text">' . esc_html__('Status', 'mhm-rentiva') . '</label>';
         echo '<select name="mhm_log_status" id="mhm_log_status">';
         echo '<option value="">' . esc_html__('All statuses', 'mhm-rentiva') . '</option>';
-        foreach (['success','error'] as $st) {
+        foreach (['success', 'error'] as $st) {
             echo '<option value="' . esc_attr($st) . '"' . selected($selStatus, $st, false) . '>' . esc_html(ucfirst($st)) . '</option>';
         }
         echo '</select>';

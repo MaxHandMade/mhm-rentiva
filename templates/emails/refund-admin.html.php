@@ -1,41 +1,43 @@
-<?php if (!defined('ABSPATH')) { exit; } ?>
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <?php
-        /* translators: %s: booking ID. */
-        echo esc_html(sprintf(__('Refund Processed · Booking #%s', 'mhm-rentiva'), (string) ($data['booking']['id'] ?? '')));
-        ?>
-    </title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px; }
-        .header h1 { margin: 0; font-size: 20px; }
-        .content { padding: 24px; }
-        .detail-row { display: flex; justify-content: space-between; margin: 8px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { font-weight: bold; color: #555; }
-        .detail-value { color: #333; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1><?php esc_html_e('Refund Processed (Admin Copy)', 'mhm-rentiva'); ?></h1>
-        </div>
-        <div class="content">
-            <div class="detail-row"><span class="detail-label"><?php esc_html_e('Booking No:', 'mhm-rentiva'); ?></span><span class="detail-value">#<?php echo esc_html((string)($data['booking']['id'] ?? '')); ?></span></div>
-            <div class="detail-row"><span class="detail-label"><?php esc_html_e('Customer:', 'mhm-rentiva'); ?></span><span class="detail-value"><?php echo esc_html($data['customer']['name'] ?? ''); ?> (<?php echo esc_html($data['customer']['email'] ?? ''); ?>)</span></div>
-            <div class="detail-row"><span class="detail-label"><?php esc_html_e('Amount:', 'mhm-rentiva'); ?></span><span class="detail-value"><?php echo esc_html($data['amount'] ?? ''); ?></span></div>
-            <div class="detail-row"><span class="detail-label"><?php esc_html_e('Status:', 'mhm-rentiva'); ?></span><span class="detail-value"><?php echo esc_html(ucfirst((string)($data['status'] ?? ''))); ?></span></div>
-            <?php if (!empty($data['reason'])): ?><p><strong><?php esc_html_e('Reason:', 'mhm-rentiva'); ?></strong> <?php echo esc_html((string)$data['reason']); ?></p><?php endif; ?>
-        </div>
+<?php if (!defined('ABSPATH')) {
+    exit;
+} ?>
+<div class="refund-admin-email">
+    <div class="intro" style="margin-bottom: 20px;">
+        <p><?php esc_html_e('A refund has been processed for the following booking.', 'mhm-rentiva'); ?></p>
     </div>
-</body>
-</html>
 
+    <h2 style="color: #555; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;"><?php esc_html_e('Refund Details', 'mhm-rentiva'); ?></h2>
 
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <tr>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #777; width: 40%;"><strong><?php esc_html_e('Booking No:', 'mhm-rentiva'); ?></strong></td>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right;">#<?php echo esc_html((string)($data['booking']['id'] ?? '')); ?></td>
+        </tr>
+        <tr>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #777;"><strong><?php esc_html_e('Customer:', 'mhm-rentiva'); ?></strong></td>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right;"><?php echo esc_html($data['customer']['name'] ?? ''); ?></td>
+        </tr>
+        <tr>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #777;"><strong><?php esc_html_e('Email:', 'mhm-rentiva'); ?></strong></td>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right;"><?php echo esc_html($data['customer']['email'] ?? ''); ?></td>
+        </tr>
+        <tr>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #777;"><strong><?php esc_html_e('Refund Amount:', 'mhm-rentiva'); ?></strong></td>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right; color: #28a745; font-weight: bold;"><?php echo esc_html($data['amount'] ?? ''); ?></td>
+        </tr>
+        <tr>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; color: #777;"><strong><?php esc_html_e('Status:', 'mhm-rentiva'); ?></strong></td>
+            <td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right;"><?php echo esc_html(ucfirst((string)($data['status'] ?? ''))); ?></td>
+        </tr>
+        <?php if (!empty($data['reason'])): ?>
+            <tr>
+                <td style="padding: 12px 0; color: #777;"><strong><?php esc_html_e('Reason:', 'mhm-rentiva'); ?></strong></td>
+                <td style="padding: 12px 0; text-align: right;"><?php echo esc_html((string)$data['reason']); ?></td>
+            </tr>
+        <?php endif; ?>
+    </table>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="<?php echo esc_url(admin_url('edit.php?post_type=vehicle_booking')); ?>" style="display: inline-block; background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;"><?php esc_html_e('View Bookings', 'mhm-rentiva'); ?></a>
+    </div>
+</div>

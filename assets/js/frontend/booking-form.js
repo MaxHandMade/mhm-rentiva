@@ -125,9 +125,12 @@
 
             // Automatic calculation and availability check on date and time changes
             this.form.on('change', '.rv-pickup-date, .rv-dropoff-date, .rv-pickup-time, .rv-dropoff-time, .rv-vehicle-select', () => {
-                this.autoCheckAvailability();
-                this.autoCalculatePrice();
-                this.updateDepositDisplay();
+                // Check rental duration limits before other checks
+                if (this.validateRentalLimits()) {
+                    this.autoCheckAvailability();
+                    this.autoCalculatePrice();
+                    this.updateDepositDisplay();
+                }
             });
 
             // Automatic calculation on addon changes
@@ -343,6 +346,11 @@
                 this.container.find('input.rv-date-input').each(function () {
                     const $input = $(this);
                     const originalValue = $input.val();
+
+                    // Set maxDate if configured
+                    if (window.mhmRentivaBookingForm?.config?.advance_booking_days) {
+                        options.maxDate = '+' + window.mhmRentivaBookingForm.config.advance_booking_days + 'd';
+                    }
 
                     // Initialize datepicker
                     $input.datepicker(options);
@@ -655,6 +663,45 @@
         }
 
 
+        validateRentalLimits() {
+            const pickupDate = this.container.find('.rv-pickup-date').val();
+            const dropoffDate = this.container.find('.rv-dropoff-date').val();
+
+            if (!pickupDate || !dropoffDate) {
+                return true; // Wait for both dates
+            }
+
+            const days = this.calculateDays(pickupDate, dropoffDate);
+            const minDays = window.mhmRentivaBookingForm?.config?.min_days || 1;
+            const maxDays = window.mhmRentivaBookingForm?.config?.max_days || 30;
+
+            if (days < minDays) {
+                this.showError('Minimum kiralama süresi ' + minDays + ' gündür.');
+                this.submitBtn.prop('disabled', true);
+                return false;
+            }
+
+            if (maxDays > 0 && days > maxDays) {
+                this.showError('Maksimum kiralama süresi ' + maxDays + ' gündür.');
+                this.submitBtn.prop('disabled', true);
+                return false;
+            }
+
+            // If valid, clear error (if it was a limit error) and enable button (if terms checked)
+            this.hideMessages();
+            this.updateButtonState();
+            return true;
+        }
+
+        // Helper to calculate days between dates
+        calculateDays(start, end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const diffTime = Math.abs(endDate - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
         updateDepositInfo(data) {
             const currencySymbol = window.mhmRentivaBookingForm?.currency_symbol;
             const paymentType = this.form.find('input[name="payment_type"]:checked').val();
@@ -790,7 +837,7 @@
                 url: window.mhmRentivaBookingForm?.ajax_url || window.location.origin + '/wp-admin/admin-ajax.php',
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_process_booking',
+                    action: 'mhm_rentiva_booking_form',
                     nonce: window.mhmRentivaBookingForm?.nonce || '',
                     ...formData
                 },

@@ -277,7 +277,9 @@ final class Handler
             $deposit_result = DepositCalculator::calculate_booking_deposit(
                 $booking_data['vehicle_id'],
                 $rental_days,
-                $booking_data['payment_type']
+                $booking_data['payment_type'],
+                $booking_data['selected_addons'] ?? [],
+                $start_ts
             );
 
             if (!$deposit_result['success']) {
@@ -422,7 +424,7 @@ final class Handler
      * 
      * @return string Cancellation policy (e.g., '24_hours', '48_hours', 'no_refund')
      */
-    private static function get_cancellation_policy(): string
+    public static function get_cancellation_policy(): string
     {
         // Get deadline hours from settings (consistent with SettingsCore)
         $deadline_hours = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
@@ -451,7 +453,7 @@ final class Handler
      * 
      * @return string Cancellation deadline in 'Y-m-d H:i:s' format
      */
-    private static function get_cancellation_deadline(): string
+    public static function get_cancellation_deadline(): string
     {
         // Get deadline hours from settings (consistent with SettingsCore)
         $deadline_hours = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
@@ -472,7 +474,7 @@ final class Handler
      * 
      * @return string Payment deadline in 'Y-m-d H:i:s' format (WordPress timezone)
      */
-    private static function get_payment_deadline(): string
+    public static function get_payment_deadline(): string
     {
         // Get payment deadline minutes from settings (default: 30 minutes)
         $deadline_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(

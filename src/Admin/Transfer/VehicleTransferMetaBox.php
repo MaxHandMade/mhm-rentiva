@@ -77,6 +77,38 @@ final class VehicleTransferMetaBox
                         <?php echo esc_html__('Validations: Small Bag = 1, Big Bag = 2.5 points.', 'mhm-rentiva'); ?>
                     </span>
                 </p>
+
+                <!-- Detailed Luggage Limits (New) -->
+                <div style="background: #f9f9f9; padding: 10px; margin-top: 10px; border: 1px solid #ddd;">
+                    <p style="margin-top:0;"><strong><?php echo esc_html__('Detailed Luggage Limits', 'mhm-rentiva'); ?></strong></p>
+
+                    <p>
+                        <label for="mhm_vehicle_max_big_luggage"><?php echo esc_html__('Max Big Luggage', 'mhm-rentiva'); ?></label><br>
+                        <input type="number" name="mhm_vehicle_max_big_luggage" id="mhm_vehicle_max_big_luggage"
+                            value="<?php echo esc_attr(get_post_meta($post->ID, '_mhm_vehicle_max_big_luggage', true)); ?>"
+                            style="width:100%;" min="0">
+                    </p>
+
+                    <p style="margin-bottom:0;">
+                        <label for="mhm_vehicle_max_small_luggage"><?php echo esc_html__('Max Small Luggage', 'mhm-rentiva'); ?></label><br>
+                        <input type="number" name="mhm_vehicle_max_small_luggage" id="mhm_vehicle_max_small_luggage"
+                            value="<?php echo esc_attr(get_post_meta($post->ID, '_mhm_vehicle_max_small_luggage', true)); ?>"
+                            style="width:100%;" min="0">
+                    </p>
+                </div>
+                <!-- End Detailed Luggage -->
+
+                <!-- Price Multiplier (New) -->
+                <p>
+                    <label for="mhm_transfer_price_multiplier"><strong><?php echo esc_html__('Transfer Price Multiplier', 'mhm-rentiva'); ?></strong></label><br>
+                    <input type="number" name="mhm_transfer_price_multiplier" id="mhm_transfer_price_multiplier"
+                        value="<?php echo esc_attr(get_post_meta($post->ID, '_mhm_transfer_price_multiplier', true) ?: '1.0'); ?>"
+                        style="width:100%;" step="0.1" min="0">
+                    <span class="description" style="color:#666; font-size:12px;">
+                        <?php echo esc_html__('Base price multiplier. E.g., 1.5 for Luxury, 1.0 for Standard.', 'mhm-rentiva'); ?>
+                    </span>
+                </p>
+
             </div>
 
             <script>
@@ -132,6 +164,30 @@ final class VehicleTransferMetaBox
         // Save Luggage Score
         if (isset($_POST['mhm_transfer_max_luggage_score'])) {
             update_post_meta($post_id, '_mhm_transfer_max_luggage_score', floatval($_POST['mhm_transfer_max_luggage_score']));
+        }
+
+        // Save Max Big Luggage
+        if (isset($_POST['mhm_vehicle_max_big_luggage'])) {
+            $val = $_POST['mhm_vehicle_max_big_luggage'] === '' ? '' : intval($_POST['mhm_vehicle_max_big_luggage']);
+            update_post_meta($post_id, '_mhm_vehicle_max_big_luggage', $val);
+        }
+
+        // Save Max Small Luggage
+        if (isset($_POST['mhm_vehicle_max_small_luggage'])) {
+            $val = $_POST['mhm_vehicle_max_small_luggage'] === '' ? '' : intval($_POST['mhm_vehicle_max_small_luggage']);
+            update_post_meta($post_id, '_mhm_vehicle_max_small_luggage', $val);
+        }
+
+        // Save Price Multiplier (New)
+        if (isset($_POST['mhm_transfer_price_multiplier'])) {
+            // Allow decimals but ensure it's positive. If empty, default to 1.0 or delete?
+            // Let's store what is entered, business logic handles default.
+            $val = sanitize_text_field($_POST['mhm_transfer_price_multiplier']);
+            if ($val !== '') {
+                update_post_meta($post_id, '_mhm_transfer_price_multiplier', floatval($val));
+            } else {
+                delete_post_meta($post_id, '_mhm_transfer_price_multiplier');
+            }
         }
     }
 }

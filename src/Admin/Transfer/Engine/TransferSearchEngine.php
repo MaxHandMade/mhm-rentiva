@@ -105,6 +105,20 @@ final class TransferSearchEngine
                 continue; // Skip if overlap exists
             }
 
+            // 5b. Specific Luggage Limit Check (New Logic)
+            $vehicle_max_big = get_post_meta($vehicle->ID, '_mhm_vehicle_max_big_luggage', true);
+            $vehicle_max_small = get_post_meta($vehicle->ID, '_mhm_vehicle_max_small_luggage', true);
+
+            // If explicit big luggage limit is set, validate
+            if ($vehicle_max_big !== '' && $luggage_big > (int)$vehicle_max_big) {
+                continue;
+            }
+
+            // If explicit small luggage limit is set, validate
+            if ($vehicle_max_small !== '' && $luggage_small > (int)$vehicle_max_small) {
+                continue;
+            }
+
             // 6. Pricing Calculation
             $price = 0.0;
             if ($route->pricing_method === 'fixed') {
@@ -135,6 +149,8 @@ final class TransferSearchEngine
                 'max_pax' => get_post_meta($vehicle->ID, '_mhm_transfer_max_pax', true),
                 'pax_capacity' => get_post_meta($vehicle->ID, '_mhm_transfer_max_pax', true), // redundancy for frontend
                 'luggage_capacity' => get_post_meta($vehicle->ID, '_mhm_transfer_max_luggage_score', true),
+                'max_big_luggage' => $vehicle_max_big,
+                'max_small_luggage' => $vehicle_max_small,
                 'route_id' => $route->id,
                 'pricing_method' => $route->pricing_method,
                 'duration' => $route->duration_min,

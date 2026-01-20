@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.5.5",
+        "date": "2026-01-19",
+        "type": "current",
+        "changes": [
+            "🚀 FRAMEWORK TRANSFORMATION: Core (Mandatory) and Attribute (Optional) fields separated.",
+            "🔧 DYNAMIC ATTRIBUTES: Standard fields like Fuel Type, Transmission can now be removed from settings.",
+            "✨ CLEAN SLATE: Reset Settings now provides a clean state with no forced defaults.",
+            "🛡️ CALCULATION SAFETY: System defaults to 'Full Payment' mode if Deposit field is removed.",
+            "📚 DOCUMENTATION: Added Framework Architecture guide."
+        ]
+    },
+    {
         "version": "4.6.0",
         "date": "2026-01-16",
         "type": "current",

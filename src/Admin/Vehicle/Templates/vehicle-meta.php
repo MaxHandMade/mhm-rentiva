@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Vehicle Meta Template
  * 
@@ -37,7 +38,7 @@ if (!defined('ABSPATH')) {
                         </select>
                     </div>
                 </div>
-                
+
                 <?php
                 // Auto-sync saved order with available details
                 if ($saved_order && is_array($saved_order)) {
@@ -48,32 +49,32 @@ if (!defined('ABSPATH')) {
                             $synced_order[] = $key;
                         }
                     }
-                    
+
                     // Add missing details
                     foreach ($available_details as $key => $label) {
                         if (!in_array($key, $synced_order)) {
                             $synced_order[] = $key;
                         }
                     }
-                    
+
                     // Save synchronized order
                     if ($synced_order !== $saved_order) {
                         update_post_meta($post->ID, '_mhm_details_order', $synced_order);
                         $saved_order = $synced_order;
                     }
-                    
+
                     // Render according to order
                     foreach ($saved_order as $key) {
                         if (!isset($available_details[$key])) continue;
                         if ($key === 'availability') continue; // Availability status already rendered
-                        
+
                         $label = $available_details[$key];
                         $value = $detail_values[$key] ?? ''; // Use prepared value (no N+1 query)
-                        
+
                         echo '<div class="mhm-detail-item" data-detail-key="' . esc_attr($key) . '">';
                         echo '<div class="mhm-detail-content">';
                         echo '<label class="mhm-detail-label">' . esc_html($label) . '</label>';
-                        
+
                         if ($key === 'price_per_day') {
                             echo '<input type="number" id="mhm_rentiva_' . esc_attr($key) . '" name="mhm_rentiva_' . esc_attr($key) . '" value="' . esc_attr($value) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
                             echo '<span class="mhm-detail-unit">' . esc_html(\MHMRentiva\Admin\Reports\Reports::get_currency_symbol()) . '</span>';
@@ -109,10 +110,27 @@ if (!defined('ABSPATH')) {
                                 echo '<option value="' . esc_attr($fuel_key) . '"' . selected($value, $fuel_key, false) . '>' . esc_html($fuel_label) . '</option>';
                             }
                             echo '</select>';
+                        } elseif (isset($field_meta[$key]) && isset($field_meta[$key]['type'])) {
+                            // Dynamic Custom Field Type
+                            $meta_type = $field_meta[$key]['type'];
+
+                            if ($meta_type === 'select') {
+                                echo '<select id="mhm_rentiva_' . esc_attr($key) . '" name="mhm_rentiva_' . esc_attr($key) . '" class="mhm-detail-select">';
+                                $options_str = $field_meta[$key]['options'] ?? '';
+                                $options = array_map('trim', explode(',', $options_str));
+                                foreach ($options as $opt) {
+                                    echo '<option value="' . esc_attr($opt) . '"' . selected($value, $opt, false) . '>' . esc_html($opt) . '</option>';
+                                }
+                                echo '</select>';
+                            } elseif ($meta_type === 'number') {
+                                echo '<input type="number" id="mhm_rentiva_' . esc_attr($key) . '" name="mhm_rentiva_' . esc_attr($key) . '" value="' . esc_attr($value) . '" class="mhm-detail-input" />';
+                            } else {
+                                echo '<input type="text" id="mhm_rentiva_' . esc_attr($key) . '" name="mhm_rentiva_' . esc_attr($key) . '" value="' . esc_attr($value) . '" placeholder="' . esc_attr($label) . '" class="mhm-detail-input" />';
+                            }
                         } else {
                             echo '<input type="text" id="mhm_rentiva_' . esc_attr($key) . '" name="mhm_rentiva_' . esc_attr($key) . '" value="' . esc_attr($value) . '" placeholder="' . esc_attr($label) . '" class="mhm-detail-input" />';
                         }
-                        
+
                         echo '</div>';
                         echo '</div>';
                     }
@@ -120,13 +138,13 @@ if (!defined('ABSPATH')) {
                     // Fallback: render according to available_details order if saved_order doesn't exist
                     foreach ($available_details as $key => $label) {
                         if ($key === 'availability') continue; // Availability status already rendered
-                        
+
                         $value = $detail_values[$key] ?? ''; // Use prepared value
-                        
+
                         echo '<div class="mhm-detail-item" data-detail-key="' . esc_attr($key) . '">';
                         echo '<div class="mhm-detail-content">';
                         echo '<label class="mhm-detail-label">' . esc_html($label) . '</label>';
-                        
+
                         if ($key === 'price_per_day') {
                             echo '<input type="number" id="mhm_rentiva_' . esc_attr($key) . '" name="mhm_rentiva_' . esc_attr($key) . '" value="' . esc_attr($value) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
                             echo '<span class="mhm-detail-unit">' . esc_html(\MHMRentiva\Admin\Reports\Reports::get_currency_symbol()) . '</span>';
@@ -151,16 +169,33 @@ if (!defined('ABSPATH')) {
                             echo '<option value="hybrid"' . selected($value, 'hybrid', false) . '>' . esc_html__('Hybrid', 'mhm-rentiva') . '</option>';
                             echo '<option value="electric"' . selected($value, 'electric', false) . '>' . esc_html__('Electric', 'mhm-rentiva') . '</option>';
                             echo '</select>';
+                        } elseif (isset($field_meta[$key]) && isset($field_meta[$key]['type'])) {
+                            // Dynamic Custom Field Type (Fallback Loop)
+                            $meta_type = $field_meta[$key]['type'];
+
+                            if ($meta_type === 'select') {
+                                echo '<select id="mhm_rentiva_' . esc_attr($key) . '" name="mhm_rentiva_' . esc_attr($key) . '" class="mhm-detail-select">';
+                                $options_str = $field_meta[$key]['options'] ?? '';
+                                $options = array_map('trim', explode(',', $options_str));
+                                foreach ($options as $opt) {
+                                    echo '<option value="' . esc_attr($opt) . '"' . selected($value, $opt, false) . '>' . esc_html($opt) . '</option>';
+                                }
+                                echo '</select>';
+                            } elseif ($meta_type === 'number') {
+                                echo '<input type="number" id="mhm_rentiva_' . esc_attr($key) . '" name="mhm_rentiva_' . esc_attr($key) . '" value="' . esc_attr($value) . '" class="mhm-detail-input" />';
+                            } else {
+                                echo '<input type="text" id="mhm_rentiva_' . esc_attr($key) . '" name="mhm_rentiva_' . esc_attr($key) . '" value="' . esc_attr($value) . '" placeholder="' . esc_attr($label) . '" class="mhm-detail-input" />';
+                            }
                         } else {
                             echo '<input type="text" id="mhm_rentiva_' . esc_attr($key) . '" name="mhm_rentiva_' . esc_attr($key) . '" value="' . esc_attr($value) . '" placeholder="' . esc_attr($label) . '" class="mhm-detail-input" />';
                         }
-                        
+
                         echo '</div>';
                         echo '</div>';
                     }
                 }
                 ?>
-                
+
             </div>
         </div>
 
@@ -182,27 +217,27 @@ if (!defined('ABSPATH')) {
                             $synced_features_order[] = $key;
                         }
                     }
-                    
+
                     // Add missing features
                     foreach ($available_features as $key => $label) {
                         if (!in_array($key, $synced_features_order)) {
                             $synced_features_order[] = $key;
                         }
                     }
-                    
+
                     // Save synchronized order
                     if ($synced_features_order !== $saved_features_order) {
                         update_post_meta($post->ID, '_mhm_features_order', $synced_features_order);
                         $saved_features_order = $synced_features_order;
                     }
-                    
+
                     // Render according to order
                     foreach ($saved_features_order as $key) {
                         if (!isset($available_features[$key])) continue;
-                        
+
                         $label = $available_features[$key];
                         $checked = in_array($key, $features) ? 'checked' : '';
-                        
+
                         echo '<div class="mhm-feature-item" data-feature-key="' . esc_attr($key) . '">';
                         echo '<label class="mhm-feature-label">';
                         echo '<input type="checkbox" name="mhm_rentiva_features[]" value="' . esc_attr($key) . '" ' . $checked . ' />';
@@ -214,7 +249,7 @@ if (!defined('ABSPATH')) {
                     // Fallback: render according to available_features order if saved_order doesn't exist
                     foreach ($available_features as $key => $label) {
                         $checked = in_array($key, $features) ? 'checked' : '';
-                        
+
                         echo '<div class="mhm-feature-item" data-feature-key="' . esc_attr($key) . '">';
                         echo '<label class="mhm-feature-label">';
                         echo '<input type="checkbox" name="mhm_rentiva_features[]" value="' . esc_attr($key) . '" ' . $checked . ' />';
@@ -245,27 +280,27 @@ if (!defined('ABSPATH')) {
                             $synced_equipment_order[] = $key;
                         }
                     }
-                    
+
                     // Add missing equipment
                     foreach ($available_equipment as $key => $label) {
                         if (!in_array($key, $synced_equipment_order)) {
                             $synced_equipment_order[] = $key;
                         }
                     }
-                    
+
                     // Save synchronized order
                     if ($synced_equipment_order !== $saved_equipment_order) {
                         update_post_meta($post->ID, '_mhm_equipment_order', $synced_equipment_order);
                         $saved_equipment_order = $synced_equipment_order;
                     }
-                    
+
                     // Render according to order
                     foreach ($saved_equipment_order as $key) {
                         if (!isset($available_equipment[$key])) continue;
-                        
+
                         $label = $available_equipment[$key];
                         $checked = in_array($key, $equipment) ? 'checked' : '';
-                        
+
                         echo '<div class="mhm-equipment-item" data-equipment-key="' . esc_attr($key) . '">';
                         echo '<label class="mhm-equipment-label">';
                         echo '<input type="checkbox" name="mhm_rentiva_equipment[]" value="' . esc_attr($key) . '" ' . $checked . ' />';
@@ -277,7 +312,7 @@ if (!defined('ABSPATH')) {
                     // Fallback: render according to available_equipment order if saved_order doesn't exist
                     foreach ($available_equipment as $key => $label) {
                         $checked = in_array($key, $equipment) ? 'checked' : '';
-                        
+
                         echo '<div class="mhm-equipment-item" data-equipment-key="' . esc_attr($key) . '">';
                         echo '<label class="mhm-equipment-label">';
                         echo '<input type="checkbox" name="mhm_rentiva_equipment[]" value="' . esc_attr($key) . '" ' . $checked . ' />';
@@ -289,13 +324,13 @@ if (!defined('ABSPATH')) {
                 ?>
             </div>
         </div>
-        
+
     </div>
 </div>
 
 <!-- Send JavaScript data -->
 <script type="text/javascript">
-window.availableVehicleDetails = <?php echo json_encode($available_details); ?>;
-window.availableVehicleFeatures = <?php echo json_encode($available_features); ?>;
-window.availableVehicleEquipment = <?php echo json_encode($available_equipment); ?>;
+    window.availableVehicleDetails = <?php echo json_encode($available_details); ?>;
+    window.availableVehicleFeatures = <?php echo json_encode($available_features); ?>;
+    window.availableVehicleEquipment = <?php echo json_encode($available_equipment); ?>;
 </script>

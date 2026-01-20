@@ -7,7 +7,346 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-01-13T23:05:46+01:00\n"
+"POT-Creation-Date: 2026-01-17T15:08:58+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: Core\n"
+"X-Domain: mhm-rentiva\n"
+
+#: Frontend/TransferShortcodes.php:79
+msgid "Pickup Location"
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:81
+msgid "Select Pickup"
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:88
+msgid "Dropoff Location"
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:90
+msgid "Select Dropoff"
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:100
+msgid "Date"
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:104
+msgid "Time"
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:111
+msgid "Adults"
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:115
+msgid "Children"
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:119
+msgid "Big Bags"
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:124
+msgid "Small Bags"
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:131
+msgid "Search Transfer"
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:135
+msgid "Searching..."
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:158
+msgid "No vehicles found matching your criteria."
+msgstr ""
+
+#: Frontend/TransferShortcodes.php:179
+msgid "Book Now"
+msgstr ""
+
+#: Integration/TransferCartIntegration.php:75
+msgid "Vehicle not available or price changed. Please search again."
+msgstr ""
+
+#: Integration/TransferCartIntegration.php:109
+msgid "Invalid date time."
+msgstr ""
+
+#: Integration/TransferCartIntegration.php:133
+#, php-format
+msgid "Deposit: %s (%s%%)"
+msgstr ""
+
+#: Integration/TransferCartIntegration.php:134
+msgid "Full Payment"
+msgstr ""
+
+#: Integration/TransferCartIntegration.php:156
+msgid "Transfer added to cart successfully."
+msgstr ""
+
+#: Integration/TransferCartIntegration.php:159
+msgid "Failed to add to cart."
+msgstr ""
+
+#: TransferAdmin.php:41
+#: TransferAdmin.php:42
+#: TransferAdmin.php:216
+msgid "Transfer Locations"
+msgstr ""
+
+#: TransferAdmin.php:50
+#: TransferAdmin.php:51
+#: TransferAdmin.php:330
+msgid "Transfer Routes"
+msgstr ""
+
+#: TransferAdmin.php:59
+#: TransferAdmin.php:60
+#: TransferAdmin.php:128
+msgid "Transfer Settings"
+msgstr ""
+
+#: TransferAdmin.php:75
+msgid "Airport"
+msgstr ""
+
+#: TransferAdmin.php:76
+msgid "Hotel"
+msgstr ""
+
+#: TransferAdmin.php:77
+msgid "Port / Cruise"
+msgstr ""
+
+#: TransferAdmin.php:78
+msgid "Train / Bus Station"
+msgstr ""
+
+#: TransferAdmin.php:79
+msgid "City Center"
+msgstr ""
+
+#: TransferAdmin.php:80
+msgid "Hospital / Clinic"
+msgstr ""
+
+#: TransferAdmin.php:113
+msgid "Settings saved."
+msgstr ""
+
+#: TransferAdmin.php:135
+msgid "Payment Type"
+msgstr ""
+
+#: TransferAdmin.php:138
+msgid "Full Payment Required"
+msgstr ""
+
+#: TransferAdmin.php:139
+msgid "Deposit (Percentage)"
+msgstr ""
+
+#: TransferAdmin.php:141
+msgid "Select how customers should pay for transfers."
+msgstr ""
+
+#: TransferAdmin.php:145
+msgid "Deposit Rate (%)"
+msgstr ""
+
+#: TransferAdmin.php:148
+msgid "Percentage of total price to be paid as deposit."
+msgstr ""
+
+#: TransferAdmin.php:152
+msgid "Custom Location Types"
+msgstr ""
+
+#: TransferAdmin.php:155
+msgid "Enter custom location types, one per line. (e.g. Stadium, Exhibition Center)"
+msgstr ""
+
+#: TransferAdmin.php:224
+msgid "Edit Location"
+msgstr ""
+
+#: TransferAdmin.php:224
+msgid "Add New Location"
+msgstr ""
+
+#: TransferAdmin.php:233
+#: TransferAdmin.php:270
+msgid "Name"
+msgstr ""
+
+#: TransferAdmin.php:238
+#: TransferAdmin.php:271
+msgid "Type"
+msgstr ""
+
+#: TransferAdmin.php:251
+#: TransferAdmin.php:272
+msgid "Priority"
+msgstr ""
+
+#: TransferAdmin.php:255
+msgid "Update Location"
+msgstr ""
+
+#: TransferAdmin.php:255
+msgid "Add Location"
+msgstr ""
+
+#: TransferAdmin.php:257
+#: TransferAdmin.php:400
+msgid "Cancel"
+msgstr ""
+
+#: TransferAdmin.php:273
+#: TransferAdmin.php:416
+msgid "Actions"
+msgstr ""
+
+#: TransferAdmin.php:284
+#: TransferAdmin.php:441
+msgid "Edit"
+msgstr ""
+
+#: TransferAdmin.php:285
+#: TransferAdmin.php:442
+msgid "Are you sure?"
+msgstr ""
+
+#: TransferAdmin.php:285
+#: TransferAdmin.php:442
+msgid "Delete"
+msgstr ""
+
+#: TransferAdmin.php:291
+msgid "No locations found."
+msgstr ""
+
+#: TransferAdmin.php:338
+msgid "Edit Route"
+msgstr ""
+
+#: TransferAdmin.php:338
+msgid "Add New Route"
+msgstr ""
+
+#: TransferAdmin.php:348
+msgid "Origin"
+msgstr ""
+
+#: TransferAdmin.php:350
+msgid "Select Origin"
+msgstr ""
+
+#: TransferAdmin.php:359
+msgid "Destination"
+msgstr ""
+
+#: TransferAdmin.php:361
+msgid "Select Destination"
+msgstr ""
+
+#: TransferAdmin.php:370
+msgid "Distance (KM)"
+msgstr ""
+
+#: TransferAdmin.php:374
+msgid "Duration (Minutes)"
+msgstr ""
+
+#: TransferAdmin.php:380
+msgid "Pricing Method"
+msgstr ""
+
+#: TransferAdmin.php:382
+msgid "Fixed Price"
+msgstr ""
+
+#: TransferAdmin.php:383
+msgid "Distance Based (KM)"
+msgstr ""
+
+#: TransferAdmin.php:389
+msgid "Price"
+msgstr ""
+
+#: TransferAdmin.php:394
+msgid "Minimum Price"
+msgstr ""
+
+#: TransferAdmin.php:398
+msgid "Update Route"
+msgstr ""
+
+#: TransferAdmin.php:398
+msgid "Add Route"
+msgstr ""
+
+#: TransferAdmin.php:413
+msgid "Route"
+msgstr ""
+
+#: TransferAdmin.php:414
+msgid "Distance/Time"
+msgstr ""
+
+#: TransferAdmin.php:415
+msgid "Pricing"
+msgstr ""
+
+#: TransferAdmin.php:448
+msgid "No routes found."
+msgstr ""
+
+#: TransferAdmin.php:461
+msgid "Price per KM"
+msgstr ""
+
+#: TransferAdmin.php:464
+msgid "Total Price"
+msgstr ""
+
+#: VehicleTransferMetaBox.php:29
+msgid "Transfer Settings (VIP Module)"
+msgstr ""
+
+#: VehicleTransferMetaBox.php:54
+msgid "Service Type"
+msgstr ""
+
+#: VehicleTransferMetaBox.php:56
+msgid "Rental Only"
+msgstr ""
+
+#: VehicleTransferMetaBox.php:57
+msgid "Transfer Only"
+msgstr ""
+
+#: VehicleTransferMetaBox.php:58
+msgid "Both (Rental & Transfer)"
+msgstr ""
+
+#: VehicleTransferMetaBox.php:67
+msgid "Max Passengers"
+msgstr ""
+
+#: VehicleTransferMetaBox.php:69
+msgid "Net capacity excluding driver."
+msgstr ""
+
+#: VehicleTransferMetaBox.php:73
+msgid "Luggage Score Capacity"
+msgstr ""
+
+#: VehicleTransferMetaBox.php:77
+msgid "Validations: Small Bag = 1, Big Bag = 2.5 points."
+msgstr ""

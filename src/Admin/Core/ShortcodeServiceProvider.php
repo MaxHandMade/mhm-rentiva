@@ -42,7 +42,7 @@ final class ShortcodeServiceProvider
                 'rentiva_booking_form' => [
                     'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\BookingForm',
                     'priority' => 10,
-                    'dependencies' => ['deposit'], // Payment dependency kaldırıldı
+                    'dependencies' => ['deposit'], // Payment dependency
                     'requires_auth' => false,
                 ],
                 // rentiva_quick_booking kaldırıldı - rentiva_booking_form kullanın

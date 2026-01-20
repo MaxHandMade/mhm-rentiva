@@ -16,13 +16,15 @@ final class MaintenanceSettings
     /**
      * Get default settings for maintenance
      *
+     * NOTE: Auto-cancel settings are now exclusively in BookingSettings:
+     * - mhm_rentiva_booking_auto_cancel_enabled
+     * - mhm_rentiva_booking_payment_deadline_minutes
+     *
      * @return array
      */
     public static function get_default_settings(): array
     {
         return [
-            'mhm_rentiva_auto_cancel_enabled'     => '1',
-            'mhm_rentiva_auto_cancel_minutes'     => 30,
             'mhm_rentiva_clean_data_on_uninstall' => '0',
         ];
     }
@@ -38,55 +40,43 @@ final class MaintenanceSettings
             $group
         );
 
-        // Automatic Cancellation Settings
-        SettingsHelper::checkbox_field($group, 'mhm_rentiva_auto_cancel_enabled', __('Automatic Cancellation', 'mhm-rentiva'), __('Automatically cancel unapproved reservations', 'mhm-rentiva'), 'mhm_rentiva_maintenance_section');
-        SettingsHelper::number_field($group, 'mhm_rentiva_auto_cancel_minutes', __('Cancellation Time (minutes)', 'mhm-rentiva'), 5, 1440, __('Reservation will be cancelled after this time if not approved.', 'mhm-rentiva'), 'mhm_rentiva_maintenance_section');
+        add_settings_field(
+            'mhm_rentiva_clean_data_on_uninstall',
+            __('Clean Data on Uninstall', 'mhm-rentiva'),
+            [self::class, 'render_uninstall_cleanup_field'],
+            $group,
+            'mhm_rentiva_maintenance_section'
+        );
 
-        // Register all settings with proper sanitization
-        $settings = [
-            'mhm_rentiva_auto_cancel_enabled',
-            'mhm_rentiva_auto_cancel_minutes'
-        ];
+        // NOTE: Auto-cancel settings removed - now handled by BookingSettings
+        // See: Rezervasyon Yönetimi > Zaman Yönetimi Ayarları
+    }
 
-        foreach ($settings as $setting) {
-            $sanitize_callback = 'sanitize_text_field';
-            if ($setting === 'mhm_rentiva_auto_cancel_minutes') {
-                $sanitize_callback = 'absint';
-            }
-            register_setting($group, $setting, ['sanitize_callback' => $sanitize_callback]);
-        }
+    /**
+     * Clear Data on Uninstall Field
+     */
+    public static function render_uninstall_cleanup_field(): void
+    {
+        $enabled = SettingsCore::get('mhm_rentiva_clean_data_on_uninstall', '0');
+        echo '<label>';
+        echo '<input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_clean_data_on_uninstall]" value="1"' . checked($enabled, '1', false) . '> ';
+        echo esc_html__('Clean all plugin data and database tables when the plugin is deleted from WordPress.', 'mhm-rentiva');
+        echo '</label>';
+        echo '<p class="description" style="color: #d63638; font-weight: bold;">';
+        echo '<strong>' . esc_html__('Caution:', 'mhm-rentiva') . '</strong> ';
+        echo esc_html__('If enabled, when you delete the plugin from WordPress (Plugins > Installed Plugins > Delete), all database tables and settings will be permanently deleted. This cannot be undone.', 'mhm-rentiva');
+        echo '</p>';
     }
 
     public static function render_section_description(): void
     {
         echo '<p class="description">' . esc_html__('Settings for system maintenance and automatic tasks.', 'mhm-rentiva') . '</p>';
-    }
-
-    /**
-     * Check if automatic cancellation is enabled
-     */
-    public static function is_auto_cancel_enabled(): bool
-    {
-        return get_option('mhm_rentiva_auto_cancel_enabled', '0') === '1';
-    }
-
-    /**
-     * Get auto cancellation time in minutes
-     */
-    public static function get_auto_cancel_minutes(): int
-    {
-        $minutes = absint(get_option('mhm_rentiva_auto_cancel_minutes', 30));
-        return max(5, min(1440, $minutes)); // Ensure between 5 and 1440 minutes
-    }
-
-    /**
-     * Get all maintenance settings as array
-     */
-    public static function get_all_settings(): array
-    {
-        return [
-            'auto_cancel_enabled' => self::is_auto_cancel_enabled(),
-            'auto_cancel_minutes' => self::get_auto_cancel_minutes()
-        ];
+        echo '<p class="description" style="color: #666; font-style: italic;">' .
+            sprintf(
+                /* translators: %s: Settings tab name */
+                esc_html__('Auto-cancel settings have been moved to %s tab.', 'mhm-rentiva'),
+                '<strong>' . esc_html__('Booking Management', 'mhm-rentiva') . '</strong>'
+            ) .
+            '</p>';
     }
 }

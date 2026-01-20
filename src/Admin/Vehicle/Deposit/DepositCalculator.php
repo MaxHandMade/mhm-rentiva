@@ -63,7 +63,7 @@ class DepositCalculator
     public static function get_deposit_type(string $deposit_value): string
     {
         $deposit_value = trim($deposit_value);
-        
+
         if (empty($deposit_value)) {
             return 'none';
         }
@@ -129,7 +129,7 @@ class DepositCalculator
     public static function format_deposit_display(string $deposit_value): string
     {
         $type = self::get_deposit_type($deposit_value);
-        
+
         if ($type === 'percentage') {
             $percentage = self::extract_percentage($deposit_value);
             return '%' . $percentage;
@@ -137,7 +137,7 @@ class DepositCalculator
             $amount = self::extract_fixed_amount($deposit_value);
             return number_format($amount, 0, ',', '.') . ' ' . \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
         }
-        
+
         return '';
     }
 
@@ -150,7 +150,7 @@ class DepositCalculator
     public static function get_deposit_description(string $deposit_value): string
     {
         $type = self::get_deposit_type($deposit_value);
-        
+
         if ($type === 'percentage') {
             $percentage = self::extract_percentage($deposit_value);
             /* translators: %.1f placeholder. */
@@ -160,7 +160,7 @@ class DepositCalculator
             /* translators: 1: %s; 2: %s. */
             return sprintf(__('Fixed %1$s %2$s', 'mhm-rentiva'), number_format($amount, 0, ',', '.'), \MHMRentiva\Admin\Reports\Reports::get_currency_symbol());
         }
-        
+
         return __('No deposit', 'mhm-rentiva');
     }
 
@@ -175,7 +175,7 @@ class DepositCalculator
     {
         $daily_price = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true));
         $deposit_value = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
-        
+
         return self::calculate_deposit($deposit_value, $daily_price, $rental_days);
     }
 
@@ -200,13 +200,14 @@ class DepositCalculator
      * @param int $rental_days Rental days
      * @param string $payment_type Payment type (deposit/full)
      * @param array $addons Addon service IDs
+     * @param int $start_ts Start timestamp for weekend multiplier
      * @return array Calculation results
      */
-    public static function calculate_booking_deposit(int $vehicle_id, int $rental_days = 1, string $payment_type = 'deposit', array $addons = []): array
+    public static function calculate_booking_deposit(int $vehicle_id, int $rental_days = 1, string $payment_type = 'deposit', array $addons = [], int $start_ts = 0): array
     {
         $daily_price = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true));
         $deposit_value = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
-        
+
         if ($daily_price <= 0) {
             return [
                 'success' => false,
@@ -217,7 +218,8 @@ class DepositCalculator
             ];
         }
 
-        $vehicle_total = $daily_price * $rental_days;
+        // ⭐ Fix: Use Util::total_price for correct calculation (weekend multipliers etc.)
+        $vehicle_total = \MHMRentiva\Admin\Booking\Helpers\Util::total_price($vehicle_id, $rental_days, $start_ts);
 
         $addon_total = 0;
         foreach ($addons as $addon_id) {
@@ -243,16 +245,16 @@ class DepositCalculator
 
         $deposit_type = self::get_deposit_type($deposit_value);
         $deposit_amount = 0;
-        
+
         if ($deposit_type === 'percentage') {
             $percentage = self::extract_percentage($deposit_value);
             $deposit_amount = ($total_amount * $percentage) / 100;
         } elseif ($deposit_type === 'fixed') {
             $deposit_amount = self::extract_fixed_amount($deposit_value);
         }
-        
+
         $remaining_amount = max(0, $total_amount - $deposit_amount);
-        
+
         return [
             'success' => true,
             'payment_type' => 'deposit',
@@ -260,9 +262,9 @@ class DepositCalculator
             'total_amount' => round($total_amount, 2), // Total amount (vehicle + addons)
             'remaining_amount' => round($remaining_amount, 2), // Total amount minus deposit
             'deposit_type' => $deposit_type,
-            'payment_display' => $deposit_amount > 0 ? 
+            'payment_display' => $deposit_amount > 0 ?
                 /* translators: 1: %s; 2: %s. */
-                sprintf(__('Deposit: %1$s %2$s', 'mhm-rentiva'), number_format($deposit_amount, 2, ',', '.'), \MHMRentiva\Admin\Reports\Reports::get_currency_symbol()) : 
+                sprintf(__('Deposit: %1$s %2$s', 'mhm-rentiva'), number_format($deposit_amount, 2, ',', '.'), \MHMRentiva\Admin\Reports\Reports::get_currency_symbol()) :
                 __('No Deposit', 'mhm-rentiva'),
             'vehicle_total' => round($vehicle_total, 2),
             'addon_total' => round($addon_total, 2)
@@ -362,5 +364,4 @@ class DepositCalculator
             'is_deposit_paid' => $deposit_amount > 0 && $payment_type === 'deposit'
         ];
     }
-
 }

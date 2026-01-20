@@ -27,7 +27,7 @@ class DepositAjax
     {
         add_action('wp_ajax_mhm_calculate_deposit', [self::class, 'ajax_calculate_deposit']);
         add_action('wp_ajax_nopriv_mhm_calculate_deposit', [self::class, 'ajax_calculate_deposit']);
-        
+
         add_action('wp_ajax_mhm_rentiva_calculate_deposit', [self::class, 'ajax_calculate_booking_deposit']);
         add_action('wp_ajax_nopriv_mhm_rentiva_calculate_deposit', [self::class, 'ajax_calculate_booking_deposit']);
     }
@@ -54,7 +54,7 @@ class DepositAjax
         }
 
         $result = DepositCalculator::calculate_deposit($deposit_value, $daily_price, $rental_days);
-        
+
         $result['deposit_display'] = DepositCalculator::format_deposit_display($deposit_value);
         $result['deposit_description'] = DepositCalculator::get_deposit_description($deposit_value);
         $result['daily_price'] = $daily_price;
@@ -84,7 +84,7 @@ class DepositAjax
         }
 
         $result = DepositCalculator::calculate_vehicle_deposit($vehicle_id, $rental_days);
-        
+
         $vehicle = get_post($vehicle_id);
         if ($vehicle) {
             $result['vehicle_name'] = $vehicle->post_title;
@@ -114,6 +114,12 @@ class DepositAjax
 
         if ($rental_days <= 0) {
             wp_send_json_error(__('Invalid rental days', 'mhm-rentiva'));
+        }
+
+        // ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
+        $deposit_meta = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
+        if (empty($deposit_meta)) {
+            $payment_type = 'full';
         }
 
         if (!DepositCalculator::validate_payment_type($payment_type)) {

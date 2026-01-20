@@ -19,7 +19,7 @@ final class VehicleComparison extends AbstractShortcode
     public static function register(): void
     {
         parent::register();
-        
+
         add_action('wp_ajax_mhm_rentiva_add_vehicle_to_comparison', [self::class, 'ajax_add_vehicle']);
         add_action('wp_ajax_nopriv_mhm_rentiva_add_vehicle_to_comparison', [self::class, 'ajax_add_vehicle']);
         add_action('wp_ajax_mhm_rentiva_remove_vehicle_from_comparison', [self::class, 'ajax_remove_vehicle']);
@@ -65,10 +65,10 @@ final class VehicleComparison extends AbstractShortcode
     {
         // Call parent method (enqueue_styles and enqueue_scripts from AbstractShortcode)
         parent::enqueue_assets();
-        
+
         // Localize script
         static::localize_script(static::get_asset_handle());
-        
+
         // Add inline script for configuration (WordPress way)
         add_action('wp_footer', [self::class, 'add_configuration_script']);
     }
@@ -107,7 +107,7 @@ final class VehicleComparison extends AbstractShortcode
     {
         // Manually enqueue assets
         static::enqueue_assets_once();
-        
+
         $defaults = [
             'vehicle_ids'       => '',         // Vehicle IDs (comma-separated)
             'show_features'     => 'all',      // Features to show: all, basic, detailed
@@ -120,32 +120,32 @@ final class VehicleComparison extends AbstractShortcode
             'layout'            => 'table',    // table, cards
             'class'             => '',         // Custom CSS class
         ];
-        
+
         $atts = shortcode_atts($defaults, $atts, self::SHORTCODE);
-        
+
         // Prepare template data
         $data = self::prepare_template_data($atts);
-        
+
         // Render template
         return Templates::render('shortcodes/vehicle-comparison', $data, true);
     }
 
     protected static function prepare_template_data(array $atts): array
     {
-        
+
         $vehicle_ids = self::parse_vehicle_ids($atts['vehicle_ids']);
         $max_vehicles = intval($atts['max_vehicles']);
-        
+
         // Check maximum number of vehicles
         if (count($vehicle_ids) > $max_vehicles) {
             $vehicle_ids = array_slice($vehicle_ids, 0, $max_vehicles);
         }
-        
+
         $vehicles = self::get_vehicles_data($vehicle_ids);
         $features = self::get_comparison_features($atts['show_features'], $vehicles);
         $all_vehicles = self::get_all_available_vehicles();
-        
-        
+
+
         return [
             'atts' => $atts,
             'vehicles' => $vehicles,
@@ -163,9 +163,9 @@ final class VehicleComparison extends AbstractShortcode
         if (empty($vehicle_ids)) {
             return [];
         }
-        
+
         $ids = array_map('intval', explode(',', $vehicle_ids));
-        return array_filter($ids, function($id) {
+        return array_filter($ids, function ($id) {
             return $id > 0;
         });
     }
@@ -175,7 +175,7 @@ final class VehicleComparison extends AbstractShortcode
         if (empty($vehicle_ids)) {
             return [];
         }
-        
+
         $vehicles = [];
         foreach ($vehicle_ids as $vehicle_id) {
             $vehicle_data = self::get_vehicle_data($vehicle_id);
@@ -183,7 +183,7 @@ final class VehicleComparison extends AbstractShortcode
                 $vehicles[] = $vehicle_data;
             }
         }
-        
+
         return $vehicles;
     }
 
@@ -196,27 +196,27 @@ final class VehicleComparison extends AbstractShortcode
 
         $price_per_day = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true) ?: 0);
         $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
-        
+
         // Vehicle image
         $image_id = get_post_thumbnail_id($vehicle_id);
         $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'medium') : '';
-        
+
         // Vehicle features - Use correct meta fields
         $color_value = get_post_meta($vehicle_id, '_mhm_rentiva_custom_1759176716159', true) ?: '-';
         $features_data = get_post_meta($vehicle_id, '_mhm_rentiva_features', true);
         $features_list = [];
-        
+
         // Process serialized features
         if (is_string($features_data) && self::is_serialized($features_data)) {
             $features_list = unserialize($features_data) ?: [];
         } elseif (is_array($features_data)) {
             $features_list = $features_data;
         }
-        
+
         // Create dynamic feature list
         $dynamic_features = self::get_dynamic_features([$vehicle_id]);
         $selected_fields = $dynamic_features['all'] ?? [];
-        
+
         $features = [
             'price_per_day' => $price_per_day,
             'currency_symbol' => $currency_symbol,
@@ -238,8 +238,54 @@ final class VehicleComparison extends AbstractShortcode
                 continue;
             }
 
+            // Fix for Deposit Display (Show calculated amount instead of % value)
+            if ($field_key === 'deposit') {
+                $raw_deposit = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
+                $deposit_val = trim((string) $raw_deposit);
+
+                if ($deposit_val !== '' && class_exists('\MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator')) {
+                    $calc = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_deposit($deposit_val, $price_per_day, 1);
+
+                    if ($calc['deposit_amount'] > 0) {
+                        // Format price
+                        $formatted_price = number_format($calc['deposit_amount'], 0, ',', '.');
+                        $position = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
+
+                        switch ($position) {
+                            case 'left':
+                                $val = $currency_symbol . $formatted_price;
+                                break;
+                            case 'left_space':
+                                $val = $currency_symbol . ' ' . $formatted_price;
+                                break;
+                            case 'right':
+                                $val = $formatted_price . $currency_symbol;
+                                break;
+                            default:
+                                $val = $formatted_price . ' ' . $currency_symbol;
+                                break;
+                        }
+                        $features[$field_key] = $val;
+                    } else {
+                        $features[$field_key] = '-';
+                    }
+                    continue;
+                }
+            }
+
             $meta_value = self::resolve_feature_value($vehicle_id, $field_key);
-            $features[$field_key] = self::format_feature_value($meta_value);
+
+            // Try to use VehicleFeatureHelper for better formatting (Label mapping)
+            $formatted_helper = null;
+            if (class_exists('\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper')) {
+                $formatted_helper = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::format_detail_value($field_key, $meta_value);
+            }
+
+            if ($formatted_helper && isset($formatted_helper['text'])) {
+                $features[$field_key] = $formatted_helper['text'];
+            } else {
+                $features[$field_key] = self::format_feature_value($meta_value);
+            }
         }
 
 
@@ -260,7 +306,7 @@ final class VehicleComparison extends AbstractShortcode
     private static function check_vehicle_availability(int $vehicle_id): array
     {
         $status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
-        
+
         // Fallback for older data or if status is not set
         if (empty($status)) {
             $old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
@@ -275,9 +321,9 @@ final class VehicleComparison extends AbstractShortcode
                 $status = 'active'; // Default
             }
         }
-        
+
         $is_available = ($status === 'active');
-        
+
         return [
             'is_available' => $is_available,
             'status' => $status,
@@ -396,17 +442,13 @@ final class VehicleComparison extends AbstractShortcode
                 if (is_array($item)) {
 
                     $flattened[] = implode(', ', array_filter(array_map('strval', $item)));
-
                 } elseif (is_bool($item)) {
 
                     $flattened[] = $item ? __('Yes', 'mhm-rentiva') : __('No', 'mhm-rentiva');
-
                 } elseif ($item !== '' && $item !== null) {
 
                     $flattened[] = (string) $item;
-
                 }
-
             }
 
 
@@ -414,13 +456,11 @@ final class VehicleComparison extends AbstractShortcode
             $flattened = array_filter($flattened, static function ($entry) {
 
                 return $entry !== '';
-
             });
 
 
 
             return !empty($flattened) ? implode(', ', $flattened) : '-';
-
         }
 
 
@@ -428,7 +468,6 @@ final class VehicleComparison extends AbstractShortcode
         if (is_bool($value)) {
 
             return $value ? __('Yes', 'mhm-rentiva') : __('No', 'mhm-rentiva');
-
         }
 
 
@@ -436,7 +475,6 @@ final class VehicleComparison extends AbstractShortcode
         if ($value === 0 || $value === '0') {
 
             return '0';
-
         }
 
 
@@ -444,13 +482,11 @@ final class VehicleComparison extends AbstractShortcode
         if ($value === null || $value === '' || $value === []) {
 
             return '-';
-
         }
 
 
 
         return is_scalar($value) ? (string) $value : '-';
-
     }
 
 
@@ -488,7 +524,7 @@ final class VehicleComparison extends AbstractShortcode
         }
 
         $vehicles = self::get_all_available_vehicles();
-        
+
         wp_send_json_success($vehicles);
     }
 
@@ -532,8 +568,7 @@ final class VehicleComparison extends AbstractShortcode
                 'vehicle' => $vehicle_data,
                 'message' => __('Vehicle added to comparison.', 'mhm-rentiva')
             ]);
-
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             wp_send_json_error(['message' => __('An error occurred while adding vehicle.', 'mhm-rentiva')]);
         }
     }
@@ -560,8 +595,7 @@ final class VehicleComparison extends AbstractShortcode
                 'vehicle_id' => $vehicle_id,
                 'message' => __('Vehicle removed from comparison.', 'mhm-rentiva')
             ]);
-
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             wp_send_json_error(['message' => __('An error occurred while removing vehicle.', 'mhm-rentiva')]);
         }
     }
@@ -573,53 +607,68 @@ final class VehicleComparison extends AbstractShortcode
     {
         // Get selected fields from settings
         $settings = get_option('mhm_rentiva_settings', []);
-        $selected_fields = $settings['comparison_fields'] ?? [];
-        
-        // If no selection is made in the settings, return empty
-        if (empty($selected_fields)) {
+        $selected_fields_map = $settings['comparison_fields'] ?? [];
+
+        // If no selection is made in the settings, return default empty structure
+        if (empty($selected_fields_map)) {
             return [
                 'all' => []
             ];
         }
-        
-        // Use selected fields (single category structure)
+
+        // Flatten all selected fields from all categories (details, features, equipment, etc.)
+        $all_selected_keys = [];
+        foreach ($selected_fields_map as $category => $fields) {
+            if (is_array($fields)) {
+                $all_selected_keys = array_merge($all_selected_keys, $fields);
+            }
+        }
+        $all_selected_keys = array_unique($all_selected_keys);
+
+        // Define preferred sort order for common fields
+        $field_order = [
+            'price_per_day',
+            'brand',
+            'model',
+            'availability',
+            'available',
+            'fuel_type',
+            'transmission',
+            'seats',
+            'doors',
+            'engine_size',
+            'year',
+            'color',
+            'deposit',
+            'mileage',
+            'license_plate',
+            'rating_average',
+            'rating_count',
+            'gallery_images',
+            'features'
+        ];
+
         $features = [
             'all' => []
         ];
-        
-        // Process selected fields with custom ordering
-        if (isset($selected_fields['all']) && is_array($selected_fields['all'])) {
-            // Define custom field order - price_per_day should come before brand
-            $field_order = [
-                'price_per_day', 'brand', 'model', 'availability', 'available',
-                'fuel_type', 'transmission', 'seats', 'doors', 'engine_size',
-                'year', 'color', 'deposit', 'mileage', 'license_plate',
-                'rating_average', 'rating_count', 'gallery_images', 'features'
-            ];
-            
-            // First add fields in custom order if they exist in selected fields
-            foreach ($field_order as $field_key) {
-                if (in_array($field_key, $selected_fields['all'])) {
-                    $field_label = self::get_feature_label($field_key);
-                    $features['all'][$field_key] = $field_label;
-                }
-            }
-            
-            // Then add any remaining fields not in the custom order
-            foreach ($selected_fields['all'] as $index => $field_key) {
-                if (!isset($features['all'][$field_key])) {
-                    $key = is_numeric($index) ? $field_key : $index;
-                    $label = is_numeric($index) ? $field_key : $field_key;
-                    $field_label = self::get_feature_label($label);
-                    $features['all'][$key] = $field_label;
-                }
+
+        // 1. Add fields that are in our preferred sort order
+        foreach ($field_order as $field_key) {
+            if (in_array($field_key, $all_selected_keys, true)) {
+                $features['all'][$field_key] = self::get_feature_label($field_key);
             }
         }
 
-        
+        // 2. Add remaining fields (custom fields, taxonomies, etc.)
+        foreach ($all_selected_keys as $field_key) {
+            if (!isset($features['all'][$field_key])) {
+                $features['all'][$field_key] = self::get_feature_label($field_key);
+            }
+        }
+
         return $features;
     }
-    
+
     /**
      * Default features
      */
@@ -630,15 +679,25 @@ final class VehicleComparison extends AbstractShortcode
             'all' => []
         ];
     }
-    
+
     /**
      * Get feature label
      */
     private static function get_feature_label(string $feature_key): string
     {
-        // Normalize the key: convert to lowercase and replace spaces with underscores
+        // 1. Try to get label from centralized VehicleFeatureHelper (Dynamic/Custom Fields)
+        if (class_exists('\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper')) {
+            $available_map = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_available_fields_map();
+            foreach ($available_map as $type => $group_fields) {
+                if (isset($group_fields[$feature_key]['label'])) {
+                    return $group_fields[$feature_key]['label'];
+                }
+            }
+        }
+
+        // 2. Fallback: Normalize the key and use hardcoded map
         $normalized_key = strtolower(str_replace(' ', '_', trim($feature_key)));
-        
+
         $labels = [
             'availability' => __('Availability', 'mhm-rentiva'),
             'available' => __('Available', 'mhm-rentiva'),
@@ -682,7 +741,7 @@ final class VehicleComparison extends AbstractShortcode
             'roof_rack' => __('Roof Rack', 'mhm-rentiva'),
             'navigation' => __('Navigation', 'mhm-rentiva'),
         ];
-        
+
         return $labels[$normalized_key] ?? ucfirst(str_replace('_', ' ', $normalized_key));
     }
 
@@ -698,7 +757,7 @@ final class VehicleComparison extends AbstractShortcode
 
         $features = [];
         $all_vehicles = self::get_all_available_vehicles();
-        
+
         echo '<script type="text/javascript">';
         echo 'window.mhmRentivaVehicleComparison = {';
         echo 'ajax_url: "' . esc_url(admin_url('admin-ajax.php')) . '",';
@@ -731,8 +790,7 @@ final class VehicleComparison extends AbstractShortcode
         if (!$post) {
             return false;
         }
-        
+
         return has_shortcode($post->post_content, self::SHORTCODE);
     }
-
 }

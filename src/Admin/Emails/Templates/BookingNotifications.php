@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Emails\Templates;
 
 use MHMRentiva\Admin\Emails\Core\EmailFormRenderer;
+use MHMRentiva\Admin\Settings\Groups\EmailSettings;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -43,11 +46,15 @@ final class BookingNotifications
                 'type' => 'textarea',
                 'name' => 'mhm_rentiva_booking_created_body',
                 'label' => __('Content (HTML)', 'mhm-rentiva'),
-                'value' => EmailFormRenderer::get_option('mhm_rentiva_booking_created_body', __('<p>Dear {contact_name},</p><p>Booking #{booking_id} has been successfully created.</p><p><strong>Booking Details:</strong><br>Vehicle: {vehicle_title}<br>Pickup Date: {pickup_date}<br>Return Date: {dropoff_date}<br>Total Amount: {total_price} TL</p><p>You will be notified when your booking is confirmed.</p><p>{site_name}</p>', 'mhm-rentiva')),
+                'value' => (function () {
+                    $val = EmailFormRenderer::get_option('mhm_rentiva_booking_created_body', '');
+                    $val = is_string($val) ? trim($val) : '';
+                    return ($val !== '') ? $val : EmailSettings::get_default_customer_confirmation_body();
+                })(),
                 'rows' => 8,
             ],
         ];
-        
+
         EmailFormRenderer::render_form(
             __('New Booking Email', 'mhm-rentiva'),
             __('Email to be sent when a new booking is created.', 'mhm-rentiva'),
@@ -72,11 +79,19 @@ final class BookingNotifications
                 'type' => 'textarea',
                 'name' => 'mhm_rentiva_booking_status_body',
                 'label' => __('Content (HTML)', 'mhm-rentiva'),
-                'value' => EmailFormRenderer::get_option('mhm_rentiva_booking_status_body', __('<p>Dear {contact_name},</p><p>Booking #{booking_id} status has been updated.</p><p><strong>New Status:</strong> {status}<br><strong>Vehicle:</strong> {vehicle_title}<br><strong>Pickup Date:</strong> {pickup_date}<br><strong>Return Date:</strong> {dropoff_date}</p><p>If you have any questions about your booking, please contact us.</p><p>{site_name}</p>', 'mhm-rentiva')),
+                'value' => (function () {
+                    $val = \MHMRentiva\Admin\Emails\Core\EmailFormRenderer::get_option('mhm_rentiva_booking_status_body', '');
+                    $val = is_string($val) ? trim($val) : '';
+                    // If empty or simple legacy text (no table), force Gold Standard
+                    if ($val === '' || strpos($val, '<table') === false) {
+                        return \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_default_booking_status_body();
+                    }
+                    return $val;
+                })(),
                 'rows' => 8,
             ],
         ];
-        
+
         EmailFormRenderer::render_form(
             __('Booking Status Change Email', 'mhm-rentiva'),
             __('Email to be sent when booking status changes.', 'mhm-rentiva'),
@@ -102,24 +117,103 @@ final class BookingNotifications
                 'type' => 'text',
                 'name' => 'mhm_rentiva_booking_admin_subject',
                 'label' => __('Subject', 'mhm-rentiva'),
-                'value' => EmailFormRenderer::get_option('mhm_rentiva_booking_admin_subject', __('New Booking Request #{booking_id}', 'mhm-rentiva')),
+                'value' => (function () {
+                    $val = EmailFormRenderer::get_option('mhm_rentiva_booking_admin_subject', '');
+                    return !empty($val) ? $val : __('New Booking Request #{booking_id}', 'mhm-rentiva');
+                })(),
             ],
             [
                 'type' => 'textarea',
                 'name' => 'mhm_rentiva_booking_admin_body',
                 'label' => __('Content (HTML)', 'mhm-rentiva'),
-                'value' => EmailFormRenderer::get_option('mhm_rentiva_booking_admin_body', __('<p>New Booking Request</p><p>A new request has been received for booking #{booking_id}.</p><p><strong>Booking Details:</strong><br>Vehicle: {vehicle_title}<br>Customer: {contact_name}<br>Email: {contact_email}<br>Phone: {contact_phone}<br>Pickup Date: {pickup_date}<br>Return Date: {dropoff_date}<br>Total Amount: {total_price} TL</p><p>Log in to the admin panel to manage the booking.</p>', 'mhm-rentiva')),
+                'value' => (function () {
+                    $val = EmailFormRenderer::get_option('mhm_rentiva_booking_admin_body', '');
+                    $val = is_string($val) ? trim($val) : '';
+                    return ($val !== '') ? $val : EmailSettings::get_default_admin_notification_body();
+                })(),
                 'rows' => 8,
             ],
         ];
-        
+
         EmailFormRenderer::render_form(
             __('Admin Notification Email', 'mhm-rentiva'),
             __('Notification to be sent to admin when new booking is created.', 'mhm-rentiva'),
             $booking_admin_fields
         );
 
-        // Reminder Email (Customer)
+        // Auto Cancel Email
+        $auto_cancel_fields = [
+            [
+                'type' => 'text',
+                'name' => 'mhm_rentiva_auto_cancel_email_subject',
+                'label' => __('Subject', 'mhm-rentiva'),
+                'value' => (function () {
+                    $val = EmailFormRenderer::get_option('mhm_rentiva_auto_cancel_email_subject', '');
+                    return !empty($val) ? $val : __('Booking Cancelled: #{order_id}', 'mhm-rentiva');
+                })(),
+            ],
+            [
+                'type' => 'textarea',
+                'name' => 'mhm_rentiva_auto_cancel_email_content',
+                'label' => __('Content (HTML)', 'mhm-rentiva'),
+                'value' => (function () {
+                    $val = \MHMRentiva\Admin\Emails\Core\EmailFormRenderer::get_option('mhm_rentiva_auto_cancel_email_content', '');
+                    $val = is_string($val) ? trim($val) : '';
+                    // If empty or simple legacy text (no table), force Gold Standard
+                    if ($val === '' || strpos($val, '<table') === false) {
+                        return \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_default_auto_cancel_body();
+                    }
+                    return $val;
+                })(),
+                'rows' => 8,
+            ],
+        ];
+
+        EmailFormRenderer::render_form(
+            __('Auto Cancel Email', 'mhm-rentiva'),
+            __('Email sent when a booking is automatically cancelled due to payment timeout.', 'mhm-rentiva'),
+            $auto_cancel_fields
+        );
+
+        // Booking Cancelled Email (Manual)
+        $cancelled_fields = [
+            [
+                'type' => 'checkbox',
+                'name' => 'mhm_rentiva_booking_cancelled_enabled',
+                'label' => __('Enabled', 'mhm-rentiva'),
+                'value' => \MHMRentiva\Admin\Emails\Core\EmailFormRenderer::get_option('mhm_rentiva_booking_cancelled_enabled', '1') === '1',
+                'description' => __('Send email when booking is cancelled manually (by admin or user).', 'mhm-rentiva'),
+            ],
+            [
+                'type' => 'text',
+                'name' => 'mhm_rentiva_booking_cancelled_subject',
+                'label' => __('Subject', 'mhm-rentiva'),
+                'value' => \MHMRentiva\Admin\Emails\Core\EmailFormRenderer::get_option('mhm_rentiva_booking_cancelled_subject', __('Booking Cancelled: #{booking_id}', 'mhm-rentiva')),
+            ],
+            [
+                'type' => 'textarea',
+                'name' => 'mhm_rentiva_booking_cancelled_body',
+                'label' => __('Content (HTML)', 'mhm-rentiva'),
+                'value' => (function () {
+                    $val = \MHMRentiva\Admin\Emails\Core\EmailFormRenderer::get_option('mhm_rentiva_booking_cancelled_body', '');
+                    $val = is_string($val) ? trim($val) : '';
+                    // Smart Default: Force Gold Standard if empty
+                    if ($val === '' || strpos($val, '<table') === false) {
+                        return \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_default_booking_cancelled_body();
+                    }
+                    return $val;
+                })(),
+                'rows' => 8,
+            ],
+        ];
+
+        \MHMRentiva\Admin\Emails\Core\EmailFormRenderer::render_form(
+            __('Booking Cancelled Email', 'mhm-rentiva'),
+            __('Email sent when a booking is manually cancelled.', 'mhm-rentiva'),
+            $cancelled_fields
+        );
+
+        // Booking Reminder Email (Customer)
         $reminder_fields = [
             [
                 'type' => 'checkbox',
@@ -138,7 +232,14 @@ final class BookingNotifications
                 'type' => 'textarea',
                 'name' => 'mhm_rentiva_booking_reminder_body',
                 'label' => __('Content (HTML)', 'mhm-rentiva'),
-                'value' => get_option('mhm_rentiva_booking_reminder_body', '<p>' . esc_html__('Hi {contact_name}, this is a reminder for your upcoming booking #{booking_id}.', 'mhm-rentiva') . '</p>'),
+                'value' => (function () {
+                    $stored = get_option('mhm_rentiva_booking_reminder_body', '');
+                    // If stored value is empty or just the old simple string, force the Gold Standard
+                    if (empty($stored) || strpos($stored, '<table') === false) {
+                        return \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_default_booking_reminder_body();
+                    }
+                    return $stored;
+                })(),
                 'rows' => 8,
             ],
         ];
@@ -168,7 +269,15 @@ final class BookingNotifications
                 'type' => 'textarea',
                 'name' => 'mhm_rentiva_welcome_email_body',
                 'label' => __('Content (HTML)', 'mhm-rentiva'),
-                'value' => get_option('mhm_rentiva_welcome_email_body', '<p>' . esc_html__('Welcome aboard! You can access your account from {site_url}', 'mhm-rentiva') . '</p>'),
+                'value' => (function () {
+                    $val = \MHMRentiva\Admin\Emails\Core\EmailFormRenderer::get_option('mhm_rentiva_welcome_email_body', '');
+                    $val = is_string($val) ? trim($val) : '';
+                    // If empty or simple legacy text (no div/style), force Gold Standard
+                    if ($val === '' || strpos($val, '<div') === false) {
+                        return \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_default_welcome_email_body();
+                    }
+                    return $val;
+                })(),
                 'rows' => 8,
             ],
         ];

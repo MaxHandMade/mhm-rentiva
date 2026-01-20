@@ -1,10 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Emails\Core;
 
 use MHMRentiva\Admin\Emails\Templates\BookingNotifications;
 use MHMRentiva\Admin\Emails\Templates\OfflinePayment;
 use MHMRentiva\Admin\Emails\Templates\RefundEmails;
+use MHMRentiva\Admin\Emails\Templates\MessageEmails;
 use MHMRentiva\Admin\Emails\Templates\EmailPreview;
 
 if (!defined('ABSPATH')) {
@@ -18,28 +21,27 @@ final class EmailTemplates
         // Menu registration is now done centrally in Menu.php
         add_action('admin_post_mhm_rentiva_email_preview', [self::class, 'handle_preview']);
         add_action('admin_post_mhm_rentiva_email_send_test', [self::class, 'handle_send']);
-        
+
+        // Admin AJAX for emails
+        \MHMRentiva\Admin\Emails\Ajax\EmailAjaxHandler::register();
+
         // Email templates form processing
         add_action('admin_post_mhm_rentiva_save_email_templates', [self::class, 'handle_save_templates']);
-        
+
         // Add hooks for email templates page
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_scripts']);
         add_action('admin_notices', [self::class, 'add_email_stats_cards']);
         add_action('admin_notices', [self::class, 'show_save_notice']);
     }
 
-    public static function add_menu(): void
-    {
-        // Email templates are now used as a tab of the settings page
-        // This method is no longer used, kept for compatibility only
-    }
+
 
     public static function render_page(): void
     {
         if (!current_user_can('manage_options')) {
             wp_die(__('You do not have permission to perform this action.', 'mhm-rentiva'));
         }
-        
+
         // Email templates page - standalone version
         self::render_standalone_page();
     }
@@ -54,15 +56,16 @@ final class EmailTemplates
             'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
             'offline_payment' => __('Offline Payment Emails', 'mhm-rentiva'),
             'refund_emails' => __('Refund Emails', 'mhm-rentiva'),
+            'message_emails' => __('Message Notifications', 'mhm-rentiva'),
             'preview' => __('Email Preview', 'mhm-rentiva'),
         ];
-        
+
         $current_type = isset($_GET['type']) ? sanitize_key((string) $_GET['type']) : 'booking_notifications';
         if (!isset($email_types[$current_type])) $current_type = 'booking_notifications';
-        
+
         echo '<div class="wrap mhm-email-templates">';
         echo '<h1>' . esc_html__('Email Templates', 'mhm-rentiva') . '</h1>';
-        
+
         // Link to email settings
         $email_settings_url = admin_url('admin.php?page=mhm-rentiva-settings&tab=email');
         echo '<div class="notice notice-info inline" style="margin: 10px 0;">';
@@ -87,10 +90,7 @@ final class EmailTemplates
                 echo '<option value="' . esc_attr($key) . '">' . esc_html($key) . '</option>';
             }
             echo '</select></label></div>';
-            echo '<div><label>' . esc_html__('Booking ID (optional)', 'mhm-rentiva') . '<br/>';
-            echo '<input type="number" id="mhm-booking-id-settings" class="small-text" min="1" /></label></div>';
-            echo '<div><label>' . esc_html__('New Status (optional)', 'mhm-rentiva') . '<br/>';
-            echo '<input type="text" id="mhm-new-status-settings" class="regular-text" placeholder="confirmed" /></label></div>';
+
             echo '<div><label>' . esc_html__('Send To (optional)', 'mhm-rentiva') . '<br/>';
             echo '<input type="email" id="mhm-send-to-settings" class="regular-text" value="' . esc_attr($default_to) . '" /></label></div>';
             echo '<div><button type="button" id="mhm-send-template-btn-settings" class="button button-secondary" data-post="' . esc_url($admin_post) . '" data-nonce="' . esc_attr($nonce) . '">' . esc_html__('Send Test Email', 'mhm-rentiva') . '</button></div>';
@@ -105,7 +105,6 @@ final class EmailTemplates
                 }
             }
 
-            // ⭐ Inline JavaScript removed - All JS is now in assets/js/admin/email-templates.js
             echo '</div>';
         }
 
@@ -116,7 +115,7 @@ final class EmailTemplates
             echo '<a href="' . esc_url(add_query_arg('type', $type)) . '" class="nav-tab' . $active . '">' . esc_html($label) . '</a>';
         }
         echo '</div>';
-        
+
         // Quick send (no nested form) - JS creates and submits a separate form
         if (current_user_can('manage_options')) {
             $registry = Templates::registry();
@@ -132,10 +131,7 @@ final class EmailTemplates
                 echo '<option value="' . esc_attr($key) . '">' . esc_html($key) . '</option>';
             }
             echo '</select></label></div>';
-            echo '<div><label>' . esc_html__('Booking ID (optional)', 'mhm-rentiva') . '<br/>';
-            echo '<input type="number" id="mhm-booking-id" class="small-text" min="1" /></label></div>';
-            echo '<div><label>' . esc_html__('New Status (optional)', 'mhm-rentiva') . '<br/>';
-            echo '<input type="text" id="mhm-new-status" class="regular-text" placeholder="confirmed" /></label></div>';
+
             echo '<div><label>' . esc_html__('Send To (optional)', 'mhm-rentiva') . '<br/>';
             echo '<input type="email" id="mhm-send-to" class="regular-text" value="' . esc_attr($default_to) . '" /></label></div>';
             echo '<div><button type="button" id="mhm-send-template-btn" class="button button-secondary" data-post="' . esc_url($admin_post) . '" data-nonce="' . esc_attr($nonce) . '">' . esc_html__('Send Test Email', 'mhm-rentiva') . '</button></div>';
@@ -150,7 +146,6 @@ final class EmailTemplates
                 }
             }
 
-            // ⭐ Inline JavaScript removed - All JS is now in assets/js/admin/email-templates.js
             echo '</div>';
         }
 
@@ -158,17 +153,19 @@ final class EmailTemplates
         echo '<input type="hidden" name="action" value="mhm_rentiva_save_email_templates">';
         echo '<input type="hidden" name="current_tab" value="' . esc_attr($current_type) . '">';
         wp_nonce_field('mhm_rentiva_save_email_templates', 'mhm_rentiva_email_templates_nonce');
-        
+
         if ($current_type === 'booking_notifications') {
             BookingNotifications::render();
         } elseif ($current_type === 'offline_payment') {
             OfflinePayment::render();
         } elseif ($current_type === 'refund_emails') {
             RefundEmails::render();
+        } elseif ($current_type === 'message_emails') {
+            MessageEmails::render();
         } elseif ($current_type === 'preview') {
             EmailPreview::render();
         }
-        
+
         submit_button(__('Save Changes', 'mhm-rentiva'));
         echo '</form>';
         echo '</div>';
@@ -179,17 +176,18 @@ final class EmailTemplates
      */
     public static function render_content_only(): void
     {
-        // E-posta şablon türlerini tanımla
+        // Define email template types
         $email_types = [
             'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
             'offline_payment' => __('Offline Payment Emails', 'mhm-rentiva'),
             'refund_emails' => __('Refund Emails', 'mhm-rentiva'),
+            'message_emails' => __('Message Notifications', 'mhm-rentiva'),
             'preview' => __('Email Preview', 'mhm-rentiva'),
         ];
-        
+
         $current_type = isset($_GET['type']) ? sanitize_key((string) $_GET['type']) : 'booking_notifications';
         if (!isset($email_types[$current_type])) $current_type = 'booking_notifications';
-        
+
         // Link to email settings
         $email_settings_url = admin_url('admin.php?page=mhm-rentiva-settings&tab=email');
         echo '<div class="notice notice-info inline" style="margin: 10px 0;">';
@@ -200,18 +198,31 @@ final class EmailTemplates
         echo '</p></div>';
 
         // Email type selection
-        echo '<div class="nav-tab-wrapper">';
+        // Email type selection
+        echo '<h2 class="nav-tab-wrapper" style="position: relative; display: flex; align-items: center;">';
+
+        // 1. Get the current parent tab safely (e.g., 'notification-templates' or 'email-templates')
+        $current_parent_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'email-templates';
+
         foreach ($email_types as $type => $label) {
             $active = $current_type === $type ? ' nav-tab-active' : '';
+
+            // 2. Build URL keeping the user on the SAME parent tab
             $url = add_query_arg([
                 'page' => 'mhm-rentiva-settings',
-                'tab'  => 'email-templates',
+                'tab'  => $current_parent_tab,
                 'type' => $type,
             ], admin_url('admin.php'));
+
             echo '<a href="' . esc_url($url) . '" class="nav-tab' . $active . '">' . esc_html($label) . '</a>';
         }
-        echo '</div>';
-        
+
+        // Global Reset to Defaults Button - MOVED TO UI HEADER in SettingsView.php
+
+        echo '</h2>';
+
+        echo '</h2>';
+
         // Render content (without form)
         if ($current_type === 'booking_notifications') {
             BookingNotifications::render();
@@ -219,10 +230,11 @@ final class EmailTemplates
             OfflinePayment::render();
         } elseif ($current_type === 'refund_emails') {
             RefundEmails::render();
+        } elseif ($current_type === 'message_emails') {
+            MessageEmails::render();
         } elseif ($current_type === 'preview') {
             EmailPreview::render();
         }
-        
     }
 
     public static function handle_preview(): void
@@ -252,11 +264,11 @@ final class EmailTemplates
 
     public static function handle_save_templates(): void
     {
-        
+
         if (!current_user_can('manage_options')) {
             wp_die(__('You do not have permission to perform this action.', 'mhm-rentiva'));
         }
-        
+
         // Nonce verification - Using WordPress Settings API nonce since coming from settings page
         if (!wp_verify_nonce($_POST['_wpnonce'] ?? '', 'mhm_rentiva_settings-options')) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
@@ -264,8 +276,8 @@ final class EmailTemplates
 
         // Get active tab information
         $current_tab = sanitize_key($_POST['current_tab'] ?? 'booking_notifications');
-        
-        
+
+
         // Process only active tab
         if ($current_tab === 'booking_notifications') {
             self::save_booking_notifications();
@@ -273,6 +285,8 @@ final class EmailTemplates
             self::save_offline_payment();
         } elseif ($current_tab === 'refund_emails') {
             self::save_refund_emails();
+        } elseif ($current_tab === 'message_emails') {
+            self::save_message_emails();
         }
 
         // Success message - success flag instead of redirect
@@ -283,12 +297,11 @@ final class EmailTemplates
             wp_safe_redirect($redirect_url);
             exit;
         }
-        
     }
 
     private static function save_booking_notifications(): void
     {
-        
+
         $fields = [
             'mhm_rentiva_booking_created_enabled' => 'checkbox',
             'mhm_rentiva_booking_created_subject' => 'text',
@@ -300,6 +313,9 @@ final class EmailTemplates
             'mhm_rentiva_booking_admin_to' => 'email',
             'mhm_rentiva_booking_admin_subject' => 'text',
             'mhm_rentiva_booking_admin_body' => 'html',
+            // Auto Cancel Email
+            'mhm_rentiva_auto_cancel_email_subject' => 'text',
+            'mhm_rentiva_auto_cancel_email_content' => 'html',
             // Reminder & Welcome
             'mhm_rentiva_booking_reminder_enabled' => 'checkbox',
             'mhm_rentiva_booking_reminder_subject' => 'text',
@@ -308,7 +324,7 @@ final class EmailTemplates
             'mhm_rentiva_welcome_email_subject' => 'text',
             'mhm_rentiva_welcome_email_body' => 'html',
         ];
-        
+
         self::save_email_fields($fields);
     }
 
@@ -319,7 +335,7 @@ final class EmailTemplates
             'mhm_rentiva_offline_email_customer_subject_rejected' => 'text',
             'mhm_rentiva_offline_email_customer_body_rejected' => 'html',
         ];
-        
+
         self::save_email_fields($fields);
     }
 
@@ -334,7 +350,19 @@ final class EmailTemplates
             'mhm_rentiva_refund_admin_subject' => 'text',
             'mhm_rentiva_refund_admin_body' => 'html',
         ];
-        
+
+        self::save_email_fields($fields);
+    }
+
+    private static function save_message_emails(): void
+    {
+        $fields = [
+            'mhm_rentiva_message_received_admin_subject' => 'text',
+            'mhm_rentiva_message_received_admin_body' => 'html',
+            'mhm_rentiva_message_replied_customer_subject' => 'text',
+            'mhm_rentiva_message_replied_customer_body' => 'html',
+        ];
+
         self::save_email_fields($fields);
     }
 
@@ -345,7 +373,7 @@ final class EmailTemplates
      */
     private static function save_email_fields(array $fields): void
     {
-        
+
         foreach ($fields as $field_name => $field_type) {
             if (!isset($_POST[$field_name])) {
                 if ($field_type === 'checkbox') {
@@ -355,12 +383,12 @@ final class EmailTemplates
             }
 
             $value = $_POST[$field_name];
-            
+
             // Null check
             if ($value === null) {
                 $value = '';
             }
-            
+
             switch ($field_type) {
                 case 'checkbox':
                     update_option($field_name, '1');
@@ -381,7 +409,7 @@ final class EmailTemplates
         }
     }
 
-    private static function build_context(string $key, int $booking_id): array
+    public static function build_context(string $key, int $booking_id): array
     {
         $ctx = [
             'site' => ['name' => get_bloginfo('name'), 'url' => home_url('/')],
@@ -396,16 +424,29 @@ final class EmailTemplates
                     'amount'   => (int) get_post_meta($booking_id, '_mhm_payment_amount', true),
                     'currency' => (string) get_post_meta($booking_id, '_mhm_payment_currency', true) ?: 'TRY',
                 ],
+                // Helper for direct access
+                'total_price' => number_format_i18n((int) get_post_meta($booking_id, '_mhm_payment_amount', true) / 100, 2),
             ];
             $ctx['customer'] = [
                 'email' => (string) get_post_meta($booking_id, '_mhm_contact_email', true),
                 'name'  => (string) get_post_meta($booking_id, '_mhm_contact_name', true),
             ];
+            // Include vehicle info if available (simplified for now as context is mostly meta based)
+            $ctx['vehicle'] = [
+                'title' => 'Vehicle Title (ID: ' . get_post_meta($booking_id, '_mhm_vehicle_id', true) . ')',
+            ];
+        } else {
+            // Mock Data for Preview
+            $ctx = array_merge($ctx, self::get_mock_context());
         }
         if ($key === 'refund_customer' || $key === 'refund_admin') {
             $amount_kurus = isset($ctx['booking']['payment']['amount']) ? (int) $ctx['booking']['payment']['amount'] : 0;
             $cur = isset($ctx['booking']['payment']['currency']) ? (string) $ctx['booking']['payment']['currency'] : 'TRY';
-            $ctx['amount'] = number_format_i18n($amount_kurus / 100, 2) . ' ' . strtoupper($cur);
+
+            // Generate symbol dynamically based on the code provided in context
+            $symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol($cur);
+
+            $ctx['amount'] = number_format_i18n($amount_kurus / 100, 2) . ' ' . $symbol;
             $ctx['status'] = (string) ($ctx['booking']['payment']['status'] ?? '');
             $ctx['reason'] = '';
         }
@@ -413,26 +454,93 @@ final class EmailTemplates
     }
 
     /**
+     * Generate comprehensive mock data for previewing without a real booking
+     */
+    private static function get_mock_context(): array
+    {
+        // Dynamically get the currently active currency code (e.g., 'USD', 'EUR', 'TRY')
+        $currency_code = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol(null); // Passing null gets default from settings/WooCommerce
+        // If it returns a symbol (like $), we want the code for context data usually, but here the preview expects what?
+        // Actually, get_currency_symbol returns the symbol. We need the CODE for the raw data.
+
+        $code = 'TRY';
+        if (function_exists('get_woocommerce_currency')) {
+            $code = get_woocommerce_currency();
+        } else {
+            $code = get_option('mhm_rentiva_currency', 'TRY');
+        }
+
+        return [
+            'booking' => [
+                'id' => 9999,
+                'title' => __('Mock Booking #9999', 'mhm-rentiva'),
+                'status' => __('confirmed', 'mhm-rentiva'),
+                'pickup_date' => date('d.m.Y H:i', strtotime('+1 day')),
+                'return_date' => date('d.m.Y H:i', strtotime('+4 days')),
+                'rental_days' => 3,
+                'total_price' => 1500.00, // MUST be numeric for number_format()
+                'payment' => [
+                    'status' => __('pending', 'mhm-rentiva'),
+                    'amount' => 150000, // kuruş
+                    'currency' => $code // Dynamic Code
+                ],
+                // Additional fields for booking-created template
+                'payment_type' => 'full',
+                'deposit_amount' => 0,
+                'remaining_amount' => 0,
+                'payment_method' => __('credit_card', 'mhm-rentiva'),
+                'payment_status' => __('pending', 'mhm-rentiva'),
+                'payment_deadline' => date('Y-m-d H:i:s', strtotime('+30 minutes')),
+            ],
+            'customer' => [
+                'name' => 'John Doe',
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'email' => 'john.doe@example.com',
+                'phone' => '+90 555 123 4567',
+            ],
+            'vehicle' => [
+                'id' => 101,
+                'title' => 'Fiat Egea Cross 2024',
+                'price_per_day' => 500.00,
+                'featured_image' => '',
+            ],
+            'message' => [
+                'subject' => __('Example Message Subject', 'mhm-rentiva'),
+                'body' => __('This is a sample message content for preview purposes. It demonstrates how long text will appear in the email body.', 'mhm-rentiva'),
+                'reply' => __('This is a sample reply content from the administrator.', 'mhm-rentiva'),
+            ],
+            // Status change context (for status emails)
+            'status_change' => [
+                'old_status' => 'pending',
+                'new_status' => 'confirmed',
+                'old_status_label' => __('Pending', 'mhm-rentiva'),
+                'new_status_label' => __('Confirmed', 'mhm-rentiva'),
+            ],
+        ];
+    }
+
+    /**
      * Load scripts and styles for email templates page
      */
     public static function enqueue_scripts(string $hook): void
     {
-        // Load only on email templates page
-        if (strpos($hook, 'mhm-rentiva-email-templates') !== false) {
+        // Load on email templates page OR settings page (when email tab is active)
+        if (strpos($hook, 'mhm-rentiva-email-templates') !== false || strpos($hook, 'mhm-rentiva-settings') !== false) {
             wp_enqueue_style(
                 'mhm-stats-cards',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
                 [],
                 MHM_RENTIVA_VERSION
             );
-            
+
             wp_enqueue_style(
                 'mhm-email-templates',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/email-templates.css',
                 [],
                 MHM_RENTIVA_VERSION
             );
-            
+
             wp_enqueue_script(
                 'mhm-email-templates',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
@@ -440,7 +548,7 @@ final class EmailTemplates
                 MHM_RENTIVA_VERSION,
                 true
             );
-            
+
             // ⭐ Localize JavaScript variables (includes data for send test email functionality)
             wp_localize_script('mhm-email-templates', 'mhm_email_templates_vars', [
                 'ajax_url' => admin_url('admin-ajax.php'),
@@ -463,15 +571,15 @@ final class EmailTemplates
     public static function add_email_stats_cards(): void
     {
         global $pagenow;
-        
+
         // Show only on email templates page
         if ($pagenow !== 'admin.php' || !isset($_GET['page']) || $_GET['page'] !== 'mhm-rentiva-email-templates') {
             return;
         }
-        
+
         $stats = self::get_email_stats();
-        
-        ?>
+
+?>
         <div class="mhm-stats-cards">
             <div class="stats-grid">
                 <!-- Total Templates -->
@@ -531,7 +639,7 @@ final class EmailTemplates
                 </div>
             </div>
         </div>
-        <?php
+<?php
     }
 
     /**
@@ -540,7 +648,7 @@ final class EmailTemplates
     private static function get_email_stats(): array
     {
         global $wpdb;
-        
+
         // Email template types
         $email_types = [
             'booking_notifications' => [
@@ -557,25 +665,25 @@ final class EmailTemplates
                 'refund_admin' => __('Admin Refund Email', 'mhm-rentiva'),
             ],
         ];
-        
+
         // Total template count
         $total_templates = 0;
         foreach ($email_types as $type => $templates) {
             $total_templates += count($templates);
         }
-        
+
         // Active template count (simple calculation - all templates considered active)
         $active_templates = $total_templates;
-        
+
         // ⭐ Emails sent this month - Using WP_Query instead of raw SQL
         $monthly_sent = self::get_monthly_email_count();
-        
+
         // Success rate (simple calculation - 95% accepted)
         $success_rate = '95%';
-        
+
         // Active percentage
         $active_percentage = $total_templates > 0 ? round(($active_templates / $total_templates) * 100) : 0;
-        
+
         return [
             'total_templates' => $total_templates,
             'active_templates' => $active_templates,
@@ -615,12 +723,12 @@ final class EmailTemplates
     public static function show_save_notice(): void
     {
         global $pagenow;
-        
+
         // Show only on email templates page
         if ($pagenow !== 'admin.php' || !isset($_GET['page']) || $_GET['page'] !== 'mhm-rentiva-email-templates') {
             return;
         }
-        
+
         if (isset($_GET['updated']) && $_GET['updated'] === '1') {
             echo '<div class="notice notice-success is-dismissible">';
             echo '<p><strong>' . esc_html__('Email templates saved successfully!', 'mhm-rentiva') . '</strong></p>';

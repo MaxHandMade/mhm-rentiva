@@ -32,11 +32,7 @@ final class TransferShortcodes
      */
     public static function enqueue_assets(): void
     {
-        // Enqueue only if shortcode is present or we need it globally?? 
-        // For now, let's enqueue generally or check has_shortcode if possible.
-        // But since this is a static method hooked to wp_enqueue_scripts, we can just enqueue.
-        // We'll trust WP to handle dependencies.
-
+        // Enqueue CSS
         if (file_exists(trailingslashit(dirname(__DIR__, 4)) . 'assets/css/transfer.css')) {
             wp_enqueue_style(
                 'mhm-rentiva-transfer-css',
@@ -46,9 +42,28 @@ final class TransferShortcodes
             );
         }
 
-        // We might need JS for AJAX handling
-        // For now, inline JS in the shortcode output is sufficient for a simple implementation,
-        // or we can add a transfer.js file. Given the request asked for CSS, we'll focus on that.
+        // Enqueue JS
+        if (file_exists(trailingslashit(dirname(__DIR__, 4)) . 'assets/js/mhm-rentiva-transfer.js')) {
+            wp_enqueue_script(
+                'mhm-rentiva-transfer', // Handle name updated as requested
+                plugins_url('assets/js/mhm-rentiva-transfer.js', dirname(__DIR__, 4) . '/mhm-rentiva.php'),
+                ['jquery'], // Dependency
+                defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.0',
+                true // In footer
+            );
+
+            // Localize Data
+            wp_localize_script('mhm-rentiva-transfer', 'mhm_transfer_vars', [
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce'    => wp_create_nonce('mhm_rentiva_transfer_nonce'),
+                'cart_url' => function_exists('wc_get_cart_url') ? call_user_func('wc_get_cart_url') : '', // IDE silencing
+                'i18n'     => [
+                    'same_location_error' => __('Pick-up and Drop-off locations cannot be the same.', 'mhm-rentiva'),
+                    'searching_text'      => __('Searching...', 'mhm-rentiva'),
+                    'error_text'          => __('An error occurred. Please try again.', 'mhm-rentiva')
+                ]
+            ]);
+        }
     }
 
     /**
@@ -69,7 +84,7 @@ final class TransferShortcodes
                     <div class="mhm-transfer-form-group">
                         <label for="mhm-origin"><?php echo esc_html__('Pickup Location', 'mhm-rentiva'); ?></label>
                         <select name="origin_id" id="mhm-origin" required>
-                            <option value=""><?php echo esc_html__('Select Pickup', 'mhm-rentiva'); ?></option>
+                            <option value=""><?php echo esc_html__('Select Location', 'mhm-rentiva'); ?></option>
                             <?php foreach ($locations as $loc): ?>
                                 <option value="<?php echo esc_attr($loc->id); ?>"><?php echo esc_html($loc->name); ?></option>
                             <?php endforeach; ?>
@@ -78,7 +93,7 @@ final class TransferShortcodes
                     <div class="mhm-transfer-form-group">
                         <label for="mhm-destination"><?php echo esc_html__('Dropoff Location', 'mhm-rentiva'); ?></label>
                         <select name="destination_id" id="mhm-destination" required>
-                            <option value=""><?php echo esc_html__('Select Dropoff', 'mhm-rentiva'); ?></option>
+                            <option value=""><?php echo esc_html__('Select Location', 'mhm-rentiva'); ?></option>
                             <?php foreach ($locations as $loc): ?>
                                 <option value="<?php echo esc_attr($loc->id); ?>"><?php echo esc_html($loc->name); ?></option>
                             <?php endforeach; ?>
@@ -107,19 +122,30 @@ final class TransferShortcodes
                         <input type="number" name="children" value="0" min="0">
                     </div>
                     <div class="mhm-transfer-form-group mhm-half">
-                        <label><?php echo esc_html__('Big Bags', 'mhm-rentiva'); ?></label>
+                        <label><?php echo esc_html__('Big Bags', 'mhm-rentiva'); ?> <span style="color:red;">(*)</span></label>
                         <input type="number" name="luggage_big" value="0" min="0">
-                        <small>2.5 pts</small>
                     </div>
                     <div class="mhm-transfer-form-group mhm-half">
-                        <label><?php echo esc_html__('Small Bags', 'mhm-rentiva'); ?></label>
+                        <label><?php echo esc_html__('Small Bags', 'mhm-rentiva'); ?> <span style="color:red;">(*)</span></label>
                         <input type="number" name="luggage_small" value="0" min="0">
-                        <small>1 pt</small>
                     </div>
                 </div>
 
                 <div class="mhm-transfer-form-submit">
                     <button type="submit" class="mhm-transfer-btn"><?php echo esc_html__('Search Transfer', 'mhm-rentiva'); ?></button>
+                </div>
+
+                <div class="mhm-transfer-luggage-info mt-3" style="font-size: 0.85rem; color: #6c757d; line-height: 1.4; margin-top: 15px;">
+                    <p class="mb-1" style="margin-bottom: 5px;">
+                        <strong class="text-danger" style="color:red;">*</strong>
+                        <strong><?php echo esc_html__('Small Luggage:', 'mhm-rentiva'); ?></strong>
+                        <?php echo esc_html__('Handbag, backpack or cabin size suitcase.', 'mhm-rentiva'); ?>
+                    </p>
+                    <p class="mb-0" style="margin-bottom: 0;">
+                        <strong class="text-danger" style="color:red;">*</strong>
+                        <strong><?php echo esc_html__('Big Luggage:', 'mhm-rentiva'); ?></strong>
+                        <?php echo esc_html__('Medium or large check-in suitcase.', 'mhm-rentiva'); ?>
+                    </p>
                 </div>
 
                 <div id="mhm-transfer-loading" style="display:none; text-align:center; padding:10px;">
@@ -129,66 +155,6 @@ final class TransferShortcodes
 
             <div id="mhm-transfer-results"></div>
         </div>
-
-        <script>
-            jQuery(document).ready(function($) {
-                $('#mhm-transfer-search-form').on('submit', function(e) {
-                    e.preventDefault();
-
-                    var formData = $(this).serialize();
-
-                    // Show loading
-                    $('#mhm-transfer-loading').show();
-                    $('#mhm-transfer-results').empty();
-
-                    $.ajax({
-                        url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                        type: 'POST',
-                        data: formData + '&action=mhm_transfer_search',
-                        success: function(response) {
-                            $('#mhm-transfer-loading').hide();
-                            if (response.success) {
-                                $('#mhm-transfer-results').html(response.data);
-                            } else {
-                                $('#mhm-transfer-results').html('<div class="mhm-error">' + response.data + '</div>');
-                            }
-                        },
-                        error: function() {
-                            $('#mhm-transfer-loading').hide();
-                            $('#mhm-transfer-results').html('<div class="mhm-error"><?php echo esc_js(__('Search failed. Please try again.', 'mhm-rentiva')); ?></div>');
-                        }
-                    });
-                });
-            });
-
-            // Handle Book Now Click
-            $(document).on('click', '.mhm-transfer-book-btn', function(e) {
-                e.preventDefault();
-                var btn = $(this);
-                var vehicleId = btn.data('vehicle-id');
-                var formData = $('#mhm-transfer-search-form').serialize(); // Get original search criteria
-
-                btn.prop('disabled', true).text('<?php echo esc_js(__('Processing...', 'mhm-rentiva')); ?>');
-
-                $.ajax({
-                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                    type: 'POST',
-                    data: formData + '&action=mhm_transfer_add_to_cart&vehicle_id=' + vehicleId,
-                    success: function(response) {
-                        if (response.success) {
-                            window.location.href = response.data.redirect_url;
-                        } else {
-                            alert(response.data);
-                            btn.prop('disabled', false).text('<?php echo esc_js(__('Book Now', 'mhm-rentiva')); ?>');
-                        }
-                    },
-                    error: function() {
-                        alert('<?php echo esc_js(__('Booking failed. Please try again.', 'mhm-rentiva')); ?>');
-                        btn.prop('disabled', false).text('<?php echo esc_js(__('Book Now', 'mhm-rentiva')); ?>');
-                    }
-                });
-            });
-        </script>
     <?php
         return ob_get_clean();
     }
@@ -198,22 +164,45 @@ final class TransferShortcodes
      */
     public static function handle_search_ajax(): void
     {
-        // Inputs are sanitized inside the engine or here? 
-        // Engine sanitizes them, but good practice to double check or pass raw array and let engine handle.
-        // TransferSearchEngine uses sanitize_text_field.
+        // Security Check
+        check_ajax_referer('mhm_rentiva_transfer_nonce', 'security');
 
         $criteria = $_POST;
 
         $results = TransferSearchEngine::search($criteria);
 
         if (empty($results)) {
-            wp_send_json_error(__('No vehicles found matching your criteria.', 'mhm-rentiva'));
+            wp_send_json_error(['message' => __('No vehicles found matching your criteria.', 'mhm-rentiva')]);
+        }
+
+        // We exclude action and security from criteria if present, just keep data
+        // $transfer_meta_json = htmlspecialchars(json_encode($criteria), ENT_QUOTES, 'UTF-8'); // Moved inside loop
+
+        // Initialize names
+        global $wpdb;
+        $origin_name = '';
+        $destination_name = '';
+
+        if (!empty($criteria['origin_id'])) {
+            $origin_name = $wpdb->get_var($wpdb->prepare("SELECT name FROM {$wpdb->prefix}mhm_rentiva_transfer_locations WHERE id = %d", $criteria['origin_id']));
+        }
+        if (!empty($criteria['destination_id'])) {
+            $destination_name = $wpdb->get_var($wpdb->prepare("SELECT name FROM {$wpdb->prefix}mhm_rentiva_transfer_locations WHERE id = %d", $criteria['destination_id']));
         }
 
         ob_start();
     ?>
         <div class="mhm-transfer-results-grid">
-            <?php foreach ($results as $vehicle): ?>
+            <?php foreach ($results as $vehicle):
+                // Prepare Transfer Meta per Vehicle
+                $vehicle_meta = $criteria;
+                $vehicle_meta['price'] = $vehicle['price'];
+                $vehicle_meta['duration'] = $vehicle['duration'];
+                $vehicle_meta['distance'] = $vehicle['distance'];
+                $vehicle_meta['origin_name'] = $origin_name;
+                $vehicle_meta['destination_name'] = $destination_name;
+                $transfer_meta_json = htmlspecialchars(json_encode($vehicle_meta), ENT_QUOTES, 'UTF-8');
+            ?>
                 <div class="mhm-transfer-card">
                     <div class="mhm-transfer-card-image">
                         <img src="<?php echo esc_url($vehicle['image']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>">
@@ -221,14 +210,26 @@ final class TransferShortcodes
                     <div class="mhm-transfer-card-content">
                         <h3><?php echo esc_html($vehicle['title']); ?></h3>
                         <div class="mhm-transfer-features">
-                            <span><i class="dashicons dashicons-groups"></i> <?php echo esc_html($vehicle['max_pax']); ?> Pax</span>
-                            <span><i class="dashicons dashicons-portfolio"></i> <?php echo esc_html($vehicle['luggage_capacity']); ?> Pts</span>
-                            <span><i class="dashicons dashicons-clock"></i> <?php echo esc_html($vehicle['duration']); ?> min</span>
+                            <span><i class="dashicons dashicons-groups"></i> <?php echo esc_html($vehicle['max_pax']); ?> <?php echo esc_html__('Person', 'mhm-rentiva'); ?></span>
+                            <?php
+                            /* Baggage info removed as per request
+                            $luggage_display = $vehicle['luggage_capacity'];
+                            if (isset($vehicle['max_big_luggage']) && isset($vehicle['max_small_luggage']) && ($vehicle['max_big_luggage'] !== '' || $vehicle['max_small_luggage'] !== '')) {
+                                $luggage_display = (int)$vehicle['max_big_luggage'] + (int)$vehicle['max_small_luggage'];
+                            }
+                            ?>
+                            <span><i class="dashicons dashicons-portfolio"></i> <?php echo esc_html($luggage_display); ?> <?php echo esc_html__('Luggage', 'mhm-rentiva'); ?></span>
+                            */ ?>
+                            <span><i class="dashicons dashicons-clock"></i> <?php echo esc_html($vehicle['duration']); ?> <?php echo esc_html__('min', 'mhm-rentiva'); ?></span>
                         </div>
                         <div class="mhm-transfer-price">
                             <strong><?php echo wc_price($vehicle['price']); ?></strong>
                         </div>
-                        <button class="mhm-transfer-book-btn" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>"><?php echo esc_html__('Book Now', 'mhm-rentiva'); ?></button>
+                        <button class="mhm-transfer-book-btn"
+                            data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>"
+                            data-transfer-meta="<?php echo $transfer_meta_json; ?>">
+                            <?php echo esc_html__('Book Now', 'mhm-rentiva'); ?>
+                        </button>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -236,6 +237,6 @@ final class TransferShortcodes
 <?php
         $html = ob_get_clean();
 
-        wp_send_json_success($html);
+        wp_send_json_success(['html' => $html]);
     }
 }

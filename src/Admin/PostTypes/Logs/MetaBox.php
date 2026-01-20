@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\PostTypes\Logs;
 
@@ -59,7 +61,8 @@ final class MetaBox
             }
         }
         if ($ak > 0) {
-            $val = number_format_i18n($ak / 100, 2) . ' ' . strtoupper($cur ?: 'TRY');
+            $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol($cur ?: null);
+            $val = number_format_i18n($ak / 100, 2) . ' ' . $currency_symbol;
             echo '<span style="margin-left:8px;">' . esc_html__('Amount', 'mhm-rentiva') . ': ' . esc_html($val) . '</span>';
         }
         echo '</p>';
@@ -94,7 +97,7 @@ final class MetaBox
             MHM_RENTIVA_VERSION,
             true
         );
-        
+
         wp_localize_script('mhm-log-metabox-js', 'mhmLogMetabox', [
             'copied' => __('Copied', 'mhm-rentiva'),
             'copy'   => __('Copy JSON', 'mhm-rentiva'),

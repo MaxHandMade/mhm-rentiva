@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Booking\Meta;
 
@@ -69,13 +71,13 @@ final class ManualBookingMetaBox extends AbstractMetaBox
     {
         // Show meta box only when creating new booking
         add_action('add_meta_boxes', [self::class, 'add_meta_boxes']);
-        
+
         // Hide WordPress default post fields
         add_action('add_meta_boxes', [self::class, 'remove_default_meta_boxes'], 999);
-        
+
         // Scripts ve styles
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_scripts']);
-        
+
         // AJAX handlers
         add_action('wp_ajax_mhm_rentiva_calculate_manual_booking', [self::class, 'ajax_calculate_price']);
         add_action('wp_ajax_mhm_rentiva_create_manual_booking', [self::class, 'ajax_create_booking']);
@@ -87,12 +89,12 @@ final class ManualBookingMetaBox extends AbstractMetaBox
     public static function remove_default_meta_boxes(): void
     {
         global $post, $pagenow;
-        
+
         // Only on new vehicle_booking page
         if ($pagenow !== 'post-new.php' || !$post || $post->post_type !== 'vehicle_booking' || $post->post_status !== 'auto-draft') {
             return;
         }
-        
+
         // Remove default meta boxes
         remove_meta_box('submitdiv', 'vehicle_booking', 'side');
         remove_meta_box('slugdiv', 'vehicle_booking', 'normal');
@@ -105,9 +107,9 @@ final class ManualBookingMetaBox extends AbstractMetaBox
         remove_meta_box('revisionsdiv', 'vehicle_booking', 'normal');
         remove_meta_box('pageparentdiv', 'vehicle_booking', 'side');
         remove_meta_box('postimagediv', 'vehicle_booking', 'side');
-        
+
         // Hide title field
-        add_filter('enter_title_here', function($title) {
+        add_filter('enter_title_here', function ($title) {
             return '';
         });
     }
@@ -118,22 +120,22 @@ final class ManualBookingMetaBox extends AbstractMetaBox
     public static function add_meta_boxes(): void
     {
         global $post, $pagenow;
-        
+
         // Only on new booking creation page
         if ($pagenow !== 'post-new.php') {
             return;
         }
-        
+
         // Post type check
         if (!$post || $post->post_type !== 'vehicle_booking') {
             return;
         }
-        
+
         // Show only when creating new booking (in auto-draft status)
         if ($post->post_status !== 'auto-draft') {
             return;
         }
-        
+
         add_meta_box(
             self::get_meta_box_id(),
             self::get_title(),
@@ -147,7 +149,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
     public static function enqueue_scripts(string $hook): void
     {
         global $post_type;
-        
+
         // Load only on new booking creation page
         if ($hook === 'post-new.php' && $post_type === 'vehicle_booking') {
             wp_enqueue_style(
@@ -156,7 +158,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
                 [],
                 MHM_RENTIVA_VERSION
             );
-            
+
             wp_enqueue_script(
                 'mhm-manual-booking-meta',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/manual-booking-meta.js',
@@ -164,7 +166,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
                 MHM_RENTIVA_VERSION,
                 true
             );
-            
+
             // Localize for AJAX
             wp_localize_script('mhm-manual-booking-meta', 'mhmManualBooking', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -181,7 +183,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
     public static function render(\WP_Post $post, array $args = []): void
     {
         wp_nonce_field('mhm_manual_booking_action', 'mhm_manual_booking_meta_nonce');
-        
+
         // Get available vehicles - first without meta query
         $vehicles = get_posts([
             'post_type' => 'vehicle',
@@ -190,7 +192,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
             'orderby' => 'title',
             'order' => 'ASC'
         ]);
-        
+
         // Manually filter available ones
         $available_vehicles = [];
         foreach ($vehicles as $vehicle) {
@@ -200,26 +202,26 @@ final class ManualBookingMetaBox extends AbstractMetaBox
             }
         }
         $vehicles = $available_vehicles;
-        
+
         // Get users
         $users = get_users([
             'orderby' => 'display_name',
             'order' => 'ASC'
         ]);
-        
+
         echo '<div class="mhm-manual-booking-form">';
-        
-        
+
+
         echo '<div class="mhm-booking-fields">';
-        
+
         // Vehicle Selection
         echo '<div class="mhm-field-group">';
         echo '<label for="mhm_manual_vehicle_id" class="mhm-field-label">' . __('Select Vehicle', 'mhm-rentiva') . ' <span class="required">*</span></label>';
-        
-        
+
+
         echo '<select id="mhm_manual_vehicle_id" name="mhm_manual_vehicle_id" class="mhm-field-select" required>';
         echo '<option value="">' . __('Select a vehicle...', 'mhm-rentiva') . '</option>';
-        
+
         foreach ($vehicles as $vehicle) {
             $price = get_post_meta($vehicle->ID, '_mhm_rentiva_price_per_day', true);
             $price_float = floatval($price);
@@ -228,93 +230,93 @@ final class ManualBookingMetaBox extends AbstractMetaBox
             echo esc_html($vehicle->post_title . $price_text);
             echo '</option>';
         }
-        
+
         echo '</select>';
         echo '</div>';
-        
+
         // Customer Selection
         echo '<div class="mhm-field-group">';
         echo '<label for="mhm_manual_customer_id" class="mhm-field-label">' . __('Customer', 'mhm-rentiva') . ' <span class="required">*</span></label>';
         echo '<select id="mhm_manual_customer_id" name="mhm_manual_customer_id" class="mhm-field-select" required>';
         echo '<option value="">' . __('Select a customer...', 'mhm-rentiva') . '</option>';
         echo '<option value="new_customer">' . __('+ Create New Customer', 'mhm-rentiva') . '</option>';
-        
+
         foreach ($users as $user) {
             echo '<option value="' . esc_attr($user->ID) . '">';
             echo esc_html($user->display_name . ' (' . $user->user_email . ')');
             echo '</option>';
         }
-        
+
         echo '</select>';
         echo '</div>';
-        
+
         // New Customer Information (hidden)
         echo '<div id="mhm_new_customer_fields" class="mhm-field-group" style="display: none;">';
         echo '<h4>' . __('New Customer Information', 'mhm-rentiva') . '</h4>';
-        
+
         echo '<div class="mhm-field-group mhm-field-half">';
         echo '<label for="mhm_new_customer_first_name" class="mhm-field-label">' . __('First Name', 'mhm-rentiva') . ' <span class="required">*</span></label>';
         echo '<input type="text" id="mhm_new_customer_first_name" name="mhm_new_customer_first_name" class="mhm-field-input">';
         echo '</div>';
-        
+
         echo '<div class="mhm-field-group mhm-field-half">';
         echo '<label for="mhm_new_customer_last_name" class="mhm-field-label">' . __('Last Name', 'mhm-rentiva') . ' <span class="required">*</span></label>';
         echo '<input type="text" id="mhm_new_customer_last_name" name="mhm_new_customer_last_name" class="mhm-field-input">';
         echo '</div>';
-        
+
         echo '<div class="mhm-field-group">';
         echo '<label for="mhm_new_customer_email" class="mhm-field-label">' . __('Email', 'mhm-rentiva') . ' <span class="required">*</span></label>';
         echo '<input type="email" id="mhm_new_customer_email" name="mhm_new_customer_email" class="mhm-field-input">';
         echo '</div>';
-        
+
         echo '<div class="mhm-field-group">';
         echo '<label for="mhm_new_customer_phone" class="mhm-field-label">' . __('Phone', 'mhm-rentiva') . ' <span class="required">*</span></label>';
         echo '<input type="tel" id="mhm_new_customer_phone" name="mhm_new_customer_phone" class="mhm-field-input">';
         echo '</div>';
-        
+
         echo '</div>';
-        
+
         // Date and Time Fields
         echo '<div class="mhm-datetime-fields">';
-        
+
         // Pickup Date
         echo '<div class="mhm-field-group mhm-field-half">';
         echo '<label for="mhm_manual_pickup_date" class="mhm-field-label">' . __('Pickup Date', 'mhm-rentiva') . ' <span class="required">*</span></label>';
         echo '<input type="date" id="mhm_manual_pickup_date" name="mhm_manual_pickup_date" class="mhm-field-input" required>';
         echo '</div>';
-        
+
         // Pickup Time
         echo '<div class="mhm-field-group mhm-field-half">';
         echo '<label for="mhm_manual_pickup_time" class="mhm-field-label">' . __('Pickup Time', 'mhm-rentiva') . ' <span class="required">*</span></label>';
         $default_pickup_time = apply_filters('mhm_rentiva_default_pickup_time', '10:00');
         echo '<input type="time" id="mhm_manual_pickup_time" name="mhm_manual_pickup_time" class="mhm-field-input" value="' . esc_attr($default_pickup_time) . '" required>';
         echo '</div>';
-        
+
         // Dropoff Date
         echo '<div class="mhm-field-group mhm-field-half">';
         echo '<label for="mhm_manual_dropoff_date" class="mhm-field-label">' . __('Return Date', 'mhm-rentiva') . ' <span class="required">*</span></label>';
         echo '<input type="date" id="mhm_manual_dropoff_date" name="mhm_manual_dropoff_date" class="mhm-field-input" required>';
         echo '</div>';
-        
+
         // Dropoff Time
         echo '<div class="mhm-field-group mhm-field-half">';
         echo '<label for="mhm_manual_dropoff_time" class="mhm-field-label">' . __('Return Time', 'mhm-rentiva') . ' <span class="required">*</span></label>';
         $default_dropoff_time = apply_filters('mhm_rentiva_default_dropoff_time', '10:00');
         echo '<input type="time" id="mhm_manual_dropoff_time" name="mhm_manual_dropoff_time" class="mhm-field-input" value="' . esc_attr($default_dropoff_time) . '" required>';
         echo '</div>';
-        
+
         echo '</div>';
-        
+
         // Guest Count
         echo '<div class="mhm-field-group">';
         echo '<label for="mhm_manual_guests" class="mhm-field-label">' . __('Number of Guests', 'mhm-rentiva') . '</label>';
         echo '<input type="number" id="mhm_manual_guests" name="mhm_manual_guests" class="mhm-field-input" value="1" min="1" max="10">';
         echo '</div>';
-        
+
         // Additional Services Selection
         echo '<div class="mhm-field-group">';
         echo '<label class="mhm-field-label">' . __('Additional Services', 'mhm-rentiva') . '</label>';
-        
+
         // Get existing additional services (same as frontend form)
         $addons = get_posts([
             'post_type' => 'vehicle_addon',
@@ -334,15 +336,15 @@ final class ManualBookingMetaBox extends AbstractMetaBox
                 'required' => (bool) get_post_meta($addon->ID, 'addon_required', true)
             ];
         }
-        
+
         if (!empty($available_addons)) {
             echo '<div class="mhm-addon-selection">';
             echo '<p class="description">' . __('Select the additional services needed for this booking.', 'mhm-rentiva') . '</p>';
-            
+
             foreach ($available_addons as $addon) {
                 $checked = $addon['required'] ? 'checked disabled' : '';
                 $required_text = $addon['required'] ? ' <span class="required">*</span>' : '';
-                
+
                 echo '<label class="mhm-addon-item">';
                 echo '<input type="checkbox" name="selected_addons[]" value="' . esc_attr($addon['id']) . '" class="mhm-addon-checkbox" data-price="' . esc_attr($addon['price']) . '" ' . $checked . '>';
                 echo '<span class="mhm-addon-info">';
@@ -354,17 +356,17 @@ final class ManualBookingMetaBox extends AbstractMetaBox
                 }
                 echo '</label>';
             }
-            
+
             echo '<div class="mhm-addon-total" style="display: none;">';
             echo '<strong>' . __('Additional Services Total:', 'mhm-rentiva') . ' <span class="mhm-addon-total-amount">' . esc_html(self::format_addon_price(0)) . '</span></strong>';
             echo '</div>';
-            
+
             echo '</div>';
         } else {
             echo '<p class="description">' . __('No additional services available.', 'mhm-rentiva') . '</p>';
         }
         echo '</div>';
-        
+
         // Payment Type
         echo '<div class="mhm-field-group">';
         echo '<label for="mhm_manual_payment_type" class="mhm-field-label">' . __('Payment Type', 'mhm-rentiva') . '</label>';
@@ -373,7 +375,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
         echo '<option value="deposit" selected>' . __('Deposit', 'mhm-rentiva') . '</option>';
         echo '</select>';
         echo '</div>';
-        
+
         // Payment Method
         echo '<div class="mhm-field-group">';
         echo '<label for="mhm_manual_payment_method" class="mhm-field-label">' . __('Payment Method', 'mhm-rentiva') . '</label>';
@@ -382,7 +384,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
         echo '<option value="online">' . __('Online', 'mhm-rentiva') . '</option>';
         echo '</select>';
         echo '</div>';
-        
+
         // Status
         echo '<div class="mhm-field-group">';
         echo '<label for="mhm_manual_booking_status" class="mhm-field-label">' . __('Status', 'mhm-rentiva') . '</label>';
@@ -393,27 +395,27 @@ final class ManualBookingMetaBox extends AbstractMetaBox
         echo '<option value="completed">' . __('Completed', 'mhm-rentiva') . '</option>';
         echo '</select>';
         echo '</div>';
-        
+
         // Notes
         echo '<div class="mhm-field-group">';
         echo '<label for="mhm_manual_notes" class="mhm-field-label">' . __('Notes', 'mhm-rentiva') . '</label>';
         echo '<textarea id="mhm_manual_notes" name="mhm_manual_notes" class="mhm-field-textarea" rows="3" placeholder="' . __('Special notes about the booking...', 'mhm-rentiva') . '"></textarea>';
         echo '</div>';
-        
+
         echo '</div>';
-        
+
         // Price Calculation
         echo '<div class="mhm-price-calculation" style="display: none;">';
         echo '<h4>' . __('Fiyat Hesaplama', 'mhm-rentiva') . '</h4>';
         echo '<div class="mhm-price-details"></div>';
         echo '</div>';
-        
+
         // Buttons
         echo '<div class="mhm-booking-actions">';
         echo '<button type="button" id="mhm-calculate-price" class="button button-secondary">' . __('Calculate Price', 'mhm-rentiva') . '</button>';
         echo '<button type="button" id="mhm-create-booking" class="button button-primary" style="display: none;">' . __('Create Booking', 'mhm-rentiva') . '</button>';
         echo '</div>';
-        
+
         echo '</div>';
     }
 
@@ -440,7 +442,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 
         // Date/time parse
         $datetime_result = Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
-        
+
         if (is_wp_error($datetime_result)) {
             wp_send_json_error(['message' => $datetime_result->get_error_message()]);
         }
@@ -451,7 +453,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 
         // Availability check
         $availability = Util::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
-        
+
         if (!$availability['ok']) {
             wp_send_json_error(['message' => $availability['message']]);
         }
@@ -459,7 +461,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
         // Additional services calculation (daily)
         $selected_addons = array_map('intval', $_POST['selected_addons'] ?? []);
         $addon_total = 0;
-        
+
         if (!empty($selected_addons)) {
             foreach ($selected_addons as $addon_id) {
                 $addon = \MHMRentiva\Admin\Addons\AddonManager::get_addon_by_id($addon_id);
@@ -470,7 +472,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
         }
 
         // Calculate deposit (including addons)
-        $deposit_result = DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, $selected_addons);
+        $deposit_result = DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, $selected_addons, $start_ts);
 
         if (!$deposit_result['success']) {
             wp_send_json_error(['message' => __('Price could not be calculated.', 'mhm-rentiva')]);
@@ -524,7 +526,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
         $customer_name = '';
         $customer_email = '';
         $customer_phone = '';
-        
+
         if ($customer_id === 'new_customer') {
             // Create new customer
             $customer_first_name = self::sanitize_text_field_safe($_POST['new_customer_first_name'] ?? '');
@@ -532,26 +534,26 @@ final class ManualBookingMetaBox extends AbstractMetaBox
             $customer_name = trim($customer_first_name . ' ' . $customer_last_name);
             $customer_email = sanitize_email((string) ($_POST['new_customer_email'] ?? ''));
             $customer_phone = self::sanitize_text_field_safe($_POST['new_customer_phone'] ?? '');
-            
+
             if (!$customer_first_name || !$customer_last_name || !$customer_email || !$customer_phone) {
                 wp_send_json_error(['message' => __('New customer information is missing.', 'mhm-rentiva')]);
             }
-            
+
             // Email check
             if (email_exists($customer_email)) {
                 wp_send_json_error(['message' => __('This email address is already registered.', 'mhm-rentiva')]);
             }
-            
+
             // Generate username from first name + last name
             $base_username = trim(strtolower($customer_first_name . '.' . $customer_last_name));
             $base_username = sanitize_user($base_username, true);
-            
+
             // If username is empty or invalid, use email prefix as fallback
             if (empty($base_username) || !validate_username($base_username)) {
                 $email_parts = explode('@', $customer_email);
                 $base_username = sanitize_user($email_parts[0], true);
             }
-            
+
             // Ensure username is unique
             $username = $base_username;
             $counter = 1;
@@ -559,19 +561,19 @@ final class ManualBookingMetaBox extends AbstractMetaBox
                 $username = $base_username . $counter;
                 $counter++;
             }
-            
+
             // Create new user
             $user_id = wp_create_user($username, wp_generate_password(12, true, true), $customer_email);
             if (is_wp_error($user_id)) {
                 wp_send_json_error(['message' => $user_id->get_error_message()]);
             }
-            
+
             // Determine safe default role (same as normal booking form)
             $default_role = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_default_role', 'customer');
             if (!get_role($default_role)) {
                 $default_role = 'customer';
             }
-            
+
             // Update user information (same as normal booking form)
             wp_update_user([
                 'ID' => $user_id,
@@ -580,17 +582,17 @@ final class ManualBookingMetaBox extends AbstractMetaBox
                 'last_name' => $customer_last_name,
                 'role' => $default_role,
             ]);
-            
+
             // Ensure role is set even if wp_update_user ignores role
             $wp_user_obj = new \WP_User($user_id);
             if (!in_array($default_role, (array) $wp_user_obj->roles, true)) {
                 $wp_user_obj->set_role($default_role);
             }
-            
+
             // Save meta information (same as normal booking form)
             update_user_meta($user_id, 'mhm_rentiva_phone', $customer_phone);
             update_user_meta($user_id, 'mhm_rentiva_customer', true);
-            
+
             $customer = get_userdata($user_id);
         } else {
             // Existing customer
@@ -598,7 +600,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
             if (!$customer) {
                 wp_send_json_error(['message' => __('Customer not found.', 'mhm-rentiva')]);
             }
-            
+
             // Get existing customer information
             $customer_first_name = $customer->first_name;
             $customer_last_name = $customer->last_name;
@@ -609,7 +611,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 
         // Date/time parse
         $datetime_result = Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
-        
+
         if (is_wp_error($datetime_result)) {
             wp_send_json_error(['message' => $datetime_result->get_error_message()]);
         }
@@ -620,7 +622,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 
         // Availability check
         $availability = Util::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
-        
+
         if (!$availability['ok']) {
             wp_send_json_error(['message' => $availability['message']]);
         }
@@ -629,13 +631,13 @@ final class ManualBookingMetaBox extends AbstractMetaBox
         $selected_addons = array_map('intval', $_POST['selected_addons'] ?? []);
         $addon_total = 0;
         $addon_details = [];
-        
-        
+
+
         if (!empty($selected_addons)) {
             foreach ($selected_addons as $addon_id) {
                 $addon_price = floatval(get_post_meta($addon_id, 'addon_price', true) ?: 0);
                 $addon_total += $addon_price * $days; // Daily calculation (same as BookingForm.php)
-                
+
                 $addon_details[] = [
                     'id' => $addon_id,
                     'title' => get_the_title($addon_id),
@@ -645,12 +647,12 @@ final class ManualBookingMetaBox extends AbstractMetaBox
         }
 
         // Deposit calculation (same as BookingForm.php)
-        $deposit_result = DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, $selected_addons);
+        $deposit_result = DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, $selected_addons, $start_ts);
 
         if (!$deposit_result['success']) {
             wp_send_json_error(['message' => __('Price could not be calculated.', 'mhm-rentiva')]);
         }
-        
+
 
         // Create booking
         $booking_data = [
@@ -740,7 +742,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
         $symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
         $position = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
         $formatted_amount = number_format($price, 2, ',', '.');
-        
+
         switch ($position) {
             case 'left':
                 return $symbol . $formatted_amount;

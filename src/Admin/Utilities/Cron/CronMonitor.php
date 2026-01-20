@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Utilities\Cron;
 
@@ -22,14 +24,14 @@ final class CronMonitor
         if (!did_action('init')) {
             do_action('init');
         }
-        
+
         $crons = _get_cron_array();
         $plugin_crons = [];
-        
+
         if (empty($crons)) {
             return [];
         }
-        
+
         // Define all plugin cron hooks with verification info
         $plugin_hooks = [
             'mhm_rentiva_auto_cancel_event' => [
@@ -64,18 +66,18 @@ final class CronMonitor
                 'schedule' => 'daily',
             ],
         ];
-        
+
         foreach ($crons as $timestamp => $cron) {
             foreach ($cron as $hook => $dings) {
                 if (!isset($plugin_hooks[$hook])) {
                     continue;
                 }
-                
+
                 foreach ($dings as $sig => $data) {
                     $info = $plugin_hooks[$hook];
                     $schedule_name = wp_get_schedule($hook);
                     $next_run = wp_next_scheduled($hook);
-                    
+
                     // Get translated schedule name
                     $schedule_display = __('Not scheduled', 'mhm-rentiva');
                     if ($schedule_name) {
@@ -86,7 +88,7 @@ final class CronMonitor
                             $schedule_display = $schedule_name;
                         }
                     }
-                    
+
                     $plugin_crons[] = [
                         'hook' => $hook,
                         'name' => $info['name'],
@@ -94,7 +96,7 @@ final class CronMonitor
                         'schedule' => $schedule_display,
                         'schedule_key' => $schedule_name ?: '',
                         'next_run' => $next_run ?: 0,
-                        'next_run_formatted' => $next_run ? date_i18n('Y-m-d H:i:s', $next_run) : __('Not scheduled', 'mhm-rentiva'),
+                        'next_run_formatted' => $next_run ? sprintf('%s (%s)', human_time_diff(time(), $next_run), wp_date('H:i:s', $next_run)) : __('Not scheduled', 'mhm-rentiva'),
                         'is_scheduled' => $next_run > 0,
                         'timestamp' => $timestamp,
                         'signature' => $sig,
@@ -104,7 +106,7 @@ final class CronMonitor
                 }
             }
         }
-        
+
         // Add unscheduled hooks (hooks that should exist but don't)
         foreach ($plugin_hooks as $hook => $info) {
             $found = false;
@@ -114,7 +116,7 @@ final class CronMonitor
                     break;
                 }
             }
-            
+
             if (!$found) {
                 $plugin_crons[] = [
                     'hook' => $hook,
@@ -132,15 +134,15 @@ final class CronMonitor
                 ];
             }
         }
-        
+
         // Sort by hook name
-        usort($plugin_crons, function($a, $b) {
+        usort($plugin_crons, function ($a, $b) {
             return strcmp($a['hook'], $b['hook']);
         });
-        
+
         return $plugin_crons;
     }
-    
+
     /**
      * Manually run a cron job
      */
@@ -152,7 +154,7 @@ final class CronMonitor
                 'message' => __('Permission denied', 'mhm-rentiva')
             ];
         }
-        
+
         // Check if hook is a plugin hook
         $plugin_hooks = [
             'mhm_rentiva_auto_cancel_event',
@@ -163,17 +165,17 @@ final class CronMonitor
             'mhm_rentiva_email_log_purge_event',
             'mhm_rentiva_log_purge_event',
         ];
-        
+
         if (!in_array($hook, $plugin_hooks, true)) {
             return [
                 'success' => false,
                 'message' => __('Invalid cron hook', 'mhm-rentiva')
             ];
         }
-        
+
         // Verify hook is registered before running
         $hook_exists = has_action($hook);
-        
+
         if (!$hook_exists) {
             return [
                 'success' => false,
@@ -181,16 +183,16 @@ final class CronMonitor
                 'message' => sprintf(__('Cron hook "%s" is not registered. The function may not be active.', 'mhm-rentiva'), $hook)
             ];
         }
-        
+
         // Ensure all plugin hooks are loaded (some hooks register on 'init')
         // Trigger 'init' if not already fired to ensure hooks are registered
         if (!did_action('init')) {
             do_action('init');
         }
-        
+
         // Verify hook is registered again after init
         $hook_exists_after_init = has_action($hook);
-        
+
         if (!$hook_exists_after_init) {
             return [
                 'success' => false,
@@ -201,13 +203,13 @@ final class CronMonitor
                 )
             ];
         }
-        
+
         // Run the hook
         try {
             $start_time = microtime(true);
             do_action($hook, ...$args);
             $execution_time = round((microtime(true) - $start_time) * 1000, 2);
-            
+
             return [
                 'success' => true,
                 /* translators: 1: cron hook name; 2: execution time in milliseconds. */
@@ -222,18 +224,18 @@ final class CronMonitor
             ];
         }
     }
-    
+
     /**
      * Get cron schedule information
      */
     public static function get_schedule_info(string $schedule_name): ?array
     {
         $schedules = wp_get_schedules();
-        
+
         if (!isset($schedules[$schedule_name])) {
             return null;
         }
-        
+
         $schedule = $schedules[$schedule_name];
         return [
             'name' => $schedule['display'] ?? $schedule_name,
@@ -269,7 +271,7 @@ final class CronMonitor
             $is_registered = has_action($hook) !== false;
             $schedule_key = wp_get_schedule($hook);
             $next_run = wp_next_scheduled($hook);
-            
+
             // Get translated schedule name
             $schedule_display = __('Not scheduled', 'mhm-rentiva');
             if ($schedule_key) {
@@ -280,7 +282,7 @@ final class CronMonitor
                     $schedule_display = $schedule_key;
                 }
             }
-            
+
             $results[$hook] = [
                 'hook' => $hook,
                 'is_scheduled' => $is_scheduled,
@@ -288,7 +290,7 @@ final class CronMonitor
                 'schedule' => $schedule_display,
                 'schedule_key' => $schedule_key ?: '',
                 'next_run' => $next_run ?: 0,
-                'next_run_formatted' => $next_run ? date_i18n('Y-m-d H:i:s', $next_run) : __('Not scheduled', 'mhm-rentiva'),
+                'next_run_formatted' => $next_run ? sprintf('%s (%s)', human_time_diff(time(), $next_run), wp_date('H:i:s', $next_run)) : __('Not scheduled', 'mhm-rentiva'),
                 'status' => $is_scheduled && $is_registered ? 'active' : ($is_registered ? 'registered_but_not_scheduled' : 'not_registered'),
             ];
         }
@@ -296,4 +298,3 @@ final class CronMonitor
         return $results;
     }
 }
-

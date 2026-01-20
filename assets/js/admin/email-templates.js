@@ -412,6 +412,127 @@ jQuery(document).ready(function ($) {
         }
     };
 
+    // Email Preview Tab Logic (AJAX)
+    var emailPreviewTab = {
+        init: function () {
+            this.bindEvents();
+        },
+
+        bindEvents: function () {
+            // Preview Button
+            $('#mhm-preview-btn').on('click', function (e) {
+                e.preventDefault();
+                emailPreviewTab.loadPreview($(this));
+            });
+
+            // Send Test Button (Preview Tab)
+            $('#mhm-preview-send-btn').on('click', function (e) {
+                e.preventDefault();
+                emailPreviewTab.sendTest($(this));
+            });
+        },
+
+        loadPreview: function (btn) {
+            var container = $('#mhm-preview-result-container');
+            var template = $('#mhm-preview-template-key').val();
+            var bookingId = $('#mhm-preview-booking-id').val();
+            var newStatus = $('#mhm-preview-new-status').val();
+            var nonce = btn.data('nonce');
+            var originalText = btn.text(); // Store original text FIRST
+
+            // Allow empty booking ID - will use mock data
+            // if (!bookingId) {
+            //     showNotice('Please enter a Booking ID.', 'error');
+            //     return;
+            // }
+
+            // Loading State
+            btn.data('original-text', originalText); // Store for restoration
+            btn.prop('disabled', true).text(mhm_email_templates_vars.processing || 'Loading...');
+            container.css('opacity', '0.5');
+
+            // Optional: Add spinner to container
+            container.html('<div style="text-align:center; padding:40px;"><span class="spinner is-active" style="float:none; margin:0;"></span> Loading preview...</div>');
+
+            $.ajax({
+                url: mhm_email_templates_vars.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'mhm_rentiva_preview_email_ajax',
+                    nonce: nonce,
+                    template_key: template,
+                    booking_id: bookingId,
+                    new_status: newStatus
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Render HTML
+                        var html = '<div style="background: #f9f9f9; border: 1px solid #ddd; padding: 20px;">' +
+                            '<h3>Subject: ' + response.data.subject + '</h3>' +
+                            '<hr>' +
+                            '<div style="background: white; border: 1px solid #ccc; padding: 15px;">' +
+                            response.data.html +
+                            '</div></div>';
+                        container.html(html);
+                    } else {
+                        container.html('<div class="notice notice-error inline"><p>' + (response.data || 'Error loading preview') + '</p></div>');
+                        showNotice(response.data || 'Error loading preview', 'error');
+                    }
+                },
+                error: function () {
+                    container.html('<div class="notice notice-error inline"><p>Connection error.</p></div>');
+                },
+                complete: function () {
+                    btn.prop('disabled', false).text(btn.data('original-text') || 'Preview');
+                    container.css('opacity', '1');
+                }
+            });
+        },
+
+        sendTest: function (btn) {
+            var template = $('#mhm-preview-template-key').val();
+            var bookingId = $('#mhm-preview-booking-id').val();
+            var newStatus = $('#mhm-preview-new-status').val(); // Not used directly in send, but maybe in context
+            var to = $('#mhm-preview-send-to').val();
+            var nonce = btn.data('nonce');
+            var originalText = btn.text();
+
+            if (!to) {
+                showNotice('Please enter an email address.', 'warning');
+                return;
+            }
+
+            // Loading State
+            btn.prop('disabled', true).text(mhm_email_templates_vars.processing || 'Sending...');
+
+            $.ajax({
+                url: mhm_email_templates_vars.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'mhm_rentiva_send_test_email_ajax',
+                    nonce: nonce,
+                    template_key: template,
+                    booking_id: bookingId,
+                    new_status: newStatus,
+                    to: to
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotice(response.data || 'Email sent successfully!', 'success');
+                    } else {
+                        showNotice(response.data || 'Failed to send email.', 'error');
+                    }
+                },
+                error: function () {
+                    showNotice('Connection error.', 'error');
+                },
+                complete: function () {
+                    btn.prop('disabled', false).text(originalText);
+                }
+            });
+        }
+    };
+
     // Initialize
     emailPreview.init();
     testEmail.init();
@@ -420,6 +541,7 @@ jQuery(document).ready(function ($) {
     tabManagement.init();
     statsAnimation.init();
     sendTestEmail.init();
+    emailPreviewTab.init(); // New init logic
 
     // Modal close events
     $(document).on('click', '.template-edit-close, .template-edit-modal', function (e) {

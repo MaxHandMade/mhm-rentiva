@@ -16,7 +16,7 @@ final class Util
     public static function parse_datetimes(string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): array|\WP_Error
     {
         try {
-            $timezone = wp_timezone();
+            // Simplified timezone handling: treating input as "raw" local time
 
             // Date format check
             // Use default times if time values are empty
@@ -36,19 +36,18 @@ final class Util
                 throw new \InvalidArgumentException(__('Invalid date/time format.', 'mhm-rentiva'));
             }
 
-            // Create DateTime
+            // Create Timestamps using strtotime()
+            // This treats the date string as if it's already in the server's time zone
+            // avoiding double-offset issues when comparing with DB strings.
             $pickup_string = $pickup_date . ' ' . $pickup_time;
             $dropoff_string = $dropoff_date . ' ' . $dropoff_time;
 
-            $pickup_datetime = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $pickup_string, $timezone);
-            $dropoff_datetime = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $dropoff_string, $timezone);
+            $start_ts = strtotime($pickup_string);
+            $end_ts = strtotime($dropoff_string);
 
-            if (!$pickup_datetime || !$dropoff_datetime) {
+            if ($start_ts === false || $end_ts === false) {
                 throw new \InvalidArgumentException(__('Invalid date/time format.', 'mhm-rentiva'));
             }
-
-            $start_ts = $pickup_datetime->getTimestamp();
-            $end_ts = $dropoff_datetime->getTimestamp();
 
             // Date validation
             if ($end_ts <= $start_ts) {
@@ -87,9 +86,9 @@ final class Util
     }
 
     /**
-     * Calculates total price
+     * Calculates total price with weekend multiplier
      */
-    public static function total_price(int $vehicle_id, int $days): float
+    public static function total_price(int $vehicle_id, int $days, int $start_ts = 0): float
     {
         $price_per_day = (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
 
@@ -97,7 +96,50 @@ final class Util
             return 0.0;
         }
 
-        return $price_per_day * $days;
+        // If no start date or short rental, simple calc
+        // However, user wants multiplier logic.
+
+        // Apply Base Price Multiplier
+        $base_multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_base_price', 1.0);
+        if ($base_multiplier > 0 && $base_multiplier != 1.0) {
+            $price_per_day = $price_per_day * $base_multiplier;
+        }
+
+        $multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_weekend_multiplier', 1.2);
+
+        // Safety check for multiplier
+        if ($multiplier <= 1.0) {
+            return $price_per_day * $days;
+        }
+
+        if ($start_ts <= 0) {
+            return $price_per_day * $days;
+        }
+
+        $total = 0.0;
+        $current_ts = $start_ts;
+
+        // Iterate through each day
+        for ($i = 0; $i < $days; $i++) {
+            // Check day of week (0 = Sunday, 6 = Saturday) for the current checking day
+            // We use getdate or date('w') based on timestamp.
+            // Note: rental days are 24h blocks. Logic typically applies to ANY day overlapping weekend?
+            // Usually car rental charges "day rate" for that specific day.
+
+            $day_of_week = (int) date('w', $current_ts);
+
+            // Sat (6) or Sun (0)
+            if ($day_of_week === 6 || $day_of_week === 0) {
+                $total += ($price_per_day * $multiplier);
+            } else {
+                $total += $price_per_day;
+            }
+
+            // Advance 24 hours
+            $current_ts += 86400;
+        }
+
+        return $total;
     }
 
     /**
@@ -116,23 +158,25 @@ final class Util
 
         // ⭐ Exclude pending bookings with expired payment deadline
         // Only count pending bookings that haven't expired their payment deadline
+        // TIMEZONE FIX: Use _mhm_start_date and _mhm_end_date with UNIX_TIMESTAMP to compare raw local times
         $result = $wpdb->get_var($wpdb->prepare(
             "
             SELECT COUNT(*) 
             FROM {$wpdb->posts} p
             INNER JOIN {$wpdb->postmeta} pm1 ON p.ID = pm1.post_id AND pm1.meta_key = '_mhm_vehicle_id'
             INNER JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = '_mhm_status'
-            INNER JOIN {$wpdb->postmeta} pm3 ON p.ID = pm3.post_id AND pm3.meta_key = '_mhm_start_ts'
-            INNER JOIN {$wpdb->postmeta} pm4 ON p.ID = pm4.post_id AND pm4.meta_key = '_mhm_end_ts'
+            INNER JOIN {$wpdb->postmeta} pm3 ON p.ID = pm3.post_id AND pm3.meta_key = '_mhm_start_date'
+            INNER JOIN {$wpdb->postmeta} pm4 ON p.ID = pm4.post_id AND pm4.meta_key = '_mhm_end_date'
             LEFT JOIN {$wpdb->postmeta} pm5 ON p.ID = pm5.post_id AND pm5.meta_key = '_mhm_payment_deadline'
             WHERE p.post_type = 'vehicle_booking' 
             AND p.post_status = 'publish'
             AND pm1.meta_value = %d
             AND pm2.meta_value IN ('pending', 'confirmed', 'in_progress')
             AND (
-                (pm3.meta_value <= %d AND (CAST(pm4.meta_value AS UNSIGNED) + %d) > %d) OR -- New start overlaps with existing range + buffer
-                (pm3.meta_value < %d AND (CAST(pm4.meta_value AS UNSIGNED) + %d) >= %d) OR -- New end overlaps with existing range + buffer 
-                (pm3.meta_value >= %d AND (CAST(pm4.meta_value AS UNSIGNED) + %d) <= %d)   -- Existing range is inside new range
+                -- Overlap Logic: (StartA < EndB) AND ((EndA + Buffer) > StartB)
+                -- A = Existing Booking in DB (Local Time), B = New Request (Raw Timestamp)
+                (UNIX_TIMESTAMP(pm3.meta_value) < %d) AND 
+                ((UNIX_TIMESTAMP(pm4.meta_value) + %d) > %d)
             )
             AND (
                 pm2.meta_value != 'pending' OR 
@@ -142,19 +186,9 @@ final class Util
             )
         ",
             $vehicle_id,
-            $end_ts,
-            $buffer_seconds,
-            $start_ts,     // Group 1
-            $start_ts,
-            $buffer_seconds,
-            $end_ts,     // Group 2 (Logic check: Start < New End ?) Actually logic is: Existing Start < New End AND Existing End > New Start.
-            // Let's stick to standard overlap logic:
-            // (StartA <= EndB) AND (EndA >= StartB)
-            // Here A = Existing (with buffer), B = New
-            // (ExistingStart <= NewEnd) AND ((ExistingEnd + Buffer) > NewStart)
-            $start_ts,
-            $buffer_seconds,
-            $end_ts,     // Group 3 is redundant if Group 1 covers general overlap.
+            $end_ts,        // New Request END
+            $buffer_seconds, // Buffer
+            $start_ts,      // New Request START
             $current_time
         ));
 
@@ -179,6 +213,11 @@ final class Util
 
         // Conflict check with accurate date interval handling
         // ⭐ Exclude pending bookings with expired payment deadline
+
+        // BUFFER TIME
+        $buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_buffer_time', '60');
+        $buffer_seconds = $buffer_minutes * 60;
+
         $current_time = current_time('mysql');
 
         $overlap_query = $wpdb->prepare(
@@ -192,11 +231,11 @@ final class Util
              AND p.post_status = 'publish'
              AND pm1.meta_key = '_mhm_vehicle_id' AND pm1.meta_value = %d
              AND pm2.meta_key = '_mhm_status' AND pm2.meta_value IN ('pending', 'confirmed', 'in_progress')
-             AND pm3.meta_key = '_mhm_start_ts' AND pm4.meta_key = '_mhm_end_ts'
+             AND pm3.meta_key = '_mhm_start_date' AND pm4.meta_key = '_mhm_end_date'
              AND (
-                 (pm3.meta_value <= %d AND pm4.meta_value > %d) OR
-                 (pm3.meta_value < %d AND pm4.meta_value >= %d) OR
-                 (pm3.meta_value >= %d AND pm4.meta_value <= %d)
+                 -- Overlap Logic: (StartA < EndB) AND ((EndA + Buffer) > StartB)
+                 (UNIX_TIMESTAMP(pm3.meta_value) < %d) AND 
+                 ((UNIX_TIMESTAMP(pm4.meta_value) + %d) > %d)
              )
              AND (
                  pm2.meta_value != 'pending' OR 
@@ -205,12 +244,9 @@ final class Util
                  pm5.meta_value > %s
              )",
             $vehicle_id,
-            $start_ts,
-            $start_ts,
             $end_ts,
-            $end_ts,
+            $buffer_seconds,
             $start_ts,
-            $end_ts,
             $current_time
         );
 
@@ -298,7 +334,7 @@ final class Util
             // Calculate days and pricing
             $days = self::rental_days($start_ts, $end_ts);
             $price_per_day = (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
-            $total_price = self::total_price($vehicle_id, $days);
+            $total_price = self::total_price($vehicle_id, $days, $start_ts);
 
             $result = [
                 'ok' => true,
@@ -667,7 +703,7 @@ final class Util
             // Calculate rental days and pricing
             $days = self::rental_days($start_ts, $end_ts);
             $price_per_day = (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
-            $total_price = self::total_price($vehicle_id, $days);
+            $total_price = self::total_price($vehicle_id, $days, $start_ts);
 
             return [
                 'ok' => true,

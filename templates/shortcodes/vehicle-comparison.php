@@ -126,9 +126,22 @@ $custom_class = trim($atts['class'] ?? '');
                                                 $btn_attrs = 'aria-disabled="true" tabindex="-1"';
                                             }
                                             ?>
-                                            <a href="<?php echo $btn_href; ?>" class="<?php echo esc_attr($btn_class); ?>" style="<?php echo esc_attr($btn_style); ?>" <?php echo $btn_attrs; ?>>
+                                            <a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" style="<?php echo esc_attr($btn_style); ?>" <?php echo wp_kses_post($btn_attrs); ?>>
                                                 <?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
                                             </a>
+                                            <!-- Price Display -->
+                                            <?php
+                                            $price = $vehicle['features']['price_per_day'] ?? 0;
+                                            if ($show_prices && $price > 0):
+                                            ?>
+                                                <div class="mhm-comparison-price" style="text-align: center; font-weight: bold; font-size: 1.1em; color: #2ecc71; margin-top: 10px;">
+                                                    <?php
+                                                    echo esc_html(number_format($price, 0, ',', '.'));
+                                                    echo ' ' . esc_html($vehicle['features']['currency_symbol'] ?? '$');
+                                                    echo ' <span class="price-suffix" style="font-size: 0.9em; color: #7f8c8d; font-weight: normal;">/ ' . esc_html__('day', 'mhm-rentiva') . '</span>';
+                                                    ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                     </th>
                                 <?php endforeach; ?>
@@ -136,6 +149,7 @@ $custom_class = trim($atts['class'] ?? '');
                         </thead>
                         <tbody>
                             <?php foreach ($features as $feature_key => $feature_label): ?>
+                                <?php if ($feature_key === 'price_per_day') continue; ?>
                                 <tr class="rv-feature-row">
                                     <td class="rv-feature-label"><?php echo esc_html($feature_label); ?></td>
                                     <?php foreach ($vehicles as $vehicle): ?>
@@ -143,20 +157,8 @@ $custom_class = trim($atts['class'] ?? '');
                                             <?php
                                             $value = $vehicle['features'][$feature_key] ?? '-';
 
-                                            // Special formatting for specific fields
-                                            if ($feature_key === 'price_per_day' && $show_prices) {
-                                                if ($value > 0) {
-                                                    echo '<span class="rv-price">';
-                                                    echo esc_html(number_format($value, 0, ',', '.'));
-                                                    echo ' ' . esc_html($vehicle['features']['currency_symbol'] ?? '$');
-                                                    echo '</span>';
-                                                } else {
-                                                    echo '<span class="rv-no-price">-</span>';
-                                                }
-                                            } else {
-                                                // Completely dynamic - no hardcoded fields
-                                                echo '<span class="rv-feature-text">' . esc_html($value) . '</span>';
-                                            }
+                                            // Completely dynamic - no hardcoded fields since price is skipped
+                                            echo '<span class="rv-feature-text">' . esc_html($value) . '</span>';
                                             ?>
                                         </td>
                                     <?php endforeach; ?>
@@ -219,21 +221,15 @@ $custom_class = trim($atts['class'] ?? '');
                             <div class="rv-mobile-accordion-content">
                                 <div class="rv-mobile-features-list">
                                     <?php foreach ($features as $feature_key => $feature_label): ?>
+                                        <?php if ($feature_key === 'price_per_day') continue; ?>
                                         <div class="rv-mobile-feature-row">
                                             <span class="rv-mobile-label"><?php echo esc_html($feature_label); ?></span>
                                             <span class="rv-mobile-value">
                                                 <?php
                                                 $value = $vehicle['features'][$feature_key] ?? '-';
 
-                                                if ($feature_key === 'price_per_day') {
-                                                    if ($value > 0) {
-                                                        echo esc_html(number_format($value, 0, ',', '.') . ' ' . ($vehicle['features']['currency_symbol'] ?? '$'));
-                                                    } else {
-                                                        echo '-';
-                                                    }
-                                                } else {
-                                                    echo esc_html($value);
-                                                }
+                                                // Dynamic text output
+                                                echo esc_html($value);
                                                 ?>
                                             </span>
                                         </div>
@@ -253,7 +249,7 @@ $custom_class = trim($atts['class'] ?? '');
                                         $btn_attrs = 'aria-disabled="true"';
                                     }
                                     ?>
-                                    <a href="<?php echo $btn_href; ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo $btn_attrs; ?>>
+                                    <a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo wp_kses_post($btn_attrs); ?>>
                                         <?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
                                     </a>
                                 </div>
@@ -331,7 +327,7 @@ $custom_class = trim($atts['class'] ?? '');
                                     $btn_attrs = 'aria-disabled="true" tabindex="-1" style="opacity: 0.6; pointer-events: none; cursor: not-allowed;"';
                                 }
                                 ?>
-                                <a href="<?php echo $btn_href; ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo $btn_attrs; ?>>
+                                <a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo wp_kses_post($btn_attrs); ?>>
                                     <?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
                                 </a>
                             </div>

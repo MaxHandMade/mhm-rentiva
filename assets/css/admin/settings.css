@@ -55,14 +55,30 @@
     margin-bottom: var(--mhm-space-5);
     padding-bottom: var(--mhm-space-4);
     border-bottom: 1px solid var(--mhm-border-primary);
+    flex-wrap: wrap;
+    gap: var(--mhm-space-4);
 }
 
-.mhm-settings-tab-header h2 {
+.mhm-settings-title-group h2 {
     margin: 0 0 5px 0;
 }
 
-.mhm-settings-tab-header p {
+.mhm-settings-title-group p {
     margin: 0;
+}
+
+.mhm-settings-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mhm-settings-header-actions .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    vertical-align: text-bottom;
 }
 
 .mhm-reset-tab-btn {
@@ -139,6 +155,26 @@
         border: 1px solid var(--mhm-border-primary);
         border-radius: 4px;
         margin: 2px;
+    }
+
+    /* Header Mobilde Alt Alta Olsun */
+    .mhm-settings-tab-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--mhm-space-3);
+    }
+
+    /* Buton Grubu Mobilde */
+    .mhm-settings-header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    /* Butonlar Mobilde Tam Genişlik Olabilir */
+    .mhm-settings-header-actions .button {
+        flex: 1;
+        justify-content: center;
+        text-align: center;
     }
 }
 

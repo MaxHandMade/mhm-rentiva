@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Vehicle\Taxonomies;
 
@@ -76,12 +78,12 @@ final class VehicleCategory
      */
     public static function add_meta_support(): void
     {
-        add_action('init', function() {
+        add_action('init', function () {
             // Security: Check if function exists and user has permission
             if (!function_exists('register_meta') || !current_user_can('manage_categories')) {
                 return;
             }
-            
+
             try {
                 register_meta('term', 'category_color', [
                     'type' => 'string',
@@ -90,7 +92,7 @@ final class VehicleCategory
                     'show_in_rest' => true,
                     'sanitize_callback' => 'sanitize_hex_color',
                 ]);
-                
+
                 register_meta('term', 'category_icon', [
                     'type' => 'string',
                     'description' => __('Category icon class or URL', 'mhm-rentiva'),
@@ -98,7 +100,7 @@ final class VehicleCategory
                     'show_in_rest' => true,
                     'sanitize_callback' => 'sanitize_text_field',
                 ]);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 // Log error but don't break the site
                 error_log('MHMRentiva: Failed to register taxonomy meta fields - ' . $e->getMessage());
             }
@@ -113,7 +115,7 @@ final class VehicleCategory
         add_action('restrict_manage_posts', [self::class, 'add_category_filter']);
         add_filter('manage_edit-vehicle_columns', [self::class, 'add_category_column']);
         add_action('manage_vehicle_posts_custom_column', [self::class, 'display_category_column'], 10, 2);
-        
+
         // Security: Add nonce field for admin actions
         add_action('admin_init', [self::class, 'add_admin_nonce']);
     }
@@ -134,19 +136,19 @@ final class VehicleCategory
     public static function add_category_filter(): void
     {
         global $typenow;
-        
+
         // Security: Check user capabilities
         if (!current_user_can('edit_posts')) {
             return;
         }
-        
+
         if ($typenow === 'vehicle') {
             $taxonomy = get_taxonomy(self::TAXONOMY);
             if ($taxonomy) {
                 // Security: Sanitize selected value
                 $selected = get_query_var(self::TAXONOMY);
                 $selected = $selected ? self::sanitize_text_field_safe($selected) : 0;
-                
+
                 wp_dropdown_categories([
                     /* translators: %1$s placeholder. */
                     'show_option_all' => sprintf(__('All %1$s', 'mhm-rentiva'), $taxonomy->labels->name),
@@ -185,14 +187,14 @@ final class VehicleCategory
         if (!current_user_can('edit_posts')) {
             return;
         }
-        
+
         if ($column === self::TAXONOMY) {
             // Security: Validate post ID
             if (!is_numeric($post_id) || $post_id <= 0) {
                 echo '<span class="na">' . esc_html__('Invalid post', 'mhm-rentiva') . '</span>';
                 return;
             }
-            
+
             $terms = get_the_terms($post_id, self::TAXONOMY);
             if ($terms && !is_wp_error($terms)) {
                 $term_links = [];
@@ -201,7 +203,7 @@ final class VehicleCategory
                     if (!is_object($term) || !isset($term->slug, $term->name)) {
                         continue;
                     }
-                    
+
                     $term_links[] = sprintf(
                         '<a href="%1$s">%2$s</a>',
                         esc_url(add_query_arg(self::TAXONOMY, self::sanitize_text_field_safe($term->slug), admin_url('edit.php?post_type=vehicle'))),

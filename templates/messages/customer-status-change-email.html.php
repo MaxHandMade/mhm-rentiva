@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Customer status change email template
  * 
@@ -14,7 +15,8 @@ if (!defined('ABSPATH')) {
 
 // Load plugin textdomain
 if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
+    function mhm_rentiva_load_textdomain()
+    {
         load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
     }
     mhm_rentiva_load_textdomain();
@@ -22,19 +24,61 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title><?php esc_html_e('Message Status Updated', 'mhm-rentiva'); ?></title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #2271b1; color: white; padding: 20px; text-align: center; }
-        .content { padding: 20px; background: #f9f9f9; }
-        .status-change { background: white; padding: 15px; margin: 15px 0; border-radius: 4px; border: 1px solid #ddd; }
-        .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
-        .button { display: inline-block; background: #2271b1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #2271b1;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 20px;
+            background: #f9f9f9;
+        }
+
+        .status-change {
+            background: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .button {
+            display: inline-block;
+            background: #2271b1;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -54,7 +98,13 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
             </div>
 
             <div style="text-align: center; margin: 30px 0;">
-                <a href="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_account') . '?endpoint=messages'); ?>" class="button">
+                <?php
+                // ✅ Use WooCommerce native approach instead of ShortcodeUrlManager
+                $account_url = function_exists('wc_get_page_permalink')
+                    ? wc_get_page_permalink('myaccount')
+                    : home_url('/my-account/');
+                ?>
+                <a href="<?php echo esc_url($account_url . '?endpoint=messages'); ?>" class="button">
                     <?php esc_html_e('View My Messages', 'mhm-rentiva'); ?>
                 </a>
             </div>
@@ -66,4 +116,5 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
         </div>
     </div>
 </body>
+
 </html>

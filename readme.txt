@@ -25,12 +25,33 @@ MHM Rentiva is a comprehensive vehicle rental management solution designed for c
 *   **VIP Transfer Module:** Integrated point-to-point transfer booking system with distance-based pricing and vehicle selection.
 *   **REST API:** Full REST API support for mobile app or external integrations.
 
+== Project Structure ==
+
+mhm-rentiva/
+├── assets/             # Frontend assets (CSS, JS, Images)
+├── languages/          # Translation files (14 files)
+├── src/                # PHP Source Code (PSR-4 logic)
+│   ├── Admin/         # Plugin Core Components
+│   │   ├── Booking, Vehicle, Payment, Customers, 
+│   │   ├── Licensing, REST, Reports, Settings,
+│   │   └── Transfer, Utilities, PostTypes...
+│   └── Plugin.php      # Main initialization class
+├── templates/          # Frontend & Email Templates
+├── mhm-rentiva.php     # Main entry point
+├── uninstall.php       # Cleanup on deletion
+├── changelog.json      # English version history
+├── changelog-tr.json   # Turkish version history
+├── LICENSE             # GPL License
+├── readme.txt          # WP.org metadata
+├── README.md           # Documentation (English)
+└── README-tr.md        # Documentation (Turkish)
+
 == Installation ==
 
 1.  Upload the plugin files to the `/wp-content/plugins/mhm-rentiva` directory, or install the plugin through the WordPress plugins screen directly.
 2.  Activate the plugin through the 'Plugins' screen in WordPress.
 3.  Navigate to the 'Rentiva' menu to configure your settings and add vehicles.
-4.  Use the shortcodes `[mhm_rentiva_vehicles]` or `[mhm_rentiva_search]` to display your fleet on the frontend.
+4.  Use the shortcodes `[mhm_rentiva_vehicles]`, `[mhm_rentiva_search]` or `[mhm_rentiva_transfer_search]` to display your fleet and booking forms.
 
 == Frequently Asked Questions ==
 

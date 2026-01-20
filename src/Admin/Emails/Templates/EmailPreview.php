@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Emails\Templates;
 
@@ -35,12 +37,31 @@ final class EmailPreview
         echo '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end;">';
         echo '<div style="flex:1 1 100%"><label>' . esc_html__('Template', 'mhm-rentiva') . '<br/>';
         echo '<select id="mhm-preview-template-key" style="width:100%; min-width:260px;">';
-        foreach ($registry as $key => $def) { echo '<option value="' . esc_attr($key) . '">' . esc_html($key) . '</option>'; }
+
+        // Extended Friendly Names Map
+        $friendly_names = [
+            'booking_created_customer' => esc_html__('Booking Confirmation (Customer)', 'mhm-rentiva'),
+            'booking_created_admin'    => esc_html__('New Booking Alert (Admin)', 'mhm-rentiva'),
+            'booking_status_changed_admin' => esc_html__('Status Change: (Admin)', 'mhm-rentiva'),
+            'booking_status_changed_customer' => esc_html__('Status Change: Confirmed (Customer)', 'mhm-rentiva'),
+            'booking_cancelled'        => esc_html__('Booking Cancelled (Customer)', 'mhm-rentiva'),
+            'auto_cancel'              => esc_html__('Auto Cancel Notification (Customer)', 'mhm-rentiva'),
+            'booking_reminder_customer' => esc_html__('Booking Reminder (Customer)', 'mhm-rentiva'),
+            'welcome_customer'         => esc_html__('Welcome Email (Customer)', 'mhm-rentiva'),
+            'refund_customer'          => esc_html__('Refund Notification (Customer)', 'mhm-rentiva'),
+            'refund_admin'             => esc_html__('Refund Alert (Admin)', 'mhm-rentiva'),
+            'offline_payment_request'  => esc_html__('Offline Payment Request (Customer)', 'mhm-rentiva'),
+            'offline_payment_confirmation' => esc_html__('Offline Payment Confirmed (Customer)', 'mhm-rentiva'),
+            'message_received_admin' => esc_html__('New Message (Admin)', 'mhm-rentiva'),
+            'message_replied_customer' => esc_html__('Message Reply (Customer)', 'mhm-rentiva'),
+        ];
+
+        foreach ($registry as $key => $def) {
+            $label = $friendly_names[$key] ?? ucfirst(str_replace('_', ' ', $key));
+            echo '<option value="' . esc_attr($key) . '">' . esc_html($label) . '</option>';
+        }
         echo '</select></label></div>';
-        echo '<div style="flex:1 1 45%"><label>' . esc_html__('Booking ID', 'mhm-rentiva') . '<br/>';
-        echo '<input type="number" id="mhm-preview-booking-id" class="small-text" min="1" style="width:100%" /></label></div>';
-        echo '<div style="flex:1 1 45%"><label>' . esc_html__('New Status (optional)', 'mhm-rentiva') . '<br/>';
-        echo '<input type="text" id="mhm-preview-new-status" class="regular-text" placeholder="confirmed" style="width:100%" /></label></div>';
+
         echo '<div style="flex:1 1 100%"><label>' . esc_html__('Send To (optional)', 'mhm-rentiva') . '<br/>';
         echo '<input type="email" id="mhm-preview-send-to" class="regular-text" value="' . esc_attr($default_to) . '" style="width:100%" /></label></div>';
         echo '<div>';
@@ -62,36 +83,16 @@ final class EmailPreview
         echo '</div>';
 
         echo '<div style="flex:1 1 auto; min-width:420px;">';
-        if (isset($_POST['preview_email']) && wp_verify_nonce($_POST['mhm_preview_nonce'] ?? '', 'mhm_email_preview_action')) {
-            self::show_preview_result();
-        } else {
-            echo '<div class="notice notice-info"><p>' . esc_html__('Enter a Booking ID and click Preview to see the email.', 'mhm-rentiva') . '</p></div>';
-        }
+        echo '<div id="mhm-preview-result-container">';
+
+        // Initial state or placeholder
+        echo '<div class="notice notice-info inline"><p>' . esc_html__('Enter a Booking ID and click Preview to see the email.', 'mhm-rentiva') . '</p></div>';
+
+        echo '</div>'; // End container
         echo '</div>';
         echo '</div>';
 
-        echo '<script>(function(){
-          var sendBtn=document.getElementById("mhm-preview-send-btn");
-          if(sendBtn){
-            sendBtn.addEventListener("click",function(){
-              var form=document.createElement("form");
-              form.method="POST"; form.action=' . wp_json_encode($admin_post) . ';
-              var fields={action:"mhm_rentiva_send_template_test", _wpnonce:' . wp_json_encode($send_nonce) . ', template_key:document.getElementById("mhm-preview-template-key").value, booking_id:document.getElementById("mhm-preview-booking-id").value, new_status:document.getElementById("mhm-preview-new-status").value, to:document.getElementById("mhm-preview-send-to").value};
-              Object.keys(fields).forEach(function(k){var i=document.createElement("input"); i.type="hidden"; i.name=k; i.value=fields[k]||""; form.appendChild(i);});
-              document.body.appendChild(form); form.submit();
-            });
-          }
-          var prevBtn=document.getElementById("mhm-preview-btn");
-          if(prevBtn){
-            prevBtn.addEventListener("click",function(){
-              var form=document.createElement("form");
-              form.method="POST"; form.action=' . wp_json_encode(esc_url_raw(add_query_arg([]))) . ';
-              var fields={preview_email:1, mhm_preview_nonce:' . wp_json_encode($preview_nonce) . ', template_key:document.getElementById("mhm-preview-template-key").value, booking_id:document.getElementById("mhm-preview-booking-id").value, new_status:document.getElementById("mhm-preview-new-status").value};
-              Object.keys(fields).forEach(function(k){var i=document.createElement("input"); i.type="hidden"; i.name=k; i.value=fields[k]||""; form.appendChild(i);});
-              document.body.appendChild(form); form.submit();
-            });
-          }
-        })();</script>';
+        // Inline JS removed - handled by assets/js/admin/email-templates.js
     }
 
     private static function show_preview_result(): void
@@ -134,7 +135,7 @@ final class EmailPreview
         }
 
         $meta = get_post_meta($booking_id);
-        
+
         return [
             'id' => $booking_id,
             'title' => $booking->post_title,
@@ -209,8 +210,29 @@ final class EmailPreview
             if (isset($context['booking']['total_price']) && is_numeric($context['booking']['total_price'])) {
                 $amount = (float) $context['booking']['total_price'];
             }
-            $currency = apply_filters('mhm_rentiva/currency_symbol', '₺');
-            $context['amount'] = number_format($amount, 2) . ' ' . $currency;
+            // Force custom logic for preview to guarantee symbol display
+            // if (function_exists('wc_price')) { ... } 
+
+            $symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
+
+            $formatted_amount = number_format($amount, 2);
+            $pos = get_option('mhm_rentiva_currency_position', 'right_space');
+
+            switch ($pos) {
+                case 'left':
+                    $context['amount'] = $symbol . $formatted_amount;
+                    break;
+                case 'left_space':
+                    $context['amount'] = $symbol . ' ' . $formatted_amount;
+                    break;
+                case 'right':
+                    $context['amount'] = $formatted_amount . $symbol;
+                    break;
+                case 'right_space':
+                default:
+                    $context['amount'] = $formatted_amount . ' ' . $symbol;
+                    break;
+            }
             $context['status'] = 'completed';
             $context['reason'] = '';
         }
@@ -223,6 +245,30 @@ final class EmailPreview
                 'body' => __('This is a sample message body for preview.', 'mhm-rentiva'),
                 'reply' => __('This is a sample reply for preview.', 'mhm-rentiva'),
             ];
+        }
+
+        // Mock data for Manual Cancellation
+        if ($template_key === 'booking_cancelled') {
+            // Force these values to ensure preview looks good even without real DB data
+            $context['booking_id']    = '9999';
+            $context['order_id']      = '9999';
+            $context['contact_name']  = 'John Doe';
+            $context['status']        = __('Cancelled', 'mhm-rentiva');
+
+            // Ensure nested array exists if template uses {{booking.id}}
+            $context['booking']['id'] = '9999';
+            $context['booking']['status'] = 'cancelled';
+
+            // Ensure sites info
+            $context['site_url'] = site_url();
+        }
+
+        // Generic fallback for phone if missing (crucial for Admin alerts)
+        if (empty($context['contact_phone'])) {
+            $context['contact_phone'] = '555-000-0000';
+        }
+        if (empty($context['customer']['phone'])) {
+            $context['customer']['phone'] = '555-000-0000';
         }
 
         return $context;

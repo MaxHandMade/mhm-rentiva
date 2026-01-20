@@ -219,8 +219,8 @@ final class AssetManager
         switch ($component) {
             case 'addon-booking':
                 wp_localize_script('mhm-addon-booking', 'mhmAddonBooking', [
-                    'currency' => self::get_currency_symbol(),
-                    'locale' => self::get_js_locale(),
+                    'currency' => CurrencyHelper::get_currency_symbol(),
+                    'locale' => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
                     'strings' => [
                         'totalAddons' => __('Total Add-ons', 'mhm-rentiva'),
                         'noAddonsSelected' => __('No add-ons selected', 'mhm-rentiva'),
@@ -324,7 +324,7 @@ final class AssetManager
             'nonce' => wp_create_nonce('mhm_admin_nonce'),
             'locale' => get_locale(),
             'currency' => get_option('mhm_rentiva_currency', 'USD'),
-            'currencySymbol' => self::get_currency_symbol(),
+            'currencySymbol' => CurrencyHelper::get_currency_symbol(),
             'currencyPosition' => get_option('mhm_rentiva_currency_position', 'left'),
             'dateFormat' => get_option('date_format', 'Y-m-d'),
             'timeFormat' => get_option('time_format', 'H:i'),
@@ -380,8 +380,8 @@ final class AssetManager
             wp_localize_script('mhm-manual-booking-meta', 'mhmManualBooking', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('mhm_manual_booking_nonce'),
-                'currency' => self::get_currency_symbol(),
-                'locale' => self::get_js_locale(),
+                'currency' => CurrencyHelper::get_currency_symbol(),
+                'locale' => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
                 'text' => [
                     'calculating' => __('Calculating...', 'mhm-rentiva'),
                     'error' => __('An error occurred', 'mhm-rentiva'),
@@ -460,8 +460,8 @@ final class AssetManager
             wp_localize_script('mhm-dashboard', 'mhm_dashboard_vars', [
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('mhm_dashboard_nonce'),
-                'currency' => self::get_currency_symbol(),
-                'locale' => self::get_js_locale(),
+                'currency' => CurrencyHelper::get_currency_symbol(),
+                'locale' => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
                 'revenue_data' => self::get_dashboard_revenue_data(),
                 'strings' => [
                     'daily_revenue' => __('Daily Revenue', 'mhm-rentiva'),
@@ -495,8 +495,8 @@ final class AssetManager
             wp_localize_script('mhm-reports-charts', 'mhmRentivaCharts', [
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('mhm_charts_nonce'),
-                'currencySymbol' => self::get_currency_symbol(),
-                'locale' => self::get_js_locale(),
+                'currencySymbol' => CurrencyHelper::get_currency_symbol(),
+                'locale' => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
                 'strings' => [
                     'daily_revenue' => __('Daily Revenue', 'mhm-rentiva'),
                     'no_data' => __('No data available', 'mhm-rentiva'),
@@ -661,7 +661,7 @@ final class AssetManager
             );
 
             wp_localize_script('mhm-customers-calendar', 'mhmCustomersCalendar', [
-                'locale' => self::get_js_locale(),
+                'locale' => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
                 'strings' => [
                     'selectedDate' => __('Selected date', 'mhm-rentiva'),
                 ]
@@ -679,7 +679,7 @@ final class AssetManager
             );
 
             wp_localize_script('mhm-booking-calendar', 'mhmBookingCalendar', [
-                'locale' => self::get_js_locale(),
+                'locale' => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
                 'strings' => [
                     'selectedDate' => __('Selected date', 'mhm-rentiva'),
                 ]
@@ -796,7 +796,53 @@ final class AssetManager
                     'defaultAutoReply' => __('Your message received: {{subject}}', 'mhm-rentiva'),
                 ]
             ]);
+
+            // Enqueue Email Templates JS for Preview Tab
+            if (isset($_GET['tab']) && $_GET['tab'] === 'email_preview') {
+                wp_enqueue_script(
+                    'mhm-email-templates',
+                    MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
+                    ['jquery'],
+                    self::get_file_version('assets/js/admin/email-templates.js'),
+                    true
+                );
+
+                wp_localize_script('mhm-email-templates', 'mhm_email_templates_vars', [
+                    'ajax_url' => admin_url('admin-ajax.php'),
+                    'nonce' => wp_create_nonce('mhm_email_templates_nonce'),
+                    'preview_email' => __('Email Preview', 'mhm-rentiva'),
+                    'send_test' => __('Send Test Email', 'mhm-rentiva'),
+                    'processing' => __('Processing...', 'mhm-rentiva'),
+                    'test_email_sent' => __('Test email sent successfully', 'mhm-rentiva'),
+                    'test_email_failed' => __('Failed to send test email', 'mhm-rentiva'),
+                    'error_occurred' => __('An error occurred', 'mhm-rentiva'),
+                    'strings' => [
+                        'sendTestEmail' => __('Send Test Email', 'mhm-rentiva'),
+                        'emailAddress' => __('Email Address', 'mhm-rentiva'),
+                        'cancel' => __('Cancel', 'mhm-rentiva'),
+                        'enterEmail' => __('Please enter email address', 'mhm-rentiva'),
+                        'editTemplate' => __('Edit Template', 'mhm-rentiva'),
+                        'subject' => __('Subject', 'mhm-rentiva'),
+                        'content' => __('Content', 'mhm-rentiva'),
+                        'save' => __('Save', 'mhm-rentiva'),
+                        'templateSaved' => __('Template saved successfully!', 'mhm-rentiva'),
+                        'templateReset' => __('Template reset to default!', 'mhm-rentiva'),
+                    ]
+                ]);
+            }
         }
+
+        // Vehicle Settings
+        if ($screen->id === 'mhm-rentiva_page_vehicle-settings') {
+            wp_enqueue_script(
+                'mhm-vehicle-card-fields',
+                MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-card-fields.js',
+                ['jquery', 'jquery-ui-sortable'],
+                self::get_file_version('assets/js/admin/vehicle-card-fields.js'),
+                true
+            );
+        }
+
 
         // Messages Admin
         if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-messages') {
@@ -811,7 +857,7 @@ final class AssetManager
             wp_localize_script('mhm-messages-admin', 'mhmMessagesAdmin', [
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('mhm_messages_nonce'),
-                'locale' => self::get_js_locale(),
+                'locale' => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
                 'strings' => [
                     'error' => __('An error occurred', 'mhm-rentiva'),
                     'no_items_selected' => __('Please select at least one item', 'mhm-rentiva'),
@@ -845,8 +891,8 @@ final class AssetManager
             wp_localize_script('mhm-addon-list', 'mhm_addon_list_vars', [
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('mhm_addon_list_nonce'),
-                'currency' => self::get_currency_symbol(),
-                'locale' => self::get_js_locale(),
+                'currency' => CurrencyHelper::get_currency_symbol(),
+                'locale' => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
                 'no_items_selected' => __('Please select at least one item', 'mhm-rentiva'),
                 'items_selected' => __('selected', 'mhm-rentiva'),
                 'confirm_enable' => __('Enable selected add-ons?', 'mhm-rentiva'),
@@ -899,7 +945,7 @@ final class AssetManager
 
             wp_localize_script('mhm-customers', 'mhm_rentiva_customers', [
                 'nonce' => wp_create_nonce('mhm_customers_nonce'),
-                'currencySymbol' => self::get_currency_symbol(),
+                'currencySymbol' => CurrencyHelper::get_currency_symbol(),
                 'strings' => [
                     'this_month' => __('this month', 'mhm-rentiva'),
                     'new' => __('new', 'mhm-rentiva'),
@@ -1079,25 +1125,9 @@ final class AssetManager
         }
     }
 
-    /**
-     * Get currency symbol
-     * 
-     * @deprecated Use CurrencyHelper::get_currency_symbol() instead
-     */
-    private static function get_currency_symbol(): string
-    {
-        return CurrencyHelper::get_currency_symbol();
-    }
 
-    /**
-     * Get locale for JavaScript
-     * 
-     * @deprecated Use LanguageHelper::get_current_js_locale() instead
-     */
-    private static function get_js_locale(): string
-    {
-        return \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale();
-    }
+
+
 
     /**
      * Get revenue data for dashboard

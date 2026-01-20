@@ -27,12 +27,6 @@ final class GeneralSettings
     {
         // General Section
         \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_GENERAL);
-
-        // Site Information Section
-        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_SITE_INFO);
-
-        // Date & Time Settings Section
-        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_DATETIME);
     }
 
     /**
@@ -42,24 +36,17 @@ final class GeneralSettings
      */
     public static function get_default_settings(): array
     {
-        return [
-            'mhm_rentiva_currency'            => 'USD',
-            'mhm_rentiva_currency_position'   => 'right_space',
-            'mhm_rentiva_support_email'       => 'destek@maxhandmade.com',
-            'mhm_rentiva_contact_phone'       => '+90 555 555 55 55',
-            'mhm_rentiva_contact_hours'       => __('7/24 Support', 'mhm-rentiva'),
-            'mhm_rentiva_date_format'         => 'Y-m-d',
-            'mhm_rentiva_default_rental_days' => 1,
-            'mhm_rentiva_brand_name'          => get_bloginfo('name'),
-            'mhm_rentiva_clean_data_on_uninstall' => '0',
-            'mhm_rentiva_dark_mode'           => 'auto',
+        // Check for WooCommerce currency
+        $currency = function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'USD';
 
-            // Read-only Site Info
-            'mhm_rentiva_site_url'            => get_option('siteurl', ''),
-            'mhm_rentiva_home_url'            => get_option('home', ''),
-            'mhm_rentiva_admin_email'         => get_option('admin_email', ''),
-            'mhm_rentiva_site_language'       => get_locale(),
-            'mhm_rentiva_start_of_week'       => get_option('start_of_week', 1),
+        return [
+            'mhm_rentiva_currency'            => $currency,
+            'mhm_rentiva_currency_position'   => 'right_space',
+            'mhm_rentiva_brand_name'          => get_bloginfo('name'),
+            'mhm_rentiva_support_email'       => get_option('admin_email'),
+            'mhm_rentiva_contact_phone'       => '',
+            'mhm_rentiva_contact_hours'       => __('09:00 - 18:00', 'mhm-rentiva'),
+            'mhm_rentiva_dark_mode'           => 'auto',
         ];
     }
 
@@ -71,8 +58,8 @@ final class GeneralSettings
         // 1. General Section
         add_settings_section(
             self::SECTION_GENERAL,
-            __('General Settings', 'mhm-rentiva'),
-            [self::class, 'render_section_description'],
+            '',
+            '__return_false',
             SettingsCore::PAGE
         );
 
@@ -131,62 +118,6 @@ final class GeneralSettings
             SettingsCore::PAGE,
             self::SECTION_GENERAL
         );
-
-        add_settings_field(
-            'mhm_rentiva_clean_data_on_uninstall',
-            __('Clean Data on Uninstall', 'mhm-rentiva'),
-            [self::class, 'render_clean_data_on_uninstall_field'],
-            SettingsCore::PAGE,
-            self::SECTION_GENERAL
-        );
-
-        // 2. Site Information Section
-        add_settings_section(
-            self::SECTION_SITE_INFO,
-            __('Site Information', 'mhm-rentiva'),
-            [self::class, 'render_site_info_section_description'],
-            SettingsCore::PAGE
-        );
-
-        add_settings_field(
-            'mhm_rentiva_site_url',
-            __('Site URL', 'mhm-rentiva'),
-            [self::class, 'render_site_url_field'],
-            SettingsCore::PAGE,
-            self::SECTION_SITE_INFO
-        );
-
-        add_settings_field(
-            'mhm_rentiva_home_url',
-            __('Home URL', 'mhm-rentiva'),
-            [self::class, 'render_home_url_field'],
-            SettingsCore::PAGE,
-            self::SECTION_SITE_INFO
-        );
-
-        // 3. Date & Time Section
-        add_settings_section(
-            self::SECTION_DATETIME,
-            __('Date & Time Settings', 'mhm-rentiva'),
-            '__return_null', // No description description
-            SettingsCore::PAGE
-        );
-
-        add_settings_field(
-            'mhm_rentiva_date_format',
-            __('Date Format', 'mhm-rentiva'),
-            [self::class, 'render_date_format_field'],
-            SettingsCore::PAGE,
-            self::SECTION_DATETIME
-        );
-
-        add_settings_field(
-            'mhm_rentiva_default_rental_days',
-            __('Default Rental Days', 'mhm-rentiva'),
-            [self::class, 'render_default_rental_days_field'],
-            SettingsCore::PAGE,
-            self::SECTION_DATETIME
-        );
     }
 
     /**
@@ -197,27 +128,6 @@ final class GeneralSettings
         echo '<p>' . esc_html__('Configure general system settings.', 'mhm-rentiva') . '</p>';
     }
 
-    /**
-     * Site Info Section Description
-     */
-    public static function render_site_info_section_description(): void
-    {
-        echo '<p>' . esc_html__('Basic site information and configuration settings.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_site_url_field(): void
-    {
-        $value = SettingsCore::get('mhm_rentiva_site_url', get_option('siteurl', ''));
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_site_url]" value="' . esc_attr($value) . '" class="regular-text" readonly />';
-        echo '<p class="description">' . esc_html__('WordPress site URL (read-only)', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_home_url_field(): void
-    {
-        $value = SettingsCore::get('mhm_rentiva_home_url', get_option('home', ''));
-        echo '<input type="url" name="mhm_rentiva_settings[mhm_rentiva_home_url]" value="' . esc_attr($value) . '" class="regular-text" readonly />';
-        echo '<p class="description">' . esc_html__('WordPress home URL (read-only)', 'mhm-rentiva') . '</p>';
-    }
 
     /**
      * Currency Field
@@ -326,56 +236,5 @@ final class GeneralSettings
         $brand = SettingsCore::get('mhm_rentiva_brand_name', get_bloginfo('name'));
         echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_brand_name]" value="' . esc_attr($brand) . '" class="regular-text" />';
         echo '<p class="description">' . esc_html__('Brand name to appear in emails and documents.', 'mhm-rentiva') . '</p>';
-    }
-
-    /**
-     * Clean Data on Uninstall Field
-     */
-    public static function render_clean_data_on_uninstall_field(): void
-    {
-        $enabled = SettingsCore::get('mhm_rentiva_clean_data_on_uninstall', '0');
-        echo '<label>';
-        echo '<input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_clean_data_on_uninstall]" value="1"' . checked($enabled, '1', false) . '> ';
-        echo esc_html__('Clean all plugin data and database tables when the plugin is deleted from WordPress.', 'mhm-rentiva');
-        echo '</label>';
-        echo '<p class="description">';
-        echo '<strong>' . esc_html__('Important:', 'mhm-rentiva') . '</strong> ';
-        echo esc_html__('If enabled, when you delete the plugin from WordPress (Plugins > Installed Plugins > Delete), all plugin data including vehicles, bookings, settings, custom tables, and related database records will be permanently removed. This action is irreversible. Make sure you have a backup before enabling this option.', 'mhm-rentiva');
-        echo '</p>';
-        echo '<div class="notice notice-warning inline" style="margin-top: 10px;">';
-        echo '<p><strong>' . esc_html__('⚠️ Warning:', 'mhm-rentiva') . '</strong> ';
-        echo esc_html__('This will delete all plugin-related files and database records when the plugin is uninstalled. This cannot be undone.', 'mhm-rentiva');
-        echo '</p>';
-        echo '</div>';
-    }
-
-    /**
-     * Date Format Field
-     */
-    public static function render_date_format_field(): void
-    {
-        $format = SettingsCore::get('mhm_rentiva_date_format', 'Y-m-d');
-        $formats = [
-            'Y-m-d' => '2024-01-15',
-            'd-m-Y' => '15-01-2024',
-            'm/d/Y' => '01/15/2024',
-            'd/m/Y' => '15/01/2024'
-        ];
-
-        echo '<select name="mhm_rentiva_settings[mhm_rentiva_date_format]">';
-        foreach ($formats as $fmt => $example) {
-            echo '<option value="' . esc_attr($fmt) . '"' . selected($format, $fmt, false) . '>' . esc_html($example) . '</option>';
-        }
-        echo '</select>';
-    }
-
-    /**
-     * Default Rental Days Field
-     */
-    public static function render_default_rental_days_field(): void
-    {
-        $days = SettingsCore::get('mhm_rentiva_default_rental_days', 1);
-        echo '<input type="number" name="mhm_rentiva_settings[mhm_rentiva_default_rental_days]" value="' . esc_attr($days) . '" min="1" max="365" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Default rental duration in booking form (days).', 'mhm-rentiva') . '</p>';
     }
 }

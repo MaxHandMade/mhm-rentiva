@@ -119,6 +119,12 @@ final class Plugin
                 $styles->register();
             }
         }
+
+        // ⭐ CRITICAL: AutoCancel MUST run in ALL contexts (admin, frontend, cron)
+        // Previously was inside is_admin() block which prevented cron from working!
+        if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel')) {
+            \MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::register();
+        }
     }
 
     /**
@@ -219,9 +225,8 @@ final class Plugin
         }
 
         // Maintenance
-        if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel')) {
-            \MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::register();
-        }
+        // NOTE: AutoCancel is now registered in initialize_core_services() 
+        // to ensure it works in ALL contexts (admin, frontend, cron)
         if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\Reconcile')) {
         }
         if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\LogRetention')) {
@@ -349,9 +354,14 @@ final class Plugin
 
         // Vehicle Settings (admin only)
         if (is_admin()) {
-            if ($this->is_class_available('Admin\Vehicle\Settings\VehicleSettings')) {
-                Admin\Vehicle\Settings\VehicleSettings::register();
+            if ($this->is_class_available('MHMRentiva\Admin\Vehicle\Settings\VehicleSettings')) {
+                \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::register();
             }
+        }
+
+        // Transfer Module
+        if ($this->is_class_available('MHMRentiva\Admin\Transfer\TransferAdmin')) {
+            \MHMRentiva\Admin\Transfer\TransferAdmin::register();
         }
 
 

@@ -51,6 +51,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 - **Analytics & Reporting**: Comprehensive analytics dashboard with revenue, customer, and vehicle insights
 - **Email System**: Automated email notifications with customizable HTML templates
 - **Messaging System**: Built-in customer support messaging with thread management
+- **VIP Transfer Module**: Point-to-point booking system with distance-based pricing and vehicle selection
 - **REST API**: Complete REST API for third-party integrations and mobile apps
 
 ### Who Is This For?
@@ -116,6 +117,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 - Receipt upload for offline payments
 - Email confirmations
 - Booking reminders
+- **VIP Transfer Module Integration**: Seamless management of chauffeur services
 
 ### 💳 Payment System
 
@@ -263,6 +265,22 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 - Search and filter messages
 - Message statistics
 
+### 🚐 VIP Transfer Module (Chauffeur Service)
+
+**Core Transfer Features:**
+- **Point-to-Point Booking**: Select pickup and drop-off locations from predefined zones.
+- **Distance-Based Pricing**: Calculate costs based on route distance or fixed zone-to-zone rates.
+- **Vehicle Selection**: Assign specific vehicles for transfer services with different capacities.
+- **Buffer Time**: Operational buffer between bookings to ensure vehicle readiness.
+- **AJAX Search**: Modern transfer search interface with real-time results.
+- **WooCommerce Integration**: Seamlessly add transfer bookings to cart (Deposit or Full Payment).
+- **Frontend Tracking**: Customers can view transfer details in their "My Account" area.
+
+**Transfer Display Options:**
+- Dedicated search shortcode: `[mhm_rentiva_transfer_search]`
+- Transfer details view in customer account
+- Admin transfer management dashboard
+
 ### 🌍 Internationalization & Localization
 
 **Language Support:**
@@ -298,6 +316,20 @@ TRY, USD, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, MXN, SGD, HKD, 
 ### ⚡ Performance Features
 
 **Optimization:**
+- **On-Demand Loading**: CSS and JS are only loaded on pages where they are needed
+- **Minified Assets**: All production CSS and JS files are minified
+- **Browser Caching**: Optimized headers for better browser cache utilization
+- **Object Caching**: Support for WordPress Object Cache (Redis/Memcached)
+- **Database Indexing**: Optimized database schema with proper indexing for fast queries
+- **Image Optimization**: Responsive image sizes and lazy loading support
+- **Row Locking**: Atomic database locking to prevent double-bookings under high load
+
+**Maintenance & Tools:**
+- **Database Cleanup Tool**: Remove old logs, expired transients, and orphaned metadata to keep your database lean.
+- **Performance Monitor**: Track execution times and resource usage in real-time.
+- **Email Log Retention**: Automatically clean up old email logs after a configurable period.
+- **System Info**: One-click system status report for debugging and support.
+- **WP-CLI Support**: Management commands for advanced terminal-based operations.
 - **Conditional Asset Loading**: CSS/JS only loaded when needed
 - **Cache System**: Transient API + Object Cache integration
 - **Database Optimization**: Optimized queries, batch loading
@@ -879,6 +911,7 @@ The plugin will automatically create pages for shortcodes, or you can create the
 - Contact page (use `[rentiva_contact]` shortcode)
 - Login page (use `[rentiva_login_form]` shortcode)
 - Registration page (use `[rentiva_register_form]` shortcode)
+- VIP Transfer Search (use `[mhm_rentiva_transfer_search]` shortcode)
 
 ### Step 4: Configure Payment Gateways
 
@@ -951,156 +984,614 @@ The plugin will automatically create pages for shortcodes, or you can create the
 
 ## 📁 Project Structure
 
-```
+```text
 mhm-rentiva/
-│
-├── assets/                          # Frontend assets
+├── changelog.json                 # Version history (English)
+├── changelog-tr.json              # Version history (Turkish)
+├── LICENSE                        # GPL License information
+├── mhm-rentiva.php                # Main entry file
+├── readme.txt                     # WordPress.org metadata
+├── README.md                      # Documentation (English)
+├── README-tr.md                   # Documentation (Turkish)
+├── uninstall.php                  # Cleanup logic on deletion
+├── assets/
 │   ├── css/
-│   │   ├── admin/                  # Admin panel styles (27 files)
-│   │   ├── components/             # Component styles (5 files)
-│   │   ├── core/                   # Core styles (4 files)
-│   │   ├── frontend/                # Frontend styles (24 files)
-│   │   └── payment/                # Payment styles (1 file)
-│   ├── images/                     # Images
+│   │   ├── admin/
+│   │   │   ├── about.css
+│   │   │   ├── addon-admin.css
+│   │   │   ├── addon-list.css
+│   │   │   ├── admin-reports.css
+│   │   │   ├── booking-calendar.css
+│   │   │   ├── booking-edit-meta.css
+│   │   │   ├── booking-list.css
+│   │   │   ├── booking-meta.css
+│   │   │   ├── customers.css
+│   │   │   ├── dark-mode.css
+│   │   │   ├── dashboard-tooltips.css
+│   │   │   ├── dashboard.css
+│   │   │   ├── database-cleanup.css
+│   │   │   ├── deposit-management.css
+│   │   │   ├── elementor-editor.css
+│   │   │   ├── email-templates.css
+│   │   │   ├── export.css
+│   │   │   ├── gutenberg-blocks-editor.css
+│   │   │   ├── log-metabox.css
+│   │   │   ├── manual-booking-meta.css
+│   │   │   ├── message-list.css
+│   │   │   ├── messages-admin.css
+│   │   │   ├── messages-settings.css
+│   │   │   ├── monitoring.css
+│   │   │   ├── reports-stats.css
+│   │   │   ├── rest-api-keys.css
+│   │   │   ├── settings-testing.css
+│   │   │   ├── settings.css
+│   │   │   ├── test-suite.css
+│   │   │   ├── vehicle-card-fields.css
+│   │   │   └── vehicle-gallery.css
+│   │   ├── components/
+│   │   │   ├── addon-booking.css
+│   │   │   ├── calendars.css
+│   │   │   ├── simple-calendars.css
+│   │   │   ├── stats-cards.css
+│   │   │   └── vehicle-meta.css
+│   │   ├── core/
+│   │   │   ├── animations.css
+│   │   │   ├── core.css
+│   │   │   ├── css-variables.css
+│   │   │   └── ux-notifications.css
+│   │   ├── frontend/
+│   │   │   ├── availability-calendar.css
+│   │   │   ├── booking-confirmation.css
+│   │   │   ├── booking-detail.css
+│   │   │   ├── booking-form.css
+│   │   │   ├── bookings-page.css
+│   │   │   ├── contact-form.css
+│   │   │   ├── customer-messages-standalone.css
+│   │   │   ├── customer-messages.css
+│   │   │   ├── deposit-system.css
+│   │   │   ├── elementor-widgets.css
+│   │   │   ├── gutenberg-blocks.css
+│   │   │   ├── integrated-account.css
+│   │   │   ├── my-account.css
+│   │   │   ├── search-results.css
+│   │   │   ├── testimonials.css
+│   │   │   ├── vehicle-comparison.css
+│   │   │   ├── vehicle-details.css
+│   │   │   ├── vehicle-rating-form.css
+│   │   │   ├── vehicle-search-compact.css
+│   │   │   ├── vehicle-search.css
+│   │   │   ├── vehicles-grid.css
+│   │   │   └── vehicles-list.css
+│   │   ├── payment/
+│   │   │   └── woocommerce-checkout.css
+│   │   └── transfer.css
+│   ├── images/
+│   │   ├── mhm-logo.png
+│   │   └── placeholder-avatar.svg
 │   └── js/
-│       ├── admin/                  # Admin JavaScript (27 files)
-│       ├── components/             # Component JavaScript (3 files)
-│       ├── core/                   # Core JavaScript (7 files)
-│       ├── frontend/               # Frontend JavaScript (14 files)
-│       ├── payment/                # Payment JavaScript (1 file)
-│       └── vendor/                 # Third-party libraries
-│
-├── languages/                       # Translation files
-│   ├── mhm-rentiva-en_US.*
-│   ├── mhm-rentiva-tr_TR.*
-│   └── mhm-rentiva.pot
-│
-├── src/                            # PHP source code
+│       ├── admin/
+│       │   ├── about.js
+│       │   ├── addon-admin.js
+│       │   ├── addon-list.js
+│       │   ├── addon-settings.js
+│       │   ├── booking-bulk-actions.js
+│       │   ├── booking-calendar.js
+│       │   ├── booking-edit-meta.js
+│       │   ├── booking-email-send.js
+│       │   ├── booking-filters.js
+│       │   ├── booking-list-filters.js
+│       │   ├── booking-meta.js
+│       │   ├── cron-monitor.js
+│       │   ├── customers-calendar.js
+│       │   ├── customers.js
+│       │   ├── dark-mode.js
+│       │   ├── dashboard.js
+│       │   ├── database-cleanup.js
+│       │   ├── deposit-management.js
+│       │   ├── elementor-editor.js
+│       │   ├── email-templates.js
+│       │   ├── export.js
+│       │   ├── gutenberg-blocks.js
+│       │   ├── log-metabox.js
+│       │   ├── manual-booking-meta.js
+│       │   ├── message-list.js
+│       │   ├── messages-admin.js
+│       │   ├── messages-settings.js
+│       │   ├── monitoring.js
+│       │   ├── reports-charts.js
+│       │   ├── reports.js
+│       │   ├── rest-api-keys.js
+│       │   ├── settings-form-handler.js
+│       │   ├── settings.js
+│       │   ├── uninstall.js
+│       │   ├── vehicle-card-fields.js
+│       │   └── vehicle-gallery.js
+│       ├── components/
+│       │   ├── addon-booking.js
+│       │   ├── vehicle-meta.js
+│       │   └── vehicle-quick-edit.js
+│       ├── core/
+│       │   ├── admin-notices.js
+│       │   ├── charts.js
+│       │   ├── core.js
+│       │   ├── i18n.js
+│       │   ├── module-loader.js
+│       │   ├── performance.js
+│       │   └── utilities.js
+│       ├── frontend/
+│       │   ├── account-messages.js
+│       │   ├── account-privacy.js
+│       │   ├── availability-calendar.js
+│       │   ├── booking-cancellation.js
+│       │   ├── booking-confirmation.js
+│       │   ├── booking-form.js
+│       │   ├── contact-form.js
+│       │   ├── customer-messages.js
+│       │   ├── elementor-widgets.js
+│       │   ├── my-account.js
+│       │   ├── privacy-controls.js
+│       │   ├── search-results.js
+│       │   ├── testimonials.js
+│       │   ├── vehicle-comparison.js
+│       │   ├── vehicle-details.js
+│       │   ├── vehicle-rating-form.js
+│       │   ├── vehicle-search-compact.js
+│       │   ├── vehicle-search.js
+│       │   ├── vehicles-grid.js
+│       │   └── vehicles-list.js
+│       ├── vendor/
+│       │   └── chart.min.js
+│       └── mhm-rentiva-transfer.js
+├── languages/
+│   ├── mhm-rentiva.pot
+│   ├── mhm-rentiva-tr_TR.mo
+│   └── mhm-rentiva-tr_TR.po
+├── src/
 │   ├── Admin/
-│   │   ├── About/                  # About page (6 files)
-│   │   ├── Actions/               # Admin actions (1 file)
-│   │   ├── Addons/                 # Addon system (6 files)
-│   │   ├── Auth/                  # Authentication (3 files)
-│   │   ├── Booking/               # Booking system
-│   │   │   ├── Actions/           # Booking actions (1 file)
-│   │   │   ├── Addons/            # Addon integration (1 file)
-│   │   │   ├── Core/              # Booking core (3 files)
-│   │   │   ├── Exceptions/        # Booking exceptions (1 file)
-│   │   │   ├── Helpers/           # Booking helpers (4 files)
-│   │   │   ├── ListTable/         # Booking list table (1 file)
-│   │   │   ├── Meta/              # Booking meta boxes (6 files)
-│   │   │   └── PostType/          # Booking post type (1 file)
-│   │   ├── CLI/                   # WP-CLI commands (1 file)
-│   │   ├── Core/                  # Core utilities
-│   │   │   ├── CurrencyHelper.php # Currency management
-│   │   │   ├── LanguageHelper.php # Language management
-│   │   │   ├── AssetManager.php   # Asset management
-│   │   │   ├── Exceptions/        # Exception classes (2 files)
-│   │   │   ├── MetaBoxes/         # Meta box system (1 file)
-│   │   │   ├── PostTypes/        # Post type system (1 file)
+│   │   ├── About/
+│   │   │   ├── Tabs/
+│   │   │   │   ├── DeveloperTab.php
+│   │   │   │   ├── FeaturesTab.php
+│   │   │   │   ├── GeneralTab.php
+│   │   │   │   ├── SupportTab.php
+│   │   │   │   └── SystemTab.php
+│   │   │   ├── About.php
+│   │   │   ├── Helpers.php
+│   │   │   └── SystemInfo.php
+│   │   ├── Actions/
+│   │   │   └── Actions.php
+│   │   ├── Addons/
+│   │   │   ├── AddonListTable.php
+│   │   │   ├── AddonManager.php
+│   │   │   ├── AddonMenu.php
+│   │   │   ├── AddonMeta.php
+│   │   │   ├── AddonPostType.php
+│   │   │   └── AddonSettings.php
+│   │   ├── Auth/
+│   │   │   ├── LockoutManager.php
+│   │   │   ├── SessionManager.php
+│   │   │   └── TwoFactorManager.php
+│   │   ├── Booking/
+│   │   │   ├── Actions/
+│   │   │   │   └── DepositManagementAjax.php
+│   │   │   ├── Addons/
+│   │   │   │   └── AddonBooking.php
+│   │   │   ├── Core/
+│   │   │   │   ├── Handler.php
+│   │   │   │   ├── Hooks.php
+│   │   │   │   └── Status.php
+│   │   │   ├── Exceptions/
+│   │   │   │   └── BookingException.php
+│   │   │   ├── Helpers/
+│   │   │   │   ├── Cache.php
+│   │   │   │   ├── CancellationHandler.php
+│   │   │   │   ├── Locker.php
+│   │   │   │   └── Util.php
+│   │   │   ├── ListTable/
+│   │   │   │   └── BookingColumns.php
+│   │   │   ├── Meta/
+│   │   │   │   ├── BookingDepositMetaBox.php
+│   │   │   │   ├── BookingEditMetaBox.php
+│   │   │   │   ├── BookingMeta.php
+│   │   │   │   ├── BookingPortalMetaBox.php
+│   │   │   │   ├── BookingRefundMetaBox.php
+│   │   │   │   └── ManualBookingMetaBox.php
+│   │   │   └── PostType/
+│   │   │       └── Booking.php
+│   │   ├── CLI/
+│   │   │   └── DatabaseCleanupCommand.php
+│   │   ├── Core/
+│   │   │   ├── Exceptions/
+│   │   │   │   ├── MHMException.php
+│   │   │   │   └── ValidationException.php
+│   │   │   ├── Helpers/
+│   │   │   │   └── Sanitizer.php
+│   │   │   ├── MetaBoxes/
+│   │   │   │   └── AbstractMetaBox.php
+│   │   │   ├── PostTypes/
+│   │   │   │   └── AbstractPostType.php
+│   │   │   ├── Tabs/
+│   │   │   │   └── AbstractTab.php
+│   │   │   ├── Traits/
+│   │   │   │   └── AdminHelperTrait.php
+│   │   │   ├── Utilities/
+│   │   │   │   ├── AbstractListTable.php
+│   │   │   │   ├── BookingQueryHelper.php
+│   │   │   │   ├── CacheManager.php
+│   │   │   │   ├── DatabaseCleaner.php
+│   │   │   │   ├── DatabaseMigrator.php
+│   │   │   │   ├── DebugHelper.php
+│   │   │   │   ├── ErrorHandler.php
+│   │   │   │   ├── I18nHelper.php
+│   │   │   │   ├── License.php
+│   │   │   │   ├── MetaQueryHelper.php
+│   │   │   │   ├── ObjectCache.php
+│   │   │   │   ├── QueueManager.php
+│   │   │   │   ├── RateLimiter.php
+│   │   │   │   ├── RestApiFixer.php
+│   │   │   │   ├── Styles.php
+│   │   │   │   ├── TaxonomyMigrator.php
+│   │   │   │   ├── Templates.php
+│   │   │   │   ├── TypeValidator.php
+│   │   │   │   ├── UXHelper.php
+│   │   │   │   └── WordPressOptimizer.php
+│   │   │   ├── AssetManager.php
+│   │   │   ├── CurrencyHelper.php
+│   │   │   ├── LanguageHelper.php
+│   │   │   ├── MetaKeys.php
+│   │   │   ├── PerformanceHelper.php
+│   │   │   ├── ProFeatureNotice.php
+│   │   │   ├── SecurityHelper.php
 │   │   │   ├── ShortcodeServiceProvider.php
-│   │   │   ├── ShortcodeUrlManager.php
-│   │   │   ├── Tabs/              # Tab system (1 file)
-│   │   │   ├── Traits/            # Common traits (1 file)
-│   │   │   └── Utilities/         # Utility classes (20+ files)
-│   │   ├── Customers/             # Customer management (4 files)
-│   │   ├── Emails/                # Email system
-│   │   │   ├── Core/              # Email core (4 files)
-│   │   │   ├── Notifications/     # Email notifications (4 files)
-│   │   │   ├── PostTypes/        # Email log (1 file)
-│   │   │   ├── Settings/         # Email settings (2 files)
-│   │   │   └── Templates/       # Email templates (4 files)
-│   │   ├── Frontend/             # Frontend system
-│   │   │   ├── Account/           # Account system (4 files)
-│   │   │   ├── Blocks/           # Gutenberg blocks
-│   │   │   │   ├── Base/         # Base block (1 file)
-│   │   │   │   └── Gutenberg/    # Gutenberg blocks (4 files)
-│   │   │   ├── Shortcodes/       # Shortcode system (12 files)
-│   │   │   └── Widgets/         # Elementor widgets (5 files)
-│   │   ├── Licensing/            # License system (4 files)
-│   │   ├── Messages/             # Messaging system
-│   │   │   ├── Admin/           # Admin messages (1 file)
-│   │   │   ├── Core/            # Message core (4 files)
-│   │   │   ├── Frontend/        # Frontend messages (1 file)
-│   │   │   ├── Monitoring/      # Message monitoring (3 files)
-│   │   │   ├── Notifications/   # Message notifications (1 file)
-│   │   │   ├── REST/            # Message REST API (14 files)
-│   │   │   ├── Settings/        # Message settings (1 file)
-│   │   │   └── Utilities/       # Message utilities (1 file)
-│   │   ├── Notifications/       # Notification system (1 file)
-│   │   ├── Payment/             # Payment system
-│   │   │   ├── Core/            # Payment core (2 files)
-│   │   │   ├── Gateways/        # Payment gateways
-│   │   │   │   ├── Offline/     # Offline payment (3 files)
-│   │   │   │   └── Offline/     # Offline gateway
-│   │   │   ├── Refunds/         # Refund system (6 files)
-│   │   │   ├── REST/            # Payment REST API (27 files)
-│   │   │   └── Settings/        # Payment settings (4 files)
-│   │   ├── PostTypes/           # Custom post types
-│   │   │   ├── Logs/            # Log system (3 files)
-│   │   │   ├── Maintenance/     # Maintenance (4 files)
-│   │   │   ├── Message/         # Message post type (1 file)
-│   │   │   └── Utilities/       # Post type utilities (1 file)
-│   │   ├── Privacy/             # Privacy/GDPR (2 files)
-│   │   ├── Reports/             # Reporting system
-│   │   │   ├── BusinessLogic/   # Report logic (3 files)
+│   │   │   └── ShortcodeUrlManager.php
+│   │   ├── Customers/
+│   │   │   ├── AddCustomerPage.php
+│   │   │   ├── CustomersListPage.php
+│   │   │   ├── CustomersOptimizer.php
+│   │   │   └── CustomersPage.php
+│   │   ├── Emails/
+│   │   │   ├── Core/
+│   │   │   │   ├── BookingDataProviderInterface.php
+│   │   │   │   ├── BookingQueryHelperAdapter.php
+│   │   │   │   ├── EmailFormRenderer.php
+│   │   │   │   ├── EmailTemplates.php
+│   │   │   │   ├── Mailer.php
+│   │   │   │   └── Templates.php
+│   │   │   ├── Notifications/
+│   │   │   │   ├── BookingNotifications.php
+│   │   │   │   ├── RefundNotifications.php
+│   │   │   │   └── ReminderScheduler.php
+│   │   │   ├── PostTypes/
+│   │   │   │   └── EmailLog.php
+│   │   │   ├── Settings/
+│   │   │   │   ├── EmailTemplateTestAction.php
+│   │   │   │   └── EmailTestAction.php
+│   │   │   └── Templates/
+│   │   │       ├── BookingNotifications.php
+│   │   │       ├── EmailPreview.php
+│   │   │       ├── OfflinePayment.php
+│   │   │       └── RefundEmails.php
+│   │   ├── Frontend/
+│   │   │   ├── Account/
+│   │   │   │   ├── AccountAssets.php
+│   │   │   │   ├── AccountController.php
+│   │   │   │   ├── AccountRenderer.php
+│   │   │   │   └── WooCommerceIntegration.php
+│   │   │   ├── Blocks/
+│   │   │   │   ├── Base/
+│   │   │   │   │   └── GutenbergBlockBase.php
+│   │   │   │   └── Gutenberg/
+│   │   │   │       ├── BookingFormBlock.php
+│   │   │   │       ├── GutenbergIntegration.php
+│   │   │   │       ├── VehicleCardBlock.php
+│   │   │   │       └── VehiclesListBlock.php
+│   │   │   ├── Shortcodes/
+│   │   │   │   ├── Core/
+│   │   │   │   │   └── AbstractShortcode.php
+│   │   │   │   ├── AvailabilityCalendar.php
+│   │   │   │   ├── BookingConfirmation.php
+│   │   │   │   ├── BookingForm.php
+│   │   │   │   ├── ContactForm.php
+│   │   │   │   ├── SearchResults.php
+│   │   │   │   ├── Testimonials.php
+│   │   │   │   ├── VehicleComparison.php
+│   │   │   │   ├── VehicleDetails.php
+│   │   │   │   ├── VehicleRatingForm.php
+│   │   │   │   ├── VehiclesGrid.php
+│   │   │   │   └── VehiclesList.php
+│   │   │   └── Widgets/
+│   │   │       ├── Base/
+│   │   │       │   └── ElementorWidgetBase.php
+│   │   │       └── Elementor/
+│   │   │           ├── AvailabilityCalendarWidget.php
+│   │   │           ├── BookingConfirmationWidget.php
+│   │   │           ├── BookingFormWidget.php
+│   │   │           ├── ContactFormWidget.php
+│   │   │           ├── ElementorIntegration.php
+│   │   │           ├── LoginFormWidget.php
+│   │   │           ├── MyAccountWidget.php
+│   │   │           ├── MyBookingsWidget.php
+│   │   │           ├── MyFavoritesWidget.php
+│   │   │           ├── PaymentHistoryWidget.php
+│   │   │           ├── RegisterFormWidget.php
+│   │   │           ├── SearchResultsWidget.php
+│   │   │           ├── TestimonialsWidget.php
+│   │   │           ├── VehicleCardWidget.php
+│   │   │           ├── VehicleComparisonWidget.php
+│   │   │           ├── VehicleDetailsWidget.php
+│   │   │           ├── VehicleRatingWidget.php
+│   │   │           ├── VehicleSearchWidget.php
+│   │   │           └── VehiclesListWidget.php
+│   │   ├── Licensing/
+│   │   │   ├── LicenseAdmin.php
+│   │   │   ├── LicenseManager.php
+│   │   │   ├── Mode.php
+│   │   │   └── Restrictions.php
+│   │   ├── Messages/
+│   │   │   ├── Admin/
+│   │   │   │   └── MessageListTable.php
+│   │   │   ├── Core/
+│   │   │   │   ├── MessageCache.php
+│   │   │   │   ├── MessageQueryHelper.php
+│   │   │   │   ├── Messages.php
+│   │   │   │   └── MessageUrlHelper.php
+│   │   │   ├── Frontend/
+│   │   │   │   └── CustomerMessages.php
+│   │   │   ├── Monitoring/
+│   │   │   │   ├── MessageLogger.php
+│   │   │   │   ├── MonitoringManager.php
+│   │   │   │   └── PerformanceMonitor.php
+│   │   │   ├── Notifications/
+│   │   │   │   └── MessageNotifications.php
+│   │   │   ├── REST/
+│   │   │   │   ├── Admin/
+│   │   │   │   │   ├── GetMessage.php
+│   │   │   │   │   ├── GetMessages.php
+│   │   │   │   │   ├── ReplyToMessage.php
+│   │   │   │   │   └── UpdateStatus.php
+│   │   │   │   ├── Customer/
+│   │   │   │   │   ├── CloseMessage.php
+│   │   │   │   │   ├── GetBookings.php
+│   │   │   │   │   ├── GetMessages.php
+│   │   │   │   │   ├── GetThread.php
+│   │   │   │   │   ├── SendMessage.php
+│   │   │   │   │   └── SendReply.php
+│   │   │   │   ├── Helpers/
+│   │   │   │   │   ├── Auth.php
+│   │   │   │   │   ├── MessageFormatter.php
+│   │   │   │   │   └── MessageQuery.php
+│   │   │   │   └── Messages.php
+│   │   │   ├── Settings/
+│   │   │   │   └── MessagesSettings.php
+│   │   │   └── Utilities/
+│   │   │       └── MessageUtilities.php
+│   │   ├── Notifications/
+│   │   │   └── NotificationManager.php
+│   │   ├── Payment/
+│   │   │   ├── Core/
+│   │   │   │   ├── PaymentException.php
+│   │   │   │   └── PaymentGatewayInterface.php
+│   │   │   ├── Gateways/
+│   │   │   │   └── Offline/
+│   │   │   │       └── API/
+│   │   │   ├── Refunds/
+│   │   │   │   ├── RefundCalculator.php
+│   │   │   │   ├── RefundValidator.php
+│   │   │   │   └── Service.php
+│   │   │   └── WooCommerce/
+│   │   │       └── WooCommerceBridge.php
+│   │   ├── PostTypes/
+│   │   │   ├── Logs/
+│   │   │   │   ├── AdvancedLogger.php
+│   │   │   │   ├── MetaBox.php
+│   │   │   │   └── PostType.php
+│   │   │   ├── Maintenance/
+│   │   │   │   ├── AutoCancel.php
+│   │   │   │   ├── EmailLogRetention.php
+│   │   │   │   └── LogRetention.php
+│   │   │   ├── Message/
+│   │   │   │   └── Message.php
+│   │   │   └── Utilities/
+│   │   │       └── ClientUtilities.php
+│   │   ├── Privacy/
+│   │   │   ├── DataRetentionManager.php
+│   │   │   └── GDPRManager.php
+│   │   ├── Reports/
+│   │   │   ├── BusinessLogic/
+│   │   │   │   ├── BookingReport.php
+│   │   │   │   ├── CustomerReport.php
+│   │   │   │   └── RevenueReport.php
+│   │   │   ├── Repository/
+│   │   │   │   └── ReportRepository.php
+│   │   │   ├── BackgroundProcessor.php
 │   │   │   ├── Charts.php
-│   │   │   ├── Reports.php
-│   │   │   └── Settings/        # Report settings
-│   │   ├── REST/                # REST API
+│   │   │   └── Reports.php
+│   │   ├── REST/
+│   │   │   ├── Helpers/
+│   │   │   │   ├── AuthHelper.php
+│   │   │   │   ├── SecureToken.php
+│   │   │   │   └── ValidationHelper.php
+│   │   │   ├── Settings/
+│   │   │   │   └── RESTSettings.php
 │   │   │   ├── APIKeyManager.php
 │   │   │   ├── Availability.php
 │   │   │   ├── EndpointListHelper.php
-│   │   │   ├── ErrorHandler.php
-│   │   │   ├── Helpers/         # REST helpers (3 files)
-│   │   │   └── Settings/        # REST settings (1 file)
-│   │   ├── Security/            # Security system (1 file)
-│   │   ├── Settings/             # Settings system
+│   │   │   └── ErrorHandler.php
+│   │   ├── Security/
+│   │   │   └── SecurityManager.php
+│   │   ├── Settings/
+│   │   │   ├── Comments/
+│   │   │   │   └── CommentsSettings.php
+│   │   │   ├── Core/
+│   │   │   │   ├── RateLimiter.php
+│   │   │   │   ├── SettingsCore.php
+│   │   │   │   ├── SettingsHelper.php
+│   │   │   │   └── SettingsSanitizer.php
+│   │   │   ├── Groups/
+│   │   │   │   ├── AddonSettings.php
+│   │   │   │   ├── BookingSettings.php
+│   │   │   │   ├── CommentsSettingsGroup.php
+│   │   │   │   ├── CoreSettings.php
+│   │   │   │   ├── CustomerManagementSettings.php
+│   │   │   │   ├── EmailSettings.php
+│   │   │   │   ├── GeneralSettings.php
+│   │   │   │   ├── LicenseSettings.php
+│   │   │   │   ├── LogsSettings.php
+│   │   │   │   ├── MaintenanceSettings.php
+│   │   │   │   ├── PaymentSettings.php
+│   │   │   │   ├── ReconcileSettings.php
+│   │   │   │   ├── SecuritySettings.php
+│   │   │   │   ├── VehicleComparisonSettings.php
+│   │   │   │   └── VehicleManagementSettings.php
+│   │   │   ├── Testing/
+│   │   │   │   └── SettingsTester.php
 │   │   │   ├── APIKeysPage.php
-│   │   │   ├── Comments/        # Comment settings (1 file)
-│   │   │   ├── Core/            # Settings core (4 files)
-│   │   │   ├── Groups/          # Setting groups (14 files)
 │   │   │   ├── Settings.php
-│   │   │   ├── ShortcodePages.php
-│   │   │   ├── ShortcodeSettings.php
-│   │   │   └── Testing/         # Settings testing (1 file)
-│   │   ├── Testing/             # Testing system (8 files)
-│   │   ├── Utilities/            # Admin utilities
-│   │   │   ├── Actions/         # Admin actions (1 file)
-│   │   │   ├── Cron/            # Cron jobs (2 files)
-│   │   │   ├── Dashboard/       # Dashboard (1 file)
-│   │   │   ├── Database/         # Database utilities (4 files)
-│   │   │   ├── Export/          # Export utilities (5 files)
-│   │   │   ├── ListTable/       # List table utilities (2 files)
-│   │   │   ├── Menu/            # Menu system (1 file)
-│   │   │   ├── Performance/     # Performance (1 file)
-│   │   │   └── Uninstall/       # Uninstall (2 files)
-│   │   └── Vehicle/             # Vehicle management
-│   │       ├── Deposit/          # Deposit system (2 files)
-│   │       ├── Frontend/         # Frontend vehicle (1 file)
-│   │       ├── ListTable/       # Vehicle list table (1 file)
-│   │       ├── Meta/             # Vehicle meta boxes (2 files)
-│   │       ├── PostType/         # Vehicle post type (1 file)
-│   │       ├── Reports/          # Vehicle reports (1 file)
-│   │       ├── Settings/         # Vehicle settings (2 files)
-│   │       ├── Taxonomies/       # Vehicle categories (1 file)
-│   │       └── Templates/       # Vehicle templates (2 files)
-│   └── Plugin.php                # Main plugin class
-│
-├── templates/                     # Template files
-│   ├── account/                   # Account templates (10 files)
-│   ├── admin/                    # Admin templates
-│   │   └── booking-meta/         # Booking meta templates (4 files)
-│   ├── emails/                   # Email templates (13 files)
-│   ├── messages/                 # Message templates (5 files)
-│   ├── shortcodes/               # Shortcode templates (13 files)
-│   ├── archive-vehicle.php      # Vehicle archive
-│   └── single-vehicle.php        # Single vehicle page
-│
-├── changelog.json                 # Change history
-├── mhm-rentiva.php               # Main plugin file
-├── mhm_dev_suite.yaml            # Development config
-└── README.md                     # This file
+│   │   │   ├── SettingsHandler.php
+│   │   │   ├── SettingsView.php
+│   │   │   └── ShortcodePages.php
+│   │   ├── Setup/
+│   │   │   └── SetupWizard.php
+│   │   ├── Testing/
+│   │   │   ├── ActivationTest.php
+│   │   │   ├── FunctionalTest.php
+│   │   │   ├── IntegrationTest.php
+│   │   │   ├── PerformanceAnalyzer.php
+│   │   │   ├── PerformanceTest.php
+│   │   │   ├── SecurityTest.php
+│   │   │   ├── ShortcodeTestHandler.php
+│   │   │   ├── TestAdminPage.php
+│   │   │   └── TestRunner.php
+│   │   ├── Transfer/
+│   │   │   ├── Engine/
+│   │   │   │   └── TransferSearchEngine.php
+│   │   │   ├── Frontend/
+│   │   │   │   └── TransferShortcodes.php
+│   │   │   ├── Integration/
+│   │   │   │   ├── TransferBookingHandler.php
+│   │   │   │   └── TransferCartIntegration.php
+│   │   │   ├── TransferAdmin.php
+│   │   │   └── VehicleTransferMetaBox.php
+│   │   ├── Utilities/
+│   │   │   ├── Actions/
+│   │   │   │   └── Actions.php
+│   │   │   ├── Cron/
+│   │   │   │   ├── CronMonitor.php
+│   │   │   │   └── CronMonitorPage.php
+│   │   │   ├── Dashboard/
+│   │   │   │   └── DashboardPage.php
+│   │   │   ├── Database/
+│   │   │   │   ├── DatabaseCleanupPage.php
+│   │   │   │   ├── DatabaseInitialization.php
+│   │   │   │   └── MetaKeysDocumentation.php
+│   │   │   ├── Export/
+│   │   │   │   ├── Export.php
+│   │   │   │   ├── ExportFilters.php
+│   │   │   │   ├── ExportHistory.php
+│   │   │   │   ├── ExportReports.php
+│   │   │   │   └── ExportStats.php
+│   │   │   ├── ListTable/
+│   │   │   │   ├── CustomersListTable.php
+│   │   │   │   └── LogColumns.php
+│   │   │   ├── Menu/
+│   │   │   │   └── Menu.php
+│   │   │   ├── Performance/
+│   │   │   │   └── AdminOptimizer.php
+│   │   │   └── Uninstall/
+│   │   │       ├── Uninstaller.php
+│   │   │       └── UninstallPage.php
+│   │   └── Vehicle/
+│   │       ├── Deposit/
+│   │       │   ├── DepositAjax.php
+│   │       │   └── DepositCalculator.php
+│   │       ├── Frontend/
+│   │       │   └── VehicleSearch.php
+│   │       ├── Helpers/
+│   │       │   ├── VehicleDataHelper.php
+│   │       │   └── VehicleFeatureHelper.php
+│   │       ├── ListTable/
+│   │       │   └── VehicleColumns.php
+│   │       ├── Meta/
+│   │       │   ├── VehicleGallery.php
+│   │       │   └── VehicleMeta.php
+│   │       ├── PostType/
+│   │       │   └── Vehicle.php
+│   │       ├── Reports/
+│   │       │   └── VehicleReport.php
+│   │       ├── Settings/
+│   │       │   ├── VehiclePricingSettings.php
+│   │       │   └── VehicleSettings.php
+│   │       ├── Taxonomies/
+│   │       │   └── VehicleCategory.php
+│   │       └── Templates/
+│   │           ├── vehicle-gallery.php
+│   │           └── vehicle-meta.php
+│   └── Plugin.php
+└── templates/
+    ├── account/
+    │   ├── account-details.php
+    │   ├── booking-detail.php
+    │   ├── bookings.php
+    │   ├── dashboard.php
+    │   ├── favorites.php
+    │   ├── login-form.php
+    │   ├── messages.php
+    │   ├── navigation.php
+    │   ├── payment-history.php
+    │   └── register-form.php
+    ├── admin/
+    │   ├── booking-meta/
+    │   │   ├── booking-status.php
+    │   │   ├── offline-box.php
+    │   │   ├── payment-box.php
+    │   │   └── receipt-box.php
+    │   └── reports/
+    │       ├── bookings.php
+    │       ├── customers.php
+    │       ├── overview.php
+    │       ├── revenue.php
+    │       ├── stats-cards.php
+    │       └── vehicles.php
+    ├── emails/
+    │   ├── booking-cancelled.html.php
+    │   ├── booking-created-admin.html.php
+    │   ├── booking-created-customer.html.php
+    │   ├── booking-reminder-customer.html.php
+    │   ├── booking-status-changed-admin.html.php
+    │   ├── booking-status-changed-customer.html.php
+    │   ├── message-received-admin.html.php
+    │   ├── message-replied-customer.html.php
+    │   ├── offline-receipt-uploaded-admin.html.php
+    │   ├── offline-verified-approved-customer.html.php
+    │   ├── offline-verified-rejected-customer.html.php
+    │   ├── receipt-status-email.html.php
+    │   ├── refund-admin.html.php
+    │   ├── refund-customer.html.php
+    │   └── welcome-customer.html.php
+    ├── messages/
+    │   ├── admin-message-email.html.php
+    │   ├── customer-reply-email.html.php
+    │   ├── customer-status-change-email.html.php
+    │   ├── message-reply-form.html.php
+    │   └── message-thread-view.html.php
+    ├── shortcodes/
+    │   ├── availability-calendar.php
+    │   ├── booking-confirmation.php
+    │   ├── booking-form.php
+    │   ├── contact-form.php
+    │   ├── search-results.php
+    │   ├── testimonials.php
+    │   ├── thank-you.php
+    │   ├── vehicle-comparison.php
+    │   ├── vehicle-details.php
+    │   ├── vehicle-rating-form.php
+    │   ├── vehicle-search-compact.php
+    │   ├── vehicle-search.php
+    │   ├── vehicles-grid.php
+    │   └── vehicles-list.php
+    ├── archive-vehicle.php
+    └── single-vehicle.php
+```
 ```
 
 ---
@@ -1220,25 +1711,29 @@ Fixes #123
 
 ## 📝 Changelog
 
-### Latest Version: 4.5.4 (2026-01-15)
+### Latest Version: 4.6.0 (2026-01-18)
 
-**🚀 REFACTORING & UX IMPROVEMENTS**
-- **Settings Refactoring**: Major refactoring of the settings core to improve modularity and maintainability.
-- **WooCommerce Compatibility**: Conditional logic to hide Payment Settings when WooCommerce is active, while keeping specific Notification settings accessible.
-- **Email Settings Restoration**: Fixed an issue where Email Settings were inaccessible when WooCommerce was active.
-- **Bug Fix**: Restored missing `OfflinePayment.php` class to fix Fatal Error in Offline Payment Emails tab.
-- **Localization**: Updated POT file with new strings.
+**� VIP TRANSFER MODULE**
+- **Point-to-Point Booking**: Dynamic pickup/drop-off location management.
+- **Pricing Engine**: Distance-based or fixed-rate route pricing.
+- **WooCommerce Integration**: Support for transfer bookings in cart and checkout.
+- **AJAX Search**: New shortcode `[mhm_rentiva_transfer_search]` for real-time results.
+- **Operational Control**: Added Buffer Time logic for vehicle preparation.
 
-### Version: 4.5.3 (2026-01-14)
+### Version: 4.5.5 (2026-01-15)
 
-**🚀 VERSION UPDATE**
-- Major update to 4.5.0 focusing on User Account and Payment History improvements.
+**🎨 FRONTEND POLISH & UI FIXES**
+- **Vehicle Details**: Fixed "Out of Use" badge logic and standardizing placement.
+- **Search Results**: Standardized button colors and added status indicators.
+- **Comparison Page**: Improved card alignment and mobile styling.
+- **Bookings Page**: Optimized table layout to prevent horizontal scrolling.
 
-**🔧 ACCOUNT & PAYMENT**
-- Added customizable endpoints for account pages.
-- Enhanced Payment History with receipt management (upload, preview, remove).
-- Modernized UI for Bookings table in My Account.
-- Fixed password toggle buttons on Account Details page.
+### Version: 4.5.4 (2026-01-15)
+
+**🚀 REFACTORING & USER EXPERIENCE**
+- **Settings Refactoring**: Major refactoring of settings core for better modularity.
+- **WooCommerce Compatibility**: Payment Settings tab correctly hides when WooCommerce is active.
+- **Bug Fix**: Fixed Fatal Error in Offline Payment Emails tab.
 
 Full changelog available in [changelog.json](changelog.json).
 

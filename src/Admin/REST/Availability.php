@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\REST;
 
@@ -116,14 +118,16 @@ final class Availability
         $result = Util::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
         // Add currency information
-        $currency = Settings::get('currency', 'TRY');
-        $currency_position = Settings::get('currency_position', 'right_space');
+        $currency = Settings::get('mhm_rentiva_currency', 'USD');
+        $currency_position = Settings::get('mhm_rentiva_currency_position', 'right_space');
+        $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol($currency);
 
         $response_data = [
             'ok' => $result['ok'],
             'code' => $result['code'],
             'message' => $result['message'],
             'currency' => $currency,
+            'currency_symbol' => $currency_symbol,
             'currency_position' => $currency_position,
         ];
 
@@ -154,14 +158,16 @@ final class Availability
         $result = Util::check_availability_with_alternatives($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
         // Add currency information
-        $currency = Settings::get('currency', 'TRY');
-        $currency_position = Settings::get('currency_position', 'right_space');
+        $currency = Settings::get('mhm_rentiva_currency', 'USD');
+        $currency_position = Settings::get('mhm_rentiva_currency_position', 'right_space');
+        $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol($currency);
 
         $response_data = [
             'ok' => $result['ok'],
             'code' => $result['code'],
             'message' => $result['message'],
             'currency' => $currency,
+            'currency_symbol' => $currency_symbol,
             'currency_position' => $currency_position,
         ];
 

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Core;
 
@@ -14,7 +16,7 @@ final class SettingsSanitizer
      * Static variable to store timeout values for hook access
      */
     private static $timeout_values_static = [];
-    
+
     /**
      * Safe sanitize text field that handles null values
      */
@@ -44,7 +46,7 @@ final class SettingsSanitizer
         if (!is_array($array)) {
             return;
         }
-        
+
         foreach ($array as $key => &$value) {
             if ($value === null) {
                 $value = '';
@@ -53,7 +55,7 @@ final class SettingsSanitizer
             }
         }
     }
-    
+
     /**
      * ✅ PUBLIC: Clean $_POST and $_REQUEST arrays - called from hook
      */
@@ -62,7 +64,7 @@ final class SettingsSanitizer
         if (!is_array($array)) {
             return;
         }
-        
+
         foreach ($array as $key => &$value) {
             if ($value === null) {
                 $value = '';
@@ -79,43 +81,43 @@ final class SettingsSanitizer
         if (!is_array($current_values)) {
             $current_values = [];
         }
-        
+
         // ✅ CRITICAL: START with current values to preserve settings from other tabs
         // This ensures we don't lose data when submitting a single tab
         $out = $current_values;
-        
+
         // ✅ CRITICAL: Clean null values from database BEFORE processing
         // This prevents null values from being passed to WordPress core functions
         self::clean_null_values_recursive($out);
-        
+
         // ✅ REMOVED: update_option call here causes infinite loop
         // WordPress will save the returned value automatically
-        
+
         // ✅ CRITICAL: Null check FIRST - before any processing to prevent errors
         if ($input === null || !is_array($input)) {
             return $out;
         }
-        
+
         // ✅ CRITICAL: Clean null values IMMEDIATELY - before WordPress core touches them
         // Convert all null values in input to empty strings to prevent strlen() errors
         self::clean_null_values_recursive($input);
-        
+
         // ✅ CRITICAL: Also clean $_POST array if it exists (prevent strlen() errors from WordPress core)
         // This MUST happen before WordPress Settings API reads $_POST
         if (isset($_POST['mhm_rentiva_settings']) && is_array($_POST['mhm_rentiva_settings'])) {
             self::clean_null_values_recursive($_POST['mhm_rentiva_settings']);
         }
-        
+
         // ✅ CRITICAL: Clean entire $_POST array to prevent any null values from reaching WordPress core
         if (isset($_POST) && is_array($_POST)) {
             self::clean_null_values_recursive($_POST);
         }
-        
+
         // ✅ CRITICAL: Clean entire $_REQUEST array
         if (isset($_REQUEST) && is_array($_REQUEST)) {
             self::clean_null_values_recursive($_REQUEST);
         }
-        
+
         // If input contains mhm_rentiva_settings array, extract it
         if (isset($input['mhm_rentiva_settings']) && is_array($input['mhm_rentiva_settings'])) {
             // Merge mhm_rentiva_settings array into main input array
@@ -126,10 +128,10 @@ final class SettingsSanitizer
             }
             unset($input['mhm_rentiva_settings']);
         }
-        
+
         // ✅ CRITICAL: Final null check after extraction
         self::clean_null_values_recursive($input);
-        
+
         // ✅ REMOVED: Global checkbox normalization
         // Checkboxes are now handled individually in their respective tab-specific sanitize functions
         // This prevents conflicts when saving one tab (e.g., System) from affecting other tabs (e.g., Email)
@@ -148,7 +150,7 @@ final class SettingsSanitizer
             'mhm_rentiva_booking_payment_gateway_timeout_minutes',
             'mhm_rentiva_booking_payment_deadline_minutes'
         ];
-        
+
         foreach ($timeout_keys as $key) {
             // Check in extracted input array first
             if (array_key_exists($key, $input)) {
@@ -173,7 +175,7 @@ final class SettingsSanitizer
                 }
             }
         }
-        
+
         // ✅ Store timeout values in static variable for hook access
         self::$timeout_values_static = $timeout_values;
 
@@ -225,10 +227,6 @@ final class SettingsSanitizer
             $out['mhm_rentiva_time_format'] = $defaults['mhm_rentiva_time_format'] ?? (string) \get_option('time_format', 'H:i');
         }
 
-        // default_rental_days
-        $days = isset($input['mhm_rentiva_default_rental_days']) ? \absint($input['mhm_rentiva_default_rental_days']) : $defaults['mhm_rentiva_default_rental_days'];
-        $out['mhm_rentiva_default_rental_days'] = max(1, $days);
-
         // Site Information Settings
         $out = array_merge($out, self::sanitize_site_info_settings($input, $defaults));
 
@@ -237,7 +235,7 @@ final class SettingsSanitizer
 
         // ✅ CRITICAL FIX: Only sanitize sections that were actually submitted
         // This prevents resetting settings from other tabs when saving one tab
-        
+
         // Detect which tab was submitted by checking for tab-specific fields
         $is_vehicle_tab = isset($input['mhm_rentiva_vehicle_base_price'])
             || isset($input['mhm_rentiva_vehicle_show_images'])
@@ -248,11 +246,11 @@ final class SettingsSanitizer
         $is_email_tab = isset($input['mhm_rentiva_email_from_name']) || isset($input['mhm_rentiva_email_from_address']) || isset($input['mhm_rentiva_email_test_mode']) || isset($input['mhm_rentiva_email_send_enabled']) || isset($input['mhm_rentiva_email_auto_send']) || isset($input['mhm_rentiva_email_log_enabled']);
         $is_payment_tab = isset($input['mhm_rentiva_booking_default_payment_method']); // ⭐ Offline settings removed
         $is_frontend_tab = isset($input['mhm_rentiva_booking_url']) || isset($input['mhm_rentiva_login_url']) || isset($input['mhm_rentiva_register_url']) || isset($input['mhm_rentiva_my_account_url']) || isset($input['mhm_rentiva_text_book_now']) || isset($input['mhm_rentiva_text_view_details']) || isset($input['mhm_rentiva_text_added_to_favorites']) || isset($input['mhm_rentiva_text_make_booking']) || isset($input['mhm_rentiva_text_login_here']);
-        $is_maintenance_tab = isset($input['mhm_rentiva_auto_cancel_enabled']) || isset($input['mhm_rentiva_log_cleanup_enabled']);
+        $is_maintenance_tab = isset($input['mhm_rentiva_log_cleanup_enabled']) || isset($input['mhm_rentiva_clean_data_on_uninstall']);
         $is_reconcile_tab = isset($input['mhm_rentiva_reconcile_enabled']) || isset($input['mhm_rentiva_reconcile_frequency']) || isset($input['mhm_rentiva_reconcile_timeout']);
         $is_logs_tab = isset($input['mhm_rentiva_log_level']) || isset($input['mhm_rentiva_log_retention_days']) || isset($input['mhm_rentiva_debug_mode']);
         $is_system_tab = isset($input['mhm_rentiva_rate_limit_enabled']) || isset($input['mhm_rentiva_cache_enabled']) || isset($input['mhm_rentiva_ip_whitelist_enabled']) || isset($input['mhm_rentiva_brute_force_protection']);
-        
+
         // Vehicle Management Settings - only if vehicle tab submitted
         if ($is_vehicle_tab) {
             $out = array_merge($out, self::sanitize_vehicle_management_settings($input, $defaults));
@@ -330,13 +328,13 @@ final class SettingsSanitizer
         if (!empty($timeout_values)) {
             $out = array_merge($out, $timeout_values);
         }
-        
+
         // Process timeout values from input if not already captured
         $timeout_keys = [
             'mhm_rentiva_booking_payment_gateway_timeout_minutes',
             'mhm_rentiva_booking_payment_deadline_minutes'
         ];
-        
+
         foreach ($timeout_keys as $key) {
             if (array_key_exists($key, $input)) {
                 $value = $input[$key];
@@ -348,7 +346,7 @@ final class SettingsSanitizer
                 }
             }
         }
-        
+
         // Ensure timeout values are integers
         foreach ($timeout_keys as $key) {
             if (isset($out[$key])) {
@@ -367,7 +365,7 @@ final class SettingsSanitizer
 
         return $out;
     }
-    
+
     /**
      * Get timeout values from static variable
      */
@@ -379,11 +377,11 @@ final class SettingsSanitizer
     private static function sanitize_comments_settings($input, $current_values): array
     {
         $out = [];
-        
+
         // Check comments settings
         if (isset($input['mhm_rentiva_comments_settings']) && is_array($input['mhm_rentiva_comments_settings'])) {
             $comments_input = $input['mhm_rentiva_comments_settings'];
-            
+
             // Approval settings
             if (isset($comments_input['approval'])) {
                 $out['comments_approval'] = [
@@ -394,7 +392,7 @@ final class SettingsSanitizer
                     'admin_notification' => isset($comments_input['approval']['admin_notification']) ? (bool) $comments_input['approval']['admin_notification'] : false // Unchecked = false
                 ];
             }
-            
+
             // Limits settings
             if (isset($comments_input['limits'])) {
                 $out['comments_limits'] = [
@@ -404,7 +402,7 @@ final class SettingsSanitizer
                     'rating_required' => isset($comments_input['limits']['rating_required']) ? (bool) $comments_input['limits']['rating_required'] : false // Unchecked = false
                 ];
             }
-            
+
             // Spam protection settings
             if (isset($comments_input['spam_protection'])) {
                 $spam_input = $comments_input['spam_protection'];
@@ -412,15 +410,15 @@ final class SettingsSanitizer
                     'enabled' => isset($spam_input['enabled']) ? (bool) $spam_input['enabled'] : false, // Unchecked = false
                     'rate_limiting_time' => isset($spam_input['rate_limiting_time']) ? max(1, min(60, (int) $spam_input['rate_limiting_time'])) : 1,
                     'duplicate_detection_time' => isset($spam_input['duplicate_detection_time']) ? max(1, min(60, (int) $spam_input['duplicate_detection_time'])) : 10,
-                    'spam_words' => isset($spam_input['spam_words']) ? 
-                        (is_array($spam_input['spam_words']) ? 
-                            array_map([self::class, 'sanitize_text_field_safe'], $spam_input['spam_words']) : 
-                            array_map([self::class, 'sanitize_text_field_safe'], explode(',', (string) $spam_input['spam_words']))) : 
+                    'spam_words' => isset($spam_input['spam_words']) ?
+                        (is_array($spam_input['spam_words']) ?
+                            array_map([self::class, 'sanitize_text_field_safe'], $spam_input['spam_words']) :
+                            array_map([self::class, 'sanitize_text_field_safe'], explode(',', (string) $spam_input['spam_words']))) :
                         ['spam', 'viagra', 'casino', 'loan', 'free money', 'click here'],
                     'ip_blacklist_threshold' => isset($spam_input['ip_blacklist_threshold']) ? max(1, min(20, (int) $spam_input['ip_blacklist_threshold'])) : 5
                 ];
             }
-            
+
             // Display settings
             if (isset($comments_input['display'])) {
                 $out['comments_display'] = [
@@ -431,7 +429,7 @@ final class SettingsSanitizer
                     'edit_time_limit' => isset($comments_input['display']['edit_time_limit']) ? max(0, min(168, (int) $comments_input['display']['edit_time_limit'])) : 24
                 ];
             }
-            
+
             // Cache settings
             if (isset($comments_input['cache'])) {
                 $out['comments_cache'] = [
@@ -441,7 +439,7 @@ final class SettingsSanitizer
                 ];
             }
         }
-        
+
         return $out;
     }
 
@@ -474,7 +472,7 @@ final class SettingsSanitizer
             $out['mhm_rentiva_brand_name'] = $defaults['mhm_rentiva_brand_name'];
         }
 
-        // brand_logo_url
+        // brand_logo_url (legacy)
         if (isset($input['mhm_rentiva_brand_logo_url'])) {
             $logo_val = $input['mhm_rentiva_brand_logo_url'];
             $logo = ($logo_val !== null && $logo_val !== '') ? \esc_url_raw((string) $logo_val) : '';
@@ -483,13 +481,33 @@ final class SettingsSanitizer
             $out['mhm_rentiva_brand_logo_url'] = $defaults['mhm_rentiva_brand_logo_url'];
         }
 
-        // email_primary_color
+        // ✅ email_header_image (NEW - Email Logo URL)
+        if (isset($input['mhm_rentiva_email_header_image'])) {
+            $img_val = $input['mhm_rentiva_email_header_image'];
+            $img = ($img_val !== null && $img_val !== '') ? \esc_url_raw((string) $img_val) : '';
+            $out['mhm_rentiva_email_header_image'] = $img;
+        } elseif (isset($defaults['mhm_rentiva_email_header_image'])) {
+            $out['mhm_rentiva_email_header_image'] = $defaults['mhm_rentiva_email_header_image'];
+        }
+
+        // email_primary_color (legacy)
         if (isset($input['mhm_rentiva_email_primary_color'])) {
             $color_val = $input['mhm_rentiva_email_primary_color'];
             $color = ($color_val !== null && $color_val !== '') ? \sanitize_hex_color((string) $color_val) : '';
             $out['mhm_rentiva_email_primary_color'] = $color !== '' ? $color : $defaults['mhm_rentiva_email_primary_color'];
         } else {
             $out['mhm_rentiva_email_primary_color'] = $defaults['mhm_rentiva_email_primary_color'];
+        }
+
+        // ✅ email_base_color (NEW - Email Color Picker)
+        if (isset($input['mhm_rentiva_email_base_color'])) {
+            $color_val = $input['mhm_rentiva_email_base_color'];
+            $color = ($color_val !== null && $color_val !== '') ? \sanitize_hex_color((string) $color_val) : '';
+            $out['mhm_rentiva_email_base_color'] = $color !== '' ? $color : ($defaults['mhm_rentiva_email_base_color'] ?? '#667eea');
+        } elseif (isset($defaults['mhm_rentiva_email_base_color'])) {
+            $out['mhm_rentiva_email_base_color'] = $defaults['mhm_rentiva_email_base_color'];
+        } else {
+            $out['mhm_rentiva_email_base_color'] = '#667eea';
         }
 
         // email_footer_text
@@ -561,15 +579,12 @@ final class SettingsSanitizer
     {
         $out = [];
 
-        // Maintenance checkboxes
-        $out['mhm_rentiva_auto_cancel_enabled'] = isset($input['mhm_rentiva_auto_cancel_enabled']) ? '1' : '0';
-        
-        if (isset($input['mhm_rentiva_auto_cancel_minutes'])) {
-            $minutes = \absint($input['mhm_rentiva_auto_cancel_minutes']);
-            $out['mhm_rentiva_auto_cancel_minutes'] = max(5, min(1440, $minutes));
-        } else {
-            $out['mhm_rentiva_auto_cancel_minutes'] = $defaults['mhm_rentiva_auto_cancel_minutes'] ?? 30;
-        }
+        // NOTE: auto_cancel_enabled and auto_cancel_minutes removed
+        // These are now handled exclusively by BookingSettings:
+        // - mhm_rentiva_booking_auto_cancel_enabled
+        // - mhm_rentiva_booking_payment_deadline_minutes
+
+        $out['mhm_rentiva_clean_data_on_uninstall'] = isset($input['mhm_rentiva_clean_data_on_uninstall']) ? '1' : '0';
 
         return $out;
     }
@@ -580,7 +595,7 @@ final class SettingsSanitizer
 
         // Log checkboxes
         $out['mhm_rentiva_log_cleanup_enabled'] = isset($input['mhm_rentiva_log_cleanup_enabled']) ? '1' : '0';
-        
+
         if (isset($input['mhm_rentiva_log_retention_days'])) {
             $days = \absint($input['mhm_rentiva_log_retention_days']);
             $out['mhm_rentiva_log_retention_days'] = max(1, min(365, $days));
@@ -596,7 +611,7 @@ final class SettingsSanitizer
         }
 
         $out['mhm_rentiva_debug_mode'] = isset($input['mhm_rentiva_debug_mode']) ? '1' : '0';
-        
+
         if (isset($input['mhm_rentiva_log_max_size'])) {
             $size = \absint($input['mhm_rentiva_log_max_size']);
             $out['mhm_rentiva_log_max_size'] = max(1, min(100, $size));
@@ -616,7 +631,7 @@ final class SettingsSanitizer
 
         // Reconciliation checkboxes
         $out['mhm_rentiva_reconcile_enabled'] = isset($input['mhm_rentiva_reconcile_enabled']) ? '1' : '0';
-        
+
         if (isset($input['mhm_rentiva_reconcile_frequency'])) {
             $frequencies = ['hourly', 'daily', 'weekly'];
             $out['mhm_rentiva_reconcile_frequency'] = in_array($input['mhm_rentiva_reconcile_frequency'], $frequencies, true) ? $input['mhm_rentiva_reconcile_frequency'] : 'daily';
@@ -645,7 +660,7 @@ final class SettingsSanitizer
 
         // Core/Rate Limiting Settings
         $out['mhm_rentiva_rate_limit_enabled'] = isset($input['mhm_rentiva_rate_limit_enabled']) ? '1' : '0';
-        
+
         if (isset($input['mhm_rentiva_rate_limit_general_minute'])) {
             $value = \absint($input['mhm_rentiva_rate_limit_general_minute']);
             $out['mhm_rentiva_rate_limit_general_minute'] = max(10, min(1000, $value));
@@ -669,7 +684,7 @@ final class SettingsSanitizer
 
         // Cache Settings
         $out['mhm_rentiva_cache_enabled'] = isset($input['mhm_rentiva_cache_enabled']) ? '1' : '0';
-        
+
         if (isset($input['mhm_rentiva_cache_default_ttl'])) {
             $value = floatval($input['mhm_rentiva_cache_default_ttl']);
             $out['mhm_rentiva_cache_default_ttl'] = max(0.5, min(24, $value));
@@ -700,7 +715,7 @@ final class SettingsSanitizer
 
         // Database Settings
         $out['mhm_rentiva_db_auto_optimize'] = isset($input['mhm_rentiva_db_auto_optimize']) ? '1' : '0';
-        
+
         if (isset($input['mhm_rentiva_db_performance_threshold'])) {
             $value = \absint($input['mhm_rentiva_db_performance_threshold']);
             $out['mhm_rentiva_db_performance_threshold'] = max(50, min(1000, $value));
@@ -710,7 +725,7 @@ final class SettingsSanitizer
 
         // WordPress Optimization Settings
         $out['mhm_rentiva_wp_optimization_enabled'] = isset($input['mhm_rentiva_wp_optimization_enabled']) ? '1' : '0';
-        
+
         if (isset($input['mhm_rentiva_wp_memory_limit'])) {
             $value = \absint($input['mhm_rentiva_wp_memory_limit']);
             $out['mhm_rentiva_wp_memory_limit'] = max(128, min(1024, $value));
@@ -727,7 +742,7 @@ final class SettingsSanitizer
 
         // Security Settings
         $out['mhm_rentiva_ip_whitelist_enabled'] = isset($input['mhm_rentiva_ip_whitelist_enabled']) ? '1' : '0';
-        
+
         if (isset($input['mhm_rentiva_ip_whitelist'])) {
             $out['mhm_rentiva_ip_whitelist'] = \sanitize_textarea_field($input['mhm_rentiva_ip_whitelist']);
         } else {
@@ -735,7 +750,7 @@ final class SettingsSanitizer
         }
 
         $out['mhm_rentiva_ip_blacklist_enabled'] = isset($input['mhm_rentiva_ip_blacklist_enabled']) ? '1' : '0';
-        
+
         if (isset($input['mhm_rentiva_ip_blacklist'])) {
             $out['mhm_rentiva_ip_blacklist'] = \sanitize_textarea_field($input['mhm_rentiva_ip_blacklist']);
         } else {
@@ -743,7 +758,7 @@ final class SettingsSanitizer
         }
 
         $out['mhm_rentiva_country_restriction_enabled'] = isset($input['mhm_rentiva_country_restriction_enabled']) ? '1' : '0';
-        
+
         if (isset($input['mhm_rentiva_allowed_countries'])) {
             $out['mhm_rentiva_allowed_countries'] = \sanitize_text_field($input['mhm_rentiva_allowed_countries']);
         } else {
@@ -751,7 +766,7 @@ final class SettingsSanitizer
         }
 
         $out['mhm_rentiva_brute_force_protection'] = isset($input['mhm_rentiva_brute_force_protection']) ? '1' : '0';
-        
+
         if (isset($input['mhm_rentiva_max_login_attempts'])) {
             $value = \absint($input['mhm_rentiva_max_login_attempts']);
             $out['mhm_rentiva_max_login_attempts'] = max(3, min(20, $value));
@@ -770,7 +785,7 @@ final class SettingsSanitizer
         $out['mhm_rentiva_xss_protection'] = isset($input['mhm_rentiva_xss_protection']) ? '1' : '0';
         $out['mhm_rentiva_csrf_protection'] = isset($input['mhm_rentiva_csrf_protection']) ? '1' : '0';
         $out['mhm_rentiva_strong_passwords'] = isset($input['mhm_rentiva_strong_passwords']) ? '1' : '0';
-        
+
         if (isset($input['mhm_rentiva_password_expiry_days'])) {
             $value = \absint($input['mhm_rentiva_password_expiry_days']);
             $out['mhm_rentiva_password_expiry_days'] = max(0, min(365, $value));
@@ -794,7 +809,7 @@ final class SettingsSanitizer
             isset($input['mhm_rentiva_currency']) ||
             isset($_POST['mhm_rentiva_settings'])
         );
-        
+
         // ⭐ Offline payment settings removed - WooCommerce handles all payments
 
         if (isset($input['mhm_rentiva_offline_instructions'])) {
@@ -927,19 +942,19 @@ final class SettingsSanitizer
     private static function sanitize_vehicle_pricing_settings($input, $defaults): array
     {
         $out = [];
-        
+
         // Get current vehicle_pricing settings
         $current_settings = \get_option('mhm_rentiva_settings', []);
         $current_vehicle_pricing = $current_settings['vehicle_pricing'] ?? $defaults['vehicle_pricing'];
-        
+
         // If vehicle_pricing input exists, process it
         if (isset($input['vehicle_pricing']) && is_array($input['vehicle_pricing'])) {
             $vehicle_pricing_input = $input['vehicle_pricing'];
-            
+
             // Deposit settings
             if (isset($vehicle_pricing_input['deposit_settings']) && is_array($vehicle_pricing_input['deposit_settings'])) {
                 $deposit_input = $vehicle_pricing_input['deposit_settings'];
-                
+
                 $deposit_settings = [
                     'enable_deposit' => isset($deposit_input['enable_deposit']) ? (bool) $deposit_input['enable_deposit'] : ($current_vehicle_pricing['deposit_settings']['enable_deposit'] ?? false),
                     'deposit_type' => self::sanitize_text_field_safe($deposit_input['deposit_type'] ?? ($current_vehicle_pricing['deposit_settings']['deposit_type'] ?? 'both')),
@@ -947,17 +962,17 @@ final class SettingsSanitizer
                     'required_for_booking' => isset($deposit_input['required_for_booking']) ? (bool) $deposit_input['required_for_booking'] : ($current_vehicle_pricing['deposit_settings']['required_for_booking'] ?? false),
                     'show_deposit_in_listing' => isset($deposit_input['show_deposit_in_listing']) ? (bool) $deposit_input['show_deposit_in_listing'] : ($current_vehicle_pricing['deposit_settings']['show_deposit_in_listing'] ?? true),
                     'show_deposit_in_detail' => isset($deposit_input['show_deposit_in_detail']) ? (bool) $deposit_input['show_deposit_in_detail'] : ($current_vehicle_pricing['deposit_settings']['show_deposit_in_detail'] ?? true),
-                    'deposit_refund_policy' => (($deposit_policy_val = ($deposit_input['deposit_refund_policy'] ?? ($current_vehicle_pricing['deposit_settings']['deposit_refund_policy'] ?? ''))) !== null && $deposit_policy_val !== '' && (is_string($deposit_policy_val) || is_numeric($deposit_policy_val))) 
-                        ? \MHMRentiva\Admin\Settings\Core\SettingsHelper::sanitize_textarea_field_safe($deposit_policy_val) 
+                    'deposit_refund_policy' => (($deposit_policy_val = ($deposit_input['deposit_refund_policy'] ?? ($current_vehicle_pricing['deposit_settings']['deposit_refund_policy'] ?? ''))) !== null && $deposit_policy_val !== '' && (is_string($deposit_policy_val) || is_numeric($deposit_policy_val)))
+                        ? \MHMRentiva\Admin\Settings\Core\SettingsHelper::sanitize_textarea_field_safe($deposit_policy_val)
                         : '',
-                    'deposit_payment_methods' => isset($deposit_input['deposit_payment_methods']) && is_array($deposit_input['deposit_payment_methods']) 
+                    'deposit_payment_methods' => isset($deposit_input['deposit_payment_methods']) && is_array($deposit_input['deposit_payment_methods'])
                         ? array_map([self::class, 'sanitize_text_field_safe'], $deposit_input['deposit_payment_methods'])
                         : ($current_vehicle_pricing['deposit_settings']['deposit_payment_methods'] ?? ['credit_card', 'cash', 'bank_transfer'])
                 ];
-                
+
                 $current_vehicle_pricing['deposit_settings'] = $deposit_settings;
             }
-            
+
             // Seasonal multipliers
             if (isset($vehicle_pricing_input['seasonal_multipliers']) && is_array($vehicle_pricing_input['seasonal_multipliers'])) {
                 foreach ($vehicle_pricing_input['seasonal_multipliers'] as $key => $season) {
@@ -966,7 +981,7 @@ final class SettingsSanitizer
                     }
                 }
             }
-            
+
             // Discount options
             if (isset($vehicle_pricing_input['discount_options']) && is_array($vehicle_pricing_input['discount_options'])) {
                 foreach ($vehicle_pricing_input['discount_options'] as $key => $discount) {
@@ -984,14 +999,14 @@ final class SettingsSanitizer
                     }
                 }
             }
-            
+
             // Currency settings
             if (isset($vehicle_pricing_input['currency_settings']) && is_array($vehicle_pricing_input['currency_settings'])) {
                 $currency_input = $vehicle_pricing_input['currency_settings'];
                 $current_vehicle_pricing['currency_settings']['default_currency'] = self::sanitize_text_field_safe($currency_input['default_currency'] ?? $current_vehicle_pricing['currency_settings']['default_currency']);
                 $current_vehicle_pricing['currency_settings']['auto_update_rates'] = isset($currency_input['auto_update_rates']) ? (bool) $currency_input['auto_update_rates'] : ($current_vehicle_pricing['currency_settings']['auto_update_rates'] ?? false);
             }
-            
+
             // General settings
             if (isset($vehicle_pricing_input['general_settings']) && is_array($vehicle_pricing_input['general_settings'])) {
                 $general_input = $vehicle_pricing_input['general_settings'];
@@ -1000,9 +1015,9 @@ final class SettingsSanitizer
                 $current_vehicle_pricing['general_settings']['decimal_places'] = \absint($general_input['decimal_places'] ?? $current_vehicle_pricing['general_settings']['decimal_places']);
             }
         }
-        
+
         $out['vehicle_pricing'] = $current_vehicle_pricing;
-        
+
         return $out;
     }
 
@@ -1184,27 +1199,27 @@ final class SettingsSanitizer
         $out = [];
 
         // Pricing Settings
-        $out['mhm_rentiva_vehicle_base_price'] = isset($input['mhm_rentiva_vehicle_base_price']) 
-            ? max(0.1, floatval($input['mhm_rentiva_vehicle_base_price'])) 
+        $out['mhm_rentiva_vehicle_base_price'] = isset($input['mhm_rentiva_vehicle_base_price'])
+            ? max(0.1, floatval($input['mhm_rentiva_vehicle_base_price']))
             : $defaults['mhm_rentiva_vehicle_base_price'] ?? 1.0;
 
-        $out['mhm_rentiva_vehicle_weekend_multiplier'] = isset($input['mhm_rentiva_vehicle_weekend_multiplier']) 
-            ? max(0.1, floatval($input['mhm_rentiva_vehicle_weekend_multiplier'])) 
+        $out['mhm_rentiva_vehicle_weekend_multiplier'] = isset($input['mhm_rentiva_vehicle_weekend_multiplier'])
+            ? max(0.1, floatval($input['mhm_rentiva_vehicle_weekend_multiplier']))
             : $defaults['mhm_rentiva_vehicle_weekend_multiplier'] ?? 1.0;
 
         $out['mhm_rentiva_vehicle_tax_inclusive'] = isset($input['mhm_rentiva_vehicle_tax_inclusive']) ? '1' : '0';
 
-        $out['mhm_rentiva_vehicle_tax_rate'] = isset($input['mhm_rentiva_vehicle_tax_rate']) 
-            ? max(0, min(100, floatval($input['mhm_rentiva_vehicle_tax_rate']))) 
+        $out['mhm_rentiva_vehicle_tax_rate'] = isset($input['mhm_rentiva_vehicle_tax_rate'])
+            ? max(0, min(100, floatval($input['mhm_rentiva_vehicle_tax_rate'])))
             : $defaults['mhm_rentiva_vehicle_tax_rate'] ?? 0;
 
         // Display Settings
-        $out['mhm_rentiva_vehicle_cards_per_page'] = isset($input['mhm_rentiva_vehicle_cards_per_page']) 
-            ? max(1, min(100, intval($input['mhm_rentiva_vehicle_cards_per_page']))) 
+        $out['mhm_rentiva_vehicle_cards_per_page'] = isset($input['mhm_rentiva_vehicle_cards_per_page'])
+            ? max(1, min(100, intval($input['mhm_rentiva_vehicle_cards_per_page'])))
             : $defaults['mhm_rentiva_vehicle_cards_per_page'] ?? 12;
 
-        $out['mhm_rentiva_vehicle_default_sort'] = isset($input['mhm_rentiva_vehicle_default_sort']) 
-            ? self::sanitize_text_field_safe($input['mhm_rentiva_vehicle_default_sort'])  
+        $out['mhm_rentiva_vehicle_default_sort'] = isset($input['mhm_rentiva_vehicle_default_sort'])
+            ? self::sanitize_text_field_safe($input['mhm_rentiva_vehicle_default_sort'])
             : $defaults['mhm_rentiva_vehicle_default_sort'] ?? 'price_asc';
 
         // Checkbox fields - ALWAYS set value, either from input or from current settings
@@ -1213,7 +1228,7 @@ final class SettingsSanitizer
         $out['mhm_rentiva_vehicle_show_images'] = isset($input['mhm_rentiva_vehicle_show_images']) && $input['mhm_rentiva_vehicle_show_images'] === '1' ? '1' : '0';
         $out['mhm_rentiva_vehicle_show_features'] = isset($input['mhm_rentiva_vehicle_show_features']) && $input['mhm_rentiva_vehicle_show_features'] === '1' ? '1' : '0';
         $out['mhm_rentiva_vehicle_show_availability'] = isset($input['mhm_rentiva_vehicle_show_availability']) && $input['mhm_rentiva_vehicle_show_availability'] === '1' ? '1' : '0';
-        
+
         // Feature selection - handle array input
         $card_field_payload = $input['mhm_rentiva_vehicle_card_fields'] ?? null;
 
@@ -1226,7 +1241,7 @@ final class SettingsSanitizer
                     'gear'       => ['type' => VehicleFeatureHelper::TYPE_DETAIL, 'key' => 'transmission'],
                     'people'     => ['type' => VehicleFeatureHelper::TYPE_DETAIL, 'key' => 'seats'],
                     'calendar'   => ['type' => VehicleFeatureHelper::TYPE_DETAIL, 'key' => 'year'],
-                    'speedometer'=> ['type' => VehicleFeatureHelper::TYPE_DETAIL, 'key' => 'mileage'],
+                    'speedometer' => ['type' => VehicleFeatureHelper::TYPE_DETAIL, 'key' => 'mileage'],
                 ];
                 $converted = [];
                 foreach ($legacy as $icon_key) {
@@ -1251,16 +1266,16 @@ final class SettingsSanitizer
         }
 
         // Availability Settings
-        $out['mhm_rentiva_vehicle_min_rental_days'] = isset($input['mhm_rentiva_vehicle_min_rental_days']) 
-            ? max(1, intval($input['mhm_rentiva_vehicle_min_rental_days'])) 
+        $out['mhm_rentiva_vehicle_min_rental_days'] = isset($input['mhm_rentiva_vehicle_min_rental_days'])
+            ? max(1, intval($input['mhm_rentiva_vehicle_min_rental_days']))
             : $defaults['mhm_rentiva_vehicle_min_rental_days'] ?? 1;
 
-        $out['mhm_rentiva_vehicle_max_rental_days'] = isset($input['mhm_rentiva_vehicle_max_rental_days']) 
-            ? max(1, min(365, intval($input['mhm_rentiva_vehicle_max_rental_days']))) 
+        $out['mhm_rentiva_vehicle_max_rental_days'] = isset($input['mhm_rentiva_vehicle_max_rental_days'])
+            ? max(1, min(365, intval($input['mhm_rentiva_vehicle_max_rental_days'])))
             : $defaults['mhm_rentiva_vehicle_max_rental_days'] ?? 30;
 
-        $out['mhm_rentiva_vehicle_advance_booking_days'] = isset($input['mhm_rentiva_vehicle_advance_booking_days']) 
-            ? max(1, min(365, intval($input['mhm_rentiva_vehicle_advance_booking_days']))) 
+        $out['mhm_rentiva_vehicle_advance_booking_days'] = isset($input['mhm_rentiva_vehicle_advance_booking_days'])
+            ? max(1, min(365, intval($input['mhm_rentiva_vehicle_advance_booking_days'])))
             : $defaults['mhm_rentiva_vehicle_advance_booking_days'] ?? 365;
 
         $out['mhm_rentiva_vehicle_allow_same_day'] = isset($input['mhm_rentiva_vehicle_allow_same_day']) ? '1' : '0';
@@ -1278,22 +1293,26 @@ final class SettingsSanitizer
         // REMOVED: booking_date_format (duplicate), booking_history_retention_days (unused)
 
         // Time Management Settings
-        $out['mhm_rentiva_booking_cancellation_deadline_hours'] = isset($input['mhm_rentiva_booking_cancellation_deadline_hours']) 
-            ? max(1, min(168, intval($input['mhm_rentiva_booking_cancellation_deadline_hours']))) 
+        $out['mhm_rentiva_booking_cancellation_deadline_hours'] = isset($input['mhm_rentiva_booking_cancellation_deadline_hours'])
+            ? max(1, min(168, intval($input['mhm_rentiva_booking_cancellation_deadline_hours'])))
             : ($defaults['mhm_rentiva_booking_cancellation_deadline_hours'] ?? 24);
 
-        $out['mhm_rentiva_booking_payment_deadline_minutes'] = isset($input['mhm_rentiva_booking_payment_deadline_minutes']) 
-            ? max(0, min(1440, intval($input['mhm_rentiva_booking_payment_deadline_minutes']))) 
+        $out['mhm_rentiva_booking_payment_deadline_minutes'] = isset($input['mhm_rentiva_booking_payment_deadline_minutes'])
+            ? max(0, min(1440, intval($input['mhm_rentiva_booking_payment_deadline_minutes'])))
             : ($defaults['mhm_rentiva_booking_payment_deadline_minutes'] ?? 30);
 
         $out['mhm_rentiva_booking_auto_cancel_enabled'] = isset($input['mhm_rentiva_booking_auto_cancel_enabled']) ? '1' : '0';
-        
+
         // REMOVED: booking_confirmation_timeout_hours (no system), booking_reminder_hours_before (no reminder)
 
         // Notification Settings
         $out['mhm_rentiva_booking_send_confirmation_emails'] = isset($input['mhm_rentiva_booking_send_confirmation_emails']) ? '1' : '0';
         $out['mhm_rentiva_booking_send_reminder_emails'] = isset($input['mhm_rentiva_booking_send_reminder_emails']) ? '1' : '0';
         $out['mhm_rentiva_booking_admin_notifications'] = isset($input['mhm_rentiva_booking_admin_notifications']) ? '1' : '0';
+
+        // default_rental_days
+        $days = isset($input['mhm_rentiva_default_rental_days']) ? \absint($input['mhm_rentiva_default_rental_days']) : ($defaults['mhm_rentiva_default_rental_days'] ?? 1);
+        $out['mhm_rentiva_default_rental_days'] = max(1, $days);
 
         return $out;
     }
@@ -1330,8 +1349,8 @@ final class SettingsSanitizer
         // REMOVED: customer_marketing_emails (no marketing system)
 
         // Security Settings
-        $out['mhm_rentiva_customer_password_min_length'] = isset($input['mhm_rentiva_customer_password_min_length']) 
-            ? max(6, min(32, intval($input['mhm_rentiva_customer_password_min_length']))) 
+        $out['mhm_rentiva_customer_password_min_length'] = isset($input['mhm_rentiva_customer_password_min_length'])
+            ? max(6, min(32, intval($input['mhm_rentiva_customer_password_min_length'])))
             : $defaults['mhm_rentiva_customer_password_min_length'] ?? 8;
         $out['mhm_rentiva_customer_password_require_special'] = isset($input['mhm_rentiva_customer_password_require_special']) ? '1' : '0';
 
@@ -1340,11 +1359,11 @@ final class SettingsSanitizer
         // REMOVED: customer_data_retention_days (no cleanup job), customer_consent_required (duplicate)
 
         // Experience Settings
-        $out['mhm_rentiva_customer_default_role'] = isset($input['mhm_rentiva_customer_default_role']) 
-            ? self::sanitize_text_field_safe($input['mhm_rentiva_customer_default_role'])  
+        $out['mhm_rentiva_customer_default_role'] = isset($input['mhm_rentiva_customer_default_role'])
+            ? self::sanitize_text_field_safe($input['mhm_rentiva_customer_default_role'])
             : $defaults['mhm_rentiva_customer_default_role'] ?? 'customer';
-        $out['mhm_rentiva_customer_notification_frequency'] = isset($input['mhm_rentiva_customer_notification_frequency']) 
-            ? self::sanitize_text_field_safe($input['mhm_rentiva_customer_notification_frequency'])  
+        $out['mhm_rentiva_customer_notification_frequency'] = isset($input['mhm_rentiva_customer_notification_frequency'])
+            ? self::sanitize_text_field_safe($input['mhm_rentiva_customer_notification_frequency'])
             : $defaults['mhm_rentiva_customer_notification_frequency'] ?? 'immediate';
 
         return $out;
@@ -1360,7 +1379,8 @@ if (!function_exists('mhm_rentiva_sanitize_text_field_safe')) {
     /**
      * Safe wrapper for WordPress sanitize_text_field that handles null values
      */
-    function mhm_rentiva_sanitize_text_field_safe($str) {
+    function mhm_rentiva_sanitize_text_field_safe($str)
+    {
         // ✅ CRITICAL: Null check FIRST - before any processing
         if ($str === null) {
             return '';
@@ -1383,22 +1403,22 @@ if (!function_exists('mhm_rentiva_sanitize_text_field_safe')) {
 
 // ✅ CRITICAL: Clean $_POST and $_REQUEST arrays BEFORE WordPress Settings API processes them
 // Use 'plugins_loaded' hook to run VERY EARLY, before WordPress processes anything
-\add_action('plugins_loaded', function() {
+\add_action('plugins_loaded', function () {
     // ✅ Only run on admin pages and POST requests
     if (!\is_admin() || !isset($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
         return;
     }
-    
+
     // ✅ Only run on settings pages
     if (!isset($_GET['page']) || strpos($_GET['page'], 'mhm_rentiva') === false) {
         return;
     }
-    
+
     // ✅ Clean $_POST array recursively - MUST happen before WordPress Settings API reads it
     if (isset($_POST) && is_array($_POST)) {
         \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::clean_post_recursive($_POST);
     }
-    
+
     // ✅ Clean $_REQUEST array recursively
     if (isset($_REQUEST) && is_array($_REQUEST)) {
         \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::clean_post_recursive($_REQUEST);
@@ -1406,7 +1426,7 @@ if (!function_exists('mhm_rentiva_sanitize_text_field_safe')) {
 }, 2);
 
 // ✅ Hook into sanitize_option to catch null values BEFORE WordPress core processes them
-\add_filter('sanitize_option_mhm_rentiva_settings', function($value) {
+\add_filter('sanitize_option_mhm_rentiva_settings', function ($value) {
     if (is_array($value)) {
         \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::clean_post_recursive($value);
     }
@@ -1418,22 +1438,22 @@ if (!function_exists('mhm_rentiva_sanitize_text_field_safe')) {
 
 // ✅ CRITICAL: Clean $_POST and $_REQUEST arrays BEFORE WordPress Settings API processes them
 // Hook into 'admin_init' with early priority
-\add_action('admin_init', function() {
+\add_action('admin_init', function () {
     // ✅ Only run on POST requests (form submissions)
     if (!isset($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
         return;
     }
-    
+
     // ✅ Only run on settings pages
     if (!isset($_GET['page']) || strpos($_GET['page'], 'mhm_rentiva') === false) {
         return;
     }
-    
+
     // ✅ Clean $_POST array recursively - MUST happen before WordPress Settings API reads it
     if (isset($_POST) && is_array($_POST)) {
         \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::clean_post_recursive($_POST);
     }
-    
+
     // ✅ Clean $_REQUEST array recursively
     if (isset($_REQUEST) && is_array($_REQUEST)) {
         \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::clean_post_recursive($_REQUEST);

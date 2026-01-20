@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Emails\Notifications;
 
@@ -21,7 +23,29 @@ final class RefundNotifications
         $name  = (string) get_post_meta($booking_id, '_mhm_contact_name', true);
         $admin = get_option('admin_email');
 
-        $amountHuman = number_format_i18n($amount_kurus / 100, 2) . ' ' . strtoupper($currency ?: 'TRY');
+        if (function_exists('wc_price')) {
+            $amountHuman = strip_tags(wc_price($amount_kurus / 100, ['currency' => $currency ?: 'TRY']));
+        } else {
+            $symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol($currency ?: null);
+            $amount = number_format_i18n($amount_kurus / 100, 2);
+            $pos    = get_option('mhm_rentiva_currency_position', 'right_space');
+
+            switch ($pos) {
+                case 'left':
+                    $amountHuman = $symbol . $amount;
+                    break;
+                case 'left_space':
+                    $amountHuman = $symbol . ' ' . $amount;
+                    break;
+                case 'right':
+                    $amountHuman = $amount . $symbol;
+                    break;
+                case 'right_space':
+                default:
+                    $amountHuman = $amount . ' ' . $symbol;
+                    break;
+            }
+        }
         $statusText = $newPayStatus === 'refunded' ? __('full refund', 'mhm-rentiva') : __('partial refund', 'mhm-rentiva');
 
         $context = [

@@ -266,6 +266,9 @@ final class BookingForm extends AbstractShortcode
             'locale' => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
             'enable_deposit' => get_option('mhm_rentiva_enable_deposit', '1') === '1',
             'default_payment' => get_option('mhm_rentiva_default_payment', 'deposit'),
+            'min_days' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_min_rental_days', 1),
+            'max_days' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_max_rental_days', 30),
+            'advance_booking_days' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_advance_booking_days', 365),
         ];
     }
 
@@ -642,6 +645,14 @@ final class BookingForm extends AbstractShortcode
                 $customer_name = trim($customer_first_name . ' ' . $customer_last_name);
             }
             $payment_type = self::sanitize_text_field_safe($_POST['payment_type'] ?? 'deposit');
+
+            // ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
+            // This ensures we fallback to full payment instead of 0-deposit (free) booking
+            $deposit_check_value = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
+            if (empty($deposit_check_value)) {
+                $payment_type = 'full';
+            }
+
             // ⭐ WooCommerce only - payment_method and payment_gateway removed
             $payment_method = 'woocommerce';
             $payment_gateway = 'woocommerce';
@@ -740,6 +751,25 @@ final class BookingForm extends AbstractShortcode
 
             // Calculate number of days
             $days = $start_date->diff($end_date)->days;
+            $days = max(1, $days); // Ensure at least 1 day
+
+            // ⭐ RENTAL LIMITS VALIDATION
+            $min_days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_min_rental_days', 1);
+            $max_days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_max_rental_days', 30);
+
+            if ($days < $min_days) {
+                wp_send_json_error([
+                    'message' => sprintf(__('Minimum rental period is %d days.', 'mhm-rentiva'), $min_days),
+                    'code' => 'min_days_error'
+                ]);
+            }
+
+            if ($max_days > 0 && $days > $max_days) {
+                wp_send_json_error([
+                    'message' => sprintf(__('Maximum rental period is %d days.', 'mhm-rentiva'), $max_days),
+                    'code' => 'max_days_error'
+                ]);
+            }
 
             // ⭐ ATOMIC OVERLAP CHECK - Final check before creating booking to prevent race conditions
             // This is the authoritative check - no cache, real-time database query
@@ -774,7 +804,8 @@ final class BookingForm extends AbstractShortcode
                 $vehicle_id,
                 $days,
                 $payment_type,
-                $selected_addons
+                $selected_addons,
+                $start_ts // ⭐ Pass start timestamp for weekend multiplier
             );
 
             if (!$deposit_result['success']) {
@@ -1069,6 +1100,13 @@ final class BookingForm extends AbstractShortcode
 
             // Payment type (deposit or full)
             $payment_type = self::sanitize_text_field_safe($_POST['payment_type'] ?? 'deposit');
+
+            // ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
+            // This ensures calculations reflect "No Deposit" as "Full Payment Required"
+            $deposit_check_value = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
+            if (empty($deposit_check_value)) {
+                $payment_type = 'full';
+            }
 
             // Payment type validation
             if (!in_array($payment_type, ['deposit', 'full'])) {
