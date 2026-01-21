@@ -227,7 +227,7 @@ final class Mode
             ],
             [
                 'name' => __('Export Formats', 'mhm-rentiva'),
-                'lite' => esc_html__('CSV Only', 'mhm-rentiva'),
+                'lite' => esc_html__('CSV', 'mhm-rentiva'),
                 'pro' => esc_html__('CSV, JSON', 'mhm-rentiva'),
             ],
             [
