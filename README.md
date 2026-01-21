@@ -905,6 +905,7 @@ The plugin will automatically create pages for shortcodes, or you can create the
 - Contact page (use `[rentiva_contact]` shortcode)
 - Login page (use `[rentiva_login_form]` shortcode)
 - Registration page (use `[rentiva_register_form]` shortcode)
+- Favorites page (use `[rentiva_my_favorites]` shortcode)
 - VIP Transfer Search (use `[mhm_rentiva_transfer_search]` shortcode)
 
 ### Step 4: Configure Payment Gateways
@@ -973,6 +974,45 @@ The plugin will automatically create pages for shortcodes, or you can create the
 - Admin approval workflow
 - Automatic cancellation if not approved
 - Email notifications
+
+---
+
+## 🎯 Shortcode Reference
+
+### Account Management Shortcodes
+
+#### `[rentiva_my_account]`
+**Purpose**: Main customer account dashboard
+
+#### `[rentiva_my_bookings]`
+**Purpose**: Display customer booking history
+
+#### `[rentiva_booking_form]`
+**Purpose**: Main booking form for vehicle rental
+
+**Usage**:
+```php
+[rentiva_booking_form vehicle_id="123"]
+```
+
+#### `[rentiva_my_favorites]`
+**Purpose**: Display customer favorite vehicles list
+
+**Usage**:
+```php
+[rentiva_my_favorites columns="3" limit="12"]
+```
+
+#### `[rentiva_vehicles_grid]`
+**Purpose**: Display vehicle inventory in a grid layout
+
+**Usage**:
+```php
+[rentiva_vehicles_grid columns="3" limit="12"]
+```
+
+#### `[mhm_rentiva_transfer_search]`
+**Purpose**: VIP Transfer and chauffeured vehicle search form.
 
 ---
 

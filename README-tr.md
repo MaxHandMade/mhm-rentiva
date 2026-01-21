@@ -483,6 +483,16 @@ Eklenti shortcode'lar için sayfaları otomatik olarak oluşturur veya manuel ol
 [rentiva_booking_form vehicle_id="123"]
 ```
 
+#### `[rentiva_my_favorites]`
+**Amaç**: Müşteri favori araç listesini göster
+
+**Kullanım**:
+```php
+[rentiva_my_favorites columns="3" limit="12"]
+```
+
+
+
 #### `[rentiva_vehicles_grid]`
 **Amaç**: Araçları grid düzeninde göster
 
