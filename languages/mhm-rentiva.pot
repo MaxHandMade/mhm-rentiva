@@ -21711,3 +21711,38 @@ msgstr ""
 #: templates/emails/booking-created-customer.html.php
 msgid "Thank you for your booking. We have received your request and will process it shortly."
 msgstr ""
+
+#: src/Admin/Reports/BackgroundProcessor.php
+msgid "Hello %1$s,
+
+Your %2$s report has been successfully completed.
+
+Report Details:
+- Report Type: %3$s
+- Creation Date: %4$s
+- Processing Time: %5$s ms
+
+You can view the report by logging into the admin panel.
+
+MHM Rentiva Team"
+msgstr ""
+
+#: src/Admin/Transfer/Frontend/TransferShortcodes.php
+msgid "Server communication error!"
+msgstr ""
+
+#: src/Admin/Vehicle/Frontend/VehicleSearch.php
+msgid "Return date must be after pickup date"
+msgstr ""
+
+#: src/Admin/Vehicle/Frontend/VehicleSearch.php
+msgid "Please enter a valid price"
+msgstr ""
+
+#: src/Admin/Vehicle/Frontend/VehicleSearch.php
+msgid "Min price cannot be greater than max price"
+msgstr ""
+
+#: src/Admin/Vehicle/Frontend/VehicleSearch.php
+msgid "Max price cannot be less than min price"
+msgstr ""

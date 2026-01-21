@@ -78,7 +78,8 @@ final class TransferShortcodes
         // Retrieve Locations
         global $wpdb;
         $table_locations = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
-        $locations = $wpdb->get_results("SELECT id, name, type FROM $table_locations WHERE is_active = 1 ORDER BY priority ASC, name ASC");
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe (prefix + constant).
+        $locations = $wpdb->get_results($wpdb->prepare("SELECT id, name, type FROM {$table_locations} WHERE is_active = %d ORDER BY priority ASC, name ASC", 1));
 
         ob_start();
 ?>
@@ -171,7 +172,17 @@ final class TransferShortcodes
         // Security Check
         check_ajax_referer('mhm_rentiva_transfer_nonce', 'security');
 
-        $criteria = $_POST;
+        // Sanitize all input data
+        $criteria = [
+            'origin_id'     => isset($_POST['origin_id']) ? absint($_POST['origin_id']) : 0,
+            'destination_id' => isset($_POST['destination_id']) ? absint($_POST['destination_id']) : 0,
+            'date'          => isset($_POST['date']) ? sanitize_text_field(wp_unslash($_POST['date'])) : '',
+            'time'          => isset($_POST['time']) ? sanitize_text_field(wp_unslash($_POST['time'])) : '',
+            'adults'        => isset($_POST['adults']) ? absint($_POST['adults']) : 1,
+            'children'      => isset($_POST['children']) ? absint($_POST['children']) : 0,
+            'luggage_big'   => isset($_POST['luggage_big']) ? absint($_POST['luggage_big']) : 0,
+            'luggage_small' => isset($_POST['luggage_small']) ? absint($_POST['luggage_small']) : 0,
+        ];
 
         $results = TransferSearchEngine::search($criteria);
 
@@ -215,15 +226,6 @@ final class TransferShortcodes
                         <h3><?php echo esc_html($vehicle['title']); ?></h3>
                         <div class="mhm-transfer-features">
                             <span><i class="dashicons dashicons-groups"></i> <?php echo esc_html($vehicle['max_pax']); ?> <?php echo esc_html__('Person', 'mhm-rentiva'); ?></span>
-                            <?php
-                            /* Baggage info removed as per request
-                            $luggage_display = $vehicle['luggage_capacity'];
-                            if (isset($vehicle['max_big_luggage']) && isset($vehicle['max_small_luggage']) && ($vehicle['max_big_luggage'] !== '' || $vehicle['max_small_luggage'] !== '')) {
-                                $luggage_display = (int)$vehicle['max_big_luggage'] + (int)$vehicle['max_small_luggage'];
-                            }
-                            ?>
-                            <span><i class="dashicons dashicons-portfolio"></i> <?php echo esc_html($luggage_display); ?> <?php echo esc_html__('Luggage', 'mhm-rentiva'); ?></span>
-                            */ ?>
                             <span><i class="dashicons dashicons-clock"></i> <?php echo esc_html($vehicle['duration']); ?> <?php echo esc_html__('min', 'mhm-rentiva'); ?></span>
                         </div>
                         <div class="mhm-transfer-price">

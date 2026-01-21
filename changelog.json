@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.6.2",
+        "date": "2026-01-21",
+        "type": "current",
+        "changes": [
+            "🛡️ SECURITY AUDIT: Comprehensive security audit completed for all 22 modules (91+ patches applied).",
+            "🔒 NONCE HARDENING: All nonce verifications now use sanitize_text_field(wp_unslash()) wrapper for WPCS compliance.",
+            "✅ WPCS COMPLIANCE: Plugin now fully complies with WordPress Coding Standards for security operations.",
+            "🐛 LINT FIXES: Fixed PHP 8.4+ implicit nullable parameter deprecation warnings.",
+            "🔧 CODE QUALITY: Fixed Exception namespace issues and undefined method calls across multiple files."
+        ]
+    },
+    {
         "version": "4.6.1",
         "date": "2026-01-21",
         "type": "current",

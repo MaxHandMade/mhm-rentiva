@@ -518,7 +518,7 @@ final class VehicleComparison extends AbstractShortcode
     public static function ajax_get_available_vehicles(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_vehicle_comparison_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_vehicle_comparison_nonce')) {
             wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
             return;
         }
@@ -535,7 +535,7 @@ final class VehicleComparison extends AbstractShortcode
     {
         try {
             // Nonce check
-            $nonce = $_POST['nonce'] ?? '';
+            $nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
             if (!wp_verify_nonce($nonce, 'mhm_rentiva_vehicle_comparison_nonce')) {
                 wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             }
@@ -580,7 +580,7 @@ final class VehicleComparison extends AbstractShortcode
     {
         try {
             // Nonce check
-            $nonce = $_POST['nonce'] ?? '';
+            $nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
             if (!wp_verify_nonce($nonce, 'mhm_rentiva_vehicle_comparison_nonce')) {
                 wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             }

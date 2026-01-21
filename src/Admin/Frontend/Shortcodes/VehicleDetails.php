@@ -739,7 +739,7 @@ final class VehicleDetails extends AbstractShortcode
     public static function ajax_get_calendar(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_calendar_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_calendar_nonce')) {
             wp_die('Security check failed');
         }
 

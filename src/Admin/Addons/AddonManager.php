@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Addons;
 
@@ -40,7 +42,7 @@ final class AddonManager
         if (is_admin()) {
             // add_action('admin_menu', [self::class, 'add_admin_menu']);        // Removed - was creating menu duplication
             add_filter('mhm_rentiva_admin_submenu_order', [self::class, 'admin_menu_order']);
-            
+
             // AJAX handlers
             add_action('wp_ajax_mhm_bulk_addon_action', [self::class, 'handle_bulk_action']);
             add_action('wp_ajax_mhm_update_addon_price', [self::class, 'handle_update_price']);
@@ -60,15 +62,15 @@ final class AddonManager
     {
         // Register meta boxes
         AddonMeta::register();
-        
+
         // Add price column to WordPress post list
         add_filter('manage_vehicle_addon_posts_columns', [self::class, 'add_price_column']);
         add_action('manage_vehicle_addon_posts_custom_column', [self::class, 'render_price_column'], 10, 2);
         add_filter('manage_edit-vehicle_addon_sortable_columns', [self::class, 'make_price_sortable']);
-        
+
         // Enqueue script and style
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_addon_scripts']);
-        
+
         // Register list table for enhanced functionality
         if (class_exists(AddonListTable::class)) {
             new AddonListTable();
@@ -106,16 +108,16 @@ final class AddonManager
     public static function add_price_column(array $columns): array
     {
         $new_columns = [];
-        
+
         foreach ($columns as $key => $label) {
             $new_columns[$key] = $label;
-            
+
             // Add price column after title column
             if ($key === 'title') {
                 $new_columns['addon_price'] = __('Price', 'mhm-rentiva');
             }
         }
-        
+
         return $new_columns;
     }
 
@@ -128,7 +130,7 @@ final class AddonManager
             $price = get_post_meta($post_id, 'addon_price', true);
             $currency_code = self::get_default_currency();
             $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol($currency_code);
-            
+
             if ($price) {
                 $formatted_price = number_format((float) $price, 2, ',', '.') . ' ' . $currency_symbol;
                 echo sprintf(
@@ -158,7 +160,7 @@ final class AddonManager
     public static function enqueue_addon_scripts(string $hook): void
     {
         global $post_type;
-        
+
         // Only enqueue on addon list page
         if ($hook === 'edit.php' && $post_type === 'vehicle_addon') {
             wp_enqueue_style(
@@ -167,7 +169,7 @@ final class AddonManager
                 [],
                 MHM_RENTIVA_VERSION
             );
-            
+
             wp_enqueue_script(
                 'mhm-addon-list',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-list.js',
@@ -175,7 +177,7 @@ final class AddonManager
                 MHM_RENTIVA_VERSION,
                 true
             );
-            
+
             // Localize JavaScript variables
             wp_localize_script('mhm-addon-list', 'mhm_addon_list_vars', [
                 'ajax_url' => admin_url('admin-ajax.php'),
@@ -331,7 +333,7 @@ final class AddonManager
         }
 
         $count = wp_count_posts('vehicle_addon')->publish;
-        
+
         if ($count >= self::MAX_ADDONS_LITE) {
             return sprintf(
                 /* translators: %d placeholder. */
@@ -352,7 +354,7 @@ final class AddonManager
     public static function handle_bulk_actions(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_addon_list_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_addon_list_nonce')) {
             wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
             return;
         }
@@ -435,7 +437,7 @@ final class AddonManager
         if (class_exists('\MHMRentiva\Admin\Settings\Settings')) {
             return \MHMRentiva\Admin\Settings\Settings::get($key, $default);
         }
-        
+
         // Fallback: direct WordPress options
         return get_option($key, $default);
     }
@@ -487,7 +489,7 @@ final class AddonManager
     public static function handle_update_price(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_addon_list_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_addon_list_nonce')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
@@ -533,5 +535,4 @@ final class AddonManager
             wp_send_json_error(['message' => __('Error occurred while updating price.', 'mhm-rentiva')]);
         }
     }
-
 }

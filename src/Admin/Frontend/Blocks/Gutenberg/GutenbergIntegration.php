@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Blocks\Gutenberg;
 
@@ -23,15 +25,15 @@ class GutenbergIntegration
         // Vehicle Card Block
         $vehicle_card_block = new VehicleCardBlock();
         $vehicle_card_block->register();
-        
+
         // Vehicles List Block
         $vehicles_list_block = new VehiclesListBlock();
         $vehicles_list_block->register();
-        
+
         // Booking Form Block
         $booking_form_block = new BookingFormBlock();
         $booking_form_block->register();
-        
+
         // Other blocks will be added here
         // $vehicle_search_block = new VehicleSearchBlock();
         // $quick_booking_block = new QuickBookingBlock();
@@ -161,7 +163,7 @@ class GutenbergIntegration
     public static function ajax_get_vehicle_options(): void
     {
         // Nonce verification
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_gutenberg')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_gutenberg')) {
             wp_send_json_error(['message' => __('Security error', 'mhm-rentiva')]);
         }
 
@@ -181,17 +183,17 @@ class GutenbergIntegration
     {
         // Register blocks
         add_action('init', [self::class, 'register_blocks']);
-        
+
         // Register block category
         self::register_category();
-        
+
         // Load editor CSS/JS
         add_action('enqueue_block_editor_assets', [self::class, 'enqueue_editor_styles']);
         add_action('enqueue_block_editor_assets', [self::class, 'enqueue_editor_scripts']);
-        
+
         // Load frontend CSS
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_frontend_styles']);
-        
+
         // AJAX handlers
         add_action('wp_ajax_mhm_rentiva_get_vehicle_options', [self::class, 'ajax_get_vehicle_options']);
     }

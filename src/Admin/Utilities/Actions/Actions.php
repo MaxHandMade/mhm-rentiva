@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Utilities\Actions;
 
@@ -11,7 +13,8 @@ if (!defined('ABSPATH')) {
 
 // Load plugin textdomain
 if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
+    function mhm_rentiva_load_textdomain()
+    {
         load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../../languages/');
     }
     mhm_rentiva_load_textdomain();
@@ -41,12 +44,12 @@ final class Actions
     public static function refund_booking(): void
     {
         $bid = isset($_POST['booking_id']) ? (int) $_POST['booking_id'] : 0;
-        
+
         // ✅ SECURITY: Granular permission control
         if (!self::checkGranularPermission('refund_booking', $bid)) {
             wp_die(esc_html__('You do not have permission for this action.', 'mhm-rentiva'));
         }
-        
+
         check_admin_referer('mhm_rentiva_refund_booking');
         $amount = isset($_POST['amount_kurus']) ? (int) $_POST['amount_kurus'] : 0;
         $reason = isset($_POST['reason']) ? self::sanitize_text_field_safe((string) $_POST['reason']) : '';
@@ -109,7 +112,7 @@ final class Actions
         }
 
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_create_my_account_page')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_create_my_account_page')) {
             wp_send_json_error(esc_html__('Security check failed.', 'mhm-rentiva'));
         }
 
@@ -160,79 +163,79 @@ final class Actions
     private static function checkGranularPermission(string $action, ?int $resource_id = null): bool
     {
         $user = wp_get_current_user();
-        
+
         switch ($action) {
             case 'refund_booking':
                 // Only admin or booking owner
                 if (current_user_can('manage_options')) {
                     return true;
                 }
-                
+
                 if ($resource_id) {
                     $booking_user_id = (int) get_post_meta($resource_id, '_mhm_user_id', true);
                     return $booking_user_id === $user->ID;
                 }
-                
+
                 return false;
-                
+
             case 'purge_logs':
                 // Only super admin
                 return current_user_can('manage_options');
-                
+
             case 'view_booking':
                 // Admin, booking owner or authorized staff
                 if (current_user_can('manage_options') || current_user_can('edit_posts')) {
                     return true;
                 }
-                
+
                 if ($resource_id) {
                     $booking_user_id = (int) get_post_meta($resource_id, '_mhm_user_id', true);
                     return $booking_user_id === $user->ID;
                 }
-                
+
                 return false;
-                
+
             case 'edit_booking':
                 // Only admin and authorized staff
                 return current_user_can('manage_options') || current_user_can('edit_posts');
-                
+
             case 'delete_booking':
                 // Only super admin
                 return current_user_can('manage_options');
-                
+
             case 'export_data':
                 // Admin and authorized staff
                 return current_user_can('manage_options') || current_user_can('edit_posts');
-                
+
             case 'manage_settings':
                 // Only super admin
                 return current_user_can('manage_options');
-                
+
             case 'view_reports':
                 // Admin and authorized staff
                 return current_user_can('manage_options') || current_user_can('edit_posts');
-                
+
             case 'manage_payments':
                 // Only admin and authorized staff
                 return current_user_can('manage_options') || current_user_can('edit_posts');
-                
+
             case 'view_customers':
                 // Admin, authorized staff and booking owner
                 if (current_user_can('manage_options') || current_user_can('edit_posts')) {
                     return true;
                 }
-                
+
                 if ($resource_id) {
                     $booking_user_id = (int) get_post_meta($resource_id, '_mhm_user_id', true);
                     return $booking_user_id === $user->ID;
                 }
-                
+
                 return false;
-                
+
             case 'create_my_account':
                 // Admin and authorized staff
                 return current_user_can('manage_options') || current_user_can('edit_posts');
-                
+
             default:
                 // Default: manage_options permission required
                 return current_user_can('manage_options');
@@ -271,24 +274,24 @@ final class Actions
     private static function checkRoleBasedAccess(string $capability, ?int $resource_id = null): bool
     {
         $user = wp_get_current_user();
-        
+
         // Super Admin - full access
         if (current_user_can('manage_options')) {
             return true;
         }
-        
+
         // Editor - most access except sensitive operations
         if (current_user_can('edit_posts')) {
             $restricted_caps = ['delete_booking', 'manage_settings', 'purge_logs'];
             return !in_array($capability, $restricted_caps, true);
         }
-        
+
         // Author - limited access
         if (current_user_can('edit_published_posts')) {
             $allowed_caps = ['view_booking', 'view_customers'];
             return in_array($capability, $allowed_caps, true);
         }
-        
+
         // Subscriber - very limited access (own bookings only)
         if (current_user_can('read')) {
             if ($resource_id && in_array($capability, ['view_booking', 'view_customers'], true)) {
@@ -296,7 +299,7 @@ final class Actions
                 return $booking_user_id === $user->ID;
             }
         }
-        
+
         return false;
     }
 }

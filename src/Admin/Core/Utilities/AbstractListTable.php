@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
@@ -67,7 +69,7 @@ abstract class AbstractListTable extends \WP_List_Table
         if (isset($_POST['action']) || isset($_POST['action2'])) {
             $this->handle_bulk_actions();
         }
-        
+
         $columns = $this->get_columns();
         $hidden = [];
         $sortable = $this->get_sortable_columns();
@@ -94,24 +96,24 @@ abstract class AbstractListTable extends \WP_List_Table
     {
         $offset = ($current_page - 1) * $per_page;
         $args = $this->get_data_query_args();
-        
+
         // Add pagination
         $args['posts_per_page'] = $per_page;
         $args['offset'] = $offset;
-        
+
         // Add sorting
         $orderby = sanitize_key($_GET['orderby'] ?? 'date');
         $order = sanitize_key($_GET['order'] ?? 'desc');
         $args = $this->apply_sorting($args, $orderby, $order);
-        
+
         // Add search
         if (!empty($_GET['s'])) {
             $args['s'] = self::sanitize_text_field_safe($_GET['s']);
         }
-        
+
         // Add custom filters
         $args = $this->apply_custom_filters($args);
-        
+
         $query = new \WP_Query($args);
         return $this->get_data_from_results($query->posts);
     }
@@ -122,7 +124,7 @@ abstract class AbstractListTable extends \WP_List_Table
     protected function apply_sorting(array $args, string $orderby, string $order): array
     {
         $sortable_columns = $this->get_sortable_columns();
-        
+
         if (isset($sortable_columns[$orderby])) {
             $args['orderby'] = $orderby;
             $args['order'] = strtoupper($order);
@@ -130,7 +132,7 @@ abstract class AbstractListTable extends \WP_List_Table
             $args['orderby'] = 'date';
             $args['order'] = 'DESC';
         }
-        
+
         return $args;
     }
 
@@ -151,7 +153,7 @@ abstract class AbstractListTable extends \WP_List_Table
             return;
         }
 
-        if (!isset($_POST[$this->nonce_name]) || !wp_verify_nonce($_POST[$this->nonce_name], $this->nonce_action)) {
+        if (!isset($_POST[$this->nonce_name]) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST[$this->nonce_name])), $this->nonce_action)) {
             $this->show_error(__('Security check failed.', 'mhm-rentiva'));
             return;
         }
@@ -170,11 +172,11 @@ abstract class AbstractListTable extends \WP_List_Table
             if (method_exists($this, 'clear_cache_after_bulk_action')) {
                 $this->clear_cache_after_bulk_action($action, $item_ids);
             }
-            
+
             // Redirect with success message (to avoid resubmission)
             // Get base admin URL - use $_SERVER['REQUEST_URI'] to get current page
             $current_page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
-            
+
             if (empty($current_page)) {
                 // Fallback: try to get from REQUEST_URI
                 $request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
@@ -182,7 +184,7 @@ abstract class AbstractListTable extends \WP_List_Table
                     $current_page = $matches[1];
                 }
             }
-            
+
             // Build redirect URL - use admin_url with proper page parameter
             if (empty($current_page)) {
                 // If we can't determine the page, redirect to admin
@@ -190,21 +192,21 @@ abstract class AbstractListTable extends \WP_List_Table
             } else {
                 $redirect_url = admin_url('admin.php?page=' . urlencode($current_page));
             }
-            
+
             // Remove POST parameters and add success parameters
             $redirect_url = remove_query_arg(['bulk_action', 'bulk_count', 'deleted', 'action', 'action2', $this->get_bulk_action_name(), 'paged'], $redirect_url);
             $redirect_url = add_query_arg([
                 'bulk_action' => $action,
                 'bulk_count' => $success_count,
             ], $redirect_url);
-            
+
             // Preserve other GET parameters (filters, search, etc.)
             foreach (['s', 'status_filter', 'category_filter', 'thread_id', 'unread_only', 'orderby', 'order'] as $param) {
                 if (isset($_GET[$param]) && !empty($_GET[$param])) {
                     $redirect_url = add_query_arg($param, sanitize_text_field($_GET[$param]), $redirect_url);
                 }
             }
-            
+
             // Redirect (avoid redirect loop by checking if we're already on the target page)
             wp_safe_redirect($redirect_url);
             exit;
@@ -241,7 +243,7 @@ abstract class AbstractListTable extends \WP_List_Table
      */
     protected function show_error(string $message): void
     {
-        add_action('admin_notices', function() use ($message) {
+        add_action('admin_notices', function () use ($message) {
             echo '<div class="notice notice-error is-dismissible">';
             echo '<p>' . esc_html($message) . '</p>';
             echo '</div>';
@@ -253,7 +255,7 @@ abstract class AbstractListTable extends \WP_List_Table
      */
     protected function show_success(string $message): void
     {
-        add_action('admin_notices', function() use ($message) {
+        add_action('admin_notices', function () use ($message) {
             echo '<div class="notice notice-success is-dismissible">';
             echo '<p>' . esc_html($message) . '</p>';
             echo '</div>';
@@ -268,7 +270,7 @@ abstract class AbstractListTable extends \WP_List_Table
         if ($which !== 'top') {
             return;
         }
-        
+
         $this->render_custom_filters();
     }
 
@@ -324,12 +326,12 @@ abstract class AbstractListTable extends \WP_List_Table
         if (empty($date)) {
             return '-';
         }
-        
+
         $timestamp = strtotime($date);
         if ($timestamp === false) {
             return $date;
         }
-        
+
         return date($format, $timestamp);
     }
 
@@ -348,7 +350,7 @@ abstract class AbstractListTable extends \WP_List_Table
     {
         $label = $status_labels[$status] ?? ucfirst($status);
         $class = 'status-' . sanitize_html_class($status);
-        
+
         return sprintf(
             '<span class="status-badge %s">%s</span>',
             esc_attr($class),
@@ -372,7 +374,7 @@ abstract class AbstractListTable extends \WP_List_Table
         if (empty($text)) {
             $text = __('View', 'mhm-rentiva');
         }
-        
+
         return sprintf(
             '<a href="%s">%s</a>',
             esc_url(admin_url($page . '&id=' . $item_id)),
@@ -388,7 +390,7 @@ abstract class AbstractListTable extends \WP_List_Table
         if (empty($text)) {
             $text = __('Edit', 'mhm-rentiva');
         }
-        
+
         return sprintf(
             '<a href="%s">%s</a>',
             esc_url(admin_url($page . '&id=' . $item_id)),
@@ -404,11 +406,11 @@ abstract class AbstractListTable extends \WP_List_Table
         if (empty($text)) {
             $text = __('Delete', 'mhm-rentiva');
         }
-        
+
         if (empty($confirm_message)) {
             $confirm_message = __('Are you sure you want to delete this item?', 'mhm-rentiva');
         }
-        
+
         return sprintf(
             '<a href="%s" onclick="return confirm(\'%s\')">%s</a>',
             esc_url(get_delete_post_link($item_id)),
@@ -431,7 +433,7 @@ abstract class AbstractListTable extends \WP_List_Table
     protected function render_search_box(): void
     {
         $search_term = self::sanitize_text_field_safe($_GET['s'] ?? '');
-        
+
         echo '<p class="search-box">';
         echo '<label class="screen-reader-text" for="' . esc_attr($this->get_search_input_id()) . '">' . __('Search:', 'mhm-rentiva') . '</label>';
         echo '<input type="search" id="' . esc_attr($this->get_search_input_id()) . '" name="s" value="' . esc_attr($search_term) . '" />';

@@ -1073,7 +1073,7 @@ final class VehicleMeta extends AbstractMetaBox
      */
     public static function ajax_save_item_order(): void
     {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'mhm_rentiva_vehicle_meta_action')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_rentiva_vehicle_meta_action')) {
             wp_send_json_error(__('Security error', 'mhm-rentiva'));
         }
 
@@ -1146,7 +1146,7 @@ final class VehicleMeta extends AbstractMetaBox
      */
     public static function ajax_add_gallery_image(): void
     {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'mhm_vehicle_gallery_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_vehicle_gallery_nonce')) {
             wp_send_json_error(__('Security error', 'mhm-rentiva'));
         }
 
@@ -1194,7 +1194,7 @@ final class VehicleMeta extends AbstractMetaBox
      */
     public static function ajax_remove_gallery_image(): void
     {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'mhm_vehicle_gallery_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_vehicle_gallery_nonce')) {
             wp_send_json_error(__('Security error', 'mhm-rentiva'));
         }
 
@@ -1229,7 +1229,7 @@ final class VehicleMeta extends AbstractMetaBox
      */
     public static function ajax_reorder_gallery_images(): void
     {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'mhm_vehicle_gallery_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_vehicle_gallery_nonce')) {
             wp_send_json_error(__('Security error', 'mhm-rentiva'));
         }
 

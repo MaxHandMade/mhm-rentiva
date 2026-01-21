@@ -25,7 +25,7 @@ final class VehicleSettings
         if ($value === null || $value === '') {
             return '';
         }
-        return sanitize_text_field((string) $value);
+        return sanitize_text_field(wp_unslash((string) $value));
     }
 
     public static function register(): void
@@ -56,7 +56,7 @@ final class VehicleSettings
         // Nonce check
         if (
             !isset($_POST['mhm_rentiva_vehicle_meta_nonce']) ||
-            !wp_verify_nonce($_POST['mhm_rentiva_vehicle_meta_nonce'], 'mhm_rentiva_vehicle_meta_action')
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_vehicle_meta_nonce'])), 'mhm_rentiva_vehicle_meta_action')
         ) {
             return;
         }
@@ -1752,7 +1752,7 @@ final class VehicleSettings
     public static function ajax_remove_custom_field(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'], 'mhm_vehicle_settings_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_vehicle_settings_nonce')) {
             wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
             return;
         }
@@ -1871,7 +1871,7 @@ final class VehicleSettings
     public static function ajax_add_custom_field(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'], 'mhm_vehicle_settings_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_vehicle_settings_nonce')) {
             wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
             return;
         }

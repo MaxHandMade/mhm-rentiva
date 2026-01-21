@@ -159,7 +159,7 @@ final class SettingsHandler
             isset($_POST['email_templates_action']) &&
             sanitize_key($_POST['email_templates_action']) === 'save' &&
             isset($_POST['_wpnonce']) &&
-            wp_verify_nonce($_POST['_wpnonce'], Settings::GROUP . '-options')
+            wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), Settings::GROUP . '-options')
         ) {
             EmailTemplates::handle_save_templates();
             add_settings_error(
@@ -182,7 +182,7 @@ final class SettingsHandler
             isset($_POST['action']) &&
             $_POST['action'] === 'update' &&
             isset($_POST['_wpnonce']) &&
-            wp_verify_nonce($_POST['_wpnonce'], 'mhm_rentiva_rest_settings-options')
+            wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'mhm_rentiva_rest_settings-options')
         ) {
             if (isset($_POST['mhm_rentiva_rest_settings']) && is_array($_POST['mhm_rentiva_rest_settings'])) {
                 $rest_settings = RESTSettings::sanitize_settings($_POST['mhm_rentiva_rest_settings']);

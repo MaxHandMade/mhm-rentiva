@@ -29,7 +29,7 @@ final class Handler
         // Nonce verification
         if (
             !isset($_POST['mhm_rentiva_booking_nonce']) ||
-            !wp_verify_nonce($_POST['mhm_rentiva_booking_nonce'], 'mhm_rentiva_booking_action')
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_booking_nonce'])), 'mhm_rentiva_booking_action')
         ) {
             $error_message = UXHelper::get_user_friendly_error(
                 UXHelper::ERROR_TYPE_PERMISSION,

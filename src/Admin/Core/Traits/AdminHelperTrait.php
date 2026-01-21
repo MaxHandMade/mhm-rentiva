@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Traits;
 
@@ -112,7 +114,7 @@ trait AdminHelperTrait
      */
     protected function verify_nonce(string $action, string $name = '_wpnonce'): bool
     {
-        return wp_verify_nonce($_POST[$name] ?? '', $action) !== false;
+        return wp_verify_nonce(sanitize_text_field(wp_unslash($_POST[$name] ?? '')), $action) !== false;
     }
 
     /**
@@ -137,19 +139,19 @@ trait AdminHelperTrait
     protected function sanitize_form_data(array $data, array $fields = []): array
     {
         $sanitized = [];
-        
+
         foreach ($data as $key => $value) {
             if (!empty($fields) && !in_array($key, $fields, true)) {
                 continue;
             }
-            
+
             if (is_array($value)) {
                 $sanitized[$key] = $this->sanitize_form_data($value, $fields);
             } else {
                 $sanitized[$key] = sanitize_text_field($value);
             }
         }
-        
+
         return $sanitized;
     }
 
@@ -164,7 +166,7 @@ trait AdminHelperTrait
         if (!empty($query_params)) {
             $url = add_query_arg($query_params, $url);
         }
-        
+
         wp_redirect($url);
         exit;
     }
@@ -184,7 +186,7 @@ trait AdminHelperTrait
             'data' => $data,
             'message' => $message
         ];
-        
+
         wp_send_json($response, $status_code);
     }
 
@@ -200,31 +202,31 @@ trait AdminHelperTrait
     protected function render_pagination(int $total_items, int $per_page, int $current_page, string $base_url, string $page_param = 'paged'): void
     {
         $total_pages = ceil($total_items / $per_page);
-        
+
         if ($total_pages <= 1) {
             return;
         }
-        
+
         echo '<div class="tablenav-pages">';
         echo '<span class="displaying-num">' . sprintf(
             /* translators: %s placeholder. */
             _n('%s item', '%s items', $total_items, 'mhm-rentiva'),
             number_format_i18n($total_items)
         ) . '</span>';
-        
+
         echo '<span class="pagination-links">';
-        
+
         // Previous page
         if ($current_page > 1) {
             $prev_url = add_query_arg($page_param, $current_page - 1, $base_url);
             echo '<a class="first-page" href="' . esc_url($prev_url) . '">‹‹</a>';
             echo '<a class="prev-page" href="' . esc_url($prev_url) . '">‹</a>';
         }
-        
+
         // Page numbers
         $start = max(1, $current_page - 2);
         $end = min($total_pages, $current_page + 2);
-        
+
         for ($i = $start; $i <= $end; $i++) {
             if ($i === $current_page) {
                 echo '<span class="current">' . $i . '</span>';
@@ -233,14 +235,14 @@ trait AdminHelperTrait
                 echo '<a href="' . esc_url($page_url) . '">' . $i . '</a>';
             }
         }
-        
+
         // Next page
         if ($current_page < $total_pages) {
             $next_url = add_query_arg($page_param, $current_page + 1, $base_url);
             echo '<a class="next-page" href="' . esc_url($next_url) . '">›</a>';
             echo '<a class="last-page" href="' . esc_url($next_url) . '">››</a>';
         }
-        
+
         echo '</span>';
         echo '</div>';
     }
@@ -255,11 +257,11 @@ trait AdminHelperTrait
     {
         echo '<select name="' . esc_attr($name) . '">';
         echo '<option value="">' . __('Bulk Actions', 'mhm-rentiva') . '</option>';
-        
+
         foreach ($actions as $value => $label) {
             echo '<option value="' . esc_attr($value) . '">' . esc_html($label) . '</option>';
         }
-        
+
         echo '</select>';
         echo '<input type="submit" class="button" value="' . esc_attr__('Apply', 'mhm-rentiva') . '">';
     }

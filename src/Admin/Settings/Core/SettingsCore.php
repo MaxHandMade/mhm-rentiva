@@ -934,6 +934,13 @@ final class SettingsCore
 
 
 
+    /**
+     * Get company website URL
+     */
+    public static function get_company_website(): string
+    {
+        return get_option('mhm_rentiva_company_website', 'https://maxhandmade.com');
+    }
 
     /**
      * Get support email
@@ -1047,7 +1054,7 @@ final class SettingsCore
      */
     public static function ajax_save_dark_mode(): void
     {
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_dark_mode_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_dark_mode_nonce')) {
             wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
             return;
         }
@@ -1074,7 +1081,7 @@ final class SettingsCore
     public static function ajax_run_settings_tests(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_settings_test_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_settings_test_nonce')) {
             wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
             return;
         }

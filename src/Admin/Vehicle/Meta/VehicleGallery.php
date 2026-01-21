@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Vehicle\Meta;
 
@@ -23,7 +25,7 @@ final class VehicleGallery extends AbstractMetaBox
         if ($value === null || $value === '') {
             return '';
         }
-        return sanitize_text_field((string) $value);
+        return sanitize_text_field(wp_unslash((string) $value));
     }
 
     protected static function get_post_type(): string
@@ -56,11 +58,11 @@ final class VehicleGallery extends AbstractMetaBox
     public static function register(): void
     {
         parent::register();
-        
+
         add_action('init', [self::class, 'register_meta_fields']);
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_scripts']);
         add_action('save_post_vehicle', [self::class, 'save_gallery_images']);
-        
+
         add_action('wp_ajax_mhm_add_gallery_image', [self::class, 'ajax_add_gallery_image']);
         add_action('wp_ajax_mhm_remove_gallery_image', [self::class, 'ajax_remove_gallery_image']);
         add_action('wp_ajax_mhm_reorder_gallery_images', [self::class, 'ajax_reorder_gallery_images']);
@@ -85,13 +87,13 @@ final class VehicleGallery extends AbstractMetaBox
     public static function enqueue_scripts(): void
     {
         global $post_type;
-        
+
         if ($post_type !== 'vehicle') {
             return;
         }
 
         wp_enqueue_media();
-        
+
         wp_enqueue_script(
             'mhm-vehicle-gallery',
             MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-gallery.js',
@@ -139,7 +141,7 @@ final class VehicleGallery extends AbstractMetaBox
     {
         $gallery_images = get_post_meta($post->ID, '_mhm_rentiva_gallery_images', true);
         $gallery_images = $gallery_images ? json_decode($gallery_images, true) : [];
-        
+
         include MHM_RENTIVA_PLUGIN_PATH . 'src/Admin/Vehicle/Templates/vehicle-gallery.php';
     }
 
@@ -156,8 +158,10 @@ final class VehicleGallery extends AbstractMetaBox
             return;
         }
 
-        if (!isset($_POST['mhm_rentiva_gallery_images_nonce']) || 
-            !wp_verify_nonce($_POST['mhm_rentiva_gallery_images_nonce'], 'mhm_rentiva_gallery_images')) {
+        if (
+            !isset($_POST['mhm_rentiva_gallery_images_nonce']) ||
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_gallery_images_nonce'])), 'mhm_rentiva_gallery_images')
+        ) {
             return;
         }
 
@@ -201,7 +205,7 @@ final class VehicleGallery extends AbstractMetaBox
      */
     public static function ajax_add_gallery_image(): void
     {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'mhm_vehicle_gallery_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_vehicle_gallery_nonce')) {
             wp_send_json_error(__('Security error', 'mhm-rentiva'));
         }
 
@@ -218,15 +222,15 @@ final class VehicleGallery extends AbstractMetaBox
 
         $gallery_images = get_post_meta($post_id, '_mhm_rentiva_gallery_images', true);
         $gallery_images = $gallery_images ? json_decode($gallery_images, true) : [];
-        
+
         $existing_ids = array_column($gallery_images, 'id');
-        
+
         foreach ($image_ids as $image_id) {
             if (!in_array($image_id, $existing_ids) && count($gallery_images) < 10) {
                 $image_url = wp_get_attachment_image_url($image_id, 'medium');
                 $image_alt = get_post_meta($image_id, '_wp_attachment_image_alt', true);
                 $image_title = get_the_title($image_id);
-                
+
                 $gallery_images[] = [
                     'id' => $image_id,
                     'url' => $image_url,
@@ -237,7 +241,7 @@ final class VehicleGallery extends AbstractMetaBox
         }
 
         update_post_meta($post_id, '_mhm_rentiva_gallery_images', wp_json_encode($gallery_images));
-        
+
         wp_send_json_success([
             'message' => __('Images successfully added', 'mhm-rentiva'),
             'gallery_images' => $gallery_images
@@ -249,7 +253,7 @@ final class VehicleGallery extends AbstractMetaBox
      */
     public static function ajax_remove_gallery_image(): void
     {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'mhm_vehicle_gallery_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_vehicle_gallery_nonce')) {
             wp_send_json_error(__('Security error', 'mhm-rentiva'));
         }
 
@@ -266,13 +270,13 @@ final class VehicleGallery extends AbstractMetaBox
 
         $gallery_images = get_post_meta($post_id, '_mhm_rentiva_gallery_images', true);
         $gallery_images = $gallery_images ? json_decode($gallery_images, true) : [];
-        
-        $gallery_images = array_filter($gallery_images, function($image) use ($image_id) {
+
+        $gallery_images = array_filter($gallery_images, function ($image) use ($image_id) {
             return $image['id'] !== $image_id;
         });
 
         update_post_meta($post_id, '_mhm_rentiva_gallery_images', wp_json_encode(array_values($gallery_images)));
-        
+
         wp_send_json_success([
             'message' => __('Image successfully removed', 'mhm-rentiva'),
             'gallery_images' => array_values($gallery_images)
@@ -284,7 +288,7 @@ final class VehicleGallery extends AbstractMetaBox
      */
     public static function ajax_reorder_gallery_images(): void
     {
-        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'mhm_vehicle_gallery_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_vehicle_gallery_nonce')) {
             wp_send_json_error(__('Security error', 'mhm-rentiva'));
         }
 
@@ -301,7 +305,7 @@ final class VehicleGallery extends AbstractMetaBox
 
         $gallery_images = get_post_meta($post_id, '_mhm_rentiva_gallery_images', true);
         $gallery_images = $gallery_images ? json_decode($gallery_images, true) : [];
-        
+
         $reordered_images = [];
         foreach ($image_order as $image_id) {
             foreach ($gallery_images as $image) {
@@ -313,7 +317,7 @@ final class VehicleGallery extends AbstractMetaBox
         }
 
         update_post_meta($post_id, '_mhm_rentiva_gallery_images', wp_json_encode($reordered_images));
-        
+
         wp_send_json_success([
             'message' => __('Images successfully reordered', 'mhm-rentiva'),
             'gallery_images' => $reordered_images

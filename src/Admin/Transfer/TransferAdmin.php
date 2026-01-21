@@ -179,8 +179,8 @@ final class TransferAdmin
      */
     public static function handle_save_transfer_settings(): void
     {
-        if (!current_user_can('manage_options') || !isset($_POST['mhm_nonce']) || !wp_verify_nonce($_POST['mhm_nonce'], 'mhm_save_transfer_settings_nonce')) {
-            wp_die('Unauthorized');
+        if (!current_user_can('manage_options') || !isset($_POST['mhm_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_nonce'])), 'mhm_save_transfer_settings_nonce')) {
+            wp_die(esc_html__('Unauthorized', 'mhm-rentiva'));
         }
 
         update_option('mhm_transfer_deposit_type', sanitize_text_field($_POST['mhm_transfer_deposit_type']));
@@ -204,7 +204,8 @@ final class TransferAdmin
     {
         global $wpdb;
         $table_name = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
-        $locations = $wpdb->get_results("SELECT * FROM $table_name ORDER BY priority ASC, name ASC");
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe (prefix + constant).
+        $locations = $wpdb->get_results("SELECT * FROM {$table_name} ORDER BY priority ASC, name ASC");
         $edit_location = null;
 
         if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) {
@@ -309,17 +310,19 @@ final class TransferAdmin
         $table_routes = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
         $table_locations = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe (prefix + constant).
         $routes = $wpdb->get_results("
             SELECT r.*, 
                    l1.name as origin_name, 
                    l2.name as dest_name 
-            FROM $table_routes r
-            LEFT JOIN $table_locations l1 ON r.origin_id = l1.id
-            LEFT JOIN $table_locations l2 ON r.destination_id = l2.id
+            FROM {$table_routes} r
+            LEFT JOIN {$table_locations} l1 ON r.origin_id = l1.id
+            LEFT JOIN {$table_locations} l2 ON r.destination_id = l2.id
             ORDER BY r.id DESC
         ");
 
-        $locations = $wpdb->get_results("SELECT id, name FROM $table_locations ORDER BY name ASC");
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe (prefix + constant).
+        $locations = $wpdb->get_results("SELECT id, name FROM {$table_locations} ORDER BY name ASC");
 
         $edit_route = null;
         if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) {
@@ -474,8 +477,8 @@ final class TransferAdmin
 
     public static function handle_save_location(): void
     {
-        if (!current_user_can('manage_options') || !isset($_POST['mhm_nonce']) || !wp_verify_nonce($_POST['mhm_nonce'], 'mhm_save_location_nonce')) {
-            wp_die('Unauthorized');
+        if (!current_user_can('manage_options') || !isset($_POST['mhm_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_nonce'])), 'mhm_save_location_nonce')) {
+            wp_die(esc_html__('Unauthorized', 'mhm-rentiva'));
         }
 
         global $wpdb;
@@ -499,8 +502,8 @@ final class TransferAdmin
 
     public static function handle_delete_location(): void
     {
-        if (!current_user_can('manage_options') || !isset($_GET['mhm_delete_location_nonce']) || !wp_verify_nonce($_GET['mhm_delete_location_nonce'], 'mhm_delete_location_nonce')) {
-            wp_die('Unauthorized');
+        if (!current_user_can('manage_options') || !isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'mhm_delete_location_nonce')) {
+            wp_die(esc_html__('Unauthorized', 'mhm-rentiva'));
         }
 
         global $wpdb;
@@ -513,8 +516,8 @@ final class TransferAdmin
 
     public static function handle_save_route(): void
     {
-        if (!current_user_can('manage_options') || !isset($_POST['mhm_nonce']) || !wp_verify_nonce($_POST['mhm_nonce'], 'mhm_save_route_nonce')) {
-            wp_die('Unauthorized');
+        if (!current_user_can('manage_options') || !isset($_POST['mhm_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_nonce'])), 'mhm_save_route_nonce')) {
+            wp_die(esc_html__('Unauthorized', 'mhm-rentiva'));
         }
 
         global $wpdb;
@@ -542,8 +545,8 @@ final class TransferAdmin
 
     public static function handle_delete_route(): void
     {
-        if (!current_user_can('manage_options') || !isset($_GET['mhm_delete_route_nonce']) || !wp_verify_nonce($_GET['mhm_delete_route_nonce'], 'mhm_delete_route_nonce')) {
-            wp_die('Unauthorized');
+        if (!current_user_can('manage_options') || !isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'mhm_delete_route_nonce')) {
+            wp_die(esc_html__('Unauthorized', 'mhm-rentiva'));
         }
 
         global $wpdb;

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Auth;
 
@@ -21,22 +23,22 @@ final class TwoFactorManager
      * Default 2FA time step in seconds
      */
     public const DEFAULT_TIME_STEP = 30;
-    
+
     /**
      * Default secret length
      */
     public const DEFAULT_SECRET_LENGTH = 16;
-    
+
     /**
      * Default code length
      */
     public const DEFAULT_CODE_LENGTH = 6;
-    
+
     /**
      * Default QR code size
      */
     public const DEFAULT_QR_SIZE = '200x200';
-    
+
     /**
      * Default QR API URL
      */
@@ -113,7 +115,7 @@ final class TwoFactorManager
         update_user_meta($user_id, 'mhm_2fa_enabled', '1');
         update_user_meta($user_id, 'mhm_2fa_secret', $secret);
         update_user_meta($user_id, 'mhm_2fa_enabled_date', current_time('mysql'));
-        
+
         return true;
     }
 
@@ -125,7 +127,7 @@ final class TwoFactorManager
         delete_user_meta($user_id, 'mhm_2fa_enabled');
         delete_user_meta($user_id, 'mhm_2fa_secret');
         delete_user_meta($user_id, 'mhm_2fa_enabled_date');
-        
+
         return true;
     }
 
@@ -149,7 +151,7 @@ final class TwoFactorManager
     {
         $time_step = apply_filters('mhm_rentiva_2fa_time_step', self::DEFAULT_TIME_STEP);
         $current_time = floor(time() / $time_step);
-        
+
         // Check current time window and previous/next windows for clock drift
         for ($i = -1; $i <= 1; $i++) {
             $time = $current_time + $i;
@@ -158,7 +160,7 @@ final class TwoFactorManager
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -177,7 +179,7 @@ final class TwoFactorManager
             ((ord($hash[$offset + 2]) & 0xff) << 8) |
             (ord($hash[$offset + 3]) & 0xff)
         ) % 1000000;
-        
+
         $code_length = apply_filters('mhm_rentiva_2fa_code_length', self::DEFAULT_CODE_LENGTH);
         return str_pad((string) $code, $code_length, '0', STR_PAD_LEFT);
     }
@@ -204,7 +206,7 @@ final class TwoFactorManager
         $user = get_userdata($user_id);
         $site_name = get_bloginfo('name');
         $issuer = apply_filters('mhm_rentiva_2fa_issuer', __('MHMRentiva', 'mhm-rentiva'));
-        
+
         $otpauth_url = sprintf(
             'otpauth://totp/%s:%s?secret=%s&issuer=%s',
             rawurlencode($issuer),
@@ -212,7 +214,7 @@ final class TwoFactorManager
             $secret,
             rawurlencode($issuer)
         );
-        
+
         $qr_api_url = apply_filters('mhm_rentiva_qr_api_url', self::DEFAULT_QR_API_URL);
         $qr_size = apply_filters('mhm_rentiva_qr_size', self::DEFAULT_QR_SIZE);
         return $qr_api_url . '?size=' . $qr_size . '&data=' . urlencode($otpauth_url);
@@ -236,14 +238,14 @@ final class TwoFactorManager
             return;
         }
 
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_2fa_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_2fa_nonce')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
 
         $user_id = get_current_user_id();
         $verification_code = self::sanitize_text_field_safe($_POST['code'] ?? '');
-        
+
         if (empty($verification_code)) {
             wp_send_json_error(['message' => __('Verification code is required.', 'mhm-rentiva')]);
             return;
@@ -272,13 +274,13 @@ final class TwoFactorManager
             return;
         }
 
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_2fa_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_2fa_nonce')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
 
         $user_id = get_current_user_id();
-        
+
         if (self::disable_2fa($user_id)) {
             wp_send_json_success(['message' => __('2FA disabled successfully.', 'mhm-rentiva')]);
         } else {
@@ -300,14 +302,14 @@ final class TwoFactorManager
             return;
         }
 
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_2fa_verify_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_2fa_verify_nonce')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
 
         $user_id = $_SESSION['mhm_2fa_user_id'];
         $verification_code = self::sanitize_text_field_safe($_POST['code'] ?? '');
-        
+
         if (empty($verification_code)) {
             wp_send_json_error(['message' => __('Verification code is required.', 'mhm-rentiva')]);
             return;
@@ -317,11 +319,11 @@ final class TwoFactorManager
             // Clear 2FA session
             unset($_SESSION['mhm_2fa_user_id']);
             unset($_SESSION['mhm_2fa_required']);
-            
+
             // Log user in
             wp_set_current_user($user_id);
             wp_set_auth_cookie($user_id);
-            
+
             wp_send_json_success(['message' => __('2FA verification successful.', 'mhm-rentiva')]);
         } else {
             wp_send_json_error(['message' => __('Invalid verification code.', 'mhm-rentiva')]);
@@ -336,34 +338,62 @@ if (!function_exists('base32_decode')) {
     function base32_decode(string $data): string
     {
         $map = [
-            'A' => 0, 'B' => 1, 'C' => 2, 'D' => 3, 'E' => 4, 'F' => 5, 'G' => 6, 'H' => 7,
-            'I' => 8, 'J' => 9, 'K' => 10, 'L' => 11, 'M' => 12, 'N' => 13, 'O' => 14, 'P' => 15,
-            'Q' => 16, 'R' => 17, 'S' => 18, 'T' => 19, 'U' => 20, 'V' => 21, 'W' => 22, 'X' => 23,
-            'Y' => 24, 'Z' => 25, '2' => 26, '3' => 27, '4' => 28, '5' => 29, '6' => 30, '7' => 31
+            'A' => 0,
+            'B' => 1,
+            'C' => 2,
+            'D' => 3,
+            'E' => 4,
+            'F' => 5,
+            'G' => 6,
+            'H' => 7,
+            'I' => 8,
+            'J' => 9,
+            'K' => 10,
+            'L' => 11,
+            'M' => 12,
+            'N' => 13,
+            'O' => 14,
+            'P' => 15,
+            'Q' => 16,
+            'R' => 17,
+            'S' => 18,
+            'T' => 19,
+            'U' => 20,
+            'V' => 21,
+            'W' => 22,
+            'X' => 23,
+            'Y' => 24,
+            'Z' => 25,
+            '2' => 26,
+            '3' => 27,
+            '4' => 28,
+            '5' => 29,
+            '6' => 30,
+            '7' => 31
         ];
-        
+
         $data = strtoupper($data);
         $data = str_replace('=', '', $data);
-        
+
         $result = '';
         $bits = 0;
         $value = 0;
-        
+
         for ($i = 0; $i < strlen($data); $i++) {
             $char = $data[$i];
             if (!isset($map[$char])) {
                 continue;
             }
-            
+
             $value = ($value << 5) | $map[$char];
             $bits += 5;
-            
+
             if ($bits >= 8) {
                 $result .= chr(($value >> ($bits - 8)) & 0xFF);
                 $bits -= 8;
             }
         }
-        
+
         return $result;
     }
 }

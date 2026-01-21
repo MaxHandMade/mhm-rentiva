@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Booking\Actions;
 
@@ -23,7 +25,7 @@ final class DepositManagementAjax
     public static function process_remaining_payment(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_deposit_management_action')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_deposit_management_action')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
@@ -62,10 +64,10 @@ final class DepositManagementAjax
 
         // Reset remaining amount
         update_post_meta($booking_id, '_mhm_remaining_amount', 0);
-        
+
         // Update payment status
         update_post_meta($booking_id, '_mhm_payment_status', 'paid');
-        
+
         // Update booking status to confirmed
         Status::update_status($booking_id, 'confirmed', get_current_user_id());
 
@@ -83,7 +85,7 @@ final class DepositManagementAjax
     public static function approve_payment(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_deposit_management_action')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_deposit_management_action')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
@@ -115,7 +117,7 @@ final class DepositManagementAjax
 
         // Update payment status to confirmed
         update_post_meta($booking_id, '_mhm_payment_status', 'paid');
-        
+
         // Update booking status to confirmed
         Status::update_status($booking_id, 'confirmed', get_current_user_id());
 
@@ -132,7 +134,7 @@ final class DepositManagementAjax
     public static function cancel_booking(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_deposit_management_action')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_deposit_management_action')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
@@ -178,7 +180,7 @@ final class DepositManagementAjax
     public static function process_refund(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_deposit_management_action')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_deposit_management_action')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
@@ -222,7 +224,7 @@ final class DepositManagementAjax
         if ($cancellation_deadline) {
             $now = time();
             $deadline = strtotime($cancellation_deadline);
-            
+
             if ($now <= $deadline) {
                 // Cancellation within 24 hours - full refund
                 $refund_amount = $deposit_amount;
@@ -264,7 +266,7 @@ final class DepositManagementAjax
     public static function update_booking_status(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_deposit_management_action')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_deposit_management_action')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
@@ -290,7 +292,7 @@ final class DepositManagementAjax
 
         // Status update operation
         // This function can be used for general status updates
-        
+
         // Add log
         self::add_booking_log($booking_id, 'status_updated', [
             'updated_by' => get_current_user_id()
@@ -304,7 +306,7 @@ final class DepositManagementAjax
     private static function add_booking_log(int $booking_id, string $action, array $data = []): void
     {
         $logs = get_post_meta($booking_id, '_mhm_booking_logs', true) ?: [];
-        
+
         $logs[] = [
             'action' => $action,
             'timestamp' => current_time('mysql'),

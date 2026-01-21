@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Privacy;
 
@@ -48,7 +50,7 @@ final class GDPRManager
         // Add GDPR compliance hooks
         add_action('wp_footer', [self::class, 'add_gdpr_notice']);
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_gdpr_scripts']);
-        
+
         // Add data consent requirement check
         add_action('init', [self::class, 'check_data_consent_requirement']);
     }
@@ -72,7 +74,7 @@ final class GDPRManager
 
         // Add consent check to user registration
         add_action('user_register', [self::class, 'handle_user_registration_consent']);
-        
+
         // Add consent check to booking process
         add_action('mhm_rentiva_before_booking_creation', [self::class, 'check_booking_consent']);
     }
@@ -128,9 +130,9 @@ final class GDPRManager
 
         $user_id = get_current_user_id();
         $consent_given = get_user_meta($user_id, 'mhm_gdpr_consent_given', true);
-        
+
         if ($consent_given !== '1') {
-            ?>
+?>
             <div id="mhm-gdpr-notice" class="mhm-gdpr-notice" style="position: fixed; bottom: 20px; right: 20px; background: #fff; border: 1px solid #ddd; padding: 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 9999; max-width: 400px;">
                 <h4><?php esc_html_e('Privacy Notice', 'mhm-rentiva'); ?></h4>
                 <p><?php esc_html_e('We need your consent to process your personal data in accordance with GDPR regulations.', 'mhm-rentiva'); ?></p>
@@ -139,7 +141,7 @@ final class GDPRManager
                     <button type="button" id="gdpr-decline" class="button"><?php esc_html_e('Decline', 'mhm-rentiva'); ?></button>
                 </div>
             </div>
-            <?php
+<?php
         }
     }
 
@@ -205,7 +207,7 @@ final class GDPRManager
     private static function get_user_bookings(int $user_id): array
     {
         global $wpdb;
-        
+
         // Use direct query for better performance
         $bookings = $wpdb->get_results($wpdb->prepare("
             SELECT p.ID, p.post_title, p.post_status, p.post_date, p.post_modified
@@ -324,7 +326,7 @@ final class GDPRManager
             return;
         }
 
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_gdpr_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_gdpr_nonce')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
@@ -346,13 +348,13 @@ final class GDPRManager
             return;
         }
 
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_gdpr_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_gdpr_nonce')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
 
         $user_id = get_current_user_id();
-        
+
         if (self::delete_user_data($user_id)) {
             wp_send_json_success(['message' => __('Data deletion completed.', 'mhm-rentiva')]);
         } else {
@@ -370,13 +372,13 @@ final class GDPRManager
             return;
         }
 
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_gdpr_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_gdpr_nonce')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
 
         $user_id = get_current_user_id();
-        
+
         // Withdraw consent
         delete_user_meta($user_id, 'mhm_gdpr_consent_given');
         update_user_meta($user_id, 'mhm_gdpr_consent_withdrawn', '1');

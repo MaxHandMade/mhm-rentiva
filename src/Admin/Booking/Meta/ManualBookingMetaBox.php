@@ -21,13 +21,14 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 {
     /**
      * Safe sanitize text field that handles null values
+     * Includes wp_unslash for WPCS compliance with superglobal sanitization
      */
     public static function sanitize_text_field_safe($value)
     {
         if ($value === null || $value === '') {
             return '';
         }
-        return sanitize_text_field((string) $value);
+        return sanitize_text_field(wp_unslash((string) $value));
     }
 
     protected static function get_post_type(): string
@@ -425,7 +426,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
     public static function ajax_calculate_price(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_manual_booking_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_manual_booking_nonce')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
         }
 
@@ -498,7 +499,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
     public static function ajax_create_booking(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_manual_booking_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_manual_booking_nonce')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
         }
 

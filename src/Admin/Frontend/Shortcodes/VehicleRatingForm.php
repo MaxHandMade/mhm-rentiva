@@ -21,7 +21,7 @@ final class VehicleRatingForm extends AbstractShortcode
     public static function register(): void
     {
         parent::register();
-        
+
         add_action('wp_ajax_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
         // Use the same function for guest users
         add_action('wp_ajax_nopriv_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
@@ -29,7 +29,7 @@ final class VehicleRatingForm extends AbstractShortcode
         add_action('wp_ajax_nopriv_mhm_rentiva_get_vehicle_rating', [self::class, 'ajax_get_vehicle_rating']);
         add_action('wp_ajax_mhm_rentiva_get_vehicle_rating_list', [self::class, 'ajax_get_vehicle_ratings']);
         add_action('wp_ajax_nopriv_mhm_rentiva_get_vehicle_rating_list', [self::class, 'ajax_get_vehicle_ratings']);
-        
+
         add_action('wp_ajax_mhm_rentiva_delete_rating', [self::class, 'ajax_delete_rating']);
         add_action('wp_ajax_nopriv_mhm_rentiva_delete_rating', [self::class, 'ajax_delete_rating']);
         add_action('wp_ajax_mhm_rentiva_delete_comment', [self::class, 'ajax_delete_comment']);
@@ -75,12 +75,12 @@ final class VehicleRatingForm extends AbstractShortcode
     {
         $handle = static::get_asset_handle();
         $js_files = static::get_js_files();
-        
+
         foreach ($js_files as $js_file) {
             if (static::asset_exists($js_file)) {
                 // Use file-based versioning for better cache management
                 $version = static::get_file_version($js_file);
-                
+
                 wp_enqueue_script(
                     $handle,
                     MHM_RENTIVA_PLUGIN_URL . $js_file,
@@ -88,7 +88,7 @@ final class VehicleRatingForm extends AbstractShortcode
                     $version,
                     true
                 );
-                
+
                 // Localize script with correct object name
                 static::localize_script($handle);
                 break;
@@ -103,12 +103,12 @@ final class VehicleRatingForm extends AbstractShortcode
     {
         $handle = static::get_asset_handle();
         $css_files = static::get_css_files();
-        
+
         foreach ($css_files as $css_file) {
             if (static::asset_exists($css_file)) {
                 // Use file-based versioning for better cache management
                 $version = static::get_file_version($css_file);
-                
+
                 wp_enqueue_style(
                     $handle,
                     MHM_RENTIVA_PLUGIN_URL . $css_file,
@@ -149,7 +149,7 @@ final class VehicleRatingForm extends AbstractShortcode
         // Get settings from Comments settings
         $comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
         $display_settings = $comments_settings['display'] ?? [];
-        
+
         return [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('mhm_rentiva_rating_nonce'),
@@ -190,7 +190,7 @@ final class VehicleRatingForm extends AbstractShortcode
     public static function render(array $atts = [], ?string $content = null): string
     {
         // Assets are automatically loaded via parent::render() -> enqueue_assets_once()
-        
+
         $defaults = [
             'vehicle_id' => apply_filters('mhm_rentiva/rating_form/vehicle_id', ''),
             'show_rating_display' => apply_filters('mhm_rentiva/rating_form/show_rating_display', '1'),
@@ -198,12 +198,12 @@ final class VehicleRatingForm extends AbstractShortcode
             'show_ratings_list' => apply_filters('mhm_rentiva/rating_form/show_ratings_list', '1'),
             'class' => apply_filters('mhm_rentiva/rating_form/class', ''),
         ];
-        
+
         $atts = shortcode_atts($defaults, $atts, self::SHORTCODE);
-        
+
         // Prepare template data
         $data = self::prepare_template_data($atts);
-        
+
         // Template render et
         return Templates::render('shortcodes/vehicle-rating-form', $data, true);
     }
@@ -211,7 +211,7 @@ final class VehicleRatingForm extends AbstractShortcode
     protected static function prepare_template_data(array $atts): array
     {
         $vehicle_id = intval($atts['vehicle_id'] ?? get_the_ID());
-        
+
         if ($vehicle_id <= 0) {
             return [
                 'atts' => $atts,
@@ -225,7 +225,7 @@ final class VehicleRatingForm extends AbstractShortcode
 
         $vehicle_rating = self::get_vehicle_rating($vehicle_id);
         $user_rating = is_user_logged_in() ? self::get_user_rating($vehicle_id) : null;
-        
+
         return [
             'atts' => $atts,
             'vehicle_id' => $vehicle_id,
@@ -246,31 +246,31 @@ final class VehicleRatingForm extends AbstractShortcode
 
         // Always calculate from WordPress comments (for cache issues)
         // Cache system removed - always current data
-            $comments = get_comments([
-                'post_id' => $vehicle_id,
-                'status' => 'approve',
-                'meta_query' => [
-                    [
-                        'key' => 'mhm_rating',
-                        'compare' => 'EXISTS'
-                    ]
+        $comments = get_comments([
+            'post_id' => $vehicle_id,
+            'status' => 'approve',
+            'meta_query' => [
+                [
+                    'key' => 'mhm_rating',
+                    'compare' => 'EXISTS'
                 ]
-            ]);
+            ]
+        ]);
 
-            // WordPress comments'ten rating'leri al
+        // WordPress comments'ten rating'leri al
 
-            $total_rating = 0;
-            $count = 0;
+        $total_rating = 0;
+        $count = 0;
 
-            foreach ($comments as $comment) {
-                $rating = intval(get_comment_meta($comment->comment_ID, 'mhm_rating', true));
-                if ($rating > 0) {
-                    $total_rating += $rating;
-                    $count++;
-                }
+        foreach ($comments as $comment) {
+            $rating = intval(get_comment_meta($comment->comment_ID, 'mhm_rating', true));
+            if ($rating > 0) {
+                $total_rating += $rating;
+                $count++;
             }
+        }
 
-            $average = $count > 0 ? round($total_rating / $count, 1) : 0;
+        $average = $count > 0 ? round($total_rating / $count, 1) : 0;
 
         return [
             'rating_average' => $average,
@@ -294,7 +294,7 @@ final class VehicleRatingForm extends AbstractShortcode
             $stars .= '☆';
         }
         $stars .= str_repeat('☆', $empty_stars);
-        
+
         return $stars;
     }
 
@@ -308,7 +308,7 @@ final class VehicleRatingForm extends AbstractShortcode
         }
 
         $user_id = get_current_user_id();
-        
+
         // Get user comment from WordPress comments
         $comments = get_comments([
             'post_id' => $vehicle_id,
@@ -345,7 +345,7 @@ final class VehicleRatingForm extends AbstractShortcode
         try {
             // Debug: POST verilerini logla
             error_log('AJAX Submit Rating - POST Data: ' . print_r($_POST, true));
-            
+
             // Nonce check
             $nonce = $_POST['nonce'] ?? '';
             if (!wp_verify_nonce($nonce, 'mhm_rentiva_rating_nonce')) {
@@ -357,9 +357,9 @@ final class VehicleRatingForm extends AbstractShortcode
             $comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
             $require_login = $comments_settings['approval']['require_login'] ?? true;
             $allow_guest_comments = $comments_settings['approval']['allow_guest_comments'] ?? false;
-            
+
             error_log('AJAX Submit Rating - Settings: require_login=' . ($require_login ? 'true' : 'false') . ', allow_guest_comments=' . ($allow_guest_comments ? 'true' : 'false') . ', is_logged_in=' . (is_user_logged_in() ? 'true' : 'false'));
-            
+
             if ($require_login && !is_user_logged_in()) {
                 wp_send_json_error([
                     'message' => __('You must be logged in to submit a rating.', 'mhm-rentiva'),
@@ -369,17 +369,16 @@ final class VehicleRatingForm extends AbstractShortcode
                         'is_user_logged_in' => is_user_logged_in(),
                         'current_user_id' => get_current_user_id(),
                         'wp_get_current_user' => wp_get_current_user()->ID ?? 'null',
-                        'ajax_context' => 'AJAX request context',
-                        'wp_die_handler' => wp_die_handler()
+                        'ajax_context' => 'AJAX request context'
                     ]
                 ]);
             }
 
             // User permission check - check from settings
             $user_id = get_current_user_id();
-            
+
             error_log('AJAX Submit Rating - User ID: ' . $user_id . ', Guest comments allowed: ' . ($allow_guest_comments ? 'true' : 'false'));
-            
+
             // If require_login is false and allow_guest_comments is true, allow guest users
             if (!$require_login && $allow_guest_comments) {
                 // Guest users can have user_id = 0 (guest users)
@@ -400,31 +399,31 @@ final class VehicleRatingForm extends AbstractShortcode
             $vehicle_id = intval($_POST['vehicle_id'] ?? 0);
             $rating = intval($_POST['rating'] ?? 0);
             $comment = wp_kses_post($_POST['comment'] ?? ''); // Daha uygun sanitization
-            
+
             // Name and email fields for guest users
             $guest_name = '';
             $guest_email = '';
             if (!is_user_logged_in() && $allow_guest_comments) {
-                $guest_name = self::sanitize_text_field_safe($_POST['guest_name'] ?? '');
+                $guest_name = sanitize_text_field(wp_unslash($_POST['guest_name'] ?? ''));
                 $guest_email = sanitize_email((string) (($_POST['guest_email'] ?? '') ?: ''));
-                
+
                 error_log('AJAX Submit Rating - Guest data: name=' . $guest_name . ', email=' . $guest_email);
-                
+
                 if (empty($guest_name) || empty($guest_email)) {
                     error_log('AJAX Submit Rating - Guest name or email is empty');
                     wp_send_json_error(['message' => __('Name and email are required for guest comments.', 'mhm-rentiva')]);
                 }
-                
+
                 if (!is_email($guest_email)) {
                     error_log('AJAX Submit Rating - Invalid email format: ' . $guest_email);
                     wp_send_json_error(['message' => __('Please enter a valid email address.', 'mhm-rentiva')]);
                 }
-                
+
                 // Set email cookie for guest users
                 setcookie('guest_email', $guest_email, time() + (30 * 24 * 60 * 60), '/'); // 30 days
                 error_log('AJAX Submit Rating - Guest email cookie set: ' . $guest_email);
             }
-            
+
             // Debug: Check comment data
 
             if ($vehicle_id <= 0) {
@@ -446,33 +445,33 @@ final class VehicleRatingForm extends AbstractShortcode
             }
 
             $user_id = get_current_user_id();
-            
+
             // Mevcut rating'i kontrol et
             $existing_rating = self::get_user_rating($vehicle_id);
-            
+
             if ($existing_rating) {
                 // Update WordPress comment
                 $comment_id = $existing_rating['comment_id'];
-                
+
                 if ($comment_id) {
                     // Update existing WordPress comment
                     wp_update_comment([
                         'comment_ID' => $comment_id,
                         'comment_content' => $comment
                     ]);
-                    
+
                     // Update rating meta
                     update_comment_meta($comment_id, 'mhm_rating', $rating);
                 } else {
                     // Create new WordPress comment
                     $comment_id = self::create_wordpress_comment($vehicle_id, $rating, $comment, $user_id, $guest_name, $guest_email);
                 }
-                
+
                 $message = __('Your rating has been updated successfully!', 'mhm-rentiva');
             } else {
                 // Create WordPress comment only
                 $comment_id = self::create_wordpress_comment($vehicle_id, $rating, $comment, $user_id, $guest_name, $guest_email);
-                
+
                 if ($comment_id) {
                     $message = __('Your rating has been submitted successfully!', 'mhm-rentiva');
                 } else {
@@ -494,9 +493,8 @@ final class VehicleRatingForm extends AbstractShortcode
                 'vehicle_rating' => $vehicle_rating,
                 'user_rating' => $user_rating
             ]);
+        } catch (\Exception $e) {
 
-        } catch (Exception $e) {
-            
             wp_send_json_error(['message' => __('An error occurred while submitting rating.', 'mhm-rentiva')]);
         }
     }
@@ -504,7 +502,7 @@ final class VehicleRatingForm extends AbstractShortcode
     /**
      * Updates vehicle rating meta
      */
-    private static function update_vehicle_rating_meta(int $vehicle_id): void
+    public static function update_vehicle_rating_meta(int $vehicle_id): void
     {
         if ($vehicle_id <= 0) {
             return;
@@ -652,7 +650,7 @@ final class VehicleRatingForm extends AbstractShortcode
     {
         try {
             $vehicle_id = intval($_POST['vehicle_id'] ?? 0);
-            
+
             if ($vehicle_id <= 0) {
                 wp_send_json_error(['message' => __('Invalid vehicle ID.', 'mhm-rentiva')]);
             }
@@ -664,8 +662,7 @@ final class VehicleRatingForm extends AbstractShortcode
                 'vehicle_rating' => $vehicle_rating,
                 'user_rating' => $user_rating
             ]);
-
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             wp_send_json_error(['message' => __('An error occurred while retrieving rating.', 'mhm-rentiva')]);
         }
     }
@@ -677,7 +674,7 @@ final class VehicleRatingForm extends AbstractShortcode
     {
         try {
             $vehicle_id = intval($_POST['vehicle_id'] ?? 0);
-            
+
             if ($vehicle_id <= 0) {
                 wp_send_json_error(['message' => __('Invalid vehicle ID.', 'mhm-rentiva')]);
             }
@@ -707,7 +704,7 @@ final class VehicleRatingForm extends AbstractShortcode
             $bookings = get_posts($args);
             $ratings = [];
 
-            
+
             // Get ratings from WordPress Comments system too (temporarily disabled)
             // $wp_comments = self::get_wordpress_rating_comments($vehicle_id);
 
@@ -717,8 +714,8 @@ final class VehicleRatingForm extends AbstractShortcode
                 $customer_name = get_post_meta($booking->ID, '_mhm_rentiva_customer_name', true);
                 $review_approved = get_post_meta($booking->ID, '_mhm_rentiva_review_approved', true);
                 $vehicle_id_meta = get_post_meta($booking->ID, '_mhm_rentiva_vehicle_id', true);
-                
-                
+
+
                 if ($rating > 0) {
                     $ratings[] = [
                         'id' => $booking->ID,
@@ -756,11 +753,10 @@ final class VehicleRatingForm extends AbstractShortcode
                 'ratings' => $ratings,
                 'count' => count($ratings)
             ];
-            
-            
-            wp_send_json_success($response_data);
 
-        } catch (Exception $e) {
+
+            wp_send_json_success($response_data);
+        } catch (\Exception $e) {
             wp_send_json_error(['message' => __('An error occurred while retrieving ratings.', 'mhm-rentiva')]);
         }
     }
@@ -800,9 +796,9 @@ final class VehicleRatingForm extends AbstractShortcode
             'comment_date_gmt' => current_time('mysql', 1),
             'comment_approved' => \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_comment_approval_status() // Get from settings
         ];
-        
+
         // Debug: Check comment data
-        
+
         // Duplicate comment check and cleanup - more robust
         $existing_comments = get_comments([
             'post_id' => $vehicle_id,
@@ -813,16 +809,16 @@ final class VehicleRatingForm extends AbstractShortcode
                 'after' => '1 minute ago' // Check comments within last 1 minute
             ]
         ]);
-        
+
         if (!empty($existing_comments)) {
             // If same comment exists within last 1 minute, don't create new
             $latest_comment = $existing_comments[0];
             $comment_age = time() - strtotime($latest_comment->comment_date);
-            
+
             if ($comment_age < 60) { // Within 60 seconds
                 return $latest_comment->comment_ID; // Return existing comment ID
             }
-            
+
             // Clean old duplicates
             for ($i = 1; $i < count($existing_comments); $i++) {
                 wp_delete_comment($existing_comments[$i]->comment_ID, true);
@@ -830,14 +826,14 @@ final class VehicleRatingForm extends AbstractShortcode
         }
 
         $comment_id = wp_insert_comment($comment_data);
-        
+
         // Debug: Comment creation result
 
 
         if ($comment_id) {
 
 
-            
+
             // Check if comment was really created
             $created_comment = get_comment($comment_id);
             if ($created_comment) {
@@ -847,7 +843,7 @@ final class VehicleRatingForm extends AbstractShortcode
 
 
 
-                
+
                 // Check if comment is visible in admin
                 $admin_comments = get_comments([
                     'post_id' => $created_comment->comment_post_ID,
@@ -856,17 +852,15 @@ final class VehicleRatingForm extends AbstractShortcode
                 ]);
 
                 foreach ($admin_comments as $admin_comment) {
-
                 }
             } else {
-
             }
         } else {
 
             global $wpdb;
 
 
-            
+
             // Try alternative method - direct DB insert
 
             $insert_result = $wpdb->insert(
@@ -877,16 +871,15 @@ final class VehicleRatingForm extends AbstractShortcode
 
             if ($insert_result) {
                 $comment_id = $wpdb->insert_id;
-
             }
         }
-        
+
         if ($comment_id) {
             // Add rating meta to comment
             add_comment_meta($comment_id, 'mhm_rating', $rating);
             add_comment_meta($comment_id, 'mhm_vehicle_id', $vehicle_id);
             add_comment_meta($comment_id, 'mhm_comment_type', 'vehicle_rating');
-            
+
             // Debug: Comment meta added
 
 
@@ -903,7 +896,7 @@ final class VehicleRatingForm extends AbstractShortcode
     private static function update_existing_comments_type(): void
     {
         global $wpdb;
-        
+
         // Find and update comments with empty comment_type
         $updated = $wpdb->update(
             $wpdb->comments,
@@ -912,9 +905,8 @@ final class VehicleRatingForm extends AbstractShortcode
             ['%s'],
             ['%s']
         );
-        
-        if ($updated > 0) {
 
+        if ($updated > 0) {
         }
     }
 
@@ -929,7 +921,7 @@ final class VehicleRatingForm extends AbstractShortcode
 
 
 
-        
+
         if (!$comment_id) {
 
             return false;
@@ -941,11 +933,11 @@ final class VehicleRatingForm extends AbstractShortcode
         ];
 
 
-        
+
         // Check existing comment
         $existing_comment = get_comment($comment_id);
 
-        
+
         // Check if comment is visible in admin
         if ($existing_comment) {
 
@@ -955,7 +947,7 @@ final class VehicleRatingForm extends AbstractShortcode
 
 
 
-            
+
             // Admin comments query
             $admin_comments = get_comments([
                 'post_id' => $existing_comment->comment_post_ID,
@@ -964,12 +956,11 @@ final class VehicleRatingForm extends AbstractShortcode
             ]);
 
             foreach ($admin_comments as $admin_comment) {
-
             }
         } else {
 
 
-            
+
             // Search for comment ID 2 using different methods
             global $wpdb;
             $comment_exists = $wpdb->get_var($wpdb->prepare(
@@ -977,15 +968,14 @@ final class VehicleRatingForm extends AbstractShortcode
                 $comment_id
             ));
 
-            
+
             // List all comments
             $all_comments = $wpdb->get_results("SELECT comment_ID, comment_post_ID, comment_type, comment_approved FROM {$wpdb->comments} ORDER BY comment_ID DESC LIMIT 10");
 
             foreach ($all_comments as $comment) {
-
             }
         }
-        
+
         // Use direct DB update instead of wp_update_comment
         global $wpdb;
         $update_result = $wpdb->update(
@@ -995,9 +985,9 @@ final class VehicleRatingForm extends AbstractShortcode
             ['%s'],
             ['%d']
         );
-        
 
-        
+
+
         if ($update_result !== false) {
             // Update rating meta
             update_comment_meta($comment_id, 'mhm_rating', $rating);
@@ -1008,7 +998,7 @@ final class VehicleRatingForm extends AbstractShortcode
 
             $result = false;
         }
-        
+
         // If update result is 0 (same content), consider it successful
         if ($update_result === 0) {
 
@@ -1036,7 +1026,7 @@ final class VehicleRatingForm extends AbstractShortcode
             'orderby' => 'comment_date',
             'order' => 'DESC'
         ]);
-        
+
         // Alternative: Get all comments and check meta
         if (empty($comments)) {
             $all_comments = get_comments([
@@ -1045,7 +1035,7 @@ final class VehicleRatingForm extends AbstractShortcode
                 'orderby' => 'comment_date',
                 'order' => 'DESC'
             ]);
-            
+
             // Use all comments
             $comments = $all_comments;
         }
@@ -1090,14 +1080,14 @@ final class VehicleRatingForm extends AbstractShortcode
     {
         try {
             // Nonce check
-            if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_nonce')) {
+            if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_nonce')) {
                 wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             }
 
             // Login check - check from settings
             $comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
             $require_login = $comments_settings['approval']['require_login'] ?? true;
-            
+
             if ($require_login && !is_user_logged_in()) {
                 wp_send_json_error(['message' => __('You must be logged in to delete rating.', 'mhm-rentiva')]);
             }
@@ -1111,13 +1101,13 @@ final class VehicleRatingForm extends AbstractShortcode
 
             // Find existing rating
             $existing_rating = self::get_user_rating($vehicle_id);
-            
+
             if (!$existing_rating) {
                 wp_send_json_error(['message' => __('No rating found to delete.', 'mhm-rentiva')]);
             }
 
             $comment_id = $existing_rating['comment_id'];
-            
+
             // Delete WordPress Comment
             if ($comment_id) {
                 wp_delete_comment($comment_id, true); // Hard delete
@@ -1130,8 +1120,7 @@ final class VehicleRatingForm extends AbstractShortcode
                 'message' => __('Rating deleted successfully.', 'mhm-rentiva'),
                 'vehicle_rating' => self::get_vehicle_rating($vehicle_id)
             ]);
-
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             wp_send_json_error(['message' => __('An error occurred while deleting rating.', 'mhm-rentiva')]);
         }
     }
@@ -1142,14 +1131,14 @@ final class VehicleRatingForm extends AbstractShortcode
     public static function ajax_delete_comment(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_rating_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_rating_nonce')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
         }
 
         // User login check - check from settings
         $comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
         $require_login = $comments_settings['approval']['require_login'] ?? true;
-        
+
         if ($require_login && !is_user_logged_in()) {
             wp_send_json_error(['message' => __('You must be logged in to delete comments.', 'mhm-rentiva')]);
         }

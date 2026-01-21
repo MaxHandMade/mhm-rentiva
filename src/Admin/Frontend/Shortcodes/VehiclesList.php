@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
@@ -116,7 +118,7 @@ final class VehiclesList extends AbstractShortcode
     public static function register(): void
     {
         parent::register();
-        
+
         // AJAX handlers
         add_action('wp_ajax_mhm_rentiva_toggle_favorite', [self::class, 'ajax_toggle_favorite']);
         add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', [self::class, 'ajax_toggle_favorite']);
@@ -194,15 +196,15 @@ final class VehiclesList extends AbstractShortcode
     protected static function prepare_template_data(array $atts): array
     {
         $vehicles = self::get_vehicles($atts);
-        
+
         // For list layout, columns should always be 1
         $atts['columns'] = '1';
-        
+
         // Inject custom texts from settings if not already set via shortcode attribute
         $text_settings = self::get_text();
         $atts['booking_btn_text'] = $atts['booking_btn_text'] ?? $text_settings['book_now'];
         $atts['view_details_btn_text'] = $atts['view_details_btn_text'] ?? $text_settings['view_details'];
-        
+
         return [
             'atts' => $atts,
             'vehicles' => $vehicles,
@@ -341,14 +343,14 @@ final class VehiclesList extends AbstractShortcode
             'no-image.jpg',
             'no-image.png'
         ];
-        
+
         foreach ($possible_files as $filename) {
             $file_path = MHM_RENTIVA_PLUGIN_DIR . 'assets/images/' . $filename;
             if (file_exists($file_path)) {
                 return MHM_RENTIVA_PLUGIN_URL . 'assets/images/' . $filename;
             }
         }
-        
+
         // Fallback: Use data URI (1x1 transparent pixel with text)
         return self::DEFAULT_PLACEHOLDER_IMAGE;
     }
@@ -360,10 +362,10 @@ final class VehiclesList extends AbstractShortcode
     {
         // Check price meta keys in order using Helper
         $daily_price = VehicleDataHelper::get_price_per_day($vehicle_id);
-        
+
         $currency = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD');
         $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
-        
+
         // Use default value if price is 0
         if (empty($daily_price) || floatval($daily_price) == 0) {
             $daily_price = 1000; // Default price
@@ -385,7 +387,7 @@ final class VehiclesList extends AbstractShortcode
         $symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
         $position = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
         $formatted_amount = number_format($price, 0, ',', '.');
-        
+
         switch ($position) {
             case 'left':
                 return $symbol . $formatted_amount;
@@ -516,7 +518,7 @@ final class VehiclesList extends AbstractShortcode
     /**
      * Updates vehicle rating (for Admin panel)
      */
-    public static function update_vehicle_rating(int $vehicle_id, float $new_rating, int $new_count = null): bool
+    public static function update_vehicle_rating(int $vehicle_id, float $new_rating, ?int $new_count = null): bool
     {
         if ($vehicle_id <= 0 || $new_rating < 0 || $new_rating > 5) {
             return false;
@@ -548,25 +550,26 @@ final class VehiclesList extends AbstractShortcode
     /**
      * Saves user rating
      */
-    public static function save_user_rating(int $vehicle_id, float $rating, string $comment = '', int $user_id = null): bool
+    public static function save_user_rating(int $vehicle_id, float $rating, string $comment = '', ?int $user_id = null): bool
     {
         global $wpdb;
-        
+
         if ($rating < 0 || $rating > 5) {
             return false;
         }
-        
+
         $user_id = $user_id ?: get_current_user_id();
         $user_ip = $_SERVER['REMOTE_ADDR'] ?? '';
-        
+
         $table_name = $wpdb->prefix . 'mhm_rentiva_ratings';
-        
+
         // Check if user has rated before
         $existing = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM $table_name WHERE vehicle_id = %d AND user_id = %d",
-            $vehicle_id, $user_id
+            $vehicle_id,
+            $user_id
         ));
-        
+
         if ($existing) {
             // Update
             $result = $wpdb->update(
@@ -596,13 +599,13 @@ final class VehiclesList extends AbstractShortcode
                 ]
             );
         }
-        
+
         if ($result !== false) {
             // Calculate and update average rating
             self::update_vehicle_rating_from_database($vehicle_id);
             return true;
         }
-        
+
         return false;
     }
 
@@ -612,18 +615,18 @@ final class VehiclesList extends AbstractShortcode
     private static function update_vehicle_rating_from_database(int $vehicle_id): void
     {
         global $wpdb;
-        
+
         $table_name = $wpdb->prefix . 'mhm_rentiva_ratings';
-        
+
         $stats = $wpdb->get_row($wpdb->prepare(
             "SELECT AVG(rating) as average, COUNT(*) as count FROM $table_name WHERE vehicle_id = %d AND status = 'approved'",
             $vehicle_id
         ));
-        
+
         if ($stats) {
             $average = round(floatval($stats->average), 1);
             $count = intval($stats->count);
-            
+
             update_post_meta($vehicle_id, '_mhm_rentiva_rating_average', $average);
             update_post_meta($vehicle_id, '_mhm_rentiva_rating_count', $count);
         }
@@ -632,23 +635,24 @@ final class VehiclesList extends AbstractShortcode
     /**
      * Gets user rating for a vehicle
      */
-    public static function get_user_rating(int $vehicle_id, int $user_id = null): ?array
+    public static function get_user_rating(int $vehicle_id, ?int $user_id = null): ?array
     {
         global $wpdb;
-        
+
         $user_id = $user_id ?: get_current_user_id();
-        
+
         if (!$user_id) {
             return null;
         }
-        
+
         $table_name = $wpdb->prefix . 'mhm_rentiva_ratings';
-        
+
         $rating = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM $table_name WHERE vehicle_id = %d AND user_id = %d",
-            $vehicle_id, $user_id
+            $vehicle_id,
+            $user_id
         ));
-        
+
         return $rating ? (array) $rating : null;
     }
 
@@ -658,9 +662,9 @@ final class VehiclesList extends AbstractShortcode
     public static function get_vehicle_ratings(int $vehicle_id, int $limit = 10, int $offset = 0): array
     {
         global $wpdb;
-        
+
         $table_name = $wpdb->prefix . 'mhm_rentiva_ratings';
-        
+
         $ratings = $wpdb->get_results($wpdb->prepare(
             "SELECT r.*, u.display_name, u.user_email 
              FROM $table_name r 
@@ -668,10 +672,12 @@ final class VehiclesList extends AbstractShortcode
              WHERE r.vehicle_id = %d 
              ORDER BY r.created_at DESC 
              LIMIT %d OFFSET %d",
-            $vehicle_id, $limit, $offset
+            $vehicle_id,
+            $limit,
+            $offset
         ));
-        
-        return $ratings ? array_map(function($rating) {
+
+        return $ratings ? array_map(function ($rating) {
             return (array) $rating;
         }, $ratings) : [];
     }
@@ -685,7 +691,7 @@ final class VehiclesList extends AbstractShortcode
     private static function check_vehicle_availability(int $vehicle_id): array
     {
         $status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
-        
+
         // Fallback for older data or if status is not set
         if (empty($status)) {
             $old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
@@ -700,9 +706,9 @@ final class VehiclesList extends AbstractShortcode
                 $status = 'active'; // Default
             }
         }
-        
+
         $is_available = ($status === 'active');
-        
+
         return [
             'is_available' => $is_available,
             'status' => $status,
@@ -732,11 +738,11 @@ final class VehiclesList extends AbstractShortcode
     private static function get_wrapper_class(array $atts): string
     {
         $classes = ['rv-vehicles-list'];
-        
+
         if (!empty($atts['class'])) {
             $classes[] = sanitize_html_class($atts['class']);
         }
-        
+
         return implode(' ', $classes);
     }
 
@@ -839,7 +845,7 @@ final class VehiclesList extends AbstractShortcode
             } else {
                 // Add to favorites
                 $favorites[] = $vehicle_id;
-                 $favorites = array_values(array_unique(array_map('intval', $favorites)));
+                $favorites = array_values(array_unique(array_map('intval', $favorites)));
                 $message = __('Added to favorites', 'mhm-rentiva');
                 $action = 'added';
             }
@@ -852,7 +858,6 @@ final class VehiclesList extends AbstractShortcode
                 'vehicle_id' => $vehicle_id,
                 'favorites_count' => count($favorites)
             ]);
-
         } catch (\Exception $e) {
             wp_send_json_error([
                 'message' => $e->getMessage()
@@ -866,7 +871,7 @@ final class VehiclesList extends AbstractShortcode
     public static function ajax_submit_rating(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_rating_nonce')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_rating_nonce')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
@@ -891,7 +896,7 @@ final class VehiclesList extends AbstractShortcode
         if ($result) {
             // Update vehicle meta (compatible with VehicleRatingForm)
             \MHMRentiva\Admin\Frontend\Shortcodes\VehicleRatingForm::update_vehicle_rating_meta($vehicle_id);
-            
+
             // Get updated rating information
             $vehicle_rating = self::get_vehicle_rating($vehicle_id);
             $user_rating = self::get_user_rating($vehicle_id);
@@ -958,7 +963,7 @@ final class VehiclesList extends AbstractShortcode
     {
         add_action('wp_ajax_mhm_rentiva_toggle_favorite', [self::class, 'ajax_toggle_favorite']);
         add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', [self::class, 'ajax_toggle_favorite']);
-        
+
         // Rating AJAX handlers
         // Rating functions moved to VehicleRatingForm
         // add_action('wp_ajax_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
@@ -972,16 +977,16 @@ final class VehiclesList extends AbstractShortcode
     /**
      * Checks user favorites
      */
-    public static function is_favorite(int $vehicle_id, int $user_id = null): bool
+    public static function is_favorite(int $vehicle_id, ?int $user_id = null): bool
     {
         if (!$user_id) {
             $user_id = get_current_user_id();
         }
-        
+
         if (!$user_id) {
             return false;
         }
-        
+
         $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true) ?: [];
         return in_array($vehicle_id, $favorites);
     }
@@ -992,7 +997,7 @@ final class VehiclesList extends AbstractShortcode
     protected static function register_hooks(): void
     {
         parent::register_hooks();
-        
+
         // Clear cache on page changes
         add_action('wp_head', [self::class, 'clear_page_cache'], 1);
         add_action('template_redirect', [self::class, 'clear_page_cache'], 1);
@@ -1023,15 +1028,15 @@ final class VehiclesList extends AbstractShortcode
         if (defined('WP_DEBUG') && WP_DEBUG) {
             return false;
         }
-        
+
         // Turn off cache for admin users
         if (is_admin() || current_user_can('administrator')) {
             return false;
         }
-        
+
         // Temporarily turn off cache for testing
         return false;
-        
+
         // return parent::is_caching_enabled();
     }
 }

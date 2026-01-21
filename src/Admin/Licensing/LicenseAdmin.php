@@ -264,7 +264,7 @@ final class LicenseAdmin
 
         if (
             !isset($_POST['mhm_rentiva_license_nonce']) ||
-            !wp_verify_nonce($_POST['mhm_rentiva_license_nonce'], 'mhm_rentiva_license_action')
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_license_nonce'] ?? '')), 'mhm_rentiva_license_action')
         ) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
         }
@@ -296,7 +296,7 @@ final class LicenseAdmin
 
         if (
             !isset($_POST['mhm_rentiva_license_nonce']) ||
-            !wp_verify_nonce($_POST['mhm_rentiva_license_nonce'], 'mhm_rentiva_license_action')
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_license_nonce'] ?? '')), 'mhm_rentiva_license_action')
         ) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
         }
@@ -323,7 +323,7 @@ final class LicenseAdmin
 
         if (
             !isset($_POST['mhm_rentiva_toggle_dev_mode_nonce']) ||
-            !wp_verify_nonce($_POST['mhm_rentiva_toggle_dev_mode_nonce'], 'mhm_rentiva_toggle_dev_mode')
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_toggle_dev_mode_nonce'] ?? '')), 'mhm_rentiva_toggle_dev_mode')
         ) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
         }

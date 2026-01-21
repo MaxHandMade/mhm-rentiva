@@ -1328,7 +1328,7 @@ final class VehicleColumns
         // Security: Nonce check
         if (
             !isset($_POST['mhm_vehicle_quick_edit_nonce']) ||
-            !wp_verify_nonce($_POST['mhm_vehicle_quick_edit_nonce'], 'mhm_vehicle_quick_edit')
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_vehicle_quick_edit_nonce'])), 'mhm_vehicle_quick_edit')
         ) {
             return;
         }

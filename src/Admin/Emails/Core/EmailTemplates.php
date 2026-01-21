@@ -263,7 +263,7 @@ final class EmailTemplates
         }
 
         // Nonce verification - Using WordPress Settings API nonce since coming from settings page
-        if (!wp_verify_nonce($_POST['_wpnonce'] ?? '', 'mhm_rentiva_settings-options')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? '')), 'mhm_rentiva_settings-options')) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
         }
 

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Testing;
 
@@ -38,7 +40,7 @@ final class ShortcodeTestHandler
     public static function handle_test_shortcode(): void
     {
         // Security check
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'test_shortcode')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'test_shortcode')) {
             wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
             return;
         }
@@ -78,7 +80,6 @@ final class ShortcodeTestHandler
             $safe_output = wp_kses_post($output);
 
             wp_send_json_success($safe_output);
-
         } catch (Exception $e) {
             wp_send_json_error(__('Shortcode test error: ', 'mhm-rentiva') . $e->getMessage());
         }
@@ -90,9 +91,9 @@ final class ShortcodeTestHandler
     public static function get_registered_shortcodes(): array
     {
         global $shortcode_tags;
-        
+
         $rentiva_shortcodes = [];
-        
+
         foreach ($shortcode_tags as $tag => $callback) {
             if (strpos($tag, 'rentiva_') === 0) {
                 $rentiva_shortcodes[$tag] = [
@@ -102,7 +103,7 @@ final class ShortcodeTestHandler
                 ];
             }
         }
-        
+
         return $rentiva_shortcodes;
     }
 
@@ -113,7 +114,7 @@ final class ShortcodeTestHandler
     {
         $results = [];
         $shortcodes = self::get_registered_shortcodes();
-        
+
         foreach ($shortcodes as $tag => $info) {
             $results[$tag] = [
                 'registered' => true,
@@ -122,7 +123,7 @@ final class ShortcodeTestHandler
                 'output' => '',
                 'error' => '',
             ];
-            
+
             try {
                 // Run a simple test shortcode
                 $test_output = do_shortcode("[{$tag}]");
@@ -132,7 +133,7 @@ final class ShortcodeTestHandler
                 $results[$tag]['error'] = $e->getMessage();
             }
         }
-        
+
         return $results;
     }
 
@@ -143,12 +144,12 @@ final class ShortcodeTestHandler
     {
         $shortcodes = self::get_registered_shortcodes();
         $test_results = self::test_all_shortcodes();
-        
+
         $total = count($shortcodes);
         $registered = count(array_filter($shortcodes, fn($s) => $s['is_callable']));
         $tested = count(array_filter($test_results, fn($r) => $r['tested']));
         $working = count(array_filter($test_results, fn($r) => $r['tested'] && $r['output']));
-        
+
         return [
             'summary' => [
                 'total' => $total,

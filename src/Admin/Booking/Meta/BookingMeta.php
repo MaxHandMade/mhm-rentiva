@@ -22,13 +22,14 @@ final class BookingMeta extends AbstractMetaBox
 {
     /**
      * Safe sanitize text field that handles null values
+     * Includes wp_unslash for WPCS compliance with superglobal sanitization
      */
     public static function sanitize_text_field_safe($value)
     {
         if ($value === null || $value === '') {
             return '';
         }
-        return sanitize_text_field((string) $value);
+        return sanitize_text_field(wp_unslash((string) $value));
     }
 
     /**
@@ -464,15 +465,14 @@ final class BookingMeta extends AbstractMetaBox
         // Check our custom nonce
         if (
             isset($_POST['mhm_rentiva_booking_meta_main_nonce']) &&
-            wp_verify_nonce($_POST['mhm_rentiva_booking_meta_main_nonce'], 'mhm_rentiva_booking_meta_action')
+            wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_booking_meta_main_nonce'])), 'mhm_rentiva_booking_meta_action')
         ) {
             $nonce_valid = true;
         }
 
-        // Check WordPress standard nonce (for standard Update button)
         if (
             !$nonce_valid && isset($_POST['_wpnonce']) &&
-            wp_verify_nonce($_POST['_wpnonce'], 'update-post_' . $post_id)
+            wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'update-post_' . $post_id)
         ) {
             $nonce_valid = true;
         }
@@ -637,7 +637,7 @@ final class BookingMeta extends AbstractMetaBox
         // Nonce check
         if (
             !isset($_POST['mhm_rentiva_email_nonce']) ||
-            !wp_verify_nonce($_POST['mhm_rentiva_email_nonce'], 'mhm_rentiva_send_email')
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_email_nonce'])), 'mhm_rentiva_send_email')
         ) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
         }
@@ -931,7 +931,7 @@ final class BookingMeta extends AbstractMetaBox
         // Nonce check
         if (
             !isset($_POST['mhm_rentiva_history_nonce']) ||
-            !wp_verify_nonce($_POST['mhm_rentiva_history_nonce'], 'mhm_rentiva_add_history_note')
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_history_nonce'])), 'mhm_rentiva_add_history_note')
         ) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
         }
@@ -1330,7 +1330,7 @@ final class BookingMeta extends AbstractMetaBox
     public static function ajax_update_booking()
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['_wpnonce'] ?? '', 'update-post_' . ($_POST['post_ID'] ?? 0))) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? '')), 'update-post_' . absint($_POST['post_ID'] ?? 0))) {
             wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
             return;
         }
@@ -1601,7 +1601,7 @@ final class BookingMeta extends AbstractMetaBox
     public static function ajax_add_booking_history_note()
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['mhm_rentiva_history_nonce'] ?? '', 'mhm_rentiva_add_history_note')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_history_nonce'] ?? '')), 'mhm_rentiva_add_history_note')) {
             wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
             return;
         }
@@ -1670,7 +1670,7 @@ final class BookingMeta extends AbstractMetaBox
         // Nonce check
         if (
             !isset($_POST['mhm_rentiva_booking_meta_main_nonce']) ||
-            !wp_verify_nonce($_POST['mhm_rentiva_booking_meta_main_nonce'], 'mhm_rentiva_booking_meta_action')
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_booking_meta_main_nonce'])), 'mhm_rentiva_booking_meta_action')
         ) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
         }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Utilities\Export;
 
@@ -90,7 +92,7 @@ final class Export
                 echo '<option value="' . esc_attr($s) . '"' . selected($status, $s, false) . '>' . esc_html($s === '' ? __('Any', 'mhm-rentiva') : $s) . '</option>';
             }
             echo '</select></label>';
-            $payStatuses = ['', 'unpaid','paid','failed','pending','processing','unknown','pending_verification','refunded','partially_refunded'];
+            $payStatuses = ['', 'unpaid', 'paid', 'failed', 'pending', 'processing', 'unknown', 'pending_verification', 'refunded', 'partially_refunded'];
             echo '<label>' . esc_html__('Payment Status', 'mhm-rentiva') . '<br /><select name="mhm_pstatus">';
             foreach ($payStatuses as $ps) {
                 echo '<option value="' . esc_attr($ps) . '"' . selected($pstatus, $ps, false) . '>' . esc_html($ps === '' ? __('Any', 'mhm-rentiva') : $ps) . '</option>';
@@ -251,7 +253,7 @@ final class Export
             wp_die(esc_html__('Invalid export type.', 'mhm-rentiva'));
         }
         $format = isset($_POST['format']) ? sanitize_key(wp_unslash($_POST['format'])) : 'csv';
-        if (!in_array($format, ['csv','xls'], true)) $format = 'csv';
+        if (!in_array($format, ['csv', 'xls'], true)) $format = 'csv';
 
         // Check if filters are provided
         $filters = isset($_POST['filters']) ? self::sanitize_text_field_safe(wp_unslash($_POST['filters'])) : '';
@@ -262,16 +264,16 @@ final class Export
         } else {
             $args = self::build_query_args_from_request($post_type);
         }
-        
+
         $args = apply_filters('mhm_rentiva_export_args', $args); // Lite → tarih/limit kısıtları uygulanır
 
         // Get record count before export
         $query = new WP_Query($args);
         $exported_count = $query->found_posts;
-        
+
         // Log export activity with actual exported count
         self::log_export_activity($post_type, $format, $args, $exported_count);
-        
+
         // Start direct export process
         self::start_direct_export($post_type, $format, $args);
     }
@@ -283,7 +285,7 @@ final class Export
     {
         // Start export process
         $filename = $post_type . '_export_' . current_time('Y-m-d_H-i-s');
-        
+
         if ($format === 'csv') {
             self::stream_csv_direct($post_type, $args, $filename);
         } elseif ($format === 'xls') {
@@ -307,27 +309,54 @@ final class Export
         $output = fopen('php://output', 'w');
 
         // Add BOM for Excel compatibility
-        fprintf($output, "%s", chr(0xEF).chr(0xBB).chr(0xBF));
+        fprintf($output, "%s", chr(0xEF) . chr(0xBB) . chr(0xBF));
 
         if ($post_type === 'vehicle_booking') {
             $headers = [
-                'ID','Date','Status','Payment Status','Gateway',
-                'Total','Paid Amount','Currency',
-                'Name','Email','Phone',
+                'ID',
+                'Date',
+                'Status',
+                'Payment Status',
+                'Gateway',
+                'Total',
+                'Paid Amount',
+                'Currency',
+                'Name',
+                'Email',
+                'Phone',
             ];
         } elseif ($post_type === 'vehicle') {
             $headers = [
-                'ID','Title','Brand','Model','Year','Fuel Type',
-                'Transmission','Seats','Doors',
-                'Daily Price','Weekly Price','Monthly Price',
-                'Status','Availability','Location','Description',
-                'Created Date','Modified Date'
+                'ID',
+                'Title',
+                'Brand',
+                'Model',
+                'Year',
+                'Fuel Type',
+                'Transmission',
+                'Seats',
+                'Doors',
+                'Daily Price',
+                'Weekly Price',
+                'Monthly Price',
+                'Status',
+                'Availability',
+                'Location',
+                'Description',
+                'Created Date',
+                'Modified Date'
             ];
         } else {
             $headers = [
-                'ID','Date','Gateway','Action','Status',
+                'ID',
+                'Date',
+                'Gateway',
+                'Action',
+                'Status',
                 'Booking ID',
-                'Amount (kurus)','Currency','Message',
+                'Amount (kurus)',
+                'Currency',
+                'Message',
             ];
         }
         fputcsv($output, $headers);
@@ -358,10 +387,11 @@ final class Export
                         number_format($total, 2, '.', ''),
                         number_format($paidk / 100, 2, '.', ''),
                         strtoupper($cur ?: ''),
-                        $name, $email, $phone,
+                        $name,
+                        $email,
+                        $phone,
                     ]);
-                }
-                elseif ($post_type === 'vehicle') {
+                } elseif ($post_type === 'vehicle') {
                     $post = get_post($pid);
                     $title = $post ? $post->post_title : '';
                     $brand = (string) get_post_meta($pid, '_mhm_rentiva_brand', true);
@@ -380,7 +410,7 @@ final class Export
                     $description = $post ? wp_strip_all_tags($post->post_content) : '';
                     $created_date = $post ? $post->post_date_gmt : '';
                     $modified_date = $post ? $post->post_modified_gmt : '';
-                    
+
                     fputcsv($output, [
                         $pid,
                         $title,
@@ -412,15 +442,23 @@ final class Export
                     $cur    = (string) get_post_meta($pid, '_mhm_log_currency', true);
                     $msg    = (string) get_post_meta($pid, '_mhm_log_message', true);
                     fputcsv($output, [
-                        $pid, $date, $gw, $act, $st,
+                        $pid,
+                        $date,
+                        $gw,
+                        $act,
+                        $st,
                         $bid,
-                        $ak, strtoupper($cur ?: ''), $msg,
+                        $ak,
+                        strtoupper($cur ?: ''),
+                        $msg,
                     ]);
                 }
             }
             $paged++;
             // flush output buffer for streaming
-            if (function_exists('flush')) { flush(); }
+            if (function_exists('flush')) {
+                flush();
+            }
         } while (true);
         wp_reset_postdata();
         fclose($output);
@@ -443,23 +481,50 @@ final class Export
 
         if ($post_type === 'vehicle_booking') {
             $headers = [
-                'ID','Date','Status','Payment Status','Gateway',
-                'Total','Paid Amount','Currency',
-                'Name','Email','Phone',
+                'ID',
+                'Date',
+                'Status',
+                'Payment Status',
+                'Gateway',
+                'Total',
+                'Paid Amount',
+                'Currency',
+                'Name',
+                'Email',
+                'Phone',
             ];
         } elseif ($post_type === 'vehicle') {
             $headers = [
-                'ID','Title','Brand','Model','Year','Fuel Type',
-                'Transmission','Seats','Doors',
-                'Daily Price','Weekly Price','Monthly Price',
-                'Status','Availability','Location','Description',
-                'Created Date','Modified Date'
+                'ID',
+                'Title',
+                'Brand',
+                'Model',
+                'Year',
+                'Fuel Type',
+                'Transmission',
+                'Seats',
+                'Doors',
+                'Daily Price',
+                'Weekly Price',
+                'Monthly Price',
+                'Status',
+                'Availability',
+                'Location',
+                'Description',
+                'Created Date',
+                'Modified Date'
             ];
         } else {
             $headers = [
-                'ID','Date','Gateway','Action','Status',
+                'ID',
+                'Date',
+                'Gateway',
+                'Action',
+                'Status',
                 'Booking ID',
-                'Amount (kurus)','Currency','Message',
+                'Amount (kurus)',
+                'Currency',
+                'Message',
             ];
         }
 
@@ -520,7 +585,7 @@ final class Export
                     $description = $post ? wp_strip_all_tags($post->post_content) : '';
                     $created_date = $post ? $post->post_date_gmt : '';
                     $modified_date = $post ? $post->post_modified_gmt : '';
-                    
+
                     $row = [
                         $pid,
                         $title,
@@ -554,9 +619,17 @@ final class Export
                     $cur    = (string) get_post_meta($pid, '_mhm_log_currency', true);
                     $msg    = (string) get_post_meta($pid, '_mhm_log_message', true);
                     $row = [
-                        $pid, $date, $gw, $act, $st,
-                        $bid, $code, $oid,
-                        $ak, strtoupper($cur ?: ''), $msg,
+                        $pid,
+                        $date,
+                        $gw,
+                        $act,
+                        $st,
+                        $bid,
+                        $code,
+                        $oid,
+                        $ak,
+                        strtoupper($cur ?: ''),
+                        $msg,
                     ];
                 }
                 foreach ($row as $cell) {
@@ -565,7 +638,9 @@ final class Export
                 echo '</tr>';
             }
             $paged++;
-            if (function_exists('flush')) { flush(); }
+            if (function_exists('flush')) {
+                flush();
+            }
         } while (true);
         wp_reset_postdata();
         echo '</table>';
@@ -577,15 +652,29 @@ final class Export
     {
         if ($post_type === 'vehicle_booking') {
             $headers = [
-                'ID','Date','Status','Payment Status','Gateway',
-                'Total','Paid Amount','Currency',
-                'Name','Email','Phone',
+                'ID',
+                'Date',
+                'Status',
+                'Payment Status',
+                'Gateway',
+                'Total',
+                'Paid Amount',
+                'Currency',
+                'Name',
+                'Email',
+                'Phone',
             ];
         } else {
             $headers = [
-                'ID','Date','Gateway','Action','Status',
+                'ID',
+                'Date',
+                'Gateway',
+                'Action',
+                'Status',
                 'Booking ID',
-                'Amount (kurus)','Currency','Message',
+                'Amount (kurus)',
+                'Currency',
+                'Message',
             ];
         }
         fputcsv($out, $headers);
@@ -632,15 +721,23 @@ final class Export
                     $cur    = (string) get_post_meta($pid, '_mhm_log_currency', true);
                     $msg    = (string) get_post_meta($pid, '_mhm_log_message', true);
                     fputcsv($out, [
-                        $pid, $date, $gw, $act, $st,
+                        $pid,
+                        $date,
+                        $gw,
+                        $act,
+                        $st,
                         $bid,
-                        $ak, strtoupper($cur ?: ''), $msg,
+                        $ak,
+                        strtoupper($cur ?: ''),
+                        $msg,
                     ]);
                 }
             }
             $paged++;
             // flush output buffer for streaming
-            if (function_exists('flush')) { flush(); }
+            if (function_exists('flush')) {
+                flush();
+            }
         } while (true);
         wp_reset_postdata();
     }
@@ -681,15 +778,29 @@ final class Export
         self::xls_header($sheetTitle);
         if ($post_type === 'vehicle_booking') {
             $headers = [
-                'ID','Date','Status','Payment Status','Gateway',
-                'Total','Paid Amount','Currency',
-                'Name','Email','Phone',
+                'ID',
+                'Date',
+                'Status',
+                'Payment Status',
+                'Gateway',
+                'Total',
+                'Paid Amount',
+                'Currency',
+                'Name',
+                'Email',
+                'Phone',
             ];
         } else {
             $headers = [
-                'ID','Date','Gateway','Action','Status',
+                'ID',
+                'Date',
+                'Gateway',
+                'Action',
+                'Status',
                 'Booking ID',
-                'Amount (kurus)','Currency','Message',
+                'Amount (kurus)',
+                'Currency',
+                'Message',
             ];
         }
         self::xls_row($headers);
@@ -735,14 +846,22 @@ final class Export
                     $cur    = (string) get_post_meta($pid, '_mhm_log_currency', true);
                     $msg    = (string) get_post_meta($pid, '_mhm_log_message', true);
                     self::xls_row([
-                        $pid, $date, $gw, $act, $st,
+                        $pid,
+                        $date,
+                        $gw,
+                        $act,
+                        $st,
                         $bid,
-                        $ak, strtoupper($cur ?: ''), $msg,
+                        $ak,
+                        strtoupper($cur ?: ''),
+                        $msg,
                     ]);
                 }
             }
             $paged++;
-            if (function_exists('flush')) { flush(); }
+            if (function_exists('flush')) {
+                flush();
+            }
         } while (true);
         wp_reset_postdata();
         self::xls_footer();
@@ -761,10 +880,10 @@ final class Export
 
         echo '<div class="wrap mhm-rentiva-wrap">';
         echo '<h1>' . esc_html__('Export Data', 'mhm-rentiva') . '</h1>';
-        
+
         // Pro feature notices and Developer Mode banner
         \MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice('export');
-        
+
         echo '<p class="description">' . esc_html__('Export your vehicle rental data in various formats for analysis, reporting, and backup purposes.', 'mhm-rentiva') . '</p>';
 
         // Export status messages
@@ -772,7 +891,7 @@ final class Export
 
         // Export cards - Compatible with plugin design
         echo '<div class="mhm-export-dashboard">';
-        
+
         // Bookings Export Card
         echo '<div class="analytics-card bookings-analytics">';
         echo '<div class="card-header">';
@@ -936,10 +1055,10 @@ final class Export
         echo '<h2>' . esc_html__('Export History', 'mhm-rentiva') . '</h2>';
         echo '<p>' . esc_html__('View and manage your recent export activities.', 'mhm-rentiva') . '</p>';
         echo '</div>';
-        
+
         // Get export history data
         $export_history = self::get_export_history_for_render();
-        
+
         if (!empty($export_history)) {
             echo '<div class="history-table-container">';
             echo '<table class="wp-list-table widefat fixed striped">';
@@ -954,11 +1073,11 @@ final class Export
             echo '</tr>';
             echo '</thead>';
             echo '<tbody>';
-            
+
             foreach ($export_history as $export) {
                 $status_class = $export['status'] === 'completed' ? 'status-completed' : 'status-failed';
                 $status_text = $export['status'] === 'completed' ? __('Completed', 'mhm-rentiva') : __('Failed', 'mhm-rentiva');
-                
+
                 echo '<tr>';
                 echo '<td>' . esc_html(date('d.m.Y H:i', strtotime($export['date']))) . '</td>';
                 echo '<td>' . esc_html($export['type']) . '</td>';
@@ -972,7 +1091,7 @@ final class Export
                 echo '</td>';
                 echo '</tr>';
             }
-            
+
             echo '</tbody>';
             echo '</table>';
             echo '</div>';
@@ -983,7 +1102,7 @@ final class Export
             echo '<p>' . esc_html__('Start by exporting your data using the options above.', 'mhm-rentiva') . '</p>';
             echo '</div>';
         }
-        
+
         echo '</div>';
     }
 
@@ -1001,7 +1120,7 @@ final class Export
         echo '<form action="' . esc_url(admin_url('admin-post.php')) . '" method="post">';
         echo '<input type="hidden" name="action" value="mhm_rentiva_export" />';
         echo '<input type="hidden" name="_wpnonce" value="' . esc_attr(wp_create_nonce('mhm_rentiva_export')) . '" />';
-        
+
         // Export type
         echo '<div class="form-group">';
         echo '<label for="export_type">' . esc_html__('Export Type', 'mhm-rentiva') . '</label>';
@@ -1013,18 +1132,18 @@ final class Export
         echo '<option value="reports">' . esc_html__('Reports', 'mhm-rentiva') . '</option>';
         echo '</select>';
         echo '</div>';
-        
+
         // Date range
         echo '<div class="form-group">';
         echo '<label for="date_from">' . esc_html__('Start Date', 'mhm-rentiva') . '</label>';
         echo '<input type="date" name="date_from" id="date_from" />';
         echo '</div>';
-        
+
         echo '<div class="form-group">';
         echo '<label for="date_to">' . esc_html__('End Date', 'mhm-rentiva') . '</label>';
         echo '<input type="date" name="date_to" id="date_to" />';
         echo '</div>';
-        
+
         // Format
         echo '<div class="form-group">';
         echo '<label for="format">' . esc_html__('Format', 'mhm-rentiva') . '</label>';
@@ -1035,18 +1154,18 @@ final class Export
         }
         echo '</select>';
         echo '</div>';
-        
+
         // Submit button
         echo '<div class="form-group">';
         echo '<button type="submit" class="button button-primary">' . esc_html__('Start Export', 'mhm-rentiva') . '</button>';
         echo '<button type="button" class="button button-secondary" onclick="hideCustomExportForm()">' . esc_html__('Cancel', 'mhm-rentiva') . '</button>';
         echo '</div>';
-        
+
         echo '</form>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        
+
         // JavaScript
         echo '<script>';
         echo 'function showCustomExportForm() { document.getElementById("custom-export-form").style.display = "block"; }';
@@ -1076,31 +1195,31 @@ final class Export
         echo '<div class="mhm-export-stats">';
         echo '<h2>' . esc_html__('Export Statistics', 'mhm-rentiva') . '</h2>';
         echo '<div class="stats-grid">';
-        
+
         // Total Exports
         echo '<div class="stat-card">';
         echo '<div class="stat-number">' . esc_html($stats['total_exports']) . '</div>';
         echo '<div class="stat-label">' . esc_html__('Total Exports', 'mhm-rentiva') . '</div>';
         echo '</div>';
-        
+
         // Total Records
         echo '<div class="stat-card">';
         echo '<div class="stat-number">' . esc_html($stats['total_records']) . '</div>';
         echo '<div class="stat-label">' . esc_html__('Records Exported', 'mhm-rentiva') . '</div>';
         echo '</div>';
-        
+
         // Success Rate
         echo '<div class="stat-card">';
         echo '<div class="stat-number">' . esc_html($stats['success_rate']) . '</div>';
         echo '<div class="stat-label">' . esc_html__('Success Rate', 'mhm-rentiva') . '</div>';
         echo '</div>';
-        
+
         // Available Records
         echo '<div class="stat-card">';
         echo '<div class="stat-number">' . esc_html($stats['available_records']) . '</div>';
         echo '<div class="stat-label">' . esc_html__('Available Records', 'mhm-rentiva') . '</div>';
         echo '</div>';
-        
+
         echo '</div>';
 
         // Current Data Overview
@@ -1153,7 +1272,7 @@ final class Export
     public static function handle_apply_filters(): void
     {
         // Check nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_export_filters')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_export_filters')) {
             wp_send_json_error(esc_html__('Invalid nonce', 'mhm-rentiva'));
         }
 
@@ -1164,10 +1283,10 @@ final class Export
 
         // Get filter data
         $filters = self::sanitize_text_field_safe(wp_unslash($_POST['filters'] ?? ''));
-        
+
         // Parse filters (form data)
         parse_str($filters, $filter_data);
-        
+
         // Validate and sanitize filter data
         $validated_filters = [
             'date_range' => self::sanitize_text_field_safe($filter_data['date_range'] ?? ''),
@@ -1218,7 +1337,7 @@ final class Export
         // Get posts
         $query = new WP_Query($args);
         $posts = $query->posts;
-        
+
         $count = count($posts);
         $total_amount = 0;
         $sample_records = [];
@@ -1227,7 +1346,7 @@ final class Export
         foreach (array_slice($posts, 0, 5) as $post_id) {
             $amount = (float) get_post_meta($post_id, '_mhm_total_price', true);
             $total_amount += $amount;
-            
+
             $sample_records[] = [
                 'id' => $post_id,
                 'date' => get_the_date('d.m.Y', $post_id),
@@ -1249,7 +1368,7 @@ final class Export
     public static function handle_delete_export(): void
     {
         // Check nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_export_filters')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_export_filters')) {
             wp_send_json_error(esc_html__('Invalid nonce', 'mhm-rentiva'));
         }
 
@@ -1260,16 +1379,16 @@ final class Export
 
         // Get export ID
         $export_id = self::sanitize_text_field_safe(wp_unslash($_POST['export_id'] ?? ''));
-        
+
         if (empty($export_id)) {
             wp_send_json_error(esc_html__('Export ID is required', 'mhm-rentiva'));
         }
 
         // For now, just simulate deletion since we don't have a real export storage system
         // In a real implementation, you would delete the actual export file and database record
-        
+
         // Log the deletion
-        
+
         // Return success response
         wp_send_json_success([
             'message' => esc_html__('Export deleted successfully!', 'mhm-rentiva'),
@@ -1283,7 +1402,7 @@ final class Export
     public static function handle_get_export_details(): void
     {
         // Check nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_export_filters')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_export_filters')) {
             wp_send_json_error(esc_html__('Invalid nonce', 'mhm-rentiva'));
         }
 
@@ -1294,14 +1413,14 @@ final class Export
 
         // Get export ID
         $export_id = self::sanitize_text_field_safe(wp_unslash($_POST['export_id'] ?? ''));
-        
+
         if (empty($export_id)) {
             wp_send_json_error(esc_html__('Export ID is required', 'mhm-rentiva'));
         }
 
         // Get export history
         $export_history = self::get_export_history();
-        
+
         // Find the specific export
         $export_details = null;
         foreach ($export_history as $export) {
@@ -1328,7 +1447,7 @@ final class Export
     {
         // Use the actual exported count
         $record_count = $exported_count;
-        
+
         // Create export log entry
         $type_name = 'Unknown';
         if ($post_type === 'vehicle_booking') {
@@ -1338,7 +1457,7 @@ final class Export
         } elseif ($post_type === LogPostType::TYPE) {
             $type_name = 'Payment Logs';
         }
-        
+
         $export_log = [
             'date' => current_time('Y-m-d H:i:s'),
             'type' => $type_name,
@@ -1348,16 +1467,16 @@ final class Export
             'user_id' => get_current_user_id(),
             'filters_applied' => !empty($args['meta_query']) || !empty($args['date_query'])
         ];
-        
+
         // Store in transient (in a real implementation, you'd use a proper database table)
         $export_history = get_transient('mhm_rentiva_export_history') ?: [];
         $export_history[] = $export_log;
-        
+
         // Keep only last 50 exports
         if (count($export_history) > 50) {
             $export_history = array_slice($export_history, -50);
         }
-        
+
         set_transient('mhm_rentiva_export_history', $export_history, WEEK_IN_SECONDS);
     }
 

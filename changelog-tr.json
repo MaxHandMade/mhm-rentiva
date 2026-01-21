@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.6.2",
+        "date": "2026-01-21",
+        "type": "current",
+        "changes": [
+            "🛡️ GÜVENLİK DENETİMİ: Tüm 22 modül için kapsamlı güvenlik denetimi tamamlandı (91+ yama uygulandı).",
+            "🔒 NONCE GÜÇLENDİRME: Tüm nonce doğrulamaları artık WPCS uyumluluğu için sanitize_text_field(wp_unslash()) sarmalayıcısı kullanıyor.",
+            "✅ WPCS UYUMLULUĞU: Eklenti artık güvenlik işlemleri için WordPress Kodlama Standartlarına tam uyumlu.",
+            "🐛 LINT DÜZELTMELERİ: PHP 8.4+ implicit nullable parametre uyarıları düzeltildi.",
+            "🔧 KOD KALİTESİ: Birden fazla dosyada Exception namespace sorunları ve tanımsız metot çağrıları düzeltildi."
+        ]
+    },
+    {
         "version": "4.6.1",
         "date": "2026-01-21",
         "type": "current",

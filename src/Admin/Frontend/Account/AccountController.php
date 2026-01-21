@@ -762,7 +762,7 @@ final class AccountController
     {
         try {
             // Nonce verification
-            if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_account')) {
+            if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_account')) {
                 wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             }
 
@@ -829,7 +829,7 @@ final class AccountController
     public static function ajax_add_favorite(): void
     {
         try {
-            if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_account')) {
+            if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_account')) {
                 wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             }
 
@@ -875,7 +875,7 @@ final class AccountController
     public static function ajax_remove_favorite(): void
     {
         try {
-            if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_rentiva_account')) {
+            if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_account')) {
                 wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             }
 
@@ -948,7 +948,7 @@ final class AccountController
     public static function ajax_register_user(): void
     {
         // Nonce check
-        if (!wp_verify_nonce($_POST['register_nonce'] ?? '', 'register_user')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['register_nonce'] ?? '')), 'register_user')) {
             wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
             return;
         }
@@ -1060,7 +1060,7 @@ final class AccountController
         }
 
         // Nonce check
-        if (!wp_verify_nonce($_POST['register_nonce'] ?? '', 'register_user')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['register_nonce'] ?? '')), 'register_user')) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
             return;
         }
@@ -1293,7 +1293,7 @@ final class AccountController
         }
 
         // Nonce check
-        if (!wp_verify_nonce($_POST['comm_prefs_nonce'] ?? '', 'update_comm_preferences')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['comm_prefs_nonce'] ?? '')), 'update_comm_preferences')) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
             return;
         }

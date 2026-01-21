@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Messages\Core;
 
@@ -26,18 +28,18 @@ final class Messages
         add_action('wp_ajax_mhm_message_reply', [self::class, 'ajax_reply_to_message']);
         add_action('wp_ajax_mhm_message_status_update', [self::class, 'ajax_update_status']);
         add_action('wp_ajax_mhm_message_reopen', [self::class, 'ajax_reopen_message']);
-        
+
         // Form handlers
         add_action('admin_init', [self::class, 'handle_new_message_form']);
         add_action('admin_init', [self::class, 'handle_edit_message_form']);
-        
+
         // Add hooks for messages page
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_message_scripts']);
         add_action('admin_notices', [self::class, 'add_message_stats_cards']);
-        
+
         // Load frontend assets
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_frontend_assets']);
-        
+
         // Initialize MessagesSettings
         MessagesSettings::init();
     }
@@ -61,7 +63,7 @@ final class Messages
     {
         // Get optimized dashboard data
         $dashboard_data = MessageQueryHelper::get_message_stats();
-        
+
         // Recent pending messages (number from settings)
         $max_messages = MessagesSettings::get_setting('dashboard_widget_max_messages', 5);
         $recent_messages = MessageQueryHelper::get_messages_query([
@@ -73,7 +75,7 @@ final class Messages
 
         $pending_count = $dashboard_data['pending_messages'];
 
-        ?>
+?>
         <div class="mhm-messages-dashboard">
             <div class="messages-count">
                 <span class="count-number"><?php echo esc_html($pending_count); ?></span>
@@ -105,7 +107,7 @@ final class Messages
                 </a>
             </div>
         </div>
-        <?php
+    <?php
     }
 
     public static function render_messages_page(): void
@@ -142,23 +144,23 @@ final class Messages
     {
         // Always clear cache (for parent_only filter)
         MessageCache::flush();
-        
+
         // Also clear WordPress object cache
         if (function_exists('wp_cache_flush_group')) {
             wp_cache_flush_group('mhm_messages');
         }
-        
+
         $messages_table = new MessageListTable();
         $messages_table->prepare_items();
 
-        ?>
+    ?>
         <form method="post" action="">
             <input type="hidden" name="page" value="mhm-rentiva-messages">
             <?php wp_nonce_field('mhm_messages_bulk_action', 'mhm_messages_nonce'); ?>
 
             <?php $messages_table->display(); ?>
         </form>
-        <?php
+    <?php
     }
 
     private static function render_message_thread(int $message_id): void
@@ -176,18 +178,18 @@ final class Messages
 
         $meta = Message::get_message_meta($message_id);
         $thread_id = $meta['thread_id'] ?? $message_id;
-        
+
         // Normalize thread_id to ensure proper matching
         $thread_id = (string) $thread_id;
-        
+
         // Try to get thread messages - try multiple methods
         $thread_messages = Message::get_thread_messages($thread_id);
-        
+
         // If still empty, try with message ID as thread_id
         if (empty($thread_messages)) {
             $thread_messages = Message::get_thread_messages((string) $message_id);
         }
-        
+
         // If thread is empty, at least show the main message
         if (empty($thread_messages)) {
             // Reload main message with all fields
@@ -234,7 +236,7 @@ final class Messages
             Message::mark_as_read($message_id);
         }
 
-        ?>
+    ?>
         <div class="message-thread-header">
             <a href="<?php echo esc_url(MessageUrlHelper::get_messages_list_url()); ?>" class="button">
                 ← <?php _e('Back to All Messages', 'mhm-rentiva'); ?>
@@ -279,26 +281,26 @@ final class Messages
         </div>
 
         <div class="message-thread">
-            <?php 
+            <?php
             $thread_count = count($thread_messages);
             $last_message_index = $thread_count - 1;
-            foreach ($thread_messages as $index => $thread_message): 
+            foreach ($thread_messages as $index => $thread_message):
                 // Skip if message is null or invalid
                 if (!$thread_message || !isset($thread_message->ID)) {
                     continue;
                 }
-                
+
                 // Ensure meta is set
                 if (!isset($thread_message->meta)) {
                     $thread_message->meta = Message::get_message_meta($thread_message->ID);
                 }
-                
+
                 // Ensure post_content is loaded - try multiple methods
                 $content = $thread_message->post_content ?? '';
                 if (empty($content)) {
                     $content = get_post_field('post_content', $thread_message->ID);
                 }
-                
+
                 // If still empty, reload the entire post
                 if (empty($content)) {
                     $full_post = get_post($thread_message->ID);
@@ -307,7 +309,7 @@ final class Messages
                         $thread_message->post_content = $content;
                     }
                 }
-                
+
                 $is_last_message = ($index === $last_message_index);
                 $message_type = $thread_message->meta['message_type'] ?? 'customer_to_admin';
                 $is_customer_message = $message_type === 'customer_to_admin';
@@ -334,7 +336,7 @@ final class Messages
                     </div>
 
                     <div class="message-content">
-                        <?php 
+                        <?php
                         // Display content - use wpautop for formatting
                         if (!empty($content)) {
                             echo wp_kses_post(wpautop($content));
@@ -360,7 +362,7 @@ final class Messages
                 </div>
             <?php endforeach; ?>
         </div>
-        <?php
+    <?php
     }
 
     private static function render_reply_form(int $message_id): void
@@ -379,7 +381,7 @@ final class Messages
         $meta = Message::get_message_meta($message_id);
         $thread_messages = Message::get_thread_messages($meta['thread_id']);
 
-        ?>
+    ?>
         <div class="message-reply-form">
             <a href="<?php echo esc_url(MessageUrlHelper::get_message_view_url($message_id)); ?>" class="button">
                 ← <?php _e('Back to Message', 'mhm-rentiva'); ?>
@@ -475,7 +477,7 @@ final class Messages
                 </div>
             </form>
         </div>
-        <?php
+    <?php
     }
 
     public static function handle_bulk_actions(): void
@@ -590,11 +592,11 @@ final class Messages
         } else {
             Message::update_message_status($parent_message_id, 'answered');
         }
-        
+
         // Clear cache (for both parent and reply)
         MessageCache::clear_message_cache($parent_message_id);
         MessageCache::clear_message_cache($reply_id);
-        
+
         // Also clear WordPress post cache
         clean_post_cache($parent_message_id);
         clean_post_cache($reply_id);
@@ -710,14 +712,14 @@ final class Messages
         if (!Mode::featureEnabled(Mode::FEATURE_MESSAGES)) {
             echo '<div class="wrap">';
             echo '<h1>' . __('Messages', 'mhm-rentiva') . '</h1>';
-            
+
             // Pro feature notices and Developer Mode banner
             \MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice('messages');
-            
+
             echo '</div>';
             return;
         }
-        
+
         // Display Developer Mode banner if active (even if Pro is enabled)
         \MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeBanner([
             __('Messaging System', 'mhm-rentiva'),
@@ -731,34 +733,34 @@ final class Messages
             $list_table_temp->handle_bulk_actions();
             // If redirect happened, exit - otherwise continue
         }
-        
+
         echo '<div class="wrap">';
-        
+
         // Bulk action success message (after redirect)
         if (isset($_GET['bulk_action']) && isset($_GET['bulk_count'])) {
             $bulk_action = sanitize_key($_GET['bulk_action']);
             $bulk_count = absint($_GET['bulk_count']);
-            
+
             $messages = [
                 'delete' => sprintf(__('%d messages deleted.', 'mhm-rentiva'), $bulk_count),
                 'mark_read' => sprintf(__('%d messages marked as read.', 'mhm-rentiva'), $bulk_count),
                 'mark_unread' => sprintf(__('%d messages marked as unread.', 'mhm-rentiva'), $bulk_count),
                 'change_status' => sprintf(__('%d messages status updated.', 'mhm-rentiva'), $bulk_count),
             ];
-            
+
             if (isset($messages[$bulk_action])) {
                 echo '<div class="notice notice-success is-dismissible"><p>' . esc_html($messages[$bulk_action]) . '</p></div>';
             }
-            
+
             // Clear cache
             MessageCache::flush();
         }
-        
+
         // Action handling
         $action = isset($_GET['action']) ? sanitize_key($_GET['action']) : 'list';
-        
+
         $message_id = isset($_GET['id']) ? absint($_GET['id']) : 0;
-        
+
         switch ($action) {
             case 'new-message':
                 self::render_new_message_form();
@@ -776,14 +778,14 @@ final class Messages
                 // Message list table
                 $list_table = new MessageListTable();
                 $list_table->prepare_items();
-                
+
                 echo '<form method="post">';
                 wp_nonce_field('mhm_messages_bulk_action', 'mhm_messages_nonce');
                 $list_table->display();
                 echo '</form>';
                 break;
         }
-        
+
         echo '</div>';
     }
 
@@ -798,17 +800,17 @@ final class Messages
             'order' => 'ASC',
             'number' => -1, // Get all users
         ]);
-        
+
         $categories = MessagesSettings::get_categories();
         $priorities = MessagesSettings::get_priorities();
-        
-        ?>
+
+    ?>
         <div class="mhm-new-message-form">
             <h2><?php esc_html_e('Create New Message', 'mhm-rentiva'); ?></h2>
-            
+
             <form method="post" action="" class="mhm-message-form" id="mhm-new-message-form">
                 <?php wp_nonce_field('mhm_new_message', 'mhm_new_message_nonce'); ?>
-                
+
                 <table class="form-table">
                     <tbody>
                         <tr>
@@ -819,10 +821,10 @@ final class Messages
                                 <select id="customer_user_id" name="customer_user_id" class="regular-text" required style="width: 400px;">
                                     <option value=""><?php esc_html_e('Select a customer...', 'mhm-rentiva'); ?></option>
                                     <?php foreach ($users as $user): ?>
-                                        <option value="<?php echo esc_attr($user->ID); ?>" 
-                                                data-email="<?php echo esc_attr($user->user_email); ?>"
-                                                data-name="<?php echo esc_attr($user->display_name ?: $user->user_login); ?>">
-                                            <?php 
+                                        <option value="<?php echo esc_attr($user->ID); ?>"
+                                            data-email="<?php echo esc_attr($user->user_email); ?>"
+                                            data-name="<?php echo esc_attr($user->display_name ?: $user->user_login); ?>">
+                                            <?php
                                             echo esc_html($user->display_name ?: $user->user_login);
                                             echo ' (' . esc_html($user->user_email) . ')';
                                             ?>
@@ -830,11 +832,11 @@ final class Messages
                                     <?php endforeach; ?>
                                 </select>
                                 <p class="description"><?php esc_html_e('Select a registered customer from the site', 'mhm-rentiva'); ?></p>
-                                
+
                                 <!-- Hidden fields for email and name (populated via JavaScript) -->
                                 <input type="hidden" id="customer_email" name="customer_email" value="">
                                 <input type="hidden" id="customer_name" name="customer_name" value="">
-                                
+
                                 <!-- Display selected customer info -->
                                 <div id="customer-info" style="margin-top: 10px; padding: 10px; background: #f0f0f1; border-radius: 4px; display: none;">
                                     <strong><?php esc_html_e('Selected Customer:', 'mhm-rentiva'); ?></strong>
@@ -892,7 +894,7 @@ final class Messages
                         </tr>
                     </tbody>
                 </table>
-                
+
                 <p class="submit">
                     <input type="submit" name="submit" class="button button-primary" value="<?php esc_attr_e('Send Message', 'mhm-rentiva'); ?>">
                     <a href="<?php echo esc_url(MessageUrlHelper::get_messages_list_url()); ?>" class="button">
@@ -901,43 +903,43 @@ final class Messages
                 </p>
             </form>
         </div>
-        
+
         <script type="text/javascript">
-        jQuery(document).ready(function($) {
-            var $customerSelect = $('#customer_user_id');
-            var $customerEmail = $('#customer_email');
-            var $customerName = $('#customer_name');
-            var $customerInfo = $('#customer-info');
-            var $customerInfoText = $('#customer-info-text');
-            
-            $customerSelect.on('change', function() {
-                var $selectedOption = $(this).find('option:selected');
-                var email = $selectedOption.data('email');
-                var name = $selectedOption.data('name');
-                
-                if (email && name) {
-                    $customerEmail.val(email);
-                    $customerName.val(name);
-                    $customerInfoText.text(name + ' (' + email + ')');
-                    $customerInfo.show();
-                } else {
-                    $customerEmail.val('');
-                    $customerName.val('');
-                    $customerInfo.hide();
-                }
+            jQuery(document).ready(function($) {
+                var $customerSelect = $('#customer_user_id');
+                var $customerEmail = $('#customer_email');
+                var $customerName = $('#customer_name');
+                var $customerInfo = $('#customer-info');
+                var $customerInfoText = $('#customer-info-text');
+
+                $customerSelect.on('change', function() {
+                    var $selectedOption = $(this).find('option:selected');
+                    var email = $selectedOption.data('email');
+                    var name = $selectedOption.data('name');
+
+                    if (email && name) {
+                        $customerEmail.val(email);
+                        $customerName.val(name);
+                        $customerInfoText.text(name + ' (' + email + ')');
+                        $customerInfo.show();
+                    } else {
+                        $customerEmail.val('');
+                        $customerName.val('');
+                        $customerInfo.hide();
+                    }
+                });
+
+                // Form submit validation
+                $('#mhm-new-message-form').on('submit', function(e) {
+                    if (!$customerSelect.val()) {
+                        e.preventDefault();
+                        alert('<?php echo esc_js(__('Please select a customer.', 'mhm-rentiva')); ?>');
+                        return false;
+                    }
+                });
             });
-            
-            // Form submit validation
-            $('#mhm-new-message-form').on('submit', function(e) {
-                if (!$customerSelect.val()) {
-                    e.preventDefault();
-                    alert('<?php echo esc_js(__('Please select a customer.', 'mhm-rentiva')); ?>');
-                    return false;
-                }
-            });
-        });
         </script>
-        <?php
+    <?php
     }
 
     /**
@@ -962,7 +964,7 @@ final class Messages
         $category = $meta['_mhm_message_category'][0] ?? 'general';
         $status = $meta['_mhm_message_status'][0] ?? 'pending';
 
-        ?>
+    ?>
         <div class="mhm-message-view">
             <div class="message-header">
                 <h2><?php echo esc_html($message->post_title); ?></h2>
@@ -973,21 +975,21 @@ final class Messages
                     <p><strong><?php esc_html_e('Date:', 'mhm-rentiva'); ?></strong> <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($message->post_date))); ?></p>
                 </div>
             </div>
-            
+
             <div class="message-content">
                 <h3><?php esc_html_e('Message Content', 'mhm-rentiva'); ?></h3>
                 <div class="message-text">
                     <?php echo wp_kses_post(wpautop($message->post_content)); ?>
                 </div>
             </div>
-            
+
             <div class="message-actions">
                 <a href="<?php echo esc_url(MessageUrlHelper::get_messages_list_url()); ?>" class="button">
                     <?php esc_html_e('Back to Messages', 'mhm-rentiva'); ?>
                 </a>
             </div>
         </div>
-        <?php
+    <?php
     }
 
     /**
@@ -999,7 +1001,7 @@ final class Messages
             return;
         }
 
-        if (!wp_verify_nonce($_POST['mhm_new_message_nonce'], 'mhm_new_message')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_new_message_nonce'])), 'mhm_new_message')) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
         }
 
@@ -1027,19 +1029,19 @@ final class Messages
 
         // Validation
         if (empty($customer_user_id) || empty($customer_email) || empty($subject) || empty($content)) {
-            add_action('admin_notices', function() {
+            add_action('admin_notices', function () {
                 echo '<div class="notice notice-error"><p>' . __('Please fill in all required fields.', 'mhm-rentiva') . '</p></div>';
             });
             return;
         }
 
         if (!is_email($customer_email)) {
-            add_action('admin_notices', function() {
+            add_action('admin_notices', function () {
                 echo '<div class="notice notice-error"><p>' . __('Please select a valid customer.', 'mhm-rentiva') . '</p></div>';
             });
             return;
         }
-        
+
         // Priority validation
         $valid_priorities = array_keys(MessagesSettings::get_priorities());
         if (!in_array($priority, $valid_priorities, true)) {
@@ -1058,7 +1060,7 @@ final class Messages
         $message_id = wp_insert_post($message_data);
 
         if (is_wp_error($message_id)) {
-            add_action('admin_notices', function() {
+            add_action('admin_notices', function () {
                 echo '<div class="notice notice-error"><p>' . __('Error occurred while creating message.', 'mhm-rentiva') . '</p></div>';
             });
             return;
@@ -1078,7 +1080,7 @@ final class Messages
         // Send email
         $admin_name = wp_get_current_user()->display_name;
         $admin_email = get_option('admin_email');
-        
+
         /* translators: 1: Site name, 2: Subject */
         $email_subject = sprintf(__('[%1$s] %2$s', 'mhm-rentiva'), get_bloginfo('name'), $subject);
         /* translators: 1: Customer name, 2: Message content, 3: Admin name, 4: Site name */
@@ -1100,7 +1102,7 @@ final class Messages
         wp_mail($customer_email, $email_subject, $email_message, $headers);
 
         // Success message
-        add_action('admin_notices', function() {
+        add_action('admin_notices', function () {
             echo '<div class="notice notice-success is-dismissible"><p>' . __('Message sent successfully.', 'mhm-rentiva') . '</p></div>';
         });
 
@@ -1122,7 +1124,7 @@ final class Messages
             return;
         }
 
-        if (!wp_verify_nonce($_POST['mhm_edit_message_nonce'], 'mhm_edit_message')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_edit_message_nonce'])), 'mhm_edit_message')) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
         }
 
@@ -1170,7 +1172,7 @@ final class Messages
         }
 
         // Success message
-        add_action('admin_notices', function() {
+        add_action('admin_notices', function () {
             echo '<div class="notice notice-success is-dismissible">';
             echo '<p>' . __('Message updated successfully.', 'mhm-rentiva') . '</p>';
             echo '</div>';
@@ -1178,7 +1180,7 @@ final class Messages
 
         // Clear cache again (before redirect)
         MessageCache::flush();
-        
+
         // Redirect
         wp_safe_redirect(MessageUrlHelper::get_messages_list_url_with_filters(['updated' => '1']));
         exit;
@@ -1213,7 +1215,7 @@ final class Messages
             'order' => 'DESC',
         ]);
 
-        ?>
+    ?>
         <div class="message-edit-form">
             <a href="<?php echo esc_url(MessageUrlHelper::get_messages_list_url()); ?>" class="button">
                 ← <?php _e('Back to Messages', 'mhm-rentiva'); ?>
@@ -1294,7 +1296,7 @@ final class Messages
                 </p>
             </form>
         </div>
-        <?php
+    <?php
     }
 
     /**
@@ -1307,14 +1309,14 @@ final class Messages
     public static function add_message_stats_cards(): void
     {
         global $pagenow;
-        
+
         // Show only on messages page
         if ($pagenow !== 'admin.php' || !isset($_GET['page']) || $_GET['page'] !== 'mhm-rentiva-messages') {
             return;
         }
-        
+
         // Add page title
-        ?>
+    ?>
         <div class="wrap">
             <h1 class="wp-heading-inline"><?php echo esc_html__('Messages', 'mhm-rentiva'); ?></h1>
             <a href="<?php echo esc_url(MessageUrlHelper::get_new_message_url()); ?>" class="page-title-action">
@@ -1322,10 +1324,10 @@ final class Messages
             </a>
             <hr class="wp-header-end">
         </div>
-        
+
         <?php
         $stats = self::get_message_stats();
-        
+
         ?>
         <div class="mhm-stats-cards">
             <div class="stats-grid">
@@ -1386,7 +1388,7 @@ final class Messages
                 </div>
             </div>
         </div>
-        <?php
+<?php
     }
 
     /**
@@ -1404,7 +1406,7 @@ final class Messages
     {
         // Load only on messages pages
         if (strpos($hook, 'mhm-rentiva-messages') !== false || strpos($hook, 'mhm-rentiva-messages-logs') !== false) {
-            
+
             // Admin Messages CSS
             wp_enqueue_style(
                 'mhm-messages-admin',
@@ -1412,7 +1414,7 @@ final class Messages
                 [],
                 MHM_RENTIVA_VERSION
             );
-            
+
             // Stats Cards CSS (Modular)
             wp_enqueue_style(
                 'mhm-stats-cards',
@@ -1420,25 +1422,25 @@ final class Messages
                 ['mhm-core-css'],
                 MHM_RENTIVA_VERSION
             );
-            
-                   // Messages Settings CSS and JS
-                   if (strpos($hook, 'mhm-rentiva-messages-settings') !== false) {
-                       wp_enqueue_style(
-                           'mhm-messages-settings',
-                           MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/messages-settings.css',
-                           [],
-                           MHM_RENTIVA_VERSION
-                       );
-                       
-                       wp_enqueue_script(
-                           'mhm-messages-settings',
-                           MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/messages-settings.js',
-                           ['jquery'],
-                           MHM_RENTIVA_VERSION,
-                           true
-                       );
-                   }
-            
+
+            // Messages Settings CSS and JS
+            if (strpos($hook, 'mhm-rentiva-messages-settings') !== false) {
+                wp_enqueue_style(
+                    'mhm-messages-settings',
+                    MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/messages-settings.css',
+                    [],
+                    MHM_RENTIVA_VERSION
+                );
+
+                wp_enqueue_script(
+                    'mhm-messages-settings',
+                    MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/messages-settings.js',
+                    ['jquery'],
+                    MHM_RENTIVA_VERSION,
+                    true
+                );
+            }
+
             // Monitoring CSS and JS
             if (strpos($hook, 'mhm-rentiva-messages-monitoring') !== false || strpos($hook, 'mhm-rentiva-messages-logs') !== false) {
                 wp_enqueue_style(
@@ -1447,7 +1449,7 @@ final class Messages
                     [],
                     MHM_RENTIVA_VERSION
                 );
-                
+
                 wp_enqueue_script(
                     'mhm-messages-monitoring',
                     MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/monitoring.js',
@@ -1455,7 +1457,7 @@ final class Messages
                     MHM_RENTIVA_VERSION,
                     true
                 );
-                
+
                 // Localize JavaScript variables
                 wp_localize_script('mhm-messages-monitoring', 'mhmMonitoring', [
                     'ajax_url' => MessageUrlHelper::get_ajax_url(),
@@ -1463,7 +1465,7 @@ final class Messages
                     'logs_url' => MessageUrlHelper::get_admin_page_url('mhm-rentiva-messages-logs')
                 ]);
             }
-            
+
             // Admin Messages JS
             wp_enqueue_script(
                 'mhm-messages-admin',
@@ -1472,7 +1474,7 @@ final class Messages
                 MHM_RENTIVA_VERSION,
                 true
             );
-            
+
             // Localize JavaScript variables
             wp_localize_script('mhm-messages-admin', 'mhmMessagesAdmin', [
                 'ajax_url' => MessageUrlHelper::get_ajax_url(),
@@ -1521,8 +1523,8 @@ final class Messages
         }
 
         $has_messages_shortcode = has_shortcode($post->post_content, 'rentiva_my_account') ||
-                                 has_shortcode($post->post_content, 'customer-messages') ||
-                                 strpos($post->post_content, 'customer-messages') !== false;
+            has_shortcode($post->post_content, 'customer-messages') ||
+            strpos($post->post_content, 'customer-messages') !== false;
 
         if (!$has_messages_shortcode) {
             return;
@@ -1535,7 +1537,7 @@ final class Messages
             [],
             MHM_RENTIVA_VERSION
         );
-        
+
         // Customer Messages Standalone CSS
         wp_enqueue_style(
             'mhm-customer-messages-standalone',
@@ -1543,7 +1545,7 @@ final class Messages
             [],
             MHM_RENTIVA_VERSION
         );
-        
+
         // Customer Messages JS (only for standalone customer-messages shortcode, not My Account)
         wp_enqueue_script(
             'mhm-customer-messages',
@@ -1552,7 +1554,7 @@ final class Messages
             MHM_RENTIVA_VERSION,
             true
         );
-        
+
         // Customer Messages Standalone JS
         wp_enqueue_script(
             'mhm-customer-messages-standalone',
@@ -1561,7 +1563,7 @@ final class Messages
             MHM_RENTIVA_VERSION,
             true
         );
-        
+
         // Localize JavaScript variables
         wp_localize_script('mhm-customer-messages', 'mhmCustomerMessages', [
             'ajax_url' => MessageUrlHelper::get_ajax_url(),

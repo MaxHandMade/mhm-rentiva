@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\MetaBoxes;
 
@@ -43,7 +45,7 @@ abstract class AbstractMetaBox
     {
         add_action('add_meta_boxes', [static::class, 'add_meta_boxes']);
         add_action('save_post', [static::class, 'save_meta'], 10, 2);
-        
+
         // Scripts yükleme (eğer varsa)
         if (method_exists(static::class, 'enqueue_scripts')) {
             add_action('admin_enqueue_scripts', [static::class, 'enqueue_scripts']);
@@ -56,10 +58,10 @@ abstract class AbstractMetaBox
     public static function add_meta_boxes(): void
     {
         $fields = static::get_fields();
-        
+
         foreach ($fields as $field_id => $field_config) {
             $config = static::get_meta_box_config($field_id, $field_config);
-            
+
             add_meta_box(
                 $config['id'],
                 $config['title'],
@@ -93,14 +95,14 @@ abstract class AbstractMetaBox
     {
         $meta_box_id = $args['id'] ?? static::get_meta_box_id();
         $fields = static::get_fields();
-        
+
         if (!isset($fields[$meta_box_id])) {
             return;
         }
 
         $field_config = $fields[$meta_box_id];
         $nonce_name = static::get_nonce_name($meta_box_id);
-        
+
         // Nonce field
         wp_nonce_field($nonce_name, $nonce_name);
 
@@ -192,7 +194,7 @@ abstract class AbstractMetaBox
     {
         $class = $field['class'] ?? 'regular-text';
         $placeholder = $field['placeholder'] ?? '';
-        
+
         echo '<input type="text" id="' . esc_attr($field_key) . '" name="' . esc_attr($field_key) . '" value="' . esc_attr($value) . '" class="' . esc_attr($class) . '" placeholder="' . esc_attr($placeholder) . '" />';
     }
 
@@ -205,13 +207,13 @@ abstract class AbstractMetaBox
         $max = $field['max'] ?? '';
         $step = $field['step'] ?? '';
         $class = $field['class'] ?? 'small-text';
-        
+
         echo '<input type="number" id="' . esc_attr($field_key) . '" name="' . esc_attr($field_key) . '" value="' . esc_attr($value) . '" class="' . esc_attr($class) . '"';
-        
+
         if ($min !== '') echo ' min="' . esc_attr($min) . '"';
         if ($max !== '') echo ' max="' . esc_attr($max) . '"';
         if ($step !== '') echo ' step="' . esc_attr($step) . '"';
-        
+
         echo ' />';
     }
 
@@ -221,7 +223,7 @@ abstract class AbstractMetaBox
     protected static function render_email_field(string $field_key, $value, array $field): void
     {
         $class = $field['class'] ?? 'regular-text';
-        
+
         echo '<input type="email" id="' . esc_attr($field_key) . '" name="' . esc_attr($field_key) . '" value="' . esc_attr($value) . '" class="' . esc_attr($class) . '" />';
     }
 
@@ -231,7 +233,7 @@ abstract class AbstractMetaBox
     protected static function render_url_field(string $field_key, $value, array $field): void
     {
         $class = $field['class'] ?? 'regular-text';
-        
+
         echo '<input type="url" id="' . esc_attr($field_key) . '" name="' . esc_attr($field_key) . '" value="' . esc_attr($value) . '" class="' . esc_attr($class) . '" />';
     }
 
@@ -243,7 +245,7 @@ abstract class AbstractMetaBox
         $rows = $field['rows'] ?? 4;
         $cols = $field['cols'] ?? 50;
         $class = $field['class'] ?? 'large-text';
-        
+
         echo '<textarea id="' . esc_attr($field_key) . '" name="' . esc_attr($field_key) . '" rows="' . esc_attr($rows) . '" cols="' . esc_attr($cols) . '" class="' . esc_attr($class) . '">' . esc_textarea($value) . '</textarea>';
     }
 
@@ -254,7 +256,7 @@ abstract class AbstractMetaBox
     {
         $label_text = $field['label_text'] ?? $field['label'] ?? '';
         $checked = checked($value, '1', false);
-        
+
         echo '<label>';
         echo '<input type="checkbox" id="' . esc_attr($field_key) . '" name="' . esc_attr($field_key) . '" value="1" ' . $checked . '> ';
         echo esc_html($label_text);
@@ -268,14 +270,14 @@ abstract class AbstractMetaBox
     {
         $options = $field['options'] ?? [];
         $class = $field['class'] ?? '';
-        
+
         echo '<select id="' . esc_attr($field_key) . '" name="' . esc_attr($field_key) . '" class="' . esc_attr($class) . '">';
-        
+
         foreach ($options as $option_value => $option_label) {
             $selected = selected($value, $option_value, false);
             echo '<option value="' . esc_attr($option_value) . '" ' . $selected . '>' . esc_html($option_label) . '</option>';
         }
-        
+
         echo '</select>';
     }
 
@@ -285,7 +287,7 @@ abstract class AbstractMetaBox
     protected static function render_radio_field(string $field_key, $value, array $field): void
     {
         $options = $field['options'] ?? [];
-        
+
         foreach ($options as $option_value => $option_label) {
             $checked = checked($value, $option_value, false);
             echo '<label>';
@@ -316,12 +318,12 @@ abstract class AbstractMetaBox
         }
 
         $fields = static::get_fields();
-        
+
         foreach ($fields as $meta_box_id => $field_config) {
             $nonce_name = static::get_nonce_name($meta_box_id);
-            
+
             // Nonce kontrolü
-            if (!isset($_POST[$nonce_name]) || !wp_verify_nonce($_POST[$nonce_name], $nonce_name)) {
+            if (!isset($_POST[$nonce_name]) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST[$nonce_name])), $nonce_name)) {
                 continue;
             }
 
@@ -393,7 +395,7 @@ abstract class AbstractMetaBox
         if ($value === null) {
             return '';
         }
-        
+
         switch ($field_type) {
             case 'email':
                 return sanitize_email((string) ($value ?: ''));

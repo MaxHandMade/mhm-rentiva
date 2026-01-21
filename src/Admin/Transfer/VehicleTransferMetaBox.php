@@ -137,7 +137,8 @@ final class VehicleTransferMetaBox
         }
 
         // Verify that the nonce is valid.
-        if (!wp_verify_nonce($_POST['mhm_vehicle_transfer_settings_nonce'], 'mhm_vehicle_transfer_settings_nonce')) {
+        $nonce = sanitize_text_field(wp_unslash($_POST['mhm_vehicle_transfer_settings_nonce']));
+        if (!wp_verify_nonce($nonce, 'mhm_vehicle_transfer_settings_nonce')) {
             return;
         }
 

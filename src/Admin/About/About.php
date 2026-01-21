@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\About;
 
@@ -42,12 +44,12 @@ final class About
         $GLOBALS['system_info'] = $system_info;
         $features = FeaturesTab::get_features_list();
         $changelog = SupportTab::get_changelog();
-        
+
 
         // Active tab
         $active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'general';
 
-        ?>
+?>
         <div class="wrap mhm-about-wrap">
             <div class="about-header">
                 <div class="header-content">
@@ -60,7 +62,7 @@ final class About
                     </div>
                 </div>
                 <div class="header-actions">
-                    <?php 
+                    <?php
                     $company_website = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_company_website();
                     $support_email = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_support_email();
                     ?>
@@ -79,23 +81,23 @@ final class About
 
             <div class="nav-tab-wrapper">
                 <a href="<?php echo esc_url(add_query_arg('tab', 'general')); ?>"
-                   class="nav-tab <?php echo $active_tab === 'general' ? 'nav-tab-active' : ''; ?>">
+                    class="nav-tab <?php echo $active_tab === 'general' ? 'nav-tab-active' : ''; ?>">
                     <?php _e('General Information', 'mhm-rentiva'); ?>
                 </a>
                 <a href="<?php echo esc_url(add_query_arg('tab', 'features')); ?>"
-                   class="nav-tab <?php echo $active_tab === 'features' ? 'nav-tab-active' : ''; ?>">
+                    class="nav-tab <?php echo $active_tab === 'features' ? 'nav-tab-active' : ''; ?>">
                     <?php _e('Features', 'mhm-rentiva'); ?>
                 </a>
                 <a href="<?php echo esc_url(add_query_arg('tab', 'system')); ?>"
-                   class="nav-tab <?php echo $active_tab === 'system' ? 'nav-tab-active' : ''; ?>">
+                    class="nav-tab <?php echo $active_tab === 'system' ? 'nav-tab-active' : ''; ?>">
                     <?php _e('System Information', 'mhm-rentiva'); ?>
                 </a>
                 <a href="<?php echo esc_url(add_query_arg('tab', 'support')); ?>"
-                   class="nav-tab <?php echo $active_tab === 'support' ? 'nav-tab-active' : ''; ?>">
+                    class="nav-tab <?php echo $active_tab === 'support' ? 'nav-tab-active' : ''; ?>">
                     <?php _e('Support', 'mhm-rentiva'); ?>
                 </a>
                 <a href="<?php echo esc_url(add_query_arg('tab', 'developer')); ?>"
-                   class="nav-tab <?php echo $active_tab === 'developer' ? 'nav-tab-active' : ''; ?>">
+                    class="nav-tab <?php echo $active_tab === 'developer' ? 'nav-tab-active' : ''; ?>">
                     <?php _e('Developer', 'mhm-rentiva'); ?>
                 </a>
             </div>
@@ -106,7 +108,7 @@ final class About
                 ?>
             </div>
         </div>
-        <?php
+<?php
     }
 
     /**
@@ -173,7 +175,7 @@ final class About
     public static function ajax_load_tab(): void
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mhm_about_admin')) {
+        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_about_admin')) {
             wp_send_json_error(['message' => __('Security error', 'mhm-rentiva')]);
             return;
         }
@@ -185,7 +187,7 @@ final class About
         }
 
         $tab = sanitize_key($_POST['tab'] ?? '');
-        
+
         if (empty($tab)) {
             wp_send_json_error(['message' => __('Invalid tab', 'mhm-rentiva')]);
             return;
@@ -210,10 +212,9 @@ final class About
             self::render_tab_content($tab, $system_info, $features, $changelog);
 
             $content = ob_get_clean();
-            
+
             wp_send_json_success(['content' => $content]);
-            
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             ob_end_clean();
             wp_send_json_error(['message' => $e->getMessage()]);
         }

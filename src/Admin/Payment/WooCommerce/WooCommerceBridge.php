@@ -1185,7 +1185,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface
             return;
         }
 
-        $payment_type = sanitize_text_field($_POST['mhm_booking_payment_type']);
+        $payment_type = sanitize_text_field(wp_unslash($_POST['mhm_booking_payment_type']));
 
         // Always save to order meta
         update_post_meta($order_id, '_mhm_wc_payment_type', $payment_type);
@@ -1222,7 +1222,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface
     {
         check_ajax_referer('mhm_booking_payment_type', 'nonce');
 
-        $payment_type = sanitize_text_field($_POST['payment_type'] ?? 'deposit');
+        $payment_type = isset($_POST['payment_type']) ? sanitize_text_field(wp_unslash($_POST['payment_type'])) : 'deposit';
 
         /** @var mixed $cart */
         $cart = (function_exists('WC') && isset(\WC()->cart)) ? \WC()->cart : null;
