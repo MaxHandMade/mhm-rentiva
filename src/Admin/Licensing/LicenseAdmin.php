@@ -397,29 +397,7 @@ final class LicenseAdmin
     {
         echo '<h2>' . esc_html__('Lite vs Pro Comparison', 'mhm-rentiva') . '</h2>';
 
-        $features = [
-            __('Maximum Vehicle Count', 'mhm-rentiva') => ['Lite: 3', 'Pro: Unlimited'],
-            __('Maximum Bookings', 'mhm-rentiva') => ['Lite: 50', 'Pro: Unlimited'],
-            __('Maximum Customers', 'mhm-rentiva') => ['Lite: 3', 'Pro: Unlimited'],
-            __('Payment Gateways', 'mhm-rentiva') => ['Lite: Offline + WooCommerce', 'Pro: Offline + WooCommerce'],
-            __('Report Range', 'mhm-rentiva') => ['Lite: 30 days', 'Pro: Unlimited'],
-            __('Export Feature', 'mhm-rentiva') => ['Lite: ❌', 'Pro: ✅'],
-            __('Messaging System', 'mhm-rentiva') => ['Lite: ❌', 'Pro: ✅'],
-        ];
-
-        echo '<table class="widefat">';
-        echo '<thead><tr><th>' . esc_html__('Feature', 'mhm-rentiva') . '</th><th>' . esc_html__('Lite', 'mhm-rentiva') . '</th><th>' . esc_html__('Pro', 'mhm-rentiva') . '</th></tr></thead>';
-        echo '<tbody>';
-
-        foreach ($features as $feature => $values) {
-            echo '<tr>';
-            echo '<td><strong>' . esc_html($feature) . '</strong></td>';
-            echo '<td>' . esc_html($values[0]) . '</td>';
-            echo '<td>' . esc_html($values[1]) . '</td>';
-            echo '</tr>';
-        }
-
-        echo '</tbody>';
-        echo '</table>';
+        // Use centralized comparison table from Mode class
+        Mode::render_comparison_table(true); // compact mode for License page
     }
 }
