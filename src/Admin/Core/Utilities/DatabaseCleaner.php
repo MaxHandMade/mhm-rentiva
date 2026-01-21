@@ -425,6 +425,10 @@ final class DatabaseCleaner
         global $wpdb;
 
         $tables = [
+            'payment_log' => $wpdb->prefix . 'mhm_payment_log',
+            'sessions' => $wpdb->prefix . 'mhm_sessions',
+            'transfer_routes' => $wpdb->prefix . 'mhm_rentiva_transfer_routes',
+            'transfer_locations' => $wpdb->prefix . 'mhm_rentiva_transfer_locations',
             'queue' => $wpdb->prefix . 'mhm_rentiva_queue',
             'ratings' => $wpdb->prefix . 'mhm_rentiva_ratings',
             'report_queue' => $wpdb->prefix . 'mhm_rentiva_report_queue',
@@ -910,6 +914,9 @@ final class DatabaseCleaner
                                     <span class="dashicons dashicons-yes-alt" style="color: green;"></span>
                                 <?php else: ?>
                                     <span class="dashicons dashicons-dismiss" style="color: red;"></span>
+                                    <button type="button" class="button button-small mhm-repair-table-btn" data-table="<?php echo esc_attr($key); ?>" style="margin-left: 5px;">
+                                        <?php esc_html_e('Repair/Create', 'mhm-rentiva'); ?>
+                                    </button>
                                 <?php endif; ?>
                             </td>
                             <td><?php echo esc_html($stats['rows'] ?? '-'); ?></td>
@@ -917,6 +924,43 @@ final class DatabaseCleaner
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
+            </table>
+
+            <script>
+                jQuery(document).ready(function($) {
+                    $('.mhm-repair-table-btn').on('click', function() {
+                        var btn = $(this);
+                        var table = btn.data('table');
+                        var originalText = btn.text();
+
+                        if (!confirm('<?php echo esc_js(__('Are you sure you want to attempt to create/repair this table?', 'mhm-rentiva')); ?>')) {
+                            return;
+                        }
+
+                        btn.prop('disabled', true).text('Processing...');
+
+                        $.post(mhm_db_cleanup_vars.ajaxurl || ajaxurl, {
+                            action: 'mhm_repair_table',
+                            nonce: mhm_db_cleanup_vars.nonce,
+                            table_name: table
+                        }, function(response) {
+                            if (response.success) {
+                                alert(response.data.message);
+                                // Trigger analysis again to refresh the list
+                                $('#mhm-analyze-db-btn').click();
+                            } else {
+                                alert(response.data || 'Error occurred');
+                                btn.prop('disabled', false).text(originalText);
+                            }
+                        }).fail(function() {
+                            alert('Request failed');
+                            btn.prop('disabled', false).text(originalText);
+                        });
+                    });
+                });
+            </script>
+
+            </tbody>
             </table>
         </div>
     <?php

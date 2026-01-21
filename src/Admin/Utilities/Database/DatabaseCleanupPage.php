@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Utilities\Database;
 
@@ -8,9 +10,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-    /**
-     * ✅ STAGE 3 - Database Cleanup Admin Page
-     */
+/**
+ * ✅ STAGE 3 - Database Cleanup Admin Page
+ */
 final class DatabaseCleanupPage
 {
     public static function register(): void
@@ -34,6 +36,7 @@ final class DatabaseCleanupPage
         add_action('wp_ajax_mhm_download_full_backup', [self::class, 'ajax_download_full_backup']);
         add_action('wp_ajax_mhm_restore_full_backup', [self::class, 'ajax_restore_full_backup']);
         add_action('wp_ajax_mhm_delete_full_backup', [self::class, 'ajax_delete_full_backup']);
+        add_action('wp_ajax_mhm_repair_table', [self::class, 'ajax_repair_table']);
     }
 
     /**
@@ -48,7 +51,7 @@ final class DatabaseCleanupPage
         if (!$screen || strpos($screen->id, 'mhm-rentiva-settings') === false) {
             return;
         }
-        
+
         // Only enqueue if database-cleanup tab is active
         $current_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : '';
         if ($current_tab !== 'database-cleanup') {
@@ -96,9 +99,9 @@ final class DatabaseCleanupPage
             wp_die(esc_html__('You do not have permission to access this page.', 'mhm-rentiva'));
         }
 
-        ?>
+?>
         <div class="wrap">
-            <h1><?php esc_html_e('Database Cleanup & Optimization', 'mhm-rentiva'); ?></h1>
+            <h1><?php esc_html_e('Database Management & Optimization', 'mhm-rentiva'); ?></h1>
 
             <div class="notice notice-warning">
                 <p>
@@ -114,7 +117,7 @@ final class DatabaseCleanupPage
 
             <div id="mhm-cleanup-results" style="margin-top: 20px;"></div>
         </div>
-        <?php
+<?php
     }
 
 
@@ -125,14 +128,14 @@ final class DatabaseCleanupPage
     public static function ajax_analyze(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $analysis = DatabaseCleaner::analyze_database();
         $html = DatabaseCleaner::render_cleanup_report($analysis);
-        
+
         wp_send_json_success([
             'html' => $html,
             'analysis' => $analysis
@@ -145,13 +148,13 @@ final class DatabaseCleanupPage
     public static function ajax_cleanup_orphaned(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $result = DatabaseCleaner::cleanup_orphaned_postmeta(false); // Execute cleanup
-        
+
         wp_send_json_success([
             'message' => sprintf(
                 /* translators: 1: %1$d; 2: %2$s. */
@@ -169,13 +172,13 @@ final class DatabaseCleanupPage
     public static function ajax_cleanup_transients(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $result = DatabaseCleaner::cleanup_expired_transients(false); // Execute cleanup
-        
+
         wp_send_json_success([
             'message' => sprintf(
                 /* translators: %1$d placeholder. */
@@ -192,13 +195,13 @@ final class DatabaseCleanupPage
     public static function ajax_optimize_autoload(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $result = DatabaseCleaner::optimize_autoload_options(false); // Execute optimization
-        
+
         wp_send_json_success([
             'message' => sprintf(
                 /* translators: 1: %1$d; 2: %2$s. */
@@ -216,15 +219,15 @@ final class DatabaseCleanupPage
     public static function ajax_optimize_tables(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $result = DatabaseCleaner::optimize_tables();
-        
+
         $total_time = array_sum(array_column($result, 'execution_time_ms'));
-        
+
         wp_send_json_success([
             'message' => sprintf(
                 /* translators: 1: %1$d; 2: %2$.2f. */
@@ -242,13 +245,13 @@ final class DatabaseCleanupPage
     public static function ajax_cleanup_invalid_meta(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $result = DatabaseCleaner::cleanup_invalid_meta_keys(false); // Execute cleanup
-        
+
         wp_send_json_success([
             'message' => sprintf(
                 /* translators: 1: %1$d; 2: %2$s. */
@@ -266,13 +269,13 @@ final class DatabaseCleanupPage
     public static function ajax_list_backups(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $backups = DatabaseCleaner::list_backups();
-        
+
         wp_send_json_success([
             'backups' => $backups,
             'count' => count($backups)
@@ -285,28 +288,28 @@ final class DatabaseCleanupPage
     public static function ajax_download_backup(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $table_name = isset($_POST['table_name']) ? sanitize_text_field(wp_unslash($_POST['table_name'])) : '';
-        
+
         if (empty($table_name)) {
             wp_die(esc_html__('Backup table name required', 'mhm-rentiva'));
         }
-        
+
         $sql = DatabaseCleaner::export_backup_to_sql($table_name);
-        
+
         if (empty($sql)) {
             wp_die(esc_html__('Failed to generate SQL export', 'mhm-rentiva'));
         }
-        
+
         // Send file
         header('Content-Type: application/sql');
         header('Content-Disposition: attachment; filename="' . esc_attr($table_name) . '.sql"');
         header('Content-Length: ' . strlen($sql));
-        
+
         echo $sql; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         exit;
     }
@@ -317,19 +320,19 @@ final class DatabaseCleanupPage
     public static function ajax_restore_backup(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $table_name = isset($_POST['table_name']) ? sanitize_text_field(wp_unslash($_POST['table_name'])) : '';
-        
+
         if (empty($table_name)) {
             wp_send_json_error(esc_html__('Backup table name required', 'mhm-rentiva'));
         }
-        
+
         $result = DatabaseCleaner::restore_backup($table_name);
-        
+
         if ($result['success']) {
             wp_send_json_success([
                 'message' => $result['message'],
@@ -347,19 +350,19 @@ final class DatabaseCleanupPage
     public static function ajax_delete_backup(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $table_name = isset($_POST['table_name']) ? sanitize_text_field(wp_unslash($_POST['table_name'])) : '';
-        
+
         if (empty($table_name)) {
             wp_send_json_error(esc_html__('Backup table name required', 'mhm-rentiva'));
         }
-        
+
         $result = DatabaseCleaner::delete_backup($table_name);
-        
+
         if ($result['success']) {
             wp_send_json_success([
                 'message' => $result['message']
@@ -375,13 +378,13 @@ final class DatabaseCleanupPage
     public static function ajax_create_full_backup(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $result = DatabaseCleaner::create_full_backup();
-        
+
         if ($result['success']) {
             wp_send_json_success([
                 'message' => $result['message'],
@@ -402,13 +405,13 @@ final class DatabaseCleanupPage
     public static function ajax_list_full_backups(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $backups = DatabaseCleaner::list_full_backups();
-        
+
         wp_send_json_success([
             'backups' => $backups,
             'count' => count($backups)
@@ -421,28 +424,28 @@ final class DatabaseCleanupPage
     public static function ajax_download_full_backup(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $file_path = isset($_POST['file_path']) ? sanitize_text_field(wp_unslash($_POST['file_path'])) : '';
-        
+
         if (empty($file_path) || !file_exists($file_path)) {
             wp_die(esc_html__('Backup file not found', 'mhm-rentiva'));
         }
-        
+
         // Verify it's in backup directory
         $backup_dir = WP_CONTENT_DIR . '/mhm-rentiva-backups';
         if (strpos(realpath($file_path), realpath($backup_dir)) !== 0) {
             wp_die(esc_html__('Invalid backup file path', 'mhm-rentiva'));
         }
-        
+
         // Send file
         header('Content-Type: application/sql');
         header('Content-Disposition: attachment; filename="' . esc_attr(basename($file_path)) . '"');
         header('Content-Length: ' . filesize($file_path));
-        
+
         readfile($file_path); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_readfile
         exit;
     }
@@ -453,25 +456,25 @@ final class DatabaseCleanupPage
     public static function ajax_restore_full_backup(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $file_path = isset($_POST['file_path']) ? sanitize_text_field(wp_unslash($_POST['file_path'])) : '';
-        
+
         if (empty($file_path)) {
             wp_send_json_error(esc_html__('Backup file path required', 'mhm-rentiva'));
         }
-        
+
         // Verify it's in backup directory
         $backup_dir = WP_CONTENT_DIR . '/mhm-rentiva-backups';
         if (strpos(realpath($file_path), realpath($backup_dir)) !== 0) {
             wp_send_json_error(esc_html__('Invalid backup file path', 'mhm-rentiva'));
         }
-        
+
         $result = DatabaseCleaner::restore_full_backup($file_path);
-        
+
         if ($result['success']) {
             wp_send_json_success([
                 'message' => $result['message'],
@@ -488,25 +491,54 @@ final class DatabaseCleanupPage
     public static function ajax_delete_full_backup(): void
     {
         check_ajax_referer('mhm_db_cleanup', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
         }
-        
+
         $backup_name = isset($_POST['backup_name']) ? sanitize_text_field(wp_unslash($_POST['backup_name'])) : '';
-        
+
         if (empty($backup_name)) {
             wp_send_json_error(esc_html__('Backup name required', 'mhm-rentiva'));
         }
-        
+
         $result = DatabaseCleaner::delete_full_backup($backup_name);
-        
+
         if ($result['success']) {
             wp_send_json_success([
                 'message' => $result['message']
             ]);
         } else {
             wp_send_json_error($result['message'] ?? esc_html__('Failed to delete backup', 'mhm-rentiva'));
+        }
+    }
+
+    /**
+     * AJAX - Repair table
+     */
+    public static function ajax_repair_table(): void
+    {
+        check_ajax_referer('mhm_db_cleanup', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
+        }
+
+        $table_name = isset($_POST['table_name']) ? sanitize_text_field(wp_unslash($_POST['table_name'])) : '';
+
+        if (empty($table_name)) {
+            wp_send_json_error(esc_html__('Table name required', 'mhm-rentiva'));
+        }
+
+        // Use DatabaseMigrator to create the table
+        $success = \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::create_table($table_name);
+
+        if ($success) {
+            wp_send_json_success([
+                'message' => esc_html__('Table repaired successfully', 'mhm-rentiva')
+            ]);
+        } else {
+            wp_send_json_error(esc_html__('Failed to repair table or table definition not found', 'mhm-rentiva'));
         }
     }
 }

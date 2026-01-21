@@ -67,7 +67,7 @@ final class About
                     $support_email = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_support_email();
                     ?>
                     <?php echo Helpers::render_external_link(
-                        $company_website,
+                        'https://maxhandmade.github.io/mhm-rentiva-docs/',
                         __('Documentation', 'mhm-rentiva'),
                         ['class' => 'button button-secondary']
                     ); ?>

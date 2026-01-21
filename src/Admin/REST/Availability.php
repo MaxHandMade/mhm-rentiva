@@ -21,9 +21,15 @@ final class Availability
     /**
      * Permission callback - Security check with rate limiting
      */
-    public static function permission_check(): bool
+    public static function permission_check(\WP_REST_Request $request): bool
     {
-        // Rate limiting check
+        // 1. Security Check (HTTPS, IP blocking, etc.)
+        $auth_check = \MHMRentiva\Admin\REST\Helpers\AuthHelper::verifyAuth($request);
+        if (is_wp_error($auth_check)) {
+            return false;
+        }
+
+        // 2. Rate limiting check
         $client_ip = \MHMRentiva\Admin\Core\Utilities\RateLimiter::getClientIP();
         return \MHMRentiva\Admin\Core\Utilities\RateLimiter::check($client_ip, 'general');
     }

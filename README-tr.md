@@ -526,16 +526,21 @@ Eklenti shortcode'lar için sayfaları otomatik olarak oluşturur veya manuel ol
 
 ## 🔌 REST API Dokümantasyonu
 
-### Base URL
+### Temel URL (Base URL)
 
 ```
 /wp-json/mhm-rentiva/v1
 ```
 
-### Kimlik Doğrulama
+### Kimlik Doğrulama ve Güvenlik
 
-REST API, API anahtarları ile kimlik doğrulama gerektirir. API anahtarlarını şuradan oluşturun:
-**Rentiva > Settings > Integration > REST API > API Keys**
+REST API; **API Anahtarları**, **IP Kısıtlama** ve **Hız Sınırlama (Rate Limiting)** ile korunmaktadır.
+
+1.  **API Anahtarları:** `Rentiva > Ayarlar > Entegrasyon` menüsünden oluşturulabilir.
+2.  **Hız Sınırlama:** Varsayılan limit dakikada 60 istektir. Aşım durumunda `429 Too Many Requests` hatası döner.
+3.  **IP Kısıtlama:** Ayarlardan belirli IP'leri engelleyebilir veya sadece belirli IP'lere izin verebilirsiniz.
+
+Detaylı teknik dokümantasyon için: [Developer Docs (İngilizce)](https://maxhandmade.github.io/mhm-rentiva-docs/docs/developer/rest-api)
 
 ### Mevcut Endpoint'ler
 

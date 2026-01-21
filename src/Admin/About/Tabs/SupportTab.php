@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\About\Tabs;
 
@@ -60,26 +62,26 @@ final class SupportTab extends AbstractTab
     public static function render_support_cards(array $section, array $data = []): void
     {
         echo '<div class="support-grid">';
-        
+
         // Documentation card
         $company_website = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_company_website();
-        
+
         echo '<div class="support-card">';
         echo '<h3>' . __('Documentation', 'mhm-rentiva') . '</h3>';
         echo '<p>' . __('Detailed user guides, video tutorials and API documentation.', 'mhm-rentiva') . '</p>';
         echo '<div class="support-links">';
         echo Helpers::render_external_link(
-            $company_website,
+            'https://maxhandmade.github.io/mhm-rentiva-docs/',
             __('User Guide', 'mhm-rentiva'),
             ['class' => 'button button-secondary']
         );
         echo Helpers::render_external_link(
-            $company_website,
+            'https://maxhandmade.github.io/mhm-rentiva-docs/docs/developer/rest-api/',
             __('API Documentation', 'mhm-rentiva'),
             ['class' => 'button button-secondary']
         );
         echo Helpers::render_external_link(
-            $company_website,
+            'https://www.youtube.com/channel/UC3qBE6ZCCEc8ugFUYXwtcpA',
             __('Video Tutorials', 'mhm-rentiva'),
             ['class' => 'button button-secondary']
         );
@@ -87,18 +89,18 @@ final class SupportTab extends AbstractTab
         echo '</div>';
 
         $support_email = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_support_email();
-        
+
         // Support channels card
         echo '<div class="support-card">';
         echo '<h3>' . __('Support Channels', 'mhm-rentiva') . '</h3>';
         echo '<p>' . __('Contact us for your questions.', 'mhm-rentiva') . '</p>';
         echo '<div class="support-links">';
         echo Helpers::render_external_link(
-            'mailto:' . $support_email,
+            'https://maxhandmade.com/iletisim/',
             __('Contact Form', 'mhm-rentiva'),
             ['class' => 'button button-primary']
         );
-        
+
         if (Mode::isPro()) {
             echo Helpers::render_external_link(
                 'mailto:' . $support_email,
@@ -106,7 +108,7 @@ final class SupportTab extends AbstractTab
                 ['class' => 'button button-secondary']
             );
         }
-        
+
         echo '<div class="contact-info">';
         echo '<p><strong>' . __('Email:', 'mhm-rentiva') . '</strong> ' . esc_html($support_email) . '</p>';
         $phone_number = apply_filters('mhm_rentiva_contact_phone', __('+90 538 556 4158', 'mhm-rentiva'));
@@ -121,20 +123,13 @@ final class SupportTab extends AbstractTab
         echo '<p>' . __('Share your experiences with other users.', 'mhm-rentiva') . '</p>';
         echo '<div class="support-links">';
         echo Helpers::render_external_link(
-            $company_website,
-            __('Forum', 'mhm-rentiva'),
-            ['class' => 'button button-secondary']
-        );
-        
-        $facebook_group_url = apply_filters('mhm_rentiva_facebook_group_url', $company_website . '/community');
-        echo Helpers::render_external_link(
-            $facebook_group_url,
-            __('Facebook Group', 'mhm-rentiva'),
-            ['class' => 'button button-secondary']
+            'https://wordpress.org/support/plugin/mhm-rentiva',
+            __('WordPress Support Forum', 'mhm-rentiva'),
+            ['class' => 'button button-secondary dashicons-before dashicons-wordpress']
         );
         echo '</div>';
         echo '</div>';
-        
+
         echo '</div>';
     }
 
@@ -144,9 +139,9 @@ final class SupportTab extends AbstractTab
     public static function render_changelog(array $section, array $data = []): void
     {
         $changelog = self::get_changelog();
-        
+
         echo '<div class="changelog-list">';
-        
+
         if (!empty($changelog)) {
             foreach ($changelog as $release) {
                 echo '<div class="changelog-item ' . esc_attr($release['type'] ?? '') . '">';
@@ -154,20 +149,20 @@ final class SupportTab extends AbstractTab
                 echo '<div class="version-info">';
                 echo '<strong>v' . esc_html($release['version']) . '</strong>';
                 echo '<span class="release-date">' . esc_html($release['date']) . '</span>';
-                
+
                 if (($release['type'] ?? '') === 'current') {
                     echo '<span class="current-badge">' . __('Current Version', 'mhm-rentiva') . '</span>';
                 }
-                
+
                 echo '</div>';
                 echo '</div>';
                 echo '<div class="changelog-content">';
                 echo '<ul>';
-                
+
                 foreach ($release['changes'] as $change) {
                     echo '<li>' . esc_html($change) . '</li>';
                 }
-                
+
                 echo '</ul>';
                 echo '</div>';
                 echo '</div>';
@@ -175,7 +170,7 @@ final class SupportTab extends AbstractTab
         } else {
             echo '<p>' . __('Version history information not found.', 'mhm-rentiva') . '</p>';
         }
-        
+
         echo '</div>';
     }
 
@@ -186,19 +181,19 @@ final class SupportTab extends AbstractTab
     {
         // Detect current WordPress locale
         $locale = get_locale();
-        
+
         // Use Turkish changelog if locale is Turkish
         $changelog_filename = 'changelog.json';
         if (strpos($locale, 'tr_') === 0) {
             $changelog_filename = 'changelog-tr.json';
         }
-        
+
         $changelog_file = MHM_RENTIVA_PLUGIN_DIR . $changelog_filename;
 
         if (!file_exists($changelog_file)) {
             // Fallback to default changelog.json if localized version doesn't exist
             $changelog_file = MHM_RENTIVA_PLUGIN_DIR . 'changelog.json';
-            
+
             if (!file_exists($changelog_file)) {
                 return self::get_default_changelog();
             }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Licensing;
 
@@ -111,16 +113,16 @@ final class LicenseManager
         $o = $this->get();
         $has_license_key = !empty($o['key']);
         $has_activation_id = !empty($o['activation_id']);
-        
+
         // BUG FIX: If there's a license key but no activation_id, license is not truly active
         // This means the license was never successfully activated on the server
         if ($has_license_key && !$has_activation_id) {
             return false; // License key exists but not activated on server
         }
-        
+
         // Check if developer mode is manually disabled
         $disable_dev_mode = get_option('mhm_rentiva_disable_dev_mode', false);
-        
+
         // Only automatic developer mode (secure) - unless manually disabled
         // Developer mode should only work if there's NO real license key
         if (!$disable_dev_mode && $this->isDevelopmentEnvironment() && !$has_license_key) {
@@ -132,21 +134,21 @@ final class LicenseManager
         if ($has_license_key) {
             $cache_key = 'mhm_rentiva_license_status_' . md5($o['key'] . $o['activation_id']);
             $cached_status = get_transient($cache_key);
-            
+
             if ($cached_status !== false) {
                 // Use cached status (30 seconds)
                 return (bool) $cached_status;
             }
-            
+
             // Validate with server immediately
             // Use transient lock to prevent multiple simultaneous validations
             $validation_transient = 'mhm_rentiva_license_validating';
             if (!get_transient($validation_transient)) {
                 set_transient($validation_transient, true, 10); // Lock for 10 seconds
-                
+
                 // Validate synchronously to get immediate result
                 $this->validate();
-                
+
                 // Refresh license data after validation
                 $o = $this->get();
                 delete_transient($validation_transient);
@@ -154,7 +156,7 @@ final class LicenseManager
                 // Another validation is in progress, use current data
                 $o = $this->get();
             }
-            
+
             // Check status after validation
             $is_active = false;
             if (($o['status'] ?? '') === 'active') {
@@ -165,13 +167,13 @@ final class LicenseManager
                     $is_active = !empty($o['activation_id']);
                 }
             }
-            
+
             // Cache result for 30 seconds to prevent excessive API calls
             set_transient($cache_key, $is_active ? 1 : 0, 30);
-            
+
             return $is_active;
         }
-        
+
         return false; // No license key, not active
     }
 
@@ -258,21 +260,21 @@ final class LicenseManager
         $o = $this->get();
         $key = $o['key'] ?? '';
         $activation_id = $o['activation_id'] ?? '';
-        
+
         // Send deactivation request to license server
         if ($key !== '' && $activation_id !== '') {
             $result = $this->request('/licenses/deactivate', [
                 'license_key'   => $key,
                 'activation_id' => $activation_id,
             ]);
-            
+
             // If server request fails, log but still clear local data
             if (is_wp_error($result)) {
                 // Log error but continue with local deactivation
                 error_log('License deactivation server request failed: ' . $result->get_error_message());
             }
         }
-        
+
         // Always clear local license data
         $this->save([]);
         return true;
@@ -302,7 +304,7 @@ final class LicenseManager
             $o['status'] = 'inactive';
             $o['last_check_at'] = time();
             $this->save($o);
-            
+
             // Don't return error if called from isActive() (silent validation)
             $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
             $called_from_isactive = false;
@@ -312,11 +314,11 @@ final class LicenseManager
                     break;
                 }
             }
-            
+
             if (!$called_from_isactive) {
                 return $resp;
             }
-            
+
             return false; // Silent failure for isActive() calls
         }
 
@@ -328,7 +330,7 @@ final class LicenseManager
             $o['status'] = 'inactive';
             $o['last_check_at'] = time();
             $this->save($o);
-            
+
             // Don't return error if called from isActive() (silent validation)
             // Only return error if explicitly called for validation
             $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
@@ -339,11 +341,11 @@ final class LicenseManager
                     break;
                 }
             }
-            
+
             if (!$called_from_isactive) {
                 return new WP_Error('license_inactive', __('License is not active on this site.', 'mhm-rentiva'));
             }
-            
+
             return false; // Silent failure for isActive() calls
         }
 
@@ -373,7 +375,7 @@ final class LicenseManager
      */
     private function request(string $path, array $body)
     {
-        $base = defined('MHM_RENTIVA_LICENSE_API_BASE') ? MHM_RENTIVA_LICENSE_API_BASE : 'http://localhost/maxhandmade/wp-json/mhm-license/v1';
+        $base = defined('MHM_RENTIVA_LICENSE_API_BASE') ? constant('MHM_RENTIVA_LICENSE_API_BASE') : 'http://localhost/maxhandmade/wp-json/mhm-license/v1';
         $url  = rtrim($base, '/') . $path;
         $args = [
             'headers' => [
@@ -390,16 +392,16 @@ final class LicenseManager
             /* translators: %s placeholder. */
             return new WP_Error('license_connection', sprintf(__('Could not connect to license server: %s', 'mhm-rentiva'), $r->get_error_message()));
         }
-        
+
         $code = wp_remote_retrieve_response_code($r);
         $body_content = wp_remote_retrieve_body($r);
         $json = json_decode($body_content, true);
-        
+
         // Handle error responses (400, 500, etc.)
         if ($code >= 400) {
             $error_code = 'license_http';
             $error_message = __('License server error.', 'mhm-rentiva');
-            
+
             if (is_array($json)) {
                 // Extract error details from API response
                 $error_code = $json['error'] ?? $error_code;
@@ -409,15 +411,15 @@ final class LicenseManager
                 /* translators: 1: %d; 2: %s. */
                 $error_message = sprintf(__('License server returned error (HTTP %1$d): %2$s', 'mhm-rentiva'), $code, substr($body_content, 0, 200));
             }
-            
+
             return new WP_Error($error_code, $error_message);
         }
-        
+
         // Handle success responses (200-299)
         if ($code >= 200 && $code < 300 && is_array($json)) {
             return $json;
         }
-        
+
         // Fallback for unexpected responses
         /* translators: %d placeholder. */
         return new WP_Error('license_http', sprintf(__('Unexpected response from license server (HTTP %d).', 'mhm-rentiva'), $code));
@@ -465,12 +467,12 @@ final class LicenseManager
         // 1. Host check (localhost, .local, .dev, .test, .staging)
         $host = wp_parse_url(home_url(), PHP_URL_HOST) ?: '';
         $dev_domains = ['.local', '.test', '.dev', '.staging'];
-        
+
         // localhost check
         if (in_array($host, ['localhost', '127.0.0.1', '::1'], true)) {
             return true;
         }
-        
+
         // Local domain check
         foreach ($dev_domains as $domain) {
             if (str_ends_with($host, $domain)) {
@@ -481,10 +483,12 @@ final class LicenseManager
         // 2. Local servers like XAMPP, WAMP, MAMP (only with localhost)
         if (in_array($host, ['localhost', '127.0.0.1'], true)) {
             $server_software = $_SERVER['SERVER_SOFTWARE'] ?? '';
-            if (stripos($server_software, 'xampp') !== false ||
+            if (
+                stripos($server_software, 'xampp') !== false ||
                 stripos($server_software, 'wamp') !== false ||
                 stripos($server_software, 'mamp') !== false ||
-                stripos($server_software, 'lamp') !== false) {
+                stripos($server_software, 'lamp') !== false
+            ) {
                 return true;
             }
         }
@@ -503,8 +507,10 @@ final class LicenseManager
         }
 
         // 5. WordPress development environment (only with localhost)
-        if (in_array($host, ['localhost', '127.0.0.1'], true) && 
-            defined('WP_ENV') && in_array(WP_ENV, ['development', 'dev', 'local'], true)) {
+        if (
+            in_array($host, ['localhost', '127.0.0.1'], true) &&
+            defined('WP_ENV') && in_array(constant('WP_ENV'), ['development', 'dev', 'local'], true)
+        ) {
             return true;
         }
 
@@ -531,7 +537,7 @@ final class LicenseManager
         if (!current_user_can('manage_options')) {
             return;
         }
-        
+
         if ($n = get_transient('mhm_license_notice')) {
             delete_transient('mhm_license_notice');
             $class = $n[0] === 'success' ? 'notice-success' : 'notice-error';
@@ -542,5 +548,26 @@ final class LicenseManager
         if (($o['status'] ?? '') === 'active' && !empty($o['expires_at']) && ((int) $o['expires_at'] - time()) < 14 * DAY_IN_SECONDS) {
             echo '<div class="notice notice-warning"><p>' . esc_html__('Your Rentiva license will expire soon. Please renew for Pro features and updates.', 'mhm-rentiva') . '</p></div>';
         }
+    }
+    /**
+     * Get license expiry date formatted
+     * 
+     * @param string $format Date format
+     * @return string Formatted date or 'Lifetime'
+     */
+    public function getExpiryDate(string $format = 'd.m.Y'): string
+    {
+        if (!$this->isActive()) {
+            return '-';
+        }
+
+        $o = $this->get();
+        $expires_at = $o['expires_at'] ?? null;
+
+        if (empty($expires_at)) {
+            return __('Lifetime', 'mhm-rentiva');
+        }
+
+        return date_i18n($format, (int) $expires_at);
     }
 }

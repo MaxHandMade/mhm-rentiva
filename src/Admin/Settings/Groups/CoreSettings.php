@@ -19,15 +19,7 @@ class CoreSettings
     public static function get_default_settings(): array
     {
         return [
-            // Rate Limiting
-            'mhm_rentiva_rate_limit_enabled'                => '1',
-            'mhm_rentiva_rate_limit_requests_per_minute'    => 60,
-            'mhm_rentiva_rate_limit_booking_per_minute'     => 5,
-            'mhm_rentiva_rate_limit_payment_per_minute'     => 3,
-            'mhm_rentiva_rate_limit_block_duration'         => 15,
-            'mhm_rentiva_rate_limit_general_minute'         => 60,
-            'mhm_rentiva_rate_limit_booking_minute'         => 5,
-            'mhm_rentiva_rate_limit_payment_minute'         => 3,
+
 
             // Cache Settings
             'mhm_rentiva_cache_enabled'                     => '1',
@@ -60,38 +52,7 @@ class CoreSettings
             'mhm_rentiva_settings'
         );
 
-        // Rate Limiter settings
-        add_settings_field(
-            'mhm_rentiva_rate_limit_enabled',
-            __('Rate Limiter Enabled', 'mhm-rentiva'),
-            [self::class, 'render_rate_limit_enabled_field'],
-            'mhm_rentiva_settings',
-            self::SECTION_ID
-        );
 
-        add_settings_field(
-            'mhm_rentiva_rate_limit_general_minute',
-            __('General Request Limit (Minutes)', 'mhm-rentiva'),
-            [self::class, 'render_rate_limit_general_minute_field'],
-            'mhm_rentiva_settings',
-            self::SECTION_ID
-        );
-
-        add_settings_field(
-            'mhm_rentiva_rate_limit_booking_minute',
-            __('Booking Request Limit (Minutes)', 'mhm-rentiva'),
-            [self::class, 'render_rate_limit_booking_minute_field'],
-            'mhm_rentiva_settings',
-            self::SECTION_ID
-        );
-
-        add_settings_field(
-            'mhm_rentiva_rate_limit_payment_minute',
-            __('Payment Request Limit (Minutes)', 'mhm-rentiva'),
-            [self::class, 'render_rate_limit_payment_minute_field'],
-            'mhm_rentiva_settings',
-            self::SECTION_ID
-        );
 
         // Cache settings
         add_settings_field(
@@ -178,10 +139,6 @@ class CoreSettings
 
         // Register all settings to mhm_rentiva_settings group
         $settings = [
-            'mhm_rentiva_rate_limit_enabled',
-            'mhm_rentiva_rate_limit_general_minute',
-            'mhm_rentiva_rate_limit_booking_minute',
-            'mhm_rentiva_rate_limit_payment_minute',
             'mhm_rentiva_cache_enabled',
             'mhm_rentiva_cache_default_ttl',
             'mhm_rentiva_cache_lists_ttl',
@@ -196,7 +153,7 @@ class CoreSettings
 
         foreach ($settings as $setting) {
             $sanitize_callback = 'sanitize_text_field';
-            if (in_array($setting, ['mhm_rentiva_rate_limit_general_minute', 'mhm_rentiva_rate_limit_booking_minute', 'mhm_rentiva_rate_limit_payment_minute', 'mhm_rentiva_cache_lists_ttl', 'mhm_rentiva_cache_reports_ttl', 'mhm_rentiva_cache_charts_ttl', 'mhm_rentiva_db_performance_threshold', 'mhm_rentiva_wp_memory_limit', 'mhm_rentiva_wp_meta_query_limit'])) {
+            if (in_array($setting, ['mhm_rentiva_cache_lists_ttl', 'mhm_rentiva_cache_reports_ttl', 'mhm_rentiva_cache_charts_ttl', 'mhm_rentiva_db_performance_threshold', 'mhm_rentiva_wp_memory_limit', 'mhm_rentiva_wp_meta_query_limit'])) {
                 $sanitize_callback = 'absint';
             } elseif ($setting === 'mhm_rentiva_cache_default_ttl') {
                 $sanitize_callback = 'floatval';
@@ -217,34 +174,7 @@ class CoreSettings
         echo '</p></div>';
     }
 
-    // Rate Limiter Settings
-    public static function render_rate_limit_enabled_field(): void
-    {
-        $value = SettingsCore::get('mhm_rentiva_rate_limit_enabled', '1');
-        echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_rate_limit_enabled]" value="1"' . checked($value, '1', false) . '> ' . esc_html__('Yes, rate limiter active', 'mhm-rentiva') . '</label>';
-        echo '<p class="description">' . esc_html__('Use rate limiter to block too many requests.', 'mhm-rentiva') . '</p>';
-    }
 
-    public static function render_rate_limit_general_minute_field(): void
-    {
-        $value = absint(SettingsCore::get('mhm_rentiva_rate_limit_general_minute', 60));
-        echo '<input type="number" name="mhm_rentiva_settings[mhm_rentiva_rate_limit_general_minute]" value="' . esc_attr($value) . '" min="10" max="1000" step="10" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Maximum number of requests per minute for general operations.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_rate_limit_booking_minute_field(): void
-    {
-        $value = absint(SettingsCore::get('mhm_rentiva_rate_limit_booking_minute', 5));
-        echo '<input type="number" name="mhm_rentiva_settings[mhm_rentiva_rate_limit_booking_minute]" value="' . esc_attr($value) . '" min="1" max="100" step="1" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Maximum number of requests per minute for booking creation.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_rate_limit_payment_minute_field(): void
-    {
-        $value = absint(SettingsCore::get('mhm_rentiva_rate_limit_payment_minute', 3));
-        echo '<input type="number" name="mhm_rentiva_settings[mhm_rentiva_rate_limit_payment_minute]" value="' . esc_attr($value) . '" min="1" max="50" step="1" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Maximum number of requests per minute for payment operations.', 'mhm-rentiva') . '</p>';
-    }
 
     // Cache Settings
     public static function render_cache_enabled_field(): void
@@ -320,25 +250,7 @@ class CoreSettings
     }
 
     // Getter Methods
-    public static function is_rate_limit_enabled(): bool
-    {
-        return SettingsCore::get('mhm_rentiva_rate_limit_enabled', '1') === '1';
-    }
 
-    public static function get_rate_limit_general_minute(): int
-    {
-        return absint(SettingsCore::get('mhm_rentiva_rate_limit_general_minute', 60));
-    }
-
-    public static function get_rate_limit_booking_minute(): int
-    {
-        return absint(SettingsCore::get('mhm_rentiva_rate_limit_booking_minute', 5));
-    }
-
-    public static function get_rate_limit_payment_minute(): int
-    {
-        return absint(SettingsCore::get('mhm_rentiva_rate_limit_payment_minute', 3));
-    }
 
     public static function is_cache_enabled(): bool
     {

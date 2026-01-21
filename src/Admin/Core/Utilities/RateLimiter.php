@@ -1,10 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
 if (!defined('ABSPATH')) {
     exit;
 }
+
+use MHMRentiva\Admin\REST\Settings\RESTSettings;
 
 /**
  * ✅ RATE LIMITER - API Endpoint Security
@@ -18,38 +22,42 @@ final class RateLimiter
      */
     private static function get_rate_limits(): array
     {
+        $settings = RESTSettings::get_rate_limit_settings();
+        $default_limit = (int) ($settings['default_limit'] ?? 60);
+        $strict_limit = (int) ($settings['strict_limit'] ?? 10);
+
         return [
             'general' => [
-                'max_per_minute' => \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_rate_limit_general_minute(),
-                'max_per_hour' => \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_rate_limit_general_minute() * 16,
-                'max_per_day' => \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_rate_limit_general_minute() * 240
+                'max_per_minute' => $default_limit,
+                'max_per_hour' => $default_limit * 60, // Estimate based on minute limit
+                'max_per_day' => $default_limit * 60 * 24
             ],
             'booking_creation' => [
-                'max_per_minute' => \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_rate_limit_booking_minute(),
-                'max_per_hour' => \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_rate_limit_booking_minute() * 10,
-                'max_per_day' => \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_rate_limit_booking_minute() * 40
+                'max_per_minute' => $strict_limit, // Use strict limit for critical actions
+                'max_per_hour' => $strict_limit * 10,
+                'max_per_day' => $strict_limit * 100
             ],
             'payment_processing' => [
-                'max_per_minute' => \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_rate_limit_payment_minute(),
-                'max_per_hour' => \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_rate_limit_payment_minute() * 6,
-                'max_per_day' => \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_rate_limit_payment_minute() * 33
+                'max_per_minute' => $strict_limit, // Use strict limit for payments
+                'max_per_hour' => $strict_limit * 6,
+                'max_per_day' => $strict_limit * 33
             ],
 
-        'file_upload' => [
-            'max_per_minute' => 5,
-            'max_per_hour' => 30,
-            'max_per_day' => 100
-        ],
-        'webhook_processing' => [
-            'max_per_minute' => 20,
-            'max_per_hour' => 200,
-            'max_per_day' => 1000
-        ],
-        'admin_actions' => [
-            'max_per_minute' => 30,
-            'max_per_hour' => 300,
-            'max_per_day' => 2000
-        ]
+            'file_upload' => [
+                'max_per_minute' => 5,
+                'max_per_hour' => 30,
+                'max_per_day' => 100
+            ],
+            'webhook_processing' => [
+                'max_per_minute' => 20,
+                'max_per_hour' => 200,
+                'max_per_day' => 1000
+            ],
+            'admin_actions' => [
+                'max_per_minute' => 30,
+                'max_per_hour' => 300,
+                'max_per_day' => 2000
+            ]
         ];
     }
 
@@ -63,13 +71,14 @@ final class RateLimiter
     public static function check(string $identifier, string $action = 'general'): bool
     {
         // Return true always if rate limiter is not enabled
-        if (!\MHMRentiva\Admin\Settings\Groups\CoreSettings::is_rate_limit_enabled()) {
+        $settings = RESTSettings::get_rate_limit_settings();
+        if (empty($settings['enabled'])) {
             return true;
         }
 
         $rate_limits = self::get_rate_limits();
         $limits = $rate_limits[$action] ?? $rate_limits['general'];
-        
+
         // Check for each timeframe
         $checks = [
             'minute' => self::checkTimeframe($identifier, $action, 'minute', $limits['max_per_minute'], MINUTE_IN_SECONDS),
@@ -104,7 +113,7 @@ final class RateLimiter
 
         // Increment request count
         set_transient($cache_key, $current_requests + 1, $duration);
-        
+
         return true;
     }
 
@@ -133,18 +142,18 @@ final class RateLimiter
      */
     private static function logRateLimitExceeded(string $identifier, string $action, string $timeframe, int $current_requests, int $max_requests): void
     {
-        if (class_exists(\MHMRentiva\Logs\AdvancedLogger::class)) {
-            \MHMRentiva\Logs\AdvancedLogger::warning("Rate limit exceeded", [
-                'identifier' => $identifier,
-                'action' => $action,
-                'timeframe' => $timeframe,
-                'current_requests' => $current_requests,
-                'max_requests' => $max_requests,
-                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
-                'request_uri' => $_SERVER['REQUEST_URI'] ?? '',
-                'ip_address' => self::getClientIP()
-            ], \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SECURITY);
-        }
+        // Log to PHP error log
+        $message = sprintf(
+            '[MHM Rate Limit] Exceeded: %s | Action: %s | Timeframe: %s | Count: %d/%d | IP: %s',
+            $identifier,
+            $action,
+            $timeframe,
+            $current_requests,
+            $max_requests,
+            self::getClientIP()
+        );
+
+        error_log($message);
     }
 
     /**
@@ -158,7 +167,7 @@ final class RateLimiter
     {
         $rate_limits = self::get_rate_limits();
         $limits = $rate_limits[$action] ?? $rate_limits['general'];
-        
+
         return [
             'minute' => [
                 'current' => (int) get_transient(self::getCacheKey($identifier, $action, 'minute')),
@@ -242,7 +251,7 @@ final class RateLimiter
             if (!empty($_SERVER[$header])) {
                 $ips = explode(',', $_SERVER[$header]);
                 $ip = trim($ips[0]);
-                
+
                 if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
                     return $ip;
                 }
@@ -261,10 +270,10 @@ final class RateLimiter
     public static function middleware(string $action = 'general')
     {
         $identifier = self::getClientIP();
-        
+
         if (!self::check($identifier, $action)) {
             $stats = self::getStats($identifier, $action);
-            
+
             return new \WP_Error(
                 'rate_limit_exceeded',
                 __('Too many requests. Please try again later.', 'mhm-rentiva'),
@@ -291,15 +300,15 @@ final class RateLimiter
     public static function addResponseHeaders(string $identifier, string $action = 'general'): void
     {
         $stats = self::getStats($identifier, $action);
-        
+
         header("X-RateLimit-Limit-Minute: {$stats['minute']['limit']}");
         header("X-RateLimit-Remaining-Minute: " . max(0, $stats['minute']['limit'] - $stats['minute']['current']));
         header("X-RateLimit-Reset-Minute: " . (time() + MINUTE_IN_SECONDS));
-        
+
         header("X-RateLimit-Limit-Hour: {$stats['hour']['limit']}");
         header("X-RateLimit-Remaining-Hour: " . max(0, $stats['hour']['limit'] - $stats['hour']['current']));
         header("X-RateLimit-Reset-Hour: " . (time() + HOUR_IN_SECONDS));
-        
+
         header("X-RateLimit-Limit-Day: {$stats['day']['limit']}");
         header("X-RateLimit-Remaining-Day: " . max(0, $stats['day']['limit'] - $stats['day']['current']));
         header("X-RateLimit-Reset-Day: " . (time() + DAY_IN_SECONDS));
@@ -344,7 +353,7 @@ final class RateLimiter
     public static function getGlobalStats(): array
     {
         global $wpdb;
-        
+
         $transients = $wpdb->get_results(
             "SELECT option_name, option_value 
              FROM {$wpdb->options} 
@@ -362,20 +371,20 @@ final class RateLimiter
         foreach ($transients as $transient) {
             $key = str_replace('_transient_', '', $transient['option_name']);
             $parts = explode('_', $key);
-            
+
             if (count($parts) >= 4) {
                 $action = $parts[2];
                 $timeframe = $parts[3];
                 $identifier_hash = $parts[4];
-                
+
                 if (!isset($stats['actions'][$action])) {
                     $stats['actions'][$action] = [];
                 }
-                
+
                 if (!isset($stats['actions'][$action][$timeframe])) {
                     $stats['actions'][$action][$timeframe] = 0;
                 }
-                
+
                 $stats['actions'][$action][$timeframe]++;
             }
         }

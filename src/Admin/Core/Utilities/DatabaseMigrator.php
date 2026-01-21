@@ -535,4 +535,86 @@ final class DatabaseMigrator
              OR option_name LIKE '_transient_timeout_mhm_rate_limit_%'"
         );
     }
+    /**
+     * Create specific table by key
+     */
+    public static function create_table(string $table_key): bool
+    {
+        switch ($table_key) {
+            case 'payment_log':
+            case 'mhm_payment_log':
+                self::create_payment_log_table();
+                return true;
+            case 'sessions':
+            case 'mhm_sessions':
+                self::create_sessions_table();
+                return true;
+            case 'transfer_locations':
+            case 'mhm_rentiva_transfer_locations':
+                self::create_transfer_tables();
+                return true;
+            case 'transfer_routes':
+            case 'mhm_rentiva_transfer_routes':
+                self::create_transfer_tables();
+                return true;
+            case 'ratings':
+            case 'mhm_rentiva_ratings':
+                self::create_rating_table();
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Create payment log table
+     */
+    public static function create_payment_log_table(): void
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'mhm_payment_log';
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            booking_id bigint(20) NOT NULL,
+            transaction_id varchar(100) DEFAULT NULL,
+            amount decimal(10,2) NOT NULL,
+            currency varchar(10) DEFAULT 'USD',
+            gateway varchar(50) DEFAULT NULL,
+            method varchar(50) DEFAULT NULL,
+            status varchar(50) DEFAULT 'pending',
+            raw_data text DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY booking_id (booking_id),
+            KEY transaction_id (transaction_id),
+            KEY status (status)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * Create sessions table
+     */
+    public static function create_sessions_table(): void
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'mhm_sessions';
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            session_id bigint(20) NOT NULL AUTO_INCREMENT,
+            session_key varchar(32) NOT NULL,
+            session_value longtext NOT NULL,
+            session_expiry bigint(20) NOT NULL,
+            PRIMARY KEY (session_id),
+            UNIQUE KEY session_key (session_key)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
 }

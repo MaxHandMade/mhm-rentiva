@@ -1734,6 +1734,27 @@ define('SCRIPT_DEBUG', true);
 
 ---
 
+
+## 🔌 REST API Documentation
+
+### Base URL
+
+```
+/wp-json/mhm-rentiva/v1
+```
+
+### Authentication & Security
+
+The REST API is secured by **API Keys**, **IP Restriction**, and **Rate Limiting**.
+
+1.  **API Keys:** Generate API keys from `Rentiva > Settings > Integration > REST API`.
+2.  **Rate Limiting:** Default limit is 60 requests/minute. Exceeding this will result in `429 Too Many Requests`.
+3.  **Authentication:** Pass the API key in the `X-API-Key` header.
+
+For full developer documentation, including endpoint details and parameters, see [Developer Docs](https://maxhandmade.github.io/mhm-rentiva-docs/docs/developer/rest-api).
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions! Please follow these guidelines:
