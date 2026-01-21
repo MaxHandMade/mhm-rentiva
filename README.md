@@ -153,7 +153,6 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
   - Message center
 
 **Customer Portal Shortcodes:**
-- `[rentiva_my_account]` - Main account dashboard
 - `[rentiva_my_bookings]` - Booking history
 - `[rentiva_my_favorites]` - Favorite vehicles
 - `[rentiva_payment_history]` - Payment transactions
@@ -896,7 +895,7 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 The plugin will automatically create pages for shortcodes, or you can create them manually:
 
 **Required Pages:**
-- My Account page (use `[rentiva_my_account]` shortcode)
+- My Account page (Managed by WooCommerce)
 - Booking Form page (use `[rentiva_booking_form]` shortcode)
 - Vehicles List/Grid page (use `[rentiva_vehicles_grid]` or `[rentiva_vehicles_list]`)
 
@@ -980,9 +979,6 @@ The plugin will automatically create pages for shortcodes, or you can create the
 ## 🎯 Shortcode Reference
 
 ### Account Management Shortcodes
-
-#### `[rentiva_my_account]`
-**Purpose**: Main customer account dashboard
 
 #### `[rentiva_my_bookings]`
 **Purpose**: Display customer booking history

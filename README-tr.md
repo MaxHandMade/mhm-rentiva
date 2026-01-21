@@ -153,7 +153,6 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
   - Mesaj merkezi
 
 **Müşteri Portalı Shortcode'ları:**
-- `[rentiva_my_account]` - Ana hesap dashboard'u
 - `[rentiva_my_bookings]` - Rezervasyon geçmişi
 - `[rentiva_my_favorites]` - Favori araçlar
 - `[rentiva_payment_history]` - Ödeme işlemleri
@@ -469,8 +468,7 @@ Eklenti shortcode'lar için sayfaları otomatik olarak oluşturur veya manuel ol
 
 ### Hesap Yönetimi Shortcode'ları
 
-#### `[rentiva_my_account]`
-**Amaç**: Ana müşteri hesap dashboard'u
+### Hesap Yönetimi Shortcode'ları
 
 #### `[rentiva_my_bookings]`
 **Amaç**: Müşteri rezervasyon geçmişini göster
