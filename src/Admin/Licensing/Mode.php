@@ -203,6 +203,24 @@ final class Mode
                 'pro' => __('Unlimited', 'mhm-rentiva'),
             ],
             [
+                'name' => __('Report Date Range', 'mhm-rentiva'),
+                'lite' => sprintf(
+                    /* translators: %d: maximum number of days for report range in Lite version. */
+                    __('%d days', 'mhm-rentiva'),
+                    (int) apply_filters('mhm_rentiva_lite_reports_max_days', 30)
+                ),
+                'pro' => __('Unlimited', 'mhm-rentiva'),
+            ],
+            [
+                'name' => __('Report Rows', 'mhm-rentiva'),
+                'lite' => sprintf(
+                    /* translators: %d: maximum number of rows for reports in Lite version. */
+                    __('%d rows', 'mhm-rentiva'),
+                    (int) apply_filters('mhm_rentiva_lite_reports_max_rows', 500)
+                ),
+                'pro' => __('Unlimited', 'mhm-rentiva'),
+            ],
+            [
                 'name' => __('Payment Gateways', 'mhm-rentiva'),
                 'lite' => __('WooCommerce', 'mhm-rentiva'),
                 'pro' => __('WooCommerce', 'mhm-rentiva'),
