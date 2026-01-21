@@ -61,82 +61,8 @@ final class FeaturesTab extends AbstractTab
             'description' => static::get_tab_description(),
             'sections' => [
                 [
-                    'type' => 'card',
-                    'cards' => [
-                        [
-                            'title' => __('Quick Comparison', 'mhm-rentiva'),
-                            'content' => [
-                                [
-                                    'type' => 'key-value',
-                                    'label' => __('Maximum Vehicles:', 'mhm-rentiva'),
-                                    'value' => sprintf(
-                                        /* translators: 1: Lite plan value, 2: Pro plan value. */
-                                        __('Lite: %1$d, Pro: %2$s', 'mhm-rentiva'),
-                                        3,
-                                        __('Unlimited', 'mhm-rentiva')
-                                    ),
-                                    'data_key' => '',
-                                ],
-                                [
-                                    'type' => 'key-value',
-                                    'label' => __('Maximum Bookings:', 'mhm-rentiva'),
-                                    'value' => sprintf(
-                                        /* translators: 1: Lite plan value, 2: Pro plan value. */
-                                        __('Lite: %1$d, Pro: %2$s', 'mhm-rentiva'),
-                                        50,
-                                        __('Unlimited', 'mhm-rentiva')
-                                    ),
-                                    'data_key' => '',
-                                ],
-                                [
-                                    'type' => 'key-value',
-                                    'label' => __('Payment Gateways:', 'mhm-rentiva'),
-                                    'value' => sprintf(
-                                        /* translators: 1: Lite plan value, 2: Pro plan value. */
-                                        __('Lite: %1$s, Pro: %2$s', 'mhm-rentiva'),
-                                        __('Offline', 'mhm-rentiva'),
-                                        __('Offline', 'mhm-rentiva')
-                                    ),
-                                    'data_key' => '',
-                                ],
-                                [
-                                    'type' => 'key-value',
-                                    'label' => __('Advanced Reports:', 'mhm-rentiva'),
-                                    'value' => sprintf(
-                                        /* translators: 1: Lite plan value, 2: Pro plan value. */
-                                        __('Lite: %1$s, Pro: %2$s', 'mhm-rentiva'),
-                                        __('Not available', 'mhm-rentiva'),
-                                        __('Available', 'mhm-rentiva')
-                                    ),
-                                    'data_key' => '',
-                                ],
-                                [
-                                    'type' => 'key-value',
-                                    'label' => __('Messaging System:', 'mhm-rentiva'),
-                                    'value' => sprintf(
-                                        /* translators: 1: Lite plan value, 2: Pro plan value. */
-                                        __('Lite: %1$s, Pro: %2$s', 'mhm-rentiva'),
-                                        __('Not available', 'mhm-rentiva'),
-                                        __('Available', 'mhm-rentiva')
-                                    ),
-                                    'data_key' => '',
-                                ],
-                            ],
-                        ],
-                        [
-                            'title' => __('Pro Features Overview', 'mhm-rentiva'),
-                            'content' => [
-                                ['type' => 'key-value', 'label' => __('Advanced Reporting:', 'mhm-rentiva'), 'value' => '✓', 'data_key' => ''],
-                                ['type' => 'key-value', 'label' => __('Messaging System:', 'mhm-rentiva'), 'value' => '✓', 'data_key' => ''],
-                                ['type' => 'key-value', 'label' => __('Full REST API:', 'mhm-rentiva'), 'value' => '✓', 'data_key' => ''],
-                                ['type' => 'key-value', 'label' => __('Excel/XML/PDF Export:', 'mhm-rentiva'), 'value' => '✓', 'data_key' => ''],
-                            ],
-                        ],
-                    ],
-                ],
-                [
                     'type' => 'custom',
-                    'title' => __('Detailed Feature List', 'mhm-rentiva'),
+                    'title' => '', // Removing redundant title as table has its own header
                     'custom_render' => [static::class, 'render_detailed_features'],
                 ],
             ],
@@ -189,22 +115,7 @@ final class FeaturesTab extends AbstractTab
             echo '</div>';
         }
 
-        // Pro features
-        if (isset($data['pro_features'])) {
-            echo '<div class="pro-features-section">';
-            echo '<h4>' . esc_html($data['pro_features']['title']) . '</h4>';
-            echo '<div class="pro-features-grid">';
 
-            foreach ($data['pro_features']['features'] as $feature) {
-                echo '<div class="pro-feature-item">';
-                echo '<span class="feature-icon">✓</span>';
-                echo '<span class="feature-text">' . esc_html($feature) . '</span>';
-                echo '</div>';
-            }
-
-            echo '</div>';
-            echo '</div>';
-        }
 
         echo '</div>';
     }
