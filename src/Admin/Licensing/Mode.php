@@ -185,6 +185,24 @@ final class Mode
                 'pro' => __('Unlimited', 'mhm-rentiva'),
             ],
             [
+                'name' => __('Maximum Customers', 'mhm-rentiva'),
+                'lite' => sprintf(
+                    /* translators: %d: maximum number of customers allowed in Lite version. */
+                    __('%d customers', 'mhm-rentiva'),
+                    (int) apply_filters('mhm_rentiva_lite_max_customers', 3)
+                ),
+                'pro' => __('Unlimited', 'mhm-rentiva'),
+            ],
+            [
+                'name' => __('Maximum Addons', 'mhm-rentiva'),
+                'lite' => sprintf(
+                    /* translators: %d: maximum number of addon services allowed in Lite version. */
+                    __('%d addon services', 'mhm-rentiva'),
+                    4
+                ),
+                'pro' => __('Unlimited', 'mhm-rentiva'),
+            ],
+            [
                 'name' => __('Payment Gateways', 'mhm-rentiva'),
                 'lite' => __('WooCommerce', 'mhm-rentiva'),
                 'pro' => __('WooCommerce', 'mhm-rentiva'),
