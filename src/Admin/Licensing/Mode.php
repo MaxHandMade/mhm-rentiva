@@ -52,14 +52,33 @@ final class Mode
 
         switch ($feature) {
             case self::FEATURE_GATEWAY_OFFLINE:
+            case self::FEATURE_EXPORT: // Export is now available for Lite (CSV only)
                 return true;
-            case self::FEATURE_EXPORT:
             case self::FEATURE_REPORTS_ADV:
             case self::FEATURE_MESSAGES:
                 return false;
         }
 
         return false;
+    }
+// ... (skip until get_pro_features_list)
+    /**
+     * Get Pro-only features list
+     * 
+     * @return array List of Pro features
+     */
+    public static function get_pro_features_list(): array
+    {
+        return [
+            __('Advanced Reporting (FEATURE_REPORTS_ADV)', 'mhm-rentiva'),
+            __('Messaging System (FEATURE_MESSAGES)', 'mhm-rentiva'),
+            __('Full REST API Access', 'mhm-rentiva'),
+            __('JSON Export Format', 'mhm-rentiva'),
+            __('Unlimited Date Range for Reports', 'mhm-rentiva'),
+            __('Unlimited Report Rows', 'mhm-rentiva'),
+            __('Email Notifications', 'mhm-rentiva'),
+            __('GDPR Compliance Tools', 'mhm-rentiva'),
+        ];
     }
 
     /**
@@ -166,50 +185,14 @@ final class Mode
                 'pro' => __('Unlimited', 'mhm-rentiva'),
             ],
             [
-                'name' => __('Maximum Customers', 'mhm-rentiva'),
-                'lite' => sprintf(
-                    /* translators: %d: maximum number of customers allowed in Lite version. */
-                    __('%d customers', 'mhm-rentiva'),
-                    (int) apply_filters('mhm_rentiva_lite_max_customers', 3)
-                ),
-                'pro' => __('Unlimited', 'mhm-rentiva'),
-            ],
-            [
-                'name' => __('Maximum Addons', 'mhm-rentiva'),
-                'lite' => sprintf(
-                    /* translators: %d: maximum number of addon services allowed in Lite version. */
-                    __('%d addon services', 'mhm-rentiva'),
-                    4
-                ),
-                'pro' => __('Unlimited', 'mhm-rentiva'),
-            ],
-            [
                 'name' => __('Payment Gateways', 'mhm-rentiva'),
-                'lite' => __('Offline + WooCommerce', 'mhm-rentiva'),
-                'pro' => __('Offline + WooCommerce', 'mhm-rentiva'),
+                'lite' => __('WooCommerce', 'mhm-rentiva'),
+                'pro' => __('WooCommerce', 'mhm-rentiva'),
             ],
             [
                 'name' => __('Export Formats', 'mhm-rentiva'),
-                'lite' => __('CSV, JSON', 'mhm-rentiva'),
-                'pro' => __('CSV, JSON, Excel, XML, PDF', 'mhm-rentiva'),
-            ],
-            [
-                'name' => __('Report Date Range', 'mhm-rentiva'),
-                'lite' => sprintf(
-                    /* translators: %d: maximum report days in Lite version. */
-                    __('%d days max', 'mhm-rentiva'),
-                    (int) apply_filters('mhm_rentiva_lite_reports_max_days', 30)
-                ),
-                'pro' => __('Unlimited', 'mhm-rentiva'),
-            ],
-            [
-                'name' => __('Report Rows', 'mhm-rentiva'),
-                'lite' => sprintf(
-                    /* translators: %d: maximum report rows in Lite version. */
-                    __('%d max', 'mhm-rentiva'),
-                    (int) apply_filters('mhm_rentiva_lite_reports_max_rows', 500)
-                ),
-                'pro' => __('Unlimited', 'mhm-rentiva'),
+                'lite' => __('CSV only', 'mhm-rentiva'),
+                'pro' => __('CSV, JSON', 'mhm-rentiva'),
             ],
             [
                 'name' => __('Advanced Reports', 'mhm-rentiva'),
@@ -233,26 +216,7 @@ final class Mode
         ];
     }
 
-    /**
-     * Get Pro-only features list
-     * 
-     * @return array List of Pro features
-     */
-    public static function get_pro_features_list(): array
-    {
-        return [
-            __('Advanced Reporting (FEATURE_REPORTS_ADV)', 'mhm-rentiva'),
-            __('Messaging System (FEATURE_MESSAGES)', 'mhm-rentiva'),
-            __('Full REST API Access', 'mhm-rentiva'),
-            __('Excel Export (XLS)', 'mhm-rentiva'),
-            __('XML Export', 'mhm-rentiva'),
-            __('PDF Export', 'mhm-rentiva'),
-            __('Unlimited Date Range for Reports', 'mhm-rentiva'),
-            __('Unlimited Report Rows', 'mhm-rentiva'),
-            __('Email Notifications', 'mhm-rentiva'),
-            __('GDPR Compliance Tools', 'mhm-rentiva'),
-        ];
-    }
+
 
     /**
      * Helper to render comparison table HTML

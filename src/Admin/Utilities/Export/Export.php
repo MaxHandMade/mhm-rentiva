@@ -123,10 +123,13 @@ final class Export
             'mhm_amin' => $amin,
             'mhm_amax' => $amax,
         ]);
-        $xls_args = $csv_args;
-        $xls_args['format'] = 'xls';
         echo '<a class="button button-primary" href="' . esc_url(add_query_arg($csv_args, $base_url)) . '">' . esc_html__('Export CSV', 'mhm-rentiva') . '</a> ';
-        echo '<a class="button" href="' . esc_url(add_query_arg($xls_args, $base_url)) . '">' . esc_html__('Export Excel', 'mhm-rentiva') . '</a>';
+
+        if (Mode::isPro()) {
+            $json_args = $csv_args;
+            $json_args['format'] = 'json';
+            echo '<a class="button" href="' . esc_url(add_query_arg($json_args, $base_url)) . '">' . esc_html__('Export JSON', 'mhm-rentiva') . '</a>';
+        }
         echo '</div>';
         echo '</details></div>';
     }
@@ -240,7 +243,7 @@ final class Export
     public static function handle_export(): void
     {
         if (!Mode::featureEnabled(Mode::FEATURE_EXPORT)) {
-            wp_die(esc_html__('Export is available in Pro version.', 'mhm-rentiva'), 403);
+            wp_die(esc_html__('Export is disabled.', 'mhm-rentiva'), 403);
         }
 
         if (!current_user_can('export') && !current_user_can('manage_options') && !current_user_can('edit_posts')) {
@@ -252,8 +255,19 @@ final class Export
         if (!in_array($post_type, ['vehicle_booking', LogPostType::TYPE, 'vehicle'], true)) {
             wp_die(esc_html__('Invalid export type.', 'mhm-rentiva'));
         }
+
         $format = isset($_POST['format']) ? sanitize_key(wp_unslash($_POST['format'])) : 'csv';
-        if (!in_array($format, ['csv', 'xls'], true)) $format = 'csv';
+
+        // Enforce format restrictions per license
+        if (!Mode::isPro() && $format !== 'csv') {
+            wp_die(esc_html__('This export format is available in Pro version only.', 'mhm-rentiva'), 403);
+        }
+
+        // Validate allowed formats
+        $allowed_formats = Mode::isPro() ? ['csv', 'json'] : ['csv'];
+        if (!in_array($format, $allowed_formats, true)) {
+            $format = 'csv'; // Fallback to safe default
+        }
 
         // Check if filters are provided
         $filters = isset($_POST['filters']) ? self::sanitize_text_field_safe(wp_unslash($_POST['filters'])) : '';
@@ -288,8 +302,8 @@ final class Export
 
         if ($format === 'csv') {
             self::stream_csv_direct($post_type, $args, $filename);
-        } elseif ($format === 'xls') {
-            self::stream_xls_direct($post_type, $args, $filename);
+        } elseif ($format === 'json') {
+            self::stream_json_direct($post_type, $args, $filename);
         } else {
             wp_die(esc_html__('Unsupported export format.', 'mhm-rentiva'));
         }
@@ -910,14 +924,14 @@ final class Export
         echo '<input type="hidden" name="format" value="csv" />';
         echo '<button type="submit" class="button button-primary">' . esc_html__('Export CSV', 'mhm-rentiva') . '</button>';
         echo '</form>';
-        // Pro feature check
-        if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_EXPORT)) {
+        // Pro: JSON Export
+        if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::isPro()) {
             echo '<form action="' . esc_url(admin_url('admin-post.php')) . '" method="post" class="export-form">';
             echo '<input type="hidden" name="action" value="mhm_rentiva_export" />';
             echo '<input type="hidden" name="_wpnonce" value="' . esc_attr(wp_create_nonce('mhm_rentiva_export')) . '" />';
             echo '<input type="hidden" name="post_type" value="vehicle_booking" />';
-            echo '<input type="hidden" name="format" value="xls" />';
-            echo '<button type="submit" class="button button-secondary">' . esc_html__('Export Excel', 'mhm-rentiva') . '</button>';
+            echo '<input type="hidden" name="format" value="json" />';
+            echo '<button type="submit" class="button button-secondary">' . esc_html__('Export JSON', 'mhm-rentiva') . '</button>';
             echo '</form>';
         }
         echo '</div>';
@@ -942,14 +956,14 @@ final class Export
         echo '<input type="hidden" name="format" value="csv" />';
         echo '<button type="submit" class="button button-primary">' . esc_html__('Export CSV', 'mhm-rentiva') . '</button>';
         echo '</form>';
-        // Pro feature check
-        if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_EXPORT)) {
+        // Pro: JSON Export
+        if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::isPro()) {
             echo '<form action="' . esc_url(admin_url('admin-post.php')) . '" method="post" class="export-form">';
             echo '<input type="hidden" name="action" value="mhm_rentiva_export" />';
             echo '<input type="hidden" name="_wpnonce" value="' . esc_attr(wp_create_nonce('mhm_rentiva_export')) . '" />';
             echo '<input type="hidden" name="post_type" value="mhm_payment_log" />';
-            echo '<input type="hidden" name="format" value="xls" />';
-            echo '<button type="submit" class="button button-secondary">' . esc_html__('Export Excel', 'mhm-rentiva') . '</button>';
+            echo '<input type="hidden" name="format" value="json" />';
+            echo '<button type="submit" class="button button-secondary">' . esc_html__('Export JSON', 'mhm-rentiva') . '</button>';
             echo '</form>';
         }
         echo '</div>';
@@ -974,14 +988,14 @@ final class Export
         echo '<input type="hidden" name="format" value="csv" />';
         echo '<button type="submit" class="button button-primary">' . esc_html__('Export CSV', 'mhm-rentiva') . '</button>';
         echo '</form>';
-        // Pro feature check
-        if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_EXPORT)) {
+        // Pro: JSON Export
+        if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::isPro()) {
             echo '<form action="' . esc_url(admin_url('admin-post.php')) . '" method="post" class="export-form">';
             echo '<input type="hidden" name="action" value="mhm_rentiva_export" />';
             echo '<input type="hidden" name="_wpnonce" value="' . esc_attr(wp_create_nonce('mhm_rentiva_export')) . '" />';
             echo '<input type="hidden" name="post_type" value="vehicle" />';
-            echo '<input type="hidden" name="format" value="xls" />';
-            echo '<button type="submit" class="button button-secondary">' . esc_html__('Export Excel', 'mhm-rentiva') . '</button>';
+            echo '<input type="hidden" name="format" value="json" />';
+            echo '<button type="submit" class="button button-secondary">' . esc_html__('Export JSON', 'mhm-rentiva') . '</button>';
             echo '</form>';
         }
         echo '</div>';
@@ -1499,5 +1513,82 @@ final class Export
 
         // Only call ExportFilters, headers are already there
         ExportFilters::render_filter_form('vehicle_booking');
+    }
+
+    /**
+     * Direct JSON export
+     */
+    private static function stream_json_direct(string $post_type, array $args, string $filename): void
+    {
+        if (function_exists('set_time_limit')) {
+            set_time_limit(0);
+        }
+
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '.json"');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        $args['posts_per_page'] = 50;
+        $args['fields'] = 'ids'; // Get IDs only
+        $paged = 1;
+
+        echo '[';
+        $first = true;
+
+        do {
+            $q = new WP_Query(array_merge($args, ['paged' => $paged]));
+            if (!$q->have_posts()) break;
+
+            foreach ($q->posts as $pid) {
+                $pid = (int) $pid;
+                $row = [];
+
+                if ($post_type === 'vehicle_booking') {
+                    $row = [
+                        'id' => $pid,
+                        'date' => get_post($pid)->post_date_gmt,
+                        'status' => (string) get_post_meta($pid, '_mhm_status', true),
+                        'payment_status' => (string) get_post_meta($pid, '_mhm_payment_status', true),
+                        'gateway' => (string) get_post_meta($pid, '_mhm_payment_gateway', true),
+                        'total' => (float) get_post_meta($pid, '_mhm_total_price', true),
+                        'paid_amount' => number_format((float) get_post_meta($pid, '_mhm_payment_amount', true) / 100, 2, '.', ''),
+                        'currency' => (string) get_post_meta($pid, '_mhm_payment_currency', true),
+                        'contact' => [
+                            'name' => (string) get_post_meta($pid, '_mhm_contact_name', true),
+                            'email' => (string) get_post_meta($pid, '_mhm_contact_email', true),
+                            'phone' => (string) get_post_meta($pid, '_mhm_contact_phone', true),
+                        ]
+                    ];
+                } else {
+                    $p = get_post($pid);
+                    $row = [
+                        'id' => $pid,
+                        'date' => $p ? $p->post_date_gmt : '',
+                        'gateway' => (string) get_post_meta($pid, '_mhm_log_gateway', true),
+                        'action' => (string) get_post_meta($pid, '_mhm_log_action', true),
+                        'status' => (string) get_post_meta($pid, '_mhm_log_status', true),
+                        'booking_id' => (int) get_post_meta($pid, '_mhm_log_booking_id', true),
+                        'amount_kurus' => (int) get_post_meta($pid, '_mhm_log_amount_kurus', true),
+                        'currency' => (string) get_post_meta($pid, '_mhm_log_currency', true),
+                        'message' => (string) get_post_meta($pid, '_mhm_log_message', true),
+                    ];
+                }
+
+                if (!$first) echo ',';
+                $first = false;
+
+                echo wp_json_encode($row);
+            }
+
+            $paged++;
+            if ($paged > $q->max_num_pages) break;
+
+            if (function_exists('wp_cache_flush')) wp_cache_flush();
+        } while (true);
+
+        echo ']';
+        exit;
     }
 }
