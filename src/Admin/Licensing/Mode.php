@@ -227,8 +227,8 @@ final class Mode
             ],
             [
                 'name' => __('Export Formats', 'mhm-rentiva'),
-                'lite' => __('CSV only', 'mhm-rentiva'),
-                'pro' => __('CSV, JSON', 'mhm-rentiva'),
+                'lite' => esc_html__('CSV Only', 'mhm-rentiva'),
+                'pro' => esc_html__('CSV, JSON', 'mhm-rentiva'),
             ],
             [
                 'name' => __('Advanced Reports', 'mhm-rentiva'),
