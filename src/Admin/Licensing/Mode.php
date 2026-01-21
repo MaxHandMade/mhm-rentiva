@@ -131,6 +131,26 @@ final class Mode
     }
 
     /**
+     * Get maximum transfer routes allowed
+     * 
+     * @return int Maximum routes
+     */
+    public static function maxTransferRoutes(): int
+    {
+        return self::isPro() ? PHP_INT_MAX : (int) apply_filters('mhm_rentiva_lite_max_transfer_routes', 3);
+    }
+
+    /**
+     * Get maximum gallery images per vehicle
+     * 
+     * @return int Maximum images
+     */
+    public static function maxGalleryImages(): int
+    {
+        return self::isPro() ? PHP_INT_MAX : (int) apply_filters('mhm_rentiva_lite_max_gallery_images', 3);
+    }
+
+    /**
      * Get allowed payment gateways
      * 
      * @return array Allowed gateways
@@ -193,6 +213,24 @@ final class Mode
                     /* translators: %d: maximum number of addon services allowed in Lite version. */
                     __('%d addon services', 'mhm-rentiva'),
                     4
+                ),
+                'pro' => __('Unlimited', 'mhm-rentiva'),
+            ],
+            [
+                'name' => __('VIP Transfer Routes', 'mhm-rentiva'),
+                'lite' => sprintf(
+                    /* translators: %d: maximum number of transfer routes allowed in Lite version. */
+                    __('%d routes', 'mhm-rentiva'),
+                    (int) apply_filters('mhm_rentiva_lite_max_transfer_routes', 3)
+                ),
+                'pro' => __('Unlimited', 'mhm-rentiva'),
+            ],
+            [
+                'name' => __('Gallery Images', 'mhm-rentiva'),
+                'lite' => sprintf(
+                    /* translators: %d: maximum number of gallery images allowed per vehicle in Lite version. */
+                    __('%d images/vehicle', 'mhm-rentiva'),
+                    (int) apply_filters('mhm_rentiva_lite_max_gallery_images', 3)
                 ),
                 'pro' => __('Unlimited', 'mhm-rentiva'),
             ],

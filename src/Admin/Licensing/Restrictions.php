@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Licensing;
 
@@ -29,6 +31,9 @@ final class Restrictions
 
         // Export gate
         add_action('admin_init', [self::class, 'disableExportIfLite']);
+
+        // Transfer limits
+        add_action('admin_post_mhm_save_route', [self::class, 'blockTransferRouteCreation'], 5);
 
         // Clamp export/report args
         add_filter('mhm_rentiva_export_args', [self::class, 'clampExportArgs']);
@@ -400,6 +405,40 @@ final class Restrictions
                 $max
             );
             echo '<div class="notice notice-warning"><p>' . esc_html($message) . '</p></div>';
+        }
+    }
+
+    /**
+     * Block Transfer Route creation if limit reached (Lite)
+     */
+    public static function blockTransferRouteCreation(): void
+    {
+        if (Mode::isPro()) {
+            return;
+        }
+
+        // Only on new route creation (id is not set)
+        if (isset($_POST['id']) && !empty($_POST['id'])) {
+            return;
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
+
+        // Count existing routes
+        $count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table_name}");
+        $max   = Mode::maxTransferRoutes();
+
+        if ($count >= $max) {
+            wp_die(
+                sprintf(
+                    /* translators: %d: max routes allowed. */
+                    esc_html__('Rentiva Lite allows maximum %d transfer routes. Upgrade to Pro for unlimited routes.', 'mhm-rentiva'),
+                    $max
+                ),
+                esc_html__('Limit Exceeded', 'mhm-rentiva'),
+                ['response' => 403, 'back_link' => true]
+            );
         }
     }
 }
