@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 final class Mode
 {
     // Gateways
-    public const FEATURE_GATEWAY_OFFLINE = 'gateway_offline';
+
 
     // Pro-only features
     public const FEATURE_EXPORT          = 'export';
@@ -51,7 +51,6 @@ final class Mode
         }
 
         switch ($feature) {
-            case self::FEATURE_GATEWAY_OFFLINE:
             case self::FEATURE_EXPORT: // Export is now available for Lite (CSV only)
                 return true;
             case self::FEATURE_REPORTS_ADV:
@@ -139,11 +138,6 @@ final class Mode
     public static function allowedGateways(): array
     {
         $allowed = [];
-
-        if (self::featureEnabled(self::FEATURE_GATEWAY_OFFLINE)) {
-            $allowed[] = 'offline';
-        }
-
         return apply_filters('mhm_rentiva_allowed_gateways', $allowed, self::isPro());
     }
 
