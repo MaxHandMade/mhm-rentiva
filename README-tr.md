@@ -127,7 +127,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - **Otomatik Durum Güncellemeleri**: Rezervasyon durumları, WooCommerce sipariş durumuna göre otomatik güncellenir.
 
 **2. Manuel Ödemeler (Sadece Yönetici)**
-- **Offline Ödeme**: Yöneticiler, arka uçtan oluşturulan manuel rezervasyonlar için ödemeleri (Nakit/Havale) manuel olarak kaydedebilir.
+- **Manuel Ödeme Kaydı**: Yöneticiler manuel oluşturulan rezervasyonlar için ödemeleri (Nakit/Havale) sisteme işleyebilir.
 - **Makbuz Yönetimi**: Yöneticiler manuel rezervasyonlara ödeme kanıtı ekleyebilir.
 
 **Ödeme Özellikleri:**
@@ -194,10 +194,26 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
   - Tekrar eden müşteri oranı
   - Müşteri kazanım trendleri
 
+### 🚀 Lite ve Pro Sürüm Karşılaştırması
+
+| Özellik | Lite (Ücretsiz) | Pro (Premium) |
+| :--- | :--- | :--- |
+| **Maksimum Araç** | 3 Araç | **Sınırsız** |
+| **Maksimum Rezervasyon** | 50 Rezervasyon | **Sınırsız** |
+| **Maksimum Müşteri** | 3 Müşteri | **Sınırsız** |
+| **Ek Hizmetler** | 4 Hizmet | **Sınırsız** |
+| **VIP Transfer Rotası** | 3 Rota | **Sınırsız** |
+| **Galeri Resmi** | 3 Resim / Araç | **Sınırsız** |
+| **Dışa Aktarım** | Sadece CSV | CSV, JSON |
+| **Ödeme Altyapısı** | WooCommerce | WooCommerce |
+| **Gelişmiş Raporlar** | ❌ Sınırlı | ✅ Tam Erişim |
+
+> **Not:** Lite sürümü küçük işletmeler ve test amaçlı tasarlanmıştır. Sınırsız erişim için Pro sürüme geçiş yapın.
+
 **Rapor Özellikleri:**
 - Gerçek zamanlı veri güncellemeleri
 - Özel tarih aralığı seçimi
-- Excel/CSV formatında dışa aktarma
+- CSV (Lite) ve CSV/JSON (Pro) formatında dışa aktarma
 - Görsel grafikler ve şemalar
 - Mobil uyumlu tasarım
 - Yazdırma dostu görünümler

@@ -127,7 +127,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 - **Automatic Status Updates**: Booking statuses are automatically updated based on WooCommerce order status.
 
 **2. Manual Payments (Admin Only)**
-- **Offline Payment**: Administrators can manually record payments (Cash/Transfer) for bookings created in the backend.
+- **Manual Payment Recording**: Administrators can manually record payments (Cash/Transfer) for bookings created in the backend.
 - **Receipt Management**: Admins can attach receipt proofs to manual bookings.
 
 **Payment Features:**
@@ -194,10 +194,26 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
   - Repeat customer rate
   - Customer acquisition trends
 
+### 🚀 Lite vs Pro Edition Comparison
+
+| Feature | Lite (Free) | Pro (Premium) |
+| :--- | :--- | :--- |
+| **Maximum Vehicles** | 3 Vehicles | **Unlimited** |
+| **Maximum Bookings** | 50 Bookings | **Unlimited** |
+| **Maximum Customers** | 3 Customers | **Unlimited** |
+| **Additional Services (Addons)** | 4 Services | **Unlimited** |
+| **VIP Transfer Routes** | 3 Routes | **Unlimited** |
+| **Gallery Images** | 3 Images / Vehicle | **Unlimited** |
+| **Export Formats** | CSV Only | CSV, JSON |
+| **Payment Gateways** | WooCommerce | WooCommerce |
+| **Advanced Reports** | ❌ Limited | ✅ Full Access |
+
+> **Note:** Lite version is designed for small businesses and testing. For unlimited access, please check the Pro version.
+
 **Report Features:**
 - Real-time data updates
 - Custom date range selection
-- Export to Excel/CSV
+- Export to CSV (Lite) and CSV/JSON (Pro)
 - Visual charts and graphs
 - Responsive design
 - Print-friendly views
