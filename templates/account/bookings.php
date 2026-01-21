@@ -12,14 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain()
-    {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 
 // Filtering with proper sanitization
 $status_filter = isset($_GET['status_filter']) ? mhm_rentiva_sanitize_text_field_safe(wp_unslash($_GET['status_filter'])) : '';

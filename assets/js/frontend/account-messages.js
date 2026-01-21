@@ -68,7 +68,7 @@ jQuery(document).ready(function ($) {
                 self.sendReply();
             });
 
-            // Mesaj item'ına tıklama event listener (delegated)
+            // Message item click event listener (delegated)
             $(document).on('click', '.message-item', function () {
                 const $item = $(this);
                 const threadId = $item.data('thread-id');
@@ -91,7 +91,7 @@ jQuery(document).ready(function ($) {
                 const threadId = $btn.data('thread-id');
 
                 if (!threadId) {
-                    alert(mhmRentivaMessages.i18n.threadIdNotFound);
+                    self.showNotification(mhmRentivaMessages.i18n.threadIdNotFound, 'error');
                     return;
                 }
 
@@ -115,7 +115,7 @@ jQuery(document).ready(function ($) {
                     success: function (response) {
                         if (response && response.success !== false) {
                             const successMsg = response.message || mhmRentivaMessages.i18n.messageClosed;
-                            alert(successMsg);
+                            self.showNotification(successMsg, 'success');
 
                             // Reload thread to show closed status
                             self.loadThread(threadId, null);
@@ -124,7 +124,7 @@ jQuery(document).ready(function ($) {
                             self.loadMessages();
                         } else {
                             const errorMsg = response.error || mhmRentivaMessages.i18n.closeFailed;
-                            alert(errorMsg);
+                            self.showNotification(errorMsg, 'error');
                         }
                     },
                     error: function (xhr) {
@@ -134,13 +134,31 @@ jQuery(document).ready(function ($) {
                             errorMsg = xhr.responseJSON.message;
                         }
 
-                        alert(errorMsg);
+                        self.showNotification(errorMsg, 'error');
                     },
                     complete: function () {
                         $btn.prop('disabled', false).text(originalText);
                     }
                 });
             });
+        },
+
+
+        showNotification: function (message, type) {
+            type = type || 'info';
+            var $notification = $('<div class="rv-notification rv-notification--' + type + '">' + message + '</div>');
+            $('body').append($notification);
+
+            setTimeout(function () {
+                $notification.addClass('rv-notification--show');
+            }, 100);
+
+            setTimeout(function () {
+                $notification.removeClass('rv-notification--show');
+                setTimeout(function () {
+                    $notification.remove();
+                }, 300);
+            }, 3000);
         },
 
         loadMessages: function () {
@@ -374,7 +392,7 @@ jQuery(document).ready(function ($) {
             // Validation
             if (!formData.category || !formData.subject || !formData.message) {
                 const errorMsg = mhmRentivaMessages.i18n.fillRequired;
-                alert(errorMsg);
+                self.showNotification(errorMsg, 'error');
                 return;
             }
 
@@ -393,18 +411,18 @@ jQuery(document).ready(function ($) {
                     const errorMsg = mhmRentivaMessages.i18n.messageSendFailed;
 
                     if (response && response.success !== false) {
-                        alert(successMsg);
+                        self.showNotification(successMsg, 'success');
                         form[0].reset();
                         $('#new-message-form').addClass('hidden');
                         $('#messages-list').removeClass('hidden');
                         self.loadMessages();
                     } else {
-                        alert(response.error || errorMsg);
+                        self.showNotification(response.error || errorMsg, 'error');
                     }
                 },
                 error: function (xhr) {
                     const errorMsg = mhmRentivaMessages.i18n.errorOccurred;
-                    alert(errorMsg);
+                    self.showNotification(errorMsg, 'error');
                 },
                 complete: function () {
                     $submitBtn.prop('disabled', false).text(originalText);
@@ -421,13 +439,13 @@ jQuery(document).ready(function ($) {
 
             if (!message) {
                 const errorMsg = mhmRentivaMessages.i18n.enterReply;
-                alert(errorMsg);
+                self.showNotification(errorMsg, 'error');
                 return;
             }
 
             if (!threadId) {
                 const errorMsg = mhmRentivaMessages.i18n.threadIdNotFound;
-                alert(errorMsg);
+                self.showNotification(errorMsg, 'error');
                 return;
             }
 
@@ -450,7 +468,7 @@ jQuery(document).ready(function ($) {
                 success: function (response) {
                     if (response && response.success !== false) {
                         const successMsg = mhmRentivaMessages.i18n.replySent;
-                        alert(successMsg);
+                        self.showNotification(successMsg, 'success');
 
                         // Clear form
                         $replyMessage.val('');
@@ -459,7 +477,7 @@ jQuery(document).ready(function ($) {
                         self.loadThread(threadId, null);
                     } else {
                         const errorMsg = response.error || mhmRentivaMessages.i18n.replyFailed;
-                        alert(errorMsg);
+                        self.showNotification(errorMsg, 'error');
                     }
                 },
                 error: function (xhr) {
@@ -469,7 +487,7 @@ jQuery(document).ready(function ($) {
                         errorMsg = xhr.responseJSON.message;
                     }
 
-                    alert(errorMsg);
+                    self.showNotification(errorMsg, 'error');
                 },
                 complete: function () {
                     $submitBtn.prop('disabled', false).text(originalText);

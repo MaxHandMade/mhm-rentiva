@@ -4,21 +4,21 @@ Tags: car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.6.0
+Stable tag: 4.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-MHM Rentiva is a powerful and flexible vehicle rental management plugin with offline payment support and optional WooCommerce integration.
+MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
 
 == Description ==
 
-MHM Rentiva is a comprehensive vehicle rental management solution designed for car rental agencies, bike rentals, and equipment rental businesses. It provides a dedicated and streamlined experience for managing your fleet and bookings with built-in offline payment support and optional WooCommerce integration for online payments.
+MHM Rentiva is a comprehensive vehicle rental management solution designed for car rental agencies, bike rentals, and equipment rental businesses. It provides a dedicated and streamlined experience for managing your fleet and bookings. Frontend booking and payment processing are handled securely via WooCommerce, while administrators retain full control over manual bookings.
 
 **Key Features:**
 
 *   **Vehicle Management:** Easily add, edit, and manage your vehicle fleet with detailed attributes (transmission, fuel type, seats, etc.).
 *   **Booking System:** Robust booking engine with calendar view, availability checking, and automatic price calculation.
-*   **Payment Integration:** Built-in offline payment system with receipt upload and admin approval. Optional WooCommerce integration for online payment gateways.
+*   **Payment Integration:** Seamless WooCommerce integration for all frontend payments (Online & Offline methods). Admin-only native offline payment support for manual bookings.
 *   **Customer Management:** Manage customer information and booking history.
 *   **Email Notifications:** Customizable email templates for booking confirmations, cancellations, and more.
 *   **Shortcode Support:** Easy-to-use shortcodes to display vehicle lists, search forms, and booking wizards anywhere on your site.
@@ -56,10 +56,10 @@ mhm-rentiva/
 == Frequently Asked Questions ==
 
 = Does this plugin require WooCommerce? =
-No, MHM Rentiva works independently and includes a built-in offline payment system. WooCommerce integration is optional and only needed if you want to accept online payments through WooCommerce payment gateways.
+Yes, MHM Rentiva requires WooCommerce for all frontend booking and payment processing actions. This ensures secure and standard payment handling for your customers. However, administrators can create and manage manual bookings in the backend without WooCommerce.
 
 = Can I accept credit card payments? =
-Yes, the plugin supports "Offline Payment" natively. For online payments (credit cards, etc.), you can use our seamless WooCommerce integration to leverage any payment gateway supported by WooCommerce.
+Yes, via the WooCommerce integration. You can use any payment gateway supported by WooCommerce (Stripe, PayPal, Bank Transfer, Cash on Delivery, etc.) to accept payments on your rental site.
 
 = Is it compatible with the latest WordPress version? =
 Yes, we actively test and update the plugin to ensure compatibility with the latest WordPress releases.
@@ -72,6 +72,13 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.6.1 =
+* Critical: Comprehensive DatabaseCleaner meta key protection to prevent potential data loss.
+* WooCommerce: Atomic Overlap Lock mechanism added to prevent duplicate bookings.
+* Fix: Resolved tax calculation issue for deposit payments (calculates on total amount).
+* Security: SQL queries hardened with prepared statements.
+* UI: Added informative notice in Payment Settings when WooCommerce integration is active.
 
 = 4.6.0 =
 * New Module: VIP Transfer Module (Chauffeur Service).
@@ -160,6 +167,9 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 *   Documentation: README badges and release notes updated.
 
 == Upgrade Notice ==
+
+= 4.6.1 =
+Critical Update: Includes essential database protection fixes and WooCommerce tax calculation corrections. Highly recommended for all users.
 
 = 4.6.0 =
 Major Update: Introducing VIP Transfer Module with point-to-point booking, distance pricing, and WooCommerce partial payment support.

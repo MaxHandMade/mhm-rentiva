@@ -13,14 +13,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain()
-    {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -94,7 +87,7 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
                 <h4><?php echo esc_html($message->post_title); ?></h4>
                 <p><strong><?php esc_html_e('Previous Status:', 'mhm-rentiva'); ?></strong> <?php echo esc_html($old_status_label); ?></p>
                 <p><strong><?php esc_html_e('New Status:', 'mhm-rentiva'); ?></strong> <?php echo esc_html($new_status_label); ?></p>
-                <p><strong><?php esc_html_e('Update Date:', 'mhm-rentiva'); ?></strong> <?php echo esc_html(current_time('d.m.Y H:i')); ?></p>
+                <p><strong><?php esc_html_e('Update Date:', 'mhm-rentiva'); ?></strong> <?php echo esc_html(wp_date('d.m.Y H:i')); ?></p>
             </div>
 
             <div style="text-align: center; margin: 30px 0;">

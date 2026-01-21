@@ -1,35 +1,111 @@
 <?php
 // Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php esc_html_e('Payment Approved', 'mhm-rentiva'); ?> - #<?php echo esc_html($data['booking']['id'] ?? ''); ?></title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 30px; text-align: center; }
-        .header h1 { margin: 0; font-size: 24px; }
-        .header .icon { font-size: 48px; margin-bottom: 10px; }
-        .content { padding: 30px; }
-        .success-message { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 20px; border-radius: 6px; margin: 20px 0; text-align: center; }
-        .booking-details { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .detail-row { display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { font-weight: bold; color: #555; }
-        .detail-value { color: #333; }
-        .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 14px; }
-        .cta-button { display: inline-block; background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .booking-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -43,7 +119,7 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
             </p>
             <p style="margin-top: 15px; font-size: 14px; opacity: 0.9;"><?php echo esc_html(\MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_brand_name', get_bloginfo('name'))); ?></p>
         </div>
-        
+
         <div class="content">
             <div class="success-message">
                 <h3>🎉 <?php esc_html_e('Congratulations!', 'mhm-rentiva'); ?></h3>
@@ -82,7 +158,7 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
                     <span class="detail-value"><?php echo esc_html(apply_filters('mhm_rentiva/currency_symbol', '₺')); ?><?php echo esc_html(number_format($data['booking']['total_price'] ?? 0, 2)); ?></span>
                 </div>
             </div>
-            
+
             <p><strong><?php esc_html_e('Important Notes:', 'mhm-rentiva'); ?></strong></p>
             <ul>
                 <li><?php esc_html_e('Please be ready for vehicle delivery on the specified date', 'mhm-rentiva'); ?></li>
@@ -103,4 +179,5 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
         </div>
     </div>
 </body>
+
 </html>

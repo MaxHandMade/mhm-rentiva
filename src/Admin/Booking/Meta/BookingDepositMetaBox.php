@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Booking\Meta;
 
@@ -46,10 +48,10 @@ final class BookingDepositMetaBox extends AbstractMetaBox
     {
         // Show meta box only for existing bookings
         add_action('add_meta_boxes', [self::class, 'add_meta_boxes']);
-        
+
         // Load required assets
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_scripts']);
-        
+
         // AJAX handlers
         add_action('wp_ajax_mhm_rentiva_process_deposit_payment', [self::class, 'ajax_process_deposit_payment']);
         add_action('wp_ajax_mhm_rentiva_process_full_payment', [self::class, 'ajax_process_full_payment']);
@@ -62,12 +64,12 @@ final class BookingDepositMetaBox extends AbstractMetaBox
     public static function add_meta_boxes(): void
     {
         global $post, $pagenow;
-        
+
         // Only display on existing bookings (not while creating a new booking)
         if (!$post || !$post->ID || $pagenow === 'post-new.php') {
             return;
         }
-        
+
         add_meta_box(
             self::get_meta_box_id(),
             self::get_title(),
@@ -81,7 +83,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
     public static function enqueue_scripts(string $hook): void
     {
         global $post_type;
-        
+
         // Load assets only on booking edit screen
         if (($hook === 'post.php' || $hook === 'post-new.php') && $post_type === 'vehicle_booking') {
             // Enqueue CSS
@@ -91,7 +93,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
                 [],
                 MHM_RENTIVA_VERSION
             );
-            
+
             wp_enqueue_script(
                 'mhm-deposit-management',
                 MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/deposit-management.js',
@@ -99,7 +101,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
                 MHM_RENTIVA_VERSION,
                 true
             );
-            
+
             // Localization
             wp_localize_script('mhm-deposit-management', 'mhmDepositManagement', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -148,7 +150,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
 
         // Deposit details grid
         echo '<div class="deposit-info-grid">';
-        
+
         // Payment type
         echo '<div class="deposit-info-item">';
         echo '<div class="deposit-info-label">' . __('Payment Type', 'mhm-rentiva') . '</div>';
@@ -225,7 +227,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox
             echo '<div class="cancellation-policy-section">';
             echo '<h4>' . __('Cancellation Policy', 'mhm-rentiva') . '</h4>';
             echo '<p><strong>' . __('Cancellation Deadline:', 'mhm-rentiva') . '</strong> ' . esc_html(date('d.m.Y H:i', strtotime($cancellation_deadline))) . '</p>';
-            
+
             $now = time();
             $deadline = strtotime($cancellation_deadline);
             if ($now < $deadline) {
@@ -236,12 +238,12 @@ final class BookingDepositMetaBox extends AbstractMetaBox
             echo '</div>';
         }
 
-        // Payment deadline (offline payments)
+        // Payment deadline
         if ($payment_deadline) { // ⭐ Show deadline for all payment methods (WooCommerce)
             echo '<div class="payment-deadline-section">';
             echo '<h4>' . __('Payment Deadline', 'mhm-rentiva') . '</h4>';
             echo '<p><strong>' . __('Deadline:', 'mhm-rentiva') . '</strong> ' . esc_html(date('d.m.Y H:i', strtotime($payment_deadline))) . '</p>';
-            
+
             $now = time();
             $deadline = strtotime($payment_deadline);
             if ($now > $deadline && $payment_status !== 'paid') {
@@ -355,8 +357,10 @@ final class BookingDepositMetaBox extends AbstractMetaBox
     public static function save_meta(int $post_id, \WP_Post $post): void
     {
         // Nonce check
-        if (!isset($_POST['mhm_rentiva_deposit_management_nonce']) || 
-            !wp_verify_nonce($_POST['mhm_rentiva_deposit_management_nonce'], 'mhm_rentiva_deposit_management_action')) {
+        if (
+            !isset($_POST['mhm_rentiva_deposit_management_nonce']) ||
+            !wp_verify_nonce($_POST['mhm_rentiva_deposit_management_nonce'], 'mhm_rentiva_deposit_management_action')
+        ) {
             return;
         }
 

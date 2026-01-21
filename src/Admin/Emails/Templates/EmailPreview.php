@@ -50,8 +50,7 @@ final class EmailPreview
             'welcome_customer'         => esc_html__('Welcome Email (Customer)', 'mhm-rentiva'),
             'refund_customer'          => esc_html__('Refund Notification (Customer)', 'mhm-rentiva'),
             'refund_admin'             => esc_html__('Refund Alert (Admin)', 'mhm-rentiva'),
-            'offline_payment_request'  => esc_html__('Offline Payment Request (Customer)', 'mhm-rentiva'),
-            'offline_payment_confirmation' => esc_html__('Offline Payment Confirmed (Customer)', 'mhm-rentiva'),
+
             'message_received_admin' => esc_html__('New Message (Admin)', 'mhm-rentiva'),
             'message_replied_customer' => esc_html__('Message Reply (Customer)', 'mhm-rentiva'),
         ];
@@ -236,7 +235,7 @@ final class EmailPreview
             $context['status'] = 'completed';
             $context['reason'] = '';
         }
-        // ⭐ Offline payment template context removed - WooCommerce handles all payments
+
         if ($template_key === 'message_received_admin' || $template_key === 'message_replied_customer') {
             $context['message'] = [
                 'subject' => __('Sample Subject', 'mhm-rentiva'),

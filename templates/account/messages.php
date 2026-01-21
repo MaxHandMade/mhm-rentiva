@@ -1,4 +1,5 @@
 <?php
+
 /**
  * My Account - Messages Template
  * 
@@ -12,13 +13,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 
 // Get message categories and priorities
 $categories = [];
@@ -45,16 +40,16 @@ if (empty($navigation)) {
 ?>
 
 <div class="<?php echo esc_attr($wrapper_class); ?>">
-    
+
     <!-- Account Navigation -->
     <?php if (!empty($navigation)): ?>
         <?php echo \MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', ['navigation' => $navigation], true); ?>
     <?php endif; ?>
-    
+
     <!-- Messages Content -->
     <div class="mhm-account-content">
         <div class="mhm-messages-section">
-            
+
             <!-- Header -->
             <div class="section-header">
                 <h2><?php _e('Messages', 'mhm-rentiva'); ?></h2>
@@ -168,6 +163,3 @@ if (empty($navigation)) {
         </div>
     </div>
 </div>
-
-
-

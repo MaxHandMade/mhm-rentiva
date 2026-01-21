@@ -1,9 +1,9 @@
 /**
- * MHM Rentiva - Basit Takvim Stilleri (ChatGPT Tabanlı)
- * Müşteriler ve Rezervasyon sayfaları için
+ * MHM Rentiva - Simple Calendar Styles (ChatGPT Based)
+ * For Customers and Bookings pages
  */
 
-/* === TAKVIM CONTAINER === */
+/* === CALENDAR CONTAINER === */
 .calendar-container {
     width: 100%;
     max-width: 100%;
@@ -16,7 +16,7 @@
     box-sizing: border-box;
 }
 
-/* === TAKVIM BAŞLIĞI === */
+/* === CALENDAR HEADER === */
 .calendar-header {
     display: flex;
     justify-content: space-between;
@@ -53,7 +53,7 @@
     color: white;
 }
 
-/* === HAFTA GÜNLERİ === */
+/* === WEEKDAYS === */
 .calendar-days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -70,7 +70,7 @@
     color: #333;
 }
 
-/* === TAKVIM GRID === */
+/* === CALENDAR GRID === */
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -101,7 +101,7 @@
     background: #b1b1b1;
 }
 
-/* === ÖNCEKI VE SONRAKI AY GÜNLERİ === */
+/* === PREVIOUS AND NEXT MONTH DAYS === */
 .calendar-grid .prev-date,
 .calendar-grid .next-date {
     color: #ccc;
@@ -113,7 +113,7 @@
     background: #e9ecef;
 }
 
-/* === BUGÜN === */
+/* === TODAY === */
 .calendar-grid .today {
     background: #0073aa;
     color: white;
@@ -125,7 +125,7 @@
     background: #005f8d;
 }
 
-/* === REZERVASYONLU GÜNLER === */
+/* === RESERVED DAYS === */
 .calendar-grid .booked {
     background: #dc3545;
     color: white;
@@ -136,12 +136,12 @@
     background: #c82333;
 }
 
-/* === REZERVASYON DURUM RENKLERİ === */
+/* === RESERVATION STATUS COLORS === */
 .calendar-grid .has-booking {
     position: relative;
 }
 
-/* EN GÜÇLÜ CSS - TÜM DİĞER STİLLERİN ÜZERİNE YAZAR */
+/* STRONGEST CSS - OVERRIDES ALL OTHER STYLES */
 .calendar-container .calendar-grid div[class*="booking-confirmed"] {
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
     color: white !important;
@@ -169,7 +169,7 @@
     position: relative !important;
 }
 
-/* Onaylı Rezervasyonlar - Yeşil */
+/* Confirmed Reservations - Green */
 .booking-page .calendar-grid .booking-confirmed,
 .calendar-grid .has-booking.booking-confirmed,
 .calendar-grid div.booking-confirmed,
@@ -188,7 +188,7 @@ div.booking-confirmed {
     box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3) !important;
 }
 
-/* Beklemede Rezervasyonlar - Sarı */
+/* Pending Reservations - Yellow */
 .booking-page .calendar-grid .booking-pending,
 .calendar-grid .has-booking.booking-pending,
 .calendar-grid div.booking-pending,
@@ -207,7 +207,7 @@ div.booking-pending {
     box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3) !important;
 }
 
-/* İptal Edilmiş Rezervasyonlar - Kırmızı */
+/* Cancelled Reservations - Red */
 .booking-page .calendar-grid .booking-cancelled,
 .calendar-grid .has-booking.booking-cancelled {
     background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
@@ -223,7 +223,7 @@ div.booking-pending {
     box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3) !important;
 }
 
-/* === REZERVASYON İKONU === */
+/* === RESERVATION ICON === */
 .booking-icon {
     position: absolute;
     top: 2px;
@@ -232,7 +232,7 @@ div.booking-pending {
     opacity: 0.8;
 }
 
-/* === SPLIT DAY STİLLERİ === */
+/* === SPLIT DAY STYLES === */
 .split-day {
     position: relative;
     overflow: hidden;
@@ -280,7 +280,7 @@ div.booking-pending {
     opacity: 0.9;
 }
 
-/* Split day renkleri - Sol taraf */
+/* Split day colors - Left side */
 .split-left.booking-confirmed {
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
 }
@@ -293,7 +293,7 @@ div.booking-pending {
     background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
 }
 
-/* Split day renkleri - Sağ taraf */
+/* Split day colors - Right side */
 .split-right.booking-confirmed {
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
 }
@@ -306,7 +306,7 @@ div.booking-pending {
     background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
 }
 
-/* === MÜŞTERİLER SAYFASI ÖZEL RENKLER === */
+/* === CUSTOMERS PAGE CUSTOM COLORS === */
 .customers-page .calendar-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -336,7 +336,7 @@ div.booking-pending {
     background: #c0392b;
 }
 
-/* === REZERVASYON SAYFASI ÖZEL RENKLER === */
+/* === BOOKINGS PAGE CUSTOM COLORS === */
 
 .booking-page .calendar-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -367,7 +367,7 @@ div.booking-pending {
     background: #c0392b;
 }
 
-/* Rezervasyon sayfası için durum renkleri */
+/* Status colors for bookings page */
 .booking-page .calendar-grid .booking-confirmed {
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
     color: white !important;
@@ -392,7 +392,7 @@ div.booking-pending {
     border: none !important;
 }
 
-/* Rezervasyon sayfası için genel boyut optimizasyonu - müşteriler ile aynı */
+/* General size optimization for bookings page - same as customers */
 .booking-page .calendar-grid div {
     min-height: 50px;
     font-size: 0.9rem;
@@ -403,7 +403,7 @@ div.booking-pending {
     font-size: 0.9rem;
 }
 
-/* === RESPONSIVE TASARIM === */
+/* === RESPONSIVE DESIGN === */
 @media (max-width: 1200px) {
     .calendar-container {
         margin: 10px 0;
@@ -577,7 +577,7 @@ div.booking-pending {
         font-size: 0.75rem;
     }
 
-    /* Mobil ayarları - her iki sayfa için aynı */
+    /* Mobile settings - same for both pages */
     .calendar-container {
         margin: 5px;
     }
@@ -633,7 +633,7 @@ div.booking-pending {
         font-size: 0.6rem;
     }
 
-    /* Çok küçük ekranlar - her iki sayfa için aynı */
+    /* Very small screens - same for both pages */
     .calendar-container {
         margin: 2px;
     }

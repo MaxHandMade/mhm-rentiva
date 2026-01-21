@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Emails\Core;
 
 use MHMRentiva\Admin\Emails\Templates\BookingNotifications;
-use MHMRentiva\Admin\Emails\Templates\OfflinePayment;
 use MHMRentiva\Admin\Emails\Templates\RefundEmails;
 use MHMRentiva\Admin\Emails\Templates\MessageEmails;
 use MHMRentiva\Admin\Emails\Templates\EmailPreview;
@@ -54,7 +53,6 @@ final class EmailTemplates
         // Define email template types
         $email_types = [
             'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
-            'offline_payment' => __('Offline Payment Emails', 'mhm-rentiva'),
             'refund_emails' => __('Refund Emails', 'mhm-rentiva'),
             'message_emails' => __('Message Notifications', 'mhm-rentiva'),
             'preview' => __('Email Preview', 'mhm-rentiva'),
@@ -156,8 +154,6 @@ final class EmailTemplates
 
         if ($current_type === 'booking_notifications') {
             BookingNotifications::render();
-        } elseif ($current_type === 'offline_payment') {
-            OfflinePayment::render();
         } elseif ($current_type === 'refund_emails') {
             RefundEmails::render();
         } elseif ($current_type === 'message_emails') {
@@ -179,7 +175,6 @@ final class EmailTemplates
         // Define email template types
         $email_types = [
             'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
-            'offline_payment' => __('Offline Payment Emails', 'mhm-rentiva'),
             'refund_emails' => __('Refund Emails', 'mhm-rentiva'),
             'message_emails' => __('Message Notifications', 'mhm-rentiva'),
             'preview' => __('Email Preview', 'mhm-rentiva'),
@@ -226,8 +221,6 @@ final class EmailTemplates
         // Render content (without form)
         if ($current_type === 'booking_notifications') {
             BookingNotifications::render();
-        } elseif ($current_type === 'offline_payment') {
-            OfflinePayment::render();
         } elseif ($current_type === 'refund_emails') {
             RefundEmails::render();
         } elseif ($current_type === 'message_emails') {
@@ -281,8 +274,6 @@ final class EmailTemplates
         // Process only active tab
         if ($current_tab === 'booking_notifications') {
             self::save_booking_notifications();
-        } elseif ($current_tab === 'offline_payment') {
-            self::save_offline_payment();
         } elseif ($current_tab === 'refund_emails') {
             self::save_refund_emails();
         } elseif ($current_tab === 'message_emails') {
@@ -328,16 +319,7 @@ final class EmailTemplates
         self::save_email_fields($fields);
     }
 
-    private static function save_offline_payment(): void
-    {
-        $fields = [
-            // ⭐ Offline payment email templates removed - WooCommerce handles all payments
-            'mhm_rentiva_offline_email_customer_subject_rejected' => 'text',
-            'mhm_rentiva_offline_email_customer_body_rejected' => 'html',
-        ];
 
-        self::save_email_fields($fields);
-    }
 
     private static function save_refund_emails(): void
     {
@@ -655,10 +637,6 @@ final class EmailTemplates
                 'booking_confirmation' => __('Booking Confirmation', 'mhm-rentiva'),
                 'booking_reminder' => __('Booking Reminder', 'mhm-rentiva'),
                 'booking_cancellation' => __('Booking Cancellation', 'mhm-rentiva'),
-            ],
-            'offline_payment' => [
-                'offline_payment_request' => __('Offline Payment Request', 'mhm-rentiva'),
-                'offline_payment_confirmation' => __('Offline Payment Confirmation', 'mhm-rentiva'),
             ],
             'refund_emails' => [
                 'refund_customer' => __('Customer Refund Email', 'mhm-rentiva'),

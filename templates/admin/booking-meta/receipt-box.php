@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Receipt Box Template
  * 
@@ -12,21 +13,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 ?>
 
 <div class="mhm-receipt-box">
     <?php wp_nonce_field('mhm_rentiva_receipt_action', 'mhm_receipt_nonce'); ?>
-    
+
     <?php if ($attach_id && $url): ?>
         <p>
-            <strong><?php esc_html_e('Receipt file:', 'mhm-rentiva'); ?></strong><br/>
+            <strong><?php esc_html_e('Receipt file:', 'mhm-rentiva'); ?></strong><br />
             <a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener">
                 <?php esc_html_e('View / Download', 'mhm-rentiva'); ?>
             </a>
@@ -36,14 +31,14 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
     <?php endif; ?>
 
     <p>
-        <strong><?php esc_html_e('Status:', 'mhm-rentiva'); ?></strong> 
+        <strong><?php esc_html_e('Status:', 'mhm-rentiva'); ?></strong>
         <?php echo esc_html($status ?: esc_html__('-', 'mhm-rentiva')); ?>
     </p>
 
     <p>
         <label for="mhm_receipt_note">
             <strong><?php esc_html_e('Admin Note', 'mhm-rentiva'); ?></strong>
-        </label><br/>
+        </label><br />
         <textarea id="mhm_receipt_note" name="mhm_receipt_note" rows="3" style="width:100%">
             <?php echo esc_textarea($note); ?>
         </textarea>

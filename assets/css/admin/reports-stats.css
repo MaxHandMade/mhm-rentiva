@@ -1,8 +1,8 @@
 /**
  * MHM Rentiva - Reports Stats
  * 
- * Raporlar sayfası için özel stiller.
- * Temel stats-cards bileşenini genişletir.
+ * Custom styles for the reports page.
+ * Extends the basic stats-cards component.
  */
 
 /* === REPORTS STATS LAYOUT === */
@@ -205,7 +205,7 @@
     }
 }
 
-/* === KARANLIK MOD === */
+/* === DARK MODE === */
 
 @media (prefers-color-scheme: dark) {
     .chart-container {
@@ -242,7 +242,7 @@ body.wp-admin.wp-theme-dark .error {
     border-color: var(--mhm-error);
 }
 
-/* === ANİMASYONLAR === */
+/* === ANIMATIONS === */
 
 .chart-container {
     animation: fadeInUp var(--mhm-duration-500) var(--mhm-ease-out);

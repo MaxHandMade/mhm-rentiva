@@ -309,9 +309,9 @@
 
         initializeAddVehicleForm() {
             // Load vehicle list
-            // this.loadAvailableVehicles(); // Kaldırıldı
+            // this.loadAvailableVehicles(); // Removed
 
-            // this.updateAddVehicleForm(); // Kaldırıldı
+            // this.updateAddVehicleForm(); // Removed
 
             // Add vehicle butonuna event listener ekle
             this.container.find('.rv-add-vehicle-btn').off('click').on('click', () => {

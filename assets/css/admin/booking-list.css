@@ -15,7 +15,7 @@
     color: var(--mhm-white);
 }
 
-/* Yeni sütunlar için stiller */
+/* Styles for new columns */
 .mhm-booking-list .booking-id {
     font-family: monospace;
     font-weight: var(--mhm-font-bold);
@@ -56,14 +56,14 @@
     border: 1px solid #ffcc02;
 }
 
-/* Depozito bedeli sütunu için stiller */
+/* Styles for deposit amount column */
 .mhm-booking-list .deposit-amount {
     font-weight: var(--mhm-font-bold);
     color: var(--mhm-success);
     font-size: 0.9rem;
 }
 
-/* Kalan tutar sütunu için stiller */
+/* Styles for remaining amount column */
 .mhm-booking-list .remaining-amount {
     font-weight: var(--mhm-font-bold);
     color: var(--mhm-error);
@@ -74,7 +74,7 @@
     color: var(--mhm-success);
 }
 
-/* Başlık sütununda müşteri bilgileri için stiller */
+/* Styles for customer info in title column */
 .mhm-booking-list .column-title strong a {
     color: var(--mhm-primary);
     text-decoration: none;
@@ -85,13 +85,13 @@
     text-decoration: underline;
 }
 
-/* Telefon numarası vurgusu için */
+/* Phone number highlight */
 .mhm-booking-list .column-title strong {
     display: block;
     margin-bottom: 2px;
 }
 
-/* Filtreleme alanları için stiller */
+/* Styles for filter fields */
 .mhm-booking-list .postform {
     margin-right: 8px;
     padding: 4px 8px;
@@ -99,9 +99,9 @@
     border-radius: var(--mhm-radius-sm);
     font-size: 13px;
     min-width: 150px;
-    /* Minimum genişlik eklendi */
+    /* Minimum width added */
     width: auto;
-    /* Otomatik genişlik */
+    /* Auto width */
 }
 
 .mhm-booking-list .postform:focus {
@@ -110,36 +110,36 @@
     outline: none;
 }
 
-/* Dropdown alanları için özel stiller */
+/* Custom styles for dropdown fields */
 .mhm-booking-list .postform[class*="postform"] {
     padding-right: 25px;
-    /* Dropdown ok için sağda boşluk */
+    /* Right padding for dropdown arrow */
     background-position: right 8px center;
     /* Dropdown ok konumu */
     background-repeat: no-repeat;
     background-size: 12px;
 }
 
-/* Özel dropdown genişlikleri */
+/* Custom dropdown widths */
 .mhm-booking-list select.postform[name="mhm_payment_status"] {
     min-width: 140px;
     padding-right: 30px;
-    /* Dropdown ok için ekstra boşluk */
+    /* Extra padding for dropdown arrow */
 }
 
 .mhm-booking-list select.postform[name="mhm_payment_method"] {
     min-width: 160px;
     padding-right: 30px;
-    /* Dropdown ok için ekstra boşluk */
+    /* Extra padding for dropdown arrow */
 }
 
 .mhm-booking-list select.postform[name="mhm_booking_status"] {
     min-width: 130px;
     padding-right: 30px;
-    /* Dropdown ok için ekstra boşluk */
+    /* Extra padding for dropdown arrow */
 }
 
-/* WordPress admin dropdown'ları için genel düzeltme */
+/* General fix for WordPress admin dropdowns */
 .mhm-booking-list select.postform {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -151,19 +151,19 @@
     padding-right: 30px;
 }
 
-/* Tüm ödemeler dropdown'ı için özel düzenleme */
+/* Custom layout for all payments dropdown */
 .mhm-booking-list select[name="mhm_payment_status"] {
     min-width: 140px !important;
     padding-right: 35px !important;
 }
 
-/* Tüm ödeme yöntemleri dropdown'ı için özel düzenleme */
+/* Custom layout for all payment methods dropdown */
 .mhm-booking-list select[name="mhm_payment_method"] {
     min-width: 160px !important;
     padding-right: 35px !important;
 }
 
-/* Filtreleme alanları arası boşluk */
+/* Spacing between filter fields */
 .mhm-booking-list .subsubsub {
     margin-bottom: 10px;
 }
@@ -179,13 +179,13 @@
 
 .mhm-booking-list .badge.status-pending {
     background-color: var(--mhm-warning);
-    /* 🟡 Sarı - Dikkat çekici, bekleyen */
+    /* 🟡 Yellow - Attention required, pending */
     color: #000;
 }
 
 .mhm-booking-list .badge.status-confirmed {
     background-color: var(--mhm-success);
-    /* 🟢 Yeşil - Başarılı, onaylanmış */
+    /* 🟢 Green - Successful, confirmed */
     color: var(--mhm-white);
 }
 
@@ -198,13 +198,13 @@
 
 .mhm-booking-list .badge.status-completed {
     background-color: var(--mhm-primary);
-    /* 🔵 Mavi - Tamamlanmış, bitmiş */
+    /* 🔵 Blue - Completed, finished */
     color: var(--mhm-white);
 }
 
 .mhm-booking-list .badge.status-cancelled {
     background-color: var(--mhm-error);
-    /* 🔴 Kırmızı - İptal, hata */
+    /* 🔴 Red - Cancelled, error */
     color: var(--mhm-white);
 }
 
@@ -307,7 +307,7 @@
         font-size: 0.8rem;
     }
 
-    /* Takvim responsive */
+    /* Calendar responsive */
     .calendar-container {
         margin: 5px 0;
         width: 100%;

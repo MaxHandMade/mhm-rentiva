@@ -1,4 +1,4 @@
-/* VehicleMeta.css - Araç Meta Box Stilleri */
+/* VehicleMeta.css - Vehicle Meta Box Styles */
 
 /* Sortable Placeholder */
 .mhm-sortable-placeholder {
@@ -64,7 +64,7 @@
     font-weight: 600;
 }
 
-/* Status class'ları */
+/* Status classes */
 .mhm-availability-dropdown.status-active {
     border-color: #28a745;
     background-color: #f8fff9;
@@ -89,13 +89,13 @@
     }
 }
 
-/* Detail item'ların sol padding'ini düzelt */
+/* Fix left padding of detail items */
 .mhm-detail-item {
     position: relative;
     padding-left: 12px !important;
 }
 
-/* Drag over efekti */
+/* Drag over effect */
 .mhm-detail-item.drag-over {
     border: 2px dashed #007cba !important;
     background: rgba(0, 124, 186, 0.1) !important;
@@ -103,17 +103,17 @@
     transition: all 0.2s ease;
 }
 
-/* Dragging efekti */
+/* Dragging effect */
 .mhm-detail-item.dragging {
     opacity: 0.3;
     transform: rotate(2deg) scale(1.02);
     z-index: 1000;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     transition: none;
-    /* pointer-events: none; - Kaldırıldı, drop event'leri engelliyor */
+    /* pointer-events: none; - Removed, blocking drop events */
 }
 
-/* Ana Container */
+/* Main Container */
 .mhm-vehicle-meta {
     background: #fff;
     border-radius: 12px;
@@ -565,7 +565,7 @@
     z-index: 1000;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     transition: none;
-    /* pointer-events: none; - Kaldırıldı, drop event'leri engelliyor */
+    /* pointer-events: none; - Removed, blocking drop events */
 }
 
 .mhm-detail-item.drag-over,
@@ -932,7 +932,7 @@
     z-index: 1 !important;
 }
 
-/* Equipment tab normal stilleri - kırmızı çerçeve kaldırıldı */
+/* Equipment tab normal styles - red border removed */
 #equipment-tab {
     display: none !important;
 }

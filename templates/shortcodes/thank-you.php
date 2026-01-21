@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Thank You Page Template
  * 
@@ -13,13 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 
 // Check for error
 if (!empty($error)) {
@@ -75,13 +70,13 @@ $confirmation_url = \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::g
     <div class="rv-thank-you-header">
         <div class="rv-success-icon">
             <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" fill="#10B981" stroke="#10B981" stroke-width="2"/>
-                <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="10" fill="#10B981" stroke="#10B981" stroke-width="2" />
+                <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
         </div>
         <h1><?php esc_html_e('Thank You!', 'mhm-rentiva'); ?></h1>
         <p class="rv-thank-you-message">
-            <?php 
+            <?php
             if (!empty($customer_name)) {
                 printf(
                     esc_html__('Dear %s, your reservation has been successfully received!', 'mhm-rentiva'),
@@ -102,8 +97,8 @@ $confirmation_url = \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::g
         <div class="rv-summary-card">
             <div class="rv-summary-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 12l2 2 4-4" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="12" cy="12" r="10" stroke="#10B981" stroke-width="2"/>
+                    <path d="M9 12l2 2 4-4" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="12" cy="12" r="10" stroke="#10B981" stroke-width="2" />
                 </svg>
             </div>
             <div class="rv-summary-content">
@@ -115,9 +110,9 @@ $confirmation_url = \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::g
         <div class="rv-summary-card">
             <div class="rv-summary-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M17 21v-8H7v8" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M7 3v5h5" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M17 21v-8H7v8" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M7 3v5h5" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </div>
             <div class="rv-summary-content">
@@ -129,8 +124,8 @@ $confirmation_url = \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::g
         <div class="rv-summary-card">
             <div class="rv-summary-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" stroke="#F59E0B" stroke-width="2"/>
-                    <path d="M12 6v6l4 2" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="12" r="10" stroke="#F59E0B" stroke-width="2" />
+                    <path d="M12 6v6l4 2" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" />
                 </svg>
             </div>
             <div class="rv-summary-content">
@@ -142,8 +137,8 @@ $confirmation_url = \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::g
         <div class="rv-summary-card">
             <div class="rv-summary-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="#8B5CF6"/>
-                    <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z" fill="#8B5CF6"/>
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="#8B5CF6" />
+                    <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z" fill="#8B5CF6" />
                 </svg>
             </div>
             <div class="rv-summary-content">
@@ -159,14 +154,14 @@ $confirmation_url = \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::g
             <?php esc_html_e('View Full Booking Details', 'mhm-rentiva'); ?>
         </a>
         <?php if (!empty($woocommerce_order) && is_a($woocommerce_order, 'WC_Order')): ?>
-        <a href="<?php echo esc_url($woocommerce_order->get_view_order_url()); ?>" class="rv-btn rv-btn-secondary">
-            <?php esc_html_e('View Order', 'mhm-rentiva'); ?>
-        </a>
+            <a href="<?php echo esc_url($woocommerce_order->get_view_order_url()); ?>" class="rv-btn rv-btn-secondary">
+                <?php esc_html_e('View Order', 'mhm-rentiva'); ?>
+            </a>
         <?php endif; ?>
         <?php if (!empty($account_url)): ?>
-        <a href="<?php echo esc_url($account_url); ?>" class="rv-btn rv-btn-outline">
-            <?php esc_html_e('My Account', 'mhm-rentiva'); ?>
-        </a>
+            <a href="<?php echo esc_url($account_url); ?>" class="rv-btn rv-btn-outline">
+                <?php esc_html_e('My Account', 'mhm-rentiva'); ?>
+            </a>
         <?php endif; ?>
         <a href="<?php echo esc_url($booking_form_url ?: home_url()); ?>" class="rv-btn rv-btn-outline">
             <?php esc_html_e('Book Another Vehicle', 'mhm-rentiva'); ?>
@@ -205,7 +200,7 @@ $confirmation_url = \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::g
     <div class="rv-support-info">
         <h3><?php esc_html_e('Need Help?', 'mhm-rentiva'); ?></h3>
         <p>
-            <?php 
+            <?php
             printf(
                 esc_html__('If you have any questions or need assistance, please contact us at %s or visit your account page.', 'mhm-rentiva'),
                 '<a href="mailto:' . esc_attr(get_option('admin_email')) . '">' . esc_html(get_option('admin_email')) . '</a>'
@@ -214,4 +209,3 @@ $confirmation_url = \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::g
         </p>
     </div>
 </div>
-

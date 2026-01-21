@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin message email template
  * 
@@ -10,29 +11,64 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title><?php esc_html_e('New Customer Message', 'mhm-rentiva'); ?></title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #2271b1; color: white; padding: 20px; text-align: center; }
-        .content { padding: 20px; background: #f9f9f9; }
-        .message-details { background: white; padding: 15px; margin: 15px 0; border-left: 4px solid #2271b1; }
-        .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
-        .button { display: inline-block; background: #2271b1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #2271b1;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 20px;
+            background: #f9f9f9;
+        }
+
+        .message-details {
+            background: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #2271b1;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .button {
+            display: inline-block;
+            background: #2271b1;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -75,4 +111,5 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
         </div>
     </div>
 </body>
+
 </html>

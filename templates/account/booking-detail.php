@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Booking Detail Template
  * 
@@ -12,13 +13,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 
 // Get booking data
 $booking_id = $booking->ID;
@@ -87,7 +82,7 @@ if ($is_integrated) {
     <!-- Booking Details -->
     <div class="rv-booking-details">
         <h2><?php esc_html_e('Reservation Details', 'mhm-rentiva'); ?></h2>
-        
+
         <div class="rv-details-grid">
             <!-- Booking Reference -->
             <div class="rv-detail-row">
@@ -133,34 +128,35 @@ if ($is_integrated) {
             </div>
 
             <?php if ($payment_type === 'deposit' && $deposit_amount > 0): ?>
-            <!-- Deposit Amount -->
-            <div class="rv-detail-row">
-                <div class="rv-detail-label"><?php esc_html_e('Deposit Paid', 'mhm-rentiva'); ?></div>
-                <div class="rv-detail-value rv-price"><?php echo esc_html(number_format($deposit_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
-            </div>
+                <!-- Deposit Amount -->
+                <div class="rv-detail-row">
+                    <div class="rv-detail-label"><?php esc_html_e('Deposit Paid', 'mhm-rentiva'); ?></div>
+                    <div class="rv-detail-value rv-price"><?php echo esc_html(number_format($deposit_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+                </div>
 
-            <!-- Remaining Amount -->
-            <div class="rv-detail-row">
-                <div class="rv-detail-label"><?php esc_html_e('Remaining Amount', 'mhm-rentiva'); ?></div>
-                <div class="rv-detail-value rv-price"><?php echo esc_html(number_format($remaining_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
-            </div>
+                <!-- Remaining Amount -->
+                <div class="rv-detail-row">
+                    <div class="rv-detail-label"><?php esc_html_e('Remaining Amount', 'mhm-rentiva'); ?></div>
+                    <div class="rv-detail-value rv-price"><?php echo esc_html(number_format($remaining_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+                </div>
             <?php endif; ?>
 
             <?php if (!empty($selected_addons)): ?>
-            <!-- Selected Add-ons -->
-            <div class="rv-detail-row">
-                <div class="rv-detail-label"><?php esc_html_e('Additional Services', 'mhm-rentiva'); ?></div>
-                <div class="rv-detail-value">
-                    <ul class="rv-addons-list">
-                        <?php foreach ($selected_addons as $addon_id): 
-                            $addon = get_post($addon_id);
-                            if ($addon):
-                        ?>
-                        <li><?php echo esc_html($addon->post_title); ?></li>
-                        <?php endif; endforeach; ?>
-                    </ul>
+                <!-- Selected Add-ons -->
+                <div class="rv-detail-row">
+                    <div class="rv-detail-label"><?php esc_html_e('Additional Services', 'mhm-rentiva'); ?></div>
+                    <div class="rv-detail-value">
+                        <ul class="rv-addons-list">
+                            <?php foreach ($selected_addons as $addon_id):
+                                $addon = get_post($addon_id);
+                                if ($addon):
+                            ?>
+                                    <li><?php echo esc_html($addon->post_title); ?></li>
+                            <?php endif;
+                            endforeach; ?>
+                        </ul>
+                    </div>
                 </div>
-            </div>
             <?php endif; ?>
         </div>
     </div>
@@ -176,37 +172,37 @@ if ($is_integrated) {
         <a href="<?php echo esc_url($navigation['bookings']['url']); ?>" class="rv-btn rv-btn-secondary">
             <?php esc_html_e('Back to Bookings', 'mhm-rentiva'); ?>
         </a>
-        
+
         <?php
         // Check if user can cancel this booking
         $can_cancel = \MHMRentiva\Admin\Booking\Helpers\CancellationHandler::user_can_cancel($booking_id);
         $cancellation_info = \MHMRentiva\Admin\Booking\Helpers\CancellationHandler::get_cancellation_info($booking_id);
-        
+
         if ($can_cancel):
         ?>
-        <button type="button" id="cancel-booking-btn" class="rv-btn rv-btn-danger" data-booking-id="<?php echo esc_attr($booking_id); ?>">
-            <?php esc_html_e('Cancel Booking', 'mhm-rentiva'); ?>
-        </button>
+            <button type="button" id="cancel-booking-btn" class="rv-btn rv-btn-danger" data-booking-id="<?php echo esc_attr($booking_id); ?>">
+                <?php esc_html_e('Cancel Booking', 'mhm-rentiva'); ?>
+            </button>
         <?php endif; ?>
-        
+
 
     </div>
-    
+
     <?php if ($can_cancel): ?>
-    <!-- Cancellation Info -->
-    <div class="rv-cancellation-info" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107;">
-        <p style="margin: 0; font-size: 14px; color: #856404;">
-            ℹ️ <?php echo esc_html($cancellation_info['message']); ?>
-        </p>
-        <?php 
-        $refund_policy = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_refund_policy', '');
-        if (!empty($refund_policy)): 
-        ?>
-        <p style="margin: 10px 0 0 0; font-size: 13px; color: #856404; font-style: italic;">
-            <?php echo esc_html($refund_policy); ?>
-        </p>
-        <?php endif; ?>
-    </div>
+        <!-- Cancellation Info -->
+        <div class="rv-cancellation-info" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107;">
+            <p style="margin: 0; font-size: 14px; color: #856404;">
+                ℹ️ <?php echo esc_html($cancellation_info['message']); ?>
+            </p>
+            <?php
+            $refund_policy = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_refund_policy', '');
+            if (!empty($refund_policy)):
+            ?>
+                <p style="margin: 10px 0 0 0; font-size: 13px; color: #856404; font-style: italic;">
+                    <?php echo esc_html($refund_policy); ?>
+                </p>
+            <?php endif; ?>
+        </div>
     <?php endif; ?>
 </div>
 
@@ -217,20 +213,20 @@ if ($is_integrated) {
             <h2 style="margin: 0; color: #dc3545;"><?php esc_html_e('Cancel Booking', 'mhm-rentiva'); ?></h2>
             <button id="close-modal" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #999;">&times;</button>
         </div>
-        
+
         <p style="margin-bottom: 20px; color: #666;">
             <?php esc_html_e('Are you sure you want to cancel this booking? This action cannot be undone.', 'mhm-rentiva'); ?>
         </p>
-        
+
         <div style="margin-bottom: 20px;">
             <label for="cancellation-reason" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">
                 <?php esc_html_e('Reason for cancellation (optional):', 'mhm-rentiva'); ?>
             </label>
             <textarea id="cancellation-reason" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; resize: vertical;" placeholder="<?php esc_attr_e('Please tell us why you\'re cancelling...', 'mhm-rentiva'); ?>"></textarea>
         </div>
-        
+
         <div id="cancel-status-message" style="margin-bottom: 15px; padding: 10px; border-radius: 4px; display: none;"></div>
-        
+
         <div style="display: flex; gap: 10px; justify-content: flex-end;">
             <button id="cancel-modal-close" class="rv-btn rv-btn-secondary"><?php esc_html_e('Keep Booking', 'mhm-rentiva'); ?></button>
             <button id="confirm-cancellation" class="rv-btn rv-btn-danger"><?php esc_html_e('Yes, Cancel Booking', 'mhm-rentiva'); ?></button>
@@ -241,36 +237,36 @@ if ($is_integrated) {
 
 
 <style>
-.rv-btn-danger {
-    background-color: #dc3545;
-    color: #ffffff;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    transition: background-color 0.2s;
-}
+    .rv-btn-danger {
+        background-color: #dc3545;
+        color: #ffffff;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        transition: background-color 0.2s;
+    }
 
-.rv-btn-danger:hover {
-    background-color: #c82333;
-}
+    .rv-btn-danger:hover {
+        background-color: #c82333;
+    }
 
-.rv-btn-danger:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-}
+    .rv-btn-danger:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
 
-.rv-success {
-    background-color: #d4edda;
-    border-left: 4px solid #28a745;
-    color: #155724;
-}
+    .rv-success {
+        background-color: #d4edda;
+        border-left: 4px solid #28a745;
+        color: #155724;
+    }
 
-.rv-error {
-    background-color: #f8d7da;
-    border-left: 4px solid #dc3545;
-    color: #721c24;
-}
+    .rv-error {
+        background-color: #f8d7da;
+        border-left: 4px solid #dc3545;
+        color: #721c24;
+    }
 </style>

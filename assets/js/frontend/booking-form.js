@@ -676,13 +676,15 @@
             const maxDays = window.mhmRentivaBookingForm?.config?.max_days || 30;
 
             if (days < minDays) {
-                this.showError('Minimum kiralama süresi ' + minDays + ' gündür.');
+                const msg = this.getMessage('min_days_error').replace('%d', minDays);
+                this.showError(msg);
                 this.submitBtn.prop('disabled', true);
                 return false;
             }
 
             if (maxDays > 0 && days > maxDays) {
-                this.showError('Maksimum kiralama süresi ' + maxDays + ' gündür.');
+                const msg = this.getMessage('max_days_error').replace('%d', maxDays);
+                this.showError(msg);
                 this.submitBtn.prop('disabled', true);
                 return false;
             }
@@ -944,39 +946,39 @@
                             message = this.getMessage('vehicle_unavailable_with_alternatives');
                             alternativesHtml = `
                                         <div class="rv-alternatives-wrapper">
-                                            <div class="rv-alternatives-title">${this.getMessage('alternative_vehicles') || 'Alternative Vehicles'}</div>
+                                            <div class="rv-alternatives-title">${this.escapeHtml(this.getMessage('alternative_vehicles') || 'Alternative Vehicles')}</div>
                                             <div class="rv-alternatives-grid">
                                     `;
 
                             response.data.alternatives.forEach(vehicle => {
                                 alternativesHtml += `
-                                            <div class="rv-alternative-vehicle-card" data-vehicle-id="${vehicle.id}">
+                                            <div class="rv-alternative-vehicle-card" data-vehicle-id="${this.escapeHtml(vehicle.id)}">
                                                 <div class="rv-alternative-vehicle-image">
-                                                    <img src="${vehicle.image || window.location.origin + '/wp-content/plugins/mhm-rentiva/assets/images/no-image.png'}" alt="${vehicle.title}">
+                                                    <img src="${this.escapeHtml(vehicle.image || window.location.origin + '/wp-content/plugins/mhm-rentiva/assets/images/no-image.png')}" alt="${this.escapeHtml(vehicle.title)}">
                                                 </div>
                                                 <div class="rv-alternative-vehicle-content">
-                                                    <h5 class="rv-alternative-vehicle-title">${vehicle.title}</h5>
+                                                    <h5 class="rv-alternative-vehicle-title">${this.escapeHtml(vehicle.title)}</h5>
                                                     
                                                     ${vehicle.features && vehicle.features.length > 0 ? `
                                                         <div class="rv-alternative-vehicle-features">
                                                             ${vehicle.features.map(feature => `
-                                                                <span class="rv-alternative-feature-tag">${feature.replace(/_/g, ' ')}</span>
+                                                                <span class="rv-alternative-feature-tag">${this.escapeHtml(feature.replace(/_/g, ' '))}</span>
                                                             `).join('')}
                                                         </div>
                                                     ` : ''}
                                                     
                                                     <div class="rv-alternative-price-details">
                                                         <div class="rv-alternative-price-row">
-                                                            <span class="rv-alternative-price-label">${this.getMessage('daily_price')}:</span>
-                                                            <span class="rv-alternative-price-value">${this.formatPrice(vehicle.price_per_day)} ${window.mhmRentivaBookingForm?.currency_symbol || ''}</span>
+                                                            <span class="rv-alternative-price-label">${this.escapeHtml(this.getMessage('daily_price'))}:</span>
+                                                            <span class="rv-alternative-price-value">${this.formatPrice(vehicle.price_per_day)} ${this.escapeHtml(window.mhmRentivaBookingForm?.currency_symbol || '')}</span>
                                                         </div>
                                                         <div class="rv-alternative-price-row rv-alternative-price-total">
-                                                            <span class="rv-alternative-price-label">${this.getMessage('total')}:</span>
-                                                            <span class="rv-alternative-price-amount">${this.formatPrice(vehicle.total_price)} ${window.mhmRentivaBookingForm?.currency_symbol || ''}</span>
+                                                            <span class="rv-alternative-price-label">${this.escapeHtml(this.getMessage('total'))}:</span>
+                                                            <span class="rv-alternative-price-amount">${this.formatPrice(vehicle.total_price)} ${this.escapeHtml(window.mhmRentivaBookingForm?.currency_symbol || '')}</span>
                                                         </div>
                                                     </div>
-                                                    <button type="button" class="rv-select-alternative-btn" data-vehicle-id="${vehicle.id}">
-                                                        ${this.getMessage('select_this_vehicle')}
+                                                    <button type="button" class="rv-select-alternative-btn" data-vehicle-id="${this.escapeHtml(vehicle.id)}">
+                                                        ${this.escapeHtml(this.getMessage('select_this_vehicle'))}
                                                     </button>
                                                 </div>
                                             </div>
@@ -995,7 +997,7 @@
                                     <div class="rv-availability-error">
                                         <div class="rv-availability-error-header">
                                             <span class="dashicons dashicons-warning"></span>
-                                            <strong>${message}</strong>
+                                            <strong>${this.escapeHtml(message)}</strong>
                                         </div>
                                         ${alternativesHtml}
                                     </div>
@@ -1051,7 +1053,14 @@
         // I will include them to be safe since I'm rewriting the class.
 
         showError(message) {
-            this.errorEl.html(message).removeClass('rv-hidden').show();
+            // Check if message contains HTML - simplistic check
+            if (message.includes('<') && message.includes('>')) {
+                // If it looks like HTML, use html() but ensure content was sanitized before
+                this.errorEl.html(message).removeClass('rv-hidden').show();
+            } else {
+                // Otherwise use text() for safety
+                this.errorEl.text(message).removeClass('rv-hidden').show();
+            }
             this.successEl.addClass('rv-hidden').hide();
             // Auto hide after 5 seconds
             setTimeout(() => {
@@ -1060,7 +1069,12 @@
         }
 
         showSuccess(message) {
-            this.successEl.html(message).removeClass('rv-hidden').show();
+            // Check if message contains HTML - simplistic check
+            if (message.includes('<') && message.includes('>')) {
+                this.successEl.html(message).removeClass('rv-hidden').show();
+            } else {
+                this.successEl.text(message).removeClass('rv-hidden').show();
+            }
             this.errorEl.addClass('rv-hidden').hide();
         }
 
@@ -1116,6 +1130,22 @@
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             return diffDays;
         }
+
+        escapeHtml(text) {
+            if (typeof text !== 'string') {
+                if (text === null || text === undefined) return '';
+                return String(text);
+            }
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function (m) { return map[m]; });
+        }
+
     }
 
     // Export class for potential external use

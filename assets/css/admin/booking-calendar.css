@@ -108,7 +108,7 @@
     color: var(--mhm-text-primary);
 }
 
-/* Rezervasyonlu hücrelerde gün kısaltmaları siyah renkte */
+/* Day abbreviations in black on reserved cells */
 .booking-calendar-page .day-cell.booked .day-name {
     color: var(--mhm-text-primary);
 }
@@ -132,7 +132,7 @@
     color: var(--mhm-white);
 }
 
-/* Bugünün tarihi - sadece rezervasyon olmayan günlerde border ile göster */
+/* Today's date - show with border only on non-reserved days */
 .booking-calendar-page .day-cell.today:not(.booked) {
     border: 2px solid var(--mhm-primary);
     background: var(--mhm-bg-card);
@@ -143,7 +143,7 @@
     color: var(--mhm-text-primary);
 }
 
-/* Rezervasyonlu bugünün tarihi - arka plan rengi korunur */
+/* Today's date with reservation - background color preserved */
 .booking-calendar-page .day-cell.today.booked .day-name,
 .booking-calendar-page .day-cell.today.booked .day-number {
     color: inherit;
@@ -190,7 +190,7 @@
     font-size: 16px;
 }
 
-/* Multi-status day: hücreyi eşit parçalara böl */
+/* Multi-status day: divide cell into equal parts */
 .booking-calendar-page .day-cell.multi-status-day {
     padding: var(--mhm-space-2);
     overflow: hidden;
@@ -220,7 +220,7 @@
     position: relative;
 }
 
-/* Multi-status-day için bugünün tarihi - renkler korunur */
+/* Today's date for multi-status-day - colors preserved */
 .booking-calendar-page .day-cell.multi-status-day.today .day-name,
 .booking-calendar-page .day-cell.multi-status-day.today .day-number {
     color: var(--mhm-text-primary);

@@ -1,7 +1,7 @@
 /**
  * Vehicles List JavaScript
  * 
- * Araç listesi shortcode'u için JavaScript işlevleri
+ * JavaScript functions for the vehicle list shortcode
  * 
  * @since 3.0.1
  */
@@ -11,7 +11,7 @@
 
     // Global object
     window.MHMRentivaVehiclesList = {
-        initialized: false, // Tekrar yüklemeyi engelle
+        initialized: false, // Prevent re-loading
 
         init: function () {
             // Tekrar init'i engelle
@@ -20,7 +20,7 @@
             }
 
             this.bindEvents();
-            // Animasyonlar KALDIRILDI - Kullanıcı talebi
+            // Animations REMOVED - User request
 
             this.initialized = true;
         },
@@ -31,7 +31,7 @@
             // Event namespace for easy unbind
             var ns = '.mhmRentivaVehiclesList';
 
-            // Önce tüm event'leri kaldır (tekrar binding'i önle)
+            // Remove all events first (prevent re-binding)
             $(document).off('click' + ns);
             $(document).off('mouseenter' + ns);
             $(document).off('mouseleave' + ns);
@@ -68,7 +68,7 @@
                 self.handleResize();
             }));
 
-            // Intersection Observer KALDIRILDI
+            // Intersection Observer REMOVED
         },
 
         handleFavoriteClick: function ($button) {
@@ -190,7 +190,7 @@
                         if (entry.isIntersecting) {
                             var img = entry.target;
 
-                            // Zaten yüklendiyse tekrar yükleme
+                            // Skip if already loaded
                             if (img.dataset.lazyLoaded === 'true') {
                                 return;
                             }
@@ -204,7 +204,7 @@
                 });
 
                 lazyImages.forEach(function (img) {
-                    // Zaten observe edilmişse atla
+                    // Skip if already observed
                     if (!img.dataset.lazyObserved) {
                         img.dataset.lazyObserved = 'true';
                         imageObserver.observe(img);
@@ -219,12 +219,12 @@
             $cards.each(function (index) {
                 var $card = $(this);
 
-                // Zaten animasyon uygulandıysa atla
+                // Skip if animation already applied
                 if ($card.hasClass('animate-in') || $card.hasClass('animation-applied')) {
                     return;
                 }
 
-                // Animasyon flag'i ekle
+                // Add animation flag
                 $card.addClass('animation-applied');
 
                 // Stagger animation
@@ -240,7 +240,7 @@
             var cardObserver = new IntersectionObserver(function (entries) {
                 entries.forEach(function (entry) {
                     if (entry.isIntersecting) {
-                        // Zaten is-visible class'ı varsa ekleme
+                        // Don't add if is-visible class already exists
                         if (!entry.target.classList.contains('is-visible')) {
                             entry.target.classList.add('is-visible');
                         }
@@ -252,7 +252,7 @@
             });
 
             $cards.each(function () {
-                // Zaten observe edilmişse tekrar etme
+                // Skip if already observed
                 if (!this.dataset.observed) {
                     this.dataset.observed = 'true';
                     cardObserver.observe(this);
@@ -280,7 +280,7 @@
             }
 
             // Custom tracking event
-            // Vehicle card shortcode kaldırıldı
+            // Vehicle card shortcode removed
         },
 
         showNotification: function (message, type) {

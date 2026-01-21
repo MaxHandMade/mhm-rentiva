@@ -68,13 +68,13 @@
             ...datePickerOptions,
             appendTo: 'body', // Ensure datepicker is appended to body, not footer
             beforeShow: function (input, inst) {
-                // Booking form'daki gibi - aşağıya açılması için
+                // Like booking form - for opening downwards
                 setTimeout(function () {
                     const $input = $(input);
                     const inputOffset = $input.offset();
                     const inputHeight = $input.outerHeight();
 
-                    // Datepicker'ı input'un altına konumlandır
+                    // Position datepicker below input
                     inst.dpDiv.css({
                         'position': 'absolute',
                         'top': (inputOffset.top + inputHeight + 5) + 'px',
@@ -100,13 +100,13 @@
             ...datePickerOptions,
             appendTo: 'body', // Ensure datepicker is appended to body, not footer
             beforeShow: function (input, inst) {
-                // Booking form'daki gibi - aşağıya açılması için
+                // Like booking form - for opening downwards
                 setTimeout(function () {
                     const $input = $(input);
                     const inputOffset = $input.offset();
                     const inputHeight = $input.outerHeight();
 
-                    // Datepicker'ı input'un altına konumlandır
+                    // Position datepicker below input
                     inst.dpDiv.css({
                         'position': 'absolute',
                         'top': (inputOffset.top + inputHeight + 5) + 'px',
@@ -203,7 +203,13 @@
 
                 if (returnDate <= pickupDate) {
                     e.preventDefault();
-                    alert('Return date must be after pickup date');
+                    // alert(mhmRentivaSearch.i18n.return_after_pickup); // Removed alert
+                    // Use inline error instead if possible, or just return false as validation logic handles it usually
+                    const $returnDate = $('#rv-return-date');
+                    $returnDate.closest('.rv-search-field').addClass('error');
+                    if (!$returnDate.next('.error-message').length) {
+                        $returnDate.after('<div class="error-message">' + mhmRentivaSearch.i18n.return_after_pickup + '</div>');
+                    }
                     return false;
                 }
             }
@@ -219,7 +225,12 @@
                 // pickupValue is already in YYYY-MM-DD format from datepicker
                 if (pickupValue < todayStr) {
                     e.preventDefault();
-                    alert('Pickup date cannot be in the past');
+                    // alert(mhmRentivaSearch.i18n.pickup_past); // Removed alert
+                    const $pickupDate = $('#rv-pickup-date');
+                    $pickupDate.closest('.rv-search-field').addClass('error');
+                    if (!$pickupDate.next('.error-message').length) {
+                        $pickupDate.after('<div class="error-message">' + mhmRentivaSearch.i18n.pickup_past + '</div>');
+                    }
                     return false;
                 }
             }
@@ -253,10 +264,10 @@
                     String(today.getDate()).padStart(2, '0');
 
                 // value is already in YYYY-MM-DD format from datepicker
-                if (value < todayStr) {
+                if (pickupValue < todayStr) {
                     $field.closest('.rv-search-field').addClass('error');
                     if (!$field.next('.error-message').length) {
-                        $field.after('<div class="error-message">Pickup date cannot be in the past</div>');
+                        $field.after('<div class="error-message">' + mhmRentivaSearch.i18n.pickup_past + '</div>');
                     }
                 } else {
                     $field.closest('.rv-search-field').removeClass('error');
@@ -281,7 +292,7 @@
         // Required field validation
         if ($field.prop('required') && !value) {
             $fieldContainer.addClass('error');
-            $field.after('<div class="error-message">This field is required</div>');
+            $field.after('<div class="error-message">' + mhmRentivaSearch.i18n.field_required + '</div>');
             return false;
         }
 
@@ -293,7 +304,7 @@
 
             if (pickupDate < today) {
                 $fieldContainer.addClass('error');
-                $field.after('<div class="error-message">Pickup date cannot be in the past</div>');
+                $field.after('<div class="error-message">' + mhmRentivaSearch.i18n.pickup_past + '</div>');
                 return false;
             }
         }
@@ -304,7 +315,7 @@
 
             if ($('#rv-pickup-date').val() && returnDate <= pickupDate) {
                 $fieldContainer.addClass('error');
-                $field.after('<div class="error-message">Return date must be after pickup date</div>');
+                $field.after('<div class="error-message">' + mhmRentivaSearch.i18n.return_after_pickup + '</div>');
                 return false;
             }
         }
@@ -316,13 +327,13 @@
 
             if (isNaN(minPrice) || minPrice < 0) {
                 $fieldContainer.addClass('error');
-                $field.after('<div class="error-message">Please enter a valid price</div>');
+                $field.after('<div class="error-message">' + mhmRentivaSearch.i18n.invalid_price + '</div>');
                 return false;
             }
 
             if (maxPrice && minPrice > maxPrice) {
                 $fieldContainer.addClass('error');
-                $field.after('<div class="error-message">Min price cannot be greater than max price</div>');
+                $field.after('<div class="error-message">' + mhmRentivaSearch.i18n.min_price_error + '</div>');
                 return false;
             }
         }
@@ -333,13 +344,13 @@
 
             if (isNaN(maxPrice) || maxPrice < 0) {
                 $fieldContainer.addClass('error');
-                $field.after('<div class="error-message">Please enter a valid price</div>');
+                $field.after('<div class="error-message">' + mhmRentivaSearch.i18n.invalid_price + '</div>');
                 return false;
             }
 
             if (minPrice && maxPrice < minPrice) {
                 $fieldContainer.addClass('error');
-                $field.after('<div class="error-message">Max price cannot be less than min price</div>');
+                $field.after('<div class="error-message">' + mhmRentivaSearch.i18n.max_price_error + '</div>');
                 return false;
             }
         }
@@ -402,7 +413,7 @@
 
             if (returnDate <= pickupDate) {
                 $returnDate.closest('.rv-search-field').addClass('error');
-                $returnDate.after('<div class="error-message">Return date must be after pickup date</div>');
+                $returnDate.after('<div class="error-message">' + mhmRentivaSearch.i18n.return_after_pickup + '</div>');
                 return false;
             }
         }

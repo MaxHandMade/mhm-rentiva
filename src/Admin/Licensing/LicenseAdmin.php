@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Licensing;
 
@@ -64,17 +66,17 @@ final class LicenseAdmin
 
         // Developer mode warning - only show if no real license is active
         $disable_dev_mode = get_option('mhm_rentiva_disable_dev_mode', false);
-        $has_real_license = !empty($license_data['key']) && 
-                           ($license_data['status'] ?? '') === 'active' &&
-                           !empty($license_data['activation_id']);
-        
+        $has_real_license = !empty($license_data['key']) &&
+            ($license_data['status'] ?? '') === 'active' &&
+            !empty($license_data['activation_id']);
+
         // Only show developer mode warning if no real license is active
         if ($is_dev_mode && !$disable_dev_mode && !$has_real_license) {
             echo '<div class="notice notice-warning"><p>';
             echo '<strong>' . esc_html__('🚀 Developer Mode Active', 'mhm-rentiva') . '</strong><br>';
             echo esc_html__('Automatic developer mode active (development environment detected). All Pro features enabled.', 'mhm-rentiva');
             echo '</p></div>';
-            
+
             // Option to disable developer mode
             echo '<div class="notice notice-info inline">';
             echo '<form id="disable_dev_mode_form" method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
@@ -116,18 +118,18 @@ final class LicenseAdmin
                 echo '<th scope="row" style="width: 150px; padding: 8px 0;">' . esc_html__('License Key:', 'mhm-rentiva') . '</th>';
                 echo '<td style="padding: 8px 0;"><code style="background: #fff; padding: 6px 10px; border: 1px solid #ccc; border-radius: 3px; font-size: 14px; font-weight: 600;">' . esc_html($license_data['key']) . '</code></td>';
                 echo '</tr>';
-                
+
                 // Show expiry date if available
                 if (isset($license_data['expires_at']) && !empty($license_data['expires_at'])) {
                     $expires_timestamp = is_numeric($license_data['expires_at']) ? (int) $license_data['expires_at'] : strtotime($license_data['expires_at']);
                     $expires_date = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $expires_timestamp);
                     $is_expired = $expires_timestamp < time();
                     $expires_class = $is_expired ? 'color: #d63638;' : 'color: #00a32a;';
-                    
+
                     // Calculate days remaining
                     $current_time = time();
                     $days_remaining = $is_expired ? 0 : (int) floor(($expires_timestamp - $current_time) / DAY_IN_SECONDS);
-                    
+
                     echo '<tr>';
                     echo '<th scope="row" style="width: 150px; padding: 8px 0;">' . esc_html__('Expires At:', 'mhm-rentiva') . '</th>';
                     echo '<td style="padding: 8px 0;">';
@@ -153,11 +155,11 @@ final class LicenseAdmin
                     $expires_date = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $expires_timestamp);
                     $is_expired = $expires_timestamp < time();
                     $expires_class = $is_expired ? 'color: #d63638;' : 'color: #00a32a;';
-                    
+
                     // Calculate days remaining
                     $current_time = time();
                     $days_remaining = $is_expired ? 0 : (int) floor(($expires_timestamp - $current_time) / DAY_IN_SECONDS);
-                    
+
                     echo '<tr>';
                     echo '<th scope="row" style="width: 150px; padding: 8px 0;">' . esc_html__('Expires At:', 'mhm-rentiva') . '</th>';
                     echo '<td style="padding: 8px 0;">';
@@ -178,11 +180,11 @@ final class LicenseAdmin
                     echo '</td>';
                     echo '</tr>';
                 }
-                
+
                 echo '</table>';
                 echo '</div>';
             }
-            
+
             echo '<p>' . esc_html__('All Pro features active: Unlimited vehicles/bookings, export, advanced reports.', 'mhm-rentiva') . '</p>';
         } else {
             echo '<div class="notice notice-warning inline">';
@@ -194,7 +196,7 @@ final class LicenseAdmin
             echo '<li>' . esc_html__('Maximum 3 vehicles can be added', 'mhm-rentiva') . '</li>';
             echo '<li>' . esc_html__('Maximum 50 bookings can be made', 'mhm-rentiva') . '</li>';
             echo '<li>' . esc_html__('Maximum 3 customers can be added', 'mhm-rentiva') . '</li>';
-            echo '<li>' . esc_html__('Offline payment + WooCommerce integration available', 'mhm-rentiva') . '</li>';
+            echo '<li>' . esc_html__('WooCommerce integration available', 'mhm-rentiva') . '</li>';
             echo '<li>' . esc_html__('Export feature not available', 'mhm-rentiva') . '</li>';
             echo '<li>' . esc_html__('Report range limited to 30 days', 'mhm-rentiva') . '</li>';
             echo '</ul>';
@@ -203,11 +205,11 @@ final class LicenseAdmin
         // License activation form - only show if no active license
         if (!$is_active || $is_dev_mode) {
             echo '<h2>' . esc_html__('License Activation', 'mhm-rentiva') . '</h2>';
-            
+
             echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
             wp_nonce_field('mhm_rentiva_license_action', 'mhm_rentiva_license_nonce');
             echo '<input type="hidden" name="action" value="mhm_rentiva_activate_license">';
-            
+
             echo '<table class="form-table">';
             echo '<tr>';
             echo '<th scope="row"><label for="license_key">' . esc_html__('License Key', 'mhm-rentiva') . '</label></th>';
@@ -217,7 +219,7 @@ final class LicenseAdmin
             echo '</td>';
             echo '</tr>';
             echo '</table>';
-            
+
             submit_button(__('Activate License', 'mhm-rentiva'), 'primary', 'submit', false);
             echo '</form>';
         } else {
@@ -231,19 +233,19 @@ final class LicenseAdmin
         // License deactivation - only show if license is active
         if ($is_active) {
             echo '<h2>' . esc_html__('License Management', 'mhm-rentiva') . '</h2>';
-            
+
             if ($is_dev_mode) {
                 echo '<div class="notice notice-info inline">';
                 echo '<p>' . esc_html__('You are running in developer mode. You can deactivate to test real license.', 'mhm-rentiva') . '</p>';
                 echo '</div>';
             }
-            
+
             echo '<p>' . esc_html__('If you want to deactivate your license, click the button below. This will disable Pro features.', 'mhm-rentiva') . '</p>';
-            
+
             echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" onsubmit="return confirm(\'' . esc_js(__('Are you sure you want to deactivate the license?', 'mhm-rentiva')) . '\')">';
             wp_nonce_field('mhm_rentiva_license_action', 'mhm_rentiva_license_nonce');
             echo '<input type="hidden" name="action" value="mhm_rentiva_deactivate_license">';
-            
+
             submit_button(__('Deactivate License', 'mhm-rentiva'), 'secondary', 'submit', false);
             echo '</form>';
         }
@@ -260,8 +262,10 @@ final class LicenseAdmin
             wp_die(__('You do not have permission for this operation.', 'mhm-rentiva'));
         }
 
-        if (!isset($_POST['mhm_rentiva_license_nonce']) || 
-            !wp_verify_nonce($_POST['mhm_rentiva_license_nonce'], 'mhm_rentiva_license_action')) {
+        if (
+            !isset($_POST['mhm_rentiva_license_nonce']) ||
+            !wp_verify_nonce($_POST['mhm_rentiva_license_nonce'], 'mhm_rentiva_license_action')
+        ) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
         }
 
@@ -274,13 +278,13 @@ final class LicenseAdmin
         // Use LicenseManager for real API integration
         $license = LicenseManager::instance();
         $result = $license->activate($license_key);
-        
+
         if (is_wp_error($result)) {
             wp_redirect(add_query_arg(['license' => 'error', 'message' => $result->get_error_code()], wp_get_referer()));
         } else {
             wp_redirect(add_query_arg(['license' => 'activated'], wp_get_referer()));
         }
-        
+
         exit;
     }
 
@@ -290,21 +294,23 @@ final class LicenseAdmin
             wp_die(__('You do not have permission for this operation.', 'mhm-rentiva'));
         }
 
-        if (!isset($_POST['mhm_rentiva_license_nonce']) || 
-            !wp_verify_nonce($_POST['mhm_rentiva_license_nonce'], 'mhm_rentiva_license_action')) {
+        if (
+            !isset($_POST['mhm_rentiva_license_nonce']) ||
+            !wp_verify_nonce($_POST['mhm_rentiva_license_nonce'], 'mhm_rentiva_license_action')
+        ) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
         }
 
         $license = LicenseManager::instance();
-        
+
         // Deactivate license on server first (this will also clear local data)
         $result = $license->deactivate();
-        
+
         // If deactivation fails on server, still clear local data
         if (is_wp_error($result)) {
             $license->clearLicense();
         }
-        
+
         wp_redirect(add_query_arg(['license' => 'deactivated'], wp_get_referer()));
         exit;
     }
@@ -315,14 +321,16 @@ final class LicenseAdmin
             wp_die(__('You do not have permission for this operation.', 'mhm-rentiva'));
         }
 
-        if (!isset($_POST['mhm_rentiva_toggle_dev_mode_nonce']) || 
-            !wp_verify_nonce($_POST['mhm_rentiva_toggle_dev_mode_nonce'], 'mhm_rentiva_toggle_dev_mode')) {
+        if (
+            !isset($_POST['mhm_rentiva_toggle_dev_mode_nonce']) ||
+            !wp_verify_nonce($_POST['mhm_rentiva_toggle_dev_mode_nonce'], 'mhm_rentiva_toggle_dev_mode')
+        ) {
             wp_die(__('Security check failed.', 'mhm-rentiva'));
         }
 
         $current_value = get_option('mhm_rentiva_disable_dev_mode', false);
         update_option('mhm_rentiva_disable_dev_mode', !$current_value);
-        
+
         wp_redirect(add_query_arg(['license' => 'dev_mode_toggled'], wp_get_referer()));
         exit;
     }
@@ -342,21 +350,21 @@ final class LicenseAdmin
                 echo '<p>' . esc_html__('✅ License successfully activated!', 'mhm-rentiva') . '</p>';
                 echo '</div>';
                 break;
-                
+
             case 'deactivated':
                 echo '<div class="notice notice-info is-dismissible">';
                 echo '<p>' . esc_html__('ℹ️ License deactivated.', 'mhm-rentiva') . '</p>';
                 echo '</div>';
                 break;
-                
+
             case 'dev_mode_toggled':
                 echo '<div class="notice notice-success is-dismissible">';
                 echo '<p>' . esc_html__('✅ Developer mode setting updated.', 'mhm-rentiva') . '</p>';
                 echo '</div>';
                 break;
-                
+
             case 'error':
-                $error_text = match($error_message) {
+                $error_text = match ($error_message) {
                     'empty_key' => __('License key cannot be empty.', 'mhm-rentiva'),
                     'invalid_key' => __('Invalid license key.', 'mhm-rentiva'),
                     'invalid' => __('Invalid license key.', 'mhm-rentiva'),

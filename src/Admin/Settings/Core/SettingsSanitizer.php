@@ -136,7 +136,7 @@ final class SettingsSanitizer
         // Checkboxes are now handled individually in their respective tab-specific sanitize functions
         // This prevents conflicts when saving one tab (e.g., System) from affecting other tabs (e.g., Email)
 
-        // ⭐ Offline payment settings removed - WooCommerce handles all payments
+
         $is_payment_tab = isset($input['mhm_rentiva_booking_default_payment_method']);
 
         // ✅ Ensure timeout values are captured early (before sanitization methods)
@@ -478,7 +478,7 @@ final class SettingsSanitizer
             $logo = ($logo_val !== null && $logo_val !== '') ? \esc_url_raw((string) $logo_val) : '';
             $out['mhm_rentiva_brand_logo_url'] = $logo;
         } else {
-            $out['mhm_rentiva_brand_logo_url'] = $defaults['mhm_rentiva_brand_logo_url'];
+            $out['mhm_rentiva_brand_logo_url'] = $defaults['mhm_rentiva_brand_logo_url'] ?? '';
         }
 
         // ✅ email_header_image (NEW - Email Logo URL)
@@ -496,7 +496,7 @@ final class SettingsSanitizer
             $color = ($color_val !== null && $color_val !== '') ? \sanitize_hex_color((string) $color_val) : '';
             $out['mhm_rentiva_email_primary_color'] = $color !== '' ? $color : $defaults['mhm_rentiva_email_primary_color'];
         } else {
-            $out['mhm_rentiva_email_primary_color'] = $defaults['mhm_rentiva_email_primary_color'];
+            $out['mhm_rentiva_email_primary_color'] = $defaults['mhm_rentiva_email_primary_color'] ?? '';
         }
 
         // ✅ email_base_color (NEW - Email Color Picker)
@@ -521,7 +521,7 @@ final class SettingsSanitizer
                 $out['mhm_rentiva_email_footer_text'] = $defaults['mhm_rentiva_email_footer_text'];
             }
         } else {
-            $out['mhm_rentiva_email_footer_text'] = $defaults['mhm_rentiva_email_footer_text'];
+            $out['mhm_rentiva_email_footer_text'] = $defaults['mhm_rentiva_email_footer_text'] ?? '';
         }
 
         return $out;
@@ -810,7 +810,7 @@ final class SettingsSanitizer
             isset($_POST['mhm_rentiva_settings'])
         );
 
-        // ⭐ Offline payment settings removed - WooCommerce handles all payments
+
 
         if (isset($input['mhm_rentiva_offline_instructions'])) {
             $instructions_val = $input['mhm_rentiva_offline_instructions'];
@@ -945,7 +945,7 @@ final class SettingsSanitizer
 
         // Get current vehicle_pricing settings
         $current_settings = \get_option('mhm_rentiva_settings', []);
-        $current_vehicle_pricing = $current_settings['vehicle_pricing'] ?? $defaults['vehicle_pricing'];
+        $current_vehicle_pricing = $current_settings['vehicle_pricing'] ?? ($defaults['vehicle_pricing'] ?? []);
 
         // If vehicle_pricing input exists, process it
         if (isset($input['vehicle_pricing']) && is_array($input['vehicle_pricing'])) {

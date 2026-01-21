@@ -586,7 +586,7 @@
         },
 
         destroyChart: function (canvasId) {
-            // Safe chart destruction - support dynamic IDs
+            // Safe instance saving - support dynamic IDs
             if (window.MHMRentivaCharts && window.MHMRentivaCharts.instances) {
                 // Try exact ID first
                 if (window.MHMRentivaCharts.instances[canvasId]) {
@@ -597,7 +597,7 @@
                     }
                     delete window.MHMRentivaCharts.instances[canvasId];
                 } else {
-                    // Pattern ile ara
+                    // Search by pattern
                     const pattern = canvasId.replace('-canvas', '');
                     for (const [key, instance] of Object.entries(window.MHMRentivaCharts.instances)) {
                         if (key.indexOf(pattern) !== -1) {
@@ -669,6 +669,21 @@
                 clearTimeout(timeout);
                 timeout = setTimeout(later, wait);
             };
+        },
+
+        /**
+         * Escape HTML special characters
+         */
+        escapeHtml: function (text) {
+            if (!text) return '';
+            var map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.toString().replace(/[&<>"']/g, function (m) { return map[m]; });
         }
     };
 
@@ -682,7 +697,11 @@
     function showNotice(message, type) {
         type = type || 'info';
         var noticeClass = 'notice-' + type;
-        var notice = $('<div class="notice ' + noticeClass + ' is-dismissible" style="position: fixed; top: 32px; right: 20px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><p><strong>' + message + '</strong></p></div>');
+
+        // Escape message
+        var safeMessage = MHMRentivaCharts.escapeHtml(message);
+
+        var notice = $('<div class="notice ' + noticeClass + ' is-dismissible" style="position: fixed; top: 32px; right: 20px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><p><strong>' + safeMessage + '</strong></p></div>');
 
         // Remove any existing notices first
         $('.notice').remove();

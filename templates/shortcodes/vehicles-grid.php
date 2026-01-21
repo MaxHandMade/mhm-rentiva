@@ -17,14 +17,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain()
-    {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 
 // Get template data
 $atts = $atts ?? [];
@@ -194,10 +187,6 @@ $wrapper_class = $wrapper_class ?? '';
                         if (isset($vehicle['availability']) && is_array($vehicle['availability'])) {
                             $is_available = $vehicle['availability']['is_available'] ?? true;
                             $status_text_from_data = $vehicle['availability']['text'] ?? null;
-                        } else {
-                            // Fallback for older version
-                            $is_available = $vehicle['meta']['available'] ?? true;
-                            $status_text_from_data = null;
                         }
                         ?>
                         <?php if ($show_availability_final): ?>

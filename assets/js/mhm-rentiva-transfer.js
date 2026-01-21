@@ -20,7 +20,7 @@ jQuery(document).ready(function ($) {
             // Only alert if NOT silent (User interaction)
             if (!isSilent) {
                 // SAFE MESSAGE READING
-                var errorMessage = "Teslim Alma ile Bırakma konumları aynı olamaz!"; // Fallback
+                var errorMessage = "Pick-up and drop-off locations cannot be the same!"; // Fallback
                 if (typeof mhm_transfer_vars !== 'undefined' && mhm_transfer_vars.i18n && mhm_transfer_vars.i18n.same_location_error) {
                     errorMessage = mhm_transfer_vars.i18n.same_location_error;
                 }
@@ -56,7 +56,7 @@ jQuery(document).ready(function ($) {
 
         e.preventDefault();
         var formData = $(this).serialize();
-        var searchingText = 'Araçlar aranıyor...';
+        var searchingText = 'Searching...';
         if (typeof mhm_transfer_vars !== 'undefined' && mhm_transfer_vars.i18n && mhm_transfer_vars.i18n.searching_text) {
             searchingText = mhm_transfer_vars.i18n.searching_text;
         }
@@ -86,7 +86,8 @@ jQuery(document).ready(function ($) {
         var vehicleId = btn.data('vehicle-id');
         var transferData = btn.data('transfer-meta');
 
-        btn.prop('disabled', true).text('İşleniyor...');
+        var processingText = (typeof mhm_transfer_vars.i18n.processing_text !== 'undefined') ? mhm_transfer_vars.i18n.processing_text : 'Processing...';
+        btn.prop('disabled', true).text(processingText);
 
         $.ajax({
             url: mhm_transfer_vars.ajax_url,
@@ -101,11 +102,12 @@ jQuery(document).ready(function ($) {
                 if (response.success) {
                     window.location.href = mhm_transfer_vars.cart_url;
                 } else {
-                    // Butonu eski haline getir
-                    btn.removeClass('loading').text(btn.data('original-text') || 'Rezervasyon Yap');
+                    // Reset button state
+                    var bookNowText = (typeof mhm_transfer_vars.i18n.book_now_text !== 'undefined') ? mhm_transfer_vars.i18n.book_now_text : 'Book Now';
+                    btn.removeClass('loading').text(btn.data('original-text') || bookNowText);
 
-                    // Hatayı güvenli oku
-                    var msg = "Bir hata oluştu.";
+                    // Safely read error message
+                    var msg = (typeof mhm_transfer_vars.i18n.default_error !== 'undefined') ? mhm_transfer_vars.i18n.default_error : "An error occurred.";
                     if (response.data && response.data.message) {
                         msg = response.data.message;
                     }
@@ -113,8 +115,9 @@ jQuery(document).ready(function ($) {
                 }
             },
             error: function () {
-                btn.removeClass('loading').text('Hata');
-                alert("Sunucu ile iletişim hatası!");
+                btn.removeClass('loading').text('Error');
+                var serverError = (typeof mhm_transfer_vars.i18n.server_error !== 'undefined') ? mhm_transfer_vars.i18n.server_error : "Server communication error!";
+                alert(serverError);
             }
         });
     });

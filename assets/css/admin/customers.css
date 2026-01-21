@@ -1,9 +1,9 @@
 /**
- * MHM Rentiva - Müşteriler Sayfası Genel Stilleri
- * Sadece genel sayfa stilleri - kartlar ve takvim ayrı dosyalarda
+ * MHM Rentiva - Customers Page General Styles
+ * Only general page styles - cards and calendar are in separate files
  */
 
-/* Ana Container */
+/* Main Container */
 .mhm-rentiva-wrap .customers-page {
     max-width: 100%;
     margin: 0;
@@ -35,7 +35,7 @@
     line-height: 1.6;
 }
 
-/* Aksiyon Butonları */
+/* Action Buttons */
 .customers-actions {
     display: flex;
     gap: var(--mhm-space-4);
@@ -80,7 +80,7 @@
     transform: translateY(-2px);
 }
 
-/* Filtreler */
+/* Filters */
 .customers-filters {
     background: var(--mhm-bg-card);
     border-radius: var(--mhm-radius-xl);
@@ -135,7 +135,7 @@
 }
 
 
-/* Responsive Tasarım */
+/* Responsive Design */
 @media (max-width: 768px) {
     .filters-row {
         grid-template-columns: 1fr;
@@ -152,7 +152,7 @@
     }
 }
 
-/* Hata Mesajları */
+/* Error Messages */
 .customers-error {
     background: var(--mhm-error-bg);
     border: 1px solid var(--mhm-error);
@@ -244,7 +244,7 @@
     transform: translateY(-1px);
 }
 
-/* Müşteri Kayıt Tarihleri Takvim Stilleri */
+/* Customer Registration Dates Calendar Styles */
 .calendar-container .customer-registered {
     background: linear-gradient(135deg, var(--mhm-success) 0%, var(--mhm-success-dark) 100%);
     color: var(--mhm-white);
@@ -280,12 +280,12 @@
     transform: scale(1.2);
 }
 
-/* Tooltip için ek stil */
+/* Additional tooltip style */
 .calendar-container [title] {
     cursor: help;
 }
 
-/* Müşteri sayısı için stil */
+/* Customer count style */
 .calendar-container .customer-count {
     position: absolute;
     top: -5px;

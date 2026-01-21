@@ -9,8 +9,8 @@ if (!defined('ABSPATH')) {
         <p class="overview-description"><?php printf(
                                             /* translators: 1: %s; 2: %s. */
                                             esc_html__('Revenue analysis and trends for %1$s to %2$s', 'mhm-rentiva'),
-                                            date('d.m.Y', strtotime($start_date)),
-                                            date('d.m.Y', strtotime($end_date))
+                                            wp_date('d.m.Y', strtotime($start_date)),
+                                            wp_date('d.m.Y', strtotime($end_date))
                                         ); ?></p>
     </div>
 
@@ -104,7 +104,7 @@ if (!defined('ABSPATH')) {
             <tbody>
                 <?php foreach ($data['daily'] as $day) : ?>
                     <tr>
-                        <td><?php echo esc_html(date('d.m.Y', strtotime($day->date))); ?></td>
+                        <td><?php echo esc_html(wp_date('d.m.Y', strtotime($day->date))); ?></td>
                         <td><?php echo number_format((float)$day->revenue, 2, ',', '.') . \MHMRentiva\Admin\Reports\Reports::get_currency_symbol(); ?></td>
                     </tr>
                 <?php endforeach; ?>

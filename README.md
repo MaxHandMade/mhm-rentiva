@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.6.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.6.1-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -46,7 +46,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 
 - **Vehicle Management**: Complete vehicle inventory management with galleries, categories, pricing, and availability
 - **Booking System**: Real-time availability checking, booking management, and automatic cancellation
-- **Payment Processing**: Offline payment gateway with receipt management and WooCommerce integration
+- **Payment Processing**: Secure payment processing via WooCommerce integration for all frontend bookings
 - **Customer Portal**: Full-featured customer account system with booking history, favorites, and messaging
 - **Analytics & Reporting**: Comprehensive analytics dashboard with revenue, customer, and vehicle insights
 - **Email System**: Automated email notifications with customizable HTML templates
@@ -121,28 +121,21 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 
 ### 💳 Payment System
 
-**Supported Payment Gateways:**
+**1. Frontend Payments (via WooCommerce)**
+- **WooCommerce Integration**: All frontend bookings are processed securely via WooCommerce.
+- **Payment Methods**: Accept any payment method supported by WooCommerce (Credit Card, Bank Transfer, PayPal, Cash on Delivery, etc.).
+- **Automatic Status Updates**: Booking statuses are automatically updated based on WooCommerce order status.
 
-1. **Offline Payment**
-   - Bank transfer, cash, or other offline methods
-   - Receipt upload system
-   - Admin approval workflow
-   - Automatic booking cancellation if not approved within deadline
-
-2. **WooCommerce Integration**
-   - Seamless integration with WooCommerce
-   - Use any payment gateway supported by WooCommerce
-   - Automatic booking status updates based on order status
+**2. Manual Payments (Admin Only)**
+- **Offline Payment**: Administrators can manually record payments (Cash/Transfer) for bookings created in the backend.
+- **Receipt Management**: Admins can attach receipt proofs to manual bookings.
 
 **Payment Features:**
 - Multiple payment methods per booking
-- Partial payments support
-- Deposit system (fixed or percentage)
-- Refund management
+- Partial payments support (Deposit system)
+- Refund management via WooCommerce
 - Payment status tracking
-- Receipt verification system
-- Payment history for customers
-- Email notifications for payment events
+- Secure transaction handling
 
 ### 👥 Customer Management
 
@@ -295,7 +288,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 - **Centralized Management**: `CurrencyHelper` class for unified currency management
 - **Currency Symbols**: Proper symbol display for all currencies
 - **Currency Position**: Configurable currency symbol position (left/right with/without space)
-- **Supported Gateways**: Offline Payment (Native), All WooCommerce Gateways (via Integration)
+- **Supported Gateways**: All WooCommerce Payment Gateways (Frontend), Native Offline (Admin Manual Only)
 
 **Supported Currencies:**
 TRY, USD, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, MXN, SGD, HKD, NZD, SEK, NOK, DKK, PLN, CZK, HUF, RON, BGN, HRK, RSD, UAH, BYN, KZT, UZS, KGS, TJS, TMT, AZN, GEL, AMD, AED, SAR, QAR, KWD, BHD, OMR, JOD, LBP, EGP, ILS
@@ -593,9 +586,9 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 - **Customers**: Maximum **3 customers** (WordPress users with bookings)
 - **Addons**: Maximum **4 addon services** (additional services)
 
-**Payment Gateway Restrictions:**
-- ✅ **Offline Payment**: Available (bank transfer, cash, etc.)
-- ❌ **WooCommerce Integration**: Not available (Pro only)
+**Payment Gateway:**
+- ✅ **Frontend Payments**: Via WooCommerce (All gateways supported)
+- ✅ **Manual Payments**: Native Offline Payment (Admin only)
 
 **Export Restrictions:**
 - ✅ **CSV Export**: Available (all versions)
@@ -634,8 +627,8 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 - **Addons**: **Unlimited** addon services
 
 **All Payment Gateways:**
-- ✅ **Offline Payment**: Available
-- ✅ **WooCommerce Integration**: Available (Use any WooCommerce payment gateway)
+- ✅ **Frontend Payments**: Via WooCommerce (All gateways supported)
+- ✅ **Manual Payments**: Native Offline Payment (Admin only)
 
 **All Export Formats:**
 - ✅ **CSV Export**: Available (all versions)
@@ -679,7 +672,8 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 | **Maximum Bookings** | 50 | Unlimited |
 | **Maximum Customers** | 3 | Unlimited |
 | **Maximum Addons** | 4 | Unlimited |
-| **Payment Gateways** | Offline | Offline + WooCommerce Integration |
+| **Frontend Payments** | Via WooCommerce | Via WooCommerce |
+| **Manual Payments** | Native Offline | Native Offline |
 | **Export Formats** | CSV, JSON | CSV, JSON, Excel, XML, PDF |
 | **Report Date Range** | 30 days max | Unlimited |
 | **Report Rows** | 500 max | Unlimited |
@@ -1711,9 +1705,20 @@ Fixes #123
 
 ## 📝 Changelog
 
+### Version: 4.6.1 (2026-01-21)
+
+**🛡️ CRITICAL & SECURITY**
+- **DatabaseCleaner**: Added protection for 40+ critical meta keys (WooCommerce orders, payment details) to prevent data loss.
+- **SQL Security**: Hardened SQL queries with `wpdb->prepare()` in `BookingColumns` and `ExportStats`.
+
+**🛍️ WOOCOMMERCE & PAYMENTS**
+- **Atomic Overlap Lock**: Implemented locking mechanism to prevent race conditions and duplicate bookings via WooCommerce.
+- **Tax Calculation**: Fixed tax calculation logic to correctly calculate tax on the *total* booking amount, even for deposit payments.
+- **Payment Settings**: Added UI notice to Payment Settings when WooCommerce is active to guide users.
+
 ### Latest Version: 4.6.0 (2026-01-18)
 
-**� VIP TRANSFER MODULE**
+** VIP TRANSFER MODULE**
 - **Point-to-Point Booking**: Dynamic pickup/drop-off location management.
 - **Pricing Engine**: Distance-based or fixed-rate route pricing.
 - **WooCommerce Integration**: Support for transfer bookings in cart and checkout.

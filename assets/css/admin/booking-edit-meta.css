@@ -2,7 +2,7 @@
  * Booking Edit Meta Box Styles
  */
 
-/* Ek Hizmetler Grid Tasarımı */
+/* Add-on Services Grid Design */
 .mhm-addon-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -84,7 +84,7 @@
     font-weight: bold;
 }
 
-/* Rezervasyon Geçmişi Stilleri */
+/* Booking History Styles */
 .mhm-booking-history-box {
     background: var(--mhm-bg-card);
 }
@@ -176,7 +176,7 @@
     font-style: italic;
 }
 
-/* Geçmiş türü renkleri */
+/* History type colors */
 .mhm-history-note {
     border-left: 4px solid var(--mhm-text-secondary);
 }

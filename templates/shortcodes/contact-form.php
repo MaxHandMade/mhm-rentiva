@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Contact Form Template
  * 
@@ -9,13 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 
 // Get template data
 $atts = $args['atts'] ?? [];
@@ -40,9 +35,9 @@ $class = $atts['class'] ?? '';
 $unique_id = uniqid('rv_contact_');
 ?>
 
-<div class="rv-contact-form rv-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($class); ?>" 
-     data-form-type="<?php echo esc_attr($type); ?>">
-    
+<div class="rv-contact-form rv-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($class); ?>"
+    data-form-type="<?php echo esc_attr($type); ?>">
+
     <div class="rv-contact-header">
         <h3 class="rv-contact-title">
             <span class="dashicons <?php echo esc_attr($form_config['icon'] ?? 'dashicons-email-alt'); ?>"></span>
@@ -56,7 +51,7 @@ $unique_id = uniqid('rv_contact_');
     <div class="rv-contact-form-container">
         <form id="rv-contact-form" class="rv-form" enctype="multipart/form-data">
             <?php wp_nonce_field('mhm_rentiva_contact_nonce', 'rv_contact_nonce'); ?>
-            
+
             <input type="hidden" name="type" value="<?php echo esc_attr($type); ?>">
             <input type="hidden" name="auto_reply" value="<?php echo esc_attr($atts['auto_reply'] ?? '1'); ?>">
 
@@ -66,8 +61,8 @@ $unique_id = uniqid('rv_contact_');
                         <span class="dashicons dashicons-admin-users"></span>
                         <?php echo esc_html__('Full Name', 'mhm-rentiva'); ?> <span class="rv-required">*</span>
                     </label>
-                    <input type="text" id="rv-contact-name-<?php echo esc_attr($unique_id); ?>" name="name" class="rv-form-input" 
-                           value="<?php echo esc_attr($current_user->display_name ?? ''); ?>" required>
+                    <input type="text" id="rv-contact-name-<?php echo esc_attr($unique_id); ?>" name="name" class="rv-form-input"
+                        value="<?php echo esc_attr($current_user->display_name ?? ''); ?>" required>
                 </div>
 
                 <div class="rv-form-group">
@@ -75,8 +70,8 @@ $unique_id = uniqid('rv_contact_');
                         <span class="dashicons dashicons-email-alt"></span>
                         <?php echo esc_html__('Email', 'mhm-rentiva'); ?> <span class="rv-required">*</span>
                     </label>
-                    <input type="email" id="rv-contact-email-<?php echo esc_attr($unique_id); ?>" name="email" class="rv-form-input" 
-                           value="<?php echo esc_attr($current_user->user_email ?? ''); ?>" required>
+                    <input type="email" id="rv-contact-email-<?php echo esc_attr($unique_id); ?>" name="email" class="rv-form-input"
+                        value="<?php echo esc_attr($current_user->user_email ?? ''); ?>" required>
                 </div>
             </div>
 
@@ -88,8 +83,8 @@ $unique_id = uniqid('rv_contact_');
                             <?php echo esc_html__('Phone', 'mhm-rentiva'); ?>
                             <?php if ($type === 'booking') : ?><span class="rv-required">*</span><?php endif; ?>
                         </label>
-                        <input type="tel" id="rv-contact-phone-<?php echo esc_attr($unique_id); ?>" name="phone" class="rv-form-input" 
-                               placeholder="<?php echo esc_attr__('+90 5XX XXX XX XX', 'mhm-rentiva'); ?>">
+                        <input type="tel" id="rv-contact-phone-<?php echo esc_attr($unique_id); ?>" name="phone" class="rv-form-input"
+                            placeholder="<?php echo esc_attr__('+90 5XX XXX XX XX', 'mhm-rentiva'); ?>">
                     </div>
 
                     <?php if ($show_company === '1') : ?>
@@ -98,8 +93,8 @@ $unique_id = uniqid('rv_contact_');
                                 <span class="dashicons dashicons-building"></span>
                                 <?php echo esc_html__('Company', 'mhm-rentiva'); ?>
                             </label>
-                            <input type="text" id="rv-contact-company-<?php echo esc_attr($unique_id); ?>" name="company" class="rv-form-input" 
-                                   placeholder="<?php echo esc_attr__('Company name', 'mhm-rentiva'); ?>">
+                            <input type="text" id="rv-contact-company-<?php echo esc_attr($unique_id); ?>" name="company" class="rv-form-input"
+                                placeholder="<?php echo esc_attr__('Company name', 'mhm-rentiva'); ?>">
                         </div>
                     <?php endif; ?>
                 </div>
@@ -141,8 +136,8 @@ $unique_id = uniqid('rv_contact_');
                     <select id="rv-contact-priority-<?php echo esc_attr($unique_id); ?>" name="priority" class="rv-form-select" required>
                         <option value=""><?php echo esc_html__('Select priority...', 'mhm-rentiva'); ?></option>
                         <?php foreach ($priorities as $key => $priority) : ?>
-                            <option value="<?php echo esc_attr($key); ?>" 
-                                    data-color="<?php echo esc_attr($priority['color']); ?>">
+                            <option value="<?php echo esc_attr($key); ?>"
+                                data-color="<?php echo esc_attr($priority['color']); ?>">
                                 <?php echo esc_html($priority['label']); ?> - <?php echo esc_html($priority['description']); ?>
                             </option>
                         <?php endforeach; ?>
@@ -159,7 +154,7 @@ $unique_id = uniqid('rv_contact_');
                     <div class="rv-rating-container">
                         <?php for ($i = 1; $i <= 5; $i++) : ?>
                             <label class="rv-rating-star">
-                                <input type="radio" name="rating" value="<?php echo $i; ?>" required>
+                                <input type="radio" name="rating" value="<?php echo esc_attr($i); ?>" required>
                                 <span class="dashicons dashicons-star-filled"></span>
                             </label>
                         <?php endfor; ?>
@@ -173,8 +168,8 @@ $unique_id = uniqid('rv_contact_');
                     <span class="dashicons dashicons-edit"></span>
                     <?php echo esc_html__('Message', 'mhm-rentiva'); ?> <span class="rv-required">*</span>
                 </label>
-                <textarea id="rv-contact-message-<?php echo esc_attr($unique_id); ?>" name="message" class="rv-form-textarea" rows="6" 
-                          placeholder="<?php echo esc_attr__('Write your message here...', 'mhm-rentiva'); ?>" required></textarea>
+                <textarea id="rv-contact-message-<?php echo esc_attr($unique_id); ?>" name="message" class="rv-form-textarea" rows="6"
+                    placeholder="<?php echo esc_attr__('Write your message here...', 'mhm-rentiva'); ?>" required></textarea>
             </div>
 
             <?php if ($show_attachment === '1') : ?>
@@ -184,8 +179,8 @@ $unique_id = uniqid('rv_contact_');
                         <?php echo esc_html__('Attachment', 'mhm-rentiva'); ?>
                     </label>
                     <div class="rv-file-upload-container">
-                        <input type="file" id="rv-contact-attachment-<?php echo esc_attr($unique_id); ?>" name="attachment" class="rv-file-input" 
-                               accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx">
+                        <input type="file" id="rv-contact-attachment-<?php echo esc_attr($unique_id); ?>" name="attachment" class="rv-file-input"
+                            accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx">
                         <label for="rv-contact-attachment-<?php echo esc_attr($unique_id); ?>" class="rv-file-upload-label">
                             <span class="dashicons dashicons-cloud-upload"></span>
                             <?php echo esc_html__('Choose File', 'mhm-rentiva'); ?>
@@ -253,15 +248,15 @@ $unique_id = uniqid('rv_contact_');
         <div class="rv-contact-details">
             <div class="rv-contact-item">
                 <span class="dashicons dashicons-email-alt"></span>
-                <span><?php echo esc_html($support_email); ?></span>
+                <span><?php echo esc_html($support_email ?? ''); ?></span>
             </div>
             <div class="rv-contact-item">
                 <span class="dashicons dashicons-phone"></span>
-                <span><?php echo esc_html($support_phone); ?></span>
+                <span><?php echo esc_html($support_phone ?? ''); ?></span>
             </div>
             <div class="rv-contact-item">
                 <span class="dashicons dashicons-clock"></span>
-                <span><?php echo esc_html($support_hours); ?></span>
+                <span><?php echo esc_html($support_hours ?? ''); ?></span>
             </div>
         </div>
     </div>

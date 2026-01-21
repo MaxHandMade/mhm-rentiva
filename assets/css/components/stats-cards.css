@@ -1,11 +1,11 @@
 /**
- * MHM Rentiva - Stats Cards Bileşeni
+ * MHM Rentiva - Stats Cards Component
  * 
- * Tüm istatistik kartları için ortak stiller.
- * Farklı türler için modifier sınıfları kullanılır.
+ * Common styles for all stats cards.
+ * Modifier classes are used for different types.
  */
 
-/* === TEMEL STATS CARD YAPISI === */
+/* === BASE STATS CARD STRUCTURE === */
 
 .stats-grid {
     display: grid;
@@ -46,7 +46,7 @@
     transition: all var(--mhm-duration-200) var(--mhm-ease-out);
 }
 
-/* === STATS CARD İÇERİK === */
+/* === STATS CARD CONTENT === */
 
 .stat-header {
     display: flex;
@@ -76,9 +76,9 @@
     line-height: 1;
 }
 
-/* ::before pseudo-element kaldırıldı - ikonları kapatıyordu */
+/* ::before pseudo-element removed - was covering icons */
 
-/* İkon hover efektleri */
+/* Icon hover effects */
 .stat-icon:hover {
     transform: scale(1.1);
     transition: transform 0.2s ease;
@@ -166,7 +166,7 @@
     font-size: var(--mhm-text-xs);
 }
 
-/* === STATS CARD TÜRLERİ === */
+/* === STATS CARD TYPES === */
 
 /* Dashboard Stats */
 .stat-card.dashboard {
@@ -199,7 +199,7 @@
     --card-color: var(--mhm-info);
 }
 
-/* Eski CSS kuralları kaldırıldı - yeni kuralları eziyordu */
+/* Old CSS rules removed - were overriding new rules */
 
 /* Customer Stats - Specific Cards */
 .stat-card.stat-card-total {
@@ -616,7 +616,7 @@
     background: #795548;
 }
 
-/* === STATS CARD BOYUTLARI === */
+/* === STATS CARD DIMENSIONS === */
 
 .stat-card.small {
     padding: var(--mhm-space-4);
@@ -646,7 +646,7 @@
     font-size: var(--mhm-text-4xl);
 }
 
-/* === STATS CARD DURUMLARI === */
+/* === STATS CARD STATES === */
 
 .stat-card.loading {
     opacity: 0.6;
@@ -676,7 +676,7 @@
     background: var(--mhm-success);
 }
 
-/* === RESPONSIVE TASARIM === */
+/* === RESPONSIVE DESIGN === */
 
 @media (max-width: 768px) {
     .stats-grid {
@@ -725,7 +725,7 @@
     }
 }
 
-/* === KARANLIK MOD === */
+/* === DARK MODE === */
 
 @media (prefers-color-scheme: dark) {
     .stat-card {
@@ -756,7 +756,7 @@ body.wp-admin.wp-theme-dark .stat-card.loading .stat-number {
     background: var(--mhm-gray-700);
 }
 
-/* === ANİMASYONLAR === */
+/* === ANIMATIONS === */
 
 .stat-card {
     animation: fadeInUp var(--mhm-duration-500) var(--mhm-ease-out);
@@ -828,7 +828,7 @@ body.wp-admin.wp-theme-dark .stat-card.loading .stat-number {
 
 /* === DEPOSIT STATS CARDS === */
 
-/* Depozito Rezervasyonları */
+/* Deposit Bookings */
 .stat-card.stat-card-deposit-bookings {
     --card-color: var(--mhm-primary);
 }
@@ -842,7 +842,7 @@ body.wp-admin.wp-theme-dark .stat-card.loading .stat-number {
     background: var(--mhm-primary);
 }
 
-/* Bekleyen Depozitolar */
+/* Pending Deposits */
 .stat-card.stat-card-pending-deposits {
     --card-color: var(--mhm-warning);
 }
@@ -856,7 +856,7 @@ body.wp-admin.wp-theme-dark .stat-card.loading .stat-number {
     background: var(--mhm-warning);
 }
 
-/* Tamamlanan Depozitolar */
+/* Completed Deposits */
 .stat-card.stat-card-completed-deposits {
     --card-color: var(--mhm-success);
 }
@@ -870,7 +870,7 @@ body.wp-admin.wp-theme-dark .stat-card.loading .stat-number {
     background: var(--mhm-success);
 }
 
-/* Depozito Oranı */
+/* Deposit Rate */
 .stat-card.stat-card-deposit-ratio {
     --card-color: #673ab7;
 }

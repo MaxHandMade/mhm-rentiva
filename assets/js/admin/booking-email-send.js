@@ -16,7 +16,7 @@
         var bookingId = form.data('booking-id');
 
         if (!bookingId) {
-            alert('Booking ID bulunamadı.');
+            alert('Booking ID not found.');
             return;
         }
 
@@ -27,7 +27,7 @@
         var emailNonce = form.find('input[name="mhm_rentiva_email_nonce"]').val() || '';
 
         if (!emailNonce) {
-            alert('Güvenlik kontrolü başarısız. Sayfayı yenileyin.');
+            alert('Security check failed. Please refresh the page.');
             return;
         }
 
@@ -35,7 +35,7 @@
         var originalText = submitBtn.text();
         var sendingText = (window.mhmBookingEmail && window.mhmBookingEmail.strings && window.mhmBookingEmail.strings.sending)
             ? window.mhmBookingEmail.strings.sending
-            : 'Gönderiliyor...';
+            : 'Sending...';
         submitBtn.prop('disabled', true).text(sendingText);
 
         // Prepare AJAX data
@@ -63,13 +63,13 @@
             success: function (response) {
                 var successText = (window.mhmBookingEmail && window.mhmBookingEmail.strings && window.mhmBookingEmail.strings.success)
                     ? window.mhmBookingEmail.strings.success
-                    : 'E-posta başarıyla gönderildi!';
+                    : 'Email sent successfully!';
                 var errorText = (window.mhmBookingEmail && window.mhmBookingEmail.strings && window.mhmBookingEmail.strings.error)
                     ? window.mhmBookingEmail.strings.error
-                    : 'Hata:';
+                    : 'Error:';
                 var unknownErrorText = (window.mhmBookingEmail && window.mhmBookingEmail.strings && window.mhmBookingEmail.strings.unknownError)
                     ? window.mhmBookingEmail.strings.unknownError
-                    : 'Bilinmeyen hata';
+                    : 'Unknown error';
 
                 if (response && response.success) {
                     alert(successText);
@@ -83,7 +83,7 @@
             error: function (xhr, status, error) {
                 var errorOccurredText = (window.mhmBookingEmail && window.mhmBookingEmail.strings && window.mhmBookingEmail.strings.errorOccurred)
                     ? window.mhmBookingEmail.strings.errorOccurred
-                    : 'Bir hata oluştu:';
+                    : 'An error occurred:';
                 var errorMsg = errorOccurredText + ' ' + error;
                 if (xhr.responseJSON && xhr.responseJSON.data) {
                     errorMsg += ' - ' + xhr.responseJSON.data;
@@ -117,7 +117,7 @@
 
         var loadingText = (window.mhmBookingEmail && window.mhmBookingEmail.strings && window.mhmBookingEmail.strings.loadingTemplate)
             ? window.mhmBookingEmail.strings.loadingTemplate
-            : 'Şablon yükleniyor...';
+            : 'Loading template...';
 
         // Show loading state
         var $subjectField = $('#email_subject');

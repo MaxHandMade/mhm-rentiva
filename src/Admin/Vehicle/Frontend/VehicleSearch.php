@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Vehicle\Frontend;
 
@@ -102,13 +104,19 @@ final class VehicleSearch
                 'error'           => __('An error occurred. Please try again.', 'mhm-rentiva'),
                 'select_dates'    => __('Please select start and end dates.', 'mhm-rentiva'),
                 'invalid_dates'   => __('Invalid date range.', 'mhm-rentiva'),
+                'return_after_pickup' => __('Return date must be after pickup date', 'mhm-rentiva'),
+                'pickup_past'     => __('Pickup date cannot be in the past', 'mhm-rentiva'),
+                'field_required'  => __('This field is required', 'mhm-rentiva'),
+                'invalid_price'   => __('Please enter a valid price', 'mhm-rentiva'),
+                'min_price_error' => __('Min price cannot be greater than max price', 'mhm-rentiva'),
+                'max_price_error' => __('Max price cannot be less than min price', 'mhm-rentiva'),
             ],
             'datepicker_options' => [
                 'dateFormat' => 'yy-mm-dd',
                 'minDate'    => 0, // Today
                 'showButtonPanel' => true,
                 'closeText'  => __('Close', 'mhm-rentiva'),
-                'currentText'=> __('Today', 'mhm-rentiva'),
+                'currentText' => __('Today', 'mhm-rentiva'),
                 'clearText'  => __('Clear', 'mhm-rentiva'),
                 'monthNames' => [__('January', 'mhm-rentiva'), __('February', 'mhm-rentiva'), __('March', 'mhm-rentiva'), __('April', 'mhm-rentiva'), __('May', 'mhm-rentiva'), __('June', 'mhm-rentiva'), __('July', 'mhm-rentiva'), __('August', 'mhm-rentiva'), __('September', 'mhm-rentiva'), __('October', 'mhm-rentiva'), __('November', 'mhm-rentiva'), __('December', 'mhm-rentiva')],
                 'monthNamesShort' => [__('Jan', 'mhm-rentiva'), __('Feb', 'mhm-rentiva'), __('Mar', 'mhm-rentiva'), __('Apr', 'mhm-rentiva'), __('May', 'mhm-rentiva'), __('Jun', 'mhm-rentiva'), __('Jul', 'mhm-rentiva'), __('Aug', 'mhm-rentiva'), __('Sep', 'mhm-rentiva'), __('Oct', 'mhm-rentiva'), __('Nov', 'mhm-rentiva'), __('Dec', 'mhm-rentiva')],
@@ -148,7 +156,7 @@ final class VehicleSearch
 
         // Select template based on layout
         $template_name = ($atts['layout'] === 'full') ? 'vehicle-search' : 'vehicle-search-compact';
-        
+
         // Render template
         $html = Templates::render('shortcodes/' . $template_name, [
             'atts' => $atts,
@@ -213,7 +221,7 @@ final class VehicleSearch
         // ⭐ Vehicle Management Settings'den ayarları al
         $cards_per_page = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_cards_per_page', 12);
         $default_sort = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_default_sort', 'price_asc');
-        
+
         // Sort order mapping
         $sort_mapping = [
             'price_asc' => ['meta_key' => '_mhm_rentiva_price_per_day', 'orderby' => 'meta_value_num', 'order' => 'ASC'],
@@ -223,9 +231,9 @@ final class VehicleSearch
             'date_asc' => ['orderby' => 'date', 'order' => 'ASC'],
             'date_desc' => ['orderby' => 'date', 'order' => 'DESC'],
         ];
-        
+
         $sort_config = $sort_mapping[$default_sort] ?? $sort_mapping['price_asc'];
-        
+
         $args = [
             'post_type' => PT_Vehicle::POST_TYPE,
             'post_status' => 'publish',
@@ -233,7 +241,7 @@ final class VehicleSearch
             'paged' => $params['page'],
             'meta_query' => [],
         ];
-        
+
         // Sort order uygula
         if (isset($sort_config['meta_key'])) {
             $args['meta_key'] = $sort_config['meta_key'];
@@ -254,7 +262,7 @@ final class VehicleSearch
                 'key' => '_mhm_rentiva_price_per_day',
                 'type' => 'NUMERIC',
             ];
-            
+
             if ($params['min_price'] > 0 && $params['max_price'] > 0) {
                 $price_query['value'] = [$params['min_price'], $params['max_price']];
                 $price_query['compare'] = 'BETWEEN';
@@ -265,7 +273,7 @@ final class VehicleSearch
                 $price_query['value'] = $params['max_price'];
                 $price_query['compare'] = '<=';
             }
-            
+
             $args['meta_query'][] = $price_query;
         }
 
@@ -319,7 +327,7 @@ final class VehicleSearch
             while ($query->have_posts()) {
                 $query->the_post();
                 $vehicle_id = get_the_ID();
-                
+
                 $vehicles[] = [
                     'id' => $vehicle_id,
                     'title' => get_the_title($vehicle_id),
@@ -396,7 +404,7 @@ final class VehicleSearch
         ]);
 
         $result = ['' => __('All Categories', 'mhm-rentiva')];
-        
+
         if (!is_wp_error($categories) && is_array($categories)) {
             foreach ($categories as $category) {
                 if (is_object($category) && isset($category->slug, $category->name)) {
@@ -449,7 +457,7 @@ final class VehicleSearch
     private static function get_price_ranges(): array
     {
         $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
-        
+
         return [
             /* translators: %s placeholder. */
             '0-100' => sprintf(__('0 - 100 %s', 'mhm-rentiva'), $currency_symbol),

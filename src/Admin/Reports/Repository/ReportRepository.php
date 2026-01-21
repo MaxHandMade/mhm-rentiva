@@ -57,14 +57,14 @@ class ReportRepository
     public static function get_active_bookings_count(): int
     {
         global $wpdb;
-        return (int) $wpdb->get_var($wpdb->prepare(
+        return (int) $wpdb->get_var(
             "SELECT COUNT(*) FROM {$wpdb->postmeta} pm
              INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
              WHERE p.post_type = 'vehicle_booking'
              AND p.post_status = 'publish'
              AND pm.meta_key = '_mhm_status'
              AND pm.meta_value IN ('confirmed', 'in_progress')"
-        ));
+        );
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Booking Confirmation Template
  * 
@@ -13,13 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 
 // Use data from prepare_template_data (already prepared by BookingConfirmation class)
 // All booking data is already available in the template variables
@@ -77,15 +72,8 @@ $payment_status_text = [
 
 $payment_status_display = !empty($payment_status) ? ($payment_status_text[$payment_status] ?? ucfirst($payment_status)) : '';
 
-// Bank account details (for offline payments)
-$bank_accounts = '';
-if ((!empty($payment_gateway) && $payment_gateway === 'offline') || (!empty($payment_method) && $payment_method === 'bank_transfer')) {
-    $settings = get_option('mhm_rentiva_settings', []);
-    $offline_accounts = $settings['mhm_rentiva_offline_accounts'] ?? '';
-    if (!empty($offline_accounts)) {
-        $bank_accounts = $offline_accounts;
-    }
-}
+// Bank account details - Legacy offline support removed.
+// Future: If manual bank transfer instructions are needed, they should be added via WooCommerce BACS settings.
 
 // URLs
 $account_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_account_url();
@@ -97,8 +85,8 @@ $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('re
     <div class="rv-confirmation-header">
         <div class="rv-success-icon">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" fill="#10B981" stroke="#10B981" stroke-width="2"/>
-                <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="10" fill="#10B981" stroke="#10B981" stroke-width="2" />
+                <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
         </div>
         <h1 class="rv-confirmation-title"><?php esc_html_e('Booking Confirmation', 'mhm-rentiva'); ?></h1>
@@ -110,7 +98,7 @@ $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('re
     <!-- Booking Details -->
     <div class="rv-booking-details">
         <h2><?php esc_html_e('Booking Details', 'mhm-rentiva'); ?></h2>
-        
+
         <div class="rv-details-grid">
             <!-- Booking Reference -->
             <div class="rv-detail-row">
@@ -156,37 +144,38 @@ $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('re
             </div>
 
             <?php if ((!empty($payment_type) && $payment_type === 'deposit') && (!empty($deposit_amount) && $deposit_amount > 0)): ?>
-            <!-- Deposit Amount -->
-            <div class="rv-detail-row">
-                <div class="rv-detail-label"><?php esc_html_e('Deposit Paid', 'mhm-rentiva'); ?></div>
-                <div class="rv-detail-value rv-price deposit-paid"><?php echo esc_html(number_format($deposit_amount ?? 0, 2, ',', '.') . ' ' . ($currency_symbol ?? '$')); ?></div>
-            </div>
+                <!-- Deposit Amount -->
+                <div class="rv-detail-row">
+                    <div class="rv-detail-label"><?php esc_html_e('Deposit Paid', 'mhm-rentiva'); ?></div>
+                    <div class="rv-detail-value rv-price deposit-paid"><?php echo esc_html(number_format($deposit_amount ?? 0, 2, ',', '.') . ' ' . ($currency_symbol ?? '$')); ?></div>
+                </div>
 
-            <!-- Remaining Amount -->
-            <div class="rv-detail-row">
-                <div class="rv-detail-label"><?php esc_html_e('Remaining Amount', 'mhm-rentiva'); ?></div>
-                <div class="rv-detail-value rv-price remaining-amount"><?php echo esc_html(number_format($remaining_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
-            </div>
+                <!-- Remaining Amount -->
+                <div class="rv-detail-row">
+                    <div class="rv-detail-label"><?php esc_html_e('Remaining Amount', 'mhm-rentiva'); ?></div>
+                    <div class="rv-detail-value rv-price remaining-amount"><?php echo esc_html(number_format($remaining_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+                </div>
             <?php endif; ?>
 
             <?php if (!empty($selected_addons)): ?>
-            <!-- Selected Add-ons -->
-            <div class="rv-detail-row">
-                <div class="rv-detail-label"><?php esc_html_e('Additional Services', 'mhm-rentiva'); ?></div>
-                <div class="rv-detail-value">
-                    <ul class="rv-addons-list">
-                        <?php foreach ($selected_addons as $addon_id): 
-                            $addon = get_post($addon_id);
-                            if ($addon):
-                        ?>
-                        <li>
-                            <span class="addon-check">✓</span>
-                            <?php echo esc_html($addon->post_title); ?>
-                        </li>
-                        <?php endif; endforeach; ?>
-                    </ul>
+                <!-- Selected Add-ons -->
+                <div class="rv-detail-row">
+                    <div class="rv-detail-label"><?php esc_html_e('Additional Services', 'mhm-rentiva'); ?></div>
+                    <div class="rv-detail-value">
+                        <ul class="rv-addons-list">
+                            <?php foreach ($selected_addons as $addon_id):
+                                $addon = get_post($addon_id);
+                                if ($addon):
+                            ?>
+                                    <li>
+                                        <span class="addon-check">✓</span>
+                                        <?php echo esc_html($addon->post_title); ?>
+                                    </li>
+                            <?php endif;
+                            endforeach; ?>
+                        </ul>
+                    </div>
                 </div>
-            </div>
             <?php endif; ?>
         </div>
     </div>
@@ -194,7 +183,7 @@ $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('re
     <!-- Payment Information -->
     <div class="rv-payment-info">
         <h2><?php esc_html_e('Payment Information', 'mhm-rentiva'); ?></h2>
-        
+
         <div class="rv-details-grid">
             <div class="rv-detail-row">
                 <div class="rv-detail-label"><?php esc_html_e('Payment Method', 'mhm-rentiva'); ?></div>
@@ -210,40 +199,35 @@ $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('re
                 </div>
             </div>
         </div>
-        
-        <?php if (!empty($bank_accounts)): ?>
-        <!-- Bank Account Information (for offline payments) -->
-        <div class="rv-bank-info">
-            <h3><?php esc_html_e('Bank Account Details', 'mhm-rentiva'); ?></h3>
-            <div class="rv-bank-accounts">
-                <?php echo nl2br(esc_html($bank_accounts)); ?>
-            </div>
-            <div class="rv-payment-warning">
-                <div class="rv-warning-icon">⚠️</div>
-                <div class="rv-warning-text">
-                    <strong><?php esc_html_e('Important:', 'mhm-rentiva'); ?></strong>
-                    <?php 
-                    $payment_deadline = get_post_meta($booking_id, '_mhm_payment_deadline', true);
-                    if ($payment_deadline) {
-                        printf(
-                            /* translators: %s placeholder. */
-                            esc_html__('You must complete your payment by %s. If payment is not made within this period, your booking will be automatically cancelled.', 'mhm-rentiva'),
-                            date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($payment_deadline))
-                        );
-                    } else {
-                        esc_html_e('You must complete your payment as soon as possible. Don\'t forget to include your booking number in the description.', 'mhm-rentiva');
-                    }
-                    ?>
+
+        <?php
+        // Payment Deadline Warning (for non-paid statuses)
+        if ($payment_status !== 'completed' && $payment_status !== 'paid'):
+            $payment_deadline = get_post_meta($booking_id, '_mhm_payment_deadline', true);
+            if ($payment_deadline): ?>
+                <div class="rv-payment-info-box" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+                    <div class="rv-payment-warning">
+                        <div class="rv-warning-icon" style="float: left; margin-right: 10px;">⚠️</div>
+                        <div class="rv-warning-text">
+                            <strong><?php esc_html_e('Important:', 'mhm-rentiva'); ?></strong>
+                            <?php
+                            printf(
+                                /* translators: %s placeholder. */
+                                esc_html__('You must complete your payment by %s. If payment is not made within this period, your booking will be automatically cancelled.', 'mhm-rentiva'),
+                                date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($payment_deadline))
+                            );
+                            ?>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <?php endif; ?>
+        <?php endif;
+        endif; ?>
     </div>
 
     <!-- Customer Information -->
     <div class="rv-customer-info">
         <h2><?php esc_html_e('Customer Information', 'mhm-rentiva'); ?></h2>
-        
+
         <div class="rv-details-grid">
             <div class="rv-detail-row">
                 <div class="rv-detail-label"><?php esc_html_e('Full Name', 'mhm-rentiva'); ?></div>
@@ -268,9 +252,9 @@ $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('re
         <div class="rv-info-box">
             <div class="rv-info-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#3B82F6" stroke-width="2" stroke-linejoin="round"/>
-                    <path d="M2 17L12 22L22 17" stroke="#3B82F6" stroke-width="2" stroke-linejoin="round"/>
-                    <path d="M2 12L12 17L22 12" stroke="#3B82F6" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#3B82F6" stroke-width="2" stroke-linejoin="round" />
+                    <path d="M2 17L12 22L22 17" stroke="#3B82F6" stroke-width="2" stroke-linejoin="round" />
+                    <path d="M2 12L12 17L22 12" stroke="#3B82F6" stroke-width="2" stroke-linejoin="round" />
                 </svg>
             </div>
             <div class="rv-info-content">

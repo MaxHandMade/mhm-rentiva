@@ -330,7 +330,7 @@ final class Templates
 
         // Special cases where option keys differ
         switch ($key) {
-            // ⭐ Offline payment cases removed - WooCommerce handles all payments
+
             case 'refund_customer':
                 $opt = 'mhm_rentiva_refund_customer_subject';
                 break;
@@ -382,7 +382,7 @@ final class Templates
     private static function getBodyOverride(string $key, array $context): ?string
     {
         switch ($key) {
-            // ⭐ Offline payment cases removed - WooCommerce handles all payments
+
             case 'refund_customer':
                 $opt = 'mhm_rentiva_refund_customer_body';
                 break;

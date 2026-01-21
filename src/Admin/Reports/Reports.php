@@ -259,21 +259,21 @@ final class Reports
             'mhm-css-variables',
             plugins_url('assets/css/core/css-variables.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
             [],
-            defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.0'
+            defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.1'
         );
 
         wp_enqueue_style(
             'mhm-core-css',
             plugins_url('assets/css/core/core.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
             ['mhm-css-variables'],
-            defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.0'
+            defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.1'
         );
 
         wp_enqueue_style(
             'mhm-animations',
             plugins_url('assets/css/core/animations.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
             ['mhm-css-variables'],
-            defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.0'
+            defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.1'
         );
 
         // Load statistics cards CSS
@@ -281,7 +281,7 @@ final class Reports
             'mhm-stats-cards',
             plugins_url('assets/css/components/stats-cards.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
             ['mhm-core-css'],
-            defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.0'
+            defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.1'
         );
 
         // Load admin reports CSS
@@ -289,7 +289,7 @@ final class Reports
             'mhm-admin-reports',
             plugins_url('assets/css/admin/admin-reports.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
             ['mhm-core-css'],
-            (defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.0') . '.4' // Add version for cache busting
+            (defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.1') . '.4' // Add version for cache busting
         );
 
         // Reports JavaScript
@@ -297,12 +297,12 @@ final class Reports
             'mhm-admin-reports',
             plugins_url('assets/js/admin/reports.js', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
             ['jquery'],
-            defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.0',
+            defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.1',
             true
         );
 
         // AJAX nonce for reports
-        wp_localize_script('mhm-admin-reports', 'mhm_reports_nonce', wp_create_nonce('mhm_reports_nonce'));
+        wp_localize_script('mhm-admin-reports', 'mhm_reports_nonce', ['nonce' => wp_create_nonce('mhm_reports_nonce')]);
 
         Charts::enqueue_scripts();
     }

@@ -291,7 +291,7 @@ class DepositCalculator
      */
     public static function get_payment_methods(): array
     {
-        // ⭐ WooCommerce only - All payments go through WooCommerce
+        // WooCommerce only - All payments go through WooCommerce
         if (!class_exists('WooCommerce')) {
             // WooCommerce is required
             return [];

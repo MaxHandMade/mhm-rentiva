@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "POT-Creation-Date: 2025-11-25T18:46:38+01:00\n"
-"PO-Revision-Date: 2026-01-20 05:52+0000\n"
+"PO-Revision-Date: 2026-01-21 00:07+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
 "Language: tr_TR\n"
@@ -3193,9 +3193,8 @@ msgid "Back to Messages"
 msgstr "İletilere dön"
 
 #: src/Admin/Setup/SetupWizard.php:398
-#, fuzzy
 msgid "Back to Required Pages"
-msgstr "Gerekli Sayfalara Geri Dön"
+msgstr "Önceki Sayfaya Dön"
 
 #: templates/shortcodes/search-results.php:258
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:153
@@ -3626,7 +3625,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/BookingConfirmation.php:263
 #: src/Admin/Frontend/Widgets/Elementor/BookingConfirmationWidget.php:21
 msgid "Booking Confirmation"
-msgstr "Rezervasyon onayı"
+msgstr "Rezervasyon Onayı"
 
 #: src/Admin/Emails/Templates/EmailPreview.php
 msgid "Booking Confirmation (Customer)"
@@ -5385,9 +5384,8 @@ msgid "Continue to License"
 msgstr "Lisansa devam et"
 
 #: src/Admin/Setup/SetupWizard.php:237
-#, fuzzy
 msgid "Continue to Required Pages"
-msgstr "Gerekli Sayfalara Devam Et"
+msgstr "Sonraki Sayfaya Devam Et"
 
 #: src/Admin/CLI/DatabaseCleanupCommand.php:122
 #, fuzzy
@@ -14137,9 +14135,8 @@ msgstr ""
 "IP'lere izin verilir."
 
 #: src/Admin/Setup/SetupWizard.php:236
-#, fuzzy
 msgid "Open License Page"
-msgstr "Açık Lisans Sayfası"
+msgstr "Lisans Sayfasını Aç"
 
 #: src/Admin/Setup/SetupWizard.php:548 src/Admin/Setup/SetupWizard.php:781
 #, fuzzy

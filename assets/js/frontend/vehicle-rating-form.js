@@ -1,6 +1,6 @@
 /**
  * Vehicle Rating Form JavaScript
- * Gerçek kullanıcı rating sistemi
+ * Real user rating system
  */
 
 (function ($) {
@@ -17,7 +17,7 @@
             this.loadUserRatings();
             this.initModals();
 
-            // Sayfa yüklendiğinde rating listesini otomatik yükle - biraz gecikme ile
+            // Auto-load ratings list on page load - with slight delay
             setTimeout(() => {
                 this.loadInitialRatings();
             }, 100);
@@ -26,7 +26,7 @@
         bindEvents() {
             $(document).on('submit', '.rv-rating-form-content', this.handleSubmit.bind(this));
             $(document).on('change', '.rv-rating-stars-input input[type="radio"]', this.handleStarChange.bind(this));
-            // Submit button click'i kaldırıldı - sadece form submit kullan
+            // Submit button click removed - only use form submit
             $(document).on('click', '.rv-delete-rating', this.handleDeleteRating.bind(this));
             $(document).on('click', '.rv-edit-comment-btn', this.handleEditComment.bind(this));
             $(document).on('click', '.rv-delete-comment-btn', this.handleDeleteComment.bind(this));
@@ -55,10 +55,10 @@
                         $inputs.prop('checked', false);
                         $input.prop('checked', true);
 
-                        // Tüm yıldızları temizle
+                        // Clear all stars
                         $labels.removeClass('active');
 
-                        // Seçili yıldızdan önceki tüm yıldızları aktif yap
+                        // Activate all stars before selected one
                         $labels.each(function (index) {
                             if (index < value) {
                                 $(this).addClass('active');
@@ -71,10 +71,10 @@
                     const $input = $(this);
                     const value = parseInt($input.val());
 
-                    // Tüm yıldızları temizle
+                    // Clear all stars
                     $labels.removeClass('active');
 
-                    // Seçili yıldızdan önceki tüm yıldızları aktif yap
+                    // Activate all stars before selected one
                     $labels.each(function (index) {
                         if (index < value) {
                             $(this).addClass('active');
@@ -111,7 +111,7 @@
         handleSubmit(e) {
             e.preventDefault();
 
-            // Double-click koruması
+            // Double-click protection
             const $form = $(e.target).closest('.rv-rating-form-content');
             const $submitBtn = $form.find('button[type="submit"]');
 
@@ -119,7 +119,7 @@
                 return;
             }
 
-            // Login kontrolü PHP tarafında yapılıyor, JavaScript'te kontrol etmiyoruz
+            // Login check is done on PHP side, we don't check in JavaScript
 
             const $container = $form.closest('.rv-rating-form');
             const vehicleId = $container.attr('data-vehicle-id');
@@ -127,7 +127,7 @@
             const comment = $form.find('textarea[name="comment"]').val();
 
 
-            // Guest kullanıcılar için isim ve email alanları
+            // Name and email fields for guest users
             const guestName = $form.find('input[name="guest_name"]').val();
             const guestEmail = $form.find('input[name="guest_email"]').val();
 
@@ -148,7 +148,7 @@
             };
 
 
-            // Guest kullanıcılar için isim ve email alanlarını ekle
+            // Add name and email fields for guest users
             if (guestName && guestEmail) {
                 formData.guest_name = guestName;
                 formData.guest_email = guestEmail;
@@ -166,10 +166,10 @@
                 success: (response) => {
                     if (response.success) {
                         this.showMessage('✅ ' + (response.data.message || 'Your comment has been submitted successfully! Awaiting approval.'), 'success');
-                        // Sayfa yenile
+                        // Refresh page
                         setTimeout(() => {
                             window.location.reload();
-                        }, 3000); // 3 saniye bekle
+                        }, 3000); // Wait 3 seconds
                     } else {
                         this.showMessage(response.data?.message || 'An error occurred', 'error');
                     }
@@ -216,7 +216,7 @@
                 success: (response) => {
                     if (response.success) {
                         this.showMessage('✅ Your comment has been deleted successfully!', 'success');
-                        // Sayfa yenile
+                        // Refresh page
                         setTimeout(() => {
                             window.location.reload();
                         }, 2000);
@@ -256,10 +256,10 @@
                 return;
             }
 
-            // AJAX çağrısı yapılmış mı kontrol et
+            // Check if AJAX call has been made
             const $container = $(`.rv-rating-form[data-vehicle-id="${vehicleId}"]`);
             if ($container.data('ajax-called')) {
-                return; // Zaten AJAX çağrısı yapılmış
+                return; // AJAX call already made
             }
 
             const $ratingsList = $container.find('.rv-ratings-list');
@@ -268,12 +268,12 @@
                 return;
             }
 
-            // Eğer zaten yorumlar varsa (PHP'den yüklenmiş), AJAX yapma
+            // If reviews already exist (loaded from PHP), don't make AJAX call
             if ($ratingsList.find('.rv-reviews-section').length > 0 || $ratingsList.find('.rv-review-item').length > 0) {
                 return;
             }
 
-            // Eğer "No reviews yet" mesajı varsa, AJAX yapma
+            // If "No reviews yet" message exists, don't make AJAX call
             if ($ratingsList.find('.rv-no-reviews').length > 0) {
                 return;
             }
@@ -283,7 +283,7 @@
             if (!ajaxUrl || ajaxUrl === 'undefined') {
                 return;
             }
-            // AJAX çağrısı yapıldığını işaretle
+            // Mark AJAX call as made
             $container.data('ajax-called', true);
 
             $.ajax({
@@ -298,27 +298,37 @@
                     if (response.success && response.data) {
                         self.renderRatingsList(response.data.ratings || []);
                     } else {
-                        // AJAX başarısız olursa mevcut yorumları koru
+                        // Keep existing reviews if AJAX fails
                     }
                 },
                 error: (xhr, status, error) => {
-                    // AJAX hata verirse mevcut yorumları koru
+                    // Keep existing reviews if AJAX errors
                 },
                 timeout: () => {
-                    // AJAX timeout olursa mevcut yorumları koru
+                    // Keep existing reviews if AJAX times out
                 }
             });
+        }
+
+        escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
         renderRatingsList(ratings) {
             const $container = $('.rv-ratings-list');
 
-            // Eğer zaten yorumlar varsa (PHP'den yüklenmiş), render etme
+            // If reviews already exist (loaded from PHP), don't render
             if ($container.find('.rv-reviews-section').length > 0 || $container.find('.rv-review-item').length > 0) {
                 return;
             }
 
-            // Loading state'i kaldır
+            // Remove loading state
             $container.find('.rv-loading-ratings').remove();
 
             if (!ratings || ratings.length === 0) {
@@ -330,16 +340,22 @@
 
             ratings.forEach((rating, index) => {
                 const stars = '★'.repeat(rating.rating) + '☆'.repeat(5 - rating.rating);
-                const date = new Date(rating.date || rating.created_at).toLocaleDateString();
+                // Date handling: Ensure it doesn't break if date format varies
+                let dateStr = '';
+                try {
+                    dateStr = new Date(rating.date || rating.created_at).toLocaleDateString();
+                } catch (e) {
+                    dateStr = rating.date || '';
+                }
 
                 html += `
                     <div class="rv-rating-item">
                         <div class="rv-rating-user">
-                            <span class="rv-rating-name">${rating.display_name || rating.customer_name || 'Anonymous'}</span>
+                            <span class="rv-rating-name">${this.escapeHtml(rating.display_name || rating.customer_name || 'Anonymous')}</span>
                             <div class="rv-rating-stars">${stars}</div>
-                            <span class="rv-rating-date">${date}</span>
+                            <span class="rv-rating-date">${this.escapeHtml(dateStr)}</span>
                         </div>
-                        ${rating.comment ? `<div class="rv-rating-comment">${rating.comment}</div>` : ''}
+                        ${rating.comment ? `<div class="rv-rating-comment">${this.escapeHtml(rating.comment)}</div>` : ''}
                     </div>
                 `;
             });
@@ -348,7 +364,7 @@
         }
 
         showMessage(message, type = 'info') {
-            // Önceki mesajları temizle
+            // Clear previous messages
             $('.rv-message').remove();
 
             const $message = $(`<div class="rv-message rv-message-${type}">${message}</div>`);
@@ -362,7 +378,7 @@
         handleEditComment(e) {
             e.preventDefault();
 
-            // Settings kontrolü
+            // Settings check
             if (!(window.mhmVehicleRating?.settings?.allow_editing ?? true)) {
                 this.showMessage('❌ Comment editing is disabled.', 'error');
                 return;
@@ -373,16 +389,16 @@
             const rating = $btn.data('rating');
             const comment = $btn.data('comment');
 
-            // Form'u doldur
+            // Fill the form
             const $form = $('.rv-rating-form-content');
             const $ratingInputs = $form.find('.rv-rating-stars-input input[type="radio"]');
             const $commentTextarea = $form.find('textarea[name="comment"]');
 
-            // Rating'i set et
+            // Set rating
             $ratingInputs.prop('checked', false);
             $ratingInputs.filter(`[value="${rating}"]`).prop('checked', true);
 
-            // Star görünümünü güncelle
+            // Update star appearance
             $form.find('.rv-rating-stars-input label').removeClass('active');
             $ratingInputs.each(function (index) {
                 if (index < rating) {
@@ -390,17 +406,17 @@
                 }
             });
 
-            // Comment'i set et
+            // Set comment
             $commentTextarea.val(comment);
 
-            // Form'u güncelleme moduna al
+            // Set form to update mode
             $form.data('edit-mode', true);
             $form.data('comment-id', commentId);
 
-            // Submit button text'ini güncelle
+            // Update submit button text
             $form.find('button[type="submit"]').text('Update Rating');
 
-            // Form'a scroll
+            // Scroll to form
             $('html, body').animate({
                 scrollTop: $form.offset().top - 100
             }, 500);
@@ -411,7 +427,7 @@
         handleDeleteComment(e) {
             e.preventDefault();
 
-            // Settings kontrolü
+            // Settings check
             if (!(window.mhmVehicleRating?.settings?.allow_deletion ?? true)) {
                 this.showMessage('❌ Comment deletion is disabled.', 'error');
                 return;
@@ -419,6 +435,7 @@
 
             const $btn = $(e.target).closest('.rv-delete-comment-btn');
             const commentId = $btn.data('comment-id');
+            const $reviewItem = $btn.closest('.rv-review-item'); // Get the review item to remove it
 
             if (!confirm(window.mhmVehicleRating?.strings?.delete_confirm || 'Are you sure you want to delete this comment?')) {
                 return;
@@ -426,7 +443,7 @@
 
             const ajaxUrl = window.mhmVehicleRating?.ajax_url || window.location.origin + '/wp-admin/admin-ajax.php';
 
-            // Nonce'u form'dan al
+            // Get nonce from form
             const nonce = $('.rv-rating-form-content input[name="nonce"]').val();
 
             $.ajax({
@@ -445,12 +462,12 @@
                     if (response.success) {
                         this.showMessage('✅ ' + (window.mhmVehicleRating?.strings?.delete_success || 'Your comment has been deleted successfully!'), 'success');
 
-                        // Yorumu DOM'dan kaldır
-                        $(`.rv-review-item[data-comment-id="${commentId}"]`).fadeOut(300, function () {
+                        // Remove review from DOM
+                        $reviewItem.slideUp(function () {
                             $(this).remove();
                         });
 
-                        // Sayfayı yenile
+                        // Refresh page
                         setTimeout(() => {
                             window.location.reload();
                         }, 2000);

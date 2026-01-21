@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Message thread view template
  * 
@@ -11,13 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 ?>
 <div class="message-thread-header">
     <a href="<?php echo esc_url(\MHMRentiva\Admin\Messages\Core\MessageUrlHelper::get_messages_list_url()); ?>" class="button">

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * My Account - Navigation Template
  * 
@@ -9,13 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 
 // Active page detection - check endpoint parameter
 $current_endpoint = 'dashboard'; // default
@@ -52,4 +47,3 @@ foreach ($navigation as $endpoint => $nav_item) {
         <?php endforeach; ?>
     </ul>
 </nav>
-

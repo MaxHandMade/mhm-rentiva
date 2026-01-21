@@ -20,6 +20,19 @@
         initializePagination();
     });
 
+    /**
+     * Escape HTML to prevent XSS
+     */
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
 
     /**
      * Initialize results page
@@ -553,7 +566,7 @@
      * Generate individual vehicle card HTML
      */
     function generateVehicleCardHtml(vehicle, layout) {
-        const esc = (str) => str || '';
+        const esc = escapeHtml;
 
         return `
             <div class="rv-vehicle-card" data-vehicle-id="${vehicle.id}">
@@ -710,10 +723,10 @@
                     // Update color based on state
                     if (response.data.action === 'added') {
                         $btn.css('color', '#e74c3c');
-                        showNotification(mhmRentivaSearchResults.i18n.added_to_favorites || 'Added to favorites');
+                        showNotification(mhmRentivaSearchResults.i18n.added_to_favorites || 'Added to favorites', 'success');
                     } else {
                         $btn.css('color', '');
-                        showNotification(mhmRentivaSearchResults.i18n.removed_from_favorites || 'Removed from favorites');
+                        showNotification(mhmRentivaSearchResults.i18n.removed_from_favorites || 'Removed from favorites', 'success');
                     }
                 } else {
                     showError(response.data.message || 'An error occurred');
@@ -789,7 +802,7 @@
             <div class="rv-error-message">
                 <div class="rv-error-icon">⚠️</div>
                 <h3>${errorText}</h3>
-                <p>${message}</p>
+                <p>${escapeHtml(message)}</p>
                 <button type="button" class="rv-btn rv-btn-primary" onclick="location.reload()">
                     ${tryAgainText}
                 </button>
@@ -806,19 +819,21 @@
     /**
      * Show notification
      */
-    function showNotification(message) {
-        const $notification = $(`
-            <div class="rv-notification">
-                ${message}
-            </div>
-        `);
+    function showNotification(message, type) {
+        type = type || 'info';
+        const $notification = $(`<div class="rv-notification rv-notification--${type}">${message}</div>`);
 
         $('body').append($notification);
 
         setTimeout(() => {
-            $notification.fadeOut(() => {
+            $notification.addClass('rv-notification--show');
+        }, 100);
+
+        setTimeout(() => {
+            $notification.removeClass('rv-notification--show');
+            setTimeout(() => {
                 $notification.remove();
-            });
+            }, 300);
         }, 3000);
     }
 

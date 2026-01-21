@@ -176,7 +176,7 @@
     margin: 20px 0;
 }
 
-/* Eklenti analytics card tasarımını kullan */
+/* Use plugin analytics card design */
 .mhm-export-dashboard .analytics-card {
     background: #fff;
     border: 1px solid #e1e5e9;
@@ -243,7 +243,7 @@
     margin: 0;
 }
 
-/* Renk teması - eklenti analytics card renkleri */
+/* Color theme - plugin analytics card colors */
 .mhm-export-dashboard .bookings-analytics {
     border-left: 4px solid #0073aa;
 }
@@ -592,7 +592,7 @@
     }
 }
 
-/* İstatistik kartları kaldırıldı */
+/* Statistics cards removed */
 
 /* Export Filters Styles */
 .mhm-export-filters {
@@ -767,7 +767,7 @@
     line-height: 1.4;
 }
 
-/* Basit Flexbox Layout */
+/* Simple Flexbox Layout */
 .mhm-advanced-filters .filter-grid {
     display: flex;
     flex-wrap: wrap;
@@ -909,7 +909,7 @@
     border-top: 5px solid #0073aa;
 }
 
-/* Modern Amount Range - Grid içinde düzgün hizalama */
+/* Modern Amount Range - Proper alignment in grid */
 .mhm-advanced-filters .amount-range {
     display: flex;
     gap: 12px;
@@ -1031,7 +1031,7 @@
     box-shadow: 0 6px 20px rgba(0, 115, 170, 0.4);
 }
 
-/* Basit Responsive Design */
+/* Simple Responsive Design */
 @media (max-width: 768px) {
     .mhm-advanced-filters .filter-group {
         min-width: 100%;

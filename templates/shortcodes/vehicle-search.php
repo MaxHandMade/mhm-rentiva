@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Default template: Vehicle search form
  * Variables:
@@ -10,13 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 ?>
 
 <div class="rv-search-form <?php echo esc_attr($atts['class'] ?? ''); ?>" id="rv-search-form">
@@ -29,7 +24,7 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
 
     <form class="rv-search-filters" id="rv-search-filters" method="post">
         <?php echo $nonce_field; ?>
-        
+
         <div class="rv-search-row">
             <!-- Keyword -->
             <div class="rv-search-field rv-search-keyword">
@@ -38,70 +33,70 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
             </div>
 
             <?php if (($atts['show_date_picker'] ?? '1') === '1'): ?>
-            <!-- Date Selection -->
-            <div class="rv-search-field rv-search-dates">
-                <label for="rv-start-date"><?php echo esc_html__('Start Date', 'mhm-rentiva'); ?></label>
-                <input type="text" id="rv-start-date" name="start_date" placeholder="<?php echo esc_attr__('Start date', 'mhm-rentiva'); ?>" readonly />
-            </div>
+                <!-- Date Selection -->
+                <div class="rv-search-field rv-search-dates">
+                    <label for="rv-start-date"><?php echo esc_html__('Start Date', 'mhm-rentiva'); ?></label>
+                    <input type="text" id="rv-start-date" name="start_date" placeholder="<?php echo esc_attr__('Start date', 'mhm-rentiva'); ?>" readonly />
+                </div>
 
-            <div class="rv-search-field rv-search-dates">
-                <label for="rv-end-date"><?php echo esc_html__('End Date', 'mhm-rentiva'); ?></label>
-                <input type="text" id="rv-end-date" name="end_date" placeholder="<?php echo esc_attr__('End date', 'mhm-rentiva'); ?>" readonly />
-            </div>
+                <div class="rv-search-field rv-search-dates">
+                    <label for="rv-end-date"><?php echo esc_html__('End Date', 'mhm-rentiva'); ?></label>
+                    <input type="text" id="rv-end-date" name="end_date" placeholder="<?php echo esc_attr__('End date', 'mhm-rentiva'); ?>" readonly />
+                </div>
             <?php endif; ?>
         </div>
 
         <div class="rv-search-row">
             <?php if (($atts['show_price_range'] ?? '1') === '1'): ?>
-            <!-- Price Range -->
-            <div class="rv-search-field rv-search-price">
-                <label for="rv-min-price"><?php echo esc_html__('Minimum Price', 'mhm-rentiva'); ?> (<?php echo esc_html(apply_filters('mhm_rentiva/currency_symbol', '₺')); ?>)</label>
-                <input type="number" id="rv-min-price" name="min_price" min="0" step="10" placeholder="0" />
-            </div>
+                <!-- Price Range -->
+                <div class="rv-search-field rv-search-price">
+                    <label for="rv-min-price"><?php echo esc_html__('Minimum Price', 'mhm-rentiva'); ?> (<?php echo esc_html(apply_filters('mhm_rentiva/currency_symbol', '₺')); ?>)</label>
+                    <input type="number" id="rv-min-price" name="min_price" min="0" step="10" placeholder="0" />
+                </div>
 
-            <div class="rv-search-field rv-search-price">
-                <label for="rv-max-price"><?php echo esc_html__('Maximum Price', 'mhm-rentiva'); ?> (<?php echo esc_html(apply_filters('mhm_rentiva/currency_symbol', '₺')); ?>)</label>
-                <input type="number" id="rv-max-price" name="max_price" min="0" step="10" placeholder="1000" />
-            </div>
+                <div class="rv-search-field rv-search-price">
+                    <label for="rv-max-price"><?php echo esc_html__('Maximum Price', 'mhm-rentiva'); ?> (<?php echo esc_html(apply_filters('mhm_rentiva/currency_symbol', '₺')); ?>)</label>
+                    <input type="number" id="rv-max-price" name="max_price" min="0" step="10" placeholder="1000" />
+                </div>
             <?php endif; ?>
 
         </div>
 
         <div class="rv-search-row">
             <?php if (($atts['show_fuel_type'] ?? '1') === '1'): ?>
-            <!-- Fuel Type -->
-            <div class="rv-search-field rv-search-fuel">
-                <label for="rv-fuel-type"><?php echo esc_html__('Fuel Type', 'mhm-rentiva'); ?></label>
-                <select id="rv-fuel-type" name="fuel_type">
-                    <?php foreach ($form_data['fuel_types'] as $value => $label): ?>
-                        <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+                <!-- Fuel Type -->
+                <div class="rv-search-field rv-search-fuel">
+                    <label for="rv-fuel-type"><?php echo esc_html__('Fuel Type', 'mhm-rentiva'); ?></label>
+                    <select id="rv-fuel-type" name="fuel_type">
+                        <?php foreach ($form_data['fuel_types'] as $value => $label): ?>
+                            <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             <?php endif; ?>
 
             <?php if (($atts['show_transmission'] ?? '1') === '1'): ?>
-            <!-- Transmission Type -->
-            <div class="rv-search-field rv-search-transmission">
-                <label for="rv-transmission"><?php echo esc_html__('Transmission Type', 'mhm-rentiva'); ?></label>
-                <select id="rv-transmission" name="transmission">
-                    <?php foreach ($form_data['transmissions'] as $value => $label): ?>
-                        <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+                <!-- Transmission Type -->
+                <div class="rv-search-field rv-search-transmission">
+                    <label for="rv-transmission"><?php echo esc_html__('Transmission Type', 'mhm-rentiva'); ?></label>
+                    <select id="rv-transmission" name="transmission">
+                        <?php foreach ($form_data['transmissions'] as $value => $label): ?>
+                            <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             <?php endif; ?>
 
             <?php if (($atts['show_seats'] ?? '1') === '1'): ?>
-            <!-- Seat Count -->
-            <div class="rv-search-field rv-search-seats">
-                <label for="rv-min-seats"><?php echo esc_html__('Minimum Seats', 'mhm-rentiva'); ?></label>
-                <select id="rv-min-seats" name="min_seats">
-                    <?php foreach ($form_data['seat_options'] as $value => $label): ?>
-                        <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+                <!-- Seat Count -->
+                <div class="rv-search-field rv-search-seats">
+                    <label for="rv-min-seats"><?php echo esc_html__('Minimum Seats', 'mhm-rentiva'); ?></label>
+                    <select id="rv-min-seats" name="min_seats">
+                        <?php foreach ($form_data['seat_options'] as $value => $label): ?>
+                            <option value="<?php echo esc_attr($value); ?>"><?php echo esc_html($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             <?php endif; ?>
         </div>
 
@@ -113,7 +108,7 @@ if (!function_exists('mhm_rentiva_load_textdomain')) {
                     <?php echo esc_html__('Searching...', 'mhm-rentiva'); ?>
                 </span>
             </button>
-            
+
             <button type="button" class="rv-reset-btn" id="rv-reset-btn">
                 <?php echo esc_html__('Clear', 'mhm-rentiva'); ?>
             </button>

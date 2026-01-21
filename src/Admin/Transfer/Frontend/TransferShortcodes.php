@@ -38,7 +38,7 @@ final class TransferShortcodes
                 'mhm-rentiva-transfer-css',
                 plugins_url('assets/css/transfer.css', dirname(__DIR__, 4) . '/mhm-rentiva.php'),
                 [],
-                defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.0'
+                defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.1'
             );
         }
 
@@ -48,7 +48,7 @@ final class TransferShortcodes
                 'mhm-rentiva-transfer', // Handle name updated as requested
                 plugins_url('assets/js/mhm-rentiva-transfer.js', dirname(__DIR__, 4) . '/mhm-rentiva.php'),
                 ['jquery'], // Dependency
-                defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.0',
+                defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.1',
                 true // In footer
             );
 
@@ -60,7 +60,11 @@ final class TransferShortcodes
                 'i18n'     => [
                     'same_location_error' => __('Pick-up and Drop-off locations cannot be the same.', 'mhm-rentiva'),
                     'searching_text'      => __('Searching...', 'mhm-rentiva'),
-                    'error_text'          => __('An error occurred. Please try again.', 'mhm-rentiva')
+                    'error_text'          => __('An error occurred. Please try again.', 'mhm-rentiva'),
+                    'processing_text'     => __('Processing...', 'mhm-rentiva'),
+                    'book_now_text'       => __('Book Now', 'mhm-rentiva'),
+                    'server_error'        => __('Server communication error!', 'mhm-rentiva'),
+                    'default_error'       => __('An error occurred.', 'mhm-rentiva')
                 ]
             ]);
         }

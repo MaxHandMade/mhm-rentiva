@@ -633,7 +633,7 @@
                 const total = memory.totalJSHeapSize / 1024 / 1024;
                 const limit = memory.jsHeapSizeLimit / 1024 / 1024;
 
-                // Debug log removed
+
 
                 // Memory warning
                 if (used / limit > 0.8) {

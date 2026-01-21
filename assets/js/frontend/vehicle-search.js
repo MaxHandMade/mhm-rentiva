@@ -472,9 +472,31 @@
      * Show error message
      */
     function showError(message) {
-        // You can implement a toast notification or alert here
-        console.error('Search error:', message);
-        alert(message); // Simple alert for now
+        // console.error('Search error:', message); // Removed console.error for production clean-up
+        showToast(message, 'error');
+    }
+
+    /**
+     * Show toast notification
+     */
+    function showToast(message, type = 'success') {
+        // Create toast element if it doesn't exist
+        if ($('#rv-toast-notification').length === 0) {
+            $('body').append('<div id="rv-toast-notification" class="rv-frontend-toast"></div>');
+        }
+
+        const $toast = $('#rv-toast-notification');
+
+        // Reset classes and content
+        $toast.removeClass('error success').addClass(type).text(message);
+
+        // Show
+        $toast.fadeIn(300);
+
+        // Auto hide
+        setTimeout(() => {
+            $toast.fadeOut(300);
+        }, 5000);
     }
 
     /**

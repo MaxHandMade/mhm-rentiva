@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.6.1",
+        "date": "2026-01-21",
+        "type": "current",
+        "changes": [
+            "🛡️ CRITICAL UPDATE: Comprehensive DatabaseCleaner meta key protection to prevent potential data loss during maintenance.",
+            "🛍️ WOOCOMMERCE: Atomic Overlap Lock mechanism added to prevent duplicate bookings during high traffic.",
+            "💰 TAX FIX: Resolved tax calculation issue for deposit payments (now calculates based on total amount).",
+            "🔒 SECURITY: SQL queries hardened with prepared statements in BookingColumns and ExportStats.",
+            "🎨 UI: Added informative notice in Payment Settings when WooCommerce integration is active."
+        ]
+    },
+    {
         "version": "4.5.5",
         "date": "2026-01-19",
         "type": "current",

@@ -621,11 +621,7 @@ final class SettingsCore
     /**
      * Payment Settings
      */
-    public static function register_payment_settings(): void
-    {
-        // Register Offline Payment Settings
-        // ⭐ Offline payment removed - WooCommerce handles all payments
-    }
+    public static function register_payment_settings(): void {}
 
     /**
      * Email & Notification Settings

@@ -139,14 +139,19 @@
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                 });
+
+                // Simple escape for name
+                const safeName = item.name.replace(/[&<>"']/g, function (m) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+                });
+
                 $breakdown.append(`
                     <div class="total-line">
-                        <span>${item.name} (${item.quantity}x)</span>
+                        <span>${safeName} (${item.quantity}x)</span>
                         <span>${currency}${formattedTotal}</span>
                     </div>
                 `);
             });
-
             // Add final total
             if (breakdown.length > 0) {
                 const formattedTotal = total.toLocaleString(locale, {

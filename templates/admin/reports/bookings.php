@@ -11,8 +11,8 @@ use MHMRentiva\Admin\Booking\Core\Status;
         <p class="overview-description"><?php printf(
                                             /* translators: 1: %s; 2: %s. */
                                             esc_html__('Booking analysis and status distribution for %1$s to %2$s', 'mhm-rentiva'),
-                                            date('d.m.Y', strtotime($start_date)),
-                                            date('d.m.Y', strtotime($end_date))
+                                            wp_date('d.m.Y', strtotime($start_date)),
+                                            wp_date('d.m.Y', strtotime($end_date))
                                         ); ?></p>
     </div>
 

@@ -96,47 +96,11 @@
             </div>
         </div>
 
-        <?php if ($payment_method === 'bank_transfer' || $payment_method === 'offline'): ?>
-            <!-- Offline/Bank Payment Information -->
-            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #ffc107;">
-                <h3 style="margin: 0 0 15px 0; color: #856404;">⚠️ <?php esc_html_e('Payment Information', 'mhm-rentiva'); ?></h3>
-
-                <?php
-                // Get dynamic bank account details
-                $settings = get_option('mhm_rentiva_settings', []);
-                $bank_accounts = $settings['mhm_rentiva_offline_accounts'] ?? '';
-
-                if (!empty($bank_accounts)): ?>
-                    <div style="background: white; padding: 15px; border-radius: 6px; margin: 15px 0;">
-                        <h4 style="margin: 0 0 10px 0; color: #856404;"><?php esc_html_e('Bank Details', 'mhm-rentiva'); ?></h4>
-                        <div style="font-family: monospace; font-size: 14px; line-height: 1.8;">
-                            <?php echo nl2br(esc_html($bank_accounts)); ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-                <div style="background: #f8d7da; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #dc3545;">
-                    <h4 style="margin: 0 0 10px 0; color: #721c24;">⚠️ <?php esc_html_e('Important Notice', 'mhm-rentiva'); ?></h4>
-                    <p style="margin: 0; color: #721c24; font-weight: bold;">
-                        <?php esc_html_e('You must complete your payment within 30 minutes. Otherwise, your reservation will be automatically cancelled.', 'mhm-rentiva'); ?>
-                    </p>
-                    <?php
-                    // Show payment deadline
-                    $payment_deadline = $data['booking']['payment_deadline'] ?? '';
-                    if ($payment_deadline): ?>
-                        <p style="margin: 10px 0; color: #721c24; font-size: 14px;">
-                            <strong><?php esc_html_e('Payment Deadline:', 'mhm-rentiva'); ?></strong>
-                            <?php echo esc_html(date('d.m.Y H:i', strtotime($payment_deadline))); ?>
-                        </p>
-                    <?php endif; ?>
-                    <p style="margin: 10px 0 0 0; color: #721c24; font-size: 13px;">
-                        <?php esc_html_e('After making the payment, you can send the receipt via email or notify us by phone.', 'mhm-rentiva'); ?>
-                    </p>
-                </div>
-            </div>
-        <?php else: ?>
-            <p><?php esc_html_e('Thank you for your booking. We will have the vehicle ready for pickup on the specified date.', 'mhm-rentiva'); ?></p>
-        <?php endif; ?>
+        <div class="booking-confirmation-message" style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #28a745;">
+            <p style="margin: 0; color: #155724;">
+                <?php esc_html_e('Thank you for your booking. We have received your request and will process it shortly.', 'mhm-rentiva'); ?>
+            </p>
+        </div>
 
         <?php
         // User account check

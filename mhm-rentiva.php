@@ -2,7 +2,7 @@
 /*
 Plugin Name: MHM Rentiva
 Description: Vehicle rental management plugin with WooCommerce payment integration.
-Version: 4.6.0
+Version: 4.6.1
 Author: MHM Development Team
 Text Domain: mhm-rentiva
 Domain Path: /languages
@@ -43,7 +43,7 @@ function mhm_rentiva_sanitize_text_field_safe($value)
 }
 
 // Define Plugin Constants
-define('MHM_RENTIVA_VERSION', '4.6.0');
+define('MHM_RENTIVA_VERSION', '4.6.1');
 
 
 // Recursive $_POST/$_REQUEST cleaning removed.

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Testimonials Template
  * 
@@ -9,13 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 
 // Get template variables
 $atts = $atts ?? [];
@@ -36,20 +31,20 @@ $auto_rotate = ($atts['auto_rotate'] ?? apply_filters('mhm_rentiva/testimonials/
 $class = $atts['class'] ?? apply_filters('mhm_rentiva/testimonials/class', '');
 ?>
 
-<div class="rv-testimonials rv-layout-<?php echo esc_attr($layout); ?> rv-columns-<?php echo esc_attr($columns); ?> <?php echo esc_attr($class); ?>" 
-     data-limit="<?php echo esc_attr($limit); ?>"
-     data-layout="<?php echo esc_attr($layout); ?>"
-     data-auto-rotate="<?php echo esc_attr($auto_rotate ? '1' : '0'); ?>">
+<div class="rv-testimonials rv-layout-<?php echo esc_attr($layout); ?> rv-columns-<?php echo esc_attr($columns); ?> <?php echo esc_attr($class); ?>"
+    data-limit="<?php echo esc_attr($limit); ?>"
+    data-layout="<?php echo esc_attr($layout); ?>"
+    data-auto-rotate="<?php echo esc_attr($auto_rotate ? '1' : '0'); ?>">
 
     <?php if ($has_testimonials): ?>
-        
+
         <!-- Testimonials Header -->
         <div class="rv-testimonials-header">
             <h3 class="rv-testimonials-title">
                 <?php echo esc_html__('Customer Reviews', 'mhm-rentiva'); ?>
             </h3>
             <div class="rv-testimonials-count">
-                <?php 
+                <?php
                 printf(
                     /* translators: %d placeholder. */
                     esc_html(_n('%d review', '%d reviews', $total_count, 'mhm-rentiva')),
@@ -115,7 +110,7 @@ $class = $atts['class'] ?? apply_filters('mhm_rentiva/testimonials/class', '');
                             <?php endforeach; ?>
                         </div>
                     </div>
-                    
+
                     <!-- Carousel Controls -->
                     <button class="rv-carousel-prev" aria-label="<?php echo esc_attr__('Previous', 'mhm-rentiva'); ?>">
                         <span class="dashicons dashicons-arrow-left-alt2"></span>
@@ -123,12 +118,12 @@ $class = $atts['class'] ?? apply_filters('mhm_rentiva/testimonials/class', '');
                     <button class="rv-carousel-next" aria-label="<?php echo esc_attr__('Next', 'mhm-rentiva'); ?>">
                         <span class="dashicons dashicons-arrow-right-alt2"></span>
                     </button>
-                    
+
                     <!-- Carousel Indicators -->
                     <div class="rv-carousel-indicators">
                         <?php for ($i = 0; $i < count($testimonials); $i++): ?>
-                            <button class="rv-carousel-indicator <?php echo $i === 0 ? 'active' : ''; ?>" 
-                                    data-slide="<?php echo esc_attr($i); ?>"></button>
+                            <button class="rv-carousel-indicator <?php echo $i === 0 ? 'active' : ''; ?>"
+                                data-slide="<?php echo esc_attr($i); ?>"></button>
                         <?php endfor; ?>
                     </div>
                 </div>
@@ -209,6 +204,3 @@ $class = $atts['class'] ?? apply_filters('mhm_rentiva/testimonials/class', '');
         </div>
     <?php endif; ?>
 </div>
-
-
-

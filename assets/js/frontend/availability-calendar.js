@@ -8,9 +8,9 @@
 (function ($) {
     'use strict';
 
-    // JavaScript objesi yoksa varsayılan değerlerle oluştur
+    // Create default values if JavaScript object doesn't exist
     if (typeof window.mhmRentivaAvailability === 'undefined') {
-        // WordPress'in global ajaxurl değişkenini kullan
+        // Use WordPress global ajaxurl variable
         const ajaxUrl = window.ajaxurl || (window.location.origin + '/wp-admin/admin-ajax.php');
 
         window.mhmRentivaAvailability = {
@@ -44,6 +44,16 @@
         init() {
             this.bindEvents();
             this.initializeCalendar();
+        }
+
+        escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
         bindEvents() {
@@ -154,7 +164,7 @@
                                     cursor: pointer;
                                     transition: all 0.2s ease;
                                 " data-vehicle-id="${vehicle.id}">
-                                    <strong>${vehicle.title}</strong>
+                                    <strong>${this.escapeHtml(vehicle.title)}</strong>
                                     <div style="color: #666; font-size: 14px;">${this.formatPrice(vehicle.price || 0)} ${perDay}</div>
                                 </div>
                             `).join('')}
@@ -179,10 +189,10 @@
                 const vehicleId = $(e.currentTarget).data('vehicle-id');
                 this.currentVehicleId = vehicleId;
 
-                // Araç bilgilerini güncelle
+                // Update vehicle info
                 this.updateVehicleInfo(vehicleId);
 
-                // Takvim verilerini yükle
+                // Load calendar data
                 this.loadAvailabilityData();
 
                 $('.rv-vehicle-selection-modal').remove();
@@ -201,7 +211,7 @@
         }
 
         updateVehicleInfo(vehicleId) {
-            // Araç bilgilerini AJAX ile güncelle
+            // Update vehicle info via AJAX
             const data = {
                 action: 'mhm_rentiva_get_vehicle_info',
                 vehicle_id: vehicleId,
@@ -220,17 +230,17 @@
         }
 
         updateVehicleDisplay(vehicleData) {
-            // Araç resmini güncelle
+            // Update vehicle image
             if (vehicleData.image) {
                 $('.rv-vehicle-img').attr('src', vehicleData.image);
             }
 
-            // Araç adını güncelle
+            // Update vehicle name
             if (vehicleData.title) {
                 $('.rv-vehicle-title').text(vehicleData.title);
             }
 
-            // Araç özelliklerini güncelle
+            // Update vehicle features
             if (vehicleData.specs) {
                 const specsHtml = Object.entries(vehicleData.specs)
                     .map(([key, value]) => `<span class="rv-spec-badge">${value}</span>`)
@@ -238,7 +248,7 @@
                 $('.rv-vehicle-specs').html(specsHtml);
             }
 
-            // Fiyatı güncelle
+            // Update price
             if (vehicleData.price) {
                 const perDay = (window.mhmRentivaAvailability?.strings?.per_day || '/day');
                 // price already formatted from backend as string or raw number? 
@@ -251,7 +261,7 @@
                 $('.rv-vehicle-price').text(vehicleData.price + ' ' + currencySymbol + perDay);
             }
 
-            // Data attribute'ları güncelle
+            // Update data attributes
             $('.rv-availability-calendar').attr('data-vehicle-id', vehicleData.id);
             $('.rv-availability-calendar').attr('data-vehicle-price', vehicleData.price);
 
@@ -287,7 +297,7 @@
                     const badgeHtml = `
                         <div class="rv-badge-wrapper" style="display: inline-flex; align-items: center; margin-right: 10px;">
                             <span class="rv-badge rv-badge--unavailable" style="background-color: #ef4444; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
-                                ${vehicleData.status_text}
+                                ${this.escapeHtml(vehicleData.status_text)}
                             </span>
                         </div>
                     `;
@@ -516,7 +526,7 @@
         loadAvailabilityData() {
             if (this.isLoading || !this.currentVehicleId) return;
 
-            // JavaScript objesi artık her zaman mevcut
+            // JavaScript object is now always available
 
             this.showLoading(true);
             this.isLoading = true;
@@ -746,7 +756,7 @@
         showNotification(message, type = 'info') {
             // Simple notification system
             const $notification = $(`
-                <div class="rv-notification rv-notification-${type}">
+                <div class="rv-notification rv-notification--${type}">
                     <span class="rv-notification-message">${message}</span>
                     <button type="button" class="rv-notification-close">&times;</button>
                 </div>

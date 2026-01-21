@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.6.1",
+        "date": "2026-01-21",
+        "type": "current",
+        "changes": [
+            "🛡️ KRİTİK GÜNCELLEME: Bakım sırasında olası veri kaybını önlemek için kapsamlı DatabaseCleaner meta anahtarı koruması.",
+            "🛍️ WOOCOMMERCE: Yoğun trafikte çift rezervasyonu önlemek için Atomik Çakışma Kilidi mekanizması eklendi.",
+            "💰 VERGİ DÜZELTMESİ: Depozito ödemeleri için vergi hesaplama sorunu çözüldü (artık toplam tutar üzerinden hesaplanıyor).",
+            "🔒 GÜVENLİK: BookingColumns ve ExportStats içindeki SQL sorguları prepared statements ile güçlendirildi.",
+            "🎨 ARAYÜZ: WooCommerce entegrasyonu aktif olduğunda Ödeme Ayarları'na bilgilendirici uyarı eklendi."
+        ]
+    },
+    {
         "version": "4.6.0",
         "date": "2026-01-16",
         "type": "current",

@@ -1,6 +1,6 @@
-/* Manuel Rezervasyon Meta Box Stilleri */
+/* Manual Booking Meta Box Styles */
 
-/* WordPress varsayılan post alanlarını gizle */
+/* Hide default WordPress post fields */
 .post-type-vehicle_booking #titlediv,
 .post-type-vehicle_booking #post-body-content,
 .post-type-vehicle_booking #post-body .metabox-holder,
@@ -18,7 +18,7 @@
     display: none !important;
 }
 
-/* Sadece bizim meta box'ımızı göster */
+/* Show only our meta box */
 .post-type-vehicle_booking #mhm_manual_booking_meta_box {
     display: block !important;
 }
@@ -76,7 +76,7 @@
     min-height: 80px;
 }
 
-/* Tarih/Saat Alanları */
+/* Date/Time Fields */
 .mhm-datetime-fields {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -87,7 +87,7 @@
     margin: 0;
 }
 
-/* Fiyat Hesaplama */
+/* Price Calculation */
 .mhm-price-calculation {
     background: var(--mhm-bg-card);
     border: 1px solid var(--mhm-primary);
@@ -130,7 +130,7 @@
     font-weight: 500;
 }
 
-/* Butonlar */
+/* Buttons */
 .mhm-booking-actions {
     display: flex;
     gap: 12px;
@@ -267,7 +267,7 @@
     color: var(--mhm-text-primary);
 }
 
-/* Ek Hizmetler Stilleri */
+/* Additional Services Styles */
 .mhm-addon-selection {
     border: 1px solid var(--mhm-border-secondary);
     border-radius: var(--mhm-radius-sm);
@@ -366,7 +366,7 @@
     font-size: 16px;
 }
 
-/* Ek Hizmetler Seçili Durum */
+/* Add-on Services Selected State */
 .mhm-addon-item:has(.mhm-addon-checkbox:checked) {
     background-color: var(--mhm-bg-secondary);
     border-left: 3px solid var(--mhm-primary);
@@ -377,7 +377,7 @@
     color: var(--mhm-primary);
 }
 
-/* Ek Hizmetler Zorunlu Durum */
+/* Additional Services Mandatory Status */
 .mhm-addon-item:has(.mhm-addon-checkbox:disabled) {
     background-color: var(--mhm-bg-hover);
     border-left: 3px solid var(--mhm-success);
@@ -391,7 +391,7 @@
     color: var(--mhm-success);
 }
 
-/* Yeni müşteri alanları */
+/* New customer fields */
 #mhm_new_customer_fields {
     margin-top: 15px;
     padding: 15px;
@@ -415,7 +415,7 @@
     margin-bottom: 0;
 }
 
-/* Yeni müşteri alanları için yarım genişlik */
+/* Half width for new customer fields */
 #mhm_new_customer_fields .mhm-field-half {
     display: inline-block;
     width: 48%;

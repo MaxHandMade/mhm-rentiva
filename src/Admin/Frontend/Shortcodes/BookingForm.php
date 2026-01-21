@@ -186,7 +186,7 @@ final class BookingForm extends AbstractShortcode
         if (file_exists($full_path)) {
             return (string) filemtime($full_path);
         }
-        return defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.0'; // Fallback to plugin version
+        return defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.1'; // Fallback to plugin version
     }
 
     protected static function get_script_object_name(): string
@@ -256,6 +256,8 @@ final class BookingForm extends AbstractShortcode
             'error_occurred' => __('An error occurred', 'mhm-rentiva'),
             'try_again' => __('Please try again', 'mhm-rentiva'),
             'connection_error' => __('Connection error', 'mhm-rentiva'),
+            'min_days_error' => __('Minimum rental period is %d days.', 'mhm-rentiva'),
+            'max_days_error' => __('Maximum rental period is %d days.', 'mhm-rentiva'),
         ];
     }
 

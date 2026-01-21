@@ -9,8 +9,8 @@ if (!defined('ABSPATH')) {
         <p class="overview-description"><?php printf(
                                             /* translators: 1: %s; 2: %s. */
                                             esc_html__('Customer analysis and spending patterns for %1$s to %2$s', 'mhm-rentiva'),
-                                            date('d.m.Y', strtotime($start_date)),
-                                            date('d.m.Y', strtotime($end_date))
+                                            wp_date('d.m.Y', strtotime($start_date)),
+                                            wp_date('d.m.Y', strtotime($end_date))
                                         ); ?></p>
     </div>
 
@@ -91,7 +91,7 @@ if (!defined('ABSPATH')) {
                             <td><?php echo esc_html($customer->customer_name); ?><br><small><?php echo esc_html($customer->customer_email); ?></small></td>
                             <td><?php echo number_format((int)$customer->booking_count); ?></td>
                             <td><?php echo number_format((float)$customer->total_spent, 2, ',', '.') . \MHMRentiva\Admin\Reports\Reports::get_currency_symbol(); ?></td>
-                            <td><?php echo esc_html(date('d.m.Y', strtotime($customer->last_booking))); ?></td>
+                            <td><?php echo esc_html(wp_date('d.m.Y', strtotime($customer->last_booking))); ?></td>
                         </tr>
                 <?php
                     }

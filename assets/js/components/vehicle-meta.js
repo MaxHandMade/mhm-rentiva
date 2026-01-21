@@ -453,15 +453,31 @@
     }
 
     /**
+     * Escape HTML special characters
+     */
+    function escapeHtml(text) {
+        if (!text) return '';
+        var map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.toString().replace(/[&<>"']/g, function (m) { return map[m]; });
+    }
+
+    /**
      * Add custom feature
      */
     function addCustomFeature(key, label) {
         const grid = $('#features-grid');
+        const safeLabel = escapeHtml(label);
         const newItem = $('<div>').addClass('mhm-checkbox-item')
             .attr('data-feature-key', key)
             .html(`
                                     <input type="checkbox" id="feature_${key}" name="mhm_rentiva_features[]" value="${key}" checked />
-                                    <label for="feature_${key}">${label}</label>
+                                    <label for="feature_${key}">${safeLabel}</label>
                                     <button type="button" class="remove-feature-btn" data-key="${key}" title="${window.mhmVehicleMeta?.strings?.remove || 'Remove'}" style="margin-left: auto; background: #dc3545; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 10px; cursor: pointer;">×</button>
                                  `);
 
@@ -476,11 +492,12 @@
      */
     function addCustomEquipment(key, label) {
         const grid = $('#equipment-grid');
+        const safeLabel = escapeHtml(label);
         const newItem = $('<div>').addClass('mhm-checkbox-item')
             .attr('data-equipment-key', key)
             .html(`
                                     <input type="checkbox" id="equipment_${key}" name="mhm_rentiva_equipment[]" value="${key}" checked />
-                                    <label for="equipment_${key}">${label}</label>
+                                    <label for="equipment_${key}">${safeLabel}</label>
                                     <button type="button" class="remove-equipment-btn" data-key="${key}" title="${window.mhmVehicleMeta?.strings?.remove || 'Remove'}" style="margin-left: auto; background: #dc3545; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 10px; cursor: pointer;">×</button>
                                  `);
 
@@ -495,12 +512,13 @@
      */
     function addCustomDetail(key, name, icon) {
         const grid = $('#details-grid');
+        const safeName = escapeHtml(name);
         const newItem = $('<div>').addClass('mhm-detail-item')
             .attr('data-detail-key', key)
             .html(`
                                     <div class="mhm-detail-content">
-                                        <label class="mhm-detail-label">${name}</label>
-                                        <input type="hidden" name="mhm_rentiva_custom_details[${key}][label]" value="${name}" />
+                                        <label class="mhm-detail-label">${safeName}</label>
+                                        <input type="hidden" name="mhm_rentiva_custom_details[${key}][label]" value="${safeName}" />
                                         <input type="text" name="mhm_rentiva_custom_details[${key}][value]" placeholder="${window.mhmVehicleMeta?.strings?.enterValue || 'Enter value'}" class="mhm-detail-input" />
                                         <button type="button" class="remove-detail-btn" data-detail-key="${key}" title="${window.mhmVehicleMeta?.strings?.remove || 'Remove'}" style="position: absolute; top: 8px; right: 8px; background: #dc3545; color: white; border: none; border-radius: 3px; padding: 4px 8px; font-size: 12px; cursor: pointer; z-index: 10;">×</button>
                                     </div>
@@ -653,7 +671,9 @@
     function showNotice(message, type) {
         type = type || 'info';
         var noticeClass = 'notice-' + type;
-        var notice = $('<div class="notice ' + noticeClass + ' is-dismissible" style="position: fixed; top: 32px; right: 20px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><p><strong>' + message + '</strong></p></div>');
+        // Basic escaping for message just in case
+        var safeMessage = escapeHtml(message);
+        var notice = $('<div class="notice ' + noticeClass + ' is-dismissible" style="position: fixed; top: 32px; right: 20px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><p><strong>' + safeMessage + '</strong></p></div>');
 
         // Remove any existing notices first
         $('.notice').remove();

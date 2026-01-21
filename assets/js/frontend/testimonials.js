@@ -6,7 +6,7 @@
 
 class Testimonials {
     constructor() {
-        // jQuery'nin yüklenmesini bekle
+        // Wait for jQuery to load
         if (typeof jQuery === 'undefined') {
             console.warn('jQuery is not loaded, testimonials will not work');
             return;
@@ -238,18 +238,18 @@ class Testimonials {
             content += `<span class="rv-rating-text">(${testimonial.rating}/5)</span></div>`;
         }
 
-        // Review text
-        content += `<div class="rv-testimonial-text"><blockquote>"${testimonial.review}"</blockquote></div>`;
+        // Review text - escape to prevent XSS
+        content += `<div class="rv-testimonial-text"><blockquote>"${this.escapeHtml(testimonial.review)}"</blockquote></div>`;
 
         // Meta info
         content += '<div class="rv-testimonial-meta">';
 
         if (testimonial.customer_name) {
-            content += `<div class="rv-customer-name"><strong>${testimonial.customer_name}</strong></div>`;
+            content += `<div class="rv-customer-name"><strong>${this.escapeHtml(testimonial.customer_name)}</strong></div>`;
         }
 
         if (testimonial.vehicle_name) {
-            content += `<div class="rv-vehicle-name"><span class="dashicons dashicons-car"></span>${testimonial.vehicle_name}</div>`;
+            content += `<div class="rv-vehicle-name"><span class="dashicons dashicons-car"></span>${this.escapeHtml(testimonial.vehicle_name)}</div>`;
         }
 
         if (testimonial.date) {
@@ -261,6 +261,16 @@ class Testimonials {
 
         $item.html(content);
         return $item;
+    }
+
+    escapeHtml(text) {
+        if (!text) return '';
+        return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
     animateNewItems() {

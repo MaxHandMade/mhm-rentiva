@@ -7,11 +7,11 @@ if (!defined('ABSPATH')) {
     <div class="overview-header">
         <h2><?php echo esc_html__('Overview Dashboard', 'mhm-rentiva'); ?></h2>
         <p class="overview-description"><?php printf(
-            /* translators: 1: %s; 2: %s. */
-            esc_html__('Key metrics and trends for %1$s to %2$s', 'mhm-rentiva'),
-            date('d.m.Y', strtotime($start_date)),
-            date('d.m.Y', strtotime($end_date))
-        ); ?></p>
+                                            /* translators: 1: %s; 2: %s. */
+                                            esc_html__('Key metrics and trends for %1$s to %2$s', 'mhm-rentiva'),
+                                            wp_date('d.m.Y', strtotime($start_date)),
+                                            wp_date('d.m.Y', strtotime($end_date))
+                                        ); ?></p>
     </div>
 
     <div class="overview-cards-grid">
@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
                         <?php
                         $daily_revenue = [];
                         $max_revenue = 1;
-                        
+
                         if (isset($revenue_data['daily'])) {
                             $raw_data = $revenue_data['daily'];
                             if (is_object($raw_data)) {
@@ -35,7 +35,7 @@ if (!defined('ABSPATH')) {
                             } elseif (is_array($raw_data)) {
                                 $daily_revenue = $raw_data;
                             }
-                            
+
                             if (!empty($daily_revenue) && is_array($daily_revenue)) {
                                 $revenues = [];
                                 foreach ($daily_revenue as $item) {
@@ -50,7 +50,7 @@ if (!defined('ABSPATH')) {
                                 }
                             }
                         }
-                        
+
                         for ($i = 0; $i < 7; $i++) {
                             $day_revenue = 0;
                             if (!empty($daily_revenue) && is_array($daily_revenue) && isset($daily_revenue[$i])) {
@@ -61,11 +61,11 @@ if (!defined('ABSPATH')) {
                                     $day_revenue = $item->revenue;
                                 }
                             }
-                            
+
                             $bar_height = $max_revenue > 0 ? ($day_revenue / $max_revenue) * 100 : 0;
                             $min_height = $day_revenue > 0 ? 20 : 5;
                             $final_height = max($bar_height, $min_height);
-                            
+
                             echo '<div class="chart-bar" style="height: ' . $final_height . '%;">';
                             echo '<div class="bar-value">' . number_format((float)$day_revenue, 0, ',', '.') . '</div>';
                             echo '</div>';
@@ -105,7 +105,7 @@ if (!defined('ABSPATH')) {
                             'cancelled' => 0,
                             'completed' => 0
                         ];
-                        
+
                         if (is_array($booking_data) && isset($booking_data['status_distribution'])) {
                             foreach ($booking_data['status_distribution'] as $status_item) {
                                 if (is_object($status_item) && isset($status_item->status) && isset($status_item->count)) {
@@ -116,9 +116,9 @@ if (!defined('ABSPATH')) {
                                 }
                             }
                         }
-                        
+
                         $max_bookings = max($booking_statuses) ?: 1;
-                        
+
                         foreach ($booking_statuses as $status => $count) {
                             $bar_height = $max_bookings > 0 ? ($count / $max_bookings) * 100 : 0;
                             $min_height = $count > 0 ? 20 : 5;
@@ -162,10 +162,10 @@ if (!defined('ABSPATH')) {
                             'active' => 0,
                             'total' => 0
                         ];
-                        
-                         if (!empty($real_customers)) {
+
+                        if (!empty($real_customers)) {
                             $customer_segments['total'] = count($real_customers);
-                            $customer_segments['returning'] = count(array_filter($real_customers, function($customer) {
+                            $customer_segments['returning'] = count(array_filter($real_customers, function ($customer) {
                                 return $customer->booking_count > 1;
                             }));
                             $customer_segments['new'] = $customer_segments['total'] - $customer_segments['returning'];
@@ -173,7 +173,7 @@ if (!defined('ABSPATH')) {
                         }
 
                         $max_customers = max($customer_segments) ?: 1;
-                        
+
                         foreach ($customer_segments as $segment => $count) {
                             $bar_height = $max_customers > 0 ? ($count / $max_customers) * 100 : 0;
                             $min_height = $count > 0 ? 20 : 5;
@@ -216,12 +216,12 @@ if (!defined('ABSPATH')) {
                             'sedan' => 0,
                             'suv' => 0,
                         ];
-                        
+
                         if (!empty($vehicle_categories_data)) {
                             foreach ($vehicle_categories_data as $category) {
                                 $category_name = strtolower($category->category_name);
                                 $booking_count = (int)$category->booking_count;
-                                
+
                                 switch ($category_name) {
                                     case 'hatchback':
                                         $vehicle_performance['hatchback'] = $booking_count;
@@ -238,9 +238,9 @@ if (!defined('ABSPATH')) {
                                 }
                             }
                         }
-                        
+
                         $max_occupancy = max($vehicle_performance) ?: 1;
-                        
+
                         foreach ($vehicle_performance as $category => $vehicle_count) {
                             $bar_height = $max_occupancy > 0 ? ($vehicle_count / $max_occupancy) * 100 : 0;
                             $min_height = $vehicle_count > 0 ? 20 : 5;
@@ -260,7 +260,7 @@ if (!defined('ABSPATH')) {
                         <span class="metric-label">Total Vehicles</span>
                         <span class="metric-value"><?php echo number_format((int)($vehicle_data['summary']['total_vehicles'] ?? 0)); ?></span>
                     </div>
-                     <div class="metric-row">
+                    <div class="metric-row">
                         <span class="metric-label">Avg Occupancy</span>
                         <span class="metric-value">%<?php echo ((float)($vehicle_data['summary']['avg_occupancy_rate'] ?? 0)); ?></span>
                     </div>

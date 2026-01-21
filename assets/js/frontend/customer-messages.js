@@ -1,6 +1,6 @@
 /**
  * Customer Messages JavaScript
- * Müşteri mesaj paneli işlevleri
+ * Customer message panel functions
  */
 
 (function ($) {
@@ -49,7 +49,7 @@
             const $messagesList = $('#messages-list');
 
             // Loading state
-            $messagesList.html('<div class="loading">Loading messages...</div>');
+            $messagesList.html('<div class="loading">' + (window.mhmCustomerMessages?.strings?.loading_messages || 'Loading messages...') + '</div>');
 
             $.ajax({
                 url: this.ajaxUrl,
@@ -77,7 +77,7 @@
             const $list = $('#messages-list');
 
             if (messages.length === 0) {
-                $list.html('<div class="no-messages">No messages found yet.</div>');
+                $list.html('<div class="no-messages">' + (window.mhmCustomerMessages?.strings?.no_messages || 'No messages found yet.') + '</div>');
                 return;
             }
 
@@ -118,7 +118,7 @@
             const $messagesList = $('#messages-list');
 
             // Loading state
-            $threadContainer.find('#thread-messages').html('<div class="loading">Loading thread...</div>');
+            $threadContainer.find('#thread-messages').html('<div class="loading">' + (window.mhmCustomerMessages?.strings?.loading_thread || 'Loading thread...') + '</div>');
 
             $.ajax({
                 url: this.ajaxUrl,
@@ -148,16 +148,16 @@
             const $threadContainer = $('#message-thread');
             const $messagesContainer = $('#thread-messages');
 
-            // Thread başlığını güncelle
+            // Update thread subject
             $('#thread-subject').text(this.escapeHtml(data.subject));
 
-            // Mesajları render et
+            // Render messages
             let html = '';
             data.messages.forEach((message) => {
                 const messageClass = message.message_type === 'customer_to_admin' ? 'customer' : 'admin';
                 const authorName = message.message_type === 'customer_to_admin'
                     ? this.customerName
-                    : 'Administrator';
+                    : (window.mhmCustomerMessages?.strings?.administrator || 'Administrator');
                 const timeAgo = this.formatTimeAgo(message.date);
 
                 html += `
@@ -166,14 +166,14 @@
                             <strong>${this.escapeHtml(authorName)}</strong>
                             <span class="message-date">${timeAgo}</span>
                         </div>
-                        <div class="message-content">${message.content}</div>
+                        <div class="message-content">${this.escapeHtml(message.content)}</div>
                     </div>
                 `;
             });
 
             $messagesContainer.html(html);
 
-            // Yanıt formunu göster/gizle
+            // Show/hide reply form
             if (data.can_reply) {
                 $('#thread-reply').show();
             } else {
@@ -337,7 +337,7 @@
             let $indicator = $('.draft-indicator');
 
             if ($indicator.length === 0) {
-                $indicator = $('<div class="draft-indicator">Taslak kaydedildi</div>');
+                $indicator = $('<div class="draft-indicator">' + (window.mhmCustomerMessages?.strings?.draft_saved || 'Draft saved') + '</div>');
                 $('.form-actions').append($indicator);
             }
 
@@ -345,7 +345,7 @@
         },
 
         initializeAutoRefresh: function () {
-            // Her 30 saniyede bir mesajları kontrol et
+            // Check messages every 30 seconds
             setInterval(() => {
                 this.checkForNewMessages();
             }, 30000);
@@ -365,7 +365,7 @@
                         this.showNewMessageNotification();
                         this.updateUnreadCount(response.data.unread_count);
 
-                        // Eğer mesaj listesi görünüyorsa, yenile
+                        // If message list is visible, refresh
                         if ($('#messages-list').is(':visible')) {
                             this.loadMessages();
                         }

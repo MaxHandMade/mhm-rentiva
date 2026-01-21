@@ -321,7 +321,7 @@ final class Plugin
         if (class_exists(Admin\Emails\Notifications\ReminderScheduler::class)) {
             Admin\Emails\Notifications\ReminderScheduler::register();
         }
-        // ⭐ Offline payment notifications removed - WooCommerce handles all payments
+
         if (class_exists(Admin\Emails\Notifications\RefundNotifications::class)) {
             Admin\Emails\Notifications\RefundNotifications::register();
         }
@@ -385,6 +385,7 @@ final class Plugin
         if (class_exists(Admin\Frontend\Account\WooCommerceIntegration::class)) {
             Admin\Frontend\Account\WooCommerceIntegration::register();
         }
+        // ⭐ CRITICAL: WooCommerce Bridge - Handles ALL payment transactions (Single Cash Register)
         if (class_exists(Admin\Payment\WooCommerce\WooCommerceBridge::class)) {
             Admin\Payment\WooCommerce\WooCommerceBridge::register();
         } else {
@@ -394,8 +395,6 @@ final class Plugin
 
 
         // Payment Clients
-
-        // ⭐ Offline payment removed - WooCommerce handles all payments
 
         // About page
         if (class_exists(Admin\About\About::class)) {

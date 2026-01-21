@@ -10,14 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Load plugin textdomain
-if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain()
-    {
-        load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../languages/');
-    }
-    mhm_rentiva_load_textdomain();
-}
+
 
 $user_id = get_current_user_id();
 $favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true) ?: [];

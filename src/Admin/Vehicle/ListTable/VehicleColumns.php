@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Vehicle\ListTable;
 
@@ -27,20 +29,20 @@ final class VehicleColumns
         add_action('pre_get_posts', [self::class, 'apply_sorting']);
         add_action('restrict_manage_posts', [self::class, 'availability_filter']);
         add_action('pre_get_posts', [self::class, 'apply_availability_filter']);
-        
+
         // Add custom columns for quick editing
         add_action('quick_edit_custom_box', [self::class, 'quick_edit_fields'], 10, 2);
         add_action('save_post', [self::class, 'save_quick_edit']);
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_scripts']);
-        
+
         // Cache clearing hooks
         add_action('save_post_vehicle', [self::class, 'clear_vehicle_cache']);
         add_action('delete_post', [self::class, 'clear_vehicle_cache_on_delete']);
         add_action('save_post_vehicle_booking', [self::class, 'clear_vehicle_cache']);
-        
+
         // Add statistics cards
         add_action('admin_notices', [self::class, 'add_vehicle_stats_cards']);
-        
+
         // Add monthly reservation calendar
         add_action('admin_notices', [self::class, 'add_monthly_calendar']);
     }
@@ -103,25 +105,25 @@ final class VehicleColumns
             case 'mhm_available':
                 // Check new meta key first
                 $v = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS, true);
-                
+
                 // Use old meta key if new one is empty
                 if (empty($v)) {
                     $v = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_AVAILABILITY, true);
                 }
-                
+
                 // Backward compatibility - use normalize function
                 $v = self::normalize_availability($v);
-                
+
                 // UI Consistency: Use CSS variables
                 $status_config = [
                     'active' => ['color' => 'var(--mhm-success-color, #28a745)', 'icon' => '✅', 'class' => 'status-active'],
                     'inactive' => ['color' => 'var(--mhm-danger-color, #dc3545)', 'icon' => '❌', 'class' => 'status-inactive'],
                     'maintenance' => ['color' => 'var(--mhm-warning-color, #ffc107)', 'icon' => '🔧', 'class' => 'status-maintenance']
                 ];
-                
+
                 $config = $status_config[$v] ?? ['color' => 'var(--mhm-muted-color, #6c757d)', 'icon' => '', 'class' => 'status-default'];
                 $label = self::get_vehicle_status_values()[$v] ?? '—';
-                
+
                 echo '<span class="vehicle-status ' . esc_attr($config['class']) . '" data-status="' . esc_attr($v) . '" style="color: ' . esc_attr($config['color']) . '; font-weight: bold;">';
                 echo $config['icon'] ? $config['icon'] . ' ' : '';
                 echo esc_html($label);
@@ -160,25 +162,25 @@ final class VehicleColumns
         if ($post_type !== 'vehicle') {
             return;
         }
-        
+
         // Security: Sanitize GET parameter
         $current = '';
         if (isset($_GET['mhm_available'])) {
             $current = self::sanitize_text_field_safe(wp_unslash($_GET['mhm_available']));
         }
-        
+
         // Dynamic status values
         $status_values = self::get_vehicle_status_values();
         $legacy_values = self::get_legacy_status_values();
-        
+
         echo '<select name="mhm_available" class="postform">';
         echo '  <option value="">' . esc_html__('All availability statuses', 'mhm-rentiva') . '</option>';
-        
+
         // New status values
         foreach ($status_values as $value => $label) {
             echo '  <option value="' . esc_attr($value) . '"' . selected($current, $value, false) . '>' . esc_html($label) . '</option>';
         }
-        
+
         echo '</select>';
     }
 
@@ -193,24 +195,24 @@ final class VehicleColumns
         if (!isset($_GET['mhm_available']) || $_GET['mhm_available'] === '') {
             return;
         }
-        
+
         // Security: Sanitize GET parameter
         $val = self::sanitize_text_field_safe(wp_unslash($_GET['mhm_available']));
-        
+
         // Dynamic status values validation
         $status_values = array_keys(self::get_vehicle_status_values());
         $legacy_values = array_keys(self::get_legacy_status_values());
         $allowed_values = array_merge($status_values, $legacy_values);
-        
+
         if (!in_array($val, $allowed_values, true)) {
             return;
         }
-        
+
         // Permission check
         if (!current_user_can('edit_posts')) {
             return;
         }
-        
+
         $q->set('meta_query', [
             [
                 'key'   => \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_AVAILABILITY,
@@ -226,7 +228,7 @@ final class VehicleColumns
     public static function enqueue_scripts(string $hook): void
     {
         global $post_type;
-        
+
         if ($post_type === 'vehicle' && $hook === 'edit.php') {
             wp_enqueue_script(
                 'mhm-vehicle-quick-edit',
@@ -235,7 +237,7 @@ final class VehicleColumns
                 MHM_RENTIVA_VERSION,
                 true
             );
-            
+
             // Load statistics cards CSS
             wp_enqueue_style(
                 'mhm-stats-cards',
@@ -243,7 +245,7 @@ final class VehicleColumns
                 [],
                 MHM_RENTIVA_VERSION
             );
-            
+
             // Load calendar CSS
             wp_enqueue_style(
                 'mhm-calendars',
@@ -260,29 +262,29 @@ final class VehicleColumns
     public static function add_vehicle_stats_cards(): void
     {
         global $pagenow, $post_type;
-        
+
         // Show only on vehicle list page
         if ($pagenow !== 'edit.php' || $post_type !== 'vehicle') {
             return;
         }
 
         // Add page header
-        ?>
+?>
         <div class="wrap">
             <h1 class="wp-heading-inline"><?php echo esc_html__('Vehicles', 'mhm-rentiva'); ?></h1>
             <hr class="wp-header-end">
         </div>
-        
+
         <?php
         // Display Developer Mode banner and limit notices
         \MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeAndLimits('vehicles', [
             __('Unlimited Vehicles', 'mhm-rentiva'),
             __('Advanced Vehicle Management', 'mhm-rentiva'),
         ]);
-        
+
         // Get statistics data
         $stats = self::get_vehicle_stats();
-        
+
         ?>
         <div class="mhm-stats-cards">
             <div class="stats-grid">
@@ -345,7 +347,7 @@ final class VehicleColumns
                 </div>
             </div>
         </div>
-        <?php
+    <?php
     }
 
     /**
@@ -354,11 +356,11 @@ final class VehicleColumns
     private static function get_vehicle_stats(): array
     {
         global $wpdb;
-        
+
         // Remove cache completely - get real data
         // $cache_key = 'mhm_vehicle_stats_' . get_current_user_id();
         // $stats = get_transient($cache_key);
-        
+
         // if ($stats !== false && is_array($stats)) {
         //     return $stats;
         // }
@@ -372,7 +374,7 @@ final class VehicleColumns
             WHERE v.post_type = %s AND v.post_status = %s
             ORDER BY v.ID
         ", \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS, 'vehicle', 'publish'));
-        
+
         // Debug log removed
 
         // Optimized pivot query - all statistics in single query
@@ -396,9 +398,11 @@ final class VehicleColumns
             date('Y-m-d', strtotime('-7 days')), // reserved_this_week
             \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
             \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_AVAILABILITY,
-            'vehicle_booking', 'publish',
+            'vehicle_booking',
+            'publish',
             \MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
-            'vehicle', 'publish'
+            'vehicle',
+            'publish'
         ));
 
         $total_vehicles = (int) ($vehicle_stats->total_vehicles ?? 0);
@@ -408,13 +412,13 @@ final class VehicleColumns
         $reserved_this_week = (int) ($vehicle_stats->reserved_this_week ?? 0);
         $passive_this_month = (int) ($vehicle_stats->passive_this_month ?? 0);
         $maintenance_this_month = (int) ($vehicle_stats->maintenance_this_month ?? 0);
-        
+
         // Calculate reserved vehicles for current month (similar to dashboard logic)
         $current_month_start = date('Y-m-01 00:00:00');
         $current_month_end = date('Y-m-t 23:59:59');
         $month_start_ts = strtotime($current_month_start);
         $month_end_ts = strtotime($current_month_end);
-        
+
         // Get bookings with date overlaps for current month
         // Note: We fetch all active bookings and check date overlaps in PHP
         // This ensures we catch bookings that overlap with current month regardless of when they were created
@@ -437,35 +441,35 @@ final class VehicleColumns
              AND pm_pickup.meta_value IS NOT NULL AND pm_pickup.meta_value != ''
              AND (pm_return1.meta_value IS NOT NULL OR pm_return2.meta_value IS NOT NULL OR pm_return3.meta_value IS NOT NULL)"
         );
-        
+
         $reserved_vehicle_ids_this_month = [];
         if ($bookings) {
             foreach ($bookings as $booking) {
                 $pickup_ts = strtotime($booking->pickup_date);
                 $return_ts = strtotime($booking->return_date);
-                
+
                 if ($pickup_ts === false || $return_ts === false) {
                     continue;
                 }
-                
+
                 // Check if booking overlaps with current month
                 $overlaps = ($pickup_ts <= $month_end_ts && $return_ts >= $month_start_ts);
-                
+
                 if ($overlaps) {
                     $reserved_vehicle_ids_this_month[] = (int) $booking->vehicle_id;
                 }
             }
         }
-        
+
         $reserved_this_month = count(array_unique($reserved_vehicle_ids_this_month));
-        
+
         // Debug: Log vehicle stats in detail
         // Debug log removed
 
         // Monthly revenue average - use real reservation data
         $monthly_avg_revenue = 0;
         $revenue_trend = 0;
-        
+
         if ($total_vehicles > 0) {
             // This month's revenue - ONLY COMPLETED AND CONFIRMED RESERVATIONS
             $current_month_revenue = (float) $wpdb->get_var($wpdb->prepare(
@@ -478,13 +482,16 @@ final class VehicleColumns
                  AND pm_status.meta_key = '_mhm_status'
                  AND pm_status.meta_value IN ('completed', 'confirmed')
                  AND p.post_date >= %s",
-                'vehicle_booking', 'publish', '_mhm_total_price', date('Y-m-01')
+                'vehicle_booking',
+                'publish',
+                '_mhm_total_price',
+                date('Y-m-01')
             ));
-            
+
             // Last month's revenue (for trend calculation)
             $last_month_start = date('Y-m-01', strtotime('-1 month'));
             $last_month_end = date('Y-m-t', strtotime('-1 month'));
-            
+
             $last_month_revenue = (float) $wpdb->get_var($wpdb->prepare(
                 "SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2))) 
                  FROM {$wpdb->posts} p 
@@ -495,14 +502,18 @@ final class VehicleColumns
                  AND pm_status.meta_key = '_mhm_status'
                  AND pm_status.meta_value IN ('completed', 'confirmed')
                  AND p.post_date >= %s AND p.post_date <= %s",
-                'vehicle_booking', 'publish', '_mhm_total_price', $last_month_start, $last_month_end . ' 23:59:59'
+                'vehicle_booking',
+                'publish',
+                '_mhm_total_price',
+                $last_month_start,
+                $last_month_end . ' 23:59:59'
             ));
-            
+
             // Debug log removed
-            
+
             // Monthly revenue average = this month's revenue / number of vehicles
             $monthly_avg_revenue = $current_month_revenue;
-            
+
             // Trend calculation
             if ($last_month_revenue > 0) {
                 $revenue_trend = round((($current_month_revenue - $last_month_revenue) / $last_month_revenue) * 100);
@@ -522,13 +533,13 @@ final class VehicleColumns
             'monthly_avg_revenue' => (float) ($monthly_avg_revenue ?? 0),
             'revenue_trend' => (float) ($revenue_trend ?? 0)
         ];
-        
+
         // Debug: Log final stats
         // Debug log removed
 
         // Remove cache completely - get real data
         // set_transient($cache_key, $stats, 5 * MINUTE_IN_SECONDS);
-        
+
         return $stats;
     }
 
@@ -538,7 +549,7 @@ final class VehicleColumns
     public static function add_monthly_calendar(): void
     {
         global $pagenow, $post_type;
-        
+
         // Show only on vehicle list page
         if ($pagenow !== 'edit.php' || $post_type !== 'vehicle') {
             return;
@@ -547,21 +558,21 @@ final class VehicleColumns
         // Security: Sanitize URL parameters
         $current_month = (int) date('n');
         $current_year = (int) date('Y');
-        
+
         if (isset($_GET['month'])) {
             $month = (int) self::sanitize_text_field_safe(wp_unslash($_GET['month']));
             if ($month >= 1 && $month <= 12) {
                 $current_month = $month;
             }
         }
-        
+
         if (isset($_GET['year'])) {
             $year = (int) self::sanitize_text_field_safe(wp_unslash($_GET['year']));
             if ($year >= 2020 && $year <= 2030) {
                 $current_year = $year;
             }
         }
-        
+
         // Dynamic month names (i18n supported)
         $month_names = [
             1 => __('January', 'mhm-rentiva'),
@@ -577,19 +588,19 @@ final class VehicleColumns
             11 => __('November', 'mhm-rentiva'),
             12 => __('December', 'mhm-rentiva')
         ];
-        
+
         // Get vehicles
         $vehicles = self::get_calendar_vehicles();
-        
+
         // Get reservation data
         $bookings = self::get_monthly_bookings($current_month, $current_year);
-        
-        ?>
+
+    ?>
         <div class="mhm-calendars">
             <!-- Calendar Header -->
             <div class="calendar-header">
                 <h2><?php esc_html_e('Monthly Booking Calendar', 'mhm-rentiva'); ?></h2>
-                
+
                 <!-- Month Navigation -->
                 <div class="calendar-navigation">
                     <?php
@@ -598,19 +609,19 @@ final class VehicleColumns
                     $next_month = $current_month == 12 ? 1 : $current_month + 1;
                     $next_year = $current_month == 12 ? $current_year + 1 : $current_year;
                     ?>
-                    
-                    <a href="<?php echo esc_url(add_query_arg(['month' => $prev_month, 'year' => $prev_year])); ?>" 
-                       class="calendar-nav-btn prev-btn" data-action="prev">
+
+                    <a href="<?php echo esc_url(add_query_arg(['month' => $prev_month, 'year' => $prev_year])); ?>"
+                        class="calendar-nav-btn prev-btn" data-action="prev">
                         <span class="dashicons dashicons-arrow-left-alt2"></span>
                         <?php echo esc_html($month_names[$prev_month]); ?>
                     </a>
-                    
+
                     <div class="calendar-current">
                         <strong><?php echo esc_html($month_names[$current_month] . ' ' . $current_year); ?></strong>
                     </div>
-                    
-                    <a href="<?php echo esc_url(add_query_arg(['month' => $next_month, 'year' => $next_year])); ?>" 
-                       class="calendar-nav-btn next-btn" data-action="next">
+
+                    <a href="<?php echo esc_url(add_query_arg(['month' => $next_month, 'year' => $next_year])); ?>"
+                        class="calendar-nav-btn next-btn" data-action="next">
                         <?php echo esc_html($month_names[$next_month]); ?>
                         <span class="dashicons dashicons-arrow-right-alt2"></span>
                     </a>
@@ -645,14 +656,14 @@ final class VehicleColumns
                                     for ($day = 1; $day <= $days_in_month; $day++) {
                                         $date = sprintf('%04d-%02d-%02d', $current_year, $current_month, $day);
                                         $is_booked = isset($bookings[$vehicle['id']][$date]);
-                                        
+
                                         $class = $is_booked ? 'day-cell booked' : 'day-cell available';
-                                        
+
                                         if ($is_booked) {
                                             $booking_data = $bookings[$vehicle['id']][$date];
                                             /* translators: %s placeholder. */
                                             $title = sprintf(__('Reserved: %s', 'mhm-rentiva'), $booking_data['customer_name']);
-                                            
+
                                             // Status-based color system
                                             $status = $booking_data['status'] ?? 'pending';
                                             $status_colors = [
@@ -661,13 +672,13 @@ final class VehicleColumns
                                                 'completed' => 'status-completed',  // 🔵 Blue
                                                 'cancelled' => 'status-cancelled'   // 🔴 Red
                                             ];
-                                            
+
                                             $status_class = $status_colors[$status] ?? 'status-pending';
                                             $class = 'day-cell booked ' . $status_class;
-                                            
+
                                             // Get translated status label
                                             $status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
-                                            
+
                                             // Data attributes for popup
                                             $data_attrs = sprintf(
                                                 'data-booking-id="%s" data-customer-name="%s" data-customer-email="%s" data-customer-phone="%s" data-total-price="%s" data-status="%s" data-status-label="%s" data-start-date="%s" data-end-date="%s" data-created-date="%s"',
@@ -682,13 +693,13 @@ final class VehicleColumns
                                                 esc_attr($booking_data['end_date']),
                                                 esc_attr($booking_data['created_date'])
                                             );
-                                            
+
                                             echo '<td class="' . esc_attr($class) . '" title="' . esc_attr($title) . '" ' . $data_attrs . ' data-booking-popup>';
                                         } else {
                                             $title = __('Available', 'mhm-rentiva');
                                             echo '<td class="' . esc_attr($class) . '" title="' . esc_attr($title) . '">';
                                         }
-                                        
+
                                         echo $is_booked ? '<span class="dashicons dashicons-calendar-alt booking-icon"></span>' : '';
                                         echo '</td>';
                                     }
@@ -699,7 +710,7 @@ final class VehicleColumns
                     </table>
                 </div>
             </div>
-            
+
             <!-- Status Color Information -->
             <div class="calendar-legend">
                 <h4><?php esc_html_e('Status Legend', 'mhm-rentiva'); ?></h4>
@@ -719,7 +730,7 @@ final class VehicleColumns
                 </div>
             </div>
         </div>
-        
+
         <!-- Booking Popup Modal -->
         <div id="mhm-booking-popup" class="mhm-popup-modal" style="display: none;">
             <div class="mhm-popup-overlay"></div>
@@ -776,258 +787,258 @@ final class VehicleColumns
                 </div>
             </div>
         </div>
-        
+
         <script>
-        jQuery(document).ready(function($) {
-            // Open popup
-            $('[data-booking-popup]').on('click', function(e) {
-                e.preventDefault();
-                
-                var $this = $(this);
-                var bookingId = $this.data('booking-id');
-                var customerName = $this.data('customer-name');
-                var customerEmail = $this.data('customer-email');
-                var customerPhone = $this.data('customer-phone');
-                var totalPrice = $this.data('total-price');
-                var status = $this.data('status');
-                var statusLabel = $this.data('status-label') || status; // Use translated label if available
-                var startDate = $this.data('start-date');
-                var endDate = $this.data('end-date');
-                var createdDate = $this.data('created-date');
-                
-                // Fill popup content
-                $('#popup-customer-name').text(customerName || '—');
-                $('#popup-customer-email').text(customerEmail || '—');
-                $('#popup-customer-phone').text(customerPhone || '—');
-                $('#popup-start-date').text(startDate || '—');
-                $('#popup-end-date').text(endDate || '—');
-                $('#popup-total-price').text(totalPrice ? totalPrice + ' €' : '—');
-                $('#popup-status').text(statusLabel || '—');
-                $('#popup-created-date').text(createdDate || '—');
-                
-                // Add Edit booking link as click event
-                $('#popup-edit-booking').off('click').on('click', function(e) {
+            jQuery(document).ready(function($) {
+                // Open popup
+                $('[data-booking-popup]').on('click', function(e) {
                     e.preventDefault();
-                    if (bookingId) {
-                        window.location.href = 'post.php?post=' + bookingId + '&action=edit';
+
+                    var $this = $(this);
+                    var bookingId = $this.data('booking-id');
+                    var customerName = $this.data('customer-name');
+                    var customerEmail = $this.data('customer-email');
+                    var customerPhone = $this.data('customer-phone');
+                    var totalPrice = $this.data('total-price');
+                    var status = $this.data('status');
+                    var statusLabel = $this.data('status-label') || status; // Use translated label if available
+                    var startDate = $this.data('start-date');
+                    var endDate = $this.data('end-date');
+                    var createdDate = $this.data('created-date');
+
+                    // Fill popup content
+                    $('#popup-customer-name').text(customerName || '—');
+                    $('#popup-customer-email').text(customerEmail || '—');
+                    $('#popup-customer-phone').text(customerPhone || '—');
+                    $('#popup-start-date').text(startDate || '—');
+                    $('#popup-end-date').text(endDate || '—');
+                    $('#popup-total-price').text(totalPrice ? totalPrice + ' €' : '—');
+                    $('#popup-status').text(statusLabel || '—');
+                    $('#popup-created-date').text(createdDate || '—');
+
+                    // Add Edit booking link as click event
+                    $('#popup-edit-booking').off('click').on('click', function(e) {
+                        e.preventDefault();
+                        if (bookingId) {
+                            window.location.href = 'post.php?post=' + bookingId + '&action=edit';
+                        }
+                    });
+
+                    // Show popup
+                    $('#mhm-booking-popup').fadeIn(300);
+                });
+
+                // Close popup
+                $('.mhm-popup-close, .mhm-popup-overlay').on('click', function() {
+                    $('#mhm-booking-popup').fadeOut(300);
+                });
+
+                // Close with ESC key
+                $(document).on('keydown', function(e) {
+                    if (e.keyCode === 27) {
+                        $('#mhm-booking-popup').fadeOut(300);
                     }
                 });
-                
-                // Show popup
-                $('#mhm-booking-popup').fadeIn(300);
             });
-            
-            // Close popup
-            $('.mhm-popup-close, .mhm-popup-overlay').on('click', function() {
-                $('#mhm-booking-popup').fadeOut(300);
-            });
-            
-            // Close with ESC key
-            $(document).on('keydown', function(e) {
-                if (e.keyCode === 27) {
-                    $('#mhm-booking-popup').fadeOut(300);
-                }
-            });
-        });
         </script>
-        
+
         <style>
-        /* Popup Styles */
-        .mhm-popup-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
-        }
-        
-        .mhm-popup-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-        }
-        
-        .mhm-popup-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .mhm-popup-header {
-            padding: 20px;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .mhm-popup-header h3 {
-            margin: 0;
-            color: #333;
-        }
-        
-        .mhm-popup-close {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #666;
-        }
-        
-        .mhm-popup-close:hover {
-            color: #000;
-        }
-        
-        .mhm-popup-body {
-            padding: 20px;
-        }
-        
-        .booking-info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .info-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .info-item label {
-            font-weight: bold;
-            color: #555;
-            margin-bottom: 5px;
-        }
-        
-        .info-item span {
-            color: #333;
-            padding: 5px 0;
-        }
-        
-        .mhm-popup-footer {
-            padding: 20px;
-            border-top: 1px solid #ddd;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-        
-        /* Booking icon hover effect */
-        .booking-icon {
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-        
-        .booking-icon:hover {
-            color: #0073E6;
-        }
-        
-        [data-booking-popup] {
-            cursor: pointer;
-        }
-        
-         [data-booking-popup]:hover {
-             background-color: rgba(0, 115, 230, 0.1);
-         }
-         
-         /* Calendar Status Colors */
-         .day-cell.booked.status-pending {
-             background-color: #ffc107 !important;
-             color: #000;
-         }
-         
-         .day-cell.booked.status-confirmed {
-             background-color: #28a745 !important;
-             color: #fff;
-         }
-         
-         .day-cell.booked.status-in-progress {
-             background-color: #fd7e14 !important;
-             color: #fff;
-         }
-         
-         .day-cell.booked.status-completed {
-             background-color: #0073E6 !important;
-             color: #fff;
-         }
-         
-         .day-cell.booked.status-cancelled {
-             background-color: #dc3545 !important;
-             color: #fff;
-         }
-         
-         /* Legend Styles */
-         .calendar-legend {
-             margin-top: 20px;
-             padding: 15px;
-             background: #f8f9fa;
-             border-radius: 8px;
-             border: 1px solid #dee2e6;
-         }
-         
-         .calendar-legend h4 {
-             margin: 0 0 10px 0;
-             color: #333;
-             font-size: 14px;
-         }
-         
-         .legend-items {
-             display: flex;
-             flex-wrap: wrap;
-             gap: 15px;
-         }
-         
-         .legend-item {
-             display: flex;
-             align-items: center;
-             gap: 8px;
-         }
-         
-         .legend-color {
-             width: 16px;
-             height: 16px;
-             border-radius: 3px;
-             display: inline-block;
-         }
-         
-         .legend-color.status-pending {
-             background-color: #ffc107;
-         }
-         
-         .legend-color.status-confirmed {
-             background-color: #28a745;
-         }
-         
-         .legend-color.status-in-progress {
-             background-color: #fd7e14;
-         }
-         
-         .legend-color.status-completed {
-             background-color: #0073E6;
-         }
-         
-         .legend-color.status-cancelled {
-             background-color: #dc3545;
-         }
-         
-         .legend-label {
-             font-size: 12px;
-             color: #555;
-         }
-         </style>
-        <?php
+            /* Popup Styles */
+            .mhm-popup-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 9999;
+            }
+
+            .mhm-popup-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+            }
+
+            .mhm-popup-content {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+
+            .mhm-popup-header {
+                padding: 20px;
+                border-bottom: 1px solid #ddd;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .mhm-popup-header h3 {
+                margin: 0;
+                color: #333;
+            }
+
+            .mhm-popup-close {
+                background: none;
+                border: none;
+                font-size: 20px;
+                cursor: pointer;
+                color: #666;
+            }
+
+            .mhm-popup-close:hover {
+                color: #000;
+            }
+
+            .mhm-popup-body {
+                padding: 20px;
+            }
+
+            .booking-info-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+
+            .info-item {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .info-item label {
+                font-weight: bold;
+                color: #555;
+                margin-bottom: 5px;
+            }
+
+            .info-item span {
+                color: #333;
+                padding: 5px 0;
+            }
+
+            .mhm-popup-footer {
+                padding: 20px;
+                border-top: 1px solid #ddd;
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+            }
+
+            /* Booking icon hover effect */
+            .booking-icon {
+                cursor: pointer;
+                transition: color 0.2s ease;
+            }
+
+            .booking-icon:hover {
+                color: #0073E6;
+            }
+
+            [data-booking-popup] {
+                cursor: pointer;
+            }
+
+            [data-booking-popup]:hover {
+                background-color: rgba(0, 115, 230, 0.1);
+            }
+
+            /* Calendar Status Colors */
+            .day-cell.booked.status-pending {
+                background-color: #ffc107 !important;
+                color: #000;
+            }
+
+            .day-cell.booked.status-confirmed {
+                background-color: #28a745 !important;
+                color: #fff;
+            }
+
+            .day-cell.booked.status-in-progress {
+                background-color: #fd7e14 !important;
+                color: #fff;
+            }
+
+            .day-cell.booked.status-completed {
+                background-color: #0073E6 !important;
+                color: #fff;
+            }
+
+            .day-cell.booked.status-cancelled {
+                background-color: #dc3545 !important;
+                color: #fff;
+            }
+
+            /* Legend Styles */
+            .calendar-legend {
+                margin-top: 20px;
+                padding: 15px;
+                background: #f8f9fa;
+                border-radius: 8px;
+                border: 1px solid #dee2e6;
+            }
+
+            .calendar-legend h4 {
+                margin: 0 0 10px 0;
+                color: #333;
+                font-size: 14px;
+            }
+
+            .legend-items {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .legend-color {
+                width: 16px;
+                height: 16px;
+                border-radius: 3px;
+                display: inline-block;
+            }
+
+            .legend-color.status-pending {
+                background-color: #ffc107;
+            }
+
+            .legend-color.status-confirmed {
+                background-color: #28a745;
+            }
+
+            .legend-color.status-in-progress {
+                background-color: #fd7e14;
+            }
+
+            .legend-color.status-completed {
+                background-color: #0073E6;
+            }
+
+            .legend-color.status-cancelled {
+                background-color: #dc3545;
+            }
+
+            .legend-label {
+                font-size: 12px;
+                color: #555;
+            }
+        </style>
+<?php
     }
 
     /**
@@ -1036,16 +1047,18 @@ final class VehicleColumns
     private static function get_calendar_vehicles(): array
     {
         global $wpdb;
-        
+
         $vehicles = $wpdb->get_results($wpdb->prepare(
             "SELECT p.ID, p.post_title, pm.meta_value as plate
              FROM {$wpdb->posts} p 
              LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = %s
              WHERE p.post_type = %s AND p.post_status = %s
              ORDER BY p.post_title ASC",
-            '_mhm_rentiva_license_plate', 'vehicle', 'publish'
+            '_mhm_rentiva_license_plate',
+            'vehicle',
+            'publish'
         ));
-        
+
         $result = [];
         foreach ($vehicles as $vehicle) {
             $result[] = [
@@ -1054,7 +1067,7 @@ final class VehicleColumns
                 'plate' => $vehicle->plate ?: '—'
             ];
         }
-        
+
         return $result;
     }
 
@@ -1064,10 +1077,10 @@ final class VehicleColumns
     private static function get_monthly_bookings(int $month, int $year): array
     {
         global $wpdb;
-        
+
         $start_date = sprintf('%04d-%02d-01', $year, $month);
         $end_date = sprintf('%04d-%02d-%02d', $year, $month, cal_days_in_month(CAL_GREGORIAN, $month, $year));
-        
+
         // Use same meta keys as dashboard - detailed data for popup
         $bookings = $wpdb->get_results($wpdb->prepare("
             SELECT 
@@ -1106,21 +1119,21 @@ final class VehicleColumns
                 AND pm_vehicle.meta_value IS NOT NULL
                 AND pm_status.meta_value IN ('pending', 'confirmed', 'completed')
         ", $end_date, $start_date));
-        
-        
-        
+
+
+
         $result = [];
         foreach ($bookings as $booking) {
             if (!$booking->vehicle_id || !$booking->start_date || !$booking->end_date) {
                 continue;
             }
-            
-            // ⭐ Get customer info using BookingQueryHelper (handles WooCommerce & WordPress integration)
+
+            // Get customer info using BookingQueryHelper (handles WooCommerce & WordPress integration)
             $customer_info = [];
             if (class_exists('\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper')) {
                 $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo((int) $booking->booking_id);
             }
-            
+
             // Build customer name from first_name and last_name
             $customer_name = '';
             if (!empty($customer_info['first_name']) && !empty($customer_info['last_name'])) {
@@ -1130,28 +1143,28 @@ final class VehicleColumns
             } elseif (!empty($customer_info['last_name'])) {
                 $customer_name = $customer_info['last_name'];
             }
-            
+
             // Fallback to SQL result if BookingQueryHelper didn't find anything
             if (empty($customer_name)) {
                 $customer_name = $booking->customer_name ?: '';
             }
-            
+
             // Use customer info from BookingQueryHelper (prioritizes WooCommerce/WordPress data)
             $customer_email = !empty($customer_info['email']) ? $customer_info['email'] : ($booking->customer_email ?: '');
             $customer_phone = !empty($customer_info['phone']) ? $customer_info['phone'] : ($booking->customer_phone ?: '');
-            
+
             // Normalize date format
             $start_date = self::normalize_date($booking->start_date);
             $end_date = self::normalize_date($booking->end_date);
-            
+
             if (!$start_date || !$end_date) {
                 continue;
             }
-            
+
             // Mark each day in the date range
             $current = new \DateTime($start_date);
             $end = new \DateTime($end_date);
-            
+
             while ($current <= $end) {
                 $date = $current->format('Y-m-d');
                 $result[$booking->vehicle_id][$date] = [
@@ -1169,8 +1182,8 @@ final class VehicleColumns
                 $current->add(new \DateInterval('P1D'));
             }
         }
-        
-        
+
+
         return $result;
     }
 
@@ -1291,13 +1304,13 @@ final class VehicleColumns
                 echo '<label>';
                 echo '<span class="title">' . esc_html__('Available', 'mhm-rentiva') . '</span>';
                 echo '<select name="mhm_available" class="mhm_available">';
-                
+
                 // Dynamic status values
                 $status_values = self::get_vehicle_status_values();
                 foreach ($status_values as $value => $label) {
                     echo '<option value="' . esc_attr($value) . '">' . esc_html($label) . '</option>';
                 }
-                
+
                 // Legacy values (backward compatibility)
                 echo '</select>';
                 echo '</label>';
@@ -1313,8 +1326,10 @@ final class VehicleColumns
     public static function save_quick_edit(int $post_id): void
     {
         // Security: Nonce check
-        if (!isset($_POST['mhm_vehicle_quick_edit_nonce']) || 
-            !wp_verify_nonce($_POST['mhm_vehicle_quick_edit_nonce'], 'mhm_vehicle_quick_edit')) {
+        if (
+            !isset($_POST['mhm_vehicle_quick_edit_nonce']) ||
+            !wp_verify_nonce($_POST['mhm_vehicle_quick_edit_nonce'], 'mhm_vehicle_quick_edit')
+        ) {
             return;
         }
 
@@ -1348,18 +1363,18 @@ final class VehicleColumns
                 continue;
             }
 
-                $value = wp_unslash($_POST[$field_name]);
-                
-                if ($value === null) {
-                    $value = '';
-                }
-                
-                if ($config['sanitize'] === 'sanitize_text_field') {
-                    $sanitized_value = sanitize_text_field((string) ($value ?: ''));
-                } else {
-                    $sanitized_value = call_user_func($config['sanitize'], $value);
-                }
-                
+            $value = wp_unslash($_POST[$field_name]);
+
+            if ($value === null) {
+                $value = '';
+            }
+
+            if ($config['sanitize'] === 'sanitize_text_field') {
+                $sanitized_value = sanitize_text_field((string) ($value ?: ''));
+            } else {
+                $sanitized_value = call_user_func($config['sanitize'], $value);
+            }
+
             if ($field_name === 'mhm_available') {
                 $normalized_status = self::normalize_availability($sanitized_value);
                 update_post_meta($post_id, '_mhm_vehicle_status', $normalized_status);
@@ -1368,21 +1383,13 @@ final class VehicleColumns
             }
 
             if ($sanitized_value !== '' && $sanitized_value !== null) {
-                    update_post_meta($post_id, $config['key'], $sanitized_value);
+                update_post_meta($post_id, $config['key'], $sanitized_value);
             }
         }
     }
 
-    /**
-     * Get currency symbol
-     * 
-     * @deprecated Use CurrencyHelper::get_currency_symbol() instead
-     */
-    private static function get_currency_symbol(): string
-    {
-        return \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-    }
-    
+
+
     /**
      * Format currency (same as dashboard)
      */
@@ -1390,9 +1397,9 @@ final class VehicleColumns
     {
         // Same format as dashboard: 2 decimal, dot separator
         $formatted = number_format($amount, 2, '.', ',');
-        return $formatted . ' ' . self::get_currency_symbol();
+        return $formatted . ' ' . \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
     }
-    
+
     /**
      * Get vehicle status values (dynamic)
      */
@@ -1403,7 +1410,7 @@ final class VehicleColumns
             'maintenance' => __('Maintenance', 'mhm-rentiva')
         ];
     }
-    
+
     /**
      * Get legacy status values (backward compatibility)
      */
@@ -1413,7 +1420,7 @@ final class VehicleColumns
             'passive' => __('Passive', 'mhm-rentiva')
         ];
     }
-    
+
     /**
      * Normalize availability value (backward compatibility)
      */
@@ -1423,19 +1430,19 @@ final class VehicleColumns
         // Old format: '1' -> 'active', '0' -> 'passive'
         if ($value === '1') return 'active';
         if ($value === '0') return 'passive';
-        
+
         // New format: 'active', 'inactive', 'maintenance'
         if (in_array($value, $status_values, true)) {
             return $value;
         }
-        
+
         // Old format: 'passive' -> 'inactive'
         if ($value === 'passive') return 'inactive';
-        
+
         // Default
         return 'active';
     }
-    
+
     /**
      * Clear cache when vehicle changes
      */
@@ -1445,7 +1452,7 @@ final class VehicleColumns
             self::clear_vehicle_stats_cache();
         }
     }
-    
+
     /**
      * Clear cache when vehicle is deleted
      */
@@ -1455,14 +1462,14 @@ final class VehicleColumns
             self::clear_vehicle_stats_cache();
         }
     }
-    
+
     /**
      * Clear all vehicle statistics caches
      */
     public static function clear_vehicle_stats_cache(): void
     {
         global $wpdb;
-        
+
         // Clear vehicle stats caches for all users
         $wpdb->query($wpdb->prepare(
             "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Testing;
 
@@ -45,23 +47,23 @@ final class SettingsTester
     private static function test_general_settings(): array
     {
         $results = [];
-        
+
         // Test if general settings are registered
         $results['settings_registered'] = self::check_settings_registered('mhm_rentiva_settings');
-        
+
         // Test if default values are set
         $results['defaults_set'] = self::check_defaults_set([
             'mhm_rentiva_brand_name',
             'mhm_rentiva_currency',
             'mhm_rentiva_timezone',
         ]);
-        
+
         // Test if settings can be saved
         $results['can_save'] = self::test_settings_save([
             'mhm_rentiva_brand_name' => 'Test Brand',
             'mhm_rentiva_currency' => 'USD',
         ]);
-        
+
         return $results;
     }
 
@@ -71,24 +73,24 @@ final class SettingsTester
     private static function test_vehicle_settings(): array
     {
         $results = [];
-        
+
         // Test if vehicle settings are registered
         $results['settings_registered'] = self::check_settings_registered('mhm_rentiva_settings');
-        
+
         // Test if vehicle defaults are set
         $results['defaults_set'] = self::check_defaults_set([
             'mhm_rentiva_vehicle_base_price',
             'mhm_rentiva_vehicle_weekend_multiplier',
             'mhm_rentiva_vehicle_cards_per_page',
         ]);
-        
+
         // Test if vehicle settings can be saved
         $results['can_save'] = self::test_settings_save([
             'mhm_rentiva_vehicle_base_price' => 50.0,
             'mhm_rentiva_vehicle_weekend_multiplier' => 1.5,
             'mhm_rentiva_vehicle_cards_per_page' => 15,
         ]);
-        
+
         return $results;
     }
 
@@ -98,10 +100,10 @@ final class SettingsTester
     private static function test_booking_settings(): array
     {
         $results = [];
-        
+
         // Test if booking settings are registered
         $results['settings_registered'] = self::check_settings_registered('mhm_rentiva_settings');
-        
+
         // Test if booking defaults are set
         $results['defaults_set'] = self::check_defaults_set([
             'mhm_rentiva_booking_cancellation_deadline_hours',
@@ -111,7 +113,7 @@ final class SettingsTester
             'mhm_rentiva_booking_send_reminder_emails',
             'mhm_rentiva_booking_admin_notifications',
         ]);
-        
+
         // Test if booking settings can be saved
         $results['can_save'] = self::test_settings_save([
             'mhm_rentiva_booking_cancellation_deadline_hours' => 24,
@@ -121,10 +123,10 @@ final class SettingsTester
             'mhm_rentiva_booking_send_reminder_emails' => '1',
             'mhm_rentiva_booking_admin_notifications' => '1',
         ]);
-        
+
         // Test if BookingSettings class exists
         $results['class_exists'] = class_exists('\MHMRentiva\Admin\Settings\Groups\BookingSettings');
-        
+
         return $results;
     }
 
@@ -134,24 +136,24 @@ final class SettingsTester
     private static function test_customer_settings(): array
     {
         $results = [];
-        
+
         // Test if customer settings are registered
         $results['settings_registered'] = self::check_settings_registered('mhm_rentiva_settings');
-        
+
         // Test if customer defaults are set
         $results['defaults_set'] = self::check_defaults_set([
             'mhm_rentiva_customer_registration_enabled',
             'mhm_rentiva_customer_email_verification',
             'mhm_rentiva_customer_auto_login',
         ]);
-        
+
         // Test if customer settings can be saved
         $results['can_save'] = self::test_settings_save([
             'mhm_rentiva_customer_registration_enabled' => '1',
             'mhm_rentiva_customer_email_verification' => '1',
             'mhm_rentiva_customer_auto_login' => '0',
         ]);
-        
+
         return $results;
     }
 
@@ -162,36 +164,37 @@ final class SettingsTester
     private static function test_payment_settings(): array
     {
         $results = [];
-        
+
         // Test if payment settings are registered
         $results['settings_registered'] = self::check_settings_registered('mhm_rentiva_settings');
-        
-        // ⭐ Offline payment settings removed - WooCommerce handles all payments
+
+
         // Test if WooCommerce is available
         $woocommerce_active = class_exists('WooCommerce');
-        
+
         // Test if payment defaults are set (check booking payment deadline which is payment-related)
         $results['defaults_set'] = self::check_defaults_set([
             'mhm_rentiva_booking_payment_deadline_minutes',
         ]);
-        
+
         // Test if payment settings can be saved (test with a dummy setting to verify save mechanism)
         $results['can_save'] = self::test_settings_save([
             // Test with a valid setting that exists (not offline_enabled)
             'mhm_rentiva_booking_payment_deadline_minutes' => 30,
         ]);
-        
+
         // Test if WooCommerce is active (replaces offline_class_exists)
         $results['woocommerce_active'] = $woocommerce_active;
-        
+
         // Test if at least one payment method is available (WooCommerce gateways)
-        if ($woocommerce_active && function_exists('WC')) {
-            $gateways = WC()->payment_gateways()->get_available_payment_gateways();
+        $payment_gateways_class = '\WC_Payment_Gateways';
+        if ($woocommerce_active && class_exists($payment_gateways_class)) {
+            $gateways = $payment_gateways_class::instance()->get_available_payment_gateways();
             $results['payment_method_available'] = !empty($gateways);
         } else {
             $results['payment_method_available'] = false;
         }
-        
+
         return $results;
     }
 
@@ -201,35 +204,35 @@ final class SettingsTester
     private static function test_email_settings(): array
     {
         $results = [];
-        
+
         // Test if email settings are registered
         $results['settings_registered'] = self::check_settings_registered('mhm_rentiva_settings');
-        
+
         // Test if email defaults are set
         $results['defaults_set'] = self::check_defaults_set([
             'mhm_rentiva_email_from_name',
             'mhm_rentiva_email_from_address',
             'mhm_rentiva_email_send_enabled',
         ]);
-        
+
         // Test if email settings can be saved
         $results['can_save'] = self::test_settings_save([
             'mhm_rentiva_email_from_name' => 'Test Sender',
             'mhm_rentiva_email_from_address' => 'test@example.com',
             'mhm_rentiva_email_send_enabled' => '1',
         ]);
-        
+
         // Test if EmailSettings class exists
         $results['class_exists'] = class_exists('\MHMRentiva\Admin\Settings\Groups\EmailSettings');
-        
+
         // Test email validation
         $email_address = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_email_from_address', '');
         $results['email_address_valid'] = empty($email_address) || is_email($email_address);
-        
+
         // Test if email template directory exists
         $template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/emails/';
         $results['template_directory_exists'] = is_dir($template_path);
-        
+
         return $results;
     }
 
@@ -239,10 +242,10 @@ final class SettingsTester
     private static function test_system_settings(): array
     {
         $results = [];
-        
+
         // Test if system settings are registered
         $results['settings_registered'] = self::check_settings_registered('mhm_rentiva_settings');
-        
+
         // Test if system defaults are set
         $results['defaults_set'] = self::check_defaults_set([
             'mhm_rentiva_cache_enabled',
@@ -250,7 +253,7 @@ final class SettingsTester
             'mhm_rentiva_db_auto_optimize',
             'mhm_rentiva_wp_optimization_enabled',
         ]);
-        
+
         // Test if system settings can be saved
         $results['can_save'] = self::test_settings_save([
             'mhm_rentiva_cache_enabled' => '1',
@@ -258,19 +261,19 @@ final class SettingsTester
             'mhm_rentiva_db_auto_optimize' => '0',
             'mhm_rentiva_wp_optimization_enabled' => '1',
         ]);
-        
+
         // Test if CoreSettings class exists
         $results['class_exists'] = class_exists('\MHMRentiva\Admin\Settings\Groups\CoreSettings');
-        
+
         // Test cache functionality
         if ($results['class_exists']) {
             $results['cache_enabled_method'] = method_exists('\MHMRentiva\Admin\Settings\Groups\CoreSettings', 'is_cache_enabled');
             $results['cache_ttl_method'] = method_exists('\MHMRentiva\Admin\Settings\Groups\CoreSettings', 'get_cache_default_ttl');
         }
-        
+
         // Test if CacheManager class exists
         $results['cache_manager_exists'] = class_exists('\MHMRentiva\Admin\Core\Utilities\CacheManager');
-        
+
         return $results;
     }
 
@@ -280,10 +283,10 @@ final class SettingsTester
     private static function test_frontend_settings(): array
     {
         $results = [];
-        
+
         // Test if frontend settings are registered
         $results['settings_registered'] = self::check_settings_registered('mhm_rentiva_settings');
-        
+
         // Test if frontend defaults are set
         $results['defaults_set'] = self::check_defaults_set([
             'mhm_rentiva_booking_url',
@@ -291,7 +294,7 @@ final class SettingsTester
             'mhm_rentiva_register_url',
             'mhm_rentiva_my_account_url',
         ]);
-        
+
         // Test if frontend settings can be saved
         $results['can_save'] = self::test_settings_save([
             'mhm_rentiva_booking_url' => '/booking',
@@ -299,7 +302,7 @@ final class SettingsTester
             'mhm_rentiva_register_url' => '/register',
             'mhm_rentiva_my_account_url' => '/my-account',
         ]);
-        
+
         // Test URL validation for frontend URLs
         $url_fields = [
             'mhm_rentiva_booking_url',
@@ -309,7 +312,7 @@ final class SettingsTester
             'mhm_rentiva_my_bookings_url',
             'mhm_rentiva_vehicles_list_url',
         ];
-        
+
         $all_urls_valid = true;
         foreach ($url_fields as $field) {
             $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get($field, '');
@@ -319,7 +322,7 @@ final class SettingsTester
             }
         }
         $results['urls_valid'] = $all_urls_valid;
-        
+
         // Test if frontend template files exist
         $template_files = [
             'booking-form.php',
@@ -327,7 +330,7 @@ final class SettingsTester
             'vehicle-details.php',
             'booking-confirmation.php',
         ];
-        
+
         $templates_exist = true;
         foreach ($template_files as $file) {
             $path = MHM_RENTIVA_PLUGIN_PATH . 'templates/shortcodes/' . $file;
@@ -337,7 +340,7 @@ final class SettingsTester
             }
         }
         $results['templates_exist'] = $templates_exist;
-        
+
         return $results;
     }
 
@@ -347,10 +350,10 @@ final class SettingsTester
     private static function test_notification_settings(): array
     {
         $results = [];
-        
+
         // Test if notification settings are registered
         $results['settings_registered'] = self::check_settings_registered('mhm_rentiva_settings');
-        
+
         // Test if notification defaults are set (using actual settings that exist)
         $results['defaults_set'] = self::check_defaults_set([
             'mhm_rentiva_email_booking_confirmation',
@@ -361,7 +364,7 @@ final class SettingsTester
             'mhm_rentiva_booking_send_reminder_emails',
             'mhm_rentiva_booking_admin_notifications',
         ]);
-        
+
         // Test if notification settings can be saved
         $results['can_save'] = self::test_settings_save([
             'mhm_rentiva_email_booking_confirmation' => '1',
@@ -371,17 +374,17 @@ final class SettingsTester
             'mhm_rentiva_booking_send_reminder_emails' => '1',
             'mhm_rentiva_booking_admin_notifications' => '1',
         ]);
-        
+
         // Test if notification classes exist
         $results['class_exists'] = class_exists('\MHMRentiva\Admin\Emails\Notifications\BookingNotifications');
-        
+
         // Test if WP Mail function is available
         $results['wp_mail_available'] = function_exists('wp_mail');
-        
+
         // Test if email template directory exists
         $template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/emails/';
         $results['template_exists'] = is_dir($template_path);
-        
+
         return $results;
     }
 
@@ -391,24 +394,24 @@ final class SettingsTester
     private static function test_security_settings(): array
     {
         $results = [];
-        
+
         // Test if security settings are registered
         $results['settings_registered'] = self::check_settings_registered('mhm_rentiva_settings');
-        
+
         // Test if security defaults are set
         $results['defaults_set'] = self::check_defaults_set([
             'mhm_rentiva_rate_limit_enabled',
             'mhm_rentiva_brute_force_protection',
             'mhm_rentiva_xss_protection',
         ]);
-        
+
         // Test if security settings can be saved
         $results['can_save'] = self::test_settings_save([
             'mhm_rentiva_rate_limit_enabled' => '1',
             'mhm_rentiva_brute_force_protection' => '1',
             'mhm_rentiva_xss_protection' => '1',
         ]);
-        
+
         return $results;
     }
 
@@ -418,30 +421,30 @@ final class SettingsTester
     private static function test_dark_mode(): array
     {
         $results = [];
-        
+
         // Test if dark mode setting exists
         $results['setting_exists'] = get_option('mhm_rentiva_dark_mode', 'auto') !== false;
-        
+
         // Test if dark mode can be changed
         $original_mode = get_option('mhm_rentiva_dark_mode', 'auto');
         update_option('mhm_rentiva_dark_mode', 'dark');
         $results['can_change_to_dark'] = get_option('mhm_rentiva_dark_mode', 'auto') === 'dark';
-        
+
         update_option('mhm_rentiva_dark_mode', 'light');
         $results['can_change_to_light'] = get_option('mhm_rentiva_dark_mode', 'auto') === 'light';
-        
+
         update_option('mhm_rentiva_dark_mode', 'auto');
         $results['can_change_to_auto'] = get_option('mhm_rentiva_dark_mode', 'auto') === 'auto';
-        
+
         // Restore original mode
         update_option('mhm_rentiva_dark_mode', $original_mode);
-        
+
         // Test if CSS file exists
         $results['css_file_exists'] = file_exists(MHM_RENTIVA_PLUGIN_PATH . 'assets/css/admin/dark-mode.css');
-        
+
         // Test if JS file exists
         $results['js_file_exists'] = file_exists(MHM_RENTIVA_PLUGIN_PATH . 'assets/js/admin/dark-mode.js');
-        
+
         return $results;
     }
 
@@ -451,26 +454,26 @@ final class SettingsTester
     private static function test_rate_limiting(): array
     {
         $results = [];
-        
+
         // Test if RateLimiter class exists
         $results['class_exists'] = class_exists('\MHMRentiva\Admin\Settings\Core\RateLimiter');
-        
+
         if ($results['class_exists']) {
             $rate_limiter = new \MHMRentiva\Admin\Settings\Core\RateLimiter();
-            
+
             // Test if rate limiting is enabled by default
             $results['enabled_by_default'] = \MHMRentiva\Admin\Settings\Core\RateLimiter::is_enabled();
-            
+
             // Test if we can check rate limits
             $results['can_check_limits'] = is_bool(\MHMRentiva\Admin\Settings\Core\RateLimiter::is_allowed('test', 10));
-            
+
             // Test if we can get remaining requests
             $results['can_get_remaining'] = is_int(\MHMRentiva\Admin\Settings\Core\RateLimiter::get_remaining_requests('test', 10));
-            
+
             // Test if we can get limits
             $results['can_get_limits'] = is_int(\MHMRentiva\Admin\Settings\Core\RateLimiter::get_general_limit());
         }
-        
+
         return $results;
     }
 
@@ -480,19 +483,19 @@ final class SettingsTester
     private static function test_form_validation(): array
     {
         $results = [];
-        
+
         // Test required fields
         $results['required_fields_work'] = self::test_required_fields();
-        
+
         // Test email validation
         $results['email_validation_works'] = self::test_email_validation();
-        
+
         // Test number validation
         $results['number_validation_works'] = self::test_number_validation();
-        
+
         // Test URL validation
         $results['url_validation_works'] = self::test_url_validation();
-        
+
         return $results;
     }
 
@@ -528,12 +531,12 @@ final class SettingsTester
         $all_settings = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_all();
         $original_values = [];
         $original_post = $_POST ?? [];
-        
+
         // Store original values from main settings array
         foreach ($settings as $key => $value) {
             $original_values[$key] = $all_settings[$key] ?? null;
         }
-        
+
         // Try to save new values through SettingsCore
         $test_settings = $all_settings;
         $has_changes = false;
@@ -542,10 +545,10 @@ final class SettingsTester
             // Always test with values that are different from current to ensure save works
             $current_value = $test_settings[$key] ?? null;
             $current_str = (string)$current_value;
-            
+
             // Determine test value based on type
             $test_value = $value;
-            
+
             // For checkbox values, flip the value to ensure we test a change
             if (in_array($current_str, ['0', '1', ''])) {
                 // Flip: if current is '1', test with '0', if current is '0', test with '1'
@@ -569,26 +572,26 @@ final class SettingsTester
                     $test_value = $current_num + 1; // Increment by 1 to test
                 }
             }
-            
+
             // Store the test value we'll actually use
             $test_values[$key] = $test_value;
             $test_settings[$key] = $test_value;
-            
+
             // Check if this creates a change
             $test_str = (string)$test_value;
             if ($current_str !== $test_str && abs(floatval($current_value) - floatval($test_value)) >= 0.01) {
                 $has_changes = true;
             }
         }
-        
+
         // If no changes possible (all values same), test is automatically successful
         if (!$has_changes) {
             return true;
         }
-        
+
         // Update settings array to use test values
         $settings = $test_values;
-        
+
         // Simulate $_POST array for sanitization to work properly
         // IMPORTANT: Checkbox sanitization uses isset() check
         // - If checkbox is checked (value = '1'), key should exist in $_POST
@@ -607,21 +610,21 @@ final class SettingsTester
             }
             // For '0' or empty checkbox values, don't include in $_POST
         }
-        
+
         // Also set $_REQUEST for compatibility
         $_REQUEST['mhm_rentiva_settings'] = $_POST['mhm_rentiva_settings'];
-        
+
         // Prepare input for sanitization
         // SettingsSanitizer expects either:
         // 1. An array with 'mhm_rentiva_settings' key containing all settings
         // 2. Or a flat array with setting keys at top level
         // We need both: 'mhm_rentiva_settings' key for extraction, and top-level keys for tab detection
-        
+
         // IMPORTANT: For tab detection to work, we need test keys in $input array
         // But for checkbox sanitization to work correctly, unchecked checkboxes ('0') 
         // should NOT be in $_POST (real form behavior)
         // So we add ALL test keys to $input for tab detection, but only checked ones to $_POST
-        
+
         $input_for_sanitize = $all_settings;
         // Add ALL test values to $input_for_sanitize for tab detection
         // (even '0' values, so tab detection can find the keys)
@@ -631,7 +634,7 @@ final class SettingsTester
         // Also add as 'mhm_rentiva_settings' key for extraction process
         // (but only with values that would be in real $_POST - checked checkboxes)
         $input_for_sanitize['mhm_rentiva_settings'] = $_POST['mhm_rentiva_settings'];
-        
+
         // Update settings - this will trigger sanitization
         // SettingsSanitizer will:
         // 1. Start with current values ($out = $current_values)
@@ -639,24 +642,24 @@ final class SettingsTester
         // 3. Check tab detection using $input
         // 4. Call appropriate sanitize functions with $input
         $option_name = 'mhm_rentiva_settings';
-        
+
         // Call REAL sanitization function - this tests the actual plugin code
         $sanitized = \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::sanitize($input_for_sanitize);
-        
+
         // Check which test values were processed by REAL sanitization
         // (not modified manually - we test what sanitization actually does)
         $keys_in_sanitized = [];
         foreach ($test_values as $key => $value) {
             $keys_in_sanitized[$key] = array_key_exists($key, $sanitized);
         }
-        
+
         // If sanitization didn't process some values, that might indicate tab detection failed
         // But we still test if the save mechanism works by trying to save what sanitization returned
         // We DO NOT manually add test values - we test what sanitization actually produced
-        
+
         // Save the REAL sanitized output (not modified) - this tests the actual save mechanism
         $result = update_option($option_name, $sanitized);
-        
+
         // Restore $_POST and $_REQUEST
         $_POST = $original_post;
         if (isset($original_post['mhm_rentiva_settings'])) {
@@ -664,17 +667,17 @@ final class SettingsTester
         } elseif (isset($_REQUEST['mhm_rentiva_settings'])) {
             unset($_REQUEST['mhm_rentiva_settings']);
         }
-        
+
         // Verify the values were actually saved
         // The test is: Can we save values to the database?
         // update_option() returns:
         // - true: Value was changed/updated (save worked) ✅
         // - false: Value was same as before (no change needed) ✅ OR update failed ❌
-        
+
         // Clear cache and reload to check what was actually saved
         wp_cache_delete($option_name, 'options');
         $saved_settings = get_option($option_name, []);
-        
+
         // Check if sanitization (REAL function) processed our test values
         // This is the KEY test - if sanitization processed them, save mechanism works
         $all_were_in_sanitized = true;
@@ -686,7 +689,7 @@ final class SettingsTester
                 $all_were_in_sanitized = false;
             }
         }
-        
+
         // If ALL test keys were processed by REAL sanitization, save mechanism DEFINITELY works
         // This is the most reliable test - sanitization is part of the save process
         if ($all_were_in_sanitized) {
@@ -707,7 +710,7 @@ final class SettingsTester
             // Result is false - this could mean:
             // 1. Values were already the same (no change needed) - this is OK
             // 2. Update failed - this is NOT OK
-            
+
             // Check if all test keys exist in saved_settings
             // If they exist, save mechanism works (values were already there)
             $all_exist_in_saved = true;
@@ -717,7 +720,7 @@ final class SettingsTester
                     break;
                 }
             }
-            
+
             if ($all_exist_in_saved) {
                 // All keys exist - save mechanism works
                 $all_saved = true;
@@ -731,13 +734,13 @@ final class SettingsTester
                         break;
                     }
                 }
-                
+
                 // If all keys are valid settings, save mechanism should work
                 // The test is: Can we save? Not: Do values match exactly?
                 $all_saved = $all_in_defaults;
             }
         }
-        
+
         // Restore original values
         $restore_settings = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_all();
         foreach ($original_values as $key => $value) {
@@ -748,7 +751,7 @@ final class SettingsTester
             }
         }
         update_option($option_name, $restore_settings);
-        
+
         // Return $all_saved - this already checks if save mechanism works
         // (either through update_option success OR through sanitization processing)
         return $all_saved;
@@ -764,7 +767,7 @@ final class SettingsTester
             'mhm_rentiva_brand_name',
             'mhm_rentiva_currency',
         ];
-        
+
         // Use SettingsCore to get values (settings are stored in array, not as separate options)
         foreach ($required_fields as $field) {
             $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get($field, '');
@@ -772,7 +775,7 @@ final class SettingsTester
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -786,7 +789,7 @@ final class SettingsTester
             'mhm_rentiva_support_email',
             'mhm_rentiva_notification_sender_email',
         ];
-        
+
         // Use SettingsCore to get values
         foreach ($email_fields as $field) {
             $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get($field, '');
@@ -794,7 +797,7 @@ final class SettingsTester
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -808,7 +811,7 @@ final class SettingsTester
             'mhm_rentiva_vehicle_weekend_multiplier',
             'mhm_rentiva_vehicle_cards_per_page',
         ];
-        
+
         // Use SettingsCore to get values
         foreach ($number_fields as $field) {
             $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get($field, '');
@@ -816,7 +819,7 @@ final class SettingsTester
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -829,7 +832,7 @@ final class SettingsTester
             'mhm_rentiva_brand_logo_url',
             'mhm_rentiva_company_website',
         ];
-        
+
         // Use SettingsCore to get values
         foreach ($url_fields as $field) {
             $value = \MHMRentiva\Admin\Settings\Core\SettingsCore::get($field, '');
@@ -837,7 +840,7 @@ final class SettingsTester
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -861,7 +864,7 @@ final class SettingsTester
             'rate_limiting' => __('Rate limiting', 'mhm-rentiva'),
             'form_validation' => __('Form validation', 'mhm-rentiva'),
         ];
-        
+
         return $labels[$category] ?? ucfirst(str_replace('_', ' ', $category));
     }
 
@@ -901,7 +904,7 @@ final class SettingsTester
             'number_validation_works' => __('Number Validation Works', 'mhm-rentiva'),
             'url_validation_works' => __('URL Validation Works', 'mhm-rentiva'),
         ];
-        
+
         return $labels[$test] ?? ucfirst(str_replace('_', ' ', $test));
     }
 
@@ -913,21 +916,21 @@ final class SettingsTester
         $results = self::test_all_settings();
         $report = '<div class="mhm-settings-test-report">';
         $report .= '<h2>' . esc_html__('Settings Test Report', 'mhm-rentiva') . '</h2>';
-        
+
         foreach ($results as $category => $tests) {
             $report .= '<div class="test-category">';
             $report .= '<h3>' . esc_html(self::get_category_label($category)) . '</h3>';
-            
+
             foreach ($tests as $test => $result) {
                 $status = $result ? '✅ ' . esc_html__('PASS', 'mhm-rentiva') : '❌ ' . esc_html__('FAIL', 'mhm-rentiva');
                 $report .= '<p><strong>' . esc_html(self::get_test_label($test)) . ':</strong> ' . $status . '</p>';
             }
-            
+
             $report .= '</div>';
         }
-        
+
         $report .= '</div>';
-        
+
         return $report;
     }
 }

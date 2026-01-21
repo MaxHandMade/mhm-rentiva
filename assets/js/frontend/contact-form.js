@@ -1,7 +1,7 @@
 /**
  * Contact Form JavaScript
  * 
- * İletişim formu için JavaScript işlevleri
+ * JavaScript functions for contact form
  */
 
 (function ($) {

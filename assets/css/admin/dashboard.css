@@ -1,6 +1,6 @@
 /**
  * MHM Rentiva - Dashboard Main Styles
- * Modern dashboard tasarımı
+ * Modern dashboard design
  */
 
 /* Main Dashboard Container */
@@ -73,7 +73,7 @@
     font-size: 0.9em;
 }
 
-/* Dashboard Satırları */
+/* Dashboard Rows */
 .mhm-dashboard-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -81,7 +81,7 @@
     margin-bottom: var(--mhm-space-8);
 }
 
-/* Dashboard Widget'ları */
+/* Dashboard Widgets */
 .mhm-dashboard-widget {
     background: var(--mhm-bg-card);
     border-radius: var(--mhm-radius-xl);
@@ -110,7 +110,7 @@
     text-align: center;
 }
 
-/* Tablo Stilleri */
+/* Table Styles */
 .mhm-dashboard-widget .wp-list-table {
     margin: 0;
     border: none;
@@ -134,7 +134,7 @@
     font-size: 0.9em;
 }
 
-/* Durum Badge'leri */
+/* Status Badges */
 .status-badge {
     display: inline-block;
     padding: var(--mhm-space-1) var(--mhm-space-2);
@@ -162,7 +162,7 @@
 
 .status-completed {
     background-color: var(--mhm-success);
-    /* 🔵 Mavi - Tamamlanmış, bitmiş */
+    /* 🔵 Blue - Completed, finished */
     color: var(--mhm-white);
 }
 
@@ -176,7 +176,7 @@
     color: var(--mhm-text-tertiary);
 }
 
-/* Araç Durumu Grid */
+/* Vehicle Status Grid */
 .vehicle-status-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -247,7 +247,7 @@
     letter-spacing: 0.5px;
 }
 
-/* Gelir Grafiği */
+/* Revenue Chart */
 .revenue-chart-container {
     margin: var(--mhm-space-5) 0;
     padding: var(--mhm-space-5);
@@ -283,7 +283,7 @@
     color: var(--mhm-text-primary);
 }
 
-/* Müşteri İstatistikleri Grid */
+/* Customer Statistics Grid */
 .customer-stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -334,7 +334,7 @@
     letter-spacing: 0.5px;
 }
 
-/* Veri Yok Mesajı */
+/* No Data Message */
 .no-data {
     text-align: center;
     color: var(--mhm-text-tertiary);
@@ -345,7 +345,7 @@
     border: 1px dashed var(--mhm-border-secondary);
 }
 
-/* Responsive Tasarım */
+/* Responsive Design */
 @media (max-width: 1200px) {
     .mhm-dashboard-row {
         grid-template-columns: 1fr;
@@ -442,7 +442,7 @@
     }
 }
 
-/* Animasyonlar */
+/* Animations */
 @keyframes slideInUp {
     from {
         opacity: 0;
@@ -467,7 +467,7 @@
     animation-delay: 0.2s;
 }
 
-/* Mesajlar Widget Stilleri */
+/* Message Stats Widget Styles */
 .message-stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -535,7 +535,7 @@
     letter-spacing: 0.5px;
 }
 
-/* Son Mesajlar Listesi */
+/* Recent Messages List */
 .recent-messages {
     margin-top: var(--mhm-space-5);
 }

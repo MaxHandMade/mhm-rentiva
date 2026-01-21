@@ -61,7 +61,7 @@ jQuery(document).ready(function ($) {
                 if (response.success) {
                     // Show success message
                     statusMsg.removeClass('rv-error').addClass('rv-success')
-                        .html('✅ ' + response.data.message)
+                        .text('✅ ' + response.data.message)
                         .slideDown();
 
                     // Reload page after 2 seconds
@@ -71,7 +71,7 @@ jQuery(document).ready(function ($) {
                 } else {
                     // Show error message
                     statusMsg.removeClass('rv-success').addClass('rv-error')
-                        .html('❌ ' + response.data.message)
+                        .text('❌ ' + response.data.message)
                         .slideDown();
 
                     // Re-enable button
@@ -80,7 +80,7 @@ jQuery(document).ready(function ($) {
             },
             error: function (xhr, status, error) {
                 statusMsg.removeClass('rv-success').addClass('rv-error')
-                    .html('❌ ' + mhmRentivaCancellation.i18n.error)
+                    .text('❌ ' + mhmRentivaCancellation.i18n.error)
                     .slideDown();
 
                 confirmBtn.prop('disabled', false).text(originalText);

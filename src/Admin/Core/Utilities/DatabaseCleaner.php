@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
@@ -8,7 +10,8 @@ if (!defined('ABSPATH')) {
 
 // Load plugin textdomain
 if (!function_exists('mhm_rentiva_load_textdomain')) {
-    function mhm_rentiva_load_textdomain() {
+    function mhm_rentiva_load_textdomain()
+    {
         load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__)) . '/../../../languages/');
     }
     mhm_rentiva_load_textdomain();
@@ -30,119 +33,169 @@ final class DatabaseCleaner
     {
         // Base valid meta keys
         $valid_keys = [
-        // Vehicle meta keys
-        '_mhm_vehicle_availability',
-        '_mhm_vehicle_status',
-        '_mhm_rentiva_availability', // Deprecated but still valid
-        '_mhm_rentiva_price_per_day',
-        '_mhm_rentiva_brand',
-        '_mhm_rentiva_model',
-        '_mhm_rentiva_year',
-        '_mhm_rentiva_color',
-        '_mhm_rentiva_seats',
-        '_mhm_rentiva_doors',
-        '_mhm_rentiva_transmission',
-        '_mhm_rentiva_fuel_type',
-        '_mhm_rentiva_engine_size',
-        '_mhm_rentiva_mileage',
-        '_mhm_rentiva_license_plate',
-        '_mhm_rentiva_deposit',
-        '_mhm_rentiva_features',
-        '_mhm_rentiva_equipment',
-        '_mhm_rentiva_gallery_images',
-        '_mhm_rentiva_rating_average',
-        '_mhm_rentiva_rating_count',
-        
-        // Booking meta keys
-        '_mhm_vehicle_id',
-        '_mhm_status',
-        '_mhm_booking_type',
-        '_mhm_created_via',
-        '_mhm_created_by',
-        '_mhm_booking_created',
-        '_mhm_start_date',
-        '_mhm_start_time',
-        '_mhm_start_ts',
-        '_mhm_end_date',
-        '_mhm_end_time',
-        '_mhm_end_ts',
-        '_mhm_pickup_date',
-        '_mhm_pickup_time',
-        '_mhm_dropoff_date',
-        '_mhm_dropoff_time',
-        '_mhm_rental_days',
-        '_mhm_guests',
-        
-        // Customer meta keys
-        '_mhm_customer_user_id',
-        '_mhm_customer_name',
-        '_mhm_customer_first_name',
-        '_mhm_customer_last_name',
-        '_mhm_customer_email',
-        '_mhm_customer_phone',
-        
-        // Payment meta keys
-        '_mhm_payment_method',
-        '_mhm_payment_gateway',
-        '_mhm_payment_type',
-        '_mhm_payment_status',
-        '_mhm_payment_deadline',
-        '_mhm_payment_display',
-        '_mhm_total_price',
-        '_mhm_deposit_amount',
-        '_mhm_deposit_type',
-        '_mhm_remaining_amount',
-        '_mhm_selected_addons',
-        
-        // Receipt meta keys
-        '_mhm_receipt_status',
-        '_mhm_receipt_attachment_id',
-        '_mhm_receipt_uploaded_at',
-        '_mhm_receipt_uploaded_by',
-        
-        // System meta keys
-        '_mhm_shortcode',
-        '_mhm_auto_created',
-        '_mhm_booking_history',
-        '_mhm_booking_logs',
-        '_mhm_cancellation_deadline',
-        '_mhm_cancellation_policy',
-        '_mhm_removed_details',
-        '_mhm_custom_details',
-        
-        // Legacy/Alternative meta keys (for backward compatibility)
-        '_mhm_contact_name',
-        '_mhm_contact_email',
-        '_mhm_contact_phone',
-        '_mhm_client_ip',
-        '_mhm_user_agent',
+            // Vehicle meta keys
+            '_mhm_vehicle_availability',
+            '_mhm_vehicle_status',
+            '_mhm_rentiva_availability', // Deprecated but still valid
+            '_mhm_rentiva_price_per_day',
+            '_mhm_rentiva_brand',
+            '_mhm_rentiva_model',
+            '_mhm_rentiva_year',
+            '_mhm_rentiva_color',
+            '_mhm_rentiva_seats',
+            '_mhm_rentiva_doors',
+            '_mhm_rentiva_transmission',
+            '_mhm_rentiva_fuel_type',
+            '_mhm_rentiva_engine_size',
+            '_mhm_rentiva_mileage',
+            '_mhm_rentiva_license_plate',
+            '_mhm_rentiva_deposit',
+            '_mhm_rentiva_features',
+            '_mhm_rentiva_equipment',
+            '_mhm_rentiva_gallery_images',
+            '_mhm_rentiva_rating_average',
+            '_mhm_rentiva_rating_count',
 
-        '_mhm_customer_id',
-        
-        // Addon meta keys
-        'addon_price',
-        'addon_type',
-        'addon_description',
-        
-        // Legacy booking meta keys
-        '_booking_vehicle_id',
-        '_booking_customer_email',
-        '_booking_customer_name',
-        '_booking_customer_phone',
-        '_booking_pickup_date',
-        '_booking_return_date',
-        '_booking_rental_days',
-        '_booking_total_price',
-        '_booking_payment_status',
-        '_booking_payment_gateway',
-        
-        // Message meta keys
-        '_mhm_message_category',
-        '_mhm_message_status',
-        '_mhm_thread_id',
-        '_mhm_is_read',
+            // Booking meta keys
+            '_mhm_vehicle_id',
+            '_mhm_status',
+            '_mhm_booking_type',
+            '_mhm_created_via',
+            '_mhm_created_by',
+            '_mhm_booking_created',
+            '_mhm_start_date',
+            '_mhm_start_time',
+            '_mhm_start_ts',
+            '_mhm_end_date',
+            '_mhm_end_time',
+            '_mhm_end_ts',
+            '_mhm_pickup_date',
+            '_mhm_pickup_time',
+            '_mhm_dropoff_date',
+            '_mhm_dropoff_time',
+            '_mhm_rental_days',
+            '_mhm_guests',
+
+            // Customer meta keys
+            '_mhm_customer_user_id',
+            '_mhm_customer_name',
+            '_mhm_customer_first_name',
+            '_mhm_customer_last_name',
+            '_mhm_customer_email',
+            '_mhm_customer_phone',
+
+            // Payment meta keys
+            '_mhm_payment_method',
+            '_mhm_payment_gateway',
+            '_mhm_payment_type',
+            '_mhm_payment_status',
+            '_mhm_payment_deadline',
+            '_mhm_payment_display',
+            '_mhm_total_price',
+            '_mhm_deposit_amount',
+            '_mhm_deposit_type',
+            '_mhm_remaining_amount',
+            '_mhm_selected_addons',
+
+            // Receipt meta keys
+            '_mhm_receipt_status',
+            '_mhm_receipt_attachment_id',
+            '_mhm_receipt_uploaded_at',
+            '_mhm_receipt_uploaded_by',
+
+            // System meta keys
+            '_mhm_shortcode',
+            '_mhm_auto_created',
+            '_mhm_booking_history',
+            '_mhm_booking_logs',
+            '_mhm_cancellation_deadline',
+            '_mhm_cancellation_policy',
+            '_mhm_removed_details',
+            '_mhm_custom_details',
+
+            // Core Booking Meta
+            '_mhm_vehicle_id',
+            '_mhm_start_date',
+            '_mhm_end_date',
+            '_mhm_start_time',
+            '_mhm_end_time',
+            '_mhm_start_ts',
+            '_mhm_end_ts',
+            '_mhm_pickup_date',
+            '_mhm_dropoff_date',
+            '_mhm_pickup_time',
+            '_mhm_dropoff_time',
+            '_mhm_status',
+            '_mhm_booking_type',
+            '_mhm_created_via',
+            '_mhm_created_by',
+            '_mhm_booking_created',
+            '_mhm_guests',
+
+            // Customer Meta
+            '_mhm_customer_user_id',
+            '_mhm_customer_first_name',
+            '_mhm_customer_last_name',
+            '_mhm_customer_name',
+            '_mhm_customer_email',
+            '_mhm_customer_phone',
+            '_mhm_contact_name',
+            '_mhm_contact_email',
+            '_mhm_contact_phone',
+            '_mhm_client_ip',
+            '_mhm_user_agent',
+            '_mhm_customer_id',
+
+            // Payment & Pricing Meta
+            '_mhm_total_price',
+            '_mhm_rental_days',
+            '_mhm_deposit_amount',
+            '_mhm_remaining_amount',
+            '_mhm_deposit_type',
+            '_mhm_payment_display',
+            '_mhm_payment_type',
+            '_mhm_payment_method',
+            '_mhm_payment_gateway',
+            '_mhm_payment_status',
+            '_mhm_payment_amount',
+            '_mhm_payment_deadline',
+            '_mhm_refunded_amount',
+            '_mhm_payment_currency',
+            '_mhm_offline_receipt_id',
+            '_mhm_vehicle_plate',
+            '_mhm_rentiva_license_plate',
+            '_mhm_selected_addons',
+
+            // WooCommerce Integration
+            '_mhm_wc_order_id',
+            '_mhm_woocommerce_order_id',
+            '_mhm_order_id',
+            '_mhm_refund_txn_id',
+
+            // Addon meta keys
+            'addon_price',
+            'addon_type',
+            'addon_description',
+
+            // Legacy booking meta keys
+            '_booking_vehicle_id',
+            '_booking_customer_email',
+            '_booking_customer_name',
+            '_booking_customer_phone',
+            '_booking_pickup_date',
+            '_booking_return_date',
+            '_booking_rental_days',
+            '_booking_total_price',
+            '_booking_payment_status',
+            '_booking_payment_gateway',
+
+            // Message meta keys
+            '_mhm_message_category',
+            '_mhm_message_status',
+            '_mhm_thread_id',
+            '_mhm_is_read',
         ];
-        
+
         /**
          * Filter: Allow addons and third-party plugins to add custom valid meta keys
          * 
@@ -183,7 +236,7 @@ final class DatabaseCleaner
     public static function find_orphaned_postmeta(): array
     {
         global $wpdb;
-        
+
         $orphaned = $wpdb->get_results("
             SELECT pm.meta_id, pm.post_id, pm.meta_key, pm.meta_value 
             FROM {$wpdb->postmeta} pm
@@ -192,7 +245,7 @@ final class DatabaseCleaner
             AND pm.meta_key LIKE '_mhm%'
             LIMIT 100
         ", ARRAY_A);
-        
+
         return [
             'count' => count($orphaned),
             'samples' => array_slice($orphaned, 0, 10),
@@ -206,7 +259,7 @@ final class DatabaseCleaner
     public static function find_orphaned_usermeta(): array
     {
         global $wpdb;
-        
+
         $orphaned = $wpdb->get_results("
             SELECT um.umeta_id, um.user_id, um.meta_key, um.meta_value 
             FROM {$wpdb->usermeta} um
@@ -215,7 +268,7 @@ final class DatabaseCleaner
             AND um.meta_key LIKE 'mhm_rentiva%'
             LIMIT 100
         ", ARRAY_A);
-        
+
         return [
             'count' => count($orphaned),
             'samples' => array_slice($orphaned, 0, 10)
@@ -228,7 +281,7 @@ final class DatabaseCleaner
     public static function find_expired_transients(): array
     {
         global $wpdb;
-        
+
         $expired = $wpdb->get_results("
             SELECT o1.option_name, o1.option_value, o2.option_value as timeout
             FROM {$wpdb->options} o1
@@ -238,7 +291,7 @@ final class DatabaseCleaner
             AND CAST(o2.option_value AS UNSIGNED) < UNIX_TIMESTAMP()
             LIMIT 100
         ", ARRAY_A);
-        
+
         return [
             'count' => count($expired),
             'samples' => array_slice($expired, 0, 10),
@@ -256,7 +309,7 @@ final class DatabaseCleaner
     public static function find_unused_options(): array
     {
         global $wpdb;
-        
+
         // MHM Rentiva options
         $all_options = $wpdb->get_results("
             SELECT option_name, LENGTH(option_value) as size
@@ -264,7 +317,7 @@ final class DatabaseCleaner
             WHERE option_name LIKE 'mhm_rentiva%'
             AND option_name NOT LIKE '_transient%'
         ", ARRAY_A);
-        
+
         // Autoload options (unnecessary memory usage)
         $autoload_options = $wpdb->get_results("
             SELECT option_name, LENGTH(option_value) as size
@@ -272,7 +325,7 @@ final class DatabaseCleaner
             WHERE option_name LIKE 'mhm_rentiva%'
             AND autoload = 'yes'
         ", ARRAY_A);
-        
+
         return [
             'total_options' => count($all_options),
             'autoload_options' => count($autoload_options),
@@ -287,10 +340,10 @@ final class DatabaseCleaner
     public static function find_invalid_meta_keys(): array
     {
         global $wpdb;
-        
+
         $valid_keys = self::get_valid_meta_keys();
         $placeholders = implode(',', array_fill(0, count($valid_keys), '%s'));
-        
+
         $invalid_keys = $wpdb->get_results($wpdb->prepare("
             SELECT DISTINCT meta_key, COUNT(*) as count
             FROM {$wpdb->postmeta}
@@ -300,7 +353,7 @@ final class DatabaseCleaner
             ORDER BY count DESC
             LIMIT 50
         ", $valid_keys), ARRAY_A);
-        
+
         return [
             'count' => count($invalid_keys),
             'keys' => $invalid_keys
@@ -313,10 +366,10 @@ final class DatabaseCleaner
     public static function cleanup_invalid_meta_keys(bool $dry_run = true): array
     {
         global $wpdb;
-        
+
         // Get invalid meta keys first
         $invalid_data = self::find_invalid_meta_keys();
-        
+
         if ($dry_run) {
             return [
                 'dry_run' => true,
@@ -324,7 +377,7 @@ final class DatabaseCleaner
                 'keys' => $invalid_data['keys'] ?? []
             ];
         }
-        
+
         if (empty($invalid_data['keys'])) {
             return [
                 'dry_run' => false,
@@ -332,15 +385,15 @@ final class DatabaseCleaner
                 'keys_removed' => []
             ];
         }
-        
+
         // Create backup table
         $backup_table = $wpdb->prefix . 'mhm_postmeta_backup_invalid_' . date('Ymd_His');
         $wpdb->query("CREATE TABLE `{$backup_table}` LIKE `{$wpdb->postmeta}`");
-        
+
         // Extract meta keys
         $invalid_keys = array_column($invalid_data['keys'], 'meta_key');
         $placeholders = implode(',', array_fill(0, count($invalid_keys), '%s'));
-        
+
         // Backup invalid meta data
         $wpdb->query($wpdb->prepare("
             INSERT INTO `{$backup_table}`
@@ -348,14 +401,14 @@ final class DatabaseCleaner
             FROM `{$wpdb->postmeta}` pm
             WHERE pm.meta_key IN ({$placeholders})
         ", $invalid_keys));
-        
+
         // Delete invalid meta keys
         $deleted = $wpdb->query($wpdb->prepare("
             DELETE pm
             FROM `{$wpdb->postmeta}` pm
             WHERE pm.meta_key IN ({$placeholders})
         ", $invalid_keys));
-        
+
         return [
             'dry_run' => false,
             'deleted' => $deleted ?: 0,
@@ -370,27 +423,27 @@ final class DatabaseCleaner
     public static function get_table_stats(): array
     {
         global $wpdb;
-        
+
         $tables = [
             'queue' => $wpdb->prefix . 'mhm_rentiva_queue',
             'ratings' => $wpdb->prefix . 'mhm_rentiva_ratings',
             'report_queue' => $wpdb->prefix . 'mhm_rentiva_report_queue',
             'message_logs' => $wpdb->prefix . 'mhm_message_logs',
         ];
-        
+
         $stats = [];
-        
+
         foreach ($tables as $key => $table_name) {
             // Check if table exists
             $table_exists = $wpdb->get_var($wpdb->prepare("
                 SHOW TABLES LIKE %s
             ", $table_name));
-            
+
             if (!$table_exists) {
                 $stats[$key] = ['exists' => false];
                 continue;
             }
-            
+
             // Get table information
             $row_count = $wpdb->get_var("SELECT COUNT(*) FROM {$table_name}");
             $table_size = $wpdb->get_var($wpdb->prepare("
@@ -399,7 +452,7 @@ final class DatabaseCleaner
                 WHERE table_schema = DATABASE()
                 AND table_name = %s
             ", $table_name));
-            
+
             $stats[$key] = [
                 'exists' => true,
                 'rows' => (int) $row_count,
@@ -407,7 +460,7 @@ final class DatabaseCleaner
                 'table_name' => $table_name
             ];
         }
-        
+
         return $stats;
     }
 
@@ -417,7 +470,7 @@ final class DatabaseCleaner
     public static function cleanup_orphaned_postmeta(bool $dry_run = true): array
     {
         global $wpdb;
-        
+
         // Get orphaned meta count first
         $count = $wpdb->get_var("
             SELECT COUNT(*)
@@ -426,13 +479,13 @@ final class DatabaseCleaner
             WHERE p.ID IS NULL
             AND pm.meta_key LIKE '_mhm%'
         ");
-        
+
         if (!$dry_run && $count > 0) {
             // Create backup table
             $backup_table = $wpdb->prefix . 'mhm_postmeta_backup_' . date('Ymd_His');
             // Cannot use prepare() for table names
             $wpdb->query("CREATE TABLE `{$backup_table}` LIKE `{$wpdb->postmeta}`");
-            
+
             // Backup orphaned data
             $wpdb->query("
                 INSERT INTO `{$backup_table}`
@@ -442,7 +495,7 @@ final class DatabaseCleaner
                 WHERE p.ID IS NULL
                 AND pm.meta_key LIKE '_mhm%'
             ");
-            
+
             // Delete orphaned meta
             // Cannot use prepare() for table names in DELETE queries
             $deleted = $wpdb->query("
@@ -452,14 +505,14 @@ final class DatabaseCleaner
                 WHERE p.ID IS NULL
                 AND pm.meta_key LIKE '_mhm%'
             ");
-            
+
             return [
                 'dry_run' => false,
                 'deleted' => $deleted,
                 'backup_table' => $backup_table ?? null
             ];
         }
-        
+
         return [
             'dry_run' => true,
             'would_delete' => (int) $count,
@@ -473,7 +526,7 @@ final class DatabaseCleaner
     public static function cleanup_expired_transients(bool $dry_run = true): array
     {
         global $wpdb;
-        
+
         // Count expired transients
         $count = $wpdb->get_var("
             SELECT COUNT(*)
@@ -483,14 +536,14 @@ final class DatabaseCleaner
             WHERE o1.option_name LIKE '_transient_mhm%'
             AND CAST(o2.option_value AS UNSIGNED) < UNIX_TIMESTAMP()
         ");
-        
+
         if ($dry_run) {
             return [
                 'dry_run' => true,
                 'would_delete' => (int) $count
             ];
         }
-        
+
         // Execute cleanup even if count is 0 (to ensure consistency)
         if ($count > 0) {
             // Delete expired transients
@@ -503,21 +556,21 @@ final class DatabaseCleaner
                 WHERE o1.option_name LIKE '_transient_mhm%'
                 AND CAST(o2.option_value AS UNSIGNED) < UNIX_TIMESTAMP()
             ");
-            
+
             // Calculate size freed (approximate)
             $size_freed = $wpdb->get_var("
                 SELECT SUM(LENGTH(option_value))
                 FROM {$wpdb->options}
                 WHERE option_name LIKE '_transient_mhm%'
             ");
-            
+
             return [
                 'dry_run' => false,
                 'deleted' => $deleted ?: 0,
                 'size_freed_bytes' => (int) ($size_freed ?: 0)
             ];
         }
-        
+
         // No expired transients to clean
         return [
             'dry_run' => false,
@@ -532,48 +585,48 @@ final class DatabaseCleaner
     public static function cleanup_old_logs(int $days = 30, bool $dry_run = true): array
     {
         global $wpdb;
-        
+
         $tables = [
             'queue' => $wpdb->prefix . 'mhm_rentiva_queue',
             'report_queue' => $wpdb->prefix . 'mhm_rentiva_report_queue',
             'message_logs' => $wpdb->prefix . 'mhm_message_logs',
         ];
-        
+
         $results = [];
         $cutoff_date = date('Y-m-d H:i:s', strtotime("-{$days} days"));
-        
+
         foreach ($tables as $key => $table_name) {
             // Check if table exists
             $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name));
-            
+
             if (!$table_exists) {
                 $results[$key] = ['exists' => false];
                 continue;
             }
-            
+
             // Count old records
             $date_column = $key === 'queue' ? 'created_at' : 'created_at';
             $count = $wpdb->get_var($wpdb->prepare("
                 SELECT COUNT(*) FROM {$table_name}
                 WHERE {$date_column} < %s
             ", $cutoff_date));
-            
+
             if (!$dry_run && $count > 0) {
                 // Create backup
                 $backup_table = $table_name . '_backup_' . date('Ymd_His');
-                $wpdb->query($wpdb->prepare("CREATE TABLE %s LIKE %s", $backup_table, $table_name));
+                $wpdb->query("CREATE TABLE `{$backup_table}` LIKE `{$table_name}`");
                 $wpdb->query($wpdb->prepare("
-                    INSERT INTO %s
-                    SELECT * FROM %s
-                    WHERE %s < %s
-                ", $backup_table, $table_name, $date_column, $cutoff_date));
-                
+                    INSERT INTO `{$backup_table}`
+                    SELECT * FROM `{$table_name}`
+                    WHERE {$date_column} < %s
+                ", $cutoff_date));
+
                 // Delete old records
                 $deleted = $wpdb->query($wpdb->prepare("
-                    DELETE FROM %s
-                    WHERE %s < %s
-                ", $table_name, $date_column, $cutoff_date));
-                
+                    DELETE FROM `{$table_name}`
+                    WHERE {$date_column} < %s
+                ", $cutoff_date));
+
                 $results[$key] = [
                     'exists' => true,
                     'deleted' => $deleted,
@@ -586,7 +639,7 @@ final class DatabaseCleaner
                 ];
             }
         }
-        
+
         return $results;
     }
 
@@ -596,7 +649,7 @@ final class DatabaseCleaner
     public static function optimize_autoload_options(bool $dry_run = true): array
     {
         global $wpdb;
-        
+
         // Find large autoload options
         $large_autoload = $wpdb->get_results("
             SELECT option_name, LENGTH(option_value) as size
@@ -607,7 +660,7 @@ final class DatabaseCleaner
             ORDER BY size DESC
             LIMIT 20
         ", ARRAY_A);
-        
+
         if ($dry_run) {
             return [
                 'dry_run' => true,
@@ -615,7 +668,7 @@ final class DatabaseCleaner
                 'options' => $large_autoload
             ];
         }
-        
+
         // Execute optimization
         if (!empty($large_autoload)) {
             $updated = 0;
@@ -634,14 +687,14 @@ final class DatabaseCleaner
                     $memory_saved += (int) ($option['size'] ?? 0);
                 }
             }
-            
+
             return [
                 'dry_run' => false,
                 'updated' => $updated,
                 'memory_saved_bytes' => $memory_saved
             ];
         }
-        
+
         // No large autoload options to optimize
         return [
             'dry_run' => false,
@@ -656,7 +709,7 @@ final class DatabaseCleaner
     public static function optimize_tables(): array
     {
         global $wpdb;
-        
+
         $tables = [
             $wpdb->posts,
             $wpdb->postmeta,
@@ -666,30 +719,30 @@ final class DatabaseCleaner
             $wpdb->prefix . 'mhm_rentiva_report_queue',
             $wpdb->prefix . 'mhm_message_logs',
         ];
-        
+
         $results = [];
-        
+
         foreach ($tables as $table) {
             // Check if table exists
             // Cannot use prepare() for table names - escape manually
             $table_escaped = esc_sql($table);
             $table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$table_escaped}'");
-            
+
             if (!$table_exists) {
                 continue;
             }
-            
+
             $start_time = microtime(true);
             // Cannot use prepare() for table names in OPTIMIZE TABLE
             $result = $wpdb->query("OPTIMIZE TABLE `{$table_escaped}`");
             $execution_time = microtime(true) - $start_time;
-            
+
             $results[$table] = [
                 'success' => $result !== false,
                 'execution_time_ms' => round($execution_time * 1000, 2)
             ];
         }
-        
+
         return $results;
     }
 
@@ -706,20 +759,20 @@ final class DatabaseCleaner
             'optimize_autoload' => true,
             'optimize_tables' => false, // Can be slow
         ];
-        
+
         $options = array_merge($default_options, $options);
-        
+
         $results = [
             'dry_run' => $dry_run,
             'timestamp' => current_time('mysql'),
             'operations' => []
         ];
-        
+
         // Clean orphaned postmeta
         if ($options['orphaned_postmeta']) {
             $results['operations']['orphaned_postmeta'] = self::cleanup_orphaned_postmeta($dry_run);
         }
-        
+
         // Clean orphaned usermeta (usually none but let's check)
         if ($options['orphaned_usermeta']) {
             $orphaned_usermeta = self::find_orphaned_usermeta();
@@ -728,27 +781,27 @@ final class DatabaseCleaner
                 'found' => $orphaned_usermeta['count']
             ];
         }
-        
+
         // Clean expired transients
         if ($options['expired_transients']) {
             $results['operations']['expired_transients'] = self::cleanup_expired_transients($dry_run);
         }
-        
+
         // Clean old logs
         if ($options['old_logs_days']) {
             $results['operations']['old_logs'] = self::cleanup_old_logs($options['old_logs_days'], $dry_run);
         }
-        
+
         // Optimize autoload
         if ($options['optimize_autoload']) {
             $results['operations']['autoload_optimization'] = self::optimize_autoload_options($dry_run);
         }
-        
+
         // Optimize tables
         if ($options['optimize_tables'] && !$dry_run) {
             $results['operations']['table_optimization'] = self::optimize_tables();
         }
-        
+
         return $results;
     }
 
@@ -758,10 +811,10 @@ final class DatabaseCleaner
     public static function render_cleanup_report(array $analysis): string
     {
         ob_start();
-        ?>
+?>
         <div class="mhm-database-cleanup-report">
             <h3><?php esc_html_e('Database Cleanup Report', 'mhm-rentiva'); ?></h3>
-            
+
             <table class="widefat">
                 <thead>
                     <tr>
@@ -786,7 +839,7 @@ final class DatabaseCleaner
                             <?php endif; ?>
                         </td>
                     </tr>
-                    
+
                     <tr>
                         <td><?php esc_html_e('Expired Transients', 'mhm-rentiva'); ?></td>
                         <td><?php echo esc_html($analysis['expired_transients']['count']); ?></td>
@@ -801,7 +854,7 @@ final class DatabaseCleaner
                             <?php endif; ?>
                         </td>
                     </tr>
-                    
+
                     <tr>
                         <td><?php esc_html_e('Autoload Options', 'mhm-rentiva'); ?></td>
                         <td><?php echo esc_html($analysis['unused_options']['autoload_options']); ?></td>
@@ -816,7 +869,7 @@ final class DatabaseCleaner
                             <?php endif; ?>
                         </td>
                     </tr>
-                    
+
                     <tr>
                         <td><?php esc_html_e('Invalid Meta Keys', 'mhm-rentiva'); ?></td>
                         <td><?php echo esc_html($analysis['invalid_meta_keys']['count']); ?></td>
@@ -837,7 +890,7 @@ final class DatabaseCleaner
                     </tr>
                 </tbody>
             </table>
-            
+
             <h4><?php esc_html_e('Custom Tables', 'mhm-rentiva'); ?></h4>
             <table class="widefat">
                 <thead>
@@ -850,23 +903,23 @@ final class DatabaseCleaner
                 </thead>
                 <tbody>
                     <?php foreach ($analysis['table_stats'] as $key => $stats): ?>
-                    <tr>
-                        <td><?php echo esc_html($key); ?></td>
-                        <td>
-                            <?php if ($stats['exists']): ?>
-                                <span class="dashicons dashicons-yes-alt" style="color: green;"></span>
-                            <?php else: ?>
-                                <span class="dashicons dashicons-dismiss" style="color: red;"></span>
-                            <?php endif; ?>
-                        </td>
-                        <td><?php echo esc_html($stats['rows'] ?? '-'); ?></td>
-                        <td><?php echo esc_html($stats['size_mb'] ?? '-'); ?></td>
-                    </tr>
+                        <tr>
+                            <td><?php echo esc_html($key); ?></td>
+                            <td>
+                                <?php if ($stats['exists']): ?>
+                                    <span class="dashicons dashicons-yes-alt" style="color: green;"></span>
+                                <?php else: ?>
+                                    <span class="dashicons dashicons-dismiss" style="color: red;"></span>
+                                <?php endif; ?>
+                            </td>
+                            <td><?php echo esc_html($stats['rows'] ?? '-'); ?></td>
+                            <td><?php echo esc_html($stats['size_mb'] ?? '-'); ?></td>
+                        </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
-        <?php
+    <?php
         return ob_get_clean();
     }
 
@@ -876,34 +929,34 @@ final class DatabaseCleaner
     public static function render_cleanup_buttons(): string
     {
         ob_start();
-        ?>
+    ?>
         <div class="mhm-cleanup-actions">
             <button type="button" class="button button-primary" id="mhm-analyze-db-btn">
                 <span class="dashicons dashicons-search"></span>
                 <?php esc_html_e('Analyze Database', 'mhm-rentiva'); ?>
             </button>
-            
+
             <button type="button" class="button button-secondary" id="mhm-cleanup-orphaned-btn">
                 <span class="dashicons dashicons-trash"></span>
                 <?php esc_html_e('Clean Orphaned Meta', 'mhm-rentiva'); ?>
             </button>
-            
+
             <button type="button" class="button button-secondary" id="mhm-cleanup-transients-btn">
                 <span class="dashicons dashicons-update"></span>
                 <?php esc_html_e('Clean Expired Transients', 'mhm-rentiva'); ?>
             </button>
-            
+
             <button type="button" class="button button-secondary" id="mhm-optimize-autoload-btn">
                 <span class="dashicons dashicons-performance"></span>
                 <?php esc_html_e('Optimize Autoload', 'mhm-rentiva'); ?>
             </button>
-            
+
             <button type="button" class="button" id="mhm-optimize-tables-btn">
                 <span class="dashicons dashicons-database"></span>
                 <?php esc_html_e('Optimize Tables', 'mhm-rentiva'); ?>
             </button>
         </div>
-        <?php
+<?php
         return ob_get_clean();
     }
 
@@ -913,14 +966,14 @@ final class DatabaseCleaner
     public static function list_backups(): array
     {
         global $wpdb;
-        
+
         // Find all backup tables
         $backup_tables = $wpdb->get_col("
             SHOW TABLES LIKE '{$wpdb->prefix}mhm_%_backup%'
         ");
-        
+
         $backups = [];
-        
+
         foreach ($backup_tables as $table_name) {
             // Get table info
             $row_count = $wpdb->get_var("SELECT COUNT(*) FROM `{$table_name}`");
@@ -930,7 +983,7 @@ final class DatabaseCleaner
                 WHERE table_schema = DATABASE()
                 AND table_name = '{$table_name}'
             ");
-            
+
             // Parse backup type from table name
             $backup_type = 'unknown';
             if (strpos($table_name, 'postmeta_backup_invalid') !== false) {
@@ -940,12 +993,12 @@ final class DatabaseCleaner
             } elseif (strpos($table_name, '_backup_') !== false) {
                 $backup_type = 'custom';
             }
-            
+
             // Extract date from table name (format: YYYYMMDD_HHMMSS)
             $date_match = [];
             preg_match('/(\d{8}_\d{6})/', $table_name, $date_match);
             $backup_date = !empty($date_match[1]) ? $date_match[1] : 'unknown';
-            
+
             $backups[] = [
                 'table_name' => $table_name,
                 'type' => $backup_type,
@@ -954,12 +1007,12 @@ final class DatabaseCleaner
                 'size_mb' => (float) ($table_size ?: 0),
             ];
         }
-        
+
         // Sort by date (newest first)
-        usort($backups, function($a, $b) {
+        usort($backups, function ($a, $b) {
             return strcmp($b['date'], $a['date']);
         });
-        
+
         return $backups;
     }
 
@@ -969,26 +1022,26 @@ final class DatabaseCleaner
     public static function export_backup_to_sql(string $table_name): string
     {
         global $wpdb;
-        
+
         // Verify table exists
         $table_exists = $wpdb->get_var($wpdb->prepare("
             SHOW TABLES LIKE %s
         ", $table_name));
-        
+
         if (!$table_exists) {
             return '';
         }
-        
+
         // Get table structure
         $create_table = $wpdb->get_row("SHOW CREATE TABLE `{$table_name}`", ARRAY_A);
         $sql = "-- Backup Export: {$table_name}\n";
         $sql .= "-- Generated: " . date('Y-m-d H:i:s') . "\n\n";
         $sql .= "DROP TABLE IF EXISTS `{$table_name}`;\n";
         $sql .= $create_table['Create Table'] . ";\n\n";
-        
+
         // Get all rows
         $rows = $wpdb->get_results("SELECT * FROM `{$table_name}`", ARRAY_A);
-        
+
         if (!empty($rows)) {
             $sql .= "INSERT INTO `{$table_name}` VALUES\n";
             $values = [];
@@ -1005,7 +1058,7 @@ final class DatabaseCleaner
             }
             $sql .= implode(",\n", $values) . ";\n";
         }
-        
+
         return $sql;
     }
 
@@ -1015,22 +1068,22 @@ final class DatabaseCleaner
     public static function restore_backup(string $backup_table): array
     {
         global $wpdb;
-        
+
         // Verify backup table exists
         $table_exists = $wpdb->get_var($wpdb->prepare("
             SHOW TABLES LIKE %s
         ", $backup_table));
-        
+
         if (!$table_exists) {
             return [
                 'success' => false,
                 'message' => __('Backup table not found', 'mhm-rentiva')
             ];
         }
-        
+
         // Determine target table based on backup type
         $target_table = $wpdb->postmeta; // Default
-        
+
         if (strpos($backup_table, 'postmeta_backup_invalid') !== false) {
             $target_table = $wpdb->postmeta;
         } elseif (strpos($backup_table, 'postmeta_backup_') !== false) {
@@ -1046,7 +1099,7 @@ final class DatabaseCleaner
                 }
             }
         }
-        
+
         // Restore data
         $restored = $wpdb->query("
             INSERT INTO `{$target_table}`
@@ -1057,7 +1110,7 @@ final class DatabaseCleaner
                 meta_key = VALUES(meta_key),
                 meta_value = VALUES(meta_value)
         ");
-        
+
         return [
             'success' => $restored !== false,
             'restored' => (int) ($restored ?: 0),
@@ -1077,7 +1130,7 @@ final class DatabaseCleaner
     public static function delete_backup(string $table_name): array
     {
         global $wpdb;
-        
+
         // Verify it's a backup table
         if (strpos($table_name, 'backup') === false) {
             return [
@@ -1085,22 +1138,22 @@ final class DatabaseCleaner
                 'message' => __('Not a backup table', 'mhm-rentiva')
             ];
         }
-        
+
         // Verify table exists
         $table_exists = $wpdb->get_var($wpdb->prepare("
             SHOW TABLES LIKE %s
         ", $table_name));
-        
+
         if (!$table_exists) {
             return [
                 'success' => false,
                 'message' => __('Backup table not found', 'mhm-rentiva')
             ];
         }
-        
+
         // Delete table
         $deleted = $wpdb->query("DROP TABLE IF EXISTS `{$table_name}`");
-        
+
         return [
             'success' => $deleted !== false,
             'message' => $deleted ? __('Backup deleted successfully', 'mhm-rentiva') : __('Failed to delete backup', 'mhm-rentiva')
@@ -1113,25 +1166,25 @@ final class DatabaseCleaner
     public static function create_full_backup(): array
     {
         global $wpdb;
-        
+
         $backup_name = 'mhm_rentiva_full_backup_' . date('Ymd_His');
         $backup_dir = WP_CONTENT_DIR . '/mhm-rentiva-backups';
-        
+
         // Create backup directory if it doesn't exist
         if (!file_exists($backup_dir)) {
             wp_mkdir_p($backup_dir);
         }
-        
+
         // Always ensure backup directory is secure (even if it already existed)
         self::secure_backup_directory($backup_dir);
-        
+
         // Define tables to backup
         $tables_to_backup = [
             // WordPress core tables used by plugin
             $wpdb->posts,
             $wpdb->postmeta,
             $wpdb->options,
-            
+
             // Plugin custom tables
             $wpdb->prefix . 'mhm_rentiva_queue',
             $wpdb->prefix . 'mhm_rentiva_ratings',
@@ -1139,7 +1192,7 @@ final class DatabaseCleaner
             $wpdb->prefix . 'mhm_message_logs',
             $wpdb->prefix . 'mhm_rentiva_background_jobs',
         ];
-        
+
         // Filter existing tables only
         $existing_tables = [];
         foreach ($tables_to_backup as $table) {
@@ -1148,32 +1201,32 @@ final class DatabaseCleaner
                 $existing_tables[] = $table;
             }
         }
-        
+
         if (empty($existing_tables)) {
             return [
                 'success' => false,
                 'message' => __('No tables found to backup', 'mhm-rentiva')
             ];
         }
-        
+
         // Generate SQL file
         $sql_content = "-- MHM Rentiva Full Database Backup\n";
         $sql_content .= "-- Generated: " . date('Y-m-d H:i:s') . "\n";
         $sql_content .= "-- Backup Name: {$backup_name}\n\n";
-        
+
         $total_rows = 0;
-        
+
         foreach ($existing_tables as $table) {
             // Table structure
             $create_table = $wpdb->get_row("SHOW CREATE TABLE `{$table}`", ARRAY_A);
             if (!$create_table) {
                 continue;
             }
-            
+
             $sql_content .= "\n-- Table: {$table}\n";
             $sql_content .= "DROP TABLE IF EXISTS `{$table}`;\n";
             $sql_content .= $create_table['Create Table'] . ";\n\n";
-            
+
             // Table data
             $rows = $wpdb->get_results("SELECT * FROM `{$table}`", ARRAY_A);
             if (!empty($rows)) {
@@ -1194,26 +1247,26 @@ final class DatabaseCleaner
                 $total_rows += count($rows);
             }
         }
-        
+
         // Save to file
         $file_path = $backup_dir . '/' . $backup_name . '.sql';
         $file_written = file_put_contents($file_path, $sql_content);
-        
+
         if ($file_written === false) {
             return [
                 'success' => false,
                 'message' => __('Failed to write backup file', 'mhm-rentiva')
             ];
         }
-        
+
         // Set secure file permissions (if on Unix-like system)
         if (function_exists('chmod')) {
             @chmod($file_path, 0644); // Readable by owner, readable by group and others (secure for backups)
         }
-        
+
         // Also create a record in database for management
         $backup_table = $wpdb->prefix . 'mhm_backup_records';
-        
+
         // Create backup records table if it doesn't exist
         $wpdb->query("CREATE TABLE IF NOT EXISTS `{$backup_table}` (
             `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1228,7 +1281,7 @@ final class DatabaseCleaner
             KEY `backup_name` (`backup_name`),
             KEY `backup_type` (`backup_type`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-        
+
         // Insert record
         $wpdb->insert(
             $backup_table,
@@ -1243,7 +1296,7 @@ final class DatabaseCleaner
             ],
             ['%s', '%s', '%s', '%d', '%d', '%d', '%s']
         );
-        
+
         return [
             'success' => true,
             'backup_name' => $backup_name,
@@ -1266,21 +1319,21 @@ final class DatabaseCleaner
     public static function list_full_backups(): array
     {
         global $wpdb;
-        
+
         $backups = [];
         $backup_dir = WP_CONTENT_DIR . '/mhm-rentiva-backups';
         $backup_table = $wpdb->prefix . 'mhm_backup_records';
-        
+
         // Get backups from database records
         $backup_table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $backup_table));
-        
+
         if ($backup_table_exists) {
             $records = $wpdb->get_results("
                 SELECT * FROM `{$backup_table}`
                 WHERE backup_type = 'full'
                 ORDER BY created_at DESC
             ", ARRAY_A);
-            
+
             foreach ($records as $record) {
                 $file_exists = file_exists($record['file_path']);
                 $backups[] = [
@@ -1298,14 +1351,14 @@ final class DatabaseCleaner
                 ];
             }
         }
-        
+
         // Also check backup directory for files not in database
         if (file_exists($backup_dir)) {
             $files = glob($backup_dir . '/mhm_rentiva_full_backup_*.sql');
             foreach ($files as $file) {
                 $file_name = basename($file);
                 $backup_name = str_replace('.sql', '', $file_name);
-                
+
                 // Check if already in database
                 $exists_in_db = false;
                 foreach ($backups as $backup) {
@@ -1314,7 +1367,7 @@ final class DatabaseCleaner
                         break;
                     }
                 }
-                
+
                 if (!$exists_in_db) {
                     $backups[] = [
                         'id' => 0,
@@ -1332,12 +1385,12 @@ final class DatabaseCleaner
                 }
             }
         }
-        
+
         // Sort by date (newest first)
-        usort($backups, function($a, $b) {
+        usort($backups, function ($a, $b) {
             return strcmp($b['date'], $a['date']);
         });
-        
+
         return $backups;
     }
 
@@ -1347,14 +1400,14 @@ final class DatabaseCleaner
     public static function restore_full_backup(string $file_path): array
     {
         global $wpdb;
-        
+
         if (!file_exists($file_path)) {
             return [
                 'success' => false,
                 'message' => __('Backup file not found', 'mhm-rentiva')
             ];
         }
-        
+
         // Read SQL file
         $sql_content = file_get_contents($file_path);
         if ($sql_content === false) {
@@ -1363,23 +1416,23 @@ final class DatabaseCleaner
                 'message' => __('Failed to read backup file', 'mhm-rentiva')
             ];
         }
-        
+
         // Execute SQL (split by semicolon)
         $queries = array_filter(
             array_map('trim', explode(';', $sql_content)),
-            function($query) {
+            function ($query) {
                 return !empty($query) && !preg_match('/^--/', $query);
             }
         );
-        
+
         $executed = 0;
         $errors = [];
-        
+
         foreach ($queries as $query) {
             if (empty(trim($query))) {
                 continue;
             }
-            
+
             $result = $wpdb->query($query);
             if ($result === false) {
                 $errors[] = $wpdb->last_error;
@@ -1387,12 +1440,12 @@ final class DatabaseCleaner
                 $executed++;
             }
         }
-        
+
         return [
             'success' => empty($errors),
             'executed' => $executed,
             'errors' => $errors,
-            'message' => empty($errors) 
+            'message' => empty($errors)
                 /* translators: %d placeholder. */
                 ? sprintf(__('Restored %d queries successfully', 'mhm-rentiva'), $executed)
                 /* translators: 1: %d; 2: %d. */
@@ -1406,17 +1459,17 @@ final class DatabaseCleaner
     public static function delete_full_backup(string $backup_name): array
     {
         global $wpdb;
-        
+
         $backup_dir = WP_CONTENT_DIR . '/mhm-rentiva-backups';
         $file_path = $backup_dir . '/' . $backup_name . '.sql';
         $backup_table = $wpdb->prefix . 'mhm_backup_records';
-        
+
         // Delete file
         $file_deleted = false;
         if (file_exists($file_path)) {
             $file_deleted = unlink($file_path);
         }
-        
+
         // Delete database record
         $record_deleted = false;
         $backup_table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $backup_table));
@@ -1427,7 +1480,7 @@ final class DatabaseCleaner
                 ['%s']
             );
         }
-        
+
         return [
             'success' => $file_deleted || $record_deleted !== false,
             'message' => ($file_deleted && $record_deleted !== false)
@@ -1453,20 +1506,20 @@ final class DatabaseCleaner
         $htaccess_content .= "    Order deny,allow\n";
         $htaccess_content .= "    Deny from all\n";
         $htaccess_content .= "</IfModule>\n";
-        
+
         $htaccess_file = $directory . '/.htaccess';
         // Always update .htaccess to ensure it's secure
         file_put_contents($htaccess_file, $htaccess_content);
-        
+
         // Create index.php file as additional protection (WordPress standard)
         $index_content = "<?php\n";
         $index_content .= "// Silence is golden.\n";
         $index_content .= "// This file prevents directory listing.\n";
-        
+
         $index_file = $directory . '/index.php';
         // Always update index.php to ensure it exists
         file_put_contents($index_file, $index_content);
-        
+
         // Set proper permissions (if on Unix-like system)
         if (function_exists('chmod')) {
             @chmod($directory, 0755); // Owner: read/write/execute, Group/Others: read/execute
@@ -1481,12 +1534,12 @@ final class DatabaseCleaner
     public static function verify_backup_directory_security(string $directory): array
     {
         $issues = [];
-        
+
         // Check if directory exists
         if (!file_exists($directory)) {
             return ['secure' => false, 'issues' => [__('Backup directory does not exist', 'mhm-rentiva')]];
         }
-        
+
         // Check .htaccess file
         $htaccess_file = $directory . '/.htaccess';
         if (!file_exists($htaccess_file)) {
@@ -1497,13 +1550,13 @@ final class DatabaseCleaner
                 $issues[] = __('.htaccess file exists but does not deny access properly', 'mhm-rentiva');
             }
         }
-        
+
         // Check index.php file
         $index_file = $directory . '/index.php';
         if (!file_exists($index_file)) {
             $issues[] = __('index.php file missing - directory listing is possible', 'mhm-rentiva');
         }
-        
+
         // Check directory permissions
         if (function_exists('substr') && PHP_OS !== 'WINNT') {
             $perms = fileperms($directory);
@@ -1514,11 +1567,10 @@ final class DatabaseCleaner
                 $issues[] = sprintf(__('Directory permissions (%s) are too permissive', 'mhm-rentiva'), $octal_perms);
             }
         }
-        
+
         return [
             'secure' => empty($issues),
             'issues' => $issues
         ];
     }
 }
-

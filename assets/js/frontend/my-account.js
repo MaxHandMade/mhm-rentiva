@@ -187,7 +187,7 @@
 /**
  * My Account - JavaScript
  * 
- * WordPress Login bazlı müşteri hesap sayfası fonksiyonları
+ * WordPress Login based customer account page functions
  * 
  * @since 4.0.0
  */
@@ -209,13 +209,13 @@
         }
 
         bindEvents() {
-            // Hesap güncelleme formu
+            // Account update form
             $('#mhm-account-details-form').on('submit', (e) => this.handleAccountUpdate(e));
 
-            // Favori toggle butonları
+            // Favorite toggle buttons
             $(document).on('click', '.favorite-toggle', (e) => this.handleFavoriteToggle(e));
 
-            // Rezervasyon iptal
+            // Booking cancellation
             $(document).on('click', '.cancel-booking', (e) => this.handleCancelBooking(e));
 
             // Receipt upload
@@ -359,7 +359,7 @@
         }
 
         /**
-         * Favori toggle
+         * Favorite toggle
          */
         handleFavoriteToggle(e) {
             e.preventDefault();
@@ -404,7 +404,7 @@
         }
 
         /**
-         * Rezervasyon iptal
+         * Booking cancellation
          */
         handleCancelBooking(e) {
             e.preventDefault();
@@ -429,7 +429,7 @@
                 success: (response) => {
                     if (response.success) {
                         this.showMessage(response.data.message || this.config.i18n.success, 'success');
-                        // Sayfayı yenile
+                        // Refresh page
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -446,18 +446,18 @@
         }
 
         /**
-         * Favori sistemini başlat
+         * Initialize favorites system
          */
         initFavorites() {
-            // Favorilere ekleme butonları
+            // Add to favorites buttons
             $('.add-to-favorites').on('click', function (e) {
                 e.preventDefault();
-                // İşlem yapılacak
+                // Action to be performed
             });
         }
 
         /**
-         * Form validasyonu
+         * Form validation
          */
         initAccountForm() {
             this.setupPasswordValidation('#mhm-account-details-form', '#new_password', '#confirm_password');
@@ -526,7 +526,7 @@
         }
 
         /**
-         * Mesaj göster
+         * Show message
          */
         showMessage(message, type = 'success') {
             const $messages = $('.account-messages');
@@ -541,7 +541,7 @@
                 .html(`<p>${message}</p>`)
                 .slideDown(300);
 
-            // 5 saniye sonra gizle
+            // Hide after 5 seconds
             setTimeout(() => {
                 $messages.slideUp(300);
             }, 5000);

@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.6.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.6.1-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -46,7 +46,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 
 - **Araç Yönetimi**: Galeri, kategoriler, fiyatlandırma ve müsaitlik ile eksiksiz araç envanter yönetimi
 - **Rezervasyon Sistemi**: Gerçek zamanlı müsaitlik kontrolü, rezervasyon yönetimi ve otomatik iptal
-- **Ödeme İşleme**: Makbuz yönetimi ve WooCommerce entegrasyonu ile offline ödeme ağ geçidi
+- **Ödeme İşleme**: Tüm frontend rezervasyonları için WooCommerce entegrasyonu ile güvenli ödeme işlemleri
 - **Müşteri Portalı**: Rezervasyon geçmişi, favoriler ve mesajlaşma ile tam özellikli müşteri hesap sistemi
 - **Analitik ve Raporlama**: Gelir, müşteri ve araç içgörüleri ile kapsamlı analitik dashboard
 - **E-posta Sistemi**: Özelleştirilebilir HTML şablonları ile otomatik e-posta bildirimleri
@@ -80,6 +80,16 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
   - Depozito ayarları (sabit veya yüzde)
   - Müsaitlik durumu
   - Öne çıkan araç seçeneği
+- **Hızlı Düzenleme**: Liste tablosundan araçları toplu düzenleme
+- **Arama ve Filtreleme**: Kategori, durum ve fiyat aralığına göre gelişmiş filtreleme
+- **Araç Karşılaştırma**: Birden fazla aracı yan yana karşılaştırma
+
+**Araç Görüntüleme Seçenekleri:**
+- Özelleştirilebilir sütunlara sahip grid görünümü
+- Detaylı bilgi içeren liste görünümü
+- Tek araç detay sayfaları
+- Gelişmiş filtrelerle arama sonuçları
+- Müsaitlik takvimi entegrasyonu
 
 ### 📅 Rezervasyon Sistemi
 
@@ -93,114 +103,245 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
   - Tamamlandı (iade edildi)
   - İptal edildi
   - İade edildi
+- **Otomatik İptal**: Ödenmemiş rezervasyonlar için yapılandırılabilir otomatik iptal (varsayılan: 30 dakika)
+- **Manuel Rezervasyonlar**: Yönetici, doğrudan yönetim panelinden rezervasyon oluşturabilir
+- **Rezervasyon Takvimi**: Tüm rezervasyonların görsel takvim görünümü
+- **Rezervasyon Geçmişi**: Müşteriler ve admin için tam rezervasyon geçmişi
+
+**Rezervasyon Özellikleri:**
+- Doğrulamalı tarih aralığı seçimi
+- Müsaitlik kontrollü araç seçimi
+- Ek hizmetler entegrasyonu
+- Müşteri bilgisi toplama
+- Ödeme işlem entegrasyonu
+- Offline ödemeler için makbuz yükleme (Manuel rezervasyonlar)
+- E-posta onayları
+- Rezervasyon hatırlatıcıları
+- **VIP Transfer Modülü Entegrasyonu**: Şoförlü hizmetlerin sorunsuz yönetimi
 
 ### 💳 Ödeme Sistemi
 
-**Desteklenen Ödeme Ağ Geçitleri:**
+**1. Frontend (Müşteri) Ödemeleri (WooCommerce ile)**
+- **WooCommerce Entegrasyonu**: Tüm frontend rezervasyonları WooCommerce üzerinden güvenle işlenir.
+- **Ödeme Yöntemleri**: WooCommerce tarafından desteklenen tüm yöntemleri (Kredi Kartı, Banka Havalesi, PayPal, Kapıda Ödeme, vb.) kabul edin.
+- **Otomatik Durum Güncellemeleri**: Rezervasyon durumları, WooCommerce sipariş durumuna göre otomatik güncellenir.
 
-1. **Offline Ödeme** (Banka havalesi, nakit veya diğer offline yöntemler)
-   - Makbuz yükleme sistemi
-   - Yönetici onay iş akışı
-   - Belirlenen sürede onaylanmazsa otomatik rezervasyon iptali
+**2. Manuel Ödemeler (Sadece Yönetici)**
+- **Offline Ödeme**: Yöneticiler, arka uçtan oluşturulan manuel rezervasyonlar için ödemeleri (Nakit/Havale) manuel olarak kaydedebilir.
+- **Makbuz Yönetimi**: Yöneticiler manuel rezervasyonlara ödeme kanıtı ekleyebilir.
 
-2. **WooCommerce Entegrasyonu**
-   - WooCommerce ile sorunsuz entegrasyon
-   - WooCommerce tarafından desteklenen herhangi bir ödeme ağ geçidini kullanın
-   - Sipariş durumuna göre otomatik rezervasyon durumu güncellemeleri
+**Ödeme Özellikleri:**
+- Rezervasyon başına çoklu ödeme yöntemi
+- Kısmi ödeme desteği (Depozito sistemi)
+- WooCommerce üzerinden iade yönetimi
+- Ödeme durumu takibi
+- Güvenli işlem yönetimi
 
 ### 👥 Müşteri Yönetimi
 
 **Müşteri Hesap Sistemi:**
-- **WordPress Yerel Entegrasyonu**: Standart WordPress kullanıcı sistemi kullanır
+- **WordPress Yerel Entegrasyonu**: Standart WordPress kullanıcı sistemini kullanır
 - **Müşteri Rolü**: WordPress "Customer" rolünün otomatik atanması
 - **Hesabım Dashboard**: WooCommerce benzeri hesap yönetim arayüzü
+- **Hesap Özellikleri**:
+  - İstatistikli dashboard
+  - Filtre seçenekleri ile rezervasyon geçmişi
+  - Favori araçlar listesi
+  - Ödeme geçmişi
+  - Hesap detaylarını düzenleme
+  - Şifre yönetimi
+  - Mesaj merkezi
+
+**Müşteri Portalı Shortcode'ları:**
+- `[rentiva_my_account]` - Ana hesap dashboard'u
+- `[rentiva_my_bookings]` - Rezervasyon geçmişi
+- `[rentiva_my_favorites]` - Favori araçlar
+- `[rentiva_payment_history]` - Ödeme işlemleri
+- `[rentiva_account_details]` - Profil düzenleme
+- `[rentiva_login_form]` - Giriş formu
+- `[rentiva_register_form]` - Kayıt formu
+
+**Müşteri Özellikleri:**
+- Rezervasyon sırasında otomatik hesap oluşturma
+- İsimden kullanıcı adı oluşturma (e-posta yerine)
+- E-posta doğrulama
+- Şifre sıfırlama işlevi
+- Rezervasyon bildirimleri
+- E-posta bildirimleri
+- Mesaj bildirimleri
 
 ### 📊 Raporlama ve Analitik
 
 **Analitik Dashboard:**
-- **Gelir Analitiği**: Toplam gelir, dönem bazlı gelir, araç bazlı gelir
-- **Rezervasyon Analitiği**: Toplam rezervasyonlar, durum dağılımı, rezervasyon trendleri
-- **Araç Analitiği**: En çok kiralanan araçlar, araç kullanım oranları
-- **Müşteri Analitiği**: Toplam müşteriler, müşteri segmentasyonu, tekrar eden müşteri oranı
+- **Gelir Analitiği**: 
+  - Toplam gelir
+  - Dönem bazlı gelir (günlük, haftalık, aylık, yıllık)
+  - Araç bazlı gelir
+  - Ödeme yöntemi dağılımı
+- **Rezervasyon Analitiği**:
+  - Toplam rezervasyonlar
+  - Rezervasyon durum dağılımı
+  - Rezervasyon trendleri
+  - En yoğun rezervasyon dönemleri
+- **Araç Analitiği**:
+  - En çok kiralanan araçlar
+  - Araç kullanım oranları
+  - Araç başına gelir
+  - Müsaitlik istatistikleri
+- **Müşteri Analitiği**:
+  - Toplam müşteri sayısı
+  - Müşteri segmentasyonu
+  - Müşteri yaşam döngüsü analizi
+  - Tekrar eden müşteri oranı
+  - Müşteri kazanım trendleri
+
+**Rapor Özellikleri:**
+- Gerçek zamanlı veri güncellemeleri
+- Özel tarih aralığı seçimi
+- Excel/CSV formatında dışa aktarma
+- Görsel grafikler ve şemalar
+- Mobil uyumlu tasarım
+- Yazdırma dostu görünümler
+
+### 📧 E-posta Bildirim Sistemi
+
+**E-posta Şablonları:**
+1. **Rezervasyon E-postaları**:
+   - Rezervasyon oluşturuldu (müşteri)
+   - Rezervasyon oluşturuldu (admin)
+   - Rezervasyon iptal edildi
+   - Rezervasyon durumu değişti
+   - Rezervasyon hatırlatıcı
+
+2. **Ödeme E-postaları**:
+   - Ödeme alındı
+   - Makbuz yüklendi (admin bildirimi)
+   - Makbuz onaylandı (müşteri)
+   - Makbuz reddedildi (müşteri)
+   - İade işlendi
+
+3. **Hesap E-postaları**:
+   - Hoşgeldin e-postası
+   - Hesap oluşturuldu
+   - Şifre sıfırlama
+
+4. **Mesaj E-postaları**:
+   - Yeni mesaj alındı (admin)
+   - Mesaj yanıtlandı (müşteri)
+   - Mesaj durumu değişti
+
+**E-posta Özellikleri:**
+- **Modern HTML Şablonlar**: Responsive tasarım, tüm e-posta istemcilerinde çalışır
+- **Özelleştirilebilir**: Admin ayarlardan konu ve içeriği değiştirebilir
+- **Çoklu Dil**: Birden fazla dil desteği
+- **Şablon Sistemi**: Şablon geçersiz kılma (override) ile kolay özelleştirme
+- **E-posta Loglama**: Hata ayıklama için tüm e-postalar loglanır
+
+### 💬 Mesajlaşma Sistemi
+
+**Mesaj Özellikleri:**
+- **Konu Tabanlı İletişim**: Konuşmalar konular (thread) halinde organize edilir
+- **Mesaj Kategorileri**: Genel, Rezervasyon, Ödeme, Teknik Destek, Şikayet, Öneri
+- **Mesaj Durumları**: Beklemede, Yanıtlandı, Kapalı, Acil
+- **Öncelik Seviyeleri**: Normal, Yüksek, Acil
+- **Admin Arayüzü**: WordPress yönetim panelinde tam mesaj yönetimi
+- **Müşteri Arayüzü**: Müşteriler için frontend mesaj merkezi
+- **E-posta Bildirimleri**: Yeni mesajlar için otomatik e-posta bildirimleri
+- **REST API**: Mesaj operasyonları için tam REST API
+
+**Mesaj Yönetimi:**
+- Admin panelinde tüm mesajları görüntüleme
+- Müşteri mesajlarına yanıt verme
+- Mesaj durumunu değiştirme
+- Öncelik atama
+- Toplu işlemler (silme, okundu olarak işaretleme)
+- Mesaj arama ve filtreleme
+- Mesaj istatistikleri
+
+### 🚐 VIP Transfer Modülü (Şoförlü Hizmet)
+
+**Temel Transfer Özellikleri:**
+- **Noktadan Noktaya Rezervasyon**: Önceden tanımlanmış bölgelerden alış ve bırakış konumları seçimi.
+- **Mesafe Bazlı Fiyatlandırma**: Rota mesafesine veya sabit bölgeden bölgeye oranlara göre maliyet hesaplama.
+- **Araç Seçimi**: Farklı kapasitelere sahip transfer hizmetleri için özel araç atama.
+- **Buffer/Hazırlık Süresi**: Rezervasyonlar arasında araç hazırlığını sağlamak için operasyonel tampon süresi.
+- **AJAX Arama**: Gerçek zamanlı sonuçlar içeren modern transfer arama arayüzü.
+- **WooCommerce Entegrasyonu**: Transfer rezervasyonlarını sepete sorunsuz ekleme (Depozito veya Tam Ödeme).
+- **Frontend Takibi**: Müşteriler transfer detaylarını "Hesabım" alanında görüntüleyebilir.
+
+**Transfer Görüntüleme Seçenekleri:**
+- Özel arama shortcode'u: `[mhm_rentiva_transfer_search]`
+- Müşteri hesabında transfer detay görünümü
+- Admin transfer yönetim paneli
 
 ### 🌍 Uluslararasılaştırma ve Yerelleştirme
 
 **Dil Desteği:**
 - **60+ Dil**: 60+ WordPress locale için tam destek
 - **Merkezi Yönetim**: Birleşik dil yönetimi için `LanguageHelper` sınıfı
+- **Otomatik Algılama**: WordPress locale ayarını kullanır
+- **JavaScript Yerelleştirme**: JavaScript tarih/saat kütüphaneleri için locale dönüşümü
+- **Çeviriye Hazır**: Tüm metinler WordPress çeviri fonksiyonlarını kullanır
 
 **Para Birimi Desteği:**
 - **47 Para Birimi**: 47 farklı para birimi desteği
 - **Merkezi Yönetim**: Birleşik para birimi yönetimi için `CurrencyHelper` sınıfı
+- **Para Birimi Sembolleri**: Tüm para birimleri için doğru sembol gösterimi
+- **Para Birimi Konumu**: Yapılandırılabilir sembol konumu (sol/sağ, boşluklu/boşluksuz)
+- **Desteklenen Ağ Geçitleri**: Tüm WooCommerce Ağ Geçitleri (Frontend), Yerel Offline (Yönetici Manuel Sadece)
 
-### 🚐 VIP Transfer Modülü (Şoförlü Hizmet)
+**Desteklenen Para Birimleri:**
+TRY, USD, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, MXN, SGD, HKD, NZD, SEK, NOK, DKK, PLN, CZK, HUF, RON, BGN, HRK, RSD, UAH, BYN, KZT, UZS, KGS, TJS, TMT, AZN, GEL, AMD, AED, SAR, QAR, KWD, BHD, OMR, JOD, LBP, EGP, ILS
 
-**Noktadan Noktaya Rezervasyon:**
-- **Dinamik Konumlar**: Özel fiyatlandırma ile alış ve varış bölgelerini yönetin.
-- **Rota Hesaplama**: Mesafe bazlı fiyatlandırma veya sabit bölgeden bölgeye oranlar.
-- **Araç Atama**: Transfer hizmetleri için özel araçlar (örn. VIP Minivan, Lüks Sedan).
-- **Buffer Time (Hazırlık Süresi)**: Araç hazırlığını sağlamak için operasyonel tampon süresi.
+### 🔒 Güvenlik Özellikleri
 
-**Transfer Özellikleri:**
-- **AJAX Arama**: Yüksek performanslı, gerçek zamanlı transfer arama shortcode'u.
-- **WooCommerce Sepeti**: Transfer rezervasyonlarını WooCommerce ödeme akışına sorunsuz entegre eder.
-- **Kısmi Ödemeler**: VIP hizmetler için depozito veya tam ödeme desteği.
-- **Müşteri Paneli**: Müşteriler "Hesabım" alanında transfer detaylarını görüntüleyebilir.
-- **Shortcode**: `[mhm_rentiva_transfer_search]`
+**Güvenlik Önlemleri:**
+- **XSS Koruması**: Tüm çıktılar uygun şekilde escaped edilir
+- **SQL Enjeksiyon Önleme**: Tüm veritabanı sorguları için prepared statements kullanılır
 
-### 🛠️ Bakım ve Optimizasyon Araçları
+---
 
-- **Veritabanı Temizleyici**: Süresi dolmuş verileri ve logları temizleyerek sistemi hızlı tutar.
-- **Performans Monitörü**: Betik çalışma sürelerini ve bellek kullanımını takip eder.
-- **E-posta Kayıt Tutma**: Eski e-posta kayıtlarını otomatik temizleme politikası.
-- **Sistem Bilgisi**: Hata ayıklama ve destek için tek tıkla sistem durumu raporu.
-- **WP-CLI Desteği**: Terminal tabanlı gelişmiş yönetim komutları.
+## 🏗️ Lisans Yönetimi
 
-### 🎨 Elementor Widget'leri Entegrasyonu
+**Lisans Sayfası Konumu**: `Rentiva > License`
 
-**Eksiksiz Widget Paketi (19 Widget):**
+**Lisans Durumu Görüntüleme:**
+- Pro Lisans Aktif (yeşil rozet)
+- Lite Sürüm (sarı rozet)
+- Geliştirici Modu (bilgi rozeti)
+- Lisans sona erme uyarıları
+- Son doğrulama zaman damgası
 
-**Araç Widget'leri:**
-- **Araç Arama Widget'ı**: Gelişmiş filtrelerle araç arama
-- **Araç Kartı Widget'ı**: Özelleştirilebilir düzen ile tek araç görüntüleme
-- **Araçlar Listesi Widget'ı**: Gelişmiş sorgu seçenekleri ile grid veya liste görünümü
-- **Araç Detayları Widget'ı**: Detaylı araç bilgisi görüntüleme
-- **Araç Karşılaştırma Widget'ı**: Yan yana araç karşılaştırma
-- **Araç Değerlendirme Widget'ı**: Araç değerlendirme ve yorum görüntüleme
-- **Arama Sonuçları Widget'ı**: Filtreleme ile arama sonuçları görüntüleme
-- **Müsaitlik Takvimi Widget'ı**: İnteraktif müsaitlik takvimi
+### 💻 Geliştirici Modu
 
-**Rezervasyon Widget'leri:**
-- **Rezervasyon Formu Widget'ı**: Araç seçimi, ek hizmetler ve ödeme seçenekleri ile eksiksiz rezervasyon formu
-- **Rezervasyon Onayı Widget'ı**: Rezervasyon onayı görüntüleme
-- **Teşekkür Widget'ı**: Rezervasyon tamamlandıktan sonra teşekkür sayfası
+**Otomatik Geliştirici Modu:**
+- **Amaç**: Geliştirme ortamında Pro özellikleri otomatik olarak etkinleştirir
+- **Güvenlik**: Sadece localhost/geliştirme alan adlarında çalışır
+- **Algılama**: Güvenilir algılama için çoklu kriterler
+- **Lisans Gerekmez**: Geliştirme ortamında lisans anahtarına ihtiyaç duyulmaz
 
-**Hesap Widget'leri:**
-- **Hesabım Widget'ı**: Müşteri hesap dashboard'u
-- **Rezervasyonlarım Widget'ı**: Müşteri rezervasyon geçmişi
-- **Favorilerim Widget'ı**: Favori araçlar yönetimi
-- **Ödeme Geçmişi Widget'ı**: Ödeme işlem geçmişi
-- **Hesap Detayları Widget'ı**: Hesap profil düzenleme
+**Geliştirici Modu Özellikleri:**
+- Tüm Pro özellikleri etkinleştirilir
+- Miktar sınırı yok
+- Tüm ödeme ağ geçitleri kullanılabilir (WooCommerce ile)
+- Tüm dışa aktarma formatları kullanılabilir
+- Tam mesajlaşma sistemi
+- Gelişmiş raporlar etkin
 
-**Kimlik Doğrulama Widget'leri:**
-- **Giriş Formu Widget'ı**: Müşteri giriş formu
-- **Kayıt Formu Widget'ı**: Müşteri kayıt formu
+---
 
-**Diğer Widget'ler:**
-- **İletişim Formu Widget'ı**: İletişim formu entegrasyonu
-- **Müşteri Yorumları Widget'ı**: Müşteri yorumları görüntüleme
+## 🚮 Silme Sistemi
 
-**Widget Özellikleri:**
-- **Yerel Elementor Entegrasyonu**: Elementor 3.5+ API ile tam uyumluluk
-- **Özel Kategori**: Tüm widget'ler "MHM Rentiva" kategorisi altında organize edildi
-- **Gelişmiş Kontroller**: Tipografi, renkler, kenarlıklar, gölgeler ve boşluk dahil kapsamlı stil seçenekleri
-- **Canlı Önizleme**: Elementor editöründe gerçek zamanlı önizleme
-- **Sürükle-Bırak Builder**: Kolay widget yerleştirme ve düzenleme
-- **Responsive Kontroller**: Elementor'un responsive kontrolleri ile tam responsive tasarım
-- **Özel Stil**: Widget görünümü ve düzeni üzerinde tam kontrol
-- **Sorgu Seçenekleri**: Araç widget'ları için gelişmiş sorgu ayarları (kategoriler, etiketler, öne çıkan, vb.)
-- **Düzen Seçenekleri**: Birden fazla düzen seçeneği (grid, liste, kart, vb.)
-- **Varlık Yönetimi**: Widget'lar kullanıldığında otomatik CSS/JS yükleme
+**Silme Özellikleri:**
+- **Veri Temizleme Seçeneği**: Eklenti silindiğinde tüm verileri kaldırma seçeneği
+- **Seçici Temizleme**: Nelerin silineceğini seçme:
+  - Araçlar
+  - Rezervasyonlar
+  - Müşteri verileri
+  - Ayarlar
+  - Loglar
+- **Yedekleme Hatırlatması**: Veri silinmeden önce uyarı
+- **Silme Onayı**: Silme işleminden önce onay sayfası
 
 ---
 
@@ -223,7 +364,46 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 
 ### Adım 3: Gerekli Sayfaları Oluştur
 
-Eklenti shortcode'lar için sayfaları otomatik olarak oluşturur veya manuel olarak oluşturabilirsiniz.
+Eklenti shortcode'lar için sayfaları otomatik olarak oluşturur veya manuel olarak oluşturabilirsiniz:
+
+**Gerekli Sayfalar:**
+- Hesabım sayfası (`[rentiva_my_account]` kullanın)
+- Rezervasyon Formu sayfası (`[rentiva_booking_form]` kullanın)
+- Araç Listesi/Grid sayfası (`[rentiva_vehicles_grid]` veya `[rentiva_vehicles_list]`)
+
+**İsteğe Bağlı Sayfalar:**
+- Arama sayfası (`[rentiva_search]` kullanın)
+- İletişim sayfası (`[rentiva_contact]` kullanın)
+- Giriş sayfası (`[rentiva_login_form]` kullanın)
+- Kayıt sayfası (`[rentiva_register_form]` kullanın)
+- VIP Transfer Arama (`[mhm_rentiva_transfer_search]` kullanın)
+
+### Adım 4: Ödeme Ağ Geçitlerini Yapılandır
+
+1. **Rentiva > Settings > Payment** sayfasına gidin.
+2. Ödeme yöntemlerinizi yapılandırın:
+   - **Ödeme**: Para birimi ve konumunu ayarlayın.
+   - **WooCommerce**: Online ödemeler için WooCommerce ayarlarını kullanın.
+   - **Offline (Manuel)**: Sadece manuel admin rezervasyonları için makbuz yükleme ayarlarını yapılandırın.
+
+### Adım 5: Araç Ekle
+
+1. **Vehicles > Add New** sayfasına gidin.
+2. Araç bilgilerini doldurun:
+   - Başlık, açıklama, görseller
+   - Fiyatlandırma (günlük, haftalık, aylık)
+   - Araç özellikleri
+   - Özellikler ve ekipmanlar
+   - Depozito ayarları
+3. Aracı yayınlayın.
+
+### Adım 6: Rezervasyon Akışını Test Et
+
+1. Rezervasyon formu sayfanızı ziyaret edin.
+2. Tarihleri ve bir araç seçin.
+3. Müşteri bilgilerini doldurun.
+4. Test rezervasyonunu tamamlayın.
+5. E-posta bildirimlerini doğrulayın.
 
 ---
 
@@ -236,19 +416,30 @@ Eklenti shortcode'lar için sayfaları otomatik olarak oluşturur veya manuel ol
 - **Para Birimi**: Varsayılan para birimini seçin (47 para birimi desteklenir)
 - **Para Birimi Konumu**: Boşluklu/boşluksuz Sol/Sağ
 - **Tarih Formatı**: Tarih görüntüleme formatını özelleştirin
+- **Varsayılan Kiralama Günleri**: Minimum kiralama süresi
+- **Şirket Bilgileri**: İsim, web sitesi, e-posta, destek e-postası
+- **Site URL'leri**: Rezervasyon, giriş, kayıt, hesap URL'leri
 
 ### Rezervasyon Ayarları
 
 **Konum**: `Rentiva > Settings > Booking`
 
 - **İptal Son Tarihi**: Rezervasyon başlangıcından önceki saatler (varsayılan: 24)
+- **Ödeme Son Tarihi**: Ödemeyi tamamlamak için gereken dakika (varsayılan: 30)
+- **Otomatik İptal Etkin**: Ödenmemiş rezervasyonları otomatik iptal et
+- **Onay E-postaları Gönder**: Rezervasyon e-postalarını aç/kapat
+- **Hatırlatma E-postaları Gönder**: Rezervasyon hatırlatıcılarını etkinleştir
+- **Admin Bildirimleri**: Yeni rezervasyonlarda yöneticiyi bilgilendir
 
 ### Ödeme Ayarları
 
-**Offline Ödeme Ayarları:**
-- Offline ödemeleri Etkinleştir/Devre Dışı Bırak
-- Başlık ve açıklama ayarla
-- Müşteriler için talimatları yapılandır
+**Offline Ödeme Ayarları (Admin Manuel Rezervasyonlar İçin):**
+
+**Kurulum**:
+1. `Rentiva > Settings > Payment > Offline` yolunu izleyin.
+2. Offline ödemeleri (Makbuz yükleme) etkinleştirin.
+3. Makbuz yükleme ayarlarını yapılandırın.
+4. Onay süresini belirleyin.
 
 ---
 
@@ -333,21 +524,6 @@ GET /availability
 ```
 POST /bookings
 ```
-
----
-
-
-### 💳 Ödeme Ağ Geçitleri
-
-**Offline Ödeme**:
-- Varsayılan olarak etkindir
-- Banka havalesi ve nakit ödemeler için idealdir
-- Müşteriler ödeme makbuzu yükleyebilir
-
-**WooCommerce Entegrasyonu**:
-- Pro sürümde mevcuttur
-- WooCommerce ödeme altyapısını kullanır
-- Kredi kartı ve diğer online ödeme yöntemleri için WooCommerce eklentilerini kullanabilirsiniz
 
 ---
 
@@ -561,7 +737,7 @@ mhm-rentiva/
 │   │   │   ├── Meta/
 │   │   │   │   ├── BookingDepositMetaBox.php
 │   │   │   │   ├── BookingEditMetaBox.php
-│   │   │   ├── BookingMeta.php
+│   │   │   │   ├── BookingMeta.php
 │   │   │   │   ├── BookingPortalMetaBox.php
 │   │   │   │   ├── BookingRefundMetaBox.php
 │   │   │   │   └── ManualBookingMetaBox.php
@@ -753,6 +929,7 @@ mhm-rentiva/
 │   │   │   ├── Logs/
 │   │   │   │   ├── AdvancedLogger.php
 │   │   │   │   ├── MetaBox.php
+│   │   │   │   ├── PostType.php
 │   │   │   │   └── PostType.php
 │   │   │   ├── Maintenance/
 │   │   │   │   ├── AutoCancel.php
@@ -974,15 +1151,109 @@ mhm-rentiva/
 ### PHP
 - **Minimum Versiyon**: 7.4
 - **Önerilen**: 8.0 veya üzeri
-- **Gerekli Uzantılar**: `json`, `curl`, `mbstring`, `openssl`
+- **Gerekli Uzantılar**:
+  - `json`
+  - `curl`
+  - `mbstring`
+  - `openssl`
 
 ### Veritabanı
 - **MySQL**: 5.7 veya üzeri
 - **MariaDB**: 10.3 veya üzeri
 
+### Sunucu
+- **HTTPS**: Ödeme işlemleri için önerilir
+- **Bellek Limiti**: Minimum 128MB (256MB önerilir)
+- **Yükleme Boyutu**: Makbuz yüklemeleri için minimum 10MB
+
+### WordPress İzinleri
+- `manage_options` - Admin ayarları için gerekli
+- `edit_posts` - Rezervasyon yönetimi için gerekli
+- `upload_files` - Araç görselleri ve makbuzlar için gerekli
+
+---
+
+## 🛠 Geliştirme
+
+### Geliştirme Kurulumu
+
+```bash
+# Depoyu klonlayın
+git clone [repository-url] mhm-rentiva
+cd mhm-rentiva
+
+# wp-config.php dosyasında geliştirme modunu etkinleştirin
+define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+define('SCRIPT_DEBUG', true);
+```
+
+### Kod Standartları
+
+- **WordPress Kodlama Standartları (WPCS)**: Tam uyumluluk
+- **PSR-4 Autoloading**: Namespace tabanlı otomatik yükleme
+- **Type Hinting**: PHP 8.0+ tip tanımlamaları
+- **Strict Types**: Tüm dosyalarda `declare(strict_types=1)`
+- **Namespace**: `MHMRentiva\Admin\*`
+
+### Mimari
+
+- **Modüler Tasarım**: Her özellik kendi dizininde
+- **Endişelerin Ayrılması**: Core, Admin, Frontend ayrımı
+- **Singleton Pattern**: Uygun yerlerde kullanıldı
+- **Factory Pattern**: Örnek oluşturma için
+- **Observer Pattern**: WordPress hook sistemi
+
+### Yeni Özellik Ekleme
+
+1. Uygun konumda özellik dizini oluşturun
+2. Ana sınıf dosyasını oluşturun
+3. `register()` statik metodunu uygulayın
+4. `Plugin.php` içinde kaydedin
+5. `register()` metodunda hook'ları ekleyin
+6. WordPress kodlama standartlarına uyun
+
+### Test
+
+**Manuel Test**:
+- WordPress admin panelinde test edin
+- Frontend işlevselliğini test edin
+- Ödeme akışlarını test edin
+- E-posta bildirimlerini test edin
+
+**Otomatik Test**:
+- Aktivasyon testleri
+- Güvenlik testleri
+- Fonksiyonel testler
+- Performans testleri
+
+---
+
+## 🤝 Katkıda Bulunma
+
+Katkılarınızı bekliyoruz! Lütfen şu yönergeleri izleyin:
+
+1. **Depoyu fork edin**
+2. **Özellik dalı oluşturun**: `git checkout -b feature/YeniOzellik`
+3. **Kod standartlarına uyun**: WordPress Kodlama Standartları
+4. **Net commit mesajları yazın**: Conventional commits kullanın
+5. **Kapsamlı test yapın**: Tüm işlevleri test edin
+6. **Pull request gönderin**: Değişikliklerin açıklamasını ekleyin
+
 ---
 
 ## 📝 Değişiklik Geçmişi
+
+### Versiyon: 4.6.1 (2026-01-21)
+
+**🛡️ KRİTİK GÜNCELLEME & GÜVENLİK**
+- **DatabaseCleaner**: Veri kaybını önlemek için 40+ kritik meta anahtarı (WooCommerce siparişleri, ödeme detayları) korumaya alındı.
+- **SQL Güvenliği**: `BookingColumns` ve `ExportStats` içindeki SQL sorguları `wpdb->prepare()` ile güçlendirildi.
+
+**🛍️ WOOCOMMERCE & ÖDEMELER**
+- **Atomik Çakışma Kilidi**: WooCommerce üzerinden çift rezervasyon yapılmasını önleyen kilit mekanizması eklendi.
+- **Vergi Hesaplama**: Depozito ödemelerinde bile verginin toplam tutar üzerinden hesaplanması sağlandı.
+- **Ödeme Ayarları**: WooCommerce aktif olduğunda Ödeme Ayarları sayfasına yönlendirici uyarı eklendi.
 
 ### Son Versiyon: 4.6.0 (2026-01-18)
 
@@ -1000,13 +1271,6 @@ mhm-rentiva/
 - **Arama Sonuçları**: Buton renkleri standartlaştırıldı ve durum göstergeleri eklendi.
 - **Karşılaştırma Sayfası**: Kart hizalamaları ve mobil görünüm iyileştirildi.
 - **Rezervasyonlarım**: Tablo düzeni kompakt hale getirildi.
-
-### Versiyon: 4.5.4 (2026-01-15)
-
-**🚀 REFACTORING & KULLANICI DENEYİMİ**
-- **Ayarlar Çekirdeği**: Daha modüler bir yapı için büyük çaplı refactoring.
-- **WooCommerce Uyumluluğu**: Ödeme Ayarlarının WooCommerce aktifken gizlenmesi sağlandı.
-- **Hata Düzeltmesi**: Offline ödeme e-postalarındaki Fatal Error giderildi.
 
 Tam değişiklik geçmişi için [changelog-tr.json](changelog-tr.json) dosyasına bakın.
 
@@ -1041,4 +1305,3 @@ Bu eklentiyi faydalı bulursanız, lütfen GitHub'da yıldız vermeyi düşünü
 ---
 
 **WordPress topluluğu için ❤️ ile yapıldı**
-
