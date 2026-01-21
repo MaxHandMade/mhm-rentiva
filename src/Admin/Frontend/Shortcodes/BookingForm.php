@@ -186,7 +186,7 @@ final class BookingForm extends AbstractShortcode
         if (file_exists($full_path)) {
             return (string) filemtime($full_path);
         }
-        return defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.2'; // Fallback to plugin version
+        return defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : '1.0.0'; // Fallback should never be used
     }
 
     protected static function get_script_object_name(): string

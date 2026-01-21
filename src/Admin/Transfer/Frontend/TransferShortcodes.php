@@ -38,7 +38,7 @@ final class TransferShortcodes
                 'mhm-rentiva-transfer-css',
                 plugins_url('assets/css/transfer.css', dirname(__DIR__, 4) . '/mhm-rentiva.php'),
                 [],
-                defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.2'
+                MHM_RENTIVA_VERSION
             );
         }
 
@@ -48,7 +48,7 @@ final class TransferShortcodes
                 'mhm-rentiva-transfer', // Handle name updated as requested
                 plugins_url('assets/js/mhm-rentiva-transfer.js', dirname(__DIR__, 4) . '/mhm-rentiva.php'),
                 ['jquery'], // Dependency
-                defined('MHM_RENTIVA_VERSION') ? constant('MHM_RENTIVA_VERSION') : '4.6.2',
+                MHM_RENTIVA_VERSION,
                 true // In footer
             );
 
