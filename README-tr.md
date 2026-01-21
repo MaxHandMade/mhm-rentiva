@@ -204,8 +204,12 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 | **Ek Hizmetler** | 4 Hizmet | **Sınırsız** |
 | **VIP Transfer Rotası** | 3 Rota | **Sınırsız** |
 | **Galeri Resmi** | 3 Resim / Araç | **Sınırsız** |
+| **Rapor Tarih Aralığı** | Son 30 Gün | **Sınırsız** |
+| **Rapor Satır Limiti** | 500 Satır | **Sınırsız** |
+| **Mesajlaşma Sistemi** | ❌ Yok | ✅ Var |
 | **Dışa Aktarım** | Sadece CSV | CSV, JSON |
 | **Ödeme Altyapısı** | WooCommerce | WooCommerce |
+| **REST API Erişimi** | Sınırlı | Tam Erişim |
 | **Gelişmiş Raporlar** | ❌ Sınırlı | ✅ Tam Erişim |
 
 > **Not:** Lite sürümü küçük işletmeler ve test amaçlı tasarlanmıştır. Sınırsız erişim için Pro sürüme geçiş yapın.

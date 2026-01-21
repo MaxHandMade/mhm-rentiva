@@ -204,8 +204,12 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 | **Additional Services (Addons)** | 4 Services | **Unlimited** |
 | **VIP Transfer Routes** | 3 Routes | **Unlimited** |
 | **Gallery Images** | 3 Images / Vehicle | **Unlimited** |
+| **Report Date Range** | Last 30 Days | **Unlimited** |
+| **Report Rows** | 500 Rows | **Unlimited** |
+| **Messaging System** | ❌ Not available | ✅ Available |
 | **Export Formats** | CSV Only | CSV, JSON |
 | **Payment Gateways** | WooCommerce | WooCommerce |
+| **REST API Access** | Limited | Full API |
 | **Advanced Reports** | ❌ Limited | ✅ Full Access |
 
 > **Note:** Lite version is designed for small businesses and testing. For unlimited access, please check the Pro version.
