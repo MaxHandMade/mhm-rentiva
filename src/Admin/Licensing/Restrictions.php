@@ -35,6 +35,9 @@ final class Restrictions
         // Transfer limits
         add_action('admin_post_mhm_save_route', [self::class, 'blockTransferRouteCreation'], 5);
 
+        // Addon limits (Backend enforcement)
+        add_filter('wp_insert_post_data', [self::class, 'preventAddonInsert'], 10, 2);
+
         // Clamp export/report args
         add_filter('mhm_rentiva_export_args', [self::class, 'clampExportArgs']);
 
@@ -440,5 +443,65 @@ final class Restrictions
                 ['response' => 403, 'back_link' => true]
             );
         }
+    }
+
+    /**
+     * Prevent Addon creation if limit reached (Lite)
+     * Limit enforcement hooked to wp_insert_post_data
+     * 
+     * @param array $data    An array of slashed, sanitized, and processed post data.
+     * @param array $postarr An array of sanitized (and slashed) but otherwise unmodified post data.
+     * @return array
+     */
+    public static function preventAddonInsert(array $data, array $postarr): array
+    {
+        // If Pro, allow everything
+        if (Mode::isPro()) {
+            return $data;
+        }
+
+        // Only enforce on vehicle_addon post type
+        if (!isset($data['post_type']) || $data['post_type'] !== 'vehicle_addon') {
+            return $data;
+        }
+
+        // Allow trashing
+        if (isset($data['post_status']) && $data['post_status'] === 'trash') {
+            return $data;
+        }
+
+        // Allow auto-draft creation (to prevent locking out valid UI interactions)
+        if (isset($data['post_status']) && $data['post_status'] === 'auto-draft') {
+            return $data;
+        }
+
+        // Check if this is an update to an existing regular post
+        if (isset($postarr['ID']) && !empty($postarr['ID'])) {
+            $old_status = get_post_status($postarr['ID']);
+            // If old status was publish/draft/pending, it's an update. 
+            // If it was auto-draft or false, it's a new insert.
+            if ($old_status && $old_status !== 'auto-draft') {
+                return $data;
+            }
+        }
+
+        // If we are here, user is trying to Save/Publish a NEW addon.
+        $count_obj = wp_count_posts('vehicle_addon');
+        $current_count = ($count_obj->publish ?? 0) + ($count_obj->draft ?? 0) + ($count_obj->pending ?? 0) + ($count_obj->future ?? 0);
+        $max = Mode::maxAddons();
+
+        if ($current_count >= $max) {
+            wp_die(
+                sprintf(
+                    /* translators: %d: max addons allowed. */
+                    esc_html__('Rentiva Lite allows maximum %d additional services. Upgrade to Pro for unlimited services.', 'mhm-rentiva'),
+                    $max
+                ),
+                esc_html__('Limit Exceeded', 'mhm-rentiva'),
+                ['response' => 403, 'back_link' => true]
+            );
+        }
+
+        return $data;
     }
 }

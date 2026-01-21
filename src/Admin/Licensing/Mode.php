@@ -111,6 +111,16 @@ final class Mode
     }
 
     /**
+     * Get maximum addon services allowed
+     * 
+     * @return int Maximum addons
+     */
+    public static function maxAddons(): int
+    {
+        return self::isPro() ? PHP_INT_MAX : (int) apply_filters('mhm_rentiva_lite_max_addons', 4);
+    }
+
+    /**
      * Get maximum report range days
      * 
      * @return int Maximum days
@@ -212,7 +222,7 @@ final class Mode
                 'lite' => sprintf(
                     /* translators: %d: maximum number of addon services allowed in Lite version. */
                     __('%d addon services', 'mhm-rentiva'),
-                    4
+                    (int) apply_filters('mhm_rentiva_lite_max_addons', 4)
                 ),
                 'pro' => __('Unlimited', 'mhm-rentiva'),
             ],
