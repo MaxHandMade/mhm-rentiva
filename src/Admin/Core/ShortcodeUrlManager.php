@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core;
 
@@ -37,7 +39,7 @@ final class ShortcodeUrlManager
         // 1. PRIORITY: Check Frontend Settings for custom URL
         $settings = get_option('mhm_rentiva_settings', []);
         $setting_key = self::get_setting_key_for_shortcode($shortcode);
-        
+
         if ($setting_key && !empty($settings[$setting_key])) {
             $url = esc_url($settings[$setting_key]);
             self::$page_cache[$shortcode] = $url;
@@ -46,7 +48,7 @@ final class ShortcodeUrlManager
 
         // 2. FALLBACK: Find page containing the shortcode
         $page_id = self::find_page_by_shortcode($shortcode);
-        
+
         if ($page_id) {
             $url = get_permalink($page_id);
             self::$page_cache[$shortcode] = $url;
@@ -55,7 +57,7 @@ final class ShortcodeUrlManager
 
         // 3. FINAL FALLBACK: Show warning and return home page
         self::show_admin_notice_missing_page($shortcode);
-        
+
         $fallback = home_url('/');
         self::$page_cache[$shortcode] = $fallback;
         return $fallback;
@@ -75,7 +77,7 @@ final class ShortcodeUrlManager
             'rentiva_booking_form' => 'mhm_rentiva_booking_url',
             'rentiva_login_form' => 'mhm_rentiva_login_url',
             'rentiva_register_form' => 'mhm_rentiva_register_url',
-            'rentiva_my_account' => 'mhm_rentiva_my_account_url',
+
             'rentiva_my_bookings' => 'mhm_rentiva_my_bookings_url',
             'rentiva_my_favorites' => 'mhm_rentiva_my_favorites_url',
             'rentiva_vehicles_list' => 'mhm_rentiva_vehicles_list_url',
@@ -117,19 +119,19 @@ final class ShortcodeUrlManager
     {
         $shortcodes = [
             // Account Management Shortcodes
-            'rentiva_my_account',
+
             'rentiva_my_bookings',
-            'rentiva_my_favorites', 
+            'rentiva_my_favorites',
             'rentiva_payment_history',
             // 'rentiva_account_details', // Removed
             'rentiva_login_form',
             'rentiva_register_form',
-            
+
             // Booking Shortcodes
             'rentiva_booking_form',
             'rentiva_availability_calendar',
             'rentiva_booking_confirmation',
-            
+
             // Vehicle Display Shortcodes
             'rentiva_vehicle_details',
             'rentiva_vehicles_grid',
@@ -137,7 +139,7 @@ final class ShortcodeUrlManager
             'rentiva_vehicle_comparison',
             'rentiva_search',
             'rentiva_search_results',
-            
+
             // Support Shortcodes
             'rentiva_contact',
             'rentiva_testimonials',
@@ -164,7 +166,7 @@ final class ShortcodeUrlManager
     private static function find_page_by_shortcode(string $shortcode): ?int
     {
         global $wpdb;
-        
+
         // Cache check
         $cache_key = 'mhm_shortcode_' . $shortcode;
         $cached_id = wp_cache_get($cache_key, 'mhm_rentiva');
@@ -212,7 +214,7 @@ final class ShortcodeUrlManager
             return;
         }
 
-        add_action('admin_notices', function() use ($shortcode) {
+        add_action('admin_notices', function () use ($shortcode) {
             echo '<div class="notice notice-warning is-dismissible">';
             echo '<p><strong>MHM Rentiva:</strong> ';
             printf(
@@ -244,19 +246,29 @@ final class ShortcodeUrlManager
             // Clear all cache
             $shortcodes = [
                 // Account Management Shortcodes
-                'rentiva_my_account', 'rentiva_my_bookings', 'rentiva_my_favorites', 
-                'rentiva_payment_history', 'rentiva_login_form',
+                'rentiva_my_bookings',
+                'rentiva_my_favorites',
+                'rentiva_payment_history',
+                'rentiva_login_form',
                 'rentiva_register_form',
-                
+
                 // Booking Shortcodes
-                'rentiva_booking_form', 'rentiva_availability_calendar', 'rentiva_booking_confirmation',
-                
+                'rentiva_booking_form',
+                'rentiva_availability_calendar',
+                'rentiva_booking_confirmation',
+
                 // Vehicle Display Shortcodes
-                'rentiva_vehicle_details', 'rentiva_vehicles_grid', 'rentiva_vehicles_list',
-                'rentiva_vehicle_comparison', 'rentiva_search', 'rentiva_search_results',
-                
+                'rentiva_vehicle_details',
+                'rentiva_vehicles_grid',
+                'rentiva_vehicles_list',
+                'rentiva_vehicle_comparison',
+                'rentiva_search',
+                'rentiva_search_results',
+
                 // Support Shortcodes
-                'rentiva_contact', 'rentiva_testimonials', 'rentiva_vehicle_rating_form',
+                'rentiva_contact',
+                'rentiva_testimonials',
+                'rentiva_vehicle_rating_form',
             ];
 
             foreach ($shortcodes as $sc) {
@@ -282,26 +294,38 @@ final class ShortcodeUrlManager
         $content = $post->post_content;
         $shortcodes = [
             // Account Management Shortcodes
-            'rentiva_my_account', 'rentiva_my_bookings', 'rentiva_my_favorites', 
-            'rentiva_payment_history', 'rentiva_login_form',
+            'rentiva_my_bookings',
+            'rentiva_my_favorites',
+            'rentiva_payment_history',
+            'rentiva_login_form',
             'rentiva_register_form',
-            
+
             // Booking Shortcodes
-            'rentiva_booking_form', 'rentiva_availability_calendar', 'rentiva_booking_confirmation',
-            
+            'rentiva_booking_form',
+            'rentiva_availability_calendar',
+            'rentiva_booking_confirmation',
+
             // Vehicle Display Shortcodes
-            'rentiva_vehicle_details', 'rentiva_vehicles_grid', 'rentiva_vehicles_list',
-            'rentiva_vehicle_comparison', 'rentiva_search', 'rentiva_search_results',
-            
+            'rentiva_vehicle_details',
+            'rentiva_vehicles_grid',
+            'rentiva_vehicles_list',
+            'rentiva_vehicle_comparison',
+            'rentiva_search',
+            'rentiva_search_results',
+
             // Support Shortcodes
-            'rentiva_contact', 'rentiva_testimonials', 'rentiva_vehicle_rating_form',
+            'rentiva_contact',
+            'rentiva_testimonials',
+            'rentiva_vehicle_rating_form',
         ];
 
         foreach ($shortcodes as $shortcode) {
             // Advanced shortcode detection
-            if (strpos($content, '[' . $shortcode . ']') !== false ||
+            if (
+                strpos($content, '[' . $shortcode . ']') !== false ||
                 strpos($content, '[' . $shortcode . ' ') !== false ||
-                strpos($content, '[' . $shortcode . '=') !== false) {
+                strpos($content, '[' . $shortcode . '=') !== false
+            ) {
                 self::clear_cache($shortcode);
             }
         }

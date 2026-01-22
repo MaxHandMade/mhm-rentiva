@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings;
 
@@ -73,7 +75,7 @@ final class ShortcodePages
     public static function ajax_clear_cache(): void
     {
         // Check if AJAX handler was called
-        
+
         try {
             // Action check
             $action = self::sanitize_text_field_safe(wp_unslash($_POST['action'] ?? ''));
@@ -101,8 +103,7 @@ final class ShortcodePages
             ShortcodeUrlManager::clear_cache();
 
             wp_send_json_success(['message' => __('Cache cleared successfully.', 'mhm-rentiva')]);
-            
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             wp_send_json_error(['message' => __('Error while clearing cache: ', 'mhm-rentiva') . $e->getMessage()]);
         }
     }
@@ -129,11 +130,11 @@ final class ShortcodePages
 
         // Create page
         $page_id = self::create_shortcode_page($shortcode);
-        
+
         if ($page_id) {
             // Clear cache
             ShortcodeUrlManager::clear_cache($shortcode);
-            
+
             wp_send_json_success([
                 'message' => __('Page created successfully.', 'mhm-rentiva'),
                 'page_id' => $page_id,
@@ -199,7 +200,7 @@ final class ShortcodePages
 
         // Create special content for shortcode
         $shortcode_content = self::get_shortcode_content($shortcode);
-        
+
         // Page content
         $content = sprintf(
             '<!-- %s page - %s -->' . PHP_EOL . PHP_EOL . '%s' . PHP_EOL . PHP_EOL . '<!-- You can edit this page, change the title and content. -->',
@@ -221,12 +222,12 @@ final class ShortcodePages
 
         // Create page
         $page_id = wp_insert_post($page_data);
-        
+
         if ($page_id && !is_wp_error($page_id)) {
             // Add meta information
             update_post_meta($page_id, '_mhm_shortcode', $shortcode);
             update_post_meta($page_id, '_mhm_auto_created', true);
-            
+
             return $page_id;
         }
 
@@ -382,7 +383,7 @@ final class ShortcodePages
         }
 
         global $wpdb;
-        
+
         // Search all pages
         $all_pages = $wpdb->get_results(
             "SELECT ID, post_title, post_content FROM {$wpdb->posts} 
@@ -392,34 +393,46 @@ final class ShortcodePages
         );
 
         $debug_info = [];
-                        $shortcodes = [
-                            // Account Management Shortcodes
-                            'rentiva_my_account', 'rentiva_my_bookings', 'rentiva_my_favorites', 
-                            'rentiva_payment_history', 'rentiva_login_form',
-                            'rentiva_register_form',
-                            
-                            // Booking Shortcodes
-                            'rentiva_booking_form', 'rentiva_availability_calendar', 'rentiva_booking_confirmation',
-                            
-                            // Vehicle Display Shortcodes
-                            'rentiva_vehicle_details', 'rentiva_vehicles_grid', 'rentiva_vehicles_list',
-                            'rentiva_vehicle_comparison', 'rentiva_search', 'rentiva_search_results',
-                            
-                            // Support Shortcodes
-                            'rentiva_contact', 'rentiva_testimonials', 'rentiva_vehicle_rating_form',
-                        ];
+        $shortcodes = [
+            // Account Management Shortcodes
+            'rentiva_my_bookings',
+            'rentiva_my_favorites',
+            'rentiva_payment_history',
+            'rentiva_login_form',
+            'rentiva_register_form',
+
+            // Booking Shortcodes
+            'rentiva_booking_form',
+            'rentiva_availability_calendar',
+            'rentiva_booking_confirmation',
+
+            // Vehicle Display Shortcodes
+            'rentiva_vehicle_details',
+            'rentiva_vehicles_grid',
+            'rentiva_vehicles_list',
+            'rentiva_vehicle_comparison',
+            'rentiva_search',
+            'rentiva_search_results',
+
+            // Support Shortcodes
+            'rentiva_contact',
+            'rentiva_testimonials',
+            'rentiva_vehicle_rating_form',
+        ];
 
         foreach ($all_pages as $page) {
             $found_shortcodes = [];
-            
+
             foreach ($shortcodes as $shortcode) {
-                if (strpos($page->post_content, '[' . $shortcode . ']') !== false ||
+                if (
+                    strpos($page->post_content, '[' . $shortcode . ']') !== false ||
                     strpos($page->post_content, '[' . $shortcode . ' ') !== false ||
-                    strpos($page->post_content, '[' . $shortcode . '=') !== false) {
+                    strpos($page->post_content, '[' . $shortcode . '=') !== false
+                ) {
                     $found_shortcodes[] = $shortcode;
                 }
             }
-            
+
             if (!empty($found_shortcodes)) {
                 $debug_info[] = [
                     'id' => $page->ID,
@@ -444,22 +457,25 @@ final class ShortcodePages
     public static function render_page(): void
     {
         $pages = ShortcodeUrlManager::get_all_pages();
-        
-        ?>
+
+?>
         <style>
             .button-link-delete {
                 color: #b32d2e !important;
                 border-color: #b32d2e !important;
             }
+
             .button-link-delete:hover {
                 background: #b32d2e !important;
                 color: #fff !important;
                 border-color: #a02020 !important;
             }
+
             .mhm-status-ok {
                 color: #46b450;
                 font-weight: 500;
             }
+
             .mhm-status-missing {
                 color: #dc3232;
                 font-weight: 500;
@@ -492,12 +508,12 @@ final class ShortcodePages
                             // 'rentiva_account_details' => __('Account Details', 'mhm-rentiva'), // Removed
                             'rentiva_login_form' => __('Login Form', 'mhm-rentiva'),
                             'rentiva_register_form' => __('Registration Form', 'mhm-rentiva'),
-                            
+
                             // Booking Shortcodes
                             'rentiva_booking_form' => __('Booking Form', 'mhm-rentiva'),
                             'rentiva_availability_calendar' => __('Availability Calendar', 'mhm-rentiva'),
                             'rentiva_booking_confirmation' => __('Booking Confirmation', 'mhm-rentiva'),
-                            
+
                             // Vehicle Display Shortcodes
                             'rentiva_vehicle_details' => __('Vehicle Details', 'mhm-rentiva'),
                             'rentiva_vehicles_grid' => __('Vehicles Grid', 'mhm-rentiva'),
@@ -505,7 +521,7 @@ final class ShortcodePages
                             'rentiva_vehicle_comparison' => __('Vehicle Comparison', 'mhm-rentiva'),
                             'rentiva_search' => __('Vehicle Search', 'mhm-rentiva'),
                             'rentiva_search_results' => __('Search Results', 'mhm-rentiva'),
-                            
+
                             // Support Shortcodes
                             'rentiva_contact' => __('Contact Form', 'mhm-rentiva'),
                             'rentiva_testimonials' => __('Customer Reviews', 'mhm-rentiva'),
@@ -587,186 +603,200 @@ final class ShortcodePages
         </div>
 
         <style>
-        .mhm-status-ok { color: #46b450; font-weight: bold; }
-        .mhm-status-missing { color: #dc3232; font-weight: bold; }
-        .mhm-shortcode-pages table { margin-top: 20px; }
-        .mhm-shortcode-pages code { background: #f1f1f1; padding: 2px 6px; border-radius: 3px; }
+            .mhm-status-ok {
+                color: #46b450;
+                font-weight: bold;
+            }
+
+            .mhm-status-missing {
+                color: #dc3232;
+                font-weight: bold;
+            }
+
+            .mhm-shortcode-pages table {
+                margin-top: 20px;
+            }
+
+            .mhm-shortcode-pages code {
+                background: #f1f1f1;
+                padding: 2px 6px;
+                border-radius: 3px;
+            }
         </style>
 
         <script>
-        // Define AJAX URL (conflict check)
-        if (typeof ajaxurl === 'undefined') {
-            var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
-        }
-        console.log('AJAX URL:', ajaxurl);
-        
-        // Global functions
-        window.clearShortcodeCache = function() {
-            if (confirm('<?php echo esc_js(__('Cache will be cleared. Do you want to continue?', 'mhm-rentiva')); ?>')) {
-                // Clear cache via AJAX
-                const data = new FormData();
-                data.append('action', 'mhm_clear_shortcode_cache');
-                data.append('nonce', '<?php echo wp_create_nonce('mhm_clear_shortcode_cache'); ?>');
-
-                // Debug: Check sent data
-                console.log('Sent action:', 'mhm_clear_shortcode_cache');
-                console.log('Sent nonce:', '<?php echo wp_create_nonce('mhm_clear_shortcode_cache'); ?>');
-
-                console.log('Sending cache clear request...');
-
-                fetch(ajaxurl, {
-                    method: 'POST',
-                    body: data
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response headers:', response.headers);
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Response data:', data);
-
-                    if (data.success) {
-                        alert('<?php echo esc_js(__('Cache cleared!', 'mhm-rentiva')); ?>');
-                        location.reload();
-                    } else {
-                        const errorMsg = data.data?.message || 'Unknown error';
-                        console.error('Server error:', errorMsg);
-                        alert('<?php echo esc_js(__('Error while clearing cache: ', 'mhm-rentiva')); ?>' + errorMsg);
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetch error:', error);
-                    alert('<?php echo esc_js(__('Error while clearing cache: ', 'mhm-rentiva')); ?>' + error.message);
-                });
+            // Define AJAX URL (conflict check)
+            if (typeof ajaxurl === 'undefined') {
+                var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
             }
-        };
+            console.log('AJAX URL:', ajaxurl);
 
-        window.createShortcodePage = function(shortcode) {
-            if (confirm('<?php echo esc_js(__('A page will be created for this shortcode. Do you want to continue?', 'mhm-rentiva')); ?>')) {
-                // Loading state
-                const button = event.target;
-                const originalText = button.innerHTML;
-                button.innerHTML = '<?php echo esc_js(__('Creating...', 'mhm-rentiva')); ?>';
-                button.disabled = true;
+            // Global functions
+            window.clearShortcodeCache = function() {
+                if (confirm('<?php echo esc_js(__('Cache will be cleared. Do you want to continue?', 'mhm-rentiva')); ?>')) {
+                    // Clear cache via AJAX
+                    const data = new FormData();
+                    data.append('action', 'mhm_clear_shortcode_cache');
+                    data.append('nonce', '<?php echo wp_create_nonce('mhm_clear_shortcode_cache'); ?>');
 
-                // Create page via AJAX
-                const data = new FormData();
-                data.append('action', 'mhm_create_shortcode_page');
-                data.append('nonce', '<?php echo wp_create_nonce('mhm_create_shortcode_page'); ?>');
-                data.append('shortcode', shortcode);
+                    // Debug: Check sent data
+                    console.log('Sent action:', 'mhm_clear_shortcode_cache');
+                    console.log('Sent nonce:', '<?php echo wp_create_nonce('mhm_clear_shortcode_cache'); ?>');
 
-                fetch(ajaxurl, {
-                    method: 'POST',
-                    body: data
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Offer option to user
-                        if (confirm('<?php echo esc_js(__('Page created successfully! Do you want to go to the page editor to edit it?', 'mhm-rentiva')); ?>')) {
-                            // First open new tab
-                            window.open(data.data.edit_url, '_blank');
-                            // Then refresh page (with short delay)
-                            setTimeout(() => {
+                    console.log('Sending cache clear request...');
+
+                    fetch(ajaxurl, {
+                            method: 'POST',
+                            body: data
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            console.log('Response headers:', response.headers);
+
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Response data:', data);
+
+                            if (data.success) {
+                                alert('<?php echo esc_js(__('Cache cleared!', 'mhm-rentiva')); ?>');
                                 location.reload();
-                            }, 500);
-                        } else {
-                            // Just refresh page
-                            location.reload();
-                        }
-                    } else {
-                        alert('<?php echo esc_js(__('Error occurred while creating page: ', 'mhm-rentiva')); ?>' + (data.data?.message || 'Unknown error'));
-                        // Restore button state
-                        button.innerHTML = originalText;
-                        button.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    alert('<?php echo esc_js(__('Error occurred while creating page.', 'mhm-rentiva')); ?>');
-                    // Restore button state
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                });
-            }
-        };
+                            } else {
+                                const errorMsg = data.data?.message || 'Unknown error';
+                                console.error('Server error:', errorMsg);
+                                alert('<?php echo esc_js(__('Error while clearing cache: ', 'mhm-rentiva')); ?>' + errorMsg);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Fetch error:', error);
+                            alert('<?php echo esc_js(__('Error while clearing cache: ', 'mhm-rentiva')); ?>' + error.message);
+                        });
+                }
+            };
 
-        window.deleteShortcodePage = function(pageId, pageTitle) {
-            if (confirm('<?php echo esc_js(__('Are you sure you want to move this page to trash?', 'mhm-rentiva')); ?>\n\n' + pageTitle)) {
-                // Loading state
-                const button = event.target;
-                const originalText = button.innerHTML;
-                button.innerHTML = '<?php echo esc_js(__('Removing...', 'mhm-rentiva')); ?>';
-                button.disabled = true;
+            window.createShortcodePage = function(shortcode) {
+                if (confirm('<?php echo esc_js(__('A page will be created for this shortcode. Do you want to continue?', 'mhm-rentiva')); ?>')) {
+                    // Loading state
+                    const button = event.target;
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<?php echo esc_js(__('Creating...', 'mhm-rentiva')); ?>';
+                    button.disabled = true;
 
-                // Delete page via AJAX
+                    // Create page via AJAX
+                    const data = new FormData();
+                    data.append('action', 'mhm_create_shortcode_page');
+                    data.append('nonce', '<?php echo wp_create_nonce('mhm_create_shortcode_page'); ?>');
+                    data.append('shortcode', shortcode);
+
+                    fetch(ajaxurl, {
+                            method: 'POST',
+                            body: data
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Offer option to user
+                                if (confirm('<?php echo esc_js(__('Page created successfully! Do you want to go to the page editor to edit it?', 'mhm-rentiva')); ?>')) {
+                                    // First open new tab
+                                    window.open(data.data.edit_url, '_blank');
+                                    // Then refresh page (with short delay)
+                                    setTimeout(() => {
+                                        location.reload();
+                                    }, 500);
+                                } else {
+                                    // Just refresh page
+                                    location.reload();
+                                }
+                            } else {
+                                alert('<?php echo esc_js(__('Error occurred while creating page: ', 'mhm-rentiva')); ?>' + (data.data?.message || 'Unknown error'));
+                                // Restore button state
+                                button.innerHTML = originalText;
+                                button.disabled = false;
+                            }
+                        })
+                        .catch(error => {
+                            alert('<?php echo esc_js(__('Error occurred while creating page.', 'mhm-rentiva')); ?>');
+                            // Restore button state
+                            button.innerHTML = originalText;
+                            button.disabled = false;
+                        });
+                }
+            };
+
+            window.deleteShortcodePage = function(pageId, pageTitle) {
+                if (confirm('<?php echo esc_js(__('Are you sure you want to move this page to trash?', 'mhm-rentiva')); ?>\n\n' + pageTitle)) {
+                    // Loading state
+                    const button = event.target;
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<?php echo esc_js(__('Removing...', 'mhm-rentiva')); ?>';
+                    button.disabled = true;
+
+                    // Delete page via AJAX
+                    const data = new FormData();
+                    data.append('action', 'mhm_delete_shortcode_page');
+                    data.append('nonce', '<?php echo wp_create_nonce('mhm_delete_shortcode_page'); ?>');
+                    data.append('page_id', pageId);
+
+                    fetch(ajaxurl, {
+                            method: 'POST',
+                            body: data
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('<?php echo esc_js(__('Page successfully moved to trash!', 'mhm-rentiva')); ?>');
+                                location.reload();
+                            } else {
+                                alert('<?php echo esc_js(__('Error occurred while removing page: ', 'mhm-rentiva')); ?>' + (data.data?.message || 'Unknown error'));
+                                button.innerHTML = originalText;
+                                button.disabled = false;
+                            }
+                        })
+                        .catch(error => {
+                            alert('<?php echo esc_js(__('Error occurred while removing page.', 'mhm-rentiva')); ?>');
+                            button.innerHTML = originalText;
+                            button.disabled = false;
+                        });
+                }
+            };
+
+            window.debugShortcodeSearch = function() {
+                // Debug search via AJAX
                 const data = new FormData();
-                data.append('action', 'mhm_delete_shortcode_page');
-                data.append('nonce', '<?php echo wp_create_nonce('mhm_delete_shortcode_page'); ?>');
-                data.append('page_id', pageId);
+                data.append('action', 'mhm_debug_shortcode_search');
+                data.append('nonce', '<?php echo wp_create_nonce('mhm_debug_shortcode_search'); ?>');
 
                 fetch(ajaxurl, {
-                    method: 'POST',
-                    body: data
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('<?php echo esc_js(__('Page successfully moved to trash!', 'mhm-rentiva')); ?>');
-                        location.reload();
-                    } else {
-                        alert('<?php echo esc_js(__('Error occurred while removing page: ', 'mhm-rentiva')); ?>' + (data.data?.message || 'Unknown error'));
-                        button.innerHTML = originalText;
-                        button.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    alert('<?php echo esc_js(__('Error occurred while removing page.', 'mhm-rentiva')); ?>');
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                });
-            }
-        };
+                        method: 'POST',
+                        body: data
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Debug Results:', data.data);
 
-        window.debugShortcodeSearch = function() {
-            // Debug search via AJAX
-            const data = new FormData();
-            data.append('action', 'mhm_debug_shortcode_search');
-            data.append('nonce', '<?php echo wp_create_nonce('mhm_debug_shortcode_search'); ?>');
+                            let message = data.data.message + '\n\n';
+                            data.data.pages.forEach(page => {
+                                message += `Page: ${page.title} (ID: ${page.id})\n`;
+                                message += `URL: ${page.url}\n`;
+                                message += `Shortcodes: ${page.shortcodes.join(', ')}\n`;
+                                message += `Content: ${page.content_preview}\n\n`;
+                            });
 
-            fetch(ajaxurl, {
-                method: 'POST',
-                body: data
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('Debug Results:', data.data);
-
-                    let message = data.data.message + '\n\n';
-                    data.data.pages.forEach(page => {
-                        message += `Page: ${page.title} (ID: ${page.id})\n`;
-                        message += `URL: ${page.url}\n`;
-                        message += `Shortcodes: ${page.shortcodes.join(', ')}\n`;
-                        message += `Content: ${page.content_preview}\n\n`;
+                            alert(message);
+                        } else {
+                            alert('Debug search failed: ' + (data.data?.message || 'Unknown error'));
+                        }
+                    })
+                    .catch(error => {
+                        alert('Debug search error: ' + error.message);
                     });
-
-                    alert(message);
-                } else {
-                    alert('Debug search failed: ' + (data.data?.message || 'Unknown error'));
-                }
-            })
-            .catch(error => {
-                alert('Debug search error: ' + error.message);
-            });
-        };
+            };
         </script>
-        <?php
+<?php
     }
-
 }

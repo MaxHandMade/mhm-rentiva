@@ -21746,3 +21746,159 @@ msgstr ""
 #: src/Admin/Vehicle/Frontend/VehicleSearch.php
 msgid "Max price cannot be less than min price"
 msgstr ""
+
+#: src/Admin/About/Tabs/SupportTab.php
+msgid "WordPress Support Forum"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php
+msgid "License Expiry:"
+msgstr ""
+
+#: src/Admin/Core/Utilities/DatabaseCleaner.php
+msgid "Repair/Create"
+msgstr ""
+
+#: src/Admin/Core/Utilities/DatabaseCleaner.php
+msgid "Are you sure you want to attempt to create/repair this table?"
+msgstr ""
+
+#: src/Admin/Licensing/LicenseManager.php
+msgid "Lifetime"
+msgstr ""
+
+#: src/Admin/Licensing/Mode.php
+msgid "JSON Export Format"
+msgstr ""
+
+#: src/Admin/Licensing/Mode.php
+msgid "VIP Transfer Routes"
+msgstr ""
+
+#: src/Admin/Licensing/Mode.php
+msgid "%d routes"
+msgstr ""
+
+#: src/Admin/Licensing/Mode.php
+msgid "%d images/vehicle"
+msgstr ""
+
+#: src/Admin/Licensing/Mode.php
+msgid "%d days"
+msgstr ""
+
+#: src/Admin/Licensing/Mode.php
+msgid "%d rows"
+msgstr ""
+
+#: src/Admin/Licensing/Restrictions.php
+msgid "Rentiva Lite allows maximum %d transfer routes. Upgrade to Pro for unlimited routes."
+msgstr ""
+
+#: src/Admin/Licensing/Restrictions.php
+msgid "Limit Exceeded"
+msgstr ""
+
+#: src/Admin/Licensing/Restrictions.php
+msgid "Rentiva Lite allows maximum %d additional services. Upgrade to Pro for unlimited services."
+msgstr ""
+
+#: src/Admin/Transfer/TransferAdmin.php
+msgid "Unauthorized"
+msgstr ""
+
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "Database Management & Optimization"
+msgstr ""
+
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "Table name required"
+msgstr ""
+
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "Table repaired successfully"
+msgstr ""
+
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "Failed to repair table or table definition not found"
+msgstr ""
+
+#: src/Admin/Utilities/Export/Export.php
+msgid "Export JSON"
+msgstr ""
+
+#: src/Admin/Utilities/Export/Export.php
+msgid "Export is disabled."
+msgstr ""
+
+#: src/Admin/Utilities/Export/Export.php
+msgid "This export format is available in Pro version only."
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "📧 Important: Email Delivery Security"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "The default WordPress email system can be unreliable depending on server configuration, causing your emails to fall into Spam/Junk folders."
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "For uninterrupted communication and delivery of booking notifications, please install and configure an SMTP Plugin."
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Recommended Plugins:"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "or"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Search Form"
+msgstr ""
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "Upcoming Operations"
+msgstr ""
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "Detail"
+msgstr ""
+
+#: src/Admin/Reports/Reports.php
+msgid "View Full Dashboard"
+msgstr ""
+
+#: src/Admin/Reports/Reports.php
+msgid "No upcoming operations."
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Skip wizard"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Save & Continue"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "To change the position, please visit %s."
+msgstr ""
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "Vehicle / Customer"
+msgstr ""
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "Tomorrow"
+msgstr ""
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "VIP Transfer"
+msgstr ""
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "No upcoming operations found."
+msgstr ""

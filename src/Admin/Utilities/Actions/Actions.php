@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Utilities\Actions;
 
-use MHMRentiva\Maintenance\LogRetention;
+use MHMRentiva\Admin\PostTypes\Maintenance\LogRetention;
+use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 use MHMRentiva\Admin\Payment\Refunds\Service as RefundService;
 
 if (!defined('ABSPATH')) {
@@ -101,57 +102,7 @@ final class Actions
         echo '<div class="notice notice-success is-dismissible"><p>' . sprintf(esc_html__('%d old records deleted.', 'mhm-rentiva'), (int) $count) . '</p></div>';
     }
 
-    /**
-     * Create My Account page (v4.0.0 - WordPress Login system)
-     */
-    public static function create_my_account_page(): void
-    {
-        // Permission check
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error(esc_html__('You do not have permission to perform this action.', 'mhm-rentiva'));
-        }
 
-        // Nonce check
-        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_create_my_account_page')) {
-            wp_send_json_error(esc_html__('Security check failed.', 'mhm-rentiva'));
-        }
-
-        // Check if page already exists
-        $existing_page = get_page_by_path('my-account');
-        if ($existing_page) {
-            wp_send_json_error(esc_html__('My Account page already exists.', 'mhm-rentiva'));
-        }
-
-        // Create page
-        $page_data = [
-            'post_title' => esc_html__('My Account', 'mhm-rentiva'),
-            'post_name' => 'my-account',
-            'post_content' => '[rentiva_my_account]',
-            'post_status' => 'publish',
-            'post_type' => 'page',
-            'post_author' => get_current_user_id(),
-            'meta_input' => [
-                '_wp_page_template' => 'default',
-            ],
-        ];
-
-        $page_id = wp_insert_post($page_data);
-
-        if (is_wp_error($page_id)) {
-            wp_send_json_error(esc_html__('Error occurred while creating page: ', 'mhm-rentiva') . esc_html($page_id->get_error_message()));
-        }
-
-        // Success message
-        $page_url = get_permalink($page_id);
-        $edit_url = get_edit_post_link($page_id);
-
-        wp_send_json_success([
-            'message' => esc_html__('My Account page created successfully!', 'mhm-rentiva'),
-            'page_id' => $page_id,
-            'page_url' => $page_url,
-            'edit_url' => $edit_url,
-        ]);
-    }
 
     /**
      * ✅ SECURITY: Granular permission control
@@ -251,8 +202,8 @@ final class Actions
      */
     private static function logPermissionCheck(string $action, bool $granted, ?int $resource_id = null): void
     {
-        if (class_exists(\MHMRentiva\Logs\AdvancedLogger::class)) {
-            \MHMRentiva\Logs\AdvancedLogger::info("Permission check", [
+        if (class_exists(AdvancedLogger::class)) {
+            AdvancedLogger::info(__('Permission check', 'mhm-rentiva'), [
                 'action' => $action,
                 'granted' => $granted,
                 'resource_id' => $resource_id,
@@ -260,7 +211,7 @@ final class Actions
                 'user_caps' => wp_get_current_user()->allcaps,
                 'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
                 'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? ''
-            ], \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SECURITY);
+            ], AdvancedLogger::CATEGORY_SECURITY);
         }
     }
 

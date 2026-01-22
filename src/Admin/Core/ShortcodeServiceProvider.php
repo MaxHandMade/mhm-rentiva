@@ -103,13 +103,7 @@ final class ShortcodeServiceProvider
 
             // Account Management Shortcodes
             'account' => [
-                'rentiva_my_account' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                    'method' => 'render_my_account',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => false, // Kendi içinde kontrol ediyor
-                ],
+
                 'rentiva_my_bookings' => [
                     'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
                     'method' => 'render_my_bookings',

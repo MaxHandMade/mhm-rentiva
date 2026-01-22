@@ -195,7 +195,7 @@ final class SettingsCore
             'mhm_rentiva_booking_url'                     => '',
             'mhm_rentiva_login_url'                       => '',
             'mhm_rentiva_register_url'                    => '',
-            'mhm_rentiva_my_account_url'                  => '',
+
             'mhm_rentiva_my_bookings_url'                 => '',
             'mhm_rentiva_my_favorites_url'                => '',
             'mhm_rentiva_vehicles_list_url'               => '',

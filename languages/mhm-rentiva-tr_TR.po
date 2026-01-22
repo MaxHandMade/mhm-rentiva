@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "POT-Creation-Date: 2025-11-25T18:46:38+01:00\n"
-"PO-Revision-Date: 2026-01-21 00:07+0000\n"
+"PO-Revision-Date: 2026-01-22 06:45+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
 "Language: tr_TR\n"
@@ -200,6 +200,10 @@ msgstr "%d müşteri dışa aktarıldı."
 msgid "%d customers processed."
 msgstr "%d müşteriler işlendi."
 
+#: src/Admin/Licensing/Mode.php
+msgid "%d days"
+msgstr "%d gün"
+
 #. %d placeholder.
 #: src/Admin/Licensing/LicenseAdmin.php:144
 #: src/Admin/Licensing/LicenseAdmin.php:174
@@ -213,6 +217,10 @@ msgstr "%d gün kaldı"
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:359
 msgid "%d Doors"
 msgstr "%d Kapı"
+
+#: src/Admin/Licensing/Mode.php
+msgid "%d images/vehicle"
+msgstr "%d Araç/Görseli"
 
 #. %d placeholder.
 #: src/Admin/Core/Utilities/AbstractListTable.php:228
@@ -305,6 +313,14 @@ msgid "%d review"
 msgid_plural "%d reviews"
 msgstr[0] "%d yorum"
 msgstr[1] "%d yorumlar"
+
+#: src/Admin/Licensing/Mode.php
+msgid "%d routes"
+msgstr "%d Güzergah"
+
+#: src/Admin/Licensing/Mode.php
+msgid "%d rows"
+msgstr "%d Satır"
 
 #. %d placeholder.
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:1269
@@ -2436,6 +2452,10 @@ msgstr ""
 #, fuzzy
 msgid "Are you sure you want to approve this payment?"
 msgstr "Bu ödemeyi onaylamak istediğinizden emin misiniz?"
+
+#: src/Admin/Core/Utilities/DatabaseCleaner.php
+msgid "Are you sure you want to attempt to create/repair this table?"
+msgstr "Bu tabloyu oluşturmayı/onarmayı denemek istediğinizden emin misiniz?"
 
 #: src/Admin/Frontend/Account/AccountController.php:488
 #, fuzzy
@@ -5374,9 +5394,8 @@ msgid "Context:"
 msgstr "Bağlam:"
 
 #: src/Admin/Setup/SetupWizard.php:341
-#, fuzzy
 msgid "Continue to Email"
-msgstr "E-postaya devam et"
+msgstr "E-Posta Ayarlarına devam et"
 
 #: src/Admin/Setup/SetupWizard.php:160
 #, fuzzy
@@ -5385,7 +5404,7 @@ msgstr "Lisansa devam et"
 
 #: src/Admin/Setup/SetupWizard.php:237
 msgid "Continue to Required Pages"
-msgstr "Sonraki Sayfaya Devam Et"
+msgstr "Gerekli Sayfalara devam et"
 
 #: src/Admin/CLI/DatabaseCleanupCommand.php:122
 #, fuzzy
@@ -6413,6 +6432,10 @@ msgstr "Veritabanı Bilgileri"
 msgid "Database Integrity"
 msgstr "Veritabanı Bütünlüğü"
 
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "Database Management & Optimization"
+msgstr "Veritabanı Yönetimi ve Optimizasyonu"
+
 #: src/Admin/Testing/FunctionalTest.php:255
 #, fuzzy
 msgid "Database Operations"
@@ -6979,6 +7002,10 @@ msgstr "Hepsini Seçimden Çıkar"
 #: src/Admin/Transfer/TransferAdmin.php:359
 msgid "Destination"
 msgstr "Hedef"
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "Detail"
+msgstr "Detay"
 
 #: src/Admin/About/Tabs/FeaturesTab.php:218
 #, fuzzy
@@ -7772,7 +7799,7 @@ msgstr "Bir rezervasyon manuel olarak iptal edildiğinde gönderilen e-posta."
 #: src/Admin/Messages/Settings/MessagesSettings.php:46
 #: src/Admin/Settings/Groups/EmailSettings.php:45
 msgid "Email Settings"
-msgstr "Email Ayarları"
+msgstr "E-Posta Ayarları"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:606
 msgid "Email subject..."
@@ -8708,6 +8735,16 @@ msgstr ""
 "Dışa aktarma Pro sürümde mevcuttur. Etkinleştirmek için lisans anahtarınızı "
 "girin."
 
+#: src/Admin/Utilities/Export/Export.php
+#, fuzzy
+msgid "Export is disabled."
+msgstr "Dışa aktarma devre dışıdır."
+
+#: src/Admin/Utilities/Export/Export.php
+#, fuzzy
+msgid "Export JSON"
+msgstr "JSON'u dışa aktar"
+
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:304
 msgid "Export Logs"
 msgstr "Kayıtları Dışa aktar"
@@ -8929,6 +8966,11 @@ msgstr "Yedekleme dosyası okunamadı"
 #, fuzzy
 msgid "Failed to remove receipt file."
 msgstr "Makbuz dosyası silinemedi."
+
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+#, fuzzy
+msgid "Failed to repair table or table definition not found"
+msgstr "Tablo onarımı başarısız veya tablo tanımı bulunamadı"
 
 #: src/Admin/Core/AssetManager.php:785 src/Admin/Settings/APIKeysPage.php:187
 #: src/Admin/Settings/Settings.php:101 src/Admin/Settings/SettingsView.php:415
@@ -9315,6 +9357,15 @@ msgstr "Alt Bilgi Alanı"
 msgid "Footer Text"
 msgstr "Alt Bilgi Metni"
 
+#: src/Admin/Setup/SetupWizard.php
+#, fuzzy
+msgid ""
+"For uninterrupted communication and delivery of booking notifications, "
+"please install and configure an SMTP Plugin."
+msgstr ""
+"Kesintisiz iletişim ve rezervasyon bildirimlerinin teslimi için lütfen bir "
+"SMTP Eklentisi yükleyin ve yapılandırın."
+
 #: src/Admin/Core/AssetManager.php:647 src/Admin/Core/AssetManager.php:776
 msgid "Form errors"
 msgstr "Form hataları"
@@ -9629,7 +9680,7 @@ msgstr "Geri Dön"
 
 #: src/Admin/Setup/SetupWizard.php:569
 msgid "Go to Dashboard"
-msgstr "Gösterge Tablosuna Git"
+msgstr "Kontrol Paneline Git"
 
 #: templates/shortcodes/booking-confirmation.php:322
 #: src/Admin/Frontend/Account/AccountController.php:266
@@ -10988,6 +11039,11 @@ msgstr "JS Dosyası Mevcut"
 msgid "JSON"
 msgstr "JSON"
 
+#: src/Admin/Licensing/Mode.php
+#, fuzzy
+msgid "JSON Export Format"
+msgstr "JSON Dışa Aktarım Biçimi"
+
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1334
 #: src/Admin/Vehicle/Frontend/VehicleSearch.php:114
 msgid "Jul"
@@ -11282,6 +11338,10 @@ msgstr "Lisans başarıyla devre dışı bırakıldı."
 msgid "License deactivated."
 msgstr "Lisans devre dışı bırakıldı."
 
+#: src/Admin/About/Tabs/SystemTab.php
+msgid "License Expiry:"
+msgstr "Lisansın Sona Ermesi:"
+
 #: src/Admin/Licensing/LicenseAdmin.php:363
 #: src/Admin/Licensing/LicenseAdmin.php:364
 #, fuzzy
@@ -11402,9 +11462,17 @@ msgstr "Lisans doğrulama tamamlandı."
 msgid "License:"
 msgstr "Lisans:"
 
+#: src/Admin/Licensing/LicenseManager.php
+msgid "Lifetime"
+msgstr "Ömür boyu"
+
 #: src/Admin/Settings/Groups/GeneralSettings.php:279
 msgid "Light"
 msgstr "Açık"
+
+#: src/Admin/Licensing/Restrictions.php
+msgid "Limit Exceeded"
+msgstr "Limit Aşıldı"
 
 #: src/Admin/Core/ProFeatureNotice.php:243
 #: src/Admin/Core/ProFeatureNotice.php:267
@@ -11952,6 +12020,10 @@ msgstr "Maksimum Fiyat"
 #: src/Admin/Addons/AddonListTable.php:355
 msgid "Max price"
 msgstr "Max Fiyat"
+
+#: src/Admin/Vehicle/Frontend/VehicleSearch.php
+msgid "Max price cannot be less than min price"
+msgstr "Maksimum fiyat, minimum fiyattan düşük olamaz"
 
 #: src/Admin/Transfer/VehicleTransferMetaBox.php
 msgid "Max Small Luggage"
@@ -12622,7 +12694,6 @@ msgid "MHM Restaurant Management"
 msgstr "MHM Restoran Yönetimi"
 
 #: src/Admin/Auth/TwoFactorManager.php:206
-#, fuzzy
 msgid "MHMRentiva"
 msgstr "MHMRentiva"
 
@@ -12663,6 +12734,10 @@ msgstr "Min Fiyat"
 #: src/Admin/Addons/AddonListTable.php:353
 msgid "Min price"
 msgstr "Min Fiyat"
+
+#: src/Admin/Vehicle/Frontend/VehicleSearch.php
+msgid "Min price cannot be greater than max price"
+msgstr "Minimum fiyat, maksimum fiyattan yüksek olamaz"
 
 #. %d: minimum password length.
 #: templates/account/account-details.php:158
@@ -13686,6 +13761,14 @@ msgstr "Yedeklenecek tablo bulunamadı"
 msgid "No testimonials found yet"
 msgstr "Henüz referans bulunamadı"
 
+#: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "No upcoming operations found."
+msgstr "Yaklaşan bir işlem bulunamadı."
+
+#: src/Admin/Reports/Reports.php
+msgid "No upcoming operations."
+msgstr "Yaklaşan operasyon yok."
+
 #: templates/shortcodes/vehicle-search.php:145
 #, fuzzy
 msgid "No Vehicles Found"
@@ -14223,6 +14306,10 @@ msgstr "İsteğe bağlı"
 #, fuzzy
 msgid "Options (comma separated: Petrol, Diesel)"
 msgstr "Seçenekler (virgülle ayrılmış: Benzin, Dizel)"
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "or"
+msgstr "veya"
 
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:226
 msgid "Order"
@@ -15390,6 +15477,10 @@ msgstr "Geçerli bir telefon numarası giriniz"
 msgid "Please enter a valid phone number."
 msgstr "Geçerli bir telefon numarası giriniz."
 
+#: src/Admin/Vehicle/Frontend/VehicleSearch.php
+msgid "Please enter a valid price"
+msgstr "Lütfen geçerli bir fiyat girin"
+
 #: src/Admin/Core/AssetManager.php:960
 msgid "Please enter email address"
 msgstr "Lütfen email adresi giriniz"
@@ -16304,6 +16395,10 @@ msgstr "Alıcı:"
 msgid "Recommended"
 msgstr "Tavsiye edilen"
 
+#: src/Admin/Setup/SetupWizard.php
+msgid "Recommended Plugins:"
+msgstr "Önerilen Eklentiler:"
+
 #: src/Admin/Setup/SetupWizard.php:300
 #, fuzzy
 msgid "Recommended URL"
@@ -16821,6 +16916,24 @@ msgstr ""
 #: src/Admin/Licensing/Restrictions.php
 #, fuzzy
 msgid ""
+"Rentiva Lite allows maximum %d additional services. Upgrade to Pro for "
+"unlimited services."
+msgstr ""
+"Rentiva Lite, maksimum %d ek hizmet sunar. Sınırsız hizmet için Pro sürümüne "
+"yükseltin."
+
+#: src/Admin/Licensing/Restrictions.php
+#, fuzzy
+msgid ""
+"Rentiva Lite allows maximum %d transfer routes. Upgrade to Pro for unlimited "
+"routes."
+msgstr ""
+"Rentiva Lite, maksimum %d transfer rotasına izin verir. Sınırsız rota için "
+"Pro sürümüne yükseltin."
+
+#: src/Admin/Licensing/Restrictions.php
+#, fuzzy
+msgid ""
 "Rentiva Lite has reached booking limit. Activate your license to add more "
 "bookings."
 msgstr ""
@@ -16885,6 +16998,11 @@ msgstr ""
 #, fuzzy
 msgid "Reopen Message"
 msgstr "Mesajı Yeniden Aç"
+
+#: src/Admin/Core/Utilities/DatabaseCleaner.php
+#, fuzzy
+msgid "Repair/Create"
+msgstr "Onarım/Oluşturma"
 
 #: templates/messages/message-thread-view.html.php:48
 #: src/Admin/Messages/Admin/MessageListTable.php:325
@@ -17269,9 +17387,12 @@ msgstr "Araç Dönüş Tarihi"
 msgid "Return Date & Time"
 msgstr "Dönüş Tarihi ve Saati"
 
+#: src/Admin/Vehicle/Frontend/VehicleSearch.php
+msgid "Return date must be after pickup date"
+msgstr "İade tarihi, teslim alma tarihinden sonra olmalıdır"
+
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:228
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:721
-#, fuzzy
 msgid "Return date must be after pickup date."
 msgstr "İade tarihi teslim alma tarihinden sonra olmalıdır."
 
@@ -17343,9 +17464,8 @@ msgid "review"
 msgstr "değerlendirme"
 
 #: src/Admin/Setup/SetupWizard.php:530
-#, fuzzy
 msgid "Review Shortcode Pages"
-msgstr "Kısa Kod Sayfalarını İnceleme"
+msgstr "Kısa Kod Sayfalarını İncele"
 
 #: src/Admin/Setup/SetupWizard.php
 #, fuzzy
@@ -17527,6 +17647,10 @@ msgstr "Cumartesi"
 msgid "Save"
 msgstr "Kaydet"
 
+#: src/Admin/Setup/SetupWizard.php
+msgid "Save & Continue"
+msgstr "Kaydet ve Devam Et"
+
 #: src/Admin/Setup/SetupWizard.php:397 src/Admin/Setup/SetupWizard.php:498
 msgid "Save and Continue"
 msgstr "Kaydet ve Devam Et"
@@ -17612,6 +17736,10 @@ msgstr "Kategori Ara"
 #, fuzzy
 msgid "Search Email Logs"
 msgstr "E-posta Günlüklerini Ara"
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Search Form"
+msgstr "Arama Formu"
 
 #: src/Admin/PostTypes/Logs/PostType.php:29
 msgid "Search Logs"
@@ -18416,6 +18544,11 @@ msgstr "Eylül"
 msgid "Serbian"
 msgstr "Sırpça"
 
+#: src/Admin/Transfer/Frontend/TransferShortcodes.php
+#, fuzzy
+msgid "Server communication error!"
+msgstr "Sunucu iletişim hatası!"
+
 #: templates/account/bookings.php:137 templates/account/bookings.php:239
 msgid "Service"
 msgstr "Hizmet"
@@ -18898,6 +19031,10 @@ msgstr "Boyut (MB)"
 #: src/Admin/Setup/SetupWizard.php:255
 msgid "Skip for now"
 msgstr "Şimdilik geç"
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Skip wizard"
+msgstr "Sihirbazı atla"
 
 #: src/Admin/Setup/SetupWizard.php:73
 #, fuzzy
@@ -19548,11 +19685,21 @@ msgstr "Tablo"
 msgid "Table Name"
 msgstr "Tablo adı"
 
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+#, fuzzy
+msgid "Table name required"
+msgstr "Tablo adı gereklidir"
+
 #: src/Admin/Settings/SettingsView.php:941
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:86
 #, fuzzy
 msgid "Table optimization may take several minutes. Continue?"
 msgstr "Tablo optimizasyonu birkaç dakika sürebilir. Devam etmek mi?"
+
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+#, fuzzy
+msgid "Table repaired successfully"
+msgstr "Tablo başarıyla onarıldı"
 
 #: src/Admin/About/Tabs/DeveloperTab.php:199
 #, fuzzy
@@ -19819,6 +19966,15 @@ msgstr "Rezervasyonunuz için teşekkür ederiz! Rezervasyonunuz onaylanmıştı
 #: templates/emails/booking-created-customer.html.php
 #, fuzzy
 msgid ""
+"Thank you for your booking. We have received your request and will process "
+"it shortly."
+msgstr ""
+"Rezervasyonunuz için teşekkür ederiz. Talebinizi aldık ve kısa süre içinde "
+"işleme alacağız."
+
+#: templates/emails/booking-created-customer.html.php
+#, fuzzy
+msgid ""
 "Thank you for your booking. We will have the vehicle ready for pickup on the "
 "specified date."
 msgstr ""
@@ -19849,6 +20005,16 @@ msgstr ""
 #, fuzzy
 msgid "The applicable tax rate for additional services."
 msgstr "Ek hizmetler için geçerli vergi oranı."
+
+#: src/Admin/Setup/SetupWizard.php
+#, fuzzy
+msgid ""
+"The default WordPress email system can be unreliable depending on server "
+"configuration, causing your emails to fall into Spam/Junk folders."
+msgstr ""
+"Varsayılan WordPress e-posta sistemi, sunucu yapılandırmasına bağlı olarak "
+"güvenilir olmayabilir ve e-postalarınızın Spam/Junk klasörlerine düşmesine "
+"neden olabilir."
 
 #: src/Admin/Settings/Groups/AddonSettings.php:143
 #, fuzzy
@@ -20035,6 +20201,11 @@ msgstr "Bu e-posta otomatik olarak gönderilmiştir. Lütfen cevap vermeyin."
 #, fuzzy, php-format
 msgid "This email was sent from %s"
 msgstr "Bu e-posta %s adresinden gönderilmiştir"
+
+#: src/Admin/Utilities/Export/Export.php
+#, fuzzy
+msgid "This export format is available in Pro version only."
+msgstr "Bu dışa aktarma biçimi yalnızca Pro sürümünde mevcuttur."
 
 #: src/Admin/Licensing/Restrictions.php
 #, fuzzy
@@ -20386,6 +20557,10 @@ msgstr "Başlık Tipografi"
 msgid "To change the currency, please visit %s."
 msgstr "Para birimini değiştirmek için lütfen %s adresini ziyaret edin."
 
+#: src/Admin/Setup/SetupWizard.php
+msgid "To change the position, please visit %s."
+msgstr "Konumu değiştirmek için lütfen %s adresini ziyaret edin."
+
 #: src/Admin/Emails/Core/EmailTemplates.php:70
 #: src/Admin/Emails/Core/EmailTemplates.php:197
 #, fuzzy
@@ -20409,6 +20584,10 @@ msgstr "Belirteç yenileme etkin"
 #, fuzzy
 msgid "Token Settings"
 msgstr "Belirteç Ayarları"
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "Tomorrow"
+msgstr "Yarın"
 
 #. %d placeholder.
 #: src/Admin/Core/Exceptions/ValidationException.php:214
@@ -20781,6 +20960,10 @@ msgstr "Ukrayna"
 msgid "Unable to save the message."
 msgstr "Mesajı kaydedilemiyor."
 
+#: src/Admin/Transfer/TransferAdmin.php
+msgid "Unauthorized"
+msgstr "Yetkisiz"
+
 #: src/Admin/Reports/Reports.php:147 src/Admin/Reports/Reports.php:201
 #: src/Admin/Messages/Core/Messages.php:486
 #: src/Admin/Messages/Core/Messages.php:550
@@ -20976,6 +21159,10 @@ msgstr "Para iadesi için desteklenmeyen ödeme yöntemi"
 #, fuzzy
 msgid "Upcoming Booking Reminder"
 msgstr "Yaklaşan Rezervasyon Hatırlatması"
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "Upcoming Operations"
+msgstr "Yaklaşan Operasyonlar"
 
 #: templates/account/bookings.php:126
 msgid "Upcoming Reservations"
@@ -21244,6 +21431,10 @@ msgstr "araba"
 #, fuzzy, php-format
 msgid "Vehicle #%1$d – %2$s → %3$s"
 msgstr "Araç #%1$d - %2$s → %3$s"
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "Vehicle / Customer"
+msgstr "Araç / Müşteri"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:93
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:709
@@ -21847,6 +22038,10 @@ msgstr "Özellikleri Görüntüle"
 msgid "View Full Booking Details"
 msgstr "Rezervasyon Detaylarını Tam Olarak Görüntüle"
 
+#: src/Admin/Reports/Reports.php
+msgid "View Full Dashboard"
+msgstr "Kontrol Panelinin Tamamını Görüntüle"
+
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:148
 msgid "View Gallery"
 msgstr "Galeriyi Görüntüle"
@@ -21912,6 +22107,15 @@ msgstr "Rezervasyon detaylarınızı görüntüleyin."
 #, fuzzy
 msgid "VIP Customers"
 msgstr "VIP Müşteriler"
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "VIP Transfer"
+msgstr "VIP Transfer"
+
+#: src/Admin/Licensing/Mode.php
+#, fuzzy
+msgid "VIP Transfer Routes"
+msgstr "VIP Transfer Güzergâhları"
 
 #: src/Admin/Transfer/Integration/TransferCartIntegration.php
 msgid "VIP Transfer: %1$s ➝ %2$s"
@@ -22307,6 +22511,11 @@ msgstr "WooCommerce tam geri ödeme başarıyla işlendi"
 msgid "WooCommerce Integration Active"
 msgstr "WooCommerce Entegrasyonu Etkin"
 
+#: src/Admin/Licensing/LicenseAdmin.php
+#, fuzzy
+msgid "WooCommerce integration available"
+msgstr "WooCommerce entegrasyonu mevcuttur"
+
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1682
 #, fuzzy
 msgid "WooCommerce is not installed or activated."
@@ -22398,6 +22607,11 @@ msgstr "WordPress site URL'si (salt okunur)"
 #, fuzzy
 msgid "WordPress start of week (read-only)"
 msgstr "WordPress haftanın başlangıcı (salt okunur)"
+
+#: src/Admin/About/Tabs/SupportTab.php
+#, fuzzy
+msgid "WordPress Support Forum"
+msgstr "WordPress Destek Forumu"
 
 #: src/Admin/Setup/SetupWizard.php:1068
 msgid "WordPress Version"
@@ -23890,6 +24104,11 @@ msgstr "❌ Yapılmaması gerekenler:"
 #, fuzzy
 msgid "📋 Meta Key Usage Rules"
 msgstr "📋 Meta Anahtar Kullanım Kuralları"
+
+#: src/Admin/Setup/SetupWizard.php
+#, fuzzy
+msgid "📧 Important: Email Delivery Security"
+msgstr "📧 Önemli: E-posta Teslimatı Güvenliği"
 
 #: src/Admin/Utilities/Database/MetaKeysDocumentation.php:661
 #, fuzzy

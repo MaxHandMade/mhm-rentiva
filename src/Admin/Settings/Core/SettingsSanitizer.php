@@ -245,7 +245,7 @@ final class SettingsSanitizer
         $is_customer_tab = isset($input['mhm_rentiva_customer_registration_enabled']) || isset($input['mhm_rentiva_customer_email_verification']);
         $is_email_tab = isset($input['mhm_rentiva_email_from_name']) || isset($input['mhm_rentiva_email_from_address']) || isset($input['mhm_rentiva_email_test_mode']) || isset($input['mhm_rentiva_email_send_enabled']) || isset($input['mhm_rentiva_email_auto_send']) || isset($input['mhm_rentiva_email_log_enabled']);
         $is_payment_tab = isset($input['mhm_rentiva_booking_default_payment_method']); // ⭐ Offline settings removed
-        $is_frontend_tab = isset($input['mhm_rentiva_booking_url']) || isset($input['mhm_rentiva_login_url']) || isset($input['mhm_rentiva_register_url']) || isset($input['mhm_rentiva_my_account_url']) || isset($input['mhm_rentiva_text_book_now']) || isset($input['mhm_rentiva_text_view_details']) || isset($input['mhm_rentiva_text_added_to_favorites']) || isset($input['mhm_rentiva_text_make_booking']) || isset($input['mhm_rentiva_text_login_here']);
+        $is_frontend_tab = isset($input['mhm_rentiva_booking_url']) || isset($input['mhm_rentiva_login_url']) || isset($input['mhm_rentiva_register_url']) || isset($input['mhm_rentiva_text_book_now']) || isset($input['mhm_rentiva_text_view_details']) || isset($input['mhm_rentiva_text_added_to_favorites']) || isset($input['mhm_rentiva_text_make_booking']) || isset($input['mhm_rentiva_text_login_here']);
         $is_maintenance_tab = isset($input['mhm_rentiva_log_cleanup_enabled']) || isset($input['mhm_rentiva_clean_data_on_uninstall']);
         $is_reconcile_tab = isset($input['mhm_rentiva_reconcile_enabled']) || isset($input['mhm_rentiva_reconcile_frequency']) || isset($input['mhm_rentiva_reconcile_timeout']);
         $is_logs_tab = isset($input['mhm_rentiva_log_level']) || isset($input['mhm_rentiva_log_retention_days']) || isset($input['mhm_rentiva_debug_mode']);
@@ -872,7 +872,7 @@ final class SettingsSanitizer
             'mhm_rentiva_booking_url',
             'mhm_rentiva_login_url',
             'mhm_rentiva_register_url',
-            'mhm_rentiva_my_account_url',
+
             'mhm_rentiva_my_bookings_url',
             'mhm_rentiva_my_favorites_url',
             'mhm_rentiva_vehicles_list_url',

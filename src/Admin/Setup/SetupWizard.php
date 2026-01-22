@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Setup;
 
@@ -66,11 +68,11 @@ final class SetupWizard
             'dev_mode_disabled' => (bool) get_option('mhm_rentiva_disable_dev_mode', false),
         ];
 
-        ?>
+?>
         <div class="wrap mhm-setup-wrapper">
             <h1><?php esc_html_e('MHM Rentiva Setup Wizard', 'mhm-rentiva'); ?></h1>
             <p><?php esc_html_e('Follow the steps below to prepare Rentiva on a fresh WordPress installation. You can re-open this wizard later from the MHM Rentiva menu.', 'mhm-rentiva'); ?></p>
-            <p><a class="button button-link-delete" href="<?php echo esc_url(self::skip_url()); ?>"><?php esc_html_e('Skip wizard and configure later', 'mhm-rentiva'); ?></a></p>
+
 
             <?php self::render_step_navigation($steps, $current_step); ?>
 
@@ -100,7 +102,7 @@ final class SetupWizard
                 ?>
             </div>
         </div>
-        <?php
+    <?php
     }
 
     private static function render_step_navigation(array $steps, string $current_step): void
@@ -128,7 +130,7 @@ final class SetupWizard
     private static function render_step_system(): void
     {
         $checks = self::get_system_checks();
-        ?>
+    ?>
         <h2><?php esc_html_e('Step 1: System Requirements', 'mhm-rentiva'); ?></h2>
         <p><?php esc_html_e('We scanned your WordPress environment to ensure Rentiva can run reliably. Resolve any item marked as required before continuing.', 'mhm-rentiva'); ?></p>
         <table class="widefat striped mhm-system-table">
@@ -147,7 +149,8 @@ final class SetupWizard
                         <td><?php echo esc_html($check['current']); ?></td>
                         <td><?php echo esc_html($check['expected']); ?></td>
                         <td>
-                            <?php echo self::format_status_badge($check['status']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                            <?php echo self::format_status_badge($check['status']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+                            ?>
                             <?php if (!empty($check['message'])): ?>
                                 <div class="mhm-system-note"><?php echo esc_html($check['message']); ?></div>
                             <?php endif; ?>
@@ -156,10 +159,11 @@ final class SetupWizard
                 <?php endforeach; ?>
             </tbody>
         </table>
-        <p class="mhm-step-actions">
-            <a class="button button-primary" href="<?php echo esc_url(self::step_url('license')); ?>"><?php esc_html_e('Continue to License', 'mhm-rentiva'); ?></a>
-        </p>
-        <?php
+        <div class="mhm-step-actions">
+            <a class="button button-large align-left" href="<?php echo esc_url(self::skip_url()); ?>"><?php esc_html_e('Skip wizard', 'mhm-rentiva'); ?></a>
+            <a class="button button-primary button-large" href="<?php echo esc_url(self::step_url('license')); ?>"><?php esc_html_e('Continue to License', 'mhm-rentiva'); ?></a>
+        </div>
+    <?php
     }
 
     private static function render_step_license(array $license): void
@@ -174,7 +178,7 @@ final class SetupWizard
         $dev_disabled  = (bool) ($license['dev_mode_disabled'] ?? false);
         $dev_allowed   = $dev_env && !$dev_disabled;
 
-        ?>
+    ?>
         <h2><?php esc_html_e('Step 2: License Activation', 'mhm-rentiva'); ?></h2>
         <p><?php esc_html_e('Activate your license to unlock Pro features (online payments, unlimited vehicles, advanced export and more).', 'mhm-rentiva'); ?></p>
 
@@ -183,7 +187,7 @@ final class SetupWizard
         if (isset($_GET['error'])) {
             $error_code = sanitize_text_field($_GET['error']);
             $error_message = isset($_GET['message']) ? urldecode(sanitize_text_field($_GET['message'])) : '';
-            
+
             $error_text = '';
             switch ($error_code) {
                 case 'empty_key':
@@ -201,10 +205,10 @@ final class SetupWizard
                 default:
                     $error_text = $error_message ?: __('License activation failed. Please try again.', 'mhm-rentiva');
             }
-            
+
             echo '<div class="notice notice-error inline"><p>' . esc_html($error_text) . '</p></div>';
         }
-        
+
         // ⭐ Show success message if license was activated
         if (isset($_GET['license']) && $_GET['license'] === 'activated') {
             echo '<div class="notice notice-success inline"><p>' . esc_html__('License activated successfully!', 'mhm-rentiva') . '</p></div>';
@@ -232,10 +236,11 @@ final class SetupWizard
                     <?php esc_html_e('Need to deactivate or change the key? Use the License page from the main menu.', 'mhm-rentiva'); ?>
                 </p>
             </div>
-            <p class="mhm-step-actions">
-                <a class="button" href="<?php echo esc_url($license_page); ?>" target="_blank"><?php esc_html_e('Open License Page', 'mhm-rentiva'); ?></a>
-                <a class="button button-primary" href="<?php echo esc_url(self::step_url('pages')); ?>"><?php esc_html_e('Continue to Required Pages', 'mhm-rentiva'); ?></a>
-            </p>
+            <div class="mhm-step-actions">
+                <a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('system')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
+                <a class="button button-secondary" href="<?php echo esc_url($license_page); ?>" target="_blank"><?php esc_html_e('Open License Page', 'mhm-rentiva'); ?></a>
+                <a class="button button-primary button-large" href="<?php echo esc_url(self::step_url('pages')); ?>"><?php esc_html_e('Continue to Required Pages', 'mhm-rentiva'); ?></a>
+            </div>
         <?php else: ?>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <?php wp_nonce_field('mhm_rentiva_setup_license'); ?>
@@ -249,10 +254,10 @@ final class SetupWizard
                         </td>
                     </tr>
                 </table>
-                <?php submit_button(__('Activate & Continue', 'mhm-rentiva')); ?>
                 <div class="mhm-step-actions">
-                    <a class="button button-secondary" href="<?php echo esc_url(self::step_url('system')); ?>">&larr; <?php esc_html_e('Back to System Check', 'mhm-rentiva'); ?></a>
+                    <a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('system')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
                     <a class="button button-link" href="<?php echo esc_url(self::step_url('pages')); ?>"><?php esc_html_e('Skip for now', 'mhm-rentiva'); ?></a>
+                    <button type="submit" class="button button-primary button-large"><?php esc_html_e('Activate & Continue', 'mhm-rentiva'); ?></button>
                 </div>
             </form>
         <?php endif; ?>
@@ -282,13 +287,13 @@ final class SetupWizard
                 ?>
             </p>
         <?php endif; ?>
-        <?php
+    <?php
     }
 
     private static function render_step_pages(): void
     {
         $required_pages = self::get_required_pages();
-        ?>
+    ?>
         <h2><?php esc_html_e('Step 3: Required Pages', 'mhm-rentiva'); ?></h2>
         <p><?php esc_html_e('Rentiva uses dedicated WordPress pages for booking, confirmation and customer account screens. Create missing pages automatically or link existing ones.', 'mhm-rentiva'); ?></p>
         <table class="widefat striped">
@@ -336,11 +341,11 @@ final class SetupWizard
                 <?php esc_html_e('Open Shortcode Pages', 'mhm-rentiva'); ?>
             </a>
         </form>
-        <p class="mhm-step-actions">
-            <a class="button button-secondary" href="<?php echo esc_url(self::step_url('license')); ?>">&larr; <?php esc_html_e('Back to License', 'mhm-rentiva'); ?></a>
-            <a class="button button-primary" href="<?php echo esc_url(self::step_url('email')); ?>"><?php esc_html_e('Continue to Email', 'mhm-rentiva'); ?></a>
-        </p>
-        <?php
+        <div class="mhm-step-actions">
+            <a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('license')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
+            <a class="button button-primary button-large" href="<?php echo esc_url(self::step_url('email')); ?>"><?php esc_html_e('Continue to Email', 'mhm-rentiva'); ?></a>
+        </div>
+    <?php
     }
 
     private static function render_step_email(): void
@@ -353,9 +358,25 @@ final class SetupWizard
         $send_enabled = SettingsCore::get('mhm_rentiva_email_send_enabled', '1');
         $auto_enabled = SettingsCore::get('mhm_rentiva_email_auto_send', '1');
         $log_enabled = SettingsCore::get('mhm_rentiva_email_log_enabled', '1');
-        ?>
+    ?>
         <h2><?php esc_html_e('Step 4: Email & Notifications', 'mhm-rentiva'); ?></h2>
         <p><?php esc_html_e('Configure the sender information and enable automatic notifications for bookings.', 'mhm-rentiva'); ?></p>
+
+        <div class="mhm-wizard-notice notice notice-info inline" style="padding: 15px; background-color: #f0f6fc; border-left: 4px solid #72aee6; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 10px 0; font-size: 1.1em; font-weight: 600;"><?php esc_html_e('📧 Important: Email Delivery Security', 'mhm-rentiva'); ?></h3>
+            <p style="margin-bottom: 10px;">
+                <?php esc_html_e('The default WordPress email system can be unreliable depending on server configuration, causing your emails to fall into Spam/Junk folders.', 'mhm-rentiva'); ?>
+            </p>
+            <p>
+                <?php esc_html_e('For uninterrupted communication and delivery of booking notifications, please install and configure an SMTP Plugin.', 'mhm-rentiva'); ?>
+            </p>
+            <p style="margin-top: 10px; font-style: italic;">
+                <strong><?php esc_html_e('Recommended Plugins:', 'mhm-rentiva'); ?></strong>
+                <a href="https://wordpress.org/plugins/wp-mail-smtp/" target="_blank">WP Mail SMTP</a> <?php esc_html_e('or', 'mhm-rentiva'); ?>
+                <a href="https://wordpress.org/plugins/fluent-smtp/" target="_blank">Fluent SMTP</a>
+            </p>
+        </div>
+
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <?php wp_nonce_field('mhm_rentiva_setup_email'); ?>
             <input type="hidden" name="action" value="mhm_rentiva_setup_save_email">
@@ -394,10 +415,12 @@ final class SetupWizard
                     </td>
                 </tr>
             </table>
-            <?php submit_button(__('Save and Continue', 'mhm-rentiva')); ?>
-            <a class="button button-secondary" href="<?php echo esc_url(self::step_url('pages')); ?>">&larr; <?php esc_html_e('Back to Required Pages', 'mhm-rentiva'); ?></a>
+            <div class="mhm-step-actions">
+                <a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('pages')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
+                <button type="submit" class="button button-primary button-large"><?php esc_html_e('Save & Continue', 'mhm-rentiva'); ?></button>
+            </div>
         </form>
-        <?php
+    <?php
     }
 
     private static function render_step_frontend(): void
@@ -410,13 +433,13 @@ final class SetupWizard
             $currency = SettingsCore::get('mhm_rentiva_currency', 'USD');
             $is_woocommerce_currency = false;
         }
-        
+
         $currency_position = SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
         $currencies = CurrencyHelper::get_currency_list_for_dropdown();
-        
+
         // Get currency symbol for position examples
         $currency_symbol = CurrencyHelper::get_currency_symbol($currency);
-        
+
         $positions = [
             'left'        => sprintf(__('Left (%s100)', 'mhm-rentiva'), $currency_symbol),
             'left_space'  => sprintf(__('Left Space (%s 100)', 'mhm-rentiva'), $currency_symbol),
@@ -428,7 +451,7 @@ final class SetupWizard
         $max_days = (int) SettingsCore::get('mhm_rentiva_vehicle_max_rental_days', 30);
         $show_features = SettingsCore::get('mhm_rentiva_vehicle_show_features', '1');
         $show_availability = SettingsCore::get('mhm_rentiva_vehicle_show_availability', '1');
-        ?>
+    ?>
         <h2><?php esc_html_e('Step 5: Frontend & Display', 'mhm-rentiva'); ?></h2>
         <p><?php esc_html_e('Fine tune the visible defaults that appear on booking forms and vehicle cards.', 'mhm-rentiva'); ?></p>
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
@@ -440,7 +463,7 @@ final class SetupWizard
                     <td>
                         <?php if ($is_woocommerce_currency): ?>
                             <p class="description">
-                                <strong><?php esc_html_e('Managed by WooCommerce:', 'mhm-rentiva'); ?></strong> 
+                                <strong><?php esc_html_e('Managed by WooCommerce:', 'mhm-rentiva'); ?></strong>
                                 <?php echo esc_html($currencies[$currency] ?? $currency); ?>
                             </p>
                             <p class="description">
@@ -466,13 +489,33 @@ final class SetupWizard
                 <tr>
                     <th><?php esc_html_e('Currency Position', 'mhm-rentiva'); ?></th>
                     <td>
-                        <select name="currency_position">
-                            <?php foreach ($positions as $pos => $label): ?>
-                                <option value="<?php echo esc_attr($pos); ?>" <?php selected($currency_position, $pos); ?>>
-                                    <?php echo esc_html($label); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <?php if ($is_woocommerce_currency): ?>
+                            <?php
+                            $wc_pos = get_option('woocommerce_currency_pos');
+                            $pos_label = $positions[$wc_pos] ?? $wc_pos;
+                            ?>
+                            <p class="description">
+                                <strong><?php esc_html_e('Managed by WooCommerce:', 'mhm-rentiva'); ?></strong>
+                                <?php echo esc_html($pos_label); ?>
+                            </p>
+                            <p class="description">
+                                <?php
+                                printf(
+                                    /* translators: %s: link to WooCommerce settings */
+                                    esc_html__('To change the position, please visit %s.', 'mhm-rentiva'),
+                                    '<a href="' . esc_url(admin_url('admin.php?page=wc-settings')) . '" target="_blank">' . esc_html__('WooCommerce Settings', 'mhm-rentiva') . '</a>'
+                                );
+                                ?>
+                            </p>
+                        <?php else: ?>
+                            <select name="currency_position">
+                                <?php foreach ($positions as $pos => $label): ?>
+                                    <option value="<?php echo esc_attr($pos); ?>" <?php selected($currency_position, $pos); ?>>
+                                        <?php echo esc_html($label); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <tr>
@@ -495,17 +538,19 @@ final class SetupWizard
                     </td>
                 </tr>
             </table>
-            <?php submit_button(__('Save and Continue', 'mhm-rentiva')); ?>
-            <a class="button button-secondary" href="<?php echo esc_url(self::step_url('email')); ?>">&larr; <?php esc_html_e('Back to Email', 'mhm-rentiva'); ?></a>
+            <div class="mhm-step-actions">
+                <a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('email')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
+                <button type="submit" class="button button-primary button-large"><?php esc_html_e('Save & Continue', 'mhm-rentiva'); ?></button>
+            </div>
         </form>
-        <?php
+    <?php
     }
 
     private static function render_step_summary(): void
     {
         $steps = self::get_steps();
         $completed = get_option(self::OPTION_COMPLETED, '0') === '1';
-        ?>
+    ?>
         <h2><?php esc_html_e('Final Step: Summary & Tests', 'mhm-rentiva'); ?></h2>
         <p><?php esc_html_e('Review the checklist below and run a quick booking to confirm everything is ready.', 'mhm-rentiva'); ?></p>
         <table class="widefat striped">
@@ -519,7 +564,8 @@ final class SetupWizard
                 <?php foreach ($steps as $slug => $label): ?>
                     <tr>
                         <td><?php echo esc_html($label); ?></td>
-                        <td><?php echo self::format_status_badge(self::is_step_completed($slug) ? 'ok' : 'warning'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td>
+                        <td><?php echo self::format_status_badge(self::is_step_completed($slug) ? 'ok' : 'warning'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+                            ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -535,23 +581,23 @@ final class SetupWizard
         // Check if permalink structure is set to plain (not SEO-friendly)
         $permalink_structure = get_option('permalink_structure');
         $is_plain_permalink = empty($permalink_structure);
-        
+
         if ($is_plain_permalink || $permalink_structure === ''):
         ?>
-        <div class="notice notice-warning inline" style="margin: 20px 0;">
-            <p>
-                <strong><?php esc_html_e('⚠️ Important: Permalink Settings', 'mhm-rentiva'); ?></strong><br>
-                <?php esc_html_e('Your WordPress permalink structure is set to "Plain". For the frontend pages to work correctly, please update your permalink settings to a SEO-friendly structure (e.g., "Post name").', 'mhm-rentiva'); ?>
-            </p>
-            <p>
-                <a class="button button-primary" href="<?php echo esc_url(admin_url('options-permalink.php')); ?>" target="_blank">
-                    <?php esc_html_e('Open Permalink Settings', 'mhm-rentiva'); ?>
-                </a>
-                <span class="description" style="margin-left: 10px;">
-                    <?php esc_html_e('After updating, click "Save Changes" to refresh permalinks.', 'mhm-rentiva'); ?>
-                </span>
-            </p>
-        </div>
+            <div class="notice notice-warning inline" style="margin: 20px 0;">
+                <p>
+                    <strong><?php esc_html_e('⚠️ Important: Permalink Settings', 'mhm-rentiva'); ?></strong><br>
+                    <?php esc_html_e('Your WordPress permalink structure is set to "Plain". For the frontend pages to work correctly, please update your permalink settings to a SEO-friendly structure (e.g., "Post name").', 'mhm-rentiva'); ?>
+                </p>
+                <p>
+                    <a class="button button-primary" href="<?php echo esc_url(admin_url('options-permalink.php')); ?>" target="_blank">
+                        <?php esc_html_e('Open Permalink Settings', 'mhm-rentiva'); ?>
+                    </a>
+                    <span class="description" style="margin-left: 10px;">
+                        <?php esc_html_e('After updating, click "Save Changes" to refresh permalinks.', 'mhm-rentiva'); ?>
+                    </span>
+                </p>
+            </div>
         <?php endif; ?>
 
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
@@ -561,14 +607,14 @@ final class SetupWizard
             if ($completed) {
                 echo '<p>' . esc_html__('Setup wizard was completed previously. You can still finish again to return to the dashboard.', 'mhm-rentiva') . '</p>';
             }
-            submit_button(__('Complete Setup', 'mhm-rentiva'));
             ?>
+            <div class="mhm-step-actions">
+                <a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('frontend')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
+                <a class="button button-secondary button-large" href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-dashboard')); ?>"><?php esc_html_e('Go to Dashboard', 'mhm-rentiva'); ?></a>
+                <button type="submit" class="button button-primary button-large"><?php esc_html_e('Complete Setup', 'mhm-rentiva'); ?></button>
+            </div>
         </form>
-        <p class="mhm-step-actions">
-            <a class="button button-secondary" href="<?php echo esc_url(self::step_url('frontend')); ?>">&larr; <?php esc_html_e('Back to Frontend Settings', 'mhm-rentiva'); ?></a>
-            <a class="button button-link" href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-dashboard')); ?>"><?php esc_html_e('Go to Dashboard', 'mhm-rentiva'); ?></a>
-        </p>
-        <?php
+    <?php
     }
 
     public static function handle_save_license(): void
@@ -578,23 +624,23 @@ final class SetupWizard
         }
         check_admin_referer('mhm_rentiva_setup_license');
         $key = isset($_POST['license_key']) ? sanitize_text_field(wp_unslash($_POST['license_key'])) : '';
-        
+
         if (empty($key)) {
             wp_safe_redirect(self::step_url('license', ['error' => 'empty_key']));
             exit;
         }
-        
+
         // ⭐ Use LicenseManager to activate license (same as License Admin page)
         $license_manager = class_exists(LicenseManager::class) ? LicenseManager::instance() : null;
         if ($license_manager) {
             $result = $license_manager->activate($key);
-            
+
             if (is_wp_error($result)) {
                 $error_code = $result->get_error_code();
                 wp_safe_redirect(self::step_url('license', ['error' => $error_code, 'message' => urlencode($result->get_error_message())]));
                 exit;
             }
-            
+
             // Success - redirect to next step
             wp_safe_redirect(self::step_url('pages', ['updated' => '1', 'license' => 'activated']));
             exit;
@@ -660,9 +706,13 @@ final class SetupWizard
         $settings = get_option('mhm_rentiva_settings', []);
         $settings['mhm_rentiva_currency'] = sanitize_text_field(wp_unslash($_POST['currency'] ?? 'USD'));
 
-        $currency_position = sanitize_text_field(wp_unslash($_POST['currency_position'] ?? 'right_space'));
-        $allowed_positions = ['left', 'left_space', 'right', 'right_space'];
-        $settings['mhm_rentiva_currency_position'] = in_array($currency_position, $allowed_positions, true) ? $currency_position : 'right_space';
+        if (class_exists('WooCommerce')) {
+            $settings['mhm_rentiva_currency_position'] = get_option('woocommerce_currency_pos', 'right_space');
+        } else {
+            $currency_position = sanitize_text_field(wp_unslash($_POST['currency_position'] ?? 'right_space'));
+            $allowed_positions = ['left', 'left_space', 'right', 'right_space'];
+            $settings['mhm_rentiva_currency_position'] = in_array($currency_position, $allowed_positions, true) ? $currency_position : 'right_space';
+        }
 
         $settings['mhm_rentiva_default_rental_days'] = (string) max(1, min(30, (int) ($_POST['default_days'] ?? 1)));
         $settings['mhm_rentiva_vehicle_min_rental_days'] = (string) max(1, min(365, (int) ($_POST['min_days'] ?? 1)));
@@ -768,7 +818,7 @@ final class SetupWizard
         }
 
         $permalink_url = admin_url('options-permalink.php');
-        ?>
+    ?>
         <div class="notice notice-warning is-dismissible">
             <p>
                 <strong><?php esc_html_e('⚠️ Important: Permalink Settings Required', 'mhm-rentiva'); ?></strong>
@@ -785,7 +835,7 @@ final class SetupWizard
                 </a>
             </p>
         </div>
-        <?php
+    <?php
     }
 
     private static function is_wizard_page(): bool
@@ -847,9 +897,29 @@ final class SetupWizard
                 'recommended_url' => '/rentiva/booking-form/',
             ],
             [
-                'label' => __('Booking Confirmation', 'mhm-rentiva'),
-                'shortcode' => 'rentiva_booking_confirmation',
-                'recommended_url' => '/rentiva/booking-confirmation/',
+                'label' => __('Search Form', 'mhm-rentiva'),
+                'shortcode' => 'rentiva_search',
+                'recommended_url' => '/rentiva/search/',
+            ],
+            [
+                'label' => __('Search Results', 'mhm-rentiva'),
+                'shortcode' => 'rentiva_search_results',
+                'recommended_url' => '/rentiva/search-results/',
+            ],
+            [
+                'label' => __('Vehicles List', 'mhm-rentiva'),
+                'shortcode' => 'rentiva_vehicles_list',
+                'recommended_url' => '/rentiva/vehicles/',
+            ],
+            [
+                'label' => __('Vehicles Grid', 'mhm-rentiva'),
+                'shortcode' => 'rentiva_vehicles_grid',
+                'recommended_url' => '/rentiva/vehicles-grid/',
+            ],
+            [
+                'label' => __('Vehicle Comparison', 'mhm-rentiva'),
+                'shortcode' => 'rentiva_vehicle_comparison',
+                'recommended_url' => '/rentiva/compare/',
             ],
             [
                 'label' => __('Contact Form', 'mhm-rentiva'),
@@ -857,36 +927,6 @@ final class SetupWizard
                 'recommended_url' => '/rentiva/contact/',
             ],
         ];
-
-        // Only require separate account pages if WooCommerce is NOT active
-        // When WooCommerce is active, we integrate into its My Account page
-        if (!class_exists('WooCommerce')) {
-            $pages[] = [
-                'label' => __('My Bookings', 'mhm-rentiva'),
-                'shortcode' => 'rentiva_my_bookings',
-                'recommended_url' => '/rentiva/account/bookings/',
-            ];
-            $pages[] = [
-                'label' => __('Favorites', 'mhm-rentiva'),
-                'shortcode' => 'rentiva_my_favorites',
-                'recommended_url' => '/rentiva/account/favorites/',
-            ];
-            $pages[] = [
-                'label' => __('Payment History', 'mhm-rentiva'),
-                'shortcode' => 'rentiva_payment_history',
-                'recommended_url' => '/rentiva/account/payments/',
-            ];
-            $pages[] = [
-                'label' => __('Login Form', 'mhm-rentiva'),
-                'shortcode' => 'rentiva_login_form',
-                'recommended_url' => '/rentiva/account/login/',
-            ];
-            $pages[] = [
-                'label' => __('Registration Form', 'mhm-rentiva'),
-                'shortcode' => 'rentiva_register_form',
-                'recommended_url' => '/rentiva/account/register/',
-            ];
-        }
 
         return $pages;
     }
@@ -930,7 +970,7 @@ final class SetupWizard
             return;
         }
         $printed = true;
-        ?>
+    ?>
         <style>
             .mhm-setup-steps {
                 display: flex;
@@ -940,6 +980,7 @@ final class SetupWizard
                 padding-left: 0;
                 margin-bottom: 20px;
             }
+
             .mhm-setup-steps li {
                 padding: 6px 14px;
                 border-radius: 20px;
@@ -948,25 +989,30 @@ final class SetupWizard
                 color: #1d2327;
                 transition: all 0.2s;
             }
+
             .mhm-setup-steps li.current {
                 background: #2271b1;
                 color: #fff;
                 border-color: #2271b1;
                 box-shadow: none;
             }
+
             .mhm-setup-steps li.completed {
                 border-color: #dcdcdc;
                 box-shadow: none;
             }
+
             .mhm-setup-steps li a {
                 color: inherit;
                 text-decoration: none;
             }
+
             .mhm-system-table .mhm-system-note {
                 font-size: 12px;
                 margin-top: 4px;
                 color: #646970;
             }
+
             .mhm-status {
                 display: inline-flex;
                 align-items: center;
@@ -975,30 +1021,44 @@ final class SetupWizard
                 border-radius: 999px;
                 font-size: 12px;
             }
+
             .mhm-status-ok {
                 background: #d5f2e3;
                 color: #1d7a46;
             }
+
             .mhm-status-warning {
                 background: #fff4ce;
                 color: #7a5b00;
             }
+
             .mhm-status-fail {
                 background: #fdeaea;
                 color: #a12622;
             }
+
             .mhm-step-actions {
-                margin-top: 16px;
+                margin-top: 32px;
+                padding-top: 24px;
+                border-top: 1px solid #f0f0f1;
                 display: flex;
-                gap: 10px;
+                justify-content: flex-end;
+                gap: 12px;
                 flex-wrap: wrap;
+                align-items: center;
             }
+
+            .mhm-step-actions .align-left {
+                margin-right: auto;
+            }
+
             .mhm-summary-actions {
                 display: flex;
                 gap: 10px;
                 margin: 16px 0;
                 flex-wrap: wrap;
             }
+
             .mhm-license-card {
                 border: 1px solid #c3c4c7;
                 border-radius: 8px;
@@ -1006,26 +1066,31 @@ final class SetupWizard
                 padding: 16px 20px;
                 margin-bottom: 16px;
             }
+
             .mhm-license-card--active {
                 border-color: #3ab27b;
                 box-shadow: 0 0 0 1px rgba(58, 178, 123, 0.2);
             }
+
             .mhm-license-card__status {
                 font-weight: 600;
                 margin-bottom: 12px;
             }
+
             .mhm-license-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
                 gap: 12px 24px;
                 margin-bottom: 8px;
             }
+
             .mhm-license-label {
                 font-size: 12px;
                 text-transform: uppercase;
                 letter-spacing: 0.04em;
                 color: #646970;
             }
+
             .mhm-license-code {
                 display: inline-block;
                 font-size: 14px;
@@ -1035,7 +1100,7 @@ final class SetupWizard
                 margin-top: 4px;
             }
         </style>
-        <?php
+<?php
     }
 
     private static function get_system_checks(): array
@@ -1096,7 +1161,7 @@ final class SetupWizard
             'message' => $max_execution >= 60 || $max_execution === 0 ? '' : __('Increase max_execution_time to 60 seconds for large imports.', 'mhm-rentiva'),
         ];
 
-        $https = is_ssl() || (defined('FORCE_SSL_ADMIN') && FORCE_SSL_ADMIN);
+        $https = is_ssl() || (defined('FORCE_SSL_ADMIN') && constant('FORCE_SSL_ADMIN'));
         $checks[] = [
             'label' => __('HTTPS / SSL', 'mhm-rentiva'),
             'current' => $https ? __('Enabled', 'mhm-rentiva') : __('Not detected', 'mhm-rentiva'),
@@ -1105,7 +1170,7 @@ final class SetupWizard
             'message' => $https ? '' : __('Install an SSL certificate to secure customer data.', 'mhm-rentiva'),
         ];
 
-        $cron_enabled = !defined('DISABLE_WP_CRON') || !DISABLE_WP_CRON;
+        $cron_enabled = !defined('DISABLE_WP_CRON') || !constant('DISABLE_WP_CRON');
         $checks[] = [
             'label' => __('WP-Cron', 'mhm-rentiva'),
             'current' => $cron_enabled ? __('Active', 'mhm-rentiva') : __('Disabled', 'mhm-rentiva'),
@@ -1163,7 +1228,7 @@ final class SetupWizard
 
     private static function memory_limit_mb(): int
     {
-        $limit = defined('WP_MEMORY_LIMIT') ? WP_MEMORY_LIMIT : ini_get('memory_limit');
+        $limit = defined('WP_MEMORY_LIMIT') ? constant('WP_MEMORY_LIMIT') : ini_get('memory_limit');
         if (function_exists('wp_convert_hr_to_bytes')) {
             $bytes = wp_convert_hr_to_bytes($limit);
         } else {
@@ -1289,4 +1354,3 @@ final class SetupWizard
         return false;
     }
 }
-

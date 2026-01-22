@@ -55,6 +55,12 @@ final class Reports
             __('Revenue Chart', 'mhm-rentiva'),
             [self::class, 'render_revenue_widget']
         );
+
+        wp_add_dashboard_widget(
+            'mhm_rentiva_upcoming_ops',
+            __('Upcoming Operations', 'mhm-rentiva'),
+            [self::class, 'render_upcoming_ops_widget']
+        );
     }
 
     public static function render_stats_widget(): void
@@ -67,7 +73,15 @@ final class Reports
                 <span class="stat-label"><?php _e('Total Bookings', 'mhm-rentiva'); ?></span>
             </div>
             <div class="stat-item">
-                <span class="stat-number"><?php echo esc_html($stats['monthly_revenue']); ?> <?php echo esc_html(get_option('mhm_rentiva_currency', 'USD')); ?></span>
+                <span class="stat-number">
+                    <?php
+                    if (function_exists('wc_price')) {
+                        echo wp_kses_post(wc_price($stats['monthly_revenue_raw'] ?? 0));
+                    } else {
+                        echo esc_html($stats['monthly_revenue'] . ' ' . \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol());
+                    }
+                    ?>
+                </span>
                 <span class="stat-label"><?php _e('This Month Revenue', 'mhm-rentiva'); ?></span>
             </div>
             <div class="stat-item">
@@ -126,6 +140,7 @@ final class Reports
             $stats = [
                 'total_bookings' => number_format($total_bookings),
                 'monthly_revenue' => number_format($monthly_revenue, 0, ',', '.'),
+                'monthly_revenue_raw' => $monthly_revenue,
                 'active_bookings' => number_format($active_bookings),
                 'occupancy_rate' => $occupancy_rate,
             ];
@@ -586,5 +601,50 @@ final class Reports
             'stats' => $stats,
             'currency_symbol' => self::get_currency_symbol()
         ]);
+    }
+
+    /**
+     * Render Upcoming Operations Widget for WP Dashboard
+     */
+    public static function render_upcoming_ops_widget(): void
+    {
+        $operations = \MHMRentiva\Admin\Reports\Repository\ReportRepository::get_upcoming_operations(5);
+
+        if (!empty($operations)) {
+            echo '<div class="mhm-upcoming-ops-widget">';
+            echo '<table class="widefat striped">';
+            echo '<thead><tr>';
+            echo '<th>' . esc_html__('Type', 'mhm-rentiva') . '</th>';
+            echo '<th>' . esc_html__('Time', 'mhm-rentiva') . '</th>';
+            echo '<th>' . esc_html__('Detail', 'mhm-rentiva') . '</th>';
+            echo '</tr></thead>';
+            echo '<tbody>';
+
+            foreach ($operations as $op) {
+                $icon = ($op['type'] === 'transfer') ? 'dashicons-airplane' : 'dashicons-car';
+                $date_time = strtotime($op['start_date']);
+                $formatted_time = date_i18n('d M H:i', $date_time);
+
+                $customer = esc_html($op['customer_name']);
+                $vehicle_or_route = ($op['type'] === 'transfer')
+                    ? esc_html($op['origin'] ?? '') . ' &rarr; ' . esc_html($op['destination'] ?? '')
+                    : esc_html($op['vehicle_title'] ?? '');
+
+                echo '<tr>';
+                echo '<td style="text-align:center;"><span class="dashicons ' . esc_attr($icon) . '"></span></td>';
+                echo '<td>' . $formatted_time . '</td>';
+                echo '<td><strong>' . $vehicle_or_route . '</strong><br><small>' . $customer . '</small></td>';
+                echo '</tr>';
+            }
+            echo '</tbody></table>';
+
+            // Footer link
+            echo '<div style="margin-top:10px; text-align:right;">';
+            echo '<a href="' . admin_url('admin.php?page=mhm-rentiva-dashboard') . '">' . esc_html__('View Full Dashboard', 'mhm-rentiva') . '</a>';
+            echo '</div>';
+            echo '</div>';
+        } else {
+            echo '<p>' . esc_html__('No upcoming operations.', 'mhm-rentiva') . '</p>';
+        }
     }
 }

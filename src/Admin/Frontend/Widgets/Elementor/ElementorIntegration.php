@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Widgets\Elementor;
 
@@ -28,7 +30,8 @@ class ElementorIntegration
         }
 
         // Get Widgets Manager (from parameter or instance)
-        $manager = $widgets_manager ?? \Elementor\Plugin::instance()->widgets_manager;
+        $elementor = '\Elementor\Plugin';
+        $manager = $widgets_manager ?? $elementor::instance()->widgets_manager;
 
         // Register widgets (Elementor 3.5+ API)
         // Vehicle widgets
@@ -40,22 +43,22 @@ class ElementorIntegration
         $manager->register(new VehicleRatingWidget());
         $manager->register(new SearchResultsWidget());
         $manager->register(new AvailabilityCalendarWidget());
-        
+
         // Booking widgets
         $manager->register(new BookingFormWidget());
         $manager->register(new BookingConfirmationWidget());
 
-        
+
         // Account widgets
-        $manager->register(new MyAccountWidget());
+
         $manager->register(new MyBookingsWidget());
         $manager->register(new MyFavoritesWidget());
         $manager->register(new PaymentHistoryWidget());
-        
+
         // Auth widgets
         $manager->register(new LoginFormWidget());
         $manager->register(new RegisterFormWidget());
-        
+
         // Other widgets
         $manager->register(new ContactFormWidget());
         $manager->register(new TestimonialsWidget());
@@ -83,7 +86,8 @@ class ElementorIntegration
         }
 
         // Get Elements Manager (from parameter or instance)
-        $manager = $elements_manager ?? \Elementor\Plugin::instance()->elements_manager;
+        $elementor = '\Elementor\Plugin';
+        $manager = $elements_manager ?? $elementor::instance()->elements_manager;
 
         // Kategoriyi kaydet
         $manager->add_category(
@@ -215,13 +219,13 @@ class ElementorIntegration
         if (!self::is_elementor_active()) {
             return;
         }
-        
+
         // Register widgets
         add_action('elementor/widgets/register', [self::class, 'register_widgets'], 10);
-        
+
         // Register category
         add_action('elementor/elements/categories_registered', [self::class, 'register_category'], 10);
-        
+
         // Load CSS/JS
         add_action('elementor/frontend/after_enqueue_styles', [self::class, 'enqueue_styles'], 10);
         add_action('elementor/frontend/after_enqueue_scripts', [self::class, 'enqueue_scripts'], 10);
@@ -236,7 +240,7 @@ class ElementorIntegration
     {
         // Register hooks after Elementor is loaded
         add_action('elementor/loaded', [self::class, 'register_hooks']);
-        
+
         // Also register manually (for security)
         add_action('init', [self::class, 'register_hooks'], 20);
     }

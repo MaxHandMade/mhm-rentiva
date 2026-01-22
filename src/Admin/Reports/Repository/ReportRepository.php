@@ -11,7 +11,8 @@ if (!defined('ABSPATH')) {
 /**
  * Repository for Report Data
  * 
- * Centralizes all raw SQL queries used in reports to ensure security and maintainability.
+ * Centralizes all raw SQL queries used in reports.
+ * Modernized to use custom `mhm_bookings` table for high performance.
  */
 class ReportRepository
 {
@@ -21,11 +22,7 @@ class ReportRepository
     public static function get_total_bookings_count(): int
     {
         global $wpdb;
-        return (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-            'vehicle_booking',
-            'publish'
-        ));
+        return (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}mhm_bookings WHERE status != 'trash'");
     }
 
     /**
@@ -35,17 +32,11 @@ class ReportRepository
     {
         global $wpdb;
         return (float) $wpdb->get_var($wpdb->prepare(
-            "SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
-             FROM {$wpdb->postmeta} pm
-             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-             WHERE p.post_type = 'vehicle_booking'
-             AND p.post_status = 'publish'
-             AND pm.meta_key = '_mhm_total_price'
-             AND pm_status.meta_key = '_mhm_status'
-             AND pm_status.meta_value IN ('completed', 'confirmed')
-             AND p.post_date >= %s
-             AND p.post_date < %s",
+            "SELECT SUM(total_price)
+             FROM {$wpdb->prefix}mhm_bookings
+             WHERE status IN ('completed', 'confirmed')
+             AND created_at >= %s
+             AND created_at < %s",
             $start_date,
             $end_date
         ));
@@ -58,17 +49,13 @@ class ReportRepository
     {
         global $wpdb;
         return (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$wpdb->postmeta} pm
-             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-             WHERE p.post_type = 'vehicle_booking'
-             AND p.post_status = 'publish'
-             AND pm.meta_key = '_mhm_status'
-             AND pm.meta_value IN ('confirmed', 'in_progress')"
+            "SELECT COUNT(*) FROM {$wpdb->prefix}mhm_bookings
+             WHERE status IN ('confirmed', 'in_progress')"
         );
     }
 
     /**
-     * Get total vehicles count
+     * Get total vehicles count (Still using wp_posts for Vehicles)
      */
     public static function get_total_vehicles_count(): int
     {
@@ -87,15 +74,11 @@ class ReportRepository
     {
         global $wpdb;
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT DATE(p.post_date) as date, SUM(CAST(pm.meta_value AS DECIMAL(10,2))) as revenue
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_mhm_total_price'
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
-             WHERE p.post_type = 'vehicle_booking'
-             AND p.post_status = 'publish'
-             AND pm_status.meta_value IN ('completed', 'confirmed')
-             AND p.post_date >= %s AND p.post_date <= %s
-             GROUP BY DATE(p.post_date)
+            "SELECT DATE(created_at) as date, SUM(total_price) as revenue
+             FROM {$wpdb->prefix}mhm_bookings
+             WHERE status IN ('completed', 'confirmed')
+             AND created_at >= %s AND created_at <= %s
+             GROUP BY DATE(created_at)
              ORDER BY date",
             $start_date . ' 00:00:00',
             $end_date . ' 23:59:59'
@@ -110,16 +93,13 @@ class ReportRepository
         global $wpdb;
         return $wpdb->get_results($wpdb->prepare(
             "SELECT 
-                COALESCE(pm_method.meta_value, 'unknown') as method, 
-                SUM(COALESCE(pm_price.meta_value, 0)) as revenue, 
+                COALESCE(payment_method, 'unknown') as method, 
+                SUM(total_price) as revenue, 
                 COUNT(*) as count
-             FROM {$wpdb->posts} p
-             LEFT JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = '_mhm_total_price'
-             LEFT JOIN {$wpdb->postmeta} pm_method ON p.ID = pm_method.post_id AND pm_method.meta_key = '_mhm_payment_gateway'
-             WHERE p.post_type = 'vehicle_booking'
-             AND p.post_status = 'publish'
-             AND p.post_date >= %s AND p.post_date <= %s
-             GROUP BY pm_method.meta_value
+             FROM {$wpdb->prefix}mhm_bookings
+             WHERE status != 'trash'
+             AND created_at >= %s AND created_at <= %s
+             GROUP BY payment_method
              HAVING method != 'unknown'
              ORDER BY revenue DESC",
             $start_date . ' 00:00:00',
@@ -134,16 +114,13 @@ class ReportRepository
     {
         global $wpdb;
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT DATE_FORMAT(p.post_date, '%Y-%m') as month,
-                    SUM(pm.meta_value) as revenue,
+            "SELECT DATE_FORMAT(created_at, '%Y-%m') as month,
+                    SUM(total_price) as revenue,
                     COUNT(*) as bookings
-             FROM {$wpdb->postmeta} pm
-             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-             WHERE p.post_type = 'vehicle_booking'
-             AND p.post_status = 'publish'
-             AND pm.meta_key = '_mhm_total_price'
-             AND p.post_date >= %s AND p.post_date <= %s
-             GROUP BY DATE_FORMAT(p.post_date, '%Y-%m')
+             FROM {$wpdb->prefix}mhm_bookings
+             WHERE status IN ('completed', 'confirmed')
+             AND created_at >= %s AND created_at <= %s
+             GROUP BY DATE_FORMAT(created_at, '%Y-%m')
              ORDER BY month",
             $start_date . ' 00:00:00',
             $end_date . ' 23:59:59'
@@ -165,16 +142,13 @@ class ReportRepository
         };
 
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT DATE_FORMAT(p.post_date, %s) as period,
-                    SUM(pm.meta_value) as revenue,
+            "SELECT DATE_FORMAT(created_at, %s) as period,
+                    SUM(total_price) as revenue,
                     COUNT(*) as bookings
-             FROM {$wpdb->postmeta} pm
-             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-             WHERE p.post_type = 'vehicle_booking'
-             AND p.post_status = 'publish'
-             AND pm.meta_key = '_mhm_total_price'
-             AND p.post_date >= %s AND p.post_date <= %s
-             GROUP BY DATE_FORMAT(p.post_date, %s)
+             FROM {$wpdb->prefix}mhm_bookings
+             WHERE status IN ('completed', 'confirmed')
+             AND created_at >= %s AND created_at <= %s
+             GROUP BY DATE_FORMAT(created_at, %s)
              ORDER BY period",
             $date_format,
             $start_date . ' 00:00:00',
@@ -190,18 +164,13 @@ class ReportRepository
     {
         global $wpdb;
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT pm_vehicle.meta_value as vehicle_id,
-                    SUM(pm_price.meta_value) as revenue,
+            "SELECT vehicle_id,
+                    SUM(total_price) as revenue,
                     COUNT(*) as bookings
-             FROM {$wpdb->postmeta} pm_price
-             INNER JOIN {$wpdb->postmeta} pm_vehicle ON pm_price.post_id = pm_vehicle.post_id
-             INNER JOIN {$wpdb->posts} p ON pm_price.post_id = p.ID
-             WHERE p.post_type = 'vehicle_booking'
-             AND p.post_status = 'publish'
-             AND pm_price.meta_key = '_mhm_total_price'
-             AND pm_vehicle.meta_key = '_mhm_vehicle_id'
-             AND p.post_date >= %s AND p.post_date <= %s
-             GROUP BY pm_vehicle.meta_value
+             FROM {$wpdb->prefix}mhm_bookings
+             WHERE status IN ('completed', 'confirmed')
+             AND created_at >= %s AND created_at <= %s
+             GROUP BY vehicle_id
              ORDER BY revenue DESC
              LIMIT %d",
             $start_date . ' 00:00:00',
@@ -219,23 +188,17 @@ class ReportRepository
         return $wpdb->get_results($wpdb->prepare(
             "SELECT 
                 t.name as category_name,
-                COUNT(DISTINCT b.ID) as booking_count
+                COUNT(b.id) as booking_count
             FROM {$wpdb->terms} t
             LEFT JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
             LEFT JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
-            LEFT JOIN {$wpdb->posts} p ON tr.object_id = p.ID 
-                AND p.post_type = 'vehicle' 
-                AND p.post_status = 'publish'
-            LEFT JOIN {$wpdb->posts} b ON p.ID = (
-                SELECT pm_vehicle.meta_value 
-                FROM {$wpdb->postmeta} pm_vehicle 
-                WHERE pm_vehicle.post_id = b.ID 
-                AND pm_vehicle.meta_key = '_mhm_vehicle_id'
-            )
-            AND b.post_type = 'vehicle_booking'
-            AND b.post_status = 'publish'
-            AND b.post_date >= %s AND b.post_date <= %s
+            LEFT JOIN {$wpdb->posts} v ON tr.object_id = v.ID 
+                AND v.post_type = 'vehicle' 
+                AND v.post_status = 'publish'
+            LEFT JOIN {$wpdb->prefix}mhm_bookings b ON v.ID = b.vehicle_id
             WHERE tt.taxonomy = 'vehicle_category'
+            AND b.status != 'trash'
+            AND b.created_at >= %s AND b.created_at <= %s
             GROUP BY t.term_id, t.name
             ORDER BY booking_count DESC",
             $start_date . ' 00:00:00',
@@ -251,27 +214,99 @@ class ReportRepository
         global $wpdb;
         return $wpdb->get_results($wpdb->prepare(
             "SELECT 
-                pm_email.meta_value as customer_email,
-                pm_name.meta_value as customer_name,
+                customer_email,
+                customer_name,
                 COUNT(*) as booking_count,
-                SUM(CAST(pm_price.meta_value AS DECIMAL(10,2))) as total_spent,
-                MAX(p.post_date) as last_booking
-            FROM {$wpdb->posts} p
-            LEFT JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id 
-                AND pm_email.meta_key = '_mhm_customer_email'
-            LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id 
-                AND pm_name.meta_key = '_mhm_customer_name'
-            LEFT JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id 
-                AND pm_price.meta_key = '_mhm_total_price'
-            WHERE p.post_type = 'vehicle_booking'
-            AND p.post_status = 'publish'
-            AND pm_email.meta_value IS NOT NULL
-            AND pm_email.meta_value != ''
-            AND p.post_date >= %s AND p.post_date <= %s
-            GROUP BY pm_email.meta_value
+                SUM(total_price) as total_spent,
+                MAX(created_at) as last_booking
+            FROM {$wpdb->prefix}mhm_bookings
+            WHERE status IN ('completed', 'confirmed')
+            AND customer_email IS NOT NULL AND customer_email != ''
+            AND created_at >= %s AND created_at <= %s
+            GROUP BY customer_email, customer_name
             ORDER BY total_spent DESC",
             $start_date . ' 00:00:00',
             $end_date . ' 23:59:59'
         ));
+    }
+    /**
+     * Get upcoming operations (Rentals + Transfers)
+     * 
+     * @param int $limit Number of records to fetch per type
+     * @return array Mixed array of operations sorted by date
+     */
+    public static function get_upcoming_operations(int $limit = 5): array
+    {
+        global $wpdb;
+        $operations = [];
+        $now = current_time('mysql');
+
+        // 1. Rentals - mhm_bookings
+        // Optimize: Suppress errors in case return_date column is missing in older DB versions
+        $wpdb->suppress_errors();
+
+        try {
+            // Try to fetch with return_date
+            $rentals = $wpdb->get_results($wpdb->prepare(
+                "SELECT 
+                    b.id, 
+                    b.vehicle_id, 
+                    p.post_title as vehicle_title,
+                    b.customer_name, 
+                    b.pickup_date as start_date, 
+                    b.return_date as end_date,
+                    b.status,
+                    'rental' as type 
+                FROM {$wpdb->prefix}mhm_bookings b
+                LEFT JOIN {$wpdb->posts} p ON b.vehicle_id = p.ID
+                WHERE b.status IN ('confirmed', 'pending', 'active') 
+                AND b.pickup_date >= %s 
+                ORDER BY b.pickup_date ASC
+                LIMIT %d",
+                $now,
+                $limit
+            ), ARRAY_A);
+
+            if ($rentals) {
+                $operations = array_merge($operations, $rentals);
+            }
+        } catch (\Exception $e) {
+            // Fail silently
+        }
+
+        // 2. Transfers (if table exists)
+        $transfer_table = $wpdb->prefix . 'mhm_transfers';
+        if ($wpdb->get_var("SHOW TABLES LIKE '$transfer_table'") === $transfer_table) {
+            $transfers = $wpdb->get_results($wpdb->prepare(
+                "SELECT 
+                    id, 
+                    customer_name,
+                    pickup_date as start_date,
+                    origin,
+                    destination,
+                    status,
+                    'transfer' as type
+                FROM {$transfer_table}
+                WHERE status IN ('confirmed', 'pending')
+                AND pickup_date >= %s
+                ORDER BY pickup_date ASC
+                LIMIT %d",
+                $now,
+                $limit
+            ), ARRAY_A);
+
+            if ($transfers) {
+                $operations = array_merge($operations, $transfers);
+            }
+        }
+
+        $wpdb->suppress_errors(false);
+
+        // Sort merged results by date
+        usort($operations, function ($a, $b) {
+            return strtotime($a['start_date']) - strtotime($b['start_date']);
+        });
+
+        return array_slice($operations, 0, $limit);
     }
 }
