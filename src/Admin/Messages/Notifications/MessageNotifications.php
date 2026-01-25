@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Messages\Notifications;
 
@@ -7,6 +9,7 @@ use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\Emails\Core\Mailer;
 use MHMRentiva\Admin\Messages\Settings\MessagesSettings;
 use MHMRentiva\Admin\Frontend\Account\AccountController;
+use MHMRentiva\Admin\Settings\Groups\EmailSettings;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -38,7 +41,7 @@ final class MessageNotifications
             if (MessagesSettings::is_email_enabled('admin')) {
                 self::send_admin_new_message_notification($message, $meta);
             }
-            
+
             // Send auto reply
             if (MessagesSettings::get_setting('auto_reply_enabled', false)) {
                 self::send_auto_reply($message, $meta);
@@ -74,27 +77,20 @@ final class MessageNotifications
      */
     private static function send_admin_new_message_notification(\WP_Post $message, array $meta): void
     {
-        // Get admin email from settings (real setting)
-        $admin_email = MessagesSettings::get_setting('admin_email', get_option('admin_email'));
-        if (!$admin_email) {
+        // Get admin email from override setting or global
+        $admin_email_override = MessagesSettings::get_setting('admin_email');
+        $to = !empty($admin_email_override) ? $admin_email_override : get_option('admin_email');
+
+        if (!$to) {
             return;
         }
 
-        /* translators: %s placeholder. */
-        $subject = sprintf(__('New Customer Message: %s', 'mhm-rentiva'), $message->post_title);
+        $context = Mailer::getMessageContext($message->ID);
+        if (!$context) {
+            return;
+        }
 
-        $message_content = self::get_admin_message_template($message, $meta);
-
-        // Get email settings from Settings (real settings)
-        $from_name = MessagesSettings::get_setting('email_from_name', MessagesSettings::get_setting('from_name', get_bloginfo('name')));
-        $from_email = MessagesSettings::get_setting('email_from_email', MessagesSettings::get_setting('from_email', get_option('admin_email')));
-
-        $headers = [
-            'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $from_name . ' <' . $from_email . '>',
-        ];
-
-        wp_mail($admin_email, $subject, $message_content, $headers);
+        Mailer::send('message_received_admin', $to, $context, self::get_headers());
     }
 
     /**
@@ -106,21 +102,12 @@ final class MessageNotifications
             return;
         }
 
-        /* translators: %s placeholder. */
-        $subject = sprintf(__('Support Reply: %s', 'mhm-rentiva'), $message->post_title);
+        $context = Mailer::getMessageContext($message->ID);
+        if (!$context) {
+            return;
+        }
 
-        $message_content = self::get_customer_reply_template($message, $meta);
-
-        // Get email settings from Settings (real settings)
-        $from_name = MessagesSettings::get_setting('email_from_name', MessagesSettings::get_setting('from_name', get_bloginfo('name')));
-        $from_email = MessagesSettings::get_setting('email_from_email', MessagesSettings::get_setting('from_email', get_option('admin_email')));
-
-        $headers = [
-            'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $from_name . ' <' . $from_email . '>',
-        ];
-
-        wp_mail($meta['customer_email'], $subject, $message_content, $headers);
+        Mailer::send('message_replied_customer', $meta['customer_email'], $context, self::get_headers());
     }
 
     /**
@@ -141,16 +128,7 @@ final class MessageNotifications
 
         $message_content = self::get_customer_status_change_template($message, $meta, $old_status_label, $new_status_label);
 
-        // Get email settings from Settings (real settings)
-        $from_name = MessagesSettings::get_setting('email_from_name', MessagesSettings::get_setting('from_name', get_bloginfo('name')));
-        $from_email = MessagesSettings::get_setting('email_from_email', MessagesSettings::get_setting('from_email', get_option('admin_email')));
-
-        $headers = [
-            'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $from_name . ' <' . $from_email . '>',
-        ];
-
-        wp_mail($meta['customer_email'], $subject, $message_content, $headers);
+        wp_mail($meta['customer_email'], $subject, $message_content, self::get_headers());
     }
 
     /**
@@ -163,7 +141,7 @@ final class MessageNotifications
 
         // Load template file
         $template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/messages/admin-message-email.html.php';
-        
+
         if (file_exists($template_path)) {
             ob_start();
             include $template_path;
@@ -190,7 +168,7 @@ final class MessageNotifications
     {
         // Load template file
         $template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/messages/customer-reply-email.html.php';
-        
+
         if (file_exists($template_path)) {
             ob_start();
             include $template_path;
@@ -201,7 +179,7 @@ final class MessageNotifications
         // Get messages URL dynamically
         $base_url = AccountController::get_account_url();
         $messages_url = add_query_arg('endpoint', 'messages', $base_url);
-        
+
         return sprintf(
             '<h2>%s</h2><p>%s %s,</p><p>%s</p><h4>%s</h4><div>%s</div><p><a href="%s">%s</a></p>',
             esc_html(__('Support Reply', 'mhm-rentiva')),
@@ -222,12 +200,12 @@ final class MessageNotifications
     {
         // Load template file
         $template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/messages/customer-status-change-email.html.php';
-        
+
         if (file_exists($template_path)) {
             // Define variables to pass to template
             $old_status_label = $old_status;
             $new_status_label = $new_status;
-            
+
             ob_start();
             include $template_path;
             return ob_get_clean();
@@ -237,7 +215,7 @@ final class MessageNotifications
         // Get messages URL dynamically
         $base_url = AccountController::get_account_url();
         $messages_url = add_query_arg('endpoint', 'messages', $base_url);
-        
+
         /* translators: 1: Customer name, 2: Message title, 3: Old status, 4: New status, 5: Messages URL */
         return sprintf(
             /* translators: %1$s placeholder. */
@@ -259,21 +237,33 @@ final class MessageNotifications
             return;
         }
 
-        $auto_reply_message = MessagesSettings::get_setting('auto_reply_message', __('Your message has been received. We will get back to you as soon as possible.', 'mhm-rentiva'));
-        
-        /* translators: %s placeholder. */
-        $subject = sprintf(__('Automatic Reply: %s', 'mhm-rentiva'), $message->post_title);
+        $context = Mailer::getMessageContext($message->ID);
+        if (!$context) {
+            return;
+        }
 
-        // Get email settings from Settings (real settings)
-        $from_name = MessagesSettings::get_setting('email_from_name', MessagesSettings::get_setting('from_name', get_bloginfo('name')));
-        $from_email = MessagesSettings::get_setting('email_from_email', MessagesSettings::get_setting('from_email', get_option('admin_email')));
+        Mailer::send('message_auto_reply', $meta['customer_email'], $context, self::get_headers());
+    }
 
+    /**
+     * Get email headers with override support
+     */
+    private static function get_headers(): array
+    {
         $headers = [
-            'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $from_name . ' <' . $from_email . '>',
+            'Content-Type: text/html; charset=UTF-8'
         ];
 
-        wp_mail($meta['customer_email'], $subject, $auto_reply_message, $headers);
+        $override_name = MessagesSettings::get_setting('from_name');
+        $override_email = MessagesSettings::get_setting('from_email');
+
+        if (!empty($override_name) || !empty($override_email)) {
+            $name = !empty($override_name) ? $override_name : EmailSettings::get_from_name();
+            $email = !empty($override_email) ? $override_email : EmailSettings::get_from_address();
+            $headers[] = 'From: ' . $name . ' <' . $email . '>';
+        }
+
+        return $headers;
     }
 
     /**

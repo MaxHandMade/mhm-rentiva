@@ -11,14 +11,18 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+/**
+ * Maintenance & System Settings Group
+ * 
+ * Provides a unified view for high-level system configurations, 
+ * performance settings, and maintenance tools.
+ */
 final class MaintenanceSettings
 {
+    public const SECTION_ID = 'mhm_rentiva_maintenance_section';
+
     /**
      * Get default settings for maintenance
-     *
-     * NOTE: Auto-cancel settings are now exclusively in BookingSettings:
-     * - mhm_rentiva_booking_auto_cancel_enabled
-     * - mhm_rentiva_booking_payment_deadline_minutes
      *
      * @return array
      */
@@ -26,57 +30,126 @@ final class MaintenanceSettings
     {
         return [
             'mhm_rentiva_clean_data_on_uninstall' => '0',
+            'mhm_rentiva_log_max_size'         => 10,
         ];
     }
 
+    /**
+     * Register settings
+     */
     public static function register(): void
     {
-        $group = SettingsCore::PAGE;
+        $page_slug = SettingsCore::PAGE;
 
         add_settings_section(
-            'mhm_rentiva_maintenance_section',
-            __('Maintenance and Cleanup', 'mhm-rentiva'),
+            self::SECTION_ID,
+            __('System Maintenance', 'mhm-rentiva'),
             [self::class, 'render_section_description'],
-            $group
+            $page_slug
         );
 
+        // System Info (Read-Only Group)
         add_settings_field(
-            'mhm_rentiva_clean_data_on_uninstall',
-            __('Clean Data on Uninstall', 'mhm-rentiva'),
-            [self::class, 'render_uninstall_cleanup_field'],
-            $group,
-            'mhm_rentiva_maintenance_section'
+            'group_system_status',
+            __('System Status', 'mhm-rentiva'),
+            [self::class, 'render_group_system_status'],
+            $page_slug,
+            self::SECTION_ID
         );
 
-        // NOTE: Auto-cancel settings removed - now handled by BookingSettings
-        // See: Rezervasyon Yönetimi > Zaman Yönetimi Ayarları
+        // Performance Group (Accordioned)
+        add_settings_field(
+            'group_cache',
+            __('Cache & Performance', 'mhm-rentiva'),
+            [self::class, 'render_group_cache'],
+            $page_slug,
+            self::SECTION_ID
+        );
+
+        // Database Cleanup
+        add_settings_field(
+            'group_db_cleanup',
+            __('Data Retention', 'mhm-rentiva'),
+            [self::class, 'render_group_db_cleanup'],
+            $page_slug,
+            self::SECTION_ID
+        );
     }
 
     /**
-     * Clear Data on Uninstall Field
+     * Render the settings section
      */
-    public static function render_uninstall_cleanup_field(): void
+    public static function render_settings_section(): void
     {
-        $enabled = SettingsCore::get('mhm_rentiva_clean_data_on_uninstall', '0');
-        echo '<label>';
-        echo '<input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_clean_data_on_uninstall]" value="1"' . checked($enabled, '1', false) . '> ';
-        echo esc_html__('Clean all plugin data and database tables when the plugin is deleted from WordPress.', 'mhm-rentiva');
-        echo '</label>';
-        echo '<p class="description" style="color: #d63638; font-weight: bold;">';
-        echo '<strong>' . esc_html__('Caution:', 'mhm-rentiva') . '</strong> ';
-        echo esc_html__('If enabled, when you delete the plugin from WordPress (Plugins > Installed Plugins > Delete), all database tables and settings will be permanently deleted. This cannot be undone.', 'mhm-rentiva');
-        echo '</p>';
+        if (class_exists('\MHMRentiva\Admin\Settings\View\SettingsViewHelper')) {
+            \MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly(self::SECTION_ID);
+        }
     }
 
     public static function render_section_description(): void
     {
-        echo '<p class="description">' . esc_html__('Settings for system maintenance and automatic tasks.', 'mhm-rentiva') . '</p>';
-        echo '<p class="description" style="color: #666; font-style: italic;">' .
-            sprintf(
-                /* translators: %s: Settings tab name */
-                esc_html__('Auto-cancel settings have been moved to %s tab.', 'mhm-rentiva'),
-                '<strong>' . esc_html__('Booking Management', 'mhm-rentiva') . '</strong>'
-            ) .
-            '</p>';
+        echo '<p class="description">' . esc_html__('Overview of system status and maintenance tools.', 'mhm-rentiva') . '</p>';
+    }
+
+    /**
+     * Group: Cache & Performance
+     */
+    public static function render_group_cache(): void
+    {
+        echo '<div class="mhm-accordion-group">';
+        echo '<div class="mhm-accordion-header"><span>' . esc_html__('Cache Settings', 'mhm-rentiva') . '</span><span class="dashicons dashicons-arrow-down"></span></div>';
+        echo '<div class="mhm-accordion-content">';
+
+        if (class_exists(CoreSettings::class)) {
+            CoreSettings::register(); // Ensure fields are registered for rendering
+            echo '<table class="form-table" role="presentation">';
+            do_settings_fields(SettingsCore::PAGE, CoreSettings::SECTION_ID);
+            echo '</table>';
+        }
+
+        echo '</div></div>';
+    }
+
+    /**
+     * Group: System Status
+     */
+    public static function render_group_system_status(): void
+    {
+        echo '<div class="mhm-system-status-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:15px; margin-bottom:20px;">';
+        $status = [
+            'PHP' => phpversion(),
+            'WordPress' => get_bloginfo('version'),
+            'Server' => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
+            'SQL Mode' => 'High Performance'
+        ];
+
+        foreach ($status as $label => $val) {
+            printf(
+                '<div class="status-card" style="background:#f9f9f9; padding:15px; border-radius:8px; border:1px solid #ddd;"><strong>%s</strong><br/>%s</div>',
+                esc_html($label),
+                esc_html((string)$val)
+            );
+        }
+        echo '</div>';
+    }
+
+    /**
+     * Group: Database Cleanup
+     */
+    public static function render_group_db_cleanup(): void
+    {
+        echo '<div class="mhm-accordion-group">';
+        echo '<div class="mhm-accordion-header"><span>' . esc_html__('Cleanup & Uninstall', 'mhm-rentiva') . '</span><span class="dashicons dashicons-arrow-down"></span></div>';
+        echo '<div class="mhm-accordion-content">';
+
+        $clean = SettingsCore::get('mhm_rentiva_clean_data_on_uninstall', '0');
+
+        echo '<div class="mhm-form-group">';
+        echo '<input type="hidden" name="mhm_rentiva_settings[mhm_rentiva_clean_data_on_uninstall]" value="0">';
+        echo '<label style="color:#d63638; font-weight:bold;"><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_clean_data_on_uninstall]" value="1"' . checked($clean, '1', false) . '> ' . esc_html__('WIPE ALL DATA ON UNINSTALL', 'mhm-rentiva') . '</label>';
+        echo '<p class="description">' . esc_html__('If enabled, all MHM Rentiva database tables and settings will be permanently deleted when the plugin is uninstalled.', 'mhm-rentiva') . '</p>';
+        echo '</div>';
+
+        echo '</div></div>';
     }
 }

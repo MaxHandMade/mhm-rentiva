@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Exceptions;
 
@@ -79,8 +81,8 @@ abstract class MHMException extends \Exception
      */
     public function log(): void
     {
-        if (class_exists(\MHMRentiva\Logs\AdvancedLogger::class)) {
-            \MHMRentiva\Logs\AdvancedLogger::error($this->getMessage(), [
+        if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+            \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error($this->getMessage(), [
                 'exception' => static::class,
                 'code' => $this->getCode(),
                 'category' => $this->getCategory(),
@@ -88,7 +90,7 @@ abstract class MHMException extends \Exception
                 'file' => $this->getFile(),
                 'line' => $this->getLine(),
                 'trace' => $this->getTraceAsString()
-            ], \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SYSTEM);
+            ], \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM);
         }
     }
 }

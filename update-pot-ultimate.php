@@ -16,8 +16,7 @@ $text_domain   = 'mhm-rentiva';
 $scan_directories = [
     'src',        // Ana Kodlar (Kesin Var)
     'templates',  // Görünüm Dosyaları (Varsa Tara)
-    'assets/js',  // JS Dosyaları (Varsa Tara)
-    'includes'    // Eski tip include klasörü (Varsa Tara)
+    'assets/js'  // JS Dosyaları (Varsa Tara)
 ];
 
 // 2. TARANACAK UZANTILAR

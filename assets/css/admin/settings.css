@@ -423,6 +423,82 @@ input:checked+.mhm-toggle-slider:before {
     color: var(--mhm-text-primary);
 }
 
+/* Accordion Styles for Texts & Labels Section */
+.mhm-accordion-group {
+    background: #fff;
+    border: 1px solid var(--mhm-border-primary);
+    border-radius: var(--mhm-radius-base);
+    margin-bottom: 0;
+    /* Let the table row handle spacing */
+    max-width: 800px;
+    /* Prevent overly wide lines on large screens */
+}
+
+.mhm-accordion-header {
+    background: #f9f9f9;
+    padding: 12px 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: var(--mhm-text-primary);
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.mhm-accordion-header:hover {
+    background: #f0f0f1;
+    color: var(--mhm-primary);
+}
+
+.mhm-accordion-header.active {
+    border-bottom-color: var(--mhm-border-secondary);
+    background: #f0f0f1;
+}
+
+.mhm-accordion-header .dashicons {
+    color: #a7aaad;
+    transition: transform 0.2s;
+}
+
+.mhm-accordion-header.active .dashicons {
+    transform: rotate(180deg);
+}
+
+/* Content Container (Hidden by default) */
+.mhm-accordion-content {
+    background: #fff;
+    padding: 20px;
+    display: none;
+}
+
+/* Form Groups inside Accordion */
+.mhm-accordion-content .mhm-form-group {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.mhm-accordion-content .mhm-form-group:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.mhm-accordion-content .mhm-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #1d2327;
+}
+
+.mhm-accordion-content .mhm-form-group input[type="text"] {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .mhm-settings-form {
@@ -448,4 +524,59 @@ input:checked+.mhm-toggle-slider:before {
     .mhm-settings-actions {
         text-align: center;
     }
+
+    /* Accordion on Mobile */
+    .mhm-accordion-header {
+        padding: var(--mhm-space-2) var(--mhm-space-3);
+        font-size: 14px;
+    }
+
+    .mhm-accordion-content {
+        padding: var(--mhm-space-3);
+    }
+}
+
+/* Accordion içi Checkbox & Radio UX Düzeltmesi - Plan B (Aggressive Alignment) */
+
+/* Checkbox/Radio kapsayan Label */
+.mhm-accordion-content .mhm-checkbox-group label {
+    display: flex !important;
+    align-items: center !important;
+    /* Dikeyde ortala */
+    flex-direction: row !important;
+    /* Yan yana diz */
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    /* Kutu ile yazı arasına boşluk */
+    margin-bottom: 2px !important;
+    width: auto !important;
+    /* Genişliği serbest bırak */
+    font-weight: normal !important;
+    cursor: pointer;
+}
+
+/* Checkbox/Radio Input'un kendisi */
+.mhm-accordion-content .mhm-checkbox-group input[type="checkbox"],
+.mhm-accordion-content .mhm-checkbox-group input[type="radio"] {
+    margin: 0 !important;
+    margin-right: 0px !important;
+    /* Gap zaten boşluk veriyor */
+    margin-top: 0 !important;
+    vertical-align: middle !important;
+    min-width: 16px !important;
+    max-width: 16px !important;
+}
+
+/* Checkbox/Radio altındaki açıklama metni */
+.mhm-accordion-content .mhm-checkbox-group p.description {
+    margin-top: 2px !important;
+    margin-left: 26px !important;
+    /* Checkbox(16px) + Gap(10px) hizası */
+    margin-bottom: 15px !important;
+    /* Bir sonraki elemanla mesafe */
+    clear: both;
+    display: block;
+    font-style: italic;
+    color: #646970;
+    line-height: 1.4;
 }

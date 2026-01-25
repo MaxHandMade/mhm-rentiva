@@ -909,17 +909,31 @@ final class DashboardPage
 
         global $wpdb;
 
-        // Modernized query using mhm_bookings table
-        $bookings = $wpdb->get_results(
-            "SELECT b.id, p.post_title as vehicle_title, b.created_at as post_date,
-                    b.customer_name, b.pickup_date, b.status
-             FROM {$wpdb->prefix}mhm_bookings b
-             LEFT JOIN {$wpdb->posts} p ON b.vehicle_id = p.ID
-             WHERE b.status != 'trash'
-             ORDER BY b.created_at DESC
+        // Fetch from wp_posts using meta joins
+        $bookings = $wpdb->get_results($wpdb->prepare(
+            "SELECT 
+                p.ID as id, 
+                p_veh.post_title as vehicle_title, 
+                p.post_date as post_date,
+                pm_name.meta_value as customer_name, 
+                pm_pickup.meta_value as pickup_date, 
+                pm_status.meta_value as status
+             FROM {$wpdb->posts} p
+             LEFT JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = %s
+             LEFT JOIN {$wpdb->posts} p_veh ON pm_vid.meta_value = p_veh.ID
+             LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id AND pm_name.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_pickup ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             WHERE p.post_type = %s
+             AND p.post_status != 'trash'
+             ORDER BY p.post_date DESC
              LIMIT 5",
-            ARRAY_A
-        );
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_CONTACT_NAME,
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+            'vehicle_booking'
+        ), ARRAY_A);
 
         $bookings_data = $bookings ?: [];
 

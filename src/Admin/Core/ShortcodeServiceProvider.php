@@ -11,330 +11,316 @@ if (!defined('ABSPATH')) {
 /**
  * Shortcode Service Provider
  * 
- * Service provider class that manages all shortcodes from a central location.
- * Organizes scattered shortcode registrations in Plugin.php.
+ * Manages all shortcode registrations, dependency checks, and access control.
  * 
+ * @package MHMRentiva\Admin\Core
  * @since 3.0.1
  */
 final class ShortcodeServiceProvider
 {
     /**
      * Singleton instance
+     * 
+     * @var self|null
      */
     private static ?self $instance = null;
 
     /**
-     * Registered shortcodes
+     * Tracks successfully registered shortcodes
+     * 
+     * @var array<string, array>
      */
     private array $registered_shortcodes = [];
 
     /**
-     * Get shortcode registry with filter hook support
+     * Tracks initialized classes to prevent double registration
      * 
-     * @return array<string, array<string, array<string, mixed>>> Shortcode registry array
+     * @var array<string, bool>
      */
-    private static function get_shortcode_registry(): array
-    {
-        // Base shortcode registry
-        $registry = [
-            // Booking Shortcodes
-            'reservation' => [
-                'rentiva_booking_form' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\BookingForm',
-                    'priority' => 10,
-                    'dependencies' => ['deposit'], // Payment dependency
-                    'requires_auth' => false,
-                ],
-                // rentiva_quick_booking kaldırıldı - rentiva_booking_form kullanın
-                'rentiva_availability_calendar' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => false,
-                ],
-                'rentiva_booking_confirmation' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation',
-                    'priority' => 10,
-                    'dependencies' => ['booking'],
-                    'requires_auth' => false,
-                ],
-
-            ],
-
-            // Vehicle Display Shortcodes
-            'vehicle' => [
-                'rentiva_vehicle_details' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => false,
-                ],
-                'rentiva_vehicles_list' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => false,
-                ],
-                'rentiva_vehicles_grid' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesGrid',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => false,
-                ],
-                'rentiva_search' => [
-                    'class' => '\MHMRentiva\Admin\Vehicle\Frontend\VehicleSearch',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => false,
-                ],
-                'rentiva_search_results' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => false,
-                ],
-                'rentiva_vehicle_comparison' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehicleComparison',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => false,
-                ],
-            ],
-
-            // Account Management Shortcodes
-            'account' => [
-
-                'rentiva_my_bookings' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                    'method' => 'render_my_bookings',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => true,
-                ],
-                'rentiva_my_favorites' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                    'method' => 'render_my_favorites',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => true,
-                ],
-                'rentiva_payment_history' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                    'method' => 'render_payment_history',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => true,
-                ],
-                'rentiva_account_details' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                    'method' => 'render_account_details',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => true,
-                ],
-                'rentiva_login_form' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                    'method' => 'render_login_form',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => false,
-                ],
-                'rentiva_register_form' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                    'method' => 'render_register_form',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => false,
-                ],
-            ],
-
-            // Transfer Shortcodes
-            'transfer' => [
-                'mhm_rentiva_transfer_search' => [
-                    'class' => '\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => false,
-                ],
-            ],
-
-            // Support and Contact Shortcodes
-            'support' => [
-                'rentiva_contact' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\ContactForm',
-                    'priority' => 10,
-                    'dependencies' => ['email'],
-                    'requires_auth' => false,
-                ],
-                'rentiva_testimonials' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\Testimonials',
-                    'priority' => 10,
-                    'dependencies' => ['booking'],
-                    'requires_auth' => false,
-                ],
-                'rentiva_vehicle_rating_form' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Shortcodes\VehicleRatingForm',
-                    'priority' => 10,
-                    'dependencies' => ['booking'],
-                    'requires_auth' => false,
-                ],
-                'rentiva_messages' => [
-                    'class' => '\MHMRentiva\Admin\Frontend\Account\AccountController',
-                    'method' => 'render_messages',
-                    'priority' => 10,
-                    'dependencies' => [],
-                    'requires_auth' => true,
-                ],
-            ],
-
-            // Financial Shortcodes - Removed (not used)
-            // 'financial' => [], // Deposit shortcodes are not used
-        ];
-
-        /**
-         * Filter: Allow addons and third-party plugins to register custom shortcodes
-         * 
-         * @param array<string, array<string, array<string, mixed>>> $registry Shortcode registry array
-         * @return array Modified shortcode registry
-         * 
-         * @example
-         * add_filter('mhm_rentiva_shortcodes', function($registry) {
-         *     $registry['custom']['rentiva_custom_shortcode'] = [
-         *         'class' => '\MyPlugin\CustomShortcode',
-         *         'priority' => 10,
-         *         'dependencies' => [],
-         *         'requires_auth' => false,
-         *     ];
-         *     return $registry;
-         * });
-         */
-        return apply_filters('mhm_rentiva_shortcodes', $registry);
-    }
+    private array $initialized_classes = [];
 
     /**
-     * Private constructor for singleton
+     * Cache for class instances
+     * 
+     * @var array<string, object>
      */
-    private function __construct()
-    {
-        // Singleton pattern
-    }
+    private array $class_instances = [];
 
     /**
      * Get singleton instance
+     * 
+     * @return self
      */
     public static function instance(): self
     {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
+        return self::$instance ??= new self();
     }
 
     /**
-     * Register shortcode service provider
+     * Private constructor to enforce singleton pattern
+     */
+    private function __construct()
+    {
+        // Protected for singleton
+    }
+
+    /**
+     * Boots the service provider and registers all shortcodes
+     * 
+     * @return void
      */
     public static function register(): void
     {
-        $instance = self::instance();
-        $instance->register_all_shortcodes();
+        self::instance()->register_all_shortcodes();
     }
 
     /**
-     * Register all shortcodes
+     * Returns the complete shortcode registry with filters
+     * 
+     * @return array<string, array<string, array>>
+     */
+    private function get_shortcode_registry(): array
+    {
+        $registry = [
+            'reservation' => [
+                'rentiva_booking_form'          => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::class,
+                    'dependencies'  => ['deposit'],
+                    'requires_auth' => false,
+                ],
+                'rentiva_availability_calendar' => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::class,
+                    'dependencies'  => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_booking_confirmation'  => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::class,
+                    'dependencies'  => ['booking'],
+                    'requires_auth' => false,
+                ],
+            ],
+            'vehicle' => [
+                'rentiva_vehicle_details'    => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails::class,
+                    'dependencies'  => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_vehicles_list'      => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::class,
+                    'dependencies'  => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_vehicles_grid'      => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesGrid::class,
+                    'dependencies'  => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_search'             => [
+                    'class'         => \MHMRentiva\Admin\Vehicle\Frontend\VehicleSearch::class,
+                    'dependencies'  => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_search_results'     => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::class,
+                    'dependencies'  => [],
+                    'requires_auth' => false,
+                ],
+                'rentiva_vehicle_comparison' => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\VehicleComparison::class,
+                    'dependencies'  => [],
+                    'requires_auth' => false,
+                ],
+            ],
+            'account' => [
+                'rentiva_my_bookings'     => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Account\AccountController::class,
+                    'method'        => 'render_my_bookings',
+                    'requires_auth' => true,
+                ],
+                'rentiva_my_favorites'    => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Account\AccountController::class,
+                    'method'        => 'render_my_favorites',
+                    'requires_auth' => true,
+                ],
+                'rentiva_payment_history' => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Account\AccountController::class,
+                    'method'        => 'render_payment_history',
+                    'requires_auth' => true,
+                ],
+
+            ],
+            'transfer' => [
+                'mhm_rentiva_transfer_search' => [
+                    'class'         => \MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes::class,
+                    'method'        => 'render_search_shortcode',
+                    'requires_auth' => false,
+                ],
+            ],
+            'support' => [
+                'rentiva_contact'             => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\ContactForm::class,
+                    'dependencies'  => ['email'],
+                    'requires_auth' => false,
+                ],
+                'rentiva_testimonials'        => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Testimonials::class,
+                    'dependencies'  => ['booking'],
+                    'requires_auth' => false,
+                ],
+                'rentiva_vehicle_rating_form' => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\VehicleRatingForm::class,
+                    'dependencies'  => ['booking'],
+                    'requires_auth' => false,
+                ],
+                'rentiva_messages'            => [
+                    'class'         => \MHMRentiva\Admin\Frontend\Account\AccountController::class,
+                    'method'        => 'render_messages',
+                    'requires_auth' => true,
+                ],
+            ],
+        ];
+
+        return (array) apply_filters('mhm_rentiva_shortcodes', $registry);
+    }
+
+    /**
+     * Iterates over the registry and registers each shortcode
+     * 
+     * @return void
      */
     private function register_all_shortcodes(): void
     {
-        $registry = self::get_shortcode_registry();
+        $registry = $this->get_shortcode_registry();
         foreach ($registry as $group => $shortcodes) {
             foreach ($shortcodes as $tag => $config) {
-                $this->register_shortcode($tag, $config);
+                $this->process_registration($tag, $config);
             }
         }
     }
 
     /**
-     * Register a single shortcode
+     * Performs validation and calls WordPress add_shortcode
+     * 
+     * @param string $tag    The shortcode tag.
+     * @param array  $config Configuration for the shortcode.
+     * @return void
      */
-    private function register_shortcode(string $tag, array $config): void
+    private function process_registration(string $tag, array $config): void
     {
-        // Ensure AbstractShortcode is loaded first
-        if (!class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\AbstractShortcode')) {
-            $abstract_path = trailingslashit(dirname(__DIR__, 3)) . 'src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php';
-            if (file_exists($abstract_path)) {
-                require_once $abstract_path;
-            }
-        }
+        $class = $config['class'] ?? '';
 
-        // Check if class exists
-        if (!class_exists($config['class'])) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("MHM Rentiva: Shortcode class not found: {$config['class']}");
-            }
+        // Skip if class is not provided or doesn't exist
+        if (empty($class) || !class_exists($class)) {
+            $this->log_error(sprintf('Shortcode class not found: %s', (string) $class));
             return;
         }
 
-        // Check dependencies
+        // Check defined dependencies
         if (!empty($config['dependencies']) && !$this->check_dependencies($config['dependencies'])) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("MHM Rentiva: Shortcode dependencies not met: {$tag}");
-            }
+            $this->log_error(sprintf('Shortcode dependencies not met for tag: %s', $tag));
             return;
         }
 
-        // Register shortcode
-        if (method_exists($config['class'], 'register')) {
-            // Use static register method
-            call_user_func([$config['class'], 'register']);
-        } elseif (isset($config['method'])) {
-            // Use specific method
-            add_shortcode($tag, [$config['class'], $config['method']]);
+        // Handle classes with their own register method (Legacy compatibility)
+        if (method_exists($class, 'register') && !isset($this->initialized_classes[$class])) {
+            $class::register();
+            $this->initialized_classes[$class] = true;
+            // Note: We don't return here because we want to track it in $registered_shortcodes
+        }
+
+        // Determine callback
+        $callback = $this->resolve_callback($class, $config);
+
+        if ($callback && is_callable($callback)) {
+            // Wrap callback for security/auth checks
+            add_shortcode($tag, function ($atts, $content = null) use ($tag, $callback, $config) {
+                return $this->handle_shortcode_execution($tag, $callback, $config, $atts, $content);
+            });
+
+            $this->registered_shortcodes[$tag] = $config;
         } else {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log("MHM Rentiva: No register method found for: {$tag}");
-            }
-            return;
+            $this->log_error(sprintf('No valid callback found for shortcode: %s', $tag));
         }
-
-        // Mark as registered
-        $this->registered_shortcodes[$tag] = $config;
-
-        // Log registration (only in debug mode)
-        // Shortcode registered
     }
 
     /**
-     * Check shortcode dependencies
+     * Resolves the proper callback for the shortcode
+     * 
+     * @param string $class
+     * @param array  $config
+     * @return callable|null
+     */
+    private function resolve_callback(string $class, array $config): ?callable
+    {
+        $method = $config['method'] ?? 'render'; // Default to 'render' if not specified
+
+        if (!method_exists($class, $method)) {
+            return null;
+        }
+
+        try {
+            $reflection = new \ReflectionMethod($class, $method);
+            if ($reflection->isStatic()) {
+                return [$class, $method];
+            }
+
+            // Singleton or Instance injection
+            if (!isset($this->class_instances[$class])) {
+                $this->class_instances[$class] = method_exists($class, 'instance') ? $class::instance() : new $class();
+            }
+
+            return [$this->class_instances[$class], $method];
+        } catch (\ReflectionException $e) {
+            $this->log_error(sprintf('Reflection error for %s::%s: %s', $class, $method, $e->getMessage()));
+            return null;
+        }
+    }
+
+    /**
+     * Wraps the shortcode execution for global logic (e.g., auth check)
+     * 
+     * @param string   $tag
+     * @param callable $callback
+     * @param array    $config
+     * @param mixed    $atts
+     * @param string|null $content
+     * @return string
+     */
+    private function handle_shortcode_execution(string $tag, callable $callback, array $config, $atts, ?string $content): string
+    {
+        // Check authentication if required
+        if (!empty($config['requires_auth']) && !is_user_logged_in()) {
+            return (string) apply_filters('mhm_rentiva_shortcode_auth_error', __('Please login to view this content.', 'mhm-rentiva'), $tag);
+        }
+
+        ob_start();
+        $output = call_user_func($callback, $atts, $content, $tag);
+        $buffered = ob_get_clean();
+
+        return $output ?? $buffered;
+    }
+
+    /**
+     * Validates if required classes for dependencies are available
+     * 
+     * @param string[] $dependencies List of dependency keys.
+     * @return bool
      */
     private function check_dependencies(array $dependencies): bool
     {
+        $map = [
+            'deposit' => \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::class,
+            'booking' => \MHMRentiva\Admin\Booking\Core\Handler::class,
+            'email'   => \MHMRentiva\Admin\Emails\Core\EmailTemplates::class,
+        ];
+
         foreach ($dependencies as $dependency) {
-            switch ($dependency) {
-
-
-                case 'deposit':
-                    if (!class_exists('\MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator')) {
-                        return false;
-                    }
-                    break;
-
-                case 'booking':
-                    if (!class_exists('\MHMRentiva\Admin\Booking\Core\Handler')) {
-                        return false;
-                    }
-                    break;
-
-                case 'email':
-                    if (!class_exists('\MHMRentiva\Admin\Emails\Core\EmailTemplates')) {
-                        return false;
-                    }
-                    break;
-
-                default:
-                    // Unknown dependency
-                    if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log("MHM Rentiva: Unknown dependency: {$dependency}");
-                    }
-                    break;
+            if (isset($map[$dependency])) {
+                if (!class_exists($map[$dependency])) {
+                    return false;
+                }
+            } else {
+                $this->log_error(sprintf('Unknown dependency check requested: %s', $dependency));
             }
         }
 
@@ -343,6 +329,8 @@ final class ShortcodeServiceProvider
 
     /**
      * Get all registered shortcodes
+     * 
+     * @return array
      */
     public function get_registered_shortcodes(): array
     {
@@ -350,18 +338,21 @@ final class ShortcodeServiceProvider
     }
 
     /**
-     * Get shortcode groups
+     * Returns grouped shortcode data for UI/Admin use
+     * 
+     * @return array
      */
     public static function get_shortcode_groups(): array
     {
-        $groups = [];
-        $registry = self::get_shortcode_registry();
+        $groups   = [];
+        $instance = self::instance();
+        $registry = $instance->get_shortcode_registry();
 
         foreach ($registry as $group => $shortcodes) {
             $groups[$group] = [
-                'name' => self::get_group_name($group),
+                'name'       => $instance->get_group_name($group),
                 'shortcodes' => array_keys($shortcodes),
-                'count' => count($shortcodes),
+                'count'      => count($shortcodes),
             ];
         }
 
@@ -369,66 +360,49 @@ final class ShortcodeServiceProvider
     }
 
     /**
-     * Get group display name
+     * Returns translated group names
+     * 
+     * @param string $group
+     * @return string
      */
-    private static function get_group_name(string $group): string
+    private function get_group_name(string $group): string
     {
         $names = [
             'reservation' => __('Booking', 'mhm-rentiva'),
-            'vehicle' => __('Vehicle Display', 'mhm-rentiva'),
-            'account' => __('Account Management', 'mhm-rentiva'),
-            'support' => __('Support and Contact', 'mhm-rentiva'),
-            'financial' => __('Financial', 'mhm-rentiva'),
+            'vehicle'     => __('Vehicle Display', 'mhm-rentiva'),
+            'account'     => __('Account Management', 'mhm-rentiva'),
+            'support'     => __('Support and Contact', 'mhm-rentiva'),
+            'transfer'    => __('Transfer Services', 'mhm-rentiva'),
         ];
 
-        return $names[$group] ?? $group;
+        return $names[$group] ?? ucfirst($group);
     }
 
     /**
-     * Get shortcode info
+     * Logs errors if WP_DEBUG is enabled
+     * 
+     * @param string $message
+     * @return void
      */
-    public static function get_shortcode_info(string $tag): ?array
+    private function log_error(string $message): void
     {
-        $registry = self::get_shortcode_registry();
-        foreach ($registry as $group => $shortcodes) {
-            if (isset($shortcodes[$tag])) {
-                return array_merge($shortcodes[$tag], [
-                    'tag' => $tag,
-                    'group' => $group,
-                    'group_name' => self::get_group_name($group),
-                ]);
-            }
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log(sprintf('MHM Rentiva Error: %s', $message));
         }
-
-        return null;
     }
 
     /**
-     * Check if shortcode is registered
-     */
-    public function is_shortcode_registered(string $tag): bool
-    {
-        return isset($this->registered_shortcodes[$tag]);
-    }
-
-    /**
-     * Get total shortcode count
+     * Returns the count of all available shortcodes in registry
+     * 
+     * @return int
      */
     public static function get_total_count(): int
     {
-        $count = 0;
-        $registry = self::get_shortcode_registry();
+        $count    = 0;
+        $registry = self::instance()->get_shortcode_registry();
         foreach ($registry as $shortcodes) {
             $count += count($shortcodes);
         }
         return $count;
-    }
-
-    /**
-     * Clear registered shortcodes (for testing)
-     */
-    public function clear_registered(): void
-    {
-        $this->registered_shortcodes = [];
     }
 }

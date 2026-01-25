@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\REST;
 
@@ -9,40 +11,46 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * ✅ API KEY MANAGER - API Key Management
+ * API Key Manager Class
  * 
- * Manages API key creation, listing, revocation and deletion
- * Uses existing AuthHelper::verifyApiKey() function for compatibility
+ * Handles creation, listing, revocation, and deletion of API keys.
+ * Stores keys as hashed values in WordPress options for security.
+ * 
+ * @package MHMRentiva
+ * @version 1.0.0
  */
 final class APIKeyManager
 {
-    const OPTION_NAME = 'mhm_rentiva_api_keys';
-    
     /**
-     * Create API Key
+     * Option key for storing API keys.
+     */
+    public const OPTION_NAME = 'mhm_rentiva_api_keys';
+
+    /**
+     * Create a new API Key.
      * 
-     * @param string $name Key name/description
-     * @param array $permissions Permissions (read, write, admin)
-     * @param int|null $expires_at Expiry timestamp (optional)
-     * @return array|false Key information on success, false on error
+     * @param string   $name       Key name/description.
+     * @param array    $permissions Permissions (read, write, admin).
+     * @param int|null $expires_at Expiry timestamp.
+     * @return array|false Key data on success, false on error.
      */
     public static function create_api_key(string $name, array $permissions = ['read'], ?int $expires_at = null): array|false
     {
         if (empty($name)) {
             return false;
         }
-        
+
         // Generate key
         $key_prefix = 'mhm_rentiva_' . (defined('WP_DEBUG') && WP_DEBUG ? 'test' : 'live') . '_';
         $random_part = bin2hex(random_bytes(24)); // 48 characters
         $api_key = $key_prefix . $random_part;
-        
+
         // Hash key for security
         $key_hash = self::hash_key($api_key);
-        
+
         // Generate key ID
         $key_id = 'key_' . wp_generate_password(16, false);
-        
+
         // Key data
         $key_data = [
             'id' => $key_id,
@@ -54,11 +62,11 @@ final class APIKeyManager
             'last_used_at' => null,
             'status' => 'active'
         ];
-        
+
         // Get existing keys
         $all_keys = self::get_all_keys();
         $all_keys[$key_id] = $key_data;
-        
+
         // Save (only store hashes)
         $keys_to_save = [];
         foreach ($all_keys as $id => $data) {
@@ -72,9 +80,9 @@ final class APIKeyManager
                 'status' => $data['status']
             ];
         }
-        
+
         update_option(self::OPTION_NAME, $keys_to_save);
-        
+
         // Return key information (key is only shown at creation time)
         return [
             'id' => $key_id,
@@ -87,7 +95,7 @@ final class APIKeyManager
             'status' => 'active'
         ];
     }
-    
+
     /**
      * List all API keys
      * 
@@ -97,7 +105,7 @@ final class APIKeyManager
     {
         $all_keys = self::get_all_keys();
         $keys_list = [];
-        
+
         foreach ($all_keys as $id => $key_data) {
             // Create key preview (actual key not shown)
             $keys_list[] = [
@@ -112,15 +120,15 @@ final class APIKeyManager
                 'is_expired' => self::is_key_expired($key_data)
             ];
         }
-        
+
         // Sort by created_at (newest first)
-        usort($keys_list, function($a, $b) {
+        usort($keys_list, function ($a, $b) {
             return $b['created_at'] - $a['created_at'];
         });
-        
+
         return $keys_list;
     }
-    
+
     /**
      * Revoke API Key (disable)
      * 
@@ -130,16 +138,16 @@ final class APIKeyManager
     public static function revoke_api_key(string $key_id): bool
     {
         $all_keys = self::get_all_keys();
-        
+
         if (!isset($all_keys[$key_id])) {
             return false;
         }
-        
+
         $all_keys[$key_id]['status'] = 'revoked';
-        
+
         return self::save_all_keys($all_keys);
     }
-    
+
     /**
      * Delete API Key
      * 
@@ -149,16 +157,16 @@ final class APIKeyManager
     public static function delete_api_key(string $key_id): bool
     {
         $all_keys = self::get_all_keys();
-        
+
         if (!isset($all_keys[$key_id])) {
             return false;
         }
-        
+
         unset($all_keys[$key_id]);
-        
+
         return self::save_all_keys($all_keys);
     }
-    
+
     /**
      * Verify API Key (compatible with existing AuthHelper::verifyApiKey())
      * 
@@ -170,10 +178,10 @@ final class APIKeyManager
         if (empty($api_key)) {
             return false;
         }
-        
+
         $key_hash = self::hash_key($api_key);
         $all_keys = self::get_all_keys();
-        
+
         foreach ($all_keys as $id => $key_data) {
             // Hash comparison
             if (hash_equals($key_data['key_hash'], $key_hash)) {
@@ -181,17 +189,17 @@ final class APIKeyManager
                 if ($key_data['status'] !== 'active') {
                     return false;
                 }
-                
+
                 // Expiry check
                 if (self::is_key_expired($key_data)) {
                     return false;
                 }
-                
+
                 // Update last used
                 $key_data['last_used_at'] = time();
                 $all_keys[$id] = $key_data;
                 self::save_all_keys($all_keys);
-                
+
                 return [
                     'id' => $id,
                     'name' => $key_data['name'],
@@ -199,10 +207,10 @@ final class APIKeyManager
                 ];
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Hash key
      * 
@@ -213,7 +221,7 @@ final class APIKeyManager
     {
         return hash_hmac('sha256', $key, wp_salt());
     }
-    
+
     /**
      * Create key preview (first 8 + last 4 characters)
      * 
@@ -227,7 +235,7 @@ final class APIKeyManager
         }
         return substr($key, 0, 8) . '...' . substr($key, -4);
     }
-    
+
     /**
      * Create key preview from hash (approximate)
      * 
@@ -239,7 +247,7 @@ final class APIKeyManager
         // Create preview from first and last characters of hash
         return substr($key_hash, 0, 8) . '...' . substr($key_hash, -4);
     }
-    
+
     /**
      * Check key status
      * 
@@ -251,14 +259,14 @@ final class APIKeyManager
         if (isset($key_data['status']) && $key_data['status'] === 'revoked') {
             return 'revoked';
         }
-        
+
         if (self::is_key_expired($key_data)) {
             return 'expired';
         }
-        
+
         return 'active';
     }
-    
+
     /**
      * Check if key is expired
      * 
@@ -270,10 +278,10 @@ final class APIKeyManager
         if (!isset($key_data['expires_at']) || $key_data['expires_at'] === null) {
             return false; // No expiry, permanent
         }
-        
+
         return time() > $key_data['expires_at'];
     }
-    
+
     /**
      * Get all keys
      * 
@@ -282,7 +290,7 @@ final class APIKeyManager
     private static function get_all_keys(): array
     {
         $keys = get_option(self::OPTION_NAME, []);
-        
+
         // Old format conversion (backward compatibility)
         if (!empty($keys) && !isset($keys[array_key_first($keys)]['id'])) {
             // Old format: ['general' => 'key', 'type2' => 'key2']
@@ -304,16 +312,16 @@ final class APIKeyManager
                     ];
                 }
             }
-            
+
             if (!empty($new_keys)) {
                 update_option(self::OPTION_NAME, $new_keys);
                 return $new_keys;
             }
         }
-        
+
         return is_array($keys) ? $keys : [];
     }
-    
+
     /**
      * Save all keys
      * 
@@ -325,4 +333,3 @@ final class APIKeyManager
         return update_option(self::OPTION_NAME, $keys) !== false;
     }
 }
-

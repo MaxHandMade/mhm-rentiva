@@ -1,9 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Account;
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
+use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -35,14 +38,14 @@ final class AccountRenderer
     public static function render_dashboard(array $atts = []): string
     {
         $user = wp_get_current_user();
-        
+
         // User bookings
         $bookings = self::get_user_bookings($user->ID);
-        $active_bookings = array_filter($bookings, function($booking) {
+        $active_bookings = array_filter($bookings, function ($booking) {
             $status = get_post_meta($booking->ID, '_mhm_status', true);
             return in_array($status, ['confirmed', 'in_progress']);
         });
-        
+
         $data = [
             'user' => $user,
             'bookings_count' => count($bookings),
@@ -53,7 +56,7 @@ final class AccountRenderer
             'booking_history' => SettingsCore::get('mhm_rentiva_customer_booking_history', '1'),
             'welcome_message' => SettingsCore::get('mhm_rentiva_customer_dashboard_welcome', __('Welcome to your dashboard. From your account dashboard you can view your recent orders, manage your shipping and billing addresses, and edit your password and account details.', 'mhm-rentiva')),
         ];
-        
+
         // Include template directly (required for JavaScript)
         ob_start();
         extract($data);
@@ -68,22 +71,22 @@ final class AccountRenderer
     public static function render_bookings(array $atts = []): string
     {
         $user = wp_get_current_user();
-        
+
         $args = [
             'limit' => (int) ($atts['limit'] ?? 10),
             'status' => self::sanitize_text_field_safe($atts['status'] ?? ''),
             'orderby' => self::sanitize_text_field_safe($atts['orderby'] ?? 'date'),
             'order' => self::sanitize_text_field_safe($atts['order'] ?? 'DESC'),
         ];
-        
+
         $bookings = self::get_user_bookings($user->ID, $args);
-        
+
         $data = [
             'user' => $user,
             'bookings' => $bookings,
             'navigation' => (isset($atts['hide_nav']) && $atts['hide_nav']) ? [] : self::get_navigation(),
         ];
-        
+
         return Templates::render('account/bookings', $data, true);
     }
 
@@ -94,11 +97,11 @@ final class AccountRenderer
     {
         $user = wp_get_current_user();
         $favorites = get_user_meta($user->ID, 'mhm_rentiva_favorites', true);
-        
+
         if (!is_array($favorites) || empty($favorites)) {
             $favorites = [];
         }
-        
+
         // Load Vehicles Grid CSS (for grid view)
         wp_enqueue_style(
             'mhm-rentiva-vehicles-grid',
@@ -124,14 +127,14 @@ final class AccountRenderer
                 'login_required' => __('You must be logged in to add to favorites', 'mhm-rentiva'),
             ],
         ]);
-        
+
         $data = [
             'user' => $user,
             'favorites' => $favorites,
             'columns' => (int) ($atts['columns'] ?? 3),
             'navigation' => (isset($atts['hide_nav']) && $atts['hide_nav']) ? [] : self::get_navigation(),
         ];
-        
+
         return Templates::render('account/favorites', $data, true);
     }
 
@@ -141,16 +144,16 @@ final class AccountRenderer
     public static function render_payment_history(array $atts = []): string
     {
         $user = wp_get_current_user();
-        
+
         // Get user payments
         $payments = self::get_user_payments($user->ID, (int) ($atts['limit'] ?? 20));
-        
+
         $data = [
             'user' => $user,
             'payments' => $payments,
             'navigation' => (isset($atts['hide_nav']) && $atts['hide_nav']) ? [] : self::get_navigation(),
         ];
-        
+
         return Templates::render('account/payment-history', $data, true);
     }
 
@@ -173,15 +176,17 @@ final class AccountRenderer
     public static function render_messages(array $atts = []): string
     {
         // Check if Messages feature is enabled
-        if (!class_exists(\MHMRentiva\Admin\Licensing\Mode::class) || 
-            !\MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES)) {
-            return '<div class="mhm-rentiva-account-page"><div class="mhm-account-content"><p>' . 
-                   __('Messages feature is available in Pro version.', 'mhm-rentiva') . 
-                   '</p></div></div>';
+        if (
+            !class_exists(\MHMRentiva\Admin\Licensing\Mode::class) ||
+            !\MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES)
+        ) {
+            return '<div class="mhm-rentiva-account-page"><div class="mhm-account-content"><p>' .
+                __('Messages feature is available in Pro version.', 'mhm-rentiva') .
+                '</p></div></div>';
         }
 
         $user = wp_get_current_user();
-        
+
         // Load CSS files
         wp_enqueue_style(
             'mhm-customer-messages',
@@ -189,14 +194,14 @@ final class AccountRenderer
             [],
             MHM_RENTIVA_VERSION
         );
-        
+
         wp_enqueue_style(
             'mhm-customer-messages-standalone',
             MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/customer-messages-standalone.css',
             [],
             MHM_RENTIVA_VERSION
         );
-        
+
         // ⭐ Load JavaScript file (required for messages functionality)
         wp_enqueue_script(
             'mhm-rentiva-account-messages',
@@ -205,7 +210,7 @@ final class AccountRenderer
             MHM_RENTIVA_VERSION,
             true
         );
-        
+
         // ⭐ Localize JavaScript (required for REST API calls)
         wp_localize_script('mhm-rentiva-account-messages', 'mhmRentivaMessages', [
             'restUrl' => rest_url('mhm-rentiva/v1/'),
@@ -244,14 +249,14 @@ final class AccountRenderer
                 'yourReply' => __('Your Reply:', 'mhm-rentiva'),
             ],
         ]);
-        
+
         $data = [
             'user' => $user,
             'customer_email' => $user->user_email,
             'customer_name' => $user->display_name ?: $user->user_login,
             'navigation' => (isset($atts['hide_nav']) && $atts['hide_nav']) ? [] : self::get_navigation(),
         ];
-        
+
         // Include template directly (required for JavaScript - whitespace must be preserved)
         ob_start();
         extract($data);
@@ -262,42 +267,7 @@ final class AccountRenderer
         return ob_get_clean();
     }
 
-    /**
-     * Login Form render
-     */
-    public static function render_login_form(array $atts = []): string
-    {
-        $redirect = !empty($atts['redirect']) ? 
-            $atts['redirect'] : 
-            AccountController::get_account_url();
-        
-        $data = [
-            'redirect' => $redirect,
-            'show_register_link' => ($atts['show_register_link'] ?? '1') === '1',
-            'register_url' => ShortcodeUrlManager::get_page_url('rentiva_register_form'),
-            'lost_password_url' => wp_lostpassword_url(),
-        ];
-        
-        return Templates::render('account/login-form', $data, true);
-    }
 
-    /**
-     * Register Form render
-     */
-    public static function render_register_form(array $atts = []): string
-    {
-        $redirect = !empty($atts['redirect']) ? 
-            $atts['redirect'] : 
-            AccountController::get_account_url();
-        
-        $data = [
-            'redirect' => $redirect,
-            'show_login_link' => ($atts['show_login_link'] ?? '1') === '1',
-            'login_url' => ShortcodeUrlManager::get_page_url('rentiva_login_form'),
-        ];
-        
-        return Templates::render('account/register-form', $data, true);
-    }
 
     /**
      * Booking detail render
@@ -308,51 +278,51 @@ final class AccountRenderer
     public static function render_booking_detail(int $booking_id, bool $hide_nav = false): string
     {
         $booking = get_post($booking_id);
-        
+
         if (!$booking || $booking->post_type !== 'vehicle_booking') {
             return '<p>' . __('Booking not found.', 'mhm-rentiva') . '</p>';
         }
-        
+
         // User check
         $user = wp_get_current_user();
         $booking_user_id = get_post_meta($booking_id, '_mhm_customer_user_id', true);
-        
+
         if ($booking_user_id != $user->ID && !current_user_can('manage_options')) {
             return '<p>' . __('You do not have permission to view this booking.', 'mhm-rentiva') . '</p>';
         }
-        
+
         $navigation = $hide_nav ? [] : self::get_navigation();
-        
+
         // If navigation is empty (e.g. WooCommerce integration), provide minimal nav for breadcrumbs
         if (empty($navigation)) {
             $dashboard_url = home_url('/');
             $bookings_url = home_url('/');
-            
+
             if (class_exists('WooCommerce') && function_exists('wc_get_endpoint_url')) {
                 $my_account_url = wc_get_page_permalink('myaccount');
                 $dashboard_url = $my_account_url;
                 $bookings_slug = AccountController::get_endpoint_slug('bookings', 'rentiva-bookings');
                 $bookings_url = wc_get_endpoint_url($bookings_slug, '', $my_account_url);
             } else {
-                 $dashboard_url = AccountController::get_account_url();
-                 $bookings_url = AccountController::get_booking_view_url($booking_id); // Fallback, though typically not empty in standalone
-                 // Actually for standalone get_navigation shouldn't be empty unless something is wrong.
-                 // But for WooCommerce it returns empty array intentionally.
+                $dashboard_url = AccountController::get_account_url();
+                $bookings_url = AccountController::get_booking_view_url($booking_id); // Fallback, though typically not empty in standalone
+                // Actually for standalone get_navigation shouldn't be empty unless something is wrong.
+                // But for WooCommerce it returns empty array intentionally.
             }
-            
+
             $navigation = [
                 'dashboard' => ['url' => $dashboard_url],
                 'bookings' => ['url' => $bookings_url],
             ];
         }
-        
+
         $data = [
             'booking' => $booking,
             'booking_id' => $booking_id,
             'navigation' => $navigation,
             'is_integrated' => $hide_nav,
         ];
-        
+
         return Templates::render('account/booking-detail', $data, true);
     }
 
@@ -367,10 +337,10 @@ final class AccountRenderer
         if (class_exists('WooCommerce')) {
             return [];
         }
-        
+
         // Main account page URL
         $base_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_account');
-        
+
         return [
             'dashboard' => [
                 'title' => __('Dashboard', 'mhm-rentiva'),
@@ -420,12 +390,12 @@ final class AccountRenderer
         if (!class_exists('WooCommerce') || !function_exists('wc_get_page_id')) {
             return false;
         }
-        
+
         $account_page_id = wc_get_page_id('myaccount');
         if (!$account_page_id || $account_page_id <= 0) {
             return false;
         }
-        
+
         // Check if we're on the WooCommerce My Account page
         return is_page($account_page_id) || is_account_page();
     }
@@ -436,16 +406,16 @@ final class AccountRenderer
     private static function get_user_bookings(int $user_id, array $args = []): array
     {
         global $wpdb;
-        
+
         $defaults = [
             'limit' => 10,
             'status' => '',
             'orderby' => 'date',
             'order' => 'DESC',
         ];
-        
+
         $args = wp_parse_args($args, $defaults);
-        
+
         // Meta query
         $meta_query = [
             [
@@ -454,7 +424,7 @@ final class AccountRenderer
                 'compare' => '=',
             ],
         ];
-        
+
         // Status filter
         if (!empty($args['status'])) {
             $meta_query[] = [
@@ -463,7 +433,7 @@ final class AccountRenderer
                 'compare' => '=',
             ];
         }
-        
+
         $query_args = [
             'post_type' => 'vehicle_booking',
             'post_status' => 'publish',
@@ -472,9 +442,9 @@ final class AccountRenderer
             'order' => self::sanitize_text_field_safe($args['order']),
             'meta_query' => $meta_query,
         ];
-        
+
         $query = new \WP_Query($query_args);
-        
+
         return $query->posts;
     }
 
@@ -485,9 +455,9 @@ final class AccountRenderer
     {
         // Get all user bookings
         $bookings = self::get_user_bookings($user_id, ['limit' => -1]);
-        
+
         $payments = [];
-        
+
         foreach ($bookings as $booking) {
             $payment_status = get_post_meta($booking->ID, '_mhm_payment_status', true);
             $payment_method = get_post_meta($booking->ID, '_mhm_payment_method', true);
@@ -495,7 +465,7 @@ final class AccountRenderer
             $total_price = (float) get_post_meta($booking->ID, '_mhm_total_price', true);
             $deposit_amount = (float) get_post_meta($booking->ID, '_mhm_deposit_amount', true);
             $payment_type = get_post_meta($booking->ID, '_mhm_payment_type', true);
-            
+
             // Normalize status values from various sources
             $status_key = strtolower((string) $payment_status);
             $status_key = str_replace(' ', '_', $status_key);
@@ -521,7 +491,7 @@ final class AccountRenderer
                     // Fallback to original or pending when unknown
                     $payment_status = $status_key ?: 'pending';
             }
-            
+
             // Fallback gateway if empty (manual/offline)
             if (empty($payment_gateway)) {
                 $payment_gateway = $payment_method ?: 'woocommerce';
@@ -532,7 +502,7 @@ final class AccountRenderer
             $pickup_time = get_post_meta($booking->ID, '_mhm_start_time', true) ?: get_post_meta($booking->ID, '_mhm_pickup_time', true) ?: get_post_meta($booking->ID, '_booking_pickup_time', true);
             $date_str = trim($pickup_date . ' ' . ($pickup_time ?: ''));
             $date_formatted = $date_str ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($date_str)) : get_the_date('', $booking->ID);
-            
+
             if ($payment_status) {
                 // Translate Status
                 $status_labels = [
@@ -544,13 +514,14 @@ final class AccountRenderer
 
                 // Format Gateway/Method 
                 $woocommerce_method_title = '';
-                
+
                 // Try to get method title from WooCommerce Order if exists
                 $wc_order_id = get_post_meta($booking->ID, '_mhm_woocommerce_order_id', true);
                 if ($wc_order_id && function_exists('wc_get_order')) {
                     $order = wc_get_order($wc_order_id);
-                    if ($order) {
-                        $woocommerce_method_title = $order->get_payment_method_title();
+                    if ($order instanceof \WC_Order && method_exists($order, 'get_payment_method_title')) {
+                        $method = 'get_payment_method_title';
+                        $woocommerce_method_title = $order->$method();
                     }
                 }
 
@@ -561,9 +532,9 @@ final class AccountRenderer
                     $method_display = ucfirst($payment_method);
                 } else {
                     // Fallback to gateway name if method is empty
-                     $method_display = $payment_gateway === 'woocommerce' ? 'WooCommerce' : ucfirst($payment_gateway);
+                    $method_display = $payment_gateway === 'woocommerce' ? 'WooCommerce' : ucfirst($payment_gateway);
                 }
-                
+
                 $payments[] = [
                     'booking_id' => $booking->ID,
                     'booking_title' => get_the_title($booking->ID),
@@ -583,13 +554,12 @@ final class AccountRenderer
                 ];
             }
         }
-        
+
         // Latest payments first
-        usort($payments, function($a, $b) {
+        usort($payments, function ($a, $b) {
             return strtotime($b['date']) - strtotime($a['date']);
         });
-        
+
         return array_slice($payments, 0, $limit);
     }
 }
-

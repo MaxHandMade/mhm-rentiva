@@ -28,24 +28,13 @@ final class LicenseAdmin
 
     public static function register(): void
     {
-        add_action('admin_menu', [self::class, 'add_menu'], 14); // Priority 14 to come after ShortcodeSettings
         add_action('admin_post_mhm_rentiva_activate_license', [self::class, 'handle_activation']);
         add_action('admin_post_mhm_rentiva_deactivate_license', [self::class, 'handle_deactivation']);
         add_action('admin_post_mhm_rentiva_toggle_dev_mode', [self::class, 'handle_toggle_dev_mode']);
         add_action('admin_notices', [self::class, 'admin_notices']);
     }
 
-    public static function add_menu(): void
-    {
-        add_submenu_page(
-            'mhm-rentiva',
-            __('License Management', 'mhm-rentiva'),
-            __('License', 'mhm-rentiva'),
-            'manage_options',
-            'mhm-rentiva-license',
-            [self::class, 'render_page']
-        );
-    }
+
 
     public static function render_page(): void
     {

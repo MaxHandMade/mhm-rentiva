@@ -22,8 +22,9 @@ jQuery(document).ready(function ($) {
             var $input = $(this);
             var value = $input.val();
 
-            // Convert null, undefined, or empty to empty string
-            if (value === null || value === undefined || value === '') {
+            // Sadece null veya undefined ise boş string yap. 
+            // "0" değerini silmemeye dikkat et! (User Request Fix)
+            if (value === null || value === undefined) {
                 $input.val('');
             }
         });

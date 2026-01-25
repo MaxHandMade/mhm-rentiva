@@ -37,6 +37,7 @@ final class DatabaseCleanupPage
         add_action('wp_ajax_mhm_restore_full_backup', [self::class, 'ajax_restore_full_backup']);
         add_action('wp_ajax_mhm_delete_full_backup', [self::class, 'ajax_delete_full_backup']);
         add_action('wp_ajax_mhm_repair_table', [self::class, 'ajax_repair_table']);
+        add_action('wp_ajax_mhm_cleanup_logs', [self::class, 'ajax_cleanup_logs']);
     }
 
     /**
@@ -540,5 +541,32 @@ final class DatabaseCleanupPage
         } else {
             wp_send_json_error(esc_html__('Failed to repair table or table definition not found', 'mhm-rentiva'));
         }
+    }
+    /**
+     * AJAX - Cleanup old logs
+     */
+    public static function ajax_cleanup_logs(): void
+    {
+        check_ajax_referer('mhm_db_cleanup', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(esc_html__('Permission denied', 'mhm-rentiva'));
+        }
+
+        $results = DatabaseCleaner::cleanup_old_logs(30, false); // Execute cleanup
+
+        $total_deleted = 0;
+        foreach ($results as $table_result) {
+            $total_deleted += ($table_result['deleted'] ?? 0);
+        }
+
+        wp_send_json_success([
+            'message' => sprintf(
+                /* translators: %d placeholder. */
+                esc_html__('%d old log records cleaned.', 'mhm-rentiva'),
+                $total_deleted
+            ),
+            'result' => $results
+        ]);
     }
 }

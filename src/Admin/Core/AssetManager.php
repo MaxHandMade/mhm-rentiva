@@ -319,6 +319,11 @@ final class AssetManager
     private static function enqueue_admin_global_scripts(): void
     {
         // General settings for admin
+        wp_localize_script('mhm-rentiva-dark-mode', 'mhmDarkMode', [
+            'ajaxUrl'     => admin_url('admin-ajax.php'),
+            'nonce'       => wp_create_nonce('mhm_dark_mode_nonce'),
+            'currentMode' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_dark_mode', 'auto')
+        ]);
         wp_localize_script('mhm-core-js', 'mhmRentivaAdmin', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('mhm_admin_nonce'),
@@ -760,6 +765,7 @@ final class AssetManager
             wp_localize_script('mhm-settings', 'mhmRentivaSettings', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('mhm_rentiva_settings'),
+                'resetNonce' => wp_create_nonce('mhm_rentiva_reset_defaults'),
                 'strings' => [
                     'categoryEmpty' => __('Category name cannot be empty', 'mhm-rentiva'),
                     'categoryExists' => __('This category already exists', 'mhm-rentiva'),
@@ -827,6 +833,49 @@ final class AssetManager
                         'save' => __('Save', 'mhm-rentiva'),
                         'templateSaved' => __('Template saved successfully!', 'mhm-rentiva'),
                         'templateReset' => __('Template reset to default!', 'mhm-rentiva'),
+                    ]
+                ]);
+            }
+
+            // Enqueue REST API Keys JS for Integration Tab
+            if (isset($_GET['tab']) && $_GET['tab'] === 'integration') {
+                wp_enqueue_script(
+                    'mhm-rest-api-keys',
+                    MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/rest-api-keys.js',
+                    ['jquery'],
+                    self::get_file_version('assets/js/admin/rest-api-keys.js'),
+                    true
+                );
+
+                wp_localize_script('mhm-rest-api-keys', 'mhmRestApiKeys', [
+                    'ajax_url' => admin_url('admin-ajax.php'),
+                    'nonce' => wp_create_nonce('mhm_rest_api_keys_nonce'),
+                    'strings' => [
+                        'key_name_required' => __('API key name is required.', 'mhm-rentiva'),
+                        'permissions_required' => __('Please select at least one permission.', 'mhm-rentiva'),
+                        'create_key' => __('Create API Key', 'mhm-rentiva'),
+                        'failed_create' => __('Failed to create API key.', 'mhm-rentiva'),
+                        'error_occurred' => __('An error occurred. Please try again.', 'mhm-rentiva'),
+                        'copy' => __('Copy', 'mhm-rentiva'),
+                        'close' => __('Close', 'mhm-rentiva'),
+                        'key_copied' => __('API key copied to clipboard!', 'mhm-rentiva'),
+                        'confirm_revoke' => __('Are you sure you want to revoke this API key? This will immediately stop access for any application using this key.', 'mhm-rentiva'),
+                        'confirm_delete' => __('Are you sure you want to delete this API key? This action is permanent and cannot be undone.', 'mhm-rentiva'),
+                        'failed_revoke' => __('Failed to revoke API key.', 'mhm-rentiva'),
+                        'failed_delete' => __('Failed to delete API key.', 'mhm-rentiva'),
+                        'no_keys' => __('No API keys found.', 'mhm-rentiva'),
+                        'key_name' => __('Key Name', 'mhm-rentiva'),
+                        'permissions' => __('Permissions', 'mhm-rentiva'),
+                        'created' => __('Created', 'mhm-rentiva'),
+                        'last_used' => __('Last Used', 'mhm-rentiva'),
+                        'status' => __('Status', 'mhm-rentiva'),
+                        'actions' => __('Actions', 'mhm-rentiva'),
+                        'revoke' => __('Revoke', 'mhm-rentiva'),
+                        'delete' => __('Delete', 'mhm-rentiva'),
+                        'confirm_reset' => __('Are you sure you want to reset all REST API settings to default values? This action cannot be undone.', 'mhm-rentiva'),
+                        'resetting' => __('Resetting...', 'mhm-rentiva'),
+                        'reset_success' => __('Settings reset to defaults successfully. Page will reload...', 'mhm-rentiva'),
+                        'reset_failed' => __('Failed to reset settings to defaults.', 'mhm-rentiva'),
                     ]
                 ]);
             }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Messages\Settings;
 
@@ -79,38 +81,66 @@ final class MessagesSettings
     public static function sanitize_settings(array $input): array
     {
         $sanitized = [];
-        
+
         // Boolean values
         $boolean_fields = [
             'email_admin_notifications',
-            'email_customer_notifications', 
+            'email_customer_notifications',
             'email_reply_notifications',
             'email_status_change_notifications',
             'dashboard_widget_enabled',
             'auto_reply_enabled'
         ];
-        
+
         foreach ($boolean_fields as $field) {
             $sanitized[$field] = isset($input[$field]) ? (bool) $input[$field] : false;
         }
-        
+
         // Numeric values
         $sanitized['lite_messages_per_month'] = absint($input['lite_messages_per_month'] ?? 10);
         $sanitized['lite_messages_per_day'] = absint($input['lite_messages_per_day'] ?? 3);
         $sanitized['dashboard_widget_max_messages'] = absint($input['dashboard_widget_max_messages'] ?? 5);
-        
+
         // String values
-        $sanitized['admin_email'] = sanitize_email((string) ($input['admin_email'] ?? get_option('admin_email')));
-        $sanitized['from_name'] = sanitize_text_field((string) ($input['from_name'] ?? get_bloginfo('name')));
-        $sanitized['from_email'] = sanitize_email((string) ($input['from_email'] ?? get_option('admin_email')));
-        
+        $sanitized['admin_email'] = sanitize_email((string) ($input['admin_email'] ?? ''));
+        $sanitized['from_name'] = sanitize_text_field((string) ($input['from_name'] ?? ''));
+        $sanitized['from_email'] = sanitize_email((string) ($input['from_email'] ?? ''));
+
         // Categories and statuses
         $sanitized['categories'] = self::sanitize_categories($input['categories'] ?? []);
         $sanitized['statuses'] = self::sanitize_statuses($input['statuses'] ?? []);
-        
+
+        // Handle NEW category entry (from separate input field)
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by WordPress Settings API
+        $new_category = isset($_POST['mhm_new_category_entry'])
+            ? sanitize_text_field(trim((string) wp_unslash($_POST['mhm_new_category_entry'])))
+            : '';
+
+        if (!empty($new_category)) {
+            $new_key = sanitize_key($new_category);
+            // Prevent duplicates
+            if (!isset($sanitized['categories'][$new_key])) {
+                $sanitized['categories'][$new_key] = $new_category;
+            }
+        }
+
+        // Handle NEW status entry (from separate input field)
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by WordPress Settings API
+        $new_status = isset($_POST['mhm_new_status_entry'])
+            ? sanitize_text_field(trim((string) wp_unslash($_POST['mhm_new_status_entry'])))
+            : '';
+
+        if (!empty($new_status)) {
+            $new_key = sanitize_key($new_status);
+            // Prevent duplicates
+            if (!isset($sanitized['statuses'][$new_key])) {
+                $sanitized['statuses'][$new_key] = $new_status;
+            }
+        }
+
         // Email templates
-        $sanitized['auto_reply_message'] = wp_kses_post($input['auto_reply_message'] ?? '');
-        
+        // auto_reply_message removed in favor of Template System
+
         return $sanitized;
     }
 
@@ -127,7 +157,7 @@ final class MessagesSettings
             } else {
                 $name = $value;
             }
-            
+
             if (!empty(trim((string) $name))) {
                 $sanitized_key = is_string($key) ? sanitize_key($key) : sanitize_key($name);
                 $sanitized[$sanitized_key] = sanitize_text_field((string) $name);
@@ -149,7 +179,7 @@ final class MessagesSettings
             } else {
                 $name = $value;
             }
-            
+
             if (!empty(trim((string) $name))) {
                 $sanitized_key = is_string($key) ? sanitize_key($key) : sanitize_key($name);
                 $sanitized[$sanitized_key] = sanitize_text_field((string) $name);
@@ -169,11 +199,11 @@ final class MessagesSettings
             'email_customer_notifications' => true,
             'email_reply_notifications' => true,
             'email_status_change_notifications' => true,
-            
+
             // Message limits (for Lite version)
             'lite_messages_per_month' => 10,
             'lite_messages_per_day' => 3,
-            
+
             // Message categories
             'categories' => [
                 'general' => __('General', 'mhm-rentiva'),
@@ -183,7 +213,7 @@ final class MessagesSettings
                 'complaint' => __('Complaint', 'mhm-rentiva'),
                 'suggestion' => __('Suggestion', 'mhm-rentiva'),
             ],
-            
+
             // Message statuses
             'statuses' => [
                 'pending' => __('Pending', 'mhm-rentiva'),
@@ -191,38 +221,37 @@ final class MessagesSettings
                 'closed' => __('Closed', 'mhm-rentiva'),
                 'urgent' => __('Urgent', 'mhm-rentiva'),
             ],
-            
+
             // Message priorities
             'priorities' => [
                 'normal' => __('Normal', 'mhm-rentiva'),
                 'high' => __('High', 'mhm-rentiva'),
                 'urgent' => __('Urgent', 'mhm-rentiva'),
             ],
-            
+
             // Email template settings
-            'admin_email' => get_option('admin_email'),
-            'from_name' => get_bloginfo('name'),
-            'from_email' => get_option('admin_email'),
-            'email_from_name' => get_bloginfo('name'),
-            'email_from_email' => get_option('admin_email'),
-            'email_reply_to' => get_option('admin_email'),
-            
+            'admin_email' => '', // Empty for global override
+            'from_name' => '', // Empty for global override
+            'from_email' => '', // Empty for global override
+            'email_from_name' => '', // Empty for global override
+            'email_from_email' => '', // Empty for global override
+            'email_reply_to' => '', // Empty for global override
+
             // Dashboard widget settings
             'dashboard_widget_enabled' => true,
             'dashboard_widget_max_messages' => 5,
-            
+
             // Auto reply settings
             'auto_reply_enabled' => false,
-            'auto_reply_message' => __('Your message has been received. We will get back to you as soon as possible.', 'mhm-rentiva'),
-            
+
             // Thread settings
             'max_thread_messages' => 50,
             'auto_close_inactive_days' => 30,
-            
+
             // Notification settings
             'notification_sound_enabled' => false,
             'notification_popup_enabled' => true,
-            
+
             // Security settings
             'token_expiry_hours' => 24,
             'max_attachments_per_message' => 3,
@@ -238,7 +267,7 @@ final class MessagesSettings
     {
         $defaults = self::get_default_settings();
         $settings = get_option(self::OPTION_NAME, []);
-        
+
         return array_merge($defaults, $settings);
     }
 
@@ -309,34 +338,34 @@ final class MessagesSettings
 
         $settings = self::get_settings();
         $active_tab = sanitize_key($_GET['tab'] ?? 'email');
-        
-        ?>
+
+?>
         <div class="wrap mhm-settings-tabs">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-            
+
             <!-- Tab Navigation -->
             <nav class="nav-tab-wrapper">
-                <a href="<?php echo esc_url(MessageUrlHelper::get_messages_settings_url('email')); ?>" 
-                   class="nav-tab <?php echo $active_tab === 'email' ? 'nav-tab-active' : ''; ?>">
+                <a href="<?php echo esc_url(MessageUrlHelper::get_messages_settings_url('email')); ?>"
+                    class="nav-tab <?php echo $active_tab === 'email' ? 'nav-tab-active' : ''; ?>">
                     <?php _e('Email', 'mhm-rentiva'); ?>
                 </a>
-                <a href="<?php echo esc_url(MessageUrlHelper::get_messages_settings_url('general')); ?>" 
-                   class="nav-tab <?php echo $active_tab === 'general' ? 'nav-tab-active' : ''; ?>">
+                <a href="<?php echo esc_url(MessageUrlHelper::get_messages_settings_url('general')); ?>"
+                    class="nav-tab <?php echo $active_tab === 'general' ? 'nav-tab-active' : ''; ?>">
                     <?php _e('General', 'mhm-rentiva'); ?>
                 </a>
-                <a href="<?php echo esc_url(MessageUrlHelper::get_messages_settings_url('categories')); ?>" 
-                   class="nav-tab <?php echo $active_tab === 'categories' ? 'nav-tab-active' : ''; ?>">
+                <a href="<?php echo esc_url(MessageUrlHelper::get_messages_settings_url('categories')); ?>"
+                    class="nav-tab <?php echo $active_tab === 'categories' ? 'nav-tab-active' : ''; ?>">
                     <?php _e('Categories', 'mhm-rentiva'); ?>
                 </a>
-                <a href="<?php echo esc_url(MessageUrlHelper::get_messages_settings_url('statuses')); ?>" 
-                   class="nav-tab <?php echo $active_tab === 'statuses' ? 'nav-tab-active' : ''; ?>">
+                <a href="<?php echo esc_url(MessageUrlHelper::get_messages_settings_url('statuses')); ?>"
+                    class="nav-tab <?php echo $active_tab === 'statuses' ? 'nav-tab-active' : ''; ?>">
                     <?php _e('Statuses', 'mhm-rentiva'); ?>
                 </a>
             </nav>
 
             <!-- Settings Form -->
             <form method="post" action="options.php" id="mhm-messages-settings-form">
-                <?php 
+                <?php
                 settings_fields(self::OPTION_GROUP);
                 ?>
 
@@ -346,24 +375,24 @@ final class MessagesSettings
                         <tr>
                             <th scope="row"><?php _e('Admin Email', 'mhm-rentiva'); ?></th>
                             <td>
-                                <input type="email" name="<?php echo self::OPTION_NAME; ?>[admin_email]" 
-                                       value="<?php echo esc_attr($settings['admin_email']); ?>" class="regular-text">
+                                <input type="email" name="<?php echo self::OPTION_NAME; ?>[admin_email]"
+                                    value="<?php echo esc_attr($settings['admin_email']); ?>" class="regular-text">
                                 <p class="description"><?php _e('Email address for message notifications', 'mhm-rentiva'); ?></p>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><?php _e('Sender Name', 'mhm-rentiva'); ?></th>
                             <td>
-                                <input type="text" name="<?php echo self::OPTION_NAME; ?>[from_name]" 
-                                       value="<?php echo esc_attr($settings['from_name']); ?>" class="regular-text">
+                                <input type="text" name="<?php echo self::OPTION_NAME; ?>[from_name]"
+                                    value="<?php echo esc_attr($settings['from_name']); ?>" class="regular-text">
                                 <p class="description"><?php _e('Sender name to display in emails', 'mhm-rentiva'); ?></p>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row"><?php _e('Sender Email', 'mhm-rentiva'); ?></th>
                             <td>
-                                <input type="email" name="<?php echo self::OPTION_NAME; ?>[from_email]" 
-                                       value="<?php echo esc_attr($settings['from_email']); ?>" class="regular-text">
+                                <input type="email" name="<?php echo self::OPTION_NAME; ?>[from_email]"
+                                    value="<?php echo esc_attr($settings['from_email']); ?>" class="regular-text">
                                 <p class="description"><?php _e('Email address to send emails from', 'mhm-rentiva'); ?></p>
                             </td>
                         </tr>
@@ -371,8 +400,8 @@ final class MessagesSettings
                             <th scope="row"><?php _e('Admin Notifications', 'mhm-rentiva'); ?></th>
                             <td>
                                 <label>
-                                    <input type="checkbox" name="<?php echo self::OPTION_NAME; ?>[email_admin_notifications]" 
-                                           value="1" <?php checked($settings['email_admin_notifications']); ?>>
+                                    <input type="checkbox" name="<?php echo self::OPTION_NAME; ?>[email_admin_notifications]"
+                                        value="1" <?php checked($settings['email_admin_notifications']); ?>>
                                     <?php _e('Send notification to admin when new message arrives', 'mhm-rentiva'); ?>
                                 </label>
                             </td>
@@ -381,8 +410,8 @@ final class MessagesSettings
                             <th scope="row"><?php _e('Customer Notifications', 'mhm-rentiva'); ?></th>
                             <td>
                                 <label>
-                                    <input type="checkbox" name="<?php echo self::OPTION_NAME; ?>[email_customer_notifications]" 
-                                           value="1" <?php checked($settings['email_customer_notifications']); ?>>
+                                    <input type="checkbox" name="<?php echo self::OPTION_NAME; ?>[email_customer_notifications]"
+                                        value="1" <?php checked($settings['email_customer_notifications']); ?>>
                                     <?php _e('Send notification to customer when reply arrives', 'mhm-rentiva'); ?>
                                 </label>
                             </td>
@@ -397,8 +426,8 @@ final class MessagesSettings
                             <th scope="row"><?php _e('Dashboard Widget', 'mhm-rentiva'); ?></th>
                             <td>
                                 <label>
-                                    <input type="checkbox" name="<?php echo self::OPTION_NAME; ?>[dashboard_widget_enabled]" 
-                                           value="1" <?php checked($settings['dashboard_widget_enabled']); ?>>
+                                    <input type="checkbox" name="<?php echo self::OPTION_NAME; ?>[dashboard_widget_enabled]"
+                                        value="1" <?php checked($settings['dashboard_widget_enabled']); ?>>
                                     <?php _e('Show message widget in dashboard', 'mhm-rentiva'); ?>
                                 </label>
                             </td>
@@ -406,9 +435,9 @@ final class MessagesSettings
                         <tr>
                             <th scope="row"><?php _e('Widget Max Messages', 'mhm-rentiva'); ?></th>
                             <td>
-                                <input type="number" name="<?php echo self::OPTION_NAME; ?>[dashboard_widget_max_messages]" 
-                                       value="<?php echo esc_attr($settings['dashboard_widget_max_messages']); ?>" 
-                                       min="1" max="20" class="small-text">
+                                <input type="number" name="<?php echo self::OPTION_NAME; ?>[dashboard_widget_max_messages]"
+                                    value="<?php echo esc_attr($settings['dashboard_widget_max_messages']); ?>"
+                                    min="1" max="20" class="small-text">
                                 <p class="description"><?php _e('Maximum number of messages to show in dashboard widget', 'mhm-rentiva'); ?></p>
                             </td>
                         </tr>
@@ -416,18 +445,10 @@ final class MessagesSettings
                             <th scope="row"><?php _e('Auto Reply', 'mhm-rentiva'); ?></th>
                             <td>
                                 <label>
-                                    <input type="checkbox" name="<?php echo self::OPTION_NAME; ?>[auto_reply_enabled]" 
-                                           value="1" <?php checked($settings['auto_reply_enabled']); ?>>
+                                    <input type="checkbox" name="<?php echo self::OPTION_NAME; ?>[auto_reply_enabled]"
+                                        value="1" <?php checked($settings['auto_reply_enabled']); ?>>
                                     <?php _e('Send automatic reply to new messages', 'mhm-rentiva'); ?>
                                 </label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><?php _e('Auto Reply Message', 'mhm-rentiva'); ?></th>
-                            <td>
-                                <textarea name="<?php echo self::OPTION_NAME; ?>[auto_reply_message]" 
-                                          rows="5" cols="50" class="large-text"><?php echo esc_textarea($settings['auto_reply_message']); ?></textarea>
-                                <p class="description"><?php _e('Automatic reply message to send to customers', 'mhm-rentiva'); ?></p>
                             </td>
                         </tr>
                     </table>
@@ -438,13 +459,13 @@ final class MessagesSettings
                     <div id="category-list">
                         <?php foreach ($settings['categories'] as $key => $name): ?>
                             <div class="mhm-category-item">
-                                <input type="text" name="<?php echo self::OPTION_NAME; ?>[categories][<?php echo esc_attr($key); ?>]" 
-                                       value="<?php echo esc_attr($name); ?>" class="category-name" required>
+                                <input type="text" name="<?php echo self::OPTION_NAME; ?>[categories][<?php echo esc_attr($key); ?>]"
+                                    value="<?php echo esc_attr($name); ?>" class="category-name" required>
                                 <button type="button" class="remove-category-btn"><?php _e('Delete', 'mhm-rentiva'); ?></button>
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    
+
                     <div class="mhm-add-item">
                         <input type="text" id="new-category-name" placeholder="<?php _e('New category name', 'mhm-rentiva'); ?>">
                         <button type="button" id="add-category-btn" class="button"><?php _e('Add Category', 'mhm-rentiva'); ?></button>
@@ -456,13 +477,13 @@ final class MessagesSettings
                     <div id="status-list">
                         <?php foreach ($settings['statuses'] as $key => $name): ?>
                             <div class="mhm-status-item">
-                                <input type="text" name="<?php echo self::OPTION_NAME; ?>[statuses][<?php echo esc_attr($key); ?>]" 
-                                       value="<?php echo esc_attr($name); ?>" class="status-name" required>
+                                <input type="text" name="<?php echo self::OPTION_NAME; ?>[statuses][<?php echo esc_attr($key); ?>]"
+                                    value="<?php echo esc_attr($name); ?>" class="status-name" required>
                                 <button type="button" class="remove-status-btn"><?php _e('Delete', 'mhm-rentiva'); ?></button>
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    
+
                     <div class="mhm-add-item">
                         <input type="text" id="new-status-name" placeholder="<?php _e('New status name', 'mhm-rentiva'); ?>">
                         <button type="button" id="add-status-btn" class="button"><?php _e('Add Status', 'mhm-rentiva'); ?></button>
@@ -472,6 +493,6 @@ final class MessagesSettings
                 <?php submit_button(__('Save Settings', 'mhm-rentiva')); ?>
             </form>
         </div>
-        <?php
+<?php
     }
 }

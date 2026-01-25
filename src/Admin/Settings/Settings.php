@@ -1,145 +1,165 @@
 <?php
 
+/**
+ * Settings Management Center
+ * 
+ * Implements a Registry pattern for modular settings management.
+ * Follows Open/Closed principle for extending settings tabs.
+ * 
+ * @package MHMRentiva
+ * @version 1.5.0
+ */
+
 declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings;
 
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
-use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
+use MHMRentiva\Admin\Settings\View\TabRendererRegistry;
 
-if (!defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
 final class Settings
 {
-    public const GROUP = 'mhm_rentiva_settings';
-    public const PAGE  = 'mhm_rentiva_settings';
+    /**
+     * Option key for central settings storage.
+     */
+    public const OPTION_NAME = 'mhm_rentiva_settings';
 
+    /**
+     * Registry for settings providers.
+     * 
+     * @var array<string, string>
+     */
+    private static array $providers = [];
+
+    /**
+     * Register settings services and hooks.
+     * 
+     * Required by MHMRentiva\Plugin class.
+     */
     public static function register(): void
     {
-        // Use new Core class
+        self::init();
+
+        // Initialize core settings registration
         SettingsCore::register();
 
-        // Register AJAX handlers for reset functionality
-        add_action('wp_ajax_mhm_reset_settings_tab', [self::class, 'ajax_reset_settings_tab']);
+        // Register action handler (Controller) for non-AJAX actions
+        add_action('admin_init', [SettingsHandler::class, 'handle']);
     }
 
+    /**
+     * Initialize settings system and register registry-based hooks.
+     */
     public static function init(): void
     {
-        // Use new Core class
-        SettingsCore::init();
+        // AJAX Actions
+        add_action('wp_ajax_mhm_reset_settings_tab', [self::class, 'ajax_reset_settings_tab']);
+
+        // Register default providers from Groups
+        self::register_provider('general', \MHMRentiva\Admin\Settings\Groups\GeneralSettings::class);
+        self::register_provider('booking', \MHMRentiva\Admin\Settings\Groups\BookingSettings::class);
+        self::register_provider('vehicle', \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class);
+        self::register_provider('security', \MHMRentiva\Admin\Settings\Groups\SecuritySettings::class);
+
+        // Allow third-party extensions to register providers
+        do_action('mhm_rentiva_register_settings_providers');
     }
 
-    public static function defaults(): array
+    /**
+     * Register a new settings provider.
+     * 
+     * @param string $tab        Tab slug.
+     * @param string $class_name Class name (must implement get_default_settings).
+     */
+    public static function register_provider(string $tab, string $class_name): void
     {
-        // Use new Core class
-        return SettingsCore::defaults();
+        if (class_exists($class_name) && method_exists($class_name, 'get_default_settings')) {
+            self::$providers[$tab] = $class_name;
+        }
     }
 
-    public static function get_all(): array
-    {
-        // Use new Core class
-        return SettingsCore::get_all();
-    }
-
+    /**
+     * Get a setting value from the central store.
+     * 
+     * @param string $key     Setting key.
+     * @param mixed  $default Default value if not found.
+     * @return mixed
+     */
     public static function get(string $key, $default = null)
     {
-        // Use new Core class
         return SettingsCore::get($key, $default);
     }
 
-    public static function sanitize($input): array
-    {
-        // Use new Sanitizer class
-        return SettingsSanitizer::sanitize($input);
-    }
-
     /**
-     * Safe sanitize text field that handles null values
+     * Render the main settings page.
+     * 
+     * Orchestrates the TabRendererRegistry and SettingsView.
      */
-    public static function sanitize_text_field_safe($value)
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        return sanitize_text_field((string) $value);
-    }
-
     public static function render_settings_page(): void
     {
-        SettingsView::render_settings_page();
+        $registry    = new TabRendererRegistry();
+        $current_tab = sanitize_key($_GET['tab'] ?? 'general');
+        $renderer    = $registry->get($current_tab) ?: $registry->get('general');
+
+        // Prepare tab list for sidebar
+        $tabs = [];
+        foreach ($registry->get_all() as $slug => $tab_renderer) {
+            $tabs[$slug] = $tab_renderer->get_label();
+        }
+
+        SettingsView::render_settings_page($current_tab, $tabs, $renderer);
     }
 
     /**
-     * AJAX handler for resetting settings tab to defaults
+     * Reset a specific settings tab to defaults (AJAX).
      */
     public static function ajax_reset_settings_tab(): void
     {
         // 1. Security Check
-        check_ajax_referer('mhm_rentiva_settings', 'nonce');
+        check_ajax_referer('mhm_rentiva_settings_nonce', 'security');
 
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => __('Insufficient permissions.', 'mhm-rentiva')]);
-            return;
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Insufficient permissions for this action.', 'mhm-rentiva')]);
         }
 
-        try {
-            $tab = sanitize_key($_POST['tab'] ?? '');
+        // 2. Parameter Validation
+        $tab          = sanitize_key($_POST['tab'] ?? '');
+        $redirect_url = esc_url_raw($_POST['redirect_url'] ?? admin_url('admin.php?page=mhm-rentiva-settings'));
 
-            if (empty($tab)) {
-                throw new \Exception(__('Tab name is required.', 'mhm-rentiva'));
-            }
+        if (empty($tab)) {
+            wp_send_json_error(['message' => __('Invalid settings tab.', 'mhm-rentiva')]);
+        }
 
-            // 2. Get defaults based on tab (Dynamic Approach)
-            $defaults = [];
+        // 3. Execute reset via Service
+        $updated = \MHMRentiva\Admin\Settings\Services\SettingsService::reset_defaults($tab);
 
-            switch ($tab) {
-                case 'general':
-                    if (class_exists('\MHMRentiva\Admin\Settings\Groups\GeneralSettings')) {
-                        $defaults = \MHMRentiva\Admin\Settings\Groups\GeneralSettings::get_default_settings();
-                    }
-                    break;
-                case 'booking':
-                    if (class_exists('\MHMRentiva\Admin\Settings\Groups\BookingSettings')) {
-                        $defaults = \MHMRentiva\Admin\Settings\Groups\BookingSettings::get_default_settings();
-                    }
-                    break;
-                case 'system': // maintenance settings are under system section in reset logic usually, but let's be explicit if tab is sent as 'maintenance' or part of system
-                    if ($tab === 'system') {
-                        // System tab often includes maintenance, logs etc.
-                        // For now fallback to SettingsCore for complex tabs, or add MaintenanceSettings if needed.
-                    }
-                    // Fallthrough to default for system tab for now as it's complex
-                default:
-                    // Fallback to SettingsCore logic for other tabs
-                    if (!SettingsCore::reset_tab_to_defaults($tab)) {
-                        // It might return false if no changes needed, which is fine
-                    }
-                    wp_send_json_success([
-                        'message' => __('Settings reset to defaults successfully.', 'mhm-rentiva'),
-                        'redirect' => admin_url('admin.php?page=mhm-rentiva-settings&tab=' . $tab)
-                    ]);
-                    return;
-            }
-
-            // 3. Update Main Settings Array (Dynamic Loop)
-            if (!empty($defaults)) {
-                $main_settings = get_option('mhm_rentiva_settings', []);
-
-                foreach ($defaults as $key => $default_value) {
-                    $main_settings[$key] = $default_value;
-                }
-
-                update_option('mhm_rentiva_settings', $main_settings);
-            }
-
+        if ($updated) {
             wp_send_json_success([
-                'message' => __('Settings reset to defaults successfully.', 'mhm-rentiva'),
-                'redirect' => admin_url('admin.php?page=mhm-rentiva-settings&tab=' . $tab)
+                'message'      => __('Settings successfully reset to defaults.', 'mhm-rentiva'),
+                'redirect_url' => $redirect_url
             ]);
-        } catch (\Throwable $e) {
-            wp_send_json_error(['message' => $e->getMessage()]);
         }
+
+        wp_send_json_error(['message' => __('Settings are already at default values.', 'mhm-rentiva')]);
+    }
+
+    /**
+     * Get all default values across all registered providers.
+     * 
+     * Useful for API exports or system resets.
+     * 
+     * @return array<string, mixed>
+     */
+    public static function get_all_defaults(): array
+    {
+        $all_defaults = [];
+        foreach (self::$providers as $tab => $class) {
+            $all_defaults[$tab] = $class::get_default_settings();
+        }
+        return $all_defaults;
     }
 }

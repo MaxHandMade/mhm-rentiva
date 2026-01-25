@@ -226,6 +226,7 @@ final class DatabaseCleaner
             'expired_transients' => self::find_expired_transients(),
             'unused_options' => self::find_unused_options(),
             'invalid_meta_keys' => self::find_invalid_meta_keys(),
+            'old_logs' => self::cleanup_old_logs(30, true),
             'table_stats' => self::get_table_stats(),
         ];
     }
@@ -431,7 +432,7 @@ final class DatabaseCleaner
             'transfer_locations' => $wpdb->prefix . 'mhm_rentiva_transfer_locations',
             'queue' => $wpdb->prefix . 'mhm_rentiva_queue',
             'ratings' => $wpdb->prefix . 'mhm_rentiva_ratings',
-            'report_queue' => $wpdb->prefix . 'mhm_rentiva_report_queue',
+            'report_queue' => $wpdb->prefix . 'mhm_rentiva_background_jobs',
             'message_logs' => $wpdb->prefix . 'mhm_message_logs',
         ];
 
@@ -592,7 +593,7 @@ final class DatabaseCleaner
 
         $tables = [
             'queue' => $wpdb->prefix . 'mhm_rentiva_queue',
-            'report_queue' => $wpdb->prefix . 'mhm_rentiva_report_queue',
+            'report_queue' => $wpdb->prefix . 'mhm_rentiva_background_jobs',
             'message_logs' => $wpdb->prefix . 'mhm_message_logs',
         ];
 
@@ -720,7 +721,7 @@ final class DatabaseCleaner
             $wpdb->options,
             $wpdb->prefix . 'mhm_rentiva_queue',
             $wpdb->prefix . 'mhm_rentiva_ratings',
-            $wpdb->prefix . 'mhm_rentiva_report_queue',
+            $wpdb->prefix . 'mhm_rentiva_background_jobs',
             $wpdb->prefix . 'mhm_message_logs',
         ];
 
@@ -892,6 +893,29 @@ final class DatabaseCleaner
                             <?php endif; ?>
                         </td>
                     </tr>
+
+                    <tr>
+                        <td><?php esc_html_e('Log Records (>30 days)', 'mhm-rentiva'); ?></td>
+                        <td>
+                            <?php
+                            $log_count = 0;
+                            foreach ($analysis['old_logs'] as $table_log) {
+                                $log_count += ($table_log['would_delete'] ?? 0);
+                            }
+                            echo esc_html((string)$log_count);
+                            ?>
+                        </td>
+                        <td>-</td>
+                        <td>
+                            <?php if ($log_count > 0): ?>
+                                <span class="dashicons dashicons-warning" style="color: orange;"></span>
+                                <?php esc_html_e('Cleanup Recommended', 'mhm-rentiva'); ?>
+                            <?php else: ?>
+                                <span class="dashicons dashicons-yes-alt" style="color: green;"></span>
+                                <?php esc_html_e('Clean', 'mhm-rentiva'); ?>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -998,6 +1022,11 @@ final class DatabaseCleaner
             <button type="button" class="button" id="mhm-optimize-tables-btn">
                 <span class="dashicons dashicons-database"></span>
                 <?php esc_html_e('Optimize Tables', 'mhm-rentiva'); ?>
+            </button>
+
+            <button type="button" class="button button-secondary" id="mhm-cleanup-logs-btn">
+                <span class="dashicons dashicons-calendar-alt"></span>
+                <?php esc_html_e('Purge Old Logs', 'mhm-rentiva'); ?>
             </button>
         </div>
 <?php

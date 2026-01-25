@@ -5,18 +5,18 @@
  * @since 1.0.0
  */
 
-jQuery(document).ready(function($) {
+jQuery(document).ready(function ($) {
     'use strict';
 
     // Analyze Database
-    $('#mhm-analyze-db-btn').on('click', function() {
+    $('#mhm-analyze-db-btn').on('click', function () {
         const btn = $(this);
         btn.prop('disabled', true).text(mhm_db_cleanup_vars.analyzing_text);
 
         $.post(ajaxurl, {
             action: 'mhm_analyze_database',
             nonce: mhm_db_cleanup_vars.nonce
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 $('#mhm-cleanup-results').html(response.data.html);
             } else {
@@ -27,7 +27,7 @@ jQuery(document).ready(function($) {
     });
 
     // Clean Orphaned Meta
-    $('#mhm-cleanup-orphaned-btn').on('click', function() {
+    $('#mhm-cleanup-orphaned-btn').on('click', function () {
         if (!confirm(mhm_db_cleanup_vars.confirm_orphaned_text)) {
             return;
         }
@@ -38,10 +38,11 @@ jQuery(document).ready(function($) {
         $.post(ajaxurl, {
             action: 'mhm_cleanup_orphaned',
             nonce: mhm_db_cleanup_vars.nonce
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 alert(mhm_db_cleanup_vars.success_text + ' ' + response.data.message);
                 $('#mhm-analyze-db-btn').trigger('click'); // Re-analyze
+                $('#mhm-refresh-backups-btn').trigger('click'); // Refresh backup list
             } else {
                 alert(mhm_db_cleanup_vars.error_text + ' ' + response.data);
             }
@@ -50,17 +51,18 @@ jQuery(document).ready(function($) {
     });
 
     // Clean Expired Transients
-    $('#mhm-cleanup-transients-btn').on('click', function() {
+    $('#mhm-cleanup-transients-btn').on('click', function () {
         const btn = $(this);
         btn.prop('disabled', true).text(mhm_db_cleanup_vars.cleaning_text);
 
         $.post(ajaxurl, {
             action: 'mhm_cleanup_transients',
             nonce: mhm_db_cleanup_vars.nonce
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 alert(mhm_db_cleanup_vars.success_text + ' ' + response.data.message);
                 $('#mhm-analyze-db-btn').trigger('click'); // Re-analyze
+                $('#mhm-refresh-backups-btn').trigger('click'); // Refresh backup list
             } else {
                 alert(mhm_db_cleanup_vars.error_text + ' ' + response.data);
             }
@@ -69,17 +71,18 @@ jQuery(document).ready(function($) {
     });
 
     // Optimize Autoload
-    $('#mhm-optimize-autoload-btn').on('click', function() {
+    $('#mhm-optimize-autoload-btn').on('click', function () {
         const btn = $(this);
         btn.prop('disabled', true).text(mhm_db_cleanup_vars.optimizing_text);
 
         $.post(ajaxurl, {
             action: 'mhm_optimize_autoload',
             nonce: mhm_db_cleanup_vars.nonce
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 alert(mhm_db_cleanup_vars.success_text + ' ' + response.data.message);
                 $('#mhm-analyze-db-btn').trigger('click'); // Re-analyze
+                $('#mhm-refresh-backups-btn').trigger('click'); // Refresh backup list
             } else {
                 alert(mhm_db_cleanup_vars.error_text + ' ' + response.data);
             }
@@ -88,7 +91,7 @@ jQuery(document).ready(function($) {
     });
 
     // Optimize Tables
-    $('#mhm-optimize-tables-btn').on('click', function() {
+    $('#mhm-optimize-tables-btn').on('click', function () {
         if (!confirm(mhm_db_cleanup_vars.confirm_tables_text)) {
             return;
         }
@@ -99,9 +102,10 @@ jQuery(document).ready(function($) {
         $.post(ajaxurl, {
             action: 'mhm_optimize_tables',
             nonce: mhm_db_cleanup_vars.nonce
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 alert(mhm_db_cleanup_vars.success_text + ' ' + response.data.message);
+                $('#mhm-refresh-backups-btn').trigger('click'); // Refresh backup list
             } else {
                 alert(mhm_db_cleanup_vars.error_text + ' ' + response.data);
             }
@@ -109,9 +113,33 @@ jQuery(document).ready(function($) {
         });
     });
 
+    // Purge Old Logs
+    $('#mhm-cleanup-logs-btn').on('click', function () {
+        if (!confirm(mhm_db_cleanup_vars.confirm_old_logs_text || 'This will delete logs and queue records older than 30 days. Continue?')) {
+            return;
+        }
+
+        const btn = $(this);
+        btn.prop('disabled', true).text(mhm_db_cleanup_vars.cleaning_text);
+
+        $.post(ajaxurl, {
+            action: 'mhm_cleanup_logs',
+            nonce: mhm_db_cleanup_vars.nonce
+        }, function (response) {
+            if (response.success) {
+                alert(mhm_db_cleanup_vars.success_text + ' ' + response.data.message);
+                $('#mhm-analyze-db-btn').trigger('click'); // Re-analyze
+                $('#mhm-refresh-backups-btn').trigger('click'); // Refresh backup list
+            } else {
+                alert(mhm_db_cleanup_vars.error_text + ' ' + response.data);
+            }
+            btn.prop('disabled', false).html('<span class="dashicons dashicons-calendar-alt"></span> ' + (mhm_db_cleanup_vars.purge_logs_text || 'Purge Old Logs'));
+        });
+    });
+
     // Clean Invalid Meta Keys
     // Use event delegation because button is dynamically added via AJAX
-    $(document).on('click', '#mhm-cleanup-invalid-meta-btn', function() {
+    $(document).on('click', '#mhm-cleanup-invalid-meta-btn', function () {
         if (!confirm(mhm_db_cleanup_vars.confirm_invalid_meta_text || 'This will delete invalid meta keys. A backup will be created. Continue?')) {
             return;
         }
@@ -122,10 +150,11 @@ jQuery(document).ready(function($) {
         $.post(ajaxurl, {
             action: 'mhm_cleanup_invalid_meta',
             nonce: mhm_db_cleanup_vars.nonce
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 alert(mhm_db_cleanup_vars.success_text + ' ' + response.data.message);
                 $('#mhm-analyze-db-btn').trigger('click'); // Re-analyze
+                $('#mhm-refresh-backups-btn').trigger('click'); // Refresh backup list
             } else {
                 alert(mhm_db_cleanup_vars.error_text + ' ' + response.data);
             }
@@ -134,14 +163,14 @@ jQuery(document).ready(function($) {
     });
 
     // Refresh Backup List
-    $('#mhm-refresh-backups-btn').on('click', function() {
+    $('#mhm-refresh-backups-btn').on('click', function () {
         const btn = $(this);
         btn.prop('disabled', true).text(mhm_db_cleanup_vars.loading_text || 'Loading...');
 
         $.post(ajaxurl, {
             action: 'mhm_list_backups',
             nonce: mhm_db_cleanup_vars.nonce
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 renderBackupList(response.data.backups || []);
             } else {
@@ -152,7 +181,7 @@ jQuery(document).ready(function($) {
     });
 
     // Download Backup
-    $(document).on('click', '.mhm-download-backup-btn', function() {
+    $(document).on('click', '.mhm-download-backup-btn', function () {
         const tableName = $(this).data('table');
         const form = $('<form>', {
             method: 'POST',
@@ -179,7 +208,7 @@ jQuery(document).ready(function($) {
     });
 
     // Restore Backup
-    $(document).on('click', '.mhm-restore-backup-btn', function() {
+    $(document).on('click', '.mhm-restore-backup-btn', function () {
         if (!confirm(mhm_db_cleanup_vars.confirm_restore_text || 'This will restore the backup data. Continue?')) {
             return;
         }
@@ -192,7 +221,7 @@ jQuery(document).ready(function($) {
             action: 'mhm_restore_backup',
             nonce: mhm_db_cleanup_vars.nonce,
             table_name: tableName
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 alert(mhm_db_cleanup_vars.success_text + ' ' + response.data.message);
                 $('#mhm-refresh-backups-btn').trigger('click');
@@ -204,7 +233,7 @@ jQuery(document).ready(function($) {
     });
 
     // Delete Backup
-    $(document).on('click', '.mhm-delete-backup-btn', function() {
+    $(document).on('click', '.mhm-delete-backup-btn', function () {
         if (!confirm(mhm_db_cleanup_vars.confirm_delete_backup_text || 'This will permanently delete the backup. This action cannot be undone. Continue?')) {
             return;
         }
@@ -217,7 +246,7 @@ jQuery(document).ready(function($) {
             action: 'mhm_delete_backup',
             nonce: mhm_db_cleanup_vars.nonce,
             table_name: tableName
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 alert(mhm_db_cleanup_vars.success_text + ' ' + response.data.message);
                 $('#mhm-refresh-backups-btn').trigger('click');
@@ -245,14 +274,14 @@ jQuery(document).ready(function($) {
         html += '<th>' + (mhm_db_cleanup_vars.actions_text || 'Actions') + '</th>';
         html += '</tr></thead><tbody>';
 
-        backups.forEach(function(backup) {
+        backups.forEach(function (backup) {
             const typeLabels = {
                 'invalid_meta': mhm_db_cleanup_vars.type_invalid_meta_text || 'Invalid Meta',
                 'orphaned_meta': mhm_db_cleanup_vars.type_orphaned_meta_text || 'Orphaned Meta',
                 'custom': mhm_db_cleanup_vars.type_custom_text || 'Custom'
             };
-            
-            const dateFormatted = backup.date !== 'unknown' 
+
+            const dateFormatted = backup.date !== 'unknown'
                 ? backup.date.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3 $4:$5:$6')
                 : backup.date;
 
@@ -284,7 +313,7 @@ jQuery(document).ready(function($) {
     $('#mhm-refresh-backups-btn').trigger('click');
 
     // Create Full Backup
-    $('#mhm-create-full-backup-btn').on('click', function() {
+    $('#mhm-create-full-backup-btn').on('click', function () {
         if (!confirm(mhm_db_cleanup_vars.confirm_create_full_backup_text || 'This will create a full backup of all plugin-related tables. This may take a few minutes. Continue?')) {
             return;
         }
@@ -295,7 +324,7 @@ jQuery(document).ready(function($) {
         $.post(ajaxurl, {
             action: 'mhm_create_full_backup',
             nonce: mhm_db_cleanup_vars.nonce
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 alert(mhm_db_cleanup_vars.success_text + ' ' + response.data.message);
                 $('#mhm-refresh-full-backups-btn').trigger('click');
@@ -307,14 +336,14 @@ jQuery(document).ready(function($) {
     });
 
     // Refresh Full Backup List
-    $('#mhm-refresh-full-backups-btn').on('click', function() {
+    $('#mhm-refresh-full-backups-btn').on('click', function () {
         const btn = $(this);
         btn.prop('disabled', true).text(mhm_db_cleanup_vars.loading_text || 'Loading...');
 
         $.post(ajaxurl, {
             action: 'mhm_list_full_backups',
             nonce: mhm_db_cleanup_vars.nonce
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 renderFullBackupList(response.data.backups || []);
             } else {
@@ -325,7 +354,7 @@ jQuery(document).ready(function($) {
     });
 
     // Download Full Backup
-    $(document).on('click', '.mhm-download-full-backup-btn', function() {
+    $(document).on('click', '.mhm-download-full-backup-btn', function () {
         const filePath = $(this).data('file');
         const form = $('<form>', {
             method: 'POST',
@@ -352,7 +381,7 @@ jQuery(document).ready(function($) {
     });
 
     // Restore Full Backup
-    $(document).on('click', '.mhm-restore-full-backup-btn', function() {
+    $(document).on('click', '.mhm-restore-full-backup-btn', function () {
         if (!confirm(mhm_db_cleanup_vars.confirm_restore_full_backup_text || 'WARNING: This will restore the backup and may overwrite existing data. This operation is irreversible. Continue?')) {
             return;
         }
@@ -365,7 +394,7 @@ jQuery(document).ready(function($) {
             action: 'mhm_restore_full_backup',
             nonce: mhm_db_cleanup_vars.nonce,
             file_path: filePath
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 alert(mhm_db_cleanup_vars.success_text + ' ' + response.data.message);
                 $('#mhm-refresh-full-backups-btn').trigger('click');
@@ -377,7 +406,7 @@ jQuery(document).ready(function($) {
     });
 
     // Delete Full Backup
-    $(document).on('click', '.mhm-delete-full-backup-btn', function() {
+    $(document).on('click', '.mhm-delete-full-backup-btn', function () {
         if (!confirm(mhm_db_cleanup_vars.confirm_delete_backup_text || 'This will permanently delete the backup. This action cannot be undone. Continue?')) {
             return;
         }
@@ -390,7 +419,7 @@ jQuery(document).ready(function($) {
             action: 'mhm_delete_full_backup',
             nonce: mhm_db_cleanup_vars.nonce,
             backup_name: backupName
-        }, function(response) {
+        }, function (response) {
             if (response.success) {
                 alert(mhm_db_cleanup_vars.success_text + ' ' + response.data.message);
                 $('#mhm-refresh-full-backups-btn').trigger('click');
@@ -419,7 +448,7 @@ jQuery(document).ready(function($) {
         html += '<th>' + (mhm_db_cleanup_vars.actions_text || 'Actions') + '</th>';
         html += '</tr></thead><tbody>';
 
-        backups.forEach(function(backup) {
+        backups.forEach(function (backup) {
             const dateFormatted = backup.created_at || backup.date || 'Unknown';
 
             html += '<tr>';

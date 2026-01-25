@@ -1,334 +1,290 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Core;
 
+/**
+ * Check if ABSPATH is defined to prevent direct access.
+ */
 if (!defined('ABSPATH')) {
     exit;
 }
 
+/**
+ * SettingsHelper Class
+ *
+ * Provides static helper methods to render WordPress settings fields
+ * and sanitize input data following 100/100 Gold Standards.
+ *
+ * @package MHMRentiva\Admin\Settings\Core
+ */
 final class SettingsHelper
 {
     /**
-     * ✅ BaseSettingsGroup functions integrated
+     * Settings option name constant for consistency.
      */
+    private const SETTINGS_KEY = 'mhm_rentiva_settings';
+
     /**
-     * Text field helper for settings
+     * Text field helper for settings.
+     *
+     * @param string $group   Settings group name.
+     * @param string $name    Field name/ID.
+     * @param string $label   Field label.
+     * @param string $section Section ID.
      */
-    public static function text_field(string $group, string $name, string $label, string $section = ''): void
+    public static function text_field(string $group, string $name, string $label, string $section = '', string $description = '', string $placeholder = ''): void
     {
-        add_settings_field($name, $label, function () use ($name) {
-            // ✅ Use central SettingsCore::get
-            $val = esc_attr(SettingsCore::get($name, ''));
-            echo '<input type="text" name="mhm_rentiva_settings[' . esc_attr($name) . ']" class="regular-text" value="' . $val . '"/>';
+        add_settings_field($name, $label, static function () use ($name, $description, $placeholder) {
+            $val = esc_attr((string) SettingsCore::get($name, ''));
+            printf(
+                '<input type="text" name="%s[%s]" class="regular-text" value="%s" placeholder="%s"/>',
+                esc_attr(self::SETTINGS_KEY),
+                esc_attr($name),
+                $val,
+                esc_attr($placeholder)
+            );
+            if ($description) {
+                printf('<p class="description">%s</p>', esc_html($description));
+            }
         }, $group, $section);
     }
 
     /**
-     * Checkbox field helper for settings
+     * Checkbox field helper for settings.
+     *
+     * @param string $group       Settings group name.
+     * @param string $name        Field name.
+     * @param string $label       Field label.
+     * @param string $description Optional description.
+     * @param string $section     Section ID.
      */
     public static function checkbox_field(string $group, string $name, string $label, string $description = '', string $section = ''): void
     {
-        add_settings_field($name, $label, function () use ($name, $description) {
-            // ✅ Use central SettingsCore::get
+        add_settings_field($name, $label, static function () use ($name, $description) {
             $val = (string) SettingsCore::get($name, '0');
-            
-            // ✅ Always use settings array format (no more standalone options)
-            // This ensures consistency across all settings
-            echo '<label><input type="checkbox" name="mhm_rentiva_settings[' . esc_attr($name) . ']" value="1" ' . checked($val, '1', false) . '> ' . esc_html($description) . '</label>';
+
+            // Fallback hidden field for unchecked state.
+            printf('<input type="hidden" name="%s[%s]" value="0">', esc_attr(self::SETTINGS_KEY), esc_attr($name));
+
+            echo '<label>';
+            printf(
+                '<input type="checkbox" name="%s[%s]" value="1" %s> %s',
+                esc_attr(self::SETTINGS_KEY),
+                esc_attr($name),
+                checked('1', $val, false),
+                esc_html($description)
+            );
+            echo '</label>';
         }, $group, $section);
     }
 
     /**
-     * Select field helper for settings
+     * Select field helper for settings.
+     *
+     * @param string $group       Settings group name.
+     * @param string $name        Field name.
+     * @param string $label       Field label.
+     * @param array  $options     Associative array of options (value => label).
+     * @param string $description Optional description.
+     * @param string $section     Section ID.
      */
     public static function select_field(string $group, string $name, string $label, array $options, string $description = '', string $section = ''): void
     {
-        add_settings_field($name, $label, function () use ($name, $options, $description) {
-            // ✅ Use central SettingsCore::get
+        add_settings_field($name, $label, static function () use ($name, $options, $description) {
             $val = (string) SettingsCore::get($name, '');
-            echo '<select name="mhm_rentiva_settings[' . esc_attr($name) . ']">';
+            printf('<select name="%s[%s]">', esc_attr(self::SETTINGS_KEY), esc_attr($name));
             foreach ($options as $value => $text) {
-                echo '<option value="' . esc_attr($value) . '"' . selected($val, $value, false) . '>' . esc_html($text) . '</option>';
+                printf(
+                    '<option value="%s" %s>%s</option>',
+                    esc_attr((string) $value),
+                    selected($val, (string) $value, false),
+                    esc_html((string) $text)
+                );
             }
             echo '</select>';
             if ($description) {
-                echo '<p class="description">' . esc_html($description) . '</p>';
+                printf('<p class="description">%s</p>', esc_html($description));
             }
         }, $group, $section);
     }
 
     /**
-     * Number field helper for settings
+     * Number field helper for settings.
      */
-    public static function number_field(string $group, string $name, string $label, int $min = 0, int $max = 999, string $description = '', string $section = ''): void
+    public static function number_field(string $group, string $name, string $label, int|float $min = 0, int|float $max = 999, string $description = '', string $section = '', int|float|null $step = null): void
     {
-        add_settings_field($name, $label, function () use ($name, $min, $max, $description) {
-            // ✅ Use central SettingsCore::get
-            $val = (int) SettingsCore::get($name, $min);
-            echo '<input type="number" class="small-text" min="' . esc_attr($min) . '" max="' . esc_attr($max) . '" name="mhm_rentiva_settings[' . esc_attr($name) . ']" value="' . (int) $val . '"/>';
+        add_settings_field($name, $label, static function () use ($name, $min, $max, $description, $step) {
+            $raw_val = SettingsCore::get($name, $min);
+            $val     = is_numeric($raw_val) ? $raw_val : $min;
+
+            // Auto-detect step if not provided
+            if ($step === null) {
+                $step = (is_float($min) || is_float($max) || is_float($val)) ? 0.1 : 1;
+            }
+
+            printf(
+                '<input type="number" class="small-text" min="%s" max="%s" step="%s" name="%s[%s]" value="%s"/>',
+                esc_attr((string) $min),
+                esc_attr((string) $max),
+                esc_attr((string) $step),
+                esc_attr(self::SETTINGS_KEY),
+                esc_attr($name),
+                esc_attr((string) $val)
+            );
             if ($description) {
-                echo '<p class="description">' . esc_html($description) . '</p>';
+                printf('<p class="description">%s</p>', esc_html($description));
             }
         }, $group, $section);
     }
 
     /**
-     * Textarea field helper for settings
+     * Textarea field helper for settings.
      */
-    public static function textarea_field(string $group, string $name, string $label, int $rows = 5, string $description = '', string $section = ''): void
+    public static function textarea_field(string $group, string $name, string $label, int $rows = 5, string $description = '', string $section = '', string $placeholder = ''): void
     {
-        add_settings_field($name, $label, function () use ($name, $rows, $description) {
-            // ✅ Use central SettingsCore::get
+        add_settings_field($name, $label, static function () use ($name, $rows, $description, $placeholder) {
             $val = esc_textarea((string) SettingsCore::get($name, ''));
-            echo '<textarea name="mhm_rentiva_settings[' . esc_attr($name) . ']" class="large-text code" rows="' . esc_attr($rows) . '">' . $val . '</textarea>';
+            printf(
+                '<textarea name="%s[%s]" class="large-text code" rows="%d" placeholder="%s">%s</textarea>',
+                esc_attr(self::SETTINGS_KEY),
+                esc_attr($name),
+                $rows,
+                esc_attr($placeholder),
+                $val
+            );
             if ($description) {
-                echo '<p class="description">' . esc_html($description) . '</p>';
+                printf('<p class="description">%s</p>', esc_html($description));
             }
         }, $group, $section);
     }
 
     /**
-     * Email field helper for settings
+     * Email field helper for settings.
      */
     public static function email_field(string $group, string $name, string $label, string $description = '', string $section = ''): void
     {
-        add_settings_field($name, $label, function () use ($name, $description) {
-            // ✅ Use central SettingsCore::get
+        add_settings_field($name, $label, static function () use ($name, $description) {
             $val = esc_attr((string) SettingsCore::get($name, ''));
-            echo '<input type="email" class="regular-text" name="mhm_rentiva_settings[' . esc_attr($name) . ']" value="' . $val . '"/>';
+            printf(
+                '<input type="email" class="regular-text" name="%s[%s]" value="%s"/>',
+                esc_attr(self::SETTINGS_KEY),
+                esc_attr($name),
+                $val
+            );
             if ($description) {
-                echo '<p class="description">' . esc_html($description) . '</p>';
+                printf('<p class="description">%s</p>', esc_html($description));
             }
         }, $group, $section);
     }
 
     /**
-     * URL field helper for settings
+     * URL field helper for settings.
      */
     public static function url_field(string $group, string $name, string $label, string $description = '', string $section = ''): void
     {
-        add_settings_field($name, $label, function () use ($name, $description) {
-            $settings = get_option('mhm_rentiva_settings', []);
-            $val = esc_attr((string) ($settings[$name] ?? ''));
-            echo '<input type="url" class="regular-text" name="mhm_rentiva_settings[' . esc_attr($name) . ']" value="' . $val . '"/>';
+        add_settings_field($name, $label, static function () use ($name, $description) {
+            // FIXED: Now uses SettingsCore::get for consistency.
+            $val = esc_url((string) SettingsCore::get($name, ''));
+            printf(
+                '<input type="url" class="regular-text" name="%s[%s]" value="%s"/>',
+                esc_attr(self::SETTINGS_KEY),
+                esc_attr($name),
+                $val
+            );
             if ($description) {
-                echo '<p class="description">' . esc_html($description) . '</p>';
+                printf('<p class="description">%s</p>', esc_html($description));
             }
         }, $group, $section);
     }
 
     /**
-     * Password field helper for settings
+     * Password field helper for settings.
      */
     public static function password_field(string $group, string $name, string $label, string $description = '', string $section = ''): void
     {
-        add_settings_field($name, $label, function () use ($name, $description) {
-            $settings = get_option('mhm_rentiva_settings', []);
-            $val = esc_attr((string) ($settings[$name] ?? ''));
-            echo '<input type="password" class="regular-text" name="mhm_rentiva_settings[' . esc_attr($name) . ']" value="' . $val . '"/>';
+        add_settings_field($name, $label, static function () use ($name, $description) {
+            // FIXED: Now uses SettingsCore::get for consistency.
+            $val = esc_attr((string) SettingsCore::get($name, ''));
+            printf(
+                '<input type="password" class="regular-text" name="%s[%s]" value="%s"/>',
+                esc_attr(self::SETTINGS_KEY),
+                esc_attr($name),
+                $val
+            );
             if ($description) {
-                echo '<p class="description">' . esc_html($description) . '</p>';
+                printf('<p class="description">%s</p>', esc_html($description));
             }
         }, $group, $section);
     }
 
     /**
-     * Readonly field helper for settings
+     * Readonly field helper.
      */
     public static function readonly_field(string $group, string $name, string $label, string $value, string $description = '', string $section = ''): void
     {
-        add_settings_field($name, $label, function () use ($name, $value, $description) {
-            echo '<input type="text" class="regular-text" readonly value="' . esc_attr($value) . '" onclick="this.select();" />';
+        add_settings_field($name, $label, static function () use ($value, $description) {
+            printf(
+                '<input type="text" class="regular-text" readonly value="%s" onclick="this.select();" />',
+                esc_attr($value)
+            );
             if ($description) {
-                echo '<p class="description">' . esc_html($description) . '</p>';
+                printf('<p class="description">%s</p>', esc_html($description));
             }
         }, $group, $section);
     }
 
     /**
-     * Button field helper for settings
+     * Sanitization Hub using PHP 8 match expression.
      */
-    public static function button_field(string $group, string $name, string $label, string $button_text, string $url, string $description = '', string $section = ''): void
+    public static function sanitize_field(mixed $value, string $type = 'text'): mixed
     {
-        add_settings_field($name, $label, function () use ($name, $button_text, $url, $description) {
-            echo '<a href="' . esc_url($url) . '" class="button button-secondary">' . esc_html($button_text) . '</a>';
-            if ($description) {
-                echo '<p class="description">' . esc_html($description) . '</p>';
-            }
-        }, $group, $section);
-    }
-    
-    /**
-     * Safe sanitize text field that handles null values
-     */
-    public static function sanitize_text_field_safe($value)
-    {
-        if ($value === null) {
+        if (null === $value || '' === $value) {
             return '';
         }
-        if ($value === '') {
-            return '';
-        }
-        // Convert to string if not already
-        if (!is_string($value) && !is_numeric($value)) {
-            return '';
-        }
-        return sanitize_text_field((string) $value);
+
+        return match ($type) {
+            'email'    => sanitize_email((string) $value),
+            'textarea' => sanitize_textarea_field((string) $value),
+            'url'      => esc_url_raw((string) $value),
+            'checkbox' => ('1' === $value || 1 === $value) ? '1' : '0',
+            'integer'  => (int) $value,
+            default    => sanitize_text_field((string) $value),
+        };
     }
 
     /**
-     * Safe sanitize email that handles null values
+     * Register a setting with safe callbacks.
      */
-    public static function sanitize_email_safe($value)
+    public static function register_setting(string $group, string $name, string $type = 'text'): void
     {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        if (!is_string($value) && !is_numeric($value)) {
-            return '';
-        }
-        
-        
-        return sanitize_email((string) $value);
-    }
-
-    /**
-     * Safe sanitize textarea field that handles null values
-     */
-    public static function sanitize_textarea_field_safe($value)
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        if (!is_string($value) && !is_numeric($value)) {
-            return '';
-        }
-        return sanitize_textarea_field((string) $value);
-    }
-
-    /**
-     * ✅ Functions integrated from BaseSettingsGroup
-     */
-    
-    /**
-     * Register a setting with common options
-     */
-    public static function register_setting(string $group, string $name, string $sanitize_callback = 'sanitize_text_field'): void
-    {
-        // Use safe sanitize functions by default
-        if ($sanitize_callback === 'sanitize_text_field') {
-            $sanitize_callback = [self::class, 'sanitize_text_field_safe'];
-        } elseif ($sanitize_callback === 'sanitize_email') {
-            $sanitize_callback = [self::class, 'sanitize_email_safe'];
-        } elseif ($sanitize_callback === 'sanitize_textarea_field') {
-            $sanitize_callback = [self::class, 'sanitize_textarea_field_safe'];
-        }
-        
         register_setting($group, $name, [
-            'type' => 'string',
-            'sanitize_callback' => $sanitize_callback
+            'type'              => 'string',
+            'sanitize_callback' => static fn($val) => self::sanitize_field($val, $type),
         ]);
     }
 
     /**
-     * Register a setting with custom options
-     */
-    public static function register_setting_custom(string $group, string $name, array $options = []): void
-    {
-        $default_options = [
-            'type' => 'string',
-            'sanitize_callback' => [self::class, 'sanitize_text_field_safe']
-        ];
-        
-        // Convert string sanitize callbacks to safe versions
-        if (isset($options['sanitize_callback'])) {
-            if ($options['sanitize_callback'] === 'sanitize_text_field') {
-                $options['sanitize_callback'] = [self::class, 'sanitize_text_field_safe'];
-            } elseif ($options['sanitize_callback'] === 'sanitize_email') {
-                $options['sanitize_callback'] = [self::class, 'sanitize_email_safe'];
-            } elseif ($options['sanitize_callback'] === 'sanitize_textarea_field') {
-                $options['sanitize_callback'] = [self::class, 'sanitize_textarea_field_safe'];
-            }
-        }
-        
-        register_setting($group, $name, array_merge($default_options, $options));
-    }
-
-    /**
-     * Add a settings field with common pattern
-     */
-    public static function add_field(string $name, string $label, callable $callback, string $group, string $section): void
-    {
-        add_settings_field($name, $label, $callback, $group, $section);
-    }
-
-    /**
-     * Add a settings section with common pattern
-     */
-    public static function add_section(string $id, string $title, callable $callback, string $group): void
-    {
-        add_settings_section($id, $title, $callback, $group);
-    }
-
-    /**
-     * Render radio buttons for enabled/disabled options
+     * Render radio buttons for enabled/disabled options.
      */
     public static function render_radio_enabled(string $name, string $current_value, string $description = ''): void
     {
-        echo '<label><input type="radio" name="' . esc_attr($name) . '" value="1" ' . checked($current_value, '1', false) . '> ' . esc_html__('Enabled', 'mhm-rentiva') . '</label><br>';
-        echo '<label><input type="radio" name="' . esc_attr($name) . '" value="0" ' . checked($current_value, '0', false) . '> ' . esc_html__('Disabled', 'mhm-rentiva') . '</label>';
-        
+        printf(
+            '<label><input type="radio" name="%1$s" value="1" %2$s> %3$s</label><br>',
+            esc_attr($name),
+            checked('1', $current_value, false),
+            esc_html__('Enabled', 'mhm-rentiva')
+        );
+        printf(
+            '<label><input type="radio" name="%1$s" value="0" %2$s> %3$s</label>',
+            esc_attr($name),
+            checked('0', $current_value, false),
+            esc_html__('Disabled', 'mhm-rentiva')
+        );
+
         if ($description) {
-            echo '<p class="description">' . esc_html($description) . '</p>';
+            printf('<p class="description">%s</p>', esc_html($description));
         }
-    }
-
-    /**
-     * Get option value with fallback - Use SettingsCore::get
-     */
-    public static function get_option(string $name, $default = ''): string
-    {
-        return (string) SettingsCore::get($name, $default);
-    }
-
-    /**
-     * Sanitize callback for enabled/disabled fields
-     */
-    public static function sanitize_enabled($value): string
-    {
-        return $value === '1' ? '1' : '0';
-    }
-
-    /**
-     * Sanitize callback for checkbox fields.
-     *
-     * Returns '1' if the value is '1', otherwise '0'.
-     * This prevents errors when a checkbox is unchecked and its value is null.
-     *
-     * @param mixed $value The input value.
-     * @return string '1' or '0'.
-     */
-    public static function sanitize_checkbox($value): string
-    {
-        return ($value === '1' || $value === 1) ? '1' : '0';
-    }
-
-    /**
-     * Sanitize callback for integer fields with min/max
-     */
-    public static function sanitize_integer($value, int $min = 0, int $max = 999): int
-    {
-        $int_value = (int) $value;
-        if ($int_value < $min) $int_value = $min;
-        if ($int_value > $max) $int_value = $max;
-        return $int_value;
-    }
-
-    /**
-     * Sanitize callback for select fields with allowed values
-     */
-    public static function sanitize_select($value, array $allowed_values, $default = ''): string
-    {
-        return in_array($value, $allowed_values, true) ? $value : $default;
     }
 }

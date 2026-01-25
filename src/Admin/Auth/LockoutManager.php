@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Auth;
 
@@ -21,7 +23,7 @@ final class LockoutManager
      * Default maximum failed login attempts
      */
     public const DEFAULT_MAX_ATTEMPTS = 5;
-    
+
     /**
      * Default lockout duration in minutes
      */
@@ -55,6 +57,12 @@ final class LockoutManager
         update_user_meta($user_id, 'mhm_failed_login_attempts', $failed_attempts);
         update_user_meta($user_id, 'mhm_last_failed_login', time());
 
+        // Check if brute force protection is enabled
+        $protection_enabled = SettingsCore::get('mhm_rentiva_brute_force_protection', '0') === '1';
+        if (!$protection_enabled) {
+            return;
+        }
+
         // Check if account should be locked
         $lockout_attempts = SettingsCore::get('mhm_rentiva_max_login_attempts', self::DEFAULT_MAX_ATTEMPTS);
         if ($failed_attempts >= (int) $lockout_attempts) {
@@ -87,12 +95,12 @@ final class LockoutManager
         }
 
         $user_id = $user->ID;
-        
+
         // Check if account is locked
         if (self::is_account_locked($user_id)) {
             $lockout_duration = SettingsCore::get('mhm_rentiva_login_lockout_duration', self::DEFAULT_LOCKOUT_DURATION);
             $lockout_minutes = (int) $lockout_duration;
-            
+
             return new \WP_Error(
                 'account_locked',
                 sprintf(
@@ -113,17 +121,17 @@ final class LockoutManager
     {
         $lockout_duration = SettingsCore::get('mhm_rentiva_login_lockout_duration', self::DEFAULT_LOCKOUT_DURATION);
         $lockout_seconds = (int) $lockout_duration * 60;
-        
+
         update_user_meta($user_id, 'mhm_account_locked', '1');
         update_user_meta($user_id, 'mhm_lockout_expires', time() + $lockout_seconds);
-        
+
         // Log the lockout
-        if (class_exists('\MHMRentiva\Logs\AdvancedLogger')) {
-            \MHMRentiva\Logs\AdvancedLogger::warning(
+        if (class_exists('\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger')) {
+            \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning(
                 /* translators: %d placeholder. */
                 sprintf(__('Account locked for user ID: %d', 'mhm-rentiva'), $user_id),
                 ['user_id' => $user_id, 'lockout_duration' => $lockout_duration],
-                \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SECURITY
+                \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SECURITY
             );
         } else {
             error_log(sprintf(__('Account locked for user ID: %d', 'mhm-rentiva'), $user_id));

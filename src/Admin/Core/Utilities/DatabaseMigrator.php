@@ -9,19 +9,19 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * ✅ DATABASE MIGRATION YÖNETİCİSİ - Otomatik Index ve Schema Güncellemeleri
+ * ✅ DATABASE MIGRATION MANAGER - Automatic Index and Schema Updates
  * 
- * Performans optimizasyonu için kritik index'leri otomatik olarak oluşturur
+ * Automatically creates critical indexes for performance optimization
  */
 final class DatabaseMigrator
 {
     /**
      * Migration version
      */
-    private const CURRENT_VERSION = '3.0.2';
+    private const CURRENT_VERSION = '3.0.3';
 
     /**
-     * Migration'ları çalıştır
+     * Run all pending migrations
      */
     public static function run_migrations(): void
     {
@@ -29,12 +29,14 @@ final class DatabaseMigrator
 
         if (version_compare($current_version, self::CURRENT_VERSION, '<')) {
             self::create_transfer_tables(); // VIP Transfer Tables
+            self::create_table('notification_queue');
             self::add_performance_indexes();
             self::optimize_existing_indexes();
             self::add_missing_indexes();
             self::cleanup_orphan_data();
+            self::migrate_standalone_settings();
 
-            // Version'u güncelle
+            // Update version in database
             update_option('mhm_rentiva_db_version', self::CURRENT_VERSION);
 
             // Log migration
@@ -49,35 +51,35 @@ final class DatabaseMigrator
     }
 
     /**
-     * Kritik performans indexlerini ekle
+     * Add critical performance indexes
      */
     private static function add_performance_indexes(): void
     {
         global $wpdb;
 
         $indexes = [
-            // 1. Status queries için composite index
+            // 1. Composite index for status queries
             "CREATE INDEX IF NOT EXISTS idx_mhm_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)",
 
-            // 2. Date range queries için timestamp index
+            // 2. Timestamp index for date range queries
             "CREATE INDEX IF NOT EXISTS idx_mhm_timestamp_range ON {$wpdb->postmeta} (post_id, meta_key(50), meta_value(20))",
 
-            // 3. Vehicle booking lookups için
+            // 3. Index for vehicle booking lookups
             "CREATE INDEX IF NOT EXISTS idx_mhm_vehicle_bookings ON {$wpdb->postmeta} (meta_value(20), post_id)",
 
-            // 4. Post date queries için
+            // 4. Index for post date queries
             "CREATE INDEX IF NOT EXISTS idx_posts_date_type ON {$wpdb->posts} (post_date, post_type(20), post_status(20))",
 
-            // 5. Booking meta queries için
+            // 5. Index for booking meta queries
             "CREATE INDEX IF NOT EXISTS idx_mhm_booking_meta ON {$wpdb->postmeta} (meta_key(50), post_id, meta_value(50))",
 
-            // 6. Customer email lookups için
+            // 6. Index for customer email lookups
             "CREATE INDEX IF NOT EXISTS idx_mhm_customer_email ON {$wpdb->postmeta} (meta_key(50), meta_value(100))",
 
-            // 7. Price range queries için
+            // 7. Index for price range queries
             "CREATE INDEX IF NOT EXISTS idx_mhm_price_range ON {$wpdb->postmeta} (meta_key(50), meta_value(20))",
 
-            // 8. Combined booking lookup için
+            // 8. Index for combined booking lookup
             "CREATE INDEX IF NOT EXISTS idx_mhm_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))",
         ];
 
@@ -94,13 +96,13 @@ final class DatabaseMigrator
     }
 
     /**
-     * Mevcut indexleri optimize et
+     * Optimize existing indexes
      */
     private static function optimize_existing_indexes(): void
     {
         global $wpdb;
 
-        // Index analizi yap
+        // Run index analysis
         $analysis_queries = [
             "ANALYZE TABLE {$wpdb->posts}",
             "ANALYZE TABLE {$wpdb->postmeta}",
@@ -116,13 +118,13 @@ final class DatabaseMigrator
     }
 
     /**
-     * Eksik indexleri tespit et ve ekle
+     * Detect and add missing indexes
      */
     private static function add_missing_indexes(): void
     {
         global $wpdb;
 
-        // Eksik indexleri tespit et
+        // Detect missing indexes
         $missing_indexes = self::detect_missing_indexes();
 
         foreach ($missing_indexes as $index_sql) {
@@ -138,7 +140,7 @@ final class DatabaseMigrator
     }
 
     /**
-     * Eksik indexleri tespit et
+     * Detect missing metadata indexes
      */
     private static function detect_missing_indexes(): array
     {
@@ -146,7 +148,7 @@ final class DatabaseMigrator
 
         $missing_indexes = [];
 
-        // MHM Rentiva meta key'leri için özel indexler
+        // Special indexes for MHM Rentiva specific meta keys
         $mhm_meta_keys = [
             '_mhm_status',
             '_mhm_vehicle_id',
@@ -159,7 +161,7 @@ final class DatabaseMigrator
         ];
 
         foreach ($mhm_meta_keys as $meta_key) {
-            // Her meta key için özel index oluştur
+            // Create a specific index for each meta key
             $index_name = 'idx_mhm_' . str_replace('_mhm_', '', $meta_key);
             $missing_indexes[] = "CREATE INDEX IF NOT EXISTS {$index_name} ON {$wpdb->postmeta} (meta_key(50), meta_value(50), post_id)";
         }
@@ -168,7 +170,7 @@ final class DatabaseMigrator
     }
 
     /**
-     * Index durumunu kontrol et
+     * Check index status
      */
     public static function check_index_status(): array
     {
@@ -187,27 +189,27 @@ final class DatabaseMigrator
             $posts_indexes = $wpdb->get_results("SHOW INDEX FROM {$wpdb->posts}");
             $status['total_indexes'] += count($posts_indexes);
 
-            // Postmeta tablosu indexleri
+            // Postmeta table indexes
             $postmeta_indexes = $wpdb->get_results("SHOW INDEX FROM {$wpdb->postmeta}");
             $status['total_indexes'] += count($postmeta_indexes);
 
-            // MHM Rentiva indexlerini say
+            // Count MHM Rentiva indexes
             foreach ($postmeta_indexes as $index) {
                 if (strpos($index->Key_name, 'idx_mhm_') === 0) {
                     $status['mhm_indexes']++;
                 }
             }
 
-            // Performance score hesapla
+            // Calculate performance score
             $status['performance_score'] = min(100, ($status['mhm_indexes'] / 8) * 100);
 
-            // Öneriler
+            // Recommendations
             if ($status['mhm_indexes'] < 5) {
-                $status['recommendations'][] = 'Daha fazla MHM Rentiva indexi eklenmeli';
+                $status['recommendations'][] = 'More MHM Rentiva indexes should be added';
             }
 
             if ($status['performance_score'] < 70) {
-                $status['recommendations'][] = 'Database performansı optimize edilmeli';
+                $status['recommendations'][] = 'Database performance should be optimized';
             }
         } catch (\Exception $e) {
             $status['error'] = $e->getMessage();
@@ -265,7 +267,7 @@ final class DatabaseMigrator
     }
 
     /**
-     * Database optimizasyonu çalıştır
+     * Run database optimization
      */
     public static function optimize_database(): array
     {
@@ -274,7 +276,7 @@ final class DatabaseMigrator
         $results = [];
 
         try {
-            // Tabloları optimize et
+            // Optimize tables
             $tables = [$wpdb->posts, $wpdb->postmeta];
 
             foreach ($tables as $table) {
@@ -289,7 +291,7 @@ final class DatabaseMigrator
                 ];
             }
 
-            // Index'leri yeniden oluştur
+            // Rebuild indexes
             $results['rebuild_indexes'] = self::rebuild_indexes();
         } catch (\Exception $e) {
             $results['error'] = $e->getMessage();
@@ -299,7 +301,7 @@ final class DatabaseMigrator
     }
 
     /**
-     * Indexleri yeniden oluştur
+     * Rebuild indexes
      */
     private static function rebuild_indexes(): array
     {
@@ -307,7 +309,7 @@ final class DatabaseMigrator
 
         $results = [];
 
-        // Kritik indexleri yeniden oluştur
+        // Rebuild critical indexes
         $critical_indexes = [
             "DROP INDEX IF EXISTS idx_mhm_status_lookup ON {$wpdb->postmeta}",
             "CREATE INDEX idx_mhm_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)",
@@ -332,7 +334,7 @@ final class DatabaseMigrator
     }
 
     /**
-     * Migration durumunu kontrol et
+     * Check migration status
      */
     public static function get_migration_status(): array
     {
@@ -351,14 +353,14 @@ final class DatabaseMigrator
     }
 
     /**
-     * Migration'ı geri al
+     * Rollback migration
      */
     public static function rollback_migration(): bool
     {
         global $wpdb;
 
         try {
-            // MHM Rentiva indexlerini sil
+            // Delete MHM Rentiva indexes
             $drop_indexes = [
                 "DROP INDEX IF EXISTS idx_mhm_status_lookup ON {$wpdb->postmeta}",
                 "DROP INDEX IF EXISTS idx_mhm_timestamp_range ON {$wpdb->postmeta}",
@@ -374,7 +376,7 @@ final class DatabaseMigrator
                 $wpdb->query($sql);
             }
 
-            // Version'u eski haline getir
+            // Reset version to original state
             update_option('mhm_rentiva_db_version', '1.0.0');
 
             if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
@@ -406,7 +408,7 @@ final class DatabaseMigrator
     }
 
     /**
-     * Admin notice göster
+     * Show admin notice
      */
     public static function show_migration_notice(): void
     {
@@ -513,7 +515,7 @@ final class DatabaseMigrator
     }
 
     /**
-     * Orphan dataları temizle
+     * Cleanup orphan data
      */
     private static function cleanup_orphan_data(): void
     {
@@ -560,6 +562,25 @@ final class DatabaseMigrator
             case 'ratings':
             case 'mhm_rentiva_ratings':
                 self::create_rating_table();
+                return true;
+            case 'queue':
+            case 'mhm_rentiva_queue':
+                self::create_queue_table();
+                return true;
+            case 'report_queue':
+            case 'background_jobs':
+            case 'mhm_rentiva_background_jobs':
+                self::create_background_jobs_table();
+                return true;
+            case 'message_logs':
+            case 'mhm_message_logs':
+                self::create_message_logs_table();
+                return true;
+            case 'notification_queue':
+            case 'mhm_notification_queue':
+                if (class_exists(\MHMRentiva\Admin\Notifications\NotificationManager::class)) {
+                    \MHMRentiva\Admin\Notifications\NotificationManager::create_notification_queue_table();
+                }
                 return true;
         }
         return false;
@@ -616,5 +637,82 @@ final class DatabaseMigrator
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
+    }
+
+    /**
+     * Create queue table
+     */
+    public static function create_queue_table(): void
+    {
+        if (class_exists(\MHMRentiva\Admin\Core\Utilities\QueueManager::class)) {
+            \MHMRentiva\Admin\Core\Utilities\QueueManager::create_table();
+        }
+    }
+
+    /**
+     * Create background jobs table
+     */
+    public static function create_background_jobs_table(): void
+    {
+        if (class_exists(\MHMRentiva\Admin\Reports\BackgroundProcessor::class)) {
+            \MHMRentiva\Admin\Reports\BackgroundProcessor::create_background_jobs_table();
+        }
+    }
+
+    /**
+     * Create message logs table
+     */
+    public static function create_message_logs_table(): void
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'mhm_message_logs';
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            level varchar(20) NOT NULL DEFAULT 'info',
+            message text NOT NULL,
+            context longtext,
+            user_id bigint(20),
+            ip_address varchar(45),
+            user_agent text,
+            created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY level (level),
+            KEY created_at (created_at),
+            KEY user_id (user_id)
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * Migrate standalone settings into unified array
+     */
+    private static function migrate_standalone_settings(): void
+    {
+        $settings = (array) get_option('mhm_rentiva_settings', []);
+
+        $standalone_keys = [
+            'mhm_transfer_deposit_type' => 'full_payment',
+            'mhm_transfer_deposit_rate' => 20,
+            'mhm_transfer_custom_types' => '',
+        ];
+
+        $migrated = false;
+        foreach ($standalone_keys as $key => $default) {
+            $old_val = get_option($key, null);
+            if ($old_val !== null) {
+                if (!isset($settings[$key])) {
+                    $settings[$key] = $old_val;
+                    $migrated = true;
+                }
+            }
+        }
+
+        if ($migrated) {
+            update_option('mhm_rentiva_settings', $settings);
+        }
     }
 }

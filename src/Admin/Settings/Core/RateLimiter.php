@@ -1,340 +1,377 @@
-<?php declare(strict_types=1);
+<?php
+
+/**
+ * Rate Limiter Service
+ *
+ * Provides IP-based rate limiting using WordPress transients.
+ * Supports both sliding and fixed window strategies with high-performance standards.
+ *
+ * @package MHMRentiva\Admin\Settings\Core
+ * @since 2.0.1
+ */
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Core;
 
-if (!defined('ABSPATH')) {
-    exit;
-}
+defined('ABSPATH') || exit;
 
 /**
- * Rate Limiter Implementation
+ * Class RateLimiter
  * 
- * Implements rate limiting functionality for the plugin
- * 
- * @since 4.0.0
+ * Optimized for PHP 8.2+ and WordPress Coding Standards.
  */
 final class RateLimiter
 {
-    private const CACHE_GROUP = 'mhm_rate_limit';
-    private const CACHE_EXPIRATION = 3600; // 1 hour
+    /**
+     * Singleton instance.
+     */
+    private static ?self $instance = null;
 
     /**
-     * Check if request is within rate limit
-     * 
-     * @param string $key    Rate limit key (e.g., 'booking', 'payment', 'general')
-     * @param int    $limit  Rate limit (requests per window)
-     * @param int    $window Time window in seconds (default: 60)
-     * @return bool True if allowed, false if rate limit exceeded
+     * Transient prefix.
      */
-    public static function is_allowed(string $key, int $limit, int $window = 60): bool
+    private string $prefix = 'mhm_rl_';
+
+    /**
+     * Default request limit.
+     */
+    private int $limit = 60;
+
+    /**
+     * Default expiration time in seconds (window).
+     */
+    private int $expiry = 60;
+
+    /**
+     * Get singleton instance.
+     * Use this for global access while allowing constructor for DI in tests.
+     *
+     * @return self
+     */
+    public static function instance(): self
     {
-        if (!self::is_enabled()) {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * Public constructor for DI/Tests.
+     */
+    public function __construct() {}
+
+    /**
+     * Check if the current request is within limits.
+     *
+     * @return bool True if allowed, false if limit exceeded.
+     */
+    public function check_limit(): bool
+    {
+        $ip            = $this->get_client_ip_internal();
+        $transient_key = $this->prefix . md5($ip);
+
+        // Fetch current hits.
+        $current_hits = get_site_transient($transient_key);
+
+        // 1. Initial hit: Start a new window.
+        if (false === $current_hits) {
+            set_site_transient($transient_key, 1, $this->expiry);
             return true;
         }
 
-        // Get current user role for role-based rate limiting
-        $user_role = null;
-        if (is_user_logged_in()) {
-            $user = wp_get_current_user();
-            $user_role = $user->roles[0] ?? null;
-        }
+        $hits = (int) $current_hits;
 
-        // Allow bypass for administrators (optional, can be filtered)
-        /**
-         * Filter: Allow bypassing rate limits for specific roles
-         * 
-         * @param bool        $bypass    Whether to bypass rate limit
-         * @param string      $key       Rate limit key
-         * @param string|null $user_role Current user role
-         * @return bool Modified bypass status
-         */
-        $bypass = apply_filters('mhm_rentiva_rate_limit_bypass', false, $key, $user_role);
-        if ($bypass && $user_role === 'administrator') {
-            return true;
-        }
-
-        $ip = self::get_client_ip();
-        $cache_key = self::get_cache_key($key, $ip);
-        
-        $requests = get_transient($cache_key);
-        
-        if ($requests === false) {
-            $requests = 0;
-        }
-        
-        if ($requests >= $limit) {
+        // 2. Limit Check: If exceeded, log and block.
+        if ($hits >= $this->limit) {
+            $this->log_violation_internal($ip);
             return false;
         }
-        
-        $requests++;
-        set_transient($cache_key, $requests, $window);
-        
+
+        // 3. Increment: Calculate remaining TTL to maintain the 'Fixed Window'.
+        $timeout   = (int) get_site_option("_site_transient_timeout_{$transient_key}");
+        $remaining = $timeout > 0 ? $timeout - time() : $this->expiry;
+
+        // Fallback for edge cases where timeout is lost or invalid.
+        if ($remaining <= 0) {
+            $remaining = $this->expiry;
+        }
+
+        set_site_transient($transient_key, $hits + 1, $remaining);
+
         return true;
     }
 
     /**
-     * Get remaining requests for a key
+     * Get client IP address securely (Internal).
+     *
+     * @return string Validated IP address.
      */
-    public static function get_remaining_requests(string $key, int $limit, int $window = 60): int
+    private function get_client_ip_internal(): string
     {
-        if (!self::is_enabled()) {
-            return $limit;
-        }
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 
-        $ip = self::get_client_ip();
-        $cache_key = self::get_cache_key($key, $ip);
-        
-        $requests = get_transient($cache_key);
-        
-        if ($requests === false) {
-            return $limit;
-        }
-        
-        return max(0, $limit - $requests);
-    }
-
-    /**
-     * Reset rate limit for a key
-     */
-    public static function reset(string $key): void
-    {
-        $ip = self::get_client_ip();
-        $cache_key = self::get_cache_key($key, $ip);
-        
-        delete_transient($cache_key);
-    }
-
-    /**
-     * Check if rate limiting is enabled
-     */
-    public static function is_enabled(): bool
-    {
-        return (bool) SettingsCore::get('mhm_rentiva_rate_limit_enabled', '1');
-    }
-
-    /**
-     * Get general rate limit
-     * 
-     * @param string|null $user_role Optional user role for role-based limits
-     * @return int Rate limit per minute
-     */
-    public static function get_general_limit(?string $user_role = null): int
-    {
-        $base_limit = (int) SettingsCore::get('mhm_rentiva_rate_limit_requests_per_minute', 60);
-        
         /**
-         * Filter: Allow customization of general rate limit based on user role or other factors
-         * 
-         * @param int         $base_limit Base rate limit from settings
-         * @param string|null $user_role  Current user role (if provided)
-         * @return int Modified rate limit
-         * 
-         * @example
-         * add_filter('mhm_rentiva_rate_limit_general', function($limit, $role) {
-         *     if ($role === 'administrator') {
-         *         return $limit * 2; // Admins get double limit
-         *     }
-         *     return $limit;
-         * }, 10, 2);
+         * Filter the client IP. 
+         * Use this to handle Cloudflare (HTTP_CF_CONNECTING_IP) or other proxies.
          */
-        return (int) apply_filters('mhm_rentiva_rate_limit_general', $base_limit, $user_role);
-    }
+        $ip = (string) apply_filters('mhm_rate_limiter_client_ip', $ip);
 
-    /**
-     * Get booking rate limit
-     * 
-     * @param string|null $user_role Optional user role for role-based limits
-     * @return int Rate limit per minute
-     */
-    public static function get_booking_limit(?string $user_role = null): int
-    {
-        $base_limit = (int) SettingsCore::get('mhm_rentiva_rate_limit_booking_per_minute', 5);
-        
-        /**
-         * Filter: Allow customization of booking rate limit
-         * 
-         * @param int         $base_limit Base rate limit from settings
-         * @param string|null $user_role  Current user role (if provided)
-         * @return int Modified rate limit
-         */
-        return (int) apply_filters('mhm_rentiva_rate_limit_booking', $base_limit, $user_role);
-    }
-
-    /**
-     * Get payment rate limit
-     * 
-     * @param string|null $user_role Optional user role for role-based limits
-     * @return int Rate limit per minute
-     */
-    public static function get_payment_limit(?string $user_role = null): int
-    {
-        $base_limit = (int) SettingsCore::get('mhm_rentiva_rate_limit_payment_per_minute', 3);
-        
-        /**
-         * Filter: Allow customization of payment rate limit
-         * 
-         * @param int         $base_limit Base rate limit from settings
-         * @param string|null $user_role  Current user role (if provided)
-         * @return int Modified rate limit
-         */
-        return (int) apply_filters('mhm_rentiva_rate_limit_payment', $base_limit, $user_role);
-    }
-
-    /**
-     * Get block duration
-     */
-    public static function get_block_duration(): int
-    {
-        return (int) SettingsCore::get('mhm_rentiva_rate_limit_block_duration', 15);
-    }
-
-    /**
-     * Check if IP is blocked
-     */
-    public static function is_ip_blocked(string $ip = null): bool
-    {
-        if (!$ip) {
-            $ip = self::get_client_ip();
+        // Validate IP format.
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            return '127.0.0.1';
         }
 
-        $block_key = 'mhm_rate_limit_block_' . md5($ip);
-        return get_transient($block_key) !== false;
+        return $ip;
     }
 
     /**
-     * Block IP address
+     * Log rate limit violations for security monitoring (Internal).
+     *
+     * @param string $ip Client IP address.
+     * @return void
      */
-    public static function block_ip(string $ip = null, int $duration = null): void
+    private function log_violation_internal(string $ip): void
     {
-        if (!$ip) {
-            $ip = self::get_client_ip();
-        }
-
-        if (!$duration) {
-            $duration = self::get_block_duration() * 60; // Convert to seconds
-        }
-
-        $block_key = 'mhm_rate_limit_block_' . md5($ip);
-        set_transient($block_key, time(), $duration);
-    }
-
-    /**
-     * Unblock IP address
-     */
-    public static function unblock_ip(string $ip = null): void
-    {
-        if (!$ip) {
-            $ip = self::get_client_ip();
-        }
-
-        $block_key = 'mhm_rate_limit_block_' . md5($ip);
-        delete_transient($block_key);
-    }
-
-    /**
-     * Get client IP address
-     */
-    public static function get_client_ip(): string
-    {
-        $ip_keys = [
-            'HTTP_CF_CONNECTING_IP',     // Cloudflare
-            'HTTP_CLIENT_IP',
-            'HTTP_X_FORWARDED_FOR',
-            'HTTP_X_FORWARDED',
-            'HTTP_X_CLUSTER_CLIENT_IP',
-            'HTTP_FORWARDED_FOR',
-            'HTTP_FORWARDED',
-            'REMOTE_ADDR'
-        ];
-
-        foreach ($ip_keys as $key) {
-            if (array_key_exists($key, $_SERVER) === true) {
-                $ip = $_SERVER[$key];
-                if (strpos($ip, ',') !== false) {
-                    $ip = explode(',', $ip)[0];
-                }
-                $ip = trim($ip);
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-                    return $ip;
-                }
-            }
-        }
-
-        return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-    }
-
-    /**
-     * Get cache key for rate limiting
-     */
-    private static function get_cache_key(string $key, string $ip): string
-    {
-        return self::CACHE_GROUP . '_' . $key . '_' . md5($ip);
-    }
-
-    /**
-     * Log rate limit violation
-     */
-    public static function log_violation(string $key, string $ip, int $limit): void
-    {
-        if (!self::is_enabled()) {
+        if (!defined('WP_DEBUG') || !WP_DEBUG) {
             return;
         }
 
-        $log_entry = [
-            'timestamp' => current_time('mysql'),
-            'key' => $key,
-            'ip' => $ip,
-            'limit' => $limit,
-            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
-            'request_uri' => $_SERVER['REQUEST_URI'] ?? '',
-        ];
+        $uri = isset($_SERVER['REQUEST_URI']) ? esc_url_raw(wp_unslash($_SERVER['REQUEST_URI'])) : 'unknown';
 
-        // Log to WordPress error log
-        error_log('MHM Rate Limit Violation: ' . json_encode($log_entry));
+        error_log(
+            sprintf(
+                '[MHM Rentiva] Rate limit exceeded. IP: %1$s | URI: %2$s',
+                esc_html($ip),
+                $uri
+            )
+        );
+    }
 
-        // Log to custom log file if available
-        if (function_exists('mhm_log')) {
-            mhm_log('rate_limit', $log_entry);
+    /**
+     * Clean up expired rate limit data from the database.
+     * Handles both Single-site and Multisite environments.
+     *
+     * @return void
+     */
+    public function cleanup_expired_limits(): void
+    {
+        if (wp_using_ext_object_cache()) {
+            return;
         }
+
+        global $wpdb;
+
+        $table          = is_multisite() ? $wpdb->sitemeta : $wpdb->options;
+        $key_col        = is_multisite() ? 'meta_key' : 'option_name';
+        $val_col        = is_multisite() ? 'meta_value' : 'option_value';
+        $prefix         = is_multisite() ? '_site_transient_' : '_transient_';
+        $timeout_prefix = is_multisite() ? '_site_transient_timeout_' : '_transient_timeout_';
+
+        // Optimized cleanup query to remove both data and timeout rows.
+        $query = $wpdb->prepare(
+            "DELETE a, b FROM {$table} a 
+             INNER JOIN {$table} b ON b.{$key_col} = REPLACE(a.{$key_col}, %s, %s)
+             WHERE a.{$key_col} LIKE %s 
+             AND a.{$val_col} < %d",
+            $timeout_prefix,
+            $prefix,
+            $wpdb->esc_like($timeout_prefix . $this->prefix) . '%',
+            time()
+        );
+
+        $wpdb->query($query);
     }
 
     /**
-     * Get rate limit statistics
+     * Configure rate limiter settings.
+     *
+     * @param int $limit  Max requests.
+     * @param int $expiry Time window in seconds.
+     * @return self
      */
-    public static function get_stats(): array
+    public function configure(int $limit, int $expiry): self
     {
-        global $wpdb;
-
-        $stats = [
-            'total_requests' => 0,
-            'blocked_requests' => 0,
-            'active_blocks' => 0,
-        ];
-
-        // Get active blocks count
-        $blocks = $wpdb->get_results(
-            "SELECT option_name FROM {$wpdb->options} 
-             WHERE option_name LIKE '_transient_mhm_rate_limit_block_%' 
-             AND option_value > " . (time() - 3600)
-        );
-        
-        $stats['active_blocks'] = count($blocks);
-
-        return $stats;
+        $this->limit  = max(1, $limit);
+        $this->expiry = max(1, $expiry);
+        return $this;
     }
 
     /**
-     * Clean up expired rate limit data
+     * Get current limit setting.
+     * 
+     * @return int
      */
-    public static function cleanup(): void
+    public function get_limit(): int
     {
-        global $wpdb;
+        return $this->limit;
+    }
 
-        // Clean up expired transients
-        $wpdb->query(
-            "DELETE FROM {$wpdb->options} 
-             WHERE option_name LIKE '_transient_mhm_rate_limit_%' 
-             AND option_value < " . time()
-        );
+    /**
+     * Get remaining requests for current window.
+     * 
+     * @param string $action
+     * @param int|null $limit
+     * @return int
+     */
+    public static function get_remaining_requests(string $action, ?int $limit = null): int
+    {
+        $instance = self::instance();
+        if (null !== $limit) {
+            $instance->configure($limit, $instance->expiry);
+        }
+
+        $ip            = $instance->get_client_ip_internal();
+        $transient_key = $instance->prefix . md5($ip);
+        $current_hits  = get_site_transient($transient_key);
+
+        if (false === $current_hits) {
+            return $instance->get_limit();
+        }
+
+        return max(0, $instance->get_limit() - (int) $current_hits);
+    }
+
+    // =========================================================================
+    // STATIC WRAPPERS FOR BACKWARD COMPATIBILITY (SettingsCore.php etc.)
+    // =========================================================================
+
+    /**
+     * Backward-compatible check if rate limiting is enabled.
+     *
+     * @return bool
+     */
+    public static function is_enabled(): bool
+    {
+        if (!class_exists('\MHMRentiva\Admin\REST\Settings\RESTSettings')) {
+            return false;
+        }
+        $settings = \MHMRentiva\Admin\REST\Settings\RESTSettings::get_rate_limit_settings();
+        return !empty($settings['enabled']);
+    }
+
+    /**
+     * Backward-compatible check for IP blocks.
+     *
+     * @return bool
+     */
+    public static function is_ip_blocked(): bool
+    {
+        $ip = self::instance()->get_client_ip_internal();
+        $block_key = 'mhm_rl_block_' . md5($ip);
+        return get_site_transient($block_key) !== false;
+    }
+
+    /**
+     * Backward-compatible block function.
+     *
+     * @param int|null $duration Duration in seconds.
+     * @return void
+     */
+    public static function block_ip(?int $duration = null): void
+    {
+        $ip = self::instance()->get_client_ip_internal();
+        if (null === $duration) {
+            $duration = self::get_block_duration() * 60;
+        }
+
+        $block_key = 'mhm_rl_block_' . md5($ip);
+        set_site_transient($block_key, time(), max(1, $duration));
+    }
+
+    public static function is_allowed(string $action, ?int $limit = null, int $window = 60): bool
+    {
+        if (null === $limit) {
+            switch ($action) {
+                case 'booking':
+                    $limit = self::get_booking_limit();
+                    break;
+                case 'payment':
+                    $limit = self::get_payment_limit();
+                    break;
+                default:
+                    $limit = self::get_general_limit();
+                    break;
+            }
+        }
+
+        return self::instance()
+            ->configure($limit, $window)
+            ->check_limit();
+    }
+
+    /**
+     * Backward-compatible violation logger.
+     *
+     * @param string $action
+     * @param string $ip
+     * @param int    $limit
+     */
+    public static function log_violation(string $action, string $ip, int $limit): void
+    {
+        self::instance()->log_violation_internal($ip);
+    }
+
+    /**
+     * Backward-compatible IP fetcher.
+     *
+     * @return string
+     */
+    public static function get_client_ip(): string
+    {
+        return self::instance()->get_client_ip_internal();
+    }
+
+    /**
+     * Backward-compatible block duration.
+     *
+     * @return int
+     */
+    public static function get_block_duration(): int
+    {
+        return (int) get_option('mhm_rentiva_rate_limit_block_duration', 15);
+    }
+
+    /**
+     * Static helper for booking limits.
+     *
+     * @return int
+     */
+    public static function get_booking_limit(): int
+    {
+        if (!class_exists('\MHMRentiva\Admin\REST\Settings\RESTSettings')) {
+            return 5;
+        }
+        $settings = \MHMRentiva\Admin\REST\Settings\RESTSettings::get_rate_limit_settings();
+        return (int) ($settings['strict_limit'] ?? 5);
+    }
+
+    /**
+     * Static helper for payment limits.
+     *
+     * @return int
+     */
+    public static function get_payment_limit(): int
+    {
+        if (!class_exists('\MHMRentiva\Admin\REST\Settings\RESTSettings')) {
+            return 3;
+        }
+        $settings = \MHMRentiva\Admin\REST\Settings\RESTSettings::get_rate_limit_settings();
+        return (int) ($settings['strict_limit'] ?? 3);
+    }
+
+    /**
+     * Static helper for general limits.
+     *
+     * @return int
+     */
+    public static function get_general_limit(): int
+    {
+        if (!class_exists('\MHMRentiva\Admin\REST\Settings\RESTSettings')) {
+            return 60;
+        }
+        $settings = \MHMRentiva\Admin\REST\Settings\RESTSettings::get_rate_limit_settings();
+        return (int) ($settings['default_limit'] ?? 60);
     }
 }

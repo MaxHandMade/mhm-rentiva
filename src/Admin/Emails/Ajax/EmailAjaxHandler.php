@@ -74,8 +74,11 @@ final class EmailAjaxHandler
      */
     public static function handle_send_test_email(): void
     {
-        // Verify nonce
-        if (!check_ajax_referer('mhm_rentiva_send_template_test', 'nonce', false)) {
+        // Verify nonce (Support both specific template test and general connection test)
+        if (
+            !check_ajax_referer('mhm_rentiva_send_template_test', 'nonce', false) &&
+            !check_ajax_referer('mhm_rentiva_send_test_email', 'nonce', false)
+        ) {
             wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
         }
 
@@ -83,9 +86,16 @@ final class EmailAjaxHandler
             wp_send_json_error(__('Permission denied.', 'mhm-rentiva'));
         }
 
-        $template_key = isset($_POST['template_key']) ? sanitize_text_field(wp_unslash($_POST['template_key'])) : '';
+        $template_key = isset($_POST['template_key']) ? sanitize_text_field(wp_unslash($_POST['template_key'])) : 'booking_created_admin';
         $to = isset($_POST['to']) ? sanitize_email(wp_unslash($_POST['to'])) : '';
         $booking_id = isset($_POST['booking_id']) ? absint($_POST['booking_id']) : 0;
+
+        // Fallback for 'to' if empty (General Connection Test)
+        if (empty($to)) {
+            $to = \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_test_mode()
+                ? \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_test_address()
+                : get_option('admin_email');
+        }
 
         if (empty($template_key) || empty($to)) {
             wp_send_json_error(__('Missing parameters.', 'mhm-rentiva'));

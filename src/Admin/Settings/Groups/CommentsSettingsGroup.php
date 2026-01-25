@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Groups;
 
@@ -10,11 +12,15 @@ use MHMRentiva\Admin\Settings\Comments\CommentsSettings;
 
 /**
  * ✅ COMMENTS SETTINGS GROUP
- * 
- * Manages all settings related to comments
+ * * Manages all settings related to comments using Accordion UI
  */
 final class CommentsSettingsGroup
 {
+    // Use consistent constants
+    public const SECTION_ID = 'mhm_rentiva_comments_section';
+    public const OPTION_GROUP = 'mhm_rentiva_settings';
+    public const SUB_KEY = 'mhm_rentiva_comments_settings';
+
     /**
      * Safe sanitize text field that handles null values
      */
@@ -28,188 +34,69 @@ final class CommentsSettingsGroup
 
     public static function register(): void
     {
+        // Central Page Constant
+        $page_slug = \MHMRentiva\Admin\Settings\Core\SettingsCore::PAGE;
+
         // Comments Settings Section
         add_settings_section(
-            'mhm_rentiva_comments_section',
+            self::SECTION_ID,
             __('Comments Settings', 'mhm-rentiva'),
             [self::class, 'render_section_description'],
-            'mhm_rentiva_settings'
+            $page_slug
         );
 
-        // Register settings for saving
-        register_setting(
-            'mhm_rentiva_comments_settings',
-            'mhm_rentiva_comments_settings',
-            [
-                'sanitize_callback' => [self::class, 'sanitize_comments_settings'],
-                'default' => CommentsSettings::get_default_settings()
-            ]
-        );
-
-        // Approval Settings
+        // Group 1: General Configuration
         add_settings_field(
-            'comments_auto_approve',
-            __('Auto Approve Comments', 'mhm-rentiva'),
-            [self::class, 'render_auto_approve_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
+            'group_general_config',
+            __('General Configuration', 'mhm-rentiva'),
+            [self::class, 'render_group_general_config'],
+            $page_slug,
+            self::SECTION_ID
         );
 
+        // Group 2: Display Settings
         add_settings_field(
-            'comments_require_login',
-            __('Require Login', 'mhm-rentiva'),
-            [self::class, 'render_require_login_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
+            'group_display_settings',
+            __('Display Settings', 'mhm-rentiva'),
+            [self::class, 'render_group_display_settings'],
+            $page_slug,
+            self::SECTION_ID
         );
 
+        // Group 3: Content Limits
         add_settings_field(
-            'comments_allow_guests',
-            __('Allow Guest Comments', 'mhm-rentiva'),
-            [self::class, 'render_allow_guests_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
+            'group_content_limits',
+            __('Content Limits', 'mhm-rentiva'),
+            [self::class, 'render_group_content_limits'],
+            $page_slug,
+            self::SECTION_ID
         );
 
-        // Limits Settings
+        // Group 4: Spam & Security
         add_settings_field(
-            'comments_per_page',
-            __('Comments Per Page', 'mhm-rentiva'),
-            [self::class, 'render_comments_per_page_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
+            'group_spam_security',
+            __('Spam & Security', 'mhm-rentiva'),
+            [self::class, 'render_group_spam_security'],
+            $page_slug,
+            self::SECTION_ID
         );
 
+        // Group 5: Notifications
         add_settings_field(
-            'comment_length_min',
-            __('Minimum Comment Length', 'mhm-rentiva'),
-            [self::class, 'render_comment_length_min_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
+            'group_notifications',
+            __('Notifications', 'mhm-rentiva'),
+            [self::class, 'render_group_notifications'],
+            $page_slug,
+            self::SECTION_ID
         );
 
+        // Group 6: Cache & Performance
         add_settings_field(
-            'comment_length_max',
-            __('Maximum Comment Length', 'mhm-rentiva'),
-            [self::class, 'render_comment_length_max_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        // Spam Protection Settings
-        add_settings_field(
-            'spam_protection_enabled',
-            __('Enable Spam Protection', 'mhm-rentiva'),
-            [self::class, 'render_spam_protection_enabled_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        add_settings_field(
-            'spam_words',
-            __('Spam Words', 'mhm-rentiva'),
-            [self::class, 'render_spam_words_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        add_settings_field(
-            'rate_limiting_enabled',
-            __('Enable Rate Limiting', 'mhm-rentiva'),
-            [self::class, 'render_rate_limiting_enabled_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        add_settings_field(
-            'rate_limiting_time_window',
-            __('Rate Limiting Time Window (minutes)', 'mhm-rentiva'),
-            [self::class, 'render_rate_limiting_time_window_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        add_settings_field(
-            'rate_limiting_max_attempts',
-            __('Max Attempts Per Time Window', 'mhm-rentiva'),
-            [self::class, 'render_rate_limiting_max_attempts_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        // Display Settings
-        add_settings_field(
-            'show_ratings',
-            __('Show Ratings', 'mhm-rentiva'),
-            [self::class, 'render_show_ratings_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        add_settings_field(
-            'show_avatars',
-            __('Show Avatars', 'mhm-rentiva'),
-            [self::class, 'render_show_avatars_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        add_settings_field(
-            'allow_editing',
-            __('Allow Comment Editing', 'mhm-rentiva'),
-            [self::class, 'render_allow_editing_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        add_settings_field(
-            'allow_deletion',
-            __('Allow Comment Deletion', 'mhm-rentiva'),
-            [self::class, 'render_allow_deletion_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        add_settings_field(
-            'edit_time_limit',
-            __('Edit Time Limit (hours)', 'mhm-rentiva'),
-            [self::class, 'render_edit_time_limit_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        // Notifications Settings
-        add_settings_field(
-            'admin_notification_new',
-            __('Notify Admin on New Comment', 'mhm-rentiva'),
-            [self::class, 'render_admin_notification_new_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        add_settings_field(
-            'user_notification_approved',
-            __('Notify User on Comment Approval', 'mhm-rentiva'),
-            [self::class, 'render_user_notification_approved_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        // Cache Settings
-        add_settings_field(
-            'cache_enabled',
-            __('Enable Comment Cache', 'mhm-rentiva'),
-            [self::class, 'render_cache_enabled_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
-        );
-
-        add_settings_field(
-            'cache_duration',
-            __('Cache Duration (minutes)', 'mhm-rentiva'),
-            [self::class, 'render_cache_duration_field'],
-            'mhm_rentiva_settings',
-            'mhm_rentiva_comments_section'
+            'group_cache_performance',
+            __('Cache & Performance', 'mhm-rentiva'),
+            [self::class, 'render_group_cache_performance'],
+            $page_slug,
+            self::SECTION_ID
         );
     }
 
@@ -218,274 +105,381 @@ final class CommentsSettingsGroup
         echo '<p>' . esc_html__('Configure comment and rating system settings for vehicles.', 'mhm-rentiva') . '</p>';
     }
 
-    // Approval Settings
-    public static function render_auto_approve_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['approval']['auto_approve']) ? (bool) $settings['approval']['auto_approve'] : false;
-        echo '<input type="checkbox" name="mhm_rentiva_comments_settings[approval][auto_approve]" value="1" ' . checked($value, true, false) . ' />';
-        echo '<p class="description">' . esc_html__('Automatically approve new comments without moderation.', 'mhm-rentiva') . '</p>';
-    }
+    // --- GROUP RENDERING METHODS ---
 
-    public static function render_require_login_field(): void
+    /**
+     * Group 1: General Configuration
+     */
+    public static function render_group_general_config(): void
     {
         $settings = CommentsSettings::get_settings();
-        $value = isset($settings['approval']['require_login']) ? (bool) $settings['approval']['require_login'] : true;
-        echo '<input type="checkbox" name="mhm_rentiva_comments_settings[approval][require_login]" value="1" ' . checked($value, true, false) . ' />';
-        echo '<p class="description">' . esc_html__('Require users to be logged in to comment.', 'mhm-rentiva') . '</p>';
-    }
 
-    public static function render_allow_guests_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['approval']['allow_guest_comments']) ? (bool) $settings['approval']['allow_guest_comments'] : false;
-        echo '<input type="checkbox" name="mhm_rentiva_comments_settings[approval][allow_guest_comments]" value="1" ' . checked($value, true, false) . ' />';
-        echo '<p class="description">' . esc_html__('Allow guest users to comment (requires login to be disabled).', 'mhm-rentiva') . '</p>';
-    }
+        echo '<div class="mhm-accordion-group">';
+        echo '<div class="mhm-accordion-header" id="accordion-comments-general">';
+        echo '<span>' . esc_html__('General Configuration', 'mhm-rentiva') . '</span>';
+        echo '<span class="dashicons dashicons-arrow-down"></span>';
+        echo '</div>';
+        echo '<div class="mhm-accordion-content">';
 
-    // Limits Settings
-    public static function render_comments_per_page_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['limits']['comments_per_page']) ? absint($settings['limits']['comments_per_page']) : 10;
-        echo '<input type="number" name="mhm_rentiva_comments_settings[limits][comments_per_page]" value="' . esc_attr($value) . '" min="1" max="100" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Number of comments to display per page.', 'mhm-rentiva') . '</p>';
-    }
+        self::render_checkbox_field(
+            'approval',
+            'auto_approve',
+            __('Auto Approve Comments', 'mhm-rentiva'),
+            __('Automatically approve new comments without moderation.', 'mhm-rentiva'),
+            $settings
+        );
 
-    public static function render_comment_length_min_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['limits']['comment_length_min']) ? absint($settings['limits']['comment_length_min']) : 5;
-        echo '<input type="number" name="mhm_rentiva_comments_settings[limits][comment_length_min]" value="' . esc_attr($value) . '" min="1" max="1000" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Minimum number of characters required for comments.', 'mhm-rentiva') . '</p>';
-    }
+        self::render_checkbox_field(
+            'approval',
+            'require_login',
+            __('Require Login', 'mhm-rentiva'),
+            __('Require users to be logged in to comment.', 'mhm-rentiva'),
+            $settings,
+            true
+        );
 
-    public static function render_comment_length_max_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['limits']['comment_length_max']) ? absint($settings['limits']['comment_length_max']) : 1000;
-        echo '<input type="number" name="mhm_rentiva_comments_settings[limits][comment_length_max]" value="' . esc_attr($value) . '" min="10" max="5000" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Maximum number of characters allowed for comments.', 'mhm-rentiva') . '</p>';
-    }
+        self::render_checkbox_field(
+            'approval',
+            'allow_guest_comments',
+            __('Allow Guest Comments', 'mhm-rentiva'),
+            __('Allow guest users to comment (requires login to be disabled).', 'mhm-rentiva'),
+            $settings
+        );
 
-    // Spam Protection Settings
-    public static function render_spam_protection_enabled_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['spam_protection']['enabled']) ? (bool) $settings['spam_protection']['enabled'] : true;
-        echo '<input type="checkbox" name="mhm_rentiva_comments_settings[spam_protection][enabled]" value="1" ' . checked($value, true, false) . ' />';
-        echo '<p class="description">' . esc_html__('Enable spam protection for comments.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_spam_words_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $spam_words = isset($settings['spam_protection']['spam_words']) && is_array($settings['spam_protection']['spam_words']) 
-            ? $settings['spam_protection']['spam_words'] 
-            : ['spam', 'viagra', 'casino', 'loan', 'free money', 'click here'];
-        $value = implode(', ', array_map('sanitize_text_field', $spam_words));
-        echo '<textarea name="mhm_rentiva_comments_settings[spam_protection][spam_words]" rows="3" cols="50" class="large-text">' . esc_textarea($value) . '</textarea>';
-        echo '<p class="description">' . esc_html__('Comma-separated list of spam words to filter out.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_rate_limiting_enabled_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['spam_protection']['rate_limiting']['enabled']) ? (bool) $settings['spam_protection']['rate_limiting']['enabled'] : true;
-        echo '<input type="checkbox" name="mhm_rentiva_comments_settings[spam_protection][rate_limiting][enabled]" value="1" ' . checked($value, true, false) . ' />';
-        echo '<p class="description">' . esc_html__('Enable rate limiting to prevent spam.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_rate_limiting_time_window_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['spam_protection']['rate_limiting']['time_window']) ? absint($settings['spam_protection']['rate_limiting']['time_window']) : 1;
-        echo '<input type="number" name="mhm_rentiva_comments_settings[spam_protection][rate_limiting][time_window]" value="' . esc_attr($value) . '" min="1" max="60" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Time window for rate limiting in minutes.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_rate_limiting_max_attempts_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['spam_protection']['rate_limiting']['max_attempts']) ? absint($settings['spam_protection']['rate_limiting']['max_attempts']) : 1;
-        echo '<input type="number" name="mhm_rentiva_comments_settings[spam_protection][rate_limiting][max_attempts]" value="' . esc_attr($value) . '" min="1" max="10" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Maximum number of comment attempts per time window.', 'mhm-rentiva') . '</p>';
-    }
-
-    // Display Settings
-    public static function render_show_ratings_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['display']['show_ratings']) ? (bool) $settings['display']['show_ratings'] : true;
-        echo '<input type="checkbox" name="mhm_rentiva_comments_settings[display][show_ratings]" value="1" ' . checked($value, true, false) . ' />';
-        echo '<p class="description">' . esc_html__('Show star ratings with comments.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_show_avatars_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['display']['show_avatars']) ? (bool) $settings['display']['show_avatars'] : true;
-        echo '<input type="checkbox" name="mhm_rentiva_comments_settings[display][show_avatars]" value="1" ' . checked($value, true, false) . ' />';
-        echo '<p class="description">' . esc_html__('Show user avatars with comments.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_allow_editing_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['display']['allow_editing']) ? (bool) $settings['display']['allow_editing'] : true;
-        echo '<input type="checkbox" name="mhm_rentiva_comments_settings[display][allow_editing]" value="1" ' . checked($value, true, false) . ' />';
-        echo '<p class="description">' . esc_html__('Allow users to edit their own comments.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_allow_deletion_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['display']['allow_deletion']) ? (bool) $settings['display']['allow_deletion'] : true;
-        echo '<input type="checkbox" name="mhm_rentiva_comments_settings[display][allow_deletion]" value="1" ' . checked($value, true, false) . ' />';
-        echo '<p class="description">' . esc_html__('Allow users to delete their own comments.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_edit_time_limit_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['display']['edit_time_limit']) ? absint($settings['display']['edit_time_limit']) : 24;
-        echo '<input type="number" name="mhm_rentiva_comments_settings[display][edit_time_limit]" value="' . esc_attr($value) . '" min="1" max="168" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Time limit in hours for editing comments (0 = no limit).', 'mhm-rentiva') . '</p>';
-    }
-
-    // Notifications Settings
-    public static function render_admin_notification_new_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['notifications']['admin_new_comment']) ? (bool) $settings['notifications']['admin_new_comment'] : true;
-        echo '<input type="checkbox" name="mhm_rentiva_comments_settings[notifications][admin_new_comment]" value="1" ' . checked($value, true, false) . ' />';
-        echo '<p class="description">' . esc_html__('Send email notification to admin when new comment is posted.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_user_notification_approved_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['notifications']['user_comment_approved']) ? (bool) $settings['notifications']['user_comment_approved'] : true;
-        echo '<input type="checkbox" name="mhm_rentiva_comments_settings[notifications][user_comment_approved]" value="1" ' . checked($value, true, false) . ' />';
-        echo '<p class="description">' . esc_html__('Send email notification to user when comment is approved.', 'mhm-rentiva') . '</p>';
-    }
-
-    // Cache Settings
-    public static function render_cache_enabled_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['cache']['enabled']) ? (bool) $settings['cache']['enabled'] : true;
-        echo '<input type="checkbox" name="mhm_rentiva_comments_settings[cache][enabled]" value="1" ' . checked($value, true, false) . ' />';
-        echo '<p class="description">' . esc_html__('Enable caching for comments to improve performance.', 'mhm-rentiva') . '</p>';
-    }
-
-    public static function render_cache_duration_field(): void
-    {
-        $settings = CommentsSettings::get_settings();
-        $value = isset($settings['cache']['duration']) ? absint($settings['cache']['duration']) : 15;
-        echo '<input type="number" name="mhm_rentiva_comments_settings[cache][duration]" value="' . esc_attr($value) . '" min="1" max="1440" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Cache duration in minutes.', 'mhm-rentiva') . '</p>';
+        echo '</div></div>';
     }
 
     /**
-     * Sanitize comments settings
+     * Group 2: Display Settings
      */
-    public static function sanitize_comments_settings($input): array
+    public static function render_group_display_settings(): void
     {
-        if (!is_array($input)) {
-            return CommentsSettings::get_default_settings();
+        $settings = CommentsSettings::get_settings();
+
+        echo '<div class="mhm-accordion-group">';
+        echo '<div class="mhm-accordion-header" id="accordion-comments-display">';
+        echo '<span>' . esc_html__('Display Settings', 'mhm-rentiva') . '</span>';
+        echo '<span class="dashicons dashicons-arrow-down"></span>';
+        echo '</div>';
+        echo '<div class="mhm-accordion-content">';
+
+        self::render_number_field(
+            'limits',
+            'comments_per_page',
+            __('Comments Per Page', 'mhm-rentiva'),
+            __('Number of comments to display per page.', 'mhm-rentiva'),
+            $settings,
+            10,
+            1,
+            100
+        );
+
+        self::render_checkbox_field(
+            'display',
+            'show_ratings',
+            __('Show Ratings', 'mhm-rentiva'),
+            __('Show star ratings with comments.', 'mhm-rentiva'),
+            $settings,
+            true
+        );
+
+        self::render_checkbox_field(
+            'display',
+            'show_avatars',
+            __('Show Avatars', 'mhm-rentiva'),
+            __('Show user avatars with comments.', 'mhm-rentiva'),
+            $settings,
+            true
+        );
+
+        self::render_checkbox_field(
+            'display',
+            'allow_editing',
+            __('Allow Comment Editing', 'mhm-rentiva'),
+            __('Allow users to edit their own comments.', 'mhm-rentiva'),
+            $settings,
+            true
+        );
+
+        self::render_checkbox_field(
+            'display',
+            'allow_deletion',
+            __('Allow Comment Deletion', 'mhm-rentiva'),
+            __('Allow users to delete their own comments.', 'mhm-rentiva'),
+            $settings,
+            true
+        );
+
+        self::render_number_field(
+            'display',
+            'edit_time_limit',
+            __('Edit Time Limit (hours)', 'mhm-rentiva'),
+            __('Time limit in hours for editing comments (0 = no limit).', 'mhm-rentiva'),
+            $settings,
+            24,
+            0,
+            168
+        );
+
+        echo '</div></div>';
+    }
+
+    /**
+     * Group 3: Content Limits
+     */
+    public static function render_group_content_limits(): void
+    {
+        $settings = CommentsSettings::get_settings();
+
+        echo '<div class="mhm-accordion-group">';
+        echo '<div class="mhm-accordion-header" id="accordion-comments-limits">';
+        echo '<span>' . esc_html__('Content Limits', 'mhm-rentiva') . '</span>';
+        echo '<span class="dashicons dashicons-arrow-down"></span>';
+        echo '</div>';
+        echo '<div class="mhm-accordion-content">';
+
+        self::render_number_field(
+            'limits',
+            'comment_length_min',
+            __('Minimum Comment Length', 'mhm-rentiva'),
+            __('Minimum number of characters required for comments.', 'mhm-rentiva'),
+            $settings,
+            5,
+            1,
+            1000
+        );
+
+        self::render_number_field(
+            'limits',
+            'comment_length_max',
+            __('Maximum Comment Length', 'mhm-rentiva'),
+            __('Maximum number of characters allowed for comments.', 'mhm-rentiva'),
+            $settings,
+            1000,
+            10,
+            5000
+        );
+
+        echo '</div></div>';
+    }
+
+    /**
+     * Group 4: Spam & Security
+     * Fixed: Names are now dynamically generated using constants.
+     */
+    public static function render_group_spam_security(): void
+    {
+        $settings = CommentsSettings::get_settings();
+
+        echo '<div class="mhm-accordion-group">';
+        echo '<div class="mhm-accordion-header" id="accordion-comments-spam">';
+        echo '<span>' . esc_html__('Spam & Security', 'mhm-rentiva') . '</span>';
+        echo '<span class="dashicons dashicons-arrow-down"></span>';
+        echo '</div>';
+        echo '<div class="mhm-accordion-content">';
+
+        // 1. Spam Protection Enabled (Standard Helper)
+        self::render_checkbox_field(
+            'spam_protection',
+            'enabled',
+            __('Enable Spam Protection', 'mhm-rentiva'),
+            __('Enable spam protection for comments.', 'mhm-rentiva'),
+            $settings,
+            true
+        );
+
+        // 2. Rate Limiting Enabled (Deep Nested - Dynamic Name Construction)
+        $rl_enabled = isset($settings['spam_protection']['rate_limiting']['enabled']) ? (bool) $settings['spam_protection']['rate_limiting']['enabled'] : true;
+        // Dynamic name construction for 3rd level depth
+        $name_rl_enabled = self::OPTION_GROUP . '[' . self::SUB_KEY . '][spam_protection][rate_limiting][enabled]';
+        $id_rl_enabled = 'mhm_rentiva_spam_protection_rate_limiting_enabled';
+
+        echo '<div class="mhm-form-group mhm-checkbox-group">';
+        echo '<label for="' . esc_attr($id_rl_enabled) . '">';
+        echo '<input type="hidden" name="' . esc_attr($name_rl_enabled) . '" value="0">';
+        echo '<input type="checkbox" id="' . esc_attr($id_rl_enabled) . '" name="' . esc_attr($name_rl_enabled) . '" value="1" ' . checked($rl_enabled, true, false) . '> ';
+        echo esc_html__('Enable Rate Limiting', 'mhm-rentiva');
+        echo '</label>';
+        echo '<p class="description">' . esc_html__('Enable rate limiting to prevent spam.', 'mhm-rentiva') . '</p>';
+        echo '</div>';
+
+        // 3. Rate Limiting Time Window (Deep Nested - Dynamic Name Construction)
+        $rl_window = isset($settings['spam_protection']['rate_limiting']['time_window']) ? absint($settings['spam_protection']['rate_limiting']['time_window']) : 1;
+        $name_rl_window = self::OPTION_GROUP . '[' . self::SUB_KEY . '][spam_protection][rate_limiting][time_window]';
+
+        echo '<div class="mhm-form-group">';
+        echo '<label>' . esc_html__('Rate Limiting Time Window (minutes)', 'mhm-rentiva') . '</label>';
+        echo '<input type="number" name="' . esc_attr($name_rl_window) . '" value="' . esc_attr($rl_window) . '" min="1" max="60" class="small-text" />';
+        echo '<p class="description">' . esc_html__('Time window for rate limiting in minutes.', 'mhm-rentiva') . '</p>';
+        echo '</div>';
+
+        // 4. Rate Limiting Max Attempts (Deep Nested - Dynamic Name Construction)
+        $rl_attempts = isset($settings['spam_protection']['rate_limiting']['max_attempts']) ? absint($settings['spam_protection']['rate_limiting']['max_attempts']) : 1;
+        $name_rl_attempts = self::OPTION_GROUP . '[' . self::SUB_KEY . '][spam_protection][rate_limiting][max_attempts]';
+
+        echo '<div class="mhm-form-group">';
+        echo '<label>' . esc_html__('Max Attempts Per Time Window', 'mhm-rentiva') . '</label>';
+        echo '<input type="number" name="' . esc_attr($name_rl_attempts) . '" value="' . esc_attr($rl_attempts) . '" min="1" max="10" class="small-text" />';
+        echo '<p class="description">' . esc_html__('Maximum number of comment attempts per time window.', 'mhm-rentiva') . '</p>';
+        echo '</div>';
+
+        // 5. Spam Words (Using new Helper)
+        $spam_words = isset($settings['spam_protection']['spam_words']) && is_array($settings['spam_protection']['spam_words'])
+            ? $settings['spam_protection']['spam_words']
+            : ['spam', 'viagra', 'casino', 'loan', 'free money', 'click here'];
+        $spam_words_value = implode(', ', array_map('sanitize_text_field', $spam_words));
+
+        // Note: For spam words, we use 'spam_protection' as group and 'spam_words' as field.
+        // The helper will handle the dynamic name generation.
+        self::render_textarea_field(
+            'spam_protection',
+            'spam_words',
+            __('Spam Words', 'mhm-rentiva'),
+            __('Comma-separated list of spam words to filter out.', 'mhm-rentiva'),
+            $spam_words_value // Pass the string value directly
+        );
+
+        echo '</div></div>';
+    }
+
+    /**
+     * Group 5: Notifications
+     */
+    public static function render_group_notifications(): void
+    {
+        $settings = CommentsSettings::get_settings();
+
+        echo '<div class="mhm-accordion-group">';
+        echo '<div class="mhm-accordion-header" id="accordion-comments-notifications">';
+        echo '<span>' . esc_html__('Notifications', 'mhm-rentiva') . '</span>';
+        echo '<span class="dashicons dashicons-arrow-down"></span>';
+        echo '</div>';
+        echo '<div class="mhm-accordion-content">';
+
+        self::render_checkbox_field(
+            'notifications',
+            'admin_new_comment',
+            __('Notify Admin on New Comment', 'mhm-rentiva'),
+            __('Send email notification to admin when new comment is posted.', 'mhm-rentiva'),
+            $settings,
+            true
+        );
+
+        self::render_checkbox_field(
+            'notifications',
+            'user_comment_approved',
+            __('Notify User on Comment Approval', 'mhm-rentiva'),
+            __('Send email notification to user when comment is approved.', 'mhm-rentiva'),
+            $settings,
+            true
+        );
+
+        echo '</div></div>';
+    }
+
+    /**
+     * Group 6: Cache & Performance
+     */
+    public static function render_group_cache_performance(): void
+    {
+        $settings = CommentsSettings::get_settings();
+
+        echo '<div class="mhm-accordion-group">';
+        echo '<div class="mhm-accordion-header" id="accordion-comments-cache">';
+        echo '<span>' . esc_html__('Cache & Performance', 'mhm-rentiva') . '</span>';
+        echo '<span class="dashicons dashicons-arrow-down"></span>';
+        echo '</div>';
+        echo '<div class="mhm-accordion-content">';
+
+        self::render_checkbox_field(
+            'cache',
+            'enabled',
+            __('Enable Comment Cache', 'mhm-rentiva'),
+            __('Enable caching for comments to improve performance.', 'mhm-rentiva'),
+            $settings,
+            true
+        );
+
+        self::render_number_field(
+            'cache',
+            'duration',
+            __('Cache Duration (minutes)', 'mhm-rentiva'),
+            __('Cache duration in minutes.', 'mhm-rentiva'),
+            $settings,
+            15,
+            1,
+            1440
+        );
+
+        echo '</div></div>';
+    }
+
+    // --- HELPER METHODS ---
+
+    /**
+     * Render checkbox field helper
+     */
+    private static function render_checkbox_field(string $group, string $field, string $label, string $description, array $settings, bool $default = false): void
+    {
+        $value = isset($settings[$group][$field]) ? (bool) $settings[$group][$field] : $default;
+        $id = 'mhm_rentiva_' . $group . '_' . $field;
+        $name = self::OPTION_GROUP . '[' . self::SUB_KEY . '][' . esc_attr($group) . '][' . esc_attr($field) . ']';
+
+        echo '<div class="mhm-form-group mhm-checkbox-group">';
+        echo '<label for="' . esc_attr($id) . '">';
+        echo '<input type="hidden" name="' . $name . '" value="0">';
+        echo '<input type="checkbox" id="' . esc_attr($id) . '" name="' . $name . '" value="1" ' . checked($value, true, false) . '>';
+        echo esc_html($label);
+        echo '</label>';
+
+        if (!empty($description)) {
+            echo '<p class="description">' . esc_html($description) . '</p>';
         }
+        echo '</div>';
+    }
 
-        $sanitized = [];
-        
-        // Approval settings
-        $sanitized['approval'] = [
-            'auto_approve' => isset($input['approval']['auto_approve']) ? (bool) $input['approval']['auto_approve'] : false,
-            'require_login' => isset($input['approval']['require_login']) ? (bool) $input['approval']['require_login'] : false, // Unchecked = false
-            'allow_guest_comments' => isset($input['approval']['allow_guest_comments']) ? (bool) $input['approval']['allow_guest_comments'] : false,
-            'moderation_required' => isset($input['approval']['moderation_required']) ? (bool) $input['approval']['moderation_required'] : false, // Unchecked = false
-            'admin_notification' => isset($input['approval']['admin_notification']) ? (bool) $input['approval']['admin_notification'] : false // Unchecked = false
-        ];
+    /**
+     * Render number field helper
+     */
+    private static function render_number_field(string $group, string $field, string $label, string $description, array $settings, int $default = 0, int $min = 0, int $max = 100): void
+    {
+        $value = isset($settings[$group][$field]) ? absint($settings[$group][$field]) : $default;
+        $name = self::OPTION_GROUP . '[' . self::SUB_KEY . '][' . esc_attr($group) . '][' . esc_attr($field) . ']';
 
-        // Limits settings
-        $sanitized['limits'] = [
-            'comments_per_page' => isset($input['limits']['comments_per_page']) ? max(1, min(100, (int) $input['limits']['comments_per_page'])) : 10,
-            'max_comments_per_user' => isset($input['limits']['max_comments_per_user']) ? max(0, (int) $input['limits']['max_comments_per_user']) : 0,
-            'max_comments_per_vehicle' => isset($input['limits']['max_comments_per_vehicle']) ? max(0, (int) $input['limits']['max_comments_per_vehicle']) : 0,
-            'comment_length_min' => isset($input['limits']['comment_length_min']) ? max(1, min(1000, (int) $input['limits']['comment_length_min'])) : 5,
-            'comment_length_max' => isset($input['limits']['comment_length_max']) ? max(10, min(5000, (int) $input['limits']['comment_length_max'])) : 1000,
-            'rating_required' => isset($input['limits']['rating_required']) ? (bool) $input['limits']['rating_required'] : false // Unchecked = false
-        ];
+        echo '<div class="mhm-form-group">';
+        echo '<label>' . esc_html($label) . '</label>';
+        echo '<input type="number" name="' . $name . '" value="' . esc_attr($value) . '" min="' . esc_attr($min) . '" max="' . esc_attr($max) . '" class="regular-text" />';
+        echo '<p class="description">' . esc_html($description) . '</p>';
+        echo '</div>';
+    }
 
-        // Spam protection settings
-        $sanitized['spam_protection'] = [
-            'enabled' => isset($input['spam_protection']['enabled']) ? (bool) $input['spam_protection']['enabled'] : false, // Unchecked = false
-            'rate_limiting' => [
-                'enabled' => isset($input['spam_protection']['rate_limiting']['enabled']) ? (bool) $input['spam_protection']['rate_limiting']['enabled'] : false, // Unchecked = false
-                'time_window' => isset($input['spam_protection']['rate_limiting']['time_window']) ? max(1, min(60, (int) $input['spam_protection']['rate_limiting']['time_window'])) : 1,
-                'max_attempts' => isset($input['spam_protection']['rate_limiting']['max_attempts']) ? max(1, min(10, (int) $input['spam_protection']['rate_limiting']['max_attempts'])) : 1,
-                'cooldown_period' => isset($input['spam_protection']['rate_limiting']['cooldown_period']) ? max(1, min(60, (int) $input['spam_protection']['rate_limiting']['cooldown_period'])) : 10
-            ],
-            'duplicate_detection' => [
-                'enabled' => isset($input['spam_protection']['duplicate_detection']['enabled']) ? (bool) $input['spam_protection']['duplicate_detection']['enabled'] : false, // Unchecked = false
-                'time_window' => isset($input['spam_protection']['duplicate_detection']['time_window']) ? max(1, min(60, (int) $input['spam_protection']['duplicate_detection']['time_window'])) : 1,
-                'max_duplicates' => isset($input['spam_protection']['duplicate_detection']['max_duplicates']) ? max(1, min(10, (int) $input['spam_protection']['duplicate_detection']['max_duplicates'])) : 1,
-                'check_content' => isset($input['spam_protection']['duplicate_detection']['check_content']) ? (bool) $input['spam_protection']['duplicate_detection']['check_content'] : false // Unchecked = false
-            ],
-            'spam_words' => isset($input['spam_protection']['spam_words']) ? 
-                (is_array($input['spam_protection']['spam_words']) ? 
-                    array_map('sanitize_text_field', $input['spam_protection']['spam_words']) : 
-                    array_map('sanitize_text_field', explode(',', (string) $input['spam_protection']['spam_words']))) : 
-                ['spam', 'viagra', 'casino', 'loan', 'free money', 'click here'],
-            'ip_blocking' => [
-                'enabled' => isset($input['spam_protection']['ip_blocking']['enabled']) ? (bool) $input['spam_protection']['ip_blocking']['enabled'] : false,
-                'block_duration' => isset($input['spam_protection']['ip_blocking']['block_duration']) ? max(1, min(168, (int) $input['spam_protection']['ip_blocking']['block_duration'])) : 24,
-                'max_violations' => isset($input['spam_protection']['ip_blocking']['max_violations']) ? max(1, min(20, (int) $input['spam_protection']['ip_blocking']['max_violations'])) : 5
-            ]
-        ];
+    /**
+     * Render textarea field helper
+     * Added for Spam Words consistency
+     * @param string|mixed $value_override Optional direct value override (useful when value needs processing like implode)
+     */
+    private static function render_textarea_field(string $group, string $field, string $label, string $description, $value_override = null): void
+    {
+        // Name construction using constants
+        $name = self::OPTION_GROUP . '[' . self::SUB_KEY . '][' . esc_attr($group) . '][' . esc_attr($field) . ']';
 
-        // Display settings
-        $sanitized['display'] = [
-            'show_ratings' => isset($input['display']['show_ratings']) ? (bool) $input['display']['show_ratings'] : false, // Unchecked = false
-            'show_avatars' => isset($input['display']['show_avatars']) ? (bool) $input['display']['show_avatars'] : false, // Unchecked = false
-            'show_dates' => isset($input['display']['show_dates']) ? (bool) $input['display']['show_dates'] : false, // Unchecked = false
-            'show_edit_buttons' => isset($input['display']['show_edit_buttons']) ? (bool) $input['display']['show_edit_buttons'] : false, // Unchecked = false
-            'show_delete_buttons' => isset($input['display']['show_delete_buttons']) ? (bool) $input['display']['show_delete_buttons'] : false, // Unchecked = false
-            'allow_editing' => isset($input['display']['allow_editing']) ? (bool) $input['display']['allow_editing'] : false, // Unchecked = false
-            'allow_deletion' => isset($input['display']['allow_deletion']) ? (bool) $input['display']['allow_deletion'] : false, // Unchecked = false
-            'edit_time_limit' => isset($input['display']['edit_time_limit']) ? max(0, min(168, (int) $input['display']['edit_time_limit'])) : 24,
-            'sort_order' => isset($input['display']['sort_order']) ? self::sanitize_text_field_safe($input['display']['sort_order']) : 'newest',
-            'pagination' => isset($input['display']['pagination']) ? (bool) $input['display']['pagination'] : false // Unchecked = false
-        ];
+        // If value is provided directly (processed), use it. Otherwise try to fetch from settings if passed (omitted here for simplicity as we pass value)
+        $value = (string) $value_override;
 
-        // Notifications settings
-        $sanitized['notifications'] = [
-            'admin_new_comment' => isset($input['notifications']['admin_new_comment']) ? (bool) $input['notifications']['admin_new_comment'] : false, // Unchecked = false
-            'admin_comment_edited' => isset($input['notifications']['admin_comment_edited']) ? (bool) $input['notifications']['admin_comment_edited'] : false, // Unchecked = false
-            'admin_comment_deleted' => isset($input['notifications']['admin_comment_deleted']) ? (bool) $input['notifications']['admin_comment_deleted'] : false, // Unchecked = false
-            'user_comment_approved' => isset($input['notifications']['user_comment_approved']) ? (bool) $input['notifications']['user_comment_approved'] : false, // Unchecked = false
-            'user_comment_rejected' => isset($input['notifications']['user_comment_rejected']) ? (bool) $input['notifications']['user_comment_rejected'] : false, // Unchecked = false
-            'email_template' => isset($input['notifications']['email_template']) ? self::sanitize_text_field_safe($input['notifications']['email_template']) : 'default'
-        ];
+        echo '<div class="mhm-form-group">';
+        echo '<label>' . esc_html($label) . '</label>';
+        echo '<textarea name="' . $name . '" rows="3" cols="50" class="large-text" style="width:100%">' . esc_textarea($value) . '</textarea>';
+        echo '<p class="description">' . esc_html($description) . '</p>';
+        echo '</div>';
+    }
 
-        // Cache settings
-        $sanitized['cache'] = [
-            'enabled' => isset($input['cache']['enabled']) ? (bool) $input['cache']['enabled'] : false, // Unchecked = false
-            'duration' => isset($input['cache']['duration']) ? max(1, min(1440, (int) $input['cache']['duration'])) : 15,
-            'clear_on_comment' => isset($input['cache']['clear_on_comment']) ? (bool) $input['cache']['clear_on_comment'] : false, // Unchecked = false
-            'clear_on_edit' => isset($input['cache']['clear_on_edit']) ? (bool) $input['cache']['clear_on_edit'] : false, // Unchecked = false
-            'clear_on_delete' => isset($input['cache']['clear_on_delete']) ? (bool) $input['cache']['clear_on_delete'] : false // Unchecked = false
-        ];
-
-        // Performance settings
-        $sanitized['performance'] = [
-            'lazy_loading' => isset($input['performance']['lazy_loading']) ? (bool) $input['performance']['lazy_loading'] : false, // Unchecked = false
-            'ajax_loading' => isset($input['performance']['ajax_loading']) ? (bool) $input['performance']['ajax_loading'] : false, // Unchecked = false
-            'infinite_scroll' => isset($input['performance']['infinite_scroll']) ? (bool) $input['performance']['infinite_scroll'] : false,
-            'batch_size' => isset($input['performance']['batch_size']) ? max(1, min(100, (int) $input['performance']['batch_size'])) : 10,
-            'background_processing' => isset($input['performance']['background_processing']) ? (bool) $input['performance']['background_processing'] : false
-        ];
-
-        return $sanitized;
+    /**
+     * Render the settings section
+     */
+    public static function render_settings_section(): void
+    {
+        if (class_exists('\MHMRentiva\Admin\Settings\View\SettingsViewHelper')) {
+            \MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly(self::SECTION_ID);
+        }
     }
 }

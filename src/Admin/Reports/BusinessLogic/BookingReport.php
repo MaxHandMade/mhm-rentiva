@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Reports\BusinessLogic;
 
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Utilities\Export\Export;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -18,12 +21,12 @@ final class BookingReport
     private const LARGE_DATASET_THRESHOLD = 5000; // Large dataset threshold
     private const PAGINATION_LIMIT = 1000; // Pagination limit
     private const PEAK_RESULTS_LIMIT = 5; // Peak results limit
-    
+
     /**
      * Class availability cache
      */
     private static ?array $class_cache = null;
-    
+
     /**
      * Check if class is available (cached)
      * 
@@ -34,13 +37,13 @@ final class BookingReport
     {
         if (self::$class_cache === null) {
             self::$class_cache = [
-                'Core\ObjectCache' => class_exists(\MHMRentiva\Core\ObjectCache::class),
+                'Core\ObjectCache' => class_exists(\MHMRentiva\Admin\Core\Utilities\ObjectCache::class),
                 'Admin\Reports\BackgroundProcessor' => class_exists(\MHMRentiva\Admin\Reports\BackgroundProcessor::class),
-                'Logs\AdvancedLogger' => class_exists(\MHMRentiva\Logs\AdvancedLogger::class),
-                'Core\QueueManager' => class_exists(\MHMRentiva\Core\QueueManager::class),
+                'Logs\AdvancedLogger' => class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class),
+                'Core\QueueManager' => class_exists(\MHMRentiva\Admin\Core\Utilities\QueueManager::class),
             ];
         }
-        
+
         return self::$class_cache[$class] ?? false;
     }
     public static function get_data(string $start_date, string $end_date): array
@@ -48,10 +51,10 @@ final class BookingReport
         global $wpdb;
 
         $cache_key = 'mhm_booking_report_' . md5($start_date . $end_date);
-        
+
         // Use object cache (if available)
         if (self::is_class_available('Core\ObjectCache')) {
-            $data = \MHMRentiva\Core\ObjectCache::get($cache_key, \MHMRentiva\Core\ObjectCache::GROUP_REPORTS);
+            $data = \MHMRentiva\Admin\Core\Utilities\ObjectCache::get($cache_key, \MHMRentiva\Admin\Core\Utilities\ObjectCache::GROUP_REPORTS);
             if ($data !== false) {
                 return $data;
             }
@@ -63,7 +66,8 @@ final class BookingReport
         }
 
         // SINGLE MASTER QUERY - Index-aware optimized query
-        $master_query = $wpdb->prepare("
+        $master_query = $wpdb->prepare(
+            "
             SELECT  
                 p.ID,
                 p.post_date,
@@ -79,20 +83,22 @@ final class BookingReport
             AND p.post_date >= %s 
             AND p.post_date < %s
             ORDER BY p.post_date DESC
-        ", 
-        \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-        \MHMRentiva\Admin\Core\MetaKeys::BOOKING_START_TS,
-        \MHMRentiva\Admin\Core\MetaKeys::BOOKING_END_TS,
-        $start_date . ' 00:00:00', date('Y-m-d', strtotime($end_date) + 86400) . ' 00:00:00');
-        
+        ",
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_START_TS,
+            \MHMRentiva\Admin\Core\MetaKeys::BOOKING_END_TS,
+            $start_date . ' 00:00:00',
+            date('Y-m-d', strtotime($end_date) + 86400) . ' 00:00:00'
+        );
+
         $bookings = $wpdb->get_results($master_query);
-        
+
         // PHP'de istatistikleri hesapla
         $data = self::calculate_stats_from_raw_data($bookings, $start_date, $end_date);
 
         // Cache'e kaydet
         if (self::is_class_available('Core\ObjectCache')) {
-            \MHMRentiva\Core\ObjectCache::set($cache_key, $data, \MHMRentiva\Core\ObjectCache::GROUP_REPORTS, self::CACHE_DURATION_REPORTS);
+            \MHMRentiva\Admin\Core\Utilities\ObjectCache::set($cache_key, $data, \MHMRentiva\Admin\Core\Utilities\ObjectCache::GROUP_REPORTS, self::CACHE_DURATION_REPORTS);
         } else {
             set_transient($cache_key, $data, self::CACHE_DURATION_REPORTS);
         }
@@ -188,7 +194,7 @@ final class BookingReport
             6 => __('Friday', 'mhm-rentiva'),
             7 => __('Saturday', 'mhm-rentiva'),
         ];
-        
+
         foreach ($weekday_counts as $weekday => $count) {
             $weekday_distribution[] = (object) [
                 'weekday' => $weekday,
@@ -234,9 +240,9 @@ final class BookingReport
 
         // Cache check
         $cache_key = 'mhm_booking_trends_' . md5($prev_start . $prev_end);
-        
-        if (class_exists(\MHMRentiva\Core\ObjectCache::class)) {
-            $prev_total = \MHMRentiva\Core\ObjectCache::get($cache_key, \MHMRentiva\Core\ObjectCache::GROUP_REPORTS);
+
+        if (class_exists(\MHMRentiva\Admin\Core\Utilities\ObjectCache::class)) {
+            $prev_total = \MHMRentiva\Admin\Core\Utilities\ObjectCache::get($cache_key, \MHMRentiva\Admin\Core\Utilities\ObjectCache::GROUP_REPORTS);
         } else {
             $prev_total = get_transient($cache_key);
         }
@@ -248,12 +254,13 @@ final class BookingReport
                  WHERE post_type = 'vehicle_booking'
                  AND post_status = 'publish'
                  AND DATE(post_date) BETWEEN %s AND %s",
-                $prev_start, $prev_end
+                $prev_start,
+                $prev_end
             ));
 
             // Cache'e kaydet
             if (self::is_class_available('Core\ObjectCache')) {
-                \MHMRentiva\Core\ObjectCache::set($cache_key, $prev_total, \MHMRentiva\Core\ObjectCache::GROUP_REPORTS, self::CACHE_DURATION_TRENDS);
+                \MHMRentiva\Admin\Core\Utilities\ObjectCache::set($cache_key, $prev_total, \MHMRentiva\Admin\Core\Utilities\ObjectCache::GROUP_REPORTS, self::CACHE_DURATION_TRENDS);
             } else {
                 set_transient($cache_key, $prev_total, self::CACHE_DURATION_TRENDS);
             }
@@ -279,7 +286,7 @@ final class BookingReport
     {
         // Calculate peak times from existing data (no extra query needed)
         $data = self::get_data($start_date, $end_date);
-        
+
         // Get busiest hours from hourly distribution
         $hourly_distribution = $data['hourly_distribution'];
         usort($hourly_distribution, fn($a, $b) => $b->bookings <=> $a->bookings);
@@ -300,7 +307,7 @@ final class BookingReport
     {
         // Mevcut data'dan status flow'u al (ekstra query'ye gerek yok)
         $data = self::get_data($start_date, $end_date);
-        
+
         // Convert status distribution to status_flow format
         $status_flow = [];
         foreach ($data['status_distribution'] as $status_data) {
@@ -328,74 +335,74 @@ final class BookingReport
                 ],
                 get_current_user_id()
             );
-            
+
             // Notify user of job ID
             if (self::is_class_available('Logs\AdvancedLogger')) {
-                \MHMRentiva\Logs\AdvancedLogger::info("Background export job queued", [
+                \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info("Background export job queued", [
                     'job_id' => $job_id,
                     'format' => $format,
                     'date_range' => "{$start_date} - {$end_date}",
                     'system' => 'background_processor'
-                ], \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SYSTEM);
+                ], \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM);
             }
-            
+
             return;
         }
 
         // Fallback: Add bulk export job using queue system
         if (self::is_class_available('Core\QueueManager')) {
-            $job_id = \MHMRentiva\Core\QueueManager::add_bulk_export_job(
+            $job_id = \MHMRentiva\Admin\Core\Utilities\QueueManager::add_bulk_export_job(
                 'booking_export',
                 ['start_date' => $start_date, 'end_date' => $end_date],
                 $format,
                 get_current_user_id()
             );
-            
+
             // Notify user of job ID
             if (self::is_class_available('Logs\AdvancedLogger')) {
-                \MHMRentiva\Logs\AdvancedLogger::info("Export job queued", [
+                \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info("Export job queued", [
                     'job_id' => $job_id,
                     'format' => $format,
                     'date_range' => "{$start_date} - {$end_date}",
                     'system' => 'queue_manager'
-                ], \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SYSTEM);
+                ], \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM);
             }
-            
+
             return;
         }
 
         // Fallback: Smart export (pagination for large datasets)
         $total_count = self::get_export_total_count($start_date, $end_date);
-        
+
         if ($total_count > self::LARGE_DATASET_THRESHOLD) {
             // Large dataset - Use queue system
             if (self::is_class_available('Logs\AdvancedLogger')) {
-                \MHMRentiva\Logs\AdvancedLogger::warning("Large dataset export requested", [
+                \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning("Large dataset export requested", [
                     'total_count' => $total_count,
                     'date_range' => "{$start_date} - {$end_date}",
                     'format' => $format
-                ], \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SYSTEM);
+                ], \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM);
             }
-            
+
             // Queue'ye ekle
             if (self::is_class_available('Core\QueueManager')) {
-                $job_id = \MHMRentiva\Core\QueueManager::add_bulk_export_job(
+                $job_id = \MHMRentiva\Admin\Core\Utilities\QueueManager::add_bulk_export_job(
                     'booking_export_large',
                     ['start_date' => $start_date, 'end_date' => $end_date, 'total_count' => $total_count],
                     $format,
                     get_current_user_id()
                 );
-                
+
                 if (self::is_class_available('Logs\AdvancedLogger')) {
-                    \MHMRentiva\Logs\AdvancedLogger::info("Large export job queued", [
+                    \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info("Large export job queued", [
                         'job_id' => $job_id,
                         'total_count' => $total_count
-                    ], \MHMRentiva\Logs\AdvancedLogger::CATEGORY_SYSTEM);
+                    ], \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM);
                 }
                 return;
             }
         }
-        
+
         // Small dataset - direct export
         $bookings = self::get_export_data_optimized($start_date, $end_date);
 
@@ -460,7 +467,7 @@ final class BookingReport
 
         // Optimized meta query with IN() clause
         $placeholders = implode(',', array_fill(0, count($booking_ids), '%d'));
-        
+
         $query = $wpdb->prepare("
             SELECT 
                 p.ID, 
@@ -490,17 +497,17 @@ final class BookingReport
             \MHMRentiva\Admin\Core\MetaKeys::BOOKING_START_TS,
             \MHMRentiva\Admin\Core\MetaKeys::BOOKING_END_TS
         ]));
-        
+
         return $wpdb->get_results($query);
     }
 
     /**
      * Pagination supported export (for large datasets)
      */
-    private static function get_export_data_paginated(string $start_date, string $end_date, int $limit = null, int $offset = 0): array
+    private static function get_export_data_paginated(string $start_date, string $end_date, ?int $limit = null, int $offset = 0): array
     {
         global $wpdb;
-        
+
         $limit = $limit ?? self::PAGINATION_LIMIT;
 
         $query = $wpdb->prepare("
@@ -534,7 +541,7 @@ final class BookingReport
             ORDER BY p.post_date DESC
             LIMIT %d OFFSET %d
         ", $start_date . ' 00:00:00', date('Y-m-d', strtotime($end_date) + 86400) . ' 00:00:00', $limit, $offset);
-        
+
         return $wpdb->get_results($query);
     }
 

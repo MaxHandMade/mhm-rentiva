@@ -1,8 +1,20 @@
 [
     {
+        "version": "4.6.3",
+        "date": "2026-01-25",
+        "type": "current",
+        "changes": [
+            "🛡️ SECURITY: SQL Injection protection hardened for message search queries using prepared statements.",
+            "📡 REST API: Completely refactored Integration Settings to ensure backend AJAX button reliability.",
+            "🌐 STANDARDS: Full source code documentation (comments/docblocks) translated to English for WPCS compliance.",
+            "🔄 RELIABILITY: Improved AJAX hook registration to prevent '-1' errors on asynchronous requests.",
+            "🐛 BUG FIX: Resolved IP list sanitization errors in REST settings preventing user input saves."
+        ]
+    },
+    {
         "version": "4.6.2",
         "date": "2026-01-21",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🛡️ SECURITY AUDIT: Comprehensive security audit completed for all 22 modules (91+ patches applied).",
             "🔒 NONCE HARDENING: All nonce verifications now use sanitize_text_field(wp_unslash()) wrapper for WPCS compliance.",
@@ -14,7 +26,7 @@
     {
         "version": "4.6.1",
         "date": "2026-01-21",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🛡️ CRITICAL UPDATE: Comprehensive DatabaseCleaner meta key protection to prevent potential data loss during maintenance.",
             "🛍️ WOOCOMMERCE: Atomic Overlap Lock mechanism added to prevent duplicate bookings during high traffic.",
@@ -26,7 +38,7 @@
     {
         "version": "4.5.5",
         "date": "2026-01-19",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🚀 FRAMEWORK TRANSFORMATION: Core (Mandatory) and Attribute (Optional) fields separated.",
             "🔧 DYNAMIC ATTRIBUTES: Standard fields like Fuel Type, Transmission can now be removed from settings.",
@@ -38,7 +50,7 @@
     {
         "version": "4.6.0",
         "date": "2026-01-16",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🚀 NEW MODULE: VIP Transfer Module (Chauffeur Service) added.",
             "🗺️ ROUTE MANAGEMENT: Location and Route management in Admin Panel.",

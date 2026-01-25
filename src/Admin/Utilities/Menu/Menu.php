@@ -18,14 +18,9 @@ final class Menu
         add_filter('parent_file', [self::class, 'fix_parent_file']);
         add_filter('submenu_file', [self::class, 'fix_submenu_file']);
 
-        // Register customers page hooks
+        // Register page hooks (Internal registration logic, without add_submenu_page)
         \MHMRentiva\Admin\Customers\CustomersPage::register();
-
-        // Register dashboard page hooks
         \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage::register();
-
-        // Register Transfer Admin pages
-        \MHMRentiva\Admin\Transfer\TransferAdmin::register();
     }
 
     public static function add_menu(): void
@@ -40,7 +35,7 @@ final class Menu
             6
         );
 
-        // 1. Dashboard submenu (main page)
+        // 1. Dashboard
         add_submenu_page(
             'mhm-rentiva',
             __('Dashboard', 'mhm-rentiva'),
@@ -50,7 +45,7 @@ final class Menu
             [\MHMRentiva\Admin\Utilities\Dashboard\DashboardPage::class, 'render']
         );
 
-        // 2. Vehicles submenu
+        // 2. Vehicles Group
         add_submenu_page(
             'mhm-rentiva',
             __('Vehicles', 'mhm-rentiva'),
@@ -59,7 +54,6 @@ final class Menu
             'edit.php?post_type=vehicle'
         );
 
-        // 3. Vehicle Categories submenu
         add_submenu_page(
             'mhm-rentiva',
             __('Vehicle Categories', 'mhm-rentiva'),
@@ -68,7 +62,6 @@ final class Menu
             'edit-tags.php?taxonomy=vehicle_category&post_type=vehicle'
         );
 
-        // 4. Vehicle Settings submenu
         add_submenu_page(
             'mhm-rentiva',
             __('Vehicle Settings', 'mhm-rentiva'),
@@ -78,16 +71,7 @@ final class Menu
             [\MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::class, 'render_settings_page']
         );
 
-        // 5. Additional Services submenu
-        add_submenu_page(
-            'mhm-rentiva',
-            __('Additional Services', 'mhm-rentiva'),
-            __('Additional Services', 'mhm-rentiva'),
-            'manage_options',
-            'edit.php?post_type=vehicle_addon'
-        );
-
-        // 6. Bookings submenu
+        // 3. Bookings
         add_submenu_page(
             'mhm-rentiva',
             __('Bookings', 'mhm-rentiva'),
@@ -96,7 +80,35 @@ final class Menu
             'edit.php?post_type=vehicle_booking'
         );
 
-        // 7. Customers submenu
+        // 4. Transfer Group (Previously in TransferAdmin)
+        add_submenu_page(
+            'mhm-rentiva',
+            __('Transfer Locations', 'mhm-rentiva'),
+            __('Transfer Locations', 'mhm-rentiva'),
+            'manage_options',
+            'mhm-rentiva-transfer-locations',
+            [\MHMRentiva\Admin\Transfer\TransferAdmin::class, 'render_locations_page']
+        );
+
+        add_submenu_page(
+            'mhm-rentiva',
+            __('Transfer Routes', 'mhm-rentiva'),
+            __('Transfer Routes', 'mhm-rentiva'),
+            'manage_options',
+            'mhm-rentiva-transfer-routes',
+            [\MHMRentiva\Admin\Transfer\TransferAdmin::class, 'render_routes_page']
+        );
+
+        // 5. Additional Services (Addons)
+        add_submenu_page(
+            'mhm-rentiva',
+            __('Additional Services', 'mhm-rentiva'),
+            __('Additional Services', 'mhm-rentiva'),
+            'manage_options',
+            'edit.php?post_type=vehicle_addon'
+        );
+
+        // 6. Customers
         add_submenu_page(
             'mhm-rentiva',
             __('Customers', 'mhm-rentiva'),
@@ -106,9 +118,7 @@ final class Menu
             [\MHMRentiva\Admin\Customers\CustomersPage::class, 'render']
         );
 
-
-
-        // 8. Reports submenu (Pro feature)
+        // 7. Reports (Pro feature)
         if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_REPORTS_ADV)) {
             add_submenu_page(
                 'mhm-rentiva',
@@ -120,7 +130,7 @@ final class Menu
             );
         }
 
-        // 9. Messages submenu (Pro feature)
+        // 8. Messages (Pro feature)
         if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES)) {
             add_submenu_page(
                 'mhm-rentiva',
@@ -130,10 +140,9 @@ final class Menu
                 'mhm-rentiva-messages',
                 [\MHMRentiva\Admin\Messages\Core\Messages::class, 'render_page']
             );
-            // Note: Message Settings has been moved to Settings > Messages Settings tab
         }
 
-        // 11. Export submenu (Pro feature)
+        // 9. Export (Pro feature)
         if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_EXPORT)) {
             add_submenu_page(
                 'mhm-rentiva',
@@ -145,17 +154,29 @@ final class Menu
             );
         }
 
-        // 12. About submenu
+        // 10. Settings
         add_submenu_page(
             'mhm-rentiva',
-            __('About', 'mhm-rentiva'),
-            __('About', 'mhm-rentiva'),
+            __('Settings', 'mhm-rentiva'),
+            __('Settings', 'mhm-rentiva'),
             'manage_options',
-            'mhm-rentiva-about',
-            [\MHMRentiva\Admin\About\About::class, 'render_page']
+            'mhm-rentiva-settings',
+            [self::class, 'render_settings_page']
         );
 
-        // Setup Wizard submenu
+        // 11. Shortcode Pages (Administrative/Frontend Utility)
+        if (class_exists(\MHMRentiva\Admin\Settings\ShortcodePages::class)) {
+            add_submenu_page(
+                'mhm-rentiva',
+                __('Shortcode Pages', 'mhm-rentiva'),
+                __('Shortcode Pages', 'mhm-rentiva'),
+                'manage_options',
+                'mhm-rentiva-shortcode-pages',
+                [\MHMRentiva\Admin\Settings\ShortcodePages::register(), 'render_page']
+            );
+        }
+
+        // 12. Setup Wizard (Requested bottom group)
         add_submenu_page(
             'mhm-rentiva',
             __('Setup Wizard', 'mhm-rentiva'),
@@ -165,15 +186,24 @@ final class Menu
             [\MHMRentiva\Admin\Setup\SetupWizard::class, 'render_page']
         );
 
-
-        // 13. Settings submenu (at the bottom)
+        // 12. About (Requested bottom group)
         add_submenu_page(
             'mhm-rentiva',
-            __('Settings', 'mhm-rentiva'),
-            __('Settings', 'mhm-rentiva'),
+            __('About', 'mhm-rentiva'),
+            __('About', 'mhm-rentiva'),
             'manage_options',
-            'mhm-rentiva-settings',
-            [self::class, 'render_settings_page']
+            'mhm-rentiva-about',
+            [\MHMRentiva\Admin\About\About::class, 'render_page']
+        );
+
+        // 13. License (Requested at the very bottom)
+        add_submenu_page(
+            'mhm-rentiva',
+            __('License Management', 'mhm-rentiva'),
+            __('License', 'mhm-rentiva'),
+            'manage_options',
+            'mhm-rentiva-license',
+            [\MHMRentiva\Admin\Licensing\LicenseAdmin::class, 'render_page']
         );
 
         // Remove WordPress's automatically created "MHM Rentiva" submenu

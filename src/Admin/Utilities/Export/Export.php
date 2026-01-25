@@ -1591,4 +1591,88 @@ final class Export
         echo ']';
         exit;
     }
+    /**
+     * Export raw data array directly
+     */
+    public static function export_data(array $data, string $filename, string $format = 'csv'): void
+    {
+        if (empty($data)) {
+            return;
+        }
+
+        if ($format === 'csv') {
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+
+            $output = fopen('php://output', 'w');
+
+            // Add BOM
+            fprintf($output, "%s", chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            foreach ($data as $row) {
+                fputcsv($output, $row);
+            }
+
+            fclose($output);
+            exit;
+        }
+
+        if ($format === 'json') {
+            header('Content-Type: application/json; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '.json"');
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+
+            $json_data = [];
+            if (!empty($data)) {
+                $headers = $data[0];
+
+                // Verify headers are likely headers (all strings)
+                $is_header = true;
+                foreach ($headers as $h) {
+                    if (!is_string($h)) $is_header = false;
+                }
+
+                if ($is_header && count($data) > 1) {
+                    $count = count($data);
+                    for ($i = 1; $i < $count; $i++) {
+                        if (count($data[$i]) === count($headers)) {
+                            $json_data[] = array_combine($headers, $data[$i]);
+                        }
+                    }
+                } else {
+                    $json_data = $data;
+                }
+            }
+
+            echo json_encode($json_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        if ($format === 'xls') {
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment; filename="' . $filename . '.xls"');
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+
+            echo '<html><head><meta charset="UTF-8"></head><body>';
+            echo '<table border="1">';
+
+            foreach ($data as $row) {
+                echo '<tr>';
+                foreach ($row as $cell) {
+                    echo '<td>' . htmlspecialchars((string)$cell) . '</td>';
+                }
+                echo '</tr>';
+            }
+
+            echo '</table></body></html>';
+            exit;
+        }
+    }
 }

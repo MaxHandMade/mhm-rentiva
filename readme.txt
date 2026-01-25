@@ -4,7 +4,7 @@ Tags: car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.6.2
+Stable tag: 4.6.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,8 +72,15 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
-
-= 4.6.1 =
+ 
+= 4.6.3 =
+* Security: SQL Injection protection hardened for message search queries using prepared statements.
+* REST API: Completely refactored Integration Settings to ensure AJAX button reliability.
+* Standards: Full source code documentation (comments/docblocks) translated to English for WPCS compliance.
+* Reliability: Improved AJAX hook registration to prevent '-1' errors on asynchronous requests.
+* Bug Fix: Resolved IP list sanitization errors in REST settings.
+ 
+= 4.6.2 =
 * Critical: Comprehensive DatabaseCleaner meta key protection to prevent potential data loss.
 * WooCommerce: Atomic Overlap Lock mechanism added to prevent duplicate bookings.
 * Fix: Resolved tax calculation issue for deposit payments (calculates on total amount).

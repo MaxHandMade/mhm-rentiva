@@ -33,43 +33,7 @@ final class AccountController
         return sanitize_text_field((string) $value);
     }
 
-    /**
-     * Get welcome email message template
-     * Consolidated to avoid POT file duplication
-     * 
-     * @param string $customer_name Customer display name
-     * @param string $username      Customer username
-     * @param string $email         Customer email
-     * @param bool   $require_verification Whether email verification is required
-     * @return string Formatted email message
-     * @since 4.6.0
-     */
-    public static function get_welcome_email_message(string $customer_name, string $username, string $email, bool $require_verification = false): string
-    {
-        $site_name = get_bloginfo('name');
 
-        if ($require_verification) {
-            /* translators: 1: customer name; 2: site name; 3: username; 4: email; 5: site name (signature). */
-            return sprintf(
-                __("Hello %1\$s,\n\nWelcome to %2\$s! Your account has been created successfully.\n\nPlease verify your email address to activate your account. We have sent you a verification link.\n\nUsername: %3\$s\nEmail: %4\$s\n\nBest regards,\n%5\$s Team", 'mhm-rentiva'),
-                $customer_name,
-                $site_name,
-                $username,
-                $email,
-                $site_name
-            );
-        }
-
-        /* translators: 1: customer name; 2: site name; 3: username; 4: email; 5: site name (signature). */
-        return sprintf(
-            __("Hello %1\$s,\n\nWelcome to %2\$s! Your account has been created successfully.\n\nYou can now log in and start booking vehicles.\n\nUsername: %3\$s\nEmail: %4\$s\n\nBest regards,\n%5\$s Team", 'mhm-rentiva'),
-            $customer_name,
-            $site_name,
-            $username,
-            $email,
-            $site_name
-        );
-    }
 
     private static ?self $instance = null;
 
@@ -96,8 +60,7 @@ final class AccountController
         add_shortcode('rentiva_my_favorites', [self::class, 'render_my_favorites']);
         add_shortcode('rentiva_payment_history', [self::class, 'render_payment_history']);
         // add_shortcode('rentiva_account_details', [self::class, 'render_account_details']); // Removed
-        add_shortcode('rentiva_login_form', [self::class, 'render_login_form']);
-        add_shortcode('rentiva_register_form', [self::class, 'render_register_form']);
+
         add_shortcode('rentiva_messages', [self::class, 'render_messages']);
 
         // AJAX handlers
@@ -124,20 +87,11 @@ final class AccountController
         // Logout redirect
         add_filter('logout_redirect', [self::class, 'logout_redirect'], 10, 3);
 
-        // Registration hooks
-        add_action('user_register', [self::class, 'handle_user_registration']);
-        add_action('wp_ajax_nopriv_mhm_rentiva_register', [self::class, 'ajax_register_user']);
-        add_action('wp_ajax_mhm_rentiva_register', [self::class, 'ajax_register_user']);
-        add_action('init', [self::class, 'handle_registration_form']);
-
         // Receipt upload (logged-in users only)
         add_action('wp_ajax_mhm_rentiva_upload_receipt', [self::class, 'ajax_upload_receipt']);
 
         // Communication preferences handler
         add_action('init', [self::class, 'handle_communication_preferences']);
-
-        // Email verification handler
-        add_action('init', [self::class, 'handle_email_verification']);
     }
 
     /**
@@ -292,58 +246,9 @@ final class AccountController
     }
     */
 
-    /**
-     * Login Form shortcode render
-     */
-    public static function render_login_form(array $atts = []): string
-    {
-        if (is_user_logged_in()) {
-            $account_url = self::get_account_url();
-            return sprintf(
-                '<p>%s <a href="%s">%s</a></p>',
-                __('You are already logged in.', 'mhm-rentiva'),
-                esc_url($account_url),
-                __('Go to My Account', 'mhm-rentiva')
-            );
-        }
 
-        $defaults = [
-            'redirect' => '',
-            'show_register_link' => '1',
-        ];
 
-        $atts = shortcode_atts($defaults, $atts, 'rentiva_login_form');
 
-        self::enqueue_assets();
-
-        return AccountRenderer::render_login_form($atts);
-    }
-
-    /**
-     * Register Form shortcode render
-     */
-    public static function render_register_form(array $atts = []): string
-    {
-        if (is_user_logged_in()) {
-            return '<p>' . __('You are already registered and logged in.', 'mhm-rentiva') . '</p>';
-        }
-
-        // Is WordPress user registration allowed?
-        if (!get_option('users_can_register')) {
-            return '<p>' . __('User registration is currently not allowed.', 'mhm-rentiva') . '</p>';
-        }
-
-        $defaults = [
-            'redirect' => '',
-            'show_login_link' => '1',
-        ];
-
-        $atts = shortcode_atts($defaults, $atts, 'rentiva_register_form');
-
-        self::enqueue_assets();
-
-        return AccountRenderer::render_register_form($atts);
-    }
 
     /**
      * Load assets
@@ -548,13 +453,10 @@ final class AccountController
         }
 
         // Shortcode check
-        $has_shortcode = has_shortcode($post->post_content, 'rentiva_my_account') ||
-            has_shortcode($post->post_content, 'rentiva_my_bookings') ||
+        $has_shortcode = has_shortcode($post->post_content, 'rentiva_my_bookings') ||
             has_shortcode($post->post_content, 'rentiva_my_favorites') ||
-            has_shortcode($post->post_content, 'rentiva_payment_history') ||
-            has_shortcode($post->post_content, 'rentiva_account_details') ||
-            has_shortcode($post->post_content, 'rentiva_login_form') ||
-            has_shortcode($post->post_content, 'rentiva_register_form');
+            has_shortcode($post->post_content, 'rentiva_messages') ||
+            has_shortcode($post->post_content, 'rentiva_payment_history');
 
         return $has_shortcode;
     }
@@ -911,373 +813,7 @@ final class AccountController
         }
     }
 
-    /**
-     * Handle user registration
-     */
-    public static function handle_user_registration($user_id): void
-    {
-        // Save first name and last name
-        if (isset($_POST['first_name'])) {
-            update_user_meta($user_id, 'first_name', self::sanitize_text_field_safe($_POST['first_name']));
-        }
 
-        if (isset($_POST['last_name'])) {
-            update_user_meta($user_id, 'last_name', self::sanitize_text_field_safe($_POST['last_name']));
-        }
-
-        // Save phone number
-        if (isset($_POST['phone'])) {
-            update_user_meta($user_id, 'phone', self::sanitize_text_field_safe($_POST['phone']));
-        }
-
-        // Newsletter subscription
-        if (isset($_POST['newsletter']) && $_POST['newsletter'] === '1') {
-            update_user_meta($user_id, 'newsletter_subscription', '1');
-        }
-
-        // Terms acceptance
-        if (isset($_POST['terms_accepted'])) {
-            update_user_meta($user_id, 'terms_accepted', '1');
-            update_user_meta($user_id, 'terms_accepted_date', current_time('mysql'));
-        }
-    }
-
-    /**
-     * AJAX user registration
-     */
-    public static function ajax_register_user(): void
-    {
-        // Nonce check
-        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['register_nonce'] ?? '')), 'register_user')) {
-            wp_send_json_error(['message' => __('Security check failed.', 'mhm-rentiva')]);
-            return;
-        }
-
-        // Required fields check
-        $username = sanitize_user($_POST['user_login'] ?? '');
-        $email = sanitize_email((string) ($_POST['user_email'] ?? ''));
-        $password = $_POST['pass1'] ?? '';
-        $password_confirm = $_POST['pass2'] ?? '';
-        $first_name = self::sanitize_text_field_safe($_POST['first_name'] ?? '');
-        $last_name = self::sanitize_text_field_safe($_POST['last_name'] ?? '');
-        $phone = self::sanitize_text_field_safe($_POST['phone'] ?? '');
-
-        // Validation
-        if (empty($username) || empty($email) || empty($password)) {
-            wp_send_json_error(['message' => __('All required fields must be filled.', 'mhm-rentiva')]);
-            return;
-        }
-
-        if ($password !== $password_confirm) {
-            wp_send_json_error(['message' => __('Passwords do not match.', 'mhm-rentiva')]);
-            return;
-        }
-
-        if (strlen($password) < 6) {
-            wp_send_json_error(['message' => __('Password must be at least 6 characters.', 'mhm-rentiva')]);
-            return;
-        }
-
-        // Username and email check
-        if (username_exists($username)) {
-            wp_send_json_error(['message' => __('Username already exists.', 'mhm-rentiva')]);
-            return;
-        }
-
-        if (email_exists($email)) {
-            wp_send_json_error(['message' => __('Email already exists.', 'mhm-rentiva')]);
-            return;
-        }
-
-        // Create user
-        $user_id = wp_create_user($username, $password, $email);
-
-        if (is_wp_error($user_id)) {
-            wp_send_json_error(['message' => $user_id->get_error_message()]);
-            return;
-        }
-
-        // Save additional information
-        if (!empty($first_name)) {
-            update_user_meta($user_id, 'first_name', $first_name);
-        }
-
-        if (!empty($last_name)) {
-            update_user_meta($user_id, 'last_name', $last_name);
-        }
-
-        if (!empty($phone)) {
-            update_user_meta($user_id, 'phone', $phone);
-        }
-
-        // Newsletter subscription
-        if (isset($_POST['newsletter']) && $_POST['newsletter'] === '1') {
-            update_user_meta($user_id, 'newsletter_subscription', '1');
-        }
-
-        // Terms acceptance
-        if (isset($_POST['terms_accepted'])) {
-            update_user_meta($user_id, 'terms_accepted', '1');
-            update_user_meta($user_id, 'terms_accepted_date', current_time('mysql'));
-        }
-
-        // ⭐ Send welcome email (if enabled)
-        $send_welcome_email = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_welcome_email', '1') === '1';
-        if ($send_welcome_email) {
-            /* translators: %s: site name. */
-            $subject = sprintf(__('Welcome to %s!', 'mhm-rentiva'), get_bloginfo('name'));
-            $message = self::get_welcome_email_message($first_name ?: $username, $username, $email, false);
-
-            // Send email
-            $mail_sent = wp_mail($email, $subject, $message, [
-                'Content-Type: text/plain; charset=UTF-8',
-                'From: ' . get_bloginfo('name') . ' <' . get_option('admin_email') . '>'
-            ]);
-
-            // Log if email failed (for debugging)
-            if (!$mail_sent) {
-                error_log('MHM Rentiva: Welcome email failed to send to ' . $email);
-            }
-        }
-
-        // Auto login
-        wp_set_current_user($user_id);
-        wp_set_auth_cookie($user_id);
-
-        wp_send_json_success([
-            'message' => __('Registration successful!', 'mhm-rentiva'),
-            'redirect_url' => self::get_account_url()
-        ]);
-    }
-
-    /**
-     * Handle registration form submission
-     */
-    public static function handle_registration_form(): void
-    {
-        if (!isset($_POST['action']) || $_POST['action'] !== 'mhm_rentiva_register') {
-            return;
-        }
-
-        // Nonce check
-        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['register_nonce'] ?? '')), 'register_user')) {
-            wp_die(__('Security check failed.', 'mhm-rentiva'));
-            return;
-        }
-
-        // Required fields check
-        $username = sanitize_user($_POST['user_login'] ?? '');
-        $email = sanitize_email((string) ($_POST['user_email'] ?? ''));
-        $password = $_POST['pass1'] ?? '';
-        $password_confirm = $_POST['pass2'] ?? '';
-        $first_name = self::sanitize_text_field_safe($_POST['first_name'] ?? '');
-        $last_name = self::sanitize_text_field_safe($_POST['last_name'] ?? '');
-        $phone = self::sanitize_text_field_safe($_POST['phone'] ?? '');
-
-        // Validation
-        if (empty($username) || empty($email) || empty($password)) {
-            wp_die(__('All required fields must be filled.', 'mhm-rentiva'));
-            return;
-        }
-
-        if ($password !== $password_confirm) {
-            wp_die(__('Passwords do not match.', 'mhm-rentiva'));
-            return;
-        }
-
-        // Password validation based on security settings
-        $password_min_length = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_password_min_length', 8);
-        if (strlen($password) < (int) $password_min_length) {
-            /* translators: %d placeholder. */
-            wp_die(sprintf(__('Password must be at least %d characters.', 'mhm-rentiva'), $password_min_length));
-            return;
-        }
-
-        // Special characters validation
-        $password_special = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_password_require_special', '0');
-        if ($password_special === '1') {
-            if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/', $password)) {
-                wp_die(__('Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character.', 'mhm-rentiva'));
-                return;
-            }
-        }
-
-        // Username and email check
-        if (username_exists($username)) {
-            wp_die(__('Username already exists.', 'mhm-rentiva'));
-            return;
-        }
-
-        if (email_exists($email)) {
-            wp_die(__('Email already exists.', 'mhm-rentiva'));
-            return;
-        }
-
-        // Check if email verification is required
-        $email_verification = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_email_verification', '0');
-
-        if ($email_verification === '1') {
-            // Create user with pending verification status
-            $user_id = wp_create_user($username, $password, $email);
-
-            if (is_wp_error($user_id)) {
-                wp_die($user_id->get_error_message());
-                return;
-            }
-
-            // Set user as pending verification
-            update_user_meta($user_id, 'mhm_email_verified', '0');
-            update_user_meta($user_id, 'mhm_verification_key', wp_generate_password(32, false));
-
-            // ⭐ Send welcome email BEFORE verification email (if enabled)
-            $send_welcome_email = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_welcome_email', '1') === '1';
-            if ($send_welcome_email) {
-                $subject = sprintf(__('Welcome to %s!', 'mhm-rentiva'), get_bloginfo('name'));
-                $message = self::get_welcome_email_message($first_name ?: $username, $username, $email, true);
-
-                wp_mail($email, $subject, $message, [
-                    'Content-Type: text/plain; charset=UTF-8',
-                    'From: ' . get_bloginfo('name') . ' <' . get_option('admin_email') . '>'
-                ]);
-            }
-
-            // Send verification email
-            self::send_verification_email($user_id, $email);
-
-            // Show verification message instead of auto-login
-            wp_redirect(add_query_arg('verification_sent', '1', wp_login_url()));
-            exit;
-        } else {
-            // Normal user creation (no verification required)
-            $user_id = wp_create_user($username, $password, $email);
-
-            if (is_wp_error($user_id)) {
-                wp_die($user_id->get_error_message());
-                return;
-            }
-
-            // Mark email as verified (no verification required)
-            update_user_meta($user_id, 'mhm_email_verified', '1');
-        }
-
-        // Assign default customer role
-        $default_role = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_default_role', 'customer');
-        $user = new \WP_User($user_id);
-        $user->set_role($default_role);
-
-        // Save additional information
-        if (!empty($first_name)) {
-            update_user_meta($user_id, 'first_name', $first_name);
-        }
-
-        if (!empty($last_name)) {
-            update_user_meta($user_id, 'last_name', $last_name);
-        }
-
-        if (!empty($phone)) {
-            update_user_meta($user_id, 'phone', $phone);
-        }
-
-        // Newsletter subscription
-        if (isset($_POST['newsletter']) && $_POST['newsletter'] === '1') {
-            update_user_meta($user_id, 'newsletter_subscription', '1');
-        }
-
-        // Terms acceptance
-        if (isset($_POST['terms_accepted'])) {
-            update_user_meta($user_id, 'terms_accepted', '1');
-            update_user_meta($user_id, 'terms_accepted_date', current_time('mysql'));
-        }
-
-        // ⭐ Send welcome email (if enabled) - Send even if email verification is required
-        $send_welcome_email = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_welcome_email', '1') === '1';
-        if ($send_welcome_email) {
-            $subject = sprintf(__('Welcome to %s!', 'mhm-rentiva'), get_bloginfo('name'));
-            $require_verification = ($email_verification === '1');
-            $message = self::get_welcome_email_message($first_name ?: $username, $username, $email, $require_verification);
-
-            wp_mail($email, $subject, $message, [
-                'Content-Type: text/plain; charset=UTF-8',
-                'From: ' . get_bloginfo('name') . ' <' . get_option('admin_email') . '>'
-            ]);
-        }
-
-        // Auto login after registration (if enabled and email verification is not required)
-        $auto_login = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_auto_login', '1');
-        if ($auto_login === '1' && $email_verification !== '1') {
-            wp_set_current_user($user_id);
-            wp_set_auth_cookie($user_id);
-        }
-
-        // Redirect to account page (or login page if verification required)
-        if ($email_verification === '1') {
-            wp_redirect(add_query_arg('verification_sent', '1', wp_login_url()));
-        } else {
-            wp_redirect(self::get_account_url());
-        }
-        exit;
-    }
-
-    /**
-     * Send verification email to user
-     */
-    public static function send_verification_email(int $user_id, string $email): void
-    {
-        $verification_key = get_user_meta($user_id, 'mhm_verification_key', true);
-        $verification_url = add_query_arg([
-            'action' => 'verify_email',
-            'user_id' => $user_id,
-            'key' => $verification_key
-        ], home_url());
-
-        $subject = __('Verify Your Email Address', 'mhm-rentiva');
-        $message = sprintf(
-            /* translators: %s placeholder. */
-            __('Please click the following link to verify your email address: %s', 'mhm-rentiva'),
-            $verification_url
-        );
-
-        wp_mail($email, $subject, $message);
-    }
-
-    /**
-     * Handle email verification
-     */
-    public static function handle_email_verification(): void
-    {
-        if (!isset($_GET['action']) || $_GET['action'] !== 'verify_email') {
-            return;
-        }
-
-        $user_id = (int) ($_GET['user_id'] ?? 0);
-        $key = self::sanitize_text_field_safe($_GET['key'] ?? '');
-
-        if (!$user_id || !$key) {
-            wp_die(__('Invalid verification link.', 'mhm-rentiva'));
-            return;
-        }
-
-        $stored_key = get_user_meta($user_id, 'mhm_verification_key', true);
-
-        if ($key !== $stored_key) {
-            wp_die(__('Invalid verification key.', 'mhm-rentiva'));
-            return;
-        }
-
-        // Mark email as verified
-        update_user_meta($user_id, 'mhm_email_verified', '1');
-        delete_user_meta($user_id, 'mhm_verification_key');
-
-        // Auto login if enabled
-        $auto_login = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_auto_login', '1');
-        if ($auto_login === '1') {
-            wp_set_current_user($user_id);
-            wp_set_auth_cookie($user_id);
-        }
-
-        wp_redirect(add_query_arg('email_verified', '1', self::get_account_url()));
-        exit;
-    }
 
     /**
      * Handle communication preferences update

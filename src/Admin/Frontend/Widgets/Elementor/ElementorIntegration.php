@@ -55,9 +55,7 @@ class ElementorIntegration
         $manager->register(new MyFavoritesWidget());
         $manager->register(new PaymentHistoryWidget());
 
-        // Auth widgets
-        $manager->register(new LoginFormWidget());
-        $manager->register(new RegisterFormWidget());
+
 
         // Other widgets
         $manager->register(new ContactFormWidget());

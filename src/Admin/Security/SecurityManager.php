@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Security;
 
@@ -38,7 +40,7 @@ final class SecurityManager
         }
 
         $client_ip = self::get_client_ip();
-        
+
         // Check blacklist first
         if (self::is_ip_blacklisted($client_ip)) {
             self::deny_access(__('Access denied: Your IP address is blocked.', 'mhm-rentiva'));
@@ -114,7 +116,7 @@ final class SecurityManager
         }
 
         $ips = self::parse_ip_list($blacklist);
-        
+
         foreach ($ips as $blocked_ip) {
             if (self::match_ip($ip, $blocked_ip)) {
                 return true;
@@ -143,7 +145,7 @@ final class SecurityManager
         }
 
         $ips = self::parse_ip_list($whitelist);
-        
+
         foreach ($ips as $allowed_ip) {
             if (self::match_ip($ip, $allowed_ip)) {
                 return true;
@@ -184,10 +186,59 @@ final class SecurityManager
     /**
      * Get country code from IP (placeholder - implement with GeoIP service)
      */
+    /**
+     * Get country code from IP (Cloudflare + IP-API fallback with caching)
+     */
     private static function get_country_from_ip(string $ip): string
     {
-        // TODO: Implement proper GeoIP lookup
-        // For now, return empty string (allowing access)
+        // 1. Cloudflare Check (Fastest & Most Reliable)
+        if (isset($_SERVER['HTTP_CF_IPCOUNTRY'])) {
+            return strtoupper(sanitize_text_field($_SERVER['HTTP_CF_IPCOUNTRY']));
+        }
+
+        // Skip private/local IPs to avoid unnecessary API calls
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return '';
+        }
+
+        // 2. Cache Check
+        $cache_key = 'mhm_geoip_' . md5($ip);
+
+        // Try ObjectCache first if available
+        if (class_exists(\MHMRentiva\Admin\Core\Utilities\ObjectCache::class)) {
+            $country = \MHMRentiva\Admin\Core\Utilities\ObjectCache::get($cache_key, 'mhm_security');
+            if ($country) return $country;
+        } else {
+            // Fallback to transient
+            $country = get_transient($cache_key);
+            if ($country) return $country;
+        }
+
+        // 3. IP-API.com Fallback (Free, Rate Limited 45/min)
+        $response = wp_remote_get("http://ip-api.com/json/{$ip}?fields=countryCode", [
+            'timeout' => 3 // Fail fast
+        ]);
+
+        if (is_wp_error($response)) {
+            return '';
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+        if (isset($data['countryCode'])) {
+            $country = strtoupper(sanitize_text_field($data['countryCode']));
+
+            // Cache result for 24 hours (long TTL is crucial for rate limiting)
+            if (class_exists(\MHMRentiva\Admin\Core\Utilities\ObjectCache::class)) {
+                \MHMRentiva\Admin\Core\Utilities\ObjectCache::set($cache_key, $country, 'mhm_security', 24 * HOUR_IN_SECONDS);
+            } else {
+                set_transient($cache_key, $country, 24 * HOUR_IN_SECONDS);
+            }
+
+            return $country;
+        }
+
         return '';
     }
 
@@ -198,14 +249,14 @@ final class SecurityManager
     {
         $lines = explode("\n", $list);
         $ips = [];
-        
+
         foreach ($lines as $line) {
             $ip = trim($line);
             if (!empty($ip)) {
                 $ips[] = $ip;
             }
         }
-        
+
         return $ips;
     }
 
@@ -233,10 +284,10 @@ final class SecurityManager
     private static function match_cidr(string $ip, string $cidr): bool
     {
         list($subnet, $mask) = explode('/', $cidr);
-        
+
         $ip_long = ip2long($ip);
         $subnet_long = ip2long($subnet);
-        
+
         if ($ip_long === false || $subnet_long === false) {
             return false;
         }

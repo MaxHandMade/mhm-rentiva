@@ -1,0 +1,175 @@
+<?php
+
+declare(strict_types=1);
+
+namespace MHMRentiva\Admin\Settings\ShortcodePages;
+
+use MHMRentiva\Admin\Core\ShortcodeUrlManager;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Shortcode Page Actions (Business Logic)
+ */
+final class ShortcodePageActions
+{
+    /**
+     * Get shortcode configurations.
+     */
+    public function get_config(): array
+    {
+        return [
+            'rentiva_my_bookings'           => [
+                'title'       => __('My Bookings', 'mhm-rentiva'),
+                'slug'        => 'my-bookings',
+                'description' => __('All user bookings', 'mhm-rentiva'),
+            ],
+            'rentiva_my_favorites'          => [
+                'title'       => __('My Favorites', 'mhm-rentiva'),
+                'slug'        => 'my-favorites',
+                'description' => __('User favorite vehicles', 'mhm-rentiva'),
+            ],
+            'rentiva_payment_history'       => [
+                'title'       => __('Payment History', 'mhm-rentiva'),
+                'slug'        => 'payment-history',
+                'description' => __('User payment history', 'mhm-rentiva'),
+            ],
+
+            'rentiva_booking_form'          => [
+                'title'       => __('Booking Form', 'mhm-rentiva'),
+                'slug'        => 'booking-form',
+                'description' => __('Detailed booking form - with all booking options', 'mhm-rentiva'),
+            ],
+            'rentiva_search'                => [
+                'title'       => __('Vehicle Search', 'mhm-rentiva'),
+                'slug'        => 'vehicle-search',
+                'description' => __('Vehicle search and filtering page - customers can search vehicles', 'mhm-rentiva'),
+            ],
+            'rentiva_search_results'        => [
+                'title'       => __('Search Results', 'mhm-rentiva'),
+                'slug'        => 'search-results',
+                'description' => __('Vehicle search results page - detailed results with sidebar filters', 'mhm-rentiva'),
+            ],
+            'rentiva_vehicle_comparison'    => [
+                'title'       => __('Vehicle Comparison', 'mhm-rentiva'),
+                'slug'        => 'vehicle-comparison',
+                'description' => __('Vehicle comparison page - multiple vehicles can be compared', 'mhm-rentiva'),
+            ],
+            'rentiva_testimonials'          => [
+                'title'       => __('Customer Reviews', 'mhm-rentiva'),
+                'slug'        => 'customer-reviews',
+                'description' => __('Customer reviews and ratings', 'mhm-rentiva'),
+            ],
+            'rentiva_availability_calendar' => [
+                'title'       => __('Availability Calendar', 'mhm-rentiva'),
+                'slug'        => 'availability-calendar',
+                'description' => __('Vehicle availability calendar - which vehicles are available on which dates', 'mhm-rentiva'),
+            ],
+            'rentiva_booking_confirmation'  => [
+                'title'       => __('Booking Confirmation', 'mhm-rentiva'),
+                'slug'        => 'booking-confirmation',
+                'description' => __('Booking confirmation page - shows booking details and payment status', 'mhm-rentiva'),
+            ],
+            'rentiva_vehicle_details'       => [
+                'title'       => __('Vehicle Details', 'mhm-rentiva'),
+                'slug'        => 'vehicle-details',
+                'description' => __('Single vehicle details page - shows vehicle information, images and booking form', 'mhm-rentiva'),
+            ],
+            'rentiva_vehicles_grid'         => [
+                'title'       => __('Vehicles Grid', 'mhm-rentiva'),
+                'slug'        => 'vehicles-grid',
+                'description' => __('Vehicles displayed in grid layout - multiple vehicles in grid format', 'mhm-rentiva'),
+            ],
+            'rentiva_vehicles_list'         => [
+                'title'       => __('Vehicles List', 'mhm-rentiva'),
+                'slug'        => 'vehicles-list',
+                'description' => __('Vehicles displayed in list layout - multiple vehicles in list format', 'mhm-rentiva'),
+            ],
+            'rentiva_contact'               => [
+                'title'       => __('Contact Form', 'mhm-rentiva'),
+                'slug'        => 'contact-form',
+                'description' => __('Contact form page - customers can send messages to admin', 'mhm-rentiva'),
+            ],
+            'rentiva_vehicle_rating_form'   => [
+                'title'       => __('Vehicle Rating Form', 'mhm-rentiva'),
+                'slug'        => 'vehicle-rating-form',
+                'description' => __('Vehicle rating and review form - customers can rate and review vehicles', 'mhm-rentiva'),
+            ],
+        ];
+    }
+
+    /**
+     * Create a page for a shortcode.
+     */
+    public function create_page(string $shortcode): ?int
+    {
+        $config = $this->get_config();
+        $info = $config[$shortcode] ?? null;
+        if (!$info) {
+            return null;
+        }
+
+        $content = sprintf(
+            '<!-- %s page - %s -->' . PHP_EOL . PHP_EOL . '%s' . PHP_EOL . PHP_EOL . '<!-- You can edit this page, change the title and content. -->',
+            esc_html($info['title']),
+            esc_html($info['description']),
+            $this->get_shortcode_markup($shortcode)
+        );
+
+        $page_id = wp_insert_post([
+            'post_title'   => $info['title'],
+            'post_content' => $content,
+            'post_status'  => 'publish',
+            'post_type'    => 'page',
+            'post_author'  => get_current_user_id(),
+            'post_name'    => sanitize_title($info['slug']),
+            'post_excerpt' => $info['description']
+        ]);
+
+        if ($page_id && !is_wp_error($page_id)) {
+            update_post_meta($page_id, '_mhm_shortcode', $shortcode);
+            update_post_meta($page_id, '_mhm_auto_created', true);
+            return (int) $page_id;
+        }
+
+        return null;
+    }
+
+    /**
+     * Delete a shortcode page.
+     */
+    public function delete_page(int $page_id): bool
+    {
+        if ($page_id <= 0) {
+            return false;
+        }
+
+        $result = wp_trash_post($page_id);
+        if ($result) {
+            ShortcodeUrlManager::clear_cache();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get shortcode markup.
+     */
+    private function get_shortcode_markup(string $shortcode): string
+    {
+        return match ($shortcode) {
+            'rentiva_vehicle_comparison'    => '[rentiva_vehicle_comparison vehicle_ids="1,2,3"]',
+            'rentiva_availability_calendar' => '[rentiva_availability_calendar vehicle_id="1"]',
+            'rentiva_vehicle_details'       => '[rentiva_vehicle_details vehicle_id="1"]',
+            'rentiva_vehicles_grid'         => '[rentiva_vehicles_grid columns="3" limit="12"]',
+            'rentiva_vehicles_list'         => '[rentiva_vehicles_list limit="10"]',
+            'rentiva_booking_form'          => '[rentiva_booking_form vehicle_id="1"]',
+            'rentiva_booking_confirmation'  => '[rentiva_booking_confirmation booking_id="1"]',
+            'rentiva_vehicle_rating_form'   => '[rentiva_vehicle_rating_form vehicle_id="1"]',
+            default                         => '[' . $shortcode . ']',
+        };
+    }
+}

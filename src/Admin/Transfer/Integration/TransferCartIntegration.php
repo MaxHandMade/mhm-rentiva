@@ -152,8 +152,8 @@ final class TransferCartIntegration
         }
 
         // 4. Financial Calculation (Deposit vs Full)
-        $deposit_type = get_option('mhm_transfer_deposit_type', 'full_payment');
-        $deposit_rate = intval(get_option('mhm_transfer_deposit_rate', '20'));
+        $deposit_type = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_transfer_deposit_type', 'full_payment');
+        $deposit_rate = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_transfer_deposit_rate', '20');
         $total_price = (float) $selected_price;
 
         $deposit_amount = 0.0;

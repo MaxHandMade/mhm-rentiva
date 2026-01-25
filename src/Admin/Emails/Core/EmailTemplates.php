@@ -175,59 +175,72 @@ final class EmailTemplates
         // Define email template types
         $email_types = [
             'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
-            'refund_emails' => __('Refund Emails', 'mhm-rentiva'),
-            'message_emails' => __('Message Notifications', 'mhm-rentiva'),
-            'preview' => __('Email Preview', 'mhm-rentiva'),
+            'refund_emails'         => __('Refund Emails', 'mhm-rentiva'),
+            'message_emails'        => __('Message Notifications', 'mhm-rentiva'),
+            'preview'               => __('Email Preview', 'mhm-rentiva'),
         ];
 
         $current_type = isset($_GET['type']) ? sanitize_key((string) $_GET['type']) : 'booking_notifications';
-        if (!isset($email_types[$current_type])) $current_type = 'booking_notifications';
+        if (! isset($email_types[$current_type])) {
+            $current_type = 'booking_notifications';
+        }
 
-        // Link to email settings
         $email_settings_url = admin_url('admin.php?page=mhm-rentiva-settings&tab=email');
-        echo '<div class="notice notice-info inline" style="margin: 10px 0;">';
-        echo '<p><strong>' . esc_html__('Email Sending Settings:', 'mhm-rentiva') . '</strong> ';
-        echo esc_html__('To edit email sending settings (sender name, test mode, etc.):', 'mhm-rentiva') . ' ';
-        echo '<a href="' . esc_url($email_settings_url) . '" class="button button-secondary" style="margin-left: 10px;">';
-        echo esc_html__('Email Settings', 'mhm-rentiva') . '</a>';
-        echo '</p></div>';
 
-        // Email type selection
-        // Email type selection
-        echo '<h2 class="nav-tab-wrapper" style="position: relative; display: flex; align-items: center;">';
+        // Unified Header
+?>
+        <div class="mhm-settings-tab-header">
+            <div class="mhm-settings-title-group">
+                <h2><?php esc_html_e('Notification Templates', 'mhm-rentiva'); ?></h2>
+                <p class="description"><?php esc_html_e('Customize automated email communications. If a field is empty, the system automatically uses the Gold Standard layout.', 'mhm-rentiva'); ?></p>
+            </div>
 
-        // 1. Get the current parent tab safely (e.g., 'notification-templates' or 'email-templates')
-        $current_parent_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'email-templates';
+            <div class="mhm-settings-header-actions">
+                <a href="<?php echo esc_url($email_settings_url); ?>" class="button button-secondary">
+                    <span class="dashicons dashicons-email-alt"></span>
+                    <?php esc_html_e('Email Settings', 'mhm-rentiva'); ?>
+                </a>
 
-        foreach ($email_types as $type => $label) {
-            $active = $current_type === $type ? ' nav-tab-active' : '';
+                <button type="button" id="mhm-reset-email-templates-btn" class="button button-secondary" data-tab="email-templates">
+                    <span class="dashicons dashicons-undo"></span>
+                    <?php esc_html_e('Restore Gold Standard', 'mhm-rentiva'); ?>
+                </button>
+            </div>
+        </div>
+        <hr class="wp-header-end">
 
-            // 2. Build URL keeping the user on the SAME parent tab
-            $url = add_query_arg([
-                'page' => 'mhm-rentiva-settings',
-                'tab'  => $current_parent_tab,
-                'type' => $type,
-            ], admin_url('admin.php'));
+        <h2 class="nav-tab-wrapper" style="margin-top: 20px;">
+            <?php
+            $current_parent_tab = isset($_GET['tab']) ? sanitize_key((string) $_GET['tab']) : 'email-templates';
 
-            echo '<a href="' . esc_url($url) . '" class="nav-tab' . $active . '">' . esc_html($label) . '</a>';
-        }
+            foreach ($email_types as $type => $label) {
+                $active = ($current_type === $type) ? ' nav-tab-active' : '';
+                $url    = add_query_arg([
+                    'page' => 'mhm-rentiva-settings',
+                    'tab'  => $current_parent_tab,
+                    'type' => $type,
+                ], admin_url('admin.php'));
 
-        // Global Reset to Defaults Button - MOVED TO UI HEADER in SettingsView.php
+                printf('<a href="%s" class="nav-tab %s">%s</a>', esc_url($url), esc_attr($active), esc_html($label));
+            }
+            ?>
+        </h2>
 
-        echo '</h2>';
-
-        echo '</h2>';
-
-        // Render content (without form)
-        if ($current_type === 'booking_notifications') {
-            BookingNotifications::render();
-        } elseif ($current_type === 'refund_emails') {
-            RefundEmails::render();
-        } elseif ($current_type === 'message_emails') {
-            MessageEmails::render();
-        } elseif ($current_type === 'preview') {
-            EmailPreview::render();
-        }
+        <div class="mhm-email-template-content" style="margin-top: 20px;">
+            <?php
+            // Render content (without form)
+            if ($current_type === 'booking_notifications') {
+                BookingNotifications::render();
+            } elseif ($current_type === 'refund_emails') {
+                RefundEmails::render();
+            } elseif ($current_type === 'message_emails') {
+                MessageEmails::render();
+            } elseif ($current_type === 'preview') {
+                EmailPreview::render();
+            }
+            ?>
+        </div>
+    <?php
     }
 
     public static function handle_preview(): void
@@ -343,6 +356,8 @@ final class EmailTemplates
             'mhm_rentiva_message_received_admin_body' => 'html',
             'mhm_rentiva_message_replied_customer_subject' => 'text',
             'mhm_rentiva_message_replied_customer_body' => 'html',
+            'mhm_rentiva_message_auto_reply_subject' => 'text',
+            'mhm_rentiva_message_auto_reply_body' => 'html',
         ];
 
         self::save_email_fields($fields);
@@ -561,7 +576,7 @@ final class EmailTemplates
 
         $stats = self::get_email_stats();
 
-?>
+    ?>
         <div class="mhm-stats-cards">
             <div class="stats-grid">
                 <!-- Total Templates -->

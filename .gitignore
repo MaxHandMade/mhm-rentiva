@@ -40,12 +40,20 @@ TEST-CHECKLIST.md
 website/
 
 # Temporary utilities
+# Developer & Test scripts
+tests/
+phpunit.xml
+test_*.php
+debug_*.php
+master_validation_test.php
+test_results.txt
+AUDIT_REPORT_*.md
+generate-clean-pot.php
+update-pot-ultimate.php
+wp-stubs.php
+stubs.php
 reset_endpoints.php
 mhm-tools.php
-debug_slug.php
 flush_rules.php
 update_refund_text.php
 test-i18n.php
-wp-stubs.php
-stubs.php
-update_pot.php

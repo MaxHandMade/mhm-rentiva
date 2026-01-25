@@ -37,33 +37,30 @@ final class CronMonitor
             'mhm_rentiva_auto_cancel_event' => [
                 'name' => __('Auto Cancel Bookings', 'mhm-rentiva'),
                 'description' => __('Automatically cancels unpaid bookings after payment deadline', 'mhm-rentiva'),
-                'schedule' => 'mhm_rentiva_5min',
             ],
-
             'mhm_data_retention_cleanup' => [
                 'name' => __('Data Retention Cleanup', 'mhm-rentiva'),
                 'description' => __('Cleans up expired data according to retention policies', 'mhm-rentiva'),
-                'schedule' => 'daily',
             ],
             'mhm_send_scheduled_notifications' => [
                 'name' => __('Scheduled Notifications', 'mhm-rentiva'),
                 'description' => __('Sends scheduled email notifications', 'mhm-rentiva'),
-                'schedule' => 'hourly', // Can be hourly, daily, or weekly
             ],
             'mhm_rentiva_license_daily' => [
                 'name' => __('License Validation', 'mhm-rentiva'),
                 'description' => __('Validates plugin license daily', 'mhm-rentiva'),
-                'schedule' => 'daily',
             ],
             'mhm_rentiva_email_log_purge_event' => [
                 'name' => __('Email Log Retention', 'mhm-rentiva'),
                 'description' => __('Cleans up old email logs', 'mhm-rentiva'),
-                'schedule' => 'daily',
             ],
             'mhm_rentiva_log_purge_event' => [
-                'name' => __('Log Retention', 'mhm-rentiva'),
-                'description' => __('Cleans up old system logs', 'mhm-rentiva'),
-                'schedule' => 'daily',
+                'name' => __('System Log Retention (Classic)', 'mhm-rentiva'),
+                'description' => __('Cleans up old system logs (mhm_app_log post type)', 'mhm-rentiva'),
+            ],
+            'mhm_rentiva_daily_log_cleanup' => [
+                'name' => __('App Log Maintenance (Modern)', 'mhm-rentiva'),
+                'description' => __('Advanced log management and rotation for system logs', 'mhm-rentiva'),
             ],
         ];
 
@@ -158,12 +155,12 @@ final class CronMonitor
         // Check if hook is a plugin hook
         $plugin_hooks = [
             'mhm_rentiva_auto_cancel_event',
-
             'mhm_data_retention_cleanup',
             'mhm_send_scheduled_notifications',
             'mhm_rentiva_license_daily',
             'mhm_rentiva_email_log_purge_event',
             'mhm_rentiva_log_purge_event',
+            'mhm_rentiva_daily_log_cleanup',
         ];
 
         if (!in_array($hook, $plugin_hooks, true)) {
@@ -259,6 +256,7 @@ final class CronMonitor
             'mhm_rentiva_license_daily',
             'mhm_rentiva_email_log_purge_event',
             'mhm_rentiva_log_purge_event',
+            'mhm_rentiva_daily_log_cleanup',
         ];
 
         // Ensure all plugin hooks are loaded

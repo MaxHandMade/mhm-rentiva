@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Settings\Groups;
 
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
-use MHMRentiva\Admin\Core\CurrencyHelper;
+use MHMRentiva\Admin\Settings\Core\SettingsHelper;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -13,25 +13,20 @@ if (!defined('ABSPATH')) {
 
 /**
  * General Settings Group
+ * 
+ * Manages currency, brand, and site-wide configurations.
+ * Optimized for high performance and standardized rendering.
+ * 
+ * @package MHMRentiva\Admin\Settings\Groups
  */
 final class GeneralSettings
 {
     public const SECTION_GENERAL = 'mhm_rentiva_general_section';
     public const SECTION_SITE_INFO = 'mhm_rentiva_site_info_section';
-    public const SECTION_DATETIME = 'mhm_rentiva_datetime_section';
-
-    /**
-     * Render the general settings section
-     */
-    public static function render_settings_section(): void
-    {
-        // General Section
-        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_GENERAL);
-    }
 
     /**
      * Get default settings
-     * 
+     *
      * @return array
      */
     public static function get_default_settings(): array
@@ -40,14 +35,28 @@ final class GeneralSettings
         $currency = function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'USD';
 
         return [
+            // General
             'mhm_rentiva_currency'            => $currency,
             'mhm_rentiva_currency_position'   => 'right_space',
+            'mhm_rentiva_dark_mode'           => 'auto',
+
+            // Site Info
             'mhm_rentiva_brand_name'          => get_bloginfo('name'),
             'mhm_rentiva_support_email'       => get_option('admin_email'),
             'mhm_rentiva_contact_phone'       => '',
-            'mhm_rentiva_contact_hours'       => __('09:00 - 18:00', 'mhm-rentiva'),
-            'mhm_rentiva_dark_mode'           => 'auto',
+            'mhm_rentiva_contact_hours'       => '',
         ];
+    }
+
+    /**
+     * Render the general settings section
+     */
+    public static function render_settings_section(): void
+    {
+        if (class_exists('\MHMRentiva\Admin\Settings\View\SettingsViewHelper')) {
+            \MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly(self::SECTION_GENERAL);
+            \MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly(self::SECTION_SITE_INFO);
+        }
     }
 
     /**
@@ -55,82 +64,94 @@ final class GeneralSettings
      */
     public static function register(): void
     {
+        $page_slug = SettingsCore::PAGE;
+
         // 1. General Section
         add_settings_section(
             self::SECTION_GENERAL,
-            '',
-            '__return_false',
-            SettingsCore::PAGE
+            __('General Configuration', 'mhm-rentiva'),
+            fn() => print('<p>' . esc_html__('Configure currency and display preferences.', 'mhm-rentiva') . '</p>'),
+            $page_slug
         );
 
+        // Currency (Custom Render due to WooCommerce check)
         add_settings_field(
             'mhm_rentiva_currency',
             __('Currency', 'mhm-rentiva'),
             [self::class, 'render_currency_field'],
-            SettingsCore::PAGE,
+            $page_slug,
             self::SECTION_GENERAL
         );
 
+        // Currency Position (Custom Render due to WooCommerce check)
         add_settings_field(
             'mhm_rentiva_currency_position',
             __('Currency Position', 'mhm-rentiva'),
             [self::class, 'render_currency_position_field'],
-            SettingsCore::PAGE,
+            $page_slug,
             self::SECTION_GENERAL
         );
 
-        add_settings_field(
-            'mhm_rentiva_brand_name',
-            __('Brand Name', 'mhm-rentiva'),
-            [self::class, 'render_brand_name_field'],
-            SettingsCore::PAGE,
-            self::SECTION_GENERAL
-        );
-
-        add_settings_field(
-            'mhm_rentiva_support_email',
-            __('Support Email', 'mhm-rentiva'),
-            [self::class, 'render_support_email_field'],
-            SettingsCore::PAGE,
-            self::SECTION_GENERAL
-        );
-
-        add_settings_field(
-            'mhm_rentiva_contact_phone',
-            __('Contact Phone', 'mhm-rentiva'),
-            [self::class, 'render_contact_phone_field'],
-            SettingsCore::PAGE,
-            self::SECTION_GENERAL
-        );
-
-        add_settings_field(
-            'mhm_rentiva_contact_hours',
-            __('Support Hours', 'mhm-rentiva'),
-            [self::class, 'render_contact_hours_field'],
-            SettingsCore::PAGE,
-            self::SECTION_GENERAL
-        );
-
-        add_settings_field(
+        SettingsHelper::select_field(
+            $page_slug,
             'mhm_rentiva_dark_mode',
             __('Dark Mode', 'mhm-rentiva'),
-            [self::class, 'render_dark_mode_field'],
-            SettingsCore::PAGE,
+            [
+                'auto' => __('Auto (System)', 'mhm-rentiva'),
+                'light' => __('Light', 'mhm-rentiva'),
+                'dark' => __('Dark', 'mhm-rentiva'),
+            ],
+            __('Select admin panel color scheme.', 'mhm-rentiva'),
             self::SECTION_GENERAL
+        );
+
+        // 2. Site Info Section
+        add_settings_section(
+            self::SECTION_SITE_INFO,
+            __('Brand & Contact Information', 'mhm-rentiva'),
+            fn() => print('<p>' . esc_html__('Information used in emails, PDF documents, and contact forms.', 'mhm-rentiva') . '</p>'),
+            $page_slug
+        );
+
+
+        SettingsHelper::text_field(
+            $page_slug,
+            'mhm_rentiva_brand_name',
+            __('Brand Name', 'mhm-rentiva'),
+            self::SECTION_SITE_INFO,
+            __('Your company or brand name', 'mhm-rentiva'),
+            __('e.g., Otokira Rent a Car', 'mhm-rentiva')
+        );
+
+        SettingsHelper::email_field(
+            $page_slug,
+            'mhm_rentiva_support_email',
+            __('Support Email', 'mhm-rentiva'),
+            __('Email address to be used for customer support', 'mhm-rentiva'),
+            self::SECTION_SITE_INFO
+        );
+
+        SettingsHelper::text_field(
+            $page_slug,
+            'mhm_rentiva_contact_phone',
+            __('Contact Phone', 'mhm-rentiva'),
+            self::SECTION_SITE_INFO,
+            __('Customer service phone number', 'mhm-rentiva'),
+            __('+90 555 123 45 67', 'mhm-rentiva')
+        );
+
+        SettingsHelper::text_field(
+            $page_slug,
+            'mhm_rentiva_contact_hours',
+            __('Support Hours', 'mhm-rentiva'),
+            self::SECTION_SITE_INFO,
+            __('Business hours for customer support', 'mhm-rentiva'),
+            __('09:00 - 18:00', 'mhm-rentiva')
         );
     }
 
     /**
-     * General Settings Section Description
-     */
-    public static function render_section_description(): void
-    {
-        echo '<p>' . esc_html__('Configure general system settings.', 'mhm-rentiva') . '</p>';
-    }
-
-
-    /**
-     * Currency Field
+     * Currency Field (Custom Render)
      */
     public static function render_currency_field(): void
     {
@@ -140,7 +161,6 @@ final class GeneralSettings
         }
 
         $currency = SettingsCore::get('mhm_rentiva_currency', 'USD');
-        // Use centralized currency list from CurrencyHelper
         $currencies = class_exists('\MHMRentiva\Admin\Core\CurrencyHelper')
             ? \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_list_for_dropdown()
             : ['USD' => 'US Dollar', 'EUR' => 'Euro', 'TRY' => 'Turkish Lira'];
@@ -154,7 +174,7 @@ final class GeneralSettings
     }
 
     /**
-     * Currency Position Field
+     * Currency Position Field (Custom Render)
      */
     public static function render_currency_position_field(): void
     {
@@ -176,65 +196,5 @@ final class GeneralSettings
             echo '<option value="' . esc_attr($pos) . '"' . selected($position, $pos, false) . '>' . esc_html($name) . '</option>';
         }
         echo '</select>';
-    }
-
-    /**
-     * Dark Mode Field
-     */
-    public static function render_dark_mode_field(): void
-    {
-        $mode = get_option('mhm_rentiva_dark_mode', 'auto');
-        $options = [
-            'auto' => __('Auto (System)', 'mhm-rentiva'),
-            'light' => __('Light', 'mhm-rentiva'),
-            'dark' => __('Dark', 'mhm-rentiva'),
-        ];
-
-        echo '<select name="mhm_rentiva_dark_mode">';
-        foreach ($options as $key => $label) {
-            echo '<option value="' . esc_attr($key) . '"' . selected($mode, $key, false) . '>' . esc_html($label) . '</option>';
-        }
-        echo '</select>';
-        echo '<p class="description">' . esc_html__('Select admin panel color scheme.', 'mhm-rentiva') . '</p>';
-    }
-
-    /**
-     * Support Email Field
-     */
-    public static function render_support_email_field(): void
-    {
-        $value = SettingsCore::get('mhm_rentiva_support_email', 'destek@maxhandmade.com');
-        echo '<input type="email" name="mhm_rentiva_settings[mhm_rentiva_support_email]" value="' . esc_attr($value) . '" class="regular-text" />';
-        echo '<p class="description">' . esc_html__('Email address to be used for customer support', 'mhm-rentiva') . '</p>';
-    }
-
-    /**
-     * Contact Phone Field
-     */
-    public static function render_contact_phone_field(): void
-    {
-        $phone = SettingsCore::get('mhm_rentiva_contact_phone', '+90 555 555 55 55');
-        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_contact_phone]" value="' . esc_attr($phone) . '" class="regular-text" />';
-        echo '<p class="description">' . esc_html__('Phone number for contact form footer.', 'mhm-rentiva') . '</p>';
-    }
-
-    /**
-     * Contact Hours Field
-     */
-    public static function render_contact_hours_field(): void
-    {
-        $hours = SettingsCore::get('mhm_rentiva_contact_hours', __('7/24 Support', 'mhm-rentiva'));
-        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_contact_hours]" value="' . esc_attr($hours) . '" class="regular-text" />';
-        echo '<p class="description">' . esc_html__('Working hours text for contact form footer.', 'mhm-rentiva') . '</p>';
-    }
-
-    /**
-     * Brand Name Field
-     */
-    public static function render_brand_name_field(): void
-    {
-        $brand = SettingsCore::get('mhm_rentiva_brand_name', get_bloginfo('name'));
-        echo '<input type="text" name="mhm_rentiva_settings[mhm_rentiva_brand_name]" value="' . esc_attr($brand) . '" class="regular-text" />';
-        echo '<p class="description">' . esc_html__('Brand name to appear in emails and documents.', 'mhm-rentiva') . '</p>';
     }
 }

@@ -16,13 +16,14 @@ if (!defined('ABSPATH')) {
  */
 class ReportRepository
 {
-    /**
-     * Get total bookings count
-     */
     public static function get_total_bookings_count(): int
     {
         global $wpdb;
-        return (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}mhm_bookings WHERE status != 'trash'");
+        return (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status != %s",
+            'vehicle_booking',
+            'trash'
+        ));
     }
 
     /**
@@ -31,12 +32,22 @@ class ReportRepository
     public static function get_monthly_revenue_amount(string $start_date, string $end_date): float
     {
         global $wpdb;
+        $meta_price = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE;
+        $meta_status = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS;
+
         return (float) $wpdb->get_var($wpdb->prepare(
-            "SELECT SUM(total_price)
-             FROM {$wpdb->prefix}mhm_bookings
-             WHERE status IN ('completed', 'confirmed')
-             AND created_at >= %s
-             AND created_at < %s",
+            "SELECT SUM(CAST(pm_price.meta_value AS DECIMAL(10,2)))
+             FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
+             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             WHERE p.post_type = %s
+             AND p.post_status != 'trash'
+             AND pm_status.meta_value IN ('completed', 'confirmed')
+             AND p.post_date >= %s
+             AND p.post_date < %s",
+            $meta_price,
+            $meta_status,
+            'vehicle_booking',
             $start_date,
             $end_date
         ));
@@ -48,10 +59,17 @@ class ReportRepository
     public static function get_active_bookings_count(): int
     {
         global $wpdb;
-        return (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}mhm_bookings
-             WHERE status IN ('confirmed', 'in_progress')"
-        );
+        $meta_status = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS;
+
+        return (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             WHERE p.post_type = %s
+             AND p.post_status != 'trash'
+             AND pm_status.meta_value IN ('confirmed', 'in_progress')",
+            $meta_status,
+            'vehicle_booking'
+        ));
     }
 
     /**
@@ -73,13 +91,23 @@ class ReportRepository
     public static function get_daily_revenue_data(string $start_date, string $end_date): array
     {
         global $wpdb;
+        $meta_price = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE;
+        $meta_status = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS;
+
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT DATE(created_at) as date, SUM(total_price) as revenue
-             FROM {$wpdb->prefix}mhm_bookings
-             WHERE status IN ('completed', 'confirmed')
-             AND created_at >= %s AND created_at <= %s
-             GROUP BY DATE(created_at)
+            "SELECT DATE(p.post_date) as date, SUM(CAST(pm_price.meta_value AS DECIMAL(10,2))) as revenue
+             FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
+             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             WHERE p.post_type = %s
+             AND p.post_status != 'trash'
+             AND pm_status.meta_value IN ('completed', 'confirmed')
+             AND p.post_date >= %s AND p.post_date <= %s
+             GROUP BY DATE(p.post_date)
              ORDER BY date",
+            $meta_price,
+            $meta_status,
+            'vehicle_booking',
             $start_date . ' 00:00:00',
             $end_date . ' 23:59:59'
         ));
@@ -91,17 +119,26 @@ class ReportRepository
     public static function get_payment_method_distribution(string $start_date, string $end_date): array
     {
         global $wpdb;
+        $meta_price = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE;
+        // Payment method usually stored in _mhm_payment_gateway
+        $meta_gateway = '_mhm_payment_gateway';
+
         return $wpdb->get_results($wpdb->prepare(
             "SELECT 
-                COALESCE(payment_method, 'unknown') as method, 
-                SUM(total_price) as revenue, 
+                COALESCE(pm_gw.meta_value, 'unknown') as method, 
+                SUM(CAST(pm_price.meta_value AS DECIMAL(10,2))) as revenue, 
                 COUNT(*) as count
-             FROM {$wpdb->prefix}mhm_bookings
-             WHERE status != 'trash'
-             AND created_at >= %s AND created_at <= %s
-             GROUP BY payment_method
-             HAVING method != 'unknown'
+             FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_gw ON p.ID = pm_gw.post_id AND pm_gw.meta_key = %s
+             WHERE p.post_type = %s
+             AND p.post_status != 'trash'
+             AND p.post_date >= %s AND p.post_date <= %s
+             GROUP BY pm_gw.meta_value
              ORDER BY revenue DESC",
+            $meta_price,
+            $meta_gateway,
+            'vehicle_booking',
             $start_date . ' 00:00:00',
             $end_date . ' 23:59:59'
         ));
@@ -113,15 +150,25 @@ class ReportRepository
     public static function get_monthly_revenue_comparison(string $start_date, string $end_date): array
     {
         global $wpdb;
+        $meta_price = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE;
+        $meta_status = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS;
+
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT DATE_FORMAT(created_at, '%Y-%m') as month,
-                    SUM(total_price) as revenue,
+            "SELECT DATE_FORMAT(p.post_date, '%Y-%m') as month,
+                    SUM(CAST(pm_price.meta_value AS DECIMAL(10,2))) as revenue,
                     COUNT(*) as bookings
-             FROM {$wpdb->prefix}mhm_bookings
-             WHERE status IN ('completed', 'confirmed')
-             AND created_at >= %s AND created_at <= %s
-             GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+             FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
+             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             WHERE p.post_type = %s
+             AND p.post_status != 'trash'
+             AND pm_status.meta_value IN ('completed', 'confirmed')
+             AND p.post_date >= %s AND p.post_date <= %s
+             GROUP BY DATE_FORMAT(p.post_date, '%Y-%m')
              ORDER BY month",
+            $meta_price,
+            $meta_status,
+            'vehicle_booking',
             $start_date . ' 00:00:00',
             $end_date . ' 23:59:59'
         ));
@@ -133,6 +180,8 @@ class ReportRepository
     public static function get_revenue_by_period(string $start_date, string $end_date, string $period = 'daily'): array
     {
         global $wpdb;
+        $meta_price = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE;
+        $meta_status = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS;
 
         $date_format = match ($period) {
             'monthly' => '%Y-%m',
@@ -142,18 +191,24 @@ class ReportRepository
         };
 
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT DATE_FORMAT(created_at, %s) as period,
-                    SUM(total_price) as revenue,
+            "SELECT DATE_FORMAT(p.post_date, %s) as period,
+                    SUM(CAST(pm_price.meta_value AS DECIMAL(10,2))) as revenue,
                     COUNT(*) as bookings
-             FROM {$wpdb->prefix}mhm_bookings
-             WHERE status IN ('completed', 'confirmed')
-             AND created_at >= %s AND created_at <= %s
-             GROUP BY DATE_FORMAT(created_at, %s)
+             FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
+             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             WHERE p.post_type = %s
+             AND p.post_status != 'trash'
+             AND pm_status.meta_value IN ('completed', 'confirmed')
+             AND p.post_date >= %s AND p.post_date <= %s
+             GROUP BY period
              ORDER BY period",
             $date_format,
+            $meta_price,
+            $meta_status,
+            'vehicle_booking',
             $start_date . ' 00:00:00',
-            $end_date . ' 23:59:59',
-            $date_format
+            $end_date . ' 23:59:59'
         ));
     }
 
@@ -163,16 +218,29 @@ class ReportRepository
     public static function get_top_revenue_sources(string $start_date, string $end_date, int $limit = 10): array
     {
         global $wpdb;
+        $meta_vid = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID;
+        $meta_price = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE;
+        $meta_status = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS;
+
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT vehicle_id,
-                    SUM(total_price) as revenue,
+            "SELECT pm_vid.meta_value as vehicle_id,
+                    SUM(CAST(pm_price.meta_value AS DECIMAL(10,2))) as revenue,
                     COUNT(*) as bookings
-             FROM {$wpdb->prefix}mhm_bookings
-             WHERE status IN ('completed', 'confirmed')
-             AND created_at >= %s AND created_at <= %s
-             GROUP BY vehicle_id
+             FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = %s
+             INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
+             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             WHERE p.post_type = %s
+             AND p.post_status != 'trash'
+             AND pm_status.meta_value IN ('completed', 'confirmed')
+             AND p.post_date >= %s AND p.post_date <= %s
+             GROUP BY pm_vid.meta_value
              ORDER BY revenue DESC
              LIMIT %d",
+            $meta_vid,
+            $meta_price,
+            $meta_status,
+            'vehicle_booking',
             $start_date . ' 00:00:00',
             $end_date . ' 23:59:59',
             $limit
@@ -185,24 +253,33 @@ class ReportRepository
     public static function get_vehicle_category_performance(string $start_date, string $end_date): array
     {
         global $wpdb;
+        $meta_vid = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID;
+        $meta_status = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS;
+
         return $wpdb->get_results($wpdb->prepare(
             "SELECT 
                 t.name as category_name,
-                COUNT(b.id) as booking_count
+                COUNT(p_booking.ID) as booking_count
             FROM {$wpdb->terms} t
             LEFT JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
             LEFT JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
             LEFT JOIN {$wpdb->posts} v ON tr.object_id = v.ID 
                 AND v.post_type = 'vehicle' 
                 AND v.post_status = 'publish'
-            LEFT JOIN {$wpdb->prefix}mhm_bookings b ON v.ID = b.vehicle_id
+            LEFT JOIN {$wpdb->postmeta} pm_vid ON v.ID = pm_vid.meta_value AND pm_vid.meta_key = %s
+            LEFT JOIN {$wpdb->posts} p_booking ON pm_vid.post_id = p_booking.ID 
+                AND p_booking.post_type = 'vehicle_booking'
+                AND p_booking.post_status != 'trash'
+                AND p_booking.post_date >= %s AND p_booking.post_date <= %s
+            LEFT JOIN {$wpdb->postmeta} pm_status ON p_booking.ID = pm_status.post_id AND pm_status.meta_key = %s
             WHERE tt.taxonomy = 'vehicle_category'
-            AND b.status != 'trash'
-            AND b.created_at >= %s AND b.created_at <= %s
+            AND (pm_status.meta_value IS NULL OR pm_status.meta_value != 'trash')
             GROUP BY t.term_id, t.name
             ORDER BY booking_count DESC",
+            $meta_vid,
             $start_date . ' 00:00:00',
-            $end_date . ' 23:59:59'
+            $end_date . ' 23:59:59',
+            $meta_status
         ));
     }
 
@@ -212,19 +289,35 @@ class ReportRepository
     public static function get_customer_spending_data(string $start_date, string $end_date): array
     {
         global $wpdb;
+        $meta_email = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_CONTACT_EMAIL;
+        $meta_name = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_CONTACT_NAME;
+        $meta_price = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE;
+        $meta_status = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS;
+
         return $wpdb->get_results($wpdb->prepare(
             "SELECT 
-                customer_email,
-                customer_name,
+                pm_email.meta_value as customer_email,
+                pm_name.meta_value as customer_name,
                 COUNT(*) as booking_count,
-                SUM(total_price) as total_spent,
-                MAX(created_at) as last_booking
-            FROM {$wpdb->prefix}mhm_bookings
-            WHERE status IN ('completed', 'confirmed')
-            AND customer_email IS NOT NULL AND customer_email != ''
-            AND created_at >= %s AND created_at <= %s
-            GROUP BY customer_email, customer_name
+                SUM(CAST(pm_price.meta_value AS DECIMAL(10,2))) as total_spent,
+                MAX(p.post_date) as last_booking
+            FROM {$wpdb->posts} p
+            INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = %s
+            LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id AND pm_name.meta_key = %s
+            INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
+            INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+            WHERE p.post_type = %s
+            AND p.post_status != 'trash'
+            AND pm_status.meta_value IN ('completed', 'confirmed')
+            AND pm_email.meta_value IS NOT NULL AND pm_email.meta_value != ''
+            AND p.post_date >= %s AND p.post_date <= %s
+            GROUP BY pm_email.meta_value, pm_name.meta_value
             ORDER BY total_spent DESC",
+            $meta_email,
+            $meta_name,
+            $meta_price,
+            $meta_status,
+            'vehicle_booking',
             $start_date . ' 00:00:00',
             $end_date . ' 23:59:59'
         ));
@@ -246,23 +339,35 @@ class ReportRepository
         $wpdb->suppress_errors();
 
         try {
-            // Try to fetch with return_date
+            // Try to fetch from wp_posts
             $rentals = $wpdb->get_results($wpdb->prepare(
                 "SELECT 
-                    b.id, 
-                    b.vehicle_id, 
-                    p.post_title as vehicle_title,
-                    b.customer_name, 
-                    b.pickup_date as start_date, 
-                    b.return_date as end_date,
-                    b.status,
+                    p.ID as id, 
+                    pm_vid.meta_value as vehicle_id, 
+                    p_veh.post_title as vehicle_title,
+                    pm_name.meta_value as customer_name, 
+                    pm_pickup.meta_value as start_date, 
+                    pm_return.meta_value as end_date,
+                    pm_status.meta_value as status,
                     'rental' as type 
-                FROM {$wpdb->prefix}mhm_bookings b
-                LEFT JOIN {$wpdb->posts} p ON b.vehicle_id = p.ID
-                WHERE b.status IN ('confirmed', 'pending', 'active') 
-                AND b.pickup_date >= %s 
-                ORDER BY b.pickup_date ASC
+                FROM {$wpdb->posts} p
+                LEFT JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = %s
+                LEFT JOIN {$wpdb->posts} p_veh ON pm_vid.meta_value = p_veh.ID
+                LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id AND pm_name.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_pickup ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_return ON p.ID = pm_return.post_id AND pm_return.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+                WHERE p.post_type = %s 
+                AND pm_status.meta_value IN ('confirmed', 'pending', 'active') 
+                AND pm_pickup.meta_value >= %s 
+                ORDER BY pm_pickup.meta_value ASC
                 LIMIT %d",
+                \MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
+                \MHMRentiva\Admin\Core\MetaKeys::BOOKING_CONTACT_NAME,
+                \MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
+                \MHMRentiva\Admin\Core\MetaKeys::BOOKING_RETURN_DATE,
+                \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+                'vehicle_booking',
                 $now,
                 $limit
             ), ARRAY_A);

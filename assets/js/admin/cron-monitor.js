@@ -157,8 +157,8 @@ jQuery(document).ready(function ($) {
         const originalText = btn.html();
         btn.prop('disabled', true).html('<span class="dashicons dashicons-update"></span> ' + (mhm_cron_vars.testing_text || 'Testing...'));
 
-        // Clear previous results
-        $('#mhm-cron-test-results').html('');
+        // Clear previous results and hide if already shown
+        $('#mhm-cron-test-results').hide().html('');
 
         $.post(ajaxurl, {
             action: 'mhm_test_cron_jobs',
@@ -166,8 +166,9 @@ jQuery(document).ready(function ($) {
         }, function (response) {
             if (response.success) {
                 renderTestResults(response.data.results || {});
+                $('#mhm-cron-test-results').fadeIn(); // Ensure visibility
             } else {
-                $('#mhm-cron-test-results').html('<div class="notice notice-error"><p>' + (response.data || mhm_cron_vars.error_text || 'Error') + '</p></div>');
+                $('#mhm-cron-test-results').html('<div class="notice notice-error"><p>' + (response.data || mhm_cron_vars.error_text || 'Error') + '</p></div>').show();
             }
             btn.prop('disabled', false).html(originalText);
         }).fail(function (xhr, status, error) {

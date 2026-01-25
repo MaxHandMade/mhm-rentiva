@@ -28,7 +28,8 @@
             // System preference change detection
             if (window.matchMedia) {
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
-                    if (get_option('mhm_rentiva_dark_mode') === 'auto') {
+                    const currentMode = (typeof mhmDarkMode !== 'undefined' && mhmDarkMode.currentMode) ? mhmDarkMode.currentMode : 'auto';
+                    if (currentMode === 'auto') {
                         DarkModeManager.applyDarkMode();
                     }
                 });
@@ -62,7 +63,8 @@
         },
 
         applyDarkMode: function () {
-            const mode = get_option('mhm_rentiva_dark_mode') || 'auto';
+            // Priority: Localized Script Data > Default 'auto'
+            const mode = (typeof mhmDarkMode !== 'undefined' && mhmDarkMode.currentMode) ? mhmDarkMode.currentMode : 'auto';
             DarkModeManager.applyDarkModeDirect(mode);
         },
 
@@ -88,7 +90,7 @@
 
         testDarkMode: function () {
             const body = $('body');
-            const currentMode = get_option('mhm_rentiva_dark_mode') || 'auto';
+            const currentMode = (typeof mhmDarkMode !== 'undefined' && mhmDarkMode.currentMode) ? mhmDarkMode.currentMode : 'auto';
 
             // Toggle dark mode for testing
             if (body.hasClass('mhm-dark-mode')) {
@@ -112,7 +114,7 @@
         },
 
         updateStatus: function (overrideMode) {
-            const mode = overrideMode || get_option('mhm_rentiva_dark_mode') || 'auto';
+            const mode = overrideMode || ((typeof mhmDarkMode !== 'undefined' && mhmDarkMode.currentMode) ? mhmDarkMode.currentMode : 'auto');
             const statusElement = $('#mhm-dark-mode-status');
 
             if (statusElement.length) {
@@ -137,30 +139,6 @@
             }, 3000);
         }
     };
-
-    // Helper function to get option value
-    function get_option(optionName, defaultValue) {
-        // Try different selectors for the dark mode field
-        let select = $('select[name="mhm_rentiva_settings[' + optionName + ']"]');
-        if (select.length === 0) {
-            select = $('select[name="' + optionName + '"]');
-        }
-        if (select.length === 0) {
-            select = $('#' + optionName);
-        }
-
-        if (select.length) {
-            return select.val();
-        }
-
-        // Try to get from input field
-        const input = $('input[name="' + optionName + '"]');
-        if (input.length) {
-            return input.val();
-        }
-
-        return defaultValue;
-    }
 
     // Initialize when document is ready
     $(document).ready(function () {

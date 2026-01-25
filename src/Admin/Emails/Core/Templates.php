@@ -90,6 +90,10 @@ final class Templates
                     'subject' => __('Reply to Your Message - {{message.subject}} - {{site.name}}', 'mhm-rentiva'),
                     'file'    => 'message-replied-customer',
                 ],
+                'message_auto_reply' => [
+                    'subject' => __('We received your message - {{site.name}}', 'mhm-rentiva'),
+                    'file'    => 'message-auto-reply',
+                ],
             ];
         }
 
@@ -364,6 +368,9 @@ final class Templates
             case 'message_replied_customer':
                 $opt = 'mhm_rentiva_message_replied_customer_subject';
                 break;
+            case 'message_auto_reply':
+                $opt = 'mhm_rentiva_message_auto_reply_subject';
+                break;
             default:
                 $opt = '';
         }
@@ -416,6 +423,9 @@ final class Templates
             case 'message_replied_customer':
                 $opt = 'mhm_rentiva_message_replied_customer_body';
                 break;
+            case 'message_auto_reply':
+                $opt = 'mhm_rentiva_message_auto_reply_body';
+                break;
             case 'booking_cancelled':
                 $opt = 'mhm_rentiva_booking_cancelled_body';
                 break;
@@ -462,6 +472,8 @@ final class Templates
                 return EmailSettings::get_default_message_admin_body();
             case 'message_replied_customer':
                 return EmailSettings::get_default_message_customer_body();
+            case 'message_auto_reply':
+                return EmailSettings::get_default_message_auto_reply_body();
             case 'booking_cancelled':
                 return EmailSettings::get_default_booking_cancelled_body();
             default:
@@ -495,6 +507,9 @@ final class Templates
             'return_date' => 'booking.return_date',
             'total_price' => 'booking.total_price',
             'status' => 'booking.status',
+            'message_body' => 'message.content',
+            'reply_body' => 'message.content',
+            'customer_name' => 'customer.name',
         ];
 
         $out = preg_replace_callback('/\{\s*([a-zA-Z0-9_\.\-]+)\s*\}/', function ($m) use ($context, $map) {

@@ -4,23 +4,37 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Groups;
 
+use MHMRentiva\Admin\Settings\Core\SettingsCore;
+use MHMRentiva\Admin\Settings\Core\SettingsHelper;
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
+/**
+ * Addon Settings Group
+ *
+ * Configures additional services display, pricing, and behavior.
+ * Refactored for modularity and high performance.
+ * 
+ * @since 4.0.0
+ */
 final class AddonSettings
 {
     public const SECTION_ID = 'mhm_rentiva_addons_section';
 
     /**
-     * Safe sanitize text field that handles null values
+     * Get default settings for addons.
+     *
+     * @return array
      */
-    public static function sanitize_text_field_safe($value)
+    public static function get_default_settings(): array
     {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        return sanitize_text_field((string) $value);
+        return [
+            'mhm_rentiva_addon_require_confirmation'    => '0',
+            'mhm_rentiva_addon_show_prices_in_calendar' => '1',
+            'mhm_rentiva_addon_display_order'           => 'menu_order',
+        ];
     }
 
     /**
@@ -28,112 +42,74 @@ final class AddonSettings
      */
     public static function render_settings_section(): void
     {
-        \MHMRentiva\Admin\Settings\SettingsView::render_section_clean(self::SECTION_ID);
+        if (class_exists('\MHMRentiva\Admin\Settings\View\SettingsViewHelper')) {
+            \MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly(self::SECTION_ID);
+        }
     }
 
+    /**
+     * Register settings.
+     */
     public static function register(): void
     {
-        // Additional Services Section
+        $page_slug = SettingsCore::PAGE;
+
         add_settings_section(
             self::SECTION_ID,
             __('Additional Services Settings', 'mhm-rentiva'),
             [self::class, 'render_section_description'],
-            'mhm_rentiva_settings'
+            $page_slug
         );
 
-
-        // Additional services settings - Lite Version Additional Service Limit
-
-
-
-        // Default Prices - Removed (now edited in table)
-
-        // Additional Settings
-        add_settings_field(
+        SettingsHelper::checkbox_field(
+            $page_slug,
             'mhm_rentiva_addon_require_confirmation',
-            __('Require Confirmation for Additional Services', 'mhm-rentiva'),
-            [self::class, 'render_require_confirmation_field'],
-            'mhm_rentiva_settings',
+            __('Require Confirmation', 'mhm-rentiva'),
+            __('Require manual confirmation when customers select additional services.', 'mhm-rentiva'),
             self::SECTION_ID
         );
 
-        add_settings_field(
+        SettingsHelper::checkbox_field(
+            $page_slug,
             'mhm_rentiva_addon_show_prices_in_calendar',
-            __('Show Additional Service Prices in Calendar', 'mhm-rentiva'),
-            [self::class, 'render_show_prices_field'],
-            'mhm_rentiva_settings',
+            __('Show Prices in Calendar', 'mhm-rentiva'),
+            __('Display additional service prices in the booking calendar.', 'mhm-rentiva'),
             self::SECTION_ID
         );
 
-        add_settings_field(
+        SettingsHelper::select_field(
+            $page_slug,
             'mhm_rentiva_addon_display_order',
-            __('Additional Services Display Order', 'mhm-rentiva'),
-            [self::class, 'render_display_order_field'],
-            'mhm_rentiva_settings',
+            __('Display Order', 'mhm-rentiva'),
+            [
+                'menu_order'   => __('Menu Order (Default)', 'mhm-rentiva'),
+                'title'        => __('Title (A-Z)', 'mhm-rentiva'),
+                'price_asc'    => __('Price (Low to High)', 'mhm-rentiva'),
+                'price_desc'   => __('Price (High to Low)', 'mhm-rentiva'),
+                'date_created' => __('Creation Date', 'mhm-rentiva'),
+            ],
+            __('The order in which additional services are displayed.', 'mhm-rentiva'),
             self::SECTION_ID
         );
     }
 
-    /**
-     * Section description
-     */
     public static function render_section_description(): void
     {
-        echo '<p>' . esc_html__('Configure general settings for additional services.', 'mhm-rentiva') . '</p>';
-        echo '<div class="notice notice-info inline" style="margin: 10px 0;">';
-        echo '<p><strong>' . esc_html__('Note:', 'mhm-rentiva') . '</strong> ';
-        echo esc_html__('These settings determine the general behavior of additional services. Use the "Additional Services" page from the left menu to add, edit, or delete additional services.', 'mhm-rentiva');
-        echo '</p></div>';
+        printf('<p>%s</p>', esc_html__('Configure general settings for additional services.', 'mhm-rentiva'));
+        echo '<div class="notice notice-info inline"><p><strong>' . esc_html__('Note:', 'mhm-rentiva') . '</strong> ' . esc_html__('Use the "Additional Services" page from the left menu to manage specific service items.', 'mhm-rentiva') . '</p></div>';
     }
 
-
-
-
-
-    /**
-     * Require confirmation field
-     */
-    public static function render_require_confirmation_field(): void
+    // Static Accessors
+    public static function require_confirmation(): bool
     {
-        $value = self::sanitize_text_field_safe(get_option('mhm_rentiva_addon_require_confirmation', '0'));
-        echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_addon_require_confirmation]" value="1"' . checked($value, '1', false) . '> ' . esc_html__('Yes, confirmation required', 'mhm-rentiva') . '</label>';
-        echo '<p class="description">' . esc_html__('Require additional confirmation when customers select additional services.', 'mhm-rentiva') . '</p>';
+        return SettingsCore::get('mhm_rentiva_addon_require_confirmation', '0') === '1';
     }
-
-    /**
-     * Show prices in calendar field
-     */
-    public static function render_show_prices_field(): void
+    public static function show_prices_in_calendar(): bool
     {
-        $value = self::sanitize_text_field_safe(get_option('mhm_rentiva_addon_show_prices_in_calendar', '1'));
-        echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_addon_show_prices_in_calendar]" value="1"' . checked($value, '1', false) . '> ' . esc_html__('Yes, show', 'mhm-rentiva') . '</label>';
-        echo '<p class="description">' . esc_html__('Display additional service prices in the booking calendar.', 'mhm-rentiva') . '</p>';
+        return SettingsCore::get('mhm_rentiva_addon_show_prices_in_calendar', '1') === '1';
     }
-
-    /**
-     * Display order field
-     */
-    public static function render_display_order_field(): void
+    public static function get_display_order(): string
     {
-        $value = self::sanitize_text_field_safe(get_option('mhm_rentiva_addon_display_order', 'menu_order'));
-        $options = [
-            'menu_order' => __('Menu Order (Default)', 'mhm-rentiva'),
-            'title' => __('Title (A-Z)', 'mhm-rentiva'),
-            'price_asc' => __('Price (Low to High)', 'mhm-rentiva'),
-            'price_desc' => __('Price (High to Low)', 'mhm-rentiva'),
-            'date_created' => __('Creation Date', 'mhm-rentiva'),
-        ];
-
-        // Validate the value against allowed options
-        if (!array_key_exists($value, $options)) {
-            $value = 'menu_order';
-        }
-
-        echo '<select name="mhm_rentiva_settings[mhm_rentiva_addon_display_order]">';
-        foreach ($options as $key => $label) {
-            echo '<option value="' . esc_attr($key) . '"' . selected($value, $key, false) . '>' . esc_html($label) . '</option>';
-        }
-        echo '</select>';
-        echo '<p class="description">' . esc_html__('The order in which additional services are displayed to customers.', 'mhm-rentiva') . '</p>';
+        return (string) SettingsCore::get('mhm_rentiva_addon_display_order', 'menu_order');
     }
 }

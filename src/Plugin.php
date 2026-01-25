@@ -125,6 +125,27 @@ final class Plugin
         if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel')) {
             \MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::register();
         }
+
+        // Log Maintenance
+        if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\LogRetention')) {
+            \MHMRentiva\Admin\PostTypes\Maintenance\LogRetention::register();
+        }
+        if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\EmailLogRetention')) {
+            \MHMRentiva\Admin\PostTypes\Maintenance\EmailLogRetention::register();
+        }
+        if ($this->is_class_available('\MHMRentiva\Admin\Core\Utilities\LogMaintenanceScheduler')) {
+            \MHMRentiva\Admin\Core\Utilities\LogMaintenanceScheduler::init();
+        }
+
+        // Privacy and Data Retention
+        if ($this->is_class_available('\MHMRentiva\Admin\Privacy\DataRetentionManager')) {
+            \MHMRentiva\Admin\Privacy\DataRetentionManager::init();
+        }
+
+        // Notification Management
+        if ($this->is_class_available('\MHMRentiva\Admin\Notifications\NotificationManager')) {
+            \MHMRentiva\Admin\Notifications\NotificationManager::init();
+        }
     }
 
     /**
@@ -224,19 +245,18 @@ final class Plugin
             \MHMRentiva\Admin\Utilities\Actions\Actions::register();
         }
 
-        // Maintenance
-        // NOTE: AutoCancel is now registered in initialize_core_services() 
-        // to ensure it works in ALL contexts (admin, frontend, cron)
-        if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\Reconcile')) {
-        }
-        if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\LogRetention')) {
-            \MHMRentiva\Admin\PostTypes\Maintenance\LogRetention::register();
-        }
+        // Maintenance (Moved to initialize_core_services for all-context support)
 
         // Setup Wizard
         if ($this->is_class_available('MHMRentiva\Admin\Setup\SetupWizard')) {
             \MHMRentiva\Admin\Setup\SetupWizard::register();
         }
+        // REST API Settings AJAX
+        add_action('wp_ajax_mhm_create_api_key', [\MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_create_api_key']);
+        add_action('wp_ajax_mhm_list_api_keys', [\MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_list_api_keys']);
+        add_action('wp_ajax_mhm_revoke_api_key', [\MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_revoke_api_key']);
+        add_action('wp_ajax_mhm_delete_api_key', [\MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_delete_api_key']);
+        add_action('wp_ajax_mhm_list_endpoints', [\MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_list_endpoints']);
     }
 
     /**
@@ -285,9 +305,6 @@ final class Plugin
         // Email Logs
         if ($this->is_class_available('MHMRentiva\\\\Admin\\\\Emails\\\\PostTypes\\\\EmailLog')) {
             \MHMRentiva\Admin\Emails\PostTypes\EmailLog::register();
-        }
-        if ($this->is_class_available('MHMRentiva\\Admin\\PostTypes\\Maintenance\\EmailLogRetention')) {
-            \MHMRentiva\Admin\PostTypes\Maintenance\EmailLogRetention::register();
         }
     }
 

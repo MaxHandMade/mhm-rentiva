@@ -1,8 +1,20 @@
 [
     {
+        "version": "4.6.3",
+        "date": "2026-01-25",
+        "type": "current",
+        "changes": [
+            "🛡️ GÜVENLİK: Mesaj arama sorguları prepared statements kullanılarak SQL Injection'a karşı güçlendirildi.",
+            "📡 REST API: Entegrasyon Ayarları backend mimarisi, AJAX buton güvenilirliğini garanti edecek şekilde yeniden yapılandırıldı.",
+            "🌐 STANDARTLAR: Proje kaynak kodu dokümantasyonu (yorumlar/docblocklar) WPCS uyumluluğu için tamamen İngilizce'ye çevrildi.",
+            "🔄 GÜVENİLİRLİK: Asenkron isteklerde '-1' hatasını önlemek için AJAX hook kayıt sistemi iyileştirildi.",
+            "🐛 HATA DÜZELTMESİ: REST ayarlarında kullanıcı girişlerinin kaydedilmesini engelleyen IP listesi sanitizasyon hataları giderildi."
+        ]
+    },
+    {
         "version": "4.6.2",
         "date": "2026-01-21",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🛡️ GÜVENLİK DENETİMİ: Tüm 22 modül için kapsamlı güvenlik denetimi tamamlandı (91+ yama uygulandı).",
             "🔒 NONCE GÜÇLENDİRME: Tüm nonce doğrulamaları artık WPCS uyumluluğu için sanitize_text_field(wp_unslash()) sarmalayıcısı kullanıyor.",
@@ -14,7 +26,7 @@
     {
         "version": "4.6.1",
         "date": "2026-01-21",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🛡️ KRİTİK GÜNCELLEME: Bakım sırasında olası veri kaybını önlemek için kapsamlı DatabaseCleaner meta anahtarı koruması.",
             "🛍️ WOOCOMMERCE: Yoğun trafikte çift rezervasyonu önlemek için Atomik Çakışma Kilidi mekanizması eklendi.",
@@ -26,7 +38,7 @@
     {
         "version": "4.6.0",
         "date": "2026-01-16",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🚀 YENİ MODÜL: VIP Transfer Modülü (Şoförlü Araç Kiralama) eklendi.",
             "🗺️ ROTA YÖNETİMİ: Admin panelinde Konum (Location) ve Rota (Route) yönetimi.",
@@ -40,7 +52,7 @@
     {
         "version": "4.5.5",
         "date": "2026-01-15",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🎨 ÖN YÜZ GÜZELLEŞTİRME: \"Kullanım Dışı\" rozet mantığı ve yerleşimi düzeltildi. Araç Detay sayfasında mobilde taşma sorunları giderildi.",
             "💄 ARAMA ARAYÜZÜ: Arama Sonuçlarında buton renkleri standartlaştırıldı (mavi tema) ve \"Kullanım Dışı\" durumu göstergeleri eklendi.",

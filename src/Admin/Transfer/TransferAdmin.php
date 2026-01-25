@@ -15,7 +15,6 @@ final class TransferAdmin
      */
     public static function register(): void
     {
-        add_action('admin_menu', [self::class, 'add_menu_pages']);
         // Form handlers
         add_action('admin_post_mhm_save_location', [self::class, 'handle_save_location']);
         add_action('admin_post_mhm_delete_location', [self::class, 'handle_delete_location']);
@@ -31,38 +30,7 @@ final class TransferAdmin
         Integration\TransferBookingHandler::register();
     }
 
-    /**
-     * Add menu pages
-     */
-    public static function add_menu_pages(): void
-    {
-        add_submenu_page(
-            'mhm-rentiva',
-            __('Transfer Locations', 'mhm-rentiva'),
-            __('Transfer Locations', 'mhm-rentiva'),
-            'manage_options',
-            'mhm-rentiva-transfer-locations',
-            [self::class, 'render_locations_page']
-        );
 
-        add_submenu_page(
-            'mhm-rentiva',
-            __('Transfer Routes', 'mhm-rentiva'),
-            __('Transfer Routes', 'mhm-rentiva'),
-            'manage_options',
-            'mhm-rentiva-transfer-routes',
-            [self::class, 'render_routes_page']
-        );
-
-        add_submenu_page(
-            'mhm-rentiva',
-            __('Transfer Settings', 'mhm-rentiva'),
-            __('Transfer Settings', 'mhm-rentiva'),
-            'manage_options',
-            'mhm-rentiva-transfer-settings',
-            [self::class, 'render_settings_page']
-        );
-    }
 
     /**
      * Get available location types
@@ -81,7 +49,7 @@ final class TransferAdmin
         ];
 
         // Merge with custom types from database
-        $custom_types_raw = get_option('mhm_transfer_custom_types', '');
+        $custom_types_raw = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_transfer_custom_types', '');
 
         // Handle String Input (Lines)
         if (is_string($custom_types_raw) && !empty($custom_types_raw)) {
@@ -113,9 +81,9 @@ final class TransferAdmin
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved.', 'mhm-rentiva') . '</p></div>';
         }
 
-        $deposit_type = get_option('mhm_transfer_deposit_type', 'full_payment');
-        $deposit_rate = get_option('mhm_transfer_deposit_rate', '20');
-        $custom_types = get_option('mhm_transfer_custom_types', '');
+        $deposit_type = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_transfer_deposit_type', 'full_payment');
+        $deposit_rate = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_transfer_deposit_rate', '20');
+        $custom_types = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_transfer_custom_types', '');
         // If array (legacy), implode it for display
         if (is_array($custom_types)) {
             $custom_types = implode("\n", $custom_types); // Values only? Or keys? Assuming values for simplicity if array was ['slug'=>'Label']
@@ -183,15 +151,18 @@ final class TransferAdmin
             wp_die(esc_html__('Unauthorized', 'mhm-rentiva'));
         }
 
-        update_option('mhm_transfer_deposit_type', sanitize_text_field($_POST['mhm_transfer_deposit_type']));
-        update_option('mhm_transfer_deposit_rate', intval($_POST['mhm_transfer_deposit_rate']));
+        $settings = (array) get_option('mhm_rentiva_settings', []);
+        $settings['mhm_transfer_deposit_type'] = sanitize_text_field($_POST['mhm_transfer_deposit_type']);
+        $settings['mhm_transfer_deposit_rate'] = intval($_POST['mhm_transfer_deposit_rate']);
 
         // Save Custom Types as Text
         if (isset($_POST['mhm_transfer_custom_types'])) {
-            update_option('mhm_transfer_custom_types', sanitize_textarea_field($_POST['mhm_transfer_custom_types']));
+            $settings['mhm_transfer_custom_types'] = sanitize_textarea_field($_POST['mhm_transfer_custom_types']);
         }
 
-        wp_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-settings&updated=true'));
+        update_option('mhm_rentiva_settings', $settings);
+
+        wp_redirect(admin_url('admin.php?page=mhm-rentiva-settings&tab=transfer&updated=true'));
         exit;
     }
 

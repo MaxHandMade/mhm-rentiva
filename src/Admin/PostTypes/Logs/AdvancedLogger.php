@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\PostTypes\Logs;
 
@@ -68,7 +70,7 @@ final class AdvancedLogger
         $level = strtolower((string) ($args['level'] ?? self::LEVEL_INFO));
         $category = strtolower((string) ($args['category'] ?? self::CATEGORY_SYSTEM));
         $message = (string) ($args['message'] ?? '');
-        
+
         if (empty($message)) {
             return 0;
         }
@@ -150,7 +152,7 @@ final class AdvancedLogger
         update_post_meta($post_id, '_mhm_log_user_id', $user_id);
         update_post_meta($post_id, '_mhm_log_ip_address', $ip_address);
         update_post_meta($post_id, '_mhm_log_user_agent', $user_agent);
-        
+
         if ($booking_id > 0) {
             update_post_meta($post_id, '_mhm_log_booking_id', $booking_id);
         }
@@ -201,7 +203,7 @@ final class AdvancedLogger
         $start_data = self::$performance_metrics[$operation];
         $end_time = microtime(true);
         $end_memory = memory_get_usage(true);
-        
+
         $execution_time = ($end_time - $start_data['start_time']) * 1000; // Convert to milliseconds.
         $memory_usage = $end_memory - $start_data['start_memory'];
 
@@ -413,16 +415,94 @@ final class AdvancedLogger
         return self::$performance_metrics;
     }
 
-    // cleanup_old_logs removed: Retention should be handled by centralized maintenance utilities
+    /**
+     * Cleans up old logs based on retention days.
+     *
+     * @param int $days Retention period in days.
+     * @return int Number of deleted logs.
+     */
+    public static function cleanup_old_logs(int $days = 30): int
+    {
+        if ($days <= 0) {
+            return 0;
+        }
+
+        global $wpdb;
+
+        $date_limit = gmdate('Y-m-d H:i:s', strtotime("-{$days} days"));
+        $post_type = PostType::TYPE;
+
+        // Using direct SQL for performance on potentially large datasets
+        $query = $wpdb->prepare(
+            "DELETE a, b, c
+             FROM {$wpdb->posts} a
+             LEFT JOIN {$wpdb->term_relationships} b ON (a.ID = b.object_id)
+             LEFT JOIN {$wpdb->postmeta} c ON (a.ID = c.post_id)
+             WHERE a.post_type = %s
+             AND a.post_date < %s",
+            $post_type,
+            $date_limit
+        );
+
+        $deleted = $wpdb->query($query);
+
+        if ($deleted > 0) {
+            self::info(sprintf('Cleaned up %d old log entries.', $deleted), [
+                'days' => $days,
+                'date_limit' => $date_limit
+            ], self::CATEGORY_SYSTEM);
+        }
+
+        return (int) $deleted;
+    }
+
 
     /**
      * Checks if a log entry should be skipped based on its level.
      */
     private static function should_skip_log(string $level): bool
     {
-        // Do not log debug messages if WP_DEBUG is not enabled.
-        if ($level === self::LEVEL_DEBUG && (!defined('WP_DEBUG') || !WP_DEBUG)) {
+        // 1. Always allow critical errors
+        if ($level === self::LEVEL_CRITICAL) {
+            return false;
+        }
+
+        // 2. Map levels to integer weights
+        $levels = [
+            self::LEVEL_DEBUG    => 0,
+            self::LEVEL_INFO     => 1,
+            self::LEVEL_WARNING  => 2,
+            self::LEVEL_ERROR    => 3,
+            self::LEVEL_CRITICAL => 4
+        ];
+
+        // 3. Get configured level from settings (default: error)
+        // Defaults to 'error' (3) to be safe/quiet in production
+        $configured_level_slug = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_log_level', self::LEVEL_ERROR);
+
+        // Ensure the configured level exists in our map, fallback to 'error'
+        if (!isset($levels[$configured_level_slug])) {
+            $configured_level_slug = self::LEVEL_ERROR;
+        }
+
+        $configured_weight = $levels[$configured_level_slug];
+        $current_weight = $levels[$level] ?? 1; // Default to INFO weight if unknown
+
+        // 4. Compare: If current log's weight is less than configured, SKIP it.
+        // Example: Config='error'(3). Log='info'(1). 1 < 3 -> TRUE (Skip).
+        if ($current_weight < $configured_weight) {
             return true;
+        }
+
+        // 5. Special check for Debug: Must also have WP_DEBUG or Force Debug Mode
+        if ($level === self::LEVEL_DEBUG) {
+            $plugin_debug = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_debug_mode', '0') === '1';
+            $wp_debug = defined('WP_DEBUG') && WP_DEBUG;
+
+            // If neither Plugin Debug Mode nor WP_DEBUG is on, skip debug logs
+            if (!$plugin_debug && !$wp_debug) {
+                return true;
+            }
         }
 
         return false;
@@ -436,13 +516,13 @@ final class AdvancedLogger
         if (!isset(self::$memory_usage[$category])) {
             self::$memory_usage[$category] = [];
         }
-        
+
         self::$memory_usage[$category][] = [
             'time' => $execution_time,
             'memory' => $memory_usage,
             'timestamp' => current_time('timestamp'),
         ];
-        
+
         // Keep the last 100 records.
         if (count(self::$memory_usage[$category]) > 100) {
             self::$memory_usage[$category] = array_slice(self::$memory_usage[$category], -100);

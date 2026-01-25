@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
@@ -80,12 +82,12 @@ final class ObjectCache
                 wp_cache_set($test_key, 'test', self::GROUP_SETTINGS, 60);
                 $result = wp_cache_get($test_key, self::GROUP_SETTINGS);
                 wp_cache_delete($test_key, self::GROUP_SETTINGS);
-                
+
                 if ($result === 'test') {
                     self::$current_backend = self::BACKEND_REDIS;
                     return self::$current_backend;
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 // Redis çalışmıyor
             }
         }
@@ -97,12 +99,12 @@ final class ObjectCache
                 wp_cache_set($test_key, 'test', self::GROUP_SETTINGS, 60);
                 $result = wp_cache_get($test_key, self::GROUP_SETTINGS);
                 wp_cache_delete($test_key, self::GROUP_SETTINGS);
-                
+
                 if ($result === 'test') {
                     self::$current_backend = self::BACKEND_MEMCACHED;
                     return self::$current_backend;
                 }
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 // Memcached çalışmıyor
             }
         }
@@ -120,7 +122,7 @@ final class ObjectCache
     /**
      * Cache'e veri kaydet
      */
-    public static function set(string $key, $data, string $group = self::GROUP_SETTINGS, int $expiration = null): bool
+    public static function set(string $key, $data, string $group = self::GROUP_SETTINGS, ?int $expiration = null): bool
     {
         // Cache etkin değilse false döndür
         if (!\MHMRentiva\Admin\Settings\Groups\CoreSettings::is_cache_enabled()) {
@@ -136,11 +138,11 @@ final class ObjectCache
             case self::BACKEND_MEMCACHED:
             case self::BACKEND_WP_CACHE:
                 return wp_cache_set($key, $data, $group, $expiration);
-                
+
             case self::BACKEND_TRANSIENT:
                 $transient_key = self::get_transient_key($key, $group);
                 return set_transient($transient_key, $data, $expiration);
-                
+
             default:
                 return false;
         }
@@ -159,12 +161,12 @@ final class ObjectCache
             case self::BACKEND_WP_CACHE:
                 $result = wp_cache_get($key, $group, $force);
                 break;
-                
+
             case self::BACKEND_TRANSIENT:
                 $transient_key = self::get_transient_key($key, $group);
                 $result = get_transient($transient_key);
                 break;
-                
+
             default:
                 $result = false;
         }
@@ -191,11 +193,11 @@ final class ObjectCache
             case self::BACKEND_MEMCACHED:
             case self::BACKEND_WP_CACHE:
                 return wp_cache_delete($key, $group);
-                
+
             case self::BACKEND_TRANSIENT:
                 $transient_key = self::get_transient_key($key, $group);
                 return delete_transient($transient_key);
-                
+
             default:
                 return false;
         }
@@ -227,11 +229,11 @@ final class ObjectCache
                 ]);
 
                 return false;
-                
+
             case self::BACKEND_TRANSIENT:
                 // Transient'larda grup temizleme için pattern kullan
                 return self::flush_group_pattern($group);
-                
+
             default:
                 return false;
         }
@@ -283,11 +285,11 @@ final class ObjectCache
                 ]);
 
                 return false;
-                
+
             case self::BACKEND_TRANSIENT:
                 // Sadece MHM Rentiva cache'lerini temizle
                 return self::flush_mhm_transients();
-                
+
             default:
                 return false;
         }
@@ -304,7 +306,7 @@ final class ObjectCache
     /**
      * Cache'e veri ekle (sadece yoksa)
      */
-    public static function add(string $key, $data, string $group = self::GROUP_SETTINGS, int $expiration = null): bool
+    public static function add(string $key, $data, string $group = self::GROUP_SETTINGS, ?int $expiration = null): bool
     {
         // Cache etkin değilse false döndür
         if (!\MHMRentiva\Admin\Settings\Groups\CoreSettings::is_cache_enabled()) {
@@ -322,7 +324,7 @@ final class ObjectCache
     /**
      * Cache'e veri güncelle (sadece varsa)
      */
-    public static function replace(string $key, $data, string $group = self::GROUP_SETTINGS, int $expiration = null): bool
+    public static function replace(string $key, $data, string $group = self::GROUP_SETTINGS, ?int $expiration = null): bool
     {
         // Cache etkin değilse false döndür
         if (!\MHMRentiva\Admin\Settings\Groups\CoreSettings::is_cache_enabled()) {
@@ -349,7 +351,7 @@ final class ObjectCache
             case self::BACKEND_MEMCACHED:
             case self::BACKEND_WP_CACHE:
                 return wp_cache_incr($key, $offset, $group);
-                
+
             case self::BACKEND_TRANSIENT:
                 $transient_key = self::get_transient_key($key, $group);
                 $current = get_transient($transient_key);
@@ -359,7 +361,7 @@ final class ObjectCache
                 $new_value = $current + $offset;
                 set_transient($transient_key, $new_value, self::get_default_expiration());
                 return $new_value;
-                
+
             default:
                 return false;
         }
@@ -377,7 +379,7 @@ final class ObjectCache
             case self::BACKEND_MEMCACHED:
             case self::BACKEND_WP_CACHE:
                 return wp_cache_decr($key, $offset, $group);
-                
+
             case self::BACKEND_TRANSIENT:
                 $transient_key = self::get_transient_key($key, $group);
                 $current = get_transient($transient_key);
@@ -387,7 +389,7 @@ final class ObjectCache
                 $new_value = max(0, $current - $offset);
                 set_transient($transient_key, $new_value, self::get_default_expiration());
                 return $new_value;
-                
+
             default:
                 return false;
         }
@@ -414,7 +416,7 @@ final class ObjectCache
         if ($total === 0) {
             return 0.0;
         }
-        
+
         return round((self::$cache_stats['hits'] / $total) * 100, 2);
     }
 
@@ -424,16 +426,16 @@ final class ObjectCache
     public static function is_available(): bool
     {
         $backend = self::detect_backend();
-        
+
         switch ($backend) {
             case self::BACKEND_REDIS:
             case self::BACKEND_MEMCACHED:
             case self::BACKEND_WP_CACHE:
                 return wp_using_ext_object_cache();
-                
+
             case self::BACKEND_TRANSIENT:
                 return true;
-                
+
             default:
                 return false;
         }
@@ -451,27 +453,27 @@ final class ObjectCache
         ];
 
         $start_time = microtime(true);
-        
+
         // Write test
         for ($i = 0; $i < $iterations; $i++) {
             self::set($test_key . '_' . $i, $test_data, self::GROUP_SETTINGS, 300);
         }
-        
+
         $write_time = microtime(true) - $start_time;
-        
+
         // Read test
         $start_time = microtime(true);
         $hits = 0;
-        
+
         for ($i = 0; $i < $iterations; $i++) {
             $result = self::get($test_key . '_' . $i, self::GROUP_SETTINGS);
             if ($result !== false) {
                 $hits++;
             }
         }
-        
+
         $read_time = microtime(true) - $start_time;
-        
+
         // Cleanup
         for ($i = 0; $i < $iterations; $i++) {
             self::delete($test_key . '_' . $i, self::GROUP_SETTINGS);
@@ -503,9 +505,9 @@ final class ObjectCache
     private static function flush_group_pattern(string $group): bool
     {
         global $wpdb;
-        
+
         $pattern = 'mhm_rentiva_' . $group . '_%';
-        
+
         $results = $wpdb->get_results($wpdb->prepare(
             "SELECT option_name FROM {$wpdb->options} 
              WHERE option_name LIKE %s 
@@ -530,7 +532,7 @@ final class ObjectCache
     private static function flush_mhm_transients(): bool
     {
         global $wpdb;
-        
+
         $results = $wpdb->get_results($wpdb->prepare(
             "SELECT option_name FROM {$wpdb->options} 
              WHERE option_name LIKE %s 
@@ -566,11 +568,11 @@ final class ObjectCache
 
     private static function log_cache_notice(string $message, array $context = []): void
     {
-        if (class_exists('\MHMRentiva\Logs\AdvancedLogger')) {
-            \MHMRentiva\Logs\AdvancedLogger::info(
+        if (class_exists('\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger')) {
+            \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info(
                 $message,
                 $context,
-                \MHMRentiva\Logs\AdvancedLogger::CATEGORY_PERFORMANCE
+                \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_PERFORMANCE
             );
         }
     }
@@ -589,18 +591,18 @@ final class ObjectCache
         ];
 
         $temperatures = [];
-        
+
         foreach ($groups as $group) {
             $test_key = 'mhm_temp_test_' . time();
             $start_time = microtime(true);
-            
+
             // Cache'e yaz ve oku
             self::set($test_key, 'test', $group, 60);
             $result = self::get($test_key, $group);
             self::delete($test_key, $group);
-            
+
             $response_time = (microtime(true) - $start_time) * 1000; // ms
-            
+
             if ($response_time < 1) {
                 $temperature = 'hot';
             } elseif ($response_time < 10) {
@@ -608,7 +610,7 @@ final class ObjectCache
             } else {
                 $temperature = 'cold';
             }
-            
+
             $temperatures[$group] = [
                 'temperature' => $temperature,
                 'response_time' => round($response_time, 2),

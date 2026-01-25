@@ -17,6 +17,11 @@ jQuery(document).ready(function ($) {
     // Form validation
     initFormValidation();
 
+    // Reset button
+    initResetButton();
+
+
+
     /**
      * Initialize tab functionality
      */
@@ -57,14 +62,23 @@ jQuery(document).ready(function ($) {
 
         // Add active class to corresponding subtab
         $('.nav-tab[href*="subtab=' + subtabId + '"], .mhm-subtab[href*="subtab=' + subtabId + '"]').addClass('nav-tab-active active');
+
+        // Update browser URL to preserve subtab (using History API)
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('subtab', subtabId);
+        window.history.replaceState({}, '', currentUrl.toString());
+
+        // Also update the _wp_http_referer hidden input so form submission preserves the subtab
+        const refererInput = $('input[name="_wp_http_referer"]');
+        if (refererInput.length) {
+            refererInput.val(currentUrl.pathname + currentUrl.search);
+        }
     }
 
     /**
      * Initialize category management
      */
     function initCategoryManagement() {
-        let categoryIndex = $('.mhm-category-item').length;
-
         // Add new category
         $('#add-category-btn').on('click', function () {
             const categoryName = $('#new-category-name').val().trim();
@@ -85,16 +99,17 @@ jQuery(document).ready(function ($) {
                 return;
             }
 
-            // Generate unique key
-            const categoryKey = categoryName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            // Generate unique slug from name
+            const categorySlug = categoryName.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+            const optionName = 'mhm_rentiva_messages_settings';
 
-            // Add new category item
+            // Add new category item with correct name format
             const deleteText = (window.mhmMessagesSettings && window.mhmMessagesSettings.strings && window.mhmMessagesSettings.strings.delete) || 'Delete';
             const newCategoryHtml = `
                 <div class="mhm-category-item">
-                    <input type="text" name="mhm_rentiva_messages_settings[categories][${categoryKey}]" 
-                           value="${categoryName}" class="category-name" required>
-                    <button type="button" class="remove-category-btn">${deleteText}</button>
+                    <input type="text" name="${optionName}[categories][${categorySlug}]" 
+                           value="${categoryName}" class="category-name regular-text" required>
+                    <button type="button" class="button remove-category-btn">${deleteText}</button>
                 </div>
             `;
 
@@ -105,8 +120,6 @@ jQuery(document).ready(function ($) {
             $('.remove-category-btn').off('click').on('click', function () {
                 $(this).closest('.mhm-category-item').remove();
             });
-
-            categoryIndex++;
         });
 
         // Remove category
@@ -121,8 +134,6 @@ jQuery(document).ready(function ($) {
      * Initialize status management
      */
     function initStatusManagement() {
-        let statusIndex = $('.mhm-status-item').length;
-
         // Add new status
         $('#add-status-btn').on('click', function () {
             const statusName = $('#new-status-name').val().trim();
@@ -144,16 +155,17 @@ jQuery(document).ready(function ($) {
                 return;
             }
 
-            // Generate unique key
-            const statusKey = statusName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            // Generate unique slug from name
+            const statusSlug = statusName.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+            const optionName = 'mhm_rentiva_messages_settings';
 
-            // Add new status item
+            // Add new status item with correct name format
             const deleteText = (window.mhmMessagesSettings && window.mhmMessagesSettings.strings && window.mhmMessagesSettings.strings.delete) || 'Delete';
             const newStatusHtml = `
                 <div class="mhm-status-item">
-                    <input type="text" name="mhm_rentiva_messages_settings[statuses][${statusKey}]" 
-                           value="${statusName}" class="status-name" required>
-                    <button type="button" class="remove-status-btn">${deleteText}</button>
+                    <input type="text" name="${optionName}[statuses][${statusSlug}]" 
+                           value="${statusName}" class="status-name regular-text" required>
+                    <button type="button" class="button remove-status-btn">${deleteText}</button>
                 </div>
             `;
 
@@ -164,8 +176,6 @@ jQuery(document).ready(function ($) {
             $('.remove-status-btn').off('click').on('click', function () {
                 $(this).closest('.mhm-status-item').remove();
             });
-
-            statusIndex++;
         });
 
         // Remove status
@@ -239,6 +249,19 @@ jQuery(document).ready(function ($) {
                 return false;
             }
 
+            // Update referer URL to preserve current subtab after save
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentSubtab = urlParams.get('subtab') || 'email';
+            const refererInput = $('input[name="_wp_http_referer"]');
+            if (refererInput.length) {
+                let refererUrl = refererInput.val();
+                // Update or add subtab parameter
+                const refererParams = new URLSearchParams(refererUrl.split('?')[1] || '');
+                refererParams.set('subtab', currentSubtab);
+                refererUrl = refererUrl.split('?')[0] + '?' + refererParams.toString();
+                refererInput.val(refererUrl);
+            }
+
             // Show loading state
             $('.button-primary').prop('disabled', true).text(strings.saving || 'Saving...');
         });
@@ -264,6 +287,40 @@ jQuery(document).ready(function ($) {
                 // Auto-save implementation can be added here
                 // Debug log kaldırıldı
             }, 2000);
+        });
+    }
+
+    /**
+     * Initialize reset button
+     */
+    function initResetButton() {
+        $('.mhm-reset-messages-btn').on('click', function (e) {
+            e.preventDefault();
+
+            const confirmMsg = 'Are you sure you want to reset message settings to defaults?';
+
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+
+            const $btn = $(this);
+            $btn.prop('disabled', true);
+
+            $.post(window.mhmMessagesSettings.ajaxUrl, {
+                action: 'mhm_reset_settings_tab',
+                security: window.mhmMessagesSettings.resetNonce,
+                tab: 'messages'
+            }, function (response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    showNotice(response.data.message || 'Reset failed', 'error');
+                    $btn.prop('disabled', false);
+                }
+            }).fail(function () {
+                showNotice('Server error during reset', 'error');
+                $btn.prop('disabled', false);
+            });
         });
     }
 

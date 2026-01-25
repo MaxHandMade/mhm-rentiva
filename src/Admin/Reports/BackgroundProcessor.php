@@ -61,7 +61,7 @@ final class BackgroundProcessor
     private static function is_logger_available(): bool
     {
         if (self::$logger_available === null) {
-            self::$logger_available = class_exists('\MHMRentiva\Logs\AdvancedLogger');
+            self::$logger_available = class_exists('\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger');
         }
 
         return self::$logger_available;
@@ -109,7 +109,7 @@ final class BackgroundProcessor
         // Log job creation
         // Removed info log
         // if (self::is_logger_available()) {
-        //     $logger = '\MHMRentiva\Logs\AdvancedLogger';
+        //     $logger = '\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger';
         //     $category = defined("$logger::CATEGORY_SYSTEM") ? constant("$logger::CATEGORY_SYSTEM") : 'system';
         //     $logger::info('Background report job queued', [
         //         'job_id' => $job_id,
@@ -131,7 +131,7 @@ final class BackgroundProcessor
 
         if (!$job_data) {
             if (self::is_logger_available()) {
-                $logger = '\MHMRentiva\Logs\AdvancedLogger';
+                $logger = '\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger';
                 $category = defined("$logger::CATEGORY_SYSTEM") ? constant("$logger::CATEGORY_SYSTEM") : 'system';
                 call_user_func([$logger, 'error'], 'Background job not found', [
                     'job_id' => $job_id
@@ -156,7 +156,7 @@ final class BackgroundProcessor
                 self::update_job_status($job_id, 'failed', 0, null, $result['error']);
 
                 if (self::is_logger_available()) {
-                    $logger = '\MHMRentiva\Logs\AdvancedLogger';
+                    $logger = '\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger';
                     $category = defined("$logger::CATEGORY_SYSTEM") ? constant("$logger::CATEGORY_SYSTEM") : 'system';
                     call_user_func([$logger, 'error'], 'Background report job failed', [
                         'job_id' => $job_id,
@@ -169,7 +169,7 @@ final class BackgroundProcessor
             self::update_job_status($job_id, 'failed', 0, null, $e->getMessage());
 
             if (self::is_logger_available()) {
-                $logger = '\MHMRentiva\Logs\AdvancedLogger';
+                $logger = '\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger';
                 $category = defined("$logger::CATEGORY_SYSTEM") ? constant("$logger::CATEGORY_SYSTEM") : 'system';
                 call_user_func([$logger, 'error'], 'Background report job exception', [
                     'job_id' => $job_id,
