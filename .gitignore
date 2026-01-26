@@ -60,8 +60,28 @@ test-i18n.php
 # ----------------------------------------
 # AI Agent & Dev Tools Exclusions (Requested)
 # ----------------------------------------
-phpcs_summary.txt
+# Tooling Configs
+.phpcs.xml.dist
+phpcs.xml
+phpunit.xml.dist
+composer.json
+composer.lock
+
+# Directories & Tooling
+bin/
 stubs/
-.clinerules
+website/
 .agent/
-.github/workflows/
+.github/
+.clinerules/
+.clinerules
+
+# Specific Scripts
+update-pot-ultimate.php
+phpcs_summary.txt
+phpcs_current_summary.txt
+phpcs_final_sweep.txt
+phpcs_final_status.txt
+phpcs_final_status_utf8.txt
+phpcs_php_only_summary.txt
+phpcs_summary_utf8.txt
