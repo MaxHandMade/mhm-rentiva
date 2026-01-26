@@ -57,3 +57,12 @@ mhm-tools.php
 flush_rules.php
 update_refund_text.php
 test-i18n.php
+
+# ----------------------------------------
+# AI Agent & Dev Tools Exclusions (Requested)
+# ----------------------------------------
+phpcs_summary.txt
+stubs/
+.clinerules
+.agent/
+.github/workflows/
