@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.6.3-blue.svg)
+![Version](https://img.shields.io/badge/version-4.6.5-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1276,6 +1276,32 @@ Katkılarınızı bekliyoruz! Lütfen şu yönergeleri izleyin:
 ---
 
 ## 📝 Değişiklik Geçmişi
+ 
+### Son Versiyon: 4.6.5 (2026-01-26)
+
+**🛡️ GÜVENLİK & STANDARTLAR**
+- **WPCS Uyumluluğu**: Girdi Sanitizasyonu ve Veritabanı İnterpolasyonu ile ilgili 50'den fazla güvenlik sorunu çözüldü.
+- **XSS Güçlendirme**: `Handler.php` ve `AccountController.php` gelişmiş XSS saldırılarına karşı korumaya alındı.
+- **Otomatik Refactoring**: Proje genelinde 110.000'den fazla stil hatası, WordPress Kodlama Standartları (WPCS) ile tam uyum için otomatik olarak düzeltildi.
+- **Log Motoru**: Eski `error_log` yapısından yeni yüksek performanslı `AdvancedLogger` sistemine geçildi.
+
+### Versiyon: 4.6.4 (2026-01-26)
+
+**🛡️ GÜVENLİK & VERİ BÜTÜNLÜĞÜ**
+- **Çıktı Kaçırma**: Admin sekmeleri ve sistem bilgi ekranları `esc_html` ile güçlendirildi.
+- **Sanitizasyon**: Meta kutularındaki fiyat ve ID alanları için sanitizasyon iyileştirildi.
+- **Yerelleştirme**: Yönetim metinlerinin İngilizce çevirileri tamamlandı.
+
+### Versiyon: 4.6.3 (2026-01-25)
+
+**🛡️ GÜVENLİK & GÜVENİLİRLİK**
+- **SQL Güçlendirme**: Mesaj aramalarında SQL Injection koruması.
+- **AJAX Hook'ları**: Backend entegrasyon ayarları için güvenilirlik artırıldı.
+
+### Versiyon: 4.6.2 (2026-01-21)
+
+**🛡️ GÜVENLİK DENETİMİ**
+- **Nonce Güçlendirme**: Proje genelinde WPCS uyumlu nonce doğrulaması uygulandı.
 
 ### Versiyon: 4.6.1 (2026-01-21)
 

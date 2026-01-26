@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.6.3-blue.svg)
+![Version](https://img.shields.io/badge/version-4.6.5-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1781,6 +1781,32 @@ Fixes #123
 ---
 
 ## 📝 Changelog
+ 
+### Latest Version: 4.6.5 (2026-01-26)
+
+**🛡️ SECURITY & STANDARDS**
+- **WPCS Compliance**: Resolved 50+ security issues related to Input Sanitization and Database Interpolation.
+- **XSS Hardening**: Hardened `Handler.php` and `AccountController.php` against sophisticated XSS attacks.
+- **Automated Refactoring**: Successfully applied 110,000+ automated style fixes across the entire project for strict WordPress Coding Standards (WPCS) alignment.
+- **Logging Engine**: Transitioned from legacy `error_log` to the new high-performance `AdvancedLogger`.
+
+### Version: 4.6.4 (2026-01-26)
+
+**🛡️ SECURITY & DATA INTEGRITY**
+- **Output Escaping**: Hardened admin tabs and system info screens using `esc_html`.
+- **Sanitization**: Improved price field and ID sanitization in meta boxes.
+- **Localization**: Completed English translation of administrative strings.
+
+### Version: 4.6.3 (2026-01-25)
+
+**🛡️ SECURITY & RELIABILITY**
+- **SQL Hardening**: Protection against SQL Injection in message searches.
+- **AJAX Hooks**: Improved reliability for backend integration settings.
+
+### Version: 4.6.2 (2026-01-21)
+
+**🛡️ SECURITY AUDIT**
+- **Nonce Hardening**: WPCS compliant nonce verification applied project-wide.
 
 ### Version: 4.6.1 (2026-01-21)
 

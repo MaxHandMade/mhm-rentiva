@@ -12,6 +12,8 @@
 	<exclude-pattern>*/.agent/*</exclude-pattern>
 	<exclude-pattern>*/website/*</exclude-pattern>
 	<exclude-pattern>*/stubs/*</exclude-pattern>
+	<exclude-pattern>*.js</exclude-pattern>
+	<exclude-pattern>*.css</exclude-pattern>
 
 	<!-- Show progress and sniff codes -->
 	<arg value="ps"/>

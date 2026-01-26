@@ -75,6 +75,12 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 
 == Changelog ==
  
+= 4.6.5 =
+* Standards: Successfully applied 110,000+ automated style fixes for strict WPCS compliance.
+* Security: Resolved 50+ WPCS security issues (Input Sanitization & Database Interpolation).
+* Security: Hardened Handler.php and AccountController.php against XSS attacks.
+* Engine: Migrated from legacy error_log to high-performance AdvancedLogger.
+ 
 = 4.6.4 =
 * Security: Hardened output escaping in About, System Info, and Admin Tabs using esc_html and wp_kses_post.
 * Data Integrity: Enhanced sanitization for price and ID fields in AddonManager and Booking Meta Boxes.

@@ -1,8 +1,19 @@
 [
     {
-        "version": "4.6.4",
+        "version": "4.6.5",
         "date": "2026-01-26",
         "type": "current",
+        "changes": [
+            "🛡️ GÜVENLİK: 50+ WPCS sorunu çözüldü (Girdi Sanitizasyonu & DB İnterpolasyonu).",
+            "🛡️ GÜVENLİK: Handler.php ve AccountController.php XSS'e karşı güçlendirildi.",
+            "🔧 REFACTOR: Eski error_log yapısı AdvancedLogger ile değiştirildi.",
+            "🎨 STİL: Proje genelinde 110.000+ WordPress Kodlama Standartları (WPCS) uyumsuzluğu otomatik düzeltildi."
+        ]
+    },
+    {
+        "version": "4.6.4",
+        "date": "2026-01-26",
+        "type": "previous",
         "changes": [
             "🛡️ GÜVENLİK: Hakkında, Sistem Bilgisi ve Admin Sekmelerinde esc_html ve wp_kses_post kullanılarak çıktı kaçırma işlemleri güçlendirildi.",
             "🔒 VERİ BÜTÜNLÜĞÜ: AddonManager ve Rezervasyon Meta Kutularındaki fiyat ve ID alanları için sanitizasyon iyileştirildi.",
