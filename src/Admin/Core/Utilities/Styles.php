@@ -2,104 +2,100 @@
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
- * CSS Stil Yönetimi Sınıfı
- * 
- * Core CSS dosyasını hem admin hem frontend'te yükler.
+ * CSS Style Management Class
+ *
+ * Loads core CSS files in both admin and frontend.
  */
-class Styles
-{
-    /**
-     * Plugin dizin yolu
-     */
-    private $plugin_dir;
+class Styles {
 
-    /**
-     * Plugin URL
-     */
-    private $plugin_url;
+	/**
+	 * Plugin directory path
+	 */
+	private $plugin_dir;
 
-    /**
-     * CSS handle adı - AssetManager ile uyumlu
-     */
-    const CSS_HANDLE = 'mhm-core-css';
+	/**
+	 * Plugin URL
+	 */
+	private $plugin_url;
 
-    /**
-     * Constructor
-     */
-    public function __construct($plugin_dir, $plugin_url)
-    {
-        $this->plugin_dir = $plugin_dir;
-        $this->plugin_url = $plugin_url;
-    }
+	/**
+	 * CSS handle name - Compatible with AssetManager
+	 */
+	const CSS_HANDLE = 'mhm-core-css';
 
-    /**
-     * CSS enqueue işlemlerini kaydet
-     */
-    public function register()
-    {
-        // Frontend'te CSS yükle
-        add_action('wp_enqueue_scripts', [$this, 'enqueueCoreCss']);
+	/**
+	 * Constructor
+	 */
+	public function __construct( $plugin_dir, $plugin_url ) {
+		$this->plugin_dir = $plugin_dir;
+		$this->plugin_url = $plugin_url;
+	}
 
-        // Admin'de CSS yükle
-        add_action('admin_enqueue_scripts', [$this, 'enqueueCoreCss']);
-    }
+	/**
+	 * Register CSS enqueue operations
+	 */
+	public function register() {
+		// Load CSS on frontend
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueueCoreCss' ) );
 
-    /**
-     * Core CSS dosyasını yükle - AssetManager ile uyumlu
-     */
-    public function enqueueCoreCss()
-    {
-        // Eğer AssetManager zaten yüklendiyse, tekrar yükleme
-        if (wp_style_is('mhm-core-css', 'enqueued') || wp_style_is('mhm-core-css', 'done')) {
-            return;
-        }
+		// Load CSS in admin
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueueCoreCss' ) );
+	}
 
-        $css_path = $this->plugin_dir . 'assets/css/core/core.css';
-        $css_url = $this->plugin_url . 'assets/css/core/core.css';
+	/**
+	 * Load core CSS file - Compatible with AssetManager
+	 */
+	public function enqueueCoreCss() {
+		// If AssetManager is already loaded, don't load again
+		if ( wp_style_is( 'mhm-core-css', 'enqueued' ) || wp_style_is( 'mhm-core-css', 'done' ) ) {
+			return;
+		}
 
-        // AssetManager ile aynı versiyonlama sistemi
-        $version = defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : '1.0.0';
+		$css_path = $this->plugin_dir . 'assets/css/core/core.css';
+		$css_url  = $this->plugin_url . 'assets/css/core/core.css';
 
-        // CSS'i enqueue et - AssetManager dependency sırasına uygun
-        wp_enqueue_style(
-            self::CSS_HANDLE,
-            $css_url,
-            [], // AssetManager'da dependency yönetimi yapılıyor
-            $version,
-            'all'
-        );
+		// Same versioning system as AssetManager
+		$version = defined( 'MHM_RENTIVA_VERSION' ) ? MHM_RENTIVA_VERSION : '1.0.0';
 
-        // CSS Variables'ı da yükle
-        $css_vars_url = $this->plugin_url . 'assets/css/core/css-variables.css';
-        wp_enqueue_style(
-            'mhm-css-variables',
-            $css_vars_url,
-            [],
-            $version,
-            'all'
-        );
+		// Enqueue CSS - Compatible with AssetManager dependency order
+		wp_enqueue_style(
+			self::CSS_HANDLE,
+			$css_url,
+			array(), // Dependency management handled in AssetManager
+			$version,
+			'all'
+		);
 
-        // Animations'ı da yükle
-        $animations_url = $this->plugin_url . 'assets/css/core/animations.css';
-        wp_enqueue_style(
-            'mhm-animations',
-            $animations_url,
-            ['mhm-css-variables'],
-            $version,
-            'all'
-        );
-    }
+		// Also load CSS Variables
+		$css_vars_url = $this->plugin_url . 'assets/css/core/css-variables.css';
+		wp_enqueue_style(
+			'mhm-css-variables',
+			$css_vars_url,
+			array(),
+			$version,
+			'all'
+		);
 
-    /**
-     * CSS handle adını döndür
-     */
-    public static function getCssHandle()
-    {
-        return self::CSS_HANDLE;
-    }
+		// Also load Animations
+		$animations_url = $this->plugin_url . 'assets/css/core/animations.css';
+		wp_enqueue_style(
+			'mhm-animations',
+			$animations_url,
+			array( 'mhm-css-variables' ),
+			$version,
+			'all'
+		);
+	}
+
+	/**
+	 * Get CSS handle name
+	 */
+	public static function getCssHandle() {
+		return self::CSS_HANDLE;
+	}
 }

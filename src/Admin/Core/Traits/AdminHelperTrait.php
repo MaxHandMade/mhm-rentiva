@@ -4,320 +4,323 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Traits;
 
-if (!defined('ABSPATH')) {
-    exit;
+if (! defined('ABSPATH')) {
+	exit;
 }
 
 /**
- * ✅ ADMIN HELPER TRAIT - Code Duplication Eliminasyonu
- * 
- * Admin sayfalarında tekrarlanan kodları merkezi hale getirir
+ * ✅ ADMIN HELPER TRAIT - Code Duplication Elimination
+ *
+ * Centralizes repeated code in admin pages
  */
 trait AdminHelperTrait
 {
-    /**
-     * Admin yetki kontrolü
-     * 
-     * @param string $capability Gerekli yetki
-     * @return bool Yetki durumu
-     */
-    protected function check_admin_capability(string $capability = 'manage_options'): bool
-    {
-        return current_user_can($capability);
-    }
 
-    /**
-     * Admin yetki kontrolü ve erişim engelleme
-     * 
-     * @param string $capability Gerekli yetki
-     * @throws \Exception Yetki yoksa exception fırlatır
-     */
-    protected function require_admin_capability(string $capability = 'manage_options'): void
-    {
-        if (!current_user_can($capability)) {
-            throw new \Exception(__('You do not have permission to access this page.', 'mhm-rentiva'));
-        }
-    }
+	/**
+	 * Admin capability check
+	 *
+	 * @param string $capability Required capability
+	 * @return bool Capability status
+	 */
+	protected function check_admin_capability(string $capability = 'manage_options'): bool
+	{
+		return current_user_can($capability);
+	}
 
-    /**
-     * Admin sayfa wrapper başlat
-     * 
-     * @param string $title Sayfa başlığı
-     * @param string $class CSS class
-     */
-    protected function start_admin_wrapper(string $title, string $class = 'mhm-rentiva-wrap'): void
-    {
-        echo '<div class="wrap ' . esc_attr($class) . '">';
-        echo '<h1>' . esc_html($title) . '</h1>';
-    }
+	/**
+	 * Admin capability check and access blocking
+	 *
+	 * @param string $capability Required capability
+	 * @throws \Exception Throws exception if no permission
+	 */
+	protected function require_admin_capability(string $capability = 'manage_options'): void
+	{
+		if (! current_user_can($capability)) {
+			throw new \Exception(esc_html__('You do not have permission to access this page.', 'mhm-rentiva'));
+		}
+	}
 
-    /**
-     * Admin sayfa wrapper bitir
-     */
-    protected function end_admin_wrapper(): void
-    {
-        echo '</div>';
-    }
+	/**
+	 * Start admin page wrapper
+	 *
+	 * @param string $title Page title
+	 * @param string $class CSS class
+	 */
+	protected function start_admin_wrapper(string $title, string $class = 'mhm-rentiva-wrap'): void
+	{
+		echo '<div class="wrap ' . esc_attr($class) . '">';
+		echo '<h1>' . esc_html($title) . '</h1>';
+	}
 
-    /**
-     * Admin notice göster
-     * 
-     * @param string $message Mesaj
-     * @param string $type Notice tipi (success, error, warning, info)
-     * @param bool $dismissible Kapatılabilir mi
-     */
-    protected function show_admin_notice(string $message, string $type = 'info', bool $dismissible = true): void
-    {
-        $dismissible_class = $dismissible ? 'is-dismissible' : '';
-        echo '<div class="notice notice-' . esc_attr($type) . ' ' . esc_attr($dismissible_class) . '">';
-        echo '<p>' . wp_kses_post($message) . '</p>';
-        echo '</div>';
-    }
+	/**
+	 * End admin page wrapper
+	 */
+	protected function end_admin_wrapper(): void
+	{
+		echo '</div>';
+	}
 
-    /**
-     * Admin tab navigation oluştur
-     * 
-     * @param array $tabs Tab'lar ['key' => 'label']
-     * @param string $current_active Aktif tab
-     * @param string $base_url Base URL
-     */
-    protected function render_admin_tabs(array $tabs, string $current_active, string $base_url): void
-    {
-        echo '<nav class="nav-tab-wrapper">';
-        foreach ($tabs as $key => $label) {
-            $active_class = ($key === $current_active) ? 'nav-tab-active' : '';
-            $url = add_query_arg('tab', $key, $base_url);
-            echo '<a href="' . esc_url($url) . '" class="nav-tab ' . esc_attr($active_class) . '">';
-            echo esc_html($label);
-            echo '</a>';
-        }
-        echo '</nav>';
-    }
+	/**
+	 * Show admin notice
+	 *
+	 * @param string $message Message
+	 * @param string $type Notice type (success, error, warning, info)
+	 * @param bool   $dismissible Can be dismissed
+	 */
+	protected function show_admin_notice(string $message, string $type = 'info', bool $dismissible = true): void
+	{
+		$dismissible_class = $dismissible ? 'is-dismissible' : '';
+		echo '<div class="notice notice-' . esc_attr($type) . ' ' . esc_attr($dismissible_class) . '">';
+		echo '<p>' . wp_kses_post($message) . '</p>';
+		echo '</div>';
+	}
 
-    /**
-     * Form nonce field ekle
-     * 
-     * @param string $action Action name
-     * @param string $name Field name
-     */
-    protected function add_nonce_field(string $action, string $name = '_wpnonce'): void
-    {
-        wp_nonce_field($action, $name);
-    }
+	/**
+	 * Create admin tab navigation
+	 *
+	 * @param array  $tabs Tabs ['key' => 'label']
+	 * @param string $current_active Active tab
+	 * @param string $base_url Base URL
+	 */
+	protected function render_admin_tabs(array $tabs, string $current_active, string $base_url): void
+	{
+		echo '<nav class="nav-tab-wrapper">';
+		foreach ($tabs as $key => $label) {
+			$active_class = ($key === $current_active) ? 'nav-tab-active' : '';
+			$url          = add_query_arg('tab', $key, $base_url);
+			echo '<a href="' . esc_url($url) . '" class="nav-tab ' . esc_attr($active_class) . '">';
+			echo esc_html($label);
+			echo '</a>';
+		}
+		echo '</nav>';
+	}
 
-    /**
-     * Nonce doğrula
-     * 
-     * @param string $action Action name
-     * @param string $name Field name
-     * @return bool Doğrulama durumu
-     */
-    protected function verify_nonce(string $action, string $name = '_wpnonce'): bool
-    {
-        return wp_verify_nonce(sanitize_text_field(wp_unslash($_POST[$name] ?? '')), $action) !== false;
-    }
+	/**
+	 * Add form nonce field
+	 *
+	 * @param string $action Action name
+	 * @param string $name Field name
+	 */
+	protected function add_nonce_field(string $action, string $name = '_wpnonce'): void
+	{
+		wp_nonce_field($action, $name);
+	}
 
-    /**
-     * Admin form submit kontrolü
-     * 
-     * @param string $action Action name
-     * @param string $nonce_name Nonce field name
-     * @return bool Submit durumu
-     */
-    protected function is_form_submitted(string $action, string $nonce_name = '_wpnonce'): bool
-    {
-        return isset($_POST[$nonce_name]) && $this->verify_nonce($action, $nonce_name);
-    }
+	/**
+	 * Verify nonce
+	 *
+	 * @param string $action Action name
+	 * @param string $name Field name
+	 * @return bool Verification status
+	 */
+	protected function verify_nonce(string $action, string $name = '_wpnonce'): bool
+	{
+		return wp_verify_nonce(sanitize_text_field(wp_unslash($_POST[$name] ?? '')), $action) !== false;
+	}
 
-    /**
-     * Sanitize form data
-     * 
-     * @param array $data Form verisi
-     * @param array $fields İzin verilen alanlar
-     * @return array Sanitize edilmiş veri
-     */
-    protected function sanitize_form_data(array $data, array $fields = []): array
-    {
-        $sanitized = [];
+	/**
+	 * Admin form submit check
+	 *
+	 * @param string $action Action name
+	 * @param string $nonce_name Nonce field name
+	 * @return bool Submit status
+	 */
+	protected function is_form_submitted(string $action, string $nonce_name = '_wpnonce'): bool
+	{
+		return isset($_POST[$nonce_name]) && $this->verify_nonce($action, $nonce_name);
+	}
 
-        foreach ($data as $key => $value) {
-            if (!empty($fields) && !in_array($key, $fields, true)) {
-                continue;
-            }
+	/**
+	 * Sanitize form data
+	 *
+	 * @param array $data Form data
+	 * @param array $fields Allowed fields
+	 * @return array Sanitized data
+	 */
+	protected function sanitize_form_data(array $data, array $fields = array()): array
+	{
+		$sanitized = array();
 
-            if (is_array($value)) {
-                $sanitized[$key] = $this->sanitize_form_data($value, $fields);
-            } else {
-                $sanitized[$key] = sanitize_text_field($value);
-            }
-        }
+		foreach ($data as $key => $value) {
+			if (! empty($fields) && ! in_array($key, $fields, true)) {
+				continue;
+			}
 
-        return $sanitized;
-    }
+			if (is_array($value)) {
+				$sanitized[$key] = $this->sanitize_form_data($value, $fields);
+			} else {
+				$sanitized[$key] = sanitize_text_field($value);
+			}
+		}
 
-    /**
-     * Admin redirect
-     * 
-     * @param string $url Redirect URL
-     * @param array $query_params Query parametreleri
-     */
-    protected function admin_redirect(string $url, array $query_params = []): void
-    {
-        if (!empty($query_params)) {
-            $url = add_query_arg($query_params, $url);
-        }
+		return $sanitized;
+	}
 
-        wp_redirect($url);
-        exit;
-    }
+	/**
+	 * Admin redirect
+	 *
+	 * @param string $url Redirect URL
+	 * @param array  $query_params Query parameters
+	 */
+	protected function admin_redirect(string $url, array $query_params = array()): void
+	{
+		if (! empty($query_params)) {
+			$url = add_query_arg($query_params, $url);
+		}
 
-    /**
-     * Admin ajax response gönder
-     * 
-     * @param bool $success Başarı durumu
-     * @param mixed $data Response data
-     * @param string $message Mesaj
-     * @param int $status_code HTTP status code
-     */
-    protected function send_ajax_response(bool $success, $data = null, string $message = '', int $status_code = 200): void
-    {
-        $response = [
-            'success' => $success,
-            'data' => $data,
-            'message' => $message
-        ];
+		wp_redirect($url);
+		exit;
+	}
 
-        wp_send_json($response, $status_code);
-    }
+	/**
+	 * Send admin ajax response
+	 *
+	 * @param bool   $success Success status
+	 * @param mixed  $data Response data
+	 * @param string $message Message
+	 * @param int    $status_code HTTP status code
+	 */
+	protected function send_ajax_response(bool $success, $data = null, string $message = '', int $status_code = 200): void
+	{
+		$response = array(
+			'success' => $success,
+			'data'    => $data,
+			'message' => $message,
+		);
 
-    /**
-     * Admin table pagination oluştur
-     * 
-     * @param int $total_items Toplam item sayısı
-     * @param int $per_page Sayfa başına item
-     * @param int $current_page Mevcut sayfa
-     * @param string $base_url Base URL
-     * @param string $page_param Page parametresi
-     */
-    protected function render_pagination(int $total_items, int $per_page, int $current_page, string $base_url, string $page_param = 'paged'): void
-    {
-        $total_pages = ceil($total_items / $per_page);
+		wp_send_json($response, $status_code);
+	}
 
-        if ($total_pages <= 1) {
-            return;
-        }
+	/**
+	 * Create admin table pagination
+	 *
+	 * @param int    $total_items Total item count
+	 * @param int    $per_page Items per page
+	 * @param int    $current_page Current page
+	 * @param string $base_url Base URL
+	 * @param string $page_param Page parameter
+	 */
+	protected function render_pagination(int $total_items, int $per_page, int $current_page, string $base_url, string $page_param = 'paged'): void
+	{
+		$total_pages = ceil($total_items / $per_page);
 
-        echo '<div class="tablenav-pages">';
-        echo '<span class="displaying-num">' . sprintf(
-            /* translators: %s placeholder. */
-            _n('%s item', '%s items', $total_items, 'mhm-rentiva'),
-            number_format_i18n($total_items)
-        ) . '</span>';
+		if ($total_pages <= 1) {
+			return;
+		}
 
-        echo '<span class="pagination-links">';
+		echo '<div class="tablenav-pages">';
+		echo '<span class="displaying-num">' . esc_html(
+			sprintf(
+				/* translators: %s placeholder. */
+				_n('%s item', '%s items', $total_items, 'mhm-rentiva'),
+				number_format_i18n($total_items)
+			)
+		) . '</span>';
 
-        // Previous page
-        if ($current_page > 1) {
-            $prev_url = add_query_arg($page_param, $current_page - 1, $base_url);
-            echo '<a class="first-page" href="' . esc_url($prev_url) . '">‹‹</a>';
-            echo '<a class="prev-page" href="' . esc_url($prev_url) . '">‹</a>';
-        }
+		echo '<span class="pagination-links">';
 
-        // Page numbers
-        $start = max(1, $current_page - 2);
-        $end = min($total_pages, $current_page + 2);
+		// Previous page
+		if ($current_page > 1) {
+			$prev_url = add_query_arg($page_param, $current_page - 1, $base_url);
+			echo '<a class="first-page" href="' . esc_url($prev_url) . '">‹‹</a>';
+			echo '<a class="prev-page" href="' . esc_url($prev_url) . '">‹</a>';
+		}
 
-        for ($i = $start; $i <= $end; $i++) {
-            if ($i === $current_page) {
-                echo '<span class="current">' . $i . '</span>';
-            } else {
-                $page_url = add_query_arg($page_param, $i, $base_url);
-                echo '<a href="' . esc_url($page_url) . '">' . $i . '</a>';
-            }
-        }
+		// Page numbers
+		$start = max(1, $current_page - 2);
+		$end   = min($total_pages, $current_page + 2);
 
-        // Next page
-        if ($current_page < $total_pages) {
-            $next_url = add_query_arg($page_param, $current_page + 1, $base_url);
-            echo '<a class="next-page" href="' . esc_url($next_url) . '">›</a>';
-            echo '<a class="last-page" href="' . esc_url($next_url) . '">››</a>';
-        }
+		for ($i = $start; $i <= $end; $i++) {
+			if ($i === $current_page) {
+				echo '<span class="current">' . esc_html((string) $i) . '</span>';
+			} else {
+				$page_url = add_query_arg($page_param, $i, $base_url);
+				echo '<a href="' . esc_url($page_url) . '">' . esc_html((string) $i) . '</a>';
+			}
+		}
 
-        echo '</span>';
-        echo '</div>';
-    }
+		// Next page
+		if ($current_page < $total_pages) {
+			$next_url = add_query_arg($page_param, $current_page + 1, $base_url);
+			echo '<a class="next-page" href="' . esc_url($next_url) . '">›</a>';
+			echo '<a class="last-page" href="' . esc_url($next_url) . '">››</a>';
+		}
 
-    /**
-     * Admin table bulk actions oluştur
-     * 
-     * @param array $actions Bulk actions
-     * @param string $name Field name
-     */
-    protected function render_bulk_actions(array $actions, string $name = 'bulk_action'): void
-    {
-        echo '<select name="' . esc_attr($name) . '">';
-        echo '<option value="">' . __('Bulk Actions', 'mhm-rentiva') . '</option>';
+		echo '</span>';
+		echo '</div>';
+	}
 
-        foreach ($actions as $value => $label) {
-            echo '<option value="' . esc_attr($value) . '">' . esc_html($label) . '</option>';
-        }
+	/**
+	 * Create admin table bulk actions
+	 *
+	 * @param array  $actions Bulk actions
+	 * @param string $name Field name
+	 */
+	protected function render_bulk_actions(array $actions, string $name = 'bulk_action'): void
+	{
+		echo '<select name="' . esc_attr($name) . '">';
+		echo '<option value="">' . esc_html__('Bulk Actions', 'mhm-rentiva') . '</option>';
 
-        echo '</select>';
-        echo '<input type="submit" class="button" value="' . esc_attr__('Apply', 'mhm-rentiva') . '">';
-    }
+		foreach ($actions as $value => $label) {
+			echo '<option value="' . esc_attr($value) . '">' . esc_html($label) . '</option>';
+		}
 
-    /**
-     * Admin loading spinner göster
-     * 
-     * @param string $message Loading mesajı
-     */
-    protected function show_loading_spinner(string $message = ''): void
-    {
-        echo '<div class="mhm-loading-spinner">';
-        echo '<div class="spinner is-active"></div>';
-        if ($message) {
-            echo '<span class="loading-message">' . esc_html($message) . '</span>';
-        }
-        echo '</div>';
-    }
+		echo '</select>';
+		echo '<input type="submit" class="button" value="' . esc_attr__('Apply', 'mhm-rentiva') . '">';
+	}
 
-    /**
-     * Admin success message göster
-     * 
-     * @param string $message Başarı mesajı
-     */
-    protected function show_success_message(string $message): void
-    {
-        $this->show_admin_notice($message, 'success');
-    }
+	/**
+	 * Show admin loading spinner
+	 *
+	 * @param string $message Loading message
+	 */
+	protected function show_loading_spinner(string $message = ''): void
+	{
+		echo '<div class="mhm-loading-spinner">';
+		echo '<div class="spinner is-active"></div>';
+		if ($message) {
+			echo '<span class="loading-message">' . esc_html($message) . '</span>';
+		}
+		echo '</div>';
+	}
 
-    /**
-     * Admin error message göster
-     * 
-     * @param string $message Hata mesajı
-     */
-    protected function show_error_message(string $message): void
-    {
-        $this->show_admin_notice($message, 'error');
-    }
+	/**
+	 * Show admin success message
+	 *
+	 * @param string $message Success message
+	 */
+	protected function show_success_message(string $message): void
+	{
+		$this->show_admin_notice($message, 'success');
+	}
 
-    /**
-     * Admin warning message göster
-     * 
-     * @param string $message Uyarı mesajı
-     */
-    protected function show_warning_message(string $message): void
-    {
-        $this->show_admin_notice($message, 'warning');
-    }
+	/**
+	 * Show admin error message
+	 *
+	 * @param string $message Error message
+	 */
+	protected function show_error_message(string $message): void
+	{
+		$this->show_admin_notice($message, 'error');
+	}
 
-    /**
-     * Admin info message göster
-     * 
-     * @param string $message Bilgi mesajı
-     */
-    protected function show_info_message(string $message): void
-    {
-        $this->show_admin_notice($message, 'info');
-    }
+	/**
+	 * Show admin warning message
+	 *
+	 * @param string $message Warning message
+	 */
+	protected function show_warning_message(string $message): void
+	{
+		$this->show_admin_notice($message, 'warning');
+	}
+
+	/**
+	 * Show admin info message
+	 *
+	 * @param string $message Info message
+	 */
+	protected function show_info_message(string $message): void
+	{
+		$this->show_admin_notice($message, 'info');
+	}
 }

@@ -7,184 +7,198 @@ namespace MHMRentiva\Admin\Settings\View;
 use MHMRentiva\Admin\Settings\View\Tabs\BaseSettingsTabRenderer;
 use MHMRentiva\Admin\Settings\View\Tabs\GeneralSettingsRenderer;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
  * Factory and Registry for Settings Tab Renderers
  */
-final class TabRendererRegistry
-{
-    /**
-     * @var array<string, TabRendererInterface>
-     */
-    private array $renderers = [];
+final class TabRendererRegistry {
 
-    public function __construct()
-    {
-        $this->register_default_renderers();
-    }
+	/**
+	 * @var array<string, TabRendererInterface>
+	 */
+	private array $renderers = array();
 
-    /**
-     * Get a renderer by slug
-     */
-    public function get(string $slug): ?TabRendererInterface
-    {
-        return $this->renderers[$slug] ?? null;
-    }
+	public function __construct() {
+		$this->register_default_renderers();
+	}
 
-    /**
-     * Get all registered renderers
-     * 
-     * @return array<string, TabRendererInterface>
-     */
-    public function get_all(): array
-    {
-        // Sort according to a predefined order
-        $order = (array) apply_filters('mhm_rentiva_settings_tabs_order', [
-            'general',
-            'vehicle',
-            'booking',
-            'transfer',
-            'addons',
-            'customer',
-            'payment',
-            'email',
-            'email-templates',
-            'messages',
-            'system',
-            'frontend',
-            'integration',
-            'database-cleanup',
-            'cron-monitor',
-            'testing'
-        ]);
+	/**
+	 * Get a renderer by slug
+	 */
+	public function get( string $slug ): ?TabRendererInterface {
+		return $this->renderers[ $slug ] ?? null;
+	}
 
-        $sorted = [];
-        foreach ($order as $slug) {
-            if (isset($this->renderers[$slug])) {
-                $sorted[$slug] = $this->renderers[$slug];
-            }
-        }
+	/**
+	 * Get all registered renderers
+	 *
+	 * @return array<string, TabRendererInterface>
+	 */
+	public function get_all(): array {
+		// Sort according to a predefined order
+		$order = (array) apply_filters(
+			'mhm_rentiva_settings_tabs_order',
+			array(
+				'general',
+				'vehicle',
+				'booking',
+				'transfer',
+				'addons',
+				'customer',
+				'payment',
+				'email',
+				'email-templates',
+				'messages',
+				'system',
+				'frontend',
+				'integration',
+				'database-cleanup',
+				'cron-monitor',
+				'testing',
+			)
+		);
 
-        // Add any remaining renderers that were not in the order list
-        return array_merge($sorted, $this->renderers);
-    }
+		$sorted = array();
+		foreach ( $order as $slug ) {
+			if ( isset( $this->renderers[ $slug ] ) ) {
+				$sorted[ $slug ] = $this->renderers[ $slug ];
+			}
+		}
 
-    /**
-     * Register a new renderer
-     */
-    public function register(TabRendererInterface $renderer): void
-    {
-        $this->renderers[$renderer->get_slug()] = $renderer;
-    }
+		// Add any remaining renderers that were not in the order list
+		return array_merge( $sorted, $this->renderers );
+	}
 
-    /**
-     * Initialize default renderers
-     */
-    private function register_default_renderers(): void
-    {
-        $this->register(new GeneralSettingsRenderer());
+	/**
+	 * Register a new renderer
+	 */
+	public function register( TabRendererInterface $renderer ): void {
+		$this->renderers[ $renderer->get_slug() ] = $renderer;
+	}
 
-        $this->register(new BaseSettingsTabRenderer(
-            __('Vehicle Management', 'mhm-rentiva'),
-            'vehicle',
-            __('Configure vehicle pricing, display options, and availability settings.', 'mhm-rentiva'),
-            '\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings',
-            ['mhm_rentiva_vehicle_pricing_section', 'mhm_rentiva_vehicle_display_section', 'mhm_rentiva_vehicle_availability_section', 'mhm_rentiva_vehicle_comparison_section']
-        ));
+	/**
+	 * Initialize default renderers
+	 */
+	private function register_default_renderers(): void {
+		$this->register( new GeneralSettingsRenderer() );
 
-        $this->register(new BaseSettingsTabRenderer(
-            __('Booking Management', 'mhm-rentiva'),
-            'booking',
-            __('Manage booking workflows, restrictions, and confirmation settings.', 'mhm-rentiva'),
-            '\MHMRentiva\Admin\Settings\Groups\BookingSettings'
-        ));
+		$this->register(
+			new BaseSettingsTabRenderer(
+				__( 'Vehicle Management', 'mhm-rentiva' ),
+				'vehicle',
+				__( 'Configure vehicle pricing, display options, and availability settings.', 'mhm-rentiva' ),
+				'\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings',
+				array( 'mhm_rentiva_vehicle_pricing_section', 'mhm_rentiva_vehicle_display_section', 'mhm_rentiva_vehicle_availability_section', 'mhm_rentiva_vehicle_comparison_section' )
+			)
+		);
 
-        $this->register(new BaseSettingsTabRenderer(
-            __('Extra Service Settings', 'mhm-rentiva'),
-            'addons',
-            __('Configure addon categories and service types.', 'mhm-rentiva'),
-            '\MHMRentiva\Admin\Settings\Groups\AddonSettings'
-        ));
+		$this->register(
+			new BaseSettingsTabRenderer(
+				__( 'Booking Management', 'mhm-rentiva' ),
+				'booking',
+				__( 'Manage booking workflows, restrictions, and confirmation settings.', 'mhm-rentiva' ),
+				'\MHMRentiva\Admin\Settings\Groups\BookingSettings'
+			)
+		);
 
-        $this->register(new BaseSettingsTabRenderer(
-            __('Customer Management', 'mhm-rentiva'),
-            'customer',
-            __('Set user permissions, registration options, and profile display.', 'mhm-rentiva'),
-            '\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings'
-        ));
+		$this->register(
+			new BaseSettingsTabRenderer(
+				__( 'Extra Service Settings', 'mhm-rentiva' ),
+				'addons',
+				__( 'Configure addon categories and service types.', 'mhm-rentiva' ),
+				'\MHMRentiva\Admin\Settings\Groups\AddonSettings'
+			)
+		);
 
-        // Payment tab logic moved to a filter-compliant structure
-        if (!class_exists('WooCommerce')) {
-            $this->register(new BaseSettingsTabRenderer(
-                __('Payment Settings', 'mhm-rentiva'),
-                'payment',
-                __('Configure manual payment methods and currency settings.', 'mhm-rentiva'),
-                '\MHMRentiva\Admin\Settings\Groups\PaymentSettings'
-            ));
-        }
+		$this->register(
+			new BaseSettingsTabRenderer(
+				__( 'Customer Management', 'mhm-rentiva' ),
+				'customer',
+				__( 'Set user permissions, registration options, and profile display.', 'mhm-rentiva' ),
+				'\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings'
+			)
+		);
 
-        $this->register(new BaseSettingsTabRenderer(
-            __('Email Configuration', 'mhm-rentiva'),
-            'email',
-            __('Configure outgoing mail server and sender information.', 'mhm-rentiva'),
-            null,
-            ['mhm_rentiva_email_section']
-        ));
+		// Payment tab logic moved to a filter-compliant structure
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->register(
+				new BaseSettingsTabRenderer(
+					__( 'Payment Settings', 'mhm-rentiva' ),
+					'payment',
+					__( 'Configure manual payment methods and currency settings.', 'mhm-rentiva' ),
+					'\MHMRentiva\Admin\Settings\Groups\PaymentSettings'
+				)
+			);
+		}
 
-        // email-templates handled by EmailTemplates class but orchestrated here
-        $this->register(new class(__('Notification Templates', 'mhm-rentiva'), 'email-templates') extends AbstractTabRenderer {
-            public function render(): void
-            {
-                if (class_exists('\MHMRentiva\Admin\Emails\Core\EmailTemplates')) {
-                    \MHMRentiva\Admin\Emails\Core\EmailTemplates::render_content_only();
-                } else {
-                    echo '<div class="notice notice-error"><p>' . esc_html__('Email Templates system not found.', 'mhm-rentiva') . '</p></div>';
-                }
-            }
+		$this->register(
+			new BaseSettingsTabRenderer(
+				__( 'Email Configuration', 'mhm-rentiva' ),
+				'email',
+				__( 'Configure outgoing mail server and sender information.', 'mhm-rentiva' ),
+				null,
+				array( 'mhm_rentiva_email_section' )
+			)
+		);
 
-            public function should_wrap_with_form(): bool
-            {
-                return false;
-            }
-        });
+		// email-templates handled by EmailTemplates class but orchestrated here
+		$this->register(
+			new class(__( 'Notification Templates', 'mhm-rentiva' ), 'email-templates') extends AbstractTabRenderer {
+				public function render(): void {
+					if ( class_exists( '\MHMRentiva\Admin\Emails\Core\EmailTemplates' ) ) {
+						\MHMRentiva\Admin\Emails\Core\EmailTemplates::render_content_only();
+					} else {
+						echo '<div class="notice notice-error"><p>' . esc_html__( 'Email Templates system not found.', 'mhm-rentiva' ) . '</p></div>';
+					}
+				}
 
-        // Messages
-        $this->register(new \MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer());
+				public function should_wrap_with_form(): bool {
+					return false;
+				}
+			}
+		);
 
-        // System
-        $this->register(new BaseSettingsTabRenderer(
-            __('System & Performance', 'mhm-rentiva'),
-            'system',
-            __('Monitor and configure system health, security, and performance.', 'mhm-rentiva'),
-            null,
-            ['mhm_rentiva_core_section', 'mhm_rentiva_ip_control_section', 'mhm_rentiva_security_rules_section', 'mhm_rentiva_authentication_section']
-        ));
+		// Messages
+		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer() );
 
-        // Frontend
-        $this->register(new BaseSettingsTabRenderer(
-            __('Frontend & Display', 'mhm-rentiva'),
-            'frontend',
-            __('Control how your rental site looks and feels to customers.', 'mhm-rentiva'),
-            '\MHMRentiva\Admin\Settings\Groups\FrontendSettings'
-        ));
+		// System
+		$this->register(
+			new BaseSettingsTabRenderer(
+				__( 'System & Performance', 'mhm-rentiva' ),
+				'system',
+				__( 'Monitor and configure system health, security, and performance.', 'mhm-rentiva' ),
+				null,
+				array( 'mhm_rentiva_core_section', 'mhm_rentiva_ip_control_section', 'mhm_rentiva_security_rules_section', 'mhm_rentiva_authentication_section' )
+			)
+		);
 
-        // Integration
-        $this->register(new \MHMRentiva\Admin\Settings\View\Tabs\IntegrationRenderer());
+		// Frontend
+		$this->register(
+			new BaseSettingsTabRenderer(
+				__( 'Frontend & Display', 'mhm-rentiva' ),
+				'frontend',
+				__( 'Control how your rental site looks and feels to customers.', 'mhm-rentiva' ),
+				'\MHMRentiva\Admin\Settings\Groups\FrontendSettings'
+			)
+		);
 
-        // Utilities
-        $this->register(new \MHMRentiva\Admin\Settings\View\Tabs\DatabaseCleanupRenderer());
-        $this->register(new \MHMRentiva\Admin\Settings\View\Tabs\CronMonitorRenderer());
-        $this->register(new \MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer());
-        $this->register(new \MHMRentiva\Admin\Settings\View\Tabs\SettingsTestingRenderer());
+		// Integration
+		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\IntegrationRenderer() );
 
-        /**
-         * Allow modifying renderers after defaults are registered.
-         * 
-         * @param TabRendererRegistry $this This registry instance.
-         */
-        do_action('mhm_rentiva_settings_register_renderers', $this);
-    }
+		// Utilities
+		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\DatabaseCleanupRenderer() );
+		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\CronMonitorRenderer() );
+		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer() );
+		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\SettingsTestingRenderer() );
+
+		/**
+		 * Allow modifying renderers after defaults are registered.
+		 *
+		 * @param TabRendererRegistry $this This registry instance.
+		 */
+		do_action( 'mhm_rentiva_settings_register_renderers', $this );
+	}
 }

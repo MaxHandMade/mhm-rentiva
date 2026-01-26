@@ -2,22 +2,56 @@
 description: Analysis, Auto-Fixing, Database Cleanup, Dead Code Removal, and Final Testing.
 ---
 
-# Full Plugin Optimization & Fix
+# MHM Rentiva - Full Optimization Workflow (v2.0)
 
-## Step 1: Code Fixes & Standards (Stage 2)
-- **Standards:** Apply WordPress Coding Standards (WPCS) to all files.
-- **Security Fixes:** Automatically add missing `sanitize_*`, `esc_*`, and `wp_verify_nonce` functions.
-- **i18n Implementation:** Convert hardcoded strings to `__('text', 'domain')` format and translate Turkish strings to English.
-- **Refactoring:** Replace deprecated functions with current versions.
+This workflow focuses on performance tuning, database efficiency, and resource management within the WordPress ecosystem.
 
-## Step 2: Database Optimization & Cleanup (Stage 3 & Extra) (Reference: mhm-db-master)
-- **Skill Usage:** Use `mhm-db-master` for orphan cleanup and optimization.
-- **Orphan Cleanup:** Execute SQL to remove orphaned meta data (`_mhm_%`) (See Skill).
-- **Transient/Logs:** Clear old logs (`cleanup_old_logs`) and expired transients using `mhm-cli-operator`.
-- **Autoload Check:** specific check for large autoload options.
-- **Dead Code:** Remove (don't just comment out) confirmed unused functions, debug logs, and `console.log` entries.
+## 1. Database Optimization
+*Goal: Minimize SQL load and prevent bloat.*
 
-## Step 3: Testing & Final Report (Stage 4 & 5)
-- **Verification:** Run simulated tests for plugin activation, AJAX calls, and CSS/JS loading.
-- **Final Report:** Generate a summary report evaluating Security, Performance, and Code Quality out of 10.
-- **Status:** State clearly if the plugin is "Production Ready".
+1.  **Query Efficiency:**
+    * Replace direct SQL (`$wpdb`) with `WP_Query` or `get_posts()` where possible.
+    * Ensure all custom tables have proper Indexes (especially on `booking_id`, `vehicle_id`, `date`).
+
+2.  **Data Autoloading:**
+    * Check `wp_options` table usage.
+    * Ensure large option arrays have `autoload='no'` to prevent slowing down every page load.
+
+## 2. Caching Strategy (Object Cache & Transients)
+*Goal: Reduce database hits for repeated data.*
+
+1.  **Transient Implementation:**
+    * Identify expensive queries (e.g., external API calls, complex availability checks).
+    * Wrap them in `set_transient()` and `get_transient()`.
+    * **Rule:** Always set an expiration time (e.g., `HOUR_IN_SECONDS`).
+
+2.  **Object Caching:**
+    * Use `wp_cache_set()` and `wp_cache_get()` for frequent, short-lived data within a single request.
+    * Group cache keys logically (e.g., `mhm_rentiva_vehicles`).
+
+## 3. Asset Optimization (JS/CSS)
+*Goal: Reduce frontend payload and improve Core Web Vitals.*
+
+1.  **Conditional Loading:**
+    * **Rule:** Never load scripts/styles globally (on all site pages).
+    * **Action:** Use `wp_enqueue_scripts` hook with conditional checks:
+        ```php
+        if ( is_page('booking') || has_shortcode($content, 'rentiva_booking') ) {
+            wp_enqueue_script('mhm-rentiva-app');
+        }
+        ```
+
+2.  **Minification & Dependencies:**
+    * Ensure production builds use `.min.js` and `.min.css`.
+    * Declare dependencies correctly (e.g., `['jquery']`) to prevent race conditions.
+
+## 4. PHP Performance
+1.  **Code Profiling:**
+    * Use Query Monitor to identify slow PHP functions.
+    * Refactor nested loops or recursive functions causing high CPU usage.
+
+2.  **Autoloader Optimization:**
+    * Ensure Composer autoloader is optimized (`composer dump-autoload -o`).
+
+## 5. Final Verification
+* Run a final **Audit Code** cycle after optimization to ensure no regressions were introduced.

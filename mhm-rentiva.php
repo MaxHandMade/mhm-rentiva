@@ -1,17 +1,19 @@
 <?php
 /*
-Plugin Name: MHM Rentiva
-Description: Vehicle rental management plugin with WooCommerce payment integration.
-Version: 4.6.3
-Author: MHM Development Team
-Text Domain: mhm-rentiva
-Domain Path: /languages
-Requires at least: 5.0
-Tested up to: 6.8
-Requires PHP: 7.4
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
-*/
+ * Plugin Name:       MHM Rentiva
+ * Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
+ * Description:       MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
+ * Version:           4.6.5
+ * Requires at least: 5.0
+ * Tested up to:      6.9
+ * Requires PHP:      7.4
+ * Author:            MHM Development Team
+ * Author URI:        https://maxhandmade.com/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       mhm-rentiva
+ * Domain Path:       /languages
+ */
 
 if (!defined('ABSPATH')) {
     exit;
@@ -43,7 +45,7 @@ function mhm_rentiva_sanitize_text_field_safe($value)
 }
 
 // Define Plugin Constants
-define('MHM_RENTIVA_VERSION', '4.6.3');
+define('MHM_RENTIVA_VERSION', '4.6.4');
 
 
 // Recursive $_POST/$_REQUEST cleaning removed.
@@ -66,6 +68,9 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 }
 
 // Version constant
+if (!defined('MHM_RENTIVA_DISABLE_CACHE')) {
+    define('MHM_RENTIVA_DISABLE_CACHE', false);
+}
 
 
 // Plugin file constant
@@ -197,8 +202,8 @@ register_activation_hook(__FILE__, function () {
     // Check for WooCommerce dependency
     if (!class_exists('WooCommerce')) {
         wp_die(
-            /* translators: %s: Plugin Name */
             sprintf(
+                /* translators: %s: Plugin name. */
                 esc_html__('%s requires WooCommerce to be installed and active.', 'mhm-rentiva'),
                 'MHM Rentiva'
             ),
@@ -207,17 +212,25 @@ register_activation_hook(__FILE__, function () {
         );
     }
 
-    // Multisite check
     if (is_multisite()) {
         // Network-wide activation
-        if (isset($_GET['networkwide']) && mhm_rentiva_sanitize_text_field_safe($_GET['networkwide']) === '1') {
+        if (isset($_GET['networkwide']) && '1' === mhm_rentiva_sanitize_text_field_safe(wp_unslash($_GET['networkwide']))) {
             global $wpdb;
-            $blog_ids = $wpdb->get_col("SELECT blog_id FROM {$wpdb->blogs}");
 
-            foreach ($blog_ids as $blog_id) {
-                switch_to_blog($blog_id);
-                mhm_rentiva_single_site_activation();
-                restore_current_blog();
+            // Fetch blog IDs with caching
+            $blog_ids = wp_cache_get('mhm_rentiva_network_blogs');
+            if (false === $blog_ids) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $wpdb->blogs is a core WordPress table name.
+                $blog_ids = $wpdb->get_col($wpdb->prepare("SELECT blog_id FROM {$wpdb->blogs} WHERE public = %d", 1));
+                wp_cache_set('mhm_rentiva_network_blogs', $blog_ids, '', 3600);
+            }
+
+            if (!empty($blog_ids)) {
+                foreach ($blog_ids as $blog_id) {
+                    switch_to_blog((int) $blog_id);
+                    mhm_rentiva_single_site_activation();
+                    restore_current_blog();
+                }
             }
             return;
         }
@@ -233,7 +246,7 @@ add_action('admin_notices', function () {
         echo '<div class="notice notice-error">
             <p>';
         printf(
-            /* translators: %s: Plugin Name */
+            /* translators: %s: Plugin name. */
             esc_html__('%s requires WooCommerce to be installed and active. Please install WooCommerce to use this plugin.', 'mhm-rentiva'),
             '<strong>MHM Rentiva</strong>'
         );

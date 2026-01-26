@@ -16,201 +16,239 @@ use MHMRentiva\Admin\Messages\REST\Customer\GetBookings;
 use MHMRentiva\Admin\Messages\REST\Customer\CloseMessage;
 use MHMRentiva\Admin\Messages\REST\Helpers\Auth;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-final class Messages
-{
-    public static function register(): void
-    {
-        if (!Mode::featureEnabled(Mode::FEATURE_MESSAGES)) {
-            return;
-        }
+final class Messages {
 
-        add_action('rest_api_init', [self::class, 'register_routes']);
-    }
+	public static function register(): void {
+		if ( ! Mode::featureEnabled( Mode::FEATURE_MESSAGES ) ) {
+			return;
+		}
 
-    public static function register_routes(): void
-    {
-        // Admin endpoints
-        register_rest_route('mhm-rentiva/v1', '/messages', [
-            'methods' => 'GET',
-            'callback' => [GetMessages::class, 'handle'],
-            'permission_callback' => [Auth::class, 'adminPermissionsCheck'],
-            'args' => [
-                'status' => [
-                    'type' => 'string',
-                    'enum' => array_keys(Message::get_statuses()),
-                    'required' => false,
-                ],
-                'category' => [
-                    'type' => 'string',
-                    'enum' => array_keys(Message::get_categories()),
-                    'required' => false,
-                ],
-                'per_page' => [
-                    'type' => 'integer',
-                    'minimum' => 1,
-                    'maximum' => 100,
-                    'default' => 20,
-                    'required' => false,
-                ],
-                'page' => [
-                    'type' => 'integer',
-                    'minimum' => 1,
-                    'default' => 1,
-                    'required' => false,
-                ],
-            ],
-        ]);
+		add_action( 'rest_api_init', array( self::class, 'register_routes' ) );
+	}
 
-        register_rest_route('mhm-rentiva/v1', '/messages/(?P<id>\d+)', [
-            'methods' => 'GET',
-            'callback' => [GetMessage::class, 'handle'],
-            'permission_callback' => [Auth::class, 'adminPermissionsCheck'],
-            'args' => [
-                'id' => [
-                    'type' => 'integer',
-                    'required' => true,
-                ],
-            ],
-        ]);
+	public static function register_routes(): void {
+		// Admin endpoints
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/messages',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( GetMessages::class, 'handle' ),
+				'permission_callback' => array( Auth::class, 'adminPermissionsCheck' ),
+				'args'                => array(
+					'status'   => array(
+						'type'     => 'string',
+						'enum'     => array_keys( Message::get_statuses() ),
+						'required' => false,
+					),
+					'category' => array(
+						'type'     => 'string',
+						'enum'     => array_keys( Message::get_categories() ),
+						'required' => false,
+					),
+					'per_page' => array(
+						'type'     => 'integer',
+						'minimum'  => 1,
+						'maximum'  => 100,
+						'default'  => 20,
+						'required' => false,
+					),
+					'page'     => array(
+						'type'     => 'integer',
+						'minimum'  => 1,
+						'default'  => 1,
+						'required' => false,
+					),
+				),
+			)
+		);
 
-        register_rest_route('mhm-rentiva/v1', '/messages/(?P<id>\d+)/status', [
-            'methods' => 'POST',
-            'callback' => [UpdateStatus::class, 'handle'],
-            'permission_callback' => [Auth::class, 'adminPermissionsCheck'],
-            'args' => [
-                'id' => [
-                    'type' => 'integer',
-                    'required' => true,
-                ],
-                'status' => [
-                    'type' => 'string',
-                    'enum' => array_keys(Message::get_statuses()),
-                    'required' => true,
-                ],
-            ],
-        ]);
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/messages/(?P<id>\d+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( GetMessage::class, 'handle' ),
+				'permission_callback' => array( Auth::class, 'adminPermissionsCheck' ),
+				'args'                => array(
+					'id' => array(
+						'type'     => 'integer',
+						'required' => true,
+					),
+				),
+			)
+		);
 
-        register_rest_route('mhm-rentiva/v1', '/messages/(?P<id>\d+)/reply', [
-            'methods' => 'POST',
-            'callback' => [ReplyToMessage::class, 'handle'],
-            'permission_callback' => [Auth::class, 'adminPermissionsCheck'],
-            'args' => [
-                'id' => [
-                    'type' => 'integer',
-                    'required' => true,
-                ],
-                'message' => [
-                    'type' => 'string',
-                    'required' => true,
-                    'sanitize_callback' => 'wp_kses_post',
-                ],
-                'close_thread' => [
-                    'type' => 'boolean',
-                    'default' => false,
-                    'required' => false,
-                ],
-            ],
-        ]);
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/messages/(?P<id>\d+)/status',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( UpdateStatus::class, 'handle' ),
+				'permission_callback' => array( Auth::class, 'adminPermissionsCheck' ),
+				'args'                => array(
+					'id'     => array(
+						'type'     => 'integer',
+						'required' => true,
+					),
+					'status' => array(
+						'type'     => 'string',
+						'enum'     => array_keys( Message::get_statuses() ),
+						'required' => true,
+					),
+				),
+			)
+		);
 
-        // Customer endpoints (WordPress User Auth)
-        register_rest_route('mhm-rentiva/v1', '/customer/messages', [
-            'methods' => 'GET',
-            'callback' => [CustomerGetMessages::class, 'handle'],
-            'permission_callback' => 'is_user_logged_in', // WordPress login kontrolü
-        ]);
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/messages/(?P<id>\d+)/reply',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( ReplyToMessage::class, 'handle' ),
+				'permission_callback' => array( Auth::class, 'adminPermissionsCheck' ),
+				'args'                => array(
+					'id'           => array(
+						'type'     => 'integer',
+						'required' => true,
+					),
+					'message'      => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'wp_kses_post',
+					),
+					'close_thread' => array(
+						'type'     => 'boolean',
+						'default'  => false,
+						'required' => false,
+					),
+				),
+			)
+		);
 
-        register_rest_route('mhm-rentiva/v1', '/customer/messages', [
-            'methods' => 'POST',
-            'callback' => [SendMessage::class, 'handle'],
-            'permission_callback' => 'is_user_logged_in', // WordPress login kontrolü
-            'args' => [
-                'category' => [
-                    'type' => 'string',
-                    'enum' => array_keys(Message::get_categories()),
-                    'required' => true,
-                ],
-                'subject' => [
-                    'type' => 'string',
-                    'required' => true,
-                    'sanitize_callback' => 'sanitize_text_field',
-                ],
-                'message' => [
-                    'type' => 'string',
-                    'required' => true,
-                    'sanitize_callback' => 'wp_kses_post',
-                ],
-                'booking_id' => [
-                    'type' => 'integer',
-                    'required' => false,
-                ],
-                'priority' => [
-                    'type' => 'string',
-                    'enum' => ['normal', 'high', 'urgent'],
-                    'required' => false,
-                    'default' => 'normal',
-                ],
-            ],
-        ]);
+		// Customer endpoints (WordPress User Auth)
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/customer/messages',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( CustomerGetMessages::class, 'handle' ),
+				'permission_callback' => 'is_user_logged_in', // WordPress login check
+			)
+		);
 
-        register_rest_route('mhm-rentiva/v1', '/customer/messages/thread/(?P<thread_id>[a-zA-Z0-9\-]+)', [
-            'methods' => 'GET',
-            'callback' => [GetThread::class, 'handle'],
-            'permission_callback' => 'is_user_logged_in', // WordPress login kontrolü
-            'args' => [
-                'thread_id' => [
-                    'type' => 'string',
-                    'required' => true,
-                ],
-            ],
-        ]);
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/customer/messages',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( SendMessage::class, 'handle' ),
+				'permission_callback' => 'is_user_logged_in', // WordPress login check
+				'args'                => array(
+					'category'   => array(
+						'type'     => 'string',
+						'enum'     => array_keys( Message::get_categories() ),
+						'required' => true,
+					),
+					'subject'    => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'message'    => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'wp_kses_post',
+					),
+					'booking_id' => array(
+						'type'     => 'integer',
+						'required' => false,
+					),
+					'priority'   => array(
+						'type'     => 'string',
+						'enum'     => array( 'normal', 'high', 'urgent' ),
+						'required' => false,
+						'default'  => 'normal',
+					),
+				),
+			)
+		);
 
-        register_rest_route('mhm-rentiva/v1', '/customer/messages/reply', [
-            'methods' => 'POST',
-            'callback' => [SendReply::class, 'handle'],
-            'permission_callback' => 'is_user_logged_in', // WordPress login kontrolü
-            'args' => [
-                'thread_id' => [
-                    'type' => 'string',
-                    'required' => true,
-                    'validate_callback' => function($param) {
-                        // Accept both integer (numeric string) and UUID
-                        return is_numeric($param) || preg_match('/^[a-zA-Z0-9\-]+$/', $param);
-                    },
-                ],
-                'message' => [
-                    'type' => 'string',
-                    'required' => true,
-                    'sanitize_callback' => 'wp_kses_post',
-                ],
-            ],
-        ]);
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/customer/messages/thread/(?P<thread_id>[a-zA-Z0-9\-]+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( GetThread::class, 'handle' ),
+				'permission_callback' => 'is_user_logged_in', // WordPress login check
+				'args'                => array(
+					'thread_id' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
 
-        // Customer bookings endpoint (for messages form)
-        register_rest_route('mhm-rentiva/v1', '/customer/bookings', [
-            'methods' => 'GET',
-            'callback' => [GetBookings::class, 'handle'],
-            'permission_callback' => 'is_user_logged_in', // WordPress login kontrolü
-        ]);
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/customer/messages/reply',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( SendReply::class, 'handle' ),
+				'permission_callback' => 'is_user_logged_in', // WordPress login check
+				'args'                => array(
+					'thread_id' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'validate_callback' => function ( $param ) {
+							// Accept both integer (numeric string) and UUID
+							return is_numeric( $param ) || preg_match( '/^[a-zA-Z0-9\-]+$/', $param );
+						},
+					),
+					'message'   => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'wp_kses_post',
+					),
+				),
+			)
+		);
 
-        // Customer close message endpoint
-        register_rest_route('mhm-rentiva/v1', '/customer/messages/close', [
-            'methods' => 'POST',
-            'callback' => [CloseMessage::class, 'handle'],
-            'permission_callback' => 'is_user_logged_in', // WordPress login kontrolü
-            'args' => [
-                'thread_id' => [
-                    'type' => 'string',
-                    'required' => true,
-                    'validate_callback' => function($param) {
-                        // Accept both integer (numeric string) and UUID
-                        return is_numeric($param) || preg_match('/^[a-zA-Z0-9\-]+$/', $param);
-                    },
-                ],
-            ],
-        ]);
-    }
+		// Customer bookings endpoint (for messages form)
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/customer/bookings',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( GetBookings::class, 'handle' ),
+				'permission_callback' => 'is_user_logged_in', // WordPress login check
+			)
+		);
+
+		// Customer close message endpoint
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/customer/messages/close',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( CloseMessage::class, 'handle' ),
+				'permission_callback' => 'is_user_logged_in', // WordPress login check
+				'args'                => array(
+					'thread_id' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'validate_callback' => function ( $param ) {
+							// Accept both integer (numeric string) and UUID
+							return is_numeric( $param ) || preg_match( '/^[a-zA-Z0-9\-]+$/', $param );
+						},
+					),
+				),
+			)
+		);
+	}
 }

@@ -1,12 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Widgets\Elementor;
 
 use MHMRentiva\Admin\Frontend\Widgets\Base\ElementorWidgetBase;
 use Elementor\Controls_Manager;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
@@ -16,134 +18,132 @@ if (!defined('ABSPATH')) {
  *
  * @since 3.0.1
  */
-class VehicleSearchWidget extends ElementorWidgetBase
-{
-    /**
-     * Widget slug.
-     */
-    public function get_name(): string
-    {
-        return 'rv-vehicle-search';
-    }
+class VehicleSearchWidget extends ElementorWidgetBase {
 
-    /**
-     * Widget title.
-     */
-    public function get_title(): string
-    {
-        return __('Vehicle Search', 'mhm-rentiva');
-    }
 
-    /**
-     * Widget description.
-     */
-    public function get_description(): string
-    {
-        return __('Advanced vehicle search form with filters', 'mhm-rentiva');
-    }
+	/**
+	 * Widget slug.
+	 */
+	public function get_name(): string {
+		return 'rv-vehicle-search';
+	}
 
-    /**
-     * Widget icon.
-     */
-    public function get_icon(): string
-    {
-        return 'eicon-search';
-    }
+	/**
+	 * Widget title.
+	 */
+	public function get_title(): string {
+		return __( 'Vehicle Search', 'mhm-rentiva' );
+	}
 
-    /**
-     * Widget keywords.
-     */
-    public function get_keywords(): array
-    {
-        return array_merge($this->widget_keywords, [
-            'search', 'find', 'filter', 'form'
-        ]);
-    }
+	/**
+	 * Widget description.
+	 */
+	public function get_description(): string {
+		return __( 'Advanced vehicle search form with filters', 'mhm-rentiva' );
+	}
 
-    /**
-     * Register content tab controls.
-     */
-    protected function register_content_controls(): void
-    {
-        $this->start_controls_section(
-            'general_section',
-            [
-                'label' => __('General Settings', 'mhm-rentiva'),
-                'tab' => Controls_Manager::TAB_CONTENT,
-            ]
-        );
+	/**
+	 * Widget icon.
+	 */
+	public function get_icon(): string {
+		return 'eicon-search';
+	}
 
-        $this->add_control(
-            'layout',
-            [
-                'label' => __('Layout', 'mhm-rentiva'),
-                'type' => Controls_Manager::SELECT,
-                'default' => 'compact',
-                'options' => [
-                    'default' => __('Default', 'mhm-rentiva'),
-                    'compact' => __('Compact', 'mhm-rentiva'),
-                ],
-            ]
-        );
+	/**
+	 * Widget keywords.
+	 */
+	public function get_keywords(): array {
+		return array_merge(
+			$this->widget_keywords,
+			array(
+				'search',
+				'find',
+				'filter',
+				'form',
+			)
+		);
+	}
 
-        $this->add_control(
-            'show_title',
-            [
-                'label' => __('Show Title', 'mhm-rentiva'),
-                'type' => Controls_Manager::SWITCHER,
-                'label_on' => __('Show', 'mhm-rentiva'),
-                'label_off' => __('Hide', 'mhm-rentiva'),
-                'return_value' => 'yes',
-                'default' => 'no',
-            ]
-        );
+	/**
+	 * Register content tab controls.
+	 */
+	protected function register_content_controls(): void {
+		$this->start_controls_section(
+			'general_section',
+			array(
+				'label' => __( 'General Settings', 'mhm-rentiva' ),
+				'tab'   => Controls_Manager::TAB_CONTENT,
+			)
+		);
 
-        $this->end_controls_section();
-    }
+		$this->add_control(
+			'layout',
+			array(
+				'label'   => __( 'Layout', 'mhm-rentiva' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => 'compact',
+				'options' => array(
+					'default' => __( 'Default', 'mhm-rentiva' ),
+					'compact' => __( 'Compact', 'mhm-rentiva' ),
+				),
+			)
+		);
 
-    /**
-     * Register style tab controls.
-     */
-    protected function register_style_controls(): void
-    {
-        // Style controls can be added here if needed
-    }
+		$this->add_control(
+			'show_title',
+			array(
+				'label'        => __( 'Show Title', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => 'yes',
+				'default'      => 'no',
+			)
+		);
 
-    /**
-     * Prepare shortcode attributes from widget settings.
-     */
-    protected function prepare_shortcode_attributes(array $settings): array
-    {
-        $atts = [];
+		$this->end_controls_section();
+	}
 
-        if (!empty($settings['layout'])) {
-            $atts['layout'] = $settings['layout'];
-        }
+	/**
+	 * Register style tab controls.
+	 */
+	protected function register_style_controls(): void {
+		// Style controls can be added here if needed
+	}
 
-        if (isset($settings['show_title'])) {
-            $atts['show_title'] = ($settings['show_title'] === 'yes') ? '1' : '0';
-        }
+	/**
+	 * Prepare shortcode attributes from widget settings.
+	 */
+	protected function prepare_shortcode_attributes( array $settings ): array {
+		$atts = array();
 
-        return $atts;
-    }
+		if ( ! empty( $settings['layout'] ) ) {
+			$atts['layout'] = $settings['layout'];
+		}
 
-    /**
-     * Render widget output.
-     */
-    protected function render(): void
-    {
-        $settings = $this->get_settings_for_display();
-        
-        // Prepare shortcode attributes
-        $atts = $this->prepare_shortcode_attributes($settings);
-        
-        // Render shortcode output
-        $shortcode_output = $this->render_shortcode('rentiva_search', $atts);
-        
-        // Output widget wrapper
-        echo '<div class="elementor-widget-rv-vehicle-search">';
-        echo $shortcode_output;
-        echo '</div>';
-    }
+		if ( isset( $settings['show_title'] ) ) {
+			$atts['show_title'] = ( $settings['show_title'] === 'yes' ) ? '1' : '0';
+		}
+
+		return $atts;
+	}
+
+	/**
+	 * Render widget output.
+	 */
+	protected function render(): void {
+		$settings = $this->get_settings_for_display();
+
+		// Prepare shortcode attributes
+		$atts = $this->prepare_shortcode_attributes( $settings );
+
+		// Render shortcode output
+		$shortcode_output = $this->render_shortcode( 'rentiva_search', $atts );
+
+		// Output widget wrapper
+		echo '<div class="elementor-widget-rv-vehicle-search">';
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $shortcode_output;
+		echo '</div>';
+	}
 }
-

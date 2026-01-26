@@ -4,211 +4,213 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Blocks\Gutenberg;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
  * Gutenberg Integration Class
- * 
+ *
  * Registers MHM Rentiva shortcodes as Gutenberg blocks
- * 
+ *
  * @since 3.0.1
  */
-class GutenbergIntegration
-{
-    /**
-     * Registers blocks
-     */
-    public static function register_blocks(): void
-    {
-        // Vehicle Card Block
-        $vehicle_card_block = new VehicleCardBlock();
-        $vehicle_card_block->register();
+class GutenbergIntegration {
 
-        // Vehicles List Block
-        $vehicles_list_block = new VehiclesListBlock();
-        $vehicles_list_block->register();
+	/**
+	 * Registers blocks
+	 */
+	public static function register_blocks(): void {
+		// Vehicle Card Block
+		$vehicle_card_block = new VehicleCardBlock();
+		$vehicle_card_block->register();
 
-        // Booking Form Block
-        $booking_form_block = new BookingFormBlock();
-        $booking_form_block->register();
+		// Vehicles List Block
+		$vehicles_list_block = new VehiclesListBlock();
+		$vehicles_list_block->register();
 
-        // Other blocks will be added here
-        // $vehicle_search_block = new VehicleSearchBlock();
-        // $quick_booking_block = new QuickBookingBlock();
-    }
+		// Booking Form Block
+		$booking_form_block = new BookingFormBlock();
+		$booking_form_block->register();
 
-    /**
-     * Registers block category
-     */
-    public static function register_category(): void
-    {
-        // Add block category
-        add_filter('block_categories_all', [self::class, 'add_block_category'], 10, 2);
-    }
+		// Other blocks will be added here
+		// $vehicle_search_block = new VehicleSearchBlock();
+		// $quick_booking_block = new QuickBookingBlock();
+	}
 
-    /**
-     * Adds block category
-     * 
-     * @param array $categories Current categories
-     * @param \WP_Block_Editor_Context $context Block editor context
-     * @return array Updated categories
-     */
-    public static function add_block_category(array $categories, $context): array
-    {
-        return array_merge($categories, [
-            [
-                'slug' => 'mhm-rentiva',
-                'title' => __('MHM Rentiva', 'mhm-rentiva'),
-                'icon' => 'car',
-            ],
-        ]);
-    }
+	/**
+	 * Registers block category
+	 */
+	public static function register_category(): void {
+		// Add block category
+		add_filter( 'block_categories_all', array( self::class, 'add_block_category' ), 10, 2 );
+	}
 
-    /**
-     * Loads Gutenberg CSS files
-     */
-    public static function enqueue_editor_styles(): void
-    {
-        // Editor CSS
-        wp_enqueue_style(
-            'mhm-rentiva-gutenberg-blocks-editor',
-            MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/gutenberg-blocks-editor.css',
-            ['wp-edit-blocks'],
-            MHM_RENTIVA_VERSION
-        );
-    }
+	/**
+	 * Adds block category
+	 *
+	 * @param array                    $categories Current categories
+	 * @param \WP_Block_Editor_Context $context Block editor context
+	 * @return array Updated categories
+	 */
+	public static function add_block_category( array $categories, $context ): array {
+		return array_merge(
+			$categories,
+			array(
+				array(
+					'slug'  => 'mhm-rentiva',
+					'title' => __( 'MHM Rentiva', 'mhm-rentiva' ),
+					'icon'  => 'car',
+				),
+			)
+		);
+	}
 
-    /**
-     * Loads Gutenberg JavaScript files
-     */
-    public static function enqueue_editor_scripts(): void
-    {
-        // Editor JavaScript
-        wp_enqueue_script(
-            'mhm-rentiva-gutenberg-blocks',
-            MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/gutenberg-blocks.js',
-            ['wp-blocks', 'wp-element', 'wp-components', 'wp-i18n', 'wp-block-editor'],
-            MHM_RENTIVA_VERSION,
-            true
-        );
+	/**
+	 * Loads Gutenberg CSS files
+	 */
+	public static function enqueue_editor_styles(): void {
+		// Editor CSS
+		wp_enqueue_style(
+			'mhm-rentiva-gutenberg-blocks-editor',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/gutenberg-blocks-editor.css',
+			array( 'wp-edit-blocks' ),
+			MHM_RENTIVA_VERSION
+		);
+	}
 
-        // Localize script
-        wp_localize_script('mhm-rentiva-gutenberg-blocks', 'mhmRentivaGutenberg', [
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('mhm_rentiva_gutenberg'),
-            'vehicleOptions' => self::get_vehicle_options_for_js(),
-            'i18n' => [
-                'select_vehicle' => __('Select Vehicle', 'mhm-rentiva'),
-                'no_vehicles' => __('No vehicles found', 'mhm-rentiva'),
-                'loading' => __('Loading...', 'mhm-rentiva'),
-            ],
-        ]);
+	/**
+	 * Loads Gutenberg JavaScript files
+	 */
+	public static function enqueue_editor_scripts(): void {
+		// Editor JavaScript
+		wp_enqueue_script(
+			'mhm-rentiva-gutenberg-blocks',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/gutenberg-blocks.js',
+			array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-i18n', 'wp-block-editor' ),
+			MHM_RENTIVA_VERSION,
+			true
+		);
 
-        // JavaScript translation
-        wp_set_script_translations(
-            'mhm-rentiva-gutenberg-blocks',
-            'mhm-rentiva',
-            MHM_RENTIVA_PLUGIN_PATH . 'languages'
-        );
-    }
+		// Localize script
+		wp_localize_script(
+			'mhm-rentiva-gutenberg-blocks',
+			'mhmRentivaGutenberg',
+			array(
+				'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+				'nonce'          => wp_create_nonce( 'mhm_rentiva_gutenberg' ),
+				'vehicleOptions' => self::get_vehicle_options_for_js(),
+				'i18n'           => array(
+					'select_vehicle' => __( 'Select Vehicle', 'mhm-rentiva' ),
+					'no_vehicles'    => __( 'No vehicles found', 'mhm-rentiva' ),
+					'loading'        => __( 'Loading...', 'mhm-rentiva' ),
+				),
+			)
+		);
 
-    /**
-     * Loads frontend CSS files
-     */
-    public static function enqueue_frontend_styles(): void
-    {
-        // Frontend CSS
-        wp_enqueue_style(
-            'mhm-rentiva-gutenberg-blocks',
-            MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/gutenberg-blocks.css',
-            [],
-            MHM_RENTIVA_VERSION
-        );
-    }
+		// JavaScript translation
+		wp_set_script_translations(
+			'mhm-rentiva-gutenberg-blocks',
+			'mhm-rentiva',
+			MHM_RENTIVA_PLUGIN_PATH . 'languages'
+		);
+	}
 
-    /**
-     * Returns vehicle options for JavaScript
-     * 
-     * @return array Vehicle options
-     */
-    protected static function get_vehicle_options_for_js(): array
-    {
-        $vehicles = get_posts([
-            'post_type' => 'vehicle',
-            'post_status' => 'publish',
-            'numberposts' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC',
-        ]);
+	/**
+	 * Loads frontend CSS files
+	 */
+	public static function enqueue_frontend_styles(): void {
+		// Frontend CSS
+		wp_enqueue_style(
+			'mhm-rentiva-gutenberg-blocks',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/gutenberg-blocks.css',
+			array(),
+			MHM_RENTIVA_VERSION
+		);
+	}
 
-        $options = [
-            ['value' => 0, 'label' => __('Select Vehicle', 'mhm-rentiva')],
-        ];
+	/**
+	 * Returns vehicle options for JavaScript
+	 *
+	 * @return array Vehicle options
+	 */
+	protected static function get_vehicle_options_for_js(): array {
+		$vehicles = get_posts(
+			array(
+				'post_type'   => 'vehicle',
+				'post_status' => 'publish',
+				'numberposts' => -1,
+				'orderby'     => 'title',
+				'order'       => 'ASC',
+			)
+		);
 
-        foreach ($vehicles as $vehicle) {
-            $options[] = [
-                'value' => $vehicle->ID,
-                'label' => $vehicle->post_title,
-            ];
-        }
+		$options = array(
+			array(
+				'value' => 0,
+				'label' => __( 'Select Vehicle', 'mhm-rentiva' ),
+			),
+		);
 
-        return $options;
-    }
+		foreach ( $vehicles as $vehicle ) {
+			$options[] = array(
+				'value' => $vehicle->ID,
+				'label' => $vehicle->post_title,
+			);
+		}
 
-    /**
-     * AJAX handler - Get vehicle options
-     */
-    public static function ajax_get_vehicle_options(): void
-    {
-        // Nonce verification
-        if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_gutenberg')) {
-            wp_send_json_error(['message' => __('Security error', 'mhm-rentiva')]);
-        }
+		return $options;
+	}
 
-        // Capability check
-        if (!current_user_can('edit_posts')) {
-            wp_send_json_error(['message' => __('Permission error', 'mhm-rentiva')]);
-        }
+	/**
+	 * AJAX handler - Get vehicle options
+	 */
+	public static function ajax_get_vehicle_options(): void {
+		// Nonce verification
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_rentiva_gutenberg' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Security error', 'mhm-rentiva' ) ) );
+		}
 
-        $options = self::get_vehicle_options_for_js();
-        wp_send_json_success(['options' => $options]);
-    }
+		// Capability check
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission error', 'mhm-rentiva' ) ) );
+		}
 
-    /**
-     * Registers Gutenberg hooks
-     */
-    public static function register_hooks(): void
-    {
-        // Register blocks
-        add_action('init', [self::class, 'register_blocks']);
+		$options = self::get_vehicle_options_for_js();
+		wp_send_json_success( array( 'options' => $options ) );
+	}
 
-        // Register block category
-        self::register_category();
+	/**
+	 * Registers Gutenberg hooks
+	 */
+	public static function register_hooks(): void {
+		// Register blocks
+		add_action( 'init', array( self::class, 'register_blocks' ) );
 
-        // Load editor CSS/JS
-        add_action('enqueue_block_editor_assets', [self::class, 'enqueue_editor_styles']);
-        add_action('enqueue_block_editor_assets', [self::class, 'enqueue_editor_scripts']);
+		// Register block category
+		self::register_category();
 
-        // Load frontend CSS
-        add_action('wp_enqueue_scripts', [self::class, 'enqueue_frontend_styles']);
+		// Load editor CSS/JS
+		add_action( 'enqueue_block_editor_assets', array( self::class, 'enqueue_editor_styles' ) );
+		add_action( 'enqueue_block_editor_assets', array( self::class, 'enqueue_editor_scripts' ) );
 
-        // AJAX handlers
-        add_action('wp_ajax_mhm_rentiva_get_vehicle_options', [self::class, 'ajax_get_vehicle_options']);
-    }
+		// Load frontend CSS
+		add_action( 'wp_enqueue_scripts', array( self::class, 'enqueue_frontend_styles' ) );
 
-    /**
-     * Initializes Gutenberg integration
-     */
-    public static function init(): void
-    {
-        // Check if Gutenberg is active
-        if (!function_exists('register_block_type')) {
-            return;
-        }
+		// AJAX handlers
+		add_action( 'wp_ajax_mhm_rentiva_get_vehicle_options', array( self::class, 'ajax_get_vehicle_options' ) );
+	}
 
-        // Register hooks
-        self::register_hooks();
-    }
+	/**
+	 * Initializes Gutenberg integration
+	 */
+	public static function init(): void {
+		// Check if Gutenberg is active
+		if ( ! function_exists( 'register_block_type' ) ) {
+			return;
+		}
+
+		// Register hooks
+		self::register_hooks();
+	}
 }

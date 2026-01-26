@@ -1,8 +1,30 @@
 [
     {
+        "version": "4.6.5",
+        "date": "2026-01-26",
+        "type": "current",
+        "changes": [
+            "🛡️ SECURITY FIX: 50+ WPCS issues resolved (Input Sanitization & DB Interpolation).",
+            "🛡️ SECURITY FIX: Hardened `Handler.php` and `AccountController.php` against XSS.",
+            "🔧 REFACTOR: Replaced legacy `error_log` with `AdvancedLogger`."
+        ]
+    },
+    {
+        "version": "4.6.4",
+        "date": "2026-01-26",
+        "type": "previous",
+        "changes": [
+            "🛡️ SECURITY: Hardened output escaping in About, System Info, and Admin Tabs using esc_html and wp_kses_post.",
+            "🔒 DATA INTEGRITY: Enhanced sanitization for price and ID fields in AddonManager and Booking Meta Boxes.",
+            "🌐 LOCALIZATION: Translated remaining Turkish administrative strings in Manual Booking and Vehicle management to English.",
+            "🎨 UI FIX: Resolved hardcoded currency symbol issues in Booking Edit screens for better multi-currency support.",
+            "🧹 CLEANUP: Optimized SQL queries with proper preparation in Vehicle Columns and System Info classes."
+        ]
+    },
+    {
         "version": "4.6.3",
         "date": "2026-01-25",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🛡️ SECURITY: SQL Injection protection hardened for message search queries using prepared statements.",
             "📡 REST API: Completely refactored Integration Settings to ensure backend AJAX button reliability.",
@@ -64,7 +86,7 @@
     {
         "version": "4.5.5",
         "date": "2026-01-15",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🎨 FRONTEND POLISH: Fixed \"Out of Use\" badge logic and standardizing placement. Fixed mobile overflow issues on Vehicle Details.",
             "💄 SEARCH UI: Standardized button colors (blue theme) and added \"Out of Use\" status indicators on Search Results.",

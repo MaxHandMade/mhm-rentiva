@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * MHM Rentiva Plugin - Meta Keys Documentation
@@ -12,8 +14,8 @@
 
 namespace MHMRentiva\Admin\Utilities\Database;
 
-if (!defined('ABSPATH')) {
-    exit;
+if (! defined('ABSPATH')) {
+	exit;
 }
 
 /**
@@ -23,562 +25,556 @@ if (!defined('ABSPATH')) {
  */
 final class MetaKeysDocumentation
 {
-    
-    /**
-     * List of meta keys by category
-     */
-    public static function get_meta_keys_documentation(): array {
-        return [
-            
-            // ========================================
-            // VEHICLE META KEYS
-            // ========================================
-            'vehicle' => [
-                'description' => 'Meta keys used for vehicle information',
-                'keys' => [
-                    '_mhm_vehicle_availability' => [
-                        'type' => 'string',
-                        'values' => ['active', 'inactive'],
-                        'description' => 'Vehicle availability status (STANDARD)',
-                        'required' => true,
-                        'usage' => 'Vehicle listing, booking control'
-                    ],
-                    '_mhm_vehicle_status' => [
-                        'type' => 'string', 
-                        'values' => ['active', 'inactive'],
-                        'description' => 'Vehicle status (backup)',
-                        'required' => false,
-                        'usage' => 'Vehicle management'
-                    ],
-                    '_mhm_rentiva_availability' => [
-                        'type' => 'string',
-                        'values' => ['active', 'inactive'],
-                        'description' => 'Vehicle availability status (OLD FORMAT - TO BE REMOVED)',
-                        'required' => false,
-                        'usage' => 'Backward compatibility',
-                        'deprecated' => true
-                    ],
-                    '_mhm_rentiva_price_per_day' => [
-                        'type' => 'number',
-                        'values' => 'numeric',
-                        'description' => 'Daily rental price',
-                        'required' => true,
-                        'usage' => 'Price calculation'
-                    ],
-                    '_mhm_rentiva_brand' => [
-                        'type' => 'string',
-                        'values' => 'text',
-                        'description' => 'Vehicle brand',
-                        'required' => true,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_model' => [
-                        'type' => 'string',
-                        'values' => 'text',
-                        'description' => 'Vehicle model',
-                        'required' => true,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_year' => [
-                        'type' => 'number',
-                        'values' => 'year (4 digits)',
-                        'description' => 'Vehicle year',
-                        'required' => true,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_color' => [
-                        'type' => 'string',
-                        'values' => 'text',
-                        'description' => 'Vehicle color',
-                        'required' => true,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_seats' => [
-                        'type' => 'number',
-                        'values' => 'integer',
-                        'description' => 'Number of seats',
-                        'required' => true,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_doors' => [
-                        'type' => 'number',
-                        'values' => 'integer',
-                        'description' => 'Number of doors',
-                        'required' => true,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_transmission' => [
-                        'type' => 'string',
-                        'values' => ['manual', 'auto'],
-                        'description' => 'Transmission type',
-                        'required' => true,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_fuel_type' => [
-                        'type' => 'string',
-                        'values' => ['petrol', 'diesel', 'hybrid', 'electric'],
-                        'description' => 'Fuel type',
-                        'required' => true,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_engine_size' => [
-                        'type' => 'number',
-                        'values' => 'decimal',
-                        'description' => 'Engine displacement',
-                        'required' => true,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_mileage' => [
-                        'type' => 'number',
-                        'values' => 'integer',
-                        'description' => 'Mileage',
-                        'required' => true,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_license_plate' => [
-                        'type' => 'string',
-                        'values' => 'text',
-                        'description' => 'License plate',
-                        'required' => true,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_deposit' => [
-                        'type' => 'number',
-                        'values' => 'percentage',
-                        'description' => 'Deposit percentage',
-                        'required' => true,
-                        'usage' => 'Price calculation'
-                    ],
-                    '_mhm_rentiva_features' => [
-                        'type' => 'array',
-                        'values' => 'serialized array',
-                        'description' => 'Vehicle features',
-                        'required' => false,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_equipment' => [
-                        'type' => 'array',
-                        'values' => 'serialized array',
-                        'description' => 'Vehicle equipment',
-                        'required' => false,
-                        'usage' => 'Vehicle information'
-                    ],
-                    '_mhm_rentiva_gallery_images' => [
-                        'type' => 'array',
-                        'values' => 'JSON array',
-                        'description' => 'Vehicle gallery images',
-                        'required' => false,
-                        'usage' => 'Vehicle gallery'
-                    ],
-                    '_mhm_rentiva_rating_average' => [
-                        'type' => 'number',
-                        'values' => 'decimal (0-5)',
-                        'description' => 'Average rating',
-                        'required' => false,
-                        'usage' => 'Vehicle rating'
-                    ],
-                    '_mhm_rentiva_rating_count' => [
-                        'type' => 'number',
-                        'values' => 'integer',
-                        'description' => 'Rating count',
-                        'required' => false,
-                        'usage' => 'Vehicle rating'
-                    ]
-                ]
-            ],
-            
-            // ========================================
-            // BOOKING META KEYS
-            // ========================================
-            'booking' => [
-                'description' => 'Meta keys used for booking information',
-                'keys' => [
-                    '_mhm_vehicle_id' => [
-                        'type' => 'number',
-                        'values' => 'post_id',
-                        'description' => 'ID of the vehicle being booked',
-                        'required' => true,
-                        'usage' => 'Booking-vehicle relationship'
-                    ],
-                    '_mhm_status' => [
-                        'type' => 'string',
-                        'values' => ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'],
-                        'description' => 'Booking status',
-                        'required' => true,
-                        'usage' => 'Booking management'
-                    ],
-                    '_mhm_booking_type' => [
-                        'type' => 'string',
-                        'values' => ['online', 'manual'],
-                        'description' => 'Booking type',
-                        'required' => true,
-                        'usage' => 'Booking management'
-                    ],
-                    '_mhm_created_via' => [
-                        'type' => 'string',
-                        'values' => ['frontend', 'admin', 'api'],
-                        'description' => 'Booking creation method',
-                        'required' => true,
-                        'usage' => 'Booking management'
-                    ],
-                    '_mhm_created_by' => [
-                        'type' => 'number',
-                        'values' => 'user_id',
-                        'description' => 'User ID who created the booking',
-                        'required' => true,
-                        'usage' => 'Booking management'
-                    ],
-                    '_mhm_booking_created' => [
-                        'type' => 'string',
-                        'values' => 'datetime',
-                        'description' => 'Booking creation date',
-                        'required' => true,
-                        'usage' => 'Booking management'
-                    ],
-                    '_mhm_start_date' => [
-                        'type' => 'string',
-                        'values' => 'date (Y-m-d)',
-                        'description' => 'Start date',
-                        'required' => true,
-                        'usage' => 'Booking dates'
-                    ],
-                    '_mhm_start_time' => [
-                        'type' => 'string',
-                        'values' => 'time (H:i)',
-                        'description' => 'Start time',
-                        'required' => true,
-                        'usage' => 'Booking dates'
-                    ],
-                    '_mhm_start_ts' => [
-                        'type' => 'number',
-                        'values' => 'timestamp',
-                        'description' => 'Start timestamp',
-                        'required' => true,
-                        'usage' => 'Booking dates (for queries)'
-                    ],
-                    '_mhm_end_date' => [
-                        'type' => 'string',
-                        'values' => 'date (Y-m-d)',
-                        'description' => 'End date',
-                        'required' => true,
-                        'usage' => 'Booking dates'
-                    ],
-                    '_mhm_end_time' => [
-                        'type' => 'string',
-                        'values' => 'time (H:i)',
-                        'description' => 'End time',
-                        'required' => true,
-                        'usage' => 'Booking dates'
-                    ],
-                    '_mhm_end_ts' => [
-                        'type' => 'number',
-                        'values' => 'timestamp',
-                        'description' => 'End timestamp',
-                        'required' => true,
-                        'usage' => 'Booking dates (for queries)'
-                    ],
-                    '_mhm_pickup_date' => [
-                        'type' => 'string',
-                        'values' => 'date (Y-m-d)',
-                        'description' => 'Pickup date',
-                        'required' => true,
-                        'usage' => 'Booking dates'
-                    ],
-                    '_mhm_pickup_time' => [
-                        'type' => 'string',
-                        'values' => 'time (H:i)',
-                        'description' => 'Pickup time',
-                        'required' => true,
-                        'usage' => 'Booking dates'
-                    ],
-                    '_mhm_dropoff_date' => [
-                        'type' => 'string',
-                        'values' => 'date (Y-m-d)',
-                        'description' => 'Drop-off date',
-                        'required' => true,
-                        'usage' => 'Booking dates'
-                    ],
-                    '_mhm_dropoff_time' => [
-                        'type' => 'string',
-                        'values' => 'time (H:i)',
-                        'description' => 'Drop-off time',
-                        'required' => true,
-                        'usage' => 'Booking dates'
-                    ],
-                    '_mhm_rental_days' => [
-                        'type' => 'number',
-                        'values' => 'integer',
-                        'description' => 'Number of rental days',
-                        'required' => true,
-                        'usage' => 'Price calculation'
-                    ],
-                    '_mhm_guests' => [
-                        'type' => 'number',
-                        'values' => 'integer',
-                        'description' => 'Number of guests',
-                        'required' => true,
-                        'usage' => 'Booking information'
-                    ]
-                ]
-            ],
-            
-            // ========================================
-            // CUSTOMER META KEYS
-            // ========================================
-            'customer' => [
-                'description' => 'Meta keys used for customer information',
-                'keys' => [
-                    '_mhm_customer_user_id' => [
-                        'type' => 'number',
-                        'values' => 'user_id',
-                        'description' => 'Customer user ID',
-                        'required' => false,
-                        'usage' => 'Customer relationship'
-                    ],
-                    '_mhm_customer_name' => [
-                        'type' => 'string',
-                        'values' => 'text',
-                        'description' => 'Customer full name',
-                        'required' => true,
-                        'usage' => 'Customer information'
-                    ],
-                    '_mhm_customer_first_name' => [
-                        'type' => 'string',
-                        'values' => 'text',
-                        'description' => 'Customer first name',
-                        'required' => true,
-                        'usage' => 'Customer information'
-                    ],
-                    '_mhm_customer_last_name' => [
-                        'type' => 'string',
-                        'values' => 'text',
-                        'description' => 'Customer last name',
-                        'required' => true,
-                        'usage' => 'Customer information'
-                    ],
-                    '_mhm_customer_email' => [
-                        'type' => 'string',
-                        'values' => 'email',
-                        'description' => 'Customer email',
-                        'required' => true,
-                        'usage' => 'Customer information'
-                    ],
-                    '_mhm_customer_phone' => [
-                        'type' => 'string',
-                        'values' => 'text',
-                        'description' => 'Customer phone',
-                        'required' => true,
-                        'usage' => 'Customer information'
-                    ]
-                ]
-            ],
-            
-            // ========================================
-            // PAYMENT META KEYS
-            // ========================================
-            'payment' => [
-                'description' => 'Meta keys used for payment information',
-                'keys' => [
-                    '_mhm_payment_method' => [
-                        'type' => 'string',
-                        'values' => ['woocommerce'],
-                        'description' => 'Payment method (WooCommerce only)',
-                        'required' => true,
-                        'usage' => 'Payment management'
-                    ],
-                    '_mhm_payment_gateway' => [
-                        'type' => 'string',
-                        'values' => ['woocommerce'],
-                        'description' => 'Payment gateway (WooCommerce only)',
-                        'required' => true,
-                        'usage' => 'Payment management'
-                    ],
-                    '_mhm_payment_type' => [
-                        'type' => 'string',
-                        'values' => ['full', 'deposit'],
-                        'description' => 'Payment type',
-                        'required' => true,
-                        'usage' => 'Payment management'
-                    ],
-                    '_mhm_payment_status' => [
-                        'type' => 'string',
-                        'values' => ['pending', 'completed', 'failed', 'refunded', 'pending_verification'],
-                        'description' => 'Payment status',
-                        'required' => true,
-                        'usage' => 'Payment management'
-                    ],
-                    '_mhm_payment_deadline' => [
-                        'type' => 'string',
-                        'values' => 'datetime',
-                        'description' => 'Payment deadline',
-                        'required' => false,
-                        'usage' => 'Payment deadline control (for auto-cancellation)'
-                    ],
-                    '_mhm_payment_display' => [
-                        'type' => 'string',
-                        'values' => 'text',
-                        'description' => 'Payment display text',
-                        'required' => false,
-                        'usage' => 'Payment management'
-                    ],
-                    '_mhm_total_price' => [
-                        'type' => 'number',
-                        'values' => 'decimal',
-                        'description' => 'Total price',
-                        'required' => true,
-                        'usage' => 'Price calculation'
-                    ],
-                    '_mhm_deposit_amount' => [
-                        'type' => 'number',
-                        'values' => 'decimal',
-                        'description' => 'Deposit amount',
-                        'required' => true,
-                        'usage' => 'Price calculation'
-                    ],
-                    '_mhm_deposit_type' => [
-                        'type' => 'string',
-                        'values' => ['percentage', 'fixed'],
-                        'description' => 'Deposit type',
-                        'required' => true,
-                        'usage' => 'Price calculation'
-                    ],
-                    '_mhm_remaining_amount' => [
-                        'type' => 'number',
-                        'values' => 'decimal',
-                        'description' => 'Remaining amount',
-                        'required' => true,
-                        'usage' => 'Price calculation'
-                    ],
-                    '_mhm_selected_addons' => [
-                        'type' => 'array',
-                        'values' => 'serialized array',
-                        'description' => 'Selected additional services',
-                        'required' => false,
-                        'usage' => 'Price calculation'
-                    ]
-                ]
-            ],
-            
-            // ========================================
-            // RECEIPT META KEYS
-            // ========================================
-            'receipt' => [
-                'description' => 'Meta keys used for receipt information',
-                'keys' => [
-                    '_mhm_receipt_status' => [
-                        'type' => 'string',
-                        'values' => ['submitted', 'approved', 'rejected'],
-                        'description' => 'Receipt status',
-                        'required' => false,
-                        'usage' => 'Receipt management'
-                    ],
-                    '_mhm_receipt_attachment_id' => [
-                        'type' => 'number',
-                        'values' => 'attachment_id',
-                        'description' => 'Receipt file ID',
-                        'required' => false,
-                        'usage' => 'Receipt management'
-                    ],
-                    '_mhm_receipt_uploaded_at' => [
-                        'type' => 'string',
-                        'values' => 'datetime',
-                        'description' => 'Receipt upload date',
-                        'required' => false,
-                        'usage' => 'Receipt management'
-                    ],
-                    '_mhm_receipt_uploaded_by' => [
-                        'type' => 'number',
-                        'values' => 'user_id',
-                        'description' => 'User ID who uploaded receipt',
-                        'required' => false,
-                        'usage' => 'Receipt management'
-                    ]
-                ]
-            ],
-            
-            // ========================================
-            // SYSTEM META KEYS
-            // ========================================
-            'system' => [
-                'description' => 'Meta keys used for system information',
-                'keys' => [
-                    '_mhm_shortcode' => [
-                        'type' => 'string',
-                        'values' => 'text',
-                        'description' => 'Shortcode information',
-                        'required' => false,
-                        'usage' => 'System management'
-                    ],
-                    '_mhm_auto_created' => [
-                        'type' => 'string',
-                        'values' => 'boolean',
-                        'description' => 'Automatically created',
-                        'required' => false,
-                        'usage' => 'System management'
-                    ],
-                    '_mhm_booking_history' => [
-                        'type' => 'array',
-                        'values' => 'serialized array',
-                        'description' => 'Booking history',
-                        'required' => false,
-                        'usage' => 'System management'
-                    ],
-                    '_mhm_booking_logs' => [
-                        'type' => 'array',
-                        'values' => 'serialized array',
-                        'description' => 'Booking logs',
-                        'required' => false,
-                        'usage' => 'System management'
-                    ],
-                    '_mhm_cancellation_deadline' => [
-                        'type' => 'string',
-                        'values' => 'datetime',
-                        'description' => 'Cancellation deadline',
-                        'required' => false,
-                        'usage' => 'Cancellation management'
-                    ],
-                    '_mhm_cancellation_policy' => [
-                        'type' => 'string',
-                        'values' => 'text',
-                        'description' => 'Cancellation policy',
-                        'required' => false,
-                        'usage' => 'Cancellation management'
-                    ],
-                    '_mhm_removed_details' => [
-                        'type' => 'array',
-                        'values' => 'serialized array',
-                        'description' => 'Removed details',
-                        'required' => false,
-                        'usage' => 'System management'
-                    ],
-                    '_mhm_custom_details' => [
-                        'type' => 'array',
-                        'values' => 'serialized array',
-                        'description' => 'Custom details',
-                        'required' => false,
-                        'usage' => 'System management'
-                    ]
-                ]
-            ]
-        ];
-    }
-    
-    /**
-     * Generate HTML documentation for meta keys
-     */
-    public static function generate_html_documentation(): string
-    {
-        // Load plugin textdomain
-        if (!function_exists('mhm_rentiva_load_textdomain')) {
-            function mhm_rentiva_load_textdomain() {
-                load_plugin_textdomain('mhm-rentiva', false, dirname(plugin_basename(__FILE__), 4) . '/languages/');
-            }
-            mhm_rentiva_load_textdomain();
-        }
-        
-        $meta_keys = self::get_meta_keys_documentation();
 
-        $html = '<!DOCTYPE html>
+
+	/**
+	 * List of meta keys by category
+	 */
+	public static function get_meta_keys_documentation(): array
+	{
+		return array(
+
+			// ========================================
+			// VEHICLE META KEYS
+			// ========================================
+			'vehicle'  => array(
+				'description' => 'Meta keys used for vehicle information',
+				'keys'        => array(
+					'_mhm_vehicle_availability'   => array(
+						'type'        => 'string',
+						'values'      => array('active', 'inactive'),
+						'description' => 'Vehicle availability status (STANDARD)',
+						'required'    => true,
+						'usage'       => 'Vehicle listing, booking control',
+					),
+					'_mhm_vehicle_status'         => array(
+						'type'        => 'string',
+						'values'      => array('active', 'inactive'),
+						'description' => 'Vehicle status (backup)',
+						'required'    => false,
+						'usage'       => 'Vehicle management',
+					),
+					'_mhm_rentiva_availability'   => array(
+						'type'        => 'string',
+						'values'      => array('active', 'inactive'),
+						'description' => 'Vehicle availability status (OLD FORMAT - TO BE REMOVED)',
+						'required'    => false,
+						'usage'       => 'Backward compatibility',
+						'deprecated'  => true,
+					),
+					'_mhm_rentiva_price_per_day'  => array(
+						'type'        => 'number',
+						'values'      => 'numeric',
+						'description' => 'Daily rental price',
+						'required'    => true,
+						'usage'       => 'Price calculation',
+					),
+					'_mhm_rentiva_brand'          => array(
+						'type'        => 'string',
+						'values'      => 'text',
+						'description' => 'Vehicle brand',
+						'required'    => true,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_model'          => array(
+						'type'        => 'string',
+						'values'      => 'text',
+						'description' => 'Vehicle model',
+						'required'    => true,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_year'           => array(
+						'type'        => 'number',
+						'values'      => 'year (4 digits)',
+						'description' => 'Vehicle year',
+						'required'    => true,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_color'          => array(
+						'type'        => 'string',
+						'values'      => 'text',
+						'description' => 'Vehicle color',
+						'required'    => true,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_seats'          => array(
+						'type'        => 'number',
+						'values'      => 'integer',
+						'description' => 'Number of seats',
+						'required'    => true,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_doors'          => array(
+						'type'        => 'number',
+						'values'      => 'integer',
+						'description' => 'Number of doors',
+						'required'    => true,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_transmission'   => array(
+						'type'        => 'string',
+						'values'      => array('manual', 'auto'),
+						'description' => 'Transmission type',
+						'required'    => true,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_fuel_type'      => array(
+						'type'        => 'string',
+						'values'      => array('petrol', 'diesel', 'hybrid', 'electric'),
+						'description' => 'Fuel type',
+						'required'    => true,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_engine_size'    => array(
+						'type'        => 'number',
+						'values'      => 'decimal',
+						'description' => 'Engine displacement',
+						'required'    => true,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_mileage'        => array(
+						'type'        => 'number',
+						'values'      => 'integer',
+						'description' => 'Mileage',
+						'required'    => true,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_license_plate'  => array(
+						'type'        => 'string',
+						'values'      => 'text',
+						'description' => 'License plate',
+						'required'    => true,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_deposit'        => array(
+						'type'        => 'number',
+						'values'      => 'percentage',
+						'description' => 'Deposit percentage',
+						'required'    => true,
+						'usage'       => 'Price calculation',
+					),
+					'_mhm_rentiva_features'       => array(
+						'type'        => 'array',
+						'values'      => 'serialized array',
+						'description' => 'Vehicle features',
+						'required'    => false,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_equipment'      => array(
+						'type'        => 'array',
+						'values'      => 'serialized array',
+						'description' => 'Vehicle equipment',
+						'required'    => false,
+						'usage'       => 'Vehicle information',
+					),
+					'_mhm_rentiva_gallery_images' => array(
+						'type'        => 'array',
+						'values'      => 'JSON array',
+						'description' => 'Vehicle gallery images',
+						'required'    => false,
+						'usage'       => 'Vehicle gallery',
+					),
+					'_mhm_rentiva_rating_average' => array(
+						'type'        => 'number',
+						'values'      => 'decimal (0-5)',
+						'description' => 'Average rating',
+						'required'    => false,
+						'usage'       => 'Vehicle rating',
+					),
+					'_mhm_rentiva_rating_count'   => array(
+						'type'        => 'number',
+						'values'      => 'integer',
+						'description' => 'Rating count',
+						'required'    => false,
+						'usage'       => 'Vehicle rating',
+					),
+				),
+			),
+
+			// ========================================
+			// BOOKING META KEYS
+			// ========================================
+			'booking'  => array(
+				'description' => 'Meta keys used for booking information',
+				'keys'        => array(
+					'_mhm_vehicle_id'      => array(
+						'type'        => 'number',
+						'values'      => 'post_id',
+						'description' => 'ID of the vehicle being booked',
+						'required'    => true,
+						'usage'       => 'Booking-vehicle relationship',
+					),
+					'_mhm_status'          => array(
+						'type'        => 'string',
+						'values'      => array('pending', 'confirmed', 'in_progress', 'completed', 'cancelled'),
+						'description' => 'Booking status',
+						'required'    => true,
+						'usage'       => 'Booking management',
+					),
+					'_mhm_booking_type'    => array(
+						'type'        => 'string',
+						'values'      => array('online', 'manual'),
+						'description' => 'Booking type',
+						'required'    => true,
+						'usage'       => 'Booking management',
+					),
+					'_mhm_created_via'     => array(
+						'type'        => 'string',
+						'values'      => array('frontend', 'admin', 'api'),
+						'description' => 'Booking creation method',
+						'required'    => true,
+						'usage'       => 'Booking management',
+					),
+					'_mhm_created_by'      => array(
+						'type'        => 'number',
+						'values'      => 'user_id',
+						'description' => 'User ID who created the booking',
+						'required'    => true,
+						'usage'       => 'Booking management',
+					),
+					'_mhm_booking_created' => array(
+						'type'        => 'string',
+						'values'      => 'datetime',
+						'description' => 'Booking creation date',
+						'required'    => true,
+						'usage'       => 'Booking management',
+					),
+					'_mhm_start_date'      => array(
+						'type'        => 'string',
+						'values'      => 'date (Y-m-d)',
+						'description' => 'Start date',
+						'required'    => true,
+						'usage'       => 'Booking dates',
+					),
+					'_mhm_start_time'      => array(
+						'type'        => 'string',
+						'values'      => 'time (H:i)',
+						'description' => 'Start time',
+						'required'    => true,
+						'usage'       => 'Booking dates',
+					),
+					'_mhm_start_ts'        => array(
+						'type'        => 'number',
+						'values'      => 'timestamp',
+						'description' => 'Start timestamp',
+						'required'    => true,
+						'usage'       => 'Booking dates (for queries)',
+					),
+					'_mhm_end_date'        => array(
+						'type'        => 'string',
+						'values'      => 'date (Y-m-d)',
+						'description' => 'End date',
+						'required'    => true,
+						'usage'       => 'Booking dates',
+					),
+					'_mhm_end_time'        => array(
+						'type'        => 'string',
+						'values'      => 'time (H:i)',
+						'description' => 'End time',
+						'required'    => true,
+						'usage'       => 'Booking dates',
+					),
+					'_mhm_end_ts'          => array(
+						'type'        => 'number',
+						'values'      => 'timestamp',
+						'description' => 'End timestamp',
+						'required'    => true,
+						'usage'       => 'Booking dates (for queries)',
+					),
+					'_mhm_pickup_date'     => array(
+						'type'        => 'string',
+						'values'      => 'date (Y-m-d)',
+						'description' => 'Pickup date',
+						'required'    => true,
+						'usage'       => 'Booking dates',
+					),
+					'_mhm_pickup_time'     => array(
+						'type'        => 'string',
+						'values'      => 'time (H:i)',
+						'description' => 'Pickup time',
+						'required'    => true,
+						'usage'       => 'Booking dates',
+					),
+					'_mhm_dropoff_date'    => array(
+						'type'        => 'string',
+						'values'      => 'date (Y-m-d)',
+						'description' => 'Drop-off date',
+						'required'    => true,
+						'usage'       => 'Booking dates',
+					),
+					'_mhm_dropoff_time'    => array(
+						'type'        => 'string',
+						'values'      => 'time (H:i)',
+						'description' => 'Drop-off time',
+						'required'    => true,
+						'usage'       => 'Booking dates',
+					),
+					'_mhm_rental_days'     => array(
+						'type'        => 'number',
+						'values'      => 'integer',
+						'description' => 'Number of rental days',
+						'required'    => true,
+						'usage'       => 'Price calculation',
+					),
+					'_mhm_guests'          => array(
+						'type'        => 'number',
+						'values'      => 'integer',
+						'description' => 'Number of guests',
+						'required'    => true,
+						'usage'       => 'Booking information',
+					),
+				),
+			),
+
+			// ========================================
+			// CUSTOMER META KEYS
+			// ========================================
+			'customer' => array(
+				'description' => 'Meta keys used for customer information',
+				'keys'        => array(
+					'_mhm_customer_user_id'    => array(
+						'type'        => 'number',
+						'values'      => 'user_id',
+						'description' => 'Customer user ID',
+						'required'    => false,
+						'usage'       => 'Customer relationship',
+					),
+					'_mhm_customer_name'       => array(
+						'type'        => 'string',
+						'values'      => 'text',
+						'description' => 'Customer full name',
+						'required'    => true,
+						'usage'       => 'Customer information',
+					),
+					'_mhm_customer_first_name' => array(
+						'type'        => 'string',
+						'values'      => 'text',
+						'description' => 'Customer first name',
+						'required'    => true,
+						'usage'       => 'Customer information',
+					),
+					'_mhm_customer_last_name'  => array(
+						'type'        => 'string',
+						'values'      => 'text',
+						'description' => 'Customer last name',
+						'required'    => true,
+						'usage'       => 'Customer information',
+					),
+					'_mhm_customer_email'      => array(
+						'type'        => 'string',
+						'values'      => 'email',
+						'description' => 'Customer email',
+						'required'    => true,
+						'usage'       => 'Customer information',
+					),
+					'_mhm_customer_phone'      => array(
+						'type'        => 'string',
+						'values'      => 'text',
+						'description' => 'Customer phone',
+						'required'    => true,
+						'usage'       => 'Customer information',
+					),
+				),
+			),
+
+			// ========================================
+			// PAYMENT META KEYS
+			// ========================================
+			'payment'  => array(
+				'description' => 'Meta keys used for payment information',
+				'keys'        => array(
+					'_mhm_payment_method'   => array(
+						'type'        => 'string',
+						'values'      => array('woocommerce'),
+						'description' => 'Payment method (WooCommerce only)',
+						'required'    => true,
+						'usage'       => 'Payment management',
+					),
+					'_mhm_payment_gateway'  => array(
+						'type'        => 'string',
+						'values'      => array('woocommerce'),
+						'description' => 'Payment gateway (WooCommerce only)',
+						'required'    => true,
+						'usage'       => 'Payment management',
+					),
+					'_mhm_payment_type'     => array(
+						'type'        => 'string',
+						'values'      => array('full', 'deposit'),
+						'description' => 'Payment type',
+						'required'    => true,
+						'usage'       => 'Payment management',
+					),
+					'_mhm_payment_status'   => array(
+						'type'        => 'string',
+						'values'      => array('pending', 'completed', 'failed', 'refunded', 'pending_verification'),
+						'description' => 'Payment status',
+						'required'    => true,
+						'usage'       => 'Payment management',
+					),
+					'_mhm_payment_deadline' => array(
+						'type'        => 'string',
+						'values'      => 'datetime',
+						'description' => 'Payment deadline',
+						'required'    => false,
+						'usage'       => 'Payment deadline control (for auto-cancellation)',
+					),
+					'_mhm_payment_display'  => array(
+						'type'        => 'string',
+						'values'      => 'text',
+						'description' => 'Payment display text',
+						'required'    => false,
+						'usage'       => 'Payment management',
+					),
+					'_mhm_total_price'      => array(
+						'type'        => 'number',
+						'values'      => 'decimal',
+						'description' => 'Total price',
+						'required'    => true,
+						'usage'       => 'Price calculation',
+					),
+					'_mhm_deposit_amount'   => array(
+						'type'        => 'number',
+						'values'      => 'decimal',
+						'description' => 'Deposit amount',
+						'required'    => true,
+						'usage'       => 'Price calculation',
+					),
+					'_mhm_deposit_type'     => array(
+						'type'        => 'string',
+						'values'      => array('percentage', 'fixed'),
+						'description' => 'Deposit type',
+						'required'    => true,
+						'usage'       => 'Price calculation',
+					),
+					'_mhm_remaining_amount' => array(
+						'type'        => 'number',
+						'values'      => 'decimal',
+						'description' => 'Remaining amount',
+						'required'    => true,
+						'usage'       => 'Price calculation',
+					),
+					'_mhm_selected_addons'  => array(
+						'type'        => 'array',
+						'values'      => 'serialized array',
+						'description' => 'Selected additional services',
+						'required'    => false,
+						'usage'       => 'Price calculation',
+					),
+				),
+			),
+
+			// ========================================
+			// RECEIPT META KEYS
+			// ========================================
+			'receipt'  => array(
+				'description' => 'Meta keys used for receipt information',
+				'keys'        => array(
+					'_mhm_receipt_status'        => array(
+						'type'        => 'string',
+						'values'      => array('submitted', 'approved', 'rejected'),
+						'description' => 'Receipt status',
+						'required'    => false,
+						'usage'       => 'Receipt management',
+					),
+					'_mhm_receipt_attachment_id' => array(
+						'type'        => 'number',
+						'values'      => 'attachment_id',
+						'description' => 'Receipt file ID',
+						'required'    => false,
+						'usage'       => 'Receipt management',
+					),
+					'_mhm_receipt_uploaded_at'   => array(
+						'type'        => 'string',
+						'values'      => 'datetime',
+						'description' => 'Receipt upload date',
+						'required'    => false,
+						'usage'       => 'Receipt management',
+					),
+					'_mhm_receipt_uploaded_by'   => array(
+						'type'        => 'number',
+						'values'      => 'user_id',
+						'description' => 'User ID who uploaded receipt',
+						'required'    => false,
+						'usage'       => 'Receipt management',
+					),
+				),
+			),
+
+			// ========================================
+			// SYSTEM META KEYS
+			// ========================================
+			'system'   => array(
+				'description' => 'Meta keys used for system information',
+				'keys'        => array(
+					'_mhm_shortcode'             => array(
+						'type'        => 'string',
+						'values'      => 'text',
+						'description' => 'Shortcode information',
+						'required'    => false,
+						'usage'       => 'System management',
+					),
+					'_mhm_auto_created'          => array(
+						'type'        => 'string',
+						'values'      => 'boolean',
+						'description' => 'Automatically created',
+						'required'    => false,
+						'usage'       => 'System management',
+					),
+					'_mhm_booking_history'       => array(
+						'type'        => 'array',
+						'values'      => 'serialized array',
+						'description' => 'Booking history',
+						'required'    => false,
+						'usage'       => 'System management',
+					),
+					'_mhm_booking_logs'          => array(
+						'type'        => 'array',
+						'values'      => 'serialized array',
+						'description' => 'Booking logs',
+						'required'    => false,
+						'usage'       => 'System management',
+					),
+					'_mhm_cancellation_deadline' => array(
+						'type'        => 'string',
+						'values'      => 'datetime',
+						'description' => 'Cancellation deadline',
+						'required'    => false,
+						'usage'       => 'Cancellation management',
+					),
+					'_mhm_cancellation_policy'   => array(
+						'type'        => 'string',
+						'values'      => 'text',
+						'description' => 'Cancellation policy',
+						'required'    => false,
+						'usage'       => 'Cancellation management',
+					),
+					'_mhm_removed_details'       => array(
+						'type'        => 'array',
+						'values'      => 'serialized array',
+						'description' => 'Removed details',
+						'required'    => false,
+						'usage'       => 'System management',
+					),
+					'_mhm_custom_details'        => array(
+						'type'        => 'array',
+						'values'      => 'serialized array',
+						'description' => 'Custom details',
+						'required'    => false,
+						'usage'       => 'System management',
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Generate HTML documentation for meta keys
+	 */
+	public static function generate_html_documentation(): string
+	{
+		$meta_keys = self::get_meta_keys_documentation();
+
+		$html = '<!DOCTYPE html>
 <html lang="' . esc_attr(get_locale()) . '">
 <head>
     <meta charset="UTF-8">
@@ -607,21 +603,21 @@ final class MetaKeysDocumentation
 
         <div class="warning">
             <strong>' . esc_html__('⚠️ IMPORTANT:', 'mhm-rentiva') . '</strong> ' .
-            esc_html__('This documentation contains the standard list of all meta keys used in the plugin. Add new meta keys according to this documentation. Do not create inconsistent meta keys!', 'mhm-rentiva') . '
+			esc_html__('This documentation contains the standard list of all meta keys used in the plugin. Add new meta keys according to this documentation. Do not create inconsistent meta keys!', 'mhm-rentiva') . '
         </div>
 
         <p><strong>' . esc_html__('Last Update:', 'mhm-rentiva') . '</strong> ' . esc_html(current_time('d.m.Y H:i:s')) . '</p>
         <p><strong>' . esc_html__('Total Meta Key Count:', 'mhm-rentiva') . '</strong> ' . esc_html(self::count_total_meta_keys()) . '</p>';
 
-        foreach ($meta_keys as $category => $data) {
-            $html .= '<h2>' . esc_html(ucfirst($category) . ' Meta Keys') . '</h2>';
-            $html .= '<p><em>' . esc_html($data['description']) . '</em></p>';
+		foreach ($meta_keys as $category => $data) {
+			$html .= '<h2>' . esc_html(ucfirst($category) . ' Meta Keys') . '</h2>';
+			$html .= '<p><em>' . esc_html($data['description']) . '</em></p>';
 
-            foreach ($data['keys'] as $key => $info) {
-                $deprecated_class = isset($info['deprecated']) && $info['deprecated'] ? 'deprecated' : '';
-                $required_class = $info['required'] ? 'required' : 'optional';
+			foreach ($data['keys'] as $key => $info) {
+				$deprecated_class = isset($info['deprecated']) && $info['deprecated'] ? 'deprecated' : '';
+				$required_class   = $info['required'] ? 'required' : 'optional';
 
-                $html .= '<div class="meta-key ' . esc_attr($deprecated_class) . '">
+				$html .= '<div class="meta-key ' . esc_attr($deprecated_class) . '">
                     <div class="meta-key-name">' . esc_html($key) . '</div>
                     <div class="meta-key-info">
                         <span class="' . esc_attr($required_class) . '">' . esc_html($info['required'] ? esc_html__('Required', 'mhm-rentiva') : esc_html__('Optional', 'mhm-rentiva')) . '</span>
@@ -631,10 +627,10 @@ final class MetaKeysDocumentation
                     <div class="meta-key-description">' . esc_html($info['description']) . '</div>
                     <div class="meta-key-description"><strong>' . esc_html__('Usage:', 'mhm-rentiva') . '</strong> ' . esc_html($info['usage']) . '</div>
                 </div>';
-            }
-        }
+			}
+		}
 
-        $html .= '
+		$html .= '
         <h2>' . esc_html__('📋 Meta Key Usage Rules', 'mhm-rentiva') . '</h2>
         <div class="meta-key">
             <h3>' . esc_html__('✅ What Should Be Done:', 'mhm-rentiva') . '</h3>
@@ -668,18 +664,19 @@ final class MetaKeysDocumentation
 </body>
 </html>';
 
-        return $html;
-    }
-    
-    /**
-     * Calculate total meta key count
-     */
-    private static function count_total_meta_keys(): int {
-        $meta_keys = self::get_meta_keys_documentation();
-        $count = 0;
-        foreach ($meta_keys as $category => $data) {
-            $count += count($data['keys']);
-        }
-        return $count;
-    }
+		return $html;
+	}
+
+	/**
+	 * Calculate total meta key count
+	 */
+	private static function count_total_meta_keys(): int
+	{
+		$meta_keys = self::get_meta_keys_documentation();
+		$count     = 0;
+		foreach ($meta_keys as $category => $data) {
+			$count += count($data['keys']);
+		}
+		return $count;
+	}
 }

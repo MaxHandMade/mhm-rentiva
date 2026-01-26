@@ -1,35 +1,37 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\About;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
  * Helper functions class
  */
-final class Helpers
-{
-    /**
-     * Render external link
-     */
-    public static function render_external_link(string $url, string $text, array $attributes = []): string
-    {
-        $default_attrs = [
-            'href' => esc_url($url),
-            'target' => '_blank',
-            'rel' => 'noopener noreferrer',
-            'class' => 'external-link',
-        ];
+final class Helpers {
 
-        $attrs = array_merge($default_attrs, $attributes);
 
-        $attr_string = '';
-        foreach ($attrs as $key => $value) {
-            $attr_string .= sprintf(' %s="%s"', esc_attr($key), esc_attr($value));
-        }
+	/**
+	 * Render external link
+	 */
+	public static function render_external_link( string $url, string $text, array $attributes = array() ): string {
+		$default_attrs = array(
+			'href'   => esc_url( $url ),
+			'target' => '_blank',
+			'rel'    => 'noopener noreferrer',
+			'class'  => 'external-link',
+		);
 
-        return sprintf('<a%s>%s</a>', $attr_string, esc_html($text));
-    }
+		$attrs = array_merge( $default_attrs, $attributes );
+
+		$attr_string = '';
+		foreach ( $attrs as $key => $value ) {
+			$attr_string .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( $value ) );
+		}
+
+		return sprintf( '<a%s>%s</a>', wp_kses_post( $attr_string ), esc_html( $text ) );
+	}
 }

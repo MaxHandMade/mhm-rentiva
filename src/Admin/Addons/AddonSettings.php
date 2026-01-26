@@ -1,221 +1,264 @@
-<?php declare(strict_types=1);
+<?php
+
+/**
+ * Addon Settings Class.
+ *
+ * @package MHMRentiva\Admin\Addons
+ */
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Addons;
 
 use MHMRentiva\Admin\Addons\AddonManager;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-final class AddonSettings
-{
-    public const PAGE = 'mhm_rentiva_addon_settings';
+/**
+ * Handles settings for additional services.
+ */
+final class AddonSettings {
 
-    public static function register(): void
-    {
-        // WordPress Settings API registration
-        add_action('admin_init', [self::class, 'register_settings']);
-        add_action('wp_ajax_mhm_create_default_addons', [self::class, 'ajax_create_default_addons']);
-    }
 
-    /**
-     * Register WordPress Settings API
-     */
-    public static function register_settings(): void
-    {
-        // Register setting group
-        register_setting(
-            'mhm_rentiva_addon_settings',
-            'mhm_rentiva_addon_settings',
-            [
-                'type' => 'array',
-                'sanitize_callback' => [self::class, 'sanitize'],
-                'default' => self::defaults(),
-            ]
-        );
-    }
+	public const PAGE = 'mhm_rentiva_addon_settings';
 
-    public static function defaults(): array
-    {
-        return [
-            'system_enabled' => '1',
-            'show_prices' => '1',
-            'allow_multiple' => '1',
-            'display_order' => 'price_asc',
-        ];
-    }
+	/**
+	 * Register actions.
+	 */
+	public static function register(): void {
+		// WordPress Settings API registration.
+		add_action( 'admin_init', array( self::class, 'register_settings' ) );
+		add_action( 'wp_ajax_mhm_create_default_addons', array( self::class, 'ajax_create_default_addons' ) );
+	}
 
-    public static function get(string $key, $default = null)
-    {
-        $settings = get_option('mhm_rentiva_addon_settings', []);
-        if (!is_array($settings)) {
-            $settings = [];
-        }
-        $settings = array_merge(self::defaults(), $settings);
-        $value = array_key_exists($key, $settings) ? $settings[$key] : $default;
-        // Convert null values to string
-        return $value !== null ? (string) $value : '';
-    }
+	/**
+	 * Register WordPress Settings API.
+	 */
+	public static function register_settings(): void {
+		// Register setting group.
+		register_setting(
+			'mhm_rentiva_addon_settings',
+			'mhm_rentiva_addon_settings',
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( self::class, 'sanitize' ),
+				'default'           => self::defaults(),
+			)
+		);
+	}
 
-    public static function sanitize(array $input): array
-    {
-        $output = [];
-        $defaults = self::defaults();
+	/**
+	 * Get default settings.
+	 *
+	 * @return array Default settings.
+	 */
+	public static function defaults(): array {
+		return array(
+			'system_enabled' => '1',
+			'show_prices'    => '1',
+			'allow_multiple' => '1',
+			'display_order'  => 'price_asc',
+		);
+	}
 
-        // Sanitize input
-        if (!is_array($input)) {
-            $input = [];
-        }
+	/**
+	 * Get setting value.
+	 *
+	 * @param string $key Setting key.
+	 * @param mixed  $default_value Default value.
+	 * @return string Setting value.
+	 */
+	public static function get( string $key, $default_value = null ) {
+		$settings = get_option( 'mhm_rentiva_addon_settings', array() );
+		if ( ! is_array( $settings ) ) {
+			$settings = array();
+		}
+		$settings = array_merge( self::defaults(), $settings );
+		$value    = array_key_exists( $key, $settings ) ? $settings[ $key ] : $default_value;
 
-        // ✅ CODE DUPLICATION RESOLVED - Common checkbox handling
-        $checkbox_fields = ['system_enabled', 'show_prices', 'allow_multiple'];
-        foreach ($checkbox_fields as $field) {
-            $output[$field] = isset($input[$field]) ? '1' : '0';
-        }
+		// Convert null values to string.
+		return null !== $value ? (string) $value : '';
+	}
 
-        // display_order - select field sanitization
-        $display_order = $input['display_order'] ?? null;
-        $allowed_orders = ['price_asc', 'price_desc', 'name_asc', 'name_desc', 'menu_order'];
-        $output['display_order'] = ($display_order !== null && in_array($display_order, $allowed_orders, true))
-            ? $display_order
-            : $defaults['display_order'];
+	/**
+	 * Sanitize input data.
+	 *
+	 * @param array $input Input data.
+	 * @return array Sanitized data.
+	 */
+	public static function sanitize( array $input ): array {
+		$output   = array();
+		$defaults = self::defaults();
 
-        return $output;
-    }
+		// Sanitize input.
+		if ( ! is_array( $input ) ) {
+			$input = array();
+		}
 
-    public static function admin_notices(): void
-    {
-        // Show success message after settings are saved
-        if (isset($_GET['settings-updated']) && $_GET['settings-updated'] === 'true') {
-            add_settings_error(
-                'mhm_rentiva_addon_settings',
-                'settings_updated',
-                __('Settings saved successfully.', 'mhm-rentiva'),
-                'updated'
-            );
-        }
-    }
+		// Common checkbox handling.
+		$checkbox_fields = array( 'system_enabled', 'show_prices', 'allow_multiple' );
+		foreach ( $checkbox_fields as $field ) {
+			$output[ $field ] = isset( $input[ $field ] ) ? '1' : '0';
+		}
 
-    public static function render_page(bool $in_tab = false): void
-    {
-        if (!current_user_can('manage_options')) {
-            wp_die(__('Insufficient permissions.', 'mhm-rentiva'));
-        }
+		// display_order - select field sanitization.
+		$display_order           = $input['display_order'] ?? null;
+		$allowed_orders          = array( 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'menu_order' );
+		$output['display_order'] = ( null !== $display_order && in_array( $display_order, $allowed_orders, true ) )
+			? $display_order
+			: $defaults['display_order'];
 
-        // ⭐ WordPress Settings API handles form submission automatically
-        // No manual POST processing needed
+		return $output;
+	}
 
-        // Add wrapper for standalone page only
-        if (!$in_tab) {
-            echo '<div class="wrap mhm-rentiva-wrap">';
-            echo '<h1>' . esc_html__('Additional Service Settings', 'mhm-rentiva') . '</h1>';
-        }
+	/**
+	 * Render admin notices.
+	 */
+	public static function admin_notices(): void {
+		// Show success message after settings are saved.
+		if ( isset( $_GET['settings-updated'] ) && 'true' === $_GET['settings-updated'] ) {
+			add_settings_error(
+				'mhm_rentiva_addon_settings',
+				'settings_updated',
+				__( 'Settings saved successfully.', 'mhm-rentiva' ),
+				'updated'
+			);
+		}
+	}
 
-        // Form wrapper - for standalone page only
-        if (!$in_tab) {
-            echo '<form method="post" action="options.php">';
-            // WordPress Settings API handles nonce and hidden fields
-            settings_fields('mhm_rentiva_addon_settings');
-        }
+	/**
+	 * Render settings page content.
+	 *
+	 * @param bool $in_tab Whether rendered inside a tab.
+	 */
+	public static function render_page( bool $in_tab = false ): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Insufficient permissions.', 'mhm-rentiva' ) );
+		}
 
-        // Form fields
-        echo '<table class="form-table">';
-        echo '<tbody>';
+		// WordPress Settings API handles form submission automatically.
+		// No manual POST processing needed.
 
-        // Additional Service System
-        $system_enabled = self::get('system_enabled', '1');
-        echo '<tr>';
-        echo '<th scope="row"><label for="system_enabled">' . esc_html__('Additional Service System', 'mhm-rentiva') . '</label></th>';
-        echo '<td>';
-        echo '<label><input type="checkbox" id="system_enabled" name="mhm_rentiva_addon_settings[system_enabled]" value="1" ' . checked($system_enabled, '1', false) . '> ' . esc_html__('Enable additional service system', 'mhm-rentiva') . '</label>';
-        echo '<p class="description">' . esc_html__('When disabled, additional services are not shown in booking form.', 'mhm-rentiva') . '</p>';
-        echo '</td>';
-        echo '</tr>';
+		// Add wrapper for standalone page only.
+		if ( ! $in_tab ) {
+			echo '<div class="wrap mhm-rentiva-wrap">';
+			echo '<h1>' . esc_html__( 'Additional Service Settings', 'mhm-rentiva' ) . '</h1>';
+		}
 
-        // Price Display
-        $show_prices = self::get('show_prices', '1');
-        echo '<tr>';
-        echo '<th scope="row"><label for="show_prices">' . esc_html__('Price Display', 'mhm-rentiva') . '</label></th>';
-        echo '<td>';
-        echo '<label><input type="checkbox" id="show_prices" name="mhm_rentiva_addon_settings[show_prices]" value="1" ' . checked($show_prices, '1', false) . '> ' . esc_html__('Show additional service prices in booking form', 'mhm-rentiva') . '</label>';
-        echo '</td>';
-        echo '</tr>';
+		// Form wrapper - for standalone page only.
+		if ( ! $in_tab ) {
+			echo '<form method="post" action="options.php">';
+			// WordPress Settings API handles nonce and hidden fields.
+			settings_fields( 'mhm_rentiva_addon_settings' );
+		}
 
-        // Multiple Selection
-        $allow_multiple = self::get('allow_multiple', '1');
-        echo '<tr>';
-        echo '<th scope="row"><label for="allow_multiple">' . esc_html__('Multiple Selection', 'mhm-rentiva') . '</label></th>';
-        echo '<td>';
-        echo '<label><input type="checkbox" id="allow_multiple" name="mhm_rentiva_addon_settings[allow_multiple]" value="1" ' . checked($allow_multiple, '1', false) . '> ' . esc_html__('Allow multiple additional service selection', 'mhm-rentiva') . '</label>';
-        echo '</td>';
-        echo '</tr>';
+		// Form fields
+		echo '<table class="form-table">';
+		echo '<tbody>';
 
-        // Display Order
-        $display_order = self::get('display_order', 'price_asc');
-        echo '<tr>';
-        echo '<th scope="row"><label for="display_order">' . esc_html__('Display Order', 'mhm-rentiva') . '</label></th>';
-        echo '<td>';
-        echo '<select id="display_order" name="mhm_rentiva_addon_settings[display_order]">';
-        $options = [
-            'price_asc' => __('Price ascending', 'mhm-rentiva'),
-            'price_desc' => __('Price descending', 'mhm-rentiva'),
-            'name_asc' => __('Name A-Z', 'mhm-rentiva'),
-            'name_desc' => __('Name Z-A', 'mhm-rentiva'),
-            'menu_order' => __('Menu order', 'mhm-rentiva'),
-        ];
-        foreach ($options as $key => $label) {
-            echo '<option value="' . esc_attr($key) . '"' . selected($display_order, $key, false) . '>' . esc_html($label) . '</option>';
-        }
-        echo '</select>';
-        echo '</td>';
-        echo '</tr>';
+		// Additional Service System
+		$system_enabled = self::get( 'system_enabled', '1' );
+		echo '<tr>';
+		echo '<th scope="row"><label for="system_enabled">' . esc_html__( 'Additional Service System', 'mhm-rentiva' ) . '</label></th>';
+		echo '<td>';
+		echo '<label><input type="checkbox" id="system_enabled" name="mhm_rentiva_addon_settings[system_enabled]" value="1" ' . checked( $system_enabled, '1', false ) . '> ' . esc_html__( 'Enable additional service system', 'mhm-rentiva' ) . '</label>';
+		echo '<p class="description">' . esc_html__( 'When disabled, additional services are not shown in booking form.', 'mhm-rentiva' ) . '</p>';
+		echo '</td>';
+		echo '</tr>';
 
-        echo '</tbody>';
-        echo '</table>';
+		// Price Display
+		$show_prices = self::get( 'show_prices', '1' );
+		echo '<tr>';
+		echo '<th scope="row"><label for="show_prices">' . esc_html__( 'Price Display', 'mhm-rentiva' ) . '</label></th>';
+		echo '<td>';
+		echo '<label><input type="checkbox" id="show_prices" name="mhm_rentiva_addon_settings[show_prices]" value="1" ' . checked( $show_prices, '1', false ) . '> ' . esc_html__( 'Show additional service prices in booking form', 'mhm-rentiva' ) . '</label>';
+		echo '</td>';
+		echo '</tr>';
 
-        // Submit button - for standalone page only (main page button is used within a tab)
-        if (!$in_tab) {
-            submit_button(__('Save Settings', 'mhm-rentiva'));
-            echo '</form>';
-        }
+		// Multiple Selection
+		$allow_multiple = self::get( 'allow_multiple', '1' );
+		echo '<tr>';
+		echo '<th scope="row"><label for="allow_multiple">' . esc_html__( 'Multiple Selection', 'mhm-rentiva' ) . '</label></th>';
+		echo '<td>';
+		echo '<label><input type="checkbox" id="allow_multiple" name="mhm_rentiva_addon_settings[allow_multiple]" value="1" ' . checked( $allow_multiple, '1', false ) . '> ' . esc_html__( 'Allow multiple additional service selection', 'mhm-rentiva' ) . '</label>';
+		echo '</td>';
+		echo '</tr>';
 
-        // Default additional services creation section (outside form)
-        echo '<hr style="margin: 30px 0;">';
-        echo '<h2>' . esc_html__('Default Additional Services', 'mhm-rentiva') . '</h2>';
-        echo '<p class="description">' . esc_html__('Automatically create default additional services for new installations.', 'mhm-rentiva') . '</p>';
+		// Display Order
+		$display_order = self::get( 'display_order', 'price_asc' );
+		echo '<tr>';
+		echo '<th scope="row"><label for="display_order">' . esc_html__( 'Display Order', 'mhm-rentiva' ) . '</label></th>';
+		echo '<td>';
+		echo '<select id="display_order" name="mhm_rentiva_addon_settings[display_order]">';
+		$options = array(
+			'price_asc'  => __( 'Price ascending', 'mhm-rentiva' ),
+			'price_desc' => __( 'Price descending', 'mhm-rentiva' ),
+			'name_asc'   => __( 'Name A-Z', 'mhm-rentiva' ),
+			'name_desc'  => __( 'Name Z-A', 'mhm-rentiva' ),
+			'menu_order' => __( 'Menu order', 'mhm-rentiva' ),
+		);
+		foreach ( $options as $key => $label ) {
+			echo '<option value="' . esc_attr( $key ) . '"' . selected( $display_order, $key, false ) . '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
+		echo '</td>';
+		echo '</tr>';
 
-        $existing_count = wp_count_posts('vehicle_addon')->publish;
-        if ($existing_count > 0) {
-            /* translators: %d: existing additional services count. */
-            echo '<p class="description">' . sprintf(esc_html__('There are already %d additional services. Click the button below to create new default services.', 'mhm-rentiva'), $existing_count) . '</p>';
-            echo '<button type="button" class="button" id="create-default-addons">' . esc_html__('Create Default Additional Services', 'mhm-rentiva') . '</button>';
-        } else {
-            echo '<p class="description">' . esc_html__('No additional services created yet. You can create default additional services with the button below.', 'mhm-rentiva') . '</p>';
-            echo '<button type="button" class="button button-primary" id="create-default-addons">' . esc_html__('Create Default Additional Services', 'mhm-rentiva') . '</button>';
-        }
+		echo '</tbody>';
+		echo '</table>';
 
-        // Close wrapper for standalone page only
-        if (!$in_tab) {
-            echo '</div>';
-        }
+		// Submit button - for standalone page only (main page button is used within a tab)
+		if ( ! $in_tab ) {
+			submit_button( __( 'Save Settings', 'mhm-rentiva' ) );
+			echo '</form>';
+		}
 
-        // ⭐ Inline JavaScript removed - AJAX script is now in assets/js/admin/addon-settings.js
-        // Data is passed via wp_localize_script in enqueue_scripts method
-    }
+		// Default additional services creation section (outside form)
+		echo '<hr style="margin: 30px 0;">';
+		echo '<h2>' . esc_html__( 'Default Additional Services', 'mhm-rentiva' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Automatically create default additional services for new installations.', 'mhm-rentiva' ) . '</p>';
 
-    public static function ajax_create_default_addons(): void
-    {
-        check_ajax_referer('mhm_create_default_addons', 'nonce');
+		$existing_count = wp_count_posts( 'vehicle_addon' )->publish;
+		if ( $existing_count > 0 ) {
+			/* translators: %d: existing additional services count. */
+			echo '<p class="description">' . esc_html( sprintf( __( 'There are already %d additional services. Click the button below to create new default services.', 'mhm-rentiva' ), $existing_count ) ) . '</p>';
+			echo '<button type="button" class="button" id="create-default-addons">' . esc_html__( 'Create Default Additional Services', 'mhm-rentiva' ) . '</button>';
+		} else {
+			echo '<p class="description">' . esc_html__( 'No additional services created yet. You can create default additional services with the button below.', 'mhm-rentiva' ) . '</p>';
+			echo '<button type="button" class="button button-primary" id="create-default-addons">' . esc_html__( 'Create Default Additional Services', 'mhm-rentiva' ) . '</button>';
+		}
 
-        if (!current_user_can('manage_options')) {
-            wp_die(__('Insufficient permissions.', 'mhm-rentiva'));
-        }
+		// Close wrapper for standalone page only
+		if ( ! $in_tab ) {
+			echo '</div>';
+		}
 
-        AddonManager::create_default_addons();
+		// ⭐ Inline JavaScript removed - AJAX script is now in assets/js/admin/addon-settings.js
+		// Data is passed via wp_localize_script in enqueue_scripts method
+	}
 
-        wp_send_json_success([
-            'message' => __('Default additional services created successfully.', 'mhm-rentiva')
-        ]);
-    }
+	/**
+	 * AJAX handler for creating default addons.
+	 */
+	public static function ajax_create_default_addons(): void {
+		check_ajax_referer( 'mhm_create_default_addons', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Insufficient permissions.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		// Make sure method exists.
+		if ( method_exists( '\MHMRentiva\Admin\Addons\AddonManager', 'create_default_addons' ) ) {
+			AddonManager::create_default_addons();
+		}
+
+		wp_send_json_success(
+			array(
+				'message' => esc_html__( 'Default additional services created successfully.', 'mhm-rentiva' ),
+			)
+		);
+	}
 }

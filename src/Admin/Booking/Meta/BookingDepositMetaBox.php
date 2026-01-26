@@ -8,421 +8,412 @@ use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
 use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-final class BookingDepositMetaBox extends AbstractMetaBox
-{
-    protected static function get_post_type(): string
-    {
-        return 'vehicle_booking';
-    }
+final class BookingDepositMetaBox extends AbstractMetaBox {
 
-    protected static function get_meta_box_id(): string
-    {
-        return 'mhm_rentiva_booking_deposit';
-    }
 
-    protected static function get_title(): string
-    {
-        return __('Deposit Management', 'mhm-rentiva');
-    }
+	protected static function get_post_type(): string {
+		return 'vehicle_booking';
+	}
 
-    protected static function get_fields(): array
-    {
-        return [
-            'mhm_rentiva_deposit_management' => [
-                'title' => __('Deposit Management', 'mhm-rentiva'),
-                'context' => 'normal',
-                'priority' => 'high',
-                'template' => 'render_deposit_management',
-            ],
-        ];
-    }
+	protected static function get_meta_box_id(): string {
+		return 'mhm_rentiva_booking_deposit';
+	}
 
-    /**
-     * Register meta box hooks.
-     */
-    public static function register(): void
-    {
-        // Show meta box only for existing bookings
-        add_action('add_meta_boxes', [self::class, 'add_meta_boxes']);
+	protected static function get_title(): string {
+		return __( 'Deposit Management', 'mhm-rentiva' );
+	}
 
-        // Load required assets
-        add_action('admin_enqueue_scripts', [self::class, 'enqueue_scripts']);
+	protected static function get_fields(): array {
+		return array(
+			'mhm_rentiva_deposit_management' => array(
+				'title'    => __( 'Deposit Management', 'mhm-rentiva' ),
+				'context'  => 'normal',
+				'priority' => 'high',
+				'template' => 'render_deposit_management',
+			),
+		);
+	}
 
-        // AJAX handlers
-        add_action('wp_ajax_mhm_rentiva_process_deposit_payment', [self::class, 'ajax_process_deposit_payment']);
-        add_action('wp_ajax_mhm_rentiva_process_full_payment', [self::class, 'ajax_process_full_payment']);
-        add_action('wp_ajax_mhm_rentiva_process_refund', [self::class, 'ajax_process_refund']);
-    }
+	/**
+	 * Register meta box hooks.
+	 */
+	public static function register(): void {
+		// Show meta box only for existing bookings
+		add_action( 'add_meta_boxes', array( self::class, 'add_meta_boxes' ) );
 
-    /**
-     * Add meta box – only on existing bookings.
-     */
-    public static function add_meta_boxes(): void
-    {
-        global $post, $pagenow;
+		// Load required assets
+		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
 
-        // Only display on existing bookings (not while creating a new booking)
-        if (!$post || !$post->ID || $pagenow === 'post-new.php') {
-            return;
-        }
+		// AJAX handlers
+		add_action( 'wp_ajax_mhm_rentiva_process_deposit_payment', array( self::class, 'ajax_process_deposit_payment' ) );
+		add_action( 'wp_ajax_mhm_rentiva_process_full_payment', array( self::class, 'ajax_process_full_payment' ) );
+		add_action( 'wp_ajax_mhm_rentiva_process_refund', array( self::class, 'ajax_process_refund' ) );
+	}
 
-        add_meta_box(
-            self::get_meta_box_id(),
-            self::get_title(),
-            [self::class, 'render_deposit_management'],
-            self::get_post_type(),
-            'normal',
-            'high'
-        );
-    }
+	/**
+	 * Add meta box – only on existing bookings.
+	 */
+	public static function add_meta_boxes(): void {
+		global $post, $pagenow;
 
-    public static function enqueue_scripts(string $hook): void
-    {
-        global $post_type;
+		// Only display on existing bookings (not while creating a new booking)
+		if ( ! $post || ! $post->ID || $pagenow === 'post-new.php' ) {
+			return;
+		}
 
-        // Load assets only on booking edit screen
-        if (($hook === 'post.php' || $hook === 'post-new.php') && $post_type === 'vehicle_booking') {
-            // Enqueue CSS
-            wp_enqueue_style(
-                'mhm-deposit-management',
-                MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/deposit-management.css',
-                [],
-                MHM_RENTIVA_VERSION
-            );
+		add_meta_box(
+			self::get_meta_box_id(),
+			self::get_title(),
+			array( self::class, 'render_deposit_management' ),
+			self::get_post_type(),
+			'normal',
+			'high'
+		);
+	}
 
-            wp_enqueue_script(
-                'mhm-deposit-management',
-                MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/deposit-management.js',
-                ['jquery'],
-                MHM_RENTIVA_VERSION,
-                true
-            );
+	public static function enqueue_scripts( string $hook ): void {
+		global $post_type;
 
-            // Localization
-            wp_localize_script('mhm-deposit-management', 'mhmDepositManagement', [
-                'ajaxUrl' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('mhm_deposit_management_action'),
-                'strings' => [
-                    'confirmRefund' => __('Do you confirm this action?', 'mhm-rentiva'),
-                    'processing' => __('Processing...', 'mhm-rentiva'),
-                    'success' => __('Operation successful!', 'mhm-rentiva'),
-                    'error' => __('An error occurred!', 'mhm-rentiva'),
-                ]
-            ]);
-        }
-    }
+		// Load assets only on booking edit screen
+		if ( ( $hook === 'post.php' || $hook === 'post-new.php' ) && $post_type === 'vehicle_booking' ) {
+			// Enqueue CSS
+			wp_enqueue_style(
+				'mhm-deposit-management',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/deposit-management.css',
+				array(),
+				MHM_RENTIVA_VERSION
+			);
 
-    public static function render_deposit_management(\WP_Post $post): void
-    {
-        // Nonce field
-        wp_nonce_field('mhm_rentiva_deposit_management_action', 'mhm_rentiva_deposit_management_nonce');
+			wp_enqueue_script(
+				'mhm-deposit-management',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/deposit-management.js',
+				array( 'jquery' ),
+				MHM_RENTIVA_VERSION,
+				true
+			);
 
-        // Fetch deposit details
-        $payment_type = get_post_meta($post->ID, '_mhm_payment_type', true);
-        $payment_method = get_post_meta($post->ID, '_mhm_payment_method', true);
-        $deposit_amount = floatval(get_post_meta($post->ID, '_mhm_deposit_amount', true));
-        $total_amount = floatval(get_post_meta($post->ID, '_mhm_total_price', true));
-        $remaining_amount = floatval(get_post_meta($post->ID, '_mhm_remaining_amount', true));
-        $deposit_type = get_post_meta($post->ID, '_mhm_deposit_type', true);
-        $payment_display = get_post_meta($post->ID, '_mhm_payment_display', true);
-        $cancellation_policy = get_post_meta($post->ID, '_mhm_cancellation_policy', true);
-        $cancellation_deadline = get_post_meta($post->ID, '_mhm_cancellation_deadline', true);
-        $payment_deadline = get_post_meta($post->ID, '_mhm_payment_deadline', true);
+			// Localization
+			wp_localize_script(
+				'mhm-deposit-management',
+				'mhmDepositManagement',
+				array(
+					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+					'nonce'   => wp_create_nonce( 'mhm_deposit_management_action' ),
+					'strings' => array(
+						'confirmRefund' => __( 'Do you confirm this action?', 'mhm-rentiva' ),
+						'processing'    => __( 'Processing...', 'mhm-rentiva' ),
+						'success'       => __( 'Operation successful!', 'mhm-rentiva' ),
+						'error'         => __( 'An error occurred!', 'mhm-rentiva' ),
+					),
+				)
+			);
+		}
+	}
 
-        // Booking/payment status
-        $booking_status = get_post_meta($post->ID, '_mhm_status', true);
-        $payment_status = get_post_meta($post->ID, '_mhm_payment_status', true);
+	public static function render_deposit_management( \WP_Post $post ): void {
+		// Nonce field
+		wp_nonce_field( 'mhm_rentiva_deposit_management_action', 'mhm_rentiva_deposit_management_nonce' );
 
-        echo '<div class="deposit-management-metabox">';
+		// Fetch deposit details
+		$payment_type          = get_post_meta( $post->ID, '_mhm_payment_type', true );
+		$payment_method        = get_post_meta( $post->ID, '_mhm_payment_method', true );
+		$deposit_amount        = floatval( get_post_meta( $post->ID, '_mhm_deposit_amount', true ) );
+		$total_amount          = floatval( get_post_meta( $post->ID, '_mhm_total_price', true ) );
+		$remaining_amount      = floatval( get_post_meta( $post->ID, '_mhm_remaining_amount', true ) );
+		$deposit_type          = get_post_meta( $post->ID, '_mhm_deposit_type', true );
+		$payment_display       = get_post_meta( $post->ID, '_mhm_payment_display', true );
+		$cancellation_policy   = get_post_meta( $post->ID, '_mhm_cancellation_policy', true );
+		$cancellation_deadline = get_post_meta( $post->ID, '_mhm_cancellation_deadline', true );
+		$payment_deadline      = get_post_meta( $post->ID, '_mhm_payment_deadline', true );
 
-        // Check if the booking was created with the deposit system
-        if (!$payment_type) {
-            echo '<div class="notice notice-info">';
-            echo '<p>' . __('This booking was created with the old system. Deposit system information is not available.', 'mhm-rentiva') . '</p>';
-            echo '</div>';
-            echo '</div>';
-            return;
-        }
+		// Booking/payment status
+		$booking_status = get_post_meta( $post->ID, '_mhm_status', true );
+		$payment_status = get_post_meta( $post->ID, '_mhm_payment_status', true );
 
-        // Deposit details grid
-        echo '<div class="deposit-info-grid">';
+		echo '<div class="deposit-management-metabox">';
 
-        // Payment type
-        echo '<div class="deposit-info-item">';
-        echo '<div class="deposit-info-label">' . __('Payment Type', 'mhm-rentiva') . '</div>';
-        echo '<div class="deposit-info-value">';
-        if ($payment_type === 'deposit') {
-            echo '<span class="payment-type-badge deposit">' . __('Deposit', 'mhm-rentiva') . '</span>';
-        } else {
-            echo '<span class="payment-type-badge full">' . __('Full Payment', 'mhm-rentiva') . '</span>';
-        }
-        echo '</div>';
-        echo '</div>';
+		// Check if the booking was created with the deposit system
+		if ( ! $payment_type ) {
+			echo '<div class="notice notice-info">';
+			echo '<p>' . esc_html__( 'This booking was created with the old system. Deposit system information is not available.', 'mhm-rentiva' ) . '</p>';
+			echo '</div>';
+			echo '</div>';
+			return;
+		}
 
-        // Payment method
-        echo '<div class="deposit-info-item">';
-        echo '<div class="deposit-info-label">' . __('Payment Method', 'mhm-rentiva') . '</div>';
-        echo '<div class="deposit-info-value">';
-        if ($payment_method === 'online') {
-            echo '<span class="payment-method-badge online">' . __('Online', 'mhm-rentiva') . '</span>';
-        } else {
-            echo '<span class="payment-method-badge offline">' . __('Offline', 'mhm-rentiva') . '</span>';
-        }
-        echo '</div>';
-        echo '</div>';
+		// Deposit details grid
+		echo '<div class="deposit-info-grid">';
 
-        // Total amount
-        echo '<div class="deposit-info-item">';
-        echo '<div class="deposit-info-label">' . __('Total Amount', 'mhm-rentiva') . '</div>';
-        echo '<div class="deposit-info-value" data-field="total-amount">' . esc_html(self::format_price($total_amount)) . '</div>';
-        echo '</div>';
+		// Payment type
+		echo '<div class="deposit-info-item">';
+		echo '<div class="deposit-info-label">' . esc_html__( 'Payment Type', 'mhm-rentiva' ) . '</div>';
+		echo '<div class="deposit-info-value">';
+		if ( $payment_type === 'deposit' ) {
+			echo '<span class="payment-type-badge deposit">' . esc_html__( 'Deposit', 'mhm-rentiva' ) . '</span>';
+		} else {
+			echo '<span class="payment-type-badge full">' . esc_html__( 'Full Payment', 'mhm-rentiva' ) . '</span>';
+		}
+		echo '</div>';
+		echo '</div>';
 
-        // Deposit amount
-        if ($payment_type === 'deposit') {
-            echo '<div class="deposit-info-item">';
-            echo '<div class="deposit-info-label">' . __('Deposit Amount', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-info-value" data-field="deposit-amount">' . esc_html(self::format_price($deposit_amount)) . '</div>';
-            echo '</div>';
+		// Payment method
+		echo '<div class="deposit-info-item">';
+		echo '<div class="deposit-info-label">' . esc_html__( 'Payment Method', 'mhm-rentiva' ) . '</div>';
+		echo '<div class="deposit-info-value">';
+		if ( $payment_method === 'online' ) {
+			echo '<span class="payment-method-badge online">' . esc_html__( 'Online', 'mhm-rentiva' ) . '</span>';
+		} else {
+			echo '<span class="payment-method-badge offline">' . esc_html__( 'Offline', 'mhm-rentiva' ) . '</span>';
+		}
+		echo '</div>';
+		echo '</div>';
 
-            // Remaining amount
-            echo '<div class="deposit-info-item">';
-            echo '<div class="deposit-info-label">' . __('Remaining Amount', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-info-value" data-field="remaining-amount">' . esc_html(self::format_price($remaining_amount)) . '</div>';
-            echo '</div>';
-        }
+		// Total amount
+		echo '<div class="deposit-info-item">';
+		echo '<div class="deposit-info-label">' . esc_html__( 'Total Amount', 'mhm-rentiva' ) . '</div>';
+		echo '<div class="deposit-info-value" data-field="total-amount">' . esc_html( self::format_price( $total_amount ) ) . '</div>';
+		echo '</div>';
 
-        // Rental days
-        $rental_days = (int) get_post_meta($post->ID, '_mhm_rental_days', true);
-        if ($rental_days > 0) {
-            echo '<div class="deposit-info-item">';
-            echo '<div class="deposit-info-label">' . __('Rental Days', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-info-value" data-field="rental-days" data-suffix="' . esc_attr__('days', 'mhm-rentiva') . '">' . esc_html((string) $rental_days) . ' ' . __('days', 'mhm-rentiva') . '</div>';
-            echo '</div>';
-        }
+		// Deposit amount
+		if ( $payment_type === 'deposit' ) {
+			echo '<div class="deposit-info-item">';
+			echo '<div class="deposit-info-label">' . esc_html__( 'Deposit Amount', 'mhm-rentiva' ) . '</div>';
+			echo '<div class="deposit-info-value" data-field="deposit-amount">' . esc_html( self::format_price( $deposit_amount ) ) . '</div>';
+			echo '</div>';
 
-        // Deposit type
-        if ($deposit_type) {
-            echo '<div class="deposit-info-item">';
-            echo '<div class="deposit-info-label">' . __('Deposit Type', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-info-value">' . esc_html(self::get_deposit_type_label($deposit_type)) . '</div>';
-            echo '</div>';
-        }
+			// Remaining amount
+			echo '<div class="deposit-info-item">';
+			echo '<div class="deposit-info-label">' . esc_html__( 'Remaining Amount', 'mhm-rentiva' ) . '</div>';
+			echo '<div class="deposit-info-value" data-field="remaining-amount">' . esc_html( self::format_price( $remaining_amount ) ) . '</div>';
+			echo '</div>';
+		}
 
-        echo '</div>';
+		// Rental days
+		$rental_days = (int) get_post_meta( $post->ID, '_mhm_rental_days', true );
+		if ( $rental_days > 0 ) {
+			echo '<div class="deposit-info-item">';
+			echo '<div class="deposit-info-label">' . esc_html__( 'Rental Days', 'mhm-rentiva' ) . '</div>';
+			echo '<div class="deposit-info-value" data-field="rental-days" data-suffix="' . esc_attr__( 'days', 'mhm-rentiva' ) . '">' . esc_html( (string) $rental_days ) . ' ' . esc_html__( 'days', 'mhm-rentiva' ) . '</div>';
+			echo '</div>';
+		}
 
-        // Payment status
-        echo '<div class="payment-status-section">';
-        echo '<h4>' . __('Payment Status', 'mhm-rentiva') . '</h4>';
-        echo '<div class="payment-status-indicator ' . esc_attr($payment_status ?: 'unpaid') . '">';
-        echo esc_html(self::get_payment_status_label($payment_status ?: 'unpaid'));
-        echo '</div>';
-        echo '</div>';
+		// Deposit type
+		if ( $deposit_type ) {
+			echo '<div class="deposit-info-item">';
+			echo '<div class="deposit-info-label">' . esc_html__( 'Deposit Type', 'mhm-rentiva' ) . '</div>';
+			echo '<div class="deposit-info-value">' . esc_html( self::get_deposit_type_label( $deposit_type ) ) . '</div>';
+			echo '</div>';
+		}
 
-        // Cancellation policy
-        if ($cancellation_policy && $cancellation_deadline) {
-            echo '<div class="cancellation-policy-section">';
-            echo '<h4>' . __('Cancellation Policy', 'mhm-rentiva') . '</h4>';
-            echo '<p><strong>' . __('Cancellation Deadline:', 'mhm-rentiva') . '</strong> ' . esc_html(date('d.m.Y H:i', strtotime($cancellation_deadline))) . '</p>';
+		echo '</div>';
 
-            $now = time();
-            $deadline = strtotime($cancellation_deadline);
-            if ($now < $deadline) {
-                echo '<p class="cancellation-available">' . __('This booking can be cancelled.', 'mhm-rentiva') . '</p>';
-            } else {
-                echo '<p class="cancellation-expired">' . __('Cancellation period expired.', 'mhm-rentiva') . '</p>';
-            }
-            echo '</div>';
-        }
+		// Payment status
+		echo '<div class="payment-status-section">';
+		echo '<h4>' . esc_html__( 'Payment Status', 'mhm-rentiva' ) . '</h4>';
+		echo '<div class="payment-status-indicator ' . esc_attr( $payment_status ?: 'unpaid' ) . '">';
+		echo esc_html( self::get_payment_status_label( $payment_status ?: 'unpaid' ) );
+		echo '</div>';
+		echo '</div>';
 
-        // Payment deadline
-        if ($payment_deadline) { // ⭐ Show deadline for all payment methods (WooCommerce)
-            echo '<div class="payment-deadline-section">';
-            echo '<h4>' . __('Payment Deadline', 'mhm-rentiva') . '</h4>';
-            echo '<p><strong>' . __('Deadline:', 'mhm-rentiva') . '</strong> ' . esc_html(date('d.m.Y H:i', strtotime($payment_deadline))) . '</p>';
+		// Cancellation policy
+		if ( $cancellation_policy && $cancellation_deadline ) {
+			echo '<div class="cancellation-policy-section">';
+			echo '<h4>' . esc_html__( 'Cancellation Policy', 'mhm-rentiva' ) . '</h4>';
+			echo '<p><strong>' . esc_html__( 'Cancellation Deadline:', 'mhm-rentiva' ) . '</strong> ' . esc_html( gmdate( 'd.m.Y H:i', strtotime( $cancellation_deadline ) ) ) . '</p>';
 
-            $now = time();
-            $deadline = strtotime($payment_deadline);
-            if ($now > $deadline && $payment_status !== 'paid') {
-                echo '<p class="payment-expired">' . __('Payment period expired. Booking can be cancelled.', 'mhm-rentiva') . '</p>';
-            }
-            echo '</div>';
-        }
+			$now      = time();
+			$deadline = strtotime( $cancellation_deadline );
+			if ( $now < $deadline ) {
+				echo '<p class="cancellation-available">' . esc_html__( 'This booking can be cancelled.', 'mhm-rentiva' ) . '</p>';
+			} else {
+				echo '<p class="cancellation-expired">' . esc_html__( 'Cancellation period expired.', 'mhm-rentiva' ) . '</p>';
+			}
+			echo '</div>';
+		}
 
-        // Deposit timeline
-        self::render_deposit_timeline($post->ID);
+		// Payment deadline
+		if ( $payment_deadline ) { // ⭐ Show deadline for all payment methods (WooCommerce)
+			echo '<div class="payment-deadline-section">';
+			echo '<h4>' . esc_html__( 'Payment Deadline', 'mhm-rentiva' ) . '</h4>';
+			echo '<p><strong>' . esc_html__( 'Deadline:', 'mhm-rentiva' ) . '</strong> ' . esc_html( gmdate( 'd.m.Y H:i', strtotime( $payment_deadline ) ) ) . '</p>';
 
-        // Deposit actions
-        self::render_deposit_actions($post->ID, $payment_type, $remaining_amount, $payment_status, $booking_status);
+			$now      = time();
+			$deadline = strtotime( $payment_deadline );
+			if ( $now > $deadline && $payment_status !== 'paid' ) {
+				echo '<p class="payment-expired">' . esc_html__( 'Payment period expired. Booking can be cancelled.', 'mhm-rentiva' ) . '</p>';
+			}
+			echo '</div>';
+		}
 
-        echo '</div>';
-    }
+		// Deposit timeline
+		self::render_deposit_timeline( $post->ID );
 
-    private static function render_deposit_timeline(int $post_id): void
-    {
-        echo '<div class="deposit-timeline-section">';
-        echo '<h4>' . __('Deposit History', 'mhm-rentiva') . '</h4>';
-        echo '<div class="deposit-timeline">';
+		// Deposit actions
+		self::render_deposit_actions( $post->ID, $payment_type, $remaining_amount, $payment_status, $booking_status );
 
-        // Booking created
-        $post = get_post($post_id);
-        if ($post) {
-            echo '<div class="deposit-timeline-item completed">';
-            echo '<div class="deposit-timeline-content">';
-            echo '<div class="deposit-timeline-title">' . __('Booking Created', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-timeline-description">' . __('Booking successfully created and deposit information saved.', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-timeline-date">' . esc_html(date('d.m.Y H:i', strtotime($post->post_date))) . '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
+		echo '</div>';
+	}
 
-        // Payment state
-        $payment_status = get_post_meta($post_id, '_mhm_payment_status', true);
-        if ($payment_status === 'paid') {
-            echo '<div class="deposit-timeline-item completed">';
-            echo '<div class="deposit-timeline-content">';
-            echo '<div class="deposit-timeline-title">' . __('Payment Received', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-timeline-description">' . __('Deposit payment successfully received.', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-timeline-date">' . esc_html(date('d.m.Y H:i')) . '</div>';
-            echo '</div>';
-            echo '</div>';
-        } else {
-            echo '<div class="deposit-timeline-item pending">';
-            echo '<div class="deposit-timeline-content">';
-            echo '<div class="deposit-timeline-title">' . __('Payment Pending', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-timeline-description">' . __('Deposit payment not yet received.', 'mhm-rentiva') . '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
+	private static function render_deposit_timeline( int $post_id ): void {
+		echo '<div class="deposit-timeline-section">';
+		echo '<h4>' . esc_html__( 'Deposit History', 'mhm-rentiva' ) . '</h4>';
+		echo '<div class="deposit-timeline">';
 
-        // Remaining balance payment
-        $remaining_amount = floatval(get_post_meta($post_id, '_mhm_remaining_amount', true));
-        if ($remaining_amount > 0) {
-            echo '<div class="deposit-timeline-item pending">';
-            echo '<div class="deposit-timeline-content">';
-            echo '<div class="deposit-timeline-title">' . __('Remaining Amount Payment', 'mhm-rentiva') . '</div>';
-            /* translators: %s placeholder. */
-            echo '<div class="deposit-timeline-description">' . sprintf(__('Remaining amount: %s', 'mhm-rentiva'), self::format_price($remaining_amount)) . '</div>';
-            echo '</div>';
-            echo '</div>';
-        } else {
-            echo '<div class="deposit-timeline-item completed">';
-            echo '<div class="deposit-timeline-content">';
-            echo '<div class="deposit-timeline-title">' . __('All Payments Completed', 'mhm-rentiva') . '</div>';
-            echo '<div class="deposit-timeline-description">' . __('Deposit and remaining amount payments completed.', 'mhm-rentiva') . '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
+		// Booking created
+		$post = get_post( $post_id );
+		if ( $post ) {
+			echo '<div class="deposit-timeline-item completed">';
+			echo '<div class="deposit-timeline-content">';
+			echo '<div class="deposit-timeline-title">' . esc_html__( 'Booking Created', 'mhm-rentiva' ) . '</div>';
+			echo '<div class="deposit-timeline-description">' . esc_html__( 'Booking successfully created and deposit information saved.', 'mhm-rentiva' ) . '</div>';
+			echo '<div class="deposit-timeline-date">' . esc_html( gmdate( 'd.m.Y H:i', strtotime( $post->post_date ) ) ) . '</div>';
+			echo '</div>';
+			echo '</div>';
+		}
 
-        echo '</div>';
-        echo '</div>';
-    }
+		// Payment state
+		$payment_status = get_post_meta( $post_id, '_mhm_payment_status', true );
+		if ( $payment_status === 'paid' ) {
+			echo '<div class="deposit-timeline-item completed">';
+			echo '<div class="deposit-timeline-content">';
+			echo '<div class="deposit-timeline-title">' . esc_html__( 'Payment Received', 'mhm-rentiva' ) . '</div>';
+			echo '<div class="deposit-timeline-description">' . esc_html__( 'Deposit payment successfully received.', 'mhm-rentiva' ) . '</div>';
+			echo '<div class="deposit-timeline-date">' . esc_html( gmdate( 'd.m.Y H:i' ) ) . '</div>';
+			echo '</div>';
+			echo '</div>';
+		} else {
+			echo '<div class="deposit-timeline-item pending">';
+			echo '<div class="deposit-timeline-content">';
+			echo '<div class="deposit-timeline-title">' . esc_html__( 'Payment Pending', 'mhm-rentiva' ) . '</div>';
+			echo '<div class="deposit-timeline-description">' . esc_html__( 'Deposit payment not yet received.', 'mhm-rentiva' ) . '</div>';
+			echo '</div>';
+			echo '</div>';
+		}
 
-    private static function render_deposit_actions(int $post_id, string $payment_type, float $remaining_amount, string $payment_status, string $booking_status): void
-    {
-        echo '<div class="deposit-actions-section">';
-        echo '<div class="deposit-actions">';
+		// Remaining balance payment
+		$remaining_amount = floatval( get_post_meta( $post_id, '_mhm_remaining_amount', true ) );
+		if ( $remaining_amount > 0 ) {
+			echo '<div class="deposit-timeline-item pending">';
+			echo '<div class="deposit-timeline-content">';
+			echo '<div class="deposit-timeline-title">' . esc_html__( 'Remaining Amount Payment', 'mhm-rentiva' ) . '</div>';
+			/* translators: %s: formatted price */
+			echo '<div class="deposit-timeline-description">' . esc_html( sprintf( __( 'Remaining amount: %s', 'mhm-rentiva' ), self::format_price( $remaining_amount ) ) ) . '</div>';
+			echo '</div>';
+			echo '</div>';
+		} else {
+			echo '<div class="deposit-timeline-item completed">';
+			echo '<div class="deposit-timeline-content">';
+			echo '<div class="deposit-timeline-title">' . esc_html__( 'All Payments Completed', 'mhm-rentiva' ) . '</div>';
+			echo '<div class="deposit-timeline-description">' . esc_html__( 'Deposit and remaining amount payments completed.', 'mhm-rentiva' ) . '</div>';
+			echo '</div>';
+			echo '</div>';
+		}
 
-        // Remaining balance button
-        if ($payment_type === 'deposit' && $remaining_amount > 0 && $payment_status === 'paid') {
-            echo '<button type="button" class="deposit-action-btn primary" id="process-remaining-payment" data-booking-id="' . esc_attr((string) $post_id) . '">';
-            echo '<span class="dashicons dashicons-money-alt"></span>';
-            echo __('Process Remaining Amount', 'mhm-rentiva');
-            echo '</button>';
-        }
+		echo '</div>';
+		echo '</div>';
+	}
 
-        // Cancel button
-        if (in_array($booking_status, ['pending', 'confirmed'], true)) {
-            echo '<button type="button" class="deposit-action-btn warning" id="cancel-booking" data-booking-id="' . esc_attr((string) $post_id) . '">';
-            echo '<span class="dashicons dashicons-no"></span>';
-            echo __('Cancel Booking', 'mhm-rentiva');
-            echo '</button>';
-        }
+	private static function render_deposit_actions( int $post_id, string $payment_type, float $remaining_amount, string $payment_status, string $booking_status ): void {
+		echo '<div class="deposit-actions-section">';
+		echo '<div class="deposit-actions">';
 
-        // Refund button
-        if ($payment_status === 'paid' && in_array($booking_status, ['cancelled'], true)) {
-            echo '<button type="button" class="deposit-action-btn danger" id="process-refund" data-booking-id="' . esc_attr((string) $post_id) . '">';
-            echo '<span class="dashicons dashicons-undo"></span>';
-            echo __('Process Refund', 'mhm-rentiva');
-            echo '</button>';
-        }
+		// Remaining balance button
+		if ( $payment_type === 'deposit' && $remaining_amount > 0 && $payment_status === 'paid' ) {
+			echo '<button type="button" class="deposit-action-btn primary" id="process-remaining-payment" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
+			echo '<span class="dashicons dashicons-money-alt"></span>';
+			echo esc_html__( 'Process Remaining Amount', 'mhm-rentiva' );
+			echo '</button>';
+		}
 
-        echo '</div>';
-        echo '</div>';
-    }
+		// Cancel button
+		if ( in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) {
+			echo '<button type="button" class="deposit-action-btn warning" id="cancel-booking" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
+			echo '<span class="dashicons dashicons-no"></span>';
+			echo esc_html__( 'Cancel Booking', 'mhm-rentiva' );
+			echo '</button>';
+		}
 
-    public static function save_meta(int $post_id, \WP_Post $post): void
-    {
-        // Nonce check
-        if (
-            !isset($_POST['mhm_rentiva_deposit_management_nonce']) ||
-            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_deposit_management_nonce'])), 'mhm_rentiva_deposit_management_action')
-        ) {
-            return;
-        }
+		// Refund button
+		if ( $payment_status === 'paid' && in_array( $booking_status, array( 'cancelled' ), true ) ) {
+			echo '<button type="button" class="deposit-action-btn danger" id="process-refund" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
+			echo '<span class="dashicons dashicons-undo"></span>';
+			echo esc_html__( 'Process Refund', 'mhm-rentiva' );
+			echo '</button>';
+		}
 
-        // Capability check
-        if (!current_user_can('edit_post', $post_id)) {
-            return;
-        }
+		echo '</div>';
+		echo '</div>';
+	}
 
-        // Autosave / revision guard
-        if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
-            return;
-        }
+	public static function save_meta( int $post_id, \WP_Post $post ): void {
+		// Nonce check
+		if (
+			! isset( $_POST['mhm_rentiva_deposit_management_nonce'] ) ||
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_deposit_management_nonce'] ) ), 'mhm_rentiva_deposit_management_action' )
+		) {
+			return;
+		}
 
-        // Deposit actions are handled over AJAX; only meta can be stored here if needed.
-    }
+		// Capability check
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
 
-    private static function format_price(float $price): string
-    {
-        $currency = Settings::get('currency', 'USD');
-        $position = Settings::get('currency_position', 'right_space');
-        $amount = number_format_i18n($price, 2);
-        $symbol = $currency;
+		// Autosave / revision guard
+		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
+			return;
+		}
 
-        switch ($position) {
-            case 'left':
-                return $symbol . $amount;
-            case 'right':
-                return $amount . $symbol;
-            case 'left_space':
-                return $symbol . ' ' . $amount;
-            case 'right_space':
-            default:
-                return $amount . ' ' . $symbol;
-        }
-    }
+		// Deposit actions are handled over AJAX; only meta can be stored here if needed.
+	}
 
-    private static function get_payment_status_label(string $status): string
-    {
-        $labels = [
-            'unpaid' => __('Unpaid', 'mhm-rentiva'),
-            'paid' => __('Paid', 'mhm-rentiva'),
-            'refunded' => __('Refunded', 'mhm-rentiva'),
-            'failed' => __('Failed', 'mhm-rentiva'),
-            'pending_verification' => __('Pending Verification', 'mhm-rentiva'),
-        ];
+	private static function format_price( float $price ): string {
+		$currency = Settings::get( 'currency', 'USD' );
+		$position = Settings::get( 'currency_position', 'right_space' );
+		$amount   = number_format_i18n( $price, 2 );
+		$symbol   = $currency;
 
-        return $labels[$status] ?? ucfirst($status);
-    }
+		switch ( $position ) {
+			case 'left':
+				return $symbol . $amount;
+			case 'right':
+				return $amount . $symbol;
+			case 'left_space':
+				return $symbol . ' ' . $amount;
+			case 'right_space':
+			default:
+				return $amount . ' ' . $symbol;
+		}
+	}
 
-    /**
-     * Get translated deposit type label
-     */
-    private static function get_deposit_type_label(string $deposit_type): string
-    {
-        $labels = [
-            'full_payment' => __('Full Payment', 'mhm-rentiva'),
-            'percentage' => __('Percentage', 'mhm-rentiva'),
-            'fixed' => __('Fixed Amount', 'mhm-rentiva'),
-            'both' => __('Both', 'mhm-rentiva'),
-            'none' => __('None', 'mhm-rentiva'),
-        ];
+	private static function get_payment_status_label( string $status ): string {
+		$labels = array(
+			'unpaid'               => __( 'Unpaid', 'mhm-rentiva' ),
+			'paid'                 => __( 'Paid', 'mhm-rentiva' ),
+			'refunded'             => __( 'Refunded', 'mhm-rentiva' ),
+			'failed'               => __( 'Failed', 'mhm-rentiva' ),
+			'pending_verification' => __( 'Pending Verification', 'mhm-rentiva' ),
+		);
 
-        return $labels[$deposit_type] ?? ucfirst(str_replace('_', ' ', $deposit_type));
-    }
+		return $labels[ $status ] ?? ucfirst( $status );
+	}
+
+	/**
+	 * Get translated deposit type label
+	 */
+	private static function get_deposit_type_label( string $deposit_type ): string {
+		$labels = array(
+			'full_payment' => __( 'Full Payment', 'mhm-rentiva' ),
+			'percentage'   => __( 'Percentage', 'mhm-rentiva' ),
+			'fixed'        => __( 'Fixed Amount', 'mhm-rentiva' ),
+			'both'         => __( 'Both', 'mhm-rentiva' ),
+			'none'         => __( 'None', 'mhm-rentiva' ),
+		);
+
+		return $labels[ $deposit_type ] ?? ucfirst( str_replace( '_', ' ', $deposit_type ) );
+	}
 }

@@ -1,22 +1,27 @@
 name: mhm-polyglot
 description: Eklentiyi global pazarlar (DE, ES, FR, NL) için otomatik yerelleştirme uzmanı.
 ---
+# Skill: MHM Polyglot (v2.0)
 
-# 🌍 MHM Polyglot Skill
+**Role:** The Internationalization (i18n) Architect.
+**Motto:** "Hardcoded strings are bugs."
 
-## Görev
-POT dosyasındaki değişiklikleri takip ederek hedef dillerin çeviri dosyalarını güncel tutmak.
+## Core Responsibilities
 
-## Hedef Diller ve Kurallar
-1. **de_DE (Almanca):** Hitap şekli "Sie" (Formal). Turizm ve Otomotiv jargonu.
-2. **fr_FR (Fransızca):** Formal hitap.
-3. **es_ES (İspanyolca):** Nötr İspanyolca.
-4. **nl_NL (Hollanda):** Nötr Hollanda.
+### 1. String Wrapping
+* **Mandate:** Every user-facing string MUST be wrapped in a WordPress translation function.
+* **Text Domain:** Must match the slug exactly: `'mhm-rentiva'`.
+* **Functions:**
+    * `__('Text', 'mhm-rentiva')` (Return)
+    * `_e('Text', 'mhm-rentiva')` (Echo)
+    * `_n()` (Plurals)
+    * `_x()` (Context)
 
-## Komut Zinciri
-Agent, "Çevirileri Güncelle" emri aldığında şu döngüyü kurar:
-1. `languages/mhm-rentiva.pot` dosyasını oku.
-2. Hedef dilin `.po` dosyasını kontrol et.
-3. Eksik satırları yapay zeka ile çevir (Bağlamı koruyarak).
-4. `wp i18n make-mo [dosya].po` komutuyla derle.
-5. `wp i18n make-pot` komutuyla yeni POT dosyasını oluştur.
+### 2. Variable Management
+* **Mandate:** Never use PHP variables directly inside translation functions.
+* **Violation:** `__("Hello $name", 'mhm-rentiva')`
+* **Correction:** `sprintf(__('Hello %s', 'mhm-rentiva'), $name)`
+
+### 3. POT File Generation
+* **Mandate:** Ensure the `.pot` file is always up-to-date with the latest code.
+* **Tool:** `wp i18n make-pot . languages/mhm-rentiva.pot`

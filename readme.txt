@@ -1,12 +1,14 @@
 === MHM Rentiva ===
-Contributors: mhmdevelopment
-Tags: car rental, vehicle rental, booking, reservation, rent a car
+Contributors:     mhmdevelopment
+Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 5.0
-Tested up to: 6.8
-Requires PHP: 7.4
-Stable tag: 4.6.3
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Tested up to:      6.9
+Requires PHP:      7.4
+Stable tag:        4.6.5
+License:           GPLv2 or later
+License URI:       http://www.gnu.org/licenses/gpl-2.0.html
+Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
+Author URI:        https://maxhandmade.com/
 
 MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
 
@@ -72,6 +74,13 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+ 
+= 4.6.4 =
+* Security: Hardened output escaping in About, System Info, and Admin Tabs using esc_html and wp_kses_post.
+* Data Integrity: Enhanced sanitization for price and ID fields in AddonManager and Booking Meta Boxes.
+* Localization: Translated remaining Turkish administrative strings in Manual Booking and Vehicle management to English.
+* UI Fix: Resolved hardcoded currency symbol issues in Booking Edit screens for better multi-currency support.
+* Cleanup: Optimized SQL queries with proper preparation in Vehicle Columns and System Info classes.
  
 = 4.6.3 =
 * Security: SQL Injection protection hardened for message search queries using prepared statements.

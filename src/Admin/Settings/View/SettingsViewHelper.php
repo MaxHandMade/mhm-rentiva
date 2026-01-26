@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\View;
 
-if (!defined('ABSPATH')) {
-    exit;
+if (! defined('ABSPATH')) {
+	exit;
 }
 
 /**
@@ -13,62 +13,64 @@ if (!defined('ABSPATH')) {
  */
 final class SettingsViewHelper
 {
-    /**
-     * Safely remove nested form elements from HTML content
-     * 
-     * @param string $content HTML content that may contain nested forms
-     * @return string Cleaned HTML content without nested forms
-     */
-    public static function remove_nested_forms(string $content): string
-    {
-        if (empty($content)) {
-            return '';
-        }
 
-        // Just strip the <form> and </form> tags themselves, preserving inner content
-        // This is safer than DOM manipulation which might remove children.
-        $content = preg_replace('/<form[^>]*>/i', '<!-- nested form stripped -->', $content) ?? '';
-        $content = preg_replace('/<\/form>/i', '<!-- nested form end stripped -->', $content) ?? '';
+	/**
+	 * Safely remove nested form elements from HTML content
+	 *
+	 * @param string $content HTML content that may contain nested forms
+	 * @return string Cleaned HTML content without nested forms
+	 */
+	public static function remove_nested_forms(string $content): string
+	{
+		if (empty($content)) {
+			return '';
+		}
 
-        // Also remove any form attribute on other elements (standard WP cleanup)
-        $content = preg_replace('/\s+form\s*=\s*["\'][^"\']*["\']/i', '', $content) ?? '';
+		// Just strip the <form> and </form> tags themselves, preserving inner content
+		// This is safer than DOM manipulation which might remove children.
+		$content = preg_replace('/<form[^>]*>/i', '<!-- nested form stripped -->', $content) ?? '';
+		$content = preg_replace('/<\/form>/i', '<!-- nested form end stripped -->', $content) ?? '';
 
-        return $content;
-    }
-    /**
-     * Render a SPECIFIC settings section cleanly (removes nested forms)
-     * 
-     * @param string $section_id The ID of the section to render
-     * @param string $page The page ID it belongs to (defaults to main settings)
-     */
-    public static function render_section_cleanly(string $section_id, string $page = \MHMRentiva\Admin\Settings\Core\SettingsCore::PAGE): void
-    {
-        global $wp_settings_sections, $wp_settings_fields;
+		// Also remove any form attribute on other elements (standard WP cleanup)
+		$content = preg_replace('/\s+form\s*=\s*["\'][^"\']*["\']/i', '', $content) ?? '';
 
-        if (!isset($wp_settings_sections[$page]) || !isset($wp_settings_sections[$page][$section_id])) {
-            return;
-        }
+		return $content;
+	}
+	/**
+	 * Render a SPECIFIC settings section cleanly (removes nested forms)
+	 *
+	 * @param string $section_id The ID of the section to render
+	 * @param string $page The page ID it belongs to (defaults to main settings)
+	 */
+	public static function render_section_cleanly(string $section_id, string $page = \MHMRentiva\Admin\Settings\Core\SettingsCore::PAGE): void
+	{
+		global $wp_settings_sections, $wp_settings_fields;
 
-        $section = $wp_settings_sections[$page][$section_id];
+		if (! isset($wp_settings_sections[$page]) || ! isset($wp_settings_sections[$page][$section_id])) {
+			return;
+		}
 
-        ob_start();
+		$section = $wp_settings_sections[$page][$section_id];
 
-        if ($section['title']) {
-            echo "<h2>{$section['title']}</h2>\n";
-        }
+		ob_start();
 
-        if ($section['callback']) {
-            call_user_func($section['callback'], $section);
-        }
+		if ($section['title']) {
+			echo '<h2>' . esc_html((string) $section['title']) . "</h2>\n";
+		}
 
-        if (isset($wp_settings_fields) && isset($wp_settings_fields[$page]) && isset($wp_settings_fields[$page][$section_id])) {
-            echo '<table class="form-table" role="presentation">';
-            do_settings_fields($page, $section_id);
-            echo '</table>';
-        }
+		if ($section['callback']) {
+			call_user_func($section['callback'], $section);
+		}
 
-        $content = ob_get_clean();
+		if (isset($wp_settings_fields) && isset($wp_settings_fields[$page]) && isset($wp_settings_fields[$page][$section_id])) {
+			echo '<table class="form-table" role="presentation">';
+			do_settings_fields($page, $section_id);
+			echo '</table>';
+		}
 
-        echo self::remove_nested_forms((string) $content);
-    }
+		$content = ob_get_clean();
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is scrubbed for forms above.
+		echo self::remove_nested_forms((string) $content);
+	}
 }

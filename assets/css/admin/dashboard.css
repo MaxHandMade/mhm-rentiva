@@ -5,13 +5,109 @@
 
 /* Main Dashboard Container */
 .mhm-rentiva-dashboard {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 var(--mhm-space-5);
+    max-width: 100%;
+    margin: 10px auto;
+    padding: 0 10px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    /* Prevent horizontal scroll on main container */
+}
+
+.mhm-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.mhm-dashboard-header h1 {
+    margin: 0;
 }
 
 .mhm-dashboard-content {
     margin-top: var(--mhm-space-5);
+}
+
+.header-actions {
+    display: flex;
+    gap: var(--mhm-space-3);
+    align-items: center;
+}
+
+#mhm-reset-dashboard {
+    display: flex;
+    align-items: center;
+    gap: var(--mhm-space-2);
+}
+
+/* Sortable Container */
+.mhm-sortable-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-top: 30px;
+    align-items: stretch;
+    width: 100%;
+}
+
+/* Force 1 column on tablet and below - High Specificity */
+@media (max-width: 992px) {
+    .mhm-sortable-container {
+        grid-template-columns: 1fr !important;
+    }
+
+    .mhm-dashboard-widget-wrapper {
+        grid-column: span 1 !important;
+    }
+}
+
+.mhm-dashboard-widget-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.mhm-widget-drag-handle {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: move;
+    color: var(--mhm-gray-400);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: var(--mhm-bg-tertiary);
+    border-radius: 50%;
+    box-shadow: var(--mhm-shadow-sm);
+}
+
+.mhm-dashboard-widget-wrapper:hover .mhm-widget-drag-handle {
+    opacity: 1;
+}
+
+.mhm-widget-drag-handle:hover {
+    color: var(--mhm-primary);
+    background: var(--mhm-white);
+    transform: scale(1.1);
+}
+
+/* Sortable Placeholder */
+.mhm-sortable-placeholder {
+    background: rgba(var(--mhm-primary-rgb), 0.05);
+    border: 2px dashed var(--mhm-primary);
+    border-radius: var(--mhm-radius-xl);
+    height: 300px;
+}
+
+/* Full Width Widgets */
+.mhm-dashboard-widget-wrapper[data-widget="upcoming-operations"],
+.mhm-dashboard-widget-wrapper[data-widget="quick-actions"] {
+    grid-column: span 2;
 }
 
 /* Quick Actions Panel */
@@ -33,17 +129,22 @@
 
 .quick-actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--mhm-space-4);
+    grid-template-columns: repeat(9, 1fr);
+    /* Force 9 columns for 9 items */
+    gap: 10px;
+    width: 100%;
 }
 
 .quick-action-card {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: var(--mhm-space-3);
-    padding: var(--mhm-space-4) var(--mhm-space-5);
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    padding: 12px 5px;
     background: var(--mhm-bg-secondary);
-    border: 1px solid var(--mhm-border-secondary);
+    border: 1px solid var(--mhm-border-primary);
     border-radius: var(--mhm-radius-lg);
     text-decoration: none;
     color: var(--mhm-text-secondary);
@@ -70,38 +171,104 @@
 }
 
 .action-title {
-    font-size: 0.9em;
-}
-
-/* Dashboard Rows */
-.mhm-dashboard-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--mhm-space-8);
-    margin-bottom: var(--mhm-space-8);
+    font-size: 0.8em;
+    line-height: 1.2;
+    display: block;
 }
 
 /* Dashboard Widgets */
 .mhm-dashboard-widget {
     background: var(--mhm-bg-card);
     border-radius: var(--mhm-radius-xl);
-    padding: var(--mhm-space-6);
+    padding: 25px;
     box-shadow: var(--mhm-shadow-base);
     border: 1px solid var(--mhm-border-primary);
-    height: fit-content;
+    height: 100%;
+    transition: transform var(--mhm-duration-300) ease, box-shadow var(--mhm-duration-300) ease;
+    box-sizing: border-box;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.mhm-dashboard-widget-wrapper:hover .mhm-dashboard-widget {
+    box-shadow: var(--mhm-shadow-lg);
+    border-color: var(--mhm-primary-light);
 }
 
 .mhm-dashboard-widget h3 {
-    margin: 0 0 var(--mhm-space-5) 0;
+    margin: 0;
     color: var(--mhm-text-primary);
-    font-size: 1.2em;
+    font-size: 1.15em;
     font-weight: var(--mhm-font-semibold);
-    border-bottom: 2px solid var(--mhm-gray-100);
-    padding-bottom: var(--mhm-space-2);
+    border-bottom: 1px solid var(--mhm-gray-100);
+    padding: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    cursor: default;
+    /* Changed to pointer via JS if collapsible */
+    transition: all 0.3s ease;
+}
+
+/* Collapsible Widget Header */
+.mhm-dashboard-widget.is-collapsible h3 {
+    cursor: pointer;
+}
+
+.mhm-dashboard-widget.is-collapsible h3:hover {
+    color: var(--mhm-primary);
+}
+
+.mhm-dashboard-widget h3::after {
+    content: '\f140';
+    /* dashicons-arrow-down-alt2 */
+    font-family: dashicons;
+    margin-left: auto;
+    font-size: 16px;
+    transition: transform 0.3s ease;
+    opacity: 0;
+    /* Only show on mobile or when specified */
+}
+
+@media (max-width: 768px) {
+    .mhm-dashboard-widget h3::after {
+        opacity: 0.6;
+    }
+
+    .mhm-dashboard-widget.is-collapsed h3::after {
+        transform: rotate(-90deg);
+    }
+
+    .mhm-dashboard-widget.is-collapsed .widget-content,
+    .mhm-dashboard-widget.is-collapsed .widget-footer {
+        display: none;
+    }
+
+    .mhm-dashboard-widget.is-collapsed {
+        padding-bottom: 0;
+    }
+}
+
+.mhm-dashboard-widget h3 span.dashicons {
+    font-size: 20px;
+    color: var(--mhm-primary);
 }
 
 .widget-content {
-    margin-bottom: var(--mhm-space-5);
+    flex: 1;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    /* IMPORTANT: Enable horizontal scroll for tables on mobile */
+    -webkit-overflow-scrolling: touch;
+}
+
+.widget-content table {
+    min-width: 400px;
+    /* Prevent table from becoming too squashed */
+    width: 100%;
+    border-collapse: collapse;
 }
 
 .widget-footer {
@@ -346,101 +513,101 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-    .mhm-dashboard-row {
-        grid-template-columns: 1fr;
-        gap: var(--mhm-space-5);
-    }
-
-    .quick-actions-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+@media (max-width: 1024px) {
+    .mhm-sortable-container {
+        gap: 20px;
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .mhm-rentiva-dashboard {
-        padding: 0 15px;
+        padding: 0 5px !important;
     }
 
-    .mhm-quick-actions,
+    .mhm-dashboard-header {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 15px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .header-actions {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    .mhm-sortable-container {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+
+    .mhm-dashboard-widget-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        grid-column: span 1 !important;
+    }
+
     .mhm-dashboard-widget {
-        padding: var(--mhm-space-5);
+        width: 100% !important;
+        padding: 15px !important;
+        margin-bottom: 5px !important;
     }
 
     .quick-actions-grid {
-        grid-template-columns: 1fr;
-        gap: var(--mhm-space-3);
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
     }
 
     .quick-action-card {
-        padding: var(--mhm-space-3) 15px;
+        padding: 12px !important;
+        flex-direction: row !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+        gap: 15px !important;
     }
 
+    /* Fix stat item wrapping */
+    .customer-stats-grid,
     .vehicle-status-grid,
-    .customer-stats-grid {
-        grid-template-columns: 1fr;
-        gap: var(--mhm-space-3);
-    }
-
-    .revenue-summary {
-        flex-direction: column;
-        gap: var(--mhm-space-2);
-    }
-
-    .summary-item {
-        text-align: left;
-    }
-}
-
-@media (max-width: 480px) {
-    .mhm-rentiva-dashboard {
-        padding: 0 10px;
-    }
-
-    .mhm-quick-actions,
-    .mhm-dashboard-widget {
-        padding: 15px;
-    }
-
-    .mhm-dashboard-widget h3 {
-        font-size: 1.1em;
-    }
-
-    .quick-action-card {
-        padding: 10px var(--mhm-space-3);
-        gap: var(--mhm-space-2);
-    }
-
-    .quick-action-card .dashicons {
-        font-size: 18px;
-    }
-
-    .action-title {
-        font-size: 0.85em;
+    .message-stats-grid {
+        grid-template-columns: 1fr !important;
     }
 
     .status-item,
     .customer-stats-grid .stat-item {
-        padding: var(--mhm-space-3);
-        gap: var(--mhm-space-2);
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        padding: 12px !important;
     }
 
-    .status-item .status-icon,
-    .customer-stats-grid .stat-icon {
-        width: 35px;
-        height: 35px;
+    /* Accordion Logic */
+    .mhm-dashboard-widget.is-collapsed .widget-content,
+    .mhm-dashboard-widget.is-collapsed .widget-footer {
+        display: none !important;
     }
 
-    .status-item .status-icon .dashicons,
-    .customer-stats-grid .stat-icon .dashicons {
-        font-size: 16px;
+    .mhm-dashboard-widget.is-collapsed h3 {
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
     }
 
-    .status-number,
-    .customer-stats-grid .stat-number {
-        font-size: 1.3em;
+    .mhm-dashboard-widget h3::after {
+        opacity: 0.6 !important;
     }
 }
+
+@media (max-width: 480px) {
+    .mhm-dashboard-header h1 {
+        font-size: 1.5em !important;
+    }
+
+    .stat-item .stat-number {
+        font-size: 1.3em !important;
+    }
+}
+
 
 /* Animations */
 @keyframes slideInUp {

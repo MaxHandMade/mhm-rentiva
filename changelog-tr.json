@@ -1,8 +1,20 @@
 [
     {
+        "version": "4.6.4",
+        "date": "2026-01-26",
+        "type": "current",
+        "changes": [
+            "🛡️ GÜVENLİK: Hakkında, Sistem Bilgisi ve Admin Sekmelerinde esc_html ve wp_kses_post kullanılarak çıktı kaçırma işlemleri güçlendirildi.",
+            "🔒 VERİ BÜTÜNLÜĞÜ: AddonManager ve Rezervasyon Meta Kutularındaki fiyat ve ID alanları için sanitizasyon iyileştirildi.",
+            "🌐 YERELLEŞTİRME: Manuel Rezervasyon ve Araç yönetiminde kalan Türkçe yönetici dizeleri İngilizce'ye çevrildi.",
+            "🎨 ARAYÜZ DÜZELTMESİ: Daha iyi çoklu para birimi desteği için Rezervasyon Düzenleme ekranlarındaki hardcoded sembol sorunları giderildi.",
+            "🧹 TEMİZLİK: Araç Kolonları ve Sistem Bilgisi sınıflarında SQL sorguları uygun hazırlama (prepare) ile optimize edildi."
+        ]
+    },
+    {
         "version": "4.6.3",
         "date": "2026-01-25",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🛡️ GÜVENLİK: Mesaj arama sorguları prepared statements kullanılarak SQL Injection'a karşı güçlendirildi.",
             "📡 REST API: Entegrasyon Ayarları backend mimarisi, AJAX buton güvenilirliğini garanti edecek şekilde yeniden yapılandırıldı.",

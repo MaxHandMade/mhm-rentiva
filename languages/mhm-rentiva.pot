@@ -39,10 +39,6 @@ msgstr ""
 msgid "Lite Version"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php
-msgid "Documentation"
-msgstr ""
-
 #: templates/account/messages.php
 msgid "Support"
 msgstr ""
@@ -91,7 +87,7 @@ msgstr ""
 msgid "Error occurred while getting system information."
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/transfer-widget.php
 msgid "Unknown"
 msgstr ""
 
@@ -103,7 +99,7 @@ msgstr ""
 msgid "Could not calculate"
 msgstr ""
 
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
+#: src/Admin/Settings/Groups/FrontendSettings.php
 msgid "Error"
 msgstr ""
 
@@ -217,6 +213,10 @@ msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php
 msgid "Address:"
+msgstr ""
+
+#: src/Admin/About/Tabs/DeveloperTab.php
+msgid "%1$s - %2$s %3$s"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php
@@ -415,6 +415,10 @@ msgstr ""
 msgid "Version History"
 msgstr ""
 
+#: src/Admin/Vehicle/Settings/VehicleSettings.php
+msgid "Documentation"
+msgstr ""
+
 #: src/Admin/About/Tabs/SupportTab.php
 msgid "Detailed user guides, video tutorials and API documentation."
 msgstr ""
@@ -603,7 +607,7 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php
+#: templates/admin/dashboard/vehicle-status.php
 msgid "Inactive"
 msgstr ""
 
@@ -781,6 +785,34 @@ msgstr ""
 
 #: src/Admin/Addons/AddonManager.php
 msgid "Error occurred while updating price."
+msgstr ""
+
+#: src/Admin/Vehicle/Settings/VehicleSettings.php
+msgid "Child Seat"
+msgstr ""
+
+#: src/Admin/Addons/AddonManager.php
+msgid "Safety first. ISOFIX compatible child seat."
+msgstr ""
+
+#: src/Admin/Addons/AddonManager.php
+msgid "GPS Navigation"
+msgstr ""
+
+#: src/Admin/Addons/AddonManager.php
+msgid "Full Insurance"
+msgstr ""
+
+#: src/Admin/Addons/AddonManager.php
+msgid "Zero deductible. Peace of mind during your trip."
+msgstr ""
+
+#: src/Admin/Addons/AddonManager.php
+msgid "Extra Driver"
+msgstr ""
+
+#: src/Admin/Addons/AddonManager.php
+msgid "Share the wheel. Add one more authorized driver."
 msgstr ""
 
 #: templates/shortcodes/booking-form.php
@@ -1243,7 +1275,7 @@ msgstr ""
 msgid "Dates"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/upcoming-operations.php
 msgid "Days"
 msgstr ""
 
@@ -1275,7 +1307,7 @@ msgstr ""
 msgid "Paid"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/pending-payments.php
 msgid "Unpaid"
 msgstr ""
 
@@ -1283,7 +1315,7 @@ msgstr ""
 msgid "Manual"
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
 msgid "Online"
 msgstr ""
 
@@ -1299,7 +1331,7 @@ msgstr ""
 msgid "Failed"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: src/Admin/Booking/Meta/BookingMeta.php
 msgid "Pending Verification"
 msgstr ""
 
@@ -1327,7 +1359,7 @@ msgstr ""
 msgid "This month"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/stats-cards.php
 msgid "Monthly Revenue"
 msgstr ""
 
@@ -1416,7 +1448,7 @@ msgid "Sat"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php
-msgid "Reservations: %s (%d)"
+msgid "Reservations: %1$s (%2$d)"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php
@@ -1511,7 +1543,7 @@ msgstr ""
 msgid "Cancelled Booking"
 msgstr ""
 
-#: src/Admin/Utilities/ListTable/LogColumns.php
+#: templates/admin/dashboard/pending-payments.php
 msgid "Booking"
 msgstr ""
 
@@ -1687,7 +1719,7 @@ msgstr ""
 msgid "Edit Booking Details"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "Saving..."
 msgstr ""
 
@@ -1879,7 +1911,7 @@ msgstr ""
 msgid "Email subject..."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php
+#: src/Admin/Frontend/Shortcodes/ContactForm.php
 msgid "Message:"
 msgstr ""
 
@@ -1920,7 +1952,7 @@ msgid "Booking Reminder - %s"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php
-msgid "Booking Cancelled - %s"
+msgid "Message from %s"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php
@@ -1940,10 +1972,14 @@ msgid "Hello %1$s,<br><br>We regret to inform you that your booking for %2$s has
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php
+msgid "You have received a message from %s"
+msgstr ""
+
+#: src/Admin/Booking/Meta/BookingMeta.php
 msgid "Add Note"
 msgstr ""
 
-#: src/Admin/Settings/Groups/LogsSettings.php
+#: src/Admin/Settings/Groups/AddonSettings.php
 msgid "Note:"
 msgstr ""
 
@@ -2175,11 +2211,11 @@ msgstr ""
 msgid "New Customer Information"
 msgstr ""
 
-#: templates/account/register-form.php
+#: templates/account/account-details.php
 msgid "First Name"
 msgstr ""
 
-#: templates/account/register-form.php
+#: templates/account/account-details.php
 msgid "Last Name"
 msgstr ""
 
@@ -2199,8 +2235,8 @@ msgstr ""
 msgid "Special notes about the booking..."
 msgstr ""
 
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php
-msgid "Fiyat Hesaplama"
+#: templates/shortcodes/booking-form.php
+msgid "Price Calculation"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php
@@ -2217,10 +2253,6 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php
 msgid "Price could not be calculated."
-msgstr ""
-
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php
-msgid "Gerekli alanlar eksik."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php
@@ -2547,11 +2579,11 @@ msgstr ""
 msgid "Revenue"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/deposit-stats.php
 msgid "this month"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/stats-cards.php
 msgid "available"
 msgstr ""
 
@@ -2663,51 +2695,51 @@ msgstr ""
 msgid "Error reordering images"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "Please enter a category name"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "This category already exists"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "Are you sure you want to delete this category?"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "Please enter a status name"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "This status already exists"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "Are you sure you want to delete this status?"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "Enter a valid admin email address"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "Enter a valid sender email address"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "Widget max messages must be between 1-20"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "Duplicate category names are not allowed"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "Duplicate status names are not allowed"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Core/AssetManager.php
 msgid "Form errors"
 msgstr ""
 
@@ -2803,7 +2835,7 @@ msgstr ""
 msgid "Settings reset to defaults successfully. Page will reload..."
 msgstr ""
 
-#: src/Admin/Settings/APIKeysPage.php
+#: src/Admin/Core/AssetManager.php
 msgid "Failed to reset settings to defaults."
 msgstr ""
 
@@ -2863,7 +2895,7 @@ msgstr ""
 msgid "Failed to send test email"
 msgstr ""
 
-#: templates/account/register-form.php
+#: templates/account/account-details.php
 msgid "Email Address"
 msgstr ""
 
@@ -2889,6 +2921,78 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php
 msgid "Template reset to default!"
+msgstr ""
+
+#: src/Admin/Settings/APIKeysPage.php
+msgid "API key name is required."
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "Please select at least one permission."
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "Create API Key"
+msgstr ""
+
+#: src/Admin/Settings/APIKeysPage.php
+msgid "Failed to create API key."
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "Copy"
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "API key copied to clipboard!"
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "Are you sure you want to revoke this API key? This will immediately stop access for any application using this key."
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "Are you sure you want to delete this API key? This action is permanent and cannot be undone."
+msgstr ""
+
+#: src/Admin/Settings/APIKeysPage.php
+msgid "Failed to revoke API key."
+msgstr ""
+
+#: src/Admin/Settings/APIKeysPage.php
+msgid "Failed to delete API key."
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "No API keys found."
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "Key Name"
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "Permissions"
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "Created"
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "Last Used"
+msgstr ""
+
+#: templates/admin/shortcode-pages.php
+msgid "Actions"
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "Revoke"
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php
+msgid "Are you sure you want to reset all REST API settings to default values? This action cannot be undone."
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php
@@ -3123,7 +3227,7 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
+#: src/Admin/Settings/Groups/LogsSettings.php
 msgid "Info"
 msgstr ""
 
@@ -3592,6 +3696,10 @@ msgid "%1$s scheduled for: %2$s."
 msgstr ""
 
 #: src/Admin/Core/PostTypes/AbstractPostType.php
+msgid "M j, Y @ G:i"
+msgstr ""
+
+#: src/Admin/Core/PostTypes/AbstractPostType.php
 msgid "%s draft updated."
 msgstr ""
 
@@ -3719,7 +3827,7 @@ msgstr ""
 msgid "You have used %1$d out of %2$d customers (%3$d%%)."
 msgstr ""
 
-#: src/Admin/Core/SecurityHelper.php
+#: src/Admin/Settings/Core/SettingsCore.php
 msgid "Too many requests. Please wait."
 msgstr ""
 
@@ -3748,6 +3856,10 @@ msgid "An error occurred during the operation."
 msgstr ""
 
 #: src/Admin/Core/ShortcodeServiceProvider.php
+msgid "Please login to view this content."
+msgstr ""
+
+#: src/Admin/Core/ShortcodeServiceProvider.php
 msgid "Vehicle Display"
 msgstr ""
 
@@ -3760,19 +3872,23 @@ msgid "Support and Contact"
 msgstr ""
 
 #: src/Admin/Core/ShortcodeServiceProvider.php
-msgid "Financial"
+msgid "Transfer Services"
 msgstr ""
 
 #: src/Admin/Core/ShortcodeUrlManager.php
-msgid "No page found containing the <code>[%s]</code> shortcode. "
+msgid "MHM Rentiva:"
 msgstr ""
 
 #: src/Admin/Core/ShortcodeUrlManager.php
-msgid "Create a new page</a> and add the shortcode."
+msgid "No page found containing the [%s] shortcode. "
+msgstr ""
+
+#: src/Admin/Core/ShortcodeUrlManager.php
+msgid "Create a new page and add the shortcode."
 msgstr ""
 
 #: src/Admin/Core/Tabs/AbstractTab.php
-msgid "Buton"
+msgid "Button"
 msgstr ""
 
 #: src/Admin/Vehicle/Reports/VehicleReport.php
@@ -3815,7 +3931,7 @@ msgstr ""
 msgid "Count"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+#: src/Admin/Core/Utilities/DatabaseCleaner.php
 msgid "Size"
 msgstr ""
 
@@ -3831,7 +3947,7 @@ msgstr ""
 msgid "Cleanup Recommended"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+#: src/Admin/Core/Utilities/DatabaseCleaner.php
 msgid "Clean"
 msgstr ""
 
@@ -3860,6 +3976,10 @@ msgid "All Valid"
 msgstr ""
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php
+msgid "Log Records (>30 days)"
+msgstr ""
+
+#: src/Admin/Core/Utilities/DatabaseCleaner.php
 msgid "Custom Tables"
 msgstr ""
 
@@ -3871,7 +3991,7 @@ msgstr ""
 msgid "Exists"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+#: src/Admin/Core/Utilities/DatabaseCleaner.php
 msgid "Rows"
 msgstr ""
 
@@ -3907,6 +4027,10 @@ msgstr ""
 msgid "Optimize Tables"
 msgstr ""
 
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Purge Old Logs"
+msgstr ""
+
 #: src/Admin/Core/Utilities/DatabaseCleaner.php
 msgid "Backup table not found"
 msgstr ""
@@ -3928,6 +4052,10 @@ msgid "Failed to delete backup"
 msgstr ""
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php
+msgid "Failed to initialize filesystem."
+msgstr ""
+
+#: src/Admin/Core/Utilities/DatabaseCleaner.php
 msgid "No tables found to backup"
 msgstr ""
 
@@ -3937,6 +4065,10 @@ msgstr ""
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php
 msgid "Full backup created successfully: %1$d tables, %2$d rows"
+msgstr ""
+
+#: src/Admin/Core/Utilities/DatabaseCleaner.php
+msgid "Failed to initialize filesystem"
 msgstr ""
 
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php
@@ -3960,6 +4092,10 @@ msgid "Backup deletion completed with some warnings"
 msgstr ""
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php
+msgid "Filesystem initialization failed"
+msgstr ""
+
+#: src/Admin/Core/Utilities/DatabaseCleaner.php
 msgid "Backup directory does not exist"
 msgstr ""
 
@@ -3973,10 +4109,6 @@ msgstr ""
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php
 msgid "index.php file missing - directory listing is possible"
-msgstr ""
-
-#: src/Admin/Core/Utilities/DatabaseCleaner.php
-msgid "Directory permissions (%s) are too permissive"
 msgstr ""
 
 #: src/Admin/Core/Utilities/DatabaseMigrator.php
@@ -4003,7 +4135,7 @@ msgstr ""
 msgid "Permission Error"
 msgstr ""
 
-#: src/Admin/Core/Utilities/ErrorHandler.php
+#: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
 msgid "Operation failed."
 msgstr ""
 
@@ -4013,6 +4145,10 @@ msgstr ""
 
 #: templates/shortcodes/vehicles-list.php
 msgid "/day"
+msgstr ""
+
+#: src/Admin/Core/Utilities/TypeValidator.php
+msgid "Expected type %1$s, got %2$s"
 msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php
@@ -4043,7 +4179,7 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/quick-actions.php
 msgid "Add Customer"
 msgstr ""
 
@@ -4061,6 +4197,10 @@ msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php
 msgid "Advanced Customer Management"
+msgstr ""
+
+#: src/Admin/Customers/CustomersPage.php
+msgid "Customers List"
 msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php
@@ -4128,10 +4268,6 @@ msgid "Invalid customer ID."
 msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php
-msgid "Customers List"
-msgstr ""
-
-#: src/Admin/Customers/CustomersPage.php
 msgid "Registration Date"
 msgstr ""
 
@@ -4191,7 +4327,7 @@ msgstr ""
 msgid "Message Notifications"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: src/Admin/Emails/Core/EmailTemplates.php
 msgid "Email Templates"
 msgstr ""
 
@@ -4229,6 +4365,22 @@ msgstr ""
 
 #: templates/admin/settings-page.php
 msgid "Save Changes"
+msgstr ""
+
+#: src/Admin/Settings/View/TabRendererRegistry.php
+msgid "Notification Templates"
+msgstr ""
+
+#: src/Admin/Emails/Core/EmailTemplates.php
+msgid "Customize automated email communications. If a field is empty, the system automatically uses the Gold Standard layout."
+msgstr ""
+
+#: src/Admin/Emails/Core/EmailTemplates.php
+msgid "Restore Gold Standard"
+msgstr ""
+
+#: src/Admin/Emails/Core/EmailTemplates.php
+msgid "Not implemented"
 msgstr ""
 
 #: src/Admin/Emails/Core/EmailTemplates.php
@@ -4311,7 +4463,7 @@ msgstr ""
 msgid "Email templates saved successfully!"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: src/Admin/Utilities/Dashboard/DashboardService.php
 msgid "Anonymous"
 msgstr ""
 
@@ -4424,15 +4576,15 @@ msgid "Available placeholders: {booking_id}, {vehicle_title}, {pickup_date}, {dr
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Allowed HTML tags in Content (HTML): a, b, strong, em, i, u, p, br, span(style), ul, ol, li, h1, h2, h3, table(tr, td, th), img(src, alt, width, height, style)."
+msgid "Allowed HTML tags: a, b, strong, em, i, u, p, br, span, ul, ol, li, h1, h2, h3, table, tr, td, th, img."
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php
 msgid "Enabled"
 msgstr ""
 
-#: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Booking #{booking_id} confirmed"
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Booking Confirmed: #{booking_id}"
 msgstr ""
 
 #: src/Admin/Emails/Templates/RefundEmails.php
@@ -4444,7 +4596,7 @@ msgid "New Booking Email"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Email to be sent when a new booking is created."
+msgid "Email sent to customer when a new booking is created."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
@@ -4456,19 +4608,19 @@ msgid "Booking Status Change Email"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Email to be sent when booking status changes."
+msgid "Email sent when booking status changes."
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Admin Email"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Email address where new booking notifications will be sent."
+msgid "Recipient for administrative alerts."
 msgstr ""
 
-#: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "New Booking Request #{booking_id}"
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "New Booking Alert: #{booking_id} - {site_name}"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
@@ -4476,11 +4628,11 @@ msgid "Admin Notification Email"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Notification to be sent to admin when new booking is created."
+msgid "Alert sent to administrator for every new reservation."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Booking Cancelled: #{order_id}"
+msgid "Booking Cancelled (Payment Timeout): #{booking_id}"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
@@ -4488,11 +4640,7 @@ msgid "Auto Cancel Email"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Email sent when a booking is automatically cancelled due to payment timeout."
-msgstr ""
-
-#: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Send email when booking is cancelled manually (by admin or user)."
+msgid "Sent when payment period expires."
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
@@ -4500,51 +4648,35 @@ msgid "Booking Cancelled: #{booking_id}"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Booking Cancelled Email"
+msgid "Manual Cancellation Email"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Email sent when a booking is manually cancelled."
+msgid "Sent when a booking is manually cancelled by staff."
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Reminder: Your Booking #{booking_id} Starts Soon"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Send reminder to customer before pickup."
+msgid "Pickup Reminder Email"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Reminder: Your booking #{booking_id} starts soon"
+msgid "Friendly reminder sent to customer shortly before pickup."
 msgstr ""
 
-#: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Booking Reminder Email"
-msgstr ""
-
-#: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Email to be sent to customer before pickup time."
-msgstr ""
-
-#: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Placeholders: {contact_name}, {booking_id}, {vehicle_title}, {pickup_date}, {return_date}, {site_name}, {site_url}"
-msgstr ""
-
-#: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Send welcome email to the customer after first booking."
-msgstr ""
-
-#: src/Admin/Emails/Templates/BookingNotifications.php
+#: src/Admin/Settings/Groups/EmailSettings.php
 msgid "Welcome to {site_name}"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Welcome Email"
+msgid "Customer Welcome Email"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Email to be sent once to customer after their first booking."
-msgstr ""
-
-#: src/Admin/Emails/Templates/BookingNotifications.php
-msgid "Placeholders: {contact_name}, {site_name}, {site_url}"
+msgid "Onboarding email sent after the first successful booking."
 msgstr ""
 
 #: src/Admin/Emails/Templates/EmailPreview.php
@@ -4640,7 +4772,7 @@ msgid "Subject (Admin)"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "New Message from {customer_name}"
+msgid "New Message from {contact_name}"
 msgstr ""
 
 #: src/Admin/Emails/Templates/MessageEmails.php
@@ -4679,8 +4811,8 @@ msgstr ""
 msgid "Subject (Auto Reply)"
 msgstr ""
 
-#: src/Admin/Emails/Templates/MessageEmails.php
-msgid "Message Received: {booking_id}"
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "We received your message - {site_name}"
 msgstr ""
 
 #: src/Admin/Emails/Templates/MessageEmails.php
@@ -4703,12 +4835,12 @@ msgstr ""
 msgid "Available placeholders: {booking_id}, {vehicle_title}, {amount}, {currency}, {status}, {reason}, {contact_name}, {contact_email}, {site_name}"
 msgstr ""
 
-#: src/Admin/Emails/Templates/RefundEmails.php
-msgid "Your refund for booking #{booking_id}"
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Refund Processed for Booking #{booking_id}"
 msgstr ""
 
-#: src/Admin/Emails/Templates/RefundEmails.php
-msgid "Refund processed for booking #{booking_id}"
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Refund Alert: Booking #{booking_id}"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountController.php
@@ -4736,14 +4868,6 @@ msgid "All favorites cleared"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountController.php
-msgid "Hello %1\$s,\n\nWelcome to %2\$s! Your account has been created successfully.\n\nPlease verify your email address to activate your account. We have sent you a verification link.\n\nUsername: %3\$s\nEmail: %4\$s\n\nBest regards,\n%5\$s Team"
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "Hello %1\$s,\n\nWelcome to %2\$s! Your account has been created successfully.\n\nYou can now log in and start booking vehicles.\n\nUsername: %3\$s\nEmail: %4\$s\n\nBest regards,\n%5\$s Team"
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
 msgid "Please login to view your bookings."
 msgstr ""
 
@@ -4757,22 +4881,6 @@ msgstr ""
 
 #: src/Admin/Frontend/Account/AccountController.php
 msgid "Please login to view your messages."
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "You are already logged in."
-msgstr ""
-
-#: templates/shortcodes/booking-confirmation.php
-msgid "Go to My Account"
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "You are already registered and logged in."
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "User registration is currently not allowed."
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php
@@ -4795,7 +4903,7 @@ msgstr ""
 msgid "Loading messages..."
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/messages-widget.php
 msgid "No messages found yet."
 msgstr ""
 
@@ -4891,7 +4999,7 @@ msgstr ""
 msgid "Are you absolutely sure? This will permanently delete your account and all data."
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php
 msgid "Deleting..."
 msgstr ""
 
@@ -5024,54 +5132,6 @@ msgid "Invalid vehicle."
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountController.php
-msgid "All required fields must be filled."
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "Password must be at least 6 characters."
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "Username already exists."
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "Email already exists."
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "Welcome to %s!"
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "Registration successful!"
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "Password must be at least %d characters."
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character."
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "Verify Your Email Address"
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "Please click the following link to verify your email address: %s"
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "Invalid verification link."
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
-msgid "Invalid verification key."
-msgstr ""
-
-#: src/Admin/Frontend/Account/AccountController.php
 msgid "You must be logged in to cancel a booking."
 msgstr ""
 
@@ -5151,7 +5211,7 @@ msgstr ""
 msgid "Payment History"
 msgstr ""
 
-#: templates/account/messages.php
+#: templates/admin/dashboard/quick-actions.php
 msgid "Messages"
 msgstr ""
 
@@ -5219,6 +5279,14 @@ msgstr ""
 msgid "An error occurred while retrieving pricing data."
 msgstr ""
 
+#: src/Admin/Vehicle/Settings/VehicleSettings.php
+msgid "Security check failed"
+msgstr ""
+
+#: src/Admin/Vehicle/Deposit/DepositAjax.php
+msgid "Invalid vehicle ID"
+msgstr ""
+
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php
 msgid "%s miles"
 msgstr ""
@@ -5255,7 +5323,7 @@ msgstr ""
 msgid "Print"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+#: src/Admin/Frontend/Shortcodes/BookingConfirmation.php
 msgid "Download"
 msgstr ""
 
@@ -5452,6 +5520,10 @@ msgid "Too many booking requests. Please wait 5 minutes."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php
+msgid "Selected vehicle is not available (Status: %s)."
+msgstr ""
+
+#: src/Admin/Frontend/Shortcodes/BookingForm.php
 msgid "Pickup time is required."
 msgstr ""
 
@@ -5495,7 +5567,7 @@ msgstr ""
 msgid "Invalid data."
 msgstr ""
 
-#: src/Admin/Vehicle/Frontend/VehicleSearch.php
+#: templates/admin/dashboard/upcoming-operations.php
 msgid "Today"
 msgstr ""
 
@@ -5893,14 +5965,6 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php
 msgid "Newest First"
-msgstr ""
-
-#: src/Admin/Vehicle/Settings/VehicleSettings.php
-msgid "Security check failed"
-msgstr ""
-
-#: src/Admin/Vehicle/Deposit/DepositAjax.php
-msgid "Invalid vehicle ID"
 msgstr ""
 
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php
@@ -6335,7 +6399,7 @@ msgstr ""
 msgid "Availability Calendar"
 msgstr ""
 
-#: src/Admin/Utilities/Menu/Menu.php
+#: templates/admin/dashboard/quick-actions.php
 msgid "Settings"
 msgstr ""
 
@@ -6447,8 +6511,8 @@ msgstr ""
 msgid "Border Radius"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php
-msgid "Gölge"
+#: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php
+msgid "Shadow"
 msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php
@@ -6471,18 +6535,6 @@ msgstr ""
 msgid "Displays contact form."
 msgstr ""
 
-#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php
-msgid "Login Form"
-msgstr ""
-
-#: src/Admin/Frontend/Widgets/Elementor/RegisterFormWidget.php
-msgid "Redirect URL"
-msgstr ""
-
-#: src/Admin/Frontend/Widgets/Elementor/LoginFormWidget.php
-msgid "Where to redirect after login"
-msgstr ""
-
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php
 msgid "Displays user booking history."
 msgstr ""
@@ -6497,18 +6549,6 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/PaymentHistoryWidget.php
 msgid "Displays user payment transactions."
-msgstr ""
-
-#: src/Admin/Frontend/Widgets/Elementor/RegisterFormWidget.php
-msgid "Register Form"
-msgstr ""
-
-#: src/Admin/Frontend/Widgets/Elementor/RegisterFormWidget.php
-msgid "User registration form"
-msgstr ""
-
-#: src/Admin/Frontend/Widgets/Elementor/RegisterFormWidget.php
-msgid "Where to redirect after successful registration"
 msgstr ""
 
 #: templates/shortcodes/vehicle-search.php
@@ -6569,10 +6609,6 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php
 msgid "Border"
-msgstr ""
-
-#: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php
-msgid "Shadow"
 msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php
@@ -6971,12 +7007,8 @@ msgstr ""
 msgid "Price Typography"
 msgstr ""
 
-#: src/Admin/Settings/Groups/LicenseSettings.php
+#: src/Admin/Utilities/Menu/Menu.php
 msgid "License Management"
-msgstr ""
-
-#: src/Admin/Setup/SetupWizard.php
-msgid "License"
 msgstr ""
 
 #: src/Admin/Licensing/LicenseAdmin.php
@@ -7383,7 +7415,7 @@ msgstr ""
 msgid "Rentiva Lite allows maximum %d additional services. Upgrade to Pro for unlimited services."
 msgstr ""
 
-#: templates/account/bookings.php
+#: templates/admin/dashboard/recent-bookings.php
 msgid "ID"
 msgstr ""
 
@@ -7423,7 +7455,7 @@ msgstr ""
 msgid "ago"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php
+#: src/Admin/Messages/Admin/MessageListTable.php
 msgid "View Booking"
 msgstr ""
 
@@ -7459,7 +7491,7 @@ msgstr ""
 msgid "%d messages deleted."
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: src/Admin/Utilities/Dashboard/DashboardService.php
 msgid "Pending Messages"
 msgstr ""
 
@@ -7467,11 +7499,11 @@ msgstr ""
 msgid "Pending Message"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/messages-widget.php
 msgid "Recent Messages"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/messages-widget.php
 msgid "View All Messages"
 msgstr ""
 
@@ -7663,7 +7695,7 @@ msgstr ""
 msgid "All messages"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/messages-widget.php
 msgid "Answered"
 msgstr ""
 
@@ -7719,20 +7751,8 @@ msgstr ""
 msgid "Support Messages"
 msgstr ""
 
-#: src/Admin/Messages/Frontend/CustomerMessages.php
-msgid "Yeni Mesaj"
-msgstr ""
-
 #: templates/shortcodes/contact-form.php
 msgid "Send New Message"
-msgstr ""
-
-#: src/Admin/Messages/Frontend/CustomerMessages.php
-msgid "Kategori:"
-msgstr ""
-
-#: src/Admin/Messages/Frontend/CustomerMessages.php
-msgid "Konu:"
 msgstr ""
 
 #: templates/account/messages.php
@@ -7815,7 +7835,7 @@ msgstr ""
 msgid "Memory Usage:"
 msgstr ""
 
-#: src/Admin/Messages/Monitoring/MonitoringManager.php
+#: src/Admin/Messages/Monitoring/PerformanceMonitor.php
 msgid "Peak Memory:"
 msgstr ""
 
@@ -7855,7 +7875,7 @@ msgstr ""
 msgid "Log Level:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
+#: src/Admin/Messages/Monitoring/MonitoringManager.php
 msgid "Debug"
 msgstr ""
 
@@ -7932,15 +7952,11 @@ msgid "Cache system not found"
 msgstr ""
 
 #: src/Admin/Messages/Monitoring/PerformanceMonitor.php
-msgid "Aktif Timer:"
+msgid "Active Timers:"
 msgstr ""
 
 #: src/Admin/Messages/Monitoring/PerformanceMonitor.php
-msgid "Peak Bellek:"
-msgstr ""
-
-#: src/Admin/Messages/Monitoring/PerformanceMonitor.php
-msgid "Verileri Temizle"
+msgid "Clear Data"
 msgstr ""
 
 #: src/Admin/Messages/Monitoring/PerformanceMonitor.php
@@ -8103,7 +8119,7 @@ msgstr ""
 msgid "Suggestion"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: src/Admin/Utilities/Dashboard/DashboardService.php
 msgid "Closed"
 msgstr ""
 
@@ -8115,11 +8131,11 @@ msgstr ""
 msgid "Categories"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Statuses"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Email address for message notifications"
 msgstr ""
 
@@ -8127,7 +8143,7 @@ msgstr ""
 msgid "Sender Name"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Sender name to display in emails"
 msgstr ""
 
@@ -8135,51 +8151,51 @@ msgstr ""
 msgid "Sender Email"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Email address to send emails from"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Settings/Groups/BookingSettings.php
 msgid "Admin Notifications"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Send notification to admin when new message arrives"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Customer Notifications"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Send notification to customer when reply arrives"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Dashboard Widget"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Show message widget in dashboard"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Widget Max Messages"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Maximum number of messages to show in dashboard widget"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Auto Reply"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "Send automatic reply to new messages"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "New category name"
 msgstr ""
 
@@ -8187,7 +8203,7 @@ msgstr ""
 msgid "Add Category"
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+#: src/Admin/Messages/Settings/MessagesSettings.php
 msgid "New status name"
 msgstr ""
 
@@ -8444,6 +8460,10 @@ msgid "Invalid payment amount."
 msgstr ""
 
 #: src/Admin/PostTypes/Logs/AdvancedLogger.php
+msgid "Cleaned up %d old log entries."
+msgstr ""
+
+#: src/Admin/PostTypes/Logs/AdvancedLogger.php
 msgid "[MHM Rentiva] Critical Error: %s"
 msgstr ""
 
@@ -8471,11 +8491,11 @@ msgstr ""
 msgid "Context:"
 msgstr ""
 
-#: src/Admin/PostTypes/Logs/MetaBox.php
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
 msgid "Context"
 msgstr ""
 
-#: src/Admin/Utilities/ListTable/LogColumns.php
+#: templates/admin/dashboard/pending-payments.php
 msgid "Amount"
 msgstr ""
 
@@ -8672,7 +8692,7 @@ msgid "Unknown report type: %s"
 msgstr ""
 
 #: src/Admin/Reports/BackgroundProcessor.php
-msgid "Cannot create export file"
+msgid "Cannot initialize filesystem"
 msgstr ""
 
 #: src/Admin/Reports/BackgroundProcessor.php
@@ -8685,6 +8705,10 @@ msgstr ""
 
 #: src/Admin/Reports/BackgroundProcessor.php
 msgid "Amount (kurus)"
+msgstr ""
+
+#: src/Admin/Reports/BackgroundProcessor.php
+msgid "Cannot write export file"
 msgstr ""
 
 #: src/Admin/Reports/BackgroundProcessor.php
@@ -8742,12 +8766,8 @@ msgstr ""
 msgid "First-time booking"
 msgstr ""
 
-#: src/Admin/Reports/BusinessLogic/RevenueReport.php
-msgid "Havale/EFT"
-msgstr ""
-
-#: src/Admin/Reports/BusinessLogic/RevenueReport.php
-msgid "Sistem"
+#: templates/shortcodes/thank-you.php
+msgid "Bank Transfer"
 msgstr ""
 
 #: templates/shortcodes/thank-you.php
@@ -8774,7 +8794,7 @@ msgstr ""
 msgid "Revenue Chart"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/upcoming-operations.php
 msgid "Upcoming Operations"
 msgstr ""
 
@@ -8802,7 +8822,7 @@ msgstr ""
 msgid "Cache cleared successfully"
 msgstr ""
 
-#: src/Admin/Utilities/Menu/Menu.php
+#: templates/admin/dashboard/quick-actions.php
 msgid "Reports"
 msgstr ""
 
@@ -8814,15 +8834,15 @@ msgstr ""
 msgid "Report for this section is not yet implemented."
 msgstr ""
 
-#: src/Admin/Utilities/Export/ExportHistory.php
+#: templates/admin/dashboard/upcoming-operations.php
 msgid "Type"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/upcoming-operations.php
 msgid "Time"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
+#: templates/admin/dashboard/upcoming-operations.php
 msgid "Detail"
 msgstr ""
 
@@ -8855,67 +8875,47 @@ msgid "Authorization failed. Please refresh the page and try again."
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "REST API Settings"
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Configure REST API security, performance and behavior settings."
-msgstr ""
-
-#: src/Admin/Vehicle/Settings/VehicleSettings.php
-msgid "Reset to Defaults"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
 msgid "Rate Limiting"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Rate limiting enabled"
+msgid "Enable API Rate Limiting"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Default Limit (Requests/Minute)"
+msgid "Prevents API abuse by limiting request frequency."
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Maximum number of requests per minute for normal users."
+msgid "General Request Limit"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Strict Limit (Requests/Minute)"
+msgid "Max requests per minute for authenticated users."
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Strict limit for non-admin users."
+msgid "Public Request Limit"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Burst Limit (Requests/5 Minutes)"
+msgid "Max requests per minute for public (anonymous) visitors."
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Burst limit for short-term intensive usage."
+msgid "Token Configuration"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Token Settings"
+msgid "Token Duration (Hours)"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Default Token Duration (Hours)"
+msgid "How long the issued API tokens remain valid."
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Default token validity period."
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Token refresh enabled"
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Allow users to refresh their tokens."
+msgid "Allow Token Refresh"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
@@ -8923,111 +8923,59 @@ msgid "Security Settings"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "HTTPS required"
+msgid "Mandatory HTTPS"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Require HTTPS for all REST API requests."
+msgid "Require SSL encryption for all API communication."
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "User Agent Validation"
+msgid "User Agent Filter"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Block suspicious user agents (bots, curl, etc.)."
+msgid "Blocks known bots and scraping tools (curl, wget, bot etc.)."
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "IP Whitelist (Comma separated)"
+msgid "IP Whitelist"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Only allow requests from these IPs. If left blank, all IPs are allowed."
+msgid "Comma separated list of allowed IP addresses."
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "IP Blacklist enabled"
+msgid "API Caching"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Block requests from specified IPs."
+msgid "Enable Caching"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "IP Blacklist (Comma separated)"
+msgid "Cache Life (Seconds)"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Block all requests from these IPs. Example: 192.168.1.100, 10.0.0.50"
+msgid "Development Diagnostics"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Cache Settings"
+msgid "Debug Operations"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "API Cache enabled"
+msgid "Show detailed error messages and performance traces. (Turn off on live sites)."
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Cache Duration (Seconds)"
+msgid "Allow Global CORS (*)"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php
-msgid "Duration for which API responses are cached."
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Developer Mode"
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Debug mode enabled"
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Enable REST API debug information."
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Auto enable if WP_DEBUG is active"
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Automatically enable developer features if WordPress debug mode is active."
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Rate limit bypass"
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Bypass rate limiting in developer mode."
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Security bypass"
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Bypass security checks in developer mode (WARNING: Use only in development environment!)."
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Allow CORS from all origins"
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Allow CORS requests from all origins in developer mode."
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Verbose logging"
-msgstr ""
-
-#: src/Admin/REST/Settings/RESTSettings.php
-msgid "Detailed logging for all REST API requests and responses."
+msgid "Permit API requests from any domain (Development only)."
 msgstr ""
 
 #: src/Admin/Security/SecurityManager.php
@@ -9047,7 +8995,7 @@ msgid "Access Denied"
 msgstr ""
 
 #: src/Admin/Security/WafManager.php
-msgid "WAF Blocked Request: %s in %s[%s]"
+msgid "WAF Blocked Request: %1$s in %2$s[%3$s]"
 msgstr ""
 
 #: src/Admin/Security/WafManager.php
@@ -9059,11 +9007,11 @@ msgid "Forbidden"
 msgstr ""
 
 #: src/Admin/Settings/APIKeysPage.php
-msgid "Key name is required."
+msgid "Insufficient permissions to perform this action."
 msgstr ""
 
 #: src/Admin/Settings/APIKeysPage.php
-msgid "Failed to create API key."
+msgid "Invalid operation."
 msgstr ""
 
 #: src/Admin/Settings/APIKeysPage.php
@@ -9071,11 +9019,7 @@ msgid "API key created successfully."
 msgstr ""
 
 #: src/Admin/Settings/APIKeysPage.php
-msgid "Key ID is required."
-msgstr ""
-
-#: src/Admin/Settings/APIKeysPage.php
-msgid "Failed to revoke API key."
+msgid "API key ID is required to revoke."
 msgstr ""
 
 #: src/Admin/Settings/APIKeysPage.php
@@ -9083,7 +9027,7 @@ msgid "API key revoked successfully."
 msgstr ""
 
 #: src/Admin/Settings/APIKeysPage.php
-msgid "Failed to delete API key."
+msgid "API key ID is required to delete."
 msgstr ""
 
 #: src/Admin/Settings/APIKeysPage.php
@@ -9091,211 +9035,39 @@ msgid "API key deleted successfully."
 msgstr ""
 
 #: src/Admin/Settings/APIKeysPage.php
-msgid "RESTSettings class not found."
+msgid "REST configuration system is not available."
 msgstr ""
 
-#: src/Admin/Settings/Settings.php
-msgid "Settings reset to defaults successfully."
+#: src/Admin/Settings/APIKeysPage.php
+msgid "Failed to reset REST API settings to defaults."
 msgstr ""
 
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Page URL Settings"
+#: src/Admin/Settings/APIKeysPage.php
+msgid "REST API settings reset to defaults successfully."
 msgstr ""
 
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Booking Page URL"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Login Page URL"
+#: src/Admin/Utilities/Uninstall/UninstallPage.php
+msgid "Permission denied"
 msgstr ""
 
 #: src/Admin/Settings/Core/SettingsCore.php
-msgid "Registration Page URL"
+msgid "Invalid mode"
 msgstr ""
 
 #: src/Admin/Settings/Core/SettingsCore.php
-msgid "Vehicles List Page URL"
+msgid "Settings updated"
 msgstr ""
 
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Search Page URL"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Contact Page URL"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "System Messages"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Refund Policy Text"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Account Endpoint Slugs (URL Customization)"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Bookings Endpoint"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Favorites Endpoint"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Payment History Endpoint"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Messages Endpoint"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Edit Account Endpoint"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "View Booking Endpoint"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Customize frontend page URLs and texts. Default values will be used if left empty."
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Customize the texts that will appear on vehicle cards and buttons."
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Example: https://example.com/booking/ or /booking-form/ (auto-detected if left empty)"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Example: https://example.com/login/ or /member-login/ (WordPress default login page is used if left empty)"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Example: https://example.com/register/ or /kayit/ (auto-detected if left empty)"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Example: https://example.com/vehicles/ or /araclar/ (auto-detected if left empty)"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Example: https://example.com/search/ or /arama/ (auto-detected if left empty)"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Example: https://example.com/contact/ or /iletisim/ (auto-detected if left empty)"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Customize system messages, validation errors, and success notifications displayed to users."
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "If cancelled, refund will be processed within 5-7 business days."
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Invalid dark mode value"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Dark mode setting saved"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Settings tester class not found"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Rate limit exceeded. Please try again later."
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Rate Limit Exceeded"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Date and time format settings for the entire system."
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "WordPress start of week (read-only)"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "System version information and technical details."
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Current plugin version"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Current WordPress version"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Current PHP version"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Customize the URL slugs for the My Account endpoints. These are the parts of the URL that appear after the main My Account page URL."
-msgstr ""
-
-#: templates/shortcodes/booking-confirmation.php
-msgid "Important:"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Default: rentiva-bookings"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Default: rentiva-favorites"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Default: rentiva-payment-history"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Default: rentiva-messages"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Default: rentiva-edit-account"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsCore.php
-msgid "Default: view-vehicle-booking"
+#: src/Admin/Settings/View/Tabs/SettingsTestingRenderer.php
+msgid "Diagnostic testing engine not found."
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php
 msgid "Disabled"
 msgstr ""
 
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Left ($100)"
-msgstr ""
-
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Right (100$)"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsSanitizer.php
-msgid "Left + Space ($ 100)"
-msgstr ""
-
-#: src/Admin/Settings/Core/SettingsSanitizer.php
-msgid "Right + Space (100 $)"
+#: src/Admin/Settings/Groups/AddonSettings.php
+msgid "Additional Services Settings"
 msgstr ""
 
 #: src/Admin/Settings/Groups/AddonSettings.php
@@ -9303,11 +9075,7 @@ msgid "Require Confirmation"
 msgstr ""
 
 #: src/Admin/Settings/Groups/AddonSettings.php
-msgid "Require additional confirmation when customers select additional services."
-msgstr ""
-
-#: src/Admin/Settings/Groups/AddonSettings.php
-msgid "Yes, confirmation required"
+msgid "Require manual confirmation when customers select additional services."
 msgstr ""
 
 #: src/Admin/Settings/Groups/AddonSettings.php
@@ -9316,14 +9084,6 @@ msgstr ""
 
 #: src/Admin/Settings/Groups/AddonSettings.php
 msgid "Display additional service prices in the booking calendar."
-msgstr ""
-
-#: src/Admin/Settings/Groups/AddonSettings.php
-msgid "Yes, show prices"
-msgstr ""
-
-#: src/Admin/Settings/Groups/AddonSettings.php
-msgid "The order in which additional services are displayed to customers."
 msgstr ""
 
 #: src/Admin/Settings/Groups/AddonSettings.php
@@ -9347,7 +9107,7 @@ msgid "Creation Date"
 msgstr ""
 
 #: src/Admin/Settings/Groups/AddonSettings.php
-msgid "Additional Services Settings"
+msgid "The order in which additional services are displayed."
 msgstr ""
 
 #: src/Admin/Settings/Groups/AddonSettings.php
@@ -9358,8 +9118,16 @@ msgstr ""
 msgid "Basic Booking Settings"
 msgstr ""
 
+#: src/Admin/Settings/Groups/BookingSettings.php
+msgid "General booking configuration and data retention settings."
+msgstr ""
+
 #: src/Admin/Setup/SetupWizard.php
 msgid "Default Rental Days"
+msgstr ""
+
+#: src/Admin/Settings/Groups/BookingSettings.php
+msgid "Default rental duration in booking form (days)."
 msgstr ""
 
 #: src/Admin/Settings/Groups/BookingSettings.php
@@ -9367,7 +9135,7 @@ msgid "Time Management Settings"
 msgstr ""
 
 #: src/Admin/Settings/Groups/BookingSettings.php
-msgid "Notification Settings"
+msgid "Configure timing rules for bookings, cancellations and payments."
 msgstr ""
 
 #: src/Admin/Settings/Groups/BookingSettings.php
@@ -9375,43 +9143,11 @@ msgid "Cancellation Deadline (Hours)"
 msgstr ""
 
 #: src/Admin/Settings/Groups/BookingSettings.php
-msgid "Payment Deadline (Minutes)"
-msgstr ""
-
-#: src/Admin/Settings/Groups/BookingSettings.php
-msgid "Enable Auto Cancel"
-msgstr ""
-
-#: src/Admin/Settings/Groups/BookingSettings.php
-msgid "Send Confirmation Emails"
-msgstr ""
-
-#: src/Admin/Settings/Groups/BookingSettings.php
-msgid "Send Reminder Emails"
-msgstr ""
-
-#: src/Admin/Settings/Groups/BookingSettings.php
-msgid "Buffer Time (Minutes)"
-msgstr ""
-
-#: src/Admin/Settings/Groups/BookingSettings.php
-msgid "Send Auto Cancel Email"
-msgstr ""
-
-#: src/Admin/Settings/Groups/BookingSettings.php
-msgid "General booking configuration and data retention settings."
-msgstr ""
-
-#: src/Admin/Settings/Groups/BookingSettings.php
-msgid "Configure timing rules for bookings, cancellations and payments."
-msgstr ""
-
-#: src/Admin/Settings/Groups/BookingSettings.php
-msgid "Email notification settings for bookings."
-msgstr ""
-
-#: src/Admin/Settings/Groups/BookingSettings.php
 msgid "Hours before booking start that customers can cancel."
+msgstr ""
+
+#: src/Admin/Settings/Groups/BookingSettings.php
+msgid "Payment Deadline (Minutes)"
 msgstr ""
 
 #: src/Admin/Settings/Groups/BookingSettings.php
@@ -9419,11 +9155,39 @@ msgid "Minutes allowed for payment completion. Set to 0 to disable deadline."
 msgstr ""
 
 #: src/Admin/Settings/Groups/BookingSettings.php
+msgid "Enable Auto Cancel"
+msgstr ""
+
+#: src/Admin/Settings/Groups/BookingSettings.php
 msgid "Automatically cancel bookings that exceed payment deadline"
 msgstr ""
 
 #: src/Admin/Settings/Groups/BookingSettings.php
+msgid "Buffer Time (Minutes)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/BookingSettings.php
+msgid "Minimum time gap required between bookings for cleaning and preparation."
+msgstr ""
+
+#: src/Admin/Settings/Groups/BookingSettings.php
+msgid "Notification Settings"
+msgstr ""
+
+#: src/Admin/Settings/Groups/BookingSettings.php
+msgid "Email notification settings for bookings."
+msgstr ""
+
+#: src/Admin/Settings/Groups/BookingSettings.php
+msgid "Send Confirmation Emails"
+msgstr ""
+
+#: src/Admin/Settings/Groups/BookingSettings.php
 msgid "Send confirmation emails to customers when bookings are confirmed"
+msgstr ""
+
+#: src/Admin/Settings/Groups/BookingSettings.php
+msgid "Send Reminder Emails"
 msgstr ""
 
 #: src/Admin/Settings/Groups/BookingSettings.php
@@ -9435,19 +9199,11 @@ msgid "Send email notifications to admin when new bookings are created"
 msgstr ""
 
 #: src/Admin/Settings/Groups/BookingSettings.php
+msgid "Send Auto Cancel Email"
+msgstr ""
+
+#: src/Admin/Settings/Groups/BookingSettings.php
 msgid "Send notification to customer when booking is auto-cancelled due to timeout."
-msgstr ""
-
-#: src/Admin/Settings/Groups/BookingSettings.php
-msgid "minutes"
-msgstr ""
-
-#: src/Admin/Settings/Groups/BookingSettings.php
-msgid "Minimum time gap required between bookings for cleaning and preparation."
-msgstr ""
-
-#: src/Admin/Settings/Groups/BookingSettings.php
-msgid "Default rental duration in booking form (days)."
 msgstr ""
 
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php
@@ -9470,7 +9226,7 @@ msgstr ""
 msgid "Spam & Security"
 msgstr ""
 
-#: src/Admin/Settings/Groups/FrontendSettings.php
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
 msgid "Notifications"
 msgstr ""
 
@@ -9651,19 +9407,39 @@ msgid "Enable Object Cache"
 msgstr ""
 
 #: src/Admin/Settings/Groups/CoreSettings.php
-msgid "Default Cache TTL"
+msgid "Active object caching reduces database load significantly."
 msgstr ""
 
 #: src/Admin/Settings/Groups/CoreSettings.php
-msgid "Lists Cache TTL"
+msgid "Default Cache TTL (Hours)"
 msgstr ""
 
 #: src/Admin/Settings/Groups/CoreSettings.php
-msgid "Reports Cache TTL"
+msgid "How long general data remains cached."
 msgstr ""
 
 #: src/Admin/Settings/Groups/CoreSettings.php
-msgid "Charts Cache TTL"
+msgid "Lists Cache TTL (Minutes)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/CoreSettings.php
+msgid "Cache duration for vehicle and booking lists."
+msgstr ""
+
+#: src/Admin/Settings/Groups/CoreSettings.php
+msgid "Reports Cache TTL (Minutes)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/CoreSettings.php
+msgid "Cache duration for report calculations."
+msgstr ""
+
+#: src/Admin/Settings/Groups/CoreSettings.php
+msgid "Charts Cache TTL (Minutes)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/CoreSettings.php
+msgid "Cache duration for dashboard charts."
 msgstr ""
 
 #: src/Admin/Settings/Groups/CoreSettings.php
@@ -9671,47 +9447,11 @@ msgid "Meta Query Limit"
 msgstr ""
 
 #: src/Admin/Settings/Groups/CoreSettings.php
-msgid "Basic system settings and performance optimizations for the plugin."
-msgstr ""
-
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
-msgid "Warning:"
+msgid "Maximum meta queries per request. Lower is faster."
 msgstr ""
 
 #: src/Admin/Settings/Groups/CoreSettings.php
-msgid "Yes, object cache active"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CoreSettings.php
-msgid "Use object cache for performance."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CoreSettings.php
-msgid "Default lifetime of cache data (hours)."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CoreSettings.php
-msgid "Cache duration of list data (minutes)."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CoreSettings.php
-msgid "Cache duration of report data (minutes)."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CoreSettings.php
-msgid "Cache duration of chart data (minutes)."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CoreSettings.php
-msgid "Meta query count limit. Higher values may impact performance."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Customer Registration Settings"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Customer Account Settings"
+msgid "Configure system optimizations and performance thresholds."
 msgstr ""
 
 #: src/Admin/Settings/Groups/CustomerManagementSettings.php
@@ -9719,39 +9459,7 @@ msgid "Customer Communication Settings"
 msgstr ""
 
 #: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Customer Security Settings"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Customer Privacy Settings"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Customer Experience Settings"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Enable Customer Registration"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Require Email Verification"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Phone Number Required"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Terms & Conditions Required"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Terms & Conditions Text"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Auto Login After Registration"
+msgid "Configure customer email notification settings."
 msgstr ""
 
 #: src/Admin/Settings/Groups/CustomerManagementSettings.php
@@ -9759,127 +9467,15 @@ msgid "Send Welcome Email"
 msgstr ""
 
 #: src/Admin/Settings/Groups/CustomerManagementSettings.php
+msgid "Send a custom welcome email when a user registers via Rentiva forms (if used)."
+msgstr ""
+
+#: src/Admin/Settings/Groups/CustomerManagementSettings.php
 msgid "Send Booking Notifications"
 msgstr ""
 
 #: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Minimum Password Length"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Require Special Characters"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Enable GDPR Compliance"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Default Customer Role"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Notification Frequency"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Configure customer registration requirements and validation rules."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Configure customer account management settings."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Configure customer email notification settings."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Configure password and account security requirements."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Configure GDPR compliance and data retention settings."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Configure customer experience and notification preferences."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Allow new customers to register accounts"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Require email verification for new accounts"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Require phone number during registration"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Require acceptance of terms and conditions"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Custom text for terms and conditions checkbox. Use {privacy_policy} for privacy policy link."
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Automatically log in customers after registration"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Send welcome email to new customers"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Send email notifications for booking updates"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Minimum password length for customer accounts"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Require special characters in customer passwords"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Enable GDPR compliance features for customer data"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Subscriber"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Contributor"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Default role assigned to new customers"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Immediate"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Daily Digest"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Weekly Digest"
-msgstr ""
-
-#: src/Admin/Settings/Groups/CustomerManagementSettings.php
-msgid "Default notification frequency for customers"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Reminder: Your Booking #{booking_id} Starts Soon - {site_name}"
+msgid "Send notifications to customers regarding their booking status updates."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
@@ -9887,71 +9483,19 @@ msgid "%s - Powered by MHM Rentiva"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Refund Processed for Booking #{booking_id}"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Refund Processed: Booking #{booking_id}"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "We received your message - {site_name}"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "New Booking Alert: #{booking_id} - {site_name}"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Admin Alert: Status Changed for Booking #{booking_id}"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Booking Confirmed: #{booking_id}"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Dear {customer_name},"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "We have received your message and will get back to you as soon as possible."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "View Messages"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
 msgid "Dear {contact_name},"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Your booking #{booking_id} has been cancelled."
+msgid "Your booking #{booking_id} has been successfully created. Below are your reservation details:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Pick-up:"
+#: templates/emails/booking-created-customer.html.php
+msgid "Reservation Details"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Drop-off:"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Visit Website"
-msgstr ""
-
-#: templates/emails/booking-created-admin.html.php
-msgid "Attention:"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "A new booking request has been received. Please check from the admin panel."
-msgstr ""
-
-#: templates/shortcodes/booking-confirmation.php
-msgid "Customer Information"
+#: templates/emails/offline-verified-approved-customer.html.php
+msgid "Reservation No:"
 msgstr ""
 
 #: templates/emails/offline-verified-approved-customer.html.php
@@ -9963,71 +9507,103 @@ msgid "Total Amount:"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Manage Booking"
+msgid "Thank you for choosing us!"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Your booking #{booking_id} has been successfully created. We are waiting for your payment to confirm the reservation."
-msgstr ""
-
-#: templates/emails/booking-created-customer.html.php
-msgid "Reservation Details"
+msgid "Our team will review your application and contact you shortly if any further action is required."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Booking Number:"
+msgid "The status of your booking #{booking_id} has been updated:"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Thank you for choosing us."
+msgid "New Status"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Welcome to {site_name}! We are thrilled to have you with us."
+msgid "You can track your reservation and view all details in your customer dashboard."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "You can manage your bookings and profile by visiting your account."
+msgid "New Booking Received!"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "The status of your booking #{booking_id} has been updated."
+msgid "A new reservation request has been submitted on your website. Please log in to the admin panel to process the request."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "If you have any questions, please contact us."
+msgid "Dates:"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "We regret to inform you that your booking has been cancelled due to payment timeout."
+msgid "Revenue:"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Payment Timeout"
+msgid "Your booking #{booking_id} has been automatically cancelled."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "If you believe this is an error, please contact us immediately."
+msgid "We did not receive the required payment within the allotted time frame, so the reservation has been released."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Contact Us"
+msgid "If you believe this is an error or wish to make a new reservation, please visit our website."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "We have processed a refund for your booking."
+msgid "Welcome to {site_name}!"
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "We are happy to have you as part of our rental community."
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Through your customer dashboard, you can:"
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Manage and track your reservations"
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Download payment invoices"
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Communicate directly with our support team"
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Save your profile for faster future bookings"
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "This is a friendly reminder that your upcoming rental starts very soon!"
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Pickup Details"
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Pickup Time:"
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Your booking #{booking_id} has been cancelled."
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "A refund of {amount} has been processed for your booking #{booking_id}."
 msgstr ""
 
 #: templates/emails/refund-customer.html.php
 msgid "Refund Amount:"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Refund Status:"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "The amount will appear in your account shortly."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
@@ -10043,15 +9619,7 @@ msgid "Booking Status Update"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "The status of booking #{booking_id} has been changed."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "This is a friendly reminder regarding your upcoming booking."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "We look forward to seeing you."
+msgid "The status of booking #{booking_id} has been changed to {new_status}."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
@@ -10063,11 +9631,23 @@ msgid "You have received a new message regarding booking #{booking_id}."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Dear {customer_name},"
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
 msgid "You have received a new reply regarding your booking #{booking_id}."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "You can reply to this message directly from your account dashboard."
+msgid "We have received your message and will get back to you shortly."
+msgstr ""
+
+#: src/Admin/Settings/View/TabRendererRegistry.php
+msgid "Email Configuration"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Reply-To Address"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
@@ -10075,7 +9655,7 @@ msgid "Base Color"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Header Image URL"
+msgid "Header Image (Logo URL)"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
@@ -10083,15 +9663,19 @@ msgid "Footer Text"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Reply Address"
+msgid "Enable Outgoing Emails"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Email Sending Enabled"
+msgid "Allow system to send automated transaction emails."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php
-msgid "Test Mode"
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Production Sandbox (Test Mode)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/EmailSettings.php
+msgid "Redirect all outgoing mails to the test address below."
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php
@@ -10099,111 +9683,31 @@ msgid "Test Email Address"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Template File Path"
+msgid "Template Override Path"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Automatic Email Sending"
+msgid "Automatic Background Sending"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Email Logging"
+msgid "Enable Communication Logs"
+msgstr ""
+
+#: src/Admin/Settings/Groups/LogsSettings.php
+msgid "Log Retention (Days)"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Log Retention Period (Days)"
+msgid "WooCommerce Detected:"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "WooCommerce Active:"
+msgid "Transactional emails are managed by WooCommerce. These settings apply to plugin-specific internal alerts."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php
-msgid "WooCommerce manages transactional emails. The settings below apply to MHM Rentiva internal notifications (e.g. Messages, Staff Alerts)."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Configure email sending and template settings."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "These settings affect all email sending. In test mode, emails are only sent to the test address."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Test email sent successfully."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Failed to send test email. Check email settings or server mail configuration."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Sender name to appear in emails."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Email address to send from. Defaults to WordPress admin email."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Main color for email header and accents."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "URL of the logo image to display in the header."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Text to display in the email footer."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Address to which replies will be sent."
-msgstr ""
-
-#: src/Admin/Setup/SetupWizard.php
-msgid "Email sending enabled"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "If this option is disabled, no emails will be sent."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Test mode enabled"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "When test mode is active, all emails are sent to the test address."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Address to which emails will be sent in test mode."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Theme folder path where email templates are located."
-msgstr ""
-
-#: src/Admin/Setup/SetupWizard.php
-msgid "Automatic email sending enabled"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Send automatic emails when booking status changes."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Email logging enabled"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Sent emails are logged."
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php
-msgid "Number of days to keep email logs."
+msgid "Send Test Connection Email"
 msgstr ""
 
 #: src/Admin/Settings/Groups/FrontendSettings.php
@@ -10475,7 +9979,7 @@ msgid "Already have account?"
 msgstr ""
 
 #: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "09:00 - 18:00"
+msgid "Configure currency and display preferences."
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php
@@ -10484,54 +9988,6 @@ msgstr ""
 
 #: src/Admin/Settings/Groups/GeneralSettings.php
 msgid "Dark Mode"
-msgstr ""
-
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Brand & Contact Information"
-msgstr ""
-
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Brand Name"
-msgstr ""
-
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Support Email"
-msgstr ""
-
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Contact Phone"
-msgstr ""
-
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Support Hours"
-msgstr ""
-
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Configure currency and display preferences."
-msgstr ""
-
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Information used in emails, PDF documents, and contact forms."
-msgstr ""
-
-#: src/Admin/Setup/SetupWizard.php
-msgid "Managed by WooCommerce:"
-msgstr ""
-
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Currency to be used throughout the system."
-msgstr ""
-
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Currency position is managed by WooCommerce settings."
-msgstr ""
-
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Left Space ($ 100)"
-msgstr ""
-
-#: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Right Space (100 $)"
 msgstr ""
 
 #: src/Admin/Settings/Groups/GeneralSettings.php
@@ -10551,19 +10007,83 @@ msgid "Select admin panel color scheme."
 msgstr ""
 
 #: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Brand & Contact Information"
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Information used in emails, PDF documents, and contact forms."
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Brand Name"
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Your company or brand name"
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "e.g., Otokira Rent a Car"
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Support Email"
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
 msgid "Email address to be used for customer support"
 msgstr ""
 
 #: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Phone number for contact form footer."
+msgid "Contact Phone"
 msgstr ""
 
 #: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Working hours text for contact form footer."
+msgid "Customer service phone number"
 msgstr ""
 
 #: src/Admin/Settings/Groups/GeneralSettings.php
-msgid "Brand name to appear in emails and documents."
+msgid "+90 555 123 45 67"
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Support Hours"
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Business hours for customer support"
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "09:00 - 18:00"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Managed by WooCommerce:"
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Currency to be used throughout the system."
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Currency position is managed by WooCommerce settings."
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Left ($100)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Left Space ($ 100)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Right (100$)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/GeneralSettings.php
+msgid "Right Space (100 $)"
 msgstr ""
 
 #: src/Admin/Settings/Groups/LicenseSettings.php
@@ -10622,24 +10142,8 @@ msgstr ""
 msgid "Logs & Debugging"
 msgstr ""
 
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
+#: src/Admin/Settings/Groups/LogsSettings.php
 msgid "Log Level"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Debug Mode"
-msgstr ""
-
-#: src/Admin/Settings/Groups/LogsSettings.php
-msgid "Auto Cleanup Logs"
-msgstr ""
-
-#: src/Admin/Settings/Groups/LogsSettings.php
-msgid "Log Retention (Days)"
-msgstr ""
-
-#: src/Admin/Settings/Groups/LogsSettings.php
-msgid "Configure system logging levels and maintenance policies."
 msgstr ""
 
 #: src/Admin/Settings/Groups/LogsSettings.php
@@ -10655,7 +10159,7 @@ msgid "Set the minimum severity level for logs to be recorded."
 msgstr ""
 
 #: src/Admin/Settings/Groups/LogsSettings.php
-msgid "Enable Developer Debug Mode"
+msgid "Debug Mode"
 msgstr ""
 
 #: src/Admin/Settings/Groups/LogsSettings.php
@@ -10663,235 +10167,51 @@ msgid "Displays additional technical details in error messages. Not recommended 
 msgstr ""
 
 #: src/Admin/Settings/Groups/LogsSettings.php
-msgid "Enable Automatic Log Cleanup"
+msgid "Auto Cleanup Logs"
+msgstr ""
+
+#: src/Admin/Settings/Groups/LogsSettings.php
+msgid "Automatically delete old logs based on retention period."
 msgstr ""
 
 #: src/Admin/Settings/Groups/LogsSettings.php
 msgid "How many days to keep logs before deleting them."
 msgstr ""
 
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "System Status & Maintenance"
+#: src/Admin/Settings/Groups/LogsSettings.php
+msgid "Configure system logging levels and maintenance policies."
 msgstr ""
 
 #: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Security & Access Rules"
+msgid "System Maintenance"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
+msgid "System Status"
 msgstr ""
 
 #: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Logging Settings"
+msgid "Data Retention"
 msgstr ""
 
 #: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Debugging"
-msgstr ""
-
-#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Database Cleanup"
+msgid "Overview of system status and maintenance tools."
 msgstr ""
 
 #: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Manage system performance, security, logs, debugging, and database maintenance."
-msgstr ""
-
-#: src/Admin/Setup/SetupWizard.php
-msgid "PHP Version"
-msgstr ""
-
-#: src/Admin/Setup/SetupWizard.php
-msgid "WordPress Version"
+msgid "Cache Settings"
 msgstr ""
 
 #: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Server Software"
+msgid "Cleanup & Uninstall"
 msgstr ""
 
 #: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "IP Control"
-msgstr ""
-
-#: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "Enable IP Whitelist"
+msgid "WIPE ALL DATA ON UNINSTALL"
 msgstr ""
 
 #: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Only allow access from whitelisted IPs"
-msgstr ""
-
-#: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "Whitelisted IPs"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "One IP address per line. Supports CIDR notation (e.g., 192.168.1.0/24)"
-msgstr ""
-
-#: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "Enable IP Blacklist"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Block access from blacklisted IPs"
-msgstr ""
-
-#: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "Blacklisted IPs"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "One IP address per line. Supports CIDR notation"
-msgstr ""
-
-#: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "Enable Country Restriction"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Restrict access by country"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Allowed Countries"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Comma-separated list of allowed country codes (e.g., US,CA,GB)"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Security Hardening"
-msgstr ""
-
-#: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "Brute Force Protection"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Protect against brute force login attempts"
-msgstr ""
-
-#: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "Max Login Attempts"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Maximum login attempts before lockout"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Login Lockout (min)"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Lockout duration after max attempts"
-msgstr ""
-
-#: src/Admin/Testing/SecurityTest.php
-msgid "SQL Injection Protection"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Protect against SQL injection attacks"
-msgstr ""
-
-#: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "XSS Protection"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Protect against XSS attacks"
-msgstr ""
-
-#: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "CSRF Protection"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Protect against CSRF attacks"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Limit the number of requests per minute to prevent abuse."
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Block Duration (min)"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "How long to block an IP after exceeding the limit."
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "General Request Limit"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Max requests per minute for general pages."
-msgstr ""
-
-#: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "Booking Request Limit"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Max booking attempts per minute."
-msgstr ""
-
-#: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "Payment Request Limit"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Max payment attempts per minute."
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Select the minimum level of logs to record."
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Automatic Log Cleanup"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Automatically clean old log records to save database space."
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Log Retention Period (days)"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "How many days system logs should be kept."
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Max Log File Size (MB)"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Maximum size of log files before rotation."
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Enable extended debug information. Not recommended for production sites."
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Clean Data on Uninstall"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Cautiously enable this to remove ALL plugin data when uninstalling."
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "Caution:"
-msgstr ""
-
-#: src/Admin/Settings/Groups/MaintenanceSettings.php
-msgid "If enabled, removing the plugin will permanently delete all Rentiva tables and settings. This cannot be undone."
+msgid "If enabled, all MHM Rentiva database tables and settings will be permanently deleted when the plugin is uninstalled."
 msgstr ""
 
 #: src/Admin/Settings/Groups/PaymentSettings.php
@@ -10923,7 +10243,47 @@ msgid "Install WooCommerce"
 msgstr ""
 
 #: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "Security & Access Control"
+msgid "IP Control & Firewall"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Manage IP whitelists, blacklists and country-based restrictions."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Enable IP Whitelist"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Restrictions are bypassed for these trusted IPs."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Whitelisted IPs"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "One IP per line."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Enable IP Blacklist"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Traffic from these IPs is completely blocked."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Blacklisted IPs"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Enable Country Restriction"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Block access from countries not in the allowed list."
 msgstr ""
 
 #: src/Admin/Settings/Groups/SecuritySettings.php
@@ -10931,7 +10291,75 @@ msgid "Allowed Countries (Codes)"
 msgstr ""
 
 #: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Comma separated 2-letter codes. Ex: TR, US"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Advanced Protection Rules"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Configure specialized security headers and injection protection."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Brute Force Protection"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Monitors and blocks repeated failed login attempts."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Max Login Attempts"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Incorrect attempts allowed before lockout."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
 msgid "Lockout Duration (min)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "How long a blocked user must wait."
+msgstr ""
+
+#: src/Admin/Testing/SecurityTest.php
+msgid "SQL Injection Protection"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Filters malicious SQL patterns in requests."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "XSS Protection"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Sanitizes inputs against cross-site scripting."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "CSRF Protection"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Validates request origins to prevent forgery."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Traffic limits & Request Control"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Configure request thresholds and automated activity blocking."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Limits the frequency of requests to prevent abuse."
 msgstr ""
 
 #: src/Admin/Settings/Groups/SecuritySettings.php
@@ -10939,19 +10367,67 @@ msgid "Rate Limit Block Duration"
 msgstr ""
 
 #: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Block duration for abusive IPs (min)."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
 msgid "Global Request Limit"
 msgstr ""
 
 #: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "MHM Rentiva security and access control settings"
+msgid "Max requests per minute for any visitor."
 msgstr ""
 
 #: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "Configure firewall rules, access restrictions, and brute force protection."
+msgid "Booking Request Limit"
 msgstr ""
 
 #: src/Admin/Settings/Groups/SecuritySettings.php
-msgid "One entry per line."
+msgid "Max booking attempts per minute."
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Payment Request Limit"
+msgstr ""
+
+#: src/Admin/Settings/Groups/SecuritySettings.php
+msgid "Max payment attempts per minute."
+msgstr ""
+
+#: src/Admin/Settings/Groups/TransferSettings.php
+msgid "Transfer Configuration"
+msgstr ""
+
+#: src/Admin/Settings/Groups/TransferSettings.php
+msgid "Configure payment types and custom location categories for the transfer system."
+msgstr ""
+
+#: src/Admin/Transfer/TransferAdmin.php
+msgid "Full Payment Required"
+msgstr ""
+
+#: src/Admin/Transfer/TransferAdmin.php
+msgid "Deposit (Percentage)"
+msgstr ""
+
+#: src/Admin/Transfer/TransferAdmin.php
+msgid "Select how customers should pay for transfers."
+msgstr ""
+
+#: src/Admin/Transfer/TransferAdmin.php
+msgid "Deposit Rate (%)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/TransferSettings.php
+msgid "Percentage of total price to be paid as deposit. Default: 20%"
+msgstr ""
+
+#: src/Admin/Transfer/TransferAdmin.php
+msgid "Custom Location Types"
+msgstr ""
+
+#: src/Admin/Settings/Groups/TransferSettings.php
+msgid "Enter custom location types, one per line."
 msgstr ""
 
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php
@@ -10959,7 +10435,7 @@ msgid "Vehicle Pricing Settings"
 msgstr ""
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php
-msgid "Vehicle Availability Settings"
+msgid "Configure vehicle pricing rules, multipliers, and tax settings."
 msgstr ""
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php
@@ -10967,7 +10443,15 @@ msgid "Base Price Multiplier"
 msgstr ""
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php
+msgid "Base price multiplier for all vehicles (1.0 = normal price)"
+msgstr ""
+
+#: src/Admin/Settings/Groups/VehicleManagementSettings.php
 msgid "Weekend Price Multiplier"
+msgstr ""
+
+#: src/Admin/Settings/Groups/VehicleManagementSettings.php
+msgid "Weekend price multiplier (1.2 = 20% increase)"
 msgstr ""
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php
@@ -10978,8 +10462,20 @@ msgstr ""
 msgid "Tax Rate (%)"
 msgstr ""
 
+#: src/Admin/Settings/Groups/VehicleManagementSettings.php
+msgid "Vehicle Availability Settings"
+msgstr ""
+
+#: src/Admin/Settings/Groups/VehicleManagementSettings.php
+msgid "Configure vehicle availability rules and booking restrictions."
+msgstr ""
+
 #: src/Admin/Setup/SetupWizard.php
 msgid "Minimum Rental Days"
+msgstr ""
+
+#: src/Admin/Settings/Groups/VehicleManagementSettings.php
+msgid "Minimum number of rental days"
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php
@@ -10987,7 +10483,15 @@ msgid "Maximum Rental Days"
 msgstr ""
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php
+msgid "Maximum number of rental days"
+msgstr ""
+
+#: src/Admin/Settings/Groups/VehicleManagementSettings.php
 msgid "Advance Booking Days"
+msgstr ""
+
+#: src/Admin/Settings/Groups/VehicleManagementSettings.php
+msgid "How many days in advance can customers book"
 msgstr ""
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php
@@ -10995,27 +10499,7 @@ msgid "Allow Same Day Booking"
 msgstr ""
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php
-msgid "MHM Rentiva vehicle management settings"
-msgstr ""
-
-#: src/Admin/Settings/Groups/VehicleManagementSettings.php
-msgid "You do not have permission to modify these settings."
-msgstr ""
-
-#: src/Admin/Settings/Groups/VehicleManagementSettings.php
-msgid "Configure vehicle pricing rules, multipliers, and tax settings."
-msgstr ""
-
-#: src/Admin/Settings/Groups/VehicleManagementSettings.php
-msgid "Configure vehicle availability rules and booking restrictions."
-msgstr ""
-
-#: src/Admin/Settings/Groups/VehicleManagementSettings.php
-msgid "Base price multiplier for all vehicles (1.0 = normal price)"
-msgstr ""
-
-#: src/Admin/Settings/Groups/VehicleManagementSettings.php
-msgid "Weekend price multiplier (1.2 = 20% increase)"
+msgid "Enable to allow customers to book for the same day."
 msgstr ""
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php
@@ -11034,24 +10518,20 @@ msgstr ""
 msgid "Tax rate percentage (e.g., 18 for 18%)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VehicleManagementSettings.php
-msgid "Minimum number of rental days"
-msgstr ""
-
-#: src/Admin/Settings/Groups/VehicleManagementSettings.php
-msgid "Maximum number of rental days"
-msgstr ""
-
-#: src/Admin/Settings/Groups/VehicleManagementSettings.php
-msgid "How many days in advance can customers book"
-msgstr ""
-
-#: src/Admin/Settings/Groups/VehicleManagementSettings.php
-msgid "Allow same day bookings"
+#: src/Admin/Settings/Settings.php
+msgid "Insufficient permissions for this action."
 msgstr ""
 
 #: src/Admin/Settings/Settings.php
-msgid "Tab name is required."
+msgid "Invalid settings tab."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php
+msgid "Settings successfully reset to defaults."
+msgstr ""
+
+#: src/Admin/Settings/Settings.php
+msgid "Settings are already at default values."
 msgstr ""
 
 #: src/Admin/Settings/SettingsHandler.php
@@ -11059,7 +10539,7 @@ msgid "REST API Settings saved successfully!"
 msgstr ""
 
 #: src/Admin/Settings/SettingsView.php
-msgid "Settings template not found."
+msgid "Settings template file not found."
 msgstr ""
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php
@@ -11072,18 +10552,6 @@ msgstr ""
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php
 msgid "User payment history"
-msgstr ""
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php
-msgid "User login form"
-msgstr ""
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php
-msgid "Registration Form"
-msgstr ""
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php
-msgid "New user registration form"
 msgstr ""
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php
@@ -11223,6 +10691,10 @@ msgid "Security"
 msgstr ""
 
 #: src/Admin/Settings/Testing/SettingsTester.php
+msgid "Transfer"
+msgstr ""
+
+#: src/Admin/Settings/Testing/SettingsTester.php
 msgid "Dark mode"
 msgstr ""
 
@@ -11351,6 +10823,18 @@ msgid "URL Validation Works"
 msgstr ""
 
 #: src/Admin/Settings/Testing/SettingsTester.php
+msgid "Location Table Integrity"
+msgstr ""
+
+#: src/Admin/Settings/Testing/SettingsTester.php
+msgid "Route Table Integrity"
+msgstr ""
+
+#: src/Admin/Settings/Testing/SettingsTester.php
+msgid "Location Data Existence"
+msgstr ""
+
+#: src/Admin/Settings/Testing/SettingsTester.php
 msgid "Settings Test Report"
 msgstr ""
 
@@ -11403,15 +10887,7 @@ msgid "Configure manual payment methods and currency settings."
 msgstr ""
 
 #: src/Admin/Settings/View/TabRendererRegistry.php
-msgid "Email Configuration"
-msgstr ""
-
-#: src/Admin/Settings/View/TabRendererRegistry.php
 msgid "Configure outgoing mail server and sender information."
-msgstr ""
-
-#: src/Admin/Settings/View/TabRendererRegistry.php
-msgid "Notification Templates"
 msgstr ""
 
 #: src/Admin/Settings/View/TabRendererRegistry.php
@@ -11435,15 +10911,19 @@ msgid "Cron Job Monitor"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Monitor and manage all plugin-related cron jobs. You can manually run any cron job from here."
+msgid "Monitor and manage all plugin-related scheduled tasks (cron jobs)."
 msgstr ""
 
-#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+#: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
 msgid "Refresh List"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Test All Cron Jobs"
+msgid "Run Health Check"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
+msgid "Loading scheduled tasks..."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
@@ -11451,35 +10931,35 @@ msgid "Run Now"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Running..."
-msgstr ""
-
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
-msgid "Success:"
+msgid "Executing..."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "This will execute the cron job immediately. Continue?"
+msgid "Task executed successfully."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Hook"
+msgid "This will execute the scheduled task immediately. Continue?"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Description"
+msgid "Hook Name"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Schedule"
+msgid "Internal Name"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Next Run"
+msgid "Task Description"
 msgstr ""
 
-#: templates/admin/shortcode-pages.php
-msgid "Actions"
+#: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
+msgid "Recurrence"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
+msgid "Next Execution"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
@@ -11487,159 +10967,243 @@ msgid "Scheduled"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Not Scheduled"
+msgid "Idle"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Testing..."
+msgid "Running Health Check..."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Test Results"
+msgid "Health Report"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Registered but not scheduled"
+msgid "Pending Schedule"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Not registered"
+msgid "Unregistered"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
-msgid "Hook is not registered - cannot run"
+msgid "Hook not found - execution aborted."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Database cleanup class not found."
-msgstr ""
-
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
-msgid "Database cleanup operations are irreversible. Automatic backup is created before each operation."
+msgid "Database Cleanup"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Full Database Backup"
+msgid "Database maintenance engine not found."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Create a complete backup of all plugin-related database tables (posts, postmeta, options, and custom tables)."
+msgid "Optimize storage and ensure database integrity by removing orphaned metadata and expired logs."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Security:"
+msgid "Critical Usage:"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Backup files are stored securely in wp-content/mhm-rentiva-backups/ and are protected from direct web access using .htaccess and index.php files (WordPress standards compliant)."
+msgid "Cleanup operations are irreversible. An automated snapshot will be captured before modifications proceed."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Create Full Backup"
+msgid "System Snapshot (Full Backup)"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Cleanup Backups"
+msgid "Create a complete archive of all rental-related tables including Posts, Meta, and Custom Definitions."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Manage and restore backups created during cleanup operations (orphaned meta, invalid meta, etc.)."
+msgid "Secure Storage:"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Refresh Backup List"
-msgstr ""
-
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
-msgid "Analyzing..."
-msgstr ""
-
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
-msgid "Cleaning..."
-msgstr ""
-
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
-msgid "Optimizing..."
-msgstr ""
-
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
-msgid "This will delete orphaned meta data. A backup will be created. Continue?"
-msgstr ""
-
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
-msgid "Table optimization may take several minutes. Continue?"
+msgid "Archives are stored in protected directories with restricted web access, adhering to WP application standards."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "This will delete invalid meta keys. A backup will be created. Continue?"
+msgid "Initialize Snapshot"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "This will restore the backup data. Continue?"
+msgid "Sync History"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "This will permanently delete the backup. This action cannot be undone. Continue?"
+msgid "Incremental Cleanup Backups"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Restoring..."
+msgid "Manage and restore localized data clusters captured during recent maintenance routines."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Table Name"
+msgid "Sync Maintenance Logs"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Restore"
+msgid "Inspecting Data..."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "No backups found."
+msgid "Purging Records..."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Invalid Meta"
+msgid "Optimizing Index..."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Orphaned Meta"
+msgid "Operation Aborted."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Custom"
+msgid "Task Successful."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "This will create a full backup of all plugin-related tables. This may take a few minutes. Continue?"
+msgid "Analyze Integrity"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Creating Backup..."
+msgid "Purge Orphaned Meta"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "WARNING: This will restore the backup and may overwrite existing data. This operation is irreversible. Continue?"
+msgid "Clear System Cache"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Backup Name"
+msgid "Compact Tables"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
-msgid "Tables"
+msgid "Invalidate"
 msgstr ""
 
-#: templates/admin/shortcode-pages.php
-msgid "Missing"
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Commit to purging orphaned meta? A snapshot will be created."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Table compaction may impact short-term performance. Continue?"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Purge invalid keys? A snapshot will be created."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Initiate data restoration from snapshot?"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Permanently discard this backup? This is irreversible."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Purge all logs and queue entries older than 30 days? This action is irreversible."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Synchronizing..."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Refresh Log"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Restoring Matrix..."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Discarding File..."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Target Resource"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Timestamp"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Record Count"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Payload Size"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Command"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Rollback"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Purge"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "No archived snapshots found."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Metadata Integrity"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Orphaned Cluster"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Custom Backup"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Generate complete system snapshot? Proceed with caution."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Streaming Snapshot..."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "WARNING: Full restoration will overwrite current live data. Proceed with matrix rollback?"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Archive Identity"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Table Manifest"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Verified Status"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
+msgid "Offline/Missing"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/GeneralSettingsRenderer.php
-msgid "Configure general system settings."
+msgid "Configure core plugin identity and system-wide formatting."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/GeneralSettingsRenderer.php
-msgid "General Settings class not found."
+msgid "General Settings configuration group not found."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
@@ -11647,43 +11211,79 @@ msgid "Integration Settings"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
-msgid "Configure third-party integrations and REST API settings."
+msgid "Manage secure communication channels for mobile applications and third-party services."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
-msgid "REST Settings class not found."
+msgid "Factory Reset API"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
-msgid "Save REST API Settings"
+msgid "REST Integration core service is missing."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
-msgid "API Keys Management"
+msgid "Commit API Configuration"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
-msgid "Manage API keys for third-party access to your rental system."
+msgid "Secure API Access Tokens"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
-msgid "Loading keys..."
+msgid "Issue and revoke tokens to allow your custom apps to interact with rental data."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
-msgid "Create New API Key"
+msgid "Synchronizing access tokens..."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
-msgid "Available Endpoints"
+msgid "Issue New Credentials"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
-msgid "Reference list of available REST API endpoints for this system."
+msgid "Client Identity"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
-msgid "View All Endpoints"
+msgid "e.g. Android App / External Portal"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
+msgid "Authorization Level"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
+msgid "Access public/private data"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
+msgid "Modify resources"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
+msgid "Full system control"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
+msgid "Generate Access Key"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
+msgid "Refresh Data"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
+msgid "Developer Endpoint Reference"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
+msgid "Direct access URLs for custom integrations and headless implementations."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/IntegrationRenderer.php
+msgid "Reveal API Directory"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
@@ -11691,11 +11291,103 @@ msgid "Messages Settings"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
-msgid "MessagesSettings class not found."
+msgid "Messaging configuration service not found."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
-msgid "Configure message system settings, email notifications, categories, and statuses."
+msgid "Configure workflow rules for internal communication and email notifications."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Reset Conversations"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "System Rules"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Workflow Statuses"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Management Email"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Destination address for staff alerts."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Outgoing Name"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Identified sender for message notifications."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Alert staff on new client messages"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Notify clients on staff replies"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Dashboard Visibility"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Enable main dashboard message widget"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Widget Capacity"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Max entries to reveal in dashboard list."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Auto-Responder"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Send automated acknowledgment to clients"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Identify new message category..."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Define new workflow stage..."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Save Communication Settings"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Name required."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Permanent deletion of this category?"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Status title required."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Permanent deletion of this status?"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php
+msgid "Updating..."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/SettingsTestingRenderer.php
@@ -11703,15 +11395,11 @@ msgid "Settings Testing"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/SettingsTestingRenderer.php
-msgid "Settings tester class not found."
+msgid "Validate your current plugin configuration and detect potential conflicts early."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/SettingsTestingRenderer.php
-msgid "This page allows you to test all plugin settings to ensure they are working correctly."
-msgstr ""
-
-#: src/Admin/Settings/View/Tabs/SettingsTestingRenderer.php
-msgid "Run All Tests"
+msgid "Run All Diagnostics"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/SettingsTestingRenderer.php
@@ -11719,11 +11407,31 @@ msgid "Clear Results"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/SettingsTestingRenderer.php
-msgid "Running Tests..."
+msgid "Analyzing System..."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/SettingsTestingRenderer.php
-msgid "Failed to run tests."
+msgid "Diagnostic failed to complete."
+msgstr ""
+
+#: src/Admin/Transfer/TransferAdmin.php
+msgid "Transfer Settings"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/TransferSettingsRenderer.php
+msgid "Manage transfer system configurations, locations, and routing rules."
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/TransferSettingsRenderer.php
+msgid "Manage Locations"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/TransferSettingsRenderer.php
+msgid "Manage Routes"
+msgstr ""
+
+#: src/Admin/Settings/View/Tabs/TransferSettingsRenderer.php
+msgid "Transfer Settings configuration group not found."
 msgstr ""
 
 #: src/Admin/Utilities/Menu/Menu.php
@@ -11866,6 +11574,10 @@ msgstr ""
 msgid "Present"
 msgstr ""
 
+#: templates/admin/shortcode-pages.php
+msgid "Missing"
+msgstr ""
+
 #: src/Admin/Setup/SetupWizard.php
 msgid "Create Missing Pages"
 msgstr ""
@@ -11907,7 +11619,7 @@ msgid "or"
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php
-msgid "Reply-To Address"
+msgid "Test Mode"
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php
@@ -11916,6 +11628,14 @@ msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php
 msgid "Automation"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Email sending enabled"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Automatic email sending enabled"
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php
@@ -12030,6 +11750,10 @@ msgstr ""
 msgid "System Check"
 msgstr ""
 
+#: src/Admin/Utilities/Menu/Menu.php
+msgid "License"
+msgstr ""
+
 #: src/Admin/Setup/SetupWizard.php
 msgid "Required Pages"
 msgstr ""
@@ -12051,7 +11775,15 @@ msgid "WooCommerce is required for payments and account management."
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php
+msgid "PHP Version"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
 msgid "Update PHP to 7.4 or higher."
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "WordPress Version"
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php
@@ -12495,7 +12227,7 @@ msgid "Memory Usage"
 msgstr ""
 
 #: src/Admin/Testing/PerformanceTest.php
-msgid "Memory usage: %1$d MB / %2$d MB (%.1f%%)"
+msgid "Memory usage: %1$d MB / %2$d MB (%3$.1f%%)"
 msgstr ""
 
 #: src/Admin/Testing/PerformanceTest.php
@@ -12531,7 +12263,7 @@ msgid "Autoloader Performance"
 msgstr ""
 
 #: src/Admin/Testing/PerformanceTest.php
-msgid "%1$d/%2$d class loaded in %.2f ms"
+msgid "%1$d/%2$d class loaded in %3$.2f ms"
 msgstr ""
 
 #: src/Admin/Testing/SecurityTest.php
@@ -12847,7 +12579,7 @@ msgid "min"
 msgstr ""
 
 #: src/Admin/Transfer/Integration/TransferCartIntegration.php
-msgid "VIP Transfer: %s ➝ %s"
+msgid "VIP Transfer: %1$s ➝ %2$s"
 msgstr ""
 
 #: src/Admin/Transfer/Integration/TransferCartIntegration.php
@@ -12875,7 +12607,7 @@ msgid "Invalid date time."
 msgstr ""
 
 #: src/Admin/Transfer/Integration/TransferCartIntegration.php
-msgid "Deposit: %s (%s%%)"
+msgid "Deposit: %1$s (%2$s%%)"
 msgstr ""
 
 #: src/Admin/Transfer/Integration/TransferCartIntegration.php
@@ -12891,23 +12623,7 @@ msgid "Unknown Location"
 msgstr ""
 
 #: src/Admin/Transfer/Integration/TransferCartIntegration.php
-msgid "VIP Transfer: %1$s ➝ %2$s"
-msgstr ""
-
-#: src/Admin/Transfer/Integration/TransferCartIntegration.php
 msgid "Estimated Duration"
-msgstr ""
-
-#: src/Admin/Transfer/TransferAdmin.php
-msgid "Transfer Locations"
-msgstr ""
-
-#: src/Admin/Transfer/TransferAdmin.php
-msgid "Transfer Routes"
-msgstr ""
-
-#: src/Admin/Transfer/TransferAdmin.php
-msgid "Transfer Settings"
 msgstr ""
 
 #: src/Admin/Transfer/TransferAdmin.php
@@ -12939,27 +12655,7 @@ msgid "Settings saved."
 msgstr ""
 
 #: src/Admin/Transfer/TransferAdmin.php
-msgid "Full Payment Required"
-msgstr ""
-
-#: src/Admin/Transfer/TransferAdmin.php
-msgid "Deposit (Percentage)"
-msgstr ""
-
-#: src/Admin/Transfer/TransferAdmin.php
-msgid "Select how customers should pay for transfers."
-msgstr ""
-
-#: src/Admin/Transfer/TransferAdmin.php
-msgid "Deposit Rate (%)"
-msgstr ""
-
-#: src/Admin/Transfer/TransferAdmin.php
 msgid "Percentage of total price to be paid as deposit."
-msgstr ""
-
-#: src/Admin/Transfer/TransferAdmin.php
-msgid "Custom Location Types"
 msgstr ""
 
 #: src/Admin/Transfer/TransferAdmin.php
@@ -12968,6 +12664,10 @@ msgstr ""
 
 #: src/Admin/Transfer/TransferAdmin.php
 msgid "Unauthorized"
+msgstr ""
+
+#: src/Admin/Utilities/Menu/Menu.php
+msgid "Transfer Locations"
 msgstr ""
 
 #: src/Admin/Transfer/TransferAdmin.php
@@ -12988,6 +12688,10 @@ msgstr ""
 
 #: src/Admin/Transfer/TransferAdmin.php
 msgid "No locations found."
+msgstr ""
+
+#: src/Admin/Utilities/Menu/Menu.php
+msgid "Transfer Routes"
 msgstr ""
 
 #: src/Admin/Transfer/TransferAdmin.php
@@ -13042,7 +12746,7 @@ msgstr ""
 msgid "Update Route"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php
+#: templates/admin/dashboard/quick-actions.php
 msgid "Add Route"
 msgstr ""
 
@@ -13167,19 +12871,23 @@ msgid "Cleans up old email logs"
 msgstr ""
 
 #: src/Admin/Utilities/Cron/CronMonitor.php
-msgid "Log Retention"
+msgid "System Log Retention (Classic)"
 msgstr ""
 
 #: src/Admin/Utilities/Cron/CronMonitor.php
-msgid "Cleans up old system logs"
+msgid "Cleans up old system logs (mhm_app_log post type)"
+msgstr ""
+
+#: src/Admin/Utilities/Cron/CronMonitor.php
+msgid "App Log Maintenance (Modern)"
+msgstr ""
+
+#: src/Admin/Utilities/Cron/CronMonitor.php
+msgid "Advanced log management and rotation for system logs"
 msgstr ""
 
 #: src/Admin/Utilities/Cron/CronMonitor.php
 msgid "Not scheduled"
-msgstr ""
-
-#: src/Admin/Utilities/Uninstall/UninstallPage.php
-msgid "Permission denied"
 msgstr ""
 
 #: src/Admin/Utilities/Cron/CronMonitor.php
@@ -13195,223 +12903,59 @@ msgid "Cron hook is required"
 msgstr ""
 
 #: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Control Panel"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Monthly Bookings"
-msgstr ""
-
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php
-msgid "total"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Total Vehicles"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Monthly Customers"
-msgstr ""
-
-#: templates/account/dashboard.php
-msgid "Quick Actions"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Add New Vehicle"
-msgstr ""
-
-#: templates/shortcodes/booking-confirmation.php
-msgid "New Booking"
-msgstr ""
-
-#: templates/account/dashboard.php
-msgid "Recent Bookings"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "No bookings found yet."
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "View All Bookings"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Vehicle Status"
-msgstr ""
-
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php
-msgid "Reserved"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "View All Vehicles"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Revenue Trend (Last 14 Days)"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "This Week:"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Last Week:"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Detailed Reports"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Customer Statistics"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Total Customers"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "New This Month"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Active Customers"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Avg. Spending"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "All Customers"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "System Notifications"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "No new notifications."
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "View Settings"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
 msgid "Error occurred while fetching data: "
 msgstr ""
 
 #: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "%d pending messages"
+msgid "Invalid order data"
 msgstr ""
 
 #: src/Admin/Utilities/Dashboard/DashboardPage.php
+msgid "Order saved successfully"
+msgstr ""
+
+#: src/Admin/Utilities/Dashboard/DashboardService.php
+msgid "%s pending messages"
+msgstr ""
+
+#: src/Admin/Utilities/Dashboard/DashboardService.php
 msgid "Now"
 msgstr ""
 
-#: templates/account/dashboard.php
-msgid "Active Bookings"
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "Analyzing..."
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "%d total bookings"
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "Cleaning..."
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Current"
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "Optimizing..."
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Pending Payments"
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "Success:"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "%d pending payments"
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "This will delete orphaned meta data. A backup will be created. Continue?"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php
-msgid "Vehicles Under Maintenance"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "%d vehicles in maintenance"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "System Updates Available"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "%d updates available"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "System Status"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "All systems operating normally"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Deposit Statistics"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Deposit Bookings"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Pending Deposits"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Completed Deposits"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Deposit Rate"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "bookings"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Due Date"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "No pending payments found."
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "All Pending Payments"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Vehicle / Customer"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "Tomorrow"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "VIP Transfer"
-msgstr ""
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php
-msgid "No upcoming operations found."
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "Table optimization may take several minutes. Continue?"
 msgstr ""
 
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php
 msgid "Database Management & Optimization"
+msgstr ""
+
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "Warning:"
+msgstr ""
+
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "Database cleanup operations are irreversible. Automatic backup is created before each operation."
 msgstr ""
 
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php
@@ -13472,6 +13016,10 @@ msgstr ""
 
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php
 msgid "Failed to repair table or table definition not found"
+msgstr ""
+
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php
+msgid "%d old log records cleaned."
 msgstr ""
 
 #: src/Admin/Utilities/Database/DatabaseInitialization.php
@@ -14426,8 +13974,16 @@ msgstr ""
 msgid "Monthly Reserved Vehicles"
 msgstr ""
 
+#: templates/admin/dashboard/stats-cards.php
+msgid "total"
+msgstr ""
+
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php
 msgid "Inactive Vehicles"
+msgstr ""
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php
+msgid "Vehicles Under Maintenance"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php
@@ -14440,6 +13996,10 @@ msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php
 msgid "Reserved: %s"
+msgstr ""
+
+#: templates/admin/dashboard/vehicle-status.php
+msgid "Reserved"
 msgstr ""
 
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php
@@ -14588,10 +14148,6 @@ msgstr ""
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php
 msgid "Car Cover"
-msgstr ""
-
-#: src/Admin/Vehicle/Settings/VehicleSettings.php
-msgid "Child Seat"
 msgstr ""
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php
@@ -14810,12 +14366,12 @@ msgstr ""
 msgid "Cash"
 msgstr ""
 
-#: templates/shortcodes/thank-you.php
-msgid "Bank Transfer"
-msgstr ""
-
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php
 msgid "Select accepted payment methods for deposit payment."
+msgstr ""
+
+#: src/Admin/Vehicle/Settings/VehicleSettings.php
+msgid "Reset to Defaults"
 msgstr ""
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php
@@ -15075,6 +14631,10 @@ msgid "Custom equipment added successfully"
 msgstr ""
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php
+msgid "Invalid field type"
+msgstr ""
+
+#: src/Admin/Vehicle/Settings/VehicleSettings.php
 msgid "Settings reset to defaults."
 msgstr ""
 
@@ -15222,7 +14782,7 @@ msgstr ""
 msgid "Contact Information"
 msgstr ""
 
-#: templates/account/register-form.php
+#: templates/account/account-details.php
 msgid "Phone Number"
 msgstr ""
 
@@ -15246,15 +14806,15 @@ msgstr ""
 msgid "New Password"
 msgstr ""
 
-#: templates/account/register-form.php
+#: templates/account/account-details.php
 msgid "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character"
 msgstr ""
 
-#: templates/account/register-form.php
+#: templates/account/account-details.php
 msgid "Minimum %d characters"
 msgstr ""
 
-#: templates/account/register-form.php
+#: templates/account/account-details.php
 msgid "including uppercase, lowercase, number, and special character"
 msgstr ""
 
@@ -15355,6 +14915,14 @@ msgid "Welcome back, %s!"
 msgstr ""
 
 #: templates/account/dashboard.php
+msgid "Active Bookings"
+msgstr ""
+
+#: templates/admin/dashboard/recent-bookings.php
+msgid "Recent Bookings"
+msgstr ""
+
+#: templates/account/dashboard.php
 msgid "View All"
 msgstr ""
 
@@ -15374,8 +14942,16 @@ msgstr ""
 msgid "No Bookings Yet"
 msgstr ""
 
+#: templates/admin/dashboard/quick-actions.php
+msgid "Quick Actions"
+msgstr ""
+
 #: templates/account/dashboard.php
 msgid "Explore our fleet"
+msgstr ""
+
+#: templates/shortcodes/booking-confirmation.php
+msgid "New Booking"
 msgstr ""
 
 #: templates/account/dashboard.php
@@ -15478,50 +15054,6 @@ msgstr ""
 msgid "Clear All Favorites"
 msgstr ""
 
-#: templates/account/login-form.php
-msgid "Login to Your Account"
-msgstr ""
-
-#: templates/account/login-form.php
-msgid "Access your bookings and manage your reservations"
-msgstr ""
-
-#: templates/account/login-form.php
-msgid "Email or Username"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Password"
-msgstr ""
-
-#: templates/account/login-form.php
-msgid "Remember Me"
-msgstr ""
-
-#: templates/shortcodes/vehicle-rating-form.php
-msgid "Login"
-msgstr ""
-
-#: templates/account/login-form.php
-msgid "Lost your password?"
-msgstr ""
-
-#: templates/account/login-form.php
-msgid "Create an account"
-msgstr ""
-
-#: templates/account/login-form.php
-msgid "New Customer?"
-msgstr ""
-
-#: templates/account/login-form.php
-msgid "Create an account to manage your bookings, save favorite vehicles, and enjoy faster checkouts."
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Create Account"
-msgstr ""
-
 #: templates/account/messages.php
 msgid "Billing"
 msgstr ""
@@ -15554,76 +15086,168 @@ msgstr ""
 msgid "Upload Receipt"
 msgstr ""
 
-#: templates/account/register-form.php
-msgid "Registration Disabled"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Customer registration is currently disabled."
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Fill out the form below to create a new account."
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Enter your first name"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Enter your last name"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Username"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Choose a username"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "example@email.com"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "+90 (538) 556 41 58"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Choose a strong password"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Confirm Password"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Re-enter your password"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Privacy Policy"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "I consent to the processing of my personal data for the purpose of providing rental services and communication."
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "I want to be informed about campaigns and opportunities."
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Already have an account?"
-msgstr ""
-
-#: templates/account/register-form.php
-msgid "Sign in"
-msgstr ""
-
 #: templates/admin/booking-meta/receipt-box.php
 msgid "-"
+msgstr ""
+
+#: templates/admin/dashboard/customer-stats.php
+msgid "Customer Statistics"
+msgstr ""
+
+#: templates/admin/dashboard/customer-stats.php
+msgid "Total Customers"
+msgstr ""
+
+#: templates/admin/dashboard/customer-stats.php
+msgid "New This Month"
+msgstr ""
+
+#: templates/admin/dashboard/customer-stats.php
+msgid "Active Customers"
+msgstr ""
+
+#: templates/admin/dashboard/customer-stats.php
+msgid "Avg. Spending"
+msgstr ""
+
+#: templates/admin/dashboard/customer-stats.php
+msgid "All Customers"
+msgstr ""
+
+#: templates/admin/dashboard/deposit-stats.php
+msgid "Deposit Statistics"
+msgstr ""
+
+#: templates/admin/dashboard/deposit-stats.php
+msgid "Deposit Bookings"
+msgstr ""
+
+#: templates/admin/dashboard/deposit-stats.php
+msgid "Pending Deposits"
+msgstr ""
+
+#: templates/admin/dashboard/deposit-stats.php
+msgid "Completed Deposits"
+msgstr ""
+
+#: templates/admin/dashboard/index.php
+msgid "Control Panel"
+msgstr ""
+
+#: templates/admin/dashboard/index.php
+msgid "Reset Layout"
+msgstr ""
+
+#: templates/admin/dashboard/notifications-widget.php
+msgid "System Notifications"
+msgstr ""
+
+#: templates/admin/dashboard/notifications-widget.php
+msgid "No new notifications."
+msgstr ""
+
+#: templates/admin/dashboard/notifications-widget.php
+msgid "View Settings"
+msgstr ""
+
+#: templates/admin/dashboard/pending-payments.php
+msgid "Pending Payments"
+msgstr ""
+
+#: templates/admin/dashboard/pending-payments.php
+msgid "Due Date"
+msgstr ""
+
+#: templates/admin/dashboard/pending-payments.php
+msgid "No pending payments found."
+msgstr ""
+
+#: templates/admin/dashboard/pending-payments.php
+msgid "All Pending Payments"
+msgstr ""
+
+#: templates/admin/dashboard/quick-actions.php
+msgid "Email Tabs"
+msgstr ""
+
+#: templates/admin/dashboard/quick-actions.php
+msgid "Add-on Svc"
+msgstr ""
+
+#: templates/admin/dashboard/recent-bookings.php
+msgid "No bookings found yet."
+msgstr ""
+
+#: templates/admin/dashboard/recent-bookings.php
+msgid "View All Bookings"
+msgstr ""
+
+#: templates/admin/dashboard/revenue-chart.php
+msgid "Revenue Trend (Last 14 Days)"
+msgstr ""
+
+#: templates/admin/dashboard/revenue-chart.php
+msgid "This Week:"
+msgstr ""
+
+#: templates/admin/dashboard/revenue-chart.php
+msgid "Last Week:"
+msgstr ""
+
+#: templates/admin/dashboard/revenue-chart.php
+msgid "Detailed Reports"
+msgstr ""
+
+#: templates/admin/dashboard/stats-cards.php
+msgid "Monthly Bookings"
+msgstr ""
+
+#: templates/admin/dashboard/stats-cards.php
+msgid "Total Vehicles"
+msgstr ""
+
+#: templates/admin/dashboard/stats-cards.php
+msgid "Monthly Customers"
+msgstr ""
+
+#: templates/admin/dashboard/transfer-widget.php
+msgid "Transfer Summary"
+msgstr ""
+
+#: templates/admin/dashboard/transfer-widget.php
+msgid "Recent Transfer Routes"
+msgstr ""
+
+#: templates/admin/dashboard/transfer-widget.php
+msgid "No transfer bookings found."
+msgstr ""
+
+#: templates/admin/dashboard/transfer-widget.php
+msgid "View All Transfers"
+msgstr ""
+
+#: templates/admin/dashboard/upcoming-operations.php
+msgid "Vehicle / Customer"
+msgstr ""
+
+#: templates/admin/dashboard/upcoming-operations.php
+msgid "Tomorrow"
+msgstr ""
+
+#: templates/admin/dashboard/upcoming-operations.php
+msgid "VIP Transfer"
+msgstr ""
+
+#: templates/admin/dashboard/upcoming-operations.php
+msgid "No upcoming operations found."
+msgstr ""
+
+#: templates/admin/dashboard/vehicle-status.php
+msgid "Vehicle Status"
+msgstr ""
+
+#: templates/admin/dashboard/vehicle-status.php
+msgid "View All Vehicles"
 msgstr ""
 
 #: templates/admin/reports/bookings.php
@@ -15803,11 +15427,15 @@ msgid "View My Account"
 msgstr ""
 
 #: templates/emails/booking-created-admin.html.php
+msgid "Attention:"
+msgstr ""
+
+#: templates/emails/booking-created-admin.html.php
 msgid "A new reservation request has been received. Please check from the admin panel."
 msgstr ""
 
-#: templates/emails/offline-verified-approved-customer.html.php
-msgid "Reservation No:"
+#: templates/shortcodes/booking-confirmation.php
+msgid "Customer Information"
 msgstr ""
 
 #: templates/emails/booking-created-customer.html.php
@@ -16167,6 +15795,10 @@ msgid "Payment Information"
 msgstr ""
 
 #: templates/shortcodes/booking-confirmation.php
+msgid "Important:"
+msgstr ""
+
+#: templates/shortcodes/booking-confirmation.php
 msgid "You must complete your payment by %s. If payment is not made within this period, your booking will be automatically cancelled."
 msgstr ""
 
@@ -16218,6 +15850,10 @@ msgstr ""
 msgid "You can view and manage your bookings from your account."
 msgstr ""
 
+#: templates/shortcodes/booking-confirmation.php
+msgid "Go to My Account"
+msgstr ""
+
 #: templates/shortcodes/booking-form.php
 msgid "Vehicle Selection"
 msgstr ""
@@ -16244,10 +15880,6 @@ msgstr ""
 
 #: templates/shortcodes/booking-form.php
 msgid "Return time is automatically set to match pickup time."
-msgstr ""
-
-#: templates/shortcodes/booking-form.php
-msgid "Price Calculation"
 msgstr ""
 
 #: templates/shortcodes/booking-form.php
@@ -16520,6 +16152,10 @@ msgstr ""
 
 #: templates/shortcodes/vehicle-rating-form.php
 msgid "You must be logged in to submit a rating and review."
+msgstr ""
+
+#: templates/shortcodes/vehicle-rating-form.php
+msgid "Login"
 msgstr ""
 
 #: templates/shortcodes/vehicle-rating-form.php

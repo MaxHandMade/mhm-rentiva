@@ -8,131 +8,130 @@ use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
 use MHMRentiva\Admin\Emails\Core\EmailTemplates;
 use MHMRentiva\Admin\REST\Settings\RESTSettings;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
  * Settings Handler Class
- * 
+ *
  * Handles settings form submissions and action processing.
  * Separates logic from the view.
- * 
+ *
  * @since 4.0.0
  */
-final class SettingsHandler
-{
-    /**
-     * Handle settings page actions
-     */
-    public static function handle(): void
-    {
-        if (!current_user_can('manage_options')) {
-            return;
-        }
+final class SettingsHandler {
 
-        $post = wp_unslash($_POST);
-        $get = wp_unslash($_GET);
+	/**
+	 * Handle settings page actions
+	 */
+	public static function handle(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
 
-        // Modern Dispatcher using PHP 8.2 match
-        match (true) {
-            isset($post['email_templates_action']) && $post['email_templates_action'] === 'save' => self::handle_email_templates(),
-            isset($post['option_page']) && $post['option_page'] === 'mhm_rentiva_rest_settings' => self::handle_rest_settings(),
-            isset($get['reset_defaults']) && $get['reset_defaults'] === 'true' => self::handle_reset_defaults(),
-            default => null,
-        };
-    }
+		$post = wp_unslash( $_POST );
+		$get  = wp_unslash( $_GET );
 
-    /**
-     * Handle Reset Defaults Action
-     */
-    private static function handle_reset_defaults(): void
-    {
-        $get = wp_unslash($_GET);
+		// Modern Dispatcher using PHP 8.2 match
+		match ( true ) {
+			isset( $post['email_templates_action'] ) && $post['email_templates_action'] === 'save' => self::handle_email_templates(),
+			isset( $post['option_page'] ) && $post['option_page'] === 'mhm_rentiva_rest_settings' => self::handle_rest_settings(),
+			isset( $get['reset_defaults'] ) && $get['reset_defaults'] === 'true' => self::handle_reset_defaults(),
+			default => null,
+		};
+	}
 
-        if (
-            !isset($get['reset_defaults']) ||
-            $get['reset_defaults'] !== 'true' ||
-            !isset($get['_wpnonce']) ||
-            !wp_verify_nonce(sanitize_key($get['_wpnonce']), 'mhm_rentiva_reset_defaults')
-        ) {
-            return;
-        }
+	/**
+	 * Handle Reset Defaults Action
+	 */
+	private static function handle_reset_defaults(): void {
+		$get = wp_unslash( $_GET );
 
-        $target_tab = sanitize_key($get['tab'] ?? '');
+		if (
+			! isset( $get['reset_defaults'] ) ||
+			$get['reset_defaults'] !== 'true' ||
+			! isset( $get['_wpnonce'] ) ||
+			! wp_verify_nonce( sanitize_key( $get['_wpnonce'] ), 'mhm_rentiva_reset_defaults' )
+		) {
+			return;
+		}
 
-        // Execute reset via service (SRP compliant)
-        $success = \MHMRentiva\Admin\Settings\Services\SettingsService::reset_defaults($target_tab);
+		$target_tab = sanitize_key( $get['tab'] ?? '' );
 
-        // Smart Redirect
-        $redirect_url = admin_url('admin.php?page=mhm-rentiva-settings');
-        if (!empty($target_tab)) {
-            $redirect_url = add_query_arg('tab', $target_tab, $redirect_url);
-        }
+		// Execute reset via service (SRP compliant)
+		$success = \MHMRentiva\Admin\Settings\Services\SettingsService::reset_defaults( $target_tab );
 
-        if (isset($get['view'])) {
-            $redirect_url = add_query_arg('view', sanitize_text_field($get['view']), $redirect_url);
-        }
+		// Smart Redirect
+		$redirect_url = admin_url( 'admin.php?page=mhm-rentiva-settings' );
+		if ( ! empty( $target_tab ) ) {
+			$redirect_url = add_query_arg( 'tab', $target_tab, $redirect_url );
+		}
 
-        $redirect_url = add_query_arg([
-            'settings-updated' => 'true',
-            'reset' => $success ? 'success' : 'failed'
-        ], $redirect_url);
+		if ( isset( $get['view'] ) ) {
+			$redirect_url = add_query_arg( 'view', sanitize_text_field( $get['view'] ), $redirect_url );
+		}
 
-        wp_safe_redirect($redirect_url);
-        exit;
-    }
+		$redirect_url = add_query_arg(
+			array(
+				'settings-updated' => 'true',
+				'reset'            => $success ? 'success' : 'failed',
+			),
+			$redirect_url
+		);
 
-    /**
-     * Handle Email Templates Save Action
-     */
-    private static function handle_email_templates(): void
-    {
-        $post = wp_unslash($_POST);
+		wp_safe_redirect( $redirect_url );
+		exit;
+	}
 
-        if (
-            isset($post['email_templates_action']) &&
-            sanitize_key($post['email_templates_action']) === 'save' &&
-            isset($post['_wpnonce']) &&
-            wp_verify_nonce(sanitize_text_field($post['_wpnonce']), Settings::GROUP . '-options')
-        ) {
-            EmailTemplates::handle_save_templates();
-            add_settings_error(
-                'mhm_rentiva_messages',
-                'email_templates_saved',
-                __('Email templates saved successfully!', 'mhm-rentiva'),
-                'success'
-            );
-        }
-    }
+	/**
+	 * Handle Email Templates Save Action
+	 */
+	private static function handle_email_templates(): void {
+		$post = wp_unslash( $_POST );
 
-    /**
-     * Handle REST Settings Save Action
-     */
-    private static function handle_rest_settings(): void
-    {
-        $post = wp_unslash($_POST);
+		if (
+			isset( $post['email_templates_action'] ) &&
+			sanitize_key( $post['email_templates_action'] ) === 'save' &&
+			isset( $post['_wpnonce'] ) &&
+			wp_verify_nonce( sanitize_text_field( $post['_wpnonce'] ), Settings::GROUP . '-options' )
+		) {
+			EmailTemplates::handle_save_templates();
+			add_settings_error(
+				'mhm_rentiva_messages',
+				'email_templates_saved',
+				__( 'Email templates saved successfully!', 'mhm-rentiva' ),
+				'success'
+			);
+		}
+	}
 
-        if (
-            isset($post['option_page']) &&
-            $post['option_page'] === 'mhm_rentiva_rest_settings' &&
-            isset($post['action']) &&
-            $post['action'] === 'update' &&
-            isset($post['_wpnonce']) &&
-            wp_verify_nonce(sanitize_text_field($post['_wpnonce']), 'mhm_rentiva_rest_settings-options')
-        ) {
-            if (isset($post['mhm_rentiva_rest_settings']) && is_array($post['mhm_rentiva_rest_settings'])) {
-                $success = \MHMRentiva\Admin\Settings\Services\SettingsService::save_rest_settings($post['mhm_rentiva_rest_settings']);
+	/**
+	 * Handle REST Settings Save Action
+	 */
+	private static function handle_rest_settings(): void {
+		$post = wp_unslash( $_POST );
 
-                if ($success) {
-                    add_settings_error(
-                        'mhm_rentiva_messages',
-                        'rest_settings_saved',
-                        __('REST API Settings saved successfully!', 'mhm-rentiva'),
-                        'success'
-                    );
-                }
-            }
-        }
-    }
+		if (
+			isset( $post['option_page'] ) &&
+			$post['option_page'] === 'mhm_rentiva_rest_settings' &&
+			isset( $post['action'] ) &&
+			$post['action'] === 'update' &&
+			isset( $post['_wpnonce'] ) &&
+			wp_verify_nonce( sanitize_text_field( $post['_wpnonce'] ), 'mhm_rentiva_rest_settings-options' )
+		) {
+			if ( isset( $post['mhm_rentiva_rest_settings'] ) && is_array( $post['mhm_rentiva_rest_settings'] ) ) {
+				$success = \MHMRentiva\Admin\Settings\Services\SettingsService::save_rest_settings( $post['mhm_rentiva_rest_settings'] );
+
+				if ( $success ) {
+					add_settings_error(
+						'mhm_rentiva_messages',
+						'rest_settings_saved',
+						__( 'REST API Settings saved successfully!', 'mhm-rentiva' ),
+						'success'
+					);
+				}
+			}
+		}
+	}
 }

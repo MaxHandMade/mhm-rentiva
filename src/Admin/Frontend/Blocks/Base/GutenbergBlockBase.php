@@ -2,295 +2,294 @@
 
 namespace MHMRentiva\Admin\Frontend\Blocks\Base;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
  * Base Gutenberg Block Class
- * 
+ *
  * Base class for all MHM Rentiva Gutenberg blocks
- * 
+ *
  * @since 3.0.1
  */
-abstract class GutenbergBlockBase
-{
-    /**
-     * Block namespace
-     */
-    protected string $namespace = 'mhm-rentiva';
-    
-    /**
-     * Block category
-     */
-    protected string $category = 'mhm-rentiva';
-    
-    /**
-     * Block icon
-     */
-    protected string $icon = 'car';
-    
-    /**
-     * Block keywords
-     */
-    protected array $keywords = ['mhm', 'rentiva', 'vehicle', 'rental'];
+abstract class GutenbergBlockBase {
 
-    /**
-     * Registers block
-     */
-    public function register(): void
-    {
-        // Register block - with namespace
-        register_block_type($this->namespace . '/' . $this->get_block_name(), [
-            'attributes' => $this->get_block_attributes(),
-            'render_callback' => [$this, 'render_block'],
-            'editor_script' => 'mhm-rentiva-gutenberg-blocks',
-            'editor_style' => 'mhm-rentiva-gutenberg-blocks-editor',
-            'style' => 'mhm-rentiva-gutenberg-blocks',
-            'supports' => $this->get_block_supports(),
-        ]);
-    }
+	/**
+	 * Block namespace
+	 */
+	protected string $namespace = 'mhm-rentiva';
 
-    /**
-     * Returns block name
-     */
-    abstract protected function get_block_name(): string;
+	/**
+	 * Block category
+	 */
+	protected string $category = 'mhm-rentiva';
 
-    /**
-     * Returns block attributes
-     */
-    abstract protected function get_block_attributes(): array;
+	/**
+	 * Block icon
+	 */
+	protected string $icon = 'car';
 
-    /**
-     * Renders block
-     * 
-     * @param array $attributes Block attributes
-     * @param string $content Block content
-     * @return string Rendered block
-     */
-    abstract public function render_block(array $attributes, string $content): string;
+	/**
+	 * Block keywords
+	 */
+	protected array $keywords = array( 'mhm', 'rentiva', 'vehicle', 'rental' );
 
-    /**
-     * Returns block supports
-     */
-    protected function get_block_supports(): array
-    {
-        return [
-            'align' => ['wide', 'full'],
-            'anchor' => true,
-            'customClassName' => true,
-            'html' => false,
-        ];
-    }
+	/**
+	 * Registers block
+	 */
+	public function register(): void {
+		// Register block - with namespace
+		register_block_type(
+			$this->namespace . '/' . $this->get_block_name(),
+			array(
+				'attributes'      => $this->get_block_attributes(),
+				'render_callback' => array( $this, 'render_block' ),
+				'editor_script'   => 'mhm-rentiva-gutenberg-blocks',
+				'editor_style'    => 'mhm-rentiva-gutenberg-blocks-editor',
+				'style'           => 'mhm-rentiva-gutenberg-blocks',
+				'supports'        => $this->get_block_supports(),
+			)
+		);
+	}
 
-    /**
-     * Get Vehicle selection attribute
-     * 
-     * @param string $attribute_name Attribute name
-     * @param string $label Attribute label
-     * @return array Attribute array
-     */
-    protected function get_vehicle_selection_attribute(
-        string $attribute_name = 'vehicleId',
-        string $label = 'Vehicle'
-    ): array {
-        return [
-            $attribute_name => [
-                'type' => 'number',
-                'default' => $this->get_default_vehicle_id(),
-                'description' => $label,
-            ],
-        ];
-    }
+	/**
+	 * Returns block name
+	 */
+	abstract protected function get_block_name(): string;
 
-    /**
-     * Get Layout selection attribute
-     * 
-     * @param string $attribute_name Attribute name
-     * @return array Attribute array
-     */
-    protected function get_layout_selection_attribute(
-        string $attribute_name = 'layout'
-    ): array {
-        return [
-            $attribute_name => [
-                'type' => 'string',
-                'default' => 'default',
-                'enum' => ['default', 'compact', 'grid', 'featured'],
-            ],
-        ];
-    }
+	/**
+	 * Returns block attributes
+	 */
+	abstract protected function get_block_attributes(): array;
 
-    /**
-     * Get Display options attributes
-     * 
-     * @param array $options Display options
-     * @return array Attributes array
-     */
-    protected function get_display_options_attributes(array $options = []): array
-    {
-        $default_options = [
-            'showImage' => 'Image',
-            'showTitle' => 'Title',
-            'showPrice' => 'Price',
-            'showFeatures' => 'Features',
-            'showRating' => 'Rating',
-            'showBookingBtn' => 'Booking Button',
-            'showFavoriteBtn' => 'Favorite Button',
-            'showCategory' => 'Category',
-            'showBadges' => 'Badges',
-            'showDescription' => 'Description',
-            'showAvailability' => 'Availability',
-            'showCompareBtn' => 'Compare Button',
-        ];
+	/**
+	 * Renders block
+	 *
+	 * @param array  $attributes Block attributes
+	 * @param string $content Block content
+	 * @return string Rendered block
+	 */
+	abstract public function render_block( array $attributes, string $content ): string;
 
-        $options = array_merge($default_options, $options);
-        $attributes = [];
+	/**
+	 * Returns block supports
+	 */
+	protected function get_block_supports(): array {
+		return array(
+			'align'           => array( 'wide', 'full' ),
+			'anchor'          => true,
+			'customClassName' => true,
+			'html'            => false,
+		);
+	}
 
-        foreach ($options as $key => $label) {
-            $attributes[$key] = [
-                'type' => 'boolean',
-                'default' => true,
-                'description' => $label,
-            ];
-        }
+	/**
+	 * Get Vehicle selection attribute
+	 *
+	 * @param string $attribute_name Attribute name
+	 * @param string $label Attribute label
+	 * @return array Attribute array
+	 */
+	protected function get_vehicle_selection_attribute(
+		string $attribute_name = 'vehicleId',
+		string $label = 'Vehicle'
+	): array {
+		return array(
+			$attribute_name => array(
+				'type'        => 'number',
+				'default'     => $this->get_default_vehicle_id(),
+				'description' => $label,
+			),
+		);
+	}
 
-        return $attributes;
-    }
+	/**
+	 * Get Layout selection attribute
+	 *
+	 * @param string $attribute_name Attribute name
+	 * @return array Attribute array
+	 */
+	protected function get_layout_selection_attribute(
+		string $attribute_name = 'layout'
+	): array {
+		return array(
+			$attribute_name => array(
+				'type'    => 'string',
+				'default' => 'default',
+				'enum'    => array( 'default', 'compact', 'grid', 'featured' ),
+			),
+		);
+	}
 
-    /**
-     * Get Vehicle options
-     * 
-     * @return array Vehicle options
-     */
-    protected function get_vehicle_options(): array
-    {
-        $vehicles = get_posts([
-            'post_type' => 'vehicle',
-            'post_status' => 'publish',
-            'numberposts' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC',
-        ]);
+	/**
+	 * Get Display options attributes
+	 *
+	 * @param array $options Display options
+	 * @return array Attributes array
+	 */
+	protected function get_display_options_attributes( array $options = array() ): array {
+		$default_options = array(
+			'showImage'        => 'Image',
+			'showTitle'        => 'Title',
+			'showPrice'        => 'Price',
+			'showFeatures'     => 'Features',
+			'showRating'       => 'Rating',
+			'showBookingBtn'   => 'Booking Button',
+			'showFavoriteBtn'  => 'Favorite Button',
+			'showCategory'     => 'Category',
+			'showBadges'       => 'Badges',
+			'showDescription'  => 'Description',
+			'showAvailability' => 'Availability',
+			'showCompareBtn'   => 'Compare Button',
+		);
 
-        $options = [];
-        foreach ($vehicles as $vehicle) {
-            $options[] = [
-                'value' => $vehicle->ID,
-                'label' => $vehicle->post_title,
-            ];
-        }
+		$options    = array_merge( $default_options, $options );
+		$attributes = array();
 
-        return $options;
-    }
+		foreach ( $options as $key => $label ) {
+			$attributes[ $key ] = array(
+				'type'        => 'boolean',
+				'default'     => true,
+				'description' => $label,
+			);
+		}
 
-    /**
-     * Get Default vehicle ID
-     * 
-     * @return int Default vehicle ID
-     */
-    protected function get_default_vehicle_id(): int
-    {
-        $vehicles = get_posts([
-            'post_type' => 'vehicle',
-            'post_status' => 'publish',
-            'numberposts' => 1,
-            'orderby' => 'date',
-            'order' => 'DESC',
-        ]);
+		return $attributes;
+	}
 
-        return $vehicles ? $vehicles[0]->ID : 0;
-    }
+	/**
+	 * Get Vehicle options
+	 *
+	 * @return array Vehicle options
+	 */
+	protected function get_vehicle_options(): array {
+		$vehicles = get_posts(
+			array(
+				'post_type'   => 'vehicle',
+				'post_status' => 'publish',
+				'numberposts' => -1,
+				'orderby'     => 'title',
+				'order'       => 'ASC',
+			)
+		);
 
-    /**
-     * Prepare Shortcode attributes
-     * 
-     * @param array $attributes Block attributes
-     * @return array Shortcode attributes
-     */
-    protected function prepare_shortcode_attributes(array $attributes): array
-    {
-        $atts = [];
+		$options = array();
+		foreach ( $vehicles as $vehicle ) {
+			$options[] = array(
+				'value' => $vehicle->ID,
+				'label' => $vehicle->post_title,
+			);
+		}
 
-        // Vehicle ID
-        if (!empty($attributes['vehicleId'])) {
-            $atts['id'] = $attributes['vehicleId'];
-        }
+		return $options;
+	}
 
-        // Layout
-        if (!empty($attributes['layout'])) {
-            $atts['layout'] = $attributes['layout'];
-        }
+	/**
+	 * Get Default vehicle ID
+	 *
+	 * @return int Default vehicle ID
+	 */
+	protected function get_default_vehicle_id(): int {
+		$vehicles = get_posts(
+			array(
+				'post_type'   => 'vehicle',
+				'post_status' => 'publish',
+				'numberposts' => 1,
+				'orderby'     => 'date',
+				'order'       => 'DESC',
+			)
+		);
 
-        // Display options
-        $display_options = [
-            'showImage' => 'show_image',
-            'showTitle' => 'show_title',
-            'showPrice' => 'show_price',
-            'showFeatures' => 'show_features',
-            'showRating' => 'show_rating',
-            'showBookingBtn' => 'show_booking_btn',
-            'showFavoriteBtn' => 'show_favorite_btn',
-            'showCategory' => 'show_category',
-            'showBadges' => 'show_badges',
-            'showDescription' => 'show_description',
-            'showAvailability' => 'show_availability',
-            'showCompareBtn' => 'show_compare_btn',
-        ];
+		return $vehicles ? $vehicles[0]->ID : 0;
+	}
 
-        foreach ($display_options as $block_attr => $shortcode_attr) {
-            if (isset($attributes[$block_attr])) {
-                $atts[$shortcode_attr] = $attributes[$block_attr] ? '1' : '0';
-            }
-        }
+	/**
+	 * Prepare Shortcode attributes
+	 *
+	 * @param array $attributes Block attributes
+	 * @return array Shortcode attributes
+	 */
+	protected function prepare_shortcode_attributes( array $attributes ): array {
+		$atts = array();
 
-        // Custom CSS class
-        if (!empty($attributes['className'])) {
-            $atts['class'] = $attributes['className'];
-        }
+		// Vehicle ID
+		if ( ! empty( $attributes['vehicleId'] ) ) {
+			$atts['id'] = $attributes['vehicleId'];
+		}
 
-        return $atts;
-    }
+		// Layout
+		if ( ! empty( $attributes['layout'] ) ) {
+			$atts['layout'] = $attributes['layout'];
+		}
 
-    /**
-     * Render Shortcode
-     * 
-     * @param string $shortcode_tag Shortcode tag
-     * @param array $atts Shortcode attributes
-     * @return string Rendered shortcode
-     */
-    protected function render_shortcode(string $shortcode_tag, array $atts): string
-    {
-        $shortcode = '[' . $shortcode_tag;
-        
-        foreach ($atts as $key => $value) {
-            $shortcode .= ' ' . $key . '="' . esc_attr($value) . '"';
-        }
-        
-        $shortcode .= ']';
-        
-        return do_shortcode($shortcode);
-    }
+		// Display options
+		$display_options = array(
+			'showImage'        => 'show_image',
+			'showTitle'        => 'show_title',
+			'showPrice'        => 'show_price',
+			'showFeatures'     => 'show_features',
+			'showRating'       => 'show_rating',
+			'showBookingBtn'   => 'show_booking_btn',
+			'showFavoriteBtn'  => 'show_favorite_btn',
+			'showCategory'     => 'show_category',
+			'showBadges'       => 'show_badges',
+			'showDescription'  => 'show_description',
+			'showAvailability' => 'show_availability',
+			'showCompareBtn'   => 'show_compare_btn',
+		);
 
-    /**
-     * Add Block wrapper
-     * 
-     * @param string $content Block content
-     * @param array $attributes Block attributes
-     * @return string Wrapped content
-     */
-    protected function wrap_block_content(string $content, array $attributes): string
-    {
-        $wrapper_class = 'wp-block-mhm-rentiva-' . $this->get_block_name();
-        
-        if (!empty($attributes['className'])) {
-            $wrapper_class .= ' ' . $attributes['className'];
-        }
-        
-        if (!empty($attributes['align'])) {
-            $wrapper_class .= ' align' . $attributes['align'];
-        }
+		foreach ( $display_options as $block_attr => $shortcode_attr ) {
+			if ( isset( $attributes[ $block_attr ] ) ) {
+				$atts[ $shortcode_attr ] = $attributes[ $block_attr ] ? '1' : '0';
+			}
+		}
 
-        return '<div class="' . esc_attr($wrapper_class) . '">' . $content . '</div>';
-    }
+		// Custom CSS class
+		if ( ! empty( $attributes['className'] ) ) {
+			$atts['class'] = $attributes['className'];
+		}
+
+		return $atts;
+	}
+
+	/**
+	 * Render Shortcode
+	 *
+	 * @param string $shortcode_tag Shortcode tag
+	 * @param array  $atts Shortcode attributes
+	 * @return string Rendered shortcode
+	 */
+	protected function render_shortcode( string $shortcode_tag, array $atts ): string {
+		$shortcode = '[' . $shortcode_tag;
+
+		foreach ( $atts as $key => $value ) {
+			$shortcode .= ' ' . $key . '="' . esc_attr( $value ) . '"';
+		}
+
+		$shortcode .= ']';
+
+		return do_shortcode( $shortcode );
+	}
+
+	/**
+	 * Add Block wrapper
+	 *
+	 * @param string $content Block content
+	 * @param array  $attributes Block attributes
+	 * @return string Wrapped content
+	 */
+	protected function wrap_block_content( string $content, array $attributes ): string {
+		$wrapper_class = 'wp-block-mhm-rentiva-' . $this->get_block_name();
+
+		if ( ! empty( $attributes['className'] ) ) {
+			$wrapper_class .= ' ' . $attributes['className'];
+		}
+
+		if ( ! empty( $attributes['align'] ) ) {
+			$wrapper_class .= ' align' . $attributes['align'];
+		}
+
+		return '<div class="' . esc_attr( $wrapper_class ) . '">' . $content . '</div>';
+	}
 }

@@ -32,8 +32,48 @@
 
         init: function () {
             this.initRevenueChart();
-            // this.initTooltips(); // Bootstrap tooltips not loaded
+            this.initSortable();
             this.initEventHandlers();
+        },
+
+        // Initialize sortable widgets
+        initSortable: function () {
+            var self = this;
+            var $container = $('#mhm-dashboard-widgets');
+
+            if (!$container.length) return;
+
+            $container.sortable({
+                handle: '.mhm-widget-drag-handle',
+                placeholder: 'mhm-sortable-placeholder',
+                forcePlaceholderSize: true,
+                opacity: 0.8,
+                update: function (event, ui) {
+                    self.saveWidgetOrder();
+                }
+            });
+        },
+
+        // Save widget order via AJAX
+        saveWidgetOrder: function () {
+            var order = [];
+            $('.mhm-dashboard-widget-wrapper').each(function () {
+                order.push($(this).data('widget'));
+            });
+
+            $.ajax({
+                url: mhm_dashboard_vars.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'mhm_save_dashboard_order',
+                    nonce: mhm_dashboard_vars.nonce,
+                    order: order
+                },
+                success: function (response) {
+                    if (response.success) {
+                    }
+                }
+            });
         },
 
         // Initialize revenue chart
@@ -137,6 +177,11 @@
                 }
             };
 
+            // Destroy existing chart instance to prevent 'Canvas already in use' error
+            if (this.chart) {
+                this.chart.destroy();
+            }
+
             // Create Chart.js instance
             this.chart = new Chart(ctx, config);
         },
@@ -151,18 +196,29 @@
         initEventHandlers: function () {
             var self = this;
 
-            // Widget collapse/expand
-            $('.mhm-widget-header').on('click', function () {
-                var widget = $(this).closest('.mhm-widget');
-                var content = widget.find('.mhm-widget-content');
-                var icon = $(this).find('.mhm-widget-toggle-icon');
+            // Handle Mobile Accordion Logic
+            var isMobile = window.innerWidth <= 768;
 
-                if (content.is(':visible')) {
-                    content.slideUp(300);
-                    icon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
-                } else {
-                    content.slideDown(300);
-                    icon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+            if (isMobile) {
+                $('.mhm-dashboard-widget').addClass('is-collapsible is-collapsed');
+                // Quick actions should probably stay open by default as it's the most used
+                $('.mhm-dashboard-widget-wrapper[data-widget="quick-actions"] .mhm-dashboard-widget').removeClass('is-collapsed');
+            }
+
+            // Widget Header Click - Toggle Collapse
+            $(document).on('click', '.mhm-dashboard-widget h3', function (e) {
+                // Only allow collapse on mobile or if specifically made collapsible
+                var $widget = $(this).closest('.mhm-dashboard-widget');
+
+                if (window.innerWidth <= 768 || $widget.hasClass('is-collapsible')) {
+                    $widget.toggleClass('is-collapsed');
+
+                    // Re-calculate chart if revenue chart is expanded
+                    if (!$widget.hasClass('is-collapsed') && $widget.find('#revenue-chart-canvas').length) {
+                        setTimeout(function () {
+                            self.initRevenueChart();
+                        }, 10);
+                    }
                 }
             });
 
@@ -170,13 +226,32 @@
             $('.mhm-refresh-btn').on('click', function (e) {
                 e.preventDefault();
                 var btn = $(this);
-                var originalText = btn.text();
-
                 btn.prop('disabled', true).text('Refreshing...');
 
                 setTimeout(function () {
                     location.reload();
                 }, 1000);
+            });
+
+            // Reset layout button
+            $('#mhm-reset-dashboard').on('click', function (e) {
+                e.preventDefault();
+                if (!confirm('Are you sure you want to reset the dashboard layout?')) return;
+
+                $.ajax({
+                    url: mhm_dashboard_vars.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'mhm_save_dashboard_order',
+                        nonce: mhm_dashboard_vars.nonce,
+                        order: [] // Empty order to reset to defaults
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload();
+                        }
+                    }
+                });
             });
         }
     };

@@ -4,141 +4,127 @@ namespace MHMRentiva\Admin\Core\Utilities;
 
 use MHMRentiva\Admin\Licensing\LicenseManager;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
- * Lisans yönetimi için merkezi sınıf
+ * Central class for license management
  */
-final class License
-{
-    private static ?self $instance = null;
-    private LicenseManager $licenseManager;
+final class License {
 
-    private function __construct()
-    {
-        $this->licenseManager = LicenseManager::instance();
-    }
+	private static ?self $instance = null;
+	private LicenseManager $licenseManager;
 
-    public static function instance(): self
-    {
-        return self::$instance ??= new self();
-    }
+	private function __construct() {
+		$this->licenseManager = LicenseManager::instance();
+	}
 
-    /**
-     * Lisansın aktif olup olmadığını kontrol eder
-     */
-    public function isActive(): bool
-    {
-        return $this->licenseManager->isActive();
-    }
+	public static function instance(): self {
+		return self::$instance ??= new self();
+	}
 
-    /**
-     * Developer modunun aktif olup olmadığını kontrol eder
-     */
-    public function isDevMode(): bool
-    {
-        // Sadece otomatik developer modu (güvenli)
-        return $this->licenseManager->isDevelopmentEnvironment();
-    }
+	/**
+	 * Check if license is active
+	 */
+	public function isActive(): bool {
+		return $this->licenseManager->isActive();
+	}
 
-    /**
-     * Lisans verilerini getirir
-     */
-    public function getLicenseData(): array
-    {
-        return $this->licenseManager->get();
-    }
+	/**
+	 * Check if developer mode is active
+	 */
+	public function isDevMode(): bool {
+		// Only automatic developer mode (safe)
+		return $this->licenseManager->isDevelopmentEnvironment();
+	}
 
-    /**
-     * Lisans verilerini kaydeder
-     */
-    public function setLicenseData(array $data): void
-    {
-        $this->licenseManager->save($data);
-    }
+	/**
+	 * Get license data
+	 */
+	public function getLicenseData(): array {
+		return $this->licenseManager->get();
+	}
 
-    /**
-     * Lisansı temizler
-     */
-    public function clearLicense(): void
-    {
-        $this->licenseManager->save([]);
-    }
+	/**
+	 * Save license data
+	 */
+	public function setLicenseData( array $data ): void {
+		$this->licenseManager->save( $data );
+	}
 
-    /**
-     * Lisans anahtarını getirir
-     */
-    public function getLicenseKey(): string
-    {
-        return $this->licenseManager->getKey();
-    }
+	/**
+	 * Clear license
+	 */
+	public function clearLicense(): void {
+		$this->licenseManager->save( array() );
+	}
 
-    /**
-     * Lisans durumunu getirir
-     */
-    public function getStatus(): string
-    {
-        $data = $this->getLicenseData();
-        return $data['status'] ?? 'inactive';
-    }
+	/**
+	 * Get license key
+	 */
+	public function getLicenseKey(): string {
+		return $this->licenseManager->getKey();
+	}
 
-    /**
-     * Lisans planını getirir
-     */
-    public function getPlan(): string
-    {
-        $data = $this->getLicenseData();
-        return $data['plan'] ?? 'lite';
-    }
+	/**
+	 * Get license status
+	 */
+	public function getStatus(): string {
+		$data = $this->getLicenseData();
+		return $data['status'] ?? 'inactive';
+	}
 
-    /**
-     * Lisans sona erme tarihini getirir
-     */
-    public function getExpiresAt(): ?int
-    {
-        $data = $this->getLicenseData();
-        return isset($data['expires_at']) ? (int) $data['expires_at'] : null;
-    }
+	/**
+	 * Get license plan
+	 */
+	public function getPlan(): string {
+		$data = $this->getLicenseData();
+		return $data['plan'] ?? 'lite';
+	}
 
-    /**
-     * Lisansın süresi dolmuş mu kontrol eder
-     */
-    public function isExpired(): bool
-    {
-        $expires = $this->getExpiresAt();
-        if ($expires === null) {
-            return false;
-        }
-        return $expires < time();
-    }
+	/**
+	 * Get license expiration date
+	 */
+	public function getExpiresAt(): ?int {
+		$data = $this->getLicenseData();
+		return isset( $data['expires_at'] ) ? (int) $data['expires_at'] : null;
+	}
 
-    /**
-     * Lisansın geçerli olup olmadığını kontrol eder
-     */
-    public function isValid(): bool
-    {
-        if ($this->isDevMode()) {
-            return true;
-        }
+	/**
+	 * Check if license is expired
+	 */
+	public function isExpired(): bool {
+		$expires = $this->getExpiresAt();
+		if ( $expires === null ) {
+			return false;
+		}
+		return $expires < time();
+	}
 
-        if (!$this->isActive()) {
-            return false;
-        }
+	/**
+	 * Check if license is valid
+	 */
+	public function isValid(): bool {
+		if ( $this->isDevMode() ) {
+			return true;
+		}
 
-        if ($this->isExpired()) {
-            return false;
-        }
+		if ( ! $this->isActive() ) {
+			return false;
+		}
 
-        return true;
-    }
+		if ( $this->isExpired() ) {
+			return false;
+		}
 
-    /**
-     * Pro özelliklerin aktif olup olmadığını kontrol eder
-     */
-    public function hasProFeatures(): bool
-    {
-        return $this->isValid() || $this->isDevMode();
-    }
+		return true;
+	}
+
+	/**
+	 * Check if pro features are active
+	 */
+	public function hasProFeatures(): bool {
+		return $this->isValid() || $this->isDevMode();
+	}
 }

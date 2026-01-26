@@ -4,369 +4,419 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\Core;
 
+if (! defined('ABSPATH')) {
+	exit; // Exit if accessed directly
+}
+
 /**
  * SettingsCore Class
- * 
+ *
  * Handles core settings registration, asset management, and configuration routing.
  * Refactored for SOLID principles and high-performance.
- * 
+ *
  * @package MHMRentiva\Admin\Settings\Core
  */
 final class SettingsCore
 {
-    /**
-     * Settings Group and Page constants
-     */
-    public const GROUP = 'mhm_rentiva_settings';
-    public const PAGE  = 'mhm_rentiva_settings';
-    public const OPTION_NAME = 'mhm_rentiva_settings';
 
-    /**
-     * Register all core settings hooks
-     */
-    public static function register(): void
-    {
-        // Enqueue admin assets
-        add_action('admin_enqueue_scripts', [self::class, 'enqueue_assets']);
+	/**
+	 * Settings Group and Page constants
+	 */
+	public const GROUP       = 'mhm_rentiva_settings';
+	public const PAGE        = 'mhm_rentiva_settings';
+	public const OPTION_NAME = 'mhm_rentiva_settings';
 
-        // Dark Mode Logic
-        add_action('admin_head', [self::class, 'inject_dark_mode_styles']);
-        add_action('wp_head', [self::class, 'inject_dark_mode_styles']);
-        add_filter('body_class', [self::class, 'add_dark_mode_body_class']);
+	/**
+	 * Register all core settings hooks
+	 */
+	public static function register(): void
+	{
+		// Enqueue admin assets
+		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_assets'));
 
-        // AJAX Handlers
-        add_action('wp_ajax_mhm_save_dark_mode', [self::class, 'ajax_save_dark_mode']);
-        add_action('wp_ajax_mhm_run_settings_tests', [self::class, 'ajax_run_settings_tests']);
+		// Dark Mode Logic
+		add_action('admin_head', array(self::class, 'inject_dark_mode_styles'));
+		add_action('wp_head', array(self::class, 'inject_dark_mode_styles'));
+		add_filter('body_class', array(self::class, 'add_dark_mode_body_class'));
 
-        // Service Initializers (Delegated to specialized managers)
-        add_action('init', [self::class, 'initialize_services']);
+		// AJAX Handlers
+		add_action('wp_ajax_mhm_save_dark_mode', array(self::class, 'ajax_save_dark_mode'));
+		add_action('wp_ajax_mhm_run_settings_tests', array(self::class, 'ajax_run_settings_tests'));
 
-        // Core Registration
-        add_action('admin_init', [self::class, 'init_settings_registration']);
+		// Service Initializers (Delegated to specialized managers)
+		add_action('init', array(self::class, 'initialize_services'));
 
-        // Performance: Flush rewrite rules only when necessary
-        add_action('update_option_' . self::OPTION_NAME, [self::class, 'handle_rewrite_flushing'], 10, 3);
-    }
+		// Core Registration
+		add_action('admin_init', array(self::class, 'init_settings_registration'));
 
-    /**
-     * Initialize related services
-     */
-    public static function initialize_services(): void
-    {
-        // Session and Security Management (Delegated)
-        if (class_exists(\MHMRentiva\Admin\Auth\SessionManager::class)) {
-            \MHMRentiva\Admin\Auth\SessionManager::init();
-        }
+		// Performance: Flush rewrite rules only when necessary
+		add_action('update_option_' . self::OPTION_NAME, array(self::class, 'handle_rewrite_flushing'), 10, 3);
+	}
 
-        // Rate Limiting Logic (Separated Service)
-        if (class_exists(RateLimiter::class) && RateLimiter::is_enabled()) {
-            self::setup_rate_limiting_hooks();
-        }
-    }
+	/**
+	 * Initialize related services
+	 */
+	public static function initialize_services(): void
+	{
+		// Session and Security Management (Delegated)
+		if (class_exists(\MHMRentiva\Admin\Auth\SessionManager::class)) {
+			\MHMRentiva\Admin\Auth\SessionManager::init();
+		}
 
-    /**
-     * Centralized settings registration
-     */
-    public static function init_settings_registration(): void
-    {
-        register_setting(
-            self::GROUP,
-            self::OPTION_NAME,
-            [
-                'type'              => 'array',
-                'sanitize_callback' => [\MHMRentiva\Admin\Settings\Core\SettingsSanitizer::class, 'sanitize'],
-                'default'           => self::get_defaults(),
-                'show_in_rest'      => false,
-            ]
-        );
+		// Rate Limiting Logic (Separated Service)
+		if (class_exists(RateLimiter::class) && RateLimiter::is_enabled()) {
+			self::setup_rate_limiting_hooks();
+		}
+	}
 
-        register_setting(
-            self::GROUP,
-            'mhm_rentiva_dark_mode',
-            [
-                'type'              => 'string',
-                'sanitize_callback' => 'sanitize_text_field',
-                'default'           => 'auto',
-                'show_in_rest'      => false,
-            ]
-        );
+	/**
+	 * Centralized settings registration
+	 */
+	public static function init_settings_registration(): void
+	{
+		register_setting(
+			self::GROUP,
+			self::OPTION_NAME,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array(\MHMRentiva\Admin\Settings\Core\SettingsSanitizer::class, 'sanitize'),
+				'default'           => self::get_defaults(),
+				'show_in_rest'      => false,
+			)
+		);
 
-        // Register Sub-groups dynamically
-        self::register_sub_groups();
-    }
+		register_setting(
+			self::GROUP,
+			'mhm_rentiva_dark_mode',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => 'auto',
+				'show_in_rest'      => false,
+			)
+		);
 
-    /**
-     * Register external setting groups
-     */
-    private static function register_sub_groups(): void
-    {
-        $groups = [
-            \MHMRentiva\Admin\Settings\Groups\GeneralSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,
-            \MHMRentiva\Admin\Settings\Groups\PaymentSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\MaintenanceSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\LicenseSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\LogsSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\TransferSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
-            \MHMRentiva\Admin\REST\Settings\RESTSettings::class,
-        ];
+		// Register Sub-groups dynamically
+		self::register_sub_groups();
+	}
 
-        foreach ($groups as $group) {
-            if (class_exists($group) && method_exists($group, 'register')) {
-                $group::register();
-            }
-        }
-    }
+	/**
+	 * Register external setting groups
+	 */
+	private static function register_sub_groups(): void
+	{
+		$groups = array(
+			\MHMRentiva\Admin\Settings\Groups\GeneralSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,
+			\MHMRentiva\Admin\Settings\Groups\PaymentSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\MaintenanceSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\LicenseSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\LogsSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\TransferSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
+			\MHMRentiva\Admin\REST\Settings\RESTSettings::class,
+		);
 
-    /**
-     * Get all plugin settings from database.
-     * 
-     * @return array
-     */
-    public static function get_all(): array
-    {
-        return (array) get_option(self::OPTION_NAME, []);
-    }
+		foreach ($groups as $group) {
+			if (class_exists($group) && method_exists($group, 'register')) {
+				$group::register();
+			}
+		}
+	}
 
-    /**
-     * Get value from settings with safe fallback
-     */
-    public static function get(string $key, mixed $default = null): mixed
-    {
-        $settings = get_option(self::OPTION_NAME, []);
-        $defaults = self::get_defaults();
+	/**
+	 * Get all plugin settings from database.
+	 *
+	 * @return array
+	 */
+	public static function get_all(): array
+	{
+		return (array) get_option(self::OPTION_NAME, array());
+	}
 
-        if (array_key_exists($key, $settings)) {
-            $value = $settings[$key];
+	/**
+	 * Get value from settings with safe fallback
+	 */
+	public static function get(string $key, mixed $default = null): mixed
+	{
+		$settings = get_option(self::OPTION_NAME, array());
+		$defaults = self::get_defaults();
 
-            // Handle empty strings or specific numeric fallbacks
-            if ('' === $value || (null === $value)) {
-                return $defaults[$key] ?? $default;
-            }
+		if (array_key_exists($key, $settings)) {
+			$value = $settings[$key];
 
-            return $value;
-        }
+			// Handle empty strings or specific numeric fallbacks
+			if ('' === $value || (null === $value)) {
+				return $defaults[$key] ?? $default;
+			}
 
-        return $defaults[$key] ?? $default;
-    }
+			return $value;
+		}
 
-    /**
-     * Optimized defaults merging
-     */
-    public static function get_defaults(): array
-    {
-        static $merged_defaults = null;
+		return $defaults[$key] ?? $default;
+	}
 
-        if (null !== $merged_defaults) {
-            return $merged_defaults;
-        }
+	/**
+	 * Set a specific setting value
+	 */
+	public static function set(string $key, mixed $value): bool
+	{
+		$settings         = self::get_all();
+		$settings[$key] = $value;
+		return update_option(self::OPTION_NAME, $settings);
+	}
 
-        $merged_defaults = [
-            'mhm_rentiva_endpoint_bookings'        => 'rentiva-bookings',
-            'mhm_rentiva_endpoint_favorites'       => 'rentiva-favorites',
-            'mhm_rentiva_endpoint_payment_history' => 'rentiva-payment-history',
-            'mhm_rentiva_endpoint_edit_account'    => 'rentiva-edit-account',
-            'mhm_rentiva_endpoint_messages'        => 'rentiva-messages',
-            'mhm_rentiva_vehicle_base_price'       => 1.0,
-            'mhm_rentiva_brand_name'               => get_bloginfo('name'),
-        ];
+	/**
+	 * Delete a specific setting
+	 */
+	public static function delete(string $key): bool
+	{
+		$settings = self::get_all();
+		if (array_key_exists($key, $settings)) {
+			unset($settings[$key]);
+			return update_option(self::OPTION_NAME, $settings);
+		}
+		return true;
+	}
 
-        // Collect defaults from other modules
-        $sub_modules = [
-            \MHMRentiva\Admin\Settings\Groups\GeneralSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
-            \MHMRentiva\Admin\Settings\Groups\TransferSettings::class,
-        ];
+	/**
+	 * Get company website URL
+	 */
+	public static function get_company_website(): string
+	{
+		return 'https://maxhandmade.com';
+	}
 
-        foreach ($sub_modules as $module) {
-            if (class_exists($module) && method_exists($module, 'get_default_settings')) {
-                $merged_defaults = array_merge($merged_defaults, $module::get_default_settings());
-            }
-        }
+	/**
+	 * Get support email address
+	 */
+	public static function get_support_email(): string
+	{
+		return (string) self::get('mhm_rentiva_support_email', get_option('admin_email'));
+	}
 
-        return $merged_defaults;
-    }
+	/**
+	 * Optimized defaults merging
+	 */
+	public static function get_defaults(): array
+	{
+		static $merged_defaults = null;
 
-    /**
-     * Inject Dark Mode CSS using wp_add_inline_style for better performance
-     */
-    /**
-     * Inject Dark Mode CSS using wp_add_inline_style for better performance
-     */
-    public static function inject_dark_mode_styles(): void
-    {
-        // Use central getter to respect settings page saves
-        $mode = self::get('mhm_rentiva_dark_mode', 'auto');
+		if (null !== $merged_defaults) {
+			return $merged_defaults;
+		}
 
-        if ('auto' !== $mode) {
-            return;
-        }
+		$merged_defaults = array(
+			'mhm_rentiva_endpoint_bookings'        => 'rentiva-bookings',
+			'mhm_rentiva_endpoint_favorites'       => 'rentiva-favorites',
+			'mhm_rentiva_endpoint_payment_history' => 'rentiva-payment-history',
+			'mhm_rentiva_endpoint_edit_account'    => 'rentiva-edit-account',
+			'mhm_rentiva_endpoint_messages'        => 'rentiva-messages',
+			'mhm_rentiva_vehicle_base_price'       => 1.0,
+			'mhm_rentiva_brand_name'               => get_bloginfo('name'),
+		);
 
-        // Using a variable to avoid multiple echo statements
-        $css = "
+		// Collect defaults from other modules
+		$sub_modules = array(
+			\MHMRentiva\Admin\Settings\Groups\GeneralSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\TransferSettings::class,
+		);
+
+		foreach ($sub_modules as $module) {
+			if (class_exists($module) && method_exists($module, 'get_default_settings')) {
+				$merged_defaults = array_merge($merged_defaults, $module::get_default_settings());
+			}
+		}
+
+		return $merged_defaults;
+	}
+
+	/**
+	 * Inject Dark Mode CSS using wp_add_inline_style for better performance
+	 */
+	/**
+	 * Inject Dark Mode CSS using wp_add_inline_style for better performance
+	 */
+	public static function inject_dark_mode_styles(): void
+	{
+		// Use central getter to respect settings page saves
+		$mode = self::get('mhm_rentiva_dark_mode', 'auto');
+
+		if ('auto' !== $mode) {
+			return;
+		}
+
+		// Using a variable to avoid multiple echo statements
+		$css = '
             @media (prefers-color-scheme: dark) {
                 .mhm-auto-dark-mode .mhm-quick-actions { background: #1e1e1e !important; color: #fff; }
                 .mhm-auto-dark-mode .quick-action-card { background: #2d2d2d !important; border-color: #3c3c3c !important; }
             }
-        ";
+        ';
 
-        printf('<style id="mhm-rentiva-dynamic-dark-mode">%s</style>', wp_strip_all_tags($css));
-    }
+		printf('<style id="mhm-rentiva-dynamic-dark-mode">%s</style>', esc_html(wp_strip_all_tags($css)));
+	}
 
-    /**
-     * AJAX: Save Dark Mode Preference
-     */
-    public static function ajax_save_dark_mode(): void
-    {
-        check_ajax_referer('mhm_dark_mode_nonce', 'nonce');
+	/**
+	 * AJAX: Save Dark Mode Preference
+	 */
+	public static function ajax_save_dark_mode(): void
+	{
+		check_ajax_referer('mhm_dark_mode_nonce', 'nonce');
 
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error(__('Permission denied', 'mhm-rentiva'));
-        }
+		if (! current_user_can('manage_options')) {
+			wp_send_json_error(__('Permission denied', 'mhm-rentiva'));
+		}
 
-        $mode = sanitize_text_field(wp_unslash($_POST['mode'] ?? 'auto'));
+		$mode = sanitize_text_field(wp_unslash($_POST['mode'] ?? 'auto'));
 
-        if (!in_array($mode, ['auto', 'light', 'dark'], true)) {
-            wp_send_json_error(__('Invalid mode', 'mhm-rentiva'));
-        }
+		if (! in_array($mode, array('auto', 'light', 'dark'), true)) {
+			wp_send_json_error(__('Invalid mode', 'mhm-rentiva'));
+		}
 
-        // 1. Update standalone option (for quick frontend access)
-        update_option('mhm_rentiva_dark_mode', $mode);
+		// 1. Update standalone option (for quick frontend access)
+		update_option('mhm_rentiva_dark_mode', $mode);
 
-        // 2. Sync with Main Settings Array (so the Settings Form reflects the change)
-        $settings = get_option(self::OPTION_NAME, []);
-        $settings['mhm_rentiva_dark_mode'] = $mode;
-        update_option(self::OPTION_NAME, $settings);
+		// 2. Sync with Main Settings Array (so the Settings Form reflects the change)
+		$settings                          = get_option(self::OPTION_NAME, array());
+		$settings['mhm_rentiva_dark_mode'] = $mode;
+		update_option(self::OPTION_NAME, $settings);
 
-        wp_send_json_success(['message' => __('Settings updated', 'mhm-rentiva')]);
-    }
+		wp_send_json_success(array('message' => __('Settings updated', 'mhm-rentiva')));
+	}
 
-    /**
-     * AJAX: Run settings diagnostic tests
-     */
-    public static function ajax_run_settings_tests(): void
-    {
-        check_ajax_referer('mhm_settings_test_nonce', 'nonce');
+	/**
+	 * AJAX: Run settings diagnostic tests
+	 */
+	public static function ajax_run_settings_tests(): void
+	{
+		check_ajax_referer('mhm_settings_test_nonce', 'nonce');
 
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error(__('Permission denied', 'mhm-rentiva'));
-        }
+		if (! current_user_can('manage_options')) {
+			wp_send_json_error(__('Permission denied', 'mhm-rentiva'));
+		}
 
-        if (!class_exists(\MHMRentiva\Admin\Settings\Testing\SettingsTester::class)) {
-            wp_send_json_error(__('Diagnostic testing engine not found.', 'mhm-rentiva'));
-        }
+		if (! class_exists(\MHMRentiva\Admin\Settings\Testing\SettingsTester::class)) {
+			wp_send_json_error(__('Diagnostic testing engine not found.', 'mhm-rentiva'));
+		}
 
-        $report = \MHMRentiva\Admin\Settings\Testing\SettingsTester::generate_report();
-        wp_send_json_success($report);
-    }
+		$report = \MHMRentiva\Admin\Settings\Testing\SettingsTester::generate_report();
+		wp_send_json_success($report);
+	}
 
-    /**
-     * Handle rewrite rules flushing only if slugs changed
-     */
-    public static function handle_rewrite_flushing(mixed $old_value, mixed $new_value): void
-    {
-        $slug_keys = [
-            'mhm_rentiva_endpoint_bookings',
-            'mhm_rentiva_endpoint_favorites',
-            'mhm_rentiva_endpoint_payment_history',
-            'mhm_rentiva_endpoint_messages'
-        ];
+	/**
+	 * Handle rewrite rules flushing only if slugs changed
+	 */
+	public static function handle_rewrite_flushing(mixed $old_value, mixed $new_value): void
+	{
+		$slug_keys = array(
+			'mhm_rentiva_endpoint_bookings',
+			'mhm_rentiva_endpoint_favorites',
+			'mhm_rentiva_endpoint_payment_history',
+			'mhm_rentiva_endpoint_messages',
+		);
 
-        $changed = false;
-        foreach ($slug_keys as $key) {
-            if (($old_value[$key] ?? '') !== ($new_value[$key] ?? '')) {
-                $changed = true;
-                break;
-            }
-        }
+		$changed = false;
+		foreach ($slug_keys as $key) {
+			if (($old_value[$key] ?? '') !== ($new_value[$key] ?? '')) {
+				$changed = true;
+				break;
+			}
+		}
 
-        if ($changed) {
-            flush_rewrite_rules();
-            update_option('mhm_rentiva_woocommerce_endpoints_flushed', false);
-        }
-    }
+		if ($changed) {
+			flush_rewrite_rules();
+			update_option('mhm_rentiva_woocommerce_endpoints_flushed', false);
+		}
+	}
 
-    /**
-     * Enqueue Admin Assets
-     */
-    public static function enqueue_assets(): void
-    {
-        $screen = get_current_screen();
-        if (!$screen || !str_contains($screen->id, 'mhm-rentiva-settings')) {
-            return;
-        }
+	/**
+	 * Enqueue Admin Assets
+	 */
+	public static function enqueue_assets(): void
+	{
+		$screen = get_current_screen();
+		if (! $screen || ! str_contains($screen->id, 'mhm-rentiva-settings')) {
+			return;
+		}
 
-        $suffix = (defined('SCRIPT_DEBUG') && SCRIPT_DEBUG) ? '' : '.min';
+		$suffix = (defined('SCRIPT_DEBUG') && SCRIPT_DEBUG) ? '' : '.min';
 
-        wp_enqueue_style(
-            'mhm-rentiva-settings',
-            MHM_RENTIVA_PLUGIN_URL . "assets/css/admin/settings{$suffix}.css",
-            [],
-            MHM_RENTIVA_VERSION
-        );
+		wp_enqueue_style(
+			'mhm-rentiva-settings',
+			MHM_RENTIVA_PLUGIN_URL . "assets/css/admin/settings{$suffix}.css",
+			array(),
+			MHM_RENTIVA_VERSION
+		);
 
-        wp_enqueue_style(
-            'mhm-rentiva-dark-mode',
-            MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/dark-mode.css',
-            [],
-            MHM_RENTIVA_VERSION
-        );
+		wp_enqueue_style(
+			'mhm-rentiva-dark-mode',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/dark-mode.css',
+			array(),
+			MHM_RENTIVA_VERSION
+		);
 
-        wp_enqueue_script(
-            'mhm-rentiva-dark-mode',
-            MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dark-mode.js',
-            ['jquery'],
-            MHM_RENTIVA_VERSION,
-            true
-        );
+		wp_enqueue_script(
+			'mhm-rentiva-dark-mode',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dark-mode.js',
+			array('jquery'),
+			MHM_RENTIVA_VERSION,
+			true
+		);
 
+		wp_localize_script(
+			'mhm-rentiva-dark-mode',
+			'mhmDarkMode',
+			array(
+				'ajaxUrl'     => admin_url('admin-ajax.php'),
+				'nonce'       => wp_create_nonce('mhm_dark_mode_nonce'),
+				'currentMode' => self::get('mhm_rentiva_dark_mode', 'auto'),
+			)
+		);
+	}
 
-        wp_localize_script('mhm-rentiva-dark-mode', 'mhmDarkMode', [
-            'ajaxUrl'     => admin_url('admin-ajax.php'),
-            'nonce'       => wp_create_nonce('mhm_dark_mode_nonce'),
-            'currentMode' => self::get('mhm_rentiva_dark_mode', 'auto')
-        ]);
-    }
+	/**
+	 * Private helper for rate limit hooks to keep register() clean
+	 */
+	private static function setup_rate_limiting_hooks(): void
+	{
+		$actions = array('mhm_booking_request', 'mhm_payment_request');
+		foreach ($actions as $action) {
+			add_action("wp_ajax_{$action}", array(self::class, 'enforce_rate_limit'), 1);
+			add_action("wp_ajax_nopriv_{$action}", array(self::class, 'enforce_rate_limit'), 1);
+		}
+	}
 
-    /**
-     * Private helper for rate limit hooks to keep register() clean
-     */
-    private static function setup_rate_limiting_hooks(): void
-    {
-        $actions = ['mhm_booking_request', 'mhm_payment_request'];
-        foreach ($actions as $action) {
-            add_action("wp_ajax_{$action}", [self::class, 'enforce_rate_limit'], 1);
-            add_action("wp_ajax_nopriv_{$action}", [self::class, 'enforce_rate_limit'], 1);
-        }
-    }
+	/**
+	 * Enforce Rate Limiting Logic
+	 */
+	public static function enforce_rate_limit(): void
+	{
+		if (current_user_can('manage_options')) {
+			return;
+		}
 
-    /**
-     * Enforce Rate Limiting Logic
-     */
-    public static function enforce_rate_limit(): void
-    {
-        if (current_user_can('manage_options')) {
-            return;
-        }
-
-        // Logic handled by RateLimiter service
-        if (class_exists(RateLimiter::class) && !RateLimiter::is_allowed('general')) {
-            wp_send_json_error([
-                'message' => __('Too many requests. Please wait.', 'mhm-rentiva'),
-                'retry'   => 3600
-            ], 429);
-        }
-    }
+		// Logic handled by RateLimiter service
+		if (class_exists(RateLimiter::class) && ! RateLimiter::is_allowed('general')) {
+			wp_send_json_error(
+				array(
+					'message' => __('Too many requests. Please wait.', 'mhm-rentiva'),
+					'retry'   => 3600,
+				),
+				429
+			);
+		}
+	}
 }

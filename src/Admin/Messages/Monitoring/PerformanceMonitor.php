@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Messages\Monitoring;
 
-if (!defined('ABSPATH')) {
-    exit;
+if (! defined('ABSPATH')) {
+	exit;
 }
 
 /**
@@ -11,362 +13,363 @@ if (!defined('ABSPATH')) {
  */
 final class PerformanceMonitor
 {
-    private static array $timers = [];
-    private static array $queries = [];
-    private static array $memory_usage = [];
-    private static bool $monitoring_enabled = true;
 
-    /**
-     * Start performance monitoring
-     */
-    public static function start_monitoring(): void
-    {
-        self::$monitoring_enabled = true;
-        self::start_timer('total_execution');
-        self::record_memory_usage('start');
-        
-        // WordPress query monitoring
-        add_filter('log_query_custom_data', [self::class, 'log_query_data']);
-    }
+	private static array $timers            = array();
+	private static array $queries           = array();
+	private static array $memory_usage      = array();
+	private static bool $monitoring_enabled = true;
 
-    /**
-     * Performans izlemeyi durdur
-     */
-    public static function stop_monitoring(): array
-    {
-        if (!self::$monitoring_enabled) {
-            return [];
-        }
+	/**
+	 * Start performance monitoring
+	 */
+	public static function start_monitoring(): void
+	{
+		self::$monitoring_enabled = true;
+		self::start_timer('total_execution');
+		self::record_memory_usage('start');
 
-        self::end_timer('total_execution');
-        self::record_memory_usage('end');
+		// WordPress query monitoring
+		add_filter('log_query_custom_data', array(self::class, 'log_query_data'));
+	}
 
-        $results = [
-            'execution_time' => self::get_timer_result('total_execution'),
-            'memory_usage' => self::get_memory_usage(),
-            'query_count' => count(self::$queries),
-            'query_time' => array_sum(array_column(self::$queries, 'time')),
-            'queries' => self::$queries,
-            'peak_memory' => memory_get_peak_usage(true),
-            'current_memory' => memory_get_usage(true),
-        ];
+	/**
+	 * Stop performance monitoring
+	 */
+	public static function stop_monitoring(): array
+	{
+		if (! self::$monitoring_enabled) {
+			return array();
+		}
 
-        self::log_performance_data($results);
-        
-        return $results;
-    }
+		self::end_timer('total_execution');
+		self::record_memory_usage('end');
 
-    /**
-     * Start timer
-     */
-    public static function start_timer(string $name): void
-    {
-        if (!self::$monitoring_enabled) {
-            return;
-        }
+		$results = array(
+			'execution_time' => self::get_timer_result('total_execution'),
+			'memory_usage'   => self::get_memory_usage(),
+			'query_count'    => count(self::$queries),
+			'query_time'     => array_sum(array_column(self::$queries, 'time')),
+			'queries'        => self::$queries,
+			'peak_memory'    => memory_get_peak_usage(true),
+			'current_memory' => memory_get_usage(true),
+		);
 
-        self::$timers[$name] = [
-            'start' => microtime(true),
-            'end' => null,
-            'duration' => null
-        ];
-    }
+		self::log_performance_data($results);
 
-    /**
-     * Timer bitir
-     */
-    public static function end_timer(string $name): ?float
-    {
-        if (!self::$monitoring_enabled || !isset(self::$timers[$name])) {
-            return null;
-        }
+		return $results;
+	}
 
-        $end_time = microtime(true);
-        $duration = $end_time - self::$timers[$name]['start'];
-        
-        self::$timers[$name]['end'] = $end_time;
-        self::$timers[$name]['duration'] = $duration;
-        
-        return $duration;
-    }
+	/**
+	 * Start timer
+	 */
+	public static function start_timer(string $name): void
+	{
+		if (! self::$monitoring_enabled) {
+			return;
+		}
 
-    /**
-     * Timer sonucunu al
-     */
-    public static function get_timer_result(string $name): ?float
-    {
-        return self::$timers[$name]['duration'] ?? null;
-    }
+		self::$timers[$name] = array(
+			'start'    => microtime(true),
+			'end'      => null,
+			'duration' => null,
+		);
+	}
 
-    /**
-     * Record memory usage
-     */
-    public static function record_memory_usage(string $stage): void
-    {
-        if (!self::$monitoring_enabled) {
-            return;
-        }
+	/**
+	 * End timer
+	 */
+	public static function end_timer(string $name): ?float
+	{
+		if (! self::$monitoring_enabled || ! isset(self::$timers[$name])) {
+			return null;
+		}
 
-        self::$memory_usage[$stage] = [
-            'memory_usage' => memory_get_usage(true),
-            'peak_memory' => memory_get_peak_usage(true),
-            'timestamp' => microtime(true)
-        ];
-    }
+		$end_time = microtime(true);
+		$duration = $end_time - self::$timers[$name]['start'];
 
-    /**
-     * Get memory usage data
-     */
-    public static function get_memory_usage(): array
-    {
-        return self::$memory_usage;
-    }
+		self::$timers[$name]['end']      = $end_time;
+		self::$timers[$name]['duration'] = $duration;
 
-    /**
-     * Query verilerini log'la
-     */
-    public static function log_query_data(array $data): array
-    {
-        if (!self::$monitoring_enabled) {
-            return $data;
-        }
+		return $duration;
+	}
 
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
-        $query_source = self::find_query_source($backtrace);
+	/**
+	 * Get timer result
+	 */
+	public static function get_timer_result(string $name): ?float
+	{
+		return self::$timers[$name]['duration'] ?? null;
+	}
 
-        self::$queries[] = [
-            'query' => $data['query'] ?? '',
-            'time' => $data['query_time'] ?? 0,
-            'source' => $query_source,
-            'timestamp' => microtime(true)
-        ];
+	/**
+	 * Record memory usage
+	 */
+	public static function record_memory_usage(string $stage): void
+	{
+		if (! self::$monitoring_enabled) {
+			return;
+		}
 
-        return $data;
-    }
+		self::$memory_usage[$stage] = array(
+			'memory_usage' => memory_get_usage(true),
+			'peak_memory'  => memory_get_peak_usage(true),
+			'timestamp'    => microtime(true),
+		);
+	}
 
-    /**
-     * Find query source
-     */
-    private static function find_query_source(array $backtrace): string
-    {
-        foreach ($backtrace as $trace) {
-            if (isset($trace['file'])) {
-                $file = $trace['file'];
-                
-                // Filter files related to MHM Messages
-                if (strpos($file, 'mhm-rentiva') !== false && strpos($file, 'Messages') !== false) {
-                    return basename($file) . ':' . ($trace['line'] ?? 'unknown');
-                }
-            }
-        }
+	/**
+	 * Get memory usage data
+	 */
+	public static function get_memory_usage(): array
+	{
+		return self::$memory_usage;
+	}
 
-        return 'unknown';
-    }
+	/**
+	 * Log query data
+	 */
+	public static function log_query_data(array $data): array
+	{
+		if (! self::$monitoring_enabled) {
+			return $data;
+		}
 
-    /**
-     * Performans verilerini log'la
-     */
-    private static function log_performance_data(array $data): void
-    {
-        if (!defined('WP_DEBUG') || !WP_DEBUG) {
-            return;
-        }
+		$backtrace    = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
+		$query_source = self::find_query_source($backtrace);
 
-        $log_entry = [
-            'timestamp' => current_time('mysql'),
-            'execution_time' => round($data['execution_time'] * 1000, 2) . 'ms',
-            'memory_peak' => size_format($data['peak_memory']),
-            'memory_current' => size_format($data['current_memory']),
-            'query_count' => $data['query_count'],
-            'query_time' => round($data['query_time'] * 1000, 2) . 'ms',
-            'slow_queries' => self::find_slow_queries($data['queries'])
-        ];
+		self::$queries[] = array(
+			'query'     => $data['query'] ?? '',
+			'time'      => $data['query_time'] ?? 0,
+			'source'    => $query_source,
+			'timestamp' => microtime(true),
+		);
 
-        error_log('[MHM Messages Performance] ' . json_encode($log_entry));
-    }
+		return $data;
+	}
 
-    /**
-     * Find slow queries
-     */
-    private static function find_slow_queries(array $queries): array
-    {
-        $slow_threshold = 0.1; // 100ms
-        $slow_queries = [];
+	/**
+	 * Find query source
+	 */
+	private static function find_query_source(array $backtrace): string
+	{
+		foreach ($backtrace as $trace) {
+			if (isset($trace['file'])) {
+				$file = $trace['file'];
 
-        foreach ($queries as $query) {
-            if ($query['time'] > $slow_threshold) {
-                $slow_queries[] = [
-                    'time' => round($query['time'] * 1000, 2) . 'ms',
-                    'source' => $query['source'],
-                    'query' => substr($query['query'], 0, 100) . '...'
-                ];
-            }
-        }
+				// Filter files related to MHM Messages
+				if (strpos($file, 'mhm-rentiva') !== false && strpos($file, 'Messages') !== false) {
+					return basename($file) . ':' . ($trace['line'] ?? 'unknown');
+				}
+			}
+		}
 
-        return $slow_queries;
-    }
+		return 'unknown';
+	}
 
-    /**
-     * Generate performance report
-     */
-    public static function generate_performance_report(): array
-    {
-        $data = self::stop_monitoring();
-        
-        return [
-            'summary' => [
-                'total_time' => round($data['execution_time'] * 1000, 2) . 'ms',
-                'memory_peak' => size_format($data['peak_memory']),
-                'query_count' => $data['query_count'],
-                'query_time' => round($data['query_time'] * 1000, 2) . 'ms',
-                'avg_query_time' => $data['query_count'] > 0 ? round(($data['query_time'] / $data['query_count']) * 1000, 2) . 'ms' : '0ms'
-            ],
-            'recommendations' => self::generate_recommendations($data),
-            'details' => $data
-        ];
-    }
+	/**
+	 * Log performance data
+	 */
+	private static function log_performance_data(array $data): void
+	{
+		if (! defined('WP_DEBUG') || ! WP_DEBUG) {
+			return;
+		}
 
-    /**
-     * Generate performance recommendations
-     */
-    private static function generate_recommendations(array $data): array
-    {
-        $recommendations = [];
+		$log_entry = array(
+			'timestamp'      => current_time('mysql'),
+			'execution_time' => round($data['execution_time'] * 1000, 2) . 'ms',
+			'memory_peak'    => size_format($data['peak_memory']),
+			'memory_current' => size_format($data['current_memory']),
+			'query_count'    => $data['query_count'],
+			'query_time'     => round($data['query_time'] * 1000, 2) . 'ms',
+			'slow_queries'   => self::find_slow_queries($data['queries']),
+		);
 
-        // Slow query recommendations
-        if ($data['query_count'] > 10) {
-            $recommendations[] = [
-                'type' => 'warning',
-                'message' => 'Too many database queries. Increase cache usage.',
-                'action' => 'Cache sistemi aktif mi kontrol edin'
-            ];
-        }
+		error_log('[MHM Messages Performance] ' . json_encode($log_entry));
+	}
 
-        if ($data['query_time'] > 0.5) {
-            $recommendations[] = [
-                'type' => 'error',
-                'message' => 'Database queries are too slow. Optimization needed.',
-                'action' => 'Optimize queries or add indexes'
-            ];
-        }
+	/**
+	 * Find slow queries
+	 */
+	private static function find_slow_queries(array $queries): array
+	{
+		$slow_threshold = 0.1; // 100ms
+		$slow_queries   = array();
 
-        // Memory recommendations
-        $memory_mb = $data['peak_memory'] / (1024 * 1024);
-        if ($memory_mb > 64) {
-            $recommendations[] = [
-                'type' => 'warning',
-                'message' => 'High memory usage detected.',
-                'action' => 'Optimize memory usage'
-            ];
-        }
+		foreach ($queries as $query) {
+			if ($query['time'] > $slow_threshold) {
+				$slow_queries[] = array(
+					'time'   => round($query['time'] * 1000, 2) . 'ms',
+					'source' => $query['source'],
+					'query'  => substr($query['query'], 0, 100) . '...',
+				);
+			}
+		}
 
-        // General performance recommendations
-        if ($data['execution_time'] > 1.0) {
-            $recommendations[] = [
-                'type' => 'warning',
-                'message' => 'Page load time is slow.',
-                'action' => 'Do general performance optimization'
-            ];
-        }
+		return $slow_queries;
+	}
 
-        return $recommendations;
-    }
+	/**
+	 * Generate performance report
+	 */
+	public static function generate_performance_report(): array
+	{
+		$data = self::stop_monitoring();
 
-    /**
-     * Performans verilerini temizle
-     */
-    public static function clear_performance_data(): void
-    {
-        self::$timers = [];
-        self::$queries = [];
-        self::$memory_usage = [];
-    }
+		return array(
+			'summary'         => array(
+				'total_time'     => round($data['execution_time'] * 1000, 2) . 'ms',
+				'memory_peak'    => size_format($data['peak_memory']),
+				'query_count'    => $data['query_count'],
+				'query_time'     => round($data['query_time'] * 1000, 2) . 'ms',
+				'avg_query_time' => $data['query_count'] > 0 ? round(($data['query_time'] / $data['query_count']) * 1000, 2) . 'ms' : '0ms',
+			),
+			'recommendations' => self::generate_recommendations($data),
+			'details'         => $data,
+		);
+	}
 
-    /**
-     * Performans izlemeyi aktif/pasif yap
-     */
-    public static function set_monitoring_enabled(bool $enabled): void
-    {
-        self::$monitoring_enabled = $enabled;
-    }
+	/**
+	 * Generate performance recommendations
+	 */
+	private static function generate_recommendations(array $data): array
+	{
+		$recommendations = array();
 
-    /**
-     * Performans istatistiklerini al
-     */
-    public static function get_performance_stats(): array
-    {
-        return [
-            'monitoring_enabled' => self::$monitoring_enabled,
-            'active_timers' => count(self::$timers),
-            'query_count' => count(self::$queries),
-            'memory_usage' => self::$memory_usage,
-            'current_memory' => memory_get_usage(true),
-            'peak_memory' => memory_get_peak_usage(true)
-        ];
-    }
+		// Slow query recommendations
+		if ($data['query_count'] > 10) {
+			$recommendations[] = array(
+				'type'    => 'warning',
+				'message' => 'Too many database queries. Increase cache usage.',
+				'action'  => 'Check if cache system is active',
+			);
+		}
 
-    /**
-     * AJAX performans endpoint'i
-     */
-    public static function ajax_get_performance_data(): void
-    {
-        check_ajax_referer('mhm_messages_performance', 'nonce');
-        
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error(__('Unauthorized access', 'mhm-rentiva'));
-        }
+		if ($data['query_time'] > 0.5) {
+			$recommendations[] = array(
+				'type'    => 'error',
+				'message' => 'Database queries are too slow. Optimization needed.',
+				'action'  => 'Optimize queries or add indexes',
+			);
+		}
 
-        $report = self::generate_performance_report();
-        wp_send_json_success($report);
-    }
+		// Memory recommendations
+		$memory_mb = $data['peak_memory'] / (1024 * 1024);
+		if ($memory_mb > 64) {
+			$recommendations[] = array(
+				'type'    => 'warning',
+				'message' => 'High memory usage detected.',
+				'action'  => 'Optimize memory usage',
+			);
+		}
 
-    /**
-     * Performance dashboard widget
-     */
-    public static function render_performance_widget(): void
-    {
-        $stats = self::get_performance_stats();
-        
-        ?>
-        <div class="mhm-performance-widget">
-            <h4><?php _e('Message System Performance', 'mhm-rentiva'); ?></h4>
-            
-            <div class="performance-stats">
-                <div class="stat-item">
-                    <span class="label"><?php _e('Aktif Timer:', 'mhm-rentiva'); ?></span>
-                    <span class="value"><?php echo esc_html($stats['active_timers']); ?></span>
-                </div>
-                
-                <div class="stat-item">
-                    <span class="label"><?php _e('Query Count:', 'mhm-rentiva'); ?></span>
-                    <span class="value"><?php echo esc_html($stats['query_count']); ?></span>
-                </div>
-                
-                <div class="stat-item">
-                    <span class="label"><?php _e('Memory Usage:', 'mhm-rentiva'); ?></span>
-                    <span class="value"><?php echo esc_html(size_format($stats['current_memory'])); ?></span>
-                </div>
-                
-                <div class="stat-item">
-                    <span class="label"><?php _e('Peak Bellek:', 'mhm-rentiva'); ?></span>
-                    <span class="value"><?php echo esc_html(size_format($stats['peak_memory'])); ?></span>
-                </div>
-            </div>
-            
-            <div class="performance-actions">
-                <button type="button" class="button button-small" id="clear-performance-data-btn">
-                    <?php _e('Verileri Temizle', 'mhm-rentiva'); ?>
-                </button>
-                
-                <button type="button" class="button button-small" id="generate-report-btn">
-                    <?php _e('Generate Report', 'mhm-rentiva'); ?>
-                </button>
-            </div>
-        </div>
-        
-        <!-- CSS will be moved to separate file -->
-        
-        <!-- JavaScript will be moved to separate file -->
-        <?php
-    }
+		// General performance recommendations
+		if ($data['execution_time'] > 1.0) {
+			$recommendations[] = array(
+				'type'    => 'warning',
+				'message' => 'Page load time is slow.',
+				'action'  => 'Do general performance optimization',
+			);
+		}
+
+		return $recommendations;
+	}
+
+	/**
+	 * Clear performance data
+	 */
+	public static function clear_performance_data(): void
+	{
+		self::$timers       = array();
+		self::$queries      = array();
+		self::$memory_usage = array();
+	}
+
+	/**
+	 * Set monitoring enabled/disabled
+	 */
+	public static function set_monitoring_enabled(bool $enabled): void
+	{
+		self::$monitoring_enabled = $enabled;
+	}
+
+	/**
+	 * Get performance statistics
+	 */
+	public static function get_performance_stats(): array
+	{
+		return array(
+			'monitoring_enabled' => self::$monitoring_enabled,
+			'active_timers'      => count(self::$timers),
+			'query_count'        => count(self::$queries),
+			'memory_usage'       => self::$memory_usage,
+			'current_memory'     => memory_get_usage(true),
+			'peak_memory'        => memory_get_peak_usage(true),
+		);
+	}
+
+	/**
+	 * AJAX performance endpoint
+	 */
+	public static function ajax_get_performance_data(): void
+	{
+		check_ajax_referer('mhm_messages_performance', 'nonce');
+
+		if (! current_user_can('manage_options')) {
+			wp_send_json_error(esc_html__('Unauthorized access', 'mhm-rentiva'));
+		}
+
+		$report = self::generate_performance_report();
+		wp_send_json_success($report);
+	}
+
+	/**
+	 * Performance dashboard widget
+	 */
+	public static function render_performance_widget(): void
+	{
+		$stats = self::get_performance_stats();
+
+?>
+		<div class="mhm-performance-widget">
+			<h4><?php esc_html_e('Message System Performance', 'mhm-rentiva'); ?></h4>
+
+			<div class="performance-stats">
+				<div class="stat-item">
+					<span class="label"><?php esc_html_e('Active Timers:', 'mhm-rentiva'); ?></span>
+					<span class="value"><?php echo esc_html($stats['active_timers']); ?></span>
+				</div>
+
+				<div class="stat-item">
+					<span class="label"><?php esc_html_e('Query Count:', 'mhm-rentiva'); ?></span>
+					<span class="value"><?php echo esc_html($stats['query_count']); ?></span>
+				</div>
+
+				<div class="stat-item">
+					<span class="label"><?php esc_html_e('Memory Usage:', 'mhm-rentiva'); ?></span>
+					<span class="value"><?php echo esc_html(size_format($stats['current_memory'])); ?></span>
+				</div>
+
+				<div class="stat-item">
+					<span class="label"><?php esc_html_e('Peak Memory:', 'mhm-rentiva'); ?></span>
+					<span class="value"><?php echo esc_html(size_format($stats['peak_memory'])); ?></span>
+				</div>
+			</div>
+
+			<div class="performance-actions">
+				<button type="button" class="button button-small" id="clear-performance-data-btn">
+					<?php esc_html_e('Clear Data', 'mhm-rentiva'); ?>
+				</button>
+
+				<button type="button" class="button button-small" id="generate-report-btn">
+					<?php esc_html_e('Generate Report', 'mhm-rentiva'); ?>
+				</button>
+			</div>
+		</div>
+
+		<!-- CSS will be moved to separate file -->
+
+		<!-- JavaScript will be moved to separate file -->
+<?php
+	}
 }

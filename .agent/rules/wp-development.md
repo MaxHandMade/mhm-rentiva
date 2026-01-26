@@ -2,67 +2,103 @@
 trigger: always_on
 ---
 
-# 🧠 WordPress Plugin Development and Audit Rules
+# MHM Rentiva - Development Rules & Standards (v2.0)
 
-These rules must be applied by the Agent at **all times** during plugin development, analysis, fixing, and testing processes.
+This document defines the development standards, code quality rules, and WordPress.org compliance requirements for the MHM Rentiva project.
 
-## 1. General Coding Principles
-- **Language:** Code language, variable names, and comments must be **English**.
-- **i18n (Internationalization):** All user-facing text must be wrapped in `__()`, `_e()`, or `esc_html__()` functions for translation support.
-- **Dynamic Structure:** Hardcoded URLs, file paths, and text are strictly **prohibited**. All paths and URLs must be generated dynamically (e.g., using `plugin_dir_url()`).
-- **Modularity:** The main plugin file should only serve as a "loader". Classes and functions must be organized effectively. **(See `mhm-architect` for file map standards)**.
+**Core Philosophy:** "Adapting modern PHP architecture to fit the strict ecosystem rules of WordPress (The WordPress Way)."
 
-## 2. Security Standards (Critical)
-**Reference Skill:** `mhm-security-guard`
-- **Input Security (Sanitization):** All user inputs must be sanitized according to their type (`sanitize_text_field`, `sanitize_email`, `absint`, etc.).
-- **Output Security (Escaping):** Every piece of data output to the screen must be escaped (`esc_html`, `esc_attr`, `esc_url`, `wp_kses`).
-- **Validation:** `wp_verify_nonce` is mandatory for all Form and AJAX operations. Critical operations must verify permissions using `current_user_can`.
-- **SQL Security:** Usage of `$wpdb->prepare()` is mandatory for all raw database queries.
+---
 
-## 3. Performance and Database Optimization
-**Reference Skills:** `mhm-db-master` (SQL), `mhm-cli-operator` (Cache)
-- **Query Management:** Avoid unnecessary loops and heavy queries; use the **Transient API** or **Object Cache** for expensive operations.
-- **Assets:** CSS/JS files must be enqueued only on relevant pages and should be minified. Inline CSS/JS is prohibited.
-- **Cleanup:** Detect and remove unnecessary logs (e.g., `cleanup_old_logs`), unused "dead code", and obsolete `option` entries in the database.
+## 1. WordPress Repo Compliance (The Golden Rules)
+*Strict adherence to Plugin Check (PCP) and Review Team standards is mandatory.*
 
-## 4. Documentation and Versioning
-**Reference Skills:** `mhm-doc-writer`, `mhm-release-manager`, `mhm-git-ops`
-- **Changelog:** Ensure `changelog.json` is updated for every functional change.
-- **Docs:** Update `website/docs` for any UI or Feature change.
-- **Git:** Use Conventional Commits (`feat:`, `fix:`) for all changes.
+### 1.1. Header and Readme Synchronization
+* **Rule:** Metadata in the main plugin file (`mhm-rentiva.php`) MUST match the `readme.txt` file exactly.
+* **Mandatory Fields:** `Tested up to`, `Requires PHP`, `Stable tag`, and `Version`.
+* **Violation Example:** `readme.txt` says "Stable tag: 4.5" while the main file says `Version: 4.4`.
 
-## 5. Workflow and Reporting Format
+### 1.2. Text Domain and i18n
+* **Rule:** All user-facing strings MUST be wrapped in translation functions.
+* **Text Domain:** MUST use the string literal `'mhm-rentiva'` explicitly. NEVER use variables (`$domain`) or constants (`CONST_DOMAIN`) for the text domain.
+* **Examples:**
+    * ❌ **Wrong:** `echo 'Vehicle not found';`
+    * ❌ **Wrong:** `__('Vehicle', $this->domain);`
+    * ✅ **Correct:** `_e('Vehicle not found', 'mhm-rentiva');`
 
-The Agent must use the following templates when analyzing and fixing code:
+### 1.3. Prefixing (Namespace Protection)
+* **Rule:** All items in the global namespace (Functions, Classes, Hooks, Database Tables, Option Names) MUST be unique.
+* **Prefix:** `mhm_rentiva_` (snake_case) or `MHMRentiva` (PascalCase).
+* **Reason:** Prevents fatal errors if another plugin uses generic names like `BookingForm`.
 
-### A. Analysis Report Template
-List issues found during file inspection:
-> 📄 **[File Path]**
-> ⚠️ **Issue:** (Short description)
-> 💡 **Recommendation:** (WPCS compliant solution)
+---
 
-### B. Fix Report Template
-Use "Before/After" format when applying changes:
-> 🔧 **Before:**
-> ```php
-> // Flawed code
-> ```
-> ✅ **After:**
-> ```php
-> // Fixed and optimized code
-> ```
+## 2. Security Rules (Security First)
+*Trust no data; validate everything.*
 
-### C. Test Results Template
-Checks performed after operations:
-> 🧪 **Test:** Plugin Activation → ✅ Success
-> 🧪 **Test:** Nonce Check → ⚠️ Missing (Must be fixed)
+### 2.1. Sanitization (Input Cleaning)
+* **Rule:** NO data received from users (`$_POST`, `$_GET`, `$_REQUEST`) can be processed without sanitization.
+* **Functions:**
+    * Strings: `sanitize_text_field()`
+    * Emails: `sanitize_email()`
+    * Keys/Slugs: `sanitize_key()`
+    * Integers: `absint()`
 
-## 5. Special Task Definitions
+### 2.2. Escaping (Output Security)
+* **Rule:** ALL data output to the screen (echo) MUST be passed through an escaping function contextually appropriate for the output type.
+* **Functions:**
+    * Inside HTML: `esc_html()`, `esc_html_e()`
+    * HTML Attributes: `esc_attr()`, `esc_attr_e()`
+    * URLs: `esc_url()`
+    * JavaScript/JSON: `wp_json_encode()`
 
-### Dead Code Cleanup
-- Identify functions and classes that are never called.
-- Remove unnecessary `console.log` or `error_log` lines.
+### 2.3. Nonces and Capabilities
+* **Rule:** All form submissions and AJAX requests MUST include `nonce` verification.
+* **Rule:** Every admin action MUST verify user capabilities using `current_user_can('manage_options')` (or the relevant capability).
 
-### Settings Page Check
-- If an analyzed function contains hardcoded settings parameters, refactor it to pull from the database.
-- Move these parameters to the relevant tab in the Admin Settings page (or create a "General Settings" tab if none exists).
+---
+
+## 3. Code Architecture & Modern PHP
+*Standards based on WordPress 6.2+ and PHP 7.4+.*
+
+### 3.1. Strict Types
+* **Rule:** All PHP files MUST start with `declare(strict_types=1);`.
+* **Rule:** Function parameters and return types MUST be explicitly typed.
+    ```php
+    public function get_price(int $vehicle_id): float { ... }
+    ```
+
+### 3.2. Prevent Direct Access
+* **Rule:** Every PHP file (including Class files) MUST verify `ABSPATH` at the very beginning.
+    ```php
+    if (!defined('ABSPATH')) { exit; }
+    ```
+
+### 3.3. Database (SQL) Security
+* **Rule:** Direct raw SQL queries are strictly PROHIBITED.
+* **Rule:** `$wpdb->prepare()` usage is **MANDATORY** for any query containing variables.
+    * ❌ **Wrong:** `$wpdb->query("SELECT * FROM table WHERE id = $id");`
+    * ✅ **Correct:** `$wpdb->query($wpdb->prepare("SELECT * FROM table WHERE id = %d", $id));`
+
+---
+
+## 4. File and Folder Structure
+* **Src/**: Core business logic (Classes, Controllers).
+* **Assets/**: JS, CSS, Images (Publicly accessible).
+* **Templates/**: Frontend HTML parts (Partial views).
+* **Languages/**: .pot and .mo files.
+
+---
+
+## 5. Anti-Patterns (MUST AVOID)
+1.  **Extract:** Never use the `extract()` function.
+2.  **Eval:** The `eval()` function is strictly forbidden.
+3.  **Direct Global:** Avoid `global $wpdb;` where possible; prefer Dependency Injection or Singleton instances.
+4.  **Generic Naming:** Generic names like `function log_error()` are forbidden. Use `mhm_rentiva_log_error()`.
+
+## 6. Pre-Commit Checklist
+Before committing code, the following must be verified:
+- [ ] Does the **Plugin Check (PCP)** tool return 0 Errors?
+- [ ] Is **Query Monitor** free of PHP Notices/Warnings?
+- [ ] Do `mhm-rentiva.php` and `readme.txt` versions match?
+- [ ] Are all new strings wrapped in `__('text', 'mhm-rentiva')`?

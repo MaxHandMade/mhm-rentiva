@@ -5,57 +5,50 @@ namespace MHMRentiva\Admin\Frontend\Widgets\Elementor;
 use MHMRentiva\Admin\Frontend\Widgets\Base\ElementorWidgetBase;
 use Elementor\Controls_Manager;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-class PaymentHistoryWidget extends ElementorWidgetBase
-{
-    public function get_name(): string
-    {
-        return 'rv-payment-history';
-    }
+class PaymentHistoryWidget extends ElementorWidgetBase {
 
-    public function get_title(): string
-    {
-        return __('Payment History', 'mhm-rentiva');
-    }
+	public function get_name(): string {
+		return 'rv-payment-history';
+	}
 
-    public function get_icon(): string
-    {
-        return 'eicon-price-table';
-    }
+	public function get_title(): string {
+		return __( 'Payment History', 'mhm-rentiva' );
+	}
 
-    protected function register_content_controls(): void
-    {
-        $this->start_controls_section(
-            'general_section',
-            [
-                'label' => __('Settings', 'mhm-rentiva'),
-                'tab' => Controls_Manager::TAB_CONTENT,
-            ]
-        );
+	public function get_icon(): string {
+		return 'eicon-price-table';
+	}
 
-        $this->add_control(
-            'info',
-            [
-                'type' => Controls_Manager::RAW_HTML,
-                'raw' => __('Displays user payment transactions.', 'mhm-rentiva'),
-                'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
-            ]
-        );
+	protected function register_content_controls(): void {
+		$this->start_controls_section(
+			'general_section',
+			array(
+				'label' => __( 'Settings', 'mhm-rentiva' ),
+				'tab'   => Controls_Manager::TAB_CONTENT,
+			)
+		);
 
-        $this->end_controls_section();
-    }
+		$this->add_control(
+			'info',
+			array(
+				'type'            => Controls_Manager::RAW_HTML,
+				'raw'             => __( 'Displays user payment transactions.', 'mhm-rentiva' ),
+				'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
+			)
+		);
 
-    protected function register_style_controls(): void
-    {
-        // No style controls needed
-    }
+		$this->end_controls_section();
+	}
 
-    protected function render(): void
-    {
-        echo do_shortcode('[rentiva_payment_history]');
-    }
+	protected function register_style_controls(): void {
+		// No style controls needed
+	}
+
+	protected function render(): void {
+		echo do_shortcode( '[rentiva_payment_history]' );
+	}
 }
-

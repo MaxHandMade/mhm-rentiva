@@ -1,287 +1,293 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core;
 
-if (!defined('ABSPATH')) {
-    exit;
+if (! defined('ABSPATH')) {
+	exit;
 }
 
 /**
  * Security Helper
- * 
+ *
  * Security controls and helper methods for shortcodes
  */
 final class SecurityHelper
 {
-    /**
-     * Safe sanitize text field that handles null values
-     */
-    public static function sanitize_text_field_safe($value)
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        return sanitize_text_field((string) $value);
-    }
 
-    /**
-     * AJAX request security check
-     * 
-     * @param string $nonce_name Nonce name
-     * @param string $capability Required capability (default: 'read')
-     * @return bool Security check successful
-     */
-    public static function verify_ajax_request(string $nonce_name, string $capability = 'read'): bool
-    {
-        // Nonce check (accept common keys and both POST/GET)
-        $nonce = '';
-        foreach (['nonce', 'security', '_ajax_nonce'] as $key) {
-            if (isset($_POST[$key])) {
-                $nonce = self::sanitize_text_field_safe(wp_unslash($_POST[$key]));
-                break;
-            }
-            if (isset($_GET[$key]) && $nonce === '') {
-                $nonce = self::sanitize_text_field_safe(wp_unslash($_GET[$key]));
-            }
-        }
-        if (!wp_verify_nonce($nonce, $nonce_name)) {
-            // Debug log for admins only
-            if (current_user_can('manage_options')) {
-                error_log('[MHM SecurityHelper] Nonce verification failed for action ' . $nonce_name . ' with nonce: ' . ($nonce ?: 'EMPTY'));
-            }
-            return false;
-        }
-        
-        // Capability check (only for logged in users)
-        if (is_user_logged_in() && !current_user_can($capability)) {
-            return false;
-        }
-        
-        return true;
-    }
+	/**
+	 * Safe sanitize text field that handles null values
+	 */
+	public static function sanitize_text_field_safe($value)
+	{
+		if ($value === null || $value === '') {
+			return '';
+		}
+		return sanitize_text_field((string) $value);
+	}
 
-    /**
-     * AJAX request security check ve hata response'u
-     * 
-     * @param string $nonce_name Nonce name
-     * @param string $capability Required capability
-     * @param string $error_message Error message
-     * @return bool Security check successful
-     */
-    public static function verify_ajax_request_or_die(string $nonce_name, string $capability = 'read', string $error_message = ''): bool
-    {
-        if (!self::verify_ajax_request($nonce_name, $capability)) {
-            $default_message = __('Security check failed.', 'mhm-rentiva');
-            wp_send_json_error(['message' => $error_message ?: $default_message]);
-            return false; // Bu satır çalışmaz ama IDE uyarısını önler
-        }
-        
-        return true;
-    }
+	/**
+	 * AJAX request security check
+	 *
+	 * @param string $nonce_name Nonce name
+	 * @param string $capability Required capability (default: 'read')
+	 * @return bool Security check successful
+	 */
+	public static function verify_ajax_request(string $nonce_name, string $capability = 'read'): bool
+	{
+		// Nonce check (accept common keys and both POST/GET)
+		$nonce = '';
+		foreach (array('nonce', 'security', '_ajax_nonce') as $key) {
+			if (isset($_POST[$key])) {
+				$nonce = self::sanitize_text_field_safe(wp_unslash($_POST[$key]));
+				break;
+			}
+			if (isset($_GET[$key]) && $nonce === '') {
+				$nonce = self::sanitize_text_field_safe(wp_unslash($_GET[$key]));
+			}
+		}
+		if (! wp_verify_nonce($nonce, $nonce_name)) {
+			// Debug log for admins only
+			if (current_user_can('manage_options')) {
+				error_log('[MHM SecurityHelper] Nonce verification failed for action ' . $nonce_name . ' with nonce: ' . ($nonce ?: 'EMPTY'));
+			}
+			return false;
+		}
 
-    /**
-     * Rate limiting check
-     * 
-     * @param string $action Action name
-     * @param int $limit Limit count
-     * @param int $window Time window (seconds)
-     * @param int|null $user_id User ID (null = current user)
-     * @return bool Rate limit exceeded
-     */
-    public static function check_rate_limit(string $action, int $limit = 10, int $window = 300, ?int $user_id = null): bool
-    {
-        if ($user_id === null) {
-            $user_id = get_current_user_id();
-        }
-        
-        // IP-based rate limiting for anonymous users
-        if ($user_id === 0) {
-            $user_id = self::get_client_ip();
-        }
-        
-        $key = "mhm_rate_limit_{$action}_{$user_id}";
-        $attempts = get_transient($key) ?: 0;
-        
-        if ($attempts >= $limit) {
-            return false; // Rate limit exceeded
-        }
-        
-        set_transient($key, $attempts + 1, $window);
-        return true; // Rate limit not exceeded
-    }
+		// Capability check (only for logged in users)
+		if (is_user_logged_in() && ! current_user_can($capability)) {
+			return false;
+		}
 
-    /**
-     * Rate limiting check ve hata response'u
-     * 
-     * @param string $action Action name
-     * @param int $limit Limit count
-     * @param int $window Time window
-     * @param string $error_message Error message
-     * @return bool Rate limit exceeded
-     */
-    public static function check_rate_limit_or_die(string $action, int $limit = 10, int $window = 300, string $error_message = ''): bool
-    {
-        if (!self::check_rate_limit($action, $limit, $window)) {
-            $default_message = __('Too many requests. Please wait.', 'mhm-rentiva');
-            wp_send_json_error(['message' => $error_message ?: $default_message]);
-            return false;
-        }
-        
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * Get client IP address
-     * 
-     * @return string IP address
-     */
-    public static function get_client_ip(): string
-    {
-        $ip_keys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR'];
-        
-        foreach ($ip_keys as $key) {
-            if (array_key_exists($key, $_SERVER) === true) {
-                $ip = self::sanitize_text_field_safe(wp_unslash($_SERVER[$key]));
-                if (strpos($ip, ',') !== false) {
-                    $ip = explode(',', $ip)[0];
-                }
-                $ip = trim($ip);
-                
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-                    return $ip;
-                }
-            }
-        }
-        
-        return self::sanitize_text_field_safe(wp_unslash($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'));
-    }
+	/**
+	 * AJAX request security check ve hata response'u
+	 *
+	 * @param string $nonce_name Nonce name
+	 * @param string $capability Required capability
+	 * @param string $error_message Error message
+	 * @return bool Security check successful
+	 */
+	public static function verify_ajax_request_or_die(string $nonce_name, string $capability = 'read', string $error_message = ''): bool
+	{
+		if (! self::verify_ajax_request($nonce_name, $capability)) {
+			$default_message = __('Security check failed.', 'mhm-rentiva');
+			wp_send_json_error(array('message' => $error_message ?: $default_message));
+			return false; // Bu satır çalışmaz ama IDE uyarısını önler
+		}
 
-    /**
-     * Input validation helpers
-     */
-    public static function validate_vehicle_id($id): int
-    {
-        $id = intval($id);
-        if ($id <= 0) {
-            throw new \InvalidArgumentException(__('Invalid vehicle ID.', 'mhm-rentiva'));
-        }
-        return $id;
-    }
+		return true;
+	}
 
-    public static function validate_date($date): string
-    {
-        $date = self::sanitize_text_field_safe($date);
-        if (empty($date) || !strtotime($date)) {
-            throw new \InvalidArgumentException(__('Invalid date format.', 'mhm-rentiva'));
-        }
-        return $date;
-    }
+	/**
+	 * Rate limiting check
+	 *
+	 * @param string   $action Action name
+	 * @param int      $limit Limit count
+	 * @param int      $window Time window (seconds)
+	 * @param int|null $user_id User ID (null = current user)
+	 * @return bool Rate limit exceeded
+	 */
+	public static function check_rate_limit(string $action, int $limit = 10, int $window = 300, ?int $user_id = null): bool
+	{
+		if ($user_id === null) {
+			$user_id = get_current_user_id();
+		}
 
-    public static function validate_email($email): string
-    {
-        if ($email === null || $email === '') {
-            throw new \InvalidArgumentException(__('Invalid email address.', 'mhm-rentiva'));
-        }
-        $email = sanitize_email((string) ($email ?: ''));
-        if (empty($email) || !is_email($email)) {
-            throw new \InvalidArgumentException(__('Invalid email address.', 'mhm-rentiva'));
-        }
-        return $email;
-    }
+		// IP-based rate limiting for anonymous users
+		if ($user_id === 0) {
+			$user_id = self::get_client_ip();
+		}
 
-    public static function validate_phone($phone): string
-    {
-        $phone = self::sanitize_text_field_safe($phone);
-        
-        // Empty phone is accepted (optional field)
-        if (empty($phone)) {
-            return '';
-        }
-        
-        // Simple phone number validation
-        if (!preg_match('/^[\d\s\-\+\(\)]+$/', $phone)) {
-            throw new \InvalidArgumentException(__('Invalid phone number.', 'mhm-rentiva'));
-        }
-        return $phone;
-    }
+		$key      = "mhm_rate_limit_{$action}_{$user_id}";
+		$attempts = get_transient($key) ?: 0;
 
-    public static function validate_numeric_array($array, string $field_name = 'array'): array
-    {
-        // Convert string to array if needed (jQuery sends single-value arrays as strings)
-        if (is_string($array) || is_numeric($array)) {
-            $array = [$array];
-        }
-        
-        if (!is_array($array)) {
-            throw new \InvalidArgumentException(__('Invalid array format.', 'mhm-rentiva'));
-        }
-        
-        $result = array_map('intval', $array);
-        $result = array_filter($result, function($value) {
-            return $value > 0;
-        });
-        
-        return array_values($result);
-    }
+		if ($attempts >= $limit) {
+			return false; // Rate limit exceeded
+		}
 
-    /**
-     * Return safe error message
-     * 
-     * @param string $message Error message
-     * @param bool $debug_mode In debug mode
-     * @return string Safe error message
-     */
-    public static function get_safe_error_message(string $message, bool $debug_mode = false): string
-    {
-        if ($debug_mode && current_user_can('manage_options')) {
-            return esc_html($message);
-        }
-        
-        // General error message in production
-        return __('An error occurred during the operation.', 'mhm-rentiva');
-    }
+		set_transient($key, $attempts + 1, $window);
+		return true; // Rate limit not exceeded
+	}
 
-    /**
-     * Safe meta query for SQL injection protection
-     * 
-     * @param string $meta_key Meta key
-     * @param mixed $meta_value Meta value
-     * @param string $compare Comparison operator
-     * @return array Safe meta query array
-     */
-    public static function safe_meta_query(string $meta_key, $meta_value, string $compare = '='): array
-    {
-        return [
-            'key' => sanitize_key($meta_key),
-            'value' => $meta_value,
-            'compare' => in_array($compare, ['=', '!=', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN', 'EXISTS', 'NOT EXISTS']) ? $compare : '='
-        ];
-    }
+	/**
+	 * Rate limiting check ve hata response'u
+	 *
+	 * @param string $action Action name
+	 * @param int    $limit Limit count
+	 * @param int    $window Time window
+	 * @param string $error_message Error message
+	 * @return bool Rate limit exceeded
+	 */
+	public static function check_rate_limit_or_die(string $action, int $limit = 10, int $window = 300, string $error_message = ''): bool
+	{
+		if (! self::check_rate_limit($action, $limit, $window)) {
+			$default_message = __('Too many requests. Please wait.', 'mhm-rentiva');
+			wp_send_json_error(array('message' => $error_message ?: $default_message));
+			return false;
+		}
 
-    /**
-     * Safe output for XSS protection
-     * 
-     * @param mixed $data Output data
-     * @param string $context Output context (html, attr, url, js)
-     * @return string Safe output
-     */
-    public static function safe_output($data, string $context = 'html'): string
-    {
-        if (is_array($data)) {
-            $data = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-        }
-        
-        switch ($context) {
-            case 'html':
-                return esc_html($data);
-            case 'attr':
-                return esc_attr($data);
-            case 'url':
-                return esc_url($data);
-            case 'js':
-                return esc_js($data);
-            default:
-                return esc_html($data);
-        }
-    }
+		return true;
+	}
+
+	/**
+	 * Get client IP address
+	 *
+	 * @return string IP address
+	 */
+	public static function get_client_ip(): string
+	{
+		$ip_keys = array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR');
+
+		foreach ($ip_keys as $key) {
+			if (array_key_exists($key, $_SERVER) === true) {
+				$ip = self::sanitize_text_field_safe(wp_unslash($_SERVER[$key]));
+				if (strpos($ip, ',') !== false) {
+					$ip = explode(',', $ip)[0];
+				}
+				$ip = trim($ip);
+
+				if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+					return $ip;
+				}
+			}
+		}
+
+		return self::sanitize_text_field_safe(wp_unslash($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'));
+	}
+
+	/**
+	 * Input validation helpers
+	 */
+	public static function validate_vehicle_id($id): int
+	{
+		$id = intval($id);
+		if ($id <= 0) {
+			throw new \InvalidArgumentException(esc_html__('Invalid vehicle ID.', 'mhm-rentiva'));
+		}
+		return $id;
+	}
+
+	public static function validate_date($date): string
+	{
+		$date = self::sanitize_text_field_safe($date);
+		if (empty($date) || ! strtotime($date)) {
+			throw new \InvalidArgumentException(esc_html__('Invalid date format.', 'mhm-rentiva'));
+		}
+		return $date;
+	}
+
+	public static function validate_email($email): string
+	{
+		if ($email === null || $email === '') {
+			throw new \InvalidArgumentException(esc_html__('Invalid email address.', 'mhm-rentiva'));
+		}
+		$email = sanitize_email((string) ($email ?: ''));
+		if (empty($email) || ! is_email($email)) {
+			throw new \InvalidArgumentException(esc_html__('Invalid email address.', 'mhm-rentiva'));
+		}
+		return $email;
+	}
+
+	public static function validate_phone($phone): string
+	{
+		$phone = self::sanitize_text_field_safe($phone);
+
+		// Empty phone is accepted (optional field)
+		if (empty($phone)) {
+			return '';
+		}
+
+		// Simple phone number validation
+		if (! preg_match('/^[\d\s\-\+\(\)]+$/', $phone)) {
+			throw new \InvalidArgumentException(esc_html__('Invalid phone number.', 'mhm-rentiva'));
+		}
+		return $phone;
+	}
+
+	public static function validate_numeric_array($array, string $field_name = 'array'): array
+	{
+		// Convert string to array if needed (jQuery sends single-value arrays as strings)
+		if (is_string($array) || is_numeric($array)) {
+			$array = array($array);
+		}
+
+		if (! is_array($array)) {
+			throw new \InvalidArgumentException(esc_html__('Invalid array format.', 'mhm-rentiva'));
+		}
+
+		$result = array_map('intval', $array);
+		$result = array_filter(
+			$result,
+			function ($value) {
+				return $value > 0;
+			}
+		);
+
+		return array_values($result);
+	}
+
+	/**
+	 * Return safe error message
+	 *
+	 * @param string $message Error message
+	 * @param bool   $debug_mode In debug mode
+	 * @return string Safe error message
+	 */
+	public static function get_safe_error_message(string $message, bool $debug_mode = false): string
+	{
+		if ($debug_mode && current_user_can('manage_options')) {
+			return esc_html($message);
+		}
+
+		// General error message in production
+		return __('An error occurred during the operation.', 'mhm-rentiva');
+	}
+
+	/**
+	 * Safe meta query for SQL injection protection
+	 *
+	 * @param string $meta_key Meta key
+	 * @param mixed  $meta_value Meta value
+	 * @param string $compare Comparison operator
+	 * @return array Safe meta query array
+	 */
+	public static function safe_meta_query(string $meta_key, $meta_value, string $compare = '='): array
+	{
+		return array(
+			'key'     => sanitize_key($meta_key),
+			'value'   => $meta_value,
+			'compare' => in_array($compare, array('=', '!=', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN', 'EXISTS', 'NOT EXISTS')) ? $compare : '=',
+		);
+	}
+
+	/**
+	 * Safe output for XSS protection
+	 *
+	 * @param mixed  $data Output data
+	 * @param string $context Output context (html, attr, url, js)
+	 * @return string Safe output
+	 */
+	public static function safe_output($data, string $context = 'html'): string
+	{
+		if (is_array($data)) {
+			$data = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+		}
+
+		switch ($context) {
+			case 'html':
+				return esc_html($data);
+			case 'attr':
+				return esc_attr($data);
+			case 'url':
+				return esc_url($data);
+			case 'js':
+				return esc_js($data);
+			default:
+				return esc_html($data);
+		}
+	}
 }
