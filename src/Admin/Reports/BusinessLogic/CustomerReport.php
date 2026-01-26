@@ -7,21 +7,20 @@ namespace MHMRentiva\Admin\Reports\BusinessLogic;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Utilities\Export\Export;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class CustomerReport
-{
+final class CustomerReport {
 
-	public static function get_data(string $start_date, string $end_date): array
-	{
+
+	public static function get_data( string $start_date, string $end_date ): array {
 		global $wpdb;
 
-		$cache_key = 'mhm_customer_report_' . md5($start_date . $end_date);
-		$data      = get_transient($cache_key);
+		$cache_key = 'mhm_customer_report_' . md5( $start_date . $end_date );
+		$data      = get_transient( $cache_key );
 
-		if ($data === false) {
+		if ( $data === false ) {
 			// ✅ OPTIMIZED QUERY - Performance increase with pivot technique
 			$customers = $wpdb->get_results(
 				$wpdb->prepare(
@@ -45,14 +44,14 @@ final class CustomerReport
                  GROUP BY pm_email.meta_value
                  ORDER BY total_spent DESC
                  LIMIT 100",
-					__('Unknown', 'mhm-rentiva'),
+					__( 'Unknown', 'mhm-rentiva' ),
 					$start_date,
 					$end_date
 				)
 			);
 
 			// Debug: Check customer data
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			}
 
 			// Customer segmentation with hardcoded thresholds
@@ -62,10 +61,10 @@ final class CustomerReport
 				'new'     => array(),      // First time
 			);
 
-			foreach ($customers as $customer) {
-				if ($customer->total_spent >= 5000) {
+			foreach ( $customers as $customer ) {
+				if ( $customer->total_spent >= 5000 ) {
 					$segments['vip'][] = $customer;
-				} elseif ($customer->total_spent >= 1000) {
+				} elseif ( $customer->total_spent >= 1000 ) {
 					$segments['regular'][] = $customer;
 				} else {
 					$segments['new'][] = $customer;
@@ -96,7 +95,7 @@ final class CustomerReport
 			// Repeat customers
 			$repeat_customers = array_filter(
 				$customers,
-				function ($customer) {
+				function ( $customer ) {
 					return $customer->booking_count > 1;
 				}
 			);
@@ -106,57 +105,56 @@ final class CustomerReport
 				'new_customers'       => count(
 					array_filter(
 						$customers,
-						function ($customer) use ($start_date, $end_date) {
+						function ( $customer ) use ( $start_date, $end_date ) {
 							return $customer->first_booking_date >= $start_date && $customer->first_booking_date <= $end_date;
 						}
 					)
 				),
-				'returning_customers' => count($repeat_customers),
-				'total_customers'     => count($customers),
+				'returning_customers' => count( $repeat_customers ),
+				'total_customers'     => count( $customers ),
 			);
 
 			// Calculate average spending
-			$total_spent  = array_sum(array_column($customers, 'total_spent'));
-			$avg_spending = count($customers) > 0 ? $total_spent / count($customers) : 0;
+			$total_spent  = array_sum( array_column( $customers, 'total_spent' ) );
+			$avg_spending = count( $customers ) > 0 ? $total_spent / count( $customers ) : 0;
 
 			// Customer loyalty (repeat booking rate)
-			$loyalty_rate = count($customers) > 0 ? (count($repeat_customers) / count($customers)) * 100 : 0;
+			$loyalty_rate = count( $customers ) > 0 ? ( count( $repeat_customers ) / count( $customers ) ) * 100 : 0;
 
 			// Format data
-			foreach ($customers as &$customer) {
-				$customer->total_spent        = number_format((float) $customer->total_spent, 2);
-				$customer->avg_booking_value  = number_format((float) $customer->avg_booking_value, 2);
-				$customer->last_booking_date  = gmdate('d.m.Y', (int) strtotime($customer->last_booking_date));
-				$customer->first_booking_date = gmdate('d.m.Y', (int) strtotime($customer->first_booking_date));
+			foreach ( $customers as &$customer ) {
+				$customer->total_spent        = number_format( (float) $customer->total_spent, 2 );
+				$customer->avg_booking_value  = number_format( (float) $customer->avg_booking_value, 2 );
+				$customer->last_booking_date  = gmdate( 'd.m.Y', (int) strtotime( $customer->last_booking_date ) );
+				$customer->first_booking_date = gmdate( 'd.m.Y', (int) strtotime( $customer->first_booking_date ) );
 			}
 
 			$data = array(
-				'customers'     => array_slice($customers, 0, 50),
+				'customers'     => array_slice( $customers, 0, 50 ),
 				'segments'      => $segments,
 				'regional_data' => $regional_data,
 				'lifecycle'     => $customer_lifecycle,
 				'summary'       => array(
-					'total_customers'  => count($customers),
-					'repeat_customers' => count($repeat_customers),
-					'loyalty_rate'     => round($loyalty_rate, 1),
-					'avg_spending'     => number_format($avg_spending, 2),
-					'total_revenue'    => number_format($total_spent, 2),
+					'total_customers'  => count( $customers ),
+					'repeat_customers' => count( $repeat_customers ),
+					'loyalty_rate'     => round( $loyalty_rate, 1 ),
+					'avg_spending'     => number_format( $avg_spending, 2 ),
+					'total_revenue'    => number_format( $total_spent, 2 ),
 				),
 				'date_range'    => array(
 					'start' => $start_date,
 					'end'   => $end_date,
-					'days'  => (strtotime($end_date) - strtotime($start_date)) / (60 * 60 * 24) + 1,
+					'days'  => ( strtotime( $end_date ) - strtotime( $start_date ) ) / ( 60 * 60 * 24 ) + 1,
 				),
 			);
 
-			set_transient($cache_key, $data, 15 * MINUTE_IN_SECONDS);
+			set_transient( $cache_key, $data, 15 * MINUTE_IN_SECONDS );
 		}
 
 		return $data;
 	}
 
-	public static function get_customer_details(string $email, string $start_date, string $end_date): array
-	{
+	public static function get_customer_details( string $email, string $start_date, string $end_date ): array {
 		global $wpdb;
 
 		// Customer booking history
@@ -193,61 +191,59 @@ final class CustomerReport
 		);
 
 		// Add vehicle titles
-		foreach ($bookings as &$booking) {
-			$booking->vehicle_title        = get_the_title($booking->vehicle_id) ?: __('Unknown Vehicle', 'mhm-rentiva');
-			$booking->status_label         = Status::get_label($booking->status);
-			$booking->start_date_formatted = gmdate('d.m.Y', (int) $booking->start_date);
-			$booking->end_date_formatted   = gmdate('d.m.Y', (int) $booking->end_date);
+		foreach ( $bookings as &$booking ) {
+			$booking->vehicle_title        = get_the_title( $booking->vehicle_id ) ?: __( 'Unknown Vehicle', 'mhm-rentiva' );
+			$booking->status_label         = Status::get_label( $booking->status );
+			$booking->start_date_formatted = gmdate( 'd.m.Y', (int) $booking->start_date );
+			$booking->end_date_formatted   = gmdate( 'd.m.Y', (int) $booking->end_date );
 		}
 
-		$total_spent    = array_sum(array_column($bookings, 'total_price'));
-		$total_bookings = count($bookings);
+		$total_spent    = array_sum( array_column( $bookings, 'total_price' ) );
+		$total_bookings = count( $bookings );
 
 		return array(
 			'email'             => $email,
 			'total_bookings'    => $total_bookings,
 			'total_spent'       => $total_spent,
-			'avg_booking_value' => $total_bookings > 0 ? round($total_spent / $total_bookings, 2) : 0,
+			'avg_booking_value' => $total_bookings > 0 ? round( $total_spent / $total_bookings, 2 ) : 0,
 			'bookings'          => $bookings,
 			'last_booking'      => $total_bookings > 0 ? $bookings[0]->post_date : null,
 		);
 	}
 
-	public static function get_customer_segments(string $start_date, string $end_date): array
-	{
-		$data = self::get_data($start_date, $end_date);
+	public static function get_customer_segments( string $start_date, string $end_date ): array {
+		$data = self::get_data( $start_date, $end_date );
 
 		// Customer segmentation
 		$segments = array(
 			'high_value' => array(
-				'label'         => __('High Value Customers', 'mhm-rentiva'),
-				'criteria'      => __('5000+ total spending', 'mhm-rentiva'),
+				'label'         => __( 'High Value Customers', 'mhm-rentiva' ),
+				'criteria'      => __( '5000+ total spending', 'mhm-rentiva' ),
 				'customers'     => $data['segments']['vip'],
-				'count'         => count($data['segments']['vip']),
-				'total_revenue' => array_sum(array_column($data['segments']['vip'], 'total_spent')),
+				'count'         => count( $data['segments']['vip'] ),
+				'total_revenue' => array_sum( array_column( $data['segments']['vip'], 'total_spent' ) ),
 			),
 			'regular'    => array(
-				'label'         => __('Regular Customers', 'mhm-rentiva'),
-				'criteria'      => __('1000-4999 total spending', 'mhm-rentiva'),
+				'label'         => __( 'Regular Customers', 'mhm-rentiva' ),
+				'criteria'      => __( '1000-4999 total spending', 'mhm-rentiva' ),
 				'customers'     => $data['segments']['regular'],
-				'count'         => count($data['segments']['regular']),
-				'total_revenue' => array_sum(array_column($data['segments']['regular'], 'total_spent')),
+				'count'         => count( $data['segments']['regular'] ),
+				'total_revenue' => array_sum( array_column( $data['segments']['regular'], 'total_spent' ) ),
 			),
 			'new'        => array(
-				'label'         => __('New Customers', 'mhm-rentiva'),
-				'criteria'      => __('First-time booking', 'mhm-rentiva'),
+				'label'         => __( 'New Customers', 'mhm-rentiva' ),
+				'criteria'      => __( 'First-time booking', 'mhm-rentiva' ),
 				'customers'     => $data['segments']['new'],
-				'count'         => count($data['segments']['new']),
-				'total_revenue' => array_sum(array_column($data['segments']['new'], 'total_spent')),
+				'count'         => count( $data['segments']['new'] ),
+				'total_revenue' => array_sum( array_column( $data['segments']['new'], 'total_spent' ) ),
 			),
 		);
 
 		return $segments;
 	}
 
-	public static function export_customer_data(string $start_date, string $end_date, string $format = 'csv'): void
-	{
-		$data = self::get_data($start_date, $end_date);
+	public static function export_customer_data( string $start_date, string $end_date, string $format = 'csv' ): void {
+		$data = self::get_data( $start_date, $end_date );
 
 		$export_data = array();
 
@@ -263,7 +259,7 @@ final class CustomerReport
 		);
 
 		// Add customer data
-		foreach ($data['customers'] as $customer) {
+		foreach ( $data['customers'] as $customer ) {
 			$export_data[] = array(
 				$customer->email,
 				$customer->name,
@@ -275,7 +271,7 @@ final class CustomerReport
 			);
 		}
 
-		$filename = sprintf('mhm-rentiva-customers-%s-%s', $start_date, $end_date);
-		Export::export_data($export_data, $filename, $format);
+		$filename = sprintf( 'mhm-rentiva-customers-%s-%s', $start_date, $end_date );
+		Export::export_data( $export_data, $filename, $format );
 	}
 }

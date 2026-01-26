@@ -4,100 +4,100 @@
  */
 
 .mhm-checkout-payment-type {
-    margin: 20px 0;
-    padding: 15px;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
+	margin: 20px 0;
+	padding: 15px;
+	background: #f8f9fa;
+	border: 1px solid #dee2e6;
+	border-radius: 4px;
 }
 
 .mhm-checkout-payment-type h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 16px;
-    font-weight: 600;
+	margin-top: 0;
+	margin-bottom: 15px;
+	font-size: 16px;
+	font-weight: 600;
 }
 
 .mhm-payment-type-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 }
 
 .mhm-payment-type-option {
-    display: flex;
-    align-items: flex-start;
-    padding: 12px;
-    border: 2px solid #dee2e6;
-    border-radius: 4px;
-    cursor: pointer;
-    background: #fff;
-    transition: all 0.3s;
+	display: flex;
+	align-items: flex-start;
+	padding: 12px;
+	border: 2px solid #dee2e6;
+	border-radius: 4px;
+	cursor: pointer;
+	background: #fff;
+	transition: all 0.3s;
 }
 
 .mhm-payment-type-option:hover {
-    border-color: #0073aa;
+	border-color: #0073aa;
 }
 
 .mhm-payment-type-option input[type="radio"] {
-    margin-right: 10px;
-    margin-top: 2px;
+	margin-right: 10px;
+	margin-top: 2px;
 }
 
 .mhm-payment-type-option-content {
-    flex: 1;
+	flex: 1;
 }
 
 .mhm-payment-type-option-title {
-    display: block;
-    margin-bottom: 4px;
-    font-weight: 600;
+	display: block;
+	margin-bottom: 4px;
+	font-weight: 600;
 }
 
 .mhm-payment-type-option-description {
-    display: block;
-    color: #666;
-    font-size: 13px;
+	display: block;
+	color: #666;
+	font-size: 13px;
 }
 
 .mhm-payment-type-option-price {
-    margin-top: 8px;
-    font-weight: 600;
-    color: #0073aa;
+	margin-top: 8px;
+	font-weight: 600;
+	color: #0073aa;
 }
 
 .mhm-payment-type-option-price-remaining {
-    font-size: 12px;
-    color: #666;
-    font-weight: normal;
+	font-size: 12px;
+	color: #666;
+	font-weight: normal;
 }
 
 /* Selected state - use class for better compatibility */
 .mhm-payment-type-option.selected {
-    border-color: #0073aa !important;
-    background: #e7f3ff !important;
+	border-color: #0073aa !important;
+	background: #e7f3ff !important;
 }
 
 /* Fallback: Update selected state when radio button is checked (browser native) */
 .mhm-payment-type-option:has(input[type="radio"]:checked) {
-    border-color: #0073aa;
-    background: #e7f3ff;
+	border-color: #0073aa;
+	background: #e7f3ff;
 }
 
 /* Ensure non-selected options have default styling */
 .mhm-payment-type-option:not(.selected):not(:has(input[type="radio"]:checked)) {
-    border-color: #dee2e6;
-    background: #fff;
+	border-color: #dee2e6;
+	background: #fff;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .mhm-checkout-payment-type {
-        margin: 15px 0;
-        padding: 12px;
-    }
+	.mhm-checkout-payment-type {
+		margin: 15px 0;
+		padding: 12px;
+	}
 
-    .mhm-payment-type-option {
-        padding: 10px;
-    }
+	.mhm-payment-type-option {
+		padding: 10px;
+	}
 }

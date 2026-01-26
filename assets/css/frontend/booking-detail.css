@@ -1,236 +1,236 @@
 /* Rezervasyon Detay Sayfası Stilleri */
 
 .rv-booking-details {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    margin: 20px 0;
-    overflow: hidden;
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	margin: 20px 0;
+	overflow: hidden;
 }
 
 .rv-booking-details h2 {
-    background: #f8fafc;
-    color: #1e293b;
-    font-size: 22px;
-    font-weight: 700;
-    margin: 0;
-    padding: 20px 24px;
-    border-bottom: 1px solid #e2e8f0;
+	background: #f8fafc;
+	color: #1e293b;
+	font-size: 22px;
+	font-weight: 700;
+	margin: 0;
+	padding: 20px 24px;
+	border-bottom: 1px solid #e2e8f0;
 }
 
 .rv-details-grid {
-    padding: 0;
+	padding: 0;
 }
 
 .rv-detail-row {
-    display: grid;
-    grid-template-columns: 20% 1fr;
-    gap: 24px;
-    padding: 20px 24px;
-    border-top: 1px solid #e2e8f0;
+	display: grid;
+	grid-template-columns: 20% 1fr;
+	gap: 24px;
+	padding: 20px 24px;
+	border-top: 1px solid #e2e8f0;
 }
 
 .rv-detail-row:first-child {
-    border-top: none;
+	border-top: none;
 }
 
 .rv-detail-label {
-    color: #64748b;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.5;
+	color: #64748b;
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 1.5;
 }
 
 .rv-detail-value {
-    color: #1e293b;
-    font-size: 14px;
-    line-height: 1.5;
+	color: #1e293b;
+	font-size: 14px;
+	line-height: 1.5;
 }
 
 .rv-vehicle-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
 }
 
 .rv-vehicle-thumb {
-    width: 60px;
-    height: 40px;
-    object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
+	width: 60px;
+	height: 40px;
+	object-fit: cover;
+	border-radius: 6px;
+	border: 1px solid #e2e8f0;
 }
 
 .rv-status {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+	display: inline-block;
+	padding: 4px 12px;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 }
 
 .status-pending {
-    background: #fef3c7;
-    color: #92400e;
+	background: #fef3c7;
+	color: #92400e;
 }
 
 .status-confirmed {
-    background: #d1fae5;
-    color: #065f46;
+	background: #d1fae5;
+	color: #065f46;
 }
 
 .status-in_progress {
-    background: #dbeafe;
-    color: #1e40af;
+	background: #dbeafe;
+	color: #1e40af;
 }
 
 .status-completed {
-    background-color: #0073E6;
-    background: #e5e7eb;
-    color: #374151;
+	background-color: #0073E6;
+	background: #e5e7eb;
+	color: #374151;
 }
 
 .status-cancelled {
-    background: #fee2e2;
-    color: #991b1b;
+	background: #fee2e2;
+	color: #991b1b;
 }
 
 .rv-price {
-    font-weight: 700;
-    color: #059669;
-    font-size: 16px;
+	font-weight: 700;
+	color: #059669;
+	font-size: 16px;
 }
 
 .rv-addons-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 
 .rv-addons-list li {
-    padding: 4px 0;
-    color: #374151;
+	padding: 4px 0;
+	color: #374151;
 }
 
 .rv-addons-list li::before {
-    content: "✓";
-    color: #059669;
-    font-weight: bold;
-    margin-right: 8px;
+	content: "✓";
+	color: #059669;
+	font-weight: bold;
+	margin-right: 8px;
 }
 
 .rv-next-steps {
-    background: #f8fafc;
-    border-radius: 12px;
-    padding: 24px;
-    margin: 20px 0;
+	background: #f8fafc;
+	border-radius: 12px;
+	padding: 24px;
+	margin: 20px 0;
 }
 
 .rv-next-steps h2 {
-    color: #1e293b;
-    font-size: 22px;
-    font-weight: 700;
-    margin: 0 0 12px 0;
+	color: #1e293b;
+	font-size: 22px;
+	font-weight: 700;
+	margin: 0 0 12px 0;
 }
 
 .rv-next-steps p {
-    color: #64748b;
-    font-size: 16px;
-    line-height: 1.6;
-    margin: 0;
+	color: #64748b;
+	font-size: 16px;
+	line-height: 1.6;
+	margin: 0;
 }
 
 .rv-booking-actions {
-    display: flex;
-    gap: 12px;
-    padding: 20px 0;
+	display: flex;
+	gap: 12px;
+	padding: 20px 0;
 }
 
 .rv-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px 24px;
+	border-radius: 8px;
+	font-size: 16px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: all 0.2s ease;
+	cursor: pointer;
+	border: none;
 }
 
 .rv-btn-primary {
-    background: #3b82f6;
-    color: white;
+	background: #3b82f6;
+	color: white;
 }
 
 .rv-btn-primary:hover {
-    background: #2563eb;
-    color: white;
+	background: #2563eb;
+	color: white;
 }
 
 .rv-btn-secondary {
-    background: #f1f5f9;
-    color: #475569;
-    border: 1px solid #e2e8f0;
+	background: #f1f5f9;
+	color: #475569;
+	border: 1px solid #e2e8f0;
 }
 
 .rv-btn-secondary:hover {
-    background: #e2e8f0;
-    color: #334155;
+	background: #e2e8f0;
+	color: #334155;
 }
 
 .rv-breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 20px;
-    color: #64748b;
-    font-size: 14px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 20px;
+	color: #64748b;
+	font-size: 14px;
 }
 
 .rv-breadcrumb a {
-    color: #3b82f6;
-    text-decoration: none;
+	color: #3b82f6;
+	text-decoration: none;
 }
 
 .rv-breadcrumb a:hover {
-    text-decoration: underline;
+	text-decoration: underline;
 }
 
 .rv-page-header {
-    margin-bottom: 32px;
+	margin-bottom: 32px;
 }
 
 .rv-page-header h1 {
-    color: #1e293b;
-    font-size: 32px;
-    font-weight: 700;
-    margin: 0 0 8px 0;
+	color: #1e293b;
+	font-size: 32px;
+	font-weight: 700;
+	margin: 0 0 8px 0;
 }
 
 .rv-page-header p {
-    color: #64748b;
-    font-size: 16px;
-    line-height: 1.6;
-    margin: 0;
+	color: #64748b;
+	font-size: 16px;
+	line-height: 1.6;
+	margin: 0;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .rv-detail-row {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
+	.rv-detail-row {
+		grid-template-columns: 1fr;
+		gap: 8px;
+	}
 
-    .rv-booking-actions {
-        flex-direction: column;
-    }
+	.rv-booking-actions {
+		flex-direction: column;
+	}
 
-    .rv-btn {
-        width: 100%;
-    }
+	.rv-btn {
+		width: 100%;
+	}
 }

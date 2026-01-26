@@ -1,22 +1,22 @@
 /* Elementor Editor Styles for MHM Rentiva */
 
 .elementor-control-mhm_rentiva_section_title {
-    background-color: #f1f1f1;
-    padding: 10px;
-    border-left: 3px solid #0073aa;
-    font-weight: bold;
+	background-color: #f1f1f1;
+	padding: 10px;
+	border-left: 3px solid #0073aa;
+	font-weight: bold;
 }
 
 /* Widget Icons in Panel */
 .icon .fa-car:before {
-    content: "\f1b9"; /* FontAwesome car icon */
+	content: "\f1b9"; /* FontAwesome car icon */
 }
 
 /* Placeholder Styles in Editor */
 .mhm-rentiva-elementor-placeholder {
-    background: #f9f9f9;
-    border: 1px dashed #ccc;
-    padding: 20px;
-    text-align: center;
-    color: #777;
+	background: #f9f9f9;
+	border: 1px dashed #ccc;
+	padding: 20px;
+	text-align: center;
+	color: #777;
 }

@@ -15,413 +15,413 @@
 .post-type-vehicle_booking #revisionsdiv,
 .post-type-vehicle_booking #pageparentdiv,
 .post-type-vehicle_booking #postimagediv {
-    display: none !important;
+	display: none !important;
 }
 
 /* Show only our meta box */
 .post-type-vehicle_booking #mhm_manual_booking_meta_box {
-    display: block !important;
+	display: block !important;
 }
 
 .mhm-manual-booking-form {
-    padding: var(--mhm-space-5);
-    background: var(--mhm-bg-card);
-    border: 1px solid var(--mhm-border-secondary);
-    border-radius: var(--mhm-radius-md);
-    margin: 20px 0;
+	padding: var(--mhm-space-5);
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: var(--mhm-radius-md);
+	margin: 20px 0;
 }
 
 .mhm-booking-fields {
-    display: grid;
-    gap: var(--mhm-space-5);
+	display: grid;
+	gap: var(--mhm-space-5);
 }
 
 .mhm-field-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 .mhm-field-label {
-    font-weight: var(--mhm-font-semibold);
-    color: var(--mhm-text-primary);
-    font-size: 14px;
+	font-weight: var(--mhm-font-semibold);
+	color: var(--mhm-text-primary);
+	font-size: 14px;
 }
 
 .mhm-field-label .required {
-    color: var(--mhm-error);
+	color: var(--mhm-error);
 }
 
 .mhm-field-input,
 .mhm-field-select,
 .mhm-field-textarea {
-    padding: 8px 12px;
-    border: 1px solid var(--mhm-border-primary);
-    border-radius: var(--mhm-radius-sm);
-    font-size: 14px;
-    background: var(--mhm-bg-card);
-    transition: border-color var(--mhm-duration-200) ease;
+	padding: 8px 12px;
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-sm);
+	font-size: 14px;
+	background: var(--mhm-bg-card);
+	transition: border-color var(--mhm-duration-200) ease;
 }
 
 .mhm-field-input:focus,
 .mhm-field-select:focus,
 .mhm-field-textarea:focus {
-    border-color: var(--mhm-primary);
-    outline: none;
-    box-shadow: 0 0 0 1px var(--mhm-primary);
+	border-color: var(--mhm-primary);
+	outline: none;
+	box-shadow: 0 0 0 1px var(--mhm-primary);
 }
 
 .mhm-field-textarea {
-    resize: vertical;
-    min-height: 80px;
+	resize: vertical;
+	min-height: 80px;
 }
 
 /* Date/Time Fields */
 .mhm-datetime-fields {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--mhm-space-5);
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--mhm-space-5);
 }
 
 .mhm-field-half {
-    margin: 0;
+	margin: 0;
 }
 
 /* Price Calculation */
 .mhm-price-calculation {
-    background: var(--mhm-bg-card);
-    border: 1px solid var(--mhm-primary);
-    border-radius: var(--mhm-radius-sm);
-    padding: 16px;
-    margin: 20px 0;
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-primary);
+	border-radius: var(--mhm-radius-sm);
+	padding: 16px;
+	margin: 20px 0;
 }
 
 .mhm-price-calculation h4 {
-    margin: 0 0 12px 0;
-    color: var(--mhm-primary);
-    font-size: 16px;
+	margin: 0 0 12px 0;
+	color: var(--mhm-primary);
+	font-size: 16px;
 }
 
 .mhm-price-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 12px;
 }
 
 .mhm-price-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--mhm-border-secondary);
+	display: flex;
+	justify-content: space-between;
+	padding: 8px 0;
+	border-bottom: 1px solid var(--mhm-border-secondary);
 }
 
 .mhm-price-item:last-child {
-    border-bottom: none;
-    font-weight: var(--mhm-font-semibold);
-    font-size: 16px;
-    color: var(--mhm-primary);
+	border-bottom: none;
+	font-weight: var(--mhm-font-semibold);
+	font-size: 16px;
+	color: var(--mhm-primary);
 }
 
 .mhm-price-label {
-    color: var(--mhm-text-secondary);
+	color: var(--mhm-text-secondary);
 }
 
 .mhm-price-value {
-    font-weight: 500;
+	font-weight: 500;
 }
 
 /* Buttons */
 .mhm-booking-actions {
-    display: flex;
-    gap: 12px;
-    padding: 20px 0 0 0;
-    border-top: 1px solid var(--mhm-border-secondary);
+	display: flex;
+	gap: 12px;
+	padding: 20px 0 0 0;
+	border-top: 1px solid var(--mhm-border-secondary);
 }
 
 .mhm-booking-actions .button {
-    padding: 8px 16px;
-    font-size: 14px;
-    border-radius: var(--mhm-radius-sm);
+	padding: 8px 16px;
+	font-size: 14px;
+	border-radius: var(--mhm-radius-sm);
 }
 
 .mhm-booking-actions .button-primary {
-    background: var(--mhm-primary);
-    border-color: var(--mhm-primary);
-    color: var(--mhm-white);
+	background: var(--mhm-primary);
+	border-color: var(--mhm-primary);
+	color: var(--mhm-white);
 }
 
 .mhm-booking-actions .button-primary:hover {
-    background: var(--mhm-primary-dark);
-    border-color: var(--mhm-primary-dark);
+	background: var(--mhm-primary-dark);
+	border-color: var(--mhm-primary-dark);
 }
 
 .mhm-booking-actions .button-secondary {
-    background: var(--mhm-bg-secondary);
-    border-color: var(--mhm-border-primary);
-    color: var(--mhm-text-primary);
+	background: var(--mhm-bg-secondary);
+	border-color: var(--mhm-border-primary);
+	color: var(--mhm-text-primary);
 }
 
 .mhm-booking-actions .button-secondary:hover {
-    background: var(--mhm-bg-hover);
-    border-color: var(--mhm-border-secondary);
+	background: var(--mhm-bg-hover);
+	border-color: var(--mhm-border-secondary);
 }
 
 /* Loading State */
 .mhm-calculating {
-    opacity: 0.6;
-    pointer-events: none;
+	opacity: 0.6;
+	pointer-events: none;
 }
 
 .mhm-calculating .mhm-booking-actions .button {
-    background: var(--mhm-bg-secondary) !important;
-    border-color: var(--mhm-border-secondary) !important;
-    color: var(--mhm-text-secondary) !important;
+	background: var(--mhm-bg-secondary) !important;
+	border-color: var(--mhm-border-secondary) !important;
+	color: var(--mhm-text-secondary) !important;
 }
 
 /* Error/Success Messages */
 .mhm-message {
-    padding: 12px;
-    border-radius: var(--mhm-radius-sm);
-    margin: 12px 0;
-    font-size: 14px;
+	padding: 12px;
+	border-radius: var(--mhm-radius-sm);
+	margin: 12px 0;
+	font-size: 14px;
 }
 
 .mhm-message.success {
-    background: var(--mhm-success-bg);
-    border: 1px solid var(--mhm-success-light);
-    color: var(--mhm-success-dark);
+	background: var(--mhm-success-bg);
+	border: 1px solid var(--mhm-success-light);
+	color: var(--mhm-success-dark);
 }
 
 .mhm-message.error {
-    background: var(--mhm-error-bg);
-    border: 1px solid var(--mhm-error-light);
-    color: var(--mhm-error-dark);
+	background: var(--mhm-error-bg);
+	border: 1px solid var(--mhm-error-light);
+	color: var(--mhm-error-dark);
 }
 
 .mhm-message.info {
-    background: var(--mhm-bg-secondary);
-    border: 1px solid var(--mhm-primary-light);
-    color: var(--mhm-primary-dark);
+	background: var(--mhm-bg-secondary);
+	border: 1px solid var(--mhm-primary-light);
+	color: var(--mhm-primary-dark);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .mhm-datetime-fields {
-        grid-template-columns: 1fr;
-    }
+	.mhm-datetime-fields {
+		grid-template-columns: 1fr;
+	}
 
-    .mhm-price-details {
-        grid-template-columns: 1fr;
-    }
+	.mhm-price-details {
+		grid-template-columns: 1fr;
+	}
 
-    .mhm-booking-actions {
-        flex-direction: column;
-    }
+	.mhm-booking-actions {
+		flex-direction: column;
+	}
 
-    .mhm-booking-actions .button {
-        width: 100%;
-    }
+	.mhm-booking-actions .button {
+		width: 100%;
+	}
 }
 
 /* Form Validation */
 .mhm-field-input.error,
 .mhm-field-select.error,
 .mhm-field-textarea.error {
-    border-color: var(--mhm-error);
-    box-shadow: 0 0 0 1px var(--mhm-error);
+	border-color: var(--mhm-error);
+	box-shadow: 0 0 0 1px var(--mhm-error);
 }
 
 .mhm-field-error {
-    color: var(--mhm-error);
-    font-size: 12px;
-    margin-top: 4px;
+	color: var(--mhm-error);
+	font-size: 12px;
+	margin-top: 4px;
 }
 
 /* Vehicle Info */
 .mhm-vehicle-info {
-    background: var(--mhm-bg-secondary);
-    border: 1px solid var(--mhm-primary-light);
-    border-radius: var(--mhm-radius-sm);
-    padding: 12px;
-    margin: 12px 0;
-    font-size: 14px;
+	background: var(--mhm-bg-secondary);
+	border: 1px solid var(--mhm-primary-light);
+	border-radius: var(--mhm-radius-sm);
+	padding: 12px;
+	margin: 12px 0;
+	font-size: 14px;
 }
 
 .mhm-vehicle-info h5 {
-    margin: 0 0 8px 0;
-    color: var(--mhm-primary);
+	margin: 0 0 8px 0;
+	color: var(--mhm-primary);
 }
 
 .mhm-vehicle-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 8px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 8px;
 }
 
 .mhm-vehicle-detail {
-    display: flex;
-    justify-content: space-between;
+	display: flex;
+	justify-content: space-between;
 }
 
 .mhm-vehicle-detail strong {
-    color: var(--mhm-text-primary);
+	color: var(--mhm-text-primary);
 }
 
 /* Additional Services Styles */
 .mhm-addon-selection {
-    border: 1px solid var(--mhm-border-secondary);
-    border-radius: var(--mhm-radius-sm);
-    padding: 16px;
-    background: var(--mhm-bg-card);
-    margin-top: 8px;
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: var(--mhm-radius-sm);
+	padding: 16px;
+	background: var(--mhm-bg-card);
+	margin-top: 8px;
 }
 
 .mhm-addon-selection .description {
-    margin: 0 0 16px 0;
-    color: var(--mhm-text-secondary);
-    font-style: italic;
-    font-size: 13px;
+	margin: 0 0 16px 0;
+	color: var(--mhm-text-secondary);
+	font-style: italic;
+	font-size: 13px;
 }
 
 .mhm-addon-item {
-    display: flex;
-    align-items: flex-start;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--mhm-border-secondary);
-    cursor: pointer;
-    transition: background-color var(--mhm-duration-200) ease;
+	display: flex;
+	align-items: flex-start;
+	padding: 12px 0;
+	border-bottom: 1px solid var(--mhm-border-secondary);
+	cursor: pointer;
+	transition: background-color var(--mhm-duration-200) ease;
 }
 
 .mhm-addon-item:last-child {
-    border-bottom: none;
+	border-bottom: none;
 }
 
 .mhm-addon-item:hover {
-    background-color: var(--mhm-bg-hover);
-    border-radius: var(--mhm-radius-sm);
-    padding-left: 8px;
-    padding-right: 8px;
+	background-color: var(--mhm-bg-hover);
+	border-radius: var(--mhm-radius-sm);
+	padding-left: 8px;
+	padding-right: 8px;
 }
 
 .mhm-addon-checkbox {
-    margin-right: 12px;
-    margin-top: 2px;
-    flex-shrink: 0;
+	margin-right: 12px;
+	margin-top: 2px;
+	flex-shrink: 0;
 }
 
 .mhm-addon-checkbox:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+	opacity: 0.6;
+	cursor: not-allowed;
 }
 
 .mhm-addon-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 }
 
 .mhm-addon-title {
-    font-weight: var(--mhm-font-semibold);
-    color: var(--mhm-text-primary);
-    font-size: 14px;
-    line-height: 1.4;
+	font-weight: var(--mhm-font-semibold);
+	color: var(--mhm-text-primary);
+	font-size: 14px;
+	line-height: 1.4;
 }
 
 .mhm-addon-title .required {
-    color: var(--mhm-error);
-    font-weight: 700;
+	color: var(--mhm-error);
+	font-weight: 700;
 }
 
 .mhm-addon-price {
-    color: var(--mhm-primary);
-    font-weight: var(--mhm-font-semibold);
-    font-size: 14px;
+	color: var(--mhm-primary);
+	font-weight: var(--mhm-font-semibold);
+	font-size: 14px;
 }
 
 .mhm-addon-description {
-    font-size: 12px;
-    color: var(--mhm-text-secondary);
-    line-height: 1.4;
-    margin-top: 2px;
+	font-size: 12px;
+	color: var(--mhm-text-secondary);
+	line-height: 1.4;
+	margin-top: 2px;
 }
 
 .mhm-addon-total {
-    background: var(--mhm-bg-secondary);
-    border: 1px solid var(--mhm-primary-light);
-    border-radius: var(--mhm-radius-sm);
-    padding: 12px;
-    margin-top: 16px;
-    text-align: center;
+	background: var(--mhm-bg-secondary);
+	border: 1px solid var(--mhm-primary-light);
+	border-radius: var(--mhm-radius-sm);
+	padding: 12px;
+	margin-top: 16px;
+	text-align: center;
 }
 
 .mhm-addon-total strong {
-    color: var(--mhm-primary);
-    font-size: 14px;
+	color: var(--mhm-primary);
+	font-size: 14px;
 }
 
 .mhm-addon-total-amount {
-    color: var(--mhm-primary);
-    font-weight: 700;
-    font-size: 16px;
+	color: var(--mhm-primary);
+	font-weight: 700;
+	font-size: 16px;
 }
 
 /* Add-on Services Selected State */
 .mhm-addon-item:has(.mhm-addon-checkbox:checked) {
-    background-color: var(--mhm-bg-secondary);
-    border-left: 3px solid var(--mhm-primary);
-    padding-left: 9px;
+	background-color: var(--mhm-bg-secondary);
+	border-left: 3px solid var(--mhm-primary);
+	padding-left: 9px;
 }
 
 .mhm-addon-item:has(.mhm-addon-checkbox:checked) .mhm-addon-title {
-    color: var(--mhm-primary);
+	color: var(--mhm-primary);
 }
 
 /* Additional Services Mandatory Status */
 .mhm-addon-item:has(.mhm-addon-checkbox:disabled) {
-    background-color: var(--mhm-bg-hover);
-    border-left: 3px solid var(--mhm-success);
+	background-color: var(--mhm-bg-hover);
+	border-left: 3px solid var(--mhm-success);
 }
 
 .mhm-addon-item:has(.mhm-addon-checkbox:disabled) .mhm-addon-title {
-    color: var(--mhm-success);
+	color: var(--mhm-success);
 }
 
 .mhm-addon-item:has(.mhm-addon-checkbox:disabled) .mhm-addon-price {
-    color: var(--mhm-success);
+	color: var(--mhm-success);
 }
 
 /* New customer fields */
 #mhm_new_customer_fields {
-    margin-top: 15px;
-    padding: 15px;
-    background: var(--mhm-bg-card);
-    border: 1px solid var(--mhm-border-secondary);
-    border-radius: var(--mhm-radius-sm);
+	margin-top: 15px;
+	padding: 15px;
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: var(--mhm-radius-sm);
 }
 
 #mhm_new_customer_fields h4 {
-    margin: 0 0 15px 0;
-    color: var(--mhm-text-primary);
-    font-size: 14px;
-    font-weight: var(--mhm-font-semibold);
+	margin: 0 0 15px 0;
+	color: var(--mhm-text-primary);
+	font-size: 14px;
+	font-weight: var(--mhm-font-semibold);
 }
 
 #mhm_new_customer_fields .mhm-field-group {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 #mhm_new_customer_fields .mhm-field-group:last-child {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 
 /* Half width for new customer fields */
 #mhm_new_customer_fields .mhm-field-half {
-    display: inline-block;
-    width: 48%;
-    margin-right: 4%;
+	display: inline-block;
+	width: 48%;
+	margin-right: 4%;
 }
 
 #mhm_new_customer_fields .mhm-field-half:last-child {
-    margin-right: 0;
+	margin-right: 0;
 }

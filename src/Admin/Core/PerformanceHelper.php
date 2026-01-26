@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -13,8 +13,8 @@ if (! defined('ABSPATH')) {
  *
  * Performance optimizations for shortcodes
  */
-final class PerformanceHelper
-{
+final class PerformanceHelper {
+
 
 	/**
 	 * Cache key prefix
@@ -35,8 +35,7 @@ final class PerformanceHelper
 	 * @param array  $tags Cache tags for invalidation
 	 * @return bool Cache success
 	 */
-	public static function cache_set(string $key, $data, ?int $duration = null, array $tags = array()): bool
-	{
+	public static function cache_set( string $key, $data, ?int $duration = null, array $tags = array() ): bool {
 		$duration  = $duration ?? self::DEFAULT_CACHE_DURATION;
 		$cache_key = self::CACHE_PREFIX . $key;
 
@@ -47,7 +46,7 @@ final class PerformanceHelper
 			'timestamp' => time(),
 		);
 
-		return set_transient($cache_key, $cache_data, $duration);
+		return set_transient( $cache_key, $cache_data, $duration );
 	}
 
 	/**
@@ -57,12 +56,11 @@ final class PerformanceHelper
 	 * @param mixed  $default Default value if cache miss
 	 * @return mixed Cached data or default
 	 */
-	public static function cache_get(string $key, $default = null)
-	{
+	public static function cache_get( string $key, $default = null ) {
 		$cache_key = self::CACHE_PREFIX . $key;
-		$cached    = get_transient($cache_key);
+		$cached    = get_transient( $cache_key );
 
-		if ($cached === false) {
+		if ( $cached === false ) {
 			return $default;
 		}
 
@@ -77,11 +75,10 @@ final class PerformanceHelper
 	 * @param array $tags Cache tags
 	 * @return bool Success
 	 */
-	public static function cache_set_multiple(array $items, ?int $duration = null, array $tags = array()): bool
-	{
+	public static function cache_set_multiple( array $items, ?int $duration = null, array $tags = array() ): bool {
 		$success = true;
-		foreach ($items as $key => $data) {
-			if (! self::cache_set($key, $data, $duration, $tags)) {
+		foreach ( $items as $key => $data ) {
+			if ( ! self::cache_set( $key, $data, $duration, $tags ) ) {
 				$success = false;
 			}
 		}
@@ -95,11 +92,10 @@ final class PerformanceHelper
 	 * @param mixed $default Default value for missing keys
 	 * @return array [key => data]
 	 */
-	public static function cache_get_multiple(array $keys, $default = null): array
-	{
+	public static function cache_get_multiple( array $keys, $default = null ): array {
 		$results = array();
-		foreach ($keys as $key) {
-			$results[$key] = self::cache_get($key, $default);
+		foreach ( $keys as $key ) {
+			$results[ $key ] = self::cache_get( $key, $default );
 		}
 		return $results;
 	}
@@ -110,23 +106,22 @@ final class PerformanceHelper
 	 * @param array $tags Tags to invalidate
 	 * @return int Number of items invalidated
 	 */
-	public static function cache_invalidate_tags(array $tags): int
-	{
+	public static function cache_invalidate_tags( array $tags ): int {
 		global $wpdb;
 
-		if (empty($tags)) {
+		if ( empty( $tags ) ) {
 			return 0;
 		}
 
 		$tag_conditions = array();
-		foreach ($tags as $tag) {
-			$tag_conditions[] = $wpdb->prepare('option_value LIKE %s', '%"' . $tag . '"%');
+		foreach ( $tags as $tag ) {
+			$tag_conditions[] = $wpdb->prepare( 'option_value LIKE %s', '%"' . $tag . '"%' );
 		}
 
-		$prefix_like = $wpdb->esc_like('_transient_' . self::CACHE_PREFIX) . '%';
+		$prefix_like = $wpdb->esc_like( '_transient_' . self::CACHE_PREFIX ) . '%';
 		return $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s AND (" . implode(' OR ', $tag_conditions) . ')', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s AND (" . implode( ' OR ', $tag_conditions ) . ')', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$prefix_like
 			)
 		);
@@ -138,45 +133,44 @@ final class PerformanceHelper
 	 * @param array $vehicle_ids Vehicle IDs
 	 * @return array [vehicle_id => vehicle_data]
 	 */
-	public static function batch_load_vehicle_data(array $vehicle_ids): array
-	{
-		if (empty($vehicle_ids)) {
+	public static function batch_load_vehicle_data( array $vehicle_ids ): array {
+		if ( empty( $vehicle_ids ) ) {
 			return array();
 		}
 
 		// Check cache first
 		$cache_keys = array_map(
-			function ($id) {
+			function ( $id ) {
 				return "vehicle_data_{$id}";
 			},
 			$vehicle_ids
 		);
 
-		$cached_data = self::cache_get_multiple($cache_keys);
+		$cached_data = self::cache_get_multiple( $cache_keys );
 		$missing_ids = array();
 		$results     = array();
 
 		// Separate cached and missing data
-		foreach ($vehicle_ids as $id) {
+		foreach ( $vehicle_ids as $id ) {
 			$cache_key = "vehicle_data_{$id}";
-			if ($cached_data[$cache_key] !== null) {
-				$results[$id] = $cached_data[$cache_key];
+			if ( $cached_data[ $cache_key ] !== null ) {
+				$results[ $id ] = $cached_data[ $cache_key ];
 			} else {
 				$missing_ids[] = $id;
 			}
 		}
 
 		// Load missing data
-		if (! empty($missing_ids)) {
-			$loaded_data = self::load_vehicle_data_batch($missing_ids);
-			$results     = array_merge($results, $loaded_data);
+		if ( ! empty( $missing_ids ) ) {
+			$loaded_data = self::load_vehicle_data_batch( $missing_ids );
+			$results     = array_merge( $results, $loaded_data );
 
 			// Cache the loaded data
 			$cache_items = array();
-			foreach ($loaded_data as $id => $data) {
-				$cache_items["vehicle_data_{$id}"] = $data;
+			foreach ( $loaded_data as $id => $data ) {
+				$cache_items[ "vehicle_data_{$id}" ] = $data;
 			}
-			self::cache_set_multiple($cache_items, self::DEFAULT_CACHE_DURATION, array('vehicles'));
+			self::cache_set_multiple( $cache_items, self::DEFAULT_CACHE_DURATION, array( 'vehicles' ) );
 		}
 
 		return $results;
@@ -188,17 +182,16 @@ final class PerformanceHelper
 	 * @param array $vehicle_ids Vehicle IDs
 	 * @return array [vehicle_id => vehicle_data]
 	 */
-	private static function load_vehicle_data_batch(array $vehicle_ids): array
-	{
+	private static function load_vehicle_data_batch( array $vehicle_ids ): array {
 		global $wpdb;
 
-		if (empty($vehicle_ids)) {
+		if ( empty( $vehicle_ids ) ) {
 			return array();
 		}
 
-		$ids_placeholders = implode(',', array_fill(0, count($vehicle_ids), '%d'));
+		$ids_placeholders = implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) );
 
-		$posts = $wpdb->get_results(
+		$posts       = $wpdb->get_results(
 			$wpdb->prepare(
 				"
             SELECT ID, post_title, post_excerpt, post_name, post_status
@@ -211,11 +204,11 @@ final class PerformanceHelper
 			ARRAY_A
 		);
 		$posts_by_id = array();
-		foreach ($posts as $post) {
-			$posts_by_id[$post['ID']] = $post;
+		foreach ( $posts as $post ) {
+			$posts_by_id[ $post['ID'] ] = $post;
 		}
 
-		$meta_data = $wpdb->get_results(
+		$meta_data       = $wpdb->get_results(
 			$wpdb->prepare(
 				"
             SELECT post_id, meta_key, meta_value
@@ -241,18 +234,18 @@ final class PerformanceHelper
 			ARRAY_A
 		);
 		$meta_by_post_id = array();
-		foreach ($meta_data as $meta) {
-			$meta_by_post_id[$meta['post_id']][$meta['meta_key']] = $meta['meta_value'];
+		foreach ( $meta_data as $meta ) {
+			$meta_by_post_id[ $meta['post_id'] ][ $meta['meta_key'] ] = $meta['meta_value'];
 		}
 
 		// Combine data
 		$results = array();
-		foreach ($vehicle_ids as $id) {
-			$post_data = $posts_by_id[$id] ?? null;
-			$meta      = $meta_by_post_id[$id] ?? array();
+		foreach ( $vehicle_ids as $id ) {
+			$post_data = $posts_by_id[ $id ] ?? null;
+			$meta      = $meta_by_post_id[ $id ] ?? array();
 
-			if ($post_data) {
-				$results[$id] = array(
+			if ( $post_data ) {
+				$results[ $id ] = array(
 					'id'      => $id,
 					'title'   => $post_data['post_title'],
 					'excerpt' => $post_data['post_excerpt'],
@@ -274,15 +267,14 @@ final class PerformanceHelper
 	 * @param string $end_date End date (Y-m-d)
 	 * @return array [vehicle_id => availability_data]
 	 */
-	public static function batch_load_availability_data(array $vehicle_ids, string $start_date, string $end_date): array
-	{
-		if (empty($vehicle_ids)) {
+	public static function batch_load_availability_data( array $vehicle_ids, string $start_date, string $end_date ): array {
+		if ( empty( $vehicle_ids ) ) {
 			return array();
 		}
 
 		global $wpdb;
 
-		$ids_placeholders = implode(',', array_fill(0, count($vehicle_ids), '%d'));
+		$ids_placeholders = implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) );
 
 		$bookings = $wpdb->get_results(
 			$wpdb->prepare(
@@ -306,19 +298,19 @@ final class PerformanceHelper
             AND pm_end.meta_value >= %s
             ORDER BY pm_vehicle.meta_value, pm_start.meta_value ASC
         ",
-				array_merge($vehicle_ids, array($end_date, $start_date))
+				array_merge( $vehicle_ids, array( $end_date, $start_date ) )
 			),
 			ARRAY_A
 		);
 
 		// Group by vehicle ID
 		$availability_by_vehicle = array();
-		foreach ($bookings as $booking) {
+		foreach ( $bookings as $booking ) {
 			$vehicle_id = $booking['vehicle_id'];
-			if (! isset($availability_by_vehicle[$vehicle_id])) {
-				$availability_by_vehicle[$vehicle_id] = array();
+			if ( ! isset( $availability_by_vehicle[ $vehicle_id ] ) ) {
+				$availability_by_vehicle[ $vehicle_id ] = array();
 			}
-			$availability_by_vehicle[$vehicle_id][] = $booking;
+			$availability_by_vehicle[ $vehicle_id ][] = $booking;
 		}
 
 		return $availability_by_vehicle;
@@ -331,13 +323,12 @@ final class PerformanceHelper
 	 * @param array  $params Query parameters
 	 * @return array [sql, params]
 	 */
-	public static function optimize_query(string $sql, array $params = array()): array
-	{
+	public static function optimize_query( string $sql, array $params = array() ): array {
 		// Add query optimization hints
 		$optimized_sql = $sql;
 
 		// Add index hints for common patterns
-		if (strpos($sql, 'vehicle_booking') !== false && strpos($sql, 'postmeta') !== false) {
+		if ( strpos( $sql, 'vehicle_booking' ) !== false && strpos( $sql, 'postmeta' ) !== false ) {
 			// This is a booking query - ensure proper indexing
 			$optimized_sql = str_replace(
 				'FROM {$wpdb->posts} p',
@@ -346,7 +337,7 @@ final class PerformanceHelper
 			);
 		}
 
-		return array($optimized_sql, $params);
+		return array( $optimized_sql, $params );
 	}
 
 	/**
@@ -355,11 +346,10 @@ final class PerformanceHelper
 	 * @param string $context Context name
 	 * @return array [current, peak, context]
 	 */
-	public static function get_memory_usage(string $context = ''): array
-	{
+	public static function get_memory_usage( string $context = '' ): array {
 		return array(
-			'current'   => memory_get_usage(true),
-			'peak'      => memory_get_peak_usage(true),
+			'current'   => memory_get_usage( true ),
+			'peak'      => memory_get_peak_usage( true ),
 			'context'   => $context,
 			'timestamp' => time(),
 		);
@@ -370,8 +360,7 @@ final class PerformanceHelper
 	 *
 	 * @return int Number of database queries executed
 	 */
-	public static function get_query_count(): int
-	{
+	public static function get_query_count(): int {
 		global $wpdb;
 		return $wpdb->num_queries;
 	}
@@ -383,21 +372,20 @@ final class PerformanceHelper
 	 * @param string   $context Context name
 	 * @return array [result, time_ms, memory_usage]
 	 */
-	public static function time_execution(callable $callback, string $context = ''): array
-	{
-		$start_time    = microtime(true);
-		$start_memory  = memory_get_usage(true);
+	public static function time_execution( callable $callback, string $context = '' ): array {
+		$start_time    = microtime( true );
+		$start_memory  = memory_get_usage( true );
 		$start_queries = self::get_query_count();
 
 		$result = $callback();
 
-		$end_time    = microtime(true);
-		$end_memory  = memory_get_usage(true);
+		$end_time    = microtime( true );
+		$end_memory  = memory_get_usage( true );
 		$end_queries = self::get_query_count();
 
 		return array(
 			'result'           => $result,
-			'execution_time'   => round(($end_time - $start_time) * 1000, 2), // milliseconds
+			'execution_time'   => round( ( $end_time - $start_time ) * 1000, 2 ), // milliseconds
 			'memory_used'      => $end_memory - $start_memory,
 			'queries_executed' => $end_queries - $start_queries,
 			'context'          => $context,
@@ -413,24 +401,23 @@ final class PerformanceHelper
 	 * @param string   $cache_key Cache key
 	 * @return array [items, total, has_more]
 	 */
-	public static function lazy_load_data(callable $data_loader, int $page = 1, int $per_page = 20, string $cache_key = ''): array
-	{
-		$offset = ($page - 1) * $per_page;
+	public static function lazy_load_data( callable $data_loader, int $page = 1, int $per_page = 20, string $cache_key = '' ): array {
+		$offset = ( $page - 1 ) * $per_page;
 
 		// Try cache first
-		if ($cache_key) {
-			$cached = self::cache_get("lazy_load_{$cache_key}_page_{$page}");
-			if ($cached !== null) {
+		if ( $cache_key ) {
+			$cached = self::cache_get( "lazy_load_{$cache_key}_page_{$page}" );
+			if ( $cached !== null ) {
 				return $cached;
 			}
 		}
 
 		// Load data
-		$result = $data_loader($per_page, $offset);
+		$result = $data_loader( $per_page, $offset );
 
 		// Cache result
-		if ($cache_key) {
-			self::cache_set("lazy_load_{$cache_key}_page_{$page}", $result, 1800); // 30 minutes
+		if ( $cache_key ) {
+			self::cache_set( "lazy_load_{$cache_key}_page_{$page}", $result, 1800 ); // 30 minutes
 		}
 
 		return $result;
@@ -441,11 +428,10 @@ final class PerformanceHelper
 	 *
 	 * @return int Number of cache entries cleared
 	 */
-	public static function clear_all_caches(): int
-	{
+	public static function clear_all_caches(): int {
 		global $wpdb;
 
-		$prefix_like = $wpdb->esc_like('_transient_' . self::CACHE_PREFIX) . '%';
+		$prefix_like = $wpdb->esc_like( '_transient_' . self::CACHE_PREFIX ) . '%';
 		return $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
@@ -459,11 +445,10 @@ final class PerformanceHelper
 	 *
 	 * @return array Cache statistics
 	 */
-	public static function get_cache_stats(): array
-	{
+	public static function get_cache_stats(): array {
 		global $wpdb;
 
-		$prefix_like = $wpdb->esc_like('_transient_' . self::CACHE_PREFIX) . '%';
+		$prefix_like = $wpdb->esc_like( '_transient_' . self::CACHE_PREFIX ) . '%';
 		$stats       = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT COUNT(*) as total_entries, SUM(CHAR_LENGTH(option_value)) as total_size, AVG(CHAR_LENGTH(option_value)) as avg_size FROM {$wpdb->options} WHERE option_name LIKE %s",
@@ -475,8 +460,8 @@ final class PerformanceHelper
 		return array(
 			'total_entries'    => (int) $stats['total_entries'],
 			'total_size_bytes' => (int) $stats['total_size'],
-			'avg_size_bytes'   => round((float) $stats['avg_size'], 2),
-			'total_size_mb'    => round((int) $stats['total_size'] / 1024 / 1024, 2),
+			'avg_size_bytes'   => round( (float) $stats['avg_size'], 2 ),
+			'total_size_mb'    => round( (int) $stats['total_size'] / 1024 / 1024, 2 ),
 		);
 	}
 }

@@ -8,44 +8,43 @@ use MHMRentiva\Admin\PostTypes\Message\Message;
 use MHMRentiva\Admin\Core\Utilities\MetaQueryHelper;
 use MHMRentiva\Admin\Core\Utilities\TypeValidator;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class MessageQuery
-{
+final class MessageQuery {
+
 
 	/**
 	 * Message list query for admin
 	 *
 	 * Optimized query using central MetaQueryHelper
 	 */
-	public static function getAdminMessages(?string $status = null, ?string $category = null, int $per_page = 20, int $page = 1): array
-	{
+	public static function getAdminMessages( ?string $status = null, ?string $category = null, int $per_page = 20, int $page = 1 ): array {
 		global $wpdb;
 
 		$where_clauses = array(
-			$wpdb->prepare('p.post_type = %s', Message::POST_TYPE),
+			$wpdb->prepare( 'p.post_type = %s', Message::POST_TYPE ),
 			"p.post_status = 'publish'",
 		);
 
-		if ($status) {
-			$where_clauses[] = $wpdb->prepare('pm_status.meta_value = %s', $status);
+		if ( $status ) {
+			$where_clauses[] = $wpdb->prepare( 'pm_status.meta_value = %s', $status );
 		}
 
-		if ($category) {
-			$where_clauses[] = $wpdb->prepare('pm_category.meta_value = %s', $category);
+		if ( $category ) {
+			$where_clauses[] = $wpdb->prepare( 'pm_category.meta_value = %s', $category );
 		}
 
-		$offset = ($page - 1) * $per_page;
+		$offset = ( $page - 1 ) * $per_page;
 
 		// ✅ CODE QUALITY IMPROVEMENT - MetaQueryHelper usage
 		$meta_joins = MetaQueryHelper::get_message_meta_joins();
 
 		// Build query parts safely
-		$selects_sql = implode(', ', $meta_joins['selects']);
-		$joins_sql   = implode(' ', $meta_joins['joins']);
-		$where_sql   = implode(' AND ', $where_clauses);
+		$selects_sql = implode( ', ', $meta_joins['selects'] );
+		$joins_sql   = implode( ' ', $meta_joins['joins'] );
+		$where_sql   = implode( ' AND ', $where_clauses );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query components use prepared values; structure is safe.
 		$query = $wpdb->prepare(
@@ -63,23 +62,24 @@ final class MessageQuery
 			$offset
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
-		$messages = $wpdb->get_results($query);
-		$total    = (int) $wpdb->get_var('SELECT FOUND_ROWS()');
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query is prepared above.
+		$messages = $wpdb->get_results( $query );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Used with SQL_CALC_FOUND_ROWS
+		$total = (int) $wpdb->get_var( 'SELECT FOUND_ROWS()' );
 
 		// Format meta data
-		foreach ($messages as &$message) {
-			$message->customer_name  = $message->customer_name ?: __('Anonymous', 'mhm-rentiva');
-			$message->category_label = Message::get_categories()[$message->category] ?? $message->category;
-			$message->status_label   = Message::get_statuses()[$message->status] ?? $message->status;
+		foreach ( $messages as &$message ) {
+			$message->customer_name  = $message->customer_name ?: __( 'Anonymous', 'mhm-rentiva' );
+			$message->category_label = Message::get_categories()[ $message->category ] ?? $message->category;
+			$message->status_label   = Message::get_statuses()[ $message->status ] ?? $message->status;
 			$message->is_read        = (bool) $message->is_read;
-			$message->date_human     = human_time_diff(strtotime($message->date), current_time('timestamp')) . ' ' . __('ago', 'mhm-rentiva');
+			$message->date_human     = human_time_diff( strtotime( $message->date ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'mhm-rentiva' );
 		}
 
 		return array(
 			'messages'     => $messages,
 			'total'        => $total,
-			'pages'        => ceil($total / $per_page),
+			'pages'        => ceil( $total / $per_page ),
 			'current_page' => $page,
 		);
 	}
@@ -87,16 +87,15 @@ final class MessageQuery
 	/**
 	 * Customer messages query
 	 */
-	public static function getCustomerMessages(string $customer_email): array
-	{
+	public static function getCustomerMessages( string $customer_email ): array {
 		global $wpdb;
 
 		// ✅ CODE QUALITY IMPROVEMENT - MetaQueryHelper usage
 		$meta_joins = MetaQueryHelper::get_message_meta_joins();
 
 		// Build query parts safely
-		$selects_sql = implode(', ', $meta_joins['selects']);
-		$joins_sql   = implode(' ', $meta_joins['joins']);
+		$selects_sql = implode( ', ', $meta_joins['selects'] );
+		$joins_sql   = implode( ' ', $meta_joins['joins'] );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query components use prepared values; structure is safe.
 		$query = $wpdb->prepare(
@@ -116,26 +115,26 @@ final class MessageQuery
 			$customer_email
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
-		$messages = $wpdb->get_results($query);
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query is prepared above.
+		$messages = $wpdb->get_results( $query );
 
 		// Format data
-		foreach ($messages as &$message) {
-			$message->category_label = Message::get_categories()[$message->category] ?? $message->category;
-			$message->status_label   = Message::get_statuses()[$message->status] ?? $message->status;
-			$message->priority_label = \MHMRentiva\Admin\Messages\Settings\MessagesSettings::get_priorities()[$message->priority ?? 'normal'] ?? __('Normal', 'mhm-rentiva');
+		foreach ( $messages as &$message ) {
+			$message->category_label = Message::get_categories()[ $message->category ] ?? $message->category;
+			$message->status_label   = Message::get_statuses()[ $message->status ] ?? $message->status;
+			$message->priority_label = \MHMRentiva\Admin\Messages\Settings\MessagesSettings::get_priorities()[ $message->priority ?? 'normal' ] ?? __( 'Normal', 'mhm-rentiva' );
 			$message->is_read        = (bool) $message->is_read;
-			$message->date_human     = human_time_diff(strtotime($message->date), current_time('timestamp')) . ' ' . __('ago', 'mhm-rentiva');
+			$message->date_human     = human_time_diff( strtotime( $message->date ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'mhm-rentiva' );
 			// Full date and time format
-			$message->date_full = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($message->date));
-			$message->preview   = wp_strip_all_tags($message->preview) . (strlen($message->preview) > 97 ? '...' : '');
+			$message->date_full = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $message->date ) );
+			$message->preview   = wp_strip_all_tags( $message->preview ) . ( strlen( $message->preview ) > 97 ? '...' : '' );
 			// Convert parent_message_id to integer (0 means no parent)
-			$message->parent_message_id = isset($message->parent_message_id) ? (int) $message->parent_message_id : 0;
+			$message->parent_message_id = isset( $message->parent_message_id ) ? (int) $message->parent_message_id : 0;
 
 			// Check if there are unread admin replies in the thread
-			$thread_id = isset($message->thread_id) ? (int) $message->thread_id : 0;
-			if ($thread_id > 0) {
-				$unread_admin_replies = $wpdb->get_var(
+			$thread_id = isset( $message->thread_id ) ? (int) $message->thread_id : 0;
+			if ( $thread_id > 0 ) {
+				$unread_admin_replies            = $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT COUNT(p.ID)
 						FROM {$wpdb->posts} p
@@ -150,7 +149,7 @@ final class MessageQuery
 						$thread_id,
 						Message::POST_TYPE
 					)
-				);
+				); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 				$message->has_unread_admin_reply = (int) $unread_admin_replies > 0;
 			} else {
 				$message->has_unread_admin_reply = false;
@@ -160,7 +159,7 @@ final class MessageQuery
 		$unread_count = count(
 			array_filter(
 				$messages,
-				function ($msg) {
+				function ( $msg ) {
 					return ! $msg->is_read;
 				}
 			)
@@ -175,8 +174,7 @@ final class MessageQuery
 	/**
 	 * Thread verification
 	 */
-	public static function verifyCustomerThread($thread_id, string $customer_email): bool
-	{
+	public static function verifyCustomerThread( $thread_id, string $customer_email ): bool {
 		global $wpdb;
 
 		$thread_check = $wpdb->get_var(

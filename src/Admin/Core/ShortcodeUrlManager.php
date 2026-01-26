@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -16,8 +16,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.0.0
  */
-final class ShortcodeUrlManager
-{
+final class ShortcodeUrlManager {
+
 
 	/**
 	 * Cache group for shortcode mappings.
@@ -44,37 +44,36 @@ final class ShortcodeUrlManager
 	 * @param string $shortcode Shortcode name (e.g. 'rentiva_my_account')
 	 * @return string Validated Page URL
 	 */
-	public static function get_page_url(string $shortcode): string
-	{
+	public static function get_page_url( string $shortcode ): string {
 		// 1. Check runtime cache
-		if (isset(self::$runtime_cache[$shortcode])) {
-			return self::$runtime_cache[$shortcode];
+		if ( isset( self::$runtime_cache[ $shortcode ] ) ) {
+			return self::$runtime_cache[ $shortcode ];
 		}
 
 		// 2. PRIORITY: Check Plugin Settings for manual URL override
-		$settings    = get_option('mhm_rentiva_settings', array());
-		$setting_key = self::get_setting_key_for_shortcode($shortcode);
+		$settings    = get_option( 'mhm_rentiva_settings', array() );
+		$setting_key = self::get_setting_key_for_shortcode( $shortcode );
 
-		if ($setting_key && ! empty($settings[$setting_key])) {
-			$url                               = esc_url((string) $settings[$setting_key]);
-			self::$runtime_cache[$shortcode] = $url;
+		if ( $setting_key && ! empty( $settings[ $setting_key ] ) ) {
+			$url                               = esc_url( (string) $settings[ $setting_key ] );
+			self::$runtime_cache[ $shortcode ] = $url;
 			return $url;
 		}
 
 		// 3. FALLBACK: Find page containing the shortcode in DB
-		$page_id = self::get_page_id($shortcode);
+		$page_id = self::get_page_id( $shortcode );
 
-		if ($page_id) {
-			$url                               = (string) get_permalink($page_id);
-			self::$runtime_cache[$shortcode] = $url;
+		if ( $page_id ) {
+			$url                               = (string) get_permalink( $page_id );
+			self::$runtime_cache[ $shortcode ] = $url;
 			return $url;
 		}
 
 		// 4. FINAL FALLBACK: Register missing notice and return home
-		self::register_missing_notice($shortcode);
+		self::register_missing_notice( $shortcode );
 
-		$fallback                          = home_url('/');
-		self::$runtime_cache[$shortcode] = $fallback;
+		$fallback                          = home_url( '/' );
+		self::$runtime_cache[ $shortcode ] = $fallback;
 		return $fallback;
 	}
 
@@ -84,14 +83,13 @@ final class ShortcodeUrlManager
 	 * @param string $shortcode Shortcode name.
 	 * @return int|null Page ID or null if not found.
 	 */
-	public static function get_page_id(string $shortcode): ?int
-	{
+	public static function get_page_id( string $shortcode ): ?int {
 		global $wpdb;
 
 		$cache_key = 'page_id_' . $shortcode;
-		$cached_id = wp_cache_get($cache_key, self::CACHE_GROUP);
+		$cached_id = wp_cache_get( $cache_key, self::CACHE_GROUP );
 
-		if (false !== $cached_id) {
+		if ( false !== $cached_id ) {
 			return $cached_id > 0 ? (int) $cached_id : null;
 		}
 
@@ -112,13 +110,13 @@ final class ShortcodeUrlManager
                   AND (post_content LIKE %s OR post_content LIKE %s)
                   ORDER BY post_date DESC 
                   LIMIT 1",
-				'%[' . $wpdb->esc_like($shortcode) . ']%',
-				'%[' . $wpdb->esc_like($shortcode) . ' %]%'
+				'%[' . $wpdb->esc_like( $shortcode ) . ']%',
+				'%[' . $wpdb->esc_like( $shortcode ) . ' %]%'
 			)
 		);
 
 		$page_id = $page_id ? (int) $page_id : 0;
-		wp_cache_set($cache_key, $page_id, self::CACHE_GROUP, HOUR_IN_SECONDS);
+		wp_cache_set( $cache_key, $page_id, self::CACHE_GROUP, HOUR_IN_SECONDS );
 
 		return $page_id > 0 ? $page_id : null;
 	}
@@ -128,8 +126,7 @@ final class ShortcodeUrlManager
 	 *
 	 * @return array<string>
 	 */
-	public static function get_all_shortcodes(): array
-	{
+	public static function get_all_shortcodes(): array {
 		return array(
 			'rentiva_my_bookings',
 			'rentiva_my_favorites',
@@ -157,9 +154,8 @@ final class ShortcodeUrlManager
 	 * @param string $shortcode
 	 * @return bool
 	 */
-	public static function page_exists(string $shortcode): bool
-	{
-		return self::get_page_id($shortcode) !== null;
+	public static function page_exists( string $shortcode ): bool {
+		return self::get_page_id( $shortcode ) !== null;
 	}
 
 	/**
@@ -167,14 +163,13 @@ final class ShortcodeUrlManager
 	 *
 	 * @return array<string, array{id: int|null, url: string}>
 	 */
-	public function get_all_pages(): array
-	{
+	public function get_all_pages(): array {
 		$pages = array();
-		foreach (self::get_all_shortcodes() as $shortcode) {
-			$page_id             = self::get_page_id($shortcode);
-			$pages[$shortcode] = array(
+		foreach ( self::get_all_shortcodes() as $shortcode ) {
+			$page_id             = self::get_page_id( $shortcode );
+			$pages[ $shortcode ] = array(
 				'id'  => $page_id,
-				'url' => $page_id ? (string) get_permalink($page_id) : '',
+				'url' => $page_id ? (string) get_permalink( $page_id ) : '',
 			);
 		}
 		return $pages;
@@ -186,8 +181,7 @@ final class ShortcodeUrlManager
 	 * @param string $shortcode
 	 * @return string|null
 	 */
-	private static function get_setting_key_for_shortcode(string $shortcode): ?string
-	{
+	private static function get_setting_key_for_shortcode( string $shortcode ): ?string {
 		$mapping = array(
 			'rentiva_booking_form'          => 'mhm_rentiva_booking_url',
 			'rentiva_my_bookings'           => 'mhm_rentiva_my_bookings_url',
@@ -205,7 +199,7 @@ final class ShortcodeUrlManager
 			'mhm_rentiva_transfer_search'   => 'mhm_rentiva_transfer_url',
 		);
 
-		return $mapping[$shortcode] ?? null;
+		return $mapping[ $shortcode ] ?? null;
 	}
 
 	/**
@@ -213,25 +207,24 @@ final class ShortcodeUrlManager
 	 *
 	 * @param string $shortcode
 	 */
-	private static function register_missing_notice(string $shortcode): void
-	{
-		if (! is_admin() || ! current_user_can('manage_options')) {
+	private static function register_missing_notice( string $shortcode ): void {
+		if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
-		$transient_key = 'mhm_miss_sc_' . md5($shortcode);
-		if (get_transient($transient_key)) {
+		$transient_key = 'mhm_miss_sc_' . md5( $shortcode );
+		if ( get_transient( $transient_key ) ) {
 			return;
 		}
 
 		self::$missing_notices[] = $shortcode;
 
 		// Ensure the hook is added only once.
-		if (! has_action('admin_notices', array(self::class, 'display_admin_notices'))) {
-			add_action('admin_notices', array(self::class, 'display_admin_notices'));
+		if ( ! has_action( 'admin_notices', array( self::class, 'display_admin_notices' ) ) ) {
+			add_action( 'admin_notices', array( self::class, 'display_admin_notices' ) );
 		}
 
-		set_transient($transient_key, true, HOUR_IN_SECONDS);
+		set_transient( $transient_key, true, HOUR_IN_SECONDS );
 	}
 
 	/**
@@ -239,18 +232,17 @@ final class ShortcodeUrlManager
 	 *
 	 * @internal Hooked to admin_notices
 	 */
-	public static function display_admin_notices(): void
-	{
-		foreach (array_unique(self::$missing_notices) as $shortcode) {
+	public static function display_admin_notices(): void {
+		foreach ( array_unique( self::$missing_notices ) as $shortcode ) {
 			echo '<div class="notice notice-warning is-dismissible">';
-			echo '<p><strong>' . esc_html__('MHM Rentiva:', 'mhm-rentiva') . '</strong> ';
+			echo '<p><strong>' . esc_html__( 'MHM Rentiva:', 'mhm-rentiva' ) . '</strong> ';
 			printf(
 				/* translators: %s: shortcode name */
-				esc_html__('No page found containing the [%s] shortcode. ', 'mhm-rentiva'),
-				'<code>' . esc_html($shortcode) . '</code>'
+				esc_html__( 'No page found containing the [%s] shortcode. ', 'mhm-rentiva' ),
+				'<code>' . esc_html( $shortcode ) . '</code>'
 			);
-			echo '<a href="' . esc_url(admin_url('post-new.php?post_type=page')) . '">';
-			echo esc_html__('Create a new page and add the shortcode.', 'mhm-rentiva');
+			echo '<a href="' . esc_url( admin_url( 'post-new.php?post_type=page' ) ) . '">';
+			echo esc_html__( 'Create a new page and add the shortcode.', 'mhm-rentiva' );
 			echo '</a>';
 			echo '</p>';
 			echo '</div>';
@@ -262,13 +254,12 @@ final class ShortcodeUrlManager
 	 *
 	 * @param string|null $shortcode Specific shortcode or null for all.
 	 */
-	public static function clear_cache(?string $shortcode = null): void
-	{
-		$shortcodes = $shortcode ? array($shortcode) : self::get_all_shortcodes();
+	public static function clear_cache( ?string $shortcode = null ): void {
+		$shortcodes = $shortcode ? array( $shortcode ) : self::get_all_shortcodes();
 
-		foreach ($shortcodes as $sc) {
-			wp_cache_delete('page_id_' . $sc, self::CACHE_GROUP);
-			delete_transient('mhm_miss_sc_' . md5($sc));
+		foreach ( $shortcodes as $sc ) {
+			wp_cache_delete( 'page_id_' . $sc, self::CACHE_GROUP );
+			delete_transient( 'mhm_miss_sc_' . md5( $sc ) );
 		}
 
 		self::$runtime_cache = array();
@@ -279,20 +270,19 @@ final class ShortcodeUrlManager
 	 *
 	 * @param int $post_id
 	 */
-	public static function clear_cache_on_page_update(int $post_id): void
-	{
-		if (wp_is_post_revision($post_id) || get_post_type($post_id) !== 'page') {
+	public static function clear_cache_on_page_update( int $post_id ): void {
+		if ( wp_is_post_revision( $post_id ) || get_post_type( $post_id ) !== 'page' ) {
 			return;
 		}
 
-		$content = get_post_field('post_content', $post_id);
-		if (empty($content)) {
+		$content = get_post_field( 'post_content', $post_id );
+		if ( empty( $content ) ) {
 			return;
 		}
 
-		foreach (self::get_all_shortcodes() as $shortcode) {
-			if (has_shortcode($content, $shortcode)) {
-				self::clear_cache($shortcode);
+		foreach ( self::get_all_shortcodes() as $shortcode ) {
+			if ( has_shortcode( $content, $shortcode ) ) {
+				self::clear_cache( $shortcode );
 			}
 		}
 	}

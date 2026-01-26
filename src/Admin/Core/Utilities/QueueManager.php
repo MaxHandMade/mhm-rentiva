@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -13,8 +13,8 @@ if (! defined('ABSPATH')) {
  *
  * Queue-based job management for large datasets
  */
-final class QueueManager
-{
+final class QueueManager {
+
 
 
 	/**
@@ -47,8 +47,7 @@ final class QueueManager
 	/**
 	 * Create queue table
 	 */
-	public static function create_table(): void
-	{
+	public static function create_table(): void {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
@@ -81,14 +80,13 @@ final class QueueManager
         ) {$charset_collate};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta($sql);
+		dbDelta( $sql );
 	}
 
 	/**
 	 * Add job
 	 */
-	public static function add_job(string $job_type, array $job_data, int $priority = 10, int $max_attempts = 3, ?int $user_id = null): int
-	{
+	public static function add_job( string $job_type, array $job_data, int $priority = 10, int $max_attempts = 3, ?int $user_id = null ): int {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
@@ -97,16 +95,16 @@ final class QueueManager
 			$table_name,
 			array(
 				'job_type'     => $job_type,
-				'job_data'     => wp_json_encode($job_data, JSON_UNESCAPED_UNICODE),
+				'job_data'     => wp_json_encode( $job_data, JSON_UNESCAPED_UNICODE ),
 				'priority'     => $priority,
 				'max_attempts' => $max_attempts,
 				'user_id'      => $user_id ?: get_current_user_id(),
 				'status'       => self::STATUS_PENDING,
 			),
-			array('%s', '%s', '%d', '%d', '%d', '%s')
+			array( '%s', '%s', '%d', '%d', '%d', '%s' )
 		);
 
-		if ($result === false) {
+		if ( $result === false ) {
 			return 0;
 		}
 
@@ -119,8 +117,7 @@ final class QueueManager
 	/**
 	 * Get job (FIFO + priority)
 	 */
-	public static function get_next_job(): ?array
-	{
+	public static function get_next_job(): ?array {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
@@ -137,7 +134,7 @@ final class QueueManager
 			ARRAY_A
 		);
 
-		if (! $job) {
+		if ( ! $job ) {
 			return null;
 		}
 
@@ -146,16 +143,16 @@ final class QueueManager
 			$table_name,
 			array(
 				'status'     => self::STATUS_PROCESSING,
-				'started_at' => current_time('mysql'),
+				'started_at' => current_time( 'mysql' ),
 				'attempts'   => $job['attempts'] + 1,
 			),
-			array('id' => $job['id']),
-			array('%s', '%s', '%d'),
-			array('%d')
+			array( 'id' => $job['id'] ),
+			array( '%s', '%s', '%d' ),
+			array( '%d' )
 		);
 
 		// Decode job data
-		$job['job_data'] = json_decode($job['job_data'], true) ?: array();
+		$job['job_data'] = json_decode( $job['job_data'], true ) ?: array();
 
 		return $job;
 	}
@@ -163,26 +160,25 @@ final class QueueManager
 	/**
 	 * Update job status
 	 */
-	public static function update_job_status(int $job_id, string $status, ?string $error_message = null, ?int $progress_percent = null): bool
-	{
+	public static function update_job_status( int $job_id, string $status, ?string $error_message = null, ?int $progress_percent = null ): bool {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
 
-		$update_data   = array('status' => $status);
-		$update_format = array('%s');
+		$update_data   = array( 'status' => $status );
+		$update_format = array( '%s' );
 
-		if ($status === self::STATUS_COMPLETED) {
-			$update_data['completed_at']     = current_time('mysql');
+		if ( $status === self::STATUS_COMPLETED ) {
+			$update_data['completed_at']     = current_time( 'mysql' );
 			$update_data['progress_percent'] = 100;
 			$update_format[]                 = '%s';
 			$update_format[]                 = '%d';
-		} elseif ($status === self::STATUS_FAILED && $error_message) {
+		} elseif ( $status === self::STATUS_FAILED && $error_message ) {
 			$update_data['error_message'] = $error_message;
 			$update_format[]              = '%s';
 		}
 
-		if ($progress_percent !== null) {
+		if ( $progress_percent !== null ) {
 			$update_data['progress_percent'] = $progress_percent;
 			$update_format[]                 = '%d';
 		}
@@ -190,9 +186,9 @@ final class QueueManager
 		$result = $wpdb->update(
 			$table_name,
 			$update_data,
-			array('id' => $job_id),
+			array( 'id' => $job_id ),
 			$update_format,
-			array('%d')
+			array( '%d' )
 		);
 
 		return $result !== false;
@@ -201,13 +197,12 @@ final class QueueManager
 	/**
 	 * Update job progress
 	 */
-	public static function update_job_progress(int $job_id, int $processed_items, int $total_items): bool
-	{
+	public static function update_job_progress( int $job_id, int $processed_items, int $total_items ): bool {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
 
-		$progress_percent = $total_items > 0 ? round(($processed_items / $total_items) * 100) : 0;
+		$progress_percent = $total_items > 0 ? round( ( $processed_items / $total_items ) * 100 ) : 0;
 
 		return $wpdb->update(
 			$table_name,
@@ -216,37 +211,34 @@ final class QueueManager
 				'total_items'      => $total_items,
 				'progress_percent' => $progress_percent,
 			),
-			array('id' => $job_id),
-			array('%d', '%d', '%d'),
-			array('%d')
+			array( 'id' => $job_id ),
+			array( '%d', '%d', '%d' ),
+			array( '%d' )
 		) !== false;
 	}
 
 	/**
 	 * Cancel job
 	 */
-	public static function cancel_job(int $job_id): bool
-	{
-		return self::update_job_status($job_id, self::STATUS_CANCELLED);
+	public static function cancel_job( int $job_id ): bool {
+		return self::update_job_status( $job_id, self::STATUS_CANCELLED );
 	}
 
 	/**
 	 * Delete job
 	 */
-	public static function delete_job(int $job_id): bool
-	{
+	public static function delete_job( int $job_id ): bool {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
 
-		return $wpdb->delete($table_name, array('id' => $job_id), array('%d')) !== false;
+		return $wpdb->delete( $table_name, array( 'id' => $job_id ), array( '%d' ) ) !== false;
 	}
 
 	/**
 	 * Get job details
 	 */
-	public static function get_job(int $job_id): ?array
-	{
+	public static function get_job( int $job_id ): ?array {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
@@ -259,11 +251,11 @@ final class QueueManager
 			ARRAY_A
 		);
 
-		if (! $job) {
+		if ( ! $job ) {
 			return null;
 		}
 
-		$job['job_data'] = json_decode($job['job_data'], true) ?: array();
+		$job['job_data'] = json_decode( $job['job_data'], true ) ?: array();
 
 		return $job;
 	}
@@ -271,23 +263,22 @@ final class QueueManager
 	/**
 	 * Get user jobs
 	 */
-	public static function get_user_jobs(int $user_id, string $status = '', int $limit = 50): array
-	{
+	public static function get_user_jobs( int $user_id, string $status = '', int $limit = 50 ): array {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
 
-		$where_conditions = array('user_id = %d');
-		$where_values     = array($user_id);
+		$where_conditions = array( 'user_id = %d' );
+		$where_values     = array( $user_id );
 
-		if (! empty($status)) {
+		if ( ! empty( $status ) ) {
 			$where_conditions[] = 'status = %s';
 			$where_values[]     = $status;
 		}
 
-		$where_clause = implode(' AND ', $where_conditions);
+		$where_clause = implode( ' AND ', $where_conditions );
 
-		if (empty($where_conditions)) {
+		if ( empty( $where_conditions ) ) {
 			$jobs = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT * FROM {$table_name} 
@@ -299,15 +290,15 @@ final class QueueManager
 			);
 		} else {
 			// Check placeholder count
-			$placeholder_count = substr_count($where_clause, '%');
-			if ($placeholder_count === count($where_values)) {
+			$placeholder_count = substr_count( $where_clause, '%' );
+			if ( $placeholder_count === count( $where_values ) ) {
 				$jobs = $wpdb->get_results(
 					$wpdb->prepare(
 						"SELECT * FROM `{$table_name}` 
                      WHERE {$where_clause}
                      ORDER BY created_at DESC 
                      LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge($where_values, array($limit))
+						array_merge( $where_values, array( $limit ) )
 					),
 					ARRAY_A
 				);
@@ -325,8 +316,8 @@ final class QueueManager
 			}
 		}
 
-		foreach ($jobs as &$job) {
-			$job['job_data'] = json_decode($job['job_data'], true) ?: array();
+		foreach ( $jobs as &$job ) {
+			$job['job_data'] = json_decode( $job['job_data'], true ) ?: array();
 		}
 
 		return $jobs;
@@ -335,8 +326,7 @@ final class QueueManager
 	/**
 	 * Queue statistics
 	 */
-	public static function get_queue_stats(): array
-	{
+	public static function get_queue_stats(): array {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
@@ -360,12 +350,11 @@ final class QueueManager
 	/**
 	 * Clean up old jobs
 	 */
-	public static function cleanup_old_jobs(int $days = 30): int
-	{
+	public static function cleanup_old_jobs( int $days = 30 ): int {
 		global $wpdb;
 
 		$table_name  = $wpdb->prefix . self::QUEUE_TABLE;
-		$cutoff_date = gmdate('Y-m-d H:i:s', strtotime("-{$days} days"));
+		$cutoff_date = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
 		return $wpdb->query(
 			$wpdb->prepare(
@@ -382,8 +371,7 @@ final class QueueManager
 	/**
 	 * Retry failed jobs
 	 */
-	public static function retry_failed_jobs(): int
-	{
+	public static function retry_failed_jobs(): int {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
@@ -398,27 +386,25 @@ final class QueueManager
 			array(
 				'status' => self::STATUS_FAILED,
 			),
-			array('%s', '%s', '%d'),
-			array('%s')
+			array( '%s', '%s', '%d' ),
+			array( '%s' )
 		);
 	}
 
 	/**
 	 * Start queue processing (if needed)
 	 */
-	public static function maybe_start_processing(): void
-	{
+	public static function maybe_start_processing(): void {
 		// If cron job is not running, start manually
-		if (! wp_next_scheduled('mhm_rentiva_process_queue')) {
-			wp_schedule_single_event(time(), 'mhm_rentiva_process_queue');
+		if ( ! wp_next_scheduled( 'mhm_rentiva_process_queue' ) ) {
+			wp_schedule_single_event( time(), 'mhm_rentiva_process_queue' );
 		}
 	}
 
 	/**
 	 * Bulk booking update job
 	 */
-	public static function add_bulk_booking_update_job(array $booking_ids, array $update_data, int $user_id = 0): int
-	{
+	public static function add_bulk_booking_update_job( array $booking_ids, array $update_data, int $user_id = 0 ): int {
 		return self::add_job(
 			self::TYPE_BULK_BOOKING_UPDATE,
 			array(
@@ -434,8 +420,7 @@ final class QueueManager
 	/**
 	 * Bulk vehicle update job
 	 */
-	public static function add_bulk_vehicle_update_job(array $vehicle_ids, array $update_data, int $user_id = 0): int
-	{
+	public static function add_bulk_vehicle_update_job( array $vehicle_ids, array $update_data, int $user_id = 0 ): int {
 		return self::add_job(
 			self::TYPE_BULK_VEHICLE_UPDATE,
 			array(
@@ -451,8 +436,7 @@ final class QueueManager
 	/**
 	 * Bulk email send job
 	 */
-	public static function add_bulk_email_job(array $recipients, string $subject, string $template, array $template_data, int $user_id = 0): int
-	{
+	public static function add_bulk_email_job( array $recipients, string $subject, string $template, array $template_data, int $user_id = 0 ): int {
 		return self::add_job(
 			self::TYPE_BULK_EMAIL_SEND,
 			array(
@@ -470,8 +454,7 @@ final class QueueManager
 	/**
 	 * Bulk export job
 	 */
-	public static function add_bulk_export_job(string $export_type, array $filters, string $format, int $user_id = 0): int
-	{
+	public static function add_bulk_export_job( string $export_type, array $filters, string $format, int $user_id = 0 ): int {
 		return self::add_job(
 			self::TYPE_BULK_EXPORT,
 			array(
@@ -488,8 +471,7 @@ final class QueueManager
 	/**
 	 * Cache warmup job
 	 */
-	public static function add_cache_warmup_job(array $cache_keys, int $user_id = 0): int
-	{
+	public static function add_cache_warmup_job( array $cache_keys, int $user_id = 0 ): int {
 		return self::add_job(
 			self::TYPE_CACHE_WARMUP,
 			array(
@@ -504,31 +486,30 @@ final class QueueManager
 	/**
 	 * Job processor - process different job types
 	 */
-	public static function process_job(array $job): bool
-	{
+	public static function process_job( array $job ): bool {
 		try {
-			switch ($job['job_type']) {
+			switch ( $job['job_type'] ) {
 				case self::TYPE_BULK_BOOKING_UPDATE:
-					return self::process_bulk_booking_update($job);
+					return self::process_bulk_booking_update( $job );
 
 				case self::TYPE_BULK_VEHICLE_UPDATE:
-					return self::process_bulk_vehicle_update($job);
+					return self::process_bulk_vehicle_update( $job );
 
 				case self::TYPE_BULK_EMAIL_SEND:
-					return self::process_bulk_email_send($job);
+					return self::process_bulk_email_send( $job );
 
 				case self::TYPE_BULK_EXPORT:
-					return self::process_bulk_export($job);
+					return self::process_bulk_export( $job );
 
 				case self::TYPE_CACHE_WARMUP:
-					return self::process_cache_warmup($job);
+					return self::process_cache_warmup( $job );
 
 				default:
-					self::update_job_status($job['id'], self::STATUS_FAILED, 'Unknown job type: ' . $job['job_type']);
+					self::update_job_status( $job['id'], self::STATUS_FAILED, 'Unknown job type: ' . $job['job_type'] );
 					return false;
 			}
-		} catch (\Exception $e) {
-			self::update_job_status($job['id'], self::STATUS_FAILED, $e->getMessage());
+		} catch ( \Exception $e ) {
+			self::update_job_status( $job['id'], self::STATUS_FAILED, $e->getMessage() );
 			return false;
 		}
 	}
@@ -536,135 +517,131 @@ final class QueueManager
 	/**
 	 * Bulk booking update processing
 	 */
-	private static function process_bulk_booking_update(array $job): bool
-	{
+	private static function process_bulk_booking_update( array $job ): bool {
 		$booking_ids = $job['job_data']['booking_ids'] ?? array();
 		$update_data = $job['job_data']['update_data'] ?? array();
-		$total_items = count($booking_ids);
+		$total_items = count( $booking_ids );
 
-		if ($total_items === 0) {
-			self::update_job_status($job['id'], self::STATUS_COMPLETED);
+		if ( $total_items === 0 ) {
+			self::update_job_status( $job['id'], self::STATUS_COMPLETED );
 			return true;
 		}
 
-		self::update_job_progress($job['id'], 0, $total_items);
+		self::update_job_progress( $job['id'], 0, $total_items );
 
 		$processed = 0;
-		foreach ($booking_ids as $booking_id) {
+		foreach ( $booking_ids as $booking_id ) {
 			// Check if job is cancelled
-			$current_job = self::get_job($job['id']);
-			if ($current_job && $current_job['status'] === self::STATUS_CANCELLED) {
+			$current_job = self::get_job( $job['id'] );
+			if ( $current_job && $current_job['status'] === self::STATUS_CANCELLED ) {
 				return false;
 			}
 
 			// Update booking
-			foreach ($update_data as $meta_key => $meta_value) {
-				update_post_meta($booking_id, $meta_key, $meta_value);
+			foreach ( $update_data as $meta_key => $meta_value ) {
+				update_post_meta( $booking_id, $meta_key, $meta_value );
 			}
 
 			++$processed;
-			self::update_job_progress($job['id'], $processed, $total_items);
+			self::update_job_progress( $job['id'], $processed, $total_items );
 
 			// Check memory usage
-			if ($processed % 50 === 0) {
+			if ( $processed % 50 === 0 ) {
 				wp_cache_flush();
 			}
 		}
 
-		self::update_job_status($job['id'], self::STATUS_COMPLETED);
+		self::update_job_status( $job['id'], self::STATUS_COMPLETED );
 		return true;
 	}
 
 	/**
 	 * Bulk vehicle update processing
 	 */
-	private static function process_bulk_vehicle_update(array $job): bool
-	{
+	private static function process_bulk_vehicle_update( array $job ): bool {
 		$vehicle_ids = $job['job_data']['vehicle_ids'] ?? array();
 		$update_data = $job['job_data']['update_data'] ?? array();
-		$total_items = count($vehicle_ids);
+		$total_items = count( $vehicle_ids );
 
-		if ($total_items === 0) {
-			self::update_job_status($job['id'], self::STATUS_COMPLETED);
+		if ( $total_items === 0 ) {
+			self::update_job_status( $job['id'], self::STATUS_COMPLETED );
 			return true;
 		}
 
-		self::update_job_progress($job['id'], 0, $total_items);
+		self::update_job_progress( $job['id'], 0, $total_items );
 
 		$processed = 0;
-		foreach ($vehicle_ids as $vehicle_id) {
+		foreach ( $vehicle_ids as $vehicle_id ) {
 			// Check if job is cancelled
-			$current_job = self::get_job($job['id']);
-			if ($current_job && $current_job['status'] === self::STATUS_CANCELLED) {
+			$current_job = self::get_job( $job['id'] );
+			if ( $current_job && $current_job['status'] === self::STATUS_CANCELLED ) {
 				return false;
 			}
 
 			// Update vehicle
-			foreach ($update_data as $meta_key => $meta_value) {
-				update_post_meta($vehicle_id, $meta_key, $meta_value);
+			foreach ( $update_data as $meta_key => $meta_value ) {
+				update_post_meta( $vehicle_id, $meta_key, $meta_value );
 			}
 
 			++$processed;
-			self::update_job_progress($job['id'], $processed, $total_items);
+			self::update_job_progress( $job['id'], $processed, $total_items );
 
 			// Check memory usage
-			if ($processed % 50 === 0) {
+			if ( $processed % 50 === 0 ) {
 				wp_cache_flush();
 			}
 		}
 
-		self::update_job_status($job['id'], self::STATUS_COMPLETED);
+		self::update_job_status( $job['id'], self::STATUS_COMPLETED );
 		return true;
 	}
 
 	/**
 	 * Bulk email send processing
 	 */
-	private static function process_bulk_email_send(array $job): bool
-	{
+	private static function process_bulk_email_send( array $job ): bool {
 		$recipients    = $job['job_data']['recipients'] ?? array();
 		$subject       = $job['job_data']['subject'] ?? '';
 		$template      = $job['job_data']['template'] ?? '';
 		$template_data = $job['job_data']['template_data'] ?? array();
-		$total_items   = count($recipients);
+		$total_items   = count( $recipients );
 
-		if ($total_items === 0) {
-			self::update_job_status($job['id'], self::STATUS_COMPLETED);
+		if ( $total_items === 0 ) {
+			self::update_job_status( $job['id'], self::STATUS_COMPLETED );
 			return true;
 		}
 
-		self::update_job_progress($job['id'], 0, $total_items);
+		self::update_job_progress( $job['id'], 0, $total_items );
 
 		$processed = 0;
-		foreach ($recipients as $recipient) {
+		foreach ( $recipients as $recipient ) {
 			// Check if job is cancelled
-			$current_job = self::get_job($job['id']);
-			if ($current_job && $current_job['status'] === self::STATUS_CANCELLED) {
+			$current_job = self::get_job( $job['id'] );
+			if ( $current_job && $current_job['status'] === self::STATUS_CANCELLED ) {
 				return false;
 			}
 
 			// Send email
-			$email_data = array_merge($template_data, array('recipient' => $recipient));
+			$email_data = array_merge( $template_data, array( 'recipient' => $recipient ) );
 			// Email sending logic will be here
 
 			++$processed;
-			self::update_job_progress($job['id'], $processed, $total_items);
+			self::update_job_progress( $job['id'], $processed, $total_items );
 
 			// Rate limiting
-			if ($processed % 10 === 0) {
-				sleep(1);
+			if ( $processed % 10 === 0 ) {
+				sleep( 1 );
 			}
 		}
 
-		self::update_job_status($job['id'], self::STATUS_COMPLETED);
+		self::update_job_status( $job['id'], self::STATUS_COMPLETED );
 		return true;
 	}
 
 	/**
 	 * Bulk export processing
 	 */
-	private static function process_bulk_export(array $job): bool
-	{
+	private static function process_bulk_export( array $job ): bool {
 		$export_type = $job['job_data']['export_type'] ?? '';
 		$filters     = $job['job_data']['filters'] ?? array();
 		$format      = $job['job_data']['format'] ?? 'csv';
@@ -672,39 +649,38 @@ final class QueueManager
 		// Export logic will be here
 		// Simple implementation in this example
 
-		self::update_job_progress($job['id'], 50, 100);
-		sleep(2); // Simulated processing
-		self::update_job_progress($job['id'], 100, 100);
+		self::update_job_progress( $job['id'], 50, 100 );
+		sleep( 2 ); // Simulated processing
+		self::update_job_progress( $job['id'], 100, 100 );
 
-		self::update_job_status($job['id'], self::STATUS_COMPLETED);
+		self::update_job_status( $job['id'], self::STATUS_COMPLETED );
 		return true;
 	}
 
 	/**
 	 * Cache warmup processing
 	 */
-	private static function process_cache_warmup(array $job): bool
-	{
+	private static function process_cache_warmup( array $job ): bool {
 		$cache_keys  = $job['job_data']['cache_keys'] ?? array();
-		$total_items = count($cache_keys);
+		$total_items = count( $cache_keys );
 
-		if ($total_items === 0) {
-			self::update_job_status($job['id'], self::STATUS_COMPLETED);
+		if ( $total_items === 0 ) {
+			self::update_job_status( $job['id'], self::STATUS_COMPLETED );
 			return true;
 		}
 
-		self::update_job_progress($job['id'], 0, $total_items);
+		self::update_job_progress( $job['id'], 0, $total_items );
 
 		$processed = 0;
-		foreach ($cache_keys as $cache_key) {
+		foreach ( $cache_keys as $cache_key ) {
 			// Cache warmup logic will be here
 			// Example: ObjectCache::get($cache_key, $group);
 
 			++$processed;
-			self::update_job_progress($job['id'], $processed, $total_items);
+			self::update_job_progress( $job['id'], $processed, $total_items );
 		}
 
-		self::update_job_status($job['id'], self::STATUS_COMPLETED);
+		self::update_job_status( $job['id'], self::STATUS_COMPLETED );
 		return true;
 	}
 }

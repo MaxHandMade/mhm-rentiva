@@ -1,218 +1,218 @@
 /**
  * Gutenberg Blocks Editor Styles
- * 
+ *
  * MHM Rentiva Gutenberg block'ları için editör stilleri
- * 
+ *
  * @package MHMRentiva
  * @since 3.0.1
  */
 
 /* ====================================
-   Block Category
-   ==================================== */
+	Block Category
+	==================================== */
 
 .block-editor-block-types-list__item[data-id="mhm-rentiva"] .block-editor-block-types-list__item-icon {
-    color: #2563eb;
+	color: #2563eb;
 }
 
 /* ====================================
-   Block Inspector Controls
-   ==================================== */
+	Block Inspector Controls
+	==================================== */
 
 .block-editor-block-inspector .mhm-rentiva-controls {
-    /* Inspector controls styles */
+	/* Inspector controls styles */
 }
 
 .block-editor-block-inspector .mhm-rentiva-controls .components-base-control__label {
-    font-weight: 600;
-    color: #1e293b;
+	font-weight: 600;
+	color: #1e293b;
 }
 
 .block-editor-block-inspector .mhm-rentiva-controls .components-base-control__help {
-    font-size: 12px;
-    color: #64748b;
-    margin-top: 4px;
+	font-size: 12px;
+	color: #64748b;
+	margin-top: 4px;
 }
 
 /* ====================================
-   Block Preview
-   ==================================== */
+	Block Preview
+	==================================== */
 
 .mhm-rentiva-block-preview {
-    padding: 20px;
-    border: 2px dashed #ddd;
-    border-radius: 8px;
-    text-align: center;
-    background-color: #f9f9f9;
-    transition: all 0.2s ease;
+	padding: 20px;
+	border: 2px dashed #ddd;
+	border-radius: 8px;
+	text-align: center;
+	background-color: #f9f9f9;
+	transition: all 0.2s ease;
 }
 
 .mhm-rentiva-block-preview:hover {
-    border-color: #2563eb;
-    background-color: #f0f8ff;
+	border-color: #2563eb;
+	background-color: #f0f8ff;
 }
 
 .mhm-rentiva-block-preview .block-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #333;
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 10px;
+	color: #333;
 }
 
 .mhm-rentiva-block-preview .block-subtitle {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 8px;
+	font-size: 14px;
+	color: #666;
+	margin-bottom: 8px;
 }
 
 .mhm-rentiva-block-preview .block-meta {
-    font-size: 12px;
-    color: #999;
-    margin-top: 10px;
+	font-size: 12px;
+	color: #999;
+	margin-top: 10px;
 }
 
 /* ====================================
-   Vehicle Card Block Preview
-   ==================================== */
+	Vehicle Card Block Preview
+	==================================== */
 
 .mhm-rentiva-block-preview.vehicle-card-preview {
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+	min-height: 200px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 .mhm-rentiva-block-preview.vehicle-card-preview .preview-icon {
-    font-size: 48px;
-    color: #2563eb;
-    margin-bottom: 16px;
+	font-size: 48px;
+	color: #2563eb;
+	margin-bottom: 16px;
 }
 
 .mhm-rentiva-block-preview.vehicle-card-preview .preview-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 8px;
+	font-size: 20px;
+	font-weight: 600;
+	color: #1e293b;
+	margin-bottom: 8px;
 }
 
 .mhm-rentiva-block-preview.vehicle-card-preview .preview-description {
-    font-size: 14px;
-    color: #64748b;
-    margin-bottom: 16px;
+	font-size: 14px;
+	color: #64748b;
+	margin-bottom: 16px;
 }
 
 .mhm-rentiva-block-preview.vehicle-card-preview .preview-meta {
-    font-size: 12px;
-    color: #94a3b8;
-    background: #f1f5f9;
-    padding: 4px 8px;
-    border-radius: 4px;
+	font-size: 12px;
+	color: #94a3b8;
+	background: #f1f5f9;
+	padding: 4px 8px;
+	border-radius: 4px;
 }
 
 /* ====================================
-   Block Placeholder
-   ==================================== */
+	Block Placeholder
+	==================================== */
 
 .wp-block-mhm-rentiva-vehicle-card .block-editor-inner-blocks {
-    /* Inner blocks styles */
+	/* Inner blocks styles */
 }
 
 .wp-block-mhm-rentiva-vehicle-card .block-editor-inner-blocks .block-editor-block-list__layout {
-    /* Block list layout */
+	/* Block list layout */
 }
 
 /* ====================================
-   Responsive Preview
-   ==================================== */
+	Responsive Preview
+	==================================== */
 
 @media (max-width: 768px) {
-    .mhm-rentiva-block-preview {
-        padding: 16px;
-    }
+	.mhm-rentiva-block-preview {
+		padding: 16px;
+	}
 
-    .mhm-rentiva-block-preview .block-title {
-        font-size: 16px;
-    }
+	.mhm-rentiva-block-preview .block-title {
+		font-size: 16px;
+	}
 
-    .mhm-rentiva-block-preview .block-subtitle {
-        font-size: 13px;
-    }
+	.mhm-rentiva-block-preview .block-subtitle {
+		font-size: 13px;
+	}
 }
 
 /* ====================================
-   Block Alignment
-   ==================================== */
+	Block Alignment
+	==================================== */
 
 .wp-block-mhm-rentiva-vehicle-card.alignwide {
-    /* Wide alignment */
+	/* Wide alignment */
 }
 
 .wp-block-mhm-rentiva-vehicle-card.alignfull {
-    /* Full alignment */
+	/* Full alignment */
 }
 
 .wp-block-mhm-rentiva-vehicle-card.aligncenter {
-    /* Center alignment */
+	/* Center alignment */
 }
 
 /* ====================================
-   Block Loading State
-   ==================================== */
+	Block Loading State
+	==================================== */
 
 .mhm-rentiva-block-preview.is-loading {
-    opacity: 0.6;
-    pointer-events: none;
+	opacity: 0.6;
+	pointer-events: none;
 }
 
 .mhm-rentiva-block-preview.is-loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 20px;
-    height: 20px;
-    border: 2px solid #2563eb;
-    border-top: 2px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 20px;
+	height: 20px;
+	border: 2px solid #2563eb;
+	border-top: 2px solid transparent;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    0% {
-        transform: translate(-50%, -50%) rotate(0deg);
-    }
+	0% {
+		transform: translate(-50%, -50%) rotate(0deg);
+	}
 
-    100% {
-        transform: translate(-50%, -50%) rotate(360deg);
-    }
+	100% {
+		transform: translate(-50%, -50%) rotate(360deg);
+	}
 }
 
 /* ====================================
-   Block Error State
-   ==================================== */
+	Block Error State
+	==================================== */
 
 .mhm-rentiva-block-preview.has-error {
-    border-color: #ef4444;
-    background-color: #fef2f2;
-    color: #dc2626;
+	border-color: #ef4444;
+	background-color: #fef2f2;
+	color: #dc2626;
 }
 
 .mhm-rentiva-block-preview.has-error .block-title {
-    color: #dc2626;
+	color: #dc2626;
 }
 
 /* ====================================
-   Block Success State
-   ==================================== */
+	Block Success State
+	==================================== */
 
 .mhm-rentiva-block-preview.has-success {
-    border-color: #10b981;
-    background-color: #f0fdf4;
-    color: #059669;
+	border-color: #10b981;
+	background-color: #f0fdf4;
+	color: #059669;
 }
 
 .mhm-rentiva-block-preview.has-success .block-title {
-    color: #059669;
+	color: #059669;
 }

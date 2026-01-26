@@ -14,7 +14,7 @@ use DateTime;
 use DateInterval;
 use MHMRentiva\Admin\Core\AssetManager;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -28,8 +28,8 @@ if (! defined('ABSPATH')) {
  * [rentiva_vehicle_details] - Current vehicle (single-vehicle.php)
  * [rentiva_vehicle_details vehicle_id="123"] - Specific vehicle
  */
-final class VehicleDetails extends AbstractShortcode
-{
+final class VehicleDetails extends AbstractShortcode {
+
 
 	public const SHORTCODE      = 'rentiva_vehicle_details';
 	private const CACHE_VERSION = 'card_fields_v6';
@@ -37,26 +37,22 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Register shortcode
 	 */
-	public static function register(): void
-	{
+	public static function register(): void {
 		parent::register();
 
-		add_action('wp_ajax_mhm_rentiva_get_calendar', array(self::class, 'ajax_get_calendar'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_get_calendar', array(self::class, 'ajax_get_calendar'));
+		add_action( 'wp_ajax_mhm_rentiva_get_calendar', array( self::class, 'ajax_get_calendar' ) );
+		add_action( 'wp_ajax_nopriv_mhm_rentiva_get_calendar', array( self::class, 'ajax_get_calendar' ) );
 	}
 
-	protected static function get_shortcode_tag(): string
-	{
+	protected static function get_shortcode_tag(): string {
 		return 'rentiva_vehicle_details';
 	}
 
-	protected static function get_template_path(): string
-	{
+	protected static function get_template_path(): string {
 		return 'shortcodes/vehicle-details';
 	}
 
-	protected static function get_default_attributes(): array
-	{
+	protected static function get_default_attributes(): array {
 		return array(
 			'vehicle_id'          => '',
 			'show_gallery'        => '1',
@@ -70,39 +66,33 @@ final class VehicleDetails extends AbstractShortcode
 		);
 	}
 
-	protected static function get_css_filename(): string
-	{
+	protected static function get_css_filename(): string {
 		return 'vehicle-details.css';
 	}
 
-	protected static function get_js_filename(): string
-	{
+	protected static function get_js_filename(): string {
 		return 'vehicle-details.js';
 	}
 
 	/**
 	 * Override asset handle (fix double rentiva issue)
 	 */
-	protected static function get_asset_handle(): string
-	{
+	protected static function get_asset_handle(): string {
 		return 'mhm-rentiva-vehicle-details';
 	}
 
-	protected static function get_css_dependencies(): array
-	{
+	protected static function get_css_dependencies(): array {
 		return array();
 	}
 
-	protected static function get_js_dependencies(): array
-	{
-		return array('jquery');
+	protected static function get_js_dependencies(): array {
+		return array( 'jquery' );
 	}
 
 	/**
 	 * Return JavaScript files
 	 */
-	protected static function get_js_files(): array
-	{
+	protected static function get_js_files(): array {
 		return array(
 			self::get_assets_path() . '/js/frontend/' . self::get_js_filename(),
 		);
@@ -111,14 +101,13 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Load asset files
 	 */
-	protected static function enqueue_assets(): void
-	{
+	protected static function enqueue_assets(): void {
 		// CSS
 		wp_enqueue_style(
 			'mhm-rentiva-vehicle-details',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicle-details.css',
 			self::get_css_dependencies(),
-			AssetManager::get_file_version('assets/css/frontend/vehicle-details.css')
+			AssetManager::get_file_version( 'assets/css/frontend/vehicle-details.css' )
 		);
 
 		// JavaScript
@@ -126,35 +115,32 @@ final class VehicleDetails extends AbstractShortcode
 			'mhm-rentiva-vehicle-details',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicle-details.js',
 			self::get_js_dependencies(),
-			AssetManager::get_file_version('assets/js/frontend/vehicle-details.js'),
+			AssetManager::get_file_version( 'assets/js/frontend/vehicle-details.js' ),
 			true
 		);
 
 		// Localize script
-		self::localize_script('mhm-rentiva-vehicle-details');
+		self::localize_script( 'mhm-rentiva-vehicle-details' );
 	}
 
-	protected static function get_script_object_name(): string
-	{
+	protected static function get_script_object_name(): string {
 		return 'mhmRentivaVehicleDetails';
 	}
 
-	protected static function get_localized_strings(): array
-	{
+	protected static function get_localized_strings(): array {
 		return array(
-			'loading'        => __('Loading...', 'mhm-rentiva'),
-			'error_occurred' => __('An error occurred', 'mhm-rentiva'),
-			'try_again'      => __('Please try again', 'mhm-rentiva'),
-			'book_now'       => __('Book Now', 'mhm-rentiva'),
-			'view_gallery'   => __('View Gallery', 'mhm-rentiva'),
-			'close_gallery'  => __('Close Gallery', 'mhm-rentiva'),
-			'next_image'     => __('Next Image', 'mhm-rentiva'),
-			'previous_image' => __('Previous Image', 'mhm-rentiva'),
+			'loading'        => __( 'Loading...', 'mhm-rentiva' ),
+			'error_occurred' => __( 'An error occurred', 'mhm-rentiva' ),
+			'try_again'      => __( 'Please try again', 'mhm-rentiva' ),
+			'book_now'       => __( 'Book Now', 'mhm-rentiva' ),
+			'view_gallery'   => __( 'View Gallery', 'mhm-rentiva' ),
+			'close_gallery'  => __( 'Close Gallery', 'mhm-rentiva' ),
+			'next_image'     => __( 'Next Image', 'mhm-rentiva' ),
+			'previous_image' => __( 'Previous Image', 'mhm-rentiva' ),
 		);
 	}
 
-	protected static function get_js_config(): array
-	{
+	protected static function get_js_config(): array {
 		return array(
 			'currency_symbol' => CurrencyHelper::get_currency_symbol(),
 			'locale'          => self::get_js_locale(),
@@ -164,16 +150,15 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Get JavaScript locale data
 	 */
-	private static function get_js_locale(): array
-	{
+	private static function get_js_locale(): array {
 		return array(
-			'loading' => __('Loading...', 'mhm-rentiva'),
-			'error'   => __('An error occurred', 'mhm-rentiva'),
-			'success' => __('Success', 'mhm-rentiva'),
-			'confirm' => __('Are you sure?', 'mhm-rentiva'),
-			'cancel'  => __('Cancel', 'mhm-rentiva'),
-			'save'    => __('Save', 'mhm-rentiva'),
-			'close'   => __('Close', 'mhm-rentiva'),
+			'loading' => __( 'Loading...', 'mhm-rentiva' ),
+			'error'   => __( 'An error occurred', 'mhm-rentiva' ),
+			'success' => __( 'Success', 'mhm-rentiva' ),
+			'confirm' => __( 'Are you sure?', 'mhm-rentiva' ),
+			'cancel'  => __( 'Cancel', 'mhm-rentiva' ),
+			'save'    => __( 'Save', 'mhm-rentiva' ),
+			'close'   => __( 'Close', 'mhm-rentiva' ),
 		);
 	}
 
@@ -181,28 +166,27 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Get vehicle ID - Optimized version
 	 */
-	private static function get_vehicle_id(array $atts): int
-	{
+	private static function get_vehicle_id( array $atts ): int {
 		// First from shortcode parameters
-		if (! empty($atts['vehicle_id'])) {
-			return absint($atts['vehicle_id']);
+		if ( ! empty( $atts['vehicle_id'] ) ) {
+			return absint( $atts['vehicle_id'] );
 		}
 
 		// Then from global post
 		global $post;
-		if ($post && $post->post_type === 'vehicle') {
+		if ( $post && $post->post_type === 'vehicle' ) {
 			return $post->ID;
 		}
 
 		// Try get_the_ID()
 		$current_id = get_the_ID();
-		if ($current_id && get_post_type($current_id) === 'vehicle') {
+		if ( $current_id && get_post_type( $current_id ) === 'vehicle' ) {
 			return $current_id;
 		}
 
 		// Try from URL parameters
-		$url_vehicle_id = isset($_GET['vehicle_id']) ? absint($_GET['vehicle_id']) : 0;
-		if ($url_vehicle_id > 0) {
+		$url_vehicle_id = isset( $_GET['vehicle_id'] ) ? absint( $_GET['vehicle_id'] ) : 0;
+		if ( $url_vehicle_id > 0 ) {
 			return $url_vehicle_id;
 		}
 
@@ -212,28 +196,27 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Prepare template data - Optimized cache version
 	 */
-	protected static function prepare_template_data(array $atts): array
-	{
+	protected static function prepare_template_data( array $atts ): array {
 		// Get vehicle ID
-		$vehicle_id = self::get_vehicle_id($atts);
+		$vehicle_id = self::get_vehicle_id( $atts );
 
-		if (! $vehicle_id) {
+		if ( ! $vehicle_id ) {
 			return array();
 		}
 
 		// Cache check
-		$cache_key   = 'vehicle_details_' . self::CACHE_VERSION . '_' . $vehicle_id . '_' . md5(serialize($atts));
-		$cached_data = get_transient($cache_key);
+		$cache_key   = 'vehicle_details_' . self::CACHE_VERSION . '_' . $vehicle_id . '_' . md5( serialize( $atts ) );
+		$cached_data = get_transient( $cache_key );
 
-		if ($cached_data !== false) {
+		if ( $cached_data !== false ) {
 			return $cached_data;
 		}
 
-		$vehicle = get_post($vehicle_id);
+		$vehicle = get_post( $vehicle_id );
 
-		if (! $vehicle || $vehicle->post_type !== 'vehicle') {
+		if ( ! $vehicle || $vehicle->post_type !== 'vehicle' ) {
 			// If vehicle not found, return safe default values
-			return self::get_default_template_data($atts);
+			return self::get_default_template_data( $atts );
 		}
 
 		// Inject custom texts from settings if not already set via shortcode attribute
@@ -241,7 +224,7 @@ final class VehicleDetails extends AbstractShortcode
 		$atts['booking_btn_text'] = $atts['booking_btn_text'] ?? $text_settings['book_now'];
 
 		// Availability Check
-		$availability = self::check_vehicle_availability($vehicle_id);
+		$availability = self::check_vehicle_availability( $vehicle_id );
 
 		$template_data = array(
 			'vehicle_id'      => $vehicle_id,
@@ -259,44 +242,44 @@ final class VehicleDetails extends AbstractShortcode
 			'excerpt'         => $vehicle->post_excerpt,
 
 			// Images
-			'featured_image'  => self::get_featured_image($vehicle_id),
-			'gallery'         => self::get_gallery($vehicle_id),
+			'featured_image'  => self::get_featured_image( $vehicle_id ),
+			'gallery'         => self::get_gallery( $vehicle_id ),
 
 			// Meta Information
-			'brand'           => get_post_meta($vehicle_id, '_mhm_rentiva_brand', true),
-			'model'           => get_post_meta($vehicle_id, '_mhm_rentiva_model', true),
-			'year'            => self::get_meta_with_fallback($vehicle_id, array('_mhm_rentiva_year', 'yıl', '_mhm_rentiva_yil', 'year')),
-			'fuel_type'       => self::get_meta_with_fallback($vehicle_id, array('_mhm_rentiva_fuel_type', 'yakıt_türü', '_mhm_rentiva_yakit_turu', 'fuel_type')),
-			'transmission'    => self::get_meta_with_fallback($vehicle_id, array('_mhm_rentiva_transmission', 'vites', '_mhm_rentiva_vites', 'transmission')),
-			'seats'           => self::get_meta_with_fallback($vehicle_id, array('_mhm_rentiva_seats', 'koltuk_sayısı', '_mhm_rentiva_koltuk_sayisi', 'seats')),
-			'doors'           => self::get_meta_with_fallback($vehicle_id, array('_mhm_rentiva_doors', 'kapı_sayısı', '_mhm_rentiva_kapi_sayisi', 'doors')),
-			'mileage'         => self::get_meta_with_fallback($vehicle_id, array('_mhm_rentiva_mileage', 'kilometre', '_mhm_rentiva_kilometre', 'mileage')),
-			'color'           => get_post_meta($vehicle_id, '_mhm_rentiva_color', true),
-			'license_plate'   => get_post_meta($vehicle_id, '_mhm_rentiva_license_plate', true),
+			'brand'           => get_post_meta( $vehicle_id, '_mhm_rentiva_brand', true ),
+			'model'           => get_post_meta( $vehicle_id, '_mhm_rentiva_model', true ),
+			'year'            => self::get_meta_with_fallback( $vehicle_id, array( '_mhm_rentiva_year', 'yıl', '_mhm_rentiva_yil', 'year' ) ),
+			'fuel_type'       => self::get_meta_with_fallback( $vehicle_id, array( '_mhm_rentiva_fuel_type', 'yakıt_türü', '_mhm_rentiva_yakit_turu', 'fuel_type' ) ),
+			'transmission'    => self::get_meta_with_fallback( $vehicle_id, array( '_mhm_rentiva_transmission', 'vites', '_mhm_rentiva_vites', 'transmission' ) ),
+			'seats'           => self::get_meta_with_fallback( $vehicle_id, array( '_mhm_rentiva_seats', 'koltuk_sayısı', '_mhm_rentiva_koltuk_sayisi', 'seats' ) ),
+			'doors'           => self::get_meta_with_fallback( $vehicle_id, array( '_mhm_rentiva_doors', 'kapı_sayısı', '_mhm_rentiva_kapi_sayisi', 'doors' ) ),
+			'mileage'         => self::get_meta_with_fallback( $vehicle_id, array( '_mhm_rentiva_mileage', 'kilometre', '_mhm_rentiva_kilometre', 'mileage' ) ),
+			'color'           => get_post_meta( $vehicle_id, '_mhm_rentiva_color', true ),
+			'license_plate'   => get_post_meta( $vehicle_id, '_mhm_rentiva_license_plate', true ),
 
 			// Price
-			'price_per_day'   => get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true),
-			'price_per_week'  => get_post_meta($vehicle_id, '_mhm_rentiva_price_per_week', true),
-			'price_per_month' => get_post_meta($vehicle_id, '_mhm_rentiva_price_per_month', true),
-			'currency'        => function_exists('get_woocommerce_currency') ? \get_woocommerce_currency() : \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD'),
+			'price_per_day'   => get_post_meta( $vehicle_id, '_mhm_rentiva_price_per_day', true ),
+			'price_per_week'  => get_post_meta( $vehicle_id, '_mhm_rentiva_price_per_week', true ),
+			'price_per_month' => get_post_meta( $vehicle_id, '_mhm_rentiva_price_per_month', true ),
+			'currency'        => function_exists( 'get_woocommerce_currency' ) ? \get_woocommerce_currency() : \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_currency', 'USD' ),
 			'currency_symbol' => CurrencyHelper::get_currency_symbol(),
 
 			// Features
-			'features'        => self::get_features($vehicle_id),
-			'card_features'   => VehicleFeatureHelper::collect_items($vehicle_id),
+			'features'        => self::get_features( $vehicle_id ),
+			'card_features'   => VehicleFeatureHelper::collect_items( $vehicle_id ),
 
 			// Category
-			'categories'      => self::get_categories($vehicle_id),
+			'categories'      => self::get_categories( $vehicle_id ),
 
 			// Booking URL - Redirect to existing booking form
-			'booking_url'     => self::get_booking_url($vehicle_id),
+			'booking_url'     => self::get_booking_url( $vehicle_id ),
 
 			// Rating
-			'rating'          => self::get_vehicle_rating($vehicle_id),
+			'rating'          => self::get_vehicle_rating( $vehicle_id ),
 		);
 
 		// Cache save (15 minutes) (cache duration)
-		set_transient($cache_key, $template_data, 15 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $template_data, 15 * MINUTE_IN_SECONDS );
 
 		return $template_data;
 	}
@@ -304,8 +287,7 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Default template data - when vehicle not found (fallback values)
 	 */
-	private static function get_default_template_data(array $atts): array
-	{
+	private static function get_default_template_data( array $atts ): array {
 		return array(
 			'vehicle_id'      => 0,
 			'vehicle'         => null,
@@ -317,14 +299,14 @@ final class VehicleDetails extends AbstractShortcode
 			'status_text'     => '',
 
 			// Basic Information
-			'title'           => __('Vehicle Not Found', 'mhm-rentiva'),
-			'content'         => __('The requested vehicle could not be found.', 'mhm-rentiva'),
+			'title'           => __( 'Vehicle Not Found', 'mhm-rentiva' ),
+			'content'         => __( 'The requested vehicle could not be found.', 'mhm-rentiva' ),
 			'excerpt'         => '',
 
 			// Images
 			'featured_image'  => array(
 				'url'   => self::get_placeholder_image_url(),
-				'alt'   => __('Vehicle Image', 'mhm-rentiva'),
+				'alt'   => __( 'Vehicle Image', 'mhm-rentiva' ),
 				'title' => '',
 			),
 			'gallery'         => array(),
@@ -356,7 +338,7 @@ final class VehicleDetails extends AbstractShortcode
 			'categories'      => array(),
 
 			// Booking URL
-			'booking_url'     => ShortcodeUrlManager::get_page_url('rentiva_booking_form'),
+			'booking_url'     => ShortcodeUrlManager::get_page_url( 'rentiva_booking_form' ),
 
 			// Rating
 			'rating'          => array(
@@ -370,31 +352,29 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Featured image get (return array with image URL, alt text, and title)
 	 */
-	private static function get_featured_image(int $vehicle_id): array
-	{
-		$image_id = get_post_thumbnail_id($vehicle_id);
+	private static function get_featured_image( int $vehicle_id ): array {
+		$image_id = get_post_thumbnail_id( $vehicle_id );
 
-		if (! $image_id) {
+		if ( ! $image_id ) {
 			return array(
 				'url'   => self::get_placeholder_image_url(),
-				'alt'   => __('Vehicle Image', 'mhm-rentiva'),
+				'alt'   => __( 'Vehicle Image', 'mhm-rentiva' ),
 				'title' => '',
 			);
 		}
 
 		return array(
-			'url'      => wp_get_attachment_image_url($image_id, 'large'),
-			'url_full' => wp_get_attachment_image_url($image_id, 'full'),
-			'alt'      => get_post_meta($image_id, '_wp_attachment_image_alt', true),
-			'title'    => get_the_title($image_id) ?: '',
+			'url'      => wp_get_attachment_image_url( $image_id, 'large' ),
+			'url_full' => wp_get_attachment_image_url( $image_id, 'full' ),
+			'alt'      => get_post_meta( $image_id, '_wp_attachment_image_alt', true ),
+			'title'    => get_the_title( $image_id ) ?: '',
 		);
 	}
 
 	/**
 	 * Gallery get
 	 */
-	private static function get_gallery(int $vehicle_id): array
-	{
+	private static function get_gallery( int $vehicle_id ): array {
 		// Try all possible meta keys
 		$possible_keys = array(
 			'_mhm_rentiva_gallery_images',  // Real meta key
@@ -409,46 +389,46 @@ final class VehicleDetails extends AbstractShortcode
 
 		$gallery_ids = array();
 
-		foreach ($possible_keys as $key) {
-			$meta_value = get_post_meta($vehicle_id, $key, true);
+		foreach ( $possible_keys as $key ) {
+			$meta_value = get_post_meta( $vehicle_id, $key, true );
 
-			if (! empty($meta_value)) {
-				if (is_array($meta_value)) {
+			if ( ! empty( $meta_value ) ) {
+				if ( is_array( $meta_value ) ) {
 					$gallery_ids = $meta_value;
-				} elseif (is_string($meta_value) && $key === '_mhm_rentiva_gallery_images') {
+				} elseif ( is_string( $meta_value ) && $key === '_mhm_rentiva_gallery_images' ) {
 					// Parse JSON string
-					$gallery_data = json_decode($meta_value, true);
-					if (is_array($gallery_data)) {
-						$gallery_ids = array_column($gallery_data, 'id');
+					$gallery_data = json_decode( $meta_value, true );
+					if ( is_array( $gallery_data ) ) {
+						$gallery_ids = array_column( $gallery_data, 'id' );
 					}
 				}
 
-				if (! empty($gallery_ids)) {
+				if ( ! empty( $gallery_ids ) ) {
 					break;
 				}
 			}
 		}
 
-		if (empty($gallery_ids)) {
+		if ( empty( $gallery_ids ) ) {
 			// Use featured image as gallery
-			$featured_image_id = get_post_thumbnail_id($vehicle_id);
-			if ($featured_image_id) {
-				$gallery_ids = array($featured_image_id);
+			$featured_image_id = get_post_thumbnail_id( $vehicle_id );
+			if ( $featured_image_id ) {
+				$gallery_ids = array( $featured_image_id );
 			} else {
 				return array();
 			}
 		}
 
 		$gallery = array();
-		foreach ($gallery_ids as $image_id) {
-			if (is_numeric($image_id)) {
+		foreach ( $gallery_ids as $image_id ) {
+			if ( is_numeric( $image_id ) ) {
 				$gallery[] = array(
 					'id'        => $image_id,
-					'url'       => wp_get_attachment_image_url($image_id, 'medium'),
-					'url_large' => wp_get_attachment_image_url($image_id, 'large'),
-					'url_full'  => wp_get_attachment_image_url($image_id, 'full'),
-					'alt'       => get_post_meta($image_id, '_wp_attachment_image_alt', true),
-					'title'     => get_the_title($image_id) ?: '',
+					'url'       => wp_get_attachment_image_url( $image_id, 'medium' ),
+					'url_large' => wp_get_attachment_image_url( $image_id, 'large' ),
+					'url_full'  => wp_get_attachment_image_url( $image_id, 'full' ),
+					'alt'       => get_post_meta( $image_id, '_wp_attachment_image_alt', true ),
+					'title'     => get_the_title( $image_id ) ?: '',
 				);
 			}
 		}
@@ -459,12 +439,11 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Features get
 	 */
-	private static function get_features(int $vehicle_id): array
-	{
+	private static function get_features( int $vehicle_id ): array {
 		// Meta field get (stored as array)
-		$features = get_post_meta($vehicle_id, '_mhm_rentiva_features', true);
+		$features = get_post_meta( $vehicle_id, '_mhm_rentiva_features', true );
 
-		if (empty($features) || ! is_array($features)) {
+		if ( empty( $features ) || ! is_array( $features ) ) {
 			return array();
 		}
 
@@ -476,21 +455,20 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Categories get
 	 */
-	private static function get_categories(int $vehicle_id): array
-	{
-		$terms = get_the_terms($vehicle_id, 'vehicle_category');
+	private static function get_categories( int $vehicle_id ): array {
+		$terms = get_the_terms( $vehicle_id, 'vehicle_category' );
 
-		if (empty($terms) || is_wp_error($terms)) {
+		if ( empty( $terms ) || is_wp_error( $terms ) ) {
 			return array();
 		}
 
 		$categories = array();
-		foreach ($terms as $term) {
+		foreach ( $terms as $term ) {
 			$categories[] = array(
 				'id'   => $term->term_id,
 				'name' => $term->name,
 				'slug' => $term->slug,
-				'url'  => get_term_link($term),
+				'url'  => get_term_link( $term ),
 			);
 		}
 
@@ -505,8 +483,7 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Vehicle rating get - Optimized with SQL aggregation
 	 */
-	private static function get_vehicle_rating(int $vehicle_id): array
-	{
+	private static function get_vehicle_rating( int $vehicle_id ): array {
 		global $wpdb;
 
 		// Calculate current rating directly from database
@@ -525,8 +502,8 @@ final class VehicleDetails extends AbstractShortcode
 			)
 		);
 
-		$count   = (int) ($stats->count ?? 0);
-		$average = $count > 0 ? round((float) $stats->average, 1) : 0;
+		$count   = (int) ( $stats->count ?? 0 );
+		$average = $count > 0 ? round( (float) $stats->average, 1 ) : 0;
 
 		return array(
 			'average' => $average,
@@ -538,11 +515,10 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Meta data get with fallback keys
 	 */
-	private static function get_meta_with_fallback(int $vehicle_id, array $meta_keys): string
-	{
-		foreach ($meta_keys as $key) {
-			$value = get_post_meta($vehicle_id, $key, true);
-			if (! empty($value)) {
+	private static function get_meta_with_fallback( int $vehicle_id, array $meta_keys ): string {
+		foreach ( $meta_keys as $key ) {
+			$value = get_post_meta( $vehicle_id, $key, true );
+			if ( ! empty( $value ) ) {
 				return $value;
 			}
 		}
@@ -552,46 +528,45 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Monthly availability calendar render
 	 */
-	public static function render_monthly_calendar(?int $vehicle_id = null, ?int $month = null, ?int $year = null): string
-	{
+	public static function render_monthly_calendar( ?int $vehicle_id = null, ?int $month = null, ?int $year = null ): string {
 		// If vehicle ID is not set, return empty calendar
-		if (! $vehicle_id || $vehicle_id <= 0) {
-			return '<div class="rv-calendar-error"><p>' . esc_html__('Vehicle ID required for calendar', 'mhm-rentiva') . '</p></div>';
+		if ( ! $vehicle_id || $vehicle_id <= 0 ) {
+			return '<div class="rv-calendar-error"><p>' . esc_html__( 'Vehicle ID required for calendar', 'mhm-rentiva' ) . '</p></div>';
 		}
 
-		$current_month = $month ?? (int) gmdate('n');
-		$current_year  = $year ?? (int) gmdate('Y');
-		$days_in_month = (int) gmdate('t', mktime(0, 0, 0, $current_month, 1, $current_year));
-		$first_day     = (int) gmdate('w', mktime(0, 0, 0, $current_month, 1, $current_year));
+		$current_month = $month ?? (int) gmdate( 'n' );
+		$current_year  = $year ?? (int) gmdate( 'Y' );
+		$days_in_month = (int) gmdate( 't', mktime( 0, 0, 0, $current_month, 1, $current_year ) );
+		$first_day     = (int) gmdate( 'w', mktime( 0, 0, 0, $current_month, 1, $current_year ) );
 
 		// Get booked days
-		$booked_days = self::get_booked_days($vehicle_id, $current_month, $current_year);
+		$booked_days = self::get_booked_days( $vehicle_id, $current_month, $current_year );
 
 		$calendar_html = '<div class="rv-calendar-grid">';
 
 		// Get WordPress week start setting (0 = Sunday, 1 = Monday, etc.)
-		$week_start = (int) get_option('start_of_week', 1);
+		$week_start = (int) get_option( 'start_of_week', 1 );
 
 		// Day names - Reorder based on WordPress setting
 		$all_day_names = array(
-			__('Sun', 'mhm-rentiva'),
-			__('Mon', 'mhm-rentiva'),
-			__('Tue', 'mhm-rentiva'),
-			__('Wed', 'mhm-rentiva'),
-			__('Thu', 'mhm-rentiva'),
-			__('Fri', 'mhm-rentiva'),
-			__('Sat', 'mhm-rentiva'),
+			__( 'Sun', 'mhm-rentiva' ),
+			__( 'Mon', 'mhm-rentiva' ),
+			__( 'Tue', 'mhm-rentiva' ),
+			__( 'Wed', 'mhm-rentiva' ),
+			__( 'Thu', 'mhm-rentiva' ),
+			__( 'Fri', 'mhm-rentiva' ),
+			__( 'Sat', 'mhm-rentiva' ),
 		);
 
 		// Reorder days based on week start
 		$day_names = array_merge(
-			array_slice($all_day_names, $week_start),
-			array_slice($all_day_names, 0, $week_start)
+			array_slice( $all_day_names, $week_start ),
+			array_slice( $all_day_names, 0, $week_start )
 		);
 
 		$calendar_html .= '<div class="rv-calendar-header">';
-		foreach ($day_names as $day_name) {
-			$calendar_html .= '<div class="rv-calendar-day-name">' . esc_html($day_name) . '</div>';
+		foreach ( $day_names as $day_name ) {
+			$calendar_html .= '<div class="rv-calendar-day-name">' . esc_html( $day_name ) . '</div>';
 		}
 		$calendar_html .= '</div>';
 
@@ -599,25 +574,25 @@ final class VehicleDetails extends AbstractShortcode
 		$calendar_html .= '<div class="rv-calendar-days">';
 
 		// Empty days for first week (adjust based on week start setting)
-		$first_day_adjusted = ($first_day - $week_start + 7) % 7;
-		for ($i = 0; $i < $first_day_adjusted; $i++) {
+		$first_day_adjusted = ( $first_day - $week_start + 7 ) % 7;
+		for ( $i = 0; $i < $first_day_adjusted; $i++ ) {
 			$calendar_html .= '<div class="rv-calendar-day empty"></div>';
 		}
 
 		// Days of the month
-		for ($day = 1; $day <= $days_in_month; $day++) {
-			$is_booked = in_array($day, $booked_days, true);
-			$is_today  = ((int) $day === (int) gmdate('j') && (int) $current_month === (int) gmdate('n') && (int) $current_year === (int) gmdate('Y'));
+		for ( $day = 1; $day <= $days_in_month; $day++ ) {
+			$is_booked = in_array( $day, $booked_days, true );
+			$is_today  = ( (int) $day === (int) gmdate( 'j' ) && (int) $current_month === (int) gmdate( 'n' ) && (int) $current_year === (int) gmdate( 'Y' ) );
 
 			$class = 'rv-calendar-day';
-			if ($is_booked) {
+			if ( $is_booked ) {
 				$class .= ' booked';
 			}
-			if ($is_today) {
+			if ( $is_today ) {
 				$class .= ' today';
 			}
 
-			$calendar_html .= '<div class="' . esc_attr($class) . '">' . absint($day) . '</div>';
+			$calendar_html .= '<div class="' . esc_attr( $class ) . '">' . absint( $day ) . '</div>';
 		}
 
 		$calendar_html .= '</div>';
@@ -629,12 +604,11 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Get booked days
 	 */
-	private static function get_booked_days(int $vehicle_id, int $month, int $year): array
-	{
+	private static function get_booked_days( int $vehicle_id, int $month, int $year ): array {
 		global $wpdb;
 
-		$start_date = sprintf('%04d-%02d-01', $year, $month);
-		$end_date   = sprintf('%04d-%02d-%02d', $year, $month, (int) gmdate('t', mktime(0, 0, 0, $month, 1, $year)));
+		$start_date = sprintf( '%04d-%02d-01', $year, $month );
+		$end_date   = sprintf( '%04d-%02d-%02d', $year, $month, (int) gmdate( 't', mktime( 0, 0, 0, $month, 1, $year ) ) );
 
 		// Get bookings from WordPress post meta
 		$bookings = $wpdb->get_results(
@@ -668,55 +642,53 @@ final class VehicleDetails extends AbstractShortcode
 
 		$booked_days = array();
 
-		foreach ($bookings as $booking) {
-			$start = new DateTime($booking->start_date);
-			$end   = new DateTime($booking->end_date);
+		foreach ( $bookings as $booking ) {
+			$start = new DateTime( $booking->start_date );
+			$end   = new DateTime( $booking->end_date );
 
-			while ($start <= $end) {
-				if ($start->format('n') == $month && $start->format('Y') == $year) {
-					$booked_days[] = (int) $start->format('j');
+			while ( $start <= $end ) {
+				if ( $start->format( 'n' ) == $month && $start->format( 'Y' ) == $year ) {
+					$booked_days[] = (int) $start->format( 'j' );
 				}
-				$start->add(new DateInterval('P1D'));
+				$start->add( new DateInterval( 'P1D' ) );
 			}
 		}
 
-		return array_unique($booked_days);
+		return array_unique( $booked_days );
 	}
 
 	/**
 	 * Get booking URL
 	 */
-	private static function get_booking_url(int $vehicle_id): string
-	{
+	private static function get_booking_url( int $vehicle_id ): string {
 		// First check from settings
-		$booking_url = SettingsCore::get('mhm_rentiva_booking_url', '');
-		if (! empty($booking_url)) {
-			return add_query_arg('vehicle_id', $vehicle_id, $booking_url);
+		$booking_url = SettingsCore::get( 'mhm_rentiva_booking_url', '' );
+		if ( ! empty( $booking_url ) ) {
+			return add_query_arg( 'vehicle_id', $vehicle_id, $booking_url );
 		}
 
 		// Check ShortcodeUrlManager
-		if (class_exists('\MHMRentiva\Admin\Core\ShortcodeUrlManager')) {
-			$url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_booking_form');
-			if ($url) {
-				return add_query_arg('vehicle_id', $vehicle_id, $url);
+		if ( class_exists( '\MHMRentiva\Admin\Core\ShortcodeUrlManager' ) ) {
+			$url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url( 'rentiva_booking_form' );
+			if ( $url ) {
+				return add_query_arg( 'vehicle_id', $vehicle_id, $url );
 			}
 		}
 
 		// Fallback: Redirect to vehicles list page with vehicle_id parameter
-		return add_query_arg('vehicle_id', $vehicle_id, ShortcodeUrlManager::get_page_url('rentiva_vehicles_list'));
+		return add_query_arg( 'vehicle_id', $vehicle_id, ShortcodeUrlManager::get_page_url( 'rentiva_vehicles_list' ) );
 	}
 
 	/**
 	 * Get texts with fallback to i18n defaults
 	 */
-	private static function get_text(): array
-	{
+	private static function get_text(): array {
 		return array(
-			'book_now'               => SettingsCore::get('mhm_rentiva_text_book_now', '') ?: __('Book Now', 'mhm-rentiva'),
-			'view_details'           => SettingsCore::get('mhm_rentiva_text_view_details', '') ?: __('View Details', 'mhm-rentiva'),
-			'added_to_favorites'     => SettingsCore::get('mhm_rentiva_text_added_to_favorites', '') ?: __('Added to favorites', 'mhm-rentiva'),
-			'removed_from_favorites' => SettingsCore::get('mhm_rentiva_text_removed_from_favorites', '') ?: __('Removed from favorites', 'mhm-rentiva'),
-			'login_required'         => SettingsCore::get('mhm_rentiva_text_login_required', '') ?: __('You must be logged in to add to favorites', 'mhm-rentiva'),
+			'book_now'               => SettingsCore::get( 'mhm_rentiva_text_book_now', '' ) ?: __( 'Book Now', 'mhm-rentiva' ),
+			'view_details'           => SettingsCore::get( 'mhm_rentiva_text_view_details', '' ) ?: __( 'View Details', 'mhm-rentiva' ),
+			'added_to_favorites'     => SettingsCore::get( 'mhm_rentiva_text_added_to_favorites', '' ) ?: __( 'Added to favorites', 'mhm-rentiva' ),
+			'removed_from_favorites' => SettingsCore::get( 'mhm_rentiva_text_removed_from_favorites', '' ) ?: __( 'Removed from favorites', 'mhm-rentiva' ),
+			'login_required'         => SettingsCore::get( 'mhm_rentiva_text_login_required', '' ) ?: __( 'You must be logged in to add to favorites', 'mhm-rentiva' ),
 		);
 	}
 
@@ -724,8 +696,7 @@ final class VehicleDetails extends AbstractShortcode
 	 * Get placeholder image URL with fallback
 	 * Checks for placeholder files and falls back to WordPress default or data URI
 	 */
-	private static function get_placeholder_image_url(): string
-	{
+	private static function get_placeholder_image_url(): string {
 		// Try different placeholder file extensions
 		$possible_files = array(
 			'placeholder-vehicle.png',
@@ -735,9 +706,9 @@ final class VehicleDetails extends AbstractShortcode
 			'no-image.png',
 		);
 
-		foreach ($possible_files as $filename) {
+		foreach ( $possible_files as $filename ) {
 			$file_path = MHM_RENTIVA_PLUGIN_DIR . 'assets/images/' . $filename;
-			if (file_exists($file_path)) {
+			if ( file_exists( $file_path ) ) {
 				return MHM_RENTIVA_PLUGIN_URL . 'assets/images/' . $filename;
 			}
 		}
@@ -750,36 +721,35 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * AJAX handler for calendar navigation
 	 */
-	public static function ajax_get_calendar(): void
-	{
+	public static function ajax_get_calendar(): void {
 		// Verify nonce
-		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_calendar_nonce')) {
-			wp_die('Security check failed');
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_rentiva_calendar_nonce' ) ) {
+			wp_die( 'Security check failed' );
 		}
 
-		$vehicle_id = (int) ($_POST['vehicle_id'] ?? 0);
-		$month      = (int) ($_POST['month'] ?? gmdate('n'));
-		$year       = (int) ($_POST['year'] ?? gmdate('Y'));
+		$vehicle_id = (int) ( $_POST['vehicle_id'] ?? 0 );
+		$month      = (int) ( $_POST['month'] ?? gmdate( 'n' ) );
+		$year       = (int) ( $_POST['year'] ?? gmdate( 'Y' ) );
 
 		// If vehicle_id is 0 or 'current', try to get from current context
-		if (! $vehicle_id || $vehicle_id === 'current') {
+		if ( ! $vehicle_id || $vehicle_id === 'current' ) {
 			global $post;
-			if ($post && $post->post_type === 'vehicle') {
+			if ( $post && $post->post_type === 'vehicle' ) {
 				$vehicle_id = $post->ID;
 			} else {
 				$vehicle_id = get_the_ID();
 			}
 		}
 
-		if (! $vehicle_id) {
-			wp_send_json_error(__('Vehicle ID required', 'mhm-rentiva'));
+		if ( ! $vehicle_id ) {
+			wp_send_json_error( __( 'Vehicle ID required', 'mhm-rentiva' ) );
 		}
 
 		// Generate calendar HTML
-		$calendar_html = self::render_monthly_calendar($vehicle_id, $month, $year);
+		$calendar_html = self::render_monthly_calendar( $vehicle_id, $month, $year );
 
 		// Localized month name using WordPress locale
-		$month_year = date_i18n('F Y', mktime(0, 0, 0, $month, 10, $year));
+		$month_year = date_i18n( 'F Y', mktime( 0, 0, 0, $month, 10, $year ) );
 
 		wp_send_json_success(
 			array(
@@ -792,31 +762,30 @@ final class VehicleDetails extends AbstractShortcode
 	/**
 	 * Check vehicle availability
 	 */
-	private static function check_vehicle_availability(int $vehicle_id): array
-	{
-		$status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
+	private static function check_vehicle_availability( int $vehicle_id ): array {
+		$status = get_post_meta( $vehicle_id, '_mhm_vehicle_status', true );
 
 		// Fallback for older data or if status is not set
-		if (empty($status)) {
-			$old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+		if ( empty( $status ) ) {
+			$old_availability = get_post_meta( $vehicle_id, '_mhm_vehicle_availability', true );
 			// Handle legacy values
-			if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
+			if ( $old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive' ) {
 				$status = 'inactive';
-			} elseif ($old_availability === '1' || $old_availability === 'active') {
+			} elseif ( $old_availability === '1' || $old_availability === 'active' ) {
 				$status = 'active';
-			} elseif ($old_availability === 'maintenance') {
+			} elseif ( $old_availability === 'maintenance' ) {
 				$status = 'maintenance';
 			} else {
 				$status = 'active'; // Default
 			}
 		}
 
-		$is_available = ('active' === $status);
+		$is_available = ( 'active' === $status );
 
 		return array(
 			'is_available' => $is_available,
 			'status'       => $status,
-			'text'         => $is_available ? __('Available', 'mhm-rentiva') : __('Out of Order', 'mhm-rentiva'),
+			'text'         => $is_available ? __( 'Available', 'mhm-rentiva' ) : __( 'Out of Order', 'mhm-rentiva' ),
 		);
 	}
 }

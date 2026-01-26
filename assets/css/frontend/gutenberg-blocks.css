@@ -1,327 +1,327 @@
 /**
  * Gutenberg Blocks Frontend Styles
- * 
+ *
  * MHM Rentiva Gutenberg block'ları için frontend stilleri
- * 
+ *
  * @package MHMRentiva
  * @since 3.0.1
  */
 
 /* ====================================
-   Block Wrappers
-   ==================================== */
+	Block Wrappers
+	==================================== */
 
 /* Vehicle Card Block */
 .wp-block-mhm-rentiva-vehicle-card {
-    /* Block wrapper styles */
-    margin: 0;
+	/* Block wrapper styles */
+	margin: 0;
 }
 
 .wp-block-mhm-rentiva-vehicle-card .rv-vehicle-card {
-    /* Reset any conflicting styles */
-    margin: 0;
+	/* Reset any conflicting styles */
+	margin: 0;
 }
 
 /* Vehicles List Block */
 .wp-block-mhm-rentiva-vehicles-list {
-    /* Block wrapper styles */
-    margin: 0;
-    width: 100%;
+	/* Block wrapper styles */
+	margin: 0;
+	width: 100%;
 }
 
 .wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list {
-    /* Reset any conflicting styles */
-    margin: 0;
+	/* Reset any conflicting styles */
+	margin: 0;
 }
 
 /* Booking Form Block */
 .wp-block-mhm-rentiva-booking-form {
-    /* Block wrapper styles */
-    margin: 0;
-    width: 100%;
+	/* Block wrapper styles */
+	margin: 0;
+	width: 100%;
 }
 
 .wp-block-mhm-rentiva-booking-form .rv-booking-form {
-    /* Reset any conflicting styles */
-    margin: 0;
+	/* Reset any conflicting styles */
+	margin: 0;
 }
 
 /* ====================================
-   Block Alignment
-   ==================================== */
+	Block Alignment
+	==================================== */
 
 .wp-block-mhm-rentiva-vehicle-card.alignwide,
 .wp-block-mhm-rentiva-vehicles-list.alignwide,
 .wp-block-mhm-rentiva-booking-form.alignwide {
-    width: 100%;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+	width: 100%;
+	max-width: 1200px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .wp-block-mhm-rentiva-vehicle-card.alignfull,
 .wp-block-mhm-rentiva-vehicles-list.alignfull,
 .wp-block-mhm-rentiva-booking-form.alignfull {
-    width: 100vw;
-    max-width: none;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
+	width: 100vw;
+	max-width: none;
+	margin-left: calc(50% - 50vw);
+	margin-right: calc(50% - 50vw);
 }
 
 .wp-block-mhm-rentiva-vehicle-card.aligncenter,
 .wp-block-mhm-rentiva-vehicles-list.aligncenter,
 .wp-block-mhm-rentiva-booking-form.aligncenter {
-    margin-left: auto;
-    margin-right: auto;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 /* ====================================
-   Block Spacing
-   ==================================== */
+	Block Spacing
+	==================================== */
 
 .wp-block-mhm-rentiva-vehicle-card,
 .wp-block-mhm-rentiva-vehicles-list,
 .wp-block-mhm-rentiva-booking-form {
-    margin-bottom: 2rem;
+	margin-bottom: 2rem;
 }
 
 .wp-block-mhm-rentiva-vehicle-card:last-child,
 .wp-block-mhm-rentiva-vehicles-list:last-child,
 .wp-block-mhm-rentiva-booking-form:last-child {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 
 /* Grid Layout for Vehicles List Block */
 .wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--grid {
-    display: grid;
-    gap: 1.5rem;
+	display: grid;
+	gap: 1.5rem;
 }
 
 .wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--columns-1 {
-    grid-template-columns: 1fr;
+	grid-template-columns: 1fr;
 }
 
 .wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--columns-2 {
-    grid-template-columns: repeat(2, 1fr);
+	grid-template-columns: repeat(2, 1fr);
 }
 
 .wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--columns-3 {
-    grid-template-columns: repeat(3, 1fr);
+	grid-template-columns: repeat(3, 1fr);
 }
 
 .wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--columns-4 {
-    grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat(4, 1fr);
 }
 
 /* ====================================
-   Responsive Block Layout
-   ==================================== */
+	Responsive Block Layout
+	==================================== */
 
 @media (max-width: 1200px) {
-    .wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--columns-4 {
-        grid-template-columns: repeat(3, 1fr) !important;
-    }
+	.wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--columns-4 {
+		grid-template-columns: repeat(3, 1fr) !important;
+	}
 }
 
 @media (max-width: 900px) {
 
-    .wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--columns-3,
-    .wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--columns-4 {
-        grid-template-columns: repeat(2, 1fr) !important;
-    }
+	.wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--columns-3,
+	.wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--columns-4 {
+		grid-template-columns: repeat(2, 1fr) !important;
+	}
 }
 
 @media (max-width: 768px) {
 
-    .wp-block-mhm-rentiva-vehicle-card.alignwide,
-    .wp-block-mhm-rentiva-vehicle-card.alignfull,
-    .wp-block-mhm-rentiva-vehicles-list.alignwide,
-    .wp-block-mhm-rentiva-vehicles-list.alignfull,
-    .wp-block-mhm-rentiva-booking-form.alignwide,
-    .wp-block-mhm-rentiva-booking-form.alignfull {
-        width: 100%;
-        margin-left: 0;
-        margin-right: 0;
-    }
+	.wp-block-mhm-rentiva-vehicle-card.alignwide,
+	.wp-block-mhm-rentiva-vehicle-card.alignfull,
+	.wp-block-mhm-rentiva-vehicles-list.alignwide,
+	.wp-block-mhm-rentiva-vehicles-list.alignfull,
+	.wp-block-mhm-rentiva-booking-form.alignwide,
+	.wp-block-mhm-rentiva-booking-form.alignfull {
+		width: 100%;
+		margin-left: 0;
+		margin-right: 0;
+	}
 
-    .wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--grid {
-        grid-template-columns: 1fr !important;
-    }
+	.wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--grid {
+		grid-template-columns: 1fr !important;
+	}
 }
 
 /* ====================================
-   Block Custom Classes
-   ==================================== */
+	Block Custom Classes
+	==================================== */
 
 .wp-block-mhm-rentiva-vehicle-card.has-custom-spacing {
-    /* Custom spacing utility classes */
+	/* Custom spacing utility classes */
 }
 
 .wp-block-mhm-rentiva-vehicle-card.has-custom-colors {
-    /* Custom color utility classes */
+	/* Custom color utility classes */
 }
 
 /* ====================================
-   Block Animation Support
-   ==================================== */
+	Block Animation Support
+	==================================== */
 
 .wp-block-mhm-rentiva-vehicle-card.animate-on-scroll {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+	opacity: 0;
+	transform: translateY(20px);
+	transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 .wp-block-mhm-rentiva-vehicle-card.animate-on-scroll.is-visible {
-    opacity: 1;
-    transform: translateY(0);
+	opacity: 1;
+	transform: translateY(0);
 }
 
 /* ====================================
-   Block Loading State
-   ==================================== */
+	Block Loading State
+	==================================== */
 
 .wp-block-mhm-rentiva-vehicle-card.is-loading {
-    opacity: 0.6;
-    pointer-events: none;
+	opacity: 0.6;
+	pointer-events: none;
 }
 
 .wp-block-mhm-rentiva-vehicle-card.is-loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 24px;
-    height: 24px;
-    border: 2px solid #2563eb;
-    border-top: 2px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 24px;
+	height: 24px;
+	border: 2px solid #2563eb;
+	border-top: 2px solid transparent;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    0% {
-        transform: translate(-50%, -50%) rotate(0deg);
-    }
+	0% {
+		transform: translate(-50%, -50%) rotate(0deg);
+	}
 
-    100% {
-        transform: translate(-50%, -50%) rotate(360deg);
-    }
+	100% {
+		transform: translate(-50%, -50%) rotate(360deg);
+	}
 }
 
 /* ====================================
-   Block Error State
-   ==================================== */
+	Block Error State
+	==================================== */
 
 .wp-block-mhm-rentiva-vehicle-card.has-error {
-    border: 2px solid #ef4444;
-    border-radius: 8px;
-    padding: 16px;
-    background-color: #fef2f2;
-    color: #dc2626;
-    text-align: center;
+	border: 2px solid #ef4444;
+	border-radius: 8px;
+	padding: 16px;
+	background-color: #fef2f2;
+	color: #dc2626;
+	text-align: center;
 }
 
 .wp-block-mhm-rentiva-vehicle-card.has-error .error-message {
-    font-weight: 500;
-    margin-bottom: 8px;
+	font-weight: 500;
+	margin-bottom: 8px;
 }
 
 .wp-block-mhm-rentiva-vehicle-card.has-error .error-details {
-    font-size: 14px;
-    opacity: 0.8;
+	font-size: 14px;
+	opacity: 0.8;
 }
 
 /* ====================================
-   Block Empty State
-   ==================================== */
+	Block Empty State
+	==================================== */
 
 .wp-block-mhm-rentiva-vehicle-card.is-empty {
-    border: 2px dashed #d1d5db;
-    border-radius: 8px;
-    padding: 32px;
-    text-align: center;
-    background-color: #f9fafb;
-    color: #6b7280;
+	border: 2px dashed #d1d5db;
+	border-radius: 8px;
+	padding: 32px;
+	text-align: center;
+	background-color: #f9fafb;
+	color: #6b7280;
 }
 
 .wp-block-mhm-rentiva-vehicle-card.is-empty .empty-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-    opacity: 0.5;
+	font-size: 48px;
+	margin-bottom: 16px;
+	opacity: 0.5;
 }
 
 .wp-block-mhm-rentiva-vehicle-card.is-empty .empty-message {
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 8px;
+	font-size: 16px;
+	font-weight: 500;
+	margin-bottom: 8px;
 }
 
 .wp-block-mhm-rentiva-vehicle-card.is-empty .empty-description {
-    font-size: 14px;
-    opacity: 0.8;
+	font-size: 14px;
+	opacity: 0.8;
 }
 
 /* ====================================
-   Block Custom Styling
-   ==================================== */
+	Block Custom Styling
+	==================================== */
 
 /* Custom background colors */
 .wp-block-mhm-rentiva-vehicle-card.has-background-primary {
-    background-color: var(--rv-primary);
+	background-color: var(--rv-primary);
 }
 
 .wp-block-mhm-rentiva-vehicle-card.has-background-secondary {
-    background-color: var(--rv-secondary);
+	background-color: var(--rv-secondary);
 }
 
 /* Custom text colors */
 .wp-block-mhm-rentiva-vehicle-card.has-text-primary {
-    color: var(--rv-primary);
+	color: var(--rv-primary);
 }
 
 .wp-block-mhm-rentiva-vehicle-card.has-text-secondary {
-    color: var(--rv-secondary);
+	color: var(--rv-secondary);
 }
 
 /* Custom spacing */
 .wp-block-mhm-rentiva-vehicle-card.has-spacing-small {
-    margin-bottom: 1rem;
+	margin-bottom: 1rem;
 }
 
 .wp-block-mhm-rentiva-vehicle-card.has-spacing-medium {
-    margin-bottom: 2rem;
+	margin-bottom: 2rem;
 }
 
 .wp-block-mhm-rentiva-vehicle-card.has-spacing-large {
-    margin-bottom: 3rem;
+	margin-bottom: 3rem;
 }
 
 /* Custom border radius */
 .wp-block-mhm-rentiva-vehicle-card.has-border-radius-none {
-    border-radius: 0;
+	border-radius: 0;
 }
 
 .wp-block-mhm-rentiva-vehicle-card.has-border-radius-small {
-    border-radius: 4px;
+	border-radius: 4px;
 }
 
 .wp-block-mhm-rentiva-vehicle-card.has-border-radius-large {
-    border-radius: 16px;
+	border-radius: 16px;
 }
 
 /* ====================================
-   Block Print Styles
-   ==================================== */
+	Block Print Styles
+	==================================== */
 
 @media print {
-    .wp-block-mhm-rentiva-vehicle-card {
-        break-inside: avoid;
-        margin-bottom: 1rem;
-    }
+	.wp-block-mhm-rentiva-vehicle-card {
+		break-inside: avoid;
+		margin-bottom: 1rem;
+	}
 
-    .wp-block-mhm-rentiva-vehicle-card .rv-vehicle-card {
-        box-shadow: none;
-        border: 1px solid #000;
-    }
+	.wp-block-mhm-rentiva-vehicle-card .rv-vehicle-card {
+		box-shadow: none;
+		border: 1px solid #000;
+	}
 }

@@ -1,323 +1,323 @@
 /* Booking List Table Styles */
 .mhm-booking-list {
-    overflow-x: auto;
-    box-sizing: border-box;
+	overflow-x: auto;
+	box-sizing: border-box;
 }
 
 .mhm-booking-list .badge {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--mhm-radius-sm);
-    font-size: 0.8rem;
-    font-weight: var(--mhm-font-medium);
-    text-align: center;
-    white-space: nowrap;
-    color: var(--mhm-white);
+	display: inline-block;
+	padding: 0.25rem 0.5rem;
+	border-radius: var(--mhm-radius-sm);
+	font-size: 0.8rem;
+	font-weight: var(--mhm-font-medium);
+	text-align: center;
+	white-space: nowrap;
+	color: var(--mhm-white);
 }
 
 /* Styles for new columns */
 .mhm-booking-list .booking-id {
-    font-family: monospace;
-    font-weight: var(--mhm-font-bold);
-    color: var(--mhm-text-secondary);
-    font-size: 0.9rem;
+	font-family: monospace;
+	font-weight: var(--mhm-font-bold);
+	color: var(--mhm-text-secondary);
+	font-size: 0.9rem;
 }
 
 .mhm-booking-list .license-plate {
-    font-family: monospace;
-    font-weight: var(--mhm-font-bold);
-    background-color: var(--mhm-bg-secondary);
-    padding: 0.2rem 0.4rem;
-    border-radius: var(--mhm-radius-sm);
-    font-size: 0.85rem;
-    border: 1px solid var(--mhm-border-secondary);
+	font-family: monospace;
+	font-weight: var(--mhm-font-bold);
+	background-color: var(--mhm-bg-secondary);
+	padding: 0.2rem 0.4rem;
+	border-radius: var(--mhm-radius-sm);
+	font-size: 0.85rem;
+	border: 1px solid var(--mhm-border-secondary);
 }
 
 .mhm-booking-list .booking-type {
-    display: inline-block;
-    padding: 0.2rem 0.5rem;
-    border-radius: var(--mhm-radius-sm);
-    font-size: 0.8rem;
-    font-weight: var(--mhm-font-medium);
-    text-align: center;
+	display: inline-block;
+	padding: 0.2rem 0.5rem;
+	border-radius: var(--mhm-radius-sm);
+	font-size: 0.8rem;
+	font-weight: var(--mhm-font-medium);
+	text-align: center;
 }
 
 .mhm-booking-list .booking-type.online {
-    background-color: #e3f2fd;
-    /* Keep specific color or add to vars */
-    color: #1976d2;
-    border: 1px solid #bbdefb;
+	background-color: #e3f2fd;
+	/* Keep specific color or add to vars */
+	color: #1976d2;
+	border: 1px solid #bbdefb;
 }
 
 .mhm-booking-list .booking-type.manual {
-    background-color: #fff3e0;
-    /* Keep specific color or add to vars */
-    color: #f57c00;
-    border: 1px solid #ffcc02;
+	background-color: #fff3e0;
+	/* Keep specific color or add to vars */
+	color: #f57c00;
+	border: 1px solid #ffcc02;
 }
 
 /* Styles for deposit amount column */
 .mhm-booking-list .deposit-amount {
-    font-weight: var(--mhm-font-bold);
-    color: var(--mhm-success);
-    font-size: 0.9rem;
+	font-weight: var(--mhm-font-bold);
+	color: var(--mhm-success);
+	font-size: 0.9rem;
 }
 
 /* Styles for remaining amount column */
 .mhm-booking-list .remaining-amount {
-    font-weight: var(--mhm-font-bold);
-    color: var(--mhm-error);
-    font-size: 0.9rem;
+	font-weight: var(--mhm-font-bold);
+	color: var(--mhm-error);
+	font-size: 0.9rem;
 }
 
 .mhm-booking-list .remaining-amount.paid {
-    color: var(--mhm-success);
+	color: var(--mhm-success);
 }
 
 /* Styles for customer info in title column */
 .mhm-booking-list .column-title strong a {
-    color: var(--mhm-primary);
-    text-decoration: none;
+	color: var(--mhm-primary);
+	text-decoration: none;
 }
 
 .mhm-booking-list .column-title strong a:hover {
-    color: var(--mhm-primary-dark);
-    text-decoration: underline;
+	color: var(--mhm-primary-dark);
+	text-decoration: underline;
 }
 
 /* Phone number highlight */
 .mhm-booking-list .column-title strong {
-    display: block;
-    margin-bottom: 2px;
+	display: block;
+	margin-bottom: 2px;
 }
 
 /* Styles for filter fields */
 .mhm-booking-list .postform {
-    margin-right: 8px;
-    padding: 4px 8px;
-    border: 1px solid var(--mhm-border-primary);
-    border-radius: var(--mhm-radius-sm);
-    font-size: 13px;
-    min-width: 150px;
-    /* Minimum width added */
-    width: auto;
-    /* Auto width */
+	margin-right: 8px;
+	padding: 4px 8px;
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-sm);
+	font-size: 13px;
+	min-width: 150px;
+	/* Minimum width added */
+	width: auto;
+	/* Auto width */
 }
 
 .mhm-booking-list .postform:focus {
-    border-color: var(--mhm-primary);
-    box-shadow: 0 0 0 1px var(--mhm-primary);
-    outline: none;
+	border-color: var(--mhm-primary);
+	box-shadow: 0 0 0 1px var(--mhm-primary);
+	outline: none;
 }
 
 /* Custom styles for dropdown fields */
 .mhm-booking-list .postform[class*="postform"] {
-    padding-right: 25px;
-    /* Right padding for dropdown arrow */
-    background-position: right 8px center;
-    /* Dropdown ok konumu */
-    background-repeat: no-repeat;
-    background-size: 12px;
+	padding-right: 25px;
+	/* Right padding for dropdown arrow */
+	background-position: right 8px center;
+	/* Dropdown ok konumu */
+	background-repeat: no-repeat;
+	background-size: 12px;
 }
 
 /* Custom dropdown widths */
 .mhm-booking-list select.postform[name="mhm_payment_status"] {
-    min-width: 140px;
-    padding-right: 30px;
-    /* Extra padding for dropdown arrow */
+	min-width: 140px;
+	padding-right: 30px;
+	/* Extra padding for dropdown arrow */
 }
 
 .mhm-booking-list select.postform[name="mhm_payment_method"] {
-    min-width: 160px;
-    padding-right: 30px;
-    /* Extra padding for dropdown arrow */
+	min-width: 160px;
+	padding-right: 30px;
+	/* Extra padding for dropdown arrow */
 }
 
 .mhm-booking-list select.postform[name="mhm_booking_status"] {
-    min-width: 130px;
-    padding-right: 30px;
-    /* Extra padding for dropdown arrow */
+	min-width: 130px;
+	padding-right: 30px;
+	/* Extra padding for dropdown arrow */
 }
 
 /* General fix for WordPress admin dropdowns */
 .mhm-booking-list select.postform {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-    background-size: 12px;
-    padding-right: 30px;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+	background-size: 12px;
+	padding-right: 30px;
 }
 
 /* Custom layout for all payments dropdown */
 .mhm-booking-list select[name="mhm_payment_status"] {
-    min-width: 140px !important;
-    padding-right: 35px !important;
+	min-width: 140px !important;
+	padding-right: 35px !important;
 }
 
 /* Custom layout for all payment methods dropdown */
 .mhm-booking-list select[name="mhm_payment_method"] {
-    min-width: 160px !important;
-    padding-right: 35px !important;
+	min-width: 160px !important;
+	padding-right: 35px !important;
 }
 
 /* Spacing between filter fields */
 .mhm-booking-list .subsubsub {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 .mhm-booking-list .subsubsub li {
-    margin-right: 15px;
+	margin-right: 15px;
 }
 
 /* Status badge colors */
 .mhm-booking-list .badge.status-draft {
-    background-color: var(--mhm-gray-500);
+	background-color: var(--mhm-gray-500);
 }
 
 .mhm-booking-list .badge.status-pending {
-    background-color: var(--mhm-warning);
-    /* 🟡 Yellow - Attention required, pending */
-    color: #000;
+	background-color: var(--mhm-warning);
+	/* 🟡 Yellow - Attention required, pending */
+	color: #000;
 }
 
 .mhm-booking-list .badge.status-confirmed {
-    background-color: var(--mhm-success);
-    /* 🟢 Green - Successful, confirmed */
-    color: var(--mhm-white);
+	background-color: var(--mhm-success);
+	/* 🟢 Green - Successful, confirmed */
+	color: var(--mhm-white);
 }
 
 .mhm-booking-list .badge.status-in_progress {
-    background-color: #fd7e14;
-    /* Orange */
-    /* 🟠 Turuncu - Aktif, devam eden */
-    color: var(--mhm-white);
+	background-color: #fd7e14;
+	/* Orange */
+	/* 🟠 Turuncu - Aktif, devam eden */
+	color: var(--mhm-white);
 }
 
 .mhm-booking-list .badge.status-completed {
-    background-color: var(--mhm-primary);
-    /* 🔵 Blue - Completed, finished */
-    color: var(--mhm-white);
+	background-color: var(--mhm-primary);
+	/* 🔵 Blue - Completed, finished */
+	color: var(--mhm-white);
 }
 
 .mhm-booking-list .badge.status-cancelled {
-    background-color: var(--mhm-error);
-    /* 🔴 Red - Cancelled, error */
-    color: var(--mhm-white);
+	background-color: var(--mhm-error);
+	/* 🔴 Red - Cancelled, error */
+	color: var(--mhm-white);
 }
 
 .mhm-booking-list .badge.status-refunded {
-    background-color: var(--mhm-warning);
-    color: #000;
+	background-color: var(--mhm-warning);
+	color: #000;
 }
 
 .mhm-booking-list .badge.status-no_show {
-    background-color: var(--mhm-error);
+	background-color: var(--mhm-error);
 }
 
 /* Payment status styling */
 .mhm-booking-list .payment-info {
-    font-size: 0.9rem;
-    line-height: 1.3;
+	font-size: 0.9rem;
+	line-height: 1.3;
 }
 
 .mhm-booking-list .payment-info .payment-status {
-    font-weight: var(--mhm-font-medium);
-    color: var(--mhm-text-primary);
-    margin-bottom: 0.2rem;
+	font-weight: var(--mhm-font-medium);
+	color: var(--mhm-text-primary);
+	margin-bottom: 0.2rem;
 }
 
 .mhm-booking-list .payment-info .amount {
-    font-weight: var(--mhm-font-bold);
-    color: var(--mhm-text-primary);
-    margin-bottom: 0.1rem;
+	font-weight: var(--mhm-font-bold);
+	color: var(--mhm-text-primary);
+	margin-bottom: 0.1rem;
 }
 
 .mhm-booking-list .payment-info .gateway {
-    font-size: 0.8rem;
-    color: var(--mhm-text-secondary);
-    font-style: italic;
+	font-size: 0.8rem;
+	color: var(--mhm-text-secondary);
+	font-style: italic;
 }
 
 /* Vehicle info styling */
 .mhm-booking-list .vehicle-info {
-    font-size: 0.9rem;
+	font-size: 0.9rem;
 }
 
 .mhm-booking-list .vehicle-info .vehicle-name {
-    font-weight: var(--mhm-font-medium);
-    color: var(--mhm-text-primary);
-    display: block;
-    margin-bottom: 0.2rem;
+	font-weight: var(--mhm-font-medium);
+	color: var(--mhm-text-primary);
+	display: block;
+	margin-bottom: 0.2rem;
 }
 
 .mhm-booking-list .vehicle-info .vehicle-plate {
-    font-size: 0.8rem;
-    color: var(--mhm-text-secondary);
-    font-family: monospace;
+	font-size: 0.8rem;
+	color: var(--mhm-text-secondary);
+	font-family: monospace;
 }
 
 /* Date info styling */
 .mhm-booking-list .date-info {
-    font-size: 0.9rem;
-    line-height: 1.3;
+	font-size: 0.9rem;
+	line-height: 1.3;
 }
 
 .mhm-booking-list .date-info .date-range {
-    font-weight: var(--mhm-font-medium);
-    color: var(--mhm-text-primary);
+	font-weight: var(--mhm-font-medium);
+	color: var(--mhm-text-primary);
 }
 
 .mhm-booking-list .date-info .time-info {
-    font-size: 0.8rem;
-    color: var(--mhm-text-secondary);
+	font-size: 0.8rem;
+	color: var(--mhm-text-secondary);
 }
 
 /* Total amount styling */
 .mhm-booking-list .total-amount {
-    font-weight: var(--mhm-font-bold);
-    color: var(--mhm-text-primary);
-    font-size: 0.9rem;
+	font-weight: var(--mhm-font-bold);
+	color: var(--mhm-text-primary);
+	font-size: 0.9rem;
 }
 
 /* Filter dropdowns styling */
 .mhm-booking-list .postform {
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
+	margin-right: 0.5rem;
+	margin-bottom: 0.5rem;
 }
 
 /* Responsive adjustments */
 @media (max-width: 782px) {
-    .mhm-booking-list {
-        overflow-x: auto;
-        width: 100%;
-        box-sizing: border-box;
-    }
+	.mhm-booking-list {
+		overflow-x: auto;
+		width: 100%;
+		box-sizing: border-box;
+	}
 
-    .mhm-booking-list .badge {
-        font-size: 0.7rem;
-        padding: 0.2rem 0.4rem;
-    }
+	.mhm-booking-list .badge {
+		font-size: 0.7rem;
+		padding: 0.2rem 0.4rem;
+	}
 
-    .mhm-booking-list .vehicle-info,
-    .mhm-booking-list .date-info,
-    .mhm-booking-list .payment-info {
-        font-size: 0.8rem;
-    }
+	.mhm-booking-list .vehicle-info,
+	.mhm-booking-list .date-info,
+	.mhm-booking-list .payment-info {
+		font-size: 0.8rem;
+	}
 
-    /* Calendar responsive */
-    .calendar-container {
-        margin: 5px 0;
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-    }
+	/* Calendar responsive */
+	.calendar-container {
+		margin: 5px 0;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+	}
 
-    .calendar-grid div {
-        padding: 0.3rem 0.05rem;
-        font-size: 0.7rem;
-        min-height: 30px;
-    }
+	.calendar-grid div {
+		padding: 0.3rem 0.05rem;
+		font-size: 0.7rem;
+		min-height: 30px;
+	}
 }

@@ -2,380 +2,436 @@
  * Messages Settings JavaScript
  */
 
-jQuery(document).ready(function ($) {
-    'use strict';
+jQuery( document ).ready(
+	function ($) {
+		'use strict';
 
-    // Tab functionality
-    initTabs();
+		// Tab functionality
+		initTabs();
 
-    // Category management
-    initCategoryManagement();
+		// Category management
+		initCategoryManagement();
 
-    // Status management
-    initStatusManagement();
+		// Status management
+		initStatusManagement();
 
-    // Form validation
-    initFormValidation();
+		// Form validation
+		initFormValidation();
 
-    // Reset button
-    initResetButton();
+		// Reset button
+		initResetButton();
 
+		/**
+		 * Initialize tab functionality
+		 */
+		function initTabs() {
+			// Tab switching via URL parameter
+			const urlParams    = new URLSearchParams( window.location.search );
+			const activeSubtab = urlParams.get( 'subtab' ) || 'email';
 
+			// Show active subtab content
+			showSubtab( activeSubtab );
 
-    /**
-     * Initialize tab functionality
-     */
-    function initTabs() {
-        // Tab switching via URL parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const activeSubtab = urlParams.get('subtab') || 'email';
+			// Handle subtab clicks (both .nav-tab and .mhm-subtab)
+			$( '.nav-tab, .mhm-subtab' ).on(
+				'click',
+				function (e) {
+					e.preventDefault();
+					const href = $( this ).attr( 'href' );
+					if (href) {
+						const urlParams = new URLSearchParams( href.split( '?' )[1] );
+						const subtabId  = urlParams.get( 'subtab' );
+						if (subtabId) {
+							showSubtab( subtabId );
+						}
+					}
+				}
+			);
+		}
 
-        // Show active subtab content
-        showSubtab(activeSubtab);
+		/**
+		 * Show specific subtab content
+		 */
+		function showSubtab(subtabId) {
+			// Hide all subtab contents
+			$( '.tab-content, .mhm-subtab-content' ).removeClass( 'active' ).hide();
 
-        // Handle subtab clicks (both .nav-tab and .mhm-subtab)
-        $('.nav-tab, .mhm-subtab').on('click', function (e) {
-            e.preventDefault();
-            const href = $(this).attr('href');
-            if (href) {
-                const urlParams = new URLSearchParams(href.split('?')[1]);
-                const subtabId = urlParams.get('subtab');
-                if (subtabId) {
-                    showSubtab(subtabId);
-                }
-            }
-        });
-    }
+			// Remove active class from all subtabs
+			$( '.nav-tab, .mhm-subtab' ).removeClass( 'nav-tab-active active' );
 
-    /**
-     * Show specific subtab content
-     */
-    function showSubtab(subtabId) {
-        // Hide all subtab contents
-        $('.tab-content, .mhm-subtab-content').removeClass('active').hide();
+			// Show selected subtab content (try both class names for compatibility)
+			$( '#messages-' + subtabId + ', #' + subtabId ).addClass( 'active' ).show();
 
-        // Remove active class from all subtabs
-        $('.nav-tab, .mhm-subtab').removeClass('nav-tab-active active');
+			// Add active class to corresponding subtab
+			$( '.nav-tab[href*="subtab=' + subtabId + '"], .mhm-subtab[href*="subtab=' + subtabId + '"]' ).addClass( 'nav-tab-active active' );
 
-        // Show selected subtab content (try both class names for compatibility)
-        $('#messages-' + subtabId + ', #' + subtabId).addClass('active').show();
+			// Update browser URL to preserve subtab (using History API)
+			const currentUrl = new URL( window.location.href );
+			currentUrl.searchParams.set( 'subtab', subtabId );
+			window.history.replaceState( {}, '', currentUrl.toString() );
 
-        // Add active class to corresponding subtab
-        $('.nav-tab[href*="subtab=' + subtabId + '"], .mhm-subtab[href*="subtab=' + subtabId + '"]').addClass('nav-tab-active active');
+			// Also update the _wp_http_referer hidden input so form submission preserves the subtab
+			const refererInput = $( 'input[name="_wp_http_referer"]' );
+			if (refererInput.length) {
+				refererInput.val( currentUrl.pathname + currentUrl.search );
+			}
+		}
 
-        // Update browser URL to preserve subtab (using History API)
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('subtab', subtabId);
-        window.history.replaceState({}, '', currentUrl.toString());
+		/**
+		 * Initialize category management
+		 */
+		function initCategoryManagement() {
+			// Add new category
+			$( '#add-category-btn' ).on(
+				'click',
+				function () {
+					const categoryName = $( '#new-category-name' ).val().trim();
 
-        // Also update the _wp_http_referer hidden input so form submission preserves the subtab
-        const refererInput = $('input[name="_wp_http_referer"]');
-        if (refererInput.length) {
-            refererInput.val(currentUrl.pathname + currentUrl.search);
-        }
-    }
+					if ( ! categoryName) {
+						showNotice( window.mhmMessagesSettings ? .strings ? .enterCategoryName || 'Please enter a category name', 'warning' );
+						return;
+					}
 
-    /**
-     * Initialize category management
-     */
-    function initCategoryManagement() {
-        // Add new category
-        $('#add-category-btn').on('click', function () {
-            const categoryName = $('#new-category-name').val().trim();
+					// Check if category already exists
+					const existingCategories = [];
+					$( '.category-name' ).each(
+						function () {
+							existingCategories.push( $( this ).val().toLowerCase() );
+						}
+					);
 
-            if (!categoryName) {
-                showNotice(window.mhmMessagesSettings?.strings?.enterCategoryName || 'Please enter a category name', 'warning');
-                return;
-            }
+					if (existingCategories.includes( categoryName.toLowerCase() )) {
+						showNotice( window.mhmMessagesSettings ? .strings ? .categoryExists || 'This category already exists', 'error' );
+						return;
+					}
 
-            // Check if category already exists
-            const existingCategories = [];
-            $('.category-name').each(function () {
-                existingCategories.push($(this).val().toLowerCase());
-            });
+					// Generate unique slug from name
+					const categorySlug = categoryName.toLowerCase().replace( /[^a-z0-9]/g, '_' ).replace( /_+/g, '_' ).replace( /^_|_$/g, '' );
+					const optionName   = 'mhm_rentiva_messages_settings';
 
-            if (existingCategories.includes(categoryName.toLowerCase())) {
-                showNotice(window.mhmMessagesSettings?.strings?.categoryExists || 'This category already exists', 'error');
-                return;
-            }
+					// Add new category item with correct name format
+					const deleteText      = (window.mhmMessagesSettings && window.mhmMessagesSettings.strings && window.mhmMessagesSettings.strings.delete) || 'Delete';
+					const newCategoryHtml = `
+					< div class           = "mhm-category-item" >
+						< input type      = "text" name = "${optionName}[categories][${categorySlug}]"
+								value     = "${categoryName}" class = "category-name regular-text" required >
+						< button type     = "button" class = "button remove-category-btn" > ${deleteText} < / button >
+					< / div >
+					`;
 
-            // Generate unique slug from name
-            const categorySlug = categoryName.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
-            const optionName = 'mhm_rentiva_messages_settings';
+					$( '#category-list' ).append( newCategoryHtml );
+					$( '#new-category-name' ).val( '' );
 
-            // Add new category item with correct name format
-            const deleteText = (window.mhmMessagesSettings && window.mhmMessagesSettings.strings && window.mhmMessagesSettings.strings.delete) || 'Delete';
-            const newCategoryHtml = `
-                <div class="mhm-category-item">
-                    <input type="text" name="${optionName}[categories][${categorySlug}]" 
-                           value="${categoryName}" class="category-name regular-text" required>
-                    <button type="button" class="button remove-category-btn">${deleteText}</button>
-                </div>
-            `;
+					// Bind remove event to new button
+					$( '.remove-category-btn' ).off( 'click' ).on(
+						'click',
+						function () {
+							$( this ).closest( '.mhm-category-item' ).remove();
+						}
+					);
+				}
+			);
 
-            $('#category-list').append(newCategoryHtml);
-            $('#new-category-name').val('');
+			// Remove category
+			$( '.remove-category-btn' ).on(
+				'click',
+				function () {
+					if (confirm( window.mhmMessagesSettings ? .strings ? .confirmDeleteCategory || 'Are you sure you want to delete this category?' )) {
+						$( this ).closest( '.mhm-category-item' ).remove();
+					}
+				}
+			);
+		}
 
-            // Bind remove event to new button
-            $('.remove-category-btn').off('click').on('click', function () {
-                $(this).closest('.mhm-category-item').remove();
-            });
-        });
+		/**
+		 * Initialize status management
+		 */
+		function initStatusManagement() {
+			// Add new status
+			$( '#add-status-btn' ).on(
+				'click',
+				function () {
+					const statusName = $( '#new-status-name' ).val().trim();
+					const strings    = (window.mhmMessagesSettings && window.mhmMessagesSettings.strings) || {};
 
-        // Remove category
-        $('.remove-category-btn').on('click', function () {
-            if (confirm(window.mhmMessagesSettings?.strings?.confirmDeleteCategory || 'Are you sure you want to delete this category?')) {
-                $(this).closest('.mhm-category-item').remove();
-            }
-        });
-    }
+					if ( ! statusName) {
+						showNotice( strings.enterStatusName || 'Please enter a status name', 'warning' );
+						return;
+					}
 
-    /**
-     * Initialize status management
-     */
-    function initStatusManagement() {
-        // Add new status
-        $('#add-status-btn').on('click', function () {
-            const statusName = $('#new-status-name').val().trim();
-            const strings = (window.mhmMessagesSettings && window.mhmMessagesSettings.strings) || {};
+					// Check if status already exists
+					const existingStatuses = [];
+					$( '.status-name' ).each(
+						function () {
+							existingStatuses.push( $( this ).val().toLowerCase() );
+						}
+					);
 
-            if (!statusName) {
-                showNotice(strings.enterStatusName || 'Please enter a status name', 'warning');
-                return;
-            }
+					if (existingStatuses.includes( statusName.toLowerCase() )) {
+						showNotice( strings.statusExists || 'This status already exists', 'error' );
+						return;
+					}
 
-            // Check if status already exists
-            const existingStatuses = [];
-            $('.status-name').each(function () {
-                existingStatuses.push($(this).val().toLowerCase());
-            });
+					// Generate unique slug from name
+					const statusSlug = statusName.toLowerCase().replace( /[^a-z0-9]/g, '_' ).replace( /_+/g, '_' ).replace( /^_|_$/g, '' );
+					const optionName = 'mhm_rentiva_messages_settings';
 
-            if (existingStatuses.includes(statusName.toLowerCase())) {
-                showNotice(strings.statusExists || 'This status already exists', 'error');
-                return;
-            }
+					// Add new status item with correct name format
+					const deleteText    = (window.mhmMessagesSettings && window.mhmMessagesSettings.strings && window.mhmMessagesSettings.strings.delete) || 'Delete';
+					const newStatusHtml = `
+					< div class         = "mhm-status-item" >
+						< input type    = "text" name = "${optionName}[statuses][${statusSlug}]"
+								value   = "${statusName}" class = "status-name regular-text" required >
+						< button type   = "button" class = "button remove-status-btn" > ${deleteText} < / button >
+					< / div >
+					`;
 
-            // Generate unique slug from name
-            const statusSlug = statusName.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
-            const optionName = 'mhm_rentiva_messages_settings';
+					$( '#status-list' ).append( newStatusHtml );
+					$( '#new-status-name' ).val( '' );
 
-            // Add new status item with correct name format
-            const deleteText = (window.mhmMessagesSettings && window.mhmMessagesSettings.strings && window.mhmMessagesSettings.strings.delete) || 'Delete';
-            const newStatusHtml = `
-                <div class="mhm-status-item">
-                    <input type="text" name="${optionName}[statuses][${statusSlug}]" 
-                           value="${statusName}" class="status-name regular-text" required>
-                    <button type="button" class="button remove-status-btn">${deleteText}</button>
-                </div>
-            `;
+					// Bind remove event to new button
+					$( '.remove-status-btn' ).off( 'click' ).on(
+						'click',
+						function () {
+							$( this ).closest( '.mhm-status-item' ).remove();
+						}
+					);
+				}
+			);
 
-            $('#status-list').append(newStatusHtml);
-            $('#new-status-name').val('');
+			// Remove status
+			$( '.remove-status-btn' ).on(
+				'click',
+				function () {
+					const confirmMsg = (window.mhmMessagesSettings && window.mhmMessagesSettings.strings && window.mhmMessagesSettings.strings.confirmDeleteStatus) || 'Are you sure you want to delete this status?';
+					if (confirm( confirmMsg )) {
+						$( this ).closest( '.mhm-status-item' ).remove();
+					}
+				}
+			);
+		}
 
-            // Bind remove event to new button
-            $('.remove-status-btn').off('click').on('click', function () {
-                $(this).closest('.mhm-status-item').remove();
-            });
-        });
+		/**
+		 * Initialize form validation
+		 */
+		function initFormValidation() {
+			$( '#mhm-messages-settings-form' ).on(
+				'submit',
+				function (e) {
+					let isValid      = true;
+					let errorMessage = '';
 
-        // Remove status
-        $('.remove-status-btn').on('click', function () {
-            const confirmMsg = (window.mhmMessagesSettings && window.mhmMessagesSettings.strings && window.mhmMessagesSettings.strings.confirmDeleteStatus) || 'Are you sure you want to delete this status?';
-            if (confirm(confirmMsg)) {
-                $(this).closest('.mhm-status-item').remove();
-            }
-        });
-    }
+					// Validate email fields
+					const adminEmail = $( 'input[name*="[admin_email]"]' ).val().trim();
+					const fromEmail  = $( 'input[name*="[from_email]"]' ).val().trim();
 
-    /**
-     * Initialize form validation
-     */
-    function initFormValidation() {
-        $('#mhm-messages-settings-form').on('submit', function (e) {
-            let isValid = true;
-            let errorMessage = '';
+					const strings = (window.mhmMessagesSettings && window.mhmMessagesSettings.strings) || {};
 
-            // Validate email fields
-            const adminEmail = $('input[name*="[admin_email]"]').val().trim();
-            const fromEmail = $('input[name*="[from_email]"]').val().trim();
+					if (adminEmail && ! isValidEmail( adminEmail )) {
+						isValid       = false;
+						errorMessage += (strings.validAdminEmail || 'Enter a valid admin email address') + '.\n';
+					}
 
-            const strings = (window.mhmMessagesSettings && window.mhmMessagesSettings.strings) || {};
+					if (fromEmail && ! isValidEmail( fromEmail )) {
+						isValid       = false;
+						errorMessage += (strings.validFromEmail || 'Enter a valid sender email address') + '.\n';
+					}
 
-            if (adminEmail && !isValidEmail(adminEmail)) {
-                isValid = false;
-                errorMessage += (strings.validAdminEmail || 'Enter a valid admin email address') + '.\n';
-            }
+					// Validate numeric fields
+					const maxMessages = parseInt( $( 'input[name*="[dashboard_widget_max_messages]"]' ).val() );
+					if (maxMessages && (maxMessages < 1 || maxMessages > 20)) {
+						isValid       = false;
+						errorMessage += (strings.maxMessagesRange || 'Widget max messages must be between 1-20') + '.\n';
+					}
 
-            if (fromEmail && !isValidEmail(fromEmail)) {
-                isValid = false;
-                errorMessage += (strings.validFromEmail || 'Enter a valid sender email address') + '.\n';
-            }
+					// Validate categories and statuses
+					const categoryNames = [];
+					$( '.category-name' ).each(
+						function () {
+							const name = $( this ).val().trim();
+							if (name) {
+								if (categoryNames.includes( name.toLowerCase() )) {
+									isValid       = false;
+									errorMessage += (strings.duplicateCategory || 'Duplicate category names are not allowed') + '.\n';
+								}
+								categoryNames.push( name.toLowerCase() );
+							}
+						}
+					);
 
-            // Validate numeric fields
-            const maxMessages = parseInt($('input[name*="[dashboard_widget_max_messages]"]').val());
-            if (maxMessages && (maxMessages < 1 || maxMessages > 20)) {
-                isValid = false;
-                errorMessage += (strings.maxMessagesRange || 'Widget max messages must be between 1-20') + '.\n';
-            }
+					const statusNames = [];
+					$( '.status-name' ).each(
+						function () {
+							const name = $( this ).val().trim();
+							if (name) {
+								if (statusNames.includes( name.toLowerCase() )) {
+									isValid       = false;
+									errorMessage += (strings.duplicateStatus || 'Duplicate status names are not allowed') + '.\n';
+								}
+								statusNames.push( name.toLowerCase() );
+							}
+						}
+					);
 
-            // Validate categories and statuses
-            const categoryNames = [];
-            $('.category-name').each(function () {
-                const name = $(this).val().trim();
-                if (name) {
-                    if (categoryNames.includes(name.toLowerCase())) {
-                        isValid = false;
-                        errorMessage += (strings.duplicateCategory || 'Duplicate category names are not allowed') + '.\n';
-                    }
-                    categoryNames.push(name.toLowerCase());
-                }
-            });
+					if ( ! isValid) {
+						e.preventDefault();
+						showNotice( (strings.formErrors || 'Form errors') + ':\n' + errorMessage, 'error' );
+						return false;
+					}
 
-            const statusNames = [];
-            $('.status-name').each(function () {
-                const name = $(this).val().trim();
-                if (name) {
-                    if (statusNames.includes(name.toLowerCase())) {
-                        isValid = false;
-                        errorMessage += (strings.duplicateStatus || 'Duplicate status names are not allowed') + '.\n';
-                    }
-                    statusNames.push(name.toLowerCase());
-                }
-            });
+					// Update referer URL to preserve current subtab after save
+					const urlParams     = new URLSearchParams( window.location.search );
+					const currentSubtab = urlParams.get( 'subtab' ) || 'email';
+					const refererInput  = $( 'input[name="_wp_http_referer"]' );
+					if (refererInput.length) {
+						let refererUrl = refererInput.val();
+						// Update or add subtab parameter
+						const refererParams = new URLSearchParams( refererUrl.split( '?' )[1] || '' );
+						refererParams.set( 'subtab', currentSubtab );
+						refererUrl = refererUrl.split( '?' )[0] + '?' + refererParams.toString();
+						refererInput.val( refererUrl );
+					}
 
-            if (!isValid) {
-                e.preventDefault();
-                showNotice((strings.formErrors || 'Form errors') + ':\n' + errorMessage, 'error');
-                return false;
-            }
+					// Show loading state
+					$( '.button-primary' ).prop( 'disabled', true ).text( strings.saving || 'Saving...' );
+				}
+			);
+		}
 
-            // Update referer URL to preserve current subtab after save
-            const urlParams = new URLSearchParams(window.location.search);
-            const currentSubtab = urlParams.get('subtab') || 'email';
-            const refererInput = $('input[name="_wp_http_referer"]');
-            if (refererInput.length) {
-                let refererUrl = refererInput.val();
-                // Update or add subtab parameter
-                const refererParams = new URLSearchParams(refererUrl.split('?')[1] || '');
-                refererParams.set('subtab', currentSubtab);
-                refererUrl = refererUrl.split('?')[0] + '?' + refererParams.toString();
-                refererInput.val(refererUrl);
-            }
+		/**
+		 * Email validation helper
+		 */
+		function isValidEmail(email) {
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			return emailRegex.test( email );
+		}
 
-            // Show loading state
-            $('.button-primary').prop('disabled', true).text(strings.saving || 'Saving...');
-        });
-    }
+		/**
+		 * Auto-save functionality (optional)
+		 */
+		function initAutoSave() {
+			let autoSaveTimeout;
 
-    /**
-     * Email validation helper
-     */
-    function isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
+			$( '.tab-content input, .tab-content textarea' ).on(
+				'input',
+				function () {
+					clearTimeout( autoSaveTimeout );
+					autoSaveTimeout = setTimeout(
+						function () {
+							// Auto-save implementation can be added here
+							// Debug log kaldırıldı
+						},
+						2000
+					);
+				}
+			);
+		}
 
-    /**
-     * Auto-save functionality (optional)
-     */
-    function initAutoSave() {
-        let autoSaveTimeout;
+		/**
+		 * Initialize reset button
+		 */
+		function initResetButton() {
+			$( '.mhm-reset-messages-btn' ).on(
+				'click',
+				function (e) {
+					e.preventDefault();
 
-        $('.tab-content input, .tab-content textarea').on('input', function () {
-            clearTimeout(autoSaveTimeout);
-            autoSaveTimeout = setTimeout(function () {
-                // Auto-save implementation can be added here
-                // Debug log kaldırıldı
-            }, 2000);
-        });
-    }
+					const confirmMsg = 'Are you sure you want to reset message settings to defaults?';
 
-    /**
-     * Initialize reset button
-     */
-    function initResetButton() {
-        $('.mhm-reset-messages-btn').on('click', function (e) {
-            e.preventDefault();
+					if ( ! confirm( confirmMsg )) {
+						return;
+					}
 
-            const confirmMsg = 'Are you sure you want to reset message settings to defaults?';
+					const $btn = $( this );
+					$btn.prop( 'disabled', true );
 
-            if (!confirm(confirmMsg)) {
-                return;
-            }
+					$.post(
+						window.mhmMessagesSettings.ajaxUrl,
+						{
+							action: 'mhm_reset_settings_tab',
+							security: window.mhmMessagesSettings.resetNonce,
+							tab: 'messages'
+						},
+						function (response) {
+							if (response.success) {
+								location.reload();
+							} else {
+								showNotice( response.data.message || 'Reset failed', 'error' );
+								$btn.prop( 'disabled', false );
+							}
+						}
+					).fail(
+						function () {
+							showNotice( 'Server error during reset', 'error' );
+							$btn.prop( 'disabled', false );
+						}
+					);
+				}
+			);
+		}
 
-            const $btn = $(this);
-            $btn.prop('disabled', true);
+		/**
+		 * Keyboard shortcuts
+		 */
+		function initKeyboardShortcuts() {
+			$( document ).on(
+				'keydown',
+				function (e) {
+					// Ctrl+S to save
+					if (e.ctrlKey && e.key === 's') {
+						e.preventDefault();
+						$( '#mhm-messages-settings-form' ).submit();
+					}
 
-            $.post(window.mhmMessagesSettings.ajaxUrl, {
-                action: 'mhm_reset_settings_tab',
-                security: window.mhmMessagesSettings.resetNonce,
-                tab: 'messages'
-            }, function (response) {
-                if (response.success) {
-                    location.reload();
-                } else {
-                    showNotice(response.data.message || 'Reset failed', 'error');
-                    $btn.prop('disabled', false);
-                }
-            }).fail(function () {
-                showNotice('Server error during reset', 'error');
-                $btn.prop('disabled', false);
-            });
-        });
-    }
+					// Tab navigation with arrow keys
+					if (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+						e.preventDefault();
+						const currentTab = $( '.nav-tab-active' ).index();
+						const tabs       = $( '.nav-tab' );
 
-    /**
-     * Keyboard shortcuts
-     */
-    function initKeyboardShortcuts() {
-        $(document).on('keydown', function (e) {
-            // Ctrl+S to save
-            if (e.ctrlKey && e.key === 's') {
-                e.preventDefault();
-                $('#mhm-messages-settings-form').submit();
-            }
+						let newIndex;
+						if (e.key === 'ArrowLeft') {
+							newIndex = currentTab > 0 ? currentTab - 1 : tabs.length - 1;
+						} else {
+							newIndex = currentTab < tabs.length - 1 ? currentTab + 1 : 0;
+						}
 
-            // Tab navigation with arrow keys
-            if (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
-                e.preventDefault();
-                const currentTab = $('.nav-tab-active').index();
-                const tabs = $('.nav-tab');
+						tabs.eq( newIndex ).click();
+					}
+				}
+			);
+		}
 
-                let newIndex;
-                if (e.key === 'ArrowLeft') {
-                    newIndex = currentTab > 0 ? currentTab - 1 : tabs.length - 1;
-                } else {
-                    newIndex = currentTab < tabs.length - 1 ? currentTab + 1 : 0;
-                }
+		/**
+		 * Show notice message
+		 */
+		function showNotice(message, type) {
+			type            = type || 'info';
+			var noticeClass = 'notice-' + type;
+			var notice      = $( '<div class="notice ' + noticeClass + ' is-dismissible" style="position: fixed; top: 32px; right: 20px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><p><strong>' + message + '</strong></p></div>' );
 
-                tabs.eq(newIndex).click();
-            }
-        });
-    }
+			// Remove any existing notices first
+			$( '.notice' ).remove();
 
-    /**
-     * Show notice message
-     */
-    function showNotice(message, type) {
-        type = type || 'info';
-        var noticeClass = 'notice-' + type;
-        var notice = $('<div class="notice ' + noticeClass + ' is-dismissible" style="position: fixed; top: 32px; right: 20px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><p><strong>' + message + '</strong></p></div>');
+			// Add to body for better visibility
+			$( 'body' ).append( notice );
 
-        // Remove any existing notices first
-        $('.notice').remove();
+			// Auto-dismiss after 5 seconds
+			setTimeout(
+				function () {
+					notice.fadeOut(
+						500,
+						function () {
+							notice.remove();
+						}
+					);
+				},
+				5000
+			);
+		}
 
-        // Add to body for better visibility
-        $('body').append(notice);
-
-        // Auto-dismiss after 5 seconds
-        setTimeout(function () {
-            notice.fadeOut(500, function () {
-                notice.remove();
-            });
-        }, 5000);
-    }
-
-    // Initialize additional features
-    initAutoSave();
-    initKeyboardShortcuts();
-});
+		// Initialize additional features
+		initAutoSave();
+		initKeyboardShortcuts();
+	}
+);

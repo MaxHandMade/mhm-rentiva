@@ -1,367 +1,367 @@
 /* Deposit Management Meta Box Styles */
 .deposit-management-metabox {
-    background: var(--mhm-bg-card);
-    border: 1px solid var(--mhm-border-primary);
-    border-radius: var(--mhm-radius-md);
-    padding: var(--mhm-space-5);
-    margin: 10px 0;
-    box-shadow: var(--mhm-shadow-sm);
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-md);
+	padding: var(--mhm-space-5);
+	margin: 10px 0;
+	box-shadow: var(--mhm-shadow-sm);
 }
 
 /* Deposit Info Grid */
 .deposit-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--mhm-space-3);
-    margin-bottom: 25px;
-    padding: var(--mhm-space-3);
-    background: var(--mhm-bg-hover);
-    border-radius: var(--mhm-radius-md);
-    border: 1px solid var(--mhm-border-secondary);
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: var(--mhm-space-3);
+	margin-bottom: 25px;
+	padding: var(--mhm-space-3);
+	background: var(--mhm-bg-hover);
+	border-radius: var(--mhm-radius-md);
+	border: 1px solid var(--mhm-border-secondary);
 }
 
 .deposit-info-item {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
 }
 
 .deposit-info-label {
-    font-weight: var(--mhm-font-semibold);
-    color: var(--mhm-text-secondary);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+	font-weight: var(--mhm-font-semibold);
+	color: var(--mhm-text-secondary);
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 }
 
 .deposit-info-value {
-    font-size: 14px;
-    color: var(--mhm-text-primary);
-    font-weight: 500;
+	font-size: 14px;
+	color: var(--mhm-text-primary);
+	font-weight: 500;
 }
 
 /* Payment Type Badges */
 .payment-type-badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: var(--mhm-radius-sm);
-    font-size: 11px;
-    font-weight: var(--mhm-font-semibold);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+	display: inline-block;
+	padding: 4px 8px;
+	border-radius: var(--mhm-radius-sm);
+	font-size: 11px;
+	font-weight: var(--mhm-font-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 }
 
 .payment-type-badge.deposit {
-    background: var(--mhm-bg-secondary);
-    color: var(--mhm-primary);
-    border: 1px solid var(--mhm-primary-light);
+	background: var(--mhm-bg-secondary);
+	color: var(--mhm-primary);
+	border: 1px solid var(--mhm-primary-light);
 }
 
 .payment-type-badge.full {
-    background: var(--mhm-success-bg);
-    color: var(--mhm-success-dark);
-    border: 1px solid var(--mhm-success-light);
+	background: var(--mhm-success-bg);
+	color: var(--mhm-success-dark);
+	border: 1px solid var(--mhm-success-light);
 }
 
 /* Payment Method Badges */
 .payment-method-badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: var(--mhm-radius-sm);
-    font-size: 11px;
-    font-weight: var(--mhm-font-semibold);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+	display: inline-block;
+	padding: 4px 8px;
+	border-radius: var(--mhm-radius-sm);
+	font-size: 11px;
+	font-weight: var(--mhm-font-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 }
 
 .payment-method-badge.online {
-    background: var(--mhm-warning-bg);
-    color: var(--mhm-warning);
-    border: 1px solid var(--mhm-warning-border);
+	background: var(--mhm-warning-bg);
+	color: var(--mhm-warning);
+	border: 1px solid var(--mhm-warning-border);
 }
 
 .payment-method-badge.offline {
-    background: var(--mhm-purple-bg);
-    color: var(--mhm-purple);
-    border: 1px solid var(--mhm-purple-light);
+	background: var(--mhm-purple-bg);
+	color: var(--mhm-purple);
+	border: 1px solid var(--mhm-purple-light);
 }
 
 /* Payment Status Section */
 .payment-status-section {
-    margin: 20px 0;
-    padding: 15px;
-    background: var(--mhm-bg-hover);
-    border-radius: var(--mhm-radius-md);
-    border-left: 4px solid var(--mhm-primary);
+	margin: 20px 0;
+	padding: 15px;
+	background: var(--mhm-bg-hover);
+	border-radius: var(--mhm-radius-md);
+	border-left: 4px solid var(--mhm-primary);
 }
 
 .payment-status-section h4 {
-    margin: 0 0 10px 0;
-    color: var(--mhm-text-secondary);
-    font-size: 14px;
-    font-weight: var(--mhm-font-semibold);
+	margin: 0 0 10px 0;
+	color: var(--mhm-text-secondary);
+	font-size: 14px;
+	font-weight: var(--mhm-font-semibold);
 }
 
 .payment-status-indicator {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: var(--mhm-radius-sm);
-    font-size: 12px;
-    font-weight: var(--mhm-font-semibold);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+	display: inline-block;
+	padding: 6px 12px;
+	border-radius: var(--mhm-radius-sm);
+	font-size: 12px;
+	font-weight: var(--mhm-font-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 }
 
 .payment-status-indicator.unpaid {
-    background: var(--mhm-error-bg);
-    color: var(--mhm-error);
-    border: 1px solid var(--mhm-error-light);
+	background: var(--mhm-error-bg);
+	color: var(--mhm-error);
+	border: 1px solid var(--mhm-error-light);
 }
 
 .payment-status-indicator.paid {
-    background: var(--mhm-success-bg);
-    color: var(--mhm-success-dark);
-    border: 1px solid var(--mhm-success-light);
+	background: var(--mhm-success-bg);
+	color: var(--mhm-success-dark);
+	border: 1px solid var(--mhm-success-light);
 }
 
 .payment-status-indicator.pending_verification {
-    background: var(--mhm-warning-bg);
-    color: var(--mhm-warning);
-    border: 1px solid var(--mhm-warning-border);
+	background: var(--mhm-warning-bg);
+	color: var(--mhm-warning);
+	border: 1px solid var(--mhm-warning-border);
 }
 
 .payment-status-indicator.refunded {
-    background: var(--mhm-purple-bg);
-    color: var(--mhm-purple);
-    border: 1px solid var(--mhm-purple-light);
+	background: var(--mhm-purple-bg);
+	color: var(--mhm-purple);
+	border: 1px solid var(--mhm-purple-light);
 }
 
 /* Cancellation Policy Section */
 .cancellation-policy-section {
-    margin: 20px 0;
-    padding: 15px;
-    background: var(--mhm-warning-bg);
-    border-radius: var(--mhm-radius-md);
-    border-left: 4px solid var(--mhm-warning);
+	margin: 20px 0;
+	padding: 15px;
+	background: var(--mhm-warning-bg);
+	border-radius: var(--mhm-radius-md);
+	border-left: 4px solid var(--mhm-warning);
 }
 
 .cancellation-policy-section h4 {
-    margin: 0 0 10px 0;
-    color: var(--mhm-warning-dark);
-    font-size: 14px;
-    font-weight: var(--mhm-font-semibold);
+	margin: 0 0 10px 0;
+	color: var(--mhm-warning-dark);
+	font-size: 14px;
+	font-weight: var(--mhm-font-semibold);
 }
 
 .cancellation-available {
-    color: var(--mhm-success);
-    font-weight: 500;
-    margin: 5px 0 0 0;
+	color: var(--mhm-success);
+	font-weight: 500;
+	margin: 5px 0 0 0;
 }
 
 .cancellation-expired {
-    color: var(--mhm-error);
-    font-weight: 500;
-    margin: 5px 0 0 0;
+	color: var(--mhm-error);
+	font-weight: 500;
+	margin: 5px 0 0 0;
 }
 
 /* Payment Deadline Section */
 .payment-deadline-section {
-    margin: 20px 0;
-    padding: 15px;
-    background: var(--mhm-error-bg);
-    border-radius: var(--mhm-radius-md);
-    border-left: 4px solid var(--mhm-error);
+	margin: 20px 0;
+	padding: 15px;
+	background: var(--mhm-error-bg);
+	border-radius: var(--mhm-radius-md);
+	border-left: 4px solid var(--mhm-error);
 }
 
 .payment-deadline-section h4 {
-    margin: 0 0 10px 0;
-    color: var(--mhm-error);
-    font-size: 14px;
-    font-weight: var(--mhm-font-semibold);
+	margin: 0 0 10px 0;
+	color: var(--mhm-error);
+	font-size: 14px;
+	font-weight: var(--mhm-font-semibold);
 }
 
 .payment-expired {
-    color: var(--mhm-error);
-    font-weight: 500;
-    margin: 5px 0 0 0;
+	color: var(--mhm-error);
+	font-weight: 500;
+	margin: 5px 0 0 0;
 }
 
 /* Deposit Timeline */
 .deposit-timeline-section {
-    margin: 20px 0;
-    padding: 15px;
-    background: var(--mhm-bg-hover);
-    border-radius: var(--mhm-radius-md);
-    border: 1px solid var(--mhm-border-secondary);
+	margin: 20px 0;
+	padding: 15px;
+	background: var(--mhm-bg-hover);
+	border-radius: var(--mhm-radius-md);
+	border: 1px solid var(--mhm-border-secondary);
 }
 
 .deposit-timeline-section h4 {
-    margin: 0 0 15px 0;
-    color: var(--mhm-text-secondary);
-    font-size: 14px;
-    font-weight: var(--mhm-font-semibold);
+	margin: 0 0 15px 0;
+	color: var(--mhm-text-secondary);
+	font-size: 14px;
+	font-weight: var(--mhm-font-semibold);
 }
 
 .deposit-timeline {
-    position: relative;
-    padding-left: 20px;
+	position: relative;
+	padding-left: 20px;
 }
 
 .deposit-timeline::before {
-    content: '';
-    position: absolute;
-    left: 8px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: var(--mhm-border-secondary);
+	content: '';
+	position: absolute;
+	left: 8px;
+	top: 0;
+	bottom: 0;
+	width: 2px;
+	background: var(--mhm-border-secondary);
 }
 
 .deposit-timeline-item {
-    position: relative;
-    margin-bottom: 20px;
-    padding-left: 20px;
+	position: relative;
+	margin-bottom: 20px;
+	padding-left: 20px;
 }
 
 .deposit-timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -12px;
-    top: 5px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid var(--mhm-white);
-    box-shadow: 0 0 0 2px var(--mhm-border-secondary);
+	content: '';
+	position: absolute;
+	left: -12px;
+	top: 5px;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	border: 2px solid var(--mhm-white);
+	box-shadow: 0 0 0 2px var(--mhm-border-secondary);
 }
 
 .deposit-timeline-item.completed::before {
-    background: var(--mhm-success);
-    box-shadow: 0 0 0 2px var(--mhm-success);
+	background: var(--mhm-success);
+	box-shadow: 0 0 0 2px var(--mhm-success);
 }
 
 .deposit-timeline-item.pending::before {
-    background: var(--mhm-warning);
-    box-shadow: 0 0 0 2px var(--mhm-warning);
+	background: var(--mhm-warning);
+	box-shadow: 0 0 0 2px var(--mhm-warning);
 }
 
 .deposit-timeline-content {
-    background: var(--mhm-bg-card);
-    padding: 12px 15px;
-    border-radius: var(--mhm-radius-md);
-    border: 1px solid var(--mhm-border-secondary);
-    box-shadow: var(--mhm-shadow-sm);
+	background: var(--mhm-bg-card);
+	padding: 12px 15px;
+	border-radius: var(--mhm-radius-md);
+	border: 1px solid var(--mhm-border-secondary);
+	box-shadow: var(--mhm-shadow-sm);
 }
 
 .deposit-timeline-title {
-    font-weight: var(--mhm-font-semibold);
-    color: var(--mhm-text-secondary);
-    font-size: 13px;
-    margin-bottom: 5px;
+	font-weight: var(--mhm-font-semibold);
+	color: var(--mhm-text-secondary);
+	font-size: 13px;
+	margin-bottom: 5px;
 }
 
 .deposit-timeline-description {
-    color: var(--mhm-text-secondary);
-    font-size: 12px;
-    margin-bottom: 5px;
+	color: var(--mhm-text-secondary);
+	font-size: 12px;
+	margin-bottom: 5px;
 }
 
 .deposit-timeline-date {
-    color: var(--mhm-text-secondary);
-    font-size: 11px;
-    font-style: italic;
+	color: var(--mhm-text-secondary);
+	font-size: 11px;
+	font-style: italic;
 }
 
 /* Deposit Actions */
 .deposit-actions-section {
-    margin: 20px 0;
-    padding: 15px;
-    background: var(--mhm-bg-hover);
-    border-radius: var(--mhm-radius-md);
-    border: 1px solid var(--mhm-border-secondary);
+	margin: 20px 0;
+	padding: 15px;
+	background: var(--mhm-bg-hover);
+	border-radius: var(--mhm-radius-md);
+	border: 1px solid var(--mhm-border-secondary);
 }
 
 .deposit-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
 }
 
 .deposit-action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border: none;
-    border-radius: var(--mhm-radius-sm);
-    font-size: 12px;
-    font-weight: var(--mhm-font-semibold);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    transition: all var(--mhm-duration-200) ease;
-    text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 16px;
+	border: none;
+	border-radius: var(--mhm-radius-sm);
+	font-size: 12px;
+	font-weight: var(--mhm-font-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	cursor: pointer;
+	transition: all var(--mhm-duration-200) ease;
+	text-decoration: none;
 }
 
 .deposit-action-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--mhm-shadow-sm);
+	transform: translateY(-1px);
+	box-shadow: var(--mhm-shadow-sm);
 }
 
 .deposit-action-btn.primary {
-    background: var(--mhm-primary);
-    color: var(--mhm-white);
+	background: var(--mhm-primary);
+	color: var(--mhm-white);
 }
 
 .deposit-action-btn.primary:hover {
-    background: var(--mhm-primary-dark);
+	background: var(--mhm-primary-dark);
 }
 
 .deposit-action-btn.warning {
-    background: var(--mhm-warning);
-    color: var(--mhm-white);
+	background: var(--mhm-warning);
+	color: var(--mhm-white);
 }
 
 .deposit-action-btn.warning:hover {
-    background: var(--mhm-warning-dark);
+	background: var(--mhm-warning-dark);
 }
 
 .deposit-action-btn.danger {
-    background: var(--mhm-error);
-    color: var(--mhm-white);
+	background: var(--mhm-error);
+	color: var(--mhm-white);
 }
 
 .deposit-action-btn.danger:hover {
-    background: var(--mhm-error-dark);
+	background: var(--mhm-error-dark);
 }
 
 .deposit-action-btn.secondary {
-    background: var(--mhm-text-secondary);
-    color: var(--mhm-white);
+	background: var(--mhm-text-secondary);
+	color: var(--mhm-white);
 }
 
 .deposit-action-btn.secondary:hover {
-    background: var(--mhm-text-primary);
+	background: var(--mhm-text-primary);
 }
 
 .deposit-action-btn .dashicons {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .deposit-info-grid {
-        grid-template-columns: 1fr;
-    }
+	.deposit-info-grid {
+		grid-template-columns: 1fr;
+	}
 
-    .deposit-actions {
-        flex-direction: column;
-    }
+	.deposit-actions {
+		flex-direction: column;
+	}
 
-    .deposit-action-btn {
-        width: 100%;
-        justify-content: center;
-    }
+	.deposit-action-btn {
+		width: 100%;
+		justify-content: center;
+	}
 }

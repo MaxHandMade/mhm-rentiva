@@ -1,582 +1,582 @@
 /* MHM Rentiva Settings Layout */
 .mhm-settings-page {
-    margin: var(--mhm-space-5) 0;
+	margin: var(--mhm-space-5) 0;
 }
 
 .mhm-settings-layout {
-    display: flex;
-    gap: var(--mhm-space-5);
-    margin-top: var(--mhm-space-5);
+	display: flex;
+	gap: var(--mhm-space-5);
+	margin-top: var(--mhm-space-5);
 }
 
 /* Left Menu */
 .mhm-settings-sidebar {
-    width: 250px;
-    flex-shrink: 0;
-    background: var(--mhm-bg-card);
-    border: 1px solid var(--mhm-border-primary);
-    border-radius: var(--mhm-radius-lg);
-    padding: 0;
-    box-shadow: var(--mhm-shadow-sm);
+	width: 250px;
+	flex-shrink: 0;
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-lg);
+	padding: 0;
+	box-shadow: var(--mhm-shadow-sm);
 }
 
 .mhm-settings-nav {
-    margin: 0;
-    padding: 0;
+	margin: 0;
+	padding: 0;
 }
 
 .mhm-settings-nav-item {
-    display: block;
-    padding: var(--mhm-space-3) var(--mhm-space-4);
-    color: var(--mhm-text-primary);
-    text-decoration: none;
-    border-bottom: 1px solid var(--mhm-border-secondary);
-    transition: all var(--mhm-duration-200) ease;
-    font-weight: var(--mhm-font-medium);
+	display: block;
+	padding: var(--mhm-space-3) var(--mhm-space-4);
+	color: var(--mhm-text-primary);
+	text-decoration: none;
+	border-bottom: 1px solid var(--mhm-border-secondary);
+	transition: all var(--mhm-duration-200) ease;
+	font-weight: var(--mhm-font-medium);
 }
 
 .mhm-settings-nav-item:hover {
-    background-color: var(--mhm-bg-secondary);
-    color: var(--mhm-primary);
-    text-decoration: none;
+	background-color: var(--mhm-bg-secondary);
+	color: var(--mhm-primary);
+	text-decoration: none;
 }
 
 .mhm-settings-nav-item.active {
-    background-color: var(--mhm-primary);
-    color: var(--mhm-white);
-    border-left: 4px solid var(--mhm-primary-dark);
+	background-color: var(--mhm-primary);
+	color: var(--mhm-white);
+	border-left: 4px solid var(--mhm-primary-dark);
 }
 
 /* Settings Tab Header with Reset Button */
 .mhm-settings-tab-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--mhm-space-5);
-    padding-bottom: var(--mhm-space-4);
-    border-bottom: 1px solid var(--mhm-border-primary);
-    flex-wrap: wrap;
-    gap: var(--mhm-space-4);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: var(--mhm-space-5);
+	padding-bottom: var(--mhm-space-4);
+	border-bottom: 1px solid var(--mhm-border-primary);
+	flex-wrap: wrap;
+	gap: var(--mhm-space-4);
 }
 
 .mhm-settings-title-group h2 {
-    margin: 0 0 5px 0;
+	margin: 0 0 5px 0;
 }
 
 .mhm-settings-title-group p {
-    margin: 0;
+	margin: 0;
 }
 
 .mhm-settings-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 
 .mhm-settings-header-actions .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    margin-right: 4px;
-    vertical-align: text-bottom;
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	margin-right: 4px;
+	vertical-align: text-bottom;
 }
 
 .mhm-reset-tab-btn {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+	display: flex;
+	align-items: center;
+	gap: 5px;
 }
 
 .mhm-reset-tab-btn .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
 }
 
 .mhm-reset-tab-btn.mhm-resetting {
-    opacity: 0.7;
-    cursor: not-allowed;
+	opacity: 0.7;
+	cursor: not-allowed;
 }
 
 /* Spin animation for loading */
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
+	from {
+		transform: rotate(0deg);
+	}
 
-    to {
-        transform: rotate(360deg);
-    }
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 .mhm-spin {
-    animation: spin 1s linear infinite;
+	animation: spin 1s linear infinite;
 }
 
 .mhm-settings-nav-item:last-child {
-    border-bottom: none;
+	border-bottom: none;
 }
 
 /* Main Content */
 .mhm-settings-content {
-    flex: 1;
-    background: var(--mhm-bg-card);
-    border: 1px solid var(--mhm-border-primary);
-    border-radius: var(--mhm-radius-lg);
-    padding: var(--mhm-space-5);
-    box-shadow: var(--mhm-shadow-sm);
+	flex: 1;
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-lg);
+	padding: var(--mhm-space-5);
+	box-shadow: var(--mhm-shadow-sm);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .mhm-settings-layout {
-        flex-direction: column;
-    }
+	.mhm-settings-layout {
+		flex-direction: column;
+	}
 
-    .mhm-settings-sidebar {
-        width: 100%;
-        order: 2;
-    }
+	.mhm-settings-sidebar {
+		width: 100%;
+		order: 2;
+	}
 
-    .mhm-settings-content {
-        order: 1;
-    }
+	.mhm-settings-content {
+		order: 1;
+	}
 
-    .mhm-settings-nav {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
-    }
+	.mhm-settings-nav {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 5px;
+	}
 
-    .mhm-settings-nav-item {
-        flex: 1;
-        min-width: 120px;
-        text-align: center;
-        border: 1px solid var(--mhm-border-primary);
-        border-radius: 4px;
-        margin: 2px;
-    }
+	.mhm-settings-nav-item {
+		flex: 1;
+		min-width: 120px;
+		text-align: center;
+		border: 1px solid var(--mhm-border-primary);
+		border-radius: 4px;
+		margin: 2px;
+	}
 
-    /* Make the Header Underneath in Mobile */
-    .mhm-settings-tab-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--mhm-space-3);
-    }
+	/* Make the Header Underneath in Mobile */
+	.mhm-settings-tab-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--mhm-space-3);
+	}
 
-    /* Button Group in Mobile */
-    .mhm-settings-header-actions {
-        width: 100%;
-        flex-wrap: wrap;
-    }
+	/* Button Group in Mobile */
+	.mhm-settings-header-actions {
+		width: 100%;
+		flex-wrap: wrap;
+	}
 
-    /* Buttons Full Width on Mobile */
-    .mhm-settings-header-actions .button {
-        flex: 1;
-        justify-content: center;
-        text-align: center;
-    }
+	/* Buttons Full Width on Mobile */
+	.mhm-settings-header-actions .button {
+		flex: 1;
+		justify-content: center;
+		text-align: center;
+	}
 }
 
 /* Form Styles */
 .mhm-settings-form {
-    background: transparent;
-    border: none;
-    padding: 0;
+	background: transparent;
+	border: none;
+	padding: 0;
 }
 
 .mhm-settings-form-container {
-    background: var(--mhm-bg-card);
-    border: 1px solid var(--mhm-border-primary);
-    border-radius: var(--mhm-radius-lg);
-    padding: var(--mhm-space-5);
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-lg);
+	padding: var(--mhm-space-5);
 }
 
 .mhm-settings-section {
-    margin-bottom: var(--mhm-space-8);
-    padding-bottom: var(--mhm-space-5);
-    border-bottom: 1px solid var(--mhm-border-secondary);
+	margin-bottom: var(--mhm-space-8);
+	padding-bottom: var(--mhm-space-5);
+	border-bottom: 1px solid var(--mhm-border-secondary);
 }
 
 .mhm-settings-section:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
+	border-bottom: none;
+	margin-bottom: 0;
 }
 
 .mhm-settings-section h3 {
-    margin-top: 0;
-    margin-bottom: var(--mhm-space-4);
-    color: var(--mhm-text-primary);
+	margin-top: 0;
+	margin-bottom: var(--mhm-space-4);
+	color: var(--mhm-text-primary);
 }
 
 .mhm-form-group {
-    margin-bottom: var(--mhm-space-5);
+	margin-bottom: var(--mhm-space-5);
 }
 
 .mhm-form-group label {
-    display: block;
-    margin-bottom: var(--mhm-space-1);
-    font-weight: var(--mhm-font-medium);
-    color: var(--mhm-text-primary);
+	display: block;
+	margin-bottom: var(--mhm-space-1);
+	font-weight: var(--mhm-font-medium);
+	color: var(--mhm-text-primary);
 }
 
 .mhm-form-group input,
 .mhm-form-group select,
 .mhm-form-group textarea {
-    width: 100%;
-    max-width: 400px;
-    padding: var(--mhm-space-2) var(--mhm-space-3);
-    border: 1px solid var(--mhm-border-primary);
-    border-radius: var(--mhm-radius-base);
-    font-size: 14px;
+	width: 100%;
+	max-width: 400px;
+	padding: var(--mhm-space-2) var(--mhm-space-3);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-base);
+	font-size: 14px;
 }
 
 .mhm-form-group textarea {
-    min-height: 100px;
-    resize: vertical;
+	min-height: 100px;
+	resize: vertical;
 }
 
 .mhm-form-group .description {
-    font-size: 13px;
-    color: var(--mhm-text-secondary);
-    margin-top: var(--mhm-space-1);
+	font-size: 13px;
+	color: var(--mhm-text-secondary);
+	margin-top: var(--mhm-space-1);
 }
 
 .mhm-checkbox-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 }
 
 .mhm-checkbox-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .mhm-checkbox-item input[type="checkbox"] {
-    width: auto;
-    margin: 0;
+	width: auto;
+	margin: 0;
 }
 
 .mhm-category-list,
 .mhm-status-list {
-    border: 1px solid var(--mhm-border-primary);
-    border-radius: var(--mhm-radius-base);
-    padding: var(--mhm-space-4);
-    background: var(--mhm-bg-secondary);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-base);
+	padding: var(--mhm-space-4);
+	background: var(--mhm-bg-secondary);
 }
 
 .mhm-category-item,
 .mhm-status-item {
-    display: flex;
-    align-items: center;
-    gap: var(--mhm-space-2);
-    margin-bottom: var(--mhm-space-2);
-    padding: var(--mhm-space-2);
-    background: var(--mhm-bg-card);
-    border: 1px solid var(--mhm-border-secondary);
-    border-radius: var(--mhm-radius-base);
+	display: flex;
+	align-items: center;
+	gap: var(--mhm-space-2);
+	margin-bottom: var(--mhm-space-2);
+	padding: var(--mhm-space-2);
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: var(--mhm-radius-base);
 }
 
 .mhm-category-item:last-child,
 .mhm-status-item:last-child {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 
 .mhm-category-item input,
 .mhm-status-item input {
-    width: auto;
-    margin: 0;
+	width: auto;
+	margin: 0;
 }
 
 .mhm-category-item .label,
 .mhm-status-item .label {
-    flex: 1;
-    margin: 0;
+	flex: 1;
+	margin: 0;
 }
 
 .mhm-category-item .remove-btn,
 .mhm-status-item .remove-btn {
-    background: var(--mhm-error);
-    color: var(--mhm-white);
-    border: none;
-    padding: var(--mhm-space-1) var(--mhm-space-2);
-    border-radius: var(--mhm-radius-sm);
-    cursor: pointer;
-    font-size: 12px;
+	background: var(--mhm-error);
+	color: var(--mhm-white);
+	border: none;
+	padding: var(--mhm-space-1) var(--mhm-space-2);
+	border-radius: var(--mhm-radius-sm);
+	cursor: pointer;
+	font-size: 12px;
 }
 
 .mhm-category-item .remove-btn:hover,
 .mhm-status-item .remove-btn:hover {
-    background: #c82333;
-    opacity: 0.9;
+	background: #c82333;
+	opacity: 0.9;
 }
 
 .mhm-add-item {
-    margin-top: 15px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
+	margin-top: 15px;
+	display: flex;
+	gap: 10px;
+	align-items: center;
 }
 
 .mhm-add-item input {
-    flex: 1;
-    max-width: 200px;
+	flex: 1;
+	max-width: 200px;
 }
 
 .mhm-add-item .button {
-    padding: var(--mhm-space-2) var(--mhm-space-4);
-    background: var(--mhm-primary);
-    color: var(--mhm-white);
-    border: none;
-    border-radius: var(--mhm-radius-base);
-    cursor: pointer;
-    font-size: 14px;
+	padding: var(--mhm-space-2) var(--mhm-space-4);
+	background: var(--mhm-primary);
+	color: var(--mhm-white);
+	border: none;
+	border-radius: var(--mhm-radius-base);
+	cursor: pointer;
+	font-size: 14px;
 }
 
 .mhm-add-item .button:hover {
-    background: var(--mhm-primary-dark);
+	background: var(--mhm-primary-dark);
 }
 
 .mhm-settings-actions {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid var(--mhm-border-secondary);
-    text-align: right;
+	margin-top: 30px;
+	padding-top: 20px;
+	border-top: 1px solid var(--mhm-border-secondary);
+	text-align: right;
 }
 
 .mhm-email-template {
-    border: 1px solid var(--mhm-border-primary);
-    border-radius: var(--mhm-radius-base);
-    margin-bottom: var(--mhm-space-4);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-base);
+	margin-bottom: var(--mhm-space-4);
 }
 
 .mhm-email-template .template-header {
-    background: var(--mhm-bg-secondary);
-    padding: var(--mhm-space-2) var(--mhm-space-4);
-    border-bottom: 1px solid var(--mhm-border-primary);
-    font-weight: var(--mhm-font-medium);
-    color: var(--mhm-text-secondary);
+	background: var(--mhm-bg-secondary);
+	padding: var(--mhm-space-2) var(--mhm-space-4);
+	border-bottom: 1px solid var(--mhm-border-primary);
+	font-weight: var(--mhm-font-medium);
+	color: var(--mhm-text-secondary);
 }
 
 .mhm-email-template .template-content {
-    padding: 15px;
+	padding: 15px;
 }
 
 .mhm-email-template textarea {
-    width: 100%;
-    max-width: none;
-    min-height: 150px;
-    font-family: monospace;
-    font-size: 13px;
+	width: 100%;
+	max-width: none;
+	min-height: 150px;
+	font-family: monospace;
+	font-size: 13px;
 }
 
 .mhm-toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 24px;
+	position: relative;
+	display: inline-block;
+	width: 50px;
+	height: 24px;
 }
 
 .mhm-toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
+	opacity: 0;
+	width: 0;
+	height: 0;
 }
 
 .mhm-toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--mhm-gray-200);
-    transition: .4s;
-    border-radius: 24px;
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: var(--mhm-gray-200);
+	transition: .4s;
+	border-radius: 24px;
 }
 
 .mhm-toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
+	position: absolute;
+	content: "";
+	height: 18px;
+	width: 18px;
+	left: 3px;
+	bottom: 3px;
+	background-color: white;
+	transition: .4s;
+	border-radius: 50%;
 }
 
 input:checked+.mhm-toggle-slider {
-    background-color: var(--mhm-primary);
+	background-color: var(--mhm-primary);
 }
 
 input:checked+.mhm-toggle-slider:before {
-    transform: translateX(26px);
+	transform: translateX(26px);
 }
 
 .mhm-toggle-label {
-    margin-left: 10px;
-    font-size: 14px;
-    color: var(--mhm-text-primary);
+	margin-left: 10px;
+	font-size: 14px;
+	color: var(--mhm-text-primary);
 }
 
 /* Accordion Styles for Texts & Labels Section */
 .mhm-accordion-group {
-    background: #fff;
-    border: 1px solid var(--mhm-border-primary);
-    border-radius: var(--mhm-radius-base);
-    margin-bottom: 0;
-    /* Let the table row handle spacing */
-    max-width: 800px;
-    /* Prevent overly wide lines on large screens */
+	background: #fff;
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-base);
+	margin-bottom: 0;
+	/* Let the table row handle spacing */
+	max-width: 800px;
+	/* Prevent overly wide lines on large screens */
 }
 
 .mhm-accordion-header {
-    background: #f9f9f9;
-    padding: 12px 15px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 600;
-    color: var(--mhm-text-primary);
-    border-bottom: 1px solid transparent;
-    transition: all 0.2s ease;
+	background: #f9f9f9;
+	padding: 12px 15px;
+	cursor: pointer;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-weight: 600;
+	color: var(--mhm-text-primary);
+	border-bottom: 1px solid transparent;
+	transition: all 0.2s ease;
 }
 
 .mhm-accordion-header:hover {
-    background: #f0f0f1;
-    color: var(--mhm-primary);
+	background: #f0f0f1;
+	color: var(--mhm-primary);
 }
 
 .mhm-accordion-header.active {
-    border-bottom-color: var(--mhm-border-secondary);
-    background: #f0f0f1;
+	border-bottom-color: var(--mhm-border-secondary);
+	background: #f0f0f1;
 }
 
 .mhm-accordion-header .dashicons {
-    color: #a7aaad;
-    transition: transform 0.2s;
+	color: #a7aaad;
+	transition: transform 0.2s;
 }
 
 .mhm-accordion-header.active .dashicons {
-    transform: rotate(180deg);
+	transform: rotate(180deg);
 }
 
 /* Content Container (Hidden by default) */
 .mhm-accordion-content {
-    background: #fff;
-    padding: 20px;
-    display: none;
+	background: #fff;
+	padding: 20px;
+	display: none;
 }
 
 /* Form Groups inside Accordion */
 .mhm-accordion-content .mhm-form-group {
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #f0f0f1;
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+	border-bottom: 1px solid #f0f0f1;
 }
 
 .mhm-accordion-content .mhm-form-group:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
+	border-bottom: none;
+	margin-bottom: 0;
+	padding-bottom: 0;
 }
 
 .mhm-accordion-content .mhm-form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    font-size: 13px;
-    color: #1d2327;
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 600;
+	font-size: 13px;
+	color: #1d2327;
 }
 
 .mhm-accordion-content .mhm-form-group input[type="text"] {
-    width: 100%;
-    margin-bottom: 5px;
+	width: 100%;
+	margin-bottom: 5px;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .mhm-settings-form {
-        padding: 15px;
-    }
+	.mhm-settings-form {
+		padding: 15px;
+	}
 
-    .mhm-form-group input,
-    .mhm-form-group select,
-    .mhm-form-group textarea {
-        max-width: none;
-    }
+	.mhm-form-group input,
+	.mhm-form-group select,
+	.mhm-form-group textarea {
+		max-width: none;
+	}
 
-    .mhm-add-item {
-        flex-direction: column;
-        align-items: stretch;
-    }
+	.mhm-add-item {
+		flex-direction: column;
+		align-items: stretch;
+	}
 
-    .mhm-add-item input {
-        max-width: none;
-        margin-bottom: 10px;
-    }
+	.mhm-add-item input {
+		max-width: none;
+		margin-bottom: 10px;
+	}
 
-    .mhm-settings-actions {
-        text-align: center;
-    }
+	.mhm-settings-actions {
+		text-align: center;
+	}
 
-    /* Accordion on Mobile */
-    .mhm-accordion-header {
-        padding: var(--mhm-space-2) var(--mhm-space-3);
-        font-size: 14px;
-    }
+	/* Accordion on Mobile */
+	.mhm-accordion-header {
+		padding: var(--mhm-space-2) var(--mhm-space-3);
+		font-size: 14px;
+	}
 
-    .mhm-accordion-content {
-        padding: var(--mhm-space-3);
-    }
+	.mhm-accordion-content {
+		padding: var(--mhm-space-3);
+	}
 }
 
 /* Accordion içi Checkbox & Radio UX Düzeltmesi - Plan B (Aggressive Alignment) */
 
 /* Checkbox/Radio kapsayan Label */
 .mhm-accordion-content .mhm-checkbox-group label {
-    display: flex !important;
-    align-items: center !important;
-    /* Dikeyde ortala */
-    flex-direction: row !important;
-    /* Yan yana diz */
-    justify-content: flex-start !important;
-    gap: 10px !important;
-    /* Kutu ile yazı arasına boşluk */
-    margin-bottom: 2px !important;
-    width: auto !important;
-    /* Genişliği serbest bırak */
-    font-weight: normal !important;
-    cursor: pointer;
+	display: flex !important;
+	align-items: center !important;
+	/* Dikeyde ortala */
+	flex-direction: row !important;
+	/* Yan yana diz */
+	justify-content: flex-start !important;
+	gap: 10px !important;
+	/* Kutu ile yazı arasına boşluk */
+	margin-bottom: 2px !important;
+	width: auto !important;
+	/* Genişliği serbest bırak */
+	font-weight: normal !important;
+	cursor: pointer;
 }
 
 /* Checkbox/Radio Input'un kendisi */
 .mhm-accordion-content .mhm-checkbox-group input[type="checkbox"],
 .mhm-accordion-content .mhm-checkbox-group input[type="radio"] {
-    margin: 0 !important;
-    margin-right: 0px !important;
-    /* Gap zaten boşluk veriyor */
-    margin-top: 0 !important;
-    vertical-align: middle !important;
-    min-width: 16px !important;
-    max-width: 16px !important;
+	margin: 0 !important;
+	margin-right: 0px !important;
+	/* Gap zaten boşluk veriyor */
+	margin-top: 0 !important;
+	vertical-align: middle !important;
+	min-width: 16px !important;
+	max-width: 16px !important;
 }
 
 /* Checkbox/Radio altındaki açıklama metni */
 .mhm-accordion-content .mhm-checkbox-group p.description {
-    margin-top: 2px !important;
-    margin-left: 26px !important;
-    /* Checkbox(16px) + Gap(10px) hizası */
-    margin-bottom: 15px !important;
-    /* Bir sonraki elemanla mesafe */
-    clear: both;
-    display: block;
-    font-style: italic;
-    color: #646970;
-    line-height: 1.4;
+	margin-top: 2px !important;
+	margin-left: 26px !important;
+	/* Checkbox(16px) + Gap(10px) hizası */
+	margin-bottom: 15px !important;
+	/* Bir sonraki elemanla mesafe */
+	clear: both;
+	display: block;
+	font-style: italic;
+	color: #646970;
+	line-height: 1.4;
 }

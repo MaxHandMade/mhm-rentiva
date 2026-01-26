@@ -29,7 +29,6 @@ vendor/
 
 # Local config
 wp-config.php
-phpcs.xml
 
 # Test documentation (keep local only)
 TEST-GUIDE.md

@@ -6,21 +6,20 @@ namespace MHMRentiva\Admin\Messages\Core;
 
 use MHMRentiva\Admin\Messages\Core\MessageCache;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Optimized database queries for the messaging system
  */
-final class MessageQueryHelper
-{
+final class MessageQueryHelper {
+
 
 	/**
 	 * Optimized message list query
 	 */
-	public static function get_messages_query(array $args = array()): array
-	{
+	public static function get_messages_query( array $args = array() ): array {
 		global $wpdb;
 
 		$defaults = array(
@@ -39,25 +38,25 @@ final class MessageQueryHelper
 		);
 
 		// Ensure posts_per_page is never negative or zero
-		if (isset($args['posts_per_page']) && ($args['posts_per_page'] <= 0 || $args['posts_per_page'] === -1)) {
+		if ( isset( $args['posts_per_page'] ) && ( $args['posts_per_page'] <= 0 || $args['posts_per_page'] === -1 ) ) {
 			$args['posts_per_page'] = 20;
 		}
 
 		// Ensure offset is never negative
-		if (isset($args['offset']) && $args['offset'] < 0) {
+		if ( isset( $args['offset'] ) && $args['offset'] < 0 ) {
 			$args['offset'] = 0;
 		}
 
-		$args = array_merge($defaults, $args);
+		$args = array_merge( $defaults, $args );
 
 		// Cache control - Bypass cache when 'updated' parameter is present in POST requests
 		// parent_only no longer bypasses cache as it's standard usage
-		$cache_key = 'messages_query_' . md5(serialize($args));
-		$use_cache = ! isset($_POST['action']) && ! isset($_POST['action2']) && ! isset($_GET['updated']) && ! isset($_GET['message']);
+		$cache_key = 'messages_query_' . md5( serialize( $args ) );
+		$use_cache = ! isset( $_POST['action'] ) && ! isset( $_POST['action2'] ) && ! isset( $_GET['updated'] ) && ! isset( $_GET['message'] );
 
-		if ($use_cache) {
-			$cached_result = MessageCache::get($cache_key);
-			if ($cached_result !== false) {
+		if ( $use_cache ) {
+			$cached_result = MessageCache::get( $cache_key );
+			if ( $cached_result !== false ) {
 				return $cached_result;
 			}
 		}
@@ -88,38 +87,38 @@ final class MessageQueryHelper
 		);
 
 		$where_conditions = array(
-			$wpdb->prepare('p.post_type = %s', $args['post_type']),
-			$wpdb->prepare('p.post_status = %s', $args['post_status']),
+			$wpdb->prepare( 'p.post_type = %s', $args['post_type'] ),
+			$wpdb->prepare( 'p.post_status = %s', $args['post_status'] ),
 		);
 
 		// Filters
-		if (! empty($args['status_filter'])) {
-			$where_conditions[] = $wpdb->prepare('pm_status.meta_value = %s', $args['status_filter']);
+		if ( ! empty( $args['status_filter'] ) ) {
+			$where_conditions[] = $wpdb->prepare( 'pm_status.meta_value = %s', $args['status_filter'] );
 		}
 
-		if (! empty($args['category_filter'])) {
-			$where_conditions[] = $wpdb->prepare('pm_category.meta_value = %s', $args['category_filter']);
+		if ( ! empty( $args['category_filter'] ) ) {
+			$where_conditions[] = $wpdb->prepare( 'pm_category.meta_value = %s', $args['category_filter'] );
 		}
 
-		if (! empty($args['customer_email'])) {
-			$where_conditions[] = $wpdb->prepare('pm_customer_email.meta_value = %s', $args['customer_email']);
+		if ( ! empty( $args['customer_email'] ) ) {
+			$where_conditions[] = $wpdb->prepare( 'pm_customer_email.meta_value = %s', $args['customer_email'] );
 		}
 
-		if ($args['thread_id'] > 0) {
-			$where_conditions[] = $wpdb->prepare('pm_thread_id.meta_value = %d', $args['thread_id']);
+		if ( $args['thread_id'] > 0 ) {
+			$where_conditions[] = $wpdb->prepare( 'pm_thread_id.meta_value = %d', $args['thread_id'] );
 		}
 
-		if ($args['unread_only']) {
+		if ( $args['unread_only'] ) {
 			$where_conditions[] = "(pm_is_read.meta_value IS NULL OR pm_is_read.meta_value != '1')";
 		}
 
 		// Show only parent messages (if parent_message_id is null or 0)
 		// Disable parent_only if thread_id is filtered (all messages in thread should be shown)
-		if (! empty($args['parent_only']) && $args['thread_id'] === 0) {
+		if ( ! empty( $args['parent_only'] ) && $args['thread_id'] === 0 ) {
 			$where_conditions[] = "(pm_parent_message_id.meta_value IS NULL OR pm_parent_message_id.meta_value = '' OR pm_parent_message_id.meta_value = '0')";
 		}
 
-		$where = 'WHERE ' . implode(' AND ', $where_conditions);
+		$where = 'WHERE ' . implode( ' AND ', $where_conditions );
 
 		// Order by
 		$orderby_map = array(
@@ -130,28 +129,28 @@ final class MessageQueryHelper
 			'category' => 'pm_category.meta_value',
 		);
 
-		$orderby_field = $orderby_map[$args['orderby']] ?? 'p.post_date';
-		$order         = strtoupper($args['order']) === 'ASC' ? 'ASC' : 'DESC';
+		$orderby_field = $orderby_map[ $args['orderby'] ] ?? 'p.post_date';
+		$order         = strtoupper( $args['order'] ) === 'ASC' ? 'ASC' : 'DESC';
 		$order_clause  = "ORDER BY {$orderby_field} {$order}";
 
 		// Limit
-		$limit_clause = $wpdb->prepare('LIMIT %d OFFSET %d', $args['posts_per_page'], $args['offset']);
+		$limit_clause = $wpdb->prepare( 'LIMIT %d OFFSET %d', $args['posts_per_page'], $args['offset'] );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query components are prepared individually; structure is dynamic.
-		$total_count = (int) $wpdb->get_var("SELECT COUNT(DISTINCT p.ID) {$from} " . implode(' ', $joins) . " {$where}");
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query components are prepared individually; structure is dynamic.
-		$messages    = $wpdb->get_results("{$select} {$from} " . implode(' ', $joins) . " {$where} {$order_clause} {$limit_clause}");
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query components are prepared individually; structure is dynamic.
+		$total_count = (int) $wpdb->get_var( "SELECT COUNT(DISTINCT p.ID) {$from} " . implode( ' ', $joins ) . " {$where}" );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query components are prepared individually; structure is dynamic.
+		$messages = $wpdb->get_results( "{$select} {$from} " . implode( ' ', $joins ) . " {$where} {$order_clause} {$limit_clause}" );
 
 		$result = array(
 			'messages'     => $messages,
 			'total'        => $total_count,
-			'pages'        => ceil($total_count / $args['posts_per_page']),
-			'current_page' => floor($args['offset'] / $args['posts_per_page']) + 1,
+			'pages'        => ceil( $total_count / $args['posts_per_page'] ),
+			'current_page' => floor( $args['offset'] / $args['posts_per_page'] ) + 1,
 		);
 
 		// Cache'e kaydet (5 dakika) - sadece GET isteklerinde cache kullan
-		if ($use_cache) {
-			MessageCache::set($cache_key, $result, array(), 300);
+		if ( $use_cache ) {
+			MessageCache::set( $cache_key, $result, array(), 300 );
 		}
 
 		return $result;
@@ -160,17 +159,16 @@ final class MessageQueryHelper
 	/**
 	 * Optimized message statistics query
 	 */
-	public static function get_message_stats(): array
-	{
+	public static function get_message_stats(): array {
 		global $wpdb;
 
 		// Cache control - updated parameter bypasses cache
 		$cache_key = 'message_stats';
-		$use_cache = ! isset($_GET['updated']) && ! isset($_GET['message']);
+		$use_cache = ! isset( $_GET['updated'] ) && ! isset( $_GET['message'] );
 
-		if ($use_cache) {
-			$cached_result = MessageCache::get($cache_key);
-			if ($cached_result !== false) {
+		if ( $use_cache ) {
+			$cached_result = MessageCache::get( $cache_key );
+			if ( $cached_result !== false ) {
 				return $cached_result;
 			}
 		}
@@ -192,7 +190,7 @@ final class MessageQueryHelper
             AND (pm_parent.meta_value IS NULL OR pm_parent.meta_value = '' OR pm_parent.meta_value = '0')
         ",
 			ARRAY_A
-		);
+		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Complex query not suitable for WP_Query.
 
 		// Calculate average response time with a separate query
 		// First calculate response time for each answered message, then take AVG
@@ -222,20 +220,20 @@ final class MessageQueryHelper
             AND (pm_parent.meta_value IS NULL OR pm_parent.meta_value = '' OR pm_parent.meta_value = '0')
             AND pm_status.meta_value = 'answered'
         "
-		);
+		); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query contains no dynamic parts.
 
 		// Calculate average in PHP
 		$response_times = array();
-		foreach ($response_data as $row) {
-			if (! empty($row->reply_date) && ! empty($row->message_date)) {
-				$hours = (strtotime($row->reply_date) - strtotime($row->message_date)) / 3600;
-				if ($hours > 0) {
+		foreach ( $response_data as $row ) {
+			if ( ! empty( $row->reply_date ) && ! empty( $row->message_date ) ) {
+				$hours = ( strtotime( $row->reply_date ) - strtotime( $row->message_date ) ) / 3600;
+				if ( $hours > 0 ) {
 					$response_times[] = $hours;
 				}
 			}
 		}
 
-		$response_result = ! empty($response_times) ? (array_sum($response_times) / count($response_times)) : null;
+		$response_result = ! empty( $response_times ) ? ( array_sum( $response_times ) / count( $response_times ) ) : null;
 
 		// Calculate percentages
 		$total    = (int) $result['total_messages'];
@@ -244,7 +242,7 @@ final class MessageQueryHelper
 		$unread   = (int) $result['unread_messages'];
 
 		// Convert avg_response_time_hours to float (could be string)
-		$avg_response_time = isset($response_result) && $response_result !== null && $response_result !== ''
+		$avg_response_time = isset( $response_result ) && $response_result !== null && $response_result !== ''
 			? (float) $response_result
 			: 0;
 
@@ -252,15 +250,15 @@ final class MessageQueryHelper
 			'total_messages'      => $total,
 			'pending_messages'    => $pending,
 			'answered_messages'   => $answered,
-			'closed_messages'     => (int) ($result['closed_messages'] ?? 0),
+			'closed_messages'     => (int) ( $result['closed_messages'] ?? 0 ),
 			'unread_messages'     => $unread,
-			'pending_percentage'  => $total > 0 ? round(($pending / $total) * 100) : 0,
-			'answered_percentage' => $total > 0 ? round(($answered / $total) * 100) : 0,
-			'avg_response_time'   => $avg_response_time > 0 ? round($avg_response_time) . 'h' : '0',
+			'pending_percentage'  => $total > 0 ? round( ( $pending / $total ) * 100 ) : 0,
+			'answered_percentage' => $total > 0 ? round( ( $answered / $total ) * 100 ) : 0,
+			'avg_response_time'   => $avg_response_time > 0 ? round( $avg_response_time ) . 'h' : '0',
 		);
 
 		// Cache'e kaydet (10 dakika)
-		MessageCache::set($cache_key, $stats, array(), 600);
+		MessageCache::set( $cache_key, $stats, array(), 600 );
 
 		return $stats;
 	}
@@ -268,16 +266,15 @@ final class MessageQueryHelper
 	/**
 	 * Check customer message limits
 	 */
-	public static function check_customer_limits(string $email): array
-	{
+	public static function check_customer_limits( string $email ): array {
 		global $wpdb;
 
 		// Cache control
 		$cache_key     = 'customer_limits';
-		$params        = array('email' => $email);
-		$cached_result = MessageCache::get($cache_key, $params);
+		$params        = array( 'email' => $email );
+		$cached_result = MessageCache::get( $cache_key, $params );
 
-		if ($cached_result !== false) {
+		if ( $cached_result !== false ) {
 			return $cached_result;
 		}
 
@@ -297,7 +294,8 @@ final class MessageQueryHelper
 			$email
 		);
 
-		$result = $wpdb->get_row($limits_query, ARRAY_A); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query is prepared above.
+		$result = $wpdb->get_row( $limits_query, ARRAY_A );
 
 		$limits = array(
 			'this_month_count' => (int) $result['this_month_count'],
@@ -305,7 +303,7 @@ final class MessageQueryHelper
 		);
 
 		// Cache'e kaydet (1 saat)
-		MessageCache::set($cache_key, $limits, $params, 3600);
+		MessageCache::set( $cache_key, $limits, $params, 3600 );
 
 		return $limits;
 	}
@@ -313,16 +311,15 @@ final class MessageQueryHelper
 	/**
 	 * Retrieve thread messages in an optimized way
 	 */
-	public static function get_thread_messages(int $thread_id): array
-	{
+	public static function get_thread_messages( int $thread_id ): array {
 		global $wpdb;
 
 		// Cache control
 		$cache_key     = 'thread_messages_optimized';
-		$params        = array('thread_id' => $thread_id);
-		$cached_result = MessageCache::get($cache_key, $params);
+		$params        = array( 'thread_id' => $thread_id );
+		$cached_result = MessageCache::get( $cache_key, $params );
 
-		if ($cached_result !== false) {
+		if ( $cached_result !== false ) {
 			return $cached_result;
 		}
 
@@ -351,11 +348,11 @@ final class MessageQueryHelper
 			$thread_id
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
-		$messages = $wpdb->get_results($query);
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query is prepared above.
+		$messages = $wpdb->get_results( $query );
 
 		// Cache'e kaydet (30 dakika)
-		MessageCache::set($cache_key, $messages, $params, 1800);
+		MessageCache::set( $cache_key, $messages, $params, 1800 );
 
 		return $messages;
 	}
@@ -363,38 +360,37 @@ final class MessageQueryHelper
 	/**
 	 * Message search query
 	 */
-	public static function search_messages(string $search_term, array $args = array()): array
-	{
+	public static function search_messages( string $search_term, array $args = array() ): array {
 		global $wpdb;
 
 		$defaults = array(
 			'posts_per_page' => 20,
 			'offset'         => 0,
-			'search_in'      => array('title', 'content', 'customer_name', 'customer_email'), // Fields to search in
+			'search_in'      => array( 'title', 'content', 'customer_name', 'customer_email' ), // Fields to search in
 		);
 
-		$args = array_merge($defaults, $args);
+		$args = array_merge( $defaults, $args );
 
 		$search_conditions = array();
-		$search_term       = '%' . $wpdb->esc_like($search_term) . '%';
+		$search_term       = '%' . $wpdb->esc_like( $search_term ) . '%';
 
-		if (in_array('title', $args['search_in'])) {
-			$search_conditions[] = $wpdb->prepare('p.post_title LIKE %s', $search_term);
+		if ( in_array( 'title', $args['search_in'] ) ) {
+			$search_conditions[] = $wpdb->prepare( 'p.post_title LIKE %s', $search_term );
 		}
 
-		if (in_array('content', $args['search_in'])) {
-			$search_conditions[] = $wpdb->prepare('p.post_content LIKE %s', $search_term);
+		if ( in_array( 'content', $args['search_in'] ) ) {
+			$search_conditions[] = $wpdb->prepare( 'p.post_content LIKE %s', $search_term );
 		}
 
-		if (in_array('customer_name', $args['search_in'])) {
-			$search_conditions[] = $wpdb->prepare('pm_customer_name.meta_value LIKE %s', $search_term);
+		if ( in_array( 'customer_name', $args['search_in'] ) ) {
+			$search_conditions[] = $wpdb->prepare( 'pm_customer_name.meta_value LIKE %s', $search_term );
 		}
 
-		if (in_array('customer_email', $args['search_in'])) {
-			$search_conditions[] = $wpdb->prepare('pm_customer_email.meta_value LIKE %s', $search_term);
+		if ( in_array( 'customer_email', $args['search_in'] ) ) {
+			$search_conditions[] = $wpdb->prepare( 'pm_customer_email.meta_value LIKE %s', $search_term );
 		}
 
-		if (empty($search_conditions)) {
+		if ( empty( $search_conditions ) ) {
 			return array(
 				'messages'     => array(),
 				'total'        => 0,
@@ -406,10 +402,10 @@ final class MessageQueryHelper
 		$where_conditions = array(
 			"p.post_type = 'mhm_message'",
 			"p.post_status = 'publish'",
-			'(' . implode(' OR ', $search_conditions) . ')',
+			'(' . implode( ' OR ', $search_conditions ) . ')',
 		);
 
-		$limit_clause = $wpdb->prepare('LIMIT %d OFFSET %d', (int) $args['posts_per_page'], (int) $args['offset']);
+		$limit_clause = $wpdb->prepare( 'LIMIT %d OFFSET %d', (int) $args['posts_per_page'], (int) $args['offset'] );
 
 		$query = "
             SELECT DISTINCT p.ID, p.post_title, p.post_content, p.post_date,
@@ -422,14 +418,14 @@ final class MessageQueryHelper
             LEFT JOIN {$wpdb->postmeta} pm_customer_email ON p.ID = pm_customer_email.post_id AND pm_customer_email.meta_key = '_mhm_customer_email'
             LEFT JOIN {$wpdb->postmeta} pm_category ON p.ID = pm_category.post_id AND pm_category.meta_key = '_mhm_message_category'
             LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_message_status'
-            WHERE " . implode(' AND ', $where_conditions) . "
+            WHERE " . implode( ' AND ', $where_conditions ) . "
             ORDER BY p.post_date DESC
             {$limit_clause}
         ";
 
 		// Build WHERE clause from prepared conditions
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $where_conditions contains prepared values from $wpdb->prepare().
-		$where_sql = implode(' AND ', $where_conditions);
+		$where_sql = implode( ' AND ', $where_conditions );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $where_sql is built from prepared conditions above.
 		$total_count = (int) $wpdb->get_var(
@@ -438,7 +434,7 @@ final class MessageQueryHelper
 			LEFT JOIN {$wpdb->postmeta} pm_customer_name ON p.ID = pm_customer_name.post_id AND pm_customer_name.meta_key = '_mhm_customer_name'
 			LEFT JOIN {$wpdb->postmeta} pm_customer_email ON p.ID = pm_customer_email.post_id AND pm_customer_email.meta_key = '_mhm_customer_email'
 			WHERE {$where_sql}"
-		);
+		); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $where_sql and $limit_clause are built from prepared values.
 		$messages = $wpdb->get_results(
@@ -455,13 +451,13 @@ final class MessageQueryHelper
 			WHERE {$where_sql}
 			ORDER BY p.post_date DESC
 			{$limit_clause}"
-		);
+		); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery
 
 		return array(
 			'messages'     => $messages,
 			'total'        => $total_count,
-			'pages'        => ceil($total_count / $args['posts_per_page']),
-			'current_page' => floor($args['offset'] / $args['posts_per_page']) + 1,
+			'pages'        => ceil( $total_count / $args['posts_per_page'] ),
+			'current_page' => floor( $args['offset'] / $args['posts_per_page'] ) + 1,
 			'search_term'  => $search_term,
 		);
 	}
@@ -469,16 +465,15 @@ final class MessageQueryHelper
 	/**
 	 * Database performance statistics
 	 */
-	public static function get_query_performance_stats(): array
-	{
+	public static function get_query_performance_stats(): array {
 		global $wpdb;
 
 		return array(
 			'total_queries'  => $wpdb->num_queries,
-			'cache_hits'     => wp_cache_get('mhm_messages_cache_hits', 'mhm_messages') ?: 0,
-			'cache_misses'   => wp_cache_get('mhm_messages_cache_misses', 'mhm_messages') ?: 0,
-			'memory_usage'   => memory_get_usage(true),
-			'execution_time' => microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],
+			'cache_hits'     => wp_cache_get( 'mhm_messages_cache_hits', 'mhm_messages' ) ?: 0,
+			'cache_misses'   => wp_cache_get( 'mhm_messages_cache_misses', 'mhm_messages' ) ?: 0,
+			'memory_usage'   => memory_get_usage( true ),
+			'execution_time' => microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'],
 		);
 	}
 }

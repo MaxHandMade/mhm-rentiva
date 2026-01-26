@@ -6,7 +6,7 @@ namespace MHMRentiva\Admin\Privacy;
 
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -17,63 +17,59 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.0.0
  */
-final class DataRetentionManager
-{
+final class DataRetentionManager {
+
 
 	/**
 	 * Initialize data retention management
 	 */
-	public static function init(): void
-	{
-		add_action('wp_scheduled_delete', array(self::class, 'cleanup_expired_data'));
+	public static function init(): void {
+		add_action( 'wp_scheduled_delete', array( self::class, 'cleanup_expired_data' ) );
 		// Register cron hook for scheduled cleanup - must be registered before scheduling
-		add_action('mhm_data_retention_cleanup', array(self::class, 'cleanup_expired_data'));
+		add_action( 'mhm_data_retention_cleanup', array( self::class, 'cleanup_expired_data' ) );
 		// Schedule cleanup - use higher priority to ensure SettingsCore is loaded
-		add_action('init', array(self::class, 'schedule_cleanup'), 99);
+		add_action( 'init', array( self::class, 'schedule_cleanup' ), 99 );
 	}
 
 	/**
 	 * Get data retention period in days
 	 */
-	public static function get_retention_period(): int
-	{
-		return (int) SettingsCore::get('mhm_rentiva_customer_data_retention_days', 2550);
+	public static function get_retention_period(): int {
+		return (int) SettingsCore::get( 'mhm_rentiva_customer_data_retention_days', 2550 );
 	}
 
 	/**
 	 * Schedule data cleanup
 	 */
-	public static function schedule_cleanup(): void
-	{
+	public static function schedule_cleanup(): void {
 		// Check if already scheduled
-		$next_scheduled = wp_next_scheduled('mhm_data_retention_cleanup');
-		if ($next_scheduled) {
+		$next_scheduled = wp_next_scheduled( 'mhm_data_retention_cleanup' );
+		if ( $next_scheduled ) {
 			return; // Already scheduled
 		}
 
 		// Schedule the event
-		$result = wp_schedule_event(time(), 'daily', 'mhm_data_retention_cleanup');
+		$result = wp_schedule_event( time(), 'daily', 'mhm_data_retention_cleanup' );
 
-		if ($result === false) {
-			error_log('DataRetentionManager: Failed to schedule cleanup event. Error: ' . print_r(error_get_last(), true));
+		if ( $result === false ) {
+			error_log( 'DataRetentionManager: Failed to schedule cleanup event. Error: ' . print_r( error_get_last(), true ) );
 		} else {
-			error_log('DataRetentionManager: Successfully scheduled cleanup event');
+			error_log( 'DataRetentionManager: Successfully scheduled cleanup event' );
 		}
 	}
 
 	/**
 	 * Cleanup expired data
 	 */
-	public static function cleanup_expired_data(): void
-	{
+	public static function cleanup_expired_data(): void {
 		$retention_days = self::get_retention_period();
-		$cutoff_date    = gmdate('Y-m-d H:i:s', (int) strtotime("-{$retention_days} days"));
+		$cutoff_date    = gmdate( 'Y-m-d H:i:s', (int) strtotime( "-{$retention_days} days" ) );
 
 		// Cleanup inactive users
-		self::cleanup_inactive_users($cutoff_date);
+		self::cleanup_inactive_users( $cutoff_date );
 
 		// Cleanup old bookings
-		self::cleanup_old_bookings($cutoff_date);
+		self::cleanup_old_bookings( $cutoff_date );
 
 		// Note: Log cleanup removed - should be handled by centralized maintenance utilities
 	}
@@ -81,8 +77,7 @@ final class DataRetentionManager
 	/**
 	 * Cleanup inactive users
 	 */
-	private static function cleanup_inactive_users(string $cutoff_date): void
-	{
+	private static function cleanup_inactive_users( string $cutoff_date ): void {
 		global $wpdb;
 
 		// Find users who haven't logged in since cutoff date
@@ -106,18 +101,18 @@ final class DataRetentionManager
 			)
 		);
 
-		foreach ($inactive_users as $user) {
+		foreach ( $inactive_users as $user ) {
 			// Check if anonymization is enabled
-			$anonymization_enabled = SettingsCore::get('mhm_rentiva_customer_data_anonymization', '0');
+			$anonymization_enabled = SettingsCore::get( 'mhm_rentiva_customer_data_anonymization', '0' );
 
-			if ($anonymization_enabled === '1') {
+			if ( $anonymization_enabled === '1' ) {
 				// Anonymize instead of delete
-				GDPRManager::anonymize_user_data($user->ID);
-				error_log("User data anonymized: {$user->user_email} (ID: {$user->ID})");
+				GDPRManager::anonymize_user_data( $user->ID );
+				error_log( "User data anonymized: {$user->user_email} (ID: {$user->ID})" );
 			} else {
 				// Delete user data
-				GDPRManager::delete_user_data($user->ID);
-				error_log("User data deleted: {$user->user_email} (ID: {$user->ID})");
+				GDPRManager::delete_user_data( $user->ID );
+				error_log( "User data deleted: {$user->user_email} (ID: {$user->ID})" );
 			}
 		}
 	}
@@ -125,8 +120,7 @@ final class DataRetentionManager
 	/**
 	 * Cleanup old bookings
 	 */
-	private static function cleanup_old_bookings(string $cutoff_date): void
-	{
+	private static function cleanup_old_bookings( string $cutoff_date ): void {
 		global $wpdb;
 
 		// Find old completed/cancelled bookings
@@ -143,10 +137,10 @@ final class DataRetentionManager
 			)
 		);
 
-		foreach ($old_bookings as $booking) {
+		foreach ( $old_bookings as $booking ) {
 			// Delete booking and its meta
-			wp_delete_post($booking->ID, true);
-			error_log("Old booking deleted: {$booking->post_title} (ID: {$booking->ID})");
+			wp_delete_post( $booking->ID, true );
+			error_log( "Old booking deleted: {$booking->post_title} (ID: {$booking->ID})" );
 		}
 	}
 
@@ -155,12 +149,11 @@ final class DataRetentionManager
 	/**
 	 * Get data retention statistics with optimized single query
 	 */
-	public static function get_retention_stats(): array
-	{
+	public static function get_retention_stats(): array {
 		global $wpdb;
 
 		$retention_days = self::get_retention_period();
-		$cutoff_date    = gmdate('Y-m-d H:i:s', (int) strtotime("-{$retention_days} days"));
+		$cutoff_date    = gmdate( 'Y-m-d H:i:s', (int) strtotime( "-{$retention_days} days" ) );
 
 		// Single optimized query to get all stats at once
 		$stats_data = $wpdb->get_row(
@@ -190,18 +183,17 @@ final class DataRetentionManager
 		return array(
 			'retention_days' => $retention_days,
 			'cutoff_date'    => $cutoff_date,
-			'total_users'    => (int) ($stats_data['total_users'] ?? 0),
-			'inactive_users' => (int) ($stats_data['inactive_users'] ?? 0),
-			'total_bookings' => (int) ($stats_data['total_bookings'] ?? 0),
-			'old_bookings'   => (int) ($stats_data['old_bookings'] ?? 0),
+			'total_users'    => (int) ( $stats_data['total_users'] ?? 0 ),
+			'inactive_users' => (int) ( $stats_data['inactive_users'] ?? 0 ),
+			'total_bookings' => (int) ( $stats_data['total_bookings'] ?? 0 ),
+			'old_bookings'   => (int) ( $stats_data['old_bookings'] ?? 0 ),
 		);
 	}
 
 	/**
 	 * Manual cleanup trigger
 	 */
-	public static function manual_cleanup(): array
-	{
+	public static function manual_cleanup(): array {
 		$before_stats = self::get_retention_stats();
 		self::cleanup_expired_data();
 		$after_stats = self::get_retention_stats();
@@ -217,19 +209,18 @@ final class DataRetentionManager
 	/**
 	 * Check if user data should be retained
 	 */
-	public static function should_retain_user_data(int $user_id): bool
-	{
-		$user = get_userdata($user_id);
-		if (! $user) {
+	public static function should_retain_user_data( int $user_id ): bool {
+		$user = get_userdata( $user_id );
+		if ( ! $user ) {
 			return false;
 		}
 
 		$retention_days = self::get_retention_period();
-		$cutoff_date    = strtotime("-{$retention_days} days");
+		$cutoff_date    = strtotime( "-{$retention_days} days" );
 
 		// Check last login
-		$last_login = get_user_meta($user_id, 'last_login', true);
-		if ($last_login && strtotime($last_login) > $cutoff_date) {
+		$last_login = get_user_meta( $user_id, 'last_login', true );
+		if ( $last_login && strtotime( $last_login ) > $cutoff_date ) {
 			return true;
 		}
 
@@ -241,7 +232,7 @@ final class DataRetentionManager
 				'meta_value'     => $user_id,
 				'date_query'     => array(
 					array(
-						'after'     => gmdate('Y-m-d', $cutoff_date),
+						'after'     => gmdate( 'Y-m-d', $cutoff_date ),
 						'inclusive' => true,
 					),
 				),
@@ -249,18 +240,17 @@ final class DataRetentionManager
 			)
 		);
 
-		return ! empty($recent_bookings);
+		return ! empty( $recent_bookings );
 	}
 
 	/**
 	 * Get users eligible for cleanup
 	 */
-	public static function get_users_for_cleanup(): array
-	{
+	public static function get_users_for_cleanup(): array {
 		global $wpdb;
 
 		$retention_days = self::get_retention_period();
-		$cutoff_date    = gmdate('Y-m-d H:i:s', (int) strtotime("-{$retention_days} days"));
+		$cutoff_date    = gmdate( 'Y-m-d H:i:s', (int) strtotime( "-{$retention_days} days" ) );
 
 		return $wpdb->get_results(
 			$wpdb->prepare(

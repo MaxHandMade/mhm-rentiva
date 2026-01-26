@@ -1,67 +1,67 @@
 /**
  * Dark Mode Styles for MHM Rentiva Plugin
- * 
+ *
  * @since 4.0.0
  */
 
 /* Dark Mode Variables */
 :root {
-    --mhm-dark-bg-primary: #1a1a1a;
-    --mhm-dark-bg-secondary: #2d2d2d;
-    --mhm-dark-bg-tertiary: #3a3a3a;
-    --mhm-dark-text-primary: #ffffff;
-    --mhm-dark-text-secondary: #b3b3b3;
-    --mhm-dark-text-muted: #808080;
-    --mhm-dark-border: #404040;
-    --mhm-dark-accent: #0073aa;
-    --mhm-dark-accent-hover: #005a87;
-    --mhm-dark-shadow: rgba(0, 0, 0, 0.3);
+	--mhm-dark-bg-primary: #1a1a1a;
+	--mhm-dark-bg-secondary: #2d2d2d;
+	--mhm-dark-bg-tertiary: #3a3a3a;
+	--mhm-dark-text-primary: #ffffff;
+	--mhm-dark-text-secondary: #b3b3b3;
+	--mhm-dark-text-muted: #808080;
+	--mhm-dark-border: #404040;
+	--mhm-dark-accent: #0073aa;
+	--mhm-dark-accent-hover: #005a87;
+	--mhm-dark-shadow: rgba(0, 0, 0, 0.3);
 }
 
 /* Dark Mode Body Class */
 body.mhm-dark-mode {
-    background-color: var(--mhm-dark-bg-primary);
-    color: var(--mhm-dark-text-primary);
+	background-color: var(--mhm-dark-bg-primary);
+	color: var(--mhm-dark-text-primary);
 }
 
 /* Dark Mode Settings Page */
 body.mhm-dark-mode .mhm-settings-page {
-    background-color: var(--mhm-dark-bg-primary);
-    color: var(--mhm-dark-text-primary);
+	background-color: var(--mhm-dark-bg-primary);
+	color: var(--mhm-dark-text-primary);
 }
 
 /* Dark Mode Sidebar */
 body.mhm-dark-mode .mhm-settings-sidebar {
-    background-color: var(--mhm-dark-bg-secondary);
-    border-right: 1px solid var(--mhm-dark-border);
+	background-color: var(--mhm-dark-bg-secondary);
+	border-right: 1px solid var(--mhm-dark-border);
 }
 
 body.mhm-dark-mode .mhm-settings-nav-item {
-    color: var(--mhm-dark-text-secondary);
-    border-bottom: 1px solid var(--mhm-dark-border);
+	color: var(--mhm-dark-text-secondary);
+	border-bottom: 1px solid var(--mhm-dark-border);
 }
 
 body.mhm-dark-mode .mhm-settings-nav-item:hover {
-    background-color: var(--mhm-dark-bg-tertiary);
-    color: var(--mhm-dark-text-primary);
+	background-color: var(--mhm-dark-bg-tertiary);
+	color: var(--mhm-dark-text-primary);
 }
 
 body.mhm-dark-mode .mhm-settings-nav-item.active {
-    background-color: var(--mhm-dark-accent);
-    color: var(--mhm-dark-text-primary);
+	background-color: var(--mhm-dark-accent);
+	color: var(--mhm-dark-text-primary);
 }
 
 /* Dark Mode Content */
 body.mhm-dark-mode .mhm-settings-content {
-    background-color: var(--mhm-dark-bg-primary);
+	background-color: var(--mhm-dark-bg-primary);
 }
 
 body.mhm-dark-mode .mhm-settings-form-container {
-    background-color: var(--mhm-dark-bg-secondary);
-    border: 1px solid var(--mhm-dark-border);
-    border-radius: 4px;
-    padding: 20px;
-    margin: 20px 0;
+	background-color: var(--mhm-dark-bg-secondary);
+	border: 1px solid var(--mhm-dark-border);
+	border-radius: 4px;
+	padding: 20px;
+	margin: 20px 0;
 }
 
 /* Dark Mode Form Elements */
@@ -72,213 +72,213 @@ body.mhm-dark-mode .mhm-settings-form input[type="number"],
 body.mhm-dark-mode .mhm-settings-form input[type="password"],
 body.mhm-dark-mode .mhm-settings-form select,
 body.mhm-dark-mode .mhm-settings-form textarea {
-    background-color: var(--mhm-dark-bg-tertiary);
-    border: 1px solid var(--mhm-dark-border);
-    color: var(--mhm-dark-text-primary);
+	background-color: var(--mhm-dark-bg-tertiary);
+	border: 1px solid var(--mhm-dark-border);
+	color: var(--mhm-dark-text-primary);
 }
 
 body.mhm-dark-mode .mhm-settings-form input:focus,
 body.mhm-dark-mode .mhm-settings-form select:focus,
 body.mhm-dark-mode .mhm-settings-form textarea:focus {
-    border-color: var(--mhm-dark-accent);
-    box-shadow: 0 0 0 1px var(--mhm-dark-accent);
+	border-color: var(--mhm-dark-accent);
+	box-shadow: 0 0 0 1px var(--mhm-dark-accent);
 }
 
 /* Dark Mode Checkboxes and Radio Buttons */
 body.mhm-dark-mode .mhm-settings-form input[type="checkbox"],
 body.mhm-dark-mode .mhm-settings-form input[type="radio"] {
-    accent-color: var(--mhm-dark-accent);
+	accent-color: var(--mhm-dark-accent);
 }
 
 /* Dark Mode Buttons */
 body.mhm-dark-mode .mhm-settings-form .button-primary {
-    background-color: var(--mhm-dark-accent);
-    border-color: var(--mhm-dark-accent);
-    color: var(--mhm-dark-text-primary);
+	background-color: var(--mhm-dark-accent);
+	border-color: var(--mhm-dark-accent);
+	color: var(--mhm-dark-text-primary);
 }
 
 body.mhm-dark-mode .mhm-settings-form .button-primary:hover {
-    background-color: var(--mhm-dark-accent-hover);
-    border-color: var(--mhm-dark-accent-hover);
+	background-color: var(--mhm-dark-accent-hover);
+	border-color: var(--mhm-dark-accent-hover);
 }
 
 body.mhm-dark-mode .mhm-settings-form .button-secondary {
-    background-color: var(--mhm-dark-bg-tertiary);
-    border-color: var(--mhm-dark-border);
-    color: var(--mhm-dark-text-primary);
+	background-color: var(--mhm-dark-bg-tertiary);
+	border-color: var(--mhm-dark-border);
+	color: var(--mhm-dark-text-primary);
 }
 
 body.mhm-dark-mode .mhm-settings-form .button-secondary:hover {
-    background-color: var(--mhm-dark-border);
-    border-color: var(--mhm-dark-text-secondary);
+	background-color: var(--mhm-dark-border);
+	border-color: var(--mhm-dark-text-secondary);
 }
 
 /* Dark Mode Sections */
 body.mhm-dark-mode .mhm-settings-form h2,
 body.mhm-dark-mode .mhm-settings-form h3 {
-    color: var(--mhm-dark-text-primary);
-    border-bottom: 1px solid var(--mhm-dark-border);
+	color: var(--mhm-dark-text-primary);
+	border-bottom: 1px solid var(--mhm-dark-border);
 }
 
 body.mhm-dark-mode .mhm-settings-form p.description {
-    color: var(--mhm-dark-text-muted);
+	color: var(--mhm-dark-text-muted);
 }
 
 /* Dark Mode Tables */
 body.mhm-dark-mode .mhm-settings-form table {
-    background-color: var(--mhm-dark-bg-secondary);
-    border: 1px solid var(--mhm-dark-border);
+	background-color: var(--mhm-dark-bg-secondary);
+	border: 1px solid var(--mhm-dark-border);
 }
 
 body.mhm-dark-mode .mhm-settings-form th,
 body.mhm-dark-mode .mhm-settings-form td {
-    border-bottom: 1px solid var(--mhm-dark-border);
-    color: var(--mhm-dark-text-primary);
+	border-bottom: 1px solid var(--mhm-dark-border);
+	color: var(--mhm-dark-text-primary);
 }
 
 body.mhm-dark-mode .mhm-settings-form th {
-    background-color: var(--mhm-dark-bg-tertiary);
+	background-color: var(--mhm-dark-bg-tertiary);
 }
 
 /* Dark Mode Notices */
 body.mhm-dark-mode .notice {
-    background-color: var(--mhm-dark-bg-secondary);
-    border-left: 4px solid var(--mhm-dark-accent);
-    color: var(--mhm-dark-text-primary);
+	background-color: var(--mhm-dark-bg-secondary);
+	border-left: 4px solid var(--mhm-dark-accent);
+	color: var(--mhm-dark-text-primary);
 }
 
 body.mhm-dark-mode .notice.notice-success {
-    border-left-color: #46b450;
+	border-left-color: #46b450;
 }
 
 body.mhm-dark-mode .notice.notice-error {
-    border-left-color: #dc3232;
+	border-left-color: #dc3232;
 }
 
 body.mhm-dark-mode .notice.notice-warning {
-    border-left-color: #ffb900;
+	border-left-color: #ffb900;
 }
 
 /* Dark Mode Code Blocks */
 body.mhm-dark-mode .mhm-settings-form code {
-    background-color: var(--mhm-dark-bg-tertiary);
-    color: var(--mhm-dark-text-primary);
-    border: 1px solid var(--mhm-dark-border);
+	background-color: var(--mhm-dark-bg-tertiary);
+	color: var(--mhm-dark-text-primary);
+	border: 1px solid var(--mhm-dark-border);
 }
 
 /* Dark Mode Pre Blocks */
 body.mhm-dark-mode .mhm-settings-form pre {
-    background-color: var(--mhm-dark-bg-tertiary);
-    color: var(--mhm-dark-text-primary);
-    border: 1px solid var(--mhm-dark-border);
+	background-color: var(--mhm-dark-bg-tertiary);
+	color: var(--mhm-dark-text-primary);
+	border: 1px solid var(--mhm-dark-border);
 }
 
 /* Dark Mode Links */
 body.mhm-dark-mode .mhm-settings-form a {
-    color: var(--mhm-dark-accent);
+	color: var(--mhm-dark-accent);
 }
 
 body.mhm-dark-mode .mhm-settings-form a:hover {
-    color: var(--mhm-dark-accent-hover);
+	color: var(--mhm-dark-accent-hover);
 }
 
 /* Dark Mode Toggle Switch */
 .mhm-dark-mode-toggle {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
+	position: relative;
+	display: inline-block;
+	width: 60px;
+	height: 34px;
 }
 
 .mhm-dark-mode-toggle input {
-    opacity: 0;
-    width: 0;
-    height: 0;
+	opacity: 0;
+	width: 0;
+	height: 0;
 }
 
 .mhm-dark-mode-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 34px;
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #ccc;
+	transition: .4s;
+	border-radius: 34px;
 }
 
 .mhm-dark-mode-slider:before {
-    position: absolute;
-    content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
+	position: absolute;
+	content: "";
+	height: 26px;
+	width: 26px;
+	left: 4px;
+	bottom: 4px;
+	background-color: white;
+	transition: .4s;
+	border-radius: 50%;
 }
 
 input:checked+.mhm-dark-mode-slider {
-    background-color: var(--mhm-dark-accent);
+	background-color: var(--mhm-dark-accent);
 }
 
 input:checked+.mhm-dark-mode-slider:before {
-    transform: translateX(26px);
+	transform: translateX(26px);
 }
 
 /* Dark Mode Status Indicator */
 .mhm-dark-mode-status {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
+	display: inline-block;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: bold;
+	text-transform: uppercase;
 }
 
 .mhm-dark-mode-status.auto {
-    background-color: #f0f0f0;
-    color: #333;
+	background-color: #f0f0f0;
+	color: #333;
 }
 
 .mhm-dark-mode-status.light {
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #ddd;
+	background-color: #fff;
+	color: #333;
+	border: 1px solid #ddd;
 }
 
 .mhm-dark-mode-status.dark {
-    background-color: #333;
-    color: #fff;
+	background-color: #333;
+	color: #fff;
 }
 
 /* Responsive Dark Mode */
 @media (max-width: 768px) {
-    body.mhm-dark-mode .mhm-settings-sidebar {
-        background-color: var(--mhm-dark-bg-primary);
-    }
+	body.mhm-dark-mode .mhm-settings-sidebar {
+		background-color: var(--mhm-dark-bg-primary);
+	}
 
-    body.mhm-dark-mode .mhm-settings-nav {
-        background-color: var(--mhm-dark-bg-secondary);
-    }
+	body.mhm-dark-mode .mhm-settings-nav {
+		background-color: var(--mhm-dark-bg-secondary);
+	}
 }
 
 /* Dark Mode Animation */
 .mhm-dark-mode-transition {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+	transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Dark Mode Print Styles */
 @media print {
-    body.mhm-dark-mode {
-        background-color: white !important;
-        color: black !important;
-    }
+	body.mhm-dark-mode {
+		background-color: white !important;
+		color: black !important;
+	}
 
-    body.mhm-dark-mode .mhm-settings-page {
-        background-color: white !important;
-        color: black !important;
-    }
+	body.mhm-dark-mode .mhm-settings-page {
+		background-color: white !important;
+		color: black !important;
+	}
 }

@@ -1,6 +1,6 @@
 /**
  * MHM Rentiva - Merkezi Animasyonlar
- * 
+ *
  * Tüm animasyonlar bu dosyada tanımlanır ve proje genelinde kullanılır.
  * Tekrar tanımlamaları önlemek için bu dosyayı kullanın.
  */
@@ -8,387 +8,387 @@
 /* === FADE ANİMASYONLARI === */
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
+	from {
+		opacity: 0;
+	}
 
-    to {
-        opacity: 1;
-    }
+	to {
+		opacity: 1;
+	}
 }
 
 @keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
+	from {
+		opacity: 1;
+	}
 
-    to {
-        opacity: 0;
-    }
+	to {
+		opacity: 0;
+	}
 }
 
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 @keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 @keyframes fadeInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
+	from {
+		opacity: 0;
+		transform: translateX(-20px);
+	}
 
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
 @keyframes fadeInRight {
-    from {
-        opacity: 0;
-        transform: translateX(20px);
-    }
+	from {
+		opacity: 0;
+		transform: translateX(20px);
+	}
 
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
 /* === SCALE ANİMASYONLARI === */
 
 @keyframes scaleIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
+	from {
+		opacity: 0;
+		transform: scale(0.9);
+	}
 
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
 }
 
 @keyframes scaleOut {
-    from {
-        opacity: 1;
-        transform: scale(1);
-    }
+	from {
+		opacity: 1;
+		transform: scale(1);
+	}
 
-    to {
-        opacity: 0;
-        transform: scale(0.9);
-    }
+	to {
+		opacity: 0;
+		transform: scale(0.9);
+	}
 }
 
 @keyframes pulse {
 
-    0%,
-    100% {
-        transform: scale(1);
-    }
+	0%,
+	100% {
+		transform: scale(1);
+	}
 
-    50% {
-        transform: scale(1.05);
-    }
+	50% {
+		transform: scale(1.05);
+	}
 }
 
 @keyframes bounce {
 
-    0%,
-    20%,
-    53%,
-    80%,
-    100% {
-        transform: translate3d(0, 0, 0);
-    }
+	0%,
+	20%,
+	53%,
+	80%,
+	100% {
+		transform: translate3d(0, 0, 0);
+	}
 
-    40%,
-    43% {
-        transform: translate3d(0, -8px, 0);
-    }
+	40%,
+	43% {
+		transform: translate3d(0, -8px, 0);
+	}
 
-    70% {
-        transform: translate3d(0, -4px, 0);
-    }
+	70% {
+		transform: translate3d(0, -4px, 0);
+	}
 
-    90% {
-        transform: translate3d(0, -2px, 0);
-    }
+	90% {
+		transform: translate3d(0, -2px, 0);
+	}
 }
 
 /* === ROTATE ANİMASYONLARI === */
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
+	from {
+		transform: rotate(0deg);
+	}
 
-    to {
-        transform: rotate(360deg);
-    }
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 @keyframes rotateIn {
-    from {
-        opacity: 0;
-        transform: rotate(-200deg);
-    }
+	from {
+		opacity: 0;
+		transform: rotate(-200deg);
+	}
 
-    to {
-        opacity: 1;
-        transform: rotate(0deg);
-    }
+	to {
+		opacity: 1;
+		transform: rotate(0deg);
+	}
 }
 
 /* === SLIDE ANİMASYONLARI === */
 
 @keyframes slideInUp {
-    from {
-        transform: translateY(100%);
-    }
+	from {
+		transform: translateY(100%);
+	}
 
-    to {
-        transform: translateY(0);
-    }
+	to {
+		transform: translateY(0);
+	}
 }
 
 @keyframes slideInDown {
-    from {
-        transform: translateY(-100%);
-    }
+	from {
+		transform: translateY(-100%);
+	}
 
-    to {
-        transform: translateY(0);
-    }
+	to {
+		transform: translateY(0);
+	}
 }
 
 @keyframes slideInLeft {
-    from {
-        transform: translateX(-100%);
-    }
+	from {
+		transform: translateX(-100%);
+	}
 
-    to {
-        transform: translateX(0);
-    }
+	to {
+		transform: translateX(0);
+	}
 }
 
 @keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-    }
+	from {
+		transform: translateX(100%);
+	}
 
-    to {
-        transform: translateX(0);
-    }
+	to {
+		transform: translateX(0);
+	}
 }
 
 /* === LOADING ANİMASYONLARI === */
 
 @keyframes shimmer {
-    0% {
-        background-position: -200px 0;
-    }
+	0% {
+		background-position: -200px 0;
+	}
 
-    100% {
-        background-position: calc(200px + 100%) 0;
-    }
+	100% {
+		background-position: calc(200px + 100%) 0;
+	}
 }
 
 @keyframes loadingDots {
 
-    0%,
-    20% {
-        color: rgba(0, 0, 0, 0);
-        text-shadow: 0.25em 0 0 rgba(0, 0, 0, 0), 0.5em 0 0 rgba(0, 0, 0, 0);
-    }
+	0%,
+	20% {
+		color: rgba(0, 0, 0, 0);
+		text-shadow: 0.25em 0 0 rgba(0, 0, 0, 0), 0.5em 0 0 rgba(0, 0, 0, 0);
+	}
 
-    40% {
-        color: var(--mhm-text-primary);
-        text-shadow: 0.25em 0 0 rgba(0, 0, 0, 0), 0.5em 0 0 rgba(0, 0, 0, 0);
-    }
+	40% {
+		color: var(--mhm-text-primary);
+		text-shadow: 0.25em 0 0 rgba(0, 0, 0, 0), 0.5em 0 0 rgba(0, 0, 0, 0);
+	}
 
-    60% {
-        text-shadow: 0.25em 0 0 var(--mhm-text-primary), 0.5em 0 0 rgba(0, 0, 0, 0);
-    }
+	60% {
+		text-shadow: 0.25em 0 0 var(--mhm-text-primary), 0.5em 0 0 rgba(0, 0, 0, 0);
+	}
 
-    80%,
-    100% {
-        text-shadow: 0.25em 0 0 var(--mhm-text-primary), 0.5em 0 0 var(--mhm-text-primary);
-    }
+	80%,
+	100% {
+		text-shadow: 0.25em 0 0 var(--mhm-text-primary), 0.5em 0 0 var(--mhm-text-primary);
+	}
 }
 
 /* === PROGRESS ANİMASYONLARI === */
 
 @keyframes progressBar {
-    0% {
-        width: 0%;
-    }
+	0% {
+		width: 0%;
+	}
 
-    100% {
-        width: 100%;
-    }
+	100% {
+		width: 100%;
+	}
 }
 
 @keyframes indeterminate {
-    0% {
-        left: -100%;
-    }
+	0% {
+		left: -100%;
+	}
 
-    100% {
-        left: 100%;
-    }
+	100% {
+		left: 100%;
+	}
 }
 
 /* === HOVER ANİMASYONLARI === */
 
 @keyframes wiggle {
 
-    0%,
-    7% {
-        transform: rotateZ(0);
-    }
+	0%,
+	7% {
+		transform: rotateZ(0);
+	}
 
-    15% {
-        transform: rotateZ(-15deg);
-    }
+	15% {
+		transform: rotateZ(-15deg);
+	}
 
-    20% {
-        transform: rotateZ(10deg);
-    }
+	20% {
+		transform: rotateZ(10deg);
+	}
 
-    25% {
-        transform: rotateZ(-10deg);
-    }
+	25% {
+		transform: rotateZ(-10deg);
+	}
 
-    30% {
-        transform: rotateZ(6deg);
-    }
+	30% {
+		transform: rotateZ(6deg);
+	}
 
-    35% {
-        transform: rotateZ(-4deg);
-    }
+	35% {
+		transform: rotateZ(-4deg);
+	}
 
-    40%,
-    100% {
-        transform: rotateZ(0);
-    }
+	40%,
+	100% {
+		transform: rotateZ(0);
+	}
 }
 
 /* === UTILITY CLASSES === */
 
 /* Fade Animasyonları */
 .mhm-fade-in {
-    animation: fadeIn var(--mhm-duration-300) var(--mhm-ease-out);
+	animation: fadeIn var(--mhm-duration-300) var(--mhm-ease-out);
 }
 
 .mhm-fade-out {
-    animation: fadeOut var(--mhm-duration-300) var(--mhm-ease-out);
+	animation: fadeOut var(--mhm-duration-300) var(--mhm-ease-out);
 }
 
 .mhm-fade-in-up {
-    animation: fadeInUp var(--mhm-duration-500) var(--mhm-ease-out);
+	animation: fadeInUp var(--mhm-duration-500) var(--mhm-ease-out);
 }
 
 .mhm-fade-in-down {
-    animation: fadeInDown var(--mhm-duration-500) var(--mhm-ease-out);
+	animation: fadeInDown var(--mhm-duration-500) var(--mhm-ease-out);
 }
 
 .mhm-fade-in-left {
-    animation: fadeInLeft var(--mhm-duration-500) var(--mhm-ease-out);
+	animation: fadeInLeft var(--mhm-duration-500) var(--mhm-ease-out);
 }
 
 .mhm-fade-in-right {
-    animation: fadeInRight var(--mhm-duration-500) var(--mhm-ease-out);
+	animation: fadeInRight var(--mhm-duration-500) var(--mhm-ease-out);
 }
 
 /* Scale Animasyonları */
 .mhm-scale-in {
-    animation: scaleIn var(--mhm-duration-300) var(--mhm-ease-out);
+	animation: scaleIn var(--mhm-duration-300) var(--mhm-ease-out);
 }
 
 .mhm-scale-out {
-    animation: scaleOut var(--mhm-duration-300) var(--mhm-ease-out);
+	animation: scaleOut var(--mhm-duration-300) var(--mhm-ease-out);
 }
 
 .mhm-pulse {
-    animation: pulse var(--mhm-duration-1000) var(--mhm-ease-in-out) infinite;
+	animation: pulse var(--mhm-duration-1000) var(--mhm-ease-in-out) infinite;
 }
 
 .mhm-bounce {
-    animation: bounce var(--mhm-duration-1000) var(--mhm-ease-in-out) infinite;
+	animation: bounce var(--mhm-duration-1000) var(--mhm-ease-in-out) infinite;
 }
 
 /* Rotate Animasyonları */
 .mhm-spin {
-    animation: spin var(--mhm-duration-1000) var(--mhm-ease-linear) infinite;
+	animation: spin var(--mhm-duration-1000) var(--mhm-ease-linear) infinite;
 }
 
 .mhm-rotate-in {
-    animation: rotateIn var(--mhm-duration-500) var(--mhm-ease-out);
+	animation: rotateIn var(--mhm-duration-500) var(--mhm-ease-out);
 }
 
 /* Slide Animasyonları */
 .mhm-slide-in-up {
-    animation: slideInUp var(--mhm-duration-500) var(--mhm-ease-out);
+	animation: slideInUp var(--mhm-duration-500) var(--mhm-ease-out);
 }
 
 .mhm-slide-in-down {
-    animation: slideInDown var(--mhm-duration-500) var(--mhm-ease-out);
+	animation: slideInDown var(--mhm-duration-500) var(--mhm-ease-out);
 }
 
 .mhm-slide-in-left {
-    animation: slideInLeft var(--mhm-duration-500) var(--mhm-ease-out);
+	animation: slideInLeft var(--mhm-duration-500) var(--mhm-ease-out);
 }
 
 .mhm-slide-in-right {
-    animation: slideInRight var(--mhm-duration-500) var(--mhm-ease-out);
+	animation: slideInRight var(--mhm-duration-500) var(--mhm-ease-out);
 }
 
 /* Loading Animasyonları */
 .mhm-shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    background-size: 200px 100%;
-    animation: shimmer var(--mhm-duration-1500) var(--mhm-ease-in-out) infinite;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+	background-size: 200px 100%;
+	animation: shimmer var(--mhm-duration-1500) var(--mhm-ease-in-out) infinite;
 }
 
 .mhm-loading-dots::after {
-    content: '...';
-    animation: loadingDots var(--mhm-duration-1400) var(--mhm-ease-in-out) infinite;
+	content: '...';
+	animation: loadingDots var(--mhm-duration-1400) var(--mhm-ease-in-out) infinite;
 }
 
 /* Progress Animasyonları */
 .mhm-progress-bar {
-    animation: progressBar var(--mhm-duration-2000) var(--mhm-ease-out);
+	animation: progressBar var(--mhm-duration-2000) var(--mhm-ease-out);
 }
 
 .mhm-indeterminate {
-    animation: indeterminate var(--mhm-duration-2000) var(--mhm-ease-in-out) infinite;
+	animation: indeterminate var(--mhm-duration-2000) var(--mhm-ease-in-out) infinite;
 }
 
 /* Hover Animasyonları */
 .mhm-wiggle:hover {
-    animation: wiggle var(--mhm-duration-1000) var(--mhm-ease-in-out);
+	animation: wiggle var(--mhm-duration-1000) var(--mhm-ease-in-out);
 }
 
 /* === RESPONSIVE ANİMASYONLAR === */
@@ -396,22 +396,22 @@
 /* Mobil cihazlarda animasyonları devre dışı bırak */
 @media (prefers-reduced-motion: reduce) {
 
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
 }
 
 /* Küçük ekranlarda bazı animasyonları basitleştir */
 @media (max-width: 768px) {
 
-    .mhm-fade-in-up,
-    .mhm-fade-in-down,
-    .mhm-fade-in-left,
-    .mhm-fade-in-right {
-        animation: fadeIn var(--mhm-duration-300) var(--mhm-ease-out);
-    }
+	.mhm-fade-in-up,
+	.mhm-fade-in-down,
+	.mhm-fade-in-left,
+	.mhm-fade-in-right {
+		animation: fadeIn var(--mhm-duration-300) var(--mhm-ease-out);
+	}
 }

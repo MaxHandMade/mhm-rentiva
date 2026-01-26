@@ -5,345 +5,345 @@
 
 /* Depozito ve Ödeme Seçenekleri */
 .rv-payment-options {
-    margin: 20px 0;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
+	margin: 20px 0;
+	padding: 20px;
+	background: #f8f9fa;
+	border-radius: 8px;
+	border: 1px solid #e9ecef;
 }
 
 .rv-section-title {
-    margin: 0 0 15px 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #2c3e50;
+	margin: 0 0 15px 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: #2c3e50;
 }
 
 .rv-subsection-title {
-    margin: 15px 0 10px 0;
-    font-size: 16px;
-    font-weight: 500;
-    color: #34495e;
+	margin: 15px 0 10px 0;
+	font-size: 16px;
+	font-weight: 500;
+	color: #34495e;
 }
 
 /* Ödeme Türü Seçimi */
 .rv-payment-type-selection {
-    margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
 .rv-payment-type {
-    display: block;
-    margin-bottom: 12px;
-    padding: 15px;
-    background: #fff;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+	display: block;
+	margin-bottom: 12px;
+	padding: 15px;
+	background: #fff;
+	border: 2px solid #e9ecef;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.3s ease;
 }
 
 .rv-payment-type:hover {
-    border-color: #3498db;
-    background: #f8f9ff;
+	border-color: #3498db;
+	background: #f8f9ff;
 }
 
 .rv-payment-type input[type="radio"] {
-    margin-right: 12px;
-    transform: scale(1.2);
+	margin-right: 12px;
+	transform: scale(1.2);
 }
 
 .rv-payment-type input[type="radio"]:checked+.rv-payment-type-label {
-    color: #2c3e50;
+	color: #2c3e50;
 }
 
 .rv-payment-type:has(input[type="radio"]:checked) {
-    border-color: #3498db;
-    background: #e3f2fd;
-    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+	border-color: #3498db;
+	background: #e3f2fd;
+	box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
 }
 
 .rv-payment-type-label {
-    display: block;
-    font-weight: 500;
-    color: #34495e;
+	display: block;
+	font-weight: 500;
+	color: #34495e;
 }
 
 .rv-payment-type-label strong {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 16px;
-    color: #2c3e50;
+	display: block;
+	margin-bottom: 4px;
+	font-size: 16px;
+	color: #2c3e50;
 }
 
 .rv-payment-type-label small {
-    display: block;
-    font-size: 13px;
-    color: #7f8c8d;
-    font-weight: 400;
+	display: block;
+	font-size: 13px;
+	color: #7f8c8d;
+	font-weight: 400;
 }
 
 /* Depozito Hesaplama Sonucu */
 .rv-deposit-calculation {
-    margin: 15px 0;
-    padding: 15px;
-    background: #fff;
-    border: 1px solid #d1ecf1;
-    border-radius: 6px;
-    border-left: 4px solid #17a2b8;
+	margin: 15px 0;
+	padding: 15px;
+	background: #fff;
+	border: 1px solid #d1ecf1;
+	border-radius: 6px;
+	border-left: 4px solid #17a2b8;
 }
 
 .rv-deposit-info {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 .rv-deposit-amount,
 .rv-remaining-amount {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 0;
 }
 
 .rv-deposit-label,
 .rv-remaining-label {
-    font-weight: 500;
-    color: #495057;
+	font-weight: 500;
+	color: #495057;
 }
 
 .rv-deposit-value,
 .rv-remaining-value {
-    font-weight: 600;
-    font-size: 16px;
-    color: #28a745;
+	font-weight: 600;
+	font-size: 16px;
+	color: #28a745;
 }
 
 .rv-remaining-value {
-    color: #ffc107;
+	color: #ffc107;
 }
 
 /* Ödeme Yöntemi Seçimi */
 .rv-payment-methods {
-    margin-top: 20px;
+	margin-top: 20px;
 }
 
 .rv-payment-method {
-    display: block;
-    margin-bottom: 10px;
-    padding: 12px 15px;
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+	display: block;
+	margin-bottom: 10px;
+	padding: 12px 15px;
+	background: #fff;
+	border: 1px solid #dee2e6;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s ease;
 }
 
 .rv-payment-method:hover {
-    border-color: #3498db;
-    background: #f8f9ff;
+	border-color: #3498db;
+	background: #f8f9ff;
 }
 
 .rv-payment-method input[type="radio"] {
-    margin-right: 10px;
+	margin-right: 10px;
 }
 
 .rv-payment-method:has(input[type="radio"]:checked) {
-    border-color: #3498db;
-    background: #e3f2fd;
+	border-color: #3498db;
+	background: #e3f2fd;
 }
 
 .rv-payment-label {
-    font-weight: 500;
-    color: #2c3e50;
+	font-weight: 500;
+	color: #2c3e50;
 }
 
 .rv-payment-note {
-    display: block;
-    margin-top: 4px;
-    font-size: 12px;
-    color: #e74c3c;
-    font-style: italic;
+	display: block;
+	margin-top: 4px;
+	font-size: 12px;
+	color: #e74c3c;
+	font-style: italic;
 }
 
 /* Online Ödeme Detayları */
 .rv-online-payment-details {
-    margin-top: 15px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
+	margin-top: 15px;
+	padding: 15px;
+	background: #f8f9fa;
+	border-radius: 6px;
+	border: 1px solid #e9ecef;
 }
 
 .rv-payment-gateways {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 .rv-payment-gateway {
-    display: block;
-    padding: 10px 12px;
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+	display: block;
+	padding: 10px 12px;
+	background: #fff;
+	border: 1px solid #dee2e6;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: all 0.2s ease;
 }
 
 .rv-payment-gateway:hover {
-    border-color: #3498db;
-    background: #f8f9ff;
+	border-color: #3498db;
+	background: #f8f9ff;
 }
 
 .rv-payment-gateway input[type="radio"] {
-    margin-right: 8px;
+	margin-right: 8px;
 }
 
 .rv-payment-gateway:has(input[type="radio"]:checked) {
-    border-color: #3498db;
-    background: #e3f2fd;
+	border-color: #3498db;
+	background: #e3f2fd;
 }
 
 .rv-gateway-label {
-    font-weight: 500;
-    color: #2c3e50;
+	font-weight: 500;
+	color: #2c3e50;
 }
 
 /* Fiyat Hesaplama - Depozito Bilgileri */
 .rv-deposit-summary {
-    margin-top: 15px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
+	margin-top: 15px;
+	padding: 15px;
+	background: #f8f9fa;
+	border-radius: 6px;
+	border: 1px solid #e9ecef;
 }
 
 .rv-deposit-info,
 .rv-remaining-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid #e9ecef;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 6px 0;
+	border-bottom: 1px solid #e9ecef;
 }
 
 .rv-deposit-info:last-child,
 .rv-remaining-info:last-child {
-    border-bottom: none;
+	border-bottom: none;
 }
 
 .rv-deposit-info .rv-price-label,
 .rv-remaining-info .rv-price-label {
-    font-weight: 500;
-    color: #495057;
+	font-weight: 500;
+	color: #495057;
 }
 
 .rv-deposit-info .rv-price-value {
-    font-weight: 600;
-    color: #28a745;
+	font-weight: 600;
+	color: #28a745;
 }
 
 .rv-remaining-info .rv-price-value {
-    font-weight: 600;
-    color: #ffc107;
+	font-weight: 600;
+	color: #ffc107;
 }
 
 /* Responsive Tasarım */
 @media (max-width: 768px) {
-    .rv-payment-options {
-        padding: 15px;
-        margin: 15px 0;
-    }
+	.rv-payment-options {
+		padding: 15px;
+		margin: 15px 0;
+	}
 
-    .rv-payment-type {
-        padding: 12px;
-    }
+	.rv-payment-type {
+		padding: 12px;
+	}
 
-    .rv-payment-type-label strong {
-        font-size: 15px;
-    }
+	.rv-payment-type-label strong {
+		font-size: 15px;
+	}
 
-    .rv-payment-type-label small {
-        font-size: 12px;
-    }
+	.rv-payment-type-label small {
+		font-size: 12px;
+	}
 
-    .rv-deposit-calculation {
-        padding: 12px;
-    }
+	.rv-deposit-calculation {
+		padding: 12px;
+	}
 
-    .rv-online-payment-details {
-        padding: 12px;
-    }
+	.rv-online-payment-details {
+		padding: 12px;
+	}
 }
 
 /* Animasyonlar */
 .rv-deposit-calculation,
 .rv-deposit-summary,
 .rv-online-payment-details {
-    animation: fadeInUp 0.3s ease-out;
+	animation: fadeInUp 0.3s ease-out;
 }
 
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 /* Durum Göstergeleri */
 .rv-payment-status {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 8px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 500;
 }
 
 .rv-payment-status.deposit {
-    background: #d4edda;
-    color: #155724;
+	background: #d4edda;
+	color: #155724;
 }
 
 .rv-payment-status.full {
-    background: #cce5ff;
-    color: #004085;
+	background: #cce5ff;
+	color: #004085;
 }
 
 .rv-payment-status.offline {
-    background: #fff3cd;
-    color: #856404;
+	background: #fff3cd;
+	color: #856404;
 }
 
 .rv-payment-status.online {
-    background: #d1ecf1;
-    color: #0c5460;
+	background: #d1ecf1;
+	color: #0c5460;
 }
 
 /* Hata Durumları */
 .rv-deposit-error {
-    padding: 10px 15px;
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    border-radius: 4px;
-    color: #721c24;
-    font-size: 14px;
-    margin: 10px 0;
+	padding: 10px 15px;
+	background: #f8d7da;
+	border: 1px solid #f5c6cb;
+	border-radius: 4px;
+	color: #721c24;
+	font-size: 14px;
+	margin: 10px 0;
 }
 
 /* Başarı Durumları */
 .rv-deposit-success {
-    padding: 10px 15px;
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    border-radius: 4px;
-    color: #155724;
-    font-size: 14px;
-    margin: 10px 0;
+	padding: 10px 15px;
+	background: #d4edda;
+	border: 1px solid #c3e6cb;
+	border-radius: 4px;
+	color: #155724;
+	font-size: 14px;
+	margin: 10px 0;
 }

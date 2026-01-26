@@ -13,7 +13,7 @@ namespace MHMRentiva\Admin\Customers;
 use MHMRentiva\Admin\Core\Utilities\CacheManager;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -23,8 +23,8 @@ if (! defined('ABSPATH')) {
  * - Optimized queries
  * - Batch data processing
  */
-final class CustomersOptimizer
-{
+final class CustomersOptimizer {
+
 
 
 	private const CACHE_PREFIX = 'mhm_customers_';
@@ -37,12 +37,11 @@ final class CustomersOptimizer
 	 * @param mixed $value Input value.
 	 * @return string Sanitized string.
 	 */
-	public static function sanitize_text_field_safe($value): string
-	{
-		if (null === $value || '' === $value) {
+	public static function sanitize_text_field_safe( $value ): string {
+		if ( null === $value || '' === $value ) {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value );
 	}
 
 	/**
@@ -53,27 +52,26 @@ final class CustomersOptimizer
 	 * @param string $search Search term
 	 * @return array
 	 */
-	public static function get_customers_optimized(int $page = 1, int $per_page = 20, string $search = ''): array
-	{
-		$cache_key = self::CACHE_PREFIX . 'list_' . md5($page . '_' . $per_page . '_' . $search);
+	public static function get_customers_optimized( int $page = 1, int $per_page = 20, string $search = '' ): array {
+		$cache_key = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search );
 
 		// Check cache
-		$cached_data = CacheManager::get_cache('customers', $cache_key);
-		if ($cached_data !== false) {
+		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
+		if ( $cached_data !== false ) {
 			return $cached_data;
 		}
 
 		global $wpdb;
 
 		// Calculate offset
-		$offset = ($page - 1) * $per_page;
+		$offset = ( $page - 1 ) * $per_page;
 
 		// Optimized query - all data at once.
 		$where_clause = "WHERE u.ID > 1 AND u.user_login != 'admin'";
 		$search_term  = '';
 
-		if (! empty($search)) {
-			$where_clause .= $wpdb->prepare(' AND (u.display_name LIKE %s OR u.user_email LIKE %s)', '%' . $wpdb->esc_like($search) . '%', '%' . $wpdb->esc_like($search) . '%');
+		if ( ! empty( $search ) ) {
+			$where_clause .= $wpdb->prepare( ' AND (u.display_name LIKE %s OR u.user_email LIKE %s)', '%' . $wpdb->esc_like( $search ) . '%', '%' . $wpdb->esc_like( $search ) . '%' );
 		}
 
 		$results = $wpdb->get_results(
@@ -112,12 +110,12 @@ final class CustomersOptimizer
 			)
 		);
 
-		if (empty($results)) {
+		if ( empty( $results ) ) {
 			$data = array(
 				'customers' => array(),
 				'total'     => 0,
 			);
-			CacheManager::set_cache('customers', $cache_key, $data, self::CACHE_TTL);
+			CacheManager::set_cache( 'customers', $cache_key, $data, self::CACHE_TTL );
 			return $data;
 		}
 
@@ -128,10 +126,10 @@ final class CustomersOptimizer
 		);
 
 		// Format data
-		$currency  = SettingsCore::get('mhm_rentiva_currency', 'USD');
+		$currency  = SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
 		$customers = array();
 
-		foreach ($results as $result) {
+		foreach ( $results as $result ) {
 			$customers[] = array(
 				'id'            => (int) $result->user_id,
 				'name'          => $result->customer_name ?: $result->customer_email,
@@ -139,9 +137,9 @@ final class CustomersOptimizer
 				'phone'         => $result->phone ?: '-',
 				'address'       => $result->address ?: '-',
 				'booking_count' => (int) $result->booking_count,
-				'total_spent'   => number_format((float) $result->total_spent, 2, ',', '.'),
-				'last_booking'  => $result->last_booking ? gmdate('d.m.Y', strtotime($result->last_booking)) : '-',
-				'created_date'  => $result->created_date ? gmdate('d.m.Y', strtotime($result->created_date)) : '-',
+				'total_spent'   => number_format( (float) $result->total_spent, 2, ',', '.' ),
+				'last_booking'  => $result->last_booking ? gmdate( 'd.m.Y', strtotime( $result->last_booking ) ) : '-',
+				'created_date'  => $result->created_date ? gmdate( 'd.m.Y', strtotime( $result->created_date ) ) : '-',
 				'currency'      => $currency,
 			);
 		}
@@ -151,11 +149,11 @@ final class CustomersOptimizer
 			'total'       => (int) $total,
 			'page'        => $page,
 			'per_page'    => $per_page,
-			'total_pages' => ceil($total / $per_page),
+			'total_pages' => ceil( $total / $per_page ),
 		);
 
 		// Cache save
-		CacheManager::set_cache('customers', $cache_key, $data, self::CACHE_TTL);
+		CacheManager::set_cache( 'customers', $cache_key, $data, self::CACHE_TTL );
 
 		return $data;
 	}
@@ -165,13 +163,12 @@ final class CustomersOptimizer
 	 *
 	 * @return array
 	 */
-	public static function get_customer_stats_optimized(): array
-	{
+	public static function get_customer_stats_optimized(): array {
 		$cache_key = self::CACHE_PREFIX . 'stats';
 
 		// Check cache
-		$cached_data = CacheManager::get_cache('customers', $cache_key);
-		if ($cached_data !== false) {
+		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
+		if ( $cached_data !== false ) {
 			return $cached_data;
 		}
 
@@ -202,25 +199,25 @@ final class CustomersOptimizer
                 AND u.user_email != '' 
                 AND u.user_email IS NOT NULL
         ",
-			gmdate('Y-m-01 00:00:00')
+			gmdate( 'Y-m-01 00:00:00' )
 		);
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with $wpdb->prepare().
-		$result = $wpdb->get_row($query);
+		$result = $wpdb->get_row( $query );
 
 		// Calculate monthly average (last 3 months)
 		$monthly_avg = self::calculate_monthly_average();
 
 		$stats = array(
-			'total'         => (int) ($result->total_customers ?? 0),
-			'active'        => (int) ($result->active_customers ?? 0),
-			'new'           => (int) ($result->new_customers ?? 0),
+			'total'         => (int) ( $result->total_customers ?? 0 ),
+			'active'        => (int) ( $result->active_customers ?? 0 ),
+			'new'           => (int) ( $result->new_customers ?? 0 ),
 			'average'       => $monthly_avg,
 			'average_trend' => self::calculate_trend(),
 		);
 
 		// Cache save
-		CacheManager::set_cache('customers', $cache_key, $stats, self::CACHE_TTL);
+		CacheManager::set_cache( 'customers', $cache_key, $stats, self::CACHE_TTL );
 
 		return $stats;
 	}
@@ -231,20 +228,19 @@ final class CustomersOptimizer
 	 * @param int $customer_id
 	 * @return array|null
 	 */
-	public static function get_customer_details_optimized(int $customer_id): ?array
-	{
+	public static function get_customer_details_optimized( int $customer_id ): ?array {
 		$cache_key = self::CACHE_PREFIX . 'details_' . $customer_id;
 
 		// Check cache
-		$cached_data = CacheManager::get_cache('customers', $cache_key);
-		if ($cached_data !== false) {
+		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
+		if ( $cached_data !== false ) {
 			return $cached_data;
 		}
 
 		global $wpdb;
 
-		$customer = get_user_by('id', $customer_id);
-		if (! $customer) {
+		$customer = get_user_by( 'id', $customer_id );
+		if ( ! $customer ) {
 			return null;
 		}
 
@@ -281,13 +277,13 @@ final class CustomersOptimizer
 		);
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with $wpdb->prepare().
-		$result = $wpdb->get_row($query);
+		$result = $wpdb->get_row( $query );
 
-		if (! $result) {
+		if ( ! $result ) {
 			return null;
 		}
 
-		$currency = SettingsCore::get('mhm_rentiva_currency', 'USD');
+		$currency = SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
 
 		$customer_data = array(
 			'id'            => (int) $result->ID,
@@ -295,16 +291,16 @@ final class CustomersOptimizer
 			'email'         => $result->user_email,
 			'phone'         => $result->phone ?: '-',
 			'address'       => $result->address ?: '-',
-			'registered'    => gmdate('d.m.Y', strtotime($result->user_registered)),
+			'registered'    => gmdate( 'd.m.Y', strtotime( $result->user_registered ) ),
 			'booking_count' => (int) $result->booking_count,
-			'total_spent'   => number_format((float) $result->total_spent, 2, ',', '.'),
+			'total_spent'   => number_format( (float) $result->total_spent, 2, ',', '.' ),
 			'currency'      => $currency,
-			'last_booking'  => $result->last_booking ? gmdate('d.m.Y H:i', strtotime($result->last_booking)) : '-',
-			'first_booking' => $result->first_booking ? gmdate('d.m.Y H:i', strtotime($result->first_booking)) : '-',
+			'last_booking'  => $result->last_booking ? gmdate( 'd.m.Y H:i', strtotime( $result->last_booking ) ) : '-',
+			'first_booking' => $result->first_booking ? gmdate( 'd.m.Y H:i', strtotime( $result->first_booking ) ) : '-',
 		);
 
 		// Cache save
-		CacheManager::set_cache('customers', $cache_key, $customer_data, self::CACHE_TTL);
+		CacheManager::set_cache( 'customers', $cache_key, $customer_data, self::CACHE_TTL );
 
 		return $customer_data;
 	}
@@ -316,20 +312,19 @@ final class CustomersOptimizer
 	 * @param int $year
 	 * @return array
 	 */
-	public static function get_booking_days_optimized(int $month, int $year): array
-	{
+	public static function get_booking_days_optimized( int $month, int $year ): array {
 		$cache_key = self::CACHE_PREFIX . 'booking_days_' . $year . '_' . $month;
 
 		// Check cache
-		$cached_data = CacheManager::get_cache('customers', $cache_key);
-		if ($cached_data !== false) {
+		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
+		if ( $cached_data !== false ) {
 			return $cached_data;
 		}
 
 		global $wpdb;
 
-		$start_date = sprintf('%04d-%02d-01', $year, $month);
-		$end_date   = sprintf('%04d-%02d-%02d', $year, $month, gmdate('t', (int) mktime(0, 0, 0, $month, 1, $year)));
+		$start_date = sprintf( '%04d-%02d-01', $year, $month );
+		$end_date   = sprintf( '%04d-%02d-%02d', $year, $month, gmdate( 't', (int) mktime( 0, 0, 0, $month, 1, $year ) ) );
 
 		$query = $wpdb->prepare(
 			"
@@ -346,11 +341,11 @@ final class CustomersOptimizer
 		);
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with $wpdb->prepare().
-		$results = $wpdb->get_col($query);
-		$days    = array_map('intval', $results);
+		$results = $wpdb->get_col( $query );
+		$days    = array_map( 'intval', $results );
 
 		// Save to cache (1 hour)
-		CacheManager::set_cache('customers', $cache_key, $days, 3600);
+		CacheManager::set_cache( 'customers', $cache_key, $days, 3600 );
 
 		return $days;
 	}
@@ -361,15 +356,14 @@ final class CustomersOptimizer
 	 * @param int|null $customer_id Clear cache for specific customer
 	 * @return bool
 	 */
-	public static function clear_cache(?int $customer_id = null): bool
-	{
-		if ($customer_id) {
+	public static function clear_cache( ?int $customer_id = null ): bool {
+		if ( $customer_id ) {
 			$cache_key = self::CACHE_PREFIX . 'details_' . $customer_id;
-			return CacheManager::delete_cache('customers', $cache_key);
+			return CacheManager::delete_cache( 'customers', $cache_key );
 		}
 
 		// Clear all customer cache
-		return CacheManager::clear_cache_by_type('customers');
+		return CacheManager::clear_cache_by_type( 'customers' );
 	}
 
 	/**
@@ -379,24 +373,23 @@ final class CustomersOptimizer
 	 * @param array $updates
 	 * @return bool
 	 */
-	public static function batch_update_customers(array $customer_ids, array $updates): bool
-	{
-		if (empty($customer_ids) || empty($updates)) {
+	public static function batch_update_customers( array $customer_ids, array $updates ): bool {
+		if ( empty( $customer_ids ) || empty( $updates ) ) {
 			return false;
 		}
 
 		$success = true;
-		$chunks  = array_chunk($customer_ids, self::BATCH_SIZE);
+		$chunks  = array_chunk( $customer_ids, self::BATCH_SIZE );
 
-		foreach ($chunks as $chunk) {
-			foreach ($chunk as $customer_id) {
-				$result = self::update_customer_data($customer_id, $updates);
-				if (! $result) {
+		foreach ( $chunks as $chunk ) {
+			foreach ( $chunk as $customer_id ) {
+				$result = self::update_customer_data( $customer_id, $updates );
+				if ( ! $result ) {
 					$success = false;
 				}
 
 				// Clear cache
-				self::clear_cache($customer_id);
+				self::clear_cache( $customer_id );
 			}
 		}
 
@@ -410,34 +403,33 @@ final class CustomersOptimizer
 	 * @param array $updates
 	 * @return bool
 	 */
-	private static function update_customer_data(int $customer_id, array $updates): bool
-	{
+	private static function update_customer_data( int $customer_id, array $updates ): bool {
 		$user_data = array();
 
-		if (isset($updates['name'])) {
-			$user_data['display_name'] = self::sanitize_text_field_safe($updates['name']);
-			$user_data['first_name']   = self::sanitize_text_field_safe($updates['name']);
+		if ( isset( $updates['name'] ) ) {
+			$user_data['display_name'] = self::sanitize_text_field_safe( $updates['name'] );
+			$user_data['first_name']   = self::sanitize_text_field_safe( $updates['name'] );
 		}
 
-		if (isset($updates['email'])) {
-			$user_data['user_email'] = sanitize_email((string) ($updates['email'] ?? ''));
+		if ( isset( $updates['email'] ) ) {
+			$user_data['user_email'] = sanitize_email( (string) ( $updates['email'] ?? '' ) );
 		}
 
-		if (! empty($user_data)) {
+		if ( ! empty( $user_data ) ) {
 			$user_data['ID'] = $customer_id;
-			$result          = wp_update_user($user_data);
-			if (is_wp_error($result)) {
+			$result          = wp_update_user( $user_data );
+			if ( is_wp_error( $result ) ) {
 				return false;
 			}
 		}
 
 		// Update meta data
-		if (isset($updates['phone'])) {
-			update_user_meta($customer_id, 'mhm_rentiva_phone', self::sanitize_text_field_safe($updates['phone']));
+		if ( isset( $updates['phone'] ) ) {
+			update_user_meta( $customer_id, 'mhm_rentiva_phone', self::sanitize_text_field_safe( $updates['phone'] ) );
 		}
 
-		if (isset($updates['address'])) {
-			update_user_meta($customer_id, 'mhm_rentiva_address', sanitize_textarea_field((string) ($updates['address'] ?? '')));
+		if ( isset( $updates['address'] ) ) {
+			update_user_meta( $customer_id, 'mhm_rentiva_address', sanitize_textarea_field( (string) ( $updates['address'] ?? '' ) ) );
 		}
 
 		return true;
@@ -448,8 +440,7 @@ final class CustomersOptimizer
 	 *
 	 * @return float
 	 */
-	private static function calculate_monthly_average(): float
-	{
+	private static function calculate_monthly_average(): float {
 		global $wpdb;
 
 		// Get customer registration counts for last 3 months (WordPress user registration dates).
@@ -475,18 +466,18 @@ final class CustomersOptimizer
 		);
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with $wpdb->prepare().
-		$results = $wpdb->get_results($query);
+		$results = $wpdb->get_results( $query );
 
-		if (empty($results)) {
+		if ( empty( $results ) ) {
 			return 0.0;
 		}
 
 		$total_customers = 0;
-		foreach ($results as $result) {
+		foreach ( $results as $result ) {
 			$total_customers += (int) $result->customer_count;
 		}
 
-		return round($total_customers / count($results), 1);
+		return round( $total_customers / count( $results ), 1 );
 	}
 
 	/**
@@ -494,8 +485,7 @@ final class CustomersOptimizer
 	 *
 	 * @return string
 	 */
-	private static function calculate_trend(): string
-	{
+	private static function calculate_trend(): string {
 		global $wpdb;
 
 		// Compare this month and last month customer registration counts.
@@ -513,10 +503,10 @@ final class CustomersOptimizer
                 AND u.user_login != 'admin'
                 AND u.user_registered >= %s
         ",
-			gmdate('Y-m-01 00:00:00')
+			gmdate( 'Y-m-01 00:00:00' )
 		);
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with $wpdb->prepare().
-		$current_month       = $wpdb->get_var($current_month_query);
+		$current_month = $wpdb->get_var( $current_month_query );
 
 		$last_month_query = $wpdb->prepare(
 			"
@@ -533,15 +523,15 @@ final class CustomersOptimizer
                 AND u.user_registered >= DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%%Y-%%m-01')
                 AND u.user_registered < %s
         ",
-			gmdate('Y-m-01 00:00:00')
+			gmdate( 'Y-m-01 00:00:00' )
 		);
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with $wpdb->prepare().
-		$last_month       = $wpdb->get_var($last_month_query);
+		$last_month = $wpdb->get_var( $last_month_query );
 
-		if ($last_month > 0) {
-			$trend = (($current_month - $last_month) / $last_month) * 100;
+		if ( $last_month > 0 ) {
+			$trend = ( ( $current_month - $last_month ) / $last_month ) * 100;
 			$sign  = $trend >= 0 ? '+' : '';
-			return $sign . round($trend, 1) . '%';
+			return $sign . round( $trend, 1 ) . '%';
 		}
 
 		return $current_month > 0 ? '+100%' : '0%';
@@ -552,8 +542,7 @@ final class CustomersOptimizer
 	 *
 	 * @return bool
 	 */
-	public static function create_database_indexes(): bool
-	{
+	public static function create_database_indexes(): bool {
 		global $wpdb;
 
 		$indexes = array(
@@ -564,10 +553,10 @@ final class CustomersOptimizer
 		);
 
 		$success = true;
-		foreach ($indexes as $index_query) {
+		foreach ( $indexes as $index_query ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- DDL statement (CREATE INDEX) cannot use prepare.
-			$result = $wpdb->query($index_query);
-			if ($result === false) {
+			$result = $wpdb->query( $index_query );
+			if ( $result === false ) {
 				$success = false;
 			}
 		}

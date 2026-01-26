@@ -7,7 +7,7 @@ namespace MHMRentiva\Admin\PostTypes\Logs;
 use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\PostTypes\Utilities\ClientUtilities;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -17,8 +17,8 @@ if (! defined('ABSPATH')) {
  * Handles detailed and categorized logging, including different log levels,
  * categories, and performance monitoring.
  */
-final class AdvancedLogger
-{
+final class AdvancedLogger {
+
 
 
 	/**
@@ -67,74 +67,73 @@ final class AdvancedLogger
 	 *  stack_trace?: bool
 	 * } $args
 	 */
-	public static function log(array $args): int
-	{
-		$level    = strtolower((string) ($args['level'] ?? self::LEVEL_INFO));
-		$category = strtolower((string) ($args['category'] ?? self::CATEGORY_SYSTEM));
-		$message  = (string) ($args['message'] ?? '');
+	public static function log( array $args ): int {
+		$level    = strtolower( (string) ( $args['level'] ?? self::LEVEL_INFO ) );
+		$category = strtolower( (string) ( $args['category'] ?? self::CATEGORY_SYSTEM ) );
+		$message  = (string) ( $args['message'] ?? '' );
 
-		if (empty($message)) {
+		if ( empty( $message ) ) {
 			return 0;
 		}
 
 		// Check if the log level should be skipped (e.g., debug logs in production).
-		if (self::should_skip_log($level)) {
+		if ( self::should_skip_log( $level ) ) {
 			return 0;
 		}
 
-		$context             = (array) ($args['context'] ?? array());
-		$user_id             = isset($args['user_id']) ? (int) $args['user_id'] : get_current_user_id();
+		$context             = (array) ( $args['context'] ?? array() );
+		$user_id             = isset( $args['user_id'] ) ? (int) $args['user_id'] : get_current_user_id();
 		$ip_address          = ClientUtilities::get_client_ip();
 		$user_agent          = self::get_user_agent();
-		$booking_id          = isset($args['booking_id']) ? (int) $args['booking_id'] : 0;
-		$vehicle_id          = isset($args['vehicle_id']) ? (int) $args['vehicle_id'] : 0;
-		$customer_id         = isset($args['customer_id']) ? (int) $args['customer_id'] : 0;
-		$execution_time      = isset($args['execution_time']) ? (float) $args['execution_time'] : 0;
-		$memory_usage        = isset($args['memory_usage']) ? (int) $args['memory_usage'] : memory_get_usage(true);
-		$include_stack_trace = (bool) ($args['stack_trace'] ?? false);
+		$booking_id          = isset( $args['booking_id'] ) ? (int) $args['booking_id'] : 0;
+		$vehicle_id          = isset( $args['vehicle_id'] ) ? (int) $args['vehicle_id'] : 0;
+		$customer_id         = isset( $args['customer_id'] ) ? (int) $args['customer_id'] : 0;
+		$execution_time      = isset( $args['execution_time'] ) ? (float) $args['execution_time'] : 0;
+		$memory_usage        = isset( $args['memory_usage'] ) ? (int) $args['memory_usage'] : memory_get_usage( true );
+		$include_stack_trace = (bool) ( $args['stack_trace'] ?? false );
 
 		// Create post title.
 		$title_parts = array(
-			'[' . strtoupper($level) . ']',
-			'[' . strtoupper($category) . ']',
+			'[' . strtoupper( $level ) . ']',
+			'[' . strtoupper( $category ) . ']',
 			$message,
 		);
-		$title       = implode(' ', $title_parts);
+		$title       = implode( ' ', $title_parts );
 
 		// Create post content.
 		$content_parts = array(
 			'Message: ' . $message,
-			'Timestamp: ' . current_time('Y-m-d H:i:s'),
+			'Timestamp: ' . current_time( 'Y-m-d H:i:s' ),
 			'User ID: ' . $user_id,
 			'IP Address: ' . $ip_address,
 		);
 
-		if ($booking_id > 0) {
+		if ( $booking_id > 0 ) {
 			$content_parts[] = 'Booking ID: ' . $booking_id;
 		}
-		if ($vehicle_id > 0) {
+		if ( $vehicle_id > 0 ) {
 			$content_parts[] = 'Vehicle ID: ' . $vehicle_id;
 		}
-		if ($customer_id > 0) {
+		if ( $customer_id > 0 ) {
 			$content_parts[] = 'Customer ID: ' . $customer_id;
 		}
-		if ($execution_time > 0) {
+		if ( $execution_time > 0 ) {
 			$content_parts[] = 'Execution Time: ' . $execution_time . 'ms';
 		}
-		if ($memory_usage > 0) {
-			$content_parts[] = 'Memory Usage: ' . size_format($memory_usage);
+		if ( $memory_usage > 0 ) {
+			$content_parts[] = 'Memory Usage: ' . size_format( $memory_usage );
 		}
 
-		if (! empty($context)) {
-			$content_parts[] = 'Context: ' . wp_json_encode($context, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+		if ( ! empty( $context ) ) {
+			$content_parts[] = 'Context: ' . wp_json_encode( $context, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
 		}
 
-		if ($include_stack_trace && in_array($level, array(self::LEVEL_ERROR, self::LEVEL_CRITICAL), true)) {
+		if ( $include_stack_trace && in_array( $level, array( self::LEVEL_ERROR, self::LEVEL_CRITICAL ), true ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Intentional for error logging in production
-			$content_parts[] = 'Stack Trace: ' . wp_json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+			$content_parts[] = 'Stack Trace: ' . wp_json_encode( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
 		}
 
-		$content = implode("\n", $content_parts);
+		$content = implode( "\n", $content_parts );
 
 		// Create the post array for insertion.
 		$post_arr = array(
@@ -144,40 +143,40 @@ final class AdvancedLogger
 			'post_content' => $content,
 		);
 
-		$post_id = (int) wp_insert_post($post_arr, true);
-		if (is_wp_error($post_id) || $post_id <= 0) {
+		$post_id = (int) wp_insert_post( $post_arr, true );
+		if ( is_wp_error( $post_id ) || $post_id <= 0 ) {
 			return 0;
 		}
 
 		// Save meta data.
-		update_post_meta($post_id, '_mhm_log_level', $level);
-		update_post_meta($post_id, '_mhm_log_category', $category);
-		update_post_meta($post_id, '_mhm_log_user_id', $user_id);
-		update_post_meta($post_id, '_mhm_log_ip_address', $ip_address);
-		update_post_meta($post_id, '_mhm_log_user_agent', $user_agent);
+		update_post_meta( $post_id, '_mhm_log_level', $level );
+		update_post_meta( $post_id, '_mhm_log_category', $category );
+		update_post_meta( $post_id, '_mhm_log_user_id', $user_id );
+		update_post_meta( $post_id, '_mhm_log_ip_address', $ip_address );
+		update_post_meta( $post_id, '_mhm_log_user_agent', $user_agent );
 
-		if ($booking_id > 0) {
-			update_post_meta($post_id, '_mhm_log_booking_id', $booking_id);
+		if ( $booking_id > 0 ) {
+			update_post_meta( $post_id, '_mhm_log_booking_id', $booking_id );
 		}
-		if ($vehicle_id > 0) {
-			update_post_meta($post_id, '_mhm_log_vehicle_id', $vehicle_id);
+		if ( $vehicle_id > 0 ) {
+			update_post_meta( $post_id, '_mhm_log_vehicle_id', $vehicle_id );
 		}
-		if ($customer_id > 0) {
-			update_post_meta($post_id, '_mhm_log_customer_id', $customer_id);
+		if ( $customer_id > 0 ) {
+			update_post_meta( $post_id, '_mhm_log_customer_id', $customer_id );
 		}
-		if ($execution_time > 0) {
-			update_post_meta($post_id, '_mhm_log_execution_time', $execution_time);
+		if ( $execution_time > 0 ) {
+			update_post_meta( $post_id, '_mhm_log_execution_time', $execution_time );
 		}
-		if ($memory_usage > 0) {
-			update_post_meta($post_id, '_mhm_log_memory_usage', $memory_usage);
+		if ( $memory_usage > 0 ) {
+			update_post_meta( $post_id, '_mhm_log_memory_usage', $memory_usage );
 		}
 
 		// Update performance metrics.
-		self::update_performance_metrics($category, $execution_time, $memory_usage);
+		self::update_performance_metrics( $category, $execution_time, $memory_usage );
 
 		// Send an email notification for critical errors.
-		if (self::LEVEL_CRITICAL === $level) {
-			self::send_critical_alert($post_id, $title, $message, $context);
+		if ( self::LEVEL_CRITICAL === $level ) {
+			self::send_critical_alert( $post_id, $title, $message, $context );
 		}
 
 		return $post_id;
@@ -186,31 +185,29 @@ final class AdvancedLogger
 	/**
 	 * Starts performance tracking for a specific operation.
 	 */
-	public static function start_performance_tracking(string $operation): void
-	{
-		self::$performance_metrics[$operation] = array(
-			'start_time'   => microtime(true),
-			'start_memory' => memory_get_usage(true),
+	public static function start_performance_tracking( string $operation ): void {
+		self::$performance_metrics[ $operation ] = array(
+			'start_time'   => microtime( true ),
+			'start_memory' => memory_get_usage( true ),
 		);
 	}
 
 	/**
 	 * Ends performance tracking for an operation and logs the result.
 	 */
-	public static function end_performance_tracking(string $operation, string $category = self::CATEGORY_PERFORMANCE): int
-	{
-		if (! isset(self::$performance_metrics[$operation])) {
+	public static function end_performance_tracking( string $operation, string $category = self::CATEGORY_PERFORMANCE ): int {
+		if ( ! isset( self::$performance_metrics[ $operation ] ) ) {
 			return 0;
 		}
 
-		$start_data = self::$performance_metrics[$operation];
-		$end_time   = microtime(true);
-		$end_memory = memory_get_usage(true);
+		$start_data = self::$performance_metrics[ $operation ];
+		$end_time   = microtime( true );
+		$end_memory = memory_get_usage( true );
 
-		$execution_time = ($end_time - $start_data['start_time']) * 1000; // Convert to milliseconds.
+		$execution_time = ( $end_time - $start_data['start_time'] ) * 1000; // Convert to milliseconds.
 		$memory_usage   = $end_memory - $start_data['start_memory'];
 
-		unset(self::$performance_metrics[$operation]);
+		unset( self::$performance_metrics[ $operation ] );
 
 		return self::log(
 			array(
@@ -219,7 +216,7 @@ final class AdvancedLogger
 				'message'        => "Performance tracking for operation: {$operation}",
 				'context'        => array(
 					'operation'   => $operation,
-					'peak_memory' => memory_get_peak_usage(true),
+					'peak_memory' => memory_get_peak_usage( true ),
 				),
 				'execution_time' => $execution_time,
 				'memory_usage'   => $memory_usage,
@@ -230,8 +227,7 @@ final class AdvancedLogger
 	/**
 	 * Logs an error message.
 	 */
-	public static function error(string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM): int
-	{
+	public static function error( string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM ): int {
 		return self::log(
 			array(
 				'level'       => self::LEVEL_ERROR,
@@ -246,8 +242,7 @@ final class AdvancedLogger
 	/**
 	 * Logs a critical error message.
 	 */
-	public static function critical(string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM): int
-	{
+	public static function critical( string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM ): int {
 		return self::log(
 			array(
 				'level'       => self::LEVEL_CRITICAL,
@@ -262,8 +257,7 @@ final class AdvancedLogger
 	/**
 	 * Logs a warning message.
 	 */
-	public static function warning(string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM): int
-	{
+	public static function warning( string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM ): int {
 		return self::log(
 			array(
 				'level'    => self::LEVEL_WARNING,
@@ -277,8 +271,7 @@ final class AdvancedLogger
 	/**
 	 * Logs an informational message.
 	 */
-	public static function info(string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM): int
-	{
+	public static function info( string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM ): int {
 		return self::log(
 			array(
 				'level'    => self::LEVEL_INFO,
@@ -292,8 +285,7 @@ final class AdvancedLogger
 	/**
 	 * Logs a debug message.
 	 */
-	public static function debug(string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM): int
-	{
+	public static function debug( string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM ): int {
 		return self::log(
 			array(
 				'level'    => self::LEVEL_DEBUG,
@@ -307,8 +299,7 @@ final class AdvancedLogger
 	/**
 	 * Logs a security-related event.
 	 */
-	public static function security(string $message, array $context = array()): int
-	{
+	public static function security( string $message, array $context = array() ): int {
 		return self::log(
 			array(
 				'level'      => self::LEVEL_WARNING,
@@ -324,8 +315,7 @@ final class AdvancedLogger
 	/**
 	 * Logs an API-related event.
 	 */
-	public static function api(string $message, array $context = array()): int
-	{
+	public static function api( string $message, array $context = array() ): int {
 		return self::log(
 			array(
 				'level'    => self::LEVEL_INFO,
@@ -339,8 +329,7 @@ final class AdvancedLogger
 	/**
 	 * Logs a payment-related event.
 	 */
-	public static function payment(string $message, array $context = array(), int $booking_id = 0): int
-	{
+	public static function payment( string $message, array $context = array(), int $booking_id = 0 ): int {
 		return self::log(
 			array(
 				'level'      => self::LEVEL_INFO,
@@ -355,8 +344,7 @@ final class AdvancedLogger
 	/**
 	 * Logs a booking-related event.
 	 */
-	public static function booking(string $message, array $context = array(), int $booking_id = 0): int
-	{
+	public static function booking( string $message, array $context = array(), int $booking_id = 0 ): int {
 		return self::log(
 			array(
 				'level'      => self::LEVEL_INFO,
@@ -371,8 +359,7 @@ final class AdvancedLogger
 	/**
 	 * Logs a vehicle-related event.
 	 */
-	public static function vehicle(string $message, array $context = array(), int $vehicle_id = 0): int
-	{
+	public static function vehicle( string $message, array $context = array(), int $vehicle_id = 0 ): int {
 		return self::log(
 			array(
 				'level'      => self::LEVEL_INFO,
@@ -387,8 +374,7 @@ final class AdvancedLogger
 	/**
 	 * Logs a customer-related event.
 	 */
-	public static function customer(string $message, array $context = array(), int $customer_id = 0): int
-	{
+	public static function customer( string $message, array $context = array(), int $customer_id = 0 ): int {
 		return self::log(
 			array(
 				'level'       => self::LEVEL_INFO,
@@ -409,11 +395,10 @@ final class AdvancedLogger
 	 * @param int $days The number of days to retrieve stats for.
 	 * @return array
 	 */
-	public static function get_log_stats(int $days = 7): array
-	{
+	public static function get_log_stats( int $days = 7 ): array {
 		global $wpdb;
 
-		$date_limit = gmdate('Y-m-d H:i:s', strtotime("-{$days} days"));
+		$date_limit = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
 		$stats = $wpdb->get_results(
 			$wpdb->prepare(
@@ -440,8 +425,7 @@ final class AdvancedLogger
 	/**
 	 * Gets the collected performance metrics.
 	 */
-	public static function get_performance_metrics(): array
-	{
+	public static function get_performance_metrics(): array {
 		return self::$performance_metrics;
 	}
 
@@ -451,15 +435,14 @@ final class AdvancedLogger
 	 * @param int $days Retention period in days.
 	 * @return int Number of deleted logs.
 	 */
-	public static function cleanup_old_logs(int $days = 30): int
-	{
-		if ($days <= 0) {
+	public static function cleanup_old_logs( int $days = 30 ): int {
+		if ( $days <= 0 ) {
 			return 0;
 		}
 
 		global $wpdb;
 
-		$date_limit = gmdate('Y-m-d H:i:s', strtotime("-{$days} days"));
+		$date_limit = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 		$post_type  = PostType::TYPE;
 
 		// Using direct SQL for performance on potentially large datasets
@@ -471,10 +454,10 @@ final class AdvancedLogger
 			)
 		);
 
-		if ($deleted > 0) {
+		if ( $deleted > 0 ) {
 			self::info(
 				/* translators: %d: number of deleted log entries */
-				sprintf(__('Cleaned up %d old log entries.', 'mhm-rentiva'), (int) $deleted),
+				sprintf( __( 'Cleaned up %d old log entries.', 'mhm-rentiva' ), (int) $deleted ),
 				array(
 					'days'       => $days,
 					'date_limit' => $date_limit,
@@ -490,10 +473,9 @@ final class AdvancedLogger
 	/**
 	 * Checks if a log entry should be skipped based on its level.
 	 */
-	private static function should_skip_log(string $level): bool
-	{
+	private static function should_skip_log( string $level ): bool {
 		// 1. Always allow critical errors
-		if (self::LEVEL_CRITICAL === $level) {
+		if ( self::LEVEL_CRITICAL === $level ) {
 			return false;
 		}
 
@@ -508,29 +490,29 @@ final class AdvancedLogger
 
 		// 3. Get configured level from settings (default: error)
 		// Defaults to 'error' (3) to be safe/quiet in production
-		$configured_level_slug = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_log_level', self::LEVEL_ERROR);
+		$configured_level_slug = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_log_level', self::LEVEL_ERROR );
 
 		// Ensure the configured level exists in our map, fallback to 'error'
-		if (! isset($levels[$configured_level_slug])) {
+		if ( ! isset( $levels[ $configured_level_slug ] ) ) {
 			$configured_level_slug = self::LEVEL_ERROR;
 		}
 
-		$configured_weight = $levels[$configured_level_slug];
-		$current_weight    = $levels[$level] ?? 1; // Default to INFO weight if unknown
+		$configured_weight = $levels[ $configured_level_slug ];
+		$current_weight    = $levels[ $level ] ?? 1; // Default to INFO weight if unknown
 
 		// 4. Compare: If current log's weight is less than configured, SKIP it.
 		// Example: Config='error'(3). Log='info'(1). 1 < 3 -> TRUE (Skip).
-		if ($current_weight < $configured_weight) {
+		if ( $current_weight < $configured_weight ) {
 			return true;
 		}
 
 		// 5. Special check for Debug: Must also have WP_DEBUG or Force Debug Mode
-		if (self::LEVEL_DEBUG === $level) {
-			$plugin_debug = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_debug_mode', '0') === '1';
-			$wp_debug     = defined('WP_DEBUG') && WP_DEBUG;
+		if ( self::LEVEL_DEBUG === $level ) {
+			$plugin_debug = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_debug_mode', '0' ) === '1';
+			$wp_debug     = defined( 'WP_DEBUG' ) && WP_DEBUG;
 
 			// If neither Plugin Debug Mode nor WP_DEBUG is on, skip debug logs
-			if (! $plugin_debug && ! $wp_debug) {
+			if ( ! $plugin_debug && ! $wp_debug ) {
 				return true;
 			}
 		}
@@ -541,73 +523,70 @@ final class AdvancedLogger
 	/**
 	 * Updates performance metrics for a given category.
 	 */
-	private static function update_performance_metrics(string $category, float $execution_time, int $memory_usage): void
-	{
-		if (! isset(self::$memory_usage[$category])) {
-			self::$memory_usage[$category] = array();
+	private static function update_performance_metrics( string $category, float $execution_time, int $memory_usage ): void {
+		if ( ! isset( self::$memory_usage[ $category ] ) ) {
+			self::$memory_usage[ $category ] = array();
 		}
 
-		self::$memory_usage[$category][] = array(
+		self::$memory_usage[ $category ][] = array(
 			'time'      => $execution_time,
 			'memory'    => $memory_usage,
-			'timestamp' => current_time('timestamp'),
+			'timestamp' => current_time( 'timestamp' ),
 		);
 
 		// Keep the last 100 records.
-		if (count(self::$memory_usage[$category]) > 100) {
-			self::$memory_usage[$category] = array_slice(self::$memory_usage[$category], -100);
+		if ( count( self::$memory_usage[ $category ] ) > 100 ) {
+			self::$memory_usage[ $category ] = array_slice( self::$memory_usage[ $category ], -100 );
 		}
 	}
 
 	/**
 	 * Sends a notification for a critical error.
 	 */
-	private static function send_critical_alert(int $log_id, string $title, string $message, array $context): void
-	{
-		$admin_email = get_option('admin_email');
-		if (! filter_var($admin_email, FILTER_VALIDATE_EMAIL)) {
+	private static function send_critical_alert( int $log_id, string $title, string $message, array $context ): void {
+		$admin_email = get_option( 'admin_email' );
+		if ( ! filter_var( $admin_email, FILTER_VALIDATE_EMAIL ) ) {
 			return;
 		}
 
 		$subject = sprintf(
 			/* translators: %s: Log entry title */
-			__('[MHM Rentiva] Critical Error: %s', 'mhm-rentiva'),
+			__( '[MHM Rentiva] Critical Error: %s', 'mhm-rentiva' ),
 			$title
 		);
 
 		$body_parts = array(
-			__('A critical error was detected on your site.', 'mhm-rentiva'),
+			__( 'A critical error was detected on your site.', 'mhm-rentiva' ),
 			'',
 			/* translators: %d: log ID */
-			sprintf(__('Log ID: %d', 'mhm-rentiva'), (int) $log_id),
+			sprintf( __( 'Log ID: %d', 'mhm-rentiva' ), (int) $log_id ),
 			/* translators: %s: error message */
-			sprintf(__('Message: %s', 'mhm-rentiva'), $message),
+			sprintf( __( 'Message: %s', 'mhm-rentiva' ), $message ),
 			/* translators: %s: current timestamp */
-			sprintf( /* translators: %s: timestamp */__('Timestamp: %s', 'mhm-rentiva'), current_time('Y-m-d H:i:s')),
+			sprintf( /* translators: %s: timestamp */__( 'Timestamp: %s', 'mhm-rentiva' ), current_time( 'Y-m-d H:i:s' ) ),
 			/* translators: %s: site URL */
-			sprintf( /* translators: %s: site url */__('Site URL: %s', 'mhm-rentiva'), esc_url(home_url())),
+			sprintf( /* translators: %s: site url */__( 'Site URL: %s', 'mhm-rentiva' ), esc_url( home_url() ) ),
 		);
 
-		if (! empty($context)) {
+		if ( ! empty( $context ) ) {
 			$body_parts[] = '';
-			$body_parts[] = __('Context:', 'mhm-rentiva');
-			$body_parts[] = wp_json_encode($context, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+			$body_parts[] = __( 'Context:', 'mhm-rentiva' );
+			$body_parts[] = wp_json_encode( $context, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
 		}
 
-		$body = implode("\n", $body_parts);
+		$body = implode( "\n", $body_parts );
 
-		wp_mail($admin_email, $subject, $body);
+		wp_mail( $admin_email, $subject, $body );
 	}
 
 	/**
 	 * Gets the current user agent.
 	 */
-	private static function get_user_agent(): string
-	{
-		if (!isset($_SERVER['HTTP_USER_AGENT'])) {
+	private static function get_user_agent(): string {
+		if ( ! isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
 			return 'unknown';
 		}
-		return sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT']));
+		return sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
 	}
 
 	/**
@@ -616,45 +595,44 @@ final class AdvancedLogger
 	 * @deprecated This method is for backward compatibility and will be removed in the future.
 	 *             Use the new specific methods like `payment()`, `booking()`, or the generic `log()` method.
 	 */
-	public static function add(array $args): int
-	{
-		$gateway = strtolower((string) ($args['gateway'] ?? ''));
-		$action  = strtolower((string) ($args['action'] ?? ''));
-		$status  = strtolower((string) ($args['status'] ?? ''));
+	public static function add( array $args ): int {
+		$gateway = strtolower( (string) ( $args['gateway'] ?? '' ) );
+		$action  = strtolower( (string) ( $args['action'] ?? '' ) );
+		$status  = strtolower( (string) ( $args['status'] ?? '' ) );
 
-		if (empty($gateway) || empty($action) || empty($status)) {
+		if ( empty( $gateway ) || empty( $action ) || empty( $status ) ) {
 			return 0;
 		}
 
-		$booking_id = isset($args['booking_id']) ? (int) $args['booking_id'] : 0;
-		$message    = (string) ($args['message'] ?? '');
+		$booking_id = isset( $args['booking_id'] ) ? (int) $args['booking_id'] : 0;
+		$message    = (string) ( $args['message'] ?? '' );
 
 		// Determine level and category from legacy format.
-		$level    = ('success' === $status) ? self::LEVEL_INFO : self::LEVEL_ERROR;
-		$category = ('payment' === $gateway) ? self::CATEGORY_PAYMENT : self::CATEGORY_SYSTEM;
+		$level    = ( 'success' === $status ) ? self::LEVEL_INFO : self::LEVEL_ERROR;
+		$category = ( 'payment' === $gateway ) ? self::CATEGORY_PAYMENT : self::CATEGORY_SYSTEM;
 
 		// Normalize amount to the smallest currency unit (kurus/cents).
 		$amount_kurus = 0;
-		if (isset($args['amount_kurus'])) {
-			$amount_kurus = max(0, (int) $args['amount_kurus']);
-		} elseif (isset($args['amount'])) {
+		if ( isset( $args['amount_kurus'] ) ) {
+			$amount_kurus = max( 0, (int) $args['amount_kurus'] );
+		} elseif ( isset( $args['amount'] ) ) {
 			$amount = $args['amount'];
-			if (is_float($amount) || is_int($amount)) {
-				$amount_kurus = (int) round(((float) $amount) * 100);
+			if ( is_float( $amount ) || is_int( $amount ) ) {
+				$amount_kurus = (int) round( ( (float) $amount ) * 100 );
 			}
 		}
 
 		// Build the context array for the new log format.
 		$context = array_merge(
-			($args['context'] ?? array()),
+			( $args['context'] ?? array() ),
 			array(
 				'gateway'      => $gateway,
 				'action'       => $action,
 				'status'       => $status,
 				'amount_kurus' => $amount_kurus,
-				'currency'     => strtoupper((string) ($args['currency'] ?? '')),
-				'oid'          => (string) ($args['oid'] ?? ''),
-				'code'         => (string) ($args['code'] ?? ''),
+				'currency'     => strtoupper( (string) ( $args['currency'] ?? '' ) ),
+				'oid'          => (string) ( $args['oid'] ?? '' ),
+				'code'         => (string) ( $args['code'] ?? '' ),
 			)
 		);
 
@@ -663,7 +641,7 @@ final class AdvancedLogger
 			array(
 				'level'      => $level,
 				'category'   => $category,
-				'message'    => $message ?: ucfirst($action),
+				'message'    => $message ?: ucfirst( $action ),
 				'context'    => $context,
 				'booking_id' => $booking_id,
 			)

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
@@ -21,8 +21,8 @@ use MHMRentiva\Admin\REST\Settings\RESTSettings;
  * @package MHMRentiva\Admin\Settings
  * @since 4.0.0
  */
-final class APIKeysPage
-{
+final class APIKeysPage {
+
 
 	/**
 	 * Nonce action for REST settings operations.
@@ -44,8 +44,7 @@ final class APIKeysPage
 	 *
 	 * @return void
 	 */
-	public static function register(): void
-	{
+	public static function register(): void {
 		$actions = array(
 			'create_api_key',
 			'list_api_keys',
@@ -55,8 +54,8 @@ final class APIKeysPage
 			'reset_rest_settings',
 		);
 
-		foreach ($actions as $action) {
-			add_action("wp_ajax_mhm_{$action}", array(self::class, 'handle_request'));
+		foreach ( $actions as $action ) {
+			add_action( "wp_ajax_mhm_{$action}", array( self::class, 'handle_request' ) );
 		}
 	}
 
@@ -65,63 +64,61 @@ final class APIKeysPage
 	 *
 	 * @return void
 	 */
-	public static function handle_request(): void
-	{
+	public static function handle_request(): void {
 		// 1. Security Check (Compatibility with rest-api-keys.js using 'nonce' or 'security' param)
-		$nonce_param = isset($_POST['nonce']) ? 'nonce' : 'security';
-		check_ajax_referer(self::ACTION_NONCE, $nonce_param);
+		$nonce_param = isset( $_POST['nonce'] ) ? 'nonce' : 'security';
+		check_ajax_referer( self::ACTION_NONCE, $nonce_param );
 
-		if (! current_user_can(self::REQUIRED_CAP)) {
+		if ( ! current_user_can( self::REQUIRED_CAP ) ) {
 			wp_send_json_error(
 				array(
-					'message' => esc_html__('Insufficient permissions to perform this action.', 'mhm-rentiva'),
+					'message' => esc_html__( 'Insufficient permissions to perform this action.', 'mhm-rentiva' ),
 				),
 				403
 			);
 		}
 
-		$action = isset($_POST['action']) ? sanitize_text_field(wp_unslash($_POST['action'])) : '';
+		$action = isset( $_POST['action'] ) ? sanitize_text_field( wp_unslash( $_POST['action'] ) ) : '';
 
 		// 2. Dispatching (PHP 8.0+ Match)
 		try {
-			match ($action) {
+			match ( $action ) {
 				'mhm_create_api_key'     => self::ajax_create_api_key(),
 				'mhm_list_api_keys'      => self::ajax_list_api_keys(),
 				'mhm_revoke_api_key'     => self::ajax_revoke_api_key(),
 				'mhm_delete_api_key'     => self::ajax_delete_api_key(),
 				'mhm_list_endpoints'     => self::ajax_list_endpoints(),
 				'mhm_reset_rest_settings' => self::ajax_reset_rest_settings(),
-				default                  => throw new \Exception(esc_html__('Invalid operation.', 'mhm-rentiva')),
+				default                  => throw new \Exception( esc_html__( 'Invalid operation.', 'mhm-rentiva' ) ),
 			};
-		} catch (\Throwable $e) {
-			wp_send_json_error(array('message' => esc_html($e->getMessage())));
+		} catch ( \Throwable $e ) {
+			wp_send_json_error( array( 'message' => esc_html( $e->getMessage() ) ) );
 		}
 	}
 
 	/**
 	 * Create API Key AJAX handler.
 	 */
-	private static function ajax_create_api_key(): void
-	{
-		$name        = isset($_POST['name']) ? sanitize_text_field(wp_unslash($_POST['name'])) : '';
-		$permissions = isset($_POST['permissions']) && is_array($_POST['permissions'])
-			? array_map('sanitize_text_field', wp_unslash($_POST['permissions']))
-			: array('read');
-		$expires_at  = ! empty($_POST['expires_at']) ? (int) $_POST['expires_at'] : null;
+	private static function ajax_create_api_key(): void {
+		$name        = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
+		$permissions = isset( $_POST['permissions'] ) && is_array( $_POST['permissions'] )
+			? array_map( 'sanitize_text_field', wp_unslash( $_POST['permissions'] ) )
+			: array( 'read' );
+		$expires_at  = ! empty( $_POST['expires_at'] ) ? (int) $_POST['expires_at'] : null;
 
-		if (empty($name)) {
-			throw new \Exception(esc_html__('API key name is required.', 'mhm-rentiva'));
+		if ( empty( $name ) ) {
+			throw new \Exception( esc_html__( 'API key name is required.', 'mhm-rentiva' ) );
 		}
 
-		$result = APIKeyManager::create_api_key($name, $permissions, $expires_at);
+		$result = APIKeyManager::create_api_key( $name, $permissions, $expires_at );
 
-		if (false === $result) {
-			throw new \Exception(esc_html__('Failed to create API key.', 'mhm-rentiva'));
+		if ( false === $result ) {
+			throw new \Exception( esc_html__( 'Failed to create API key.', 'mhm-rentiva' ) );
 		}
 
 		wp_send_json_success(
 			array(
-				'message' => esc_html__('API key created successfully.', 'mhm-rentiva'),
+				'message' => esc_html__( 'API key created successfully.', 'mhm-rentiva' ),
 				'key'     => $result,
 			)
 		);
@@ -130,14 +127,13 @@ final class APIKeysPage
 	/**
 	 * List API Keys AJAX handler.
 	 */
-	private static function ajax_list_api_keys(): void
-	{
+	private static function ajax_list_api_keys(): void {
 		$keys = APIKeyManager::list_api_keys();
 
 		wp_send_json_success(
 			array(
 				'keys'  => $keys,
-				'count' => count($keys),
+				'count' => count( $keys ),
 			)
 		);
 	}
@@ -145,50 +141,47 @@ final class APIKeysPage
 	/**
 	 * Revoke API Key AJAX handler.
 	 */
-	private static function ajax_revoke_api_key(): void
-	{
-		$key_id = isset($_POST['key_id']) ? sanitize_text_field(wp_unslash($_POST['key_id'])) : '';
+	private static function ajax_revoke_api_key(): void {
+		$key_id = isset( $_POST['key_id'] ) ? sanitize_text_field( wp_unslash( $_POST['key_id'] ) ) : '';
 
-		if (empty($key_id)) {
-			throw new \Exception(esc_html__('API key ID is required to revoke.', 'mhm-rentiva'));
+		if ( empty( $key_id ) ) {
+			throw new \Exception( esc_html__( 'API key ID is required to revoke.', 'mhm-rentiva' ) );
 		}
 
-		if (! APIKeyManager::revoke_api_key($key_id)) {
-			throw new \Exception(esc_html__('Failed to revoke API key.', 'mhm-rentiva'));
+		if ( ! APIKeyManager::revoke_api_key( $key_id ) ) {
+			throw new \Exception( esc_html__( 'Failed to revoke API key.', 'mhm-rentiva' ) );
 		}
 
-		wp_send_json_success(array('message' => esc_html__('API key revoked successfully.', 'mhm-rentiva')));
+		wp_send_json_success( array( 'message' => esc_html__( 'API key revoked successfully.', 'mhm-rentiva' ) ) );
 	}
 
 	/**
 	 * Delete API Key AJAX handler.
 	 */
-	private static function ajax_delete_api_key(): void
-	{
-		$key_id = isset($_POST['key_id']) ? sanitize_text_field(wp_unslash($_POST['key_id'])) : '';
+	private static function ajax_delete_api_key(): void {
+		$key_id = isset( $_POST['key_id'] ) ? sanitize_text_field( wp_unslash( $_POST['key_id'] ) ) : '';
 
-		if (empty($key_id)) {
-			throw new \Exception(esc_html__('API key ID is required to delete.', 'mhm-rentiva'));
+		if ( empty( $key_id ) ) {
+			throw new \Exception( esc_html__( 'API key ID is required to delete.', 'mhm-rentiva' ) );
 		}
 
-		if (! APIKeyManager::delete_api_key($key_id)) {
-			throw new \Exception(esc_html__('Failed to delete API key.', 'mhm-rentiva'));
+		if ( ! APIKeyManager::delete_api_key( $key_id ) ) {
+			throw new \Exception( esc_html__( 'Failed to delete API key.', 'mhm-rentiva' ) );
 		}
 
-		wp_send_json_success(array('message' => esc_html__('API key deleted successfully.', 'mhm-rentiva')));
+		wp_send_json_success( array( 'message' => esc_html__( 'API key deleted successfully.', 'mhm-rentiva' ) ) );
 	}
 
 	/**
 	 * List Endpoints AJAX handler.
 	 */
-	private static function ajax_list_endpoints(): void
-	{
+	private static function ajax_list_endpoints(): void {
 		$endpoints = EndpointListHelper::get_all_endpoints();
 
 		wp_send_json_success(
 			array(
 				'endpoints' => $endpoints,
-				'count'     => count($endpoints),
+				'count'     => count( $endpoints ),
 				'namespace' => EndpointListHelper::NAMESPACE,
 			)
 		);
@@ -197,20 +190,19 @@ final class APIKeysPage
 	/**
 	 * Reset REST Settings to Defaults AJAX handler.
 	 */
-	private static function ajax_reset_rest_settings(): void
-	{
-		if (! class_exists(RESTSettings::class)) {
-			throw new \Exception(esc_html__('REST configuration system is not available.', 'mhm-rentiva'));
+	private static function ajax_reset_rest_settings(): void {
+		if ( ! class_exists( RESTSettings::class ) ) {
+			throw new \Exception( esc_html__( 'REST configuration system is not available.', 'mhm-rentiva' ) );
 		}
 
-		if (! RESTSettings::reset_to_defaults()) {
-			throw new \Exception(esc_html__('Failed to reset REST API settings to defaults.', 'mhm-rentiva'));
+		if ( ! RESTSettings::reset_to_defaults() ) {
+			throw new \Exception( esc_html__( 'Failed to reset REST API settings to defaults.', 'mhm-rentiva' ) );
 		}
 
 		wp_send_json_success(
 			array(
-				'message'  => esc_html__('REST API settings reset to defaults successfully.', 'mhm-rentiva'),
-				'redirect' => esc_url(admin_url('admin.php?page=mhm-rentiva-settings&tab=integration')),
+				'message'  => esc_html__( 'REST API settings reset to defaults successfully.', 'mhm-rentiva' ),
+				'redirect' => esc_url( admin_url( 'admin.php?page=mhm-rentiva-settings&tab=integration' ) ),
 			)
 		);
 	}

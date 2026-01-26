@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Messages\Core;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Cache management for messaging system
  */
-final class MessageCache
-{
+final class MessageCache {
+
 
 	const CACHE_GROUP  = 'mhm_messages';
 	const CACHE_EXPIRY = 3600; // 1 saat
@@ -20,10 +20,9 @@ final class MessageCache
 	/**
 	 * Generate cache key
 	 */
-	private static function get_cache_key(string $key, array $params = array()): string
-	{
-		if (! empty($params)) {
-			$key .= '_' . md5(serialize($params));
+	private static function get_cache_key( string $key, array $params = array() ): string {
+		if ( ! empty( $params ) ) {
+			$key .= '_' . md5( serialize( $params ) );
 		}
 		return $key;
 	}
@@ -31,54 +30,49 @@ final class MessageCache
 	/**
 	 * Get data from cache
 	 */
-	public static function get(string $key, array $params = array())
-	{
-		$cache_key = self::get_cache_key($key, $params);
-		return wp_cache_get($cache_key, self::CACHE_GROUP);
+	public static function get( string $key, array $params = array() ) {
+		$cache_key = self::get_cache_key( $key, $params );
+		return wp_cache_get( $cache_key, self::CACHE_GROUP );
 	}
 
 	/**
 	 * Save data to cache
 	 */
-	public static function set(string $key, $data, array $params = array(), int $expiry = null): bool
-	{
-		$cache_key = self::get_cache_key($key, $params);
+	public static function set( string $key, $data, array $params = array(), int $expiry = null ): bool {
+		$cache_key = self::get_cache_key( $key, $params );
 		$expiry    = $expiry ?? self::CACHE_EXPIRY;
 
-		return wp_cache_set($cache_key, $data, self::CACHE_GROUP, $expiry);
+		return wp_cache_set( $cache_key, $data, self::CACHE_GROUP, $expiry );
 	}
 
 	/**
 	 * Delete data from cache
 	 */
-	public static function delete(string $key, array $params = array()): bool
-	{
-		$cache_key = self::get_cache_key($key, $params);
-		return wp_cache_delete($cache_key, self::CACHE_GROUP);
+	public static function delete( string $key, array $params = array() ): bool {
+		$cache_key = self::get_cache_key( $key, $params );
+		return wp_cache_delete( $cache_key, self::CACHE_GROUP );
 	}
 
 	/**
 	 * Clear cache
 	 */
-	public static function flush(): bool
-	{
-		return wp_cache_flush_group(self::CACHE_GROUP);
+	public static function flush(): bool {
+		return wp_cache_flush_group( self::CACHE_GROUP );
 	}
 
 	/**
 	 * Cache message counts
 	 */
-	public static function get_message_counts(string $email = null): array
-	{
-		$params    = $email ? array('email' => $email) : array();
+	public static function get_message_counts( string $email = null ): array {
+		$params    = $email ? array( 'email' => $email ) : array();
 		$cache_key = 'message_counts';
 
-		$counts = self::get($cache_key, $params);
+		$counts = self::get( $cache_key, $params );
 
-		if ($counts === false) {
+		if ( $counts === false ) {
 			global $wpdb;
 
-			if ($email) {
+			if ( $email ) {
 				// Counts for specific customer
 				$counts = array(
 					'total'   => (int) $wpdb->get_var(
@@ -148,7 +142,7 @@ final class MessageCache
 				);
 			}
 
-			self::set($cache_key, $counts, $params);
+			self::set( $cache_key, $counts, $params );
 		}
 
 		return $counts;
@@ -157,14 +151,13 @@ final class MessageCache
 	/**
 	 * Cache thread messages
 	 */
-	public static function get_thread_messages(int $thread_id): array
-	{
+	public static function get_thread_messages( int $thread_id ): array {
 		$cache_key = 'thread_messages';
-		$params    = array('thread_id' => $thread_id);
+		$params    = array( 'thread_id' => $thread_id );
 
-		$messages = self::get($cache_key, $params);
+		$messages = self::get( $cache_key, $params );
 
-		if ($messages === false) {
+		if ( $messages === false ) {
 			global $wpdb;
 
 			$messages = $wpdb->get_results(
@@ -190,7 +183,7 @@ final class MessageCache
 				)
 			);
 
-			self::set($cache_key, $messages, $params);
+			self::set( $cache_key, $messages, $params );
 		}
 
 		return $messages;
@@ -199,8 +192,7 @@ final class MessageCache
 	/**
 	 * Cache customer messages
 	 */
-	public static function get_customer_messages(string $email, int $limit = 20, int $offset = 0): array
-	{
+	public static function get_customer_messages( string $email, int $limit = 20, int $offset = 0 ): array {
 		$cache_key = 'customer_messages';
 		$params    = array(
 			'email'  => $email,
@@ -208,9 +200,9 @@ final class MessageCache
 			'offset' => $offset,
 		);
 
-		$messages = self::get($cache_key, $params);
+		$messages = self::get( $cache_key, $params );
 
-		if ($messages === false) {
+		if ( $messages === false ) {
 			global $wpdb;
 
 			$messages = $wpdb->get_results(
@@ -242,7 +234,7 @@ final class MessageCache
 				)
 			);
 
-			self::set($cache_key, $messages, $params, 1800); // 30 dakika cache
+			self::set( $cache_key, $messages, $params, 1800 ); // 30 dakika cache
 		}
 
 		return $messages;
@@ -251,13 +243,12 @@ final class MessageCache
 	/**
 	 * Cache dashboard widget data
 	 */
-	public static function get_dashboard_data(): array
-	{
+	public static function get_dashboard_data(): array {
 		$cache_key = 'dashboard_data';
 
-		$data = self::get($cache_key);
+		$data = self::get( $cache_key );
 
-		if ($data === false) {
+		if ( $data === false ) {
 			global $wpdb;
 
 			$max_messages = 5; // Default value, can be fetched from settings
@@ -286,7 +277,7 @@ final class MessageCache
 				),
 			);
 
-			self::set($cache_key, $data, array(), 1800); // 30 dakika cache
+			self::set( $cache_key, $data, array(), 1800 ); // 30 dakika cache
 		}
 
 		return $data;
@@ -297,36 +288,35 @@ final class MessageCache
 	 *
 	 * @param int|string|null $message_id Message ID (can be integer or string for UUID)
 	 */
-	public static function clear_message_cache($message_id = null, string $email = null): void
-	{
+	public static function clear_message_cache( $message_id = null, string $email = null ): void {
 		// Clear entire cache group (safest method)
 		self::flush();
 
 		// Clear general caches again (for certainty)
-		self::delete('message_counts');
-		self::delete('dashboard_data');
-		self::delete('message_stats');
+		self::delete( 'message_counts' );
+		self::delete( 'dashboard_data' );
+		self::delete( 'message_stats' );
 
 		// Clear customer specific caches
-		if ($email) {
-			self::delete('customer_messages', array('email' => $email));
-			self::delete('message_counts', array('email' => $email));
+		if ( $email ) {
+			self::delete( 'customer_messages', array( 'email' => $email ) );
+			self::delete( 'message_counts', array( 'email' => $email ) );
 		}
 
 		// Clear thread cache
-		if ($message_id) {
+		if ( $message_id ) {
 			// Ensure message_id is integer (post ID is always integer)
-			$message_id_int = is_numeric($message_id) ? (int) $message_id : null;
-			if ($message_id_int) {
-				$thread_id = get_post_meta($message_id_int, '_mhm_thread_id', true);
-				if ($thread_id) {
-					self::delete('thread_messages', array('thread_id' => $thread_id));
+			$message_id_int = is_numeric( $message_id ) ? (int) $message_id : null;
+			if ( $message_id_int ) {
+				$thread_id = get_post_meta( $message_id_int, '_mhm_thread_id', true );
+				if ( $thread_id ) {
+					self::delete( 'thread_messages', array( 'thread_id' => $thread_id ) );
 				}
 			}
 		}
 
 		// Also clear WordPress object cache (wp_cache_flush_group might not work in some cases)
-		if (function_exists('wp_cache_flush')) {
+		if ( function_exists( 'wp_cache_flush' ) ) {
 			// This is aggressive but solves caching issues
 			// Alternative: Use wp_cache_delete_group for message caches only
 			// However wp_cache_delete_group is available in WordPress 6.1+
@@ -336,22 +326,20 @@ final class MessageCache
 	/**
 	 * Clear cache when message status changes
 	 */
-	public static function clear_status_cache(int $message_id): void
-	{
-		$email = get_post_meta($message_id, '_mhm_customer_email', true);
-		self::clear_message_cache($message_id, $email);
+	public static function clear_status_cache( int $message_id ): void {
+		$email = get_post_meta( $message_id, '_mhm_customer_email', true );
+		self::clear_message_cache( $message_id, $email );
 	}
 
 	/**
 	 * Cache statistics
 	 */
-	public static function get_cache_stats(): array
-	{
+	public static function get_cache_stats(): array {
 		return array(
 			'group'        => self::CACHE_GROUP,
 			'expiry'       => self::CACHE_EXPIRY,
-			'memory_usage' => memory_get_usage(true),
-			'peak_memory'  => memory_get_peak_usage(true),
+			'memory_usage' => memory_get_usage( true ),
+			'peak_memory'  => memory_get_peak_usage( true ),
 		);
 	}
 }

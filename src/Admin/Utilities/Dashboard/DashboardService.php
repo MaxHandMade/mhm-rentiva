@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Utilities\Dashboard;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -16,15 +16,14 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.6.3
  */
-final class DashboardService
-{
+final class DashboardService {
+
 
 
 	/**
 	 * Get all dashboard metrics in a single structured array.
 	 */
-	public static function get_comprehensive_stats(): array
-	{
+	public static function get_comprehensive_stats(): array {
 		return array(
 			'metrics'          => self::get_dashboard_metrics(),
 			'recent_bookings'  => self::get_recent_bookings(),
@@ -43,12 +42,11 @@ final class DashboardService
 	/**
 	 * Get main dashboard metrics - No cache (Fresh data every time)
 	 */
-	public static function get_dashboard_metrics(): array
-	{
+	public static function get_dashboard_metrics(): array {
 		global $wpdb;
 
-		$current_month_start = gmdate('Y-m-01 00:00:00');
-		$current_month_end   = gmdate('Y-m-t 23:59:59');
+		$current_month_start = gmdate( 'Y-m-01 00:00:00' );
+		$current_month_end   = gmdate( 'Y-m-t 23:59:59' );
 
 		// Total bookings - EXCLUDING TRASH
 		$total_bookings = (int) $wpdb->get_var(
@@ -150,8 +148,8 @@ final class DashboardService
 			)
 		);
 
-		$total_customers_this_month = (int) ($customer_stats->total_customers ?? 0);
-		$new_customers_this_month   = (int) ($customer_stats->new_customers ?? 0);
+		$total_customers_this_month = (int) ( $customer_stats->total_customers ?? 0 );
+		$new_customers_this_month   = (int) ( $customer_stats->new_customers ?? 0 );
 
 		// Total customers - ALL TIME
 		$total_customers_all_time = (int) $wpdb->get_var(
@@ -183,11 +181,10 @@ final class DashboardService
 	/**
 	 * Get recent bookings - Cached
 	 */
-	public static function get_recent_bookings(): array
-	{
+	public static function get_recent_bookings(): array {
 		$cache_key = 'mhm_dashboard_recent_bookings';
-		$cached    = get_transient($cache_key);
-		if ($cached !== false) {
+		$cached    = get_transient( $cache_key );
+		if ( $cached !== false ) {
 			return $cached;
 		}
 
@@ -223,7 +220,7 @@ final class DashboardService
 		);
 
 		$bookings_data = $bookings ?: array();
-		set_transient($cache_key, $bookings_data, 12 * HOUR_IN_SECONDS);
+		set_transient( $cache_key, $bookings_data, 12 * HOUR_IN_SECONDS );
 
 		return $bookings_data;
 	}
@@ -231,12 +228,11 @@ final class DashboardService
 	/**
 	 * Get vehicle statistics (CURRENT MONTH ONLY)
 	 */
-	public static function get_vehicle_stats(): array
-	{
+	public static function get_vehicle_stats(): array {
 		global $wpdb;
 
-		$current_month_start = gmdate('Y-m-01 00:00:00');
-		$current_month_end   = gmdate('Y-m-t 23:59:59');
+		$current_month_start = gmdate( 'Y-m-01 00:00:00' );
+		$current_month_end   = gmdate( 'Y-m-t 23:59:59' );
 
 		// Get all vehicles with status
 		$vehicle_stats = $wpdb->get_row(
@@ -256,11 +252,11 @@ final class DashboardService
 			)
 		);
 
-		$inactive    = (int) ($vehicle_stats->inactive ?? 0);
-		$maintenance = (int) ($vehicle_stats->maintenance ?? 0);
+		$inactive    = (int) ( $vehicle_stats->inactive ?? 0 );
+		$maintenance = (int) ( $vehicle_stats->maintenance ?? 0 );
 
-		$month_start_ts = strtotime($current_month_start);
-		$month_end_ts   = strtotime($current_month_end);
+		$month_start_ts = strtotime( $current_month_start );
+		$month_end_ts   = strtotime( $current_month_end );
 
 		$bookings = $wpdb->get_results(
 			$wpdb->prepare(
@@ -298,23 +294,23 @@ final class DashboardService
 		);
 
 		$reserved_vehicle_ids = array();
-		if ($bookings) {
-			foreach ($bookings as $booking) {
-				$pickup_ts = strtotime($booking->pickup_date);
-				$return_ts = strtotime($booking->return_date);
+		if ( $bookings ) {
+			foreach ( $bookings as $booking ) {
+				$pickup_ts = strtotime( $booking->pickup_date );
+				$return_ts = strtotime( $booking->return_date );
 
-				if ($pickup_ts === false || $return_ts === false) {
+				if ( $pickup_ts === false || $return_ts === false ) {
 					continue;
 				}
 
-				$overlaps = ($pickup_ts <= $month_end_ts && $return_ts >= $month_start_ts);
-				if ($overlaps) {
+				$overlaps = ( $pickup_ts <= $month_end_ts && $return_ts >= $month_start_ts );
+				if ( $overlaps ) {
 					$reserved_vehicle_ids[] = (int) $booking->vehicle_id;
 				}
 			}
 		}
 
-		$reserved = count(array_unique($reserved_vehicle_ids));
+		$reserved = count( array_unique( $reserved_vehicle_ids ) );
 
 		$available_vehicles_with_status = (int) $wpdb->get_var(
 			$wpdb->prepare(
@@ -331,7 +327,7 @@ final class DashboardService
 			)
 		);
 
-		$available = max(0, $available_vehicles_with_status - $reserved);
+		$available = max( 0, $available_vehicles_with_status - $reserved );
 
 		return array(
 			'available'   => $available,
@@ -344,13 +340,12 @@ final class DashboardService
 	/**
 	 * Get revenue data for Chart.js
 	 */
-	public static function get_revenue_data(): array
-	{
+	public static function get_revenue_data(): array {
 		global $wpdb;
 
 		$revenue_data = array();
-		for ($i = 13; $i >= 0; $i--) {
-			$date    = gmdate('Y-m-d', (int) strtotime("-{$i} days"));
+		for ( $i = 13; $i >= 0; $i-- ) {
+			$date    = gmdate( 'Y-m-d', (int) strtotime( "-{$i} days" ) );
 			$revenue = (float) $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2))) 
@@ -376,13 +371,13 @@ final class DashboardService
 			);
 
 			$revenue_data[] = array(
-				'date'    => gmdate('d/m', (int) strtotime($date)),
+				'date'    => gmdate( 'd/m', (int) strtotime( $date ) ),
 				'revenue' => $revenue,
 			);
 		}
 
-		$this_week_start = gmdate('Y-m-d', (int) strtotime('monday this week'));
-		$this_week_end   = gmdate('Y-m-d', (int) strtotime('sunday this week'));
+		$this_week_start = gmdate( 'Y-m-d', (int) strtotime( 'monday this week' ) );
+		$this_week_end   = gmdate( 'Y-m-d', (int) strtotime( 'sunday this week' ) );
 
 		$weekly_total = (float) $wpdb->get_var(
 			$wpdb->prepare(
@@ -409,8 +404,8 @@ final class DashboardService
 			)
 		);
 
-		$last_week_start = gmdate('Y-m-d', (int) strtotime('monday last week'));
-		$last_week_end   = gmdate('Y-m-d', (int) strtotime('sunday last week'));
+		$last_week_start = gmdate( 'Y-m-d', (int) strtotime( 'monday last week' ) );
+		$last_week_end   = gmdate( 'Y-m-d', (int) strtotime( 'sunday last week' ) );
 
 		$last_weekly_total = (float) $wpdb->get_var(
 			$wpdb->prepare(
@@ -447,8 +442,7 @@ final class DashboardService
 	/**
 	 * Get customer detailed statistics
 	 */
-	public static function get_customer_detail_stats(): array
-	{
+	public static function get_customer_detail_stats(): array {
 		$stats        = self::get_dashboard_metrics();
 		$avg_spending = self::calculate_customer_avg_spending();
 
@@ -463,11 +457,10 @@ final class DashboardService
 	/**
 	 * Calculate average customer spending
 	 */
-	private static function calculate_customer_avg_spending(): string
-	{
+	private static function calculate_customer_avg_spending(): string {
 		global $wpdb;
-		$current_month_start = gmdate('Y-m-01 00:00:00');
-		$current_month_end   = gmdate('Y-m-t 23:59:59');
+		$current_month_start = gmdate( 'Y-m-01 00:00:00' );
+		$current_month_end   = gmdate( 'Y-m-t 23:59:59' );
 
 		$total_spending = (float) $wpdb->get_var(
 			$wpdb->prepare(
@@ -518,18 +511,17 @@ final class DashboardService
 			)
 		);
 
-		$avg = ($total_customers > 0) ? ($total_spending / $total_customers) : 0.00;
-		return number_format($avg, 2);
+		$avg = ( $total_customers > 0 ) ? ( $total_spending / $total_customers ) : 0.00;
+		return number_format( $avg, 2 );
 	}
 
 	/**
 	 * Get message statistics - Cached
 	 */
-	public static function get_message_stats(): array
-	{
+	public static function get_message_stats(): array {
 		$cache_key = 'mhm_message_stats_' . get_current_user_id();
-		$cached    = get_transient($cache_key);
-		if ($cached !== false) {
+		$cached    = get_transient( $cache_key );
+		if ( $cached !== false ) {
 			return $cached;
 		}
 
@@ -574,7 +566,7 @@ final class DashboardService
 			'answered' => $answered,
 			'total'    => $total,
 		);
-		set_transient($cache_key, $stats, 10 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $stats, 10 * MINUTE_IN_SECONDS );
 
 		return $stats;
 	}
@@ -584,11 +576,10 @@ final class DashboardService
 	/**
 	 * Get recent messages - Cached
 	 */
-	public static function get_recent_messages(): array
-	{
+	public static function get_recent_messages(): array {
 		$cache_key = 'mhm_recent_messages_' . get_current_user_id();
-		$cached    = get_transient($cache_key);
-		if ($cached !== false) {
+		$cached    = get_transient( $cache_key );
+		if ( $cached !== false ) {
 			return $cached;
 		}
 
@@ -613,25 +604,25 @@ final class DashboardService
 		);
 
 		$status_labels = array(
-			'pending'  => __('Pending', 'mhm-rentiva'),
-			'answered' => __('Answered', 'mhm-rentiva'),
-			'closed'   => __('Closed', 'mhm-rentiva'),
+			'pending'  => __( 'Pending', 'mhm-rentiva' ),
+			'answered' => __( 'Answered', 'mhm-rentiva' ),
+			'closed'   => __( 'Closed', 'mhm-rentiva' ),
 		);
 
 		$data = array();
-		foreach ($messages ?: array() as $msg) {
-			$status = strtolower(trim($msg['status'] ?: 'pending'));
+		foreach ( $messages ?: array() as $msg ) {
+			$status = strtolower( trim( $msg['status'] ?: 'pending' ) );
 			$data[] = array(
 				'id'            => $msg['ID'],
-				'customer_name' => $msg['customer_name'] ?: __('Anonymous', 'mhm-rentiva'),
+				'customer_name' => $msg['customer_name'] ?: __( 'Anonymous', 'mhm-rentiva' ),
 				'content'       => $msg['post_content'],
-				'date'          => gmdate('d.m.Y H:i', (int) strtotime($msg['post_date'])),
+				'date'          => gmdate( 'd.m.Y H:i', (int) strtotime( $msg['post_date'] ) ),
 				'status'        => $status,
-				'status_label'  => $status_labels[$status] ?? ucfirst($status),
+				'status_label'  => $status_labels[ $status ] ?? ucfirst( $status ),
 			);
 		}
 
-		set_transient($cache_key, $data, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $data, 5 * MINUTE_IN_SECONDS );
 		return $data;
 	}
 
@@ -640,40 +631,38 @@ final class DashboardService
 	/**
 	 * Get system notifications
 	 */
-	public static function get_system_notifications(): array
-	{
+	public static function get_system_notifications(): array {
 		$notifications = array();
 
 		// Messages
 		$msg_stats = self::get_message_stats();
-		if ($msg_stats['pending'] > 0) {
+		if ( $msg_stats['pending'] > 0 ) {
 			$notifications[] = array(
 				'type'    => 'warning',
 				'icon'    => 'dashicons-email-alt',
-				'title'   => __('Pending Messages', 'mhm-rentiva'),
+				'title'   => __( 'Pending Messages', 'mhm-rentiva' ),
 				'message' => sprintf(
 					/* translators: %s: number of pending messages */
-					__('%s pending messages', 'mhm-rentiva'),
-					number_format_i18n($msg_stats['pending'])
+					__( '%s pending messages', 'mhm-rentiva' ),
+					number_format_i18n( $msg_stats['pending'] )
 				),
-				'time'    => __('Now', 'mhm-rentiva'),
+				'time'    => __( 'Now', 'mhm-rentiva' ),
 			);
 		}
 
 		// High-level systems or logic checks could be added here
 		// ... (truncated for brevity based on existing DashboardPage logic)
 
-		return array_slice($notifications, 0, 4);
+		return array_slice( $notifications, 0, 4 );
 	}
 
 	/**
 	 * Get deposit statistics
 	 */
-	public static function get_deposit_stats(): array
-	{
+	public static function get_deposit_stats(): array {
 		global $wpdb;
-		$current_month_start = gmdate('Y-m-01 00:00:00');
-		$current_month_end   = gmdate('Y-m-t 23:59:59');
+		$current_month_start = gmdate( 'Y-m-01 00:00:00' );
+		$current_month_end   = gmdate( 'Y-m-t 23:59:59' );
 
 		$deposit_bookings = (int) $wpdb->get_var(
 			$wpdb->prepare(
@@ -702,8 +691,7 @@ final class DashboardService
 	/**
 	 * Get pending payments
 	 */
-	public static function get_pending_payments(): array
-	{
+	public static function get_pending_payments(): array {
 		global $wpdb;
 
 		return $wpdb->get_results(
@@ -731,11 +719,10 @@ final class DashboardService
 	/**
 	 * Get transfer statistics summary
 	 */
-	public static function get_transfer_summary(): array
-	{
+	public static function get_transfer_summary(): array {
 		global $wpdb;
-		$current_month_start = gmdate('Y-m-01 00:00:00');
-		$current_month_end   = gmdate('Y-m-t 23:59:59');
+		$current_month_start = gmdate( 'Y-m-01 00:00:00' );
+		$current_month_end   = gmdate( 'Y-m-t 23:59:59' );
 
 		// Total Transfer Bookings (booking_type = transfer)
 		$total_transfers = (int) $wpdb->get_var(
@@ -795,7 +782,7 @@ final class DashboardService
 
 		// Get Recent Transfer Routes (Last 3)
 		$loc_table         = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
-		$loc_table_escaped = esc_sql($loc_table);
+		$loc_table_escaped = esc_sql( $loc_table );
 		$recent_routes     = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT p.ID, p.post_date,

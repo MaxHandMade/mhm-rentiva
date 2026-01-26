@@ -6,7 +6,7 @@ namespace MHMRentiva\Admin\Utilities\Uninstall;
 
 use MHMRentiva\Admin\Core\Utilities\DatabaseCleaner;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -15,14 +15,13 @@ if (! defined('ABSPATH')) {
  *
  * Handles complete removal of all plugin data from database
  */
-final class Uninstaller
-{
+final class Uninstaller {
+
 
 	/**
 	 * Get uninstall statistics (what will be deleted)
 	 */
-	public static function get_uninstall_stats(): array
-	{
+	public static function get_uninstall_stats(): array {
 		global $wpdb;
 
 		$stats = array(
@@ -98,13 +97,14 @@ final class Uninstaller
 			$wpdb->prefix . 'mhm_backup_records',
 		);
 
-		foreach ($custom_tables as $table) {
-			$exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table));
-			if ($exists) {
+		foreach ( $custom_tables as $table ) {
+			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			if ( $exists ) {
 				// Table name is from internal array, sanitize with esc_sql for safety
-				$safe_table                       = esc_sql($table);
-				$rows                             = $wpdb->get_var("SELECT COUNT(*) FROM `{$safe_table}`");
-				$stats['custom_tables'][$table] = (int) $rows;
+				$safe_table = esc_sql( $table );
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is safe/sanitized.
+				$rows                             = $wpdb->get_var( "SELECT COUNT(*) FROM `{$safe_table}`" );
+				$stats['custom_tables'][ $table ] = (int) $rows;
 			}
 		}
 
@@ -120,11 +120,11 @@ final class Uninstaller
 		);
 
 		$cron_count = 0;
-		if (! empty($crons)) {
-			foreach ($crons as $timestamp => $cron) {
-				foreach ($cron as $hook => $dings) {
-					if (in_array($hook, $plugin_crons, true)) {
-						$cron_count += count($dings);
+		if ( ! empty( $crons ) ) {
+			foreach ( $crons as $timestamp => $cron ) {
+				foreach ( $cron as $hook => $dings ) {
+					if ( in_array( $hook, $plugin_crons, true ) ) {
+						$cron_count += count( $dings );
 					}
 				}
 			}
@@ -147,14 +147,14 @@ final class Uninstaller
 		// Count backup files
 		$backup_dir   = WP_CONTENT_DIR . '/mhm-rentiva-backups';
 		$backup_files = 0;
-		if (self::init_filesystem()) {
+		if ( self::init_filesystem() ) {
 			global $wp_filesystem;
-			if ($wp_filesystem->exists($backup_dir) && $wp_filesystem->is_dir($backup_dir)) {
-				$file_list = $wp_filesystem->dirlist($backup_dir);
-				if (is_array($file_list)) {
-					foreach ($file_list as $file) {
-						if (substr($file['name'], -4) === '.sql') {
-							$backup_files++;
+			if ( $wp_filesystem->exists( $backup_dir ) && $wp_filesystem->is_dir( $backup_dir ) ) {
+				$file_list = $wp_filesystem->dirlist( $backup_dir );
+				if ( is_array( $file_list ) ) {
+					foreach ( $file_list as $file ) {
+						if ( substr( $file['name'], -4 ) === '.sql' ) {
+							++$backup_files;
 						}
 					}
 				}
@@ -168,25 +168,23 @@ final class Uninstaller
 	/**
 	 * Perform complete uninstall (delete all plugin data)
 	 */
-	public static function uninstall(bool $delete_backups = false): array
-	{
+	public static function uninstall( bool $delete_backups = false ): array {
 		global $wpdb;
 
-		if (! current_user_can('manage_options')) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return array(
 				'success' => false,
-				'message' => __('Permission denied', 'mhm-rentiva'),
+				'message' => __( 'Permission denied', 'mhm-rentiva' ),
 			);
 		}
 
-		return self::uninstall_direct($delete_backups);
+		return self::uninstall_direct( $delete_backups );
 	}
 
 	/**
 	 * Direct uninstall (bypasses permission check - for use in uninstall.php)
 	 */
-	public static function uninstall_direct(bool $delete_backups = false): array
-	{
+	public static function uninstall_direct( bool $delete_backups = false ): array {
 		global $wpdb;
 
 		$results = array(
@@ -212,8 +210,8 @@ final class Uninstaller
 			)
 		);
 
-		foreach ($options as $option_name) {
-			if (delete_option($option_name)) {
+		foreach ( $options as $option_name ) {
+			if ( delete_option( $option_name ) ) {
 				++$results['options_deleted'];
 			}
 		}
@@ -230,8 +228,8 @@ final class Uninstaller
 			)
 		);
 
-		foreach ($vehicles as $post_id) {
-			wp_delete_post($post_id, true);
+		foreach ( $vehicles as $post_id ) {
+			wp_delete_post( $post_id, true );
 			++$results['posts_deleted'];
 		}
 
@@ -247,8 +245,8 @@ final class Uninstaller
 			)
 		);
 
-		foreach ($bookings as $post_id) {
-			wp_delete_post($post_id, true);
+		foreach ( $bookings as $post_id ) {
+			wp_delete_post( $post_id, true );
 			++$results['posts_deleted'];
 		}
 
@@ -272,12 +270,13 @@ final class Uninstaller
 			$wpdb->prefix . 'mhm_backup_records',
 		);
 
-		foreach ($custom_tables as $table) {
-			$exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table));
-			if ($exists) {
+		foreach ( $custom_tables as $table ) {
+			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			if ( $exists ) {
 				// Table name is from internal array, sanitize with esc_sql for safety
-				$safe_table = esc_sql($table);
-				$wpdb->query("DROP TABLE IF EXISTS `{$safe_table}`");
+				$safe_table = esc_sql( $table );
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is safe/sanitized.
+				$wpdb->query( "DROP TABLE IF EXISTS `{$safe_table}`" );
 				++$results['tables_dropped'];
 			}
 		}
@@ -293,11 +292,11 @@ final class Uninstaller
 			'mhm_log_retention',
 		);
 
-		foreach ($plugin_crons as $hook) {
-			$timestamp = wp_next_scheduled($hook);
-			while ($timestamp) {
-				wp_unschedule_event($timestamp, $hook);
-				$timestamp = wp_next_scheduled($hook);
+		foreach ( $plugin_crons as $hook ) {
+			$timestamp = wp_next_scheduled( $hook );
+			while ( $timestamp ) {
+				wp_unschedule_event( $timestamp, $hook );
+				$timestamp = wp_next_scheduled( $hook );
 				++$results['cron_jobs_cleared'];
 			}
 		}
@@ -314,21 +313,21 @@ final class Uninstaller
 			)
 		);
 
-		foreach ($transients as $transient_name) {
-			$name = str_replace(array('_transient_', '_transient_timeout_'), '', $transient_name);
-			if (delete_transient($name)) {
+		foreach ( $transients as $transient_name ) {
+			$name = str_replace( array( '_transient_', '_transient_timeout_' ), '', $transient_name );
+			if ( delete_transient( $name ) ) {
 				++$results['transients_deleted'];
 			}
 		}
 
 		// 8. Delete backup files (optional)
-		if ($delete_backups && self::init_filesystem()) {
+		if ( $delete_backups && self::init_filesystem() ) {
 			global $wp_filesystem;
 			$backup_dir = WP_CONTENT_DIR . '/mhm-rentiva-backups';
 
-			if ($wp_filesystem->exists($backup_dir)) {
+			if ( $wp_filesystem->exists( $backup_dir ) ) {
 				// Delete directory recursively (handles files inside)
-				if ($wp_filesystem->delete($backup_dir, true)) {
+				if ( $wp_filesystem->delete( $backup_dir, true ) ) {
 					// We can assume files were deleted if directory gone, but let's be conservative with stats
 					// Ideally we would count them before deleting, but we already did that in stats query
 					$results['backup_files_deleted'] = 1;
@@ -337,8 +336,8 @@ final class Uninstaller
 		}
 
 		// 9. Delete taxonomies and terms
-		$taxonomies = array('vehicle_category', 'vehicle_cat'); // vehicle_cat is deprecated
-		foreach ($taxonomies as $taxonomy) {
+		$taxonomies = array( 'vehicle_category', 'vehicle_cat' ); // vehicle_cat is deprecated
+		foreach ( $taxonomies as $taxonomy ) {
 			$terms = get_terms(
 				array(
 					'taxonomy'   => $taxonomy,
@@ -346,17 +345,17 @@ final class Uninstaller
 				)
 			);
 
-			foreach ($terms as $term) {
-				wp_delete_term($term->term_id, $taxonomy);
+			foreach ( $terms as $term ) {
+				wp_delete_term( $term->term_id, $taxonomy );
 			}
 		}
 
 		return array(
-			'success' => empty($results['errors']),
+			'success' => empty( $results['errors'] ),
 			'results' => $results,
-			'message' => empty($results['errors'])
-				? __('All plugin data has been removed successfully', 'mhm-rentiva')
-				: __('Uninstall completed with some errors', 'mhm-rentiva'),
+			'message' => empty( $results['errors'] )
+				? __( 'All plugin data has been removed successfully', 'mhm-rentiva' )
+				: __( 'Uninstall completed with some errors', 'mhm-rentiva' ),
 		);
 	}
 
@@ -364,17 +363,16 @@ final class Uninstaller
 	/**
 	 * Initialize Filesystem
 	 */
-	private static function init_filesystem(): bool
-	{
+	private static function init_filesystem(): bool {
 		global $wp_filesystem;
 
-		if (empty($wp_filesystem)) {
+		if ( empty( $wp_filesystem ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
-			if (! WP_Filesystem()) {
+			if ( ! WP_Filesystem() ) {
 				return false;
 			}
 		}
 
-		return ! empty($wp_filesystem);
+		return ! empty( $wp_filesystem );
 	}
 }

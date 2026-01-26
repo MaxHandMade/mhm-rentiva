@@ -6,46 +6,44 @@ namespace MHMRentiva\Admin\Vehicle\Reports;
 
 use MHMRentiva\Admin\Utilities\Export\Export;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class VehicleReport
-{
+final class VehicleReport {
+
 
 	/**
 	 * Safe sanitize text field that handles null values
 	 */
-	public static function sanitize_text_field_safe($value)
-	{
-		if ($value === null || $value === '') {
+	public static function sanitize_text_field_safe( $value ) {
+		if ( $value === null || $value === '' ) {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value );
 	}
 
-	public static function get_data(string $start_date, string $end_date): array
-	{
+	public static function get_data( string $start_date, string $end_date ): array {
 		// Security: Validate user permissions
-		if (! current_user_can('manage_options')) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return array();
 		}
 
 		// Security: Sanitize input dates
-		$start_date = self::sanitize_text_field_safe($start_date);
-		$end_date   = self::sanitize_text_field_safe($end_date);
+		$start_date = self::sanitize_text_field_safe( $start_date );
+		$end_date   = self::sanitize_text_field_safe( $end_date );
 
 		// Security: Validate date format
-		if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $start_date) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $end_date)) {
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $start_date ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $end_date ) ) {
 			return array();
 		}
 
 		global $wpdb;
 
-		$cache_key = 'mhm_vehicle_report_' . md5($start_date . $end_date);
-		$data      = get_transient($cache_key);
+		$cache_key = 'mhm_vehicle_report_' . md5( $start_date . $end_date );
+		$data      = get_transient( $cache_key );
 
-		if ($data === false) {
+		if ( $data === false ) {
 			// Most rented vehicles
 			$top_vehicles = $wpdb->get_results(
 				$wpdb->prepare(
@@ -70,7 +68,7 @@ final class VehicleReport
 			);
 
 			// Vehicle occupancy rates
-			$occupancy_rates = self::calculate_occupancy_rates($start_date, $end_date);
+			$occupancy_rates = self::calculate_occupancy_rates( $start_date, $end_date );
 
 			// Category-based performance
 			$category_performance = $wpdb->get_results(
@@ -98,13 +96,13 @@ final class VehicleReport
 			);
 
 			// Add vehicle titles and categories
-			foreach ($top_vehicles as &$vehicle) {
-				$vehicle->vehicle_title           = get_the_title($vehicle->vehicle_id) ?: __('Unknown Vehicle', 'mhm-rentiva');
-				$vehicle->avg_revenue_per_booking = round((float) $vehicle->avg_revenue_per_booking, 2);
+			foreach ( $top_vehicles as &$vehicle ) {
+				$vehicle->vehicle_title           = get_the_title( $vehicle->vehicle_id ) ?: __( 'Unknown Vehicle', 'mhm-rentiva' );
+				$vehicle->avg_revenue_per_booking = round( (float) $vehicle->avg_revenue_per_booking, 2 );
 
 				// Get vehicle category
-				$categories          = get_the_terms($vehicle->vehicle_id, 'vehicle_category');
-				$vehicle->categories = $categories ? array_column($categories, 'name') : array();
+				$categories          = get_the_terms( $vehicle->vehicle_id, 'vehicle_category' );
+				$vehicle->categories = $categories ? array_column( $categories, 'name' ) : array();
 			}
 
 			// General statistics
@@ -115,40 +113,39 @@ final class VehicleReport
 			$active_vehicles = count(
 				array_filter(
 					$occupancy_rates,
-					function ($rate) {
+					function ( $rate ) {
 						return $rate['occupancy_rate'] > 0;
 					}
 				)
 			);
 
-			$avg_occupancy = count($occupancy_rates) > 0 ?
-				array_sum(array_column($occupancy_rates, 'occupancy_rate')) / count($occupancy_rates) : 0;
+			$avg_occupancy = count( $occupancy_rates ) > 0 ?
+				array_sum( array_column( $occupancy_rates, 'occupancy_rate' ) ) / count( $occupancy_rates ) : 0;
 
 			$data = array(
-				'top_vehicles'         => array_slice($top_vehicles, 0, 10),
-				'occupancy_rates'      => array_slice($occupancy_rates, 0, 10),
+				'top_vehicles'         => array_slice( $top_vehicles, 0, 10 ),
+				'occupancy_rates'      => array_slice( $occupancy_rates, 0, 10 ),
 				'category_performance' => $category_performance,
 				'summary'              => array(
 					'total_vehicles'     => $total_vehicles,
 					'active_vehicles'    => $active_vehicles,
-					'avg_occupancy_rate' => round((float) $avg_occupancy, 1),
-					'total_revenue'      => array_sum(array_column($top_vehicles, 'total_revenue')),
+					'avg_occupancy_rate' => round( (float) $avg_occupancy, 1 ),
+					'total_revenue'      => array_sum( array_column( $top_vehicles, 'total_revenue' ) ),
 				),
 				'date_range'           => array(
 					'start' => $start_date,
 					'end'   => $end_date,
-					'days'  => (strtotime($end_date) - strtotime($start_date)) / (60 * 60 * 24) + 1,
+					'days'  => ( strtotime( $end_date ) - strtotime( $start_date ) ) / ( 60 * 60 * 24 ) + 1,
 				),
 			);
 
-			set_transient($cache_key, $data, 15 * MINUTE_IN_SECONDS);
+			set_transient( $cache_key, $data, 15 * MINUTE_IN_SECONDS );
 		}
 
 		return $data;
 	}
 
-	private static function calculate_occupancy_rates(string $start_date, string $end_date): array
-	{
+	private static function calculate_occupancy_rates( string $start_date, string $end_date ): array {
 		global $wpdb;
 
 		$vehicles = get_posts(
@@ -161,17 +158,17 @@ final class VehicleReport
 
 		$occupancy_rates = array();
 
-		foreach ($vehicles as $vehicle) {
-			$total_days     = self::calculate_date_range_days($start_date, $end_date);
-			$booked_days    = self::calculate_vehicle_booked_days($vehicle->ID, $start_date, $end_date);
-			$occupancy_rate = $total_days > 0 ? ($booked_days / $total_days) * 100 : 0;
+		foreach ( $vehicles as $vehicle ) {
+			$total_days     = self::calculate_date_range_days( $start_date, $end_date );
+			$booked_days    = self::calculate_vehicle_booked_days( $vehicle->ID, $start_date, $end_date );
+			$occupancy_rate = $total_days > 0 ? ( $booked_days / $total_days ) * 100 : 0;
 
 			// Include only rented vehicles
-			if ($booked_days > 0) {
+			if ( $booked_days > 0 ) {
 				$occupancy_rates[] = array(
 					'vehicle_id'     => $vehicle->ID,
 					'vehicle_title'  => $vehicle->post_title,
-					'occupancy_rate' => round((float) $occupancy_rate, 1),
+					'occupancy_rate' => round( (float) $occupancy_rate, 1 ),
 					'booked_days'    => $booked_days,
 					'total_days'     => $total_days,
 				);
@@ -181,7 +178,7 @@ final class VehicleReport
 		// Sort by occupancy rate
 		usort(
 			$occupancy_rates,
-			function ($a, $b) {
+			function ( $a, $b ) {
 				return $b['occupancy_rate'] <=> $a['occupancy_rate'];
 			}
 		);
@@ -189,15 +186,13 @@ final class VehicleReport
 		return $occupancy_rates;
 	}
 
-	private static function calculate_date_range_days(string $start, string $end): int
-	{
-		$start_ts = strtotime($start);
-		$end_ts   = strtotime($end);
-		return (int) ceil(($end_ts - $start_ts) / 86400);
+	private static function calculate_date_range_days( string $start, string $end ): int {
+		$start_ts = strtotime( $start );
+		$end_ts   = strtotime( $end );
+		return (int) ceil( ( $end_ts - $start_ts ) / 86400 );
 	}
 
-	private static function calculate_vehicle_booked_days(int $vehicle_id, string $start_date, string $end_date): int
-	{
+	private static function calculate_vehicle_booked_days( int $vehicle_id, string $start_date, string $end_date ): int {
 		global $wpdb;
 
 		$bookings = $wpdb->get_results(
@@ -216,21 +211,21 @@ final class VehicleReport
              AND pm_start.meta_value < %d
              AND pm_end.meta_value > %d",
 				$vehicle_id,
-				strtotime($end_date),
-				strtotime($start_date)
+				strtotime( $end_date ),
+				strtotime( $start_date )
 			)
 		);
 
 		$booked_days = 0;
-		$range_start = strtotime($start_date);
-		$range_end   = strtotime($end_date);
+		$range_start = strtotime( $start_date );
+		$range_end   = strtotime( $end_date );
 
-		foreach ($bookings as $booking) {
-			$booking_start = max($range_start, (int) $booking->start_ts);
-			$booking_end   = min($range_end, (int) $booking->end_ts);
+		foreach ( $bookings as $booking ) {
+			$booking_start = max( $range_start, (int) $booking->start_ts );
+			$booking_end   = min( $range_end, (int) $booking->end_ts );
 
-			if ($booking_end > $booking_start) {
-				$days         = ceil(($booking_end - $booking_start) / 86400);
+			if ( $booking_end > $booking_start ) {
+				$days         = ceil( ( $booking_end - $booking_start ) / 86400 );
 				$booked_days += $days;
 			}
 		}
@@ -238,8 +233,7 @@ final class VehicleReport
 		return (int) $booked_days;
 	}
 
-	public static function get_vehicle_utilization(int $vehicle_id, string $start_date, string $end_date): array
-	{
+	public static function get_vehicle_utilization( int $vehicle_id, string $start_date, string $end_date ): array {
 		global $wpdb;
 
 		// Vehicle reservation history
@@ -270,37 +264,36 @@ final class VehicleReport
 			)
 		);
 
-		$total_revenue       = array_sum(array_column($bookings, 'revenue'));
-		$total_bookings      = count($bookings);
+		$total_revenue       = array_sum( array_column( $bookings, 'revenue' ) );
+		$total_bookings      = count( $bookings );
 		$successful_bookings = count(
 			array_filter(
 				$bookings,
-				function ($booking) {
-					return in_array($booking->status, array('completed', 'confirmed'));
+				function ( $booking ) {
+					return in_array( $booking->status, array( 'completed', 'confirmed' ) );
 				}
 			)
 		);
 
-		$success_rate = $total_bookings > 0 ? round((float) (($successful_bookings / $total_bookings) * 100), 1) : 0;
+		$success_rate = $total_bookings > 0 ? round( (float) ( ( $successful_bookings / $total_bookings ) * 100 ), 1 ) : 0;
 
 		return array(
 			'vehicle_id'              => $vehicle_id,
-			'vehicle_title'           => get_the_title($vehicle_id),
+			'vehicle_title'           => get_the_title( $vehicle_id ),
 			'total_bookings'          => $total_bookings,
 			'successful_bookings'     => $successful_bookings,
 			'success_rate'            => $success_rate,
 			'total_revenue'           => $total_revenue,
-			'avg_revenue_per_booking' => $total_bookings > 0 ? round((float) ($total_revenue / $total_bookings), 2) : 0,
+			'avg_revenue_per_booking' => $total_bookings > 0 ? round( (float) ( $total_revenue / $total_bookings ), 2 ) : 0,
 			'bookings'                => $bookings,
 		);
 	}
 
-	public static function get_vehicle_performance_trends(int $vehicle_id, int $months = 6): array
-	{
+	public static function get_vehicle_performance_trends( int $vehicle_id, int $months = 6 ): array {
 		global $wpdb;
 
-		$end_date   = gmdate('Y-m-d');
-		$start_date = gmdate('Y-m-d', strtotime("-{$months} months"));
+		$end_date   = gmdate( 'Y-m-d' );
+		$start_date = gmdate( 'Y-m-d', strtotime( "-{$months} months" ) );
 
 		$monthly_data = $wpdb->get_results(
 			$wpdb->prepare(
@@ -326,31 +319,30 @@ final class VehicleReport
 
 		return array(
 			'vehicle_id'          => $vehicle_id,
-			'vehicle_title'       => get_the_title($vehicle_id),
+			'vehicle_title'       => get_the_title( $vehicle_id ),
 			'monthly_data'        => $monthly_data,
-			'total_revenue'       => array_sum(array_column($monthly_data, 'revenue')),
-			'total_bookings'      => array_sum(array_column($monthly_data, 'bookings')),
-			'avg_monthly_revenue' => count($monthly_data) > 0 ? round((float) (array_sum(array_column($monthly_data, 'revenue')) / count($monthly_data)), 2) : 0,
+			'total_revenue'       => array_sum( array_column( $monthly_data, 'revenue' ) ),
+			'total_bookings'      => array_sum( array_column( $monthly_data, 'bookings' ) ),
+			'avg_monthly_revenue' => count( $monthly_data ) > 0 ? round( (float) ( array_sum( array_column( $monthly_data, 'revenue' ) ) / count( $monthly_data ) ), 2 ) : 0,
 		);
 	}
 
-	public static function export_vehicle_data(string $start_date, string $end_date, string $format = 'csv'): void
-	{
+	public static function export_vehicle_data( string $start_date, string $end_date, string $format = 'csv' ): void {
 		// Security: Validate user permissions
-		if (! current_user_can('manage_options')) {
-			wp_die(esc_html__('You do not have permission to access this page.', 'mhm-rentiva'));
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'mhm-rentiva' ) );
 		}
 
 		// Security: Sanitize input dates
-		$start_date = self::sanitize_text_field_safe($start_date);
-		$end_date   = self::sanitize_text_field_safe($end_date);
+		$start_date = self::sanitize_text_field_safe( $start_date );
+		$end_date   = self::sanitize_text_field_safe( $end_date );
 
 		// Security: Validate date format
-		if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $start_date) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $end_date)) {
-			wp_die(esc_html__('Invalid date format.', 'mhm-rentiva'));
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $start_date ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $end_date ) ) {
+			wp_die( esc_html__( 'Invalid date format.', 'mhm-rentiva' ) );
 		}
 
-		$data = self::get_data($start_date, $end_date);
+		$data = self::get_data( $start_date, $end_date );
 
 		$export_data = array();
 
@@ -365,27 +357,27 @@ final class VehicleReport
 		);
 
 		// Add vehicle data
-		foreach ($data['top_vehicles'] as $vehicle) {
+		foreach ( $data['top_vehicles'] as $vehicle ) {
 			$occupancy = array_filter(
 				$data['occupancy_rates'],
-				function ($rate) use ($vehicle) {
+				function ( $rate ) use ( $vehicle ) {
 					return $rate['vehicle_id'] == $vehicle->vehicle_id;
 				}
 			);
 
-			$occupancy_rate = ! empty($occupancy) ? reset($occupancy)['occupancy_rate'] : 0;
+			$occupancy_rate = ! empty( $occupancy ) ? reset( $occupancy )['occupancy_rate'] : 0;
 
 			$export_data[] = array(
 				$vehicle->vehicle_id,
 				$vehicle->vehicle_title,
 				$vehicle->booking_count,
-				number_format($vehicle->total_revenue, 2, ',', '.'),
-				number_format($vehicle->avg_revenue_per_booking, 2, ',', '.'),
+				number_format( $vehicle->total_revenue, 2, ',', '.' ),
+				number_format( $vehicle->avg_revenue_per_booking, 2, ',', '.' ),
 				$occupancy_rate . '%',
 			);
 		}
 
-		$filename = sprintf('mhm-rentiva-vehicles-%1$s-%2$s', $start_date, $end_date);
-		Export::export_data($export_data, $filename, $format);
+		$filename = sprintf( 'mhm-rentiva-vehicles-%1$s-%2$s', $start_date, $end_date );
+		Export::export_data( $export_data, $filename, $format );
 	}
 }

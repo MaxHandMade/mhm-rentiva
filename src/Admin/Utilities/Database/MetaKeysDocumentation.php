@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Utilities\Database;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -23,15 +23,14 @@ if (! defined('ABSPATH')) {
  *
  * Standard documentation for all meta keys used in the plugin
  */
-final class MetaKeysDocumentation
-{
+final class MetaKeysDocumentation {
+
 
 
 	/**
 	 * List of meta keys by category
 	 */
-	public static function get_meta_keys_documentation(): array
-	{
+	public static function get_meta_keys_documentation(): array {
 		return array(
 
 			// ========================================
@@ -42,21 +41,21 @@ final class MetaKeysDocumentation
 				'keys'        => array(
 					'_mhm_vehicle_availability'   => array(
 						'type'        => 'string',
-						'values'      => array('active', 'inactive'),
+						'values'      => array( 'active', 'inactive' ),
 						'description' => 'Vehicle availability status (STANDARD)',
 						'required'    => true,
 						'usage'       => 'Vehicle listing, booking control',
 					),
 					'_mhm_vehicle_status'         => array(
 						'type'        => 'string',
-						'values'      => array('active', 'inactive'),
+						'values'      => array( 'active', 'inactive' ),
 						'description' => 'Vehicle status (backup)',
 						'required'    => false,
 						'usage'       => 'Vehicle management',
 					),
 					'_mhm_rentiva_availability'   => array(
 						'type'        => 'string',
-						'values'      => array('active', 'inactive'),
+						'values'      => array( 'active', 'inactive' ),
 						'description' => 'Vehicle availability status (OLD FORMAT - TO BE REMOVED)',
 						'required'    => false,
 						'usage'       => 'Backward compatibility',
@@ -113,14 +112,14 @@ final class MetaKeysDocumentation
 					),
 					'_mhm_rentiva_transmission'   => array(
 						'type'        => 'string',
-						'values'      => array('manual', 'auto'),
+						'values'      => array( 'manual', 'auto' ),
 						'description' => 'Transmission type',
 						'required'    => true,
 						'usage'       => 'Vehicle information',
 					),
 					'_mhm_rentiva_fuel_type'      => array(
 						'type'        => 'string',
-						'values'      => array('petrol', 'diesel', 'hybrid', 'electric'),
+						'values'      => array( 'petrol', 'diesel', 'hybrid', 'electric' ),
 						'description' => 'Fuel type',
 						'required'    => true,
 						'usage'       => 'Vehicle information',
@@ -206,21 +205,21 @@ final class MetaKeysDocumentation
 					),
 					'_mhm_status'          => array(
 						'type'        => 'string',
-						'values'      => array('pending', 'confirmed', 'in_progress', 'completed', 'cancelled'),
+						'values'      => array( 'pending', 'confirmed', 'in_progress', 'completed', 'cancelled' ),
 						'description' => 'Booking status',
 						'required'    => true,
 						'usage'       => 'Booking management',
 					),
 					'_mhm_booking_type'    => array(
 						'type'        => 'string',
-						'values'      => array('online', 'manual'),
+						'values'      => array( 'online', 'manual' ),
 						'description' => 'Booking type',
 						'required'    => true,
 						'usage'       => 'Booking management',
 					),
 					'_mhm_created_via'     => array(
 						'type'        => 'string',
-						'values'      => array('frontend', 'admin', 'api'),
+						'values'      => array( 'frontend', 'admin', 'api' ),
 						'description' => 'Booking creation method',
 						'required'    => true,
 						'usage'       => 'Booking management',
@@ -385,28 +384,28 @@ final class MetaKeysDocumentation
 				'keys'        => array(
 					'_mhm_payment_method'   => array(
 						'type'        => 'string',
-						'values'      => array('woocommerce'),
+						'values'      => array( 'woocommerce' ),
 						'description' => 'Payment method (WooCommerce only)',
 						'required'    => true,
 						'usage'       => 'Payment management',
 					),
 					'_mhm_payment_gateway'  => array(
 						'type'        => 'string',
-						'values'      => array('woocommerce'),
+						'values'      => array( 'woocommerce' ),
 						'description' => 'Payment gateway (WooCommerce only)',
 						'required'    => true,
 						'usage'       => 'Payment management',
 					),
 					'_mhm_payment_type'     => array(
 						'type'        => 'string',
-						'values'      => array('full', 'deposit'),
+						'values'      => array( 'full', 'deposit' ),
 						'description' => 'Payment type',
 						'required'    => true,
 						'usage'       => 'Payment management',
 					),
 					'_mhm_payment_status'   => array(
 						'type'        => 'string',
-						'values'      => array('pending', 'completed', 'failed', 'refunded', 'pending_verification'),
+						'values'      => array( 'pending', 'completed', 'failed', 'refunded', 'pending_verification' ),
 						'description' => 'Payment status',
 						'required'    => true,
 						'usage'       => 'Payment management',
@@ -441,7 +440,7 @@ final class MetaKeysDocumentation
 					),
 					'_mhm_deposit_type'     => array(
 						'type'        => 'string',
-						'values'      => array('percentage', 'fixed'),
+						'values'      => array( 'percentage', 'fixed' ),
 						'description' => 'Deposit type',
 						'required'    => true,
 						'usage'       => 'Price calculation',
@@ -471,7 +470,7 @@ final class MetaKeysDocumentation
 				'keys'        => array(
 					'_mhm_receipt_status'        => array(
 						'type'        => 'string',
-						'values'      => array('submitted', 'approved', 'rejected'),
+						'values'      => array( 'submitted', 'approved', 'rejected' ),
 						'description' => 'Receipt status',
 						'required'    => false,
 						'usage'       => 'Receipt management',
@@ -570,16 +569,15 @@ final class MetaKeysDocumentation
 	/**
 	 * Generate HTML documentation for meta keys
 	 */
-	public static function generate_html_documentation(): string
-	{
+	public static function generate_html_documentation(): string {
 		$meta_keys = self::get_meta_keys_documentation();
 
 		$html = '<!DOCTYPE html>
-<html lang="' . esc_attr(get_locale()) . '">
+<html lang="' . esc_attr( get_locale() ) . '">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>' . esc_html__('MHM Rentiva - Meta Keys Documentation', 'mhm-rentiva') . '</title>
+    <title>' . esc_html__( 'MHM Rentiva - Meta Keys Documentation', 'mhm-rentiva' ) . '</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
         .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -599,66 +597,66 @@ final class MetaKeysDocumentation
 </head>
 <body>
     <div class="container">
-        <h1>' . esc_html__('🚗 MHM Rentiva Plugin - Meta Keys Documentation', 'mhm-rentiva') . '</h1>
+        <h1>' . esc_html__( '🚗 MHM Rentiva Plugin - Meta Keys Documentation', 'mhm-rentiva' ) . '</h1>
 
         <div class="warning">
-            <strong>' . esc_html__('⚠️ IMPORTANT:', 'mhm-rentiva') . '</strong> ' .
-			esc_html__('This documentation contains the standard list of all meta keys used in the plugin. Add new meta keys according to this documentation. Do not create inconsistent meta keys!', 'mhm-rentiva') . '
+            <strong>' . esc_html__( '⚠️ IMPORTANT:', 'mhm-rentiva' ) . '</strong> ' .
+			esc_html__( 'This documentation contains the standard list of all meta keys used in the plugin. Add new meta keys according to this documentation. Do not create inconsistent meta keys!', 'mhm-rentiva' ) . '
         </div>
 
-        <p><strong>' . esc_html__('Last Update:', 'mhm-rentiva') . '</strong> ' . esc_html(current_time('d.m.Y H:i:s')) . '</p>
-        <p><strong>' . esc_html__('Total Meta Key Count:', 'mhm-rentiva') . '</strong> ' . esc_html(self::count_total_meta_keys()) . '</p>';
+        <p><strong>' . esc_html__( 'Last Update:', 'mhm-rentiva' ) . '</strong> ' . esc_html( current_time( 'd.m.Y H:i:s' ) ) . '</p>
+        <p><strong>' . esc_html__( 'Total Meta Key Count:', 'mhm-rentiva' ) . '</strong> ' . esc_html( self::count_total_meta_keys() ) . '</p>';
 
-		foreach ($meta_keys as $category => $data) {
-			$html .= '<h2>' . esc_html(ucfirst($category) . ' Meta Keys') . '</h2>';
-			$html .= '<p><em>' . esc_html($data['description']) . '</em></p>';
+		foreach ( $meta_keys as $category => $data ) {
+			$html .= '<h2>' . esc_html( ucfirst( $category ) . ' Meta Keys' ) . '</h2>';
+			$html .= '<p><em>' . esc_html( $data['description'] ) . '</em></p>';
 
-			foreach ($data['keys'] as $key => $info) {
-				$deprecated_class = isset($info['deprecated']) && $info['deprecated'] ? 'deprecated' : '';
+			foreach ( $data['keys'] as $key => $info ) {
+				$deprecated_class = isset( $info['deprecated'] ) && $info['deprecated'] ? 'deprecated' : '';
 				$required_class   = $info['required'] ? 'required' : 'optional';
 
-				$html .= '<div class="meta-key ' . esc_attr($deprecated_class) . '">
-                    <div class="meta-key-name">' . esc_html($key) . '</div>
+				$html .= '<div class="meta-key ' . esc_attr( $deprecated_class ) . '">
+                    <div class="meta-key-name">' . esc_html( $key ) . '</div>
                     <div class="meta-key-info">
-                        <span class="' . esc_attr($required_class) . '">' . esc_html($info['required'] ? esc_html__('Required', 'mhm-rentiva') : esc_html__('Optional', 'mhm-rentiva')) . '</span>
-                        <span>' . esc_html($info['type']) . '</span>
-                        <span>' . esc_html(is_array($info['values']) ? implode(', ', $info['values']) : $info['values']) . '</span>
+                        <span class="' . esc_attr( $required_class ) . '">' . esc_html( $info['required'] ? esc_html__( 'Required', 'mhm-rentiva' ) : esc_html__( 'Optional', 'mhm-rentiva' ) ) . '</span>
+                        <span>' . esc_html( $info['type'] ) . '</span>
+                        <span>' . esc_html( is_array( $info['values'] ) ? implode( ', ', $info['values'] ) : $info['values'] ) . '</span>
                     </div>
-                    <div class="meta-key-description">' . esc_html($info['description']) . '</div>
-                    <div class="meta-key-description"><strong>' . esc_html__('Usage:', 'mhm-rentiva') . '</strong> ' . esc_html($info['usage']) . '</div>
+                    <div class="meta-key-description">' . esc_html( $info['description'] ) . '</div>
+                    <div class="meta-key-description"><strong>' . esc_html__( 'Usage:', 'mhm-rentiva' ) . '</strong> ' . esc_html( $info['usage'] ) . '</div>
                 </div>';
 			}
 		}
 
 		$html .= '
-        <h2>' . esc_html__('📋 Meta Key Usage Rules', 'mhm-rentiva') . '</h2>
+        <h2>' . esc_html__( '📋 Meta Key Usage Rules', 'mhm-rentiva' ) . '</h2>
         <div class="meta-key">
-            <h3>' . esc_html__('✅ What Should Be Done:', 'mhm-rentiva') . '</h3>
+            <h3>' . esc_html__( '✅ What Should Be Done:', 'mhm-rentiva' ) . '</h3>
             <ul>
-                <li>' . esc_html__('Add new meta keys according to this documentation', 'mhm-rentiva') . '</li>
-                <li>' . esc_html__('Create meta key names consistently', 'mhm-rentiva') . '</li>
-                <li>' . esc_html__('Always add required meta keys', 'mhm-rentiva') . '</li>
-                <li>' . esc_html__('Define meta key types correctly (string, number, array)', 'mhm-rentiva') . '</li>
-                <li>' . esc_html__('Define value ranges clearly', 'mhm-rentiva') . '</li>
+                <li>' . esc_html__( 'Add new meta keys according to this documentation', 'mhm-rentiva' ) . '</li>
+                <li>' . esc_html__( 'Create meta key names consistently', 'mhm-rentiva' ) . '</li>
+                <li>' . esc_html__( 'Always add required meta keys', 'mhm-rentiva' ) . '</li>
+                <li>' . esc_html__( 'Define meta key types correctly (string, number, array)', 'mhm-rentiva' ) . '</li>
+                <li>' . esc_html__( 'Define value ranges clearly', 'mhm-rentiva' ) . '</li>
             </ul>
         </div>
 
         <div class="meta-key deprecated">
-            <h3>' . esc_html__('❌ What Should Not Be Done:', 'mhm-rentiva') . '</h3>
+            <h3>' . esc_html__( '❌ What Should Not Be Done:', 'mhm-rentiva' ) . '</h3>
             <ul>
-                <li>' . esc_html__('Do not use old meta keys', 'mhm-rentiva') . '</li>
-                <li>' . esc_html__('Do not create inconsistent meta key names', 'mhm-rentiva') . '</li>
-                <li>' . esc_html__('Do not add unnecessary meta keys', 'mhm-rentiva') . '</li>
-                <li>' . esc_html__('Do not mix meta key types', 'mhm-rentiva') . '</li>
-                <li>' . esc_html__('Do not leave value ranges undefined', 'mhm-rentiva') . '</li>
+                <li>' . esc_html__( 'Do not use old meta keys', 'mhm-rentiva' ) . '</li>
+                <li>' . esc_html__( 'Do not create inconsistent meta key names', 'mhm-rentiva' ) . '</li>
+                <li>' . esc_html__( 'Do not add unnecessary meta keys', 'mhm-rentiva' ) . '</li>
+                <li>' . esc_html__( 'Do not mix meta key types', 'mhm-rentiva' ) . '</li>
+                <li>' . esc_html__( 'Do not leave value ranges undefined', 'mhm-rentiva' ) . '</li>
             </ul>
         </div>
 
-        <h2>' . esc_html__('🔧 Developer Notes', 'mhm-rentiva') . '</h2>
+        <h2>' . esc_html__( '🔧 Developer Notes', 'mhm-rentiva' ) . '</h2>
         <div class="meta-key">
-            <p><strong>' . esc_html__('Standard Meta Key Format:', 'mhm-rentiva') . '</strong> <code>_mhm_[category]_[field_name]</code></p>
-            <p><strong>' . esc_html__('Example:', 'mhm-rentiva') . '</strong> <code>_mhm_vehicle_availability</code>, <code>_mhm_booking_status</code></p>
-            <p><strong>' . esc_html__('Categories:', 'mhm-rentiva') . '</strong> vehicle, booking, customer, payment, receipt, system</p>
+            <p><strong>' . esc_html__( 'Standard Meta Key Format:', 'mhm-rentiva' ) . '</strong> <code>_mhm_[category]_[field_name]</code></p>
+            <p><strong>' . esc_html__( 'Example:', 'mhm-rentiva' ) . '</strong> <code>_mhm_vehicle_availability</code>, <code>_mhm_booking_status</code></p>
+            <p><strong>' . esc_html__( 'Categories:', 'mhm-rentiva' ) . '</strong> vehicle, booking, customer, payment, receipt, system</p>
         </div>
     </div>
 </body>
@@ -670,12 +668,11 @@ final class MetaKeysDocumentation
 	/**
 	 * Calculate total meta key count
 	 */
-	private static function count_total_meta_keys(): int
-	{
+	private static function count_total_meta_keys(): int {
 		$meta_keys = self::get_meta_keys_documentation();
 		$count     = 0;
-		foreach ($meta_keys as $category => $data) {
-			$count += count($data['keys']);
+		foreach ( $meta_keys as $category => $data ) {
+			$count += count( $data['keys'] );
 		}
 		return $count;
 	}

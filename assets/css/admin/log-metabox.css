@@ -1,13 +1,13 @@
 #titlediv #title {
-    background: #f7f7f7;
-    border-color: #ddd;
+	background: #f7f7f7;
+	border-color: #ddd;
 }
 
 #post-body-content .wp-editor-area {
-    background: #f9f9f9;
+	background: #f9f9f9;
 }
 
 .mhm-json {
-    font-family: Menlo, Consolas, monospace;
-    font-size: 12px;
+	font-family: Menlo, Consolas, monospace;
+	font-size: 12px;
 }

@@ -7,12 +7,12 @@ namespace MHMRentiva\Admin\Reports\BusinessLogic;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Utilities\Export\Export;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class BookingReport
-{
+final class BookingReport {
+
 
 	/**
 	 * Cache durations - Magic numbers elimination
@@ -34,34 +34,32 @@ final class BookingReport
 	 * @param string $class Class name
 	 * @return bool
 	 */
-	private static function is_class_available(string $class): bool
-	{
-		if (self::$class_cache === null) {
+	private static function is_class_available( string $class ): bool {
+		if ( self::$class_cache === null ) {
 			self::$class_cache = array(
-				'Core\ObjectCache'                  => class_exists(\MHMRentiva\Admin\Core\Utilities\ObjectCache::class),
-				'Admin\Reports\BackgroundProcessor' => class_exists(\MHMRentiva\Admin\Reports\BackgroundProcessor::class),
-				'Logs\AdvancedLogger'               => class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class),
-				'Core\QueueManager'                 => class_exists(\MHMRentiva\Admin\Core\Utilities\QueueManager::class),
+				'Core\ObjectCache'                  => class_exists( \MHMRentiva\Admin\Core\Utilities\ObjectCache::class ),
+				'Admin\Reports\BackgroundProcessor' => class_exists( \MHMRentiva\Admin\Reports\BackgroundProcessor::class ),
+				'Logs\AdvancedLogger'               => class_exists( \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class ),
+				'Core\QueueManager'                 => class_exists( \MHMRentiva\Admin\Core\Utilities\QueueManager::class ),
 			);
 		}
 
-		return self::$class_cache[$class] ?? false;
+		return self::$class_cache[ $class ] ?? false;
 	}
-	public static function get_data(string $start_date, string $end_date): array
-	{
+	public static function get_data( string $start_date, string $end_date ): array {
 		global $wpdb;
 
-		$cache_key = 'mhm_booking_report_' . md5($start_date . $end_date);
+		$cache_key = 'mhm_booking_report_' . md5( $start_date . $end_date );
 
 		// Use object cache (if available)
-		if (self::is_class_available('Core\ObjectCache')) {
-			$data = \MHMRentiva\Admin\Core\Utilities\ObjectCache::get($cache_key, \MHMRentiva\Admin\Core\Utilities\ObjectCache::GROUP_REPORTS);
-			if ($data !== false) {
+		if ( self::is_class_available( 'Core\ObjectCache' ) ) {
+			$data = \MHMRentiva\Admin\Core\Utilities\ObjectCache::get( $cache_key, \MHMRentiva\Admin\Core\Utilities\ObjectCache::GROUP_REPORTS );
+			if ( $data !== false ) {
 				return $data;
 			}
 		} else {
-			$data = get_transient($cache_key);
-			if ($data !== false) {
+			$data = get_transient( $cache_key );
+			if ( $data !== false ) {
 				return $data;
 			}
 		}
@@ -89,18 +87,18 @@ final class BookingReport
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_START_TS,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_END_TS,
 				$start_date . ' 00:00:00',
-				gmdate('Y-m-d', (int) strtotime($end_date) + 86400) . ' 00:00:00'
+				gmdate( 'Y-m-d', (int) strtotime( $end_date ) + 86400 ) . ' 00:00:00'
 			)
 		);
 
 		// Calculate statistics in PHP
-		$data = self::calculate_stats_from_raw_data($bookings, $start_date, $end_date);
+		$data = self::calculate_stats_from_raw_data( $bookings, $start_date, $end_date );
 
 		// Save to cache
-		if (self::is_class_available('Core\ObjectCache')) {
-			\MHMRentiva\Admin\Core\Utilities\ObjectCache::set($cache_key, $data, \MHMRentiva\Admin\Core\Utilities\ObjectCache::GROUP_REPORTS, self::CACHE_DURATION_REPORTS);
+		if ( self::is_class_available( 'Core\ObjectCache' ) ) {
+			\MHMRentiva\Admin\Core\Utilities\ObjectCache::set( $cache_key, $data, \MHMRentiva\Admin\Core\Utilities\ObjectCache::GROUP_REPORTS, self::CACHE_DURATION_REPORTS );
 		} else {
-			set_transient($cache_key, $data, self::CACHE_DURATION_REPORTS);
+			set_transient( $cache_key, $data, self::CACHE_DURATION_REPORTS );
 		}
 
 		return $data;
@@ -109,53 +107,52 @@ final class BookingReport
 	/**
 	 * Calculate statistics from raw data (in PHP)
 	 */
-	private static function calculate_stats_from_raw_data(array $bookings, string $start_date, string $end_date): array
-	{
+	private static function calculate_stats_from_raw_data( array $bookings, string $start_date, string $end_date ): array {
 		// Arrays for calculating statistics
 		$status_counts   = array();
 		$daily_counts    = array();
 		$hourly_counts   = array();
 		$weekday_counts  = array();
-		$total_bookings  = count($bookings);
+		$total_bookings  = count( $bookings );
 		$cancelled_count = 0;
 		$confirmed_count = 0;
 		$duration_sum    = 0;
 		$duration_count  = 0;
 
-		foreach ($bookings as $booking) {
-			$post_date = (int) strtotime($booking->post_date);
+		foreach ( $bookings as $booking ) {
+			$post_date = (int) strtotime( $booking->post_date );
 			$status    = $booking->status;
-			$hour      = (int) gmdate('H', $post_date);
-			$weekday   = (int) gmdate('w', $post_date); // 0=Sunday, 6=Saturday
-			$day_key   = gmdate('Y-m-d', $post_date);
+			$hour      = (int) gmdate( 'H', $post_date );
+			$weekday   = (int) gmdate( 'w', $post_date ); // 0=Sunday, 6=Saturday
+			$day_key   = gmdate( 'Y-m-d', $post_date );
 
 			// Status-based distribution
-			$status_counts[$status] = ($status_counts[$status] ?? 0) + 1;
+			$status_counts[ $status ] = ( $status_counts[ $status ] ?? 0 ) + 1;
 
 			// Daily trend
-			$daily_counts[$day_key] = ($daily_counts[$day_key] ?? 0) + 1;
+			$daily_counts[ $day_key ] = ( $daily_counts[ $day_key ] ?? 0 ) + 1;
 
 			// Hourly distribution
-			$hourly_counts[$hour] = ($hourly_counts[$hour] ?? 0) + 1;
+			$hourly_counts[ $hour ] = ( $hourly_counts[ $hour ] ?? 0 ) + 1;
 
 			// Day of week distribution (convert to MySQL DAYOFWEEK format: 1=Sunday, 7=Saturday)
 			$mysql_weekday                    = $weekday === 0 ? 1 : $weekday + 1;
-			$weekday_counts[$mysql_weekday] = ($weekday_counts[$mysql_weekday] ?? 0) + 1;
+			$weekday_counts[ $mysql_weekday ] = ( $weekday_counts[ $mysql_weekday ] ?? 0 ) + 1;
 
 			// Cancellation rates
-			if ($status === 'cancelled') {
+			if ( $status === 'cancelled' ) {
 				++$cancelled_count;
 			}
 
 			// Conversion rates
-			if ($status === 'confirmed') {
+			if ( $status === 'confirmed' ) {
 				++$confirmed_count;
 			}
 
 			// Average booking duration
-			if ($booking->start_ts > 0 && $booking->end_ts > 0) {
-				$duration_days = ($booking->end_ts - $booking->start_ts) / (24 * 60 * 60);
-				if ($duration_days > 0) {
+			if ( $booking->start_ts > 0 && $booking->end_ts > 0 ) {
+				$duration_days = ( $booking->end_ts - $booking->start_ts ) / ( 24 * 60 * 60 );
+				if ( $duration_days > 0 ) {
 					$duration_sum += $duration_days;
 					++$duration_count;
 				}
@@ -164,59 +161,59 @@ final class BookingReport
 
 		// Convert to status distribution format
 		$status_distribution = array();
-		foreach ($status_counts as $status => $count) {
+		foreach ( $status_counts as $status => $count ) {
 			$status_distribution[] = (object) array(
 				'status' => $status,
 				'count'  => $count,
 			);
 		}
-		usort($status_distribution, fn($a, $b) => $b->count <=> $a->count);
+		usort( $status_distribution, fn( $a, $b ) => $b->count <=> $a->count );
 
 		// Convert to daily trend format
 		$daily_trend = array();
-		foreach ($daily_counts as $date => $count) {
+		foreach ( $daily_counts as $date => $count ) {
 			$daily_trend[] = (object) array(
 				'date'     => $date,
 				'bookings' => $count,
 			);
 		}
-		usort($daily_trend, fn($a, $b) => $a->date <=> $b->date);
+		usort( $daily_trend, fn( $a, $b ) => $a->date <=> $b->date );
 
 		// Convert to hourly distribution format
 		$hourly_distribution = array();
-		foreach ($hourly_counts as $hour => $count) {
+		foreach ( $hourly_counts as $hour => $count ) {
 			$hourly_distribution[] = (object) array(
 				'hour'     => $hour,
 				'bookings' => $count,
 			);
 		}
-		usort($hourly_distribution, fn($a, $b) => $a->hour <=> $b->hour);
+		usort( $hourly_distribution, fn( $a, $b ) => $a->hour <=> $b->hour );
 
 		// Convert to weekday distribution format
 		$weekday_distribution = array();
 		$weekday_labels       = array(
-			1 => __('Sunday', 'mhm-rentiva'),
-			2 => __('Monday', 'mhm-rentiva'),
-			3 => __('Tuesday', 'mhm-rentiva'),
-			4 => __('Wednesday', 'mhm-rentiva'),
-			5 => __('Thursday', 'mhm-rentiva'),
-			6 => __('Friday', 'mhm-rentiva'),
-			7 => __('Saturday', 'mhm-rentiva'),
+			1 => __( 'Sunday', 'mhm-rentiva' ),
+			2 => __( 'Monday', 'mhm-rentiva' ),
+			3 => __( 'Tuesday', 'mhm-rentiva' ),
+			4 => __( 'Wednesday', 'mhm-rentiva' ),
+			5 => __( 'Thursday', 'mhm-rentiva' ),
+			6 => __( 'Friday', 'mhm-rentiva' ),
+			7 => __( 'Saturday', 'mhm-rentiva' ),
 		);
 
-		foreach ($weekday_counts as $weekday => $count) {
+		foreach ( $weekday_counts as $weekday => $count ) {
 			$weekday_distribution[] = (object) array(
 				'weekday'   => $weekday,
 				'bookings'  => $count,
-				'day_label' => $weekday_labels[$weekday] ?? $weekday,
+				'day_label' => $weekday_labels[ $weekday ] ?? $weekday,
 			);
 		}
-		usort($weekday_distribution, fn($a, $b) => $a->weekday <=> $b->weekday);
+		usort( $weekday_distribution, fn( $a, $b ) => $a->weekday <=> $b->weekday );
 
 		// Calculate rates
-		$cancellation_rate = $total_bookings > 0 ? round(($cancelled_count / $total_bookings) * 100, 2) : 0;
-		$conversion_rate   = $total_bookings > 0 ? round(($confirmed_count / $total_bookings) * 100, 2) : 0;
-		$avg_duration      = $duration_count > 0 ? round($duration_sum / $duration_count, 1) : 0;
+		$cancellation_rate = $total_bookings > 0 ? round( ( $cancelled_count / $total_bookings ) * 100, 2 ) : 0;
+		$conversion_rate   = $total_bookings > 0 ? round( ( $confirmed_count / $total_bookings ) * 100, 2 ) : 0;
+		$avg_duration      = $duration_count > 0 ? round( $duration_sum / $duration_count, 1 ) : 0;
 
 		return array(
 			'status_distribution'  => $status_distribution,
@@ -231,32 +228,31 @@ final class BookingReport
 			'date_range'           => array(
 				'start' => $start_date,
 				'end'   => $end_date,
-				'days'  => (strtotime($end_date) - strtotime($start_date)) / (60 * 60 * 24) + 1,
+				'days'  => ( strtotime( $end_date ) - strtotime( $start_date ) ) / ( 60 * 60 * 24 ) + 1,
 			),
 		);
 	}
 
-	public static function get_booking_trends(int $days = 30): array
-	{
-		$end_date   = gmdate('Y-m-d');
-		$start_date = gmdate('Y-m-d', strtotime("-{$days} days"));
+	public static function get_booking_trends( int $days = 30 ): array {
+		$end_date   = gmdate( 'Y-m-d' );
+		$start_date = gmdate( 'Y-m-d', strtotime( "-{$days} days" ) );
 
-		$current_period = self::get_data($start_date, $end_date);
+		$current_period = self::get_data( $start_date, $end_date );
 
 		// Compare with previous period - optimize with single query
-		$prev_start = gmdate('Y-m-d', strtotime("-{$days} days", strtotime($start_date)));
+		$prev_start = gmdate( 'Y-m-d', strtotime( "-{$days} days", strtotime( $start_date ) ) );
 		$prev_end   = $start_date;
 
 		// Cache check
-		$cache_key = 'mhm_booking_trends_' . md5($prev_start . $prev_end);
+		$cache_key = 'mhm_booking_trends_' . md5( $prev_start . $prev_end );
 
-		if (class_exists(\MHMRentiva\Admin\Core\Utilities\ObjectCache::class)) {
-			$prev_total = \MHMRentiva\Admin\Core\Utilities\ObjectCache::get($cache_key, \MHMRentiva\Admin\Core\Utilities\ObjectCache::GROUP_REPORTS);
+		if ( class_exists( \MHMRentiva\Admin\Core\Utilities\ObjectCache::class ) ) {
+			$prev_total = \MHMRentiva\Admin\Core\Utilities\ObjectCache::get( $cache_key, \MHMRentiva\Admin\Core\Utilities\ObjectCache::GROUP_REPORTS );
 		} else {
-			$prev_total = get_transient($cache_key);
+			$prev_total = get_transient( $cache_key );
 		}
 
-		if ($prev_total === false) {
+		if ( $prev_total === false ) {
 			global $wpdb;
 			$prev_total = (int) $wpdb->get_var(
 				$wpdb->prepare(
@@ -270,43 +266,42 @@ final class BookingReport
 			);
 
 			// Save to cache
-			if (self::is_class_available('Core\ObjectCache')) {
-				\MHMRentiva\Admin\Core\Utilities\ObjectCache::set($cache_key, $prev_total, \MHMRentiva\Admin\Core\Utilities\ObjectCache::GROUP_REPORTS, self::CACHE_DURATION_TRENDS);
+			if ( self::is_class_available( 'Core\ObjectCache' ) ) {
+				\MHMRentiva\Admin\Core\Utilities\ObjectCache::set( $cache_key, $prev_total, \MHMRentiva\Admin\Core\Utilities\ObjectCache::GROUP_REPORTS, self::CACHE_DURATION_TRENDS );
 			} else {
-				set_transient($cache_key, $prev_total, self::CACHE_DURATION_TRENDS);
+				set_transient( $cache_key, $prev_total, self::CACHE_DURATION_TRENDS );
 			}
 		}
 
 		$current_total = $current_period['total_bookings'];
 
 		$change_percent = 0;
-		if ($prev_total > 0) {
-			$change_percent = round((($current_total - $prev_total) / $prev_total) * 100, 1);
+		if ( $prev_total > 0 ) {
+			$change_percent = round( ( ( $current_total - $prev_total ) / $prev_total ) * 100, 1 );
 		}
 
 		return array(
 			'current_total'             => $current_total,
 			'previous_total'            => $prev_total,
 			'change_percent'            => $change_percent,
-			'trend'                     => $change_percent > 0 ? 'up' : ($change_percent < 0 ? 'down' : 'stable'),
+			'trend'                     => $change_percent > 0 ? 'up' : ( $change_percent < 0 ? 'down' : 'stable' ),
 			'current_cancellation_rate' => $current_period['cancellation_rate'],
 		);
 	}
 
-	public static function get_peak_booking_times(string $start_date, string $end_date): array
-	{
+	public static function get_peak_booking_times( string $start_date, string $end_date ): array {
 		// Calculate peak times from existing data (no extra query needed)
-		$data = self::get_data($start_date, $end_date);
+		$data = self::get_data( $start_date, $end_date );
 
 		// Get busiest hours from hourly distribution
 		$hourly_distribution = $data['hourly_distribution'];
-		usort($hourly_distribution, fn($a, $b) => $b->bookings <=> $a->bookings);
-		$peak_hours = array_slice($hourly_distribution, 0, self::PEAK_RESULTS_LIMIT);
+		usort( $hourly_distribution, fn( $a, $b ) => $b->bookings <=> $a->bookings );
+		$peak_hours = array_slice( $hourly_distribution, 0, self::PEAK_RESULTS_LIMIT );
 
 		// Get busiest days from daily trend
 		$daily_trend = $data['daily_trend'];
-		usort($daily_trend, fn($a, $b) => $b->bookings <=> $a->bookings);
-		$peak_days = array_slice($daily_trend, 0, self::PEAK_RESULTS_LIMIT);
+		usort( $daily_trend, fn( $a, $b ) => $b->bookings <=> $a->bookings );
+		$peak_days = array_slice( $daily_trend, 0, self::PEAK_RESULTS_LIMIT );
 
 		return array(
 			'peak_hours' => $peak_hours,
@@ -314,14 +309,13 @@ final class BookingReport
 		);
 	}
 
-	public static function get_status_flow(string $start_date, string $end_date): array
-	{
+	public static function get_status_flow( string $start_date, string $end_date ): array {
 		// Get status flow from existing data (no extra query needed)
-		$data = self::get_data($start_date, $end_date);
+		$data = self::get_data( $start_date, $end_date );
 
 		// Convert status distribution to status_flow format
 		$status_flow = array();
-		foreach ($data['status_distribution'] as $status_data) {
+		foreach ( $data['status_distribution'] as $status_data ) {
 			$status_flow[] = (object) array(
 				'status' => $status_data->status,
 				'count'  => $status_data->count,
@@ -331,12 +325,11 @@ final class BookingReport
 		return $status_flow;
 	}
 
-	public static function export_booking_data(string $start_date, string $end_date, string $format = 'csv'): void
-	{
+	public static function export_booking_data( string $start_date, string $end_date, string $format = 'csv' ): void {
 		global $wpdb;
 
 		// Use background processing system (priority)
-		if (self::is_class_available('Admin\Reports\BackgroundProcessor')) {
+		if ( self::is_class_available( 'Admin\Reports\BackgroundProcessor' ) ) {
 			$job_id = \MHMRentiva\Admin\Reports\BackgroundProcessor::queue_report_generation(
 				'export_booking_data',
 				array(
@@ -348,7 +341,7 @@ final class BookingReport
 			);
 
 			// Notify user of job ID
-			if (self::is_class_available('Logs\AdvancedLogger')) {
+			if ( self::is_class_available( 'Logs\AdvancedLogger' ) ) {
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info(
 					'Background export job queued',
 					array(
@@ -365,7 +358,7 @@ final class BookingReport
 		}
 
 		// Fallback: Add bulk export job using queue system
-		if (self::is_class_available('Core\QueueManager')) {
+		if ( self::is_class_available( 'Core\QueueManager' ) ) {
 			$job_id = \MHMRentiva\Admin\Core\Utilities\QueueManager::add_bulk_export_job(
 				'booking_export',
 				array(
@@ -377,7 +370,7 @@ final class BookingReport
 			);
 
 			// Notify user of job ID
-			if (self::is_class_available('Logs\AdvancedLogger')) {
+			if ( self::is_class_available( 'Logs\AdvancedLogger' ) ) {
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info(
 					'Export job queued',
 					array(
@@ -394,11 +387,11 @@ final class BookingReport
 		}
 
 		// Fallback: Smart export (pagination for large datasets)
-		$total_count = self::get_export_total_count($start_date, $end_date);
+		$total_count = self::get_export_total_count( $start_date, $end_date );
 
-		if ($total_count > self::LARGE_DATASET_THRESHOLD) {
+		if ( $total_count > self::LARGE_DATASET_THRESHOLD ) {
 			// Large dataset - Use queue system
-			if (self::is_class_available('Logs\AdvancedLogger')) {
+			if ( self::is_class_available( 'Logs\AdvancedLogger' ) ) {
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning(
 					'Large dataset export requested',
 					array(
@@ -411,7 +404,7 @@ final class BookingReport
 			}
 
 			// Add to queue
-			if (self::is_class_available('Core\QueueManager')) {
+			if ( self::is_class_available( 'Core\QueueManager' ) ) {
 				$job_id = \MHMRentiva\Admin\Core\Utilities\QueueManager::add_bulk_export_job(
 					'booking_export_large',
 					array(
@@ -423,7 +416,7 @@ final class BookingReport
 					get_current_user_id()
 				);
 
-				if (self::is_class_available('Logs\AdvancedLogger')) {
+				if ( self::is_class_available( 'Logs\AdvancedLogger' ) ) {
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info(
 						'Large export job queued',
 						array(
@@ -438,7 +431,7 @@ final class BookingReport
 		}
 
 		// Small dataset - direct export
-		$bookings = self::get_export_data_optimized($start_date, $end_date);
+		$bookings = self::get_export_data_optimized( $start_date, $end_date );
 
 		$export_data = array();
 
@@ -457,31 +450,30 @@ final class BookingReport
 		);
 
 		// Add data
-		foreach ($bookings as $booking) {
+		foreach ( $bookings as $booking ) {
 			$export_data[] = array(
 				$booking->ID,
 				$booking->post_title,
-				gmdate('d.m.Y H:i', strtotime($booking->post_date)),
+				gmdate( 'd.m.Y H:i', strtotime( $booking->post_date ) ),
 				$booking->vehicle_id,
-				Status::get_label($booking->status),
-				number_format($booking->total_price, 2, ',', '.'),
+				Status::get_label( $booking->status ),
+				number_format( $booking->total_price, 2, ',', '.' ),
 				$booking->customer_email,
 				$booking->customer_name,
-				$booking->start_date ? gmdate('d.m.Y', $booking->start_date) : '',
-				$booking->end_date ? gmdate('d.m.Y', $booking->end_date) : '',
+				$booking->start_date ? gmdate( 'd.m.Y', $booking->start_date ) : '',
+				$booking->end_date ? gmdate( 'd.m.Y', $booking->end_date ) : '',
 			);
 		}
 
-		$filename = sprintf('mhm-rentiva-bookings-%s-%s', $start_date, $end_date);
-		Export::export_data($export_data, $filename, $format);
+		$filename = sprintf( 'mhm-rentiva-bookings-%s-%s', $start_date, $end_date );
+		Export::export_data( $export_data, $filename, $format );
 	}
 
 	/**
 	 * Optimized export data retrieval
 	 * Optimized query instead of 10 separate JOINs
 	 */
-	private static function get_export_data_optimized(string $start_date, string $end_date): array
-	{
+	private static function get_export_data_optimized( string $start_date, string $end_date ): array {
 		global $wpdb;
 
 		// First get booking IDs (index-aware optimized)
@@ -497,16 +489,16 @@ final class BookingReport
             ORDER BY p.post_date DESC
         ",
 				$start_date . ' 00:00:00',
-				gmdate('Y-m-d', strtotime($end_date) + 86400) . ' 00:00:00'
+				gmdate( 'Y-m-d', strtotime( $end_date ) + 86400 ) . ' 00:00:00'
 			)
 		);
 
-		if (empty($booking_ids)) {
+		if ( empty( $booking_ids ) ) {
 			return array();
 		}
 
 		// Optimized meta query with IN() clause
-		$placeholders = implode(',', array_fill(0, count($booking_ids), '%d'));
+		$placeholders = implode( ',', array_fill( 0, count( $booking_ids ), '%d' ) );
 
 		return $wpdb->get_results(
 			$wpdb->prepare(
@@ -550,8 +542,7 @@ final class BookingReport
 	/**
 	 * Pagination supported export (for large datasets)
 	 */
-	private static function get_export_data_paginated(string $start_date, string $end_date, ?int $limit = null, int $offset = 0): array
-	{
+	private static function get_export_data_paginated( string $start_date, string $end_date, ?int $limit = null, int $offset = 0 ): array {
 		global $wpdb;
 
 		$limit = $limit ?? self::PAGINATION_LIMIT;
@@ -590,7 +581,7 @@ final class BookingReport
             LIMIT %d OFFSET %d
         ",
 				$start_date . ' 00:00:00',
-				gmdate('Y-m-d', (int) strtotime($end_date) + 86400) . ' 00:00:00',
+				gmdate( 'Y-m-d', (int) strtotime( $end_date ) + 86400 ) . ' 00:00:00',
 				$limit,
 				$offset
 			)
@@ -600,8 +591,7 @@ final class BookingReport
 	/**
 	 * Get total record count for export
 	 */
-	private static function get_export_total_count(string $start_date, string $end_date): int
-	{
+	private static function get_export_total_count( string $start_date, string $end_date ): int {
 		global $wpdb;
 
 		return (int) $wpdb->get_var(
@@ -615,7 +605,7 @@ final class BookingReport
             AND p.post_date < %s
         ",
 				$start_date . ' 00:00:00',
-				gmdate('Y-m-d', strtotime($end_date) + 86400) . ' 00:00:00'
+				gmdate( 'Y-m-d', strtotime( $end_date ) + 86400 ) . ' 00:00:00'
 			)
 		);
 	}

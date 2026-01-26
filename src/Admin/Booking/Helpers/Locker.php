@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Booking\Helpers;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class Locker
-{
+final class Locker {
+
 
 	/**
 	 * Executes callback with database lock for vehicle
 	 */
-	public static function withLock(int $vehicle_id, callable $callback)
-	{
+	public static function withLock( int $vehicle_id, callable $callback ) {
 		global $wpdb;
 
 		// Start transaction
-		$wpdb->query('START TRANSACTION');
+		$wpdb->query( 'START TRANSACTION' );
 
 		try {
 			// Lock vehicle's postmeta records (FOR UPDATE)
@@ -29,7 +28,7 @@ final class Locker
                  WHERE post_id = %d AND meta_key LIKE %s
                  FOR UPDATE",
 					$vehicle_id,
-					$wpdb->esc_like('_mhm_') . '%'
+					$wpdb->esc_like( '_mhm_' ) . '%'
 				)
 			);
 
@@ -37,12 +36,12 @@ final class Locker
 			$result = $callback();
 
 			// Commit transaction
-			$wpdb->query('COMMIT');
+			$wpdb->query( 'COMMIT' );
 
 			return $result;
-		} catch (\Exception $e) {
+		} catch ( \Exception $e ) {
 			// Rollback on error
-			$wpdb->query('ROLLBACK');
+			$wpdb->query( 'ROLLBACK' );
 			throw $e;
 		}
 	}
@@ -50,11 +49,10 @@ final class Locker
 	/**
 	 * Lock for a specific booking
 	 */
-	public static function withBookingLock(int $booking_id, callable $callback)
-	{
+	public static function withBookingLock( int $booking_id, callable $callback ) {
 		global $wpdb;
 
-		$wpdb->query('START TRANSACTION');
+		$wpdb->query( 'START TRANSACTION' );
 
 		try {
 			// Lock booking postmeta records
@@ -64,16 +62,16 @@ final class Locker
                  WHERE post_id = %d AND meta_key LIKE %s
                  FOR UPDATE",
 					$booking_id,
-					$wpdb->esc_like('_mhm_') . '%'
+					$wpdb->esc_like( '_mhm_' ) . '%'
 				)
 			);
 
 			$result = $callback();
-			$wpdb->query('COMMIT');
+			$wpdb->query( 'COMMIT' );
 
 			return $result;
-		} catch (\Exception $e) {
-			$wpdb->query('ROLLBACK');
+		} catch ( \Exception $e ) {
+			$wpdb->query( 'ROLLBACK' );
 			throw $e;
 		}
 	}
@@ -81,18 +79,16 @@ final class Locker
 	/**
 	 * Lock timeout control
 	 */
-	public static function setLockTimeout(int $seconds = 30): void
-	{
+	public static function setLockTimeout( int $seconds = 30 ): void {
 		global $wpdb;
-		$wpdb->query($wpdb->prepare('SET innodb_lock_wait_timeout = %d', $seconds));
+		$wpdb->query( $wpdb->prepare( 'SET innodb_lock_wait_timeout = %d', $seconds ) );
 	}
 
 	/**
 	 * Reset lock timeout
 	 */
-	public static function resetLockTimeout(): void
-	{
+	public static function resetLockTimeout(): void {
 		global $wpdb;
-		$wpdb->query('SET innodb_lock_wait_timeout = 50'); // MySQL default
+		$wpdb->query( 'SET innodb_lock_wait_timeout = 50' ); // MySQL default
 	}
 }

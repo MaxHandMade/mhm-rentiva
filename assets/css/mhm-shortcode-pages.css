@@ -2,43 +2,43 @@
  * MHM Rentiva Shortcode Pages Admin Styles
  */
 .mhm-rentiva-admin .button-link-delete {
-    color: #b32d2e !important;
-    border-color: #b32d2e !important;
+	color: #b32d2e !important;
+	border-color: #b32d2e !important;
 }
 
 .mhm-rentiva-admin .button-link-delete:hover {
-    background: #b32d2e !important;
-    color: #fff !important;
-    border-color: #a02020 !important;
+	background: #b32d2e !important;
+	color: #fff !important;
+	border-color: #a02020 !important;
 }
 
 .mhm-rentiva-admin .mhm-status-ok {
-    color: #46b450;
-    font-weight: bold;
+	color: #46b450;
+	font-weight: bold;
 }
 
 .mhm-rentiva-admin .mhm-status-missing {
-    color: #dc3232;
-    font-weight: bold;
+	color: #dc3232;
+	font-weight: bold;
 }
 
 .mhm-rentiva-admin .mhm-shortcode-pages-table-wrapper table {
-    margin-top: 20px;
+	margin-top: 20px;
 }
 
 .mhm-rentiva-admin .mhm-shortcode-tag {
-    background: #f1f1f1;
-    padding: 2px 6px;
-    border-radius: 3px;
+	background: #f1f1f1;
+	padding: 2px 6px;
+	border-radius: 3px;
 }
 
 .mhm-rentiva-admin .mhm-action-buttons {
-    display: flex;
-    gap: 5px;
+	display: flex;
+	gap: 5px;
 }
 
 .mhm-rentiva-admin .mhm-action-group {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 5px;
+	display: flex;
+	gap: 10px;
+	margin-bottom: 5px;
 }

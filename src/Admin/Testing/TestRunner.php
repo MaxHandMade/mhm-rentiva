@@ -4,23 +4,22 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Testing;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * ✅ 4. STAGE - Test Runner (Runs All Tests)
  */
-final class TestRunner
-{
+final class TestRunner {
+
 
 
 	/**
 	 * Run all test suites
 	 */
-	public static function run_all_suites(): array
-	{
-		$start_time = microtime(true);
+	public static function run_all_suites(): array {
+		$start_time = microtime( true );
 
 		$results = array(
 			'activation'  => ActivationTest::run_all_tests(),
@@ -30,39 +29,38 @@ final class TestRunner
 		);
 
 		// Add IntegrationTest if available
-		if (class_exists('MHMRentiva\\Admin\\Testing\\IntegrationTest')) {
+		if ( class_exists( 'MHMRentiva\\Admin\\Testing\\IntegrationTest' ) ) {
 			$results['integration'] = IntegrationTest::run_all_tests();
 		}
 
-		$execution_time = microtime(true) - $start_time;
+		$execution_time = microtime( true ) - $start_time;
 
 		// Analyze results
-		$summary = self::analyze_results($results);
+		$summary = self::analyze_results( $results );
 
 		return array(
 			'results'        => $results,
 			'summary'        => $summary,
-			'execution_time' => round($execution_time, 3),
-			'timestamp'      => current_time('mysql'),
+			'execution_time' => round( $execution_time, 3 ),
+			'timestamp'      => current_time( 'mysql' ),
 		);
 	}
 
 	/**
 	 * Analyze test results
 	 */
-	public static function analyze_results(array $results): array
-	{
+	public static function analyze_results( array $results ): array {
 		$total_tests = 0;
 		$passed      = 0;
 		$failed      = 0;
 		$warnings    = 0;
 		$skipped     = 0;
 
-		foreach ($results as $suite => $tests) {
-			foreach ($tests as $test) {
+		foreach ( $results as $suite => $tests ) {
+			foreach ( $tests as $test ) {
 				++$total_tests;
 
-				switch ($test['status']) {
+				switch ( $test['status'] ) {
 					case 'pass':
 						++$passed;
 						break;
@@ -79,8 +77,8 @@ final class TestRunner
 			}
 		}
 
-		$pass_rate      = $total_tests > 0 ? ($passed / $total_tests) * 100 : 0;
-		$overall_status = self::determine_overall_status($pass_rate, $failed);
+		$pass_rate      = $total_tests > 0 ? ( $passed / $total_tests ) * 100 : 0;
+		$overall_status = self::determine_overall_status( $pass_rate, $failed );
 
 		return array(
 			'total_tests'    => $total_tests,
@@ -88,7 +86,7 @@ final class TestRunner
 			'failed'         => $failed,
 			'warnings'       => $warnings,
 			'skipped'        => $skipped,
-			'pass_rate'      => round($pass_rate, 1),
+			'pass_rate'      => round( $pass_rate, 1 ),
 			'overall_status' => $overall_status,
 		);
 	}
@@ -96,17 +94,16 @@ final class TestRunner
 	/**
 	 * Genel test durumunu belirle
 	 */
-	public static function determine_overall_status(float $pass_rate, int $failed): string
-	{
-		if ($failed > 0) {
+	public static function determine_overall_status( float $pass_rate, int $failed ): string {
+		if ( $failed > 0 ) {
 			return 'fail';
 		}
 
-		if ($pass_rate >= 95) {
+		if ( $pass_rate >= 95 ) {
 			return 'excellent';
-		} elseif ($pass_rate >= 85) {
+		} elseif ( $pass_rate >= 85 ) {
 			return 'good';
-		} elseif ($pass_rate >= 70) {
+		} elseif ( $pass_rate >= 70 ) {
 			return 'acceptable';
 		} else {
 			return 'poor';
@@ -116,44 +113,43 @@ final class TestRunner
 	/**
 	 * Render test results as HTML
 	 */
-	public static function render_html_report(array $test_results): string
-	{
+	public static function render_html_report( array $test_results ): string {
 		$summary = $test_results['summary'];
 
 		ob_start();
-?>
+		?>
 		<div class="mhm-test-report">
-			<h1>🧪 <?php esc_html_e('MHM Rentiva - Test Report', 'mhm-rentiva'); ?></h1>
+			<h1>🧪 <?php esc_html_e( 'MHM Rentiva - Test Report', 'mhm-rentiva' ); ?></h1>
 
 			<!-- Summary -->
-			<div class="test-summary test-summary-<?php echo esc_attr($summary['overall_status']); ?>">
-				<h2>📊 <?php esc_html_e('Summary', 'mhm-rentiva'); ?></h2>
+			<div class="test-summary test-summary-<?php echo esc_attr( $summary['overall_status'] ); ?>">
+				<h2>📊 <?php esc_html_e( 'Summary', 'mhm-rentiva' ); ?></h2>
 				<div class="summary-stats">
 					<div class="stat">
-						<span class="stat-label"><?php esc_html_e('Total Tests:', 'mhm-rentiva'); ?></span>
-						<span class="stat-value"><?php echo esc_html($summary['total_tests']); ?></span>
+						<span class="stat-label"><?php esc_html_e( 'Total Tests:', 'mhm-rentiva' ); ?></span>
+						<span class="stat-value"><?php echo esc_html( $summary['total_tests'] ); ?></span>
 					</div>
 					<div class="stat stat-pass">
-						<span class="stat-label"><?php esc_html_e('Successful:', 'mhm-rentiva'); ?></span>
-						<span class="stat-value"><?php echo esc_html($summary['passed']); ?></span>
+						<span class="stat-label"><?php esc_html_e( 'Successful:', 'mhm-rentiva' ); ?></span>
+						<span class="stat-value"><?php echo esc_html( $summary['passed'] ); ?></span>
 					</div>
 					<div class="stat stat-fail">
-						<span class="stat-label"><?php esc_html_e('Failed:', 'mhm-rentiva'); ?></span>
-						<span class="stat-value"><?php echo esc_html($summary['failed']); ?></span>
+						<span class="stat-label"><?php esc_html_e( 'Failed:', 'mhm-rentiva' ); ?></span>
+						<span class="stat-value"><?php echo esc_html( $summary['failed'] ); ?></span>
 					</div>
 					<div class="stat stat-warning">
-						<span class="stat-label"><?php esc_html_e('Warnings:', 'mhm-rentiva'); ?></span>
-						<span class="stat-value"><?php echo esc_html($summary['warnings']); ?></span>
+						<span class="stat-label"><?php esc_html_e( 'Warnings:', 'mhm-rentiva' ); ?></span>
+						<span class="stat-value"><?php echo esc_html( $summary['warnings'] ); ?></span>
 					</div>
 					<div class="stat">
-						<span class="stat-label"><?php esc_html_e('Success Rate:', 'mhm-rentiva'); ?></span>
-						<span class="stat-value"><?php echo esc_html($summary['pass_rate']); ?>%</span>
+						<span class="stat-label"><?php esc_html_e( 'Success Rate:', 'mhm-rentiva' ); ?></span>
+						<span class="stat-value"><?php echo esc_html( $summary['pass_rate'] ); ?>%</span>
 					</div>
 				</div>
 
 				<div class="overall-status">
 					<?php
-					$status_icon = match ($summary['overall_status']) {
+					$status_icon = match ( $summary['overall_status'] ) {
 						'excellent' => '🎉',
 						'good' => '✅',
 						'acceptable' => '⚠️',
@@ -162,42 +158,42 @@ final class TestRunner
 						default => '❓'
 					};
 
-					$status_text = match ($summary['overall_status']) {
-						'excellent' => __('Excellent', 'mhm-rentiva'),
-						'good' => __('Good', 'mhm-rentiva'),
-						'acceptable' => __('Acceptable', 'mhm-rentiva'),
-						'poor' => __('Poor', 'mhm-rentiva'),
-						'fail' => __('Failed', 'mhm-rentiva'),
-						default => __('Unknown', 'mhm-rentiva')
+					$status_text = match ( $summary['overall_status'] ) {
+						'excellent' => __( 'Excellent', 'mhm-rentiva' ),
+						'good' => __( 'Good', 'mhm-rentiva' ),
+						'acceptable' => __( 'Acceptable', 'mhm-rentiva' ),
+						'poor' => __( 'Poor', 'mhm-rentiva' ),
+						'fail' => __( 'Failed', 'mhm-rentiva' ),
+						default => __( 'Unknown', 'mhm-rentiva' )
 					};
-					?>
-					<h3><?php echo esc_html($status_icon); ?> <?php esc_html_e('Overall Status:', 'mhm-rentiva'); ?> <?php echo esc_html($status_text); ?></h3>
+		?>
+					<h3><?php echo esc_html( $status_icon ); ?> <?php esc_html_e( 'Overall Status:', 'mhm-rentiva' ); ?> <?php echo esc_html( $status_text ); ?></h3>
 				</div>
 			</div>
 
 			<!-- Detailed Results -->
-			<?php foreach ($test_results['results'] as $suite_name => $suite_tests) : ?>
+			<?php foreach ( $test_results['results'] as $suite_name => $suite_tests ) : ?>
 				<div class="test-suite">
-					<h2>📋 <?php echo esc_html(ucfirst($suite_name)); ?> <?php esc_html_e('Tests', 'mhm-rentiva'); ?></h2>
+					<h2>📋 <?php echo esc_html( ucfirst( $suite_name ) ); ?> <?php esc_html_e( 'Tests', 'mhm-rentiva' ); ?></h2>
 
 					<table class="widefat">
 						<thead>
 							<tr>
-								<th><?php esc_html_e('Test', 'mhm-rentiva'); ?></th>
-								<th><?php esc_html_e('Status', 'mhm-rentiva'); ?></th>
-								<th><?php esc_html_e('Message', 'mhm-rentiva'); ?></th>
+								<th><?php esc_html_e( 'Test', 'mhm-rentiva' ); ?></th>
+								<th><?php esc_html_e( 'Status', 'mhm-rentiva' ); ?></th>
+								<th><?php esc_html_e( 'Message', 'mhm-rentiva' ); ?></th>
 							</tr>
 						</thead>
 						<tbody>
-							<?php foreach ($suite_tests as $test) : ?>
-								<tr class="test-row-<?php echo esc_attr($test['status']); ?>">
-									<td><strong><?php echo esc_html($test['test']); ?></strong></td>
+							<?php foreach ( $suite_tests as $test ) : ?>
+								<tr class="test-row-<?php echo esc_attr( $test['status'] ); ?>">
+									<td><strong><?php echo esc_html( $test['test'] ); ?></strong></td>
 									<td>
-										<span class="test-badge test-badge-<?php echo esc_attr($test['status']); ?>">
-											<?php echo esc_html(strtoupper($test['status'])); ?>
+										<span class="test-badge test-badge-<?php echo esc_attr( $test['status'] ); ?>">
+											<?php echo esc_html( strtoupper( $test['status'] ) ); ?>
 										</span>
 									</td>
-									<td><?php echo esc_html($test['message']); ?></td>
+									<td><?php echo esc_html( $test['message'] ); ?></td>
 								</tr>
 							<?php endforeach; ?>
 						</tbody>
@@ -207,8 +203,8 @@ final class TestRunner
 
 			<!-- Execution Info -->
 			<div class="test-info">
-				<p><strong>⏱️ <?php esc_html_e('Execution Time:', 'mhm-rentiva'); ?></strong> <?php echo esc_html($test_results['execution_time']); ?> <?php esc_html_e('seconds', 'mhm-rentiva'); ?></p>
-				<p><strong>📅 <?php esc_html_e('Test Date:', 'mhm-rentiva'); ?></strong> <?php echo esc_html($test_results['timestamp']); ?></p>
+				<p><strong>⏱️ <?php esc_html_e( 'Execution Time:', 'mhm-rentiva' ); ?></strong> <?php echo esc_html( $test_results['execution_time'] ); ?> <?php esc_html_e( 'seconds', 'mhm-rentiva' ); ?></p>
+				<p><strong>📅 <?php esc_html_e( 'Test Date:', 'mhm-rentiva' ); ?></strong> <?php echo esc_html( $test_results['timestamp'] ); ?></p>
 			</div>
 
 			<style>
@@ -348,40 +344,38 @@ final class TestRunner
 				}
 			</style>
 		</div>
-<?php
+		<?php
 		return ob_get_clean();
 	}
 
 	/**
 	 * Return test results as JSON
 	 */
-	public static function get_json_report(array $test_results): string
-	{
-		return wp_json_encode($test_results, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+	public static function get_json_report( array $test_results ): string {
+		return wp_json_encode( $test_results, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
 	}
 
 	/**
 	 * Save test results to file
 	 */
-	public static function save_report_to_file(array $test_results, string $format = 'html'): string
-	{
+	public static function save_report_to_file( array $test_results, string $format = 'html' ): string {
 		$upload_dir  = wp_upload_dir();
-		$reports_dir = trailingslashit($upload_dir['basedir']) . 'mhm-rentiva-reports/';
+		$reports_dir = trailingslashit( $upload_dir['basedir'] ) . 'mhm-rentiva-reports/';
 
-		if (! file_exists($reports_dir)) {
-			wp_mkdir_p($reports_dir);
+		if ( ! file_exists( $reports_dir ) ) {
+			wp_mkdir_p( $reports_dir );
 		}
 
-		$filename = 'test-report-' . gmdate('Y-m-d-H-i-s') . '.' . $format;
+		$filename = 'test-report-' . gmdate( 'Y-m-d-H-i-s' ) . '.' . $format;
 		$filepath = $reports_dir . $filename;
 
-		if ($format === 'html') {
-			$content = self::render_html_report($test_results);
+		if ( $format === 'html' ) {
+			$content = self::render_html_report( $test_results );
 		} else {
-			$content = self::get_json_report($test_results);
+			$content = self::get_json_report( $test_results );
 		}
 
-		file_put_contents($filepath, $content);
+		file_put_contents( $filepath, $content );
 
 		return $filepath;
 	}
