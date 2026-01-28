@@ -14,6 +14,7 @@
         init() {
             this.bindEvents();
             this.initStarRating();
+            this.initCharCounter();
             this.loadUserRatings();
             this.initModals();
 
@@ -81,6 +82,53 @@
                         }
                     });
                 });
+            });
+        }
+
+        initCharCounter() {
+            const self = this;
+
+            $('.rv-rating-textarea').each(function () {
+                const $textarea = $(this);
+                const $counter = $textarea.siblings('.rv-char-counter');
+                const $current = $counter.find('.rv-char-current');
+                const $form = $textarea.closest('form');
+                const $submitBtn = $form.find('button[type="submit"]');
+
+                const minLength = parseInt($textarea.data('min-length')) || 5;
+                const maxLength = parseInt($textarea.data('max-length')) || 1000;
+
+                // Update counter function
+                const updateCounter = () => {
+                    const length = $textarea.val().length;
+                    $current.text(length);
+
+                    // Reset classes
+                    $counter.removeClass('valid error warning');
+
+                    if (length === 0) {
+                        // Empty - neutral state
+                        $submitBtn.prop('disabled', false);
+                    } else if (length < minLength) {
+                        // Too short
+                        $counter.addClass('error');
+                        $submitBtn.prop('disabled', true);
+                    } else if (length > maxLength) {
+                        // Too long
+                        $counter.addClass('error');
+                        $submitBtn.prop('disabled', true);
+                    } else {
+                        // Valid range
+                        $counter.addClass('valid');
+                        $submitBtn.prop('disabled', false);
+                    }
+                };
+
+                // Bind input event
+                $textarea.on('input', updateCounter);
+
+                // Initial update (for edit mode)
+                updateCounter();
             });
         }
 
@@ -156,7 +204,7 @@
 
 
             $.ajax({
-                url: window.mhmVehicleRating?.ajax_url || window.location.origin + '/wp-admin/admin-ajax.php',
+                url: window.mhmVehicleRating?.ajaxUrl || (window.location.pathname.split('/')[1] ? '/' + window.location.pathname.split('/')[1] + '/wp-admin/admin-ajax.php' : '/wp-admin/admin-ajax.php'),
                 type: 'POST',
                 data: formData,
                 timeout: 10000,
@@ -206,26 +254,26 @@
             const vehicleId = $button.attr('data-vehicle-id');
 
             $.ajax({
-                url: window.mhmVehicleRating?.ajax_url || window.location.origin + '/wp-admin/admin-ajax.php',
+                url: window.mhmVehicleRating?.ajaxUrl || (window.location.pathname.split('/')[1] ? '/' + window.location.pathname.split('/')[1] + '/wp-admin/admin-ajax.php' : '/wp-admin/admin-ajax.php'),
                 type: 'POST',
                 data: {
                     action: 'mhm_rentiva_delete_rating',
                     vehicle_id: vehicleId,
-                    nonce: $('input[name="rating_nonce"]').val()
+                    nonce: $('input[name="nonce"]').val() || window.mhmVehicleRating?.nonce
                 },
                 success: (response) => {
                     if (response.success) {
-                        this.showMessage('✅ Your comment has been deleted successfully!', 'success');
+                        this.showMessage(response.data?.message || 'Your rating has been deleted successfully!', 'success');
                         // Refresh page
                         setTimeout(() => {
                             window.location.reload();
                         }, 2000);
                     } else {
-                        this.showMessage('Error deleting rating.', 'error');
+                        this.showMessage(response.data?.message || 'Error deleting rating.', 'error');
                     }
                 },
                 error: () => {
-                    this.showMessage('Error deleting rating.', 'error');
+                    this.showMessage('Connection error. Please try again.', 'error');
                 }
             });
         }
@@ -278,7 +326,7 @@
                 return;
             }
 
-            const ajaxUrl = window.mhmVehicleRating?.ajax_url || window.location.origin + '/wp-admin/admin-ajax.php';
+            const ajaxUrl = window.mhmVehicleRating?.ajaxUrl || (window.location.pathname.split('/')[1] ? '/' + window.location.pathname.split('/')[1] + '/wp-admin/admin-ajax.php' : '/wp-admin/admin-ajax.php');
 
             if (!ajaxUrl || ajaxUrl === 'undefined') {
                 return;
@@ -364,15 +412,52 @@
         }
 
         showMessage(message, type = 'info') {
-            // Clear previous messages
-            $('.rv-message').remove();
+            // Remove emoji prefix if present (we'll use icons instead)
+            const cleanMessage = message.replace(/^[✅❌ℹ️⚠️]\s*/, '');
 
-            const $message = $(`<div class="rv-message rv-message-${type}">${message}</div>`);
-            $('.rv-rating-form').prepend($message);
+            // Ensure toast container exists
+            let $container = $('.rv-toast-container');
+            if ($container.length === 0) {
+                $container = $('<div class="rv-toast-container"></div>');
+                $('body').append($container);
+            }
 
+            // Icon based on type
+            const icons = {
+                success: '✓',
+                error: '✕',
+                info: 'ℹ',
+                warning: '⚠'
+            };
+            const icon = icons[type] || icons.info;
+
+            // Create toast element
+            const $toast = $(`
+                <div class="rv-toast ${type}">
+                    <span class="rv-toast-icon">${icon}</span>
+                    <div class="rv-toast-content">
+                        <div class="rv-toast-message">${cleanMessage}</div>
+                    </div>
+                    <button class="rv-toast-close" type="button">×</button>
+                </div>
+            `);
+
+            // Add to container
+            $container.append($toast);
+
+            // Close button handler
+            $toast.find('.rv-toast-close').on('click', function () {
+                $toast.addClass('hiding');
+                setTimeout(() => $toast.remove(), 300);
+            });
+
+            // Auto dismiss after 4 seconds
             setTimeout(() => {
-                $message.fadeOut(() => $message.remove());
-            }, 5000);
+                if ($toast.length && !$toast.hasClass('hiding')) {
+                    $toast.addClass('hiding');
+                    setTimeout(() => $toast.remove(), 300);
+                }
+            }, 4000);
         }
 
         handleEditComment(e) {
@@ -441,16 +526,16 @@
                 return;
             }
 
-            const ajaxUrl = window.mhmVehicleRating?.ajax_url || window.location.origin + '/wp-admin/admin-ajax.php';
+            const ajaxUrl = window.mhmVehicleRating?.ajaxUrl || (window.location.pathname.split('/')[1] ? '/' + window.location.pathname.split('/')[1] + '/wp-admin/admin-ajax.php' : '/wp-admin/admin-ajax.php');
 
             // Get nonce from form
-            const nonce = $('.rv-rating-form-content input[name="nonce"]').val();
+            const nonce = $('.rv-rating-form-content input[name="nonce"]').val() || window.mhmVehicleRating?.nonce;
 
             $.ajax({
                 url: ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_delete_comment',
+                    action: 'mhm_rentiva_delete_rating',
                     comment_id: commentId,
                     nonce: nonce
                 },

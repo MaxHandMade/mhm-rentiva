@@ -494,22 +494,38 @@
 	fill: currentColor;
 }
 
+/* Wrapper for shared variables to ensure consistency with List view chips */
+.rv-booking-form-wrapper {
+	--rv-bg-chip: #f3f4f6;
+	--rv-text-dark: #111827;
+	--rv-text-grey: #6b7280;
+}
+
 /* Features */
 .rv-selected-vehicle .rv-vehicle-features {
 	display: flex;
-	gap: 1rem;
-	margin: 0.5rem 0;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 1rem 0;
 }
 
-.rv-selected-vehicle .rv-feature-tag {
-	display: inline-flex;
+.rv-selected-vehicle .rv-feature-item {
+	background: var(--rv-bg-chip);
+	color: var(--rv-text-dark);
+	padding: 4px 10px;
+	border-radius: 6px;
+	font-size: 0.75rem;
+	font-weight: 500;
+	display: flex;
 	align-items: center;
-	gap: 0.25rem;
-	font-size: 0.875rem;
-	color: var(--mhm-gray-500);
-	background: var(--mhm-gray-50);
-	padding: 0.25rem 0.5rem;
-	border-radius: 4px;
+	gap: 4px;
+}
+
+.rv-selected-vehicle .rv-feature-item svg {
+	width: 12px;
+	height: 12px;
+	color: var(--rv-text-grey);
+	stroke-width: 2.5;
 }
 
 /* Meta info now uses rv-feature-tag class */
@@ -1322,18 +1338,7 @@
 	margin-bottom: 8px;
 }
 
-.rv-vehicle-features span {
-	background: #f0f9ff;
-	color: #0369a1;
-	padding: 2px 6px;
-	border-radius: 12px;
-	font-size: 9px;
-	font-weight: 500;
-	border: 1px solid #bae6fd;
-	display: inline-block;
-	margin: 1px;
-	text-transform: capitalize;
-}
+/* Legacy feature tag styling removed in favor of .rv-feature-item */
 
 /* ===== SPINNER ===== */
 .rv-spinner {
@@ -1981,14 +1986,15 @@
 }
 
 .rv-star {
-	color: #d1d5db;
-	stroke: #d1d5db;
+	color: #cbd5e1 !important;
+	stroke: #cbd5e1 !important;
+	fill: none;
 }
 
 .rv-star-filled {
-	color: #fbbf24;
-	fill: #fbbf24;
-	stroke: #fbbf24;
+	color: #fbbf24 !important;
+	fill: #fbbf24 !important;
+	stroke: #fbbf24 !important;
 }
 
 .rv-star-half {
@@ -2638,4 +2644,927 @@
 	display: none;
 	/* Hide by default, jQuery will show() it */
 	z-index: 99999 !important;
+}
+
+/* ==========================================================================
+   PREMIUM SINGLE COLUMN LAYOUT (User Request: Jan 2026)
+   ========================================================================== */
+
+/* 1. Layout & Container */
+.rv-booking-form-wrapper {
+	max-width: 900px !important;
+	/* Increased from 800px to prevent overflow */
+	margin: 40px auto !important;
+	padding: 30px !important;
+	background: #ffffff !important;
+	box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08) !important;
+	border-radius: 16px !important;
+	border: 1px solid rgba(0, 0, 0, 0.02) !important;
+	box-sizing: border-box !important;
+	/* Safety Net */
+}
+
+/* Reset any previous grid/flex layouts */
+.rv-booking-form-content,
+.rv-checkout-layout {
+	display: block !important;
+	grid-template-columns: none !important;
+	width: 100% !important;
+}
+
+.rv-checkout-sidebar,
+.rv-checkout-form-main {
+	width: 100% !important;
+	max-width: 100% !important;
+	margin: 0 !important;
+}
+
+/* 2. Top: Vehicle Card (The "Hero") */
+.rv-selected-vehicle {
+	width: 100% !important;
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center !important;
+	gap: 20px !important;
+	/* Reduced Gap */
+	padding: 15px !important;
+	/* Reduced Padding */
+	margin-bottom: 30px !important;
+	background: #ffffff !important;
+	border: 1px solid #f1f5f9 !important;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+	border-radius: 16px !important;
+	min-height: auto !important;
+	box-sizing: border-box !important;
+}
+
+/* Vehicle Image */
+.rv-selected-vehicle .rv-vehicle-image-wrapper {
+	width: 200px !important;
+	height: 120px !important;
+	margin: 0 !important;
+	flex-shrink: 0 !important;
+}
+
+.rv-selected-vehicle .rv-vehicle-image {
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: cover !important;
+	border-radius: 12px !important;
+}
+
+/* Vehicle Info */
+.rv-selected-vehicle .rv-vehicle-details {
+	height: auto !important;
+	padding: 0 !important;
+	justify-content: center !important;
+}
+
+/* Title */
+.rv-selected-vehicle .rv-vehicle-title {
+	font-size: 1.5rem !important;
+	font-weight: 800 !important;
+	color: #0f172a !important;
+	line-height: 1.2 !important;
+	margin-bottom: 8px !important;
+}
+
+/* Features (Visual Chips) */
+.rv-vehicle-features {
+	display: flex !important;
+	flex-wrap: wrap !important;
+	gap: 10px !important;
+	margin: 0 !important;
+}
+
+.rv-feature-tag {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 8px !important;
+	padding: 8px 14px !important;
+	background: #f1f5f9 !important;
+	color: #475569 !important;
+	border-radius: 50px !important;
+	/* Pill Shape */
+	font-size: 0.875rem !important;
+	font-weight: 600 !important;
+	border: 1px solid #e2e8f0 !important;
+	transition: all 0.2s ease !important;
+}
+
+.rv-feature-tag:hover {
+	background: #e2e8f0 !important;
+	color: #1e293b !important;
+}
+
+.rv-feature-tag svg {
+	width: 16px !important;
+	height: 16px !important;
+	stroke-width: 2.5px !important;
+	color: #64748b !important;
+}
+
+/* Price - Reference Style */
+.rv-vehicle-price {
+	font-size: 1.1rem !important;
+	/* Base size for unit */
+	font-weight: 600 !important;
+	color: #64748b !important;
+	/* Grayish for unit */
+	margin-top: 0px !important;
+	/* Spacing from features */
+	display: flex !important;
+	align-items: baseline !important;
+	gap: 4px !important;
+}
+
+/* The Amount Number Itself (e.g. 6.000) */
+.rv-vehicle-price strong,
+.rv-vehicle-price span.amount,
+.rv-vehicle-price .woocommerce-Price-currencySymbol {
+	font-size: 1.75rem !important;
+	/* Large Hero Number */
+	font-weight: 800 !important;
+	color: #2563eb !important;
+	/* Brand Blue */
+	letter-spacing: -0.5px !important;
+}
+
+
+
+/* 3. Middle: Inputs (Date & Time) - Premium Combined Layout */
+.rv-dates-combined-layout {
+	display: grid !important;
+	grid-template-columns: 1fr 1fr !important;
+	gap: 24px !important;
+	margin-bottom: 30px !important;
+}
+
+.rv-combined-field-column {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 8px !important;
+}
+
+/* Bold Premium Label */
+.rv-label-premium {
+	display: flex !important;
+	align-items: center !important;
+	gap: 6px !important;
+	font-size: 0.95rem !important;
+	font-weight: 700 !important;
+	color: #1e293b !important;
+	margin-bottom: 2px !important;
+}
+
+/* Info Icon in Label */
+.rv-info-icon-wrapper {
+	display: inline-flex !important;
+	color: #3b82f6 !important;
+	/* Primary Blue */
+	cursor: help !important;
+	opacity: 0.8 !important;
+	transition: opacity 0.2s !important;
+}
+
+.rv-info-icon-wrapper:hover {
+	opacity: 1 !important;
+}
+
+/* The Unified Input Box */
+.rv-date-time-picker-wrapper {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	background: #ffffff !important;
+	border: 1px solid #e2e8f0 !important;
+	border-radius: 12px !important;
+	padding: 0 16px !important;
+	height: 56px !important;
+	transition: all 0.25s ease !important;
+	cursor: pointer !important;
+}
+
+.rv-date-time-picker-wrapper:hover {
+	border-color: #cbd5e1 !important;
+	background: #fbfcfd !important;
+}
+
+.rv-date-time-picker-wrapper:focus-within {
+	border-color: #3b82f6 !important;
+	box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
+	background: #ffffff !important;
+}
+
+/* Inner inputs container */
+.rv-inputs-inner {
+	display: flex !important;
+	align-items: center !important;
+	flex: 1 !important;
+	overflow: hidden !important;
+}
+
+/* Borderless Ghost Inputs */
+.rv-input-ghost,
+.rv-select-ghost {
+	border: none !important;
+	background: transparent !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	font-size: 0.95rem !important;
+	color: #334155 !important;
+	outline: none !important;
+	box-shadow: none !important;
+	height: 100% !important;
+}
+
+.rv-input-ghost {
+	width: auto !important;
+	flex: 0 0 auto !important;
+	min-width: 120px !important;
+	cursor: pointer !important;
+}
+
+.rv-select-ghost {
+	flex: 1 !important;
+	cursor: pointer !important;
+	/* Remove default arrow to match image */
+	-webkit-appearance: none !important;
+	-moz-appearance: none !important;
+	appearance: none !important;
+	background: none !important;
+	padding-left: 5px !important;
+}
+
+.rv-field-separator {
+	color: #94a3b8 !important;
+	margin: 0 4px !important;
+	font-weight: 500 !important;
+}
+
+/* Icon Wrapper */
+.rv-calendar-icon-wrapper {
+	color: #64748b !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	margin-left: 10px !important;
+	pointer-events: none !important;
+}
+
+.rv-calendar-icon-wrapper svg {
+	width: 20px !important;
+	height: 20px !important;
+	stroke-width: 1.5px !important;
+}
+
+/* Description Hint - Premium Single Line */
+.rv-description-hint-premium {
+	font-size: 0.75rem !important;
+	font-weight: 500 !important;
+	color: #64748b !important;
+	margin-top: 6px !important;
+	font-style: italic !important;
+	white-space: nowrap !important;
+	/* Force single line */
+	display: block !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+}
+
+/* ===== MOBILE RESPONSIVE OPTIMIZATIONS ===== */
+@media (max-width: 768px) {
+
+	/* 0. Form Container - Maximize Width */
+	.rv-booking-form-wrapper {
+		padding: 0 12px !important;
+		margin: 20px auto !important;
+	}
+
+	.rv-booking-form-content {
+		gap: 24px !important;
+	}
+
+	/* 1. Date & Time Inputs Stack */
+	.rv-dates-combined-layout {
+		grid-template-columns: 1fr !important;
+		gap: 16px !important;
+		margin-bottom: 24px !important;
+	}
+
+	/* Prevent Grid Blowout from long text */
+	.rv-combined-field-column {
+		min-width: 0 !important;
+		width: 100% !important;
+	}
+
+	/* Allow text wrapping for hints on mobile */
+	.rv-description-hint-premium {
+		white-space: normal !important;
+		height: auto !important;
+		overflow: visible !important;
+		line-height: 1.4 !important;
+	}
+
+	/* Allow flexible height for inputs on very small screens */
+	.rv-date-time-picker-wrapper {
+		height: auto !important;
+		min-height: auto !important;
+		padding: 12px 16px !important;
+		align-items: flex-start !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	.rv-inputs-inner {
+		flex-direction: column !important;
+		align-items: stretch !important;
+		gap: 8px !important;
+		width: 100% !important;
+	}
+
+	.rv-field-separator {
+		display: none !important;
+	}
+
+	.rv-input-ghost,
+	.rv-select-ghost {
+		width: 100% !important;
+		min-width: unset !important;
+		height: 30px !important;
+		border-bottom: 1px dashed #e2e8f0 !important;
+		border-radius: 0 !important;
+		padding-bottom: 4px !important;
+	}
+
+	.rv-select-ghost {
+		border-bottom: none !important;
+		padding-bottom: 0 !important;
+		padding-left: 0 !important;
+	}
+
+	.rv-calendar-icon-wrapper {
+		margin-top: 5px !important;
+		/* Align with top input */
+	}
+
+	/* 2. Vehicle Card - Vertical Stack */
+	.rv-selected-vehicle {
+		padding: 0 !important;
+		overflow: hidden !important;
+		border: 1px solid #e2e8f0 !important;
+		height: auto !important;
+		min-height: auto !important;
+	}
+
+	/* The inner container holding Image + Details */
+	.rv-vehicle-info {
+		display: flex !important;
+		flex-direction: column !important;
+		width: 100% !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		gap: 0 !important;
+		border: none !important;
+	}
+
+	.rv-selected-vehicle .rv-vehicle-image-wrapper {
+		width: 100% !important;
+		height: 220px !important;
+		margin: 0 !important;
+		border-radius: 0 !important;
+	}
+
+	/* Force Image Fill */
+	.rv-selected-vehicle .rv-vehicle-image {
+		width: 100% !important;
+		height: 100% !important;
+		object-fit: cover !important;
+		border-radius: 0 !important;
+	}
+
+	.rv-selected-vehicle .rv-vehicle-details {
+		padding: 24px 20px !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: center !important;
+		text-align: center !important;
+		gap: 8px !important;
+	}
+
+	/* Center Rating Block */
+	.rv-vehicle-rating-block {
+		width: 100% !important;
+		justify-content: center !important;
+		margin: 4px 0 12px 0 !important;
+	}
+
+	/* Position Favorite Icon at Top Right of Image */
+	.rv-vehicle-card__favorite {
+		top: 16px !important;
+		right: 20px !important;
+		/* Ensure it's above image */
+		z-index: 10 !important;
+		background: rgba(255, 255, 255, 0.8) !important;
+		border-radius: 50% !important;
+		width: 32px !important;
+		height: 32px !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+	}
+
+	.rv-selected-vehicle .rv-vehicle-card__footer {
+		display: none !important;
+		/* Hide old footer structure if distinct from details */
+	}
+
+	.rv-selected-vehicle .rv-vehicle-title {
+		font-size: 1.35rem !important;
+		text-align: center !important;
+		margin-bottom: 4px !important;
+	}
+
+	.rv-vehicle-features {
+		justify-content: center !important;
+		gap: 8px !important;
+		margin: 8px 0 !important;
+	}
+
+	/* 3. Addons List */
+	.rv-addon-item {
+		padding: 12px !important;
+		width: 100% !important;
+		flex-wrap: wrap !important;
+	}
+
+	.rv-addon-item .rv-addon-title {
+		font-size: 0.9rem !important;
+	}
+
+	/* 4. Price Calculation - Compact View */
+	.rv-price-calculation {
+		padding: 20px !important;
+		margin-top: 24px !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	.rv-price-item {
+		font-size: 0.9rem !important;
+	}
+
+	/* 5. Submit Button - Full Width & Height */
+	.rv-submit-btn {
+		height: 54px !important;
+		font-size: 1.1rem !important;
+		width: 100% !important;
+	}
+}
+
+/* 4. Middle: Extras (The "Clean List") */
+.rv-addons-list {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 0 !important;
+	border-top: 1px solid #f1f5f9 !important;
+}
+
+.rv-addon-item {
+	display: flex !important;
+	align-items: center !important;
+	width: 100% !important;
+	padding: 16px 10px !important;
+	background: transparent !important;
+	border: none !important;
+	border-bottom: 1px solid #f1f5f9 !important;
+	border-radius: 8px !important;
+	/* Rounded selection background */
+	box-shadow: none !important;
+	min-height: auto !important;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+	cursor: pointer !important;
+	box-sizing: border-box !important;
+}
+
+/* Hover and Checked states */
+.rv-addon-item:hover {
+	background: #f1f5f9 !important;
+}
+
+.rv-addon-item:has(.rv-addon-checkbox:checked) {
+	background: #f8fafc !important;
+	/* Light gray/blue tint for selection */
+	border-bottom-color: transparent !important;
+	/* Hide separator when selected for cleaner look */
+	transform: translateX(4px) !important;
+	/* Subtle 'pop' animation */
+}
+
+/* Remove any accidental focus borders/outlines */
+.rv-addon-item,
+.rv-addon-item *,
+.rv-addon-checkbox:focus {
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+/* Checkbox Style */
+.rv-addon-checkbox {
+	margin-top: 4px !important;
+	margin-inline-end: 16px !important;
+}
+
+/* Active Text Color */
+.rv-addon-item:has(.rv-addon-checkbox:checked) .rv-addon-title {
+	color: #2563eb !important;
+}
+
+/* Addon Content Wrapper to push price to right */
+.rv-addon-title {
+	font-size: 1rem !important;
+	font-weight: 600 !important;
+	color: #334155 !important;
+	flex-grow: 1 !important;
+	/* Takes up available space */
+}
+
+.rv-addon-price {
+	font-weight: 600 !important;
+	color: #64748b !important;
+	margin-left: auto !important;
+	/* Pushes to far right */
+	white-space: nowrap !important;
+	/* Prevents line checks */
+}
+
+/* 5. Bottom: Price Summary */
+/* 5. Bottom: Price Summary - Professional Receipt Style */
+.rv-price-calculation {
+	background: #f8fafc !important;
+	border-radius: 12px !important;
+	padding: 24px !important;
+	margin-top: 32px !important;
+	border: 1px solid #e2e8f0 !important;
+	text-align: left !important;
+	/* Reset potential centering */
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+.rv-price-breakdown {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 12px !important;
+	width: 100% !important;
+}
+
+.rv-price-item {
+	display: flex !important;
+	justify-content: space-between !important;
+	align-items: center !important;
+	font-size: 0.95rem !important;
+	color: #64748b !important;
+	width: 100% !important;
+}
+
+.rv-price-value {
+	font-weight: 600 !important;
+	color: #334155 !important;
+	text-align: right !important;
+}
+
+/* Total Price Special Style */
+.rv-price-item.rv-total-price {
+	margin-top: 16px !important;
+	padding-top: 20px !important;
+	border-top: 2px solid #cbd5e1 !important;
+	align-items: flex-end !important;
+}
+
+.rv-price-item.rv-total-price .rv-price-label {
+	font-size: 1.1rem !important;
+	font-weight: 700 !important;
+	color: #1e293b !important;
+}
+
+.rv-price-item.rv-total-price .rv-price-value {
+	font-size: 1.5rem !important;
+	font-weight: 800 !important;
+	color: #0f172a !important;
+	line-height: 1 !important;
+}
+
+/* Deposit and Remaining Info (Secondary) */
+.rv-price-item.rv-deposit-summary,
+.rv-price-item.rv-remaining-summary {
+	margin-top: 4px !important;
+	font-size: 0.9rem !important;
+	padding-top: 8px !important;
+}
+
+.rv-price-item.rv-deposit-summary {
+	border-top: 1px dashed #e2e8f0 !important;
+	margin-top: 12px !important;
+}
+
+.rv-price-item.rv-deposit-summary .rv-price-value {
+	color: #7c3aed !important;
+	/* Purple for deposit */
+}
+
+.rv-price-item.rv-remaining-summary .rv-price-value {
+	color: #2563eb !important;
+	/* Blue for remaining */
+}
+
+.rv-price-item.rv-total-price .rv-price-value {
+	font-size: 1.8rem !important;
+	font-weight: 800 !important;
+	color: #0f172a !important;
+}
+
+/* Submit Button - Premium Gradient */
+.rv-submit-btn {
+	width: 100% !important;
+	height: 60px !important;
+	margin-top: 24px !important;
+	border-radius: 12px !important;
+	font-size: 1.15rem !important;
+	font-weight: 700 !important;
+	color: #ffffff !important;
+	background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+	border: none !important;
+	box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -1px rgba(37, 99, 235, 0.1) !important;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+	cursor: pointer !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	gap: 10px !important;
+}
+
+.rv-submit-btn:hover {
+	background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+	transform: translateY(-2px) !important;
+	box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4), 0 4px 6px -2px rgba(37, 99, 235, 0.2) !important;
+}
+
+.rv-submit-btn:active {
+	transform: translateY(0) !important;
+	box-shadow: none !important;
+}
+
+.rv-submit-btn:disabled {
+	background: #cbd5e1 !important;
+	cursor: not-allowed !important;
+	transform: none !important;
+	box-shadow: none !important;
+}
+
+/* ===== PROFESSIONAL ALTERNATIVE VEHICLES (v4.5) ===== */
+.rv-availability-error {
+	background: transparent !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	margin-top: 1.5rem;
+}
+
+.rv-availability-error-header {
+	background: #fef2f2;
+	border: 1px solid #fee2e2;
+	color: #991b1b;
+	padding: 1.25rem 1.5rem;
+	border-radius: 12px;
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.rv-availability-error-header .dashicons {
+	background: #ef4444 !important;
+	color: white !important;
+	border-radius: 50%;
+	padding: 4px;
+	font-size: 16px;
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* Alternatives Wrapper */
+.rv-alternatives-wrapper {
+	margin-top: 2rem;
+}
+
+.rv-alternatives-title {
+	font-size: 1.125rem;
+	font-weight: 700;
+	color: #1a1a1a;
+	margin-bottom: 2rem;
+	padding-bottom: 0.75rem;
+	border-bottom: 2px solid #f1f5f9;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* Başlığı ortala */
+	gap: 0.5rem;
+}
+
+/* 🚀 GRID LAYOUT - Perfectly Centered & No Overflow */
+.rv-alternatives-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	width: 100%;
+	max-width: 100%;
+	margin: 0 auto;
+	gap: 1.25rem;
+	margin-bottom: 2rem;
+	justify-content: center;
+	box-sizing: border-box;
+}
+
+/* Premium Card Design */
+.rv-alternative-vehicle-card {
+	background: #ffffff;
+	border: 1px solid #eef2f6;
+	border-radius: 16px;
+	overflow: hidden;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	text-align: center;
+	/* İçerikleri ortala */
+}
+
+.rv-alternative-vehicle-card:hover {
+	transform: translateY(-8px);
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -6px rgba(0, 0, 0, 0.04);
+	border-color: var(--mhm-primary);
+}
+
+/* Image Section */
+.rv-alternative-vehicle-image {
+	width: 100%;
+	height: 180px;
+	overflow: hidden;
+	background: #f8fafc;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.rv-alternative-vehicle-image img {
+	max-width: 90%;
+	height: 100%;
+	object-fit: contain;
+	padding: 1rem;
+	transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rv-alternative-vehicle-card:hover .rv-alternative-vehicle-image img {
+	transform: scale(1.15);
+}
+
+/* Content Section */
+.rv-alternative-vehicle-content {
+	padding: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	/* Kart içini dikeyde ortala */
+	flex-grow: 1;
+}
+
+.rv-alternative-vehicle-title {
+	font-size: 1.125rem;
+	font-weight: 700;
+	color: #1e293b;
+	margin: 0 0 1rem 0;
+	height: 2.8rem;
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	-webkit-box-orient: vertical;
+	line-height: 1.4;
+	text-align: center;
+}
+
+/* Features Tags */
+.rv-alternative-vehicle-features {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	/* Tagları ortala */
+	gap: 0.5rem;
+	margin-bottom: 1.25rem;
+}
+
+.rv-alternative-feature-tag {
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	font-weight: 700;
+	padding: 3px 10px;
+	background: #f1f5f9;
+	color: #475569;
+	border-radius: 100px;
+	letter-spacing: 0.025em;
+}
+
+/* Pricing Section */
+.rv-alternative-price-details {
+	width: 100%;
+	margin-top: auto;
+	padding-top: 1.25rem;
+	border-top: 1px dashed #e2e8f0;
+	margin-bottom: 1.5rem;
+}
+
+.rv-alternative-price-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.4rem;
+}
+
+.rv-alternative-price-label {
+	font-size: 0.8rem;
+	color: #64748b;
+}
+
+.rv-alternative-price-value {
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: #334155;
+}
+
+.rv-alternative-price-total .rv-alternative-price-label {
+	font-weight: 700;
+	color: #1e293b;
+}
+
+.rv-alternative-price-amount {
+	font-size: 1.35rem;
+	font-weight: 800;
+	color: var(--mhm-primary);
+}
+
+/* Select Button */
+.rv-select-alternative-btn {
+	width: 100%;
+	background: #1e293b;
+	color: white !important;
+	border: none;
+	padding: 1rem;
+	border-radius: 10px;
+	font-weight: 700;
+	font-size: 0.95rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6rem;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.rv-select-alternative-btn:hover {
+	background: var(--mhm-primary);
+	box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
+	transform: translateY(-2px);
+}
+
+/* 📱 MOBILE RESPONSIVE */
+@media (max-width: 1024px) {
+	.rv-alternatives-grid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1.25rem;
+	}
+}
+
+@media (max-width: 768px) {
+	.rv-alternatives-grid {
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
+	}
+
+	.rv-alternative-vehicle-card {
+		max-width: 400px;
+		margin: 0 auto;
+	}
+
+	.rv-availability-error-header {
+		font-size: 0.9rem;
+		padding: 1rem;
+	}
 }

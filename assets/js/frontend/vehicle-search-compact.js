@@ -84,13 +84,23 @@
                 }, 10);
             },
             onSelect: function (selectedDate) {
+                const datepickerOpts = $(this).datepicker('option', 'all');
+
                 // Set minimum date for return date
                 $('#rv-return-date').datepicker('option', 'minDate', selectedDate);
 
                 // If return date is before pickup date, clear it
-                const returnDate = $('#rv-return-date').val();
-                if (returnDate && new Date(returnDate) <= new Date(selectedDate)) {
-                    $('#rv-return-date').val('');
+                const returnDateStr = $('#rv-return-date').val();
+                if (returnDateStr) {
+                    try {
+                        const pDate = $.datepicker.parseDate(datepickerOpts.dateFormat, selectedDate);
+                        const rDate = $.datepicker.parseDate(datepickerOpts.dateFormat, returnDateStr);
+                        if (rDate <= pDate) {
+                            $('#rv-return-date').val('');
+                        }
+                    } catch (e) {
+                        console.error('Date parsing error', e);
+                    }
                 }
             }
         });
@@ -196,42 +206,57 @@
             const pickupValue = $('#rv-pickup-date').val();
             const returnValue = $('#rv-return-date').val();
 
+            const datepickerOpts = (typeof mhmRentivaSearch !== 'undefined' && mhmRentivaSearch.datepicker_options)
+                ? mhmRentivaSearch.datepicker_options : defaultOptions;
+
             // Only validate date range if both dates are provided
             if (pickupValue && returnValue) {
-                const pickupDate = new Date(pickupValue);
-                const returnDate = new Date(returnValue);
+                try {
+                    const pickupDate = $.datepicker.parseDate(datepickerOpts.dateFormat, pickupValue);
+                    const returnDate = $.datepicker.parseDate(datepickerOpts.dateFormat, returnValue);
 
-                if (returnDate <= pickupDate) {
-                    e.preventDefault();
-                    // alert(mhmRentivaSearch.i18n.return_after_pickup); // Removed alert
-                    // Use inline error instead if possible, or just return false as validation logic handles it usually
-                    const $returnDate = $('#rv-return-date');
-                    $returnDate.closest('.rv-search-field').addClass('error');
-                    if (!$returnDate.next('.error-message').length) {
-                        $returnDate.after('<div class="error-message">' + mhmRentivaSearch.i18n.return_after_pickup + '</div>');
+                    if (returnDate <= pickupDate) {
+                        e.preventDefault();
+                        const $returnDate = $('#rv-return-date');
+                        $returnDate.closest('.rv-search-field').addClass('error');
+                        if (!$returnDate.next('.error-message').length) {
+                            $returnDate.after('<div class="error-message">' + mhmRentivaSearch.i18n.return_after_pickup + '</div>');
+                        }
+                        return false;
                     }
-                    return false;
+                } catch (err) {
+                    console.error('Validation parsing error', err);
                 }
             }
 
             // Validate pickup date is not in the past (if provided)
-            // Compare date strings directly to avoid timezone issues
             if (pickupValue) {
-                const today = new Date();
-                const todayStr = today.getFullYear() + '-' +
-                    String(today.getMonth() + 1).padStart(2, '0') + '-' +
-                    String(today.getDate()).padStart(2, '0');
+                try {
+                    const pickupDate = $.datepicker.parseDate(datepickerOpts.dateFormat, pickupValue);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
 
-                // pickupValue is already in YYYY-MM-DD format from datepicker
-                if (pickupValue < todayStr) {
-                    e.preventDefault();
-                    // alert(mhmRentivaSearch.i18n.pickup_past); // Removed alert
-                    const $pickupDate = $('#rv-pickup-date');
-                    $pickupDate.closest('.rv-search-field').addClass('error');
-                    if (!$pickupDate.next('.error-message').length) {
-                        $pickupDate.after('<div class="error-message">' + mhmRentivaSearch.i18n.pickup_past + '</div>');
+                    if (pickupDate < today) {
+                        e.preventDefault();
+                        const $pickupDate = $('#rv-pickup-date');
+                        $pickupDate.closest('.rv-search-field').addClass('error');
+                        if (!$pickupDate.next('.error-message').length) {
+                            $pickupDate.after('<div class="error-message">' + mhmRentivaSearch.i18n.pickup_past + '</div>');
+                        }
+                        return false;
                     }
-                    return false;
+
+                    // ⭐ CRITICAL: Convert to ISO before submission for server compatibility
+                    const isoPickup = $.datepicker.formatDate('yy-mm-dd', pickupDate);
+                    $('#rv-pickup-date').val(isoPickup);
+
+                    if (returnValue) {
+                        const returnDate = $.datepicker.parseDate(datepickerOpts.dateFormat, returnValue);
+                        const isoReturn = $.datepicker.formatDate('yy-mm-dd', returnDate);
+                        $('#rv-return-date').val(isoReturn);
+                    }
+                } catch (err) {
+                    console.error('ISO conversion error', err);
                 }
             }
 
@@ -239,13 +264,6 @@
             const $btn = $('.rv-search-btn');
             $btn.addClass('loading').prop('disabled', true);
 
-            // Form will submit normally via GET method
-            // Remove loading state after 5 seconds (fallback in case of error)
-            setTimeout(() => {
-                $btn.removeClass('loading').prop('disabled', false);
-            }, 5000);
-
-            // Allow form to submit normally - don't prevent default
             return true;
         });
 
@@ -298,24 +316,38 @@
 
         // Date validation
         if (fieldName === 'pickup_date' && value) {
-            const pickupDate = new Date(value);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            try {
+                const datepickerOpts = (typeof mhmRentivaSearch !== 'undefined' && mhmRentivaSearch.datepicker_options)
+                    ? mhmRentivaSearch.datepicker_options : defaultOptions;
+                const pickupDate = $.datepicker.parseDate(datepickerOpts.dateFormat, value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
 
-            if (pickupDate < today) {
-                $fieldContainer.addClass('error');
-                $field.after('<div class="error-message">' + mhmRentivaSearch.i18n.pickup_past + '</div>');
+                if (pickupDate < today) {
+                    $fieldContainer.addClass('error');
+                    $field.after('<div class="error-message">' + mhmRentivaSearch.i18n.pickup_past + '</div>');
+                    return false;
+                }
+            } catch (e) {
                 return false;
             }
         }
 
         if (fieldName === 'return_date' && value) {
-            const returnDate = new Date(value);
-            const pickupDate = new Date($('#rv-pickup-date').val());
-
-            if ($('#rv-pickup-date').val() && returnDate <= pickupDate) {
-                $fieldContainer.addClass('error');
-                $field.after('<div class="error-message">' + mhmRentivaSearch.i18n.return_after_pickup + '</div>');
+            try {
+                const datepickerOpts = (typeof mhmRentivaSearch !== 'undefined' && mhmRentivaSearch.datepicker_options)
+                    ? mhmRentivaSearch.datepicker_options : defaultOptions;
+                const returnDate = $.datepicker.parseDate(datepickerOpts.dateFormat, value);
+                const pickupValue = $('#rv-pickup-date').val();
+                if (pickupValue) {
+                    const pickupDate = $.datepicker.parseDate(datepickerOpts.dateFormat, pickupValue);
+                    if (returnDate <= pickupDate) {
+                        $fieldContainer.addClass('error');
+                        $field.after('<div class="error-message">' + mhmRentivaSearch.i18n.return_after_pickup + '</div>');
+                        return false;
+                    }
+                }
+            } catch (e) {
                 return false;
             }
         }
@@ -408,12 +440,18 @@
         const returnValue = $returnDate.val();
 
         if (pickupValue && returnValue) {
-            const pickupDate = new Date(pickupValue);
-            const returnDate = new Date(returnValue);
+            try {
+                const datepickerOpts = (typeof mhmRentivaSearch !== 'undefined' && mhmRentivaSearch.datepicker_options)
+                    ? mhmRentivaSearch.datepicker_options : defaultOptions;
+                const pickupDate = $.datepicker.parseDate(datepickerOpts.dateFormat, pickupValue);
+                const returnDate = $.datepicker.parseDate(datepickerOpts.dateFormat, returnValue);
 
-            if (returnDate <= pickupDate) {
-                $returnDate.closest('.rv-search-field').addClass('error');
-                $returnDate.after('<div class="error-message">' + mhmRentivaSearch.i18n.return_after_pickup + '</div>');
+                if (returnDate <= pickupDate) {
+                    $returnDate.closest('.rv-search-field').addClass('error');
+                    $returnDate.after('<div class="error-message">' + mhmRentivaSearch.i18n.return_after_pickup + '</div>');
+                    return false;
+                }
+            } catch (e) {
                 return false;
             }
         }

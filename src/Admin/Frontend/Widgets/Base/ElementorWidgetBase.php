@@ -1,379 +1,92 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace MHMRentiva\Admin\Frontend\Widgets\Base;
+declare(strict_types=1);
+
+namespace MHMRentiva\Admin\Extensions\Elementor\Core;
 
 use Elementor\Widget_Base;
 use Elementor\Controls_Manager;
-use Elementor\Group_Control_Typography;
-use Elementor\Group_Control_Border;
-use Elementor\Group_Control_Box_Shadow;
-use Elementor\Group_Control_Background;
+use MHMRentiva\Admin\Core\SecurityHelper;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
 	exit;
 }
 
 /**
- * Base Elementor Widget Class
- *
- * Base class shared by all MHM Rentiva Elementor widgets.
- *
- * @since 3.0.1
+ * MHM Rentiva Elementor Base Class
+ * * Provides automated attribute mapping and integrated security.
+ * Refactored for Gold Standard v2.0.
  */
-abstract class ElementorWidgetBase extends Widget_Base {
+abstract class MHMElementorWidgetBase extends Widget_Base
+{
 
 	/**
-	 * Widget category slug.
+	 * Common Prefix for MHM Widgets
 	 */
-	protected string $widget_category = 'mhm-rentiva';
+	protected const PREFIX = 'mhm_rentiva_';
 
 	/**
-	 * Widget icon slug.
+	 * Get Widget Categories
 	 */
-	protected string $widget_icon = 'eicon-car';
-
-	/**
-	 * Widget keywords.
-	 */
-	protected array $widget_keywords = array( 'mhm', 'rentiva', 'vehicle', 'rental' );
-
-	/**
-	 * Return widget categories.
-	 */
-	public function get_categories(): array {
-		return array( $this->widget_category );
+	public function get_categories(): array
+	{
+		return ['mhm-rentiva-category'];
 	}
 
 	/**
-	 * Return widget icon.
-	 * Override this in child classes to set custom icon.
+	 * Automated Attribute Preparation
+	 * * Converts Elementor settings directly to Shortcode attributes.
+	 * Replaces the old manual 'prepare_shortcode_attributes' method.
 	 */
-	public function get_icon(): string {
-		// Child classes should override this method
-		return 'eicon-apps';
-	}
+	protected function get_prepared_atts(): array
+	{
+		$settings = $this->get_settings_for_display();
+		$atts = [];
 
-	/**
-	 * Return widget keywords.
-	 */
-	public function get_keywords(): array {
-		return $this->widget_keywords;
-	}
-
-	/**
-	 * Return script dependencies for the widget.
-	 */
-	public function get_script_depends(): array {
-		return array( 'mhm-rentiva-elementor' );
-	}
-
-	/**
-	 * Return style dependencies for the widget.
-	 */
-	public function get_style_depends(): array {
-		return array( 'mhm-rentiva-elementor' );
-	}
-
-	/**
-	 * Register content tab controls.
-	 */
-	abstract protected function register_content_controls(): void;
-
-	/**
-	 * Register style tab controls.
-	 */
-	abstract protected function register_style_controls(): void;
-
-
-
-	/**
-	 * Register widget controls.
-	 */
-	protected function register_controls(): void {
-		$this->register_content_controls();
-		$this->register_style_controls();
-	}
-
-	/**
-	 * Add vehicle selection control.
-	 *
-	 * @param string $control_id Control ID
-	 * @param string $label Control label
-	 * @param string $description Control description
-	 */
-	protected function add_vehicle_selection_control(
-		string $control_id = 'vehicle_id',
-		string $label = 'Select Vehicle',
-		string $description = 'Choose which vehicle to display'
-	): void {
-		$this->add_control(
-			$control_id,
-			array(
-				'label'       => $label,
-				'type'        => Controls_Manager::SELECT2,
-				'label_block' => true,
-				'multiple'    => false,
-				'options'     => $this->get_vehicle_options(),
-				'description' => $description,
-				'default'     => $this->get_default_vehicle_id(),
-			)
-		);
-	}
-
-	/**
-	 * Add layout selection control.
-	 *
-	 * @param string $control_id Control ID
-	 * @param string $label Control label
-	 */
-	protected function add_layout_control(
-		string $control_id = 'layout',
-		string $label = 'Layout'
-	): void {
-		$this->add_control(
-			$control_id,
-			array(
-				'label'   => $label,
-				'type'    => Controls_Manager::SELECT,
-				'default' => 'default',
-				'options' => array(
-					'default'  => 'Default',
-					'compact'  => 'Compact',
-					'grid'     => 'Grid',
-					'featured' => 'Featured',
-				),
-			)
-		);
-	}
-
-	/**
-	 * Add display options controls.
-	 *
-	 * @param array $options Options to display
-	 */
-	protected function add_display_options_control( array $options = array() ): void {
-		$default_options = array(
-			'show_image'        => 'Show image',
-			'show_title'        => 'Show title',
-			'show_price'        => 'Show price',
-			'show_features'     => 'Show features',
-			'show_rating'       => 'Show rating',
-			'show_booking_btn'  => 'Show booking button',
-			'show_favorite_btn' => 'Show favorite button',
-		);
-
-		$options = array_merge( $default_options, $options );
-
-		$this->add_control(
-			'display_options',
-			array(
-				'label'     => 'Display Options',
-				'type'      => Controls_Manager::HEADING,
-				'separator' => 'before',
-			)
-		);
-
-		foreach ( $options as $key => $label ) {
-			$this->add_control(
-				$key,
-				array(
-					'label'        => $label,
-					'type'         => Controls_Manager::SWITCHER,
-					'label_on'     => 'Yes',
-					'label_off'    => 'No',
-					'return_value' => 'yes',
-					'default'      => 'yes',
-				)
-			);
-		}
-	}
-
-	/**
-	 * Add typography control.
-	 *
-	 * @param string $selector CSS selector
-	 * @param string $label Control label
-	 */
-	protected function add_typography_control(
-		string $selector,
-		string $label
-	): void {
-		$this->add_group_control(
-			Group_Control_Typography::get_type(),
-			array(
-				'name'     => $selector . '_typography',
-				'label'    => $label,
-				'selector' => '{{WRAPPER}} ' . $selector,
-			)
-		);
-	}
-
-	/**
-	 * Add border control.
-	 *
-	 * @param string $selector CSS selector
-	 * @param string $label Control label
-	 */
-	protected function add_border_control(
-		string $selector,
-		string $label
-	): void {
-		$this->add_group_control(
-			Group_Control_Border::get_type(),
-			array(
-				'name'     => $selector . '_border',
-				'label'    => $label,
-				'selector' => '{{WRAPPER}} ' . $selector,
-			)
-		);
-	}
-
-	/**
-	 * Add box shadow control.
-	 *
-	 * @param string $selector CSS selector
-	 * @param string $label Control label
-	 */
-	protected function add_box_shadow_control(
-		string $selector,
-		string $label
-	): void {
-		$this->add_group_control(
-			Group_Control_Box_Shadow::get_type(),
-			array(
-				'name'     => $selector . '_shadow',
-				'label'    => $label,
-				'selector' => '{{WRAPPER}} ' . $selector,
-			)
-		);
-	}
-
-	/**
-	 * Add background control.
-	 *
-	 * @param string $selector CSS selector
-	 * @param string $label Control label
-	 */
-	protected function add_background_control(
-		string $selector,
-		string $label
-	): void {
-		$this->add_group_control(
-			Group_Control_Background::get_type(),
-			array(
-				'name'     => $selector . '_background',
-				'label'    => $label,
-				'types'    => array( 'classic', 'gradient' ),
-				'selector' => '{{WRAPPER}} ' . $selector,
-			)
-		);
-	}
-
-	/**
-	 * Retrieve vehicle options.
-	 *
-	 * @return array Vehicle options
-	 */
-	protected function get_vehicle_options(): array {
-		$vehicles = get_posts(
-			array(
-				'post_type'   => 'vehicle',
-				'post_status' => 'publish',
-				'numberposts' => -1,
-				'orderby'     => 'title',
-				'order'       => 'ASC',
-			)
-		);
-
-		$options = array();
-		foreach ( $vehicles as $vehicle ) {
-			$options[ $vehicle->ID ] = $vehicle->post_title;
-		}
-
-		return $options;
-	}
-
-	/**
-	 * Get default vehicle ID.
-	 *
-	 * @return int Default vehicle ID
-	 */
-	protected function get_default_vehicle_id(): int {
-		$vehicles = get_posts(
-			array(
-				'post_type'   => 'vehicle',
-				'post_status' => 'publish',
-				'numberposts' => 1,
-				'orderby'     => 'date',
-				'order'       => 'DESC',
-			)
-		);
-
-		return $vehicles ? $vehicles[0]->ID : 0;
-	}
-
-	/**
-	 * Prepare shortcode attributes.
-	 *
-	 * @param array $settings Elementor settings
-	 * @return array Shortcode attributes
-	 */
-	protected function prepare_shortcode_attributes( array $settings ): array {
-		$atts = array();
-
-		// Vehicle ID
-		if ( ! empty( $settings['vehicle_id'] ) ) {
-			$atts['id'] = $settings['vehicle_id'];
-		}
-
-		// Layout
-		if ( ! empty( $settings['layout'] ) ) {
-			$atts['layout'] = $settings['layout'];
-		}
-
-		// Display options
-		$display_options = array(
-			'show_image',
-			'show_title',
-			'show_price',
-			'show_features',
-			'show_rating',
-			'show_booking_btn',
-			'show_favorite_btn',
-			'show_category',
-			'show_badges',
-			'show_description',
-			'show_availability',
-			'show_compare_btn',
-		);
-
-		foreach ( $display_options as $option ) {
-			if ( isset( $settings[ $option ] ) ) {
-				$val = $settings[ $option ];
-				// Support both 'yes' (Elementor default) and '1' (custom)
-				$atts[ $option ] = ( $val === 'yes' || $val === '1' || $val === 1 || $val === true ) ? '1' : '0';
+		foreach ($settings as $key => $value) {
+			// Convert 'yes'/'no' to '1'/'0' for shortcode compatibility
+			if ($value === 'yes') {
+				$atts[$key] = '1';
+			} elseif ($value === 'no') {
+				$atts[$key] = '0';
+			} else {
+				$atts[$key] = $value;
 			}
 		}
 
-		return $atts;
+		// Sanitize everything before usage
+		return array_map(function ($val) {
+			return is_string($val) ? sanitize_text_field($val) : $val;
+		}, $atts);
 	}
 
 	/**
-	 * Render shortcode.
-	 *
-	 * @param string $shortcode_tag Shortcode tag
-	 * @param array  $atts Shortcode attributes
-	 * @return string Rendered shortcode
+	 * Standard Style Controls
+	 * * Shared typography and color settings for all MHM widgets.
 	 */
-	protected function render_shortcode( string $shortcode_tag, array $atts ): string {
-		$shortcode = '[' . $shortcode_tag;
+	protected function register_standard_style_controls(string $section_id, string $label, string $selector): void
+	{
+		$this->start_controls_section($section_id, [
+			'label' => $label,
+			'tab'   => Controls_Manager::TAB_STYLE,
+		]);
 
-		foreach ( $atts as $key => $value ) {
-			$shortcode .= ' ' . $key . '="' . esc_attr( $value ) . '"';
-		}
+		$this->add_control($section_id . '_color', [
+			'label'     => __('Text Color', 'mhm-rentiva'),
+			'type'      => Controls_Manager::COLOR,
+			'selectors' => [
+				'{{WRAPPER}} ' . $selector => 'color: {{VALUE}};',
+			],
+		]);
 
-		$shortcode .= ']';
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			[
+				'name'     => $section_id . '_typography',
+				'selector' => '{{WRAPPER}} ' . $selector,
+			]
+		);
 
-		return do_shortcode( $shortcode );
+		$this->end_controls_section();
 	}
 }

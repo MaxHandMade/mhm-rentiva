@@ -71,7 +71,6 @@ composer.lock
 bin/
 stubs/
 website/
-.agent/
 .github/
 .clinerules/
 .clinerules

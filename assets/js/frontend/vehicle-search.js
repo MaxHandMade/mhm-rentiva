@@ -238,13 +238,23 @@
     function getFormData() {
         const $form = $('#rv-search-filters');
         const formData = {};
+        const datepickerOpts = mhmRentivaSearch.datepicker_options || { dateFormat: 'yy-mm-dd' };
 
         $form.find('input, select').each(function () {
             const $field = $(this);
             const name = $field.attr('name');
-            const value = $field.val();
+            let value = $field.val();
 
             if (name && value) {
+                // ⭐ Convert dates to ISO for server compatibility
+                if (name === 'start_date' || name === 'end_date' || name === 'pickup_date' || name === 'return_date') {
+                    try {
+                        const date = $.datepicker.parseDate(datepickerOpts.dateFormat, value);
+                        value = $.datepicker.formatDate('yy-mm-dd', date);
+                    } catch (e) {
+                        // Keep original if parsing fails
+                    }
+                }
                 formData[name] = value;
             }
         });
@@ -281,15 +291,20 @@
         const $startDate = $('#rv-start-date');
         const $endDate = $('#rv-end-date');
 
-        const startDate = $startDate.val();
-        const endDate = $endDate.val();
+        const startDateStr = $startDate.val();
+        const endDateStr = $endDate.val();
 
-        if (startDate && endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
+        if (startDateStr && endDateStr) {
+            try {
+                const datepickerOpts = mhmRentivaSearch.datepicker_options || { dateFormat: 'yy-mm-dd' };
+                const start = $.datepicker.parseDate(datepickerOpts.dateFormat, startDateStr);
+                const end = $.datepicker.parseDate(datepickerOpts.dateFormat, endDateStr);
 
-            if (start >= end) {
-                showFieldError($endDate, mhmRentivaSearch.i18n.invalid_dates);
+                if (start >= end) {
+                    showFieldError($endDate, mhmRentivaSearch.i18n.invalid_dates);
+                    return false;
+                }
+            } catch (e) {
                 return false;
             }
         }

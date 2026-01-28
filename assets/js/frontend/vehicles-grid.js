@@ -1,7 +1,7 @@
 /**
  * Vehicles Grid JavaScript
  *
- * Grid layout için özel JavaScript - sadece grid düzenini destekler
+ * Custom JavaScript for grid layout - only supports grid layout
  */
 
 (function ($) {
@@ -26,38 +26,38 @@
 			var self = this;
 
 			// Favorite button clicks
-			$( document ).on(
+			$(document).on(
 				'click',
 				'.rv-vehicle-card__favorite',
 				function (e) {
 					e.preventDefault();
 					e.stopPropagation();
-					self.handleFavoriteClick( $( this ) );
+					self.handleFavoriteClick($(this));
 				}
 			);
 
 			// Booking button clicks
-			$( document ).on(
+			$(document).on(
 				'click',
 				'.rv-btn-booking',
 				function (e) {
-					self.handleBookingClick( $( this ) );
+					self.handleBookingClick($(this));
 				}
 			);
 
 			// Card clicks for analytics
-			$( document ).on(
+			$(document).on(
 				'click',
 				'.rv-vehicle-card',
 				function (e) {
-					if ( ! $( e.target ).closest( '.rv-vehicle-card__favorite, .rv-btn-booking' ).length) {
-						self.handleCardClick( $( this ) );
+					if (!$(e.target).closest('.rv-vehicle-card__favorite, .rv-btn-booking').length) {
+						self.handleCardClick($(this));
 					}
 				}
 			);
 
 			// Window resize
-			$( window ).on(
+			$(window).on(
 				'resize',
 				$.debounce(
 					250,
@@ -69,16 +69,16 @@
 		},
 
 		handleFavoriteClick: function ($button) {
-			var self      = this;
-			var vehicleId = $button.data( 'vehicle-id' );
-			var $card     = $button.closest( '.rv-vehicle-card' );
+			var self = this;
+			var vehicleId = $button.data('vehicle-id');
+			var $card = $button.closest('.rv-vehicle-card');
 
-			if ( ! vehicleId) {
+			if (!vehicleId) {
 				return;
 			}
 
 			// Loading state
-			$button.prop( 'disabled', true );
+			$button.prop('disabled', true);
 
 			$.ajax(
 				{
@@ -93,15 +93,15 @@
 						if (response.success) {
 							// Update button state
 							if (response.data.action === 'added') {
-								$button.addClass( 'is-favorited' );
-								$button.find( 'svg' ).attr( 'fill', 'currentColor' );
+								$button.addClass('is-favorited');
+								$button.find('svg').attr('fill', 'currentColor');
 							} else {
-								$button.removeClass( 'is-favorited' );
-								$button.find( 'svg' ).attr( 'fill', 'none' );
+								$button.removeClass('is-favorited');
+								$button.find('svg').attr('fill', 'none');
 							}
 
 							// Show notification
-							self.showNotification( response.data.message, 'success' );
+							self.showNotification(response.data.message, 'success');
 
 							// Analytics tracking
 							if (typeof gtag !== 'undefined') {
@@ -116,22 +116,22 @@
 								);
 							}
 						} else {
-							self.showNotification( response.data.message || (window.mhmRentivaVehiclesGrid ? .strings ? .error_occurred || 'An error occurred'), 'error' );
+							self.showNotification(response.data.message || (window.mhmRentivaVehiclesGrid?.strings?.error_occurred || 'An error occurred'), 'error');
 						}
 					},
 					error: function () {
-						self.showNotification( window.mhmRentivaVehiclesGrid ? .strings ? .connection_error || 'Connection error', 'error' );
+						self.showNotification(window.mhmRentivaVehiclesGrid?.strings?.connection_error || 'Connection error', 'error');
 					},
 					complete: function () {
-						$button.prop( 'disabled', false );
+						$button.prop('disabled', false);
 					}
 				}
 			);
 		},
 
 		handleBookingClick: function ($button) {
-			var href      = $button.attr( 'href' );
-			var vehicleId = $button.closest( '.rv-vehicle-card' ).data( 'vehicle-id' );
+			var href = $button.attr('href');
+			var vehicleId = $button.closest('.rv-vehicle-card').data('vehicle-id');
 
 			// Analytics tracking
 			if (typeof gtag !== 'undefined') {
@@ -150,8 +150,8 @@
 		},
 
 		handleCardClick: function ($card) {
-			var vehicleId    = $card.data( 'vehicle-id' );
-			var vehicleTitle = $card.find( '.rv-vehicle-card__title a' ).text();
+			var vehicleId = $card.data('vehicle-id');
+			var vehicleTitle = $card.find('.rv-vehicle-card__title a').text();
 
 			// Analytics tracking
 			if (typeof gtag !== 'undefined') {
@@ -178,8 +178,8 @@
 								if (entry.isIntersecting) {
 									var img = entry.target;
 									img.src = img.dataset.src || img.src;
-									img.classList.remove( 'lazy' );
-									imageObserver.unobserve( img );
+									img.classList.remove('lazy');
+									imageObserver.unobserve(img);
 								}
 							}
 						);
@@ -191,9 +191,9 @@
 				);
 
 				// Observe all images
-				document.querySelectorAll( '.rv-vehicle-card__image img[data-src]' ).forEach(
+				document.querySelectorAll('.rv-vehicle-card__image img[data-src]').forEach(
 					function (img) {
-						imageObserver.observe( img );
+						imageObserver.observe(img);
 					}
 				);
 			}
@@ -201,19 +201,19 @@
 
 		handleResize: function () {
 			// Grid responsive adjustments if needed
-			var windowWidth = $( window ).width();
+			var windowWidth = $(window).width();
 
 			// Update grid gaps based on screen size
-			$( '.rv-vehicles-grid' ).each(
+			$('.rv-vehicles-grid').each(
 				function () {
-					var $grid = $( this );
+					var $grid = $(this);
 
 					if (windowWidth <= 480) {
-						$grid.addClass( 'rv-vehicles-grid--gap-small' );
+						$grid.addClass('rv-vehicles-grid--gap-small');
 					} else if (windowWidth >= 1200) {
-						$grid.addClass( 'rv-vehicles-grid--gap-large' );
+						$grid.addClass('rv-vehicles-grid--gap-large');
 					} else {
-						$grid.removeClass( 'rv-vehicles-grid--gap-small rv-vehicles-grid--gap-large' );
+						$grid.removeClass('rv-vehicles-grid--gap-small rv-vehicles-grid--gap-large');
 					}
 				}
 			);
@@ -223,15 +223,15 @@
 			type = type || 'info';
 
 			// Create notification element
-			var $notification = $( '<div class="rv-notification rv-notification--' + type + '">' + message + '</div>' );
+			var $notification = $('<div class="rv-notification rv-notification--' + type + '">' + message + '</div>');
 
 			// Add to page
-			$( 'body' ).append( $notification );
+			$('body').append($notification);
 
 			// Show with animation
 			setTimeout(
 				function () {
-					$notification.addClass( 'rv-notification--show' );
+					$notification.addClass('rv-notification--show');
 				},
 				100
 			);
@@ -239,7 +239,7 @@
 			// Remove after 3 seconds
 			setTimeout(
 				function () {
-					$notification.removeClass( 'rv-notification--show' );
+					$notification.removeClass('rv-notification--show');
 					setTimeout(
 						function () {
 							$notification.remove();
@@ -272,11 +272,11 @@
 		var timer;
 		return function () {
 			var context = this;
-			var args    = arguments;
-			clearTimeout( timer );
+			var args = arguments;
+			clearTimeout(timer);
 			timer = setTimeout(
 				function () {
-					fn.apply( context, args );
+					fn.apply(context, args);
 				},
 				delay
 			);
@@ -284,7 +284,7 @@
 	};
 
 	// Initialize when document is ready
-	$( document ).ready(
+	$(document).ready(
 		function () {
 			MHMRentivaVehiclesGrid.init();
 		}
@@ -300,8 +300,8 @@
 							mutation.addedNodes.forEach(
 								function (node) {
 									if (node.nodeType === 1) { // Element node
-										var $node = $( node );
-										if ($node.hasClass( 'rv-vehicles-grid' ) || $node.find( '.rv-vehicles-grid' ).length) {
+										var $node = $(node);
+										if ($node.hasClass('rv-vehicles-grid') || $node.find('.rv-vehicles-grid').length) {
 											MHMRentivaVehiclesGrid.init();
 										}
 									}
@@ -323,4 +323,4 @@
 		);
 	}
 
-})( jQuery );
+})(jQuery);

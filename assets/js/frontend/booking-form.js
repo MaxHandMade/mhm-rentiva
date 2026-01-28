@@ -214,18 +214,21 @@
 
         handleFavoriteToggle($button) {
             const vehicleId = $button.data('vehicle-id');
-            const favoritesConfig = this.getFavoritesConfig();
+            // Try to get config from global favorites or fallback to booking form config
+            const favoritesConfig = window.mhmRentivaFavorites || {};
+            const nonce = favoritesConfig.nonce || window.mhmRentivaBookingForm?.nonce;
 
             if (!vehicleId) {
                 return;
             }
 
-            if (!favoritesConfig.nonce) {
-                this.showToast(favoritesConfig?.strings?.login_required || this.getMessage('login_required'), 'error');
+            if (!nonce) {
+                this.showFloatingNotification(favoritesConfig?.strings?.login_required || this.getMessage('login_required'), 'error');
                 return;
             }
 
             $button.prop('disabled', true);
+            const $icon = $button.find('svg'); // Target the SVG directly
 
             $.ajax({
                 url: favoritesConfig.ajaxUrl || this.getAjaxUrl(),
@@ -233,26 +236,45 @@
                 data: {
                     action: 'mhm_rentiva_toggle_favorite',
                     vehicle_id: vehicleId,
-                    nonce: favoritesConfig.nonce
+                    nonce: nonce
                 },
                 success: (response) => {
                     if (response.success) {
                         const isAdded = response.data.action === 'added';
-                        $button.toggleClass('is-favorited favorited', isAdded);
-                        $button.attr('aria-pressed', isAdded ? 'true' : 'false');
-                        $button.attr('aria-label', isAdded ? (favoritesConfig.strings?.remove_label || this.getMessage('remove_from_favorites')) : (favoritesConfig.strings?.add_label || this.getMessage('add_to_favorites')));
-                        $button.find('.rv-heart-icon').toggleClass('favorited', isAdded);
 
-                        this.showToast(
-                            response.data.message || (isAdded ? (favoritesConfig.strings?.added || this.getMessage('added_to_favorites')) : (favoritesConfig.strings?.removed || this.getMessage('removed_from_favorites'))),
-                            'success'
+                        // Toggle classes
+                        $button.toggleClass('is-favorited favorited', isAdded);
+                        $icon.toggleClass('favorited', isAdded);
+
+                        // Explicitly handle SVG fill for immediate visual feedback
+                        if (isAdded) {
+                            $icon.attr('fill', 'currentColor');
+                            $icon.css('fill', 'currentColor'); // Force CSS if needed
+                        } else {
+                            $icon.attr('fill', 'none');
+                            $icon.css('fill', 'none');
+                        }
+
+                        // Update ARIA attributes
+                        $button.attr('aria-pressed', isAdded ? 'true' : 'false');
+                        $button.attr('aria-label', isAdded ?
+                            (favoritesConfig.strings?.remove_label || this.getMessage('remove_from_favorites')) :
+                            (favoritesConfig.strings?.add_label || this.getMessage('add_to_favorites'))
                         );
+
+                        // Show floating notification
+                        const message = response.data.message || (isAdded ?
+                            (favoritesConfig.strings?.added || this.getMessage('added_to_favorites')) :
+                            (favoritesConfig.strings?.removed || this.getMessage('removed_from_favorites'))
+                        );
+
+                        this.showFloatingNotification(message, 'success');
                     } else {
-                        this.showToast(response.data?.message || favoritesConfig.strings?.error || this.getMessage('error'), 'error');
+                        this.showFloatingNotification(response.data?.message || favoritesConfig.strings?.error || this.getMessage('error'), 'error');
                     }
                 },
                 error: () => {
-                    this.showToast(favoritesConfig.strings?.error || this.getMessage('error'), 'error');
+                    this.showFloatingNotification(favoritesConfig.strings?.error || this.getMessage('error'), 'error');
                 },
                 complete: () => {
                     $button.prop('disabled', false);
@@ -260,26 +282,56 @@
             });
         }
 
+        // Helper for floating notifications (similar to vehicle-list.js)
+        showFloatingNotification(message, type = 'info') {
+            const $notification = $(`<div class="rv-notification rv-notification--${type}">${message}</div>`);
+            $('body').append($notification);
+
+            // Force reflow for animation
+            $notification[0].offsetHeight;
+
+            setTimeout(() => $notification.addClass('rv-notification--show'), 100);
+
+            setTimeout(() => {
+                $notification.removeClass('rv-notification--show');
+                setTimeout(() => $notification.remove(), 300);
+            }, 3000);
+        }
+
         setupDateValidation() {
-            const today = new Date().toISOString().split('T')[0];
+            const todayStr = new Date().toISOString().split('T')[0];
             const pickupDate = this.container.find('.rv-pickup-date');
             const dropoffDate = this.container.find('.rv-dropoff-date');
 
-            // Minimum date is today
-            pickupDate.attr('min', today);
-            dropoffDate.attr('min', today);
+            // Initial restrictions
+            pickupDate.attr('min', todayStr);
+            dropoffDate.attr('min', todayStr);
 
             // Update dropoff date when pickup date changes
             pickupDate.on('change', (e) => {
                 const pickupValue = $(e.target).val();
                 if (pickupValue) {
-                    const nextDay = new Date(pickupValue);
-                    nextDay.setDate(nextDay.getDate() + 1);
-                    dropoffDate.attr('min', nextDay.toISOString().split('T')[0]);
+                    let dateObj = pickupDate.datepicker('getDate');
 
-                    // Clear dropoff date if it's before pickup date
-                    if (dropoffDate.val() && dropoffDate.val() <= pickupValue) {
-                        dropoffDate.val('');
+                    // Validation check before conversion
+                    if (dateObj && !isNaN(dateObj.getTime())) {
+                        const nextDay = new Date(dateObj);
+                        nextDay.setDate(nextDay.getDate() + 1);
+
+                        // Update min attribute (for hidden behavior) and datepicker option
+                        try {
+                            const minStr = nextDay.toISOString().split('T')[0];
+                            dropoffDate.attr('min', minStr);
+                            dropoffDate.datepicker('option', 'minDate', nextDay);
+                        } catch (err) {
+                            console.warn('Date conversion failed, skipping min update');
+                        }
+
+                        // Clear dropoff date if it's before or equal to pickup date
+                        const dropoffVal = dropoffDate.datepicker('getDate');
+                        if (dropoffVal && dropoffVal <= dateObj) {
+                            dropoffDate.val('').datepicker('setDate', null);
+                        }
                     }
                 }
 
@@ -321,43 +373,55 @@
         }
 
         initializeDatePickers() {
-            // Initialize jQuery UI DatePicker for date inputs
             if (window.mhmRentivaBookingForm && window.mhmRentivaBookingForm.datepicker_options) {
+                const self = this;
                 const options = {
                     ...window.mhmRentivaBookingForm.datepicker_options,
-                    // Add custom today button handler
-                    beforeShow: (input, inst) => {
-                        // Add custom today button functionality
+                    onSelect: function (dateText, inst) {
+                        const $this = $(this);
                         setTimeout(() => {
-                            const todayBtn = $('.ui-datepicker-buttonpane button:first-child');
-                            if (todayBtn.length) {
-                                todayBtn.off('click.datepicker-today').on('click.datepicker-today', () => {
-                                    const today = new Date();
-                                    const formattedDate = $.datepicker.formatDate(options.dateFormat || 'yy-mm-dd', today);
-                                    $(input).val(formattedDate).trigger('change');
-                                    $(input).datepicker('hide');
-                                });
-                            }
-                        }, 100);
+                            $this.trigger('change');
+                            $this.datepicker('hide');
+                            $this.blur();
+                        }, 50);
+                    },
+                    beforeShow: function (input, inst) {
+                        setTimeout(() => {
+                            const $btnPane = $(inst.dpDiv).find('.ui-datepicker-buttonpane');
+                            $btnPane.find('.ui-datepicker-current').off('click').on('click', function () {
+                                const today = new Date();
+                                const formatted = $.datepicker.formatDate(inst.settings.dateFormat || 'yy-mm-dd', today);
+                                $(input).val(formatted).trigger('change');
+                                $(input).datepicker('hide');
+                                $(input).blur();
+                            });
+                        }, 10);
                     }
                 };
 
-                // Convert text date inputs to jQuery UI DatePicker
                 this.container.find('input.rv-date-input').each(function () {
                     const $input = $(this);
                     const originalValue = $input.val();
 
-                    // Set maxDate if configured
                     if (window.mhmRentivaBookingForm?.config?.advance_booking_days) {
                         options.maxDate = '+' + window.mhmRentivaBookingForm.config.advance_booking_days + 'd';
                     }
 
-                    // Initialize datepicker
-                    $input.datepicker(options);
+                    // Force initialization
+                    $input.datepicker('destroy').datepicker(options);
 
-                    // Restore original value if exists
                     if (originalValue) {
-                        $input.datepicker('setDate', originalValue);
+                        try {
+                            let dateObj;
+                            if (originalValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                                dateObj = $.datepicker.parseDate('yy-mm-dd', originalValue);
+                            } else {
+                                dateObj = $.datepicker.parseDate(options.dateFormat || 'yy-mm-dd', originalValue);
+                            }
+                            $input.datepicker('setDate', dateObj);
+                        } catch (e) {
+                            console.error('Date parsing failed:', e);
+                        }
                     }
                 });
             }
@@ -383,7 +447,7 @@
         updateVehiclePreview(selectElement) {
             const $select = $(selectElement);
             const $option = $select.find('option:selected');
-            const preview = this.container.find('.rv-selected-vehicle-preview');
+            const preview = this.container.find('.rv-selected-vehicle-preview, .rv-selected-vehicle');
             const image = preview.find('.rv-vehicle-image');
             const title = preview.find('.rv-vehicle-title');
             const price = preview.find('.rv-vehicle-price');
@@ -532,7 +596,7 @@
                 vehicle_id = this.form.find('input[name="vehicle_id"]').val();
             }
 
-            return {
+            const data = {
                 vehicle_id: vehicle_id,
                 pickup_date: this.container.find('.rv-pickup-date').val(),
                 dropoff_date: this.container.find('.rv-dropoff-date').val(),
@@ -550,6 +614,33 @@
                 payment_gateway: this.form.find('input[name="payment_gateway"]:checked').val(),
                 redirect_url: this.container.attr('data-redirect-url')
             };
+
+            // Post-process dates to ISO format for server compatibility
+            const isoPickup = this.getIsoDate(data.pickup_date);
+            const isoDropoff = this.getIsoDate(data.dropoff_date);
+
+            if (isoPickup) data.pickup_date = isoPickup;
+            if (isoDropoff) data.dropoff_date = isoDropoff;
+
+            return data;
+        }
+
+        /**
+         * Converts formatted date string to ISO (yy-mm-dd)
+         */
+        getIsoDate(dateStr) {
+            if (!dateStr) return null;
+            try {
+                const options = window.mhmRentivaBookingForm?.datepicker_options || {};
+                const currentFormat = options.dateFormat || 'yy-mm-dd';
+
+                if (currentFormat === 'yy-mm-dd') return dateStr;
+
+                const dateObj = $.datepicker.parseDate(currentFormat, dateStr);
+                return $.datepicker.formatDate('yy-mm-dd', dateObj);
+            } catch (e) {
+                return dateStr;
+            }
         }
 
         validateCalculationData(data) {
@@ -563,12 +654,17 @@
                 return false;
             }
 
-            // Tarih validasyonu
-            const pickup = new Date(data.pickup_date);
-            const dropoff = new Date(data.dropoff_date);
+            // Tarih validasyonu - Veriler getFormData içinde ISO'ya çevrildiği için 'yy-mm-dd' ile parse etmeliyiz
+            try {
+                const pickup = $.datepicker.parseDate('yy-mm-dd', data.pickup_date);
+                const dropoff = $.datepicker.parseDate('yy-mm-dd', data.dropoff_date);
 
-            if (dropoff <= pickup) {
-                this.showError(this.getMessage('dropoff_after_pickup'));
+                if (dropoff <= pickup) {
+                    this.showError(this.getMessage('dropoff_after_pickup'));
+                    return false;
+                }
+            } catch (e) {
+                // Eğer parse hatası alırsak (veri henüz çevrilmemişse vb.)
                 return false;
             }
 
@@ -697,11 +793,34 @@
 
         // Helper to calculate days between dates
         calculateDays(start, end) {
-            const startDate = new Date(start);
-            const endDate = new Date(end);
-            const diffTime = Math.abs(endDate - startDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays;
+            if (!start || !end) return 0;
+
+            try {
+                const options = window.mhmRentivaBookingForm?.datepicker_options || {};
+                const format = options.dateFormat || 'yy-mm-dd';
+
+                const startDate = $.datepicker.parseDate(format, start);
+                const endDate = $.datepicker.parseDate(format, end);
+
+                if (!startDate || !endDate) return 0;
+
+                const diffTime = Math.abs(endDate - startDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return diffDays;
+            } catch (e) {
+                // Fallback to basic calculation if format parsing fails
+                // Normalize dates for constructor: replace / with - (D-M-Y is usually more reliable)
+                const sStr = start.replace(/\//g, '-');
+                const eStr = end.replace(/\//g, '-');
+
+                const s = new Date(sStr);
+                const e_date = new Date(eStr);
+
+                if (isNaN(s.getTime()) || isNaN(e_date.getTime())) return 0;
+
+                const diff = Math.abs(e_date - s);
+                return Math.ceil(diff / (1000 * 60 * 60 * 24));
+            }
         }
 
         updateDepositInfo(data) {
@@ -930,7 +1049,7 @@
                         availabilityStatus.removeClass('loading error').addClass('success');
                         availabilityStatus.html(`
                                     <div class="rv-availability-success">
-                                        <span class="dashicons dashicons-yes-alt"></span>
+                                        <svg class="rv-icon-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                         <span>${this.getMessage('vehicle_available')}</span>
                                     </div>
                                 `);
@@ -977,7 +1096,12 @@
                                                             <span class="rv-alternative-price-amount">${this.formatPrice(vehicle.total_price)} ${this.escapeHtml(window.mhmRentivaBookingForm?.currency_symbol || '')}</span>
                                                         </div>
                                                     </div>
-                                                    <button type="button" class="rv-select-alternative-btn" data-vehicle-id="${this.escapeHtml(vehicle.id)}">
+                                                    <button type="button" class="rv-select-alternative-btn" 
+                                                        data-vehicle-id="${this.escapeHtml(vehicle.id)}"
+                                                        data-vehicle-title="${this.escapeHtml(vehicle.title)}"
+                                                        data-vehicle-price="${this.escapeHtml(vehicle.price_per_day)}"
+                                                        data-vehicle-image="${this.escapeHtml(vehicle.image || '')}">
+                                                        <span class="dashicons dashicons-car"></span>
                                                         ${this.escapeHtml(this.getMessage('select_this_vehicle'))}
                                                     </button>
                                                 </div>
@@ -1008,8 +1132,14 @@
 
                         // Alternative vehicle selection buttons
                         availabilityStatus.find('.rv-select-alternative-btn').on('click', (e) => {
-                            const vehicleId = $(e.target).data('vehicle-id');
-                            this.selectAlternativeVehicle(vehicleId);
+                            const $btn = $(e.currentTarget);
+                            const vehicleData = {
+                                id: $btn.data('vehicle-id'),
+                                title: $btn.data('vehicle-title'),
+                                price: $btn.data('vehicle-price'),
+                                image: $btn.data('vehicle-image')
+                            };
+                            this.selectAlternativeVehicle(vehicleData);
                         });
                     }
                 },
@@ -1033,18 +1163,60 @@
             });
         }
 
-        selectAlternativeVehicle(vehicleId) {
-            // Logic to select another vehicle
-            // Assuming it just changes the dropdown and triggers change event
+        selectAlternativeVehicle(vehicleData) {
+            const vehicleId = vehicleData.id;
             const select = this.container.find('.rv-vehicle-select');
+
             if (select.length) {
+                // If we have a dropdown, update it and it will trigger change/preview update
                 select.val(vehicleId).trigger('change');
             } else {
-                // Fallback if no select
+                // If dropdown is hidden (specific vehicle mode), update hidden input and UI manually
+                const hiddenInput = this.form.find('input[name="vehicle_id"]');
+                if (hiddenInput.length) {
+                    hiddenInput.val(vehicleId);
+                }
+
                 this.container.attr('data-vehicle-id', vehicleId);
-                // Reload form or trigger calculation
+
+                // Manually update the UI card since updateVehiclePreview works on select element
+                this.updateVehicleUI(vehicleData);
+
+                // Trigger auto calculation and availability check
+                this.autoCalculatePrice();
                 this.autoCheckAvailability();
             }
+        }
+
+        updateVehicleUI(vehicleData) {
+            // Find active info card (static or preview)
+            const card = this.container.find('.rv-selected-vehicle, .rv-selected-vehicle-preview');
+            if (!card.length) return;
+
+            const image = card.find('.rv-vehicle-image');
+            const title = card.find('.rv-vehicle-title');
+            const price = card.find('.rv-vehicle-price');
+            const excerpt = card.find('.rv-vehicle-excerpt');
+            const features = card.find('.rv-vehicle-features');
+            const ratings = card.find('.rv-vehicle-rating-block');
+
+            // Update title and basic price
+            if (title.length) title.text(vehicleData.title);
+            if (price.length) price.text(this.formatPrice(vehicleData.price) + ' ' + this.getMessage('per_day'));
+
+            // Update image
+            if (image.length && vehicleData.image) {
+                image.attr('src', vehicleData.image).show();
+                image.closest('.rv-vehicle-image-wrapper').show();
+            }
+
+            // Hide/Clear parts we don't have for alternatives to prevent confusion
+            if (excerpt.length) excerpt.hide();
+            if (features.length) features.hide();
+            if (ratings.length) ratings.hide();
+
+            // Ensure the card is visible
+            card.removeClass('rv-hidden').show();
         }
 
         // Helper methods (showError, showSuccess, showLoading, hideMessages, formatPrice, getMessage, getFavoritesConfig, getAjaxUrl, calculateDays)

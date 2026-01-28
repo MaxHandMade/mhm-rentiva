@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.6.5-blue.svg)
+![Version](https://img.shields.io/badge/version-4.6.6-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1782,7 +1782,15 @@ Fixes #123
 
 ## 📝 Changelog
  
-### Latest Version: 4.6.5 (2026-01-26)
+### Latest Version: 4.6.6 (2026-01-28)
+
+**🐛 BUG FIXES & UI IMPROVEMENTS**
+- **Vehicle Icons**: Resolved issue with disappearing vehicle feature icons (fuel, transmission, etc.) in the Booking Form.
+- **UI Optimization**: Improved icon sizing and visual presentation in the Booking Form.
+- **Logic Fix**: Corrected data processing logic for vehicle feature SVGs.
+- **Cleanup**: Removed conflicting legacy CSS to ensure consistent styling.
+
+### Version: 4.6.5 (2026-01-26)
 
 **🛡️ SECURITY & STANDARDS**
 - **WPCS Compliance**: Resolved 50+ security issues related to Input Sanitization and Database Interpolation.

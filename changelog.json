@@ -1,8 +1,19 @@
 [
     {
+        "version": "4.6.6",
+        "date": "2026-01-28",
+        "type": "current",
+        "changes": [
+            "🐛 BUG FIX: Resolved issue with vehicle feature icons (fuel, transmission, etc.) disappearing in the Booking Form.",
+            "🎨 UI: Optimized visual presentation and icon sizing in the Booking Form.",
+            "🔧 CODE IMPROVEMENT: Corrected logic errors in vehicle feature data processing regarding SVGs.",
+            "🧹 CLEANUP: Removed conflicting legacy CSS codes and transitioned to a modern structure."
+        ]
+    },
+    {
         "version": "4.6.5",
         "date": "2026-01-26",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🛡️ SECURITY FIX: 50+ WPCS issues resolved (Input Sanitization & DB Interpolation).",
             "🛡️ SECURITY FIX: Hardened `Handler.php` and `AccountController.php` against XSS.",

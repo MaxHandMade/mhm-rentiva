@@ -8,10 +8,10 @@
 
 	// Calendar navigation state
 	let currentMonth = new Date().getMonth() + 1;
-	let currentYear  = new Date().getFullYear();
-	let vehicleId    = null;
+	let currentYear = new Date().getFullYear();
+	let vehicleId = null;
 
-	$( document ).ready(
+	$(document).ready(
 		function () {
 			// Get vehicle ID from the page
 			vehicleId = getVehicleIdFromPage();
@@ -29,12 +29,14 @@
 	 * Initialize calendar navigation
 	 */
 	function initCalendarNavigation() {
-		$( '.rv-calendar-nav-btn' ).on(
+		$(document).on(
 			'click',
+			'.rv-calendar-nav-btn',
 			function (e) {
 				e.preventDefault();
 
-				const direction = $( this ).data( 'direction' );
+				const $btn = $(this);
+				const direction = $btn.data('direction');
 
 				if (direction === 'prev') {
 					currentMonth--;
@@ -59,65 +61,66 @@
 	 * Update calendar via AJAX
 	 */
 	function updateCalendar() {
-		const $container  = $( '#rv-calendar-container' );
-		const $monthYear  = $( '#rv-current-month-year' );
-		const $navButtons = $( '.rv-calendar-nav-btn' );
+		const $container = $('#rv-calendar-container');
+		const $monthYear = $('#rv-current-month-year');
+		const $navButtons = $('.rv-calendar-nav-btn');
+
+		// Use correct localized object
+		const ajaxConfig = window.mhmRentivaVehicleDetails || {};
 
 		// Disable navigation buttons
-		$navButtons.prop( 'disabled', true ).addClass( 'disabled' );
+		$navButtons.prop('disabled', true).addClass('disabled');
 
-		// Show loading state with spinner
-		$container.html(
-			`
-			< div class         = "rv-calendar-loading" >
-				< div style     = "display: flex; flex-direction: column; align-items: center; gap: 10px;" >
-					< div style = "width: 20px; height: 20px; border: 2px solid #0073E6; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;" > < / div >
-					< span > ${mhm_rentiva_ajax.i18n ? .loading || 'Loading...'} < / span >
-				< / div >
-			< / div >
-			`
-		);
+		// Show loading overlay
+		if (!$container.find('.rv-calendar-loading').length) {
+			$container.append(
+				`<div class="rv-calendar-loading">
+					<div style="width: 24px; height: 24px; border: 3px solid #3182ce; border-top: 3px solid transparent; border-radius: 50%; animation: rv-spin 0.8s linear infinite;"></div>
+				</div>`
+			);
+		}
 
-		// Add CSS animation for spinner
-		if ( ! $( '#rv-spinner-style' ).length) {
-			$( 'head' ).append(
-				`
-				< style id = "rv-spinner-style" >
-					@keyframes spin {
-						0 % { transform: rotate( 0deg ); }
-						100 % { transform: rotate( 360deg ); }
+		// Add CSS animation for spinner only once
+		if (!$('#rv-spinner-style').length) {
+			$('head').append(
+				`<style id="rv-spinner-style">
+					@keyframes rv-spin {
+						0% { transform: rotate(0deg); }
+						100% { transform: rotate(360deg); }
 					}
-				< / style >
-				`
+				</style>`
 			);
 		}
 
 		// Make AJAX request
 		$.ajax(
 			{
-				url: mhm_rentiva_ajax.ajax_url,
+				url: ajaxConfig.ajaxUrl,
 				type: 'POST',
 				data: {
 					action: 'mhm_rentiva_get_calendar',
 					vehicle_id: vehicleId,
 					month: currentMonth,
 					year: currentYear,
-					nonce: mhm_rentiva_ajax.nonce
+					nonce: ajaxConfig.nonce
 				},
 				success: function (response) {
-					if (response.success) {
-						$container.html( response.data.calendar_html );
-						$monthYear.text( response.data.month_year );
+					if (response.success && response.data) {
+						// Smooth replace
+						$container.fadeOut(100, function () {
+							$container.html(response.data.calendar_html).fadeIn(100);
+							$monthYear.text(response.data.month_year);
+						});
 					} else {
-						$container.html( '<div class="rv-calendar-error">' + (mhm_rentiva_ajax.i18n ? .calendar_load_error || 'Calendar could not be loaded.') + '</div>' );
+						$container.html('<div class="rv-calendar-error">' + (ajaxConfig.strings?.error || 'Veri yüklenemedi.') + '</div>');
 					}
 				},
 				error: function () {
-					$container.html( '<div class="rv-calendar-error">' + (mhm_rentiva_ajax.i18n ? .calendar_load_error || 'Calendar could not be loaded.') + '</div>' );
+					$container.html('<div class="rv-calendar-error">' + (ajaxConfig.strings?.error || 'Bağlantı hatası.') + '</div>');
 				},
 				complete: function () {
 					// Re-enable navigation buttons
-					$navButtons.prop( 'disabled', false ).removeClass( 'disabled' );
+					$navButtons.prop('disabled', false).removeClass('disabled');
 				}
 			}
 		);
@@ -127,74 +130,64 @@
 	 * Get vehicle ID from the page
 	 */
 	function getVehicleIdFromPage() {
-		// Try to get from calendar data attribute
-		const $calendar = $( '.rv-monthly-calendar' );
+		// New mini-widget selector
+		const $miniWidget = $('.rv-mini-calendar-widget');
+		if ($miniWidget.length) {
+			const vId = $miniWidget.data('vehicle-id');
+			if (vId) return vId;
+		}
+
+		// Fallback to legacy selector
+		const $calendar = $('.rv-monthly-calendar');
 		if ($calendar.length) {
-			const vehicleId = $calendar.data( 'vehicle-id' );
-			if (vehicleId) {
-				return vehicleId;
-			}
+			const vId = $calendar.data('vehicle-id');
+			if (vId) return vId;
 		}
 
-		// Try to get from body data attribute
-		let vehicleId = $( 'body' ).data( 'vehicle-id' );
-		if (vehicleId) {
-			return vehicleId;
-		}
+		// Try to get from body data
+		let vId = $('body').data('vehicle-id');
+		if (vId) return vId;
 
-		// Try to get from URL
-		const url   = window.location.href;
-		const match = url.match( /\/vehicles\/([^\/]+)/ );
-		if (match) {
-			// For now, we'll use a fallback approach
-			// The server will handle the vehicle ID in the AJAX call
-			return 'current'; // This will be handled by the server
-		}
-
-		return null;
+		return 'current';
 	}
 
 	/**
 	 * Initialize gallery functionality
 	 */
 	function initGallery() {
-		// Check if thumbnails exist
-		const $thumbnails = $( '.rv-thumbnail-item' );
+		const $thumbnails = $('.rv-thumbnail-item');
 
 		if ($thumbnails.length === 0) {
 			return;
 		}
 
 		// Handle thumbnail clicks
-		$thumbnails.on(
+		$(document).on(
 			'click',
+			'.rv-thumbnail-item',
 			function () {
-				const $thumbnail    = $( this );
-				const $img          = $thumbnail.find( 'img' );
-				const largeImageUrl = $img.data( 'large' );
+				const $thumbnail = $(this);
+				const $img = $thumbnail.find('img');
+				const largeImageUrl = $img.data('large');
 
 				// Update main image
-				const $mainImage = $( '.rv-featured-image' );
+				const $mainImage = $('.rv-featured-image');
 
 				if ($mainImage.length && largeImageUrl) {
-					// Add fade effect
-					$mainImage.fadeOut(
-						200,
-						function () {
-							$mainImage.attr( 'src', largeImageUrl );
-							$mainImage.fadeIn( 200 );
-						}
-					);
-				}
+					// Clear active class from all
+					$('.rv-thumbnail-item').removeClass('active');
+					$thumbnail.addClass('active');
 
-				// Update active thumbnail
-				$thumbnails.removeClass( 'active' );
-				$thumbnail.addClass( 'active' );
+					// Update main image with smooth transition
+					$mainImage.css('opacity', '0.5');
+					const tempImg = new Image();
+					tempImg.src = largeImageUrl;
+					tempImg.onload = function () {
+						$mainImage.attr('src', largeImageUrl).css('opacity', '1');
+					};
+				}
 			}
 		);
-
-		// Set first thumbnail as active on load
-		$thumbnails.first().addClass( 'active' );
 	}
 
-})( jQuery );
+})(jQuery);

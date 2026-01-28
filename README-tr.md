@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.6.5-blue.svg)
+![Version](https://img.shields.io/badge/version-4.6.6-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1277,7 +1277,15 @@ Katkılarınızı bekliyoruz! Lütfen şu yönergeleri izleyin:
 
 ## 📝 Değişiklik Geçmişi
  
-### Son Versiyon: 4.6.5 (2026-01-26)
+### Son Versiyon: 4.6.6 (2026-01-28)
+
+**🐛 HATA DÜZELTMELERİ & ARAYÜZ İYİLEŞTİRMELERİ**
+- **Araç İkonları**: Rezervasyon formunda kaybolan araç özellik ikonları (yakıt, vites vb.) sorunu çözüldü.
+- **Arayüz Optimizasyonu**: Rezervasyon formunda ikon boyutlandırması ve görsel sunum iyileştirildi.
+- **Mantıksal Düzeltme**: Araç özellik SVG'leri için veri işleme mantığı düzeltildi.
+- **Temizlik**: Tutarlı stil sağlamak için çakışan eski CSS kodları temizlendi.
+
+### Versiyon: 4.6.5 (2026-01-26)
 
 **🛡️ GÜVENLİK & STANDARTLAR**
 - **WPCS Uyumluluğu**: Girdi Sanitizasyonu ve Veritabanı İnterpolasyonu ile ilgili 50'den fazla güvenlik sorunu çözüldü.

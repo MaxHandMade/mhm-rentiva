@@ -131,50 +131,76 @@
 @media (max-width: 768px) {
 	.mhm-settings-layout {
 		flex-direction: column;
+		gap: var(--mhm-space-4);
 	}
 
 	.mhm-settings-sidebar {
 		width: 100%;
-		order: 2;
+		order: 1;
+		/* Move menu to top on mobile */
+		margin-bottom: var(--mhm-space-2);
+		position: sticky;
+		top: 32px;
+		/* WP Admin bar height approx */
+		z-index: 99;
 	}
 
 	.mhm-settings-content {
-		order: 1;
+		order: 2;
+		padding: var(--mhm-space-4);
 	}
 
 	.mhm-settings-nav {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 5px;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		padding: 5px;
+		gap: 8px;
+		border-radius: var(--mhm-radius-lg);
+		background: var(--mhm-bg-secondary);
 	}
 
 	.mhm-settings-nav-item {
-		flex: 1;
-		min-width: 120px;
-		text-align: center;
+		flex: 0 0 auto;
+		min-width: unset;
+		white-space: nowrap;
+		padding: 8px 16px;
 		border: 1px solid var(--mhm-border-primary);
-		border-radius: 4px;
-		margin: 2px;
+		border-radius: 20px;
+		background: var(--mhm-bg-card);
+		font-size: 13px;
 	}
 
-	/* Make the Header Underneath in Mobile */
+	.mhm-settings-nav-item.active {
+		border-left: 1px solid var(--mhm-primary);
+		background: var(--mhm-primary);
+		color: #fff;
+	}
+
+	/* Prevent horizontal scrollbar on body from the nav scroll */
+	.mhm-settings-nav::-webkit-scrollbar {
+		height: 4px;
+	}
+
+	.mhm-settings-nav::-webkit-scrollbar-thumb {
+		background: var(--mhm-border-primary);
+		border-radius: 4px;
+	}
+
 	.mhm-settings-tab-header {
 		flex-direction: column;
-		align-items: flex-start;
-		gap: var(--mhm-space-3);
+		align-items: stretch;
+		text-align: center;
 	}
 
-	/* Button Group in Mobile */
 	.mhm-settings-header-actions {
-		width: 100%;
-		flex-wrap: wrap;
+		justify-content: center;
+		margin-top: 10px;
 	}
 
-	/* Buttons Full Width on Mobile */
 	.mhm-settings-header-actions .button {
 		flex: 1;
-		justify-content: center;
-		text-align: center;
 	}
 }
 
@@ -344,6 +370,25 @@
 	padding-top: 20px;
 	border-top: 1px solid var(--mhm-border-secondary);
 	text-align: right;
+}
+
+@media (max-width: 768px) {
+	.submit-section {
+		position: sticky;
+		bottom: 0;
+		background: var(--mhm-bg-card);
+		padding: 15px;
+		margin: 0 -15px -15px -15px;
+		box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+		border-top: 1px solid var(--mhm-border-primary);
+		z-index: 100;
+	}
+
+	.submit-section .button-primary {
+		width: 100%;
+		height: 44px;
+		font-size: 16px;
+	}
 }
 
 .mhm-email-template {

@@ -240,12 +240,17 @@
                 $('.rv-vehicle-title').text(vehicleData.title);
             }
 
-            // Update vehicle features
-            if (vehicleData.specs) {
-                const specsHtml = Object.entries(vehicleData.specs)
-                    .map(([key, value]) => `<span class="rv-spec-badge">${value}</span>`)
+            // Update vehicle features (Unified with SVGs)
+            if (vehicleData.features && Array.isArray(vehicleData.features)) {
+                const featuresHtml = vehicleData.features
+                    .map(feature => `
+                        <div class="rv-feature-item">
+                            ${feature.svg}
+                            <span class="rv-feature-text">${feature.text}</span>
+                        </div>
+                    `)
                     .join('');
-                $('.rv-vehicle-specs').html(specsHtml);
+                $('.rv-vehicle-specs, .rv-vehicle-features').html(featuresHtml);
             }
 
             // Update price
@@ -827,63 +832,6 @@
                     if (response.success) {
                         $('.rv-booking-form').html(response.data.form_html);
                         $('.rv-booking-form-loading').hide();
-
-                        // Force Layout Fixes via JS (Bypass CSS Conflicts)
-                        $('#rv-booking-modal .rv-selected-vehicle').css({
-                            'display': 'flex',
-                            'flex-direction': 'column',
-                            'height': 'auto',
-                            'align-items': 'center',
-                            'padding': '0',
-                            'border': 'none',
-                            'box-shadow': 'none'
-                        });
-
-                        $('#rv-booking-modal .rv-vehicle-info').css({
-                            'display': 'flex',
-                            'flex-direction': 'column',
-                            'width': '100%',
-                            'align-items': 'center'
-                        });
-
-                        $('#rv-booking-modal .rv-vehicle-image-wrapper').css({
-                            'width': '100%',
-                            'height': 'auto',
-                            'max-height': '220px',
-                            'margin': '0 0 15px 0',
-                            'flex': 'none'
-                        });
-
-                        $('#rv-booking-modal .rv-vehicle-image').css({
-                            'width': '100%',
-                            'height': '100%',
-                            'object-fit': 'contain'
-                        });
-
-                        $('#rv-booking-modal .rv-vehicle-details').css({
-                            'width': '100%',
-                            'padding': '0',
-                            'margin': '0',
-                            'flex': 'none'
-                        });
-
-                        $('#rv-booking-modal .rv-vehicle-features').css({
-                            'display': 'flex',
-                            'flex-direction': 'row',
-                            'flex-wrap': 'wrap',
-                            'gap': '8px',
-                            'width': '100%',
-                            'margin-bottom': '15px',
-                            'justify-content': 'center'
-                        });
-
-                        $('#rv-booking-modal .rv-field-group').css({
-                            'grid-template-columns': '1fr'
-                        });
-
-                        // Hide potential ghost elements
-                        $('#ui-datepicker-div').hide();
-
 
                         // Bind event handlers for form in modal
                         this.bindModalFormEvents();

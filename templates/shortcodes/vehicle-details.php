@@ -1,9 +1,7 @@
 <?php
 
 /**
- * Vehicle Details Template
- *
- * Clean template for vehicle detail page
+ * Vehicle Details Template - Premium Unified
  *
  * @var int $vehicle_id Vehicle ID
  * @var object $vehicle WP_Post object
@@ -12,265 +10,191 @@
  * @var string $content Vehicle content
  * @var array $featured_image Featured image
  * @var array $gallery Gallery images
- * @var string $brand Brand
- * @var string $model Model
- * @var string $year Year
- * @var string $fuel_type Fuel type
- * @var string $transmission Transmission
- * @var string $seats Seat count
- * @var string $doors Door count
+ * @var array $card_features Features from helper
  * @var float $price_per_day Daily price
  * @var string $currency_symbol Currency symbol
- * @var array $features Features
- * @var array $specifications Technical specifications
  * @var array $categories Categories
  * @var string $booking_url Booking URL
  * @var array $rating Rating information
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
-
 
 ?>
 
 <div class="rv-vehicle-details-wrapper">
 	<div class="rv-vehicle-details">
 
-		<!-- Left Column: Gallery and Meta Information -->
+		<!-- PART 1: Gallery Section (Images Only) -->
 		<div class="rv-vehicle-gallery-section">
 
-			<!-- Gallery -->
-			<?php if ( isset( $atts['show_gallery'] ) && $atts['show_gallery'] && ! empty( $gallery ) ) : ?>
+			<!-- Gallery Container -->
+			<div class="rv-gallery-container <?php echo empty($gallery) ? 'no-thumbnails' : ''; ?>">
 				<!-- Main Image -->
-				<div class="rv-main-image">
-					<img src="<?php echo esc_url( $featured_image['url'] ?? '' ); ?>"
-						alt="<?php echo esc_attr( $title ?? '' ); ?>"
+				<div class="rv-main-image-wrapper">
+					<img src="<?php echo esc_url($featured_image['url'] ?? ''); ?>"
+						alt="<?php echo esc_attr($title ?? ''); ?>"
 						class="rv-featured-image">
 
-					<?php if ( ! empty( $categories ) ) : ?>
+					<?php if (! empty($categories)) : ?>
 						<div class="rv-category-badge">
-							<?php echo esc_html( $categories[0]['name'] ); ?>
+							<a href="<?php echo esc_url($categories[0]['url'] ?? '#'); ?>">
+								<?php echo esc_html($categories[0]['name']); ?>
+							</a>
 						</div>
 					<?php endif; ?>
 
-					<!-- Availability Badge (Overlay) -->
-					<?php if ( isset( $is_available ) && ! $is_available ) : ?>
+					<?php if (isset($is_available) && ! $is_available) : ?>
 						<div class="rv-status-badge rv-status-badge--unavailable">
-							<?php echo esc_html( ! empty( $status_text ) ? $status_text : __( 'Out of Order', 'mhm-rentiva' ) ); ?>
+							<?php echo esc_html(! empty($status_text) ? $status_text : __('Out of Order', 'mhm-rentiva')); ?>
 						</div>
 					<?php endif; ?>
 				</div>
 
 				<!-- Thumbnail Gallery -->
-				<div class="rv-gallery-thumbnails">
-					<?php foreach ( $gallery as $index => $image ) : ?>
-						<div class="rv-thumbnail-item" data-index="<?php echo esc_attr( $index ); ?>">
-							<img src="<?php echo esc_url( $image['url'] ); ?>"
-								alt="<?php echo esc_attr( $image['alt'] ); ?>"
-								data-large="<?php echo esc_url( $image['url_large'] ); ?>"
-								data-full="<?php echo esc_url( $image['url_full'] ); ?>">
+				<?php if (! empty($gallery)) : ?>
+					<div class="rv-gallery-thumbnails">
+						<!-- Main image thumbnail -->
+						<div class="rv-thumbnail-item active" data-index="main">
+							<img src="<?php echo esc_url($featured_image['url'] ?? ''); ?>"
+								alt="<?php echo esc_attr($title ?? ''); ?>"
+								data-large="<?php echo esc_url($featured_image['url'] ?? ''); ?>">
 						</div>
-					<?php endforeach; ?>
-				</div>
-			<?php else : ?>
-				<!-- Only Main Image -->
-				<div class="rv-main-image">
-					<img src="<?php echo esc_url( $featured_image['url'] ?? '' ); ?>"
-						alt="<?php echo esc_attr( $title ?? '' ); ?>"
-						class="rv-featured-image">
-				</div>
-			<?php endif; ?>
 
-			<!-- Vehicle Meta Information -->
-			<?php
-			$card_features = $card_features ?? array();
-			if ( ! empty( $card_features ) ) :
-				?>
-				<div class="rv-vehicle-details-compact">
-					<div class="rv-details-grid-compact">
-						<?php foreach ( $card_features as $feature ) : ?>
-							<div class="rv-detail-item-compact">
-								<span class="rv-detail-icon-compact">
-									<?php if ( $feature['icon'] === 'fuel' ) : ?>
-										<svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-											<path d="M3 2h3l2 6h3l2-6h3l2 6h3l1 6H4l1-6z" />
-											<path d="M6 8h12" />
-											<path d="M6 12h12" />
-										</svg>
-									<?php elseif ( $feature['icon'] === 'gear' ) : ?>
-										<svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-											<circle cx="12" cy="12" r="3" />
-											<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-										</svg>
-									<?php elseif ( $feature['icon'] === 'people' ) : ?>
-										<svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-											<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-											<circle cx="9" cy="7" r="4" />
-											<path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-											<path d="M16 3.13a4 4 0 0 1 0 7.75" />
-										</svg>
-									<?php elseif ( $feature['icon'] === 'calendar' ) : ?>
-										<svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-											<rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-											<line x1="16" y1="2" x2="16" y2="6" />
-											<line x1="8" y1="2" x2="8" y2="6" />
-											<line x1="3" y1="10" x2="21" y2="10" />
-										</svg>
-									<?php elseif ( $feature['icon'] === 'speedometer' ) : ?>
-										<svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-											<circle cx="12" cy="12" r="10" />
-											<path d="M12 6v6l4 2" />
-										</svg>
-									<?php else : ?>
-										<svg class="rv-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-											<polyline points="20 6 9 17 4 12" />
-										</svg>
-									<?php endif; ?>
-								</span>
-								<span class="rv-detail-value-compact"><?php echo esc_html( $feature['text'] ); ?></span>
+						<?php foreach ($gallery as $index => $image) : ?>
+							<div class="rv-thumbnail-item" data-index="<?php echo esc_attr($index); ?>">
+								<img src="<?php echo esc_url($image['url']); ?>"
+									alt="<?php echo esc_attr($image['alt']); ?>"
+									data-large="<?php echo esc_url($image['url_large']); ?>"
+									data-full="<?php echo esc_url($image['url_full']); ?>">
 							</div>
 						<?php endforeach; ?>
 					</div>
-				</div>
-			<?php elseif ( ( $fuel_type ?? '' ) || ( $seats ?? '' ) || ( $mileage ?? '' ) || ( $transmission ?? '' ) || ( $year ?? '' ) ) : ?>
-				<div class="rv-vehicle-details-compact">
-					<div class="rv-details-grid-compact">
-						<?php if ( $fuel_type ?? '' ) : ?>
-							<div class="rv-detail-item-compact">
-								<span class="rv-detail-icon-compact">⛽</span>
-								<span class="rv-detail-value-compact"><?php echo esc_html( $fuel_type ); ?></span>
-							</div>
-						<?php endif; ?>
+				<?php endif; ?>
+			</div>
 
-						<?php if ( $seats ?? '' ) : ?>
-							<div class="rv-detail-item-compact">
-								<span class="rv-detail-icon-compact">👥</span>
-								<span class="rv-detail-value-compact"><?php echo esc_html( $seats ); ?></span>
-							</div>
-						<?php endif; ?>
-
-						<?php if ( $mileage ?? '' ) : ?>
-							<div class="rv-detail-item-compact">
-								<span class="rv-detail-icon-compact">🕒</span>
-								<span class="rv-detail-value-compact"><?php echo esc_html( number_format( floatval( $mileage ), 0, ',', '.' ) ); ?> km</span>
-							</div>
-						<?php endif; ?>
-
-						<?php if ( $transmission ?? '' ) : ?>
-							<div class="rv-detail-item-compact">
-								<span class="rv-detail-icon-compact">⚙️</span>
-								<span class="rv-detail-value-compact"><?php echo esc_html( $transmission ); ?></span>
-							</div>
-						<?php endif; ?>
-
-						<?php if ( $year ?? '' ) : ?>
-							<div class="rv-detail-item-compact">
-								<span class="rv-detail-icon-compact">📅</span>
-								<span class="rv-detail-value-compact"><?php echo esc_html( $year ); ?></span>
-							</div>
-						<?php endif; ?>
-					</div>
+			<!-- Short Description (Excerpt) - Stays with Gallery -->
+			<?php if (! empty($excerpt)) : ?>
+				<div class="rv-vehicle-short-description">
+					<?php echo wp_kses_post($excerpt); ?>
 				</div>
 			<?php endif; ?>
 
-			<!-- Vehicle Description - Moved below the vehicle meta information -->
-			<?php if ( $content ?? '' ) : ?>
-				<div class="rv-description">
-					<h3><?php esc_html_e( 'Vehicle Description', 'mhm-rentiva' ); ?></h3>
-					<div class="rv-description-content">
-						<?php echo wp_kses_post( $content ); ?>
-					</div>
+			<!-- Quick Vehicle Features (Chips) - Stays with Gallery -->
+			<?php if (! empty($card_features)) : ?>
+				<div class="rv-vehicle-meta-chips">
+					<?php foreach ($card_features as $feature) : ?>
+						<div class="rv-feature-item">
+							<?php echo $feature['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+							?>
+							<span class="rv-feature-text"><?php echo esc_html($feature['text']); ?></span>
+						</div>
+					<?php endforeach; ?>
 				</div>
 			<?php endif; ?>
-
 
 		</div>
 
-		<!-- Right Column: Details -->
+		<!-- PART 2: Content Section (Description & Reviews) - Separate for mobile reordering -->
+		<div class="rv-vehicle-content-section">
+
+			<!-- Vehicle Description -->
+			<?php if (! empty($content)) : ?>
+				<div class="rv-vehicle-description">
+					<h3 class="rv-section-title"><?php esc_html_e('Vehicle Description', 'mhm-rentiva'); ?></h3>
+					<div class="rv-description-text">
+						<?php echo wp_kses_post($content); ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<!-- Ratings & Reviews -->
+			<div class="rv-integrated-reviews-section">
+				<?php echo do_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . $vehicle_id . '"]'); ?>
+			</div>
+
+		</div>
+
+		<!-- Right Column: Booking, Pricing & Calendar (Sticky) -->
 		<div class="rv-vehicle-info-section">
+			<div class="rv-booking-card-sticky">
 
-			<!-- Title and Price -->
-			<div class="rv-header">
-				<h1 class="rv-title"><?php echo esc_html( $title ?? '' ); ?></h1>
+				<!-- Header (Title & Price) -->
+				<div class="rv-header-main">
+					<h1 class="rv-vehicle-title"><?php echo esc_html($title ?? ''); ?></h1>
 
-				<?php if ( ( $atts['show_price'] ?? true ) && ( $price_per_day ?? 0 ) ) : ?>
-					<div class="rv-price-badge">
-						<span class="rv-price-amount"><?php echo esc_html( ( $currency_symbol ?? '$' ) . number_format( floatval( $price_per_day ) ) ); ?></span>
-						<span class="rv-price-period"><?php esc_html_e( '/day', 'mhm-rentiva' ); ?></span>
-					</div>
-				<?php endif; ?>
+					<?php if (($price_per_day ?? 0)) : ?>
+						<div class="rv-price-tag">
+							<div class="rv-price-val">
+								<span class="rv-symbol"><?php echo esc_html($currency_symbol ?? '$'); ?></span>
+								<span class="rv-amount"><?php echo esc_html(number_format(floatval($price_per_day))); ?></span>
+							</div>
+							<span class="rv-period"><?php esc_html_e('/day', 'mhm-rentiva'); ?></span>
+						</div>
+					<?php endif; ?>
+				</div>
 
+				<!-- Star Rating Summary -->
+				<div class="rv-stats-bar">
+					<?php if (($rating ?? array()) && isset($rating['average']) && $rating['average'] > 0) : ?>
+						<div class="rv-mini-stars">
+							<?php
+							$avg_rating = (float) ($rating['average'] ?? 0);
+							for ($i = 1; $i <= 5; $i++) : ?>
+								<span class="rv-star <?php echo $i <= $avg_rating ? 'filled' : ''; ?>">★</span>
+							<?php endfor; ?>
+						</div>
+						<span class="rv-stat-text">
+							<strong><?php echo esc_html(number_format(floatval($rating['average']), 1)); ?></strong>
+							(<?php echo esc_html($rating['count'] ?? 0); ?> <?php esc_html_e('reviews', 'mhm-rentiva'); ?>)
+						</span>
+					<?php else : ?>
+						<div class="rv-mini-stars">
+							<span class="rv-star">★</span><span class="rv-star">★</span><span class="rv-star">★</span><span class="rv-star">★</span><span class="rv-star">★</span>
+						</div>
+						<span class="rv-stat-text"><?php esc_html_e('Not yet rated', 'mhm-rentiva'); ?></span>
+					<?php endif; ?>
+				</div>
 
-			</div>
-			<!-- Rating -->
-			<div class="rv-rating">
-				<?php if ( ( $rating ?? array() ) && isset( $rating['average'] ) && $rating['average'] > 0 ) : ?>
-					<div class="rv-stars">
-						<?php for ( $i = 1; $i <= 5; $i++ ) : ?>
-							<span class="rv-star <?php echo $i <= $rating['average'] ? 'filled' : ''; ?>">★</span>
-						<?php endfor; ?>
-					</div>
-					<span class="rv-rating-text">
-						<?php echo esc_html( number_format( floatval( $rating['average'] ), 1 ) ); ?>
-						(<?php echo esc_html( $rating['count'] ?? 0 ); ?> <?php esc_html_e( 'reviews', 'mhm-rentiva' ); ?>)
-					</span>
-				<?php else : ?>
-					<div class="rv-stars">
-						<span class="rv-star">★</span>
-						<span class="rv-star">★</span>
-						<span class="rv-star">★</span>
-						<span class="rv-star">★</span>
-						<span class="rv-star">★</span>
-					</div>
-					<span class="rv-rating-text">
-						<?php esc_html_e( 'Not yet rated', 'mhm-rentiva' ); ?>
-					</span>
-				<?php endif; ?>
-			</div>
-
-			<!-- Book Now Button -->
-			<?php if ( $atts['show_booking_button'] ?? true ) : ?>
-				<div class="rv-booking-action">
-					<?php if ( isset( $is_available ) && ! $is_available ) : ?>
-						<button class="rv-btn-book disabled" disabled>
-							<span class="rv-btn-text"><?php echo esc_html( $atts['booking_btn_text'] ?? __( 'Book Now', 'mhm-rentiva' ) ); ?></span>
+				<!-- Book Now CTA -->
+				<div class="rv-cta-container">
+					<?php
+					$btn_text = $atts['booking_btn_text'] ?? __('Book Now', 'mhm-rentiva');
+					if (isset($is_available) && ! $is_available) : ?>
+						<button class="rv-btn-primary disabled" disabled>
+							<span><?php echo esc_html($btn_text); ?></span>
 						</button>
 					<?php else : ?>
-						<a href="<?php echo esc_url( $booking_url ?? '' ); ?>" class="rv-btn-book">
-							<span class="rv-btn-text"><?php echo esc_html( $atts['booking_btn_text'] ?? __( 'Book Now', 'mhm-rentiva' ) ); ?></span>
-							<span class="rv-btn-arrow">→</span>
+						<a href="<?php echo esc_url($booking_url ?? ''); ?>" class="rv-btn-primary">
+							<span><?php echo esc_html($btn_text); ?></span>
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+								<line x1="5" y1="12" x2="19" y2="12"></line>
+								<polyline points="12 5 19 12 12 19"></polyline>
+							</svg>
 						</a>
 					<?php endif; ?>
 				</div>
-			<?php endif; ?>
 
-
-			<!-- Monthly Availability Calendar -->
-			<?php if ( ( intval( $vehicle_id ?? 0 ) ) > 0 ) : ?>
-				<div class="rv-monthly-calendar" data-vehicle-id="<?php echo esc_attr( $vehicle_id ); ?>">
-					<div class="rv-calendar-header">
-						<h3><?php esc_html_e( 'Availability Calendar', 'mhm-rentiva' ); ?></h3>
-						<div class="rv-calendar-navigation">
-							<button class="rv-calendar-nav-btn" data-direction="prev" title="<?php esc_attr_e( 'Previous Month', 'mhm-rentiva' ); ?>">
-								<span class="rv-nav-icon">‹</span>
-							</button>
-							<span class="rv-calendar-month-year" id="rv-current-month-year">
-								<?php echo esc_html( date_i18n( 'F Y' ) ); ?>
-							</span>
-							<button class="rv-calendar-nav-btn" data-direction="next" title="<?php esc_attr_e( 'Next Month', 'mhm-rentiva' ); ?>">
-								<span class="rv-nav-icon">›</span>
-							</button>
+				<!-- Availability Calendar -->
+				<?php if ((intval($vehicle_id ?? 0)) > 0) : ?>
+					<div class="rv-mini-calendar-widget" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>">
+						<div class="rv-cal-header">
+							<h4 class="rv-cal-title"><?php esc_html_e('Availability', 'mhm-rentiva'); ?></h4>
+							<div class="rv-cal-nav">
+								<button class="rv-calendar-nav-btn" data-direction="prev">‹</button>
+								<span id="rv-current-month-year"><?php echo esc_html(date_i18n('F Y')); ?></span>
+								<button class="rv-calendar-nav-btn" data-direction="next">›</button>
+							</div>
+						</div>
+						<div id="rv-calendar-container" class="rv-cal-body">
+							<?php echo wp_kses_post(\MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails::render_monthly_calendar(intval($vehicle_id))); ?>
 						</div>
 					</div>
-					<div class="rv-calendar-container" id="rv-calendar-container">
-						<?php echo wp_kses_post( \MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails::render_monthly_calendar( intval( $vehicle_id ) ) ); ?>
-					</div>
-				</div>
-			<?php endif; ?>
+				<?php endif; ?>
 
-
+			</div>
 		</div>
 
 	</div>

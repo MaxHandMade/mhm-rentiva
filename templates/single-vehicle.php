@@ -1,60 +1,115 @@
 <?php
 
 /**
- * Single Vehicle Template
+ * Single Vehicle Template - Premium Unified Skin
  *
- * This template is automatically loaded by the plugin
- * Simple template for vehicle detail page
+ * This template blends the Vehicle Details and Rating Form into a single
+ * premium container with shared styling and consistent design tokens.
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
-
-
-// ⭐ Asset management removed - VehicleRatingForm shortcode handles asset loading
-// The shortcode [rentiva_vehicle_rating_form] will automatically enqueue assets via VehicleRatingForm::enqueue_assets()
-
 get_header(); ?>
 
-<div class="mhm-vehicle-single-page">
-	<!-- Navigation -->
+<div class="mhm-vehicle-single-page rv-premium-skin">
+	<!-- Navigation / Breadcrumb -->
 	<div class="mhm-vehicle-navigation">
 		<div class="container">
 			<div class="mhm-nav-wrapper">
 				<nav class="mhm-breadcrumb">
-					<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php echo esc_html__( 'Home', 'mhm-rentiva' ); ?></a>
+					<a href="<?php echo esc_url(home_url('/')); ?>"><?php echo esc_html__('Home', 'mhm-rentiva'); ?></a>
 					<span class="separator">/</span>
-					<a href="<?php echo esc_url( \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url( 'rentiva_vehicles_list' ) ); ?>"><?php echo esc_html__( 'Vehicles', 'mhm-rentiva' ); ?></a>
+					<a href="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list')); ?>"><?php echo esc_html__('Vehicles', 'mhm-rentiva'); ?></a>
 					<span class="separator">/</span>
-					<span class="current"><?php echo esc_html( get_the_title() ); ?></span>
+					<span class="current"><?php echo esc_html(get_the_title()); ?></span>
 				</nav>
 
 				<div class="mhm-navigation-actions">
-					<a href="<?php echo esc_url( \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url( 'rentiva_vehicles_list' ) ); ?>" class="btn-back">
+					<a href="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list')); ?>" class="btn-back">
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
 							<path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
 						</svg>
-						<?php echo esc_html__( 'Back to Vehicles', 'mhm-rentiva' ); ?>
+						<?php echo esc_html__('Araçlara Geri Dön', 'mhm-rentiva'); ?>
 					</a>
 				</div>
 			</div>
 		</div>
 	</div>
 
+	<!-- Unified Premium Container -->
 	<div class="container">
-		<!-- Vehicle Details Shortcode -->
-		<?php echo do_shortcode( '[rentiva_vehicle_details]' ); ?>
-	</div>
+		<div class="rv-single-vehicle-unified-card">
 
-	<!-- Rating Form Section - Full Width -->
-	<div class="rv-vehicle-rating-section-full">
-		<div class="container">
-			<?php echo do_shortcode( '[rentiva_vehicle_rating_form vehicle_id="' . get_the_ID() . '"]' ); ?>
+			<!-- Section 1: All-in-One Highlights -->
+			<div class="rv-unified-details-section">
+				<?php echo do_shortcode('[rentiva_vehicle_details]'); ?>
+			</div>
+
 		</div>
 	</div>
-
 </div>
+
+<style>
+	/* Refined Layout for High-End Feel */
+	.rv-premium-skin {
+		padding-bottom: 4rem;
+		background: #f8fafc;
+	}
+
+	.rv-single-vehicle-unified-card {
+		background: #ffffff;
+		border-radius: 20px;
+		box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+		overflow: hidden;
+		margin-top: 2rem;
+		border: 1px solid #edf2f7;
+	}
+
+	/* Breadcrumb Styling */
+	.mhm-vehicle-navigation {
+		background: #fff;
+		padding: 1.25rem 0;
+		border-bottom: 1px solid #edf2f7;
+	}
+
+	.mhm-nav-wrapper {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.mhm-breadcrumb {
+		font-size: 14px;
+		color: #64748b;
+	}
+
+	.mhm-breadcrumb a {
+		color: #3182ce;
+		text-decoration: none;
+		font-weight: 500;
+	}
+
+	.mhm-breadcrumb .separator {
+		margin: 0 8px;
+		color: #cbd5e1;
+	}
+
+	.btn-back {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		color: #64748b;
+		text-decoration: none;
+		font-size: 14px;
+		font-weight: 600;
+		transition: color 0.2s;
+	}
+
+	.btn-back:hover {
+		color: #3182ce;
+	}
+</style>
 
 <?php get_footer(); ?>
