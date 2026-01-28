@@ -74,7 +74,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - **Sürükle-Bırak Sıralama**: Sezgisel sürükle-bırak arayüzü ile araç görsellerini yeniden sıralama
 - **Araç Kategorileri**: Araçları organize etmek için hiyerarşik taksonomi sistemi
 - **Araç Meta Verileri**: 
-  - Günlük, haftalık, aylık fiyatlandırma
+  - Günlük fiyatlandırma
   - Araç özellikleri (marka, model, yıl, yakıt tipi, şanzıman, vb.)
   - Özellik ve ekipman listeleri
   - Depozito ayarları (sabit veya yüzde)
@@ -471,7 +471,7 @@ Eklenti shortcode'lar için sayfaları otomatik olarak oluşturur veya manuel ol
 1. **Araçlar > Yeni Ekle** sayfasına gidin
 2. Araç başlığı ve açıklamasını girin
 3. WordPress Medya Kütüphanesi kullanarak görseller yükleyin (10'a kadar)
-4. Fiyatlandırmayı ayarlayın (günlük, haftalık, aylık)
+4. Fiyatlandırmayı ayarlayın (günlük)
 5. Araç özelliklerini ekleyin
 6. Yayınlayın
 

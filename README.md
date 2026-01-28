@@ -74,7 +74,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 - **Drag & Drop Sorting**: Reorder vehicle images with intuitive drag-and-drop interface
 - **Vehicle Categories**: Hierarchical taxonomy system for organizing vehicles
 - **Vehicle Metadata**: 
-  - Daily, weekly, monthly pricing
+  - Flexible daily pricing
   - Vehicle specifications (make, model, year, fuel type, transmission, etc.)
   - Features and equipment lists
   - Deposit settings (fixed or percentage)
