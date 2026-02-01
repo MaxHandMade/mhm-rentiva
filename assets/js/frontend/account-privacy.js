@@ -3,7 +3,7 @@
  *
  * Handles privacy controls (GDPR) in My Account dashboard
  */
-jQuery( document ).ready(
+jQuery(document).ready(
 	function ($) {
 
 		// Check if configuration exists
@@ -15,19 +15,19 @@ jQuery( document ).ready(
 		var ajaxurl = mhmRentivaPrivacy.ajaxUrl;
 
 		// Data Export
-		$( '#export-data' ).on(
+		$('#export-data').on(
 			'click',
 			function (e) {
 				e.preventDefault();
 
-				if ( ! confirm( mhmRentivaPrivacy.i18n.confirmExport )) {
+				if (!confirm(mhmRentivaPrivacy.i18n.confirmExport)) {
 					return;
 				}
 
-				var button       = $( this );
+				var button = $(this);
 				var originalText = button.text();
 
-				button.prop( 'disabled', true ).text( mhmRentivaPrivacy.i18n.exporting );
+				button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.exporting);
 
 				$.ajax(
 					{
@@ -40,26 +40,26 @@ jQuery( document ).ready(
 						success: function (response) {
 							if (response.success) {
 								// Create download link
-								var blob   = new Blob( [response.data], { type: 'application/json' } );
-								var url    = window.URL.createObjectURL( blob );
-								var a      = document.createElement( 'a' );
-								a.href     = url;
+								var blob = new Blob([response.data], { type: 'application/json' });
+								var url = window.URL.createObjectURL(blob);
+								var a = document.createElement('a');
+								a.href = url;
 								a.download = 'my-data-export.json';
-								document.body.appendChild( a );
+								document.body.appendChild(a);
 								a.click();
-								document.body.removeChild( a );
-								window.URL.revokeObjectURL( url );
+								document.body.removeChild(a);
+								window.URL.revokeObjectURL(url);
 
-								alert( mhmRentivaPrivacy.i18n.exportSuccess );
+								alert(mhmRentivaPrivacy.i18n.exportSuccess);
 							} else {
-								alert( mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError) );
+								alert(mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError));
 							}
 						},
 						error: function (xhr, status, error) {
-							alert( mhmRentivaPrivacy.i18n.exportError + ': ' + error );
+							alert(mhmRentivaPrivacy.i18n.exportError + ': ' + error);
 						},
 						complete: function () {
-							button.prop( 'disabled', false ).text( originalText );
+							button.prop('disabled', false).text(originalText);
 						}
 					}
 				);
@@ -67,19 +67,19 @@ jQuery( document ).ready(
 		);
 
 		// Withdraw Consent
-		$( '#withdraw-consent' ).on(
+		$('#withdraw-consent').on(
 			'click',
 			function (e) {
 				e.preventDefault();
 
-				if ( ! confirm( mhmRentivaPrivacy.i18n.confirmWithdraw )) {
+				if (!confirm(mhmRentivaPrivacy.i18n.confirmWithdraw)) {
 					return;
 				}
 
-				var button       = $( this );
+				var button = $(this);
 				var originalText = button.text();
 
-				button.prop( 'disabled', true ).text( mhmRentivaPrivacy.i18n.processing );
+				button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.processing);
 
 				$.ajax(
 					{
@@ -91,17 +91,17 @@ jQuery( document ).ready(
 						},
 						success: function (response) {
 							if (response.success) {
-								alert( mhmRentivaPrivacy.i18n.withdrawSuccess );
+								alert(mhmRentivaPrivacy.i18n.withdrawSuccess);
 								location.reload();
 							} else {
-								alert( mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError) );
+								alert(mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError));
 							}
 						},
 						error: function (xhr, status, error) {
-							alert( mhmRentivaPrivacy.i18n.withdrawError + ': ' + error );
+							alert(mhmRentivaPrivacy.i18n.withdrawError + ': ' + error);
 						},
 						complete: function () {
-							button.prop( 'disabled', false ).text( originalText );
+							button.prop('disabled', false).text(originalText);
 						}
 					}
 				);
@@ -109,25 +109,25 @@ jQuery( document ).ready(
 		);
 
 		// Delete Account
-		$( '#delete-account' ).on(
+		$('#delete-account').on(
 			'click',
 			function (e) {
 				e.preventDefault();
 
-				var confirmation = prompt( mhmRentivaPrivacy.i18n.confirmDeletePrompt );
+				var confirmation = prompt(mhmRentivaPrivacy.i18n.confirmDeletePrompt);
 
 				if (confirmation !== 'DELETE') {
 					return;
 				}
 
-				if ( ! confirm( mhmRentivaPrivacy.i18n.confirmDeleteFinal )) {
+				if (!confirm(mhmRentivaPrivacy.i18n.confirmDeleteFinal)) {
 					return;
 				}
 
-				var button       = $( this );
+				var button = $(this);
 				var originalText = button.text();
 
-				button.prop( 'disabled', true ).text( mhmRentivaPrivacy.i18n.deleting );
+				button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.deleting);
 
 				$.ajax(
 					{
@@ -139,17 +139,17 @@ jQuery( document ).ready(
 						},
 						success: function (response) {
 							if (response.success) {
-								alert( mhmRentivaPrivacy.i18n.deleteSuccess );
+								alert(mhmRentivaPrivacy.i18n.deleteSuccess);
 								window.location.href = mhmRentivaPrivacy.homeUrl;
 							} else {
-								alert( mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError) );
+								alert(mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError));
 							}
 						},
 						error: function (xhr, status, error) {
-							alert( mhmRentivaPrivacy.i18n.deleteError + ': ' + error );
+							alert(mhmRentivaPrivacy.i18n.deleteError + ': ' + error);
 						},
 						complete: function () {
-							button.prop( 'disabled', false ).text( originalText );
+							button.prop('disabled', false).text(originalText);
 						}
 					}
 				);
@@ -158,45 +158,45 @@ jQuery( document ).ready(
 
 		// Helper: Show Notification
 		function showNotification(message, type) {
-			type              = type || 'info';
-			var $notification = $( '<div class="rv-notification rv-notification--' + type + '">' + message + '</div>' );
-			$( 'body' ).append( $notification );
+			type = type || 'info';
 
-			setTimeout(
-				function () {
-					$notification.addClass( 'rv-notification--show' );
-				},
-				100
-			);
+			// Remove existing notifications if any
+			$('.rv-notification').remove();
 
-			setTimeout(
-				function () {
-					$notification.removeClass( 'rv-notification--show' );
-					setTimeout(
-						function () {
-							$notification.remove();
-						},
-						300
-					);
-				},
-				3000
-			);
+			const icon = type === 'success' ? '✓' : '!';
+			const $notification = $(`
+				<div class="rv-notification rv-notification--show rv-notification--${type}">
+					<div class="rv-notification-body">
+						<span class="rv-notification-icon-badge">${icon}</span>
+						<span class="rv-notification-text">${message}</span>
+					</div>
+				</div>
+			`);
+
+			$('body').append($notification);
+
+			// Auto-hide after 3.5 seconds
+			setTimeout(() => {
+				$notification.fadeOut(400, function () {
+					$(this).remove();
+				});
+			}, 3500);
 		}
 
 		// Data Export
-		$( '#export-data' ).on(
+		$('#export-data').on(
 			'click',
 			function (e) {
 				e.preventDefault();
 
-				if ( ! confirm( mhmRentivaPrivacy.i18n.confirmExport )) {
+				if (!confirm(mhmRentivaPrivacy.i18n.confirmExport)) {
 					return;
 				}
 
-				var button       = $( this );
+				var button = $(this);
 				var originalText = button.text();
 
-				button.prop( 'disabled', true ).text( mhmRentivaPrivacy.i18n.exporting );
+				button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.exporting);
 
 				$.ajax(
 					{
@@ -209,26 +209,26 @@ jQuery( document ).ready(
 						success: function (response) {
 							if (response.success) {
 								// Create download link
-								var blob   = new Blob( [response.data], { type: 'application/json' } );
-								var url    = window.URL.createObjectURL( blob );
-								var a      = document.createElement( 'a' );
-								a.href     = url;
+								var blob = new Blob([response.data], { type: 'application/json' });
+								var url = window.URL.createObjectURL(blob);
+								var a = document.createElement('a');
+								a.href = url;
 								a.download = 'my-data-export.json';
-								document.body.appendChild( a );
+								document.body.appendChild(a);
 								a.click();
-								document.body.removeChild( a );
-								window.URL.revokeObjectURL( url );
+								document.body.removeChild(a);
+								window.URL.revokeObjectURL(url);
 
-								showNotification( mhmRentivaPrivacy.i18n.exportSuccess, 'success' );
+								showNotification(mhmRentivaPrivacy.i18n.exportSuccess, 'success');
 							} else {
-								showNotification( mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError), 'error' );
+								showNotification(mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError), 'error');
 							}
 						},
 						error: function (xhr, status, error) {
-							showNotification( mhmRentivaPrivacy.i18n.exportError + ': ' + error, 'error' );
+							showNotification(mhmRentivaPrivacy.i18n.exportError + ': ' + error, 'error');
 						},
 						complete: function () {
-							button.prop( 'disabled', false ).text( originalText );
+							button.prop('disabled', false).text(originalText);
 						}
 					}
 				);
@@ -236,19 +236,19 @@ jQuery( document ).ready(
 		);
 
 		// Withdraw Consent
-		$( '#withdraw-consent' ).on(
+		$('#withdraw-consent').on(
 			'click',
 			function (e) {
 				e.preventDefault();
 
-				if ( ! confirm( mhmRentivaPrivacy.i18n.confirmWithdraw )) {
+				if (!confirm(mhmRentivaPrivacy.i18n.confirmWithdraw)) {
 					return;
 				}
 
-				var button       = $( this );
+				var button = $(this);
 				var originalText = button.text();
 
-				button.prop( 'disabled', true ).text( mhmRentivaPrivacy.i18n.processing );
+				button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.processing);
 
 				$.ajax(
 					{
@@ -260,7 +260,7 @@ jQuery( document ).ready(
 						},
 						success: function (response) {
 							if (response.success) {
-								showNotification( mhmRentivaPrivacy.i18n.withdrawSuccess, 'success' );
+								showNotification(mhmRentivaPrivacy.i18n.withdrawSuccess, 'success');
 								setTimeout(
 									function () {
 										location.reload();
@@ -268,14 +268,14 @@ jQuery( document ).ready(
 									1500
 								);
 							} else {
-								showNotification( mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError), 'error' );
+								showNotification(mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError), 'error');
 							}
 						},
 						error: function (xhr, status, error) {
-							showNotification( mhmRentivaPrivacy.i18n.withdrawError + ': ' + error, 'error' );
+							showNotification(mhmRentivaPrivacy.i18n.withdrawError + ': ' + error, 'error');
 						},
 						complete: function () {
-							button.prop( 'disabled', false ).text( originalText );
+							button.prop('disabled', false).text(originalText);
 						}
 					}
 				);
@@ -283,25 +283,25 @@ jQuery( document ).ready(
 		);
 
 		// Delete Account
-		$( '#delete-account' ).on(
+		$('#delete-account').on(
 			'click',
 			function (e) {
 				e.preventDefault();
 
-				var confirmation = prompt( mhmRentivaPrivacy.i18n.confirmDeletePrompt );
+				var confirmation = prompt(mhmRentivaPrivacy.i18n.confirmDeletePrompt);
 
 				if (confirmation !== 'DELETE') {
 					return;
 				}
 
-				if ( ! confirm( mhmRentivaPrivacy.i18n.confirmDeleteFinal )) {
+				if (!confirm(mhmRentivaPrivacy.i18n.confirmDeleteFinal)) {
 					return;
 				}
 
-				var button       = $( this );
+				var button = $(this);
 				var originalText = button.text();
 
-				button.prop( 'disabled', true ).text( mhmRentivaPrivacy.i18n.deleting );
+				button.prop('disabled', true).text(mhmRentivaPrivacy.i18n.deleting);
 
 				$.ajax(
 					{
@@ -313,7 +313,7 @@ jQuery( document ).ready(
 						},
 						success: function (response) {
 							if (response.success) {
-								showNotification( mhmRentivaPrivacy.i18n.deleteSuccess, 'success' );
+								showNotification(mhmRentivaPrivacy.i18n.deleteSuccess, 'success');
 								setTimeout(
 									function () {
 										window.location.href = mhmRentivaPrivacy.homeUrl;
@@ -321,14 +321,14 @@ jQuery( document ).ready(
 									1500
 								);
 							} else {
-								showNotification( mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError), 'error' );
+								showNotification(mhmRentivaPrivacy.i18n.error + ': ' + (response.data.message || mhmRentivaPrivacy.i18n.unknownError), 'error');
 							}
 						},
 						error: function (xhr, status, error) {
-							showNotification( mhmRentivaPrivacy.i18n.deleteError + ': ' + error, 'error' );
+							showNotification(mhmRentivaPrivacy.i18n.deleteError + ': ' + error, 'error');
 						},
 						complete: function () {
-							button.prop( 'disabled', false ).text( originalText );
+							button.prop('disabled', false).text(originalText);
 						}
 					}
 				);

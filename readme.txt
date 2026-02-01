@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 5.0
 Tested up to:      6.9
 Requires PHP:      7.4
-Stable tag:        4.6.6
+Stable tag:        4.6.7
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -75,7 +75,13 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 
 == Changelog ==
  
-= 4.6.5 =
+= 4.6.7 =
+* Security: Replaced wp_redirect with wp_safe_redirect for enhanced safety.
+* Compliance: Refactored inline styles to use the native wp_add_inline_style() API.
+* Performance: Optimized shortcode caching with a versioned system, eliminating the need for direct SQL cleanup.
+* Security: Hardened SecurityHelper safe_output method for stricter XSS protection.
+
+= 4.6.6 =
 * Standards: Successfully applied 110,000+ automated style fixes for strict WPCS compliance.
 * Security: Resolved 50+ WPCS security issues (Input Sanitization & Database Interpolation).
 * Security: Hardened Handler.php and AccountController.php against XSS attacks.

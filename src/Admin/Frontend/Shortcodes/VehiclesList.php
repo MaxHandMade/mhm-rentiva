@@ -146,6 +146,14 @@ final class VehiclesList extends AbstractShortcode
 	}
 
 	/**
+	 * Returns CSS dependencies
+	 */
+	protected static function get_css_dependencies(): array
+	{
+		return array('mhm-rentiva-core-variables');
+	}
+
+	/**
 	 * Override JS filename
 	 */
 	protected static function get_js_filename(): string
@@ -228,8 +236,22 @@ final class VehiclesList extends AbstractShortcode
 	/**
 	 * Gets vehicles
 	 */
+	/**
+	 * Gets vehicles
+	 */
 	private static function get_vehicles(array $atts): array
 	{
+		// Generate cache key based on attributes
+		$cache_key = 'mhm_rv_list_' . md5(serialize($atts));
+
+		// Check for cached data (unless caching is disabled)
+		if (! (defined('MHM_RENTIVA_DISABLE_CACHE') && MHM_RENTIVA_DISABLE_CACHE)) {
+			$cached = get_transient($cache_key);
+			if ($cached !== false) {
+				return $cached;
+			}
+		}
+
 		$args = array(
 			'post_type'      => 'vehicle',
 			'post_status'    => 'publish',
@@ -290,6 +312,11 @@ final class VehiclesList extends AbstractShortcode
 			if ($vehicle_data) {
 				$vehicles[] = $vehicle_data;
 			}
+		}
+
+		// Set cache (1 hour)
+		if (! (defined('MHM_RENTIVA_DISABLE_CACHE') && MHM_RENTIVA_DISABLE_CACHE)) {
+			set_transient($cache_key, $vehicles, HOUR_IN_SECONDS);
 		}
 
 		return $vehicles;
@@ -859,7 +886,7 @@ final class VehiclesList extends AbstractShortcode
 	public static function ajax_toggle_favorite(): void
 	{
 		try {
-			$nonce = sanitize_text_field($_POST['nonce'] ?? '');
+			$nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
 			if (
 				empty($nonce) ||
 				(! wp_verify_nonce($nonce, 'mhm_rentiva_vehicles_list') &&

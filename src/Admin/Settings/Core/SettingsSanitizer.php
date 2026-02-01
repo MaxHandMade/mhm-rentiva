@@ -332,9 +332,21 @@ final class SettingsSanitizer
 
 	private static function sanitize_email_brand_settings(array $input, array $defaults): array
 	{
+		$from_name = self::safe_text($input['mhm_rentiva_email_from_name'] ?? \get_bloginfo('name'));
+		// Fix: Prevent boolean 'true' casted to '1' from being saved as sender name
+		if ('1' === $from_name || '0' === $from_name) {
+			$from_name = \get_bloginfo('name');
+		}
+
+		$from_address = SettingsHelper::sanitize_field($input['mhm_rentiva_email_from_address'] ?? \get_option('admin_email'), 'email');
+		// Fix: Prevent invalid emails or boolean casts
+		if ('1' === $from_address || ! \is_email($from_address)) {
+			$from_address = \get_option('admin_email');
+		}
+
 		return array(
-			'mhm_rentiva_email_from_name'     => self::safe_text($input['mhm_rentiva_email_from_name'] ?? \get_bloginfo('name')),
-			'mhm_rentiva_email_from_address'  => SettingsHelper::sanitize_field($input['mhm_rentiva_email_from_address'] ?? \get_option('admin_email'), 'email'),
+			'mhm_rentiva_email_from_name'     => $from_name,
+			'mhm_rentiva_email_from_address'  => $from_address,
 			'mhm_rentiva_brand_name'          => self::safe_text($input['mhm_rentiva_brand_name'] ?? \get_bloginfo('name')),
 			'mhm_rentiva_brand_logo_url'      => \esc_url_raw($input['mhm_rentiva_brand_logo_url'] ?? ''),
 			'mhm_rentiva_email_header_image'  => \esc_url_raw($input['mhm_rentiva_email_header_image'] ?? ''),

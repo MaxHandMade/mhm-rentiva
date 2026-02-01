@@ -1,0 +1,16 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/testimonials",
+    "title": "MHM Testimonials",
+    "category": "widgets",
+    "icon": "car",
+    "supports": {
+        "html": false,
+        "color": { "text": true, "background": true, "link": true }
+    },
+    "attributes": {
+        "limit": { "type": "string", "default": "10" },
+        "columns": { "type": "string", "default": "3" }
+    }
+}

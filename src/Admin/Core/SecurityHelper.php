@@ -304,26 +304,38 @@ final class SecurityHelper
 	 * Safe output for XSS protection
 	 *
 	 * @param mixed  $data Output data
-	 * @param string $context Output context (html, attr, url, js)
+	 * @param string $context Output context (html, attr, url, js, json)
 	 * @return string Safe output
 	 */
 	public static function safe_output($data, string $context = 'html'): string
 	{
-		if (is_array($data)) {
-			$data = json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+		// Context validation
+		$allowed_contexts = array('html', 'attr', 'url', 'js', 'json');
+		if (! in_array($context, $allowed_contexts, true)) {
+			// If context is invalid, default to html for safety, 
+			// but we could also throw an exception in dev mode
+			$context = 'html';
+		}
+
+		if (is_array($data) || is_object($data)) {
+			$data = wp_json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+			$context = 'json'; // Force JSON context for arrays/objects
 		}
 
 		switch ($context) {
 			case 'html':
-				return esc_html($data);
+				return esc_html((string) $data);
 			case 'attr':
-				return esc_attr($data);
+				return esc_attr((string) $data);
 			case 'url':
-				return esc_url($data);
+				return esc_url((string) $data);
 			case 'js':
-				return esc_js($data);
+				return esc_js((string) $data);
+			case 'json':
+				// JSON generated via wp_json_encode is already safe for script tags
+				return (string) $data;
 			default:
-				return esc_html($data);
+				return esc_html((string) $data);
 		}
 	}
 }

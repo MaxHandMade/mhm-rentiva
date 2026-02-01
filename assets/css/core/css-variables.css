@@ -6,34 +6,40 @@
  */
 
 :root {
-	/* === COLORS === */
+	/* === CORE COLORS (Linked to WP Global Presets) === */
+	--mhm-primary: var(--wp--preset--color--primary, #2563eb);
+	--mhm-secondary: var(--wp--preset--color--secondary, #1e40af);
 
-	/* Primary Colors */
-	--mhm-primary: #2271b1;
-	--mhm-primary-dark: #1e5a96;
-	--mhm-primary-light: #72aee6;
-	--mhm-secondary: #0073E6;
-	--mhm-secondary-dark: #0056B3;
-	--mhm-secondary-light: #4A90E2;
+	/* === INDEPENDENT CONTROL BUTTONS (Custom Slugs) === */
+	/* Button is now independent of Primary, powered by its own preset */
+	--mhm-btn-bg: var(--wp--preset--color--btn-bg, var(--mhm-primary));
+	--mhm-btn-color: var(--wp--preset--color--white, #ffffff);
+	--mhm-btn-hover-bg: color-mix(in srgb, var(--mhm-btn-bg), #000 15%);
 
-	/* Status Colors */
-	--mhm-success: #0073E6;
-	--mhm-warning: #dba617;
-	--mhm-error: #d63638;
-	--mhm-info: #72aee6;
+	/* Price is fully independent; it maintains its color even if Primary changes */
+	--mhm-price-color: var(--wp--preset--color--price-color, #059669);
 
-	/* Neutral Colors */
-	--mhm-white: #ffffff;
+	/* Typography and Other Base Colors */
+	--mhm-text-primary: var(--wp--preset--color--text, #1f2937);
+	--mhm-text-secondary: var(--mhm-gray-600);
+
+	/* Status Colors (Error, Success, etc.) */
+	--mhm-success: var(--wp--preset--color--success, #0073E6);
+	--mhm-warning: var(--wp--preset--color--warning, #dba617);
+	--mhm-error: var(--wp--preset--color--error, #d63638);
+
+	/* Neutral Colors (Linked to Theme Presets where applicable) */
+	--mhm-white: var(--wp--preset--color--white, #ffffff);
 	--mhm-black: #000000;
 	--mhm-gray-50: #f9f9f9;
-	--mhm-gray-100: #f0f0f1;
+	--mhm-gray-100: var(--wp--preset--color--gray-light, #f0f0f1);
 	--mhm-gray-200: #c3c4c7;
 	--mhm-gray-300: #a7aaad;
 	--mhm-gray-400: #8c8f94;
-	--mhm-gray-500: #646970;
+	--mhm-gray-500: var(--wp--preset--color--gray, #646970);
 	--mhm-gray-600: #50575e;
 	--mhm-gray-700: #3c434a;
-	--mhm-gray-800: #2c3338;
+	--mhm-gray-800: var(--wp--preset--color--gray-dark, #2c3338);
 	--mhm-gray-900: #1d2327;
 
 	/* Background Colors */
@@ -44,7 +50,7 @@
 	--mhm-bg-overlay: rgba(0, 0, 0, 0.5);
 
 	/* Text Colors */
-	--mhm-text-primary: var(--mhm-gray-900);
+	--mhm-text-primary: var(--wp--preset--color--text, #1f2937);
 	--mhm-text-secondary: var(--mhm-gray-600);
 	--mhm-text-tertiary: var(--mhm-gray-500);
 	--mhm-text-inverse: var(--mhm-white);

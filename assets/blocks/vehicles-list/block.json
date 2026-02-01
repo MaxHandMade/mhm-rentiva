@@ -1,0 +1,101 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/vehicles-list",
+    "version": "1.0.0",
+    "title": "MHM Vehicles List",
+    "category": "widgets",
+    "icon": "car",
+    "description": "Displays a list of vehicles with various filtering and layout options.",
+    "supports": {
+        "html": false,
+        "align": [
+            "wide",
+            "full"
+        ],
+        "spacing": {
+            "margin": true,
+            "padding": true
+        },
+        "color": {
+            "text": true,
+            "background": true,
+            "link": true
+        }
+    },
+    "textdomain": "mhm-rentiva",
+    "attributes": {
+        "limit": {
+            "type": "string",
+            "default": "12"
+        },
+        "columns": {
+            "type": "string",
+            "default": "3"
+        },
+        "orderby": {
+            "type": "string",
+            "default": "title"
+        },
+        "order": {
+            "type": "string",
+            "default": "ASC"
+        },
+        "category": {
+            "type": "string",
+            "default": ""
+        },
+        "featured": {
+            "type": "string",
+            "default": "0"
+        },
+        "show_image": {
+            "type": "string",
+            "default": "1"
+        },
+        "show_title": {
+            "type": "string",
+            "default": "1"
+        },
+        "show_price": {
+            "type": "string",
+            "default": "1"
+        },
+        "show_features": {
+            "type": "string",
+            "default": "1"
+        },
+        "show_rating": {
+            "type": "string",
+            "default": "1"
+        },
+        "show_booking_btn": {
+            "type": "string",
+            "default": "1"
+        },
+        "show_favorite_btn": {
+            "type": "string",
+            "default": "1"
+        },
+        "show_category": {
+            "type": "string",
+            "default": "1"
+        },
+        "show_badges": {
+            "type": "string",
+            "default": "1"
+        },
+        "show_description": {
+            "type": "string",
+            "default": "0"
+        },
+        "show_availability": {
+            "type": "string",
+            "default": "0"
+        },
+        "show_compare_btn": {
+            "type": "string",
+            "default": "0"
+        }
+    }
+}

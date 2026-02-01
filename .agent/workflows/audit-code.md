@@ -2,64 +2,60 @@
 description: Performs a comprehensive read-only analysis of the plugin files focusing on WPCS, security, i18n, and performance issues without modifying any files.
 ---
 
-# MHM Rentiva - Code Audit Workflow (v2.0)
+# MHM Rentiva - Code Audit Workflow (v3.0)
 
-This workflow defines the mandatory steps for auditing code before any merge or release. The goal is to ensure 100% compliance with WordPress.org standards and zero runtime errors.
+This workflow defines the mandatory steps for auditing code before any merge or release. It is now fully integrated with the **MHM Skills Hub** to ensure autonomous excellence.
+
+## 🤖 Automated Skill Integration
+- **Security Guard Enforcement:** Automatically verify `nonces`, `current_user_can('manage_options')`, and `wp_unslash` / `sanitize_text_field` standards during Phase 1.
+- **Performance Auditor Check:** Scan for SQL queries using `numberposts => -1` or missing `wp_cache` / `transient` logic during Phase 2.
+- **Memory Keeper Logging:** Every audit session must start by reading and end by updating `PROJECT_MEMORIES.md`.
 
 ## Phase 1: Static Analysis (Pre-Execution)
-*Tools: IDE (VS Code), PHP Lint, WPCS*
+*Primary Skill: mhm-security-guard*
 
 1.  **Strict Types Check:**
-    * Verify that `declare(strict_types=1);` is present at the top of every PHP file.
+    * Verify `declare(strict_types=1);` is at the top of every PHP file.
     * Ensure all function parameters and return types are strictly typed.
 
 2.  **Namespace & Prefix Verification:**
-    * Scan for generic class names or functions.
-    * **FAIL:** `class BookingForm`
     * **PASS:** `namespace MHMRentiva\Booking; class BookingForm`
-    * **FAIL:** `function get_cars()`
     * **PASS:** `function mhm_rentiva_get_cars()`
 
 3.  **Security Scan (Sanitization & Escaping):**
-    * **Input:** Check all `$_POST`, `$_GET` usages. Must be wrapped in `sanitize_*` functions.
-    * **Output:** Check all `echo` statements. Must be wrapped in `esc_*` functions.
-    * **Database:** Verify NO direct variable interpolation in SQL. `$wpdb->prepare()` is mandatory.
+    * **Input:** Every `$_POST`/`$_GET` must be wrapped in `sanitize_*` and `wp_unslash`.
+    * **Output:** Every `echo` must be wrapped in `esc_*`.
+    * **Database:** `$wpdb->prepare()` is mandatory. Direct interpolation is a Critical Fail.
 
 ## Phase 2: Runtime Analysis (Execution)
-*Tools: Query Monitor, Localhost Environment*
+*Primary Skill: mhm-performance-auditor*
 
-1.  **Query Monitor Check:**
-    * Load the plugin pages in the browser.
-    * Open Query Monitor panel.
-    * **PHP Errors:** Must be empty (No Notices, No Warnings, No Deprecated).
-    * **Database Queries:** Check for slow queries (>0.05s) or duplicate queries.
-    * **Scripts/Styles:** Check for 404 errors or missing dependencies.
+1.  **Query Monitor & Efficiency Check:**
+    * **Slow Queries:** No query should exceed 0.05s.
+    * **Redundancy:** Eliminate "Duplicate Queries" using Object Cache or Transients.
+    * **Asset Optimization:** Verify scripts are enqueued conditionally (Only where needed).
 
 2.  **Debug Log Check:**
-    * Check `wp-content/debug.log`.
-    * The file should be empty or contain no new errors related to MHM Rentiva.
+    * Verify `wp-content/debug.log` is clean of any MHM Rentiva notices or warnings.
 
 ## Phase 3: Compliance Audit (The Gatekeeper)
 *Tools: Plugin Check (PCP) Plugin*
 
-1.  **Run Plugin Check:**
-    * Navigate to **Tools > Plugin Check**.
-    * Select "MHM Rentiva".
-    * Run all checks.
+1.  **Zero-Tolerance Policy:**
+    * **Errors:** 0 allowed.
+    * **Warnings:** 0 allowed (Must be refactored or documented as Technical Debt).
 
-2.  **Zero-Tolerance Policy:**
-    * **Errors:** 0 allowed. (Must be fixed immediately).
-    * **Warnings:** 0 allowed. (Exceptions must be documented).
-    * **Notices:** Minimize as much as possible.
+## Phase 4: Metadata & Memory Sync
+*Primary Skill: mhm-memory-keeper*
 
-## Phase 4: Metadata Synchronization
 1.  **Version Consistency:**
-    * Compare `Version` in `mhm-rentiva.php`.
-    * Compare `Stable tag` in `readme.txt`.
-    * Compare `const VERSION` in the main class.
-    * **Result:** All three MUST match exactly.
+    * Sync versions in `mhm-rentiva.php`, `readme.txt`, and `const VERSION`.
+
+2.  **Final Memory Update:**
+    * Record any newly identified **Technical Debts** (e.g., Performance Warnings) in the TECHNICAL NOTES of `PROJECT_MEMORIES.md`.
+    * Move the verified audit task to the ARCHIVE.
 
 ---
 **Audit Decision:**
-- [ ] **APPROVE:** All phases passed. Ready for optimization.
-- [ ] **REJECT:** Any error found in Phase 1, 2, or 3. Return to development.
+- [ ] **APPROVE:** All phases passed. `PROJECT_MEMORIES.md` updated.
+- [ ] **REJECT:** Return to development. Log the reason in `PROJECT_MEMORIES.md`.

@@ -1,45 +1,33 @@
-.mhm-account-content .rv-vehicle-card__header {
-	min-height: auto;
-	margin-bottom: 0.5rem;
+/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
+[class*="rv-"],
+[class*="mhm-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
 }
 
-/**
- * My Account - CSS
- *
- * WordPress Login bazlı müşteri hesap sayfası stilleri
- * WooCommerce My Account ile uyumlu tasarım
- *
- * @since 4.0.0
- */
-
-/* ============================================================================
-	VARIABLES
-	========================================================================= */
 :root {
-	--account-primary: #2196F3;
-	--account-primary-hover: #1976d2;
-	--account-success: #4caf50;
-	--account-warning: #ff9800;
-	--account-error: #f44336;
-	--account-text: #333;
-	--account-text-light: #666;
-	--account-border: #e0e0e0;
-	--account-bg: #fff;
-	--account-bg-light: #f5f5f5;
-	--account-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	--account-primary: var(--mhm-primary);
+	--account-primary-hover: var(--mhm-primary-dark);
+	--account-success: var(--mhm-success);
+	--account-warning: var(--mhm-warning);
+	--account-error: var(--mhm-error);
+	--account-text: var(--mhm-text-primary);
+	--account-text-light: var(--mhm-text-secondary);
+	--account-border: var(--mhm-border-primary);
+	--account-bg: var(--mhm-bg-card);
+	--account-bg-light: var(--mhm-bg-secondary);
+	--account-shadow: var(--mhm-shadow-sm);
 	--account-radius: 8px;
 	--account-transition: all 0.3s ease;
 }
 
-/* ============================================================================
-	ACCOUNT PAGE LAYOUT
-	========================================================================= */
 .mhm-rentiva-account-page {
 	max-width: 1200px;
 	margin: 40px auto;
 	padding: 0 20px;
 	display: flex;
 	gap: 30px;
+	font-family: var(--mhm-font-primary);
 }
 
 /* ============================================================================
@@ -89,10 +77,10 @@
 }
 
 .account-menu .menu-item.active a {
-	background: rgba(33, 150, 243, 0.1) !important;
-	color: var(--account-primary) !important;
+	background: color-mix(in srgb, var(--mhm-primary), transparent 90%) !important;
+	color: var(--mhm-primary) !important;
 	font-weight: 600 !important;
-	border-left-color: var(--account-primary) !important;
+	border-left-color: var(--mhm-primary) !important;
 	position: relative;
 	box-shadow: none !important;
 	text-shadow: none !important;
@@ -146,8 +134,8 @@
 }
 
 .stat-card {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	color: white;
+	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%);
+	color: var(--mhm-btn-color);
 	padding: 25px;
 	border-radius: var(--account-radius);
 	display: flex;
@@ -162,7 +150,7 @@
 }
 
 .stat-card.stat-active {
-	background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+	background: linear-gradient(135deg, var(--mhm-success) 0%, var(--mhm-success-dark) 100%);
 }
 
 .stat-icon {
@@ -305,24 +293,23 @@
 }
 
 .status-confirmed {
-	background: #e8f5e9;
-	color: #2e7d32;
+	background: var(--mhm-gray-100);
+	color: var(--mhm-success);
 }
 
 .status-completed {
-	background-color: #0073E6;
-	background: #e3f2fd;
-	color: #1565c0;
+	background: var(--mhm-gray-100);
+	color: var(--mhm-primary);
 }
 
 .status-cancelled {
-	background: #ffebee;
-	color: #c62828;
+	background: var(--mhm-gray-100);
+	color: var(--mhm-error);
 }
 
 .status-pending {
-	background: #fff3e0;
-	color: #e65100;
+	background: var(--mhm-bg-secondary);
+	color: var(--mhm-warning);
 }
 
 .booking-price {
@@ -622,8 +609,8 @@
 }
 
 .login-header {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	color: white;
+	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%);
+	color: var(--mhm-btn-color);
 	padding: 30px;
 	text-align: center;
 }
@@ -691,8 +678,8 @@
 #mhm-rentiva-login-form input[type="submit"] {
 	width: 100%;
 	padding: 14px;
-	background: var(--account-primary);
-	color: white;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 	border: none;
 	border-radius: 6px;
 	font-size: 16px;
@@ -702,9 +689,9 @@
 }
 
 #mhm-rentiva-login-form input[type="submit"]:hover {
-	background: var(--account-primary-hover);
+	background-color: var(--mhm-primary-dark);
 	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 70%);
 }
 
 .login-footer {
@@ -771,14 +758,14 @@
 }
 
 .btn-primary {
-	background: var(--account-primary);
-	color: white;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 }
 
 .btn-primary:hover {
-	background: var(--account-primary-hover);
+	background-color: var(--mhm-primary-dark);
 	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 70%);
 }
 
 .btn-outline {
@@ -1315,8 +1302,8 @@ input[type="text"].password-input {
 }
 
 .register-header {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	color: white;
+	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%);
+	color: var(--mhm-btn-color);
 	padding: 30px;
 	text-align: center;
 }
@@ -1533,8 +1520,8 @@ input[type="text"].password-input {
 .rv-btn {
 	display: inline-block;
 	padding: 14px 24px;
-	background: var(--account-primary);
-	color: white;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 	border: none;
 	border-radius: 6px;
 	font-size: 16px;
@@ -1547,9 +1534,9 @@ input[type="text"].password-input {
 }
 
 .rv-btn:hover {
-	background: var(--account-primary-hover);
+	background-color: var(--mhm-primary-dark);
 	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 70%);
 }
 
 .register-footer {
@@ -1578,58 +1565,7 @@ input[type="text"].password-input {
 /* ============================================================================
 	NOTIFICATION TOASTS
 	========================================================================= */
-.rv-notification {
-	position: fixed;
-	top: 1.5rem;
-	right: 1.5rem;
-	z-index: 9999;
-	min-width: 220px;
-	padding: 0.875rem 1.25rem;
-	border-radius: 10px;
-	background-color: rgba(31, 41, 55, 0.92);
-	color: #ffffff;
-	font-size: 0.95rem;
-	font-weight: 500;
-	box-shadow: 0 18px 30px rgba(15, 23, 42, 0.18);
-	opacity: 0;
-	transform: translateY(-10px);
-	transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.rv-notification--show {
-	opacity: 1;
-	transform: translateY(0);
-}
-
-.rv-notification--success {
-	background-color: rgba(16, 185, 129, 0.95);
-	color: #0b1f17;
-}
-
-.rv-notification--error {
-	background-color: rgba(248, 113, 113, 0.95);
-	color: #2f0c0c;
-}
-
-.rv-notification--info {
-	background-color: rgba(96, 165, 250, 0.95);
-	color: #0b1a2b;
-}
-
-.rv-notification--warning {
-	background-color: rgba(251, 191, 36, 0.95);
-	color: #2b1b02;
-}
-
-@media (max-width: 600px) {
-	.rv-notification {
-		left: 1rem;
-		right: 1rem;
-		top: auto;
-		bottom: 1.5rem;
-		text-align: center;
-	}
-}
+/* Notification System - Moved to global notifications.css */
 
 /* Mobile Responsive */
 @media (max-width: 768px) {

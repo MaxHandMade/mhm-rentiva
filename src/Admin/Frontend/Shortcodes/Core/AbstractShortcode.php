@@ -153,6 +153,14 @@ abstract class AbstractShortcode
 
 		// Conditional Asset Loading check
 		if (static::should_load_assets_conditionally()) {
+			// Enqueue Global Notifications System (Must be here to ensure it loads even if child overrides enqueue_assets)
+			wp_enqueue_style(
+				'mhm-rentiva-notifications',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/notifications.css',
+				array(),
+				MHM_RENTIVA_VERSION
+			);
+
 			static::enqueue_assets();
 		}
 
@@ -380,10 +388,19 @@ abstract class AbstractShortcode
 	}
 
 	/**
-	 * Creates cache key
+	 * Creates cache key with versioning support
 	 */
 	protected static function get_cache_key(array $atts): string
 	{
+		$tag = static::get_shortcode_tag();
+
+		// Use versioning for mass invalidation (The WordPress Way)
+		$version = get_transient('mhm_rv_cache_v_' . $tag);
+		if (false === $version) {
+			$version = (string) time();
+			set_transient('mhm_rv_cache_v_' . $tag, $version, DAY_IN_SECONDS * 30);
+		}
+
 		// Include page ID, user status and other factors
 		$cache_factors = array(
 			'atts'     => $atts,
@@ -392,9 +409,10 @@ abstract class AbstractShortcode
 			'is_admin' => is_admin(),
 			'language' => get_locale(),
 			'theme'    => get_template(),
+			'v'        => $version,
 		);
 
-		return 'shortcode_' . static::get_shortcode_tag() . '_' . md5(serialize($cache_factors));
+		return 'mhm_shc_' . substr(md5($tag), 0, 8) . '_' . md5(serialize($cache_factors));
 	}
 
 	/**
@@ -615,27 +633,19 @@ abstract class AbstractShortcode
 	}
 
 	/**
-	 * Shortcode temizleme (cache vs.)
+	 * Shortcode cleanup (cache invalidation)
 	 */
 	public static function cleanup(): void
 	{
 		$tag = static::get_shortcode_tag();
 
-		// Cache temizle
+		// Invalidate all caches for this shortcode by deleting the version key
+		// This is the standard WP way to mass-invalidate transients without direct SQL
 		if (static::is_caching_enabled()) {
-			global $wpdb;
-			$wpdb->query(
-				$wpdb->prepare(
-					"
-                DELETE FROM {$wpdb->options}
-                WHERE option_name LIKE %s
-            ",
-					'_transient_shortcode_' . $tag . '_%'
-				)
-			);
+			delete_transient('mhm_rv_cache_v_' . $tag);
 		}
 
-		// Cache tracking temizle
+		// Cache tracking cleanup
 		unset(self::$shortcode_cache[$tag]);
 		unset(self::$enqueued_assets[$tag]);
 	}

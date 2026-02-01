@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.6.6-blue.svg)
+![Version](https://img.shields.io/badge/version-4.6.7-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1782,7 +1782,15 @@ Fixes #123
 
 ## 📝 Changelog
  
-### Latest Version: 4.6.6 (2026-01-28)
+### Latest Version: 4.6.7 (2026-02-01)
+
+**🛡️ SECURITY & STANDARDS**
+- **Safe Redirection**: Replaced `wp_redirect` with `wp_safe_redirect` project-wide to ensure internal redirection safety.
+- **Asset Standards**: Refactored admin inline styles to use the official `wp_add_inline_style` API.
+- **Performance Caching**: Migrated direct SQL cache cleanup to a versioned system using native `delete_transient()`.
+- **Security Helper**: Enhanced `SecurityHelper::safe_output` with robust context validation and JSON support.
+
+### Version: 4.6.6 (2026-01-28)
 
 **🐛 BUG FIXES & UI IMPROVEMENTS**
 - **Vehicle Icons**: Resolved issue with disappearing vehicle feature icons (fuel, transmission, etc.) in the Booking Form.

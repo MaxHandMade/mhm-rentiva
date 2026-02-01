@@ -150,7 +150,7 @@ $context        = $context ?? array();
 								<?php if (($atts['show_booking_btn'] ?? '1') === '1') : ?>
 									<div class="rv-vehicle-card__actions">
 										<?php
-										$btn_class = 'rv-btn-booking';
+										$btn_class = 'rv-btn-booking has-primary-background-color has-text-color';
 										$btn_href  = esc_url(add_query_arg('vehicle_id', $vehicle['id'], $booking_url));
 
 										if (! $is_available) {
@@ -158,7 +158,10 @@ $context        = $context ?? array();
 											$btn_href   = 'javascript:void(0);';
 										}
 										?>
-										<a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
+										<a href="<?php echo esc_url($btn_href); ?>"
+											class="<?php echo esc_attr($btn_class); ?>"
+											style="background-color: var(--mhm-btn-bg); color: var(--mhm-btn-color);"
+											data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
 											<?php echo esc_html($atts['booking_btn_text'] ?? __('Book Now', 'mhm-rentiva')); ?>
 										</a>
 									</div>

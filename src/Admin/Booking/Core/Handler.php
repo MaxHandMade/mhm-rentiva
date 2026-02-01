@@ -250,7 +250,7 @@ final class Handler
 			$referer
 		);
 
-		wp_redirect($url);
+		wp_safe_redirect($url);
 		exit;
 	}
 
@@ -435,7 +435,7 @@ final class Handler
 
 		$url = add_query_arg($args, $referer);
 
-		wp_redirect($url);
+		wp_safe_redirect($url);
 		exit;
 	}
 

@@ -1,9 +1,14 @@
-/* Search Results Page Styles */
+/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
+}
+
 .rv-search-results {
 	max-width: 1400px;
 	margin: 0 auto;
 	padding: 20px;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-family: var(--mhm-font-primary);
 }
 
 /* Results Header */
@@ -20,17 +25,17 @@
 	margin: 0 0 8px 0;
 	font-size: 28px;
 	font-weight: 600;
-	color: #333;
+	color: var(--mhm-text-primary);
 }
 
 .rv-search-query {
 	margin: 0;
-	color: #666;
+	color: var(--mhm-text-secondary);
 	font-size: 16px;
 }
 
 .rv-search-query strong {
-	color: #667eea;
+	color: var(--mhm-primary);
 	font-weight: 600;
 }
 
@@ -55,10 +60,10 @@
 
 .rv-sort-select {
 	padding: 8px 12px;
-	border: 2px solid #e1e5e9;
+	border: 2px solid var(--mhm-gray-200);
 	border-radius: 6px;
 	font-size: 14px;
-	background: white;
+	background: var(--mhm-white);
 	cursor: pointer;
 	transition: border-color 0.3s ease;
 }
@@ -95,9 +100,9 @@
 }
 
 .rv-view-btn.active {
-	background: #007cba;
-	color: white;
-	box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+	background: var(--mhm-primary);
+	color: var(--mhm-white);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Results Content Layout */
@@ -110,7 +115,7 @@
 
 /* Sidebar Filters */
 .rv-filters-sidebar {
-	background: white;
+	background: var(--mhm-white);
 	border-radius: 12px;
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 	padding: 20px;
@@ -132,13 +137,13 @@
 	margin: 0;
 	font-size: 18px;
 	font-weight: 600;
-	color: #333;
+	color: var(--mhm-text-primary);
 }
 
 .rv-clear-filters {
 	background: none;
 	border: none;
-	color: #007cba;
+	color: var(--mhm-primary);
 	font-size: 12px;
 	font-weight: 500;
 	cursor: pointer;
@@ -169,7 +174,7 @@
 	margin: 0 0 10px 0;
 	font-size: 13px;
 	font-weight: 600;
-	color: #333;
+	color: var(--mhm-text-primary);
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 }
@@ -190,7 +195,7 @@
 .rv-price-inputs input {
 	flex: 1;
 	padding: 8px 12px;
-	border: 2px solid #e1e5e9;
+	border: 2px solid var(--mhm-gray-200);
 	border-radius: 6px;
 	font-size: 13px;
 	transition: border-color 0.3s ease;
@@ -252,8 +257,8 @@
 }
 
 .rv-filter-option input[type="checkbox"]:checked+.rv-checkbox-custom {
-	background: #007cba;
-	border-color: #007cba;
+	background: var(--mhm-primary);
+	border-color: var(--mhm-primary);
 }
 
 .rv-filter-option input[type="checkbox"]:checked+.rv-checkbox-custom::after {
@@ -405,8 +410,8 @@
 
 /* Base Card Styles */
 .rv-vehicle-card {
-	background: white;
-	border: 1px solid #e1e5e9;
+	background: var(--mhm-white);
+	border: 1px solid var(--mhm-gray-200);
 	border-radius: 12px;
 	overflow: hidden;
 	transition: all 0.3s ease;
@@ -521,7 +526,7 @@
 	margin: 0;
 	font-size: 18px;
 	font-weight: 600;
-	color: #333;
+	color: var(--mhm-text-primary);
 	line-height: 1.3;
 }
 
@@ -624,8 +629,8 @@
 }
 
 .rv-btn-primary {
-	background: #007cba;
-	color: white;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 	flex: 1;
 	white-space: nowrap;
 }
@@ -637,7 +642,8 @@
 }
 
 .rv-btn-primary:hover {
-	box-shadow: 0 4px 15px rgba(0, 124, 186, 0.3);
+	background-color: var(--mhm-btn-hover-bg);
+	box-shadow: 0 4px 15px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%);
 }
 
 .rv-btn-primary.rv-btn-disabled,
@@ -709,7 +715,7 @@
 
 .rv-price-amount {
 	font-size: 16px;
-	color: #667eea;
+	color: var(--mhm-price-color);
 }
 
 .rv-price-period {
@@ -793,8 +799,8 @@
 .rv-back-to-search {
 	display: inline-block;
 	padding: 12px 24px;
-	background: #007cba;
-	color: white;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 	text-decoration: none;
 	border-radius: 8px;
 	font-weight: 500;
@@ -802,8 +808,9 @@
 }
 
 .rv-back-to-search:hover {
+	background-color: var(--mhm-primary-dark);
 	transform: translateY(-2px);
-	box-shadow: 0 4px 15px rgba(0, 124, 186, 0.3);
+	box-shadow: 0 4px 15px color-mix(in srgb, var(--mhm-primary), transparent 70%);
 }
 
 /* Pagination */

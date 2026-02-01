@@ -1,12 +1,17 @@
-/* Vehicle Search Compact Form Styles - MHM Rentiva Theme */
+/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
+}
+
 .rv-search-form-compact {
 	max-width: 100%;
 	margin: 0 auto;
 	padding: 30px;
-	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+	background: linear-gradient(135deg, var(--mhm-bg-card) 0%, var(--mhm-bg-secondary) 100%);
 	border-radius: 16px;
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	border: 1px solid var(--mhm-border-primary);
+	font-family: var(--mhm-font-primary);
 	position: relative;
 	overflow: hidden;
 }
@@ -18,6 +23,7 @@
 	left: 0;
 	right: 0;
 	height: 4px;
+	background: var(--mhm-btn-bg);
 }
 
 /* Header - Hidden per user request */
@@ -29,7 +35,7 @@
 	margin: 0;
 	font-size: 28px;
 	font-weight: 700;
-	color: #1e293b;
+	color: var(--mhm-text-primary);
 	letter-spacing: -0.025em;
 }
 
@@ -52,15 +58,15 @@
 	align-items: center;
 	gap: 8px;
 	padding: 0 32px;
-	background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-	color: white;
+	background: var(--mhm-primary);
+	color: var(--mhm-white);
 	border: none;
 	border-radius: 10px;
 	font-size: 15px;
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 	width: 100%;
 	/* Fill the flex container */
 	justify-content: center;
@@ -81,13 +87,13 @@
 	min-width: 140px;
 	min-height: auto;
 	/* Allow auto height */
-	margin-bottom: 0;
+	margin-bottom: 0px;
 }
 
 .rv-search-field label {
 	font-size: 13px;
 	font-weight: 600;
-	color: #475569;
+	color: var(--mhm-text-secondary);
 	margin-bottom: 6px;
 	letter-spacing: 0.025em;
 	white-space: nowrap;
@@ -96,14 +102,14 @@
 .rv-search-field input {
 	width: 100%;
 	padding: 12px 16px;
-	border: 2px solid #e2e8f0;
+	border: 2px solid var(--mhm-border-primary);
 	border-radius: 10px;
 	font-size: 15px;
 	font-weight: 500;
-	color: #1e293b;
-	background: #ffffff;
+	color: var(--mhm-text-primary);
+	background: var(--mhm-bg-card);
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+	box-shadow: var(--mhm-shadow-sm);
 	height: 48px;
 	/* Standardize height */
 	box-sizing: border-box;
@@ -111,13 +117,13 @@
 
 .rv-search-field input:focus {
 	outline: none;
-	border-color: #3b82f6;
-	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	border-color: var(--mhm-btn-bg);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-btn-bg), transparent 90%);
 	transform: translateY(-1px);
 }
 
 .rv-search-field input::placeholder {
-	color: #94a3b8;
+	color: var(--mhm-gray-400);
 	font-weight: 400;
 }
 
@@ -141,12 +147,12 @@
 	min-width: 80px;
 	padding: 14px 28px 14px 8px;
 	/* Increased vertical padding to center text */
-	border: 2px solid #e2e8f0;
+	border: 2px solid var(--mhm-border-primary);
 	border-radius: 10px;
 	font-size: 14px;
 	font-weight: 500;
-	color: #1e293b;
-	background: #ffffff;
+	color: var(--mhm-text-primary);
+	background: var(--mhm-bg-card);
 	cursor: pointer;
 	box-sizing: border-box;
 	height: 48px;
@@ -159,29 +165,29 @@
 	appearance: none;
 	-webkit-appearance: none;
 	-moz-appearance: none;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23334155' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
 	background-position: right 8px center;
 }
 
 .rv-time-select:focus {
 	outline: none;
-	border-color: #3b82f6;
-	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	border-color: var(--mhm-btn-bg);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-btn-bg), transparent 90%);
 }
 
 /* Disabled time select styling */
 .rv-time-select-disabled,
 .rv-time-select:disabled {
-	background-color: #f8fafc !important;
-	color: #64748b !important;
+	background-color: var(--mhm-bg-tertiary) !important;
+	color: var(--mhm-text-tertiary) !important;
 	cursor: not-allowed !important;
 	opacity: 0.7;
 }
 
 .rv-time-select-disabled:focus,
 .rv-time-select:disabled:focus {
-	border-color: #e2e8f0 !important;
+	border-color: var(--mhm-border-primary) !important;
 	box-shadow: none !important;
 }
 
@@ -189,7 +195,7 @@
 .rv-search-submit {
 	display: block;
 	/* Let button handling sizing */
-	margin-bottom: 0;
+	margin-bottom: 0px;
 }
 
 .rv-search-btn {
@@ -197,28 +203,28 @@
 	align-items: center;
 	gap: 8px;
 	padding: 0 32px;
-	background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-	color: white;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 	border: none;
 	border-radius: 10px;
 	font-size: 15px;
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%);
 	min-width: auto;
 	justify-content: center;
 	height: 48px;
-	/* Match input height explicitly */
 	box-sizing: border-box;
 	white-space: nowrap;
 	margin-bottom: 0px;
 }
 
 .rv-search-btn:hover {
+	background-color: var(--mhm-btn-hover-bg);
 	transform: translateY(-2px);
-	box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-	background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+	box-shadow: 0 8px 25px color-mix(in srgb, var(--mhm-btn-bg), transparent 60%);
+	filter: brightness(110%);
 }
 
 .rv-search-btn:active {
@@ -245,9 +251,9 @@
 .rv-advanced-content-compact {
 	margin-top: 20px;
 	padding: 20px;
-	background: #f8fafc;
+	background: var(--mhm-bg-secondary);
 	border-radius: 12px;
-	border: 1px solid #e2e8f0;
+	border: 1px solid var(--mhm-border-primary);
 }
 
 .rv-advanced-row-compact {
@@ -257,33 +263,33 @@
 }
 
 .rv-advanced-row-compact .rv-search-field {
-	margin-bottom: 0;
+	margin-bottom: 0px;
 }
 
 .rv-advanced-row-compact .rv-search-field input,
 .rv-advanced-row-compact .rv-search-field select {
-	background: #ffffff;
+	background: var(--mhm-bg-card);
 }
 
 /* Select Fields */
 .rv-search-field select {
 	width: 100%;
 	padding: 14px 16px;
-	border: 2px solid #e2e8f0;
+	border: 2px solid var(--mhm-border-primary);
 	border-radius: 10px;
 	font-size: 15px;
 	font-weight: 500;
-	color: #1e293b;
-	background: #ffffff;
+	color: var(--mhm-text-primary);
+	background: var(--mhm-bg-card);
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+	box-shadow: var(--mhm-shadow-sm);
 	cursor: pointer;
 }
 
 .rv-search-field select:focus {
 	outline: none;
-	border-color: #3b82f6;
-	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	border-color: var(--mhm-btn-bg);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-btn-bg), transparent 90%);
 }
 
 /* Responsive Design */
@@ -427,12 +433,12 @@
 /* Error States */
 .rv-search-field.error input,
 .rv-search-field.error select {
-	border-color: #ef4444;
-	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+	border-color: var(--mhm-error);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-error), transparent 90%);
 }
 
 .rv-search-field .error-message {
-	color: #ef4444;
+	color: var(--mhm-error);
 	font-size: 12px;
 	font-weight: 500;
 	margin-top: 4px;
@@ -441,23 +447,23 @@
 /* Success States */
 .rv-search-field.success input,
 .rv-search-field.success select {
-	border-color: #10b981;
-	box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+	border-color: var(--mhm-success);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-success), transparent 90%);
 }
 
 /* Focus States */
 .rv-search-field:focus-within label {
-	color: #3b82f6;
+	color: var(--mhm-btn-bg);
 }
 
 /* ===== MODERN JQUERY UI DATEPICKER STYLES (Matched to Booking Form) ===== */
 .ui-datepicker {
-	background: #ffffff !important;
-	border: 2px solid #e2e8f0 !important;
+	background: var(--mhm-bg-card) !important;
+	border: 2px solid var(--mhm-border-primary) !important;
 	border-radius: 12px !important;
-	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+	box-shadow: var(--mhm-shadow-lg) !important;
 	padding: 0 !important;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+	font-family: var(--mhm-font-primary) !important;
 	font-size: 14px !important;
 	z-index: 9999 !important;
 	min-width: 280px !important;
@@ -465,8 +471,8 @@
 
 /* ===== DATEPICKER HEADER ===== */
 .ui-datepicker .ui-datepicker-header {
-	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-	color: #ffffff !important;
+	background: var(--mhm-btn-bg) !important;
+	color: var(--mhm-btn-color) !important;
 	border: none !important;
 	border-radius: 10px 10px 0 0 !important;
 	padding: 0 !important;
@@ -474,7 +480,7 @@
 	height: 64px !important;
 	text-align: center !important;
 	position: relative !important;
-	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2) !important;
+	box-shadow: var(--mhm-shadow-base) !important;
 	display: flex !important;
 	align-items: center !important;
 	justify-content: center !important;
@@ -486,7 +492,7 @@
 	font-weight: 700 !important;
 	font-size: 17px !important;
 	line-height: 1.5 !important;
-	color: #ffffff !important;
+	color: var(--mhm-btn-color) !important;
 	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
 	letter-spacing: 0.5px !important;
 	text-align: center !important;
@@ -543,8 +549,8 @@
 	display: block !important;
 	width: 8px !important;
 	height: 8px !important;
-	border-left: 2px solid #ffffff !important;
-	border-bottom: 2px solid #ffffff !important;
+	border-left: 2px solid var(--mhm-white) !important;
+	border-bottom: 2px solid var(--mhm-white) !important;
 	transform: rotate(45deg) !important;
 	margin-left: 2px !important;
 }
@@ -554,8 +560,8 @@
 	display: block !important;
 	width: 8px !important;
 	height: 8px !important;
-	border-right: 2px solid #ffffff !important;
-	border-top: 2px solid #ffffff !important;
+	border-right: 2px solid var(--mhm-white) !important;
+	border-top: 2px solid var(--mhm-white) !important;
 	transform: rotate(45deg) !important;
 	margin-right: 2px !important;
 }
@@ -576,7 +582,7 @@
 }
 
 .ui-datepicker-calendar th {
-	color: #64748b !important;
+	color: var(--mhm-text-secondary) !important;
 	font-weight: 600 !important;
 	font-size: 13px !important;
 	padding: 10px 0 !important;
@@ -604,7 +610,7 @@
 	margin: 0 auto !important;
 	text-align: center !important;
 	text-decoration: none !important;
-	color: #334155 !important;
+	color: var(--mhm-text-primary) !important;
 	font-weight: 500 !important;
 	font-size: 14px !important;
 	border-radius: 50% !important;
@@ -613,44 +619,44 @@
 }
 
 .ui-datepicker-calendar td a:hover {
-	background-color: #eff6ff !important;
-	color: #3b82f6 !important;
+	background-color: var(--mhm-bg-secondary) !important;
+	color: var(--mhm-btn-bg) !important;
 	transform: scale(1.1) !important;
 	font-weight: 600 !important;
 }
 
 .ui-datepicker-calendar .ui-state-active {
-	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-	color: #ffffff !important;
+	background: var(--mhm-btn-bg) !important;
+	color: var(--mhm-white) !important;
 	font-weight: 700 !important;
-	box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4) !important;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
 	border: none !important;
 	transform: scale(1.05) !important;
 }
 
 .ui-datepicker-calendar .ui-state-highlight {
-	background-color: #f1f5f9 !important;
-	color: #334155 !important;
-	border: 1px solid #cbd5e1 !important;
+	background-color: var(--mhm-bg-tertiary) !important;
+	color: var(--mhm-text-primary) !important;
+	border: 1px solid var(--mhm-border-primary) !important;
 }
 
 .ui-datepicker-today a.ui-state-highlight {
 	font-weight: 700 !important;
-	color: #3b82f6 !important;
-	background-color: #eff6ff !important;
-	border-color: #bfdbfe !important;
+	color: var(--mhm-btn-bg) !important;
+	background-color: var(--mhm-bg-secondary) !important;
+	border-color: color-mix(in srgb, var(--mhm-btn-bg), transparent 80%) !important;
 }
 
 /* Button Pane */
 .ui-datepicker-buttonpane {
-	border-top: 1px solid #e2e8f0 !important;
+	border-top: 1px solid var(--mhm-border-primary) !important;
 	padding: 12px !important;
 	margin: 0 !important;
 }
 
 .ui-datepicker-buttonpane button {
-	background: #64748b !important;
-	color: white !important;
+	background: var(--mhm-gray-500) !important;
+	color: var(--mhm-white) !important;
 	border: none !important;
 	border-radius: 6px !important;
 	padding: 8px 16px !important;
@@ -663,19 +669,19 @@
 }
 
 .ui-datepicker-buttonpane button:hover {
-	background: #475569 !important;
+	filter: brightness(110%) !important;
 	transform: translateY(-1px) !important;
 }
 
 .ui-datepicker-buttonpane button.ui-datepicker-current {
 	float: left !important;
-	background: #f1f5f9 !important;
-	color: #475569 !important;
-	border: 1px solid #cbd5e1 !important;
+	background: var(--mhm-bg-secondary) !important;
+	color: var(--mhm-text-secondary) !important;
+	border: 1px solid var(--mhm-border-primary) !important;
 }
 
 .ui-datepicker-buttonpane button.ui-datepicker-close {
 	float: right !important;
-	background: #3b82f6 !important;
-	color: #ffffff !important;
+	background: var(--mhm-primary) !important;
+	color: var(--mhm-white) !important;
 }

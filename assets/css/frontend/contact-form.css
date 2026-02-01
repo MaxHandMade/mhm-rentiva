@@ -1,19 +1,18 @@
-/**
- * Contact Form Shortcode Styles
- *
- * Modern, responsive iletişim formu stilleri
- */
+/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
+}
 
-/* ===== ANA CONTAINER ===== */
 .rv-contact-form {
 	max-width: 800px;
 	margin: 0 auto;
 	padding: 20px;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-	background: #ffffff;
+	font-family: var(--mhm-font-primary);
+	background: var(--mhm-bg-card);
 	border-radius: 12px;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-	border: 1px solid #e1e5e9;
+	box-shadow: var(--mhm-shadow-base);
+	border: 1px solid var(--mhm-border-primary);
 }
 
 /* ===== HEADER ===== */
@@ -27,7 +26,7 @@
 .rv-contact-title {
 	font-size: 28px;
 	font-weight: 700;
-	color: #1e1e1e;
+	color: var(--mhm-text-primary);
 	margin: 0 0 10px 0;
 	display: flex;
 	align-items: center;
@@ -36,7 +35,7 @@
 }
 
 .rv-contact-title .dashicons {
-	color: #007cba;
+	color: var(--mhm-primary);
 	font-size: 32px;
 }
 
@@ -73,7 +72,7 @@
 
 .rv-form-label {
 	font-weight: 600;
-	color: #1e1e1e;
+	color: var(--mhm-text-primary);
 	font-size: 14px;
 	display: flex;
 	align-items: center;
@@ -95,11 +94,12 @@
 .rv-form-select,
 .rv-form-textarea {
 	padding: 12px 16px;
-	border: 2px solid #e1e5e9;
+	border: 1px solid var(--mhm-border-primary);
 	border-radius: 8px;
 	font-size: 16px;
 	transition: all 0.3s ease;
-	background: #ffffff;
+	background: var(--mhm-bg-card);
+	color: var(--mhm-text-primary);
 	font-family: inherit;
 }
 
@@ -107,15 +107,15 @@
 .rv-form-select:focus,
 .rv-form-textarea:focus {
 	outline: none;
-	border-color: #007cba;
-	box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+	border-color: var(--mhm-primary);
+	box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
 }
 
 .rv-form-input.error,
 .rv-form-select.error,
 .rv-form-textarea.error {
-	border-color: #d63638;
-	box-shadow: 0 0 0 3px rgba(214, 54, 56, 0.1);
+	border-color: var(--mhm-error);
+	box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
 }
 
 .rv-form-textarea {
@@ -183,18 +183,18 @@
 	align-items: center;
 	gap: 10px;
 	padding: 12px 16px;
-	border: 2px dashed #e1e5e9;
+	border: 2px dashed var(--mhm-border-primary);
 	border-radius: 8px;
-	background: #f6f7f7;
+	background: var(--mhm-bg-secondary);
 	cursor: pointer;
 	transition: all 0.3s ease;
 	font-weight: 600;
-	color: #007cba;
+	color: var(--mhm-primary);
 }
 
 .rv-file-upload-label:hover {
-	border-color: #007cba;
-	background: rgba(0, 124, 186, 0.05);
+	border-color: var(--mhm-primary);
+	background: color-mix(in srgb, var(--mhm-primary), transparent 95%);
 }
 
 .rv-file-upload-label .dashicons {
@@ -228,8 +228,8 @@
 }
 
 .rv-file-remove:hover {
-	background: #d63638;
-	color: #ffffff;
+	background: var(--mhm-error);
+	color: var(--mhm-white);
 }
 
 .rv-file-help {
@@ -290,14 +290,14 @@
 }
 
 .rv-button-primary {
-	background: #007cba;
-	color: #ffffff;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 }
 
 .rv-button-primary:hover {
-	background: #005a87;
+	background-color: var(--mhm-primary-dark);
 	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(0, 124, 186, 0.3);
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 70%);
 }
 
 .rv-button-secondary {
@@ -512,8 +512,8 @@
 }
 
 .rv-theme-detailed .rv-contact-header {
-	background: linear-gradient(135deg, #007cba 0%, #005a87 100%);
-	color: #ffffff;
+	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%);
+	color: var(--mhm-btn-color);
 	margin: -20px -20px 30px -20px;
 	padding: 30px 20px;
 	border-radius: 12px 12px 0 0;

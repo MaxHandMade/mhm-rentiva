@@ -159,19 +159,28 @@
 
         showNotification(message, type) {
             type = type || 'info';
-            const $notification = $('<div class="rv-notification rv-notification--' + type + '">' + message + '</div>');
+
+            // Remove existing notifications if any
+            $('.rv-notification').remove();
+
+            const icon = type === 'success' ? '✓' : '!';
+            const $notification = $(`
+                <div class="rv-notification rv-notification--show rv-notification--${type}">
+                    <div class="rv-notification-body">
+                        <span class="rv-notification-icon-badge">${icon}</span>
+                        <span class="rv-notification-text">${message}</span>
+                    </div>
+                </div>
+            `);
+
             $('body').append($notification);
 
-            setTimeout(function () {
-                $notification.addClass('rv-notification--show');
-            }, 100);
-
-            setTimeout(function () {
-                $notification.removeClass('rv-notification--show');
-                setTimeout(function () {
-                    $notification.remove();
-                }, 300);
-            }, 3000);
+            // Auto-hide after 3.5 seconds
+            setTimeout(() => {
+                $notification.fadeOut(400, function () {
+                    $(this).remove();
+                });
+            }, 3500);
         }
     };
 
@@ -529,22 +538,27 @@
          * Show message
          */
         showMessage(message, type = 'success') {
-            const $messages = $('.account-messages');
+            // Remove existing notifications if any
+            $('.rv-notification').remove();
 
-            if ($messages.length === 0) {
-                return;
-            }
+            const icon = type === 'success' ? '✓' : '!';
+            const $notification = $(`
+                <div class="rv-notification rv-notification--show rv-notification--${type}">
+                    <div class="rv-notification-body">
+                        <span class="rv-notification-icon-badge">${icon}</span>
+                        <span class="rv-notification-text">${message}</span>
+                    </div>
+                </div>
+            `);
 
-            $messages
-                .removeClass('success error')
-                .addClass(type)
-                .html(`<p>${message}</p>`)
-                .slideDown(300);
+            $('body').append($notification);
 
-            // Hide after 5 seconds
+            // Auto-hide after 4 seconds
             setTimeout(() => {
-                $messages.slideUp(300);
-            }, 5000);
+                $notification.fadeOut(400, function () {
+                    $(this).remove();
+                });
+            }, 4000);
         }
     }
 

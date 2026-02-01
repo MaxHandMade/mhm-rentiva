@@ -1,0 +1,120 @@
+/**
+ * @since 4.6.5 */
+
+/* WordPress Global Styles Listener */
+.rv-notification.has-link-color {
+    --mhm-primary: var(--wp--style--color--link) !important;
+}
+
+.rv-notification.has-text-color {
+    --mhm-text-primary: var(--wp--style--color--text) !important;
+}
+
+.rv-notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 0;
+    border-radius: 12px;
+    background: var(--mhm-white);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    z-index: 2147483647;
+    /* Maximum possible z-index */
+    min-width: 320px;
+    max-width: 400px;
+    overflow: hidden;
+    border-left: 5px solid var(--mhm-primary);
+    /* Default Info Blue */
+    display: none;
+    /* Controlled by JS or rv-notification--show */
+    pointer-events: auto;
+    font-family: 'Inter', -apple-system, sans-serif;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rv-notification--show {
+    display: block;
+    animation: rv-notification-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rv-notification--success {
+    border-left-color: var(--mhm-success);
+}
+
+.rv-notification--error {
+    border-left-color: var(--mhm-error);
+}
+
+.rv-notification--warning {
+    border-left-color: var(--mhm-warning);
+}
+
+.rv-notification--info {
+    border-left-color: var(--mhm-primary);
+}
+
+.rv-notification-body {
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rv-notification-icon-badge {
+    width: 24px;
+    height: 24px;
+    background: #f1f5f9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.rv-notification--success .rv-notification-icon-badge {
+    background: var(--mhm-gray-50);
+    color: var(--mhm-success);
+}
+
+.rv-notification--error .rv-notification-icon-badge {
+    background: var(--mhm-gray-50);
+    color: var(--mhm-error);
+}
+
+.rv-notification--warning .rv-notification-icon-badge {
+    background: var(--mhm-gray-50);
+    color: var(--mhm-warning);
+}
+
+.rv-notification-text {
+    color: var(--mhm-text-primary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* Animations */
+@keyframes rv-notification-slide-up {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Mobile Adjustments */
+@media (max-width: 480px) {
+    .rv-notification {
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+        min-width: 0;
+        width: calc(100% - 40px);
+    }
+}

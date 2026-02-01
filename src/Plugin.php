@@ -652,9 +652,6 @@ final class Plugin
 
 		// ⭐ Elementor Integration - Register widgets (v3.0.1)
 		$this->initialize_elementor_integration();
-
-		// ⭐ Gutenberg Integration - Register blocks (v3.0.1)
-		$this->initialize_gutenberg_integration();
 	}
 
 	/**
@@ -756,15 +753,6 @@ final class Plugin
 	{
 		// Initialize Elementor widgets
 		\MHMRentiva\Admin\Frontend\Widgets\Elementor\ElementorIntegration::init();
-	}
-
-	/**
-	 * Initialize Gutenberg integration
-	 */
-	private function initialize_gutenberg_integration(): void
-	{
-		// Initialize Gutenberg integration
-		\MHMRentiva\Admin\Frontend\Blocks\Gutenberg\GutenbergIntegration::init();
 	}
 
 	/**

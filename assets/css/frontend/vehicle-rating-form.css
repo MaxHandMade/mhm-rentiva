@@ -1,22 +1,13 @@
-/**
- * Vehicle Rating Form - Premium Skin
- */
-
-:root {
-	--rv-primary: #3182ce;
-	--rv-primary-hover: #2c5282;
-	--rv-bg-chip: #f3f4f6;
-	--rv-radius-card: 16px;
-	--rv-radius-btn: 8px;
-	--rv-radius-chip: 20px;
-	--rv-text-main: #2d3748;
-	--rv-text-muted: #718096;
-	--rv-shadow-subtle: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
 }
 
 .rv-unified-ratings-section {
 	padding: 3rem;
-	background: #fcfcfd;
+	background: var(--mhm-bg-secondary);
+	font-family: var(--mhm-font-primary);
 }
 
 /* Rating Summary Header */
@@ -26,16 +17,16 @@
 	gap: 1.5rem;
 	margin-bottom: 3rem;
 	padding: 1.5rem;
-	background: #ffffff;
+	background: var(--mhm-white);
 	border-radius: 12px;
-	border: 1px solid #edf2f7;
+	border: 1px solid var(--mhm-gray-200);
 	width: fit-content;
 }
 
 .rv-rating-average {
 	font-size: 2.5rem;
 	font-weight: 800;
-	color: var(--rv-text-main);
+	color: var(--mhm-text-primary);
 	line-height: 1;
 }
 
@@ -49,7 +40,7 @@
 .rv-rating-form-title {
 	font-size: 1.25rem;
 	font-weight: 700;
-	color: var(--rv-text-main);
+	color: var(--mhm-text-primary);
 	margin-bottom: 2rem;
 	display: flex;
 	align-items: center;
@@ -61,7 +52,7 @@
 	display: block;
 	width: 4px;
 	height: 20px;
-	background: var(--rv-primary);
+	background: var(--mhm-primary);
 	border-radius: 2px;
 }
 
@@ -94,7 +85,7 @@
 
 .rv-star-input {
 	font-size: 24px;
-	color: #e2e8f0;
+	color: var(--mhm-gray-200);
 	cursor: pointer;
 	transition: all 0.2s;
 }
@@ -102,12 +93,12 @@
 .rv-rating-stars-input input[type="radio"]:checked~label svg path,
 .rv-rating-stars-input label:hover svg path,
 .rv-rating-stars-input label:hover~label svg path {
-	fill: #ecc94b !important;
+	fill: var(--mhm-warning) !important;
 }
 
 .rv-star-input.active,
 .rv-star-input:hover {
-	color: #ecc94b;
+	color: var(--mhm-warning);
 }
 
 .rv-rating-textarea {
@@ -126,7 +117,7 @@
 
 .rv-rating-textarea:focus {
 	outline: none;
-	border-color: var(--rv-primary);
+	border-color: var(--mhm-primary);
 	background: #fff;
 	box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
 }
@@ -139,7 +130,7 @@
 .rv-reviews-title {
 	font-size: 1.25rem;
 	font-weight: 700;
-	color: var(--rv-text-main);
+	color: var(--mhm-text-primary);
 	margin-bottom: 1.5rem;
 	display: flex;
 	align-items: center;
@@ -151,7 +142,7 @@
 	display: block;
 	width: 4px;
 	height: 18px;
-	background: var(--rv-primary);
+	background: var(--mhm-primary);
 	border-radius: 2px;
 }
 
@@ -221,14 +212,14 @@
 
 .rv-review-author-name {
 	font-weight: 600;
-	color: var(--rv-text-main);
+	color: var(--mhm-text-primary);
 	font-size: 15px;
 	line-height: 1.2;
 }
 
 .rv-review-date {
 	font-size: 12px;
-	color: var(--rv-text-muted);
+	color: var(--mhm-text-secondary);
 }
 
 .rv-review-rating {
@@ -237,12 +228,12 @@
 }
 
 .rv-review-rating .rv-star {
-	color: #e2e8f0;
+	color: var(--mhm-gray-200);
 	font-size: 14px;
 }
 
 .rv-review-rating .rv-star.active {
-	color: #ecc94b;
+	color: var(--mhm-warning);
 }
 
 .rv-review-content {
@@ -262,7 +253,7 @@
 	padding: 4px 10px;
 	border-radius: 6px;
 	font-size: 12px;
-	color: var(--rv-text-muted);
+	color: var(--mhm-text-secondary);
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -270,8 +261,8 @@
 }
 
 .rv-review-actions button:hover {
-	border-color: var(--rv-primary);
-	color: var(--rv-primary);
+	border-color: var(--mhm-primary);
+	color: var(--mhm-primary);
 }
 
 .rv-review-actions .dashicons {
@@ -290,7 +281,7 @@
 
 .rv-rating-date {
 	font-size: 13px;
-	color: var(--rv-text-muted);
+	color: var(--mhm-text-secondary);
 	font-weight: 500;
 }
 
@@ -316,7 +307,7 @@
 
 .rv-rating-textarea:focus {
 	outline: none;
-	border-color: var(--rv-primary);
+	border-color: var(--mhm-primary);
 	box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
 }
 
@@ -354,11 +345,11 @@
 
 /* Button & Messages */
 .rv-btn-primary {
-	background: var(--rv-primary);
-	color: #fff;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 	padding: 0 32px;
 	height: 48px;
-	border-radius: var(--rv-radius-btn);
+	border-radius: 8px;
 	font-weight: 700;
 	border: none;
 	cursor: pointer;
@@ -366,9 +357,9 @@
 }
 
 .rv-btn-primary:hover {
-	background: var(--rv-primary-hover);
+	background-color: var(--mhm-primary-dark);
 	transform: translateY(-1px);
-	box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 70%);
 }
 
 /* Submit Button Container */
@@ -424,10 +415,10 @@
 	align-items: flex-start;
 	gap: 12px;
 	padding: 16px 20px;
-	background: #fff;
+	background: var(--mhm-white);
 	border-radius: 12px;
 	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-	border-left: 4px solid #3182ce;
+	border-left: 4px solid var(--mhm-primary);
 	animation: slideInRight 0.3s ease-out;
 }
 

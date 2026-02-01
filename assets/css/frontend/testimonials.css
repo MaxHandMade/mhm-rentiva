@@ -1,28 +1,30 @@
-/**
- * Testimonials CSS - Modern Design
- *
- * Customer reviews and ratings with modern UI/UX
- */
+/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
+}
+
+/* Testimonials CSS - Modern Design */
 
 /* ===== CSS VARIABLES ===== */
 :root {
-	/* Colors */
-	--rv-testimonials-primary: #0073aa;
-	--rv-testimonials-primary-hover: #005a87;
-	--rv-testimonials-success: #00a32a;
-	--rv-testimonials-warning: #dba617;
-	--rv-testimonials-error: #d63638;
-	--rv-testimonials-info: #72aee6;
+	/* Colors Linked to MHM Tokens */
+	--rv-testimonials-primary: var(--mhm-primary);
+	--rv-testimonials-primary-hover: var(--mhm-primary-dark);
+	--rv-testimonials-success: var(--mhm-success);
+	--rv-testimonials-warning: var(--mhm-warning);
+	--rv-testimonials-error: var(--mhm-error);
+	--rv-testimonials-info: var(--mhm-primary);
 
 	/* Status Colors */
-	--rv-star-filled: #f39c12;
-	--rv-star-empty: #ddd;
-	--rv-rating-bg: #f8f9fa;
+	--rv-star-filled: var(--mhm-warning);
+	--rv-star-empty: var(--mhm-gray-300);
+	--rv-rating-bg: var(--mhm-bg-secondary);
 
 	/* Layout */
 	--rv-testimonials-radius: 12px;
-	--rv-testimonials-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-	--rv-testimonials-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+	--rv-testimonials-shadow: var(--mhm-shadow-sm);
+	--rv-testimonials-shadow-hover: var(--mhm-shadow-lg);
 	--rv-testimonials-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 	/* Spacing */
@@ -33,7 +35,7 @@
 	--rv-space-xl: 2rem;
 	--rv-space-2xl: 3rem;
 
-	/* Typography */
+	/* Typography Tokens */
 	--rv-font-size-sm: 0.875rem;
 	--rv-font-size-base: 1rem;
 	--rv-font-size-lg: 1.125rem;
@@ -43,17 +45,17 @@
 	--rv-font-weight-semibold: 600;
 	--rv-font-weight-bold: 700;
 
-	/* Gradients */
-	--rv-gradient-primary: linear-gradient(135deg, #0073aa 0%, #005a87 100%);
-	--rv-gradient-success: linear-gradient(135deg, #00a32a 0%, #007a1f 100%);
-	--rv-gradient-warning: linear-gradient(135deg, #dba617 0%, #b8941f 100%);
-	--rv-gradient-card: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+	/* Gradients Standardized */
+	--rv-gradient-primary: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%);
+	--rv-gradient-success: linear-gradient(135deg, var(--mhm-success) 0%, var(--mhm-success-dark) 100%);
+	--rv-gradient-warning: linear-gradient(135deg, var(--mhm-warning) 0%, var(--mhm-warning-dark) 100%);
+	--rv-gradient-card: linear-gradient(145deg, var(--mhm-bg-card) 0%, var(--mhm-bg-secondary) 100%);
 }
 
 /* ===== GENEL STİLLER ===== */
 .rv-testimonials {
 	margin: 20px 0;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-family: var(--mhm-font-primary);
 }
 
 .rv-testimonials-header {
@@ -206,7 +208,7 @@
 	padding: var(--rv-space-lg);
 	font-size: var(--rv-font-size-lg);
 	line-height: 1.7;
-	color: #2c3e50;
+	color: var(--mhm-text-primary);
 	font-style: italic;
 	position: relative;
 	background: rgba(0, 115, 170, 0.05);
@@ -247,7 +249,7 @@
 	flex-direction: column;
 	gap: var(--rv-space-sm);
 	font-size: var(--rv-font-size-sm);
-	color: #7f8c8d;
+	color: var(--mhm-text-secondary);
 	padding: var(--rv-space-md);
 	background: rgba(0, 115, 170, 0.03);
 	border-radius: var(--rv-testimonials-radius);
@@ -400,9 +402,9 @@
 
 .rv-carousel-prev:hover,
 .rv-carousel-next:hover {
-	background: #3498db;
-	color: white;
-	border-color: #3498db;
+	background: var(--mhm-primary);
+	color: var(--mhm-white);
+	border-color: var(--mhm-primary);
 }
 
 /* Carousel Indicators */
@@ -435,8 +437,8 @@
 }
 
 .rv-load-more-btn {
-	background: var(--rv-gradient-primary);
-	color: white;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 	border: none;
 	padding: var(--rv-space-md) var(--rv-space-xl);
 	border-radius: 30px;

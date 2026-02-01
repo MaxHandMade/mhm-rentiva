@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.6.6-blue.svg)
+![Version](https://img.shields.io/badge/version-4.6.7-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1277,7 +1277,15 @@ Katkılarınızı bekliyoruz! Lütfen şu yönergeleri izleyin:
 
 ## 📝 Değişiklik Geçmişi
  
-### Son Versiyon: 4.6.6 (2026-01-28)
+### Son Versiyon: 4.6.7 (2026-02-01)
+
+**🛡️ GÜVENLİK & STANDARTLAR**
+- **Güvenli Yönlendirme**: Proje genelinde yönlendirme güvenliğini artırmak için `wp_safe_redirect` kullanımına geçildi.
+- **Varlık Standartları**: Yönetici paneli satır içi stilleri (inline css), resmi `wp_add_inline_style` API'sine taşındı.
+- **Performans Senkronizasyonu**: Doğrudan SQL tabanlı önbellek temizliği, `delete_transient()` kullanan akıllı bir versiyonlama sistemine dönüştürüldü.
+- **Güvenlik Yardımcısı**: `SecurityHelper::safe_output` güvenilir bağlam doğrulaması ve JSON desteğiyle modernize edildi.
+
+### Versiyon: 4.6.6 (2026-01-28)
 
 **🐛 HATA DÜZELTMELERİ & ARAYÜZ İYİLEŞTİRMELERİ**
 - **Araç İkonları**: Rezervasyon formunda kaybolan araç özellik ikonları (yakıt, vites vb.) sorunu çözüldü.

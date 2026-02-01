@@ -1,14 +1,13 @@
-/**
- * Vehicle Comparison CSS
- *
- * Araç karşılaştırma tablosu için stiller
- */
+/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
+}
 
-/* ===== GENEL STİLLER ===== */
 .rv-vehicle-comparison {
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-family: var(--mhm-font-primary);
 	margin: 20px 0;
-	background: #ffffff;
+	background: var(--mhm-white);
 	border-radius: 12px;
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 	width: 100%;
@@ -22,8 +21,8 @@
 	justify-content: space-between;
 	align-items: center;
 	padding: 25px;
-	background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-	color: white;
+	background: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 }
 
 .rv-comparison-title {
@@ -43,8 +42,8 @@
 /* ===== ARAÇ EKLEME BÖLÜMÜ ===== */
 .rv-add-vehicle-section {
 	padding: 20px 25px;
-	background: #f8f9fa;
-	border-bottom: 1px solid #e1e5e9;
+	background: var(--mhm-gray-50);
+	border-bottom: 1px solid var(--mhm-gray-200);
 }
 
 .rv-add-vehicle-form {
@@ -65,10 +64,10 @@
 .rv-vehicle-select {
 	flex: 1;
 	padding: 12px 16px;
-	border: 2px solid #e1e5e9;
+	border: 2px solid var(--mhm-gray-200);
 	border-radius: 8px;
 	font-size: 14px;
-	background: white;
+	background: var(--mhm-white);
 	transition: border-color 0.3s ease;
 }
 
@@ -78,8 +77,8 @@
 }
 
 .rv-add-vehicle-btn {
-	background: #007cba;
-	color: white;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 	border: none;
 	padding: 12px 20px;
 	border-radius: 8px;
@@ -91,8 +90,9 @@
 }
 
 .rv-add-vehicle-btn:hover {
-	background: #005a87;
+	background-color: var(--mhm-btn-hover-bg);
 	transform: translateY(-1px);
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%);
 }
 
 /* ===== KARŞILAŞTIRMA TABLOSU ===== */
@@ -115,7 +115,7 @@
 .rv-comparison-table td {
 	padding: 15px 12px;
 	text-align: left;
-	border-bottom: 1px solid #e1e5e9;
+	border-bottom: 1px solid var(--mhm-gray-200);
 	vertical-align: top;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
@@ -123,9 +123,9 @@
 }
 
 .rv-comparison-table th {
-	background: #f8f9fa;
+	background: var(--mhm-gray-50);
 	font-weight: 600;
-	color: #2c3e50;
+	color: var(--mhm-text-primary);
 	position: sticky;
 	top: 0;
 	z-index: 10;
@@ -205,8 +205,8 @@
 	position: absolute;
 	top: 10px;
 	right: 10px;
-	background: #e74c3c;
-	color: white;
+	background: var(--mhm-error);
+	color: var(--mhm-white);
 	border: none;
 	border-radius: 50%;
 	width: 32px;
@@ -233,8 +233,8 @@
 	position: absolute;
 	top: 5px;
 	right: 5px;
-	background: #e74c3c;
-	color: white;
+	background: var(--mhm-error);
+	color: var(--mhm-white);
 	border: none;
 	border-radius: 50%;
 	width: 24px;
@@ -291,30 +291,28 @@
 }
 
 .rv-book-now-btn {
-	display: block !important;
-	background: #007cba !important;
-	color: white !important;
+	display: block;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 	padding: 12px 20px;
 	border-radius: 8px;
 	text-decoration: none;
 	font-size: 14px;
 	font-weight: 600;
 	transition: all 0.3s ease;
-	box-shadow: 0 2px 8px rgba(0, 124, 186, 0.3);
+	box-shadow: 0 2px 8px color-mix(in srgb, var(--mhm-btn-bg), transparent 80%);
 	margin: 10px auto;
 	text-align: center;
 	width: 100%;
 	max-width: 160px;
-	visibility: visible !important;
-	opacity: 1 !important;
 }
 
 .rv-book-now-btn:hover {
-	background: #005a87 !important;
+	background-color: var(--mhm-btn-hover-bg);
 	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(0, 124, 186, 0.4);
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%);
 	text-decoration: none;
-	color: white;
+	color: var(--mhm-btn-color);
 }
 
 /* ===== ÖZELLİK SATIRLARI ===== */
@@ -323,53 +321,53 @@
 }
 
 .rv-feature-row:hover {
-	background: #e3f2fd !important;
+	background: var(--mhm-gray-50) !important;
 }
 
 .rv-feature-row:nth-child(even) {
-	background: #f8f9fa;
+	background: var(--mhm-gray-50);
 }
 
 .rv-feature-name {
 	font-weight: 600;
-	color: #2c3e50;
-	background: #f8f9fa !important;
+	color: var(--mhm-text-primary);
+	background: var(--mhm-gray-50) !important;
 	font-size: 14px;
 }
 
 .rv-feature-value {
 	text-align: center;
-	background: white;
+	background: var(--mhm-white);
 	font-size: 14px;
-	color: #495057;
+	color: var(--mhm-text-secondary);
 }
 
 /* ===== ÖZELLİK DEĞERLERİ ===== */
 .rv-price {
 	font-weight: 700;
-	color: #3b82f6;
+	color: var(--mhm-price-color);
 	font-size: 18px;
-	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+	background: var(--mhm-gray-50);
 	padding: 8px 12px;
 	border-radius: 8px;
 	display: inline-block;
 }
 
 .rv-no-price {
-	color: #95a5a6;
+	color: var(--mhm-gray-400);
 	font-style: italic;
 	font-size: 14px;
 }
 
 .rv-seats,
 .rv-doors {
-	background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-	color: white;
+	background: var(--mhm-btn-bg);
+	color: var(--mhm-white);
 	padding: 6px 12px;
 	border-radius: 16px;
 	font-size: 13px;
 	font-weight: 600;
-	box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	display: inline-block;
 }
 
@@ -384,13 +382,13 @@
 }
 
 .rv-feature-status.available {
-	background: #d4edda;
-	color: #155724;
+	background: var(--mhm-gray-100);
+	color: var(--mhm-success);
 }
 
 .rv-feature-status.not-available {
-	background: #f8d7da;
-	color: #721c24;
+	background: var(--mhm-gray-100);
+	color: var(--mhm-error);
 }
 
 .rv-feature-text {
@@ -998,10 +996,10 @@
 	justify-content: space-between;
 	align-items: center;
 	padding: 10px 15px;
-	background: #f8f9fa;
+	background: var(--mhm-bg-secondary);
 	border: none;
-	border-top: 1px solid #e1e5e9;
-	color: #3498db;
+	border-top: 1px solid var(--mhm-border-primary);
+	color: var(--mhm-primary);
 	font-weight: 600;
 	font-size: 14px;
 	cursor: pointer;
@@ -1009,7 +1007,7 @@
 }
 
 .rv-mobile-accordion-toggle:hover {
-	background: #e9ecef;
+	background: var(--mhm-bg-tertiary);
 }
 
 .rv-mobile-accordion-content {

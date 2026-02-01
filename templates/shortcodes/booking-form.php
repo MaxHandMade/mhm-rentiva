@@ -334,6 +334,10 @@ $unique_id = uniqid('rv_booking_');
 						<span class="rv-price-label"><?php echo esc_html__('Number of Days:', 'mhm-rentiva'); ?></span>
 						<span class="rv-price-value rv-days-count" id="rv-days-count-<?php echo esc_attr($unique_id); ?>">-</span>
 					</div>
+					<div class="rv-price-item rv-weekend-summary" style="display: none;">
+						<span class="rv-price-label"><?php echo esc_html__('Weekend Difference:', 'mhm-rentiva'); ?></span>
+						<span class="rv-price-value rv-weekend-diff-amount" id="rv-weekend-diff-amount-<?php echo esc_attr($unique_id); ?>">-</span>
+					</div>
 					<div class="rv-price-item rv-tax-summary" style="display: none;">
 						<span class="rv-price-label rv-tax-label" id="rv-tax-label-<?php echo esc_attr($unique_id); ?>"><?php echo esc_html__('Tax:', 'mhm-rentiva'); ?></span>
 						<span class="rv-price-value rv-tax-amount" id="rv-tax-amount-<?php echo esc_attr($unique_id); ?>">-</span>

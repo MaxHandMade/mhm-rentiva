@@ -1,21 +1,28 @@
-/* Rezervasyon Detay Sayfası Stilleri */
+/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
+}
+
+/* Booking Detay Sayfası Stilleri */
 
 .rv-booking-details {
-	background: #fff;
+	background: var(--mhm-bg-card);
 	border-radius: 12px;
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	box-shadow: var(--mhm-shadow-base);
 	margin: 20px 0;
 	overflow: hidden;
+	font-family: var(--mhm-font-primary);
 }
 
 .rv-booking-details h2 {
-	background: #f8fafc;
-	color: #1e293b;
+	background: var(--mhm-bg-secondary);
+	color: var(--mhm-text-primary);
 	font-size: 22px;
 	font-weight: 700;
 	margin: 0;
 	padding: 20px 24px;
-	border-bottom: 1px solid #e2e8f0;
+	border-bottom: 1px solid var(--mhm-border-primary);
 }
 
 .rv-details-grid {
@@ -35,14 +42,14 @@
 }
 
 .rv-detail-label {
-	color: #64748b;
+	color: var(--mhm-text-secondary);
 	font-size: 14px;
 	font-weight: 500;
 	line-height: 1.5;
 }
 
 .rv-detail-value {
-	color: #1e293b;
+	color: var(--mhm-text-primary);
 	font-size: 14px;
 	line-height: 1.5;
 }
@@ -72,34 +79,33 @@
 }
 
 .status-pending {
-	background: #fef3c7;
-	color: #92400e;
+	background: var(--mhm-bg-secondary);
+	color: var(--mhm-warning);
 }
 
 .status-confirmed {
-	background: #d1fae5;
-	color: #065f46;
+	background: color-mix(in srgb, var(--mhm-success), transparent 90%);
+	color: var(--mhm-success);
 }
 
 .status-in_progress {
-	background: #dbeafe;
-	color: #1e40af;
+	background: color-mix(in srgb, var(--mhm-primary), transparent 90%);
+	color: var(--mhm-primary);
 }
 
 .status-completed {
-	background-color: #0073E6;
-	background: #e5e7eb;
-	color: #374151;
+	background: var(--mhm-gray-100);
+	color: var(--mhm-text-secondary);
 }
 
 .status-cancelled {
-	background: #fee2e2;
-	color: #991b1b;
+	background: color-mix(in srgb, var(--mhm-error), transparent 90%);
+	color: var(--mhm-error);
 }
 
 .rv-price {
 	font-weight: 700;
-	color: #059669;
+	color: var(--mhm-price-color);
 	font-size: 16px;
 }
 
@@ -129,7 +135,7 @@
 }
 
 .rv-next-steps h2 {
-	color: #1e293b;
+	color: var(--mhm-text-primary);
 	font-size: 22px;
 	font-weight: 700;
 	margin: 0 0 12px 0;
@@ -163,24 +169,24 @@
 }
 
 .rv-btn-primary {
-	background: #3b82f6;
-	color: white;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 }
 
 .rv-btn-primary:hover {
-	background: #2563eb;
-	color: white;
+	background-color: var(--mhm-btn-hover-bg);
+	color: var(--mhm-btn-color);
 }
 
 .rv-btn-secondary {
-	background: #f1f5f9;
-	color: #475569;
-	border: 1px solid #e2e8f0;
+	background-color: var(--mhm-bg-secondary);
+	color: var(--mhm-text-secondary);
+	border: 1px solid var(--mhm-border-primary);
 }
 
 .rv-btn-secondary:hover {
-	background: #e2e8f0;
-	color: #334155;
+	background-color: var(--mhm-gray-200);
+	color: var(--mhm-text-primary);
 }
 
 .rv-breadcrumb {
@@ -206,7 +212,7 @@
 }
 
 .rv-page-header h1 {
-	color: #1e293b;
+	color: var(--mhm-text-primary);
 	font-size: 32px;
 	font-weight: 700;
 	margin: 0 0 8px 0;

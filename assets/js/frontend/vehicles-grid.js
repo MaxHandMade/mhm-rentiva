@@ -77,6 +77,12 @@
 				return;
 			}
 
+			// Login check
+			if (!mhmRentivaVehiclesGrid.isUserLoggedIn) {
+				this.showNotification(mhmRentivaVehiclesGrid.i18n.login_required || 'You must be logged in to add to favorites', 'warning');
+				return;
+			}
+
 			// Loading state
 			$button.prop('disabled', true);
 
@@ -116,11 +122,11 @@
 								);
 							}
 						} else {
-							self.showNotification(response.data.message || (window.mhmRentivaVehiclesGrid?.strings?.error_occurred || 'An error occurred'), 'error');
+							self.showNotification(response.data.message || (mhmRentivaVehiclesGrid.i18n.error || 'An error occurred'), 'error');
 						}
 					},
 					error: function () {
-						self.showNotification(window.mhmRentivaVehiclesGrid?.strings?.connection_error || 'Connection error', 'error');
+						self.showNotification('Connection error. Please try again.', 'error');
 					},
 					complete: function () {
 						$button.prop('disabled', false);
@@ -222,33 +228,27 @@
 		showNotification: function (message, type) {
 			type = type || 'info';
 
-			// Create notification element
-			var $notification = $('<div class="rv-notification rv-notification--' + type + '">' + message + '</div>');
+			// Remove existing notifications if any
+			$('.rv-notification').remove();
 
-			// Add to page
+			const icon = type === 'success' ? '✓' : '!';
+			const $notification = $(`
+				<div class="rv-notification rv-notification--show rv-notification--${type}">
+					<div class="rv-notification-body">
+						<span class="rv-notification-icon-badge">${icon}</span>
+						<span class="rv-notification-text">${message}</span>
+					</div>
+				</div>
+			`);
+
 			$('body').append($notification);
 
-			// Show with animation
-			setTimeout(
-				function () {
-					$notification.addClass('rv-notification--show');
-				},
-				100
-			);
-
-			// Remove after 3 seconds
-			setTimeout(
-				function () {
-					$notification.removeClass('rv-notification--show');
-					setTimeout(
-						function () {
-							$notification.remove();
-						},
-						300
-					);
-				},
-				3000
-			);
+			// Auto-hide after 3.5 seconds
+			setTimeout(function () {
+				$notification.fadeOut(400, function () {
+					$(this).remove();
+				});
+			}, 3500);
 		},
 
 		refresh: function () {

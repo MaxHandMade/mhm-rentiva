@@ -100,15 +100,27 @@
 		},
 
 		showNotification: function (message, type = 'info') {
-			const $notification = $(`<div class="rv-notification rv-notification--${type}">${message}</div>`);
+			// Remove existing notifications if any
+			$('.rv-notification').remove();
+
+			const icon = type === 'success' ? '✓' : '!';
+			const $notification = $(`
+				<div class="rv-notification rv-notification--show rv-notification--${type}">
+					<div class="rv-notification-body">
+						<span class="rv-notification-icon-badge">${icon}</span>
+						<span class="rv-notification-text">${message}</span>
+					</div>
+				</div>
+			`);
+
 			$('body').append($notification);
 
-			setTimeout(() => $notification.addClass('rv-notification--show'), 100);
-
+			// Auto-hide after 3.5 seconds
 			setTimeout(() => {
-				$notification.removeClass('rv-notification--show');
-				setTimeout(() => $notification.remove(), 300);
-			}, 3000);
+				$notification.fadeOut(400, function () {
+					$(this).remove();
+				});
+			}, 3500);
 		},
 
 		debounce: function (delay, callback) {

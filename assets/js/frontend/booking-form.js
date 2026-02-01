@@ -44,6 +44,7 @@
             // Price display elements
             this.priceElements = {
                 dailyPrice: this.container.find('.rv-daily-price'),
+                weekendDiffAmount: this.container.find('.rv-weekend-diff-amount'),
                 daysCount: this.container.find('.rv-days-count'),
                 taxLabel: this.container.find('.rv-tax-label'),
                 taxAmount: this.container.find('.rv-tax-amount'),
@@ -284,18 +285,27 @@
 
         // Helper for floating notifications (similar to vehicle-list.js)
         showFloatingNotification(message, type = 'info') {
-            const $notification = $(`<div class="rv-notification rv-notification--${type}">${message}</div>`);
+            // Remove existing notifications if any
+            $('.rv-notification').remove();
+
+            const icon = type === 'success' ? '✓' : '!';
+            const $notification = $(`
+                <div class="rv-notification rv-notification--show rv-notification--${type}">
+                    <div class="rv-notification-body">
+                        <span class="rv-notification-icon-badge">${icon}</span>
+                        <span class="rv-notification-text">${message}</span>
+                    </div>
+                </div>
+            `);
+
             $('body').append($notification);
 
-            // Force reflow for animation
-            $notification[0].offsetHeight;
-
-            setTimeout(() => $notification.addClass('rv-notification--show'), 100);
-
+            // Auto-hide after 3.5 seconds
             setTimeout(() => {
-                $notification.removeClass('rv-notification--show');
-                setTimeout(() => $notification.remove(), 300);
-            }, 3000);
+                $notification.fadeOut(400, function () {
+                    $(this).remove();
+                });
+            }, 3500);
         }
 
         setupDateValidation() {
@@ -677,6 +687,13 @@
             this.priceElements.dailyPrice.text(this.formatPrice(data.vehicle_price) + ' ' + currencySymbol);
 
             this.priceElements.daysCount.text(data.days);
+
+            if (data.weekend_extra && data.weekend_extra > 0) {
+                this.priceElements.weekendDiffAmount.text(this.formatPrice(data.weekend_extra) + ' ' + currencySymbol);
+                this.container.find('.rv-weekend-summary').show();
+            } else {
+                this.container.find('.rv-weekend-summary').hide();
+            }
 
             const hasTax = data.tax_enabled && data.tax_amount !== undefined && data.tax_amount > 0;
             const hasAddons = data.addon_total > 0;

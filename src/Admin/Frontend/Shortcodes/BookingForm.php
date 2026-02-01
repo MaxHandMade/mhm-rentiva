@@ -1064,22 +1064,35 @@ final class BookingForm extends AbstractShortcode
 			}
 
 			// Calculate pricing per day (weekend and seasonal multipliers included)
-			$seasonal_enabled = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_seasonal_pricing', '0') === '1';
-			$vehicle_total    = 0.0;
+			// Calculate pricing per day (weekend and seasonal multipliers included)
+			$seasonal_enabled    = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_seasonal_pricing', '0') === '1';
+			$vehicle_total       = 0.0;
+			$weekend_extra_total = 0.0;
 
 			$iter_date = clone $start_date;
 			for ($i = 0; $i < max(0, (int) $days); $i++) {
-				$day_price = $vehicle_price * $base_price_multiplier;
-				// Weekend multiplier (Saturday/Sunday)
-				$dow = (int) $iter_date->format('N'); // 1=Monday, 7=Sunday
-				if ($dow >= 6) {
-					$day_price = $day_price * $weekend_multiplier;
-				}
-				// Seasonal multiplier
+				$day_base_price = $vehicle_price * $base_price_multiplier;
+
+				// Standard Price (Standard + Seasonal) - NO WEEKEND MULTIPLIER in this base calculation
+				$standard_day_price = $day_base_price;
 				if ($seasonal_enabled) {
-					$season_multiplier = \MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings::get_seasonal_multiplier_for_date($iter_date->format('Y-m-d'));
-					$day_price         = $day_price * (float) $season_multiplier;
+					$season_multiplier  = \MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings::get_seasonal_multiplier_for_date($iter_date->format('Y-m-d'));
+					$standard_day_price = $standard_day_price * (float) $season_multiplier;
 				}
+
+				// Actual Price (Standard + Seasonal + WEEKEND if applicable)
+				$day_price = $standard_day_price;
+
+				// Weekend multiplier (Saturday/Sunday)
+				$dow        = (int) $iter_date->format('N'); // 1=Monday, 7=Sunday
+				$is_weekend = ($dow >= 6);
+
+				if ($is_weekend && $weekend_multiplier > 1.0) {
+					$day_price = $day_price * $weekend_multiplier;
+					// Calculate how much was added due to weekend multiplier
+					$weekend_extra_total += ($day_price - $standard_day_price);
+				}
+
 				$vehicle_total += $day_price;
 				$iter_date->modify('+1 day');
 			}
@@ -1197,6 +1210,7 @@ final class BookingForm extends AbstractShortcode
 				'tax_inclusive'         => $tax_inclusive,
 				'tax_rate'              => $tax_rate,
 				'tax_amount'            => $tax_amount ?? 0,
+				'weekend_extra'         => $weekend_extra_total,
 				'is_weekend'            => $day_of_week >= 6,
 			);
 

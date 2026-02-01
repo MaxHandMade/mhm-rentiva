@@ -26,7 +26,7 @@
                 success: window.mhmRentivaAvailability?.messages?.success || 'Operation successful.'
             }
         };
-        console.warn('⚠️ mhmRentivaAvailability object not defined in template, using default values');
+        console.warn('mhmRentivaAvailability object not defined in template, using default values');
     }
 
     class AvailabilityCalendar {
@@ -37,6 +37,16 @@
             this.currentStartMonth = '';
             this.monthsToShow = 1;
             this.isLoading = false;
+            this.parseDate = (dateStr) => {
+                if (!dateStr) return new Date();
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                } else if (parts.length === 2) {
+                    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+                }
+                return new Date(dateStr);
+            };
 
             this.init();
         }
@@ -79,7 +89,7 @@
             $(document).on('keydown', '.rv-calendar-day', this.handleKeyboardNavigation.bind(this));
 
             // Favorite button
-            $(document).on('click', '.rv-favorite-btn', this.handleFavoriteClick.bind(this));
+            $(document).on('click', '.rv-vcal-favorite-btn', (e) => this.handleFavoriteClick(e));
         }
 
         initializeCalendar() {
@@ -91,6 +101,7 @@
             this.monthsToShow = parseInt(this.calendar.data('months-to-show')) || 3;
 
             this.updateSelectedDatesDisplay();
+            this.loadAvailabilityData();
         }
 
         handleVehicleChange(e) {
@@ -119,12 +130,7 @@
         showVehicleSelectionModal(vehicles) {
 
             // Get localized strings
-            const strings = window.mhmRentivaAvailability?.available?.strings || window.mhmRentivaAvailability?.messages || {};
-            // Fallback object for strings directly injected
-            const fallbackStrings = window.mhmRentivaAvailability?.strings || {};
-
-            // Merge strings (prioritize specific strings)
-            const i18n = { ...strings, ...fallbackStrings };
+            const i18n = window.mhmRentivaAvailability?.strings || {};
             const title = i18n.select_vehicle || 'Select Vehicle';
             const closeBtn = i18n.close || 'Close';
             const perDay = i18n.per_day || '/day';
@@ -232,12 +238,42 @@
         updateVehicleDisplay(vehicleData) {
             // Update vehicle image
             if (vehicleData.image) {
-                $('.rv-vehicle-img').attr('src', vehicleData.image);
+                $('.rv-vehicle-image').attr('src', vehicleData.image);
+                $('.rv-vehicle-image').attr('alt', vehicleData.title || '');
             }
 
             // Update vehicle name
             if (vehicleData.title) {
                 $('.rv-vehicle-title').text(vehicleData.title);
+            }
+
+            // Update excerpt
+            if (vehicleData.excerpt) {
+                $('.rv-vehicle-excerpt').text(vehicleData.excerpt);
+            }
+
+            // Update Rating
+            if (vehicleData.rating) {
+                const avg = parseFloat(vehicleData.rating.average || 0);
+                const count = parseInt(vehicleData.rating.count || 0);
+
+                if (count > 0) {
+                    $('.rv-stars svg').each(function (index) {
+                        const starPos = index + 1;
+                        if (starPos <= Math.floor(avg)) {
+                            $(this).attr('fill', '#fbbf24').attr('stroke', '#d97706');
+                        } else if (starPos === Math.ceil(avg) && (avg % 1 >= 0.5)) {
+                            // Simplified half star handling for AJAX update
+                            $(this).attr('fill', '#fbbf24').attr('stroke', '#d97706');
+                        } else {
+                            $(this).attr('fill', 'none').attr('stroke', '#cbd5e1');
+                        }
+                    });
+                    $('.rv-rating-count').text('(' + count + ')');
+                    $('.rv-vehicle-rating-block').show();
+                } else {
+                    $('.rv-vehicle-rating-block').hide();
+                }
             }
 
             // Update vehicle features (Unified with SVGs)
@@ -250,36 +286,31 @@
                         </div>
                     `)
                     .join('');
-                $('.rv-vehicle-specs, .rv-vehicle-features').html(featuresHtml);
+                $('.rv-vehicle-features').html(featuresHtml);
             }
 
             // Update price
             if (vehicleData.price) {
                 const perDay = (window.mhmRentivaAvailability?.strings?.per_day || '/day');
-                // price already formatted from backend as string or raw number? 
-                // In backend ajax_get_vehicle_info, it returns "number_format" string.
-                // The frontend expects it to be the formatted string.
-                // However, to include currency symbol properly, we might need to check if backend sends symbol or not.
-                // Looking at AvailabilityCalendar.php:849 => 'price' => number_format($price, 0, ',', '.')
-                // So it is just a number string. We need to add symbol.
-                const currencySymbol = window.mhmRentivaAvailability?.currencySymbol || '$';
-                $('.rv-vehicle-price').text(vehicleData.price + ' ' + currencySymbol + perDay);
+                const currencySymbol = vehicleData.currency_symbol || window.mhmRentivaAvailability?.currencySymbol || '$';
+                $('.rv-vehicle-price').html(vehicleData.price + ' ' + currencySymbol + perDay);
             }
 
             // Update data attributes
             $('.rv-availability-calendar').attr('data-vehicle-id', vehicleData.id);
-            $('.rv-availability-calendar').attr('data-vehicle-price', vehicleData.price);
 
             // Update Favorite Button Status
-            const $favBtn = $('.rv-favorite-btn');
+            const $favBtn = $('.rv-vcal-favorite-btn');
             $favBtn.data('vehicle-id', vehicleData.id); // Update ID on button
 
             if (vehicleData.is_favorite) {
-                $favBtn.addClass('active');
-                $favBtn.find('.dashicons').css('color', '#e74c3c');
+                $favBtn.addClass('favorited is-favorited');
+                $favBtn.find('.rv-heart-icon').addClass('favorited').attr('fill', 'currentColor');
+                $favBtn.attr('aria-pressed', 'true');
             } else {
-                $favBtn.removeClass('active');
-                $favBtn.find('.dashicons').css('color', '');
+                $favBtn.removeClass('favorited is-favorited');
+                $favBtn.find('.rv-heart-icon').removeClass('favorited').attr('fill', 'none');
+                $favBtn.attr('aria-pressed', 'false');
             }
 
             // Handle Availability Status
@@ -321,7 +352,7 @@
                 }
 
                 // Hide Calendar, Show Unavailable Message
-                $calendarWrapper.hide();
+                $calendarItems.hide();
 
                 if ($unavailableMessage.length === 0) {
                     $container.append(`
@@ -344,8 +375,9 @@
                 $badgeWrapper.hide();
 
                 // Show Calendar, Hide Message
-                $calendarWrapper.show();
+                $calendarItems.show();
                 $unavailableMessage.hide();
+                $badgeWrapper.hide();
             }
         }
 
@@ -367,15 +399,27 @@
             if (this.isLoading) return;
 
             const action = $(e.currentTarget).data('action');
-            const currentDate = new Date(this.currentStartMonth + '-01');
+
+            // FIX: Robust date arithmetic (Avoid string parsing bugs)
+            const dateParts = this.currentStartMonth.split('-');
+            let year = parseInt(dateParts[0]);
+            let month = parseInt(dateParts[1]);
 
             if (action === 'prev') {
-                currentDate.setMonth(currentDate.getMonth() - 1);
+                month--;
+                if (month < 1) {
+                    month = 12;
+                    year--;
+                }
             } else if (action === 'next') {
-                currentDate.setMonth(currentDate.getMonth() + 1);
+                month++;
+                if (month > 12) {
+                    month = 1;
+                    year++;
+                }
             }
 
-            this.currentStartMonth = this.formatMonth(currentDate);
+            this.currentStartMonth = `${year}-${String(month).padStart(2, '0')}`;
             this.loadAvailabilityData();
         }
 
@@ -387,6 +431,15 @@
 
             if (!date) return;
 
+            // Block clicks on busy or past dates
+            if ($day.hasClass('rv-status-booked') ||
+                $day.hasClass('rv-status-maintenance') ||
+                $day.hasClass('rv-status-partial') ||
+                $day.hasClass('rv-status-unavailable') ||
+                $day.hasClass('rv-past')) {
+                return;
+            }
+
             // Date selection logic
             if (this.selectedDates.length === 0) {
                 // First date selection
@@ -396,20 +449,15 @@
                 // Second date selection (range)
                 const startDate = this.selectedDates[0];
 
-                if (date === startDate) {
-                    // Same date selected - Treat as single day booking (Start = End)
+                if (date === startDate || date > startDate) {
+                    // Selection complete (Single day or Range)
                     this.selectedDates = [startDate, date];
                     this.updateDateRangeSelection();
 
-                    // Auto open booking modal
-                    this.openBookingModal(this.currentVehicleId, startDate, date);
-                } else if (date > startDate) {
-                    // Valid range
-                    this.selectedDates = [startDate, date];
-                    this.updateDateRangeSelection();
-
-                    // Auto open booking modal
-                    this.openBookingModal(this.currentVehicleId, startDate, date);
+                    // Redirect to booking form
+                    const baseUrl = window.mhmRentivaAvailability.bookingPageUrl;
+                    const redirectUrl = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}vehicle_id=${this.currentVehicleId}&start_date=${startDate}&end_date=${date}`;
+                    window.location.href = redirectUrl;
                 } else {
                     // New start date
                     this.selectedDates = [date];
@@ -464,10 +512,10 @@
                 $(`.rv-calendar-day[data-date="${endDate}"]`).addClass('rv-selected rv-selected-end');
 
                 // Mark days in range
-                const start = new Date(startDate);
-                const end = new Date(endDate);
+                const start = this.parseDate(startDate);
+                const end = this.parseDate(endDate);
 
-                for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                for (let d = new Date(start.getTime()); d <= end; d.setDate(d.getDate() + 1)) {
                     const dateStr = this.formatDate(d);
                     if (dateStr !== startDate && dateStr !== endDate) {
                         $(`.rv-calendar-day[data-date="${dateStr}"]`).addClass('rv-selected rv-selected-range');
@@ -506,13 +554,13 @@
 
         calculateTotalPrice(startDate, endDate) {
             let totalPrice = 0;
-            const start = new Date(startDate);
-            const end = new Date(endDate);
+            const start = this.parseDate(startDate);
+            const end = this.parseDate(endDate);
 
             // Get vehicle price
             const vehiclePrice = parseFloat(this.calendar.attr('data-vehicle-price')) || 0;
 
-            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            for (let d = new Date(start.getTime()); d <= end; d.setDate(d.getDate() + 1)) {
                 // Use only vehicle price
                 totalPrice += vehiclePrice;
             }
@@ -531,13 +579,11 @@
         loadAvailabilityData() {
             if (this.isLoading || !this.currentVehicleId) return;
 
-            // JavaScript object is now always available
-
             this.showLoading(true);
             this.isLoading = true;
 
             const data = {
-                action: 'mhm_rentiva_availability_data',
+                action: 'mhm_rentiva_availability_unified',
                 nonce: window.mhmRentivaAvailability.nonce,
                 vehicle_id: this.currentVehicleId,
                 start_month: this.currentStartMonth,
@@ -546,30 +592,25 @@
 
             $.post(window.mhmRentivaAvailability.ajaxUrl, data)
                 .done((response) => {
-                    this.handleAvailabilityDataSuccess(response);
-                    this.loadPricingData();
+                    if (response.success) {
+                        this.handleAvailabilityDataSuccess(response);
+                        if (response.data.pricing_data) {
+                            this.updatePricingDisplay(response.data.pricing_data);
+                        }
+                        // OPTIMIZATION: Check for license limits before substantial work
+                        this.limitReached = response.data.limit_reached || false;
+                    } else {
+                        this.showNotification(response.data?.message || window.mhmRentivaAvailability.strings.error, 'error');
+                    }
                 })
-                .fail(this.handleAvailabilityDataError.bind(this))
+                .fail((response) => {
+                    console.error('AJAX Error:', response);
+                    this.showNotification(window.mhmRentivaAvailability.strings.error, 'error');
+                })
                 .always(() => {
                     this.showLoading(false);
                     this.isLoading = false;
                 });
-        }
-
-        loadPricingData() {
-            if (!this.currentVehicleId) return;
-
-            const data = {
-                action: 'mhm_rentiva_availability_pricing',
-                nonce: window.mhmRentivaAvailability.nonce,
-                vehicle_id: this.currentVehicleId,
-                start_month: this.currentStartMonth,
-                months_to_show: this.monthsToShow
-            };
-
-            $.post(window.mhmRentivaAvailability.ajaxUrl, data)
-                .done(this.handlePricingDataSuccess.bind(this))
-                .fail(this.handlePricingDataError.bind(this));
         }
 
         handleAvailabilityDataSuccess(response) {
@@ -595,7 +636,8 @@
                 }
 
                 $monthContainer.attr('data-month', monthKey);
-                $monthContainer.html(this.renderMonthHTML(monthData, monthKey));
+                // Clear existing content to prevent duplication
+                $monthContainer.empty().append(this.renderMonthHTML(monthData, monthKey));
 
                 // Update month title
                 if (monthData.month_name && monthData.year) {
@@ -681,26 +723,16 @@
             const days = monthData.days || {};
 
             // Find which day of the week the first day of the month is
-            const firstDay = new Date(monthKey + '-01');
+            const monthParts = monthKey.split('-');
+            const firstDay = new Date(parseInt(monthParts[0]), parseInt(monthParts[1]) - 1, 1);
             const firstDayOfWeek = firstDay.getDay(); // Sunday = 0, Monday = 1
             const adjustedFirstDay = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; // Monday = 0, Sunday = 6
 
             let html = '';
 
             // Weekday header
-            const strings = window.mhmRentivaAvailability?.available?.strings || window.mhmRentivaAvailability?.messages || {}; // Fallback logic
-            // Note: PHP injects 'strings' into the localization object now
-
-            const translatedDays = window.mhmRentivaAvailability?.strings || {};
-
-            // Month Header (Restored)
-            if (monthData.month_name && monthData.year) {
-                html += `
-                    <div class="rv-month-header">
-                        <h4 class="rv-month-title">${monthData.month_name} ${monthData.year}</h4>
-                    </div>
-                `;
-            }
+            const i18n = window.mhmRentivaAvailability?.strings || {};
+            const translatedDays = i18n;
 
             html += '<div class="rv-calendar-weekdays">';
             html += '<div class="rv-weekday">' + (translatedDays.monday || 'Mon') + '</div>';
@@ -759,11 +791,11 @@
         }
 
         showNotification(message, type = 'info') {
-            // Simple notification system
+            // Unique class for VCal notifications to avoid collisions
             const $notification = $(`
-                <div class="rv-notification rv-notification--${type}">
-                    <span class="rv-notification-message">${message}</span>
-                    <button type="button" class="rv-notification-close">&times;</button>
+                <div class="rv-vcal-notification rv-vcal-notification--${type}">
+                    <span class="rv-vcal-notification-message">${message}</span>
+                    <button type="button" class="rv-vcal-notification-close">&times;</button>
                 </div>
             `);
 
@@ -775,139 +807,11 @@
             }, 5000);
 
             // Manual close
-            $notification.find('.rv-notification-close').on('click', () => {
+            $notification.find('.rv-vcal-notification-close').on('click', () => {
                 $notification.fadeOut(() => $notification.remove());
             });
         }
 
-        openBookingModal(vehicleId, startDate, endDate) {
-            // Create booking form modal
-            const modalHtml = `
-                <div id="rv-booking-modal" class="rv-modal-overlay">
-                    <div class="rv-modal-content">
-                        <div class="rv-modal-header">
-                            <h3>${window.mhmRentivaAvailability?.strings?.booking_form || 'Booking Form'}</h3>
-                            <button class="rv-modal-close">&times;</button>
-                        </div>
-                        <div class="rv-modal-body">
-                            <div class="rv-booking-form-loading">${window.mhmRentivaAvailability?.strings?.loading || 'Loading...'}</div>
-                            <div class="rv-booking-form" data-vehicle-id="${vehicleId}" data-start-date="${startDate}" data-end-date="${endDate}"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // Add modal to page
-            $('body').append(modalHtml);
-
-            // Show modal
-            $('#rv-booking-modal').css('display', 'flex').hide().fadeIn();
-
-            // Load booking form via AJAX
-            this.loadBookingForm(vehicleId, startDate, endDate);
-
-            // Close events
-            $('#rv-booking-modal .rv-modal-close, #rv-booking-modal .rv-modal-overlay').on('click', (e) => {
-                if (e.target !== e.currentTarget && !$(e.target).hasClass('rv-modal-close')) return;
-
-                $('#rv-booking-modal').fadeOut(() => {
-                    $('#rv-booking-modal').remove();
-                });
-            });
-        }
-
-        loadBookingForm(vehicleId, startDate, endDate) {
-            // Load booking form via AJAX
-            $.ajax({
-                url: window.mhmRentivaAvailability.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'mhm_rentiva_load_booking_form',
-                    vehicle_id: vehicleId,
-                    start_date: startDate,
-                    end_date: endDate,
-                    nonce: window.mhmRentivaAvailability.nonce
-                },
-                success: (response) => {
-                    if (response.success) {
-                        $('.rv-booking-form').html(response.data.form_html);
-                        $('.rv-booking-form-loading').hide();
-
-                        // Bind event handlers for form in modal
-                        this.bindModalFormEvents();
-
-                        // Initialize BookingForm JavaScript
-                        if (typeof window.BookingForm !== 'undefined') {
-                            new window.BookingForm();
-                        } else {
-                            // If BookingForm is not available, it should already be loaded on page
-                        }
-                    } else {
-                        $('.rv-booking-form').html('<p>Booking form could not be loaded: ' + (response.data?.message || window.mhmRentivaAvailability?.strings?.unknown_error || 'Unknown error') + '</p>');
-                        $('.rv-booking-form-loading').hide();
-                    }
-                },
-                error: (xhr, status, error) => {
-                    $('.rv-booking-form').html('<p>Booking form could not be loaded. Error: ' + error + '</p>');
-                    $('.rv-booking-form-loading').hide();
-                }
-            });
-        }
-
-        // Update vehicle name
-        updateVehicleName(vehicleId) {
-            const $dropdown = $('.rv-vehicle-dropdown, #rv-availability-vehicle-select-fallback');
-            const selectedOption = $dropdown.find('option:selected');
-            const vehicleName = selectedOption.text();
-
-            // Update vehicle name in card
-            $('.rv-vehicle-title').text(vehicleName);
-
-            // Update vehicle price
-            const vehiclePrice = selectedOption.data('price') || 0;
-            this.calendar.attr('data-vehicle-price', vehiclePrice);
-
-            // Update prices in calendar days
-            this.updateCalendarPrices(vehiclePrice);
-        }
-
-        // Update prices in calendar days
-        updateCalendarPrices(vehiclePrice) {
-            $('.rv-calendar-day:not(.rv-day-empty)').each(function () {
-                const $day = $(this);
-
-                // Use only vehicle price
-                const dayPrice = vehiclePrice;
-
-                // Update price
-                $day.attr('data-price', dayPrice);
-
-                // Update visual price
-                const currencySymbol = window.mhmRentivaAvailability?.currency_symbol || window.mhmRentivaConfig?.currency || '$';
-                const priceText = dayPrice > 0 ? `${currencySymbol}${dayPrice.toLocaleString('en-US')}` : `${currencySymbol}0`;
-                $day.find('.rv-day-price').text(priceText);
-            });
-
-            // If selected dates exist, recalculate total price
-            if (this.selectedDates.length > 0) {
-                const startDate = this.selectedDates[0];
-                const endDate = this.selectedDates[this.selectedDates.length - 1];
-                this.calculateTotalPrice(startDate, endDate);
-            }
-        }
-
-        // Bind event handlers for form in modal
-        bindModalFormEvents() {
-            // Automatically update return time when pickup time changes
-            $(document).on('change', '#rv-booking-modal #pickup_time', (e) => {
-                const pickupTime = $(e.target).val();
-                if (pickupTime) {
-                    const $dropoffSelect = $('#rv-booking-modal #dropoff_time');
-                    $dropoffSelect.prop('disabled', false);
-                    $dropoffSelect.html(`<option value="${pickupTime}" selected>${pickupTime}</option>`);
-                }
-            });
-        }
 
         // Helper functions
         getCurrentMonth() {
@@ -929,7 +833,7 @@
         }
 
         formatDisplayDate(dateStr) {
-            const date = new Date(dateStr);
+            const date = this.parseDate(dateStr);
             const locale = this.convertLocaleFormat(window.mhmRentivaAvailability?.locale || 'en-US');
             const dateFormat = window.mhmRentivaAvailability?.date_format || 'd.m.Y';
 
@@ -985,8 +889,8 @@
         }
 
         calculateDaysBetween(startDate, endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
+            const start = this.parseDate(startDate);
+            const end = this.parseDate(endDate);
             const diffTime = Math.abs(end - start);
             return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
         }
@@ -999,54 +903,107 @@
             const $btn = $(e.currentTarget);
             const vehicleId = $btn.data('vehicle-id');
 
-            // Check if user is logged in
+            // Login check
             if (!window.mhmRentivaAvailability.isUserLoggedIn) {
-                this.showNotification(window.mhmRentivaAvailability?.strings?.error || 'Please login to add favorites.', 'error');
+                const loginMsg = window.mhmRentivaAvailability?.strings?.login_required || 'You must be logged in to add to favorites';
+                this.showNotification(loginMsg, 'warning');
                 return;
             }
 
-            // Determine active action
-            const isFavorite = $btn.hasClass('active');
-            const action = isFavorite ? 'mhm_rentiva_remove_favorite' : 'mhm_rentiva_add_favorite';
+            // Determine active action - Unified action name
+            const isFavorite = $btn.hasClass('favorited') || $btn.hasClass('is-favorited');
 
             // Add loading state
-            $btn.addClass('loading');
+            $btn.prop('disabled', true).addClass('loading');
+            const $icon = $btn.find('.rv-heart-icon');
 
             const data = {
-                action: action,
+                action: 'mhm_rentiva_toggle_favorite',
                 vehicle_id: vehicleId,
-                nonce: window.mhmRentivaAvailability.accountNonce
+                nonce: window.mhmRentivaAvailability.favoriteNonce || window.mhmRentivaAvailability.nonce
             };
 
             $.post(window.mhmRentivaAvailability.ajaxUrl, data)
                 .done((response) => {
                     if (response.success) {
-                        if (action === 'mhm_rentiva_add_favorite') {
-                            $btn.addClass('active');
-                            $btn.find('.dashicons').css('color', '#e74c3c'); // Red heart
-                            this.showNotification(response.data.message || 'Added to favorites', 'success');
+                        const isAdded = response.data.action === 'added';
+                        const successMsg = response.data.message || (isAdded ? (window.mhmRentivaAvailability?.strings?.added_to_favorites || 'Added to favorites') : (window.mhmRentivaAvailability?.strings?.removed_from_favorites || 'Removed from favorites'));
+
+                        // Toggle classes for UI feedback
+                        $btn.toggleClass('favorited is-favorited', isAdded);
+                        $icon.toggleClass('favorited', isAdded);
+
+                        // SVG attribute update
+                        if (isAdded) {
+                            $icon.attr('fill', 'currentColor');
+                            $btn.attr('aria-pressed', 'true');
                         } else {
-                            $btn.removeClass('active');
-                            $btn.find('.dashicons').css('color', ''); // Reset color
-                            this.showNotification(response.data.message || 'Removed from favorites', 'success');
+                            $icon.attr('fill', 'none');
+                            $btn.attr('aria-pressed', 'false');
                         }
+
+                        this.showNotification(successMsg, 'success');
                     } else {
-                        this.showNotification(response.data.message || window.mhmRentivaAvailability.messages.error, 'error');
+                        const errorMsg = response.data.message || window.mhmRentivaAvailability?.strings?.error || 'An error occurred';
+                        this.showNotification(errorMsg, 'error');
                     }
                 })
                 .fail((xhr, status, error) => {
-                    this.showNotification(window.mhmRentivaAvailability.messages.error, 'error');
+                    console.error('Favorite Toggle Error:', error, xhr.responseText);
+                    this.showNotification(window.mhmRentivaAvailability.strings?.error || 'Security or connection error', 'error');
                 })
                 .always(() => {
-                    $btn.removeClass('loading');
+                    $btn.prop('disabled', false).removeClass('loading');
                 });
+        }
+
+        /**
+         * Enhanced notification system for Availability Calendar
+         * Based on VehiclesList notification design
+         */
+        showNotification(message, type = 'info') {
+            if (!message) return;
+
+            // Remove existing notifications if any
+            $('.rv-notification').remove();
+
+            const icon = type === 'success' ? '✓' : '!';
+            const $notification = $(`
+                <div class="rv-notification rv-notification--show rv-notification--${type}" style="display: block !important;">
+                    <div class="rv-notification-body">
+                        <span class="rv-notification-icon-badge">${icon}</span>
+                        <span class="rv-notification-text">${message}</span>
+                    </div>
+                </div>
+            `);
+
+            $('body').append($notification);
+
+            // Auto-hide after 3.5 seconds
+            setTimeout(() => {
+                $notification.fadeOut(400, function () {
+                    $(this).remove();
+                });
+            }, 3500);
         }
 
     }
 
+    /**
+     * Global-safe notification handler
+     */
+    function showGlobalNotification(message, type = 'info') {
+        const calendar = new AvailabilityCalendar();
+        calendar.showNotification(message, type);
+    }
+
     // Initialize when page loads
     $(document).ready(function () {
-        new AvailabilityCalendar();
+        const vCal = new AvailabilityCalendar();
+
+        // Expose to global for coordination
+        window.mhmRentivaAvailability = window.mhmRentivaAvailability || {};
+        window.mhmRentivaAvailability.showNotification = (msg, type) => vCal.showNotification(msg, type);
     });
 
     // For global access

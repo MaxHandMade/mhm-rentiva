@@ -1,28 +1,18 @@
-/**
- * Vehicles Grid CSS - Premium Skin
- *
- * Modern, borderless, shadow-based design with "Chip Style" features.
- * Optimized for 2-column layout with centered features and compact footer.
- */
+/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
+}
 
 :root {
-	--rv-primary: #3182ce;
-	--rv-primary-hover: #2c5282;
-	--rv-bg-chip: #f3f4f6;
-	--rv-radius-card: 16px;
-	--rv-radius-btn: 8px;
-	--rv-radius-chip: 20px;
-	--rv-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-	--rv-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 	--rv-grid-gap: 2rem;
-	--rv-text-main: #2d3748;
-	--rv-text-muted: #718096;
 }
 
 .rv-vehicles-grid-container {
 	width: 100%;
 	padding: 1.5rem;
 	box-sizing: border-box;
+	font-family: var(--mhm-font-primary);
 }
 
 /* Grid Layout */
@@ -67,7 +57,7 @@
 
 /* Vehicle Card */
 .rv-vehicle-card {
-	background: #ffffff;
+	background: var(--mhm-bg-card);
 	border-radius: var(--rv-radius-card);
 	border: none !important;
 	box-shadow: var(--rv-shadow);
@@ -90,6 +80,7 @@
 	height: 240px;
 	overflow: hidden;
 	position: relative;
+	background: var(--mhm-bg-tertiary);
 }
 
 .rv-vehicle-card__image img {
@@ -109,7 +100,7 @@
 	top: 15px;
 	right: 15px;
 	z-index: 10;
-	background: rgba(255, 255, 255, 0.9) !important;
+	background: color-mix(in srgb, var(--mhm-bg-card), transparent 10%) !important;
 	border: none !important;
 	border-radius: 50%;
 	width: 40px;
@@ -118,19 +109,19 @@
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-	color: var(--rv-text-muted);
+	box-shadow: var(--mhm-shadow-base);
+	color: var(--mhm-text-secondary);
 	transition: all 0.2s ease;
 	padding: 0;
 }
 
 .rv-vehicle-card__favorite:hover {
-	color: #e53e3e;
+	color: var(--mhm-error);
 	transform: scale(1.1);
 }
 
 .rv-vehicle-card__favorite.is-favorited {
-	color: #e53e3e;
+	color: var(--mhm-error);
 }
 
 .rv-vehicle-card__favorite svg {
@@ -143,7 +134,7 @@
 	position: absolute;
 	top: 15px;
 	left: 15px;
-	background: rgba(255, 255, 255, 0.9);
+	background: color-mix(in srgb, var(--mhm-bg-card), transparent 10%);
 	padding: 4px 10px;
 	border-radius: 20px;
 	font-size: 13px;
@@ -151,12 +142,12 @@
 	display: flex;
 	align-items: center;
 	gap: 4px;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+	box-shadow: var(--mhm-shadow-sm);
 	z-index: 10;
 }
 
 .rv-stars {
-	color: #ecc94b;
+	color: var(--wp--preset--color--warning, #fbbf24) !important;
 }
 
 /* Content Section */
@@ -172,7 +163,7 @@
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	font-weight: 700;
-	color: var(--rv-primary);
+	color: var(--mhm-btn-bg);
 	margin-bottom: 4px;
 	text-align: center;
 }
@@ -185,7 +176,7 @@
 .rv-vehicle-card__title {
 	font-size: 1.25rem;
 	font-weight: 700;
-	color: var(--rv-text-main);
+	color: var(--mhm-text-primary);
 	margin: 0 0 1rem 0;
 	line-height: 1.2;
 	text-align: center;
@@ -210,18 +201,18 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	background: var(--rv-bg-chip);
+	background: var(--mhm-bg-secondary);
 	padding: 6px 12px;
-	border-radius: var(--rv-radius-chip);
+	border-radius: 20px;
 	font-size: 13px;
-	color: var(--rv-text-main);
+	color: var(--mhm-text-primary);
 	font-weight: 500;
 }
 
 .rv-feature-item svg {
 	width: 14px;
 	height: 14px;
-	color: var(--rv-text-muted);
+	color: var(--mhm-text-secondary);
 }
 
 /* Footer Section (Side by Side Alignment) */
@@ -230,7 +221,7 @@
 	justify-content: space-between;
 	align-items: center;
 	padding-top: 1.25rem;
-	border-top: 1px solid #edf2f7;
+	border-top: 1px solid var(--mhm-gray-100);
 	margin-top: auto;
 	gap: 10px;
 	/* Space between price and button */
@@ -249,48 +240,43 @@
 .rv-price-amount {
 	font-size: 1.25rem;
 	font-weight: 800;
-	color: var(--rv-text-main);
+	color: var(--mhm-price-color);
 	line-height: 1;
 }
 
 .rv-price-period {
 	font-size: 12px;
-	color: var(--rv-text-muted);
+	color: var(--mhm-text-secondary);
 	font-weight: 500;
 }
 
 /* Booking Button (Compact Style) */
 .rv-btn-booking {
-	background: var(--rv-primary);
-	color: #ffffff;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
 	padding: 0 12px;
-	/* Reduced horizontal padding */
 	height: 38px;
-	/* Reduced height */
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: var(--rv-radius-btn);
+	border-radius: 8px;
 	font-weight: 700;
 	font-size: 0.85rem;
-	/* Reduced font size to fit */
 	text-decoration: none !important;
 	transition: all 0.2s ease;
 	border: none;
 	width: auto;
-	/* Take only needed space */
 	white-space: nowrap;
 }
 
 .rv-btn-booking:hover {
-	background: var(--rv-primary-hover);
-	color: #ffffff;
+	background-color: var(--mhm-btn-hover-bg);
 	transform: translateY(-1px);
-	box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%);
 }
 
 .rv-btn-booking.rv-btn-disabled {
-	background: #cbd5e0;
+	background-color: var(--mhm-gray-400);
 	cursor: not-allowed;
 	pointer-events: none;
 }
@@ -299,6 +285,6 @@
 .rv-vehicles-grid__empty {
 	text-align: center;
 	padding: 50px 0;
-	color: var(--rv-text-muted);
+	color: var(--mhm-text-secondary);
 	font-size: 1.1rem;
 }
