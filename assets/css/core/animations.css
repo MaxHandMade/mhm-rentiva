@@ -406,7 +406,7 @@
 }
 
 /* Küçük ekranlarda bazı animasyonları basitleştir */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 
 	.mhm-fade-in-up,
 	.mhm-fade-in-down,

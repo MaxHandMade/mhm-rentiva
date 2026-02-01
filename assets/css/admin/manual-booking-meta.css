@@ -205,7 +205,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-datetime-fields {
 		grid-template-columns: 1fr;
 	}

@@ -159,6 +159,36 @@
 			}
 		});
 
+		// 5. Reset All Pages
+		$('#mhm-btn-reset-pages').on('click', async function (e) {
+			e.preventDefault();
+			if (!confirm(config.i18n.confirmReset)) return;
+
+			const btn = $(this);
+			btn.prop('disabled', true);
+
+			try {
+				const data = setupFormData('resetPages');
+				const resp = await fetch(config.ajaxUrl, {
+					method: 'POST',
+					body: data
+				});
+				const json = await resp.json();
+
+				if (json.success) {
+					alert(json.data.message);
+					location.reload();
+				} else {
+					alert(json.data?.message || 'Error');
+					btn.prop('disabled', false);
+				}
+			} catch (err) {
+				console.error(err);
+				alert('Request failed.');
+				btn.prop('disabled', false);
+			}
+		});
+
 	});
 
 })(jQuery);

@@ -6,14 +6,15 @@ namespace MHMRentiva\Admin\Settings\View\Tabs;
 
 use MHMRentiva\Admin\Settings\View\AbstractTabRenderer;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
 /**
  * Base Renderer for standard settings tabs that use Group classes
  */
-class BaseSettingsTabRenderer extends AbstractTabRenderer {
+class BaseSettingsTabRenderer extends AbstractTabRenderer
+{
 
 	/**
 	 * @param string      $label Tab Label
@@ -29,36 +30,36 @@ class BaseSettingsTabRenderer extends AbstractTabRenderer {
 		protected readonly ?string $group_class = null,
 		protected readonly array $sections = array()
 	) {
-		parent::__construct( $label, $slug );
+		parent::__construct($label, $slug);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function render(): void {
-		?>
-		<div class="mhm-settings-tab-header">
-			<div class="mhm-settings-title-group">
-				<h2><?php echo esc_html( $this->label ); ?></h2>
-				<?php if ( $this->description ) : ?>
-					<p class="description"><?php echo esc_html( $this->description ); ?></p>
-				<?php endif; ?>
-			</div>
+	public function get_header_actions(): array
+	{
+		return array(
+			array(
+				'text'  => __('Reset This Tab', 'mhm-rentiva'),
+				'url'   => '#',
+				'class' => 'button button-link-delete mhm-reset-tab-settings',
+				'icon'  => 'dashicons-undo',
+				'data'  => array('tab' => $this->slug),
+			),
+		);
+	}
 
-			<div class="mhm-settings-header-actions">
-				<?php \MHMRentiva\Admin\Core\Utilities\UXHelper::render_docs_button(); ?>
-				<?php $this->render_reset_button(); ?>
-			</div>
-		</div>
-		<hr class="wp-header-end">
-
-		<?php
-		if ( $this->group_class && class_exists( $this->group_class ) ) {
+	/**
+	 * @inheritDoc
+	 */
+	public function render(): void
+	{
+		if ($this->group_class && class_exists($this->group_class)) {
 			$class = $this->group_class;
 			$class::render_settings_section();
 		} else {
-			foreach ( $this->sections as $section ) {
-				$this->render_section_clean( (string) $section );
+			foreach ($this->sections as $section) {
+				$this->render_section_clean((string) $section);
 			}
 		}
 	}

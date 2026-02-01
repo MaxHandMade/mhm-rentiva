@@ -169,7 +169,7 @@
 	}
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.reports-stats-grid {
 		grid-template-columns: 1fr;
 		gap: var(--mhm-space-4);

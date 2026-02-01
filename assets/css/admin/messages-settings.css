@@ -212,7 +212,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-settings-tabs .nav-tab {
 		display: block;
 		margin-bottom: 5px;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
@@ -16,7 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package MHMRentiva\Admin\Core
  * @since 3.0.1
  */
-final class ShortcodeServiceProvider {
+final class ShortcodeServiceProvider
+{
 
 	/**
 	 * Singleton instance
@@ -51,14 +52,16 @@ final class ShortcodeServiceProvider {
 	 *
 	 * @return self
 	 */
-	public static function instance(): self {
+	public static function instance(): self
+	{
 		return self::$instance ??= new self();
 	}
 
 	/**
 	 * Private constructor to enforce singleton pattern
 	 */
-	private function __construct() {
+	private function __construct()
+	{
 		// Protected for singleton
 	}
 
@@ -67,7 +70,8 @@ final class ShortcodeServiceProvider {
 	 *
 	 * @return void
 	 */
-	public static function register(): void {
+	public static function register(): void
+	{
 		self::instance()->register_all_shortcodes();
 	}
 
@@ -76,12 +80,13 @@ final class ShortcodeServiceProvider {
 	 *
 	 * @return array<string, array<string, array>>
 	 */
-	private function get_shortcode_registry(): array {
+	private function get_shortcode_registry(): array
+	{
 		$registry = array(
 			'reservation' => array(
 				'rentiva_booking_form'          => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::class,
-					'dependencies'  => array( 'deposit' ),
+					'dependencies'  => array('deposit'),
 					'requires_auth' => false,
 				),
 				'rentiva_availability_calendar' => array(
@@ -91,7 +96,7 @@ final class ShortcodeServiceProvider {
 				),
 				'rentiva_booking_confirmation'  => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::class,
-					'dependencies'  => array( 'booking' ),
+					'dependencies'  => array('booking'),
 					'requires_auth' => false,
 				),
 			),
@@ -129,54 +134,53 @@ final class ShortcodeServiceProvider {
 			),
 			'account'     => array(
 				'rentiva_my_bookings'     => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Account\AccountController::class,
-					'method'        => 'render_my_bookings',
+					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Account\MyBookings::class,
+					'method'        => 'render',
 					'requires_auth' => true,
 				),
 				'rentiva_my_favorites'    => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Account\AccountController::class,
-					'method'        => 'render_my_favorites',
+					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Account\MyFavorites::class,
+					'method'        => 'render',
 					'requires_auth' => true,
 				),
 				'rentiva_payment_history' => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Account\AccountController::class,
-					'method'        => 'render_payment_history',
+					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Account\PaymentHistory::class,
+					'method'        => 'render',
 					'requires_auth' => true,
 				),
-
 			),
 			'transfer'    => array(
-				'mhm_rentiva_transfer_search' => array(
+				'rentiva_transfer_search' => array(
 					'class'         => \MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes::class,
-					'method'        => 'render_search_shortcode',
+					'method'        => 'render',
 					'requires_auth' => false,
 				),
 			),
 			'support'     => array(
 				'rentiva_contact'             => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\ContactForm::class,
-					'dependencies'  => array( 'email' ),
+					'dependencies'  => array('email'),
 					'requires_auth' => false,
 				),
 				'rentiva_testimonials'        => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Testimonials::class,
-					'dependencies'  => array( 'booking' ),
+					'dependencies'  => array('booking'),
 					'requires_auth' => false,
 				),
 				'rentiva_vehicle_rating_form' => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\VehicleRatingForm::class,
-					'dependencies'  => array( 'booking' ),
+					'dependencies'  => array('booking'),
 					'requires_auth' => false,
 				),
 				'rentiva_messages'            => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Account\AccountController::class,
-					'method'        => 'render_messages',
+					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Account\AccountMessages::class,
+					'method'        => 'render',
 					'requires_auth' => true,
 				),
 			),
 		);
 
-		return (array) apply_filters( 'mhm_rentiva_shortcodes', $registry );
+		return (array) apply_filters('mhm_rentiva_shortcodes', $registry);
 	}
 
 	/**
@@ -184,11 +188,12 @@ final class ShortcodeServiceProvider {
 	 *
 	 * @return void
 	 */
-	private function register_all_shortcodes(): void {
+	private function register_all_shortcodes(): void
+	{
 		$registry = $this->get_shortcode_registry();
-		foreach ( $registry as $group => $shortcodes ) {
-			foreach ( $shortcodes as $tag => $config ) {
-				$this->process_registration( $tag, $config );
+		foreach ($registry as $group => $shortcodes) {
+			foreach ($shortcodes as $tag => $config) {
+				$this->process_registration($tag, $config);
 			}
 		}
 	}
@@ -200,43 +205,44 @@ final class ShortcodeServiceProvider {
 	 * @param array  $config Configuration for the shortcode.
 	 * @return void
 	 */
-	private function process_registration( string $tag, array $config ): void {
+	private function process_registration(string $tag, array $config): void
+	{
 		$class = $config['class'] ?? '';
 
 		// Skip if class is not provided or doesn't exist
-		if ( empty( $class ) || ! class_exists( $class ) ) {
-			$this->log_error( sprintf( 'Shortcode class not found: %s', (string) $class ) );
+		if (empty($class) || ! class_exists($class)) {
+			$this->log_error(sprintf('Shortcode class not found: %s', (string) $class));
 			return;
 		}
 
 		// Check defined dependencies
-		if ( ! empty( $config['dependencies'] ) && ! $this->check_dependencies( $config['dependencies'] ) ) {
-			$this->log_error( sprintf( 'Shortcode dependencies not met for tag: %s', $tag ) );
+		if (! empty($config['dependencies']) && ! $this->check_dependencies($config['dependencies'])) {
+			$this->log_error(sprintf('Shortcode dependencies not met for tag: %s', $tag));
 			return;
 		}
 
 		// Handle classes with their own register method (Legacy compatibility)
-		if ( method_exists( $class, 'register' ) && ! isset( $this->initialized_classes[ $class ] ) ) {
+		if (method_exists($class, 'register') && ! isset($this->initialized_classes[$class])) {
 			$class::register();
-			$this->initialized_classes[ $class ] = true;
+			$this->initialized_classes[$class] = true;
 			// Note: We don't return here because we want to track it in $registered_shortcodes
 		}
 
 		// Determine callback
-		$callback = $this->resolve_callback( $class, $config );
+		$callback = $this->resolve_callback($class, $config);
 
-		if ( $callback && is_callable( $callback ) ) {
+		if ($callback && is_callable($callback)) {
 			// Wrap callback for security/auth checks
 			add_shortcode(
 				$tag,
-				function ( $atts, $content = null ) use ( $tag, $callback, $config ) {
-					return $this->handle_shortcode_execution( $tag, $callback, $config, $atts, $content );
+				function ($atts, $content = null) use ($tag, $callback, $config) {
+					return $this->handle_shortcode_execution($tag, $callback, $config, $atts, $content);
 				}
 			);
 
-			$this->registered_shortcodes[ $tag ] = $config;
+			$this->registered_shortcodes[$tag] = $config;
 		} else {
-			$this->log_error( sprintf( 'No valid callback found for shortcode: %s', $tag ) );
+			$this->log_error(sprintf('No valid callback found for shortcode: %s', $tag));
 		}
 	}
 
@@ -247,27 +253,28 @@ final class ShortcodeServiceProvider {
 	 * @param array  $config
 	 * @return callable|null
 	 */
-	private function resolve_callback( string $class, array $config ): ?callable {
+	private function resolve_callback(string $class, array $config): ?callable
+	{
 		$method = $config['method'] ?? 'render'; // Default to 'render' if not specified
 
-		if ( ! method_exists( $class, $method ) ) {
+		if (! method_exists($class, $method)) {
 			return null;
 		}
 
 		try {
-			$reflection = new \ReflectionMethod( $class, $method );
-			if ( $reflection->isStatic() ) {
-				return array( $class, $method );
+			$reflection = new \ReflectionMethod($class, $method);
+			if ($reflection->isStatic()) {
+				return array($class, $method);
 			}
 
 			// Singleton or Instance injection
-			if ( ! isset( $this->class_instances[ $class ] ) ) {
-				$this->class_instances[ $class ] = method_exists( $class, 'instance' ) ? $class::instance() : new $class();
+			if (! isset($this->class_instances[$class])) {
+				$this->class_instances[$class] = method_exists($class, 'instance') ? $class::instance() : new $class();
 			}
 
-			return array( $this->class_instances[ $class ], $method );
-		} catch ( \ReflectionException $e ) {
-			$this->log_error( sprintf( 'Reflection error for %s::%s: %s', $class, $method, $e->getMessage() ) );
+			return array($this->class_instances[$class], $method);
+		} catch (\ReflectionException $e) {
+			$this->log_error(sprintf('Reflection error for %s::%s: %s', $class, $method, $e->getMessage()));
 			return null;
 		}
 	}
@@ -282,14 +289,15 @@ final class ShortcodeServiceProvider {
 	 * @param string|null $content
 	 * @return string
 	 */
-	private function handle_shortcode_execution( string $tag, callable $callback, array $config, $atts, ?string $content ): string {
+	private function handle_shortcode_execution(string $tag, callable $callback, array $config, $atts, ?string $content): string
+	{
 		// Check authentication if required
-		if ( ! empty( $config['requires_auth'] ) && ! is_user_logged_in() ) {
-			return (string) apply_filters( 'mhm_rentiva_shortcode_auth_error', __( 'Please login to view this content.', 'mhm-rentiva' ), $tag );
+		if (! empty($config['requires_auth']) && ! is_user_logged_in()) {
+			return (string) apply_filters('mhm_rentiva_shortcode_auth_error', __('Please login to view this content.', 'mhm-rentiva'), $tag);
 		}
 
 		ob_start();
-		$output   = call_user_func( $callback, $atts, $content, $tag );
+		$output   = call_user_func($callback, $atts, $content, $tag);
 		$buffered = ob_get_clean();
 
 		return $output ?? $buffered;
@@ -301,20 +309,21 @@ final class ShortcodeServiceProvider {
 	 * @param string[] $dependencies List of dependency keys.
 	 * @return bool
 	 */
-	private function check_dependencies( array $dependencies ): bool {
+	private function check_dependencies(array $dependencies): bool
+	{
 		$map = array(
 			'deposit' => \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::class,
 			'booking' => \MHMRentiva\Admin\Booking\Core\Handler::class,
 			'email'   => \MHMRentiva\Admin\Emails\Core\EmailTemplates::class,
 		);
 
-		foreach ( $dependencies as $dependency ) {
-			if ( isset( $map[ $dependency ] ) ) {
-				if ( ! class_exists( $map[ $dependency ] ) ) {
+		foreach ($dependencies as $dependency) {
+			if (isset($map[$dependency])) {
+				if (! class_exists($map[$dependency])) {
 					return false;
 				}
 			} else {
-				$this->log_error( sprintf( 'Unknown dependency check requested: %s', $dependency ) );
+				$this->log_error(sprintf('Unknown dependency check requested: %s', $dependency));
 			}
 		}
 
@@ -326,7 +335,8 @@ final class ShortcodeServiceProvider {
 	 *
 	 * @return array
 	 */
-	public function get_registered_shortcodes(): array {
+	public function get_registered_shortcodes(): array
+	{
 		return $this->registered_shortcodes;
 	}
 
@@ -335,16 +345,17 @@ final class ShortcodeServiceProvider {
 	 *
 	 * @return array
 	 */
-	public static function get_shortcode_groups(): array {
+	public static function get_shortcode_groups(): array
+	{
 		$groups   = array();
 		$instance = self::instance();
 		$registry = $instance->get_shortcode_registry();
 
-		foreach ( $registry as $group => $shortcodes ) {
-			$groups[ $group ] = array(
-				'name'       => $instance->get_group_name( $group ),
-				'shortcodes' => array_keys( $shortcodes ),
-				'count'      => count( $shortcodes ),
+		foreach ($registry as $group => $shortcodes) {
+			$groups[$group] = array(
+				'name'       => $instance->get_group_name($group),
+				'shortcodes' => array_keys($shortcodes),
+				'count'      => count($shortcodes),
 			);
 		}
 
@@ -357,16 +368,17 @@ final class ShortcodeServiceProvider {
 	 * @param string $group
 	 * @return string
 	 */
-	private function get_group_name( string $group ): string {
+	private function get_group_name(string $group): string
+	{
 		$names = array(
-			'reservation' => __( 'Booking', 'mhm-rentiva' ),
-			'vehicle'     => __( 'Vehicle Display', 'mhm-rentiva' ),
-			'account'     => __( 'Account Management', 'mhm-rentiva' ),
-			'support'     => __( 'Support and Contact', 'mhm-rentiva' ),
-			'transfer'    => __( 'Transfer Services', 'mhm-rentiva' ),
+			'reservation' => __('Booking', 'mhm-rentiva'),
+			'vehicle'     => __('Vehicle Display', 'mhm-rentiva'),
+			'account'     => __('Account Management', 'mhm-rentiva'),
+			'support'     => __('Support and Contact', 'mhm-rentiva'),
+			'transfer'    => __('Transfer Services', 'mhm-rentiva'),
 		);
 
-		return $names[ $group ] ?? ucfirst( $group );
+		return $names[$group] ?? ucfirst($group);
 	}
 
 	/**
@@ -375,9 +387,10 @@ final class ShortcodeServiceProvider {
 	 * @param string $message
 	 * @return void
 	 */
-	private function log_error( string $message ): void {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( sprintf( 'MHM Rentiva Error: %s', $message ) );
+	private function log_error(string $message): void
+	{
+		if (defined('WP_DEBUG') && WP_DEBUG) {
+			error_log(sprintf('MHM Rentiva Error: %s', $message));
 		}
 	}
 
@@ -386,11 +399,12 @@ final class ShortcodeServiceProvider {
 	 *
 	 * @return int
 	 */
-	public static function get_total_count(): int {
+	public static function get_total_count(): int
+	{
 		$count    = 0;
 		$registry = self::instance()->get_shortcode_registry();
-		foreach ( $registry as $shortcodes ) {
-			$count += count( $shortcodes );
+		foreach ($registry as $shortcodes) {
+			$count += count($shortcodes);
 		}
 		return $count;
 	}

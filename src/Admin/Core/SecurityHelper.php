@@ -213,7 +213,7 @@ final class SecurityHelper
 			throw new \InvalidArgumentException(esc_html__('Invalid date format.', 'mhm-rentiva'));
 		}
 
-		return date('Y-m-d', $time);
+		return gmdate('Y-m-d', $time);
 	}
 
 	public static function validate_email($email): string

@@ -236,7 +236,7 @@ form.woocommerce-checkout {
 /* Fallback section removed to resolve empty ruleset warning */
 
 /* Mobile Fallback - Force Stack */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 
 	.woocommerce-checkout .form-row-first,
 	.woocommerce-checkout .form-row-last,
@@ -1089,7 +1089,7 @@ small.includes_tax {
 /* ========================================
    MOBILE FIX (NO SCROLLBAR VERSION)
    ======================================== */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 
 	/* 1. Global Overflow Prevention */
 	html,

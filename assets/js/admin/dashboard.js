@@ -10,7 +10,7 @@
 	// jQuery fallback check
 	if (typeof jQuery === 'undefined') {
 		if (typeof console !== 'undefined' && console.error) {
-			console.error( 'MHM Rentiva Dashboard: jQuery is required but not loaded' );
+			console.error('MHM Rentiva Dashboard: jQuery is required but not loaded');
 		}
 		return;
 	}
@@ -38,10 +38,10 @@
 
 		// Initialize sortable widgets
 		initSortable: function () {
-			var self       = this;
-			var $container = $( '#mhm-dashboard-widgets' );
+			var self = this;
+			var $container = $('#mhm-dashboard-widgets');
 
-			if ( ! $container.length) {
+			if (!$container.length) {
 				return;
 			}
 
@@ -61,9 +61,9 @@
 		// Save widget order via AJAX
 		saveWidgetOrder: function () {
 			var order = [];
-			$( '.mhm-dashboard-widget-wrapper' ).each(
+			$('.mhm-dashboard-widget-wrapper').each(
 				function () {
-					order.push( $( this ).data( 'widget' ) );
+					order.push($(this).data('widget'));
 				}
 			);
 
@@ -86,10 +86,10 @@
 
 		// Initialize revenue chart
 		initRevenueChart: function () {
-			var ctx = document.getElementById( 'revenue-chart-canvas' );
-			if ( ! ctx) {
+			var ctx = document.getElementById('revenue-chart-canvas');
+			if (!ctx) {
 				if (typeof console !== 'undefined' && console.warn) {
-					console.warn( 'MHM Rentiva Dashboard: Revenue chart canvas not found' );
+					console.warn('MHM Rentiva Dashboard: Revenue chart canvas not found');
 				}
 				return;
 			}
@@ -97,33 +97,33 @@
 			// JavaScript variables check
 			if (typeof mhm_dashboard_vars === 'undefined') {
 				if (typeof console !== 'undefined' && console.error) {
-					console.error( 'MHM Rentiva Dashboard: mhm_dashboard_vars not defined' );
+					console.error('MHM Rentiva Dashboard: mhm_dashboard_vars not defined');
 				}
 				return;
 			}
 
 			var revenueData = mhm_dashboard_vars.revenue_data;
-			var currency    = mhm_dashboard_vars.currency;
-			var locale      = 'en-US'; // Define locale
+			var currency = mhm_dashboard_vars.currency;
+			var locale = 'en-US'; // Define locale
 
 			// Prepare chart data
-			var labels       = [];
-			var data         = [];
+			var labels = [];
+			var data = [];
 			var totalRevenue = 0;
 
 			// Process last 14 days data
 			for (var i = 13; i >= 0; i--) {
 				var date = new Date();
-				date.setDate( date.getDate() - i );
-				var dateString = date.toLocaleDateString( 'en-US', { day: '2-digit', month: '2-digit' } );
-				labels.push( dateString );
+				date.setDate(date.getDate() - i);
+				var dateString = date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' });
+				labels.push(dateString);
 
 				// Get revenue value from daily_data array
 				var dayRevenue = 0;
 				if (revenueData.daily_data && revenueData.daily_data[i]) {
 					dayRevenue = revenueData.daily_data[i].revenue || 0;
 				}
-				data.push( dayRevenue );
+				data.push(dayRevenue);
 				totalRevenue += dayRevenue;
 			}
 
@@ -158,7 +158,7 @@
 							callbacks: {
 								label: function (context) {
 									var revenueText = (mhm_dashboard_vars.strings && mhm_dashboard_vars.strings.revenue) || 'Revenue';
-									return revenueText + ': ' + context.parsed.y.toLocaleString( locale ) + ' ' + currency;
+									return revenueText + ': ' + context.parsed.y.toLocaleString(locale) + ' ' + currency;
 								}
 							}
 						}
@@ -171,7 +171,7 @@
 							},
 							ticks: {
 								callback: function (value) {
-									return value.toLocaleString( locale ) + ' ' + currency;
+									return value.toLocaleString(locale) + ' ' + currency;
 								}
 							}
 						},
@@ -190,7 +190,7 @@
 			}
 
 			// Create Chart.js instance
-			this.chart = new Chart( ctx, config );
+			this.chart = new Chart(ctx, config);
 		},
 
 		// Initialize tooltips - Bootstrap tooltips not loaded
@@ -207,24 +207,24 @@
 			var isMobile = window.innerWidth <= 768;
 
 			if (isMobile) {
-				$( '.mhm-dashboard-widget' ).addClass( 'is-collapsible is-collapsed' );
+				$('.mhm-dashboard-widget').addClass('is-collapsible is-collapsed');
 				// Quick actions should probably stay open by default as it's the most used
-				$( '.mhm-dashboard-widget-wrapper[data-widget="quick-actions"] .mhm-dashboard-widget' ).removeClass( 'is-collapsed' );
+				$('.mhm-dashboard-widget-wrapper[data-widget="quick-actions"] .mhm-dashboard-widget').removeClass('is-collapsed');
 			}
 
 			// Widget Header Click - Toggle Collapse
-			$( document ).on(
+			$(document).on(
 				'click',
 				'.mhm-dashboard-widget h3',
 				function (e) {
 					// Only allow collapse on mobile or if specifically made collapsible
-					var $widget = $( this ).closest( '.mhm-dashboard-widget' );
+					var $widget = $(this).closest('.mhm-dashboard-widget');
 
-					if (window.innerWidth <= 768 || $widget.hasClass( 'is-collapsible' )) {
-						$widget.toggleClass( 'is-collapsed' );
+					if (window.innerWidth <= 768 || $widget.hasClass('is-collapsible')) {
+						$widget.toggleClass('is-collapsed');
 
 						// Re-calculate chart if revenue chart is expanded
-						if ( ! $widget.hasClass( 'is-collapsed' ) && $widget.find( '#revenue-chart-canvas' ).length) {
+						if (!$widget.hasClass('is-collapsed') && $widget.find('#revenue-chart-canvas').length) {
 							setTimeout(
 								function () {
 									self.initRevenueChart();
@@ -237,12 +237,12 @@
 			);
 
 			// Refresh buttons
-			$( '.mhm-refresh-btn' ).on(
+			$('.mhm-refresh-btn').on(
 				'click',
 				function (e) {
 					e.preventDefault();
-					var btn = $( this );
-					btn.prop( 'disabled', true ).text( 'Refreshing...' );
+					var btn = $(this);
+					btn.prop('disabled', true).text('Refreshing...');
 
 					setTimeout(
 						function () {
@@ -254,11 +254,11 @@
 			);
 
 			// Reset layout button
-			$( '#mhm-reset-dashboard' ).on(
+			$('#mhm-reset-dashboard').on(
 				'click',
 				function (e) {
 					e.preventDefault();
-					if ( ! confirm( 'Are you sure you want to reset the dashboard layout?' )) {
+					if (!confirm('Are you sure you want to reset the dashboard layout?')) {
 						return;
 					}
 
@@ -267,13 +267,14 @@
 							url: mhm_dashboard_vars.ajax_url,
 							type: 'POST',
 							data: {
-								action: 'mhm_save_dashboard_order',
-								nonce: mhm_dashboard_vars.nonce,
-								order: [] // Empty order to reset to defaults
+								action: 'mhm_reset_dashboard_layout',
+								nonce: mhm_dashboard_vars.nonce
 							},
 							success: function (response) {
 								if (response.success) {
 									location.reload();
+								} else {
+									alert(response.data || 'Reset failed');
 								}
 							}
 						}
@@ -284,7 +285,7 @@
 	};
 
 	// Initialize when DOM is ready
-	$( document ).ready(
+	$(document).ready(
 		function () {
 			Dashboard.init();
 		}

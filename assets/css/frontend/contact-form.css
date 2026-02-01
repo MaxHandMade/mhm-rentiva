@@ -532,7 +532,7 @@
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-contact-form {
 		padding: 15px;
 		margin: 10px;

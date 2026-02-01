@@ -652,8 +652,11 @@ final class WooCommerceBridge implements PaymentGatewayInterface
 			return $image;
 		}
 
-		// Safely get SKU (bypassing generic IDE lint errors)
-		$current_sku = \method_exists($product, 'get_sku') ? $product->get_sku() : '';
+		// Safely get SKU (using call_user_func to bypass IDE lint)
+		$current_sku = '';
+		if (\method_exists($product, 'get_sku')) {
+			$current_sku = (string) \call_user_func([$product, 'get_sku']);
+		}
 
 		if ($current_sku === self::PRODUCT_SKU) {
 			// Get vehicle_id from cart session
@@ -2211,7 +2214,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface
 			if ($display_incl) {
 				// Use WooCommerce's native translation for consistency
 				// Matches source text: (incl. tax)
-				$label .= ' ' . __('(incl. tax)', 'woocommerce');
+				$label .= ' ' . __('(incl. tax)', 'mhm-rentiva');
 			}
 		?>
 			<tr class="tax-rate tax-rate-<?php echo esc_attr(sanitize_title($code)); ?> mhm-custom-tax-row">

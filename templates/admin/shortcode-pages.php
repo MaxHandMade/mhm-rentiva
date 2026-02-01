@@ -12,8 +12,8 @@ if (! defined('ABSPATH')) {
 }
 ?>
 <div class="wrap mhm-rentiva-admin" id="mhm-shortcode-pages-container">
-	<h1 class="wp-heading-inline"><?php esc_html_e('Shortcode Pages', 'mhm-rentiva'); ?></h1>
-	<?php \MHMRentiva\Admin\Core\Utilities\UXHelper::render_docs_button(); ?>
+	<?php echo $header_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+	?>
 	<p class="description" id="shortcode-pages-desc">
 		<?php esc_html_e('Below is a list of all MHM Rentiva shortcodes and which pages they are used on.', 'mhm-rentiva'); ?>
 	</p>
@@ -95,7 +95,39 @@ if (! defined('ABSPATH')) {
 		</table>
 	</div>
 
-	<div class="mhm-shortcode-actions" style="margin-top: 20px;">
+	<?php
+	$total_count   = count($shortcodes_config);
+	$active_count  = 0;
+	$missing_count = 0;
+
+	foreach ($shortcodes_config as $shortcode => $info) {
+		if (isset($pages[$shortcode]['id']) && $pages[$shortcode]['id'] > 0) {
+			$active_count++;
+		} else {
+			$missing_count++;
+		}
+	}
+	?>
+
+	<div class="mhm-rentiva-stats-container">
+		<h3><?php esc_html_e('System Summary', 'mhm-rentiva'); ?></h3>
+		<div class="mhm-stats-grid">
+			<div class="card">
+				<p><?php esc_html_e('Total Shortcodes', 'mhm-rentiva'); ?></p>
+				<h4><?php echo (int) $total_count; ?></h4>
+			</div>
+			<div class="card">
+				<p><?php esc_html_e('Active Pages', 'mhm-rentiva'); ?></p>
+				<h4 style="color: #46b450;"><?php echo (int) $active_count; ?></h4>
+			</div>
+			<div class="card">
+				<p><?php esc_html_e('Missing Pages', 'mhm-rentiva'); ?></p>
+				<h4 style="color: #dc3232;"><?php echo (int) $missing_count; ?></h4>
+			</div>
+		</div>
+	</div>
+
+	<div class="mhm-shortcode-actions">
 		<h3><?php esc_html_e('System Actions', 'mhm-rentiva'); ?></h3>
 		<div class="mhm-action-group">
 			<button type="button" class="button" id="mhm-btn-clear-cache">

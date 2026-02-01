@@ -89,7 +89,7 @@
 	width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-booking-form-wrapper {
 		margin: 20px auto;
 		padding: 0 10px;
@@ -181,7 +181,7 @@
 	margin-bottom: 1rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-field-group {
 		grid-template-columns: 1fr !important;
 		gap: 0.75rem;
@@ -214,7 +214,7 @@
 	gap: 1rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-name-fields {
 		grid-template-columns: 1fr;
 		gap: 0.5rem;
@@ -923,7 +923,7 @@
 	margin-bottom: 2rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-payment-type-selection {
 		grid-template-columns: 1fr;
 		gap: 0.75rem;
@@ -992,7 +992,7 @@
 	margin-bottom: 1.5rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-payment-method-selection {
 		grid-template-columns: 1fr;
 		gap: 0.75rem;
@@ -1071,7 +1071,7 @@
 	gap: 1rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-payment-gateways {
 		grid-template-columns: 1fr;
 		gap: 0.75rem;
@@ -1341,7 +1341,7 @@
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-booking-form-wrapper {
 		max-width: 100%;
 		margin: 20px auto;
@@ -1888,7 +1888,7 @@
 }
 
 /* ===== RESPONSIVE ALTERNATIVES ===== */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-alternative-vehicles {
 		grid-template-columns: 1fr;
 	}
@@ -2015,7 +2015,7 @@
 }
 
 /* Responsive Rating & Favorite */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-section-header {
 		flex-direction: row;
 		align-items: center;
@@ -2079,7 +2079,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-logged-in-info {
 		padding: 0.75rem;
 	}
@@ -2432,7 +2432,7 @@
 }
 
 /* Responsive DatePicker */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.ui-datepicker {
 		min-width: 260px;
 		font-size: 13px;
@@ -2836,7 +2836,7 @@
 }
 
 /* ===== MOBILE RESPONSIVE OPTIMIZATIONS ===== */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 
 	/* 0. Form Container - Maximize Width */
 	.rv-booking-form-wrapper {
@@ -3453,7 +3453,7 @@
 	}
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-alternatives-grid {
 		grid-template-columns: 1fr;
 		gap: 1.5rem;
@@ -3476,3 +3476,20 @@
 	/* Dark amber for visibility manually selected */
 	font-weight: 600;
 }
+
+/* High Contrast Alerts & Badges Fix */
+.rv-availability-alert, .rv-availability-error-header, .rv-alert-warning {
+    background-color: #fff3cd !important;
+    color: #856404 !important;
+    border: 1px solid #ffeeba !important;
+}
+.rv-availability-alert.error, .rv-alert-error {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+    border: 1px solid #f5c6cb !important;
+}
+.rv-recommended-vehicle-card {
+    border: 2px solid #2271b1 !important;
+    background-color: #f0f7ff !important;
+}
+

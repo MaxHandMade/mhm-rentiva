@@ -138,20 +138,6 @@ final class VehicleFeatureHelper
 			);
 		}
 
-		if (empty($sanitized)) {
-			// Fall back to defaults filtered by availability
-			foreach (self::get_default_card_fields() as $item) {
-				$type = $item['type'];
-				$key  = $item['key'];
-
-				if (isset($available[$type][$key])) {
-					$sanitized[] = array(
-						'type' => $type,
-						'key'  => $key,
-					);
-				}
-			}
-		}
 
 		return $sanitized;
 	}

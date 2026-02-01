@@ -120,6 +120,7 @@ final class ShortcodePageAjax
 		global $wpdb;
 
 		// Optimize SQL query performance: Select only needed columns and use index-friendly WHERE
+		// Search for anything likely to contain a shortcode [
 		$all_pages = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT ID, post_title, post_content FROM {$wpdb->posts} 
@@ -129,17 +130,19 @@ final class ShortcodePageAjax
                  ORDER BY post_date DESC",
 				'page',
 				'publish',
-				'%' . $wpdb->esc_like('[rentiva_') . '%'
+				'%[%'
 			)
 		);
 
 		$debug_info = array();
-		$shortcodes = array_keys($this->actions->get_config());
+		$config     = $this->actions->get_config();
+		$shortcodes = array_keys($config);
 
 		foreach ($all_pages as $page) {
 			$found = array();
 			foreach ($shortcodes as $s) {
-				if (str_contains((string) $page->post_content, "[$s]") || str_contains((string) $page->post_content, "[$s ") || str_contains((string) $page->post_content, "[$s=")) {
+				// Use regex for more accurate detection in content
+				if (preg_match('/\[' . preg_quote($s, '/') . '(\]| |=)/', (string) $page->post_content)) {
 					$found[] = $s;
 				}
 			}
@@ -162,5 +165,27 @@ final class ShortcodePageAjax
 				'pages'   => $debug_info,
 			)
 		);
+	}
+
+	/**
+	 * AJAX: Reset shortcode pages
+	 */
+	public function reset_pages(): void
+	{
+		check_ajax_referer(\MHMRentiva\Admin\Settings\ShortcodePages::ACTION_RESET_PAGES, 'nonce');
+
+		if (! current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => esc_html__('You do not have permission for this action.', 'mhm-rentiva')));
+		}
+
+		if ($this->actions->reset_pages()) {
+			wp_send_json_success(
+				array(
+					'message' => esc_html__('All shortcode pages have been deleted and system returned to default settings.', 'mhm-rentiva'),
+				)
+			);
+		}
+
+		wp_send_json_error(array('message' => esc_html__('Error occurred while resetting pages.', 'mhm-rentiva')));
 	}
 }

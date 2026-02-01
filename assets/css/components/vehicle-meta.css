@@ -81,7 +81,7 @@
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-availability-dropdown {
 		padding: 10px 14px;
 		font-size: 13px;
@@ -257,7 +257,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-grid-container {
 		grid-template-columns: 1fr;
 		gap: 16px;
@@ -968,7 +968,7 @@
 }
 
 /* Responsive Tab Design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-tab-navigation {
 		flex-direction: column;
 	}

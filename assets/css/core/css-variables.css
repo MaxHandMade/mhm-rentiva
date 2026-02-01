@@ -202,7 +202,8 @@
 
 	/* === BREAKPOINTS === */
 	--mhm-breakpoint-sm: 640px;
-	--mhm-breakpoint-md: 768px;
+	--mhm-breakpoint-md: 782px;
+	/* WordPress Admin standard */
 	--mhm-breakpoint-lg: 1024px;
 	--mhm-breakpoint-xl: 1280px;
 	--mhm-breakpoint-2xl: 1536px;

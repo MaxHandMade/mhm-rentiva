@@ -250,7 +250,7 @@
 }
 
 /* Responsive Tasarım */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-payment-options {
 		padding: 15px;
 		margin: 15px 0;

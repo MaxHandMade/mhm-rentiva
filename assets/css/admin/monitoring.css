@@ -352,7 +352,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.monitoring-cards {
 		grid-template-columns: 1fr;
 	}

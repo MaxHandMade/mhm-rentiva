@@ -521,7 +521,7 @@
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-testimonials-header {
 		flex-direction: column;
 		align-items: flex-start;

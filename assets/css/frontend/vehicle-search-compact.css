@@ -305,7 +305,7 @@
 	}
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-search-main-row {
 		display: grid !important;
 		grid-template-columns: 1fr !important;

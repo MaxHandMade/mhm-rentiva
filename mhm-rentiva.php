@@ -3,7 +3,7 @@
  * Plugin Name:       MHM Rentiva
  * Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
  * Description:       MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
- * Version:           4.6.7
+ * Version:           4.9.6
  * Requires at least: 5.0
  * Tested up to:      6.9
  * Requires PHP:      7.4
@@ -45,7 +45,7 @@ function mhm_rentiva_sanitize_text_field_safe($value)
 }
 
 // Define Plugin Constants
-define('MHM_RENTIVA_VERSION', '4.6.7');
+define('MHM_RENTIVA_VERSION', '4.9.6');
 
 
 // Recursive $_POST/$_REQUEST cleaning removed.

@@ -255,7 +255,7 @@ input:checked+.mhm-dark-mode-slider:before {
 }
 
 /* Responsive Dark Mode */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	body.mhm-dark-mode .mhm-settings-sidebar {
 		background-color: var(--mhm-dark-bg-primary);
 	}

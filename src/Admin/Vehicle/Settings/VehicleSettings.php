@@ -17,6 +17,8 @@ if (! defined('ABSPATH')) {
  */
 final class VehicleSettings
 {
+	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
+
 
 
 	/**
@@ -138,67 +140,70 @@ final class VehicleSettings
 	/**
 	 * Render settings page
 	 */
-	public static function render_settings_page(): void
+	public function render_settings_page(): void
 	{
 		$active_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'definitions';
+
+		$buttons = array(
+			array(
+				'type' => 'documentation',
+				'url'  => \MHMRentiva\Admin\Core\Utilities\UXHelper::get_docs_url(),
+			),
+			array(
+				'type' => 'reset',
+				'url'  => '#',
+				'id'   => 'reset-vehicle-settings',
+			),
+		);
+
+		echo '<div class="wrap mhm-vehicle-settings-wrapper">';
+		$this->render_admin_header((string) get_admin_page_title(), $buttons);
+
+		// Developer Mode Banner
+		$this->render_developer_mode_banner();
 ?>
-		<div class="wrap mhm-vehicle-settings-wrapper">
-			<div class="wrap mhm-vehicle-settings-wrapper">
-				<div class="mhm-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-					<h1 style="margin: 0;"><?php echo esc_html__('Vehicle Settings', 'mhm-rentiva'); ?></h1>
-					<div class="mhm-header-actions">
-						<a href="https://maxhandmade.github.io/mhm-rentiva-docs/" target="_blank" class="button">
-							<span class="dashicons dashicons-book" style="line-height: 1.3; margin-right: 5px;"></span>
-							<?php echo esc_html__('Documentation', 'mhm-rentiva'); ?>
-						</a>
-						<button type="button" id="reset-vehicle-settings" class="button">
-							<span class="dashicons dashicons-image-rotate" style="line-height: 1.3; margin-right: 5px;"></span>
-							<?php echo esc_html__('Reset to Defaults', 'mhm-rentiva'); ?>
-						</button>
-					</div>
-				</div>
+		<nav class="nav-tab-wrapper">
+			<a href="?page=vehicle-settings&tab=definitions" class="nav-tab <?php echo $active_tab === 'definitions' ? 'nav-tab-active' : ''; ?>">
+				<?php esc_html_e('Field Definitions', 'mhm-rentiva'); ?>
+			</a>
+			<a href="?page=vehicle-settings&tab=display" class="nav-tab <?php echo $active_tab === 'display' ? 'nav-tab-active' : ''; ?>">
+				<?php esc_html_e('Display Options', 'mhm-rentiva'); ?>
+			</a>
+		</nav>
+		<br>
 
-				<nav class="nav-tab-wrapper">
-					<a href="?page=vehicle-settings&tab=definitions" class="nav-tab <?php echo $active_tab === 'definitions' ? 'nav-tab-active' : ''; ?>">
-						<?php esc_html_e('Field Definitions', 'mhm-rentiva'); ?>
-					</a>
-					<a href="?page=vehicle-settings&tab=display" class="nav-tab <?php echo $active_tab === 'display' ? 'nav-tab-active' : ''; ?>">
-						<?php esc_html_e('Display Options', 'mhm-rentiva'); ?>
-					</a>
-				</nav>
-				<br>
+		<?php
+		if ($active_tab === 'display') {
+			self::render_display_tab();
+		} else {
+			self::render_definitions_tab();
+		}
+		?>
+		<script>
+			jQuery(document).ready(function($) {
+				$('#reset-vehicle-settings').on('click', function() {
+					if (confirm('<?php echo esc_js(__('Are you sure you want to reset all vehicle settings to defaults? Custom field definitions will NOT be deleted.', 'mhm-rentiva')); ?>')) {
+						const btn = $(this);
+						btn.prop('disabled', true);
 
-				<?php
-				if ($active_tab === 'display') {
-					self::render_display_tab();
-				} else {
-					self::render_definitions_tab();
-				}
-				?>
-				<script>
-					jQuery(document).ready(function($) {
-						$('#reset-vehicle-settings').on('click', function() {
-							if (confirm('<?php echo esc_js(__('Are you sure you want to reset all vehicle settings to defaults? Custom field definitions will NOT be deleted.', 'mhm-rentiva')); ?>')) {
-								const btn = $(this);
-								btn.prop('disabled', true);
-
-								$.post(ajaxurl, {
-									action: 'mhm_reset_vehicle_settings',
-									nonce: '<?php echo esc_js(wp_create_nonce('vehicle_settings_nonce')); ?>'
-								}, function(response) {
-									if (response.success) {
-										window.location.reload();
-									} else {
-										alert(response.data.message || 'Error resetting settings');
-										btn.prop('disabled', false);
-									}
-								});
+						$.post(ajaxurl, {
+							action: 'mhm_reset_vehicle_settings',
+							tab: '<?php echo esc_js($active_tab); ?>',
+							nonce: '<?php echo esc_js(wp_create_nonce('vehicle_settings_nonce')); ?>'
+						}, function(response) {
+							if (response.success) {
+								window.location.reload();
+							} else {
+								alert(response.data.message || 'Error resetting settings');
+								btn.prop('disabled', false);
 							}
 						});
-					});
-				</script>
-			</div>
-		<?php
+					}
+				});
+			});
+		</script>
+		</div>
+	<?php
 	}
 
 	/**
@@ -266,169 +271,156 @@ final class VehicleSettings
 		$available_comparison_fields = self::get_comparison_available_fields();
 		$show_defaults               = empty($selected_comparison_fields);
 
-		?>
-			<form method="post" action="<?php echo esc_url(admin_url('admin-ajax.php')); ?>" id="vehicle-display-settings-form">
+	?>
+		<form method="post" action="<?php echo esc_url(admin_url('admin-ajax.php')); ?>" id="vehicle-display-settings-form">
 
-				<div class="mhm-settings-section">
-					<h2><?php echo esc_html__('Visible Card Items', 'mhm-rentiva'); ?></h2>
-					<div class="mhm-card-fields-wrapper">
-						<input type="hidden" id="mhm-vehicle-card-fields-input" name="mhm_rentiva_vehicle_card_fields" value="<?php echo esc_attr($hidden_value); ?>" />
+			<div class="mhm-settings-section">
+				<h2><?php echo esc_html__('Visible Card Items', 'mhm-rentiva'); ?></h2>
+				<div class="mhm-card-fields-wrapper">
+					<input type="hidden" id="mhm-vehicle-card-fields-input" name="mhm_rentiva_vehicle_card_fields" value="<?php echo esc_attr($hidden_value); ?>" />
 
-						<div class="mhm-card-fields-columns" style="display: flex; gap: 20px;">
+					<div class="mhm-card-fields-columns" style="display: flex; gap: 20px;">
 
-							<div class="mhm-card-fields-column" style="flex: 1; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
-								<h4><?php echo esc_html__('Visible Items', 'mhm-rentiva'); ?>
-									<button type="button" id="clear-card-fields" class="button button-small" style="float: right;"><?php echo esc_html__('Clear All', 'mhm-rentiva'); ?></button>
-								</h4>
-								<p class="description"><?php echo esc_html__('Drag to reorder or click to remove items from the vehicle card.', 'mhm-rentiva'); ?></p>
-								<ul id="mhm-card-fields-selected" class="mhm-card-fields-list" style="min-height: 50px; border: 1px dashed #ccc; padding: 10px;">
-									<?php if (! empty($selected_items)) : ?>
-										<?php foreach ($selected_items as $item) : ?>
-											<?php echo wp_kses_post(self::render_card_field_list_item($item['type'], $item['key'], $item['label'], true)); ?>
-										<?php endforeach; ?>
-									<?php endif; ?>
-								</ul>
-							</div>
-
-							<div class="mhm-card-fields-column" style="flex: 1; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
-								<h4><?php echo esc_html__('Available Items', 'mhm-rentiva'); ?></h4>
-								<p class="description"><?php echo esc_html__('Drag items here to hide them from the card.', 'mhm-rentiva'); ?></p>
-								<ul id="mhm-card-fields-available" class="mhm-card-fields-list" style="min-height: 50px; border: 1px dashed #ccc; padding: 10px;">
-									<?php if (! empty($available_items)) : ?>
-										<?php foreach ($available_items as $item) : ?>
-											<?php echo wp_kses_post(self::render_card_field_list_item($item['type'], $item['key'], $item['label'], false)); ?>
-										<?php endforeach; ?>
-									<?php endif; ?>
-								</ul>
-							</div>
-
+						<div class="mhm-card-fields-column" style="flex: 1; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+							<h4><?php echo esc_html__('Visible Items', 'mhm-rentiva'); ?>
+								<button type="button" id="clear-card-fields" class="button button-small" style="float: right;"><?php echo esc_html__('Clear All', 'mhm-rentiva'); ?></button>
+							</h4>
+							<p class="description"><?php echo esc_html__('Drag to reorder or click to remove items from the vehicle card.', 'mhm-rentiva'); ?></p>
+							<ul id="mhm-card-fields-selected" class="mhm-card-fields-list" style="min-height: 50px; border: 1px dashed #ccc; padding: 10px;">
+								<?php if (! empty($selected_items)) : ?>
+									<?php foreach ($selected_items as $item) : ?>
+										<?php echo wp_kses_post(self::render_card_field_list_item($item['type'], $item['key'], $item['label'], true)); ?>
+									<?php endforeach; ?>
+								<?php endif; ?>
+							</ul>
 						</div>
-						<p class="description mhm-card-fields-footer" style="margin-top: 10px;">
-							<?php echo esc_html__('Tip: The order you set here applies to vehicle grids, list views and the My Account favorites grid.', 'mhm-rentiva'); ?>
-						</p>
+
+						<div class="mhm-card-fields-column" style="flex: 1; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+							<h4><?php echo esc_html__('Available Items', 'mhm-rentiva'); ?></h4>
+							<p class="description"><?php echo esc_html__('Drag items here to hide them from the card.', 'mhm-rentiva'); ?></p>
+							<ul id="mhm-card-fields-available" class="mhm-card-fields-list" style="min-height: 50px; border: 1px dashed #ccc; padding: 10px;">
+								<?php if (! empty($available_items)) : ?>
+									<?php foreach ($available_items as $item) : ?>
+										<?php echo wp_kses_post(self::render_card_field_list_item($item['type'], $item['key'], $item['label'], false)); ?>
+									<?php endforeach; ?>
+								<?php endif; ?>
+							</ul>
+						</div>
+
 					</div>
+					<p class="description mhm-card-fields-footer" style="margin-top: 10px;">
+						<?php echo esc_html__('Tip: The order you set here applies to vehicle grids, list views and the My Account favorites grid.', 'mhm-rentiva'); ?>
+					</p>
 				</div>
+			</div>
 
-				<hr style="margin: 30px 0;">
+			<hr style="margin: 30px 0;">
 
-				<div class="mhm-settings-section">
-					<h2><?php echo esc_html__('Comparison Table Settings', 'mhm-rentiva'); ?></h2>
-					<div class="mhm-comparison-fields">
-						<p class="description">
-							<?php echo esc_html__('Select which fields to display in the vehicle comparison table:', 'mhm-rentiva'); ?>
-						</p>
+			<div class="mhm-settings-section">
+				<h2><?php echo esc_html__('Comparison Table Settings', 'mhm-rentiva'); ?></h2>
+				<div class="mhm-comparison-fields">
+					<p class="description">
+						<?php echo esc_html__('Select which fields to display in the vehicle comparison table:', 'mhm-rentiva'); ?>
+					</p>
 
-						<div class="mhm-field-categories">
-							<?php foreach ($available_comparison_fields as $category => $fields) : ?>
-								<div class="mhm-field-category" data-category="<?php echo esc_attr($category); ?>" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; border-radius: 5px;">
-									<div class="mhm-category-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-										<?php
-										$category_labels = array(
-											'details'   => __('Details', 'mhm-rentiva'),
-											'features'  => __('Features', 'mhm-rentiva'),
-											'equipment' => __('Equipment', 'mhm-rentiva'),
-										);
-										$cat_label       = $category_labels[$category] ?? ucfirst($category);
-										?>
-										<h4 style="margin: 0;"><?php echo esc_html($cat_label); ?></h4>
-										<div class="mhm-category-actions" style="display: flex; gap: 10px;">
-											<button type="button" class="button button-small mhm-select-all-btn" data-category="<?php echo esc_attr($category); ?>">
-												<?php echo esc_html__('Select All', 'mhm-rentiva'); ?>
-											</button>
-											<button type="button" class="button button-small mhm-deselect-all-btn" data-category="<?php echo esc_attr($category); ?>">
-												<?php echo esc_html__('Deselect All', 'mhm-rentiva'); ?>
-											</button>
-										</div>
-									</div>
-									<div class="mhm-field-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-										<?php foreach ($fields as $field_key => $field_label) : ?>
-											<label class="mhm-field-item" style="display: flex; align-items: center; padding: 5px; background: white; border-radius: 3px;">
-												<input type="checkbox"
-													name="comparison_fields[<?php echo esc_attr($category); ?>][]"
-													value="<?php echo esc_attr($field_key); ?>"
-													style="margin-right: 8px;"
-													<?php
-													$is_checked = false;
-													if ($show_defaults) {
-														// Show default fields as selected
-														$default_fields = array();
-														$is_checked     = in_array($field_key, $default_fields);
-													} else {
-														// Show saved fields as selected
-														$is_checked = in_array($field_key, $selected_comparison_fields[$category] ?? array());
-													}
-													checked($is_checked);
-													?>>
-												<?php echo esc_html($field_label); ?>
-											</label>
-										<?php endforeach; ?>
+					<div class="mhm-field-categories">
+						<?php foreach ($available_comparison_fields as $category => $fields) : ?>
+							<div class="mhm-field-category" data-category="<?php echo esc_attr($category); ?>">
+								<div class="mhm-category-header">
+									<?php
+									$category_labels = array(
+										'details'   => __('Details', 'mhm-rentiva'),
+										'features'  => __('Features', 'mhm-rentiva'),
+										'equipment' => __('Equipment', 'mhm-rentiva'),
+									);
+									$cat_label       = $category_labels[$category] ?? ucfirst($category);
+									?>
+									<h4 style="margin: 0;"><?php echo esc_html($cat_label); ?></h4>
+									<div class="mhm-category-actions">
+										<button type="button" class="button button-small mhm-select-all-btn" data-category="<?php echo esc_attr($category); ?>">
+											<?php echo esc_html__('Select All', 'mhm-rentiva'); ?>
+										</button>
+										<button type="button" class="button button-small mhm-deselect-all-btn" data-category="<?php echo esc_attr($category); ?>">
+											<?php echo esc_html__('Deselect All', 'mhm-rentiva'); ?></button>
 									</div>
 								</div>
-							<?php endforeach; ?>
-						</div>
+								<div class="mhm-field-list">
+									<?php foreach ($fields as $field_key => $field_label) : ?>
+										<div class="mhm-checkbox-item">
+											<label class="mhm-checkbox-label">
+												<input type="checkbox" name="comparison_fields[<?php echo esc_attr($category); ?>][]" value="<?php echo esc_attr($field_key); ?>"
+													<?php checked($show_defaults || (isset($selected_comparison_fields[$category]) && in_array($field_key, $selected_comparison_fields[$category]))); ?>>
+												<span><?php echo esc_html($field_label); ?></span>
+											</label>
+										</div>
+									<?php endforeach; ?>
+								</div>
+							</div>
+						<?php endforeach; ?>
 					</div>
 				</div>
+			</div>
 
-				<div style="margin-top: 20px;">
-					<input type="hidden" name="action" value="save_vehicle_settings">
-					<input type="hidden" name="sub_action" value="save_display_settings">
-					<input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('vehicle_settings_nonce')); ?>">
-					<button type="submit" id="save-display-settings" class="button button-primary button-large"><?php echo esc_html__('Save Display Settings', 'mhm-rentiva'); ?></button>
-				</div>
-			</form>
+			<div style="margin-top: 20px;">
+				<input type="hidden" name="action" value="save_vehicle_settings">
+				<input type="hidden" name="sub_action" value="save_display_settings">
+				<input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('vehicle_settings_nonce')); ?>">
+				<button type="submit" id="save-display-settings" class="button button-primary button-large"><?php echo esc_html__('Save Display Settings', 'mhm-rentiva'); ?></button>
+			</div>
+		</form>
 
-			<script>
-				jQuery(document).ready(function($) {
-					// Select all / Deselect all for comparison fields
-					$('.mhm-select-all-btn').on('click', function() {
-						var category = $(this).data('category');
-						$('.mhm-field-category[data-category="' + category + '"] input[type="checkbox"]').prop('checked', true);
-					});
+		<script>
+			jQuery(document).ready(function($) {
+				// Select all / Deselect all for comparison fields
+				$('.mhm-select-all-btn').on('click', function() {
+					var category = $(this).data('category');
+					$('.mhm-field-category[data-category="' + category + '"] input[type="checkbox"]').prop('checked', true);
+				});
 
-					$('.mhm-deselect-all-btn').on('click', function() {
-						var category = $(this).data('category');
-						$('.mhm-field-category[data-category="' + category + '"] input[type="checkbox"]').prop('checked', false);
-					});
+				$('.mhm-deselect-all-btn').on('click', function() {
+					var category = $(this).data('category');
+					$('.mhm-field-category[data-category="' + category + '"] input[type="checkbox"]').prop('checked', false);
+				});
 
-					// Display Settings Form Submit
-					$('#vehicle-display-settings-form').on('submit', function(e) {
-						e.preventDefault();
+				// Display Settings Form Submit
+				$('#vehicle-display-settings-form').on('submit', function(e) {
+					e.preventDefault();
 
-						// Update hidden input for card fields (assuming sortable JS updates DOM, we need to serialize)
-						// The 'vehicle-card-fields.js' usually handles update of input value on sort update.
-						// But we should make sure.
-						// Actually, if we use the same ID #mhm-vehicle-card-fields-input, the JS should work.
+					// Update hidden input for card fields (assuming sortable JS updates DOM, we need to serialize)
+					// The 'vehicle-card-fields.js' usually handles update of input value on sort update.
+					// But we should make sure.
+					// Actually, if we use the same ID #mhm-vehicle-card-fields-input, the JS should work.
 
-						var formData = $(this).serialize();
+					var formData = $(this).serialize();
 
-						$.post(ajaxurl, formData, function(response) {
-							if (response.success) {
-								alert('<?php echo esc_js(__('Settings saved successfully!', 'mhm-rentiva')); ?>');
-							} else {
-								alert('<?php echo esc_js(__('Error saving settings.', 'mhm-rentiva')); ?>');
-							}
-						});
-					});
-
-					// Clear All Card Fields
-					$('#clear-card-fields').on('click', function() {
-						var selectedList = $('#mhm-card-fields-selected');
-						var availableList = $('#mhm-card-fields-available');
-
-						// Move all items from selected to available
-						selectedList.children('li').each(function() {
-							var item = $(this);
-							// Remove the 'remove-field' button as it's no longer in the selected list
-							item.find('.remove-field').remove();
-							availableList.append(item);
-						});
-
-						// Update hidden input to an empty array
-						$('#mhm-vehicle-card-fields-input').val('[]');
+					$.post(ajaxurl, formData, function(response) {
+						if (response.success) {
+							alert('<?php echo esc_js(__('Settings saved successfully!', 'mhm-rentiva')); ?>');
+						} else {
+							alert('<?php echo esc_js(__('Error saving settings.', 'mhm-rentiva')); ?>');
+						}
 					});
 				});
-			</script>
-		<?php
+
+				// Clear All Card Fields
+				$('#clear-card-fields').on('click', function() {
+					var selectedList = $('#mhm-card-fields-selected');
+					var availableList = $('#mhm-card-fields-available');
+
+					// Move all items from selected to available
+					selectedList.children('li').each(function() {
+						var item = $(this);
+						// Remove the 'remove-field' button as it's no longer in the selected list
+						item.find('.remove-field').remove();
+						availableList.append(item);
+					});
+
+					// Update hidden input to an empty array
+					$('#mhm-vehicle-card-fields-input').val('[]');
+				});
+			});
+		</script>
+	<?php
 	}
 
 	/**
@@ -450,294 +442,241 @@ final class VehicleSettings
 		$all_features  = self::get_all_available_features();
 		$all_equipment = self::get_all_available_equipment();
 
-		?>
-			<form method="post" action="<?php echo esc_url(admin_url('admin-ajax.php')); ?>" id="vehicle-settings-form">
-				<div class="mhm-vehicle-definitions-content">
-					<p class="description"><?php echo esc_html__('Select fields to use on vehicles. You can also add custom fields.', 'mhm-rentiva'); ?></p>
+	?>
+		<form method="post" action="<?php echo esc_url(admin_url('admin-ajax.php')); ?>" id="vehicle-settings-form">
+			<div class="mhm-vehicle-definitions-content">
+				<p class="description"><?php echo esc_html__('Select fields to use on vehicles. You can also add custom fields.', 'mhm-rentiva'); ?></p>
 
-					<div class="mhm-settings-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
+				<div class="mhm-settings-container">
 
-						<!-- Vehicle Details -->
-						<div class="mhm-settings-card" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-							<h2><?php echo esc_html__('Vehicle Details', 'mhm-rentiva'); ?></h2>
-							<p><?php echo esc_html__('Select the details you want to use', 'mhm-rentiva'); ?></p>
+					<!-- Vehicle Details -->
+					<div class="mhm-settings-card">
+						<h2><?php echo esc_html__('Vehicle Details', 'mhm-rentiva'); ?></h2>
+						<p><?php echo esc_html__('Select the details you want to use', 'mhm-rentiva'); ?></p>
 
-							<!-- Core Details (Permanent) -->
-							<h4 style="margin: 0; margin-bottom: 10px;"><?php echo esc_html__('Core Details (Essential)', 'mhm-rentiva'); ?></h4>
-							<div class="mhm-checkbox-list" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px;">
-								<?php
-								$core_fields = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields();
-								foreach ($all_details as $key => $label) :
-									if (! in_array($key, $core_fields)) {
-										continue;
-									}
-								?>
-									<label class="mhm-checkbox-item" style="display: flex; align-items: center; gap: 8px; padding: 8px; background: #e7f1ff; border-radius: 4px; cursor: pointer; border: 1px solid #b6d4fe;">
+						<!-- Core Details (Permanent) -->
+						<h4 class="mhm-section-subtitle"><?php echo esc_html__('Core Details (Essential)', 'mhm-rentiva'); ?></h4>
+						<div class="mhm-checkbox-list mhm-core-details-grid">
+							<?php
+							$core_fields = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields();
+							$core_fields[] = 'deposit'; // Promote deposit to core protected field (v4.8.2)
+							foreach ($all_details as $key => $label) :
+								if (! in_array($key, $core_fields)) {
+									continue;
+								}
+							?>
+								<div class="mhm-checkbox-item">
+									<label class="mhm-checkbox-label">
 										<input type="checkbox" name="selected_details[]" value="<?php echo esc_attr($key); ?>"
-											<?php checked(in_array($key, $selected_details)); ?> style="margin: 0;">
-										<span style="font-weight: 500;"><?php echo esc_html($label); ?></span>
+											<?php checked(in_array($key, $selected_details)); ?>>
+										<span><?php echo esc_html(! empty($label) ? $label : $key); ?></span>
 									</label>
-								<?php endforeach; ?>
-							</div>
-
-							<!-- Optional & Custom Details (Removable) -->
-							<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-								<h4 style="margin: 0;"><?php echo esc_html__('Attributes & Custom Details', 'mhm-rentiva'); ?></h4>
-								<div style="display: flex; gap: 8px;">
-									<button type="button" id="select-all-details" class="button button-small"><?php esc_html_e('Select All', 'mhm-rentiva'); ?></button>
-									<button type="button" id="select-none-details" class="button button-small"><?php esc_html_e('Deselect All', 'mhm-rentiva'); ?></button>
-									<button type="button" id="rename-details" class="button button-small"><?php esc_html_e('Edit Names', 'mhm-rentiva'); ?></button>
 								</div>
-							</div>
-							<div class="mhm-checkbox-list" id="custom-details-list" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px;">
-								<?php
-								foreach ($all_details as $key => $label) :
-									if (in_array($key, $core_fields)) {
-										continue;
-									}
-								?>
-									<div class="mhm-custom-item" data-key="<?php echo esc_attr($key); ?>" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: #f8f9fa; border-radius: 4px; border: 1px solid #ddd;">
-										<label style="display: flex; align-items: center; gap: 8px; cursor: pointer; flex-grow: 1;">
-											<input type="checkbox" name="selected_details[]" value="<?php echo esc_attr($key); ?>"
-												<?php checked(in_array($key, $selected_details)); ?> style="margin: 0;">
-											<span><?php echo esc_html($label); ?></span>
-										</label>
-										<button type="button" class="button-link remove-custom-detail" data-key="<?php echo esc_attr($key); ?>" style="color: #dc3545; text-decoration: none;">&times;</button>
-									</div>
-								<?php endforeach; ?>
-							</div>
-
-							<!-- Add New Custom Detail -->
-							<div style="margin-top: 15px;">
-								<div style="display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap;">
-									<input type="text" id="new-custom-detail-name" placeholder="<?php esc_attr_e('Custom detail name', 'mhm-rentiva'); ?>" style="width: 200px;">
-
-									<select id="new-custom-detail-type" style="width: 120px;">
-										<option value="text"><?php esc_html_e('Text', 'mhm-rentiva'); ?></option>
-										<option value="number"><?php esc_html_e('Number', 'mhm-rentiva'); ?></option>
-										<option value="select"><?php esc_html_e('Select (Dropdown)', 'mhm-rentiva'); ?></option>
-									</select>
-
-									<div id="new-custom-detail-options-wrapper" style="display: none;">
-										<input type="text" id="new-custom-detail-options" placeholder="<?php esc_attr_e('Options (comma separated: Petrol, Diesel)', 'mhm-rentiva'); ?>" style="width: 300px;">
-									</div>
-
-									<button type="button" id="add-custom-detail" class="button button-secondary"><?php esc_html_e('Add Custom', 'mhm-rentiva'); ?></button>
-								</div>
-							</div>
+							<?php endforeach; ?>
 						</div>
 
-						<!-- Vehicle Features -->
-						<div class="mhm-settings-card" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-							<h2><?php echo esc_html__('Vehicle Features', 'mhm-rentiva'); ?></h2>
-							<p><?php echo esc_html__('Select the features you want to use', 'mhm-rentiva'); ?></p>
-
-							<!-- Standard Features -->
-							<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-								<h4 style="margin: 0;"><?php echo esc_html__('Standard Features', 'mhm-rentiva'); ?></h4>
-								<div style="display: flex; gap: 8px;">
-									<button type="button" id="select-all-features" class="button button-small"><?php esc_html_e('Select All', 'mhm-rentiva'); ?></button>
-									<button type="button" id="select-none-features" class="button button-small"><?php esc_html_e('Deselect All', 'mhm-rentiva'); ?></button>
-									<button type="button" id="rename-features" class="button button-small"><?php esc_html_e('Edit Names', 'mhm-rentiva'); ?></button>
-								</div>
-							</div>
-							<div class="mhm-checkbox-list" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px;">
-								<?php foreach ($all_features as $key => $label) : ?>
-									<div class="mhm-custom-item" data-key="<?php echo esc_attr($key); ?>" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: #f8f9fa; border-radius: 4px; border: 1px solid #ddd;">
-										<label class="mhm-checkbox-item" style="display: flex; align-items: center; gap: 8px; cursor: pointer; flex-grow: 1;">
-											<input type="checkbox" name="selected_features[]" value="<?php echo esc_attr($key); ?>"
-												<?php checked(in_array($key, $selected_features)); ?> style="margin: 0;">
-											<span><?php echo esc_html($label); ?></span>
-										</label>
-										<button type="button" class="button-link remove-custom-feature" data-key="<?php echo esc_attr($key); ?>" style="color: #dc3545; text-decoration: none;">&times;</button>
-									</div>
-								<?php endforeach; ?>
-							</div>
-
-							<!-- Custom Features -->
-							<h4 style="margin-top: 20px;"><?php echo esc_html__('Custom Features', 'mhm-rentiva'); ?></h4>
-							<div class="mhm-custom-list" id="custom-features-list" style="margin-top: 10px;">
-								<?php foreach ($custom_features as $key => $label) : ?>
-									<div class="mhm-custom-item" data-key="<?php echo esc_attr($key); ?>" style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #fff3cd; border-radius: 4px; margin: 5px 0;">
-										<span><?php echo esc_html($label); ?></span>
-										<button type="button" class="button button-small remove-custom-feature" data-key="<?php echo esc_attr($key); ?>"><?php esc_html_e('Remove', 'mhm-rentiva'); ?></button>
-									</div>
-								<?php endforeach; ?>
-							</div>
-
-							<!-- Add New Custom Feature -->
-							<div style="margin-top: 15px;">
-								<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-									<input type="text" id="new-custom-feature-name" placeholder="<?php esc_attr_e('Custom feature name', 'mhm-rentiva'); ?>" style="width: 250px;">
-									<button type="button" id="add-custom-feature" class="button button-secondary"><?php esc_html_e('Add Custom', 'mhm-rentiva'); ?></button>
-								</div>
+						<!-- Optional & Custom Details (Removable) -->
+						<div class="mhm-card-section-header">
+							<h4 style="margin: 0;"><?php echo esc_html__('Attributes & Custom Details', 'mhm-rentiva'); ?></h4>
+							<div class="mhm-category-actions">
+								<button type="button" id="select-all-details" class="button button-small"><?php esc_html_e('Select All', 'mhm-rentiva'); ?></button>
+								<button type="button" id="select-none-details" class="button button-small"><?php esc_html_e('Deselect All', 'mhm-rentiva'); ?></button>
+								<button type="button" id="rename-details" class="button button-small"><?php esc_html_e('Edit Names', 'mhm-rentiva'); ?></button>
 							</div>
 						</div>
-
-						<!-- Vehicle Equipment -->
-						<div class="mhm-settings-card" style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-							<h2><?php echo esc_html__('Vehicle Equipment', 'mhm-rentiva'); ?></h2>
-							<p><?php echo esc_html__('Select the equipment you want to use', 'mhm-rentiva'); ?></p>
-
-							<!-- Standard Equipment -->
-							<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-								<h4 style="margin: 0;"><?php echo esc_html__('Standard Equipment', 'mhm-rentiva'); ?></h4>
-								<div style="display: flex; gap: 8px;">
-									<button type="button" id="select-all-equipment" class="button button-small"><?php esc_html_e('Select All', 'mhm-rentiva'); ?></button>
-									<button type="button" id="select-none-equipment" class="button button-small"><?php esc_html_e('Deselect All', 'mhm-rentiva'); ?></button>
-									<button type="button" id="rename-equipment" class="button button-small"><?php esc_html_e('Edit Names', 'mhm-rentiva'); ?></button>
+						<div class="mhm-checkbox-list" id="custom-details-list">
+							<?php
+							foreach ($all_details as $key => $label) :
+								if (in_array($key, $core_fields)) {
+									continue;
+								}
+							?>
+								<div class="mhm-checkbox-item mhm-removable-item mhm-custom-row-item">
+									<label class="mhm-checkbox-label">
+										<input type="checkbox" name="selected_details[]" value="<?php echo esc_attr($key); ?>"
+											<?php checked(in_array($key, $selected_details)); ?>>
+										<span><?php echo esc_html(! empty($label) ? $label : $key); ?></span>
+									</label>
+									<button type="button" class="button-link remove-custom-detail" data-key="<?php echo esc_attr($key); ?>" style="color: #dc3545; line-height: 1;">&times;</button>
 								</div>
-							</div>
-							<div class="mhm-checkbox-list" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px;">
-								<?php foreach ($all_equipment as $key => $label) : ?>
-									<div class="mhm-custom-item" data-key="<?php echo esc_attr($key); ?>" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: #f8f9fa; border-radius: 4px; border: 1px solid #ddd;">
-										<label class="mhm-checkbox-item" style="display: flex; align-items: center; gap: 8px; cursor: pointer; flex-grow: 1;">
-											<input type="checkbox" name="selected_equipment[]" value="<?php echo esc_attr($key); ?>"
-												<?php checked(in_array($key, $selected_equipment)); ?> style="margin: 0;">
-											<span><?php echo esc_html($label); ?></span>
-										</label>
-										<button type="button" class="button-link remove-custom-equipment" data-key="<?php echo esc_attr($key); ?>" style="color: #dc3545; text-decoration: none;">&times;</button>
-									</div>
-								<?php endforeach; ?>
-							</div>
-
-							<!-- Custom Equipment -->
-							<h4 style="margin-top: 20px;"><?php echo esc_html__('Custom Equipment', 'mhm-rentiva'); ?></h4>
-							<div class="mhm-custom-list" id="custom-equipment-list" style="margin-top: 10px;">
-								<?php foreach ($custom_equipment as $key => $label) : ?>
-									<div class="mhm-custom-item" data-key="<?php echo esc_attr($key); ?>" style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #fff3cd; border-radius: 4px; margin: 5px 0;">
-										<span><?php echo esc_html($label); ?></span>
-										<button type="button" class="button button-small remove-custom-equipment" data-key="<?php echo esc_attr($key); ?>"><?php esc_html_e('Remove', 'mhm-rentiva'); ?></button>
-									</div>
-								<?php endforeach; ?>
-							</div>
-
-							<!-- Add New Custom Equipment -->
-							<div style="margin-top: 15px;">
-								<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-									<input type="text" id="new-custom-equipment-name" placeholder="<?php esc_attr_e('Custom equipment name', 'mhm-rentiva'); ?>" style="width: 250px;">
-									<button type="button" id="add-custom-equipment" class="button button-secondary"><?php esc_html_e('Add Custom', 'mhm-rentiva'); ?></button>
-								</div>
-							</div>
+							<?php endforeach; ?>
 						</div>
 
+						<!-- Add New Custom Detail -->
+						<div style="margin-top: 15px;">
+							<div class="mhm-add-custom-row">
+								<input type="text" id="new-custom-detail-name" placeholder="<?php esc_attr_e('Custom detail name', 'mhm-rentiva'); ?>" style="width: 200px;">
+
+								<select id="new-custom-detail-type" style="width: 120px;">
+									<option value="text"><?php esc_html_e('Text', 'mhm-rentiva'); ?></option>
+									<option value="number"><?php esc_html_e('Number', 'mhm-rentiva'); ?></option>
+									<option value="select"><?php esc_html_e('Select (Dropdown)', 'mhm-rentiva'); ?></option>
+								</select>
+
+								<div id="new-custom-detail-options-wrapper" style="display: none;">
+									<input type="text" id="new-custom-detail-options" placeholder="<?php esc_attr_e('Options (comma separated: Petrol, Diesel)', 'mhm-rentiva'); ?>" style="width: 300px;">
+								</div>
+
+								<button type="button" id="add-custom-detail" class="button button-secondary"><?php esc_html_e('Add Custom', 'mhm-rentiva'); ?></button>
+							</div>
+						</div>
 					</div>
 
-					<div style="margin-top: 20px;">
-						<input type="hidden" name="action" value="save_vehicle_settings">
-						<input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('vehicle_settings_nonce')); ?>">
-						<button type="submit" id="save-settings" class="button button-primary button-large"><?php echo esc_html__('Save Settings', 'mhm-rentiva'); ?></button>
+					<!-- Vehicle Features -->
+					<div class="mhm-settings-card">
+						<h2><?php echo esc_html__('Vehicle Features', 'mhm-rentiva'); ?></h2>
+						<p><?php echo esc_html__('Select the features you want to use', 'mhm-rentiva'); ?></p>
+
+						<!-- Standard Features -->
+						<div class="mhm-card-section-header">
+							<h4 style="margin: 0;"><?php echo esc_html__('Standard Features', 'mhm-rentiva'); ?></h4>
+							<div class="mhm-category-actions">
+								<button type="button" id="select-all-features" class="button button-small"><?php esc_html_e('Select All', 'mhm-rentiva'); ?></button>
+								<button type="button" id="select-none-features" class="button button-small"><?php esc_html_e('Deselect All', 'mhm-rentiva'); ?></button>
+								<button type="button" id="rename-features" class="button button-small"><?php esc_html_e('Edit Names', 'mhm-rentiva'); ?></button>
+							</div>
+						</div>
+						<div class="mhm-checkbox-list">
+							<?php foreach ($all_features as $key => $label) : ?>
+								<div class="mhm-checkbox-item mhm-removable-item mhm-custom-row-item">
+									<label class="mhm-checkbox-label">
+										<input type="checkbox" name="selected_features[]" value="<?php echo esc_attr($key); ?>"
+											<?php checked(in_array($key, $selected_features)); ?>>
+										<span><?php echo esc_html(! empty($label) ? $label : $key); ?></span>
+									</label>
+									<button type="button" class="button-link remove-custom-feature" data-key="<?php echo esc_attr($key); ?>" style="color: #dc3545; line-height: 1;">&times;</button>
+								</div>
+							<?php endforeach; ?>
+						</div>
+
+						<!-- Custom Features Header (Optional) -->
+						<h4 style="margin-top: 20px; font-size: 11px; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em;"><?php echo esc_html__('Custom Features', 'mhm-rentiva'); ?></h4>
+						<div class="mhm-custom-list" id="custom-features-list" style="margin-top: 10px;">
+							<?php foreach ($custom_features as $key => $label) : ?>
+								<div class="mhm-custom-item mhm-custom-feature-item" data-key="<?php echo esc_attr($key); ?>">
+									<span><?php echo esc_html($label); ?></span>
+									<button type="button" class="button button-small remove-custom-feature" data-key="<?php echo esc_attr($key); ?>"><?php esc_html_e('Remove', 'mhm-rentiva'); ?></button>
+								</div>
+							<?php endforeach; ?>
+						</div>
+
+						<!-- Add New Custom Feature -->
+						<div style="margin-top: 15px;">
+							<div class="mhm-add-custom-row">
+								<input type="text" id="new-custom-feature-name" placeholder="<?php esc_attr_e('Custom feature name', 'mhm-rentiva'); ?>" style="width: 250px;">
+								<button type="button" id="add-custom-feature" class="button button-secondary"><?php esc_html_e('Add Custom', 'mhm-rentiva'); ?></button>
+							</div>
+						</div>
 					</div>
+
+					<!-- Vehicle Equipment -->
+					<div class="mhm-settings-card">
+						<h2><?php echo esc_html__('Vehicle Equipment', 'mhm-rentiva'); ?></h2>
+						<p><?php echo esc_html__('Select the equipment you want to use', 'mhm-rentiva'); ?></p>
+
+						<!-- Standard Equipment -->
+						<div class="mhm-card-section-header">
+							<h4 style="margin: 0;"><?php echo esc_html__('Standard Equipment', 'mhm-rentiva'); ?></h4>
+							<div class="mhm-category-actions">
+								<button type="button" id="select-all-equipment" class="button button-small"><?php esc_html_e('Select All', 'mhm-rentiva'); ?></button>
+								<button type="button" id="select-none-equipment" class="button button-small"><?php esc_html_e('Deselect All', 'mhm-rentiva'); ?></button>
+								<button type="button" id="rename-equipment" class="button button-small"><?php esc_html_e('Edit Names', 'mhm-rentiva'); ?></button>
+							</div>
+						</div>
+						<div class="mhm-checkbox-list">
+							<?php foreach ($all_equipment as $key => $label) : ?>
+								<div class="mhm-checkbox-item mhm-removable-item mhm-custom-row-item">
+									<label class="mhm-checkbox-label">
+										<input type="checkbox" name="selected_equipment[]" value="<?php echo esc_attr($key); ?>"
+											<?php checked(in_array($key, $selected_equipment)); ?>>
+										<span><?php echo esc_html(! empty($label) ? $label : $key); ?></span>
+									</label>
+									<button type="button" class="button-link remove-custom-equipment" data-key="<?php echo esc_attr($key); ?>" style="color: #dc3545; line-height: 1;">&times;</button>
+								</div>
+							<?php endforeach; ?>
+						</div>
+
+						<!-- Custom Equipment -->
+						<h4 style="margin-top: 20px;"><?php echo esc_html__('Custom Equipment', 'mhm-rentiva'); ?></h4>
+						<div class="mhm-custom-list" id="custom-equipment-list" style="margin-top: 10px;">
+							<?php foreach ($custom_equipment as $key => $label) : ?>
+								<div class="mhm-custom-item mhm-custom-equipment-item" data-key="<?php echo esc_attr($key); ?>">
+									<span><?php echo esc_html($label); ?></span>
+									<button type="button" class="button button-small remove-custom-equipment" data-key="<?php echo esc_attr($key); ?>"><?php esc_html_e('Remove', 'mhm-rentiva'); ?></button>
+								</div>
+							<?php endforeach; ?>
+						</div>
+
+						<!-- Add New Custom Equipment -->
+						<div style="margin-top: 15px;">
+							<div class="mhm-add-custom-row">
+								<input type="text" id="new-custom-equipment-name" placeholder="<?php esc_attr_e('Custom equipment name', 'mhm-rentiva'); ?>" style="width: 250px;">
+								<button type="button" id="add-custom-equipment" class="button button-secondary"><?php esc_html_e('Add Custom', 'mhm-rentiva'); ?></button>
+							</div>
+						</div>
+					</div>
+
 				</div>
-			</form>
 
-			<style>
-				.mhm-settings-item {
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-					padding: 10px;
-					margin: 5px 0;
-					background: #f8f9fa;
-					border-radius: 4px;
-					border: 1px solid #e9ecef;
-				}
+				<div class="mhm-settings-footer-actions">
+					<input type="hidden" name="action" value="save_vehicle_settings">
+					<input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('vehicle_settings_nonce')); ?>">
+					<button type="submit" id="save-settings" class="button button-primary button-large"><?php echo esc_html__('Save Settings', 'mhm-rentiva'); ?></button>
+				</div>
+			</div>
+		</form>
 
-				.mhm-settings-item:hover {
-					background: #e9ecef;
-				}
+		<?php
+		// Scripts only below
+		?>
 
-				.remove-feature,
-				.remove-equipment {
-					background: #dc3545;
-					color: white;
-					border: none;
-					padding: 4px 8px;
-					border-radius: 3px;
-					cursor: pointer;
-				}
 
-				.remove-feature:hover,
-				.remove-equipment:hover,
-				.remove-detail:hover {
-					background: #c82333;
-				}
+		<script>
+			jQuery(document).ready(function($) {
+				// Define AJAX URL
+				var ajaxurl = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
 
-				/* Responsive Grid */
-				@media (max-width: 1200px) {
-					.mhm-settings-container {
-						grid-template-columns: 1fr 1fr !important;
+
+				// Show/Hide Options based on Type
+				$('#new-custom-detail-type').on('change', function() {
+					if ($(this).val() === 'select') {
+						$('#new-custom-detail-options-wrapper').show();
+					} else {
+						$('#new-custom-detail-options-wrapper').hide();
 					}
+				});
 
-					.mhm-features-list,
-					.mhm-equipment-list {
-						grid-template-columns: repeat(2, 1fr) !important;
-					}
+				// Custom Detail Addition
+				$('#add-custom-detail').on('click', function() {
+					const name = $('#new-custom-detail-name').val().trim();
+					const type = $('#new-custom-detail-type').val();
+					const options = $('#new-custom-detail-options').val().trim();
 
-					.mhm-details-list {
-						grid-template-columns: 1fr !important;
-					}
-				}
+					if (name) {
+						const key = 'custom_' + Date.now();
+						const label = name;
 
-				@media (max-width: 768px) {
-					.mhm-settings-container {
-						grid-template-columns: 1fr !important;
-					}
+						// Save to database via AJAX
+						$.ajax({
+							url: ajaxurl,
+							type: 'POST',
+							data: {
+								action: 'add_custom_field',
+								field_key: key,
+								field_label: label,
+								field_type: 'details',
+								type: type,
+								options: options,
+								nonce: '<?php echo esc_attr(wp_create_nonce('mhm_vehicle_settings_nonce')); ?>'
+							},
+							success: function(response) {
+								if (response.success) {
+									// If successful, add to DOM
+									let typeLabel = '';
+									if (type === 'select') typeLabel = ' (<?php echo esc_js(__('Select', 'mhm-rentiva')); ?>)';
+									else if (type === 'number') typeLabel = ' (<?php echo esc_js(__('Number', 'mhm-rentiva')); ?>)';
 
-					.mhm-features-list,
-					.mhm-equipment-list,
-					.mhm-details-list {
-						grid-template-columns: 1fr !important;
-					}
-				}
-			</style>
-
-			<script>
-				jQuery(document).ready(function($) {
-					// Define AJAX URL
-					var ajaxurl = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
-
-
-					// Show/Hide Options based on Type
-					$('#new-custom-detail-type').on('change', function() {
-						if ($(this).val() === 'select') {
-							$('#new-custom-detail-options-wrapper').show();
-						} else {
-							$('#new-custom-detail-options-wrapper').hide();
-						}
-					});
-
-					// Custom Detail Addition
-					$('#add-custom-detail').on('click', function() {
-						const name = $('#new-custom-detail-name').val().trim();
-						const type = $('#new-custom-detail-type').val();
-						const options = $('#new-custom-detail-options').val().trim();
-
-						if (name) {
-							const key = 'custom_' + Date.now();
-							const label = name;
-
-							// Save to database via AJAX
-							$.ajax({
-								url: ajaxurl,
-								type: 'POST',
-								data: {
-									action: 'add_custom_field',
-									field_key: key,
-									field_label: label,
-									field_type: 'details',
-									type: type,
-									options: options,
-									nonce: '<?php echo esc_attr(wp_create_nonce('mhm_vehicle_settings_nonce')); ?>'
-								},
-								success: function(response) {
-									if (response.success) {
-										// If successful, add to DOM
-										let typeLabel = '';
-										if (type === 'select') typeLabel = ' (<?php echo esc_js(__('Select', 'mhm-rentiva')); ?>)';
-										else if (type === 'number') typeLabel = ' (<?php echo esc_js(__('Number', 'mhm-rentiva')); ?>)';
-
-										$('#custom-details-list').append(`
+									$('#custom-details-list').append(`
 									<div class="mhm-custom-item" data-key="${key}" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: #fff3cd; border-radius: 4px; border: 1px solid #ddd; margin-bottom: 5px;">
 										<label class="mhm-checkbox-item" style="display: flex; align-items: center; gap: 8px; cursor: pointer; flex-grow: 1;">
 											<input type="checkbox" name="selected_details[]" value="${key}" checked style="margin: 0;">
@@ -747,362 +686,362 @@ final class VehicleSettings
 									</div>
 									`);
 
-										$('#new-custom-detail-name').val('');
-										$('#new-custom-detail-options').val('');
-										// Reset type to text
-										$('#new-custom-detail-type').val('text').trigger('change');
+									$('#new-custom-detail-name').val('');
+									$('#new-custom-detail-options').val('');
+									// Reset type to text
+									$('#new-custom-detail-type').val('text').trigger('change');
 
-										alert('<?php echo esc_js(__('Custom detail added successfully!', 'mhm-rentiva')); ?>');
-									} else {
-										alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + response.data);
-									}
-								},
-								error: function() {
-									alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
+									alert('<?php echo esc_js(__('Custom detail added successfully!', 'mhm-rentiva')); ?>');
+								} else {
+									alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + response.data);
 								}
-							});
-						}
-					});
+							},
+							error: function() {
+								alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
+							}
+						});
+					}
+				});
 
-					// Custom Feature Addition
-					$('#add-custom-feature').on('click', function() {
-						const name = $('#new-custom-feature-name').val().trim();
+				// Custom Feature Addition
+				$('#add-custom-feature').on('click', function() {
+					const name = $('#new-custom-feature-name').val().trim();
 
-						if (name) {
-							const key = 'custom_' + Date.now();
-							const label = name;
+					if (name) {
+						const key = 'custom_' + Date.now();
+						const label = name;
 
-							// Save to database via AJAX
-							$.ajax({
-								url: ajaxurl,
-								type: 'POST',
-								data: {
-									action: 'add_custom_field',
-									field_key: key,
-									field_label: label,
-									field_type: 'features',
-									nonce: '<?php echo esc_attr(wp_create_nonce('mhm_vehicle_settings_nonce')); ?>'
-								},
-								success: function(response) {
-									if (response.success) {
-										// If successful, add to DOM
-										$('#custom-features-list').append(`
+						// Save to database via AJAX
+						$.ajax({
+							url: ajaxurl,
+							type: 'POST',
+							data: {
+								action: 'add_custom_field',
+								field_key: key,
+								field_label: label,
+								field_type: 'features',
+								nonce: '<?php echo esc_attr(wp_create_nonce('mhm_vehicle_settings_nonce')); ?>'
+							},
+							success: function(response) {
+								if (response.success) {
+									// If successful, add to DOM
+									$('#custom-features-list').append(`
 									<div class="mhm-custom-item" data-key="${key}" style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #fff3cd; border-radius: 4px; margin: 5px 0;">
 							<span>${label}</span>
 										<button type="button" class="button button-small remove-custom-feature" data-key="${key}"><?php esc_html_e('Remove', 'mhm-rentiva'); ?></button>
 						</div>
 					`);
 
-										$('#new-custom-feature-name').val('');
-										alert('<?php echo esc_js(__('Custom feature added successfully!', 'mhm-rentiva')); ?>');
-									} else {
-										alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + response.data);
-									}
-								},
-								error: function() {
-									alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
+									$('#new-custom-feature-name').val('');
+									alert('<?php echo esc_js(__('Custom feature added successfully!', 'mhm-rentiva')); ?>');
+								} else {
+									alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + response.data);
 								}
-							});
-						}
-					});
+							},
+							error: function() {
+								alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
+							}
+						});
+					}
+				});
 
-					// Custom Equipment Addition
-					$('#add-custom-equipment').on('click', function() {
-						const name = $('#new-custom-equipment-name').val().trim();
+				// Custom Equipment Addition
+				$('#add-custom-equipment').on('click', function() {
+					const name = $('#new-custom-equipment-name').val().trim();
 
-						if (name) {
-							const key = 'custom_' + Date.now();
-							const label = name;
+					if (name) {
+						const key = 'custom_' + Date.now();
+						const label = name;
 
-							// Save to database via AJAX
-							$.ajax({
-								url: ajaxurl,
-								type: 'POST',
-								data: {
-									action: 'add_custom_field',
-									field_key: key,
-									field_label: label,
-									field_type: 'equipment',
-									nonce: '<?php echo esc_attr(wp_create_nonce('mhm_vehicle_settings_nonce')); ?>'
-								},
-								success: function(response) {
-									if (response.success) {
-										// If successful, add to DOM
-										$('#custom-equipment-list').append(`
+						// Save to database via AJAX
+						$.ajax({
+							url: ajaxurl,
+							type: 'POST',
+							data: {
+								action: 'add_custom_field',
+								field_key: key,
+								field_label: label,
+								field_type: 'equipment',
+								nonce: '<?php echo esc_attr(wp_create_nonce('mhm_vehicle_settings_nonce')); ?>'
+							},
+							success: function(response) {
+								if (response.success) {
+									// If successful, add to DOM
+									$('#custom-equipment-list').append(`
 									<div class="mhm-custom-item" data-key="${key}" style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #fff3cd; border-radius: 4px; margin: 5px 0;">
 							<span>${label}</span>
 										<button type="button" class="button button-small remove-custom-equipment" data-key="${key}"><?php esc_html_e('Remove', 'mhm-rentiva'); ?></button>
 						</div>
 					`);
 
-										$('#new-custom-equipment-name').val('');
-										alert('<?php echo esc_js(__('Custom equipment added successfully!', 'mhm-rentiva')); ?>');
-									} else {
-										alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + response.data);
-									}
-								},
-								error: function() {
-									alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
+									$('#new-custom-equipment-name').val('');
+									alert('<?php echo esc_js(__('Custom equipment added successfully!', 'mhm-rentiva')); ?>');
+								} else {
+									alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + response.data);
 								}
-							});
-						}
-					});
-
-					// Custom Detail Removal
-					$(document).on('click', '.remove-custom-detail', function() {
-						if (confirm('<?php echo esc_js(__('Are you sure you want to remove this custom detail?', 'mhm-rentiva')); ?>')) {
-							const fieldKey = $(this).data('key');
-							const item = $(this).closest('.mhm-custom-item');
-
-							$.ajax({
-								url: ajaxurl,
-								type: 'POST',
-								data: {
-									action: 'remove_custom_field',
-									field_key: fieldKey,
-									field_type: 'details',
-									nonce: '<?php echo esc_attr(wp_create_nonce('mhm_vehicle_settings_nonce')); ?>'
-								},
-								success: function(response) {
-									if (response.success) {
-										item.fadeOut(300, function() {
-											$(this).remove();
-										});
-										alert('<?php echo esc_js(__('Custom detail removed successfully!', 'mhm-rentiva')); ?>');
-									} else {
-										alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + response.data);
-									}
-								},
-								error: function() {
-									alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
-								}
-							});
-						}
-					});
-
-					// Custom Feature Removal
-					$(document).on('click', '.remove-custom-feature', function() {
-						if (confirm('<?php echo esc_js(__('Are you sure you want to remove this custom feature?', 'mhm-rentiva')); ?>')) {
-							const fieldKey = $(this).data('key');
-							const item = $(this).closest('.mhm-custom-item');
-
-							$.ajax({
-								url: ajaxurl,
-								type: 'POST',
-								data: {
-									action: 'remove_custom_field',
-									field_key: fieldKey,
-									field_type: 'features',
-									nonce: '<?php echo esc_attr(wp_create_nonce('mhm_vehicle_settings_nonce')); ?>'
-								},
-								success: function(response) {
-									if (response.success) {
-										item.fadeOut(300, function() {
-											$(this).remove();
-										});
-										alert('<?php echo esc_js(__('Custom feature removed successfully!', 'mhm-rentiva')); ?>');
-									} else {
-										alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + response.data);
-									}
-								},
-								error: function() {
-									alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
-								}
-							});
-						}
-					});
-
-					// Custom Equipment Removal
-					$(document).on('click', '.remove-custom-equipment', function() {
-						if (confirm('<?php echo esc_js(__('Are you sure you want to remove this custom equipment?', 'mhm-rentiva')); ?>')) {
-							const fieldKey = $(this).data('key');
-							const item = $(this).closest('.mhm-custom-item');
-
-							$.ajax({
-								url: ajaxurl,
-								type: 'POST',
-								data: {
-									action: 'remove_custom_field',
-									field_key: fieldKey,
-									field_type: 'equipment',
-									nonce: '<?php echo esc_attr(wp_create_nonce('mhm_vehicle_settings_nonce')); ?>'
-								},
-								success: function(response) {
-									if (response.success) {
-										item.fadeOut(300, function() {
-											$(this).remove();
-										});
-										alert('<?php echo esc_js(__('Custom equipment removed successfully!', 'mhm-rentiva')); ?>');
-									} else {
-										alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + response.data);
-									}
-								},
-								error: function() {
-									alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
-								}
-							});
-						}
-					});
-
-					// BULK OPERATIONS - Details
-					$('#select-all-details').on('click', function() {
-						$('input[name="selected_details[]"]').prop('checked', true);
-					});
-
-					$('#select-none-details').on('click', function() {
-						$('input[name="selected_details[]"]').prop('checked', false);
-					});
-
-					$('#rename-details').on('click', function() {
-						showRenameModal('details');
-					});
-
-					// BULK OPERATIONS - Features
-					$('#select-all-features').on('click', function() {
-						$('input[name="selected_features[]"]').prop('checked', true);
-					});
-
-					$('#select-none-features').on('click', function() {
-						$('input[name="selected_features[]"]').prop('checked', false);
-					});
-
-					$('#rename-features').on('click', function() {
-						showRenameModal('features');
-					});
-
-					// BULK OPERATIONS - Equipment
-					$('#select-all-equipment').on('click', function() {
-						$('input[name="selected_equipment[]"]').prop('checked', true);
-					});
-
-					$('#select-none-equipment').on('click', function() {
-						$('input[name="selected_equipment[]"]').prop('checked', false);
-					});
-
-					$('#rename-equipment').on('click', function() {
-						showRenameModal('equipment');
-					});
-
-					// Form Submit (Save Settings)
-					$('#vehicle-settings-form').on('submit', function(e) {
-						e.preventDefault();
-
-						const selectedDetails = [];
-						const selectedFeatures = [];
-						const selectedEquipment = [];
-
-						// Collect selected checkboxes
-						$('input[name="selected_details[]"]:checked').each(function() {
-							selectedDetails.push($(this).val());
+							},
+							error: function() {
+								alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
+							}
 						});
+					}
+				});
 
-						$('input[name="selected_features[]"]:checked').each(function() {
-							selectedFeatures.push($(this).val());
-						});
-
-						$('input[name="selected_equipment[]"]:checked').each(function() {
-							selectedEquipment.push($(this).val());
-						});
-
-						// Collect custom fields
-						const customDetails = {};
-						const customFeatures = {};
-						const customEquipment = {};
-
-						$('#custom-details-list .mhm-custom-item').each(function() {
-							const key = $(this).data('key');
-							const label = $(this).find('span').text();
-							customDetails[key] = label;
-						});
-
-						$('#custom-features-list .mhm-custom-item').each(function() {
-							const key = $(this).data('key');
-							const label = $(this).find('span').text();
-							customFeatures[key] = label;
-						});
-
-						$('#custom-equipment-list .mhm-custom-item').each(function() {
-							const key = $(this).data('key');
-							const label = $(this).find('span').text();
-							customEquipment[key] = label;
-						});
-
-						// Collect updated field names
-						const updatedLabels = {
-							details: {},
-							features: {},
-							equipment: {}
-						};
-
-						// Collect current labels for each field type
-						['details', 'features', 'equipment'].forEach(type => {
-							$(`.mhm-checkbox-list input[name="selected_${type}[]"]`).each(function() {
-								const key = $(this).val();
-								const label = $(this).siblings('span').text();
-								updatedLabels[type][key] = label;
-							});
-						});
-
+				// Custom Detail Removal
+				$(document).on('click', '.remove-custom-detail', function() {
+					if (confirm('<?php echo esc_js(__('Are you sure you want to remove this custom detail?', 'mhm-rentiva')); ?>')) {
+						const fieldKey = $(this).data('key');
+						const item = $(this).closest('.mhm-custom-item');
 
 						$.ajax({
 							url: ajaxurl,
 							type: 'POST',
 							data: {
-								action: 'save_vehicle_settings',
-								selected_details: selectedDetails,
-								selected_features: selectedFeatures,
-								selected_equipment: selectedEquipment,
-								custom_details: customDetails,
-								custom_features: customFeatures,
-								custom_equipment: customEquipment,
-								updated_labels: updatedLabels,
-								nonce: '<?php echo esc_attr(wp_create_nonce('vehicle_settings_nonce')); ?>'
+								action: 'remove_custom_field',
+								field_key: fieldKey,
+								field_type: 'details',
+								nonce: '<?php echo esc_attr(wp_create_nonce('mhm_vehicle_settings_nonce')); ?>'
 							},
 							success: function(response) {
-								if (response && response.success) {
-									alert('<?php echo esc_js(__('Settings saved successfully!', 'mhm-rentiva')); ?>');
-									location.reload(); // Reload page
+								if (response.success) {
+									item.fadeOut(300, function() {
+										$(this).remove();
+									});
+									alert('<?php echo esc_js(__('Custom detail removed successfully!', 'mhm-rentiva')); ?>');
 								} else {
-									alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + (response && response.data ? response.data : 'Unknown error'));
+									alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + response.data);
 								}
 							},
-							error: function(xhr, status, error) {
-								alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>: ' + error);
+							error: function() {
+								alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
 							}
 						});
-					});
+					}
 				});
 
-				// RENAME MODAL FUNCTION - Use jQuery
-				window.showRenameModal = function(type) {
-					const fields = {};
+				// Custom Feature Removal
+				$(document).on('click', '.remove-custom-feature', function() {
+					if (confirm('<?php echo esc_js(__('Are you sure you want to remove this custom feature?', 'mhm-rentiva')); ?>')) {
+						const fieldKey = $(this).data('key');
+						const item = $(this).closest('.mhm-custom-item');
 
-					// Collect existing fields
-					jQuery(`.mhm-checkbox-list input[name="selected_${type}[]"]`).each(function() {
-						const key = jQuery(this).val();
-						const label = jQuery(this).siblings('span').text();
-						fields[key] = label;
+						$.ajax({
+							url: ajaxurl,
+							type: 'POST',
+							data: {
+								action: 'remove_custom_field',
+								field_key: fieldKey,
+								field_type: 'features',
+								nonce: '<?php echo esc_attr(wp_create_nonce('mhm_vehicle_settings_nonce')); ?>'
+							},
+							success: function(response) {
+								if (response.success) {
+									item.fadeOut(300, function() {
+										$(this).remove();
+									});
+									alert('<?php echo esc_js(__('Custom feature removed successfully!', 'mhm-rentiva')); ?>');
+								} else {
+									alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + response.data);
+								}
+							},
+							error: function() {
+								alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
+							}
+						});
+					}
+				});
+
+				// Custom Equipment Removal
+				$(document).on('click', '.remove-custom-equipment', function() {
+					if (confirm('<?php echo esc_js(__('Are you sure you want to remove this custom equipment?', 'mhm-rentiva')); ?>')) {
+						const fieldKey = $(this).data('key');
+						const item = $(this).closest('.mhm-custom-item');
+
+						$.ajax({
+							url: ajaxurl,
+							type: 'POST',
+							data: {
+								action: 'remove_custom_field',
+								field_key: fieldKey,
+								field_type: 'equipment',
+								nonce: '<?php echo esc_attr(wp_create_nonce('mhm_vehicle_settings_nonce')); ?>'
+							},
+							success: function(response) {
+								if (response.success) {
+									item.fadeOut(300, function() {
+										$(this).remove();
+									});
+									alert('<?php echo esc_js(__('Custom equipment removed successfully!', 'mhm-rentiva')); ?>');
+								} else {
+									alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + response.data);
+								}
+							},
+							error: function() {
+								alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
+							}
+						});
+					}
+				});
+
+				// BULK OPERATIONS - Details
+				$('#select-all-details').on('click', function() {
+					$('input[name="selected_details[]"]').prop('checked', true);
+				});
+
+				$('#select-none-details').on('click', function() {
+					$('input[name="selected_details[]"]').prop('checked', false);
+				});
+
+				$('#rename-details').on('click', function() {
+					showRenameModal('details');
+				});
+
+				// BULK OPERATIONS - Features
+				$('#select-all-features').on('click', function() {
+					$('input[name="selected_features[]"]').prop('checked', true);
+				});
+
+				$('#select-none-features').on('click', function() {
+					$('input[name="selected_features[]"]').prop('checked', false);
+				});
+
+				$('#rename-features').on('click', function() {
+					showRenameModal('features');
+				});
+
+				// BULK OPERATIONS - Equipment
+				$('#select-all-equipment').on('click', function() {
+					$('input[name="selected_equipment[]"]').prop('checked', true);
+				});
+
+				$('#select-none-equipment').on('click', function() {
+					$('input[name="selected_equipment[]"]').prop('checked', false);
+				});
+
+				$('#rename-equipment').on('click', function() {
+					showRenameModal('equipment');
+				});
+
+				// Form Submit (Save Settings)
+				$('#vehicle-settings-form').on('submit', function(e) {
+					e.preventDefault();
+
+					const selectedDetails = [];
+					const selectedFeatures = [];
+					const selectedEquipment = [];
+
+					// Collect selected checkboxes
+					$('input[name="selected_details[]"]:checked').each(function() {
+						selectedDetails.push($(this).val());
 					});
 
-					// Create modal HTML
-					let modalHtml = `
+					$('input[name="selected_features[]"]:checked').each(function() {
+						selectedFeatures.push($(this).val());
+					});
+
+					$('input[name="selected_equipment[]"]:checked').each(function() {
+						selectedEquipment.push($(this).val());
+					});
+
+					// Collect custom fields
+					const customDetails = {};
+					const customFeatures = {};
+					const customEquipment = {};
+
+					$('#custom-details-list .mhm-custom-item').each(function() {
+						const key = $(this).data('key');
+						const label = $(this).find('span').text();
+						customDetails[key] = label;
+					});
+
+					$('#custom-features-list .mhm-custom-item').each(function() {
+						const key = $(this).data('key');
+						const label = $(this).find('span').text();
+						customFeatures[key] = label;
+					});
+
+					$('#custom-equipment-list .mhm-custom-item').each(function() {
+						const key = $(this).data('key');
+						const label = $(this).find('span').text();
+						customEquipment[key] = label;
+					});
+
+					// Collect updated field names
+					const updatedLabels = {
+						details: {},
+						features: {},
+						equipment: {}
+					};
+
+					// Collect current labels for each field type
+					['details', 'features', 'equipment'].forEach(type => {
+						$(`.mhm-checkbox-list input[name="selected_${type}[]"]`).each(function() {
+							const key = $(this).val();
+							const label = $(this).siblings('span').text();
+							updatedLabels[type][key] = label;
+						});
+					});
+
+
+					$.ajax({
+						url: ajaxurl,
+						type: 'POST',
+						data: {
+							action: 'save_vehicle_settings',
+							selected_details: selectedDetails,
+							selected_features: selectedFeatures,
+							selected_equipment: selectedEquipment,
+							custom_details: customDetails,
+							custom_features: customFeatures,
+							custom_equipment: customEquipment,
+							updated_labels: updatedLabels,
+							nonce: '<?php echo esc_attr(wp_create_nonce('vehicle_settings_nonce')); ?>'
+						},
+						success: function(response) {
+							if (response && response.success) {
+								alert('<?php echo esc_js(__('Settings saved successfully!', 'mhm-rentiva')); ?>');
+								location.reload(); // Reload page
+							} else {
+								alert('<?php echo esc_js(__('Error:', 'mhm-rentiva')); ?> ' + (response && response.data ? response.data : 'Unknown error'));
+							}
+						},
+						error: function(xhr, status, error) {
+							alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>: ' + error);
+						}
+					});
+				});
+			});
+
+			// RENAME MODAL FUNCTION - Use jQuery
+			window.showRenameModal = function(type) {
+				const fields = {};
+
+				// Collect existing fields
+				jQuery(`.mhm-checkbox-list input[name="selected_${type}[]"]`).each(function() {
+					const key = jQuery(this).val();
+					const label = jQuery(this).siblings('span').text();
+					fields[key] = label;
+				});
+
+				// Create modal HTML
+				let modalHtml = `
 				<div id="rename-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
 					<div style="background: white; padding: 30px; border-radius: 8px; max-width: 600px; max-height: 80%; overflow-y: auto;">
 						<h3><?php esc_html_e('Edit Field Names', 'mhm-rentiva'); ?></h3>
 						<div id="rename-fields-container" style="margin: 20px 0;">
 			`;
 
-					// Create input for each field
-					for (const [key, label] of Object.entries(fields)) {
-						modalHtml += `
+				// Create input for each field
+				for (const [key, label] of Object.entries(fields)) {
+					modalHtml += `
 					<div style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
 						<label style="min-width: 120px; font-weight: bold;">${label}:</label>
 						<input type="text" data-key="${key}" value="${label}" style="flex: 1; padding: 5px; border: 1px solid #ddd; border-radius: 4px;">
 					</div>
 				`;
-					}
+				}
 
-					modalHtml += `
+				modalHtml += `
 						</div>
 						<div style="text-align: right; margin-top: 20px;">
 							<button type="button" id="cancel-rename" class="button"><?php esc_html_e('Cancel', 'mhm-rentiva'); ?></button>
@@ -1112,60 +1051,60 @@ final class VehicleSettings
 				</div>
 			`;
 
-					// Add modal
-					jQuery('body').append(modalHtml);
+				// Add modal
+				jQuery('body').append(modalHtml);
 
-					// Event handlers
-					jQuery('#cancel-rename').on('click', function() {
-						jQuery('#rename-modal').remove();
+				// Event handlers
+				jQuery('#cancel-rename').on('click', function() {
+					jQuery('#rename-modal').remove();
+				});
+
+				jQuery('#save-rename').on('click', function() {
+					const newLabels = {};
+					jQuery('#rename-fields-container input').each(function() {
+						const key = jQuery(this).data('key');
+						const newLabel = jQuery(this).val();
+						newLabels[key] = newLabel;
 					});
 
-					jQuery('#save-rename').on('click', function() {
-						const newLabels = {};
-						jQuery('#rename-fields-container input').each(function() {
-							const key = jQuery(this).data('key');
-							const newLabel = jQuery(this).val();
-							newLabels[key] = newLabel;
-						});
+					// Update labels
+					jQuery('#rename-fields-container input').each(function() {
+						const key = jQuery(this).data('key');
+						const newLabel = newLabels[key];
 
-						// Update labels
-						jQuery('#rename-fields-container input').each(function() {
-							const key = jQuery(this).data('key');
-							const newLabel = newLabels[key];
+						// Update label on page
+						jQuery(`input[name="selected_${type}[]"][value="${key}"]`).siblings('span').text(newLabel);
+					});
 
-							// Update label on page
-							jQuery(`input[name="selected_${type}[]"][value="${key}"]`).siblings('span').text(newLabel);
-						});
+					// Save to database via AJAX
+					jQuery.ajax({
+						url: ajaxurl,
+						type: 'POST',
+						data: {
+							action: 'update_field_labels',
+							type: type,
+							labels: newLabels,
+							nonce: '<?php echo esc_attr(wp_create_nonce('vehicle_settings_nonce')); ?>'
+						},
+						success: function(response) {
+							if (response && response.success) {
+								// Close modal
+								jQuery('#rename-modal').remove();
 
-						// Save to database via AJAX
-						jQuery.ajax({
-							url: ajaxurl,
-							type: 'POST',
-							data: {
-								action: 'update_field_labels',
-								type: type,
-								labels: newLabels,
-								nonce: '<?php echo esc_attr(wp_create_nonce('vehicle_settings_nonce')); ?>'
-							},
-							success: function(response) {
-								if (response && response.success) {
-									// Close modal
-									jQuery('#rename-modal').remove();
-
-									// Success message
-									alert('<?php echo esc_js(__('Field names updated and saved!', 'mhm-rentiva')); ?>');
-								} else {
-									alert('<?php echo esc_js(__('Error: Field names could not be saved!', 'mhm-rentiva')); ?>');
-								}
-							},
-							error: function() {
-								alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
+								// Success message
+								alert('<?php echo esc_js(__('Field names updated and saved!', 'mhm-rentiva')); ?>');
+							} else {
+								alert('<?php echo esc_js(__('Error: Field names could not be saved!', 'mhm-rentiva')); ?>');
 							}
-						});
+						},
+						error: function() {
+							alert('<?php echo esc_js(__('An error occurred!', 'mhm-rentiva')); ?>');
+						}
 					});
-				}
-			</script>
-	<?php
+				});
+			}
+		</script>
+<?php
 	}
 
 	/**
@@ -1288,6 +1227,7 @@ final class VehicleSettings
 			'transmission'  => __('Transmission', 'mhm-rentiva'),
 			'fuel_type'     => __('Fuel Type', 'mhm-rentiva'),
 			'engine_size'   => __('Engine Size', 'mhm-rentiva'),
+			'deposit'       => __('Deposit', 'mhm-rentiva'),
 			'availability'  => __('Availability', 'mhm-rentiva'),
 		);
 	}
@@ -1297,7 +1237,7 @@ final class VehicleSettings
 	 */
 	public static function get_default_selected_details(): array
 	{
-		return array('fuel_type', 'transmission', 'seats', 'mileage', 'year');
+		return array('fuel_type', 'transmission', 'seats', 'mileage', 'year', 'deposit');
 	}
 
 	/**
@@ -1375,10 +1315,30 @@ final class VehicleSettings
 	 */
 	public static function get_all_available_details(): array
 	{
-		$default_details = (array) get_option('mhm_vehicle_details', self::get_default_details());
-		$custom_details  = (array) get_option('mhm_custom_details', array());
+		$details = self::get_default_details();
+		$stored_details = (array) get_option('mhm_vehicle_details', array());
+		foreach ($stored_details as $key => $label) {
+			if (! empty($label)) {
+				$details[$key] = $label;
+			}
+		}
 
-		return array_merge($default_details, $custom_details);
+		// DATA RECOVERY: If a default field is missing or empty in stored settings, ensure it has a label
+		$defaults = self::get_default_details();
+		foreach ($defaults as $key => $label) {
+			if (empty($details[$key])) {
+				$details[$key] = $label;
+			}
+		}
+
+		$custom_details = (array) get_option('mhm_custom_details', array());
+		foreach ($custom_details as $key => $label) {
+			if (! empty($label)) {
+				$details[$key] = $label;
+			}
+		}
+
+		return $details;
 	}
 
 	/**
@@ -1386,11 +1346,31 @@ final class VehicleSettings
 	 */
 	public static function get_all_available_features(): array
 	{
-		$default_features  = (array) get_option('mhm_vehicle_features', self::get_default_features());
-		$custom_features   = (array) get_option('mhm_custom_features', array());
-		$taxonomy_features = self::get_taxonomy_features();
+		$features = self::get_default_features();
+		$stored_features = (array) get_option('mhm_vehicle_features', array());
+		foreach ($stored_features as $key => $label) {
+			if (! empty($label)) {
+				$features[$key] = $label;
+			}
+		}
 
-		return array_merge($default_features, $custom_features, $taxonomy_features);
+		// DATA RECOVERY: If a default field is missing or empty in stored settings, ensure it has a label
+		$defaults = self::get_default_features();
+		foreach ($defaults as $key => $label) {
+			if (empty($features[$key])) {
+				$features[$key] = $label;
+			}
+		}
+
+		$custom_features = (array) get_option('mhm_custom_features', array());
+		foreach ($custom_features as $key => $label) {
+			if (! empty($label)) {
+				$features[$key] = $label;
+			}
+		}
+
+		$taxonomy_features = self::get_taxonomy_features();
+		return array_merge($features, $taxonomy_features);
 	}
 
 	/**
@@ -1398,11 +1378,31 @@ final class VehicleSettings
 	 */
 	public static function get_all_available_equipment(): array
 	{
-		$default_equipment  = (array) get_option('mhm_vehicle_equipment', self::get_default_equipment());
-		$custom_equipment   = (array) get_option('mhm_custom_equipment', array());
-		$taxonomy_equipment = self::get_taxonomy_equipment();
+		$equipment = self::get_default_equipment();
+		$stored_equipment = (array) get_option('mhm_vehicle_equipment', array());
+		foreach ($stored_equipment as $key => $label) {
+			if (! empty($label)) {
+				$equipment[$key] = $label;
+			}
+		}
 
-		return array_merge($default_equipment, $custom_equipment, $taxonomy_equipment);
+		// DATA RECOVERY: If a default field is missing or empty in stored settings, ensure it has a label
+		$defaults = self::get_default_equipment();
+		foreach ($defaults as $key => $label) {
+			if (empty($equipment[$key])) {
+				$equipment[$key] = $label;
+			}
+		}
+
+		$custom_equipment = (array) get_option('mhm_custom_equipment', array());
+		foreach ($custom_equipment as $key => $label) {
+			if (! empty($label)) {
+				$equipment[$key] = $label;
+			}
+		}
+
+		$taxonomy_equipment = self::get_taxonomy_equipment();
+		return array_merge($equipment, $taxonomy_equipment);
 	}
 
 	/**
@@ -1632,81 +1632,25 @@ final class VehicleSettings
 		$custom_features  = isset($_POST['custom_features']) ? array_map('sanitize_text_field', $_POST['custom_features']) : array();
 		$custom_equipment = isset($_POST['custom_equipment']) ? array_map('sanitize_text_field', $_POST['custom_equipment']) : array();
 
-		// Update field names (rename feature) - sanitize nested array
-		if (isset($_POST['updated_labels']) && is_array($_POST['updated_labels'])) {
-			$updated_labels = $_POST['updated_labels'];
-
-			// Update labels for each field type - with sanitization
-			foreach ($updated_labels as $type => $labels) {
-				// Sanitize type
-				$type = self::sanitize_text_field_safe($type);
-
-				// Skip if labels is not array
-				if (! is_array($labels)) {
-					continue;
-				}
-				if ($type === 'details') {
-					$current_details = get_option('mhm_vehicle_details', self::get_default_details());
-					$custom_details  = get_option('mhm_custom_details', array());
-
-					foreach ($labels as $key => $new_label) {
-						// Update standard fields
-						if (isset($current_details[$key])) {
-							$current_details[$key] = self::sanitize_text_field_safe($new_label);
-						}
-						// Update custom fields
-						elseif (isset($custom_details[$key])) {
-							$custom_details[$key] = self::sanitize_text_field_safe($new_label);
-						}
-					}
-
-					update_option('mhm_vehicle_details', $current_details);
-					update_option('mhm_custom_details', $custom_details);
-				} elseif ($type === 'features') {
-					$current_features = get_option('mhm_vehicle_features', self::get_default_features());
-					$custom_features  = get_option('mhm_custom_features', array());
-
-					foreach ($labels as $key => $new_label) {
-						// Update standard fields
-						if (isset($current_features[$key])) {
-							$current_features[$key] = self::sanitize_text_field_safe($new_label);
-						}
-						// Update custom fields
-						elseif (isset($custom_features[$key])) {
-							$custom_features[$key] = self::sanitize_text_field_safe($new_label);
-						}
-					}
-
-					update_option('mhm_vehicle_features', $current_features);
-					update_option('mhm_custom_features', $custom_features);
-				} elseif ($type === 'equipment') {
-					$current_equipment = get_option('mhm_vehicle_equipment', self::get_default_equipment());
-					$custom_equipment  = get_option('mhm_custom_equipment', array());
-
-					foreach ($labels as $key => $new_label) {
-						// Update standard fields
-						if (isset($current_equipment[$key])) {
-							$current_equipment[$key] = self::sanitize_text_field_safe($new_label);
-						}
-						// Update custom fields
-						elseif (isset($custom_equipment[$key])) {
-							$custom_equipment[$key] = self::sanitize_text_field_safe($new_label);
-						}
-					}
-
-					update_option('mhm_vehicle_equipment', $current_equipment);
-					update_option('mhm_custom_equipment', $custom_equipment);
-				}
-			}
-		}
+		// REMOVED destructive updated_labels logic.
+		// Renaming is handled by the dedicated ajax_update_field_labels method.
 
 		// Save to database
 		update_option('mhm_selected_details', $selected_details);
 		update_option('mhm_selected_features', $selected_features);
 		update_option('mhm_selected_equipment', $selected_equipment);
-		update_option('mhm_custom_details', $custom_details);
-		update_option('mhm_custom_features', $custom_features);
-		update_option('mhm_custom_equipment', $custom_equipment);
+
+		// FIXED: Only update custom fields if they were actually sent in the POST.
+		// Usually custom fields are only managed via the specific Add/Remove AJAX calls.
+		if (isset($_POST['custom_details'])) {
+			update_option('mhm_custom_details', $custom_details);
+		}
+		if (isset($_POST['custom_features'])) {
+			update_option('mhm_custom_features', $custom_features);
+		}
+		if (isset($_POST['custom_equipment'])) {
+			update_option('mhm_custom_equipment', $custom_equipment);
+		}
 
 		wp_send_json_success(__('Settings saved successfully!', 'mhm-rentiva'));
 	}
@@ -1810,6 +1754,7 @@ final class VehicleSettings
 		if ($field_type === 'details') {
 			// 1. Check if Core (Cannot remove)
 			$core_fields = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields();
+			$core_fields[] = 'deposit'; // Block deletion of deposit field (v4.8.2)
 			if (in_array($field_key, $core_fields)) {
 				wp_send_json_error(__('This is a core field and cannot be removed.', 'mhm-rentiva'));
 				return;
@@ -1983,23 +1928,20 @@ final class VehicleSettings
 			wp_send_json_error(array('message' => esc_html__('Insufficient permissions.', 'mhm-rentiva')));
 		}
 
-		// Reset Selection Options (Checkboxes)
-		delete_option('mhm_selected_details');
-		delete_option('mhm_selected_features');
-		delete_option('mhm_selected_equipment');
+		$tab = isset($_POST['tab']) ? sanitize_key($_POST['tab']) : 'definitions';
 
-		// Reset Display Settings
-		$settings = get_option('mhm_rentiva_settings', array());
-
-		if (isset($settings['mhm_rentiva_vehicle_card_fields'])) {
-			unset($settings['mhm_rentiva_vehicle_card_fields']);
+		if ($tab === 'display') {
+			// Reset Display Options to empty arrays
+			$settings = get_option('mhm_rentiva_settings', array());
+			$settings['mhm_rentiva_vehicle_card_fields'] = array();
+			$settings['comparison_fields']               = array();
+			update_option('mhm_rentiva_settings', $settings);
+		} else {
+			// Reset Selection Options (Checkboxes) to empty arrays (Definitions Tab)
+			update_option('mhm_selected_details', array());
+			update_option('mhm_selected_features', array());
+			update_option('mhm_selected_equipment', array());
 		}
-
-		if (isset($settings['comparison_fields'])) {
-			unset($settings['comparison_fields']);
-		}
-
-		update_option('mhm_rentiva_settings', $settings);
 
 		wp_send_json_success(array('message' => esc_html__('Settings reset to defaults.', 'mhm-rentiva')));
 	}

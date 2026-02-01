@@ -313,7 +313,7 @@ body {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.messages-header {
 		flex-direction: column;
 		align-items: stretch;

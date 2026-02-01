@@ -170,17 +170,17 @@ $unique_id = uniqid('rv_booking_');
 												$fill_color = $is_filled || $is_half ? '#fbbf24' : '#cbd5e1';
 												$stroke_color = $is_filled || $is_half ? '#d97706' : '#cbd5e1';
 											?>
-												<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="<?php echo $stroke_color; ?>" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display: block; width: 16px; height: 16px;">
+												<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="<?php echo esc_attr($stroke_color); ?>" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display: block; width: 16px; height: 16px;">
 													<?php if ($is_half) : ?>
 														<defs>
-															<linearGradient id="halfStar-<?php echo $selected_vehicle['id']; ?>-<?php echo $i; ?>">
+															<linearGradient id="halfStar-<?php echo esc_attr($selected_vehicle['id']); ?>-<?php echo esc_attr($i); ?>">
 																<stop offset="50%" stop-color="#fbbf24" />
 																<stop offset="50%" stop-color="#cbd5e1" />
 															</linearGradient>
 														</defs>
-														<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="url(#halfStar-<?php echo $selected_vehicle['id']; ?>-<?php echo $i; ?>)" stroke="none" />
+														<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="url(#halfStar-<?php echo esc_attr($selected_vehicle['id']); ?>-<?php echo esc_attr($i); ?>)" stroke="none" />
 													<?php else : ?>
-														<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="<?php echo $fill_color; ?>" />
+														<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="<?php echo esc_attr($fill_color); ?>" />
 													<?php endif; ?>
 												</svg>
 											<?php endfor; ?>

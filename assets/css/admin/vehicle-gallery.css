@@ -305,7 +305,7 @@
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-gallery-grid {
 		grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
 		gap: 6px;

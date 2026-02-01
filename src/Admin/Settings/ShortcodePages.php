@@ -29,6 +29,7 @@ if (! defined('ABSPATH')) {
  */
 final class ShortcodePages
 {
+	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
 
 	/**
@@ -42,6 +43,7 @@ final class ShortcodePages
 	public const ACTION_CREATE_PAGE  = 'mhm_create_shortcode_page';
 	public const ACTION_DELETE_PAGE  = 'mhm_delete_shortcode_page';
 	public const ACTION_DEBUG_SEARCH = 'mhm_debug_shortcode_search';
+	public const ACTION_RESET_PAGES  = 'mhm_reset_shortcode_pages';
 
 	/**
 	 * Asset handles.
@@ -187,12 +189,14 @@ final class ShortcodePages
 					'createPage'  => self::ACTION_CREATE_PAGE,
 					'deletePage'  => self::ACTION_DELETE_PAGE,
 					'debugSearch' => self::ACTION_DEBUG_SEARCH,
+					'resetPages'  => self::ACTION_RESET_PAGES,
 				),
 				'nonces'  => array(
 					'clearCache'  => wp_create_nonce(self::ACTION_CLEAR_CACHE),
 					'createPage'  => wp_create_nonce(self::ACTION_CREATE_PAGE),
 					'deletePage'  => wp_create_nonce(self::ACTION_DELETE_PAGE),
 					'debugSearch' => wp_create_nonce(self::ACTION_DEBUG_SEARCH),
+					'resetPages'  => wp_create_nonce(self::ACTION_RESET_PAGES),
 				),
 				'i18n'    => array(
 					'confirmClearCache' => __('Cache will be cleared. Do you want to continue?', 'mhm-rentiva'),
@@ -200,6 +204,7 @@ final class ShortcodePages
 					'creatingText'      => __('Creating...', 'mhm-rentiva'),
 					'confirmGoToEditor' => __('Page created! Go to editor?', 'mhm-rentiva'),
 					'confirmDeletePage' => __('Move this page to trash?', 'mhm-rentiva'),
+					'confirmReset'      => __('This action will permanently delete all created shortcode pages. Are you sure?', 'mhm-rentiva'),
 				),
 			)
 		);
@@ -218,6 +223,7 @@ final class ShortcodePages
 			self::ACTION_CREATE_PAGE  => 'create_page',
 			self::ACTION_DELETE_PAGE  => 'delete_page',
 			self::ACTION_DEBUG_SEARCH => 'debug_search',
+			self::ACTION_RESET_PAGES  => 'reset_pages',
 		);
 
 		foreach ($handlers as $action => $method) {
@@ -239,12 +245,31 @@ final class ShortcodePages
 		}
 
 		try {
+			ob_start();
+			$this->render_admin_header(
+				(string) get_admin_page_title(),
+				array(
+					array(
+						'type' => 'documentation',
+						'url'  => \MHMRentiva\Admin\Core\Utilities\UXHelper::get_docs_url(),
+					),
+					array(
+						'type' => 'reset',
+						'url'  => '#',
+						'id'   => 'mhm-btn-reset-pages',
+					),
+				)
+			);
+			$this->render_developer_mode_banner();
+			$header_html = ob_get_clean();
+
 			$this->render_view(
 				'admin/shortcode-pages',
 				array(
 					'pages'             => $this->url_manager->get_all_pages(),
 					'shortcodes_config' => $this->actions->get_config(),
 					'menu_slug'         => self::MENU_SLUG,
+					'header_html'       => $header_html,
 				)
 			);
 		} catch (RuntimeException $e) {

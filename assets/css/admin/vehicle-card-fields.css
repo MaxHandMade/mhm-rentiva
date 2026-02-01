@@ -73,3 +73,36 @@
 .mhm-card-fields-footer {
 	margin-top: 12px;
 }
+
+/* =================================================================
+   Mobile Responsive - Vehicle Card Fields
+   ================================================================= */
+@media screen and (max-width: 782px) {
+	.mhm-card-fields-columns {
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.mhm-card-fields-column {
+		flex: 1 1 100%;
+		min-width: unset;
+	}
+
+	.mhm-card-field-item {
+		padding: 8px 10px;
+	}
+
+	.mhm-card-field-label {
+		font-size: 13px;
+	}
+}
+
+@media screen and (max-width: 600px) {
+	.mhm-card-fields-list {
+		min-height: 40px;
+	}
+
+	.mhm-card-field-item {
+		padding: 6px 8px;
+	}
+}

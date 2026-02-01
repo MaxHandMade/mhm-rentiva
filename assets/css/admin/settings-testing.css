@@ -167,7 +167,7 @@
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-settings-testing .test-controls {
 		text-align: center;
 	}

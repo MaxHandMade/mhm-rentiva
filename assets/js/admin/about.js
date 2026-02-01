@@ -8,6 +8,9 @@
 
     const MHMAbout = {
 
+        // Cache for tab content
+        tabCache: {},
+
         init: function () {
             this.bindEvents();
             this.initializeFeatures();
@@ -15,17 +18,17 @@
 
         bindEvents: function () {
             // Tab switching
-            $(document).on('click', '.nav-tab', this.handleTabSwitch.bind(this));
+            $(document).on('click', '.nav-tab', (e) => this.handleTabSwitch(e));
 
             // Copy system info
-            $(document).on('click', '.info-value', this.handleInfoCopy.bind(this));
+            $(document).on('click', '.info-value', (e) => this.handleInfoCopy(e));
 
             // External link tracking (if needed)
-            $(document).on('click', '.external-link', this.handleExternalLink.bind(this));
+            $(document).on('click', '.external-link', (e) => this.handleExternalLink(e));
 
             // Feature comparison tooltips
-            $(document).on('mouseenter', '.feature-yes, .feature-no', this.showFeatureTooltip.bind(this));
-            $(document).on('mouseleave', '.feature-yes, .feature-no', this.hideFeatureTooltip.bind(this));
+            $(document).on('mouseenter', '.feature-yes, .feature-no', (e) => this.showFeatureTooltip(e));
+            $(document).on('mouseleave', '.feature-yes, .feature-no', (e) => this.hideFeatureTooltip(e));
         },
 
         initializeFeatures: function () {
@@ -44,49 +47,68 @@
             $('.nav-tab').removeClass('nav-tab-active');
             $tab.addClass('nav-tab-active');
 
-            // Load tab content via AJAX
+            // Load tab content via AJAX or Cache
             this.loadTabContent(tabId);
         },
 
         loadTabContent: function (tabId) {
             const $tabContent = $('.tab-content');
 
+            // Check cache first
+            if (this.tabCache[tabId]) {
+                $tabContent.html(this.tabCache[tabId]);
+                this.updateURL(tabId);
+                this.initializeChangelog(); // Re-init dynamic elements
+                return;
+            }
+
             // Show loading state
             $tabContent.html('<div class="mhm-about-loading">' +
                 '<span class="spinner is-active"></span> ' +
-                mhmAboutAdmin.strings.loading +
+                mhmRentivaAboutAdmin.strings.loading +
                 '</div>');
 
             // Make AJAX request
             $.ajax({
-                url: mhmAboutAdmin.ajax_url,
+                url: mhmRentivaAboutAdmin.ajax_url,
                 type: 'POST',
                 data: {
-                    action: 'mhm_about_load_tab',
+                    action: 'mhm_rentiva_about_load_tab',
                     tab: tabId,
-                    nonce: mhmAboutAdmin.nonce
+                    nonce: mhmRentivaAboutAdmin.nonce
                 },
-                success: function (response) {
+                success: (response) => {
                     if (response.success) {
-                        $tabContent.html(response.data.content);
-                        // Update URL without page reload
-                        if (history.pushState) {
-                            const url = new URL(window.location);
-                            url.searchParams.set('tab', tabId);
-                            history.pushState(null, null, url.toString());
-                        }
+                        const content = response.data.content;
+                        // Cache the content
+                        this.tabCache[tabId] = content;
+
+                        $tabContent.html(content);
+                        this.updateURL(tabId);
+
+                        // Re-initialize dynamic elements if needed
+                        this.initializeChangelog();
                     } else {
                         $tabContent.html('<div class="notice notice-error"><p>' +
-                            (response.data.message || mhmAboutAdmin.strings.error) +
+                            (response.data.message || mhmRentivaAboutAdmin.strings.error) +
                             '</p></div>');
                     }
                 },
-                error: function () {
+                error: (xhr, status, error) => {
                     $tabContent.html('<div class="notice notice-error"><p>' +
-                        mhmAboutAdmin.strings.error +
+                        mhmRentivaAboutAdmin.strings.error +
+                        ' (' + error + ')' +
                         '</p></div>');
                 }
             });
+        },
+
+        updateURL: function (tabId) {
+            if (history.pushState) {
+                const url = new URL(window.location);
+                url.searchParams.set('tab', tabId);
+                history.pushState(null, null, url.toString());
+            }
         },
 
         handleInfoCopy: function (e) {
@@ -96,7 +118,7 @@
             if (navigator.clipboard && window.isSecureContext) {
                 // Use modern clipboard API
                 navigator.clipboard.writeText(textToCopy).then(() => {
-                    const copiedText = (mhmAboutAdmin.strings && mhmAboutAdmin.strings.copied) || 'Copied!';
+                    const copiedText = (mhmRentivaAboutAdmin.strings && mhmRentivaAboutAdmin.strings.copied) || 'Copied!';
                     this.showCopyFeedback($element, copiedText);
                 }).catch(() => {
                     this.fallbackCopyTextToClipboard(textToCopy, $element);
@@ -119,10 +141,10 @@
 
             try {
                 document.execCommand('copy');
-                const copiedText = (mhmAboutAdmin.strings && mhmAboutAdmin.strings.copied) || 'Copied!';
+                const copiedText = (mhmRentivaAboutAdmin.strings && mhmRentivaAboutAdmin.strings.copied) || 'Copied!';
                 this.showCopyFeedback($element, copiedText);
             } catch (err) {
-                const failedText = (mhmAboutAdmin.strings && mhmAboutAdmin.strings.copyFailed) || 'Copy failed';
+                const failedText = (mhmRentivaAboutAdmin.strings && mhmRentivaAboutAdmin.strings.copyFailed) || 'Copy failed';
                 this.showCopyFeedback($element, failedText, 'error');
             }
 
@@ -134,7 +156,7 @@
             $('.copy-feedback').remove();
 
             // Translate message if available
-            const translatedMessage = (mhmAboutAdmin.strings && mhmAboutAdmin.strings[message]) || message;
+            const translatedMessage = (mhmRentivaAboutAdmin.strings && mhmRentivaAboutAdmin.strings[message]) || message;
 
             // Create feedback element
             const $feedback = $('<span>', {
@@ -211,7 +233,7 @@
             // Add refresh button for system info
             const $systemInfo = $('.system-info-grid');
             if ($systemInfo.length > 0) {
-                const refreshText = (mhmAboutAdmin.strings && mhmAboutAdmin.strings.refreshSystemInfo) || 'Refresh System Info';
+                const refreshText = (mhmRentivaAboutAdmin.strings && mhmRentivaAboutAdmin.strings.refreshSystemInfo) || 'Refresh System Info';
                 const $refreshBtn = $('<button>', {
                     class: 'button button-secondary refresh-system-info',
                     text: refreshText,
@@ -229,7 +251,7 @@
         refreshSystemInfo: function () {
             const $btn = $('.refresh-system-info');
             const originalText = $btn.text();
-            const refreshingText = (mhmAboutAdmin.strings && mhmAboutAdmin.strings.refreshing) || 'Refreshing...';
+            const refreshingText = (mhmRentivaAboutAdmin.strings && mhmRentivaAboutAdmin.strings.refreshing) || 'Refreshing...';
 
             // Show loading state
             $btn.prop('disabled', true).text(refreshingText);
@@ -238,7 +260,7 @@
             // For now, just simulate the refresh
             setTimeout(() => {
                 $btn.prop('disabled', false).text(originalText);
-                const refreshedText = (mhmAboutAdmin.strings && mhmAboutAdmin.strings.systemRefreshed) || 'System information refreshed';
+                const refreshedText = (mhmRentivaAboutAdmin.strings && mhmRentivaAboutAdmin.strings.systemRefreshed) || 'System information refreshed';
                 this.showNotification(refreshedText, 'success');
             }, 1000);
         },

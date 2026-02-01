@@ -530,7 +530,7 @@
 
 /* === RESPONSIVE DESIGN === */
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-calendars {
 		margin: 0 -10px 20px;
 		border-radius: 0;

@@ -28,14 +28,48 @@
 	color: var(--text-color);
 }
 
-.mhm-rentiva-wrap h1,
-.mhm-rentiva-wrap h2,
-.mhm-rentiva-wrap h3,
-.mhm-rentiva-wrap h4,
-.mhm-rentiva-wrap h5,
-.mhm-rentiva-wrap h6 {
+.mhm-rentiva-wrap h1 {
 	color: var(--text-heading-color);
 	font-weight: 500;
+}
+
+/** Global Admin Header */
+.mhm-admin-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid var(--border-color);
+}
+
+.mhm-admin-header h1 {
+	margin: 0 !important;
+	padding: 0 !important;
+	font-weight: 600 !important;
+}
+
+.mhm-admin-header-actions {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.mhm-admin-header-actions .button {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	height: 32px;
+}
+
+.mhm-admin-header-actions .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .mhm-rentiva-wrap .row {
@@ -174,4 +208,369 @@
 	border-bottom: 2px solid var(--border-color);
 	font-weight: 600;
 	color: var(--text-heading-color);
+}
+
+/* =================================================================
+   7. Mobile Responsive - Global Admin Styles
+   WordPress Breakpoints: 782px (tablet), 600px (mobile)
+   ================================================================= */
+
+/* Tablet & Mobile (max-width: 782px) */
+@media screen and (max-width: 782px) {
+
+	/* Admin Header - Stack vertically */
+	.mhm-admin-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+		padding-bottom: 15px;
+	}
+
+	.mhm-admin-header h1 {
+		font-size: 1.4rem !important;
+		line-height: 1.3 !important;
+	}
+
+	.mhm-admin-header-actions {
+		flex-wrap: wrap;
+		gap: 8px;
+		width: 100%;
+	}
+
+	.mhm-admin-header-actions .button {
+		flex: 1 1 auto;
+		min-width: 120px;
+		justify-content: center;
+		font-size: 12px;
+		padding: 0 10px;
+		height: 30px;
+	}
+
+	/* Full-width columns on tablet */
+	.mhm-rentiva-wrap .col-lg-6,
+	.mhm-rentiva-wrap .col-lg-4,
+	.mhm-rentiva-wrap .col-lg-3 {
+		flex: 0 0 100%;
+		max-width: 100%;
+	}
+
+	/* Card adjustments */
+	.mhm-rentiva-wrap .card-header,
+	.mhm-rentiva-wrap .card-body {
+		padding: 1rem;
+	}
+
+	/* Table horizontal scroll wrapper */
+	.mhm-rentiva-wrap .table-responsive,
+	.mhm-rentiva-wrap .wp-list-table-wrap {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	/* Form elements */
+	.mhm-rentiva-wrap .form-control,
+	.mhm-rentiva-wrap input[type="text"],
+	.mhm-rentiva-wrap input[type="number"],
+	.mhm-rentiva-wrap select,
+	.mhm-rentiva-wrap textarea {
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+
+	/* Button groups */
+	.mhm-rentiva-wrap .button-group,
+	.mhm-rentiva-wrap .mhm-button-group {
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	/* Grid layouts force single column */
+	.mhm-rentiva-wrap .info-grid,
+	.mhm-rentiva-wrap .checkbox-grid {
+		grid-template-columns: 1fr !important;
+	}
+}
+
+/* Small Mobile (max-width: 600px) */
+@media screen and (max-width: 600px) {
+
+	/* Smaller header text */
+	.mhm-admin-header h1 {
+		font-size: 1.2rem !important;
+	}
+
+	/* Stack all action buttons */
+	.mhm-admin-header-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.mhm-admin-header-actions .button {
+		width: 100%;
+		min-width: unset;
+	}
+
+	/* Tighter padding */
+	.mhm-rentiva-wrap .card-header,
+	.mhm-rentiva-wrap .card-body {
+		padding: 0.75rem;
+	}
+
+	/* Smaller base font */
+	.mhm-rentiva-wrap {
+		font-size: 13px;
+	}
+
+	/* Badge scaling */
+	.mhm-rentiva-wrap .badge,
+	.mhm-rentiva-wrap .mhm-badge {
+		font-size: 10px;
+		padding: 2px 6px;
+	}
+}
+
+/* WordPress Admin Sidebar Collapsed */
+@media screen and (max-width: 960px) {
+	.mhm-rentiva-wrap {
+		margin-left: 0;
+	}
+}
+
+/* =================================================================
+   8. Responsive Tables & Lists
+   ================================================================= */
+
+/* Responsive Table Wrapper */
+.mhm-rentiva-table-responsive {
+	display: block;
+	width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	margin-bottom: 1rem;
+}
+
+.mhm-rentiva-table-responsive::-webkit-scrollbar {
+	height: 6px;
+}
+
+.mhm-rentiva-table-responsive::-webkit-scrollbar-thumb {
+	background: var(--mhm-border-primary, #c3c4c7);
+	border-radius: 3px;
+}
+
+/* Force table minimum width for readability */
+.mhm-rentiva-table-responsive .wp-list-table {
+	min-width: 600px;
+}
+
+/* All WP List Tables in MHM context */
+.mhm-rentiva-wrap .wp-list-table {
+	table-layout: auto;
+}
+
+@media screen and (max-width: 782px) {
+
+	/* Make all tables scrollable */
+	.mhm-rentiva-wrap .wp-list-table {
+		display: block;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	/* Table cell adjustments */
+	.mhm-rentiva-wrap .wp-list-table th,
+	.mhm-rentiva-wrap .wp-list-table td {
+		padding: 8px 6px;
+		font-size: 12px;
+		white-space: nowrap;
+	}
+
+	/* Column actions (Edit, Delete buttons) */
+	.mhm-rentiva-wrap .wp-list-table .column-actions,
+	.mhm-rentiva-wrap .wp-list-table .row-actions {
+		white-space: nowrap;
+	}
+
+	/* Hide less important columns on mobile */
+	.mhm-rentiva-wrap .wp-list-table .column-date,
+	.mhm-rentiva-wrap .wp-list-table .column-author {
+		display: none;
+	}
+}
+
+/* =================================================================
+   9. Section Action Buttons (Tümünü Seç, Hepsini Seçimden Çıkar)
+   ================================================================= */
+
+.mhm-section-actions,
+.mhm-bulk-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+@media screen and (max-width: 782px) {
+
+	/* Stack action buttons */
+	.mhm-section-actions,
+	.mhm-bulk-actions {
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: flex-start;
+	}
+
+	.mhm-section-actions .button,
+	.mhm-bulk-actions .button {
+		flex: 0 0 auto;
+		font-size: 11px;
+		padding: 4px 10px;
+		height: auto;
+		min-height: 28px;
+		line-height: 1.4;
+	}
+}
+
+@media screen and (max-width: 600px) {
+
+	/* Full width buttons on small mobile */
+	.mhm-section-actions,
+	.mhm-bulk-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.mhm-section-actions .button,
+	.mhm-bulk-actions .button {
+		width: 100%;
+		text-align: center;
+		justify-content: center;
+	}
+}
+
+/* =================================================================
+   10. Touch Targets & Form Accessibility (MASTER COMPONENT)
+   ================================================================= */
+
+/* MASTER GLOBAL CHECKBOX COMPONENT (v4.8.6 - ULTIMATE CLARITY) */
+.mhm-ui-checkbox {
+	display: flex !important;
+	align-items: center !important;
+	flex-direction: row !important;
+	flex-wrap: nowrap !important;
+	gap: 12px !important;
+	background: #ffffff !important;
+	border: 1px solid #c3c4c7 !important;
+	border-radius: 4px !important;
+	padding: 6px 12px !important;
+	margin: 0 !important;
+	cursor: pointer !important;
+	width: auto !important;
+	box-sizing: border-box !important;
+	min-height: 44px;
+	transition: all 0.15s ease !important;
+	opacity: 1 !important;
+	/* Ensure high visibility */
+}
+
+/* High Contrast Input Skin */
+.mhm-ui-checkbox input[type="checkbox"] {
+	appearance: none !important;
+	-webkit-appearance: none !important;
+	background-color: #ffffff !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	width: 16px !important;
+	height: 16px !important;
+	border: 2px solid #8c8f94 !important;
+	/* Bold, dark border */
+	border-radius: 2px !important;
+	cursor: pointer !important;
+	position: relative !important;
+	display: inline-block !important;
+	vertical-align: middle !important;
+	flex-shrink: 0 !important;
+	opacity: 1 !important;
+}
+
+/* Checked State: Vibrant Blue Background */
+.mhm-ui-checkbox input[type="checkbox"]:checked {
+	background-color: #2271b1 !important;
+	border-color: #2271b1 !important;
+}
+
+/* Sharp White Tick Mark */
+.mhm-ui-checkbox input[type="checkbox"]:checked:before {
+	content: "" !important;
+	position: absolute !important;
+	left: 4px !important;
+	top: 1px !important;
+	width: 4px !important;
+	height: 8px !important;
+	border: solid #ffffff !important;
+	border-width: 0 2px 2px 0 !important;
+	transform: rotate(45deg) !important;
+	margin: 0 !important;
+	display: block !important;
+}
+
+/* Label text scaling */
+.mhm-ui-checkbox span {
+	font-size: 14px !important;
+	line-height: 1.4 !important;
+	color: #2c3338 !important;
+	font-weight: 500 !important;
+	margin: 0 !important;
+	display: inline-block !important;
+	white-space: normal !important;
+}
+
+/* Mobile Alignment Regression Fix (NO WRAPPING) */
+@media screen and (max-width: 782px) {
+	.mhm-ui-checkbox {
+		flex-direction: row !important;
+		/* Force horizontal even on mobile */
+		flex-wrap: nowrap !important;
+		/* Strictly forbid vertical stacking */
+		min-height: 48px;
+		/* Larger targets for mobile */
+		padding: 8px 12px !important;
+	}
+
+	.mhm-ui-checkbox input[type="checkbox"] {
+		width: 18px !important;
+		/* Slightly larger on mobile */
+		height: 18px !important;
+	}
+}
+
+/* =================================================================
+   11. Prevent Body Horizontal Overflow
+   ================================================================= */
+
+.mhm-rentiva-wrap {
+	max-width: 100%;
+	overflow-x: hidden;
+}
+
+@media screen and (max-width: 782px) {
+
+	/* Prevent horizontal scroll on small screens */
+	.mhm-rentiva-wrap,
+	.mhm-rentiva-wrap .wrap {
+		overflow-x: hidden;
+		max-width: 100vw;
+	}
+
+	/* Ensure inputs don't exceed container */
+	.mhm-rentiva-wrap input[type="text"],
+	.mhm-rentiva-wrap input[type="email"],
+	.mhm-rentiva-wrap input[type="number"],
+	.mhm-rentiva-wrap input[type="url"],
+	.mhm-rentiva-wrap select,
+	.mhm-rentiva-wrap textarea {
+		max-width: 100%;
+		box-sizing: border-box;
+	}
 }

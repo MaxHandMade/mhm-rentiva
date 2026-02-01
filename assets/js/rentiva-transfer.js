@@ -21,8 +21,8 @@ jQuery(document).ready(function ($) {
             if (!isSilent) {
                 // SAFE MESSAGE READING
                 var errorMessage = "Pick-up and drop-off locations cannot be the same!"; // Fallback
-                if (typeof mhm_transfer_vars !== 'undefined' && mhm_transfer_vars.i18n && mhm_transfer_vars.i18n.same_location_error) {
-                    errorMessage = mhm_transfer_vars.i18n.same_location_error;
+                if (typeof rentiva_transfer_vars !== 'undefined' && rentiva_transfer_vars.i18n && rentiva_transfer_vars.i18n.same_location_error) {
+                    errorMessage = rentiva_transfer_vars.i18n.same_location_error;
                 }
                 alert(errorMessage);
             }
@@ -38,8 +38,52 @@ jQuery(document).ready(function ($) {
         checkConflict(null, true);
     }, 500); // Wait 500ms for UI libs
 
-    // 2. ON USER CHANGE: Alert loudly
-    $origin.on('change', function () { checkConflict(this, false); });
+    // 2. ON USER CHANGE: Alert loudly & Filter
+    $origin.on('change', function () {
+        var originId = $(this).val();
+
+        if (originId) {
+            // FILTER DROPDOWN: Show only valid destinations
+            if (typeof rentiva_transfer_vars !== 'undefined' && rentiva_transfer_vars.routes) {
+                var validDestinations = [];
+
+                // Find valid destinations for this origin
+                $.each(rentiva_transfer_vars.routes, function (index, route) {
+                    if (route.origin_id == originId) {
+                        validDestinations.push(route.destination_id);
+                    }
+                });
+
+                // Reset and filter Dropoff
+                var currentDest = $destination.val();
+                $destination.find('option').each(function () {
+                    var optVal = $(this).attr('value');
+                    if (optVal === "") return; // Skip placeholder
+
+                    if (validDestinations.includes(optVal)) {
+                        $(this).prop('disabled', false).show(); // Native show
+                    } else {
+                        $(this).prop('disabled', true).hide(); // Native hide
+                    }
+                });
+
+                // If current selection is invalid, reset it
+                if (currentDest && !validDestinations.includes(currentDest)) {
+                    $destination.val('').trigger('change.select2');
+                }
+            }
+        } else {
+            // Reset: Enable all
+            $destination.find('option').prop('disabled', false).show();
+        }
+
+        // Trigger UI updates
+        $destination.trigger('update'); // For some plugins
+
+        // Run standard conflict check
+        checkConflict(this, false);
+    });
+
     $destination.on('change', function () { checkConflict(this, false); });
 
     // --- AJAX Form Submit ---
@@ -57,15 +101,15 @@ jQuery(document).ready(function ($) {
         e.preventDefault();
         var formData = $(this).serialize();
         var searchingText = 'Searching...';
-        if (typeof mhm_transfer_vars !== 'undefined' && mhm_transfer_vars.i18n && mhm_transfer_vars.i18n.searching_text) {
-            searchingText = mhm_transfer_vars.i18n.searching_text;
+        if (typeof rentiva_transfer_vars !== 'undefined' && rentiva_transfer_vars.i18n && rentiva_transfer_vars.i18n.searching_text) {
+            searchingText = rentiva_transfer_vars.i18n.searching_text;
         }
         $('#mhm-transfer-results').html('<div class="mhm-loading"><span class="dashicons dashicons-update"></span> ' + searchingText + '</div>');
 
         $.ajax({
-            url: mhm_transfer_vars.ajax_url,
+            url: rentiva_transfer_vars.ajax_url,
             type: 'POST',
-            data: formData + '&action=mhm_transfer_search&security=' + mhm_transfer_vars.nonce,
+            data: formData + '&action=rentiva_transfer_search&security=' + rentiva_transfer_vars.nonce,
             success: function (response) {
                 if (response.success) {
                     $('#mhm-transfer-results').html(response.data.html);
@@ -74,7 +118,7 @@ jQuery(document).ready(function ($) {
                 }
             },
             error: function () {
-                $('#mhm-transfer-results').html('<div class="mhm-error">' + (mhm_transfer_vars.i18n.error_text || 'Error occurred.') + '</div>');
+                $('#mhm-transfer-results').html('<div class="mhm-error">' + (rentiva_transfer_vars.i18n.error_text || 'Error occurred.') + '</div>');
             }
         });
     });
@@ -86,28 +130,28 @@ jQuery(document).ready(function ($) {
         var vehicleId = btn.data('vehicle-id');
         var transferData = btn.data('transfer-meta');
 
-        var processingText = (typeof mhm_transfer_vars.i18n.processing_text !== 'undefined') ? mhm_transfer_vars.i18n.processing_text : 'Processing...';
+        var processingText = (typeof rentiva_transfer_vars.i18n.processing_text !== 'undefined') ? rentiva_transfer_vars.i18n.processing_text : 'Processing...';
         btn.prop('disabled', true).text(processingText);
 
         $.ajax({
-            url: mhm_transfer_vars.ajax_url,
+            url: rentiva_transfer_vars.ajax_url,
             type: 'POST',
             data: {
-                action: 'mhm_transfer_add_to_cart',
+                action: 'rentiva_transfer_add_to_cart',
                 vehicle_id: vehicleId,
                 transfer_data: transferData,
-                security: mhm_transfer_vars.nonce
+                security: rentiva_transfer_vars.nonce
             },
             success: function (response) {
                 if (response.success) {
-                    window.location.href = mhm_transfer_vars.cart_url;
+                    window.location.href = rentiva_transfer_vars.cart_url;
                 } else {
                     // Reset button state
-                    var bookNowText = (typeof mhm_transfer_vars.i18n.book_now_text !== 'undefined') ? mhm_transfer_vars.i18n.book_now_text : 'Book Now';
+                    var bookNowText = (typeof rentiva_transfer_vars.i18n.book_now_text !== 'undefined') ? rentiva_transfer_vars.i18n.book_now_text : 'Book Now';
                     btn.removeClass('loading').text(btn.data('original-text') || bookNowText);
 
                     // Safely read error message
-                    var msg = (typeof mhm_transfer_vars.i18n.default_error !== 'undefined') ? mhm_transfer_vars.i18n.default_error : "An error occurred.";
+                    var msg = (typeof rentiva_transfer_vars.i18n.default_error !== 'undefined') ? rentiva_transfer_vars.i18n.default_error : "An error occurred.";
                     if (response.data && response.data.message) {
                         msg = response.data.message;
                     }
@@ -116,7 +160,7 @@ jQuery(document).ready(function ($) {
             },
             error: function () {
                 btn.removeClass('loading').text('Error');
-                var serverError = (typeof mhm_transfer_vars.i18n.server_error !== 'undefined') ? mhm_transfer_vars.i18n.server_error : "Server communication error!";
+                var serverError = (typeof rentiva_transfer_vars.i18n.server_error !== 'undefined') ? rentiva_transfer_vars.i18n.server_error : "Server communication error!";
                 alert(serverError);
             }
         });

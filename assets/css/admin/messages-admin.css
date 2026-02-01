@@ -404,7 +404,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.message-thread-header {
 		flex-direction: column;
 		gap: var(--mhm-space-4);

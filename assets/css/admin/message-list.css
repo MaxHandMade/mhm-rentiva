@@ -292,7 +292,7 @@
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-message-list .filter-controls .filter-group {
 		display: block;
 		margin-bottom: 15px;

@@ -33,13 +33,14 @@
 
 .version-badge {
 	display: inline-block;
-	background: rgba(255, 255, 255, 0.2);
-	color: white;
+	background: #2271b1;
+	color: #ffffff;
 	padding: 8px 16px;
 	border-radius: 20px;
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 700;
 	margin-bottom: 8px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .license-badge {
@@ -47,19 +48,21 @@
 	padding: 4px 12px;
 	border-radius: 12px;
 	font-size: 12px;
-	font-weight: 600;
+	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 }
 
 .license-badge.lite {
-	background: rgba(255, 255, 255, 0.3);
-	color: #fff3cd;
+	background: #ffeab6;
+	color: #725300;
+	border: 1px solid #725300;
 }
 
 .license-badge.pro {
-	background: rgba(255, 255, 255, 0.3);
-	color: #d4edda;
+	background: #f0b849;
+	color: #000000;
+	border: 1px solid #755100;
 }
 
 .header-actions {
@@ -836,7 +839,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-about-wrap .about-header {
 		flex-direction: column;
 		text-align: center;
@@ -916,4 +919,106 @@
 	.mhm-about-wrap .welcome-message {
 		padding: 20px;
 	}
+}
+
+/* About Page Grid Layout - STRICT FORCE */
+.mhm-rentiva-about-wrap .mhm-rentiva-about-grid,
+.mhm-rentiva-about-wrap .cards-grid {
+	display: grid !important;
+	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)) !important;
+	gap: 20px !important;
+	width: 100% !important;
+	max-width: none !important;
+	align-items: start !important;
+	box-sizing: border-box !important;
+}
+
+/* Ensure cards inside the grid don't have width restrictions */
+.mhm-rentiva-about-wrap .mhm-rentiva-about-grid .info-card,
+.mhm-rentiva-about-wrap .cards-grid .info-card,
+.mhm-rentiva-about-wrap .card {
+	max-width: none !important;
+	width: 100% !important;
+	margin: 0 !important;
+	/* Prevent margins from breaking grid */
+}
+
+/* Ensure direct children of grid behave correctly */
+.mhm-rentiva-about-grid>*,
+.cards-grid>* {
+	max-width: 100% !important;
+	width: auto !important;
+}
+
+/* Responsive adjustment - Stack on mobile */
+@media (max-width: 782px) {
+
+	.mhm-rentiva-about-wrap .mhm-rentiva-about-grid,
+	.mhm-rentiva-about-wrap .cards-grid {
+		grid-template-columns: 1fr !important;
+	}
+
+	.mhm-rentiva-about-wrap .mhm-admin-header-actions {
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 8px;
+	}
+
+	.mhm-rentiva-about-wrap .mhm-admin-header-actions .button {
+		font-size: 12px;
+		padding: 0 10px;
+		height: 30px;
+	}
+}
+
+/* Small Mobile (max-width: 600px) */
+@media (max-width: 600px) {
+	.mhm-rentiva-about-wrap .mhm-admin-header h1 {
+		font-size: 1.2rem !important;
+	}
+
+	.mhm-rentiva-about-wrap .mhm-admin-header-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.mhm-rentiva-about-wrap .mhm-admin-header-actions .button {
+		width: 100%;
+		justify-content: center;
+	}
+
+	/* Badge scaling */
+	.mhm-rentiva-about-wrap .mhm-badge,
+	.mhm-rentiva-about-wrap .badge,
+	.mhm-rentiva-about-wrap .version-badge {
+		font-size: 10px;
+		padding: 2px 6px;
+	}
+
+	/* Smaller card padding */
+	.mhm-rentiva-about-wrap .info-card,
+	.mhm-rentiva-about-wrap .card {
+		padding: 15px;
+	}
+
+	/* Smaller typography */
+	.mhm-rentiva-about-wrap .header-content h1 {
+		font-size: 1.3em !important;
+	}
+
+	.mhm-rentiva-about-wrap .stats-grid {
+		gap: 10px;
+	}
+
+	.mhm-rentiva-about-wrap .stat-item {
+		padding: 12px;
+	}
+
+	.mhm-rentiva-about-wrap .stat-number {
+		font-size: 1.5em;
+	}
+}
+
+.mhm-rentiva-about-wrap {
+	max-width: none !important;
 }

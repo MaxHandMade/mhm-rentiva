@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 5.0
 Tested up to:      6.9
 Requires PHP:      7.4
-Stable tag:        4.6.7
+Stable tag:        4.9.6
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -45,26 +45,25 @@ mhm-rentiva/
 ├── changelog-tr.json   # Turkish version history
 ├── LICENSE             # GPL License
 ├── readme.txt          # WP.org metadata
-├── README.md           # Documentation (English)
+└── README.md           # Documentation (English)
 └── README-tr.md        # Documentation (Turkish)
 
 == Installation ==
 
-1.  Upload the plugin files to the `/wp-content/plugins/mhm-rentiva` directory, or install the plugin through the WordPress plugins screen directly.
-2.  Activate the plugin through the 'Plugins' screen in WordPress.
-3.  Navigate to the 'Rentiva' menu to configure your settings and add vehicles.
-4.  Use the shortcodes `[mhm_rentiva_vehicles]`, `[mhm_rentiva_search]` or `[mhm_rentiva_transfer_search]` to display your fleet and booking forms.
+1. Upload the plugin files to the `/wp-content/plugins/mhm-rentiva` directory, or install the plugin through the WordPress plugins screen directly.
+2. Activate the plugin through the 'Plugins' screen in WordPress.
+3. Use the Settings menu to configure your vehicle features, equipment, and module preferences.
 
 == Frequently Asked Questions ==
 
-= Does this plugin require WooCommerce? =
-Yes, MHM Rentiva requires WooCommerce for all frontend booking and payment processing actions. This ensures secure and standard payment handling for your customers. However, administrators can create and manage manual bookings in the backend without WooCommerce.
+= Does it work with WooCommerce? =
+Yes, MHM Rentiva is designed to work seamlessly with WooCommerce for secure payment processing and checkout.
 
-= Can I accept credit card payments? =
-Yes, via the WooCommerce integration. You can use any payment gateway supported by WooCommerce (Stripe, PayPal, Bank Transfer, Cash on Delivery, etc.) to accept payments on your rental site.
+= Can I add custom features to vehicles? =
+Absolutely. You can add, rename, or remove custom features and equipment via the Vehicle Settings page.
 
-= Is it compatible with the latest WordPress version? =
-Yes, we actively test and update the plugin to ensure compatibility with the latest WordPress releases.
+= Is it mobile-ready? =
+Yes, all frontend components and admin settings are fully responsive.
 
 == Screenshots ==
 
@@ -74,7 +73,104 @@ Yes, we actively test and update the plugin to ensure compatibility with the lat
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
- 
+
+= 4.9.6 =
+* **Performance:** Overall code optimization and performance improvements.
+* **Refactoring:** CSS architecture cleanup and refactoring for better maintainability.
+* **Markup:** Updated HTML structure for the Availability Calendar for better accessibility and design.
+* **i18n:** Added new translation files and improved existing strings.
+* **Transfer Module:** Finalized prefix standardization (rentiva_) and database migration logic.
+
+= 4.9.2 =
+* Optimization: Standardized the Transfer Search shortcode from `mhm_rentiva_transfer_search` to `rentiva_transfer_search` for prefix consistency.
+* Compatibility: Added a backward compatibility alias for the old transfer shortcode.
+* Documentation: Updated "Kısa Kod Sayfaları" and official documentation to reflect naming standards.
+
+= 4.9.1 =
+* Optimization: Refactored deprecated jQuery methods (.bind, .unbind) to modern standards (.on, .off).
+* Performance: Implemented passive event listeners for scroll and touch events to improve PageSpeed scores.
+* Fix: Resolved a critical Red Error in Vehicle Editor by fixing nonce mismatch and missing script dependencies.
+* Fix: Synchronized plugin version constants and headers.
+
+= 4.9.0 =
+* **Default Value Persistence:** Ensured that the default 10% deposit is saved as a real value in the database even if the field is left empty.
+* **Auto-Correction Logic:** Implemented logic to treat "0" or empty deposit inputs as the standard 10% fallback during save and load cycles.
+* **UI Clarification:** The "10" value now appears as solid black text (active value) instead of a ghost placeholder when no value is set.
+
+= 4.8.9 =
+* **Universal Default Deposit:** Set the global default deposit to 10% for all vehicles without a defined value.
+* **Safety Cap Enforcement:** Implemented a strict 50% maximum limit for deposit values to prevent over-collection.
+* **Pre-filled Meta:** New vehicles now automatically pre-fill the "Deposit" field with "10" in the admin dashboard.
+
+= 4.8.7 =
+* **Deposit Logic Refactoring:** Restricted the "Deposit" field to strictly accept percentage values (%).
+* **Legacy Support Removal:** Removed support for fixed currency amounts for deposits to ensure pricing consistency.
+* **UI Suffix Upgrade:** Added a permanent "%" unit suffix to the deposit input field in the vehicle meta editor.
+* **Calculation Synchronization:** Optimized the real-time pricing logic to interpret input as a multiplier of the total booking amount.
+* **Sanitization Shield:** Implemented strict 0-100 range validation for deposit values at the database level.
+
+= 4.8.6 =
+* **Ultimate UI Clarity:** Fixed "faint/dimmed" checkboxes and ticks on mobile.
+* **High Contrast Borders:** Implemented 2px thick, dark gray borders (#8c8f94) for better visibility.
+* **Sharp White Ticks:** Switched to a CSS-based border tick for maximum sharpness on blue background.
+* **Opacity Lockdown:** Enforced 100% opacity on all checkbox components to prevent visual dimming.
+
+= 4.8.5 =
+* **Mobile Visual Fix:** Corrected checkbox checkmark (tick) misalignment on mobile viewports.
+* **Absolute Centering:** Implemented an absolute positioning strategy for the `:before` pseudo-element to ensure the tick remains perfectly centered within the 16px box.
+* **CSS Robustness:** Added SVG-based checkmark fallback to guarantee consistent rendering across different browsers.
+
+= 4.8.4 =
+* **UI Precision:** Fixed the misalignment of "Remove" (X) buttons on the Vehicle Settings page.
+* **Flexbox Alignment:** Standardized the checkbox item structure using a master flex container to ensure buttons are pinned to the right and vertically centered.
+* **Mobile Regression Fix:** Forced 100% width and box-sizing on mobile viewports to prevent layout shifting and horizontal overflow.
+* **Asset Versioning:** Incremented version to clear browser and server-side caches.
+
+= 4.8.3 =
+* **UI Standardization:** Introduced the `.mhm-ui-checkbox` global component in `core.css` for consistent design across the whole plugin.
+* **Proportional Scaling:** Standardized checkbox size to 16px and label text to 14px to fix disproportionate scaling issues.
+* **Mobile Fix:** Enforced absolute row alignment for checkboxes and labels on all viewports, preventing vertical stacking bugs on mobile.
+* **Refactoring:** Converted Vehicle Settings and Vehicle Meta boxes to use the new global UI standard.
+
+= 4.8.2 =
+* **UI Reorganization:** Relocated the "Deposit" (Depozito) field to the "Core Details" (Temel Detaylar) section.
+* **Security:** The Deposit field is now permanent and protected against removal to maintain plugin data integrity.
+* **Bug Fix:** Explicitly blocked 'deposit' key deletion in the AJAX removal handler.
+
+= 4.8.1 =
+* **Restoration:** Missing "Deposit" (Depozito) field restored in core configurations and database fallback.
+* **Data Recovery:** Hardened metadata label retrieval to prevent "Empty Label" syndrome in Add/Edit Vehicle editor.
+* **Hardening:** Added defensive data recovery checks to ensure standard features (Klima, ABS, etc.) are never lost due to corrupted stored values.
+* **Bug Fix:** Fixed destructive save logic in AJAX settings that could overwrite master definitions with empty labels.
+
+= 4.8.0 =
+*   **UI Symmetry & Proportional Harmonization:** Araç Ayarları sayfasındaki tüm checkbox bileşenleri için yeni bir nested mimari (div > label) uygulandı. Tüm bölümlerde (Detaylar, Özellikler, Ekipmanlar) yapısal birlik sağlandı. Ölçüler Checkbox için 16px, metinler için 14px olarak standardize edildi. Mobil görünümde yazıların alta kayması engellendi ve dikey ortalama sorunları giderildi.
+*   **Bug Fix:** Fixed JavaScript SyntaxError in Messages module.
+
+= 4.7.8 =
+*   **Total UI Unification:** Araç Ayarları sayfasındaki checkbox stilleri standardize edildi. Mavi kutu görünümleri kaldırılarak "Görüntüleme Seçenekleri"ndeki temiz beyaz görünüme geçildi. Özel SVG tikleri yerine standart WordPress işaretçileri kullanılarak tam bir görsel bütünlük sağlandı. PHP templatelerindeki tüm inline CSS'ler temizlendi.
+
+= 4.7.7 =
+*   **Tab-Specific Settings Reset:** "Varsayılanlara Dön" butonu artık sekmeye duyarlı çalışıyor. "Alan Tanımları" sekmesindeyken yapılan reset işlemi "Görüntüleme Seçenekleri"ni bozmuyor, aynı şekilde tersi de geçerli. Dosya sonundaki sözdizimi hataları temizlendi.
+
+= 4.7.6 =
+*   **Data Persistence & Auto-Recovery:** Araç özelliklerinin kaybolmasına neden olan yıkıcı kaydetme mantığı kaldırıldı. Veritabanından gelen boş etiketlerin ana listeyi bozmasını engelleyen "yalnızca doluysa birleştir" mantığı getirildi. Standart etiketler için otomatik kurtarma sistemi devreye alındı.
+
+= 4.7.5 =
+*   **Data Persistence & Label Recovery:** Ayar kaydedildiğinde etiketlerin ve özel alanların veritabanından silinmesine neden olan mantık hatası düzeltildi. Seçim durumu (checked) ile alan tanımı (label/key) arasındaki mantıksal ayrım güçlendirildi. Standart etiketlerin bozulma durumunda otomatik kurtarılması sağlandı.
+
+= 4.7.4 =
+*   **Functional Restoration & Tick Alignment:** Checkbox tıklanabilirlik sorunu giderildi. Tıklanamayan onay kutuları `appearance: none` refaktörü ile düzeltildi. Tik işareti sadece seçili olduğunda görünecek şekilde CSS mantığı güncellendi ve merkezlendi.
+
+= 4.7.3 =
+*   **UI Precision & Structural Sync:** Checkbox onay işaretlerinin (tick) aşağı kayma sorunu CSS pseudo-element müdahalesiyle çözüldü. "Araç Özellikleri" bölüm yapısı "Araç Ekipmanları" ile senkronize edilerek mobildeki sıkışmalar giderildi ve görsel simetri sağlandı.
+
+= 4.7.2 =
+*   **UI Polish & Scaling:** Araç Ayarları sayfası için kompakt tasarım ve kesin mobil taşma koruması uygulandı. Padding ve font boyutları WordPress standartlarına çekildi, mobildeki tüm taşmalar (overflow) agresif CSS kurallarıyla engellendi.
+
+= 4.7.1 =
+*   **Vehicle Settings UI Hotfix:** Gereğinden fazla özelleştirilmiş "mavi" checkbox stilleri geri çekilerek standart WordPress görünümü sağlandı. Mobil görünümde uzun etiketlerin taşmasını engellemek için metin kaydırma (white-space: normal) ve üst hizalama (align-items: flex-start) kuralları uygulandı. Sürüm senkronize edildi.
+
 = 4.6.7 =
 * Security: Replaced wp_redirect with wp_safe_redirect for enhanced safety.
 * Compliance: Refactored inline styles to use the native wp_add_inline_style() API.

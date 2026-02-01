@@ -17,19 +17,19 @@
 
         bindEvents() {
             // Kalan tutar ödeme işlemi
-            $(document).on('click', '#process-remaining-payment', this.handleRemainingPayment.bind(this));
+            $(document).on('click', '#process-remaining-payment', (e) => this.handleRemainingPayment(e));
 
             // Ödeme onaylama
-            $(document).on('click', '#approve-payment', this.handleApprovePayment.bind(this));
+            $(document).on('click', '#approve-payment', (e) => this.handleApprovePayment(e));
 
             // Rezervasyon iptal etme
-            $(document).on('click', '#cancel-booking', this.handleCancelBooking.bind(this));
+            $(document).on('click', '#cancel-booking', (e) => this.handleCancelBooking(e));
 
             // İade işleme
-            $(document).on('click', '#process-refund', this.handleProcessRefund.bind(this));
+            $(document).on('click', '#process-refund', (e) => this.handleProcessRefund(e));
 
             // Durum güncelleme
-            $(document).on('click', '#update-status', this.handleUpdateStatus.bind(this));
+            $(document).on('click', '#update-status', (e) => this.handleUpdateStatus(e));
         }
 
         handleRemainingPayment(e) {

@@ -267,7 +267,7 @@
                 grid_type: gridId.replace('-grid', ''),
                 order: order,
                 post_id: $('#post_ID').val(),
-                nonce: $('#mhm_rentiva_vehicle_meta_nonce').val()
+                nonce: window.mhmVehicleMeta?.nonce || $('#mhm_rentiva_vehicle_meta_nonce').val()
             },
             success: function (response) {
                 if (response.success) {

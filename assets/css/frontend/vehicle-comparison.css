@@ -580,7 +580,7 @@
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-comparison-header {
 		flex-direction: column;
 		gap: 15px;
@@ -913,7 +913,7 @@
 	display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 
 	/* Hide Table on Mobile */
 	.rv-comparison-table-wrapper {

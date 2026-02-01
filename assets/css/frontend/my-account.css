@@ -1062,7 +1062,7 @@ input[type="text"].password-input {
 	}
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.booking-item {
 		grid-template-columns: 1fr;
 		gap: 15px;
@@ -1245,7 +1245,7 @@ input[type="text"].password-input {
 }
 
 /* Responsive Payment History */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.payment-header {
 		flex-direction: column;
 		align-items: stretch;
@@ -1568,7 +1568,7 @@ input[type="text"].password-input {
 /* Notification System - Moved to global notifications.css */
 
 /* Mobile Responsive */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-rentiva-register-page {
 		margin: 20px;
 		padding: 0 10px;

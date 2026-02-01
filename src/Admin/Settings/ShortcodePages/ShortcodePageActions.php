@@ -21,7 +21,7 @@ final class ShortcodePageActions
 	 */
 	public function get_config(): array
 	{
-		return array(
+		$config = array(
 			'rentiva_my_bookings'           => array(
 				'title'       => __('My Bookings', 'mhm-rentiva'),
 				'slug'        => 'my-bookings',
@@ -93,12 +93,25 @@ final class ShortcodePageActions
 				'slug'        => 'contact-form',
 				'description' => __('Contact form page - customers can send messages to admin', 'mhm-rentiva'),
 			),
+			'rentiva_messages'              => array(
+				'title'       => __('Messages', 'mhm-rentiva'),
+				'slug'        => 'my-messages',
+				'description' => __('User messages and notifications', 'mhm-rentiva'),
+			),
+			'rentiva_transfer_search'       => array(
+				'title'       => __('Transfer Search', 'mhm-rentiva'),
+				'slug'        => 'transfer-search',
+				'description' => __('Search for transfer services', 'mhm-rentiva'),
+			),
 			'rentiva_vehicle_rating_form'   => array(
 				'title'       => __('Vehicle Rating Form', 'mhm-rentiva'),
 				'slug'        => 'vehicle-rating-form',
 				'description' => __('Vehicle rating and review form - customers can rate and review vehicles', 'mhm-rentiva'),
 			),
 		);
+
+		ksort($config);
+		return $config;
 	}
 
 	/**
@@ -167,9 +180,69 @@ final class ShortcodePageActions
 			'rentiva_booking_form'          => '[rentiva_booking_form vehicle_id="1"]',
 			'rentiva_booking_confirmation'  => '[rentiva_booking_confirmation booking_id="1"]',
 			'rentiva_vehicle_rating_form'   => '[rentiva_vehicle_rating_form vehicle_id="1"]',
+			'rentiva_transfer_search'       => '[rentiva_transfer_search]',
 			default                         => '[' . $shortcode . ']',
 		};
 
 		return sprintf("<!-- wp:shortcode -->\n%s\n<!-- /wp:shortcode -->", $markup);
+	}
+
+	/**
+	 * Reset all shortcode pages (Factory Reset).
+	 * Deletes all pages and clears mappings.
+	 */
+	public function reset_pages(): bool
+	{
+		$shortcodes = array_keys($this->get_config());
+		$settings   = get_option('mhm_rentiva_settings', array());
+		$changed    = false;
+
+		foreach ($shortcodes as $sc) {
+			$page_id = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_id($sc);
+			if ($page_id) {
+				// Permanently delete post (bypass trash as requested by "Factory Reset" context)
+				wp_delete_post($page_id, true);
+				$changed = true;
+			}
+
+			// Also check for manual URL overrides in settings
+			$setting_key = $this->get_setting_key_for_sc($sc);
+			if ($setting_key && isset($settings[$setting_key])) {
+				unset($settings[$setting_key]);
+				$changed = true;
+			}
+		}
+
+		if ($changed) {
+			update_option('mhm_rentiva_settings', $settings);
+			\MHMRentiva\Admin\Core\ShortcodeUrlManager::clear_cache();
+		}
+
+		return true;
+	}
+
+	/**
+	 * Helper to get setting key for shortcode (DRY from ShortcodeUrlManager)
+	 */
+	private function get_setting_key_for_sc(string $shortcode): ?string
+	{
+		$mapping = array(
+			'rentiva_booking_form'          => 'mhm_rentiva_booking_url',
+			'rentiva_my_bookings'           => 'mhm_rentiva_my_bookings_url',
+			'rentiva_my_favorites'          => 'mhm_rentiva_my_favorites_url',
+			'rentiva_payment_history'       => 'mhm_rentiva_payment_history_url',
+			'rentiva_messages'              => 'mhm_rentiva_messages_url',
+			'rentiva_account_details'       => 'mhm_rentiva_account_details_url',
+			'rentiva_vehicles_list'         => 'mhm_rentiva_vehicles_list_url',
+			'rentiva_vehicles_grid'         => 'mhm_rentiva_vehicles_grid_url',
+			'rentiva_search'                => 'mhm_rentiva_search_url',
+			'rentiva_search_results'        => 'mhm_rentiva_search_results_url',
+			'rentiva_contact'               => 'mhm_rentiva_contact_url',
+			'rentiva_availability_calendar' => 'mhm_rentiva_availability_calendar_url',
+			'rentiva_booking_confirmation'  => 'mhm_rentiva_booking_confirmation_url',
+			'rentiva_transfer_search'       => 'mhm_rentiva_transfer_url',
+		);
+
+		return $mapping[$shortcode] ?? null;
 	}
 }

@@ -7,7 +7,7 @@
  * @since 4.3.5
  */
 
-jQuery( document ).ready(
+jQuery(document).ready(
 	function ($) {
 		'use strict';
 
@@ -17,22 +17,22 @@ jQuery( document ).ready(
 		 */
 		function cleanFormInputs(form) {
 			// Get all input, select, textarea elements (but NOT checkboxes)
-			var $inputs = $( form ).find( 'input:not([type="checkbox"]), select, textarea' );
+			var $inputs = $(form).find('input:not([type="checkbox"]), select, textarea');
 
 			$inputs.each(
 				function () {
-					var $input = $( this );
-					var value  = $input.val();
+					var $input = $(this);
+					var value = $input.val();
 
-					// Sadece null veya undefined ise boş string yap.
-					// "0" değerini silmemeye dikkat et! (User Request Fix)
+					// Make empty string only if null or undefined.
+					// Don't delete "0" value! (User Request Fix)
 					if (value === null || value === undefined) {
-						$input.val( '' );
+						$input.val('');
 					}
 				}
 			);
 
-			if (window.mhm_rentiva_config ? .debug) {
+			if (window.mhm_rentiva_config && window.mhm_rentiva_config.debug) {
 
 			}
 			return true;
@@ -41,30 +41,30 @@ jQuery( document ).ready(
 		/**
 		 * Attach form submit handler to settings form
 		 */
-		$( '#mhm-settings-main-form' ).on(
+		$('#mhm-settings-main-form').on(
 			'submit',
 			function (e) {
-				if (window.mhm_rentiva_config ? .debug) {
+				if (window.mhm_rentiva_config && window.mhm_rentiva_config.debug) {
 
 				}
-				cleanFormInputs( this );
+				cleanFormInputs(this);
 			}
 		);
 
 		/**
 		 * Also attach to any WordPress settings forms
 		 */
-		$( 'form[action="options.php"]' ).on(
+		$('form[action="options.php"]').on(
 			'submit',
 			function (e) {
-				if (window.mhm_rentiva_config ? .debug) {
+				if (window.mhm_rentiva_config && window.mhm_rentiva_config.debug) {
 
 				}
-				cleanFormInputs( this );
+				cleanFormInputs(this);
 			}
 		);
 
-		if (window.mhm_rentiva_config ? .debug) {
+		if (window.mhm_rentiva_config && window.mhm_rentiva_config.debug) {
 
 		}
 	}

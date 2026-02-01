@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings\View;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
 /**
  * Interface for Settings Tab Renderers
  */
-interface TabRendererInterface {
+interface TabRendererInterface
+{
 
 	/**
 	 * Render the tab content
@@ -40,4 +41,11 @@ interface TabRendererInterface {
 	 * @return bool
 	 */
 	public function should_wrap_with_form(): bool;
+
+	/**
+	 * Get additional header actions (buttons) for this tab.
+	 *
+	 * @return array
+	 */
+	public function get_header_actions(): array;
 }

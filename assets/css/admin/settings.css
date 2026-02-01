@@ -128,7 +128,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-settings-layout {
 		flex-direction: column;
 		gap: var(--mhm-space-4);
@@ -372,7 +372,7 @@
 	text-align: right;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.submit-section {
 		position: sticky;
 		bottom: 0;
@@ -545,7 +545,7 @@ input:checked+.mhm-toggle-slider:before {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-settings-form {
 		padding: 15px;
 	}
@@ -625,3 +625,132 @@ input:checked+.mhm-toggle-slider:before {
 	color: #646970;
 	line-height: 1.4;
 }
+
+/* Developer Mode Banner */
+.mhm-dev-mode-banner {
+	margin: 20px 0;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.mhm-dev-banner-content {
+	padding: 12px;
+	border-left: 4px solid #135e96;
+	background: #2271b1;
+	color: #fff;
+	border-radius: 4px;
+}
+
+/* =================================================================
+   Vehicle Settings Mobile Responsive (Araç Ayarları)
+   WordPress Breakpoints: 782px (tablet), 600px (mobile)
+   ================================================================= */
+
+/* Tablet & Mobile (max-width: 782px) */
+@media screen and (max-width: 782px) {
+
+	/* Action button groups - wrap and center */
+	.mhm-section-actions,
+	.mhm-button-row,
+	.mhm-action-buttons {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		justify-content: center;
+	}
+
+	.mhm-section-actions .button,
+	.mhm-button-row .button,
+	.mhm-action-buttons .button {
+		flex: 1 1 auto;
+		min-width: 100px;
+		max-width: 150px;
+		font-size: 11px;
+		padding: 0 8px;
+		height: 28px;
+		white-space: nowrap;
+	}
+
+	/* Checkbox grids - force single column */
+	.mhm-checkbox-grid,
+	.mhm-features-grid,
+	.mhm-equipment-grid,
+	.mhm-details-grid {
+		grid-template-columns: 1fr !important;
+		gap: 8px;
+	}
+
+	/* Form sections - tighter spacing */
+	.mhm-settings-section,
+	.mhm-form-section {
+		padding: 15px;
+		margin-bottom: 15px;
+	}
+
+	/* Section headers */
+	.mhm-settings-section h3,
+	.mhm-form-section h3 {
+		font-size: 15px;
+		margin-bottom: 12px;
+	}
+
+	/* Custom add fields - stack */
+	.mhm-custom-field-add,
+	.mhm-add-custom-row {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 10px;
+	}
+
+	.mhm-custom-field-add input,
+	.mhm-add-custom-row input {
+		width: 100%;
+		max-width: none;
+	}
+
+	.mhm-custom-field-add .button,
+	.mhm-add-custom-row .button {
+		width: 100%;
+	}
+}
+
+/* Small Mobile (max-width: 600px) */
+@media screen and (max-width: 600px) {
+
+	/* Stack all action buttons vertically */
+	.mhm-section-actions,
+	.mhm-button-row,
+	.mhm-action-buttons {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.mhm-section-actions .button,
+	.mhm-button-row .button,
+	.mhm-action-buttons .button {
+		max-width: none;
+		width: 100%;
+		justify-content: center;
+	}
+
+	/* Tighter form sections */
+	.mhm-settings-section,
+	.mhm-form-section {
+		padding: 12px;
+	}
+
+	/* Checkbox items - smaller padding */
+	.mhm-checkbox-item,
+	.mhm-feature-item,
+	.mhm-equipment-item {
+		padding: 8px 10px;
+	}
+
+	/* Labels */
+	.mhm-checkbox-item label,
+	.mhm-feature-item label,
+	.mhm-equipment-item label {
+		font-size: 12px;
+	}
+}
+
+/* End of general settings */

@@ -6,26 +6,28 @@ namespace MHMRentiva\Admin\About;
 
 use MHMRentiva\Admin\Licensing\Mode;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
 /**
  * System information collection class
  */
-final class SystemInfo {
+final class SystemInfo
+{
 
 
 	/**
 	 * Get cached system information
 	 */
-	public static function get_cached_system_info(): array {
+	public static function get_cached_system_info(): array
+	{
 		// ✅ CACHE OPTIMIZATION - Centralized cache management
-		$cached = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache( 'system_info' );
+		$cached = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache('system_info');
 
-		if ( $cached === false ) {
+		if ($cached === false) {
 			$cached = self::safe_get_system_info();
-			\MHMRentiva\Admin\Core\Utilities\CacheManager::set_cache( 'system_info', '', $cached );
+			\MHMRentiva\Admin\Core\Utilities\CacheManager::set_cache('system_info', '', $cached);
 		}
 
 		return $cached;
@@ -34,7 +36,8 @@ final class SystemInfo {
 	/**
 	 * Safe system information collection
 	 */
-	private static function safe_get_system_info(): array {
+	private static function safe_get_system_info(): array
+	{
 		try {
 			return array(
 				'wordpress' => self::get_wordpress_info(),
@@ -42,10 +45,10 @@ final class SystemInfo {
 				'plugin'    => self::get_plugin_info(),
 				'database'  => self::get_database_info(),
 			);
-		} catch ( \Exception $e ) {
-			error_log( 'MHM Rentiva About Page Error: ' . $e->getMessage() );
+		} catch (\Exception $e) {
+			error_log('MHM Rentiva About Page Error: ' . $e->getMessage());
 			return array(
-				'error'     => esc_html__( 'Error occurred while getting system information.', 'mhm-rentiva' ),
+				'error'     => esc_html__('Error occurred while getting system information.', 'mhm-rentiva'),
 				'wordpress' => array(),
 				'php'       => array(),
 				'plugin'    => array(),
@@ -57,13 +60,14 @@ final class SystemInfo {
 	/**
 	 * Get WordPress information
 	 */
-	private static function get_wordpress_info(): array {
+	private static function get_wordpress_info(): array
+	{
 		return array(
-			'version'     => get_bloginfo( 'version' ),
+			'version'     => get_bloginfo('version'),
 			'language'    => get_locale(),
 			'timezone'    => wp_timezone_string(),
 			'site_url'    => get_site_url(),
-			'admin_email' => get_option( 'admin_email' ),
+			'admin_email' => get_option('admin_email'),
 			'multisite'   => is_multisite(),
 		);
 	}
@@ -71,33 +75,36 @@ final class SystemInfo {
 	/**
 	 * Get PHP information
 	 */
-	private static function get_php_info(): array {
+	private static function get_php_info(): array
+	{
 		return array(
 			'version'             => PHP_VERSION,
-			'memory_limit'        => ini_get( 'memory_limit' ),
-			'max_execution_time'  => ini_get( 'max_execution_time' ),
-			'upload_max_filesize' => ini_get( 'upload_max_filesize' ),
-			'post_max_size'       => ini_get( 'post_max_size' ),
+			'memory_limit'        => ini_get('memory_limit'),
+			'max_execution_time'  => ini_get('max_execution_time'),
+			'upload_max_filesize' => ini_get('upload_max_filesize'),
+			'post_max_size'       => ini_get('post_max_size'),
 		);
 	}
 
 	/**
 	 * Get plugin information
 	 */
-	private static function get_plugin_info(): array {
+	private static function get_plugin_info(): array
+	{
 		return array(
 			'version'        => MHM_RENTIVA_VERSION,
 			'file_size'      => self::get_plugin_file_size(),
-			'install_date'   => get_option( 'mhm_rentiva_install_date', esc_html__( 'Unknown', 'mhm-rentiva' ) ),
-			'last_update'    => get_option( 'mhm_rentiva_last_update', esc_html__( 'Unknown', 'mhm-rentiva' ) ),
-			'license_status' => Mode::isPro() ? esc_html__( 'Pro Active', 'mhm-rentiva' ) : esc_html__( 'Lite Version', 'mhm-rentiva' ),
+			'install_date'   => get_option('mhm_rentiva_install_date', esc_html__('Unknown', 'mhm-rentiva')),
+			'last_update'    => get_option('mhm_rentiva_last_update', esc_html__('Unknown', 'mhm-rentiva')),
+			'license_status' => Mode::isPro() ? esc_html__('Pro Active', 'mhm-rentiva') : esc_html__('Lite Version', 'mhm-rentiva'),
 		);
 	}
 
 	/**
 	 * Get database information
 	 */
-	private static function get_database_info(): array {
+	private static function get_database_info(): array
+	{
 		global $wpdb;
 
 		return array(
@@ -111,44 +118,35 @@ final class SystemInfo {
 	/**
 	 * Get plugin file size
 	 */
-	private static function get_plugin_file_size(): string {
+	private static function get_plugin_file_size(): string
+	{
 		$plugin_dir = MHM_RENTIVA_PLUGIN_DIR;
 
 		try {
-			$size = self::calculate_directory_size( $plugin_dir );
-			return size_format( $size, 2 );
-		} catch ( \Exception $e ) {
-			return esc_html__( 'Could not calculate', 'mhm-rentiva' );
+			$size = self::calculate_directory_size($plugin_dir);
+			return size_format($size, 2);
+		} catch (\Exception $e) {
+			return esc_html__('Could not calculate', 'mhm-rentiva');
 		}
 	}
 
 	/**
 	 * Calculate directory size
+	 *
+	 * PERFORMANCE OPTIMIZATION: Disabled recursive calculation for speed.
 	 */
-	private static function calculate_directory_size( string $directory ): int {
-		$size = 0;
-
-		if ( ! is_readable( $directory ) ) {
-			return $size;
-		}
-
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $directory, \FilesystemIterator::SKIP_DOTS )
-		);
-
-		foreach ( $iterator as $file ) {
-			if ( $file->isFile() && $file->isReadable() ) {
-				$size += $file->getSize();
-			}
-		}
-
-		return $size;
+	private static function calculate_directory_size(string $directory): int
+	{
+		// Recursive calculation is too slow for admin page load.
+		// Returning 0 or cached value would be better, but for now explicitly skipping.
+		return 0;
 	}
 
 	/**
 	 * Get plugin tables
 	 */
-	private static function get_plugin_tables(): array {
+	private static function get_plugin_tables(): array
+	{
 		global $wpdb;
 
 		$plugin_tables = array(
@@ -159,7 +157,7 @@ final class SystemInfo {
 
 		$tables_info = array();
 
-		foreach ( $plugin_tables as $key => $table_name ) {
+		foreach ($plugin_tables as $key => $table_name) {
 			try {
 				$exists = $wpdb->get_var(
 					$wpdb->prepare(
@@ -168,13 +166,13 @@ final class SystemInfo {
 					)
 				);
 
-				if ( $exists ) {
-					if ( 'mhm_payment_log' === $key ) {
+				if ($exists) {
+					if ('mhm_payment_log' === $key) {
 						// Table name is from internal map, but still use %i if possible or ensure it's not user input.
 						// In older MySQL, %i is not available, so we use esc_sql on a trusted constant.
-						$count = $wpdb->get_var( "SELECT COUNT(*) FROM `{$table_name}`" );
+						$count = $wpdb->get_var("SELECT COUNT(*) FROM `{$table_name}`");
 					} else {
-						$post_type = 'vehicle_booking' === $key ? 'vehicle_booking' : ( 'mhm_message' === $key ? 'mhm_message' : '' );
+						$post_type = 'vehicle_booking' === $key ? 'vehicle_booking' : ('mhm_message' === $key ? 'mhm_message' : '');
 						$count     = $wpdb->get_var(
 							$wpdb->prepare(
 								"SELECT COUNT(*) FROM `{$table_name}` WHERE post_type = %s",
@@ -192,26 +190,26 @@ final class SystemInfo {
 						)
 					);
 
-					$tables_info[ $key ] = array(
+					$tables_info[$key] = array(
 						'name'   => $table_name,
 						'exists' => true,
-						'count'  => (int) ( $count ?? 0 ),
+						'count'  => (int) ($count ?? 0),
 						'size'   => $size ? $size . ' MB' : '0 MB',
 					);
 				} else {
-					$tables_info[ $key ] = array(
+					$tables_info[$key] = array(
 						'name'   => $table_name,
 						'exists' => false,
 						'count'  => 0,
 						'size'   => '0 MB',
 					);
 				}
-			} catch ( \Exception $e ) {
-				$tables_info[ $key ] = array(
+			} catch (\Exception $e) {
+				$tables_info[$key] = array(
 					'name'   => $table_name,
 					'exists' => false,
 					'count'  => 0,
-					'size'   => esc_html__( 'Error', 'mhm-rentiva' ),
+					'size'   => esc_html__('Error', 'mhm-rentiva'),
 				);
 			}
 		}

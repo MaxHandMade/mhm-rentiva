@@ -560,7 +560,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-rentiva-dashboard-stats {
 		grid-template-columns: 1fr;
 	}

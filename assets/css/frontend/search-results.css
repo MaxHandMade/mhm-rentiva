@@ -725,7 +725,7 @@
 }
 
 /* Responsive Adjustments */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 
 	/* Grid becomes 1 column */
 	.rv-layout-grid .rv-vehicle-grid-wrapper {
@@ -866,7 +866,7 @@
 	}
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-search-results {
 		padding: 15px;
 	}

@@ -248,7 +248,7 @@
 }
 
 /* Mobile: Stacked 1 Column */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-search-form {
 		padding: 15px;
 	}

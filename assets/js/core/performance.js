@@ -358,7 +358,7 @@
                 }
             };
 
-            $(window).on('scroll', scrollHandler);
+            window.addEventListener('scroll', scrollHandler, { passive: true });
         },
 
         /**

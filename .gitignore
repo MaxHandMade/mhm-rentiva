@@ -1,86 +1,193 @@
-# User Request: Local Dev Files
-specs/
-# Original Rules Restored ----------------
+# ============================================================================
+# MHM Rentiva - WordPress Plugin
+# .gitignore - Repository Standardization (v4.6.7)
+# Last Updated: 2026-02-01
+# ============================================================================
 
-# WordPress & Plugin defaults
-*.log
-*.tmp
-*.bak
+# ============================================================================
+# SECTION 1: OS & System Files
+# ============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
 *.swp
+*.swo
+*~
+
+# ============================================================================
+# SECTION 2: IDE & Editor Configurations
+# ============================================================================
 .vscode/
 .idea/
 .cursor/
-.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+.buildpath
+*.code-workspace
+.helix/
+.nvim/
 
-# Languages (keep only pot, tr_TR po and mo files)
-languages/*-backup-*.pot~
-languages/*-backup-*.po~
-languages/*.mo
-!languages/mhm-rentiva-tr_TR.mo
-languages/*.l10n.php
-languages/*-*.json
-languages/mhm-rentiva-en_US.*
+# ============================================================================
+# SECTION 3: Dependency Managers
+# ============================================================================
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+.yarn/
+package-lock.json
 
-# Composer
+# Composer (vendor is excluded, but composer.json is kept for reference)
 vendor/
+composer.lock
+.phpunit.result.cache
 
-# Ignore zip releases
-*.zip
-
-# Local config
+# ============================================================================
+# SECTION 4: WordPress & Local Environment
+# ============================================================================
 wp-config.php
+.htaccess
+error_log
+debug.log
+*.log
+wp-content/debug.log
+wp-content/uploads/
 
-# Test documentation (keep local only)
-TEST-GUIDE.md
-TEST-CHECKLIST.md
+# ============================================================================
+# SECTION 5: Build & Compiled Assets
+# ============================================================================
+*.map
+*.min.css.map
+*.min.js.map
+build/
+dist/
+.cache/
 
-# Plugin specific
-# Documentation website source
-website/
-
-# Temporary utilities
-# Developer & Test scripts
+# ============================================================================
+# SECTION 6: Testing & Development Tools
+# ============================================================================
+# PHPUnit & Testing
 tests/
 phpunit.xml
+phpunit.xml.dist
+.phpcs.xml.dist
+phpcs.xml
+phpcs*.txt
+coverage/
+.coverage/
+
+# Test Scripts (Root Level)
 test_*.php
 debug_*.php
+check_*.php
+*_test.php
+*_debug.php
+*_analiz.php
+analiz*.php
+ayarlar_*.php
 master_validation_test.php
 test_results.txt
 AUDIT_REPORT_*.md
+
+# ============================================================================
+# SECTION 7: MHM Rentiva - Local Development Exclusions
+# ============================================================================
+# Temporary & Backup Files
+*.tmp
+*.bak
+*.backup
+*-backup-*
+*-yedek-*
+yedek/
+temp/
+tmp/
+
+# Development Scripts
 generate-clean-pot.php
 update-pot-ultimate.php
+update_refund_text.php
+test-i18n.php
 wp-stubs.php
 stubs.php
 reset_endpoints.php
 mhm-tools.php
 flush_rules.php
-update_refund_text.php
-test-i18n.php
+shortcode_analiz.php
 
-# ----------------------------------------
-# AI Agent & Dev Tools Exclusions (Requested)
-# ----------------------------------------
-# Tooling Configs
-.phpcs.xml.dist
-phpcs.xml
-phpunit.xml.dist
-composer.json
-composer.lock
-
-# Directories & Tooling
-bin/
+# Development Directories
+specs/
 stubs/
+bin/
 website/
 .github/
 .clinerules/
 .clinerules
 
-# Specific Scripts
-update-pot-ultimate.php
-phpcs_summary.txt
-phpcs_current_summary.txt
-phpcs_final_sweep.txt
-phpcs_final_status.txt
-phpcs_final_status_utf8.txt
-phpcs_php_only_summary.txt
-phpcs_summary_utf8.txt
+# Test Documentation
+TEST-GUIDE.md
+TEST-CHECKLIST.md
+
+# ============================================================================
+# SECTION 8: Language Files (Selective)
+# ============================================================================
+# Keep: mhm-rentiva.pot, mhm-rentiva-tr_TR.po, mhm-rentiva-tr_TR.mo
+# Keep: mhm-rentiva-de_DE.po, mhm-rentiva-de_DE.mo (German)
+languages/*-backup-*.pot~
+languages/*-backup-*.po~
+languages/*.l10n.php
+languages/*-*.json
+languages/mhm-rentiva-en_US.*
+
+# ============================================================================
+# SECTION 9: Archives & Releases
+# ============================================================================
+*.zip
+*.tar.gz
+*.rar
+releases/
+
+# ============================================================================
+# SECTION 10: Security - Sensitive Files
+# ============================================================================
+.env
+.env.*
+*.pem
+*.key
+*.crt
+config.local.php
+secrets.php
+credentials.php
+
+# ============================================================================
+# SECTION 11: Agent & AI Tool Artifacts
+# ============================================================================
+# Note: .agent/ is kept for workflow definitions
+.agent/skills/*/examples/
+.agent/skills/*/scripts/__pycache__/
+*.pyc
+
+# ============================================================================
+# ESSENTIAL DIRECTORIES TO TRACK (Reference - Not Rules)
+# ============================================================================
+# ✅ ALWAYS TRACK:
+# - src/           (Core PHP classes)
+# - templates/     (Template files)
+# - assets/        (CSS, JS, Images)
+# - languages/     (POT, PO, MO files - main ones)
+# - .agent/        (Workflow definitions)
+# - mhm-rentiva.php (Main plugin file)
+# - uninstall.php  (Uninstall script)
+# - readme.txt     (WP.org readme)
+# - README.md      (GitHub readme)
+# - LICENSE        (License file)
+# - changelog.json (Version history)
+# ============================================================================

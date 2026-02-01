@@ -154,8 +154,8 @@ final class VehicleMeta extends AbstractMetaBox
 			wp_enqueue_script(
 				'mhm-vehicle-meta-js',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/components/vehicle-meta.js',
-				array('jquery'),
-				MHM_RENTIVA_VERSION . '-' . time(),
+				array('jquery', 'jquery-ui-sortable'),
+				MHM_RENTIVA_VERSION,
 				true
 			);
 
@@ -163,8 +163,12 @@ final class VehicleMeta extends AbstractMetaBox
 				'mhm-vehicle-meta-js',
 				'mhmVehicleMeta',
 				array(
+					'ajaxUrl' => admin_url('admin-ajax.php'),
+					'nonce'   => wp_create_nonce('mhm_vehicle_meta_nonce'),
 					'strings' => array(
 						'orderUpdated'           => __('Order updated!', 'mhm-rentiva'),
+						'orderSaveError'         => __('Failed to save order', 'mhm-rentiva'),
+						'ajaxError'              => __('AJAX error: Failed to save order', 'mhm-rentiva'),
 						'enterNewFeature'        => __('Enter new feature name:', 'mhm-rentiva'),
 						'enterNewEquipment'      => __('Enter new equipment name:', 'mhm-rentiva'),
 						'enterNewDetail'         => __('Enter new detail name:', 'mhm-rentiva'),
@@ -275,9 +279,14 @@ final class VehicleMeta extends AbstractMetaBox
 			$available_value = self::normalize_availability($available_value);
 		}
 
-		$detail_values = array();
 		foreach ($available_details as $key => $label) {
 			$detail_values[$key] = $meta_data['_mhm_rentiva_' . $key] ?? '';
+
+			// Default Deposit: 10% (v4.9.0)
+			// Treat empty, null, or '0' as 10 to ensure persistence and visual clarity
+			if ($key === 'deposit' && ($detail_values[$key] === '' || $detail_values[$key] === null || $detail_values[$key] === '0' || $detail_values[$key] === 0)) {
+				$detail_values[$key] = '10';
+			}
 
 			if (strpos($key, 'custom_') === 0) {
 			}
@@ -597,9 +606,15 @@ final class VehicleMeta extends AbstractMetaBox
 				return self::sanitize_text_field_safe($value);
 
 			case 'mhm_rentiva_deposit':
-				$clean_value = str_replace(array('%', ' '), '', $value);
-				$deposit     = floatval($clean_value);
-				return max(0, $deposit);
+				$clean_value = str_replace(array('%', ' '), '', (string)$value);
+
+				// If empty, force default 10 (v4.9.0)
+				if ($clean_value === '') {
+					return 10.0;
+				}
+
+				$deposit = floatval($clean_value);
+				return max(0, min(50, $deposit));
 
 			case 'mhm_rentiva_available':
 				$allowed = array('active', 'passive', 'maintenance', '1', '0');
@@ -987,15 +1002,28 @@ final class VehicleMeta extends AbstractMetaBox
 	/**
 	 * Build available fields
 	 */
-	private static function build_available_fields(array $selected_fields, array $default_fields, array $custom_fields): array
+	private static function build_available_fields(array $selected_fields, array $stored_fields, array $custom_fields): array
 	{
 		$available_fields = array();
 
 		foreach ($selected_fields as $key) {
-			if (isset($default_fields[$key])) {
-				$available_fields[$key] = $default_fields[$key];
-			} elseif (isset($custom_fields[$key])) {
+			if (! empty($stored_fields[$key])) {
+				$available_fields[$key] = $stored_fields[$key];
+			} elseif (! empty($custom_fields[$key])) {
 				$available_fields[$key] = $custom_fields[$key];
+			} else {
+				// DATA RECOVERY FALLBACK: If label is missing from stored options, search in hardcoded defaults
+				$all_defaults = array_merge(
+					self::get_default_details(),
+					self::get_default_features(),
+					self::get_default_equipment()
+				);
+				if (isset($all_defaults[$key])) {
+					$available_fields[$key] = $all_defaults[$key];
+				} else {
+					// Last resort: use the key name as label
+					$available_fields[$key] = ucwords(str_replace('_', ' ', (string) $key));
+				}
 			}
 		}
 

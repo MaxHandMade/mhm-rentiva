@@ -136,7 +136,7 @@
 
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.filters-row {
 		grid-template-columns: 1fr;
 		gap: 10px;

@@ -68,25 +68,25 @@
 
         bindEvents() {
             // Vehicle change
-            $(document).on('change', '.rv-vehicle-dropdown', this.handleVehicleChange.bind(this));
+            $(document).on('change', '.rv-vehicle-dropdown', (e) => this.handleVehicleChange(e));
 
             // Change Vehicle button
-            $(document).on('click', '.rv-switch-vehicle-btn', this.handleVehicleSwitch.bind(this));
+            $(document).on('click', '.rv-switch-vehicle-btn', (e) => this.handleVehicleSwitch(e));
 
             // Fallback vehicle selector
-            $(document).on('change', '#rv-availability-vehicle-select-fallback', this.handleVehicleChange.bind(this));
+            $(document).on('change', '#rv-availability-vehicle-select-fallback', (e) => this.handleVehicleChange(e));
 
             // Month navigation
-            $(document).on('click', '.rv-control-btn', this.handleMonthNavigation.bind(this));
+            $(document).on('click', '.rv-control-btn', (e) => this.handleMonthNavigation(e));
 
             // Date selection
-            $(document).on('click', '.rv-calendar-day:not(.rv-day-empty):not(.rv-past):not(.rv-status-booked):not(.rv-status-maintenance)', this.handleDateClick.bind(this));
+            $(document).on('click', '.rv-calendar-day:not(.rv-day-empty):not(.rv-past):not(.rv-status-booked):not(.rv-status-maintenance)', (e) => this.handleDateClick(e));
 
             // Booking button
-            $(document).on('click', '.rv-book-now-btn', this.handleBookingClick.bind(this));
+            $(document).on('click', '.rv-book-now-btn', (e) => this.handleBookingClick(e));
 
             // Keyboard navigation
-            $(document).on('keydown', '.rv-calendar-day', this.handleKeyboardNavigation.bind(this));
+            $(document).on('keydown', '.rv-calendar-day', (e) => this.handleKeyboardNavigation(e));
 
             // Favorite button
             $(document).on('click', '.rv-vcal-favorite-btn', (e) => this.handleFavoriteClick(e));

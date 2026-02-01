@@ -12,6 +12,7 @@ if (! defined('ABSPATH')) {
 
 final class LicenseAdmin
 {
+	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
 
 	/**
@@ -38,7 +39,7 @@ final class LicenseAdmin
 
 
 
-	public static function render_page(): void
+	public function render_page(): void
 	{
 		if (! current_user_can('manage_options')) {
 			wp_die(esc_html__('You do not have permission to access this page.', 'mhm-rentiva'));
@@ -51,9 +52,17 @@ final class LicenseAdmin
 		$is_active        = $license->isActive();
 
 		echo '<div class="wrap mhm-rentiva-wrap">';
-		echo '<h1 class="wp-heading-inline">' . esc_html__('License Management', 'mhm-rentiva') . '</h1>';
-		\MHMRentiva\Admin\Core\Utilities\UXHelper::render_docs_button();
-		echo '<hr class="wp-header-end">';
+
+		$this->render_admin_header(
+			(string) get_admin_page_title(),
+			array(
+				array(
+					'type' => 'documentation',
+					'url'  => \MHMRentiva\Admin\Core\Utilities\UXHelper::get_docs_url(),
+				),
+			)
+		);
+
 		echo '<p class="description">' . esc_html__('Enter your license key to enable Pro features (unlimited vehicles/bookings, export, advanced reports).', 'mhm-rentiva') . '</p>';
 
 		// Developer mode warning - only show if no real license is active

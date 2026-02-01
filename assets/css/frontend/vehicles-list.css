@@ -298,7 +298,7 @@
 }
 
 /* 10. Handheld Devices Optimization */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.rv-vehicles-list-container .rv-vehicle-card--list {
 		flex-direction: column;
 	}

@@ -1,0 +1,281 @@
+/* 
+ * MHM Rentiva - Vehicle Settings Page Styles (v4.8.0 - UI Symmetry)
+ * Purpose: Standardizes proportions and structural alignment across all sections.
+ */
+
+/* ---------------------------------------------------------
+   1. GLOBAL SCALE & CONTAINER NORMALIZATION
+   --------------------------------------------------------- */
+.mhm-settings-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Compact Premium Card */
+.mhm-settings-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #d1d5db;
+    box-sizing: border-box;
+    height: fit-content;
+    overflow: hidden;
+}
+
+.mhm-settings-card h2 {
+    font-size: 1rem !important;
+    margin-bottom: 4px !important;
+    color: #1e293b;
+    font-weight: 600 !important;
+}
+
+.mhm-settings-card p {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 12px;
+}
+
+/* ---------------------------------------------------------
+   2. UNIFIED CHECKBOX COMPONENT (SYM_v4.8.0)
+   --------------------------------------------------------- */
+.mhm-checkbox-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+/* Local checkbox item wrapper - Master flex container for labels and X buttons */
+.mhm-checkbox-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 6px 12px !important;
+    background: #ffffff !important;
+    border: 1px solid #ccd0d4 !important;
+    border-radius: 4px !important;
+    transition: all 0.15s ease !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+}
+
+.mhm-checkbox-item:hover {
+    background: #f6f7f7 !important;
+    border-color: #949494 !important;
+}
+
+/* Inner label - Handles checkbox and text spacing */
+.mhm-checkbox-label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-grow: 1 !important;
+    cursor: pointer !important;
+    margin: 0 !important;
+}
+
+/* Removal Button Precision (Centering and Padding) */
+.mhm-checkbox-item .button-link[class*="remove-"] {
+    padding: 0 5px !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 24px;
+    height: 24px;
+}
+
+/* Standardization for Core Details (No buttons) */
+.mhm-checkbox-item:not(.mhm-removable-item) {
+    justify-content: flex-start !important;
+}
+
+/* High Contrast Scaling & Tick Alignment (v4.8.6 - ULTIMATE CLARITY) */
+.mhm-checkbox-item input[type="checkbox"],
+.mhm-ui-checkbox input[type="checkbox"] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-color: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 16px !important;
+    height: 16px !important;
+    border: 2px solid #8c8f94 !important;
+    /* Bold, dark border */
+    border-radius: 2px !important;
+    cursor: pointer !important;
+    position: relative !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+    flex-shrink: 0 !important;
+    opacity: 1 !important;
+    /* Force high visibility */
+}
+
+/* Checked State: Vibrant Blue Background */
+.mhm-checkbox-item input[type="checkbox"]:checked,
+.mhm-ui-checkbox input[type="checkbox"]:checked {
+    background-color: #2271b1 !important;
+    border-color: #2271b1 !important;
+}
+
+/* Sharp White Tick Mark - CSS Border Method for maximum sharpness */
+.mhm-checkbox-item input[type="checkbox"]:checked:before,
+.mhm-ui-checkbox input[type="checkbox"]:checked:before {
+    content: "" !important;
+    position: absolute !important;
+    left: 4px !important;
+    top: 1px !important;
+    width: 4px !important;
+    height: 8px !important;
+    border: solid #ffffff !important;
+    border-width: 0 2px 2px 0 !important;
+    transform: rotate(45deg) !important;
+    margin: 0 !important;
+    display: block !important;
+}
+
+.mhm-checkbox-item span {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #2c3338 !important;
+    line-height: 1.4 !important;
+}
+
+/* Section Sub-titles */
+.mhm-card-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px !important;
+    margin-top: 10px;
+}
+
+.mhm-card-section-header h4 {
+    margin: 0 !important;
+    font-size: 11px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+}
+
+/* Header Actions Scaling */
+.mhm-category-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.mhm-category-actions .button {
+    font-size: 11px !important;
+    height: 24px !important;
+    line-height: 22px !important;
+    padding: 0 8px !important;
+}
+
+/* ---------------------------------------------------------
+   3. DISPLAY OPTIONS SPECIFIC (Comparison Table)
+   --------------------------------------------------------- */
+.mhm-field-category {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.mhm-category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.mhm-field-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.mhm-section-subtitle {
+    margin: 0 !important;
+    margin-bottom: 10px !important;
+    font-size: 13px !important;
+    color: #64748b;
+    font-weight: 600 !important;
+}
+
+/* ---------------------------------------------------------
+   4. DEFINITIVE MOBILE RESPONSIVENESS (782px Breakpoint)
+   --------------------------------------------------------- */
+@media screen and (max-width: 782px) {
+    .mhm-settings-container {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    .mhm-settings-card {
+        padding: 12px !important;
+        width: 100% !important;
+    }
+
+    .mhm-checkbox-list,
+    .mhm-field-list {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+    }
+
+    /* Force ABSOLUTE Row Consistency */
+    .mhm-checkbox-item,
+    .mhm-checkbox-label {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .mhm-checkbox-item {
+        min-height: 48px !important;
+        /* Better touch target */
+        padding: 10px 15px !important;
+    }
+
+    .mhm-checkbox-item span {
+        font-size: 14px !important;
+        white-space: normal !important;
+        flex-grow: 1 !important;
+    }
+
+    .mhm-vehicle-settings-wrapper .mhm-admin-header-actions {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        margin-top: 15px !important;
+    }
+
+    .mhm-vehicle-settings-wrapper .mhm-admin-header-actions .button {
+        width: 100% !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+    }
+}
+
+/* Definitive Overflow Shield */
+.mhm-rentiva-page-vehicle-settings #wpbody-content {
+    overflow-x: hidden !important;
+}

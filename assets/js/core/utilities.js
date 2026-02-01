@@ -90,11 +90,11 @@
                 const scrollHandler = this.throttle(() => {
                     if (this.isInViewport($el)) {
                         callback($el);
-                        $(window).off('scroll', scrollHandler);
+                        window.removeEventListener('scroll', scrollHandler);
                     }
                 }, 100);
 
-                $(window).on('scroll', scrollHandler);
+                window.addEventListener('scroll', scrollHandler, { passive: true });
             }
         },
 

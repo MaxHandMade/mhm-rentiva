@@ -1,6 +1,11 @@
 /**
  * MHM Rentiva Shortcode Pages Admin Styles
  */
+.mhm-rentiva-admin .mhm-admin-header h1 {
+	font-weight: 600;
+	color: #1d2327;
+}
+
 .mhm-rentiva-admin .button-link-delete {
 	color: #b32d2e !important;
 	border-color: #b32d2e !important;
@@ -41,4 +46,117 @@
 	display: flex;
 	gap: 10px;
 	margin-bottom: 5px;
+}
+
+/** Statistics Cards */
+.mhm-rentiva-admin .mhm-stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 20px;
+	margin-bottom: 30px;
+}
+
+.mhm-rentiva-admin .mhm-stats-grid .card {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+	padding: 20px;
+	margin: 0;
+	border-radius: 4px;
+	transition: transform 0.2s ease;
+}
+
+.mhm-rentiva-admin .mhm-stats-grid .card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.mhm-rentiva-admin .mhm-stats-grid .card p {
+	font-size: 13px;
+	color: #646970;
+	margin: 0 0 10px 0;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.mhm-rentiva-admin .mhm-stats-grid .card h4 {
+	font-size: 28px;
+	margin: 0;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+/* =================================================================
+   Mobile Responsive - Shortcode Pages
+   ================================================================= */
+
+/* Table Wrapper - Enable horizontal scroll */
+.mhm-shortcode-pages-table-wrapper {
+	width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+@media screen and (max-width: 782px) {
+
+	/* Table minimum width to prevent squeezing */
+	.mhm-shortcode-pages-table-wrapper table {
+		min-width: 650px;
+	}
+
+	/* Table cell adjustments */
+	.mhm-shortcode-pages-table-wrapper th,
+	.mhm-shortcode-pages-table-wrapper td {
+		padding: 8px 6px;
+		font-size: 12px;
+	}
+
+	/* Action buttons stack vertically */
+	.mhm-rentiva-admin .mhm-action-buttons {
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.mhm-rentiva-admin .mhm-action-buttons .button {
+		width: 100%;
+		text-align: center;
+		font-size: 11px;
+		padding: 4px 8px;
+	}
+
+	/* Stats grid single column */
+	.mhm-rentiva-admin .mhm-stats-grid {
+		grid-template-columns: 1fr;
+		gap: 12px;
+	}
+
+	.mhm-rentiva-admin .mhm-stats-grid .card {
+		padding: 15px;
+	}
+
+	.mhm-rentiva-admin .mhm-stats-grid .card h4 {
+		font-size: 24px;
+	}
+}
+
+@media screen and (max-width: 600px) {
+
+	/* Even smaller cells */
+	.mhm-shortcode-pages-table-wrapper th,
+	.mhm-shortcode-pages-table-wrapper td {
+		padding: 6px 4px;
+		font-size: 11px;
+	}
+
+	/* Shortcode tag smaller */
+	.mhm-rentiva-admin .mhm-shortcode-tag {
+		font-size: 10px;
+		padding: 1px 4px;
+	}
+
+	/* Hide URL column on very small screens */
+	.mhm-shortcode-pages-table-wrapper th:nth-child(3),
+	.mhm-shortcode-pages-table-wrapper td:nth-child(3) {
+		display: none;
+	}
 }

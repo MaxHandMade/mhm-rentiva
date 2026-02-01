@@ -113,7 +113,7 @@ final class ShortcodeUrlManager
                   AND post_content REGEXP %s
                   ORDER BY post_date DESC 
                   LIMIT 1",
-				'\[' . $wpdb->esc_like($shortcode) . '(\]| )'
+				'\[' . $shortcode . '(\]| |=)'
 			)
 		);
 
@@ -147,7 +147,7 @@ final class ShortcodeUrlManager
 			'rentiva_contact',
 			'rentiva_testimonials',
 			'rentiva_vehicle_rating_form',
-			'mhm_rentiva_transfer_search',
+			'rentiva_transfer_search',
 		);
 	}
 
@@ -202,7 +202,7 @@ final class ShortcodeUrlManager
 			'rentiva_contact'               => 'mhm_rentiva_contact_url',
 			'rentiva_availability_calendar' => 'mhm_rentiva_availability_calendar_url',
 			'rentiva_booking_confirmation'  => 'mhm_rentiva_booking_confirmation_url',
-			'mhm_rentiva_transfer_search'   => 'mhm_rentiva_transfer_url',
+			'rentiva_transfer_search'       => 'mhm_rentiva_transfer_url',
 		);
 
 		return $mapping[$shortcode] ?? null;

@@ -232,7 +232,7 @@
 	/* Only show on mobile or when specified */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.mhm-dashboard-widget h3::after {
 		opacity: 0.6;
 	}

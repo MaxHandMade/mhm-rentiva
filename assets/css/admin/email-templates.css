@@ -339,7 +339,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 782px) {
 	.email-template-cards {
 		grid-template-columns: 1fr;
 		gap: 15px;
