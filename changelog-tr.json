@@ -1,8 +1,20 @@
 [
     {
+        "version": "4.9.6",
+        "date": "2026-02-02",
+        "type": "current",
+        "changes": [
+            "⚡ PERFORMANS: Genel kod optimizasyonu ve performans iyileştirmeleri.",
+            "🔧 REFACTORING: Daha iyi bakım için CSS mimarisinin temizlenmesi ve yeniden yapılandırılması.",
+            "🎨 İŞARETLEME: Müsaitlik Takvimi için HTML yapısı daha iyi erişilebilirlik ve tasarım için güncellendi.",
+            "🌐 i18n: Yeni çeviri dosyaları eklendi ve mevcut çeviriler iyileştirildi.",
+            "🚀 TRANSFER MODÜLÜ: Ön ek standardizasyonu (rentiva_) ve veritabanı taşıma mantığı tamamlandı."
+        ]
+    },
+    {
         "version": "4.6.7",
         "date": "2026-02-01",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🛡️ GÜVENLİK: Yönlendirme güvenliğini artırmak için Handler.php dosyasında wp_redirect yerine wp_safe_redirect kullanımına geçildi.",
             "🎨 STANDARTLAR: Restrictions.php içindeki satır içi CSS kodları wp_add_inline_style API'sine taşındı.",

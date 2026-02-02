@@ -53,7 +53,7 @@
 - **DatePicker Modernization:** jQuery UI DatePicker now matches the high-end MHM design with custom header colors.
 
 ## [SCHEDULE & STATUS]
-- **Current Version:** 4.9.4 (Harmonization)
+- **Current Version:** 4.9.6 (Release) [DOĞRULANDI]
 - **Global Compliance:** 100% English primary language, i18n ready.
 - **FSE Support:** Fully compatible with WordPress 6.2+ Site Editor.
 - **Next Milestone:** Shortcode Enhancement & Block Conversion Phase.
@@ -180,7 +180,7 @@
   - **Admin UI:** Updated `TransferAdmin.php` to correctly reference new table names and option keys, ensuring the admin panel reflects the modernized architecture.
   - **Version Bump:** Incremented plugin version to v4.9.5.
 
-### [COMPLETED] Release v4.9.6
+### [COMPLETED] [DOĞRULANDI] Release v4.9.6
 - **Status:** Done
 - **Scope:** Maintenance release focusing on performance, CSS architecture, and HTML structure updates.
 - **Key Changes:**

@@ -1,8 +1,20 @@
 [
     {
+        "version": "4.9.6",
+        "date": "2026-02-02",
+        "type": "current",
+        "changes": [
+            "⚡ PERFORMANCE: Overall code optimization and performance improvements.",
+            "🔧 REFACTORING: CSS architecture cleanup and refactoring for better maintainability.",
+            "🎨 MARKUP: Updated HTML structure for the Availability Calendar for better accessibility and design.",
+            "🌐 i18n: Added new translation files and improved existing strings.",
+            "🚀 TRANSFER MODULE: Finalized prefix standardization (rentiva_) and database migration logic."
+        ]
+    },
+    {
         "version": "4.6.7",
         "date": "2026-02-01",
-        "type": "current",
+        "type": "previous",
         "changes": [
             "🛡️ SECURITY: Replaced wp_redirect with wp_safe_redirect in Handler.php for enhanced redirection safety.",
             "🎨 STANDARDS: Refactored inline styles in Restrictions.php to use wp_add_inline_style API.",
