@@ -189,7 +189,7 @@ final class TabRendererRegistry
 				'system',
 				__('Monitor and configure system health, security, and performance.', 'mhm-rentiva'),
 				null,
-				array('mhm_rentiva_core_section', 'mhm_rentiva_ip_control_section', 'mhm_rentiva_security_rules_section', 'mhm_rentiva_authentication_section')
+				array('mhm_rentiva_core_section', 'mhm_rentiva_ip_control_section', 'mhm_rentiva_security_rules_section', 'mhm_rentiva_authentication_section', 'mhm_rentiva_maintenance_section')
 			)
 		);
 

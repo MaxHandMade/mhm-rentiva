@@ -196,37 +196,6 @@ WHERE meta_key = %s AND meta_value != ''
 					'value'    => $expires_value,
 					'data_key' => '',
 				);
-			} elseif (isset($license_data['expires']) && ! empty($license_data['expires'])) {
-				// Fallback for old format.
-				$expires_timestamp = is_numeric($license_data['expires']) ? (int) $license_data['expires'] : strtotime($license_data['expires']);
-				$expires_date      = date_i18n(get_option('date_format'), $expires_timestamp);
-				$is_expired        = $expires_timestamp < time();
-
-				// Calculate days remaining
-				$current_time   = time();
-				$days_remaining = $is_expired ? 0 : (int) floor(($expires_timestamp - $current_time) / DAY_IN_SECONDS);
-
-				$expires_value = $expires_date;
-				if (! $is_expired) {
-					if (0 === $days_remaining) {
-						$expires_value .= ' (' . __('Expires today', 'mhm-rentiva') . ')';
-					} elseif (1 === $days_remaining) {
-						$expires_value .= ' (' . __('1 day remaining', 'mhm-rentiva') . ')';
-					} else {
-						/* translators: %d: number of days. */
-						$days_text      = sprintf(__('%d days remaining', 'mhm-rentiva'), $days_remaining);
-						$expires_value .= ' (' . $days_text . ')';
-					}
-				} else {
-					$expires_value .= ' (' . __('Expired', 'mhm-rentiva') . ')';
-				}
-
-				$license_info[] = array(
-					'type'     => 'key-value',
-					'label'    => __('Expires On:', 'mhm-rentiva'),
-					'value'    => $expires_value,
-					'data_key' => '',
-				);
 			}
 		}
 

@@ -18,21 +18,27 @@ $tabs        = $args['tabs'] ?? array();
 $renderer    = $args['renderer'] ?? null;
 ?>
 <div class="wrap mhm-settings-page">
-	<?php
-	if (isset($args['header_html'])) {
-		echo $args['header_html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	} else {
-		echo '<h1>' . esc_html(get_admin_page_title()) . '</h1>';
-	}
+	<div class="mhm-settings-header">
+		<?php
+		if (isset($args['header_html'])) {
+			echo $args['header_html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		} else {
+			echo '<h1>' . esc_html(get_admin_page_title()) . '</h1>';
+		}
+		?>
+	</div>
 
-	// Display Pro feature notices if available (Inside wrap for proper layout)
-	if (class_exists('\MHMRentiva\Admin\Core\ProFeatureNotice')) {
-		\MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice('settings');
-	}
+	<div class="mhm-settings-notices">
+		<?php
+		// Display Pro feature notices if available
+		if (class_exists('\MHMRentiva\Admin\Core\ProFeatureNotice')) {
+			\MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice('settings');
+		}
 
-	// Standard WordPress settings messages
-	settings_errors('mhm_rentiva_messages');
-	?>
+		// Standard WordPress settings messages
+		settings_errors();
+		?>
+	</div>
 
 	<div class="mhm-settings-layout">
 		<!-- Sidebar Navigation -->

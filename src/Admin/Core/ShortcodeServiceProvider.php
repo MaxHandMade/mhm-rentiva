@@ -111,13 +111,18 @@ final class ShortcodeServiceProvider
 					'dependencies'  => array(),
 					'requires_auth' => false,
 				),
+				'rentiva_featured_vehicles'  => array(
+					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\FeaturedVehicles::class,
+					'dependencies'  => array(),
+					'requires_auth' => false,
+				),
 				'rentiva_vehicles_grid'      => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesGrid::class,
 					'dependencies'  => array(),
 					'requires_auth' => false,
 				),
 				'rentiva_search'             => array(
-					'class'         => \MHMRentiva\Admin\Vehicle\Frontend\VehicleSearch::class,
+					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\VehicleSearch::class,
 					'dependencies'  => array(),
 					'requires_auth' => false,
 				),
@@ -221,29 +226,34 @@ final class ShortcodeServiceProvider
 			return;
 		}
 
-		// Handle classes with their own register method (Legacy compatibility)
+		// Register class-internal hooks and AJAX handlers
 		if (method_exists($class, 'register') && ! isset($this->initialized_classes[$class])) {
-			$class::register();
 			$this->initialized_classes[$class] = true;
-			// Note: We don't return here because we want to track it in $registered_shortcodes
+			$class::register();
 		}
 
-		// Determine callback
+		// Register the shortcode
 		$callback = $this->resolve_callback($class, $config);
 
 		if ($callback && is_callable($callback)) {
-			// Wrap callback for security/auth checks
-			add_shortcode(
-				$tag,
-				function ($atts, $content = null) use ($tag, $callback, $config) {
-					return $this->handle_shortcode_execution($tag, $callback, $config, $atts, $content);
-				}
-			);
-
+			$this->register_tag($tag, $callback, $config);
 			$this->registered_shortcodes[$tag] = $config;
 		} else {
 			$this->log_error(sprintf('No valid callback found for shortcode: %s', $tag));
 		}
+	}
+
+	/**
+	 * Internal helper to actually call add_shortcode with safety wrapper
+	 */
+	private function register_tag(string $tag, callable $callback, array $config): void
+	{
+		add_shortcode(
+			$tag,
+			function ($atts, $content = null) use ($tag, $callback, $config) {
+				return $this->handle_shortcode_execution($tag, $callback, $config, $atts, $content);
+			}
+		);
 	}
 
 	/**

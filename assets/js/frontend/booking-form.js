@@ -417,8 +417,14 @@
                         options.maxDate = '+' + window.mhmRentivaBookingForm.config.advance_booking_days + 'd';
                     }
 
+                    // Destroy existing instances to prevent "Missing instance data" errors
+                    if ($input.hasClass('hasDatepicker') || $input.data('datepicker')) {
+                        try { $input.datepicker('destroy'); } catch (e) { }
+                        $input.removeClass('hasDatepicker').removeData('datepicker').off('.datepicker');
+                    }
+
                     // Force initialization
-                    $input.datepicker('destroy').datepicker(options);
+                    $input.datepicker(options);
 
                     if (originalValue) {
                         try {

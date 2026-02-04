@@ -43,13 +43,7 @@ final class TransferSettingsRenderer extends AbstractTabRenderer
 				'class' => 'button button-secondary',
 				'icon'  => 'dashicons-networking',
 			),
-			array(
-				'text'  => __('Reset This Tab', 'mhm-rentiva'),
-				'url'   => '#',
-				'class' => 'button button-link-delete mhm-reset-tab-settings',
-				'icon'  => 'dashicons-undo',
-				'data'  => array('tab' => $this->slug),
-			),
+			$this->get_standard_reset_action(),
 		);
 	}
 

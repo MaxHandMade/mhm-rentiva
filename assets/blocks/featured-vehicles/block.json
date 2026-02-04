@@ -1,0 +1,58 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/featured-vehicles",
+    "version": "1.0.0",
+    "title": "Featured Vehicles (Slider)",
+    "category": "mhm-rentiva-blocks",
+    "icon": "slides",
+    "description": "Display a slider or grid of featured vehicles.",
+    "supports": {
+        "html": false,
+        "align": [
+            "wide",
+            "full"
+        ],
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    },
+    "textdomain": "mhm-rentiva",
+    "attributes": {
+        "title": {
+            "type": "string",
+            "default": "Featured Vehicles"
+        },
+        "limit": {
+            "type": "string",
+            "default": "6"
+        },
+        "layout": {
+            "type": "string",
+            "default": "slider"
+        },
+        "columns": {
+            "type": "string",
+            "default": "3"
+        },
+        "ids": {
+            "type": "string",
+            "default": ""
+        },
+        "category": {
+            "type": "string",
+            "default": ""
+        },
+        "autoplay": {
+            "type": "string",
+            "default": "1"
+        },
+        "interval": {
+            "type": "string",
+            "default": "5000"
+        }
+    },
+    "editorScript": "file:./index.js",
+    "style": "file:../../css/frontend/featured-vehicles.css"
+}

@@ -14,9 +14,24 @@
 	font-family: var(--mhm-font-primary);
 }
 
+/* Support for Gutenberg Background and Text Colors */
+.wp-block-mhm-rentiva-search.has-background .rv-search-form,
+.wp-block-mhm-rentiva-search[style*="background"] .rv-search-form {
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+}
+
+.wp-block-mhm-rentiva-search.has-text-color .rv-search-form,
+.wp-block-mhm-rentiva-search.has-text-color .rv-search-form label,
+.wp-block-mhm-rentiva-search.has-text-color .rv-search-form h3 {
+	color: inherit !important;
+}
+
 /* Header - Hidden per user request */
+/* Header - Visible */
 .rv-search-header {
-	display: none;
+	display: block;
 	text-align: center;
 	margin-bottom: 30px;
 	padding-bottom: 20px;
@@ -80,6 +95,19 @@
 	border-color: var(--mhm-primary);
 	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-primary), transparent 90%);
 }
+
+/* Custom Select Arrow for Full Layout - Frontend */
+.rv-search-field select {
+	appearance: none !important;
+	-webkit-appearance: none !important;
+	-moz-appearance: none !important;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 16px center;
+	padding-right: 40px !important;
+}
+
+/* Editor fixes are handled by block-editor-fixes.css */
 
 .rv-search-field input::placeholder {
 	color: var(--mhm-gray-400);
@@ -154,80 +182,27 @@
 	==========================================================================
 */
 
-/* Desktop: Horizontal Layout */
+/* Desktop: Standard Grid Layout */
 @media (min-width: 1024px) {
 	.rv-search-form {
-		padding: 24px;
-		max-width: 100%;
+		padding: 30px;
 	}
 
-	/* Flex container for all inputs */
-	.rv-search-filters {
-		display: flex;
-		flex-wrap: nowrap;
-		gap: 12px;
-		margin-bottom: 0px;
-		align-items: flex-end;
-		/* Aligns inputs and button to button */
-	}
-
-	/* Remove grid structure */
 	.rv-search-row {
-		display: contents;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		/* 3 columns for easier reading */
+		gap: 20px;
 	}
 
 	.rv-search-keyword {
-		grid-column: auto;
+		grid-column: 1 / -1;
+		/* Keyword spans full width */
 	}
 
-	.rv-search-field {
-		flex: 1;
-		min-width: 140px;
-		margin-bottom: 0px;
-		justify-content: flex-end;
-	}
-
-	.rv-search-field label {
-		white-space: nowrap;
-		font-size: 13px;
-		margin-bottom: 6px;
-	}
-
-	.rv-search-field input,
-	.rv-search-field select {
-		padding: 12px 16px;
-		/* Standardize padding */
-		height: 46px;
-		/* Explicit height for alignment */
-	}
-
-	.rv-search-keyword input {
-		padding: 12px 16px;
-		/* Reset special padding */
-		font-size: 14px;
-	}
-
-	/* Action buttons inline */
 	.rv-search-actions {
-		display: inline-flex;
-		margin-top: 0px;
-		padding-top: 0px;
-		border-top: none;
-		margin-left: 12px;
-		align-items: flex-end;
-	}
-
-	.rv-search-btn {
-		height: 46px;
-		/* Match input height */
-		padding: 0 30px;
-		margin-bottom: 0px;
-		white-space: nowrap;
-	}
-
-	/* Hide Reset Button on Desktop */
-	.rv-reset-btn {
-		display: none !important;
+		justify-content: flex-end;
+		/* Right align buttons */
 	}
 }
 
@@ -533,108 +508,6 @@
 	.rv-result-card {
 		border-color: var(--mhm-black);
 	}
-}
-
-/* jQuery UI DatePicker Fix */
-.ui-datepicker {
-	z-index: 9999 !important;
-	position: absolute !important;
-	background: var(--mhm-bg-card) !important;
-	border: 1px solid var(--mhm-border-primary) !important;
-	border-radius: 6px !important;
-	box-shadow: var(--mhm-shadow-lg) !important;
-	font-family: var(--mhm-font-primary) !important;
-}
-
-.ui-datepicker-header {
-	background: var(--mhm-bg-secondary) !important;
-	border-bottom: 1px solid var(--mhm-border-primary) !important;
-	padding: 10px !important;
-}
-
-.ui-datepicker-title {
-	font-weight: 600 !important;
-	color: var(--mhm-text-primary) !important;
-}
-
-.ui-datepicker-prev,
-.ui-datepicker-next {
-	background-color: var(--mhm-btn-bg) !important;
-	color: var(--mhm-btn-color) !important;
-	border: none !important;
-	border-radius: 4px !important;
-	padding: 5px 10px !important;
-	cursor: pointer !important;
-}
-
-.ui-datepicker-prev:hover,
-.ui-datepicker-next:hover {
-	background-color: var(--mhm-btn-hover-bg) !important;
-}
-
-.ui-datepicker-calendar {
-	margin: 0 !important;
-	border-collapse: collapse !important;
-	width: 100% !important;
-}
-
-.ui-datepicker-calendar th,
-.ui-datepicker-calendar td {
-	padding: 8px !important;
-	text-align: center !important;
-	border: 1px solid var(--mhm-gray-100) !important;
-}
-
-.ui-datepicker-calendar th {
-	background: var(--mhm-bg-secondary) !important;
-	font-weight: 600 !important;
-	color: var(--mhm-text-secondary) !important;
-	font-size: 12px !important;
-}
-
-.ui-datepicker-calendar td a {
-	display: block !important;
-	padding: 8px !important;
-	text-decoration: none !important;
-	color: var(--mhm-text-primary) !important;
-	border-radius: 4px !important;
-	transition: all 0.2s ease !important;
-}
-
-.ui-datepicker-calendar td a:hover {
-	background: var(--mhm-bg-secondary) !important;
-	color: var(--mhm-btn-bg) !important;
-}
-
-.ui-datepicker-calendar .ui-state-active {
-	background-color: var(--mhm-btn-bg) !important;
-	color: var(--mhm-btn-color) !important;
-}
-
-.ui-datepicker-calendar .ui-state-active:hover {
-	filter: brightness(110%) !important;
-}
-
-.ui-datepicker-buttonpane {
-	background: var(--mhm-bg-secondary) !important;
-	border-top: 1px solid var(--mhm-border-primary) !important;
-	padding: 10px !important;
-	text-align: center !important;
-}
-
-.ui-datepicker-buttonpane button {
-	background-color: var(--mhm-btn-bg) !important;
-	color: var(--mhm-btn-color) !important;
-	border: none !important;
-	border-radius: 4px !important;
-	padding: 8px 16px !important;
-	margin: 0 5px !important;
-	cursor: pointer !important;
-	font-size: 14px !important;
-}
-
-.ui-datepicker-buttonpane button:hover {
-	filter: brightness(110%) !important;
 }
 
 /* Toast Notification */

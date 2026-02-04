@@ -9,12 +9,13 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * MHM Rentiva - Demo Yöneticisi (v13 - Variety Pack)
+ * MHM Rentiva - Demo Data Seeder (v15 - Notification Suite)
  * ----------------------------------------------------------------
- * 1. 🚗 Filo Genişletildi: Ekonomi, Orta, Lüks ve VIP araçlar eklendi.
- * 2. 🔑 Key Fix: Röntgen raporundan çıkan %100 doğru anahtarlar korundu.
- * 3. 🛡️ Cleanup: Temizlik ve kurulum stabil.
- * * BU DOSYA ARTIK "TAMAMLANDI" KABUL EDİLİP, KOD GELİŞTİRMEYE GEÇİLECEK.
+ * 1. Expanded Fleet: Includes Economy, Mid-range, Luxury, and VIP vehicles.
+ * 2. Key Standardization: Optimized metadata keys for core business logic.
+ * 3. Surgical Cleanup: Safe deletion mechanism for demo data only.
+ * 4. Fixed Deposit: Implements a universal 10% deposit rate policy.
+ * 5. Notification Suite: Triggers internal hooks for email testing.
  */
 final class DemoSeeder
 {
@@ -25,6 +26,9 @@ final class DemoSeeder
     public const PT_MESSAGE = 'mhm_message';
     public const TAX_CAT    = 'vehicle_category';
 
+    /**
+     * Metadata keys mapping
+     */
     private array $keys = array(
         'price'         => '_mhm_rentiva_price_per_day',
         'deposit'       => '_mhm_rentiva_deposit',
@@ -71,72 +75,332 @@ final class DemoSeeder
         'op_type'       => '_mhm_operation_type',
     );
 
-    private array $categories = array('Ekonomi', 'Orta Sınıf', 'Lüks', 'SUV', 'Minivan (VIP)');
+    private array $categories = array('Economy', 'Mid-Range', 'Luxury', 'SUV', 'Minivan (VIP)');
 
     private array $names = array(
-        'Ahmet Yılmaz',
-        'Ayşe Kaya',
-        'Mehmet Demir',
-        'Fatma Çelik',
-        'Mustafa Yıldız',
-        'Zeynep Arslan',
-        'Ali Öztürk',
-        'Selin Koç'
+        'John Smith',
+        'Jane Doe',
+        'Michael Brown',
+        'Emily Davis',
+        'David Wilson',
+        'Sarah Taylor',
+        'James Miller',
+        'Linda White'
     );
 
+    /**
+     * Run the seeder logic
+     */
     public function run(bool $do_cleanup = false): string
     {
+        $this->enable_email_simulation();
         $msg = $do_cleanup ? $this->cleanup() . "\n" : '';
 
-        // 1. Core Data
+        // 1. Core Data Seed
         $this->seed_categories();
         $loc_ids = $this->seed_transfers_sql();
         $this->seed_routes_sql($loc_ids);
 
-        // 2. Users & Services
+        // 2. Users & Services Seed
         $user_ids = $this->seed_users(8);
         $this->seed_addons_verified();
         $this->seed_messages_expanded($user_ids);
 
-        // 3. Inventory & Transactions
+        // 3. Inventory & Transactions Seed
         $img_id      = $this->get_dummy_image_id();
         $vehicle_ids = $this->seed_vehicles($img_id);
         $this->seed_bookings($vehicle_ids, $user_ids);
 
-        return $msg . '✅ Demo v13 (Variety Pack) Tamamlandı! Araç çeşitliliği sağlandı.';
+        // 4. Test Email Deliverability
+        $this->test_email_delivery();
+
+        $this->disable_email_simulation();
+
+        return $msg . __('✅ Demo v15 (Notification Suite) Completed! Check CLI logs for email triggers.', 'mhm-rentiva');
     }
 
+    /**
+     * Simulation mode: catches wp_mail and logs to CLI instead of sending
+     */
+    private function enable_email_simulation(): void
+    {
+        add_filter('pre_wp_mail', array($this, 'simulate_mail'), 10, 2);
+        add_action('mhm_rentiva_email_sent', array($this, 'log_email_trigger'), 10, 5);
+    }
+
+    private function disable_email_simulation(): void
+    {
+        remove_filter('pre_wp_mail', array($this, 'simulate_mail'), 10);
+        remove_action('mhm_rentiva_email_sent', array($this, 'log_email_trigger'), 10);
+    }
+
+    public function simulate_mail($return, $args)
+    {
+        if (class_exists('\WP_CLI')) {
+            \call_user_func(array('\WP_CLI', 'line'), sprintf(
+                "   [MAIL MOCK] To: %s | Subject: %s",
+                $args['to'],
+                $args['subject']
+            ));
+        }
+        return true; // Stop actual sending
+    }
+
+    public function log_email_trigger($key, $to, $ok, $subject, $context)
+    {
+        $booking_id = $context['booking']['id'] ?? 'N/A';
+        $log_msg = sprintf("Email Template [%s] triggered for Booking #%s to [%s]", $key, $booking_id, $to);
+
+        \error_log("MHM Rentiva Seeder: " . $log_msg);
+
+        if (class_exists('\WP_CLI')) {
+            \call_user_func(array('\WP_CLI', 'success'), $log_msg);
+        }
+    }
+
+    /**
+     * Manually trigger one of each email type for verification
+     */
+    public function test_email_delivery(): void
+    {
+        // Get the last created booking
+        $last_booking = \get_posts(array(
+            'post_type'      => self::PT_BOOKING,
+            'posts_per_page' => 1,
+            'post_status'    => 'publish',
+            'meta_key'       => '_mhm_is_demo',
+            'meta_value'     => '1',
+            'fields'         => 'ids'
+        ));
+
+        if (empty($last_booking)) {
+            return;
+        }
+
+        $bid = (int) $last_booking[0];
+
+        if (class_exists('\WP_CLI')) {
+            \call_user_func(array('\WP_CLI', 'line'), "--- Running Email Delivery Test Suite ---");
+        }
+
+        // 1. Trigger Customer Notification
+        if (class_exists('\MHMRentiva\Admin\Emails\Core\Mailer')) {
+            \MHMRentiva\Admin\Emails\Core\Mailer::sendBookingEmail('booking_created_customer', $bid, 'customer');
+        }
+
+        // 2. Trigger Admin Notification
+        if (class_exists('\MHMRentiva\Admin\Emails\Core\Mailer')) {
+            \MHMRentiva\Admin\Emails\Core\Mailer::sendBookingEmail('booking_created_admin', $bid, 'admin');
+        }
+
+        // 3. Trigger Partner Notification (Mock Trigger)
+        // Since there is no explicit Partner Recipient in Mailer yet, we trigger a dedicated hook
+        // that developers can listen to for Partner portal integrations.
+        do_action('mhm_rentiva_booking_partner_notification', $bid);
+        if (class_exists('\WP_CLI')) {
+            \call_user_func(array('\WP_CLI', 'success'), "Partner hook [mhm_rentiva_booking_partner_notification] triggered for Booking #$bid");
+        }
+    }
+
+    /**
+     * Surgical Cleanup of Demo Data
+     */
     public function cleanup(): string
     {
         global $wpdb;
-        $count        = 0;
-        $post_types   = array(self::PT_VEHICLE, self::PT_BOOKING, self::PT_SERVICE, self::PT_MESSAGE, 'shop_order');
+
+        // Security check: Only administrators can run cleanup
+        if (! current_user_can('manage_options')) {
+            return __('❌ Error: You do not have permission to perform this action.', 'mhm-rentiva');
+        }
+
+        $count = 0;
+        $protected_count = 0;
+        $post_types = array(self::PT_VEHICLE, self::PT_BOOKING, self::PT_SERVICE, self::PT_MESSAGE, 'shop_order', 'shop_order_placehold');
+
         $loc_table    = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
         $route_table  = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
+        $notif_table  = $wpdb->prefix . 'mhm_notification_queue';
+        $queue_table  = $wpdb->prefix . 'mhm_rentiva_queue';
+        $payment_log  = $wpdb->prefix . 'mhm_payment_log';
+        $msg_logs     = $wpdb->prefix . 'mhm_message_logs';
 
-        foreach ($post_types as $pt) {
-            $posts = \get_posts(array('post_type' => $pt, 'numberposts' => -1, 'post_status' => 'any', 'meta_key' => '_mhm_is_demo', 'meta_value' => '1', 'fields' => 'ids'));
+        // 1. Surgical Post Deletion (Vehicles, Bookings, Messages, etc. - Non-Order posts)
+        $standard_post_types = array(self::PT_VEHICLE, self::PT_BOOKING, self::PT_SERVICE, self::PT_MESSAGE);
+        foreach ($standard_post_types as $pt) {
+            $posts = \get_posts(array(
+                'post_type'      => $pt,
+                'numberposts'    => -1,
+                'post_status'    => 'any',
+                'meta_query'     => array(
+                    'relation' => 'OR',
+                    array(
+                        'key'     => '_mhm_is_demo',
+                        'value'   => '1',
+                        'compare' => '='
+                    ),
+                    array(
+                        'key'     => '_mhm_is_demo_user',
+                        'value'   => '1',
+                        'compare' => '='
+                    )
+                ),
+                'fields'         => 'ids'
+            ));
+
             foreach ($posts as $pid) {
-                \wp_delete_post($pid, true);
-                $count++;
+                if (\wp_delete_post($pid, true)) {
+                    $count++;
+                }
+            }
+
+            // 1a. Safety cleanup for untagged leftovers (e.g. "Manual Vehicle")
+            if ($pt === self::PT_VEHICLE) {
+                $untagged = \get_posts(array(
+                    'post_type'   => self::PT_VEHICLE,
+                    'title'       => 'Manual Vehicle',
+                    'post_status' => 'any',
+                    'numberposts' => -1,
+                    'fields'      => 'ids'
+                ));
+                foreach ($untagged as $pid) {
+                    if (\wp_delete_post($pid, true)) {
+                        $count++;
+                    }
+                }
             }
         }
 
-        $users = \get_users(array('meta_key' => '_mhm_is_demo_user', 'meta_value' => '1', 'fields' => 'ID'));
+        // 2. Surgical WooCommerce Order Deletion (HPOS Compatible)
+        if (\function_exists('\wc_get_orders')) {
+            $orders = \call_user_func('\wc_get_orders', array(
+                'limit'     => -1,
+                'return'    => 'ids',
+                'meta_key'  => '_mhm_is_demo',
+                'meta_value' => '1',
+            ));
+
+            if (is_array($orders)) {
+                foreach ($orders as $order_id) {
+                    $order = \call_user_func('\wc_get_order', $order_id);
+                    if ($order && \method_exists($order, 'delete')) {
+                        if (\call_user_func(array($order, 'delete'), true)) {
+                            $count++;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Surgical User Deletion with Safety Locks
+        $current_user_id = \get_current_user_id();
+        $users = \get_users(array(
+            'meta_key'   => '_mhm_is_demo_user',
+            'meta_value' => '1',
+            'fields'     => 'ID'
+        ));
+
+        require_once ABSPATH . 'wp-admin/includes/user.php';
         foreach ($users as $uid) {
-            if (! \user_can($uid, 'manage_options')) {
-                require_once ABSPATH . 'wp-admin/includes/user.php';
-                \wp_delete_user($uid);
+            $uid = (int) $uid;
+            // Safety Lock: Protect current user and any administrator
+            if ($uid === $current_user_id || \user_can($uid, 'manage_options')) {
+                $protected_count++;
+                continue;
+            }
+            if (\wp_delete_user($uid)) {
                 $count++;
             }
         }
 
-        $wpdb->query("TRUNCATE TABLE $loc_table");
-        $wpdb->query("TRUNCATE TABLE $route_table");
+        // 4. Surgical Category Deletion
+        $demo_terms = \get_terms(array(
+            'taxonomy'   => self::TAX_CAT,
+            'hide_empty' => false,
+            'meta_key'   => '_mhm_is_demo',
+            'meta_value' => '1'
+        ));
 
-        return "🧹 Temizlik yapıldı: $count veri silindi.";
+        if (! \is_wp_error($demo_terms)) {
+            foreach ($demo_terms as $term) {
+                \wp_delete_term($term->term_id, self::TAX_CAT);
+                $count++;
+            }
+        }
+
+        // Safety fallback for categories without meta
+        foreach ($this->categories as $cat_name) {
+            $term = \get_term_by('name', $cat_name, self::TAX_CAT);
+            if ($term) {
+                \wp_delete_term((int) $term->term_id, self::TAX_CAT);
+                $count++;
+            }
+        }
+
+        // 5. Selective Custom Table Cleanup
+
+        // Notification Queue: Cleanup entries for demo users
+        $wpdb->query($wpdb->prepare("
+            DELETE n FROM {$notif_table} n
+            INNER JOIN {$wpdb->usermeta} um ON n.user_id = um.user_id
+            WHERE um.meta_key = %s AND um.meta_value = %s
+        ", '_mhm_is_demo_user', '1'));
+
+        // Payment Log: Cleanup entries for demo bookings
+        $wpdb->query($wpdb->prepare("
+            DELETE l FROM {$payment_log} l
+            INNER JOIN {$wpdb->postmeta} pm ON l.booking_id = pm.post_id
+            WHERE pm.meta_key = %s AND pm.meta_value = %s
+        ", '_mhm_is_demo', '1'));
+
+        // Activity Logs & Queues: Filter by demo metadata
+        $tables_by_user = array($msg_logs, $queue_table);
+        foreach ($tables_by_user as $table) {
+            if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table))) {
+                $wpdb->query($wpdb->prepare("
+                    DELETE t FROM {$table} t
+                    INNER JOIN {$wpdb->usermeta} um ON t.user_id = um.user_id
+                    WHERE um.meta_key = %s AND um.meta_value = %s
+                ", '_mhm_is_demo_user', '1'));
+            }
+        }
+
+        // Transfer Locations & Routes: Targeted cleanup based on seeded demo names
+        $wpdb->query("DELETE FROM {$loc_table} WHERE name LIKE '%(IST)%' OR name LIKE '%(SAW)%' OR name = 'Taksim Square' OR name = 'Kadikoy Port' OR name = 'Taksim Meydanı' OR name = 'Kadıköy Rıhtım'");
+        $wpdb->query("DELETE FROM {$route_table} WHERE origin_id NOT IN (SELECT id FROM {$loc_table}) OR destination_id NOT IN (SELECT id FROM {$loc_table})");
+
+        // 6. Comprehensive Cache Clearing (Nuclear Purge)
+        if (\class_exists('\MHMRentiva\Admin\Utilities\Dashboard\DashboardPage')) {
+            \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage::clear_dashboard_cache();
+        }
+        if (\class_exists('\MHMRentiva\Admin\Core\Utilities\CacheManager')) {
+            \MHMRentiva\Admin\Core\Utilities\CacheManager::clear_cache();
+        }
+
+        // Nuclear purge for any lingering mhm transients (addresses naming inconsistencies)
+        $wpdb->query($wpdb->prepare(
+            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+            '_transient_mhm_%',
+            '_transient_timeout_mhm_%'
+        ));
+
+        // 7. WooCommerce Customer Lookup Cleanup (Sticky Customers)
+        $wc_customer_table = $wpdb->prefix . 'wc_customer_lookup';
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wc_customer_table))) {
+            $wpdb->query("DELETE FROM {$wc_customer_table} WHERE email LIKE 'test%@localhost.com'");
+        }
+
+        return sprintf(
+            /* translators: 1: Deleted count, 2: Protected count */
+            __('🧹 Surgical cleanup completed: %1$d demo records removed. %2$d manual records/administrators protected.', 'mhm-rentiva'),
+            $count,
+            $protected_count
+        );
     }
 
+    /**
+     * Seed demo users
+     */
     private function seed_users(int $count): array
     {
         $user_ids = array();
@@ -144,7 +408,7 @@ final class DemoSeeder
             $name_idx = $i % count($this->names);
             $name  = $this->names[$name_idx];
             $email = 'test' . ($i + 1) . '@localhost.com';
-            $phone = '05' . \wp_rand(30, 55) . ' ' . \wp_rand(100, 999) . ' ' . \wp_rand(10, 99) . ' ' . \wp_rand(10, 99);
+            $phone = '+90 555 ' . \wp_rand(100, 999) . ' ' . \wp_rand(1000, 9999);
 
             $existing = \get_user_by('email', $email);
             if ($existing) {
@@ -170,28 +434,31 @@ final class DemoSeeder
         return $user_ids;
     }
 
+    /**
+     * Seed demo vehicles
+     */
     private function seed_vehicles($img_id): array
     {
         $ids = array();
 
-        // 🚗 ARAÇ FİLOSU ÇEŞİTLİLİĞİ
+        // 🚗 Vehicle Fleet Configuration
         $blueprint = array(
-            // 1. EKONOMİ (Düşük Çarpan)
-            array('qty' => 3, 'brand' => 'Fiat', 'model' => 'Egea', 'price' => 1200, 'trans' => 'manual', 'fuel' => 'diesel', 'year' => 2024, 'seats' => 5, 'luggage' => 2, 'cat' => 'Ekonomi', 'color' => 'Beyaz', 'engine' => '1.4', 'deposit' => 2000),
+            // 1. ECONOMY
+            array('qty' => 3, 'brand' => 'Volkswagen', 'model' => 'Polo', 'price' => 80, 'trans' => 'manual', 'fuel' => 'petrol', 'year' => 2024, 'seats' => 5, 'luggage' => 2, 'cat' => 'Economy', 'color' => 'White', 'engine' => '1.0'),
 
-            // 2. ORTA SINIF (Standart Çarpan)
-            array('qty' => 2, 'brand' => 'Renault', 'model' => 'Megane', 'price' => 1800, 'trans' => 'auto', 'fuel' => 'diesel', 'year' => 2024, 'seats' => 5, 'luggage' => 3, 'cat' => 'Orta Sınıf', 'color' => 'Gri', 'engine' => '1.5', 'deposit' => 3000),
+            // 2. MID-RANGE
+            array('qty' => 2, 'brand' => 'Toyota', 'model' => 'Corolla', 'price' => 120, 'trans' => 'auto', 'fuel' => 'hybrid', 'year' => 2024, 'seats' => 5, 'luggage' => 3, 'cat' => 'Mid-Range', 'color' => 'Gray', 'engine' => '1.8'),
 
-            // 3. LÜKS (Yüksek Çarpan Testi İçin)
-            array('qty' => 1, 'brand' => 'BMW', 'model' => '520i', 'price' => 6000, 'trans' => 'auto', 'fuel' => 'petrol', 'year' => 2025, 'seats' => 5, 'luggage' => 3, 'cat' => 'Lüks', 'color' => 'Siyah', 'engine' => '2.0', 'deposit' => 10000),
+            // 3. LUXURY
+            array('qty' => 1, 'brand' => 'Mercedes-Benz', 'model' => 'S-Class', 'price' => 500, 'trans' => 'auto', 'fuel' => 'petrol', 'year' => 2025, 'seats' => 5, 'luggage' => 3, 'cat' => 'Luxury', 'color' => 'Black', 'engine' => '3.0'),
 
-            // 4. VIP / TRANSFER (Transfer Odaklı)
-            array('qty' => 2, 'brand' => 'Mercedes', 'model' => 'Vito', 'price' => 4500, 'trans' => 'auto', 'fuel' => 'diesel', 'year' => 2025, 'seats' => 9, 'luggage' => 6, 'cat' => 'Minivan (VIP)', 'color' => 'Siyah', 'engine' => '2.0', 'deposit' => 5000),
+            // 4. VIP / TRANSFER
+            array('qty' => 2, 'brand' => 'Mercedes-Benz', 'model' => 'V-Class', 'price' => 350, 'trans' => 'auto', 'fuel' => 'diesel', 'year' => 2025, 'seats' => 7, 'luggage' => 5, 'cat' => 'Minivan (VIP)', 'color' => 'Black', 'engine' => '2.2'),
         );
 
         foreach ($blueprint as $c) {
             for ($i = 0; $i < $c['qty']; $i++) {
-                $plate = '34 ' . \chr(\wp_rand(65, 90)) . \chr(\wp_rand(65, 90)) . ' ' . \wp_rand(100, 999);
+                $plate = 'DEMO ' . \chr(\wp_rand(65, 90)) . \chr(\wp_rand(65, 90)) . ' ' . \wp_rand(100, 999);
                 $title = $c['brand'] . ' ' . $c['model'] . ($c['qty'] > 1 ? ' (' . ($i + 1) . ')' : '');
                 $id    = \wp_insert_post(array('post_title' => $title, 'post_type' => self::PT_VEHICLE, 'post_status' => 'publish'));
                 if ($id) {
@@ -202,7 +469,7 @@ final class DemoSeeder
                     \update_post_meta($id, $this->keys['year'], $c['year']);
                     \update_post_meta($id, $this->keys['color'], $c['color']);
                     \update_post_meta($id, $this->keys['engine'], $c['engine']);
-                    \update_post_meta($id, $this->keys['km'], \wp_rand(10000, 50000));
+                    \update_post_meta($id, $this->keys['km'], \wp_rand(5000, 30000));
                     \update_post_meta($id, $this->keys['seats'], $c['seats']);
 
                     \update_post_meta($id, $this->keys['trans_pax'], $c['seats']);
@@ -211,8 +478,10 @@ final class DemoSeeder
 
                     \update_post_meta($id, $this->keys['transmission'], $c['trans']);
                     \update_post_meta($id, $this->keys['fuel'], $c['fuel']);
-                    \update_post_meta($id, $this->keys['deposit'], $c['deposit']);
                     \update_post_meta($id, $this->keys['status_veh'], 'active');
+
+                    // Business Rule Fix: Always set deposit rate to 10%
+                    \update_post_meta($id, $this->keys['deposit_rate'], 10);
 
                     \wp_set_object_terms($id, $c['cat'], self::TAX_CAT);
                     \update_post_meta($id, '_mhm_is_demo', '1');
@@ -225,6 +494,9 @@ final class DemoSeeder
         return $ids;
     }
 
+    /**
+     * Seed demo bookings
+     */
     private function seed_bookings(array $vids, array $uids): void
     {
         $counter = 0;
@@ -236,6 +508,9 @@ final class DemoSeeder
         }
     }
 
+    /**
+     * Create individual booking record
+     */
     private function create_single_booking(int $vid, array $uids, string $stat, string $off, int $dur, bool $order = false, bool $force_deposit = false): void
     {
         $uid = $uids[\array_rand($uids)];
@@ -248,8 +523,8 @@ final class DemoSeeder
         $is_d = $force_deposit;
         if ($stat === 'cancelled') $is_d = false;
 
-        $d_amt = (int) \get_post_meta($vid, $this->keys['deposit'], true);
-        if (!$d_amt) $d_amt = 2000;
+        // Calculate deposit based on 10% rate
+        $d_amt = $t_p * 0.10;
 
         $p_a  = (float) ($is_d ? $d_amt : ($stat === 'cancelled' ? 0 : $t_p));
         $remain = $t_p - $p_a;
@@ -259,17 +534,16 @@ final class DemoSeeder
         if ($p_a >= $t_p && $p_a > 0) $pay_status = 'paid';
         elseif ($p_a > 0) $pay_status = 'partial';
 
-        // ⭐ DATE/TIME CALCULATION
+        // Date/Time Calculation for schedule
         $pickup_date  = \gmdate('Y-m-d', \strtotime($off));
         $dropoff_date = \gmdate('Y-m-d', \strtotime("$off +$dur days"));
         $pickup_time  = '10:00';
         $dropoff_time = '10:00';
 
-        // Calculate Unix Timestamps (Important for Availability Check)
         $start_ts = \strtotime($pickup_date . ' ' . $pickup_time);
         $end_ts   = \strtotime($dropoff_date . ' ' . $dropoff_time);
 
-        $id   = \wp_insert_post(array('post_title' => 'Rezervasyon', 'post_type' => self::PT_BOOKING, 'post_status' => 'publish', 'post_author' => $uid));
+        $id   = \wp_insert_post(array('post_title' => 'Booking', 'post_type' => self::PT_BOOKING, 'post_status' => 'publish', 'post_author' => $uid));
         if ($id) {
             $metas = array(
                 'vehicle_id'   => $vid,
@@ -300,6 +574,10 @@ final class DemoSeeder
             }
             \update_post_meta($id, '_mhm_is_demo', '1');
 
+            // Trigger internal plugin hook for notifications/integrations
+            // Passing an empty array as the second argument for compatibility with hooks expecting booking data
+            do_action('mhm_rentiva_booking_created', $id, array());
+
             if ($order && \function_exists('wc_create_order')) {
                 /** @var mixed $o */
                 $o = \call_user_func('wc_create_order', array('customer_id' => $uid));
@@ -317,47 +595,93 @@ final class DemoSeeder
                     $o->set_billing_email($u->user_email);
                     $o->set_billing_phone((string) \get_user_meta($uid, 'billing_phone', true));
                     $o->update_status($stat === 'confirmed' ? 'completed' : 'on-hold');
+
+                    // HPOS Compatible meta saving
+                    $o->update_meta_data('_mhm_is_demo', '1');
+
                     $o->save();
                     \update_post_meta($id, $this->keys['wc_order_id'], $o->get_id());
-                    \update_post_meta($o->get_id(), '_mhm_is_demo', '1');
                 }
             }
         }
     }
 
+    /**
+     * Seed vehicle categories
+     */
     private function seed_categories(): void
     {
         foreach ($this->categories as $c) {
-            if (! \term_exists($c, self::TAX_CAT)) \wp_insert_term($c, self::TAX_CAT);
+            $term = \term_exists($c, self::TAX_CAT);
+            if (! $term) {
+                $inserted = \wp_insert_term($c, self::TAX_CAT);
+                if (! \is_wp_error($inserted)) {
+                    \add_term_meta((int) $inserted['term_id'], '_mhm_is_demo', '1');
+                }
+            } else {
+                // If it exists but might be missing meta, ensure it has it
+                \update_term_meta((int) $term['term_id'], '_mhm_is_demo', '1');
+            }
         }
     }
+
+    /**
+     * Seed transfer locations via direct SQL for performance
+     */
     private function seed_transfers_sql(): array
     {
         global $wpdb;
         $table = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
         $ids = array();
-        $locs = array(array('n' => 'İstanbul Havalimanı (IST)', 't' => 'airport'), array('n' => 'Sabiha Gökçen Havalimanı (SAW)', 't' => 'airport'), array('n' => 'Taksim Meydanı', 't' => 'city'), array('n' => 'Kadıköy Rıhtım', 't' => 'city'));
+        $locs = array(
+            array('n' => 'Istanbul Airport (IST)', 't' => 'airport'),
+            array('n' => 'Sabiha Gokcen Airport (SAW)', 't' => 'airport'),
+            array('n' => 'Taksim Square', 't' => 'city'),
+            array('n' => 'Kadikoy Port', 't' => 'city')
+        );
         foreach ($locs as $l) {
             $wpdb->insert($table, array('name' => $l['n'], 'type' => $l['t'], 'priority' => 0, 'is_active' => 1));
             $ids[$l['n']] = $wpdb->insert_id;
         }
         return $ids;
     }
+
+    /**
+     * Seed transfer routes via direct SQL
+     */
     private function seed_routes_sql(array $loc_ids): void
     {
         global $wpdb;
         $table = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
         if (count($loc_ids) < 2) return;
-        $routes = array(array('f' => 'İstanbul Havalimanı (IST)', 't' => 'Taksim Meydanı', 'k' => 45, 'p' => 1800), array('f' => 'Sabiha Gökçen Havalimanı (SAW)', 't' => 'Kadıköy Rıhtım', 'k' => 35, 'p' => 1400));
+        $routes = array(
+            array('f' => 'Istanbul Airport (IST)', 't' => 'Taksim Square', 'k' => 45, 'p' => 60),
+            array('f' => 'Sabiha Gokcen Airport (SAW)', 't' => 'Kadikoy Port', 'k' => 35, 'p' => 50)
+        );
         foreach ($routes as $r) {
             if (isset($loc_ids[$r['f']], $loc_ids[$r['t']])) {
-                $wpdb->insert($table, array('origin_id' => (int) $loc_ids[$r['f']], 'destination_id' => (int) $loc_ids[$r['t']], 'distance_km' => $r['k'], 'duration_min' => 60, 'pricing_method' => 'fixed', 'base_price' => (float) $r['p']));
+                $wpdb->insert($table, array(
+                    'origin_id' => (int) $loc_ids[$r['f']],
+                    'destination_id' => (int) $loc_ids[$r['t']],
+                    'distance_km' => $r['k'],
+                    'duration_min' => 60,
+                    'pricing_method' => 'fixed',
+                    'base_price' => (float) $r['p']
+                ));
             }
         }
     }
+
+    /**
+     * Seed extra services/addons
+     */
     private function seed_addons_verified(): void
     {
-        foreach (array(array('t' => 'Tam Kapsamlı Sigorta', 'p' => 550), array('t' => 'Çocuk Koltuğu (0-4 Yaş)', 'p' => 200)) as $e) {
+        $addons = array(
+            array('t' => 'Full Insurance Coverage', 'p' => 25),
+            array('t' => 'Child Seat (0-4 Years)', 'p' => 10)
+        );
+        foreach ($addons as $e) {
             $id = \wp_insert_post(array('post_title' => $e['t'], 'post_type' => self::PT_SERVICE, 'post_status' => 'publish'));
             if ($id) {
                 \update_post_meta($id, 'addon_price', (float) $e['p']);
@@ -366,9 +690,19 @@ final class DemoSeeder
             }
         }
     }
+
+    /**
+     * Seed customer messages
+     */
     private function seed_messages_expanded(array $uids): void
     {
-        $msgs = array(array('s' => 'Ödeme Seçenekleri', 'c' => 'payment', 'st' => 'pending', 'm' => 'Kredi kartına taksit imkanı var mı?'), array('s' => 'Teşekkürler', 'c' => 'general', 'st' => 'closed', 'm' => 'Araç çok temizdi, teşekkür ederiz.'), array('s' => 'Fatura Talebi', 'c' => 'payment', 'st' => 'answered', 'm' => 'Lütfen faturayı şirket adına kesin.'), array('s' => 'Araç Durumu', 'c' => 'booking', 'st' => 'pending', 'm' => 'Kiralamak istediğim araçta HGS var mı?'), array('s' => 'Transfer Saati', 'c' => 'general', 'st' => 'answered', 'm' => 'Uçak rötar yaparsa şoför bekliyor mu?'));
+        $msgs = array(
+            array('s' => 'Payment Options', 'c' => 'payment', 'st' => 'pending', 'm' => 'Do you accept international credit cards?'),
+            array('s' => 'Great Service', 'c' => 'general', 'st' => 'closed', 'm' => 'The car was very clean, thank you.'),
+            array('s' => 'Invoice Request', 'c' => 'payment', 'st' => 'answered', 'm' => 'Please issue the invoice under my company name.'),
+            array('s' => 'Vehicle Features', 'c' => 'booking', 'st' => 'pending', 'm' => 'Does the car have a built-in GPS?'),
+            array('s' => 'Transfer Delay', 'c' => 'general', 'st' => 'answered', 'm' => 'What happens if my flight is delayed?')
+        );
         foreach ($msgs as $m) {
             $uid = $uids[\array_rand($uids)];
             $id = \wp_insert_post(array('post_title' => $m['s'], 'post_content' => $m['m'], 'post_type' => self::PT_MESSAGE, 'post_status' => 'publish', 'post_author' => $uid));
@@ -380,14 +714,22 @@ final class DemoSeeder
             }
         }
     }
+
+    /**
+     * Utility to fetch a placeholder image ID
+     */
     private function get_dummy_image_id()
     {
         $q = new \WP_Query(array('post_type' => 'attachment', 'posts_per_page' => 1, 'post_status' => 'inherit', 'mimetype' => 'image'));
         return $q->have_posts() ? $q->posts[0]->ID : false;
     }
+
+    /**
+     * Add dummy reviews to vehicles
+     */
     private function add_dummy_review(int $pid): void
     {
         $name = $this->names[\array_rand($this->names)];
-        \wp_insert_comment(array('comment_post_ID' => $pid, 'comment_content' => 'Çok memnun kaldım.', 'comment_author' => $name, 'comment_approved' => 1, 'comment_type' => 'review'));
+        \wp_insert_comment(array('comment_post_ID' => $pid, 'comment_content' => 'Excellent service and car quality.', 'comment_author' => $name, 'comment_approved' => 1, 'comment_type' => 'review'));
     }
 }

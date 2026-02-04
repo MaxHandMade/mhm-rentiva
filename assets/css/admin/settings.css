@@ -1,6 +1,38 @@
 /* MHM Rentiva Settings Layout */
-.mhm-settings-page {
-	margin: var(--mhm-space-5) 0;
+.wrap.mhm-settings-page {
+	max-width: 1400px;
+	margin: 20px 20px 0 2px;
+}
+
+/* Header & Breadcrumb Area */
+.mhm-settings-header {
+	margin-bottom: 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 15px;
+}
+
+.mhm-settings-header .mhm-admin-header {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+/* Global Notices Area (Developer Banner, Lite Notice, WP Errors) */
+.mhm-settings-notices {
+	width: 100%;
+	display: block;
+	clear: both;
+	margin: 0 0 20px 0;
+}
+
+.mhm-settings-notices .notice,
+.mhm-settings-notices .mhm-dev-mode-banner {
+	margin: 0 0 15px 0 !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
 }
 
 .mhm-settings-layout {
@@ -638,6 +670,85 @@ input:checked+.mhm-toggle-slider:before {
 	background: #2271b1;
 	color: #fff;
 	border-radius: 4px;
+}
+
+/* =================================================================/*
+ /* =================================================================
+ * Admin Toast Notification Fix
+ * Ensures that the shared .rv-notification from frontend/notifications.css
+ * works perfectly within the WordPress Admin UI context.
+ */
+.rv-notification.mhm-admin-toast {
+	position: fixed !important;
+	top: 50px !important;
+	right: 30px !important;
+	z-index: 1000000 !important;
+	margin: 0 !important;
+	width: auto !important;
+	min-width: 200px !important;
+	max-width: 350px !important;
+	height: 50px !important;
+	/* Yüksekliği sert bir şekilde sabitle */
+	min-height: 50px !important;
+	padding: 0 20px !important;
+	/* Dikey paddingi kaldır, yatay ver */
+	border-radius: 12px !important;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12) !important;
+	transform: translateX(120%);
+	transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+	display: flex !important;
+	/* İçeriği dikeyde ortalamak için flex yap */
+	align-items: center !important;
+	justify-content: flex-start !important;
+	background: #fff !important;
+	overflow: hidden !important;
+	border: none !important;
+	flex-direction: row !important;
+}
+
+/* İçerik kapsayıcıyı temizle */
+.rv-notification.mhm-admin-toast .rv-notification-body {
+	display: flex !important;
+	align-items: center !important;
+	flex-direction: row !important;
+	gap: 12px !important;
+	height: 100% !important;
+	width: 100% !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	border: none !important;
+	background: transparent !important;
+}
+
+/* Simgeyi küçült ve sabitle */
+.rv-notification.mhm-admin-toast .rv-notification-icon-badge {
+	width: 20px !important;
+	height: 20px !important;
+	min-width: 20px !important;
+	max-width: 20px !important;
+	border-radius: 50% !important;
+	font-size: 11px !important;
+	line-height: normal !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	border: none !important;
+	margin: 0 !important;
+}
+
+/* Metni hizala */
+.rv-notification.mhm-admin-toast .rv-notification-text {
+	font-size: 14px !important;
+	font-weight: 500 !important;
+	white-space: nowrap !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	color: #2c3338 !important;
+}
+
+/* Animasyon tetikleyici */
+.rv-notification.mhm-admin-toast.rv-notification--show {
+	transform: translateX(0) !important;
 }
 
 /* =================================================================

@@ -384,6 +384,84 @@ final class LicenseManager
 	}
 
 	/**
+	 * Get the license API base URL based on environment
+	 *
+	 * Uses WordPress environment detection to automatically switch between
+	 * local development and production API endpoints.
+	 *
+	 * Priority order:
+	 * 1. MHM_RENTIVA_LICENSE_API_BASE constant (manual override)
+	 * 2. wp_get_environment_type() check (WordPress 5.5+)
+	 * 3. isDevelopmentEnvironment() fallback
+	 * 4. Default production URL
+	 *
+	 * @return string API base URL
+	 */
+	protected function getApiBaseUrl(): string
+	{
+		// 1. Manual override via constant (highest priority)
+		if (defined('MHM_RENTIVA_LICENSE_API_BASE')) {
+			return constant('MHM_RENTIVA_LICENSE_API_BASE');
+		}
+
+		// 2. WordPress environment detection (WP 5.5+)
+		if (function_exists('wp_get_environment_type')) {
+			$env_type = wp_get_environment_type();
+
+			// Local/Development environments use local API (if defined)
+			if (in_array($env_type, array('local', 'development'), true)) {
+				// Allow local API override for development
+				if (defined('MHM_RENTIVA_LICENSE_API_LOCAL')) {
+					return constant('MHM_RENTIVA_LICENSE_API_LOCAL');
+				}
+				// In dev mode without local API, still use production for license validation
+				// This is intentional: licenses should validate against production server
+			}
+		}
+
+		// 3. Fallback: always use production API for license validation
+		return 'https://api.maxhandmade.com/v1';
+	}
+
+	/**
+	 * Determine if SSL verification should be enforced
+	 *
+	 * @return bool True if SSL verification should be enforced
+	 */
+	protected function shouldVerifySsl(): bool
+	{
+		// Always verify SSL in production
+		if (function_exists('wp_get_environment_type')) {
+			$env_type = wp_get_environment_type();
+			if (in_array($env_type, array('production', 'staging'), true)) {
+				return true;
+			}
+		}
+
+		// In development, allow override for local testing
+		if ($this->isDevelopmentEnvironment()) {
+			return defined('MHM_RENTIVA_SSL_VERIFY') ? (bool) constant('MHM_RENTIVA_SSL_VERIFY') : false;
+		}
+
+		// Default: always verify SSL
+		return true;
+	}
+
+	/**
+	 * Get the current environment type for logging/debugging
+	 *
+	 * @return string Environment type
+	 */
+	public function getEnvironmentType(): string
+	{
+		if (function_exists('wp_get_environment_type')) {
+			return wp_get_environment_type();
+		}
+
+		return $this->isDevelopmentEnvironment() ? 'development' : 'production';
+	}
+
+	/**
 	 * Make API request to license server
 	 *
 	 * @param string $path API path
@@ -392,19 +470,24 @@ final class LicenseManager
 	 */
 	private function request(string $path, array $body)
 	{
-		$base = defined('MHM_RENTIVA_LICENSE_API_BASE') ? constant('MHM_RENTIVA_LICENSE_API_BASE') : 'https://api.maxhandmade.com/v1';
+		$base = $this->getApiBaseUrl();
 		$url  = rtrim($base, '/') . $path;
+
+		// Prepare request arguments with environment-aware settings
 		$args = array(
-			'headers' => array(
-				'Content-Type' => 'application/json',
-				'Accept'       => 'application/json',
-				'User-Agent'   => 'MHM-Rentiva/' . (defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'dev'),
+			'headers'   => array(
+				'Content-Type'  => 'application/json',
+				'Accept'        => 'application/json',
+				'User-Agent'    => 'MHM-Rentiva/' . (defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'dev'),
+				'X-Environment' => $this->getEnvironmentType(),
 			),
-			'timeout' => 15,
-			'body'    => wp_json_encode($body),
-			'method'  => 'POST',
+			'timeout'   => 15, // 15 seconds timeout to prevent frontend lag
+			'body'      => wp_json_encode($body),
+			'method'    => 'POST',
+			'sslverify' => $this->shouldVerifySsl(),
 		);
-		$r    = wp_remote_request($url, $args);
+
+		$r = wp_remote_request($url, $args);
 
 		// GRACE PERIOD LOGIC START
 		if (is_wp_error($r)) {
@@ -431,7 +514,7 @@ final class LicenseManager
 				}
 			}
 
-			/* translators: %s placeholder. */
+			/* translators: %s: connection error message */
 			return new WP_Error('license_connection', sprintf(__('Could not connect to license server: %s', 'mhm-rentiva'), $r->get_error_message()));
 		}
 		// GRACE PERIOD LOGIC END
@@ -451,7 +534,7 @@ final class LicenseManager
 				$error_message = $json['message'] ?? $error_message;
 			} else {
 				// If JSON decode failed, include raw response
-				/* translators: 1: %d; 2: %s. */
+				/* translators: 1: HTTP error code; 2: response body snippet. */
 				$error_message = sprintf(__('License server returned error (HTTP %1$d): %2$s', 'mhm-rentiva'), $code, substr($body_content, 0, 200));
 			}
 
@@ -464,7 +547,7 @@ final class LicenseManager
 		}
 
 		// Fallback for unexpected responses
-		/* translators: %d placeholder. */
+		/* translators: %d: HTTP error code */
 		return new WP_Error('license_http', sprintf(__('Unexpected response from license server (HTTP %d).', 'mhm-rentiva'), $code));
 	}
 

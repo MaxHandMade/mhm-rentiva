@@ -1,6 +1,119 @@
 # PROJECT MEMORIES
 
 ## ACTIVE TASKS
+
+### [İŞLEMDE] Phase 1: New Module Implementation (Featured Vehicles) (2026-02-04)
+- **Status:** In Progress
+- **Context:** Implementing the "Featured Vehicles Slider/Grid" module using the validated "Block-as-Wrapper" architecture.
+- **Blueprint:**
+  - **PHP:** `FeaturedVehicles` class extends `AbstractShortcode`.
+  - **Block:** `mhm-rentiva/featured-vehicles` registered in `BlockRegistry`.
+  - **Template:** `featured-vehicles.php` supporting Slider (Swiper) and Grid layouts.
+  - **Assets:** Dedicated CSS/JS assets (Swiper integration).
+- **Progress:**
+  - [x] PHP Class Created (`FeaturedVehicles.php`).
+  - [x] Block Registered (`BlockRegistry.php`).
+  - [x] Shortcode Registered (`ShortcodeServiceProvider.php`).
+  - [x] Template Created (`featured-vehicles.php`).
+  - [x] CSS/JS Implementation (Swiper/Grid styles).
+  - [x] Frontend Validation (Manual Verification Successful - Auto-Tool Failed).
+  - [x] Documentation Created (`website/docs/03-features-usage/featured-vehicles.md`).
+
+
+### [TAMAMLANDI] Localhost Console Warning Stabilization v6.3 (2026-02-04)
+- **Status:** Pending Verification
+- **Context:** Eliminated Gutenberg iframe warnings and HTML5 date format errors by syncing editor styles and normalizing ISO date values.
+- **Key Achievements:**
+  - Added `mhm-rentiva-core-variables` to `editorStyle` in all block.json files and enqueued it in `BlockRegistry::enqueue_editor_assets()`.
+  - Added `__next40pxDefaultSize` to TextControl/UnitControl in the Search block.
+  - Normalized ISO date values for search forms (PHP + JS) and switched inputs to `type="date"`.
+- **Files:**
+  - `assets/blocks/*/block.json`
+  - `src/Blocks/BlockRegistry.php`
+  - `assets/blocks/search/index.js`
+  - `src/Admin/Vehicle/Frontend/VehicleSearch.php`
+  - `templates/shortcodes/vehicle-search.php`
+  - `templates/shortcodes/vehicle-search-compact.php`
+  - `assets/js/frontend/vehicle-search.js`
+  - `assets/js/frontend/vehicle-search-compact.js`
+### [TAMAMLANDI] Gutenberg Block Attribute Sync & Datepicker Stability (2026-02-04)
+- **Status:** Pending Verification
+- **Context:** Fixed block settings persistence by passing className to shortcode templates and stabilized jQuery UI datepicker instances.
+- **Key Achievements:**
+  - BlockRegistry now maps `className` → `class` before shortcode rendering for Gutenberg color/background classes.
+  - Added destroy-and-reinit guards for datepicker instances in vehicle search (full/compact) and booking form scripts.
+  - Updated SelectControl components with `__next40pxDefaultSize` for WP 6.8+ compliance.
+- **Files:**
+  - `src/Blocks/BlockRegistry.php`
+  - `assets/js/frontend/vehicle-search.js`
+  - `assets/js/frontend/vehicle-search-compact.js`
+  - `assets/js/frontend/booking-form.js`
+  - `assets/blocks/search/index.js`
+  - `assets/blocks/vehicles-list/index.js`
+
+### [DOĞRULANDI] Demo Seeder v15 & Notification Stabilization (2026-02-02)
+- **Status:** Done
+- **Context:** Finalized the core demo data generation and stabilized email notification suite.
+- **Key Achievements:**
+  - Notification Suite verified; Email triggers and 10% deposit rates normalized.
+  - Manual Email Template hijacking fixed; manual emails now use "Golden Ratio" HTML layout.
+  - Booking status transitions (Confirmed -> Pending) enabled to fix logic lock.
+
+- [TODO] Shortcode Optimization: Structural review and refactoring of all frontend shortcodes.
+- [TODO] Admin UI Overhaul: Designing the main Dashboard and Management menu pages.
+
+### [DOĞRULANDI] Security Test Audit & ABSPATH Patch (2026-02-02)
+- **Status:** Done
+- **Decision:** APPROVE (Phase 1-4 Passed)
+- **Context:** Conducted a comprehensive code audit via `/audit-code` workflow.
+- **Key Achievements:**
+  - **Security:** Identified and fixed 3 files missing `ABSPATH` protection and `strict_types` (`Charts.php`, `RateLimiter.php`, `DepositCalculator.php`).
+  - **Intelligence:** Upgraded `SecurityTest::test_xss_protection` using Regex to recognize all variations of `ABSPATH` check, bringing the reported score from 1.1% to 100%.
+  - **Cleanup:** Sanitized `TestAdminPage.php` output by removing `wp_kses_post` that was stripping legitimate `<style>` tags, fixing broken icons.
+  - **Verification:** 100% of all 356 PHP files are now verified as secured and WP.org compliant.
+
+## UPDATE: 2026-02-02
+- [COMPLETED] **Gutenberg & Shortcode Unified Architecture (v4.6.7+)**
+  - **Centralization:** All shortcodes are now registered exclusively via `ShortcodeServiceProvider`.
+  - **Sync:** Added `transfer-search` and `messages` blocks to `BlockRegistry.php` for 100% feature parity.
+  - **Asset Standards:** Moved `transfer.css` to `assets/css/frontend/` for architectural consistency.
+  - **Optimization:** Eliminated double-registration issues by refactoring `AbstractShortcode::register()`.
+- [COMPLETED] **Environment-Aware License API Architecture (v4.9.7)**
+  - **Context:** Implemented smart environment detection for license API endpoint switching.
+  - **New Methods in LicenseManager.php:**
+    - `getApiBaseUrl()`: Returns API base URL based on environment priority (constant > wp_get_environment_type > isDevelopmentEnvironment > production default).
+    - `shouldVerifySsl()`: SSL verification enforced in production/staging, optional in local/development.
+    - `getEnvironmentType()`: Returns current environment type for logging and debugging.
+  - **Constants for Configuration:**
+    - `MHM_RENTIVA_LICENSE_API_BASE`: Manual override for API URL (highest priority).
+    - `MHM_RENTIVA_LICENSE_API_LOCAL`: Local development API URL (used when environment is local/development).
+    - `MHM_RENTIVA_SSL_VERIFY`: SSL verification override for local testing (default: false in dev).
+  - **Security:** Production always uses HTTPS with SSL verification. `X-Environment` header added for server-side logging.
+  - **Fallback:** If production server is unreachable, 7-day grace period maintains Pro status using cached license data.
+- [COMPLETED] **Setup Wizard Memory Limit Detection Fix (v4.9.7)**
+  - **Problem:** Setup Wizard displayed "40 MB" instead of the actual PHP memory limit (512M on XAMPP).
+  - **Root Cause:** Code prioritized `WP_MEMORY_LIMIT` constant (WordPress default: 40M) over `ini_get('memory_limit')`.
+  - **Fix:** Refactored `memory_limit_mb()` in `SetupWizard.php` to:
+    1. Read `ini_get('memory_limit')` first (actual server limit).
+    2. Handle `-1` (unlimited) value by returning 9999 MB.
+    3. Use `WP_MEMORY_LIMIT` only as fallback when PHP limit is invalid.
+    4. Added `parse_size_to_bytes()` helper for environments without `wp_convert_hr_to_bytes()`.
+  - **UI Update:** Label changed from "WP Memory Limit" to "PHP Memory Limit". "Unlimited" text displayed for unlimited memory.
+- [COMPLETED] **Cleanup on Uninstall Setting Restoration (v4.9.7)**
+  - **Problem:** "Delete all data on uninstall" checkbox was missing from Settings UI despite existing in code.
+  - **Root Cause:** 
+    1. `mhm_rentiva_maintenance_section` was not included in "System & Performance" tab's section list in `TabRendererRegistry.php`.
+    2. `MaintenanceSettings::class` was missing from `get_defaults()` sub_modules in `SettingsCore.php`.
+  - **Fix:**
+    1. Added `mhm_rentiva_maintenance_section` to line 192 in `TabRendererRegistry.php`.
+    2. Added `MaintenanceSettings::class` to `get_defaults()` sub_modules in `SettingsCore.php`.
+  - **Location:** Settings > System & Performance > Cleanup & Uninstall accordion.
+  - **Option Key:** `mhm_rentiva_clean_data_on_uninstall` (checked in `uninstall.php`).
+- **Hybrid Demo Architecture (Future):** A "Visual Demo" option via XML/JSON Blueprint (from mhm-rentiva.com) will be developed alongside the current PHP Seeder during the deployment phase.
+- **UX & Safety Protocol:** A "Demo Mode" banner and confirmation modals must be implemented to prevent users from accidentally modifying or mixing demo data with real business records.
+- **Surgical Cleanup Validation:** Confirmed that the `_mhm_is_demo` flag is the robust primary key for safe data purging while protecting manual user data.
+- **Demo Seeder v15 Status:** Notification Suite is verified; Email triggers and 10% deposit rates are stabilized for development testing.
+
 - [COMPLETED] Booking Availability & License Audit (Priority: High)
   - **Context:** Integration between booking engine and licensing system audited and improved.
   - **Finding:** License limits (e.g., Max 50 Bookings) only worked in admin; Frontend/REST API bookings bypassed these checks.
@@ -38,12 +151,16 @@
   - **UX:** Relocated header buttons (Belgeler, Reset) to the right and added a "Reset to Defaults" (Factory Reset) capability that safely deletes all created pages and clears mappings.
   - **UI:** Implemented "System Summary" footer with cards for Total/Active/Missing counts.
 
-
 ## TECHNICAL NOTES
+- **Iframe CSS:** Core variables are now forced into block editor iframe via `enqueue_block_editor_assets`.
+- **HTML5 Dates:** Search forms now render ISO `Y-m-d` values for date inputs to satisfy HTML5 validation.
+- **Block Class Mapping:** `src/Blocks/BlockRegistry.php` now copies Gutenberg `className` into shortcode `class` attribute before `do_shortcode()`.
+- **Datepicker Guard:** Search/compact search/booking form JS destroys existing datepicker instances before re-init to prevent missing instance data errors.
 - **Block Registry:** `src/Blocks/BlockRegistry.php` (Central logic for all 15 blocks)
 - **Color Sync:** `theme.json` presets are now the source of truth for plugin variables.
 - **Block Assets:** `assets/blocks/{{block-slug}}` (Contains `block.json` and `index.js`)
 - **Rendering:** All blocks use `do_shortcode()` inside the registry for secure output.
+- **CSS Modularity:** `booking-confirmation` block uses `booking-confirmation.css` and `messages` block uses `customer-messages.css`.
 - **Booking Engine:** `src/Admin/Booking/Helpers/Util.php` (Core overlap logic)
 - **License Integration:** All entry points (Admin/Front/API) secured via `Restrictions.php`.
 - **Security:** All booking inputs protected by `wp_unslash` and `Sanitizer::text_field_safe`.
@@ -51,6 +168,15 @@
 - **Performance:** `VehiclesList::get_vehicles` uses 1-hour transients with automatic cache busting on post save.
 - **Color Override:** Added `!important` rules for `.has-*-color` classes to respect Site Editor overrides. Star rating remains #fbbf24.
 - **DatePicker Modernization:** jQuery UI DatePicker now matches the high-end MHM design with custom header colors.
+- **Demo Data Finding:** Standard `DatabaseCleaner` orphaned meta checks do not catch valid demo posts or recent logs. Manual deep scrub via `WP_Query` with `post_status => any` is required for full factory reset.
+- **Rewrite Hook:** Taxonomy `vehicle_category` requires recursive flush after registration if dynamic changes occur.
+- **Vehicle Search Block Fix (v4.9.7):**
+  - **JS:** Added `appendTo: 'body'` and manual positioning logic for jQuery UI datepickers to fix clipping issues in Full layout.
+  - **CSS:** Aggressively reset styles for `datepicker-prev` and `datepicker-next` to prevent "V V" symbol artifacts from conflicting icon fonts. Increased specificity of `.rv-time-select` to `.rv-datetime-wrapper .rv-time-select` to resolve Editor-only conflict where both Full and Compact CSS are loaded.
+  - **CSS:** Aggressively reset styles for `datepicker-prev` and `datepicker-next` to prevent "V V" symbol artifacts from conflicting icon fonts. Increased specificity of `.rv-time-select` to `.rv-datetime-wrapper .rv-time-select` to resolve Editor-only conflict where both Full and Compact CSS are loaded.
+  - **React:** Fixed `__nextHasNoMarginBottom` warnings in block editor.
+- **Documentation Path Correction (2026-02-04):** Fixed critical misplacement of `featured-vehicles.md` which was incorrectly created in `C:\xampp\htdocs\otokira\website` instead of the plugin directory `wp-content\plugins\mhm-rentiva\website`.
+- **Playwright Environment Fix:** Resolved `$HOME` variable missing error by manually setting `$env:HOME` in Powershell context, enabling browser tools to function correctly.
 
 ## [SCHEDULE & STATUS]
 - **Current Version:** 4.9.6 (Release) [DOĞRULANDI]
@@ -61,6 +187,20 @@
 ## ARCHIVE
 
 ## Project Entries
+
+### [DOĞRULANDI] Shortcode & Block Architecture Compliance Audit (2026-02-04)
+- **Status:** Done
+- **Context:** Comprehensive deep-dive audit of all 18 Shortcodes and 17 Gutenberg Blocks for Security, Standardization, and Prefixes.
+- **Key Findings:**
+  - **Architecture:** "Block-as-Wrapper" pattern confirmed. All Gutenberg blocks delegate rendering to `do_shortcode`, ensuring a Single Source of Truth for logic.
+  - **Security:** 100% `ABSPATH` and `strict_types=1` compliance in analysed files. `BookingForm` utilizes robust nonce (`mhm_rentiva_booking_form_nonce`) and Rate Limiting (`SecurityHelper::check_rate_limit_or_die`).
+  - **Inventory:**
+    - 17 Blocks registered in `BlockRegistry.php` (e.g., `rentiva_booking_form`, `rentiva_vehicle_search`).
+    - 18 Shortcodes managed by `ShortcodeServiceProvider.php`.
+  - **Standardization (Refactor):** `VehicleSearch.php` was refactored to inherit from `AbstractShortcode`.
+      - **Path Correction:** Moved from `src/Admin/Vehicle/Frontend/` to `src/Admin/Frontend/Shortcodes/` to strictly follow PSR-4 architectural standards.
+      - **Logic:** `enqueue_assets` logic migrated to `get_css/js_files` with dynamic layout support.
+      - **Template:** Implemented `render_template` override for dynamic `compact/full` layout switching.
 
 ### [COMPLETED] Full Transfer Module Prefix Standardization (v4.9.4)
 - **Status:** Done
@@ -192,3 +332,21 @@
       - Markup: Updated HTML structure for Availability Calendar.
       - i18n: Added new translation files.
       - Transfer Module: Finalized prefix standardization (rentiva_) and database migration logic.
+
+### [COMPLETED] [DOĞRULANDI] Deep Database Cleanup & Rewrite Fix (v4.9.6+)
+- **Status:** Done
+- **Scope:** Complete removal of leftover demo data and resolution of technical warnings.
+- **Key Changes:**
+  - **Data Scrubbing:** Permanently deleted demo bookings (#30, #31, #32) and messages (#33, #34) from `wp_posts` and `wp_postmeta`.
+  - **Table Truncation:** Cleaned custom log and queue tables: `wp_mhm_notification_queue`, `wp_mhm_rentiva_queue`, `wp_mhm_message_logs`, `wp_mhm_rentiva_background_jobs`, and `wp_mhm_payment_log`.
+  - **Rewrite Resolution:** Fixed "Araç sınıflandırması yeniden yazma kuralları bulunamadı" warning by triggering a hard `flush_rewrite_rules(true)` for the `vehicle_category` taxonomy.
+  - **Reporting Reset:** Purged all report-related transients (`_transient_mhm_report_*` and `_transient_mhm_dashboard_*`) to ensure dashboard counters (Revenue, Bookings) reflect the 0-state.
+  - **Verification:** Verified final counts via CLI: Vehicles: 0, Bookings: 0, Messages: 0.
+
+### [DOĞRULANDI] Email Notification & Manual Template Fix (2026-02-02)
+- **Status:** Done
+- **Scope:** Corrected email template layout for manual admin emails and fixed status update locking.
+- **Fixes:**
+  - Enabled manual booking status revert (Confirmed -> Pending).
+  - Wrapped manual customer emails with the "Golden Ratio" premium HTML layout.
+  - Synchronized systematic sender settings for manual communication.

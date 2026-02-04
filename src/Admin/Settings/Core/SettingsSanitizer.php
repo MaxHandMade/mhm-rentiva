@@ -249,7 +249,7 @@ final class SettingsSanitizer
 			'mhm_rentiva_vehicle_show_features'        => self::get_bool($input, 'mhm_rentiva_vehicle_show_features'),
 			'mhm_rentiva_vehicle_show_availability'    => self::get_bool($input, 'mhm_rentiva_vehicle_show_availability'),
 			'mhm_rentiva_vehicle_min_rental_days'      => self::get_int($input, 'mhm_rentiva_vehicle_min_rental_days', 1, 1, 365),
-			'mhm_rentiva_vehicle_max_rental_days'      => self::get_int($input, 'mhm_rentiva_vehicle_max_rental_days', 30, 1, 365),
+			'mhm_rentiva_vehicle_max_rental_days'      => self::get_int($input, 'mhm_rentiva_vehicle_max_rental_days', 365, 1, 365),
 			'mhm_rentiva_vehicle_advance_booking_days' => self::get_int($input, 'mhm_rentiva_vehicle_advance_booking_days', 365, 1, 365),
 			'mhm_rentiva_vehicle_allow_same_day'       => self::get_bool($input, 'mhm_rentiva_vehicle_allow_same_day'),
 		);

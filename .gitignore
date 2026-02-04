@@ -85,10 +85,14 @@ phpcs*.txt
 coverage/
 .coverage/
 
-# Test Scripts (Root Level)
+# Test & Utility Scripts (Root Level)
 test_*.php
 debug_*.php
+debug-*.php
 check_*.php
+check-*.php
+search-*.php
+list-*.php
 *_test.php
 *_debug.php
 *_analiz.php
@@ -97,6 +101,8 @@ ayarlar_*.php
 master_validation_test.php
 test_results.txt
 AUDIT_REPORT_*.md
+*transient*.php
+*db*.php
 
 # ============================================================================
 # SECTION 7: MHM Rentiva - Local Development Exclusions

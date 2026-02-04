@@ -40,6 +40,7 @@ final class MessagesSettingsRenderer extends AbstractTabRenderer
 				'class' => 'button button-secondary mhm-reset-messages-btn',
 				'icon'  => 'dashicons-image-rotate',
 			),
+			$this->get_standard_reset_action(),
 		);
 	}
 

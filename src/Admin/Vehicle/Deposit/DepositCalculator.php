@@ -1,6 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MHMRentiva\Admin\Vehicle\Deposit;
+
+if (! defined('ABSPATH')) {
+	exit;
+}
 
 /**
  * Deposit Calculator Class
@@ -8,7 +14,7 @@ namespace MHMRentiva\Admin\Vehicle\Deposit;
  * This class manages vehicle deposit calculations.
  * Supports fixed amount and percentage deposit options.
  */
-class DepositCalculator
+final class DepositCalculator
 {
 
 	/**
@@ -123,7 +129,7 @@ class DepositCalculator
 
 		if ($type === 'percentage') {
 			$percentage = self::extract_percentage($deposit_value);
-			/* translators: %.1f placeholder. */
+			/* translators: %.1f: percentage value */
 			return sprintf(__('%.1f%% of total amount', 'mhm-rentiva'), $percentage);
 		}
 
@@ -226,7 +232,7 @@ class DepositCalculator
 			'remaining_amount' => round($remaining_amount, 2), // Total amount minus deposit
 			'deposit_type'     => $deposit_type,
 			'payment_display'  => $deposit_amount > 0 ?
-				/* translators: 1: %s; 2: %s. */
+				/* translators: 1: deposit amount; 2: currency symbol. */
 				sprintf(__('Deposit: %1$s %2$s', 'mhm-rentiva'), number_format($deposit_amount, 2, ',', '.'), \MHMRentiva\Admin\Reports\Reports::get_currency_symbol()) :
 				__('No Deposit', 'mhm-rentiva'),
 			'vehicle_total'    => round($vehicle_total, 2),

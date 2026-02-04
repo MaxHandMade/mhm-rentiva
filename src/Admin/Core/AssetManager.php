@@ -86,8 +86,40 @@ final class AssetManager
 	{
 		add_action('wp_enqueue_scripts', array(self::class, 'enqueue_frontend_assets'));
 		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_admin_assets'));
+		// Correct way to load assets specifically for the block editor (parent and iframe)
+		add_action('enqueue_block_editor_assets', [self::class, 'enqueue_editor_assets']);
+
+		// Register Vendor Assets
+		add_action('init', [self::class, 'register_vendor_assets']);
 		add_action('wp_head', array(self::class, 'add_inline_styles'));
 		add_action('admin_head', array(self::class, 'add_inline_styles'));
+	}
+
+	/**
+	 * Register Third-Party Vendor Assets
+	 */
+	public static function register_vendor_assets(): void
+	{
+		// Swiper JS
+		if (! wp_script_is('mhm-swiper', 'registered')) {
+			wp_register_script(
+				'mhm-swiper',
+				'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js',
+				[],
+				'11.0.0',
+				true
+			);
+		}
+
+		// Swiper CSS
+		if (! wp_style_is('mhm-swiper-css', 'registered')) {
+			wp_register_style(
+				'mhm-swiper-css',
+				'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css',
+				[],
+				'11.0.0'
+			);
+		}
 	}
 
 	/**
@@ -594,24 +626,6 @@ final class AssetManager
 			);
 		}
 
-		// Gutenberg Blocks
-		if ($screen->base === 'post' && $screen->is_block_editor) {
-			wp_enqueue_script(
-				'mhm-gutenberg-blocks',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/gutenberg-blocks.js',
-				array('wp-blocks', 'wp-element', 'wp-components', 'wp-i18n', 'wp-block-editor'),
-				self::get_file_version('assets/js/admin/gutenberg-blocks.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-gutenberg-blocks',
-				'mhmRentivaGutenberg',
-				array(
-					'vehicleOptions' => self::get_vehicle_options_for_gutenberg(),
-				)
-			);
-		}
 
 		// Shortcode Settings
 		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-shortcode-settings') {
@@ -840,8 +854,15 @@ final class AssetManager
 				'mhm-settings',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/settings.js',
 				array('jquery'),
-				self::get_file_version('assets/js/admin/settings.js'),
+				time(), // Force fresh load with current timestamp
 				true
+			);
+
+			wp_enqueue_style(
+				'mhm-notifications',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/notifications.css',
+				array(),
+				MHM_RENTIVA_VERSION
 			);
 
 			wp_localize_script(
@@ -1323,35 +1344,6 @@ final class AssetManager
 		);
 	}
 
-	/**
-	 * Get vehicle options for Gutenberg
-	 */
-	private static function get_vehicle_options_for_gutenberg(): array
-	{
-		$vehicles = get_posts(
-			array(
-				'post_type'      => 'vehicle',
-				'posts_per_page' => -1,
-				'post_status'    => 'publish',
-			)
-		);
-
-		$options = array(
-			array(
-				'value' => 0,
-				'label' => __('Select a vehicle', 'mhm-rentiva'),
-			),
-		);
-
-		foreach ($vehicles as $vehicle) {
-			$options[] = array(
-				'value' => $vehicle->ID,
-				'label' => $vehicle->post_title,
-			);
-		}
-
-		return $options;
-	}
 
 	/**
 	 * Localize scripts

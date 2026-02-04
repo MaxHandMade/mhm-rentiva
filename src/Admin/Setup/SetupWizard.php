@@ -1183,11 +1183,15 @@ final class SetupWizard
 				'message'  => '',
 			),
 			array(
-				'label'    => __('WP Memory Limit', 'mhm-rentiva'),
-				'current'  => sprintf('%d MB', $memory_mb),
+				'label'    => __('PHP Memory Limit', 'mhm-rentiva'),
+				'current'  => $memory_mb >= 9999 ? __('Unlimited', 'mhm-rentiva') : sprintf('%d MB', $memory_mb),
 				'expected' => __('256 MB recommended', 'mhm-rentiva'),
 				'status'   => $memory_mb >= 256 ? 'ok' : ($memory_mb >= 128 ? 'warning' : 'fail'),
-				'message'  => $memory_mb >= 256 ? '' : __('Increase WP_MEMORY_LIMIT to at least 256 MB via wp-config.php', 'mhm-rentiva'),
+				'message'  => $memory_mb >= 256 ? '' : sprintf(
+					/* translators: %s: link to wp-config.php documentation */
+					__('Add %s to your wp-config.php file to increase memory.', 'mhm-rentiva'),
+					"<code>define('WP_MEMORY_LIMIT', '256M');</code>"
+				),
 			),
 		);
 
@@ -1265,18 +1269,88 @@ final class SetupWizard
 		);
 	}
 
+	/**
+	 * Get PHP memory limit in megabytes
+	 *
+	 * Priority:
+	 * 1. PHP ini_get('memory_limit') - the actual server limit
+	 * 2. WP_MEMORY_LIMIT constant - WordPress internal limit (fallback)
+	 *
+	 * Special handling:
+	 * - "-1" means unlimited memory (returns PHP_INT_MAX equivalent in MB)
+	 * - Empty or invalid values fall back to WP_MEMORY_LIMIT
+	 *
+	 * @return int Memory limit in MB
+	 */
 	private static function memory_limit_mb(): int
 	{
-		$limit = defined('WP_MEMORY_LIMIT') ? constant('WP_MEMORY_LIMIT') : ini_get('memory_limit');
-		if (function_exists('wp_convert_hr_to_bytes')) {
-			$bytes = wp_convert_hr_to_bytes($limit);
-		} else {
-			$bytes = (int) $limit;
+		// 1. Get PHP's actual memory limit (this is the real server limit)
+		$php_limit = ini_get('memory_limit');
+
+		// 2. Handle unlimited memory (-1)
+		if ($php_limit === '-1') {
+			return 9999; // Return a high value to indicate unlimited
 		}
+
+		// 3. Try to parse the PHP limit first
+		$bytes = 0;
+		if (!empty($php_limit)) {
+			if (function_exists('wp_convert_hr_to_bytes')) {
+				$bytes = wp_convert_hr_to_bytes($php_limit);
+			} else {
+				$bytes = self::parse_size_to_bytes($php_limit);
+			}
+		}
+
+		// 4. Fallback to WP_MEMORY_LIMIT if PHP limit is invalid or zero
+		if ($bytes <= 0 && defined('WP_MEMORY_LIMIT')) {
+			$wp_limit = constant('WP_MEMORY_LIMIT');
+			if ($wp_limit === '-1') {
+				return 9999;
+			}
+			if (function_exists('wp_convert_hr_to_bytes')) {
+				$bytes = wp_convert_hr_to_bytes($wp_limit);
+			} else {
+				$bytes = self::parse_size_to_bytes($wp_limit);
+			}
+		}
+
+		// 5. Return 0 if still invalid
 		if ($bytes <= 0) {
 			return 0;
 		}
-		return (int) floor($bytes / 1048576);
+
+		return (int) floor($bytes / 1048576); // Convert to MB
+	}
+
+	/**
+	 * Parse human readable size string to bytes
+	 *
+	 * @param string $size Size string like "256M", "512K", "1G"
+	 * @return int Size in bytes
+	 */
+	private static function parse_size_to_bytes(string $size): int
+	{
+		$size = trim($size);
+		if (empty($size)) {
+			return 0;
+		}
+
+		$last = strtoupper(substr($size, -1));
+		$value = (int) $size;
+
+		switch ($last) {
+			case 'G':
+				$value *= 1024;
+				// fall through
+			case 'M':
+				$value *= 1024;
+				// fall through
+			case 'K':
+				$value *= 1024;
+		}
+
+		return $value;
 	}
 
 	private static function are_system_checks_ok(): bool

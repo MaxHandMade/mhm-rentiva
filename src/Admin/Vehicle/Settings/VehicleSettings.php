@@ -75,22 +75,18 @@ final class VehicleSettings
 		}
 
 		// Sanitize and validate custom details array from POST
-		$legacy_custom_details = isset($_POST['mhm_rentiva_custom_details']) && is_array($_POST['mhm_rentiva_custom_details'])
+		$custom_details = isset($_POST['mhm_rentiva_custom_details']) && is_array($_POST['mhm_rentiva_custom_details'])
 			? $_POST['mhm_rentiva_custom_details']
 			: array();
 
-		if (! empty($legacy_custom_details) && is_array($legacy_custom_details)) {
+		if (! empty($custom_details) && is_array($custom_details)) {
 			$available_details = get_option('mhm_vehicle_details', array());
 			$option_updated    = false;
 
-			foreach ($legacy_custom_details as $key => $detail_data) {
+			foreach ($custom_details as $key => $detail_data) {
 				if (is_array($detail_data) && isset($detail_data['label']) && isset($detail_data['value'])) {
-					// Global option'a ekle
+					// Add to global options
 					$available_details[self::sanitize_text_field_safe($key)] = self::sanitize_text_field_safe($detail_data['label']);
-					$option_updated = true;
-				} else {
-					// Backward compatibility for old format
-					$available_details[self::sanitize_text_field_safe($key)] = self::sanitize_text_field_safe($key);
 					$option_updated = true;
 				}
 			}

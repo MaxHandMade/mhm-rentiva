@@ -41,7 +41,8 @@
                                 { label: 'Date', value: 'date' },
                                 { label: 'Random', value: 'rand' }
                             ],
-                            onChange: function (val) { setAttributes({ orderby: val }); }
+                            onChange: function (val) { setAttributes({ orderby: val }); },
+                            __next40pxDefaultSize: true
                         }),
                         el(SelectControl, {
                             label: 'Order',
@@ -50,7 +51,8 @@
                                 { label: 'Ascending', value: 'ASC' },
                                 { label: 'Descending', value: 'DESC' }
                             ],
-                            onChange: function (val) { setAttributes({ order: val }); }
+                            onChange: function (val) { setAttributes({ order: val }); },
+                            __next40pxDefaultSize: true
                         }),
                         el(ToggleControl, {
                             label: 'Featured Only',

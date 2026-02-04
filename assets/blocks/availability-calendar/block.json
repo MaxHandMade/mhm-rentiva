@@ -7,10 +7,23 @@
     "icon": "car",
     "supports": {
         "html": false,
-        "color": { "text": true, "background": true, "link": true }
+        "color": {
+            "text": true,
+            "background": true,
+            "link": true
+        }
     },
     "attributes": {
-        "limit": { "type": "string", "default": "10" },
-        "columns": { "type": "string", "default": "3" }
-    }
+        "limit": {
+            "type": "string",
+            "default": "10"
+        },
+        "columns": {
+            "type": "string",
+            "default": "3"
+        }
+    },
+    "editorStyle": [
+        "mhm-rentiva-core-variables"
+    ]
 }

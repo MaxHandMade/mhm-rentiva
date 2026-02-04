@@ -10,13 +10,12 @@
 	--mhm-primary: var(--wp--preset--color--primary, #2563eb);
 	--mhm-secondary: var(--wp--preset--color--secondary, #1e40af);
 
-	/* === INDEPENDENT CONTROL BUTTONS (Custom Slugs) === */
-	/* Button is now independent of Primary, powered by its own preset */
+	/* === INDEPENDENT CONTROL BUTTONS === */
 	--mhm-btn-bg: var(--wp--preset--color--btn-bg, var(--mhm-primary));
 	--mhm-btn-color: var(--wp--preset--color--white, #ffffff);
 	--mhm-btn-hover-bg: color-mix(in srgb, var(--mhm-btn-bg), #000 15%);
 
-	/* Price is fully independent; it maintains its color even if Primary changes */
+	/* Price */
 	--mhm-price-color: var(--wp--preset--color--price-color, #059669);
 
 	/* Typography and Other Base Colors */
@@ -71,21 +70,13 @@
 
 	/* Font Sizes */
 	--mhm-text-xs: 0.75rem;
-	/* 12px */
 	--mhm-text-sm: 0.875rem;
-	/* 14px */
 	--mhm-text-base: 1rem;
-	/* 16px */
 	--mhm-text-lg: 1.125rem;
-	/* 18px */
 	--mhm-text-xl: 1.25rem;
-	/* 20px */
 	--mhm-text-2xl: 1.5rem;
-	/* 24px */
 	--mhm-text-3xl: 1.875rem;
-	/* 30px */
 	--mhm-text-4xl: 2.25rem;
-	/* 36px */
 
 	/* Font Weights */
 	--mhm-font-light: 300;
@@ -104,42 +95,25 @@
 	/* Spacing (Margin/Padding) */
 	--mhm-space-0: 0;
 	--mhm-space-1: 0.25rem;
-	/* 4px */
 	--mhm-space-2: 0.5rem;
-	/* 8px */
 	--mhm-space-3: 0.75rem;
-	/* 12px */
 	--mhm-space-4: 1rem;
-	/* 16px */
 	--mhm-space-5: 1.25rem;
-	/* 20px */
 	--mhm-space-6: 1.5rem;
-	/* 24px */
 	--mhm-space-8: 2rem;
-	/* 32px */
 	--mhm-space-10: 2.5rem;
-	/* 40px */
 	--mhm-space-12: 3rem;
-	/* 48px */
 	--mhm-space-16: 4rem;
-	/* 64px */
 	--mhm-space-20: 5rem;
-	/* 80px */
 
 	/* Border Radius */
 	--mhm-radius-none: 0;
 	--mhm-radius-sm: 0.125rem;
-	/* 2px */
 	--mhm-radius-base: 0.25rem;
-	/* 4px */
 	--mhm-radius-md: 0.375rem;
-	/* 6px */
 	--mhm-radius-lg: 0.5rem;
-	/* 8px */
 	--mhm-radius-xl: 0.75rem;
-	/* 12px */
 	--mhm-radius-2xl: 1rem;
-	/* 16px */
 	--mhm-radius-full: 9999px;
 
 	/* Shadows */
@@ -149,101 +123,121 @@
 	--mhm-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 	--mhm-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 	--mhm-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
 
-	/* === ANIMATIONS === */
+/* 
+ * GIB (Gutenberg Integration Bridge)
+ * Ensures that changes in the Gutenberg sidebar (Link/Text/Typo) 
+ * are forced into the local variables used by the plugin components.
+ */
+.wp-block-mhm-rentiva-search {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb)) !important;
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937)) !important;
+	--mhm-btn-bg: var(--mhm-primary) !important;
 
-	/* Transition Durations */
-	--mhm-duration-75: 75ms;
-	--mhm-duration-100: 100ms;
-	--mhm-duration-150: 150ms;
-	--mhm-duration-200: 200ms;
-	--mhm-duration-300: 300ms;
-	--mhm-duration-500: 500ms;
-	--mhm-duration-700: 700ms;
-	--mhm-duration-1000: 1000ms;
+	/* Font & Color Inheritance */
+	font-family: inherit !important;
+	font-weight: inherit !important;
+	font-size: inherit !important;
+	color: inherit !important;
+}
 
-	/* Easing Functions */
-	--mhm-ease-linear: linear;
-	--mhm-ease-in: cubic-bezier(0.4, 0, 1, 1);
-	--mhm-ease-out: cubic-bezier(0, 0, 0.2, 1);
-	--mhm-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+/* Ensure Sidebar typography settings apply to labels and inputs (e.g. font family, weight) */
+.wp-block-mhm-rentiva-search label,
+.wp-block-mhm-rentiva-search input,
+.wp-block-mhm-rentiva-search select,
+.wp-block-mhm-rentiva-search button {
+	font-family: inherit;
+	font-weight: inherit;
+	letter-spacing: inherit;
+}
 
-	/* === Z-INDEX === */
-	--mhm-z-dropdown: 1000;
-	--mhm-z-sticky: 1020;
-	--mhm-z-fixed: 1030;
-	--mhm-z-modal-backdrop: 1040;
-	--mhm-z-modal: 1050;
-	--mhm-z-popover: 1060;
-	--mhm-z-tooltip: 1070;
-	--mhm-z-toast: 1080;
+/* === BLOCK WRAPPER & BACKGROUND SYSTEM === */
+.wp-block-mhm-rentiva-search {
+	display: block !important;
+	padding: 0 !important;
+	overflow: visible;
+	/* Default to show shadows */
+	box-sizing: border-box !important;
+	transition: background 0.3s ease;
+}
 
-	/* === DASHBOARD SPECIFIC === */
+/* Form Container Style Inheritance - Applied to wrapper when background is active */
+.wp-block-mhm-rentiva-search[class*="has-background"],
+.wp-block-mhm-rentiva-search[style*="background"] {
+	border-radius: 16px !important;
+	overflow: hidden !important;
+	/* Force rounded corners on contents */
+}
 
-	/* Chart Colors */
-	--mhm-chart-primary: #0073E6;
-	--mhm-chart-primary-bg: rgba(0, 115, 230, 0.1);
-	--mhm-chart-border: #0073E6;
-	--mhm-chart-point: #0073E6;
-	--mhm-chart-point-border: #ffffff;
+/* Ensure background color from Block Wrapper covers everything inside */
+.wp-block-mhm-rentiva-search[class*="has-background"] .rv-search-form,
+.wp-block-mhm-rentiva-search[class*="has-background"] .rv-search-form-compact,
+.wp-block-mhm-rentiva-search[style*="background"] .rv-search-form,
+.wp-block-mhm-rentiva-search[style*="background"] .rv-search-form-compact {
+	background: transparent !important;
+	background-image: none !important;
+	border: none !important;
+	box-shadow: none !important;
+	width: 100%;
+	/* Removed !important to allow user-defined dimensions */
+	margin: 0 !important;
+	padding: 15px;
+	/* Default tighter padding, allows override */
+	box-sizing: border-box !important;
+}
 
-	/* Tooltip Colors */
-	--mhm-tooltip-bg: rgba(0, 0, 0, 0.9);
-	--mhm-tooltip-color: #ffffff;
-	--mhm-tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+/* Preserve the blue accent line when background is active */
+.wp-block-mhm-rentiva-search[class*="has-background"] .rv-search-form-compact::before,
+.wp-block-mhm-rentiva-search[style*="background"] .rv-search-form-compact::before {
+	display: block !important;
+	opacity: 0.8;
+}
 
-	/* Animation Colors */
-	--mhm-bounce-color: #667eea;
-	--mhm-spin-color: #667eea;
+/* Text & Label Color Inheritance */
+.wp-block-mhm-rentiva-search[class*="has-background"] label,
+.wp-block-mhm-rentiva-search[style*="background"] label,
+.wp-block-mhm-rentiva-search.has-text-color label,
+.wp-block-mhm-rentiva-search.has-text-color * {
+	color: inherit !important;
+}
 
-	/* Widget Placeholder */
-	--mhm-placeholder-bg: #f0f0f0;
-	--mhm-placeholder-border: #ccc;
+/* Link Color Specificity Booster */
+.wp-block-mhm-rentiva-search a,
+.wp-block-mhm-rentiva-search .rv-toggle-filters-compact,
+.wp-block-mhm-rentiva-search .js-toggle-filters span {
+	color: inherit !important;
+	text-decoration: inherit;
+}
 
-	/* === BREAKPOINTS === */
-	--mhm-breakpoint-sm: 640px;
-	--mhm-breakpoint-md: 782px;
-	/* WordPress Admin standard */
-	--mhm-breakpoint-lg: 1024px;
-	--mhm-breakpoint-xl: 1280px;
-	--mhm-breakpoint-2xl: 1536px;
+/* Dimension consistency */
+.wp-block-mhm-rentiva-search .rv-search-form,
+.wp-block-mhm-rentiva-search .rv-search-form-compact {
+	width: 100%;
+}
+
+.wp-block-mhm-rentiva-search .rv-search-form-compact {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	width: 100%;
+}
+
+/* Global Border Box Reset for Search Block */
+.wp-block-mhm-rentiva-search * {
+	box-sizing: border-box !important;
 }
 
 /* === DARK MODE === */
 @media (prefers-color-scheme: dark) {
 	:root {
-		/* Background Colors */
 		--mhm-bg-primary: var(--mhm-gray-900);
 		--mhm-bg-secondary: var(--mhm-gray-800);
 		--mhm-bg-tertiary: var(--mhm-gray-700);
 		--mhm-bg-card: var(--mhm-gray-800);
-		--mhm-bg-overlay: rgba(255, 255, 255, 0.1);
-
-		/* Text Colors */
 		--mhm-text-primary: var(--mhm-gray-100);
 		--mhm-text-secondary: var(--mhm-gray-300);
-		--mhm-text-tertiary: var(--mhm-gray-400);
-		--mhm-text-inverse: var(--mhm-gray-900);
-
-		/* Border Colors */
 		--mhm-border-primary: var(--mhm-gray-700);
-		--mhm-border-secondary: var(--mhm-gray-600);
-
-		/* Dashboard Dark Mode Colors */
-		--mhm-tooltip-bg: rgba(30, 30, 30, 0.95);
-		--mhm-tooltip-color: #ffffff;
-		--mhm-tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-		--mhm-placeholder-bg: #2d2d2d;
-		--mhm-placeholder-border: #4c4c4c;
 	}
-}
-
-/* WordPress Admin Dark Mode Support */
-body.wp-admin.wp-theme-dark {
-	/* Dashboard Dark Mode Colors for WordPress Admin */
-	--mhm-tooltip-bg: rgba(30, 30, 30, 0.95);
-	--mhm-tooltip-color: #ffffff;
-	--mhm-tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-	--mhm-placeholder-bg: #2d2d2d;
-	--mhm-placeholder-border: #4c4c4c;
 }

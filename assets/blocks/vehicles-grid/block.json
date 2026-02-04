@@ -22,5 +22,8 @@
             "type": "string",
             "default": "3"
         }
-    }
+    },
+    "editorStyle": [
+        "mhm-rentiva-core-variables"
+    ]
 }

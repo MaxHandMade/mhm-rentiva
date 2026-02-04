@@ -47,6 +47,7 @@ final class SettingsTestingRenderer extends AbstractTabRenderer
 				'id'    => 'mhm-clear-tests',
 				'icon'  => 'dashicons-trash',
 			),
+			$this->get_standard_reset_action(),
 		);
 	}
 

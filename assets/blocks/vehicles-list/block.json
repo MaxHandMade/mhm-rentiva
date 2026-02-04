@@ -97,5 +97,8 @@
             "type": "string",
             "default": "0"
         }
-    }
+    },
+    "editorStyle": [
+        "mhm-rentiva-core-variables"
+    ]
 }

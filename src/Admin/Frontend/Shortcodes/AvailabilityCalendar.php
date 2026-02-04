@@ -996,6 +996,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 			if ($seats) {
 				$features[] = array(
 					'icon' => 'people',
+					/* translators: %d: number of seats */
 					'text' => sprintf(__('%d people', 'mhm-rentiva'), $seats),
 					'svg'  => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_feature_icon_svg('people'),
 				);

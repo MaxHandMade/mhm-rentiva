@@ -49,8 +49,8 @@ final class ProFeatureNotice
 			return;
 		}
 
-		echo '<div class="mhm-dev-mode-banner">';
-		echo '<div class="mhm-dev-banner-content" style="background: #2271b1; color: #fff; border-left: 4px solid #135e96; padding: 12px; border-radius: 4px; margin-bottom: 20px;">';
+		echo '<div class="mhm-dev-mode-banner notice notice-info inline">';
+		echo '<div class="mhm-dev-banner-content" style="background: #2271b1; color: #fff; border-left: 4px solid #135e96; padding: 12px; border-radius: 4px;">';
 		echo '<p style="margin: 0; font-size: 14px;">';
 		echo '<strong style="font-size: 15px;">🚀 ' . esc_html__('Developer Mode Active', 'mhm-rentiva') . '</strong><br>';
 		echo '<span style="opacity: 0.95;">' . esc_html__('All Pro features including VIP Transfers, Messaging System, Advanced Analytics, and unlimited management are enabled for development.', 'mhm-rentiva') . '</span>';
@@ -87,13 +87,13 @@ final class ProFeatureNotice
 			);
 		} else {
 			$message = sprintf(
-				/* translators: Dynamic value. */
+				/* translators: %s: license URL */
 				__('You are using Rentiva Lite. This feature is available in Pro version. <a href="%s">Enter your license key</a> to enable.', 'mhm-rentiva'),
 				esc_url($license_url)
 			);
 		}
 
-		echo '<div class="notice notice-warning mhm-pro-feature-notice">';
+		echo '<div class="notice notice-warning mhm-pro-feature-notice inline">';
 		echo '<p>' . wp_kses_post($message) . '</p>';
 		echo '</div>';
 	}
@@ -110,7 +110,7 @@ final class ProFeatureNotice
 			return;
 		}
 
-		/* translators: %s placeholder. */
+		/* translators: %s: feature name */
 		$badge_text = $feature_name ? sprintf(__('%s (Pro)', 'mhm-rentiva'), $feature_name) : __('Pro', 'mhm-rentiva');
 
 		echo '<span class="mhm-pro-badge" style="display: inline-block; background: #2271b1; color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin-left: 6px; vertical-align: middle;">';
@@ -233,11 +233,12 @@ final class ProFeatureNotice
 			echo '<div class="notice ' . esc_attr($notice_class) . ' mhm-limit-notice">';
 			echo '<p style="margin: 0; font-size: 14px;">';
 			echo '<strong>' . esc_html($icon) . ' ' . esc_html__('Rentiva Lite Limit', 'mhm-rentiva') . ':</strong> ';
-			/* translators: 1: %1$d; 2: %2$d; 3: %3$d. */
+			/* translators: 1: current count, 2: max limit, 3: percentage */
 			echo esc_html(sprintf(__('You have used %1$d out of %2$d vehicles (%3$d%%).', 'mhm-rentiva'), $current, $max, $percentage));
 			if ($exceeded) {
 				echo ' <strong>' . esc_html__('Limit reached!', 'mhm-rentiva') . '</strong> ';
 			}
+
 			printf(
 				/* translators: Dynamic value. */
 				wp_kses_post(__('<a href="%s">Enter your license key</a> to upgrade to Pro for unlimited vehicles.', 'mhm-rentiva')),
@@ -257,11 +258,12 @@ final class ProFeatureNotice
 			echo '<div class="notice ' . esc_attr($notice_class) . ' mhm-limit-notice">';
 			echo '<p style="margin: 0; font-size: 14px;">';
 			echo '<strong>' . esc_html($icon) . ' ' . esc_html__('Rentiva Lite Limit', 'mhm-rentiva') . ':</strong> ';
-			/* translators: 1: %1$d; 2: %2$d; 3: %3$d. */
+			/* translators: 1: current count, 2: max limit, 3: percentage */
 			echo esc_html(sprintf(__('You have used %1$d out of %2$d bookings (%3$d%%).', 'mhm-rentiva'), $current, $max, $percentage));
 			if ($exceeded) {
 				echo ' <strong>' . esc_html__('Limit reached!', 'mhm-rentiva') . '</strong> ';
 			}
+
 			printf(
 				/* translators: Dynamic value. */
 				wp_kses_post(__('<a href="%s">Enter your license key</a> to upgrade to Pro for unlimited bookings.', 'mhm-rentiva')),
@@ -281,11 +283,12 @@ final class ProFeatureNotice
 			echo '<div class="notice ' . esc_attr($notice_class) . ' mhm-limit-notice">';
 			echo '<p style="margin: 0; font-size: 14px;">';
 			echo '<strong>' . esc_html($icon) . ' ' . esc_html__('Rentiva Lite Limit', 'mhm-rentiva') . ':</strong> ';
-			/* translators: 1: %1$d; 2: %2$d; 3: %3$d. */
+			/* translators: 1: current count, 2: max limit, 3: percentage */
 			echo esc_html(sprintf(__('You have used %1$d out of %2$d customers (%3$d%%).', 'mhm-rentiva'), $current, $max, $percentage));
 			if ($exceeded) {
 				echo ' <strong>' . esc_html__('Limit reached!', 'mhm-rentiva') . '</strong> ';
 			}
+
 			printf(
 				/* translators: Dynamic value. */
 				wp_kses_post(__('<a href="%s">Enter your license key</a> to upgrade to Pro for unlimited customers.', 'mhm-rentiva')),

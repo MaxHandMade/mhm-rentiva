@@ -1,0 +1,20 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/transfer-search",
+    "title": "MHM Transfer Search",
+    "category": "widgets",
+    "icon": "airplane",
+    "supports": {
+        "html": false,
+        "color": {
+            "text": true,
+            "background": true,
+            "link": true
+        }
+    },
+    "attributes": {},
+    "editorStyle": [
+        "mhm-rentiva-core-variables"
+    ]
+}

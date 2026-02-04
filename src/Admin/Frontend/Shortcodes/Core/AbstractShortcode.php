@@ -67,16 +67,13 @@ abstract class AbstractShortcode
 	{
 		$tag = static::get_shortcode_tag();
 
-		// Use WordPress's own shortcode_exists check
-		if (shortcode_exists($tag)) {
-			return;
-		}
-
 		// Cache check (additional security)
 		if (isset(self::$shortcode_cache[$tag])) {
 			return;
 		}
-		add_shortcode($tag, array(static::class, 'render'));
+
+		// NOTE: add_shortcode is handled by ShortcodeServiceProvider centrally.
+		// This method only handles class-internal hooks and AJAX handlers.
 		self::$shortcode_cache[$tag] = true;
 		static::register_ajax_handlers();
 		static::register_hooks();
@@ -104,7 +101,7 @@ abstract class AbstractShortcode
 			}
 
 			// Load assets (only once)
-			static::enqueue_assets_once();
+			static::enqueue_assets_once($atts);
 
 			// Prepare template data
 			$template_data = static::prepare_template_data($atts);
@@ -142,8 +139,10 @@ abstract class AbstractShortcode
 
 	/**
 	 * Load assets only once
+	 * 
+	 * @param array $atts Shortcode attributes
 	 */
-	protected static function enqueue_assets_once(): void
+	protected static function enqueue_assets_once(array $atts = []): void
 	{
 		$tag = static::get_shortcode_tag();
 
@@ -161,7 +160,7 @@ abstract class AbstractShortcode
 				MHM_RENTIVA_VERSION
 			);
 
-			static::enqueue_assets();
+			static::enqueue_assets($atts);
 		}
 
 		self::$enqueued_assets[$tag] = true;
@@ -179,21 +178,25 @@ abstract class AbstractShortcode
 	/**
 	 * Loads CSS and JS files
 	 * Can be overridden
+	 * 
+	 * @param array $atts Shortcode attributes
 	 */
-	protected static function enqueue_assets(): void
+	protected static function enqueue_assets(array $atts = []): void
 	{
-		static::enqueue_styles();
-		static::enqueue_scripts();
+		static::enqueue_styles($atts);
+		static::enqueue_scripts($atts);
 	}
 
 	/**
 	 * Loads CSS files
 	 * Can be overridden
+	 * 
+	 * @param array $atts Shortcode attributes
 	 */
-	protected static function enqueue_styles(): void
+	protected static function enqueue_styles(array $atts = []): void
 	{
 		$handle    = static::get_asset_handle();
-		$css_files = static::get_css_files();
+		$css_files = static::get_css_files($atts);
 
 		foreach ($css_files as $css_file) {
 			if (static::asset_exists($css_file)) {
@@ -211,11 +214,13 @@ abstract class AbstractShortcode
 	/**
 	 * Loads JavaScript files
 	 * Can be overridden
+	 * 
+	 * @param array $atts Shortcode attributes
 	 */
-	protected static function enqueue_scripts(): void
+	protected static function enqueue_scripts(array $atts = []): void
 	{
 		$handle   = static::get_asset_handle();
-		$js_files = static::get_js_files();
+		$js_files = static::get_js_files($atts);
 
 		foreach ($js_files as $js_file) {
 			if (static::asset_exists($js_file)) {
@@ -236,8 +241,10 @@ abstract class AbstractShortcode
 
 	/**
 	 * Returns CSS files (can be overridden)
+	 * 
+	 * @param array $atts Shortcode attributes
 	 */
-	protected static function get_css_files(): array
+	protected static function get_css_files(array $atts = []): array
 	{
 		return array(
 			static::get_assets_path() . '/css/frontend/' . static::get_css_filename(),
@@ -246,8 +253,10 @@ abstract class AbstractShortcode
 
 	/**
 	 * Returns JS files (can be overridden)
+	 * 
+	 * @param array $atts Shortcode attributes
 	 */
-	protected static function get_js_files(): array
+	protected static function get_js_files(array $atts = []): array
 	{
 		return array(
 			static::get_assets_path() . '/js/frontend/' . static::get_js_filename(),

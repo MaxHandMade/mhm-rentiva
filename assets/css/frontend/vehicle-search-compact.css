@@ -1,19 +1,31 @@
-/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
-[class*="rv-"] {
-	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
-	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
-}
-
 .rv-search-form-compact {
+	width: 100%;
+	/* Responds to parent or Gutenberg width */
 	max-width: 100%;
 	margin: 0 auto;
-	padding: 30px;
+	padding: 10px;
+	/* UI-requested compact padding */
 	background: linear-gradient(135deg, var(--mhm-bg-card) 0%, var(--mhm-bg-secondary) 100%);
 	border-radius: 16px;
 	border: 1px solid var(--mhm-border-primary);
-	font-family: var(--mhm-font-primary);
+	font-family: inherit;
 	position: relative;
-	overflow: hidden;
+	overflow: visible;
+}
+
+/* Support for Gutenberg Background and Text Colors */
+.wp-block-mhm-rentiva-search.has-background .rv-search-form-compact,
+.wp-block-mhm-rentiva-search[style*="background"] .rv-search-form-compact {
+	background: transparent !important;
+	background-image: none !important;
+	border: none !important;
+	box-shadow: none !important;
+	padding: 10px !important;
+}
+
+.wp-block-mhm-rentiva-search.has-text-color .rv-search-form-compact,
+.wp-block-mhm-rentiva-search.has-text-color .rv-search-form-compact label {
+	color: inherit !important;
 }
 
 .rv-search-form-compact::before {
@@ -31,50 +43,26 @@
 	display: none;
 }
 
-.rv-search-header-compact h3 {
-	margin: 0;
-	font-size: 28px;
-	font-weight: 700;
-	color: var(--mhm-text-primary);
-	letter-spacing: -0.025em;
-}
-
-/* Main Search Row */
+/* Main Search Row - Compact Horizontal Layout */
 .rv-search-main-row {
 	display: flex !important;
-	/* Force flex for horizontal alignment */
-	flex-wrap: nowrap;
-	gap: 12px !important;
+	flex-wrap: nowrap !important;
+	gap: 10px !important;
+	/* Tighter gap */
 	align-items: flex-end !important;
-	justify-content: center !important;
-	/* Ensure centering */
-	margin-bottom: 0 !important;
+	justify-content: space-between !important;
+	/* Spread items to fill width */
+	width: 100%;
+	margin: 0 auto !important;
 }
 
-/* ... existing code ... */
-
-.rv-search-btn {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	padding: 0 32px;
-	background: var(--mhm-primary);
-	color: var(--mhm-white);
-	border: none;
-	border-radius: 10px;
-	font-size: 15px;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.wp-block-mhm-rentiva-search .rv-search-form-compact {
+	height: 100%;
 	width: 100%;
-	/* Fill the flex container */
+	/* Fill the Gutenberg block area */
+	display: flex;
+	flex-direction: column;
 	justify-content: center;
-	height: 48px;
-	/* Match input height explicitly */
-	box-sizing: border-box;
-	white-space: nowrap;
-	margin-bottom: 0px;
 }
 
 /* Form Fields */
@@ -83,10 +71,9 @@
 	flex-direction: column;
 	position: relative;
 	flex: 1;
-	/* Distribute space */
-	min-width: 140px;
-	min-height: auto;
-	/* Allow auto height */
+	/* Allow fields to grow */
+	min-width: 200px;
+	/* Minimum width before breaking */
 	margin-bottom: 0px;
 }
 
@@ -97,112 +84,70 @@
 	margin-bottom: 6px;
 	letter-spacing: 0.025em;
 	white-space: nowrap;
+	text-align: center;
 }
 
-.rv-search-field input {
-	width: 100%;
-	padding: 12px 16px;
-	border: 2px solid var(--mhm-border-primary);
-	border-radius: 10px;
-	font-size: 15px;
-	font-weight: 500;
-	color: var(--mhm-text-primary);
-	background: var(--mhm-bg-card);
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	box-shadow: var(--mhm-shadow-sm);
-	height: 48px;
-	/* Standardize height */
-	box-sizing: border-box;
-}
-
-.rv-search-field input:focus {
-	outline: none;
-	border-color: var(--mhm-btn-bg);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-btn-bg), transparent 90%);
-	transform: translateY(-1px);
-}
-
-.rv-search-field input::placeholder {
-	color: var(--mhm-gray-400);
-	font-weight: 400;
-}
-
-/* Date & Time Wrapper */
+/* Date & Time Wrapper - Compact Horizontal */
 .rv-datetime-wrapper {
-	display: flex;
-	gap: 8px;
-	width: 100%;
+	display: grid !important;
+	grid-template-columns: 1fr 110px !important;
+	/* Date grows, Time is stable */
+	gap: 5px !important;
+	width: 100% !important;
+	/* Full width of parent */
 }
 
 .rv-date-input {
-	flex: 2;
-	/* Date takes ~66% */
-	min-width: 0;
-	/* Prevent overflow */
-}
-
-.rv-time-select {
-	flex: 1;
-	/* Time takes ~33% */
-	min-width: 80px;
-	padding: 14px 28px 14px 8px;
-	/* Increased vertical padding to center text */
+	width: 100% !important;
+	/* Fill grid cell */
+	flex: none !important;
+	text-align: center;
+	padding: 12px 8px !important;
 	border: 2px solid var(--mhm-border-primary);
 	border-radius: 10px;
 	font-size: 14px;
+	height: 48px;
+	box-sizing: border-box;
+}
+
+/* Stable Time Selector */
+.rv-datetime-wrapper .rv-time-select {
+	width: 100% !important;
+	/* Fill grid cell */
+	flex: none !important;
+	padding: 10px 22px 10px 4px !important;
+	text-align: center;
+	border: 2px solid var(--mhm-border-primary);
+	border-radius: 10px;
+	font-size: 13px;
 	font-weight: 500;
 	color: var(--mhm-text-primary);
 	background: var(--mhm-bg-card);
 	cursor: pointer;
 	box-sizing: border-box;
 	height: 48px;
-	/* Match combined input height */
-	line-height: 20px;
-	/* Fixed line-height for proper text display */
+	line-height: normal;
 	overflow: visible;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	appearance: none;
-	-webkit-appearance: none;
-	-moz-appearance: none;
+	appearance: none !important;
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
 	background-repeat: no-repeat;
 	background-position: right 8px center;
+	/* Adjusted icon position */
 }
 
-.rv-time-select:focus {
-	outline: none;
-	border-color: var(--mhm-btn-bg);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-btn-bg), transparent 90%);
-}
-
-/* Disabled time select styling */
-.rv-time-select-disabled,
-.rv-time-select:disabled {
-	background-color: var(--mhm-bg-tertiary) !important;
-	color: var(--mhm-text-tertiary) !important;
-	cursor: not-allowed !important;
-	opacity: 0.7;
-}
-
-.rv-time-select-disabled:focus,
-.rv-time-select:disabled:focus {
-	border-color: var(--mhm-border-primary) !important;
-	box-shadow: none !important;
-}
-
-/* Search Button */
+/* Search Button Management */
 .rv-search-submit {
-	display: block;
-	/* Let button handling sizing */
-	margin-bottom: 0px;
+	flex: 0 0 auto !important;
+	/* Prevent button from growing too much */
+	min-width: auto;
 }
 
 .rv-search-btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
-	padding: 0 32px;
+	padding: 0 24px;
+	/* Increased padding */
 	background-color: var(--mhm-btn-bg);
 	color: var(--mhm-btn-color);
 	border: none;
@@ -210,478 +155,47 @@
 	font-size: 15px;
 	font-weight: 600;
 	cursor: pointer;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%);
-	min-width: auto;
+	transition: all 0.3s ease;
+	min-width: 120px !important;
 	justify-content: center;
 	height: 48px;
 	box-sizing: border-box;
 	white-space: nowrap;
-	margin-bottom: 0px;
 }
 
 .rv-search-btn:hover {
 	background-color: var(--mhm-btn-hover-bg);
-	transform: translateY(-2px);
-	box-shadow: 0 8px 25px color-mix(in srgb, var(--mhm-btn-bg), transparent 60%);
 	filter: brightness(110%);
-}
-
-.rv-search-btn:active {
-	transform: translateY(0);
 }
 
 .rv-search-icon {
 	font-size: 16px;
 }
 
-/* Advanced Filters Toggle - Hidden per user request */
-.rv-advanced-filters-compact {
-	display: none;
-	margin-top: 20px;
-	border-top: 1px solid #e2e8f0;
-	padding-top: 20px;
-}
-
-.rv-toggle-filters-compact {
-	display: none;
-}
-
-/* Advanced Filters Content */
+/* Advanced Filters Toggle & Content - Removed per request for Compact layout */
+.rv-advanced-filters-compact,
 .rv-advanced-content-compact {
-	margin-top: 20px;
-	padding: 20px;
-	background: var(--mhm-bg-secondary);
-	border-radius: 12px;
-	border: 1px solid var(--mhm-border-primary);
+	display: none !important;
 }
 
-.rv-advanced-row-compact {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	gap: 20px;
-}
-
-.rv-advanced-row-compact .rv-search-field {
-	margin-bottom: 0px;
-}
-
-.rv-advanced-row-compact .rv-search-field input,
-.rv-advanced-row-compact .rv-search-field select {
-	background: var(--mhm-bg-card);
-}
-
-/* Select Fields */
-.rv-search-field select {
-	width: 100%;
-	padding: 14px 16px;
-	border: 2px solid var(--mhm-border-primary);
-	border-radius: 10px;
-	font-size: 15px;
-	font-weight: 500;
-	color: var(--mhm-text-primary);
-	background: var(--mhm-bg-card);
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	box-shadow: var(--mhm-shadow-sm);
-	cursor: pointer;
-}
-
-.rv-search-field select:focus {
-	outline: none;
-	border-color: var(--mhm-btn-bg);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-btn-bg), transparent 90%);
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-	.rv-search-main-row {
-		display: grid !important;
-		grid-template-columns: 1fr 1fr;
-		gap: 15px !important;
-	}
-
-	.rv-search-keyword {
-		grid-column: 1 / -1;
-	}
-}
-
+/* Responsive */
 @media (max-width: 782px) {
 	.rv-search-main-row {
 		display: grid !important;
 		grid-template-columns: 1fr !important;
-		/* Stack vertically */
 		gap: 15px !important;
 	}
 
-	.rv-search-keyword {
-		grid-column: 1;
-	}
-
 	.rv-search-form-compact {
-		padding: 20px;
-		margin: 0 10px;
+		width: 95% !important;
 	}
 
 	.rv-search-btn {
-		width: 100%;
-		margin-top: 5px;
-	}
-
-	.rv-search-header-compact h3 {
-		font-size: 24px;
-	}
-
-	.rv-advanced-row-compact {
-		grid-template-columns: 1fr;
-		gap: 15px;
+		width: 100% !important;
 	}
 
 	.rv-datetime-wrapper {
-		flex-wrap: nowrap;
-		gap: 8px;
+		width: 100% !important;
+		grid-template-columns: 2fr 1fr !important;
 	}
-
-	.rv-date-input {
-		flex: 1.5;
-		min-width: 0;
-	}
-
-	.rv-time-select {
-		flex: 1;
-		min-width: 90px;
-		font-size: 13px;
-		padding: 14px 24px 14px 8px;
-		line-height: 20px;
-		height: 48px;
-	}
-}
-
-@media (max-width: 480px) {
-	.rv-search-form-compact {
-		padding: 15px;
-		border-radius: 12px;
-	}
-
-	.rv-search-header-compact h3 {
-		font-size: 20px;
-	}
-
-	.rv-search-field input,
-	.rv-search-field select {
-		padding: 12px 14px;
-		font-size: 14px;
-	}
-
-	.rv-search-btn {
-		padding: 12px 20px;
-		font-size: 14px;
-	}
-
-	.rv-datetime-wrapper {
-		flex-wrap: nowrap;
-		gap: 6px;
-	}
-
-	.rv-date-input {
-		flex: 1.2;
-		min-width: 0;
-		font-size: 13px;
-		padding: 10px 12px;
-	}
-
-	.rv-time-select {
-		flex: 0.8;
-		min-width: 85px;
-		font-size: 12px;
-		padding: 12px 20px 12px 8px;
-		line-height: 18px;
-		height: 44px;
-	}
-}
-
-/* Animation for toggle */
-.rv-advanced-content-compact {
-	display: none;
-	/* Initially hidden */
-}
-
-.rv-advanced-filters-compact.active .rv-advanced-content-compact {
-	display: block;
-}
-
-/* Loading State */
-.rv-search-btn.loading {
-	opacity: 0.7;
-	cursor: not-allowed;
-	pointer-events: none;
-}
-
-.rv-search-btn.loading .rv-search-icon {
-	animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-	from {
-		transform: rotate(0deg);
-	}
-
-	to {
-		transform: rotate(360deg);
-	}
-}
-
-/* Error States */
-.rv-search-field.error input,
-.rv-search-field.error select {
-	border-color: var(--mhm-error);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-error), transparent 90%);
-}
-
-.rv-search-field .error-message {
-	color: var(--mhm-error);
-	font-size: 12px;
-	font-weight: 500;
-	margin-top: 4px;
-}
-
-/* Success States */
-.rv-search-field.success input,
-.rv-search-field.success select {
-	border-color: var(--mhm-success);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-success), transparent 90%);
-}
-
-/* Focus States */
-.rv-search-field:focus-within label {
-	color: var(--mhm-btn-bg);
-}
-
-/* ===== MODERN JQUERY UI DATEPICKER STYLES (Matched to Booking Form) ===== */
-.ui-datepicker {
-	background: var(--mhm-bg-card) !important;
-	border: 2px solid var(--mhm-border-primary) !important;
-	border-radius: 12px !important;
-	box-shadow: var(--mhm-shadow-lg) !important;
-	padding: 0 !important;
-	font-family: var(--mhm-font-primary) !important;
-	font-size: 14px !important;
-	z-index: 9999 !important;
-	min-width: 280px !important;
-}
-
-/* ===== DATEPICKER HEADER ===== */
-.ui-datepicker .ui-datepicker-header {
-	background: var(--mhm-btn-bg) !important;
-	color: var(--mhm-btn-color) !important;
-	border: none !important;
-	border-radius: 10px 10px 0 0 !important;
-	padding: 0 !important;
-	min-height: 64px !important;
-	height: 64px !important;
-	text-align: center !important;
-	position: relative !important;
-	box-shadow: var(--mhm-shadow-base) !important;
-	display: flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	overflow: visible !important;
-}
-
-/* Title */
-.ui-datepicker .ui-datepicker-title {
-	font-weight: 700 !important;
-	font-size: 17px !important;
-	line-height: 1.5 !important;
-	color: var(--mhm-btn-color) !important;
-	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
-	letter-spacing: 0.5px !important;
-	text-align: center !important;
-	margin: 0 !important;
-	padding: 0 !important;
-	display: inline-block !important;
-	width: auto !important;
-	position: relative !important;
-	z-index: 5 !important;
-	white-space: nowrap !important;
-}
-
-/* Navigation Arrows */
-.ui-datepicker .ui-datepicker-prev,
-.ui-datepicker .ui-datepicker-next {
-	position: absolute !important;
-	top: 50% !important;
-	transform: translateY(-50%) !important;
-	width: 36px !important;
-	height: 36px !important;
-	background: rgba(255, 255, 255, 0.25) !important;
-	border: 2px solid rgba(255, 255, 255, 0.4) !important;
-	border-radius: 50% !important;
-	cursor: pointer !important;
-	display: flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	transition: all 0.2s ease !important;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
-	z-index: 10 !important;
-}
-
-.ui-datepicker .ui-datepicker-prev:hover,
-.ui-datepicker .ui-datepicker-next:hover {
-	background: rgba(255, 255, 255, 0.4) !important;
-	border-color: rgba(255, 255, 255, 0.6) !important;
-	transform: translateY(-50%) scale(1.05) !important;
-	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
-}
-
-.ui-datepicker .ui-datepicker-prev {
-	left: 16px !important;
-	right: auto !important;
-}
-
-.ui-datepicker .ui-datepicker-next {
-	right: 16px !important;
-	left: auto !important;
-}
-
-/* Icons for arrows */
-.ui-datepicker .ui-datepicker-prev::before {
-	content: '' !important;
-	display: block !important;
-	width: 8px !important;
-	height: 8px !important;
-	border-left: 2px solid var(--mhm-white) !important;
-	border-bottom: 2px solid var(--mhm-white) !important;
-	transform: rotate(45deg) !important;
-	margin-left: 2px !important;
-}
-
-.ui-datepicker .ui-datepicker-next::before {
-	content: '' !important;
-	display: block !important;
-	width: 8px !important;
-	height: 8px !important;
-	border-right: 2px solid var(--mhm-white) !important;
-	border-top: 2px solid var(--mhm-white) !important;
-	transform: rotate(45deg) !important;
-	margin-right: 2px !important;
-}
-
-/* Hide default text/icons */
-.ui-datepicker .ui-datepicker-prev span,
-.ui-datepicker .ui-datepicker-next span {
-	display: none !important;
-}
-
-/* Calendar Table */
-.ui-datepicker-calendar {
-	width: 100% !important;
-	border-collapse: separate !important;
-	border-spacing: 4px !important;
-	padding: 8px !important;
-	margin: 0 !important;
-}
-
-.ui-datepicker-calendar th {
-	color: var(--mhm-text-secondary) !important;
-	font-weight: 600 !important;
-	font-size: 13px !important;
-	padding: 10px 0 !important;
-	text-align: center !important;
-	text-transform: uppercase !important;
-	letter-spacing: 0.5px !important;
-	border: none !important;
-	background: transparent !important;
-}
-
-.ui-datepicker-calendar td {
-	padding: 0 !important;
-	text-align: center !important;
-	border: none !important;
-	background: transparent !important;
-}
-
-.ui-datepicker-calendar td a,
-.ui-datepicker-calendar td span {
-	display: flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	width: 40px !important;
-	height: 40px !important;
-	margin: 0 auto !important;
-	text-align: center !important;
-	text-decoration: none !important;
-	color: var(--mhm-text-primary) !important;
-	font-weight: 500 !important;
-	font-size: 14px !important;
-	border-radius: 50% !important;
-	border: 1px solid transparent !important;
-	transition: all 0.2s ease !important;
-}
-
-.ui-datepicker-calendar td a:hover {
-	background-color: var(--mhm-bg-secondary) !important;
-	color: var(--mhm-btn-bg) !important;
-	transform: scale(1.1) !important;
-	font-weight: 600 !important;
-}
-
-.ui-datepicker-calendar .ui-state-active {
-	background: var(--mhm-btn-bg) !important;
-	color: var(--mhm-white) !important;
-	font-weight: 700 !important;
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
-	border: none !important;
-	transform: scale(1.05) !important;
-}
-
-.ui-datepicker-calendar .ui-state-highlight {
-	background-color: var(--mhm-bg-tertiary) !important;
-	color: var(--mhm-text-primary) !important;
-	border: 1px solid var(--mhm-border-primary) !important;
-}
-
-.ui-datepicker-today a.ui-state-highlight {
-	font-weight: 700 !important;
-	color: var(--mhm-btn-bg) !important;
-	background-color: var(--mhm-bg-secondary) !important;
-	border-color: color-mix(in srgb, var(--mhm-btn-bg), transparent 80%) !important;
-}
-
-/* Button Pane */
-.ui-datepicker-buttonpane {
-	border-top: 1px solid var(--mhm-border-primary) !important;
-	padding: 12px !important;
-	margin: 0 !important;
-}
-
-.ui-datepicker-buttonpane button {
-	background: var(--mhm-gray-500) !important;
-	color: var(--mhm-white) !important;
-	border: none !important;
-	border-radius: 6px !important;
-	padding: 8px 16px !important;
-	font-size: 13px !important;
-	font-weight: 500 !important;
-	cursor: pointer !important;
-	margin: 0 4px !important;
-	opacity: 1 !important;
-	width: auto !important;
-}
-
-.ui-datepicker-buttonpane button:hover {
-	filter: brightness(110%) !important;
-	transform: translateY(-1px) !important;
-}
-
-.ui-datepicker-buttonpane button.ui-datepicker-current {
-	float: left !important;
-	background: var(--mhm-bg-secondary) !important;
-	color: var(--mhm-text-secondary) !important;
-	border: 1px solid var(--mhm-border-primary) !important;
-}
-
-.ui-datepicker-buttonpane button.ui-datepicker-close {
-	float: right !important;
-	background: var(--mhm-primary) !important;
-	color: var(--mhm-white) !important;
 }

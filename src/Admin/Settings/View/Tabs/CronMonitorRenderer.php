@@ -46,6 +46,7 @@ final class CronMonitorRenderer extends AbstractTabRenderer
 				'id'    => 'mhm-test-cron-jobs-btn',
 				'icon'  => 'dashicons-admin-tools',
 			),
+			$this->get_standard_reset_action(),
 		);
 	}
 

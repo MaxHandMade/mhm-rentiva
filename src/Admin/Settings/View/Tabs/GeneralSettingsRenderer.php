@@ -31,22 +31,6 @@ final class GeneralSettingsRenderer extends AbstractTabRenderer
 	/**
 	 * @inheritDoc
 	 */
-	public function get_header_actions(): array
-	{
-		return array(
-			array(
-				'text'  => __('Reset This Tab', 'mhm-rentiva'),
-				'url'   => '#',
-				'class' => 'button button-link-delete mhm-reset-tab-settings',
-				'icon'  => 'dashicons-undo',
-				'data'  => array('tab' => $this->slug),
-			),
-		);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public function render(): void
 	{
 		if (class_exists(GeneralSettings::class)) {

@@ -163,15 +163,6 @@ final class About
 	}
 
 	/**
-	 * Legacy render method - Deprecated but kept for backward compatibility if needed internally.
-	 * Now redirects to lazy logic.
-	 */
-	private static function render_tab_content(string $tab, array $system_info, array $features, array $changelog): void
-	{
-		self::render_tab_content_lazy($tab);
-	}
-
-	/**
 	 * Enqueues admin scripts and styles for the About page.
 	 *
 	 * @param string $hook The current admin page hook.

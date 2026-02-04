@@ -1,0 +1,25 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/messages",
+    "title": "MHM Customer Messages",
+    "category": "widgets",
+    "icon": "email",
+    "supports": {
+        "html": false,
+        "color": {
+            "text": true,
+            "background": true,
+            "link": true
+        }
+    },
+    "attributes": {
+        "hide_nav": {
+            "type": "boolean",
+            "default": false
+        }
+    },
+    "editorStyle": [
+        "mhm-rentiva-core-variables"
+    ]
+}

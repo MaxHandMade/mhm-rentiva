@@ -33,15 +33,10 @@ final class IntegrationRenderer extends AbstractTabRenderer
 	 */
 	public function get_header_actions(): array
 	{
-		return array(
-			array(
-				'text'  => __('Factory Reset API', 'mhm-rentiva'),
-				'url'   => '#',
-				'class' => 'button button-link-delete mhm-reset-tab-settings',
-				'icon'  => 'dashicons-undo',
-				'data'  => array('tab' => 'integration'),
-			),
-		);
+		$reset_action = $this->get_standard_reset_action();
+		$reset_action['text'] = __('Factory Reset API', 'mhm-rentiva');
+
+		return array($reset_action);
 	}
 
 	/**

@@ -416,9 +416,6 @@ final class Plugin
 			Admin\REST\Availability::register();
 		}
 
-		// ☠️ DEAD CODE REMOVED: Portal API (552 lines) - deprecated in v4.0.0, not used anywhere
-		// My Account system uses direct AJAX (admin-ajax.php), not REST API
-
 		// ⭐ New Account System (WordPress Login)
 		if (class_exists(Admin\Frontend\Account\AccountController::class)) {
 			Admin\Frontend\Account\AccountController::register();

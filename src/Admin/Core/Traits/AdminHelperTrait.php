@@ -139,10 +139,14 @@ trait AdminHelperTrait
 				$id     = isset($btn['id']) ? ' id="' . esc_attr($btn['id']) . '"' : '';
 				$url    = isset($btn['url']) ? esc_url($btn['url']) : 'javascript:void(0);';
 
-				$data_attrs = '';
+				$extra_attrs = '';
 				if (isset($btn['data']) && is_array($btn['data'])) {
 					foreach ($btn['data'] as $key => $val) {
-						$data_attrs .= ' data-' . esc_attr($key) . '="' . esc_attr((string) $val) . '"';
+						if ($key === 'onclick') {
+							$extra_attrs .= ' onclick="' . $val . '"'; // No data- prefix for events
+						} else {
+							$extra_attrs .= ' data-' . esc_attr($key) . '="' . esc_attr((string) $val) . '"';
+						}
 					}
 				}
 
@@ -152,7 +156,7 @@ trait AdminHelperTrait
 					$id,
 					$target,
 					esc_attr($class),
-					$data_attrs,
+					$extra_attrs,
 					$icon,
 					esc_html($btn['text'])
 				);

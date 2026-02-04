@@ -40,11 +40,6 @@ final class TransferShortcodes extends AbstractShortcode
 	public static function register(): void
 	{
 		parent::register();
-
-		// Alias for backward compatibility (v4.9.2)
-		if (! shortcode_exists('mhm_rentiva_transfer_search')) {
-			add_shortcode('mhm_rentiva_transfer_search', array(static::class, 'render'));
-		}
 	}
 
 	/**
@@ -98,11 +93,11 @@ final class TransferShortcodes extends AbstractShortcode
 	protected static function enqueue_assets(): void
 	{
 		// Register CSS
-		$css_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/css/transfer.css';
+		$css_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/css/frontend/transfer.css';
 		if (file_exists($css_path)) {
 			wp_enqueue_style(
 				'mhm-rentiva-transfer-css',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/transfer.css',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/transfer.css',
 				array(),
 				MHM_RENTIVA_VERSION
 			);

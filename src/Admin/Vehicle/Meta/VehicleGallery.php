@@ -138,7 +138,7 @@ final class VehicleGallery extends AbstractMetaBox
 					'removeImage'   => __('Remove Image', 'mhm-rentiva'),
 					'setAsFeatured' => __('Set as Featured Image', 'mhm-rentiva'),
 					'noImages'      => __('No images added yet', 'mhm-rentiva'),
-					/* translators: %d placeholder. */
+					/* translators: %d: maximum number of images */
 					'maxImages'     => sprintf(__('You can add maximum %d images', 'mhm-rentiva'), $max_gallery_images),
 					'confirmRemove' => __('Are you sure you want to remove this image?', 'mhm-rentiva'),
 					'uploading'     => __('Uploading...', 'mhm-rentiva'),

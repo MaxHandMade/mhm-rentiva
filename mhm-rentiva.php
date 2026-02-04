@@ -19,7 +19,6 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-// Global sanitization overrides removed.
 
 /**
  * Safe sanitize text field that handles null values
@@ -46,12 +45,6 @@ function mhm_rentiva_sanitize_text_field_safe($value)
 
 // Define Plugin Constants
 define('MHM_RENTIVA_VERSION', '4.9.6');
-
-
-// Recursive $_POST/$_REQUEST cleaning removed.
-
-// ✅ Database cleaning removed - was causing infinite loop
-// Null cleaning is handled in SettingsSanitizer and immediate POST cleaning above
 
 // PHP version check
 if (version_compare(PHP_VERSION, '7.4', '<')) {
@@ -198,9 +191,27 @@ function mhm_rentiva_single_site_activation()
 	// Refresh permalinks
 	flush_rewrite_rules();
 
-	// Create rating table
+	// Create all database tables
 	if (class_exists('MHMRentiva\Admin\Core\Utilities\DatabaseMigrator')) {
-		\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::create_rating_table();
+		// Run migrations to ensure all indexes and tables are up to date
+		\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::run_migrations();
+
+		// Force create specific tables that might not be in migrations yet
+		$critical_tables = array(
+			'payment_log',
+			'sessions',
+			'transfer_locations',
+			'transfer_routes',
+			'ratings',
+			'queue',
+			'report_queue',
+			'message_logs',
+			'notification_queue'
+		);
+
+		foreach ($critical_tables as $table) {
+			\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::create_table($table);
+		}
 	}
 
 	// Trigger setup wizard redirect on new installations

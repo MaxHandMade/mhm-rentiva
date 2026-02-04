@@ -1,56 +1,123 @@
 /**
  * Vehicle Search Form JavaScript
  * Handles AJAX search functionality, form validation, and UI interactions
+ * 
+ * Supports multiple form instances.
  */
 (function ($) {
     'use strict';
 
     // Global variables
-    let currentPage = 1;
     let isLoading = false;
     let searchTimeout = null;
 
     // Initialize when document is ready
     $(document).ready(function () {
-        initializeSearchForm();
-        initializeDatePickers();
-        initializeEventHandlers();
+        initializeSearchForms();
     });
 
     /**
-     * Initialize search form
+     * Initialize search forms
+     * @param {Document|HTMLElement} context Optional context to search within (useful for editor iframe)
      */
-    function initializeSearchForm() {
-        const $form = $('#rv-search-filters');
-        if ($form.length === 0) return;
+    function initializeSearchForms(context) {
+        // Use context if provided, otherwise default to entire document
+        const $scope = context ? $(context) : $(document);
 
-        // Set initial state
-        updateFormState();
+        // Find all search forms (full and compact) within scope
+        $scope.find('.rv-search-form .js-rv-search-form, .rv-search-form-compact .js-rv-search-form').each(function () {
+            const $form = $(this);
+            const $wrapper = $form.closest('.rv-search-form, .rv-search-form-compact');
+
+            initializeDatePickers($form);
+            initializeEventHandlers($form, $wrapper);
+
+            // Set initial state
+            updateFormState($form);
+        });
     }
+
+    // Expose globally for Editor re-init
+    window.mhmRentivaInitSearch = initializeSearchForms;
 
     /**
      * Initialize date pickers
      */
-    function initializeDatePickers() {
-        const $startDate = $('#rv-start-date');
-        const $endDate = $('#rv-end-date');
+    function initializeDatePickers($form) {
+        const $startDate = $form.find('.js-start-date');
+        const $endDate = $form.find('.js-end-date');
 
         if ($startDate.length === 0 || $endDate.length === 0) return;
 
+        // Destroy existing instances to prevent "Missing instance data" errors
+        $startDate.each(function () {
+            const $input = $(this);
+            if ($input.hasClass('hasDatepicker') || $input.data('datepicker')) {
+                try { $input.datepicker('destroy'); } catch (e) { }
+                $input.removeClass('hasDatepicker').removeData('datepicker').off('.datepicker');
+            }
+        });
+        $endDate.each(function () {
+            const $input = $(this);
+            if ($input.hasClass('hasDatepicker') || $input.data('datepicker')) {
+                try { $input.datepicker('destroy'); } catch (e) { }
+                $input.removeClass('hasDatepicker').removeData('datepicker').off('.datepicker');
+            }
+        });
+
+        // Common options for both pickers
+        const datePickerOptions = {
+            ...mhmRentivaSearch.datepicker_options,
+            dateFormat: 'yy-mm-dd',
+            appendTo: 'body', // Fix for z-index/overflow issues
+            beforeShow: function (input, inst) {
+                setTimeout(function () {
+                    const $input = $(input);
+                    const inputOffset = $input.offset();
+                    const inputHeight = $input.outerHeight();
+
+                    // Position datepicker below input
+                    inst.dpDiv.css({
+                        'position': 'absolute',
+                        'top': (inputOffset.top + inputHeight + 5) + 'px',
+                        'left': inputOffset.left + 'px',
+                        'z-index': 99999 // High z-index to ensure visibility
+                    });
+                }, 10);
+            }
+        };
+
         // Initialize jQuery UI datepicker
         $startDate.datepicker({
-            ...mhmRentivaSearch.datepicker_options,
+            ...datePickerOptions,
             onSelect: function (selectedDate) {
+                // Set min date for end date
                 $endDate.datepicker('option', 'minDate', selectedDate);
-                validateDateRange();
+
+                // If end date is before new start date, clear it
+                const endDateVal = $endDate.val();
+                if (endDateVal) {
+                    try {
+                        const dateFormat = datePickerOptions.dateFormat || 'yy-mm-dd';
+                        const start = $.datepicker.parseDate(dateFormat, selectedDate);
+                        const end = $.datepicker.parseDate(dateFormat, endDateVal);
+
+                        if (end < start) {
+                            $endDate.val('');
+                        }
+                    } catch (e) { }
+                }
+
+                validateDateRange($form);
             }
         });
 
         $endDate.datepicker({
-            ...mhmRentivaSearch.datepicker_options,
+            ...datePickerOptions,
             onSelect: function (selectedDate) {
+                // Set max date for start date
                 $startDate.datepicker('option', 'maxDate', selectedDate);
-                validateDateRange();
+                validateDateRange($form);
             }
         });
     }
@@ -58,105 +125,119 @@
     /**
      * Initialize event handlers
      */
-    function initializeEventHandlers() {
+    function initializeEventHandlers($form, $wrapper) {
         // Form submission
-        $('#rv-search-filters').on('submit', handleFormSubmit);
+        $form.on('submit', function (e) { handleFormSubmit(e, $form, $wrapper); });
 
         // Reset button
-        $('#rv-reset-btn, #rv-reset-from-no-results').on('click', handleReset);
+        $form.find('.js-reset-btn').on('click', function () { handleReset($form, $wrapper); });
+
+        // No results reset button
+        $wrapper.find('.js-reset-from-no-results').on('click', function () { handleReset($form, $wrapper); });
 
         // Real-time search (if enabled)
-        if ($('#rv-search-form').data('instant-search') === true) {
-            $('#rv-keyword').on('input', debounceSearch);
-            $('select').on('change', debounceSearch);
-            $('input[type="number"]').on('input', debounceSearch);
+        if ($wrapper.data('instant-search') === true) {
+            $form.find('.js-keyword').on('input', function () { debounceSearch($form, $wrapper); });
+            $form.find('select').on('change', function () { debounceSearch($form, $wrapper); });
+            $form.find('input[type="number"]').on('input', function () { debounceSearch($form, $wrapper); });
         }
 
         // Pagination
-        $(document).on('click', '.rv-pagination-btn', handlePagination);
+        $wrapper.on('click', '.rv-pagination-btn', function (e) { handlePagination(e, $(this), $form, $wrapper); });
 
         // Result card clicks
-        $(document).on('click', '.rv-result-card', handleResultCardClick);
+        $wrapper.on('click', '.rv-result-card', function (e) { handleResultCardClick(e, $(this), $wrapper); });
 
         // Form field changes
-        $('input, select').on('change', updateFormState);
+        $form.find('input, select').on('change', function () { updateFormState($form); });
     }
 
     /**
      * Handle form submission
      */
-    function handleFormSubmit(e) {
+    function handleFormSubmit(e, $form, $wrapper) {
         e.preventDefault();
 
         if (isLoading) return;
 
         // Validate form
-        if (!validateForm()) {
+        if (!validateForm($form)) {
             return;
         }
 
-        // Perform search
-        performSearch(1); // Reset to first page
+        // ⭐ Priority Redirection: If redirect URL is provided and it's a compact layout OR no results container exists
+        const redirectUrl = $wrapper.find('.js-redirect-url').val();
+        const isCompact = $wrapper.hasClass('rv-search-form-compact');
+        const hasResultsContainer = $wrapper.find('.js-rv-search-results').length > 0;
+
+        if (redirectUrl && (isCompact || !hasResultsContainer)) {
+            const searchParams = getFormData($form);
+            const queryString = new URLSearchParams(searchParams).toString();
+            const separator = redirectUrl.includes('?') ? '&' : '?';
+            window.location.href = redirectUrl + separator + queryString;
+            return;
+        }
+
+        // Perform AJAX search
+        performSearch($form, $wrapper, 1); // Reset to first page
     }
 
     /**
      * Handle reset button click
      */
-    function handleReset() {
-        const $form = $('#rv-search-filters');
-
+    function handleReset($form, $wrapper) {
         // Reset form fields
         $form[0].reset();
 
         // Clear date pickers
-        $('#rv-start-date, #rv-end-date').datepicker('setDate', null);
+        $form.find('.js-start-date, .js-end-date').datepicker('setDate', null);
 
         // Clear and hide results completely
-        clearResults();
-        hideResults();
+        clearResults($wrapper);
+        hideResults($wrapper);
 
         // Reset pagination
-        currentPage = 1;
-        $('#rv-current-page').val(1);
+        $wrapper.find('.js-current-page').val(1);
 
         // Update form state
-        updateFormState();
+        updateFormState($form);
 
         // Focus on keyword field
-        $('#rv-keyword').focus();
+        $form.find('.js-keyword').focus();
     }
 
     /**
      * Handle pagination
      */
-    function handlePagination(e) {
+    function handlePagination(e, $btn, $form, $wrapper) {
         e.preventDefault();
 
         if (isLoading) return;
 
-        const $btn = $(this);
         const page = parseInt($btn.data('page'));
+        const currentPage = parseInt($wrapper.find('.js-current-page').val());
 
         if (page && page !== currentPage) {
-            performSearch(page);
+            performSearch($form, $wrapper, page);
         }
     }
 
     /**
      * Handle result card click
      */
-    function handleResultCardClick(e) {
+    function handleResultCardClick(e, $card, $wrapper) {
         e.preventDefault();
 
-        const $card = $(this);
         const url = $card.data('url');
 
         if (url) {
             // Check if redirect URL is set
-            const redirectUrl = $('#rv-redirect-url').val();
+            const redirectUrl = $wrapper.find('.js-redirect-url').val();
             if (redirectUrl) {
                 // Add search parameters to redirect URL
-                const searchParams = getFormData();
+                // Note: We need to get form data from the wrapper's form
+                const $form = $wrapper.find('.js-rv-search-form');
+                const searchParams = getFormData($form);
                 const queryString = new URLSearchParams(searchParams).toString();
                 const separator = redirectUrl.includes('?') ? '&' : '?';
                 window.location.href = redirectUrl + separator + queryString;
@@ -170,14 +251,14 @@
     /**
      * Debounced search for real-time functionality
      */
-    function debounceSearch() {
+    function debounceSearch($form, $wrapper) {
         if (searchTimeout) {
             clearTimeout(searchTimeout);
         }
 
         searchTimeout = setTimeout(function () {
-            if (validateForm()) {
-                performSearch(1);
+            if (validateForm($form)) {
+                performSearch($form, $wrapper, 1);
             }
         }, 500); // 500ms delay
     }
@@ -185,25 +266,27 @@
     /**
      * Perform AJAX search
      */
-    function performSearch(page = 1) {
+    function performSearch($form, $wrapper, page = 1) {
         if (isLoading) return;
 
         isLoading = true;
-        currentPage = page;
+
+        // Update current page hidden input
+        $wrapper.find('.js-current-page').val(page);
 
         // Clear previous results before new search
         if (page === 1) {
-            clearResults();
+            clearResults($wrapper);
         }
 
         // Update UI
-        setLoadingState(true);
-        showResults();
+        setLoadingState($form, true);
+        showResults($wrapper);
 
         // Prepare data
-        const formData = getFormData();
+        const formData = getFormData($form);
         formData.page = page;
-        formData.per_page = $('#rv-per-page').val() || 12;
+        formData.per_page = $wrapper.find('.js-per-page').val() || 12;
 
         // AJAX request
         $.ajax({
@@ -216,7 +299,7 @@
             },
             success: function (response) {
                 if (response.success) {
-                    displayResults(response.data);
+                    displayResults($wrapper, response.data);
                 } else {
                     showError(response.data.message || mhmRentivaSearch.i18n.error);
                 }
@@ -227,7 +310,7 @@
             },
             complete: function () {
                 isLoading = false;
-                setLoadingState(false);
+                setLoadingState($form, false);
             }
         });
     }
@@ -235,10 +318,9 @@
     /**
      * Get form data
      */
-    function getFormData() {
-        const $form = $('#rv-search-filters');
+    function getFormData($form) {
         const formData = {};
-        const datepickerOpts = mhmRentivaSearch.datepicker_options || { dateFormat: 'yy-mm-dd' };
+        const datepickerOpts = { ...(mhmRentivaSearch.datepicker_options || {}), dateFormat: 'yy-mm-dd' };
 
         $form.find('input, select').each(function () {
             const $field = $(this);
@@ -265,9 +347,9 @@
     /**
      * Validate form
      */
-    function validateForm() {
-        const $startDate = $('#rv-start-date');
-        const $endDate = $('#rv-end-date');
+    function validateForm($form) {
+        const $startDate = $form.find('.js-start-date');
+        const $endDate = $form.find('.js-end-date');
 
         // Check if date fields are visible and validate them
         if ($startDate.is(':visible') && $endDate.is(':visible')) {
@@ -275,7 +357,7 @@
             const endDate = $endDate.val();
 
             if (startDate && endDate) {
-                if (!validateDateRange()) {
+                if (!validateDateRange($form)) {
                     return false;
                 }
             }
@@ -287,9 +369,9 @@
     /**
      * Validate date range
      */
-    function validateDateRange() {
-        const $startDate = $('#rv-start-date');
-        const $endDate = $('#rv-end-date');
+    function validateDateRange($form) {
+        const $startDate = $form.find('.js-start-date');
+        const $endDate = $form.find('.js-end-date');
 
         const startDateStr = $startDate.val();
         const endDateStr = $endDate.val();
@@ -316,11 +398,11 @@
     /**
      * Display search results
      */
-    function displayResults(data) {
-        const $resultsGrid = $('#rv-results-grid');
-        const $resultsCount = $('#rv-results-count');
-        const $pagination = $('#rv-results-pagination');
-        const $noResults = $('#rv-no-results');
+    function displayResults($wrapper, data) {
+        const $resultsGrid = $wrapper.find('.js-rv-results-grid');
+        const $resultsCount = $wrapper.find('.js-rv-results-count');
+        const $pagination = $wrapper.find('.js-rv-results-pagination');
+        const $noResults = $wrapper.find('.js-rv-no-results');
 
         // Update results count
         $resultsCount.text(data.total);
@@ -331,11 +413,11 @@
             $noResults.hide();
 
             // Render vehicle cards
-            renderVehicleCards(data.vehicles);
+            renderVehicleCards($resultsGrid, data.vehicles);
 
             // Render pagination
             if (data.pages > 1) {
-                renderPagination(data);
+                renderPagination($pagination, data);
                 $pagination.show();
             } else {
                 $pagination.hide();
@@ -351,8 +433,7 @@
     /**
      * Render vehicle cards
      */
-    function renderVehicleCards(vehicles) {
-        const $grid = $('#rv-results-grid');
+    function renderVehicleCards($grid, vehicles) {
         $grid.empty();
 
         vehicles.forEach(function (vehicle) {
@@ -404,8 +485,7 @@
     /**
      * Render pagination
      */
-    function renderPagination(data) {
-        const $pagination = $('#rv-results-pagination');
+    function renderPagination($pagination, data) {
         $pagination.empty();
 
         const currentPage = data.current_page;
@@ -446,40 +526,43 @@
     /**
      * Show results section
      */
-    function showResults() {
-        $('#rv-search-results').show();
+    function showResults($wrapper) {
+        $wrapper.find('.js-rv-search-results').show();
     }
 
     /**
      * Hide results section
      */
-    function hideResults() {
-        $('#rv-search-results, #rv-no-results').hide();
+    function hideResults($wrapper) {
+        $wrapper.find('.js-rv-search-results, .js-rv-no-results').hide();
     }
 
     /**
      * Clear results content
      */
-    function clearResults() {
-        $('#rv-results-grid').empty();
-        $('#rv-results-count').text('0');
-        $('#rv-results-pagination').empty().hide();
-        $('#rv-no-results').hide();
+    function clearResults($wrapper) {
+        $wrapper.find('.js-rv-results-grid').empty();
+        $wrapper.find('.js-rv-results-count').text('0');
+        $wrapper.find('.js-rv-results-pagination').empty().hide();
+        $wrapper.find('.js-rv-no-results').hide();
     }
 
     /**
      * Set loading state
      */
-    function setLoadingState(loading) {
-        const $form = $('#rv-search-form');
-        const $btn = $('#rv-search-btn');
+    function setLoadingState($form, loading) {
+        const $btn = $form.find('.js-search-btn');
 
         if (loading) {
             $form.addClass('loading');
             $btn.prop('disabled', true);
+            $btn.find('.text').hide();
+            $btn.find('.loading').css('display', 'flex'); // Ensure flex for alignment
         } else {
             $form.removeClass('loading');
             $btn.prop('disabled', false);
+            $btn.find('.text').show();
+            $btn.find('.loading').hide();
         }
     }
 
@@ -530,17 +613,17 @@
     }
 
     /**
-     * Update form state
+     * Update form state (scopeless helper, mostly for event binding structure)
      */
-    function updateFormState() {
+    function updateFormState($form) {
         // You can add form state management here
-        // For example, enabling/disabling submit button based on form validity
     }
 
     /**
      * Escape HTML to prevent XSS
      */
     function escapeHtml(text) {
+        if (!text) return '';
         const map = {
             '&': '&amp;',
             '<': '&lt;',
@@ -548,7 +631,7 @@
             '"': '&quot;',
             "'": '&#039;'
         };
-        return text.replace(/[&<>"']/g, function (m) { return map[m]; });
+        return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
     }
 
 })(jQuery);

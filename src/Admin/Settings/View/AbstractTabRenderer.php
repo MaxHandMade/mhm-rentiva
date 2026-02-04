@@ -76,10 +76,37 @@ abstract class AbstractTabRenderer implements TabRendererInterface
 	}
 
 	/**
+	 * Helper: Get standard reset action for tab header
+	 *
+	 * @return array Action structure
+	 */
+	protected function get_standard_reset_action(): array
+	{
+		$reset_url = add_query_arg(
+			array(
+				'reset_defaults' => 'true',
+				'tab'            => $this->slug,
+				'_wpnonce'       => wp_create_nonce('mhm_rentiva_reset_defaults'),
+			),
+			admin_url('admin.php?page=mhm-rentiva-settings')
+		);
+
+		return array(
+			'text'  => __('Reset This Tab', 'mhm-rentiva'),
+			'url'   => $reset_url,
+			'class' => 'button button-link-delete',
+			'icon'  => 'dashicons-undo',
+			'data'  => array(
+				'onclick' => "return confirm('" . esc_js(__('Are you sure you want to reset this tab? This cannot be undone.', 'mhm-rentiva')) . "');",
+			),
+		);
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function get_header_actions(): array
 	{
-		return array();
+		return array($this->get_standard_reset_action());
 	}
 }
