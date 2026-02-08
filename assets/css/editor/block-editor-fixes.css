@@ -14,6 +14,7 @@
 
 /* 2. Interaction Bypass: Ensure clicks reach the input */
 .wp-block-mhm-rentiva-search,
+.rv-search-block-wrapper,
 .rv-search-form,
 .js-datepicker,
 input[type="date"] {

@@ -36,8 +36,11 @@ final class SearchResults extends AbstractShortcode
 
 	/**
 	 * Safe sanitize text field that handles null values
+	 * 
+	 * @param mixed $value Value to sanitize
+	 * @return string
 	 */
-	public static function sanitize_text_field_safe($value)
+	public static function sanitize_text_field_safe($value): string
 	{
 		if ($value === null || $value === '') {
 			return '';
@@ -109,7 +112,7 @@ final class SearchResults extends AbstractShortcode
 	/**
 	 * Enqueue asset files
 	 */
-	protected static function enqueue_assets(): void
+	protected static function enqueue_assets(array $atts = []): void
 	{
 		// Core styles
 		if (class_exists('\MHMRentiva\Admin\Core\Utilities\Styles')) {
@@ -181,24 +184,24 @@ final class SearchResults extends AbstractShortcode
 	private static function get_search_params_from_url(): array
 	{
 		return array(
-			'keyword'      => self::sanitize_text_field_safe($_GET['keyword'] ?? ''),
-			'pickup_date'  => self::sanitize_text_field_safe($_GET['pickup_date'] ?? ''),
-			'return_date'  => self::sanitize_text_field_safe($_GET['return_date'] ?? ''),
+			'keyword'      => self::sanitize_text_field_safe(isset($_GET['keyword']) ? wp_unslash($_GET['keyword']) : ''),
+			'pickup_date'  => self::sanitize_text_field_safe(isset($_GET['pickup_date']) ? wp_unslash($_GET['pickup_date']) : ''),
+			'return_date'  => self::sanitize_text_field_safe(isset($_GET['return_date']) ? wp_unslash($_GET['return_date']) : ''),
 			// Legacy support
-			'start_date'   => self::sanitize_text_field_safe($_GET['start_date'] ?? $_GET['pickup_date'] ?? ''),
-			'end_date'     => self::sanitize_text_field_safe($_GET['end_date'] ?? $_GET['return_date'] ?? ''),
-			'min_price'    => (int) ($_GET['min_price'] ?? 0),
-			'max_price'    => (int) ($_GET['max_price'] ?? 0),
-			'fuel_type'    => self::sanitize_text_field_safe($_GET['fuel_type'] ?? ''),
-			'transmission' => self::sanitize_text_field_safe($_GET['transmission'] ?? ''),
-			'seats'        => self::sanitize_text_field_safe($_GET['seats'] ?? ''),
-			'brand'        => self::sanitize_text_field_safe($_GET['brand'] ?? ''),
-			'year_min'     => (int) ($_GET['year_min'] ?? 0),
-			'year_max'     => (int) ($_GET['year_max'] ?? 0),
-			'mileage_max'  => (int) ($_GET['mileage_max'] ?? 0),
-			'category'     => self::sanitize_text_field_safe($_GET['category'] ?? ''),
-			'sort'         => self::sanitize_text_field_safe($_GET['sort'] ?? 'relevance'),
-			'page'         => (int) ($_GET['page'] ?? 1),
+			'start_date'   => self::sanitize_text_field_safe(isset($_GET['start_date']) ? wp_unslash($_GET['start_date']) : (isset($_GET['pickup_date']) ? wp_unslash($_GET['pickup_date']) : '')),
+			'end_date'     => self::sanitize_text_field_safe(isset($_GET['end_date']) ? wp_unslash($_GET['end_date']) : (isset($_GET['return_date']) ? wp_unslash($_GET['return_date']) : '')),
+			'min_price'    => (int) (isset($_GET['min_price']) ? wp_unslash($_GET['min_price']) : 0),
+			'max_price'    => (int) (isset($_GET['max_price']) ? wp_unslash($_GET['max_price']) : 0),
+			'fuel_type'    => self::sanitize_text_field_safe(isset($_GET['fuel_type']) ? wp_unslash($_GET['fuel_type']) : ''),
+			'transmission' => self::sanitize_text_field_safe(isset($_GET['transmission']) ? wp_unslash($_GET['transmission']) : ''),
+			'seats'        => self::sanitize_text_field_safe(isset($_GET['seats']) ? wp_unslash($_GET['seats']) : ''),
+			'brand'        => self::sanitize_text_field_safe(isset($_GET['brand']) ? wp_unslash($_GET['brand']) : ''),
+			'year_min'     => (int) (isset($_GET['year_min']) ? wp_unslash($_GET['year_min']) : 0),
+			'year_max'     => (int) (isset($_GET['year_max']) ? wp_unslash($_GET['year_max']) : 0),
+			'mileage_max'  => (int) (isset($_GET['mileage_max']) ? wp_unslash($_GET['mileage_max']) : 0),
+			'category'     => self::sanitize_text_field_safe(isset($_GET['category']) ? wp_unslash($_GET['category']) : ''),
+			'sort'         => self::sanitize_text_field_safe(isset($_GET['sort']) ? wp_unslash($_GET['sort']) : 'relevance'),
+			'page'         => (int) (isset($_GET['page']) ? wp_unslash($_GET['page']) : 1),
 		);
 	}
 
@@ -214,6 +217,25 @@ final class SearchResults extends AbstractShortcode
 			'paged'          => $params['page'] ?? 1,
 			'meta_query'     => array(),
 		);
+
+		// ⭐ Submission Integrity: Enforce minimum rental days
+		$pickup_date = ! empty($params['pickup_date']) ? $params['pickup_date'] : (! empty($params['start_date']) ? $params['start_date'] : '');
+		$return_date = ! empty($params['return_date']) ? $params['return_date'] : (! empty($params['end_date']) ? $params['end_date'] : '');
+
+		if (! empty($pickup_date) && ! empty($return_date)) {
+			$min_days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_min_rental_days', 1);
+			$start_ts = strtotime($pickup_date);
+			$end_ts   = strtotime($return_date);
+
+			if ($start_ts && $end_ts) {
+				$diff_days = round(($end_ts - $start_ts) / (60 * 60 * 24));
+				if ($diff_days < $min_days) {
+					// Logic: If user bypassed JS and sent invalid date range
+					// Force an impossible condition to return no results safely
+					$args['post__in'] = array(0);
+				}
+			}
+		}
 
 		// Keyword search
 		if (! empty($params['keyword'])) {
@@ -583,25 +605,25 @@ final class SearchResults extends AbstractShortcode
 		try {
 			// Get filters from POST parameters
 			$search_params = array(
-				'keyword'      => self::sanitize_text_field_safe($_POST['keyword'] ?? ''),
-				'pickup_date'  => self::sanitize_text_field_safe($_POST['pickup_date'] ?? ''),
-				'return_date'  => self::sanitize_text_field_safe($_POST['return_date'] ?? ''),
-				'min_price'    => (int) ($_POST['min_price'] ?? 0),
-				'max_price'    => (int) ($_POST['max_price'] ?? 0),
-				'fuel_type'    => $_POST['fuel_type'] ?? array(),
-				'transmission' => $_POST['transmission'] ?? array(),
-				'seats'        => $_POST['seats'] ?? array(),
-				'brand'        => $_POST['brand'] ?? array(),
-				'year_min'     => (int) ($_POST['year_min'] ?? 0),
-				'year_max'     => (int) ($_POST['year_max'] ?? 0),
-				'mileage_max'  => (int) ($_POST['mileage_max'] ?? 0),
-				'sort'         => self::sanitize_text_field_safe($_POST['sort'] ?? 'relevance'),
-				'page'         => (int) ($_POST['page'] ?? 1),
+				'keyword'      => self::sanitize_text_field_safe(isset($_POST['keyword']) ? wp_unslash($_POST['keyword']) : ''),
+				'pickup_date'  => self::sanitize_text_field_safe(isset($_POST['pickup_date']) ? wp_unslash($_POST['pickup_date']) : ''),
+				'return_date'  => self::sanitize_text_field_safe(isset($_POST['return_date']) ? wp_unslash($_POST['return_date']) : ''),
+				'min_price'    => (int) (isset($_POST['min_price']) ? wp_unslash($_POST['min_price']) : 0),
+				'max_price'    => (int) (isset($_POST['max_price']) ? wp_unslash($_POST['max_price']) : 0),
+				'fuel_type'    => isset($_POST['fuel_type']) ? (is_array($_POST['fuel_type']) ? array_map('wp_unslash', $_POST['fuel_type']) : wp_unslash($_POST['fuel_type'])) : array(),
+				'transmission' => isset($_POST['transmission']) ? (is_array($_POST['transmission']) ? array_map('wp_unslash', $_POST['transmission']) : wp_unslash($_POST['transmission'])) : array(),
+				'seats'        => isset($_POST['seats']) ? (is_array($_POST['seats']) ? array_map('wp_unslash', $_POST['seats']) : wp_unslash($_POST['seats'])) : array(),
+				'brand'        => isset($_POST['brand']) ? (is_array($_POST['brand']) ? array_map('wp_unslash', $_POST['brand']) : wp_unslash($_POST['brand'])) : array(),
+				'year_min'     => (int) (isset($_POST['year_min']) ? wp_unslash($_POST['year_min']) : 0),
+				'year_max'     => (int) (isset($_POST['year_max']) ? wp_unslash($_POST['year_max']) : 0),
+				'mileage_max'  => (int) (isset($_POST['mileage_max']) ? wp_unslash($_POST['mileage_max']) : 0),
+				'sort'         => self::sanitize_text_field_safe(isset($_POST['sort']) ? wp_unslash($_POST['sort']) : 'relevance'),
+				'page'         => (int) (isset($_POST['page']) ? wp_unslash($_POST['page']) : 1),
 			);
 
 			$atts = array(
-				'layout'           => self::sanitize_text_field_safe($_POST['layout'] ?? 'grid'),
-				'results_per_page' => (int) ($_POST['per_page'] ?? 12),
+				'layout'           => self::sanitize_text_field_safe(isset($_POST['layout']) ? wp_unslash($_POST['layout']) : 'grid'),
+				'results_per_page' => (int) (isset($_POST['per_page']) ? wp_unslash($_POST['per_page']) : 12),
 			);
 
 			$results = self::perform_search($search_params, $atts);
@@ -624,14 +646,17 @@ final class SearchResults extends AbstractShortcode
 
 	/**
 	 * Check vehicle availability
+	 * 
+	 * @param int $vehicle_id Vehicle ID
+	 * @return array
 	 */
 	private static function check_vehicle_availability(int $vehicle_id): array
 	{
-		$status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
+		$status = (string) get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
 
 		// Fallback for older data or if status is not set
 		if (empty($status)) {
-			$old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+			$old_availability = (string) get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
 			// Handle legacy values
 			if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
 				$status = 'inactive';
@@ -655,6 +680,10 @@ final class SearchResults extends AbstractShortcode
 
 	/**
 	 * Renders vehicles list
+	 * 
+	 * @param array $vehicles Vehicles list
+	 * @param string $layout Layout type
+	 * @return string
 	 */
 	private static function render_vehicles_list(array $vehicles, string $layout): string
 	{
@@ -672,6 +701,10 @@ final class SearchResults extends AbstractShortcode
 
 	/**
 	 * Renders single vehicle card
+	 * 
+	 * @param array $vehicle Vehicle data
+	 * @param string $layout Layout type
+	 * @return string
 	 */
 	public static function render_vehicle_card(array $vehicle, string $layout): string
 	{
@@ -689,13 +722,13 @@ final class SearchResults extends AbstractShortcode
 
 		ob_start();
 ?>
-		<div class="rv-vehicle-card <?php echo esc_attr($card_class); ?>" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
+		<div class="rv-vehicle-card <?php echo esc_attr($card_class); ?>" data-vehicle-id="<?php echo esc_attr((string) $vehicle['id']); ?>">
 
 			<!-- Vehicle Image -->
 			<div class="rv-vehicle-image">
 				<?php if (! empty($vehicle['featured_image']['url'])) : ?>
-					<img src="<?php echo esc_url($vehicle['featured_image']['url']); ?>"
-						alt="<?php echo esc_attr($vehicle['featured_image']['alt']); ?>"
+					<img src="<?php echo esc_url((string) $vehicle['featured_image']['url']); ?>"
+						alt="<?php echo esc_attr((string) $vehicle['featured_image']['alt']); ?>"
 						loading="lazy">
 				<?php else : ?>
 					<div class="rv-no-image">
@@ -724,7 +757,7 @@ final class SearchResults extends AbstractShortcode
 
 				<!-- Price Badge -->
 				<div class="rv-price-badge">
-					<span class="rv-price-amount"><?php echo esc_html($vehicle['currency_symbol'] ?? '$'); ?><?php echo esc_html(number_format((float) ($vehicle['price_per_day'] ?? 0))); ?></span>
+					<span class="rv-price-amount"><?php echo esc_html((string) ($vehicle['currency_symbol'] ?? '$')); ?><?php echo esc_html(number_format((float) ($vehicle['price_per_day'] ?? 0))); ?></span>
 					<span class="rv-price-period"><?php esc_html_e('/day', 'mhm-rentiva'); ?></span>
 				</div>
 			</div>
@@ -732,21 +765,21 @@ final class SearchResults extends AbstractShortcode
 			<!-- Vehicle Info -->
 			<div class="rv-vehicle-info">
 				<h3 class="rv-vehicle-title">
-					<a href="<?php echo esc_url($vehicle['url'] ?? '#'); ?>">
-						<?php echo esc_html($vehicle['title'] ?? ''); ?>
+					<a href="<?php echo esc_url((string) ($vehicle['url'] ?? '#')); ?>">
+						<?php echo esc_html((string) ($vehicle['title'] ?? '')); ?>
 					</a>
 				</h3>
 
 				<?php if (! empty($vehicle['brand']) || ! empty($vehicle['model'])) : ?>
 					<p class="rv-vehicle-meta">
 						<?php if (! empty($vehicle['brand'])) : ?>
-							<span class="rv-brand"><?php echo esc_html($vehicle['brand']); ?></span>
+							<span class="rv-brand"><?php echo esc_html((string) $vehicle['brand']); ?></span>
 						<?php endif; ?>
 						<?php if (! empty($vehicle['model'])) : ?>
-							<span class="rv-model"><?php echo esc_html($vehicle['model']); ?></span>
+							<span class="rv-model"><?php echo esc_html((string) $vehicle['model']); ?></span>
 						<?php endif; ?>
 						<?php if (! empty($vehicle['year'])) : ?>
-							<span class="rv-year"><?php echo esc_html($vehicle['year']); ?></span>
+							<span class="rv-year"><?php echo esc_html((string) $vehicle['year']); ?></span>
 						<?php endif; ?>
 					</p>
 				<?php endif; ?>
@@ -758,7 +791,7 @@ final class SearchResults extends AbstractShortcode
 							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
 								<path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
 							</svg>
-							<?php echo esc_html($vehicle['fuel_type']); ?>
+							<?php echo esc_html((string) $vehicle['fuel_type']); ?>
 						</span>
 					<?php endif; ?>
 
@@ -767,7 +800,7 @@ final class SearchResults extends AbstractShortcode
 							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
 								<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
 							</svg>
-							<?php echo esc_html($vehicle['transmission']); ?>
+							<?php echo esc_html((string) $vehicle['transmission']); ?>
 						</span>
 					<?php endif; ?>
 
@@ -776,7 +809,7 @@ final class SearchResults extends AbstractShortcode
 							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
 								<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
 							</svg>
-							<?php echo esc_html($vehicle['seats']); ?> <?php esc_html_e('seats', 'mhm-rentiva'); ?>
+							<?php echo esc_html((string) $vehicle['seats']); ?> <?php esc_html_e('seats', 'mhm-rentiva'); ?>
 						</span>
 					<?php endif; ?>
 				</div>
@@ -792,7 +825,7 @@ final class SearchResults extends AbstractShortcode
 						<span class="rv-rating-count">
 							<?php
 							/* translators: %d: number of reviews. */
-							printf(esc_html(_n('(%d review)', '(%d reviews)', $vehicle['rating']['count'] ?? 0, 'mhm-rentiva')), absint($vehicle['rating']['count'] ?? 0));
+							printf(esc_html(_n('(%d review)', '(%d reviews)', (int) ($vehicle['rating']['count'] ?? 0), 'mhm-rentiva')), absint((int) ($vehicle['rating']['count'] ?? 0)));
 							?>
 						</span>
 					</div>
@@ -802,7 +835,7 @@ final class SearchResults extends AbstractShortcode
 				<div class="rv-vehicle-actions">
 					<?php
 					$btn_class = 'rv-btn rv-btn-primary';
-					$btn_href  = esc_url($vehicle['url'] ?? '#');
+					$btn_href  = esc_url((string) ($vehicle['url'] ?? '#'));
 					$btn_attrs = '';
 					$btn_text  = __('View Details', 'mhm-rentiva');
 

@@ -1,22 +1,23 @@
 <?php
 
-declare(strict_types=1);
-
-namespace MHMRentiva\Admin\Frontend\Shortcodes;
-
-use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
-use MHMRentiva\Admin\Vehicle\PostType\Vehicle as PT_Vehicle;
-use WP_Query;
-
-if (! defined('ABSPATH')) {
-    exit;
-}
-
 /**
  * Featured Vehicles Shortcode
  *
  * [rentiva_featured_vehicles limit="6" layout="slider"]
  */
+
+declare(strict_types=1);
+
+namespace MHMRentiva\Admin\Frontend\Shortcodes;
+
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
+use MHMRentiva\Admin\Vehicle\PostType\Vehicle as PT_Vehicle;
+use WP_Query;
+
 final class FeaturedVehicles extends AbstractShortcode
 {
     public const SHORTCODE = 'rentiva_featured_vehicles';
@@ -52,14 +53,14 @@ final class FeaturedVehicles extends AbstractShortcode
         $args = array(
             'post_type'      => PT_Vehicle::POST_TYPE,
             'post_status'    => 'publish',
-            'posts_per_page' => (int) $atts['limit'],
-            'orderby'        => sanitize_key($atts['orderby']),
-            'order'          => sanitize_key($atts['order']),
+            'posts_per_page' => (int) ($atts['limit'] ?? 6),
+            'orderby'        => sanitize_key((string) ($atts['orderby'] ?? 'date')),
+            'order'          => sanitize_key((string) ($atts['order'] ?? 'DESC')),
         );
 
         // Filter by IDs
         if (! empty($atts['ids'])) {
-            $args['post__in'] = array_map('intval', explode(',', $atts['ids']));
+            $args['post__in'] = array_map('intval', explode(',', (string) $atts['ids']));
             $args['orderby']  = 'post__in'; // Preserve order
         }
         // Filter by Category
@@ -68,12 +69,12 @@ final class FeaturedVehicles extends AbstractShortcode
                 array(
                     'taxonomy' => 'vehicle_category',
                     'field'    => 'slug',
-                    'terms'    => $atts['category'],
+                    'terms'    => sanitize_text_field((string) $atts['category']),
                 ),
             );
         }
 
-        $cache_key = 'featured_' . md5(json_encode($atts));
+        $cache_key = 'featured_' . md5(wp_json_encode($atts));
         $vehicles  = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache('vehicle_list', $cache_key);
 
         if (empty($vehicles)) {
@@ -81,10 +82,6 @@ final class FeaturedVehicles extends AbstractShortcode
             $vehicles = array();
 
             if ($query->have_posts()) {
-                // Bulk fetch meta could be implemented here for performance (like in VehicleSearch)
-                // For simplicity and to use core functions first, we loop.
-                // Optimization: We could use VehicleSearch::get_bulk_meta_data if it was public/shared trait
-
                 while ($query->have_posts()) {
                     $query->the_post();
                     $id = get_the_ID();
@@ -108,7 +105,7 @@ final class FeaturedVehicles extends AbstractShortcode
                     \MHMRentiva\Admin\Core\Utilities\CacheManager::set_cache('vehicle_list', $cache_key, $vehicles, 3600);
                 }
             }
-        } // End of if (empty($vehicles)) check
+        }
 
         return array(
             'atts'      => $atts,
@@ -122,7 +119,9 @@ final class FeaturedVehicles extends AbstractShortcode
         $files = [];
 
         // If using slider layout, enqueue Swiper CSS from vendor
-        if (($atts['layout'] ?? 'slider') === 'slider') {
+        $layout = $atts['layout'] ?? 'slider';
+
+        if ($layout === 'slider') {
             wp_enqueue_style('mhm-swiper-css');
         }
 
@@ -135,7 +134,9 @@ final class FeaturedVehicles extends AbstractShortcode
     protected static function get_js_files(array $atts = []): array
     {
         $files = [];
-        if (($atts['layout'] ?? 'slider') === 'slider') {
+        $layout = $atts['layout'] ?? 'slider';
+
+        if ($layout === 'slider') {
             $files[] = 'assets/js/frontend/featured-vehicles.js';
         }
         return $files;
@@ -143,7 +144,6 @@ final class FeaturedVehicles extends AbstractShortcode
 
     protected static function get_js_dependencies(): array
     {
-        // Add mhm-swiper as dependency if layout is slider (dynamically handled in enqueue but good for doc)
         return array('jquery', 'mhm-swiper');
     }
 

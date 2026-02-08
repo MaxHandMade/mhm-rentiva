@@ -4,10 +4,23 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Transfer;
 
+use MHMRentiva\Admin\Transfer\VehicleTransferMetaBox;
+use MHMRentiva\Admin\Transfer\Integration\TransferCartIntegration;
+use MHMRentiva\Admin\Transfer\Integration\TransferBookingHandler;
+use MHMRentiva\Admin\Settings\Core\SettingsCore;
+use MHMRentiva\Admin\Core\Utilities\UXHelper;
+
 if (! defined('ABSPATH')) {
 	exit;
 }
 
+/**
+ * Transfer Admin
+ *
+ * @method void render_admin_header(string $title, array $buttons = array(), bool $echo = true, string $subtitle = '')
+ * @method void render_developer_mode_banner(array $features = array())
+ * @method void show_admin_notice(string $message, string $type = 'info', bool $dismissible = true)
+ */
 final class TransferAdmin
 {
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
@@ -298,8 +311,8 @@ final class TransferAdmin
 		$settings                              = (array) get_option('mhm_rentiva_settings', array());
 
 		// Save to new keys
-		$settings['rentiva_transfer_deposit_type'] = sanitize_text_field($_POST['rentiva_transfer_deposit_type']);
-		$settings['rentiva_transfer_deposit_rate'] = intval($_POST['rentiva_transfer_deposit_rate']);
+		$settings['rentiva_transfer_deposit_type'] = isset($_POST['rentiva_transfer_deposit_type']) ? sanitize_text_field(wp_unslash($_POST['rentiva_transfer_deposit_type'])) : '';
+		$settings['rentiva_transfer_deposit_rate'] = isset($_POST['rentiva_transfer_deposit_rate']) ? intval(wp_unslash($_POST['rentiva_transfer_deposit_rate'])) : 0;
 
 		// Save Custom Types as Text
 		if (isset($_POST['rentiva_transfer_custom_types'])) {
@@ -308,7 +321,7 @@ final class TransferAdmin
 
 		update_option('mhm_rentiva_settings', $settings);
 
-		wp_redirect(admin_url('admin.php?page=mhm-rentiva-settings&tab=transfer&updated=true'));
+		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-settings&tab=transfer&updated=true'));
 		exit;
 	}
 
@@ -389,6 +402,22 @@ final class TransferAdmin
 									<input name="priority" id="priority" type="number" value="<?php echo $edit_location ? esc_attr($edit_location->priority) : '0'; ?>">
 								</div>
 
+								<div class="form-field" style="margin: 10px 0;">
+									<label>
+										<input name="allow_rental" type="checkbox" value="1" <?php checked($edit_location ? (int) $edit_location->allow_rental : 1); ?>>
+										<?php echo esc_html__('Allow Rental', 'mhm-rentiva'); ?>
+									</label>
+									<p class="description"><?php echo esc_html__('Enable this to show the location in car rental searches.', 'mhm-rentiva'); ?></p>
+								</div>
+
+								<div class="form-field" style="margin: 10px 0;">
+									<label>
+										<input name="allow_transfer" type="checkbox" value="1" <?php checked($edit_location ? (int) $edit_location->allow_transfer : 1); ?>>
+										<?php echo esc_html__('Allow Transfer', 'mhm-rentiva'); ?>
+									</label>
+									<p class="description"><?php echo esc_html__('Enable this to show the location in transfer searches.', 'mhm-rentiva'); ?></p>
+								</div>
+
 								<?php submit_button($edit_location ? __('Update Location', 'mhm-rentiva') : __('Add Location', 'mhm-rentiva')); ?>
 								<?php if ($edit_location) : ?>
 									<a href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-transfer-locations')); ?>" class="button"><?php echo esc_html__('Cancel', 'mhm-rentiva'); ?></a>
@@ -407,6 +436,7 @@ final class TransferAdmin
 									<th><?php echo esc_html__('Name', 'mhm-rentiva'); ?></th>
 									<th><?php echo esc_html__('Type', 'mhm-rentiva'); ?></th>
 									<th><?php echo esc_html__('Priority', 'mhm-rentiva'); ?></th>
+									<th><?php echo esc_html__('Services', 'mhm-rentiva'); ?></th>
 									<th><?php echo esc_html__('Actions', 'mhm-rentiva'); ?></th>
 								</tr>
 							</thead>
@@ -417,6 +447,17 @@ final class TransferAdmin
 											<td><strong><?php echo esc_html($location->name); ?></strong></td>
 											<td><?php echo esc_html(ucfirst($location->type)); ?></td>
 											<td><?php echo esc_html($location->priority); ?></td>
+											<td>
+												<?php if ($location->allow_rental) : ?>
+													<span class="dashicons dashicons-car" title="<?php esc_attr_e('Rental Available', 'mhm-rentiva'); ?>"></span>
+												<?php endif; ?>
+												<?php if ($location->allow_transfer) : ?>
+													<span class="dashicons dashicons-id" title="<?php esc_attr_e('Transfer Available', 'mhm-rentiva'); ?>"></span>
+												<?php endif; ?>
+												<?php if (! $location->allow_rental && ! $location->allow_transfer) : ?>
+													<span class="dashicons dashicons-no-alt" style="color:red;" title="<?php esc_attr_e('No Services', 'mhm-rentiva'); ?>"></span>
+												<?php endif; ?>
+											</td>
 											<td>
 												<a href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-transfer-locations&action=edit&id=' . $location->id)); ?>"><?php echo esc_html__('Edit', 'mhm-rentiva'); ?></a> |
 												<a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=mhm_delete_location&id=' . $location->id), 'mhm_delete_location_nonce')); ?>" onclick="return confirm('<?php echo esc_js(__('Are you sure?', 'mhm-rentiva')); ?>');" style="color: #a00;"><?php echo esc_html__('Delete', 'mhm-rentiva'); ?></a>
@@ -647,18 +688,20 @@ final class TransferAdmin
 		}
 
 		$data = array(
-			'name'     => sanitize_text_field($_POST['name']),
-			'type'     => sanitize_text_field($_POST['type']),
-			'priority' => intval($_POST['priority']),
+			'name'     => isset($_POST['name']) ? sanitize_text_field(wp_unslash($_POST['name'])) : '',
+			'type'     => isset($_POST['type']) ? sanitize_text_field(wp_unslash($_POST['type'])) : '',
+			'priority' => isset($_POST['priority']) ? intval(wp_unslash($_POST['priority'])) : 0,
+			'allow_rental'   => isset($_POST['allow_rental']) ? 1 : 0,
+			'allow_transfer' => isset($_POST['allow_transfer']) ? 1 : 0,
 		);
 
 		if (! empty($_POST['id'])) {
-			$wpdb->update($table_name, $data, array('id' => intval($_POST['id'])));
+			$wpdb->update($table_name, $data, array('id' => intval(wp_unslash($_POST['id']))));
 		} else {
 			$wpdb->insert($table_name, $data);
 		}
 
-		wp_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-locations&updated=true'));
+		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-locations&updated=true'));
 		exit;
 	}
 
@@ -674,9 +717,9 @@ final class TransferAdmin
 			$table_name = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
 		}
 
-		$wpdb->delete($table_name, array('id' => intval($_GET['id'])));
+		$wpdb->delete($table_name, array('id' => isset($_GET['id']) ? intval(wp_unslash($_GET['id'])) : 0));
 
-		wp_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-locations&deleted=true'));
+		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-locations&deleted=true'));
 		exit;
 	}
 
@@ -693,22 +736,22 @@ final class TransferAdmin
 		}
 
 		$data = array(
-			'origin_id'      => intval($_POST['origin_id']),
-			'destination_id' => intval($_POST['destination_id']),
-			'distance_km'    => floatval($_POST['distance_km']),
-			'duration_min'   => intval($_POST['duration_min']),
-			'pricing_method' => sanitize_text_field($_POST['pricing_method']),
-			'base_price'     => floatval($_POST['base_price']),
-			'min_price'      => floatval($_POST['min_price']),
+			'origin_id'      => isset($_POST['origin_id']) ? intval(wp_unslash($_POST['origin_id'])) : 0,
+			'destination_id' => isset($_POST['destination_id']) ? intval(wp_unslash($_POST['destination_id'])) : 0,
+			'distance_km'    => isset($_POST['distance_km']) ? floatval(wp_unslash($_POST['distance_km'])) : 0.0,
+			'duration_min'   => isset($_POST['duration_min']) ? intval(wp_unslash($_POST['duration_min'])) : 0,
+			'pricing_method' => isset($_POST['pricing_method']) ? sanitize_text_field(wp_unslash($_POST['pricing_method'])) : '',
+			'base_price'     => isset($_POST['base_price']) ? floatval(wp_unslash($_POST['base_price'])) : 0.0,
+			'min_price'      => isset($_POST['min_price']) ? floatval(wp_unslash($_POST['min_price'])) : 0.0,
 		);
 
 		if (! empty($_POST['id'])) {
-			$wpdb->update($table_name, $data, array('id' => intval($_POST['id'])));
+			$wpdb->update($table_name, $data, array('id' => intval(wp_unslash($_POST['id']))));
 		} else {
 			$wpdb->insert($table_name, $data);
 		}
 
-		wp_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-routes&updated=true'));
+		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-routes&updated=true'));
 		exit;
 	}
 
@@ -724,9 +767,9 @@ final class TransferAdmin
 			$table_name = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
 		}
 
-		$wpdb->delete($table_name, array('id' => intval($_GET['id'])));
+		$wpdb->delete($table_name, array('id' => isset($_GET['id']) ? intval(wp_unslash($_GET['id'])) : 0));
 
-		wp_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-routes&deleted=true'));
+		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-routes&deleted=true'));
 		exit;
 	}
 }

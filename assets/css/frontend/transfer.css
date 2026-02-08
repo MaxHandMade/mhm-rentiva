@@ -138,3 +138,28 @@
 	text-align: center;
 	margin-top: 15px;
 }
+
+/* Mobile Optimizations */
+@media (max-width: 782px) {
+	.mhm-transfer-results-grid {
+		grid-template-columns: 1fr !important;
+		gap: 15px;
+	}
+
+	.mhm-transfer-card {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.mhm-transfer-card-image img {
+		height: 200px;
+	}
+
+	.mhm-transfer-card-content h3 {
+		font-size: 1.2rem;
+	}
+
+	.mhm-transfer-features {
+		font-size: 0.95rem;
+	}
+}

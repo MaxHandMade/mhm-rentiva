@@ -42,6 +42,7 @@ $show_vehicle_selector = $show_vehicle_selector ?? true;
 $show_addons           = $show_addons ?? true;
 $show_payment_options  = $show_payment_options ?? true;
 $show_vehicle_info     = $show_vehicle_info ?? true;
+$show_time_select      = $show_time_select ?? true;
 $enable_deposit        = $enable_deposit ?? true;
 $default_payment       = $default_payment ?? 'deposit';
 $class                 = $atts['class'] ?? '';
@@ -215,16 +216,21 @@ $unique_id = uniqid('rv_booking_');
 									placeholder="<?php echo esc_attr__('Select date', 'mhm-rentiva'); ?>"
 									value="<?php echo esc_attr($atts['start_date'] ?? ''); ?>"
 									readonly
+									readonly
 									required>
 								<span class="rv-field-separator">,</span>
-								<select id="pickup_time-<?php echo esc_attr($unique_id); ?>" name="pickup_time" class="rv-select-ghost rv-pickup-time rv-select" required>
-									<option value=""><?php echo esc_html__('Time', 'mhm-rentiva'); ?></option>
-									<?php foreach ($time_options as $option) : ?>
-										<option value="<?php echo esc_attr($option['value']); ?>">
-											<?php echo esc_html($option['label']); ?>
-										</option>
-									<?php endforeach; ?>
-								</select>
+								<?php if ($show_time_select) : ?>
+									<select id="pickup_time-<?php echo esc_attr($unique_id); ?>" name="pickup_time" class="rv-select-ghost rv-pickup-time rv-select" required>
+										<option value=""><?php echo esc_html__('Time', 'mhm-rentiva'); ?></option>
+										<?php foreach ($time_options as $option) : ?>
+											<option value="<?php echo esc_attr($option['value']); ?>">
+												<?php echo esc_html($option['label']); ?>
+											</option>
+										<?php endforeach; ?>
+									</select>
+								<?php else : ?>
+									<input type="hidden" name="pickup_time" value="12:00">
+								<?php endif; ?>
 							</div>
 							<div class="rv-calendar-icon-wrapper">
 								<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -258,16 +264,21 @@ $unique_id = uniqid('rv_booking_');
 									placeholder="<?php echo esc_attr__('Select date', 'mhm-rentiva'); ?>"
 									value="<?php echo esc_attr($atts['end_date'] ?? ''); ?>"
 									readonly
+									readonly
 									required>
 								<span class="rv-field-separator">,</span>
-								<select id="dropoff_time-<?php echo esc_attr($unique_id); ?>" name="dropoff_time" class="rv-select-ghost rv-select-disabled rv-dropoff-time rv-select" disabled readonly>
-									<option value=""><?php echo esc_html__('Time', 'mhm-rentiva'); ?></option>
-									<?php foreach ($time_options as $option) : ?>
-										<option value="<?php echo esc_attr($option['value']); ?>">
-											<?php echo esc_html($option['label']); ?>
-										</option>
-									<?php endforeach; ?>
-								</select>
+								<?php if ($show_time_select) : ?>
+									<select id="dropoff_time-<?php echo esc_attr($unique_id); ?>" name="dropoff_time" class="rv-select-ghost rv-select-disabled rv-dropoff-time rv-select" disabled readonly>
+										<option value=""><?php echo esc_html__('Time', 'mhm-rentiva'); ?></option>
+										<?php foreach ($time_options as $option) : ?>
+											<option value="<?php echo esc_attr($option['value']); ?>">
+												<?php echo esc_html($option['label']); ?>
+											</option>
+										<?php endforeach; ?>
+									</select>
+								<?php else : ?>
+									<input type="hidden" name="dropoff_time" value="12:00">
+								<?php endif; ?>
 							</div>
 							<div class="rv-calendar-icon-wrapper">
 								<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

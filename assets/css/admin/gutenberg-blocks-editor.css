@@ -19,9 +19,7 @@
 	Block Inspector Controls
 	==================================== */
 
-.block-editor-block-inspector .mhm-rentiva-controls {
-	/* Inspector controls styles */
-}
+
 
 .block-editor-block-inspector .mhm-rentiva-controls .components-base-control__label {
 	font-weight: 600;
@@ -114,13 +112,9 @@
 	Block Placeholder
 	==================================== */
 
-.wp-block-mhm-rentiva-vehicle-card .block-editor-inner-blocks {
-	/* Inner blocks styles */
-}
 
-.wp-block-mhm-rentiva-vehicle-card .block-editor-inner-blocks .block-editor-block-list__layout {
-	/* Block list layout */
-}
+
+
 
 /* ====================================
 	Responsive Preview
@@ -144,17 +138,11 @@
 	Block Alignment
 	==================================== */
 
-.wp-block-mhm-rentiva-vehicle-card.alignwide {
-	/* Wide alignment */
-}
 
-.wp-block-mhm-rentiva-vehicle-card.alignfull {
-	/* Full alignment */
-}
 
-.wp-block-mhm-rentiva-vehicle-card.aligncenter {
-	/* Center alignment */
-}
+
+
+
 
 /* ====================================
 	Block Loading State
@@ -215,4 +203,39 @@
 
 .mhm-rentiva-block-preview.has-success .block-title {
 	color: #059669;
+}
+
+/* ====================================
+	Search Block Editor Sync
+   ==================================== */
+
+.wp-block-mhm-rentiva-search {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* Ensure Vertical/Full layout stays centered and capped in editor */
+.wp-block-mhm-rentiva-search .rv-search-block-wrapper {
+	max-width: 450px;
+	width: 100%;
+	margin: 0 auto !important;
+}
+
+/* Better Iframe integration for server-side render */
+.wp-block-mhm-rentiva-search .block-editor-block-list__block-edit {
+	width: 100%;
+}
+
+.wp-block-mhm-rentiva-search form.rv-search-filters {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+/* Fix for editor specific interactions */
+.wp-block-mhm-rentiva-search input.js-datepicker {
+	cursor: pointer !important;
 }

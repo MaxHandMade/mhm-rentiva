@@ -5,25 +5,114 @@
     "title": "MHM Vehicles Grid",
     "category": "widgets",
     "icon": "car",
+    "description": "Display vehicles in a responsive grid layout.",
+    "textdomain": "mhm-rentiva",
     "supports": {
         "html": false,
+        "anchor": true,
+        "className": true,
+        "customClassName": true,
+        "align": [
+            "wide",
+            "full",
+            "center"
+        ],
         "color": {
             "text": true,
             "background": true,
-            "link": true
+            "link": true,
+            "gradients": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true,
+            "blockGap": true
+        },
+        "border": {
+            "color": true,
+            "radius": true,
+            "style": true,
+            "width": true
+        },
+        "typography": {
+            "fontSize": true,
+            "lineHeight": true,
+            "__experimentalFontFamily": true,
+            "__experimentalFontWeight": true
         }
     },
     "attributes": {
+        "layout": {
+            "type": "string",
+            "default": "grid",
+            "enum": [
+                "grid",
+                "masonry"
+            ]
+        },
+        "showPrice": {
+            "type": "boolean",
+            "default": true
+        },
+        "showRating": {
+            "type": "boolean",
+            "default": true
+        },
+        "showCategory": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBookButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showFeatures": {
+            "type": "boolean",
+            "default": false
+        },
+        "filterCategories": {
+            "type": "string",
+            "default": ""
+        },
+        "filterBrands": {
+            "type": "string",
+            "default": ""
+        },
+        "sortBy": {
+            "type": "string",
+            "default": "newest",
+            "enum": [
+                "price",
+                "popularity",
+                "newest",
+                "rating"
+            ]
+        },
+        "sortOrder": {
+            "type": "string",
+            "default": "desc",
+            "enum": [
+                "asc",
+                "desc"
+            ]
+        },
         "limit": {
             "type": "string",
-            "default": "10"
+            "default": "12"
         },
         "columns": {
             "type": "string",
             "default": "3"
+        },
+        "className": {
+            "type": "string",
+            "default": ""
         }
     },
     "editorStyle": [
         "mhm-rentiva-core-variables"
+    ],
+    "style": [
+        "mhm-rentiva-vehicles-grid"
     ]
 }

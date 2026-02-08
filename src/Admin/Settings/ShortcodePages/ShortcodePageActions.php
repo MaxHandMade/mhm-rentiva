@@ -43,10 +43,10 @@ final class ShortcodePageActions
 				'slug'        => 'booking-form',
 				'description' => __('Detailed booking form - with all booking options', 'mhm-rentiva'),
 			),
-			'rentiva_search'                => array(
-				'title'       => __('Vehicle Search', 'mhm-rentiva'),
-				'slug'        => 'vehicle-search',
-				'description' => __('Vehicle search and filtering page - customers can search vehicles', 'mhm-rentiva'),
+			'rentiva_unified_search'        => array(
+				'title'       => __('Unified Search', 'mhm-rentiva'),
+				'slug'        => 'unified-search',
+				'description' => __('Unified vehicle and transfer search widget', 'mhm-rentiva'),
 			),
 			'rentiva_search_results'        => array(
 				'title'       => __('Search Results', 'mhm-rentiva'),
@@ -98,15 +98,25 @@ final class ShortcodePageActions
 				'slug'        => 'my-messages',
 				'description' => __('User messages and notifications', 'mhm-rentiva'),
 			),
-			'rentiva_transfer_search'       => array(
-				'title'       => __('Transfer Search', 'mhm-rentiva'),
-				'slug'        => 'transfer-search',
-				'description' => __('Search for transfer services', 'mhm-rentiva'),
-			),
 			'rentiva_vehicle_rating_form'   => array(
 				'title'       => __('Vehicle Rating Form', 'mhm-rentiva'),
 				'slug'        => 'vehicle-rating-form',
 				'description' => __('Vehicle rating and review form - customers can rate and review vehicles', 'mhm-rentiva'),
+			),
+			'rentiva_transfer_search'       => array(
+				'title'       => __('Transfer Search', 'mhm-rentiva'),
+				'slug'        => 'transfer-search',
+				'description' => __('VIP transfer booking search form - airport and point-to-point transfers', 'mhm-rentiva'),
+			),
+			'rentiva_transfer_results'      => array(
+				'title'       => __('Transfer Results', 'mhm-rentiva'),
+				'slug'        => 'transfer-results',
+				'description' => __('Transfer search results page - displays available transfer options', 'mhm-rentiva'),
+			),
+			'rentiva_featured_vehicles'     => array(
+				'title'       => __('Featured Vehicles', 'mhm-rentiva'),
+				'slug'        => 'featured-vehicles',
+				'description' => __('Featured vehicles showcase - highlights premium or recommended vehicles', 'mhm-rentiva'),
 			),
 		);
 
@@ -180,7 +190,6 @@ final class ShortcodePageActions
 			'rentiva_booking_form'          => '[rentiva_booking_form vehicle_id="1"]',
 			'rentiva_booking_confirmation'  => '[rentiva_booking_confirmation booking_id="1"]',
 			'rentiva_vehicle_rating_form'   => '[rentiva_vehicle_rating_form vehicle_id="1"]',
-			'rentiva_transfer_search'       => '[rentiva_transfer_search]',
 			default                         => '[' . $shortcode . ']',
 		};
 
@@ -235,12 +244,11 @@ final class ShortcodePageActions
 			'rentiva_account_details'       => 'mhm_rentiva_account_details_url',
 			'rentiva_vehicles_list'         => 'mhm_rentiva_vehicles_list_url',
 			'rentiva_vehicles_grid'         => 'mhm_rentiva_vehicles_grid_url',
-			'rentiva_search'                => 'mhm_rentiva_search_url',
+			'rentiva_unified_search'        => 'mhm_rentiva_unified_search_url',
 			'rentiva_search_results'        => 'mhm_rentiva_search_results_url',
 			'rentiva_contact'               => 'mhm_rentiva_contact_url',
 			'rentiva_availability_calendar' => 'mhm_rentiva_availability_calendar_url',
 			'rentiva_booking_confirmation'  => 'mhm_rentiva_booking_confirmation_url',
-			'rentiva_transfer_search'       => 'mhm_rentiva_transfer_url',
 		);
 
 		return $mapping[$shortcode] ?? null;

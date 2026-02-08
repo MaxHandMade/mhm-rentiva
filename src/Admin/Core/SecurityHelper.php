@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core;
 
+use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
+
 if (! defined('ABSPATH')) {
 	exit;
 }
@@ -51,7 +53,7 @@ final class SecurityHelper
 		if (! wp_verify_nonce($nonce, $nonce_name)) {
 			// Debug log for admins only
 			if (current_user_can('manage_options')) {
-				error_log('[MHM SecurityHelper] Nonce verification failed for action ' . $nonce_name . ' with nonce: ' . ($nonce ?: 'EMPTY'));
+				AdvancedLogger::security('Nonce verification failed', array('action' => $nonce_name, 'nonce' => $nonce ?: 'EMPTY'));
 			}
 			return false;
 		}

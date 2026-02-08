@@ -1,17 +1,20 @@
 [
     {
         "version": "4.9.7",
-        "date": "2026-02-03",
-        "type": "current",
+        "date": "2026-02-08",
         "changes": [
-            "🐛 BUG FIX: Fixed [rentiva_search] shortcode double registration issue causing conflicts.",
-            "🔧 REFACTORING: Removed duplicate add_shortcode call from VehicleSearch::register() - now handled by ShortcodeServiceProvider.",
-            "🎨 MARKUP: Fixed missing closing div tags in vehicle-search.php template.",
-            "fix(blocks): Sync Gutenberg className with shortcode templates for block styling.",
-            "fix(datepicker): Destroy and reinitialize datepicker instances in search and booking forms.",
-            "fix(editor): Add core variable editor styles for Gutenberg iframe compatibility.",
-            "fix(ui): Add __next40pxDefaultSize props to search block controls for WP 6.8+.",
-            "fix(date): Normalize search form ISO date values for HTML5 inputs."
+            {
+                "type": "feature",
+                "description": "Standardized Gutenberg block sidebars (InspectorControls) for consistent UI/UX."
+            },
+            {
+                "type": "fix",
+                "description": "Resolved console warnings in block editor for improved stability."
+            },
+            {
+                "type": "improvement",
+                "description": "Updated project documentation and guidelines."
+            }
         ]
     },
     {

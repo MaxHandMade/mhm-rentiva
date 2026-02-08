@@ -77,13 +77,12 @@ dist/
 # ============================================================================
 # PHPUnit & Testing
 tests/
-phpunit.xml
-phpunit.xml.dist
-.phpcs.xml.dist
-phpcs.xml
-phpcs*.txt
+.phpunit.result.cache
 coverage/
 .coverage/
+
+# IDE Analysis Cache
+.intelephense/
 
 # Test & Utility Scripts (Root Level)
 test_*.php
@@ -122,8 +121,6 @@ generate-clean-pot.php
 update-pot-ultimate.php
 update_refund_text.php
 test-i18n.php
-wp-stubs.php
-stubs.php
 reset_endpoints.php
 mhm-tools.php
 flush_rules.php
@@ -135,7 +132,10 @@ stubs/
 bin/
 website/
 .github/
+.kilocode/
+pcp/
 .clinerules/
+.cline/
 .clinerules
 
 # Test Documentation

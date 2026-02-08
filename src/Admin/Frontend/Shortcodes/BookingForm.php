@@ -29,8 +29,11 @@ final class BookingForm extends AbstractShortcode
 
 	/**
 	 * Safe sanitize text field that handles null values
+	 * 
+	 * @param mixed $value Value to sanitize
+	 * @return string
 	 */
-	public static function sanitize_text_field_safe($value)
+	public static function sanitize_text_field_safe($value): string
 	{
 		if ($value === null || $value === '') {
 			return '';
@@ -84,6 +87,7 @@ final class BookingForm extends AbstractShortcode
 			'default_payment'       => 'deposit', // Default payment type
 			'form_title'            => '',        // Form title
 			'show_vehicle_info'     => '1',       // Show vehicle information
+			'show_time_select'      => '1',       // Show time selection inputs
 		);
 	}
 
@@ -123,7 +127,7 @@ final class BookingForm extends AbstractShortcode
 	/**
 	 * Override enqueue_scripts to use file-based versioning
 	 */
-	protected static function enqueue_scripts(): void
+	protected static function enqueue_scripts(array $atts = []): void
 	{
 		$handle   = self::get_asset_handle();
 		$js_files = self::get_js_files();
@@ -152,7 +156,7 @@ final class BookingForm extends AbstractShortcode
 	/**
 	 * Override enqueue_styles to use file-based versioning
 	 */
-	protected static function enqueue_styles(): void
+	protected static function enqueue_styles(array $atts = []): void
 	{
 		$handle    = self::get_asset_handle();
 		$css_files = self::get_css_files();
@@ -176,9 +180,9 @@ final class BookingForm extends AbstractShortcode
 	/**
 	 * Expose asset loading for other components
 	 */
-	public static function enqueue_assets(): void
+	public static function enqueue_assets(array $atts = []): void
 	{
-		parent::enqueue_assets();
+		parent::enqueue_assets($atts);
 	}
 
 	/**
@@ -190,11 +194,11 @@ final class BookingForm extends AbstractShortcode
 	 */
 	private static function get_file_version(string $file_path): string
 	{
-		$full_path = trailingslashit(dirname(__DIR__, 4)) . $file_path;
+		$full_path = trailingslashit((string) dirname(__DIR__, 4)) . $file_path;
 		if (file_exists($full_path)) {
 			return (string) filemtime($full_path);
 		}
-		return defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : '1.0.0'; // Fallback should never be used
+		return defined('MHM_RENTIVA_VERSION') ? (string) MHM_RENTIVA_VERSION : '1.0.0';
 	}
 
 	protected static function get_script_object_name(): string
@@ -288,15 +292,15 @@ final class BookingForm extends AbstractShortcode
 	{
 		// Check URL parameters and override shortcode parameters
 		if (isset($_GET['vehicle_id']) && ! empty($_GET['vehicle_id'])) {
-			$atts['vehicle_id'] = self::sanitize_text_field_safe($_GET['vehicle_id']);
+			$atts['vehicle_id'] = self::sanitize_text_field_safe(wp_unslash($_GET['vehicle_id']));
 		}
 
 		if (isset($_GET['start_date']) && ! empty($_GET['start_date'])) {
-			$atts['start_date'] = self::sanitize_text_field_safe($_GET['start_date']);
+			$atts['start_date'] = self::sanitize_text_field_safe(wp_unslash($_GET['start_date']));
 		}
 
 		if (isset($_GET['end_date']) && ! empty($_GET['end_date'])) {
-			$atts['end_date'] = self::sanitize_text_field_safe($_GET['end_date']);
+			$atts['end_date'] = self::sanitize_text_field_safe(wp_unslash($_GET['end_date']));
 		}
 
 		// ⭐ Formatted dates for presentation (WP Global Format)
@@ -344,12 +348,13 @@ final class BookingForm extends AbstractShortcode
 			'selected_vehicle'      => null,
 			'time_options'          => self::get_time_options(),
 			'addons'                => self::get_available_addons(),
-			'enable_deposit'        => ($atts['enable_deposit'] ?? '1') === '1',
+			'enable_deposit'        => filter_var($atts['enable_deposit'] ?? '1', FILTER_VALIDATE_BOOLEAN),
 			'default_payment'       => $atts['default_payment'] ?? 'deposit',
-			'show_vehicle_selector' => ($atts['show_vehicle_selector'] ?? '1') === '1',
-			'show_addons'           => ($atts['show_addons'] ?? '1') === '1',
-			'show_payment_options'  => ($atts['show_payment_options'] ?? '1') === '1',
-			'show_vehicle_info'     => ($atts['show_vehicle_info'] ?? '1') === '1',
+			'show_vehicle_selector' => filter_var($atts['show_vehicle_selector'] ?? '1', FILTER_VALIDATE_BOOLEAN),
+			'show_addons'           => filter_var($atts['show_addons'] ?? '1', FILTER_VALIDATE_BOOLEAN),
+			'show_payment_options'  => filter_var($atts['show_payment_options'] ?? '1', FILTER_VALIDATE_BOOLEAN),
+			'show_vehicle_info'     => filter_var($atts['show_vehicle_info'] ?? '1', FILTER_VALIDATE_BOOLEAN),
+			'show_time_select'      => filter_var($atts['show_time_select'] ?? '1', FILTER_VALIDATE_BOOLEAN),
 			'default_days'          => (int) $atts['default_days'],
 			'min_days'              => (int) $atts['min_days'],
 			'max_days'              => (int) $atts['max_days'],
@@ -505,7 +510,7 @@ final class BookingForm extends AbstractShortcode
 			'rating'          => $rating,
 			'favorite'        => $is_favorited,
 			'image_url'       => $image_url,
-			'features'        => VehicleFeatureHelper::collect_items($vehicle_id),
+			'features'        => (array) VehicleFeatureHelper::collect_items($vehicle_id),
 			'permalink'       => get_permalink($vehicle_id) ?: '',
 			'deposit_amount'  => $deposit_amount,
 			// Meta information
@@ -576,6 +581,16 @@ final class BookingForm extends AbstractShortcode
 		return $options;
 	}
 
+	/**
+	 * Get available add-ons
+	 * 
+	 * @return array
+	 */
+	/**
+	 * Get available add-ons
+	 * 
+	 * @return array
+	 */
 	private static function get_available_addons(): array
 	{
 		$addons = get_posts(
@@ -589,13 +604,17 @@ final class BookingForm extends AbstractShortcode
 		);
 
 		$result = array();
-		foreach ($addons as $addon) {
-			$result[] = array(
-				'id'          => $addon->ID,
-				'title'       => $addon->post_title,
-				'price'       => get_post_meta($addon->ID, 'addon_price', true) ?: '0',
-				'description' => $addon->post_excerpt,
-			);
+		if (is_array($addons)) {
+			foreach ($addons as $addon) {
+				if ($addon instanceof \WP_Post) {
+					$result[] = array(
+						'id'          => $addon->ID,
+						'title'       => $addon->post_title,
+						'price'       => get_post_meta($addon->ID, 'addon_price', true) ?: '0',
+						'description' => $addon->post_excerpt,
+					);
+				}
+			}
 		}
 
 		return $result;
@@ -603,16 +622,17 @@ final class BookingForm extends AbstractShortcode
 
 	/**
 	 * AJAX booking form
+	 * 
+	 * @return void
 	 */
 	public static function ajax_booking_form(): void
 	{
 		try {
 			// Security checks
-			\MHMRentiva\Admin\Core\SecurityHelper::verify_ajax_request_or_die(
-				'mhm_rentiva_booking_form_nonce',
-				'read',
-				__('Security check failed.', 'mhm-rentiva')
-			);
+			if (! check_ajax_referer('mhm_rentiva_booking_form_nonce', 'nonce', false)) {
+				wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
+				return;
+			}
 
 			// Rate limiting check
 			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
@@ -645,8 +665,8 @@ final class BookingForm extends AbstractShortcode
 
 			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($_POST['pickup_date'] ?? '');
 			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($_POST['dropoff_date'] ?? '');
-			$pickup_time  = self::sanitize_text_field_safe($_POST['pickup_time'] ?? '');
-			$dropoff_time = self::sanitize_text_field_safe($_POST['dropoff_time'] ?? '');
+			$pickup_time  = self::sanitize_text_field_safe(isset($_POST['pickup_time']) ? wp_unslash($_POST['pickup_time']) : '');
+			$dropoff_time = self::sanitize_text_field_safe(isset($_POST['dropoff_time']) ? wp_unslash($_POST['dropoff_time']) : '');
 
 			// Validate pickup time (required)
 			if (empty($pickup_time)) {
@@ -684,27 +704,27 @@ final class BookingForm extends AbstractShortcode
 
 			// If form fields are provided (for logged-in users or manual entry), use them
 			if (! empty($_POST['customer_first_name'])) {
-				$customer_first_name = self::sanitize_text_field_safe($_POST['customer_first_name']);
+				$customer_first_name = self::sanitize_text_field_safe(wp_unslash($_POST['customer_first_name']));
 			}
 			if (! empty($_POST['customer_last_name'])) {
-				$customer_last_name = self::sanitize_text_field_safe($_POST['customer_last_name']);
+				$customer_last_name = self::sanitize_text_field_safe(wp_unslash($_POST['customer_last_name']));
 			}
 			if (! empty($_POST['customer_email'])) {
-				$customer_email_raw = self::sanitize_text_field_safe($_POST['customer_email']);
+				$customer_email_raw = self::sanitize_text_field_safe(wp_unslash($_POST['customer_email']));
 				// Only validate if email is provided and not empty
 				if (! empty($customer_email_raw) && is_email($customer_email_raw)) {
 					$customer_email = sanitize_email($customer_email_raw);
 				}
 			}
 			if (! empty($_POST['customer_phone'])) {
-				$customer_phone = self::sanitize_text_field_safe($_POST['customer_phone']);
+				$customer_phone = self::sanitize_text_field_safe(wp_unslash($_POST['customer_phone']));
 			}
 
 			// Update customer name if we have first/last name
 			if (! empty($customer_first_name) || ! empty($customer_last_name)) {
 				$customer_name = trim($customer_first_name . ' ' . $customer_last_name);
 			}
-			$payment_type = self::sanitize_text_field_safe($_POST['payment_type'] ?? 'deposit');
+			$payment_type = self::sanitize_text_field_safe(isset($_POST['payment_type']) ? wp_unslash($_POST['payment_type']) : 'deposit');
 
 			// ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
 			// This ensures we fallback to full payment instead of 0-deposit (free) booking
@@ -940,7 +960,7 @@ final class BookingForm extends AbstractShortcode
 					}
 				} catch (\Exception $e) {
 					// Log error but continue to fallback (or show error)
-					error_log('MHM Rentiva Payment Gateway Error: ' . $e->getMessage());
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::payment('Payment Gateway Error', array('error' => $e->getMessage()));
 					/* translators: %s: error message */
 					wp_send_json_error(array('message' => sprintf(__('Payment gateway error: %s', 'mhm-rentiva'), $e->getMessage())));
 					return;
@@ -965,16 +985,17 @@ final class BookingForm extends AbstractShortcode
 
 	/**
 	 * AJAX price calculation handler
+	 * 
+	 * @return void
 	 */
 	public static function ajax_calculate_price(): void
 	{
 		try {
 			// Security checks
-			\MHMRentiva\Admin\Core\SecurityHelper::verify_ajax_request_or_die(
-				'mhm_rentiva_booking_form_nonce',
-				'read',
-				__('Security check failed.', 'mhm-rentiva')
-			);
+			if (! check_ajax_referer('mhm_rentiva_booking_form_nonce', 'nonce', false)) {
+				wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
+				return;
+			}
 
 			// Rate limiting check (increased limits)
 			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
@@ -1001,8 +1022,8 @@ final class BookingForm extends AbstractShortcode
 			// ❌ Removed redundant manual data validation (already handled by SecurityHelper above)
 
 			// 1. Refine times
-			$pickup_time  = self::sanitize_text_field_safe($_POST['pickup_time'] ?? '10:00');
-			$dropoff_time = self::sanitize_text_field_safe($_POST['dropoff_time'] ?? $pickup_time);
+			$pickup_time  = self::sanitize_text_field_safe(isset($_POST['pickup_time']) ? wp_unslash($_POST['pickup_time']) : '10:00');
+			$dropoff_time = self::sanitize_text_field_safe(isset($_POST['dropoff_time']) ? wp_unslash($_POST['dropoff_time']) : $pickup_time);
 
 			// 2. Consistent Timestamp Parsing (Uses WordPress Timezone)
 			$datetime_result = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
@@ -1139,7 +1160,7 @@ final class BookingForm extends AbstractShortcode
 			$total_price = $vehicle_total + $addon_total;
 
 			// Payment type (deposit or full)
-			$payment_type = self::sanitize_text_field_safe($_POST['payment_type'] ?? 'deposit');
+			$payment_type = self::sanitize_text_field_safe(isset($_POST['payment_type']) ? wp_unslash($_POST['payment_type']) : 'deposit');
 
 			// ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
 			// This ensures calculations reflect "No Deposit" as "Full Payment Required"
@@ -1296,16 +1317,17 @@ final class BookingForm extends AbstractShortcode
 
 	/**
 	 * Availability Check AJAX Handler
+	 * 
+	 * @return void
 	 */
 	public static function ajax_check_availability(): void
 	{
 		try {
-			// Security checks - Correct nonce usage for BookingForm
-			\MHMRentiva\Admin\Core\SecurityHelper::verify_ajax_request_or_die(
-				'mhm_rentiva_booking_form_nonce',
-				'read',
-				__('Security check failed.', 'mhm-rentiva')
-			);
+			// Security checks
+			if (! check_ajax_referer('mhm_rentiva_booking_form_nonce', 'nonce', false)) {
+				wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
+				return;
+			}
 
 			// Rate limiting check
 			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
@@ -1318,10 +1340,10 @@ final class BookingForm extends AbstractShortcode
 			// Input validation
 			$vehicle_id  = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id($_POST['vehicle_id'] ?? 0);
 			$pickup_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($_POST['pickup_date'] ?? '');
-			$pickup_time = self::sanitize_text_field_safe($_POST['pickup_time'] ?? '');
+			$pickup_time = self::sanitize_text_field_safe(isset($_POST['pickup_time']) ? wp_unslash($_POST['pickup_time']) : '');
 			// Check field names from JavaScript (dropoff_date or return_date)
 			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($_POST['dropoff_date'] ?? $_POST['return_date'] ?? '');
-			$dropoff_time = self::sanitize_text_field_safe($_POST['dropoff_time'] ?? $_POST['return_time'] ?? '');
+			$dropoff_time = self::sanitize_text_field_safe(isset($_POST['dropoff_time']) ? wp_unslash($_POST['dropoff_time']) : (isset($_POST['return_time']) ? wp_unslash($_POST['return_time']) : ''));
 
 			if (! $vehicle_id || ! $pickup_date || ! $dropoff_date) {
 				wp_send_json_error(array('message' => __('Invalid data.', 'mhm-rentiva')));
@@ -1466,15 +1488,6 @@ final class BookingForm extends AbstractShortcode
 			'isRTL'              => is_rtl(),
 			'showMonthAfterYear' => false,
 			'yearSuffix'         => '',
-			// Critical DatePicker Configuration
-			'dateFormat'         => $js_format, // ← Dynamic format based on WP settings
-			'minDate'            => 0, // ← Today or later only
-			'maxDate'            => '+2y', // ← Maximum 2 years ahead
-			'changeMonth'        => true, // ← Month dropdown
-			'changeYear'         => true, // ← Year dropdown
-			'showButtonPanel'    => true, // ← Today/Done buttons
-			'closeText'          => __('Close', 'mhm-rentiva'),
-			'currentText'        => __('Today', 'mhm-rentiva'),
 			'showOtherMonths'    => true,
 			'selectOtherMonths'  => true,
 		);

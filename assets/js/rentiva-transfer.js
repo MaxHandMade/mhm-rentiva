@@ -87,7 +87,7 @@ jQuery(document).ready(function ($) {
     $destination.on('change', function () { checkConflict(this, false); });
 
     // --- AJAX Form Submit ---
-    $('#mhm-transfer-search-form').on('submit', function (e) {
+    $('.js-unified-transfer-form').on('submit', function (e) {
         // Final check (on Submit)
         var originVal = $origin.val();
         var destVal = $destination.val();
@@ -104,7 +104,7 @@ jQuery(document).ready(function ($) {
         if (typeof rentiva_transfer_vars !== 'undefined' && rentiva_transfer_vars.i18n && rentiva_transfer_vars.i18n.searching_text) {
             searchingText = rentiva_transfer_vars.i18n.searching_text;
         }
-        $('#mhm-transfer-results').html('<div class="mhm-loading"><span class="dashicons dashicons-update"></span> ' + searchingText + '</div>');
+        $('#mhm-transfer-results').html('<div class="mhm-loading"><svg class="rv-spinner" viewBox="0 0 50 50" style="width:20px;height:20px;animation:spin 1s linear infinite;"><circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5"></circle></svg> ' + searchingText + '</div>');
 
         $.ajax({
             url: rentiva_transfer_vars.ajax_url,

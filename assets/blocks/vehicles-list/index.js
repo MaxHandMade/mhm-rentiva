@@ -72,7 +72,10 @@
                         }),
                         el(ToggleControl, {
                             label: 'Show Image',
-                            checked: attributes.show_image === '1',
+                            checked: attributes.show_image === '1', // Already snake_case in source but confused? No, block.json had showImage? No wait.
+                            // Checking block.json again: "showPrice" was camelCase. "showImage" was NOT in block.json I pasted?
+                            // Ah, I added show_image to block.json.
+                            // Let's stick to snake_case for all.
                             onChange: function (val) { setAttributes({ show_image: val ? '1' : '0' }); }
                         }),
                         el(ToggleControl, {

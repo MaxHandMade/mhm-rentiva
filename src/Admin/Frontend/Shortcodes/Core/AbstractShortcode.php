@@ -195,18 +195,20 @@ abstract class AbstractShortcode
 	 */
 	protected static function enqueue_styles(array $atts = []): void
 	{
-		$handle    = static::get_asset_handle();
-		$css_files = static::get_css_files($atts);
+		$base_handle = static::get_asset_handle();
+		$css_files   = static::get_css_files($atts);
 
-		foreach ($css_files as $css_file) {
+		foreach ($css_files as $index => $css_file) {
 			if (static::asset_exists($css_file)) {
+				// Use unique handle for each file if there are multiple
+				$handle = (count($css_files) === 1) ? $base_handle : $base_handle . '-' . $index;
+
 				wp_enqueue_style(
 					$handle,
 					MHM_RENTIVA_PLUGIN_URL . $css_file,
 					static::get_css_dependencies(),
 					MHM_RENTIVA_VERSION
 				);
-				break; // Load first found file
 			}
 		}
 	}
@@ -219,11 +221,14 @@ abstract class AbstractShortcode
 	 */
 	protected static function enqueue_scripts(array $atts = []): void
 	{
-		$handle   = static::get_asset_handle();
-		$js_files = static::get_js_files($atts);
+		$base_handle = static::get_asset_handle();
+		$js_files    = static::get_js_files($atts);
 
-		foreach ($js_files as $js_file) {
+		foreach ($js_files as $index => $js_file) {
 			if (static::asset_exists($js_file)) {
+				// Use unique handle for each file if there are multiple
+				$handle = (count($js_files) === 1) ? $base_handle : $base_handle . '-' . $index;
+
 				wp_enqueue_script(
 					$handle,
 					MHM_RENTIVA_PLUGIN_URL . $js_file,
@@ -232,9 +237,10 @@ abstract class AbstractShortcode
 					true
 				);
 
-				// Localize script
-				static::localize_script($handle);
-				break; // Load first found file
+				// Localize script (usually for the main/base script)
+				if ($index === 0 || count($js_files) === 1) {
+					static::localize_script($handle);
+				}
 			}
 		}
 	}

@@ -104,7 +104,7 @@ final class AssetManager
 		if (! wp_script_is('mhm-swiper', 'registered')) {
 			wp_register_script(
 				'mhm-swiper',
-				'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/swiper-bundle.min.js',
 				[],
 				'11.0.0',
 				true
@@ -115,7 +115,7 @@ final class AssetManager
 		if (! wp_style_is('mhm-swiper-css', 'registered')) {
 			wp_register_style(
 				'mhm-swiper-css',
-				'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/swiper-bundle.min.css',
 				[],
 				'11.0.0'
 			);
@@ -141,6 +141,14 @@ final class AssetManager
 
 		// Only load non-shortcode frontend assets
 		self::enqueue_frontend_specific_assets();
+	}
+
+	/**
+	 * Load block editor assets
+	 */
+	public static function enqueue_editor_assets(): void
+	{
+		self::enqueue_core_css();
 	}
 
 	/**

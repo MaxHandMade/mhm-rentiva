@@ -32,8 +32,11 @@ final class AvailabilityCalendar extends AbstractShortcode
 
 	/**
 	 * Safe sanitize text field that handles null values
+	 * 
+	 * @param mixed $value Value to sanitize
+	 * @return string
 	 */
-	public static function sanitize_text_field_safe($value)
+	public static function sanitize_text_field_safe($value): string
 	{
 		if ($value === null || $value === '') {
 			return '';
@@ -80,11 +83,21 @@ final class AvailabilityCalendar extends AbstractShortcode
 		);
 	}
 
+	/**
+	 * Returns CSS filename
+	 * 
+	 * @return string
+	 */
 	protected static function get_css_filename(): string
 	{
 		return 'availability-calendar.css';
 	}
 
+	/**
+	 * Returns JS filename
+	 * 
+	 * @return string
+	 */
 	protected static function get_js_filename(): string
 	{
 		return 'availability-calendar.js';
@@ -93,7 +106,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 	/**
 	 * Returns CSS files
 	 */
-	protected static function get_css_files(): array
+	protected static function get_css_files(array $atts = []): array
 	{
 		$css_files = array(
 			'assets/css/frontend/availability-calendar.css',
@@ -105,7 +118,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 	/**
 	 * Loads CSS files - Override
 	 */
-	protected static function enqueue_styles(): void
+	protected static function enqueue_styles(array $atts = []): void
 	{
 
 		$css_files = self::get_css_files();
@@ -131,7 +144,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 	/**
 	 * Loads JS files - Override
 	 */
-	protected static function enqueue_scripts(): void
+	protected static function enqueue_scripts(array $atts = []): void
 	{
 		$js_files = self::get_js_files();
 		foreach ($js_files as $js_file) {
@@ -160,7 +173,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 	/**
 	 * Returns JS files
 	 */
-	protected static function get_js_files(): array
+	protected static function get_js_files(array $atts = []): array
 	{
 		return array(
 			'assets/js/frontend/availability-calendar.js',
@@ -170,7 +183,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 	/**
 	 * Override asset loading method
 	 */
-	protected static function enqueue_assets(): void
+	protected static function enqueue_assets(array $atts = []): void
 	{
 		// Enqueue Global Notifications System CSS (Forced for reliability)
 		wp_enqueue_style(
@@ -195,7 +208,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 	/**
 	 * Asset loading check - Override
 	 */
-	protected static function enqueue_assets_once(): void
+	protected static function enqueue_assets_once(array $atts = []): void
 	{
 		$tag = self::get_shortcode_tag();
 
@@ -894,6 +907,12 @@ final class AvailabilityCalendar extends AbstractShortcode
 		return array();
 	}
 
+	/**
+	 * Get vehicle discounts
+	 * 
+	 * @param int $vehicle_id Vehicle ID
+	 * @return array
+	 */
 	private static function get_vehicle_discounts(int $vehicle_id): array
 	{
 		// Discounts not yet in meta field
@@ -902,20 +921,21 @@ final class AvailabilityCalendar extends AbstractShortcode
 
 	/**
 	 * Unified AJAX handler for availability and pricing
+	 * 
+	 * @return void
 	 */
 	public static function ajax_unified_availability(): void
 	{
-		// Nonce check
-		$nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_availability_nonce')) {
+		// Security check
+		if (! check_ajax_referer('mhm_rentiva_availability_nonce', 'nonce', false)) {
 			wp_send_json_error(array('message' => esc_html__('Security check failed.', 'mhm-rentiva')));
 			return;
 		}
 
 		try {
-			$vehicle_id     = intval($_POST['vehicle_id'] ?? 0);
-			$start_month    = self::sanitize_text_field_safe($_POST['start_month'] ?? gmdate('Y-m'));
-			$months_to_show = intval($_POST['months_to_show'] ?? 1);
+			$vehicle_id     = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
+			$start_month    = self::sanitize_text_field_safe(isset($_POST['start_month']) ? wp_unslash($_POST['start_month']) : gmdate('Y-m'));
+			$months_to_show = intval(isset($_POST['months_to_show']) ? wp_unslash($_POST['months_to_show']) : 1);
 
 			if (! $vehicle_id) {
 				wp_send_json_error(array('message' => esc_html__('Vehicle ID is required.', 'mhm-rentiva')));
@@ -945,16 +965,21 @@ final class AvailabilityCalendar extends AbstractShortcode
 		}
 	}
 
+	/**
+	 * AJAX handler to get vehicle info
+	 * 
+	 * @return void
+	 */
 	public static function ajax_get_vehicle_info(): void
 	{
 		try {
-			// Nonce check
-			if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_availability_nonce')) {
+			// Security check
+			if (! check_ajax_referer('mhm_rentiva_availability_nonce', 'nonce', false)) {
 				wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
 				return;
 			}
 
-			$vehicle_id = intval($_POST['vehicle_id'] ?? 0);
+			$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
 
 			if ($vehicle_id <= 0) {
 				wp_send_json_error(__('Invalid vehicle ID', 'mhm-rentiva'));
@@ -1112,6 +1137,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 	 * @param int $post_id Post ID
 	 * @param \WP_Post $post Post Object
 	 * @param bool $update Whether this is an existing post being updated
+	 * @return void
 	 */
 	public static function clear_availability_cache($post_id, $post, $update): void
 	{
@@ -1119,8 +1145,8 @@ final class AvailabilityCalendar extends AbstractShortcode
 			return;
 		}
 
-		$vehicle_id = get_post_meta($post_id, '_mhm_vehicle_id', true);
-		if ($vehicle_id) {
+		$vehicle_id = (int) get_post_meta((int) $post_id, '_mhm_vehicle_id', true);
+		if ($vehicle_id > 0) {
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(array("vehicle_{$vehicle_id}"));
 		}
 	}

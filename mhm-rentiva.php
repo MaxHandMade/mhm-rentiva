@@ -3,7 +3,7 @@
  * Plugin Name:       MHM Rentiva
  * Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
  * Description:       MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
- * Version:           4.9.6
+ * Version:           4.9.7
  * Requires at least: 5.0
  * Tested up to:      6.9
  * Requires PHP:      7.4
@@ -14,6 +14,8 @@
  * Text Domain:       mhm-rentiva
  * Domain Path:       /languages
  */
+
+declare(strict_types=1);
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -242,14 +244,17 @@ register_activation_hook(
 
 		if (is_multisite()) {
 			// Network-wide activation
-			if (isset($_GET['networkwide']) && '1' === mhm_rentiva_sanitize_text_field_safe(wp_unslash($_GET['networkwide']))) {
-				global $wpdb;
+			if (isset($_GET['networkwide']) && '1' === sanitize_text_field(wp_unslash($_GET['networkwide']))) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Activation hooks are triggered by WordPress core without custom nonces in this context.
 
-				// Fetch blog IDs with caching
+				// Fetch blog IDs using get_sites() instead of direct database query
 				$blog_ids = wp_cache_get('mhm_rentiva_network_blogs');
 				if (false === $blog_ids) {
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $wpdb->blogs is a core WordPress table name.
-					$blog_ids = $wpdb->get_col($wpdb->prepare("SELECT blog_id FROM {$wpdb->blogs} WHERE public = %d", 1));
+					$sites = get_sites(array('public' => 1));
+					$blog_ids = array();
+					foreach ($sites as $site) {
+						$blog_ids[] = $site->blog_id;
+					}
 					wp_cache_set('mhm_rentiva_network_blogs', $blog_ids, '', 3600);
 				}
 

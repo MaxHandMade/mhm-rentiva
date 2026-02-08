@@ -42,7 +42,7 @@ final class MyBookings extends AbstractAccountShortcode
         return AccountRenderer::get_bookings_data($atts);
     }
 
-    protected static function enqueue_assets(): void
+    protected static function enqueue_assets(array $atts = []): void
     {
         parent::enqueue_assets();
 

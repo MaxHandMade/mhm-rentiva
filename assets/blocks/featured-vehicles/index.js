@@ -1,86 +1,99 @@
-/**
- * Featured Vehicles Block
- */
-import { registerBlockType } from '@wordpress/blocks';
-import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, TextControl, SelectControl, ToggleControl, RangeControl } from '@wordpress/components';
-import ServerSideRender from '@wordpress/server-side-render';
+(function (blocks, element, blockEditor, components, serverSideRender) {
+    var el = element.createElement;
+    var registerBlockType = blocks.registerBlockType;
+    var InspectorControls = blockEditor.InspectorControls;
+    var useBlockProps = blockEditor.useBlockProps;
+    var PanelBody = components.PanelBody;
+    var TextControl = components.TextControl;
+    var SelectControl = components.SelectControl;
+    var ToggleControl = components.ToggleControl;
+    var RangeControl = components.RangeControl;
 
-import metadata from './block.json';
+    // Check if ServerSideRender is default export or direct
+    var ServerSideRender = serverSideRender.default || serverSideRender;
 
-registerBlockType(metadata.name, {
-    edit: ({ attributes, setAttributes }) => {
-        const blockProps = useBlockProps();
+    var blockName = 'mhm-rentiva/featured-vehicles';
 
-        return (
-            <div {...blockProps}>
-                <InspectorControls>
-                    <PanelBody title="General Settings">
-                        <TextControl
-                            label="Title"
-                            value={attributes.title}
-                            onChange={(value) => setAttributes({ title: value })}
-                        />
-                        <SelectControl
-                            label="Layout"
-                            value={attributes.layout}
-                            options={[
+    registerBlockType(blockName, {
+        edit: function (props) {
+            var attributes = props.attributes;
+            var setAttributes = props.setAttributes;
+            var blockProps = useBlockProps();
+
+            return el('div', blockProps,
+                el(InspectorControls, {},
+                    el(PanelBody, { title: 'General Settings', initialOpen: true },
+                        el(TextControl, {
+                            label: 'Title',
+                            value: attributes.title,
+                            onChange: function (val) { setAttributes({ title: val }); }
+                        }),
+                        el(SelectControl, {
+                            label: 'Layout',
+                            value: attributes.layout,
+                            options: [
                                 { label: 'Slider', value: 'slider' },
-                                { label: 'Grid', value: 'grid' },
-                            ]}
-                            onChange={(value) => setAttributes({ layout: value })}
-                        />
-                        <RangeControl
-                            label="Limit"
-                            value={parseInt(attributes.limit)}
-                            onChange={(value) => setAttributes({ limit: String(value) })}
-                            min={1}
-                            max={20}
-                        />
-                        <RangeControl
-                            label="Columns (Grid/Slider View)"
-                            value={parseInt(attributes.columns)}
-                            onChange={(value) => setAttributes({ columns: String(value) })}
-                            min={1}
-                            max={6}
-                        />
-                    </PanelBody>
-                    <PanelBody title="Filtering" initialOpen={false}>
-                        <TextControl
-                            label="Category Slug"
-                            value={attributes.category}
-                            onChange={(value) => setAttributes({ category: value })}
-                            help="Enter vehicle category slug to filter."
-                        />
-                        <TextControl
-                            label="Vehicle IDs"
-                            value={attributes.ids}
-                            onChange={(value) => setAttributes({ ids: value })}
-                            help="Comma separated list of specific vehicle IDs."
-                        />
-                    </PanelBody>
-                    {attributes.layout === 'slider' && (
-                        <PanelBody title="Slider Settings" initialOpen={false}>
-                            <ToggleControl
-                                label="Autoplay"
-                                checked={attributes.autoplay === '1'}
-                                onChange={(value) => setAttributes({ autoplay: value ? '1' : '0' })}
-                            />
-                            <TextControl
-                                label="Interval (ms)"
-                                value={attributes.interval}
-                                onChange={(value) => setAttributes({ interval: value })}
-                            />
-                        </PanelBody>
-                    )}
-                </InspectorControls>
+                                { label: 'Grid', value: 'grid' }
+                            ],
+                            onChange: function (val) { setAttributes({ layout: val }); }
+                        }),
+                        el(RangeControl, {
+                            label: 'Limit',
+                            value: parseInt(attributes.limit) || 6,
+                            onChange: function (val) { setAttributes({ limit: String(val) }); },
+                            min: 1,
+                            max: 20
+                        }),
+                        el(RangeControl, {
+                            label: 'Columns (Grid/Slider View)',
+                            value: parseInt(attributes.columns) || 3,
+                            onChange: function (val) { setAttributes({ columns: String(val) }); },
+                            min: 1,
+                            max: 6
+                        })
+                    ),
+                    el(PanelBody, { title: 'Filtering', initialOpen: false },
+                        el(TextControl, {
+                            label: 'Category Slug',
+                            value: attributes.category,
+                            onChange: function (val) { setAttributes({ category: val }); },
+                            help: 'Enter vehicle category slug to filter.'
+                        }),
+                        el(TextControl, {
+                            label: 'Vehicle IDs',
+                            value: attributes.ids,
+                            onChange: function (val) { setAttributes({ ids: val }); },
+                            help: 'Comma separated list of specific vehicle IDs.'
+                        })
+                    ),
+                    attributes.layout === 'slider' && el(PanelBody, { title: 'Slider Settings', initialOpen: false },
+                        el(ToggleControl, {
+                            label: 'Autoplay',
+                            checked: attributes.autoplay === '1',
+                            onChange: function (val) { setAttributes({ autoplay: val ? '1' : '0' }); }
+                        }),
+                        el(TextControl, {
+                            label: 'Interval (ms)',
+                            value: attributes.interval,
+                            onChange: function (val) { setAttributes({ interval: val }); }
+                        })
+                    )
+                ),
+                el(ServerSideRender, {
+                    block: blockName,
+                    attributes: attributes
+                })
+            );
+        },
+        save: function () {
+            return null;
+        }
+    });
 
-                <ServerSideRender
-                    block={metadata.name}
-                    attributes={attributes}
-                />
-            </div>
-        );
-    },
-    save: () => null, // Dynamic block
-});
+})(
+    window.wp.blocks,
+    window.wp.element,
+    window.wp.blockEditor,
+    window.wp.components,
+    window.wp.serverSideRender
+);

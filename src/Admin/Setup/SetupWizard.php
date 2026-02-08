@@ -934,8 +934,8 @@ final class SetupWizard
 				'recommended_url' => '/rentiva/booking-form/',
 			),
 			array(
-				'label'           => __('Search Form', 'mhm-rentiva'),
-				'shortcode'       => 'rentiva_search',
+				'label'           => __('Unified Search', 'mhm-rentiva'),
+				'shortcode'       => 'rentiva_unified_search',
 				'recommended_url' => '/rentiva/search/',
 			),
 			array(

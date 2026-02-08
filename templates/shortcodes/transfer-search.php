@@ -1,11 +1,12 @@
 <?php
 
 /**
- * Transfer Search Shortcode Template
- *
- * @var array $data {
- *     @var array $locations Array of location objects with id, name, type.
- * }
+ * Template: Transfer Search Form
+ * 
+ * Used by [rentiva_transfer_search] shortcode.
+ * 
+ * @var array $locations available locations
+ * @var array $atts      shortcode attributes
  */
 
 if (! defined('ABSPATH')) {
@@ -13,82 +14,108 @@ if (! defined('ABSPATH')) {
 }
 
 $locations = $locations ?? array();
+$uid = uniqid('rv_transfer_search_');
 ?>
 
-<div class="mhm-transfer-search-wrapper">
-    <form id="mhm-transfer-search-form">
-        <div class="mhm-transfer-form-row">
-            <div class="mhm-transfer-form-group">
-                <label for="mhm-origin"><?php esc_html_e('Pickup Location', 'mhm-rentiva'); ?></label>
-                <select name="origin_id" id="mhm-origin" required>
-                    <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
-                    <?php foreach ($locations as $loc) : ?>
-                        <option value="<?php echo esc_attr((string) $loc->id); ?>"><?php echo esc_html($loc->name); ?></option>
-                    <?php endforeach; ?>
-                </select>
+<div id="<?php echo esc_attr($uid); ?>" class="rv-transfer-search-container">
+    <form class="rv-unified-search__form js-unified-transfer-form"
+        action="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_transfer_results')); ?>"
+        method="GET"
+        id="mhm-transfer-search-form-<?php echo esc_attr($uid); ?>">
+
+        <div class="rv-unified-search__group">
+            <div class="rv-unified-search__field">
+                <label class="rv-label"><?php esc_html_e('Pickup Location', 'mhm-rentiva'); ?></label>
+                <div class="rv-input-wrapper">
+                    <span class="rv-icon-marker dashicons dashicons-location"></span>
+                    <select name="origin_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
+                        <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
+                        <?php foreach ($locations as $loc): ?>
+                            <option value="<?php echo esc_attr((string)$loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
-            <div class="mhm-transfer-form-group">
-                <label for="mhm-destination"><?php esc_html_e('Dropoff Location', 'mhm-rentiva'); ?></label>
-                <select name="destination_id" id="mhm-destination" required>
-                    <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
-                    <?php foreach ($locations as $loc) : ?>
-                        <option value="<?php echo esc_attr((string) $loc->id); ?>"><?php echo esc_html($loc->name); ?></option>
-                    <?php endforeach; ?>
-                </select>
+
+            <div class="rv-unified-search__field">
+                <label class="rv-label"><?php esc_html_e('Dropoff Location', 'mhm-rentiva'); ?></label>
+                <div class="rv-input-wrapper">
+                    <span class="rv-icon-marker dashicons dashicons-location"></span>
+                    <select name="destination_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
+                        <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
+                        <?php foreach ($locations as $loc): ?>
+                            <option value="<?php echo esc_attr((string)$loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div class="mhm-transfer-form-row">
-            <div class="mhm-transfer-form-group">
-                <label for="mhm-date"><?php esc_html_e('Date', 'mhm-rentiva'); ?></label>
-                <input type="date" name="date" id="mhm-date" required min="<?php echo esc_attr(gmdate('Y-m-d')); ?>">
+        <div class="rv-unified-search__group rv-unified-search__group--mobile-grid">
+            <div class="rv-unified-search__field">
+                <label class="rv-label"><?php esc_html_e('Date', 'mhm-rentiva'); ?></label>
+                <div class="rv-input-wrapper">
+                    <span class="rv-icon-calendar dashicons dashicons-calendar-alt"></span>
+                    <input type="text" name="date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off">
+                </div>
             </div>
-            <div class="mhm-transfer-form-group">
-                <label for="mhm-time"><?php esc_html_e('Time', 'mhm-rentiva'); ?></label>
-                <input type="time" name="time" id="mhm-time" required>
-            </div>
-        </div>
-
-        <div class="mhm-transfer-form-row">
-            <div class="mhm-transfer-form-group mhm-half">
-                <label><?php esc_html_e('Adults', 'mhm-rentiva'); ?></label>
-                <input type="number" name="adults" value="1" min="1" required>
-            </div>
-            <div class="mhm-transfer-form-group mhm-half">
-                <label><?php esc_html_e('Children', 'mhm-rentiva'); ?></label>
-                <input type="number" name="children" value="0" min="0">
-            </div>
-            <div class="mhm-transfer-form-group mhm-half">
-                <label><?php esc_html_e('Big Bags', 'mhm-rentiva'); ?> <span style="color:red;">(*)</span></label>
-                <input type="number" name="luggage_big" value="0" min="0">
-            </div>
-            <div class="mhm-transfer-form-group mhm-half">
-                <label><?php esc_html_e('Small Bags', 'mhm-rentiva'); ?> <span style="color:red;">(*)</span></label>
-                <input type="number" name="luggage_small" value="0" min="0">
+            <div class="rv-unified-search__field rv-unified-search__field--time">
+                <label class="rv-label"><?php esc_html_e('Time', 'mhm-rentiva'); ?></label>
+                <div class="rv-input-wrapper">
+                    <span class="rv-icon-clock dashicons dashicons-clock"></span>
+                    <select name="time" class="rv-select">
+                        <?php for ($i = 0; $i < 24; $i++): ?>
+                            <option value="<?php echo sprintf('%02d:00', $i); ?>" <?php selected($i, 10); ?>>
+                                <?php echo sprintf('%02d:00', $i); ?>
+                            </option>
+                            <option value="<?php echo sprintf('%02d:30', $i); ?>">
+                                <?php echo sprintf('%02d:30', $i); ?>
+                            </option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div class="mhm-transfer-form-submit">
-            <button type="submit" class="mhm-transfer-btn"><?php esc_html_e('Search Transfer', 'mhm-rentiva'); ?></button>
+        <div class="rv-unified-search__group rv-unified-search__group--pax rv-unified-search__group--mobile-grid">
+            <div class="rv-unified-search__field">
+                <label class="rv-label"><?php esc_html_e('Adults', 'mhm-rentiva'); ?></label>
+                <div class="rv-input-wrapper">
+                    <span class="rv-icon dashicons dashicons-admin-users"></span>
+                    <input type="number" name="adults" value="1" min="1" class="rv-input">
+                </div>
+            </div>
+            <div class="rv-unified-search__field">
+                <label class="rv-label"><?php esc_html_e('Children', 'mhm-rentiva'); ?></label>
+                <div class="rv-input-wrapper">
+                    <span class="rv-icon dashicons dashicons-admin-users"></span>
+                    <input type="number" name="children" value="0" min="0" class="rv-input">
+                </div>
+            </div>
         </div>
 
-        <div class="mhm-transfer-luggage-info mt-3" style="font-size: 0.85rem; color: #6c757d; line-height: 1.4; margin-top: 15px;">
-            <p class="mb-1" style="margin-bottom: 5px;">
-                <strong class="text-danger" style="color:red;">*</strong>
-                <strong><?php esc_html_e('Small Luggage:', 'mhm-rentiva'); ?></strong>
-                <?php esc_html_e('Handbag, backpack or cabin size suitcase.', 'mhm-rentiva'); ?>
-            </p>
-            <p class="mb-0" style="margin-bottom: 0;">
-                <strong class="text-danger" style="color:red;">*</strong>
-                <strong><?php esc_html_e('Big Luggage:', 'mhm-rentiva'); ?></strong>
-                <?php esc_html_e('Medium or large check-in suitcase.', 'mhm-rentiva'); ?>
-            </p>
+        <div class="rv-unified-search__group rv-unified-search__group--luggage rv-unified-search__group--mobile-grid">
+            <div class="rv-unified-search__field">
+                <label class="rv-label"><?php esc_html_e('Big Bags', 'mhm-rentiva'); ?> <span class="required" style="color:red;">(*)</span></label>
+                <div class="rv-input-wrapper">
+                    <span class="rv-icon dashicons dashicons-portfolio"></span>
+                    <input type="number" name="luggage_big" value="0" min="0" class="rv-input" required>
+                </div>
+            </div>
+            <div class="rv-unified-search__field">
+                <label class="rv-label"><?php esc_html_e('Small Bags', 'mhm-rentiva'); ?> <span class="required" style="color:red;">(*)</span></label>
+                <div class="rv-input-wrapper">
+                    <span class="rv-icon dashicons dashicons-portfolio"></span>
+                    <input type="number" name="luggage_small" value="0" min="0" class="rv-input" required>
+                </div>
+            </div>
         </div>
 
-        <div id="mhm-transfer-loading" style="display:none; text-align:center; padding:10px;">
-            <?php esc_html_e('Searching...', 'mhm-rentiva'); ?>
+        <div class="rv-unified-search__action">
+            <button type="submit" class="rv-btn rv-btn--primary">
+                <span class="rv-icon-search dashicons dashicons-search"></span>
+                <?php esc_html_e('Search Transfer', 'mhm-rentiva'); ?>
+            </button>
         </div>
     </form>
-
-    <div id="mhm-transfer-results"></div>
 </div>

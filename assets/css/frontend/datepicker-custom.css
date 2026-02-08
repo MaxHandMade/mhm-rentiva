@@ -1,4 +1,17 @@
 /* ===== MHM RENTIVA MODERN DATEPICKER STYLES (Shared) ===== */
+
+/* CRITICAL FIX: Hide datepicker by default - jQuery UI will show it when triggered */
+.ui-datepicker {
+    display: none !important;
+}
+
+/* When jQuery UI explicitly shows the datepicker, it adds inline style="display: block" */
+.ui-datepicker[style*="display: block"],
+.ui-datepicker[style*="display:block"] {
+    display: block !important;
+}
+
+/* Base datepicker styles */
 .ui-datepicker {
     background: var(--mhm-bg-card) !important;
     border: 2px solid var(--mhm-border-primary) !important;
@@ -126,6 +139,7 @@
     border-bottom: 2px solid var(--mhm-white) !important;
     transform: rotate(45deg) !important;
     margin-left: 2px !important;
+    box-sizing: border-box !important;
 }
 
 .ui-datepicker .ui-datepicker-next::before {
@@ -137,6 +151,7 @@
     border-top: 2px solid var(--mhm-white) !important;
     transform: rotate(45deg) !important;
     margin-right: 2px !important;
+    box-sizing: border-box !important;
 }
 
 /* Hide default text/icons and potential theme conflicts */
@@ -210,13 +225,15 @@
     font-weight: 600 !important;
 }
 
-.ui-datepicker-calendar .ui-state-active {
+.ui-datepicker-calendar .ui-state-active,
+.ui-datepicker-calendar .ui-datepicker-current-day a {
     background: var(--mhm-btn-bg) !important;
     color: var(--mhm-white) !important;
     font-weight: 700 !important;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
     border: none !important;
     transform: scale(1.05) !important;
+    opacity: 1 !important;
 }
 
 .ui-datepicker-calendar .ui-state-highlight {

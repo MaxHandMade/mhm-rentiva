@@ -45,21 +45,21 @@ final class Handler
 
 		// Get and sanitize fields - apply wp_unslash() before sanitization
 		$vehicle_id      = isset($_POST['vehicle_id']) ? absint(wp_unslash($_POST['vehicle_id'])) : 0;
-		$pickup_date     = isset($_POST['pickup_date']) ? Sanitizer::text_field_safe(wp_unslash($_POST['pickup_date'])) : '';
-		$pickup_time     = isset($_POST['pickup_time']) ? Sanitizer::text_field_safe(wp_unslash($_POST['pickup_time'])) : '';
-		$dropoff_date    = isset($_POST['dropoff_date']) ? Sanitizer::text_field_safe(wp_unslash($_POST['dropoff_date'])) : '';
-		$dropoff_time    = isset($_POST['dropoff_time']) ? Sanitizer::text_field_safe(wp_unslash($_POST['dropoff_time'])) : '';
-		$contact_name    = isset($_POST['contact_name']) ? Sanitizer::text_field_safe(wp_unslash($_POST['contact_name'])) : '';
+		$pickup_date     = isset($_POST['pickup_date']) ? sanitize_text_field(wp_unslash($_POST['pickup_date'])) : '';
+		$pickup_time     = isset($_POST['pickup_time']) ? sanitize_text_field(wp_unslash($_POST['pickup_time'])) : '';
+		$dropoff_date    = isset($_POST['dropoff_date']) ? sanitize_text_field(wp_unslash($_POST['dropoff_date'])) : '';
+		$dropoff_time    = isset($_POST['dropoff_time']) ? sanitize_text_field(wp_unslash($_POST['dropoff_time'])) : '';
+		$contact_name    = isset($_POST['contact_name']) ? sanitize_text_field(wp_unslash($_POST['contact_name'])) : '';
 		$contact_email   = isset($_POST['contact_email']) ? sanitize_email(wp_unslash($_POST['contact_email'])) : '';
-		$contact_phone   = isset($_POST['contact_phone']) ? Sanitizer::text_field_safe(wp_unslash($_POST['contact_phone'])) : '';
+		$contact_phone   = isset($_POST['contact_phone']) ? sanitize_text_field(wp_unslash($_POST['contact_phone'])) : '';
 		$selected_addons = isset($_POST['selected_addons']) ? array_map('absint', (array) wp_unslash($_POST['selected_addons'])) : array();
 
 		// Deposit system fields
-		$payment_type = isset($_POST['payment_type']) ? Sanitizer::text_field_safe(wp_unslash($_POST['payment_type'])) : 'deposit';
+		$payment_type = isset($_POST['payment_type']) ? sanitize_text_field(wp_unslash($_POST['payment_type'])) : 'deposit';
 		// ⭐ Get default payment method from DepositCalculator (WooCommerce only)
 		$available_methods      = DepositCalculator::get_payment_methods();
 		$default_payment_method = ! empty($available_methods) ? array_key_first($available_methods) : 'woocommerce';
-		$payment_method         = isset($_POST['payment_method']) ? Sanitizer::text_field_safe(wp_unslash($_POST['payment_method'])) : $default_payment_method;
+		$payment_method         = isset($_POST['payment_method']) ? sanitize_text_field(wp_unslash($_POST['payment_method'])) : $default_payment_method;
 
 		// Basic validation
 		if (
@@ -138,7 +138,7 @@ final class Handler
 				'payment_type'    => $payment_type,
 				'payment_method'  => $payment_method,
 				'client_ip'       => self::get_client_ip(),
-				'user_agent'      => isset($_SERVER['HTTP_USER_AGENT']) ? Sanitizer::text_field_safe(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '',
+				'user_agent'      => isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '',
 			);
 
 			$booking_id = self::create_booking_atomic($booking_data);
@@ -163,7 +163,7 @@ final class Handler
 				$amount_to_pay = $payment_type === 'deposit' ? $deposit_amount : $total_amount;
 
 				if (\MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge::add_booking_to_cart($booking_id, $amount_to_pay)) {
-					wp_redirect(\wc_get_checkout_url());
+					wp_safe_redirect(\wc_get_checkout_url());
 					exit;
 				}
 			}
@@ -391,7 +391,7 @@ final class Handler
 				if (empty($payment_deadline)) {
 					$deadline = self::get_payment_deadline();
 					update_post_meta($booking_id, '_mhm_payment_deadline', $deadline);
-					error_log("MHM Rentiva: Payment deadline was missing for booking #$booking_id, set to: $deadline");
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('Payment deadline was missing for booking', array('booking_id' => $booking_id, 'deadline' => $deadline));
 				}
 
 				// ✅ CACHE OPTIMIZATION - Centralized cache clearing

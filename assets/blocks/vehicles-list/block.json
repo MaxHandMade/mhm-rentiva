@@ -2,103 +2,133 @@
     "$schema": "https://schemas.wp.org/trunk/block.json",
     "apiVersion": 3,
     "name": "mhm-rentiva/vehicles-list",
-    "version": "1.0.0",
     "title": "MHM Vehicles List",
     "category": "widgets",
     "icon": "car",
-    "description": "Displays a list of vehicles with various filtering and layout options.",
+    "description": "Display vehicles in a list layout.",
+    "textdomain": "mhm-rentiva",
     "supports": {
         "html": false,
+        "anchor": true,
+        "className": true,
+        "customClassName": true,
         "align": [
             "wide",
-            "full"
+            "full",
+            "center"
         ],
-        "spacing": {
-            "margin": true,
-            "padding": true
-        },
         "color": {
             "text": true,
             "background": true,
-            "link": true
+            "link": true,
+            "gradients": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true,
+            "blockGap": true
+        },
+        "border": {
+            "color": true,
+            "radius": true,
+            "style": true,
+            "width": true
+        },
+        "typography": {
+            "fontSize": true,
+            "lineHeight": true,
+            "__experimentalFontFamily": true,
+            "__experimentalFontWeight": true
         }
     },
-    "textdomain": "mhm-rentiva",
     "attributes": {
-        "limit": {
-            "type": "string",
-            "default": "12"
+        "show_price": {
+            "type": "boolean",
+            "default": true
         },
-        "columns": {
-            "type": "string",
-            "default": "3"
+        "show_rating": {
+            "type": "boolean",
+            "default": true
         },
-        "orderby": {
-            "type": "string",
-            "default": "title"
+        "show_category": {
+            "type": "boolean",
+            "default": true
         },
-        "order": {
-            "type": "string",
-            "default": "ASC"
+        "show_booking_btn": {
+            "type": "boolean",
+            "default": true
         },
-        "category": {
+        "show_description": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_features": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_image": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_title": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_badges": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_favorite_btn": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_availability": {
+            "type": "boolean",
+            "default": false
+        },
+        "show_compare_btn": {
+            "type": "boolean",
+            "default": false
+        },
+        "filter_categories": {
             "type": "string",
             "default": ""
         },
-        "featured": {
+        "filter_brands": {
             "type": "string",
-            "default": "0"
+            "default": ""
         },
-        "show_image": {
+        "orderby": {
             "type": "string",
-            "default": "1"
+            "default": "newest",
+            "enum": [
+                "price",
+                "popularity",
+                "newest",
+                "rating"
+            ]
         },
-        "show_title": {
+        "order": {
             "type": "string",
-            "default": "1"
+            "default": "desc",
+            "enum": [
+                "asc",
+                "desc"
+            ]
         },
-        "show_price": {
+        "limit": {
             "type": "string",
-            "default": "1"
+            "default": "10"
         },
-        "show_features": {
+        "className": {
             "type": "string",
-            "default": "1"
-        },
-        "show_rating": {
-            "type": "string",
-            "default": "1"
-        },
-        "show_booking_btn": {
-            "type": "string",
-            "default": "1"
-        },
-        "show_favorite_btn": {
-            "type": "string",
-            "default": "1"
-        },
-        "show_category": {
-            "type": "string",
-            "default": "1"
-        },
-        "show_badges": {
-            "type": "string",
-            "default": "1"
-        },
-        "show_description": {
-            "type": "string",
-            "default": "0"
-        },
-        "show_availability": {
-            "type": "string",
-            "default": "0"
-        },
-        "show_compare_btn": {
-            "type": "string",
-            "default": "0"
+            "default": ""
         }
     },
     "editorStyle": [
         "mhm-rentiva-core-variables"
+    ],
+    "style": [
+        "mhm-rentiva-vehicles-list"
     ]
 }

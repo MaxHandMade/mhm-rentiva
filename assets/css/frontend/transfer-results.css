@@ -1,0 +1,170 @@
+/* 
+ * EMERGENCY UI ENFORCEMENT - VIP TRANSFER GRID CARD 
+ * DO NOT OVERRIDE WITHOUT LEAD APPROVAL
+ */
+
+/* Specificity Chain to Force Layout */
+.mhm-transfer-results-page .rv-unified-search-results.mhm-transfer-results {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+    gap: 25px !important;
+    margin-top: 30px !important;
+}
+
+/* Card Core Specs */
+.rv-unified-search-results .mhm-transfer-card {
+    background: #fff !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border: 1px solid #eee !important;
+    max-width: 350px !important;
+    margin: 0 auto !important;
+    height: auto !important;
+}
+
+.rv-unified-search-results .mhm-transfer-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Mandatory Card Header (Image Wrapper) */
+.mhm-transfer-card .mhm-card-header {
+    position: relative !important;
+    height: 220px !important;
+    background: #fdfdfd !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-bottom: 1px solid #f5f5f5 !important;
+}
+
+.mhm-transfer-card .mhm-card-header img {
+    max-width: 90% !important;
+    max-height: 85% !important;
+    object-fit: contain !important;
+}
+
+/* Category Badge (Positioned over header) */
+.mhm-transfer-card .mhm-transfer-card__category {
+    position: absolute !important;
+    top: 15px !important;
+    left: 15px !important;
+    background: var(--mhm-primary, #0073aa) !important;
+    color: #fff !important;
+    padding: 5px 12px !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    z-index: 5 !important;
+}
+
+/* Info Layer */
+.mhm-transfer-card .mhm-transfer-card__info {
+    padding: 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    flex-grow: 1 !important;
+}
+
+.mhm-transfer-card .mhm-transfer-card__title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: var(--mhm-text-primary, #1a1a1a) !important;
+    margin: 0 !important;
+    line-height: 1.3 !important;
+}
+
+/* Mandatory Flex Pill Grid */
+.mhm-transfer-card .mhm-transfer-card__meta {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin: 10px 0 !important;
+}
+
+.mhm-transfer-card .mhm-transfer-card__meta-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    background: #f8f9fa !important;
+    /* EXACT SPEC */
+    padding: 4px 12px !important;
+    border-radius: 12px !important;
+    font-size: 12px !important;
+    color: var(--mhm-text-secondary, #555) !important;
+    font-weight: 500 !important;
+    border: 1px solid #eee !important;
+    white-space: nowrap !important;
+}
+
+.mhm-transfer-card .mhm-transfer-card__meta-item svg {
+    color: var(--mhm-primary, #0073aa) !important;
+    flex-shrink: 0 !important;
+}
+
+/* Footer / CTA Area */
+.mhm-transfer-card .mhm-transfer-card__footer {
+    margin-top: auto !important;
+    padding-top: 15px !important;
+    border-top: 1px solid #f0f0f0 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.mhm-transfer-card .mhm-transfer-card__price-amount {
+    display: block !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: var(--mhm-price-color, #10b981) !important;
+}
+
+.mhm-transfer-card .mhm-transfer-card__price-period {
+    font-size: 11px !important;
+    color: #666 !important;
+}
+
+.mhm-transfer-card .mhm-transfer-card__btn {
+    background: var(--mhm-btn-bg, #0073aa) !important;
+    color: var(--mhm-btn-color, #fff) !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+}
+
+.mhm-transfer-card .mhm-transfer-card__btn:hover {
+    background: #005a87 !important;
+    box-shadow: 0 4px 15px rgba(0, 115, 170, 0.3) !important;
+}
+
+/* Mobile Responsivity & Parity */
+@media (max-width: 360px) {
+    .mhm-transfer-results.rv-unified-search-results {
+        grid-template-columns: 1fr !important;
+        padding: 0 15px !important;
+    }
+
+    .rv-unified-search-results .mhm-transfer-card {
+        max-width: 100% !important;
+    }
+
+    .mhm-transfer-card .mhm-card-header {
+        height: 160px !important;
+    }
+
+    .mhm-transfer-card .mhm-transfer-card__meta-item {
+        padding: 6px 12px !important;
+        font-size: 11px !important;
+    }
+}

@@ -1,5 +1,23 @@
 [
     {
+        "version": "4.9.7",
+        "date": "2026-02-08",
+        "changes": [
+            {
+                "type": "feature",
+                "description": "Gutenberg blok kenar çubukları (InspectorControls) tutarlı UI/UX için standartlaştırıldı."
+            },
+            {
+                "type": "fix",
+                "description": "Blok editöründeki konsol uyarıları giderilerek kararlılık artırıldı."
+            },
+            {
+                "type": "improvement",
+                "description": "Proje dokümantasyonu ve kuralları güncellendi."
+            }
+        ]
+    },
+    {
         "version": "4.9.6",
         "date": "2026-02-02",
         "type": "current",

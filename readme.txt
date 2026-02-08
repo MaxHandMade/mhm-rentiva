@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 5.0
 Tested up to:      6.9
 Requires PHP:      7.4
-Stable tag:        4.9.6
+Stable tag:        4.9.7
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -73,6 +73,11 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.9.7 =
+* Feature: Standardized Gutenberg block sidebars (InspectorControls) for consistent UI/UX.
+* Fix: Resolved console warnings in block editor for improved stability.
+* Improvement: Updated project documentation and guidelines.
 
 = 4.9.6 =
 * **Performance:** Overall code optimization and performance improvements.

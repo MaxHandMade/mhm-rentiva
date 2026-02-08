@@ -43,7 +43,7 @@ final class AccountMessages extends AbstractAccountShortcode
         return $template_data;
     }
 
-    protected static function enqueue_assets(): void
+    protected static function enqueue_assets(array $atts = []): void
     {
         parent::enqueue_assets();
 

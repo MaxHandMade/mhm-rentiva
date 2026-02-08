@@ -427,7 +427,7 @@ final class Plugin
 		if (class_exists(Admin\Payment\WooCommerce\WooCommerceBridge::class)) {
 			Admin\Payment\WooCommerce\WooCommerceBridge::register();
 		} else {
-			error_log('MHM Rentiva: WooCommerceBridge class NOT FOUND!');
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('WooCommerceBridge class NOT FOUND!');
 		}
 
 		// Payment Clients
@@ -657,7 +657,9 @@ final class Plugin
 	public function register_rest_api(): void
 	{
 		// REST API endpoints are now in Admin\REST namespace
-		// Availability and Portal endpoints are automatically registered
+		if ($this->is_class_available('MHMRentiva\Admin\REST\Locations')) {
+			\MHMRentiva\Admin\REST\Locations::register();
+		}
 	}
 
 	/**
@@ -798,7 +800,7 @@ final class Plugin
 
 		// Optional: Log if role creation failed (shouldn't happen if check above works)
 		if ($result === null && ! get_role('customer')) {
-			error_log('MHM Rentiva: Failed to create customer role (may already exist from another plugin)');
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('Failed to create customer role (may already exist from another plugin)');
 		}
 	}
 

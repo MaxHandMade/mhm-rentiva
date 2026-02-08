@@ -278,7 +278,7 @@ final class LicenseManager
 			// If server request fails, log but still clear local data
 			if (is_wp_error($result)) {
 				// Log error but continue with local deactivation
-				error_log('License deactivation server request failed: ' . $result->get_error_message());
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('License deactivation server request failed', array('error' => $result->get_error_message()));
 			}
 		}
 

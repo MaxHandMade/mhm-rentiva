@@ -7,6 +7,7 @@ namespace MHMRentiva\Admin\Frontend\Account;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Booking\Helpers\CancellationHandler;
+use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -425,12 +426,21 @@ final class AccountController
 		if (class_exists('WooCommerce') && function_exists('wc_get_page_id')) {
 			$account_page_id = \wc_get_page_id('myaccount');
 			if ($account_page_id && $account_page_id > 0) {
-				return get_permalink($account_page_id);
+				$permalink = get_permalink($account_page_id);
+				if (is_string($permalink) && $permalink !== '') {
+					return $permalink;
+				}
 			}
 		}
 
 		// Use global Shortcode URL Manager
-		return ShortcodeUrlManager::get_page_url('rentiva_my_account');
+		$shortcode_url = ShortcodeUrlManager::get_page_url('rentiva_my_account');
+		if (is_string($shortcode_url) && $shortcode_url !== '') {
+			return $shortcode_url;
+		}
+
+		// Fallback to home URL
+		return home_url('/');
 	}
 
 	/**
@@ -495,8 +505,8 @@ final class AccountController
 			'application/pdf' => 'pdf',
 		);
 
-		$file = $_FILES['receipt'];
-		if ($file['error'] !== UPLOAD_ERR_OK) {
+		$file = isset($_FILES['receipt']) ? wp_unslash($_FILES['receipt']) : array();
+		if (empty($file) || ! isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
 			wp_send_json_error(array('message' => __('Upload error.', 'mhm-rentiva')), 400);
 		}
 
@@ -787,7 +797,7 @@ final class AccountController
 		update_user_meta($user_id, 'mhm_marketing_emails', $marketing_emails);
 
 		// Redirect back to dashboard with success message
-		wp_redirect(add_query_arg('comm_prefs_updated', '1', self::get_account_url()));
+		wp_safe_redirect(add_query_arg('comm_prefs_updated', '1', self::get_account_url()));
 		exit;
 	}
 

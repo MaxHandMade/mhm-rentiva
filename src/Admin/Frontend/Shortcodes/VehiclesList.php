@@ -41,8 +41,11 @@ final class VehiclesList extends AbstractShortcode
 
 	/**
 	 * Safe sanitize text field that handles null values
+	 * 
+	 * @param mixed $value Input value
+	 * @return string
 	 */
-	public static function sanitize_text_field_safe($value)
+	public static function sanitize_text_field_safe($value): string
 	{
 		if ($value === null || $value === '') {
 			return '';
@@ -204,6 +207,28 @@ final class VehiclesList extends AbstractShortcode
 	protected static function prepare_template_data(array $atts): array
 	{
 		$vehicles = self::get_vehicles($atts);
+
+		// Normalize boolean attributes to '1' or '0' string for template compatibility
+		$boolean_attributes = array(
+			'show_price',
+			'show_rating',
+			'show_category',
+			'show_booking_btn',
+			'show_description',
+			'show_features',
+			'show_image',
+			'show_title',
+			'show_badges',
+			'show_favorite_btn',
+			'show_availability',
+			'show_compare_btn',
+		);
+
+		foreach ($boolean_attributes as $attr) {
+			// Use the value from shortcode_atts (which includes defaults)
+			// filter_var handles 'true', 'false', '1', '0', 'on', 'off', true, false
+			$atts[$attr] = filter_var($atts[$attr] ?? '', FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
+		}
 
 		// Inject settings context
 		$context = array(
@@ -882,11 +907,13 @@ final class VehiclesList extends AbstractShortcode
 
 	/**
 	 * AJAX favorite add/remove
+	 * 
+	 * @return void
 	 */
 	public static function ajax_toggle_favorite(): void
 	{
 		try {
-			$nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
+			$nonce = self::sanitize_text_field_safe(wp_unslash($_POST['nonce'] ?? ''));
 			if (
 				empty($nonce) ||
 				(! wp_verify_nonce($nonce, 'mhm_rentiva_vehicles_list') &&
@@ -900,7 +927,7 @@ final class VehiclesList extends AbstractShortcode
 				throw new \Exception(__('You must be logged in', 'mhm-rentiva'));
 			}
 
-			$vehicle_id = intval($_POST['vehicle_id'] ?? 0);
+			$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
 			if (! $vehicle_id) {
 				throw new \Exception(__('Invalid vehicle ID', 'mhm-rentiva'));
 			}
@@ -956,9 +983,9 @@ final class VehiclesList extends AbstractShortcode
 			return;
 		}
 
-		$vehicle_id = intval($_POST['vehicle_id'] ?? 0);
-		$rating     = floatval($_POST['rating'] ?? 0);
-		$comment    = sanitize_textarea_field((string) (($_POST['comment'] ?? '') ?: ''));
+		$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
+		$rating     = floatval(isset($_POST['rating']) ? wp_unslash($_POST['rating']) : 0);
+		$comment    = sanitize_textarea_field((string) ((isset($_POST['comment']) ? wp_unslash($_POST['comment']) : '') ?: ''));
 
 		if ($vehicle_id <= 0 || $rating < 1 || $rating > 5) {
 			wp_send_json_error(array('message' => __('Invalid rating value.', 'mhm-rentiva')));
@@ -1003,7 +1030,7 @@ final class VehiclesList extends AbstractShortcode
 			return;
 		}
 
-		$vehicle_id = intval($_POST['vehicle_id'] ?? 0);
+		$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
 
 		if ($vehicle_id <= 0) {
 			wp_send_json_error(array('message' => __('Invalid vehicle ID.', 'mhm-rentiva')));
@@ -1024,9 +1051,9 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	public static function ajax_get_vehicle_ratings(): void
 	{
-		$vehicle_id = intval($_POST['vehicle_id'] ?? 0);
-		$limit      = intval($_POST['limit'] ?? 10);
-		$offset     = intval($_POST['offset'] ?? 0);
+		$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
+		$limit      = intval(isset($_POST['limit']) ? wp_unslash($_POST['limit']) : 10);
+		$offset     = intval(isset($_POST['offset']) ? wp_unslash($_POST['offset']) : 0);
 
 		if ($vehicle_id <= 0) {
 			wp_send_json_error(array('message' => __('Invalid vehicle ID.', 'mhm-rentiva')));

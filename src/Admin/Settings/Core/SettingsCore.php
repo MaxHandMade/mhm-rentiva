@@ -377,23 +377,23 @@ final class SettingsCore
 
 		wp_enqueue_style(
 			'mhm-rentiva-settings',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/settings.css',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/settings.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			\MHM_RENTIVA_VERSION
 		);
 
 		wp_enqueue_style(
 			'mhm-rentiva-dark-mode',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/dark-mode.css',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/dark-mode.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			\MHM_RENTIVA_VERSION
 		);
 
 		wp_enqueue_script(
 			'mhm-rentiva-dark-mode',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dark-mode.js',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dark-mode.js',
 			array('jquery'),
-			MHM_RENTIVA_VERSION,
+			\MHM_RENTIVA_VERSION,
 			true
 		);
 

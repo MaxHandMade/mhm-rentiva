@@ -5,11 +5,19 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Licensing;
 
 use MHMRentiva\Admin\Licensing\LicenseManager;
+use MHMRentiva\Admin\Licensing\Mode;
+use MHMRentiva\Admin\Core\Utilities\UXHelper;
 
 if (! defined('ABSPATH')) {
 	exit;
 }
 
+/**
+ * License Admin
+ *
+ * @method void render_admin_header(string $title, array $buttons = array(), bool $echo = true, string $subtitle = '')
+ * @method void show_admin_notice(string $message, string $type = 'info', bool $dismissible = true)
+ */
 final class LicenseAdmin
 {
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
@@ -272,9 +280,9 @@ final class LicenseAdmin
 			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
 		}
 
-		$license_key = self::sanitize_text_field_safe($_POST['license_key'] ?? '');
+		$license_key = isset($_POST['license_key']) ? sanitize_text_field(wp_unslash($_POST['license_key'])) : '';
 		if (empty($license_key)) {
-			wp_redirect(
+			wp_safe_redirect(
 				add_query_arg(
 					array(
 						'license' => 'error',
@@ -291,7 +299,7 @@ final class LicenseAdmin
 		$result  = $license->activate($license_key);
 
 		if (is_wp_error($result)) {
-			wp_redirect(
+			wp_safe_redirect(
 				add_query_arg(
 					array(
 						'license' => 'error',
@@ -301,7 +309,7 @@ final class LicenseAdmin
 				)
 			);
 		} else {
-			wp_redirect(add_query_arg(array('license' => 'activated'), wp_get_referer()));
+			wp_safe_redirect(add_query_arg(array('license' => 'activated'), wp_get_referer()));
 		}
 
 		exit;
@@ -330,7 +338,7 @@ final class LicenseAdmin
 			$license->clearLicense();
 		}
 
-		wp_redirect(add_query_arg(array('license' => 'deactivated'), wp_get_referer()));
+		wp_safe_redirect(add_query_arg(array('license' => 'deactivated'), wp_get_referer()));
 		exit;
 	}
 
@@ -350,7 +358,7 @@ final class LicenseAdmin
 		$current_value = get_option('mhm_rentiva_disable_dev_mode', false);
 		update_option('mhm_rentiva_disable_dev_mode', ! $current_value);
 
-		wp_redirect(add_query_arg(array('license' => 'dev_mode_toggled'), wp_get_referer()));
+		wp_safe_redirect(add_query_arg(array('license' => 'dev_mode_toggled'), wp_get_referer()));
 		exit;
 	}
 
@@ -360,8 +368,9 @@ final class LicenseAdmin
 			return;
 		}
 
-		$message       = $_GET['license'];
-		$error_message = $_GET['message'] ?? '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin notices display only, no form processing.
+		$message       = isset($_GET['license']) ? sanitize_text_field(wp_unslash($_GET['license'])) : '';
+		$error_message = isset($_GET['message']) ? sanitize_text_field(wp_unslash($_GET['message'])) : '';
 
 		switch ($message) {
 			case 'activated':
@@ -404,7 +413,8 @@ final class LicenseAdmin
 				break;
 
 			case 'limit_exceeded':
-				$type        = $_GET['type'] ?? '';
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin notices display only, no form processing.
+				$type        = isset($_GET['type']) ? sanitize_text_field(wp_unslash($_GET['type'])) : '';
 				$limit_msg   = match ($type) {
 					'vehicle' => __('Vehicle limit reached (Max 3).', 'mhm-rentiva'),
 					'booking' => __('Booking limit reached (Max 50).', 'mhm-rentiva'),
@@ -419,7 +429,8 @@ final class LicenseAdmin
 				break;
 
 			case 'pro_feature':
-				$feature_name = sanitize_text_field($_GET['feature'] ?? '');
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin notices display only, no form processing.
+				$feature_name = isset($_GET['feature']) ? sanitize_text_field(wp_unslash($_GET['feature'])) : '';
 				echo '<div class="notice notice-warning is-dismissible">';
 				echo '<p><strong>' . esc_html__('💎 Pro Feature Locked', 'mhm-rentiva') . '</strong></p>';
 				if (! empty($feature_name)) {

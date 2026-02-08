@@ -151,7 +151,7 @@ final class DemoSeeder
         $booking_id = $context['booking']['id'] ?? 'N/A';
         $log_msg = sprintf("Email Template [%s] triggered for Booking #%s to [%s]", $key, $booking_id, $to);
 
-        \error_log("MHM Rentiva Seeder: " . $log_msg);
+        \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info('Seeder Log', array('message' => $log_msg));
 
         if (class_exists('\WP_CLI')) {
             \call_user_func(array('\WP_CLI', 'success'), $log_msg);

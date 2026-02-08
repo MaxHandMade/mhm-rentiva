@@ -482,10 +482,14 @@ final class DatabaseMigrator
             type varchar(50) NOT NULL,
             priority int(11) DEFAULT 0,
             is_active tinyint(1) DEFAULT 1,
+            allow_rental tinyint(1) DEFAULT 1,
+            allow_transfer tinyint(1) DEFAULT 1,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY type (type),
-            KEY is_active (is_active)
+            KEY is_active (is_active),
+            KEY allow_rental (allow_rental),
+            KEY allow_transfer (allow_transfer)
         ) $charset_collate;";
 
 		dbDelta($sql_locations);

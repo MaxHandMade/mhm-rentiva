@@ -296,7 +296,7 @@ trait AdminHelperTrait
 			$url = add_query_arg($query_params, $url);
 		}
 
-		wp_redirect($url);
+		wp_safe_redirect($url);
 		exit;
 	}
 

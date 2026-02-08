@@ -440,7 +440,7 @@ class VehiclesGrid extends AbstractShortcode
 	/**
 	 * Loads asset files
 	 */
-	protected static function enqueue_assets(): void
+	protected static function enqueue_assets(array $atts = []): void
 	{
 		// CSS
 		wp_enqueue_style(
@@ -595,13 +595,19 @@ class VehiclesGrid extends AbstractShortcode
 
 	/**
 	 * AJAX: Submit rating
+	 * 
+	 * @return void
 	 */
 	public static function ajax_submit_rating(): void
 	{
-		check_ajax_referer('mhm_rentiva_vehicles_grid', 'nonce');
+		// Security check
+		if (! check_ajax_referer('mhm_rentiva_toggle_favorite', 'nonce', false)) {
+			wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
+			return;
+		}
 
-		$vehicle_id = intval($_POST['vehicle_id'] ?? 0);
-		$rating     = intval($_POST['rating'] ?? 0);
+		$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
+		$rating     = intval(isset($_POST['rating']) ? wp_unslash($_POST['rating']) : 0);
 
 		if (! $vehicle_id || ! get_post($vehicle_id)) {
 			wp_send_json_error(array('message' => __('Invalid vehicle ID', 'mhm-rentiva')));
@@ -638,12 +644,18 @@ class VehiclesGrid extends AbstractShortcode
 
 	/**
 	 * AJAX: Get user rating
+	 * 
+	 * @return void
 	 */
 	public static function ajax_get_user_rating(): void
 	{
-		check_ajax_referer('mhm_rentiva_vehicles_grid', 'nonce');
+		// Security check
+		if (! check_ajax_referer('mhm_rentiva_toggle_favorite', 'nonce', false)) {
+			wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
+			return;
+		}
 
-		$vehicle_id = intval($_POST['vehicle_id'] ?? 0);
+		$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
 
 		if (! $vehicle_id || ! get_post($vehicle_id)) {
 			wp_send_json_error(array('message' => __('Invalid vehicle ID', 'mhm-rentiva')));
@@ -666,12 +678,18 @@ class VehiclesGrid extends AbstractShortcode
 
 	/**
 	 * AJAX: Get vehicle ratings
+	 * 
+	 * @return void
 	 */
 	public static function ajax_get_vehicle_ratings(): void
 	{
-		check_ajax_referer('mhm_rentiva_vehicles_grid', 'nonce');
+		// Security check
+		if (! check_ajax_referer('mhm_rentiva_toggle_favorite', 'nonce', false)) {
+			wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
+			return;
+		}
 
-		$vehicle_id = intval($_POST['vehicle_id'] ?? 0);
+		$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
 
 		if (! $vehicle_id || ! get_post($vehicle_id)) {
 			wp_send_json_error(array('message' => __('Invalid vehicle ID', 'mhm-rentiva')));

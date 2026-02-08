@@ -127,14 +127,14 @@ final class VehicleRatingForm extends AbstractShortcode
 
 	public static function ajax_submit_rating(): void
 	{
-		$nonce = $_POST['nonce'] ?? '';
+		$nonce = isset($_POST['nonce']) ? wp_unslash($_POST['nonce']) : '';
 		if (! wp_verify_nonce($nonce, 'mhm_rentiva_rating_nonce')) {
 			wp_send_json_error(array('message' => __('Security check failed', 'mhm-rentiva')));
 		}
 
-		$vid = (int)$_POST['vehicle_id'];
-		$rating = (int)$_POST['rating'];
-		$comment = wp_kses_post($_POST['comment'] ?? '');
+		$vid = (int) (isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
+		$rating = (int) (isset($_POST['rating']) ? wp_unslash($_POST['rating']) : 0);
+		$comment = wp_kses_post(isset($_POST['comment']) ? wp_unslash($_POST['comment']) : '');
 		$uid = get_current_user_id();
 
 		$comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
@@ -197,8 +197,8 @@ final class VehicleRatingForm extends AbstractShortcode
 				wp_send_json_success(array('message' => __('Rating updated successfully', 'mhm-rentiva')));
 			}
 		} else {
-			$comment_data['comment_author'] = sanitize_text_field($_POST['guest_name'] ?? '');
-			$comment_data['comment_author_email'] = sanitize_email($_POST['guest_email'] ?? '');
+			$comment_data['comment_author'] = sanitize_text_field(isset($_POST['guest_name']) ? wp_unslash($_POST['guest_name']) : '');
+			$comment_data['comment_author_email'] = sanitize_email(isset($_POST['guest_email']) ? wp_unslash($_POST['guest_email']) : '');
 
 			if (empty($comment_data['comment_author']) || empty($comment_data['comment_author_email'])) {
 				wp_send_json_error(array('message' => __('Name and email are required for guests', 'mhm-rentiva')));
@@ -221,7 +221,7 @@ final class VehicleRatingForm extends AbstractShortcode
 
 	public static function ajax_delete_rating(): void
 	{
-		$nonce = $_POST['nonce'] ?? '';
+		$nonce = isset($_POST['nonce']) ? wp_unslash($_POST['nonce']) : '';
 		if (! wp_verify_nonce($nonce, 'mhm_rentiva_rating_nonce')) {
 			wp_send_json_error(array('message' => __('Security check failed', 'mhm-rentiva')));
 		}
@@ -232,8 +232,8 @@ final class VehicleRatingForm extends AbstractShortcode
 		}
 
 		// Support both comment_id and vehicle_id
-		$cid = isset($_POST['comment_id']) ? (int) $_POST['comment_id'] : 0;
-		$vid = isset($_POST['vehicle_id']) ? (int) $_POST['vehicle_id'] : 0;
+		$cid = isset($_POST['comment_id']) ? (int) wp_unslash($_POST['comment_id']) : 0;
+		$vid = isset($_POST['vehicle_id']) ? (int) wp_unslash($_POST['vehicle_id']) : 0;
 
 		// If vehicle_id provided, find user's comment on that vehicle
 		if (! $cid && $vid) {
@@ -272,7 +272,7 @@ final class VehicleRatingForm extends AbstractShortcode
 
 	public static function ajax_get_vehicle_rating_list(): void
 	{
-		$vid = (int)($_POST['vehicle_id'] ?? 0);
+		$vid = (int) (isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
 		if (! $vid) {
 			wp_send_json_error(array('message' => __('Invalid vehicle', 'mhm-rentiva')));
 		}

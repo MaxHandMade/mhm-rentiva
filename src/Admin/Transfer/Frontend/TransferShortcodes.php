@@ -90,9 +90,19 @@ final class TransferShortcodes extends AbstractShortcode
 	/**
 	 * Loads CSS and JS files
 	 */
-	protected static function enqueue_assets(): void
+	protected static function enqueue_assets(array $atts = []): void
 	{
 		// Register CSS
+		$results_css_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/css/frontend/transfer-results.css';
+		if (file_exists($results_css_path)) {
+			wp_enqueue_style(
+				'mhm-rentiva-transfer-results-css',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/transfer-results.css',
+				array(),
+				MHM_RENTIVA_VERSION . '.' . time() // Force cache bust
+			);
+		}
+
 		$css_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/css/frontend/transfer.css';
 		if (file_exists($css_path)) {
 			wp_enqueue_style(
@@ -212,8 +222,22 @@ final class TransferShortcodes extends AbstractShortcode
 				<div class="mhm-transfer-card-content">
 					<h3><?php echo esc_html($vehicle['title']); ?></h3>
 					<div class="mhm-transfer-features">
-						<span><i class="dashicons dashicons-groups"></i> <?php echo esc_html((string) $vehicle['max_pax']); ?> <?php esc_html_e('Person', 'mhm-rentiva'); ?></span>
-						<span><i class="dashicons dashicons-clock"></i> <?php echo esc_html((string) $vehicle['duration']); ?> <?php esc_html_e('min', 'mhm-rentiva'); ?></span>
+						<span>
+							<svg class="rv-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+								<circle cx="9" cy="7" r="4"></circle>
+								<path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+								<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+							</svg>
+							<?php echo esc_html((string) $vehicle['max_pax']); ?> <?php esc_html_e('Person', 'mhm-rentiva'); ?>
+						</span>
+						<span>
+							<svg class="rv-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<circle cx="12" cy="12" r="10"></circle>
+								<polyline points="12 6 12 12 16 14"></polyline>
+							</svg>
+							<?php echo esc_html((string) $vehicle['duration']); ?> <?php esc_html_e('min', 'mhm-rentiva'); ?>
+						</span>
 					</div>
 					<div class="mhm-transfer-price">
 						<strong><?php echo wp_kses_post(wc_price($vehicle['price'])); ?></strong>

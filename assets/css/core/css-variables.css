@@ -171,9 +171,13 @@
 }
 
 /* Ensure background color from Block Wrapper covers everything inside */
+.wp-block-mhm-rentiva-search[class*="has-background"] .rv-search-block-wrapper,
 .wp-block-mhm-rentiva-search[class*="has-background"] .rv-search-form,
+.wp-block-mhm-rentiva-search[class*="has-background"] .rv-search-block-wrapper--compact,
 .wp-block-mhm-rentiva-search[class*="has-background"] .rv-search-form-compact,
+.wp-block-mhm-rentiva-search[style*="background"] .rv-search-block-wrapper,
 .wp-block-mhm-rentiva-search[style*="background"] .rv-search-form,
+.wp-block-mhm-rentiva-search[style*="background"] .rv-search-block-wrapper--compact,
 .wp-block-mhm-rentiva-search[style*="background"] .rv-search-form-compact {
 	background: transparent !important;
 	background-image: none !important;

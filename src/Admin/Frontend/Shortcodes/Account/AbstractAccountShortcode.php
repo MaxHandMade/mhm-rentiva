@@ -19,7 +19,7 @@ abstract class AbstractAccountShortcode extends AbstractShortcode
     /**
      * Common assets for account pages
      */
-    protected static function enqueue_assets(): void
+    protected static function enqueue_assets(array $atts = []): void
     {
         // Main account CSS
         wp_enqueue_style(

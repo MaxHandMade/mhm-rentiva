@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace MHMRentiva\Admin\Extensions\Elementor\Widgets;
+namespace MHMRentiva\Admin\Frontend\Widgets\Elementor;
 
 use Elementor\Controls_Manager;
-use MHMRentiva\Admin\Extensions\Elementor\Core\MHMElementorWidgetBase;
+use MHMRentiva\Admin\Frontend\Widgets\Base\ElementorWidgetBase;
 
 use MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList;
 
@@ -14,10 +14,10 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Vehicles List Widget
+ * Vehicles List Elementor Widget
  * * Automatically maps Elementor controls to MHM Shortcode attributes.
  */
-class VehiclesListWidget extends MHMElementorWidgetBase
+class VehiclesListWidget extends ElementorWidgetBase
 {
 
 	public function get_name(): string
@@ -44,7 +44,7 @@ class VehiclesListWidget extends MHMElementorWidgetBase
 
 		$this->add_control('columns', [
 			'label'   => __('Columns', 'mhm-rentiva'),
-			'type'    => Controls_Manager::SELECT,
+			'type'    => 'select',
 			'default' => '3',
 			'options' => [
 				'1' => '1',
@@ -56,7 +56,7 @@ class VehiclesListWidget extends MHMElementorWidgetBase
 
 		$this->add_control('show_images', [
 			'label'        => __('Show Images', 'mhm-rentiva'),
-			'type'         => Controls_Manager::SWITCHER,
+			'type'         => 'switcher',
 			'label_on'     => __('Show', 'mhm-rentiva'),
 			'label_off'    => __('Hide', 'mhm-rentiva'),
 			'return_value' => 'yes',
@@ -71,7 +71,7 @@ class VehiclesListWidget extends MHMElementorWidgetBase
 
 		$this->add_control('booking_btn_text', [
 			'label'       => __('Button Text', 'mhm-rentiva'),
-			'type'        => Controls_Manager::TEXT,
+			'type'        => 'text',
 			'placeholder' => __('Book Now', 'mhm-rentiva'),
 			'default'     => __('Book Now', 'mhm-rentiva'),
 		]);

@@ -53,7 +53,7 @@ final class SettingsHandler
 
 		// 🔍 LOGGING: Start reset attempt
 		if (defined('WP_DEBUG') && WP_DEBUG) {
-			error_log('MHM Rentiva: Reset defaults attempt for tab: ' . ($get['tab'] ?? 'all'));
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::debug('Reset defaults attempt for tab: ' . ($get['tab'] ?? 'all'));
 		}
 
 		if (
@@ -63,14 +63,14 @@ final class SettingsHandler
 			! wp_verify_nonce(sanitize_key($get['_wpnonce']), 'mhm_rentiva_reset_defaults')
 		) {
 			if (defined('WP_DEBUG') && WP_DEBUG) {
-				error_log('MHM Rentiva: Reset defaults FAILED at nonce verification phase. Nonce: ' . ($get['_wpnonce'] ?? 'missing'));
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::debug('Reset defaults FAILED at nonce verification phase. Nonce: ' . ($get['_wpnonce'] ?? 'missing'));
 			}
 			wp_die(esc_html__('Security check failed. Please refresh the page and try again.', 'mhm-rentiva'));
 		}
 
 		$target_tab = sanitize_key($get['tab'] ?? '');
 		if (defined('WP_DEBUG') && WP_DEBUG) {
-			error_log('MHM Rentiva: Executing reset for tab: ' . $target_tab);
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::debug('Executing reset for tab: ' . $target_tab);
 		}
 
 		// Execute reset via service (SRP compliant)

@@ -26,15 +26,20 @@ class BlockRegistry
      * Value: Configuration array
      */
     private static array $blocks = [
-        'search' => [
-            'tag'   => 'rentiva_search',
-            'title' => 'Search Form',
-            'css'   => ['datepicker-custom.css', 'vehicle-search-compact.css', 'vehicle-search.css'],
+        'unified-search' => [
+            'tag'   => 'rentiva_unified_search',
+            'title' => 'Unified Search Widget',
+            'css'   => ['unified-search.css', 'datepicker-custom.css'],
         ],
         'search-results' => [
             'tag'   => 'rentiva_search_results',
             'title' => 'Search Results',
             'css'   => 'search-results.css',
+        ],
+        'transfer-results' => [
+            'tag'   => 'rentiva_transfer_results',
+            'title' => 'Transfer Search Results',
+            'css'   => 'transfer-results.css',
         ],
         'vehicle-comparison' => [
             'tag'   => 'rentiva_vehicle_comparison',
@@ -106,11 +111,7 @@ class BlockRegistry
             'title' => 'Booking Form',
             'css'   => 'booking-form.css',
         ],
-        'transfer-search' => [
-            'tag'   => 'rentiva_transfer_search',
-            'title' => 'Transfer Search',
-            'css'   => 'transfer.css',
-        ],
+
         'messages' => [
             'tag'   => 'rentiva_messages',
             'title' => 'Customer Messages',
@@ -127,22 +128,61 @@ class BlockRegistry
     {
         add_action('init', [self::class, 'register_blocks']);
 
-        // Correct way to load assets specifically for the block editor (parent and iframe)
+        // Assets that should load in both frontend and editor (iframe)
+        add_action('enqueue_block_assets', [self::class, 'enqueue_block_assets']);
+
+        // Assets for the block editor shell (UI, sidebar, etc.)
         add_action('enqueue_block_editor_assets', [self::class, 'enqueue_editor_assets']);
+
+        // Bug Fix 1: Add type="module" to search block script
+        add_filter('script_loader_tag', [self::class, 'add_module_type_to_search_block'], 10, 3);
     }
 
     /**
-     * Enqueue block editor specific assets
+     * Enqueue assets for both frontend and editor iframe
+     */
+    public static function enqueue_block_assets(): void
+    {
+        // Ensure core variables and datepicker styles are available inside the editor iframe AND frontend
+        wp_enqueue_style('mhm-rentiva-core-variables');
+        wp_enqueue_style(
+            'mhm-rentiva-datepicker-custom',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
+            ['mhm-rentiva-core-variables'],
+            MHM_RENTIVA_VERSION
+        );
+
+        // Apply editor styles for better iframe coverage
+        if (is_admin()) {
+            add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css');
+            add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css');
+        }
+    }
+
+    /**
+     * Enqueue block editor specific assets (Shell/UI)
      */
     public static function enqueue_editor_assets(): void
     {
-        // Ensure core variables are available inside the editor iframe
-        wp_enqueue_style('mhm-rentiva-core-variables');
+        // Silence JQMIGRATE & React DevTools warnings
+        // Ensure dependencies are enqueued first
+        wp_enqueue_script('jquery-migrate');
+        wp_add_inline_script('jquery-migrate', 'window.jQuery.migrateMute = true;', 'before');
+
+        wp_enqueue_script('wp-edit-post');
+        wp_add_inline_script('wp-edit-post', 'window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = { isDisabled: true };', 'before');
 
         // This will load in BOTH the parent and the iframe if registered correctly
         wp_enqueue_style(
             'mhm-rentiva-block-editor-fixes',
             MHM_RENTIVA_PLUGIN_URL . 'assets/css/editor/block-editor-fixes.css',
+            [],
+            MHM_RENTIVA_VERSION . '.' . time() // Forced Cache Clearing
+        );
+
+        wp_enqueue_style(
+            'mhm-rentiva-datepicker-custom-editor',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
             [],
             MHM_RENTIVA_VERSION
         );
@@ -151,7 +191,7 @@ class BlockRegistry
             'mhm-rentiva-block-editor-fixes-js',
             MHM_RENTIVA_PLUGIN_URL . 'assets/js/editor/block-editor-fixes.js',
             ['jquery', 'jquery-ui-datepicker', 'wp-blocks', 'wp-element', 'wp-data', 'wp-editor'],
-            MHM_RENTIVA_VERSION . '.' . time(),
+            MHM_RENTIVA_VERSION . '.' . time(), // Forced Cache Clearing
             true
         );
 
@@ -159,6 +199,7 @@ class BlockRegistry
         wp_localize_script('mhm-rentiva-block-editor-fixes-js', 'mhmRentivaSearch', [
             'ajax_url'           => admin_url('admin-ajax.php'),
             'datepicker_options' => self::get_datepicker_localization(),
+            'global_settings'    => \MHMRentiva\Admin\Settings\Core\SettingsCore::get_all(),
         ]);
     }
 
@@ -179,8 +220,23 @@ class BlockRegistry
     }
 
     /**
+     * Add type="module" to MHM Rentiva block scripts
+     *
+     * @param string $tag Script tag HTML.
+     * @param string $handle Script handle.
+     * @param string $src Script source URL.
+     * @return string Modified script tag.
+     */
+    public static function add_module_type_to_search_block(string $tag, string $handle, string $src): string
+    {
+        // NO-OP: We have refactored blocks to use global `wp` variables (IIFE) instead of ES modules.
+        // This avoids "Failed to resolve module specifier" errors in environments without a build step.
+        return $tag;
+    }
+
+    /**
      * Register all defined blocks with their dependencies
-     * 
+     *
      * @return void
      */
     public static function register_blocks(): void
@@ -190,12 +246,13 @@ class BlockRegistry
             'mhm-rentiva-core-variables',
             MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css',
             array(),
-            MHM_RENTIVA_VERSION
+            time() // Cache busting
         );
 
         foreach (self::$blocks as $slug => $config) {
             $script_handle = 'mhm-rentiva-block-' . $slug . '-editor';
 
+            // 1. Register Editor Script (Shared requirements)
             // 1. Register Editor Script (Shared requirements)
             wp_register_script(
                 $script_handle,
@@ -219,7 +276,7 @@ class BlockRegistry
                     $style_handle,
                     MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/' . $css_file,
                     ['mhm-rentiva-core-variables'],
-                    MHM_RENTIVA_VERSION
+                    \MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/frontend/' . $css_file)
                 );
 
                 $style_handles[] = $style_handle;

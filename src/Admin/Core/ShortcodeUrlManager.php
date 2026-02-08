@@ -142,12 +142,14 @@ final class ShortcodeUrlManager
 			'rentiva_vehicles_grid',
 			'rentiva_vehicles_list',
 			'rentiva_vehicle_comparison',
-			'rentiva_search',
+			'rentiva_unified_search',
 			'rentiva_search_results',
 			'rentiva_contact',
 			'rentiva_testimonials',
 			'rentiva_vehicle_rating_form',
+			'rentiva_transfer_results',
 			'rentiva_transfer_search',
+			'rentiva_featured_vehicles',
 		);
 	}
 
@@ -197,12 +199,12 @@ final class ShortcodeUrlManager
 			'rentiva_account_details'       => 'mhm_rentiva_account_details_url',
 			'rentiva_vehicles_list'         => 'mhm_rentiva_vehicles_list_url',
 			'rentiva_vehicles_grid'         => 'mhm_rentiva_vehicles_grid_url',
-			'rentiva_search'                => 'mhm_rentiva_search_url',
+			'rentiva_unified_search'        => 'mhm_rentiva_unified_search_url',
 			'rentiva_search_results'        => 'mhm_rentiva_search_results_url',
 			'rentiva_contact'               => 'mhm_rentiva_contact_url',
 			'rentiva_availability_calendar' => 'mhm_rentiva_availability_calendar_url',
 			'rentiva_booking_confirmation'  => 'mhm_rentiva_booking_confirmation_url',
-			'rentiva_transfer_search'       => 'mhm_rentiva_transfer_url',
+			'rentiva_transfer_results'      => 'mhm_rentiva_transfer_results_url',
 		);
 
 		return $mapping[$shortcode] ?? null;

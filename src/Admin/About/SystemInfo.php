@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\About;
 
 use MHMRentiva\Admin\Licensing\Mode;
+use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -46,7 +47,7 @@ final class SystemInfo
 				'database'  => self::get_database_info(),
 			);
 		} catch (\Exception $e) {
-			error_log('MHM Rentiva About Page Error: ' . $e->getMessage());
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('About Page Error', array('error' => $e->getMessage()));
 			return array(
 				'error'     => esc_html__('Error occurred while getting system information.', 'mhm-rentiva'),
 				'wordpress' => array(),
@@ -92,7 +93,7 @@ final class SystemInfo
 	private static function get_plugin_info(): array
 	{
 		return array(
-			'version'        => MHM_RENTIVA_VERSION,
+			'version'        => \MHM_RENTIVA_VERSION,
 			'file_size'      => self::get_plugin_file_size(),
 			'install_date'   => get_option('mhm_rentiva_install_date', esc_html__('Unknown', 'mhm-rentiva')),
 			'last_update'    => get_option('mhm_rentiva_last_update', esc_html__('Unknown', 'mhm-rentiva')),
@@ -120,7 +121,7 @@ final class SystemInfo
 	 */
 	private static function get_plugin_file_size(): string
 	{
-		$plugin_dir = MHM_RENTIVA_PLUGIN_DIR;
+		$plugin_dir = \MHM_RENTIVA_PLUGIN_DIR;
 
 		try {
 			$size = self::calculate_directory_size($plugin_dir);

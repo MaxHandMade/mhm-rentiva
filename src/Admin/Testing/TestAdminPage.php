@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Testing;
 
+use MHMRentiva\Admin\Testing\TestRunner;
+use MHMRentiva\Admin\Testing\ActivationTest;
+use MHMRentiva\Admin\Testing\SecurityTest;
+use MHMRentiva\Admin\Testing\FunctionalTest;
+use MHMRentiva\Admin\Testing\PerformanceTest;
+use MHMRentiva\Admin\Testing\IntegrationTest;
+
 if (! defined('ABSPATH')) {
 	exit;
 }
@@ -156,7 +163,7 @@ final class TestAdminPage
 		check_admin_referer('mhm_run_tests', 'mhm_test_nonce');
 
 		// Get test suites
-		$selected_suites = isset($_POST['test_suites']) ? array_map('sanitize_key', $_POST['test_suites']) : array();
+		$selected_suites = isset($_POST['test_suites']) ? array_map('sanitize_key', wp_unslash($_POST['test_suites'])) : array();
 
 		if (empty($selected_suites)) {
 			$selected_suites = array('activation', 'security', 'functional', 'performance', 'integration');
@@ -204,7 +211,7 @@ final class TestAdminPage
 		set_transient('mhm_rentiva_test_results', $test_results, HOUR_IN_SECONDS);
 
 		// Redirect back
-		wp_redirect(admin_url('admin.php?page=mhm-rentiva-tests&test_completed=1'));
+		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-tests&test_completed=1'));
 		exit;
 	}
 
@@ -218,12 +225,14 @@ final class TestAdminPage
 			wp_die(esc_html__('You do not have permission to perform this action.', 'mhm-rentiva'));
 		}
 
-		if (! isset($_GET['_wpnonce']) || ! wp_verify_nonce($_GET['_wpnonce'], 'mhm_download_report')) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in next line.
+		if (! isset($_GET['_wpnonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'mhm_download_report')) {
 			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
 		}
 
 		// Format check
-		$format = isset($_GET['format']) ? sanitize_key($_GET['format']) : 'html';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified above.
+		$format = isset($_GET['format']) ? sanitize_key(wp_unslash($_GET['format'])) : 'html';
 
 		if (! in_array($format, array('html', 'json'), true)) {
 			wp_die(esc_html__('Invalid format.', 'mhm-rentiva'));

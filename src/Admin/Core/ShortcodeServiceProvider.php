@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core;
 
+use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
+
 if (! defined('ABSPATH')) {
 	exit;
 }
@@ -121,11 +123,6 @@ final class ShortcodeServiceProvider
 					'dependencies'  => array(),
 					'requires_auth' => false,
 				),
-				'rentiva_search'             => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\VehicleSearch::class,
-					'dependencies'  => array(),
-					'requires_auth' => false,
-				),
 				'rentiva_search_results'     => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::class,
 					'dependencies'  => array(),
@@ -133,6 +130,11 @@ final class ShortcodeServiceProvider
 				),
 				'rentiva_vehicle_comparison' => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\VehicleComparison::class,
+					'dependencies'  => array(),
+					'requires_auth' => false,
+				),
+				'rentiva_unified_search'     => array(
+					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\UnifiedSearch::class,
 					'dependencies'  => array(),
 					'requires_auth' => false,
 				),
@@ -155,8 +157,13 @@ final class ShortcodeServiceProvider
 				),
 			),
 			'transfer'    => array(
-				'rentiva_transfer_search' => array(
+				'rentiva_transfer_search'       => array(
 					'class'         => \MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes::class,
+					'dependencies'  => array(),
+					'requires_auth' => false,
+				),
+				'rentiva_transfer_results' => array(
+					'class'         => \MHMRentiva\Admin\Transfer\Frontend\TransferResults::class,
 					'method'        => 'render',
 					'requires_auth' => false,
 				),
@@ -399,8 +406,8 @@ final class ShortcodeServiceProvider
 	 */
 	private function log_error(string $message): void
 	{
-		if (defined('WP_DEBUG') && WP_DEBUG) {
-			error_log(sprintf('MHM Rentiva Error: %s', $message));
+		if (class_exists('\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger')) {
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('Shortcode Error', array('message' => $message));
 		}
 	}
 

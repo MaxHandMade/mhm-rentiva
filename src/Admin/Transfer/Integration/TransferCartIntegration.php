@@ -125,7 +125,7 @@ final class TransferCartIntegration
 
 				// 5.0 Tolerance for Tax/Rounding
 				if (abs($server_calculated_price - $selected_price) > 5.0) {
-					error_log("MHM Security Alert: Price Mismatch. Client: $selected_price, Server: $server_calculated_price, Dist: $selected_distance");
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::security(sprintf('Price Mismatch. Client: %s, Server: %s, Distance: %s', $selected_price, $server_calculated_price, $selected_distance), array('vehicle_id' => $vehicle_id));
 					wp_send_json_error(array('message' => esc_html__('Security Alert: Price could not be verified. Please refresh.', 'mhm-rentiva')));
 					return;
 				}

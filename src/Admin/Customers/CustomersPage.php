@@ -67,6 +67,7 @@ final class CustomersPage
 		}
 
 		// Check action parameters.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Viewing page action, no data processing.
 		$action = sanitize_text_field(wp_unslash($_GET['action'] ?? ''));
 		if ('' !== $action) {
 			switch ($action) {
@@ -142,8 +143,10 @@ final class CustomersPage
 	private static function render_customer_calendar(): void
 	{
 		// Get month and year from URL parameters, otherwise use current month/year.
-		$current_month = isset($_GET['month']) ? (int) $_GET['month'] : (int) gmdate('n');
-		$current_year  = isset($_GET['year']) ? (int) $_GET['year'] : (int) gmdate('Y');
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display filter only.
+		$current_month = isset($_GET['month']) ? (int) sanitize_text_field(wp_unslash($_GET['month'])) : (int) gmdate('n');
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display filter only.
+		$current_year  = isset($_GET['year']) ? (int) sanitize_text_field(wp_unslash($_GET['year'])) : (int) gmdate('Y');
 
 		// Check invalid values.
 		if ($current_month < 1 || $current_month > 12) {
@@ -309,62 +312,62 @@ final class CustomersPage
 		// Load core CSS files in correct order
 		wp_enqueue_style(
 			'mhm-css-variables',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			\MHM_RENTIVA_VERSION
 		);
 
 		wp_enqueue_style(
 			'mhm-core-css',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/core.css',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/core.css',
 			array('mhm-css-variables'),
-			MHM_RENTIVA_VERSION
+			\MHM_RENTIVA_VERSION
 		);
 
 		wp_enqueue_style(
 			'mhm-animations',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/animations.css',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/animations.css',
 			array('mhm-css-variables'),
-			MHM_RENTIVA_VERSION
+			\MHM_RENTIVA_VERSION
 		);
 
 		// Component CSS files
 		wp_enqueue_style(
 			'mhm-stats-cards',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
 			array('mhm-core-css'),
-			MHM_RENTIVA_VERSION
+			\MHM_RENTIVA_VERSION
 		);
 
 		wp_enqueue_style(
 			'mhm-calendars',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
 			array('mhm-core-css'),
-			MHM_RENTIVA_VERSION
+			\MHM_RENTIVA_VERSION
 		);
 
 		wp_enqueue_style(
 			'mhm-rentiva-customers',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/customers.css',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/customers.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			\MHM_RENTIVA_VERSION
 		);
 
 		// JavaScript file
 		wp_enqueue_script(
 			'mhm-rentiva-customers',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers.js',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers.js',
 			array('jquery'),
-			MHM_RENTIVA_VERSION,
+			\MHM_RENTIVA_VERSION,
 			true
 		);
 
 		// Calendar JavaScript file
 		wp_enqueue_script(
 			'mhm-customers-calendar',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers-calendar.js',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers-calendar.js',
 			array(),
-			MHM_RENTIVA_VERSION,
+			\MHM_RENTIVA_VERSION,
 			true
 		);
 
@@ -414,31 +417,31 @@ final class CustomersPage
 		// CSS files - same structure as Tools page
 		wp_enqueue_style(
 			'mhm-stats-cards',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			\MHM_RENTIVA_VERSION
 		);
 
 		wp_enqueue_style(
 			'mhm-simple-calendars',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/simple-calendars.css',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/simple-calendars.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			\MHM_RENTIVA_VERSION
 		);
 
 		wp_enqueue_style(
 			'mhm-rentiva-customers',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/customers.css',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/customers.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			\MHM_RENTIVA_VERSION
 		);
 
 		// JavaScript file
 		wp_enqueue_script(
 			'mhm-rentiva-customers',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers.js',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers.js',
 			array('jquery'),
-			MHM_RENTIVA_VERSION,
+			\MHM_RENTIVA_VERSION,
 			true
 		);
 
@@ -877,10 +880,12 @@ final class CustomersPage
 	 */
 	private function render_customer_edit(): void
 	{
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ID from URL for edit view only.
 		if (! isset($_GET['customer_id']) || empty($_GET['customer_id'])) {
 			wp_die(esc_html__('Invalid customer ID.', 'mhm-rentiva'));
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ID from URL for edit view only.
 		$customer_id = intval(wp_unslash($_GET['customer_id']));
 		$customer    = get_user_by('id', $customer_id);
 
