@@ -18,38 +18,15 @@
                 self.clearAllFavorites($(this));
             });
 
-            $(document).on('click', '.rv-vehicle-card__favorite', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-                self.toggleFavorite($(this));
-            });
+            // Favorite toggle handled globally by vehicle-interactions.js
+            // .rv-vehicle-card__favorite selector is dead.
         },
 
+        /*
         toggleFavorite($button) {
-            const vehicleId = $button.data('vehicle-id');
-            if (!vehicleId) {
-                return;
-            }
-
-            const isFavorited = $button.hasClass('is-favorited');
-            const action = isFavorited ? 'mhm_rentiva_remove_favorite' : 'mhm_rentiva_add_favorite';
-
-            this.sendRequest({
-                action,
-                vehicle_id: vehicleId,
-                nonce: window.mhmRentivaAccount?.nonce || ''
-            })
-                .done((response) => {
-                    if (response.success) {
-                        this.handleFavoriteResponse($button, response.data);
-                    } else {
-                        this.showNotification(response.data?.message || this.getString('error'), 'error');
-                    }
-                })
-                .fail((jqXHR) => {
-                    this.showNotification(this.getString('error'), 'error');
-                });
+             // Handled globally
         },
+        */
 
         clearAllFavorites($button) {
             if (!window.mhmRentivaAccount?.ajaxUrl) {
@@ -212,7 +189,6 @@
 
         init() {
             this.bindEvents();
-            this.initFavorites();
             this.initAccountForm();
             this.initPasswordToggles();
         }
@@ -220,9 +196,6 @@
         bindEvents() {
             // Account update form
             $('#mhm-account-details-form').on('submit', (e) => this.handleAccountUpdate(e));
-
-            // Favorite toggle buttons
-            $(document).on('click', '.favorite-toggle', (e) => this.handleFavoriteToggle(e));
 
             // Booking cancellation
             $(document).on('click', '.cancel-booking', (e) => this.handleCancelBooking(e));
@@ -234,53 +207,7 @@
             $(document).on('click', '.remove-receipt-btn', (e) => this.handleReceiptRemove(e));
         }
 
-        /**
-         * Remove receipt
-         */
-        handleReceiptRemove(e) {
-            e.preventDefault();
 
-            if (!confirm(this.config.i18n.confirm_remove_receipt || 'Are you sure you want to remove this receipt?')) {
-                return;
-            }
-
-            const $btn = $(e.currentTarget);
-            const bookingId = $btn.data('booking-id');
-
-            if (!bookingId) {
-                this.showMessage(this.config.i18n.error, 'error');
-                return;
-            }
-
-            $btn.prop('disabled', true).addClass('is-loading');
-
-            $.ajax({
-                url: this.config.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'mhm_rentiva_update_account',
-                    nonce: this.config.nonce,
-                    display_name: formData.get('display_name'),
-                    first_name: formData.get('first_name'),
-                    last_name: formData.get('last_name'),
-                    phone: formData.get('phone'),
-                    address: formData.get('address'),
-                },
-                success: (response) => {
-                    if (response.success) {
-                        this.showMessage(response.data.message || this.config.i18n.savedSuccessfully, 'success');
-                    } else {
-                        this.showMessage(response.data.message || this.config.i18n.error, 'error');
-                    }
-                },
-                error: () => {
-                    this.showMessage(this.config.i18n.error, 'error');
-                },
-                complete: () => {
-                    $submitBtn.prop('disabled', false).text(this.config.i18n.save_changes);
-                }
-            });
-        }
 
         /**
          * Upload receipt via AJAX
@@ -367,50 +294,7 @@
             });
         }
 
-        /**
-         * Favorite toggle
-         */
-        handleFavoriteToggle(e) {
-            e.preventDefault();
 
-            const $btn = $(e.currentTarget);
-            const vehicleId = $btn.data('vehicle-id');
-            const isFavorite = $btn.hasClass('is-favorite');
-            const action = isFavorite ? 'mhm_rentiva_remove_favorite' : 'mhm_rentiva_add_favorite';
-
-            $btn.prop('disabled', true);
-
-            $.ajax({
-                url: this.config.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: action,
-                    nonce: this.config.nonce,
-                    vehicle_id: vehicleId,
-                },
-                success: (response) => {
-                    if (response.success) {
-                        if (isFavorite) {
-                            $btn.removeClass('is-favorite');
-                            $btn.find('.icon').text('🤍');
-                            this.showMessage(this.config.i18n.removedFromFavorites, 'success');
-                        } else {
-                            $btn.addClass('is-favorite');
-                            $btn.find('.icon').text('❤️');
-                            this.showMessage(this.config.i18n.addedToFavorites, 'success');
-                        }
-                    } else {
-                        this.showMessage(response.data.message || this.config.i18n.error, 'error');
-                    }
-                },
-                error: () => {
-                    this.showMessage(this.config.i18n.error, 'error');
-                },
-                complete: () => {
-                    $btn.prop('disabled', false);
-                }
-            });
-        }
 
         /**
          * Booking cancellation
@@ -457,13 +341,7 @@
         /**
          * Initialize favorites system
          */
-        initFavorites() {
-            // Add to favorites buttons
-            $('.add-to-favorites').on('click', function (e) {
-                e.preventDefault();
-                // Action to be performed
-            });
-        }
+        // Local favorites handler removed in favor of global interaction
 
         /**
          * Form validation

@@ -177,61 +177,18 @@
         if ($layoutContainer.length > 0) {
             // Remove all layout classes first
             $layoutContainer.removeClass('rv-layout-grid rv-layout-list');
-            // Add the correct layout class
+            // Add the correct layout class for wrapper
             $layoutContainer.addClass(`rv-layout-${view}`);
 
-            // ALWAYS apply inline styles - this overrides any CSS conflicts
+            // Update cards class
             if ($wrapper.length > 0) {
-                if (view === 'grid') {
-                    // Grid layout: wrapper is grid, cards are flex
-                    // Use css() method which supports !important via setProperty
-                    const wrapperEl = $wrapper[0];
-                    if (wrapperEl) {
-                        wrapperEl.style.setProperty('display', 'grid', 'important');
-                        // Use auto-fit instead of auto-fill for better responsiveness
-                        // Reduce min width to 280px to allow more columns
-                        wrapperEl.style.setProperty('grid-template-columns', 'repeat(auto-fit, minmax(280px, 1fr))', 'important');
-                        wrapperEl.style.setProperty('gap', '24px', 'important');
-                        wrapperEl.style.setProperty('flex-direction', 'unset', 'important');
-                        wrapperEl.style.setProperty('width', '100%', 'important');
-                        wrapperEl.style.setProperty('max-width', '100%', 'important');
-                        wrapperEl.style.setProperty('box-sizing', 'border-box', 'important');
-                    }
+                const $cards = $wrapper.find('.mhm-vehicle-card');
 
-                    // Ensure all cards are flex in grid view
-                    $wrapper.find('.rv-vehicle-card').each(function () {
-                        const cardEl = this;
-                        cardEl.style.setProperty('display', 'flex', 'important');
-                        cardEl.style.setProperty('flex-direction', 'column', 'important');
-                        cardEl.style.setProperty('grid-template-columns', 'unset', 'important');
-                        cardEl.style.setProperty('height', '100%', 'important');
-                    });
-                } else {
-                    // List layout: wrapper is flex column, cards are grid
-                    const wrapperEl = $wrapper[0];
-                    if (wrapperEl) {
-                        wrapperEl.style.setProperty('display', 'flex', 'important');
-                        wrapperEl.style.setProperty('flex-direction', 'column', 'important');
-                        wrapperEl.style.setProperty('gap', '20px', 'important');
-                        wrapperEl.style.setProperty('grid-template-columns', 'unset', 'important');
-                        wrapperEl.style.setProperty('width', '100%', 'important');
-                    }
-
-                    // Ensure all cards are grid in list view
-                    $wrapper.find('.rv-vehicle-card').each(function () {
-                        const cardEl = this;
-                        cardEl.style.setProperty('display', 'grid', 'important');
-                        cardEl.style.setProperty('grid-template-columns', '280px 1fr', 'important');
-                        cardEl.style.setProperty('gap', '0', 'important');
-                        cardEl.style.setProperty('min-height', '220px', 'important');
-                        cardEl.style.setProperty('align-items', 'stretch', 'important');
-                        cardEl.style.setProperty('flex-direction', 'unset', 'important');
-                    });
-                }
+                // Reset card classes
+                $cards.removeClass('mhm-card--grid mhm-card--list');
+                // Add new layout class
+                $cards.addClass(`mhm-card--${view}`);
             }
-
-            // Force a reflow to ensure styles are applied
-            $layoutContainer[0].offsetHeight;
         }
 
         // Save preference to localStorage if requested
@@ -249,7 +206,7 @@
      * Initialize favorites functionality
      */
     function initializeFavorites() {
-        $(document).on('click', '.rv-add-to-favorites', function (e) {
+        $(document).on('click', '.mhm-card-favorite', function (e) {
             e.preventDefault();
 
             const $btn = $(this);
@@ -565,87 +522,79 @@
     /**
      * Generate individual vehicle card HTML
      */
+    /**
+     * Heart SVG template (consistent across all views)
+     */
+    const heartSvg = '<svg class="mhm-heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
+
     function generateVehicleCardHtml(vehicle, layout) {
         const esc = escapeHtml;
+        const layoutClass = layout === 'list' ? 'mhm-card--list' : 'mhm-card--grid';
+        const isGrid = layout !== 'list';
+
+        // Features: Use server-provided features if available, fallback to basic fields
+        let featuresHtml = '';
+        if (vehicle.features && vehicle.features.length > 0) {
+            vehicle.features.forEach(f => {
+                featuresHtml += `<span class="mhm-feature-chip">${esc(f.text || f.value)}</span>`;
+            });
+        } else {
+            // Fallback: basic fields
+            if (vehicle.fuel_type) featuresHtml += `<span class="mhm-feature-chip">${esc(vehicle.fuel_type)}</span>`;
+            if (vehicle.transmission) featuresHtml += `<span class="mhm-feature-chip">${esc(vehicle.transmission)}</span>`;
+            if (vehicle.seats) featuresHtml += `<span class="mhm-feature-chip">${esc(vehicle.seats)} ${mhmRentivaSearchResults.i18n.seats || 'seats'}</span>`;
+        }
+
+        const priceHtml = `
+            <div class="mhm-card-price">
+                <span class="mhm-price-amount">${esc(vehicle.currency_symbol)}${parseFloat(vehicle.price_per_day).toLocaleString()}</span>
+                <span class="mhm-price-period">${mhmRentivaSearchResults.i18n.per_day || '/day'}</span>
+            </div>`;
+
+        const favBtnHtml = `
+            <button class="mhm-card-favorite ${vehicle.is_favorite ? 'is-active' : ''}"
+                data-vehicle-id="${vehicle.id}"
+                aria-label="${mhmRentivaSearchResults.i18n.added_to_favorites || 'Add to favorites'}">
+                ${heartSvg}
+            </button>`;
 
         return `
-            <div class="rv-vehicle-card" data-vehicle-id="${vehicle.id}">
-                <div class="rv-vehicle-image">
-                    ${vehicle.featured_image && vehicle.featured_image.url ?
+            <div class="mhm-vehicle-card ${layoutClass}" data-vehicle-id="${vehicle.id}">
+                <div class="mhm-card-image">
+                    <a href="${esc(vehicle.url)}">
+                        ${vehicle.featured_image && vehicle.featured_image.url ?
                 `<img src="${vehicle.featured_image.url}" alt="${esc(vehicle.featured_image.alt)}" loading="lazy">` :
-                `<div class="rv-no-image">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 19V5h14v14H5z"/><path d="M7 7h10v6H7z"/>
-                    </svg>
-                 </div>`
+                `<div class="mhm-no-image-placeholder">No Image</div>`
             }
-                    <div class="rv-price-badge">
-                        <span class="rv-price-amount">${esc(vehicle.currency_symbol)}${parseFloat(vehicle.price_per_day).toLocaleString()}</span>
-                        <span class="rv-price-period">${mhmRentivaSearchResults.i18n.per_day || '/day'}</span>
-                    </div>
+                    </a>
+                    ${favBtnHtml}
                 </div>
-                
-                <div class="rv-vehicle-info">
-                    <h3 class="rv-vehicle-title">
-                        <a href="${esc(vehicle.url)}">${esc(vehicle.title)}</a>
-                    </h3>
-                    
-                    ${(vehicle.brand || vehicle.model || vehicle.year) ? `
-                        <p class="rv-vehicle-meta">
-                            ${vehicle.brand ? `<span class="rv-brand">${esc(vehicle.brand)}</span>` : ''}
-                            ${vehicle.model ? `<span class="rv-model">${esc(vehicle.model)}</span>` : ''}
-                            ${vehicle.year ? `<span class="rv-year">${esc(vehicle.year)}</span>` : ''}
-                        </p>
-                    ` : ''}
-                    
-                    <div class="rv-vehicle-features">
-                        ${vehicle.fuel_type ? `
-                            <span class="rv-feature">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                                </svg>
-                                ${esc(vehicle.fuel_type)}
-                            </span>
-                        ` : ''}
-                        ${vehicle.transmission ? `
-                            <span class="rv-feature">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                </svg>
-                                ${esc(vehicle.transmission)}
-                            </span>
-                        ` : ''}
-                        ${vehicle.seats ? `
-                            <span class="rv-feature">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                                </svg>
-                                ${esc(vehicle.seats)} ${mhmRentivaSearchResults.i18n.seats || 'seats'}
-                            </span>
-                        ` : ''}
-                    </div>
-                    
-                    ${(vehicle.rating && vehicle.rating.average > 0) ? `
-                        <div class="rv-vehicle-rating">
-                            <div class="rv-stars">
-                                ${Array(5).fill().map((_, i) =>
-                `<span class="rv-star ${i < vehicle.rating.average ? 'filled' : ''}">★</span>`
-            ).join('')}
-                            </div>
-                            <span class="rv-rating-count">
-                                (${vehicle.rating.count} ${vehicle.rating.count === 1 ? (mhmRentivaSearchResults.i18n.review || 'review') : (mhmRentivaSearchResults.i18n.reviews || 'reviews')})
-                            </span>
+
+                <div class="mhm-card-content">
+                    <div class="mhm-content-main">
+                        ${vehicle.brand ? `<div class="mhm-card-category">${esc(vehicle.brand)}${vehicle.model ? ' ' + esc(vehicle.model) : ''}</div>` : ''}
+                        
+                        <h3 class="mhm-card-title">
+                            <a href="${esc(vehicle.url)}">${esc(vehicle.title)}</a>
+                        </h3>
+
+                        ${isGrid ? priceHtml : ''}
+
+                        <div class="mhm-card-features">
+                            ${featuresHtml}
                         </div>
-                    ` : ''}
-                    
-                    <div class="rv-vehicle-actions">
-                        <a href="${esc(vehicle.url)}" class="rv-btn rv-btn-primary">${mhmRentivaSearchResults.i18n.view_details || 'View Details'}</a>
-                        <button type="button" class="rv-btn rv-btn-secondary rv-add-to-favorites ${vehicle.is_favorite ? 'active' : ''}" data-vehicle-id="${vehicle.id}">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                            </svg>
-                        </button>
                     </div>
+
+                    ${!isGrid ? `
+                    <div class="mhm-content-actions">
+                        ${priceHtml}
+                        <a href="${esc(vehicle.url)}" class="mhm-btn-booking">${mhmRentivaSearchResults.i18n.view_details || 'View Details'}</a>
+                    </div>
+                    ` : `
+                    <div class="mhm-card-footer">
+                        <a href="${esc(vehicle.url)}" class="mhm-btn-booking">${mhmRentivaSearchResults.i18n.view_details || 'View Details'}</a>
+                    </div>
+                    `}
                 </div>
             </div>
         `;
@@ -703,6 +652,9 @@
     /**
      * Toggle favorite
      */
+    /**
+     * Toggle favorite
+     */
     function toggleFavorite(vehicleId, $btn) {
         // Disable button during request
         $btn.prop('disabled', true);
@@ -717,15 +669,14 @@
             },
             success: function (response) {
                 if (response.success) {
-                    // Toggle active class
-                    $btn.toggleClass('active');
+                    const { action } = response.data;
 
-                    // Update color based on state
-                    if (response.data.action === 'added') {
-                        $btn.css('color', '#e74c3c');
+                    // Toggle .is-active class - CSS handles the visual state
+                    if (action === 'added') {
+                        $btn.addClass('is-active');
                         showNotification(mhmRentivaSearchResults.i18n.added_to_favorites || 'Added to favorites', 'success');
                     } else {
-                        $btn.css('color', '');
+                        $btn.removeClass('is-active');
                         showNotification(mhmRentivaSearchResults.i18n.removed_from_favorites || 'Removed from favorites', 'success');
                     }
                 } else {

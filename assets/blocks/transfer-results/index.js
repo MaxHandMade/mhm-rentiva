@@ -23,6 +23,8 @@
             var showPassengerCount = attributes.showPassengerCount;
             var showBookButton = attributes.showBookButton;
             var showRouteInfo = attributes.showRouteInfo;
+            var showFavoriteButton = attributes.showFavoriteButton;
+            var showCompareButton = attributes.showCompareButton;
             var sortBy = attributes.sortBy;
             var sortOrder = attributes.sortOrder;
             var limit = attributes.limit;
@@ -116,6 +118,16 @@
                             label: __('Show Book Button', 'mhm-rentiva'),
                             checked: showBookButton,
                             onChange: function (val) { setAttributes({ showBookButton: val }); }
+                        }),
+                        el(ToggleControl, {
+                            label: __('Show Favorite Button', 'mhm-rentiva'),
+                            checked: showFavoriteButton,
+                            onChange: function (val) { setAttributes({ showFavoriteButton: val }); }
+                        }),
+                        el(ToggleControl, {
+                            label: __('Show Compare Button', 'mhm-rentiva'),
+                            checked: showCompareButton,
+                            onChange: function (val) { setAttributes({ showCompareButton: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Route Info', 'mhm-rentiva'),

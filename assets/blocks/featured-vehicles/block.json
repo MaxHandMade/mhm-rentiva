@@ -71,6 +71,26 @@
             "type": "boolean",
             "default": false
         },
+        "showBrand": {
+            "type": "boolean",
+            "default": false
+        },
+        "showAvailability": {
+            "type": "boolean",
+            "default": false
+        },
+        "showCompareButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBadges": {
+            "type": "boolean",
+            "default": true
+        },
+        "showFavoriteButton": {
+            "type": "boolean",
+            "default": true
+        },
         "serviceType": {
             "type": "string",
             "default": "rental",

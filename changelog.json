@@ -1,5 +1,23 @@
 [
     {
+        "version": "4.9.8",
+        "date": "2026-02-09",
+        "changes": [
+            {
+                "type": "fix",
+                "description": "Implemented absolute priority for physical page slugs in WooCommerce My Account endpoints (v1.1.0 logic)."
+            },
+            {
+                "type": "improvement",
+                "description": "Fixed integrated dashboard layout to prevent unwanted redirections for custom slugs."
+            },
+            {
+                "type": "stability",
+                "description": "Forced rewrite rule flush on version 4.9.8 update for URL consistency."
+            }
+        ]
+    },
+    {
         "version": "4.9.7",
         "date": "2026-02-08",
         "changes": [

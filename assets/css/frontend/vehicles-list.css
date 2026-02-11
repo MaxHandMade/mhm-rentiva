@@ -36,7 +36,24 @@
 	font-family: var(--mhm-font-primary);
 }
 
-/* 
+/* Description (List Only) */
+.mhm-card-description {
+	font-size: 0.95em;
+	color: var(--mhm-text-secondary, #6b7280);
+	margin-bottom: 0.75rem;
+	line-height: 1.5;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.mhm-card-rating {
+	margin-bottom: 0.5rem;
+}
+
+/*
  * FIX: Ensure Block Settings Override Global Theme
  * When user selects a "Link Color" in Gutenberg, WP adds .has-link-color class.
  * We must force --rv-primary to use that specific color.
@@ -83,278 +100,12 @@
 	width: 100%;
 }
 
-/* 3. Card Base - Premium Horizontal Layout */
-.rv-vehicles-list-container .rv-vehicle-card--list {
-	background: var(--rv-bg-card);
-	border: none !important;
-	border-radius: var(--rv-radius-card);
-	overflow: hidden;
-	display: flex;
-	flex-direction: row;
-	align-items: stretch;
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
-	box-shadow: var(--rv-shadow);
-	min-height: 190px;
-	/* Slightly increased for better proportions */
+/* Empty State */
+.rv-vehicles-list__empty {
+	text-align: center;
+	padding: 50px 0;
+	color: var(--mhm-text-secondary);
+	font-size: 1.1rem;
 }
 
-.rv-vehicles-list-container .rv-vehicle-card--list:hover {
-	transform: translateY(-4px);
-	box-shadow: var(--rv-shadow-hover);
-}
-
-/* 4. Media Section */
-.rv-vehicles-list-container .rv-vehicle-card__image {
-	width: var(--rv-img-width);
-	height: auto;
-	align-self: stretch;
-	flex-shrink: 0;
-	position: relative;
-	overflow: hidden;
-	background: var(--mhm-bg-tertiary);
-}
-
-.rv-vehicles-list-container .rv-vehicle-card__image img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	display: block;
-}
-
-/* 5. Content Wrapper - Dynamic Vertical Balancing */
-.rv-vehicles-list-container .rv-vehicle-card__content {
-	position: relative;
-	/* Context for absolute heart icon */
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-
-	/* FIX: Use flex-start to allow auto margins to distribute space */
-	justify-content: flex-start;
-
-	padding: var(--rv-padding);
-	gap: 12px;
-}
-
-/* 6. Favorite Action (Absolute Position) */
-.rv-vehicles-list-container .rv-vehicle-card__favorite {
-	position: absolute;
-	top: var(--rv-padding);
-	right: var(--rv-padding);
-	z-index: 10;
-	background: transparent !important;
-	border: none !important;
-	box-shadow: none !important;
-	padding: 0;
-	cursor: pointer;
-	color: var(--mhm-gray-300);
-	transition: transform 0.2s ease, color 0.2s ease;
-}
-
-.rv-vehicles-list-container .rv-vehicle-card__favorite:hover,
-.rv-vehicles-list-container .rv-vehicle-card__favorite.is-favorited {
-	color: var(--mhm-error);
-	transform: scale(1.1);
-}
-
-.rv-vehicles-list-container .rv-vehicle-card__favorite svg {
-	width: 24px;
-	height: 24px;
-	stroke: currentColor;
-	fill: none;
-	transition: fill 0.2s ease;
-}
-
-.rv-vehicles-list-container .rv-vehicle-card__favorite.is-favorited svg {
-	fill: currentColor;
-}
-
-/* 7. Heading Section - Vertically Balanced */
-.rv-vehicles-list-container .rv-vehicle-card__header {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-
-	/* FIX: Pivot the header to the center-top area using shared auto margin */
-	margin-top: auto !important;
-}
-
-.rv-vehicles-list-container .rv-vehicle-card__title {
-	margin: 0;
-	font-size: 1.125rem;
-	font-weight: 700;
-	color: var(--mhm-text-primary);
-	line-height: 1.2;
-	padding-right: 40px;
-}
-
-.rv-vehicles-list-container .rv-vehicle-card__title a {
-	color: inherit;
-	text-decoration: none;
-}
-
-.rv-vehicles-list-container .rv-vehicle-card__category {
-	font-size: 0.75rem;
-	color: var(--rv-text-grey);
-	text-transform: uppercase;
-	font-weight: 600;
-	letter-spacing: 0.05em;
-	display: block;
-	margin-top: 2px;
-}
-
-/* 8. Feature Chip System */
-.rv-vehicles-list-container .rv-vehicle-card__features {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-	margin-top: 4px;
-}
-
-.rv-vehicles-list-container .rv-feature-item {
-	background: var(--rv-bg-chip);
-	color: var(--rv-text-dark);
-	padding: 4px 10px;
-	border-radius: 6px;
-	font-size: 0.75rem;
-	font-weight: 500;
-	display: flex;
-	align-items: center;
-	gap: 4px;
-}
-
-.rv-vehicles-list-container .rv-feature-item svg {
-	width: 12px;
-	height: 12px;
-	stroke: var(--rv-text-grey);
-	stroke-width: 2;
-}
-
-/* 9. Card Footer - Anchored Precisely at Bottom */
-.rv-vehicles-list-container .rv-vehicle-card__footer {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding-top: 12px;
-	border-top: 1px solid var(--mhm-gray-100);
-
-	/* FIX: Push footer to absolute bottom of the content area */
-	margin-top: auto !important;
-
-	width: 100%;
-}
-
-/* Price Alignment */
-.rv-vehicles-list-container .rv-vehicle-card__price {
-	display: flex;
-	align-items: baseline;
-	gap: 4px;
-	font-weight: 700;
-	color: var(--mhm-price-color);
-	white-space: nowrap;
-}
-
-.rv-vehicles-list-container .rv-price-amount {
-	font-size: 1.25rem;
-	line-height: 1;
-	color: var(--mhm-price-color);
-}
-
-.rv-vehicles-list-container .rv-price-period {
-	font-size: 0.8125rem;
-	font-weight: 400;
-	color: var(--rv-text-grey);
-}
-
-/* Booking Action */
-.rv-vehicles-list-container .rv-btn-booking {
-	background-color: var(--mhm-btn-bg);
-	color: var(--mhm-btn-color);
-	height: var(--rv-btn-height);
-	padding: 0 20px;
-	border-radius: var(--rv-radius-btn);
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	text-decoration: none;
-	font-weight: 600;
-	font-size: 0.875rem;
-	transition: all 0.2s ease;
-	border: none;
-	cursor: pointer;
-	white-space: nowrap;
-}
-
-.rv-vehicles-list-container .rv-btn-booking:hover {
-	background-color: var(--mhm-btn-hover-bg);
-	transform: translateY(-2px);
-	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%);
-}
-
-.rv-vehicles-list-container .rv-btn-disabled {
-	opacity: 0.5 !important;
-	pointer-events: none !important;
-	background-color: var(--mhm-gray-400) !important;
-}
-
-/* 10. Handheld Devices Optimization */
-@media (max-width: 782px) {
-	.rv-vehicles-list-container .rv-vehicle-card--list {
-		flex-direction: column;
-	}
-
-	.rv-vehicles-list-container .rv-vehicle-card__image {
-		width: 100%;
-		height: 200px;
-	}
-
-	.rv-vehicles-list-container .rv-vehicle-card__footer {
-		flex-direction: column;
-		gap: 1rem;
-		align-items: stretch;
-	}
-
-	.rv-vehicles-list-container .rv-btn-booking {
-		width: 100%;
-		white-space: normal !important;
-	}
-}
-
-/* 11. Overlays & Status */
-.rv-vehicles-list-container .rv-badge {
-	padding: 3px 8px;
-	border-radius: 6px;
-	font-size: 0.7rem;
-	font-weight: 700;
-	text-transform: uppercase;
-}
-
-.rv-badge--available {
-	background-color: color-mix(in srgb, var(--mhm-success), transparent 90%);
-	color: var(--mhm-success);
-}
-
-.rv-badge--unavailable {
-	background-color: color-mix(in srgb, var(--mhm-error), transparent 90%);
-	color: var(--mhm-error);
-}
-
-.rv-vehicles-list-container .rv-vehicle-card__rating-overlay {
-	position: absolute;
-	top: 10px;
-	left: 10px;
-	background: color-mix(in srgb, var(--mhm-bg-card), transparent 10%);
-	backdrop-filter: blur(4px);
-	padding: 3px 8px;
-	border-radius: 8px;
-	font-size: 0.7rem;
-	font-weight: 600;
-	display: flex;
-	gap: 3px;
-	align-items: center;
-	box-shadow: var(--mhm-shadow-sm);
-}
-
-.rv-stars {
-	color: var(--wp--preset--color--warning, #fbbf24) !important;
-}
+/* Card styles are handled by core/vehicle-card.css */

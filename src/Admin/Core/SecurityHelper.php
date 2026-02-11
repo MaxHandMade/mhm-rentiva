@@ -206,9 +206,9 @@ final class SecurityHelper
 			}
 		}
 
-		// Final fallback to strtotime (but normalize separators first)
-		// PHP prefers m/d/y with / but d-m-y with -
-		$norm_date = str_replace('/', '-', $date);
+		// Final fallback to strtotime (but normalize common separators first)
+		// PHP prefers m/d/y with / but d-m-y with -; replace common separators with '-'
+		$norm_date = str_replace(array('/', '.', ' '), '-', $date);
 		$time = strtotime($norm_date);
 
 		if (! $time) {

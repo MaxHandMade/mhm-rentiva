@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
+use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
@@ -89,36 +90,36 @@ final class BookingConfirmation extends AbstractShortcode
 		}
 
 		// Vehicle information
-		$vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+		$vehicle_id = (int) get_post_meta($booking_id, MetaKeys::BOOKING_VEHICLE_ID, true);
 		$vehicle    = get_post($vehicle_id);
 
 		// Booking dates and times
-		$pickup_date  = (string) get_post_meta($booking_id, '_mhm_pickup_date', true);
-		$dropoff_date = (string) get_post_meta($booking_id, '_mhm_dropoff_date', true);
-		$pickup_time  = (string) get_post_meta($booking_id, '_mhm_start_time', true);
-		$dropoff_time = (string) get_post_meta($booking_id, '_mhm_end_time', true);
+		$pickup_date  = (string) get_post_meta($booking_id, MetaKeys::BOOKING_PICKUP_DATE, true);
+		$dropoff_date = (string) get_post_meta($booking_id, MetaKeys::BOOKING_DROPOFF_DATE, true);
+		$pickup_time  = (string) get_post_meta($booking_id, MetaKeys::BOOKING_PICKUP_TIME, true);
+		$dropoff_time = (string) get_post_meta($booking_id, MetaKeys::BOOKING_RETURN_TIME, true);
 
 		// Pricing information
-		$total_price      = get_post_meta($booking_id, '_mhm_total_price', true);
-		$status           = (string) get_post_meta($booking_id, '_mhm_status', true);
-		$payment_type     = (string) get_post_meta($booking_id, '_mhm_payment_type', true);
-		$deposit_amount   = get_post_meta($booking_id, '_mhm_deposit_amount', true);
-		$remaining_amount = get_post_meta($booking_id, '_mhm_remaining_amount', true);
-		$selected_addons  = get_post_meta($booking_id, '_mhm_selected_addons', true);
+		$total_price      = get_post_meta($booking_id, MetaKeys::BOOKING_TOTAL_PRICE, true);
+		$status           = (string) get_post_meta($booking_id, MetaKeys::BOOKING_STATUS, true);
+		$payment_type     = (string) get_post_meta($booking_id, MetaKeys::BOOKING_PAYMENT_TYPE, true);
+		$deposit_amount   = get_post_meta($booking_id, MetaKeys::BOOKING_DEPOSIT_AMOUNT, true);
+		$remaining_amount = get_post_meta($booking_id, MetaKeys::BOOKING_REMAINING_AMOUNT, true);
+		$selected_addons  = get_post_meta($booking_id, MetaKeys::BOOKING_SELECTED_ADDONS, true);
 
 		// Customer information
-		$customer_first_name = (string) get_post_meta($booking_id, '_mhm_customer_first_name', true);
-		$customer_last_name  = (string) get_post_meta($booking_id, '_mhm_customer_last_name', true);
+		$customer_first_name = (string) get_post_meta($booking_id, MetaKeys::BOOKING_CUSTOMER_FIRST_NAME, true);
+		$customer_last_name  = (string) get_post_meta($booking_id, MetaKeys::BOOKING_CUSTOMER_LAST_NAME, true);
 		$customer_name       = trim($customer_first_name . ' ' . $customer_last_name);
-		$customer_email      = (string) get_post_meta($booking_id, '_mhm_customer_email', true);
-		$customer_phone      = (string) get_post_meta($booking_id, '_mhm_customer_phone', true);
+		$customer_email      = (string) get_post_meta($booking_id, MetaKeys::BOOKING_CUSTOMER_EMAIL, true);
+		$customer_phone      = (string) get_post_meta($booking_id, MetaKeys::BOOKING_CUSTOMER_PHONE, true);
 
 		// Payment information
-		$payment_method = (string) get_post_meta($booking_id, '_mhm_payment_method', true);
-		$payment_status = (string) get_post_meta($booking_id, '_mhm_payment_status', true);
+		$payment_method = (string) get_post_meta($booking_id, MetaKeys::BOOKING_PAYMENT_METHOD, true);
+		$payment_status = (string) get_post_meta($booking_id, MetaKeys::BOOKING_PAYMENT_STATUS, true);
 
 		// Enhance data with WooCommerce Order details if available
-		$order_id = (int) get_post_meta($booking_id, '_mhm_wc_order_id', true);
+		$order_id = (int) get_post_meta($booking_id, MetaKeys::BOOKING_WC_ORDER_ID, true);
 		if (! $order_id) {
 			$order_id = (int) get_post_meta($booking_id, '_mhm_woocommerce_order_id', true);
 		}

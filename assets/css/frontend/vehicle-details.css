@@ -275,7 +275,7 @@
 }
 
 .rv-mini-stars .rv-star.filled {
-	color: var(--mhm-warning);
+	color: var(--mhm-warning, #fbbf24);
 }
 
 .rv-stat-text {

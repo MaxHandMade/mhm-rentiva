@@ -24,11 +24,8 @@
 			// Clean up existing events
 			$(document).off(ns);
 
-			// Favorite button clicks
-			$(document).on('click' + ns, '.rv-vehicle-card__favorite', function (e) {
-				e.preventDefault();
-				self.handleFavoriteClick($(this));
-			});
+			// Favorite button clicks - Handled globally by vehicle-interactions.js
+			// $(document).on('click' + ns, '.mhm-card-favorite', ...);
 
 			// Booking button clicks
 			$(document).on('click' + ns, '.rv-btn-booking', function (e) {
@@ -46,54 +43,11 @@
 			}));
 		},
 
+		/* Favorites handled globally
 		handleFavoriteClick: function ($button) {
-			const vehicleId = $button.data('vehicle-id');
-			const $icon = $button.find('.rv-heart-icon');
-			const strings = mhmRentivaVehiclesList.strings || {};
-
-			if (!vehicleId) {
-				this.showNotification(strings.invalid_vehicle_id || 'Invalid vehicle ID', 'error');
-				return;
-			}
-
-			$button.prop('disabled', true);
-			$icon.addClass('is-loading');
-
-			$.ajax({
-				url: mhmRentivaVehiclesList.ajaxUrl,
-				type: 'POST',
-				data: {
-					action: 'mhm_rentiva_toggle_favorite',
-					vehicle_id: vehicleId,
-					nonce: mhmRentivaVehiclesList.nonce
-				},
-				success: (response) => {
-					if (response.success) {
-						const { action, message } = response.data;
-
-						if (action === 'added') {
-							$button.addClass('is-favorited');
-							$button.find('svg').attr('fill', 'currentColor');
-						} else {
-							$button.removeClass('is-favorited');
-							$button.find('svg').attr('fill', 'none');
-						}
-
-						this.showNotification(message, 'success');
-						$(document).trigger('mhm_rentiva_favorite_toggled', [vehicleId, action]);
-					} else {
-						this.showNotification(response.data.message || strings.error || 'An error occurred', 'error');
-					}
-				},
-				error: () => {
-					this.showNotification(strings.connection_error || 'Connection error', 'error');
-				},
-				complete: () => {
-					$button.prop('disabled', false);
-					$icon.removeClass('is-loading');
-				}
-			});
+			// ...
 		},
+		*/
 
 		handleResize: function () {
 			// Placeholder for future responsive logic

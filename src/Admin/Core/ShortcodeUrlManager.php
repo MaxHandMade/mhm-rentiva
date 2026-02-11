@@ -62,7 +62,8 @@ final class ShortcodeUrlManager
 			return $url;
 		}
 
-		// 3. FALLBACK: Find page containing the shortcode in DB
+		// 3. PHYSICAL PAGE (High Priority): Find page containing the shortcode/block in DB
+		// This ensures translated pages (e.g. /favorilerim/) take precedence over dynamic endpoints.
 		$page_id = self::get_page_id($shortcode);
 
 		if ($page_id) {
@@ -71,7 +72,24 @@ final class ShortcodeUrlManager
 			return $url;
 		}
 
-		// 4. FINAL FALLBACK: Register missing notice and return home
+		// 4. DYNAMIC ENDPOINT: Allow external modules (e.g., WooCommerceIntegration)
+		/**
+		 * Filter the URL for a specific shortcode.
+		 *
+		 * @since 4.0.0
+		 * @param string|null $dynamic_url The URL provided by external modules. Default null.
+		 * @param string      $shortcode   The shortcode tag being requested.
+		 */
+		$dynamic_url = apply_filters('mhm_rentiva_shortcode_url', null, $shortcode);
+
+		if (! empty($dynamic_url)) {
+			// Ensure it's a valid URL
+			$url = esc_url((string) $dynamic_url);
+			self::$runtime_cache[$shortcode] = $url;
+			return $url;
+		}
+
+		// 5. FINAL FALLBACK: Register missing notice and return home
 		self::register_missing_notice($shortcode);
 
 		$fallback                          = home_url('/');
@@ -80,7 +98,7 @@ final class ShortcodeUrlManager
 	}
 
 	/**
-	 * Find page ID containing the shortcode.
+	 * Find page ID containing the shortcode OR Gutenberg block.
 	 *
 	 * @param string $shortcode Shortcode name.
 	 * @return int|null Page ID or null if not found.
@@ -101,9 +119,14 @@ final class ShortcodeUrlManager
 			wp_cache_delete($cache_key, self::CACHE_GROUP);
 		}
 
-		// Search specifically for shortcode patterns in published pages.
-		// Using a refined LIKE query to minimize false positives.
+		// Calculate Block Slug (e.g. rentiva_vehicles_grid -> vehicles-grid)
+		$block_slug = str_replace('_', '-', str_replace('rentiva_', '', $shortcode));
 
+		// Search for shortcode ([rentiva_...]) OR Gutenberg Block (<!-- wp:mhm-rentiva/... -->)
+		// Regex explanation:
+		// 1. \[shortcode(\]| |=)  -> Matches [shortcode] or [shortcode attr=...]
+		// 2. <!-- wp:mhm-rentiva/slug -> Matches block definition
+		$regex = '\[' . $shortcode . '(\]| |=)|<!-- wp:mhm-rentiva/' . $block_slug;
 
 		$page_id = $wpdb->get_var(
 			$wpdb->prepare(
@@ -113,7 +136,7 @@ final class ShortcodeUrlManager
                   AND post_content REGEXP %s
                   ORDER BY post_date DESC 
                   LIMIT 1",
-				'\[' . $shortcode . '(\]| |=)'
+				$regex
 			)
 		);
 
@@ -173,10 +196,17 @@ final class ShortcodeUrlManager
 	{
 		$pages = array();
 		foreach (self::get_all_shortcodes() as $shortcode) {
-			$page_id             = self::get_page_id($shortcode);
+			$page_id = self::get_page_id($shortcode);
+			$url     = self::get_page_url($shortcode);
+
+			// Check if URL is custom (not just the fallback home URL)
+			$is_fallback = ($url === home_url('/'));
+			$has_url     = !empty($url) && !$is_fallback;
+
 			$pages[$shortcode] = array(
-				'id'  => $page_id,
-				'url' => $page_id ? (string) get_permalink($page_id) : '',
+				'id'      => $page_id,
+				'url'     => $url,
+				'has_url' => $has_url, // Flag to indicate valid URL exists even if ID is null
 			);
 		}
 		return $pages;

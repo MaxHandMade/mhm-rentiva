@@ -25,16 +25,8 @@
 		bindEvents: function () {
 			var self = this;
 
-			// Favorite button clicks
-			$(document).on(
-				'click',
-				'.rv-vehicle-card__favorite',
-				function (e) {
-					e.preventDefault();
-					e.stopPropagation();
-					self.handleFavoriteClick($(this));
-				}
-			);
+			// Favorite button clicks - Handled globally by vehicle-interactions.js
+			// .rv-vehicle-card__favorite does not exist in vehicle-card.php
 
 			// Booking button clicks
 			$(document).on(
@@ -68,72 +60,11 @@
 			);
 		},
 
+		/* Favorites handled globally
 		handleFavoriteClick: function ($button) {
-			var self = this;
-			var vehicleId = $button.data('vehicle-id');
-			var $card = $button.closest('.rv-vehicle-card');
-
-			if (!vehicleId) {
-				return;
-			}
-
-			// Login check
-			if (!mhmRentivaVehiclesGrid.isUserLoggedIn) {
-				this.showNotification(mhmRentivaVehiclesGrid.i18n.login_required || 'You must be logged in to add to favorites', 'warning');
-				return;
-			}
-
-			// Loading state
-			$button.prop('disabled', true);
-
-			$.ajax(
-				{
-					url: mhmRentivaVehiclesGrid.ajaxUrl,
-					type: 'POST',
-					data: {
-						action: 'mhm_rentiva_toggle_favorite',
-						vehicle_id: vehicleId,
-						nonce: mhmRentivaVehiclesGrid.nonce
-					},
-					success: function (response) {
-						if (response.success) {
-							// Update button state
-							if (response.data.action === 'added') {
-								$button.addClass('is-favorited');
-								$button.find('svg').attr('fill', 'currentColor');
-							} else {
-								$button.removeClass('is-favorited');
-								$button.find('svg').attr('fill', 'none');
-							}
-
-							// Show notification
-							self.showNotification(response.data.message, 'success');
-
-							// Analytics tracking
-							if (typeof gtag !== 'undefined') {
-								gtag(
-									'event',
-									'favorite_toggle',
-									{
-										'vehicle_id': vehicleId,
-										'action': response.data.action,
-										'event_category': 'engagement'
-									}
-								);
-							}
-						} else {
-							self.showNotification(response.data.message || (mhmRentivaVehiclesGrid.i18n.error || 'An error occurred'), 'error');
-						}
-					},
-					error: function () {
-						self.showNotification('Connection error. Please try again.', 'error');
-					},
-					complete: function () {
-						$button.prop('disabled', false);
-					}
-				}
-			);
+			// ...
 		},
+		*/
 
 		handleBookingClick: function ($button) {
 			var href = $button.attr('href');

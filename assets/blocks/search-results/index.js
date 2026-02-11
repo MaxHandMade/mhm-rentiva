@@ -23,6 +23,8 @@
             var showSorting = attributes.showSorting;
             var showPagination = attributes.showPagination;
             var showAvailability = attributes.showAvailability;
+            var showFavoriteButton = attributes.showFavoriteButton;
+            var showCompareButton = attributes.showCompareButton;
             var sortBy = attributes.sortBy;
             var sortOrder = attributes.sortOrder;
             var limit = attributes.limit;
@@ -95,7 +97,7 @@
                         })
                     ),
 
-                    /* PANEL 3: VISIBILITY */
+                    /* PANEL 3: VISIBILITY (v1.0 APPROVED ONLY) */
                     el(PanelBody, { title: __('Visibility Controls', 'mhm-rentiva'), initialOpen: false },
                         el(ToggleControl, {
                             label: __('Show Filters', 'mhm-rentiva'),
@@ -113,14 +115,14 @@
                             onChange: function (val) { setAttributes({ showPrice: val }); }
                         }),
                         el(ToggleControl, {
-                            label: __('Show Rating', 'mhm-rentiva'),
-                            checked: showRating,
-                            onChange: function (val) { setAttributes({ showRating: val }); }
+                            label: __('Show Favorite Button', 'mhm-rentiva'),
+                            checked: showFavoriteButton,
+                            onChange: function (val) { setAttributes({ showFavoriteButton: val }); }
                         }),
                         el(ToggleControl, {
-                            label: __('Show Availability Status', 'mhm-rentiva'),
-                            checked: showAvailability,
-                            onChange: function (val) { setAttributes({ showAvailability: val }); }
+                            label: __('Show Compare Button', 'mhm-rentiva'),
+                            checked: showCompareButton,
+                            onChange: function (val) { setAttributes({ showCompareButton: val }); }
                         })
                     )
                 ),

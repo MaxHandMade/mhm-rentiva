@@ -68,7 +68,17 @@ Araçları ızgara (grid) düzeninde listeler. `[rentiva_vehicles_list]` ile ben
 
 ### `[rentiva_search_results]`
 **İşlev:** Arama Sonuçları
-Arama motorundan gelen sonuçların listelendiği sayfadır.
+**İşlev:** Arama Sonuçları
+Arama motorundan gelen sonuçların listelendiği sayfadır. Entegre filtreleme (Fiyat, Yakıt, Vites) özelliklerini içerir.
+
+**Filtreleme Parametreleri (Otomatik/URL Tabanlı):**
+| Parametre | Açıklama |
+| :--- | :--- |
+| `min_price` / `max_price` | Fiyat aralığı filtresi. |
+| `fuel_type` | Yakıt tipi filtresi (Benzin, Dizel, Hibrit). |
+| `transmission` | Vites tipi filtresi (Manuel, Otomatik). |
+| `seats` | Koltuk sayısı filtresi. |
+| `brand` | Marka filtresi. |
 
 ### `[rentiva_vehicle_comparison]`
 **İşlev:** Araç Karşılaştırma

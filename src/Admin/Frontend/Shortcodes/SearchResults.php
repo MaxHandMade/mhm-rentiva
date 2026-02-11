@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
+use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Vehicle\PostType\Vehicle as PT_Vehicle;
+use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
 use Exception;
 
 if (! defined('ABSPATH')) {
@@ -74,10 +76,12 @@ final class SearchResults extends AbstractShortcode
 			'show_filters'     => '1',        // 1/0
 			'results_per_page' => '12',       // Results per page
 			'show_pagination'  => '1',        // 1/0
-			'show_sorting'     => '1',        // 1/0
-			'show_view_toggle' => '1',        // 1/0
-			'default_sort'     => 'relevance', // relevance/price_asc/price_desc/name_asc/name_desc
-			'class'            => '',         // Custom CSS class
+			'show_sorting'          => '1',        // 1/0
+			'show_view_toggle'      => '1',        // 1/0
+			'show_favorite_button'  => '1',        // 1/0
+			'show_compare_button'   => '1',        // 1/0
+			'default_sort'          => 'relevance', // relevance/price_asc/price_desc/name_asc/name_desc
+			'class'                 => '',         // Custom CSS class
 		);
 	}
 
@@ -92,9 +96,16 @@ final class SearchResults extends AbstractShortcode
 		// Prepare filter options
 		$filter_options = self::get_filter_options($search_params);
 
+		// Compact Handling: If layout is 'compact', force internal layout to 'grid' but flags 'is_compact'
+		$is_compact = ($atts['layout'] ?? '') === 'compact';
+		if ($is_compact) {
+			$atts['layout'] = 'grid'; // Force grid structure for vehicle cards
+		}
+
 		// Prepare template data
 		return array(
 			'atts'            => $atts,
+			'is_compact'      => $is_compact,
 			'search_params'   => $search_params,
 			'results'         => $results,
 			'filter_options'  => $filter_options,
@@ -114,16 +125,23 @@ final class SearchResults extends AbstractShortcode
 	 */
 	protected static function enqueue_assets(array $atts = []): void
 	{
-		// Core styles
-		if (class_exists('\MHMRentiva\Admin\Core\Utilities\Styles')) {
+		// Core styles and Shared vehicle card styles
+		if (class_exists('\MHMRentiva\Admin\Core\AssetManager')) {
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_core_css();
+		} elseif (class_exists('\MHMRentiva\Admin\Core\Utilities\Styles')) {
+			// Fallback for older versions if AssetManager doesn't exist
 			wp_enqueue_style(\MHMRentiva\Admin\Core\Utilities\Styles::getCssHandle());
+			wp_enqueue_style('mhm-vehicle-card-css');
+		} else {
+			// Last resort fallback
+			wp_enqueue_style('mhm-vehicle-card-css');
 		}
 
 		// Search results CSS
 		wp_enqueue_style(
 			'mhm-rentiva-search-results-css',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/search-results.css',
-			array(),
+			array('mhm-vehicle-card-css'),
 			MHM_RENTIVA_VERSION . '-' . filemtime(MHM_RENTIVA_PLUGIN_DIR . 'assets/css/frontend/search-results.css'),
 			'all'
 		);
@@ -132,7 +150,7 @@ final class SearchResults extends AbstractShortcode
 		wp_enqueue_script(
 			'mhm-rentiva-search-results-js',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/search-results.js',
-			array('jquery'),
+			array('jquery', 'mhm-vehicle-interactions'),
 			MHM_RENTIVA_VERSION . '-' . filemtime(MHM_RENTIVA_PLUGIN_DIR . 'assets/js/frontend/search-results.js'),
 			true
 		);
@@ -449,20 +467,20 @@ final class SearchResults extends AbstractShortcode
 				'url' => $featured_image_url,
 				'alt' => $vehicle->post_title,
 			),
-			'price_per_day'   => (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true),
+			'price_per_day'   => (float) get_post_meta($vehicle_id, MetaKeys::VEHICLE_PRICE_PER_DAY, true),
 			'currency'        => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD'),
 			'currency_symbol' => \MHMRentiva\Admin\Reports\Reports::get_currency_symbol(),
-			'brand'           => get_post_meta($vehicle_id, '_mhm_rentiva_brand', true),
-			'model'           => get_post_meta($vehicle_id, '_mhm_rentiva_model', true),
-			'year'            => get_post_meta($vehicle_id, '_mhm_rentiva_year', true),
+			'brand'           => get_post_meta($vehicle_id, MetaKeys::VEHICLE_BRAND, true),
+			'model'           => get_post_meta($vehicle_id, MetaKeys::VEHICLE_MODEL, true),
+			'year'            => get_post_meta($vehicle_id, MetaKeys::VEHICLE_YEAR, true),
 			'fuel_type'       => $fuel_type_label,
 			'transmission'    => $transmission_label,
-			'seats'           => get_post_meta($vehicle_id, '_mhm_rentiva_seats', true),
-			'mileage'         => get_post_meta($vehicle_id, '_mhm_rentiva_mileage', true),
+			'seats'           => get_post_meta($vehicle_id, MetaKeys::VEHICLE_SEATS, true),
+			'mileage'         => get_post_meta($vehicle_id, MetaKeys::VEHICLE_MILEAGE, true),
 			'is_favorite'     => $is_favorite,
 			'rating'          => array(
-				'average' => (float) get_post_meta($vehicle_id, '_mhm_rentiva_rating_average', true),
-				'count'   => (int) get_post_meta($vehicle_id, '_mhm_rentiva_rating_count', true),
+				'average' => (float) get_post_meta($vehicle_id, MetaKeys::VEHICLE_RATING_AVERAGE, true),
+				'count'   => (int) get_post_meta($vehicle_id, MetaKeys::VEHICLE_RATING_COUNT, true),
 			),
 		);
 	}
@@ -636,9 +654,15 @@ final class SearchResults extends AbstractShortcode
 				)
 			);
 		} catch (Exception $e) {
+			$debug_mode = defined('WP_DEBUG') && WP_DEBUG;
+			$message    = \MHMRentiva\Admin\Core\SecurityHelper::get_safe_error_message(
+				$e->getMessage(),
+				$debug_mode
+			);
+
 			wp_send_json_error(
 				array(
-					'message' => $e->getMessage(),
+					'message' => $message,
 				)
 			);
 		}
@@ -702,7 +726,7 @@ final class SearchResults extends AbstractShortcode
 	/**
 	 * Renders single vehicle card
 	 * 
-	 * @param array $vehicle Vehicle data
+	 * @param array $vehicle Vehicle data (from format_vehicle_data)
 	 * @param string $layout Layout type
 	 * @return string
 	 */
@@ -712,157 +736,70 @@ final class SearchResults extends AbstractShortcode
 			return '';
 		}
 
-		// Check availability
-		$availability = self::check_vehicle_availability((int) $vehicle['id']);
-		$is_available = $availability['is_available'];
-		$status_text  = $availability['text'];
+		$vehicle_id = (int) $vehicle['id'];
 
-		// Parent container controls layout now. Card class is neutral.
-		$card_class = '';
+		// Use global VehicleFeatureHelper for settings-aware feature collection
+		// This ensures Search Results show the same features as Grid, List, and Featured modules
+		$raw_features = VehicleFeatureHelper::collect_items($vehicle_id);
+		$features     = array();
+		foreach ($raw_features as $item) {
+			$features[] = array(
+				'icon'  => $item['icon'] ?? 'default',
+				'text'  => $item['text'],
+				'value' => $item['text'],
+				'svg'   => VehiclesList::get_feature_icon_svg($item['icon'] ?? 'default'),
+			);
+		}
 
-		ob_start();
-?>
-		<div class="rv-vehicle-card <?php echo esc_attr($card_class); ?>" data-vehicle-id="<?php echo esc_attr((string) $vehicle['id']); ?>">
+		// Prepare standardized data
+		$confidence_data = \MHMRentiva\Admin\Vehicle\Helpers\RatingConfidenceHelper::from_count(
+			(int) ($vehicle['rating']['count'] ?? 0)
+		);
 
-			<!-- Vehicle Image -->
-			<div class="rv-vehicle-image">
-				<?php if (! empty($vehicle['featured_image']['url'])) : ?>
-					<img src="<?php echo esc_url((string) $vehicle['featured_image']['url']); ?>"
-						alt="<?php echo esc_attr((string) $vehicle['featured_image']['alt']); ?>"
-						loading="lazy">
-				<?php else : ?>
-					<div class="rv-no-image">
-						<svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-							<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 19V5h14v14H5z" />
-							<path d="M7 7h10v6H7z" />
-						</svg>
-					</div>
-				<?php endif; ?>
+		$standardized_vehicle = array(
+			'id'           => $vehicle_id,
+			'title'        => $vehicle['title'],
+			'permalink'    => $vehicle['url'],
+			'image'        => array(
+				'url' => $vehicle['featured_image']['url'] ?? '',
+				'alt' => $vehicle['featured_image']['alt'] ?? $vehicle['title'],
+			),
+			'rating'       => array(
+				'average'            => (float) $vehicle['rating']['average'],
+				'stars'              => \MHMRentiva\Admin\Vehicle\Helpers\RatingHelper::get_star_html((float) $vehicle['rating']['average']),
+				'count'              => $vehicle['rating']['count'],
+				'confidence_key'     => $confidence_data['key'],
+				'confidence_label'   => $confidence_data['label'],
+				'confidence_tooltip' => $confidence_data['tooltip'],
+			),
+			'category'     => array(
+				'name' => $vehicle['brand'] . ' ' . $vehicle['model'],
+				'url'  => '#',
+			),
+			'availability' => self::check_vehicle_availability($vehicle_id),
+			'features'     => $features,
+			'price'        => array(
+				'formatted' => $vehicle['currency_symbol'] . number_format((float) $vehicle['price_per_day'], 0, ',', '.'),
+			),
+			'is_featured'  => false,
+			'is_favorite'  => $vehicle['is_favorite'] ?? false,
+		);
 
-				<!-- Availability Badge -->
-				<?php if (! $is_available) : ?>
-					<div class="rv-badge-wrapper" style="position: absolute; top: 10px; left: 10px; z-index: 10;">
-						<span class="rv-badge rv-badge--unavailable" style="
-							background-color: #ef4444; 
-							color: #fff; 
-							padding: 4px 8px; 
-							border-radius: 4px; 
-							font-size: 12px; 
-							font-weight: 600;
-							box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-							<?php echo esc_html($status_text); ?>
-						</span>
-					</div>
-				<?php endif; ?>
-
-				<!-- Price Badge -->
-				<div class="rv-price-badge">
-					<span class="rv-price-amount"><?php echo esc_html((string) ($vehicle['currency_symbol'] ?? '$')); ?><?php echo esc_html(number_format((float) ($vehicle['price_per_day'] ?? 0))); ?></span>
-					<span class="rv-price-period"><?php esc_html_e('/day', 'mhm-rentiva'); ?></span>
-				</div>
-			</div>
-
-			<!-- Vehicle Info -->
-			<div class="rv-vehicle-info">
-				<h3 class="rv-vehicle-title">
-					<a href="<?php echo esc_url((string) ($vehicle['url'] ?? '#')); ?>">
-						<?php echo esc_html((string) ($vehicle['title'] ?? '')); ?>
-					</a>
-				</h3>
-
-				<?php if (! empty($vehicle['brand']) || ! empty($vehicle['model'])) : ?>
-					<p class="rv-vehicle-meta">
-						<?php if (! empty($vehicle['brand'])) : ?>
-							<span class="rv-brand"><?php echo esc_html((string) $vehicle['brand']); ?></span>
-						<?php endif; ?>
-						<?php if (! empty($vehicle['model'])) : ?>
-							<span class="rv-model"><?php echo esc_html((string) $vehicle['model']); ?></span>
-						<?php endif; ?>
-						<?php if (! empty($vehicle['year'])) : ?>
-							<span class="rv-year"><?php echo esc_html((string) $vehicle['year']); ?></span>
-						<?php endif; ?>
-					</p>
-				<?php endif; ?>
-
-				<!-- Vehicle Features -->
-				<div class="rv-vehicle-features">
-					<?php if (! empty($vehicle['fuel_type'])) : ?>
-						<span class="rv-feature">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-								<path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
-							</svg>
-							<?php echo esc_html((string) $vehicle['fuel_type']); ?>
-						</span>
-					<?php endif; ?>
-
-					<?php if (! empty($vehicle['transmission'])) : ?>
-						<span class="rv-feature">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-								<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-							</svg>
-							<?php echo esc_html((string) $vehicle['transmission']); ?>
-						</span>
-					<?php endif; ?>
-
-					<?php if (! empty($vehicle['seats'])) : ?>
-						<span class="rv-feature">
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-								<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-							</svg>
-							<?php echo esc_html((string) $vehicle['seats']); ?> <?php esc_html_e('seats', 'mhm-rentiva'); ?>
-						</span>
-					<?php endif; ?>
-				</div>
-
-				<!-- Rating -->
-				<?php if (! empty($vehicle['rating']['average']) && $vehicle['rating']['average'] > 0) : ?>
-					<div class="rv-vehicle-rating">
-						<div class="rv-stars">
-							<?php for ($i = 1; $i <= 5; $i++) : ?>
-								<span class="rv-star <?php echo $i <= $vehicle['rating']['average'] ? 'filled' : ''; ?>">★</span>
-							<?php endfor; ?>
-						</div>
-						<span class="rv-rating-count">
-							<?php
-							/* translators: %d: number of reviews. */
-							printf(esc_html(_n('(%d review)', '(%d reviews)', (int) ($vehicle['rating']['count'] ?? 0), 'mhm-rentiva')), absint((int) ($vehicle['rating']['count'] ?? 0)));
-							?>
-						</span>
-					</div>
-				<?php endif; ?>
-
-				<!-- Actions -->
-				<div class="rv-vehicle-actions">
-					<?php
-					$btn_class = 'rv-btn rv-btn-primary';
-					$btn_href  = esc_url((string) ($vehicle['url'] ?? '#'));
-					$btn_attrs = '';
-					$btn_text  = __('View Details', 'mhm-rentiva');
-
-					if (! $is_available) {
-						$btn_class .= ' rv-btn-disabled';
-						$btn_href   = 'javascript:void(0);';
-						$btn_attrs  = 'aria-disabled="true" tabindex="-1"';
-						// Keep pure View Details text, do not override with status
-					}
-					?>
-					<a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo wp_kses_data($btn_attrs); ?>>
-						<?php echo esc_html($btn_text); ?>
-					</a>
-
-					<?php
-					if ($is_available) : // Hide favorite for unavailable? Or allow it? Allowing is fine.
-					?>
-						<button type="button" class="rv-btn rv-btn-secondary rv-add-to-favorites <?php echo ! empty($vehicle['is_favorite']) ? 'active' : ''; ?>" data-vehicle-id="<?php echo esc_attr($vehicle['id'] ?? 0); ?>">
-							<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-								<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-							</svg>
-						</button>
-					<?php endif; ?>
-				</div>
-			</div>
-		</div>
-<?php
-		return ob_get_clean();
+		// Render partial
+		return Templates::render('partials/vehicle-card', array(
+			'vehicle' => $standardized_vehicle,
+			'layout'  => $layout,
+			'atts'    => array(
+				'show_favorite_button' => $atts['show_favorite_button'] ?? true,
+				'show_compare_button'  => $atts['show_compare_button'] ?? true,
+				'show_booking_btn'     => true,
+				'show_price'           => true,
+				'show_title'           => true,
+				'show_features'        => true,
+				'show_rating'          => true,
+				'show_badges'          => true,
+				'booking_url'          => VehiclesList::get_booking_url(),
+			),
+		), true);
 	}
 }

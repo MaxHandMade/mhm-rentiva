@@ -42,59 +42,63 @@
         }
     },
     "attributes": {
-        "show_price": {
+        "showPrice": {
             "type": "boolean",
             "default": true
         },
-        "show_rating": {
+        "showRating": {
             "type": "boolean",
             "default": true
         },
-        "show_category": {
+        "showCategory": {
             "type": "boolean",
             "default": true
         },
-        "show_booking_btn": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_description": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_features": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_image": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_title": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_badges": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_favorite_btn": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_availability": {
+        "showBrand": {
             "type": "boolean",
             "default": false
         },
-        "show_compare_btn": {
+        "showBookButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showDescription": {
+            "type": "boolean",
+            "default": true
+        },
+        "showFeatures": {
+            "type": "boolean",
+            "default": true
+        },
+        "showImage": {
+            "type": "boolean",
+            "default": true
+        },
+        "showTitle": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBadges": {
+            "type": "boolean",
+            "default": true
+        },
+        "showFavoriteButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showAvailability": {
             "type": "boolean",
             "default": false
         },
-        "filter_categories": {
+        "showCompareButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "filterCategories": {
             "type": "string",
             "default": ""
         },
-        "filter_brands": {
+        "filterBrands": {
             "type": "string",
             "default": ""
         },
@@ -105,7 +109,9 @@
                 "price",
                 "popularity",
                 "newest",
-                "rating"
+                "rating",
+                "rating_count",
+                "confidence"
             ]
         },
         "order": {
@@ -123,10 +129,19 @@
         "className": {
             "type": "string",
             "default": ""
+        },
+        "minRating": {
+            "type": "string",
+            "default": ""
+        },
+        "minReviews": {
+            "type": "string",
+            "default": ""
         }
     },
     "editorStyle": [
-        "mhm-rentiva-core-variables"
+        "mhm-rentiva-core-variables",
+        "mhm-vehicle-card-css"
     ],
     "style": [
         "mhm-rentiva-vehicles-list"

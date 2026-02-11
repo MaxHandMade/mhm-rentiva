@@ -2,14 +2,323 @@
 
 ## ACTIVE TASKS
 
-### [İŞLEMDE] Phase 2: Advanced Search Filtering (2026-02-04)
-- **Status:** Pending
-- **Context:** Implementing a dynamic filter sidebar/block for the vehicle results page.
-- **Blueprint:**
-  - **Shortcode:** `[rentiva_vehicle_filters]` extending `AbstractShortcode`.
-  - **Block:** `mhm-rentiva/vehicle-filters`.
-  - **Features:** Price Range (Slider), Transmission (Checkbox), Fuel (Checkbox), Category (Multi-select).
-  - **Tech:** AJAX-driven updates compatible with the existing `VehicleSearch` results loop.
+### [LOCKED] Vehicle Card v1.0 — FINALIZED (v5 Baseline) (2026-02-09)
+- **Status:** 🔒 LOCKED / STABLE
+- **Scope:** Minimal, data-trusted, shortcode-compatible vehicle card implementation.
+- **Canonical Renderer:** `templates/partials/vehicle-card.php` — Single Source of Truth for ALL vehicle card displays (Grid, List, Featured, Search, Favorites).
+- **v1.0 Approved Toggles (ONLY):**
+  | Toggle | Status |
+  |--------|--------|
+  | `showPrice` | ✅ ACTIVE |
+  | `showFeatures` | ✅ ACTIVE |
+  | `showBookButton` | ✅ ACTIVE |
+- **Explicitly Disabled (Hardcoded FALSE):**
+  - `showRating` → Demo data inconsistencies
+  - `showTopLabel` → Deferred to v1.1 (brand/category semantics TBD)
+  - `showCategory`, `showBrand` → Shortcode contract limitations
+  - `showBadges`, `showAvailability`, `showCompareButton`, `showFavoriteButton` → Not v1.0 scope
+- **Block Editor Changes:**
+  - `vehicles-grid/index.js`, `vehicles-list/index.js`, `featured-vehicles/index.js`, `search-results/index.js` → Only 3 toggles visible in sidebar
+- **Files Modified:**
+  - `templates/partials/vehicle-card.php` (hardcoded disabled defaults)
+  - `assets/blocks/*/index.js` (4 files)
+- **Future Work (v1.1+):**
+  - `showTopLabel` → Single top-label slot with explicit semantics
+  - Ratings → Clean data source definition required
+  - Compare/Favorites → Full feature implementation
+
+> [!CAUTION]
+> v1.0 is FINAL. Do NOT bypass via per-block implementations.
+
+### [LOCKED] Vehicle Card v1.1 — Layout Polish (v5 Baseline) (2026-02-10)
+- **Status:** 🔒 LOCKED / STABLE
+- **Scope:** UI-only consistency improvements for vehicle cards (no data/query changes, no new features).
+- **Canonical Renderer:** `templates/partials/vehicle-card.php` (unchanged, still Single Source of Truth).
+- **Toggles:** v1.0 toggle set unchanged (only `showPrice`, `showFeatures`, `showBookButton`).
+- **Layout Improvements (CSS-only):**
+  - Grid cards: Title 2-line clamp + min-height for consistent baseline; CTA aligned via `margin-top: auto`.
+  - Feature/Chips row: `flex-wrap: nowrap` + 32px fixed height to prevent multi-line wrapping.
+  - List cards: 240px `min-height` + content stretch for visible bottom anchoring of Price+CTA.
+- **Files Modified (v1.1):**
+  - `assets/css/core/vehicle-card.css` (layout consistency rules only)
+- **Deferred (still NOT in v1.1):**
+  - Ratings, TopLabel, Compare, Favorites, Badges, Availability (remain v1.2+).
+- **Acceptance Evidence:**
+  - Grid: `vehicles_grid_page.png` — aligned CTAs across mixed title lengths
+  - List: `list_layout_240px.png` — bottom-anchored CTA with 56px auto margin
+
+> [!CAUTION]
+> v1.1 is FINAL. CSS-only polish — no PHP logic or toggle changes.
+
+### [LOCKED] Vehicle Card v1.2 — Rating Productization (v4.9.9) (2026-02-10)
+- **Status:** 🔒 LOCKED / STABLE
+- **Scope:** Productize rating system on vehicle cards.
+- **Canonical Renderer:** `templates/partials/vehicle-card.php` (unchanged).
+- **Key Decisions (Authoritative):**
+  - **Default Visibility:** ON (Ratings show by default).
+  - **Render Logic:** Strict gate `rating_count > 0`. Ratings NEVER show for unrated vehicles (no "0.0" or empty stars).
+  - **Toggle:** Users can disable via `show_rating="0"` or block settings.
+- **Data Pipeline:**
+  - `VehiclesList`, `VehiclesGrid`, `FeaturedVehicles`, `MyFavorites` all use `RatingHelper`.
+  - **Fix:** `SearchResults.php` patch applied to inject missing `average` data key.
+- **Files Modified:**
+  - `templates/partials/vehicle-card.php` (Unlocked rating logic + **HOTFIX:** Removed `esc_html` to fix double-escape bug).
+  - `src/Admin/Frontend/Shortcodes/SearchResults.php` (Data gap fix).
+  - `assets/css/core/vehicle-card.css` (**HOTFIX:** Fixed empty star color logic).
+- **Verification:**
+  - PHPUnit: `VehicleCardRatingTest` passed.
+  - Visual: **HOTFIX VERIFIED:** Stars now render as SVGs, empty stars are gray, filled are yellow. Reference: User Screenshot 2026-02-10.
+  - **Editor Parity:** `mhm-vehicle-card-css` loaded in editor. Stars verified yellow.
+  - **UX:** Rating count size reduced to `11px`. "Show Rating" toggle added to block sidebar.
+- **FINAL CLOSURE (v1.2.x):**
+  - **Standardization:** Centralized all vehicle meta access in `MetaKeys.php`. Standardized 5 critical classes/templates.
+  - **PHP Warnings:** Resolved `booking-confirmation` undefined variable warnings.
+  - **Constraints:** Enforced 1 review per user, mandatory ratings, and edit-review flow.
+  - **Repair:** `wp mhm-rentiva repair-ratings` executed — database normalized.
+  - **Smoke Check:** PASS. Verified live rating sync and restriction enforcement.
+
+### [LOCKED] Rating Confidence Label (v1.3.1) (2026-02-10)
+- **Status:** 🔒 LOCKED / STABLE
+- **Scope:** Display trust signal label ("New", "Reliable", "Highly Reliable") based on `rating_count`.
+- **Default Thresholds:** `[2, 9]` → ≤2 New, ≤9 Reliable, ≥10 Highly Reliable.
+- **Filter:** `mhm_rentiva_rating_confidence_thresholds` → override `[upper_new, upper_reliable]`.
+- **Architecture:** Single-source computation in `RatingHelper::get_rating()` → payload keys: `confidence_key`, `confidence_label`, `confidence_tooltip`. Templates render from payload only.
+- **Render Locations:** Vehicle card (grid/list) + Vehicle detail rating summary.
+- **Non-Negotiable:** Cosmetic only — zero impact on rating aggregation. No additional queries.
+- **Files Created:** `src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php`, `tests/Integration/RatingConfidenceHelperTest.php`
+- **Files Modified:** `RatingHelper.php`, `SearchResults.php`, `vehicle-card.php`, `vehicle-rating-form.php`, `vehicle-card.css`, `vehicle-rating-form.css`
+- **Verification:** PHPUnit 11 tests, 30 assertions — ALL PASS. Frontend verified on card + detail.
+
+> [!CAUTION]
+> v1.3.1 is FINAL. Label logic must NOT affect `RatingHelper` calculations. Templates must NOT call helper directly.
+
+### [LOCKED] Verified Rental Badge (v1.3.0) (2026-02-10)
+- **Status:** 🔒 LOCKED / STABLE
+- **Scope:** Display "✓ Verified Rental" badge on vehicle detail reviews when the author has a qualifying booking.
+- **Qualifying Statuses:** `completed`, `in_progress`, `confirmed`.
+- **Matching Strategy:**
+  1. Primary: `user_id` ↔ `_mhm_customer_user_id` meta.
+  2. Fallback: `comment_author_email` ↔ `_mhm_contact_email` meta.
+- **Admin Override:** `mhm_verified_review=1` comment meta bypasses booking check.
+- **Performance:** Batch query per vehicle (no N+1). 1-hour transient cache (`mhm_rentiva_verified_reviews_{id}`).
+- **Cache Invalidation:** On review insert/update (`ReviewNormalization`) and booking status change (`mhm_rentiva_booking_status_changed`).
+- **Non-Negotiable:** Badge is cosmetic only — zero impact on rating aggregation.
+- **Files Created:**
+  - `src/Admin/Vehicle/Helpers/VerifiedReviewHelper.php`
+  - `tests/Integration/VerifiedReviewHelperTest.php`
+- **Files Modified:**
+  - `templates/shortcodes/vehicle-rating-form.php` (badge markup + batch call)
+  - `assets/css/frontend/vehicle-rating-form.css` (badge styles)
+  - `src/Admin/Vehicle/Hooks/ReviewNormalization.php` (cache invalidation)
+  - `src/Plugin.php` (helper registration)
+- **Verification:**
+  - PHPUnit: 12 tests, 15 assertions — ALL PASS.
+  - Frontend: Badge visible on Volkswagen Golf (completed booking), absent on Fiat Egea (no booking).
+
+### [TAMAMLANDI] Visibility Toggles & Favorites UI Refactor (v1.3.3) (2026-02-10)
+- **Status:** Done [DOĞRULANDI]
+- **Goal:** Enable independent visibility for Favorites/Compare buttons and fix My Favorites interactivity.
+- **Toggles Added:** `showFavoriteButton`, `showCompareButton` (Blocks) ↔ `show_favorite_button`, `show_compare_button` (Shortcodes).
+- **Default:** Enabled (true/'1').
+- **Interactivity:** Refactored `vehicle-interactions.js` to handle dynamic card removal on the Favorites page.
+- **Bridge Logic:** `vehicle-card.php` supports both `_button` and legacy `_btn` suffixes for 100% backward compatibility.
+- **Verification:** Verified via WP-CLI created test pages and browser inspection. Independent toggle functionality confirmed.
+
+### [TAMAMLANDI] Compare Icon CSS Fix (v1.3.3 Hotfix) (2026-02-11)
+- **Status:** Done [DOĞRULANDI]
+- **Root Cause:** `.mhm-card-actions-overlay` had `height: 0px` / `position: static` (zero CSS rules), `.mhm-card-compare` had zero CSS rules. Button existed in DOM but was visually invisible.
+- **Fix:** Added 62 lines CSS to `vehicle-card.css`: overlay gets `position: absolute` + `pointer-events: none`, compare gets `top: 52px, right: 12px` (below favorite).
+- **Default Fix:** `VehiclesGrid.php` `show_compare_btn/button` changed from `'0'` → `'1'` for parity.
+- **CSS Contract:** Compare button MUST have `.mhm-card-compare` class. Actions overlay MUST have `.mhm-card-actions-overlay`. Both styled in `vehicle-card.css`.
+- **Verification:** MCP DevTools: toggle ON → 6 buttons visible, toggle OFF → 0 buttons. CLI: default shortcode renders compare.
+
+> [!CAUTION]
+> v1.3.0 is FINAL. Badge logic must NOT affect `RatingHelper` calculations.
+
+### [TAMAMLANDI] Critical Fix: Review Normalization & CLI Repair (v1.2) (2026-02-10)
+- **Status:** Done [VERIFIED]
+- **Goal:** Resolve data inconsistency where comments with ratings were not counted as reviews, and ensure cache invalidation.
+- **Key Changes:**
+  - **Normalization Hook:** Created `MHMRentiva\Admin\Vehicle\Hooks\ReviewNormalization`. Automatically forces `comment_type='review'` if `mhm_rating` meta exists.
+  - **Cache Busting:** Implemented smart invalidation. Triggers `cleanup()` on `VehiclesList`, `VehiclesGrid`, `FeaturedVehicles`, `SearchResults` whenever a review is added/updated.
+  ### v1.2 (Rating Productization - Feb 2026)
+- **Status:** RELEASED
+- **Goal:** Enable vehicle ratings with strictly controlled visibility and editor parity.
+- **Key Changes:**
+    - Rating visibility defaults to **ON** (if count > 0).
+    - Added "Show Rating" toggle in Block Editor sidebar (InspectorControls).
+    - **Editor Parity:** Added `mhm-vehicle-card-css` to `editorStyle` in `block.json` for correct star rendering.
+    - **Review Normalization:** Enforced `comment_type = 'review'` for comments with `mhm_rating > 0`.
+    - **Cache Invalidation:** Automated clearing of shortcode caches on comment lifecycle events.
+    - **New CLI Command:** `wp mhm-rentiva repair-ratings` to fix data inconsistencies and recalc stats.
+- **Files Modified:**
+    - `src/Admin/Vehicle/Hooks/ReviewNormalization.php` (New)
+    - `src/Admin/CLI/RepairRatingsCommand.php` (New)
+    - `tests/Integration/ReviewNormalizationTest.php` (New)
+- **Verification:**
+    - CLI: `wp mhm-rentiva repair-ratings`
+    - Tests: `ReviewNormalizationTest` & `VehicleCardRatingTest` passed.tatistics.
+  - **Linting:** Fixed `WP_CLI` constant visibility issues in namespaced commands. Added `stubs/wp-cli-stubs.php` to resolve IDE type errors.
+- **Files Modified:**
+  - `src/Admin/Vehicle/Hooks/ReviewNormalization.php` (New)
+  - `src/Admin/CLI/RepairRatingsCommand.php` (New)
+  - `src/Plugin.php` (Registration)
+  - `stubs/wp-cli-stubs.php` (New)
+- **Verification:**
+  - **CLI:** `repair-ratings` command successfully identified and fixed inconsistencies (verified via DB query).
+  - **IDE:** Linter errors for `WP_CLI` usage resolved via stubs.
+  - **Tests:** `ReviewNormalizationTest` check passed for hook logic.
+
+
+### [TAMAMLANDI] Rating System Fixes & Star Visualization (v4.9.8) (2026-02-10)
+- **Status:** Done [VERIFIED]
+- **Goal:** Resolve rating display bugs (black stars) and data inconsistency.
+- **Key Changes:**
+  - **SVG Implementation:** Replaced Unicode `★` characters with SVG icons in `RatingHelper` and templates to allow proper "filled" styling.
+  - **CSS Fallback:** Added `#fbbf24` fallback color to `var(--mhm-warning)` in `vehicle-details.css` to fix black stars in sidebar.
+  - **Data Integrity:** Updated `vehicle-rating-form.php` to filter `type='review'` strictly, ignoring regular comments in calculations.
+  - **Formatting:** Standardized rating display to "3.0" (1 decimal) format across all views.
+- **Files Modified:**
+  - `src/Admin/Vehicle/Helpers/RatingHelper.php`
+  - `templates/shortcodes/vehicle-details.php`
+  - `templates/shortcodes/vehicle-rating-form.php`
+  - `assets/css/frontend/vehicle-details.css`
+- **Verification:**
+  - **Visual:** Screenshot evidence (`sidebar_star_fix_final.png`) confirmed yellow stars.
+  - **Logic:** Verified calculation logic matches database records.
+
+### WooCommerce My Account Optimization (v4.9.8)
+- **Problem:** Performance bottlenecks due to redundant slug lookups, static match blocks limiting extensibility, and absence of early ownership checks on booking views.
+- **Solution:**
+    - **EndpointHelperTrait:** Unified slug resolution logic with static caching.
+    - **Security:** Implemented early ownership validation in `render_view_booking`.
+    - **Maintenance:** Centralized endpoint mapping for easier addition of new features.
+    - **Verification:** 100% PHPUnit pass for resolution logic; CLI verified physical page priority (e.g., `rezervasyonlarim`).
+### [TAMAMLANDI] WooCommerce My Account Slug Consistency (v4.9.8) (2026-02-09)
+- **Status:** Done [VERIFIED]
+- **Goal:** Ensure WooCommerce My Account endpoint URLs match physical page slugs (e.g., `/hesabim/favorilerim/`) instead of technical defaults.
+- **Key Changes:**
+  - **Absolute Priority Logic:** Refactored `WooCommerceIntegration::get_endpoint_slug()` to place physical page detection (via `ShortcodeUrlManager`) at the absolute top of the priority list, overriding database settings and translations.
+  - **Smoking Gun Found:** Discovered that database options (e.g., `mhm_rentiva_endpoint_favorites`) were pre-populated with defaults, blocking previous dynamic detection logic.
+  - **Integrated Dashboard Restoration:** Fixed the regression where custom slugs caused external redirections. By using `wc_get_account_endpoint_url()` for menu links, we maintain the "Integrated Dashboard" (Sidebar + Content) layout even with custom Turkish slugs.
+  - **Version Flush:** Synchronized and bumped version to `4.9.8` (from internal v1.1.0 test) to force critical rewrite rule flushes.
+- **Files Modified:**
+  - `src/Admin/Frontend/Account/WooCommerceIntegration.php`
+  - `mhm-rentiva.php`
+  - `readme.txt`
+- **Verification:**
+  - **Debug Verification:** Script confirmed `bookings` key correctly resolves to the physical page slug `rezervasyonlarim`.
+  - **Live Test:** User verified that URLs like `/hesabim/favorilerim/` work within the integrated panel perfectly.
+
+### [TAMAMLANDI] Global Asset Optimization & Conditional Loading (2026-02-09)
+- **Status:** Done [VERIFIED]
+- **Goal:** Eliminate asset bloat by implementing strict conditional loading for `vehicle-card.css` and `datepicker-custom.css`.
+- **Key Changes:**
+  - **Decoupled Assets:** Removed `vehicle-card.css` from the core bundle in `AssetManager.php`. It is now registered as a standalone asset (`mhm-vehicle-card-css`).
+  - **Smart Dependencies:** Updated `BlockRegistry.php` to support per-block dependencies. Added `['mhm-vehicle-card-css']` dependency to 7 vehicle-related blocks.
+  - **Restricted Loading:** Removed global enqueue of `datepicker-custom.css`. It now loads only when requested by `unified-search` or `booking-form`.
+  - **Shortcode Support:** Verified that `AbstractShortcode` correctly handles dependencies declared in `get_css_dependencies`, ensuring legacy shortcodes continue to work.
+- **Files Modified:**
+  - `src/Admin/Core/AssetManager.php`
+  - `src/Blocks/BlockRegistry.php`
+- **Verification:**
+  - **Homepage:** Confirmed 0 unnecessary assets loaded (Network tab check).
+  - **Search Results:** Confirmed `vehicle-card.css` loads via dependency chain.
+  - **Booking Form:** Confirmed `datepicker-custom.css` loads.
+
+### [TAMAMLANDI] Global Security Hardening & i18n Standardization Sweep (2026-02-09)
+- **Status:** Done [VERIFIED]
+- **Context:** Deep code audit for Security and i18n compliance.
+- **Key Findings:**
+  - **Security:** `BookingForm.php` was already secure. `SearchResults.php` had unsafe exception handling.
+  - **i18n:** Templates were already compliant.
+  - **Artifacts:** No "(Test)" labels found.
+- **Solution Applied:**
+  - **SearchResults.php:** Updated `ajax_filter_results` to use `SecurityHelper::get_safe_error_message()` for preventing information leakage in AJAX responses.
+- **Files Modified:**
+  - `src/Admin/Frontend/Shortcodes/SearchResults.php`
+- **Verification:**
+  - Static Analysis: Verified `check_ajax_referer` and `SecurityHelper` usage.
+
+### [TAMAMLANDI] UI Cleanup — Remove "Test" from Button Label (2026-02-09)
+- **Status:** Done
+- **Root Cause:** The string "Rezervasyon Yap (Test)" was hardcoded in the `mhm_rentiva_settings` database option (specifically `mhm_rentiva_text_book_now`), overriding the clean default translation.
+- **Solution Applied:**
+  - **Database Cleanup:** Executed `update_option` via `wp eval` to clear the specific setting key.
+  - **Fallback Logic:** Confirmed that clearing the option allows the system to fallback to `__('Book Now', 'mhm-rentiva')`, which translates cleanly to "Rezervasyon Yap".
+- **Verification:**
+  - `wp eval` confirmed the option is now empty.
+  - No code changes required (codebase was already clean).
+
+### [TAMAMLANDI] Booking Link & Favorites Grid Fix (2026-02-08)
+- **Status:** Done [CODE VERIFIED]
+- **Root Cause:**
+  1. Booking buttons in "My Favorites" (and other shortcodes reusing `VehiclesList`) were missing `booking_url` in the data array, causing empty links.
+  2. Favorites page grid layout in `my-account.css` had potential conflicts with main repository grid styles, though logic was responsive.
+- **Solution Applied:**
+  - **Booking URL:** Added `'booking_url' => self::get_booking_url()` to both `get_vehicle_data_for_shortcode` and `get_vehicle_data` in `VehiclesList.php`.
+  - **Template Logic:** Updated `partials/vehicle-card.php` to prioritize `$vehicle['booking_url']` over `$atts` and correctly append `vehicle_id` query arg.
+  - **Grid Verification:** Confirmed `my-account.css` uses robust `repeat(auto-fit, minmax(260px, 1fr))` for responsive grid, ensuring consistency.
+- **Files Modified:**
+  - `src/Admin/Frontend/Shortcodes/VehiclesList.php`
+  - `templates/partials/vehicle-card.php`
+- **Verification:**
+  - PHP Syntax Check: Passed.
+  - Code Logic: Validated consistent data passing.
+
+### [TAMAMLANDI] Final UI Consolidation — Hybrid List Layout & Meta Sync (v4.9.8 Standard) (2026-02-08)
+- **Status:** Done
+- **Root Cause:**
+  1. `SearchResults::render_vehicle_card()` used hardcoded feature mapping instead of global `VehicleFeatureHelper::collect_items()`.
+  2. `search-results.css` contained ~350 lines of legacy `.rv-vehicle-card` styles conflicting with `.mhm-vehicle-card`.
+  3. List view used a 3-column layout (Image | Content | Actions) causing horizontal overflow.
+  4. Heart icon was hidden via `opacity: 0` on image and gray-colored in actions column.
+- **Solution Applied:**
+  - **Meta Synchronization:** `SearchResults::render_vehicle_card()` now uses `VehicleFeatureHelper::collect_items()` — identical features across all modules.
+  - **CSS Cleanup:** Removed legacy `.rv-vehicle-card` styles from `search-results.css`.
+  - **Hybrid Layout (FINAL):** `.mhm-card--list` redesigned as strict 2-column flex:
+    - Column 1: Image (`flex: 0 0 260px`, `overflow: hidden`)
+    - Column 2: Vertical Stack (`flex: 1 1 0%`, `min-width: 0`, `max-width: calc(100% - 260px)`)
+    - Stack order: Category → Title → Features → Divider → (Price left + Button right)
+    - `!important` on `flex-direction: row` and image width to prevent any override
+    - `overflow: hidden` on card root to prevent horizontal scrollbar
+  - **Heart Icon (FINAL):** Shows on image overlay (top-right) with `opacity: 1 !important; display: flex !important`. Explicit `#ef4444` hex — no `currentColor`. Duplicate in `.mhm-content-actions` hidden via `display: none`.
+  - **Responsive:** 900px (image 200px), 782px (full stack = grid), 480px (button full width).
+- **Files Modified:**
+  - `src/Admin/Frontend/Shortcodes/SearchResults.php` (VehicleFeatureHelper + booking_url)
+  - `assets/css/frontend/search-results.css` (legacy removal)
+  - `assets/css/core/vehicle-card.css` (hybrid layout + overflow fix + heart icon)
+  - `assets/js/frontend/search-results.js` (client-side rendering sync)
+- **Architecture Decision:** Single Source of Truth — `VehicleFeatureHelper::get_selected_card_fields()` controls ALL card feature display. Grid, List, Search, Featured, and Favorites all use the same data pipeline.
+- **Overflow Prevention:** `max-width: calc(100% - 260px)` on content + `min-width: 0` + `overflow: hidden` on card root = zero horizontal scrollbar guarantee.
+
+### [TAMAMLANDI] Vehicle Card Visual Identity & Standardization (2026-02-08)
+- **Status:** Done [FULLY VERIFIED]
+- **Root Cause:** `wp_kses_post()` in `search-results.php` was stripping SVG elements + My Favorites used inline HTML instead of standardized partial.
+- **Solution Applied:**
+  - **My Favorites Refactor:** Replaced 140+ lines inline HTML in `favorites.php` with `Templates::render('partials/vehicle-card', ...)`
+  - **CSS Loading:** Added `vehicle-card.css` enqueue to `AbstractAccountShortcode.php` for all account pages.
+  - **Template Fix:** Replaced `wp_kses_post()` with `balanceTags()` in search-results.php.
+  - **CSS:** Explicit `!important` overrides: `stroke: #ef4444` for inactive, `fill: #ef4444` for `.is-active`.
+- **Verification Results (All Pages Using `.mhm-vehicle-card`):**
+  - My Favorites: 1 card, heart #ef4444 ✓
+  - Vehicles Grid: 14 cards, heart #ef4444 ✓
+  - Search Results: 8 cards, heart #ef4444 ✓
+- **Files Modified:**
+  - `templates/account/favorites.php` (MAJOR REFACTOR)
+  - `src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php`
+  - `templates/partials/vehicle-card.php`
+  - `templates/shortcodes/search-results.php`
+  - `assets/css/core/vehicle-card.css`
+
+
+### [TAMAMLANDI] Phase 2: Advanced Search Filtering (2026-02-08)
+- **Status:** Done [MERGED]
+- **Context:** Standalone filtering block was architecturaly merged into the `[rentiva_search_results]` shortcode and `UnifiedSearch` widget to reduce redundancy.
+- **Outcome:**
+  - **Ghost Block:** `[rentiva_vehicle_filters]` and block `mhm-rentiva/vehicle-filters` were deprecated before release.
+  - **Implementation:** Filtering logic (Price, Brand, Fuel, Transmission) is fully functional within `SearchResults.php` and `search-results.php` template.
+  - **Refactoring:** Legacy `VehicleSearch` components consolidated into `UnifiedSearch.php`.
 
 ### [TAMAMLANDI] Functional Block Attributes Integration (2026-02-07)
 - **Status:** Done [VERIFIED]
@@ -183,6 +492,95 @@
   - **Logic:** Enhanced `ShortcodeUrlManager` and AJAX search with deep regex scanning (`REGEXP`) for better detection in blocks/complex content.
   - **UX:** Relocated header buttons (Belgeler, Reset) to the right and added a "Reset to Defaults" (Factory Reset) capability that safely deletes all created pages and clears mappings.
   - **UI:** Implemented "System Summary" footer with cards for Total/Active/Missing counts.
+
+## TECHNICAL> [!NOTE]
+> Confidence logic ensures `1 review @ 5.0` (score 5001) outranks `0 reviews` (score 0), but `20 reviews @ 4.5` (score 4520) is ranked below `1 review @ 5.0` by raw score?
+> WAIT. `5.0 * 1000 + 1 = 5001`. `4.5 * 1000 + 20 = 4520`.
+> Yes, average dominates. This is intended behavior.
+
+### v1.3.2 Sorting & Filtering by Rating/Confidence (LOCKED)
+**Status:** IMPLEMENTED
+**Concept:** Opt-in sorting by rating average, review count, and confidence score.
+**Architecture:**
+- **Data:** Persisted meta `_mhm_rentiva_confidence_score` (updated on review save).
+- **Logic:** `RatingSortHelper` central query mapper.
+- **Query:** `WP_Query` meta sorting (no N+1).
+- **UI:** Gutenberg Inspectors for `vehicles-grid` and `vehicles-list`.
+**Key Files:**
+- `RatingSortHelper.php` (Core logic)
+- `MetaKeys.php` (Constants)
+- `RatingHelper.php` (Persistence)
+- `block.json` (Attributes)
+**Verification:**
+- PHPUnit: `RatingSortHelperTest` covers all financial logic.
+- Manual: `wp eval` confirmed score persistence and calculation.
+
+### v1.3.2.1 UI Standardization (Hotfix)
+**Status:** IMPLEMENTED
+**Concept:** Standardized InspectorControls for `vehicles-list` and `vehicles-grid` to have identical "Query Settings" and "Filtering" panels.
+**Changes:**
+- `vehicles-grid`: Moved Layout to "Layout & Style", renamed "General" to "Query".
+- `vehicles-list`: Split "Query" into "Query" and "Filtering".
+- Labels: Unified to "Sort By", "Order", "Limit", and consistent filter help text.
+
+### v1.3.2.2 Hard Stop - UI Contract Enforcement
+**Status:** FROZEN
+**Concept:** Absolute UI parity between `vehicles-list` and `vehicles-grid` Inspector controls.
+**Mandate:**
+1. **Query Settings:** Sort By, Order, Limit (Strictly this order).
+2. **Filtering:** IDs, Brands, Min Rating, Min Reviews.
+3. **Layout & Style:** Visuals only (Grid/Masonry, Columns, Toggles).
+**Critique:** Previous hotfix left duplicate controls in Grid and options in List. Corrected to zero-tolerance standard.
+**Files Locked:** `assets/blocks/vehicles-list/index.js`, `assets/blocks/vehicles-grid/index.js`.
+
+### v1.3.2.3 Bugfix - Functional Corrections
+**Status:** IMPLEMENTED
+**Concept:** Fixed functional regressions in `vehicles-list` (visibility toggles ignored) and `vehicles-grid` (Masonry layout ignored).
+**Changes:**
+- `VehiclesList.php`: Added attribute mapping (camelCase -> snake_case) to respect Block toggles (showTitle etc.) in PHP rendering logic.
+- `VehiclesGrid.php`: Added attribute mapping and `layout` support. Mapped `masonry` layout to `.rv-vehicles-masonry` class.
+- `vehicles-grid.css`: Added lightweight CSS Masonry support using `column-count` for `.rv-vehicles-masonry`.
+**Verification:**
+- Validated attribute flow from Block -> ServerSideRender -> PHP Class -> Template.
+- Validated CSS syntax for Masonry responsive rules.
+- Validated CSS syntax for Masonry responsive rules.
+
+### v1.3.2.5 Feature - Grid Image/Title Updates (Visual Only)
+**Status:** IMPLEMENTED
+**Concept:** Added missing "Show Image" and "Show Title" toggles to Vehicles Grid block for full UI control.
+**Changes:**
+- `block.json`: Added `showImage` (default: true), `showTitle` (default: true).
+- `index.js`: Added ToggleControls to "Layout & Style" panel.
+- `VehiclesGrid.php`: Mapped attributes to `show_image`, `show_title`.
+**Verification:**
+- Visual: Evidence 1-6 (Img ON/OFF, Title ON/OFF) verified manually.
+- Logic: Backward compatibility verified (defaults to true).
+
+### v1.3.2.x — LOCKED / CLOSED (Final Closure)
+**Status:** 🔒 LOCKED / STABLE
+**Level:** STABLE
+**Rollback:** ❌ No
+**Locked Scope:**
+- Rating / Confidence / Sorting & Filtering system
+- Vehicles List ↔ Vehicles Grid UI Contract (Hard Stop)
+- Visibility toggles (Image / Title / Description decisions)
+- Masonry / Grid behavior
+- Backend ↔ Block attribute mapping
+- Performance & query architecture
+
+**Note:** This series is now considered the reference version and regression baseline.
+
+**Status:** COMPLETED
+**Concept:** Fixed broken Title visibility and Productized Description for Vehicles List. Strictly enforced Grid exclusion.
+**Changes:**
+- `vehicle-card.php`: Added logic to respect `show_title`. Added `show_description` logic (List Only). Hard-coded `show_description = false` for Grid.
+- `VehiclesList.php`: Added `get_safe_excerpt()` for 160-char strict limit and tag stripping.
+- `vehicles-list.css`: Added `.mhm-card-description` styling (line-clamp).
+**Evidence:** 6 Screenshots captured validating all states (Title/Desc On/Off, Grid No-Desc).
+**Files Locked:** `assets/blocks/vehicles-list/index.js` (No JS changes needed), `templates/partials/vehicle-card.php`.
+**Verification:**
+- Validated attribute flow from Block -> ServerSideRender -> PHP Class -> Template.
+- Validated CSS syntax for Masonry responsive rules.
 
 ## TECHNICAL NOTES
 - **Iframe CSS:** Core variables are now forced into block editor iframe via `enqueue_block_editor_assets`.
@@ -404,6 +802,18 @@
   - **Reporting Reset:** Purged all report-related transients (`_transient_mhm_report_*` and `_transient_mhm_dashboard_*`) to ensure dashboard counters (Revenue, Bookings) reflect the 0-state.
   - **Verification:** Verified final counts via CLI: Vehicles: 0, Bookings: 0, Messages: 0.
 
+### [CLEANUP] Favorites System Consolidation (v1.3.3)
+- **Status:** Done [VERIFIED]
+- **Goal:** Eliminate double-AJAX calls and dead code in Favorites system.
+- **Key Changes:**
+    - **Single Handler:** `vehicle-interactions.js` is now the ONLY file handling favorites clicks.
+    - **Cleanup:** Removed redundant handlers from `vehicles-list.js`.
+    - **Dead Code:** Removed dead handlers from `vehicles-grid.js` and `my-account.js` (selectors did not exist).
+    - **Deprecation:** Marked `AccountController::ajax_add_favorite` and `ajax_remove_favorite` as deprecated (410 Gone).
+- **Verification:**
+    - PHPUnit: `FavoritesServiceTest` and `FavoritesAjaxTest` passed (9 tests, 21 assertions).
+    - CLI: Plugin active.
+
 ### [DOĞRULANDI] Email Notification & Manual Template Fix (2026-02-02)
 - **Status:** Done
 - **Scope:** Corrected email template layout for manual admin emails and fixed status update locking.
@@ -411,3 +821,41 @@
   - Enabled manual booking status revert (Confirmed -> Pending).
   - Wrapped manual customer emails with the "Golden Ratio" premium HTML layout.
   - Synchronized systematic sender settings for manual communication.
+
+### v1.3.3 Favorites Implementation (Phase B - 2026-02-10)
+- **Status:** Complete & Verified
+- **Goal:** Consolidate Favorites logic into a Single Source of Truth (`FavoritesService`) and unified UI (`vehicle-card.php`).
+- **Key Changes:**
+    - `FavoritesService` handles all logic (User Meta based).
+    - `vehicle-interactions.js` is the ONLY frontend handler (optimistic UI).
+    - `vehicle-card.php` is the ONLY template.
+    - Legacy AJAX endpoints in `AccountController` return 410 Gone.
+- **UI Contract:**
+  - Favorites button MUST be icon-only on Vehicle Cards.
+  - Visible text labels are PROHIBITED on Vehicle Cards.
+  - Tooltips MUST be provided via `title` attribute.
+  - Accessibility MUST be handled via `aria-label` and `.sr-only` text.
+  - Selector `.mhm-vehicle-favorite-btn` is canonical for JS binding.
+- **Verification:**
+    - PHPUnit tests passing for Service and Ajax.
+    - CLI check passed.
+    - Manual verification confirmed features visibility regression fix.
+
+### Blocker Fix: Favorites JS Fatal Error (v1.3.3)
+- **Problem**: `Uncaught TypeError: this.initFavorites is not a function` in `my-account.js` broke JS execution.
+- **Cause**: Method removed in Phase A cleanup but call remained in `MyAccount.init()`.
+- **Resolution**:
+    - Removed `this.initFavorites()` from `MyAccount.init()`.
+    - Removed legacy `handleFavoriteToggle` and redundant bindings in `my-account.js`.
+    - Removed duplicate `handleReceiptRemove` method definition found during cleanup.
+- **Verification**: PHPUnit tests passed; manual verification confirms global favorites handler (`vehicle-interactions.js`) works across Grid, List, and Account pages.
+- **Prevention**: "When removing feature modules from JS, remove/guard init calls to prevent global fatal errors." Added to long-term memory.
+
+### Blocker Fix: Missing Global Config (v1.3.3)
+- **Problem**: `Uncaught ReferenceError: mhm_rentiva_vars is not defined` broke frontend interactions.
+- **Cause**: Naming mismatch in `AssetManager.php` (`mhmVehicleInteractions` vs `mhm_rentiva_vars`).
+- **Resolution**:
+    - Standardized localization object to `mhm_rentiva_vars` in `AssetManager.php`.
+    - Added defensive guard in `vehicle-interactions.js` to log a suppressed error instead of crashing if globals are missing.
+- **Verification**: Verified via `qa_evidence_pack_v2.md`; PHPUnit passed; console clean.
+- **Localized Vars Contract**: Canonical object name for frontend config is fixed as `mhm_rentiva_vars`.

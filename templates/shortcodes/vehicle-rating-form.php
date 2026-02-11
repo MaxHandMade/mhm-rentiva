@@ -71,9 +71,9 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 			<div class="rv-rating-stars">
 				<?php for ($i = 1; $i <= 5; $i++) : ?>
 					<?php
-					$is_filled = $i <= floor((float) ($vehicle_rating['rating_average'] ?? 0));
-					$is_half   = ($i == ceil((float) ($vehicle_rating['rating_average'] ?? 0))) &&
-						(((float) ($vehicle_rating['rating_average'] ?? 0)) - floor((float) ($vehicle_rating['rating_average'] ?? 0)) >= 0.5);
+					$is_filled = $i <= floor((float) ($vehicle_rating['average'] ?? 0));
+					$is_half   = ($i == ceil((float) ($vehicle_rating['average'] ?? 0))) &&
+						(((float) ($vehicle_rating['average'] ?? 0)) - floor((float) ($vehicle_rating['average'] ?? 0)) >= 0.5);
 					?>
 					<span class="rv-star <?php echo $is_half ? 'rv-star-half' : ($is_filled ? 'rv-star-filled' : ''); ?>">
 						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -83,8 +83,14 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 					</span>
 				<?php endfor; ?>
 			</div>
-			<span class="rv-rating-average"><?php echo esc_html((string) ($vehicle_rating['rating_average'] ?? '0.0')); ?></span>
-			<span class="rv-rating-count">(<?php echo esc_html((string) ($vehicle_rating['rating_count'] ?? 0)); ?> <?php echo esc_html__('reviews', 'mhm-rentiva'); ?>)</span>
+			<span class="rv-rating-average"><?php echo esc_html(number_format((float) ($vehicle_rating['average'] ?? 0), 1)); ?></span>
+			<span class="rv-rating-count">(<?php echo esc_html((string) ($vehicle_rating['count'] ?? 0)); ?> <?php echo esc_html__('reviews', 'mhm-rentiva'); ?>)</span>
+			<?php if (! empty($vehicle_rating['confidence_label'])) : ?>
+				<span class="mhm-rating-confidence mhm-confidence--<?php echo esc_attr($vehicle_rating['confidence_key']); ?>"
+					title="<?php echo esc_attr($vehicle_rating['confidence_tooltip'] ?? ''); ?>">
+					<?php echo esc_html($vehicle_rating['confidence_label']); ?>
+				</span>
+			<?php endif; ?>
 		</div>
 	</div>
 
@@ -99,6 +105,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 		$comments = get_comments(
 			array(
 				'post_id'                   => $vehicle_id,
+				// 'type'                      => 'review', // REMOVED: Allow all comment types (reviews + standard comments)
 				'status'                    => array('approve', 'pending'), // Both approved and pending comments
 				'number'                    => \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_comments_per_page(),
 				'orderby'                   => 'comment_date',
@@ -115,6 +122,8 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 		}
 
 		if (! empty($comments)) :
+			// Batch fetch verified review IDs (single query, no N+1)
+			$verified_ids = \MHMRentiva\Admin\Vehicle\Helpers\VerifiedReviewHelper::get_verified_comment_ids_for_vehicle((int) $vehicle_id);
 		?>
 			<div class="rv-reviews-section">
 				<h4 class="rv-reviews-title"><?php echo esc_html__('Reviews', 'mhm-rentiva'); ?></h4>
@@ -162,11 +171,26 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 									<?php endif; ?>
 									<div class="rv-review-author-info">
 										<span class="rv-review-author-name"><?php echo esc_html($masked_name); ?></span>
+										<?php if (in_array((int) $comment->comment_ID, $verified_ids, true)) : ?>
+											<span class="mhm-review-badge mhm-review-badge--verified">
+												<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+													<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+												</svg>
+												<?php echo esc_html__('Verified Rental', 'mhm-rentiva'); ?>
+											</span>
+										<?php endif; ?>
 										<span class="rv-review-date"><?php echo esc_html(human_time_diff(strtotime($comment->comment_date)) . ' ' . esc_html__('ago', 'mhm-rentiva')); ?></span>
 										<?php if (($display_settings['show_ratings'] ?? true) && $rating) : ?>
 											<div class="rv-review-rating">
-												<?php for ($i = 1; $i <= 5; $i++) : ?>
-													<span class="rv-star <?php echo $i <= (int) $rating ? 'active' : ''; ?>">★</span>
+												<?php for ($i = 1; $i <= 5; $i++) :
+													$star_fill = $i <= (int) $rating ? '#fbbf24' : '#d1d5db';
+												?>
+													<span class="rv-star <?php echo $i <= (int) $rating ? 'active' : ''; ?>">
+														<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+															<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+																fill="<?php echo esc_attr($star_fill); ?>" />
+														</svg>
+													</span>
 												<?php endfor; ?>
 											</div>
 										<?php endif; ?>

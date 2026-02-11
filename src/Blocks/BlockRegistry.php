@@ -35,16 +35,19 @@ class BlockRegistry
             'tag'   => 'rentiva_search_results',
             'title' => 'Search Results',
             'css'   => 'search-results.css',
+            'deps'  => ['mhm-vehicle-card-css'],
         ],
         'transfer-results' => [
             'tag'   => 'rentiva_transfer_results',
             'title' => 'Transfer Search Results',
             'css'   => 'transfer-results.css',
+            'deps'  => ['mhm-vehicle-card-css'],
         ],
         'vehicle-comparison' => [
             'tag'   => 'rentiva_vehicle_comparison',
             'title' => 'Vehicle Comparison',
             'css'   => 'vehicle-comparison.css',
+            'deps'  => ['mhm-vehicle-card-css'],
         ],
         'testimonials' => [
             'tag'   => 'rentiva_testimonials',
@@ -54,7 +57,7 @@ class BlockRegistry
         'availability-calendar' => [
             'tag'   => 'rentiva_availability_calendar',
             'title' => 'Availability Calendar',
-            'css'   => 'availability-calendar.css',
+            'css'   => ['availability-calendar.css', 'datepicker-custom.css'],
         ],
         'booking-confirmation' => [
             'tag'   => 'rentiva_booking_confirmation',
@@ -70,16 +73,19 @@ class BlockRegistry
             'tag'   => 'rentiva_vehicles_grid',
             'title' => 'Vehicles Grid',
             'css'   => 'vehicles-grid.css',
+            'deps'  => ['mhm-vehicle-card-css'],
         ],
         'vehicles-list' => [
             'tag'   => 'rentiva_vehicles_list',
             'title' => 'Vehicles List',
             'css'   => 'vehicles-list.css',
+            'deps'  => ['mhm-vehicle-card-css'],
         ],
         'featured-vehicles' => [
             'tag'   => 'rentiva_featured_vehicles',
             'title' => 'Featured Vehicles',
             'css'   => 'featured-vehicles.css',
+            'deps'  => ['mhm-vehicle-card-css'],
         ],
         'contact' => [
             'tag'   => 'rentiva_contact',
@@ -100,6 +106,7 @@ class BlockRegistry
             'tag'   => 'rentiva_my_favorites',
             'title' => 'My Favorites',
             'css'   => 'my-account.css',
+            'deps'  => ['mhm-vehicle-card-css'],
         ],
         'payment-history' => [
             'tag'   => 'rentiva_payment_history',
@@ -109,7 +116,7 @@ class BlockRegistry
         'booking-form' => [
             'tag'   => 'rentiva_booking_form',
             'title' => 'Booking Form',
-            'css'   => 'booking-form.css',
+            'css'   => ['booking-form.css', 'datepicker-custom.css'],
         ],
 
         'messages' => [
@@ -143,18 +150,16 @@ class BlockRegistry
      */
     public static function enqueue_block_assets(): void
     {
-        // Ensure core variables and datepicker styles are available inside the editor iframe AND frontend
+        // Ensure core variables are available inside the editor iframe AND frontend
         wp_enqueue_style('mhm-rentiva-core-variables');
-        wp_enqueue_style(
-            'mhm-rentiva-datepicker-custom',
-            MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
-            ['mhm-rentiva-core-variables'],
-            MHM_RENTIVA_VERSION
-        );
+
+        // Note: 'mhm-rentiva-datepicker-custom' and 'mhm-vehicle-card-css' are now loaded
+        // conditionally by the specific blocks/shortcodes that need them.
 
         // Apply editor styles for better iframe coverage
         if (is_admin()) {
             add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css');
+            // We might still want datepicker styles in the editor for UX if they use it
             add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css');
         }
     }
@@ -241,13 +246,24 @@ class BlockRegistry
      */
     public static function register_blocks(): void
     {
-        // Register Core Variables (Design Tokens) as a shared dependency
-        wp_register_style(
-            'mhm-rentiva-core-variables',
-            MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css',
-            array(),
-            time() // Cache busting
-        );
+        // Core Styles Registration (Unify handles with AssetManager)
+        if (! wp_style_is('mhm-css-variables', 'registered')) {
+            wp_register_style(
+                'mhm-css-variables',
+                MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css',
+                array(),
+                MHM_RENTIVA_VERSION
+            );
+        }
+
+        if (! wp_style_is('mhm-core-css', 'registered')) {
+            wp_register_style(
+                'mhm-core-css',
+                MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/core.css',
+                array('mhm-css-variables'),
+                MHM_RENTIVA_VERSION
+            );
+        }
 
         foreach (self::$blocks as $slug => $config) {
             $script_handle = 'mhm-rentiva-block-' . $slug . '-editor';
@@ -267,17 +283,31 @@ class BlockRegistry
             $css_files     = is_array($config['css']) ? $config['css'] : [$config['css']];
 
             foreach ($css_files as $index => $css_file) {
-                // Use simplified handle if single file, indexed handle if multiple
-                $style_handle = (count($css_files) === 1)
-                    ? 'mhm-rentiva-block-' . $slug . '-style'
-                    : 'mhm-rentiva-block-' . $slug . '-style-' . $index;
+                // SHARED ASSET CHECK: Use consistent handles for common files to prevent duplicates
+                if ($css_file === 'datepicker-custom.css') {
+                    $style_handle = 'mhm-rentiva-datepicker-custom';
+                } elseif ($css_file === 'vehicle-card.css') {
+                    $style_handle = 'mhm-vehicle-card-css';
+                } else {
+                    // Use simplified handle if single file, indexed handle if multiple
+                    $style_handle = (count($css_files) === 1)
+                        ? 'mhm-rentiva-block-' . $slug . '-style'
+                        : 'mhm-rentiva-block-' . $slug . '-style-' . $index;
+                }
 
-                wp_register_style(
-                    $style_handle,
-                    MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/' . $css_file,
-                    ['mhm-rentiva-core-variables'],
-                    \MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/frontend/' . $css_file)
-                );
+                // Merge dependencies: Core variables + Specific block deps
+                $deps = array_merge(['mhm-css-variables'], $config['deps'] ?? []);
+
+                // Only register if not already registered (especially for shared handles)
+                if (! wp_style_is($style_handle, 'registered')) {
+                    $path = (strpos($css_file, 'assets/') === 0) ? $css_file : 'assets/css/frontend/' . $css_file;
+                    wp_register_style(
+                        $style_handle,
+                        MHM_RENTIVA_PLUGIN_URL . $path,
+                        $deps,
+                        MHM_RENTIVA_VERSION
+                    );
+                }
 
                 $style_handles[] = $style_handle;
             }
@@ -312,6 +342,50 @@ class BlockRegistry
 
         if (! isset(self::$blocks[$slug])) {
             return '';
+        }
+
+        // EXPLICIT FRONTEND ENQUEUE: Declaration of block-level CSS dependencies
+        // This ensures visual parity on the frontend for dynamic blocks which sometimes
+        // fail to trigger automatic enqueueing in deep template structures.
+        if (isset(self::$blocks[$slug]['css'])) {
+            $css_files = (array) self::$blocks[$slug]['css'];
+            foreach ($css_files as $index => $css_file) {
+                // Calculate handle based on the same logic as init()
+                if ($css_file === 'datepicker-custom.css') {
+                    $style_handle = 'mhm-rentiva-datepicker-custom';
+                } elseif ($css_file === 'vehicle-card.css') {
+                    $style_handle = 'mhm-vehicle-card-css';
+                } else {
+                    $style_handle = (count($css_files) === 1)
+                        ? 'mhm-rentiva-block-' . $slug . '-style'
+                        : 'mhm-rentiva-block-' . $slug . '-style-' . $index;
+                }
+
+                wp_enqueue_style($style_handle);
+            }
+        }
+
+        // Additional dependency enqueueing from the 'deps' config
+        if (isset(self::$blocks[$slug]['deps'])) {
+            foreach ((array) self::$blocks[$slug]['deps'] as $dep_handle) {
+                wp_enqueue_style($dep_handle);
+            }
+        }
+
+        // DASHICONS BRIDGE: Conditional enqueue for blocks that require it
+        $dashicon_blocks = [
+            'availability-calendar',
+            'contact',
+            'featured-vehicles',
+            'search-results',
+            'testimonials',
+            'transfer-results',
+            'unified-search',
+            'vehicle-rating-form',
+        ];
+
+        if (in_array($slug, $dashicon_blocks)) {
+            wp_enqueue_style('dashicons');
         }
 
         $config = self::$blocks[$slug];
@@ -354,7 +428,8 @@ class BlockRegistry
          * 2. It handles dependency loading and asset synchronization.
          * 3. It ensures third-party filters on shortcodes are respected.
          */
-        $shortcode_content = do_shortcode('[' . $tag . ' ' . self::attributes_to_string($attributes) . ']');
+        $mapped_attributes = self::map_attributes_to_shortcode($attributes, $tag);
+        $shortcode_content = do_shortcode('[' . $tag . ' ' . self::attributes_to_string($mapped_attributes) . ']');
 
         // Prepare wrapper attributes to ensure dimensions are applied to the container
         $wrapper_args = [];
@@ -387,10 +462,90 @@ class BlockRegistry
 
         // Return wrapped content with proper block wrapper attributes (FSE support)
         return sprintf(
-            '<div %s>%s</div>',
+            '<div %s data-debug-atts="%s">%s</div>',
             get_block_wrapper_attributes($wrapper_args),
+            esc_attr(self::attributes_to_string($mapped_attributes)),
             $shortcode_content
         );
+    }
+
+    /**
+     * Map block attributes to shortcode attributes
+     * Handles camelCase to snake_case conversion and specific aliases.
+     * 
+     * @param array $attributes Block attributes.
+     * @return array
+     */
+    private static function map_attributes_to_shortcode(array $attributes, string $tag = ''): array
+    {
+        $mapped = [];
+
+        // Manual mapping table (Aliases/Overrides)
+        $aliases = [
+            // Visibility Toggles (Gutenberg camelCase to Shortcode snake_case)
+            'showPrice'            => 'show_price',
+            'showRating'           => 'show_rating',
+            'showDescription'      => 'show_description',
+            'showFeatures'         => 'show_features',
+            'showBookingButton'    => 'show_booking_btn',
+            'showBookButton'       => 'show_booking_btn', // Standardized Alias
+            'showImages'           => 'show_image',
+            'showTitle'            => 'show_title',
+            'showBadges'           => 'show_badges',
+            'showFavoriteButton'   => 'show_favorite_button',
+            'showAvailability'     => 'show_availability',
+            'showCompareButton'    => 'show_compare_button',
+
+            // Filter/Sort Mappings (Gutenberg camelCase to Shortcode naming)
+            'filterCategories'     => 'category',
+            'filterBrands'         => 'brands',
+            'sortBy'               => 'orderby',
+            'sortOrder'            => 'order',
+
+            // Dimension Mappings
+            'minWidth'             => 'minwidth',
+            'maxWidth'             => 'maxwidth',
+
+            // Rating Filter Mappings
+            'minRating'            => 'min_rating',
+            'minReviews'           => 'min_reviews',
+        ];
+
+        // Specialized Block-Specific Overrides
+        if ($tag === 'rentiva_vehicle_comparison') {
+            $aliases['showPrice']         = 'show_prices';
+            $aliases['showComparisonImages'] = 'show_images';
+            $aliases['showBookButton']    = 'show_booking_buttons';
+            $aliases['showRemoveButton']  = 'show_remove_buttons';
+            $aliases['showAddVehicle']     = 'show_add_vehicle';
+        }
+
+        if ($tag === 'rentiva_transfer_results') {
+            // Transfer results uses 'show_luggage_info' (mapped via camel-to-snake natively)
+            // But if it has specialized names, add here.
+        }
+
+        foreach ($attributes as $key => $value) {
+            // 1. Check for manual alias
+            $target_key = $aliases[$key] ?? null;
+
+            // 2. If no alias, convert camelCase to snake_case
+            if (!$target_key) {
+                $target_key = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
+            }
+
+            // 3. Store mapped value (scalars only for shortcodes)
+            if (is_scalar($value)) {
+                // Convert boolean to string "1"/"0" or "true"/"false" as expected by some shortcodes
+                if (is_bool($value)) {
+                    $mapped[$target_key] = $value ? '1' : '0';
+                } else {
+                    $mapped[$target_key] = $value;
+                }
+            }
+        }
+
+        return $mapped;
     }
 
     /**

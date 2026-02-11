@@ -59,6 +59,10 @@ final class Plugin
 		// Ensure theme support for thumbnails
 		add_action('after_setup_theme', array($this, 'setup_theme_support'));
 
+		// Load text domain
+		// Priority 1: Load translations before any output
+		add_action('init', array($this, 'load_textdomain'), 1);
+
 		// Register Customer role (also for existing installations)
 		// Priority 20: Run after WooCommerce and other plugins that might register customer role
 		add_action('init', array(self::class, 'register_customer_role'), 20);
@@ -92,6 +96,8 @@ final class Plugin
 		// Frontend services (also works outside admin)
 		$this->initialize_frontend_services();
 	}
+
+
 
 	/**
 	 * Initialize core services
@@ -401,6 +407,20 @@ final class Plugin
 			}
 		}
 
+		// Vehicle Hooks (Normalization)
+		if ($this->is_class_available('MHMRentiva\Admin\Vehicle\Hooks\ReviewNormalization')) {
+			\MHMRentiva\Admin\Vehicle\Hooks\ReviewNormalization::register();
+		}
+
+		// Verified Review Badge - Cache invalidation on booking status changes
+		if ($this->is_class_available('MHMRentiva\Admin\Vehicle\Helpers\VerifiedReviewHelper')) {
+			\MHMRentiva\Admin\Vehicle\Helpers\VerifiedReviewHelper::register();
+		}
+
+		// Direct require to ensure it loads
+		require_once MHM_RENTIVA_PLUGIN_DIR . 'src/Admin/Vehicle/Hooks/ReviewEnforcer.php';
+		\MHMRentiva\Admin\Vehicle\Hooks\ReviewEnforcer::register();
+
 		// Transfer Module
 		if ($this->is_class_available('MHMRentiva\Admin\Transfer\TransferAdmin')) {
 			\MHMRentiva\Admin\Transfer\TransferAdmin::register();
@@ -423,6 +443,15 @@ final class Plugin
 		if (class_exists(Admin\Frontend\Account\WooCommerceIntegration::class)) {
 			Admin\Frontend\Account\WooCommerceIntegration::register();
 		}
+
+		// Favorites & Compare (v1.3.3)
+		if (class_exists(Admin\Services\FavoritesService::class)) {
+			Admin\Services\FavoritesService::register();
+		}
+		if (class_exists(Admin\Services\CompareService::class)) {
+			Admin\Services\CompareService::register();
+		}
+
 		// ⭐ CRITICAL: WooCommerce Bridge - Handles ALL payment transactions (Single Cash Register)
 		if (class_exists(Admin\Payment\WooCommerce\WooCommerceBridge::class)) {
 			Admin\Payment\WooCommerce\WooCommerceBridge::register();
@@ -519,6 +548,13 @@ final class Plugin
 				Admin\Core\ShortcodeUrlManager::clear_cache();
 			}
 		);
+
+		// Register CLI Commands
+		if (defined('WP_CLI') && constant('WP_CLI')) {
+			if ($this->is_class_available('MHMRentiva\Admin\CLI\RepairRatingsCommand')) {
+				\WP_CLI::add_command('mhm-rentiva repair-ratings', \MHMRentiva\Admin\CLI\RepairRatingsCommand::class);
+			}
+		}
 	}
 
 	/**
@@ -649,6 +685,11 @@ final class Plugin
 
 		// ⭐ Elementor Integration - Register widgets (v3.0.1)
 		$this->initialize_elementor_integration();
+
+		// Favorites Service (v1.3.3)
+		if ($this->is_class_available('MHMRentiva\Admin\Services\FavoritesService')) {
+			\MHMRentiva\Admin\Services\FavoritesService::register();
+		}
 	}
 
 	/**

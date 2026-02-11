@@ -1,4 +1,3 @@
-
 (function (blocks, element, blockEditor, components, serverSideRender, i18n) {
     var el = element.createElement;
     var registerBlockType = blocks.registerBlockType;
@@ -10,104 +9,89 @@
     var ServerSideRender = serverSideRender;
     var __ = i18n.__;
 
-    var Edit = function (props) {
-        var attributes = props.attributes;
-        var setAttributes = props.setAttributes;
-        var blockProps = useBlockProps();
+    blocks.registerBlockType('mhm-rentiva/booking-form', {
+        edit: function (props) {
+            var attributes = props.attributes;
+            var setAttributes = props.setAttributes;
+            var blockProps = useBlockProps();
 
-        var form_title = attributes.form_title;
-        var vehicle_id = attributes.vehicle_id;
-        var show_vehicle_selector = attributes.show_vehicle_selector;
-        var show_vehicle_info = attributes.show_vehicle_info;
-        var show_time_select = attributes.show_time_select;
-        var show_addons = attributes.show_addons;
-        var show_payment_options = attributes.show_payment_options;
-        var enable_deposit = attributes.enable_deposit;
+            return el('div', blockProps,
+                el(InspectorControls, {},
+                    /* PANEL 1: GENERAL SETTINGS */
+                    el(PanelBody, { title: __('General Settings', 'mhm-rentiva'), initialOpen: true },
+                        el(TextControl, {
+                            label: __('Form Title', 'mhm-rentiva'),
+                            value: attributes.title,
+                            onChange: function (val) { setAttributes({ title: val }); }
+                        }),
+                        el(TextControl, {
+                            label: __('Form Description', 'mhm-rentiva'),
+                            value: attributes.description,
+                            onChange: function (val) { setAttributes({ description: val }); }
+                        }),
+                        el(ToggleControl, {
+                            label: __('Show Login Prompt', 'mhm-rentiva'),
+                            checked: attributes.show_login_prompt,
+                            onChange: function (val) { setAttributes({ show_login_prompt: val }); }
+                        })
+                    ),
 
-        return el(
-            'div',
-            blockProps,
-            el(
-                InspectorControls,
-                {},
-                el(
-                    PanelBody,
-                    { title: __('General Settings', 'mhm-rentiva'), initialOpen: true },
-                    el(TextControl, {
-                        label: __('Form Title', 'mhm-rentiva'),
-                        value: form_title,
-                        onChange: function (val) { setAttributes({ form_title: val }); },
-                        help: __('Optional title to display above the form.', 'mhm-rentiva')
-                    }),
-                    el(TextControl, {
-                        label: __('Pre-selected Vehicle ID', 'mhm-rentiva'),
-                        value: vehicle_id,
-                        onChange: function (val) { setAttributes({ vehicle_id: val }); },
-                        help: __('Enter a vehicle ID to pre-select it. Leave empty to allow user selection.', 'mhm-rentiva')
-                    })
+                    /* PANEL 2: LAYOUT & STYLE */
+                    el(PanelBody, { title: __('Layout & Style', 'mhm-rentiva'), initialOpen: false },
+                        el(TextControl, {
+                            label: __('Custom CSS Class', 'mhm-rentiva'),
+                            value: attributes.className,
+                            onChange: function (val) { setAttributes({ className: val }); }
+                        }),
+                        el(ToggleControl, {
+                            label: __('Show Title', 'mhm-rentiva'),
+                            checked: attributes.show_title,
+                            onChange: function (val) { setAttributes({ show_title: val }); }
+                        }),
+                        el(ToggleControl, {
+                            label: __('Show Description', 'mhm-rentiva'),
+                            checked: attributes.show_description,
+                            onChange: function (val) { setAttributes({ show_description: val }); }
+                        })
+                    ),
+
+                    /* PANEL 3: VISIBILITY CONTROLS */
+                    el(PanelBody, { title: __('Visibility Controls', 'mhm-rentiva'), initialOpen: false },
+                        el(ToggleControl, {
+                            label: __('Show Date Picker', 'mhm-rentiva'),
+                            checked: attributes.show_date_picker,
+                            onChange: function (val) { setAttributes({ show_date_picker: val }); }
+                        }),
+                        el(ToggleControl, {
+                            label: __('Show Insurance Options', 'mhm-rentiva'),
+                            checked: attributes.show_insurance,
+                            onChange: function (val) { setAttributes({ show_insurance: val }); }
+                        }),
+                        el(ToggleControl, {
+                            label: __('Show Extras', 'mhm-rentiva'),
+                            checked: attributes.show_extras,
+                            onChange: function (val) { setAttributes({ show_extras: val }); }
+                        }),
+                        el(ToggleControl, {
+                            label: __('Show Price Summary', 'mhm-rentiva'),
+                            checked: attributes.show_price_summary,
+                            onChange: function (val) { setAttributes({ show_price_summary: val }); }
+                        })
+                    )
                 ),
-                el(
-                    PanelBody,
-                    { title: __('Visibility Settings', 'mhm-rentiva'), initialOpen: true },
-                    el(ToggleControl, {
-                        label: __('Show Vehicle Selector', 'mhm-rentiva'),
-                        checked: show_vehicle_selector,
-                        onChange: function (val) { setAttributes({ show_vehicle_selector: val }); }
-                    }),
-                    el(ToggleControl, {
-                        label: __('Show Vehicle Info', 'mhm-rentiva'),
-                        checked: show_vehicle_info,
-                        onChange: function (val) { setAttributes({ show_vehicle_info: val }); },
-                        help: __('Display details of the selected vehicle.', 'mhm-rentiva')
-                    }),
-                    el(ToggleControl, {
-                        label: __('Show Time Selection', 'mhm-rentiva'),
-                        checked: show_time_select,
-                        onChange: function (val) { setAttributes({ show_time_select: val }); },
-                        help: __('Allow users to select pickup/dropoff times.', 'mhm-rentiva')
-                    }),
-                    el(ToggleControl, {
-                        label: __('Show Additional Services', 'mhm-rentiva'),
-                        checked: show_addons,
-                        onChange: function (val) { setAttributes({ show_addons: val }); }
-                    }),
-                    el(ToggleControl, {
-                        label: __('Show Payment Options', 'mhm-rentiva'),
-                        checked: show_payment_options,
-                        onChange: function (val) { setAttributes({ show_payment_options: val }); }
-                    })
-                ),
-                el(
-                    PanelBody,
-                    { title: __('Payment Settings', 'mhm-rentiva'), initialOpen: false },
-                    el(ToggleControl, {
-                        label: __('Enable Deposit System', 'mhm-rentiva'),
-                        checked: enable_deposit,
-                        onChange: function (val) { setAttributes({ enable_deposit: val }); },
-                        help: __('Allow split payment (Deposit + Remaining).', 'mhm-rentiva')
-                    })
-                )
-            ),
-            el(
-                ServerSideRender,
-                {
+                el(ServerSideRender, {
                     block: 'mhm-rentiva/booking-form',
                     attributes: attributes
-                }
-            )
-        );
-    };
-
-    registerBlockType('mhm-rentiva/booking-form', {
-        edit: Edit,
+                })
+            );
+        },
         save: function () { return null; }
     });
-
-})(
+}(
     window.wp.blocks,
     window.wp.element,
     window.wp.blockEditor,
     window.wp.components,
     window.wp.serverSideRender,
     window.wp.i18n
-);
+));

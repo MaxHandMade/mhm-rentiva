@@ -50,6 +50,14 @@
                 "masonry"
             ]
         },
+        "showImage": {
+            "type": "boolean",
+            "default": true
+        },
+        "showTitle": {
+            "type": "boolean",
+            "default": true
+        },
         "showPrice": {
             "type": "boolean",
             "default": true
@@ -59,6 +67,22 @@
             "default": true
         },
         "showCategory": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBrand": {
+            "type": "boolean",
+            "default": false
+        },
+        "showAvailability": {
+            "type": "boolean",
+            "default": false
+        },
+        "showFavoriteButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showCompareButton": {
             "type": "boolean",
             "default": true
         },
@@ -85,7 +109,9 @@
                 "price",
                 "popularity",
                 "newest",
-                "rating"
+                "rating",
+                "rating_count",
+                "confidence"
             ]
         },
         "sortOrder": {
@@ -107,10 +133,19 @@
         "className": {
             "type": "string",
             "default": ""
+        },
+        "minRating": {
+            "type": "string",
+            "default": ""
+        },
+        "minReviews": {
+            "type": "string",
+            "default": ""
         }
     },
     "editorStyle": [
-        "mhm-rentiva-core-variables"
+        "mhm-rentiva-core-variables",
+        "mhm-vehicle-card-css"
     ],
     "style": [
         "mhm-rentiva-vehicles-grid"

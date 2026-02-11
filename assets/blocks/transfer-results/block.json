@@ -97,9 +97,13 @@
             "type": "string",
             "default": "10"
         },
-        "columns": {
-            "type": "string",
-            "default": "1"
+        "showFavoriteButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showCompareButton": {
+            "type": "boolean",
+            "default": true
         },
         "className": {
             "type": "string",

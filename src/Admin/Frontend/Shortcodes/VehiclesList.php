@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
+use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
+use MHMRentiva\Admin\Vehicle\Helpers\RatingSortHelper;
+use MHMRentiva\Admin\Services\FavoritesService;
 
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Core\Utilities\Templates;
@@ -58,11 +61,31 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	public static function get_safe_excerpt(int $post_id): string
 	{
-		$excerpt = get_the_excerpt($post_id);
-		if ($excerpt === null || $excerpt === false) {
+		$post = get_post($post_id);
+		if (! $post) {
 			return '';
 		}
-		return $excerpt;
+
+		// 1. Prefer manual excerpt
+		$text = $post->post_excerpt;
+
+		// 2. Fallback to content
+		if (empty($text)) {
+			$text = $post->post_content;
+		}
+
+		// Clean up
+		$text = strip_shortcodes($text);
+		$text = wp_strip_all_tags($text);
+		$text = str_replace(array("\r", "\n"), ' ', $text);
+
+		// Limit to ~160 chars (approx 25 words or strict char limit)
+		// User requested 120-160 chars.
+		if (mb_strlen($text) > 160) {
+			$text = mb_substr($text, 0, 157) . '...';
+		}
+
+		return $text;
 	}
 
 	/**
@@ -100,11 +123,14 @@ final class VehiclesList extends AbstractShortcode
 			'show_rating'            => '1',
 			'show_booking_btn'       => '1',
 			'show_favorite_btn'      => '1',
+			'show_favorite_button'   => '1',
 			'show_category'          => '1',
+			'show_brand'             => '0',
 			'show_badges'            => '1',
 			'show_description'       => '0',
 			'show_availability'      => '0',
-			'show_compare_btn'       => '0',
+			'show_compare_btn'       => '1',
+			'show_compare_button'    => '1',
 			'enable_lazy_load'       => '1',
 			'enable_ajax_filtering'  => '0',
 			'enable_infinite_scroll' => '0',
@@ -114,7 +140,108 @@ final class VehiclesList extends AbstractShortcode
 			'price_format'           => 'daily',
 			'class'                  => '',
 			'custom_css_class'       => '',
+			'min_rating'             => '',
+			'min_reviews'            => '',
 		);
+	}
+
+	/**
+	 * Prepares template data
+	 */
+	protected static function prepare_template_data(array $atts): array
+	{
+		$vehicles = self::get_vehicles($atts);
+
+		// Attribute Mapping (Block camelCase -> Shortcode snake_case)
+		// This ensures block toggles (showTitle) work with PHP logic (show_title)
+		$map = [
+			'showTitle'          => 'show_title',
+			'showDescription'    => 'show_description',
+			'showPrice'          => 'show_price',
+			'showFeatures'       => 'show_features',
+			'showRating'         => 'show_rating',
+			'showBookButton'     => 'show_booking_btn',
+			'showImage'          => 'show_image',
+			'showFavoriteButton' => 'show_favorite_button',
+			'showCompareButton'  => 'show_compare_button',
+		];
+
+		foreach ($map as $camel => $snake) {
+			if (isset($atts[$camel])) {
+				$atts[$snake] = $atts[$camel];
+			}
+		}
+
+		// Inject custom texts from settings
+		$text_settings = self::get_text();
+		$atts['booking_btn_text'] = $atts['booking_btn_text'] ?? $text_settings['book_now'];
+		$atts['view_details_btn_text'] = $atts['view_details_btn_text'] ?? $text_settings['view_details'];
+
+		return array(
+			'atts'           => $atts,
+			'vehicles'       => $vehicles,
+			'total_vehicles' => count($vehicles),
+			'has_vehicles'   => ! empty($vehicles),
+			'columns'        => intval($atts['columns']),
+			// Standard wrapper class
+			'wrapper_class'  => self::get_wrapper_class($atts),
+			'booking_url'    => self::get_booking_url(),
+		);
+	}
+
+	/**
+	 * Gets vehicles
+	 */
+	private static function get_vehicles(array $atts): array
+	{
+		$args = array(
+			'post_type'      => 'vehicle',
+			'post_status'    => 'publish',
+			'posts_per_page' => intval($atts['limit']),
+			'orderby'        => $atts['orderby'],
+			'order'          => $atts['order'],
+		);
+
+		// Category filter
+		if (! empty($atts['category'])) {
+			$args['tax_query'] = array(
+				array(
+					'taxonomy' => 'vehicle_category',
+					'field'    => 'slug',
+					'terms'    => $atts['category'],
+				),
+			);
+		}
+
+		// Featured filter
+		if ($atts['featured'] === '1') {
+			$args['meta_query'] = array(
+				array(
+					'key'     => MetaKeys::VEHICLE_FEATURED,
+					'value'   => '1',
+					'compare' => '=',
+				),
+			);
+		}
+
+		// Specific IDs
+		if (! empty($atts['ids'])) {
+			$args['post__in'] = array_map('intval', explode(',', $atts['ids']));
+			$args['posts_per_page'] = -1; // Ignore limit if IDs provided? Or keep limit? Usually verify IDs.
+		}
+
+		// Rating-based sorting & filtering (opt-in via shortcode attributes)
+		RatingSortHelper::apply_sort_args($args, $atts['orderby'], $atts['order']);
+		RatingSortHelper::apply_filter_args($args, $atts);
+
+		$posts    = get_posts($args);
+		$vehicles = array();
+
+		foreach ($posts as $post) {
+			$vehicles[] = self::get_vehicle_data_for_shortcode($post->ID, $atts);
+		}
+
+		return $vehicles;
 	}
 
 	/**
@@ -153,208 +280,27 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	protected static function get_css_dependencies(): array
 	{
-		return array('mhm-rentiva-core-variables');
+		return array('mhm-rentiva-core-variables', 'mhm-vehicle-card-css');
 	}
 
 	/**
-	 * Override JS filename
+	 * Returns JS dependencies
 	 */
-	protected static function get_js_filename(): string
+	public static function get_js_dependencies(): array
 	{
-		return 'vehicles-list.js';
+		return array('jquery', 'mhm-vehicle-interactions');
 	}
 
-	/**
-	 * Override script object name
-	 */
-	protected static function get_script_object_name(): string
-	{
-		return 'mhmRentivaVehiclesList';
-	}
-
-	/**
-	 * Override localized data
-	 */
-	protected static function get_localized_data(): array
-	{
-		return array(
-			'ajaxUrl'    => admin_url('admin-ajax.php'),
-			'nonce'      => wp_create_nonce('mhm_rentiva_vehicles_list'),
-			'bookingUrl' => self::get_booking_url(),
-			'loginUrl'   => self::get_login_url(),
-			'text'       => self::get_text(),
-			'strings'    => array(
-				'loading'                    => __('Loading...', 'mhm-rentiva'),
-				'no_vehicles'                => __('No vehicles found', 'mhm-rentiva'),
-				'error'                      => __('An error occurred', 'mhm-rentiva'),
-				'book_now'                   => __('Book Now', 'mhm-rentiva'),
-				'view_details'               => __('View Details', 'mhm-rentiva'),
-				'added_to_favorites'         => __('Added to favorites', 'mhm-rentiva'),
-				'removed_from_favorites'     => __('Removed from favorites', 'mhm-rentiva'),
-				'login_required'             => __('You must be logged in to add to favorites', 'mhm-rentiva'),
-				'invalid_vehicle_id'         => __('Invalid vehicle ID', 'mhm-rentiva'),
-				'connection_error'           => __('Connection error', 'mhm-rentiva'),
-				'booking_url_not_configured' => __('Booking URL is not configured', 'mhm-rentiva'),
-				'add_to_favorites'           => __('Add to favorites', 'mhm-rentiva'),
-				'per_day'                    => __('/day', 'mhm-rentiva'),
-			),
-		);
-	}
-
-	/**
-	 * Prepares template data
-	 */
-	protected static function prepare_template_data(array $atts): array
-	{
-		$vehicles = self::get_vehicles($atts);
-
-		// Normalize boolean attributes to '1' or '0' string for template compatibility
-		$boolean_attributes = array(
-			'show_price',
-			'show_rating',
-			'show_category',
-			'show_booking_btn',
-			'show_description',
-			'show_features',
-			'show_image',
-			'show_title',
-			'show_badges',
-			'show_favorite_btn',
-			'show_availability',
-			'show_compare_btn',
-		);
-
-		foreach ($boolean_attributes as $attr) {
-			// Use the value from shortcode_atts (which includes defaults)
-			// filter_var handles 'true', 'false', '1', '0', 'on', 'off', true, false
-			$atts[$attr] = filter_var($atts[$attr] ?? '', FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
-		}
-
-		// Inject settings context
-		$context = array(
-			'show_images'       => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_show_images', '1') === '1',
-			'show_features'     => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_show_features', '1') === '1',
-			'show_availability' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_show_availability', '1') === '1',
-		);
-
-		// For list layout, columns should always be 1
-		$atts['columns'] = '1';
-
-		// Inject custom texts
-		$text_settings                 = self::get_text();
-		$atts['booking_btn_text']      = $atts['booking_btn_text'] ?? $text_settings['book_now'];
-		$atts['view_details_btn_text'] = $atts['view_details_btn_text'] ?? $text_settings['view_details'];
-
-		return array(
-			'atts'           => $atts,
-			'vehicles'       => $vehicles,
-			'total_vehicles' => count($vehicles),
-			'has_vehicles'   => ! empty($vehicles),
-			'layout_class'   => 'rv-vehicles-list',
-			'columns_class'  => 'rv-vehicles-list--columns-1',
-			'wrapper_class'  => self::get_wrapper_class($atts),
-			'booking_url'    => self::get_booking_url(),
-			'context'        => $context,
-		);
-	}
-
-	/**
-	 * Gets vehicles
-	 */
-	/**
-	 * Gets vehicles
-	 */
-	private static function get_vehicles(array $atts): array
-	{
-		// Generate cache key based on attributes
-		$cache_key = 'mhm_rv_list_' . md5(serialize($atts));
-
-		// Check for cached data (unless caching is disabled)
-		if (! (defined('MHM_RENTIVA_DISABLE_CACHE') && MHM_RENTIVA_DISABLE_CACHE)) {
-			$cached = get_transient($cache_key);
-			if ($cached !== false) {
-				return $cached;
-			}
-		}
-
-		$args = array(
-			'post_type'      => 'vehicle',
-			'post_status'    => 'publish',
-			'posts_per_page' => intval($atts['limit']),
-			'orderby'        => $atts['orderby'],
-			'order'          => $atts['order'],
-		);
-
-		// Category filter
-		if (! empty($atts['category'])) {
-			$categories = explode(',', $atts['category']);
-			if (count($categories) > 1) {
-				$cat_query = array('relation' => 'OR');
-				foreach ($categories as $cat) {
-					$cat_query[] = array(
-						'key'     => '_mhm_rentiva_category',
-						'value'   => trim($cat),
-						'compare' => 'LIKE',
-					);
-				}
-				$args['meta_query'][] = $cat_query;
-			} else {
-				$args['meta_query'][] = array(
-					'key'     => '_mhm_rentiva_category',
-					'value'   => self::sanitize_text_field_safe($atts['category']),
-					'compare' => 'LIKE',
-				);
-			}
-		}
-
-		// Featured vehicles filter
-		if ($atts['featured'] === '1') {
-			$args['meta_query'][] = array(
-				'key'     => '_mhm_rentiva_featured',
-				'value'   => '1',
-				'compare' => '=',
-			);
-		}
-
-		// Special meta_query for price sorting
-		if ($atts['orderby'] === 'price') {
-			$args['meta_key'] = '_mhm_rentiva_price_per_day';
-			$args['orderby']  = 'meta_value_num';
-		}
-
-		// Filter by specific IDs
-		if (! empty($atts['ids'])) {
-			$ids              = array_map('intval', explode(',', $atts['ids']));
-			$args['post__in'] = $ids;
-			$args['orderby']  = 'post__in'; // Preserve order of IDs
-		}
-
-		$posts    = get_posts($args);
-		$vehicles = array();
-
-		foreach ($posts as $post) {
-			$vehicle_data = self::get_vehicle_data_for_shortcode($post->ID, $atts);
-			if ($vehicle_data) {
-				$vehicles[] = $vehicle_data;
-			}
-		}
-
-		// Set cache (1 hour)
-		if (! (defined('MHM_RENTIVA_DISABLE_CACHE') && MHM_RENTIVA_DISABLE_CACHE)) {
-			set_transient($cache_key, $vehicles, HOUR_IN_SECONDS);
-		}
-
-		return $vehicles;
-	}
+    // ... (skipping to next method)
 
 	/**
 	 * Gets single vehicle data (for shortcode)
 	 */
-	private static function get_vehicle_data_for_shortcode(int $vehicle_id, array $atts): ?array
+	public static function get_vehicle_data_for_shortcode(int $vehicle_id, array $atts): array
 	{
 		$vehicle = get_post($vehicle_id);
 		if (! $vehicle || $vehicle->post_type !== 'vehicle') {
-			return null;
+			return array();
 		}
 
 		$features = self::get_limited_features($vehicle_id, intval($atts['max_features']));
@@ -362,19 +308,40 @@ final class VehiclesList extends AbstractShortcode
 			$feature['svg'] = self::get_feature_icon_svg($feature['icon'] ?? '');
 		}
 
+		// Prepare Image Data
+		$image_url = self::get_vehicle_image($vehicle_id, $atts['image_size']);
+		$image_data = array(
+			'url' => $image_url,
+			'alt' => get_the_title($vehicle_id),
+		);
+
+		// Prepare Category Data - Standardized (Taxonomy Only)
+		$category_name = self::get_vehicle_category($vehicle_id);
+
+		$category_data = array(
+			'name' => $category_name,
+			'url'  => '#',
+		);
+
+		$brand = get_post_meta($vehicle_id, '_mhm_rentiva_brand', true) ?: '';
+
 		return array(
 			'id'           => $vehicle_id,
 			'title'        => get_the_title($vehicle_id) ?: '',
 			'excerpt'      => self::get_safe_excerpt($vehicle_id),
 			'permalink'    => get_permalink($vehicle_id) ?: '',
-			'image_url'    => self::get_vehicle_image($vehicle_id, $atts['image_size']),
+			'image'        => $image_data, // Standardized key
+			'image_url'    => $image_url, // Keep for backward compatibility if needed locally
 			'price'        => self::get_vehicle_price($vehicle_id),
 			'features'     => $features,
-			'category'     => self::get_vehicle_category($vehicle_id),
+			'category'     => $category_data, // Standardized key
+			'brand'        => $brand,
+			'booking_url'  => self::get_booking_url(),
 			'rating'       => self::get_vehicle_rating($vehicle_id),
 			'availability' => self::check_vehicle_availability($vehicle_id),
 			'badge'        => self::get_vehicle_badge($vehicle_id),
-			'is_featured'  => get_post_meta($vehicle_id, '_mhm_rentiva_featured', true) === '1',
+			'is_featured'  => get_post_meta($vehicle_id, MetaKeys::VEHICLE_FEATURED, true) === '1',
+			'is_favorite'  => self::is_favorite($vehicle_id),
 			'price_format' => $atts['price_format'],
 		);
 	}
@@ -437,6 +404,7 @@ final class VehiclesList extends AbstractShortcode
 		}
 
 		return array(
+			'raw'       => floatval($daily_price),
 			'daily'     => floatval($daily_price),
 			'currency'  => $currency,
 			'symbol'    => $currency_symbol,
@@ -491,7 +459,7 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	public static function get_vehicle_category(int $vehicle_id): string
 	{
-		return get_post_meta($vehicle_id, '_mhm_rentiva_category', true) ?: '';
+		return get_post_meta($vehicle_id, MetaKeys::VEHICLE_CATEGORY, true) ?: '';
 	}
 
 	/**
@@ -514,66 +482,19 @@ final class VehiclesList extends AbstractShortcode
 			'availability' => self::check_vehicle_availability($vehicle_id),
 			'badge'        => self::get_vehicle_badge($vehicle_id),
 			'category'     => self::get_vehicle_category($vehicle_id),
+			'booking_url'  => self::get_booking_url(),
 		);
 	}
 
 	/**
 	 * Get vehicle rating
 	 */
+	/**
+	 * Get vehicle rating
+	 */
 	public static function get_vehicle_rating(int $vehicle_id): array
 	{
-		if ($vehicle_id <= 0) {
-			return array(
-				'average' => 0,
-				'count'   => 0,
-				'stars'   => '☆☆☆☆☆',
-			);
-		}
-
-		// Calculate current rating from WordPress comments system
-		$comments = get_comments(
-			array(
-				'post_id'    => $vehicle_id,
-				'status'     => 'approve',
-				'meta_query' => array(
-					array(
-						'key'     => 'mhm_rating',
-						'compare' => 'EXISTS',
-					),
-				),
-			)
-		);
-
-		$total_rating = 0;
-		$count        = 0;
-
-		foreach ($comments as $comment) {
-			$rating = intval(get_comment_meta($comment->comment_ID, 'mhm_rating', true));
-			if ($rating > 0) {
-				$total_rating += $rating;
-				++$count;
-			}
-		}
-
-		$average = $count > 0 ? round($total_rating / $count, 1) : 0;
-
-		return array(
-			'average' => $average,
-			'count'   => $count,
-			'stars'   => self::get_star_rating($average),
-		);
-	}
-
-	/**
-	 * Gets star rating
-	 */
-	private static function get_star_rating(float $rating): string
-	{
-		$stars = '';
-		for ($i = 1; $i <= 5; $i++) {
-			$stars .= ($i <= round($rating)) ? '★' : '☆';
-		}
-		return $stars;
+		return \MHMRentiva\Admin\Vehicle\Helpers\RatingHelper::get_rating($vehicle_id);
 	}
 
 	/**
@@ -581,6 +502,10 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	public static function get_feature_icon_svg(string $icon): string
 	{
+		// Debug
+		if ($icon === 'heart') {
+			error_log('VehiclesList::get_feature_icon_svg called for heart');
+		}
 		switch ($icon) {
 			case 'fuel':
 				// Modern Gas Pump Icon
@@ -597,189 +522,19 @@ final class VehiclesList extends AbstractShortcode
 			case 'speedometer':
 				// Modern Mileage / Speedometer
 				return '<svg class="rv-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="M20 12h2"></path><path d="M2 12h2"></path><path d="M19.07 4.93l-1.41 1.41"></path><path d="M6.34 17.66l-1.41 1.41"></path><path d="M4.93 4.93l1.41 1.41"></path><path d="M17.66 17.66l1.41 1.41"></path><path d="M12 12l4 4"></path></svg>';
+			case 'heart':
+				// Heart Outline
+				return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
+			case 'heart-filled':
+				// Heart Filled
+				return '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
 			default:
 				// Generic Checklist Icon
 				return '<svg class="rv-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 		}
 	}
 
-	/**
-	 * Updates vehicle rating (for Admin panel)
-	 */
-	public static function update_vehicle_rating(int $vehicle_id, float $new_rating, ?int $new_count = null): bool
-	{
-		if ($vehicle_id <= 0 || $new_rating < 0 || $new_rating > 5) {
-			return false;
-		}
 
-		// Get current rating data
-		$current_average = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_rating_average', true));
-		$current_count   = intval(get_post_meta($vehicle_id, '_mhm_rentiva_rating_count', true));
-
-		if ($new_count !== null) {
-			// Use new count value if provided
-			$updated_count   = $new_count;
-			$updated_average = $new_rating;
-		} else {
-			// If adding new rating, calculate average
-			$updated_count   = $current_count + 1;
-			$updated_average = (($current_average * $current_count) + $new_rating) / $updated_count;
-		}
-
-		// Update meta data
-		$result1 = update_post_meta($vehicle_id, '_mhm_rentiva_rating_average', $updated_average);
-		$result2 = update_post_meta($vehicle_id, '_mhm_rentiva_rating_count', $updated_count);
-
-		return $result1 !== false && $result2 !== false;
-	}
-
-	// Table creation logic moved to DatabaseMigrator
-
-	/**
-	 * Saves user rating
-	 */
-	public static function save_user_rating(int $vehicle_id, float $rating, string $comment = '', ?int $user_id = null): bool
-	{
-		global $wpdb;
-
-		if ($rating < 0 || $rating > 5) {
-			return false;
-		}
-
-		$user_id = $user_id ?: get_current_user_id();
-		$user_ip = $_SERVER['REMOTE_ADDR'] ?? '';
-
-		$table_name = $wpdb->prefix . 'mhm_rentiva_ratings';
-
-		// Check if user has rated before
-		$existing = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM $table_name WHERE vehicle_id = %d AND user_id = %d",
-				$vehicle_id,
-				$user_id
-			)
-		);
-
-		if ($existing) {
-			// Update
-			$result = $wpdb->update(
-				$table_name,
-				array(
-					'rating'     => $rating,
-					'comment'    => $comment,
-					'updated_at' => current_time('mysql'),
-				),
-				array(
-					'vehicle_id' => $vehicle_id,
-					'user_id'    => $user_id,
-				)
-			);
-		} else {
-			// New record
-			$result = $wpdb->insert(
-				$table_name,
-				array(
-					'vehicle_id' => $vehicle_id,
-					'user_id'    => $user_id,
-					'user_ip'    => $user_ip,
-					'rating'     => $rating,
-					'comment'    => $comment,
-					'status'     => 'approved',
-					'created_at' => current_time('mysql'),
-				)
-			);
-		}
-
-		if ($result !== false) {
-			// Calculate and update average rating
-			self::update_vehicle_rating_from_database($vehicle_id);
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Calculates and updates average rating from database
-	 */
-	private static function update_vehicle_rating_from_database(int $vehicle_id): void
-	{
-		global $wpdb;
-
-		$table_name = $wpdb->prefix . 'mhm_rentiva_ratings';
-
-		$stats = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT AVG(rating) as average, COUNT(*) as count FROM $table_name WHERE vehicle_id = %d AND status = 'approved'",
-				$vehicle_id
-			)
-		);
-
-		if ($stats) {
-			$average = round(floatval($stats->average), 1);
-			$count   = intval($stats->count);
-
-			update_post_meta($vehicle_id, '_mhm_rentiva_rating_average', $average);
-			update_post_meta($vehicle_id, '_mhm_rentiva_rating_count', $count);
-		}
-	}
-
-	/**
-	 * Gets user rating for a vehicle
-	 */
-	public static function get_user_rating(int $vehicle_id, ?int $user_id = null): ?array
-	{
-		global $wpdb;
-
-		$user_id = $user_id ?: get_current_user_id();
-
-		if (! $user_id) {
-			return null;
-		}
-
-		$table_name = $wpdb->prefix . 'mhm_rentiva_ratings';
-
-		$rating = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM $table_name WHERE vehicle_id = %d AND user_id = %d",
-				$vehicle_id,
-				$user_id
-			)
-		);
-
-		return $rating ? (array) $rating : null;
-	}
-
-	/**
-	 * Gets all ratings for vehicle (for admin)
-	 */
-	public static function get_vehicle_ratings(int $vehicle_id, int $limit = 10, int $offset = 0): array
-	{
-		global $wpdb;
-
-		$table_name = $wpdb->prefix . 'mhm_rentiva_ratings';
-
-		$ratings = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT r.*, u.display_name, u.user_email 
-             FROM $table_name r 
-             LEFT JOIN {$wpdb->users} u ON r.user_id = u.ID 
-             WHERE r.vehicle_id = %d 
-             ORDER BY r.created_at DESC 
-             LIMIT %d OFFSET %d",
-				$vehicle_id,
-				$limit,
-				$offset
-			)
-		);
-
-		return $ratings ? array_map(
-			function ($rating) {
-				return (array) $rating;
-			},
-			$ratings
-		) : array();
-	}
 
 	/**
 	 * Checks vehicle availability
@@ -789,11 +544,11 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	private static function check_vehicle_availability(int $vehicle_id): array
 	{
-		$status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
+		$status = get_post_meta($vehicle_id, MetaKeys::VEHICLE_STATUS, true);
 
 		// Fallback for older data or if status is not set
 		if (empty($status)) {
-			$old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+			$old_availability = get_post_meta($vehicle_id, MetaKeys::VEHICLE_AVAILABILITY, true);
 			// Handle legacy values
 			if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
 				$status = 'inactive';
@@ -820,7 +575,7 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	private static function get_vehicle_badge(int $vehicle_id): ?array
 	{
-		$is_featured = get_post_meta($vehicle_id, '_mhm_rentiva_featured', true) === '1';
+		$is_featured = get_post_meta($vehicle_id, MetaKeys::VEHICLE_FEATURED, true) === '1';
 		if ($is_featured) {
 			return array(
 				'text'  => __('Featured', 'mhm-rentiva'),
@@ -912,162 +667,20 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	public static function ajax_toggle_favorite(): void
 	{
-		try {
-			$nonce = self::sanitize_text_field_safe(wp_unslash($_POST['nonce'] ?? ''));
-			if (
-				empty($nonce) ||
-				(! wp_verify_nonce($nonce, 'mhm_rentiva_vehicles_list') &&
-					! wp_verify_nonce($nonce, 'mhm_rentiva_toggle_favorite') &&
-					! wp_verify_nonce($nonce, 'mhm_rentiva_booking_form_nonce'))
-			) {
-				throw new \Exception(__('Security error', 'mhm-rentiva'));
-			}
-
-			if (! is_user_logged_in()) {
-				throw new \Exception(__('You must be logged in', 'mhm-rentiva'));
-			}
-
-			$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
-			if (! $vehicle_id) {
-				throw new \Exception(__('Invalid vehicle ID', 'mhm-rentiva'));
-			}
-
-			$user_id   = get_current_user_id();
-			$favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
-			if (! is_array($favorites)) {
-				$favorites = array_filter(array_map('intval', (array) $favorites));
-			}
-
-			$key = array_search($vehicle_id, $favorites);
-			if ($key !== false) {
-				// Remove from favorites
-				unset($favorites[$key]);
-				$favorites = array_values($favorites);
-				$message   = __('Removed from favorites', 'mhm-rentiva');
-				$action    = 'removed';
-			} else {
-				// Add to favorites
-				$favorites[] = $vehicle_id;
-				$favorites   = array_values(array_unique(array_map('intval', $favorites)));
-				$message     = __('Added to favorites', 'mhm-rentiva');
-				$action      = 'added';
-			}
-
-			update_user_meta($user_id, 'mhm_rentiva_favorites', $favorites);
-
-			wp_send_json_success(
-				array(
-					'message'         => $message,
-					'action'          => $action,
-					'vehicle_id'      => $vehicle_id,
-					'favorites_count' => count($favorites),
-				)
-			);
-		} catch (\Exception $e) {
-			wp_send_json_error(
-				array(
-					'message' => $e->getMessage(),
-				)
-			);
-		}
-	}
-
-	/**
-	 * AJAX: Submit rating
-	 */
-	public static function ajax_submit_rating(): void
-	{
-		// Nonce check
-		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_rating_nonce')) {
-			wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
-			return;
-		}
-
-		$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
-		$rating     = floatval(isset($_POST['rating']) ? wp_unslash($_POST['rating']) : 0);
-		$comment    = sanitize_textarea_field((string) ((isset($_POST['comment']) ? wp_unslash($_POST['comment']) : '') ?: ''));
-
-		if ($vehicle_id <= 0 || $rating < 1 || $rating > 5) {
-			wp_send_json_error(array('message' => __('Invalid rating value.', 'mhm-rentiva')));
-			return;
-		}
-
-		// Check if user is logged in
-		if (! is_user_logged_in()) {
-			wp_send_json_error(array('message' => __('You must be logged in to rate.', 'mhm-rentiva')));
-			return;
-		}
-
-		$result = self::save_user_rating($vehicle_id, $rating, $comment);
-
-		if ($result) {
-			// Update vehicle meta (compatible with VehicleRatingForm)
-			\MHMRentiva\Admin\Frontend\Shortcodes\VehicleRatingForm::update_vehicle_rating_meta($vehicle_id);
-
-			// Get updated rating information
-			$vehicle_rating = self::get_vehicle_rating($vehicle_id);
-			$user_rating    = self::get_user_rating($vehicle_id);
-
-			wp_send_json_success(
-				array(
-					'message'        => __('Rating saved successfully.', 'mhm-rentiva'),
-					'vehicle_rating' => $vehicle_rating,
-					'user_rating'    => $user_rating,
-				)
-			);
+		// Proxy to Service
+		if (class_exists(FavoritesService::class)) {
+			FavoritesService::ajax_toggle_favorite();
 		} else {
-			wp_send_json_error(array('message' => __('Rating could not be saved.', 'mhm-rentiva')));
+			wp_send_json_error(array('message' => 'Service not available'));
 		}
 	}
 
-	/**
-	 * AJAX: Get user rating
-	 */
-	public static function ajax_get_user_rating(): void
-	{
-		if (! is_user_logged_in()) {
-			wp_send_json_error(array('message' => __('You must be logged in.', 'mhm-rentiva')));
-			return;
-		}
 
-		$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
-
-		if ($vehicle_id <= 0) {
-			wp_send_json_error(array('message' => __('Invalid vehicle ID.', 'mhm-rentiva')));
-			return;
-		}
-
-		$user_rating = self::get_user_rating($vehicle_id);
-
-		wp_send_json_success(
-			array(
-				'user_rating' => $user_rating,
-			)
-		);
-	}
 
 	/**
 	 * AJAX: Get vehicle ratings
 	 */
-	public static function ajax_get_vehicle_ratings(): void
-	{
-		$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
-		$limit      = intval(isset($_POST['limit']) ? wp_unslash($_POST['limit']) : 10);
-		$offset     = intval(isset($_POST['offset']) ? wp_unslash($_POST['offset']) : 0);
 
-		if ($vehicle_id <= 0) {
-			wp_send_json_error(array('message' => __('Invalid vehicle ID.', 'mhm-rentiva')));
-			return;
-		}
-
-		$ratings = self::get_vehicle_ratings($vehicle_id, $limit, $offset);
-
-		wp_send_json_success(
-			array(
-				'ratings' => $ratings,
-			)
-		);
-	}
 
 	/**
 	 * Registers AJAX handlers
@@ -1076,15 +689,6 @@ final class VehiclesList extends AbstractShortcode
 	{
 		add_action('wp_ajax_mhm_rentiva_toggle_favorite', array(self::class, 'ajax_toggle_favorite'));
 		add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', array(self::class, 'ajax_toggle_favorite'));
-
-		// Rating AJAX handlers
-		// Rating functions moved to VehicleRatingForm
-		// add_action('wp_ajax_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
-		// add_action('wp_ajax_nopriv_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
-		add_action('wp_ajax_mhm_rentiva_get_user_rating', array(self::class, 'ajax_get_user_rating'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_get_user_rating', array(self::class, 'ajax_get_user_rating'));
-		add_action('wp_ajax_mhm_rentiva_get_vehicle_ratings', array(self::class, 'ajax_get_vehicle_ratings'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_get_vehicle_ratings', array(self::class, 'ajax_get_vehicle_ratings'));
 	}
 
 	/**
@@ -1096,6 +700,11 @@ final class VehiclesList extends AbstractShortcode
 			$user_id = get_current_user_id();
 		}
 
+		if (class_exists(FavoritesService::class)) {
+			return FavoritesService::is_favorite($user_id, $vehicle_id);
+		}
+
+		// Fallback (should not happen if Service is loaded)
 		if (! $user_id) {
 			return false;
 		}

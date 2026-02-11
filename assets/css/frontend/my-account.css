@@ -466,8 +466,10 @@
 }
 
 .mhm-account-content .rv-vehicles-grid {
-	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
-	gap: 1.5rem !important;
+	display: grid !important;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+	gap: 20px !important;
+	width: 100%;
 }
 
 @media (max-width: 900px) {
@@ -483,8 +485,10 @@
 	}
 }
 
-.mhm-account-content .rv-vehicle-card {
-	width: 100%;
+.mhm-account-content .rv-vehicle-card,
+.mhm-account-content .mhm-vehicle-card {
+	width: 100% !important;
+	max-width: 100% !important;
 }
 
 .mhm-account-content .rv-vehicle-card__features {

@@ -353,3 +353,31 @@ class WC_Session
     }
     public function set($key, $value): void {}
 }
+
+// ============================================================================
+// WordPress Unit Test Stubs
+// ============================================================================
+
+if (!class_exists('WP_UnitTestCase')) {
+    class WP_UnitTestCase extends \PHPUnit\Framework\TestCase
+    {
+        public $factory;
+        public function assertWPError($actual, $message = '') {}
+    }
+}
+
+if (!class_exists('WP_Ajax_UnitTestCase')) {
+    class WP_Ajax_UnitTestCase extends WP_UnitTestCase
+    {
+        protected $_last_response = '';
+        public function _handleAjax($action) {}
+    }
+}
+
+if (!class_exists('WPAjaxDieContinueException')) {
+    class WPAjaxDieContinueException extends \Exception {}
+}
+
+if (!class_exists('WPAjaxDieStopException')) {
+    class WPAjaxDieStopException extends \Exception {}
+}

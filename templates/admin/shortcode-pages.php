@@ -34,6 +34,8 @@ if (! defined('ABSPATH')) {
 				foreach ($shortcodes_config as $shortcode => $info) :
 					$page_data = $pages[$shortcode] ?? null;
 					$page_id   = $page_data['id'] ?? null;
+					$url       = $page_data['url'] ?? '';
+					$has_url   = $page_data['has_url'] ?? false;
 					$page      = $page_id ? get_post($page_id) : null;
 				?>
 					<tr>
@@ -47,21 +49,25 @@ if (! defined('ABSPATH')) {
 								<strong class="mhm-page-title"><?php echo esc_html($page->post_title); ?></strong>
 								<br>
 								<small class="mhm-page-id"><?php esc_html_e('ID:', 'mhm-rentiva'); ?> <?php echo (int) $page_id; ?></small>
+							<?php elseif ($has_url) : ?>
+								<strong class="mhm-page-title" style="color: #0073aa;"><?php esc_html_e('Dynamic / Custom URL', 'mhm-rentiva'); ?></strong>
+								<br>
+								<small class="mhm-page-id"><?php esc_html_e('Managed via Settings/Hooks', 'mhm-rentiva'); ?></small>
 							<?php else : ?>
 								<span class="mhm-status-missing"><?php esc_html_e('Page not found', 'mhm-rentiva'); ?></span>
 							<?php endif; ?>
 						</td>
 						<td>
-							<?php if ($page) : ?>
-								<a href="<?php echo esc_url(get_permalink($page_id)); ?>" target="_blank" rel="noopener noreferrer">
-									<?php echo esc_html(get_permalink($page_id)); ?>
+							<?php if ($has_url) : ?>
+								<a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer">
+									<?php echo esc_html($url); ?>
 								</a>
 							<?php else : ?>
 								<span class="mhm-status-missing">-</span>
 							<?php endif; ?>
 						</td>
 						<td>
-							<?php if ($page) : ?>
+							<?php if ($page || $has_url) : ?>
 								<span class="mhm-status-ok" aria-label="<?php esc_attr_e('Active', 'mhm-rentiva'); ?>">✅ <?php esc_html_e('Active', 'mhm-rentiva'); ?></span>
 							<?php else : ?>
 								<span class="mhm-status-missing" aria-label="<?php esc_attr_e('Missing', 'mhm-rentiva'); ?>">❌ <?php esc_html_e('Missing', 'mhm-rentiva'); ?></span>
@@ -80,6 +86,14 @@ if (! defined('ABSPATH')) {
 										data-page-id="<?php echo (int) $page_id; ?>"
 										data-title="<?php echo esc_attr($page->post_title); ?>">
 										<?php esc_html_e('Remove', 'mhm-rentiva'); ?>
+									</button>
+								<?php elseif ($has_url) : ?>
+									<a href="<?php echo esc_url($url); ?>" target="_blank" class="button button-small" rel="noopener noreferrer">
+										<?php esc_html_e('View', 'mhm-rentiva'); ?>
+									</a>
+									<button type="button" class="button button-primary button-small mhm-btn-create-page"
+										data-shortcode="<?php echo esc_attr($shortcode); ?>">
+										<?php esc_html_e('Create Page', 'mhm-rentiva'); ?>
 									</button>
 								<?php else : ?>
 									<button type="button" class="button button-primary button-small mhm-btn-create-page"
@@ -101,7 +115,8 @@ if (! defined('ABSPATH')) {
 	$missing_count = 0;
 
 	foreach ($shortcodes_config as $shortcode => $info) {
-		if (isset($pages[$shortcode]['id']) && $pages[$shortcode]['id'] > 0) {
+		$has_url = $pages[$shortcode]['has_url'] ?? false;
+		if ((isset($pages[$shortcode]['id']) && $pages[$shortcode]['id'] > 0) || $has_url) {
 			$active_count++;
 		} else {
 			$missing_count++;

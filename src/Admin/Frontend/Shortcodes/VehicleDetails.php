@@ -325,12 +325,8 @@ final class VehicleDetails extends AbstractShortcode
 
 	private static function get_vehicle_rating(int $vehicle_id): array
 	{
-		global $wpdb;
-		$stats = $wpdb->get_row($wpdb->prepare(
-			"SELECT COUNT(*) as count, AVG(CAST(meta_value AS DECIMAL(10,1))) as average FROM {$wpdb->comments} c INNER JOIN {$wpdb->commentmeta} cm ON c.comment_ID = cm.comment_id WHERE c.comment_post_ID = %d AND c.comment_approved = '1' AND cm.meta_key = 'mhm_rating'",
-			$vehicle_id
-		));
-		return array('average' => round((float)($stats->average ?? 0), 1), 'count' => (int)($stats->count ?? 0));
+		// Single Source of Truth: delegate to RatingHelper (reads post meta).
+		return \MHMRentiva\Admin\Vehicle\Helpers\RatingHelper::get_rating($vehicle_id);
 	}
 
 	private static function get_meta_with_fallback(int $vid, array $keys): string

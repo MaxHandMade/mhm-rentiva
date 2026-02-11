@@ -32,6 +32,10 @@ final class AssetManager
 			'url'  => 'assets/css/core/animations.css',
 			'deps' => array('mhm-css-variables'),
 		),
+		'mhm-rentiva-notifications' => array(
+			'url'  => 'assets/css/frontend/notifications.css',
+			'deps' => array('mhm-css-variables'),
+		),
 	);
 
 	/**
@@ -91,6 +95,8 @@ final class AssetManager
 
 		// Register Vendor Assets
 		add_action('init', [self::class, 'register_vendor_assets']);
+		// Register Common Assets (Shared but not Global)
+		add_action('init', [self::class, 'register_common_assets']);
 		add_action('wp_head', array(self::class, 'add_inline_styles'));
 		add_action('admin_head', array(self::class, 'add_inline_styles'));
 	}
@@ -123,6 +129,44 @@ final class AssetManager
 	}
 
 	/**
+	 * Register Common Assets (Shared but not Global)
+	 * These are registered so they can be added as dependencies, but not enqueued globally.
+	 */
+	public static function register_common_assets(): void
+	{
+		// Vehicle Card CSS
+		if (! wp_style_is('mhm-vehicle-card-css', 'registered')) {
+			wp_register_style(
+				'mhm-vehicle-card-css',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
+				array('mhm-css-variables', 'mhm-core-css'),
+				self::get_file_version('assets/css/core/vehicle-card.css')
+			);
+		}
+
+		// Datepicker Custom CSS
+		if (! wp_style_is('mhm-rentiva-datepicker-custom', 'registered')) {
+			wp_register_style(
+				'mhm-rentiva-datepicker-custom',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
+				array('mhm-css-variables'),
+				self::get_file_version('assets/css/frontend/datepicker-custom.css')
+			);
+		}
+
+		// Vehicle Interactions JS (Favorites & Compare)
+		if (! wp_script_is('mhm-vehicle-interactions', 'registered')) {
+			wp_register_script(
+				'mhm-vehicle-interactions',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicle-interactions.js',
+				array('jquery', 'mhm-core-js'),
+				self::get_file_version('assets/js/frontend/vehicle-interactions.js'),
+				true
+			);
+		}
+	}
+
+	/**
 	 * Load frontend assets
 	 * Note: Frontend shortcode assets are now handled by AbstractShortcode
 	 */
@@ -141,6 +185,28 @@ final class AssetManager
 
 		// Only load non-shortcode frontend assets
 		self::enqueue_frontend_specific_assets();
+
+		// Enqueue Vehicle Interactions (Favorites & Compare)
+		if (wp_script_is('mhm-vehicle-interactions', 'registered')) {
+			wp_enqueue_script('mhm-vehicle-interactions');
+			wp_localize_script(
+				'mhm-vehicle-interactions',
+				'mhm_rentiva_vars',
+				array(
+					'ajax_url' => admin_url('admin-ajax.php'),
+					'nonce'    => wp_create_nonce('mhm_rentiva_toggle_favorite'), // Fallback generic
+					'fav_nonce' => wp_create_nonce('mhm_rentiva_toggle_favorite'),
+					'compare_nonce' => wp_create_nonce('mhm_rentiva_toggle_compare'),
+					'i18n'     => array(
+						'add_favorite'    => __('Add to Favorites', 'mhm-rentiva'),
+						'remove_favorite' => __('Remove from Favorites', 'mhm-rentiva'),
+						'add_compare'     => __('Compare', 'mhm-rentiva'),
+						'remove_compare'  => __('Remove Compare', 'mhm-rentiva'),
+						'max_compare'     => __('You can compare up to %d vehicles', 'mhm-rentiva'),
+					),
+				)
+			);
+		}
 	}
 
 	/**
@@ -1532,6 +1598,11 @@ final class AssetManager
 	{
 		// Always load if filtering enabled via hook
 		if (apply_filters('mhm_rentiva_force_load_assets', false)) {
+			return true;
+		}
+
+		// Load assets on WooCommerce account pages (v1.3.3)
+		if (function_exists('is_account_page') && is_account_page()) {
 			return true;
 		}
 

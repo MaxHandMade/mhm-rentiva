@@ -23,6 +23,7 @@ if (! defined('ABSPATH')) {
  */
 final class AccountController
 {
+	use EndpointHelperTrait;
 
 
 
@@ -83,40 +84,7 @@ final class AccountController
 		add_action('init', array(self::class, 'handle_communication_preferences'));
 	}
 
-	/**
-	 * Get endpoint slug with translation and option support
-	 *
-	 * Priority:
-	 * 1. Database option (custom user setting)
-	 * 2. Translation file (po/mo) via _x()
-	 * 3. Default hardcoded value
-	 *
-	 * @param string $key Identifier key (e.g., 'bookings')
-	 * @param string $default Default slug in English
-	 * @return string Sanitized slug
-	 */
-	public static function get_endpoint_slug(string $key, string $default): string
-	{
-		// 1. Check database option in mhm_rentiva_settings array
-		$settings   = get_option('mhm_rentiva_settings', array());
-		$option_key = 'mhm_rentiva_endpoint_' . $key;
-		$slug       = $settings[$option_key] ?? '';
-
-		if (empty($slug)) {
-			// 2. Use translation if no option set
-			// context 'endpoint slug' helps translators know this is part of URL
-			$slug = match ($key) {
-				'bookings'        => _x('rentiva-bookings', 'endpoint slug', 'mhm-rentiva'),
-				'favorites'       => _x('rentiva-favorites', 'endpoint slug', 'mhm-rentiva'),
-				'payment_history' => _x('rentiva-payment-history', 'endpoint slug', 'mhm-rentiva'),
-				'messages'        => _x('rentiva-messages', 'endpoint slug', 'mhm-rentiva'),
-				'view_booking'    => _x('view-rentiva-booking', 'endpoint slug', 'mhm-rentiva'),
-				default           => $default,
-			};
-		}
-
-		return sanitize_title($slug);
-	}
+	// Logic moved to EndpointHelperTrait
 
 	/**
 	 * Add rewrite endpoints
@@ -161,6 +129,9 @@ final class AccountController
 	 */
 	public static function enqueue_assets(): void
 	{
+		// Enqueue Notifications (v1.3.3)
+		wp_enqueue_style('mhm-rentiva-notifications');
+
 		// Check if we're on messages endpoint - dequeue customer-messages scripts
 		$messages_slug = self::get_endpoint_slug('messages', 'rentiva-messages');
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is only used for conditional asset loading
@@ -232,6 +203,12 @@ final class AccountController
 					),
 				)
 			);
+		}
+
+		// Enqueue Vehicle Interactions on Favorites endpoint (v1.3.3)
+		$favorites_slug = self::get_endpoint_slug('favorites', 'rentiva-favorites');
+		if ($endpoint === 'favorites' || get_query_var($favorites_slug) !== '') {
+			wp_enqueue_script('mhm-vehicle-interactions');
 		}
 
 		// Enqueue Account Privacy JS on Dashboard
@@ -672,96 +649,28 @@ final class AccountController
 	/**
 	 * AJAX: Add favorite
 	 */
+	/**
+	 * AJAX: Add favorite
+	 * @deprecated 1.3.3 Use mhm_rentiva_toggle_favorite via FavoritesService
+	 */
 	public static function ajax_add_favorite(): void
 	{
-		try {
-			if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_account')) {
-				wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
-			}
-
-			if (! is_user_logged_in()) {
-				wp_send_json_error(array('message' => __('Please login.', 'mhm-rentiva')));
-			}
-
-			$vehicle_id = isset($_POST['vehicle_id']) ? absint(wp_unslash($_POST['vehicle_id'])) : 0;
-
-			if (! $vehicle_id || get_post_type($vehicle_id) !== 'vehicle') {
-				wp_send_json_error(array('message' => __('Invalid vehicle.', 'mhm-rentiva')));
-			}
-
-			$user_id   = get_current_user_id();
-			$favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
-
-			if (! is_array($favorites)) {
-				$favorites = array();
-			}
-
-			$favorites = array_map('intval', $favorites);
-
-			if (! in_array($vehicle_id, $favorites, true)) {
-				$favorites[] = $vehicle_id;
-				$favorites   = array_values(array_unique($favorites));
-				update_user_meta($user_id, 'mhm_rentiva_favorites', $favorites);
-			}
-
-			wp_send_json_success(
-				array(
-					'message'         => __('Vehicle added to favorites.', 'mhm-rentiva'),
-					'vehicle_id'      => $vehicle_id,
-					'favorites_count' => count($favorites),
-					'action'          => 'added',
-				)
-			);
-		} catch (\Exception $e) {
-			wp_send_json_error(array('message' => __('An error occurred.', 'mhm-rentiva')));
-		}
+		// Forward to shared service logic or just die if dead?
+		// Since JS is cleaned up, this shouldn't be called.
+		// We'll return error to signal deprecation if hit.
+		wp_send_json_error(array('message' => __('This endpoint is deprecated. Please refresh your page.', 'mhm-rentiva')), 410);
 	}
 
 	/**
 	 * AJAX: Remove favorite
 	 */
+	/**
+	 * AJAX: Remove favorite
+	 * @deprecated 1.3.3 Use mhm_rentiva_toggle_favorite via FavoritesService
+	 */
 	public static function ajax_remove_favorite(): void
 	{
-		try {
-			if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_account')) {
-				wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
-			}
-
-			if (! is_user_logged_in()) {
-				wp_send_json_error(array('message' => __('Please login.', 'mhm-rentiva')));
-			}
-
-			$vehicle_id = isset($_POST['vehicle_id']) ? absint(wp_unslash($_POST['vehicle_id'])) : 0;
-			$user_id    = get_current_user_id();
-
-			$favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
-
-			if (! is_array($favorites)) {
-				$favorites = array();
-			}
-
-			$favorites = array_map('intval', $favorites);
-			$favorites = array_filter(
-				$favorites,
-				static function (int $id) use ($vehicle_id): bool {
-					return $id !== $vehicle_id;
-				}
-			);
-			$favorites = array_values($favorites);
-
-			update_user_meta($user_id, 'mhm_rentiva_favorites', $favorites);
-
-			wp_send_json_success(
-				array(
-					'message'         => __('Vehicle removed from favorites.', 'mhm-rentiva'),
-					'vehicle_id'      => $vehicle_id,
-					'favorites_count' => count($favorites),
-					'action'          => 'removed',
-				)
-			);
-		} catch (\Exception $e) {
-			wp_send_json_error(array('message' => __('An error occurred.', 'mhm-rentiva')));
-		}
+		wp_send_json_error(array('message' => __('This endpoint is deprecated. Please refresh your page.', 'mhm-rentiva')), 410);
 	}
 
 

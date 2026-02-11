@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 5.0
 Tested up to:      6.9
 Requires PHP:      7.4
-Stable tag:        4.9.7
+Stable tag:        4.9.8
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -73,6 +73,11 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.9.8 =
+* **WooCommerce Integration:** Implemented absolute priority for physical page slugs in My Account endpoints (v1.1.0 logic).
+* **UI/UX:** Fixed integrated dashboard layout to prevent unwanted redirects while maintaining custom URLs (e.g., /hesabim/favorilerim/).
+* **Stability:** Forced rewrite rule flush on version update to ensure URL consistency.
 
 = 4.9.7 =
 * Feature: Standardized Gutenberg block sidebars (InspectorControls) for consistent UI/UX.

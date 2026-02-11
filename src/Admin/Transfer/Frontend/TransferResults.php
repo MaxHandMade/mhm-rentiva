@@ -46,7 +46,10 @@ final class TransferResults extends AbstractShortcode
      */
     protected static function get_default_attributes(): array
     {
-        return array();
+        return array(
+            'show_favorite_button' => '1',
+            'show_compare_button'  => '1',
+        );
     }
 
     /**

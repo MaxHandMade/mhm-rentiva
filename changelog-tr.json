@@ -1,5 +1,23 @@
 [
     {
+        "version": "4.9.8",
+        "date": "2026-02-09",
+        "changes": [
+            {
+                "type": "fix",
+                "description": "WooCommerce Hesabım uç noktalarında fiziksel sayfa kısa isimlerine (slug) mutlak öncelik verildi."
+            },
+            {
+                "type": "improvement",
+                "description": "Entegre panel düzeni korundu; özel linklerde (örn. /favorilerim/) dışa yönlendirme sorunu giderildi."
+            },
+            {
+                "type": "stability",
+                "description": "URL tutarlılığı için 4.9.8 güncellemesinde kalıcı linklerin (rewrite rules) otomatik yenilenmesi sağlandı."
+            }
+        ]
+    },
+    {
         "version": "4.9.7",
         "date": "2026-02-08",
         "changes": [

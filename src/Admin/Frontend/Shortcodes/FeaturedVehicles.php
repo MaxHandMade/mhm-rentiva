@@ -43,8 +43,20 @@ final class FeaturedVehicles extends AbstractShortcode
             'columns'  => '3',
             'autoplay' => '1',
             'interval' => '5000',
-            'orderby'  => 'date',  // date, price, title, rand
-            'order'    => 'DESC',
+            'orderby'          => 'date',
+            'order'            => 'DESC',
+            'show_price'       => '1',
+            'show_rating'      => '1',
+            'show_category'    => '1',
+            'show_book_button' => '1',
+            'show_features'    => '0',
+            'show_brand'       => '0',
+            'show_availability' => '0',
+            'show_compare_btn' => '1',
+            'show_compare_button' => '1',
+            'show_badges'      => '1',
+            'show_favorite_btn' => '1',
+            'show_favorite_button' => '1',
         );
     }
 
@@ -107,10 +119,20 @@ final class FeaturedVehicles extends AbstractShortcode
             }
         }
 
+        // Standardize vehicle data using VehiclesList helper
+        $standardized_vehicles = array();
+        foreach ($vehicles as $vehicle_raw) {
+            // Check if vehicle_raw is array or object, helper expects ID
+            $v_id = is_array($vehicle_raw) ? ($vehicle_raw['id'] ?? 0) : ($vehicle_raw->ID ?? 0);
+            if ($v_id) {
+                $standardized_vehicles[] = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_data_for_shortcode($v_id, $atts);
+            }
+        }
+
         return array(
             'atts'      => $atts,
-            'vehicles'  => $vehicles,
-            'has_posts' => ! empty($vehicles),
+            'vehicles'  => $standardized_vehicles,
+            'has_posts' => ! empty($standardized_vehicles),
         );
     }
 
@@ -131,6 +153,11 @@ final class FeaturedVehicles extends AbstractShortcode
         return $files;
     }
 
+    protected static function get_css_dependencies(): array
+    {
+        return array('mhm-vehicle-card-css');
+    }
+
     protected static function get_js_files(array $atts = []): array
     {
         $files = [];
@@ -144,7 +171,7 @@ final class FeaturedVehicles extends AbstractShortcode
 
     protected static function get_js_dependencies(): array
     {
-        return array('jquery', 'mhm-swiper');
+        return array('jquery', 'mhm-vehicle-interactions', 'mhm-swiper');
     }
 
     protected static function get_js_config(): array

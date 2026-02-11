@@ -130,9 +130,11 @@ final class AccountRenderer
 		wp_enqueue_style(
 			'mhm-rentiva-vehicles-grid',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicles-grid.css',
-			array(),
 			MHM_RENTIVA_VERSION
 		);
+
+		// Enqueue global interactions (v1.3.3)
+		wp_enqueue_script('mhm-vehicle-interactions');
 
 		// Localize (grid/list ortak)
 		wp_localize_script(
