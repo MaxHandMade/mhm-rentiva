@@ -1,8 +1,47 @@
-# ============================================================================
-# MHM Rentiva - WordPress Plugin
-# .gitignore - Repository Standardization (v4.6.7)
-# Last Updated: 2026-02-01
-# ============================================================================
+# Ignore everything by default, then whitelist plugin core files/folders
+# (This keeps only the plugin content tracked in git)
+/*
+
+# Keep git metadata and .gitignore itself
+!/.git/
+!/.gitignore
+!/.gitattributes
+
+# Plugin core — whitelist these (and their contents)
+!/src/
+!/assets/
+!/templates/
+!/languages/
+!/tests/
+!/mhm-rentiva.php
+!/uninstall.php
+!/readme.txt
+!/README.md
+!/composer.json
+!/changelog.json
+!/phpunit.xml
+
+#!/ Ensure whitelisted directories' contents are tracked
+!/src/**
+!/assets/**
+!/templates/**
+!/languages/**
+!/tests/**
+
+# Keep common config files
+!/.github/
+
+# Developer/editor/system files should remain ignored even if present
+.DS_Store
+*.log
+node_modules/
+vendor/
+.env
+.env.*
+.idea/
+.vscode/
+
+# End of .gitignore — only plugin core is whitelisted
 
 # ============================================================================
 # SECTION 1: OS & System Files
