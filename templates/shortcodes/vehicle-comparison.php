@@ -12,8 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-
-
 // Get template data
 $atts             = $atts ?? array();
 $vehicles         = $vehicles ?? array();
@@ -34,24 +32,26 @@ $custom_class = trim( $atts['class'] ?? '' );
 
 <div class="rv-vehicle-comparison rv-vehicle-comparison-container rv-layout-table" data-max-vehicles="<?php echo esc_attr( $max_vehicles ); ?>" data-features='<?php echo esc_attr( wp_json_encode( $features ) ); ?>' data-all-vehicles='<?php echo esc_attr( wp_json_encode( $all_vehicles ) ); ?>'>
 
-	<!-- Add Vehicle Section -->
-	<div class="rv-add-vehicle-section">
-		<div class="rv-add-vehicle-form">
-			<div class="rv-form-row">
-				<select id="rv-add-vehicle-select" class="rv-vehicle-select">
-					<option value=""><?php echo esc_html__( 'Select a vehicle to compare', 'mhm-rentiva' ); ?></option>
-					<?php foreach ( $all_vehicles as $vehicle ) : ?>
-						<option value="<?php echo esc_attr( $vehicle['id'] ); ?>">
-							<?php echo esc_html( $vehicle['title'] ); ?>
-						</option>
-					<?php endforeach; ?>
-				</select>
-				<button type="button" id="rv-add-vehicle-btn" class="rv-add-vehicle-btn">
-					<?php echo esc_html__( 'Add Vehicle', 'mhm-rentiva' ); ?>
-				</button>
+	<!-- Add Vehicle Section (Gated) -->
+	<?php if ( $show_add_vehicle ) : ?>
+		<div class="rv-add-vehicle-section">
+			<div class="rv-add-vehicle-form">
+				<div class="rv-form-row">
+					<select id="rv-add-vehicle-select" class="rv-vehicle-select">
+						<option value=""><?php echo esc_html__( 'Select a vehicle to compare', 'mhm-rentiva' ); ?></option>
+						<?php foreach ( $all_vehicles as $vehicle ) : ?>
+							<option value="<?php echo esc_attr( $vehicle['id'] ); ?>">
+								<?php echo esc_html( $vehicle['title'] ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+					<button type="button" id="rv-add-vehicle-btn" class="rv-add-vehicle-btn">
+						<?php echo esc_html__( 'Add Vehicle', 'mhm-rentiva' ); ?>
+					</button>
+				</div>
 			</div>
 		</div>
-	</div>
+	<?php endif; ?>
 
 	<!-- Comparison Content -->
 	<?php if ( $has_vehicles ) : ?>
@@ -59,7 +59,15 @@ $custom_class = trim( $atts['class'] ?? '' );
 
 			<!-- Comparison Header -->
 			<div class="rv-comparison-header">
-				<h3><?php echo esc_html__( 'Vehicle Comparison', 'mhm-rentiva' ); ?></h3>
+				<h3>
+					<?php
+					if ( ! empty( $atts['title'] ) ) {
+						echo esc_html( $atts['title'] );
+					} else {
+						echo esc_html__( 'Vehicle Comparison', 'mhm-rentiva' );
+					}
+					?>
+				</h3>
 				<div class="rv-comparison-count">
 					<?php
 					$count = count( $vehicles );
@@ -81,7 +89,7 @@ $custom_class = trim( $atts['class'] ?? '' );
 							<tr>
 								<th class="rv-feature-column"><?php echo esc_html__( 'Feature', 'mhm-rentiva' ); ?></th>
 								<?php foreach ( $vehicles as $vehicle ) : ?>
-									<th class="rv-vehicle-column">
+									<th class="rv-vehicle-column" data-vehicle-id="<?php echo esc_attr( $vehicle['id'] ); ?>">
 										<div class="rv-vehicle-header">
 											<div class="rv-vehicle-image-container">
 												<?php if ( ! empty( $vehicle['image_url'] ) ) : ?>
@@ -145,17 +153,20 @@ $custom_class = trim( $atts['class'] ?? '' );
 							<?php foreach ( $features as $feature_key => $feature_label ) : ?>
 								<?php
 								if ( $feature_key === 'price_per_day' ) {
-									continue;}
+									continue;
+								}
 								?>
 								<tr class="rv-feature-row">
 									<td class="rv-feature-label"><?php echo esc_html( $feature_label ); ?></td>
 									<?php foreach ( $vehicles as $vehicle ) : ?>
-										<td class="rv-feature-value">
+										<td class="rv-feature-value" data-vehicle-id="<?php echo esc_attr( $vehicle['id'] ); ?>">
 											<?php
-											$value = $vehicle['features'][ $feature_key ] ?? '-';
-
-											// Completely dynamic - no hardcoded fields since price is skipped
-											echo '<span class="rv-feature-text">' . esc_html( $value ) . '</span>';
+											$value = $vehicle['features'][ $feature_key ] ?? '–';
+											// Defense-in-depth: ensure value is always a string
+											if ( is_array( $value ) ) {
+												$value = implode( ', ', array_filter( array_map( 'strval', $value ) ) );
+											}
+											echo '<span class="rv-feature-text">' . esc_html( (string) $value ) . '</span>';
 											?>
 										</td>
 									<?php endforeach; ?>
@@ -165,12 +176,11 @@ $custom_class = trim( $atts['class'] ?? '' );
 					</table>
 				</div>
 
-				<!-- Mobile List Layout (Visible on small screens only) -->
+				<!-- Mobile List Layout -->
 				<div class="rv-comparison-mobile-list">
 					<?php foreach ( $vehicles as $vehicle ) : ?>
-						<div class="rv-mobile-card-item">
+						<div class="rv-mobile-card-item" data-vehicle-id="<?php echo esc_attr( $vehicle['id'] ); ?>">
 
-							<!-- Mobile Header: Image, Title, Badge, Toggle -->
 							<div class="rv-mobile-card-header-wrapper">
 								<div class="rv-mobile-card-image">
 									<?php if ( ! empty( $vehicle['image_url'] ) ) : ?>
@@ -208,28 +218,28 @@ $custom_class = trim( $atts['class'] ?? '' );
 								</button>
 							</div>
 
-							<!-- Accordion Toggle -->
 							<button type="button" class="rv-mobile-accordion-toggle" onclick="this.parentElement.classList.toggle('active');">
 								<span><?php echo esc_html__( 'Show Features', 'mhm-rentiva' ); ?></span>
 								<span class="dashicons dashicons-arrow-down-alt2"></span>
 							</button>
 
-							<!-- Accordion Content -->
 							<div class="rv-mobile-accordion-content">
 								<div class="rv-mobile-features-list">
 									<?php foreach ( $features as $feature_key => $feature_label ) : ?>
 										<?php
 										if ( $feature_key === 'price_per_day' ) {
-											continue;}
+											continue;
+										}
 										?>
 										<div class="rv-mobile-feature-row">
 											<span class="rv-mobile-label"><?php echo esc_html( $feature_label ); ?></span>
 											<span class="rv-mobile-value">
 												<?php
-												$value = $vehicle['features'][ $feature_key ] ?? '-';
-
-												// Dynamic text output
-												echo esc_html( $value );
+												$value = $vehicle['features'][ $feature_key ] ?? '–';
+												if ( is_array( $value ) ) {
+													$value = implode( ', ', array_filter( array_map( 'strval', $value ) ) );
+												}
+												echo esc_html( (string) $value );
 												?>
 											</span>
 										</div>
@@ -238,7 +248,6 @@ $custom_class = trim( $atts['class'] ?? '' );
 
 								<div class="rv-mobile-actions">
 									<?php
-									$btn_style = '';
 									$btn_class = 'rv-book-now-btn rv-mobile-btn';
 									$btn_href  = esc_url( $vehicle['permalink'] );
 									$btn_attrs = '';
@@ -259,8 +268,8 @@ $custom_class = trim( $atts['class'] ?? '' );
 					<?php endforeach; ?>
 				</div>
 
-				<!-- Card Layout -->
 			<?php else : ?>
+				<!-- Card Layout -->
 				<div class="rv-comparison-cards">
 					<?php foreach ( $vehicles as $vehicle ) : ?>
 						<div class="rv-vehicle-card" data-vehicle-id="<?php echo esc_attr( $vehicle['id'] ); ?>">
@@ -292,9 +301,11 @@ $custom_class = trim( $atts['class'] ?? '' );
 										<span class="rv-feature-label"><?php echo esc_html( $feature_label ); ?>:</span>
 										<span class="rv-feature-value">
 											<?php
-											$value = $vehicle['features'][ $feature_key ] ?? '-';
+											$value = $vehicle['features'][ $feature_key ] ?? '–';
+											if ( is_array( $value ) ) {
+												$value = implode( ', ', array_filter( array_map( 'strval', $value ) ) );
+											}
 
-											// Special formatting for specific fields
 											if ( $feature_key === 'price_per_day' && $show_prices ) {
 												if ( $value > 0 ) {
 													echo '<span class="rv-price">';
@@ -305,8 +316,7 @@ $custom_class = trim( $atts['class'] ?? '' );
 													echo '<span class="rv-no-price">-</span>';
 												}
 											} else {
-												// Completely dynamic - no hardcoded fields
-												echo '<span class="rv-feature-text">' . esc_html( $value ) . '</span>';
+												echo '<span class="rv-feature-text">' . esc_html( (string) $value ) . '</span>';
 											}
 											?>
 										</span>
@@ -337,6 +347,21 @@ $custom_class = trim( $atts['class'] ?? '' );
 			<?php endif; ?>
 
 		</div>
+	<?php else : ?>
+		<!-- Threshold/Empty State Message -->
+		<div class="rv-comparison-empty-state" style="text-align: center; padding: 60px 20px; background: #fff; border-radius: 12px; border: 2px dashed #e0e0e0; margin: 40px auto; max-width: 600px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+			<div class="rv-empty-icon" style="font-size: 4em; color: #ddd; margin-bottom: 20px;">
+				<span class="dashicons dashicons-forms" style="font-size: inherit; width: auto; height: auto;"></span>
+			</div>
+			<h4 style="margin-bottom: 12px; font-size: 1.4em; color: #333;"><?php echo esc_html__( 'Comparison list is ready!', 'mhm-rentiva' ); ?></h4>
+			<p style="color: #666; font-size: 1.1em; line-height: 1.6;"><?php echo esc_html__( 'Please add at least 2 vehicles to see the detailed comparison table.', 'mhm-rentiva' ); ?></p>
+			<?php
+			$search_url = get_post_type_archive_link( 'vehicle' ) ?: home_url( '/' );
+			?>
+			<a href="<?php echo esc_url( $search_url ); ?>" class="rv-book-now-btn" style="display: inline-block; margin-top: 25px; padding: 12px 30px; font-size: 1.1em; text-decoration: none; border-radius: 8px;">
+				<?php echo esc_html__( 'Browse Vehicles', 'mhm-rentiva' ); ?>
+			</a>
+		</div>
 	<?php endif; ?>
 
 	<div class="rv-messages">
@@ -345,5 +370,3 @@ $custom_class = trim( $atts['class'] ?? '' );
 	</div>
 
 </div>
-
-<!-- JavaScript Configuration moved to separate file -->
