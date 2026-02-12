@@ -8,84 +8,104 @@ use Elementor\Controls_Manager;
 use MHMRentiva\Admin\Frontend\Widgets\Base\ElementorWidgetBase;
 use MHMRentiva\Admin\Frontend\Shortcodes\FeaturedVehicles;
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 /**
  * Featured Vehicles Elementor Widget
  */
-class FeaturedVehiclesWidget extends ElementorWidgetBase
-{
+class FeaturedVehiclesWidget extends ElementorWidgetBase {
 
-    public function get_name(): string
-    {
-        return 'mhm_rentiva_featured_vehicles';
-    }
 
-    public function get_title(): string
-    {
-        return __('MHM Featured Vehicles', 'mhm-rentiva');
-    }
+	public function get_name(): string {
+		return 'mhm_rentiva_featured_vehicles';
+	}
 
-    public function get_icon(): string
-    {
-        return 'eicon-star';
-    }
+	public function get_title(): string {
+		return __( 'MHM Featured Vehicles', 'mhm-rentiva' );
+	}
 
-    protected function register_controls(): void
-    {
-        $this->start_controls_section('section_content', [
-            'label' => __('Content Settings', 'mhm-rentiva'),
-        ]);
+	public function get_icon(): string {
+		return 'eicon-star';
+	}
 
-        $this->add_control('limit', [
-            'label'   => __('Limit', 'mhm-rentiva'),
-            'type'    => 'number',
-            'default' => 6,
-        ]);
+	protected function register_controls(): void {
+		$this->start_controls_section(
+			'section_content',
+			array(
+				'label' => __( 'Content Settings', 'mhm-rentiva' ),
+			)
+		);
 
-        $this->add_control('layout', [
-            'label'   => __('Layout', 'mhm-rentiva'),
-            'type'    => 'select',
-            'default' => 'slider',
-            'options' => [
-                'slider' => __('Slider', 'mhm-rentiva'),
-                'grid'   => __('Grid', 'mhm-rentiva'),
-            ],
-        ]);
+		$this->add_control(
+			'limit',
+			array(
+				'label'   => __( 'Limit', 'mhm-rentiva' ),
+				'type'    => 'number',
+				'default' => 6,
+			)
+		);
 
-        $this->add_control('columns', [
-            'label'   => __('Columns', 'mhm-rentiva'),
-            'type'    => 'select',
-            'default' => '3',
-            'options' => [
-                '2' => '2',
-                '3' => '3',
-                '4' => '4',
-            ],
-            'condition' => [
-                'layout' => 'grid',
-            ],
-        ]);
+		$this->add_control(
+			'layout',
+			array(
+				'label'   => __( 'Layout', 'mhm-rentiva' ),
+				'type'    => 'select',
+				'default' => 'slider',
+				'options' => array(
+					'slider' => __( 'Slider', 'mhm-rentiva' ),
+					'grid'   => __( 'Grid', 'mhm-rentiva' ),
+				),
+			)
+		);
 
-        $this->end_controls_section();
+		$this->add_control(
+			'columns',
+			array(
+				'label'     => __( 'Columns', 'mhm-rentiva' ),
+				'type'      => 'select',
+				'default'   => '3',
+				'options'   => array(
+					'2' => '2',
+					'3' => '3',
+					'4' => '4',
+				),
+				'condition' => array(
+					'layout' => 'grid',
+				),
+			)
+		);
 
-        $this->register_standard_style_controls(
-            'title_style',
-            __('Vehicle Title', 'mhm-rentiva'),
-            '.rv-vehicle-card__title a'
-        );
-    }
+		$this->end_controls_section();
 
-    protected function render(): void
-    {
-        $atts = $this->get_prepared_atts();
-        $data = FeaturedVehicles::get_data($atts);
+		$this->register_standard_style_controls(
+			'title_style',
+			__( 'Vehicle Title', 'mhm-rentiva' ),
+			'.rv-vehicle-card__title a'
+		);
+	}
 
-        if (!empty($data)) {
-            extract($data);
-            include MHM_RENTIVA_PLUGIN_DIR . 'templates/shortcodes/featured-vehicles.php';
-        }
-    }
+	protected function render(): void {
+		$atts = $this->get_prepared_atts();
+		$data = FeaturedVehicles::get_data( $atts );
+		if ( ! empty( $data ) ) {
+			$template_path = MHM_RENTIVA_PLUGIN_DIR . 'templates/shortcodes/featured-vehicles.php';
+			self::include_template_with_vars( $template_path, $data );
+		}
+	}
+
+	private static function include_template_with_vars( string $template_path, array $template_data ): void {
+
+		( static function () use ( $template_path, $template_data ): void {
+
+			foreach ( $template_data as $key => $value ) {
+				if ( ! is_string( $key ) || ! preg_match( '/^[A-Za-z_][A-Za-z0-9_]*$/', $key ) ) {
+					continue;
+				}
+				${$key} = $value; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			}
+			include $template_path;
+		} )();
+	}
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -15,17 +15,16 @@ use MHMRentiva\Admin\REST\Settings\RESTSettings;
  *
  * Protects API endpoints against brute force attacks
  */
-final class RateLimiter
-{
+final class RateLimiter {
+
 
 	/**
 	 * Rate limit configurations
 	 */
-	private static function get_rate_limits(): array
-	{
+	private static function get_rate_limits(): array {
 		$settings      = RESTSettings::get_rate_limit_settings();
-		$default_limit = (int) ($settings['default_limit'] ?? 60);
-		$strict_limit  = (int) ($settings['strict_limit'] ?? 10);
+		$default_limit = (int) ( $settings['default_limit'] ?? 60 );
+		$strict_limit  = (int) ( $settings['strict_limit'] ?? 10 );
 
 		return array(
 			'general'            => array(
@@ -69,26 +68,25 @@ final class RateLimiter
 	 * @param string $action Action type
 	 * @return bool Is rate limit exceeded?
 	 */
-	public static function check(string $identifier, string $action = 'general'): bool
-	{
+	public static function check( string $identifier, string $action = 'general' ): bool {
 		// Return true always if rate limiter is not enabled
 		$settings = RESTSettings::get_rate_limit_settings();
-		if (empty($settings['enabled'])) {
+		if ( empty( $settings['enabled'] ) ) {
 			return true;
 		}
 
 		$rate_limits = self::get_rate_limits();
-		$limits      = $rate_limits[$action] ?? $rate_limits['general'];
+		$limits      = $rate_limits[ $action ] ?? $rate_limits['general'];
 
 		// Check for each timeframe
 		$checks = array(
-			'minute' => self::checkTimeframe($identifier, $action, 'minute', $limits['max_per_minute'], MINUTE_IN_SECONDS),
-			'hour'   => self::checkTimeframe($identifier, $action, 'hour', $limits['max_per_hour'], HOUR_IN_SECONDS),
-			'day'    => self::checkTimeframe($identifier, $action, 'day', $limits['max_per_day'], DAY_IN_SECONDS),
+			'minute' => self::checkTimeframe( $identifier, $action, 'minute', $limits['max_per_minute'], MINUTE_IN_SECONDS ),
+			'hour'   => self::checkTimeframe( $identifier, $action, 'hour', $limits['max_per_hour'], HOUR_IN_SECONDS ),
+			'day'    => self::checkTimeframe( $identifier, $action, 'day', $limits['max_per_day'], DAY_IN_SECONDS ),
 		);
 
 		// Return false if limit exceeded in any timeframe
-		return ! in_array(false, $checks, true);
+		return ! in_array( false, $checks, true );
 	}
 
 	/**
@@ -101,19 +99,18 @@ final class RateLimiter
 	 * @param int    $duration Duration in seconds
 	 * @return bool Is limit exceeded?
 	 */
-	private static function checkTimeframe(string $identifier, string $action, string $timeframe, int $max_requests, int $duration): bool
-	{
-		$cache_key        = self::getCacheKey($identifier, $action, $timeframe);
-		$current_requests = (int) get_transient($cache_key);
+	private static function checkTimeframe( string $identifier, string $action, string $timeframe, int $max_requests, int $duration ): bool {
+		$cache_key        = self::getCacheKey( $identifier, $action, $timeframe );
+		$current_requests = (int) get_transient( $cache_key );
 
-		if ($current_requests >= $max_requests) {
+		if ( $current_requests >= $max_requests ) {
 			// Rate limit exceeded - log it
-			self::logRateLimitExceeded($identifier, $action, $timeframe, $current_requests, $max_requests);
+			self::logRateLimitExceeded( $identifier, $action, $timeframe, $current_requests, $max_requests );
 			return false;
 		}
 
 		// Increment request count
-		set_transient($cache_key, $current_requests + 1, $duration);
+		set_transient( $cache_key, $current_requests + 1, $duration );
 
 		return true;
 	}
@@ -126,9 +123,8 @@ final class RateLimiter
 	 * @param string $timeframe Timeframe
 	 * @return string Cache key
 	 */
-	private static function getCacheKey(string $identifier, string $action, string $timeframe): string
-	{
-		$hash = hash('sha256', $identifier);
+	private static function getCacheKey( string $identifier, string $action, string $timeframe ): string {
+		$hash = hash( 'sha256', $identifier );
 		return "rate_limit_{$action}_{$timeframe}_{$hash}";
 	}
 
@@ -141,8 +137,7 @@ final class RateLimiter
 	 * @param int    $current_requests Current request count
 	 * @param int    $max_requests Max request count
 	 */
-	private static function logRateLimitExceeded(string $identifier, string $action, string $timeframe, int $current_requests, int $max_requests): void
-	{
+	private static function logRateLimitExceeded( string $identifier, string $action, string $timeframe, int $current_requests, int $max_requests ): void {
 		\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::security(
 			'Rate Limit Exceeded',
 			array(
@@ -163,22 +158,21 @@ final class RateLimiter
 	 * @param string $action Action type
 	 * @return array Rate limit statistics
 	 */
-	public static function getStats(string $identifier, string $action = 'general'): array
-	{
+	public static function getStats( string $identifier, string $action = 'general' ): array {
 		$rate_limits = self::get_rate_limits();
-		$limits      = $rate_limits[$action] ?? $rate_limits['general'];
+		$limits      = $rate_limits[ $action ] ?? $rate_limits['general'];
 
 		return array(
 			'minute' => array(
-				'current' => (int) get_transient(self::getCacheKey($identifier, $action, 'minute')),
+				'current' => (int) get_transient( self::getCacheKey( $identifier, $action, 'minute' ) ),
 				'limit'   => $limits['max_per_minute'],
 			),
 			'hour'   => array(
-				'current' => (int) get_transient(self::getCacheKey($identifier, $action, 'hour')),
+				'current' => (int) get_transient( self::getCacheKey( $identifier, $action, 'hour' ) ),
 				'limit'   => $limits['max_per_hour'],
 			),
 			'day'    => array(
-				'current' => (int) get_transient(self::getCacheKey($identifier, $action, 'day')),
+				'current' => (int) get_transient( self::getCacheKey( $identifier, $action, 'day' ) ),
 				'limit'   => $limits['max_per_day'],
 			),
 		);
@@ -191,14 +185,13 @@ final class RateLimiter
 	 * @param string $action Action type
 	 * @return bool Success status
 	 */
-	public static function clear(string $identifier, string $action = 'general'): bool
-	{
-		$timeframes = array('minute', 'hour', 'day');
+	public static function clear( string $identifier, string $action = 'general' ): bool {
+		$timeframes = array( 'minute', 'hour', 'day' );
 		$success    = true;
 
-		foreach ($timeframes as $timeframe) {
-			$cache_key = self::getCacheKey($identifier, $action, $timeframe);
-			if (! delete_transient($cache_key)) {
+		foreach ( $timeframes as $timeframe ) {
+			$cache_key = self::getCacheKey( $identifier, $action, $timeframe );
+			if ( ! delete_transient( $cache_key ) ) {
 				$success = false;
 			}
 		}
@@ -214,14 +207,13 @@ final class RateLimiter
 	 * @param int    $duration_seconds Reset duration (seconds)
 	 * @return bool Success status
 	 */
-	public static function reset(string $identifier, string $action = 'general', int $duration_seconds = 3600): bool
-	{
-		$timeframes = array('minute', 'hour', 'day');
+	public static function reset( string $identifier, string $action = 'general', int $duration_seconds = 3600 ): bool {
+		$timeframes = array( 'minute', 'hour', 'day' );
 		$success    = true;
 
-		foreach ($timeframes as $timeframe) {
-			$cache_key = self::getCacheKey($identifier, $action, $timeframe);
-			if (! set_transient($cache_key, 0, $duration_seconds)) {
+		foreach ( $timeframes as $timeframe ) {
+			$cache_key = self::getCacheKey( $identifier, $action, $timeframe );
+			if ( ! set_transient( $cache_key, 0, $duration_seconds ) ) {
 				$success = false;
 			}
 		}
@@ -234,8 +226,7 @@ final class RateLimiter
 	 *
 	 * @return string Client IP
 	 */
-	public static function getClientIP(): string
-	{
+	public static function getClientIP(): string {
 		$ip_headers = array(
 			'HTTP_CF_CONNECTING_IP',     // Cloudflare
 			'HTTP_CLIENT_IP',
@@ -247,12 +238,12 @@ final class RateLimiter
 			'REMOTE_ADDR',
 		);
 
-		foreach ($ip_headers as $header) {
-			if (! empty($_SERVER[$header])) {
-				$ips = explode(',', $_SERVER[$header]);
-				$ip  = trim($ips[0]);
+		foreach ( $ip_headers as $header ) {
+			if ( ! empty( $_SERVER[ $header ] ) ) {
+				$ips = explode( ',', $_SERVER[ $header ] );
+				$ip  = trim( $ips[0] );
 
-				if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+				if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
 					return $ip;
 				}
 			}
@@ -267,16 +258,15 @@ final class RateLimiter
 	 * @param string $action Action type
 	 * @return bool|WP_Error Rate limit status
 	 */
-	public static function middleware(string $action = 'general')
-	{
+	public static function middleware( string $action = 'general' ) {
 		$identifier = self::getClientIP();
 
-		if (! self::check($identifier, $action)) {
-			$stats = self::getStats($identifier, $action);
+		if ( ! self::check( $identifier, $action ) ) {
+			$stats = self::getStats( $identifier, $action );
 
 			return new \WP_Error(
 				'rate_limit_exceeded',
-				__('Too many requests. Please try again later.', 'mhm-rentiva'),
+				__( 'Too many requests. Please try again later.', 'mhm-rentiva' ),
 				array(
 					'status'           => 429,
 					'retry_after'      => 60, // 1 dakika
@@ -297,21 +287,20 @@ final class RateLimiter
 	 * @param string $identifier Client identifier
 	 * @param string $action Action type
 	 */
-	public static function addResponseHeaders(string $identifier, string $action = 'general'): void
-	{
-		$stats = self::getStats($identifier, $action);
+	public static function addResponseHeaders( string $identifier, string $action = 'general' ): void {
+		$stats = self::getStats( $identifier, $action );
 
-		header("X-RateLimit-Limit-Minute: {$stats['minute']['limit']}");
-		header('X-RateLimit-Remaining-Minute: ' . max(0, $stats['minute']['limit'] - $stats['minute']['current']));
-		header('X-RateLimit-Reset-Minute: ' . (time() + MINUTE_IN_SECONDS));
+		header( "X-RateLimit-Limit-Minute: {$stats['minute']['limit']}" );
+		header( 'X-RateLimit-Remaining-Minute: ' . max( 0, $stats['minute']['limit'] - $stats['minute']['current'] ) );
+		header( 'X-RateLimit-Reset-Minute: ' . ( time() + MINUTE_IN_SECONDS ) );
 
-		header("X-RateLimit-Limit-Hour: {$stats['hour']['limit']}");
-		header('X-RateLimit-Remaining-Hour: ' . max(0, $stats['hour']['limit'] - $stats['hour']['current']));
-		header('X-RateLimit-Reset-Hour: ' . (time() + HOUR_IN_SECONDS));
+		header( "X-RateLimit-Limit-Hour: {$stats['hour']['limit']}" );
+		header( 'X-RateLimit-Remaining-Hour: ' . max( 0, $stats['hour']['limit'] - $stats['hour']['current'] ) );
+		header( 'X-RateLimit-Reset-Hour: ' . ( time() + HOUR_IN_SECONDS ) );
 
-		header("X-RateLimit-Limit-Day: {$stats['day']['limit']}");
-		header('X-RateLimit-Remaining-Day: ' . max(0, $stats['day']['limit'] - $stats['day']['current']));
-		header('X-RateLimit-Reset-Day: ' . (time() + DAY_IN_SECONDS));
+		header( "X-RateLimit-Limit-Day: {$stats['day']['limit']}" );
+		header( 'X-RateLimit-Remaining-Day: ' . max( 0, $stats['day']['limit'] - $stats['day']['current'] ) );
+		header( 'X-RateLimit-Reset-Day: ' . ( time() + DAY_IN_SECONDS ) );
 	}
 
 	/**
@@ -320,10 +309,9 @@ final class RateLimiter
 	 * @param string $action Action type
 	 * @return array Rate limit configuration
 	 */
-	public static function getConfig(string $action = 'general'): array
-	{
+	public static function getConfig( string $action = 'general' ): array {
 		$rate_limits = self::get_rate_limits();
-		return $rate_limits[$action] ?? $rate_limits['general'];
+		return $rate_limits[ $action ] ?? $rate_limits['general'];
 	}
 
 	/**
@@ -333,10 +321,9 @@ final class RateLimiter
 	 * @param array  $config New configuration
 	 * @return bool Success status
 	 */
-	public static function updateConfig(string $action, array $config): bool
-	{
+	public static function updateConfig( string $action, array $config ): bool {
 		$rate_limits = self::get_rate_limits();
-		if (! isset($rate_limits[$action])) {
+		if ( ! isset( $rate_limits[ $action ] ) ) {
 			return false;
 		}
 
@@ -350,8 +337,7 @@ final class RateLimiter
 	 *
 	 * @return array Global rate limit status
 	 */
-	public static function getGlobalStats(): array
-	{
+	public static function getGlobalStats(): array {
 		global $wpdb;
 
 		$transients = $wpdb->get_results(
@@ -363,29 +349,29 @@ final class RateLimiter
 		);
 
 		$stats = array(
-			'total_active_limits' => count($transients),
+			'total_active_limits' => count( $transients ),
 			'actions'             => array(),
 			'top_offenders'       => array(),
 		);
 
-		foreach ($transients as $transient) {
-			$key   = str_replace('_transient_', '', $transient['option_name']);
-			$parts = explode('_', $key);
+		foreach ( $transients as $transient ) {
+			$key   = str_replace( '_transient_', '', $transient['option_name'] );
+			$parts = explode( '_', $key );
 
-			if (count($parts) >= 4) {
+			if ( count( $parts ) >= 4 ) {
 				$action          = $parts[2];
 				$timeframe       = $parts[3];
 				$identifier_hash = $parts[4];
 
-				if (! isset($stats['actions'][$action])) {
-					$stats['actions'][$action] = array();
+				if ( ! isset( $stats['actions'][ $action ] ) ) {
+					$stats['actions'][ $action ] = array();
 				}
 
-				if (! isset($stats['actions'][$action][$timeframe])) {
-					$stats['actions'][$action][$timeframe] = 0;
+				if ( ! isset( $stats['actions'][ $action ][ $timeframe ] ) ) {
+					$stats['actions'][ $action ][ $timeframe ] = 0;
 				}
 
-				++$stats['actions'][$action][$timeframe];
+				++$stats['actions'][ $action ][ $timeframe ];
 			}
 		}
 

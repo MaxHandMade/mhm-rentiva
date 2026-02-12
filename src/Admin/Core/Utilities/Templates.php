@@ -20,13 +20,9 @@ final class Templates {
 			return;
 		}
 
-		if ( ! empty( $vars ) ) {
-			extract( $vars, EXTR_SKIP );
-		}
-
 		if ( $return ) {
 			ob_start();
-			include $file;
+			self::include_template_with_vars( $file, $vars );
 			$output = ob_get_clean();
 			// Remove all whitespace characters including newlines
 			$output = preg_replace( '/\s+/', ' ', $output );
@@ -34,7 +30,7 @@ final class Templates {
 			return (string) $output;
 		}
 
-		include $file;
+		self::include_template_with_vars( $file, $vars );
 	}
 
 	// Find file in theme > parent theme > plugin order
@@ -154,5 +150,23 @@ final class Templates {
 			'parent_theme'   => trailingslashit( get_template_directory() ) . 'mhm-rentiva/',
 			'plugin_default' => trailingslashit( plugin_dir_path( self::plugin_file() ) ) . 'templates/',
 		);
+	}
+
+	/**
+	 * Include template while mapping only valid variable names.
+	 *
+	 * @param string $file Template file path.
+	 * @param array  $vars Template vars.
+	 */
+	private static function include_template_with_vars( string $file, array $vars ): void {
+		( static function () use ( $file, $vars ): void {
+			foreach ( $vars as $key => $value ) {
+				if ( ! is_string( $key ) || ! preg_match( '/^[A-Za-z_][A-Za-z0-9_]*$/', $key ) ) {
+					continue;
+				}
+				${$key} = $value; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			}
+			include $file;
+		} )();
 	}
 }

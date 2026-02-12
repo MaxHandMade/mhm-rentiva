@@ -6,15 +6,15 @@ namespace MHMRentiva\Admin\Settings\View\Tabs;
 
 use MHMRentiva\Admin\Settings\View\AbstractTabRenderer;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Base Renderer for standard settings tabs that use Group classes
  */
-class BaseSettingsTabRenderer extends AbstractTabRenderer
-{
+class BaseSettingsTabRenderer extends AbstractTabRenderer {
+
 
 	/**
 	 * @param string      $label Tab Label
@@ -30,20 +30,19 @@ class BaseSettingsTabRenderer extends AbstractTabRenderer
 		protected readonly ?string $group_class = null,
 		protected readonly array $sections = array()
 	) {
-		parent::__construct($label, $slug);
+		parent::__construct( $label, $slug );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function render(): void
-	{
-		if ($this->group_class && class_exists($this->group_class)) {
+	public function render(): void {
+		if ( $this->group_class && class_exists( $this->group_class ) ) {
 			$class = $this->group_class;
 			$class::render_settings_section();
 		} else {
-			foreach ($this->sections as $section) {
-				$this->render_section_clean((string) $section);
+			foreach ( $this->sections as $section ) {
+				$this->render_section_clean( (string) $section );
 			}
 		}
 	}

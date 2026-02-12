@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -13,8 +13,8 @@ if (! defined('ABSPATH')) {
  *
  * Automatically creates critical indexes for performance optimization
  */
-final class DatabaseMigrator
-{
+final class DatabaseMigrator {
+
 
 
 
@@ -26,13 +26,12 @@ final class DatabaseMigrator
 	/**
 	 * Run all pending migrations
 	 */
-	public static function run_migrations(): void
-	{
-		$current_version = get_option('mhm_rentiva_db_version', '1.0.0');
+	public static function run_migrations(): void {
+		$current_version = get_option( 'mhm_rentiva_db_version', '1.0.0' );
 
-		if (version_compare($current_version, self::CURRENT_VERSION, '<')) {
+		if ( version_compare( $current_version, self::CURRENT_VERSION, '<' ) ) {
 			self::create_transfer_tables(); // VIP Transfer Tables
-			self::create_table('notification_queue');
+			self::create_table( 'notification_queue' );
 			self::add_performance_indexes();
 			self::optimize_existing_indexes();
 			self::add_missing_indexes();
@@ -40,10 +39,10 @@ final class DatabaseMigrator
 			self::migrate_standalone_settings();
 
 			// Update version in database
-			update_option('mhm_rentiva_db_version', self::CURRENT_VERSION);
+			update_option( 'mhm_rentiva_db_version', self::CURRENT_VERSION );
 
 			// Log migration
-			if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+			if ( class_exists( \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class ) ) {
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info(
 					'Database migration completed',
 					array(
@@ -60,8 +59,7 @@ final class DatabaseMigrator
 	/**
 	 * Add critical performance indexes
 	 */
-	private static function add_performance_indexes(): void
-	{
+	private static function add_performance_indexes(): void {
 		global $wpdb;
 
 		$indexes = array(
@@ -90,15 +88,15 @@ final class DatabaseMigrator
 			"CREATE INDEX IF NOT EXISTS idx_mhm_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))",
 		);
 
-		foreach ($indexes as $sql) {
+		foreach ( $indexes as $sql ) {
 			try {
 				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DDL statement using system prefix, strictly server-side.
-				$result = $wpdb->query($sql);
-				if ($result === false) {
-					self::log_index_error($sql, (string) $wpdb->last_error);
+				$result = $wpdb->query( $sql );
+				if ( $result === false ) {
+					self::log_index_error( $sql, (string) $wpdb->last_error );
 				}
-			} catch (\Exception $e) {
-				self::log_index_error($sql, $e->getMessage());
+			} catch ( \Exception $e ) {
+				self::log_index_error( $sql, $e->getMessage() );
 			}
 		}
 	}
@@ -106,8 +104,7 @@ final class DatabaseMigrator
 	/**
 	 * Optimize existing indexes
 	 */
-	private static function optimize_existing_indexes(): void
-	{
+	private static function optimize_existing_indexes(): void {
 		global $wpdb;
 
 		// Run index analysis
@@ -116,12 +113,12 @@ final class DatabaseMigrator
 			"ANALYZE TABLE {$wpdb->postmeta}",
 		);
 
-		foreach ($analysis_queries as $sql) {
+		foreach ( $analysis_queries as $sql ) {
 			try {
 				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DDL statement using system prefix, strictly server-side.
-				$wpdb->query($sql);
-			} catch (\Exception $e) {
-				self::log_index_error($sql, $e->getMessage());
+				$wpdb->query( $sql );
+			} catch ( \Exception $e ) {
+				self::log_index_error( $sql, $e->getMessage() );
 			}
 		}
 	}
@@ -129,22 +126,21 @@ final class DatabaseMigrator
 	/**
 	 * Detect and add missing indexes
 	 */
-	private static function add_missing_indexes(): void
-	{
+	private static function add_missing_indexes(): void {
 		global $wpdb;
 
 		// Detect missing indexes
 		$missing_indexes = self::detect_missing_indexes();
 
-		foreach ($missing_indexes as $index_sql) {
+		foreach ( $missing_indexes as $index_sql ) {
 			try {
 				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DDL statement using system prefix, strictly server-side.
-				$result = $wpdb->query($index_sql);
-				if ($result === false) {
-					self::log_index_error($index_sql, (string) $wpdb->last_error);
+				$result = $wpdb->query( $index_sql );
+				if ( $result === false ) {
+					self::log_index_error( $index_sql, (string) $wpdb->last_error );
 				}
-			} catch (\Exception $e) {
-				self::log_index_error($index_sql, $e->getMessage());
+			} catch ( \Exception $e ) {
+				self::log_index_error( $index_sql, $e->getMessage() );
 			}
 		}
 	}
@@ -152,8 +148,7 @@ final class DatabaseMigrator
 	/**
 	 * Detect missing metadata indexes
 	 */
-	private static function detect_missing_indexes(): array
-	{
+	private static function detect_missing_indexes(): array {
 		global $wpdb;
 
 		$missing_indexes = array();
@@ -170,9 +165,9 @@ final class DatabaseMigrator
 			'_mhm_customer_id',
 		);
 
-		foreach ($mhm_meta_keys as $meta_key) {
+		foreach ( $mhm_meta_keys as $meta_key ) {
 			// Create a specific index for each meta key
-			$index_name        = 'idx_mhm_' . str_replace('_mhm_', '', $meta_key);
+			$index_name        = 'idx_mhm_' . str_replace( '_mhm_', '', $meta_key );
 			$missing_indexes[] = "CREATE INDEX IF NOT EXISTS {$index_name} ON {$wpdb->postmeta} (meta_key(50), meta_value(50), post_id)";
 		}
 
@@ -182,8 +177,7 @@ final class DatabaseMigrator
 	/**
 	 * Check index status
 	 */
-	public static function check_index_status(): array
-	{
+	public static function check_index_status(): array {
 		global $wpdb;
 
 		$status = array(
@@ -196,32 +190,32 @@ final class DatabaseMigrator
 
 		try {
 			// Posts tablosu indexleri
-			$posts_indexes            = $wpdb->get_results("SHOW INDEX FROM {$wpdb->posts}");
-			$status['total_indexes'] += count($posts_indexes);
+			$posts_indexes            = $wpdb->get_results( "SHOW INDEX FROM {$wpdb->posts}" );
+			$status['total_indexes'] += count( $posts_indexes );
 
 			// Postmeta table indexes
-			$postmeta_indexes         = $wpdb->get_results("SHOW INDEX FROM {$wpdb->postmeta}");
-			$status['total_indexes'] += count($postmeta_indexes);
+			$postmeta_indexes         = $wpdb->get_results( "SHOW INDEX FROM {$wpdb->postmeta}" );
+			$status['total_indexes'] += count( $postmeta_indexes );
 
 			// Count MHM Rentiva indexes
-			foreach ($postmeta_indexes as $index) {
-				if (strpos($index->Key_name, 'idx_mhm_') === 0) {
+			foreach ( $postmeta_indexes as $index ) {
+				if ( strpos( $index->Key_name, 'idx_mhm_' ) === 0 ) {
 					++$status['mhm_indexes'];
 				}
 			}
 
 			// Calculate performance score
-			$status['performance_score'] = min(100, ($status['mhm_indexes'] / 8) * 100);
+			$status['performance_score'] = min( 100, ( $status['mhm_indexes'] / 8 ) * 100 );
 
 			// Recommendations
-			if ($status['mhm_indexes'] < 5) {
+			if ( $status['mhm_indexes'] < 5 ) {
 				$status['recommendations'][] = 'More MHM Rentiva indexes should be added';
 			}
 
-			if ($status['performance_score'] < 70) {
+			if ( $status['performance_score'] < 70 ) {
 				$status['recommendations'][] = 'Database performance should be optimized';
 			}
-		} catch (\Exception $e) {
+		} catch ( \Exception $e ) {
 			$status['error'] = $e->getMessage();
 		}
 
@@ -231,8 +225,7 @@ final class DatabaseMigrator
 	/**
 	 * Index performans testi
 	 */
-	public static function test_index_performance(): array
-	{
+	public static function test_index_performance(): array {
 		global $wpdb;
 
 		$results = array();
@@ -261,14 +254,14 @@ final class DatabaseMigrator
             ",
 		);
 
-		foreach ($test_queries as $test_name => $query) {
-			$start_time = microtime(true);
+		foreach ( $test_queries as $test_name => $query ) {
+			$start_time = microtime( true );
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: Constant test queries defined in code, safe from user input.
-			$result   = $wpdb->get_var($query);
-			$end_time = microtime(true);
+			$result   = $wpdb->get_var( $query );
+			$end_time = microtime( true );
 
-			$results[$test_name] = array(
-				'execution_time' => round(($end_time - $start_time) * 1000, 2), // ms
+			$results[ $test_name ] = array(
+				'execution_time' => round( ( $end_time - $start_time ) * 1000, 2 ), // ms
 				'result'         => $result,
 				'query'          => $query,
 			);
@@ -280,32 +273,31 @@ final class DatabaseMigrator
 	/**
 	 * Run database optimization
 	 */
-	public static function optimize_database(): array
-	{
+	public static function optimize_database(): array {
 		global $wpdb;
 
 		$results = array();
 
 		try {
 			// Optimize tables
-			$tables = array($wpdb->posts, $wpdb->postmeta);
+			$tables = array( $wpdb->posts, $wpdb->postmeta );
 
-			foreach ($tables as $table) {
-				$start_time = microtime(true);
+			foreach ( $tables as $table ) {
+				$start_time = microtime( true );
 				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DDL statement using system prefix, strictly server-side.
-				$result   = $wpdb->query("OPTIMIZE TABLE {$table}");
-				$end_time = microtime(true);
+				$result   = $wpdb->query( "OPTIMIZE TABLE {$table}" );
+				$end_time = microtime( true );
 
-				$results['optimize'][$table] = array(
+				$results['optimize'][ $table ] = array(
 					'success'        => $result !== false,
-					'execution_time' => round(($end_time - $start_time) * 1000, 2),
+					'execution_time' => round( ( $end_time - $start_time ) * 1000, 2 ),
 					'error'          => $result === false ? $wpdb->last_error : null,
 				);
 			}
 
 			// Rebuild indexes
 			$results['rebuild_indexes'] = self::rebuild_indexes();
-		} catch (\Exception $e) {
+		} catch ( \Exception $e ) {
 			$results['error'] = $e->getMessage();
 		}
 
@@ -315,8 +307,7 @@ final class DatabaseMigrator
 	/**
 	 * Rebuild indexes
 	 */
-	private static function rebuild_indexes(): array
-	{
+	private static function rebuild_indexes(): array {
 		global $wpdb;
 
 		$results = array();
@@ -329,16 +320,16 @@ final class DatabaseMigrator
 			"CREATE INDEX idx_mhm_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))",
 		);
 
-		foreach ($critical_indexes as $sql) {
-			$start_time = microtime(true);
+		foreach ( $critical_indexes as $sql ) {
+			$start_time = microtime( true );
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DDL statement using system prefix, strictly server-side.
-			$result   = $wpdb->query($sql);
-			$end_time = microtime(true);
+			$result   = $wpdb->query( $sql );
+			$end_time = microtime( true );
 
 			$results[] = array(
 				'sql'            => $sql,
 				'success'        => $result !== false,
-				'execution_time' => round(($end_time - $start_time) * 1000, 2),
+				'execution_time' => round( ( $end_time - $start_time ) * 1000, 2 ),
 				'error'          => $result === false ? (string) $wpdb->last_error : null,
 			);
 		}
@@ -349,27 +340,25 @@ final class DatabaseMigrator
 	/**
 	 * Check migration status
 	 */
-	public static function get_migration_status(): array
-	{
-		$current_version  = get_option('mhm_rentiva_db_version', '1.0.0');
+	public static function get_migration_status(): array {
+		$current_version  = get_option( 'mhm_rentiva_db_version', '1.0.0' );
 		$index_status     = self::check_index_status();
 		$performance_test = self::test_index_performance();
 
 		return array(
 			'current_version'  => $current_version,
 			'target_version'   => self::CURRENT_VERSION,
-			'needs_migration'  => version_compare($current_version, self::CURRENT_VERSION, '<'),
+			'needs_migration'  => version_compare( $current_version, self::CURRENT_VERSION, '<' ),
 			'index_status'     => $index_status,
 			'performance_test' => $performance_test,
-			'last_migration'   => get_option('mhm_rentiva_last_migration', 'Never'),
+			'last_migration'   => get_option( 'mhm_rentiva_last_migration', 'Never' ),
 		);
 	}
 
 	/**
 	 * Rollback migration
 	 */
-	public static function rollback_migration(): bool
-	{
+	public static function rollback_migration(): bool {
 		global $wpdb;
 
 		try {
@@ -385,21 +374,21 @@ final class DatabaseMigrator
 				"DROP INDEX IF EXISTS idx_mhm_booking_combined ON {$wpdb->postmeta}",
 			);
 
-			foreach ($drop_indexes as $sql) {
+			foreach ( $drop_indexes as $sql ) {
 				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DDL statement using system prefix, strictly server-side.
-				$wpdb->query($sql);
+				$wpdb->query( $sql );
 			}
 
 			// Reset version to original state
-			update_option('mhm_rentiva_db_version', '1.0.0');
+			update_option( 'mhm_rentiva_db_version', '1.0.0' );
 
-			if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('Database migration rolled back', array(), \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM);
+			if ( class_exists( \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class ) ) {
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning( 'Database migration rolled back', array(), \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM );
 			}
 
 			return true;
-		} catch (\Exception $e) {
-			if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+		} catch ( \Exception $e ) {
+			if ( class_exists( \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class ) ) {
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
 					'Migration rollback failed',
 					array(
@@ -415,9 +404,8 @@ final class DatabaseMigrator
 	/**
 	 * Index hata logla
 	 */
-	private static function log_index_error(string $sql, string $error): void
-	{
-		if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+	private static function log_index_error( string $sql, string $error ): void {
+		if ( class_exists( \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class ) ) {
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
 				'Database index creation failed',
 				array(
@@ -432,26 +420,25 @@ final class DatabaseMigrator
 	/**
 	 * Show admin notice
 	 */
-	public static function show_migration_notice(): void
-	{
-		if (! is_admin() || ! current_user_can('manage_options')) {
+	public static function show_migration_notice(): void {
+		if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
 		$status = self::get_migration_status();
 
-		if ($status['needs_migration']) {
+		if ( $status['needs_migration'] ) {
 			echo '<div class="notice notice-warning"><p>';
-			echo esc_html__('MHM Rentiva: Database migration required. Run migration for performance.', 'mhm-rentiva');
-			echo ' <a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva&action=run_migration')) . '">';
-			echo esc_html__('Run Migration', 'mhm-rentiva');
+			echo esc_html__( 'MHM Rentiva: Database migration required. Run migration for performance.', 'mhm-rentiva' );
+			echo ' <a href="' . esc_url( admin_url( 'admin.php?page=mhm-rentiva&action=run_migration' ) ) . '">';
+			echo esc_html__( 'Run Migration', 'mhm-rentiva' );
 			echo '</a>';
 			echo '</p></div>';
-		} elseif ($status['index_status']['performance_score'] < 80) {
+		} elseif ( $status['index_status']['performance_score'] < 80 ) {
 			echo '<div class="notice notice-info"><p>';
-			echo esc_html__('MHM Rentiva: Database performance can be optimized.', 'mhm-rentiva');
-			echo ' <a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva&action=optimize_db')) . '">';
-			echo esc_html__('Optimize', 'mhm-rentiva');
+			echo esc_html__( 'MHM Rentiva: Database performance can be optimized.', 'mhm-rentiva' );
+			echo ' <a href="' . esc_url( admin_url( 'admin.php?page=mhm-rentiva&action=optimize_db' ) ) . '">';
+			echo esc_html__( 'Optimize', 'mhm-rentiva' );
 			echo '</a>';
 			echo '</p></div>';
 		}
@@ -459,8 +446,7 @@ final class DatabaseMigrator
 	/**
 	 * Creates VIP Transfer tables
 	 */
-	private static function create_transfer_tables(): void
-	{
+	private static function create_transfer_tables(): void {
 		global $wpdb;
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -472,11 +458,11 @@ final class DatabaseMigrator
 		$old_locations   = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
 
 		// Rename logic
-		if ($wpdb->get_var("SHOW TABLES LIKE '$old_locations'") === $old_locations) {
-			$wpdb->query("RENAME TABLE $old_locations TO $table_locations");
+		if ( $wpdb->get_var( "SHOW TABLES LIKE '$old_locations'" ) === $old_locations ) {
+			$wpdb->query( "RENAME TABLE $old_locations TO $table_locations" );
 		}
 
-		$sql_locations   = "CREATE TABLE $table_locations (
+		$sql_locations = "CREATE TABLE $table_locations (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             name varchar(255) NOT NULL,
             type varchar(50) NOT NULL,
@@ -492,18 +478,18 @@ final class DatabaseMigrator
             KEY allow_transfer (allow_transfer)
         ) $charset_collate;";
 
-		dbDelta($sql_locations);
+		dbDelta( $sql_locations );
 
 		// 2. Transfer Routes
 		$table_routes = $wpdb->prefix . 'rentiva_transfer_routes';
 		$old_routes   = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
 
 		// Rename logic
-		if ($wpdb->get_var("SHOW TABLES LIKE '$old_routes'") === $old_routes) {
-			$wpdb->query("RENAME TABLE $old_routes TO $table_routes");
+		if ( $wpdb->get_var( "SHOW TABLES LIKE '$old_routes'" ) === $old_routes ) {
+			$wpdb->query( "RENAME TABLE $old_routes TO $table_routes" );
 		}
 
-		$sql_routes   = "CREATE TABLE $table_routes (
+		$sql_routes = "CREATE TABLE $table_routes (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             origin_id bigint(20) NOT NULL,
             destination_id bigint(20) NOT NULL,
@@ -518,14 +504,13 @@ final class DatabaseMigrator
             KEY pricing_method (pricing_method)
         ) $charset_collate;";
 
-		dbDelta($sql_routes);
+		dbDelta( $sql_routes );
 	}
 
 	/**
 	 * Creates rating database table
 	 */
-	public static function create_rating_table(): void
-	{
+	public static function create_rating_table(): void {
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'mhm_rentiva_ratings';
@@ -551,14 +536,13 @@ final class DatabaseMigrator
         ) $charset_collate;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta($sql);
+		dbDelta( $sql );
 	}
 
 	/**
 	 * Cleanup orphan data
 	 */
-	private static function cleanup_orphan_data(): void
-	{
+	private static function cleanup_orphan_data(): void {
 		global $wpdb;
 
 		// 1. Orphan Post Meta Cleaning
@@ -569,7 +553,7 @@ final class DatabaseMigrator
         AND pm.meta_key LIKE '_mhm_%%'";
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DELETE query using system table identifiers, safely escaped LIKE.
-		$wpdb->query($meta_sql);
+		$wpdb->query( $meta_sql );
 
 		// 2. Transient Data Cleaning
 		$wpdb->query(
@@ -581,9 +565,8 @@ final class DatabaseMigrator
 	/**
 	 * Create specific table by key
 	 */
-	public static function create_table(string $table_key): bool
-	{
-		switch ($table_key) {
+	public static function create_table( string $table_key ): bool {
+		switch ( $table_key ) {
 			case 'payment_log':
 			case 'mhm_payment_log':
 				self::create_payment_log_table();
@@ -621,7 +604,7 @@ final class DatabaseMigrator
 				return true;
 			case 'notification_queue':
 			case 'mhm_notification_queue':
-				if (class_exists(\MHMRentiva\Admin\Notifications\NotificationManager::class)) {
+				if ( class_exists( \MHMRentiva\Admin\Notifications\NotificationManager::class ) ) {
 					\MHMRentiva\Admin\Notifications\NotificationManager::create_notification_queue_table();
 				}
 				return true;
@@ -632,11 +615,10 @@ final class DatabaseMigrator
 	/**
 	 * Create payment log table
 	 */
-	public static function create_payment_log_table(): void
-	{
+	public static function create_payment_log_table(): void {
 		global $wpdb;
 		$table_name      = $wpdb->prefix . 'mhm_payment_log';
-		$table_escaped   = esc_sql($table_name);
+		$table_escaped   = esc_sql( $table_name );
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE `{$table_escaped}` (
@@ -658,17 +640,16 @@ final class DatabaseMigrator
         ) $charset_collate;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta($sql);
+		dbDelta( $sql );
 	}
 
 	/**
 	 * Create sessions table
 	 */
-	public static function create_sessions_table(): void
-	{
+	public static function create_sessions_table(): void {
 		global $wpdb;
 		$table_name      = $wpdb->prefix . 'mhm_sessions';
-		$table_escaped   = esc_sql($table_name);
+		$table_escaped   = esc_sql( $table_name );
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE `{$table_escaped}` (
@@ -681,15 +662,14 @@ final class DatabaseMigrator
         ) $charset_collate;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta($sql);
+		dbDelta( $sql );
 	}
 
 	/**
 	 * Create queue table
 	 */
-	public static function create_queue_table(): void
-	{
-		if (class_exists(\MHMRentiva\Admin\Core\Utilities\QueueManager::class)) {
+	public static function create_queue_table(): void {
+		if ( class_exists( \MHMRentiva\Admin\Core\Utilities\QueueManager::class ) ) {
 			\MHMRentiva\Admin\Core\Utilities\QueueManager::create_table();
 		}
 	}
@@ -697,9 +677,8 @@ final class DatabaseMigrator
 	/**
 	 * Create background jobs table
 	 */
-	public static function create_background_jobs_table(): void
-	{
-		if (class_exists(\MHMRentiva\Admin\Reports\BackgroundProcessor::class)) {
+	public static function create_background_jobs_table(): void {
+		if ( class_exists( \MHMRentiva\Admin\Reports\BackgroundProcessor::class ) ) {
 			\MHMRentiva\Admin\Reports\BackgroundProcessor::create_background_jobs_table();
 		}
 	}
@@ -707,11 +686,10 @@ final class DatabaseMigrator
 	/**
 	 * Create message logs table
 	 */
-	public static function create_message_logs_table(): void
-	{
+	public static function create_message_logs_table(): void {
 		global $wpdb;
 		$table_name      = $wpdb->prefix . 'mhm_message_logs';
-		$table_escaped   = esc_sql($table_name);
+		$table_escaped   = esc_sql( $table_name );
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE `{$table_escaped}` (
@@ -730,15 +708,14 @@ final class DatabaseMigrator
         ) $charset_collate;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta($sql);
+		dbDelta( $sql );
 	}
 
 	/**
 	 * Migrate standalone settings into unified array
 	 */
-	private static function migrate_standalone_settings(): void
-	{
-		$settings = (array) get_option('mhm_rentiva_settings', array());
+	private static function migrate_standalone_settings(): void {
+		$settings = (array) get_option( 'mhm_rentiva_settings', array() );
 
 		// Map old mhm_ keys to new rentiva_ keys in the settings array
 		$standalone_mapping = array(
@@ -756,26 +733,26 @@ final class DatabaseMigrator
 
 		$migrated = false;
 
-		foreach ($standalone_mapping as $old_key => $new_key) {
+		foreach ( $standalone_mapping as $old_key => $new_key ) {
 			// Check if old option exists
-			$old_val = get_option($old_key, null);
+			$old_val = get_option( $old_key, null );
 
 			// If old option exists and new key is NOT in settings
-			if ($old_val !== null && ! isset($settings[$new_key])) {
-				$settings[$new_key] = $old_val;
-				$migrated = true;
+			if ( $old_val !== null && ! isset( $settings[ $new_key ] ) ) {
+				$settings[ $new_key ] = $old_val;
+				$migrated             = true;
 				// Ideally we delete old option, but for safety lets keep it for a while or rename usages?
 				// The instruction says "Update calls to get_option".
 				// I will add the new key.
-			} elseif (! isset($settings[$new_key])) {
+			} elseif ( ! isset( $settings[ $new_key ] ) ) {
 				// Set default if not set
-				$settings[$new_key] = $defaults[$new_key] ?? '';
-				$migrated = true;
+				$settings[ $new_key ] = $defaults[ $new_key ] ?? '';
+				$migrated             = true;
 			}
 		}
 
-		if ($migrated) {
-			update_option('mhm_rentiva_settings', $settings);
+		if ( $migrated ) {
+			update_option( 'mhm_rentiva_settings', $settings );
 		}
 	}
 }

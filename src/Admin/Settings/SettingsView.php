@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Settings;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -20,8 +20,8 @@ if (! defined('ABSPATH')) {
  *
  * Manages the admin settings interface and loads templates.
  */
-final readonly class SettingsView
-{
+final readonly class SettingsView {
+
 
 	/**
 	 * Render the settings page.
@@ -31,15 +31,14 @@ final readonly class SettingsView
 	 * @param mixed  $renderer    The renderer instance for the current tab.
 	 * @return void
 	 */
-	public static function render_settings_page(string $current_tab, array $tabs, $renderer = null, string $header_html = ''): void
-	{
+	public static function render_settings_page( string $current_tab, array $tabs, $renderer = null, string $header_html = '' ): void {
 		// Use the plugin path constant for template loading.
 		$template_file = MHM_RENTIVA_PLUGIN_DIR . 'templates/admin/settings-page.php';
 
 		// Check file existence and load safely.
-		if (! file_exists($template_file)) {
+		if ( ! file_exists( $template_file ) ) {
 			wp_die(
-				esc_html__('Settings template file not found.', 'mhm-rentiva')
+				esc_html__( 'Settings template file not found.', 'mhm-rentiva' )
 			);
 		}
 
@@ -57,15 +56,14 @@ final readonly class SettingsView
 	/**
 	 * Load template file and pass arguments.
 	 *
-	 * CRITICAL: Do not use extract(). Access variables in template
+	 * CRITICAL: Do not unpack variables dynamically. Access variables in template
 	 * using the $args['key'] format.
 	 *
 	 * @param string $template_path Full path to the template file.
 	 * @param array  $args          Arguments to pass to the template.
 	 * @return void
 	 */
-	private static function load_template(string $template_path, array $args): void
-	{
+	private static function load_template( string $template_path, array $args ): void {
 		/**
 		 * Include the template file.
 		 * Usage inside template:

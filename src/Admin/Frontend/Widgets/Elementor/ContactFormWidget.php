@@ -7,35 +7,31 @@ namespace MHMRentiva\Admin\Frontend\Widgets\Elementor;
 use MHMRentiva\Admin\Frontend\Widgets\Base\ElementorWidgetBase;
 use Elementor\Controls_Manager;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class ContactFormWidget extends ElementorWidgetBase
-{
+class ContactFormWidget extends ElementorWidgetBase {
 
 
-	public function get_name(): string
-	{
+
+	public function get_name(): string {
 		return 'rv-contact-form';
 	}
 
-	public function get_title(): string
-	{
-		return __('Contact Form', 'mhm-rentiva');
+	public function get_title(): string {
+		return __( 'Contact Form', 'mhm-rentiva' );
 	}
 
-	public function get_icon(): string
-	{
+	public function get_icon(): string {
 		return 'eicon-mail';
 	}
 
-	protected function register_content_controls(): void
-	{
+	protected function register_content_controls(): void {
 		$this->start_controls_section(
 			'general_section',
 			array(
-				'label' => __('Settings', 'mhm-rentiva'),
+				'label' => __( 'Settings', 'mhm-rentiva' ),
 				'tab'   => 'content',
 			)
 		);
@@ -44,7 +40,7 @@ class ContactFormWidget extends ElementorWidgetBase
 			'info',
 			array(
 				'type'            => 'raw_html',
-				'raw'             => __('Displays contact form.', 'mhm-rentiva'),
+				'raw'             => __( 'Displays contact form.', 'mhm-rentiva' ),
 				'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
 			)
 		);
@@ -52,14 +48,12 @@ class ContactFormWidget extends ElementorWidgetBase
 		$this->end_controls_section();
 	}
 
-	protected function register_style_controls(): void
-	{
+	protected function register_style_controls(): void {
 		// No style controls needed
 	}
 
-	protected function render(): void
-	{
+	protected function render(): void {
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo do_shortcode('[rentiva_contact]');
+		echo do_shortcode( '[rentiva_contact]' );
 	}
 }

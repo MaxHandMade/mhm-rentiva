@@ -7,7 +7,7 @@ namespace MHMRentiva\Admin\Settings\Services;
 use MHMRentiva\Admin\REST\Settings\RESTSettings;
 use MHMRentiva\Admin\Settings\Groups\EmailSettings;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -19,8 +19,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.6.0
  */
-final class SettingsService
-{
+final class SettingsService {
+
 
 	/**
 	 * Resets setting defaults for a specific scope/tab.
@@ -28,18 +28,17 @@ final class SettingsService
 	 * @param string $target_tab The settings tab/scope to reset.
 	 * @return bool True if anything changed.
 	 */
-	public static function reset_defaults(string $target_tab): bool
-	{
-		if (! current_user_can('manage_options')) {
+	public static function reset_defaults( string $target_tab ): bool {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
 		}
 
-		if (empty($target_tab)) {
+		if ( empty( $target_tab ) ) {
 			return false;
 		}
 
 		// 1. Resolve Provider Class based on Tab Slug
-		$provider_class = match ($target_tab) {
+		$provider_class = match ( $target_tab ) {
 			'general'  => \MHMRentiva\Admin\Settings\Groups\GeneralSettings::class,
 			'vehicle'  => \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class,
 			'booking'  => \MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
@@ -57,77 +56,77 @@ final class SettingsService
 		$defaults = array();
 
 		// Special handling for 'system' tab (Multiple providers: Core + Security)
-		if ($target_tab === 'system') {
-			if (class_exists(\MHMRentiva\Admin\Settings\Groups\CoreSettings::class)) {
-				$defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_default_settings());
+		if ( $target_tab === 'system' ) {
+			if ( class_exists( \MHMRentiva\Admin\Settings\Groups\CoreSettings::class ) ) {
+				$defaults = array_merge( $defaults, \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_default_settings() );
 			}
-			if (class_exists(\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class)) {
-				$defaults = array_merge($defaults, \MHMRentiva\Admin\Settings\Groups\SecuritySettings::get_default_settings());
+			if ( class_exists( \MHMRentiva\Admin\Settings\Groups\SecuritySettings::class ) ) {
+				$defaults = array_merge( $defaults, \MHMRentiva\Admin\Settings\Groups\SecuritySettings::get_default_settings() );
 			}
 		}
 		// Standard single provider logic
-		elseif ($provider_class && class_exists($provider_class) && method_exists($provider_class, 'get_default_settings')) {
+		elseif ( $provider_class && class_exists( $provider_class ) && method_exists( $provider_class, 'get_default_settings' ) ) {
 			$defaults = $provider_class::get_default_settings();
 		}
 
 		// Fallback or specific logic for email templates if needed
-		if (empty($defaults) && empty($provider_class) && in_array($target_tab, array('email-templates'))) {
-			if (class_exists(EmailSettings::class)) {
+		if ( empty( $defaults ) && empty( $provider_class ) && in_array( $target_tab, array( 'email-templates' ) ) ) {
+			if ( class_exists( EmailSettings::class ) ) {
 				$defaults = EmailSettings::get_default_settings();
 			}
 		}
 
-		if (empty($defaults)) {
+		if ( empty( $defaults ) ) {
 			return false;
 		}
 
 		// 2. Handle Separate Option Storage (e.g. Messages)
 		$target_option_name = 'mhm_rentiva_settings';
-		if ($provider_class && defined("$provider_class::OPTION_NAME")) {
-			$target_option_name = constant("$provider_class::OPTION_NAME");
+		if ( $provider_class && defined( "$provider_class::OPTION_NAME" ) ) {
+			$target_option_name = constant( "$provider_class::OPTION_NAME" );
 		}
 
-		if ($target_option_name !== 'mhm_rentiva_settings') {
-			update_option($target_option_name, $defaults);
+		if ( $target_option_name !== 'mhm_rentiva_settings' ) {
+			update_option( $target_option_name, $defaults );
 			return true;
 		}
 
-		$master_option = (array) get_option('mhm_rentiva_settings', array());
+		$master_option = (array) get_option( 'mhm_rentiva_settings', array() );
 		$changed       = false;
 
 		// 3. DEFINE SCOPES for Email specific logic
-		$is_template_scope      = in_array($target_tab, array('email-templates', 'notification-templates', 'notification_templates'), true);
-		$is_general_email_scope = in_array($target_tab, array('email', 'email_configuration', 'email-configuration', 'email-settings'), true);
+		$is_template_scope      = in_array( $target_tab, array( 'email-templates', 'notification-templates', 'notification_templates' ), true );
+		$is_general_email_scope = in_array( $target_tab, array( 'email', 'email_configuration', 'email-configuration', 'email-settings' ), true );
 
 		// 3. Iterate and Overwrite
-		foreach ($defaults as $key => $default_value) {
+		foreach ( $defaults as $key => $default_value ) {
 			$is_content_key = (
-				strpos($key, '_body') !== false ||
-				strpos($key, '_subject') !== false ||
-				strpos($key, '_content') !== false
+				strpos( $key, '_body' ) !== false ||
+				strpos( $key, '_subject' ) !== false ||
+				strpos( $key, '_content' ) !== false
 			);
 
-			if ($is_template_scope) {
-				if ($is_content_key) {
-					update_option($key, $default_value);
+			if ( $is_template_scope ) {
+				if ( $is_content_key ) {
+					update_option( $key, $default_value );
 					$changed = true;
 				}
 			} else {
 				// For regular tabs, update master option
-				if (! isset($master_option[$key]) || $master_option[$key] !== $default_value) {
-					$master_option[$key] = $default_value;
+				if ( ! isset( $master_option[ $key ] ) || $master_option[ $key ] !== $default_value ) {
+					$master_option[ $key ] = $default_value;
 					$changed               = true;
 				}
 			}
 		}
 
 		// 4. Commit changes to master application settings
-		if ($changed && ! $is_template_scope) {
-			update_option('mhm_rentiva_settings', $master_option);
+		if ( $changed && ! $is_template_scope ) {
+			update_option( 'mhm_rentiva_settings', $master_option );
 		}
 
 		// 5. Cleanup legacy standalone options for Email
-		if ($is_general_email_scope) {
+		if ( $is_general_email_scope ) {
 			$legacy_keys = array(
 				'mhm_rentiva_sender_name',
 				'mhm_rentiva_sender_email',
@@ -137,13 +136,13 @@ final class SettingsService
 				'mhm_rentiva_test_mode',
 				'mhm_rentiva_test_email_address',
 			);
-			foreach ($legacy_keys as $key) {
-				delete_option($key);
+			foreach ( $legacy_keys as $key ) {
+				delete_option( $key );
 			}
 		}
 
 		// 6. Support for Comments separate option reset
-		if ($target_tab === 'comments') {
+		if ( $target_tab === 'comments' ) {
 			\MHMRentiva\Admin\Settings\Comments\CommentsSettings::reset_settings();
 		}
 
@@ -156,13 +155,12 @@ final class SettingsService
 	 * @param array $settings_data Raw input data from $_POST.
 	 * @return bool Success status.
 	 */
-	public static function save_rest_settings(array $settings_data): bool
-	{
-		if (! current_user_can('manage_options')) {
+	public static function save_rest_settings( array $settings_data ): bool {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
 		}
 
-		$sanitized_settings = RESTSettings::sanitize_settings($settings_data);
-		return update_option(RESTSettings::OPTION_NAME, $sanitized_settings);
+		$sanitized_settings = RESTSettings::sanitize_settings( $settings_data );
+		return update_option( RESTSettings::OPTION_NAME, $sanitized_settings );
 	}
 }

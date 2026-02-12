@@ -6,42 +6,41 @@ namespace MHMRentiva\Admin\Messages\Utilities;
 
 use MHMRentiva\Admin\Messages\Settings\MessagesSettings;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Common utility functions for the messaging system
  */
-final class MessageUtilities
-{
+final class MessageUtilities {
+
 
 
 
 	/**
 	 * Update message status
 	 */
-	public static function update_message_status(int $message_id, string $new_status): bool
-	{
-		$old_status = get_post_meta($message_id, '_mhm_message_status', true);
+	public static function update_message_status( int $message_id, string $new_status ): bool {
+		$old_status = get_post_meta( $message_id, '_mhm_message_status', true );
 
-		if ($old_status === $new_status) {
+		if ( $old_status === $new_status ) {
 			return true; // Status unchanged
 		}
 
 		$statuses = MessagesSettings::get_statuses();
-		if (! array_key_exists($new_status, $statuses)) {
+		if ( ! array_key_exists( $new_status, $statuses ) ) {
 			return false;
 		}
 
-		$updated = update_post_meta($message_id, '_mhm_message_status', $new_status);
+		$updated = update_post_meta( $message_id, '_mhm_message_status', $new_status );
 
-		if ($updated) {
+		if ( $updated ) {
 			// Trigger hook
-			do_action('mhm_message_status_changed', $message_id, $old_status, $new_status);
+			do_action( 'mhm_message_status_changed', $message_id, $old_status, $new_status );
 
 			// Clear cache
-			self::clear_message_cache($message_id);
+			self::clear_message_cache( $message_id );
 		}
 
 		return (bool) $updated;
@@ -50,15 +49,14 @@ final class MessageUtilities
 	/**
 	 * Mark message as read
 	 */
-	public static function mark_as_read(int $message_id): bool
-	{
-		$updated = update_post_meta($message_id, '_mhm_is_read', '1');
+	public static function mark_as_read( int $message_id ): bool {
+		$updated = update_post_meta( $message_id, '_mhm_is_read', '1' );
 
-		if ($updated) {
-			update_post_meta($message_id, '_mhm_read_at', current_time('mysql'));
+		if ( $updated ) {
+			update_post_meta( $message_id, '_mhm_read_at', current_time( 'mysql' ) );
 
 			// Clear cache
-			self::clear_message_cache($message_id);
+			self::clear_message_cache( $message_id );
 		}
 
 		return (bool) $updated;
@@ -67,59 +65,55 @@ final class MessageUtilities
 	/**
 	 * Clear message cache
 	 */
-	public static function clear_message_cache(int $message_id, ?string $email = null): void
-	{
+	public static function clear_message_cache( int $message_id, ?string $email = null ): void {
 		// Use cache helper
-		if (class_exists('\MHMRentiva\Admin\Messages\Core\MessageCache')) {
-			\MHMRentiva\Admin\Messages\Core\MessageCache::clear_message_cache($message_id, $email);
+		if ( class_exists( '\MHMRentiva\Admin\Messages\Core\MessageCache' ) ) {
+			\MHMRentiva\Admin\Messages\Core\MessageCache::clear_message_cache( $message_id, $email );
 		}
 
 		// General cache clearing
-		wp_cache_delete($message_id, 'posts');
-		wp_cache_delete($message_id, 'post_meta');
+		wp_cache_delete( $message_id, 'posts' );
+		wp_cache_delete( $message_id, 'post_meta' );
 	}
 
 	/**
 	 * Send email
 	 */
-	public static function send_email(string $to, string $subject, string $message, array $headers = array()): bool
-	{
-		$from_name  = MessagesSettings::get_setting('email_from_name', get_bloginfo('name'));
-		$from_email = MessagesSettings::get_setting('email_from_email', get_option('admin_email'));
+	public static function send_email( string $to, string $subject, string $message, array $headers = array() ): bool {
+		$from_name  = MessagesSettings::get_setting( 'email_from_name', get_bloginfo( 'name' ) );
+		$from_email = MessagesSettings::get_setting( 'email_from_email', get_option( 'admin_email' ) );
 
 		$default_headers = array(
 			'Content-Type: text/html; charset=UTF-8',
 			'From: ' . $from_name . ' <' . $from_email . '>',
 		);
 
-		$headers = array_merge($default_headers, $headers);
+		$headers = array_merge( $default_headers, $headers );
 
-		return wp_mail($to, $subject, $message, $headers);
+		return wp_mail( $to, $subject, $message, $headers );
 	}
 
 	/**
 	 * Get message meta information
 	 */
-	public static function get_message_meta(int $message_id): array
-	{
+	public static function get_message_meta( int $message_id ): array {
 		return array(
-			'customer_name'  => get_post_meta($message_id, '_mhm_customer_name', true) ?: '',
-			'customer_email' => get_post_meta($message_id, '_mhm_customer_email', true) ?: '',
-			'category'       => get_post_meta($message_id, '_mhm_message_category', true) ?: 'general',
-			'status'         => get_post_meta($message_id, '_mhm_message_status', true) ?: 'pending',
-			'message_type'   => get_post_meta($message_id, '_mhm_message_type', true) ?: 'customer_to_admin',
-			'thread_id'      => (int) get_post_meta($message_id, '_mhm_thread_id', true),
-			'booking_id'     => (int) get_post_meta($message_id, '_mhm_booking_id', true),
-			'is_read'        => (bool) get_post_meta($message_id, '_mhm_is_read', true),
-			'attachments'    => get_post_meta($message_id, '_mhm_attachments', true) ?: array(),
+			'customer_name'  => get_post_meta( $message_id, '_mhm_customer_name', true ) ?: '',
+			'customer_email' => get_post_meta( $message_id, '_mhm_customer_email', true ) ?: '',
+			'category'       => get_post_meta( $message_id, '_mhm_message_category', true ) ?: 'general',
+			'status'         => get_post_meta( $message_id, '_mhm_message_status', true ) ?: 'pending',
+			'message_type'   => get_post_meta( $message_id, '_mhm_message_type', true ) ?: 'customer_to_admin',
+			'thread_id'      => (int) get_post_meta( $message_id, '_mhm_thread_id', true ),
+			'booking_id'     => (int) get_post_meta( $message_id, '_mhm_booking_id', true ),
+			'is_read'        => (bool) get_post_meta( $message_id, '_mhm_is_read', true ),
+			'attachments'    => get_post_meta( $message_id, '_mhm_attachments', true ) ?: array(),
 		);
 	}
 
 	/**
 	 * Create message
 	 */
-	public static function create_message(array $message_data): ?int
-	{
+	public static function create_message( array $message_data ): ?int {
 		$defaults = array(
 			'subject'           => '',
 			'message'           => '',
@@ -134,25 +128,25 @@ final class MessageUtilities
 			'sender_id'         => 0,
 		);
 
-		$data = array_merge($defaults, $message_data);
+		$data = array_merge( $defaults, $message_data );
 
 		// Create thread ID
-		if ($data['thread_id'] === 0) {
+		if ( $data['thread_id'] === 0 ) {
 			$data['thread_id'] = wp_generate_uuid4();
 		}
 
 		// Create post
 		$post_data = array(
-			'post_title'   => sanitize_text_field($data['subject']),
-			'post_content' => wp_kses_post($data['message']),
+			'post_title'   => sanitize_text_field( $data['subject'] ),
+			'post_content' => wp_kses_post( $data['message'] ),
 			'post_type'    => 'mhm_message',
 			'post_status'  => 'publish',
 			'post_author'  => $data['sender_id'],
 		);
 
-		$message_id = wp_insert_post($post_data);
+		$message_id = wp_insert_post( $post_data );
 
-		if (is_wp_error($message_id)) {
+		if ( is_wp_error( $message_id ) ) {
 			return null;
 		}
 
@@ -167,19 +161,19 @@ final class MessageUtilities
 			'_mhm_booking_id'       => $data['booking_id'],
 		);
 
-		if ($data['parent_message_id'] > 0) {
+		if ( $data['parent_message_id'] > 0 ) {
 			$meta_fields['_mhm_parent_message_id'] = $data['parent_message_id'];
 		}
 
-		foreach ($meta_fields as $key => $value) {
-			update_post_meta($message_id, $key, $value);
+		foreach ( $meta_fields as $key => $value ) {
+			update_post_meta( $message_id, $key, $value );
 		}
 
 		// Trigger hook
-		do_action('mhm_message_created', $message_id, $data);
+		do_action( 'mhm_message_created', $message_id, $data );
 
 		// Clear cache
-		self::clear_message_cache($message_id, $data['customer_email']);
+		self::clear_message_cache( $message_id, $data['customer_email'] );
 
 		return $message_id;
 	}
@@ -187,11 +181,10 @@ final class MessageUtilities
 	/**
 	 * Get thread messages
 	 */
-	public static function get_thread_messages(int $thread_id): array
-	{
+	public static function get_thread_messages( int $thread_id ): array {
 		// Use cache helper
-		if (class_exists('\MHMRentiva\Admin\Messages\Core\MessageQueryHelper')) {
-			return \MHMRentiva\Admin\Messages\Core\MessageQueryHelper::get_thread_messages($thread_id);
+		if ( class_exists( '\MHMRentiva\Admin\Messages\Core\MessageQueryHelper' ) ) {
+			return \MHMRentiva\Admin\Messages\Core\MessageQueryHelper::get_thread_messages( $thread_id );
 		}
 
 		// Fallback - simple query
@@ -224,11 +217,10 @@ final class MessageUtilities
 	/**
 	 * Get message counts
 	 */
-	public static function get_message_counts(?string $email = null): array
-	{
+	public static function get_message_counts( ?string $email = null ): array {
 		// Use cache helper
-		if (class_exists('\MHMRentiva\Admin\Messages\Core\MessageCache')) {
-			return \MHMRentiva\Admin\Messages\Core\MessageCache::get_message_counts($email);
+		if ( class_exists( '\MHMRentiva\Admin\Messages\Core\MessageCache' ) ) {
+			return \MHMRentiva\Admin\Messages\Core\MessageCache::get_message_counts( $email );
 		}
 
 		// Fallback - simple query
@@ -237,7 +229,7 @@ final class MessageUtilities
 		$where_clause = "WHERE p.post_type = 'mhm_message' AND p.post_status = 'publish'";
 		$params       = array();
 
-		if ($email) {
+		if ( $email ) {
 			$where_clause .= ' AND pm_email.meta_value = %s';
 			$params[]      = $email;
 		}
@@ -255,28 +247,27 @@ final class MessageUtilities
             {$where_clause}
         ";
 
-		if (! empty($params)) {
+		if ( ! empty( $params ) ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query string built dynamically but variables prepared safely.
-			$result = $wpdb->get_row($wpdb->prepare($query, ...$params), ARRAY_A);
+			$result = $wpdb->get_row( $wpdb->prepare( $query, ...$params ), ARRAY_A );
 		} else {
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Constants only.
-			$result = $wpdb->get_row($query, ARRAY_A);
+			$result = $wpdb->get_row( $query, ARRAY_A );
 		}
 
 		return array(
-			'total'    => (int) ($result['total'] ?? 0),
-			'pending'  => (int) ($result['pending'] ?? 0),
-			'answered' => (int) ($result['answered'] ?? 0),
-			'unread'   => (int) ($result['unread'] ?? 0),
+			'total'    => (int) ( $result['total'] ?? 0 ),
+			'pending'  => (int) ( $result['pending'] ?? 0 ),
+			'answered' => (int) ( $result['answered'] ?? 0 ),
+			'unread'   => (int) ( $result['unread'] ?? 0 ),
 		);
 	}
 
 	/**
 	 * Format message for display (date, status, category)
 	 */
-	public static function format_message_for_display(\WP_Post $message): array
-	{
-		$meta       = self::get_message_meta($message->ID);
+	public static function format_message_for_display( \WP_Post $message ): array {
+		$meta       = self::get_message_meta( $message->ID );
 		$categories = MessagesSettings::get_categories();
 		$statuses   = MessagesSettings::get_statuses();
 
@@ -286,25 +277,24 @@ final class MessageUtilities
 			'content'        => $message->post_content,
 			'date'           => $message->post_date,
 			/* translators: %s placeholder. */
-			'date_human'     => sprintf(__('%s ago', 'mhm-rentiva'), human_time_diff(strtotime($message->post_date), current_time('timestamp'))),
+			'date_human'     => sprintf( __( '%s ago', 'mhm-rentiva' ), human_time_diff( strtotime( $message->post_date ), current_time( 'timestamp' ) ) ),
 			'customer_name'  => $meta['customer_name'],
 			'customer_email' => $meta['customer_email'],
 			'category'       => $meta['category'],
-			'category_label' => $categories[$meta['category']] ?? $meta['category'],
+			'category_label' => $categories[ $meta['category'] ] ?? $meta['category'],
 			'status'         => $meta['status'],
-			'status_label'   => $statuses[$meta['status']] ?? $meta['status'],
+			'status_label'   => $statuses[ $meta['status'] ] ?? $meta['status'],
 			'thread_id'      => $meta['thread_id'],
 			'booking_id'     => $meta['booking_id'],
 			'is_read'        => $meta['is_read'],
-			'preview'        => wp_trim_words($message->post_content, 20, '...'),
+			'preview'        => wp_trim_words( $message->post_content, 20, '...' ),
 		);
 	}
 
 	/**
 	 * Security check - message sending permission
 	 */
-	public static function can_send_message(string $email): array
-	{
+	public static function can_send_message( string $email ): array {
 		$result = array(
 			'can_send' => true,
 			'reason'   => '',
@@ -312,11 +302,11 @@ final class MessageUtilities
 		);
 
 		// Pro version check
-		if (! class_exists('\MHMRentiva\Admin\Licensing\Mode') || ! \MHMRentiva\Admin\Licensing\Mode::isPro()) {
-			$monthly_limit = MessagesSettings::get_setting('lite_messages_per_month', 10);
-			$daily_limit   = MessagesSettings::get_setting('lite_messages_per_day', 3);
+		if ( ! class_exists( '\MHMRentiva\Admin\Licensing\Mode' ) || ! \MHMRentiva\Admin\Licensing\Mode::isPro() ) {
+			$monthly_limit = MessagesSettings::get_setting( 'lite_messages_per_month', 10 );
+			$daily_limit   = MessagesSettings::get_setting( 'lite_messages_per_day', 3 );
 
-			$counts = self::get_message_counts($email);
+			$counts = self::get_message_counts( $email );
 
 			// Daily limit check
 			global $wpdb;
@@ -333,16 +323,16 @@ final class MessageUtilities
 				)
 			);
 
-			if ($today_count >= $daily_limit) {
+			if ( $today_count >= $daily_limit ) {
 				$result['can_send'] = false;
 				/* translators: %d placeholder. */
-				$result['reason'] = sprintf(__('Daily message limit of %d exceeded', 'mhm-rentiva'), $daily_limit);
+				$result['reason'] = sprintf( __( 'Daily message limit of %d exceeded', 'mhm-rentiva' ), $daily_limit );
 			}
 
-			if ($counts['total'] >= $monthly_limit) {
+			if ( $counts['total'] >= $monthly_limit ) {
 				$result['can_send'] = false;
 				/* translators: %d placeholder. */
-				$result['reason'] = sprintf(__('Monthly message limit of %d exceeded', 'mhm-rentiva'), $monthly_limit);
+				$result['reason'] = sprintf( __( 'Monthly message limit of %d exceeded', 'mhm-rentiva' ), $monthly_limit );
 			}
 
 			$result['limits'] = array(
@@ -363,29 +353,39 @@ final class MessageUtilities
 	/**
 	 * Load template file
 	 */
-	public static function load_template(string $template_name, array $variables = array()): string
-	{
+	public static function load_template( string $template_name, array $variables = array() ): string {
 		$template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/messages/' . $template_name;
 
-		if (! file_exists($template_path)) {
+		if ( ! file_exists( $template_path ) ) {
 			return '';
 		}
 
-		// Extract variables
-		extract($variables);
-
 		ob_start();
-		include $template_path;
+		self::include_template_with_vars( $template_path, $variables );
 		return ob_get_clean();
+	}
+
+	/**
+	 * Include template with validated variable names.
+	 */
+	private static function include_template_with_vars( string $template_path, array $variables ): void {
+		( static function () use ( $template_path, $variables ): void {
+			foreach ( $variables as $key => $value ) {
+				if ( ! is_string( $key ) || ! preg_match( '/^[A-Za-z_][A-Za-z0-9_]*$/', $key ) ) {
+					continue;
+				}
+				${$key} = $value; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			}
+			include $template_path;
+		} )();
 	}
 
 	/**
 	 * Write debug log
 	 */
-	public static function debug_log(string $message, array $data = array()): void
-	{
-		if (defined('WP_DEBUG') && WP_DEBUG) {
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::debug($message, $data);
+	public static function debug_log( string $message, array $data = array() ): void {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::debug( $message, $data );
 		}
 	}
 }

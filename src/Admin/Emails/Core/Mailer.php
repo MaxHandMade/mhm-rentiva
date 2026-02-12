@@ -6,12 +6,12 @@ namespace MHMRentiva\Admin\Emails\Core;
 
 use MHMRentiva\Admin\Settings\Settings;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class Mailer
-{
+final class Mailer {
+
 
 
 	/**
@@ -28,9 +28,8 @@ final class Mailer
 	 *
 	 * @return BookingDataProviderInterface Booking data provider
 	 */
-	private static function get_booking_data_provider(): BookingDataProviderInterface
-	{
-		if (self::$booking_data_provider === null) {
+	private static function get_booking_data_provider(): BookingDataProviderInterface {
+		if ( self::$booking_data_provider === null ) {
 			/**
 			 * Filter: Allow addons to provide custom booking data provider
 			 *
@@ -45,9 +44,9 @@ final class Mailer
 			 *     return $provider;
 			 * });
 			 */
-			$provider = apply_filters('mhm_rentiva_booking_data_provider', null);
+			$provider = apply_filters( 'mhm_rentiva_booking_data_provider', null );
 
-			if ($provider instanceof BookingDataProviderInterface) {
+			if ( $provider instanceof BookingDataProviderInterface ) {
 				self::$booking_data_provider = $provider;
 			} else {
 				// Default: Use BookingQueryHelperAdapter
@@ -57,8 +56,7 @@ final class Mailer
 
 		return self::$booking_data_provider;
 	}
-	public static function register(): void
-	{
+	public static function register(): void {
 		// Placeholder for future hooks
 	}
 
@@ -71,72 +69,71 @@ final class Mailer
 	 * @param array  $headers Additional headers
 	 * @return bool Success status
 	 */
-	public static function send(string $key, string $to, array $context = array(), array $headers = array()): bool
-	{
-		if (empty($to) || ! is_email($to)) {
+	public static function send( string $key, string $to, array $context = array(), array $headers = array() ): bool {
+		if ( empty( $to ) || ! is_email( $to ) ) {
 			return false;
 		}
 
 		// Check if email sending is enabled
-		if (! \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_send_enabled()) {
+		if ( ! \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_send_enabled() ) {
 			return false;
 		}
 
 		// Customer communication preferences check
-		if (isset($context['customer']['email']) && $context['customer']['email'] === $to) {
+		if ( isset( $context['customer']['email'] ) && $context['customer']['email'] === $to ) {
 			// Get user ID from email
-			$user = get_user_by('email', $to);
-			if ($user) {
+			$user = get_user_by( 'email', $to );
+			if ( $user ) {
 				// Welcome email check - both global setting and user preference
-				if ($key === 'welcome') {
+				if ( $key === 'welcome' ) {
 					$global_enabled = self::is_welcome_email_enabled();
-					$user_enabled   = get_user_meta($user->ID, 'mhm_welcome_email', true);
-					if (! $global_enabled || $user_enabled === '0') {
+					$user_enabled   = get_user_meta( $user->ID, 'mhm_welcome_email', true );
+					if ( ! $global_enabled || $user_enabled === '0' ) {
 						return false;
 					}
 				}
 
 				// Booking notification check - both global setting and user preference
-				if (in_array($key, array('booking_confirmation', 'booking_reminder', 'booking_cancellation'))) {
+				if ( in_array( $key, array( 'booking_confirmation', 'booking_reminder', 'booking_cancellation' ) ) ) {
 					$global_enabled = self::is_booking_notifications_enabled();
-					$user_enabled   = get_user_meta($user->ID, 'mhm_booking_notifications', true);
-					if (! $global_enabled || $user_enabled === '0') {
+					$user_enabled   = get_user_meta( $user->ID, 'mhm_booking_notifications', true );
+					if ( ! $global_enabled || $user_enabled === '0' ) {
 						return false;
 					}
 				}
 
 				// Marketing email check - both global setting and user preference
-				if ($key === 'marketing') {
+				if ( $key === 'marketing' ) {
 					$global_enabled = self::is_marketing_emails_enabled();
-					$user_enabled   = get_user_meta($user->ID, 'mhm_marketing_emails', true);
-					if (! $global_enabled || $user_enabled === '0') {
+					$user_enabled   = get_user_meta( $user->ID, 'mhm_marketing_emails', true );
+					if ( ! $global_enabled || $user_enabled === '0' ) {
 						return false;
 					}
 				}
 			} else {
 				// User not found, check only global settings
-				if ($key === 'welcome' && ! self::is_welcome_email_enabled()) {
+				if ( $key === 'welcome' && ! self::is_welcome_email_enabled() ) {
 					return false;
 				}
 
-				if (in_array($key, array('booking_confirmation', 'booking_reminder', 'booking_cancellation')) && ! self::is_booking_notifications_enabled()) {
+				if ( in_array( $key, array( 'booking_confirmation', 'booking_reminder', 'booking_cancellation' ) ) && ! self::is_booking_notifications_enabled() ) {
 					return false;
 				}
 
-				if ($key === 'marketing' && ! self::is_marketing_emails_enabled()) {
+				if ( $key === 'marketing' && ! self::is_marketing_emails_enabled() ) {
 					return false;
 				}
 			}
 		}
 
 		// If in test mode, send to test address
-		if (\MHMRentiva\Admin\Settings\Groups\EmailSettings::is_test_mode()) {
+		if ( \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_test_mode() ) {
 			$to = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_test_address();
 		}
 
-		$subject = Templates::compile_subject($key, $context);
-		$body    = Templates::render_body($key, $context);
-		$headers = self::normalize_headers($headers);
+		$subject = Templates::compile_subject( $key, $context );
+		$body    = Templates::render_body( $key, $context );
+		$headers = self::normalize_headers( $headers );
 
 		// Default headers
 		$from_name    = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_from_name();
@@ -147,13 +144,13 @@ final class Mailer
 			'Content-Type: text/html; charset=UTF-8',
 		);
 
-		$headers = array_merge($default_headers, $headers);
-		$headers = array_unique($headers);
+		$headers = array_merge( $default_headers, $headers );
+		$headers = array_unique( $headers );
 
-		$ok = wp_mail($to, $subject, $body, $headers);
+		$ok = wp_mail( $to, $subject, $body, $headers );
 
 		// Action hook for logging/monitoring
-		do_action('mhm_rentiva_email_sent', $key, $to, $ok, $subject, $context);
+		do_action( 'mhm_rentiva_email_sent', $key, $to, $ok, $subject, $context );
 
 		return $ok;
 	}
@@ -167,27 +164,26 @@ final class Mailer
 	 * @param array  $additional_context Additional context data
 	 * @return bool Success status
 	 */
-	public static function sendBookingEmail(string $template_key, int $booking_id, string $recipient_type, array $additional_context = array()): bool
-	{
-		$booking_data = self::getBookingContext($booking_id);
-		if (! $booking_data) {
+	public static function sendBookingEmail( string $template_key, int $booking_id, string $recipient_type, array $additional_context = array() ): bool {
+		$booking_data = self::getBookingContext( $booking_id );
+		if ( ! $booking_data ) {
 			return false;
 		}
 
-		$context = array_merge($booking_data, $additional_context);
+		$context = array_merge( $booking_data, $additional_context );
 
-		if ($recipient_type === 'customer') {
+		if ( $recipient_type === 'customer' ) {
 			$email = $context['customer']['email'] ?? '';
-			if (empty($email)) {
+			if ( empty( $email ) ) {
 				return false;
 			}
-			return self::send($template_key, $email, $context);
-		} elseif ($recipient_type === 'admin') {
-			$email = get_option('admin_email');
-			if (empty($email)) {
+			return self::send( $template_key, $email, $context );
+		} elseif ( $recipient_type === 'admin' ) {
+			$email = get_option( 'admin_email' );
+			if ( empty( $email ) ) {
 				return false;
 			}
-			return self::send($template_key, $email, $context);
+			return self::send( $template_key, $email, $context );
 		}
 
 		return false;
@@ -199,32 +195,31 @@ final class Mailer
 	 * @param int $booking_id Booking ID
 	 * @return array|null Booking context data
 	 */
-	public static function getBookingContext(int $booking_id): ?array
-	{
-		if ($booking_id <= 0) {
+	public static function getBookingContext( int $booking_id ): ?array {
+		if ( $booking_id <= 0 ) {
 			return null;
 		}
 
-		$post = get_post($booking_id);
-		if (! $post || $post->post_type !== 'vehicle_booking') {
+		$post = get_post( $booking_id );
+		if ( ! $post || $post->post_type !== 'vehicle_booking' ) {
 			return null;
 		}
 
 		// ⭐ Get data using interface-based provider (loose coupling)
 		$provider        = self::get_booking_data_provider();
-		$customer_info   = $provider->getBookingCustomerInfo($booking_id);
-		$vehicle_info    = $provider->getBookingVehicleInfo($booking_id);
-		$date_info       = $provider->getBookingDateInfo($booking_id);
-		$payment_status  = $provider->getBookingPaymentStatus($booking_id);
-		$payment_gateway = $provider->getBookingPaymentGateway($booking_id);
-		$total_price     = $provider->getBookingTotalPrice($booking_id);
+		$customer_info   = $provider->getBookingCustomerInfo( $booking_id );
+		$vehicle_info    = $provider->getBookingVehicleInfo( $booking_id );
+		$date_info       = $provider->getBookingDateInfo( $booking_id );
+		$payment_status  = $provider->getBookingPaymentStatus( $booking_id );
+		$payment_gateway = $provider->getBookingPaymentGateway( $booking_id );
+		$total_price     = $provider->getBookingTotalPrice( $booking_id );
 
 		// Get payment information
-		$payment_type     = get_post_meta($booking_id, '_mhm_payment_type', true);
-		$payment_method   = get_post_meta($booking_id, '_mhm_payment_method', true);
-		$deposit_amount   = get_post_meta($booking_id, '_mhm_deposit_amount', true);
-		$remaining_amount = get_post_meta($booking_id, '_mhm_remaining_amount', true);
-		$payment_deadline = get_post_meta($booking_id, '_mhm_payment_deadline', true);
+		$payment_type     = get_post_meta( $booking_id, '_mhm_payment_type', true );
+		$payment_method   = get_post_meta( $booking_id, '_mhm_payment_method', true );
+		$deposit_amount   = get_post_meta( $booking_id, '_mhm_deposit_amount', true );
+		$remaining_amount = get_post_meta( $booking_id, '_mhm_remaining_amount', true );
+		$payment_deadline = get_post_meta( $booking_id, '_mhm_payment_deadline', true );
 
 		return array(
 			'booking'  => array(
@@ -257,9 +252,9 @@ final class Mailer
 				'featured_image' => $vehicle_info['featured_image'] ?? '',
 			),
 			'site'     => array(
-				'name'        => get_bloginfo('name'),
-				'url'         => home_url('/'),
-				'admin_email' => get_option('admin_email'),
+				'name'        => get_bloginfo( 'name' ),
+				'url'         => home_url( '/' ),
+				'admin_email' => get_option( 'admin_email' ),
 			),
 		);
 	}
@@ -270,22 +265,21 @@ final class Mailer
 	 * @param int $message_id Message ID
 	 * @return array|null Message context data
 	 */
-	public static function getMessageContext(int $message_id): ?array
-	{
-		if ($message_id <= 0) {
+	public static function getMessageContext( int $message_id ): ?array {
+		if ( $message_id <= 0 ) {
 			return null;
 		}
 
-		$post = get_post($message_id);
-		if (! $post || $post->post_type !== 'mhm_message') {
+		$post = get_post( $message_id );
+		if ( ! $post || $post->post_type !== 'mhm_message' ) {
 			return null;
 		}
 
-		$customer_name  = get_post_meta($message_id, '_mhm_customer_name', true);
-		$customer_email = get_post_meta($message_id, '_mhm_customer_email', true);
-		$category       = get_post_meta($message_id, '_mhm_message_category', true);
-		$status         = get_post_meta($message_id, '_mhm_message_status', true);
-		$thread_id      = get_post_meta($message_id, '_mhm_thread_id', true);
+		$customer_name  = get_post_meta( $message_id, '_mhm_customer_name', true );
+		$customer_email = get_post_meta( $message_id, '_mhm_customer_email', true );
+		$category       = get_post_meta( $message_id, '_mhm_message_category', true );
+		$status         = get_post_meta( $message_id, '_mhm_message_status', true );
+		$thread_id      = get_post_meta( $message_id, '_mhm_thread_id', true );
 
 		return array(
 			'message'  => array(
@@ -298,13 +292,13 @@ final class Mailer
 				'thread_id' => $thread_id,
 			),
 			'customer' => array(
-				'name'  => $customer_name ?: __('Anonymous', 'mhm-rentiva'),
+				'name'  => $customer_name ?: __( 'Anonymous', 'mhm-rentiva' ),
 				'email' => $customer_email,
 			),
 			'site'     => array(
-				'name'        => get_bloginfo('name'),
-				'url'         => home_url('/'),
-				'admin_email' => get_option('admin_email'),
+				'name'        => get_bloginfo( 'name' ),
+				'url'         => home_url( '/' ),
+				'admin_email' => get_option( 'admin_email' ),
 			),
 		);
 	}
@@ -315,15 +309,14 @@ final class Mailer
 	 * @param array $headers Headers array
 	 * @return array Normalized headers
 	 */
-	private static function normalize_headers(array $headers): array
-	{
+	private static function normalize_headers( array $headers ): array {
 		$out = array();
-		foreach ($headers as $h) {
-			if (! is_string($h)) {
+		foreach ( $headers as $h ) {
+			if ( ! is_string( $h ) ) {
 				continue;
 			}
-			$h = trim($h);
-			if ($h !== '') {
+			$h = trim( $h );
+			if ( $h !== '' ) {
 				$out[] = $h;
 			}
 		}
@@ -337,19 +330,18 @@ final class Mailer
 	 * @param int    $days Days to look back
 	 * @return array Statistics
 	 */
-	public static function getEmailStats(string $key = '', int $days = 30): array
-	{
+	public static function getEmailStats( string $key = '', int $days = 30 ): array {
 		// Create cache key
-		$cache_key = 'email_stats_' . md5($key . '_' . $days);
+		$cache_key = 'email_stats_' . md5( $key . '_' . $days );
 
 		// Check cache
-		$cached_stats = get_transient($cache_key);
-		if ($cached_stats !== false) {
+		$cached_stats = get_transient( $cache_key );
+		if ( $cached_stats !== false ) {
 			return $cached_stats;
 		}
 
 		// Check if logging is enabled
-		if (! \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_log_enabled()) {
+		if ( ! \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_log_enabled() ) {
 			$stats = array(
 				'total_sent'   => 0,
 				'successful'   => 0,
@@ -358,12 +350,12 @@ final class Mailer
 			);
 
 			// 5 minutes cache
-			set_transient($cache_key, $stats, 5 * MINUTE_IN_SECONDS);
+			set_transient( $cache_key, $stats, 5 * MINUTE_IN_SECONDS );
 			return $stats;
 		}
 
 		// ⭐ Using WP_Query instead of raw SQL for better maintainability
-		$date_threshold = gmdate('Y-m-d H:i:s', strtotime("-{$days} days"));
+		$date_threshold = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
 		// Build meta query
 		$meta_query = array(
@@ -374,7 +366,7 @@ final class Mailer
 		);
 
 		// Filter by template key if provided
-		if (! empty($key)) {
+		if ( ! empty( $key ) ) {
 			$meta_query[] = array(
 				'key'     => '_mhm_email_key',
 				'value'   => $key,
@@ -405,12 +397,12 @@ final class Mailer
 		$successful = 0;
 		$failed     = 0;
 
-		if ($query->have_posts()) {
-			foreach ($query->posts as $post_id) {
-				$status = get_post_meta($post_id, '_mhm_email_status', true);
-				if ($status === 'success') {
+		if ( $query->have_posts() ) {
+			foreach ( $query->posts as $post_id ) {
+				$status = get_post_meta( $post_id, '_mhm_email_status', true );
+				if ( $status === 'success' ) {
 					++$successful;
-				} elseif ($status === 'failed') {
+				} elseif ( $status === 'failed' ) {
 					++$failed;
 				}
 			}
@@ -426,11 +418,11 @@ final class Mailer
 			'total_sent'   => (int) $stats->total_sent,
 			'successful'   => (int) $stats->successful,
 			'failed'       => (int) $stats->failed,
-			'success_rate' => $stats->total_sent > 0 ? round(($stats->successful / $stats->total_sent) * 100, 2) : 0,
+			'success_rate' => $stats->total_sent > 0 ? round( ( $stats->successful / $stats->total_sent ) * 100, 2 ) : 0,
 		);
 
 		// 15 minutes cache
-		set_transient($cache_key, $final_stats, 15 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $final_stats, 15 * MINUTE_IN_SECONDS );
 
 		return $final_stats;
 	}
@@ -438,18 +430,15 @@ final class Mailer
 	/**
 	 * Customer communication settings helper methods
 	 */
-	private static function is_welcome_email_enabled(): bool
-	{
-		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_welcome_email', '1') === '1';
+	private static function is_welcome_email_enabled(): bool {
+		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_customer_welcome_email', '1' ) === '1';
 	}
 
-	private static function is_booking_notifications_enabled(): bool
-	{
-		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_booking_notifications', '1') === '1';
+	private static function is_booking_notifications_enabled(): bool {
+		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_customer_booking_notifications', '1' ) === '1';
 	}
 
-	private static function is_marketing_emails_enabled(): bool
-	{
-		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_marketing_emails', '0') === '1';
+	private static function is_marketing_emails_enabled(): bool {
+		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_customer_marketing_emails', '0' ) === '1';
 	}
 }

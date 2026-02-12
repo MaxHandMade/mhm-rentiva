@@ -8,48 +8,46 @@ use MHMRentiva\Admin\Emails\Core\Mailer;
 use MHMRentiva\Admin\Emails\Core\Templates;
 use MHMRentiva\Admin\Settings\Groups\EmailSettings;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class EmailTemplateTestAction
-{
+final class EmailTemplateTestAction {
 
-	public static function register(): void
-	{
-		add_action('admin_post_mhm_rentiva_send_template_test', array(self::class, 'handle'));
+
+	public static function register(): void {
+		add_action( 'admin_post_mhm_rentiva_send_template_test', array( self::class, 'handle' ) );
 	}
 
-	public static function handle(): void
-	{
-		if (! current_user_can('manage_options')) {
-			wp_die(esc_html__('You do not have permission to perform this action.', 'mhm-rentiva'), 403);
+	public static function handle(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to perform this action.', 'mhm-rentiva' ), 403 );
 		}
 
-		$nonce = isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '';
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_send_template_test')) {
-			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'), 403);
+		$nonce = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_send_template_test' ) ) {
+			wp_die( esc_html__( 'Security check failed.', 'mhm-rentiva' ), 403 );
 		}
 
-		$template_key = isset($_POST['template_key']) ? sanitize_text_field(wp_unslash($_POST['template_key'])) : '';
-		$to           = isset($_POST['to']) ? sanitize_email(wp_unslash($_POST['to'])) : '';
-		$booking_id   = isset($_POST['booking_id']) ? absint(wp_unslash($_POST['booking_id'])) : 0;
-		$new_status   = isset($_POST['new_status']) ? sanitize_text_field(wp_unslash($_POST['new_status'])) : '';
+		$template_key = isset( $_POST['template_key'] ) ? sanitize_text_field( wp_unslash( $_POST['template_key'] ) ) : '';
+		$to           = isset( $_POST['to'] ) ? sanitize_email( wp_unslash( $_POST['to'] ) ) : '';
+		$booking_id   = isset( $_POST['booking_id'] ) ? absint( wp_unslash( $_POST['booking_id'] ) ) : 0;
+		$new_status   = isset( $_POST['new_status'] ) ? sanitize_text_field( wp_unslash( $_POST['new_status'] ) ) : '';
 
-		if ($to === '') {
+		if ( $to === '' ) {
 			// Default to test address if test mode, otherwise admin email
-			$to = EmailSettings::is_test_mode() ? EmailSettings::get_test_address() : get_option('admin_email');
+			$to = EmailSettings::is_test_mode() ? EmailSettings::get_test_address() : get_option( 'admin_email' );
 		}
 
-		if ($template_key === '' || ! is_email($to)) {
-			self::redirect('failed');
+		if ( $template_key === '' || ! is_email( $to ) ) {
+			self::redirect( 'failed' );
 		}
 
 		// Build context
 		$context = array();
-		if ($booking_id > 0) {
-			$context = self::buildBookingContext($booking_id);
-			if ($template_key === 'booking_status_changed_customer' || $template_key === 'booking_status_changed_admin') {
+		if ( $booking_id > 0 ) {
+			$context = self::buildBookingContext( $booking_id );
+			if ( $template_key === 'booking_status_changed_customer' || $template_key === 'booking_status_changed_admin' ) {
 				$context['status_change'] = array(
 					'old_status'       => $context['booking']['status'] ?? 'pending',
 					'new_status'       => $new_status !== '' ? $new_status : 'confirmed',
@@ -60,34 +58,33 @@ final class EmailTemplateTestAction
 		}
 
 		// Ensure site context exists
-		if (! isset($context['site'])) {
+		if ( ! isset( $context['site'] ) ) {
 			$context['site'] = array(
-				'name'        => get_bloginfo('name'),
-				'url'         => home_url('/'),
-				'admin_email' => get_option('admin_email'),
+				'name'        => get_bloginfo( 'name' ),
+				'url'         => home_url( '/' ),
+				'admin_email' => get_option( 'admin_email' ),
 			);
 		}
 
-		$ok = Mailer::send($template_key, $to, $context);
-		self::redirect($ok ? 'success' : 'failed');
+		$ok = Mailer::send( $template_key, $to, $context );
+		self::redirect( $ok ? 'success' : 'failed' );
 	}
 
-	private static function buildBookingContext(int $booking_id): array
-	{
-		$post = get_post($booking_id);
-		if (! $post || $post->post_type !== 'vehicle_booking') {
+	private static function buildBookingContext( int $booking_id ): array {
+		$post = get_post( $booking_id );
+		if ( ! $post || $post->post_type !== 'vehicle_booking' ) {
 			return array();
 		}
 
-		if (! class_exists('\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper')) {
+		if ( ! class_exists( '\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper' ) ) {
 			return array();
 		}
-		$customer_info   = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo($booking_id);
-		$vehicle_info    = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingVehicleInfo($booking_id);
-		$date_info       = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingDateInfo($booking_id);
-		$payment_status  = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingPaymentStatus($booking_id);
-		$payment_gateway = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingPaymentGateway($booking_id);
-		$total_price     = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingTotalPrice($booking_id);
+		$customer_info   = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo( $booking_id );
+		$vehicle_info    = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingVehicleInfo( $booking_id );
+		$date_info       = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingDateInfo( $booking_id );
+		$payment_status  = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingPaymentStatus( $booking_id );
+		$payment_gateway = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingPaymentGateway( $booking_id );
+		$total_price     = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingTotalPrice( $booking_id );
 
 		return array(
 			'booking'  => array(
@@ -102,7 +99,7 @@ final class EmailTemplateTestAction
 				'rental_days'     => $date_info['rental_days'] ?? 0,
 			),
 			'customer' => array(
-				'name'       => trim(($customer_info['first_name'] ?? '') . ' ' . ($customer_info['last_name'] ?? '')),
+				'name'       => trim( ( $customer_info['first_name'] ?? '' ) . ' ' . ( $customer_info['last_name'] ?? '' ) ),
 				'first_name' => $customer_info['first_name'] ?? '',
 				'last_name'  => $customer_info['last_name'] ?? '',
 				'email'      => $customer_info['email'] ?? '',
@@ -117,18 +114,17 @@ final class EmailTemplateTestAction
 		);
 	}
 
-	private static function redirect(string $status): void
-	{
+	private static function redirect( string $status ): void {
 		$url = add_query_arg(
 			array(
 				'page'              => 'mhm-rentiva-settings',
 				'tab'               => 'email-templates',
-				'type'              => sanitize_key(isset($_GET['type']) ? wp_unslash($_GET['type']) : 'booking_notifications'),
+				'type'              => sanitize_key( isset( $_GET['type'] ) ? wp_unslash( $_GET['type'] ) : 'booking_notifications' ),
 				'mhm_template_test' => $status,
 			),
-			admin_url('admin.php')
+			admin_url( 'admin.php' )
 		);
-		wp_safe_redirect($url);
+		wp_safe_redirect( $url );
 		exit;
 	}
 }

@@ -6,15 +6,15 @@ namespace MHMRentiva\Admin\Settings\View;
 
 use MHMRentiva\Admin\Settings\View\SettingsViewHelper;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Abstract Class for Settings Tab Renderers
  */
-abstract class AbstractTabRenderer implements TabRendererInterface
-{
+abstract class AbstractTabRenderer implements TabRendererInterface {
+
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
 	/**
@@ -29,24 +29,21 @@ abstract class AbstractTabRenderer implements TabRendererInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function get_label(): string
-	{
+	public function get_label(): string {
 		return $this->label;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function get_slug(): string
-	{
+	public function get_slug(): string {
 		return $this->slug;
 	}
 
 	/**
 	 * Helper: Render reset button for the tab
 	 */
-	protected function render_reset_button(): void
-	{
+	protected function render_reset_button(): void {
 		printf(
 			'<div class="mhm-tab-reset-section">
                 <button type="button" class="button button-secondary mhm-reset-tab-settings" data-tab="%s">
@@ -54,24 +51,22 @@ abstract class AbstractTabRenderer implements TabRendererInterface
                     %s
                 </button>
             </div>',
-			esc_attr($this->slug),
-			esc_html__('Reset This Tab', 'mhm-rentiva')
+			esc_attr( $this->slug ),
+			esc_html__( 'Reset This Tab', 'mhm-rentiva' )
 		);
 	}
 
 	/**
 	 * Helper: Render section with nested form removal
 	 */
-	protected function render_section_clean(string $section_name): void
-	{
-		SettingsViewHelper::render_section_cleanly($section_name);
+	protected function render_section_clean( string $section_name ): void {
+		SettingsViewHelper::render_section_cleanly( $section_name );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function should_wrap_with_form(): bool
-	{
+	public function should_wrap_with_form(): bool {
 		return true;
 	}
 
@@ -80,24 +75,23 @@ abstract class AbstractTabRenderer implements TabRendererInterface
 	 *
 	 * @return array Action structure
 	 */
-	protected function get_standard_reset_action(): array
-	{
+	protected function get_standard_reset_action(): array {
 		$reset_url = add_query_arg(
 			array(
 				'reset_defaults' => 'true',
 				'tab'            => $this->slug,
-				'_wpnonce'       => wp_create_nonce('mhm_rentiva_reset_defaults'),
+				'_wpnonce'       => wp_create_nonce( 'mhm_rentiva_reset_defaults' ),
 			),
-			admin_url('admin.php?page=mhm-rentiva-settings')
+			admin_url( 'admin.php?page=mhm-rentiva-settings' )
 		);
 
 		return array(
-			'text'  => __('Reset This Tab', 'mhm-rentiva'),
+			'text'  => __( 'Reset This Tab', 'mhm-rentiva' ),
 			'url'   => $reset_url,
 			'class' => 'button button-link-delete',
 			'icon'  => 'dashicons-undo',
 			'data'  => array(
-				'onclick' => "return confirm('" . esc_js(__('Are you sure you want to reset this tab? This cannot be undone.', 'mhm-rentiva')) . "');",
+				'onclick' => "return confirm('" . esc_js( __( 'Are you sure you want to reset this tab? This cannot be undone.', 'mhm-rentiva' ) ) . "');",
 			),
 		);
 	}
@@ -105,8 +99,7 @@ abstract class AbstractTabRenderer implements TabRendererInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function get_header_actions(): array
-	{
-		return array($this->get_standard_reset_action());
+	public function get_header_actions(): array {
+		return array( $this->get_standard_reset_action() );
 	}
 }
