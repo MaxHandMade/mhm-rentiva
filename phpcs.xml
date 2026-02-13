@@ -77,7 +77,6 @@
 			<property name="prefixes" type="array">
 				<element value="mhm_rentiva"/>
 				<element value="MHMRentiva"/>
-				<element value="mhm-rentiva"/>
 			</property>
 		</properties>
 	</rule>

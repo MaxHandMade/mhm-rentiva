@@ -83,61 +83,6 @@ if (is_string($config_path) && '' !== trim($config_path) && is_readable($config_
 require_once "{$_tests_dir}/includes/functions.php";
 
 /**
- * Parse env value to boolean.
- *
- * @param string $key Environment variable key.
- * @return bool|null Returns null when env is not set or invalid.
- */
-function mhm_test_env_bool(string $key): ?bool
-{
-	$value = getenv($key);
-	if (! is_string($value) || '' === trim($value)) {
-		return null;
-	}
-
-	$parsed = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-	return is_bool($parsed) ? $parsed : null;
-}
-
-/**
- * Register optional legacy feature flags from test environment variables.
- */
-function mhm_register_legacy_test_filters(): void
-{
-	$global = mhm_test_env_bool('MHM_TEST_LEGACY_FEATURES_ENABLED');
-	if (is_bool($global)) {
-		tests_add_filter(
-			'mhm_rentiva_legacy_feature_enabled',
-			static function (bool $enabled) use ($global): bool {
-				return $global;
-			}
-		);
-	}
-
-	$feature_map = array(
-		'setup_wizard'       => 'MHM_TEST_LEGACY_SETUP_WIZARD_ENABLED',
-		'about_page'         => 'MHM_TEST_LEGACY_ABOUT_PAGE_ENABLED',
-		'admin_testing_page' => 'MHM_TEST_LEGACY_ADMIN_TESTING_PAGE_ENABLED',
-	);
-
-	foreach ($feature_map as $feature => $env_key) {
-		$value = mhm_test_env_bool($env_key);
-		if (! is_bool($value)) {
-			continue;
-		}
-
-		tests_add_filter(
-			"mhm_rentiva_legacy_{$feature}_enabled",
-			static function (bool $enabled) use ($value): bool {
-				return $value;
-			}
-		);
-	}
-}
-
-mhm_register_legacy_test_filters();
-
-/**
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin()

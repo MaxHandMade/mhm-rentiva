@@ -8,7 +8,7 @@ on:
 
 jobs:
   phpunit:
-    name: phpunit (${{ matrix.php-version }} / WP ${{ matrix.wp-version }} / Legacy ${{ matrix.legacy-mode }})
+    name: phpunit (${{ matrix.php-version }} / WP ${{ matrix.wp-version }})
     runs-on: ubuntu-latest
 
     strategy:
@@ -16,7 +16,6 @@ jobs:
       matrix:
         php-version: ['8.1', '8.2']
         wp-version: ['6.7', 'latest']
-        legacy-mode: ['on', 'off']
 
     services:
       database:
@@ -82,10 +81,6 @@ jobs:
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
           WP_TESTS_PHPUNIT_POLYFILLS_PATH: ${{ github.workspace }}/vendor/yoast/phpunit-polyfills
-          MHM_TEST_LEGACY_FEATURES_ENABLED: ${{ matrix.legacy-mode == 'off' && 'false' || '' }}
-          MHM_TEST_LEGACY_SETUP_WIZARD_ENABLED: ${{ matrix.legacy-mode == 'off' && 'false' || '' }}
-          MHM_TEST_LEGACY_ABOUT_PAGE_ENABLED: ${{ matrix.legacy-mode == 'off' && 'false' || '' }}
-          MHM_TEST_LEGACY_ADMIN_TESTING_PAGE_ENABLED: ${{ matrix.legacy-mode == 'off' && 'false' || '' }}
         run: ./vendor/bin/phpunit -c phpunit.xml
 
   phpcs:

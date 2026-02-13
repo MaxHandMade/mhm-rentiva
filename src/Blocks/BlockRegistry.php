@@ -232,7 +232,7 @@ class BlockRegistry {
 	 * @param string $src Script source URL.
 	 * @return string Modified script tag.
 	 */
-	public static function add_module_type_to_search_block( string $tag, string $handle, string $src ): string {
+	public static function add_module_type_to_search_block( string $tag, string $handle, string $src ): string { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		// NO-OP: We have refactored blocks to use global `wp` variables (IIFE) instead of ES modules.
 		// This avoids "Failed to resolve module specifier" errors in environments without a build step.
 		return $tag;
@@ -381,7 +381,7 @@ class BlockRegistry {
 			'vehicle-rating-form',
 		);
 
-		if ( in_array( $slug, $dashicon_blocks ) ) {
+		if ( in_array( $slug, $dashicon_blocks, true ) ) {
 			wp_enqueue_style( 'dashicons' );
 		}
 

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace MHMRentiva\Tests\Integration\Legacy;
+namespace MHMRentiva\Tests\Integration\Admin;
 
 use MHMRentiva\Admin\Testing\TestAdminPage;
 use MHMRentiva\Admin\Utilities\Menu\Menu;
 use WP_UnitTestCase;
 
-final class LegacyFeatureFlagTest extends WP_UnitTestCase {
+final class CoreAdminPagesTest extends WP_UnitTestCase {
 
 	/**
 	 * @var array<int|string,mixed>
@@ -96,4 +96,3 @@ final class LegacyFeatureFlagTest extends WP_UnitTestCase {
 		return $slugs;
 	}
 }
-
