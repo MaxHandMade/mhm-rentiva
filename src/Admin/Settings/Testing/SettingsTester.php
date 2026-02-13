@@ -615,6 +615,7 @@ final class SettingsTester {
 	private static function test_settings_save( array $settings ): bool {
 		$all_settings    = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_all();
 		$original_values = array();
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Test harness captures/restores raw globals to simulate form submissions.
 		$original_post   = $_POST ?? array();
 
 		// Store original values from main settings array
@@ -697,6 +698,7 @@ final class SettingsTester {
 		}
 
 		// Also set $_REQUEST for compatibility
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Test harness mirrors raw form payload.
 		$_REQUEST['mhm_rentiva_settings'] = $_POST['mhm_rentiva_settings'];
 
 		// Prepare input for sanitization
@@ -718,6 +720,7 @@ final class SettingsTester {
 		}
 		// Also add as 'mhm_rentiva_settings' key for extraction process
 		// (but only with values that would be in real $_POST - checked checkboxes)
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Test harness mirrors raw form payload.
 		$input_for_sanitize['mhm_rentiva_settings'] = $_POST['mhm_rentiva_settings'];
 
 		// Update settings - this will trigger sanitization

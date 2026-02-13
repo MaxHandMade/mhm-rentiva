@@ -253,10 +253,13 @@ final class ContactForm extends AbstractShortcode {
 				sprintf( __( 'You have sent too many contact forms. Please wait %d minutes.', 'mhm-rentiva' ), (int) ceil( $limit_time / 60 ) )
 			);
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is already verified by verify_ajax_request_or_die() above.
 			$form_data = self::sanitize_contact_form_data( wp_unslash( $_POST ) );
 
 			// Handle file upload
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is already verified by verify_ajax_request_or_die() above.
 			if ( ! empty( $_FILES['attachment']['name'] ) ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is already verified by verify_ajax_request_or_die(); file array is validated in handle_file_upload().
 				$upload_result = self::handle_file_upload( $_FILES['attachment'] );
 
 				if ( $upload_result['success'] ) {
@@ -313,16 +316,19 @@ final class ContactForm extends AbstractShortcode {
 	public static function ajax_upload_attachment(): void {
 		try {
 			// Nonce check
-			if ( ! self::verify_nonce( isset( $_POST['nonce'] ) ? wp_unslash( $_POST['nonce'] ) : '' ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is validated via verify_nonce() in this condition.
+			if ( ! self::verify_nonce( isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '' ) ) {
 				self::ajax_error( __( 'Security check failed.', 'mhm-rentiva' ) );
 				return;
 			}
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is validated via verify_nonce() above.
 			if ( ! isset( $_FILES['attachment'] ) ) {
 				self::ajax_error( __( 'File not found.', 'mhm-rentiva' ) );
 				return;
 			}
 
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is validated via verify_nonce() above; file array is validated in handle_file_upload().
 			$file          = $_FILES['attachment'];
 			$upload_result = self::handle_file_upload( $file );
 

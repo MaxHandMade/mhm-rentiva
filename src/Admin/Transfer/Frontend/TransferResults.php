@@ -94,7 +94,8 @@ final class TransferResults extends AbstractShortcode
      */
     protected static function prepare_template_data(array $atts): array
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        // Read-only frontend filters from querystring; this shortcode does not mutate state.
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
         $criteria = array(
             'origin_id'      => isset($_GET['origin_id']) ? absint($_GET['origin_id']) : 0,
             'destination_id' => isset($_GET['destination_id']) ? absint($_GET['destination_id']) : 0,
@@ -105,6 +106,7 @@ final class TransferResults extends AbstractShortcode
             'luggage_big'    => isset($_GET['luggage_big']) ? absint($_GET['luggage_big']) : 0,
             'luggage_small'  => isset($_GET['luggage_small']) ? absint($_GET['luggage_small']) : 0,
         );
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
         $results = array();
         if (! empty($criteria['origin_id']) && ! empty($criteria['destination_id'])) {

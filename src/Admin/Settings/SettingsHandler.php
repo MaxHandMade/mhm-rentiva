@@ -31,7 +31,9 @@ final class SettingsHandler {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce/capability checks are enforced in each dispatched action handler.
 		$post = wp_unslash( $_POST );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only query flags are validated in handler-specific branches.
 		$get  = wp_unslash( $_GET );
 
 		// Modern Dispatcher using PHP 8.2 match

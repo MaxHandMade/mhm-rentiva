@@ -83,7 +83,8 @@ final class GDPRManager {
 			return;
 		}
 
-		// Check if consent was given during registration
+		// Check if consent was given during registration.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- user_register runs after core registration flow; nonce validation belongs to the registration form handler.
 		if ( isset( $_POST['data_consent'] ) && $_POST['data_consent'] === '1' ) {
 			update_user_meta( $user_id, 'mhm_data_consent_given', '1' );
 			update_user_meta( $user_id, 'mhm_data_consent_date', current_time( 'mysql' ) );

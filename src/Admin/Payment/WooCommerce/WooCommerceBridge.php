@@ -1449,10 +1449,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface
 	 */
 	public static function save_checkout_payment_type($order_id, $data)
 	{
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce checkout processing validates request nonce before this hook runs.
 		if (! isset($_POST['mhm_booking_payment_type'])) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce checkout processing validates request nonce before this hook runs.
 		$payment_type = sanitize_text_field(wp_unslash($_POST['mhm_booking_payment_type']));
 
 		// Always save to order meta

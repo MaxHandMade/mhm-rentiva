@@ -112,9 +112,10 @@ final class MessagesSettings {
 		$sanitized['statuses']   = self::sanitize_statuses( $input['statuses'] ?? array() );
 
 		// Handle NEW category entry (from separate input field)
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by WordPress Settings API
-		$new_category = isset( $_POST['mhm_new_category_entry'] )
-			? sanitize_text_field( trim( (string) wp_unslash( $_POST['mhm_new_category_entry'] ) ) )
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified by WordPress Settings API; value is unslashed and sanitized in-place.
+		$new_category_raw = isset( $_POST['mhm_new_category_entry'] ) ? wp_unslash( (string) $_POST['mhm_new_category_entry'] ) : '';
+		$new_category     = '' !== $new_category_raw
+			? sanitize_text_field( trim( (string) $new_category_raw ) )
 			: '';
 
 		if ( ! empty( $new_category ) ) {
@@ -126,9 +127,10 @@ final class MessagesSettings {
 		}
 
 		// Handle NEW status entry (from separate input field)
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by WordPress Settings API
-		$new_status = isset( $_POST['mhm_new_status_entry'] )
-			? sanitize_text_field( trim( (string) wp_unslash( $_POST['mhm_new_status_entry'] ) ) )
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified by WordPress Settings API; value is unslashed and sanitized in-place.
+		$new_status_raw = isset( $_POST['mhm_new_status_entry'] ) ? wp_unslash( (string) $_POST['mhm_new_status_entry'] ) : '';
+		$new_status     = '' !== $new_status_raw
+			? sanitize_text_field( trim( (string) $new_status_raw ) )
 			: '';
 
 		if ( ! empty( $new_status ) ) {
