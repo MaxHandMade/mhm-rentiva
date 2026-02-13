@@ -23,6 +23,10 @@ The following modules are currently loaded in runtime and must be controlled bef
 - Keep production behavior unchanged until a flag is explicitly disabled.
 - Every phase must be covered by regression tests and CI green status.
 - Prefer small, reversible commits.
+- Production-used admin pages are protected:
+  - If a legacy page is still used in real plugin operations, do not physically remove it.
+  - In that case, manage visibility/availability only via feature flags and role/capability checks.
+  - Physical removal requires explicit owner approval after usage validation.
 
 ## Current Status (2026-02-13)
 - Phase 2 completed:
