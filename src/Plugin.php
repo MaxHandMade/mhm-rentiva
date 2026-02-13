@@ -40,8 +40,8 @@ final class Plugin {
 	 */
 	private function is_legacy_feature_enabled( string $feature ): bool {
 		$default_map = array(
-			'setup_wizard'      => false,
-			'about_page'         => false,
+			'setup_wizard'      => true,
+			'about_page'        => true,
 			'admin_testing_page' => false,
 		);
 		$default_enabled = array_key_exists( $feature, $default_map ) ? (bool) $default_map[ $feature ] : true;

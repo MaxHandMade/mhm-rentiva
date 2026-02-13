@@ -64,7 +64,7 @@ final class LegacyFeatureFlagTest extends WP_UnitTestCase {
 		$this->assertNotContains( 'mhm-rentiva-about', $submenu_slugs );
 	}
 
-	public function test_menu_hides_setup_and_about_submenus_by_default(): void {
+	public function test_menu_shows_setup_and_about_submenus_by_default(): void {
 		if ( $this->is_legacy_globally_forced_off() ) {
 			$this->markTestSkipped( 'Legacy features are globally forced off for this test run.' );
 		}
@@ -74,8 +74,8 @@ final class LegacyFeatureFlagTest extends WP_UnitTestCase {
 
 		$submenu_slugs = $this->get_mhm_submenu_slugs();
 
-		$this->assertNotContains( 'mhm-rentiva-setup', $submenu_slugs );
-		$this->assertNotContains( 'mhm-rentiva-about', $submenu_slugs );
+		$this->assertContains( 'mhm-rentiva-setup', $submenu_slugs );
+		$this->assertContains( 'mhm-rentiva-about', $submenu_slugs );
 	}
 
 	public function test_menu_can_enable_setup_submenu_with_feature_override(): void {
@@ -128,17 +128,17 @@ final class LegacyFeatureFlagTest extends WP_UnitTestCase {
 		$this->assertFalse( $this->is_legacy_feature_enabled( 'about_page' ) );
 	}
 
-	public function test_plugin_disables_setup_wizard_by_default_but_allows_feature_override(): void {
-		$this->assertFalse( $this->is_legacy_feature_enabled( 'setup_wizard' ) );
+	public function test_plugin_enables_setup_wizard_by_default_but_allows_feature_override(): void {
+		$this->assertTrue( $this->is_legacy_feature_enabled( 'setup_wizard' ) );
 
 		add_filter(
 			'mhm_rentiva_legacy_setup_wizard_enabled',
 			static function ( bool $enabled ): bool {
-				return true;
+				return false;
 			}
 		);
 
-		$this->assertTrue( $this->is_legacy_feature_enabled( 'setup_wizard' ) );
+		$this->assertFalse( $this->is_legacy_feature_enabled( 'setup_wizard' ) );
 	}
 
 	public function test_plugin_disables_admin_testing_page_by_default_but_allows_feature_override(): void {
@@ -154,17 +154,17 @@ final class LegacyFeatureFlagTest extends WP_UnitTestCase {
 		$this->assertTrue( $this->is_legacy_feature_enabled( 'admin_testing_page' ) );
 	}
 
-	public function test_plugin_disables_about_page_by_default_but_allows_feature_override(): void {
-		$this->assertFalse( $this->is_legacy_feature_enabled( 'about_page' ) );
+	public function test_plugin_enables_about_page_by_default_but_allows_feature_override(): void {
+		$this->assertTrue( $this->is_legacy_feature_enabled( 'about_page' ) );
 
 		add_filter(
 			'mhm_rentiva_legacy_about_page_enabled',
 			static function ( bool $enabled ): bool {
-				return true;
+				return false;
 			}
 		);
 
-		$this->assertTrue( $this->is_legacy_feature_enabled( 'about_page' ) );
+		$this->assertFalse( $this->is_legacy_feature_enabled( 'about_page' ) );
 	}
 
 	private function reset_admin_menu_globals(): void {
