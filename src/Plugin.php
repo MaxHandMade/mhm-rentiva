@@ -31,6 +31,21 @@ final class Plugin {
 	private bool $services_initialized = false;
 
 	/**
+	 * Check whether a legacy feature is enabled.
+	 *
+	 * Defaults to enabled for backward compatibility.
+	 *
+	 * @param string $feature Legacy feature key.
+	 * @return bool
+	 */
+	private function is_legacy_feature_enabled( string $feature ): bool {
+		$enabled = (bool) apply_filters( 'mhm_rentiva_legacy_feature_enabled', true, $feature );
+		$enabled = (bool) apply_filters( "mhm_rentiva_legacy_{$feature}_enabled", $enabled );
+
+		return $enabled;
+	}
+
+	/**
 	 * Initialize plugin
 	 */
 	public static function bootstrap(): void {
@@ -262,8 +277,8 @@ final class Plugin {
 
 		// Maintenance (Moved to initialize_core_services for all-context support)
 
-		// Setup Wizard
-		if ( $this->is_class_available( 'MHMRentiva\Admin\Setup\SetupWizard' ) ) {
+		// Setup Wizard (legacy module; feature-flagged)
+		if ( $this->is_legacy_feature_enabled( 'setup_wizard' ) && $this->is_class_available( 'MHMRentiva\Admin\Setup\SetupWizard' ) ) {
 			\MHMRentiva\Admin\Setup\SetupWizard::register();
 		}
 		// REST API Settings AJAX
@@ -467,8 +482,8 @@ final class Plugin {
 
 		// Payment Clients
 
-		// About page
-		if ( class_exists( Admin\About\About::class ) ) {
+		// About page (legacy module; feature-flagged)
+		if ( $this->is_legacy_feature_enabled( 'about_page' ) && class_exists( Admin\About\About::class ) ) {
 			Admin\About\About::register();
 		}
 
@@ -531,8 +546,8 @@ final class Plugin {
 			Admin\Utilities\Uninstall\UninstallPage::register();
 		}
 
-		// Test suite page (development only)
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && is_admin() && class_exists( 'MHMRentiva\\Admin\\Testing\\TestAdminPage' ) ) {
+		// Test suite page (legacy module; feature-flagged and development only)
+		if ( $this->is_legacy_feature_enabled( 'admin_testing_page' ) && defined( 'WP_DEBUG' ) && WP_DEBUG && is_admin() && class_exists( 'MHMRentiva\\Admin\\Testing\\TestAdminPage' ) ) {
 			Admin\Testing\TestAdminPage::register();
 		}
 

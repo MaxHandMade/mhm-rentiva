@@ -10,6 +10,21 @@ if (! defined('ABSPATH')) {
 
 final class Menu
 {
+	/**
+	 * Check whether a legacy menu entry is enabled.
+	 *
+	 * Defaults to enabled for backward compatibility.
+	 *
+	 * @param string $feature Legacy feature key.
+	 * @return bool
+	 */
+	private static function is_legacy_feature_enabled(string $feature): bool
+	{
+		$enabled = (bool) apply_filters('mhm_rentiva_legacy_feature_enabled', true, $feature);
+		$enabled = (bool) apply_filters("mhm_rentiva_legacy_{$feature}_enabled", $enabled);
+
+		return $enabled;
+	}
 
 	public static function register(): void
 	{
@@ -177,27 +192,31 @@ final class Menu
 			);
 		}
 
-		// 12. Setup Wizard (Requested bottom group)
-		add_submenu_page(
-			'mhm-rentiva',
-			__('Setup Wizard', 'mhm-rentiva'),
-			__('Setup Wizard', 'mhm-rentiva'),
-			'manage_options',
-			'mhm-rentiva-setup',
-			array(new \MHMRentiva\Admin\Setup\SetupWizard(), 'render_page')
-		);
+		// 12. Setup Wizard (legacy module; feature-flagged)
+		if (self::is_legacy_feature_enabled('setup_wizard')) {
+			add_submenu_page(
+				'mhm-rentiva',
+				__('Setup Wizard', 'mhm-rentiva'),
+				__('Setup Wizard', 'mhm-rentiva'),
+				'manage_options',
+				'mhm-rentiva-setup',
+				array(new \MHMRentiva\Admin\Setup\SetupWizard(), 'render_page')
+			);
+		}
 
-		// 12. About (Requested bottom group)
-		add_submenu_page(
-			'mhm-rentiva',
-			__('About', 'mhm-rentiva'),
-			__('About', 'mhm-rentiva'),
-			'manage_options',
-			'mhm-rentiva-about',
-			array(new \MHMRentiva\Admin\About\About(), 'render_page')
-		);
+		// 13. About (legacy module; feature-flagged)
+		if (self::is_legacy_feature_enabled('about_page')) {
+			add_submenu_page(
+				'mhm-rentiva',
+				__('About', 'mhm-rentiva'),
+				__('About', 'mhm-rentiva'),
+				'manage_options',
+				'mhm-rentiva-about',
+				array(new \MHMRentiva\Admin\About\About(), 'render_page')
+			);
+		}
 
-		// 13. License (Requested at the very bottom)
+		// 14. License (Requested at the very bottom)
 		add_submenu_page(
 			'mhm-rentiva',
 			__('License Management', 'mhm-rentiva'),
