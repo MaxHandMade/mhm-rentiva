@@ -62,7 +62,17 @@ function mhm_is_test_discovery_mode(): bool
  * multiple test runs share the same DB.
  */
 $is_discovery_mode = mhm_is_test_discovery_mode();
-if (! $is_discovery_mode) {
+$normalized_tests_dir = str_replace('\\', '/', (string) $_tests_dir);
+$is_windows_local_dev = str_contains($normalized_tests_dir, 'wordpress-develop/tests/phpunit');
+
+if ($is_windows_local_dev) {
+	$existing_config_path = getenv('WP_TESTS_CONFIG_FILE_PATH');
+	if (is_string($existing_config_path) && str_contains(str_replace('\\', '/', $existing_config_path), '/Temp/')) {
+		putenv('WP_TESTS_CONFIG_FILE_PATH');
+	}
+}
+
+if (! $is_discovery_mode && ! $is_windows_local_dev) {
 	$table_prefix = getenv('WP_TESTS_TABLE_PREFIX');
 	if (! is_string($table_prefix) || '' === trim($table_prefix)) {
 		$run_id = getenv('MHM_TEST_RUN_ID');
@@ -76,6 +86,7 @@ if (! $is_discovery_mode) {
 	if (! is_string($config_path) || '' === trim($config_path)) {
 		$config_candidates = array(
 			dirname($_tests_dir) . '/wp-tests-config.php',
+			dirname($_tests_dir, 2) . '/wp-tests-config.php',
 			dirname($_tests_dir, 3) . '/wp-tests-config.php',
 		);
 		foreach ($config_candidates as $candidate) {
