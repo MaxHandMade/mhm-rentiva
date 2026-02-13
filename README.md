@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.9.7-blue.svg)
+![Version](https://img.shields.io/badge/version-4.9.8-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1782,7 +1782,14 @@ Fixes #123
 
 ## 📝 Changelog
  
-### Latest Version: 4.6.7 (2026-02-01)
+### Latest Version: 4.9.8 (2026-02-09)
+
+**Stability & CI Standardization**
+- Synced plugin version sources to 4.9.8 (header + constant).
+- Standardized Composer/CI command usage (composer test, composer phpcs).
+- Added low-risk performance hardening (asset versioning, localization guards, bootstrap scoping).
+
+### Version: 4.6.7 (2026-02-01)
 
 **🛡️ SECURITY & STANDARDS**
 - **Safe Redirection**: Replaced `wp_redirect` with `wp_safe_redirect` project-wide to ensure internal redirection safety.
