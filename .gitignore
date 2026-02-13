@@ -116,6 +116,13 @@ dist/
 # ============================================================================
 # PHPUnit & Testing
 tests/
+!tests/
+tests/*
+!tests/Integration/
+tests/Integration/*
+!tests/Integration/Legacy/
+tests/Integration/Legacy/*
+!tests/Integration/Legacy/LegacyFeatureFlagTest.php
 .phpunit.result.cache
 coverage/
 .coverage/
