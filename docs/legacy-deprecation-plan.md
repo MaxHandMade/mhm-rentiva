@@ -37,6 +37,8 @@ The following modules are currently loaded in runtime and must be controlled bef
   - `legacy=off` behavior is validated by CI matrix.
 - Phase 4 in progress:
   - `Admin\Testing\TestAdminPage` is now default OFF (`src/Plugin.php`).
+  - `Admin\About\About` is now default OFF (`src/Plugin.php`, `src/Admin/Utilities/Menu/Menu.php`).
+  - `Admin\Setup\SetupWizard` is now default OFF (`src/Plugin.php`, `src/Admin/Utilities/Menu/Menu.php`).
   - Feature-specific filter can still re-enable it when needed.
   - CI pipeline is green with matrix:
     - PHP: 8.1, 8.2
