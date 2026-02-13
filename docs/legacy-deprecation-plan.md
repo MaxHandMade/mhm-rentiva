@@ -7,15 +7,15 @@ Goal: reduce maintenance overhead without breaking booking, frontend, and paymen
 ## Current Legacy Entry Points
 The following modules are currently loaded in runtime and must be controlled before removal:
 
-- `src/Plugin.php:266` and `src/Plugin.php:267`:
+- `src/Plugin.php:288` and `src/Plugin.php:289`:
   - `\MHMRentiva\Admin\Setup\SetupWizard::register()`
-- `src/Plugin.php:471` and `src/Plugin.php:472`:
+- `src/Plugin.php:493` and `src/Plugin.php:494`:
   - `Admin\About\About::register()`
-- `src/Plugin.php:536`:
+- `src/Plugin.php:557`:
   - `Admin\Testing\TestAdminPage::register()` (debug-only registration path)
-- `src/Admin/Utilities/Menu/Menu.php:187`:
+- `src/Admin/Utilities/Menu/Menu.php:208`:
   - Setup page render callback (`SetupWizard`)
-- `src/Admin/Utilities/Menu/Menu.php:197`:
+- `src/Admin/Utilities/Menu/Menu.php:220`:
   - About page render callback (`About`)
 
 ## Principles
@@ -52,10 +52,11 @@ The following modules are currently loaded in runtime and must be controlled bef
 - No runtime code changes.
 
 ### Phase 2: Feature Flag Layer
-- Add centralized helpers (example flags):
-  - `mhm_rentiva_enable_setup_wizard`
-  - `mhm_rentiva_enable_about_page`
-  - `mhm_rentiva_enable_admin_testing_page`
+- Add centralized helpers (active filters):
+  - `mhm_rentiva_legacy_feature_enabled`
+  - `mhm_rentiva_legacy_setup_wizard_enabled`
+  - `mhm_rentiva_legacy_about_page_enabled`
+  - `mhm_rentiva_legacy_admin_testing_page_enabled`
 - Wire `src/Plugin.php` and `src/Admin/Utilities/Menu/Menu.php` to these flags.
 - Default values: enabled (`true`) for backward compatibility.
 
@@ -77,6 +78,67 @@ The following modules are currently loaded in runtime and must be controlled bef
 - Remove dead registrations and menu entries.
 - Remove unused classes/files only after at least one green cycle with flags off.
 - Update docs/changelog.
+
+## Phase 5 Removal Inventory (Prepared)
+The following entries are now candidates for physical removal because all three legacy modules are default OFF and CI is green in both `legacy=on` and `legacy=off` modes.
+
+### Candidate A: Admin Testing Suite (lowest risk)
+- Runtime registrations:
+  - `src/Plugin.php:557`
+- Module files:
+  - `src/Admin/Testing/TestAdminPage.php`
+  - `src/Admin/Testing/TestRunner.php`
+  - `src/Admin/Testing/ActivationTest.php`
+  - `src/Admin/Testing/FunctionalTest.php`
+  - `src/Admin/Testing/IntegrationTest.php`
+  - `src/Admin/Testing/PerformanceAnalyzer.php`
+  - `src/Admin/Testing/PerformanceTest.php`
+  - `src/Admin/Testing/SecurityTest.php`
+  - `src/Admin/Testing/ShortcodeTestHandler.php`
+  - `src/Admin/Testing/DemoSeeder.php`
+- Asset touchpoints to recheck:
+  - `src/Admin/Core/AssetManager.php:905`
+
+### Candidate B: About Module
+- Runtime registrations:
+  - `src/Plugin.php:493`
+  - `src/Admin/Utilities/Menu/Menu.php:220`
+- Module files:
+  - `src/Admin/About/About.php`
+  - `src/Admin/About/Helpers.php`
+  - `src/Admin/About/SystemInfo.php`
+  - `src/Admin/About/Tabs/DeveloperTab.php`
+  - `src/Admin/About/Tabs/FeaturesTab.php`
+  - `src/Admin/About/Tabs/GeneralTab.php`
+  - `src/Admin/About/Tabs/SupportTab.php`
+  - `src/Admin/About/Tabs/SystemTab.php`
+- Asset touchpoints to recheck:
+  - `src/Admin/Core/AssetManager.php:1154`
+
+### Candidate C: Setup Wizard Module (highest risk among legacy set)
+- Runtime registrations:
+  - `src/Plugin.php:288`
+  - `src/Admin/Utilities/Menu/Menu.php:208`
+- Module files:
+  - `src/Admin/Setup/SetupWizard.php`
+- Data/options and action hooks to migrate/cleanup:
+  - Option keys:
+    - `mhm_rentiva_setup_completed`
+    - `mhm_rentiva_setup_redirect`
+  - Action handlers:
+    - `admin_post_mhm_rentiva_setup_save_license`
+    - `admin_post_mhm_rentiva_setup_create_pages`
+    - `admin_post_mhm_rentiva_setup_save_email`
+    - `admin_post_mhm_rentiva_setup_save_frontend`
+    - `admin_post_mhm_rentiva_setup_finish`
+    - `admin_post_mhm_rentiva_setup_skip`
+    - `admin_post_mhm_rentiva_dismiss_permalink_notice`
+
+## Phase 5 Execution Order
+1. Remove Candidate A (Admin Testing Suite), run CI, release.
+2. Remove Candidate B (About Module), run CI, release.
+3. Remove Candidate C (Setup Wizard), run CI, release.
+4. Remove now-unused hooks/assets/options cleanup code after one additional green cycle.
 
 ## Exit Criteria
 - All CI checks pass with legacy modules disabled.
