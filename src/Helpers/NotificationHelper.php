@@ -18,8 +18,7 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.5.4
  */
-class NotificationHelper
-{
+class NotificationHelper {
 
 	/**
 	 * Send Auto Cancellation Email

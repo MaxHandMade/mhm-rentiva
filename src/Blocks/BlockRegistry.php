@@ -528,11 +528,6 @@ class BlockRegistry {
 			$aliases['showAddVehicle']       = 'show_add_vehicle';
 		}
 
-		if ( $tag === 'rentiva_transfer_results' ) {
-			// Transfer results uses 'show_luggage_info' (mapped via camel-to-snake natively)
-			// But if it has specialized names, add here.
-		}
-
 		foreach ( $attributes as $key => $value ) {
 			// 1. Check for manual alias
 			$target_key = $aliases[ $key ] ?? null;
