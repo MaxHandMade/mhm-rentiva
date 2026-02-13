@@ -1183,7 +1183,7 @@ mhm-rentiva/
 
 ### PHP
 - **Minimum Versiyon**: 8.1
-- **Önerilen**: 8.2 veya üzeri
+- **ï¿½nerilen**: 8.2 veya ï¿½zeri
 - **Gerekli UzantÄ±lar**:
   - `json`
   - `curl`
@@ -1279,10 +1279,10 @@ KatkÄ±larÄ±nÄ±zÄ± bekliyoruz! LÃ¼tfen ÅŸu yÃ¶nergeleri izleyin:
  
 ### Son Versiyon: 4.9.8 (2026-02-09)
 
-**Kararlýlýk & CI Standardizasyonu**
-- Eklenti sürüm kaynaklarý 4.9.8 ile senkronize edildi (header + sabit).
-- Composer/CI komut standardý netleþtirildi (composer test, composer phpcs).
-- Düþük riskli performans iyileþtirmeleri tamamlandý (asset versioning, localization guard, bootstrap scope).
+**Kararlï¿½lï¿½k & CI Standardizasyonu**
+- Eklenti sï¿½rï¿½m kaynaklarï¿½ 4.9.8 ile senkronize edildi (header + sabit).
+- Composer/CI komut standardï¿½ netleï¿½tirildi (composer test, composer phpcs).
+- Dï¿½ï¿½ï¿½k riskli performans iyileï¿½tirmeleri tamamlandï¿½ (asset versioning, localization guard, bootstrap scope).
 
 ### Versiyon: 4.6.7 (2026-02-01)
 
