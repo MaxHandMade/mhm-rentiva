@@ -134,11 +134,13 @@ if (!$show_rental_tab && $show_transfer_tab) {
                                 <span class="rv-icon-clock dashicons dashicons-clock"></span>
                                 <select name="pickup_time" class="rv-select">
                                     <?php for ($i = 0; $i < 24; $i++): ?>
-                                        <option value="<?php echo sprintf('%02d:00', $i); ?>" <?php selected($i, 10); ?>>
-                                            <?php echo sprintf('%02d:00', $i); ?>
+                                        <?php $pickup_hour = sprintf('%02d:00', $i); ?>
+                                        <option value="<?php echo esc_attr($pickup_hour); ?>" <?php selected($i, 10); ?>>
+                                            <?php echo esc_html($pickup_hour); ?>
                                         </option>
-                                        <option value="<?php echo sprintf('%02d:30', $i); ?>">
-                                            <?php echo sprintf('%02d:30', $i); ?>
+                                        <?php $pickup_half = sprintf('%02d:30', $i); ?>
+                                        <option value="<?php echo esc_attr($pickup_half); ?>">
+                                            <?php echo esc_html($pickup_half); ?>
                                         </option>
                                     <?php endfor; ?>
                                 </select>
@@ -167,11 +169,13 @@ if (!$show_rental_tab && $show_transfer_tab) {
                                 <span class="rv-icon-lock dashicons dashicons-lock"></span>
                                 <select name="return_time_display" class="rv-select" disabled>
                                     <?php for ($i = 0; $i < 24; $i++): ?>
-                                        <option value="<?php echo sprintf('%02d:00', $i); ?>" <?php selected($i, 10); ?>>
-                                            <?php echo sprintf('%02d:00', $i); ?>
+                                        <?php $return_hour = sprintf('%02d:00', $i); ?>
+                                        <option value="<?php echo esc_attr($return_hour); ?>" <?php selected($i, 10); ?>>
+                                            <?php echo esc_html($return_hour); ?>
                                         </option>
-                                        <option value="<?php echo sprintf('%02d:30', $i); ?>">
-                                            <?php echo sprintf('%02d:30', $i); ?>
+                                        <?php $return_half = sprintf('%02d:30', $i); ?>
+                                        <option value="<?php echo esc_attr($return_half); ?>">
+                                            <?php echo esc_html($return_half); ?>
                                         </option>
                                     <?php endfor; ?>
                                 </select>
@@ -249,11 +253,13 @@ if (!$show_rental_tab && $show_transfer_tab) {
                                 <span class="rv-icon-clock dashicons dashicons-clock"></span>
                                 <select name="time" class="rv-select">
                                     <?php for ($i = 0; $i < 24; $i++): ?>
-                                        <option value="<?php echo sprintf('%02d:00', $i); ?>" <?php selected($i, 10); ?>>
-                                            <?php echo sprintf('%02d:00', $i); ?>
+                                        <?php $transfer_hour = sprintf('%02d:00', $i); ?>
+                                        <option value="<?php echo esc_attr($transfer_hour); ?>" <?php selected($i, 10); ?>>
+                                            <?php echo esc_html($transfer_hour); ?>
                                         </option>
-                                        <option value="<?php echo sprintf('%02d:30', $i); ?>">
-                                            <?php echo sprintf('%02d:30', $i); ?>
+                                        <?php $transfer_half = sprintf('%02d:30', $i); ?>
+                                        <option value="<?php echo esc_attr($transfer_half); ?>">
+                                            <?php echo esc_html($transfer_half); ?>
                                         </option>
                                     <?php endfor; ?>
                                 </select>

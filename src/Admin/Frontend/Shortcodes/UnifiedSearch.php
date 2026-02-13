@@ -185,17 +185,25 @@ final class UnifiedSearch extends AbstractShortcode {
 	private static function get_all_routes(): array {
 		global $wpdb;
 		$table_routes = $wpdb->prefix . 'rentiva_transfer_routes';
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_routes'" ) != $table_routes ) {
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_routes ) );
+		if ( $table_exists !== $table_routes ) {
 			$table_routes = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
 		}
 
 		// Check if table exists before querying
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_routes'" ) != $table_routes ) {
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_routes ) );
+		if ( $table_exists !== $table_routes ) {
 			return array();
 		}
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		return $wpdb->get_results( "SELECT origin_id, destination_id FROM {$table_routes}" );
+		$query = $wpdb->prepare(
+			'SELECT origin_id, destination_id FROM %i',
+			$table_routes
+		);
+
+		// %i identifier placeholder is used for dynamic table names.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $wpdb->get_results( $query );
 	}
 
 	/**
@@ -207,12 +215,14 @@ final class UnifiedSearch extends AbstractShortcode {
 	private static function get_all_locations( string $service_type = 'both' ): array {
 		global $wpdb;
 		$table_locations = $wpdb->prefix . 'rentiva_transfer_locations';
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_locations'" ) != $table_locations ) {
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_locations ) );
+		if ( $table_exists !== $table_locations ) {
 			$table_locations = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
 		}
 
 		// Check if table exists before querying
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_locations'" ) != $table_locations ) {
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_locations ) );
+		if ( $table_exists !== $table_locations ) {
 			return array();
 		}
 
@@ -226,7 +236,8 @@ final class UnifiedSearch extends AbstractShortcode {
 
 		$query .= ' ORDER BY priority ASC, name ASC';
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery
+		// Table name is controlled internally from plugin prefix.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
 		return $wpdb->get_results( $query );
 	}
 

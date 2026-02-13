@@ -75,6 +75,37 @@ $status_text  = $vehicle['availability']['text'] ?? '';
 $is_featured  = $vehicle['is_featured'] ?? false;
 $is_favorite  = $vehicle['is_favorite'] ?? false;
 $features     = $vehicle['features'] ?? array();
+$allowed_svg = array(
+    'svg'      => array(
+        'class'           => true,
+        'viewBox'         => true,
+        'fill'            => true,
+        'stroke'          => true,
+        'stroke-width'    => true,
+        'stroke-linecap'  => true,
+        'stroke-linejoin' => true,
+        'xmlns'           => true,
+        'width'           => true,
+        'height'          => true,
+        'aria-hidden'     => true,
+        'focusable'       => true,
+        'role'            => true,
+    ),
+    'path'     => array(
+        'd'               => true,
+        'fill'            => true,
+        'stroke'          => true,
+        'stroke-width'    => true,
+        'stroke-linecap'  => true,
+        'stroke-linejoin' => true,
+    ),
+    'g'        => array( 'fill' => true, 'stroke' => true, 'class' => true ),
+    'circle'   => array( 'cx' => true, 'cy' => true, 'r' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true ),
+    'rect'     => array( 'x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true, 'ry' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true ),
+    'line'     => array( 'x1' => true, 'y1' => true, 'x2' => true, 'y2' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true ),
+    'polyline' => array( 'points' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true, 'stroke-linejoin' => true ),
+    'polygon'  => array( 'points' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linejoin' => true ),
+);
 // Check Service if missing in data object (Source of Truth)
 if (class_exists('\MHMRentiva\Admin\Services\FavoritesService')) {
     $current_user = get_current_user_id();
@@ -113,23 +144,23 @@ if (! $is_available) {
 
             <div class="mhm-card-actions-overlay">
                 <?php if ($show_fav) : ?>
-                    <button class="mhm-card-favorite mhm-vehicle-favorite-btn <?php echo $is_favorite ? 'is-active' : ''; ?>"
+                    <button class="mhm-card-favorite mhm-vehicle-favorite-btn <?php echo esc_attr($is_favorite ? 'is-active' : ''); ?>"
                         data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
                         data-nonce="<?php echo esc_attr(wp_create_nonce('mhm_rentiva_toggle_favorite')); ?>"
                         title="<?php echo $is_favorite ? esc_attr__("Remove from Favorites", 'mhm-rentiva') : esc_attr__("Add to Favorites", 'mhm-rentiva'); ?>"
-                        aria-label="<?php echo $is_favorite ? __("Remove from Favorites", 'mhm-rentiva') : __("Add to Favorites", 'mhm-rentiva'); ?>">
+                        aria-label="<?php echo $is_favorite ? esc_attr__("Remove from Favorites", 'mhm-rentiva') : esc_attr__("Add to Favorites", 'mhm-rentiva'); ?>">
                         <svg class="mhm-heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
-                        <span class="text-label sr-only"><?php echo $is_favorite ? __("Remove from Favorites", 'mhm-rentiva') : __("Add to Favorites", 'mhm-rentiva'); ?></span>
+                        <span class="text-label sr-only"><?php echo $is_favorite ? esc_html__("Remove from Favorites", 'mhm-rentiva') : esc_html__("Add to Favorites", 'mhm-rentiva'); ?></span>
                     </button>
                 <?php endif; ?>
 
                 <?php if ($show_compare) : ?>
-                    <button class="mhm-card-compare mhm-vehicle-compare-btn <?php echo $is_in_compare ? 'is-active active' : ''; ?>"
+                    <button class="mhm-card-compare mhm-vehicle-compare-btn <?php echo esc_attr($is_in_compare ? 'is-active active' : ''); ?>"
                         data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
                         data-nonce="<?php echo esc_attr(wp_create_nonce('mhm_rentiva_toggle_compare')); ?>"
-                        aria-label="<?php echo $is_in_compare ? __("Remove Compare", 'mhm-rentiva') : __("Compare", 'mhm-rentiva'); ?>">
+                        aria-label="<?php echo $is_in_compare ? esc_attr__("Remove Compare", 'mhm-rentiva') : esc_attr__("Compare", 'mhm-rentiva'); ?>">
                         <span class="dashicons dashicons-randomize"></span>
                     </button>
                 <?php endif; ?>
@@ -167,7 +198,10 @@ if (! $is_available) {
             <?php endif; ?>
 
             <?php if ($show_rating && isset($vehicle['rating']['stars'])) : ?>
-                <div class="mhm-card-rating" data-testid="mhm-rating" title="<?php echo esc_attr(sprintf(__('Rated %s out of 5', 'mhm-rentiva'), $vehicle['rating']['average'])); ?>">
+                <div class="mhm-card-rating" data-testid="mhm-rating" title="<?php
+                                                                                /* translators: %s: average vehicle rating. */
+                                                                                echo esc_attr(sprintf(esc_html__('Rated %s out of 5', 'mhm-rentiva'), (string) $vehicle['rating']['average']));
+                                                                                ?>">
                     <span class="mhm-stars"><?php echo $vehicle['rating']['stars']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
                                             ?></span>
                     <span class="mhm-rating-count">(<?php echo intval($vehicle['rating']['count']); ?>)</span>
@@ -196,7 +230,7 @@ if (! $is_available) {
                         if ($count >= $limit) break;
                     ?>
                         <span class="mhm-feature-chip">
-                            <?php if (isset($feature['svg'])) echo $feature['svg']; ?>
+                            <?php if (isset($feature['svg'])) echo wp_kses((string) $feature['svg'], $allowed_svg); ?>
                             <?php echo esc_html($feature['text'] ?? $feature['value']); ?>
                         </span>
                     <?php $count++;

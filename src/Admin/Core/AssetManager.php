@@ -210,6 +210,7 @@ final class AssetManager {
 						'remove_compare'       => __( 'Remove Compare', 'mhm-rentiva' ),
 						'added_to_compare'     => __( 'Added to comparison', 'mhm-rentiva' ),
 						'removed_from_compare' => __( 'Removed from comparison', 'mhm-rentiva' ),
+						/* translators: %d: maximum number of vehicles allowed in compare list. */
 						'max_compare'          => __( 'You can compare up to %d vehicles', 'mhm-rentiva' ),
 						'view_comparison'      => __( 'View comparison', 'mhm-rentiva' ),
 						'add_one_more'         => __( 'Add one more vehicle to compare', 'mhm-rentiva' ),

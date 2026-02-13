@@ -49,17 +49,26 @@ class RepairRatingsCommand
         // 1. Find all comments on vehicles with mhm_rating meta
         // We join with posts table to ensure post_type is vehicle
         // And check if comment_type is NOT 'review'
-        $query = "
-			SELECT c.comment_ID, c.comment_post_ID, cm.meta_value as rating
-			FROM {$wpdb->comments} c
-			JOIN {$wpdb->posts} p ON c.comment_post_ID = p.ID
-			JOIN {$wpdb->commentmeta} cm ON c.comment_ID = cm.comment_id
-			WHERE p.post_type = 'vehicle'
-			AND cm.meta_key = 'mhm_rating'
-			AND cm.meta_value > 0
-			AND c.comment_type != 'review'
-		";
+        $query = $wpdb->prepare(
+            'SELECT c.comment_ID, c.comment_post_ID, cm.meta_value as rating
+            FROM %i c
+            JOIN %i p ON c.comment_post_ID = p.ID
+            JOIN %i cm ON c.comment_ID = cm.comment_id
+            WHERE p.post_type = %s
+            AND cm.meta_key = %s
+            AND cm.meta_value > %d
+            AND c.comment_type != %s',
+            $wpdb->comments,
+            $wpdb->posts,
+            $wpdb->commentmeta,
+            'vehicle',
+            'mhm_rating',
+            0,
+            'review'
+        );
 
+        // Table identifiers are from $wpdb core properties; query is safe in this context.
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $results = $wpdb->get_results($query);
         $count = count($results);
 
@@ -103,11 +112,16 @@ class RepairRatingsCommand
 
         \WP_CLI::log('Recalculating vehicle statistics...');
 
-        $vehicles_query = "
-			SELECT ID FROM {$wpdb->posts} 
-			WHERE post_type = 'vehicle' 
-			AND post_status = 'publish'
-		";
+        $vehicles_query = $wpdb->prepare(
+            'SELECT ID FROM %i
+            WHERE post_type = %s
+            AND post_status = %s',
+            $wpdb->posts,
+            'vehicle',
+            'publish'
+        );
+        // Table identifiers are from $wpdb core properties; query is safe in this context.
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $all_vehicles = $wpdb->get_col($vehicles_query);
 
         $progress_calc = \WP_CLI\Utils\make_progress_bar('Recalculating stats', count($all_vehicles));

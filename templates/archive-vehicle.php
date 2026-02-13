@@ -50,7 +50,7 @@ get_header(); ?>
                             'show_badges'      => true,
                             'show_availability' => false,
                             'show_compare_btn' => false,
-                            'booking_btn_text' => __('Book Now', 'mhm-rentiva')
+                            'booking_btn_text' => esc_html__('Book Now', 'mhm-rentiva')
                         ];
 
                         // Load the partial
@@ -65,15 +65,15 @@ get_header(); ?>
             <!-- Pagination -->
             <div class="mhm-pagination">
                 <?php
-                echo paginate_links([
+                echo wp_kses_post((string) paginate_links([
                     'prev_text' => __('&laquo; Previous', 'mhm-rentiva'),
                     'next_text' => __('Next &raquo;', 'mhm-rentiva'),
-                ]);
+                ]));
                 ?>
             </div>
 
         <?php else : ?>
-            <p><?php _e('No vehicles found.', 'mhm-rentiva'); ?></p>
+            <p><?php esc_html_e('No vehicles found.', 'mhm-rentiva'); ?></p>
         <?php endif; ?>
 
     </div>

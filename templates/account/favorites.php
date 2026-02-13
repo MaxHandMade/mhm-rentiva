@@ -81,7 +81,7 @@ if (empty($navigation)) {
 							'show_booking_btn'  => true,
 							'show_favorite_btn' => true,
 							'show_badges'       => true,
-							'booking_btn_text'  => __('Book Now', 'mhm-rentiva'),
+							'booking_btn_text'  => esc_html__('Book Now', 'mhm-rentiva'),
 							'image_size'        => 'medium_large',
 							'max_features'      => 4,
 							'price_format'      => 'daily',
@@ -98,11 +98,11 @@ if (empty($navigation)) {
 							$vehicle_data['is_favorite'] = true;
 
 							// Render the standardized vehicle card template
-							echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
+							echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
 								'vehicle' => $vehicle_data,
 								'layout'  => 'grid',
 								'atts'    => $card_atts,
-							));
+							)));
 						endforeach;
 						?>
 					</div>

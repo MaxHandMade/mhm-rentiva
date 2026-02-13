@@ -59,15 +59,18 @@ class ReviewEnforcer {
 		}
 
 		if ( $rating < 1 || $rating > 5 ) {
-			$msg = __( '<strong>Error:</strong> You must provide a valid rating (1-5 stars) for this vehicle.', 'mhm-rentiva' );
+			$msg = esc_html__( 'Error: You must provide a valid rating (1-5 stars) for this vehicle.', 'mhm-rentiva' );
 			if ( ( defined( 'WP_CLI' ) && WP_CLI ) || ( defined( 'PHP_SAPI' ) && PHP_SAPI === 'cli' ) ) {
+				$cli_message = esc_html( wp_strip_all_tags( $msg ) );
 				if ( class_exists( 'WP_CLI' ) ) {
-					\WP_CLI::error( strip_tags( $msg ) );
+					// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- CLI output is plain text, pre-escaped above.
+					\WP_CLI::error( $cli_message );
 				} else {
-					throw new \Exception( strip_tags( $msg ) );
+					// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message is pre-escaped above.
+					throw new \Exception( $cli_message );
 				}
 			} else {
-				wp_die( $msg, __( 'Review Error', 'mhm-rentiva' ), array( 'response' => 400 ) );
+				wp_die( esc_html( $msg ), esc_html__( 'Review Error', 'mhm-rentiva' ), array( 'response' => 400 ) );
 			}
 		}
 
@@ -97,15 +100,18 @@ class ReviewEnforcer {
 			$existing_comments = get_comments( $args );
 
 			if ( ! empty( $existing_comments ) ) {
-				$msg = __( '<strong>Error:</strong> You have already reviewed this vehicle. Please edit your existing review instead.', 'mhm-rentiva' );
+				$msg = esc_html__( 'Error: You have already reviewed this vehicle. Please edit your existing review instead.', 'mhm-rentiva' );
 				if ( ( defined( 'WP_CLI' ) && WP_CLI ) || ( defined( 'PHP_SAPI' ) && PHP_SAPI === 'cli' ) ) {
+					$cli_message = esc_html( wp_strip_all_tags( $msg ) );
 					if ( class_exists( 'WP_CLI' ) ) {
-						\WP_CLI::error( strip_tags( $msg ) );
+						// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- CLI output is plain text, pre-escaped above.
+						\WP_CLI::error( $cli_message );
 					} else {
-						throw new \Exception( strip_tags( $msg ) );
+						// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message is pre-escaped above.
+						throw new \Exception( $cli_message );
 					}
 				} else {
-					wp_die( $msg, __( 'Duplicate Review', 'mhm-rentiva' ), array( 'response' => 409 ) );
+					wp_die( esc_html( $msg ), esc_html__( 'Duplicate Review', 'mhm-rentiva' ), array( 'response' => 409 ) );
 				}
 			}
 		}

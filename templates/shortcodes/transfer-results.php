@@ -147,7 +147,7 @@ $show_compare = ( $comp_val !== '0' && $comp_val !== 'false' && $comp_val !== fa
 									data-vehicle-id="<?php echo esc_attr( (string) $vehicle_id ); ?>"
 									data-nonce="<?php echo esc_attr( wp_create_nonce( 'mhm_rentiva_toggle_favorite' ) ); ?>"
 									title="<?php echo $is_favorite ? esc_attr__( 'Remove from Favorites', 'mhm-rentiva' ) : esc_attr__( 'Add to Favorites', 'mhm-rentiva' ); ?>"
-									aria-label="<?php echo $is_favorite ? __( 'Remove from Favorites', 'mhm-rentiva' ) : __( 'Add to Favorites', 'mhm-rentiva' ); ?>">
+									aria-label="<?php echo $is_favorite ? esc_attr__( 'Remove from Favorites', 'mhm-rentiva' ) : esc_attr__( 'Add to Favorites', 'mhm-rentiva' ); ?>">
 									<svg class="mhm-heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 										<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
 									</svg>
@@ -164,7 +164,7 @@ $show_compare = ( $comp_val !== '0' && $comp_val !== 'false' && $comp_val !== fa
 								<button class="mhm-card-compare mhm-vehicle-compare-btn <?php echo $is_in_compare ? 'is-active active' : ''; ?>"
 									data-vehicle-id="<?php echo esc_attr( (string) $vehicle_id ); ?>"
 									data-nonce="<?php echo esc_attr( wp_create_nonce( 'mhm_rentiva_toggle_compare' ) ); ?>"
-									aria-label="<?php echo $is_in_compare ? __( 'Remove Compare', 'mhm-rentiva' ) : __( 'Compare', 'mhm-rentiva' ); ?>">
+									aria-label="<?php echo $is_in_compare ? esc_attr__( 'Remove Compare', 'mhm-rentiva' ) : esc_attr__( 'Compare', 'mhm-rentiva' ); ?>">
 									<span class="dashicons dashicons-randomize"></span>
 								</button>
 							<?php endif; ?>
@@ -216,7 +216,7 @@ $show_compare = ( $comp_val !== '0' && $comp_val !== 'false' && $comp_val !== fa
 						<div class="mhm-transfer-card__footer">
 							<?php if ( $show_price ) : ?>
 								<div class="mhm-transfer-card__price">
-									<span class="mhm-transfer-card__price-amount"><?php echo $format_price( $price, $currency ); ?></span>
+									<span class="mhm-transfer-card__price-amount"><?php echo wp_kses_post( (string) $format_price( $price, $currency ) ); ?></span>
 									<span class="mhm-transfer-card__price-period"><?php esc_html_e( '/total', 'mhm-rentiva' ); ?></span>
 								</div>
 							<?php endif; ?>

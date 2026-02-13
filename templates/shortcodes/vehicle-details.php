@@ -140,7 +140,7 @@ if (! defined('ABSPATH')) {
 				<div class="rv-stats-bar">
 					<?php if (($rating ?? array()) && isset($rating['average']) && $rating['average'] > 0) : ?>
 						<div class="rv-mini-stars">
-							<?php echo $rating['stars'] ?? ''; ?>
+							<?php echo wp_kses_post((string) ($rating['stars'] ?? '')); ?>
 						</div>
 						<span class="rv-stat-text">
 							<strong><?php echo esc_html(number_format(floatval($rating['average']), 1)); ?></strong>
@@ -148,7 +148,7 @@ if (! defined('ABSPATH')) {
 						</span>
 					<?php else : ?>
 						<div class="rv-mini-stars">
-							<?php echo $rating['stars'] ?? ''; ?>
+							<?php echo wp_kses_post((string) ($rating['stars'] ?? '')); ?>
 						</div>
 						<span class="rv-stat-text"><?php esc_html_e('Not yet rated', 'mhm-rentiva'); ?></span>
 					<?php endif; ?>

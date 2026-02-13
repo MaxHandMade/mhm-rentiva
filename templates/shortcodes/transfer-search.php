@@ -65,11 +65,13 @@ $uid = uniqid('rv_transfer_search_');
                     <span class="rv-icon-clock dashicons dashicons-clock"></span>
                     <select name="time" class="rv-select">
                         <?php for ($i = 0; $i < 24; $i++): ?>
-                            <option value="<?php echo sprintf('%02d:00', $i); ?>" <?php selected($i, 10); ?>>
-                                <?php echo sprintf('%02d:00', $i); ?>
+                            <?php $time_hour = sprintf('%02d:00', $i); ?>
+                            <option value="<?php echo esc_attr($time_hour); ?>" <?php selected($i, 10); ?>>
+                                <?php echo esc_html($time_hour); ?>
                             </option>
-                            <option value="<?php echo sprintf('%02d:30', $i); ?>">
-                                <?php echo sprintf('%02d:30', $i); ?>
+                            <?php $time_half = sprintf('%02d:30', $i); ?>
+                            <option value="<?php echo esc_attr($time_half); ?>">
+                                <?php echo esc_html($time_half); ?>
                             </option>
                         <?php endfor; ?>
                     </select>
