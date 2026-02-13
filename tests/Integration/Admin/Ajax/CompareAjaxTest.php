@@ -6,6 +6,7 @@ use MHMRentiva\Admin\Services\CompareService;
 use WP_Ajax_UnitTestCase;
 
 class CompareAjaxTest extends WP_Ajax_UnitTestCase {
+	private static bool $service_registered = false;
 
 	/**
 	 * @var int
@@ -29,7 +30,10 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 		$this->vehicle_id = 12345;
 
 		wp_set_current_user( $this->user_id );
-		CompareService::register();
+		if ( ! self::$service_registered ) {
+			CompareService::register();
+			self::$service_registered = true;
+		}
 		$this->reset_compare_state();
 	}
 

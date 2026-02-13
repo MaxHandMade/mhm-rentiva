@@ -67,7 +67,6 @@ class CompareService {
 		} else {
 			// DIRECT READ: filter_input(INPUT_COOKIE) is often unreliable in local dev/CGI environments.
 			$cookie_val = $_COOKIE[ self::STORAGE_KEY ] ?? '';
-			error_log( 'MHM Rentiva Compare: get_list() reading from $_COOKIE. Val: ' . $cookie_val );
 
 			if ( $cookie_val ) {
 				// Try JSON decode directly
@@ -98,10 +97,8 @@ class CompareService {
 
 		if ( is_user_logged_in() ) {
 			$user_id = get_current_user_id();
-			error_log( 'MHM Rentiva Compare: saving for user ' . $user_id );
 			update_user_meta( $user_id, self::STORAGE_KEY, $list );
 		} else {
-			error_log( 'MHM Rentiva Compare: saving for guest' );
 			// Set cookie for guest
 			$json = wp_json_encode( $list );
 
@@ -115,13 +112,11 @@ class CompareService {
 			$expiry = time() + self::COOKIE_EXPIRY;
 
 			// Set primary cookie
-			$res1 = setcookie( self::STORAGE_KEY, $json, $expiry, $path, $domain, $secure, true );
-			error_log( sprintf( 'MHM Rentiva Compare: setcookie(1) path=%s, res=%s, val=%s', $path, $res1 ? 'true' : 'false', $json ) );
+			setcookie( self::STORAGE_KEY, $json, $expiry, $path, $domain, $secure, true );
 
 			// Set for site path if different (e.g. multi-site or subdirectory configs)
 			if ( defined( 'SITECOOKIEPATH' ) && SITECOOKIEPATH !== $path ) {
-				$res2 = setcookie( self::STORAGE_KEY, $json, $expiry, SITECOOKIEPATH, $domain, $secure, true );
-				error_log( sprintf( 'MHM Rentiva Compare: setcookie(2) path=%s, res=%s', SITECOOKIEPATH, $res2 ? 'true' : 'false' ) );
+				setcookie( self::STORAGE_KEY, $json, $expiry, SITECOOKIEPATH, $domain, $secure, true );
 			}
 		}
 
@@ -189,7 +184,6 @@ class CompareService {
 	 * AJAX: Toggle Compare
 	 */
 	public static function ajax_toggle_compare(): void {
-		error_log( 'MHM Rentiva Compare: ajax_toggle_compare entry. POST: ' . json_encode( $_POST ) );
 		try {
 			// 1. Verify Nonce
 			$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
