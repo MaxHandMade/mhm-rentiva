@@ -1591,18 +1591,8 @@ final class AssetManager {
 			return false;
 		}
 
-		// List of basic known shortcodes (incomplete list is fine, main ones)
-		$shortcodes = array(
-			'rentiva_', // Generic prefix check
-		);
-
-		foreach ( $shortcodes as $shortcode ) {
-			if ( has_shortcode( $post->post_content, $shortcode ) || strpos( $post->post_content, '[' . $shortcode ) !== false ) {
-				return true;
-			}
-		}
-
-		return false;
+		$content = (string) $post->post_content;
+		return strpos( $content, '[rentiva_' ) !== false;
 	}
 
 	/**

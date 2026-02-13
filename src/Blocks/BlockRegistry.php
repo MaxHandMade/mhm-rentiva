@@ -18,6 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 4.6.6
  */
 class BlockRegistry {
+	/**
+	 * Runtime cache for resolved asset versions.
+	 *
+	 * @var array<string,string>
+	 */
+	private static array $asset_version_cache = array();
 
 	/**
 	 * List of blocks to register
@@ -179,7 +185,7 @@ class BlockRegistry {
 			'mhm-rentiva-block-editor-fixes',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/editor/block-editor-fixes.css',
 			array(),
-			MHM_RENTIVA_VERSION . '.' . time() // Forced Cache Clearing
+			self::get_asset_version( 'assets/css/editor/block-editor-fixes.css' )
 		);
 
 		wp_enqueue_style(
@@ -193,7 +199,7 @@ class BlockRegistry {
 			'mhm-rentiva-block-editor-fixes-js',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/editor/block-editor-fixes.js',
 			array( 'jquery', 'jquery-ui-datepicker', 'wp-blocks', 'wp-element', 'wp-data', 'wp-editor' ),
-			MHM_RENTIVA_VERSION . '.' . time(), // Forced Cache Clearing
+			self::get_asset_version( 'assets/js/editor/block-editor-fixes.js' ),
 			true
 		);
 
@@ -272,7 +278,7 @@ class BlockRegistry {
 				$script_handle,
 				MHM_RENTIVA_PLUGIN_URL . 'assets/blocks/' . $slug . '/index.js',
 				array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-server-side-render', 'wp-block-editor' ),
-				MHM_RENTIVA_VERSION . '.' . time(),
+				self::get_asset_version( 'assets/blocks/' . $slug . '/index.js' ),
 				true
 			);
 
@@ -565,5 +571,29 @@ class BlockRegistry {
 			}
 		}
 		return trim( $out );
+	}
+
+	/**
+	 * Resolve stable file version for asset URLs.
+	 *
+	 * @param string $relative_path Asset path relative to plugin root.
+	 */
+	private static function get_asset_version( string $relative_path ): string {
+		if ( isset( self::$asset_version_cache[ $relative_path ] ) ) {
+			return self::$asset_version_cache[ $relative_path ];
+		}
+
+		$full_path = MHM_RENTIVA_PLUGIN_DIR . $relative_path;
+		if ( file_exists( $full_path ) ) {
+			$filemtime = filemtime( $full_path );
+			if ( false !== $filemtime ) {
+				$version                                    = (string) $filemtime;
+				self::$asset_version_cache[ $relative_path ] = $version;
+				return $version;
+			}
+		}
+
+		self::$asset_version_cache[ $relative_path ] = MHM_RENTIVA_VERSION;
+		return MHM_RENTIVA_VERSION;
 	}
 }
