@@ -65,7 +65,7 @@ jobs:
 
       - name: Prepare WP test suite
         env:
-          DB_NAME: wordpress_tests_${{ matrix.php-version }}_${{ matrix.wp-version }}_${{ matrix.legacy-mode }}
+          DB_NAME: wordpress_tests
           DB_USER: root
           DB_PASS: root
           DB_HOST: 127.0.0.1
@@ -75,7 +75,7 @@ jobs:
           curl -fSL https://raw.githubusercontent.com/wp-cli/scaffold-command/main/templates/install-wp-tests.sh -o /tmp/install-wp-tests.sh
           test -s /tmp/install-wp-tests.sh
           chmod +x /tmp/install-wp-tests.sh
-          bash /tmp/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASS" "$DB_HOST" "$WP_VERSION" true
+          bash /tmp/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASS" "$DB_HOST" "$WP_VERSION"
           test -f /tmp/wordpress-tests-lib/includes/bootstrap.php
 
       - name: Run PHPUnit

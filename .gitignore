@@ -18,6 +18,7 @@
 !/readme.txt
 !/README.md
 !/composer.json
+!/phpcs.xml
 !/changelog.json
 !/phpunit.xml
 
