@@ -19,6 +19,7 @@
 !/README.md
 !/README-tr.md
 !/composer.json
+!/composer.lock
 !/phpcs.xml
 !/changelog.json
 !/changelog-tr.json
@@ -90,7 +91,6 @@ package-lock.json
 
 # Composer (vendor is excluded, but composer.json is kept for reference)
 vendor/
-composer.lock
 .phpunit.result.cache
 
 # ============================================================================
