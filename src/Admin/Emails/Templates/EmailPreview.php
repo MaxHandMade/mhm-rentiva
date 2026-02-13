@@ -70,7 +70,9 @@ final class EmailPreview {
 		echo '</div>';
 		echo '</div>';
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only status flag for notice rendering.
 		if ( isset( $_GET['mhm_template_test'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only status flag for notice rendering.
 			$st = sanitize_text_field( wp_unslash( $_GET['mhm_template_test'] ) );
 			if ( $st === 'success' ) {
 				echo '<div class="notice notice-success inline" style="margin-top:8px;"><p>' . esc_html__( 'Template email sent.', 'mhm-rentiva' ) . '</p></div>';

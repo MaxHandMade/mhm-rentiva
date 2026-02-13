@@ -58,6 +58,7 @@ final class WafManager
 		// Data sources to inspect.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WAF intentionally inspects raw superglobals before route-specific handlers process nonce/capability checks.
 		$sources = array(
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WAF scans raw incoming query payload for attack signatures.
 			'GET'     => $_GET,
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WAF scans raw incoming payload before endpoint-level nonce checks.
 			'POST'    => $_POST,

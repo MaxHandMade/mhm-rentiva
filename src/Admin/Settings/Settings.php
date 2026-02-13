@@ -98,7 +98,8 @@ final class Settings {
 	 */
 	public static function render_settings_page(): void {
 		$registry    = new TabRendererRegistry();
-		$current_tab = sanitize_key( $_GET['tab'] ?? 'general' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab selector for settings UI rendering.
+		$current_tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( (string) $_GET['tab'] ) ) : 'general';
 		$renderer    = $registry->get( $current_tab ) ?: $registry->get( 'general' );
 
 		// Prepare tab list for sidebar
@@ -142,8 +143,8 @@ final class Settings {
 		}
 
 		// 2. Parameter Validation
-		$tab          = sanitize_key( $_POST['tab'] ?? '' );
-		$redirect_url = esc_url_raw( $_POST['redirect_url'] ?? admin_url( 'admin.php?page=mhm-rentiva-settings' ) );
+		$tab          = isset( $_POST['tab'] ) ? sanitize_key( wp_unslash( (string) $_POST['tab'] ) ) : '';
+		$redirect_url = isset( $_POST['redirect_url'] ) ? esc_url_raw( wp_unslash( (string) $_POST['redirect_url'] ) ) : admin_url( 'admin.php?page=mhm-rentiva-settings' );
 
 		if ( empty( $tab ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid settings tab.', 'mhm-rentiva' ) ) );

@@ -103,7 +103,8 @@ final class Restrictions
 		if (! Mode::isLite()) {
 			return;
 		}
-		$pt = $_GET['post_type'] ?? '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only post_type query check in admin screen context.
+		$pt = isset( $_GET['post_type'] ) ? sanitize_key( wp_unslash( (string) $_GET['post_type'] ) ) : '';
 		if ($pt === 'vehicle' && self::vehicleCount() >= Mode::maxVehicles()) {
 			wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-license&notice=limit_exceeded&type=vehicle'));
 			exit;
@@ -157,7 +158,8 @@ final class Restrictions
 		if (! Mode::isLite()) {
 			return;
 		}
-		$pt = $_GET['post_type'] ?? '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only post_type query check in admin screen context.
+		$pt = isset( $_GET['post_type'] ) ? sanitize_key( wp_unslash( (string) $_GET['post_type'] ) ) : '';
 		if ($pt === 'vehicle_booking' && self::bookingCount() >= Mode::maxBookings()) {
 			wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-license&notice=limit_exceeded&type=booking'));
 			exit;
@@ -220,7 +222,9 @@ final class Restrictions
 		if (! Mode::isLite()) {
 			return;
 		}
-		if (isset($_GET['action']) && strpos((string) $_GET['action'], 'mhm_rentiva_export') !== false) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only action query check before rendering notice.
+		$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['action'] ) ) : '';
+		if ( '' !== $action && strpos( $action, 'mhm_rentiva_export' ) !== false ) {
 			add_action(
 				'admin_notices',
 				function () {
@@ -406,8 +410,9 @@ final class Restrictions
 			return;
 		}
 
-		// AJAX customer addition control
-		if (isset($_POST['action']) && $_POST['action'] === 'mhm_rentiva_add_customer') {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce validation happens in the AJAX action callback.
+		$action = isset( $_POST['action'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['action'] ) ) : '';
+		if ( $action === 'mhm_rentiva_add_customer' ) {
 			$current = self::customerCount();
 			$max     = Mode::maxCustomers();
 
@@ -461,8 +466,10 @@ final class Restrictions
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce validation is handled by the route save endpoint.
+		$route_id = isset( $_POST['id'] ) ? absint( wp_unslash( (string) $_POST['id'] ) ) : 0;
 		// Only on new route creation (id is not set)
-		if (isset($_POST['id']) && ! empty($_POST['id'])) {
+		if ( $route_id > 0 ) {
 			return;
 		}
 
@@ -470,11 +477,9 @@ final class Restrictions
 		$table_name = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
 
 		// Count existing routes
-		$count = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table_name}" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			)
-		);
+		$count_query = $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table_name );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
+		$count = (int) $wpdb->get_var( $count_query );
 		$max   = Mode::maxTransferRoutes();
 
 		if ($count >= $max) {

@@ -379,6 +379,7 @@ final class CustomersPage
 				'strings'               => array(
 					'selectedDate' => __('Selected date', 'mhm-rentiva'),
 				),
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only month/year filters for admin screen rendering.
 				'customerRegistrations' => self::get_customer_registration_days((int) (sanitize_text_field(wp_unslash($_GET['month'] ?? gmdate('n')))), (int) (sanitize_text_field(wp_unslash($_GET['year'] ?? gmdate('Y'))))),
 			)
 		);
@@ -462,7 +463,13 @@ final class CustomersPage
 				'strings'               => array(
 					'selectedDate' => __('Selected date', 'mhm-rentiva'),
 				),
-				'customerRegistrations' => self::get_customer_registration_days((int) (self::sanitize_text_field_safe($_GET['month'] ?? gmdate('n'))), (int) (self::sanitize_text_field_safe($_GET['year'] ?? gmdate('Y')))),
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only month/year filters for admin screen rendering.
+				'customerRegistrations' => self::get_customer_registration_days(
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only month filter for admin calendar rendering.
+					isset( $_GET['month'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_GET['month'] ) ) ) : (int) gmdate( 'n' ),
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only year filter for admin calendar rendering.
+					isset( $_GET['year'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_GET['year'] ) ) ) : (int) gmdate( 'Y' )
+				),
 			)
 		);
 
@@ -748,10 +755,12 @@ final class CustomersPage
 	 */
 	private function render_customer_view(): void
 	{
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only customer detail view in admin UI.
 		if (! isset($_GET['customer_id']) || empty($_GET['customer_id'])) {
 			wp_die(esc_html__('Invalid customer ID.', 'mhm-rentiva'));
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only customer detail view in admin UI.
 		$customer_id = intval(wp_unslash($_GET['customer_id']));
 		$customer    = get_user_by('id', $customer_id);
 
@@ -895,9 +904,9 @@ final class CustomersPage
 
 		// Form processing.
 		if (isset($_POST['submit']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_edit_customer_nonce'] ?? '')), 'mhm_rentiva_edit_customer')) {
-			$customer_name    = self::sanitize_text_field_safe(wp_unslash($_POST['customer_name'] ?? ''));
+			$customer_name    = isset( $_POST['customer_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['customer_name'] ) ) : '';
 			$customer_email   = sanitize_email(wp_unslash($_POST['customer_email'] ?? ''));
-			$customer_phone   = self::sanitize_text_field_safe(wp_unslash($_POST['customer_phone'] ?? ''));
+			$customer_phone   = isset( $_POST['customer_phone'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['customer_phone'] ) ) : '';
 			$customer_address = sanitize_textarea_field(wp_unslash($_POST['customer_address'] ?? ''));
 
 			if (empty($customer_name) || empty($customer_email)) {

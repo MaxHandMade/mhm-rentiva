@@ -166,9 +166,9 @@ final class Reports
 			return;
 		}
 
-		$type       = sanitize_key($_POST['type'] ?? '');
-		$start_date = sanitize_text_field((string) (($_POST['start_date'] ?? gmdate('Y-m-d', strtotime('-30 days'))) ?: gmdate('Y-m-d', strtotime('-30 days'))));
-		$end_date   = sanitize_text_field((string) (($_POST['end_date'] ?? gmdate('Y-m-d')) ?: gmdate('Y-m-d')));
+		$type       = isset( $_POST['type'] ) ? sanitize_key( wp_unslash( (string) $_POST['type'] ) ) : '';
+		$start_date = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['start_date'] ) ) : gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+		$end_date   = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['end_date'] ) ) : gmdate( 'Y-m-d' );
 
 		// License check
 		if (! Mode::featureEnabled(Mode::FEATURE_REPORTS_ADV)) {
@@ -357,9 +357,11 @@ final class Reports
 		// Statistics cards - at the top of page
 		static::render_stats_cards();
 
-		// Filters
-		$start_date = isset($_GET['start_date']) ? sanitize_text_field((string) ($_GET['start_date'] ?: '')) : gmdate('Y-m-d', strtotime('-30 days'));
-		$end_date   = isset($_GET['end_date']) ? sanitize_text_field((string) ($_GET['end_date'] ?: '')) : gmdate('Y-m-d');
+		// Filters (read-only querystring values).
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$request    = wp_unslash( $_GET );
+		$start_date = isset( $request['start_date'] ) ? sanitize_text_field( (string) $request['start_date'] ) : gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+		$end_date   = isset( $request['end_date'] ) ? sanitize_text_field( (string) $request['end_date'] ) : gmdate( 'Y-m-d' );
 
 		// Date validation
 		if (! strtotime($start_date) || ! strtotime($end_date)) {
@@ -375,7 +377,7 @@ final class Reports
 		}
 
 		// Cache clearing check - Only if date parameters exist
-		if (isset($_GET['start_date']) || isset($_GET['end_date'])) {
+		if ( isset( $request['start_date'] ) || isset( $request['end_date'] ) ) {
 			self::clear_reports_cache();
 		}
 
@@ -404,8 +406,8 @@ final class Reports
 		echo '<input type="hidden" name="page" value="mhm-rentiva-reports">';
 
 		// Preserve current tab
-		if (isset($_GET['tab'])) {
-			echo '<input type="hidden" name="tab" value="' . esc_attr(sanitize_key($_GET['tab'])) . '">';
+		if ( isset( $request['tab'] ) ) {
+			echo '<input type="hidden" name="tab" value="' . esc_attr( sanitize_key( (string) $request['tab'] ) ) . '">';
 		}
 
 		echo '<div class="filter-row">';
@@ -445,7 +447,7 @@ final class Reports
 		 */
 		$tabs = apply_filters('mhm_rentiva_report_tabs', $tabs);
 
-		$current_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'overview';
+		$current_tab = isset( $request['tab'] ) ? sanitize_key( (string) $request['tab'] ) : 'overview';
 
 		echo '<div class="nav-tab-wrapper">';
 		foreach ($tabs as $tab => $label) {

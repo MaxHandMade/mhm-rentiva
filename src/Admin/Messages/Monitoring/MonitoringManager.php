@@ -50,7 +50,9 @@ final class MonitoringManager {
 	 * Start performance monitoring
 	 */
 	public static function start_performance_monitoring(): void {
-		if ( is_admin() && isset( $_GET['page'] ) && strpos( $_GET['page'], 'mhm-rentiva' ) !== false ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page slug check for conditional monitoring.
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['page'] ) ) : '';
+		if ( is_admin() && '' !== $page && strpos( $page, 'mhm-rentiva' ) !== false ) {
 			PerformanceMonitor::start_monitoring();
 		}
 	}

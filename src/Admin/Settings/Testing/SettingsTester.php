@@ -752,6 +752,7 @@ final class SettingsTester {
 		$_POST = $original_post;
 		if ( isset( $original_post['mhm_rentiva_settings'] ) ) {
 			$_REQUEST['mhm_rentiva_settings'] = $original_post['mhm_rentiva_settings'];
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Test harness restores raw request globals for deterministic cleanup.
 		} elseif ( isset( $_REQUEST['mhm_rentiva_settings'] ) ) {
 			unset( $_REQUEST['mhm_rentiva_settings'] );
 		}

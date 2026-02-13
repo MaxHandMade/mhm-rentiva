@@ -95,18 +95,18 @@ final class TransferResults extends AbstractShortcode
     protected static function prepare_template_data(array $atts): array
     {
         // Read-only frontend filters from querystring; this shortcode does not mutate state.
-        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $request = wp_unslash( $_GET );
         $criteria = array(
-            'origin_id'      => isset($_GET['origin_id']) ? absint($_GET['origin_id']) : 0,
-            'destination_id' => isset($_GET['destination_id']) ? absint($_GET['destination_id']) : 0,
-            'date'           => isset($_GET['date']) ? sanitize_text_field(wp_unslash($_GET['date'])) : '',
-            'time'           => isset($_GET['time']) ? sanitize_text_field(wp_unslash($_GET['time'])) : '',
-            'adults'         => isset($_GET['adults']) ? absint($_GET['adults']) : 1,
-            'children'       => isset($_GET['children']) ? absint($_GET['children']) : 0,
-            'luggage_big'    => isset($_GET['luggage_big']) ? absint($_GET['luggage_big']) : 0,
-            'luggage_small'  => isset($_GET['luggage_small']) ? absint($_GET['luggage_small']) : 0,
+            'origin_id'      => isset($request['origin_id']) ? absint((string) $request['origin_id']) : 0,
+            'destination_id' => isset($request['destination_id']) ? absint((string) $request['destination_id']) : 0,
+            'date'           => isset($request['date']) ? sanitize_text_field((string) $request['date']) : '',
+            'time'           => isset($request['time']) ? sanitize_text_field((string) $request['time']) : '',
+            'adults'         => isset($request['adults']) ? absint((string) $request['adults']) : 1,
+            'children'       => isset($request['children']) ? absint((string) $request['children']) : 0,
+            'luggage_big'    => isset($request['luggage_big']) ? absint((string) $request['luggage_big']) : 0,
+            'luggage_small'  => isset($request['luggage_small']) ? absint((string) $request['luggage_small']) : 0,
         );
-        // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
         $results = array();
         if (! empty($criteria['origin_id']) && ! empty($criteria['destination_id'])) {

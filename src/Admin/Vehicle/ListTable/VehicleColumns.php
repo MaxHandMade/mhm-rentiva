@@ -175,8 +175,10 @@ final class VehicleColumns {
 
 		// Security: Sanitize GET parameter
 		$current = '';
-		if ( isset( $_GET['mhm_available'] ) ) {
-			$current = self::sanitize_text_field_safe( wp_unslash( $_GET['mhm_available'] ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
+		$request = wp_unslash( $_GET );
+		if ( isset( $request['mhm_available'] ) ) {
+			$current = sanitize_text_field( (string) $request['mhm_available'] );
 		}
 
 		// Dynamic status values
@@ -201,12 +203,14 @@ final class VehicleColumns {
 		if ( ( $q->get( 'post_type' ) ?? '' ) !== 'vehicle' ) {
 			return;
 		}
-		if ( ! isset( $_GET['mhm_available'] ) || $_GET['mhm_available'] === '' ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
+		$request = wp_unslash( $_GET );
+		if ( ! isset( $request['mhm_available'] ) || sanitize_text_field( (string) $request['mhm_available'] ) === '' ) {
 			return;
 		}
 
 		// Security: Sanitize GET parameter
-		$val = self::sanitize_text_field_safe( wp_unslash( $_GET['mhm_available'] ) );
+		$val = sanitize_text_field( (string) $request['mhm_available'] );
 
 		// Dynamic status values validation
 		$status_values  = array_keys( self::get_vehicle_status_values() );
@@ -593,15 +597,17 @@ final class VehicleColumns {
 		$current_month = (int) gmdate( 'n' );
 		$current_year  = (int) gmdate( 'Y' );
 
-		if ( isset( $_GET['month'] ) ) {
-			$month = (int) self::sanitize_text_field_safe( wp_unslash( $_GET['month'] ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin screen query filters.
+		$request = wp_unslash( $_GET );
+		if ( isset( $request['month'] ) ) {
+			$month = absint( sanitize_text_field( (string) $request['month'] ) );
 			if ( $month >= 1 && $month <= 12 ) {
 				$current_month = $month;
 			}
 		}
 
-		if ( isset( $_GET['year'] ) ) {
-			$year = (int) self::sanitize_text_field_safe( wp_unslash( $_GET['year'] ) );
+		if ( isset( $request['year'] ) ) {
+			$year = absint( sanitize_text_field( (string) $request['year'] ) );
 			if ( $year >= 2020 && $year <= 2030 ) {
 				$current_year = $year;
 			}
@@ -1438,11 +1444,9 @@ final class VehicleColumns {
 				continue;
 			}
 
-			$value = wp_unslash( $_POST[ $field_name ] );
-
-			if ( $value === null ) {
-				$value = '';
-			}
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Dynamic field is unslashed and sanitized immediately.
+			$raw_value = wp_unslash( $_POST[ $field_name ] );
+			$value     = is_array( $raw_value ) ? array_map( 'sanitize_text_field', $raw_value ) : sanitize_text_field( (string) $raw_value );
 
 			if ( $config['sanitize'] === 'sanitize_text_field' ) {
 				$sanitized_value = sanitize_text_field( (string) ( $value ?: '' ) );

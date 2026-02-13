@@ -364,12 +364,14 @@ final class LicenseAdmin
 
 	public static function admin_notices(): void
 	{
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only query-flag check for admin notices.
 		if (! isset($_GET['license'])) {
 			return;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin notices display only, no form processing.
 		$message       = isset($_GET['license']) ? sanitize_text_field(wp_unslash($_GET['license'])) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin notices display only, no form processing.
 		$error_message = isset($_GET['message']) ? sanitize_text_field(wp_unslash($_GET['message'])) : '';
 
 		switch ($message) {

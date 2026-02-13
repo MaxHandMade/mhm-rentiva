@@ -142,6 +142,7 @@ final class ShortcodePages {
 
 		if ( '' !== $this->page_hook && $hook_suffix === $this->page_hook ) {
 			$is_valid_page = true;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page slug check for admin hook matching.
 		} elseif ( isset( $_GET['page'] ) && $_GET['page'] === self::MENU_SLUG ) {
 			// Additional safety: Check if base hook relates to our plugin if needed,
 			// but slug check is usually sufficient for admin pages.

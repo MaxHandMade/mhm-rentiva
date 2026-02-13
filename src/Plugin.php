@@ -634,8 +634,9 @@ final class Plugin {
 	 */
 	public function load_vehicle_templates(): void {
 		// Vehicle control with query string
-		if ( isset( $_GET['vehicle'] ) && ! empty( $_GET['vehicle'] ) ) {
-			$vehicle_slug = mhm_rentiva_sanitize_text_field_safe( wp_unslash( $_GET['vehicle'] ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only frontend vehicle slug routing parameter.
+		$vehicle_slug = isset( $_GET['vehicle'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['vehicle'] ) ) : '';
+		if ( '' !== $vehicle_slug ) {
 			$vehicle_post = get_page_by_path( $vehicle_slug, OBJECT, 'vehicle' );
 
 			if ( $vehicle_post && 'publish' === $vehicle_post->post_status ) {

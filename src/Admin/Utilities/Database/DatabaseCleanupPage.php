@@ -53,6 +53,7 @@ final class DatabaseCleanupPage {
 		}
 
 		// Only enqueue if database-cleanup tab is active
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab selector for script enqueue gating.
 		$current_tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : '';
 		if ( $current_tab !== 'database-cleanup' ) {
 			return;
