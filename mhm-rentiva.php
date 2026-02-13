@@ -48,7 +48,7 @@ function mhm_rentiva_sanitize_text_field_safe($value)
 }
 
 // Define Plugin Constants
-define('MHM_RENTIVA_VERSION', '4.9.6');
+define('MHM_RENTIVA_VERSION', '4.9.8');
 
 // PHP version check
 if (version_compare(PHP_VERSION, '7.4', '<')) {
