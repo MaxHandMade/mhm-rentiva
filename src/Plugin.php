@@ -350,6 +350,8 @@ final class Plugin {
 	 * Initialize Messages, Email, REST API and other services
 	 */
 	private function initialize_additional_services(): void {
+		$is_admin = is_admin();
+
 		// Messages System
 		if ( class_exists( Admin\PostTypes\Message\Message::class ) ) {
 			Admin\PostTypes\Message\Message::register();
@@ -357,7 +359,7 @@ final class Plugin {
 		if ( class_exists( Admin\Messages\Core\Messages::class ) ) {
 			Admin\Messages\Core\Messages::register();
 		}
-		if ( class_exists( Admin\Messages\Admin\MessageListTable::class ) ) {
+		if ( $is_admin && class_exists( Admin\Messages\Admin\MessageListTable::class ) ) {
 			Admin\Messages\Admin\MessageListTable::register();
 		}
 
@@ -392,7 +394,7 @@ final class Plugin {
 		}
 
 		// Admin Email Preview
-		if ( is_admin() && class_exists( Admin\Emails\Templates\EmailPreview::class ) ) {
+		if ( $is_admin && class_exists( Admin\Emails\Templates\EmailPreview::class ) ) {
 			Admin\Emails\Templates\EmailPreview::register();
 		}
 
@@ -407,7 +409,7 @@ final class Plugin {
 		}
 
 		// Vehicle Settings (admin only)
-		if ( is_admin() ) {
+		if ( $is_admin ) {
 			if ( $this->is_class_available( 'MHMRentiva\Admin\Vehicle\Settings\VehicleSettings' ) ) {
 				\MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::register();
 			}
@@ -468,7 +470,7 @@ final class Plugin {
 		// Payment Clients
 
 		// About page
-		if ( class_exists( Admin\About\About::class ) ) {
+		if ( $is_admin && class_exists( Admin\About\About::class ) ) {
 			Admin\About\About::register();
 		}
 
@@ -479,10 +481,10 @@ final class Plugin {
 		if ( class_exists( Admin\Addons\AddonManager::class ) ) {
 			Admin\Addons\AddonManager::register();
 		}
-		if ( class_exists( Admin\Addons\AddonMenu::class ) ) {
+		if ( $is_admin && class_exists( Admin\Addons\AddonMenu::class ) ) {
 			Admin\Addons\AddonMenu::register();
 		}
-		if ( class_exists( Admin\Addons\AddonSettings::class ) ) {
+		if ( $is_admin && class_exists( Admin\Addons\AddonSettings::class ) ) {
 			Admin\Addons\AddonSettings::register();
 		}
 		if ( class_exists( Admin\Booking\Addons\AddonBooking::class ) ) {
@@ -496,7 +498,7 @@ final class Plugin {
 		if ( class_exists( Admin\Licensing\Restrictions::class ) ) {
 			Admin\Licensing\Restrictions::register();
 		}
-		if ( is_admin() && class_exists( Admin\Licensing\LicenseAdmin::class ) ) {
+		if ( $is_admin && class_exists( Admin\Licensing\LicenseAdmin::class ) ) {
 			Admin\Licensing\LicenseAdmin::register();
 		}
 	}
@@ -505,6 +507,8 @@ final class Plugin {
 	 * Initialize database migration and background processing
 	 */
 	private function initialize_system_services(): void {
+		$is_admin = is_admin();
+
 		// Database migration
 		add_action( 'admin_init', array( Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations' ) );
 
@@ -512,27 +516,27 @@ final class Plugin {
 		add_action( 'admin_init', array( Admin\Core\Utilities\TaxonomyMigrator::class, 'migrate_vehicle_cat_to_vehicle_category' ), 5 );
 
 		// Database cleanup page (admin only)
-		if ( is_admin() && class_exists( 'MHMRentiva\\Admin\\Utilities\\Database\\DatabaseCleanupPage' ) ) {
+		if ( $is_admin && class_exists( 'MHMRentiva\\Admin\\Utilities\\Database\\DatabaseCleanupPage' ) ) {
 			Admin\Utilities\Database\DatabaseCleanupPage::register();
 		}
 
 		// Cron monitor (admin only)
-		if ( is_admin() && class_exists( 'MHMRentiva\\Admin\\Utilities\\Cron\\CronMonitorPage' ) ) {
+		if ( $is_admin && class_exists( 'MHMRentiva\\Admin\\Utilities\\Cron\\CronMonitorPage' ) ) {
 			Admin\Utilities\Cron\CronMonitorPage::register();
 		}
 
 		// API Keys Page (admin only)
-		if ( is_admin() && class_exists( 'MHMRentiva\\Admin\\Settings\\APIKeysPage' ) ) {
+		if ( $is_admin && class_exists( 'MHMRentiva\\Admin\\Settings\\APIKeysPage' ) ) {
 			Admin\Settings\APIKeysPage::register();
 		}
 
 		// Uninstall page (admin only)
-		if ( is_admin() && class_exists( 'MHMRentiva\\Admin\\Utilities\\Uninstall\\UninstallPage' ) ) {
+		if ( $is_admin && class_exists( 'MHMRentiva\\Admin\\Utilities\\Uninstall\\UninstallPage' ) ) {
 			Admin\Utilities\Uninstall\UninstallPage::register();
 		}
 
 		// Test suite page
-		if ( is_admin() && class_exists( 'MHMRentiva\\Admin\\Testing\\TestAdminPage' ) ) {
+		if ( $is_admin && class_exists( 'MHMRentiva\\Admin\\Testing\\TestAdminPage' ) ) {
 			Admin\Testing\TestAdminPage::register();
 		}
 
