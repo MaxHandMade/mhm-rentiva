@@ -39,6 +39,7 @@ final class LegacyFeatureFlagTest extends WP_UnitTestCase {
 		remove_all_filters( 'mhm_rentiva_legacy_feature_enabled' );
 		remove_all_filters( 'mhm_rentiva_legacy_setup_wizard_enabled' );
 		remove_all_filters( 'mhm_rentiva_legacy_about_page_enabled' );
+		remove_all_filters( 'mhm_rentiva_legacy_admin_testing_page_enabled' );
 		wp_set_current_user( 0 );
 
 		parent::tearDown();
@@ -95,6 +96,19 @@ final class LegacyFeatureFlagTest extends WP_UnitTestCase {
 
 		$this->assertTrue( $this->is_legacy_feature_enabled( 'setup_wizard' ) );
 		$this->assertFalse( $this->is_legacy_feature_enabled( 'about_page' ) );
+	}
+
+	public function test_plugin_disables_admin_testing_page_by_default_but_allows_feature_override(): void {
+		$this->assertFalse( $this->is_legacy_feature_enabled( 'admin_testing_page' ) );
+
+		add_filter(
+			'mhm_rentiva_legacy_admin_testing_page_enabled',
+			static function ( bool $enabled ): bool {
+				return true;
+			}
+		);
+
+		$this->assertTrue( $this->is_legacy_feature_enabled( 'admin_testing_page' ) );
 	}
 
 	private function reset_admin_menu_globals(): void {

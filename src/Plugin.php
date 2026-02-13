@@ -39,7 +39,12 @@ final class Plugin {
 	 * @return bool
 	 */
 	private function is_legacy_feature_enabled( string $feature ): bool {
-		$enabled = (bool) apply_filters( 'mhm_rentiva_legacy_feature_enabled', true, $feature );
+		$default_map = array(
+			'admin_testing_page' => false,
+		);
+		$default_enabled = array_key_exists( $feature, $default_map ) ? (bool) $default_map[ $feature ] : true;
+
+		$enabled = (bool) apply_filters( 'mhm_rentiva_legacy_feature_enabled', $default_enabled, $feature );
 		$enabled = (bool) apply_filters( "mhm_rentiva_legacy_{$feature}_enabled", $enabled );
 
 		return $enabled;
