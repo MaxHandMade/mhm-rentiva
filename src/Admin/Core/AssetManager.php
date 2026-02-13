@@ -12,6 +12,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Asset Manager - Manages CSS and JS files centrally
  */
 final class AssetManager {
+	/**
+	 * Guard to prevent duplicate core script localization in same request.
+	 */
+	private static bool $core_scripts_localized = false;
+
+	/**
+	 * Guard to prevent duplicate admin global localization in same request.
+	 */
+	private static bool $admin_globals_localized = false;
 
 
 
@@ -437,6 +446,10 @@ final class AssetManager {
 	 * Load global admin scripts
 	 */
 	private static function enqueue_admin_global_scripts(): void {
+		if ( self::$admin_globals_localized ) {
+			return;
+		}
+
 		// General settings for admin
 		wp_localize_script(
 			'mhm-rentiva-dark-mode',
@@ -492,6 +505,8 @@ final class AssetManager {
 				),
 			)
 		);
+
+		self::$admin_globals_localized = true;
 	}
 
 	/**
@@ -1411,6 +1426,10 @@ final class AssetManager {
 	 * Localize scripts
 	 */
 	private static function localize_scripts(): void {
+		if ( self::$core_scripts_localized ) {
+			return;
+		}
+
 		// Configuration for Core JS
 		wp_localize_script(
 			'mhm-core-js',
@@ -1436,6 +1455,8 @@ final class AssetManager {
 				'mhm-rentiva' => self::get_translations(),
 			)
 		);
+
+		self::$core_scripts_localized = true;
 	}
 
 	/**
