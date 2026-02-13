@@ -42,6 +42,7 @@ final class Plugin {
 		$default_map = array(
 			'setup_wizard'      => false,
 			'about_page'         => false,
+			'admin_testing_page' => false,
 		);
 		$default_enabled = array_key_exists( $feature, $default_map ) ? (bool) $default_map[ $feature ] : true;
 
@@ -550,6 +551,11 @@ final class Plugin {
 		// Uninstall page (admin only)
 		if ( is_admin() && class_exists( 'MHMRentiva\\Admin\\Utilities\\Uninstall\\UninstallPage' ) ) {
 			Admin\Utilities\Uninstall\UninstallPage::register();
+		}
+
+		// Test suite page (legacy module; feature-flagged and development only)
+		if ( $this->is_legacy_feature_enabled( 'admin_testing_page' ) && defined( 'WP_DEBUG' ) && WP_DEBUG && is_admin() && class_exists( 'MHMRentiva\\Admin\\Testing\\TestAdminPage' ) ) {
+			Admin\Testing\TestAdminPage::register();
 		}
 
 		// Template loading

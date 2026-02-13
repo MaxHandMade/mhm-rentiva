@@ -117,6 +117,7 @@ function mhm_register_legacy_test_filters(): void
 	$feature_map = array(
 		'setup_wizard'       => 'MHM_TEST_LEGACY_SETUP_WIZARD_ENABLED',
 		'about_page'         => 'MHM_TEST_LEGACY_ABOUT_PAGE_ENABLED',
+		'admin_testing_page' => 'MHM_TEST_LEGACY_ADMIN_TESTING_PAGE_ENABLED',
 	);
 
 	foreach ($feature_map as $feature => $env_key) {

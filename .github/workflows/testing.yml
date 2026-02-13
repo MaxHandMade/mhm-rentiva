@@ -85,6 +85,7 @@ jobs:
           MHM_TEST_LEGACY_FEATURES_ENABLED: ${{ matrix.legacy-mode == 'off' && 'false' || '' }}
           MHM_TEST_LEGACY_SETUP_WIZARD_ENABLED: ${{ matrix.legacy-mode == 'off' && 'false' || '' }}
           MHM_TEST_LEGACY_ABOUT_PAGE_ENABLED: ${{ matrix.legacy-mode == 'off' && 'false' || '' }}
+          MHM_TEST_LEGACY_ADMIN_TESTING_PAGE_ENABLED: ${{ matrix.legacy-mode == 'off' && 'false' || '' }}
         run: ./vendor/bin/phpunit -c phpunit.xml
 
   phpcs:
