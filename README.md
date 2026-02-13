@@ -4,15 +4,15 @@
 
 **🌐 Language / Dil:** 
 [![EN](https://img.shields.io/badge/Language-English-blue)](README.md) 
-[![TR](https://img.shields.io/badge/Dil-Türkçe-red)](README-tr.md) 
+[![TR](https://img.shields.io/badge/Language-Turkce-red)](README-tr.md) 
 [![Changelog](https://img.shields.io/badge/Changelog-EN-green)](changelog.json) 
-[![Değişiklikler](https://img.shields.io/badge/Değişiklikler-TR-orange)](changelog-tr.json)
+[![Degisiklikler TR](https://img.shields.io/badge/Changelog-TR-orange)](changelog-tr.json)
 
 </div>
 
 ![Version](https://img.shields.io/badge/version-4.9.8-blue.svg)
-![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
-![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)
+![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
+![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
 
 **Professional vehicle rental management system for WordPress.** A complete, enterprise-grade solution for managing vehicle rentals, bookings, payments, customers, and comprehensive reporting. Built with WordPress best practices, fully internationalized, and ready for global markets.
@@ -1649,13 +1649,13 @@ mhm-rentiva/
 ## 📋 Requirements
 
 ### WordPress
-- **Minimum Version**: 5.0
-- **Tested Up To**: 6.8
+- **Minimum Version**: 6.7
+- **Tested Up To**: 6.9
 - **Multisite**: Supported
 
 ### PHP
-- **Minimum Version**: 7.4
-- **Recommended**: 8.0 or higher
+- **Minimum Version**: 8.1
+- **Recommended**: 8.2 or higher
 - **Required Extensions**:
   - `json`
   - `curl`
