@@ -9,12 +9,8 @@ The following modules are currently loaded in runtime and must be controlled bef
 
 - `src/Plugin.php:288` and `src/Plugin.php:289`:
   - `\MHMRentiva\Admin\Setup\SetupWizard::register()`
-- `src/Plugin.php:493` and `src/Plugin.php:494`:
-  - `Admin\About\About::register()`
 - `src/Admin/Utilities/Menu/Menu.php:208`:
   - Setup page render callback (`SetupWizard`)
-- `src/Admin/Utilities/Menu/Menu.php:220`:
-  - About page render callback (`About`)
 
 ## Principles
 - No direct removals before a feature-flag gate exists.
@@ -28,13 +24,12 @@ The following modules are currently loaded in runtime and must be controlled bef
   - Active filters:
     - `mhm_rentiva_legacy_feature_enabled`
     - `mhm_rentiva_legacy_setup_wizard_enabled`
-    - `mhm_rentiva_legacy_about_page_enabled`
 - Phase 3 completed:
   - Contract tests added in `tests/Integration/Legacy/LegacyFeatureFlagTest.php`.
   - `legacy=off` behavior is validated by CI matrix.
 - Phase 4 in progress:
   - `Admin\Testing\TestAdminPage` has been physically removed (Phase 5 Candidate A completed).
-  - `Admin\About\About` is now default OFF (`src/Plugin.php`, `src/Admin/Utilities/Menu/Menu.php`).
+  - `Admin\About\About` has been physically removed (Phase 5 Candidate B completed).
   - `Admin\Setup\SetupWizard` is now default OFF (`src/Plugin.php`, `src/Admin/Utilities/Menu/Menu.php`).
   - Feature-specific filter can still re-enable it when needed.
   - CI pipeline is green with matrix:
@@ -52,7 +47,6 @@ The following modules are currently loaded in runtime and must be controlled bef
 - Add centralized helpers (active filters):
   - `mhm_rentiva_legacy_feature_enabled`
   - `mhm_rentiva_legacy_setup_wizard_enabled`
-  - `mhm_rentiva_legacy_about_page_enabled`
 - Wire `src/Plugin.php` and `src/Admin/Utilities/Menu/Menu.php` to these flags.
 - Default values: enabled (`true`) for backward compatibility.
 
@@ -85,20 +79,10 @@ The following entries are now candidates for physical removal because all three 
 - Removed module files under `src/Admin/Testing/*`.
 
 ### Candidate B: About Module
-- Runtime registrations:
-  - `src/Plugin.php:493`
-  - `src/Admin/Utilities/Menu/Menu.php:220`
-- Module files:
-  - `src/Admin/About/About.php`
-  - `src/Admin/About/Helpers.php`
-  - `src/Admin/About/SystemInfo.php`
-  - `src/Admin/About/Tabs/DeveloperTab.php`
-  - `src/Admin/About/Tabs/FeaturesTab.php`
-  - `src/Admin/About/Tabs/GeneralTab.php`
-  - `src/Admin/About/Tabs/SupportTab.php`
-  - `src/Admin/About/Tabs/SystemTab.php`
-- Asset touchpoints to recheck:
-  - `src/Admin/Core/AssetManager.php:1154`
+- Status: completed on `2026-02-13`.
+- Removed runtime registration from `src/Plugin.php` and `src/Admin/Utilities/Menu/Menu.php`.
+- Removed asset touchpoint from `src/Admin/Core/AssetManager.php`.
+- Removed module files under `src/Admin/About/*`.
 
 ### Candidate C: Setup Wizard Module (highest risk among legacy set)
 - Runtime registrations:
@@ -120,9 +104,8 @@ The following entries are now candidates for physical removal because all three 
     - `admin_post_mhm_rentiva_dismiss_permalink_notice`
 
 ## Phase 5 Execution Order
-1. Remove Candidate B (About Module), run CI, release.
-2. Remove Candidate C (Setup Wizard), run CI, release.
-3. Remove now-unused hooks/assets/options cleanup code after one additional green cycle.
+1. Remove Candidate C (Setup Wizard), run CI, release.
+2. Remove now-unused hooks/assets/options cleanup code after one additional green cycle.
 
 ## Exit Criteria
 - All CI checks pass with legacy modules disabled.
@@ -134,7 +117,7 @@ The following entries are now candidates for physical removal because all three 
 
 ## Commands for Verification
 - Search active references:
-  - `rg -n "SetupWizard::register|About::register|Admin\\\\Setup|Admin\\\\About" src`
+  - `rg -n "SetupWizard::register|Admin\\\\Setup" src`
 - Run test suite:
   - `composer test`
 - Run coding standards:

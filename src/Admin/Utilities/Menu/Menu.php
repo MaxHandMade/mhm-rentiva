@@ -22,7 +22,6 @@ final class Menu
 	{
 		$default_map = array(
 			'setup_wizard' => false,
-			'about_page' => false,
 		);
 		$default_enabled = array_key_exists($feature, $default_map) ? (bool) $default_map[$feature] : true;
 
@@ -210,19 +209,7 @@ final class Menu
 			);
 		}
 
-		// 13. About (legacy module; feature-flagged)
-		if (self::is_legacy_feature_enabled('about_page')) {
-			add_submenu_page(
-				'mhm-rentiva',
-				__('About', 'mhm-rentiva'),
-				__('About', 'mhm-rentiva'),
-				'manage_options',
-				'mhm-rentiva-about',
-				array(new \MHMRentiva\Admin\About\About(), 'render_page')
-			);
-		}
-
-		// 14. License (Requested at the very bottom)
+		// 13. License (Requested at the very bottom)
 		add_submenu_page(
 			'mhm-rentiva',
 			__('License Management', 'mhm-rentiva'),
