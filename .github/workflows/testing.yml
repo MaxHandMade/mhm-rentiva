@@ -10,10 +10,14 @@ concurrency:
   group: testing-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   phpunit:
     name: phpunit (${{ matrix.php-version }} / WP ${{ matrix.wp-version }})
     runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     strategy:
       fail-fast: false
@@ -97,9 +101,16 @@ jobs:
           WP_TESTS_PHPUNIT_POLYFILLS_PATH: ${{ github.workspace }}/vendor/yoast/phpunit-polyfills
         run: ./vendor/bin/phpunit -c phpunit.xml
 
+      - name: Verify test discovery output
+        run: |
+          set -euo pipefail
+          ./vendor/bin/phpunit -c phpunit.xml --list-tests > /tmp/phpunit-tests.txt
+          grep -Eq '::test_|::[a-zA-Z0-9_]+$' /tmp/phpunit-tests.txt
+
   phpcs:
     name: Run PHPCS
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Check out source code
