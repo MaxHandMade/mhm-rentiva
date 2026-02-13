@@ -99,7 +99,7 @@ jobs:
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
           WP_TESTS_PHPUNIT_POLYFILLS_PATH: ${{ github.workspace }}/vendor/yoast/phpunit-polyfills
-        run: ./vendor/bin/phpunit -c phpunit.xml
+        run: composer test
 
       - name: Verify test discovery output
         run: |

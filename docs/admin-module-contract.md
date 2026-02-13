@@ -36,3 +36,13 @@ The following modules must be registered as part of normal plugin bootstrap when
 - `composer test`
 - `composer phpcs`
 - `rg -n "SetupWizard::register|About::register|TestAdminPage::register|mhm-rentiva-setup|mhm-rentiva-about|mhm-rentiva-tests" src tests`
+
+## Latest Hardening (2026-02-13)
+- Composer scripts are pinned to project-local binaries:
+  - `composer test` → `@php ./vendor/bin/phpunit -c phpunit.xml`
+  - `composer phpcs` → `@php ./vendor/bin/phpcs --standard=phpcs.xml`
+- CI test steps are standardized to use composer scripts where applicable.
+- Bootstrap and runtime performance hardening delivered:
+  - Block asset versioning now uses stable `filemtime` (no `time()` cache thrash).
+  - Duplicate script localization in a single request is guarded.
+  - Plugin bootstrap scopes admin-only registrations and avoids duplicate favorites init.
