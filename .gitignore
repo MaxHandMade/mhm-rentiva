@@ -185,6 +185,7 @@ website/
 !.github/workflows/
 .github/workflows/*
 !.github/workflows/testing.yml
+!.github/pull_request_template.md
 .kilocode/
 pcp/
 .clinerules/

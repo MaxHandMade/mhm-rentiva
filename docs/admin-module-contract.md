@@ -1,8 +1,7 @@
 # Admin Module Registration Contract (Plugin)
 
 ## Purpose
-This document replaces the previous legacy deprecation plan.
-`Setup Wizard`, `About`, and `Test Suite` are now treated as core admin modules in this repository.
+`Setup Wizard`, `About`, and `Test Suite` are treated as core admin modules in this repository.
 
 ## Current Contract
 The following modules must be registered as part of normal plugin bootstrap when classes are available:
@@ -21,13 +20,13 @@ The following modules must be registered as part of normal plugin bootstrap when
 - PHPUnit matrix:
   - PHP: `8.1`, `8.2`
   - WP: `6.7`, `latest`
-- No `legacy-mode` matrix axis.
+- No deprecated feature-toggle matrix axis.
 - No `MHM_TEST_LEGACY_*` environment controls.
 - Contract test file:
   - `tests/Integration/Admin/CoreAdminPagesTest.php`
 
 ## Change Policy
-- These three pages are plugin features, not temporary legacy toggles.
+- These three pages are plugin features, not temporary toggles.
 - Any change to menu visibility, slug, or register path must include:
   1. Test updates in `CoreAdminPagesTest.php`
   2. CI green status (`composer test`, workflow matrix)
