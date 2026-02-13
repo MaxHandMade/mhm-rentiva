@@ -40,7 +40,8 @@ final class Plugin {
 	 */
 	private function is_legacy_feature_enabled( string $feature ): bool {
 		$default_map = array(
-			'setup_wizard' => false,
+			'setup_wizard'      => false,
+			'about_page'         => false,
 		);
 		$default_enabled = array_key_exists( $feature, $default_map ) ? (bool) $default_map[ $feature ] : true;
 
@@ -486,6 +487,11 @@ final class Plugin {
 		}
 
 		// Payment Clients
+
+		// About page (legacy module; feature-flagged)
+		if ( $this->is_legacy_feature_enabled( 'about_page' ) && class_exists( Admin\About\About::class ) ) {
+			Admin\About\About::register();
+		}
 
 		// Addons System
 		if ( class_exists( Admin\Addons\AddonPostType::class ) ) {
