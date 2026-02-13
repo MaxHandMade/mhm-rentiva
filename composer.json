@@ -4,9 +4,9 @@
     "type": "wordpress-plugin",
     "license": "GPL-3.0-or-later",
     "scripts": {
-        "test": "phpunit -c phpunit.xml",
-        "phpcs": "phpcs --standard=phpcs.xml",
-        "phpcbf": "phpcbf --standard=phpcs.xml"
+        "test": "@php ./vendor/bin/phpunit -c phpunit.xml",
+        "phpcs": "@php ./vendor/bin/phpcs --standard=phpcs.xml",
+        "phpcbf": "@php ./vendor/bin/phpcbf --standard=phpcs.xml"
     },
     "config": {
         "allow-plugins": {
