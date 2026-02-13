@@ -236,3 +236,7 @@ credentials.php
 # - LICENSE        (License file)
 # - changelog.json (Version history)
 # ============================================================================
+
+# Re-include automated tests (kept under version control).
+!/tests/
+!/tests/**
