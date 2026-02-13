@@ -12,7 +12,7 @@
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 	width: 100%;
 	max-width: 100%;
-	overflow: hidden;
+	/* Removed overflow: hidden to prevent clipping of the comparison table */
 }
 
 /* ===== HEADER ===== */
@@ -101,19 +101,23 @@
 	overflow-y: visible;
 	width: 100%;
 	-webkit-overflow-scrolling: touch;
+	border: 1px solid var(--mhm-gray-200);
+	border-radius: 0 0 12px 12px;
 }
 
 
 .rv-comparison-table {
 	width: 100%;
-	min-width: 800px;
+	min-width: 700px;
+	/* Base min-width for mobile scroll */
 	border-collapse: collapse;
 	table-layout: fixed;
 }
 
 .rv-comparison-table th,
 .rv-comparison-table td {
-	padding: 15px 12px;
+	padding: 15px 8px;
+	/* Reduced padding from 10px to save space */
 	text-align: left;
 	border-bottom: 1px solid var(--mhm-gray-200);
 	vertical-align: top;
@@ -132,14 +136,15 @@
 }
 
 .rv-feature-column {
-	width: 200px;
-	min-width: 200px;
+	width: 140px;
+	/* Reduced from 160px for tighter fit */
+	min-width: 140px;
 	background: #f8f9fa;
 	font-weight: 600;
 	color: #2c3e50;
 	position: sticky;
 	left: 0;
-	z-index: 10;
+	z-index: 11;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	padding: 15px 12px;
@@ -149,13 +154,14 @@
 }
 
 .rv-vehicle-column {
-	width: 250px;
-	min-width: 250px;
+	width: 190px;
+	/* Reduced from 200px for tighter fit */
+	min-width: 190px;
 	text-align: center;
 	background: white;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
-	padding: 15px 12px;
+	padding: 15px 8px;
 	min-height: 50px;
 	line-height: 1.4;
 	vertical-align: top;
