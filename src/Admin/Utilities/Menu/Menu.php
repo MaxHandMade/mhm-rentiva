@@ -10,28 +10,6 @@ if (! defined('ABSPATH')) {
 
 final class Menu
 {
-	/**
-	 * Check whether a legacy menu entry is enabled.
-	 *
-	 * Defaults to enabled for backward compatibility.
-	 *
-	 * @param string $feature Legacy feature key.
-	 * @return bool
-	 */
-	private static function is_legacy_feature_enabled(string $feature): bool
-	{
-		$default_map = array(
-			'setup_wizard' => true,
-			'about_page' => true,
-		);
-		$default_enabled = array_key_exists($feature, $default_map) ? (bool) $default_map[$feature] : true;
-
-		$enabled = (bool) apply_filters('mhm_rentiva_legacy_feature_enabled', $default_enabled, $feature);
-		$enabled = (bool) apply_filters("mhm_rentiva_legacy_{$feature}_enabled", $enabled);
-
-		return $enabled;
-	}
-
 	public static function register(): void
 	{
 		add_action('admin_menu', array(self::class, 'add_menu'), 5); // Priority 5 to run earliest
@@ -198,8 +176,8 @@ final class Menu
 			);
 		}
 
-		// 12. Setup Wizard (legacy module; feature-flagged)
-		if (self::is_legacy_feature_enabled('setup_wizard')) {
+		// 12. Setup Wizard
+		if (class_exists(\MHMRentiva\Admin\Setup\SetupWizard::class)) {
 			add_submenu_page(
 				'mhm-rentiva',
 				__('Setup Wizard', 'mhm-rentiva'),
@@ -210,8 +188,8 @@ final class Menu
 			);
 		}
 
-		// 13. About (legacy module; feature-flagged)
-		if (self::is_legacy_feature_enabled('about_page')) {
+		// 13. About
+		if (class_exists(\MHMRentiva\Admin\About\About::class)) {
 			add_submenu_page(
 				'mhm-rentiva',
 				__('About', 'mhm-rentiva'),
