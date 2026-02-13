@@ -64,6 +64,10 @@ final class LegacyFeatureFlagTest extends WP_UnitTestCase {
 	}
 
 	public function test_menu_shows_legacy_submenus_when_feature_flags_are_enabled(): void {
+		if ( $this->is_legacy_globally_forced_off() ) {
+			$this->markTestSkipped( 'Legacy features are globally forced off for this test run.' );
+		}
+
 		$this->reset_admin_menu_globals();
 		Menu::add_menu();
 
@@ -126,5 +130,15 @@ final class LegacyFeatureFlagTest extends WP_UnitTestCase {
 		$method->setAccessible( true );
 
 		return (bool) $method->invoke( $plugin, $feature );
+	}
+
+	private function is_legacy_globally_forced_off(): bool {
+		$value = getenv( 'MHM_TEST_LEGACY_FEATURES_ENABLED' );
+		if ( ! is_string( $value ) || '' === trim( $value ) ) {
+			return false;
+		}
+
+		$parsed = filter_var( $value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+		return $parsed === false;
 	}
 }

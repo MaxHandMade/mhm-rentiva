@@ -118,6 +118,7 @@ dist/
 tests/
 !tests/
 tests/*
+!tests/bootstrap.php
 !tests/Integration/
 tests/Integration/*
 !tests/Integration/Legacy/
@@ -178,6 +179,11 @@ stubs/
 bin/
 website/
 .github/
+!.github/
+.github/*
+!.github/workflows/
+.github/workflows/*
+!.github/workflows/testing.yml
 .kilocode/
 pcp/
 .clinerules/
