@@ -587,7 +587,7 @@ class BlockRegistry {
 		if ( file_exists( $full_path ) ) {
 			$filemtime = filemtime( $full_path );
 			if ( false !== $filemtime ) {
-				$version                                    = (string) $filemtime;
+				$version                                     = (string) $filemtime;
 				self::$asset_version_cache[ $relative_path ] = $version;
 				return $version;
 			}
