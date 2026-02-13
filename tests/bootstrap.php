@@ -31,49 +31,77 @@ if (! file_exists("{$_tests_dir}/includes/functions.php")) {
 }
 
 /**
+ * Detect whether PHPUnit is running in test discovery mode.
+ *
+ * @return bool
+ */
+function mhm_is_test_discovery_mode(): bool
+{
+	$argv = $_SERVER['argv'] ?? array();
+	if (! is_array($argv)) {
+		return false;
+	}
+
+	foreach ($argv as $arg) {
+		if (! is_string($arg)) {
+			continue;
+		}
+
+		if (str_starts_with($arg, '--list-tests')) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Resolve and override wp-tests-config with an isolated table prefix.
  *
  * This avoids noisy "table already exists / duplicate entry" messages when
  * multiple test runs share the same DB.
  */
-$table_prefix = getenv('WP_TESTS_TABLE_PREFIX');
-if (! is_string($table_prefix) || '' === trim($table_prefix)) {
-	$run_id = getenv('MHM_TEST_RUN_ID');
-	if (! is_string($run_id) || '' === trim($run_id)) {
-		$run_id = substr(hash('sha256', (string) microtime(true) . '-' . (string) getmypid()), 0, 8);
+$is_discovery_mode = mhm_is_test_discovery_mode();
+if (! $is_discovery_mode) {
+	$table_prefix = getenv('WP_TESTS_TABLE_PREFIX');
+	if (! is_string($table_prefix) || '' === trim($table_prefix)) {
+		$run_id = getenv('MHM_TEST_RUN_ID');
+		if (! is_string($run_id) || '' === trim($run_id)) {
+			$run_id = substr(hash('sha256', (string) microtime(true) . '-' . (string) getmypid()), 0, 8);
+		}
+		$table_prefix = 'wptests_' . preg_replace('/[^a-zA-Z0-9_]/', '_', $run_id) . '_';
 	}
-	$table_prefix = 'wptests_' . preg_replace('/[^a-zA-Z0-9_]/', '_', $run_id) . '_';
-}
 
-$config_path = getenv('WP_TESTS_CONFIG_FILE_PATH');
-if (! is_string($config_path) || '' === trim($config_path)) {
-	$config_candidates = array(
-		dirname($_tests_dir) . '/wp-tests-config.php',
-		dirname($_tests_dir, 3) . '/wp-tests-config.php',
-	);
-	foreach ($config_candidates as $candidate) {
-		if (is_readable($candidate)) {
-			$config_path = $candidate;
-			break;
+	$config_path = getenv('WP_TESTS_CONFIG_FILE_PATH');
+	if (! is_string($config_path) || '' === trim($config_path)) {
+		$config_candidates = array(
+			dirname($_tests_dir) . '/wp-tests-config.php',
+			dirname($_tests_dir, 3) . '/wp-tests-config.php',
+		);
+		foreach ($config_candidates as $candidate) {
+			if (is_readable($candidate)) {
+				$config_path = $candidate;
+				break;
+			}
 		}
 	}
-}
 
-if (is_string($config_path) && '' !== trim($config_path) && is_readable($config_path)) {
-	$config_body = file_get_contents($config_path);
-	if (is_string($config_body) && '' !== $config_body) {
-		$updated_body = preg_replace(
-			"/^\\$table_prefix\\s*=\\s*'[^']*';/m",
-			"\$table_prefix = '" . addslashes($table_prefix) . "';",
-			$config_body
-		);
+	if (is_string($config_path) && '' !== trim($config_path) && is_readable($config_path)) {
+		$config_body = file_get_contents($config_path);
+		if (is_string($config_body) && '' !== $config_body) {
+			$updated_body = preg_replace(
+				"/^\\$table_prefix\\s*=\\s*'[^']*';/m",
+				"\$table_prefix = '" . addslashes($table_prefix) . "';",
+				$config_body
+			);
 
-		if (is_string($updated_body) && '' !== $updated_body) {
-			$tmp_config = rtrim((string) sys_get_temp_dir(), '/\\') . DIRECTORY_SEPARATOR . 'mhm-rentiva-wp-tests-config-' . md5($table_prefix) . '.php';
-			file_put_contents($tmp_config, $updated_body);
-			putenv('WP_TESTS_CONFIG_FILE_PATH=' . $tmp_config);
-			if (! defined('WP_TESTS_CONFIG_FILE_PATH')) {
-				define('WP_TESTS_CONFIG_FILE_PATH', $tmp_config);
+			if (is_string($updated_body) && '' !== $updated_body) {
+				$tmp_config = rtrim((string) sys_get_temp_dir(), '/\\') . DIRECTORY_SEPARATOR . 'mhm-rentiva-wp-tests-config-' . md5($table_prefix) . '.php';
+				file_put_contents($tmp_config, $updated_body);
+				putenv('WP_TESTS_CONFIG_FILE_PATH=' . $tmp_config);
+				if (! defined('WP_TESTS_CONFIG_FILE_PATH')) {
+					define('WP_TESTS_CONFIG_FILE_PATH', $tmp_config);
+				}
 			}
 		}
 	}
