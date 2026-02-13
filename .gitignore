@@ -17,9 +17,11 @@
 !/uninstall.php
 !/readme.txt
 !/README.md
+!/README-tr.md
 !/composer.json
 !/phpcs.xml
 !/changelog.json
+!/changelog-tr.json
 !/phpunit.xml
 
 #!/ Ensure whitelisted directories' contents are tracked
