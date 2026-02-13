@@ -108,11 +108,9 @@ function mhm_register_legacy_test_filters(): void
 	if (is_bool($global)) {
 		tests_add_filter(
 			'mhm_rentiva_legacy_feature_enabled',
-			static function (bool $enabled, string $feature) use ($global): bool {
+			static function (bool $enabled) use ($global): bool {
 				return $global;
-			},
-			10,
-			2
+			}
 		);
 	}
 
