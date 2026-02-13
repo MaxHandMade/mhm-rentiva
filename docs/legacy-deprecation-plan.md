@@ -24,6 +24,25 @@ The following modules are currently loaded in runtime and must be controlled bef
 - Every phase must be covered by regression tests and CI green status.
 - Prefer small, reversible commits.
 
+## Current Status (2026-02-13)
+- Phase 2 completed:
+  - Feature gates added in `src/Plugin.php` and `src/Admin/Utilities/Menu/Menu.php`.
+  - Active filters:
+    - `mhm_rentiva_legacy_feature_enabled`
+    - `mhm_rentiva_legacy_setup_wizard_enabled`
+    - `mhm_rentiva_legacy_about_page_enabled`
+    - `mhm_rentiva_legacy_admin_testing_page_enabled`
+- Phase 3 completed:
+  - Contract tests added in `tests/Integration/Legacy/LegacyFeatureFlagTest.php`.
+  - `legacy=off` behavior is validated by CI matrix.
+- Phase 4 in progress:
+  - `Admin\Testing\TestAdminPage` is now default OFF (`src/Plugin.php`).
+  - Feature-specific filter can still re-enable it when needed.
+  - CI pipeline is green with matrix:
+    - PHP: 8.1, 8.2
+    - WP: 6.7, latest
+    - Legacy mode: on, off
+
 ## Phase Plan
 
 ### Phase 1: Inventory and Safety Baseline
