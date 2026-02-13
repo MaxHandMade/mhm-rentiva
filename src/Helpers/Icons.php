@@ -16,8 +16,7 @@ if (! defined('ABSPATH')) {
  *
  * @since 1.2.0
  */
-class Icons
-{
+class Icons {
 
     /**
      * Get SVG iconic markup
