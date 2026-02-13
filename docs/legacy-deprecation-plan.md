@@ -18,6 +18,26 @@ The following modules are currently loaded in runtime and must be controlled bef
 - `src/Admin/Utilities/Menu/Menu.php:220`:
   - About page render callback (`About`)
 
+## Legacy Module Decision Matrix (Current Baseline)
+This table is the source of truth for whether a module is kept, deprecated, or removed.
+
+| Module | Runtime Role | Current Default | Decision | How It Will Be Updated |
+|---|---|---|---|---|
+| `Admin\Setup\SetupWizard` | Optional onboarding UI | Enabled | **Deprecate (staged)** | Keep feature flag + tests; move only required onboarding pieces into modern settings flow; remove class/hook after one stable release cycle with legacy off. |
+| `Admin\About\About` | Informational admin page | Enabled | **Deprecate (staged)** | Keep feature flag + menu gate; migrate useful diagnostics into existing settings/license pages; remove class/menu callback after acceptance. |
+| `Admin\Testing\TestAdminPage` | Debug/development page | Disabled | **Remove first** | Keep default OFF; verify no production dependency; remove registration and dead files in first removal pass. |
+
+## Legacy Update Policy (Why It Exists Before First Deploy)
+- "Legacy" in this repository means **older architecture/modules inside current codebase**, not necessarily previously deployed production versions.
+- A module can be marked legacy even before first public deploy if:
+  - there is a newer replacement path, and
+  - keeping both paths increases maintenance risk.
+- Updates must happen in this order:
+  1. Gate module with feature flag.
+  2. Add/keep regression tests for `legacy=on` and `legacy=off`.
+  3. Migrate or replace behavior in the new path.
+  4. Remove old module only after CI stays green for at least one release cycle.
+
 ## Principles
 - No direct removals before a feature-flag gate exists.
 - Keep production behavior unchanged until a flag is explicitly disabled.

@@ -129,6 +129,10 @@ final class LegacyFeatureFlagTest extends WP_UnitTestCase {
 	}
 
 	public function test_plugin_enables_setup_wizard_by_default_but_allows_feature_override(): void {
+		if ( $this->is_legacy_globally_forced_off() ) {
+			$this->markTestSkipped( 'Legacy features are globally forced off for this test run.' );
+		}
+
 		$this->assertTrue( $this->is_legacy_feature_enabled( 'setup_wizard' ) );
 
 		add_filter(
@@ -155,6 +159,10 @@ final class LegacyFeatureFlagTest extends WP_UnitTestCase {
 	}
 
 	public function test_plugin_enables_about_page_by_default_but_allows_feature_override(): void {
+		if ( $this->is_legacy_globally_forced_off() ) {
+			$this->markTestSkipped( 'Legacy features are globally forced off for this test run.' );
+		}
+
 		$this->assertTrue( $this->is_legacy_feature_enabled( 'about_page' ) );
 
 		add_filter(
