@@ -684,11 +684,6 @@ final class Plugin {
 
 		// ⭐ Elementor Integration - Register widgets (v3.0.1)
 		$this->initialize_elementor_integration();
-
-		// Favorites Service (v1.3.3)
-		if ( $this->is_class_available( 'MHMRentiva\Admin\Services\FavoritesService' ) ) {
-			\MHMRentiva\Admin\Services\FavoritesService::register();
-		}
 	}
 
 	/**
@@ -785,6 +780,14 @@ final class Plugin {
 	 * Initialize Elementor integration
 	 */
 	private function initialize_elementor_integration(): void {
+		if ( ! did_action( 'elementor/loaded' ) ) {
+			return;
+		}
+
+		if ( ! class_exists( \MHMRentiva\Admin\Frontend\Widgets\Elementor\ElementorIntegration::class ) ) {
+			return;
+		}
+
 		// Initialize Elementor widgets
 		\MHMRentiva\Admin\Frontend\Widgets\Elementor\ElementorIntegration::init();
 	}
