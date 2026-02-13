@@ -64,6 +64,10 @@ function mhm_is_test_discovery_mode(): bool
 $is_discovery_mode = mhm_is_test_discovery_mode();
 $normalized_tests_dir = str_replace('\\', '/', (string) $_tests_dir);
 $is_windows_local_dev = str_contains($normalized_tests_dir, 'wordpress-develop/tests/phpunit');
+$is_ci = 'true' === strtolower((string) getenv('CI'));
+$isolation_flag = strtolower((string) getenv('WP_TESTS_ISOLATE_DB'));
+$isolation_explicitly_enabled = in_array($isolation_flag, array('1', 'true', 'yes'), true);
+$should_isolate_db = ! $is_discovery_mode && ($is_ci || $isolation_explicitly_enabled);
 
 if ($is_windows_local_dev) {
 	$existing_config_path = getenv('WP_TESTS_CONFIG_FILE_PATH');
@@ -72,7 +76,7 @@ if ($is_windows_local_dev) {
 	}
 }
 
-if (! $is_discovery_mode && ! $is_windows_local_dev) {
+if ($should_isolate_db) {
 	$table_prefix = getenv('WP_TESTS_TABLE_PREFIX');
 	if (! is_string($table_prefix) || '' === trim($table_prefix)) {
 		$run_id = getenv('MHM_TEST_RUN_ID');
@@ -100,10 +104,27 @@ if (! $is_discovery_mode && ! $is_windows_local_dev) {
 	if (is_string($config_path) && '' !== trim($config_path) && is_readable($config_path)) {
 		$config_body = file_get_contents($config_path);
 		if (is_string($config_body) && '' !== $config_body) {
+			$wp_core_dir = getenv('WP_CORE_DIR');
+			if (! is_string($wp_core_dir) || '' === trim($wp_core_dir)) {
+				$wp_core_dir = dirname($_tests_dir, 2) . '/src';
+			}
+			$wp_core_dir = rtrim(str_replace('\\', '/', (string) $wp_core_dir), '/');
+
+			$updated_body = preg_replace(
+				"/define\\(\\s*'ABSPATH'\\s*,\\s*.+?\\);/m",
+				"define('ABSPATH', '" . addslashes($wp_core_dir) . "/');",
+				$config_body,
+				1
+			);
+
+			if (! is_string($updated_body) || '' === $updated_body) {
+				$updated_body = $config_body;
+			}
+
 			$updated_body = preg_replace(
 				"/^\\$table_prefix\\s*=\\s*'[^']*';/m",
 				"\$table_prefix = '" . addslashes($table_prefix) . "';",
-				$config_body
+				$updated_body
 			);
 
 			if (is_string($updated_body) && '' !== $updated_body) {
