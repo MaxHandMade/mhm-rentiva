@@ -463,7 +463,7 @@ final class VehicleFeatureHelper {
 				$map  = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
 				$raw  = sanitize_key( $raw );
 				$text = $map[ $raw ] ?? ucfirst( $raw );
-				$icon = 'fuel';
+				$icon = ( $raw === 'electric' ) ? 'bolt' : 'fuel';
 				break;
 
 			case 'transmission':

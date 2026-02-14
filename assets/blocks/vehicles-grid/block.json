@@ -92,7 +92,7 @@
         },
         "showFeatures": {
             "type": "boolean",
-            "default": false
+            "default": true
         },
         "filterCategories": {
             "type": "string",
@@ -104,8 +104,9 @@
         },
         "sortBy": {
             "type": "string",
-            "default": "newest",
+            "default": "title",
             "enum": [
+                "title",
                 "price",
                 "popularity",
                 "newest",
@@ -116,7 +117,7 @@
         },
         "sortOrder": {
             "type": "string",
-            "default": "desc",
+            "default": "asc",
             "enum": [
                 "asc",
                 "desc"
@@ -128,7 +129,7 @@
         },
         "columns": {
             "type": "string",
-            "default": "3"
+            "default": "2"
         },
         "className": {
             "type": "string",

@@ -233,10 +233,15 @@ if (! $is_available) {
                     $count = 0;
                     foreach ($features as $feature) :
                         if ($count >= $limit) break;
+                        $feature_label = (string) ($feature['text'] ?? $feature['value'] ?? '');
+                        $feature_svg   = isset($feature['svg']) ? (string) $feature['svg'] : '';
+                        if ($feature_svg !== '') {
+                            $feature_svg = preg_replace('/<svg\b/', '<svg aria-hidden="true" focusable="false"', $feature_svg, 1) ?: $feature_svg;
+                        }
                     ?>
-                        <span class="mhm-feature-chip">
-                            <?php if (isset($feature['svg'])) echo wp_kses((string) $feature['svg'], $allowed_svg); ?>
-                            <?php echo esc_html($feature['text'] ?? $feature['value']); ?>
+                        <span class="mhm-feature-chip" title="<?php echo esc_attr($feature_label); ?>" aria-label="<?php echo esc_attr($feature_label); ?>">
+                            <?php if ($feature_svg !== '') echo wp_kses($feature_svg, $allowed_svg); ?>
+                            <?php echo esc_html($feature_label); ?>
                         </span>
                     <?php $count++;
                     endforeach; ?>

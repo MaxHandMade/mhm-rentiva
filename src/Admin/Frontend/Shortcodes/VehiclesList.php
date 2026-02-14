@@ -129,7 +129,7 @@ final class VehiclesList extends AbstractShortcode
 			'show_category'          => '1',
 			'show_brand'             => '0',
 			'show_badges'            => '1',
-			'show_description'       => '0',
+			'show_description'       => '1',
 			'show_availability'      => '0',
 			'show_compare_btn'       => '1',
 			'show_compare_button'    => '1',
@@ -505,8 +505,6 @@ final class VehiclesList extends AbstractShortcode
 	public static function get_feature_icon_svg(string $icon): string
 	{
 		switch ($icon) {
-			case 'people':
-				return \MHMRentiva\Helpers\Icons::get('users');
 			case 'heart-filled':
 				return \MHMRentiva\Helpers\Icons::get('heart', array('fill' => 'currentColor'));
 			default:

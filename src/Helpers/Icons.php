@@ -27,6 +27,15 @@ class Icons {
      */
     public static function get(string $icon_name, array $args = []): string
     {
+        $requested_icon_name = $icon_name;
+        $icon_aliases        = [
+            'people' => 'users',
+        ];
+
+        if (isset($icon_aliases[$icon_name])) {
+            $icon_name = $icon_aliases[$icon_name];
+        }
+
         $default_args = [
             'class'  => 'rv-icon',
             'width'  => '16px',
@@ -37,7 +46,12 @@ class Icons {
         $args = array_merge($default_args, $args);
 
         // Combine classes
-        $classes = trim($args['class'] . ' rv-icon-' . $icon_name);
+        $classes = trim($args['class'] . ' rv-icon-' . $requested_icon_name);
+
+        // Keep alias and canonical icon classes for backward compatibility.
+        if ($requested_icon_name !== $icon_name) {
+            $classes .= ' rv-icon-' . $icon_name;
+        }
 
         // Base SVG attributes
         $attrs = sprintf(
@@ -83,7 +97,7 @@ class Icons {
                 return sprintf('<svg %s><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>', $attrs);
 
             case 'users':
-                return sprintf('<svg %s><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', $attrs);
+                return sprintf('<svg %s><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1"/><circle cx="17" cy="9" r="2.5"/><path d="M14.5 20v-1a4.5 4.5 0 0 1 4.5-4.5"/></svg>', $attrs);
 
             case 'luggage': // Portfolio / Bag
                 return sprintf('<svg %s><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>', $attrs);
@@ -110,10 +124,10 @@ class Icons {
                 return sprintf('<svg %s><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>', $attrs);
 
             case 'success': // Check circle
-                return sprintf('<svg %s stroke="#22c55e"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>', $attrs);
+                return sprintf('<svg %s><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>', $attrs);
 
             case 'warning': // Alert triangle
-                return sprintf('<svg %s stroke="#ef4444"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', $attrs);
+                return sprintf('<svg %s><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', $attrs);
 
             case 'flag': // Priority
                 return sprintf('<svg %s><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>', $attrs);
@@ -140,10 +154,13 @@ class Icons {
                 return sprintf('<svg %s><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>', $attrs);
 
             case 'fuel':
-                return sprintf('<svg %s><path d="M3 22V7a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v15"/><path d="M19 22V17a2 2 0 0 0-2-2"/><path d="M7 9h6"/></svg>', $attrs);
+                return sprintf('<svg %s><line x1="3" y1="22" x2="15" y2="22"/><line x1="4" y1="9" x2="14" y2="9"/><path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"/><path d="M18 13h1a2 2 0 0 0 2-2V8"/><path d="M18 22v-5"/><path d="M22 13v9"/></svg>', $attrs);
+
+            case 'bolt':
+                return sprintf('<svg %s><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg>', $attrs);
 
             case 'gear':
-                return sprintf('<svg %s><circle cx="12" cy="4" r="2"/><path d="M12 6v14"/><path d="M8 11h8"/><path d="M8 7v8"/><path d="M16 7v8"/></svg>', $attrs);
+                return sprintf('<svg %s><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/><path d="M6.34 17.66l-1.41 1.41"/></svg>', $attrs);
 
             case 'speedometer':
                 return sprintf('<svg %s><path d="M12 2v2"/><path d="M12 20v2"/><path d="M20 12h2"/><path d="M2 12h2"/><path d="M19.07 4.93l-1.41 1.41"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M12 12l4 4"/></svg>', $attrs);

@@ -438,6 +438,16 @@
     flex-shrink: 0;
 }
 
+/* Guard against external icon-font pseudo rules (e.g. [class*="icon-"]::before) */
+.mhm-vehicle-card .mhm-feature-chip>.rv-icon::before,
+.mhm-vehicle-card .mhm-feature-chip>.rv-icon::after {
+    content: none !important;
+}
+
+.mhm-vehicle-card .mhm-feature-chip>.rv-icon {
+    font-family: inherit !important;
+}
+
 /* Footer (Button) - v1.1: CTA anchored to bottom */
 .mhm-card-footer {
     margin-top: auto;

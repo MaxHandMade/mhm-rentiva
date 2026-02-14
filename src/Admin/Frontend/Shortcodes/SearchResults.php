@@ -133,7 +133,7 @@ final class SearchResults extends AbstractShortcode
 			'show_view_toggle'     => '1',        // 1/0
 			'show_favorite_button' => '1',        // 1/0
 			'show_compare_button'  => '1',        // 1/0
-			'default_sort'         => 'relevance', // relevance/price_asc/price_desc/name_asc/name_desc
+			'default_sort'         => 'price_asc', // relevance/price_asc/price_desc/name_asc/name_desc
 			'class'                => '',         // Custom CSS class
 		);
 	}
