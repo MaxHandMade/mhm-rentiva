@@ -147,6 +147,8 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		add_action( 'init', array( self::class, 'register_meta_fields' ) );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
+		add_action( 'add_meta_boxes_vehicle', array( self::class, 'add_featured_meta_box' ) );
+		add_action( 'save_post_vehicle', array( self::class, 'save_featured_meta_box' ) );
 
 		add_action( 'admin_head', array( self::class, 'hide_default_meta_boxes' ) );
 
@@ -204,6 +206,68 @@ final class VehicleMeta extends AbstractMetaBox {
 		remove_meta_box( 'slugdiv', 'vehicle', 'normal' );
 
 		parent::add_meta_boxes();
+	}
+
+	/**
+	 * Add featured flag UI on vehicle edit screen.
+	 */
+	public static function add_featured_meta_box(): void {
+		add_meta_box(
+			'mhm_rentiva_vehicle_featured',
+			__( 'Featured', 'mhm-rentiva' ),
+			array( self::class, 'render_featured_meta_box' ),
+			'vehicle',
+			'side',
+			'default'
+		);
+	}
+
+	/**
+	 * Render featured checkbox field.
+	 */
+	public static function render_featured_meta_box( \WP_Post $post ): void {
+		wp_nonce_field( 'mhm_rentiva_vehicle_featured_action', 'mhm_rentiva_vehicle_featured_nonce' );
+		$is_featured = get_post_meta( $post->ID, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED, true ) === '1';
+		?>
+		<p>
+			<label for="mhm_rentiva_is_featured">
+				<input type="checkbox" id="mhm_rentiva_is_featured" name="mhm_rentiva_is_featured" value="1" <?php checked( $is_featured ); ?> />
+				<?php esc_html_e( 'Featured vehicle', 'mhm-rentiva' ); ?>
+			</label>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Save featured checkbox value with nonce/capability checks.
+	 */
+	public static function save_featured_meta_box( int $post_id ): void {
+		if ( ! isset( $_POST['mhm_rentiva_vehicle_featured_nonce'] ) || ! wp_verify_nonce( self::post_text( 'mhm_rentiva_vehicle_featured_nonce' ), 'mhm_rentiva_vehicle_featured_action' ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+
+		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
+		$is_featured = isset( $_POST['mhm_rentiva_is_featured'] ) ? '1' : '0';
+		update_post_meta( $post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED, $is_featured );
+
+		// Keep frontend featured/list outputs consistent immediately after admin save.
+		\MHMRentiva\Admin\Core\Utilities\CacheManager::clear_vehicle_cache( $post_id );
+		if ( class_exists( \MHMRentiva\Admin\Frontend\Shortcodes\FeaturedVehicles::class ) ) {
+			\MHMRentiva\Admin\Frontend\Shortcodes\FeaturedVehicles::cleanup();
+		}
+		if ( class_exists( \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::class ) ) {
+			\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::cleanup();
+		}
+		if ( class_exists( \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesGrid::class ) ) {
+			\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesGrid::cleanup();
+		}
 	}
 
 	/**
@@ -743,6 +807,19 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		register_post_meta(
 			'vehicle',
+			\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED,
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => function ( $value ) {
+					return (string) ( (string) $value === '1' ? '1' : '0' );
+				},
+			)
+		);
+
+		register_post_meta(
+			'vehicle',
 			'_mhm_rentiva_price_per_day',
 			array(
 				'type'              => 'number',
@@ -982,6 +1059,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			'_mhm_rentiva_deposit',
 			'_mhm_vehicle_status',
 			'_mhm_vehicle_availability',
+			\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED,
 			'_mhm_rentiva_features',
 			'_mhm_rentiva_equipment',
 			'_mhm_removed_details',
@@ -1168,6 +1246,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		$desired_order = array(
 			'submitdiv',
 			'postimagediv',
+			'mhm_rentiva_vehicle_featured',
 			'mhm_rentiva_vehicle_gallery',
 			'vehicle_categorydiv',
 		);

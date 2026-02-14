@@ -16,6 +16,7 @@ if (! defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
+use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Vehicle\PostType\Vehicle as PT_Vehicle;
 use WP_Query;
 
@@ -41,7 +42,7 @@ final class FeaturedVehicles extends AbstractShortcode
 			'ids'                  => '',      // Comma separated IDs
 			'category'             => '',      // Category slug
 			'limit'                => '6',
-			'layout'               => 'slider', // slider, grid
+			'layout'               => 'grid', // slider, grid
 			'columns'              => '3',
 			'autoplay'             => '1',
 			'interval'             => '5000',
@@ -51,7 +52,7 @@ final class FeaturedVehicles extends AbstractShortcode
 			'show_rating'          => '1',
 			'show_category'        => '1',
 			'show_book_button'     => '1',
-			'show_features'        => '0',
+			'show_features'        => '1',
 			'max_features'         => '5',
 			'show_brand'           => '0',
 			'show_availability'    => '0',
@@ -83,8 +84,15 @@ final class FeaturedVehicles extends AbstractShortcode
 			$args['post__in'] = array_map('intval', explode(',', (string) $atts['ids']));
 			$args['orderby']  = 'post__in';
 		} else {
-			// MUST filter by featured meta if no IDs provided
+			// MUST filter by featured meta if no IDs provided.
+			// Keep legacy fallback key for backward compatibility.
 			$args['meta_query'] = array(
+				'relation' => 'OR',
+				array(
+					'key'     => MetaKeys::VEHICLE_FEATURED,
+					'value'   => '1',
+					'compare' => '=',
+				),
 				array(
 					'key'     => '_mhm_rentiva_is_featured',
 					'value'   => '1',

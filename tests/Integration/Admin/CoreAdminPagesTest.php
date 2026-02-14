@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Admin;
 
 use MHMRentiva\Admin\About\About;
+use MHMRentiva\Admin\Core\MetaKeys;
+use MHMRentiva\Admin\Frontend\Shortcodes\FeaturedVehicles;
 use MHMRentiva\Admin\Setup\SetupWizard;
 use MHMRentiva\Admin\Testing\TestAdminPage;
 use MHMRentiva\Admin\Utilities\Menu\Menu;
+use MHMRentiva\Admin\Vehicle\Meta\VehicleMeta;
+use MHMRentiva\Blocks\BlockRegistry;
 use WP_UnitTestCase;
 
 final class CoreAdminPagesTest extends WP_UnitTestCase {
@@ -40,6 +44,118 @@ final class CoreAdminPagesTest extends WP_UnitTestCase {
 		wp_set_current_user( 0 );
 
 		parent::tearDown();
+	}
+
+	public function test_vehicle_featured_meta_box_is_registered(): void {
+		VehicleMeta::register();
+		$vehicle_id = (int) $this->factory->post->create(
+			array(
+				'post_type'   => 'vehicle',
+				'post_status' => 'publish',
+				'post_title'  => 'Featured Meta Box Vehicle',
+			)
+		);
+
+		$post = get_post( $vehicle_id );
+		$this->assertNotNull( $post );
+
+		do_action( 'add_meta_boxes_vehicle', $post );
+
+		global $wp_meta_boxes;
+		$this->assertTrue( isset( $wp_meta_boxes['vehicle']['side']['default']['mhm_rentiva_vehicle_featured'] ) );
+	}
+
+	public function test_vehicle_featured_meta_save_requires_valid_nonce_and_capability(): void {
+		$vehicle_id = (int) $this->factory->post->create(
+			array(
+				'post_type'   => 'vehicle',
+				'post_status' => 'publish',
+				'post_title'  => 'Featured Save Vehicle',
+			)
+		);
+
+		update_post_meta( $vehicle_id, MetaKeys::VEHICLE_FEATURED, '0' );
+
+		$_POST['mhm_rentiva_vehicle_featured_nonce'] = 'invalid';
+		$_POST['mhm_rentiva_is_featured']            = '1';
+		VehicleMeta::save_featured_meta_box( $vehicle_id );
+		$this->assertSame( '0', (string) get_post_meta( $vehicle_id, MetaKeys::VEHICLE_FEATURED, true ) );
+
+		$_POST['mhm_rentiva_vehicle_featured_nonce'] = wp_create_nonce( 'mhm_rentiva_vehicle_featured_action' );
+		$_POST['mhm_rentiva_is_featured']            = '1';
+		VehicleMeta::save_featured_meta_box( $vehicle_id );
+		$this->assertSame( '1', (string) get_post_meta( $vehicle_id, MetaKeys::VEHICLE_FEATURED, true ) );
+
+		unset( $_POST['mhm_rentiva_is_featured'] );
+		VehicleMeta::save_featured_meta_box( $vehicle_id );
+		$this->assertSame( '0', (string) get_post_meta( $vehicle_id, MetaKeys::VEHICLE_FEATURED, true ) );
+
+		unset( $_POST['mhm_rentiva_vehicle_featured_nonce'] );
+	}
+
+	public function test_featured_vehicles_shortcode_filters_only_featured_items(): void {
+		$featured_id = (int) $this->factory->post->create(
+			array(
+				'post_type'    => 'vehicle',
+				'post_status'  => 'publish',
+				'post_title'   => 'Featured Vehicle A',
+				'post_excerpt' => 'Featured A',
+			)
+		);
+		$normal_id   = (int) $this->factory->post->create(
+			array(
+				'post_type'    => 'vehicle',
+				'post_status'  => 'publish',
+				'post_title'   => 'Normal Vehicle B',
+				'post_excerpt' => 'Normal B',
+			)
+		);
+
+		update_post_meta( $featured_id, MetaKeys::VEHICLE_FEATURED, '1' );
+		update_post_meta( $normal_id, MetaKeys::VEHICLE_FEATURED, '0' );
+		update_post_meta( $featured_id, MetaKeys::VEHICLE_PRICE_PER_DAY, '1000' );
+		update_post_meta( $normal_id, MetaKeys::VEHICLE_PRICE_PER_DAY, '900' );
+		update_post_meta( $featured_id, MetaKeys::VEHICLE_STATUS, 'active' );
+		update_post_meta( $normal_id, MetaKeys::VEHICLE_STATUS, 'active' );
+
+		$defaults = new \ReflectionMethod( FeaturedVehicles::class, 'get_default_attributes' );
+		$defaults->setAccessible( true );
+		$atts            = $defaults->invoke( null );
+		$atts['limit']   = '10';
+		$atts['ids']     = '';
+		$atts['orderby'] = 'date';
+		$atts['order']   = 'DESC';
+
+		$prepare = new \ReflectionMethod( FeaturedVehicles::class, 'prepare_template_data' );
+		$prepare->setAccessible( true );
+		$data = $prepare->invoke( null, $atts );
+
+		$ids = array_map(
+			static function ( array $item ): int {
+				return (int) ( $item['id'] ?? 0 );
+			},
+			(array) ( $data['vehicles'] ?? array() )
+		);
+
+		$this->assertContains( $featured_id, $ids );
+		$this->assertNotContains( $normal_id, $ids );
+	}
+
+	public function test_featured_vehicles_block_mapping_parity_and_filtering(): void {
+		$mapped_method = new \ReflectionMethod( BlockRegistry::class, 'map_attributes_to_shortcode' );
+		$mapped_method->setAccessible( true );
+		$mapped = $mapped_method->invoke(
+			null,
+			array(
+				'sortBy'    => 'date',
+				'sortOrder' => 'desc',
+				'limit'     => '6',
+			),
+			'rentiva_featured_vehicles'
+		);
+
+		$this->assertSame( 'date', (string) ( $mapped['orderby'] ?? '' ) );
+		$this->assertSame( 'desc', (string) ( $mapped['order'] ?? '' ) );
 	}
 
 	public function test_menu_shows_setup_and_about_submenus_by_default(): void {

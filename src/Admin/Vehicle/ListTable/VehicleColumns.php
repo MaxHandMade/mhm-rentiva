@@ -58,6 +58,7 @@ final class VehicleColumns {
 		$cols['mhm_transmission']  = __( 'Transmission', 'mhm-rentiva' );
 		$cols['mhm_fuel_type']     = __( 'Fuel', 'mhm-rentiva' );
 		$cols['mhm_available']     = __( 'Available', 'mhm-rentiva' );
+		$cols['mhm_featured']      = __( 'Featured', 'mhm-rentiva' );
 
 		if ( $date !== null ) {
 			$cols['date'] = $date;
@@ -142,6 +143,11 @@ final class VehicleColumns {
 				echo $config['icon'] ? esc_html( $config['icon'] ) . ' ' : '';
 				echo esc_html( $label );
 				echo '</span>';
+				break;
+
+			case 'mhm_featured':
+				$is_featured = get_post_meta( $post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED, true ) === '1';
+				echo $is_featured ? esc_html__( 'Yes', 'mhm-rentiva' ) : esc_html__( 'No', 'mhm-rentiva' );
 				break;
 		}
 	}

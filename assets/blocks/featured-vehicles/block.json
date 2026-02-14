@@ -69,7 +69,7 @@
         },
         "showFeatures": {
             "type": "boolean",
-            "default": false
+            "default": true
         },
         "showBrand": {
             "type": "boolean",
@@ -110,8 +110,10 @@
         },
         "sortBy": {
             "type": "string",
-            "default": "popularity",
+            "default": "date",
             "enum": [
+                "date",
+                "title",
                 "price",
                 "popularity",
                 "newest",
