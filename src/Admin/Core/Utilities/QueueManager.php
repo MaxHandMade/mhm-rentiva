@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Queue-based job management for large datasets
  */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Queue processing uses controlled direct SQL on plugin-owned queue table for deterministic job state transitions.
 final class QueueManager {
 
 

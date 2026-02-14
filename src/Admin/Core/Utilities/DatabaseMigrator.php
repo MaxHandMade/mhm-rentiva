@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Automatically creates critical indexes for performance optimization
  */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Migration/DDL routines intentionally execute controlled schema and maintenance SQL against known WordPress tables.
 final class DatabaseMigrator {
 
 

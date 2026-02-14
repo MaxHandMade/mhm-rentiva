@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 declare(strict_types=1);
 
@@ -17,6 +18,7 @@ if (! defined('ABSPATH')) {
  * 4. Fixed Deposit: Implements a universal 10% deposit rate policy.
  * 5. Notification Suite: Triggers internal hooks for email testing.
  */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Demo seeding/cleanup requires controlled direct SQL against plugin test fixtures.
 final class DemoSeeder
 {
 
@@ -116,7 +118,7 @@ final class DemoSeeder
 
         $this->disable_email_simulation();
 
-        return $msg . __('✅ Demo v15 (Notification Suite) Completed! Check CLI logs for email triggers.', 'mhm-rentiva');
+        return $msg . __('âœ… Demo v15 (Notification Suite) Completed! Check CLI logs for email triggers.', 'mhm-rentiva');
     }
 
     /**
@@ -211,7 +213,7 @@ final class DemoSeeder
 
         // Security check: Only administrators can run cleanup
         if (! current_user_can('manage_options')) {
-            return __('❌ Error: You do not have permission to perform this action.', 'mhm-rentiva');
+            return __('âŒ Error: You do not have permission to perform this action.', 'mhm-rentiva');
         }
 
         $count = 0;
@@ -339,35 +341,79 @@ final class DemoSeeder
 
         // 5. Selective Custom Table Cleanup
 
-        // Notification Queue: Cleanup entries for demo users
-        $wpdb->query($wpdb->prepare("
-            DELETE n FROM {$notif_table} n
-            INNER JOIN {$wpdb->usermeta} um ON n.user_id = um.user_id
-            WHERE um.meta_key = %s AND um.meta_value = %s
-        ", '_mhm_is_demo_user', '1'));
+        // Notification Queue: Cleanup entries for demo users.
+        $wpdb->query(
+            $wpdb->prepare(
+                'DELETE n FROM %i n
+                INNER JOIN %i um ON n.user_id = um.user_id
+                WHERE um.meta_key = %s AND um.meta_value = %s',
+                $notif_table,
+                $wpdb->usermeta,
+                '_mhm_is_demo_user',
+                '1'
+            )
+        );
 
-        // Payment Log: Cleanup entries for demo bookings
-        $wpdb->query($wpdb->prepare("
-            DELETE l FROM {$payment_log} l
-            INNER JOIN {$wpdb->postmeta} pm ON l.booking_id = pm.post_id
-            WHERE pm.meta_key = %s AND pm.meta_value = %s
-        ", '_mhm_is_demo', '1'));
+        // Payment Log: Cleanup entries for demo bookings.
+        $wpdb->query(
+            $wpdb->prepare(
+                'DELETE l FROM %i l
+                INNER JOIN %i pm ON l.booking_id = pm.post_id
+                WHERE pm.meta_key = %s AND pm.meta_value = %s',
+                $payment_log,
+                $wpdb->postmeta,
+                '_mhm_is_demo',
+                '1'
+            )
+        );
 
-        // Activity Logs & Queues: Filter by demo metadata
+        // Activity Logs & Queues: Filter by demo metadata.
         $tables_by_user = array($msg_logs, $queue_table);
         foreach ($tables_by_user as $table) {
             if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table))) {
-                $wpdb->query($wpdb->prepare("
-                    DELETE t FROM {$table} t
-                    INNER JOIN {$wpdb->usermeta} um ON t.user_id = um.user_id
-                    WHERE um.meta_key = %s AND um.meta_value = %s
-                ", '_mhm_is_demo_user', '1'));
+                $wpdb->query(
+                    $wpdb->prepare(
+                        'DELETE t FROM %i t
+                        INNER JOIN %i um ON t.user_id = um.user_id
+                        WHERE um.meta_key = %s AND um.meta_value = %s',
+                        $table,
+                        $wpdb->usermeta,
+                        '_mhm_is_demo_user',
+                        '1'
+                    )
+                );
             }
         }
 
-        // Transfer Locations & Routes: Targeted cleanup based on seeded demo names
-        $wpdb->query("DELETE FROM {$loc_table} WHERE name LIKE '%(IST)%' OR name LIKE '%(SAW)%' OR name = 'Taksim Square' OR name = 'Kadikoy Port' OR name = 'Taksim Meydanı' OR name = 'Kadıköy Rıhtım'");
-        $wpdb->query("DELETE FROM {$route_table} WHERE origin_id NOT IN (SELECT id FROM {$loc_table}) OR destination_id NOT IN (SELECT id FROM {$loc_table})");
+        // Transfer Locations & Routes: targeted cleanup based on seeded demo names.
+        $wpdb->query(
+            $wpdb->prepare(
+                'DELETE FROM %i
+                WHERE name LIKE %s
+                OR name LIKE %s
+                OR name = %s
+                OR name = %s
+                OR name = %s
+                OR name = %s',
+                $loc_table,
+                '%(IST)%',
+                '%(SAW)%',
+                'Taksim Square',
+                'Kadikoy Port',
+                'Taksim MeydanÄ±',
+                'KadÄ±kÃ¶y RÄ±htÄ±m'
+            )
+        );
+        $wpdb->query(
+            $wpdb->prepare(
+                'DELETE FROM %i
+                WHERE origin_id NOT IN (SELECT id FROM %i)
+                OR destination_id NOT IN (SELECT id FROM %i)',
+                $route_table,
+                $loc_table,
+                $loc_table
+            )
+        );
 
         // 6. Comprehensive Cache Clearing (Nuclear Purge)
         if (\class_exists('\MHMRentiva\Admin\Utilities\Dashboard\DashboardPage')) {
@@ -378,21 +424,30 @@ final class DemoSeeder
         }
 
         // Nuclear purge for any lingering mhm transients (addresses naming inconsistencies)
-        $wpdb->query($wpdb->prepare(
-            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-            '_transient_mhm_%',
-            '_transient_timeout_mhm_%'
-        ));
+        $wpdb->query(
+            $wpdb->prepare(
+                'DELETE FROM %i WHERE option_name LIKE %s OR option_name LIKE %s',
+                $wpdb->options,
+                '_transient_mhm_%',
+                '_transient_timeout_mhm_%'
+            )
+        );
 
         // 7. WooCommerce Customer Lookup Cleanup (Sticky Customers)
         $wc_customer_table = $wpdb->prefix . 'wc_customer_lookup';
         if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wc_customer_table))) {
-            $wpdb->query("DELETE FROM {$wc_customer_table} WHERE email LIKE 'test%@localhost.com'");
+            $wpdb->query(
+                $wpdb->prepare(
+                    'DELETE FROM %i WHERE email LIKE %s',
+                    $wc_customer_table,
+                    'test%@localhost.com'
+                )
+            );
         }
 
         return sprintf(
             /* translators: 1: Deleted count, 2: Protected count */
-            __('🧹 Surgical cleanup completed: %1$d demo records removed. %2$d manual records/administrators protected.', 'mhm-rentiva'),
+            __('ğŸ§¹ Surgical cleanup completed: %1$d demo records removed. %2$d manual records/administrators protected.', 'mhm-rentiva'),
             $count,
             $protected_count
         );
@@ -441,7 +496,7 @@ final class DemoSeeder
     {
         $ids = array();
 
-        // 🚗 Vehicle Fleet Configuration
+        // ğŸš— Vehicle Fleet Configuration
         $blueprint = array(
             // 1. ECONOMY
             array('qty' => 3, 'brand' => 'Volkswagen', 'model' => 'Polo', 'price' => 80, 'trans' => 'manual', 'fuel' => 'petrol', 'year' => 2024, 'seats' => 5, 'luggage' => 2, 'cat' => 'Economy', 'color' => 'White', 'engine' => '1.0'),

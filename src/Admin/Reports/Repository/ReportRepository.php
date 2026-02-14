@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Centralizes all raw SQL queries used in reports.
  * Modernized to use custom `mhm_bookings` table for high performance.
  */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Reporting repository intentionally executes aggregate SQL for analytics across bookings/meta dimensions.
 class ReportRepository {
 
 
@@ -390,14 +391,13 @@ class ReportRepository {
 				$operations = array_merge( $operations, $rentals );
 			}
 		} catch ( \Exception $e ) {
-			// Fail silently
+			unset( $e ); // Gracefully skip rentals query failures.
 		}
 
 		// 2. Transfers (if table exists)
 		$transfer_table = $wpdb->prefix . 'mhm_transfers';
 		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $transfer_table ) ) === $transfer_table ) {
-			$transfer_table_escaped = esc_sql( $transfer_table );
-			$transfers              = $wpdb->get_results(
+			$transfers = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT 
                     id, 
@@ -407,11 +407,12 @@ class ReportRepository {
                     destination,
                     status,
                     'transfer' as type
-                FROM `{$transfer_table_escaped}`
+                FROM %i
                 WHERE status IN ('confirmed', 'pending')
                 AND pickup_date >= %s
                 ORDER BY pickup_date ASC
                 LIMIT %d",
+					$transfer_table,
 					$now,
 					$limit
 				),
