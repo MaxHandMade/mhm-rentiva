@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Manage vehicle features and equipment in admin panel
  */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Vehicle settings screens rely on controlled analytical/meta queries for admin management.
 final class VehicleSettings {
 
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
@@ -29,6 +30,57 @@ final class VehicleSettings {
 			return '';
 		}
 		return sanitize_text_field( wp_unslash( (string) $value ) );
+	}
+
+	/**
+	 * Read a sanitized text value from $_POST.
+	 */
+	private static function post_text( string $key, string $default = '' ): string {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced in caller methods.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Centralized sanitization helper.
+		if ( ! isset( $_POST[ $key ] ) ) {
+			return $default;
+		}
+
+		$value = wp_unslash( $_POST[ $key ] );
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		return self::sanitize_text_field_safe( $value );
+	}
+
+	/**
+	 * Read an unslashed array value from $_POST.
+	 *
+	 * @return array<mixed>
+	 */
+	private static function post_array( string $key ): array {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced in caller methods.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array is sanitized by each caller.
+		if ( ! isset( $_POST[ $key ] ) || ! is_array( $_POST[ $key ] ) ) {
+			return array();
+		}
+
+		$value = wp_unslash( $_POST[ $key ] );
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		return $value;
+	}
+
+	/**
+	 * Read a sanitized key from $_GET.
+	 */
+	private static function get_key( string $key, string $default = '' ): string {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only GET access for tab/filter values.
+		if ( ! isset( $_GET[ $key ] ) ) {
+			return $default;
+		}
+
+		$value = sanitize_key( wp_unslash( $_GET[ $key ] ) );
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		return $value;
 	}
 
 	public static function register(): void {
@@ -72,9 +124,7 @@ final class VehicleSettings {
 		}
 
 		// Sanitize and validate custom details array from POST
-		$custom_details = isset( $_POST['mhm_rentiva_custom_details'] ) && is_array( $_POST['mhm_rentiva_custom_details'] )
-			? $_POST['mhm_rentiva_custom_details']
-			: array();
+		$custom_details = self::post_array( 'mhm_rentiva_custom_details' );
 
 		if ( ! empty( $custom_details ) && is_array( $custom_details ) ) {
 			$available_details = get_option( 'mhm_vehicle_details', array() );
@@ -132,7 +182,8 @@ final class VehicleSettings {
 	 * Render settings page
 	 */
 	public function render_settings_page(): void {
-		$active_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'definitions';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab selector in admin page rendering.
+		$active_tab = self::get_key( 'tab', 'definitions' );
 
 		$buttons = array(
 			array(
@@ -1390,7 +1441,7 @@ final class VehicleSettings {
 			wp_send_json_error( __( 'You do not have permission', 'mhm-rentiva' ) );
 		}
 
-		$name  = self::sanitize_text_field_safe( $_POST['name'] );
+		$name  = self::post_text( 'name' );
 		$key   = 'custom_' . time();
 		$label = $name;
 
@@ -1422,7 +1473,7 @@ final class VehicleSettings {
 			wp_die( esc_html__( 'You do not have permission', 'mhm-rentiva' ) );
 		}
 
-		$key      = self::sanitize_text_field_safe( $_POST['key'] );
+		$key      = self::post_text( 'key' );
 		$features = get_option( 'mhm_vehicle_features', self::get_default_features() );
 		unset( $features[ $key ] );
 		update_option( 'mhm_vehicle_features', $features );
@@ -1441,7 +1492,7 @@ final class VehicleSettings {
 			wp_die( esc_html__( 'You do not have permission', 'mhm-rentiva' ) );
 		}
 
-		$name  = self::sanitize_text_field_safe( $_POST['name'] );
+		$name  = self::post_text( 'name' );
 		$key   = 'custom_' . time();
 		$label = $name;
 
@@ -1473,7 +1524,7 @@ final class VehicleSettings {
 			wp_die( esc_html__( 'You do not have permission', 'mhm-rentiva' ) );
 		}
 
-		$key       = self::sanitize_text_field_safe( $_POST['key'] );
+		$key       = self::post_text( 'key' );
 		$equipment = get_option( 'mhm_vehicle_equipment', self::get_default_equipment() );
 		unset( $equipment[ $key ] );
 		update_option( 'mhm_vehicle_equipment', $equipment );
@@ -1492,7 +1543,7 @@ final class VehicleSettings {
 			wp_die( esc_html__( 'You do not have permission', 'mhm-rentiva' ) );
 		}
 
-		$name  = self::sanitize_text_field_safe( $_POST['name'] );
+		$name  = self::post_text( 'name' );
 		$key   = 'custom_' . time();
 		$label = $name;
 
@@ -1524,7 +1575,7 @@ final class VehicleSettings {
 			wp_die( esc_html__( 'You do not have permission', 'mhm-rentiva' ) );
 		}
 
-		$key     = self::sanitize_text_field_safe( $_POST['key'] );
+		$key     = self::post_text( 'key' );
 		$details = get_option( 'mhm_vehicle_details', self::get_default_details() );
 		unset( $details[ $key ] );
 		update_option( 'mhm_vehicle_details', $details );
@@ -1544,14 +1595,14 @@ final class VehicleSettings {
 		}
 
 		// CHECK FOR SUB-ACTION (Display Settings)
-		if ( isset( $_POST['sub_action'] ) && $_POST['sub_action'] === 'save_display_settings' ) {
+		if ( 'save_display_settings' === self::post_text( 'sub_action' ) ) {
 			$settings         = get_option( 'mhm_rentiva_settings', array() );
 			$settings_updated = false;
 
 			// Save Card Fields
 			if ( isset( $_POST['mhm_rentiva_vehicle_card_fields'] ) ) {
 				// It comes as a JSON string from the hidden input
-				$json_value = stripslashes( $_POST['mhm_rentiva_vehicle_card_fields'] );
+				$json_value = self::post_text( 'mhm_rentiva_vehicle_card_fields' );
 				$decoded    = json_decode( $json_value, true );
 
 				// Validate structure
@@ -1567,7 +1618,7 @@ final class VehicleSettings {
 
 			// Save Comparison Fields
 			// Note: checkboxes are not sent if unchecked. So we must handle "not set" as "empty" if we know we are in this context.
-			$comparison_fields    = $_POST['comparison_fields'] ?? array();
+			$comparison_fields    = self::post_array( 'comparison_fields' );
 			$sanitized_comparison = array();
 
 			if ( is_array( $comparison_fields ) ) {
@@ -1591,14 +1642,14 @@ final class VehicleSettings {
 		}
 
 		// Save selected fields (Definitions Tab)
-		$selected_details   = isset( $_POST['selected_details'] ) ? array_map( 'sanitize_text_field', $_POST['selected_details'] ) : array();
-		$selected_features  = isset( $_POST['selected_features'] ) ? array_map( 'sanitize_text_field', $_POST['selected_features'] ) : array();
-		$selected_equipment = isset( $_POST['selected_equipment'] ) ? array_map( 'sanitize_text_field', $_POST['selected_equipment'] ) : array();
+		$selected_details   = array_map( 'sanitize_text_field', self::post_array( 'selected_details' ) );
+		$selected_features  = array_map( 'sanitize_text_field', self::post_array( 'selected_features' ) );
+		$selected_equipment = array_map( 'sanitize_text_field', self::post_array( 'selected_equipment' ) );
 
 		// Save custom fields
-		$custom_details   = isset( $_POST['custom_details'] ) ? array_map( 'sanitize_text_field', $_POST['custom_details'] ) : array();
-		$custom_features  = isset( $_POST['custom_features'] ) ? array_map( 'sanitize_text_field', $_POST['custom_features'] ) : array();
-		$custom_equipment = isset( $_POST['custom_equipment'] ) ? array_map( 'sanitize_text_field', $_POST['custom_equipment'] ) : array();
+		$custom_details   = array_map( 'sanitize_text_field', self::post_array( 'custom_details' ) );
+		$custom_features  = array_map( 'sanitize_text_field', self::post_array( 'custom_features' ) );
+		$custom_equipment = array_map( 'sanitize_text_field', self::post_array( 'custom_equipment' ) );
 
 		// REMOVED destructive updated_labels logic.
 		// Renaming is handled by the dedicated ajax_update_field_labels method.
@@ -1633,9 +1684,9 @@ final class VehicleSettings {
 			wp_send_json_error( __( 'You do not have permission', 'mhm-rentiva' ) );
 		}
 
-		$type = self::sanitize_text_field_safe( $_POST['type'] ?? '' );
+		$type = self::post_text( 'type' );
 		// Sanitize labels array properly
-		$labels = isset( $_POST['labels'] ) && is_array( $_POST['labels'] ) ? $_POST['labels'] : array();
+		$labels = self::post_array( 'labels' );
 
 		// Sanitize labels
 		$sanitized_labels = array();
@@ -1714,8 +1765,8 @@ final class VehicleSettings {
 			return;
 		}
 
-		$field_key  = self::sanitize_text_field_safe( $_POST['field_key'] );
-		$field_type = self::sanitize_text_field_safe( $_POST['field_type'] ); // details, features, equipment
+		$field_key  = self::post_text( 'field_key' );
+		$field_type = self::post_text( 'field_type' ); // details, features, equipment
 
 		if ( $field_type === 'details' ) {
 			// 1. Check if Core (Cannot remove)
@@ -1842,9 +1893,9 @@ final class VehicleSettings {
 			return;
 		}
 
-		$field_key   = self::sanitize_text_field_safe( $_POST['field_key'] );
-		$field_label = self::sanitize_text_field_safe( $_POST['field_label'] );
-		$field_type  = self::sanitize_text_field_safe( $_POST['field_type'] ); // details, features, equipment
+		$field_key   = self::post_text( 'field_key' );
+		$field_label = self::post_text( 'field_label' );
+		$field_type  = self::post_text( 'field_type' ); // details, features, equipment
 
 		// Encoding fix - For Turkish characters
 		$field_label = mb_convert_encoding( $field_label, 'UTF-8', 'auto' );
@@ -1855,11 +1906,11 @@ final class VehicleSettings {
 			update_option( 'mhm_custom_details', $custom_details );
 
 			// Save extended meta (Type & Options)
-			if ( ! empty( $_POST['type'] ) ) {
+			if ( '' !== self::post_text( 'type' ) ) {
 				$field_meta               = get_option( 'mhm_custom_field_meta', array() );
 				$field_meta[ $field_key ] = array(
-					'type'    => self::sanitize_text_field_safe( $_POST['type'] ),
-					'options' => isset( $_POST['options'] ) ? self::sanitize_text_field_safe( $_POST['options'] ) : '',
+					'type'    => self::post_text( 'type' ),
+					'options' => self::post_text( 'options' ),
 				);
 				update_option( 'mhm_custom_field_meta', $field_meta );
 			}

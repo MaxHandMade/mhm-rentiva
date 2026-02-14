@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 declare(strict_types=1);
 
@@ -12,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Admin list-table rendering/sorting needs controlled aggregate queries over booking meta.
 final class BookingColumns {
 
 
@@ -30,6 +32,40 @@ final class BookingColumns {
 			return '';
 		}
 		return sanitize_text_field( wp_unslash( (string) $value ) );
+	}
+
+	/**
+	 * Read sanitized query string value.
+	 *
+	 * @param string $key Query parameter key.
+	 * @param string $default Default value.
+	 * @return string
+	 */
+	private static function get_query_text( string $key, string $default = '' ): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filter parameter.
+		if ( ! isset( $_GET[ $key ] ) ) {
+			return $default;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filter parameter.
+		return sanitize_text_field( wp_unslash( (string) $_GET[ $key ] ) );
+	}
+
+	/**
+	 * Read integer query parameter.
+	 *
+	 * @param string $key Query parameter key.
+	 * @param int    $default Default value.
+	 * @return int
+	 */
+	private static function get_query_int( string $key, int $default = 0 ): int {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filter parameter.
+		if ( ! isset( $_GET[ $key ] ) ) {
+			return $default;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filter parameter.
+		return absint( wp_unslash( $_GET[ $key ] ) );
 	}
 
 	public static function register(): void {
@@ -174,7 +210,7 @@ final class BookingColumns {
 					}
 					echo '</div>';
 				} else {
-					echo '—';
+					echo 'â€”';
 				}
 				break;
 
@@ -186,10 +222,10 @@ final class BookingColumns {
 					if ( $license_plate ) {
 						echo '<span class="license-plate">' . esc_html( $license_plate ) . '</span>';
 					} else {
-						echo '—';
+						echo 'â€”';
 					}
 				} else {
-					echo '—';
+					echo 'â€”';
 				}
 				break;
 
@@ -220,14 +256,14 @@ final class BookingColumns {
 					echo '<div class="date-range">' . esc_html( $pickup_datetime . ' - ' . $dropoff_datetime ) . '</div>';
 					echo '</div>';
 				} else {
-					echo '—';
+					echo 'â€”';
 				}
 				break;
 
 			case 'mhm_booking_days':
 				// Check both old and new meta keys
 				$days = (int) ( get_post_meta( $post_id, '_booking_rental_days', true ) ?: get_post_meta( $post_id, '_mhm_rental_days', true ) );
-				echo $days > 0 ? esc_html( (string) $days ) : '—';
+				echo $days > 0 ? esc_html( (string) $days ) : 'â€”';
 				break;
 
 			case 'mhm_booking_total':
@@ -236,7 +272,7 @@ final class BookingColumns {
 				if ( $total > 0 ) {
 					echo '<span class="total-amount">' . esc_html( self::format_price( $total ) ) . '</span>';
 				} else {
-					echo '—';
+					echo 'â€”';
 				}
 				break;
 
@@ -251,11 +287,11 @@ final class BookingColumns {
 					if ( $deposit_amount && $deposit_amount > 0 ) {
 						echo '<span class="deposit-amount">' . esc_html( self::format_price( floatval( $deposit_amount ) ) ) . '</span>';
 					} else {
-						echo '—';
+						echo 'â€”';
 					}
 				} else {
 					// Full payment made
-					echo '—';
+					echo 'â€”';
 				}
 				break;
 
@@ -402,7 +438,7 @@ final class BookingColumns {
 			return;
 		}
 
-		$current = isset( $_GET['mhm_booking_status'] ) ? self::sanitize_text_field_safe( (string) wp_unslash( $_GET['mhm_booking_status'] ) ) : '';
+		$current = self::get_query_text( 'mhm_booking_status' );
 
 		echo '<select name="mhm_booking_status" class="postform">';
 		echo '  <option value="">' . esc_html__( 'All statuses', 'mhm-rentiva' ) . '</option>';
@@ -417,7 +453,7 @@ final class BookingColumns {
 		echo '</select>';
 
 		// Payment status filter
-		$pcur = isset( $_GET['mhm_payment_status'] ) ? self::sanitize_text_field_safe( (string) wp_unslash( $_GET['mhm_payment_status'] ) ) : '';
+		$pcur = self::get_query_text( 'mhm_payment_status' );
 		echo '<select name="mhm_payment_status" class="postform">';
 		echo '  <option value="">' . esc_html__( 'All payments', 'mhm-rentiva' ) . '</option>';
 		foreach ( array( 'unpaid', 'paid', 'refunded', 'failed' ) as $s ) {
@@ -427,7 +463,7 @@ final class BookingColumns {
 		echo '</select>';
 
 		// Payment gateway filter
-		$gcur = isset( $_GET['mhm_payment_gateway'] ) ? self::sanitize_text_field_safe( (string) wp_unslash( $_GET['mhm_payment_gateway'] ) ) : '';
+		$gcur = self::get_query_text( 'mhm_payment_gateway' );
 		echo '<select name="mhm_payment_gateway" class="postform">';
 		echo '  <option value="">' . esc_html__( 'All payment methods', 'mhm-rentiva' ) . '</option>';
 		$allowedGateways = class_exists( Mode::class ) ? Mode::allowedGateways() : array( 'offline' );
@@ -448,8 +484,9 @@ final class BookingColumns {
 
 		$meta = array();
 
-		if ( isset( $_GET['mhm_booking_status'] ) && $_GET['mhm_booking_status'] !== '' ) {
-			$val = self::sanitize_text_field_safe( (string) $_GET['mhm_booking_status'] );
+		$booking_status_filter = self::get_query_text( 'mhm_booking_status' );
+		if ( '' !== $booking_status_filter ) {
+			$val = $booking_status_filter;
 			if ( in_array( $val, Status::allowed(), true ) ) {
 				// Check both old and new meta keys
 				$meta[] = array(
@@ -467,8 +504,9 @@ final class BookingColumns {
 				);
 			}
 		}
-		if ( isset( $_GET['mhm_payment_status'] ) && $_GET['mhm_payment_status'] !== '' ) {
-			$val = self::sanitize_text_field_safe( (string) $_GET['mhm_payment_status'] );
+		$payment_status_filter = self::get_query_text( 'mhm_payment_status' );
+		if ( '' !== $payment_status_filter ) {
+			$val = $payment_status_filter;
 			if ( in_array( $val, array( 'unpaid', 'paid', 'refunded', 'failed' ), true ) ) {
 				// Hem eski hem yeni meta key'leri kontrol et
 				$meta[] = array(
@@ -486,10 +524,11 @@ final class BookingColumns {
 				);
 			}
 		}
-		if ( isset( $_GET['mhm_payment_gateway'] ) && $_GET['mhm_payment_gateway'] !== '' ) {
-			$val = self::sanitize_text_field_safe( (string) $_GET['mhm_payment_gateway'] );
+		$payment_gateway_filter = self::get_query_text( 'mhm_payment_gateway' );
+		if ( '' !== $payment_gateway_filter ) {
+			$val = $payment_gateway_filter;
 			if ( $val === 'woocommerce' ) {
-				// ⭐ WooCommerce only - All payments go through WooCommerce
+				// â­ WooCommerce only - All payments go through WooCommerce
 				$meta[] = array(
 					array(
 						'key'     => '_mhm_payment_gateway',
@@ -532,7 +571,7 @@ final class BookingColumns {
 	}
 
 	private static function format_price( float $price ): string {
-		// ✅ Same format as Dashboard/Vehicle
+		// âœ… Same format as Dashboard/Vehicle
 		$amount = number_format( $price, 2, '.', ',' );
 		return $amount . ' ' . self::get_currency_symbol();
 	}
@@ -558,7 +597,7 @@ final class BookingColumns {
 		}
 
 		// Get date format from settings
-		// ✅ Use SettingsCore::get() instead of removed BookingSettings method
+		// âœ… Use SettingsCore::get() instead of removed BookingSettings method
 		$date_format = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_date_format', 'Y-m-d' );
 
 		// If already in desired format, return as is
@@ -919,8 +958,8 @@ final class BookingColumns {
 		}
 
 		// Get month and year from URL parameters, otherwise use current month/year
-		$current_month = isset( $_GET['month'] ) ? (int) $_GET['month'] : (int) gmdate( 'n' );
-		$current_year  = isset( $_GET['year'] ) ? (int) $_GET['year'] : (int) gmdate( 'Y' );
+		$current_month = self::get_query_int( 'month', (int) gmdate( 'n' ) );
+		$current_year  = self::get_query_int( 'year', (int) gmdate( 'Y' ) );
 
 		// Check for invalid values
 		if ( $current_month < 1 || $current_month > 12 ) {
@@ -1287,16 +1326,16 @@ final class BookingColumns {
 						// Single booking - show in grid format
 						var booking = bookings[0];
 						html = '<div class="booking-info-grid">';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Customer Name:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_name || '—') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Email:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_email || '—') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Phone:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_phone || '—') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Vehicle:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_title || '—') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Plate:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_plate || '—') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Start Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.start_date || '—') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'End Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.end_date || '—') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Total Price:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.total_price || '—') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Status:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.status_label || booking.status || '—') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Created:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.created_date || '—') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Customer Name:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_name || 'â€”') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Email:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_email || 'â€”') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Phone:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_phone || 'â€”') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Vehicle:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_title || 'â€”') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Plate:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_plate || 'â€”') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Start Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.start_date || 'â€”') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'End Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.end_date || 'â€”') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Total Price:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.total_price || 'â€”') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Status:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.status_label || booking.status || 'â€”') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Created:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.created_date || 'â€”') + '</span></div>';
 						html += '</div>';
 						html += '<div class="mhm-popup-footer mhm-popup-footer-inline">';
 						html += '<button class="button button-primary popup-edit-booking-btn" data-booking-id="' + (booking.booking_id || '') + '" type="button"><?php echo esc_js( __( 'Edit Booking', 'mhm-rentiva' ) ); ?></button>';
@@ -1307,16 +1346,16 @@ final class BookingColumns {
 						bookings.forEach(function(booking, index) {
 							html += '<div class="booking-item' + (index > 0 ? ' booking-item-separator' : '') + '">';
 							html += '<div class="booking-info-grid">';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Customer Name:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_name || '—') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Email:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_email || '—') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Phone:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_phone || '—') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Vehicle:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_title || '—') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Plate:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_plate || '—') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Start Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.start_date || '—') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'End Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.end_date || '—') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Total Price:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.total_price || '—') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Status:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.status_label || booking.status || '—') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Created:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.created_date || '—') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Customer Name:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_name || 'â€”') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Email:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_email || 'â€”') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Phone:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_phone || 'â€”') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Vehicle:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_title || 'â€”') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Plate:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_plate || 'â€”') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Start Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.start_date || 'â€”') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'End Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.end_date || 'â€”') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Total Price:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.total_price || 'â€”') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Status:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.status_label || booking.status || 'â€”') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Created:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.created_date || 'â€”') + '</span></div>';
 							html += '</div>';
 							html += '<div class="booking-item-footer">';
 							html += '<button class="button button-primary popup-edit-booking-btn" data-booking-id="' + (booking.booking_id || '') + '" type="button"><?php echo esc_js( __( 'Edit Booking', 'mhm-rentiva' ) ); ?></button>';
@@ -1513,7 +1552,7 @@ final class BookingColumns {
 			// Get translated status label
 			$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label( $status );
 
-			// ⭐ Get customer info using BookingQueryHelper (handles WooCommerce & WordPress integration)
+			// â­ Get customer info using BookingQueryHelper (handles WooCommerce & WordPress integration)
 			$customer_info = array();
 			if ( class_exists( '\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper' ) ) {
 				$customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo( (int) $booking->booking_id );
@@ -1635,13 +1674,13 @@ final class BookingColumns {
 	private static function get_status_icon( string $status ): string {
 		switch ( $status ) {
 			case 'confirmed':
-				return '✅';
+				return 'âœ…';
 			case 'pending':
-				return '⏳';
+				return 'â³';
 			case 'cancelled':
-				return '❌';
+				return 'âŒ';
 			default:
-				return '📅';
+				return 'ğŸ“…';
 		}
 	}
 
@@ -1669,7 +1708,7 @@ final class BookingColumns {
 			return;
 		}
 
-		$current = isset( $_GET['mhm_booking_id'] ) ? self::sanitize_text_field_safe( (string) $_GET['mhm_booking_id'] ) : '';
+		$current = self::get_query_text( 'mhm_booking_id' );
 
 		echo '<input type="text" name="mhm_booking_id" value="' . esc_attr( $current ) . '" placeholder="' . esc_attr__( 'Booking ID', 'mhm-rentiva' ) . '" class="postform" style="width: 120px;" />';
 	}
@@ -1682,7 +1721,7 @@ final class BookingColumns {
 			return;
 		}
 
-		$current = isset( $_GET['mhm_license_plate'] ) ? self::sanitize_text_field_safe( (string) $_GET['mhm_license_plate'] ) : '';
+		$current = self::get_query_text( 'mhm_license_plate' );
 
 		echo '<input type="text" name="mhm_license_plate" value="' . esc_attr( $current ) . '" placeholder="' . esc_attr__( 'License Plate', 'mhm-rentiva' ) . '" class="postform" style="width: 120px;" />';
 	}
@@ -1701,16 +1740,17 @@ final class BookingColumns {
 		$meta_query = $q->get( 'meta_query' ) ?: array();
 
 		// Booking ID filter
-		if ( isset( $_GET['mhm_booking_id'] ) && $_GET['mhm_booking_id'] !== '' ) {
-			$booking_id = (int) ( wp_unslash( $_GET['mhm_booking_id'] ) );
+		$booking_id_filter = self::get_query_int( 'mhm_booking_id' );
+		if ( $booking_id_filter > 0 ) {
+			$booking_id = $booking_id_filter;
 			if ( $booking_id > 0 ) {
 				$q->set( 'p', $booking_id );
 			}
 		}
 
 		// License plate filter
-		if ( isset( $_GET['mhm_license_plate'] ) && $_GET['mhm_license_plate'] !== '' ) {
-			$license_plate = self::sanitize_text_field_safe( wp_unslash( $_GET['mhm_license_plate'] ) );
+		$license_plate = self::get_query_text( 'mhm_license_plate' );
+		if ( '' !== $license_plate ) {
 
 			// Lookup vehicle IDs by license plate fragment
 			global $wpdb;
@@ -1731,18 +1771,23 @@ final class BookingColumns {
 
 			if ( ! empty( $vehicle_ids ) ) {
 				// Collect bookings for those vehicles
-				$vehicle_ids_placeholder = implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) );
-				$booking_ids             = $wpdb->get_col(
-					$wpdb->prepare(
-						"SELECT DISTINCT p.ID 
-                          FROM {$wpdb->posts} p
-                          INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-                          WHERE p.post_type = 'vehicle_booking'
-                              AND p.post_status = 'publish'
-                              AND pm.meta_key IN ('_booking_vehicle_id', '_mhm_vehicle_id')
-                              AND pm.meta_value IN ($vehicle_ids_placeholder)",
-						array_map( 'intval', $vehicle_ids )
-					)
+				$vehicle_ids             = array_values( array_map( 'intval', $vehicle_ids ) );
+				$vehicle_ids_placeholder = implode( ', ', array_fill( 0, count( $vehicle_ids ), '%d' ) );
+				$booking_query_sql       = "
+					SELECT DISTINCT p.ID
+					FROM {$wpdb->posts} p
+					INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+					WHERE p.post_type = 'vehicle_booking'
+						AND p.post_status = 'publish'
+						AND pm.meta_key IN ('_booking_vehicle_id', '_mhm_vehicle_id')
+						AND pm.meta_value IN ({$vehicle_ids_placeholder})
+				";
+				$prepared_booking_query  =
+					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Dynamic IN placeholder list is prepared with integer-only values.
+					$wpdb->prepare( $booking_query_sql, $vehicle_ids );
+				$booking_ids = $wpdb->get_col(
+					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared dynamic IN query for admin list filter lookup.
+					$prepared_booking_query
 				);
 
 				if ( ! empty( $booking_ids ) ) {
@@ -1771,7 +1816,7 @@ final class BookingColumns {
 			wp_send_json_error( array( 'message' => __( 'Security error', 'mhm-rentiva' ) ) );
 		}
 
-		$booking_id = (int) ( wp_unslash( $_POST['booking_id'] ?? 0 ) );
+		$booking_id = isset( $_POST['booking_id'] ) ? absint( wp_unslash( $_POST['booking_id'] ) ) : 0;
 
 		if ( ! $booking_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid booking ID', 'mhm-rentiva' ) ) );

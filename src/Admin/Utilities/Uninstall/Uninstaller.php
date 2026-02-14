@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Handles complete removal of all plugin data from database
  */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Uninstall routines must execute controlled bulk cleanup SQL across plugin-owned data.
 final class Uninstaller {
 
 
