@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
@@ -13,27 +13,30 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Catches and fixes 500 errors in WordPress core REST API endpoints
  */
-final class RestApiFixer {
+final class RestApiFixer
+{
 
 
-	public static function register(): void {
+	public static function register(): void
+	{
 		// Apply fixes before REST API initialization
-		add_action( 'rest_api_init', array( self::class, 'fix_rest_api_errors' ), 1 );
+		add_action('rest_api_init', array(self::class, 'fix_rest_api_errors'), 1);
 
 		// Check before REST request
-		add_filter( 'rest_request_before_callbacks', array( self::class, 'prevent_rest_errors' ), 10, 3 );
+		add_filter('rest_request_before_callbacks', array(self::class, 'prevent_rest_errors'), 10, 3);
 
 		// Check after REST response
-		add_filter( 'rest_request_after_callbacks', array( self::class, 'handle_rest_errors' ), 10, 3 );
+		add_filter('rest_request_after_callbacks', array(self::class, 'handle_rest_errors'), 10, 3);
 
 		// Make REST API routes safe
-		add_action( 'rest_api_init', array( self::class, 'register_safe_routes' ), 5 );
+		add_action('rest_api_init', array(self::class, 'register_safe_routes'), 5);
 	}
 
 	/**
 	 * Fix REST API errors
 	 */
-	public static function fix_rest_api_errors(): void {
+	public static function fix_rest_api_errors(): void
+	{
 		// Make WordPress core endpoints safe
 		self::fix_core_endpoints();
 
@@ -47,31 +50,32 @@ final class RestApiFixer {
 	/**
 	 * Fix core endpoints
 	 */
-	private static function fix_core_endpoints(): void {
+	private static function fix_core_endpoints(): void
+	{
 		// Fallback for Settings endpoint
 		add_filter(
 			'rest_pre_serve_request',
-			function ( $served, $result, $request, $server ) {
-				if ( strpos( $request->get_route(), '/wp/v2/settings' ) !== false && is_wp_error( $result ) ) {
-					$server->send_header( 'Content-Type', 'application/json; charset=' . get_option( 'blog_charset' ) );
-					$server->send_status( 200 );
+			function ($served, $result, $request, $server) {
+				if (strpos($request->get_route(), '/wp/v2/settings') !== false && is_wp_error($result)) {
+					$server->send_header('Content-Type', 'application/json; charset=' . get_option('blog_charset'));
+					$server->send_status(200);
 
 					echo wp_json_encode(
 						array(
-							'title'                  => get_bloginfo( 'name' ),
-							'description'            => get_bloginfo( 'description' ),
+							'title'                  => get_bloginfo('name'),
+							'description'            => get_bloginfo('description'),
 							'url'                    => home_url(),
-							'timezone'               => get_option( 'timezone_string' ),
-							'date_format'            => get_option( 'date_format' ),
-							'time_format'            => get_option( 'time_format' ),
-							'start_of_week'          => get_option( 'start_of_week' ),
+							'timezone'               => get_option('timezone_string'),
+							'date_format'            => get_option('date_format'),
+							'time_format'            => get_option('time_format'),
+							'start_of_week'          => get_option('start_of_week'),
 							'language'               => get_locale(),
-							'use_smilies'            => get_option( 'use_smilies' ),
-							'default_category'       => get_option( 'default_category' ),
-							'default_post_format'    => get_option( 'default_post_format' ),
-							'posts_per_page'         => get_option( 'posts_per_page' ),
-							'default_ping_status'    => get_option( 'default_ping_status' ),
-							'default_comment_status' => get_option( 'default_comment_status' ),
+							'use_smilies'            => get_option('use_smilies'),
+							'default_category'       => get_option('default_category'),
+							'default_post_format'    => get_option('default_post_format'),
+							'posts_per_page'         => get_option('posts_per_page'),
+							'default_ping_status'    => get_option('default_ping_status'),
+							'default_comment_status' => get_option('default_comment_status'),
 						)
 					);
 
@@ -86,16 +90,16 @@ final class RestApiFixer {
 		// Fallback for Taxonomies endpoint
 		add_filter(
 			'rest_pre_serve_request',
-			function ( $served, $result, $request, $server ) {
-				if ( strpos( $request->get_route(), '/wp/v2/taxonomies' ) !== false && is_wp_error( $result ) ) {
-					$server->send_header( 'Content-Type', 'application/json; charset=' . get_option( 'blog_charset' ) );
-					$server->send_status( 200 );
+			function ($served, $result, $request, $server) {
+				if (strpos($request->get_route(), '/wp/v2/taxonomies') !== false && is_wp_error($result)) {
+					$server->send_header('Content-Type', 'application/json; charset=' . get_option('blog_charset'));
+					$server->send_status(200);
 
-					$taxonomies = get_taxonomies( array(), 'objects' );
+					$taxonomies = get_taxonomies(array(), 'objects');
 					$response   = array();
 
-					foreach ( $taxonomies as $taxonomy ) {
-						$response[ $taxonomy->name ] = array(
+					foreach ($taxonomies as $taxonomy) {
+						$response[$taxonomy->name] = array(
 							'name'         => $taxonomy->label,
 							'slug'         => $taxonomy->name,
 							'description'  => $taxonomy->description,
@@ -111,7 +115,7 @@ final class RestApiFixer {
 						);
 					}
 
-					echo wp_json_encode( $response );
+					echo wp_json_encode($response);
 					return true;
 				}
 				return $served;
@@ -123,12 +127,12 @@ final class RestApiFixer {
 		// Fallback for Blocks endpoint
 		add_filter(
 			'rest_pre_serve_request',
-			function ( $served, $result, $request, $server ) {
-				if ( strpos( $request->get_route(), '/wp/v2/blocks' ) !== false && is_wp_error( $result ) ) {
-					$server->send_header( 'Content-Type', 'application/json; charset=' . get_option( 'blog_charset' ) );
-					$server->send_status( 200 );
+			function ($served, $result, $request, $server) {
+				if (strpos($request->get_route(), '/wp/v2/blocks') !== false && is_wp_error($result)) {
+					$server->send_header('Content-Type', 'application/json; charset=' . get_option('blog_charset'));
+					$server->send_status(200);
 
-					echo wp_json_encode( array() );
+					echo wp_json_encode(array());
 					return true;
 				}
 				return $served;
@@ -141,22 +145,23 @@ final class RestApiFixer {
 	/**
 	 * Fix vehicle endpoint
 	 */
-	private static function fix_vehicle_endpoint(): void {
+	private static function fix_vehicle_endpoint(): void
+	{
 		// Special handling for vehicle endpoint
 		add_filter(
 			'rest_pre_serve_request',
-			function ( $served, $result, $request, $server ) {
-				if ( strpos( $request->get_route(), '/wp/v2/vehicles' ) !== false && is_wp_error( $result ) ) {
-					$server->send_header( 'Content-Type', 'application/json; charset=' . get_option( 'blog_charset' ) );
-					$server->send_status( 200 );
+			function ($served, $result, $request, $server) {
+				if (strpos($request->get_route(), '/wp/v2/vehicles') !== false && is_wp_error($result)) {
+					$server->send_header('Content-Type', 'application/json; charset=' . get_option('blog_charset'));
+					$server->send_status(200);
 
 					// Check if vehicle post type is registered
-					if ( ! post_type_exists( 'vehicle' ) ) {
+					if (! post_type_exists('vehicle')) {
 						echo wp_json_encode(
 							array(
 								'code'    => 'vehicle_post_type_not_found',
 								'message' => 'Vehicle post type is not registered',
-								'data'    => array( 'status' => 404 ),
+								'data'    => array('status' => 404),
 							)
 						);
 						return true;
@@ -173,19 +178,19 @@ final class RestApiFixer {
 					);
 
 					$response = array();
-					foreach ( $vehicles as $vehicle_id ) {
+					foreach ($vehicles as $vehicle_id) {
 						$response[] = array(
 							'id'       => $vehicle_id,
-							'title'    => get_the_title( $vehicle_id ),
+							'title'    => get_the_title($vehicle_id),
 							'status'   => 'publish',
 							'type'     => 'vehicle',
-							'link'     => get_permalink( $vehicle_id ),
-							'date'     => get_post_time( 'c', false, $vehicle_id ),
-							'modified' => get_post_modified_time( 'c', false, $vehicle_id ),
+							'link'     => get_permalink($vehicle_id),
+							'date'     => get_post_time('c', false, $vehicle_id),
+							'modified' => get_post_modified_time('c', false, $vehicle_id),
 						);
 					}
 
-					echo wp_json_encode( $response );
+					echo wp_json_encode($response);
 					return true;
 				}
 				return $served;
@@ -198,16 +203,17 @@ final class RestApiFixer {
 	/**
 	 * Fix template endpoints
 	 */
-	private static function fix_template_endpoints(): void {
+	private static function fix_template_endpoints(): void
+	{
 		// Fallback for template lookup endpoint
 		add_filter(
 			'rest_pre_serve_request',
-			function ( $served, $result, $request, $server ) {
-				if ( strpos( $request->get_route(), '/wp/v2/templates/lookup' ) !== false && is_wp_error( $result ) ) {
-					$server->send_header( 'Content-Type', 'application/json; charset=' . get_option( 'blog_charset' ) );
-					$server->send_status( 200 );
+			function ($served, $result, $request, $server) {
+				if (strpos($request->get_route(), '/wp/v2/templates/lookup') !== false && is_wp_error($result)) {
+					$server->send_header('Content-Type', 'application/json; charset=' . get_option('blog_charset'));
+					$server->send_status(200);
 
-					echo wp_json_encode( null );
+					echo wp_json_encode(null);
 					return true;
 				}
 				return $served;
@@ -219,12 +225,12 @@ final class RestApiFixer {
 		// Fallback for templates endpoint
 		add_filter(
 			'rest_pre_serve_request',
-			function ( $served, $result, $request, $server ) {
-				if ( strpos( $request->get_route(), '/wp/v2/templates' ) !== false && is_wp_error( $result ) ) {
-					$server->send_header( 'Content-Type', 'application/json; charset=' . get_option( 'blog_charset' ) );
-					$server->send_status( 200 );
+			function ($served, $result, $request, $server) {
+				if (strpos($request->get_route(), '/wp/v2/templates') !== false && is_wp_error($result)) {
+					$server->send_header('Content-Type', 'application/json; charset=' . get_option('blog_charset'));
+					$server->send_status(200);
 
-					echo wp_json_encode( array() );
+					echo wp_json_encode(array());
 					return true;
 				}
 				return $served;
@@ -236,12 +242,12 @@ final class RestApiFixer {
 		// Fallback for pattern category endpoint
 		add_filter(
 			'rest_pre_serve_request',
-			function ( $served, $result, $request, $server ) {
-				if ( strpos( $request->get_route(), '/wp/v2/wp_pattern_category' ) !== false && is_wp_error( $result ) ) {
-					$server->send_header( 'Content-Type', 'application/json; charset=' . get_option( 'blog_charset' ) );
-					$server->send_status( 200 );
+			function ($served, $result, $request, $server) {
+				if (strpos($request->get_route(), '/wp/v2/wp_pattern_category') !== false && is_wp_error($result)) {
+					$server->send_header('Content-Type', 'application/json; charset=' . get_option('blog_charset'));
+					$server->send_status(200);
 
-					echo wp_json_encode( array() );
+					echo wp_json_encode(array());
 					return true;
 				}
 				return $served;
@@ -254,16 +260,17 @@ final class RestApiFixer {
 	/**
 	 * Error prevention before REST request
 	 */
-	public static function prevent_rest_errors( $response, $handler, $request ) {
+	public static function prevent_rest_errors($response, $handler, $request)
+	{
 		$route = $request->get_route();
 
 		// Special check for vehicle endpoint
-		if ( strpos( $route, '/wp/v2/vehicles' ) !== false ) {
-			if ( ! post_type_exists( 'vehicle' ) ) {
+		if (strpos($route, '/wp/v2/vehicles') !== false) {
+			if (! post_type_exists('vehicle')) {
 				return new \WP_Error(
 					'vehicle_post_type_not_found',
 					'Vehicle post type is not registered',
-					array( 'status' => 404 )
+					array('status' => 404)
 				);
 			}
 		}
@@ -274,16 +281,17 @@ final class RestApiFixer {
 	/**
 	 * Error management after REST request
 	 */
-	public static function handle_rest_errors( $response, $handler, $request ) {
-		if ( is_wp_error( $response ) ) {
+	public static function handle_rest_errors($response, $handler, $request)
+	{
+		if (is_wp_error($response)) {
 			$route = $request->get_route();
 
 			// Convert 500 errors to 503 (temporary error)
-			if ( $response->get_error_code() === 'rest_internal_server_error' ) {
+			if ($response->get_error_code() === 'rest_internal_server_error') {
 				return new \WP_Error(
 					'service_temporarily_unavailable',
 					'Service temporarily unavailable. Please try again later.',
-					array( 'status' => 503 )
+					array('status' => 503)
 				);
 			}
 		}
@@ -294,15 +302,16 @@ final class RestApiFixer {
 	/**
 	 * Register safe routes
 	 */
-	public static function register_safe_routes(): void {
+	public static function register_safe_routes(): void
+	{
 		// Safe route for vehicle endpoint
 		register_rest_route(
 			'mhm-rentiva/v1',
 			'/vehicles',
 			array(
 				'methods'             => 'GET',
-				'callback'            => array( self::class, 'get_vehicles_safe' ),
-				'permission_callback' => array( self::class, 'permission_check' ),
+				'callback'            => array(self::class, 'get_vehicles_safe'),
+				'permission_callback' => array(self::class, 'permission_check'),
 			)
 		);
 	}
@@ -310,21 +319,23 @@ final class RestApiFixer {
 	/**
 	 * Permission callback - Security check with rate limiting
 	 */
-	public static function permission_check(): bool {
+	public static function permission_check(): bool
+	{
 		// Rate limiting check
 		$client_ip = \MHMRentiva\Admin\Core\Utilities\RateLimiter::getClientIP();
-		return \MHMRentiva\Admin\Core\Utilities\RateLimiter::check( $client_ip, 'general' );
+		return \MHMRentiva\Admin\Core\Utilities\RateLimiter::check($client_ip, 'general');
 	}
 
 	/**
 	 * Safe vehicle list
 	 */
-	public static function get_vehicles_safe( $request ) {
-		if ( ! post_type_exists( 'vehicle' ) ) {
+	public static function get_vehicles_safe($request)
+	{
+		if (! post_type_exists('vehicle')) {
 			return new \WP_Error(
 				'vehicle_post_type_not_found',
 				'Vehicle post type is not registered',
-				array( 'status' => 404 )
+				array('status' => 404)
 			);
 		}
 
@@ -337,25 +348,25 @@ final class RestApiFixer {
 		);
 
 		$response = array();
-		foreach ( $vehicles as $vehicle ) {
+		foreach ($vehicles as $vehicle) {
 			$response[] = array(
 				'id'       => $vehicle->ID,
 				'title'    => $vehicle->post_title,
 				'status'   => $vehicle->post_status,
 				'type'     => $vehicle->post_type,
-				'link'     => get_permalink( $vehicle->ID ),
+				'link'     => get_permalink($vehicle->ID),
 				'date'     => $vehicle->post_date,
 				'modified' => $vehicle->post_modified,
 				'meta'     => array(
-					'price_per_day' => get_post_meta( $vehicle->ID, '_mhm_rentiva_price_per_day', true ),
-					'seats'         => get_post_meta( $vehicle->ID, '_mhm_rentiva_seats', true ),
-					'transmission'  => get_post_meta( $vehicle->ID, '_mhm_rentiva_transmission', true ),
-					'fuel_type'     => get_post_meta( $vehicle->ID, '_mhm_rentiva_fuel_type', true ),
-					'available'     => get_post_meta( $vehicle->ID, '_mhm_vehicle_availability', true ) === 'active',
+					'price_per_day' => get_post_meta($vehicle->ID, '_mhm_rentiva_price_per_day', true),
+					'seats'         => get_post_meta($vehicle->ID, '_mhm_rentiva_seats', true),
+					'transmission'  => get_post_meta($vehicle->ID, '_mhm_rentiva_transmission', true),
+					'fuel_type'     => get_post_meta($vehicle->ID, '_mhm_rentiva_fuel_type', true),
+					'available'     => \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle->ID) === 'active',
 				),
 			);
 		}
 
-		return rest_ensure_response( $response );
+		return rest_ensure_response($response);
 	}
 }

@@ -538,8 +538,23 @@ final class SearchResults extends AbstractShortcode
 	/**
 	 * Gets filter options
 	 */
+	/**
+	 * Gets filter options
+	 */
 	private static function get_filter_options(array $current_params): array
 	{
+		// Caching Strategy: Search filters are global and expensive to compute.
+		// We cache them for 24 hours, invalidated on vehicle save/update.
+		$cache_key = 'mhm_rentiva_search_filters_v1';
+		$cached    = get_transient($cache_key);
+
+		if (false !== $cached && is_array($cached)) {
+			// Validation: Ensure cache isn't effectively empty if it shouldn't be
+			if (! empty($cached['brands']) || ! empty($cached['fuel_types'])) {
+				return $cached;
+			}
+		}
+
 		global $wpdb;
 
 		// Fuel types - Get keys and convert to labels
@@ -555,11 +570,13 @@ final class SearchResults extends AbstractShortcode
 
 		$fuel_types_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
 		$fuel_types     = array();
-		foreach ($fuel_type_keys as $key) {
-			if (isset($fuel_types_map[$key])) {
-				$fuel_types[$key] = $fuel_types_map[$key];
-			} else {
-				$fuel_types[$key] = $key; // Fallback to key if label not found
+		if (! empty($fuel_type_keys)) {
+			foreach ($fuel_type_keys as $key) {
+				if (isset($fuel_types_map[$key])) {
+					$fuel_types[$key] = $fuel_types_map[$key];
+				} else {
+					$fuel_types[$key] = $key; // Fallback to key if label not found
+				}
 			}
 		}
 
@@ -576,11 +593,13 @@ final class SearchResults extends AbstractShortcode
 
 		$transmissions_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
 		$transmissions     = array();
-		foreach ($transmission_keys as $key) {
-			if (isset($transmissions_map[$key])) {
-				$transmissions[$key] = $transmissions_map[$key];
-			} else {
-				$transmissions[$key] = $key; // Fallback to key if label not found
+		if (! empty($transmission_keys)) {
+			foreach ($transmission_keys as $key) {
+				if (isset($transmissions_map[$key])) {
+					$transmissions[$key] = $transmissions_map[$key];
+				} else {
+					$transmissions[$key] = $key; // Fallback to key if label not found
+				}
 			}
 		}
 
@@ -632,7 +651,7 @@ final class SearchResults extends AbstractShortcode
         "
 		);
 
-		return array(
+		$data = array(
 			'fuel_types'    => $fuel_types ?: array(),
 			'transmissions' => $transmissions ?: array(),
 			'seats'         => $seats ?: array(),
@@ -646,6 +665,16 @@ final class SearchResults extends AbstractShortcode
 				'max' => (float) ($price_range->max_price ?? 10000),
 			),
 		);
+
+		// Cache Logic: 24 Hours
+		// Empty State Protection: If no brands/fuel types found, cache for only 5 minutes
+		// to prevent "permanent empty state" if cache warms up before vehicles are added.
+		$is_empty = empty($data['brands']) && empty($data['fuel_types']);
+		$ttl      = $is_empty ? 300 : DAY_IN_SECONDS;
+
+		set_transient($cache_key, $data, $ttl);
+
+		return $data;
 	}
 
 	/**
@@ -739,23 +768,7 @@ final class SearchResults extends AbstractShortcode
 	 */
 	private static function check_vehicle_availability(int $vehicle_id): array
 	{
-		$status = (string) get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
-
-		// Fallback for older data or if status is not set
-		if (empty($status)) {
-			$old_availability = (string) get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
-			// Handle legacy values
-			if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
-				$status = 'inactive';
-			} elseif ($old_availability === '1' || $old_availability === 'active') {
-				$status = 'active';
-			} elseif ($old_availability === 'maintenance') {
-				$status = 'maintenance';
-			} else {
-				$status = 'active'; // Default
-			}
-		}
-
+		$status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
 		$is_available = ($status === 'active');
 
 		return array(

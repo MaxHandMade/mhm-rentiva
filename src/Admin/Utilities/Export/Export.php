@@ -522,8 +522,8 @@ final class Export
 					$daily_price   = (float) get_post_meta($pid, '_mhm_rentiva_price_per_day', true);
 					$weekly_price  = (float) get_post_meta($pid, '_mhm_rentiva_price_per_week', true);
 					$monthly_price = (float) get_post_meta($pid, '_mhm_rentiva_price_per_month', true);
-					$status        = (string) get_post_meta($pid, '_mhm_vehicle_status', true);
-					$availability  = (string) get_post_meta($pid, '_mhm_vehicle_availability', true);
+					$status        = (string) \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($pid);
+					$availability  = (string) \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status_label($pid);
 					$location      = (string) get_post_meta($pid, '_mhm_rentiva_location', true);
 					$description   = $post ? wp_strip_all_tags($post->post_content) : '';
 					$created_date  = $post ? $post->post_date_gmt : '';
@@ -706,8 +706,8 @@ final class Export
 					$daily_price   = (float) get_post_meta($pid, '_mhm_rentiva_price_per_day', true);
 					$weekly_price  = (float) get_post_meta($pid, '_mhm_rentiva_price_per_week', true);
 					$monthly_price = (float) get_post_meta($pid, '_mhm_rentiva_price_per_month', true);
-					$status        = (string) get_post_meta($pid, '_mhm_vehicle_status', true);
-					$availability  = (string) get_post_meta($pid, '_mhm_vehicle_availability', true);
+					$status        = (string) \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($pid);
+					$availability  = (string) \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status_label($pid);
 					$location      = (string) get_post_meta($pid, '_mhm_rentiva_location', true);
 					$description   = $post ? wp_strip_all_tags($post->post_content) : '';
 					$created_date  = $post ? $post->post_date_gmt : '';

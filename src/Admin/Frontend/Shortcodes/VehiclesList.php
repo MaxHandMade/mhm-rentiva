@@ -217,13 +217,7 @@ final class VehiclesList extends AbstractShortcode
 
 		// Featured filter
 		if ($atts['featured'] === '1') {
-			$args['meta_query'] = array(
-				array(
-					'key'     => MetaKeys::VEHICLE_FEATURED,
-					'value'   => '1',
-					'compare' => '=',
-				),
-			);
+			$args['meta_query'][] = \MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_featured_meta_query();
 		}
 
 		// Specific IDs
@@ -524,8 +518,8 @@ final class VehiclesList extends AbstractShortcode
 	{
 		$status = get_post_meta($vehicle_id, MetaKeys::VEHICLE_STATUS, true);
 
-		// Fallback for older data or if status is not set
-		if (empty($status)) {
+		// Fallback for older data or if status is not set (DEV MODE ONLY)
+		if (empty($status) && \MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::is_migration_fallback_active()) {
 			$old_availability = get_post_meta($vehicle_id, MetaKeys::VEHICLE_AVAILABILITY, true);
 			// Handle legacy values
 			if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
@@ -537,6 +531,10 @@ final class VehiclesList extends AbstractShortcode
 			} else {
 				$status = 'active'; // Default
 			}
+		}
+
+		if (empty($status)) {
+			$status = 'active'; // Final Production Fallback
 		}
 
 		$is_available = ($status === 'active');

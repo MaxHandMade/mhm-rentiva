@@ -19,6 +19,9 @@ if (! defined('ABSPATH')) {
  */
 class BlockRegistry {
 
+
+
+
 	/**
 	 * Runtime cache for resolved asset versions.
 	 *
@@ -244,7 +247,7 @@ class BlockRegistry {
 	 * @return string Modified script tag.
 	 */
 	public static function add_module_type_to_search_block(string $tag, string $handle, string $src): string
-	{ // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	{ // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 		// NO-OP: We have refactored blocks to use global `wp` variables (IIFE) instead of ES modules.
 		// This avoids "Failed to resolve module specifier" errors in environments without a build step.
 		return $tag;
@@ -299,8 +302,11 @@ class BlockRegistry {
 					$style_handle = 'mhm-rentiva-datepicker-custom';
 				} elseif ($css_file === 'vehicle-card.css') {
 					$style_handle = 'mhm-vehicle-card-css';
+				} elseif (isset($config['tag']) && $index === 0) {
+					// Use Shortcode Tag driven handle if available to ensure parity with AbstractShortcode
+					$style_handle = 'mhm-rentiva-' . str_replace('_', '-', $config['tag']);
 				} else {
-					// Use simplified handle if single file, indexed handle if multiple
+					// Fallback to block slug
 					$style_handle = ( count($css_files) === 1 )
 						? 'mhm-rentiva-block-' . $slug . '-style'
 						: 'mhm-rentiva-block-' . $slug . '-style-' . $index;
@@ -366,7 +372,11 @@ class BlockRegistry {
 					$style_handle = 'mhm-rentiva-datepicker-custom';
 				} elseif ($css_file === 'vehicle-card.css') {
 					$style_handle = 'mhm-vehicle-card-css';
+				} elseif (isset(self::$blocks[ $slug ]['tag']) && $index === 0) {
+					// Use Shortcode Tag driven handle if available to ensure parity with AbstractShortcode
+					$style_handle = 'mhm-rentiva-' . str_replace('_', '-', self::$blocks[ $slug ]['tag']);
 				} else {
+					// Fallback to block slug
 					$style_handle = ( count($css_files) === 1 )
 						? 'mhm-rentiva-block-' . $slug . '-style'
 						: 'mhm-rentiva-block-' . $slug . '-style-' . $index;

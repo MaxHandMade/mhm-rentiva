@@ -118,16 +118,21 @@ final class DashboardService {
 			)
 		);
 
-		// Available vehicles - EXCLUDING TRASH - CORRECT META KEY AND VALUE
+		// Available vehicles - EXCLUDING TRASH - Priority: New Status Key -> Legacy Availability Key
 		$available_vehicles = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+				"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
+             LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_avail ON p.ID = pm_avail.post_id AND pm_avail.meta_key = %s
              WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
-             AND pm.meta_key = %s AND pm.meta_value = %s",
-				'vehicle',
-				'_mhm_vehicle_availability',
-				'active'
+             AND (
+                pm_status.meta_value = 'active' 
+                OR (pm_status.meta_value IS NULL AND pm_avail.meta_value = 'active')
+                OR (pm_status.meta_value = '' AND pm_avail.meta_value = 'active')
+             )",
+				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
+				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_AVAILABILITY,
+				'vehicle'
 			)
 		);
 
@@ -235,23 +240,26 @@ final class DashboardService {
 		$current_month_start = gmdate( 'Y-m-01 00:00:00' );
 		$current_month_end   = gmdate( 'Y-m-t 23:59:59' );
 
-		// Get all vehicles with status
+		// Get all vehicles with status - Priority: New Status Key -> Legacy Availability Key
 		$vehicle_stats = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT 
                 COUNT(DISTINCT v.ID) as total_vehicles,
-                COUNT(DISTINCT CASE WHEN pm_status.meta_value = %s THEN v.ID END) as inactive,
-                COUNT(DISTINCT CASE WHEN pm_status.meta_value = %s THEN v.ID END) as maintenance
+                COUNT(DISTINCT CASE WHEN COALESCE(NULLIF(pm_status.meta_value, ''), pm_avail.meta_value) = %s THEN v.ID END) as inactive,
+                COUNT(DISTINCT CASE WHEN COALESCE(NULLIF(pm_status.meta_value, ''), pm_avail.meta_value) = %s THEN v.ID END) as maintenance
              FROM {$wpdb->posts} v
              LEFT JOIN {$wpdb->postmeta} pm_status ON v.ID = pm_status.post_id AND pm_status.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_avail ON v.ID = pm_avail.post_id AND pm_avail.meta_key = %s
              WHERE v.post_type = %s AND v.post_status = %s",
 				'inactive',
 				'maintenance',
-				'_mhm_vehicle_status',
+				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
+				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_AVAILABILITY,
 				'vehicle',
 				'publish'
 			)
 		);
+ Broadway
 
 		$inactive    = (int) ( $vehicle_stats->inactive ?? 0 );
 		$maintenance = (int) ( $vehicle_stats->maintenance ?? 0 );
@@ -318,15 +326,25 @@ final class DashboardService {
 				"SELECT COUNT(DISTINCT v.ID)
              FROM {$wpdb->posts} v
              LEFT JOIN {$wpdb->postmeta} pm_status ON v.ID = pm_status.post_id AND pm_status.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_avail ON v.ID = pm_avail.post_id AND pm_avail.meta_key = %s
              WHERE v.post_type = %s 
              AND v.post_status = %s
-             AND (pm_status.meta_value = %s OR pm_status.meta_value IS NULL)",
-				'_mhm_vehicle_status',
+             AND (
+                pm_status.meta_value = %s 
+                OR (pm_status.meta_value IS NULL AND pm_avail.meta_value = %s)
+                OR (pm_status.meta_value = '' AND pm_avail.meta_value = %s)
+                OR (pm_status.meta_value IS NULL AND pm_avail.meta_value IS NULL)
+             )",
+				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
+				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_AVAILABILITY,
 				'vehicle',
 				'publish',
+				'active',
+				'active',
 				'active'
 			)
 		);
+ Broadway
 
 		$available = max( 0, $available_vehicles_with_status - $reserved );
 

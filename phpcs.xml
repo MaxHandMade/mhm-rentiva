@@ -37,6 +37,9 @@
     -->
 	<rule ref="WordPress.Security"/>
 	<rule ref="WordPress.DB"/>
+	
+	<!-- Enforce strict types -->
+	<rule ref="Generic.PHP.RequireStrictTypes"/>
 
 	<!-- 
     =============================================================================

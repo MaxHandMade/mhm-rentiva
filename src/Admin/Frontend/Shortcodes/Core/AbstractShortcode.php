@@ -202,18 +202,20 @@ abstract class AbstractShortcode
 		$base_handle = static::get_asset_handle();
 		$css_files   = static::get_css_files($atts);
 
-		foreach ($css_files as $index => $css_file) {
+		$i = 0;
+		foreach ($css_files as $handle => $css_file) {
 			if (static::asset_exists($css_file)) {
-				// Use unique handle for each file if there are multiple
-				$handle = (count($css_files) === 1) ? $base_handle : $base_handle . '-' . $index;
+				// Use key as handle if it's a string, otherwise generate one
+				$final_handle = is_string($handle) ? $handle : ((count($css_files) === 1) ? $base_handle : $base_handle . '-' . $i);
 
 				wp_enqueue_style(
-					$handle,
+					$final_handle,
 					MHM_RENTIVA_PLUGIN_URL . $css_file,
 					static::get_css_dependencies(),
-					MHM_RENTIVA_VERSION
+					static::get_asset_version($css_file)
 				);
 			}
+			$i++;
 		}
 	}
 
@@ -228,25 +230,43 @@ abstract class AbstractShortcode
 		$base_handle = static::get_asset_handle();
 		$js_files    = static::get_js_files($atts);
 
-		foreach ($js_files as $index => $js_file) {
+		$i = 0;
+		foreach ($js_files as $handle => $js_file) {
 			if (static::asset_exists($js_file)) {
-				// Use unique handle for each file if there are multiple
-				$handle = (count($js_files) === 1) ? $base_handle : $base_handle . '-' . $index;
+				// Use key as handle if it's a string, otherwise generate one
+				$final_handle = is_string($handle) ? $handle : ((count($js_files) === 1) ? $base_handle : $base_handle . '-' . $i);
 
 				wp_enqueue_script(
-					$handle,
+					$final_handle,
 					MHM_RENTIVA_PLUGIN_URL . $js_file,
 					static::get_js_dependencies(),
-					MHM_RENTIVA_VERSION,
+					static::get_asset_version($js_file),
 					true
 				);
 
 				// Localize script (usually for the main/base script)
-				if ($index === 0 || count($js_files) === 1) {
-					static::localize_script($handle);
+				if ($i === 0 || count($js_files) === 1) {
+					static::localize_script($final_handle);
 				}
 			}
+			$i++;
 		}
+	}
+
+	/**
+	 * Get file version based on file modification time
+	 * Falls back to plugin version if file doesn't exist
+	 *
+	 * @param string $file_path Relative path to file (e.g., 'assets/js/frontend/file.js')
+	 * @return string Version string
+	 */
+	protected static function get_asset_version(string $file_path): string
+	{
+		$full_path = MHM_RENTIVA_PLUGIN_PATH . $file_path;
+		if (file_exists($full_path)) {
+			return (string) filemtime($full_path);
+		}
+		return defined('MHM_RENTIVA_VERSION') ? (string) MHM_RENTIVA_VERSION : '1.0.0';
 	}
 
 	/**

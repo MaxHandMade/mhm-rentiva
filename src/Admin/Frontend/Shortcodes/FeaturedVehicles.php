@@ -85,19 +85,8 @@ final class FeaturedVehicles extends AbstractShortcode
 			$args['orderby']  = 'post__in';
 		} else {
 			// MUST filter by featured meta if no IDs provided.
-			// Keep legacy fallback key for backward compatibility.
 			$args['meta_query'] = array(
-				'relation' => 'OR',
-				array(
-					'key'     => MetaKeys::VEHICLE_FEATURED,
-					'value'   => '1',
-					'compare' => '=',
-				),
-				array(
-					'key'     => '_mhm_rentiva_is_featured',
-					'value'   => '1',
-					'compare' => '=',
-				),
+				\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_featured_meta_query('1'),
 			);
 		}
 

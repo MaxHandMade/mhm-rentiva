@@ -23,7 +23,8 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  *
  * Usage: [rentiva_booking_form vehicle_id="123" show_addons="1" enable_deposit="1"]
  */
-final class BookingForm extends AbstractShortcode {
+final class BookingForm extends AbstractShortcode
+{
 
 
 
@@ -40,37 +41,37 @@ final class BookingForm extends AbstractShortcode {
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field( (string) $value);
+		return sanitize_text_field((string) $value);
 	}
 
 	private static function get_text(string $key, string $default = ''): string
 	{
 		$get = $GLOBALS['_GET'] ?? [];
-		return isset($get[ $key ]) ? sanitize_text_field(wp_unslash( (string) $get[ $key ])) : $default;
+		return isset($get[$key]) ? sanitize_text_field(wp_unslash((string) $get[$key])) : $default;
 	}
 
 	private static function post_text(string $key, string $default = ''): string
 	{
 		$post = $GLOBALS['_POST'] ?? [];
-		return isset($post[ $key ]) ? sanitize_text_field(wp_unslash( (string) $post[ $key ])) : $default;
+		return isset($post[$key]) ? sanitize_text_field(wp_unslash((string) $post[$key])) : $default;
 	}
 
 	private static function post_int(string $key, int $default = 0): int
 	{
 		$post = $GLOBALS['_POST'] ?? [];
-		return isset($post[ $key ]) ? absint(wp_unslash($post[ $key ])) : $default;
+		return isset($post[$key]) ? absint(wp_unslash($post[$key])) : $default;
 	}
 
 	private static function post_array(string $key): array
 	{
 		$post = $GLOBALS['_POST'] ?? [];
-		if (! isset($post[ $key ]) || ! is_array($post[ $key ])) {
+		if (! isset($post[$key]) || ! is_array($post[$key])) {
 			return array();
 		}
 
 		return array_map(function ($item) {
-			return is_array($item) ? array_map('sanitize_text_field', $item) : sanitize_text_field( (string) $item);
-		}, wp_unslash($post[ $key ]));
+			return is_array($item) ? array_map('sanitize_text_field', $item) : sanitize_text_field((string) $item);
+		}, wp_unslash($post[$key]));
 	}
 
 	public const SHORTCODE = 'rentiva_booking_form';
@@ -79,14 +80,14 @@ final class BookingForm extends AbstractShortcode {
 	{
 		parent::register();
 
-		add_action('wp_ajax_mhm_rentiva_booking_form', array( self::class, 'ajax_booking_form' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_booking_form', array( self::class, 'ajax_booking_form' ));
-		add_action('wp_ajax_mhm_rentiva_calculate_price', array( self::class, 'ajax_calculate_price' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_calculate_price', array( self::class, 'ajax_calculate_price' ));
+		add_action('wp_ajax_mhm_rentiva_booking_form', array(self::class, 'ajax_booking_form'));
+		add_action('wp_ajax_nopriv_mhm_rentiva_booking_form', array(self::class, 'ajax_booking_form'));
+		add_action('wp_ajax_mhm_rentiva_calculate_price', array(self::class, 'ajax_calculate_price'));
+		add_action('wp_ajax_nopriv_mhm_rentiva_calculate_price', array(self::class, 'ajax_calculate_price'));
 
 		// Availability check AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_check_availability', array( self::class, 'ajax_check_availability' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_check_availability', array( self::class, 'ajax_check_availability' ));
+		add_action('wp_ajax_mhm_rentiva_check_availability', array(self::class, 'ajax_check_availability'));
+		add_action('wp_ajax_nopriv_mhm_rentiva_check_availability', array(self::class, 'ajax_check_availability'));
 
 		// Payment processing AJAX handlers
 	}
@@ -128,6 +129,15 @@ final class BookingForm extends AbstractShortcode {
 		return 'booking-form.css';
 	}
 
+	protected static function get_css_files(array $atts = array()): array
+	{
+		// Explicitly define handles to match BlockRegistry and prevent double loading
+		return array(
+			'mhm-rentiva-rentiva-booking-form' => static::get_assets_path() . '/css/frontend/' . static::get_css_filename(),
+			'mhm-rentiva-datepicker-custom'    => static::get_assets_path() . '/css/frontend/datepicker-custom.css',
+		);
+	}
+
 	protected static function get_js_filename(): string
 	{
 		return 'booking-form.js';
@@ -135,12 +145,12 @@ final class BookingForm extends AbstractShortcode {
 
 	protected static function get_css_dependencies(): array
 	{
-		return array( 'mhm-css-variables' ); // Ensure CSS variables are loaded
+		return array('mhm-css-variables'); // Ensure CSS variables are loaded
 	}
 
 	protected static function get_js_dependencies(): array
 	{
-		return array( 'jquery', 'jquery-ui-datepicker' ); // jQuery UI DatePicker dependency added
+		return array('jquery', 'jquery-ui-datepicker'); // jQuery UI DatePicker dependency added
 	}
 
 	protected static function get_localized_data(): array
@@ -162,82 +172,7 @@ final class BookingForm extends AbstractShortcode {
 		);
 	}
 
-	/**
-	 * Override enqueue_scripts to use file-based versioning
-	 */
-	protected static function enqueue_scripts(array $atts = array()): void
-	{
-		$handle   = self::get_asset_handle();
-		$js_files = self::get_js_files();
 
-		foreach ($js_files as $js_file) {
-			if (self::asset_exists($js_file)) {
-				// Use file-based versioning for better cache management
-				$version = self::get_file_version($js_file);
-
-				wp_enqueue_script(
-					$handle,
-					plugins_url($js_file, dirname(__DIR__, 4) . '/mhm-rentiva.php'),
-					self::get_js_dependencies(),
-					$version,
-					true
-				);
-
-				// â­ Localize script immediately after enqueue
-				// wp_localize_script must be called after wp_enqueue_script but before script output
-				self::localize_script($handle);
-				break;
-			}
-		}
-	}
-
-	/**
-	 * Override enqueue_styles to use file-based versioning
-	 */
-	protected static function enqueue_styles(array $atts = array()): void
-	{
-		$handle    = self::get_asset_handle();
-		$css_files = self::get_css_files();
-
-		foreach ($css_files as $css_file) {
-			if (self::asset_exists($css_file)) {
-				// Use file-based versioning for better cache management
-				$version = self::get_file_version($css_file);
-
-				wp_enqueue_style(
-					$handle,
-					plugins_url($css_file, dirname(__DIR__, 4) . '/mhm-rentiva.php'),
-					self::get_css_dependencies(),
-					$version
-				);
-				break;
-			}
-		}
-	}
-
-	/**
-	 * Expose asset loading for other components
-	 */
-	public static function enqueue_assets(array $atts = array()): void
-	{
-		parent::enqueue_assets($atts);
-	}
-
-	/**
-	 * Get file version based on file modification time
-	 * Falls back to plugin version if file doesn't exist
-	 *
-	 * @param string $file_path Relative path to file (e.g., 'assets/js/frontend/booking-form.js')
-	 * @return string Version string
-	 */
-	private static function get_file_version(string $file_path): string
-	{
-		$full_path = trailingslashit( (string) dirname(__DIR__, 4)) . $file_path;
-		if (file_exists($full_path)) {
-			return (string) filemtime($full_path);
-		}
-		return defined('MHM_RENTIVA_VERSION') ? (string) MHM_RENTIVA_VERSION : '1.0.0';
-	}
 
 	protected static function get_script_object_name(): string
 	{
@@ -499,17 +434,7 @@ final class BookingForm extends AbstractShortcode {
 			return null;
 		}
 
-		// Try different meta keys
-		$price_per_day = (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
-		if ($price_per_day === 0.0) {
-			$price_per_day = (float) get_post_meta($vehicle_id, '_price_per_day', true);
-		}
-		if ($price_per_day === 0.0) {
-			$price_per_day = (float) get_post_meta($vehicle_id, 'price_per_day', true);
-		}
-		if ($price_per_day === 0.0) {
-			$price_per_day = (float) get_post_meta($vehicle_id, '_mhm_price_per_day', true);
-		}
+		$price_per_day = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
 
 		$currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
 
@@ -541,29 +466,9 @@ final class BookingForm extends AbstractShortcode {
 		}
 
 		// Meta information
-		$year = (string) get_post_meta($vehicle_id, '_mhm_rentiva_year', true);
-		if ($year === '') {
-			$year = (string) get_post_meta($vehicle_id, '_year', true);
-		}
-		if ($year === '') {
-			$year = (string) get_post_meta($vehicle_id, 'year', true);
-		}
-
-		$mileage = (string) get_post_meta($vehicle_id, '_mhm_rentiva_mileage', true);
-		if ($mileage === '') {
-			$mileage = (string) get_post_meta($vehicle_id, '_mileage', true);
-		}
-		if ($mileage === '') {
-			$mileage = (string) get_post_meta($vehicle_id, 'mileage', true);
-		}
-
-		$seats = (string) get_post_meta($vehicle_id, '_mhm_rentiva_seats', true);
-		if ($seats === '') {
-			$seats = (string) get_post_meta($vehicle_id, '_seats', true);
-		}
-		if ($seats === '') {
-			$seats = (string) get_post_meta($vehicle_id, 'seats', true);
-		}
+		$year    = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_year($vehicle_id);
+		$mileage = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_mileage($vehicle_id);
+		$seats   = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_seats($vehicle_id);
 
 		$data = array(
 			'id'              => $vehicle_id,
@@ -606,17 +511,9 @@ final class BookingForm extends AbstractShortcode {
 		$result = array();
 		foreach ($vehicles as $vehicle) {
 			// Check vehicle status - only show active vehicles
-			$status = get_post_meta($vehicle->ID, '_mhm_vehicle_status', true);
+			$status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle->ID);
 
-			// Fallback for legacy data
-			if (empty($status)) {
-				$old_status = get_post_meta($vehicle->ID, '_mhm_vehicle_availability', true);
-				if ($old_status === '0' || $old_status === 'passive' || $old_status === 'inactive') {
-					$status = 'inactive';
-				}
-			}
-
-			if ($status && $status !== 'active') {
+			if ($status !== 'active') {
 				continue;
 			}
 
@@ -694,7 +591,7 @@ final class BookingForm extends AbstractShortcode {
 		try {
 			// Security checks
 			if (! check_ajax_referer('mhm_rentiva_booking_form_nonce', 'nonce', false)) {
-				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
+				wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
 				return;
 			}
 
@@ -710,20 +607,12 @@ final class BookingForm extends AbstractShortcode {
 			$vehicle_id = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id(self::post_int('vehicle_id'));
 
 			// Check vehicle status
-			$vehicle_status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
+			$vehicle_status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
 
-			// Fallback for legacy data
-			if (empty($vehicle_status)) {
-				$old_status = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
-				if ($old_status === '0' || $old_status === 'passive' || $old_status === 'inactive') {
-					$vehicle_status = 'inactive';
-				}
-			}
-
-			if ($vehicle_status && $vehicle_status !== 'active') {
+			if ($vehicle_status !== 'active') {
 				/* translators: %s: vehicle status */
 				$error_msg = sprintf(esc_html__('Selected vehicle is not available (Status: %s).', 'mhm-rentiva'), $vehicle_status);
-				wp_send_json_error(array( 'message' => $error_msg ));
+				wp_send_json_error(array('message' => $error_msg));
 				return;
 			}
 
@@ -734,7 +623,7 @@ final class BookingForm extends AbstractShortcode {
 
 			// Validate pickup time (required)
 			if (empty($pickup_time)) {
-				wp_send_json_error(array( 'message' => __('Pickup time is required.', 'mhm-rentiva') ));
+				wp_send_json_error(array('message' => __('Pickup time is required.', 'mhm-rentiva')));
 				return;
 			}
 
@@ -821,7 +710,7 @@ final class BookingForm extends AbstractShortcode {
 
 				// Convert string to array (single value case)
 				if (is_string($addons_raw)) {
-					$addons_raw = array( $addons_raw );
+					$addons_raw = array($addons_raw);
 				}
 
 				if (is_array($addons_raw)) {
@@ -833,7 +722,7 @@ final class BookingForm extends AbstractShortcode {
 
 				// Convert string to array (single value case)
 				if (is_string($addons_raw)) {
-					$addons_raw = array( $addons_raw );
+					$addons_raw = array($addons_raw);
 				}
 
 				if (is_array($addons_raw)) {
@@ -843,11 +732,11 @@ final class BookingForm extends AbstractShortcode {
 
 			// Validation
 			if ($vehicle_id <= 0) {
-				wp_send_json_error(array( 'message' => __('Invalid vehicle ID.', 'mhm-rentiva') ));
+				wp_send_json_error(array('message' => __('Invalid vehicle ID.', 'mhm-rentiva')));
 			}
 
 			if (empty($pickup_date) || empty($dropoff_date)) {
-				wp_send_json_error(array( 'message' => __('Please select dates.', 'mhm-rentiva') ));
+				wp_send_json_error(array('message' => __('Please select dates.', 'mhm-rentiva')));
 			}
 
 			// â­ WooCommerce Integration: Customer information validation removed
@@ -858,13 +747,13 @@ final class BookingForm extends AbstractShortcode {
 			// Only validate customer info if WooCommerce is NOT active (legacy support)
 			if (! class_exists('WooCommerce') && ! $is_admin) {
 				if (empty($customer_first_name) || empty($customer_last_name) || empty($customer_email) || empty($customer_phone)) {
-					wp_send_json_error(array( 'message' => __('Please fill in contact information.', 'mhm-rentiva') ));
+					wp_send_json_error(array('message' => __('Please fill in contact information.', 'mhm-rentiva')));
 					return;
 				}
 			}
 
 			// If admin, use current user information
-			if ($is_admin && ( empty($customer_first_name) || empty($customer_last_name) || empty($customer_email) )) {
+			if ($is_admin && (empty($customer_first_name) || empty($customer_last_name) || empty($customer_email))) {
 				$current_user        = wp_get_current_user();
 				if ($customer_first_name === '') {
 					$customer_first_name = $current_user->first_name ? $current_user->first_name : $current_user->display_name;
@@ -891,7 +780,7 @@ final class BookingForm extends AbstractShortcode {
 			// 1. Consistent Timestamp Parsing (Uses WordPress Timezone)
 			$datetime_result = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 			if (is_wp_error($datetime_result)) {
-				wp_send_json_error(array( 'message' => $datetime_result->get_error_message() ));
+				wp_send_json_error(array('message' => $datetime_result->get_error_message()));
 				return;
 			}
 
@@ -919,7 +808,7 @@ final class BookingForm extends AbstractShortcode {
 			// 3. Validate Duration Constraints (Min/Max Days)
 			$duration_valid = \MHMRentiva\Admin\Booking\Helpers\Util::validate_rental_duration($start_ts, $end_ts);
 			if (is_wp_error($duration_valid)) {
-				wp_send_json_error(array( 'message' => $duration_valid->get_error_message() ));
+				wp_send_json_error(array('message' => $duration_valid->get_error_message()));
 				return;
 			}
 
@@ -963,7 +852,7 @@ final class BookingForm extends AbstractShortcode {
 			);
 
 			if (! $deposit_result['success']) {
-				wp_send_json_error(array( 'message' => __('Price could not be calculated.', 'mhm-rentiva') ));
+				wp_send_json_error(array('message' => __('Price could not be calculated.', 'mhm-rentiva')));
 			}
 
 			// â­ PAYMENT GATEWAY INTEGRATION: Use interface-based payment gateway
@@ -1041,26 +930,26 @@ final class BookingForm extends AbstractShortcode {
 					}
 				} catch (\Exception $e) {
 					// Log error but continue to fallback (or show error)
-					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::payment('Payment Gateway Error', array( 'error' => $e->getMessage() ));
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::payment('Payment Gateway Error', array('error' => $e->getMessage()));
 					/* translators: %s: error message */
-					wp_send_json_error(array( 'message' => sprintf(__('Payment gateway error: %s', 'mhm-rentiva'), $e->getMessage()) ));
+					wp_send_json_error(array('message' => sprintf(__('Payment gateway error: %s', 'mhm-rentiva'), $e->getMessage())));
 					return;
 				}
 			}
 
 			// â­ No payment gateway available
 			// This code should not be reached if a payment gateway is active (should be handled above)
-			wp_send_json_error(array( 'message' => __('No payment gateway is available. Please contact the site administrator.', 'mhm-rentiva') ));
+			wp_send_json_error(array('message' => __('No payment gateway is available. Please contact the site administrator.', 'mhm-rentiva')));
 			return;
 		} catch (\InvalidArgumentException $e) {
-			wp_send_json_error(array( 'message' => $e->getMessage() ));
+			wp_send_json_error(array('message' => $e->getMessage()));
 		} catch (\Exception $e) {
 			$debug_mode = defined('WP_DEBUG') && WP_DEBUG;
 			$message    = \MHMRentiva\Admin\Core\SecurityHelper::get_safe_error_message(
 				$e->getMessage(),
 				$debug_mode
 			);
-			wp_send_json_error(array( 'message' => $message ));
+			wp_send_json_error(array('message' => $message));
 		}
 	}
 
@@ -1074,7 +963,7 @@ final class BookingForm extends AbstractShortcode {
 		try {
 			// Security checks
 			if (! check_ajax_referer('mhm_rentiva_booking_form_nonce', 'nonce', false)) {
-				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
+				wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
 				return;
 			}
 
@@ -1109,7 +998,7 @@ final class BookingForm extends AbstractShortcode {
 			// 2. Consistent Timestamp Parsing (Uses WordPress Timezone)
 			$datetime_result = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 			if (is_wp_error($datetime_result)) {
-				wp_send_json_error(array( 'message' => $datetime_result->get_error_message() ));
+				wp_send_json_error(array('message' => $datetime_result->get_error_message()));
 				return;
 			}
 
@@ -1119,7 +1008,7 @@ final class BookingForm extends AbstractShortcode {
 			// 3. Validate Duration (Min/Max Days)
 			$duration_valid = \MHMRentiva\Admin\Booking\Helpers\Util::validate_rental_duration($start_ts, $end_ts);
 			if (is_wp_error($duration_valid)) {
-				wp_send_json_error(array( 'message' => $duration_valid->get_error_message() ));
+				wp_send_json_error(array('message' => $duration_valid->get_error_message()));
 				return;
 			}
 
@@ -1155,7 +1044,7 @@ final class BookingForm extends AbstractShortcode {
 					if (! empty($tax_rates)) {
 						// Get first tax rate (usually the default)
 						$first_rate = reset($tax_rates);
-						$tax_rate   = (float) ( $first_rate['rate'] ?? 0 );
+						$tax_rate   = (float) ($first_rate['rate'] ?? 0);
 					}
 				}
 			} else {
@@ -1187,12 +1076,12 @@ final class BookingForm extends AbstractShortcode {
 
 				// Weekend multiplier (Saturday/Sunday)
 				$dow        = (int) $iter_date->format('N'); // 1=Monday, 7=Sunday
-				$is_weekend = ( $dow >= 6 );
+				$is_weekend = ($dow >= 6);
 
 				if ($is_weekend && $weekend_multiplier > 1.0) {
 					$day_price = $day_price * $weekend_multiplier;
 					// Calculate how much was added due to weekend multiplier
-					$weekend_extra_total += ( $day_price - $standard_day_price );
+					$weekend_extra_total += ($day_price - $standard_day_price);
 				}
 
 				$vehicle_total += $day_price;
@@ -1213,7 +1102,7 @@ final class BookingForm extends AbstractShortcode {
 					// Example: If total is 1,200 â‚º with 18% tax included:
 					// tax = 1,200 * (18 / 118) = 183.05 â‚º
 					// subtotal = 1,200 - 183.05 = 1,016.95 â‚º
-					$tax_amount       = ( $vehicle_total * $tax_rate ) / ( 100 + $tax_rate );
+					$tax_amount       = ($vehicle_total * $tax_rate) / (100 + $tax_rate);
 					$vehicle_subtotal = $vehicle_total - $tax_amount;
 				} else {
 					// â­ Tax exclusive pricing:
@@ -1225,7 +1114,7 @@ final class BookingForm extends AbstractShortcode {
 					// tax = 1,000 * 0.18 = 180 â‚º
 					// vehicle_total = 1,000 + 180 = 1,180 â‚º
 					$vehicle_subtotal = $vehicle_total; // Subtotal is same as vehicle_total before tax
-					$tax_amount       = ( $vehicle_total * $tax_rate ) / 100;
+					$tax_amount       = ($vehicle_total * $tax_rate) / 100;
 					$vehicle_total    = $vehicle_total + $tax_amount;
 				}
 			}
@@ -1251,7 +1140,7 @@ final class BookingForm extends AbstractShortcode {
 			}
 
 			// Payment type validation
-			if (! in_array($payment_type, array( 'deposit', 'full' ))) {
+			if (! in_array($payment_type, array('deposit', 'full'))) {
 				throw new \InvalidArgumentException(__('Invalid payment type.', 'mhm-rentiva'));
 			}
 
@@ -1265,7 +1154,7 @@ final class BookingForm extends AbstractShortcode {
 			if ('deposit' === $payment_type && ! empty($deposit_value)) {
 				if ('percentage' === $deposit_type) {
 					$percentage     = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::extract_percentage($deposit_value);
-					$deposit_amount = ( $total_price * $percentage ) / 100;
+					$deposit_amount = ($total_price * $percentage) / 100;
 				} elseif ('fixed' === $deposit_type) {
 					$deposit_amount = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::extract_fixed_amount($deposit_value);
 				}
@@ -1318,14 +1207,14 @@ final class BookingForm extends AbstractShortcode {
 
 			wp_send_json_success($response_data);
 		} catch (\InvalidArgumentException $e) {
-			wp_send_json_error(array( 'message' => $e->getMessage() ));
+			wp_send_json_error(array('message' => $e->getMessage()));
 		} catch (\Exception $e) {
 			$debug_mode = defined('WP_DEBUG') && WP_DEBUG;
 			$message    = \MHMRentiva\Admin\Core\SecurityHelper::get_safe_error_message(
 				$e->getMessage(),
 				$debug_mode
 			);
-			wp_send_json_error(array( 'message' => $message ));
+			wp_send_json_error(array('message' => $message));
 		}
 	}
 
@@ -1392,7 +1281,7 @@ final class BookingForm extends AbstractShortcode {
 		// â­ Use current_time() instead of date() to match WordPress timezone
 		// This ensures consistency with AutoCancel which uses current_time('mysql')
 		$current_timestamp  = current_time('timestamp');
-		$deadline_timestamp = $current_timestamp + ( $deadline_minutes * 60 );
+		$deadline_timestamp = $current_timestamp + ($deadline_minutes * 60);
 		return gmdate('Y-m-d H:i:s', $deadline_timestamp);
 	}
 
@@ -1406,7 +1295,7 @@ final class BookingForm extends AbstractShortcode {
 		try {
 			// Security checks
 			if (! check_ajax_referer('mhm_rentiva_booking_form_nonce', 'nonce', false)) {
-				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
+				wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
 				return;
 			}
 
@@ -1427,20 +1316,20 @@ final class BookingForm extends AbstractShortcode {
 			$dropoff_time = self::post_text('dropoff_time', self::post_text('return_time'));
 
 			if (! $vehicle_id || ! $pickup_date || ! $dropoff_date) {
-				wp_send_json_error(array( 'message' => __('Invalid data.', 'mhm-rentiva') ));
+				wp_send_json_error(array('message' => __('Invalid data.', 'mhm-rentiva')));
 			}
 
 			// â­ 1. Parse timestamps for duration validation
 			$datetime_result = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 			if (is_wp_error($datetime_result)) {
-				wp_send_json_error(array( 'message' => $datetime_result->get_error_message() ));
+				wp_send_json_error(array('message' => $datetime_result->get_error_message()));
 				return;
 			}
 
 			// â­ 2. Validate Duration Constraints (Min/Max Days)
 			$duration_valid = \MHMRentiva\Admin\Booking\Helpers\Util::validate_rental_duration($datetime_result['start_ts'], $datetime_result['end_ts']);
 			if (is_wp_error($duration_valid)) {
-				wp_send_json_error(array( 'message' => $duration_valid->get_error_message() ));
+				wp_send_json_error(array('message' => $duration_valid->get_error_message()));
 				return;
 			}
 
@@ -1464,14 +1353,14 @@ final class BookingForm extends AbstractShortcode {
 				wp_send_json_error($result);
 			}
 		} catch (\InvalidArgumentException $e) {
-			wp_send_json_error(array( 'message' => $e->getMessage() ));
+			wp_send_json_error(array('message' => $e->getMessage()));
 		} catch (\Exception $e) {
 			$debug_mode = defined('WP_DEBUG') && WP_DEBUG;
 			$message    = \MHMRentiva\Admin\Core\SecurityHelper::get_safe_error_message(
 				$e->getMessage(),
 				$debug_mode
 			);
-			wp_send_json_error(array( 'message' => $message ));
+			wp_send_json_error(array('message' => $message));
 		}
 	}
 

@@ -53,7 +53,7 @@ if (! defined('ABSPATH')) {
 							<?php elseif ($has_url) : ?>
 								<strong class="mhm-page-title" style="color: #0073aa;"><?php esc_html_e('Dynamic / Custom URL', 'mhm-rentiva'); ?></strong>
 								<br>
-								<small class="mhm-page-id"><?php esc_html_e('Managed via Settings/Hooks', 'mhm-rentiva'); ?></small>
+								<small class="mhm-page-id"><?php esc_html_e('Managed by WooCommerce/Settings', 'mhm-rentiva'); ?></small>
 							<?php else : ?>
 								<span class="mhm-status-missing"><?php esc_html_e('Page not found', 'mhm-rentiva'); ?></span>
 							<?php endif; ?>
@@ -69,9 +69,9 @@ if (! defined('ABSPATH')) {
 						</td>
 						<td>
 							<?php if ($page || $has_url) : ?>
-								<span class="mhm-status-ok" aria-label="<?php esc_attr_e('Active', 'mhm-rentiva'); ?>">âœ… <?php esc_html_e('Active', 'mhm-rentiva'); ?></span>
+								<span class="mhm-status-ok" aria-label="<?php esc_attr_e('Active', 'mhm-rentiva'); ?>"><?php esc_html_e('Active', 'mhm-rentiva'); ?></span>
 							<?php else : ?>
-								<span class="mhm-status-missing" aria-label="<?php esc_attr_e('Missing', 'mhm-rentiva'); ?>">âŒ <?php esc_html_e('Missing', 'mhm-rentiva'); ?></span>
+								<span class="mhm-status-missing" aria-label="<?php esc_attr_e('Missing', 'mhm-rentiva'); ?>"><?php esc_html_e('Missing', 'mhm-rentiva'); ?></span>
 							<?php endif; ?>
 						</td>
 						<td>

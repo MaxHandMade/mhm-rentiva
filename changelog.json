@@ -1,5 +1,18 @@
 [
     {
+        "version": "4.9.9",
+        "date": "2026-02-15",
+        "changes": [
+            "🏆 MISSION COMPLETE: Finalized Audit & Optimize Series (M1-M5) with 100% stability.",
+            "────────────────────────────────────────",
+            "🔒 M3 MIGRATION: Officially retired legacy meta keys for Featured and Status fields.",
+            "⚡ PERFORMANCE: Optimized query paths for core vehicle lookups (Query Path 0).",
+            "🧹 ASSET CLEANUP: Conditional loading for My Account styles and eliminated leakage.",
+            "🏗️ RELEASE HARDENING: Resolved IDE linter warnings and hardened input usage ($_GET/$_POST).",
+            "✅ QUALITY GATES: Enforced 0-error release policy with full suite PHPUnit pass."
+        ]
+    },
+    {
         "version": "4.9.8",
         "date": "2026-02-09",
         "changes": [

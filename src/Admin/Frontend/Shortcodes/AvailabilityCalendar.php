@@ -138,7 +138,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 					$handle,
 					$css_url,
 					self::get_css_dependencies(),
-					MHM_RENTIVA_VERSION
+					self::get_asset_version($minified_file) // Use smart versioning
 				);
 				break;
 			}
@@ -163,7 +163,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 					$handle,
 					$js_url,
 					self::get_js_dependencies(),
-					MHM_RENTIVA_VERSION . '.' . time(), // Cache busting force while debugging
+					self::get_asset_version($minified_file), // Use smart versioning
 					true
 				);
 
@@ -203,10 +203,8 @@ final class AvailabilityCalendar extends AbstractShortcode
 		// Load JS
 		self::enqueue_scripts();
 
-		// Enqueue Booking Form Assets (Required for modal)
-		if (class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\BookingForm')) {
-			\MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::enqueue_assets();
-		}
+		// JS and CSS are enqueued above.
+		// Booking Form assets are handled via declarative dependency in ShortcodeServiceProvider.
 	}
 
 	/**
@@ -471,9 +469,9 @@ final class AvailabilityCalendar extends AbstractShortcode
 		}
 
 		// Meta information
-		$year    = get_post_meta($vehicle_id, '_mhm_rentiva_year', true);
-		$mileage = get_post_meta($vehicle_id, '_mhm_rentiva_mileage', true);
-		$seats   = get_post_meta($vehicle_id, '_mhm_rentiva_seats', true);
+		$year    = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_year($vehicle_id);
+		$mileage = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_mileage($vehicle_id);
+		$seats   = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_seats($vehicle_id);
 
 		// Features
 		$features = array();
@@ -493,17 +491,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 			'text'         => esc_html__('Available', 'mhm-rentiva'),
 		);
 
-		$status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
-		if (empty($status)) {
-			$status = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true) ?: 'active';
-		}
-
-		// Normalize
-		if ($status === '1' || $status === 'active' || $status === 'evet') {
-			$status = 'active';
-		} else {
-			$status = 'maintenance';
-		}
+		$status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
 
 		$is_available = ($status === 'active');
 		$status_data  = array(
@@ -662,18 +650,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 				);
 
 				// Get global vehicle status
-				$global_status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
-				if (empty($global_status)) {
-					$global_status = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true); // Legacy
-				}
-
-				// Normalize status (simple normalization, can be extracted to helper if needed)
-				if ($global_status === '1' || $global_status === 'evet') {
-					$global_status = 'active';
-				}
-				if ($global_status === '0' || $global_status === 'hayir') {
-					$global_status = 'maintenance';
-				}
+				$global_status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
 
 				// Process bookings for all months
 				for ($i = 0; $i < $months_to_show; $i++) {
@@ -1082,21 +1059,11 @@ final class AvailabilityCalendar extends AbstractShortcode
 			}
 
 			// Availability Check
-			$status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
-			// Backward compatibility
-			if (empty($status)) {
-				$status = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
-			}
+			$status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
 
-			// Normalize status
-			if ($status === '1' || $status === 'evet' || $status === 'yes') {
+			// Normalize for UI
+			if (empty($status) || $status === '1') {
 				$status = 'active';
-			}
-			if ($status === '0' || $status === 'hayir' || $status === 'no') {
-				$status = 'maintenance';
-			}
-			if (empty($status)) {
-				$status = 'active'; // Default
 			}
 
 			$data['status']       = $status;

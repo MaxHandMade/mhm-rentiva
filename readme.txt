@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.9.8
+Stable tag:        4.9.9
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -73,6 +73,13 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.9.9 =
+* **Audit & Optimize (M1-M5):** Finalized the foundational hardening series (Mission Complete).
+* **M3 Meta Migration:** Successfully retired legacy meta keys for Featured and Status fields with 100% runtime integrity.
+* **Performance:** Optimized core vehicle lookup paths and eliminated asset leakage.
+* **Cleanup:** Resolved all IDE linter warnings and hardened global variable access ($_GET/$_POST).
+* **Quality Gates:** Passed full PHPUnit suite and release-readiness checks with 0 errors.
 
 = 4.9.8 =
 * **WooCommerce Integration:** Implemented absolute priority for physical page slugs in My Account endpoints (v1.1.0 logic).

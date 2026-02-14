@@ -257,3 +257,5 @@ credentials.php
 # Keep docs tracked.
 !/docs/
 !/docs/**
+
+backups/

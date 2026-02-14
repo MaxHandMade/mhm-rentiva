@@ -120,7 +120,7 @@ final class Util
 	 */
 	public static function total_price(int $vehicle_id, int $days, int $start_ts = 0): float
 	{
-		$price_per_day = (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
+		$price_per_day = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
 
 		if ($price_per_day <= 0) {
 			return 0.0;
@@ -323,9 +323,7 @@ final class Util
 	 */
 	public static function is_vehicle_available(int $vehicle_id): bool
 	{
-		// STANDART META KEY: _mhm_vehicle_availability
-		$available = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
-		return $available === 'active';
+		return \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id) === 'active';
 	}
 
 	/**
@@ -439,7 +437,7 @@ final class Util
 		} else {
 			// Calculate days and pricing
 			$days          = self::rental_days($start_ts, $end_ts);
-			$price_per_day = (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
+			$price_per_day = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
 			$total_price   = self::total_price($vehicle_id, $days, $start_ts);
 
 			$result = array(
@@ -487,7 +485,7 @@ final class Util
 			return array();
 		}
 
-		$original_price    = (float) get_post_meta($original_vehicle_id, '_mhm_rentiva_price_per_day', true);
+		$original_price    = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($original_vehicle_id);
 		$original_features = get_post_meta($original_vehicle_id, '_mhm_rentiva_features', true);
 		$original_features = is_array($original_features) ? $original_features : array();
 

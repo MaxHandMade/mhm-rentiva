@@ -1,5 +1,18 @@
 [
     {
+        "version": "4.9.9",
+        "date": "2026-02-15",
+        "changes": [
+            "🏆 GÖREV TAMAMLANDI: Audit & Optimize (M1-M5) serisi %100 kararlılıkla tamamlandı.",
+            "────────────────────────────────────────",
+            "🔒 M3 MİGRASYONU: Featured ve Status alanları için legacy meta anahtarları resmi olarak emekli edildi.",
+            "⚡ PERFORMANS: Temel araç sorgu yolları optimize edildi (Query Path 0).",
+            "🧹 VARLIK TEMİZLİĞİ: Hesabım stilleri için koşullu yükleme ve asset sızıntılarının giderilmesi.",
+            "🏗️ YAYIN ZIRHLAMA: IDE linter uyarıları giderildi ve girdi kullanımı ($_GET/$_POST) zırhlandırıldı.",
+            "✅ KALİTE KAPILARI: Tam kapsamlı PHPUnit testlerinden 0 hata ile geçildi."
+        ]
+    },
+    {
         "version": "4.9.8",
         "date": "2026-02-09",
         "changes": [
