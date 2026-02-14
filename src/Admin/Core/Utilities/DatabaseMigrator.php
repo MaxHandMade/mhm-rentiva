@@ -24,6 +24,13 @@ final class DatabaseMigrator {
 	private const CURRENT_VERSION = '3.0.3';
 
 	/**
+	 * Sanitize DB table identifiers to a strict whitelist.
+	 */
+	private static function sanitize_table_identifier( string $table ): string {
+		return preg_replace( '/[^A-Za-z0-9_]/', '', $table ) ?? '';
+	}
+
+	/**
 	 * Run all pending migrations
 	 */
 	public static function run_migrations(): void {
@@ -134,7 +141,7 @@ final class DatabaseMigrator {
 
 		foreach ( $missing_indexes as $index_sql ) {
 			try {
-				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DDL statement using system prefix, strictly server-side.
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- DDL is generated internally from vetted table/meta constants.
 				$result = $wpdb->query( $index_sql );
 				if ( $result === false ) {
 					self::log_index_error( $index_sql, (string) $wpdb->last_error );
@@ -284,8 +291,9 @@ final class DatabaseMigrator {
 
 			foreach ( $tables as $table ) {
 				$start_time = microtime( true );
-				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DDL statement using system prefix, strictly server-side.
-				$result   = $wpdb->query( "OPTIMIZE TABLE {$table}" );
+				$table_name = self::sanitize_table_identifier( $table );
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table identifiers cannot be prepared; identifier is strictly sanitized.
+				$result   = $wpdb->query( sprintf( 'OPTIMIZE TABLE `%s`', $table_name ) );
 				$end_time = microtime( true );
 
 				$results['optimize'][ $table ] = array(
@@ -454,12 +462,14 @@ final class DatabaseMigrator {
 		$charset_collate = $wpdb->get_charset_collate();
 
 		// 1. Transfer Locations
-		$table_locations = $wpdb->prefix . 'rentiva_transfer_locations';
-		$old_locations   = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
+		$table_locations = self::sanitize_table_identifier( $wpdb->prefix . 'rentiva_transfer_locations' );
+		$old_locations   = self::sanitize_table_identifier( $wpdb->prefix . 'mhm_rentiva_transfer_locations' );
 
 		// Rename logic
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '$old_locations'" ) === $old_locations ) {
-			$wpdb->query( "RENAME TABLE $old_locations TO $table_locations" );
+		$old_locations_table = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old_locations ) );
+		if ( $old_locations_table === $old_locations ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table identifiers cannot be prepared; identifiers are strictly sanitized.
+			$wpdb->query( sprintf( 'RENAME TABLE `%s` TO `%s`', $old_locations, $table_locations ) );
 		}
 
 		$sql_locations = "CREATE TABLE $table_locations (
@@ -481,12 +491,14 @@ final class DatabaseMigrator {
 		dbDelta( $sql_locations );
 
 		// 2. Transfer Routes
-		$table_routes = $wpdb->prefix . 'rentiva_transfer_routes';
-		$old_routes   = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
+		$table_routes = self::sanitize_table_identifier( $wpdb->prefix . 'rentiva_transfer_routes' );
+		$old_routes   = self::sanitize_table_identifier( $wpdb->prefix . 'mhm_rentiva_transfer_routes' );
 
 		// Rename logic
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '$old_routes'" ) === $old_routes ) {
-			$wpdb->query( "RENAME TABLE $old_routes TO $table_routes" );
+		$old_routes_table = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old_routes ) );
+		if ( $old_routes_table === $old_routes ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table identifiers cannot be prepared; identifiers are strictly sanitized.
+			$wpdb->query( sprintf( 'RENAME TABLE `%s` TO `%s`', $old_routes, $table_routes ) );
 		}
 
 		$sql_routes = "CREATE TABLE $table_routes (

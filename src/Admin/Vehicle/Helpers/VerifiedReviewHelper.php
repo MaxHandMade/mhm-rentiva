@@ -271,7 +271,7 @@ class VerifiedReviewHelper {
 		";
         // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is prepared and placeholders are bound safely.
 		$results = $wpdb->get_results( $wpdb->prepare( $sql, $query_params ) );
 
 		if ( empty( $results ) ) {

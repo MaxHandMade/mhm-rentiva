@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Messages\Utilities;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
+
 use MHMRentiva\Admin\Messages\Settings\MessagesSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -248,10 +250,10 @@ final class MessageUtilities {
         ";
 
 		if ( ! empty( $params ) ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query string built dynamically but variables prepared safely.
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query string built dynamically but variables prepared safely.
 			$result = $wpdb->get_row( $wpdb->prepare( $query, ...$params ), ARRAY_A );
 		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Constants only.
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Constants only.
 			$result = $wpdb->get_row( $query, ARRAY_A );
 		}
 

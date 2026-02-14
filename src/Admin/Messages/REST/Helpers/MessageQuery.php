@@ -20,6 +20,7 @@ final class MessageQuery {
 	 *
 	 * Optimized query using central MetaQueryHelper
 	 */
+	// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Public API kept for backward compatibility.
 	public static function getAdminMessages( ?string $status = null, ?string $category = null, int $per_page = 20, int $page = 1 ): array {
 		global $wpdb;
 
@@ -46,6 +47,7 @@ final class MessageQuery {
 		$joins_sql   = implode( ' ', $meta_joins['joins'] );
 		$where_sql   = implode( ' AND ', $where_clauses );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Query components come from trusted internal builders.
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query components use prepared values; structure is safe.
 		$query = $wpdb->prepare(
 			"SELECT SQL_CALC_FOUND_ROWS
@@ -61,19 +63,24 @@ final class MessageQuery {
 			$per_page,
 			$offset
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query is prepared above.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is prepared above.
 		$messages = $wpdb->get_results( $query );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Used with SQL_CALC_FOUND_ROWS
 		$total = (int) $wpdb->get_var( 'SELECT FOUND_ROWS()' );
 
 		// Format meta data
 		foreach ( $messages as &$message ) {
-			$message->customer_name  = $message->customer_name ?: __( 'Anonymous', 'mhm-rentiva' );
+			if ( ! empty( $message->customer_name ) ) {
+				$message->customer_name = $message->customer_name;
+			} else {
+				$message->customer_name = __( 'Anonymous', 'mhm-rentiva' );
+			}
 			$message->category_label = Message::get_categories()[ $message->category ] ?? $message->category;
 			$message->status_label   = Message::get_statuses()[ $message->status ] ?? $message->status;
 			$message->is_read        = (bool) $message->is_read;
-			$message->date_human     = human_time_diff( strtotime( $message->date ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'mhm-rentiva' );
+			$message->date_human     = human_time_diff( strtotime( $message->date ), current_datetime()->getTimestamp() ) . ' ' . __( 'ago', 'mhm-rentiva' );
 		}
 
 		return array(
@@ -87,6 +94,7 @@ final class MessageQuery {
 	/**
 	 * Customer messages query
 	 */
+	// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Public API kept for backward compatibility.
 	public static function getCustomerMessages( string $customer_email ): array {
 		global $wpdb;
 
@@ -97,6 +105,7 @@ final class MessageQuery {
 		$selects_sql = implode( ', ', $meta_joins['selects'] );
 		$joins_sql   = implode( ' ', $meta_joins['joins'] );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Query components come from trusted internal builders.
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query components use prepared values; structure is safe.
 		$query = $wpdb->prepare(
 			"SELECT p.ID as id, p.post_title as subject, p.post_date as date,
@@ -114,8 +123,9 @@ final class MessageQuery {
 			Message::POST_TYPE,
 			$customer_email
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query is prepared above.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is prepared above.
 		$messages = $wpdb->get_results( $query );
 
 		// Format data
@@ -124,7 +134,7 @@ final class MessageQuery {
 			$message->status_label   = Message::get_statuses()[ $message->status ] ?? $message->status;
 			$message->priority_label = \MHMRentiva\Admin\Messages\Settings\MessagesSettings::get_priorities()[ $message->priority ?? 'normal' ] ?? __( 'Normal', 'mhm-rentiva' );
 			$message->is_read        = (bool) $message->is_read;
-			$message->date_human     = human_time_diff( strtotime( $message->date ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'mhm-rentiva' );
+			$message->date_human     = human_time_diff( strtotime( $message->date ), current_datetime()->getTimestamp() ) . ' ' . __( 'ago', 'mhm-rentiva' );
 			// Full date and time format
 			$message->date_full = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $message->date ) );
 			$message->preview   = wp_strip_all_tags( $message->preview ) . ( strlen( $message->preview ) > 97 ? '...' : '' );
@@ -149,7 +159,7 @@ final class MessageQuery {
 						$thread_id,
 						Message::POST_TYPE
 					)
-				); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 				$message->has_unread_admin_reply = (int) $unread_admin_replies > 0;
 			} else {
 				$message->has_unread_admin_reply = false;
@@ -174,6 +184,7 @@ final class MessageQuery {
 	/**
 	 * Thread verification
 	 */
+	// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Public API kept for backward compatibility.
 	public static function verifyCustomerThread( $thread_id, string $customer_email ): bool {
 		global $wpdb;
 
@@ -194,7 +205,7 @@ final class MessageQuery {
 				$thread_id,
 				$customer_email
 			)
-		);
+		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		return (bool) $thread_check;
 	}

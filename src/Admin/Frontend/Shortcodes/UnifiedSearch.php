@@ -237,7 +237,7 @@ final class UnifiedSearch extends AbstractShortcode {
 		$query .= ' ORDER BY priority ASC, name ASC';
 
 		// Table name is controlled internally from plugin prefix.
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, PluginCheck.Security.DirectDB.UnescapedDBParameter
 		return $wpdb->get_results( $query );
 	}
 

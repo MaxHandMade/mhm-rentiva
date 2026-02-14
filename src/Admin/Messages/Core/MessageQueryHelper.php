@@ -52,7 +52,7 @@ final class MessageQueryHelper {
 		// Cache control - Bypass cache when 'updated' parameter is present in POST requests
 		// parent_only no longer bypasses cache as it's standard usage
 		$cache_key = 'messages_query_' . md5( serialize( $args ) );
-		$use_cache = ! isset( $_POST['action'] ) && ! isset( $_POST['action2'] ) && ! isset( $_GET['updated'] ) && ! isset( $_GET['message'] );
+		$use_cache = ! self::has_post_param( 'action' ) && ! self::has_post_param( 'action2' ) && ! self::has_get_param( 'updated' ) && ! self::has_get_param( 'message' );
 
 		if ( $use_cache ) {
 			$cached_result = MessageCache::get( $cache_key );
@@ -136,9 +136,9 @@ final class MessageQueryHelper {
 		// Limit
 		$limit_clause = $wpdb->prepare( 'LIMIT %d OFFSET %d', $args['posts_per_page'], $args['offset'] );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query components are prepared individually; structure is dynamic.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query components are prepared individually; structure is dynamic.
 		$total_count = (int) $wpdb->get_var( "SELECT COUNT(DISTINCT p.ID) {$from} " . implode( ' ', $joins ) . " {$where}" );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Query components are prepared individually; structure is dynamic.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query components are prepared individually; structure is dynamic.
 		$messages = $wpdb->get_results( "{$select} {$from} " . implode( ' ', $joins ) . " {$where} {$order_clause} {$limit_clause}" );
 
 		$result = array(
@@ -164,7 +164,7 @@ final class MessageQueryHelper {
 
 		// Cache control - updated parameter bypasses cache
 		$cache_key = 'message_stats';
-		$use_cache = ! isset( $_GET['updated'] ) && ! isset( $_GET['message'] );
+		$use_cache = ! self::has_get_param( 'updated' ) && ! self::has_get_param( 'message' );
 
 		if ( $use_cache ) {
 			$cached_result = MessageCache::get( $cache_key );
@@ -427,16 +427,16 @@ final class MessageQueryHelper {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $where_conditions contains prepared values from $wpdb->prepare().
 		$where_sql = implode( ' AND ', $where_conditions );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $where_sql is built from prepared conditions above.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// $where_sql and $limit_clause are built from prepared conditions above.
 		$total_count = (int) $wpdb->get_var(
 			"SELECT COUNT(DISTINCT p.ID)
 			FROM {$wpdb->posts} p
 			LEFT JOIN {$wpdb->postmeta} pm_customer_name ON p.ID = pm_customer_name.post_id AND pm_customer_name.meta_key = '_mhm_customer_name'
 			LEFT JOIN {$wpdb->postmeta} pm_customer_email ON p.ID = pm_customer_email.post_id AND pm_customer_email.meta_key = '_mhm_customer_email'
 			WHERE {$where_sql}"
-		); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery
+		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $where_sql and $limit_clause are built from prepared values.
 		$messages = $wpdb->get_results(
 			"SELECT DISTINCT p.ID, p.post_title, p.post_content, p.post_date,
 				pm_customer_name.meta_value as customer_name,
@@ -451,7 +451,8 @@ final class MessageQueryHelper {
 			WHERE {$where_sql}
 			ORDER BY p.post_date DESC
 			{$limit_clause}"
-		); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery
+		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return array(
 			'messages'     => $messages,
@@ -468,12 +469,25 @@ final class MessageQueryHelper {
 	public static function get_query_performance_stats(): array {
 		global $wpdb;
 
+		$request_time = filter_input( INPUT_SERVER, 'REQUEST_TIME_FLOAT', FILTER_VALIDATE_FLOAT );
+		$request_time = ( false === $request_time || null === $request_time ) ? microtime( true ) : (float) $request_time;
+
 		return array(
 			'total_queries'  => $wpdb->num_queries,
 			'cache_hits'     => wp_cache_get( 'mhm_messages_cache_hits', 'mhm_messages' ) ?: 0,
 			'cache_misses'   => wp_cache_get( 'mhm_messages_cache_misses', 'mhm_messages' ) ?: 0,
 			'memory_usage'   => memory_get_usage( true ),
-			'execution_time' => microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'],
+			'execution_time' => microtime( true ) - $request_time,
 		);
+	}
+
+	private static function has_post_param( string $key ): bool {
+		$value = filter_input( INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		return null !== $value && false !== $value;
+	}
+
+	private static function has_get_param( string $key ): bool {
+		$value = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		return null !== $value && false !== $value;
 	}
 }

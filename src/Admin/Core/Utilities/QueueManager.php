@@ -45,12 +45,20 @@ final class QueueManager {
 	public const TYPE_REPORT_GENERATION    = 'report_generation';
 
 	/**
+	 * Return sanitized custom table name.
+	 */
+	private static function get_table_name(): string {
+		global $wpdb;
+		return preg_replace( '/[^A-Za-z0-9_]/', '', $wpdb->prefix . self::QUEUE_TABLE ) ?? '';
+	}
+
+	/**
 	 * Create queue table
 	 */
 	public static function create_table(): void {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
+		$table_name = self::get_table_name();
 
 		$charset_collate = $wpdb->get_charset_collate();
 
@@ -89,7 +97,7 @@ final class QueueManager {
 	public static function add_job( string $job_type, array $job_data, int $priority = 10, int $max_attempts = 3, ?int $user_id = null ): int {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
+		$table_name = self::get_table_name();
 
 		$result = $wpdb->insert(
 			$table_name,
@@ -98,7 +106,7 @@ final class QueueManager {
 				'job_data'     => wp_json_encode( $job_data, JSON_UNESCAPED_UNICODE ),
 				'priority'     => $priority,
 				'max_attempts' => $max_attempts,
-				'user_id'      => $user_id ?: get_current_user_id(),
+				'user_id'      => ( $user_id !== null && $user_id > 0 ) ? $user_id : get_current_user_id(),
 				'status'       => self::STATUS_PENDING,
 			),
 			array( '%s', '%s', '%d', '%d', '%d', '%s' )
@@ -120,11 +128,13 @@ final class QueueManager {
 	public static function get_next_job(): ?array {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
+		$table_name = self::get_table_name();
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized in get_table_name().
 		$job = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$table_name} 
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized.
+				"SELECT * FROM {$table_name}
              WHERE status = %s 
              AND attempts < max_attempts
              ORDER BY priority ASC, created_at ASC 
@@ -152,7 +162,8 @@ final class QueueManager {
 		);
 
 		// Decode job data
-		$job['job_data'] = json_decode( $job['job_data'], true ) ?: array();
+		$job_data        = json_decode( $job['job_data'], true );
+		$job['job_data'] = is_array( $job_data ) ? $job_data : array();
 
 		return $job;
 	}
@@ -163,7 +174,7 @@ final class QueueManager {
 	public static function update_job_status( int $job_id, string $status, ?string $error_message = null, ?int $progress_percent = null ): bool {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
+		$table_name = self::get_table_name();
 
 		$update_data   = array( 'status' => $status );
 		$update_format = array( '%s' );
@@ -200,7 +211,7 @@ final class QueueManager {
 	public static function update_job_progress( int $job_id, int $processed_items, int $total_items ): bool {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
+		$table_name = self::get_table_name();
 
 		$progress_percent = $total_items > 0 ? round( ( $processed_items / $total_items ) * 100 ) : 0;
 
@@ -230,7 +241,7 @@ final class QueueManager {
 	public static function delete_job( int $job_id ): bool {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
+		$table_name = self::get_table_name();
 
 		return $wpdb->delete( $table_name, array( 'id' => $job_id ), array( '%d' ) ) !== false;
 	}
@@ -241,10 +252,12 @@ final class QueueManager {
 	public static function get_job( int $job_id ): ?array {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
+		$table_name = self::get_table_name();
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized in get_table_name().
 		$job = $wpdb->get_row(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized.
 				"SELECT * FROM {$table_name} WHERE id = %d",
 				$job_id
 			),
@@ -255,7 +268,8 @@ final class QueueManager {
 			return null;
 		}
 
-		$job['job_data'] = json_decode( $job['job_data'], true ) ?: array();
+		$job_data        = json_decode( $job['job_data'], true );
+		$job['job_data'] = is_array( $job_data ) ? $job_data : array();
 
 		return $job;
 	}
@@ -266,58 +280,42 @@ final class QueueManager {
 	public static function get_user_jobs( int $user_id, string $status = '', int $limit = 50 ): array {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
+		$table_name = self::get_table_name();
 
-		$where_conditions = array( 'user_id = %d' );
-		$where_values     = array( $user_id );
-
-		if ( ! empty( $status ) ) {
-			$where_conditions[] = 'status = %s';
-			$where_values[]     = $status;
-		}
-
-		$where_clause = implode( ' AND ', $where_conditions );
-
-		if ( empty( $where_conditions ) ) {
+		if ( $status !== '' ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized in get_table_name().
 			$jobs = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT * FROM {$table_name} 
-                 ORDER BY created_at DESC 
-                 LIMIT %d",
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized.
+					"SELECT * FROM {$table_name}
+					 WHERE user_id = %d AND status = %s
+					 ORDER BY created_at DESC
+					 LIMIT %d",
+					$user_id,
+					$status,
 					$limit
 				),
 				ARRAY_A
 			);
 		} else {
-			// Check placeholder count
-			$placeholder_count = substr_count( $where_clause, '%' );
-			if ( $placeholder_count === count( $where_values ) ) {
-				$jobs = $wpdb->get_results(
-					$wpdb->prepare(
-						"SELECT * FROM `{$table_name}` 
-                     WHERE {$where_clause}
-                     ORDER BY created_at DESC 
-                     LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						array_merge( $where_values, array( $limit ) )
-					),
-					ARRAY_A
-				);
-			} else {
-				$jobs = $wpdb->get_results(
-					$wpdb->prepare(
-						"SELECT * FROM `{$table_name}` 
-                     WHERE {$where_clause}
-                     ORDER BY created_at DESC 
-                     LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						$limit
-					),
-					ARRAY_A
-				);
-			}
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized in get_table_name().
+			$jobs = $wpdb->get_results(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized.
+					"SELECT * FROM {$table_name}
+					 WHERE user_id = %d
+					 ORDER BY created_at DESC
+					 LIMIT %d",
+					$user_id,
+					$limit
+				),
+				ARRAY_A
+			);
 		}
 
 		foreach ( $jobs as &$job ) {
-			$job['job_data'] = json_decode( $job['job_data'], true ) ?: array();
+			$job_data        = json_decode( $job['job_data'], true );
+			$job['job_data'] = is_array( $job_data ) ? $job_data : array();
 		}
 
 		return $jobs;
@@ -329,9 +327,9 @@ final class QueueManager {
 	public static function get_queue_stats(): array {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
+		$table_name = self::get_table_name();
 
-		$stats = $wpdb->get_row(
+		$stats_query = $wpdb->prepare(
 			"SELECT 
                 COUNT(*) as total_jobs,
                 SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_jobs,
@@ -340,11 +338,16 @@ final class QueueManager {
                 SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed_jobs,
                 SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled_jobs,
                 AVG(progress_percent) as avg_progress
-             FROM `{$table_name}`",
+             FROM %i",
+			$table_name
+		);
+
+		$stats = $wpdb->get_row(
+			$stats_query, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is already prepared with %i placeholder above.
 			ARRAY_A
 		);
 
-		return $stats ?: array();
+		return is_array( $stats ) ? $stats : array();
 	}
 
 	/**
@@ -353,12 +356,14 @@ final class QueueManager {
 	public static function cleanup_old_jobs( int $days = 30 ): int {
 		global $wpdb;
 
-		$table_name  = $wpdb->prefix . self::QUEUE_TABLE;
+		$table_name  = self::get_table_name();
 		$cutoff_date = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized in get_table_name().
 		return $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$table_name} 
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized.
+				"DELETE FROM {$table_name}
              WHERE status IN (%s, %s) 
              AND completed_at < %s",
 				self::STATUS_COMPLETED,
@@ -374,7 +379,7 @@ final class QueueManager {
 	public static function retry_failed_jobs(): int {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . self::QUEUE_TABLE;
+		$table_name = self::get_table_name();
 
 		return $wpdb->update(
 			$table_name,
@@ -413,7 +418,7 @@ final class QueueManager {
 			),
 			5, // High priority
 			3,
-			$user_id ?: get_current_user_id()
+			( $user_id > 0 ) ? $user_id : get_current_user_id()
 		);
 	}
 
@@ -429,7 +434,7 @@ final class QueueManager {
 			),
 			5,
 			3,
-			$user_id ?: get_current_user_id()
+			( $user_id > 0 ) ? $user_id : get_current_user_id()
 		);
 	}
 
@@ -447,7 +452,7 @@ final class QueueManager {
 			),
 			7, // Medium priority
 			2,
-			$user_id ?: get_current_user_id()
+			( $user_id > 0 ) ? $user_id : get_current_user_id()
 		);
 	}
 
@@ -464,7 +469,7 @@ final class QueueManager {
 			),
 			8, // Low priority
 			1,
-			$user_id ?: get_current_user_id()
+			( $user_id > 0 ) ? $user_id : get_current_user_id()
 		);
 	}
 
@@ -479,7 +484,7 @@ final class QueueManager {
 			),
 			9, // Lowest priority
 			1,
-			$user_id ?: get_current_user_id()
+			( $user_id > 0 ) ? $user_id : get_current_user_id()
 		);
 	}
 
