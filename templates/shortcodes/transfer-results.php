@@ -209,13 +209,17 @@ $show_compare = ($comp_val !== '0' && $comp_val !== 'false' && $comp_val !== fal
 							<?php endif; ?>
 
 							<?php if ($show_booking_btn) : ?>
-								<button class="mhm-transfer-card__btn js-mhm-transfer-book"
+								<button class="mhm-transfer-card__btn js-mhm-transfer-book mhm-transfer-book-btn"
 									data-vehicle-id="<?php echo esc_attr((string) $vehicle_id); ?>"
 									data-price="<?php echo esc_attr((string) $price); ?>"
 									data-origin-id="<?php echo esc_attr((string) ($criteria['origin_id'] ?? '')); ?>"
 									data-destination-id="<?php echo esc_attr((string) ($criteria['destination_id'] ?? '')); ?>"
 									data-date="<?php echo esc_attr($criteria['date'] ?? ''); ?>"
-									data-time="<?php echo esc_attr($criteria['time'] ?? ''); ?>">
+									data-time="<?php echo esc_attr($criteria['time'] ?? ''); ?>"
+									data-adults="<?php echo esc_attr((string) ($criteria['adults'] ?? 1)); ?>"
+									data-children="<?php echo esc_attr((string) ($criteria['children'] ?? 0)); ?>"
+									data-luggage-big="<?php echo esc_attr((string) ($criteria['luggage_big'] ?? 0)); ?>"
+									data-luggage-small="<?php echo esc_attr((string) ($criteria['luggage_small'] ?? 0)); ?>">
 									<?php esc_html_e('Book Now', 'mhm-rentiva'); ?>
 								</button>
 							<?php endif; ?>

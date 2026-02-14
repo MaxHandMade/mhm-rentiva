@@ -124,11 +124,26 @@ jQuery(document).ready(function ($) {
     });
 
     // Add to Cart
-    $(document).on('click', '.mhm-transfer-book-btn', function (e) {
+    $(document).on('click', '.mhm-transfer-book-btn, .js-mhm-transfer-book', function (e) {
         e.preventDefault();
         var btn = $(this);
         var vehicleId = btn.data('vehicle-id');
         var transferData = btn.data('transfer-meta');
+
+        // Fallback for individual data attributes (from static results template)
+        if (!transferData) {
+            transferData = {
+                origin_id: btn.data('origin-id'),
+                destination_id: btn.data('destination-id'),
+                date: btn.data('date'),
+                time: btn.data('time'),
+                price: btn.data('price'),
+                adults: btn.data('adults') || 1,
+                children: btn.data('children') || 0,
+                luggage_big: btn.data('luggage-big') || 0,
+                luggage_small: btn.data('luggage-small') || 0
+            };
+        }
 
         var processingText = (typeof rentiva_transfer_vars.i18n.processing_text !== 'undefined') ? rentiva_transfer_vars.i18n.processing_text : 'Processing...';
         btn.prop('disabled', true).text(processingText);
@@ -144,11 +159,11 @@ jQuery(document).ready(function ($) {
             },
             success: function (response) {
                 if (response.success) {
-                    window.location.href = rentiva_transfer_vars.cart_url;
+                    window.location.href = response.data.redirect_url || rentiva_transfer_vars.cart_url;
                 } else {
                     // Reset button state
                     var bookNowText = (typeof rentiva_transfer_vars.i18n.book_now_text !== 'undefined') ? rentiva_transfer_vars.i18n.book_now_text : 'Book Now';
-                    btn.removeClass('loading').text(btn.data('original-text') || bookNowText);
+                    btn.prop('disabled', false).text(btn.data('original-text') || bookNowText);
 
                     // Safely read error message
                     var msg = (typeof rentiva_transfer_vars.i18n.default_error !== 'undefined') ? rentiva_transfer_vars.i18n.default_error : "An error occurred.";
@@ -159,7 +174,7 @@ jQuery(document).ready(function ($) {
                 }
             },
             error: function () {
-                btn.removeClass('loading').text('Error');
+                btn.prop('disabled', false).text('Error');
                 var serverError = (typeof rentiva_transfer_vars.i18n.server_error !== 'undefined') ? rentiva_transfer_vars.i18n.server_error : "Server communication error!";
                 alert(serverError);
             }
