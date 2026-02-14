@@ -92,14 +92,19 @@ jobs:
           curl -fSL https://raw.githubusercontent.com/wp-cli/scaffold-command/main/templates/install-wp-tests.sh -o /tmp/install-wp-tests.sh
           test -s /tmp/install-wp-tests.sh
           chmod +x /tmp/install-wp-tests.sh
-          bash /tmp/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASS" "$DB_HOST" "$WP_VERSION"
+          if [ "$WP_VERSION" = "latest" ]; then
+            bash /tmp/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASS" "$DB_HOST" "latest" || \
+              bash /tmp/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASS" "$DB_HOST" "6.7"
+          else
+            bash /tmp/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASS" "$DB_HOST" "$WP_VERSION"
+          fi
           test -f /tmp/wordpress-tests-lib/includes/bootstrap.php
 
       - name: Run PHPUnit
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
           WP_TESTS_PHPUNIT_POLYFILLS_PATH: ${{ github.workspace }}/vendor/yoast/phpunit-polyfills
-        run: composer test
+        run: ./vendor/bin/phpunit -c phpunit.xml
 
       - name: Verify test discovery output
         run: |
