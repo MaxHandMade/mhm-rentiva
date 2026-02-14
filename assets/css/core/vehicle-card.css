@@ -619,6 +619,7 @@
     padding-left: 0;
     border-top: 1px solid var(--mhm-gray-100, #f3f4f6);
     padding-top: 8px;
+    flex-wrap: nowrap;
     /* v1.1: Anchor to bottom of card content */
     margin-top: auto;
 }
@@ -633,8 +634,11 @@
 .rv-layout-list .mhm-vehicle-card .mhm-card-price {
     flex-direction: row;
     align-items: baseline;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
     gap: 4px;
     margin-right: auto;
+    white-space: nowrap;
 }
 
 .mhm-card--list .mhm-price-amount {
@@ -646,6 +650,11 @@
 .mhm-card--list .mhm-price-period {
     font-size: 0.8rem;
     color: var(--mhm-text-secondary, #6b7280);
+    white-space: nowrap;
+}
+
+.mhm-card--list .mhm-price-amount {
+    white-space: nowrap;
 }
 
 /* Button in List View — auto width, pushed to right */
