@@ -2,6 +2,8 @@
 
 namespace MHMRentiva\Admin\Core;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
+
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -28,19 +30,19 @@ final class CurrencyHelper {
 	 */
 	public static function get_all_currency_symbols(): array {
 		$symbols = array(
-			'TRY'  => '₺',
+			'TRY'  => "\u{20BA}",
 			'USD'  => '$',
-			'EUR'  => '€',
-			'GBP'  => '£',
-			'JPY'  => '¥',
+			'EUR'  => "\u{20AC}",
+			'GBP'  => "\u{00A3}",
+			'JPY'  => "\u{00A5}",
 			'CAD'  => 'C$',
 			'AUD'  => 'A$',
 			'CHF'  => 'CHF',
-			'CNY'  => '¥',
-			'INR'  => '₹',
+			'CNY'  => "\u{00A5}",
+			'INR'  => "\u{20B9}",
 			'BRL'  => 'R$',
-			'RUB'  => '₽',
-			'KRW'  => '₩',
+			'RUB'  => "\u{20BD}",
+			'KRW'  => "\u{20A9}",
 			'MXN'  => '$',
 			'SGD'  => 'S$',
 			'HKD'  => 'HK$',
@@ -48,36 +50,36 @@ final class CurrencyHelper {
 			'SEK'  => 'kr',
 			'NOK'  => 'kr',
 			'DKK'  => 'kr',
-			'PLN'  => 'zł',
-			'CZK'  => 'Kč',
+			'PLN'  => "z\u{0142}",
+			'CZK'  => "K\u{010D}",
 			'HUF'  => 'Ft',
 			'RON'  => 'lei',
-			'BGN'  => 'лв',
+			'BGN'  => "\u{043B}\u{0432}",
 			'HRK'  => 'kn',
-			'RSD'  => 'дин',
-			'UAH'  => '₴',
+			'RSD'  => "\u{0434}\u{0438}\u{043D}",
+			'UAH'  => "\u{20B4}",
 			'BYN'  => 'Br',
-			'KZT'  => '₸',
+			'KZT'  => "\u{20B8}",
 			'UZS'  => 'so\'m',
-			'KGS'  => 'сом',
+			'KGS'  => "\u{0441}\u{043E}\u{043C}",
 			'TJS'  => 'SM',
 			'TMT'  => 'T',
-			'AZN'  => '₼',
-			'GEL'  => '₾',
-			'AMD'  => '֏',
-			'AED'  => 'د.إ',
-			'SAR'  => 'ر.س',
-			'QAR'  => 'ر.ق',
-			'KWD'  => 'د.ك',
-			'BHD'  => 'د.ب',
-			'OMR'  => 'ر.ع.',
-			'JOD'  => 'د.أ',
-			'LBP'  => 'ل.ل',
-			'EGP'  => '£',
-			'ILS'  => '₪',
+			'AZN'  => "\u{20BC}",
+			'GEL'  => "\u{20BE}",
+			'AMD'  => "\u{058F}",
+			'AED'  => "\u{062F}.\u{0625}",
+			'SAR'  => "\u{0631}.\u{0633}",
+			'QAR'  => "\u{0631}.\u{0642}",
+			'KWD'  => "\u{062F}.\u{0643}",
+			'BHD'  => "\u{062F}.\u{0628}",
+			'OMR'  => "\u{0631}.\u{0639}.",
+			'JOD'  => "\u{062F}.\u{0623}",
+			'LBP'  => "\u{0644}.\u{0644}",
+			'EGP'  => "\u{00A3}",
+			'ILS'  => "\u{20AA}",
 			// Legacy aliases (for backward compatibility)
-			'TL'   => '₺',
-			'LIRA' => '₺',
+			'TL'   => "\u{20BA}",
+			'LIRA' => "\u{20BA}",
 		);
 
 		/**
@@ -88,8 +90,8 @@ final class CurrencyHelper {
 		 *
 		 * @example
 		 * add_filter('mhm_rentiva_currency_symbols', function($symbols) {
-		 *     $symbols['BTC'] = '₿';
-		 *     $symbols['ETH'] = 'Ξ';
+		 *     $symbols['BTC'] = '\u{20BF}';
+		 *     $symbols['ETH'] = '\u{039E}';
 		 *     return $symbols;
 		 * });
 		 */
@@ -104,7 +106,7 @@ final class CurrencyHelper {
 	 */
 	public static function get_currency_symbol( ?string $currency_code = null ): string {
 		if ( $currency_code === null ) {
-			// If WooCommerce is active, use WooCommerce currency
+			// If WooCommerce is active, use WooCommerce currency.
 			if ( function_exists( 'get_woocommerce_currency' ) ) {
 				$currency_code = get_woocommerce_currency();
 			} else {
@@ -113,9 +115,29 @@ final class CurrencyHelper {
 		}
 
 		$currency_code = strtoupper( trim( $currency_code ) );
+		$currency_code = self::normalize_currency_code( $currency_code );
 		$symbols       = self::get_all_currency_symbols();
 
 		return $symbols[ $currency_code ] ?? $currency_code;
+	}
+
+	/**
+	 * Normalize potentially malformed or legacy currency values to canonical code.
+	 *
+	 * @param string $currency_code Raw currency code or symbol.
+	 * @return string Normalized currency code.
+	 */
+	private static function normalize_currency_code( string $currency_code ): string {
+		$aliases = array(
+			"\u{20BA}"   => 'TRY',
+			'â‚º'         => 'TRY',
+			'Ã¢â€šÂº'      => 'TRY',
+			'TL'          => 'TRY',
+			'TL_SYMBOL'   => 'TRY',
+			'LIRA'        => 'TRY',
+		);
+
+		return $aliases[ $currency_code ] ?? $currency_code;
 	}
 
 	/**
@@ -146,7 +168,7 @@ final class CurrencyHelper {
 	 * This should be called during plugin initialization
 	 */
 	public static function register_hooks(): void {
-		// Register filter for template usage
+		// Register filter for template usage.
 		add_filter( 'mhm_rentiva/currency_symbol', array( self::class, 'filter_currency_symbol' ), 10, 1 );
 	}
 
@@ -170,19 +192,19 @@ final class CurrencyHelper {
 	 */
 	public static function get_currency_list_for_dropdown(): array {
 		$currencies = array(
-			'TRY' => 'Turkish Lira (₺)',
+			'TRY' => 'Turkish Lira (' . "\u{20BA}" . ')',
 			'USD' => 'US Dollar ($)',
-			'EUR' => 'Euro (€)',
-			'GBP' => 'British Pound (£)',
-			'JPY' => 'Japanese Yen (¥)',
+			'EUR' => 'Euro (' . "\u{20AC}" . ')',
+			'GBP' => 'British Pound (' . "\u{00A3}" . ')',
+			'JPY' => 'Japanese Yen (' . "\u{00A5}" . ')',
 			'CAD' => 'Canadian Dollar (C$)',
 			'AUD' => 'Australian Dollar (A$)',
 			'CHF' => 'Swiss Franc (CHF)',
-			'CNY' => 'Chinese Yuan (¥)',
-			'INR' => 'Indian Rupee (₹)',
+			'CNY' => 'Chinese Yuan (' . "\u{00A5}" . ')',
+			'INR' => 'Indian Rupee (' . "\u{20B9}" . ')',
 			'BRL' => 'Brazilian Real (R$)',
-			'RUB' => 'Russian Ruble (₽)',
-			'KRW' => 'South Korean Won (₩)',
+			'RUB' => 'Russian Ruble (' . "\u{20BD}" . ')',
+			'KRW' => 'South Korean Won (' . "\u{20A9}" . ')',
 			'MXN' => 'Mexican Peso ($)',
 			'SGD' => 'Singapore Dollar (S$)',
 			'HKD' => 'Hong Kong Dollar (HK$)',
@@ -190,33 +212,33 @@ final class CurrencyHelper {
 			'SEK' => 'Swedish Krona (kr)',
 			'NOK' => 'Norwegian Krone (kr)',
 			'DKK' => 'Danish Krone (kr)',
-			'PLN' => 'Polish Zloty (zł)',
-			'CZK' => 'Czech Koruna (Kč)',
+			'PLN' => 'Polish Zloty (' . "z\u{0142}" . ')',
+			'CZK' => 'Czech Koruna (' . "K\u{010D}" . ')',
 			'HUF' => 'Hungarian Forint (Ft)',
 			'RON' => 'Romanian Leu (lei)',
-			'BGN' => 'Bulgarian Lev (лв)',
+			'BGN' => 'Bulgarian Lev (' . "\u{043B}\u{0432}" . ')',
 			'HRK' => 'Croatian Kuna (kn)',
-			'RSD' => 'Serbian Dinar (дин)',
-			'UAH' => 'Ukrainian Hryvnia (₴)',
+			'RSD' => 'Serbian Dinar (' . "\u{0434}\u{0438}\u{043D}" . ')',
+			'UAH' => 'Ukrainian Hryvnia (' . "\u{20B4}" . ')',
 			'BYN' => 'Belarusian Ruble (Br)',
-			'KZT' => 'Kazakhstani Tenge (₸)',
+			'KZT' => 'Kazakhstani Tenge (' . "\u{20B8}" . ')',
 			'UZS' => 'Uzbekistani Som (so\'m)',
-			'KGS' => 'Kyrgyzstani Som (сом)',
+			'KGS' => 'Kyrgyzstani Som (' . "\u{0441}\u{043E}\u{043C}" . ')',
 			'TJS' => 'Tajikistani Somoni (SM)',
 			'TMT' => 'Turkmenistani Manat (T)',
-			'AZN' => 'Azerbaijani Manat (₼)',
-			'GEL' => 'Georgian Lari (₾)',
-			'AMD' => 'Armenian Dram (֏)',
-			'AED' => 'UAE Dirham (د.إ)',
-			'SAR' => 'Saudi Riyal (ر.س)',
-			'QAR' => 'Qatari Riyal (ر.ق)',
-			'KWD' => 'Kuwaiti Dinar (د.ك)',
-			'BHD' => 'Bahraini Dinar (د.ب)',
-			'OMR' => 'Omani Rial (ر.ع.)',
-			'JOD' => 'Jordanian Dinar (د.أ)',
-			'LBP' => 'Lebanese Pound (ل.ل)',
-			'EGP' => 'Egyptian Pound (£)',
-			'ILS' => 'Israeli Shekel (₪)',
+			'AZN' => 'Azerbaijani Manat (' . "\u{20BC}" . ')',
+			'GEL' => 'Georgian Lari (' . "\u{20BE}" . ')',
+			'AMD' => 'Armenian Dram (' . "\u{058F}" . ')',
+			'AED' => 'UAE Dirham (' . "\u{062F}.\u{0625}" . ')',
+			'SAR' => 'Saudi Riyal (' . "\u{0631}.\u{0633}" . ')',
+			'QAR' => 'Qatari Riyal (' . "\u{0631}.\u{0642}" . ')',
+			'KWD' => 'Kuwaiti Dinar (' . "\u{062F}.\u{0643}" . ')',
+			'BHD' => 'Bahraini Dinar (' . "\u{062F}.\u{0628}" . ')',
+			'OMR' => 'Omani Rial (' . "\u{0631}.\u{0639}." . ')',
+			'JOD' => 'Jordanian Dinar (' . "\u{062F}.\u{0623}" . ')',
+			'LBP' => 'Lebanese Pound (' . "\u{0644}.\u{0644}" . ')',
+			'EGP' => 'Egyptian Pound (' . "\u{00A3}" . ')',
+			'ILS' => 'Israeli Shekel (' . "\u{20AA}" . ')',
 		);
 
 		/**
@@ -227,8 +249,8 @@ final class CurrencyHelper {
 		 *
 		 * @example
 		 * add_filter('mhm_rentiva_currency_list', function($currencies) {
-		 *     $currencies['BTC'] = 'Bitcoin (₿)';
-		 *     $currencies['ETH'] = 'Ethereum (Ξ)';
+		 *     $currencies['BTC'] = 'Bitcoin (' . "\u{20BF}" . ')';
+		 *     $currencies['ETH'] = 'Ethereum (' . "\u{039E}" . ')';
 		 *     return $currencies;
 		 * });
 		 */
