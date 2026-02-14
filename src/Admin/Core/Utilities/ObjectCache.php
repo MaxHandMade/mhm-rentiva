@@ -1,15 +1,18 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Object cache bridge performs controlled diagnostics and cache priming lookups.
 
 namespace MHMRentiva\Admin\Core\Utilities;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * ✅ OBJECT CACHE INTEGRATION - Redis/Memcached Support
+ * âœ… OBJECT CACHE INTEGRATION - Redis/Memcached Support
  *
  * Extends WordPress object cache API with Redis and Memcached support
  */

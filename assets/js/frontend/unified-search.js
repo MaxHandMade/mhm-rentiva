@@ -165,7 +165,7 @@
 
                 if (!originId || !destId) {
                     e.preventDefault();
-                    alert(mhmUnifiedSearch.i18n.error_text);
+                    MHMRentivaToast.show(mhmUnifiedSearch.i18n.error_text, { type: 'error' });
                 }
             });
 
@@ -176,7 +176,7 @@
                 const destId = $form.find('[name="destination_id"]').val();
 
                 if (originId && destId && originId === destId) {
-                    alert(mhmUnifiedSearch.i18n.same_location_error);
+                    MHMRentivaToast.show(mhmUnifiedSearch.i18n.same_location_error, { type: 'error' });
                     $form.find('[name="destination_id"]').val('');
                     return;
                 }

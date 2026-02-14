@@ -170,7 +170,7 @@ final class VehicleGallery extends AbstractMetaBox {
 		}
 
 		if ( isset( $_POST['mhm_rentiva_gallery_images'] ) ) {
-			$gallery_images = self::sanitize_text_field_safe( $_POST['mhm_rentiva_gallery_images'] );
+			$gallery_images = sanitize_text_field( wp_unslash( (string) $_POST['mhm_rentiva_gallery_images'] ) );
 			update_post_meta( $post_id, '_mhm_rentiva_gallery_images', $gallery_images );
 		}
 	}

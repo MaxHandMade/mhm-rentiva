@@ -110,10 +110,11 @@ final class MaintenanceSettings {
 	 */
 	public static function render_group_system_status(): void {
 		echo '<div class="mhm-system-status-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:15px; margin-bottom:20px;">';
-		$status = array(
+		$server_software = sanitize_text_field( wp_unslash( (string) ( $_SERVER['SERVER_SOFTWARE'] ?? '' ) ) );
+		$status          = array(
 			'PHP'       => phpversion(),
 			'WordPress' => get_bloginfo( 'version' ),
-			'Server'    => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
+			'Server'    => '' !== $server_software ? $server_software : 'Unknown',
 			'SQL Mode'  => 'High Performance',
 		);
 

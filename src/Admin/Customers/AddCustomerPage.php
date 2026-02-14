@@ -137,24 +137,29 @@ final class AddCustomerPage {
 		echo '<table class="form-table">';
 		echo '<tbody>';
 
+		$posted_customer_name    = isset( $_POST['customer_name'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_name'] ) ) : '';
+		$posted_customer_email   = isset( $_POST['customer_email'] ) ? sanitize_email( wp_unslash( $_POST['customer_email'] ) ) : '';
+		$posted_customer_phone   = isset( $_POST['customer_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['customer_phone'] ) ) : '';
+		$posted_customer_address = isset( $_POST['customer_address'] ) ? sanitize_textarea_field( wp_unslash( $_POST['customer_address'] ) ) : '';
+
 		echo '<tr>';
 		echo '<th scope="row"><label for="customer_name">' . esc_html__( 'Customer Name', 'mhm-rentiva' ) . ' <span class="description">(required)</span></label></th>';
-		echo '<td><input name="customer_name" type="text" id="customer_name" value="' . esc_attr( $_POST['customer_name'] ?? '' ) . '" class="regular-text" required /></td>';
+		echo '<td><input name="customer_name" type="text" id="customer_name" value="' . esc_attr( $posted_customer_name ) . '" class="regular-text" required /></td>';
 		echo '</tr>';
 
 		echo '<tr>';
 		echo '<th scope="row"><label for="customer_email">' . esc_html__( 'Email', 'mhm-rentiva' ) . ' <span class="description">(required)</span></label></th>';
-		echo '<td><input name="customer_email" type="email" id="customer_email" value="' . esc_attr( $_POST['customer_email'] ?? '' ) . '" class="regular-text" required /></td>';
+		echo '<td><input name="customer_email" type="email" id="customer_email" value="' . esc_attr( $posted_customer_email ) . '" class="regular-text" required /></td>';
 		echo '</tr>';
 
 		echo '<tr>';
 		echo '<th scope="row"><label for="customer_phone">' . esc_html__( 'Phone', 'mhm-rentiva' ) . '</label></th>';
-		echo '<td><input name="customer_phone" type="tel" id="customer_phone" value="' . esc_attr( $_POST['customer_phone'] ?? '' ) . '" class="regular-text" /></td>';
+		echo '<td><input name="customer_phone" type="tel" id="customer_phone" value="' . esc_attr( $posted_customer_phone ) . '" class="regular-text" /></td>';
 		echo '</tr>';
 
 		echo '<tr>';
 		echo '<th scope="row"><label for="customer_address">' . esc_html__( 'Address', 'mhm-rentiva' ) . '</label></th>';
-		echo '<td><textarea name="customer_address" id="customer_address" rows="3" cols="50" class="large-text">' . esc_textarea( $_POST['customer_address'] ?? '' ) . '</textarea></td>';
+		echo '<td><textarea name="customer_address" id="customer_address" rows="3" cols="50" class="large-text">' . esc_textarea( $posted_customer_address ) . '</textarea></td>';
 		echo '</tr>';
 
 		echo '</tbody>';

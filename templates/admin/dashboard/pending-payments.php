@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Dashboard Pending Payments Template
@@ -39,7 +40,7 @@ $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 							<td><strong>#<?php echo esc_html( $payment['booking_id'] ); ?></strong></td>
 							<td><?php echo esc_html( $payment['customer_name'] ); ?></td>
 							<td><?php echo esc_html( number_format( (float) ( $payment['amount'] ?? 0 ), 2 ) ); ?> <?php echo esc_html( $currency_symbol ); ?></td>
-							<td><?php echo esc_html( $payment['deadline'] ?? '—' ); ?></td>
+							<td><?php echo esc_html( $payment['deadline'] ?? 'â€”' ); ?></td>
 							<td><span class="status-badge <?php echo esc_attr( $status_class ); ?>"><?php echo esc_html( $payment['status_label'] ?? __( 'Unpaid', 'mhm-rentiva' ) ); ?></span></td>
 						</tr>
 					<?php endforeach; ?>

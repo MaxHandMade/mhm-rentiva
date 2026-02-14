@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Customer status change email template
@@ -92,7 +93,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			<div style="text-align: center; margin: 30px 0;">
 				<?php
-				// ✅ Use WooCommerce native approach instead of ShortcodeUrlManager
+				// âœ… Use WooCommerce native approach instead of ShortcodeUrlManager
 				$account_url = function_exists( 'wc_get_page_permalink' )
 					? wc_get_page_permalink( 'myaccount' )
 					: home_url( '/my-account/' );

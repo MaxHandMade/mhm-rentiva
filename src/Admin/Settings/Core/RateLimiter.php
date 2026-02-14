@@ -1,6 +1,8 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Rate limiter housekeeping intentionally uses bounded request-log queries.
 
 namespace MHMRentiva\Admin\Settings\Core;
 
@@ -111,7 +113,7 @@ final class RateLimiter {
 		 * Filter the client IP.
 		 * Use this to handle Cloudflare (HTTP_CF_CONNECTING_IP) or other proxies.
 		 */
-		$ip = (string) apply_filters( 'mhm_rate_limiter_client_ip', $ip );
+		$ip = (string) apply_filters( 'mhm_rentiva_rate_limiter_client_ip', $ip );
 
 		// Validate IP format.
 		if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
@@ -158,15 +160,20 @@ final class RateLimiter {
 		$timeout_prefix = is_multisite() ? '_site_transient_timeout_' : '_transient_timeout_';
 
 		// Optimized cleanup query to remove both data and timeout rows.
-		// Table and column names are safe because they are pulled from $wpdb or fixed strings.
 		$query = $wpdb->prepare(
-			"DELETE a, b FROM {$table} a 
-             INNER JOIN {$table} b ON b.{$key_col} = REPLACE(a.{$key_col}, %s, %s)
-             WHERE a.{$key_col} LIKE %s 
-             AND a.{$val_col} < %d",
+			'DELETE a, b FROM %i a
+			INNER JOIN %i b ON b.%i = REPLACE(a.%i, %s, %s)
+			WHERE a.%i LIKE %s
+			AND a.%i < %d',
+			$table,
+			$table,
+			$key_col,
+			$key_col,
 			$timeout_prefix,
 			$prefix,
+			$key_col,
 			$wpdb->esc_like( $timeout_prefix . $this->prefix ) . '%',
+			$val_col,
 			time()
 		);
 

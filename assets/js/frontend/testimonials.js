@@ -233,7 +233,7 @@ class Testimonials {
             content += '<div class="rv-testimonial-rating">';
             for (let i = 1; i <= 5; i++) {
                 const filled = i <= testimonial.rating ? 'filled' : 'empty';
-                content += `<span class="rv-star ${filled}"><span class="dashicons dashicons-star-filled"></span></span>`;
+                content += `<span class="rv-star ${filled}">${window.mhmRentivaTestimonials.icons?.star || ''}</span>`;
             }
             content += `<span class="rv-rating-text">(${testimonial.rating}/5)</span></div>`;
         }
@@ -249,12 +249,12 @@ class Testimonials {
         }
 
         if (testimonial.vehicle_name) {
-            content += `<div class="rv-vehicle-name"><span class="dashicons dashicons-car"></span>${this.escapeHtml(testimonial.vehicle_name)}</div>`;
+            content += `<div class="rv-vehicle-name">${window.mhmRentivaTestimonials.icons?.car || ''}${this.escapeHtml(testimonial.vehicle_name)}</div>`;
         }
 
         if (testimonial.date) {
             const formattedDate = new Date(testimonial.date).toLocaleDateString(window.mhmRentivaTestimonials?.locale || 'en-US');
-            content += `<div class="rv-review-date"><span class="dashicons dashicons-calendar-alt"></span>${formattedDate}</div>`;
+            content += `<div class="rv-review-date">${window.mhmRentivaTestimonials.icons?.calendar || ''}${formattedDate}</div>`;
         }
 
         content += '</div></div>';

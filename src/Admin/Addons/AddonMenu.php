@@ -94,15 +94,20 @@ final class AddonMenu
 	 */
 	public static function admin_notices(): void
 	{
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice flags from redirect query params.
+		$addon_limit_reached = isset( $_GET['addon_limit_reached'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['addon_limit_reached'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice flags from redirect query params.
+		$addon_created       = isset( $_GET['addon_created'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['addon_created'] ) ) : '';
+
 		// Show license limit notice.
-		if (isset($_GET['addon_limit_reached']) && '1' === $_GET['addon_limit_reached']) {
+		if ( '1' === $addon_limit_reached ) {
 			echo '<div class="notice notice-warning is-dismissible">';
 			echo '<p>' . esc_html(AddonManager::get_addon_limit_message()) . '</p>';
 			echo '</div>';
 		}
 
 		// Show success message for addon creation.
-		if (isset($_GET['addon_created']) && '1' === $_GET['addon_created']) {
+		if ( '1' === $addon_created ) {
 			echo '<div class="notice notice-success is-dismissible">';
 			echo '<p>' . esc_html__('Additional service created successfully.', 'mhm-rentiva') . '</p>';
 			echo '</div>';

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Transfer search requires bounded meta filters to match capacity/service constraints.
 
 namespace MHMRentiva\Admin\Transfer\Engine;
 
@@ -10,8 +11,8 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Booking\Helpers\Util;
 
-final class TransferSearchEngine
-{
+final class TransferSearchEngine {
+
 
 	/**
 	 * Search for available transfer vehicles
@@ -36,21 +37,23 @@ final class TransferSearchEngine
 		$luggage_small = intval($criteria['luggage_small']);
 
 		// Calculate Luggage Score
-		$luggage_score = ($luggage_small * 1) + ($luggage_big * 2.5);
+		$luggage_score = ( $luggage_small * 1 ) + ( $luggage_big * 2.5 );
 
 		// 2. Get Route Info
 		// Check for table existence (backward compatibility during migration)
 		$table_routes = $wpdb->prefix . 'rentiva_transfer_routes';
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		if ($wpdb->get_var("SHOW TABLES LIKE '$table_routes'") !== $table_routes) {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_routes));
+		if ($table_exists !== $table_routes) {
 			$table_routes = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$table_routes = preg_replace('/[^A-Za-z0-9_]/', '', $table_routes) ?? '';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$route = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$table_routes} 
-             WHERE origin_id = %d AND destination_id = %d",
+				'SELECT * FROM %i WHERE origin_id = %d AND destination_id = %d',
+				$table_routes,
 				$origin_id,
 				$destination_id
 			)
@@ -63,8 +66,8 @@ final class TransferSearchEngine
 		// 3. Prepare Time Range
 		$timezone = wp_timezone();
 		try {
-			$start_datetime = new \DateTimeImmutable("$date $time", $timezone);
-			$start_ts       = $start_datetime->getTimestamp();
+			$start_datetime   = new \DateTimeImmutable("$date $time", $timezone);
+			$start_ts         = $start_datetime->getTimestamp();
 			$duration_seconds = $route->duration_min * 60;
 			$end_ts           = $start_ts + $duration_seconds;
 		} catch (\Exception $e) {
@@ -72,6 +75,7 @@ final class TransferSearchEngine
 		}
 
 		// 4. SQL Filtering (Service Type, Capacity, Luggage)
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Transfer search requires bounded vehicle meta filters.
 		$args = array(
 			'post_type'      => 'vehicle',
 			'post_status'    => 'publish',
@@ -83,12 +87,12 @@ final class TransferSearchEngine
 					'relation' => 'OR',
 					array(
 						'key'     => '_rentiva_vehicle_service_type',
-						'value'   => array('transfer', 'both'),
+						'value'   => array( 'transfer', 'both' ),
 						'compare' => 'IN',
 					),
 					array(
 						'key'     => '_mhm_vehicle_service_type',
-						'value'   => array('transfer', 'both'),
+						'value'   => array( 'transfer', 'both' ),
 						'compare' => 'IN',
 					),
 				),
@@ -168,7 +172,7 @@ final class TransferSearchEngine
 				$price = (float) $route->base_price;
 			} else {
 				$price = (float) $route->distance_km * (float) $route->base_price;
-				if ((float) $route->min_price > 0 && $price < (float) $route->min_price) {
+				if ( (float) $route->min_price > 0 && $price < (float) $route->min_price) {
 					$price = (float) $route->min_price;
 				}
 			}
@@ -191,7 +195,7 @@ final class TransferSearchEngine
 			}
 
 			// Get Category
-			$categories = get_the_terms($vehicle->ID, 'vehicle_category');
+			$categories    = get_the_terms($vehicle->ID, 'vehicle_category');
 			$category_name = ! empty($categories) && ! is_wp_error($categories) ? $categories[0]->name : '';
 
 			$available_vehicles[] = array(

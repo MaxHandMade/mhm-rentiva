@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 declare(strict_types=1);
 
@@ -21,10 +22,10 @@ final class RevenueReport {
 		$data      = get_transient( $cache_key );
 
 		if ( $data === false ) {
-			// ✅ OPTIMIZED QUERY - Daily revenue data (COMPLETED AND CONFIRMED ONLY)
+			// âœ… OPTIMIZED QUERY - Daily revenue data (COMPLETED AND CONFIRMED ONLY)
 			$daily_revenue = ReportRepository::get_daily_revenue_data( $start_date, $end_date );
 
-			// ✅ OPTIMIZED QUERY - Payment method distribution
+			// âœ… OPTIMIZED QUERY - Payment method distribution
 			$payment_methods = ReportRepository::get_payment_method_distribution( $start_date, $end_date );
 
 			// Monthly comparison

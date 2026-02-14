@@ -1,151 +1,181 @@
 /**
- * @since 4.6.5 */
+ * MHM Rentiva - Toast Markup Contract v1.0
+ * Refactored for visual consistency and performance.
+ * 
+ * @package MHMRentiva
+ * @since 4.9.8
+ */
 
-/* WordPress Global Styles Listener */
-.rv-notification.has-link-color {
-    --mhm-primary: var(--wp--style--color--link) !important;
-}
-
-.rv-notification.has-text-color {
-    --mhm-text-primary: var(--wp--style--color--text) !important;
-}
-
-.rv-notification {
+#mhm-toast-container {
     position: fixed;
-    bottom: 30px;
+    top: 30px;
     right: 30px;
-    padding: 0;
-    border-radius: 12px;
-    background: var(--mhm-white);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-    z-index: 2147483647;
-    /* Maximum possible z-index */
-    min-width: 320px;
-    max-width: 400px;
-    overflow: hidden;
-    border-left: 5px solid var(--mhm-primary);
-    /* Default Info Blue */
-    display: none;
-    /* Controlled by JS or rv-notification--show */
-    pointer-events: auto;
-    font-family: 'Inter', -apple-system, sans-serif;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.rv-notification--show {
-    display: block;
-    animation: rv-notification-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.rv-notification--success {
-    border-left-color: var(--mhm-success);
-}
-
-.rv-notification--error {
-    border-left-color: var(--mhm-error);
-}
-
-.rv-notification--warning {
-    border-left-color: var(--mhm-warning);
-}
-
-.rv-notification--info {
-    border-left-color: var(--mhm-primary);
-}
-
-.rv-notification-body {
-    padding: 1rem 1.25rem;
+    z-index: 99999999;
+    /* ABOVE EVERYTHING: Modals, Forms, Sticky Headers */
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 12px;
+    pointer-events: none;
+    /* Allow clicks through empty areas */
+    max-width: 400px;
+    width: calc(100% - 60px);
 }
 
-.rv-notification-icon-badge {
-    width: 24px;
-    height: 24px;
-    background: #f1f5f9;
-    border-radius: 50%;
+#mhm-toast-container.top-center {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+}
+
+.mhm-toast {
+    position: relative;
+    pointer-events: auto;
+    /* Re-enable clicks for the toast itself */
+    background: var(--mhm-white, #fff);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05);
+    padding: 14px 18px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-    flex-shrink: 0;
+    gap: 14px;
+    border-left: 4px solid var(--mhm-primary, #2563eb);
+
+    /* Animation base state */
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    transition:
+        opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, sans-serif;
 }
 
-.rv-notification--success .rv-notification-icon-badge {
-    background: var(--mhm-gray-50);
-    color: var(--mhm-success);
+.mhm-toast.is-active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
 }
 
-.rv-notification--error .rv-notification-icon-badge {
-    background: var(--mhm-gray-50);
-    color: var(--mhm-error);
+.mhm-toast.is-dismissing {
+    opacity: 0;
+    transform: scale(0.9);
 }
 
-.rv-notification--warning .rv-notification-icon-badge {
-    background: var(--mhm-gray-50);
-    color: var(--mhm-warning);
+/* Type Modifiers */
+.mhm-toast.is-success {
+    border-left-color: var(--mhm-success, #10b981);
 }
 
-.rv-notification-text {
-    color: var(--mhm-text-primary);
+.mhm-toast.is-warning {
+    border-left-color: var(--mhm-warning, #f59e0b);
+}
+
+.mhm-toast.is-error {
+    border-left-color: var(--mhm-error, #ef4444);
+}
+
+.mhm-toast.is-info {
+    border-left-color: var(--mhm-primary, #2563eb);
+}
+
+.mhm-toast__message {
+    color: var(--mhm-text-primary, #1e293b);
     font-size: 0.95rem;
     font-weight: 500;
     line-height: 1.4;
-}
-
-.rv-notification-content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
     flex-grow: 1;
 }
 
-.rv-notification-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 6px;
-}
-
-.rv-notification-cta {
+.mhm-toast__action {
     display: inline-flex;
     align-items: center;
     padding: 5px 12px;
-    background: var(--mhm-primary);
+    background: var(--mhm-primary, #2563eb);
     color: #fff !important;
     border-radius: 6px;
     font-size: 0.8rem;
     font-weight: 600;
     text-decoration: none !important;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
     transition: all 0.2s ease;
+    margin-left: 8px;
 }
 
-.rv-notification-cta:hover {
+.mhm-toast__action:hover {
     filter: brightness(1.1);
     transform: translateY(-1px);
 }
 
-/* Animations */
-@keyframes rv-notification-slide-up {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
+.mhm-toast__action:focus-visible {
+    outline: 2px solid var(--mhm-primary, #2563eb);
+    outline-offset: 2px;
+}
+
+.mhm-toast__close {
+    background: none;
+    border: none;
+    color: var(--mhm-text-secondary, #64748b);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.mhm-toast__close:hover {
+    background: #f1f5f9;
+    color: var(--mhm-error, #ef4444);
+}
+
+.mhm-toast__close:focus-visible {
+    outline: 2px solid var(--mhm-primary, #2563eb);
+    outline-offset: 1px;
+}
+
+/* Pulse Animation for Deduplication */
+@keyframes mhm-toast-pulse {
+    0% {
+        transform: scale(1);
     }
 
-    to {
-        transform: translateY(0);
-        opacity: 1;
+    50% {
+        transform: scale(1.03);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.mhm-toast.pulse {
+    animation: mhm-toast-pulse 0.3s ease-in-out;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .mhm-toast {
+        transition-duration: 0.05s !important;
+        animation: none !important;
     }
 }
 
 /* Mobile Adjustments */
 @media (max-width: 480px) {
-    .rv-notification {
+    #mhm-toast-container {
+        top: 20px;
         left: 20px;
         right: 20px;
-        bottom: 20px;
-        min-width: 0;
         width: calc(100% - 40px);
+        max-width: none;
+    }
+
+    #mhm-toast-container.top-center {
+        transform: none;
+        left: 20px;
     }
 }

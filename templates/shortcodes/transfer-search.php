@@ -1,4 +1,10 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
+
+/**
+ * Template: Transfer Search Form
+ * 
+<?php
 
 /**
  * Template: Transfer Search Form
@@ -12,6 +18,8 @@
 if (! defined('ABSPATH')) {
     exit;
 }
+
+use MHMRentiva\Helpers\Icons;
 
 $locations = $locations ?? array();
 $uid = uniqid('rv_transfer_search_');
@@ -27,7 +35,7 @@ $uid = uniqid('rv_transfer_search_');
             <div class="rv-unified-search__field">
                 <label class="rv-label"><?php esc_html_e('Pickup Location', 'mhm-rentiva'); ?></label>
                 <div class="rv-input-wrapper">
-                    <span class="rv-icon-marker dashicons dashicons-location"></span>
+                    <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
                     <select name="origin_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
                         <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
                         <?php foreach ($locations as $loc): ?>
@@ -40,7 +48,7 @@ $uid = uniqid('rv_transfer_search_');
             <div class="rv-unified-search__field">
                 <label class="rv-label"><?php esc_html_e('Dropoff Location', 'mhm-rentiva'); ?></label>
                 <div class="rv-input-wrapper">
-                    <span class="rv-icon-marker dashicons dashicons-location"></span>
+                    <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
                     <select name="destination_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
                         <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
                         <?php foreach ($locations as $loc): ?>
@@ -55,14 +63,14 @@ $uid = uniqid('rv_transfer_search_');
             <div class="rv-unified-search__field">
                 <label class="rv-label"><?php esc_html_e('Date', 'mhm-rentiva'); ?></label>
                 <div class="rv-input-wrapper">
-                    <span class="rv-icon-calendar dashicons dashicons-calendar-alt"></span>
+                    <?php Icons::render('calendar', ['class' => 'rv-icon-calendar']); ?>
                     <input type="text" name="date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off">
                 </div>
             </div>
             <div class="rv-unified-search__field rv-unified-search__field--time">
                 <label class="rv-label"><?php esc_html_e('Time', 'mhm-rentiva'); ?></label>
                 <div class="rv-input-wrapper">
-                    <span class="rv-icon-clock dashicons dashicons-clock"></span>
+                    <?php Icons::render('clock', ['class' => 'rv-icon-clock']); ?>
                     <select name="time" class="rv-select">
                         <?php for ($i = 0; $i < 24; $i++): ?>
                             <?php $time_hour = sprintf('%02d:00', $i); ?>
@@ -83,14 +91,14 @@ $uid = uniqid('rv_transfer_search_');
             <div class="rv-unified-search__field">
                 <label class="rv-label"><?php esc_html_e('Adults', 'mhm-rentiva'); ?></label>
                 <div class="rv-input-wrapper">
-                    <span class="rv-icon dashicons dashicons-admin-users"></span>
+                    <?php Icons::render('users', ['class' => 'rv-icon']); ?>
                     <input type="number" name="adults" value="1" min="1" class="rv-input">
                 </div>
             </div>
             <div class="rv-unified-search__field">
                 <label class="rv-label"><?php esc_html_e('Children', 'mhm-rentiva'); ?></label>
                 <div class="rv-input-wrapper">
-                    <span class="rv-icon dashicons dashicons-admin-users"></span>
+                    <?php Icons::render('users', ['class' => 'rv-icon']); ?>
                     <input type="number" name="children" value="0" min="0" class="rv-input">
                 </div>
             </div>
@@ -100,14 +108,14 @@ $uid = uniqid('rv_transfer_search_');
             <div class="rv-unified-search__field">
                 <label class="rv-label"><?php esc_html_e('Big Bags', 'mhm-rentiva'); ?> <span class="required" style="color:red;">(*)</span></label>
                 <div class="rv-input-wrapper">
-                    <span class="rv-icon dashicons dashicons-portfolio"></span>
+                    <?php Icons::render('portfolio', ['class' => 'rv-icon']); ?>
                     <input type="number" name="luggage_big" value="0" min="0" class="rv-input" required>
                 </div>
             </div>
             <div class="rv-unified-search__field">
                 <label class="rv-label"><?php esc_html_e('Small Bags', 'mhm-rentiva'); ?> <span class="required" style="color:red;">(*)</span></label>
                 <div class="rv-input-wrapper">
-                    <span class="rv-icon dashicons dashicons-portfolio"></span>
+                    <?php Icons::render('portfolio', ['class' => 'rv-icon']); ?>
                     <input type="number" name="luggage_small" value="0" min="0" class="rv-input" required>
                 </div>
             </div>
@@ -115,7 +123,7 @@ $uid = uniqid('rv_transfer_search_');
 
         <div class="rv-unified-search__action">
             <button type="submit" class="rv-btn rv-btn--primary">
-                <span class="rv-icon-search dashicons dashicons-search"></span>
+                <?php Icons::render('search', ['class' => 'rv-icon-search']); ?>
                 <?php esc_html_e('Search Transfer', 'mhm-rentiva'); ?>
             </button>
         </div>

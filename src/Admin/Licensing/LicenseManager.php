@@ -148,8 +148,8 @@ final class LicenseManager
 			if (! get_transient($validation_transient)) {
 				set_transient($validation_transient, true, 10); // Lock for 10 seconds
 
-				// Validate synchronously to get immediate result
-				$this->validate();
+				// Validate synchronously to get immediate result (silent mode for status checks)
+				$this->validate( true );
 
 				// Refresh license data after validation
 				$o = $this->get();
@@ -192,9 +192,9 @@ final class LicenseManager
 		}
 		check_admin_referer('mhm_rentiva_license_action', 'mhm_license_nonce');
 
-		$action = sanitize_text_field((string) ($_POST['mhm_license_action'] ?? ''));
+		$action = isset( $_POST['mhm_license_action'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_license_action'] ) ) : '';
 		if ($action === 'activate') {
-			$key = sanitize_text_field((string) ($_POST['mhm_license_key'] ?? ''));
+			$key = isset( $_POST['mhm_license_key'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_license_key'] ) ) : '';
 			$res = $this->activate($key);
 			$this->flash($res instanceof WP_Error ? $res->get_error_message() : __('License activated.', 'mhm-rentiva'), ! ($res instanceof WP_Error));
 		} elseif ($action === 'deactivate') {
@@ -292,7 +292,7 @@ final class LicenseManager
 	 *
 	 * @return bool|WP_Error True on success, WP_Error on failure
 	 */
-	public function validate()
+	public function validate( bool $silent = false )
 	{
 		$o   = $this->get();
 		$key = $o['key'] ?? '';
@@ -314,21 +314,11 @@ final class LicenseManager
 			$o['last_check_at'] = time();
 			$this->save($o);
 
-			// Don't return error if called from isActive() (silent validation)
-			$backtrace            = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
-			$called_from_isactive = false;
-			foreach ($backtrace as $trace) {
-				if (isset($trace['function']) && $trace['function'] === 'isActive') {
-					$called_from_isactive = true;
-					break;
-				}
-			}
-
-			if (! $called_from_isactive) {
+			if ( ! $silent ) {
 				return $resp;
 			}
 
-			return false; // Silent failure for isActive() calls
+			return false;
 		}
 
 		// BUG FIX: If server says inactive, clear activation_id
@@ -340,22 +330,11 @@ final class LicenseManager
 			$o['last_check_at'] = time();
 			$this->save($o);
 
-			// Don't return error if called from isActive() (silent validation)
-			// Only return error if explicitly called for validation
-			$backtrace            = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
-			$called_from_isactive = false;
-			foreach ($backtrace as $trace) {
-				if (isset($trace['function']) && $trace['function'] === 'isActive') {
-					$called_from_isactive = true;
-					break;
-				}
-			}
-
-			if (! $called_from_isactive) {
+			if ( ! $silent ) {
 				return new WP_Error('license_inactive', __('License is not active on this site.', 'mhm-rentiva'));
 			}
 
-			return false; // Silent failure for isActive() calls
+			return false;
 		}
 
 		$o['status']        = $resp['status'] ?? ($o['status'] ?? 'inactive');
@@ -608,7 +587,7 @@ final class LicenseManager
 
 		// 2. Local servers like XAMPP, WAMP, MAMP (only with localhost)
 		if (in_array($host, array('localhost', '127.0.0.1'), true)) {
-			$server_software = $_SERVER['SERVER_SOFTWARE'] ?? '';
+			$server_software = sanitize_text_field( wp_unslash( (string) ( $_SERVER['SERVER_SOFTWARE'] ?? '' ) ) );
 			if (
 				stripos($server_software, 'xampp') !== false ||
 				stripos($server_software, 'wamp') !== false ||

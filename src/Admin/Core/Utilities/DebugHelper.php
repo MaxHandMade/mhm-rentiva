@@ -30,13 +30,15 @@ final class DebugHelper {
 	 * Development environment check
 	 */
 	private static function is_development_environment(): bool {
+		$http_host = (string) filter_input( INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
 		// Localhost check
-		if ( strpos( $_SERVER['HTTP_HOST'] ?? '', 'localhost' ) !== false ) {
+		if ( strpos( $http_host, 'localhost' ) !== false ) {
 			return true;
 		}
 
 		// XAMPP check
-		if ( strpos( $_SERVER['HTTP_HOST'] ?? '', '127.0.0.1' ) !== false ) {
+		if ( strpos( $http_host, '127.0.0.1' ) !== false ) {
 			return true;
 		}
 
@@ -80,9 +82,8 @@ final class DebugHelper {
 	 */
 	private static function setup_error_handling(): void {
 		// PHP error reporting
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_error_reporting -- Runtime error level is intentionally managed by plugin debug mode.
 		error_reporting( E_ALL );
-		ini_set( 'display_errors', '0' );
-		ini_set( 'log_errors', '1' );
 
 		// WordPress error handling
 		add_action( 'wp_loaded', array( self::class, 'log_rest_api_errors' ) );

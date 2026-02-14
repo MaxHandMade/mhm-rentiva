@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Vehicle Card Partial Template
@@ -12,6 +13,8 @@
  * @package MHMRentiva
  */
 
+use MHMRentiva\Helpers\Icons;
+
 if (! defined('ABSPATH')) {
     exit;
 }
@@ -22,20 +25,28 @@ $card_class = 'mhm-vehicle-card mhm-card--' . esc_attr($layout);
 $is_grid    = ($layout === 'grid');
 
 // v1.0 APPROVED TOGGLES
-$show_image       = $atts['show_image'] ?? true;
-$show_features    = $atts['show_features'] ?? true;
-$show_price       = $atts['show_price'] ?? true;
-$show_booking     = $atts['show_booking_btn'] ?? true;
+// Toggles Normalization (Strict Boolean Conversion)
+$normalize_toggle = function ($val) {
+    if ($val === '0' || $val === 'false' || $val === 0 || $val === false) {
+        return false;
+    }
+    return true;
+};
+
+$show_image       = $normalize_toggle($atts['show_image'] ?? true);
+$show_features    = $normalize_toggle($atts['show_features'] ?? true);
+$show_price       = $normalize_toggle($atts['show_price'] ?? true);
+$show_title       = $normalize_toggle($atts['show_title'] ?? true);
+$show_rating      = $normalize_toggle($atts['show_rating'] ?? true);
+$show_booking     = $normalize_toggle($atts['show_booking_btn'] ?? true);
 $booking_text     = $atts['booking_btn_text'] ?? __('Book Now', 'mhm-rentiva');
 
 // v1.0 DISABLED TOGGLES (Hardcoded FALSE - Deferred to v1.1+)
 $show_category     = false; // FROZEN: $atts['show_category'] ?? true
 $show_brand        = false; // FROZEN: $atts['show_brand'] ?? false
 // v1.3.2.4 PRODUCTIZATION
-$show_title       = $atts['show_title'] ?? true;
-// Backward compatibility: If show_description is not set (old blocks passed nothing), default to FALSE.
-// New blocks send '1'/'true'.
-$show_description = isset($atts['show_description']) ? ($atts['show_description'] == '1' || $atts['show_description'] === true) : false;
+$show_title       = $normalize_toggle($atts['show_title'] ?? true);
+$show_description = $normalize_toggle($atts['show_description'] ?? false);
 
 // Force Description OFF for Grid
 if ($is_grid) {
@@ -44,19 +55,12 @@ if ($is_grid) {
 
 $rating_count = intval($vehicle['rating']['count'] ?? 0);
 // Default ON unless explicitly disabled
-$user_wants_rating = $atts['show_rating'] ?? true;
-if ($user_wants_rating === '0' || $user_wants_rating === 'false' || $user_wants_rating === false) {
-    $user_wants_rating = false;
-} else {
-    $user_wants_rating = true;
-}
+$user_wants_rating = $normalize_toggle($atts['show_rating'] ?? true);
 $show_rating = $user_wants_rating && ($rating_count > 0);
-// v1.3.3 Visibility Bridges (Handles _button vs _btn suffixes)
-$fav_val = $atts['show_favorite_button'] ?? ($atts['show_favorite_btn'] ?? true);
-$show_fav = ($fav_val !== '0' && $fav_val !== 'false' && $fav_val !== false);
 
-$comp_val = $atts['show_compare_button'] ?? ($atts['show_compare_btn'] ?? true);
-$show_compare = ($comp_val !== '0' && $comp_val !== 'false' && $comp_val !== false);
+// v1.3.3 Visibility Bridges (Handles _button vs _btn suffixes)
+$show_fav     = $normalize_toggle($atts['show_favorite_button'] ?? ($atts['show_favorite_btn'] ?? true));
+$show_compare = $normalize_toggle($atts['show_compare_button'] ?? ($atts['show_compare_btn'] ?? true));
 
 $show_badges       = false; // FROZEN: $atts['show_badges'] ?? true
 $show_availability = false; // FROZEN: $atts['show_availability'] ?? false
@@ -99,12 +103,12 @@ $allowed_svg = array(
         'stroke-linecap'  => true,
         'stroke-linejoin' => true,
     ),
-    'g'        => array( 'fill' => true, 'stroke' => true, 'class' => true ),
-    'circle'   => array( 'cx' => true, 'cy' => true, 'r' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true ),
-    'rect'     => array( 'x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true, 'ry' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true ),
-    'line'     => array( 'x1' => true, 'y1' => true, 'x2' => true, 'y2' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true ),
-    'polyline' => array( 'points' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true, 'stroke-linejoin' => true ),
-    'polygon'  => array( 'points' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linejoin' => true ),
+    'g'        => array('fill' => true, 'stroke' => true, 'class' => true),
+    'circle'   => array('cx' => true, 'cy' => true, 'r' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true),
+    'rect'     => array('x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true, 'ry' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true),
+    'line'     => array('x1' => true, 'y1' => true, 'x2' => true, 'y2' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true),
+    'polyline' => array('points' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true, 'stroke-linejoin' => true),
+    'polygon'  => array('points' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linejoin' => true),
 );
 // Check Service if missing in data object (Source of Truth)
 if (class_exists('\MHMRentiva\Admin\Services\FavoritesService')) {
@@ -137,9 +141,10 @@ if (! $is_available) {
                     <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($image_alt); ?>" loading="lazy">
                 <?php else : ?>
                     <div class="mhm-placeholder-image">
-                        <span class="dashicons dashicons-car"></span>
-                    </div>
-                <?php endif; ?>
+                        <div class="mhm-card-image-placeholder">
+                            <?php Icons::render('car', ['class' => 'mhm-placeholder-svg', 'width' => '48', 'height' => '48', 'style' => 'opacity: 0.3;']); ?>
+                        </div>
+                    <?php endif; ?>
             </a>
 
             <div class="mhm-card-actions-overlay">
@@ -149,9 +154,7 @@ if (! $is_available) {
                         data-nonce="<?php echo esc_attr(wp_create_nonce('mhm_rentiva_toggle_favorite')); ?>"
                         title="<?php echo $is_favorite ? esc_attr__("Remove from Favorites", 'mhm-rentiva') : esc_attr__("Add to Favorites", 'mhm-rentiva'); ?>"
                         aria-label="<?php echo $is_favorite ? esc_attr__("Remove from Favorites", 'mhm-rentiva') : esc_attr__("Add to Favorites", 'mhm-rentiva'); ?>">
-                        <svg class="mhm-heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                        </svg>
+                        <?php Icons::render('heart', ['class' => 'mhm-heart-icon']); ?>
                         <span class="text-label sr-only"><?php echo $is_favorite ? esc_html__("Remove from Favorites", 'mhm-rentiva') : esc_html__("Add to Favorites", 'mhm-rentiva'); ?></span>
                     </button>
                 <?php endif; ?>
@@ -160,8 +163,10 @@ if (! $is_available) {
                     <button class="mhm-card-compare mhm-vehicle-compare-btn <?php echo esc_attr($is_in_compare ? 'is-active active' : ''); ?>"
                         data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
                         data-nonce="<?php echo esc_attr(wp_create_nonce('mhm_rentiva_toggle_compare')); ?>"
-                        aria-label="<?php echo $is_in_compare ? esc_attr__("Remove Compare", 'mhm-rentiva') : esc_attr__("Compare", 'mhm-rentiva'); ?>">
-                        <span class="dashicons dashicons-randomize"></span>
+                        title="<?php esc_attr_e("Compare", 'mhm-rentiva'); ?>"
+                        aria-label="<?php esc_attr_e("Compare", 'mhm-rentiva'); ?>">
+                        <?php Icons::render('compare', ['class' => 'mhm-compare-icon']); ?>
+                        <span class="text-label sr-only"><?php esc_html_e("Compare", 'mhm-rentiva'); ?></span>
                     </button>
                 <?php endif; ?>
             </div>

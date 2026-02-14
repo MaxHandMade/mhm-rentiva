@@ -66,7 +66,9 @@ class CompareService {
 			}
 		} else {
 			// DIRECT READ: filter_input(INPUT_COOKIE) is often unreliable in local dev/CGI environments.
-			$cookie_val = $_COOKIE[ self::STORAGE_KEY ] ?? '';
+			$cookie_val = isset( $_COOKIE[ self::STORAGE_KEY ] )
+				? sanitize_text_field( wp_unslash( (string) $_COOKIE[ self::STORAGE_KEY ] ) )
+				: '';
 
 			if ( $cookie_val ) {
 				// Try JSON decode directly

@@ -318,8 +318,8 @@ final class RESTSettings {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error();
 		}
-		$name  = sanitize_text_field( $_POST['name'] ?? '' );
-		$perms = (array) ( $_POST['permissions'] ?? array( 'read' ) );
+		$name  = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['name'] ) ) : '';
+		$perms = isset( $_POST['permissions'] ) ? array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['permissions'] ) ) : array( 'read' );
 		$key   = \MHMRentiva\Admin\REST\APIKeyManager::create_api_key( $name, $perms );
 		$key ? wp_send_json_success( array( 'key' => $key ) ) : wp_send_json_error();
 	}
@@ -337,7 +337,8 @@ final class RESTSettings {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error();
 		}
-		\MHMRentiva\Admin\REST\APIKeyManager::revoke_api_key( sanitize_text_field( $_POST['key_id'] ?? '' ) ) ? wp_send_json_success() : wp_send_json_error();
+		$key_id = isset( $_POST['key_id'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['key_id'] ) ) : '';
+		\MHMRentiva\Admin\REST\APIKeyManager::revoke_api_key( $key_id ) ? wp_send_json_success() : wp_send_json_error();
 	}
 
 	public static function ajax_delete_api_key(): void {
@@ -345,7 +346,8 @@ final class RESTSettings {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error();
 		}
-		\MHMRentiva\Admin\REST\APIKeyManager::delete_api_key( sanitize_text_field( $_POST['key_id'] ?? '' ) ) ? wp_send_json_success() : wp_send_json_error();
+		$key_id = isset( $_POST['key_id'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['key_id'] ) ) : '';
+		\MHMRentiva\Admin\REST\APIKeyManager::delete_api_key( $key_id ) ? wp_send_json_success() : wp_send_json_error();
 	}
 
 	public static function ajax_list_endpoints(): void {

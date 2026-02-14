@@ -244,6 +244,7 @@ trait AdminHelperTrait {
 	 * @return bool Submit status
 	 */
 	protected function is_form_submitted( string $action, string $nonce_name = '_wpnonce' ): bool {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- This method exists solely to verify the nonce.
 		return isset( $_POST[ $nonce_name ] ) && $this->verify_nonce( $action, $nonce_name );
 	}
 

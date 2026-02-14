@@ -489,7 +489,7 @@
             e.preventDefault();
 
             if (this.selectedDates.length === 0) {
-                this.showNotification(window.mhmRentivaAvailability?.strings?.select_date_first || 'Please select a date first.', 'warning');
+                MHMRentivaToast.show(window.mhmRentivaAvailability?.strings?.select_date_first || 'Please select a date first.', { type: 'warning' });
                 return;
             }
 
@@ -600,12 +600,12 @@
                         // OPTIMIZATION: Check for license limits before substantial work
                         this.limitReached = response.data.limit_reached || false;
                     } else {
-                        this.showNotification(response.data?.message || window.mhmRentivaAvailability.strings.error, 'error');
+                        MHMRentivaToast.show(response.data?.message || window.mhmRentivaAvailability.strings.error, { type: 'error' });
                     }
                 })
                 .fail((response) => {
                     console.error('AJAX Error:', response);
-                    this.showNotification(window.mhmRentivaAvailability.strings.error, 'error');
+                    MHMRentivaToast.show(window.mhmRentivaAvailability.strings.error, { type: 'error' });
                 })
                 .always(() => {
                     this.showLoading(false);
@@ -649,13 +649,13 @@
 
                 // this.showNotification(response.data.message, 'success');
             } else {
-                this.showNotification(response.data?.message || window.mhmRentivaAvailability.messages.error, 'error');
+                MHMRentivaToast.show(response.data?.message || window.mhmRentivaAvailability.messages.error, { type: 'error' });
             }
         }
 
         handleAvailabilityDataError(xhr, status, error) {
             console.error('Availability data error:', error);
-            this.showNotification(window.mhmRentivaAvailability.messages.error, 'error');
+            MHMRentivaToast.show(window.mhmRentivaAvailability.messages.error, { type: 'error' });
         }
 
         handlePricingDataSuccess(response) {
@@ -790,27 +790,7 @@
             }
         }
 
-        showNotification(message, type = 'info') {
-            // Unique class for VCal notifications to avoid collisions
-            const $notification = $(`
-                <div class="rv-vcal-notification rv-vcal-notification--${type}">
-                    <span class="rv-vcal-notification-message">${message}</span>
-                    <button type="button" class="rv-vcal-notification-close">&times;</button>
-                </div>
-            `);
-
-            $('body').append($notification);
-
-            // Auto close after 5 seconds
-            setTimeout(() => {
-                $notification.fadeOut(() => $notification.remove());
-            }, 5000);
-
-            // Manual close
-            $notification.find('.rv-vcal-notification-close').on('click', () => {
-                $notification.fadeOut(() => $notification.remove());
-            });
-        }
+        // Legacy showNotification method removed in favor of MHMRentivaToast
 
 
         // Helper functions
@@ -906,7 +886,7 @@
             // Login check
             if (!window.mhmRentivaAvailability.isUserLoggedIn) {
                 const loginMsg = window.mhmRentivaAvailability?.strings?.login_required || 'You must be logged in to add to favorites';
-                this.showNotification(loginMsg, 'warning');
+                MHMRentivaToast.show(loginMsg, { type: 'warning' });
                 return;
             }
 
@@ -942,15 +922,15 @@
                             $btn.attr('aria-pressed', 'false');
                         }
 
-                        this.showNotification(successMsg, 'success');
+                        MHMRentivaToast.show(successMsg, { type: 'success' });
                     } else {
                         const errorMsg = response.data.message || window.mhmRentivaAvailability?.strings?.error || 'An error occurred';
-                        this.showNotification(errorMsg, 'error');
+                        MHMRentivaToast.show(errorMsg, { type: 'error' });
                     }
                 })
                 .fail((xhr, status, error) => {
                     console.error('Favorite Toggle Error:', error, xhr.responseText);
-                    this.showNotification(window.mhmRentivaAvailability.strings?.error || 'Security or connection error', 'error');
+                    MHMRentivaToast.show(window.mhmRentivaAvailability.strings?.error || 'Security or connection error', { type: 'error' });
                 })
                 .always(() => {
                     $btn.prop('disabled', false).removeClass('loading');
@@ -961,31 +941,7 @@
          * Enhanced notification system for Availability Calendar
          * Based on VehiclesList notification design
          */
-        showNotification(message, type = 'info') {
-            if (!message) return;
-
-            // Remove existing notifications if any
-            $('.rv-notification').remove();
-
-            const icon = type === 'success' ? '✓' : '!';
-            const $notification = $(`
-                <div class="rv-notification rv-notification--show rv-notification--${type}" style="display: block !important;">
-                    <div class="rv-notification-body">
-                        <span class="rv-notification-icon-badge">${icon}</span>
-                        <span class="rv-notification-text">${message}</span>
-                    </div>
-                </div>
-            `);
-
-            $('body').append($notification);
-
-            // Auto-hide after 3.5 seconds
-            setTimeout(() => {
-                $notification.fadeOut(400, function () {
-                    $(this).remove();
-                });
-            }, 3500);
-        }
+        // Duplicate showNotification implementation removed
 
     }
 
@@ -993,8 +949,7 @@
      * Global-safe notification handler
      */
     function showGlobalNotification(message, type = 'info') {
-        const calendar = new AvailabilityCalendar();
-        calendar.showNotification(message, type);
+        MHMRentivaToast.show(message, { type: type });
     }
 
     // Initialize when page loads
@@ -1003,7 +958,7 @@
 
         // Expose to global for coordination
         window.mhmRentivaAvailability = window.mhmRentivaAvailability || {};
-        window.mhmRentivaAvailability.showNotification = (msg, type) => vCal.showNotification(msg, type);
+        window.mhmRentivaAvailability.showNotification = (msg, type) => MHMRentivaToast.show(msg, { type: type });
     });
 
     // For global access

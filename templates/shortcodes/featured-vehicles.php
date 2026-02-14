@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Shortcode Template: Featured Vehicles
@@ -34,11 +35,11 @@ $layout  = $atts['layout'] ?? 'slider';
                     <?php foreach ($vehicles as $vehicle): ?>
                         <div class="swiper-slide">
                             <?php
-                            echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
+                            echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
                                 'vehicle' => $vehicle,
                                 'layout'  => 'grid', // Featured usually looks like grid cards
                                 'atts'    => $atts,
-                            )));
+                            ));
                             ?>
                         </div>
                     <?php endforeach; ?>
@@ -53,11 +54,11 @@ $layout  = $atts['layout'] ?? 'slider';
                 <?php foreach ($vehicles as $vehicle): ?>
                     <div class="mhm-featured-grid-item">
                         <?php
-                        echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
+                        echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
                             'vehicle' => $vehicle,
                             'layout'  => 'grid',
                             'atts'    => $atts,
-                        )));
+                        ));
                         ?>
                     </div>
                 <?php endforeach; ?>

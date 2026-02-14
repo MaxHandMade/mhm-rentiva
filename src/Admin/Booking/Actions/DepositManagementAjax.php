@@ -13,6 +13,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class DepositManagementAjax {
 
+	/**
+	 * Read and validate booking id from POST.
+	 *
+	 * @return int
+	 */
+	private static function post_booking_id(): int {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced in each AJAX handler before this helper is called.
+		if ( ! isset( $_POST['booking_id'] ) ) {
+			return 0;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced in each AJAX handler before this helper is called.
+		return absint( wp_unslash( $_POST['booking_id'] ) );
+	}
+
 	public static function register(): void {
 		add_action( 'wp_ajax_mhm_process_remaining_payment', array( self::class, 'process_remaining_payment' ) );
 		add_action( 'wp_ajax_mhm_approve_payment', array( self::class, 'approve_payment' ) );
@@ -34,7 +49,7 @@ final class DepositManagementAjax {
 			return;
 		}
 
-		$booking_id = (int) ( $_POST['booking_id'] ?? 0 );
+		$booking_id = self::post_booking_id();
 		if ( ! $booking_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
 			return;
@@ -99,7 +114,7 @@ final class DepositManagementAjax {
 			return;
 		}
 
-		$booking_id = (int) ( $_POST['booking_id'] ?? 0 );
+		$booking_id = self::post_booking_id();
 		if ( ! $booking_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
 			return;
@@ -153,7 +168,7 @@ final class DepositManagementAjax {
 			return;
 		}
 
-		$booking_id = (int) ( $_POST['booking_id'] ?? 0 );
+		$booking_id = self::post_booking_id();
 		if ( ! $booking_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
 			return;
@@ -204,7 +219,7 @@ final class DepositManagementAjax {
 			return;
 		}
 
-		$booking_id = (int) ( $_POST['booking_id'] ?? 0 );
+		$booking_id = self::post_booking_id();
 		if ( ! $booking_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
 			return;
@@ -297,7 +312,7 @@ final class DepositManagementAjax {
 			return;
 		}
 
-		$booking_id = (int) ( $_POST['booking_id'] ?? 0 );
+		$booking_id = self::post_booking_id();
 		if ( ! $booking_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
 			return;
@@ -330,7 +345,8 @@ final class DepositManagementAjax {
 	}
 
 	private static function add_booking_log( int $booking_id, string $action, array $data = array() ): void {
-		$logs = get_post_meta( $booking_id, '_mhm_booking_logs', true ) ?: array();
+		$logs_meta = get_post_meta( $booking_id, '_mhm_booking_logs', true );
+		$logs      = is_array( $logs_meta ) ? $logs_meta : array();
 
 		$logs[] = array(
 			'action'    => $action,

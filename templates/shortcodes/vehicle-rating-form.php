@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Vehicle Rating Form Template
@@ -12,9 +13,11 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Helpers\Icons;
 
 
-// ⭐ Asset management removed - VehicleRatingForm Controller handles asset loading
+
+// â­ Asset management removed - VehicleRatingForm Controller handles asset loading
 // Assets are enqueued via VehicleRatingForm::enqueue_assets() method
 // Localized data is provided via VehicleRatingForm::get_localized_strings() method
 
@@ -58,7 +61,7 @@ $display_settings = array_merge(
 
 // Debug: Check user rating information
 if (defined('WP_DEBUG') && WP_DEBUG) {
-	echo '<!-- Debug: User rating data: ' . esc_html(print_r($user_rating, true)) . ' -->';
+	echo '<!-- Debug: User rating data: ' . esc_html((string) wp_json_encode($user_rating)) . ' -->';
 }
 
 ?>
@@ -76,10 +79,10 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 						(((float) ($vehicle_rating['average'] ?? 0)) - floor((float) ($vehicle_rating['average'] ?? 0)) >= 0.5);
 					?>
 					<span class="rv-star <?php echo $is_half ? 'rv-star-half' : ($is_filled ? 'rv-star-filled' : ''); ?>">
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-								fill="<?php echo $is_filled || $is_half ? '#fbbf24' : '#d1d5db'; ?>" />
-						</svg>
+						<?php
+						$star_color = $is_filled || $is_half ? '#fbbf24' : '#d1d5db';
+						Icons::render('star', ['width' => '16', 'height' => '16', 'style' => "fill: $star_color; color: $star_color;"]);
+						?>
 					</span>
 				<?php endfor; ?>
 			</div>
@@ -173,9 +176,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 										<span class="rv-review-author-name"><?php echo esc_html($masked_name); ?></span>
 										<?php if (in_array((int) $comment->comment_ID, $verified_ids, true)) : ?>
 											<span class="mhm-review-badge mhm-review-badge--verified">
-												<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-													<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
-												</svg>
+												<?php Icons::render('check', ['width' => '12', 'height' => '12']); ?>
 												<?php echo esc_html__('Verified Rental', 'mhm-rentiva'); ?>
 											</span>
 										<?php endif; ?>
@@ -186,10 +187,10 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 													$star_fill = $i <= (int) $rating ? '#fbbf24' : '#d1d5db';
 												?>
 													<span class="rv-star <?php echo $i <= (int) $rating ? 'active' : ''; ?>">
-														<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-															<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-																fill="<?php echo esc_attr($star_fill); ?>" />
-														</svg>
+														<?php
+														$star_color = $i <= (int) $rating ? '#fbbf24' : '#d1d5db';
+														Icons::render('star', ['width' => '14', 'height' => '14', 'style' => "fill: $star_color; color: $star_color;"]);
+														?>
 													</span>
 												<?php endfor; ?>
 											</div>
@@ -203,13 +204,13 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 									<div class="rv-review-actions">
 										<?php if ($display_settings['allow_editing'] ?? true) : ?>
 											<button class="rv-edit-comment-btn" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>" data-rating="<?php echo esc_attr($rating); ?>" data-comment="<?php echo esc_attr($comment->comment_content); ?>">
-												<span class="dashicons dashicons-edit"></span>
+												<?php Icons::render('edit'); ?>
 												<?php echo esc_html__('Edit', 'mhm-rentiva'); ?>
 											</button>
 										<?php endif; ?>
 										<?php if ($display_settings['allow_deletion'] ?? true) : ?>
 											<button class="rv-delete-comment-btn" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>">
-												<span class="dashicons dashicons-trash"></span>
+												<?php Icons::render('trash'); ?>
 												<?php echo esc_html__('Delete', 'mhm-rentiva'); ?>
 											</button>
 										<?php endif; ?>
@@ -269,10 +270,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 								<?php checked($current_user_rating, $i); ?>>
 							<label for="rating-<?php echo esc_attr($vehicle_id); ?>-<?php echo (int) $i; ?>"
 								class="rv-star-input">
-								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-										fill="#d1d5db" />
-								</svg>
+								<?php Icons::render('star', ['width' => '24', 'height' => '24', 'style' => 'color: #d1d5db; fill: #d1d5db;']); ?>
 							</label>
 						<?php endfor; ?>
 					</div>
@@ -316,9 +314,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 		<div class="rv-rating-login-notice">
 			<div class="rv-login-required">
 				<div class="rv-login-icon">
-					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 6.5V7.5C15 8.1 14.6 8.6 14.1 8.9L12 10L9.9 8.9C9.4 8.6 9 8.1 9 7.5V6.5L3 7V9L9 8.5V9.5C9 10.1 9.4 10.6 9.9 10.9L12 12L14.1 10.9C14.6 10.6 15 10.1 15 9.5V8.5L21 9ZM12 13.5C11.2 13.5 10.5 14.2 10.5 15S11.2 16.5 12 16.5 13.5 15.8 13.5 15 12.8 13.5 12 13.5Z" fill="currentColor" />
-					</svg>
+					<?php Icons::render('users', ['width' => '24', 'height' => '24']); ?>
 				</div>
 				<h4><?php echo esc_html__('Login Required', 'mhm-rentiva'); ?></h4>
 				<p><?php echo esc_html__('You must be logged in to submit a rating and review.', 'mhm-rentiva'); ?></p>

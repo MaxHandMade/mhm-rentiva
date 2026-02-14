@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Emails\Core;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/extensible email hook names are kept stable.
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

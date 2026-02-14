@@ -39,13 +39,14 @@ class DepositAjax {
 	 * Deposit calculation AJAX handler
 	 */
 	public static function ajax_calculate_deposit(): void {
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( self::sanitize_text_field_safe( wp_unslash( $_POST['nonce'] ) ), 'mhm_deposit_calculation' ) ) {
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'mhm_deposit_calculation' ) ) {
 			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
 		}
 
-		$deposit_value = self::sanitize_text_field_safe( wp_unslash( $_POST['deposit_value'] ?? '' ) );
-		$daily_price   = floatval( wp_unslash( $_POST['daily_price'] ?? 0 ) );
-		$rental_days   = intval( wp_unslash( $_POST['rental_days'] ?? 1 ) );
+		$deposit_value = isset( $_POST['deposit_value'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['deposit_value'] ) ) : '';
+		$daily_price   = isset( $_POST['daily_price'] ) ? (float) sanitize_text_field( wp_unslash( (string) $_POST['daily_price'] ) ) : 0.0;
+		$rental_days   = isset( $_POST['rental_days'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_POST['rental_days'] ) ) ) : 1;
 
 		if ( $daily_price <= 0 ) {
 			wp_send_json_error( __( 'Invalid daily price', 'mhm-rentiva' ) );
@@ -69,11 +70,12 @@ class DepositAjax {
 	 * Vehicle deposit calculation AJAX handler
 	 */
 	public static function ajax_calculate_vehicle_deposit(): void {
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( self::sanitize_text_field_safe( wp_unslash( $_POST['nonce'] ) ), 'mhm_vehicle_deposit_calculation' ) ) {
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'mhm_vehicle_deposit_calculation' ) ) {
 			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
 		}
 
-		$vehicle_id  = intval( wp_unslash( $_POST['vehicle_id'] ?? 0 ) );
+		$vehicle_id  = isset( $_POST['vehicle_id'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_POST['vehicle_id'] ) ) ) : 0;
 		$rental_days = intval( wp_unslash( $_POST['rental_days'] ?? 1 ) );
 
 		if ( $vehicle_id <= 0 ) {
@@ -99,13 +101,14 @@ class DepositAjax {
 	 * Booking deposit calculation AJAX handler
 	 */
 	public static function ajax_calculate_booking_deposit(): void {
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( self::sanitize_text_field_safe( wp_unslash( $_POST['nonce'] ) ), 'mhm_rentiva_booking_action' ) ) {
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'mhm_rentiva_booking_action' ) ) {
 			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
 		}
 
-		$vehicle_id   = intval( wp_unslash( $_POST['vehicle_id'] ?? 0 ) );
-		$rental_days  = intval( wp_unslash( $_POST['rental_days'] ?? 1 ) );
-		$payment_type = self::sanitize_text_field_safe( wp_unslash( $_POST['payment_type'] ?? 'deposit' ) );
+		$vehicle_id   = isset( $_POST['vehicle_id'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_POST['vehicle_id'] ) ) ) : 0;
+		$rental_days  = isset( $_POST['rental_days'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_POST['rental_days'] ) ) ) : 1;
+		$payment_type = isset( $_POST['payment_type'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['payment_type'] ) ) : 'deposit';
 		$addons       = isset( $_POST['addons'] ) && is_array( $_POST['addons'] ) ? array_map( 'intval', wp_unslash( $_POST['addons'] ) ) : array();
 
 		if ( $vehicle_id <= 0 ) {

@@ -60,8 +60,11 @@ final class ClientUtilities
 	 */
 	public static function get_user_agent(): string
 	{
-		$user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? wp_unslash($_SERVER['HTTP_USER_AGENT']) : 'unknown';
-		return sanitize_text_field($user_agent);
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_USER_AGENT'] ) );
+		}
+
+		return 'unknown';
 	}
 
 	/**
@@ -69,8 +72,11 @@ final class ClientUtilities
 	 */
 	public static function get_referer(): string
 	{
-		$referer = isset($_SERVER['HTTP_REFERER']) ? wp_unslash($_SERVER['HTTP_REFERER']) : '';
-		return esc_url_raw($referer);
+		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
+			return esc_url_raw( wp_unslash( (string) $_SERVER['HTTP_REFERER'] ) );
+		}
+
+		return '';
 	}
 
 	/**
@@ -78,8 +84,18 @@ final class ClientUtilities
 	 */
 	public static function get_client_info(): array
 	{
-		$request_uri = isset($_SERVER['REQUEST_URI']) ? wp_unslash($_SERVER['REQUEST_URI']) : '';
-		$request_method = isset($_SERVER['REQUEST_METHOD']) ? wp_unslash($_SERVER['REQUEST_METHOD']) : 'GET';
+		$request_uri    = '';
+		$request_method = 'GET';
+
+		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Value is unslashed then escaped with esc_url_raw() on output.
+			$request_uri = wp_unslash( (string) $_SERVER['REQUEST_URI'] );
+		}
+
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Value is unslashed then sanitized with sanitize_text_field() on output.
+			$request_method = wp_unslash( (string) $_SERVER['REQUEST_METHOD'] );
+		}
 
 		return array(
 			'ip_address'     => self::get_client_ip(),

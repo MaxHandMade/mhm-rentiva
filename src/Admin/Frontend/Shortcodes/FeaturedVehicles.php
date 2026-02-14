@@ -7,10 +7,11 @@
  */
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Featured vehicles shortcode intentionally uses bounded selection/meta queries.
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
@@ -18,21 +19,25 @@ use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Vehicle\PostType\Vehicle as PT_Vehicle;
 use WP_Query;
 
-final class FeaturedVehicles extends AbstractShortcode {
+final class FeaturedVehicles extends AbstractShortcode
+{
 
 	public const SHORTCODE = 'rentiva_featured_vehicles';
 
-	protected static function get_shortcode_tag(): string {
+	protected static function get_shortcode_tag(): string
+	{
 		return self::SHORTCODE;
 	}
 
-	protected static function get_template_path(): string {
+	protected static function get_template_path(): string
+	{
 		return 'shortcodes/featured-vehicles';
 	}
 
-	protected static function get_default_attributes(): array {
+	protected static function get_default_attributes(): array
+	{
 		return array(
-			'title'                => __( 'Featured Vehicles', 'mhm-rentiva' ),
+			'title'                => __('Featured Vehicles', 'mhm-rentiva'),
 			'ids'                  => '',      // Comma separated IDs
 			'category'             => '',      // Category slug
 			'limit'                => '6',
@@ -47,99 +52,94 @@ final class FeaturedVehicles extends AbstractShortcode {
 			'show_category'        => '1',
 			'show_book_button'     => '1',
 			'show_features'        => '0',
+			'max_features'         => '5',
 			'show_brand'           => '0',
 			'show_availability'    => '0',
-			'show_compare_btn'     => '1',
 			'show_compare_button'  => '1',
 			'show_badges'          => '1',
-			'show_favorite_btn'    => '1',
 			'show_favorite_button' => '1',
+			'image_size'           => 'medium_large',
+			'price_format'         => 'daily',
 		);
 	}
 
-	protected static function prepare_template_data( array $atts ): array {
+	protected static function prepare_template_data(array $atts): array
+	{
+		// Normalize attributes for helper
+		$atts['show_favorite_button'] = ($atts['show_favorite_button'] ?? $atts['show_favorite_btn'] ?? '1') === '1';
+		$atts['show_compare_button']  = ($atts['show_compare_button'] ?? $atts['show_compare_btn'] ?? '1') === '1';
+
 		$args = array(
 			'post_type'      => PT_Vehicle::POST_TYPE,
 			'post_status'    => 'publish',
-			'posts_per_page' => (int) ( $atts['limit'] ?? 6 ),
-			'orderby'        => sanitize_key( (string) ( $atts['orderby'] ?? 'date' ) ),
-			'order'          => sanitize_key( (string) ( $atts['order'] ?? 'DESC' ) ),
+			'posts_per_page' => (int) ($atts['limit'] ?? 6),
+			'orderby'        => sanitize_key((string) ($atts['orderby'] ?? 'date')),
+			'order'          => sanitize_key((string) ($atts['order'] ?? 'DESC')),
+			'fields'         => 'ids', // Only need IDs
 		);
 
 		// Filter by IDs
-		if ( ! empty( $atts['ids'] ) ) {
-			$args['post__in'] = array_map( 'intval', explode( ',', (string) $atts['ids'] ) );
-			$args['orderby']  = 'post__in'; // Preserve order
-		}
-		// Filter by Category
-		elseif ( ! empty( $atts['category'] ) ) {
-			$args['tax_query'] = array(
+		if (! empty($atts['ids'])) {
+			$args['post__in'] = array_map('intval', explode(',', (string) $atts['ids']));
+			$args['orderby']  = 'post__in';
+		} else {
+			// MUST filter by featured meta if no IDs provided
+			$args['meta_query'] = array(
 				array(
-					'taxonomy' => 'vehicle_category',
-					'field'    => 'slug',
-					'terms'    => sanitize_text_field( (string) $atts['category'] ),
+					'key'     => '_mhm_rentiva_is_featured',
+					'value'   => '1',
+					'compare' => '=',
 				),
 			);
 		}
 
-		$cache_key = 'featured_' . md5( wp_json_encode( $atts ) );
-		$vehicles  = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache( 'vehicle_list', $cache_key );
+		// Filter by Category
+		if (! empty($atts['category'])) {
+			$args['tax_query'] = array(
+				array(
+					'taxonomy' => 'vehicle_category',
+					'field'    => 'slug',
+					'terms'    => sanitize_text_field((string) $atts['category']),
+				),
+			);
+		}
 
-		if ( empty( $vehicles ) ) {
-			$query    = new WP_Query( $args );
-			$vehicles = array();
+		$cache_key = 'featured_' . md5(wp_json_encode($args));
+		$vehicle_ids = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache('vehicle_list', $cache_key);
 
-			if ( $query->have_posts() ) {
-				while ( $query->have_posts() ) {
-					$query->the_post();
-					$id = get_the_ID();
+		if (false === $vehicle_ids) {
+			$query = new WP_Query($args);
+			$vehicle_ids = $query->posts;
 
-					// Basic data required for the card
-					$vehicles[] = array(
-						'id'            => $id,
-						'title'         => get_the_title(),
-						'permalink'     => get_permalink(),
-						'thumbnail_url' => get_the_post_thumbnail_url( $id, 'medium_large' ),
-						'price'         => get_post_meta( $id, '_mhm_rentiva_price_per_day', true ),
-						'seats'         => get_post_meta( $id, '_mhm_rentiva_seats', true ),
-						'transmission'  => get_post_meta( $id, '_mhm_rentiva_transmission', true ),
-						'fuel'          => get_post_meta( $id, '_mhm_rentiva_fuel_type', true ),
-					);
-				}
-				wp_reset_postdata();
-
-				// Cache Optimization: Set cache for 1 hour
-				if ( ! empty( $vehicles ) ) {
-					\MHMRentiva\Admin\Core\Utilities\CacheManager::set_cache( 'vehicle_list', $cache_key, $vehicles, 3600 );
-				}
+			if (! empty($vehicle_ids)) {
+				\MHMRentiva\Admin\Core\Utilities\CacheManager::set_cache('vehicle_list', $cache_key, $vehicle_ids, 3600);
 			}
 		}
 
-		// Standardize vehicle data using VehiclesList helper
+		// Standardize vehicle data using canonical VehiclesList helper
 		$standardized_vehicles = array();
-		foreach ( $vehicles as $vehicle_raw ) {
-			// Check if vehicle_raw is array or object, helper expects ID
-			$v_id = is_array( $vehicle_raw ) ? ( $vehicle_raw['id'] ?? 0 ) : ( $vehicle_raw->ID ?? 0 );
-			if ( $v_id ) {
-				$standardized_vehicles[] = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_data_for_shortcode( $v_id, $atts );
+		if (! empty($vehicle_ids)) {
+			foreach ($vehicle_ids as $v_id) {
+				$standardized_vehicles[] = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_data_for_shortcode((int) $v_id, $atts);
 			}
 		}
 
 		return array(
 			'atts'      => $atts,
 			'vehicles'  => $standardized_vehicles,
-			'has_posts' => ! empty( $standardized_vehicles ),
+			'has_posts' => ! empty($standardized_vehicles),
 		);
 	}
 
-	protected static function get_css_files( array $atts = array() ): array {
+	protected static function get_css_files(array $atts = array()): array
+	{
 		$files = array();
 
 		// If using slider layout, enqueue Swiper CSS from vendor
 		$layout = $atts['layout'] ?? 'slider';
 
-		if ( $layout === 'slider' ) {
-			wp_enqueue_style( 'mhm-swiper-css' );
+		if ($layout === 'slider') {
+			wp_enqueue_style('mhm-swiper-css');
 		}
 
 		// Module specific styles
@@ -148,25 +148,29 @@ final class FeaturedVehicles extends AbstractShortcode {
 		return $files;
 	}
 
-	protected static function get_css_dependencies(): array {
-		return array( 'mhm-vehicle-card-css' );
+	protected static function get_css_dependencies(): array
+	{
+		return array('mhm-vehicle-card-css');
 	}
 
-	protected static function get_js_files( array $atts = array() ): array {
+	protected static function get_js_files(array $atts = array()): array
+	{
 		$files  = array();
 		$layout = $atts['layout'] ?? 'slider';
 
-		if ( $layout === 'slider' ) {
+		if ($layout === 'slider') {
 			$files[] = 'assets/js/frontend/featured-vehicles.js';
 		}
 		return $files;
 	}
 
-	protected static function get_js_dependencies(): array {
-		return array( 'jquery', 'mhm-vehicle-interactions', 'mhm-swiper' );
+	protected static function get_js_dependencies(): array
+	{
+		return array('jquery', 'mhm-vehicle-interactions', 'mhm-swiper');
 	}
 
-	protected static function get_js_config(): array {
+	protected static function get_js_config(): array
+	{
 		return array();
 	}
 }

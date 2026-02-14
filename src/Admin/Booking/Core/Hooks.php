@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Booking\Core;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
+
 use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\Licensing\Restrictions;
 use MHMRentiva\Admin\Booking\Helpers\Cache;

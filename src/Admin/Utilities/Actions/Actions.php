@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 declare(strict_types=1);
 
@@ -35,29 +36,29 @@ final class Actions {
 	}
 
 	public static function refund_booking(): void {
-		$bid = isset( $_POST['booking_id'] ) ? (int) $_POST['booking_id'] : 0;
+		$bid = self::post_int( 'booking_id' );
 
-		// ✅ SECURITY: Granular permission control
+		// âœ… SECURITY: Granular permission control
 		if ( ! self::checkGranularPermission( 'refund_booking', $bid ) ) {
 			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
 		}
 
 		check_admin_referer( 'mhm_rentiva_refund_booking' );
-		$amount = isset( $_POST['amount_kurus'] ) ? (int) $_POST['amount_kurus'] : 0;
-		$reason = isset( $_POST['reason'] ) ? self::sanitize_text_field_safe( (string) $_POST['reason'] ) : '';
+		$amount = self::post_int( 'amount_kurus' );
+		$reason = self::post_text( 'reason' );
 		$res    = RefundService::process( $bid, $amount, $reason );
 		wp_safe_redirect( add_query_arg( $res, get_edit_post_link( $bid, '' ) ?: admin_url( 'edit.php?post_type=vehicle_booking' ) ) );
 		exit;
 	}
 
 	public static function purge_logs(): void {
-		// ✅ SECURITY: Granular permission control
+		// âœ… SECURITY: Granular permission control
 		if ( ! self::checkGranularPermission( 'purge_logs' ) ) {
 			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
 		}
 		check_admin_referer( 'mhm_rentiva_purge_logs' );
 
-		$days = isset( $_POST['days'] ) ? (int) $_POST['days'] : (int) get_option( 'mhm_rentiva_log_retention_days', 90 );
+		$days = self::post_int( 'days', (int) get_option( 'mhm_rentiva_log_retention_days', 90 ) );
 		if ( $days <= 0 ) {
 			$days = 90;
 		}
@@ -84,19 +85,20 @@ final class Actions {
 			return;
 		}
 		// Refund result
-		if ( isset( $_GET['mhm_refund'] ) && (string) $_GET['mhm_refund'] !== '' ) {
-			$ok   = (string) $_GET['mhm_refund'] === '1';
-			$msg  = isset( $_GET['mhm_refund_msg'] ) ? self::sanitize_text_field_safe( (string) $_GET['mhm_refund_msg'] ) : '';
+		$refund = self::get_text( 'mhm_refund' );
+		if ( '' !== $refund ) {
+			$ok   = $refund === '1';
+			$msg  = self::get_text( 'mhm_refund_msg' );
 			$type = $ok ? 'success' : 'error';
 			$base = $ok ? esc_html__( 'Refund processed.', 'mhm-rentiva' ) : esc_html__( 'Refund failed.', 'mhm-rentiva' );
 			$full = $msg ? $base . ' ' . $msg : $base;
 			echo '<div class="notice notice-' . esc_attr( $type ) . ' is-dismissible"><p>' . esc_html( $full ) . '</p></div>';
 		}
 
-		if ( ! isset( $_GET['mhm_purged'] ) || (string) $_GET['mhm_purged'] !== '1' ) {
+		if ( self::get_text( 'mhm_purged' ) !== '1' ) {
 			return;
 		}
-		$count = isset( $_GET['mhm_purge_count'] ) ? (int) $_GET['mhm_purge_count'] : 0;
+		$count = self::get_int( 'mhm_purge_count' );
 		/* translators: %d: number of deleted records */
 		echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( '%d old records deleted.', 'mhm-rentiva' ), (int) $count ) . '</p></div>';
 	}
@@ -104,7 +106,7 @@ final class Actions {
 
 
 	/**
-	 * ✅ SECURITY: Granular permission control
+	 * âœ… SECURITY: Granular permission control
 	 *
 	 * @param string   $action Action type
 	 * @param int|null $resource_id Resource ID (optional)
@@ -192,7 +194,7 @@ final class Actions {
 	}
 
 	/**
-	 * ✅ SECURITY: Audit log for permission checks
+	 * âœ… SECURITY: Audit log for permission checks
 	 *
 	 * @param string   $action Action type
 	 * @param bool     $granted Permission granted?
@@ -208,8 +210,8 @@ final class Actions {
 					'resource_id' => $resource_id,
 					'user_id'     => get_current_user_id(),
 					'user_caps'   => wp_get_current_user()->allcaps,
-					'ip_address'  => $_SERVER['REMOTE_ADDR'] ?? '',
-					'user_agent'  => $_SERVER['HTTP_USER_AGENT'] ?? '',
+					'ip_address'  => self::server_text( 'REMOTE_ADDR' ),
+					'user_agent'  => self::server_text( 'HTTP_USER_AGENT' ),
 				),
 				AdvancedLogger::CATEGORY_SECURITY
 			);
@@ -217,7 +219,7 @@ final class Actions {
 	}
 
 	/**
-	 * ✅ SECURITY: Role-based access control
+	 * âœ… SECURITY: Role-based access control
 	 *
 	 * @param string   $capability Required capability
 	 * @param int|null $resource_id Resource ID
@@ -252,5 +254,42 @@ final class Actions {
 		}
 
 		return false;
+	}
+
+	private static function post_text( string $key, string $default = '' ): string {
+		$raw = filter_input( INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw || false === $raw ) {
+			return $default;
+		}
+
+		return self::sanitize_text_field_safe( (string) $raw );
+	}
+
+	private static function post_int( string $key, int $default = 0 ): int {
+		$value = self::post_text( $key, '' );
+		return '' === $value ? $default : (int) $value;
+	}
+
+	private static function get_text( string $key, string $default = '' ): string {
+		$raw = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw || false === $raw ) {
+			return $default;
+		}
+
+		return self::sanitize_text_field_safe( (string) $raw );
+	}
+
+	private static function get_int( string $key, int $default = 0 ): int {
+		$value = self::get_text( $key, '' );
+		return '' === $value ? $default : (int) $value;
+	}
+
+	private static function server_text( string $key, string $default = '' ): string {
+		$raw = filter_input( INPUT_SERVER, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw || false === $raw ) {
+			return $default;
+		}
+
+		return self::sanitize_text_field_safe( (string) $raw );
 	}
 }

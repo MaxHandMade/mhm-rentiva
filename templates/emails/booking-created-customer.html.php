@@ -5,6 +5,7 @@
 	<div class="intro">
 		<p>
 			<?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 			/* translators: %s: customer name. */
 			printf( esc_html__( 'Dear %s, your booking has been successfully created.', 'mhm-rentiva' ), esc_html( $data['customer']['name'] ?? '' ) );
 			?>
@@ -37,7 +38,7 @@
 			</div>
 			<div class="detail-row" style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee;">
 				<span class="detail-label" style="font-weight: bold; color: #555;"><?php esc_html_e( 'Total Amount:', 'mhm-rentiva' ); ?></span>
-				<span class="detail-value" style="color: #333;"><?php echo esc_html( apply_filters( 'mhm_rentiva/currency_symbol', '₺' ) ); ?><?php echo esc_html( number_format( $data['booking']['total_price'] ?? 0, 2 ) ); ?></span>
+				<span class="detail-value" style="color: #333;"><?php echo esc_html( apply_filters( 'mhm_rentiva/currency_symbol', '' ) ); ?><?php echo esc_html( number_format( $data['booking']['total_price'] ?? 0, 2 ) ); ?></span>
 			</div>
 
 			<?php
@@ -52,11 +53,11 @@
 				?>
 				<div class="detail-row" style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee;">
 					<span class="detail-label" style="font-weight: bold; color: #555;"><?php esc_html_e( 'Deposit Amount:', 'mhm-rentiva' ); ?></span>
-					<span class="detail-value" style="color: #333;"><?php echo esc_html( apply_filters( 'mhm_rentiva/currency_symbol', '₺' ) ); ?><?php echo esc_html( number_format( $deposit_amount, 2 ) ); ?></span>
+					<span class="detail-value" style="color: #333;"><?php echo esc_html( apply_filters( 'mhm_rentiva/currency_symbol', '' ) ); ?><?php echo esc_html( number_format( $deposit_amount, 2 ) ); ?></span>
 				</div>
 				<div class="detail-row" style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee;">
 					<span class="detail-label" style="font-weight: bold; color: #555;"><?php esc_html_e( 'Remaining Amount:', 'mhm-rentiva' ); ?></span>
-					<span class="detail-value" style="color: #333;"><?php echo esc_html( apply_filters( 'mhm_rentiva/currency_symbol', '₺' ) ); ?><?php echo esc_html( number_format( $remaining_amount, 2 ) ); ?></span>
+					<span class="detail-value" style="color: #333;"><?php echo esc_html( apply_filters( 'mhm_rentiva/currency_symbol', '' ) ); ?><?php echo esc_html( number_format( $remaining_amount, 2 ) ); ?></span>
 				</div>
 			<?php endif; ?>
 
@@ -109,7 +110,7 @@
 		$user           = get_user_by( 'email', $customer_email );
 		$is_new_user    = false;
 
-		// ✅ Use WooCommerce native approach instead of ShortcodeUrlManager
+		// Use WooCommerce native approach instead of ShortcodeUrlManager.
 		$account_url = function_exists( 'wc_get_page_permalink' )
 			? wc_get_page_permalink( 'myaccount' )
 			: home_url( '/my-account/' );
@@ -136,7 +137,6 @@
 		<!-- Account Access Section -->
 		<div class="account-section" style="background: #e3f2fd; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #2196F3;">
 			<h3 style="margin: 0 0 15px 0; color: #1976d2;">
-				🔐 
 				<?php
 				echo $is_new_user ?
 						esc_html__( 'Your Account Has Been Created!', 'mhm-rentiva' ) :
@@ -159,7 +159,7 @@
 
 				<div style="text-align: center; margin: 20px 0;">
 					<a href="<?php echo esc_url( $reset_url ); ?>" class="cta-button" style="display: inline-block; background: #2196F3; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; font-size: 16px;">
-						🔐 <?php esc_html_e( 'Set Your Password', 'mhm-rentiva' ); ?>
+						<?php esc_html_e( 'Set Your Password', 'mhm-rentiva' ); ?>
 					</a>
 				</div>
 
@@ -172,7 +172,7 @@
 
 				<div style="text-align: center; margin: 20px 0;">
 					<a href="<?php echo esc_url( $account_url ); ?>" class="cta-button" style="display: inline-block; background: #2196F3; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; font-size: 16px;">
-						📊 <?php esc_html_e( 'My Account', 'mhm-rentiva' ); ?>
+						<?php esc_html_e( 'My Account', 'mhm-rentiva' ); ?>
 					</a>
 				</div>
 
@@ -183,7 +183,7 @@
 
 			<div class="tip-box" style="background: #fff3cd; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #ffc107;">
 				<p style="margin: 0; font-size: 13px; color: #856404;">
-					💡 <strong><?php esc_html_e( 'Tip:', 'mhm-rentiva' ); ?></strong>
+					<strong><?php esc_html_e( 'Tip:', 'mhm-rentiva' ); ?></strong>
 					<?php esc_html_e( 'Save your login credentials for faster bookings in the future!', 'mhm-rentiva' ); ?>
 				</p>
 			</div>
@@ -191,3 +191,4 @@
 
 	</div>
 </div>
+

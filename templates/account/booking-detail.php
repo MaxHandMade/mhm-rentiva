@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Booking Detail Template
@@ -46,7 +47,7 @@ if (! $vehicle_image) {
 }
 
 // Currency
-$currency_symbol = apply_filters('mhm_rentiva/currency_symbol', '₺');
+$currency_symbol = apply_filters('mhm_rentiva/currency_symbol', '');
 
 // Date format
 $formatted_pickup_date  = date_i18n('j F Y', strtotime($pickup_date));
@@ -203,7 +204,7 @@ if ($is_integrated) {
 		<!-- Cancellation Info -->
 		<div class="rv-cancellation-info" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107;">
 			<p style="margin: 0; font-size: 14px; color: #856404;">
-				ℹ️ <?php echo esc_html($cancellation_info['message']); ?>
+				<?php echo esc_html($cancellation_info['message']); ?>
 			</p>
 			<?php
 			$refund_policy = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_refund_policy', '');
@@ -281,3 +282,4 @@ if ($is_integrated) {
 		color: #721c24;
 	}
 </style>
+

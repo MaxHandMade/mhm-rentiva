@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * My Account - Bookings Template
@@ -14,13 +15,15 @@ if (! defined('ABSPATH')) {
 
 
 
-// Filtering with proper sanitization
-$status_filter = isset($_GET['status_filter']) ? mhm_rentiva_sanitize_text_field_safe(wp_unslash($_GET['status_filter'])) : '';
-$search_query  = isset($_GET['search_booking']) ? mhm_rentiva_sanitize_text_field_safe(wp_unslash($_GET['search_booking'])) : '';
+// Filtering with proper sanitization.
+$status_filter_raw = filter_input(INPUT_GET, 'status_filter', FILTER_SANITIZE_SPECIAL_CHARS);
+$search_query_raw  = filter_input(INPUT_GET, 'search_booking', FILTER_SANITIZE_SPECIAL_CHARS);
+$status_filter     = is_string($status_filter_raw) ? sanitize_text_field(wp_unslash($status_filter_raw)) : '';
+$search_query      = is_string($search_query_raw) ? sanitize_text_field(wp_unslash($search_query_raw)) : '';
 
 // Filter bookings
-$bookings   = $data['bookings'] ?? array();
-$navigation = $data['navigation'] ?? array();
+$bookings      = $data['bookings'] ?? array();
+$navigation    = $data['navigation'] ?? array();
 $is_integrated = empty($navigation);
 
 $filtered_bookings = $bookings;
@@ -39,7 +42,7 @@ if ($search_query) {
 	$filtered_bookings = array_filter(
 		$filtered_bookings,
 		function ($booking) use ($search_query) {
-			return strpos((string) $booking->ID, $search_query) !== false;
+			return strpos( (string) $booking->ID, $search_query) !== false;
 		}
 	);
 }
@@ -78,7 +81,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 
 	<!-- Account Navigation (only show if not on WooCommerce My Account page) -->
 	<?php if (! empty($navigation)) : ?>
-		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array('navigation' => $navigation), true)); ?>
+		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array( 'navigation' => $navigation ), true)); ?>
 	<?php endif; ?>
 
 	<!-- Bookings Content -->
@@ -148,10 +151,10 @@ if ($is_integrated) { // Use the already determined $is_integrated
 							<tbody>
 								<?php
 								foreach ($upcoming_bookings as $booking) :
-									$vehicle_id  = get_post_meta($booking->ID, '_mhm_vehicle_id', true);
-									$vehicle     = get_post($vehicle_id);
-									$status      = get_post_meta($booking->ID, '_mhm_status', true);
-									$pickup_date = get_post_meta($booking->ID, '_mhm_pickup_date', true);
+									$vehicle_id     = get_post_meta($booking->ID, '_mhm_vehicle_id', true);
+									$vehicle        = get_post($vehicle_id);
+									$booking_status = get_post_meta($booking->ID, '_mhm_status', true);
+									$pickup_date    = get_post_meta($booking->ID, '_mhm_pickup_date', true);
 									// Get pickup time with fallbacks
 									$pickup_time = get_post_meta($booking->ID, '_mhm_start_time', true);
 									if (! $pickup_time) {
@@ -176,14 +179,19 @@ if ($is_integrated) { // Use the already determined $is_integrated
 										'completed'   => esc_html__('Completed', 'mhm-rentiva'),
 										'cancelled'   => esc_html__('Cancelled', 'mhm-rentiva'),
 									);
-									$status_label  = $status_labels[$status] ?? ucfirst($status);
-									$status_class  = 'status-' . $status;
+									if (isset($status_labels[ $booking_status ])) {
+										$status_label = $status_labels[ $booking_status ];
+									} else {
+										$status_label = ucfirst($booking_status);
+									}
+									$status_class = 'status-' . $booking_status;
 
 									// Date format (site settings)
-									$format         = get_option('date_format') . ' ' . get_option('time_format');
-									$pickup_ts      = strtotime(trim($pickup_date . ' ' . ($pickup_time ?: '')));
-									$formatted_date = $pickup_ts ? date_i18n($format, $pickup_ts) : date_i18n(get_option('date_format'), strtotime($pickup_date));
-								?>
+									$format          = get_option('date_format') . ' ' . get_option('time_format');
+									$pickup_ts_input = trim($pickup_date . ' ' . $pickup_time);
+									$pickup_ts       = strtotime($pickup_ts_input);
+									$formatted_date  = $pickup_ts ? date_i18n($format, $pickup_ts) : date_i18n(get_option('date_format'), strtotime($pickup_date));
+									?>
 									<tr>
 										<td class="rv-booking-id">#<?php echo esc_html($booking->ID); ?></td>
 										<?php if (! $is_integrated) : ?>
@@ -204,7 +212,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 												if (function_exists('wc_price')) {
 													echo wp_kses_post(wc_price($total_price));
 												} else {
-													echo esc_html(number_format((float) $total_price, 2)) . ' ' . esc_html($currency_symbol);
+													echo esc_html(number_format( (float) $total_price, 2)) . ' ' . esc_html($currency_symbol);
 												}
 												?>
 											</span>
@@ -251,10 +259,10 @@ if ($is_integrated) { // Use the already determined $is_integrated
 							<tbody>
 								<?php
 								foreach ($past_bookings as $booking) :
-									$vehicle_id  = get_post_meta($booking->ID, '_mhm_vehicle_id', true);
-									$vehicle     = get_post($vehicle_id);
-									$status      = get_post_meta($booking->ID, '_mhm_status', true);
-									$pickup_date = get_post_meta($booking->ID, '_mhm_pickup_date', true);
+									$vehicle_id     = get_post_meta($booking->ID, '_mhm_vehicle_id', true);
+									$vehicle        = get_post($vehicle_id);
+									$booking_status = get_post_meta($booking->ID, '_mhm_status', true);
+									$pickup_date    = get_post_meta($booking->ID, '_mhm_pickup_date', true);
 									// Get pickup time with fallbacks
 									$pickup_time = get_post_meta($booking->ID, '_mhm_start_time', true);
 									if (! $pickup_time) {
@@ -279,14 +287,19 @@ if ($is_integrated) { // Use the already determined $is_integrated
 										'completed'   => esc_html__('Completed', 'mhm-rentiva'),
 										'cancelled'   => esc_html__('Cancelled', 'mhm-rentiva'),
 									);
-									$status_label  = $status_labels[$status] ?? ucfirst($status);
-									$status_class  = 'status-' . $status;
+									if (isset($status_labels[ $booking_status ])) {
+										$status_label = $status_labels[ $booking_status ];
+									} else {
+										$status_label = ucfirst($booking_status);
+									}
+									$status_class = 'status-' . $booking_status;
 
 									// Date format (site settings)
-									$format         = get_option('date_format') . ' ' . get_option('time_format');
-									$pickup_ts      = strtotime(trim($pickup_date . ' ' . ($pickup_time ?: '')));
-									$formatted_date = $pickup_ts ? date_i18n($format, $pickup_ts) : date_i18n(get_option('date_format'), strtotime($pickup_date));
-								?>
+									$format          = get_option('date_format') . ' ' . get_option('time_format');
+									$pickup_ts_input = trim($pickup_date . ' ' . $pickup_time);
+									$pickup_ts       = strtotime($pickup_ts_input);
+									$formatted_date  = $pickup_ts ? date_i18n($format, $pickup_ts) : date_i18n(get_option('date_format'), strtotime($pickup_date));
+									?>
 									<tr>
 										<td class="rv-booking-id">#<?php echo esc_html($booking->ID); ?></td>
 										<?php if (! $is_integrated) : ?>
@@ -307,7 +320,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 												if (function_exists('wc_price')) {
 													echo wp_kses_post(wc_price($total_price));
 												} else {
-													echo esc_html(number_format((float) $total_price, 2)) . ' ' . esc_html($currency_symbol);
+													echo esc_html(number_format( (float) $total_price, 2)) . ' ' . esc_html($currency_symbol);
 												}
 												?>
 											</span>
@@ -333,7 +346,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 			<?php if (empty($upcoming_bookings) && empty($past_bookings)) : ?>
 				<div class="rv-no-bookings">
 					<div class="rv-empty-state">
-						<div class="rv-empty-icon">📅</div>
+						<div class="rv-empty-icon">ğŸ“…</div>
 						<h3><?php esc_html_e('No Bookings Found', 'mhm-rentiva'); ?></h3>
 						<p><?php esc_html_e('You haven\'t made any vehicle bookings yet. Start exploring our fleet!', 'mhm-rentiva'); ?></p>
 						<a href="<?php echo esc_url($booking_form_url); ?>" class="rv-btn-primary">

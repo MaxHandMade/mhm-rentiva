@@ -182,7 +182,7 @@
 
 
             if (!rating) {
-                this.showMessage('Please select a rating.', 'error');
+                MHMRentivaToast.show('Please select a rating.', { type: 'error' });
                 return;
             }
 
@@ -213,23 +213,23 @@
                 },
                 success: (response) => {
                     if (response.success) {
-                        this.showMessage('✅ ' + (response.data.message || 'Your comment has been submitted successfully! Awaiting approval.'), 'success');
+                        MHMRentivaToast.show(response.data.message || 'Your comment has been submitted successfully! Awaiting approval.', { type: 'success' });
                         // Refresh page
                         setTimeout(() => {
                             window.location.reload();
                         }, 3000); // Wait 3 seconds
                     } else {
-                        this.showMessage(response.data?.message || 'An error occurred', 'error');
+                        MHMRentivaToast.show(response.data?.message || 'An error occurred', { type: 'error' });
                     }
                 },
                 error: (xhr, status, error) => {
-                    this.showMessage('An error occurred while submitting the rating.', 'error');
+                    MHMRentivaToast.show('An error occurred while submitting the rating.', { type: 'error' });
                 },
                 complete: () => {
                     $form.find('button[type="submit"]').prop('disabled', false).text('Submit Rating');
                 },
                 timeout: () => {
-                    this.showMessage('Request timed out. Please try again.', 'error');
+                    MHMRentivaToast.show('Request timed out. Please try again.', { type: 'error' });
                 }
             });
         }
@@ -263,17 +263,17 @@
                 },
                 success: (response) => {
                     if (response.success) {
-                        this.showMessage(response.data?.message || 'Your rating has been deleted successfully!', 'success');
+                        MHMRentivaToast.show(response.data?.message || 'Your rating has been deleted successfully!', { type: 'success' });
                         // Refresh page
                         setTimeout(() => {
                             window.location.reload();
                         }, 2000);
                     } else {
-                        this.showMessage(response.data?.message || 'Error deleting rating.', 'error');
+                        MHMRentivaToast.show(response.data?.message || 'Error deleting rating.', { type: 'error' });
                     }
                 },
                 error: () => {
-                    this.showMessage('Connection error. Please try again.', 'error');
+                    MHMRentivaToast.show('Connection error. Please try again.', { type: 'error' });
                 }
             });
         }
@@ -387,7 +387,12 @@
             let html = '<div class="rv-ratings-header"><h4>' + (window.mhmVehicleRating?.reviews_title || 'Reviews') + '</h4></div>';
 
             ratings.forEach((rating, index) => {
-                const stars = '★'.repeat(rating.rating) + '☆'.repeat(5 - rating.rating);
+                let stars = '';
+                for (let i = 1; i <= 5; i++) {
+                    const isFilled = i <= rating.rating;
+                    const starIcon = window.mhmVehicleRating?.icons?.star || (isFilled ? '★' : '☆');
+                    stars += `<span class="rv-star ${isFilled ? 'filled' : 'empty'}">${starIcon}</span>`;
+                }
                 // Date handling: Ensure it doesn't break if date format varies
                 let dateStr = '';
                 try {
@@ -411,61 +416,13 @@
             $container.html(html);
         }
 
-        showMessage(message, type = 'info') {
-            // Remove emoji prefix if present (we'll use icons instead)
-            const cleanMessage = message.replace(/^[✅❌ℹ️⚠️]\s*/, '');
-
-            // Ensure toast container exists
-            let $container = $('.rv-toast-container');
-            if ($container.length === 0) {
-                $container = $('<div class="rv-toast-container"></div>');
-                $('body').append($container);
-            }
-
-            // Icon based on type
-            const icons = {
-                success: '✓',
-                error: '✕',
-                info: 'ℹ',
-                warning: '⚠'
-            };
-            const icon = icons[type] || icons.info;
-
-            // Create toast element
-            const $toast = $(`
-                <div class="rv-toast ${type}">
-                    <span class="rv-toast-icon">${icon}</span>
-                    <div class="rv-toast-content">
-                        <div class="rv-toast-message">${cleanMessage}</div>
-                    </div>
-                    <button class="rv-toast-close" type="button">×</button>
-                </div>
-            `);
-
-            // Add to container
-            $container.append($toast);
-
-            // Close button handler
-            $toast.find('.rv-toast-close').on('click', function () {
-                $toast.addClass('hiding');
-                setTimeout(() => $toast.remove(), 300);
-            });
-
-            // Auto dismiss after 4 seconds
-            setTimeout(() => {
-                if ($toast.length && !$toast.hasClass('hiding')) {
-                    $toast.addClass('hiding');
-                    setTimeout(() => $toast.remove(), 300);
-                }
-            }, 4000);
-        }
 
         handleEditComment(e) {
             e.preventDefault();
 
             // Settings check
             if (!(window.mhmVehicleRating?.settings?.allow_editing ?? true)) {
-                this.showMessage('❌ Comment editing is disabled.', 'error');
+                MHMRentivaToast.show('❌ Comment editing is disabled.', { type: 'error' });
                 return;
             }
 
@@ -506,7 +463,7 @@
                 scrollTop: $form.offset().top - 100
             }, 500);
 
-            this.showMessage('✅ ' + (window.mhmVehicleRating?.strings?.edit_loaded || 'Your comment has been loaded for editing.'), 'info');
+            MHMRentivaToast.show(window.mhmVehicleRating?.strings?.edit_loaded || 'Your comment has been loaded for editing.', { type: 'info' });
         }
 
         handleDeleteComment(e) {
@@ -514,7 +471,7 @@
 
             // Settings check
             if (!(window.mhmVehicleRating?.settings?.allow_deletion ?? true)) {
-                this.showMessage('❌ Comment deletion is disabled.', 'error');
+                MHMRentivaToast.show(window.mhmRentivaVars?.i18n?.error || 'Comment deletion is disabled.', { type: 'error' });
                 return;
             }
 
@@ -545,7 +502,7 @@
                 },
                 success: (response) => {
                     if (response.success) {
-                        this.showMessage('✅ ' + (window.mhmVehicleRating?.strings?.delete_success || 'Your comment has been deleted successfully!'), 'success');
+                        MHMRentivaToast.show(window.mhmVehicleRating?.strings?.delete_success || 'Your comment has been deleted successfully!', { type: 'success' });
 
                         // Remove review from DOM
                         $reviewItem.slideUp(function () {
@@ -557,14 +514,14 @@
                             window.location.reload();
                         }, 2000);
                     } else {
-                        this.showMessage('❌ ' + (window.mhmVehicleRating?.strings?.delete_error || 'Error deleting comment: ') + (response.data?.message || (window.mhmVehicleRating?.strings?.unknown_error || 'Unknown error')), 'error');
+                        MHMRentivaToast.show((window.mhmVehicleRating?.strings?.delete_error || 'Error deleting comment: ') + (response.data?.message || (window.mhmVehicleRating?.strings?.unknown_error || 'Unknown error')), { type: 'error' });
                     }
                 },
                 error: (xhr, status, error) => {
-                    this.showMessage('❌ ' + (window.mhmVehicleRating?.strings?.delete_error_retry || 'Error deleting comment. Please try again.'), 'error');
+                    MHMRentivaToast.show(window.mhmVehicleRating?.strings?.delete_error_retry || 'Error deleting comment. Please try again.', { type: 'error' });
                 },
                 complete: () => {
-                    $btn.prop('disabled', false).html('<span class="dashicons dashicons-trash"></span> ' + (window.mhmVehicleRating?.strings?.delete || 'Delete'));
+                    $btn.prop('disabled', false).html((window.mhmVehicleRating?.icons?.trash || '') + ' ' + (window.mhmVehicleRating?.strings?.delete || 'Delete'));
                 }
             });
         }

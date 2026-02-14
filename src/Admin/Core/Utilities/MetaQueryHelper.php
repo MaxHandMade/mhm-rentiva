@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- This helper intentionally builds reusable meta/tax SQL fragments for centralized query composition.
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
@@ -12,6 +15,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Manages repeated meta query patterns centrally
  */
 final class MetaQueryHelper {
+	/**
+	 * Sanitize SQL alias used for joins.
+	 */
+	private static function sanitize_alias( string $alias ): string {
+		return preg_replace( '/[^A-Za-z0-9_]/', '', $alias ) ?? '';
+	}
+
+	/**
+	 * Normalize supported SQL operators.
+	 */
+	private static function normalize_operator( string $operator ): string {
+		$allowed = array( '=', '!=', '>', '<', '>=', '<=', 'LIKE' );
+		$clean   = strtoupper( trim( $operator ) );
+
+		return in_array( $clean, $allowed, true ) ? $clean : '=';
+	}
 
 	/**
 	 * Create LEFT JOIN for meta field
@@ -167,7 +186,9 @@ final class MetaQueryHelper {
 	 */
 	public static function build_meta_where( string $alias, string $value, string $operator = '=' ): string {
 		global $wpdb;
-		return $wpdb->prepare( "{$alias}.meta_value {$operator} %s", $value );
+		$safe_alias    = self::sanitize_alias( $alias );
+		$safe_operator = self::normalize_operator( $operator );
+		return (string) $wpdb->prepare( "{$safe_alias}.meta_value {$safe_operator} %s", $value ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Alias/operator are whitelisted.
 	}
 
 	/**
@@ -175,7 +196,13 @@ final class MetaQueryHelper {
 	 */
 	public static function build_meta_in( string $alias, array $values ): string {
 		global $wpdb;
+		$safe_alias = self::sanitize_alias( $alias );
 		$placeholders = implode( ',', array_fill( 0, count( $values ), '%s' ) );
-		return $wpdb->prepare( "{$alias}.meta_value IN ({$placeholders})", $values );
+		$args         = array_merge(
+			array( "{$safe_alias}.meta_value IN ({$placeholders})" ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Alias and generated placeholders are controlled.
+			array_values( $values )
+		);
+
+		return (string) call_user_func_array( array( $wpdb, 'prepare' ), $args );
 	}
 }

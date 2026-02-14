@@ -56,15 +56,15 @@ final class PerformanceHelper {
 	 * @param mixed  $default Default value if cache miss
 	 * @return mixed Cached data or default
 	 */
-	public static function cache_get( string $key, $default = null ) {
+	public static function cache_get( string $key, $fallback = null ) {
 		$cache_key = self::CACHE_PREFIX . $key;
 		$cached    = get_transient( $cache_key );
 
 		if ( $cached === false ) {
-			return $default;
+			return $fallback;
 		}
 
-		return $cached['data'] ?? $default;
+		return $cached['data'] ?? $fallback;
 	}
 
 	/**
@@ -92,10 +92,10 @@ final class PerformanceHelper {
 	 * @param mixed $default Default value for missing keys
 	 * @return array [key => data]
 	 */
-	public static function cache_get_multiple( array $keys, $default = null ): array {
+	public static function cache_get_multiple( array $keys, $fallback = null ): array {
 		$results = array();
 		foreach ( $keys as $key ) {
-			$results[ $key ] = self::cache_get( $key, $default );
+			$results[ $key ] = self::cache_get( $key, $fallback );
 		}
 		return $results;
 	}
@@ -119,12 +119,14 @@ final class PerformanceHelper {
 		}
 
 		$prefix_like = $wpdb->esc_like( '_transient_' . self::CACHE_PREFIX ) . '%';
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cache index invalidation requires direct transient row cleanup.
 		return $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s AND (" . implode( ' OR ', $tag_conditions ) . ')', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$prefix_like
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 	}
 
 	/**
@@ -191,7 +193,8 @@ final class PerformanceHelper {
 
 		$ids_placeholders = implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) );
 
-		$posts       = $wpdb->get_results(
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Placeholder list is generated from trusted integer ID array length.
+		$posts = $wpdb->get_results(
 			$wpdb->prepare(
 				"
             SELECT ID, post_title, post_excerpt, post_name, post_status
@@ -199,16 +202,18 @@ final class PerformanceHelper {
             WHERE ID IN ({$ids_placeholders})
             AND post_type = 'vehicle'
         ",
-				$vehicle_ids
+				...$vehicle_ids
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$posts_by_id = array();
 		foreach ( $posts as $post ) {
 			$posts_by_id[ $post['ID'] ] = $post;
 		}
 
-		$meta_data       = $wpdb->get_results(
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Placeholder list is generated from trusted integer ID array length.
+		$meta_data = $wpdb->get_results(
 			$wpdb->prepare(
 				"
             SELECT post_id, meta_key, meta_value
@@ -229,10 +234,11 @@ final class PerformanceHelper {
                 '_thumbnail_id'
             )
         ",
-				$vehicle_ids
+				...$vehicle_ids
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$meta_by_post_id = array();
 		foreach ( $meta_data as $meta ) {
 			$meta_by_post_id[ $meta['post_id'] ][ $meta['meta_key'] ] = $meta['meta_value'];
@@ -276,6 +282,9 @@ final class PerformanceHelper {
 
 		$ids_placeholders = implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Placeholder list is generated from trusted integer ID array length.
+		$prepare_params = array_merge( $vehicle_ids, array( $end_date, $start_date ) );
+
 		$bookings = $wpdb->get_results(
 			$wpdb->prepare(
 				"
@@ -298,10 +307,11 @@ final class PerformanceHelper {
             AND pm_end.meta_value >= %s
             ORDER BY pm_vehicle.meta_value, pm_start.meta_value ASC
         ",
-				array_merge( $vehicle_ids, array( $end_date, $start_date ) )
+				...$prepare_params
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		// Group by vehicle ID
 		$availability_by_vehicle = array();
@@ -432,12 +442,14 @@ final class PerformanceHelper {
 		global $wpdb;
 
 		$prefix_like = $wpdb->esc_like( '_transient_' . self::CACHE_PREFIX ) . '%';
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cache maintenance operation intentionally targets transient rows.
 		return $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
 				$prefix_like
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 	}
 
 	/**
@@ -449,13 +461,15 @@ final class PerformanceHelper {
 		global $wpdb;
 
 		$prefix_like = $wpdb->esc_like( '_transient_' . self::CACHE_PREFIX ) . '%';
-		$stats       = $wpdb->get_row(
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only aggregate statistics for plugin transient cache footprint.
+		$stats = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT COUNT(*) as total_entries, SUM(CHAR_LENGTH(option_value)) as total_size, AVG(CHAR_LENGTH(option_value)) as avg_size FROM {$wpdb->options} WHERE option_name LIKE %s",
 				$prefix_like
 			),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		return array(
 			'total_entries'    => (int) $stats['total_entries'],

@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Email Template: Booking Cancelled
@@ -124,7 +125,7 @@ $payment_status = get_post_meta( $booking_id, '_mhm_payment_status', true );
 			<tr>
 				<td style="padding: 20px;">
 					<h3 style="margin: 0 0 10px 0; font-size: 16px; color: #856404; font-weight: 600;">
-						ℹ️ <?php esc_html_e( 'Refund Information', 'mhm-rentiva' ); ?>
+						â„¹ï¸ <?php esc_html_e( 'Refund Information', 'mhm-rentiva' ); ?>
 					</h3>
 					<p style="margin: 0; font-size: 14px; color: #856404; line-height: 1.6;">
 						<?php esc_html_e( 'Your refund has been initiated and will be processed within 5-7 business days. The refund will be credited to the original payment method you used.', 'mhm-rentiva' ); ?>

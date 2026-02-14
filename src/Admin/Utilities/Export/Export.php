@@ -30,6 +30,48 @@ final class Export
 		return sanitize_text_field((string) $value);
 	}
 
+	/**
+	 * Read sanitized text from GET.
+	 */
+	private static function get_text(string $key, string $default = ''): string
+	{
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only filter persistence for admin UI.
+		if (! isset($_GET[$key])) {
+			return $default;
+		}
+		$value = sanitize_text_field(wp_unslash((string) $_GET[$key]));
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		return $value;
+	}
+
+	/**
+	 * Read sanitized text from POST.
+	 */
+	private static function post_text(string $key, string $default = ''): string
+	{
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in caller methods.
+		if (! isset($_POST[$key])) {
+			return $default;
+		}
+		$value = sanitize_text_field(wp_unslash((string) $_POST[$key]));
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		return $value;
+	}
+
+	/**
+	 * Read float from POST.
+	 */
+	private static function post_float(string $key, float $default = 0.0): float
+	{
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in caller methods.
+		if (! isset($_POST[$key])) {
+			return $default;
+		}
+		$value = (float) sanitize_text_field(wp_unslash((string) $_POST[$key]));
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		return $value;
+	}
+
 	public static function register(): void
 	{
 		// Filters + export buttons on list screens
@@ -57,15 +99,13 @@ final class Export
 			return; // Export is completely disabled
 		}
 		// Current filters (preserve) - These are only used for repopulating form fields, not for database operations
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Nonce verified in actual export action handler
-		$date_from = isset($_GET['mhm_from']) ? self::sanitize_text_field_safe(wp_unslash($_GET['mhm_from'])) : '';
-		$date_to   = isset($_GET['mhm_to']) ? self::sanitize_text_field_safe(wp_unslash($_GET['mhm_to'])) : '';
-		$gateway   = isset($_GET['mhm_gateway']) ? self::sanitize_text_field_safe(wp_unslash($_GET['mhm_gateway'])) : '';
-		$status    = isset($_GET['mhm_status']) ? self::sanitize_text_field_safe(wp_unslash($_GET['mhm_status'])) : '';
-		$pstatus   = isset($_GET['mhm_pstatus']) ? self::sanitize_text_field_safe(wp_unslash($_GET['mhm_pstatus'])) : '';
-		$amin      = isset($_GET['mhm_amin']) ? self::sanitize_text_field_safe(wp_unslash($_GET['mhm_amin'])) : '';
-		$amax      = isset($_GET['mhm_amax']) ? self::sanitize_text_field_safe(wp_unslash($_GET['mhm_amax'])) : '';
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		$date_from = self::get_text('mhm_from');
+		$date_to   = self::get_text('mhm_to');
+		$gateway   = self::get_text('mhm_gateway');
+		$status    = self::get_text('mhm_status');
+		$pstatus   = self::get_text('mhm_pstatus');
+		$amin      = self::get_text('mhm_amin');
+		$amax      = self::get_text('mhm_amax');
 
 		echo '<div class="mhm-export">';
 		echo '<details><summary>' . esc_html__('Rentiva Export Filters', 'mhm-rentiva') . '</summary>';
@@ -172,13 +212,13 @@ final class Export
 	private static function build_query_args_from_request(string $post_type): array
 	{
 		// Sanitize and validate POST data
-		$date_from = isset($_POST['mhm_from']) ? self::sanitize_text_field_safe(wp_unslash($_POST['mhm_from'])) : '';
-		$date_to   = isset($_POST['mhm_to']) ? self::sanitize_text_field_safe(wp_unslash($_POST['mhm_to'])) : '';
-		$gateway   = isset($_POST['mhm_gateway']) ? self::sanitize_text_field_safe(wp_unslash($_POST['mhm_gateway'])) : '';
-		$status    = isset($_POST['mhm_status']) ? self::sanitize_text_field_safe(wp_unslash($_POST['mhm_status'])) : '';
-		$pstatus   = isset($_POST['mhm_pstatus']) ? self::sanitize_text_field_safe(wp_unslash($_POST['mhm_pstatus'])) : '';
-		$amin      = isset($_POST['mhm_amin']) ? (float) self::sanitize_text_field_safe(wp_unslash($_POST['mhm_amin'])) : 0.0;
-		$amax      = isset($_POST['mhm_amax']) ? (float) self::sanitize_text_field_safe(wp_unslash($_POST['mhm_amax'])) : 0.0;
+		$date_from = self::post_text('mhm_from');
+		$date_to   = self::post_text('mhm_to');
+		$gateway   = self::post_text('mhm_gateway');
+		$status    = self::post_text('mhm_status');
+		$pstatus   = self::post_text('mhm_pstatus');
+		$amin      = self::post_float('mhm_amin', 0.0);
+		$amax      = self::post_float('mhm_amax', 0.0);
 
 		$args = array(
 			'post_type'      => $post_type,
@@ -287,6 +327,7 @@ final class Export
 		}
 
 		if (! empty($meta)) {
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- User-selected export filters require meta_query composition.
 			$args['meta_query'] = array_merge(array('relation' => 'AND'), $meta);
 		}
 
@@ -323,7 +364,7 @@ final class Export
 		}
 
 		// Check if filters are provided
-		$filters = isset($_POST['filters']) ? self::sanitize_text_field_safe(wp_unslash($_POST['filters'])) : '';
+		$filters = self::post_text('filters');
 		if (! empty($filters)) {
 			// Parse filters and apply them
 			parse_str($filters, $filter_data);
@@ -332,6 +373,7 @@ final class Export
 			$args = self::build_query_args_from_request($post_type);
 		}
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Backward-compatible legacy filter name.
 		$args = apply_filters('mhm_rentiva_export_args', $args); // Lite → tarih/limit kısıtları uygulanır
 
 		// Get record count before export
@@ -1126,21 +1168,24 @@ final class Export
 	private static function render_export_status_messages(): void
 	{
 		// Export started message
-		if (isset($_GET['export_started']) && $_GET['export_started'] === '1') {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only status flags for admin notices.
+		if (self::get_text('export_started') === '1') {
 			echo '<div class="notice notice-success is-dismissible">';
 			echo '<p><strong>' . esc_html__('Export Started!', 'mhm-rentiva') . '</strong> ' . esc_html__('Your export request has been queued and will be processed in the background.', 'mhm-rentiva') . '</p>';
 			echo '</div>';
 		}
 
 		// Export completed message
-		if (isset($_GET['export_completed']) && $_GET['export_completed'] === '1') {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only status flags for admin notices.
+		if (self::get_text('export_completed') === '1') {
 			echo '<div class="notice notice-success is-dismissible">';
 			echo '<p><strong>' . esc_html__('Export Completed!', 'mhm-rentiva') . '</strong> ' . esc_html__('Your export has been completed successfully.', 'mhm-rentiva') . '</p>';
 			echo '</div>';
 		}
 
 		// Export error message
-		if (isset($_GET['export_error']) && $_GET['export_error'] === '1') {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only status flags for admin notices.
+		if (self::get_text('export_error') === '1') {
 			echo '<div class="notice notice-error is-dismissible">';
 			echo '<p><strong>' . esc_html__('Export Error!', 'mhm-rentiva') . '</strong> ' . esc_html__('An error occurred during the export process.', 'mhm-rentiva') . '</p>';
 			echo '</div>';
@@ -1378,7 +1423,7 @@ final class Export
 	public static function handle_apply_filters(): void
 	{
 		// Check nonce
-		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_export_filters')) {
+		if (! wp_verify_nonce(self::post_text('nonce'), 'mhm_rentiva_export_filters')) {
 			wp_send_json_error(esc_html__('Invalid nonce', 'mhm-rentiva'));
 		}
 
@@ -1388,7 +1433,7 @@ final class Export
 		}
 
 		// Get filter data
-		$filters = self::sanitize_text_field_safe(wp_unslash($_POST['filters'] ?? ''));
+		$filters = self::post_text('filters');
 
 		// Parse filters (form data)
 		parse_str($filters, $filter_data);
@@ -1476,7 +1521,7 @@ final class Export
 	public static function handle_delete_export(): void
 	{
 		// Check nonce
-		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_export_filters')) {
+		if (! wp_verify_nonce(self::post_text('nonce'), 'mhm_rentiva_export_filters')) {
 			wp_send_json_error(esc_html__('Invalid nonce', 'mhm-rentiva'));
 		}
 
@@ -1486,7 +1531,7 @@ final class Export
 		}
 
 		// Get export ID
-		$export_id = self::sanitize_text_field_safe(wp_unslash($_POST['export_id'] ?? ''));
+		$export_id = self::post_text('export_id');
 
 		if (empty($export_id)) {
 			wp_send_json_error(esc_html__('Export ID is required', 'mhm-rentiva'));
@@ -1512,7 +1557,7 @@ final class Export
 	public static function handle_get_export_details(): void
 	{
 		// Check nonce
-		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_export_filters')) {
+		if (! wp_verify_nonce(self::post_text('nonce'), 'mhm_rentiva_export_filters')) {
 			wp_send_json_error(esc_html__('Invalid nonce', 'mhm-rentiva'));
 		}
 
@@ -1522,7 +1567,7 @@ final class Export
 		}
 
 		// Get export ID
-		$export_id = self::sanitize_text_field_safe(wp_unslash($_POST['export_id'] ?? ''));
+		$export_id = self::post_text('export_id');
 
 		if (empty($export_id)) {
 			wp_send_json_error(esc_html__('Export ID is required', 'mhm-rentiva'));
@@ -1619,6 +1664,7 @@ final class Export
 	private static function stream_json_direct(string $post_type, array $args, string $filename): void
 	{
 		if (function_exists('set_time_limit')) {
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Long-running export stream requires time limit override.
 			set_time_limit(0);
 		}
 

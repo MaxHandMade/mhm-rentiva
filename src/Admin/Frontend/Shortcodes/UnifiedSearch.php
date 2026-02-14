@@ -1,12 +1,13 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Unified search intentionally composes bounded vehicle/transfer filters and lookup queries.
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 

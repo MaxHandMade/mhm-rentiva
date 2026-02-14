@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Availability Calendar Template
@@ -9,6 +10,8 @@
 if (! defined('ABSPATH')) {
 	exit;
 }
+
+use MHMRentiva\Helpers\Icons;
 
 
 
@@ -103,9 +106,13 @@ if ($vehicle_id > 0) {
 					data-vehicle-id="<?php echo esc_attr($selected_vehicle['id']); ?>"
 					aria-label="<?php echo ($selected_vehicle['favorite'] ?? false) ? esc_html__('Remove from favorites', 'mhm-rentiva') : esc_html__('Add to favorites', 'mhm-rentiva'); ?>"
 					aria-pressed="<?php echo ($selected_vehicle['favorite'] ?? false) ? 'true' : 'false'; ?>">
-					<svg class="rv-heart-icon <?php echo ($selected_vehicle['favorite'] ?? false) ? 'favorited' : ''; ?>" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-					</svg>
+					<?php
+					Icons::render('heart', [
+						'width' => '20',
+						'height' => '20',
+						'class' => 'rv-heart-icon' . (($selected_vehicle['favorite'] ?? false) ? ' favorited' : '')
+					]);
+					?>
 				</button>
 
 				<div class="rv-vehicle-info">
@@ -148,23 +155,19 @@ if ($vehicle_id > 0) {
 									for ($i = 1; $i <= 5; $i++) :
 										$is_filled = $i <= floor($rating_avg);
 										$is_half = ($i == ceil($rating_avg)) && ($rating_avg - floor($rating_avg) >= 0.5);
-										$fill_color = $is_filled || $is_half ? '#fbbf24' : '#cbd5e1';
-										$stroke_color = $is_filled || $is_half ? '#d97706' : '#cbd5e1';
-									?>
-										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="<?php echo esc_attr($stroke_color); ?>" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display: block; width: 16px; height: 16px;">
-											<?php if ($is_half) : ?>
-												<defs>
-													<linearGradient id="halfStar-cal-<?php echo esc_attr($selected_vehicle['id']); ?>-<?php echo esc_attr($i); ?>">
-														<stop offset="50%" stop-color="#fbbf24" />
-														<stop offset="50%" stop-color="#cbd5e1" />
-													</linearGradient>
-												</defs>
-												<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="url(#halfStar-cal-<?php echo esc_attr($selected_vehicle['id']); ?>-<?php echo esc_attr($i); ?>)" stroke="none" />
-											<?php else : ?>
-												<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="<?php echo esc_attr($fill_color); ?>" />
-											<?php endif; ?>
-										</svg>
-									<?php endfor; ?>
+										$star_color = $is_filled || $is_half ? '#fbbf24' : '#cbd5e1';
+
+										if ($is_half) : ?>
+											<div style="position: relative; width: 16px; height: 16px;">
+												<div style="position: absolute; overflow: hidden; width: 50%;">
+													<?php Icons::render('star', ['width' => '16', 'height' => '16', 'style' => 'color: #fbbf24; fill: #fbbf24;']); ?>
+												</div>
+												<?php Icons::render('star', ['width' => '16', 'height' => '16', 'style' => 'color: #cbd5e1; fill: #cbd5e1;']); ?>
+											</div>
+										<?php else : ?>
+											<?php Icons::render('star', ['width' => '16', 'height' => '16', 'style' => "color: $star_color; fill: $star_color;"]); ?>
+									<?php endif;
+									endfor; ?>
 								</div>
 								<span class="rv-rating-count" style="color: #64748b; font-size: 0.875rem;">(<?php echo intval($selected_vehicle['rating']['count']); ?>)</span>
 							</div>
@@ -183,7 +186,7 @@ if ($vehicle_id > 0) {
 				<?php if (count($vehicles_list) > 1) : ?>
 					<div class="rv-vehicle-switcher-modern">
 						<button class="rv-switch-vehicle-btn" type="button" data-vehicles='<?php echo esc_attr(wp_json_encode($vehicles_list)); ?>'>
-							<span class="dashicons dashicons-arrow-down-alt2"></span>
+							<?php Icons::render('chevron-down'); ?>
 							<?php echo esc_html__('Change Vehicle', 'mhm-rentiva'); ?>
 						</button>
 					</div>
@@ -211,14 +214,14 @@ if ($vehicle_id > 0) {
 
 	<!-- Calendar Grid Hint -->
 	<div class="rv-calendar-hint" style="<?php echo ! $is_available ? 'display: none;' : ''; ?>">
-		<span class="dashicons dashicons-info-outline"></span>
+		<?php Icons::render('info'); ?>
 		<?php echo esc_html__('Click on start and end dates to select your rental period.', 'mhm-rentiva'); ?>
 	</div>
 
 	<!-- Calendar Controls (Month & Navigation) -->
 	<div class="rv-calendar-controls" style="<?php echo ! $is_available ? 'display: none;' : ''; ?>">
 		<button type="button" class="rv-control-btn rv-prev-months" data-action="prev">
-			<span class="dashicons dashicons-arrow-left-alt2"></span>
+			<?php Icons::render('chevron-left'); ?>
 			<?php echo esc_html__('Previous', 'mhm-rentiva'); ?>
 		</button>
 
@@ -228,7 +231,7 @@ if ($vehicle_id > 0) {
 
 		<button type="button" class="rv-control-btn rv-next-months" data-action="next">
 			<?php echo esc_html__('Next', 'mhm-rentiva'); ?>
-			<span class="dashicons dashicons-arrow-right-alt2"></span>
+			<?php Icons::render('chevron-right'); ?>
 		</button>
 	</div>
 
@@ -236,7 +239,7 @@ if ($vehicle_id > 0) {
 		<?php if (empty($availability_data)) : ?>
 			<div class="rv-no-data-message">
 				<div class="rv-no-data-content">
-					<span class="dashicons dashicons-calendar-alt"></span>
+					<?php Icons::render('calendar'); ?>
 					<h4><?php echo esc_html__('Calendar Data Not Found', 'mhm-rentiva'); ?></h4>
 					<p><?php echo esc_html__('Please select a vehicle or check vehicle data.', 'mhm-rentiva'); ?></p>
 					<?php if (! empty($vehicles_list)) : ?>
@@ -358,7 +361,7 @@ if ($vehicle_id > 0) {
 	</div>
 
 	<div class="rv-calendar-unavailable-message" style="text-align: center; padding: 40px; background: #fff; border: 1px solid #ddd; border-radius: 8px; margin-top: 20px; <?php echo $is_available ? 'display: none;' : ''; ?>">
-		<div style="font-size: 48px; margin-bottom: 20px;">🚫</div>
+		<div style="font-size: 48px; margin-bottom: 20px;">&#9888;</div>
 		<h3 style="color: #e74c3c; margin-bottom: 10px;"><?php echo esc_html__('Vehicle Unavailable', 'mhm-rentiva'); ?></h3>
 		<p><?php echo esc_html__('This vehicle is currently out of order and cannot be booked. Please choose another vehicle.', 'mhm-rentiva'); ?></p>
 		<?php if (count($vehicles_list) > 1) : ?>
@@ -397,7 +400,7 @@ if ($vehicle_id > 0) {
 		<?php if ($show_booking_btn === '1') : ?>
 			<div class="rv-booking-actions">
 				<button type="button" class="rv-button rv-button-primary rv-book-now-btn" disabled>
-					<span class="dashicons dashicons-calendar-alt"></span>
+					<?php Icons::render('calendar'); ?>
 					<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
 				</button>
 			</div>

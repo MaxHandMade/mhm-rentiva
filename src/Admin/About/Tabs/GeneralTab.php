@@ -77,6 +77,7 @@ final class GeneralTab extends AbstractTab
 		if (false === $stats) {
 			global $wpdb;
 
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Value is cached in transient immediately below.
 			$vehicle_count = (int) $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
@@ -85,6 +86,7 @@ final class GeneralTab extends AbstractTab
 				)
 			);
 
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Value is cached in transient immediately below.
 			$booking_count = (int) $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
@@ -93,6 +95,7 @@ final class GeneralTab extends AbstractTab
 				)
 			);
 
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Value is cached in transient immediately below.
 			$customer_count = (int) $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM {$wpdb->users} WHERE ID IN (

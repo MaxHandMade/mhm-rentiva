@@ -38,7 +38,7 @@
      * Initialize results page
      */
     function initializeResultsPage() {
-        const $container = $('#rv-search-results');
+        const $container = $('.rv-search-results');
         if ($container.length === 0) return;
 
         // Show active filters count
@@ -55,8 +55,8 @@
      * Initialize filter functionality
      */
     function initializeFilters() {
-        const $filtersForm = $('#rv-filters-form');
-        const $clearBtn = $('#rv-clear-filters');
+        const $filtersForm = $('.rv-filters-form');
+        const $clearBtn = $('.rv-clear-filters');
 
         if ($filtersForm.length === 0) return;
 
@@ -87,7 +87,7 @@
      * Initialize sorting functionality
      */
     function initializeSorting() {
-        const $sortSelect = $('#rv-sort-select');
+        const $sortSelect = $('.rv-sort-select');
 
         if ($sortSelect.length === 0) return;
 
@@ -103,45 +103,11 @@
      */
     function initializeViewToggle() {
         const $viewBtns = $('.rv-view-btn');
-        const $layoutContainer = $('#rv-results-layout-container');
-
         if ($viewBtns.length === 0) return;
 
-        // Check which button is currently active (from PHP)
-        let activeButtonView = null;
-        $viewBtns.each(function () {
-            if ($(this).hasClass('active')) {
-                activeButtonView = $(this).data('view');
-            }
-        });
-
-        // Get initial layout from PHP (container class) or default to grid
-        let initialLayout = 'grid';
-        if ($layoutContainer.length > 0) {
-            const containerClass = $layoutContainer.attr('class') || '';
-            if (containerClass.includes('rv-layout-list')) {
-                initialLayout = 'list';
-            } else if (containerClass.includes('rv-layout-grid')) {
-                initialLayout = 'grid';
-            }
-        }
-
-        // Priority: Active button > Saved preference > Container class > Default
-        let viewToUse = initialLayout;
-        if (activeButtonView && (activeButtonView === 'grid' || activeButtonView === 'list')) {
-            viewToUse = activeButtonView;
-        } else {
-            const savedView = localStorage.getItem('mhm_rentiva_view_mode');
-            if (savedView === 'list' || savedView === 'grid') {
-                viewToUse = savedView;
-            }
-        }
-
-        // Force sync: Update container class and button state
-        $viewBtns.removeClass('active');
-        $(`.rv-view-btn[data-view="${viewToUse}"]`).addClass('active');
-
-        updateLayout(viewToUse, true); // Save to localStorage
+        // Resolve current view from storage or default
+        const viewToUse = localStorage.getItem('mhm_rentiva_view_mode') || 'grid';
+        updateLayout(viewToUse, false); // Initialize layout without force-saving
 
         // Handle button clicks
         $viewBtns.on('click', function () {
@@ -171,8 +137,8 @@
         }
 
         // TARGET THE NEW PERMANENT WRAPPER
-        const $layoutContainer = $('#rv-results-layout-container');
-        const $wrapper = $('#rv-results-grid-content');
+        const $layoutContainer = $('.rv-results-content');
+        const $wrapper = $('.rv-vehicle-grid-wrapper');
 
         if ($layoutContainer.length > 0) {
             // Remove all layout classes first
@@ -380,14 +346,13 @@
         isLoading = true;
         showLoadingIndicator();
 
-        const $container = $('#rv-results-container');
         // View mode'u localStorage'dan al, yoksa grid kullan
         const currentLayout = localStorage.getItem('mhm_rentiva_view_mode') ||
             $('.rv-view-btn.active').data('view') ||
             'grid';
 
         // Get sort value from select (it's outside the form)
-        const sortValue = $('#rv-sort-select').val() || '';
+        const sortValue = $('.rv-sort-select').val() || '';
 
         const data = {
             action: 'mhm_rentiva_filter_results',
@@ -403,21 +368,24 @@
             type: 'POST',
             data: data,
             success: function (response) {
-                if (response.success) {
+                if (response.success && response.data) {
+                    // Update main content (HTML from server)
                     updateResultsContainer(response.data);
 
+                    // Update pagination (HTML from server)
                     if (response.data.pagination) {
-                        updatePagination(response.data.pagination);
+                        $('.rv-pagination').html(response.data.pagination);
                     }
 
-                    if (response.data.total !== undefined) {
-                        updateResultsCount(response.data.total);
+                    // Update count (from meta)
+                    if (response.data.meta && response.data.meta.total !== undefined) {
+                        updateResultsCount(response.data.meta.total);
                     }
                 } else {
-                    showError(response.data.message || 'An error occurred');
+                    showError(response.data?.message || 'An error occurred');
                 }
             },
-            error: function (xhr, status, error) {
+            error: function () {
                 showError('Network error. Please try again.');
             },
             complete: function () {
@@ -431,7 +399,7 @@
      * Get current filter values from form
      */
     function getCurrentFilters() {
-        const $form = $('#rv-filters-form');
+        const $form = $('.rv-filters-form');
         const filters = {};
 
         if ($form.length === 0) return {};
@@ -455,40 +423,20 @@
         return filters;
     }
 
-    /**
-     * Update results container
-     */
     function updateResultsContainer(data) {
-        // Target the inner content area
-        const $resultsContent = $('#rv-results-grid-content');
-        const $mainContainer = $('#rv-results-container'); // Fallback
-
+        const $resultsContent = $('.rv-vehicle-grid-wrapper');
         const currentLayout = localStorage.getItem('mhm_rentiva_view_mode') || 'grid';
 
-        // Update the content
+        // Update the content (Strictly server-side HTML)
         if (data.html) {
-            if ($resultsContent.length > 0) {
-                $resultsContent.html(data.html);
-            } else if ($mainContainer.length > 0) {
-                $mainContainer.html(data.html);
-            }
+            $resultsContent.html(data.html);
 
-            // Ensure layout wrapper state is correct - use setTimeout to ensure DOM is ready
+            // Ensure layout wrapper state is correct
             setTimeout(function () {
-                updateLayout(currentLayout, false); // false = don't overwrite localStorage
+                updateLayout(currentLayout, false);
             }, 50);
-
-        } else if (data.vehicles && data.vehicles.length > 0) {
-            // JSON fallback (client-side rendering)
-            const html = generateVehiclesHtml(data.vehicles, currentLayout);
-
-            if ($resultsContent.length > 0) {
-                $resultsContent.html(html);
-            } else if ($mainContainer.length > 0) {
-                $mainContainer.html(html);
-            }
         } else {
-            // Empty state
+            // Empty state (already handled by server HTML usually, but fallback here)
             const emptyHtml = `
                 <div class="rv-no-results">
                     <div class="rv-no-results-icon">🚗</div>
@@ -499,141 +447,10 @@
                     </a>
                 </div>
              `;
-
-            if ($resultsContent.length > 0) {
-                $resultsContent.html(emptyHtml);
-            } else if ($mainContainer.length > 0) {
-                $mainContainer.html(emptyHtml);
-            }
+            $resultsContent.html(emptyHtml);
         }
     }
 
-    /**
-     * Generate vehicles HTML (String builder fallback)
-     */
-    function generateVehiclesHtml(vehicles, layout) {
-        let html = '';
-        vehicles.forEach(vehicle => {
-            html += generateVehicleCardHtml(vehicle, layout);
-        });
-        return html;
-    }
-
-    /**
-     * Generate individual vehicle card HTML
-     */
-    /**
-     * Heart SVG template (consistent across all views)
-     */
-    const heartSvg = '<svg class="mhm-heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
-
-    function generateVehicleCardHtml(vehicle, layout) {
-        const esc = escapeHtml;
-        const layoutClass = layout === 'list' ? 'mhm-card--list' : 'mhm-card--grid';
-        const isGrid = layout !== 'list';
-
-        // Features: Use server-provided features if available, fallback to basic fields
-        let featuresHtml = '';
-        if (vehicle.features && vehicle.features.length > 0) {
-            vehicle.features.forEach(f => {
-                featuresHtml += `<span class="mhm-feature-chip">${esc(f.text || f.value)}</span>`;
-            });
-        } else {
-            // Fallback: basic fields
-            if (vehicle.fuel_type) featuresHtml += `<span class="mhm-feature-chip">${esc(vehicle.fuel_type)}</span>`;
-            if (vehicle.transmission) featuresHtml += `<span class="mhm-feature-chip">${esc(vehicle.transmission)}</span>`;
-            if (vehicle.seats) featuresHtml += `<span class="mhm-feature-chip">${esc(vehicle.seats)} ${mhmRentivaSearchResults.i18n.seats || 'seats'}</span>`;
-        }
-
-        const priceHtml = `
-            <div class="mhm-card-price">
-                <span class="mhm-price-amount">${esc(vehicle.currency_symbol)}${parseFloat(vehicle.price_per_day).toLocaleString()}</span>
-                <span class="mhm-price-period">${mhmRentivaSearchResults.i18n.per_day || '/day'}</span>
-            </div>`;
-
-        const favBtnHtml = `
-            <button class="mhm-card-favorite ${vehicle.is_favorite ? 'is-active' : ''}"
-                data-vehicle-id="${vehicle.id}"
-                aria-label="${mhmRentivaSearchResults.i18n.added_to_favorites || 'Add to favorites'}">
-                ${heartSvg}
-            </button>`;
-
-        return `
-            <div class="mhm-vehicle-card ${layoutClass}" data-vehicle-id="${vehicle.id}">
-                <div class="mhm-card-image">
-                    <a href="${esc(vehicle.url)}">
-                        ${vehicle.featured_image && vehicle.featured_image.url ?
-                `<img src="${vehicle.featured_image.url}" alt="${esc(vehicle.featured_image.alt)}" loading="lazy">` :
-                `<div class="mhm-no-image-placeholder">No Image</div>`
-            }
-                    </a>
-                    ${favBtnHtml}
-                </div>
-
-                <div class="mhm-card-content">
-                    <div class="mhm-content-main">
-                        ${vehicle.brand ? `<div class="mhm-card-category">${esc(vehicle.brand)}${vehicle.model ? ' ' + esc(vehicle.model) : ''}</div>` : ''}
-                        
-                        <h3 class="mhm-card-title">
-                            <a href="${esc(vehicle.url)}">${esc(vehicle.title)}</a>
-                        </h3>
-
-                        ${isGrid ? priceHtml : ''}
-
-                        <div class="mhm-card-features">
-                            ${featuresHtml}
-                        </div>
-                    </div>
-
-                    ${!isGrid ? `
-                    <div class="mhm-content-actions">
-                        ${priceHtml}
-                        <a href="${esc(vehicle.url)}" class="mhm-btn-booking">${mhmRentivaSearchResults.i18n.view_details || 'View Details'}</a>
-                    </div>
-                    ` : `
-                    <div class="mhm-card-footer">
-                        <a href="${esc(vehicle.url)}" class="mhm-btn-booking">${mhmRentivaSearchResults.i18n.view_details || 'View Details'}</a>
-                    </div>
-                    `}
-                </div>
-            </div>
-        `;
-    }
-
-    /**
-     * Update pagination
-     */
-    function updatePagination(pagination) {
-        const $pagination = $('#rv-pagination');
-        if ($pagination.length === 0 || !pagination) return;
-
-        // Generate pagination HTML
-        let html = '<div class="page-numbers">';
-
-        // Previous button
-        if (pagination.has_prev) {
-            const prevText = mhmRentivaSearchResults.i18n.previous || 'Previous';
-            html += `<a href="?page=${pagination.prev_page}" class="prev page-numbers">← ${prevText}</a>`;
-        }
-
-        // Page numbers
-        const startPage = Math.max(1, pagination.current - 2);
-        const endPage = Math.min(pagination.total, pagination.current + 2);
-
-        for (let i = startPage; i <= endPage; i++) {
-            const activeClass = i === pagination.current ? 'current' : '';
-            html += `<a href="?page=${i}" class="page-numbers ${activeClass}">${i}</a>`;
-        }
-
-        // Next button
-        if (pagination.has_next) {
-            const nextText = mhmRentivaSearchResults.i18n.next || 'Next';
-            html += `<a href="?page=${pagination.next_page}" class="next page-numbers">${nextText} →</a>`;
-        }
-
-        html += '</div>';
-        $pagination.html(html);
-    }
 
     /**
      * Update results count
@@ -674,17 +491,17 @@
                     // Toggle .is-active class - CSS handles the visual state
                     if (action === 'added') {
                         $btn.addClass('is-active');
-                        showNotification(mhmRentivaSearchResults.i18n.added_to_favorites || 'Added to favorites', 'success');
+                        MHMRentivaToast.show(mhmRentivaSearchResults.i18n.added_to_favorites || 'Added to favorites', { type: 'success' });
                     } else {
                         $btn.removeClass('is-active');
-                        showNotification(mhmRentivaSearchResults.i18n.removed_from_favorites || 'Removed from favorites', 'success');
+                        MHMRentivaToast.show(mhmRentivaSearchResults.i18n.removed_from_favorites || 'Removed from favorites', { type: 'success' });
                     }
                 } else {
-                    showError(response.data.message || 'An error occurred');
+                    MHMRentivaToast.show(response.data.message || 'An error occurred', { type: 'error' });
                 }
             },
             error: function () {
-                showError('Network error. Please try again.');
+                MHMRentivaToast.show('Network error. Please try again.', { type: 'error' });
             },
             complete: function () {
                 $btn.prop('disabled', false);
@@ -730,14 +547,11 @@
      * Show loading indicator
      */
     function showLoadingIndicator() {
-        $('#rv-loading-indicator').show();
+        $('.rv-loading-indicator').show();
     }
 
-    /**
-     * Hide loading indicator
-     */
     function hideLoadingIndicator() {
-        $('#rv-loading-indicator').hide();
+        $('.rv-loading-indicator').hide();
     }
 
     /**
@@ -768,30 +582,11 @@
     }
 
     /**
-     * Show notification
+     * Legacy notification system removed in favor of centralized MHMRentivaToast.
+     * Maintained for backward compatibility or internal calls.
      */
     function showNotification(message, type = 'info') {
-        // Remove existing notifications if any
-        $('.rv-notification').remove();
-
-        const icon = type === 'success' ? '✓' : '!';
-        const $notification = $(`
-            <div class="rv-notification rv-notification--show rv-notification--${type}">
-                <div class="rv-notification-body">
-                    <span class="rv-notification-icon-badge">${icon}</span>
-                    <span class="rv-notification-text">${message}</span>
-                </div>
-            </div>
-        `);
-
-        $('body').append($notification);
-
-        // Auto-hide after 3.5 seconds
-        setTimeout(() => {
-            $notification.fadeOut(400, function () {
-                $(this).remove();
-            });
-        }, 3500);
+        MHMRentivaToast.show(message, { type: type });
     }
 
 })(jQuery);

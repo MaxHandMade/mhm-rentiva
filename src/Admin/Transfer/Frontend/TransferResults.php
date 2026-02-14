@@ -7,6 +7,7 @@
  */
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Transfer result rendering uses bounded search/filter queries tied to user input constraints.
 
 namespace MHMRentiva\Admin\Transfer\Frontend;
 
@@ -118,20 +119,22 @@ final class TransferResults extends AbstractShortcode
         $origin_name      = '';
         $destination_name = '';
 
-        // Use same table name lookup pattern as TransferSearchEngine
+        // Use same table name lookup pattern as TransferSearchEngine.
         $table_locations = $wpdb->prefix . 'rentiva_transfer_locations';
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table_locations'") !== $table_locations) {
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_locations)) !== $table_locations) {
             $table_locations = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
         }
+        $table_locations = preg_replace('/[^A-Za-z0-9_]/', '', $table_locations) ?? '';
 
         if (! empty($criteria['origin_id'])) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $origin_name = (string) $wpdb->get_var($wpdb->prepare("SELECT name FROM {$table_locations} WHERE id = %d", $criteria['origin_id']));
+            $origin_name = (string) $wpdb->get_var(
+                $wpdb->prepare('SELECT name FROM %i WHERE id = %d', $table_locations, $criteria['origin_id'])
+            );
         }
         if (! empty($criteria['destination_id'])) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $destination_name = (string) $wpdb->get_var($wpdb->prepare("SELECT name FROM {$table_locations} WHERE id = %d", $criteria['destination_id']));
+            $destination_name = (string) $wpdb->get_var(
+                $wpdb->prepare('SELECT name FROM %i WHERE id = %d', $table_locations, $criteria['destination_id'])
+            );
         }
 
         return array(

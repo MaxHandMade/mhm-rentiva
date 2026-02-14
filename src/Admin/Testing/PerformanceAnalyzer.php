@@ -58,12 +58,10 @@ final class PerformanceAnalyzer {
 			return $query;
 		}
 
-		$backtrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 10 );
-
 		self::$queries[] = array(
-			'sql'       => $query,
-			'time'      => microtime( true ),
-			'backtrace' => $backtrace,
+			'sql'    => $query,
+			'time'   => microtime( true ),
+			'source' => current_filter(),
 		);
 
 		return $query;

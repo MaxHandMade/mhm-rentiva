@@ -127,35 +127,14 @@ final class PerformanceMonitor {
 			return $data;
 		}
 
-		$backtrace    = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 10 );
-		$query_source = self::find_query_source( $backtrace );
-
 		self::$queries[] = array(
 			'query'     => $data['query'] ?? '',
 			'time'      => $data['query_time'] ?? 0,
-			'source'    => $query_source,
+			'source'    => 'query_monitor',
 			'timestamp' => microtime( true ),
 		);
 
 		return $data;
-	}
-
-	/**
-	 * Find query source
-	 */
-	private static function find_query_source( array $backtrace ): string {
-		foreach ( $backtrace as $trace ) {
-			if ( isset( $trace['file'] ) ) {
-				$file = $trace['file'];
-
-				// Filter files related to MHM Messages
-				if ( strpos( $file, 'mhm-rentiva' ) !== false && strpos( $file, 'Messages' ) !== false ) {
-					return basename( $file ) . ':' . ( $trace['line'] ?? 'unknown' );
-				}
-			}
-		}
-
-		return 'unknown';
 	}
 
 	/**

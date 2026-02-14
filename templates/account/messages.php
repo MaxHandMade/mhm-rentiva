@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * My Account - Messages Template
@@ -67,7 +68,7 @@ if (empty($navigation)) {
 			<div id="message-thread" class="message-thread hidden">
 				<div class="thread-header">
 					<button type="button" class="back-to-list btn btn-secondary">
-						← <?php esc_html_e('Back to Messages', 'mhm-rentiva'); ?>
+						â† <?php esc_html_e('Back to Messages', 'mhm-rentiva'); ?>
 					</button>
 					<h3 id="thread-subject"></h3>
 				</div>

@@ -127,7 +127,7 @@ final class LicenseSettings {
 		}
 
 		// Verify nonce
-		if ( ! wp_verify_nonce( self::sanitize_text_field_safe( wp_unslash( $_POST['mhm_license_nonce'] ) ), 'mhm_rentiva_license_action' ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['mhm_license_nonce'] ) ), 'mhm_rentiva_license_action' ) ) {
 			wp_die( esc_html__( 'Security check failed. Please try again.', 'mhm-rentiva' ) );
 		}
 
@@ -140,13 +140,13 @@ final class LicenseSettings {
 			return;
 		}
 
-		$action = self::sanitize_text_field_safe( wp_unslash( $_POST['mhm_license_action'] ) );
+		$action = sanitize_text_field( wp_unslash( (string) $_POST['mhm_license_action'] ) );
 		$lm     = LicenseManager::instance();
 		$result = null;
 
 		switch ( $action ) {
 			case 'activate':
-				$key = self::sanitize_text_field_safe( wp_unslash( $_POST['mhm_license_key'] ?? '' ) );
+				$key = isset( $_POST['mhm_license_key'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_license_key'] ) ) : '';
 				if ( empty( $key ) ) {
 					add_action(
 						'admin_notices',

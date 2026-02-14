@@ -90,6 +90,34 @@ final class VehicleMeta extends AbstractMetaBox {
 		return sanitize_text_field( (string) $value );
 	}
 
+	/**
+	 * Read sanitized text from POST.
+	 */
+	private static function post_text( string $key, string $default = '' ): string {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is verified in caller save/AJAX handlers.
+		if ( ! isset( $_POST[ $key ] ) ) {
+			return $default;
+		}
+		$value = sanitize_text_field( wp_unslash( (string) $_POST[ $key ] ) );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		return $value;
+	}
+
+	/**
+	 * Read unslashed array from POST.
+	 *
+	 * @return array<mixed>
+	 */
+	private static function post_array( string $key ): array {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is verified in caller save/AJAX handlers.
+		if ( ! isset( $_POST[ $key ] ) || ! is_array( $_POST[ $key ] ) ) {
+			return array();
+		}
+		$value = wp_unslash( $_POST[ $key ] );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		return $value;
+	}
+
 	protected static function get_post_type(): string {
 		return 'vehicle';
 	}
@@ -392,7 +420,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			return;
 		}
 
-		if ( ! isset( $_POST['mhm_rentiva_vehicle_meta_nonce'] ) || ! wp_verify_nonce( self::sanitize_text_field_safe( wp_unslash( $_POST['mhm_rentiva_vehicle_meta_nonce'] ) ), 'mhm_rentiva_vehicle_meta_action' ) ) {
+		if ( ! isset( $_POST['mhm_rentiva_vehicle_meta_nonce'] ) || ! wp_verify_nonce( self::post_text( 'mhm_rentiva_vehicle_meta_nonce' ), 'mhm_rentiva_vehicle_meta_action' ) ) {
 			return;
 		}
 
@@ -408,13 +436,13 @@ final class VehicleMeta extends AbstractMetaBox {
 		$available_features  = get_option( 'mhm_vehicle_features', self::get_default_features() );
 		$available_equipment = get_option( 'mhm_vehicle_equipment', self::get_default_equipment() );
 
-		$details_order = isset( $_POST['details-grid_order'] ) ? json_decode( wp_unslash( $_POST['details-grid_order'] ), true ) : null;
+		$details_order = json_decode( self::post_text( 'details-grid_order' ), true );
 
 		if ( $details_order && is_array( $details_order ) ) {
 			update_post_meta( $post_id, '_mhm_details_order', $details_order );
 		}
 
-		$removed_details = isset( $_POST['removed_details'] ) ? json_decode( wp_unslash( $_POST['removed_details'] ), true ) : array();
+		$removed_details = json_decode( self::post_text( 'removed_details' ), true );
 		if ( ! is_array( $removed_details ) ) {
 			$removed_details = array();
 		}
@@ -422,7 +450,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		$meta_updates = array();
 
 		if ( isset( $_POST['_mhm_vehicle_status'] ) ) {
-			$status  = self::sanitize_text_field_safe( wp_unslash( $_POST['_mhm_vehicle_status'] ) );
+			$status  = self::post_text( '_mhm_vehicle_status' );
 			$allowed = array( 'active', 'inactive', 'maintenance' );
 
 			if ( in_array( $status, $allowed, true ) ) {
@@ -433,9 +461,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		}
 
 		// Sanitize availability value before using
-		$availability_value                        = isset( $_POST['mhm_rentiva_available'] )
-			? self::sanitize_text_field_safe( wp_unslash( $_POST['mhm_rentiva_available'] ) )
-			: '';
+		$availability_value                        = self::post_text( 'mhm_rentiva_available' );
 		$sanitized_availability                    = self::sanitize_field( 'mhm_rentiva_available', $availability_value );
 		$meta_updates['_mhm_vehicle_availability'] = $sanitized_availability;
 
@@ -447,9 +473,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			$field_name = 'mhm_rentiva_' . $key;
 			$meta_key   = '_mhm_rentiva_' . $key;
 			// Sanitize value from POST
-			$value                     = isset( $_POST[ $field_name ] )
-				? self::sanitize_text_field_safe( wp_unslash( $_POST[ $field_name ] ) )
-				: '';
+			$value                     = self::post_text( $field_name );
 			$sanitized_value           = self::sanitize_field( $field_name, $value );
 			$meta_updates[ $meta_key ] = $sanitized_value;
 		}
@@ -481,16 +505,14 @@ final class VehicleMeta extends AbstractMetaBox {
 			$field_name = 'mhm_rentiva_' . $field_key;
 
 			if ( isset( $_POST[ $field_name ] ) ) {
-				$value                     = self::sanitize_text_field_safe( wp_unslash( $_POST[ $field_name ] ) );
+				$value                     = self::post_text( $field_name );
 				$value                     = mb_convert_encoding( $value, 'UTF-8', 'auto' );
 				$meta_updates[ $meta_key ] = $value;
 			}
 		}
 
 		// Sanitize legacy custom details array
-		$legacy_custom_details = isset( $_POST['mhm_rentiva_custom_details'] )
-			? ( is_array( $_POST['mhm_rentiva_custom_details'] ) ? wp_unslash( $_POST['mhm_rentiva_custom_details'] ) : array() )
-			: array();
+		$legacy_custom_details = self::post_array( 'mhm_rentiva_custom_details' );
 
 		$sanitized_custom_details = array();
 
@@ -532,8 +554,8 @@ final class VehicleMeta extends AbstractMetaBox {
 			}
 		}
 
-		$features_order  = isset( $_POST['features-grid_order'] ) ? json_decode( wp_unslash( $_POST['features-grid_order'] ), true ) : null;
-		$equipment_order = isset( $_POST['equipment-grid_order'] ) ? json_decode( wp_unslash( $_POST['equipment-grid_order'] ), true ) : null;
+		$features_order  = json_decode( self::post_text( 'features-grid_order' ), true );
+		$equipment_order = json_decode( self::post_text( 'equipment-grid_order' ), true );
 
 		if ( $features_order && is_array( $features_order ) ) {
 			update_post_meta( $post_id, '_mhm_features_order', $features_order );
@@ -544,16 +566,12 @@ final class VehicleMeta extends AbstractMetaBox {
 		}
 
 		// Sanitize features array before processing
-		$features           = isset( $_POST['mhm_rentiva_features'] )
-			? ( is_array( $_POST['mhm_rentiva_features'] ) ? array_map( array( self::class, 'sanitize_text_field_safe' ), wp_unslash( $_POST['mhm_rentiva_features'] ) ) : array() )
-			: array();
+		$features           = array_map( array( self::class, 'sanitize_text_field_safe' ), self::post_array( 'mhm_rentiva_features' ) );
 		$sanitized_features = self::sanitize_array( $features );
 		update_post_meta( $post_id, '_mhm_rentiva_features', $sanitized_features );
 
 		// Sanitize equipment array before processing
-		$equipment           = isset( $_POST['mhm_rentiva_equipment'] )
-			? ( is_array( $_POST['mhm_rentiva_equipment'] ) ? array_map( array( self::class, 'sanitize_text_field_safe' ), wp_unslash( $_POST['mhm_rentiva_equipment'] ) ) : array() )
-			: array();
+		$equipment           = array_map( array( self::class, 'sanitize_text_field_safe' ), self::post_array( 'mhm_rentiva_equipment' ) );
 		$sanitized_equipment = self::sanitize_array( $equipment );
 		update_post_meta( $post_id, '_mhm_rentiva_equipment', $sanitized_equipment );
 	}
@@ -664,12 +682,12 @@ final class VehicleMeta extends AbstractMetaBox {
 	 * Save Vehicle meta
 	 */
 	public static function save_vehicle_meta( int $post_id, array $field_config ): void {
-		if ( ! isset( $_POST['mhm_rentiva_vehicle_meta_nonce'] ) || ! wp_verify_nonce( self::sanitize_text_field_safe( wp_unslash( $_POST['mhm_rentiva_vehicle_meta_nonce'] ) ), 'mhm_rentiva_vehicle_meta_action' ) ) {
+		if ( ! isset( $_POST['mhm_rentiva_vehicle_meta_nonce'] ) || ! wp_verify_nonce( self::post_text( 'mhm_rentiva_vehicle_meta_nonce' ), 'mhm_rentiva_vehicle_meta_action' ) ) {
 			return;
 		}
 
 		if ( isset( $_POST['_mhm_vehicle_status'] ) ) {
-			$status  = self::sanitize_text_field_safe( wp_unslash( $_POST['_mhm_vehicle_status'] ) );
+			$status  = self::post_text( '_mhm_vehicle_status' );
 			$allowed = array( 'active', 'inactive', 'maintenance' );
 
 			if ( in_array( $status, $allowed, true ) ) {
@@ -697,7 +715,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		foreach ( $meta_fields as $field ) {
 			if ( isset( $_POST[ $field ] ) ) {
-				$value = self::sanitize_text_field_safe( wp_unslash( $_POST[ $field ] ) );
+				$value = self::post_text( $field );
 				update_post_meta( $post_id, $field, $value );
 			}
 		}
@@ -1103,11 +1121,9 @@ final class VehicleMeta extends AbstractMetaBox {
 			wp_send_json_error( __( 'Permission error', 'mhm-rentiva' ) );
 		}
 
-		$grid_type = self::sanitize_text_field_safe( wp_unslash( $_POST['grid_type'] ?? '' ) );
+		$grid_type = self::post_text( 'grid_type' );
 		// Sanitize order array - each element should be a string key
-		$order = isset( $_POST['order'] ) && is_array( $_POST['order'] )
-			? array_map( array( self::class, 'sanitize_text_field_safe' ), wp_unslash( $_POST['order'] ) )
-			: array();
+		$order = array_map( array( self::class, 'sanitize_text_field_safe' ), self::post_array( 'order' ) );
 
 		if ( empty( $grid_type ) || empty( $order ) ) {
 			wp_send_json_error( __( 'Invalid data', 'mhm-rentiva' ) );

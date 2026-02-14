@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Booking Form Template
@@ -22,7 +23,7 @@ $time_options     = $time_options ?? array();
 $guest_options    = $guest_options ?? array();
 $addons           = $addons ?? array();
 
-// ⭐ Logic moved to Controller (BookingForm::prepare_template_data)
+// â­ Logic moved to Controller (BookingForm::prepare_template_data)
 // Template now only receives pre-processed data
 
 // Error check (validation error from controller)
@@ -49,7 +50,7 @@ $class                 = $atts['class'] ?? '';
 $redirect_url          = $atts['redirect_url'] ?? '';
 $form_title            = $atts['form_title'] ?? esc_html__('Booking Form', 'mhm-rentiva');
 
-// ⭐ Get user data from controller (pre-processed)
+// â­ Get user data from controller (pre-processed)
 $user_data    = $user_data ?? array();
 $is_logged_in = $user_data['is_logged_in'] ?? false;
 $user_name    = $user_data['user_name'] ?? '';
@@ -435,7 +436,7 @@ $unique_id = uniqid('rv_booking_');
 </div>
 
 <?php
-// ⭐ Inline JavaScript removed - All JS is now in assets/js/frontend/booking-form.js
+// â­ Inline JavaScript removed - All JS is now in assets/js/frontend/booking-form.js
 // Payment status handling is done via JavaScript in the external file
 // Data is passed via wp_localize_script in BookingForm::enqueue_assets()
 ?>

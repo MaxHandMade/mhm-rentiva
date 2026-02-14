@@ -54,27 +54,7 @@
 		},
 
 		showNotification: function (message, type = 'info') {
-			// Remove existing notifications if any
-			$('.rv-notification').remove();
-
-			const icon = type === 'success' ? '✓' : '!';
-			const $notification = $(`
-				<div class="rv-notification rv-notification--show rv-notification--${type}">
-					<div class="rv-notification-body">
-						<span class="rv-notification-icon-badge">${icon}</span>
-						<span class="rv-notification-text">${message}</span>
-					</div>
-				</div>
-			`);
-
-			$('body').append($notification);
-
-			// Auto-hide after 3.5 seconds
-			setTimeout(() => {
-				$notification.fadeOut(400, function () {
-					$(this).remove();
-				});
-			}, 3500);
+			MHMRentivaToast.show(message, { type: type });
 		},
 
 		debounce: function (delay, callback) {

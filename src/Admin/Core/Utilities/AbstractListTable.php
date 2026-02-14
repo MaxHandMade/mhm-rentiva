@@ -66,7 +66,7 @@ abstract class AbstractListTable extends \WP_List_Table {
 	public function prepare_items(): void {
 		// Process bulk actions before loading data
 		// NOTE: Redirects terminate this function, so handle redirects early
-		if ( isset( $_POST['action'] ) || isset( $_POST['action2'] ) ) {
+		if ( '' !== $this->current_action() ) {
 			$this->handle_bulk_actions();
 		}
 
@@ -103,13 +103,14 @@ abstract class AbstractListTable extends \WP_List_Table {
 		$args['offset']         = $offset;
 
 		// Add sorting
-		$orderby = sanitize_key( $_GET['orderby'] ?? 'date' );
-		$order   = sanitize_key( $_GET['order'] ?? 'desc' );
+		$orderby = self::get_key_param( 'orderby', 'date' );
+		$order   = self::get_key_param( 'order', 'desc' );
 		$args    = $this->apply_sorting( $args, $orderby, $order );
 
 		// Add search
-		if ( ! empty( $_GET['s'] ) ) {
-			$args['s'] = self::sanitize_text_field_safe( $_GET['s'] );
+		$search = self::get_text_param( 's' );
+		if ( '' !== $search ) {
+			$args['s'] = $search;
 		}
 
 		// Add custom filters
@@ -156,8 +157,11 @@ abstract class AbstractListTable extends \WP_List_Table {
 			return;
 		}
 
-		$action   = sanitize_key( $_POST['action'] ?? $_POST['action2'] ?? '' );
-		$item_ids = array_map( 'intval', $_POST[ $this->get_bulk_action_name() ] );
+		$action   = self::post_key_param( 'action' );
+		if ( '' === $action ) {
+			$action = self::post_key_param( 'action2' );
+		}
+		$item_ids = array_map( 'intval', self::post_array_param( $this->get_bulk_action_name() ) );
 
 		if ( empty( $item_ids ) ) {
 			return;
@@ -173,11 +177,11 @@ abstract class AbstractListTable extends \WP_List_Table {
 
 			// Redirect with success message (to avoid resubmission)
 			// Get base admin URL - use $_SERVER['REQUEST_URI'] to get current page
-			$current_page = isset( $_GET['page'] ) ? sanitize_text_field( $_GET['page'] ) : '';
+			$current_page = self::get_text_param( 'page' );
 
 			if ( empty( $current_page ) ) {
 				// Fallback: try to get from REQUEST_URI
-				$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
+				$request_uri = self::server_text_param( 'REQUEST_URI' );
 				if ( preg_match( '/[?&]page=([^&]+)/', $request_uri, $matches ) ) {
 					$current_page = $matches[1];
 				}
@@ -203,8 +207,9 @@ abstract class AbstractListTable extends \WP_List_Table {
 
 			// Preserve other GET parameters (filters, search, etc.)
 			foreach ( array( 's', 'status_filter', 'category_filter', 'thread_id', 'unread_only', 'orderby', 'order' ) as $param ) {
-				if ( isset( $_GET[ $param ] ) && ! empty( $_GET[ $param ] ) ) {
-					$redirect_url = add_query_arg( $param, sanitize_text_field( $_GET[ $param ] ), $redirect_url );
+				$param_value = self::get_text_param( $param );
+				if ( '' !== $param_value ) {
+					$redirect_url = add_query_arg( $param, $param_value, $redirect_url );
 				}
 			}
 
@@ -420,7 +425,7 @@ abstract class AbstractListTable extends \WP_List_Table {
 	 * Render shared search box.
 	 */
 	protected function render_search_box(): void {
-		$search_term = self::sanitize_text_field_safe( $_GET['s'] ?? '' );
+		$search_term = self::get_text_param( 's' );
 
 		echo '<p class="search-box">';
 		echo '<label class="screen-reader-text" for="' . esc_attr( $this->get_search_input_id() ) . '">' . esc_html__( 'Search:', 'mhm-rentiva' ) . '</label>';
@@ -434,5 +439,63 @@ abstract class AbstractListTable extends \WP_List_Table {
 	 */
 	protected function get_search_input_id(): string {
 		return $this->get_plural_name() . '-search-input';
+	}
+
+	/**
+	 * Safely read text from $_GET.
+	 */
+	protected static function get_text_param( string $key, string $default = '' ): string {
+		$raw_value = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw_value || false === $raw_value ) {
+			return $default;
+		}
+
+		return self::sanitize_text_field_safe( (string) $raw_value );
+	}
+
+	/**
+	 * Safely read key-like value from $_GET.
+	 */
+	protected static function get_key_param( string $key, string $default = '' ): string {
+		$value = self::get_text_param( $key, $default );
+		return '' === $value ? $default : sanitize_key( $value );
+	}
+
+	/**
+	 * Safely read key-like value from $_POST.
+	 */
+	protected static function post_key_param( string $key, string $default = '' ): string {
+		$raw_value = filter_input( INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw_value || false === $raw_value ) {
+			return $default;
+		}
+
+		return sanitize_key( self::sanitize_text_field_safe( (string) $raw_value ) );
+	}
+
+	/**
+	 * Safely read array value from $_POST.
+	 *
+	 * @return array<int|string,mixed>
+	 */
+	protected static function post_array_param( string $key ): array {
+		$raw_value = filter_input( INPUT_POST, $key, FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+		if ( ! is_array( $raw_value ) ) {
+			return array();
+		}
+
+		return wp_unslash( $raw_value );
+	}
+
+	/**
+	 * Safely read text from $_SERVER.
+	 */
+	protected static function server_text_param( string $key, string $default = '' ): string {
+		$raw_value = filter_input( INPUT_SERVER, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw_value || false === $raw_value ) {
+			return $default;
+		}
+
+		return self::sanitize_text_field_safe( (string) $raw_value );
 	}
 }

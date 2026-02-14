@@ -63,7 +63,7 @@ final class EmailTemplates {
 			'preview'               => __( 'Email Preview', 'mhm-rentiva' ),
 		);
 
-		$current_type = isset( $_GET['type'] ) ? sanitize_key( (string) $_GET['type'] ) : 'booking_notifications';
+		$current_type = self::get_key( 'type', 'booking_notifications' );
 		if ( ! isset( $email_types[ $current_type ] ) ) {
 			$current_type = 'booking_notifications';
 		}
@@ -101,8 +101,8 @@ final class EmailTemplates {
 			echo '<div><button type="button" id="mhm-send-template-btn-settings" class="button button-secondary" data-post="' . esc_url( $admin_post ) . '" data-nonce="' . esc_attr( $nonce ) . '">' . esc_html__( 'Send Test Email', 'mhm-rentiva' ) . '</button></div>';
 			echo '</div>';
 
-			if ( isset( $_GET['mhm_template_test'] ) ) {
-				$st = sanitize_text_field( (string) ( $_GET['mhm_template_test'] ?? '' ) );
+			$st = self::get_text( 'mhm_template_test' );
+			if ( '' !== $st ) {
 				if ( $st === 'success' ) {
 					echo '<div class="notice notice-success inline" style="margin-top:8px;"><p>' . esc_html__( 'Template email sent.', 'mhm-rentiva' ) . '</p></div>';
 				} elseif ( $st === 'failed' ) {
@@ -142,8 +142,8 @@ final class EmailTemplates {
 			echo '<div><button type="button" id="mhm-send-template-btn" class="button button-secondary" data-post="' . esc_url( $admin_post ) . '" data-nonce="' . esc_attr( $nonce ) . '">' . esc_html__( 'Send Test Email', 'mhm-rentiva' ) . '</button></div>';
 			echo '</div>';
 
-			if ( isset( $_GET['mhm_template_test'] ) ) {
-				$st = sanitize_text_field( (string) ( $_GET['mhm_template_test'] ?? '' ) );
+			$st = self::get_text( 'mhm_template_test' );
+			if ( '' !== $st ) {
 				if ( $st === 'success' ) {
 					echo '<div class="notice notice-success inline" style="margin-top:8px;"><p>' . esc_html__( 'Template email sent.', 'mhm-rentiva' ) . '</p></div>';
 				} elseif ( $st === 'failed' ) {
@@ -186,7 +186,7 @@ final class EmailTemplates {
 			'preview'               => __( 'Email Preview', 'mhm-rentiva' ),
 		);
 
-		$current_type = isset( $_GET['type'] ) ? sanitize_key( (string) $_GET['type'] ) : 'booking_notifications';
+		$current_type = self::get_key( 'type', 'booking_notifications' );
 		if ( ! isset( $email_types[ $current_type ] ) ) {
 			$current_type = 'booking_notifications';
 		}
@@ -217,7 +217,7 @@ final class EmailTemplates {
 
 		<h2 class="nav-tab-wrapper" style="margin-top: 20px;">
 			<?php
-			$current_parent_tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'email-templates';
+			$current_parent_tab = self::get_key( 'tab', 'email-templates' );
 
 			foreach ( $email_types as $type => $label ) {
 				$active = ( $current_type === $type ) ? ' nav-tab-active' : '';
@@ -261,9 +261,9 @@ final class EmailTemplates {
 			wp_die( esc_html__( 'You do not have permission to perform this action.', 'mhm-rentiva' ) );
 		}
 		check_admin_referer( 'mhm_rentiva_email_send' );
-		$key = isset( $_POST['key'] ) ? sanitize_key( (string) $_POST['key'] ) : '';
-		$to  = isset( $_POST['to'] ) ? sanitize_email( wp_unslash( (string) ( $_POST['to'] ?: '' ) ) ) : '';
-		$bid = isset( $_POST['booking_id'] ) ? (int) $_POST['booking_id'] : 0;
+		$key = self::post_key( 'key' );
+		$to  = self::post_email( 'to' );
+		$bid = self::post_int( 'booking_id' );
 		if ( $key === '' || $to === '' ) {
 			wp_die( esc_html__( 'Missing parameters.', 'mhm-rentiva' ) );
 		}
@@ -282,17 +282,17 @@ final class EmailTemplates {
 		}
 
 		// Nonce verification - Check specifically for email templates nonce
-		$nonce = isset( $_POST['mhm_rentiva_email_templates_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_email_templates_nonce'] ) ) : '';
+		$nonce = self::post_text( 'mhm_rentiva_email_templates_nonce' );
 		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_save_email_templates' ) ) {
 			// Fallback: Check for generic settings nonce (some settings pages might use this)
-			$fallback_nonce = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : '';
+			$fallback_nonce = self::post_text( '_wpnonce' );
 			if ( ! wp_verify_nonce( $fallback_nonce, 'mhm_rentiva_settings-options' ) ) {
 				wp_die( esc_html__( 'Security check failed.', 'mhm-rentiva' ) );
 			}
 		}
 
 		// Get active tab information
-		$current_tab = isset( $_POST['current_tab'] ) ? sanitize_key( wp_unslash( $_POST['current_tab'] ) ) : 'booking_notifications';
+		$current_tab = self::post_key( 'current_tab', 'booking_notifications' );
 
 		// Process only active tab
 		if ( $current_tab === 'booking_notifications' ) {
@@ -305,7 +305,7 @@ final class EmailTemplates {
 
 		// Success message - success flag instead of redirect
 		// Don't redirect when called from settings page
-		if ( ! isset( $_POST['email_templates_action'] ) ) {
+		if ( self::post_text( 'email_templates_action' ) === '' ) {
 			// Redirect to settings page since coming from admin-post.php
 			$redirect_url = add_query_arg(
 				array(
@@ -386,6 +386,7 @@ final class EmailTemplates {
 	private static function save_email_fields( array $fields ): void {
 
 		foreach ( $fields as $field_name => $field_type ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_save_templates() before this method is called.
 			if ( ! isset( $_POST[ $field_name ] ) ) {
 				if ( $field_type === 'checkbox' ) {
 					update_option( $field_name, '0' );
@@ -394,6 +395,7 @@ final class EmailTemplates {
 			}
 
 			// Unslash the value before processing
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Dynamic field key is from trusted internal config and value is sanitized below.
 			$value = wp_unslash( $_POST[ $field_name ] );
 
 			// Null check
@@ -592,7 +594,7 @@ final class EmailTemplates {
 		global $pagenow;
 
 		// Show only on email templates page
-		if ( $pagenow !== 'admin.php' || ! isset( $_GET['page'] ) || $_GET['page'] !== 'mhm-rentiva-email-templates' ) {
+		if ( $pagenow !== 'admin.php' || self::get_key( 'page' ) !== 'mhm-rentiva-email-templates' ) {
 			return;
 		}
 
@@ -739,14 +741,52 @@ final class EmailTemplates {
 		global $pagenow;
 
 		// Show only on email templates page
-		if ( $pagenow !== 'admin.php' || ! isset( $_GET['page'] ) || $_GET['page'] !== 'mhm-rentiva-email-templates' ) {
+		if ( $pagenow !== 'admin.php' || self::get_key( 'page' ) !== 'mhm-rentiva-email-templates' ) {
 			return;
 		}
 
-		if ( isset( $_GET['updated'] ) && $_GET['updated'] === '1' ) {
+		if ( self::get_text( 'updated' ) === '1' ) {
 			echo '<div class="notice notice-success is-dismissible">';
 			echo '<p><strong>' . esc_html__( 'Email templates saved successfully!', 'mhm-rentiva' ) . '</strong></p>';
 			echo '</div>';
 		}
+	}
+
+	private static function get_text( string $key, string $default = '' ): string {
+		$raw = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw || false === $raw ) {
+			return $default;
+		}
+
+		return sanitize_text_field( (string) $raw );
+	}
+
+	private static function get_key( string $key, string $default = '' ): string {
+		$value = self::get_text( $key, $default );
+		return '' === $value ? $default : sanitize_key( $value );
+	}
+
+	private static function post_text( string $key, string $default = '' ): string {
+		$raw = filter_input( INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw || false === $raw ) {
+			return $default;
+		}
+
+		return sanitize_text_field( (string) $raw );
+	}
+
+	private static function post_key( string $key, string $default = '' ): string {
+		$value = self::post_text( $key, $default );
+		return '' === $value ? $default : sanitize_key( $value );
+	}
+
+	private static function post_email( string $key, string $default = '' ): string {
+		$value = self::post_text( $key, $default );
+		return '' === $value ? $default : sanitize_email( $value );
+	}
+
+	private static function post_int( string $key, int $default = 0 ): int {
+		$value = self::post_text( $key, '' );
+		return '' === $value ? $default : (int) $value;
 	}
 }

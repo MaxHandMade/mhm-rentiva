@@ -117,8 +117,11 @@ final class AddonSettings {
 	 * Render admin notices.
 	 */
 	public static function admin_notices(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only settings-updated flag from WordPress settings redirect.
+		$settings_updated = isset( $_GET['settings-updated'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['settings-updated'] ) ) : '';
+
 		// Show success message after settings are saved.
-		if ( isset( $_GET['settings-updated'] ) && 'true' === $_GET['settings-updated'] ) {
+		if ( 'true' === $settings_updated ) {
 			add_settings_error(
 				'mhm_rentiva_addon_settings',
 				'settings_updated',

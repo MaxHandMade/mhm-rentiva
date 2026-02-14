@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Licensing;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/extensible hook names kept for backward compatibility.
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }

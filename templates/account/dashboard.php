@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * My Account - Dashboard Template
@@ -45,7 +46,7 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 		<div class="stats-grid">
 			<div class="stat-card stat-card-total-bookings">
 				<div class="stat-icon">
-					<span class="dashicons dashicons-calendar-alt"></span>
+					<?php Icons::render('calendar'); ?>
 				</div>
 				<div class="stat-content">
 					<h3 class="stat-number"><?php echo esc_html($data['bookings_count']); ?></h3>
@@ -55,7 +56,7 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 			<div class="stat-card stat-card-active-bookings">
 				<div class="stat-icon">
-					<span class="dashicons dashicons-car"></span>
+					<?php Icons::render('car'); ?>
 				</div>
 				<div class="stat-content">
 					<h3 class="stat-number"><?php echo esc_html($data['active_bookings_count']); ?></h3>
@@ -65,7 +66,7 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 			<div class="stat-card stat-card-total-favorites">
 				<div class="stat-icon">
-					<span class="dashicons dashicons-heart"></span>
+					<?php Icons::render('heart'); ?>
 				</div>
 				<div class="stat-content">
 					<?php
@@ -88,7 +89,7 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 				<div class="section-header">
 					<h2><?php esc_html_e('Recent Bookings', 'mhm-rentiva'); ?></h2>
 					<a href="<?php echo esc_url(add_query_arg('endpoint', 'bookings', \MHMRentiva\Admin\Frontend\Account\AccountController::get_account_url())); ?>" class="view-all-link">
-						<?php esc_html_e('View All', 'mhm-rentiva'); ?> →
+						<?php esc_html_e('View All', 'mhm-rentiva'); ?> â†’
 					</a>
 				</div>
 
@@ -229,7 +230,7 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 				<?php else : ?>
 					<div class="no-bookings">
 						<div class="empty-state">
-							<div class="empty-icon">📅</div>
+							<div class="empty-icon">ğŸ“…</div>
 							<h3><?php esc_html_e('No Bookings Yet', 'mhm-rentiva'); ?></h3>
 							<p><?php esc_html_e('You haven\'t made any vehicle bookings yet. Browse our fleet and make your first booking!', 'mhm-rentiva'); ?></p>
 							<a href="
@@ -270,7 +271,7 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 				echo esc_url($vehicles_url);
 				?>
 				" class="action-card">
-					<div class="action-icon">🚗</div>
+					<div class="action-icon">ğŸš—</div>
 					<div class="action-content">
 						<h4><?php esc_html_e('Browse Vehicles', 'mhm-rentiva'); ?></h4>
 						<p><?php esc_html_e('Explore our fleet', 'mhm-rentiva'); ?></p>
@@ -286,7 +287,7 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 				echo esc_url($booking_url);
 				?>
 				" class="action-card">
-					<div class="action-icon">📅</div>
+					<div class="action-icon">ğŸ“…</div>
 					<div class="action-content">
 						<h4><?php esc_html_e('New Booking', 'mhm-rentiva'); ?></h4>
 						<p><?php esc_html_e('Make a new reservation', 'mhm-rentiva'); ?></p>
@@ -302,7 +303,7 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 				echo esc_url($contact_url);
 				?>
 				" class="action-card">
-					<div class="action-icon">💬</div>
+					<div class="action-icon">ğŸ’¬</div>
 					<div class="action-content">
 						<h4><?php esc_html_e('Contact Support', 'mhm-rentiva'); ?></h4>
 						<p><?php esc_html_e('We\'re here to help', 'mhm-rentiva'); ?></p>

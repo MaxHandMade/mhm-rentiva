@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Receipt Status Email Template
@@ -26,7 +27,7 @@ $status_text = ( $status === 'approved' )
 	: esc_html__( 'Your payment receipt has been rejected', 'mhm-rentiva' );
 
 $status_color = ( $status === 'approved' ) ? '#28a745' : '#dc3545';
-$status_icon  = ( $status === 'approved' ) ? '✓' : '✗';
+$status_icon  = ( $status === 'approved' ) ? 'âœ“' : 'âœ—';
 ?>
 
 <!DOCTYPE html>

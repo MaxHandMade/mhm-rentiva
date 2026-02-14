@@ -7,13 +7,14 @@
  */
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin list filters rely on controlled meta/tax and aggregate queries.
 
 namespace MHMRentiva\Admin\Addons;
 
 use MHMRentiva\Admin\Core\Utilities\AbstractListTable;
 use MHMRentiva\Admin\Addons\AddonManager;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
@@ -21,6 +22,42 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles the list table for additional services.
  */
 final class AddonListTable extends AbstractListTable {
+
+	/**
+	 * Read sanitized request parameter (GET/POST).
+	 *
+	 * @param string $key Request key.
+	 * @param string $default Default value.
+	 * @return string
+	 */
+	private static function request_text( string $key, string $fallback = '' ): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only key existence check; filter values are nonce-gated below.
+		if ( ! isset( $_GET[ $key ] ) ) {
+			return $fallback;
+		}
+
+		$filter_keys = array( 'addon_status', 'addon_category', 'price_min', 'price_max' );
+		if ( in_array( $key, $filter_keys, true ) && ! self::has_valid_filter_nonce() ) {
+			return $fallback;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is validated through has_valid_filter_nonce() for mutable filter controls.
+		return sanitize_text_field( wp_unslash( (string) $_GET[ $key ] ) );
+	}
+
+	/**
+	 * Validate filter form nonce.
+	 */
+	private static function has_valid_filter_nonce(): bool {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Explicit verification is performed in this method.
+		if ( ! isset( $_GET['mhm_addon_filter_nonce'] ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Explicit verification is performed in this method.
+		$nonce = sanitize_text_field( wp_unslash( (string) $_GET['mhm_addon_filter_nonce'] ) );
+		return (bool) wp_verify_nonce( $nonce, 'mhm_addon_filter' );
+	}
 
 
 
@@ -239,8 +276,9 @@ final class AddonListTable extends AbstractListTable {
 	 */
 	protected function apply_custom_filters( array $args ): array {
 		// Addon status filter.
-		if ( ! empty( $_REQUEST['addon_status'] ) ) {
-			$status             = sanitize_text_field( wp_unslash( (string) $_REQUEST['addon_status'] ) );
+		$addon_status = self::request_text( 'addon_status' );
+		if ( '' !== $addon_status ) {
+			$status             = $addon_status;
 			$args['meta_query'] = $args['meta_query'] ?? array();
 
 			if ( 'enabled' === $status ) {
@@ -259,8 +297,9 @@ final class AddonListTable extends AbstractListTable {
 		}
 
 		// Category filter.
-		if ( ! empty( $_REQUEST['addon_category'] ) ) {
-			$category          = sanitize_text_field( wp_unslash( (string) $_REQUEST['addon_category'] ) );
+		$addon_category = self::request_text( 'addon_category' );
+		if ( '' !== $addon_category ) {
+			$category          = $addon_category;
 			$args['tax_query'] = array(
 				array(
 					'taxonomy' => 'addon_category',
@@ -271,7 +310,9 @@ final class AddonListTable extends AbstractListTable {
 		}
 
 		// Price range filter.
-		if ( ! empty( $_REQUEST['price_min'] ) || ! empty( $_REQUEST['price_max'] ) ) {
+		$price_min = self::request_text( 'price_min' );
+		$price_max = self::request_text( 'price_max' );
+		if ( '' !== $price_min || '' !== $price_max ) {
 			$args['meta_query'] = $args['meta_query'] ?? array();
 
 			$price_query = array(
@@ -279,20 +320,20 @@ final class AddonListTable extends AbstractListTable {
 				'type' => 'NUMERIC',
 			);
 
-			if ( ! empty( $_REQUEST['price_min'] ) ) {
-				$price_query['value']   = (float) sanitize_text_field( wp_unslash( $_REQUEST['price_min'] ) );
+			if ( '' !== $price_min ) {
+				$price_query['value']   = (float) $price_min;
 				$price_query['compare'] = '>=';
 			}
 
-			if ( ! empty( $_REQUEST['price_max'] ) ) {
-				if ( ! empty( $_REQUEST['price_min'] ) ) {
+			if ( '' !== $price_max ) {
+				if ( '' !== $price_min ) {
 					$price_query['value']   = array(
-						(float) sanitize_text_field( wp_unslash( $_REQUEST['price_min'] ) ),
-						(float) sanitize_text_field( wp_unslash( $_REQUEST['price_max'] ) ),
+						(float) $price_min,
+						(float) $price_max,
 					);
 					$price_query['compare'] = 'BETWEEN';
 				} else {
-					$price_query['value']   = (float) sanitize_text_field( wp_unslash( $_REQUEST['price_max'] ) );
+					$price_query['value']   = (float) $price_max;
 					$price_query['compare'] = '<=';
 				}
 			}
@@ -323,7 +364,7 @@ final class AddonListTable extends AbstractListTable {
 	 */
 	public function get_views(): array {
 		$views   = array();
-		$current = ( ! empty( $_REQUEST['addon_status'] ) ) ? sanitize_text_field( wp_unslash( (string) $_REQUEST['addon_status'] ) ) : 'all';
+		$current = self::request_text( 'addon_status', 'all' );
 
 		// All.
 		$class        = ( 'all' === $current ) ? ' class="current"' : '';
@@ -414,9 +455,10 @@ final class AddonListTable extends AbstractListTable {
 		echo '<div class="alignright actions">';
 		echo '<form method="get" class="filter-form">';
 		echo '<input type="hidden" name="post_type" value="vehicle_addon" />';
+		wp_nonce_field( 'mhm_addon_filter', 'mhm_addon_filter_nonce' );
 
 		// Status filter.
-		$current_status = isset( $_GET['addon_status'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['addon_status'] ) ) : '';
+		$current_status = self::request_text( 'addon_status' );
 		echo '<select name="addon_status" class="postform">';
 		echo '<option value="">' . esc_html__( 'All statuses', 'mhm-rentiva' ) . '</option>';
 		echo '<option value="enabled"' . selected( $current_status, 'enabled', false ) . '>' . esc_html__( 'Active', 'mhm-rentiva' ) . '</option>';
@@ -424,7 +466,7 @@ final class AddonListTable extends AbstractListTable {
 		echo '</select>';
 
 		// Category filter.
-		$current_category = isset( $_GET['addon_category'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['addon_category'] ) ) : '';
+		$current_category = self::request_text( 'addon_category' );
 		echo '<select name="addon_category" class="postform">';
 		echo '<option value="">' . esc_html__( 'All categories', 'mhm-rentiva' ) . '</option>';
 
@@ -441,8 +483,8 @@ final class AddonListTable extends AbstractListTable {
 		echo '</select>';
 
 		// Price range filter.
-		$current_price_min = isset( $_GET['price_min'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['price_min'] ) ) : '';
-		$current_price_max = isset( $_GET['price_max'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['price_max'] ) ) : '';
+		$current_price_min = self::request_text( 'price_min' );
+		$current_price_max = self::request_text( 'price_max' );
 		echo '<input type="number" name="price_min" placeholder="' . esc_attr__( 'Min price', 'mhm-rentiva' ) . '" value="' . esc_attr( $current_price_min ) . '" class="postform" style="width: 100px;" />';
 		echo '<span style="margin: 0 5px;">-</span>';
 		echo '<input type="number" name="price_max" placeholder="' . esc_attr__( 'Max price', 'mhm-rentiva' ) . '" value="' . esc_attr( $current_price_max ) . '" class="postform" style="width: 100px;" />';

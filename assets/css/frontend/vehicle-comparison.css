@@ -1,18 +1,29 @@
 /* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
-[class*="rv-"] {
+[class*="rv-"],
+[class*="rv-"] *,
+[class*="rv-"] *::before,
+[class*="rv-"] *::after {
+	box-sizing: border-box;
 	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
 	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
 }
 
 .rv-vehicle-comparison {
 	font-family: var(--mhm-font-primary);
-	margin: 20px 0;
+	margin: 20px auto;
+	/* Centered */
 	background: var(--mhm-white);
 	border-radius: 12px;
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 	width: 100%;
 	max-width: 100%;
-	/* Removed overflow: hidden to prevent clipping of the comparison table */
+}
+
+@media (min-width: 1024px) {
+	.rv-vehicle-comparison {
+		padding-right: 20px;
+		/* Breathing room on desktop */
+	}
 }
 
 /* ===== HEADER ===== */
@@ -95,6 +106,33 @@
 	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%);
 }
 
+/* ===== TABLE ELEMENTS ===== */
+.rv-vehicle-header {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding-bottom: 10px;
+}
+
+.rv-vehicle-image-container {
+	width: 100%;
+	margin-bottom: 10px;
+	background: #f8f9fa;
+	border-radius: 8px;
+	padding: 10px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	aspect-ratio: 4/3;
+}
+
+.rv-vehicle-image {
+	max-width: 100% !important;
+	height: auto !important;
+	object-fit: contain;
+}
+
 /* ===== KARŞILAŞTIRMA TABLOSU ===== */
 .rv-comparison-table-wrapper {
 	overflow-x: auto;
@@ -103,6 +141,41 @@
 	-webkit-overflow-scrolling: touch;
 	border: 1px solid var(--mhm-gray-200);
 	border-radius: 0 0 12px 12px;
+}
+
+/* Mobile Accordion Active State - Rotate Chevron */
+.rv-mobile-card-item.active .rv-icon-chevron-down {
+	transform: rotate(180deg);
+}
+
+.rv-icon-chevron-down {
+	width: 16px;
+	height: 16px;
+	transition: transform 0.3s ease;
+}
+
+/* Empty State SVG Center & Scale */
+.rv-icon-empty {
+	display: block;
+	margin: 0 auto;
+	color: var(--mhm-gray-300, #d1d5db);
+	stroke: #ddd;
+}
+
+/* Removal Icon - SVG specific sizing */
+.rv-icon-remove {
+	width: 14px;
+	height: 14px;
+	stroke: currentColor;
+	stroke-width: 2.5;
+	/* Slightly thicker for better visibility */
+}
+
+@media (min-width: 1024px) {
+	.rv-comparison-table-wrapper {
+		overflow-x: visible;
+		/* Disable scrollbar on desktop fit */
+	}
 }
 
 
@@ -209,24 +282,22 @@
 
 .rv-remove-vehicle {
 	position: absolute;
-	top: 10px;
-	right: 10px;
-	background: var(--mhm-error);
-	color: var(--mhm-white);
-	border: none;
+	top: -10px;
+	right: -10px;
+	width: 28px;
+	height: 28px;
+	background: #ff4757;
+	color: white;
+	border: 2px solid white;
 	border-radius: 50%;
-	width: 32px;
-	height: 32px;
-	padding: 0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
-	font-size: 14px;
-	transition: all 0.3s ease;
-	margin: 0;
-	z-index: 10;
-	box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+	z-index: 20;
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
+	padding: 0;
 }
 
 .rv-remove-vehicle:hover {

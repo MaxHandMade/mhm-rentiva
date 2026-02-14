@@ -1,6 +1,8 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded application queries are intentional in this module.
 
 namespace MHMRentiva\Admin\Emails\Core;
 
@@ -205,7 +207,7 @@ final class Mailer {
 			return null;
 		}
 
-		// ⭐ Get data using interface-based provider (loose coupling)
+		// â­ Get data using interface-based provider (loose coupling)
 		$provider        = self::get_booking_data_provider();
 		$customer_info   = $provider->getBookingCustomerInfo( $booking_id );
 		$vehicle_info    = $provider->getBookingVehicleInfo( $booking_id );
@@ -354,7 +356,7 @@ final class Mailer {
 			return $stats;
 		}
 
-		// ⭐ Using WP_Query instead of raw SQL for better maintainability
+		// â­ Using WP_Query instead of raw SQL for better maintainability
 		$date_threshold = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
 		// Build meta query

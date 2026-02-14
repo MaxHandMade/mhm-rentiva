@@ -177,7 +177,7 @@
 
             const successDiv = document.createElement('div');
             successDiv.className = 'rv-form-message rv-success';
-            successDiv.innerHTML = '<span class="dashicons dashicons-yes"></span> <span class="rv-msg-text"></span>';
+            successDiv.innerHTML = (mhmContactForm.icons?.success || '') + ' <span class="rv-msg-text"></span>';
             successDiv.querySelector('.rv-msg-text').textContent = message;
 
             const actionsDiv = form.querySelector('.rv-form-actions');
@@ -201,7 +201,7 @@
 
             const errorDiv = document.createElement('div');
             errorDiv.className = 'rv-form-message rv-error';
-            errorDiv.innerHTML = '<span class="dashicons dashicons-warning"></span> <span class="rv-msg-text"></span>';
+            errorDiv.innerHTML = (mhmContactForm.icons?.warning || '') + ' <span class="rv-msg-text"></span>';
             errorDiv.querySelector('.rv-msg-text').textContent = message;
 
             const actionsDiv = form.querySelector('.rv-form-actions');

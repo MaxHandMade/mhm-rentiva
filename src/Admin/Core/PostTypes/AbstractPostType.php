@@ -154,6 +154,13 @@ abstract class AbstractPostType {
 		if ( $post_type === static::get_post_type() ) {
 			$singular = static::get_singular_name();
 
+			$revision_id = 0;
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Core-managed revision query arg in edit screen context.
+			if ( isset( $_GET['revision'] ) ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only revision id used for admin message text.
+				$revision_id = (int) sanitize_text_field( wp_unslash( $_GET['revision'] ) );
+			}
+
 			$messages[ static::get_post_type() ] = array(
 				0  => '', // Unused. Messages start at index 1.
 				/* translators: %s: Post type singular name */
@@ -163,7 +170,7 @@ abstract class AbstractPostType {
 				/* translators: %s: Post type singular name */
 				4  => sprintf( __( '%s updated.', 'mhm-rentiva' ), $singular ),
 				/* translators: 1: Post type singular name, 2: Revision date and time */
-				5  => isset( $_GET['revision'] ) ? sprintf( __( '%1$s restored to revision from %2$s.', 'mhm-rentiva' ), $singular, wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+				5  => $revision_id > 0 ? sprintf( __( '%1$s restored to revision from %2$s.', 'mhm-rentiva' ), $singular, wp_post_revision_title( $revision_id, false ) ) : false,
 				/* translators: %s: Post type singular name */
 				6  => sprintf( __( '%s published.', 'mhm-rentiva' ), $singular ),
 				/* translators: %s: Post type singular name */

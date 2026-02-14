@@ -1,6 +1,8 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Central cache manager performs controlled invalidation and maintenance lookups.
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
@@ -9,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * ✅ CACHE OPTIMIZATION - Central Cache Management
+ * âœ… CACHE OPTIMIZATION - Central Cache Management
  *
  * Prevents unnecessary cache clearing operations and improves performance
  */

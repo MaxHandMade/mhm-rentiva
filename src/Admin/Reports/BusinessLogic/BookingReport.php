@@ -1,13 +1,14 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Reporting requires aggregate and historical DB queries with explicit admin-only scope.
 
 namespace MHMRentiva\Admin\Reports\BusinessLogic;
 
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Utilities\Export\Export;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
@@ -497,9 +498,20 @@ final class BookingReport {
 			return array();
 		}
 
-		// Optimized meta query with IN() clause
+		// Optimized meta query with IN() clause.
 		$placeholders = implode( ',', array_fill( 0, count( $booking_ids ), '%d' ) );
+		$meta_keys    = array(
+			\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
+			\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+			\MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE,
+			\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CONTACT_EMAIL,
+			\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CONTACT_NAME,
+			\MHMRentiva\Admin\Core\MetaKeys::BOOKING_START_TS,
+			\MHMRentiva\Admin\Core\MetaKeys::BOOKING_END_TS,
+		);
+		$params       = array_merge( $meta_keys, $booking_ids, $meta_keys );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"
@@ -523,20 +535,10 @@ final class BookingReport {
             GROUP BY p.ID, p.post_title, p.post_date
             ORDER BY p.post_date DESC
         ",
-				array_merge(
-					$booking_ids,
-					array(
-						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
-						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE,
-						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CONTACT_EMAIL,
-						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CONTACT_NAME,
-						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_START_TS,
-						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_END_TS,
-					)
-				)
+				...$params
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 	}
 
 	/**

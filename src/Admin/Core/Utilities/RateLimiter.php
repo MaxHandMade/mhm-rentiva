@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded application queries are intentional in this module.
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
@@ -240,7 +241,8 @@ final class RateLimiter {
 
 		foreach ( $ip_headers as $header ) {
 			if ( ! empty( $_SERVER[ $header ] ) ) {
-				$ips = explode( ',', $_SERVER[ $header ] );
+				$header_value = sanitize_text_field( wp_unslash( (string) $_SERVER[ $header ] ) );
+				$ips          = explode( ',', $header_value );
 				$ip  = trim( $ips[0] );
 
 				if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
@@ -249,7 +251,8 @@ final class RateLimiter {
 			}
 		}
 
-		return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+		$remote_addr = sanitize_text_field( wp_unslash( (string) ( $_SERVER['REMOTE_ADDR'] ?? '' ) ) );
+		return '' !== $remote_addr ? $remote_addr : '0.0.0.0';
 	}
 
 	/**

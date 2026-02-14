@@ -77,7 +77,7 @@ final class SecurityManager {
 
 		foreach ( $ip_keys as $key ) {
 			if ( true === array_key_exists( $key, $_SERVER ) ) {
-				$ip = $_SERVER[ $key ];
+				$ip = sanitize_text_field( wp_unslash( (string) $_SERVER[ $key ] ) );
 				if ( strpos( $ip, ',' ) !== false ) {
 					$ip = explode( ',', $ip )[0];
 				}
@@ -88,7 +88,8 @@ final class SecurityManager {
 			}
 		}
 
-		return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+		$remote_addr = sanitize_text_field( wp_unslash( (string) ( $_SERVER['REMOTE_ADDR'] ?? '' ) ) );
+		return '' !== $remote_addr ? $remote_addr : '0.0.0.0';
 	}
 
 	/**
@@ -184,7 +185,7 @@ final class SecurityManager {
 	private static function get_country_from_ip( string $ip ): string {
 		// 1. Cloudflare Check (Fastest & Most Reliable)
 		if ( isset( $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) {
-			return strtoupper( sanitize_text_field( $_SERVER['HTTP_CF_IPCOUNTRY'] ) );
+			return strtoupper( sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) );
 		}
 
 		// Skip private/local IPs to avoid unnecessary API calls

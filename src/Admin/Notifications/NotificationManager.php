@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Notification queue and schedule processing intentionally rely on controlled direct lookups.
 
 namespace MHMRentiva\Admin\Notifications;
 
@@ -19,6 +20,13 @@ if (! defined('ABSPATH')) {
  */
 final class NotificationManager
 {
+	/**
+	 * Resolve and sanitize notification queue table name.
+	 */
+	private static function get_queue_table_name(): string {
+		global $wpdb;
+		return preg_replace( '/[^A-Za-z0-9_]/', '', $wpdb->prefix . 'mhm_notification_queue' ) ?? '';
+	}
 
 
 	/**
@@ -117,7 +125,7 @@ final class NotificationManager
 	{
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'mhm_notification_queue';
+		$table_name = self::get_queue_table_name();
 
 		$result = $wpdb->insert(
 			$table_name,
@@ -149,18 +157,19 @@ final class NotificationManager
 	{
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'mhm_notification_queue';
+		$table_name = self::get_queue_table_name();
 
 		// Get pending notifications
 		$notifications = $wpdb->get_results(
 			$wpdb->prepare(
 				"
-            SELECT * FROM {$table_name}
+            SELECT * FROM %i
             WHERE status = 'pending'
             AND scheduled_for <= %s
             ORDER BY created_at ASC
             LIMIT 50
         ",
+				$table_name,
 				current_time('mysql')
 			)
 		);
@@ -268,7 +277,7 @@ final class NotificationManager
 	{
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'mhm_notification_queue';
+		$table_name = self::get_queue_table_name();
 
 		$charset_collate = $wpdb->get_charset_collate();
 
@@ -300,18 +309,21 @@ final class NotificationManager
 	{
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'mhm_notification_queue';
+		$table_name = self::get_queue_table_name();
 
 		// Single optimized query to get all statistics
 		$stats_query = $wpdb->get_row(
-			"
+			$wpdb->prepare(
+				"
             SELECT 
                 COUNT(*) as total_notifications,
                 SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_notifications,
                 SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as sent_notifications,
                 SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed_notifications
-            FROM {$table_name}
+            FROM %i
         ",
+				$table_name
+			),
 			ARRAY_A
 		);
 

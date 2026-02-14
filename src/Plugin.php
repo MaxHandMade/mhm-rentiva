@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 declare(strict_types=1);
 
@@ -136,7 +137,7 @@ final class Plugin {
 			}
 		}
 
-		// ⭐ CRITICAL: AutoCancel MUST run in ALL contexts (admin, frontend, cron)
+		// â­ CRITICAL: AutoCancel MUST run in ALL contexts (admin, frontend, cron)
 		// Previously was inside is_admin() block which prevented cron from working!
 		if ( $this->is_class_available( '\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel' ) ) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::register();
@@ -444,7 +445,7 @@ final class Plugin {
 			Admin\REST\Availability::register();
 		}
 
-		// ⭐ New Account System (WordPress Login)
+		// â­ New Account System (WordPress Login)
 		if ( class_exists( Admin\Frontend\Account\AccountController::class ) ) {
 			Admin\Frontend\Account\AccountController::register();
 		}
@@ -460,7 +461,7 @@ final class Plugin {
 			Admin\Services\CompareService::register();
 		}
 
-		// ⭐ CRITICAL: WooCommerce Bridge - Handles ALL payment transactions (Single Cash Register)
+		// â­ CRITICAL: WooCommerce Bridge - Handles ALL payment transactions (Single Cash Register)
 		if ( class_exists( Admin\Payment\WooCommerce\WooCommerceBridge::class ) ) {
 			Admin\Payment\WooCommerce\WooCommerceBridge::register();
 		} else {
@@ -512,7 +513,7 @@ final class Plugin {
 		// Database migration
 		add_action( 'admin_init', array( Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations' ) );
 
-		// Taxonomy migration (vehicle_cat → vehicle_category)
+		// Taxonomy migration (vehicle_cat â†’ vehicle_category)
 		add_action( 'admin_init', array( Admin\Core\Utilities\TaxonomyMigrator::class, 'migrate_vehicle_cat_to_vehicle_category' ), 5 );
 
 		// Database cleanup page (admin only)
@@ -679,15 +680,15 @@ final class Plugin {
 	 * Initialize frontend services
 	 */
 	private function initialize_frontend_services(): void {
-		// ⭐ Load AbstractShortcode first - Required for other shortcodes
+		// â­ Load AbstractShortcode first - Required for other shortcodes
 		// Autoloader handles this now
 
-		// ⭐ Shortcode Service Provider - Manages all shortcodes centrally (v3.0.1)
+		// â­ Shortcode Service Provider - Manages all shortcodes centrally (v3.0.1)
 		if ( $this->is_class_available( 'MHMRentiva\Admin\Core\ShortcodeServiceProvider' ) ) {
 			\MHMRentiva\Admin\Core\ShortcodeServiceProvider::register();
 		}
 
-		// ⭐ Elementor Integration - Register widgets (v3.0.1)
+		// â­ Elementor Integration - Register widgets (v3.0.1)
 		$this->initialize_elementor_integration();
 	}
 
@@ -815,7 +816,7 @@ final class Plugin {
 	/**
 	 * Register Customer role
 	 *
-	 * ✅ Safe: If customer role already exists (e.g., from WooCommerce),
+	 * âœ… Safe: If customer role already exists (e.g., from WooCommerce),
 	 * WordPress add_role() does nothing and returns null (no error).
 	 * This ensures compatibility with other plugins.
 	 */

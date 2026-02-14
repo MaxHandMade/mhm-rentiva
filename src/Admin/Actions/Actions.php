@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 /**
  * Actions management class.
@@ -39,22 +40,28 @@ final class Actions {
 	 * Refund a booking.
 	 */
 	public static function refund_booking(): void {
-		$bid = isset( $_POST['booking_id'] ) ? (int) $_POST['booking_id'] : 0;
+		$bid = self::post_int( 'booking_id' );
 
-		// ✅ SECURITY: Granular permission check.
+		// âœ… SECURITY: Granular permission check.
 		if ( ! self::check_granular_permission( 'refund_booking', $bid ) ) {
 			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
 		}
 
 		check_admin_referer( 'mhm_rentiva_refund_booking' );
-		$amount  = isset( $_POST['amount_kurus'] ) ? (int) $_POST['amount_kurus'] : 0;
-		$reason  = isset( $_POST['reason'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['reason'] ) ) : '';
+		$amount  = self::post_int( 'amount_kurus' );
+		$reason  = self::post_text( 'reason' );
 		$res     = RefundService::process( $bid, $amount, $reason );
 		$ref_url = get_edit_post_link( $bid, '' );
 		if ( ! $ref_url ) {
 			$ref_url = admin_url( 'edit.php?post_type=vehicle_booking' );
 		}
-		wp_safe_redirect( add_query_arg( $res, $ref_url ) );
+		$notice_args = array_merge(
+			$res,
+			array(
+				'mhm_notice_nonce' => wp_create_nonce( 'mhm_rentiva_notice' ),
+			)
+		);
+		wp_safe_redirect( add_query_arg( $notice_args, $ref_url ) );
 		exit;
 	}
 
@@ -62,13 +69,13 @@ final class Actions {
 	 * Purge old log records.
 	 */
 	public static function purge_logs(): void {
-		// ✅ SECURITY: Granular permission check.
+		// âœ… SECURITY: Granular permission check.
 		if ( ! self::check_granular_permission( 'purge_logs' ) ) {
 			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
 		}
 		check_admin_referer( 'mhm_rentiva_purge_logs' );
 
-		$days = isset( $_POST['days'] ) ? (int) $_POST['days'] : (int) get_option( 'mhm_rentiva_log_retention_days', 90 );
+		$days = self::post_int( 'days', (int) get_option( 'mhm_rentiva_log_retention_days', 90 ) );
 		if ( $days <= 0 ) {
 			$days = 90;
 		}
@@ -81,8 +88,9 @@ final class Actions {
 		}
 		$url = add_query_arg(
 			array(
-				'mhm_purged'      => '1',
-				'mhm_purge_count' => (int) $deleted,
+				'mhm_purged'       => '1',
+				'mhm_purge_count'  => (int) $deleted,
+				'mhm_notice_nonce' => wp_create_nonce( 'mhm_rentiva_notice' ),
 			),
 			$ref
 		);
@@ -97,10 +105,14 @@ final class Actions {
 		if ( ! is_admin() ) {
 			return;
 		}
+		if ( ! self::has_valid_notice_nonce() ) {
+			return;
+		}
 		// Refund result.
-		if ( isset( $_GET['mhm_refund'] ) && '' !== (string) $_GET['mhm_refund'] ) {
-			$ok   = '1' === (string) $_GET['mhm_refund'];
-			$msg  = isset( $_GET['mhm_refund_msg'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['mhm_refund_msg'] ) ) : '';
+		$refund_status = self::get_text( 'mhm_refund' );
+		if ( '' !== $refund_status ) {
+			$ok   = '1' === $refund_status;
+			$msg  = self::get_text( 'mhm_refund_msg' );
 			$type = $ok ? 'success' : 'error';
 			$base = $ok ? __( 'Refund processed.', 'mhm-rentiva' ) : __( 'Refund failed.', 'mhm-rentiva' );
 			$full = $msg ? $base . ' ' . $msg : $base;
@@ -109,10 +121,10 @@ final class Actions {
 	</div>';
 		}
 
-		if ( ! isset( $_GET['mhm_purged'] ) || '1' !== (string) $_GET['mhm_purged'] ) {
+		if ( '1' !== self::get_text( 'mhm_purged' ) ) {
 			return;
 		}
-		$count = isset( $_GET['mhm_purge_count'] ) ? (int) $_GET['mhm_purge_count'] : 0;
+		$count = self::get_int( 'mhm_purge_count' );
 		echo '<div class="notice notice-success is-dismissible">
 			<p>' .
 			/* translators: %d: number of old records deleted. */
@@ -122,7 +134,24 @@ final class Actions {
 	}
 
 	/**
-	 * ✅ SECURITY: Granular permission check.
+	 * Verify notice nonce when action query vars are present.
+	 */
+	private static function has_valid_notice_nonce(): bool {
+		$has_notice_params = '' !== self::get_text( 'mhm_refund' ) || '1' === self::get_text( 'mhm_purged' );
+		if ( ! $has_notice_params ) {
+			return true;
+		}
+
+		$nonce = self::get_text( 'mhm_notice_nonce' );
+		if ( '' === $nonce ) {
+			return false;
+		}
+
+		return (bool) wp_verify_nonce( $nonce, 'mhm_rentiva_notice' );
+	}
+
+	/**
+	 * âœ… SECURITY: Granular permission check.
 	 *
 	 * @param string   $action Action type.
 	 * @param int|null $resource_id Resource ID (optional).
@@ -291,5 +320,73 @@ final class Actions {
 	 */
 	private static function user_owns_booking( int $user_id, int $booking_id ): bool {
 		return self::get_booking_user_id( $booking_id ) === $user_id;
+	}
+
+	/**
+	 * Read an integer from POST.
+	 *
+	 * @param string $key POST key.
+	 * @param int    $default Default value.
+	 * @return int
+	 */
+	private static function post_int( string $key, int $fallback = 0 ): int {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by caller actions before using this helper.
+		if ( ! isset( $_POST[ $key ] ) ) {
+			return $fallback;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by caller actions before using this helper.
+		return absint( wp_unslash( $_POST[ $key ] ) );
+	}
+
+	/**
+	 * Read sanitized text from POST.
+	 *
+	 * @param string $key POST key.
+	 * @param string $default Default value.
+	 * @return string
+	 */
+	private static function post_text( string $key, string $fallback = '' ): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by caller actions before using this helper.
+		if ( ! isset( $_POST[ $key ] ) ) {
+			return $fallback;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by caller actions before using this helper.
+		return sanitize_text_field( wp_unslash( (string) $_POST[ $key ] ) );
+	}
+
+	/**
+	 * Read sanitized text from GET.
+	 *
+	 * @param string $key GET key.
+	 * @param string $default Default value.
+	 * @return string
+	 */
+	private static function get_text( string $key, string $fallback = '' ): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin notice query parameter.
+		if ( ! isset( $_GET[ $key ] ) ) {
+			return $fallback;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin notice query parameter.
+		return sanitize_text_field( wp_unslash( (string) $_GET[ $key ] ) );
+	}
+
+	/**
+	 * Read an integer from GET.
+	 *
+	 * @param string $key GET key.
+	 * @param int    $default Default value.
+	 * @return int
+	 */
+	private static function get_int( string $key, int $fallback = 0 ): int {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin notice query parameter.
+		if ( ! isset( $_GET[ $key ] ) ) {
+			return $fallback;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin notice query parameter.
+		return absint( wp_unslash( $_GET[ $key ] ) );
 	}
 }

@@ -1,8 +1,11 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Message post type handlers intentionally run bounded message/meta lookups.
 
 namespace MHMRentiva\Admin\PostTypes\Message;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
 
 use MHMRentiva\Admin\PostTypes\Utilities\ClientUtilities;
 
@@ -115,7 +118,7 @@ final class Message {
 			'_mhm_is_read'           => 0,
 			'_mhm_read_at'           => '',
 			'_mhm_ip_address'        => ClientUtilities::get_client_ip(),
-			'_mhm_user_agent'        => sanitize_text_field( (string) ( ( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ?: '' ) ),
+			'_mhm_user_agent'        => sanitize_text_field( wp_unslash( (string) ( ( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ?: '' ) ) ),
 		);
 
 		foreach ( $meta_fields as $key => $value ) {
@@ -286,7 +289,7 @@ final class Message {
 
 		foreach ( $ip_keys as $key ) {
 			if ( ! empty( $_SERVER[ $key ] ) ) {
-				$ip_list = explode( ',', (string) $_SERVER[ $key ] );
+				$ip_list = explode( ',', sanitize_text_field( wp_unslash( (string) $_SERVER[ $key ] ) ) );
 				foreach ( $ip_list as $ip ) {
 					$ip = trim( $ip );
 					if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {

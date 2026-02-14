@@ -5,6 +5,7 @@
 	<div class="intro" style="margin-bottom: 20px;">
 		<p>
 		<?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 			/* translators: %s: booking ID */
 			printf( esc_html__( 'Your refund for booking #%s has been processed.', 'mhm-rentiva' ), esc_html( $data['booking']['id'] ?? '' ) );
 		?>

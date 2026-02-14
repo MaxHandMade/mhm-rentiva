@@ -66,7 +66,7 @@ final class APIKeysPage {
 	 */
 	public static function handle_request(): void {
 		// 1. Security Check (Compatibility with rest-api-keys.js using 'nonce' or 'security' param)
-		$nonce_param = isset( $_POST['nonce'] ) ? 'nonce' : 'security';
+		$nonce_param = self::post_text( 'nonce' ) !== '' ? 'nonce' : 'security';
 		check_ajax_referer( self::ACTION_NONCE, $nonce_param );
 
 		if ( ! current_user_can( self::REQUIRED_CAP ) ) {
@@ -78,7 +78,7 @@ final class APIKeysPage {
 			);
 		}
 
-		$action = isset( $_POST['action'] ) ? sanitize_text_field( wp_unslash( $_POST['action'] ) ) : '';
+		$action = self::post_text( 'action' );
 
 		// 2. Dispatching (PHP 8.0+ Match)
 		try {
@@ -100,11 +100,11 @@ final class APIKeysPage {
 	 * Create API Key AJAX handler.
 	 */
 	private static function ajax_create_api_key(): void {
-		$name        = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
-		$permissions = isset( $_POST['permissions'] ) && is_array( $_POST['permissions'] )
-			? array_map( 'sanitize_text_field', wp_unslash( $_POST['permissions'] ) )
-			: array( 'read' );
-		$expires_at  = ! empty( $_POST['expires_at'] ) ? (int) $_POST['expires_at'] : null;
+		$name        = self::post_text( 'name' );
+		$permissions = self::post_array( 'permissions' );
+		$permissions = ! empty( $permissions ) ? array_map( 'sanitize_text_field', $permissions ) : array( 'read' );
+		$expires_at  = self::post_int( 'expires_at' );
+		$expires_at  = $expires_at > 0 ? $expires_at : null;
 
 		if ( empty( $name ) ) {
 			throw new \Exception( esc_html__( 'API key name is required.', 'mhm-rentiva' ) );
@@ -142,7 +142,7 @@ final class APIKeysPage {
 	 * Revoke API Key AJAX handler.
 	 */
 	private static function ajax_revoke_api_key(): void {
-		$key_id = isset( $_POST['key_id'] ) ? sanitize_text_field( wp_unslash( $_POST['key_id'] ) ) : '';
+		$key_id = self::post_text( 'key_id' );
 
 		if ( empty( $key_id ) ) {
 			throw new \Exception( esc_html__( 'API key ID is required to revoke.', 'mhm-rentiva' ) );
@@ -159,7 +159,7 @@ final class APIKeysPage {
 	 * Delete API Key AJAX handler.
 	 */
 	private static function ajax_delete_api_key(): void {
-		$key_id = isset( $_POST['key_id'] ) ? sanitize_text_field( wp_unslash( $_POST['key_id'] ) ) : '';
+		$key_id = self::post_text( 'key_id' );
 
 		if ( empty( $key_id ) ) {
 			throw new \Exception( esc_html__( 'API key ID is required to delete.', 'mhm-rentiva' ) );
@@ -205,5 +205,39 @@ final class APIKeysPage {
 				'redirect' => esc_url( admin_url( 'admin.php?page=mhm-rentiva-settings&tab=integration' ) ),
 			)
 		);
+	}
+
+	/**
+	 * Safely read text value from $_POST.
+	 */
+	private static function post_text( string $key, string $fallback = '' ): string {
+		if ( ! isset( $_POST[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
+			return $fallback;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
+		return sanitize_text_field( wp_unslash( (string) $_POST[ $key ] ) );
+	}
+
+	/**
+	 * Safely read integer value from $_POST.
+	 */
+	private static function post_int( string $key, int $fallback = 0 ): int {
+		$value = self::post_text( $key, '' );
+		return '' === $value ? $fallback : (int) $value;
+	}
+
+	/**
+	 * Safely read array value from $_POST.
+	 *
+	 * @return array<int|string,mixed>
+	 */
+	private static function post_array( string $key ): array {
+		if ( ! isset( $_POST[ $key ] ) || ! is_array( $_POST[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
+			return array();
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is verified in handle_request(); array items are sanitized by caller.
+		return wp_unslash( $_POST[ $key ] );
 	}
 }

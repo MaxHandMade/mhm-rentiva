@@ -400,13 +400,13 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		}
 
 		// Fetch and persist data
-		$new_vehicle_id = absint( wp_unslash( $_POST['mhm_edit_vehicle_id'] ?? 0 ) );
-		$pickup_date    = self::sanitize_text_field_safe( wp_unslash( $_POST['mhm_edit_pickup_date'] ?? '' ) );
-		$pickup_time    = self::sanitize_text_field_safe( wp_unslash( $_POST['mhm_edit_pickup_time'] ?? '' ) );
-		$dropoff_date   = self::sanitize_text_field_safe( wp_unslash( $_POST['mhm_edit_dropoff_date'] ?? '' ) );
-		$dropoff_time   = self::sanitize_text_field_safe( wp_unslash( $_POST['mhm_edit_dropoff_time'] ?? '' ) );
-		$guests         = max( 1, (int) ( wp_unslash( $_POST['mhm_edit_guests'] ?? 1 ) ) );
-		$status         = self::sanitize_text_field_safe( wp_unslash( $_POST['mhm_edit_status'] ?? 'pending' ) );
+		$new_vehicle_id = isset( $_POST['mhm_edit_vehicle_id'] ) ? absint( wp_unslash( $_POST['mhm_edit_vehicle_id'] ) ) : 0;
+		$pickup_date    = isset( $_POST['mhm_edit_pickup_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_edit_pickup_date'] ) ) : '';
+		$pickup_time    = isset( $_POST['mhm_edit_pickup_time'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_edit_pickup_time'] ) ) : '';
+		$dropoff_date   = isset( $_POST['mhm_edit_dropoff_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_edit_dropoff_date'] ) ) : '';
+		$dropoff_time   = isset( $_POST['mhm_edit_dropoff_time'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_edit_dropoff_time'] ) ) : '';
+		$guests         = max( 1, isset( $_POST['mhm_edit_guests'] ) ? absint( wp_unslash( $_POST['mhm_edit_guests'] ) ) : 1 );
+		$status         = isset( $_POST['mhm_edit_status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_edit_status'] ) ) : 'pending';
 
 		// Get special notes - always save if field exists
 		$special_notes = isset( $_POST['mhm_edit_special_notes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['mhm_edit_special_notes'] ) ) : '';

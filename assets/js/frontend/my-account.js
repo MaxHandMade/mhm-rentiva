@@ -29,10 +29,7 @@
         */
 
         clearAllFavorites($button) {
-            if (!window.mhmRentivaAccount?.ajaxUrl) {
-                this.showNotification(this.getString('error'), 'error');
-                return;
-            }
+            MHMRentivaToast.show(this.getString('error'), { type: 'error' });
 
             $button.prop('disabled', true).addClass('is-loading');
 
@@ -44,13 +41,13 @@
                     if (response.success) {
                         this.removeAllFavoriteCards();
                         this.updateFavoriteCounter(0);
-                        this.showNotification(response.data?.message || this.getString('favoritesCleared'), 'success');
+                        MHMRentivaToast.show(response.data?.message || this.getString('favoritesCleared'), { type: 'success' });
                     } else {
-                        this.showNotification(response.data?.message || this.getString('error'), 'error');
+                        MHMRentivaToast.show(response.data?.message || this.getString('error'), { type: 'error' });
                     }
                 })
                 .fail(() => {
-                    this.showNotification(this.getString('error'), 'error');
+                    MHMRentivaToast.show(this.getString('error'), { type: 'error' });
                 })
                 .always(() => {
                     $button.prop('disabled', false).removeClass('is-loading');
@@ -101,7 +98,7 @@
                 $card.find('.rv-vehicle-card__favorite').addClass('is-favorited');
             }
 
-            this.showNotification(data.message || this.getString('success'), 'success');
+            MHMRentivaToast.show(data.message || this.getString('success'), { type: 'success' });
         },
 
         removeAllFavoriteCards() {
@@ -117,9 +114,7 @@
                 const emptyHtml = `
                     <div class="empty-state">
                         <div class="empty-icon">
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                            </svg>
+                            ${window.mhmRentivaVehiclesList?.icons?.heart || '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'}
                         </div>
                         <h3>${this.getString('no_favorites')}</h3>
                         <p>${this.getString('login_required')}</p>
@@ -134,31 +129,6 @@
             $('.view-all-link').text(count + ' ' + text);
         },
 
-        showNotification(message, type) {
-            type = type || 'info';
-
-            // Remove existing notifications if any
-            $('.rv-notification').remove();
-
-            const icon = type === 'success' ? '✓' : '!';
-            const $notification = $(`
-                <div class="rv-notification rv-notification--show rv-notification--${type}">
-                    <div class="rv-notification-body">
-                        <span class="rv-notification-icon-badge">${icon}</span>
-                        <span class="rv-notification-text">${message}</span>
-                    </div>
-                </div>
-            `);
-
-            $('body').append($notification);
-
-            // Auto-hide after 3.5 seconds
-            setTimeout(() => {
-                $notification.fadeOut(400, function () {
-                    $(this).remove();
-                });
-            }, 3500);
-        }
     };
 
     FavoritesModule.getString = function (key) {
@@ -237,14 +207,14 @@
                 processData: false,
                 success: (res) => {
                     if (res && res.success) {
-                        this.showMessage(this.config.i18n.upload_success, 'success');
+                        MHMRentivaToast.show(this.config.i18n.upload_success, { type: 'success' });
                         setTimeout(() => window.location.reload(), 1200);
                     } else {
-                        this.showMessage((res && res.data && res.data.message) || this.config.i18n.upload_error, 'error');
+                        MHMRentivaToast.show((res && res.data && res.data.message) || this.config.i18n.upload_error, { type: 'error' });
                     }
                 },
                 error: () => {
-                    this.showMessage(this.config.i18n.upload_error, 'error');
+                    MHMRentivaToast.show(this.config.i18n.upload_error, { type: 'error' });
                 },
                 complete: () => {
                     $label.removeClass('is-loading');
@@ -280,15 +250,15 @@
                 },
                 success: (res) => {
                     if (res && res.success) {
-                        this.showMessage(res.data.message || 'Receipt removed successfully.', 'success');
+                        MHMRentivaToast.show(res.data.message || 'Receipt removed successfully.', { type: 'success' });
                         setTimeout(() => window.location.reload(), 1000);
                     } else {
-                        this.showMessage((res && res.data && res.data.message) || 'Failed to remove receipt.', 'error');
+                        MHMRentivaToast.show((res && res.data && res.data.message) || 'Failed to remove receipt.', { type: 'error' });
                         $btn.prop('disabled', false).removeClass('is-loading');
                     }
                 },
                 error: () => {
-                    this.showMessage('An error occurred.', 'error');
+                    MHMRentivaToast.show('An error occurred.', { type: 'error' });
                     $btn.prop('disabled', false).removeClass('is-loading');
                 }
             });
@@ -321,18 +291,18 @@
                 },
                 success: (response) => {
                     if (response.success) {
-                        this.showMessage(response.data.message || this.config.i18n.success, 'success');
+                        MHMRentivaToast.show(response.data.message || this.config.i18n.success, { type: 'success' });
                         // Refresh page
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
                     } else {
-                        this.showMessage(response.data.message || this.config.i18n.error, 'error');
+                        MHMRentivaToast.show(response.data.message || this.config.i18n.error, { type: 'error' });
                         $btn.prop('disabled', false).text(this.config.i18n.cancel_booking);
                     }
                 },
                 error: () => {
-                    this.showMessage(this.config.i18n.error, 'error');
+                    MHMRentivaToast.show(this.config.i18n.error, { type: 'error' });
                     $btn.prop('disabled', false).text(this.config.i18n.cancel_booking);
                 }
             });
@@ -412,32 +382,6 @@
             $pass.on('blur input', validate);
         }
 
-        /**
-         * Show message
-         */
-        showMessage(message, type = 'success') {
-            // Remove existing notifications if any
-            $('.rv-notification').remove();
-
-            const icon = type === 'success' ? '✓' : '!';
-            const $notification = $(`
-                <div class="rv-notification rv-notification--show rv-notification--${type}">
-                    <div class="rv-notification-body">
-                        <span class="rv-notification-icon-badge">${icon}</span>
-                        <span class="rv-notification-text">${message}</span>
-                    </div>
-                </div>
-            `);
-
-            $('body').append($notification);
-
-            // Auto-hide after 4 seconds
-            setTimeout(() => {
-                $notification.fadeOut(400, function () {
-                    $(this).remove();
-                });
-            }, 4000);
-        }
     }
 
     // Initialize when DOM is ready

@@ -32,7 +32,8 @@ final class ValidationHelper {
 
 		foreach ( $ipHeaders as $header ) {
 			if ( ! empty( $_SERVER[ $header ] ) ) {
-				$ipList = explode( ',', (string) $_SERVER[ $header ] );
+				$headerValue = sanitize_text_field( wp_unslash( (string) $_SERVER[ $header ] ) );
+				$ipList      = explode( ',', $headerValue );
 				foreach ( $ipList as $ip ) {
 					$ip = trim( $ip );
 					if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
@@ -42,7 +43,8 @@ final class ValidationHelper {
 			}
 		}
 
-		return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+		$remoteAddr = sanitize_text_field( wp_unslash( (string) ( $_SERVER['REMOTE_ADDR'] ?? '' ) ) );
+		return '' !== $remoteAddr ? $remoteAddr : '0.0.0.0';
 	}
 
 	/**

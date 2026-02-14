@@ -224,7 +224,7 @@
             }
 
             if (!nonce) {
-                this.showFloatingNotification(favoritesConfig?.strings?.login_required || this.getMessage('login_required'), 'error');
+                MHMRentivaToast.show(favoritesConfig?.strings?.login_required || this.getMessage('login_required'), { type: 'error' });
                 return;
             }
 
@@ -263,19 +263,13 @@
                             (favoritesConfig.strings?.add_label || this.getMessage('add_to_favorites'))
                         );
 
-                        // Show floating notification
-                        const message = response.data.message || (isAdded ?
-                            (favoritesConfig.strings?.added || this.getMessage('added_to_favorites')) :
-                            (favoritesConfig.strings?.removed || this.getMessage('removed_from_favorites'))
-                        );
-
-                        this.showFloatingNotification(message, 'success');
+                        MHMRentivaToast.show(message, { type: 'success' });
                     } else {
-                        this.showFloatingNotification(response.data?.message || favoritesConfig.strings?.error || this.getMessage('error'), 'error');
+                        MHMRentivaToast.show(response.data?.message || favoritesConfig.strings?.error || this.getMessage('error'), { type: 'error' });
                     }
                 },
                 error: () => {
-                    this.showFloatingNotification(favoritesConfig.strings?.error || this.getMessage('error'), 'error');
+                    MHMRentivaToast.show(favoritesConfig.strings?.error || this.getMessage('error'), { type: 'error' });
                 },
                 complete: () => {
                     $button.prop('disabled', false);
@@ -283,30 +277,6 @@
             });
         }
 
-        // Helper for floating notifications (similar to vehicle-list.js)
-        showFloatingNotification(message, type = 'info') {
-            // Remove existing notifications if any
-            $('.rv-notification').remove();
-
-            const icon = type === 'success' ? '✓' : '!';
-            const $notification = $(`
-                <div class="rv-notification rv-notification--show rv-notification--${type}">
-                    <div class="rv-notification-body">
-                        <span class="rv-notification-icon-badge">${icon}</span>
-                        <span class="rv-notification-text">${message}</span>
-                    </div>
-                </div>
-            `);
-
-            $('body').append($notification);
-
-            // Auto-hide after 3.5 seconds
-            setTimeout(() => {
-                $notification.fadeOut(400, function () {
-                    $(this).remove();
-                });
-            }, 3500);
-        }
 
         setupDateValidation() {
             const todayStr = new Date().toISOString().split('T')[0];
@@ -1072,7 +1042,7 @@
                         availabilityStatus.removeClass('loading error').addClass('success');
                         availabilityStatus.html(`
                                     <div class="rv-availability-success">
-                                        <svg class="rv-icon-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        ${window.mhmRentivaBookingForm?.icons?.success || '<svg class="rv-icon-check" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'}
                                         <span>${this.getMessage('vehicle_available')}</span>
                                     </div>
                                 `);

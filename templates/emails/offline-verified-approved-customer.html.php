@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -114,7 +115,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <body>
 	<div class="container">
 		<div class="header">
-			<div class="icon">✅</div>
+			<div class="icon">&#10003;</div>
 			<h1><?php esc_html_e( 'Your Payment Has Been Approved!', 'mhm-rentiva' ); ?></h1>
 			<p>
 				<?php
@@ -127,7 +128,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="content">
 			<div class="success-message">
-				<h3>🎉 <?php esc_html_e( 'Congratulations!', 'mhm-rentiva' ); ?></h3>
+				<h3><?php esc_html_e( 'Congratulations!', 'mhm-rentiva' ); ?></h3>
 				<p><?php esc_html_e( 'Your bank transfer has been approved and your reservation is now active.', 'mhm-rentiva' ); ?></p>
 			</div>
 
@@ -160,7 +161,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 				<div class="detail-row">
 					<span class="detail-label"><?php esc_html_e( 'Amount Paid:', 'mhm-rentiva' ); ?></span>
-					<span class="detail-value"><?php echo esc_html( apply_filters( 'mhm_rentiva/currency_symbol', '₺' ) ); ?><?php echo esc_html( number_format( $data['booking']['total_price'] ?? 0, 2 ) ); ?></span>
+					<span class="detail-value"><?php echo esc_html( apply_filters( 'mhm_rentiva/currency_symbol', '' ) ); ?><?php echo esc_html( number_format( $data['booking']['total_price'] ?? 0, 2 ) ); ?></span>
 				</div>
 			</div>
 
@@ -175,7 +176,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<a href="<?php echo esc_url( $data['site']['url'] ?? '' ); ?>" class="cta-button"><?php esc_html_e( 'Visit Our Website', 'mhm-rentiva' ); ?></a>
 			</div>
 
-			<p><?php esc_html_e( 'We look forward to seeing you! 🚗', 'mhm-rentiva' ); ?></p>
+			<p><?php esc_html_e( 'We look forward to seeing you!', 'mhm-rentiva' ); ?></p>
 		</div>
 
 		<div class="footer">
@@ -186,3 +187,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 </body>
 
 </html>
+

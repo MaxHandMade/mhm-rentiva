@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Booking Confirmation Template
@@ -169,7 +170,7 @@ $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('re
 								if ($addon) :
 							?>
 									<li>
-										<span class="addon-check">✓</span>
+										<span class="addon-check">âœ“</span>
 										<?php echo esc_html($addon->post_title); ?>
 									</li>
 							<?php
@@ -211,7 +212,7 @@ $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('re
 		?>
 				<div class="rv-payment-info-box" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
 					<div class="rv-payment-warning">
-						<div class="rv-warning-icon" style="float: left; margin-right: 10px;">⚠️</div>
+						<div class="rv-warning-icon" style="float: left; margin-right: 10px;">âš ï¸</div>
 						<div class="rv-warning-text">
 							<strong><?php esc_html_e('Important:', 'mhm-rentiva'); ?></strong>
 							<?php

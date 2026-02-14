@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Messaging core coordinates bounded mailbox/thread queries.
 
 namespace MHMRentiva\Admin\Messages\Core;
 
@@ -528,15 +529,15 @@ final class Messages {
 			return;
 		}
 
-		$parent_message_id = absint( $_POST['parent_message_id'] ?? 0 );
+		$parent_message_id = self::post_int( 'parent_message_id' );
 		// thread_id can be UUID (string) or integer, so sanitize instead of absint
-		$thread_id_raw   = sanitize_text_field( (string) ( $_POST['thread_id'] ?? '' ) );
+		$thread_id_raw   = self::post_text( 'thread_id' );
 		$thread_id       = is_numeric( $thread_id_raw ) ? absint( $thread_id_raw ) : $thread_id_raw;
-		$subject         = sanitize_text_field( (string) ( ( $_POST['subject'] ?? '' ) ?: '' ) );
-		$message_content = wp_kses_post( $_POST['message'] ?? '' );
-		$customer_email  = sanitize_email( (string) ( ( $_POST['customer_email'] ?? '' ) ?: '' ) );
-		$customer_name   = sanitize_text_field( (string) ( ( $_POST['customer_name'] ?? '' ) ?: '' ) );
-		$close_thread    = ! empty( $_POST['close_thread'] );
+		$subject         = self::post_text( 'subject' );
+		$message_content = wp_kses_post( self::post_textarea( 'message' ) );
+		$customer_email  = self::post_email( 'customer_email' );
+		$customer_name   = self::post_text( 'customer_name' );
+		$close_thread    = self::post_text( 'close_thread' ) !== '';
 
 		if ( ! $parent_message_id || ! $thread_id || empty( $subject ) || empty( $message_content ) ) {
 			wp_send_json_error( __( 'Required fields not filled.', 'mhm-rentiva' ) );
@@ -592,8 +593,8 @@ final class Messages {
 			return;
 		}
 
-		$message_id = absint( $_POST['message_id'] ?? 0 );
-		$status     = sanitize_key( $_POST['status'] ?? '' );
+		$message_id = self::post_int( 'message_id' );
+		$status     = self::post_key( 'status' );
 
 		if ( ! $message_id || ! in_array( $status, array_keys( MessagesSettings::get_statuses() ), true ) ) {
 			wp_send_json_error( __( 'Invalid parameters.', 'mhm-rentiva' ) );
@@ -624,7 +625,7 @@ final class Messages {
 			return;
 		}
 
-		$message_id = absint( $_POST['message_id'] ?? 0 );
+		$message_id = self::post_int( 'message_id' );
 
 		if ( ! $message_id ) {
 			wp_send_json_error( __( 'Invalid message ID.', 'mhm-rentiva' ) );
@@ -680,8 +681,8 @@ final class Messages {
 		}
 
 		$is_pro     = \MHMRentiva\Admin\Licensing\Mode::featureEnabled( \MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES );
-		$action     = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : 'list';
-		$message_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+		$action     = self::get_key( 'action', 'list' );
+		$message_id = self::get_int( 'id' );
 
 		echo '<div class="wrap mhm-messages-wrap">';
 
@@ -947,13 +948,13 @@ final class Messages {
 		}
 
 		// Get form data
-		$customer_user_id = isset( $_POST['customer_user_id'] ) ? absint( $_POST['customer_user_id'] ) : 0;
-		$customer_email   = sanitize_email( (string) ( ( $_POST['customer_email'] ?? '' ) ?: '' ) );
-		$customer_name    = sanitize_text_field( (string) ( ( $_POST['customer_name'] ?? '' ) ?: '' ) );
-		$subject          = sanitize_text_field( (string) ( ( $_POST['subject'] ?? '' ) ?: '' ) );
-		$content          = wp_kses_post( $_POST['message_content'] ?? '' );
-		$category         = sanitize_text_field( (string) ( ( $_POST['category'] ?? 'general' ) ?: 'general' ) );
-		$priority         = sanitize_text_field( (string) ( ( $_POST['priority'] ?? 'normal' ) ?: 'normal' ) );
+		$customer_user_id = self::post_int( 'customer_user_id' );
+		$customer_email   = self::post_email( 'customer_email' );
+		$customer_name    = self::post_text( 'customer_name' );
+		$subject          = self::post_text( 'subject' );
+		$content          = wp_kses_post( self::post_textarea( 'message_content' ) );
+		$category         = self::post_text( 'category', 'general' );
+		$priority         = self::post_text( 'priority', 'normal' );
 
 		// If user_id is selected, get email and name from user
 		if ( $customer_user_id > 0 ) {
@@ -1398,7 +1399,7 @@ final class Messages {
 
 		// Check if we're on My Account messages page (messages endpoint)
 		// In this case, assets are loaded in AccountRenderer, so skip here
-		$endpoint = get_query_var( 'endpoint' ) ?: ( isset( $_GET['endpoint'] ) ? sanitize_key( $_GET['endpoint'] ) : '' );
+		$endpoint = get_query_var( 'endpoint' ) ?: self::get_key( 'endpoint' );
 		if ( $endpoint === 'messages' ) {
 			return; // Assets loaded in AccountRenderer::render_messages()
 		}
@@ -1464,5 +1465,56 @@ final class Messages {
 				),
 			)
 		);
+	}
+
+	private static function get_text( string $key, string $default = '' ): string {
+		$raw = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw || false === $raw ) {
+			return $default;
+		}
+
+		return sanitize_text_field( (string) $raw );
+	}
+
+	private static function get_key( string $key, string $default = '' ): string {
+		$value = self::get_text( $key, $default );
+		return '' === $value ? $default : sanitize_key( $value );
+	}
+
+	private static function get_int( string $key, int $default = 0 ): int {
+		$value = self::get_text( $key, '' );
+		return '' === $value ? $default : absint( $value );
+	}
+
+	private static function post_text( string $key, string $default = '' ): string {
+		$raw = filter_input( INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw || false === $raw ) {
+			return $default;
+		}
+
+		return sanitize_text_field( (string) $raw );
+	}
+
+	private static function post_textarea( string $key, string $default = '' ): string {
+		$raw = filter_input( INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw || false === $raw ) {
+			return $default;
+		}
+
+		return sanitize_textarea_field( (string) $raw );
+	}
+
+	private static function post_email( string $key, string $default = '' ): string {
+		return sanitize_email( self::post_text( $key, $default ) );
+	}
+
+	private static function post_int( string $key, int $default = 0 ): int {
+		$value = self::post_text( $key, '' );
+		return '' === $value ? $default : absint( $value );
+	}
+
+	private static function post_key( string $key, string $default = '' ): string {
+		$value = self::post_text( $key, $default );
+		return '' === $value ? $default : sanitize_key( $value );
 	}
 }

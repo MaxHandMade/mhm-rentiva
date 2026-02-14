@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
+
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 
 if ( ! defined( 'ABSPATH' ) ) {

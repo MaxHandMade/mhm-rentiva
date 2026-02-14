@@ -29,6 +29,17 @@
             const isActive = $btn.hasClass('is-active');
             $btn.toggleClass('is-active');
 
+            // Show optimistic toast (Two-Stage)
+            const isAdd = !isActive;
+            const optimisticMsg = isAdd ? mhm_rentiva_vars.i18n.adding_favorite : mhm_rentiva_vars.i18n.removing_favorite;
+            const idempotencyKey = isAdd ? `fav:add:${vehicleId}` : `fav:remove:${vehicleId}`;
+
+            const toastId = MHMRentivaToast.show(optimisticMsg, {
+                type: 'info',
+                idempotencyKey: idempotencyKey,
+                duration: 0 // Sticky while processing
+            });
+
             $.ajax({
                 url: mhm_rentiva_vars.ajax_url,
                 type: 'POST',
@@ -57,7 +68,6 @@
                             if ($wrapper.length) {
                                 $btn.closest('.mhm-vehicle-card').fadeOut(400, function () {
                                     $(this).remove();
-                                    // If last item removed, we might want to reload or show empty state
                                     if ($wrapper.find('.mhm-vehicle-card').length === 0) {
                                         location.reload();
                                     }
@@ -65,18 +75,32 @@
                             }
                         }
 
-                        // Show notification
-                        RentivaInteractions.showNotification(response.data.message, 'success');
+                        // Final toast with action (Two-Stage Update)
+                        const options = {
+                            type: 'success',
+                            idempotencyKey: idempotencyKey,
+                            duration: 3000
+                        };
+
+                        if (isFavorited && mhm_rentiva_vars.favorites_page_url) {
+                            options.action = {
+                                label: mhm_rentiva_vars.i18n.go_to_favorites || 'Go to My Favorites',
+                                href: mhm_rentiva_vars.favorites_page_url
+                            };
+                        }
+
+                        const finalMsg = isFavorited ? mhm_rentiva_vars.i18n.added_favorite : mhm_rentiva_vars.i18n.removed_favorite;
+                        MHMRentivaToast.show(finalMsg || response.data.message, options);
                     } else {
                         // Revert on failure
                         $btn.toggleClass('is-active');
-                        RentivaInteractions.showNotification(response.data.message || 'Error', 'error');
+                        MHMRentivaToast.show(response.data.message || 'Error', { type: 'error' });
                     }
                 },
                 error: function () {
                     $btn.removeClass('loading');
                     $btn.toggleClass('is-active'); // Revert
-                    RentivaInteractions.showNotification('Network error', 'error');
+                    MHMRentivaToast.show('Network error', { type: 'error' });
                 }
             });
         },
@@ -89,19 +113,17 @@
 
             if ($btn.hasClass('loading')) return;
 
-            // Determine action for optimistic toast
             const isCurrentlyActive = $btn.hasClass('is-active') || $btn.hasClass('active');
-            const optimisticMessage = !isCurrentlyActive ?
-                (mhm_rentiva_vars.i18n.added_to_compare || 'Added to comparison') :
-                (mhm_rentiva_vars.i18n.removed_from_compare || 'Removed from comparison');
+            // Show optimistic toast (Two-Stage)
+            const isAdd = !isCurrentlyActive;
+            const optimisticMessage = isAdd ? mhm_rentiva_vars.i18n.adding_compare : mhm_rentiva_vars.i18n.removing_compare;
+            const idempotencyKey = isAdd ? `compare:add:${vehicleId}` : `compare:remove:${vehicleId}`;
 
-            // Optimistic UI update
-            $btn.addClass('loading');
-            $btn.toggleClass('is-active active');
-            $btn.attr('aria-pressed', !isCurrentlyActive);
-
-            // Perceived Speed: Show notification immediately
-            RentivaInteractions.showNotification(optimisticMessage, 'success');
+            MHMRentivaToast.show(optimisticMessage, {
+                type: 'info',
+                idempotencyKey: idempotencyKey,
+                duration: 0 // Sticky while processing
+            });
 
             $.ajax({
                 url: mhm_rentiva_vars.ajax_url,
@@ -124,30 +146,21 @@
                             $btn.attr('aria-pressed', 'false');
                         }
 
-                        // Threshold Logic & Navigation Hook
-                        const count = response.data.count;
-                        const action = response.data.action;
-                        let message = response.data.message;
-                        let ctaHtml = '';
+                        const options = {
+                            type: 'success',
+                            idempotencyKey: idempotencyKey,
+                            duration: 3000
+                        };
 
-                        if (action === 'added') {
-                            if (count >= 2) {
-                                if (mhm_rentiva_vars.compare_page_url && mhm_rentiva_vars.compare_page_url !== '#') {
-                                    ctaHtml = `<a href="${mhm_rentiva_vars.compare_page_url}" class="rv-notification-cta">${mhm_rentiva_vars.i18n.view_comparison || 'View Comparison'}</a>`;
-                                } else {
-                                    console.warn('MHM Rentiva: Comparison page URL is missing in settings.');
-                                }
-                            } else {
-                                message = mhm_rentiva_vars.i18n.add_one_more || 'Add one more vehicle to compare';
-                            }
-                        } else if (action === 'removed') {
-                            if (count < 2 && count > 0) {
-                                message = mhm_rentiva_vars.i18n.need_at_least_two || 'Comparison needs at least 2 vehicles';
-                            }
+                        if (isInCompare && mhm_rentiva_vars.compare_page_url) {
+                            options.action = {
+                                label: mhm_rentiva_vars.i18n.view_comparison || 'View Comparison',
+                                href: mhm_rentiva_vars.compare_page_url
+                            };
                         }
 
-                        // Update toast with final logic
-                        RentivaInteractions.showNotification(message, 'success', ctaHtml);
+                        const finalMsg = isInCompare ? mhm_rentiva_vars.i18n.added_to_compare : mhm_rentiva_vars.i18n.removed_from_compare;
+                        MHMRentivaToast.show(finalMsg || response.data.message, options);
                     } else {
                         // Revert on failure
                         $btn.removeClass('is-active active');
@@ -155,7 +168,7 @@
                         $btn.attr('aria-pressed', isCurrentlyActive);
                         $btn.removeClass('loading');
 
-                        RentivaInteractions.showNotification(response.data.message || 'Error', 'error');
+                        MHMRentivaToast.show(response.data.message || 'Error', { type: 'error' });
                     }
                 },
                 error: function () {
@@ -165,43 +178,11 @@
                     if (isCurrentlyActive) $btn.addClass('is-active active');
                     $btn.attr('aria-pressed', isCurrentlyActive);
 
-                    RentivaInteractions.showNotification('Network error', 'error');
+                    MHMRentivaToast.show('Network error', { type: 'error' });
                 }
             });
-        },
-
-        showNotification: function (message, type, actionHtml) {
-            type = type || 'info';
-
-            // Remove existing notifications
-            $('.rv-notification').remove();
-
-            const icon = type === 'success' ? '✓' : '!';
-            const $notification = $(`
-                <div class="rv-notification rv-notification--show rv-notification--${type}">
-                    <div class="rv-notification-body">
-                        <span class="rv-notification-icon-badge">${icon}</span>
-                        <div class="rv-notification-content">
-                            <span class="rv-notification-text">${message}</span>
-                            ${actionHtml ? `<div class="rv-notification-actions">${actionHtml}</div>` : ''}
-                        </div>
-                    </div>
-                </div>
-            `);
-
-            $('body').append($notification);
-
-            // Auto-hide
-            setTimeout(function () {
-                $notification.fadeOut(400, function () {
-                    $(this).remove();
-                });
-            }, 3500);
         }
     };
-
-    // Export for global use
-    window.mhm_show_notification = RentivaInteractions.showNotification;
 
     $(document).ready(function () {
         RentivaInteractions.init();

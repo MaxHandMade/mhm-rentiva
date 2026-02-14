@@ -14,8 +14,8 @@ if (! defined('ABSPATH')) {
 /**
  * System information collection class
  */
-final class SystemInfo
-{
+final class SystemInfo {
+
 
 
 	/**
@@ -47,7 +47,7 @@ final class SystemInfo
 				'database'  => self::get_database_info(),
 			);
 		} catch (\Exception $e) {
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('About Page Error', array('error' => $e->getMessage()));
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('About Page Error', array( 'error' => $e->getMessage() ));
 			return array(
 				'error'     => esc_html__('Error occurred while getting system information.', 'mhm-rentiva'),
 				'wordpress' => array(),
@@ -138,6 +138,10 @@ final class SystemInfo
 	 */
 	private static function calculate_directory_size(string $directory): int
 	{
+		if (! is_dir($directory)) {
+			return 0;
+		}
+
 		// Recursive calculation is too slow for admin page load.
 		// Returning 0 or cached value would be better, but for now explicitly skipping.
 		return 0;
@@ -160,6 +164,7 @@ final class SystemInfo
 
 		foreach ($plugin_tables as $key => $table_name) {
 			try {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only system diagnostics query.
 				$exists = $wpdb->get_var(
 					$wpdb->prepare(
 						'SHOW TABLES LIKE %s',
@@ -169,19 +174,26 @@ final class SystemInfo
 
 				if ($exists) {
 					if ('mhm_payment_log' === $key) {
-						// Table name is from internal map, but still use %i if possible or ensure it's not user input.
-						// In older MySQL, %i is not available, so we use esc_sql on a trusted constant.
-						$count = $wpdb->get_var("SELECT COUNT(*) FROM `{$table_name}`");
-					} else {
-						$post_type = 'vehicle_booking' === $key ? 'vehicle_booking' : ('mhm_message' === $key ? 'mhm_message' : '');
-						$count     = $wpdb->get_var(
+						// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only system diagnostics query.
+						$count = $wpdb->get_var(
 							$wpdb->prepare(
-								"SELECT COUNT(*) FROM `{$table_name}` WHERE post_type = %s",
+								'SELECT COUNT(*) FROM %i',
+								$table_name
+							)
+						);
+					} else {
+						$post_type = 'vehicle_booking' === $key ? 'vehicle_booking' : ( 'mhm_message' === $key ? 'mhm_message' : '' );
+						// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only system diagnostics query.
+						$count = $wpdb->get_var(
+							$wpdb->prepare(
+								'SELECT COUNT(*) FROM %i WHERE post_type = %s',
+								$table_name,
 								$post_type
 							)
 						);
 					}
 
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only system diagnostics query.
 					$size = $wpdb->get_var(
 						$wpdb->prepare(
 							'SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) as size_mb
@@ -191,14 +203,14 @@ final class SystemInfo
 						)
 					);
 
-					$tables_info[$key] = array(
+					$tables_info[ $key ] = array(
 						'name'   => $table_name,
 						'exists' => true,
-						'count'  => (int) ($count ?? 0),
+						'count'  => (int) ( $count ?? 0 ),
 						'size'   => $size ? $size . ' MB' : '0 MB',
 					);
 				} else {
-					$tables_info[$key] = array(
+					$tables_info[ $key ] = array(
 						'name'   => $table_name,
 						'exists' => false,
 						'count'  => 0,
@@ -206,7 +218,7 @@ final class SystemInfo
 					);
 				}
 			} catch (\Exception $e) {
-				$tables_info[$key] = array(
+				$tables_info[ $key ] = array(
 					'name'   => $table_name,
 					'exists' => false,
 					'count'  => 0,

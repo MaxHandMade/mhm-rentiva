@@ -181,7 +181,7 @@ final class VehicleTransferMetaBox
 
 		// Save Service Type
 		if (isset($_POST['rentiva_vehicle_service_type'])) {
-			update_post_meta($post_id, '_rentiva_vehicle_service_type', sanitize_text_field($_POST['rentiva_vehicle_service_type']));
+			update_post_meta($post_id, '_rentiva_vehicle_service_type', sanitize_text_field(wp_unslash($_POST['rentiva_vehicle_service_type'])));
 		}
 
 		// Save Max Pax
@@ -208,7 +208,7 @@ final class VehicleTransferMetaBox
 
 		// Save Price Multiplier
 		if (isset($_POST['rentiva_transfer_price_multiplier'])) {
-			$val = sanitize_text_field($_POST['rentiva_transfer_price_multiplier']);
+			$val = sanitize_text_field(wp_unslash($_POST['rentiva_transfer_price_multiplier']));
 			if ($val !== '') {
 				update_post_meta($post_id, '_rentiva_transfer_price_multiplier', floatval($val));
 			} else {

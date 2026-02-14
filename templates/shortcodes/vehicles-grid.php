@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Vehicles Grid Template
@@ -42,11 +43,11 @@ $booking_url    = $booking_url ?? '';
 				// Use shared partial for vehicle card
 				// Note: We're using the standard core 'partials/vehicle-card'
 				// The vehicle data from VehiclesGrid.php has been standardized to match the partial's expectations.
-				echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
+				echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
 					'vehicle' => $vehicle,
 					'layout'  => 'grid',
 					'atts'    => $atts,
-				)));
+				));
 				?>
 			<?php endforeach; ?>
 		</div>

@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Vehicles List Template - Standardized with Partial
@@ -34,11 +35,11 @@ $wrapper_class  = $wrapper_class ?? '';
 			<?php foreach ($vehicles as $vehicle) : ?>
 				<?php
 				// Use shared partial for vehicle card
-				echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
+				echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
 					'vehicle' => $vehicle,
 					'layout'  => 'list',
 					'atts'    => $atts,
-				)));
+				), true);
 				?>
 			<?php endforeach; ?>
 		</div>

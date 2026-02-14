@@ -178,6 +178,7 @@ final class ErrorHandler {
 				$message
 			);
 
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Fallback logger for fatal paths when custom logger is unavailable.
 			error_log( $log_message );
 		}
 	}

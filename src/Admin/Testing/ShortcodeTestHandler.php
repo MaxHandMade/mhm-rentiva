@@ -48,8 +48,8 @@ final class ShortcodeTestHandler {
 			return;
 		}
 
-		$shortcode = self::sanitize_text_field_safe( $_POST['shortcode'] ?? '' );
-		$example   = self::sanitize_text_field_safe( $_POST['example'] ?? '' );
+		$shortcode = isset( $_POST['shortcode'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['shortcode'] ) ) : '';
+		$example   = isset( $_POST['example'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['example'] ) ) : '';
 
 		if ( empty( $shortcode ) ) {
 			wp_send_json_error( __( 'Shortcode not specified.', 'mhm-rentiva' ) );

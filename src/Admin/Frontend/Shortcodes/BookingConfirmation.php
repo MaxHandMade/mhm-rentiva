@@ -66,7 +66,8 @@ final class BookingConfirmation extends AbstractShortcode {
 
 		// Also check from URL parameter
 		if ( ! $booking_id ) {
-			$booking_id = (int) ( isset( $_GET['booking_id'] ) ? wp_unslash( $_GET['booking_id'] ) : 0 );
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only booking lookup parameter used for confirmation display.
+			$booking_id = isset( $_GET['booking_id'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_GET['booking_id'] ) ) ) : 0;
 		}
 
 		if ( ! $booking_id ) {

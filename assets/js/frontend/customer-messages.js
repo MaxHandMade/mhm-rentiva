@@ -403,31 +403,9 @@
         },
 
         showNotification: function (message, type, duration) {
-            const $notification = $(`
-                <div class="message-${type}">
-                    <span>${this.escapeHtml(message)}</span>
-                    <button class="close-notification">&times;</button>
-                </div>
-            `);
-
-            // Remove existing notifications
-            $('.message-success, .message-error').remove();
-
-            // Add new notification
-            $('.messages-section').prepend($notification);
-
-            // Auto-dismiss
-            setTimeout(() => {
-                $notification.fadeOut(() => {
-                    $notification.remove();
-                });
-            }, duration);
-
-            // Manual dismiss
-            $notification.find('.close-notification').on('click', () => {
-                $notification.fadeOut(() => {
-                    $notification.remove();
-                });
+            MHMRentivaToast.show(message, {
+                type: type,
+                duration: duration || (type === 'error' ? 5000 : 3000)
             });
         },
 

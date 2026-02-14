@@ -119,6 +119,7 @@ final class EmailTemplateTestAction {
 			array(
 				'page'              => 'mhm-rentiva-settings',
 				'tab'               => 'email-templates',
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only UI state value for redirect.
 				'type'              => sanitize_key( isset( $_GET['type'] ) ? wp_unslash( $_GET['type'] ) : 'booking_notifications' ),
 				'mhm_template_test' => $status,
 			),

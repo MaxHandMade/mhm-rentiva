@@ -198,9 +198,9 @@ final class SetupWizard
 
 		<?php
 		// ⭐ Show error messages if any
-		if (isset($_GET['error'])) {
-			$error_code    = sanitize_text_field($_GET['error']);
-			$error_message = isset($_GET['message']) ? urldecode(sanitize_text_field($_GET['message'])) : '';
+		$error_code = self::get_text('error');
+		if ($error_code !== '') {
+			$error_message = rawurldecode(self::get_text('message'));
 
 			$error_text = '';
 			switch ($error_code) {
@@ -224,7 +224,7 @@ final class SetupWizard
 		}
 
 		// ⭐ Show success message if license was activated
-		if (isset($_GET['license']) && $_GET['license'] === 'activated') {
+		if (self::get_text('license') === 'activated') {
 			echo '<div class="notice notice-success inline"><p>' . esc_html__('License activated successfully!', 'mhm-rentiva') . '</p></div>';
 		}
 		?>
@@ -751,9 +751,13 @@ final class SetupWizard
 			$settings['mhm_rentiva_currency_position'] = in_array($currency_position, $allowed_positions, true) ? $currency_position : 'right_space';
 		}
 
-		$settings['mhm_rentiva_default_rental_days']     = (string) max(1, min(30, (int) ($_POST['default_days'] ?? 1)));
-		$settings['mhm_rentiva_vehicle_min_rental_days'] = (string) max(1, min(365, (int) ($_POST['min_days'] ?? 1)));
-		$settings['mhm_rentiva_vehicle_max_rental_days'] = (string) max((int) $settings['mhm_rentiva_vehicle_min_rental_days'], min(365, (int) ($_POST['max_days'] ?? 30)));
+		$default_days = self::post_int('default_days', 1);
+		$min_days     = self::post_int('min_days', 1);
+		$max_days     = self::post_int('max_days', 30);
+
+		$settings['mhm_rentiva_default_rental_days']     = (string) max(1, min(30, $default_days));
+		$settings['mhm_rentiva_vehicle_min_rental_days'] = (string) max(1, min(365, $min_days));
+		$settings['mhm_rentiva_vehicle_max_rental_days'] = (string) max((int) $settings['mhm_rentiva_vehicle_min_rental_days'], min(365, $max_days));
 
 		$settings['mhm_rentiva_vehicle_show_features']     = isset($_POST['show_features']) ? '1' : '0';
 		$settings['mhm_rentiva_vehicle_show_availability'] = isset($_POST['show_availability']) ? '1' : '0';
@@ -877,7 +881,7 @@ final class SetupWizard
 
 	private static function is_wizard_page(): bool
 	{
-		return isset($_GET['page']) && $_GET['page'] === self::PAGE_SLUG;
+		return self::get_text('page') === self::PAGE_SLUG;
 	}
 
 	private static function get_steps(): array
@@ -895,11 +899,43 @@ final class SetupWizard
 	private static function get_current_step(): string
 	{
 		$steps     = array_keys(self::get_steps());
-		$requested = isset($_GET['step']) ? sanitize_key(wp_unslash($_GET['step'])) : '';
+		$requested = self::get_key('step');
 		if ($requested && in_array($requested, $steps, true)) {
 			return $requested;
 		}
 		return $steps[0];
+	}
+
+	private static function get_text(string $key, string $default = ''): string
+	{
+		$raw = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+		if ($raw === null || $raw === false) {
+			return $default;
+		}
+
+		return sanitize_text_field((string) $raw);
+	}
+
+	private static function get_key(string $key, string $default = ''): string
+	{
+		$value = self::get_text($key, $default);
+		return $value === '' ? $default : sanitize_key($value);
+	}
+
+	private static function post_text(string $key, string $default = ''): string
+	{
+		$raw = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+		if ($raw === null || $raw === false) {
+			return $default;
+		}
+
+		return sanitize_text_field((string) $raw);
+	}
+
+	private static function post_int(string $key, int $default = 0): int
+	{
+		$value = self::post_text($key, '');
+		return $value === '' ? $default : (int) $value;
 	}
 
 	private static function step_url(string $step, array $args = array()): string

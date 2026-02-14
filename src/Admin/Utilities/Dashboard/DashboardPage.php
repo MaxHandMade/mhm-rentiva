@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Dashboard metrics intentionally execute bounded aggregate/admin queries.
 
 namespace MHMRentiva\Admin\Utilities\Dashboard;
 
@@ -101,7 +102,7 @@ final class DashboardPage
 	 */
 	public static function ajax_refresh_dashboard_data(): void
 	{
-		$nonce = sanitize_text_field($_POST['nonce'] ?? '');
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
 		if (! wp_verify_nonce($nonce, 'mhm_dashboard_nonce')) {
 			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
 			return;
@@ -129,7 +130,7 @@ final class DashboardPage
 	 */
 	public static function ajax_save_dashboard_order(): void
 	{
-		$nonce = sanitize_text_field($_POST['nonce'] ?? '');
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
 		if (! wp_verify_nonce($nonce, 'mhm_dashboard_nonce')) {
 			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
 			return;
@@ -150,7 +151,7 @@ final class DashboardPage
 	 */
 	public static function ajax_reset_dashboard_layout(): void
 	{
-		$nonce = sanitize_text_field($_POST['nonce'] ?? '');
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
 		if (! wp_verify_nonce($nonce, 'mhm_dashboard_nonce')) {
 			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
 			return;
@@ -260,7 +261,7 @@ final class DashboardPage
 
 	public static function ajax_clear_dashboard_cache(): void
 	{
-		$nonce = sanitize_text_field($_POST['nonce'] ?? '');
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
 		if (! wp_verify_nonce($nonce, 'mhm_clear_cache')) {
 			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
 			return;

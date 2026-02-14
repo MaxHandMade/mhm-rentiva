@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -23,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="analytics-card customers-analytics">
 			<div class="card-header">
 				<h3><?php echo esc_html__( 'Customer Summary', 'mhm-rentiva' ); ?></h3>
-				<span class="card-icon">👥</span>
+				<span class="card-icon">ğŸ‘¥</span>
 			</div>
 			<div class="card-content">
 				<div class="analytics-metrics">
@@ -48,7 +49,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="analytics-card customers-analytics">
 			<div class="card-header">
 				<h3><?php echo esc_html__( 'Customer Lifecycle', 'mhm-rentiva' ); ?></h3>
-				<span class="card-icon">📈</span>
+				<span class="card-icon">ğŸ“ˆ</span>
 			</div>
 			<div class="card-content">
 				<div class="analytics-chart">

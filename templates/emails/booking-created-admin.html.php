@@ -51,12 +51,14 @@
 			</tr>
 			<tr>
 				<td style="padding: 12px 15px; border-bottom: 1px solid #e9ecef; color: #555;"><strong><?php esc_html_e( 'Total Amount:', 'mhm-rentiva' ); ?></strong></td>
+				<?php // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Public currency filter kept stable for integrations. ?>
 				<td style="padding: 12px 15px; border-bottom: 1px solid #e9ecef; text-align: right; color: #28a745; font-weight: bold;"><?php echo esc_html( apply_filters( 'mhm_rentiva/currency_symbol', '₺' ) ); ?><?php echo esc_html( number_format( (float) ( $data['booking']['total_price'] ?? 0 ), 2 ) ); ?></td>
 			</tr>
 			<tr>
 				<td style="padding: 12px 15px; color: #555;"><strong><?php esc_html_e( 'Payment Status:', 'mhm-rentiva' ); ?></strong></td>
 				<td style="padding: 12px 15px; text-align: right;">
 				<?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 																	$payment_status = $data['booking']['payment_status'] ?? 'unknown';
 																	$status_text    = array(
 																		'pending' => esc_html__( 'Payment Pending', 'mhm-rentiva' ),

@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 declare(strict_types=1);
 
@@ -470,6 +471,7 @@ final class AccountController {
 			'application/pdf' => 'pdf',
 		);
 
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File array is validated by wp_handle_upload().
 		$file = isset( $_FILES['receipt'] ) ? wp_unslash( $_FILES['receipt'] ) : array();
 		if ( empty( $file ) || ! isset( $file['error'] ) || $file['error'] !== UPLOAD_ERR_OK ) {
 			wp_send_json_error( array( 'message' => __( 'Upload error.', 'mhm-rentiva' ) ), 400 );
@@ -587,10 +589,10 @@ final class AccountController {
 			$user_id = get_current_user_id();
 
 			// Get and sanitize data - apply wp_unslash() before sanitization
-			$display_name = isset( $_POST['display_name'] ) ? self::sanitize_text_field_safe( wp_unslash( $_POST['display_name'] ) ) : '';
-			$first_name   = isset( $_POST['first_name'] ) ? self::sanitize_text_field_safe( wp_unslash( $_POST['first_name'] ) ) : '';
-			$last_name    = isset( $_POST['last_name'] ) ? self::sanitize_text_field_safe( wp_unslash( $_POST['last_name'] ) ) : '';
-			$phone        = isset( $_POST['phone'] ) ? self::sanitize_text_field_safe( wp_unslash( $_POST['phone'] ) ) : '';
+			$display_name = isset( $_POST['display_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['display_name'] ) ) : '';
+			$first_name   = isset( $_POST['first_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['first_name'] ) ) : '';
+			$last_name    = isset( $_POST['last_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['last_name'] ) ) : '';
+			$phone        = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['phone'] ) ) : '';
 			$address      = isset( $_POST['address'] ) ? sanitize_textarea_field( wp_unslash( $_POST['address'] ) ) : '';
 
 			// Update user information

@@ -142,14 +142,15 @@ final class MessageListTable extends AbstractListTable {
 		$args['posts_per_page'] = $this->default_per_page;
 
 		// Sorting
-		$orderby         = sanitize_sql_orderby( $_GET['orderby'] ?? 'date' );
-		$order           = sanitize_text_field( $_GET['order'] ?? 'DESC' );
+		$orderby         = sanitize_sql_orderby( self::get_text_param( 'orderby', 'date' ) );
+		$order           = self::get_text_param( 'order', 'DESC' );
 		$args['orderby'] = $orderby ?: 'date';
 		$args['order']   = strtoupper( $order ) === 'ASC' ? 'ASC' : 'DESC';
 
 		// Add search
-		if ( ! empty( $_GET['s'] ) ) {
-			$args['s'] = sanitize_text_field( $_GET['s'] );
+		$search = self::get_text_param( 's' );
+		if ( '' !== $search ) {
+			$args['s'] = $search;
 		}
 
 		// Add custom filters
@@ -196,14 +197,15 @@ final class MessageListTable extends AbstractListTable {
 		$args['offset']         = $offset;
 
 		// Sorting
-		$orderby         = sanitize_sql_orderby( $_GET['orderby'] ?? 'date' );
-		$order           = sanitize_text_field( $_GET['order'] ?? 'DESC' );
+		$orderby         = sanitize_sql_orderby( self::get_text_param( 'orderby', 'date' ) );
+		$order           = self::get_text_param( 'order', 'DESC' );
 		$args['orderby'] = $orderby ?: 'date';
 		$args['order']   = strtoupper( $order ) === 'ASC' ? 'ASC' : 'DESC';
 
 		// Add search
-		if ( ! empty( $_GET['s'] ) ) {
-			$args['s'] = sanitize_text_field( $_GET['s'] );
+		$search = self::get_text_param( 's' );
+		if ( '' !== $search ) {
+			$args['s'] = $search;
 		}
 
 		// Add custom filters
@@ -548,25 +550,25 @@ final class MessageListTable extends AbstractListTable {
 
 	protected function apply_custom_filters( array $args ): array {
 		// Status filter - use status_filter key for MessageQueryHelper
-		$status_filter = sanitize_key( $_GET['status_filter'] ?? '' );
+		$status_filter = self::get_key_param( 'status_filter' );
 		if ( $status_filter && in_array( $status_filter, array_keys( MessagesSettings::get_statuses() ), true ) ) {
 			$args['status_filter'] = $status_filter;
 		}
 
 		// Category filter - use category_filter key for MessageQueryHelper
-		$category_filter = sanitize_key( $_GET['category_filter'] ?? '' );
+		$category_filter = self::get_key_param( 'category_filter' );
 		if ( $category_filter && in_array( $category_filter, array_keys( MessagesSettings::get_categories() ), true ) ) {
 			$args['category_filter'] = $category_filter;
 		}
 
 		// Thread ID filter (if exists)
-		$thread_id = isset( $_GET['thread_id'] ) ? absint( $_GET['thread_id'] ) : 0;
+		$thread_id = absint( self::get_text_param( 'thread_id', '0' ) );
 		if ( $thread_id > 0 ) {
 			$args['thread_id'] = $thread_id;
 		}
 
 		// Unread only filter (if exists)
-		$unread_only = isset( $_GET['unread_only'] ) && $_GET['unread_only'] === '1';
+		$unread_only = self::get_text_param( 'unread_only' ) === '1';
 		if ( $unread_only ) {
 			$args['unread_only'] = true;
 		}
@@ -576,8 +578,8 @@ final class MessageListTable extends AbstractListTable {
 
 
 	protected function render_custom_filters(): void {
-		$status_filter   = sanitize_key( $_GET['status_filter'] ?? '' );
-		$category_filter = sanitize_key( $_GET['category_filter'] ?? '' );
+		$status_filter   = self::get_key_param( 'status_filter' );
+		$category_filter = self::get_key_param( 'category_filter' );
 
 		?>
 		<div class="alignleft actions">
@@ -625,7 +627,7 @@ final class MessageListTable extends AbstractListTable {
 				break;
 
 			case 'change_status':
-				$new_status = sanitize_key( $_POST['bulk_status'] ?? '' );
+				$new_status = self::post_key_param( 'bulk_status' );
 				if ( in_array( $new_status, array_keys( MessagesSettings::get_statuses() ), true ) ) {
 					foreach ( $item_ids as $message_id ) {
 						if ( Message::update_message_status( $message_id, $new_status ) ) {

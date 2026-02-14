@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded application queries are intentional in this module.
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
@@ -346,9 +347,9 @@ final class VehicleDetails extends AbstractShortcode {
 			return;
 		}
 
-		$vid   = (int) ( isset( $_POST['vehicle_id'] ) ? wp_unslash( $_POST['vehicle_id'] ) : 0 );
-		$month = (int) ( isset( $_POST['month'] ) ? wp_unslash( $_POST['month'] ) : gmdate( 'n' ) );
-		$year  = (int) ( isset( $_POST['year'] ) ? wp_unslash( $_POST['year'] ) : gmdate( 'Y' ) );
+		$vid   = isset( $_POST['vehicle_id'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_POST['vehicle_id'] ) ) ) : 0;
+		$month = isset( $_POST['month'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_POST['month'] ) ) ) : (int) gmdate( 'n' );
+		$year  = isset( $_POST['year'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_POST['year'] ) ) ) : (int) gmdate( 'Y' );
 
 		if ( ! $vid ) {
 			wp_send_json_error( array( 'message' => __( 'Vehicle ID required', 'mhm-rentiva' ) ) );

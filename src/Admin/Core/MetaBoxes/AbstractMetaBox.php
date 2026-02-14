@@ -346,6 +346,7 @@ abstract class AbstractMetaBox {
 		$field_type        = $field['type'] ?? 'text';
 		$sanitize_callback = $field['sanitize_callback'] ?? null;
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Save flow nonce is verified by caller before field-level persistence.
 		if ( ! isset( $_POST[ $field_key ] ) ) {
 			// Special case for checkbox
 			if ( $field_type === 'checkbox' ) {
@@ -354,6 +355,7 @@ abstract class AbstractMetaBox {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Dynamic field key comes from trusted internal field config and is sanitized below.
 		$value = isset( $_POST[ $field_key ] ) ? wp_unslash( $_POST[ $field_key ] ) : '';
 
 		// Null check

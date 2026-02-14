@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Booking\Meta;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy booking hooks preserved for extension compatibility.
+
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
 use MHMRentiva\Admin\Booking\Helpers\Util;
 use MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator;
@@ -431,12 +433,12 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			wp_send_json_error( array( 'message' => esc_html__( 'Security check failed.', 'mhm-rentiva' ) ) );
 		}
 
-		$vehicle_id   = (int) ( $_POST['vehicle_id'] ?? 0 );
-		$pickup_date  = self::sanitize_text_field_safe( $_POST['pickup_date'] ?? '' );
-		$pickup_time  = self::sanitize_text_field_safe( $_POST['pickup_time'] ?? '' );
-		$dropoff_date = self::sanitize_text_field_safe( $_POST['dropoff_date'] ?? '' );
-		$dropoff_time = self::sanitize_text_field_safe( $_POST['dropoff_time'] ?? '' );
-		$payment_type = self::sanitize_text_field_safe( $_POST['payment_type'] ?? 'deposit' );
+		$vehicle_id   = isset( $_POST['vehicle_id'] ) ? absint( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
+		$pickup_date  = isset( $_POST['pickup_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['pickup_date'] ) ) : '';
+		$pickup_time  = isset( $_POST['pickup_time'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['pickup_time'] ) ) : '';
+		$dropoff_date = isset( $_POST['dropoff_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['dropoff_date'] ) ) : '';
+		$dropoff_time = isset( $_POST['dropoff_time'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['dropoff_time'] ) ) : '';
+		$payment_type = isset( $_POST['payment_type'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['payment_type'] ) ) : 'deposit';
 
 		if ( ! $vehicle_id || ! $pickup_date || ! $dropoff_date ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Required fields are missing.', 'mhm-rentiva' ) ) );
@@ -461,7 +463,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		}
 
 		// Additional services calculation (daily)
-		$selected_addons = array_map( 'intval', $_POST['selected_addons'] ?? array() );
+		$selected_addons = isset( $_POST['selected_addons'] ) ? array_map( 'intval', (array) wp_unslash( $_POST['selected_addons'] ) ) : array();
 		$addon_total     = 0;
 
 		if ( ! empty( $selected_addons ) ) {
@@ -506,17 +508,17 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		}
 
 		// Input validation
-		$vehicle_id     = (int) ( $_POST['vehicle_id'] ?? 0 );
-		$customer_id    = self::sanitize_text_field_safe( $_POST['customer_id'] ?? '' );
-		$pickup_date    = self::sanitize_text_field_safe( $_POST['pickup_date'] ?? '' );
-		$pickup_time    = self::sanitize_text_field_safe( $_POST['pickup_time'] ?? '' );
-		$dropoff_date   = self::sanitize_text_field_safe( $_POST['dropoff_date'] ?? '' );
-		$dropoff_time   = self::sanitize_text_field_safe( $_POST['dropoff_time'] ?? '' );
-		$guests         = max( 1, absint( $_POST['guests'] ?? 1 ) );
-		$payment_type   = self::sanitize_text_field_safe( $_POST['payment_type'] ?? 'deposit' );
-		$payment_method = self::sanitize_text_field_safe( $_POST['payment_method'] ?? 'woocommerce' );
-		$status         = self::sanitize_text_field_safe( $_POST['status'] ?? 'confirmed' );
-		$notes          = sanitize_textarea_field( (string) ( $_POST['notes'] ?? '' ) );
+		$vehicle_id     = isset( $_POST['vehicle_id'] ) ? absint( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
+		$customer_id    = isset( $_POST['customer_id'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['customer_id'] ) ) : '';
+		$pickup_date    = isset( $_POST['pickup_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['pickup_date'] ) ) : '';
+		$pickup_time    = isset( $_POST['pickup_time'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['pickup_time'] ) ) : '';
+		$dropoff_date   = isset( $_POST['dropoff_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['dropoff_date'] ) ) : '';
+		$dropoff_time   = isset( $_POST['dropoff_time'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['dropoff_time'] ) ) : '';
+		$guests         = max( 1, isset( $_POST['guests'] ) ? absint( wp_unslash( $_POST['guests'] ) ) : 1 );
+		$payment_type   = isset( $_POST['payment_type'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['payment_type'] ) ) : 'deposit';
+		$payment_method = isset( $_POST['payment_method'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['payment_method'] ) ) : 'woocommerce';
+		$status         = isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['status'] ) ) : 'confirmed';
+		$notes          = isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '';
 
 		if ( ! $vehicle_id || ! $customer_id || ! $pickup_date || ! $dropoff_date ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Required fields are missing.', 'mhm-rentiva' ) ) );
@@ -532,11 +534,11 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 
 		if ( $customer_id === 'new_customer' ) {
 			// Create new customer
-			$customer_first_name = self::sanitize_text_field_safe( $_POST['new_customer_first_name'] ?? '' );
-			$customer_last_name  = self::sanitize_text_field_safe( $_POST['new_customer_last_name'] ?? '' );
+			$customer_first_name = isset( $_POST['new_customer_first_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['new_customer_first_name'] ) ) : '';
+			$customer_last_name  = isset( $_POST['new_customer_last_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['new_customer_last_name'] ) ) : '';
 			$customer_name       = trim( $customer_first_name . ' ' . $customer_last_name );
-			$customer_email      = sanitize_email( (string) ( $_POST['new_customer_email'] ?? '' ) );
-			$customer_phone      = self::sanitize_text_field_safe( $_POST['new_customer_phone'] ?? '' );
+			$customer_email      = isset( $_POST['new_customer_email'] ) ? sanitize_email( wp_unslash( (string) $_POST['new_customer_email'] ) ) : '';
+			$customer_phone      = isset( $_POST['new_customer_phone'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['new_customer_phone'] ) ) : '';
 
 			if ( ! $customer_first_name || ! $customer_last_name || ! $customer_email || ! $customer_phone ) {
 				wp_send_json_error( array( 'message' => esc_html__( 'New customer information is missing.', 'mhm-rentiva' ) ) );

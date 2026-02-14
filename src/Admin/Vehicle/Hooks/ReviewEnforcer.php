@@ -50,9 +50,13 @@ class ReviewEnforcer {
 
 		// 1. Mandatory Rating Check
 		$rating = 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Runs on core comment submission payload; plugin does not mutate options/state here.
 		if ( isset( $_POST['rating'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Runs on core comment submission payload; plugin does not mutate options/state here.
 			$rating = (int) $_POST['rating'];
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Runs on core comment submission payload; plugin does not mutate options/state here.
 		} elseif ( isset( $_POST['mhm_rating'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Runs on core comment submission payload; plugin does not mutate options/state here.
 			$rating = (int) $_POST['mhm_rating'];
 		} elseif ( isset( $commentdata['comment_meta']['rating'] ) ) {
 			$rating = (int) $commentdata['comment_meta']['rating'];
@@ -80,7 +84,9 @@ class ReviewEnforcer {
 
 		// If user is editing their own existing comment via AJAX/Admin, the comment_ID might be passed.
 		$existing_comment_id = 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Read-only duplicate detection from core/admin comment payload.
 		if ( isset( $_POST['comment_ID'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Read-only duplicate detection from core/admin comment payload.
 			$existing_comment_id = (int) $_POST['comment_ID'];
 		}
 

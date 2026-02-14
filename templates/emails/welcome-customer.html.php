@@ -5,13 +5,14 @@
 	<div class="content">
 		<p>
 			<?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 			/* translators: %s: customer name. */
 			echo esc_html( sprintf( __( 'Hello %s, thanks for joining us!', 'mhm-rentiva' ), (string) ( $data['customer']['name'] ?? '' ) ) );
 			?>
 		</p>
 		<p><?php esc_html_e( 'You can access your account anytime using the button below:', 'mhm-rentiva' ); ?></p>
 		<?php
-		// ✅ Use WooCommerce native approach instead of ShortcodeUrlManager
+		// âœ… Use WooCommerce native approach instead of ShortcodeUrlManager
 		$account_url = function_exists( 'wc_get_page_permalink' )
 			? wc_get_page_permalink( 'myaccount' )
 			: home_url( '/my-account/' );

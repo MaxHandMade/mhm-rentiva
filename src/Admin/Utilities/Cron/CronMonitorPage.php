@@ -48,7 +48,13 @@ final class CronMonitorPage {
 		}
 
 		$hook = isset( $_POST['hook'] ) ? sanitize_text_field( wp_unslash( $_POST['hook'] ) ) : '';
-		$args = isset( $_POST['args'] ) && is_array( $_POST['args'] ) ? array_map( 'sanitize_text_field', $_POST['args'] ) : array();
+		$args = array();
+		if ( isset( $_POST['args'] ) && is_array( $_POST['args'] ) ) {
+			$args = array_map(
+				'sanitize_text_field',
+				wp_unslash( $_POST['args'] )
+			);
+		}
 
 		if ( empty( $hook ) ) {
 			wp_send_json_error( esc_html__( 'Cron hook is required', 'mhm-rentiva' ) );

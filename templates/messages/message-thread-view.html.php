@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Message thread view template
@@ -16,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div class="message-thread-header">
 	<a href="<?php echo esc_url( \MHMRentiva\Admin\Messages\Core\MessageUrlHelper::get_messages_list_url() ); ?>" class="button">
-		← <?php esc_html_e( 'Back to All Messages', 'mhm-rentiva' ); ?>
+		â† <?php esc_html_e( 'Back to All Messages', 'mhm-rentiva' ); ?>
 	</a>
 
 	<div class="message-info">

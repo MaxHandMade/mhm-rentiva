@@ -28,6 +28,7 @@ final class EmailLogRetention {
 		if ( $days <= 0 ) {
 			return;
 		}
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Legacy filter retained for backward compatibility.
 		$limit = (int) apply_filters( 'mhm_rentiva_email_log_purge_limit', 200 );
 		self::purge( $days, $limit );
 	}

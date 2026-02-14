@@ -56,10 +56,9 @@ final class CustomersListTable extends AbstractListTable {
 	protected function get_total_count(): int {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregate count for admin list table pagination.
 		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(DISTINCT u.ID) as total FROM {$wpdb->users} u INNER JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value AND email_meta.meta_key = '_mhm_customer_email' INNER JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id AND p.post_type = 'vehicle_booking' AND p.post_status = 'publish' WHERE u.ID > 1"
-			)
+			"SELECT COUNT(DISTINCT u.ID) as total FROM {$wpdb->users} u INNER JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value AND email_meta.meta_key = '_mhm_customer_email' INNER JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id AND p.post_type = 'vehicle_booking' AND p.post_status = 'publish' WHERE u.ID > 1"
 		);
 	}
 
@@ -187,6 +186,7 @@ final class CustomersListTable extends AbstractListTable {
 		// ✅ CODE QUALITY IMPROVEMENT - MetaQueryHelper usage
 		$meta_joins = MetaQueryHelper::get_booking_meta_joins();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Paginated reporting query for admin list table.
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT u.ID as user_id, u.display_name as customer_name, u.user_email as customer_email, MIN(p.post_date) as first_booking_date, COUNT(p.ID) as booking_count, SUM(CAST(COALESCE(price_meta.meta_value, '0') AS DECIMAL(10,2))) as total_spent, MAX(p.post_date) as last_booking FROM {$wpdb->users} u INNER JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value AND email_meta.meta_key = '_mhm_customer_email' INNER JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id AND p.post_type = 'vehicle_booking' AND p.post_status = 'publish' LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id AND price_meta.meta_key = '_mhm_total_price' WHERE u.ID > 1 GROUP BY u.ID, u.display_name, u.user_email ORDER BY last_booking DESC LIMIT %d OFFSET %d",
@@ -204,9 +204,9 @@ final class CustomersListTable extends AbstractListTable {
 
 			$customer_data[] = array(
 				'id'            => $result->user_id,
-				'name'          => $result->customer_name ?: $result->customer_email,
+				'name'          => $result->customer_name ? $result->customer_name : $result->customer_email,
 				'email'         => $result->customer_email,
-				'phone'         => $customer_phone ?: '-',
+				'phone'         => $customer_phone ? $customer_phone : '-',
 				'booking_count' => (int) $result->booking_count,
 				'total_spent'   => number_format( (float) $result->total_spent, 2, ',', '.' ),
 				'last_booking'  => current_time( 'd.m.Y', strtotime( $result->last_booking ) ),
@@ -302,6 +302,7 @@ final class CustomersListTable extends AbstractListTable {
 					'post_type'   => 'vehicle_booking',
 					'post_status' => 'publish',
 					'numberposts' => -1,
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Admin-only bulk delete lookup scoped by specific customer marker.
 					'meta_query'  => array(
 						array(
 							'key'     => 'mhm_rentiva_customer_email',

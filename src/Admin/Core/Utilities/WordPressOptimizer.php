@@ -1,4 +1,7 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Optimizer housekeeping uses controlled admin-only diagnostic queries.
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
@@ -153,9 +156,9 @@ final class WordPressOptimizer {
 	 * Optimize memory usage
 	 */
 	public static function optimize_memory_usage(): void {
-		// Increase memory limit
-		if ( function_exists( 'ini_set' ) ) {
-			ini_set( 'memory_limit', '256M' );
+		// Prefer WordPress-native memory limit handling.
+		if ( function_exists( 'wp_raise_memory_limit' ) ) {
+			wp_raise_memory_limit( 'admin' );
 		}
 
 		// Clean up unnecessary WordPress cache

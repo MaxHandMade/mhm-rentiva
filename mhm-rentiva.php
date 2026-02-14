@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 /*
  * Plugin Name:       MHM Rentiva
  * Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -48,7 +49,7 @@ function mhm_rentiva_sanitize_text_field_safe($value)
 }
 
 // Define Plugin Constants
-define('MHM_RENTIVA_VERSION', '4.9.8');
+define('MHM_RENTIVA_VERSION', '4.9.9');
 
 // PHP version check
 if (version_compare(PHP_VERSION, '8.1', '<')) {
@@ -97,15 +98,15 @@ if (! defined('MHM_RENTIVA_PLUGIN_DIR')) {
 
 // Advanced PSR-4 autoloader (MHMRentiva\* -> /src)
 spl_autoload_register(
-	function ($class) {
-		if (strpos($class, 'MHMRentiva\\') !== 0) {
+	function ($class_name) {
+		if (strpos($class_name, 'MHMRentiva\\') !== 0) {
 			return;
 		}
 
 		// Ensure AbstractShortcode is loaded first for shortcode classes
 		if (
-			strpos($class, 'MHMRentiva\\Admin\\Frontend\\Shortcodes\\') === 0 &&
-			$class !== 'MHMRentiva\\Admin\\Frontend\\Shortcodes\\AbstractShortcode' &&
+			strpos($class_name, 'MHMRentiva\\Admin\\Frontend\\Shortcodes\\') === 0 &&
+			$class_name !== 'MHMRentiva\\Admin\\Frontend\\Shortcodes\\AbstractShortcode' &&
 			! class_exists('MHMRentiva\\Admin\\Frontend\\Shortcodes\\AbstractShortcode')
 		) {
 
@@ -116,7 +117,7 @@ spl_autoload_register(
 		}
 
 		// Convert namespace to file path
-		$relative = str_replace(array('MHMRentiva\\', '\\'), array('', '/'), $class) . '.php';
+		$relative = str_replace(array('MHMRentiva\\', '\\'), array('', '/'), $class_name) . '.php';
 		$path     = __DIR__ . '/src/' . $relative;
 
 		// Load file if exists
@@ -210,7 +211,7 @@ function mhm_rentiva_single_site_activation()
 			'queue',
 			'report_queue',
 			'message_logs',
-			'notification_queue'
+			'notification_queue',
 		);
 
 		foreach ($critical_tables as $table) {
@@ -246,13 +247,14 @@ register_activation_hook(
 
 		if (is_multisite()) {
 			// Network-wide activation
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Activation hooks are triggered by WordPress core without custom nonces in this context.
 			if (isset($_GET['networkwide']) && '1' === sanitize_text_field(wp_unslash($_GET['networkwide']))) {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Activation hooks are triggered by WordPress core without custom nonces in this context.
 
 				// Fetch blog IDs using get_sites() instead of direct database query
 				$blog_ids = wp_cache_get('mhm_rentiva_network_blogs');
 				if (false === $blog_ids) {
-					$sites = get_sites(array('public' => 1));
+					$sites    = get_sites(array('public' => 1));
 					$blog_ids = array();
 					foreach ($sites as $site) {
 						$blog_ids[] = $site->blog_id;
@@ -323,7 +325,6 @@ register_deactivation_hook(
 	__FILE__,
 	function () {
 		flush_rewrite_rules();
-
 		// Clean license cron job
 		if (class_exists('MHMRentiva\\Admin\\Licensing\\LicenseManager')) {
 			\MHMRentiva\Admin\Licensing\LicenseManager::deactivatePluginHook();

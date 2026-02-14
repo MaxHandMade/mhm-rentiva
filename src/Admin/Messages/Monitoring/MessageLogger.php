@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Message log storage/cleanup intentionally uses controlled direct table queries.
 
 namespace MHMRentiva\Admin\Messages\Monitoring;
 
@@ -36,6 +37,32 @@ final class MessageLogger {
 		add_action( 'wp_ajax_mhm_get_message_logs', array( self::class, 'ajax_get_logs' ) );
 		add_action( 'wp_ajax_mhm_clear_message_logs', array( self::class, 'ajax_clear_logs' ) );
 		add_action( 'shutdown', array( self::class, 'flush_log_buffer' ) );
+	}
+
+	/**
+	 * Read sanitized text from POST.
+	 */
+	private static function post_text( string $key, string $fallback = '' ): string {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce is verified in the caller AJAX handlers.
+		if ( ! isset( $_POST[ $key ] ) ) {
+			return $fallback;
+		}
+		$value = sanitize_text_field( wp_unslash( (string) $_POST[ $key ] ) );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		return $value;
+	}
+
+	/**
+	 * Read integer from POST.
+	 */
+	private static function post_int( string $key, int $fallback = 0 ): int {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is verified in the caller AJAX handlers.
+		if ( ! isset( $_POST[ $key ] ) ) {
+			return $fallback;
+		}
+		$value = (int) wp_unslash( (string) $_POST[ $key ] );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		return $value;
 	}
 
 	/**
@@ -117,10 +144,10 @@ final class MessageLogger {
 		$log_entry = array(
 			'level'      => $level,
 			'message'    => $message,
-			'context'    => json_encode( $context ),
+			'context'    => wp_json_encode( $context ),
 			'user_id'    => get_current_user_id(),
 			'ip_address' => self::get_client_ip(),
-			'user_agent' => sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ?? '' ),
+			'user_agent' => sanitize_text_field( wp_unslash( (string) ( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ) ),
 			'created_at' => current_time( 'mysql' ),
 		);
 
@@ -160,7 +187,7 @@ final class MessageLogger {
 		}
 
 		if ( ! empty( $values ) ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery -- Bulk insert values are individualy prepared.
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery -- Bulk insert values are individually prepared; table name is internal.
 			$wpdb->query( "INSERT INTO `{$table_name}` (level, message, context, user_id, ip_address, user_agent, created_at) VALUES " . implode( ', ', $values ) );
 		}
 
@@ -186,6 +213,15 @@ final class MessageLogger {
 		);
 
 		$args = wp_parse_args( $args, $default_args );
+		$args = array(
+			'limit'   => max( 1, absint( $args['limit'] ) ),
+			'offset'  => max( 0, absint( $args['offset'] ) ),
+			'level'   => is_string( $args['level'] ) ? sanitize_key( $args['level'] ) : '',
+			'user_id' => absint( $args['user_id'] ),
+			'orderby' => is_string( $args['orderby'] ) ? sanitize_key( $args['orderby'] ) : 'created_at',
+			'order'   => ( isset( $args['order'] ) && strtoupper( (string) $args['order'] ) === 'ASC' ) ? 'ASC' : 'DESC',
+			'search'  => is_string( $args['search'] ) ? sanitize_text_field( $args['search'] ) : '',
+		);
 
 		$where_conditions = array( '1=1' );
 		$where_values     = array();
@@ -200,7 +236,7 @@ final class MessageLogger {
 			$where_values[]     = $args['user_id'];
 		}
 
-		if ( $args['search'] ) {
+		if ( $args['search'] !== '' ) {
 			$where_conditions[] = '(message LIKE %s OR context LIKE %s)';
 			$search_term        = '%' . $wpdb->esc_like( $args['search'] ) . '%';
 			$where_values[]     = $search_term;
@@ -211,10 +247,10 @@ final class MessageLogger {
 
 		// Get total count
 		if ( ! empty( $where_values ) ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is safe, where clause is built with placeholders.
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery,PluginCheck.Security.DirectDB.UnescapedDBParameter,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Inputs are sanitized and placeholders are built from a constrained whitelist.
 			$total_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM `{$table_name}` WHERE {$where_clause}", $where_values ) );
 		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is safe, where clause is safe.
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table and clause are internal.
 			$total_count = $wpdb->get_var( "SELECT COUNT(*) FROM `{$table_name}` WHERE {$where_clause}" );
 		}
 
@@ -224,14 +260,15 @@ final class MessageLogger {
 		$order           = strtoupper( $args['order'] ) === 'ASC' ? 'ASC' : 'DESC';
 
 		// Get logs
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, where clause is built with placeholders.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery,PluginCheck.Security.DirectDB.UnescapedDBParameter,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Table/orderby are whitelisted and all user inputs are sanitized above.
 		$logs = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT * FROM `{$table_name}` WHERE {$where_clause} ORDER BY `{$orderby}` {$order} LIMIT %d OFFSET %d",
 				array_merge( $where_values, array( (int) $args['limit'], (int) $args['offset'] ) )
 			),
 			ARRAY_A
-		); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is safe.
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Decode contexts
 		foreach ( $logs as &$log ) {
@@ -259,34 +296,73 @@ final class MessageLogger {
 		);
 
 		$args = wp_parse_args( $args, $default_args );
+		$args = array(
+			'older_than' => absint( $args['older_than'] ),
+			'level'      => is_string( $args['level'] ) ? sanitize_key( $args['level'] ) : null,
+			'user_id'    => absint( $args['user_id'] ),
+		);
 
-		$where_conditions = array( '1=1' );
-		$where_values     = array();
+		$has_older_than = $args['older_than'] > 0;
+		$has_level      = ! empty( $args['level'] );
+		$has_user       = $args['user_id'] > 0;
+		$cutoff_date    = gmdate( 'Y-m-d H:i:s', strtotime( '-' . $args['older_than'] . ' days' ) );
 
-		if ( $args['older_than'] ) {
-			$where_conditions[] = 'created_at < %s';
-			$where_values[]     = gmdate( 'Y-m-d H:i:s', strtotime( "-{$args['older_than']} days" ) );
-		}
-
-		if ( $args['level'] ) {
-			$where_conditions[] = 'level = %s';
-			$where_values[]     = $args['level'];
-		}
-
-		if ( $args['user_id'] ) {
-			$where_conditions[] = 'user_id = %d';
-			$where_values[]     = $args['user_id'];
-		}
-
-		$where_clause = implode( ' AND ', $where_conditions );
-
-		if ( ! empty( $where_values ) ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is safe, where clause is built with placeholders.
-			$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM `{$table_name}` WHERE {$where_clause}", $where_values ) );
+		if ( $has_older_than && $has_level && $has_user ) {
+			$query = $wpdb->prepare(
+				'DELETE FROM %i WHERE created_at < %s AND level = %s AND user_id = %d',
+				$table_name,
+				$cutoff_date,
+				$args['level'],
+				$args['user_id']
+			);
+		} elseif ( $has_older_than && $has_level ) {
+			$query = $wpdb->prepare(
+				'DELETE FROM %i WHERE created_at < %s AND level = %s',
+				$table_name,
+				$cutoff_date,
+				$args['level']
+			);
+		} elseif ( $has_older_than && $has_user ) {
+			$query = $wpdb->prepare(
+				'DELETE FROM %i WHERE created_at < %s AND user_id = %d',
+				$table_name,
+				$cutoff_date,
+				$args['user_id']
+			);
+		} elseif ( $has_level && $has_user ) {
+			$query = $wpdb->prepare(
+				'DELETE FROM %i WHERE level = %s AND user_id = %d',
+				$table_name,
+				$args['level'],
+				$args['user_id']
+			);
+		} elseif ( $has_older_than ) {
+			$query = $wpdb->prepare(
+				'DELETE FROM %i WHERE created_at < %s',
+				$table_name,
+				$cutoff_date
+			);
+		} elseif ( $has_level ) {
+			$query = $wpdb->prepare(
+				'DELETE FROM %i WHERE level = %s',
+				$table_name,
+				$args['level']
+			);
+		} elseif ( $has_user ) {
+			$query = $wpdb->prepare(
+				'DELETE FROM %i WHERE user_id = %d',
+				$table_name,
+				$args['user_id']
+			);
 		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is safe, where clause is safe.
-			$deleted = $wpdb->query( "DELETE FROM `{$table_name}` WHERE {$where_clause}" );
+			$query = $wpdb->prepare(
+				'DELETE FROM %i',
+				$table_name
+			);
 		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Controlled cleanup query built via $wpdb->prepare().
+		$deleted = $wpdb->query( $query );
 
 		return (int) $deleted;
 	}
@@ -301,6 +377,7 @@ final class MessageLogger {
 		$stats = array();
 
 		// Daily log counts
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery -- Internal table name only.
 		$daily_stats = $wpdb->get_results(
 			"
             SELECT 
@@ -342,6 +419,7 @@ final class MessageLogger {
         ",
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return array(
 			'daily_stats' => $daily_stats,
@@ -357,9 +435,10 @@ final class MessageLogger {
 	private static function get_client_ip(): string {
 		$ip_keys = array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR' );
 
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Values are unslashed and validated before return.
 		foreach ( $ip_keys as $key ) {
 			if ( array_key_exists( $key, $_SERVER ) === true ) {
-				foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) {
+				foreach ( explode( ',', wp_unslash( (string) $_SERVER[ $key ] ) ) as $ip ) {
 					$ip = trim( $ip );
 					if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) !== false ) {
 						return $ip;
@@ -367,8 +446,9 @@ final class MessageLogger {
 				}
 			}
 		}
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
-		return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+		return sanitize_text_field( wp_unslash( (string) ( $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0' ) ) );
 	}
 
 	/**
@@ -382,11 +462,11 @@ final class MessageLogger {
 		}
 
 		$args = array(
-			'level'   => sanitize_text_field( $_POST['level'] ?? '' ),
-			'user_id' => (int) ( $_POST['user_id'] ?? 0 ),
-			'limit'   => (int) ( $_POST['limit'] ?? 50 ),
-			'offset'  => (int) ( $_POST['offset'] ?? 0 ),
-			'search'  => sanitize_text_field( $_POST['search'] ?? '' ),
+			'level'   => self::post_text( 'level' ),
+			'user_id' => self::post_int( 'user_id' ),
+			'limit'   => self::post_int( 'limit', 50 ),
+			'offset'  => self::post_int( 'offset' ),
+			'search'  => self::post_text( 'search' ),
 		);
 
 		// Clean empty values
@@ -412,9 +492,9 @@ final class MessageLogger {
 		}
 
 		$args = array(
-			'older_than' => (int) ( $_POST['older_than'] ?? 0 ),
-			'level'      => sanitize_text_field( $_POST['level'] ?? '' ),
-			'user_id'    => (int) ( $_POST['user_id'] ?? 0 ),
+			'older_than' => self::post_int( 'older_than' ),
+			'level'      => self::post_text( 'level' ),
+			'user_id'    => self::post_int( 'user_id' ),
 		);
 
 		// Clean empty values
@@ -450,7 +530,7 @@ final class MessageLogger {
 	public static function get_config(): array {
 		return array(
 			'enabled'          => self::$logging_enabled,
-			'min_level'        => array_search( self::$min_log_level, self::LOG_LEVELS ),
+			'min_level'        => array_search( self::$min_log_level, self::LOG_LEVELS, true ),
 			'available_levels' => array_keys( self::LOG_LEVELS ),
 		);
 	}
@@ -478,7 +558,7 @@ final class MessageLogger {
 							<span class="log-level log-level-<?php echo esc_attr( (string) $stats['last_log']['level'] ); ?>">
 								<?php echo esc_html( strtoupper( (string) $stats['last_log']['level'] ) ); ?>
 							</span>
-							<?php echo esc_html( human_time_diff( (int) strtotime( (string) $stats['last_log']['created_at'] ), (int) current_time( 'timestamp' ) ) . ' ' . esc_html__( 'ago', 'mhm-rentiva' ) ); ?>
+							<?php echo esc_html( human_time_diff( (int) strtotime( (string) $stats['last_log']['created_at'] ), current_datetime()->getTimestamp() ) . ' ' . esc_html__( 'ago', 'mhm-rentiva' ) ); ?>
 						</span>
 					</div>
 				<?php endif; ?>

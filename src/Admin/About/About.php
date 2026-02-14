@@ -20,8 +20,8 @@ if (! defined('ABSPATH')) {
 /**
  * About page main class
  */
-final class About
-{
+final class About {
+
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
 
@@ -32,8 +32,8 @@ final class About
 	 */
 	public static function register(): void
 	{
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_scripts'));
-		add_action('wp_ajax_mhm_rentiva_about_load_tab', array(self::class, 'ajax_load_tab'));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
+		add_action('wp_ajax_mhm_rentiva_about_load_tab', array( self::class, 'ajax_load_tab' ));
 	}
 
 	/**
@@ -48,9 +48,10 @@ final class About
 		}
 
 		// Determine the active tab from the URL or default to 'general'.
-		$active_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'general';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab switch parameter, no state-changing action.
+      $active_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'general';
 
-?>
+		?>
 		<div class="wrap mhm-rentiva-about-wrap">
 			<?php
 			$company_website = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_company_website();
@@ -114,7 +115,7 @@ final class About
 			<div class="tab-content">
 				<?php
 				try {
-					static::render_tab_content_lazy($active_tab);
+					self::render_tab_content_lazy($active_tab);
 				} catch (\Throwable $e) {
 					$this->show_error_message(sprintf(
 						/* translators: %s error message */
@@ -125,7 +126,7 @@ final class About
 				?>
 			</div>
 		</div>
-<?php
+		<?php
 	}
 
 	/**
@@ -184,7 +185,7 @@ final class About
 		wp_enqueue_script(
 			'mhm-rentiva-about-admin',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/about.js',
-			array('jquery'),
+			array( 'jquery' ),
 			MHM_RENTIVA_VERSION . '.1',
 			true
 		);
@@ -212,20 +213,20 @@ final class About
 	{
 		// Verify nonce for security.
 		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_about_admin_nonce')) {
-			wp_send_json_error(array('message' => esc_html__('Security check failed.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Security check failed.', 'mhm-rentiva') ));
 			return;
 		}
 
 		// Check user permissions.
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => esc_html__('Permission denied.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Permission denied.', 'mhm-rentiva') ));
 			return;
 		}
 
 		$tab = sanitize_key(wp_unslash($_POST['tab'] ?? ''));
 
 		if (empty($tab)) {
-			wp_send_json_error(array('message' => esc_html__('Invalid tab specified.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Invalid tab specified.', 'mhm-rentiva') ));
 			return;
 		}
 
@@ -234,9 +235,9 @@ final class About
 
 		try {
 			// Validate and render the requested tab.
-			$allowed_tabs = array('general', 'features', 'system', 'support', 'developer');
+			$allowed_tabs = array( 'general', 'features', 'system', 'support', 'developer' );
 			if (! in_array($tab, $allowed_tabs, true)) {
-				wp_send_json_error(array('message' => esc_html__('Unknown tab requested.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => esc_html__('Unknown tab requested.', 'mhm-rentiva') ));
 				return;
 			}
 
@@ -245,10 +246,10 @@ final class About
 
 			$content = ob_get_clean();
 
-			wp_send_json_success(array('content' => $content));
+			wp_send_json_success(array( 'content' => $content ));
 		} catch (\Exception $e) {
 			ob_end_clean();
-			wp_send_json_error(array('message' => esc_html__('An unexpected error occurred: ', 'mhm-rentiva') . $e->getMessage()));
+			wp_send_json_error(array( 'message' => esc_html__('An unexpected error occurred: ', 'mhm-rentiva') . $e->getMessage() ));
 		}
 	}
 }

@@ -1,15 +1,18 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Background report queues intentionally run heavy but bounded aggregate queries asynchronously.
 
 namespace MHMRentiva\Admin\Reports;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * ✅ BACKGROUND PROCESSING - Queue System for Heavy Report Operations
+ * âœ… BACKGROUND PROCESSING - Queue System for Heavy Report Operations
  *
  * Processes heavy report generation in the background
  */
@@ -412,7 +415,7 @@ final class BackgroundProcessor {
 			$query_args = $params['query_args'] ?? array();
 			$user_id    = $params['user_id'] ?? get_current_user_id();
 
-			// ✅ Use stream methods from Export.php
+			// âœ… Use stream methods from Export.php
 			$filename_prefix = $post_type === 'vehicle_booking' ? 'bookings' : 'logs';
 			$stamp           = gmdate( 'Ymd-His' );
 
@@ -561,7 +564,7 @@ final class BackgroundProcessor {
 				}
 			}
 
-			// ✅ Send email to user
+			// âœ… Send email to user
 			self::send_export_email( $user_id, $filename, $filename_prefix, $format );
 
 			return array(

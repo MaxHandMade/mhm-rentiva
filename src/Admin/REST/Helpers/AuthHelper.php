@@ -55,10 +55,11 @@ final class AuthHelper
 			if (RESTSettings::is_development_mode()) {
 				$dev_settings = RESTSettings::get_development_settings();
 				if ($dev_settings['verbose_logging']) {
+					$client_ip = sanitize_text_field( wp_unslash( (string) ( $_SERVER['REMOTE_ADDR'] ?? '' ) ) );
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::security(
 						'Security check failed',
 						array(
-							'ip'         => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+							'ip'         => '' !== $client_ip ? $client_ip : 'unknown',
 							'user_agent' => $request->get_header('User-Agent'),
 							'https'      => is_ssl(),
 							'url'        => $request->get_route(),

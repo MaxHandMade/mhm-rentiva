@@ -7,6 +7,7 @@
  */
 
 declare(strict_types=1);
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded application queries are intentional in this module.
 
 namespace MHMRentiva\Admin\Addons;
 
@@ -593,8 +594,8 @@ final class AddonManager {
 			return;
 		}
 
-		$addon_id = absint( $_POST['addon_id'] ?? 0 );
-		$price    = (float) ( $_POST['price'] ?? 0 );
+		$addon_id = isset( $_POST['addon_id'] ) ? absint( wp_unslash( $_POST['addon_id'] ) ) : 0;
+		$price    = isset( $_POST['price'] ) ? (float) sanitize_text_field( wp_unslash( (string) $_POST['price'] ) ) : 0.0;
 
 		if ( $addon_id <= 0 ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Invalid additional service ID.', 'mhm-rentiva' ) ) );

@@ -12,8 +12,8 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-final class TransferCartIntegration
-{
+final class TransferCartIntegration {
+
 
 	/**
 	 * Register hooks
@@ -21,20 +21,20 @@ final class TransferCartIntegration
 	public static function register(): void
 	{
 		// AJAX Handlers
-		add_action('wp_ajax_rentiva_transfer_add_to_cart', array(self::class, 'handle_add_to_cart_ajax'));
-		add_action('wp_ajax_nopriv_rentiva_transfer_add_to_cart', array(self::class, 'handle_add_to_cart_ajax'));
+		add_action('wp_ajax_rentiva_transfer_add_to_cart', array( self::class, 'handle_add_to_cart_ajax' ));
+		add_action('wp_ajax_nopriv_rentiva_transfer_add_to_cart', array( self::class, 'handle_add_to_cart_ajax' ));
 
 		// 1. CRITICAL: Restore Transfer Data from Session
-		add_filter('woocommerce_get_cart_item_from_session', array(self::class, 'get_cart_item_from_session'), 20, 2);
+		add_filter('woocommerce_get_cart_item_from_session', array( self::class, 'get_cart_item_from_session' ), 20, 2);
 
 		// 2. Customize Cart Item Name
-		add_filter('woocommerce_cart_item_name', array(self::class, 'customize_cart_item_name'), 20, 3);
+		add_filter('woocommerce_cart_item_name', array( self::class, 'customize_cart_item_name' ), 20, 3);
 
 		// 3. Customize Cart Item Data (Meta)
-		add_filter('woocommerce_get_item_data', array(self::class, 'customize_cart_item_data'), 20, 2);
+		add_filter('woocommerce_get_item_data', array( self::class, 'customize_cart_item_data' ), 20, 2);
 
 		// 4. Customize Order Item for Transfers (Checkout)
-		add_action('woocommerce_checkout_create_order_line_item', array(self::class, 'add_transfer_order_item_meta'), 20, 4);
+		add_action('woocommerce_checkout_create_order_line_item', array( self::class, 'add_transfer_order_item_meta' ), 20, 4);
 	}
 
 	/**
@@ -79,22 +79,26 @@ final class TransferCartIntegration
 		check_ajax_referer('rentiva_transfer_nonce', 'security');
 
 		// Unpack Input Data (Handle nested transfer_data from JS object)
-		$input_data = isset($_POST['transfer_data']) && is_array($_POST['transfer_data']) ? $_POST['transfer_data'] : $_POST;
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Raw payload is unslashed and sanitized field-by-field below.
+		$input_data = isset( $_POST['transfer_data'] ) && is_array( $_POST['transfer_data'] )
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Raw payload is unslashed and sanitized field-by-field below.
+			? wp_unslash( $_POST['transfer_data'] )
+			: wp_unslash( $_POST );
 
-		$vehicle_id     = intval($_POST['vehicle_id'] ?? $input_data['vehicle_id'] ?? 0);
-		$origin_id      = intval($input_data['origin_id'] ?? 0);
-		$destination_id = intval($input_data['destination_id'] ?? 0);
-		$date           = sanitize_text_field($input_data['date'] ?? '');
-		$time           = sanitize_text_field($input_data['time'] ?? '');
-		$adults         = intval($input_data['adults'] ?? 1);
-		$children       = intval($input_data['children'] ?? 0);
+		$vehicle_id     = isset( $_POST['vehicle_id'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_POST['vehicle_id'] ) ) ) : absint( sanitize_text_field( (string) ( $input_data['vehicle_id'] ?? 0 ) ) );
+		$origin_id      = isset( $input_data['origin_id'] ) ? absint( sanitize_text_field( (string) $input_data['origin_id'] ) ) : 0;
+		$destination_id = isset( $input_data['destination_id'] ) ? absint( sanitize_text_field( (string) $input_data['destination_id'] ) ) : 0;
+		$date           = sanitize_text_field( (string) ( $input_data['date'] ?? '' ) );
+		$time           = sanitize_text_field( (string) ( $input_data['time'] ?? '' ) );
+		$adults         = isset( $input_data['adults'] ) ? absint( sanitize_text_field( (string) $input_data['adults'] ) ) : 1;
+		$children       = isset( $input_data['children'] ) ? absint( sanitize_text_field( (string) $input_data['children'] ) ) : 0;
 		$luggage_big    = intval($input_data['luggage_big'] ?? 0);
 		$luggage_small  = intval($input_data['luggage_small'] ?? 0);
 
 		// 2. Validate Vehicle Exists
 		$vehicle_post = get_post($vehicle_id);
 		if (! $vehicle_post || $vehicle_post->post_type !== 'vehicle') {
-			wp_send_json_error(array('message' => esc_html__('Vehicle ID not found.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Vehicle ID not found.', 'mhm-rentiva') ));
 			return;
 		}
 
@@ -121,12 +125,12 @@ final class TransferCartIntegration
 
 			// Only verify if we have a valid KM price configuration
 			if ($price_per_km > 0) {
-				$server_calculated_price = $base_price + ($selected_distance * $price_per_km);
+				$server_calculated_price = $base_price + ( $selected_distance * $price_per_km );
 
 				// 5.0 Tolerance for Tax/Rounding
 				if (abs($server_calculated_price - $selected_price) > 5.0) {
-					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::security(sprintf('Price Mismatch. Client: %s, Server: %s, Distance: %s', $selected_price, $server_calculated_price, $selected_distance), array('vehicle_id' => $vehicle_id));
-					wp_send_json_error(array('message' => esc_html__('Security Alert: Price could not be verified. Please refresh.', 'mhm-rentiva')));
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::security(sprintf('Price Mismatch. Client: %s, Server: %s, Distance: %s', $selected_price, $server_calculated_price, $selected_distance), array( 'vehicle_id' => $vehicle_id ));
+					wp_send_json_error(array( 'message' => esc_html__('Security Alert: Price could not be verified. Please refresh.', 'mhm-rentiva') ));
 					return;
 				}
 			}
@@ -158,7 +162,7 @@ final class TransferCartIntegration
 			}
 
 			if (! $found) {
-				wp_send_json_error(array('message' => esc_html__('Vehicle not available or price changed. Please search again.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => esc_html__('Vehicle not available or price changed. Please search again.', 'mhm-rentiva') ));
 				return;
 			}
 		}
@@ -173,7 +177,7 @@ final class TransferCartIntegration
 		$payment_type     = 'full';
 
 		if ($deposit_type === 'percentage') {
-			$deposit_amount   = ($total_price * $deposit_rate) / 100;
+			$deposit_amount   = ( $total_price * $deposit_rate ) / 100;
 			$remaining_amount = $total_price - $deposit_amount;
 			$payment_type     = 'deposit';
 		} else {
@@ -194,7 +198,7 @@ final class TransferCartIntegration
 			$dropoff_date = $end_datetime->format('Y-m-d');
 			$dropoff_time = $end_datetime->format('H:i');
 		} catch (\Exception $e) {
-			wp_send_json_error(array('message' => esc_html__('Invalid date time.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Invalid date time.', 'mhm-rentiva') ));
 			return;
 		}
 
@@ -204,7 +208,7 @@ final class TransferCartIntegration
 			'pickup_time'             => $time,
 			'dropoff_date'            => $dropoff_date,
 			'dropoff_time'            => $dropoff_time,
-			'guests'                  => ($adults + $children),
+			'guests'                  => ( $adults + $children ),
 			'customer_user_id'        => get_current_user_id(),
 			// Customer details will be filled by WooCommerce Checkout
 			'customer_name'           => '',
@@ -218,7 +222,7 @@ final class TransferCartIntegration
 			'deposit_amount'          => $deposit_amount,
 			'remaining_amount'        => $remaining_amount,
 			'payment_type'            => $payment_type, // 'deposit' or 'full'
-			'payment_display'         => ($payment_type === 'deposit') ?
+			'payment_display'         => ( $payment_type === 'deposit' ) ?
 				/* translators: 1: deposit amount, 2: deposit percentage */
 				sprintf(__('Deposit: %1$s (%2$s%%)', 'mhm-rentiva'), wp_kses_post(wc_price($deposit_amount)), $deposit_rate) :
 				__('Full Payment', 'mhm-rentiva'),
@@ -248,7 +252,7 @@ final class TransferCartIntegration
 				)
 			);
 		} else {
-			wp_send_json_error(array('message' => esc_html__('Failed to add to cart.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Failed to add to cart.', 'mhm-rentiva') ));
 		}
 	}
 
@@ -276,13 +280,21 @@ final class TransferCartIntegration
 		global $wpdb;
 
 		$table_name = $wpdb->prefix . 'rentiva_transfer_locations';
-		if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name));
+		if ($table_exists !== $table_name) {
 			$table_name = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
 		}
 
-		// Cache could be added here if needed, but for now direct query is fine for cart
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is safe (prefix + constant).
-		$name = $wpdb->get_var($wpdb->prepare("SELECT name FROM $table_name WHERE id = %d", $id));
+		$table_name = preg_replace('/[^A-Za-z0-9_]/', '', $table_name) ?? '';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$name = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT name FROM %i WHERE id = %d',
+				$table_name,
+				$id
+			)
+		);
 
 		return $name ? $name : __('Unknown Location', 'mhm-rentiva');
 	}

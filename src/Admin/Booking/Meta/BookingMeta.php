@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Booking\Meta;
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
+
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
@@ -32,6 +34,66 @@ final class BookingMeta extends AbstractMetaBox
 			return '';
 		}
 		return sanitize_text_field(wp_unslash((string) $value));
+	}
+
+	/**
+	 * Read sanitized text from POST.
+	 */
+	private static function post_text(string $key, string $default = ''): string
+	{
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce is verified in the caller handlers.
+		if (! isset($_POST[$key])) {
+			return $default;
+		}
+
+		$value = sanitize_text_field(wp_unslash((string) $_POST[$key]));
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		return $value;
+	}
+
+	/**
+	 * Read sanitized textarea content from POST.
+	 */
+	private static function post_textarea(string $key, string $default = ''): string
+	{
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce is verified in the caller handlers.
+		if (! isset($_POST[$key])) {
+			return $default;
+		}
+
+		$value = sanitize_textarea_field(wp_unslash((string) $_POST[$key]));
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		return $value;
+	}
+
+	/**
+	 * Read absint from POST.
+	 */
+	private static function post_int(string $key, int $default = 0): int
+	{
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce is verified in the caller handlers.
+		if (! isset($_POST[$key])) {
+			return $default;
+		}
+
+		$value = absint(wp_unslash((string) $_POST[$key]));
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+		return $value;
+	}
+
+	/**
+	 * Read sanitized text from GET.
+	 */
+	private static function get_text(string $key, string $default = ''): string
+	{
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only query parameter usage.
+		if (! isset($_GET[$key])) {
+			return $default;
+		}
+
+		$value = sanitize_text_field(wp_unslash((string) $_GET[$key]));
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		return $value;
 	}
 
 	/**
@@ -112,7 +174,7 @@ final class BookingMeta extends AbstractMetaBox
 		// Show admin notices
 		add_action('admin_notices', array(self::class, 'show_admin_notices'));
 
-		// ✅ Auto calculation hook
+		// âœ… Auto calculation hook
 		add_action('mhm_rentiva_booking_meta_updated', array(self::class, 'on_booking_meta_updated'), 10, 3);
 	}
 
@@ -479,21 +541,23 @@ final class BookingMeta extends AbstractMetaBox
 		}
 
 		// Status update - Handle both field names from different meta boxes
-		$new_status = $_POST['mhm_edit_status'] ?? $_POST['mhm_booking_status'] ?? null;
+		$new_status = self::post_text('mhm_edit_status');
+		if ($new_status === '') {
+			$new_status = self::post_text('mhm_booking_status');
+		}
 		if ($new_status) {
-			$new_status    = self::sanitize_text_field_safe(wp_unslash($new_status));
 			$actor_user_id = get_current_user_id();
 
 			Status::update_status($post_id, $new_status, $actor_user_id);
 		}
 
 		// Update booking details
-		$pickup_date   = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_pickup_date'] ?? ''));
-		$pickup_time   = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_pickup_time'] ?? ''));
-		$dropoff_date  = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_dropoff_date'] ?? ''));
-		$dropoff_time  = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_dropoff_time'] ?? ''));
-		$guests        = max(1, (int) (wp_unslash($_POST['mhm_edit_guests'] ?? 1)));
-		$special_notes = sanitize_textarea_field(wp_unslash($_POST['mhm_edit_special_notes'] ?? ''));
+		$pickup_date   = self::post_text('mhm_edit_pickup_date');
+		$pickup_time   = self::post_text('mhm_edit_pickup_time');
+		$dropoff_date  = self::post_text('mhm_edit_dropoff_date');
+		$dropoff_time  = self::post_text('mhm_edit_dropoff_time');
+		$guests        = max(1, self::post_int('mhm_edit_guests', 1));
+		$special_notes = self::post_textarea('mhm_edit_special_notes');
 
 		// Update meta data
 		update_post_meta($post_id, '_mhm_pickup_date', $pickup_date);
@@ -503,7 +567,7 @@ final class BookingMeta extends AbstractMetaBox
 		update_post_meta($post_id, '_mhm_guests', $guests);
 		update_post_meta($post_id, '_mhm_special_notes', $special_notes);
 
-		// ✅ Auto calculation - When date is changed
+		// âœ… Auto calculation - When date is changed
 		if ($pickup_date && $dropoff_date) {
 			self::recalculate_booking_costs($post_id, $pickup_date, $dropoff_date);
 		}
@@ -512,7 +576,7 @@ final class BookingMeta extends AbstractMetaBox
 		update_post_meta($post_id, '_mhm_pickup_time', $pickup_time);
 		update_post_meta($post_id, '_mhm_dropoff_time', $dropoff_time);
 
-		// ✅ WordPress hook with auto calculation
+		// âœ… WordPress hook with auto calculation
 		do_action('mhm_rentiva_booking_meta_updated', $post_id, $pickup_date, $dropoff_date);
 		update_post_meta($post_id, '_booking_pickup_date', $pickup_date);
 		update_post_meta($post_id, '_booking_pickup_time', $pickup_time);
@@ -521,12 +585,13 @@ final class BookingMeta extends AbstractMetaBox
 		update_post_meta($post_id, '_booking_guests', $guests);
 
 		// Receipt review processing
-		if (isset($_POST['mhm_receipt_nonce']) && wp_verify_nonce(self::sanitize_text_field_safe(wp_unslash($_POST['mhm_receipt_nonce'])), 'mhm_rentiva_receipt_review')) {
+		$receipt_nonce = self::post_text('mhm_receipt_nonce');
+		if ($receipt_nonce !== '' && wp_verify_nonce($receipt_nonce, 'mhm_rentiva_receipt_review')) {
 			if (isset($_POST['mhm_receipt_note'])) {
 				update_post_meta($post_id, '_mhm_receipt_note', sanitize_textarea_field(wp_unslash((string) ($_POST['mhm_receipt_note'] ?? ''))));
 			}
-			if (! empty($_POST['mhm_receipt_action'])) {
-				$action = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_receipt_action']));
+			$action = self::post_text('mhm_receipt_action');
+			if ($action !== '') {
 				if ($action === 'approve') {
 					update_post_meta($post_id, '_mhm_receipt_status', 'approved');
 					self::email_customer_receipt_status($post_id, 'approved');
@@ -638,10 +703,10 @@ final class BookingMeta extends AbstractMetaBox
 			wp_die(esc_html__('You do not have permission to send emails.', 'mhm-rentiva'));
 		}
 
-		$booking_id = (int) ($_POST['booking_id'] ?? 0);
-		$email_type = self::sanitize_text_field_safe($_POST['email_type'] ?? '');
-		$subject    = self::sanitize_text_field_safe($_POST['email_subject'] ?? '');
-		$message    = sanitize_textarea_field((string) ($_POST['email_message'] ?? ''));
+		$booking_id = self::post_int('booking_id');
+		$email_type = self::post_text('email_type');
+		$subject    = self::post_text('email_subject');
+		$message    = self::post_textarea('email_message');
 
 		if (! $booking_id) {
 			wp_die(esc_html__('Invalid booking ID.', 'mhm-rentiva'));
@@ -889,9 +954,9 @@ final class BookingMeta extends AbstractMetaBox
 			wp_die(esc_html__('You do not have permission to add notes.', 'mhm-rentiva'));
 		}
 
-		$booking_id = (int) (wp_unslash($_POST['booking_id'] ?? 0));
+		$booking_id = self::post_int('booking_id');
 		$note       = sanitize_textarea_field(wp_unslash((string) ($_POST['history_note'] ?? '')));
-		$type       = self::sanitize_text_field_safe(wp_unslash($_POST['history_type'] ?? 'note'));
+		$type       = self::post_text('history_type', 'note');
 
 		if (! $booking_id || ! $note) {
 			wp_die(esc_html__('Invalid booking ID or empty note.', 'mhm-rentiva'));
@@ -951,7 +1016,7 @@ final class BookingMeta extends AbstractMetaBox
 	}
 
 	/**
-	 * ✅ Rezervasyon maliyetlerini yeniden hesapla
+	 * âœ… Rezervasyon maliyetlerini yeniden hesapla
 	 */
 	public static function recalculate_booking_costs(int $booking_id, string $pickup_date, string $dropoff_date): void
 	{
@@ -988,7 +1053,7 @@ final class BookingMeta extends AbstractMetaBox
 		$additional_services_price = (float) get_post_meta($booking_id, '_mhm_additional_services_price', true);
 		$total_price              += $additional_services_price;
 
-		// ✅ Deposit calculation
+		// âœ… Deposit calculation
 		$payment_type     = get_post_meta($booking_id, '_mhm_payment_type', true);
 		$deposit_amount   = 0;
 		$remaining_amount = $total_price;
@@ -1008,7 +1073,7 @@ final class BookingMeta extends AbstractMetaBox
 		update_post_meta($booking_id, '_mhm_rental_days', $days);
 		update_post_meta($booking_id, '_mhm_total_price', $total_price);
 
-		// ✅ Update deposit meta keys
+		// âœ… Update deposit meta keys
 		if ($payment_type === 'deposit') {
 			update_post_meta($booking_id, '_mhm_deposit_amount', $deposit_amount);
 			update_post_meta($booking_id, '_mhm_remaining_amount', $remaining_amount);
@@ -1020,7 +1085,7 @@ final class BookingMeta extends AbstractMetaBox
 	}
 
 	/**
-	 * ✅ WordPress hook listener - Auto calculation when meta is updated
+	 * âœ… WordPress hook listener - Auto calculation when meta is updated
 	 */
 	public static function on_booking_meta_updated(int $post_id, string $pickup_date, string $dropoff_date): void
 	{
@@ -1120,7 +1185,8 @@ final class BookingMeta extends AbstractMetaBox
 		}
 
 		// Fetch message parameter from URL
-		$message = isset($_GET['message']) ? self::sanitize_text_field_safe(wp_unslash($_GET['message'])) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice key from URL.
+		$message = self::get_text('message');
 
 		switch ($message) {
 			case 'email_sent':
@@ -1158,18 +1224,18 @@ final class BookingMeta extends AbstractMetaBox
 	public static function ajax_update_booking()
 	{
 		// Nonce check
-		if (! isset($_POST['_wpnonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'update-post_' . absint($_POST['post_ID'] ?? 0))) {
+		if (! isset($_POST['_wpnonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'update-post_' . self::post_int('post_ID'))) {
 			wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
 			return;
 		}
 
 		// Permission check
-		if (! current_user_can('edit_post', absint($_POST['post_ID'] ?? 0))) {
+		if (! current_user_can('edit_post', self::post_int('post_ID'))) {
 			wp_send_json_error(__('You do not have permission to perform this action.', 'mhm-rentiva'));
 			return;
 		}
 
-		$booking_id = (int) (wp_unslash($_POST['booking_id'] ?? 0));
+		$booking_id = self::post_int('booking_id');
 
 		if (! $booking_id) {
 			wp_send_json_error(__('Invalid booking ID.', 'mhm-rentiva'));
@@ -1177,20 +1243,20 @@ final class BookingMeta extends AbstractMetaBox
 		}
 
 		// Update booking details
-		$customer_first_name = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_customer_first_name'] ?? ''));
-		$customer_last_name  = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_customer_last_name'] ?? ''));
+		$customer_first_name = self::post_text('mhm_edit_customer_first_name');
+		$customer_last_name  = self::post_text('mhm_edit_customer_last_name');
 		$customer_email      = sanitize_email(wp_unslash((string) ($_POST['mhm_edit_customer_email'] ?? '')));
-		$customer_phone      = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_customer_phone'] ?? ''));
-		$pickup_date         = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_pickup_date'] ?? ''));
-		$pickup_time         = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_pickup_time'] ?? ''));
-		$dropoff_date        = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_dropoff_date'] ?? ''));
-		$dropoff_time        = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_dropoff_time'] ?? ''));
-		$guests              = (int) (wp_unslash($_POST['mhm_edit_guests'] ?? 0));
-		$payment_method      = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_payment_method'] ?? ''));
-		$status              = self::sanitize_text_field_safe(wp_unslash($_POST['mhm_edit_status'] ?? ''));
-		$notes               = sanitize_textarea_field(wp_unslash((string) ($_POST['mhm_edit_notes'] ?? '')));
-		$special_notes       = sanitize_textarea_field(wp_unslash((string) ($_POST['mhm_edit_special_notes'] ?? '')));
-		$new_vehicle_id      = absint(wp_unslash($_POST['mhm_edit_vehicle_id'] ?? 0));
+		$customer_phone      = self::post_text('mhm_edit_customer_phone');
+		$pickup_date         = self::post_text('mhm_edit_pickup_date');
+		$pickup_time         = self::post_text('mhm_edit_pickup_time');
+		$dropoff_date        = self::post_text('mhm_edit_dropoff_date');
+		$dropoff_time        = self::post_text('mhm_edit_dropoff_time');
+		$guests              = self::post_int('mhm_edit_guests');
+		$payment_method      = self::post_text('mhm_edit_payment_method');
+		$status              = self::post_text('mhm_edit_status');
+		$notes               = self::post_textarea('mhm_edit_notes');
+		$special_notes       = self::post_textarea('mhm_edit_special_notes');
+		$new_vehicle_id      = self::post_int('mhm_edit_vehicle_id');
 
 		// Get old values (for change detection)
 		$old_pickup_date    = get_post_meta($booking_id, '_mhm_pickup_date', true);
@@ -1255,7 +1321,7 @@ final class BookingMeta extends AbstractMetaBox
 			do_action('mhm_rentiva_booking_status_changed', $booking_id, $old_status, $status);
 		}
 
-		// ✅ Get updated data (for AJAX response)
+		// âœ… Get updated data (for AJAX response)
 		$updated_rental_days      = get_post_meta($booking_id, '_mhm_rental_days', true);
 		$updated_total_price      = get_post_meta($booking_id, '_mhm_total_price', true);
 		$updated_deposit_amount   = get_post_meta($booking_id, '_mhm_deposit_amount', true);
@@ -1334,7 +1400,7 @@ final class BookingMeta extends AbstractMetaBox
 			);
 		}
 
-		// ✅ Successful response - Include updated data
+		// âœ… Successful response - Include updated data
 		wp_send_json_success(
 			array(
 				'message'      => __('Booking updated successfully!', 'mhm-rentiva'),
@@ -1362,8 +1428,8 @@ final class BookingMeta extends AbstractMetaBox
 			return;
 		}
 
-		$booking_id = (int) (wp_unslash($_POST['booking_id'] ?? 0));
-		$email_type = self::sanitize_text_field_safe(wp_unslash($_POST['email_type'] ?? ''));
+		$booking_id = self::post_int('booking_id');
+		$email_type = self::post_text('email_type');
 
 		if (! $booking_id || ! $email_type) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
@@ -1384,7 +1450,7 @@ final class BookingMeta extends AbstractMetaBox
 	public static function ajax_send_customer_email()
 	{
 		// Nonce check
-		$nonce = $_POST['mhm_rentiva_email_nonce'] ?? '';
+		$nonce = self::post_text('mhm_rentiva_email_nonce');
 		if (! wp_verify_nonce($nonce, 'mhm_rentiva_send_email')) {
 			wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
 			return;
@@ -1396,10 +1462,10 @@ final class BookingMeta extends AbstractMetaBox
 			return;
 		}
 
-		$booking_id = (int) ($_POST['booking_id'] ?? 0);
-		$email_type = self::sanitize_text_field_safe($_POST['email_type'] ?? '');
-		$subject    = self::sanitize_text_field_safe($_POST['email_subject'] ?? '');
-		$message    = sanitize_textarea_field((string) ($_POST['email_message'] ?? ''));
+		$booking_id = self::post_int('booking_id');
+		$email_type = self::post_text('email_type');
+		$subject    = self::post_text('email_subject');
+		$message    = self::post_textarea('email_message');
 
 		if (! $booking_id || ! $email_type) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
@@ -1469,8 +1535,8 @@ final class BookingMeta extends AbstractMetaBox
 			return;
 		}
 
-		$booking_id   = (int) (wp_unslash($_POST['booking_id'] ?? 0));
-		$note_type    = self::sanitize_text_field_safe(wp_unslash($_POST['note_type'] ?? 'manual'));
+		$booking_id   = self::post_int('booking_id');
+		$note_type    = self::post_text('note_type', 'manual');
 		$note_content = sanitize_textarea_field(wp_unslash((string) ($_POST['note_content'] ?? '')));
 
 		if (! $booking_id || ! $note_content) {

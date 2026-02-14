@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Shortcode Pages Admin Template
@@ -68,9 +69,9 @@ if (! defined('ABSPATH')) {
 						</td>
 						<td>
 							<?php if ($page || $has_url) : ?>
-								<span class="mhm-status-ok" aria-label="<?php esc_attr_e('Active', 'mhm-rentiva'); ?>">✅ <?php esc_html_e('Active', 'mhm-rentiva'); ?></span>
+								<span class="mhm-status-ok" aria-label="<?php esc_attr_e('Active', 'mhm-rentiva'); ?>">âœ… <?php esc_html_e('Active', 'mhm-rentiva'); ?></span>
 							<?php else : ?>
-								<span class="mhm-status-missing" aria-label="<?php esc_attr_e('Missing', 'mhm-rentiva'); ?>">❌ <?php esc_html_e('Missing', 'mhm-rentiva'); ?></span>
+								<span class="mhm-status-missing" aria-label="<?php esc_attr_e('Missing', 'mhm-rentiva'); ?>">âŒ <?php esc_html_e('Missing', 'mhm-rentiva'); ?></span>
 							<?php endif; ?>
 						</td>
 						<td>

@@ -98,8 +98,8 @@ final class LogColumns {
 		if ( $typenow !== PostType::TYPE ) {
 			return;
 		}
-		$selGateway = isset( $_GET['mhm_log_gateway'] ) ? self::sanitize_text_field_safe( wp_unslash( $_GET['mhm_log_gateway'] ) ) : '';
-		$selStatus  = isset( $_GET['mhm_log_status'] ) ? self::sanitize_text_field_safe( wp_unslash( $_GET['mhm_log_status'] ) ) : '';
+		$selGateway = self::get_text( 'mhm_log_gateway' );
+		$selStatus  = self::get_text( 'mhm_log_status' );
 
 		echo '<label for="mhm_log_gateway" class="screen-reader-text">' . esc_html__( 'Gateway', 'mhm-rentiva' ) . '</label>';
 		echo '<select name="mhm_log_gateway" id="mhm_log_gateway">';
@@ -127,7 +127,7 @@ final class LogColumns {
 		if ( $screen && $screen->post_type !== PostType::TYPE ) {
 			return;
 		}
-		$pt = isset( $_GET['post_type'] ) ? self::sanitize_text_field_safe( wp_unslash( $_GET['post_type'] ) ) : '';
+		$pt = self::get_text( 'post_type' );
 		if ( $pt && $pt !== PostType::TYPE ) {
 			return;
 		}
@@ -137,16 +137,16 @@ final class LogColumns {
 			$metaQuery = array( 'relation' => 'AND' );
 		}
 
-		if ( ! empty( $_GET['mhm_log_gateway'] ) ) {
-			$gw          = self::sanitize_text_field_safe( wp_unslash( $_GET['mhm_log_gateway'] ) );
+		$gw = self::get_text( 'mhm_log_gateway' );
+		if ( $gw !== '' ) {
 			$metaQuery[] = array(
 				'key'     => '_mhm_log_gateway',
 				'value'   => $gw,
 				'compare' => '=',
 			);
 		}
-		if ( ! empty( $_GET['mhm_log_status'] ) ) {
-			$st          = self::sanitize_text_field_safe( wp_unslash( $_GET['mhm_log_status'] ) );
+		$st = self::get_text( 'mhm_log_status' );
+		if ( $st !== '' ) {
 			$metaQuery[] = array(
 				'key'     => '_mhm_log_status',
 				'value'   => $st,
@@ -155,11 +155,20 @@ final class LogColumns {
 		}
 		$q->set( 'meta_query', $metaQuery );
 
-		$orderby = isset( $_GET['orderby'] ) ? self::sanitize_text_field_safe( wp_unslash( $_GET['orderby'] ) ) : '';
+		$orderby = self::get_text( 'orderby' );
 		if ( $orderby === 'amount' ) {
 			$q->set( 'meta_key', '_mhm_log_amount_kurus' );
 			$q->set( 'orderby', 'meta_value_num' );
 		}
+	}
+
+	private static function get_text( string $key, string $default = '' ): string {
+		$raw = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw || false === $raw ) {
+			return $default;
+		}
+
+		return self::sanitize_text_field_safe( (string) $raw );
 	}
 
 	public static function sortable( array $cols ): array {

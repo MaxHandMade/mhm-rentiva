@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
  * Vehicle Details Template - Premium Unified
@@ -179,9 +180,9 @@ if (! defined('ABSPATH')) {
 						<div class="rv-cal-header">
 							<h4 class="rv-cal-title"><?php esc_html_e('Availability', 'mhm-rentiva'); ?></h4>
 							<div class="rv-cal-nav">
-								<button class="rv-calendar-nav-btn" data-direction="prev">‹</button>
+								<button class="rv-calendar-nav-btn" data-direction="prev">â€¹</button>
 								<span id="rv-current-month-year"><?php echo esc_html(date_i18n('F Y')); ?></span>
-								<button class="rv-calendar-nav-btn" data-direction="next">›</button>
+								<button class="rv-calendar-nav-btn" data-direction="next">â€º</button>
 							</div>
 						</div>
 						<div id="rv-calendar-container" class="rv-cal-body">
