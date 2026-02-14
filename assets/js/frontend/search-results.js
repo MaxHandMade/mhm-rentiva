@@ -1,197 +1,186 @@
 /**
  * Search Results JavaScript
  * Handles filtering, sorting, view toggles, and AJAX updates
+ * in an instance-scoped way so multiple modules on same page do not clash.
  */
 (function ($) {
     'use strict';
 
-    // Global variables
-    let isLoading = false;
-    let currentUrl = window.location.href;
-    let filterTimeout = null;
+    const stateByInstance = {};
 
-    // Initialize when document is ready
-    $(document).ready(function () {
-        initializeResultsPage();
-        initializeFilters();
-        initializeSorting();
-        initializeViewToggle();
-        initializeFavorites();
-        initializePagination();
-    });
+    function getInstanceId($scope) {
+        return $scope.data('rv-instance') || 'default';
+    }
 
-    /**
-     * Escape HTML to prevent XSS
-     */
+    function getState($scope) {
+        const id = getInstanceId($scope);
+        if (!stateByInstance[id]) {
+            stateByInstance[id] = {
+                isLoading: false,
+                filterTimeout: null,
+            };
+        }
+        return stateByInstance[id];
+    }
+
+    function normalizeFlag(value, fallback = '1') {
+        const v = (value ?? fallback).toString();
+        return (v === '1' || v === 'true') ? '1' : '0';
+    }
+
+    function getInstanceSettings($scope) {
+        return {
+            show_favorite_button: normalizeFlag($scope.data('show-favorite-button'), '1'),
+            show_compare_button: normalizeFlag($scope.data('show-compare-button'), '1'),
+            show_booking_btn: normalizeFlag($scope.data('show-booking-btn'), '1'),
+            show_price: normalizeFlag($scope.data('show-price'), '1'),
+            show_title: normalizeFlag($scope.data('show-title'), '1'),
+            show_features: normalizeFlag($scope.data('show-features'), '1'),
+            show_rating: normalizeFlag($scope.data('show-rating'), '1'),
+            show_badges: normalizeFlag($scope.data('show-badges'), '1'),
+            per_page: parseInt($scope.data('results-per-page'), 10) || 12,
+        };
+    }
+
     function escapeHtml(text) {
         if (!text) return '';
         return String(text)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 
+    $(document).ready(function () {
+        $('.rv-search-results').each(function () {
+            initializeInstance($(this));
+        });
+    });
 
-    /**
-     * Initialize results page
-     */
-    function initializeResultsPage() {
-        const $container = $('.rv-search-results');
-        if ($container.length === 0) return;
+    function initializeInstance($scope) {
+        if ($scope.length === 0) return;
 
-        // Show active filters count
-        updateActiveFiltersCount();
-
-        // Initialize price sliders if available
-        initializePriceSliders();
-
-        // Initialize year sliders if available
-        initializeYearSliders();
+        initializeResultsPage($scope);
+        initializeFilters($scope);
+        initializeSorting($scope);
+        initializeViewToggle($scope);
+        initializeFavorites($scope);
+        initializePagination($scope);
     }
 
-    /**
-     * Initialize filter functionality
-     */
-    function initializeFilters() {
-        const $filtersForm = $('.rv-filters-form');
-        const $clearBtn = $('.rv-clear-filters');
+    function initializeResultsPage($scope) {
+        updateActiveFiltersCount($scope);
+        initializePriceSliders($scope);
+        initializeYearSliders($scope);
+    }
+
+    function initializeFilters($scope) {
+        const $filtersForm = $scope.find('.rv-filters-form');
+        const $clearBtn = $scope.find('.rv-clear-filters');
 
         if ($filtersForm.length === 0) return;
 
-        // Handle filter changes
         $filtersForm.find('input, select').on('change', function () {
-            handleFilterChange();
+            handleFilterChange($scope);
         });
 
-        // Handle checkbox changes specifically
         $filtersForm.find('input[type="checkbox"]').on('change', function () {
-            handleFilterChange();
+            handleFilterChange($scope);
         });
 
-        // Handle clear filters
         $clearBtn.on('click', function (e) {
             e.preventDefault();
-            clearAllFilters();
+            clearAllFilters($scope);
         });
 
-        // Handle real-time input changes
         $filtersForm.find('input[type="number"]').on('input', function () {
-            clearTimeout(filterTimeout);
-            filterTimeout = setTimeout(handleFilterChange, 500);
+            const state = getState($scope);
+            clearTimeout(state.filterTimeout);
+            state.filterTimeout = setTimeout(function () {
+                handleFilterChange($scope);
+            }, 500);
         });
     }
 
-    /**
-     * Initialize sorting functionality
-     */
-    function initializeSorting() {
-        const $sortSelect = $('.rv-sort-select');
+    function initializeSorting($scope) {
+        const $sortSelect = $scope.find('.rv-sort-select');
 
         if ($sortSelect.length === 0) return;
 
         $sortSelect.on('change', function () {
-            const sortValue = $(this).val();
-            updateUrlParameter('sort', sortValue);
-            reloadResults();
+            reloadResults($scope);
         });
     }
 
-    /**
-     * Initialize view toggle
-     */
-    function initializeViewToggle() {
-        const $viewBtns = $('.rv-view-btn');
+    function initializeViewToggle($scope) {
+        const $viewBtns = $scope.find('.rv-view-btn');
         if ($viewBtns.length === 0) return;
 
-        // Resolve current view from storage or default
-        const viewToUse = localStorage.getItem('mhm_rentiva_view_mode') || 'grid';
-        updateLayout(viewToUse, false); // Initialize layout without force-saving
+        const state = getState($scope);
+        const defaultView = ($scope.data('default-view') === 'list') ? 'list' : 'grid';
+        const viewToUse = $scope.find('.rv-view-btn.active').data('view') || state.currentView || defaultView;
+        state.currentView = (viewToUse === 'list') ? 'list' : 'grid';
+        updateLayout($scope, viewToUse, false);
 
-        // Handle button clicks
         $viewBtns.on('click', function () {
             const view = $(this).data('view');
+            if (view !== 'grid' && view !== 'list') return;
 
-            if (!view || (view !== 'grid' && view !== 'list')) {
-                return;
-            }
-
-            // Update active state
             $viewBtns.removeClass('active');
             $(this).addClass('active');
 
-            // Update layout
-            updateLayout(view, true); // true = save to localStorage
+            updateLayout($scope, view, true);
         });
     }
 
-    /**
-     * Update layout based on view mode
-     * @param {string} view - 'grid' or 'list'
-     * @param {boolean} saveToStorage - Whether to save to localStorage
-     */
-    function updateLayout(view, saveToStorage = true) {
-        if (view !== 'grid' && view !== 'list') {
-            return;
-        }
+    function updateLayout($scope, view, persistState = true) {
+        if (view !== 'grid' && view !== 'list') return;
 
-        // TARGET THE NEW PERMANENT WRAPPER
-        const $layoutContainer = $('.rv-results-content');
-        const $wrapper = $('.rv-vehicle-grid-wrapper');
+        const $layoutContainer = $scope.find('.rv-results-content');
+        const $layoutWrapper = $scope.find('.rv-results-content-wrapper');
+        const $wrapper = $scope.find('.rv-vehicle-grid-wrapper');
 
         if ($layoutContainer.length > 0) {
-            // Remove all layout classes first
             $layoutContainer.removeClass('rv-layout-grid rv-layout-list');
-            // Add the correct layout class for wrapper
             $layoutContainer.addClass(`rv-layout-${view}`);
-
-            // Update cards class
-            if ($wrapper.length > 0) {
-                const $cards = $wrapper.find('.mhm-vehicle-card');
-
-                // Reset card classes
-                $cards.removeClass('mhm-card--grid mhm-card--list');
-                // Add new layout class
-                $cards.addClass(`mhm-card--${view}`);
-            }
         }
 
-        // Save preference to localStorage if requested
-        if (saveToStorage) {
-            localStorage.setItem('mhm_rentiva_view_mode', view);
+        if ($layoutWrapper.length > 0) {
+            $layoutWrapper.removeClass('rv-layout-grid rv-layout-list');
+            $layoutWrapper.addClass(`rv-layout-${view}`);
         }
 
-        // Update active state of buttons
-        $('.rv-view-btn').removeClass('active');
-        $(`.rv-view-btn[data-view="${view}"]`).addClass('active');
+        if ($wrapper.length > 0) {
+            const $cards = $wrapper.find('.mhm-vehicle-card');
+            $cards.removeClass('mhm-card--grid mhm-card--list');
+            $cards.addClass(`mhm-card--${view}`);
+        }
+
+        if (persistState) {
+            const state = getState($scope);
+            state.currentView = view;
+        }
+
+        $scope.find('.rv-view-btn').removeClass('active');
+        $scope.find(`.rv-view-btn[data-view="${view}"]`).addClass('active');
     }
 
-
-    /**
-     * Initialize favorites functionality
-     */
-    function initializeFavorites() {
-        $(document).on('click', '.mhm-card-favorite', function (e) {
+    function initializeFavorites($scope) {
+        $scope.on('click', '.mhm-card-favorite', function (e) {
             e.preventDefault();
 
             const $btn = $(this);
             const vehicleId = $btn.data('vehicle-id');
-
             if (!vehicleId) return;
 
-            // Toggle favorite via AJAX
             toggleFavorite(vehicleId, $btn);
         });
     }
 
-    /**
-     * Initialize pagination
-     */
-    function initializePagination() {
-        $(document).on('click', '.rv-pagination .page-numbers a', function (e) {
+    function initializePagination($scope) {
+        $scope.on('click', '.rv-pagination .page-numbers a', function (e) {
             e.preventDefault();
-
             const url = $(this).attr('href');
             if (url) {
                 window.location.href = url;
@@ -199,168 +188,77 @@
         });
     }
 
-    /**
-     * Initialize price range sliders
-     */
-    function initializePriceSliders() {
-        const $slider = $('#rv-price-slider');
+    function initializePriceSliders($scope) {
+        const $slider = $scope.find('.rv-price-slider');
         if ($slider.length === 0) return;
 
-        // Simple price slider implementation
-        // In a real implementation, you'd use a proper slider library like noUiSlider
         $slider.on('click', function (e) {
             const rect = this.getBoundingClientRect();
             const percent = (e.clientX - rect.left) / rect.width;
             const maxPrice = parseFloat($(this).data('max-price') || 10000);
             const price = Math.round(percent * maxPrice);
 
-            $('input[name="max_price"]').val(price);
-            handleFilterChange();
+            $scope.find('input[name="max_price"]').val(price);
+            handleFilterChange($scope);
         });
     }
 
-    /**
-     * Initialize year range sliders
-     */
-    function initializeYearSliders() {
-        const $slider = $('#rv-year-slider');
+    function initializeYearSliders($scope) {
+        const $slider = $scope.find('.rv-year-slider');
         if ($slider.length === 0) return;
 
-        // Simple year slider implementation
         $slider.on('click', function (e) {
             const rect = this.getBoundingClientRect();
             const percent = (e.clientX - rect.left) / rect.width;
-            const minYear = parseInt($(this).data('min-year') || 1990);
-            const maxYear = parseInt($(this).data('max-year') || new Date().getFullYear());
+            const minYear = parseInt($(this).data('min-year') || 1990, 10);
+            const maxYear = parseInt($(this).data('max-year') || new Date().getFullYear(), 10);
             const year = Math.round(minYear + (percent * (maxYear - minYear)));
 
-            $('input[name="year_max"]').val(year);
-            handleFilterChange();
+            $scope.find('input[name="year_max"]').val(year);
+            handleFilterChange($scope);
         });
     }
 
-    /**
-     * Handle filter changes
-     */
-    function handleFilterChange() {
-        if (isLoading) return;
+    function handleFilterChange($scope) {
+        const state = getState($scope);
+        if (state.isLoading) return;
 
-
-        const $form = $('#rv-filters-form');
-        const formData = $form.serializeArray();
-
-
-        // Update URL parameters
-        updateUrlFromFormData(formData);
-
-        // Reload results
-        reloadResults();
-
-        // Update active filters count
-        updateActiveFiltersCount();
+        reloadResults($scope);
+        updateActiveFiltersCount($scope);
     }
 
-    /**
-     * Clear all filters
-     */
-    function clearAllFilters() {
-        const $form = $('#rv-filters-form');
+    function clearAllFilters($scope) {
+        const $form = $scope.find('.rv-filters-form');
 
-        // Clear all form inputs
         $form.find('input[type="checkbox"]').prop('checked', false);
         $form.find('input[type="number"]').val('');
 
-        // Remove all filter parameters from URL
-        const url = new URL(window.location.href);
-        const filterParams = [
-            'min_price', 'max_price', 'brand', 'fuel_type', 'transmission',
-            'seats', 'year_min', 'year_max', 'mileage_max'
-        ];
-
-        filterParams.forEach(param => {
-            url.searchParams.delete(param);
-        });
-
-        // Update URL and reload
-        window.history.replaceState({}, '', url.toString());
-        reloadResults();
-
-        // Update active filters count
-        updateActiveFiltersCount();
+        reloadResults($scope);
+        updateActiveFiltersCount($scope);
     }
 
-    /**
-     * Update URL from form data
-     */
-    function updateUrlFromFormData(formData) {
-        const url = new URL(window.location.href);
+    function reloadResults($scope) {
+        const state = getState($scope);
+        if (state.isLoading) return;
 
-        // Clear existing filter parameters
-        const filterParams = [
-            'min_price', 'max_price', 'brand', 'fuel_type', 'transmission',
-            'seats', 'year_min', 'year_max', 'mileage_max'
-        ];
+        state.isLoading = true;
+        showLoadingIndicator($scope);
 
-        filterParams.forEach(param => {
-            url.searchParams.delete(param);
-        });
+        const currentLayout = state.currentView ||
+            $scope.find('.rv-view-btn.active').data('view') ||
+            (($scope.data('default-view') === 'list') ? 'list' : 'grid');
 
-        // Add new parameters
-        formData.forEach(item => {
-            if (item.value && item.value.trim() !== '') {
-                if (item.name.endsWith('[]')) {
-                    // Handle array parameters
-                    const paramName = item.name.replace('[]', '');
-                    url.searchParams.append(paramName, item.value);
-                } else {
-                    url.searchParams.set(item.name, item.value);
-                }
-            }
-        });
-
-        // Update URL without reloading
-        window.history.replaceState({}, '', url.toString());
-    }
-
-    /**
-     * Update URL parameter
-     */
-    function updateUrlParameter(param, value) {
-        const url = new URL(window.location.href);
-
-        if (value && value !== '') {
-            url.searchParams.set(param, value);
-        } else {
-            url.searchParams.delete(param);
-        }
-
-        window.history.replaceState({}, '', url.toString());
-    }
-
-    /**
-     * Reload results via AJAX
-     */
-    function reloadResults() {
-        if (isLoading) return;
-
-        isLoading = true;
-        showLoadingIndicator();
-
-        // View mode'u localStorage'dan al, yoksa grid kullan
-        const currentLayout = localStorage.getItem('mhm_rentiva_view_mode') ||
-            $('.rv-view-btn.active').data('view') ||
-            'grid';
-
-        // Get sort value from select (it's outside the form)
-        const sortValue = $('.rv-sort-select').val() || '';
+        const sortValue = $scope.find('.rv-sort-select').val() || '';
+        const settings = getInstanceSettings($scope);
 
         const data = {
             action: 'mhm_rentiva_filter_results',
             nonce: mhmRentivaSearchResults.nonce,
             layout: currentLayout,
-            per_page: 12,
+            per_page: settings.per_page,
             sort: sortValue,
-            ...getCurrentFilters()
+            ...settings,
+            ...getCurrentFilters($scope)
         };
 
         $.ajax({
@@ -369,77 +267,66 @@
             data: data,
             success: function (response) {
                 if (response.success && response.data) {
-                    // Update main content (HTML from server)
-                    updateResultsContainer(response.data);
+                    updateResultsContainer($scope, response.data);
 
-                    // Update pagination (HTML from server)
                     if (response.data.pagination) {
-                        $('.rv-pagination').html(response.data.pagination);
+                        $scope.find('.rv-pagination').html(response.data.pagination);
                     }
 
-                    // Update count (from meta)
                     if (response.data.meta && response.data.meta.total !== undefined) {
-                        updateResultsCount(response.data.meta.total);
+                        updateResultsCount($scope, response.data.meta.total);
                     }
                 } else {
-                    showError(response.data?.message || 'An error occurred');
+                    showError($scope, response.data?.message || 'An error occurred');
                 }
             },
             error: function () {
-                showError('Network error. Please try again.');
+                showError($scope, 'Network error. Please try again.');
             },
             complete: function () {
-                isLoading = false;
-                hideLoadingIndicator();
+                state.isLoading = false;
+                hideLoadingIndicator($scope);
             }
         });
     }
 
-    /**
-     * Get current filter values from form
-     */
-    function getCurrentFilters() {
-        const $form = $('.rv-filters-form');
+    function getCurrentFilters($scope) {
+        const $form = $scope.find('.rv-filters-form');
         const filters = {};
 
         if ($form.length === 0) return {};
 
-        // Get form data
         const formData = $form.serializeArray();
 
         formData.forEach(function (item) {
             if (item.name.endsWith('[]')) {
-                // Array fields (brand[], fuel_type[], etc.)
                 const key = item.name.replace('[]', '');
                 if (!filters[key]) {
                     filters[key] = [];
                 }
                 filters[key].push(item.value);
             } else {
-                // Single fields
                 filters[item.name] = item.value;
             }
         });
+
         return filters;
     }
 
-    function updateResultsContainer(data) {
-        const $resultsContent = $('.rv-vehicle-grid-wrapper');
-        const currentLayout = localStorage.getItem('mhm_rentiva_view_mode') || 'grid';
+    function updateResultsContainer($scope, data) {
+        const $resultsContent = $scope.find('.rv-vehicle-grid-wrapper');
+        const state = getState($scope);
+        const currentLayout = state.currentView || (($scope.data('default-view') === 'list') ? 'list' : 'grid');
 
-        // Update the content (Strictly server-side HTML)
         if (data.html) {
             $resultsContent.html(data.html);
-
-            // Ensure layout wrapper state is correct
             setTimeout(function () {
-                updateLayout(currentLayout, false);
+                updateLayout($scope, currentLayout, false);
             }, 50);
         } else {
-            // Empty state (already handled by server HTML usually, but fallback here)
             const emptyHtml = `
                 <div class="rv-no-results">
-                    <div class="rv-no-results-icon">🚗</div>
+                    <div class="rv-no-results-icon">?</div>
                     <h3>${mhmRentivaSearchResults.i18n.no_results || 'No vehicles found'}</h3>
                     <p>${mhmRentivaSearchResults.i18n.try_adjusting || 'Try adjusting your search criteria or filters.'}</p>
                     <a href="${mhmRentivaSearchResults.search_page_url || '#'}" class="rv-back-to-search">
@@ -451,12 +338,8 @@
         }
     }
 
-
-    /**
-     * Update results count
-     */
-    function updateResultsCount(total) {
-        const $title = $('.rv-results-title');
+    function updateResultsCount($scope, total) {
+        const $title = $scope.find('.rv-results-title');
         if ($title.length === 0) return;
 
         const text = total === 1 ?
@@ -466,14 +349,7 @@
         $title.text(text);
     }
 
-    /**
-     * Toggle favorite
-     */
-    /**
-     * Toggle favorite
-     */
     function toggleFavorite(vehicleId, $btn) {
-        // Disable button during request
         $btn.prop('disabled', true);
 
         $.ajax({
@@ -487,8 +363,6 @@
             success: function (response) {
                 if (response.success) {
                     const { action } = response.data;
-
-                    // Toggle .is-active class - CSS handles the visual state
                     if (action === 'added') {
                         $btn.addClass('is-active');
                         MHMRentivaToast.show(mhmRentivaSearchResults.i18n.added_to_favorites || 'Added to favorites', { type: 'success' });
@@ -509,19 +383,13 @@
         });
     }
 
-    /**
-     * Update active filters count
-     */
-    function updateActiveFiltersCount() {
-        const $form = $('#rv-filters-form');
+    function updateActiveFiltersCount($scope) {
+        const $form = $scope.find('.rv-filters-form');
         if ($form.length === 0) return;
 
         let activeFilters = 0;
-
-        // Count checked checkboxes
         activeFilters += $form.find('input[type="checkbox"]:checked').length;
 
-        // Count number inputs with actual values (not empty, not 0)
         $form.find('input[type="number"]').each(function () {
             const value = $(this).val();
             if (value && value !== '' && parseFloat(value) > 0) {
@@ -529,43 +397,33 @@
             }
         });
 
-        // Update clear button text
-        const $clearBtn = $('#rv-clear-filters');
+        const $clearBtn = $scope.find('.rv-clear-filters');
         const clearAllText = mhmRentivaSearchResults.i18n.clear_all || 'Clear All';
 
         if (activeFilters > 0) {
             const clearAllWithCount = (mhmRentivaSearchResults.i18n.clear_all_with_count || 'Clear All (%d)').replace('%d', activeFilters);
-            $clearBtn.text(clearAllWithCount);
-            $clearBtn.show();
+            $clearBtn.text(clearAllWithCount).show();
         } else {
-            $clearBtn.text(clearAllText);
-            $clearBtn.hide();
+            $clearBtn.text(clearAllText).hide();
         }
     }
 
-    /**
-     * Show loading indicator
-     */
-    function showLoadingIndicator() {
-        $('.rv-loading-indicator').show();
+    function showLoadingIndicator($scope) {
+        $scope.find('.rv-loading-indicator').show();
     }
 
-    function hideLoadingIndicator() {
-        $('.rv-loading-indicator').hide();
+    function hideLoadingIndicator($scope) {
+        $scope.find('.rv-loading-indicator').hide();
     }
 
-    /**
-     * Show error message
-     */
-    function showError(message) {
-        const $container = $('#rv-results-grid-content');
-
+    function showError($scope, message) {
+        const $container = $scope.find('.rv-vehicle-grid-wrapper');
         const errorText = mhmRentivaSearchResults.i18n.error || 'Error';
         const tryAgainText = mhmRentivaSearchResults.i18n.try_again || 'Try Again';
 
         const html = `
             <div class="rv-error-message">
-                <div class="rv-error-icon">⚠️</div>
+                <div class="rv-error-icon">!</div>
                 <h3>${errorText}</h3>
                 <p>${escapeHtml(message)}</p>
                 <button type="button" class="rv-btn rv-btn-primary" onclick="location.reload()">
@@ -574,19 +432,7 @@
             </div>
         `;
 
-        if ($container.length > 0) {
-            $container.html(html);
-        } else {
-            $('#rv-results-container').html(html);
-        }
-    }
-
-    /**
-     * Legacy notification system removed in favor of centralized MHMRentivaToast.
-     * Maintained for backward compatibility or internal calls.
-     */
-    function showNotification(message, type = 'info') {
-        MHMRentivaToast.show(message, { type: type });
+        $container.html(html);
     }
 
 })(jQuery);

@@ -133,6 +133,12 @@ final class SearchResults extends AbstractShortcode
 			'show_view_toggle'     => '1',        // 1/0
 			'show_favorite_button' => '1',        // 1/0
 			'show_compare_button'  => '1',        // 1/0
+			'show_booking_btn'     => '1',        // 1/0
+			'show_price'           => '1',        // 1/0
+			'show_title'           => '1',        // 1/0
+			'show_features'        => '1',        // 1/0
+			'show_rating'          => '1',        // 1/0
+			'show_badges'          => '1',        // 1/0
 			'default_sort'         => 'price_asc', // relevance/price_asc/price_desc/name_asc/name_desc
 			'class'                => '',         // Custom CSS class
 		);
@@ -170,7 +176,23 @@ final class SearchResults extends AbstractShortcode
 
 	public static function render(array $atts = array(), ?string $content = null): string
 	{
-		return parent::render($atts, $content);
+		// Ensure assets are enqueued even when parent render returns from shortcode HTML cache.
+		$normalized_atts = shortcode_atts(static::get_default_attributes(), $atts, static::get_shortcode_tag());
+		static::enqueue_assets_once($normalized_atts);
+
+		return parent::render($normalized_atts, $content);
+	}
+
+	/**
+	 * Force-enqueue runtime assets for block rendering path.
+	 *
+	 * Block render callbacks may return cached shortcode HTML where asset enqueue
+	 * hooks are not guaranteed; this ensures toggle JS and localization are present.
+	 */
+	public static function ensure_runtime_assets(array $atts = array()): void
+	{
+		$normalized_atts = shortcode_atts(static::get_default_attributes(), $atts, static::get_shortcode_tag());
+		static::enqueue_assets($normalized_atts);
 	}
 
 	/**
@@ -181,6 +203,7 @@ final class SearchResults extends AbstractShortcode
 		// Core styles and Shared vehicle card styles
 		if (class_exists('\MHMRentiva\Admin\Core\AssetManager')) {
 			\MHMRentiva\Admin\Core\AssetManager::enqueue_core_css();
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_core_js();
 		} elseif (class_exists('\MHMRentiva\Admin\Core\Utilities\Styles')) {
 			// Fallback for older versions if AssetManager doesn't exist
 			wp_enqueue_style(\MHMRentiva\Admin\Core\Utilities\Styles::getCssHandle());
@@ -207,6 +230,22 @@ final class SearchResults extends AbstractShortcode
 			MHM_RENTIVA_VERSION . '-' . filemtime(MHM_RENTIVA_PLUGIN_DIR . 'assets/js/frontend/search-results.js'),
 			true
 		);
+
+		// Ensure vehicle interaction globals are available on block-only pages.
+		if (wp_script_is('mhm-vehicle-interactions', 'enqueued')) {
+			wp_localize_script(
+				'mhm-vehicle-interactions',
+				'mhm_rentiva_vars',
+				array(
+					'ajax_url'         => admin_url('admin-ajax.php'),
+					'nonce'            => wp_create_nonce('mhm_rentiva_toggle_favorite'),
+					'fav_nonce'        => wp_create_nonce('mhm_rentiva_toggle_favorite'),
+					'compare_nonce'    => wp_create_nonce('mhm_rentiva_toggle_compare'),
+					'compare_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
+					'favorites_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_favorites'),
+				)
+			);
+		}
 
 		// Localize script
 		wp_localize_script(
@@ -651,15 +690,23 @@ final class SearchResults extends AbstractShortcode
 			);
 
 			$atts = array(
-				'layout'           => self::post_text('layout', 'grid'),
-				'results_per_page' => self::post_int('per_page', 12),
+				'layout'               => self::post_text('layout', 'grid'),
+				'results_per_page'     => self::post_int('per_page', 12),
+				'show_favorite_button' => self::post_text('show_favorite_button', '1'),
+				'show_compare_button'  => self::post_text('show_compare_button', '1'),
+				'show_booking_btn'     => self::post_text('show_booking_btn', '1'),
+				'show_price'           => self::post_text('show_price', '1'),
+				'show_title'           => self::post_text('show_title', '1'),
+				'show_features'        => self::post_text('show_features', '1'),
+				'show_rating'          => self::post_text('show_rating', '1'),
+				'show_badges'          => self::post_text('show_badges', '1'),
 			);
 
 			$results = self::perform_search($search_params, $atts);
 
 			wp_send_json_success(
 				array(
-					'html'       => self::render_vehicles_list($results['vehicles'], $atts['layout']),
+					'html'       => self::render_vehicles_list($results['vehicles'], $atts['layout'], $atts),
 					'pagination' => self::render_pagination($results['pagination']),
 					'meta'       => array(
 						'total'        => (int) $results['total'],
@@ -725,7 +772,7 @@ final class SearchResults extends AbstractShortcode
 	 * @param string $layout Layout type
 	 * @return string
 	 */
-	private static function render_vehicles_list(array $vehicles, string $layout): string
+	private static function render_vehicles_list(array $vehicles, string $layout, array $atts = array()): string
 	{
 		if (empty($vehicles)) {
 			return '<div class="rv-no-results">' . __('No vehicles found matching your criteria.', 'mhm-rentiva') . '</div>';
@@ -733,7 +780,7 @@ final class SearchResults extends AbstractShortcode
 
 		$html = '';
 		foreach ($vehicles as $vehicle) {
-			$html .= self::render_vehicle_card($vehicle, $layout);
+			$html .= self::render_vehicle_card($vehicle, $layout, $atts);
 		}
 
 		return $html;
@@ -746,11 +793,26 @@ final class SearchResults extends AbstractShortcode
 	 * @param string $layout Layout type (grid/list)
 	 * @return string
 	 */
-	public static function render_vehicle_card(array $vehicle, string $layout): string
+	public static function render_vehicle_card(array $vehicle, string $layout, array $atts = array()): string
 	{
 		if (empty($vehicle)) {
 			return '';
 		}
+
+		$card_atts = wp_parse_args(
+			$atts,
+			array(
+				'show_favorite_button' => true,
+				'show_compare_button'  => true,
+				'show_booking_btn'     => true,
+				'show_price'           => true,
+				'show_title'           => true,
+				'show_features'        => true,
+				'show_rating'          => true,
+				'show_badges'          => true,
+				'booking_url'          => VehiclesList::get_booking_url(),
+			)
+		);
 
 		// Use the standardized partial directly
 		// All data preparation is already handled by format_vehicle_data/VehiclesList
@@ -759,17 +821,7 @@ final class SearchResults extends AbstractShortcode
 			array(
 				'vehicle' => $vehicle,
 				'layout'  => $layout,
-				'atts'    => array(
-					'show_favorite_button' => true,
-					'show_compare_button'  => true,
-					'show_booking_btn'     => true,
-					'show_price'           => true,
-					'show_title'           => true,
-					'show_features'        => true,
-					'show_rating'          => true,
-					'show_badges'          => true,
-					'booking_url'          => VehiclesList::get_booking_url(),
-				),
+				'atts'    => $card_atts,
 			),
 			true
 		);

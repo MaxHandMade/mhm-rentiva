@@ -430,6 +430,12 @@ class BlockRegistry {
 		 * 3. It ensures third-party filters on shortcodes are respected.
 		 */
 		$mapped_attributes = self::map_attributes_to_shortcode($attributes, $tag);
+
+		// Ensure Search Results runtime JS/localization is always present for block instances.
+		if ($tag === 'rentiva_search_results' && class_exists(\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::class)) {
+			\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::ensure_runtime_assets($mapped_attributes);
+		}
+
 		$shortcode_content = do_shortcode('[' . $tag . ' ' . self::attributes_to_string($mapped_attributes) . ']');
 
 		// Prepare wrapper attributes to ensure dimensions are applied to the container

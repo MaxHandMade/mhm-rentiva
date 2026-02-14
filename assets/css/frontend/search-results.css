@@ -389,23 +389,32 @@
 }
 
 /* Grid Layout: Cards in responsive grid */
-#rv-results-layout-container.rv-layout-grid .rv-vehicle-grid-wrapper {
+.rv-results-content-wrapper.rv-layout-grid .rv-vehicle-grid-wrapper {
 	display: grid !important;
 	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
 	gap: 24px !important;
 }
 
 /* List Layout: Cards stacked vertically */
-#rv-results-layout-container.rv-layout-list .rv-vehicle-grid-wrapper {
+.rv-results-content-wrapper.rv-layout-list .rv-vehicle-grid-wrapper {
 	display: flex !important;
 	flex-direction: column !important;
-	gap: 20px !important;
+	gap: 28px !important;
+}
+
+.rv-results-content-wrapper.rv-layout-list .rv-vehicle-grid-wrapper .mhm-vehicle-card {
+	width: 100% !important;
+	max-width: 100% !important;
 }
 
 /* Responsive: Grid becomes 1 column on mobile */
 @media (max-width: 782px) {
-	#rv-results-layout-container.rv-layout-grid .rv-vehicle-grid-wrapper {
+	.rv-results-content-wrapper.rv-layout-grid .rv-vehicle-grid-wrapper {
 		grid-template-columns: 1fr;
+	}
+
+	.rv-results-content-wrapper.rv-layout-list .rv-vehicle-grid-wrapper {
+		gap: 18px !important;
 	}
 }
 
