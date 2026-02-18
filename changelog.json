@@ -1,5 +1,18 @@
 [
     {
+        "version": "4.10.0",
+        "date": "2026-02-18",
+        "changes": [
+            "🎯 PARITY: Block ↔ Shortcode parity stabilization (19/19 deterministic surface).",
+            "────────────────────────────────────────",
+            "🔗 MAPPING: Deterministic alias mapping for vehicle-comparison, booking-form, and testimonials blocks.",
+            "🔄 TRANSFORM: Scope-isolated showFeatures value transform (boolean → 'all'/'basic').",
+            "🛡️ SAFETY: Booking form dynamic default protection (defaultDays/minDays/maxDays no static override).",
+            "📋 AUDIT: 19/19 Light Parity Audit completed with full evidence chain.",
+            "✅ QUALITY GATES: PHPCS, Plugin Check, PHPUnit — 0 errors, full suite pass."
+        ]
+    },
+    {
         "version": "4.9.9",
         "date": "2026-02-15",
         "changes": [

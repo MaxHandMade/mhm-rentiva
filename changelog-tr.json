@@ -1,5 +1,18 @@
 [
     {
+        "version": "4.10.0",
+        "date": "2026-02-18",
+        "changes": [
+            "🎯 PARİTE: Blok ↔ Kısa Kod parite stabilizasyonu (19/19 deterministik yüzey).",
+            "────────────────────────────────────────",
+            "🔗 EŞLEŞTİRME: Vehicle-comparison, booking-form ve testimonials blokları için deterministik alias eşleştirme.",
+            "🔄 DÖNÜŞÜM: showFeatures değer dönüşümü izole edildi (boolean → 'all'/'basic').",
+            "🛡️ GÜVENLİK: Booking form dinamik varsayılan güvenliği (defaultDays/minDays/maxDays statik override yok).",
+            "📋 DENETİM: 19/19 Light Parity Audit tam kanıt zinciriyle tamamlandı.",
+            "✅ KALİTE KAPILARI: PHPCS, Plugin Check, PHPUnit — 0 hata, tam paket geçti."
+        ]
+    },
+    {
         "version": "4.9.9",
         "date": "2026-02-15",
         "changes": [
