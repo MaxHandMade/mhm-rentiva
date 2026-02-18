@@ -22,6 +22,9 @@ class BlockRegistry {
 
 
 
+
+
+
 	/**
 	 * Runtime cache for resolved asset versions.
 	 *
@@ -133,6 +136,11 @@ class BlockRegistry {
 			'tag'   => 'rentiva_messages',
 			'title' => 'Customer Messages',
 			'css'   => 'customer-messages.css',
+		),
+		'transfer-search'       => array(
+			'tag'   => 'rentiva_transfer_search',
+			'title' => 'Transfer Search',
+			'css'   => 'transfer.css',
 		),
 	);
 
@@ -428,11 +436,6 @@ class BlockRegistry {
 			$attributes['style'] = implode(';', $style_parts) . ';';
 		}
 
-		// Ensure className support is passed to inner templates
-		if (! empty($attributes['className'])) {
-			$attributes['class'] = $attributes['className'];
-		}
-
 		/**
 		 * We use do_shortcode() instead of calling classes directly because:
 		 * 1. ShortcodeServiceProvider already handles access control (authentication).
@@ -505,33 +508,48 @@ class BlockRegistry {
 
 		// Manual mapping table (Aliases/Overrides)
 		$aliases = array(
+			'className'           => 'class', // Standardized for all blocks
+
 			// Visibility Toggles (Gutenberg camelCase to Shortcode snake_case)
-			'showPrice'          => 'show_price',
-			'showRating'         => 'show_rating',
-			'showDescription'    => 'show_description',
-			'showFeatures'       => 'show_features',
-			'showBookingButton'  => 'show_booking_btn',
-			'showBookButton'     => 'show_booking_btn', // Standardized Alias
-			'showImages'         => 'show_image',
-			'showTitle'          => 'show_title',
-			'showBadges'         => 'show_badges',
-			'showFavoriteButton' => 'show_favorite_button',
-			'showAvailability'   => 'show_availability',
-			'showCompareButton'  => 'show_compare_button',
+			'showPrice'           => 'show_price',
+			'showRating'          => 'show_rating',
+			'showDescription'     => 'show_description',
+			'showFeatures'        => 'show_features',
+			'showBookingButton'   => 'show_booking_btn',
+			'showBookButton'      => 'show_booking_btn', // Standardized Alias
+			'showImages'          => 'show_image',
+			'showTitle'           => 'show_title',
+			'showBadges'          => 'show_badges',
+			'showFavoriteButton'  => 'show_favorite_button',
+			'showAvailability'    => 'show_availability',
+			'showCompareButton'   => 'show_compare_button',
 
 			// Filter/Sort Mappings (Gutenberg camelCase to Shortcode naming)
-			'filterCategories'   => 'category',
-			'filterBrands'       => 'brands',
-			'sortBy'             => 'orderby',
-			'sortOrder'          => 'order',
+			'filterCategories'    => 'category',
+			'filterBrands'        => 'brands',
+			'sortBy'              => 'orderby',
+			'sortOrder'           => 'order',
 
 			// Dimension Mappings
-			'minWidth'           => 'minwidth',
-			'maxWidth'           => 'maxwidth',
+			'minWidth'            => 'minwidth',
+			'maxWidth'            => 'maxwidth',
 
 			// Rating Filter Mappings
-			'minRating'          => 'min_rating',
-			'minReviews'         => 'min_reviews',
+			'minRating'           => 'min_rating',
+			'minReviews'          => 'min_reviews',
+			'enableAjaxFiltering' => 'enable_ajax_filtering',
+
+			// Testimonials Mapping Aliases
+			'limitItems'          => 'limit',
+			'autoplay'            => 'auto_rotate',
+			'showAuthorName'      => 'show_customer',
+			'showVehicleName'     => 'show_vehicle',
+		);
+
+		// Global Ignore List (Attributes that should never be passed to shortcodes)
+		$ignored_keys = array(
+			'show_insurance',
+			'show_date_picker',
 		);
 
 		// Specialized Block-Specific Overrides
@@ -541,18 +559,46 @@ class BlockRegistry {
 			$aliases['showBookButton']       = 'show_booking_buttons';
 			$aliases['showRemoveButton']     = 'show_remove_buttons';
 			$aliases['showAddVehicle']       = 'show_add_vehicle';
+			$aliases['maxVehicles']          = 'max_vehicles';
+			$aliases['vehicleIds']           = 'vehicle_ids';
+
+			// isolated showFeatures transform
+			if (isset($attributes['showFeatures'])) {
+				$attributes['show_features'] = $attributes['showFeatures'] ? 'all' : 'basic';
+				unset($attributes['showFeatures']);
+			}
+		}
+
+		if ($tag === 'rentiva_booking_form') {
+			$aliases['startDate']      = 'start_date';
+			$aliases['endDate']        = 'end_date';
+			$aliases['defaultDays']    = 'default_days';
+			$aliases['minDays']        = 'min_days';
+			$aliases['maxDays']        = 'max_days';
+			$aliases['redirectUrl']    = 'redirect_url';
+			$aliases['defaultPayment'] = 'default_payment';
 		}
 
 		foreach ($attributes as $key => $value) {
-			// 1. Check for manual alias
+			// 1. Check if key is explicitly ignored
+			if (in_array($key, $ignored_keys, true)) {
+				continue;
+			}
+
+			// 2. Check for manual alias
 			$target_key = $aliases[ $key ] ?? null;
 
-			// 2. If no alias, convert camelCase to snake_case
+			// 3. If no alias, convert camelCase to snake_case
 			if (! $target_key) {
 				$target_key = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
 			}
 
-			// 3. Store mapped value (scalars only for shortcodes)
+			// 4. Final filter: If the resulting key is in ignored list, skip it
+			if (in_array($target_key, $ignored_keys, true)) {
+				continue;
+			}
+
+			// 5. Store mapped value (scalars only for shortcodes)
 			if (is_scalar($value)) {
 				// Convert boolean to string "1"/"0" or "true"/"false" as expected by some shortcodes
 				if (is_bool($value)) {

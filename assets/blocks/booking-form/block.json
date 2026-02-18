@@ -85,6 +85,31 @@
         "className": {
             "type": "string",
             "default": ""
+        },
+        "startDate": {
+            "type": "string",
+            "default": ""
+        },
+        "endDate": {
+            "type": "string",
+            "default": ""
+        },
+        "defaultDays": {
+            "type": "string"
+        },
+        "minDays": {
+            "type": "string"
+        },
+        "maxDays": {
+            "type": "string"
+        },
+        "redirectUrl": {
+            "type": "string",
+            "default": ""
+        },
+        "defaultPayment": {
+            "type": "string",
+            "default": "deposit"
         }
     },
     "editorStyle": [

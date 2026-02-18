@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * âœ… OBJECT CACHE INTEGRATION - Redis/Memcached Support
+ * Object Cache
  *
  * Extends WordPress object cache API with Redis and Memcached support
  */

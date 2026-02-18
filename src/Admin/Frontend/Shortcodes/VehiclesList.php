@@ -34,8 +34,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 3.0.1
  */
-final class VehiclesList extends AbstractShortcode
-{
+final class VehiclesList extends AbstractShortcode {
+
 
 
 
@@ -55,7 +55,7 @@ final class VehiclesList extends AbstractShortcode
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	/**
@@ -79,7 +79,7 @@ final class VehiclesList extends AbstractShortcode
 		// Clean up
 		$text = strip_shortcodes($text);
 		$text = wp_strip_all_tags($text);
-		$text = str_replace(array("\r", "\n"), ' ', $text);
+		$text = str_replace(array( "\r", "\n" ), ' ', $text);
 
 		// Limit to ~160 chars (approx 25 words or strict char limit)
 		// User requested 120-160 chars.
@@ -169,8 +169,8 @@ final class VehiclesList extends AbstractShortcode
 		);
 
 		foreach ($map as $camel => $snake) {
-			if (isset($atts[$camel])) {
-				$atts[$snake] = $atts[$camel];
+			if (isset($atts[ $camel ])) {
+				$atts[ $snake ] = $atts[ $camel ];
 			}
 		}
 
@@ -248,8 +248,8 @@ final class VehiclesList extends AbstractShortcode
 		parent::register();
 
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_toggle_favorite', array(self::class, 'ajax_toggle_favorite'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', array(self::class, 'ajax_toggle_favorite'));
+		add_action('wp_ajax_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ));
+		add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ));
 		// Rating functions moved to VehicleRatingForm
 		// add_action('wp_ajax_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
 		// add_action('wp_ajax_nopriv_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
@@ -276,7 +276,7 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	protected static function get_css_dependencies(): array
 	{
-		return array('mhm-rentiva-core-variables', 'mhm-vehicle-card-css');
+		return array( 'mhm-rentiva-core-variables', 'mhm-vehicle-card-css' );
 	}
 
 	/**
@@ -284,7 +284,7 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	public static function get_js_dependencies(): array
 	{
-		return array('jquery', 'mhm-vehicle-interactions');
+		return array( 'jquery', 'mhm-vehicle-interactions' );
 	}
 
 	// ... (skipping to next method)
@@ -500,7 +500,7 @@ final class VehiclesList extends AbstractShortcode
 	{
 		switch ($icon) {
 			case 'heart-filled':
-				return \MHMRentiva\Helpers\Icons::get('heart', array('fill' => 'currentColor'));
+				return \MHMRentiva\Helpers\Icons::get('heart', array( 'fill' => 'currentColor' ));
 			default:
 				return \MHMRentiva\Helpers\Icons::get($icon);
 		}
@@ -537,7 +537,7 @@ final class VehiclesList extends AbstractShortcode
 			$status = 'active'; // Final Production Fallback
 		}
 
-		$is_available = ($status === 'active');
+		$is_available = ( $status === 'active' );
 
 		return array(
 			'is_available' => $is_available,
@@ -567,7 +567,7 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	private static function get_wrapper_class(array $atts): string
 	{
-		$classes = array('rv-vehicles-list');
+		$classes = array( 'rv-vehicles-list' );
 
 		if (! empty($atts['class'])) {
 			$classes[] = sanitize_html_class($atts['class']);
@@ -638,7 +638,7 @@ final class VehiclesList extends AbstractShortcode
 
 	protected static function get_localized_data(): array
 	{
-		$data = parent::get_localized_data();
+		$data          = parent::get_localized_data();
 		$data['icons'] = array(
 			'heart' => \MHMRentiva\Helpers\Icons::get('heart'),
 		);
@@ -656,7 +656,7 @@ final class VehiclesList extends AbstractShortcode
 		if (class_exists(FavoritesService::class)) {
 			FavoritesService::ajax_toggle_favorite();
 		} else {
-			wp_send_json_error(array('message' => 'Service not available'));
+			wp_send_json_error(array( 'message' => 'Service not available' ));
 		}
 	}
 
@@ -672,8 +672,8 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	protected static function register_ajax_handlers(): void
 	{
-		add_action('wp_ajax_mhm_rentiva_toggle_favorite', array(self::class, 'ajax_toggle_favorite'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', array(self::class, 'ajax_toggle_favorite'));
+		add_action('wp_ajax_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ));
+		add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ));
 	}
 
 	/**

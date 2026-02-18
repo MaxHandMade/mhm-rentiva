@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use MHMRentiva\Admin\REST\Settings\RESTSettings;
 
 /**
- * ✅ RATE LIMITER - API Endpoint Security
+ * Rate Limiter
  *
  * Protects API endpoints against brute force attacks
  */

@@ -69,13 +69,66 @@
                         }),
                         el(ToggleControl, {
                             label: __('Show Extras', 'mhm-rentiva'),
-                            checked: attributes.show_extras,
-                            onChange: function (val) { setAttributes({ show_extras: val }); }
+                            checked: attributes.show_addons,
+                            onChange: function (val) { setAttributes({ show_addons: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Price Summary', 'mhm-rentiva'),
                             checked: attributes.show_price_summary,
                             onChange: function (val) { setAttributes({ show_price_summary: val }); }
+                        })
+                    ),
+
+                    /* PANEL 4: REDIRECT & PAYMENT */
+                    el(PanelBody, { title: __('Redirect & Payment', 'mhm-rentiva'), initialOpen: false },
+                        el(TextControl, {
+                            label: __('Redirect URL', 'mhm-rentiva'),
+                            help: __('URL to redirect after successful booking.', 'mhm-rentiva'),
+                            value: attributes.redirectUrl,
+                            onChange: function (val) { setAttributes({ redirectUrl: val }); }
+                        }),
+                        el(components.SelectControl, {
+                            label: __('Default Payment', 'mhm-rentiva'),
+                            value: attributes.defaultPayment,
+                            options: [
+                                { label: __('Deposit', 'mhm-rentiva'), value: 'deposit' },
+                                { label: __('Full Payment', 'mhm-rentiva'), value: 'full' }
+                            ],
+                            onChange: function (val) { setAttributes({ defaultPayment: val }); }
+                        })
+                    ),
+
+                    /* PANEL 5: ADVANCED DATE OVERRIDES */
+                    el(PanelBody, { title: __('Advanced Date Overrides', 'mhm-rentiva'), initialOpen: false },
+                        el(TextControl, {
+                            label: __('Start Date', 'mhm-rentiva'),
+                            help: __('Format: YYYY-MM-DD. Leave empty for dynamic.', 'mhm-rentiva'),
+                            value: attributes.startDate,
+                            onChange: function (val) { setAttributes({ startDate: val }); }
+                        }),
+                        el(TextControl, {
+                            label: __('End Date', 'mhm-rentiva'),
+                            help: __('Format: YYYY-MM-DD. Leave empty for dynamic.', 'mhm-rentiva'),
+                            value: attributes.endDate,
+                            onChange: function (val) { setAttributes({ endDate: val }); }
+                        }),
+                        el(TextControl, {
+                            label: __('Default Days', 'mhm-rentiva'),
+                            type: 'number',
+                            value: attributes.defaultDays,
+                            onChange: function (val) { setAttributes({ defaultDays: val }); }
+                        }),
+                        el(TextControl, {
+                            label: __('Min Days', 'mhm-rentiva'),
+                            type: 'number',
+                            value: attributes.minDays,
+                            onChange: function (val) { setAttributes({ minDays: val }); }
+                        }),
+                        el(TextControl, {
+                            label: __('Max Days', 'mhm-rentiva'),
+                            type: 'number',
+                            value: attributes.maxDays,
+                            onChange: function (val) { setAttributes({ maxDays: val }); }
                         })
                     )
                 ),

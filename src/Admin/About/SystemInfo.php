@@ -23,7 +23,6 @@ final class SystemInfo {
 	 */
 	public static function get_cached_system_info(): array
 	{
-		// ✅ CACHE OPTIMIZATION - Centralized cache management
 		$cached = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache('system_info');
 
 		if ($cached === false) {

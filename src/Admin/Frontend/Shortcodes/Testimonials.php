@@ -29,8 +29,8 @@ use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
  *
  * Usage: [rentiva_testimonials limit="5" rating="4" vehicle_id="123" show_rating="1" show_date="1"]
  */
-final class Testimonials extends AbstractShortcode
-{
+final class Testimonials extends AbstractShortcode {
+
 
 
 	public const SHORTCODE = 'rentiva_testimonials';
@@ -46,15 +46,15 @@ final class Testimonials extends AbstractShortcode
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	public static function register(): void
 	{
 		parent::register();
 
-		add_action('wp_ajax_mhm_rentiva_load_testimonials', array(self::class, 'ajax_load_testimonials'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_load_testimonials', array(self::class, 'ajax_load_testimonials'));
+		add_action('wp_ajax_mhm_rentiva_load_testimonials', array( self::class, 'ajax_load_testimonials' ));
+		add_action('wp_ajax_nopriv_mhm_rentiva_load_testimonials', array( self::class, 'ajax_load_testimonials' ));
 	}
 
 	protected static function get_shortcode_tag(): string
@@ -111,7 +111,7 @@ final class Testimonials extends AbstractShortcode
 		wp_enqueue_script(
 			'mhm-rentiva-testimonials',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/testimonials.js',
-			array('jquery'),
+			array( 'jquery' ),
 			MHM_RENTIVA_VERSION,
 			true
 		);
@@ -129,9 +129,9 @@ final class Testimonials extends AbstractShortcode
 	{
 		$data          = parent::get_localized_data();
 		$data['icons'] = array(
-			'star'     => \MHMRentiva\Helpers\Icons::get('star', array('class' => 'rv-icon-star')),
-			'car'      => \MHMRentiva\Helpers\Icons::get('car', array('class' => 'rv-icon-car')),
-			'calendar' => \MHMRentiva\Helpers\Icons::get('calendar', array('class' => 'rv-icon-calendar')),
+			'star'     => \MHMRentiva\Helpers\Icons::get('star', array( 'class' => 'rv-icon-star' )),
+			'car'      => \MHMRentiva\Helpers\Icons::get('car', array( 'class' => 'rv-icon-car' )),
+			'calendar' => \MHMRentiva\Helpers\Icons::get('calendar', array( 'class' => 'rv-icon-calendar' )),
 		);
 		return $data;
 	}
@@ -178,7 +178,7 @@ final class Testimonials extends AbstractShortcode
 		$args = array(
 			'post_type'      => 'vehicle_booking',
 			'post_status'    => 'publish',
-			'posts_per_page' => (int) ($atts['limit'] ?? 5),
+			'posts_per_page' => (int) ( $atts['limit'] ?? 5 ),
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
@@ -295,14 +295,14 @@ final class Testimonials extends AbstractShortcode
 		try {
 			// Security check
 			if (! check_ajax_referer('mhm_rentiva_testimonials_nonce', 'nonce', false)) {
-				wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
 				return;
 			}
 
-			$page       = isset($_POST['page']) ? absint(sanitize_text_field(wp_unslash((string) $_POST['page']))) : 1;
-			$limit      = isset($_POST['limit']) ? absint(sanitize_text_field(wp_unslash((string) $_POST['limit']))) : 5;
-			$rating     = isset($_POST['rating']) ? sanitize_text_field(wp_unslash((string) $_POST['rating'])) : '';
-			$vehicle_id = isset($_POST['vehicle_id']) ? sanitize_text_field(wp_unslash((string) $_POST['vehicle_id'])) : '';
+			$page       = isset($_POST['page']) ? absint(sanitize_text_field(wp_unslash( (string) $_POST['page']))) : 1;
+			$limit      = isset($_POST['limit']) ? absint(sanitize_text_field(wp_unslash( (string) $_POST['limit']))) : 5;
+			$rating     = isset($_POST['rating']) ? sanitize_text_field(wp_unslash( (string) $_POST['rating'])) : '';
+			$vehicle_id = isset($_POST['vehicle_id']) ? sanitize_text_field(wp_unslash( (string) $_POST['vehicle_id'])) : '';
 
 			$atts = array(
 				'limit'      => $limit,
@@ -317,12 +317,12 @@ final class Testimonials extends AbstractShortcode
 				array(
 					'testimonials' => $testimonials,
 					'total_count'  => $total_count,
-					'has_more'     => ($page * $limit) < $total_count,
+					'has_more'     => ( $page * $limit ) < $total_count,
 					'message'      => __('Reviews loaded successfully.', 'mhm-rentiva'),
 				)
 			);
 		} catch (\Exception $e) {
-			wp_send_json_error(array('message' => __('An error occurred while loading reviews.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('An error occurred while loading reviews.', 'mhm-rentiva') ));
 		}
 	}
 }

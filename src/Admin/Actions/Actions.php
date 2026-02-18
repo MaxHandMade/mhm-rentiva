@@ -42,7 +42,6 @@ final class Actions {
 	public static function refund_booking(): void {
 		$bid = self::post_int( 'booking_id' );
 
-		// âœ… SECURITY: Granular permission check.
 		if ( ! self::check_granular_permission( 'refund_booking', $bid ) ) {
 			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
 		}
@@ -69,7 +68,6 @@ final class Actions {
 	 * Purge old log records.
 	 */
 	public static function purge_logs(): void {
-		// âœ… SECURITY: Granular permission check.
 		if ( ! self::check_granular_permission( 'purge_logs' ) ) {
 			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
 		}
@@ -151,7 +149,7 @@ final class Actions {
 	}
 
 	/**
-	 * âœ… SECURITY: Granular permission check.
+	 * Granular permission check.
 	 *
 	 * @param string   $action Action type.
 	 * @param int|null $resource_id Resource ID (optional).

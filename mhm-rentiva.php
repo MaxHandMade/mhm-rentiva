@@ -49,7 +49,7 @@ function mhm_rentiva_sanitize_text_field_safe($value)
 }
 
 // Define Version (Updated via build script)
-define('MHM_RENTIVA_VERSION', '4.9.8');
+define('MHM_RENTIVA_VERSION', '4.9.9');
 
 // PHP version check
 if (version_compare(PHP_VERSION, '8.1', '<')) {

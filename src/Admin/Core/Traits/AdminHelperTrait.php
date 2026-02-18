@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * ✅ ADMIN HELPER TRAIT - Code Duplication Elimination
+ * Admin Helper Trait
  *
  * Centralizes repeated code in admin pages
  */

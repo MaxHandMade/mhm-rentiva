@@ -79,7 +79,7 @@ final class SecurityHelper
 	}
 
 	/**
-	 * AJAX request security check ve hata response'u
+	 * AJAX request security check with error response
 	 *
 	 * @param string $nonce_name Nonce name
 	 * @param string $capability Required capability
@@ -91,7 +91,7 @@ final class SecurityHelper
 		if (! self::verify_ajax_request($nonce_name, $capability)) {
 			$default_message = __('Security check failed.', 'mhm-rentiva');
 			wp_send_json_error(array('message' => $error_message ?: $default_message));
-			return false; // Bu satır çalışmaz ama IDE uyarısını önler
+			return false;
 		}
 
 		return true;
@@ -129,7 +129,7 @@ final class SecurityHelper
 	}
 
 	/**
-	 * Rate limiting check ve hata response'u
+	 * Rate limiting check with error response
 	 *
 	 * @param string $action Action name
 	 * @param int    $limit Limit count

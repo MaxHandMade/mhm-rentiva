@@ -23,19 +23,20 @@ if (! defined('ABSPATH')) {
  * Handles transfer search form and AJAX results.
  * Standardized using AbstractShortcode base.
  */
-final class TransferShortcodes extends AbstractShortcode {
+final class TransferShortcodes extends AbstractShortcode
+{
 
 	/**
-     * Resolve transfer table name with fallback.
-    */
-    private static function resolve_transfer_table(string $legacy_suffix, string $current_suffix): string
+	 * Resolve transfer table name with fallback.
+	 */
+	private static function resolve_transfer_table(string $legacy_suffix, string $current_suffix): string
 	{
 		global $wpdb;
 		$legacy_table  = preg_replace('/[^A-Za-z0-9_]/', '', $wpdb->prefix . $legacy_suffix) ?? '';
 		$current_table = preg_replace('/[^A-Za-z0-9_]/', '', $wpdb->prefix . $current_suffix) ?? '';
 
-      // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-        $exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $legacy_table));
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $legacy_table));
 		if ($exists === $legacy_table) {
 			return $legacy_table;
 		}
@@ -73,7 +74,12 @@ final class TransferShortcodes extends AbstractShortcode {
 	 */
 	protected static function get_default_attributes(): array
 	{
-		return array();
+		return array(
+			'layout'       => 'horizontal',
+			'button_text'  => '',
+			'show_pickup'  => '1',
+			'show_dropoff' => '1',
+		);
 	}
 
 	/**
@@ -83,11 +89,13 @@ final class TransferShortcodes extends AbstractShortcode {
 	{
 		global $wpdb;
 		$table_locations = self::resolve_transfer_table('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
-       // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-        $locations = $wpdb->get_results(
-            $wpdb->prepare(
-                'SELECT id, name, type FROM %i WHERE is_active = %d ORDER BY priority ASC, name ASC', $table_locations, 1
-            )
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$locations = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT id, name, type FROM %i WHERE is_active = %d ORDER BY priority ASC, name ASC',
+				$table_locations,
+				1
+			)
 		);
 
 		return array(
@@ -101,8 +109,8 @@ final class TransferShortcodes extends AbstractShortcode {
 	 */
 	protected static function register_hooks(): void
 	{
-		add_action('wp_ajax_rentiva_transfer_search', array( self::class, 'handle_search_ajax' ));
-		add_action('wp_ajax_nopriv_rentiva_transfer_search', array( self::class, 'handle_search_ajax' ));
+		add_action('wp_ajax_rentiva_transfer_search', array(self::class, 'handle_search_ajax'));
+		add_action('wp_ajax_nopriv_rentiva_transfer_search', array(self::class, 'handle_search_ajax'));
 	}
 
 	/**
@@ -137,7 +145,7 @@ final class TransferShortcodes extends AbstractShortcode {
 			wp_enqueue_script(
 				'rentiva-transfer',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/rentiva-transfer.js',
-				array( 'jquery' ),
+				array('jquery'),
 				MHM_RENTIVA_VERSION,
 				true
 			);
@@ -145,11 +153,12 @@ final class TransferShortcodes extends AbstractShortcode {
 			// Fetch Routes for Frontend Filtering
 			global $wpdb;
 			$table_routes = self::resolve_transfer_table('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes');
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-            $routes = $wpdb->get_results(
-                $wpdb->prepare(
-                    'SELECT origin_id, destination_id FROM %i', $table_routes
-                )
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$routes = $wpdb->get_results(
+				$wpdb->prepare(
+					'SELECT origin_id, destination_id FROM %i',
+					$table_routes
+				)
 			);
 
 			// Localize Data
@@ -199,7 +208,7 @@ final class TransferShortcodes extends AbstractShortcode {
 		$results = TransferSearchEngine::search($criteria);
 
 		if (empty($results)) {
-			wp_send_json_error(array( 'message' => __('No vehicles found matching your criteria.', 'mhm-rentiva') ));
+			wp_send_json_error(array('message' => __('No vehicles found matching your criteria.', 'mhm-rentiva')));
 		}
 
 		// Initialize names
@@ -211,15 +220,15 @@ final class TransferShortcodes extends AbstractShortcode {
 
 		if (! empty($criteria['origin_id'])) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-            $origin_name = $wpdb->get_var($wpdb->prepare('SELECT name FROM %i WHERE id = %d', $table_locations, $criteria['origin_id']));
+			$origin_name = $wpdb->get_var($wpdb->prepare('SELECT name FROM %i WHERE id = %d', $table_locations, $criteria['origin_id']));
 		}
 		if (! empty($criteria['destination_id'])) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-            $destination_name = $wpdb->get_var($wpdb->prepare('SELECT name FROM %i WHERE id = %d', $table_locations, $criteria['destination_id']));
-        }
+			$destination_name = $wpdb->get_var($wpdb->prepare('SELECT name FROM %i WHERE id = %d', $table_locations, $criteria['destination_id']));
+		}
 
-			ob_start();
-			echo '<div class="mhm-transfer-results-grid">';
+		ob_start();
+		echo '<div class="mhm-transfer-results-grid">';
 		foreach ($results as $vehicle) {
 			// Prepare Transfer Meta per Vehicle
 			$vehicle_meta                     = $criteria;
@@ -229,7 +238,7 @@ final class TransferShortcodes extends AbstractShortcode {
 			$vehicle_meta['origin_name']      = $origin_name;
 			$vehicle_meta['destination_name'] = $destination_name;
 			$transfer_meta_json               = wp_json_encode($vehicle_meta);
-			?>
+?>
 			<div class="mhm-transfer-card">
 				<div class="mhm-transfer-card-image">
 					<img src="<?php echo esc_url($vehicle['image']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>">
@@ -244,31 +253,31 @@ final class TransferShortcodes extends AbstractShortcode {
 								<path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
 								<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
 							</svg>
-						<?php echo esc_html( (string) $vehicle['max_pax']); ?> <?php esc_html_e('Person', 'mhm-rentiva'); ?>
+							<?php echo esc_html((string) $vehicle['max_pax']); ?> <?php esc_html_e('Person', 'mhm-rentiva'); ?>
 						</span>
 						<span>
 							<svg class="rv-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<circle cx="12" cy="12" r="10"></circle>
 								<polyline points="12 6 12 12 16 14"></polyline>
 							</svg>
-						<?php echo esc_html( (string) $vehicle['duration']); ?> <?php esc_html_e('min', 'mhm-rentiva'); ?>
+							<?php echo esc_html((string) $vehicle['duration']); ?> <?php esc_html_e('min', 'mhm-rentiva'); ?>
 						</span>
 					</div>
 					<div class="mhm-transfer-price">
 						<strong><?php echo wp_kses_post(wc_price($vehicle['price'])); ?></strong>
 					</div>
 					<button class="mhm-transfer-book-btn"
-						data-vehicle-id="<?php echo esc_attr( (string) $vehicle['id']); ?>"
+						data-vehicle-id="<?php echo esc_attr((string) $vehicle['id']); ?>"
 						data-transfer-meta="<?php echo esc_attr($transfer_meta_json); ?>">
-					<?php esc_html_e('Book Now', 'mhm-rentiva'); ?>
+						<?php esc_html_e('Book Now', 'mhm-rentiva'); ?>
 					</button>
 				</div>
 			</div>
-				<?php
+<?php
 		}
-			echo '</div>';
-			$html = ob_get_clean();
+		echo '</div>';
+		$html = ob_get_clean();
 
-			wp_send_json_success(array( 'html' => $html ));
+		wp_send_json_success(array('html' => $html));
 	}
 }

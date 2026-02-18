@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * ✅ CODE QUALITY IMPROVEMENT - Meta Query Helper
+ * Meta Query Helper
  *
  * Manages repeated meta query patterns centrally
  */
