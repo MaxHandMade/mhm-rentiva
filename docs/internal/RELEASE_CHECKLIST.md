@@ -19,13 +19,13 @@
 | Working tree clean | ✅ |
 | No open regression issues | ✅ |
 
-## M4 Hard Gates (Final Run)
+## M4 Hard Gates (Post-Bump Final Run)
 
-| Gate | Result |
-| :--- | :--- |
-| PHPCS | ✅ 0 errors |
-| Plugin Check | ✅ PASS (last verified pre-bump) |
-| PHPUnit | ✅ 216 tests, 0 failures |
+| Gate | Result | Timestamp |
+| :--- | :--- | :--- |
+| PHPCS | ✅ 0 errors | post-bump |
+| Plugin Check | ✅ PASS (WP-CLI required, pre-bump verified) | pre-bump |
+| PHPUnit | ✅ 216 tests, 0 failures | post-bump |
 
 ## Version Bump
 
