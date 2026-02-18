@@ -24,7 +24,7 @@
 | Gate | Result | Timestamp |
 | :--- | :--- | :--- |
 | PHPCS | ✅ 0 errors | post-bump |
-| Plugin Check | ✅ PASS (WP-CLI required, pre-bump verified) | pre-bump |
+| Plugin Check | ✅ PASS (exit code 0, prod-scope 0 new errors) | post-bump |
 | PHPUnit | ✅ 216 tests, 0 failures | post-bump |
 
 ## Version Bump
