@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * ✅ INTERNATIONALIZATION IMPROVEMENT - I18n Helper
+ * I18n Helper
  *
  * Central class for internationalization and translation
  */

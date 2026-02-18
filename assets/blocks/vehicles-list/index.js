@@ -134,6 +134,11 @@
                             onChange: function (val) { setAttributes({ showFavoriteButton: val }); }
                         }),
                         el(ToggleControl, {
+                            label: __('Show Filters', 'mhm-rentiva'),
+                            checked: attributes.enableAjaxFiltering,
+                            onChange: function (val) { setAttributes({ enableAjaxFiltering: val }); }
+                        }),
+                        el(ToggleControl, {
                             label: __('Show Compare Button', 'mhm-rentiva'),
                             checked: attributes.showCompareButton,
                             onChange: function (val) { setAttributes({ showCompareButton: val }); }

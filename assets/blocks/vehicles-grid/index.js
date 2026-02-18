@@ -152,6 +152,11 @@
                             onChange: function (val) { setAttributes({ showRating: val }); }
                         }),
                         el(ToggleControl, {
+                            label: __('Show Filters', 'mhm-rentiva'),
+                            checked: attributes.enableAjaxFiltering,
+                            onChange: function (val) { setAttributes({ enableAjaxFiltering: val }); }
+                        }),
+                        el(ToggleControl, {
                             label: __('Show Price', 'mhm-rentiva'),
                             checked: showPrice,
                             onChange: function (val) { setAttributes({ showPrice: val }); }

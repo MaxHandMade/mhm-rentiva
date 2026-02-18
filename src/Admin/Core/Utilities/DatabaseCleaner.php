@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 /**
- * âœ… STAGE 3 - DATABASE CLEANUP AND OPTIMIZATION
+ * Database Cleaner
  *
  * Cleans orphaned data, expired transients and unused meta keys
  */

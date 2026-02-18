@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * ✅ DEBUG HELPER - Manages WordPress Debug Mode
+ * Debug Helper - Manages WordPress Debug Mode
  *
  * Enables debug mode in development environment and catches errors
  */
@@ -94,27 +94,14 @@ final class DebugHelper {
 	 * Log REST API errors
 	 */
 	public static function log_rest_api_errors(): void {
-		// PERFORMANCE OPTIMIZATION: Debug logs disabled
-		// if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
-		// error_log('MHM Rentiva: REST API Debug - wp_loaded action fired');
-		// }
+		// Debug logging disabled for performance optimization
 	}
 
 	/**
 	 * Log REST API init
 	 */
 	public static function log_rest_api_init(): void {
-		// PERFORMANCE OPTIMIZATION: Debug logs disabled
-		// if (defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
-		// error_log('MHM Rentiva: REST API Debug - rest_api_init action fired');
-		//
-		// Vehicle post type check
-		// if (post_type_exists('vehicle')) {
-		// error_log('MHM Rentiva: Vehicle post type is registered');
-		// } else {
-		// error_log('MHM Rentiva: ERROR - Vehicle post type is NOT registered');
-		// }
-		// }
+		// Debug logging disabled for performance optimization
 	}
 
 	/**

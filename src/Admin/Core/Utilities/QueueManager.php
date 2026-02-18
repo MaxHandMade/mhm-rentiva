@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * ✅ BULK OPERATIONS QUEUE SYSTEM - Background Job Management
+ * Queue Manager
  *
  * Queue-based job management for large datasets
  */

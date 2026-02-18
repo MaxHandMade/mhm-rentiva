@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * ✅ CODE QUALITY IMPROVEMENT - Error Handling Helper
+ * Error Handling Helper
  *
  * Centralizes inconsistent error-handling patterns.
  */
@@ -46,7 +46,6 @@ final class ErrorHandler {
 	 * Security error – terminate with wp_die.
 	 */
 	public static function security_error( string $message, string $title = '' ): void {
-		// ✅ UX IMPROVEMENT - User-friendly security error
 		$user_message = UXHelper::get_user_friendly_error(
 			UXHelper::ERROR_TYPE_PERMISSION,
 			'access_denied',
@@ -62,7 +61,6 @@ final class ErrorHandler {
 	 * Permission error – terminate with wp_die.
 	 */
 	public static function permission_error( string $message = '' ): void {
-		// ✅ UX IMPROVEMENT - User-friendly permission error
 		$user_message = $message ?: UXHelper::get_user_friendly_error(
 			UXHelper::ERROR_TYPE_PERMISSION,
 			'access_denied'

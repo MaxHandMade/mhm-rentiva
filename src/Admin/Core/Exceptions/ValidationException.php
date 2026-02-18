@@ -7,7 +7,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * ✅ VALIDATION EXCEPTION - Special exception for validation operations
+ * Validation Exception
+ *
+ * Special exception for validation operations
  */
 final class ValidationException extends MHMException {
 

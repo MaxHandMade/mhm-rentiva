@@ -238,7 +238,7 @@ final class AddonSettings {
 			echo '</div>';
 		}
 
-		// ⭐ Inline JavaScript removed - AJAX script is now in assets/js/admin/addon-settings.js
+		// Inline JavaScript removed - AJAX script is now in assets/js/admin/addon-settings.js
 		// Data is passed via wp_localize_script in enqueue_scripts method
 	}
 

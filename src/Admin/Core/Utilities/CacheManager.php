@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * âœ… CACHE OPTIMIZATION - Central Cache Management
+ * Cache Manager
  *
  * Prevents unnecessary cache clearing operations and improves performance
  */

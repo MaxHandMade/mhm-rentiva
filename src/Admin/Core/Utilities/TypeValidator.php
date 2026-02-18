@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * ✅ TYPE SAFETY IMPROVEMENT - Type Validator
+ * Type Validator
  *
  * Central class for type safety and validation
  */

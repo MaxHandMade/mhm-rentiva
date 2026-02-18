@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * UX HELPER - User Experience Improvement
+ * UX Helper
  *
  * Central class for user experience and error handling
  */

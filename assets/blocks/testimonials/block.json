@@ -44,7 +44,7 @@
     "attributes": {
         "layout": {
             "type": "string",
-            "default": "carousel",
+            "default": "grid",
             "enum": [
                 "carousel",
                 "grid",
@@ -103,7 +103,7 @@
         },
         "limitItems": {
             "type": "string",
-            "default": "6"
+            "default": "5"
         },
         "columns": {
             "type": "string",
@@ -111,7 +111,7 @@
         },
         "autoplay": {
             "type": "boolean",
-            "default": true
+            "default": false
         },
         "className": {
             "type": "string",

@@ -12,7 +12,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * ✅ 4. STAGE - Taxonomy Migration (vehicle_cat → vehicle_category)
+ * Taxonomy Migrator
+ *
+ * Handles migration from vehicle_cat to vehicle_category
  */
 final class TaxonomyMigrator {
 

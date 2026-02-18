@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * ✅ BASE EXCEPTION - MHM Rentiva Exception Hierarchy
+ * Base Exception for MHM Rentiva Exception Hierarchy
  *
  * Base class for all MHM Rentiva exceptions
  */

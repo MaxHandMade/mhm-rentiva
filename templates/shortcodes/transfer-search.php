@@ -4,11 +4,6 @@
 /**
  * Template: Transfer Search Form
  * 
-<?php
-
-/**
- * Template: Transfer Search Form
- * 
  * Used by [rentiva_transfer_search] shortcode.
  * 
  * @var array $locations available locations
@@ -21,42 +16,56 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Helpers\Icons;
 
-$locations = $locations ?? array();
-$uid = uniqid('rv_transfer_search_');
+$locations    = $locations ?? array();
+$atts         = $atts ?? array();
+$layout       = $atts['layout'] ?? 'horizontal';
+$button_text  = $atts['button_text'] ?? '';
+$show_pickup  = (bool) ($atts['show_pickup'] ?? true);
+$show_dropoff = (bool) ($atts['show_dropoff'] ?? true);
+$uid          = uniqid('rv_transfer_search_');
+
+$container_class = 'rv-transfer-search-container rv-layout-' . esc_attr($layout);
+if (! empty($atts['class'])) {
+    $container_class .= ' ' . esc_attr($atts['class']);
+}
 ?>
 
-<div id="<?php echo esc_attr($uid); ?>" class="rv-transfer-search-container">
+<div id="<?php echo esc_attr($uid); ?>" class="<?php echo esc_attr($container_class); ?>">
     <form class="rv-unified-search__form js-unified-transfer-form"
         action="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_transfer_results')); ?>"
         method="GET"
         id="mhm-transfer-search-form-<?php echo esc_attr($uid); ?>">
 
         <div class="rv-unified-search__group">
-            <div class="rv-unified-search__field">
-                <label class="rv-label"><?php esc_html_e('Pickup Location', 'mhm-rentiva'); ?></label>
-                <div class="rv-input-wrapper">
-                    <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
-                    <select name="origin_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
-                        <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
-                        <?php foreach ($locations as $loc): ?>
-                            <option value="<?php echo esc_attr((string)$loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
-                        <?php endforeach; ?>
-                    </select>
+            <?php if ($show_pickup) : ?>
+                <div class="rv-unified-search__field">
+                    <label class="rv-label"><?php esc_html_e('Pickup Location', 'mhm-rentiva'); ?></label>
+                    <div class="rv-input-wrapper">
+                        <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
+                        <select name="origin_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
+                            <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
+                            <?php foreach ($locations as $loc): ?>
+                                <option value="<?php echo esc_attr((string)$loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
 
-            <div class="rv-unified-search__field">
-                <label class="rv-label"><?php esc_html_e('Dropoff Location', 'mhm-rentiva'); ?></label>
-                <div class="rv-input-wrapper">
-                    <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
-                    <select name="destination_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
-                        <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
-                        <?php foreach ($locations as $loc): ?>
-                            <option value="<?php echo esc_attr((string)$loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
-                        <?php endforeach; ?>
-                    </select>
+            <?php if ($show_dropoff) : ?>
+                <div class="rv-unified-search__field">
+                    <label class="rv-label"><?php esc_html_e('Dropoff Location', 'mhm-rentiva'); ?></label>
+                    <div class="rv-input-wrapper">
+                        <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
+                        <select name="destination_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
+                            <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
+                            <?php foreach ($locations as $loc): ?>
+                                <option value="<?php echo esc_attr((string)$loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
         </div>
 
         <div class="rv-unified-search__group rv-unified-search__group--mobile-grid">
@@ -124,7 +133,7 @@ $uid = uniqid('rv_transfer_search_');
         <div class="rv-unified-search__action">
             <button type="submit" class="rv-btn rv-btn--primary">
                 <?php Icons::render('search', ['class' => 'rv-icon-search']); ?>
-                <?php esc_html_e('Search Transfer', 'mhm-rentiva'); ?>
+                <?php echo ! empty($button_text) ? esc_html($button_text) : esc_html__('Search Transfer', 'mhm-rentiva'); ?>
             </button>
         </div>
     </form>

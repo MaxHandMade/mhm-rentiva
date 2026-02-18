@@ -138,6 +138,10 @@
         "minReviews": {
             "type": "string",
             "default": ""
+        },
+        "enableAjaxFiltering": {
+            "type": "boolean",
+            "default": false
         }
     },
     "editorStyle": [

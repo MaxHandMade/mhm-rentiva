@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * ✅ DATABASE MIGRATION MANAGER - Automatic Index and Schema Updates
+ * Database Migration Manager
  *
  * Automatically creates critical indexes for performance optimization
  */
@@ -411,7 +411,7 @@ final class DatabaseMigrator {
 	}
 
 	/**
-	 * Index hata logla
+	 * Log database index creation error
 	 */
 	private static function log_index_error( string $sql, string $error ): void {
 		if ( class_exists( \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class ) ) {

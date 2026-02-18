@@ -23,8 +23,8 @@ if (! defined('ABSPATH')) {
  *
  * Special shortcode for grid layout - only supports grid layout
  */
-class VehiclesGrid extends AbstractShortcode
-{
+class VehiclesGrid extends AbstractShortcode {
+
 
 
 	/**
@@ -110,12 +110,12 @@ class VehiclesGrid extends AbstractShortcode
 		//$atts['show_title'] = false;
 
 		foreach ($map as $camel => $snake) {
-			if (isset($atts[$camel])) {
-				$atts[$snake] = $atts[$camel];
+			if (isset($atts[ $camel ])) {
+				$atts[ $snake ] = $atts[ $camel ];
 			}
 		}
 
-		$layout_class = ($atts['layout'] === 'masonry') ? 'rv-vehicles-masonry' : 'rv-vehicles-grid';
+		$layout_class = ( $atts['layout'] === 'masonry' ) ? 'rv-vehicles-masonry' : 'rv-vehicles-grid';
 
 		return array(
 			'atts'           => $atts,
@@ -237,7 +237,7 @@ class VehiclesGrid extends AbstractShortcode
 		wp_enqueue_style(
 			'mhm-rentiva-vehicles-grid',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicles-grid.css',
-			array('mhm-vehicle-card-css'), // Depend on core card logic
+			array( 'mhm-vehicle-card-css' ), // Depend on core card logic
 			MHM_RENTIVA_VERSION
 		);
 
@@ -245,7 +245,7 @@ class VehiclesGrid extends AbstractShortcode
 		wp_enqueue_script(
 			'mhm-rentiva-vehicles-grid',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicles-grid.js',
-			array('jquery'),
+			array( 'jquery' ),
 			MHM_RENTIVA_VERSION . '-' . filemtime(MHM_RENTIVA_PLUGIN_PATH . 'assets/js/frontend/vehicles-grid.js'),
 			true
 		);
@@ -279,8 +279,8 @@ class VehiclesGrid extends AbstractShortcode
 	 */
 	private static function check_vehicle_availability(int $vehicle_id): array
 	{
-		$status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
-		$is_available = ($status === 'active');
+		$status       = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
+		$is_available = ( $status === 'active' );
 
 		return array(
 			'is_available' => $is_available,
@@ -424,7 +424,7 @@ class VehiclesGrid extends AbstractShortcode
 	{
 		$stars = '';
 		for ($i = 1; $i <= 5; $i++) {
-			$stars .= ($i <= round($rating)) ? '★' : '☆';
+			$stars .= ( $i <= round($rating) ) ? '★' : '☆';
 		}
 		return $stars;
 	}
@@ -445,7 +445,7 @@ class VehiclesGrid extends AbstractShortcode
 	 */
 	private static function get_wrapper_class(array $atts): string
 	{
-		$classes = array('rv-vehicles-grid-wrapper');
+		$classes = array( 'rv-vehicles-grid-wrapper' );
 
 		if (! empty($atts['class'])) {
 			$classes[] = $atts['class'];
@@ -463,7 +463,7 @@ class VehiclesGrid extends AbstractShortcode
 	 */
 	protected static function get_js_dependencies(): array
 	{
-		return array('jquery', 'mhm-vehicle-interactions');
+		return array( 'jquery', 'mhm-vehicle-interactions' );
 	}
 
 	/**
@@ -552,8 +552,8 @@ class VehiclesGrid extends AbstractShortcode
 		parent::register_hooks();
 
 		// Clear cache on page changes
-		add_action('wp_head', array(self::class, 'clear_page_cache'), 1);
-		add_action('template_redirect', array(self::class, 'clear_page_cache'), 1);
+		add_action('wp_head', array( self::class, 'clear_page_cache' ), 1);
+		add_action('template_redirect', array( self::class, 'clear_page_cache' ), 1);
 	}
 
 	/**
