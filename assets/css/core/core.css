@@ -13,6 +13,10 @@
 
 /* Import CSS Variables */
 
+/* Keep SVG strokes from being visually clipped in small icon containers. */
+svg.rv-icon {
+	overflow: visible;
+}
 
 /* =================================================================
 	1. Base Styles and Grid System

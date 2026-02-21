@@ -293,6 +293,8 @@
 	align-items: center;
 	justify-content: center;
 	gap: 12px;
+	box-sizing: border-box;
+	max-width: 100%;
 	width: fit-content;
 	min-width: 220px;
 	padding: 0 35px;
@@ -510,5 +512,6 @@
 	.rv-btn-primary {
 		width: 100%;
 		justify-content: center;
+		max-width: 100%;
 	}
 }

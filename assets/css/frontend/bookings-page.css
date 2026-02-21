@@ -5,6 +5,8 @@
 	margin: 0 auto;
 	padding: 20px;
 	font-family: "Work Sans", "Noto Sans", sans-serif;
+	box-sizing: border-box;
+	width: 100%;
 }
 
 /* Ana sayfa container'ını kaldır - mhm-account-content zaten var */
@@ -118,6 +120,9 @@
 .rv-table-wrapper {
 	padding: 0 16px 12px;
 	overflow-x: auto;
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
 }
 
 .rv-bookings-table {
@@ -127,6 +132,7 @@
 	border-radius: 8px;
 	overflow: hidden;
 	border-collapse: collapse;
+	box-sizing: border-box;
 }
 
 .rv-bookings-table thead {
@@ -340,6 +346,7 @@
 @media (max-width: 782px) {
 	.rv-bookings-page {
 		padding: 12px;
+		max-width: 100%;
 	}
 
 	.rv-bookings-header {

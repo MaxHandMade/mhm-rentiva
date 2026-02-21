@@ -71,7 +71,7 @@
 	margin-top: 30px;
 }
 
-.mhm-transfer-card {
+.mhm-transfer-results-grid .mhm-transfer-card {
 	background: #fff;
 	border: 1px solid #eee;
 	border-radius: 8px;
@@ -79,27 +79,27 @@
 	transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.mhm-transfer-card:hover {
+.mhm-transfer-results-grid .mhm-transfer-card:hover {
 	transform: translateY(-5px);
 	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.mhm-transfer-card-image img {
+.mhm-transfer-results-grid .mhm-transfer-card-image img {
 	width: 100%;
 	height: 180px;
 	object-fit: cover;
 }
 
-.mhm-transfer-card-content {
+.mhm-transfer-results-grid .mhm-transfer-card-content {
 	padding: 15px;
 }
 
-.mhm-transfer-card-content h3 {
+.mhm-transfer-results-grid .mhm-transfer-card-content h3 {
 	margin: 0 0 10px 0;
 	font-size: 1.1em;
 }
 
-.mhm-transfer-features {
+.mhm-transfer-results-grid .mhm-transfer-features {
 	display: flex;
 	gap: 10px;
 	margin-bottom: 15px;
@@ -107,19 +107,19 @@
 	font-size: 0.9em;
 }
 
-.mhm-transfer-features span {
+.mhm-transfer-results-grid .mhm-transfer-features span {
 	display: flex;
 	align-items: center;
 	gap: 4px;
 }
 
-.mhm-transfer-price {
+.mhm-transfer-results-grid .mhm-transfer-price {
 	font-size: 1.25em;
 	color: #2c3e50;
 	margin-bottom: 15px;
 }
 
-.mhm-transfer-book-btn {
+.mhm-transfer-results-grid .mhm-transfer-book-btn {
 	width: 100%;
 	background: #27ae60;
 	color: white;
@@ -129,7 +129,7 @@
 	cursor: pointer;
 }
 
-.mhm-transfer-book-btn:hover {
+.mhm-transfer-results-grid .mhm-transfer-book-btn:hover {
 	background: #219150;
 }
 
@@ -146,20 +146,20 @@
 		gap: 15px;
 	}
 
-	.mhm-transfer-card {
+	.mhm-transfer-results-grid .mhm-transfer-card {
 		display: flex;
 		flex-direction: column;
 	}
 
-	.mhm-transfer-card-image img {
+	.mhm-transfer-results-grid .mhm-transfer-card-image img {
 		height: 200px;
 	}
 
-	.mhm-transfer-card-content h3 {
+	.mhm-transfer-results-grid .mhm-transfer-card-content h3 {
 		font-size: 1.2rem;
 	}
 
-	.mhm-transfer-features {
+	.mhm-transfer-results-grid .mhm-transfer-features {
 		font-size: 0.95rem;
 	}
 }

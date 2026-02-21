@@ -434,6 +434,7 @@
 
     width: 14px !important;
     height: 14px !important;
+    overflow: visible !important;
     color: var(--mhm-text-secondary, #9ca3af);
     flex-shrink: 0;
 }

@@ -1,7 +1,20 @@
 [
     {
+        "version": "4.11.0",
+        "date": "2026-02-18",
+        "changes": [
+            "💎 SSOT: CanonicalAttributeMapper (CAM) officially recognized as the Single Source of Truth for all shortcodes.",
+            "────────────────────────────────────────",
+            "🛡️ HARDENED GATE: v4.11.0 release verified via deterministic smoke matrix (19 shortcodes) and controlled log audit.",
+            "🔗 ARCHITECTURE: Refactored BlockRegistry to utilize CAM isolation with legacy mapping successfully retired.",
+            "✅ QUALITY GATES: 100% Pass — PHPCS (0 Errors), Plugin Check (Release Mode), PHPUnit (218 tests).",
+            "🔒 STABILIZATION: Phase 2 finalized and LOCKED."
+        ]
+    },
+    {
         "version": "4.10.0",
         "date": "2026-02-18",
+        "type": "previous",
         "changes": [
             "🎯 PARITY: Block ↔ Shortcode parity stabilization (19/19 deterministic surface).",
             "────────────────────────────────────────",

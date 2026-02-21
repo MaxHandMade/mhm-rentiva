@@ -1,5 +1,9 @@
 /**
  * Unified Search Widget JS
+ * 
+ * Refactored for v4.20.x Hotfix:
+ * - Removed local datepicker init (delegated to datepicker-init.js)
+ * - Fixed syntax errors and bracket nesting.
  */
 (function ($) {
     'use strict';
@@ -8,12 +12,12 @@
         constructor() {
             this.initOnLoadAudit();
             this.initTabs();
-            this.initDatepickers();
             this.initRentalConstraints();
-            this.initTransferSearch();
+            // initTransferSearch removed (delegated to rentiva-transfer.js for parity)
         }
 
         initOnLoadAudit() {
+            if (typeof mhmUnifiedSearch === 'undefined') return;
             console.group('[MHM Rentiva] Initial State Audit');
             console.log('Initial Service Type:', mhmUnifiedSearch.initial_service);
             console.log('REST URL:', mhmUnifiedSearch.restUrl);
@@ -23,13 +27,15 @@
 
         initRentalConstraints() {
             const self = this;
-            const minDays = mhmUnifiedSearch.settings.minRentalDays || 1;
+            const minDays = (typeof mhmUnifiedSearch !== 'undefined' && mhmUnifiedSearch.settings) ? mhmUnifiedSearch.settings.minRentalDays || 1 : 1;
 
             // 1. Pickup Date -> Return Date minDate constraint
             $(document).on('change', '.rv-unified-search [name="pickup_date"]', function () {
                 const $picker = $(this);
                 const $form = $picker.closest('form');
                 const $returnPicker = $form.find('[name="return_date"]');
+
+                if (typeof $.fn.datepicker === 'undefined') return;
 
                 const selectedDate = $picker.datepicker('getDate');
                 if (selectedDate) {
@@ -89,9 +95,10 @@
         }
 
         syncLocations($wrapper, serviceType) {
+            if (typeof mhmUnifiedSearch === 'undefined' || !mhmUnifiedSearch.restUrl) return;
             const $dropdowns = $wrapper.find('select[name="pickup_location"], select[name="dropoff_location"], select[name="origin_id"], select[name="destination_id"]');
 
-            if (!$dropdowns.length || !mhmUnifiedSearch.restUrl) return;
+            if (!$dropdowns.length) return;
 
             // Show loading state
             $dropdowns.prop('disabled', true);
@@ -133,55 +140,6 @@
             });
         }
 
-        initDatepickers() {
-            const config = {
-                dateFormat: 'yy-mm-dd',
-                minDate: 0,
-                showButtonPanel: true,
-                closeText: 'Close',
-                currentText: 'Today',
-                beforeShow: function (input, inst) {
-                    $('#ui-datepicker-div').addClass('rv-datepicker-skin');
-                }
-            };
-
-            // Initialize on static elements
-            $('.rv-unified-search .js-datepicker').datepicker(config);
-
-            // Re-init for dynamic elements if necessary
-            $(document).on('focus', '.js-datepicker:not(.hasDatepicker)', function () {
-                $(this).datepicker(config);
-            });
-        }
-
-        initTransferSearch() {
-            const self = this;
-
-            // Simple validation before submission
-            $(document).on('submit', '.js-unified-transfer-form', function (e) {
-                const $form = $(this);
-                const originId = $form.find('[name="origin_id"]').val();
-                const destId = $form.find('[name="destination_id"]').val();
-
-                if (!originId || !destId) {
-                    e.preventDefault();
-                    MHMRentivaToast.show(mhmUnifiedSearch.i18n.error_text, { type: 'error' });
-                }
-            });
-
-            // Route Validation Delegation
-            $(document).on('change', '.js-unified-transfer-form [name="origin_id"], .js-unified-transfer-form [name="destination_id"]', function () {
-                const $form = $(this).closest('form');
-                const originId = $form.find('[name="origin_id"]').val();
-                const destId = $form.find('[name="destination_id"]').val();
-
-                if (originId && destId && originId === destId) {
-                    MHMRentivaToast.show(mhmUnifiedSearch.i18n.same_location_error, { type: 'error' });
-                    $form.find('[name="destination_id"]').val('');
-                    return;
-                }
-            });
-        }
     }
 
     $(document).ready(function () {

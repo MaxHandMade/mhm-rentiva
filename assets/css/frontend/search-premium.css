@@ -1,0 +1,160 @@
+/**
+ * MHM Rentiva - Shared Premium Search UI
+ * 
+ * Scoped premium styles shared between Unified Search and Transfer Search.
+ * Adheres to Zero-Tailwind policy and ΔQ ≤ 0 governance.
+ */
+
+/* 1. Root Premium Container (The White Card) */
+.mhm-premium-search {
+    background: #fff !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06) !important;
+    padding: 24px !important;
+    margin: 20px 0 !important;
+    font-family: var(--mhm-font-display, "Plus Jakarta Sans", sans-serif) !important;
+    overflow: visible !important;
+    /* Prevents datepicker clipping */
+    border: none !important;
+}
+
+/* 2. Premium Input Wrappers & Control Parity */
+.mhm-premium-search .rv-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--mhm-bg-soft, #f8fafc) !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    height: 48px !important;
+    padding: 0 !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+.mhm-premium-search .rv-input-wrapper:focus-within {
+    border-color: var(--mhm-primary, #137fec) !important;
+    background: #fff !important;
+    box-shadow: 0 0 0 3px rgba(19, 127, 236, 0.1) !important;
+}
+
+/* 3. Inputs & Selects Reset (Scoped) */
+.mhm-premium-search .rv-input,
+.mhm-premium-search .rv-select {
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 16px 0 40px !important;
+    /* Space for icon */
+    font-size: 14px !important;
+    color: #1e293b !important;
+    outline: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+}
+
+/* 4. Desktop Form Grid */
+.mhm-premium-search .rv-unified-search__group,
+.mhm-premium-search .mhm-form-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+    margin-bottom: 16px !important;
+}
+
+/* 5. Icon Positioning (Premium Standard) */
+.mhm-premium-search .rv-input-wrapper .rv-icon,
+.mhm-premium-search .rv-input-wrapper svg,
+.mhm-premium-search .rv-input-wrapper .rv-icon-marker,
+.mhm-premium-search .rv-input-wrapper .rv-icon-calendar,
+.mhm-premium-search .rv-input-wrapper .rv-icon-clock,
+.mhm-premium-search .rv-input-wrapper .rv-icon-luggage,
+.mhm-premium-search .rv-input-wrapper .rv-icon-lock {
+    position: absolute !important;
+    left: 14px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 18px !important;
+    height: 18px !important;
+    color: #64748b !important;
+    pointer-events: none !important;
+    z-index: 5 !important;
+    margin: 0 !important;
+}
+
+/* 6. Premium Button Reset */
+.mhm-premium-search .rv-btn--primary {
+    width: 100% !important;
+    background: var(--mhm-primary, #137fec) !important;
+    color: #fff !important;
+    padding: 16px 24px !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    box-shadow: 0 4px 14px rgba(19, 127, 236, 0.25) !important;
+    height: auto !important;
+}
+
+.mhm-premium-search .rv-btn--primary:hover {
+    background: #106fce !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(19, 127, 236, 0.3) !important;
+}
+
+/* 7. Mobile Optimization */
+@media (max-width: 782px) {
+
+    .mhm-premium-search .rv-unified-search__group,
+    .mhm-premium-search .mhm-form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .mhm-premium-search .mhm-row-date-time,
+    .mhm-premium-search .mhm-row-passengers,
+    .mhm-premium-search .mhm-row-bags {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+    }
+}
+
+/* 8. Tab Styling (Unified Search Specific) */
+.mhm-premium-search .rv-unified-search__header {
+    border-bottom: 1px solid #f1f5f9 !important;
+    margin-bottom: 24px !important;
+}
+
+.mhm-premium-search .rv-unified-search__tab {
+    position: relative !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    color: #64748b !important;
+    border-bottom: 2px solid transparent !important;
+    transition: all 0.3s ease !important;
+    background: transparent !important;
+    cursor: pointer !important;
+}
+
+.mhm-premium-search .rv-unified-search__tab.is-active {
+    color: var(--mhm-primary, #137fec) !important;
+    font-weight: 600 !important;
+    border-bottom-color: var(--mhm-primary, #137fec) !important;
+}
+
+/* 9. Tab Panel Visibility Control */
+.mhm-premium-search .rv-unified-search__panel {
+    display: none !important;
+}
+
+.mhm-premium-search .rv-unified-search__panel.is-active {
+    display: block !important;
+}

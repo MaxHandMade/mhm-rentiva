@@ -5,12 +5,13 @@
 }
 
 :root {
-	--rv-grid-gap: 2rem;
+	--rv-grid-gap: var(--mhm-space-phi-3, 1.3125rem);
 }
 
 .rv-vehicles-grid-container {
 	width: 100%;
-	padding: 1.5rem;
+	padding-block: var(--mhm-space-phi-3, 1.3125rem);
+	padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
 	box-sizing: border-box;
 	font-family: var(--mhm-font-primary);
 }
@@ -45,13 +46,17 @@
 	}
 }
 
-@media (max-width: 640px) {
+@media (max-width: 782px) {
 
 	.rv-vehicles-grid,
 	.rv-vehicles-grid--columns-2,
 	.rv-vehicles-grid--columns-3,
 	.rv-vehicles-grid--columns-4 {
 		grid-template-columns: 1fr !important;
+	}
+
+	.rv-vehicles-grid-container {
+		padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem));
 	}
 }
 

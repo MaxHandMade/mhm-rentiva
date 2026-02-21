@@ -1,22 +1,126 @@
-# PROJECT MEMORIES
+﻿# PROJECT MEMORIES
 
-## ACTIVE TASKS
-
-### [ACTIVE] Next Phase Planning
-- **Status:** 🔍 PENDING
-- **Focus:** TBD (Ready for v4.11.0 or next major milestone).
-
-### [LOCKED] Block & Shortcode Parity Stabilization — ✅ MISSION COMPLETE (v4.10.0) (2026-02-18)
-- **Status:** 🔒 LOCKED / STABLE
-- **Core Outcome:** Achieved 19/19 deterministic parity between Gutenberg Blocks and Shortcodes.
+### [COMPLETED] Observability & Control Layer (v4.19.x) (2026-02-20)
+- **Status:** [COMPLETED] / VERIFIED
+- **Scope:** Implementation of Layout History, Manifest Diff, and Append-only Audit Trail.
 - **Key Achievements:**
-    - **Mapping Layer:** Established alias mapping and transform layers in `BlockRegistry` (specifically for `booking-form`, `vehicle-comparison`, and `testimonials`).
-    - **Safety Hardening:** Stabilized dynamic defaults and attribute protection for the booking form (ensuring Y-m-d format safety).
-    - **Quality Gates:** Verified PHPCS (0 errors), Plugin Check (0 prod-scope errors), and PHPUnit (216 tests) as post-bump gates.
-- **Reference Evidence:** `QA_V410_PARITY_LIGHT_AUDIT_19OF19.md`, `QA_V410_BLOCK_GATES.md`.
+    1. **LayoutAuditService:** Append-only logging with a hard 200-event retention cap per post.
+    2. **LayoutDiffService:** Deterministic manifest-level diffing (Tokens/Components).
+    3. **CLI Integration:** Unified `history` and `diff` commands for operational transparency.
+    4. **Governance:** Maintained deterministic normalization and hashing invariants.
+
+### [COMPLETED] Safe Rollback Engine (v4.18.x) (2026-02-19)
+- **Status:** [COMPLETED] / VERIFIED
+- **Scope:** Implementation of a deterministic 6-state rollback machine (A-F) for layout versioning.
+- **Key Achievements:**
+    1. **Shift vs. Flip Separation:** Resolved a critical design conflict by decoupling "Current-to-Previous Shift" (standard import) from "Current-Previous Flip" (rollback). `AtomicImporter` now accepts an `is_rollback` flag.
+    2. **6-State Atomic Machine:** Implemented `LayoutRollbackService` with Snapshot (A), Load (B), Validate (C), Apply/Flip (D), Recovery (E), and Success (F) states.
+    3. **Governance Binding:** Rollback process strictly enforces `BlueprintValidator` gates; snapshots are only restored if the entire multi-step process succeeds.
+    4. **WP-CLI Integration:** Added `wp mhm-rentiva layout rollback <post_id>` command with strict dry-run support and performance feedback.
+- **Core Outcome:** Integration Test Suite achieves **OK (4 tests, 21 assertions)**. Verified zero side-effect dry-runs and successful meta swap post-apply.
+- **Reference Evidence:** [walkthrough.md](file:///C:\Users\manag\.gemini\antigravity\brain\ca40c671-98f0-4f16-9bf7-8ca4ec92f803\walkthrough.md)
+
+
+### [COMPLETED] Multi-Page Ingestion & Atomic Rollback (v4.16.x) (2026-02-19)
+- **Status:** [COMPLETED] / VERIFIED
+- **Scope:** Orchestration of multi-page layout imports with atomic rollback and deterministic resolution.
+- **Key Achievements:**
+    1. **AtomicImporter Engine:** Implemented a robust snapshot/restore mechanism. Every import is transactional; if one page fails composition, all changes (new pages, updated content/meta) are automatically rolled back.
+    2. **Deterministic Resolution:** Established `post_id > slug` priority for page matching. Added support for `--create` flag to dynamically generate missing pages.
+    3. **CLI Table Summary:** Upgraded `LayoutImportCommand` with a visual summary table and test-safe execution guards (handling non-CLI environments).
+    4. **Composition Hardening:** Made `CompositionBuilder` strict; it now returns `WP_Error` for unknown components or missing adapters, triggering immediate rollback.
+- **Core Outcome:** Integration Test Suite achieves **OK (29 tests, 72 assertions)**. All major failure modes (invalid components, database errors, cache stale) verified.
+- **Reference Evidence:** [walkthrough.md](file:///C:\Users\manag\.gemini\antigravity\brain\ca40c671-98f0-4f16-9bf7-8ca4ec92f803\walkthrough.md)
+
+### [COMPLETED] DOCS Sprint: Template Pack (v4.17.0-docs) (2026-02-19)
+- **Status:** [COMPLETED]
+- **Scope:** A reusable template pack for rapidly bootstrapping the Layout Engine into new projects.
+- **Key Achievements:**
+    1. **Framework Extraction:** The Layout engine was split into "Core" and "Preset" layers.
+    2. **Core vs Preset Matrix:** Project-specific change boundaries were formally defined.
+    3. **Governance Guidelines:** Zero-Tailwind and ΔQ ≤ 0 policies were documented.
+    4. **Operational Runbooks:** Full operational guidance was created from bootstrap to CI acceptance gates.
+- **Outcome:** The project evolved from a single plugin into a "Layout Platform" with mature engineering standards.
+- **Location:** `docs/template/`
+
+### [COMPLETED] Token Mapping Engine (v4.15.0) (2026-02-19)
+- **Status:** [COMPLETED] / VERIFIED
+- **Scope:** Deterministic design token translation (Figma -> MHM CSS Variables).
+- **Key Achievements:**
+    1. **TokenMapper Integration:** Implemented bounded mapping logic that scopes design tokens to the `.mhm-layout-root` container.
+    2. **Governance Enforcement:** Enforced "No Global Explosion" rule; tokens are applied as inline styles on the root container, preventing global CSS pollution.
+    3. **Strict Sanitization:** Validated color, spacing, and radius values against a strict regex allowlist to block runtime framework leakage.
+- **Core Outcome:** Integration Test Suite achieves **OK (21 tests, 53 assertions)**. ΔQ remains <= 0.
+- **Reference Evidence:** [walkthrough.md](file:///C:\Users\manag\.gemini\antigravity\brain\ca40c671-98f0-4f16-9bf7-8ca4ec92f803\walkthrough.md)
+
+### [COMPLETED] Layout Import Pipeline (Implementation Phase 1) (v4.14.x) (2026-02-19)
+- **Status:** [COMPLETED] / VERIFIED
+- **Scope:** Execution of the vendor-agnostic import pipeline.
+- **Key Refinements:**
+    1. **Static Contract Config:** Authority moved from markdown to `ContractRules.php`.
+    2. **Governance Gate:** Strict prohibited pattern detection (Tailwind/Utility) enforced in `BlueprintValidator`.
+    3. **CLI Stability:** WP-CLI `import` command stabilized with end-to-end persistence verification.
+- **Core Outcome:** All integration tests for Layout Engine passed.
+- **Reference Plan:** [implementation_plan.md](file:///C:\Users\manag\.gemini\antigravity\brain\ca40c671-98f0-4f16-9bf7-8ca4ec92f803\implementation_plan.md)
+
+### [COMPLETED] Layout Import Pipeline (Design Phase) (v4.13.x) (2026-02-19)
+- **Status:** DESIGN COMPLETED
+- **Scope:** Architecture & specification of the vendor-agnostic import pipeline.
+- **Key Design Decisions:**
+    1. **Blueprint Manifest Schema (D1):** Implemented a JSON schema with strict governance metadata. Invariants: must track version, tokens, and component source-of-truth.
+    2. **Bounded Token Mapping (D2):** No global palette explosion allowed. Mapping strictly limited to existing CSS variable layers.
+    3. **Renderer Adapter Contract (D3):** All blueprint components must pass through `CanonicalAttributeMapper` (CAM) for normalization.
+    4. **Hybrid Composition Strategy (D4):** Manifest stored in meta; Rendered block markup stored in `post_content`. Ensures portability and SSOT.
+    5. **Contract Safety Matrix (D5):** Strictly enforces `UI_CONTRACTS.md` stable selectors and required slots. No new DOM contracts permitted.
+    6. **MCP-Gated CI Strategy (D6):** Defined static scanners for Tailwind prohibition and runtime probes for ΔQ=0 and asset isolation.
+- **Governance Invariants:** 
+    - No Tailwind Runtime.
+    - No UI Contract Drift.
+    - Performance Guarantee (ΔQ = 0).
+- **Reference Specs:** [D1-D6 Artifacts](file:///C:\Users\manag\.gemini\antigravity\brain\ca40c671-98f0-4f16-9bf7-8ca4ec92f803\)
+
+### [COMPLETED] Home POC Production Hardening Sprint (v4.12.0) (2026-02-19)
+- **Status:** [COMPLETED] / VERIFIED
+- **Scope:** Hardening of `[rentiva_home_poc]` component with focus on asset isolation, structured logging, and feature flag control.
+- **Key Achievements:**
+    1. **Asset Isolation:** Implemented deterministic asset snapshot checks in `HomePocAssetTest.php`. Verified zero global asset leakage.
+    2. **Performance Guarantee (ΔQ = 0):** Optimized `UnifiedSearch.php` with static caching for locations and routes. Achieved the strict "zero additional query" goal for Home POC rendering.
+    3. **Entry-Guard Feature Flag:** Added `mhm_rentiva_enable_home_poc` filter protection to `HomePoc::render()`. When disabled, the shortcode remains completely inert (no enqueues, no output).
+    4. **Governance Hardening:** Modernized `Governance::log_violation` to be internal, private, and conditional on `WP_DEBUG` + `mhm_rentiva_enable_governance_log`.
+- **Core Outcome:** Integration Test Suite achieves **OK (72 tests, 265 assertions)**. Home POC is now production-ready for the next phase.
+- **Reference Evidence:** [walkthrough.md](file:///C:\Users\manag\.gemini\antigravity\brain\ca40c671-98f0-4f16-9bf7-8ca4ec92f803\walkthrough.md)
+
+### [LOCKED] Stabilization Sprint — Pre-existing Debt Clearance (v4.11.x) (2026-02-19)
+- **Status:** [LOCKED] / STABLE
+- **Scope:** Resolution of 7 inherited PHPUnit failures from Phase 4 baseline + 5 discovered secondary bugs.
+- **Key Fixes & Technical Debt Retirement:**
+    1. **Template Safety:** `vehicle-card-base.php` now enforces strict initialization of `$show_category`, `$show_brand`, `$category_name`, and `$brand_name`, preventing `Undefined variable` errors in legacy isolation tests.
+    2. **PHP Strict Compliance:** `FeaturedVehicles.php:121` refactored to use intermediate variables for `update_post_caches()` references.
+    3. **Cache Pipeline Integrity:** Replaced `update_post_caches()` with `_prime_post_caches()` in `FeaturedVehicles` to correctly handle integer ID arrays when `'fields' => 'ids'` is active.
+    4. **Architectural Parity:** `CoreAdminPagesTest` updated to test canonical attribute contracts instead of retired Phase 3 methods (`map_attributes_to_shortcode`).
+    5. **Test Logic Hardening:** `ReviewNormalizationTest` fixed to prevent logic leakage on `markTestSkipped` and decoupled from environment-specific `WP_CACHE` settings by testing rating aggregate side-effects.
+    6. **Alias Bridges:** Added `$allowed_svg`, `$btn_url`, and `$booking_text` bridges in `vehicle-card-base.php` to satisfy `vehicle-card.php` expectations without breaking v1.2 LOCKED parity.
+    7. **Rating Perimeter:** Added `count > 0` guard to rating render logic to prevent visual artifacts for unrated vehicles.
+- **Core Outcome:** Integration Test Suite achieves **OK (69 tests, 259 assertions)**. The codebase is now "Clean Slate" for the next sprint.
+- **Reference Evidence:** [walkthrough.md](file:///C:\Users\manag\.gemini\antigravity\brain\ca40c671-98f0-4f16-9bf7-8ca4ec92f803\walkthrough.md)
+
+> [!IMPORTANT]
+> Stabilization Sprint results are FINAL. No new global variables were introduced; all fixes were surgical and backward-compatible.
+
+
+### [LOCKED] Phase 3: Shortcode Canonicalization — ✅ MISSION COMPLETE (v4.11.0) (2026-02-18)
+- **Status:** [LOCKED] / STABLE
+- **Core Outcome:** `CanonicalAttributeMapper` (CAM) integrated as the mandatory execution layer for the entire Shortcode pipeline.
+- **Key Achievements:**
+    - **AbstractShortcode SSOT:** Centered attribute normalization in `AbstractShortcode::render()`, ensuring all shortcodes (manual or block-triggered) are canonicalized.
+    - **`_canonical` Guard:** Implemented hybrid-safe execution to prevent double-mapping in Gutenberg environments.
+    - **Registry Authority:** `AllowlistRegistry` upgraded to support per-tag defaults, removing redundant hardcoded defaults from shortcode classes.
+    - **Structural Cleanup:** Retired redundant logic in `SearchResults`, `VehicleComparison`, and `AvailabilityCalendar`.
+    - **Quality Gates:** 100% Success on PHPUnit (218 tests), PHPCS (0 errors), and Plugin-Check (Release Mode).
+- **Reference Evidence:** `walkthrough.md`, `verify_phase3.php`.
 
 ### [LOCKED] Audit & Optimize Series (M1-M5) - ✅ MISSION COMPLETE (v4.9.9) (2026-02-15)
-- **Status:** 🔒 LOCKED / STABLE
+- **Status:** [LOCKED] / STABLE
 - **Milestones Summary:**
     - **M1:** Shortcode engine normalization & asset parity.
     - **M2:** Test harness stabilization & Windows isolation.
@@ -27,7 +131,7 @@
 - **Reference Evidence:** `QA_M3_FINAL_EVIDENCE.md`, `M3_SCHEMA_MAPPING.md`.
 
 ### [LOCKED] Premium UX Milestones (v1.3.3) (2026-02-14)
-- **Status:** 🔒 LOCKED / STABLE
+- **Status:** [LOCKED] / STABLE
 - **Scope:** Major UX upgrade focusing on notification centralization, optimistic feedback, and URL resolution standardization.
 - **Key Features:**
     - **Centralized Toast System (`MHMRentivaToast`):** Replaced legacy `alert()` and jQuery UI notifications with a modern singleton engine.
@@ -35,7 +139,7 @@
         - Action-Driven: Integrated CTA buttons within toasts.
         - Idempotency: Key-based flood protection.
     - **Two-Stage Optimistic UI Pattern:**
-        - Stage 1: Immediate "İşlem yapılıyor..." feedback with `duration: 0`.
+        - Stage 1: Immediate "Processing..." feedback with `duration: 0`.
         - Stage 2: Final success/error state updating the same toast via `idempotencyKey`.
     - **Standardized URL Resolution:**
         - Implemented `ShortcodeUrlManager` to resolve core page URLs consistently across shortcodes and blocks.
@@ -54,7 +158,7 @@
 
 
 ### [LOCKED] Vehicle Card v1.0 — FINALIZED (v5 Baseline) (2026-02-09)
-- **Status:** 🔒 LOCKED / STABLE
+- **Status:** [LOCKED] / STABLE
 - **Scope:** Minimal, data-trusted, shortcode-compatible vehicle card implementation.
 - **Canonical Renderer:** `templates/partials/vehicle-card.php` — Single Source of Truth for ALL vehicle card displays (Grid, List, Featured, Search, Favorites).
 - **v1.0 Approved Toggles (ONLY):**
@@ -82,7 +186,7 @@
 > v1.0 is FINAL. Do NOT bypass via per-block implementations.
 
 ### [LOCKED] Vehicle Card v1.1 — Layout Polish (v5 Baseline) (2026-02-10)
-- **Status:** 🔒 LOCKED / STABLE
+- **Status:** [LOCKED] / STABLE
 - **Scope:** UI-only consistency improvements for vehicle cards (no data/query changes, no new features).
 - **Canonical Renderer:** `templates/partials/vehicle-card.php` (unchanged, still Single Source of Truth).
 - **Toggles:** v1.0 toggle set unchanged (only `showPrice`, `showFeatures`, `showBookButton`).
@@ -102,7 +206,7 @@
 > v1.1 is FINAL. CSS-only polish — no PHP logic or toggle changes.
 
 ### [LOCKED] Vehicle Card v1.2 — Rating Productization (v4.9.9) (2026-02-10)
-- **Status:** 🔒 LOCKED / STABLE
+- **Status:** [LOCKED] / STABLE
 - **Scope:** Productize rating system on vehicle cards.
 - **Canonical Renderer:** `templates/partials/vehicle-card.php` (unchanged).
 - **Key Decisions (Authoritative):**
@@ -129,7 +233,7 @@
   - **Smoke Check:** PASS. Verified live rating sync and restriction enforcement.
 
 ### [LOCKED] Rating Confidence Label (v1.3.1) (2026-02-10)
-- **Status:** 🔒 LOCKED / STABLE
+- **Status:** [LOCKED] / STABLE
 - **Scope:** Display trust signal label ("New", "Reliable", "Highly Reliable") based on `rating_count`.
 - **Default Thresholds:** `[2, 9]` → ≤2 New, ≤9 Reliable, ≥10 Highly Reliable.
 - **Filter:** `mhm_rentiva_rating_confidence_thresholds` → override `[upper_new, upper_reliable]`.
@@ -144,7 +248,7 @@
 > v1.3.1 is FINAL. Label logic must NOT affect `RatingHelper` calculations. Templates must NOT call helper directly.
 
 ### [LOCKED] Verified Rental Badge (v1.3.0) (2026-02-10)
-- **Status:** 🔒 LOCKED / STABLE
+- **Status:** [LOCKED] / STABLE
 - **Scope:** Display "✓ Verified Rental" badge on vehicle detail reviews when the author has a qualifying booking.
 - **Qualifying Statuses:** `completed`, `in_progress`, `confirmed`.
 - **Matching Strategy:**
@@ -169,7 +273,7 @@
 > [!CAUTION]
 > v1.3.0 is FINAL. Badge logic must NOT affect `RatingHelper` calculations.
 
-### [TAMAMLANDI] Critical Fix: Review Normalization & CLI Repair (v1.2) (2026-02-10)
+### [COMPLETED] Critical Fix: Review Normalization & CLI Repair (v1.2) (2026-02-10)
 - **Status:** Done [VERIFIED]
 - **Goal:** Resolve data inconsistency where comments with ratings were not counted as reviews, and ensure cache invalidation.
 - **Key Changes:**
@@ -204,7 +308,7 @@
   - **Tests:** `ReviewNormalizationTest` check passed for hook logic.
 
 
-### [TAMAMLANDI] Rating System Fixes & Star Visualization (v4.9.8) (2026-02-10)
+### [COMPLETED] Rating System Fixes & Star Visualization (v4.9.8) (2026-02-10)
 - **Status:** Done [VERIFIED]
 - **Goal:** Resolve rating display bugs (black stars) and data inconsistency.
 - **Key Changes:**
@@ -228,7 +332,7 @@
     - **Security:** Implemented early ownership validation in `render_view_booking`.
     - **Maintenance:** Centralized endpoint mapping for easier addition of new features.
     - **Verification:** 100% PHPUnit pass for resolution logic; CLI verified physical page priority (e.g., `rezervasyonlarim`).
-### [TAMAMLANDI] WooCommerce My Account Slug Consistency (v4.9.8) (2026-02-09)
+### [COMPLETED] WooCommerce My Account Slug Consistency (v4.9.8) (2026-02-09)
 - **Status:** Done [VERIFIED]
 - **Goal:** Ensure WooCommerce My Account endpoint URLs match physical page slugs (e.g., `/hesabim/favorilerim/`) instead of technical defaults.
 - **Key Changes:**
@@ -244,7 +348,7 @@
   - **Debug Verification:** Script confirmed `bookings` key correctly resolves to the physical page slug `rezervasyonlarim`.
   - **Live Test:** User verified that URLs like `/hesabim/favorilerim/` work within the integrated panel perfectly.
 
-### [TAMAMLANDI] Global Asset Optimization & Conditional Loading (2026-02-09)
+### [COMPLETED] Global Asset Optimization & Conditional Loading (2026-02-09)
 - **Status:** Done [VERIFIED]
 - **Goal:** Eliminate asset bloat by implementing strict conditional loading for `vehicle-card.css` and `datepicker-custom.css`.
 - **Key Changes:**
@@ -260,7 +364,7 @@
   - **Search Results:** Confirmed `vehicle-card.css` loads via dependency chain.
   - **Booking Form:** Confirmed `datepicker-custom.css` loads.
 
-### [TAMAMLANDI] Global Security Hardening & i18n Standardization Sweep (2026-02-09)
+### [COMPLETED] Global Security Hardening & i18n Standardization Sweep (2026-02-09)
 - **Status:** Done [VERIFIED]
 - **Context:** Deep code audit for Security and i18n compliance.
 - **Key Findings:**
@@ -274,7 +378,7 @@
 - **Verification:**
   - Static Analysis: Verified `check_ajax_referer` and `SecurityHelper` usage.
 
-### [TAMAMLANDI] UI Cleanup — Remove "Test" from Button Label (2026-02-09)
+### [COMPLETED] UI Cleanup — Remove "Test" from Button Label (2026-02-09)
 - **Status:** Done
 - **Root Cause:** The string "Rezervasyon Yap (Test)" was hardcoded in the `mhm_rentiva_settings` database option (specifically `mhm_rentiva_text_book_now`), overriding the clean default translation.
 - **Solution Applied:**
@@ -284,7 +388,7 @@
   - `wp eval` confirmed the option is now empty.
   - No code changes required (codebase was already clean).
 
-### [TAMAMLANDI] Booking Link & Favorites Grid Fix (2026-02-08)
+### [COMPLETED] Booking Link & Favorites Grid Fix (2026-02-08)
 - **Status:** Done [CODE VERIFIED]
 - **Root Cause:**
   1. Booking buttons in "My Favorites" (and other shortcodes reusing `VehiclesList`) were missing `booking_url` in the data array, causing empty links.
@@ -300,7 +404,7 @@
   - PHP Syntax Check: Passed.
   - Code Logic: Validated consistent data passing.
 
-### [TAMAMLANDI] Final UI Consolidation — Hybrid List Layout & Meta Sync (v4.9.8 Standard) (2026-02-08)
+### [COMPLETED] Final UI Consolidation — Hybrid List Layout & Meta Sync (v4.9.8 Standard) (2026-02-08)
 - **Status:** Done
 - **Root Cause:**
   1. `SearchResults::render_vehicle_card()` used hardcoded feature mapping instead of global `VehicleFeatureHelper::collect_items()`.
@@ -326,7 +430,7 @@
 - **Architecture Decision:** Single Source of Truth — `VehicleFeatureHelper::get_selected_card_fields()` controls ALL card feature display. Grid, List, Search, Featured, and Favorites all use the same data pipeline.
 - **Overflow Prevention:** `max-width: calc(100% - 260px)` on content + `min-width: 0` + `overflow: hidden` on card root = zero horizontal scrollbar guarantee.
 
-### [TAMAMLANDI] Vehicle Card Visual Identity & Standardization (2026-02-08)
+### [COMPLETED] Vehicle Card Visual Identity & Standardization (2026-02-08)
 - **Status:** Done [FULLY VERIFIED]
 - **Root Cause:** `wp_kses_post()` in `search-results.php` was stripping SVG elements + My Favorites used inline HTML instead of standardized partial.
 - **Solution Applied:**
@@ -346,7 +450,7 @@
   - `assets/css/core/vehicle-card.css`
 
 
-### [TAMAMLANDI] Phase 2: Advanced Search Filtering (2026-02-08)
+### [COMPLETED] Phase 2: Advanced Search Filtering (2026-02-08)
 - **Status:** Done [MERGED]
 - **Context:** Standalone filtering block was architecturaly merged into the `[rentiva_search_results]` shortcode and `UnifiedSearch` widget to reduce redundancy.
 - **Outcome:**
@@ -354,7 +458,7 @@
   - **Implementation:** Filtering logic (Price, Brand, Fuel, Transmission) is fully functional within `SearchResults.php` and `search-results.php` template.
   - **Refactoring:** Legacy `VehicleSearch` components consolidated into `UnifiedSearch.php`.
 
-### [TAMAMLANDI] Functional Block Attributes Integration (2026-02-07)
+### [COMPLETED] Functional Block Attributes Integration (2026-02-07)
 - **Status:** Done [VERIFIED]
 - **Context:** Added visibility controls and query filtering attributes to all 18 Gutenberg blocks for enhanced editor customization.
 - **Scope:** 100% block coverage with 195 total functional attributes.
@@ -374,7 +478,7 @@
   - PHPUnit Tests: 4/4 Passed
   - Template Conditionals: Implemented
 
-### [TAMAMLANDI] Sidebar Standardization (2026-02-08)
+### [COMPLETED] Sidebar Standardization (2026-02-08)
 - **Status:** Done [VERIFIED]
 - **Context:** Audited all 12 remaining blocks (booking-confirmation, messages, my-bookings, my-favorites, payment-history, search-results, testimonials, transfer-results, vehicle-comparison, vehicle-details, vehicle-rating-form, vehicles-grid) and implemented InspectorControls.
 - **Scope:** 100% sidebar standardization across all custom blocks.
@@ -389,7 +493,7 @@
   - Documentation: Created `SIDEBAR_MAPPING.md` artifact.
 
 
-### [TAMAMLANDI] Localhost Console Warning Stabilization v6.3 (2026-02-04)
+### [COMPLETED] Localhost Console Warning Stabilization v6.3 (2026-02-04)
 - **Status:** Done [VERIFIED]
 - **Context:** Eliminated Gutenberg iframe warnings, module syntax errors, and suppressed non-critical console noise.
 - **Verification:**
@@ -412,7 +516,7 @@
   - `templates/shortcodes/vehicle-search-compact.php`
   - `assets/js/frontend/vehicle-search.js`
   - `assets/js/frontend/vehicle-search-compact.js`
-### [TAMAMLANDI] Gutenberg Block Attribute Sync & Datepicker Stability (2026-02-04)
+### [COMPLETED] Gutenberg Block Attribute Sync & Datepicker Stability (2026-02-04)
 - **Status:** Pending Verification
 - **Context:** Fixed block settings persistence by passing className to shortcode templates and stabilized jQuery UI datepicker instances.
 - **Key Achievements:**
@@ -427,7 +531,7 @@
   - `assets/blocks/search/index.js`
   - `assets/blocks/vehicles-list/index.js`
 
-### [DOĞRULANDI] Demo Seeder v15 & Notification Stabilization (2026-02-02)
+### [VERIFIED] Demo Seeder v15 & Notification Stabilization (2026-02-02)
 - **Status:** Done
 - **Context:** Finalized the core demo data generation and stabilized email notification suite.
 - **Key Achievements:**
@@ -459,7 +563,7 @@
     - Default parity regression tests.
     - Release validation matrix hardening (multi-instance + cross-module composition).
 
-### [DOĞRULANDI] Security Test Audit & ABSPATH Patch (2026-02-02)
+### [VERIFIED] Security Test Audit & ABSPATH Patch (2026-02-02)
 - **Status:** Done
 - **Decision:** APPROVE (Phase 1-4 Passed)
 - **Context:** Conducted a comprehensive code audit via `/audit-code` workflow.
@@ -641,7 +745,7 @@
 - Logic: Backward compatibility verified (defaults to true).
 
 ### v1.3.2.x — LOCKED / CLOSED (Final Closure)
-**Status:** 🔒 LOCKED / STABLE
+**Status:** [LOCKED] / STABLE
 **Level:** STABLE
 **Rollback:** ❌ No
 **Locked Scope:**
@@ -694,7 +798,7 @@
 - **Playwright Environment Fix:** Resolved `$HOME` variable missing error by manually setting `$env:HOME` in Powershell context, enabling browser tools to function correctly.
 
 ## [SCHEDULE & STATUS]
-- **Current Version:** 4.9.6 (Release) [DOĞRULANDI]
+- **Current Version:** 4.9.6 (Release) [VERIFIED]
 - **Global Compliance:** 100% English primary language, i18n ready.
 - **FSE Support:** Fully compatible with WordPress 6.2+ Site Editor.
 - **Next Milestone:** Shortcode Enhancement & Block Conversion Phase.
@@ -703,7 +807,7 @@
 
 ## Project Entries
 
-### [DOĞRULANDI] Shortcode & Block Architecture Compliance Audit (2026-02-04)
+### [VERIFIED] Shortcode & Block Architecture Compliance Audit (2026-02-04)
 - **Status:** Done
 - **Context:** Comprehensive deep-dive audit of all 18 Shortcodes and 17 Gutenberg Blocks for Security, Standardization, and Prefixes.
 - **Key Findings:**
@@ -717,7 +821,7 @@
       - **Logic:** `enqueue_assets` logic migrated to `get_css/js_files` with dynamic layout support.
       - **Template:** Implemented `render_template` override for dynamic `compact/full` layout switching.
 
-### [DOĞRULANDI] Phase 1: New Module Implementation (Featured Vehicles) (2026-02-04)
+### [VERIFIED] Phase 1: New Module Implementation (Featured Vehicles) (2026-02-04)
 - **Status:** Done
 - **Context:** Implemented "Featured Vehicles Slider/Grid" module with Swiper v11 and Cache Strategy.
 - **Key Deliverables:**
@@ -825,33 +929,33 @@
 - **Global Reset Fix:** Audited reset functionality. Fixed non-functional "Reset Layout" on Dashboard by implementing a dedicated `ajax_reset_dashboard_layout` handler and updating frontend `dashboard.js`. Previous implementation failed because `empty($order)` was treated as error by `save_order`.
 - **UI Standardization:** Implemented "Developer Mode" banner and consistent headers across Add-on Services (`AddonMenu.php`) and Transfer modules (`TransferAdmin.php`). Added statistics cards to Transfer Locations/Routes pages, matching Dashboard style. Standardized header buttons ("Belgeler" included).
 - **Banner Consistency:** Centralized "Developer Mode" banner rendering via `AdminHelperTrait` and `ProFeatureNotice`. Enforced consistent "Header > Banner > Content" layout across Dashboard, Vehicle Settings, Transfer, and Add-on pages. Styled banner as a compact box (removed `notice` class) to match user preference.
-- **Transfer Layout Fix:** Specifically fixed "Transfer Güzergahları" (Routes) page where the banner was incorrectly positioned above the header. Moved it to the standardized position (Header > Banner > Stats).
-- **Final UI Sync:** Completed banner standardization by adding "Developer Mode" banner to "Mesajlar" (`Messages.php`) and "Kısa Kod Sayfaları" (`ShortcodePages.php`) pages, ensuring 100% coverage across all admin modules.
+- **Transfer Layout Fix:** Specifically fixed the "Transfer Routes" page where the banner was incorrectly positioned above the header. Moved it to the standardized position (Header > Banner > Stats).
+- **Final UI Sync:** Completed banner standardization by adding "Developer Mode" banner to "Messages" (`Messages.php`) and "ShortcodePages" (`ShortcodePages.php`) pages, ensuring 100% coverage across all admin modules.
 - **Global Admin UI Button & Language Standardization:** Refactored `AdminHelperTrait` to enforce standardized "Documentation" and "Reset to Defaults" buttons with uniform styling (blue outline / red warning) and fixed order. Updates applied to Dashboard, Settings, Vehicle Settings, Transfer, Reports, Customers, Messages, Add-ons, Shortcodes, About, and License pages. All button labels are now strict English strings wrapped in i18n functions.
 - **Vehicle Settings Reset Logic Fix:** Updated `VehicleSettings::ajax_reset_settings` to explicitly set options to empty arrays (Clean Slate) instead of deleting them (which caused default fallbacks). Modified `VehicleFeatureHelper` to respect explicit empty arrays for card fields, ensuring the "Cleaner Slate" policy is strictly enforced.
 - **Developer Mode Content Enhancement:** Updated the "Developer Mode Active" banner in `ProFeatureNotice.php` to display a comprehensive static message highlighting key Pro features (VIP Transfers, Messaging, Analytics) instead of a dynamic list, improving professional appearance and clarity.
-- **About Page Regression & Performance Fix:** Resolved critical "Bir hata oluştu" error and slow loading on About page. Implemented lazy loading for tab content (General, Features, System, Support) to prevent blocking remote/heavy operations. Disabled recursive directory size calculation in `SystemInfo` to ensure sub-500ms execution. Standardized header with `AdminHelperTrait` and English labels.
+- **About Page Regression & Performance Fix:** Resolved the critical "An error occurred" issue and slow loading on the About page. Implemented lazy loading for tab content (General, Features, System, Support) to prevent blocking remote/heavy operations. Disabled recursive directory size calculation in `SystemInfo` to ensure sub-500ms execution. Standardized the header with `AdminHelperTrait` and English labels.
 - **Header HTML Rendering Fix:** Updated `AdminHelperTrait::render_admin_header` to use `wp_kses` instead of `esc_html`, allowing badges (span tags) to render correctly in page titles.
 - **Tab Switching Logic Repair:** Refactored `About::ajax_load_tab` to eliminate redundant data fetching and use the new lazy loading method, preventing session-related errors during tab switches.
 - **Global AJAX 400 & UI Visibility Fix:** Fixed critical security check failure (400) by correcting the localized script object name in `about.js` (`mhmAboutAdmin` -> `mhmRentivaAboutAdmin`). Implemented client-side tab caching to prevent redundant requests. Updated `about.css` badges to high-contrast (Blue/White, Gold/Black) and injected accessibility fixes into `booking-form.css`.
 - **About Page UI Modernization (CRITICAL REPAIR):** Implemented strict CSS Grid enforcement (`display: grid !important`) with specific targeting (`.mhm-rentiva-about-wrap .mhm-rentiva-about-grid`) to override WordPress core styles causing vertical stacking. Removed max-width restrictions from cards and containers.
-- **About Page Button Consolidation:** Removed redundant "Ayarlara git" and "Özellikleri Görüntüle" buttons from `GeneralTab`. Added "Settings" button to the global header (Documentation, Support, Settings). All labels now use English for proper i18n support.
+- **About Page Button Consolidation:** Removed redundant "Go to Settings" and "View Properties" buttons from `GeneralTab`. Added "Settings" button to the global header (Documentation, Support, Settings). All labels now use English for proper i18n support.
 - **Developer Tab Optimization:** Filtered expertise grid to keep only "WordPress Development", "E-commerce Solutions", and "Reservation Systems". Filtered projects grid to keep "MHM E-commerce Package" and added "MHM Vehicle Reservation". All labels in English for Loco Translate compatibility.
 - **Plugin Check Compliance Fixes (2026-01-31):** Fixed `date()` to `gmdate()` in `SecurityHelper.php` for timezone consistency. Changed text domain from `'woocommerce'` to `'mhm-rentiva'` in `WooCommerceBridge.php`. Added `esc_attr()` escaping to all inline SVG variables in `booking-form.php` and `availability-calendar.php` templates.
 - **Repository Cleanup & .gitignore Standardization (2026-02-01):** Created comprehensive .gitignore with 11 organized sections covering OS files, IDE configs, dependency managers, WordPress local files, build assets, testing tools, MHM-specific exclusions, language files, archives, security-sensitive files, and AI tool artifacts. Added WooCommerce stubs via Composer (`php-stubs/woocommerce-stubs`). Fixed IDE lint false positive for `WC_Product::get_sku()` using `call_user_func()` pattern.
 - **Global Admin Responsive Fix & Standardization (2026-02-01):** Implemented comprehensive mobile responsive rules across all admin CSS files using WordPress standard breakpoints (782px tablet, 600px mobile). Updated `core.css` with global responsive header, grid, and form rules. Added `vehicle-card-fields.css` mobile stacking for checkbox columns. Enhanced `settings.css` with Vehicle Settings specific responsive rules for action buttons, checkbox grids, and form sections. Updated `about.css` with header actions and badge scaling for small screens.
 - **Global 782px Breakpoint Standardization (2026-02-01):** Replaced ALL `@media (max-width: 768px)` queries with WordPress standard `@media (max-width: 782px)` across 50+ CSS files in admin/, components/, core/, frontend/, and payment/ directories. Updated `--mhm-breakpoint-md` variable to 782px in `css-variables.css`. Bumped plugin version to 4.6.8 for cache busting. This ensures plugin layout transitions sync perfectly with WordPress admin sidebar collapse at 782px, eliminating the 768px-782px "dead zone" where layouts were inconsistent.
-- **Final Responsive Audit & Table Overflow Fix (2026-02-01):** Completed comprehensive mobile optimization for admin pages. Added responsive table wrapper with horizontal scrolling to `core.css` and `mhm-shortcode-pages.css`. Implemented Section Action Buttons responsive rules for "Tümünü Seç", "Hepsini Seçimden Çıkar" buttons. Added Touch Target optimization (minimum 44px height for iOS). Override inline CSS styles in `settings.css` for Vehicle Settings checkbox grids and category action buttons using attribute selectors. Plugin version bumped to 4.6.9.
-- **Vehicle Settings UI Symmetry & Proportional Harmonization (v4.8.0):** Checkbox bileşen mimarisi tüm sayfa genelinde standardize edilerek hiyerarşik birlik (nested div > label) sağlandı. Checkbox ölçüleri 16px, metinler 14px olarak güncellendi. Mobil görünümde metinlerin kutuların altına düşmesini engelleyen "ABSOLUTE row" kuralı getirildi. Tik işaretlerinin dikey kayma sorunu WP-specific CSS reset ile giderildi.
-- **Admin JS SyntaxError Fix (v4.8.0):** `messages-admin.js` ve `settings-form-handler.js` dosyalarında "Unexpected token '.'" hatasına yol açan hatalı opsiyonel zincirleme (optional chaining) kullanımları (`? .`) temizlendi. Geniş tarayıcı uyumluluğu ve WordPress standartları için mantıksal `&&` kontrollerine dönüştürüldü. "Mesajlar" modülünün çalışmasını engelleyen kritik hata giderildi.
-- **Araç Ayarları Final Responsive Repair (2026-02-01):** Enhanced `settings.css` with comprehensive mobile overrides for Vehicle Settings page. Added rules for: (1) Main Settings Container 3-column→1-column transition at 782px, (2) Settings Card padding reduction (20px→15px→12px), (3) Direct ID selectors for action buttons (#select-all-details, #rename-details, etc.), (4) Checkbox item touch targets min 44px→48px on mobile, (5) flex-wrap and width:100% for button containers. All overrides use `!important` to defeat inline styles in VehicleSettings.php.
+- **Final Responsive Audit & Table Overflow Fix (2026-02-01):** Completed comprehensive mobile optimization for admin pages. Added responsive table wrapper with horizontal scrolling to `core.css` and `mhm-shortcode-pages.css`. Implemented responsive rules for section action buttons ("Select All", "Deselect All"). Added touch target optimization (minimum 44px height for iOS). Overrode inline CSS styles in `settings.css` for Vehicle Settings checkbox grids and category action buttons using attribute selectors. Plugin version bumped to 4.6.9.
+- **Vehicle Settings UI Symmetry & Proportional Harmonization (v4.8.0):** Checkbox component architecture was standardized across the entire page and hierarchical unity (nested div > label) was achieved. Checkbox dimensions have been updated to 16px and texts to 14px. The "ABSOLUTE row" rule has been introduced to prevent texts from falling below the boxes in mobile view. The vertical scrolling issue of tick marks was fixed with WP-specific CSS reset.
+- **Admin JS SyntaxError Fix (v4.8.0):** Incorrect optional chaining usage (`? .`) that caused the "Unexpected token '.'" error in `messages-admin.js` and `settings-form-handler.js` files have been cleared. Converted to logical `&&` controls for wide browser compatibility and WordPress standards. The critical error that prevented the "Messages" module from working has been fixed.
+- **Vehicle Settings Final Responsive Repair (2026-02-01):** Enhanced `settings.css` with comprehensive mobile overrides for Vehicle Settings page. Added rules for: (1) Main Settings Container 3-column→1-column transition at 782px, (2) Settings Card padding reduction (20px→15px→12px), (3) Direct ID selectors for action buttons (#select-all-details, #rename-details, etc.), (4) Checkbox item touch targets min 44px→48px on mobile, (5) flex-wrap and width:100% for button containers. All overrides use `!important` to defeat inline styles in VehicleSettings.php.
 - **Vehicle Settings CSS Loading Fix (2026-02-01):** CRITICAL FIX - Vehicle Settings page was not loading `settings.css` at all! Only JavaScript was enqueued. Added `wp_enqueue_style()` calls for `settings.css` and `vehicle-card-fields.css` in `AssetManager.php` line 963-990 for screen ID `mhm-rentiva_page_vehicle-settings`. This enables all responsive overrides to take effect.
-- **Vehicle Settings & Editor Critical Repair (v4.8.1):** "Depozito" (deposit) alanı geri getirilerek varsayılanlara eklendi. Araç düzenleme sayfasındaki meta kutularında görülen boş etiket sorunu (Empty Label Syndrome), `VehicleMeta` ve `VehicleSettings` sınıflarına eklenen "Data Recovery Fallback" mantığı ile giderildi. Veritabanındaki etiketler bozuk veya boş olsa bile sistem artık otomatik olarak varsayılan çevirilere düşüyor. Yıkıcı AJAX kaydetme mantığına karşı savunmacı kontroller eklendi.
-- **Deposit Field Promotion & UI Reorganization (v4.8.2):** "Depozito" (deposit) alanı silinebilir "Attributes" bölümünden alınarak kalıcı "Temel Detaylar (Önemli)" (Core Details) bölümüne taşındı. `VehicleSettings.php` içindeki `render_definitions_tab` ve `ajax_remove_custom_field` metodlarına eklenen 'deposit' koruması ile bu anahtarın silinmesi API seviyesinde engellendi. Plugin sürümü v4.8.2'ye yükseltilerek UI senkronizasyonu sağlandı.
-- **MHM Global Checkbox Standard & UI Unification (v4.8.3):** Eklenti genelinde görsel tutarlılığı sağlamak için `core.css` içinde `.mhm-ui-checkbox` küresel bileşeni tanımlandı. Checkbox (16px) ve metin (14px) oranları standardize edildi. Mobilde metinlerin kutucukların altına düşmesini engelleyen "ABSOLUTE ROW" (flex-wrap: nowrap) kuralı getirildi. Araç Ayarları ve Araç Düzenleme (Meta Box) sayfaları bu yeni standarta göre refaktör edilerek UI parçalanması giderildi. Sürüm v4.8.3'e yükseltildi.
-- **UI Precision & Mobile Regression Fix (v4.8.4):** v4.8.3 ile gelen küresel checkbox değişiminin Araç Ayarları sayfasındaki "Sil" (X) butonlarında neden olduğu hizalama sorunu giderildi. PHP şablonu refaktör edilerek butonlar etiket dışına (kardeş öğe olarak) taşındı. `vehicle-settings.css` içinde `.mhm-checkbox-item` master flex container olarak tanımlandı ve butonlar en sağa, dikeyde merkeze sabitlendi. Mobilde kutuların tam genişlik kaplamasını ve sola kaymasını engelleyen `box-sizing` ve `width` kuralları zorunlu kılındı. Sürüm v4.8.4'e yükseltildi.
-- **Mobile Tick Alignment & Absolute Centering (v4.8.5):** Mobilde checkbox onay işaretlerinin (tick) kutu dışına taşması ve yanlış hizalanması sorunu giderildi. `input[type="checkbox"]:checked:before` öğesi için SVG tabanlı içerik ve `position: absolute` + `top: 50%` + `left: 50%` + `transform: translate(-50%, -50%)` stratejisi uygulanarak milimetrik merkezleme sağlandı. Tarayıcılar arası tutarlılık için hem küresel hem yerel checkbox sınıflarına bu kural uygulandı. Sürüm v4.8.5'e yükseltildi.
-- **Ultimate UI Clarity & High Contrast (v4.8.6):** Mobilde "silik" görünen checkbox ve onay işaretleri için yüksek kontrastlı yeni bir skin uygulandı. Checkbox çerçeveleri 2px kalınlığa ve koyu griye (#8c8f94) çekildi. Seçili durumda mavi arka plan (#2271b1) üzerine CSS border tekniği ile keskin beyaz bir onay işareti (tick) yerleştirildi. `opacity: 1` kuralı ile sönük görünüm kesin olarak engellendi. Sürüm v4.8.6'ya yükseltildi.
+- **Vehicle Settings & Editor Critical Repair (v4.8.1):** The "Deposit" field has been brought back and added to the defaults. The empty label problem (Empty Label Syndrome) seen in the meta boxes on the vehicle editing page has been resolved with the "Data Recovery Fallback" logic added to the 'VehicleMeta' and 'VehicleSettings' classes. The system now automatically falls to the default translations even if the tags in the database are corrupt or empty. Added defensive checks against destructive AJAX save logic.
+- **Deposit Field Promotion & UI Reorganization (v4.8.2):** The "Deposit" field was moved from the removable "Attributes" section to the permanent "Core Details (Important)" section. With the 'deposit' protection added to `render_definitions_tab` and `ajax_remove_custom_field` in `VehicleSettings.php`, deletion of this key was blocked at the API level. Plugin version was bumped to v4.8.2 to ensure UI synchronization.
+- **MHM Global Checkbox Standard & UI Unification (v4.8.3):** Defined global component `.mhm-ui-checkbox` in `core.css` to ensure visual consistency across the plugin. Checkbox (16px) and text (14px) ratios have been standardized. The "ABSOLUTE ROW" (flex-wrap: nowrap) rule has been introduced to prevent texts from falling below the boxes on mobile. Vehicle Settings and Vehicle Editing (Meta Box) pages have been refactored according to this new standard and UI fragmentation has been eliminated. Version upgraded to v4.8.3.
+- **UI Precision & Mobile Regression Fix (v4.8.4):** The alignment problem caused by the global checkbox change in v4.8.3 in the "Delete" (X) buttons on the Vehicle Settings page has been fixed. The PHP template was refactored and the buttons were moved out of the tag (as sister elements). In `vehicle-settings.css`, `.mhm-checkbox-item` was defined as master flex container and the buttons were fixed to the far right and vertically in the center. On mobile, 'box-sizing' and 'width' rules have been made mandatory, preventing boxes from taking up the full width and shifting to the left. Version upgraded to v4.8.4.
+- **Mobile Tick Alignment & Absolute Centering (v4.8.5):** The issue of checkbox ticks extending outside the box and being misaligned on mobile has been fixed. Millimetric centering was achieved for the `input[type="checkbox"]:checked:before` element by applying SVG-based content and `position: absolute` + `top: 50%` + `left: 50%` + `transform: translate(-50%, -50%)` strategy. This rule has been applied to both global and local checkbox classes for cross-browser consistency. Version upgraded to v4.8.5.
+- **Ultimate UI Clarity & High Contrast (v4.8.6):** A new high-contrast skin was applied for checkboxes and checkmarks that looked faint on mobile. Checkbox borders were set to 2px and dark gray (`#8c8f94`). In selected state, a sharp white checkmark was rendered over blue background (`#2271b1`) using a CSS border technique. The `opacity: 1` rule fully prevented faded rendering. Version was bumped to v4.8.6.
 
 ### [COMPLETED] Transfer Module Integrity Validation (v4.9.5)
 - **Status:** Done
@@ -863,7 +967,7 @@
   - **Admin UI:** Updated `TransferAdmin.php` to correctly reference new table names and option keys, ensuring the admin panel reflects the modernized architecture.
   - **Version Bump:** Incremented plugin version to v4.9.5.
 
-### [COMPLETED] [DOĞRULANDI] Release v4.9.6
+### [COMPLETED] [VERIFIED] Release v4.9.6
 - **Status:** Done
 - **Scope:** Maintenance release focusing on performance, CSS architecture, and HTML structure updates.
 - **Key Changes:**
@@ -876,20 +980,46 @@
       - i18n: Added new translation files.
       - Transfer Module: Finalized prefix standardization (rentiva_) and database migration logic.
 
-### [COMPLETED] [DOĞRULANDI] Deep Database Cleanup & Rewrite Fix (v4.9.6+)
+### [COMPLETED] [VERIFIED] Deep Database Cleanup & Rewrite Fix (v4.9.6+)
 - **Status:** Done
 - **Scope:** Complete removal of leftover demo data and resolution of technical warnings.
 - **Key Changes:**
   - **Data Scrubbing:** Permanently deleted demo bookings (#30, #31, #32) and messages (#33, #34) from `wp_posts` and `wp_postmeta`.
   - **Table Truncation:** Cleaned custom log and queue tables: `wp_mhm_notification_queue`, `wp_mhm_rentiva_queue`, `wp_mhm_message_logs`, `wp_mhm_rentiva_background_jobs`, and `wp_mhm_payment_log`.
-  - **Rewrite Resolution:** Fixed "Araç sınıflandırması yeniden yazma kuralları bulunamadı" warning by triggering a hard `flush_rewrite_rules(true)` for the `vehicle_category` taxonomy.
+  - **Rewrite Resolution:** Fixed the "Vehicle category rewrite rules not found" warning by triggering a hard `flush_rewrite_rules(true)` for the `vehicle_category` taxonomy.
   - **Reporting Reset:** Purged all report-related transients (`_transient_mhm_report_*` and `_transient_mhm_dashboard_*`) to ensure dashboard counters (Revenue, Bookings) reflect the 0-state.
   - **Verification:** Verified final counts via CLI: Vehicles: 0, Bookings: 0, Messages: 0.
 
-### [DOĞRULANDI] Email Notification & Manual Template Fix (2026-02-02)
+### [VERIFIED] Email Notification & Manual Template Fix (2026-02-02)
 - **Status:** Done
 - **Scope:** Corrected email template layout for manual admin emails and fixed status update locking.
 - **Fixes:**
   - Enabled manual booking status revert (Confirmed -> Pending).
   - Wrapped manual customer emails with the "Golden Ratio" premium HTML layout.
   - Synchronized systematic sender settings for manual communication.
+
+---
+
+### [LOCKED] Stitch-to-WP Bridge Governance Patch (v4.11.x) — 2026-02-19
+
+- **Status:** LOCKED — Governance-enforced. No override without Chief Engineer approval.
+- **Decision:** No Tailwind Runtime (Hard Rule)
+- **Enforcement Layers:**
+  1. **Static Scan:** `cdn.tailwindcss.com` and `tailwindcss` / `tailwind` handle patterns are prohibited. Static scan confirmed clean — no runtime CDN references in codebase.
+  2. **Runtime Interception:** `Governance::enforce_no_tailwind()` hooked at priority `9999` on `wp_enqueue_scripts` and `admin_enqueue_scripts`. Blocks and deregisters any style or script matching forbidden handles or URLs.
+  3. **PHPUnit Gate:** `tests/Integration/GovernanceTest.php` — 3 tests, 14 assertions. All passing.
+- **Violation Policy:** Asset is silently deregistered + logged to `error_log` when `WP_DEBUG` is true. `mhm_rentiva_governance_violation` action fires for future extension.
+- **New Skill Registered:** `stitch-to-wp-bridge` added to `SKILLS.md`. Implementation-only scope. No architecture authority.
+- **Home POC Scope:** `[rentiva_home_poc]` shortcode introduced as **Experimental / Version-scoped**. Not part of the stable public API.
+  - Composes: `[rentiva_unified_search]`, `[rentiva_featured_vehicles]`, `[rentiva_testimonials]`.
+  - No new DOM contracts. Uses existing `css-variables.css` token system.
+  - No global CSS injection.
+- **Public API Surface:** Unchanged. All existing shortcodes untouched.
+- **Phase 4 Performance Baseline:** Preserved. Governance class is hook-driven, zero-cost on pages where no violation is detected.
+- **Files Created:**
+  - `src/Admin/Core/Governance.php`
+  - `src/Admin/Frontend/Shortcodes/HomePoc.php`
+  - `templates/shortcodes/home-poc.php`
+  - `tests/Integration/GovernanceTest.php`
+
+

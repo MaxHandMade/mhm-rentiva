@@ -66,6 +66,7 @@
 
 	/* Font Families */
 	--mhm-font-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	--mhm-font-display: "Plus Jakarta Sans", var(--mhm-font-primary);
 	--mhm-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 
 	/* Font Sizes */

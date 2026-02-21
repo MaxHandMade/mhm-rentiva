@@ -1,3495 +1,6737 @@
-/* FSE Global Listener - Passes WordPress color choices to the plugin */
-[class*="rv-"],
-[class*="mhm-"] {
-	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
-	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
-}
-
-
-/* ===== UTILITY CLASSES (Replaces inline styles) ===== */
-.rv-hidden {
-	display: none !important;
-}
-
-.rv-select-disabled {
-	background-color: var(--mhm-bg-tertiary);
-	cursor: not-allowed;
-}
-
-.rv-description-hint {
-	display: block;
-	margin-top: 5px;
-	color: var(--mhm-text-tertiary);
-	font-size: 0.875rem;
-}
-
-.rv-form-actions {
-	margin-top: 20px;
-}
-
-
-/* ===== LOGGED IN USER INFO (v4.0.0) ===== */
-.rv-logged-in-info {
-	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%);
-	border-radius: 12px;
-	padding: 20px 24px;
-	margin-bottom: 24px;
-	box-shadow: 0 4px 15px color-mix(in srgb, var(--mhm-primary), transparent 70%);
-	border: 1px solid color-mix(in srgb, var(--mhm-white), transparent 80%);
-	position: relative;
-	overflow: hidden;
-}
-
-.rv-logged-in-info::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	inset-inline-start: 0;
-	inset-inline-end: 0;
-	height: 2px;
-	background: linear-gradient(90deg, var(--mhm-info), var(--mhm-success), var(--mhm-error));
-	border-radius: 12px 12px 0 0;
-}
-
-.rv-logged-in-info .rv-info-message {
-	color: var(--mhm-btn-color);
-	margin: 0;
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	font-size: 15px;
-	line-height: 1.5;
-	font-weight: 500;
-}
-
-.rv-logged-in-info .rv-icon {
-	font-size: 28px;
-	line-height: 1;
-	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-
-.rv-logged-in-info strong {
-	font-weight: 700;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-/* Hover efekti */
-.rv-logged-in-info:hover {
-	transform: translateY(-1px);
-	box-shadow: 0 6px 20px color-mix(in srgb, var(--mhm-primary), transparent 60%);
-	transition: all 0.3s ease;
-}
-
-/* ===== FORM CONTAINER ===== */
-.rv-booking-form-wrapper {
-	max-width: 1200px;
-	margin: 40px auto;
-	padding: 0 20px;
-	box-sizing: border-box;
-	width: 100%;
-}
-
-@media (max-width: 782px) {
-	.rv-booking-form-wrapper {
-		margin: 20px auto;
-		padding: 0 10px;
-	}
-}
-
-@media (max-width: 480px) {
-	.rv-booking-form-wrapper {
-		margin: 10px auto;
-		padding: 0 5px;
-		/* Minimal padding for small screens */
-	}
-}
-
-.rv-booking-form {
-	background: var(--mhm-bg-card);
-	border-radius: 0;
-	box-shadow: none;
-	font-family: var(--mhm-font-primary);
-	width: 100%;
-	box-sizing: border-box;
-}
-
-/* ===== TWO COLUMN LAYOUT ===== */
-.rv-booking-form-content {
-	display: flex !important;
-	flex-direction: column !important;
-	gap: 2rem !important;
-}
-
-.rv-booking-form-content .rv-form-section {
-	margin-bottom: 0;
-}
-
-.rv-form-header {
-	margin-bottom: 2rem;
-	text-align: center;
-}
-
-.rv-form-title {
-	margin: 0;
-	font-size: 1.875rem;
-	font-weight: 700;
-	color: var(--mhm-text-primary);
-	border-bottom: 3px solid var(--mhm-primary);
-	padding-bottom: 0.5rem;
-	display: inline-block;
-}
-
-/* ===== FORM SECTIONS ===== */
-.rv-form-section {
-	margin-bottom: 20px;
-	padding: 0;
-	background: var(--mhm-bg-card);
-	border-radius: 0;
-	border: none;
-}
-
-.rv-section-title {
-	margin: 0 0 16px 0;
-	font-size: 18px;
-	font-weight: 600;
-	color: var(--mhm-text-primary);
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-}
-
-.rv-section-title::before {
-	content: '';
-	width: 4px;
-	height: 24px;
-	background: var(--mhm-primary);
-	border-radius: 2px;
-}
-
-.rv-subsection-title {
-	margin: 1rem 0 0.75rem 0;
-	font-size: 1rem;
-	font-weight: 600;
-	color: var(--mhm-text-secondary);
-}
-
-/* ===== FORM ELEMENTS ===== */
-.rv-field-group {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 1rem;
-	margin-bottom: 1rem;
-}
-
-@media (max-width: 782px) {
-	.rv-field-group {
-		grid-template-columns: 1fr !important;
-		gap: 0.75rem;
-	}
-
-	.rv-input,
-	.rv-select {
-		width: 100% !important;
-		max-width: 100% !important;
-		box-sizing: border-box !important;
-	}
-}
-
-.rv-field {
-	display: flex;
-	flex-direction: column;
-}
-
-.rv-field-dates {
-	grid-template-columns: 1fr 1fr;
-}
-
-.rv-field-times {
-	grid-template-columns: 1fr 1fr;
-}
-
-/* Special styling for name fields */
-.rv-name-fields {
-	grid-template-columns: 1fr 1fr;
-	gap: 1rem;
-}
-
-@media (max-width: 782px) {
-	.rv-name-fields {
-		grid-template-columns: 1fr;
-		gap: 0.5rem;
-	}
-}
-
-.rv-field-contact {
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-}
-
-.rv-label {
-	display: block !important;
-	margin-bottom: 0.5rem;
-	font-weight: 600;
-	color: var(--mhm-text-secondary);
-	font-size: 0.875rem;
-	visibility: visible !important;
-}
-
-.rv-label .required {
-	color: var(--mhm-error);
-	margin-inline-start: 0.25rem;
-}
-
-/* Ensure labels are visible in Contact Information section */
-.rv-contact-info .rv-label,
-.rv-contact-info .rv-field .rv-label,
-.rv-contact-info .rv-field-group .rv-field .rv-label {
-	display: block !important;
-	visibility: visible !important;
-	color: var(--mhm-text-secondary) !important;
-	font-size: 0.875rem !important;
-	font-weight: 600 !important;
-	opacity: 1 !important;
-	text-indent: 0 !important;
-	line-height: 1.5 !important;
-	height: auto !important;
-	width: auto !important;
-	overflow: visible !important;
-	clip: auto !important;
-	position: static !important;
-}
-
-.rv-input,
-.rv-select {
-	width: 100%;
-	padding: 0.875rem 1rem;
-	border: 2px solid var(--mhm-border-primary);
-	border-radius: 8px;
-	font-size: 1rem;
-	transition: all 0.3s ease;
-	background: var(--mhm-bg-card);
-	color: var(--mhm-text-primary);
-	box-sizing: border-box;
-}
-
-/* Select dropdown options styling */
-.rv-select option {
-	background-color: var(--mhm-bg-card);
-	color: var(--mhm-text-primary);
-	padding: 0.5rem;
-}
-
-.rv-select option:hover {
-	background-color: var(--mhm-bg-secondary);
-	color: var(--mhm-text-primary);
-}
-
-.rv-select option:checked,
-.rv-select option:selected {
-	background-color: var(--mhm-primary);
-	color: var(--mhm-btn-color);
-}
-
-.rv-input:focus,
-.rv-select:focus {
-	outline: none;
-	border-color: var(--mhm-primary);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-primary), transparent 90%);
-	transform: translateY(-1px);
-}
-
-.rv-input:hover,
-.rv-select:hover {
-	border-color: var(--mhm-border-secondary);
-}
-
-.rv-input.error,
-.rv-select.error {
-	border-color: var(--mhm-error);
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-error), transparent 90%);
-}
-
-/* Special styling for date inputs */
-.rv-input[type="date"] {
-	position: relative;
-	cursor: pointer;
-	padding-inline-end: 2.5rem;
-}
-
-.rv-input[type="date"]::-webkit-calendar-picker-indicator {
-	position: absolute;
-	top: 0;
-	inset-inline-start: 0;
-	inset-inline-end: 0;
-	bottom: 0;
-	width: 100%;
-	height: 100%;
-	margin: 0;
-	padding: 0;
-	cursor: pointer;
-	opacity: 0;
-	background: transparent;
-}
-
-/* ===== VEHICLE SELECTION ===== */
-.rv-vehicle-selection {
-	position: relative;
-}
-
-.rv-selected-vehicle-preview {
-	margin-top: 1rem;
-	padding: 1.5rem;
-	background: var(--mhm-bg-card);
-	border-radius: 12px;
-	border: 2px solid var(--mhm-border-primary);
-	box-shadow: var(--mhm-shadow-sm);
-}
-
-.rv-selected-vehicle {
-	margin-bottom: 1.5rem;
-	padding: 1rem;
-	background: var(--mhm-bg-card);
-	border: 1px solid var(--mhm-border-primary);
-	border-radius: 12px;
-	box-shadow: var(--mhm-shadow-base);
-	display: flex;
-	flex-direction: row;
-	align-items: stretch;
-	min-height: 180px;
-	transition: all 0.3s ease;
-	position: relative;
-}
-
-.rv-selected-vehicle:hover {
-	box-shadow: var(--mhm-shadow-lg);
-}
-
-/* Vehicle List Style - Left Side: Image */
-.rv-selected-vehicle .rv-vehicle-image-wrapper {
-	width: 250px;
-	height: 150px;
-	margin-inline-end: 1.5rem;
-	margin-bottom: 0px;
-	margin-inline-start: 0px;
-	flex-shrink: 0;
-	border-radius: 8px;
-	overflow: hidden;
-	position: relative;
-}
-
-.rv-selected-vehicle .rv-vehicle-image {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	transition: transform 0.3s ease;
-}
-
-.rv-selected-vehicle .rv-vehicle-image-wrapper:hover .rv-vehicle-image {
-	transform: scale(1.05);
-}
-
-/* Rating Overlay */
-.rv-selected-vehicle .rv-vehicle-card__rating-overlay {
-	position: absolute;
-	top: 0.5rem;
-	inset-inline-start: 0.5rem;
-	background: color-mix(in srgb, var(--mhm-white), transparent 5%);
-	backdrop-filter: blur(4px);
-	border-radius: 4px;
-	padding: 0.25rem 0.5rem;
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
-	font-size: 0.75rem;
-	font-weight: 600;
-	color: var(--mhm-text-secondary);
-}
-
-.rv-selected-vehicle .rv-stars {
-	display: flex;
-	gap: 1px;
-}
-
-.rv-selected-vehicle .rv-star {
-	fill: none;
-	stroke: var(--mhm-gray-300);
-	transition: all 0.2s ease;
-}
-
-.rv-selected-vehicle .rv-star.rv-star-filled {
-	fill: var(--mhm-warning);
-	stroke: var(--mhm-warning);
-}
-
-.rv-selected-vehicle .rv-rating-count {
-	color: var(--mhm-text-tertiary);
-	font-size: 0.75rem;
-}
-
-/* Vehicle List Style - Right Side: Content */
-.rv-selected-vehicle .rv-vehicle-details {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	height: 160px;
-	padding-inline-start: 0.5rem;
-}
-
-/* Header - Removed (no title) */
-
-.rv-selected-vehicle .rv-vehicle-title {
-	font-size: 1.25rem;
-	font-weight: 700;
-	color: var(--mhm-text-primary);
-	margin: 0 0 0.5rem 0;
-	line-height: 1.3;
-	max-height: none;
-	overflow: visible;
-	display: block;
-}
-
-.rv-selected-vehicle .rv-vehicle-excerpt {
-	font-size: 0.875rem;
-	color: var(--mhm-text-tertiary);
-	margin-bottom: 0.5rem;
-}
-
-/* Favorite Button - Top right corner */
-.rv-selected-vehicle .rv-vehicle-card__favorite {
-	position: absolute;
-	top: 1rem;
-	inset-inline-end: 1rem;
-	background: none;
-	border: none;
-	cursor: pointer;
-	padding: 0.25rem;
-	border-radius: 4px;
-	transition: all 0.2s ease;
-	color: var(--mhm-error);
-	opacity: 0.6;
-	z-index: 10;
-}
-
-.rv-selected-vehicle .rv-vehicle-card__favorite:hover {
-	opacity: 1;
-	background: color-mix(in srgb, var(--mhm-error), transparent 90%);
-	transform: scale(1.1);
-}
-
-.rv-selected-vehicle .rv-heart-icon {
-	fill: none;
-	stroke: currentColor;
-	transition: all 0.2s ease;
-}
-
-.rv-selected-vehicle .rv-vehicle-card__favorite.favorited .rv-heart-icon {
-	fill: currentColor;
-}
-
-/* Wrapper for shared variables to ensure consistency with List view chips */
-.rv-booking-form-wrapper {
-	--rv-bg-chip: var(--mhm-bg-secondary);
-	--rv-text-dark: var(--mhm-text-primary);
-	--rv-text-grey: var(--mhm-text-secondary);
-}
-
-/* Features */
-.rv-selected-vehicle .rv-vehicle-features {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-	margin: 1rem 0;
-}
-
-.rv-selected-vehicle .rv-feature-item {
-	background: var(--rv-bg-chip);
-	color: var(--rv-text-dark);
-	padding: 4px 10px;
-	border-radius: 6px;
-	font-size: 0.75rem;
-	font-weight: 500;
-	display: flex;
-	align-items: center;
-	gap: 4px;
-}
-
-.rv-selected-vehicle .rv-feature-item svg {
-	width: 12px;
-	height: 12px;
-	color: var(--rv-text-grey);
-	stroke-width: 2.5;
-}
-
-/* Meta info now uses rv-feature-tag class */
-
-/* Availability Status - Modern Design */
-.rv-availability-status {
-	margin: 1.5rem 0;
-	padding: 0px;
-	border-radius: 12px;
-	overflow: hidden;
-	box-shadow: var(--mhm-shadow-base);
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	animation: slideIn 0.4s ease-out;
-}
-
-@keyframes slideIn {
-	from {
-		opacity: 0;
-		transform: translateY(-10px);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-.rv-availability-status.hidden {
-	display: none;
-}
-
-/* Success State - Modern Green Card */
-.rv-availability-success {
-	background: linear-gradient(135deg, var(--mhm-success) 0%, var(--mhm-success-dark) 100%);
-	color: var(--mhm-white);
-	padding: 1.25rem 1.5rem;
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	border-radius: 12px;
-	box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--mhm-success), transparent 70%);
-}
-
-.rv-availability-success .dashicons {
-	font-size: 24px;
-	width: 24px;
-	height: 24px;
-	color: var(--mhm-white);
-	background: rgba(255, 255, 255, 0.2);
-	border-radius: 50%;
-	padding: 8px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-}
-
-.rv-availability-success .dashicons::before {
-	font-size: 16px;
-	line-height: 1;
-}
-
-.rv-availability-success>span:last-child {
-	font-size: 1rem;
-	font-weight: 600;
-	letter-spacing: 0.025em;
-}
-
-/* Error State - Modern Red Card */
-.rv-availability-error {
-	background: linear-gradient(135deg, var(--mhm-error) 0%, var(--mhm-error-dark) 100%);
-	color: var(--mhm-white);
-	padding: 1.25rem 1.5rem;
-	border-radius: 12px;
-	box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--mhm-error), transparent 70%);
-}
-
-
-.rv-availability-error-header {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	margin-bottom: 0.5rem;
-}
-
-.rv-availability-error-header .dashicons {
-	font-size: 24px;
-	width: 24px;
-	height: 24px;
-	color: var(--mhm-white);
-	background: rgba(255, 255, 255, 0.2);
-	border-radius: 50%;
-	padding: 8px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-}
-
-.rv-availability-error-header .dashicons::before {
-	font-size: 16px;
-	line-height: 1;
-}
-
-.rv-availability-error-header strong {
-	font-size: 1rem;
-	font-weight: 600;
-	letter-spacing: 0.025em;
-}
-
-/* Loading State - Modern Blue Card */
-.rv-loading-message {
-	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%);
-	color: var(--mhm-white);
-	padding: 1.25rem 1.5rem;
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	border-radius: 12px;
-	box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--mhm-primary), transparent 70%);
-	font-size: 1rem;
-	font-weight: 500;
-}
-
-.rv-loading-message .rv-spinner {
-	width: 20px;
-	height: 20px;
-	border: 3px solid rgba(255, 255, 255, 0.3);
-	border-top-color: var(--mhm-white);
-	border-radius: 50%;
-	animation: spin 0.8s linear infinite;
-	flex-shrink: 0;
-}
-
-@keyframes spin {
-	to {
-		transform: rotate(360deg);
-	}
-}
-
-/* Footer */
-.rv-selected-vehicle .rv-vehicle-card__footer {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-top: auto;
-	padding-top: 0.75rem;
-	border-top: 1px solid var(--mhm-border-primary);
-}
-
-.rv-selected-vehicle .rv-vehicle-card__price {
-	display: flex;
-	flex-direction: row;
-	align-items: baseline;
-	gap: 0.25rem;
-}
-
-.rv-selected-vehicle .rv-price-amount {
-	font-size: 1.5rem;
-	font-weight: 700;
-	color: var(--mhm-primary);
-	line-height: 1;
-}
-
-.rv-selected-vehicle .rv-price-period {
-	font-size: 0.875rem;
-	color: var(--mhm-text-tertiary);
-}
-
-.rv-vehicle-image {
-	width: 100px;
-	height: 75px;
-	object-fit: cover;
-	border-radius: 8px;
-	box-shadow: var(--mhm-shadow-sm);
-}
-
-.rv-vehicle-details h4 {
-	margin: 0 0 0.5rem 0;
-	font-size: 1.25rem;
-	color: var(--mhm-text-primary);
-	font-weight: 700;
-}
-
-.rv-vehicle-excerpt {
-	margin: 0 0 0.5rem 0;
-	color: var(--mhm-text-secondary);
-	font-size: 0.875rem;
-	line-height: 1.4;
-}
-
-.rv-vehicle-features {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem;
-	margin-bottom: 0.5rem;
-}
-
-.rv-feature-tag {
-	padding: 0.25rem 0.5rem;
-	background: var(--mhm-bg-secondary);
-	color: var(--mhm-primary);
-	border-radius: 4px;
-	font-size: 0.75rem;
-	font-weight: 500;
-}
-
-.rv-vehicle-price {
-	margin: 0;
-	font-size: 1rem;
-	color: var(--mhm-primary);
-	font-weight: 600;
-}
-
-/* ===== ADDONS ===== */
-.rv-addons .rv-section-title {
-	color: var(--mhm-text-primary);
-	font-size: 1.125rem;
-	font-weight: 600;
-	margin-bottom: 1.25rem;
-	position: relative;
-	padding-inline-start: 1rem;
-}
-
-.rv-addons .rv-section-title::before {
-	content: '';
-	position: absolute;
-	inset-inline-start: 0;
-	top: 50%;
-	transform: translateY(-50%);
-	width: 4px;
-	height: 20px;
-	background: linear-gradient(135deg, var(--mhm-primary), var(--mhm-primary-dark));
-	border-radius: 2px;
-}
-
-.rv-addons-list {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: 1rem;
-}
-
-.rv-addon-item {
-	display: flex;
-	align-items: flex-start;
-	gap: 1rem;
-	padding: 1.5rem;
-	border: 2px solid var(--mhm-border-primary);
-	border-radius: 12px;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	background: var(--mhm-bg-card);
-	min-height: 100px;
-	box-shadow: var(--mhm-shadow-sm);
-}
-
-.rv-addon-item:hover {
-	border-color: var(--mhm-primary);
-	background: var(--mhm-bg-secondary);
-	transform: translateY(-2px);
-	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 85%);
-}
-
-.rv-addon-item:has(.rv-addon-checkbox:checked) {
-	border-color: var(--mhm-primary);
-	background: var(--mhm-bg-secondary);
-	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 80%);
-}
-
-.rv-addon-checkbox {
-	margin: 0;
-	width: 20px;
-	height: 20px;
-	accent-color: var(--mhm-primary);
-	cursor: pointer;
-}
-
-.rv-addon-content {
-	flex: 1;
-}
-
-.rv-addon-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	margin-bottom: 0.5rem;
-}
-
-.rv-addon-title {
-	font-weight: 600;
-	color: var(--mhm-text-primary);
-	font-size: 1rem;
-	margin: 0;
-}
-
-.rv-addon-price {
-	font-weight: 700;
-	color: var(--mhm-success);
-	font-size: 1rem;
-}
-
-.rv-addon-description {
-	margin: 0;
-	font-size: 0.875rem;
-	color: var(--mhm-text-secondary);
-	line-height: 1.4;
-}
-
-/* ===== PRICE CALCULATION ===== */
-.rv-price-calculation {
-	margin: 2rem 0;
-	padding: 2rem;
-	background: var(--mhm-bg-card);
-	border-radius: 12px;
-	border: 2px solid var(--mhm-border-primary);
-	box-shadow: var(--mhm-shadow-sm);
-}
-
-.rv-price-breakdown {
-	display: grid;
-	grid-template-columns: 1fr auto;
-	gap: 1rem 2rem;
-	align-items: center;
-}
-
-.rv-price-item {
-	display: contents;
-}
-
-.rv-price-label {
-	font-weight: 500;
-	color: var(--mhm-text-secondary);
-	text-align: left;
-	padding: 0.75rem 0;
-	border-bottom: 1px solid var(--mhm-border-primary);
-	display: flex;
-	align-items: center;
-}
-
-.rv-price-value {
-	font-weight: 600;
-	color: var(--mhm-text-primary);
-	text-align: right;
-	padding: 0.75rem 0;
-	border-bottom: 1px solid var(--mhm-border-primary);
-	display: flex;
-	align-items: center;
-	justify-content: flex-end;
-	min-width: 120px;
-}
-
-.rv-total-price {
-	font-size: 1.25rem;
-	font-weight: 700;
-	color: var(--mhm-success);
-	border-top: 2px solid var(--mhm-border-primary);
-	margin-top: 1rem;
-	padding-top: 1rem;
-}
-
-/* Special grid positioning for total price */
-.rv-price-item.rv-total-price .rv-price-label {
-	font-size: 1.25rem;
-	font-weight: 700;
-	color: var(--mhm-success);
-	border-top: 2px solid var(--mhm-border-primary);
-	border-bottom: none;
-	padding-top: 1rem;
-	padding-bottom: 0;
-	margin-top: 1rem;
-}
-
-.rv-price-item.rv-total-price .rv-price-value {
-	font-size: 1.25rem;
-	font-weight: 700;
-	color: var(--mhm-success);
-	border-top: 2px solid var(--mhm-border-primary);
-	border-bottom: none;
-	padding-top: 1rem;
-	padding-bottom: 0;
-	margin-top: 1rem;
-}
-
-/* Special styling for deposit and remaining */
-.rv-price-item.rv-deposit-summary .rv-price-label,
-.rv-price-item.rv-remaining-summary .rv-price-label,
-.rv-price-item.rv-deposit-summary .rv-price-value,
-.rv-price-item.rv-remaining-summary .rv-price-value {
-	color: var(--mhm-secondary);
-	font-weight: 600;
-}
-
-.rv-price-actions {
-	margin-top: 1.5rem;
-	text-align: center;
-}
-
-/* ===== PAYMENT OPTIONS ===== */
-.rv-payment-type-selection {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-	gap: 1rem;
-	margin-bottom: 2rem;
-}
-
-@media (max-width: 782px) {
-	.rv-payment-type-selection {
-		grid-template-columns: 1fr;
-		gap: 0.75rem;
-	}
-}
-
-.rv-payment-type {
-	display: flex;
-	align-items: flex-start;
-	gap: 1rem;
-	padding: 1.5rem;
-	border: 2px solid var(--mhm-border-primary);
-	border-radius: 12px;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	background: var(--mhm-bg-card);
-}
-
-.rv-payment-type:hover {
-	border-color: var(--mhm-primary);
-	background: var(--mhm-bg-secondary);
-	transform: translateY(-2px);
-	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 85%);
-}
-
-.rv-payment-type:has(input:checked) {
-	border-color: var(--mhm-primary);
-	background: color-mix(in srgb, var(--mhm-primary), transparent 95%);
-	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 80%);
-}
-
-.rv-payment-type input[type="radio"] {
-	margin: 0;
-	width: 20px;
-	height: 20px;
-	accent-color: var(--mhm-primary);
-	cursor: pointer;
-}
-
-.rv-payment-type-label {
-	flex: 1;
-}
-
-.rv-payment-type-label strong {
-	display: block;
-	font-size: 1rem;
-	color: var(--mhm-text-primary);
-	margin-bottom: 0.25rem;
-}
-
-.rv-payment-type-label small {
-	display: block;
-	font-size: 0.875rem;
-	color: var(--mhm-text-secondary);
-	line-height: 1.4;
-}
-
-.rv-payment-methods {
-	margin-top: 2rem;
-}
-
-.rv-payment-method-selection {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 1rem;
-	margin-bottom: 1.5rem;
-}
-
-@media (max-width: 782px) {
-	.rv-payment-method-selection {
-		grid-template-columns: 1fr;
-		gap: 0.75rem;
-	}
-}
-
-.rv-payment-method {
-	display: flex;
-	align-items: flex-start;
-	gap: 1rem;
-	padding: 1.5rem;
-	border: 2px solid var(--mhm-border-primary);
-	border-radius: 12px;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	background: var(--mhm-bg-card);
-}
-
-.rv-payment-method:hover {
-	border-color: var(--mhm-primary);
-	background: var(--mhm-bg-secondary);
-	transform: translateY(-2px);
-	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 85%);
-}
-
-.rv-payment-method:has(input:checked) {
-	border-color: var(--mhm-primary);
-	background: color-mix(in srgb, var(--mhm-primary), transparent 95%);
-	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 80%);
-}
-
-.rv-payment-method input[type="radio"] {
-	margin: 0;
-	width: 20px;
-	height: 20px;
-	accent-color: var(--mhm-primary);
-	cursor: pointer;
-}
-
-.rv-payment-method-label {
-	flex: 1;
-}
-
-.rv-payment-method-label strong {
-	display: block;
-	font-size: 1rem;
-	color: var(--mhm-text-primary);
-	margin-bottom: 0.25rem;
-}
-
-.rv-payment-method-label small {
-	display: block;
-	font-size: 0.875rem;
-	color: var(--mhm-text-tertiary);
-	line-height: 1.4;
-}
-
-.rv-online-payment-details {
-	margin-top: 1.5rem;
-	padding: 1.5rem;
-	background: var(--mhm-bg-secondary);
-	border-radius: 8px;
-	border: 1px solid var(--mhm-border-primary);
-}
-
-.rv-payment-gateway-title {
-	margin: 0 0 1rem 0;
-	font-size: 1rem;
-	font-weight: 600;
-	color: var(--mhm-text-secondary);
-}
-
-.rv-payment-gateways {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-	gap: 1rem;
-}
-
-@media (max-width: 782px) {
-	.rv-payment-gateways {
-		grid-template-columns: 1fr;
-		gap: 0.75rem;
-	}
-}
-
-.rv-payment-gateway {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	padding: 1rem;
-	border: 2px solid var(--mhm-border-primary);
-	border-radius: 8px;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	background: var(--mhm-bg-card);
-}
-
-.rv-payment-gateway:hover {
-	border-color: var(--mhm-primary);
-	background: var(--mhm-bg-secondary);
-}
-
-.rv-payment-gateway:has(input:checked) {
-	border-color: var(--mhm-primary);
-	background: color-mix(in srgb, var(--mhm-primary), transparent 95%);
-}
-
-.rv-payment-gateway input[type="radio"] {
-	margin: 0;
-	width: 18px;
-	height: 18px;
-	accent-color: var(--mhm-primary);
-	cursor: pointer;
-}
-
-.rv-gateway-label {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-}
-
-.rv-gateway-icon {
-	font-size: 1.25rem;
-}
-
-.rv-gateway-name {
-	font-weight: 500;
-	color: var(--mhm-text-primary);
-}
-
-/* ===== FORM ACTIONS ===== */
-.rv-form-actions {
-	display: flex;
-	gap: 1rem;
-	justify-content: center;
-	margin-top: 2rem;
-	padding-top: 2rem;
-	border-top: 2px solid var(--mhm-border-primary);
-}
-
-.rv-form-actions {
-	margin-top: 1.5rem;
-	padding-top: 1.5rem;
-	border-top: 2px solid var(--mhm-border-primary);
-	justify-content: stretch;
-}
-
-
-.rv-form-actions .rv-btn {
-	width: 100%;
-}
-
-.rv-btn {
-	padding: 1rem 2rem;
-	border: 2px solid transparent;
-	border-radius: 12px;
-	font-size: 1rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	text-decoration: none;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.5rem;
-	min-width: 140px;
-	position: relative;
-	overflow: hidden;
-	font-family: var(--mhm-font-primary);
-	letter-spacing: 0.025em;
-	color: var(--mhm-btn-color);
-	background-color: var(--mhm-btn-bg);
-}
-
-.rv-btn::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
-	opacity: 0;
-	transition: opacity 0.3s ease;
-	pointer-events: none;
-}
-
-.rv-btn:hover::before {
-	opacity: 1;
-}
-
-.rv-btn:hover:not(:disabled) {
-	background-color: var(--mhm-btn-hover-bg);
-	transform: translateY(-2px);
-	box-shadow: var(--mhm-shadow-lg);
-}
-
-.rv-btn:disabled,
-.rv-btn[disabled] {
-	opacity: 0.6;
-	cursor: not-allowed;
-	transform: none !important;
-	background-color: var(--mhm-gray-400) !important;
-	border-color: var(--mhm-gray-400) !important;
-	color: var(--mhm-gray-700) !important;
-}
-
-/* Primary Button Override */
-.rv-btn-primary {
-	background-color: var(--mhm-btn-bg);
-	color: var(--mhm-btn-color);
-	border: 2px solid color-mix(in srgb, var(--mhm-white), transparent 80%);
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-	box-shadow: 0 4px 15px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%);
-}
-
-.rv-btn-primary:hover:not(:disabled) {
-	background-color: var(--mhm-btn-hover-bg);
-	transform: translateY(-3px) scale(1.02);
-	box-shadow: 0 8px 25px color-mix(in srgb, var(--mhm-btn-bg), transparent 60%);
-}
-
-.rv-btn-text {
-	display: block !important;
-	visibility: visible !important;
-	color: inherit !important;
-	font-weight: 600 !important;
-	opacity: 1 !important;
-	position: relative !important;
-	z-index: 1 !important;
-}
-
-.rv-btn-loading {
-	display: none;
-	align-items: center;
-	gap: 0.5rem;
-}
-
-.rv-btn-loading .rv-spinner {
-	width: 16px;
-	height: 16px;
-	border: 2px solid color-mix(in srgb, var(--mhm-white), transparent 70%);
-	border-top: 2px solid var(--mhm-white);
-	border-radius: 50%;
-	animation: spin 1s linear infinite;
-}
-
-/* ===== MESSAGES ===== */
-.rv-messages {
-	margin-top: 1.5rem;
-}
-
-.rv-success-message,
-.rv-error-message {
-	padding: 1.2rem 1.8rem;
-	border-radius: 12px;
-	font-weight: 600;
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	font-size: 15px;
-	line-height: 1.5;
-	box-shadow: var(--mhm-shadow-base);
-	border-left: 4px solid;
-	animation: slideInDown 0.3s ease-out;
-}
-
-.rv-success-message {
-	background: var(--mhm-bg-secondary);
-	border: 1px solid var(--mhm-success);
-	border-left-color: var(--mhm-success);
-	color: var(--mhm-success-dark);
-}
-
-.rv-error-message {
-	background: color-mix(in srgb, var(--mhm-error), transparent 95%);
-	border: 1px solid var(--mhm-error);
-	border-left-color: var(--mhm-error);
-	color: var(--mhm-error-dark);
-}
-
-@keyframes slideInDown {
-	from {
-		opacity: 0;
-		transform: translateY(-10px);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-/* ===== ALTERNATIVE VEHICLES ===== */
-.rv-alternatives-wrapper {
-	margin-top: 15px;
-	padding: 15px;
-	background: var(--mhm-bg-secondary);
-	border: 1px solid color-mix(in srgb, var(--mhm-success), transparent 80%);
-	border-radius: 12px;
-	display: flex;
-	gap: 15px;
-	flex-wrap: wrap;
-}
-
-.rv-alternative-vehicle-card {
-	flex: 1;
-	min-width: 250px;
-	background: var(--mhm-bg-card);
-	border: 1px solid var(--mhm-border-primary);
-	border-radius: 12px;
-	overflow: hidden;
-	box-shadow: var(--mhm-shadow-sm);
-	transition: all 0.3s ease;
-	cursor: pointer;
-}
-
-.rv-alternative-vehicle-card:hover {
-	transform: translateY(-3px);
-	box-shadow: var(--mhm-shadow-lg);
-	border-color: var(--mhm-primary);
-}
-
-.rv-vehicle-features {
-	margin-bottom: 8px;
-}
-
-/* ===== SPINNER ===== */
-.rv-spinner {
-	width: 20px;
-	height: 20px;
-	border: 2px solid var(--mhm-bg-secondary);
-	border-top: 2px solid var(--mhm-primary);
-	border-radius: 50%;
-	animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-	0% {
-		transform: rotate(0deg);
-	}
-
-	100% {
-		transform: rotate(360deg);
-	}
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 782px) {
-	.rv-booking-form-wrapper {
-		max-width: 100%;
-		margin: 20px auto;
-		padding: 0 15px;
-	}
-
-	.rv-booking-form {
-		padding: 0;
-	}
-
-	.rv-booking-form-content {
-		gap: 1.5rem !important;
-	}
-
-	/* Selected Vehicle - Mobile */
-	.rv-selected-vehicle {
-		flex-direction: column;
-		min-height: auto;
-		padding: 1rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.rv-selected-vehicle .rv-vehicle-image-wrapper {
-		width: 100%;
-		height: 160px;
-		margin-right: 0;
-		margin-bottom: 1rem;
-	}
-
-	.rv-selected-vehicle .rv-vehicle-details {
-		height: auto;
-		padding-left: 0;
-	}
-
-	.rv-selected-vehicle .rv-vehicle-card__footer {
-		flex-direction: column;
-		gap: 0.75rem;
-	}
-
-	.rv-form-section {
-		padding: 0;
-		margin-bottom: 1.5rem;
-	}
-
-	/* Better responsive for input fields */
-	.rv-field-group {
-		grid-template-columns: 1fr !important;
-		gap: 1rem !important;
-		margin-bottom: 1rem;
-	}
-
-	.rv-field-dates,
-	.rv-field-times {
-		grid-template-columns: 1fr 1fr !important;
-		gap: 0.75rem !important;
-	}
-
-	/* Input and select widths */
-	.rv-input,
-	.rv-select {
-		width: 100%;
-		padding: 0.75rem 1rem;
-		font-size: 0.9rem;
-		border: 1px solid var(--mhm-border-primary);
-		border-radius: 6px;
-	}
-
-	/* Payment options */
-	.rv-payment-type-selection,
-	.rv-payment-method-selection,
-	.rv-payment-gateways {
-		grid-template-columns: 1fr !important;
-		gap: 0.75rem !important;
-	}
-
-	.rv-payment-type,
-	.rv-payment-method {
-		padding: 1rem !important;
-		margin-bottom: 0 !important;
-	}
-
-	.rv-payment-gateway {
-		padding: 0.75rem !important;
-		margin-bottom: 0 !important;
-	}
-
-	/* Addons */
-	.rv-addons-list {
-		grid-template-columns: 1fr !important;
-		gap: 0.75rem !important;
-	}
-
-	.rv-addon-item {
-		padding: 1rem !important;
-	}
-
-	/* Form actions */
-	.rv-form-actions {
-		flex-direction: column;
-		gap: 0.75rem;
-		padding-top: 1rem;
-	}
-
-	.rv-btn {
-		width: 100% !important;
-		min-width: auto;
-		padding: 0.875rem 1.5rem;
-		font-size: 0.9rem;
-	}
-
-	/* Vehicle info */
-	.rv-vehicle-info {
-		flex-direction: column;
-		text-align: center;
-		gap: 1rem;
-	}
-
-	.rv-vehicle-image {
-		width: 100%;
-		height: 150px;
-		max-width: 300px;
-		margin: 0 auto;
-	}
-
-	.rv-addons .rv-section-title {
-		font-size: 1rem;
-		margin-bottom: 1rem;
-	}
-}
-
-@media (max-width: 480px) {
-	.rv-booking-form-wrapper {
-		padding: 0 10px;
-		margin: 10px auto;
-	}
-
-	.rv-booking-form {
-		padding: 0;
-		margin: 0;
-	}
-
-	.rv-form-section {
-		padding: 0;
-		margin-bottom: 1rem;
-	}
-
-	/* More compact input fields */
-	.rv-input,
-	.rv-select {
-		padding: 0.625rem 0.875rem;
-		font-size: 0.85rem;
-		border-radius: 4px;
-	}
-
-	/* Date fields single column */
-	.rv-field-dates,
-	.rv-field-times {
-		grid-template-columns: 1fr !important;
-		gap: 0.5rem !important;
-	}
-
-	/* Smaller payment cards */
-	.rv-payment-type,
-	.rv-payment-method {
-		padding: 0.75rem !important;
-	}
-
-	.rv-payment-gateway {
-		padding: 0.625rem !important;
-	}
-
-	/* Smaller Addons */
-	.rv-addon-item {
-		padding: 0.75rem !important;
-	}
-
-	/* Price calculation */
-	.rv-price-calculation {
-		padding: 0.75rem;
-		margin: 1rem 0;
-	}
-
-	.rv-price-breakdown {
-		grid-template-columns: 1fr;
-		gap: 0.5rem;
-	}
-
-	.rv-price-item {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 0.5rem 0;
-		border-bottom: 1px solid var(--mhm-border-primary);
-	}
-
-	.rv-price-label,
-	.rv-price-value {
-		border-bottom: none;
-		padding: 0;
-		min-width: auto;
-		justify-content: flex-start;
-		font-size: 0.9rem;
-	}
-
-	.rv-price-value {
-		text-align: right;
-		justify-content: flex-end;
-	}
-
-	.rv-price-item.rv-total-price {
-		border-top: 2px solid var(--mhm-border-primary);
-		margin-top: 0.75rem;
-		padding-top: 0.75rem;
-	}
-
-	.rv-price-item.rv-total-price .rv-price-label,
-	.rv-price-item.rv-total-price .rv-price-value {
-		border-top: none;
-		margin-top: 0;
-		padding-top: 0;
-		font-size: 1.1rem;
-	}
-
-	.rv-form-title {
-		font-size: 1.25rem;
-	}
-
-	.rv-btn {
-		padding: 0.75rem 1rem !important;
-		font-size: 0.85rem !important;
-	}
-
-	/* Ara resmi daha küçük */
-	.rv-selected-vehicle .rv-vehicle-image-wrapper {
-		height: 140px;
-	}
-
-	.rv-selected-vehicle {
-		padding: 0.75rem;
-	}
-}
-
-/* ===== ACCESSIBILITY ===== */
-.rv-input:focus,
-.rv-select:focus,
-.rv-btn:focus {
-	outline: none;
-	border-color: color-mix(in srgb, var(--mhm-white), transparent 50%);
-	box-shadow:
-		0 4px 15px color-mix(in srgb, var(--mhm-primary), transparent 70%),
-		inset 0 1px 0 color-mix(in srgb, var(--mhm-white), transparent 90%),
-		0 0 0 3px color-mix(in srgb, var(--mhm-primary), transparent 70%);
-}
-
-
-.rv-addon-item:focus-within,
-.rv-payment-method:focus-within,
-.rv-payment-type:focus-within,
-.rv-payment-gateway:focus-within {
-	outline: 2px solid var(--mhm-primary);
-	outline-offset: 2px;
-}
-
-/* ===== PRINT STYLES ===== */
-@media print {
-	.rv-booking-form {
-		box-shadow: none;
-		border: 1px solid var(--mhm-black);
-	}
-
-	.rv-form-actions,
-	.rv-btn-loading {
-		display: none;
-	}
-
-	.rv-form-section {
-		break-inside: avoid;
-	}
-}
-
-/* ===== DARK MODE SUPPORT ===== */
-@media (prefers-color-scheme: dark) {
-	.rv-booking-form {
-		background: var(--mhm-gray-800);
-		color: var(--mhm-gray-50);
-	}
-
-	.rv-form-section {
-		background: var(--mhm-gray-700);
-		border-color: var(--mhm-gray-600);
-	}
-
-	.rv-section-title {
-		color: var(--mhm-gray-50);
-	}
-
-	.rv-input,
-	.rv-select {
-		background: var(--mhm-gray-700);
-		border-color: var(--mhm-gray-600);
-		color: var(--mhm-gray-50);
-	}
-
-	.rv-input:focus,
-	.rv-select:focus {
-		border-color: var(--mhm-primary);
-		background: var(--mhm-gray-700);
-	}
-}
-
-/* ===== AVAILABILITY STATUS ===== */
-.rv-availability-status {
-	margin: 1rem 0;
-	padding: 1rem;
-	border-radius: 8px;
-	font-weight: 500;
-}
-
-/* Old availability styles removed - using modern design above */
-
-/* Alternatif aralar wrapper - modern tasarm */
-.rv-alternatives-wrapper {
-	background: color-mix(in srgb, var(--mhm-white), transparent 85%) !important;
-	border: 1px solid color-mix(in srgb, var(--mhm-white), transparent 70%) !important;
-	border-radius: 12px !important;
-	padding: 1.25rem !important;
-	margin-top: 1rem !important;
-	backdrop-filter: blur(10px);
-}
-
-.rv-alternatives-title {
-	font-size: 1rem;
-	font-weight: 600;
-	color: var(--mhm-white);
-	margin-bottom: 1rem;
-	letter-spacing: 0.025em;
-}
-
-.rv-alternatives-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 1rem;
-}
-
-.rv-alternative-vehicle-card {
-	background: color-mix(in srgb, var(--mhm-white), transparent 5%);
-	border-radius: 12px;
-	overflow: hidden;
-	box-shadow: var(--mhm-shadow-base);
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	cursor: pointer;
-}
-
-.rv-alternative-vehicle-card:hover {
-	transform: translateY(-4px);
-	box-shadow: var(--mhm-shadow-lg);
-}
-
-.rv-alternative-vehicle-image {
-	width: 100%;
-	height: 140px;
-	overflow: hidden;
-	background: var(--mhm-bg-secondary);
-}
-
-.rv-alternative-vehicle-image img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	transition: transform 0.3s ease;
-}
-
-.rv-alternative-vehicle-card:hover .rv-alternative-vehicle-image img {
-	transform: scale(1.05);
-}
-
-.rv-alternative-vehicle-content {
-	padding: 1rem;
-}
-
-.rv-alternative-vehicle-title {
-	margin: 0 0 0.75rem 0;
-	font-size: 0.9375rem;
-	color: var(--mhm-text-primary);
-	font-weight: 600;
-	line-height: 1.3;
-}
-
-.rv-alternative-vehicle-features {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.375rem;
-	margin-bottom: 0.75rem;
-}
-
-.rv-alternative-feature-tag {
-	background: var(--mhm-bg-secondary);
-	color: var(--mhm-secondary);
-	padding: 0.25rem 0.5rem;
-	border-radius: 12px;
-	font-size: 0.6875rem;
-	font-weight: 500;
-	border: 1px solid var(--mhm-border-primary);
-	text-transform: capitalize;
-}
-
-.rv-alternative-price-details {
-	margin-bottom: 0.75rem;
-	padding-top: 0.75rem;
-	border-top: 1px solid var(--mhm-border-primary);
-}
-
-.rv-alternative-price-row {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 0.375rem;
-}
-
-.rv-alternative-price-row:last-child {
-	margin-bottom: 0;
-}
-
-.rv-alternative-price-row.rv-alternative-price-total {
-	padding-top: 0.5rem;
-	border-top: 1px solid var(--mhm-border-primary);
-	margin-top: 0.5rem;
-}
-
-.rv-alternative-price-label {
-	font-size: 0.75rem;
-	color: var(--mhm-text-tertiary);
-}
-
-.rv-alternative-price-value {
-	font-size: 0.75rem;
-	color: var(--mhm-primary);
-	font-weight: 600;
-}
-
-.rv-alternative-price-amount {
-	font-size: 0.875rem;
-	color: var(--mhm-success);
-	font-weight: 700;
-}
-
-.rv-select-alternative-btn {
-	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%);
-	color: var(--mhm-btn-color);
-	border: none;
-	padding: 0.625rem 1rem;
-	border-radius: 8px;
-	font-size: 0.8125rem;
-	font-weight: 600;
-	cursor: pointer;
-	width: 100%;
-	transition: all 0.2s ease;
-	box-shadow: 0 2px 4px color-mix(in srgb, var(--mhm-primary), transparent 70%);
-}
-
-.rv-select-alternative-btn:hover {
-	background: linear-gradient(135deg, var(--mhm-primary-dark) 0%, var(--mhm-primary) 100%);
-	box-shadow: 0 4px 8px color-mix(in srgb, var(--mhm-primary), transparent 60%);
-	transform: translateY(-1px);
-}
-
-.rv-select-alternative-btn:active {
-	transform: translateY(0);
-}
-
-/* ===== ALTERNATIVE VEHICLES ===== */
-.rv-alternative-vehicles {
-	margin-top: 1rem;
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-	gap: 1rem;
-}
-
-.rv-alternative-vehicle {
-	background: var(--mhm-bg-card);
-	border: 1px solid var(--mhm-border-primary);
-	border-radius: 8px;
-	padding: 1rem;
-	transition: all 0.3s ease;
-	cursor: pointer;
-}
-
-.rv-alternative-vehicle:hover {
-	border-color: var(--mhm-primary);
-	box-shadow: 0 2px 8px color-mix(in srgb, var(--mhm-primary), transparent 85%);
-	transform: translateY(-2px);
-}
-
-.rv-alternative-vehicle-image {
-	width: 100%;
-	height: 120px;
-	overflow: hidden;
-	border-radius: 6px;
-	margin-bottom: 0.75rem;
-}
-
-.rv-alternative-vehicle-image img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-}
-
-.rv-alternative-vehicle-info h4 {
-	margin: 0 0 0.5rem 0;
-	font-size: 1.1rem;
-	color: var(--mhm-text-primary);
-}
-
-.rv-alternative-vehicle-price {
-	color: var(--mhm-primary);
-	font-weight: 600;
-	margin: 0.25rem 0;
-}
-
-.rv-alternative-vehicle-total {
-	color: var(--mhm-text-tertiary);
-	font-size: 0.9rem;
-	margin: 0.25rem 0 0.75rem 0;
-}
-
-.rv-select-alternative-btn {
-	width: 100%;
-	background: var(--mhm-primary);
-	color: white;
-	border: none;
-	padding: 0.75rem;
-	border-radius: 6px;
-	font-weight: 500;
-	cursor: pointer;
-	transition: background 0.3s ease;
-}
-
-.rv-select-alternative-btn:hover {
-	background: var(--mhm-primary-dark);
-}
-
-.rv-select-alternative-btn:active {
-	transform: translateY(1px);
-}
-
-/* ===== RESPONSIVE ALTERNATIVES ===== */
-@media (max-width: 782px) {
-	.rv-alternative-vehicles {
-		grid-template-columns: 1fr;
-	}
-
-	.rv-alternative-vehicle {
-		padding: 0.75rem;
-	}
-
-	.rv-alternative-vehicle-image {
-		height: 100px;
-	}
-}
-
-/* ====================================
-	RATING VE FAVORITE STYLES
-	(VehiclesList'ten kopyalandı)
-	==================================== */
-
-/* Section Header - For Rating and Favorite */
-.rv-section-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 1rem;
-}
-
-/* Vehicle Image Wrapper */
-.rv-vehicle-image-wrapper {
-	position: relative;
-	border-radius: 8px;
-	overflow: hidden;
-}
-
-/* Rating Overlay on Vehicle Image */
-.rv-vehicle-card__rating-overlay {
-	position: absolute;
-	top: 0.75rem;
-	left: 0.75rem;
-	background: color-mix(in srgb, var(--mhm-black), transparent 25%);
-	backdrop-filter: blur(8px);
-	padding: 0.375rem 0.75rem;
-	border-radius: 1.5rem;
-	display: flex;
-	align-items: center;
-	gap: 0.375rem;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.rv-stars {
-	display: flex;
-	gap: 0.125rem;
-	align-items: center;
-}
-
-.rv-star {
-	color: var(--mhm-gray-300) !important;
-	stroke: var(--mhm-gray-300) !important;
-	fill: none;
-}
-
-.rv-star-filled {
-	color: var(--mhm-warning) !important;
-	fill: var(--mhm-warning) !important;
-	stroke: var(--mhm-warning) !important;
-}
-
-.rv-star-half {
-	fill: #fbbf24;
-	stroke: #fbbf24;
-	background: linear-gradient(90deg, #fbbf24 50%, #d1d5db 50%);
-	-webkit-background-clip: text;
-	background-clip: text;
-	color: transparent;
-}
-
-.rv-rating-count {
-	font-size: 0.75rem;
-	color: var(--mhm-white);
-	font-weight: 500;
-}
-
-/* Favorite Button */
-.rv-vehicle-card__favorite {
-	background: none;
-	border: none;
-	cursor: pointer;
-	padding: 0.5rem;
-	border-radius: 50%;
-	transition: all 0.2s ease-in-out;
-	color: var(--mhm-error);
-	opacity: 0.7;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.rv-vehicle-card__favorite:hover {
-	opacity: 1;
-	background: color-mix(in srgb, var(--mhm-error), transparent 90%);
-	transform: scale(1.1);
-}
-
-.rv-vehicle-card__favorite.favorited,
-.rv-vehicle-card__favorite.is-favorited {
-	opacity: 1;
-}
-
-.rv-heart-icon {
-	fill: none;
-	stroke: currentColor;
-	transition: all 0.2s ease-in-out;
-}
-
-.rv-heart-icon.favorited,
-.rv-vehicle-card__favorite.favorited .rv-heart-icon,
-.rv-vehicle-card__favorite.is-favorited .rv-heart-icon {
-	fill: currentColor;
-}
-
-/* Loading State */
-.rv-vehicle-card__favorite.is-loading {
-	opacity: 0.5;
-	pointer-events: none;
-}
-
-/* Responsive Rating & Favorite */
-@media (max-width: 782px) {
-	.rv-section-header {
-		flex-direction: row;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.rv-vehicle-card__favorite {
-		padding: 0.375rem;
-	}
-
-	.rv-heart-icon {
-		width: 18px;
-		height: 18px;
-	}
-
-	.rv-vehicle-card__rating-overlay {
-		top: 0.5rem;
-		left: 0.5rem;
-		padding: 0.25rem 0.5rem;
-	}
-
-	.rv-star {
-		width: 12px;
-		height: 12px;
-	}
-
-	.rv-rating-count {
-		font-size: 0.7rem;
-	}
-}
-
-/* Logged-in user information */
-.rv-logged-in-info {
-	background: var(--mhm-bg-secondary);
-	border: 1px solid var(--mhm-border-primary);
-	border-radius: 8px;
-	padding: 1rem;
-	margin-bottom: 1rem;
-}
-
-.rv-user-details {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-}
-
-.rv-user-name {
-	font-size: 1rem;
-	font-weight: 600;
-	color: var(--mhm-text-primary);
-}
-
-.rv-user-name strong {
-	color: var(--mhm-text-primary);
-}
-
-.rv-user-email {
-	font-size: 0.875rem;
-	color: var(--mhm-text-secondary);
-	font-family: var(--mhm-font-mono);
-}
-
-/* Responsive */
-@media (max-width: 782px) {
-	.rv-logged-in-info {
-		padding: 0.75rem;
-	}
-
-	.rv-user-name {
-		font-size: 0.9rem;
-	}
-
-	.rv-user-email {
-		font-size: 0.8rem;
-	}
-}
-
-/* Button Animations */
-@keyframes buttonPulse {
-	0% {
-		box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4);
-	}
-
-	70% {
-		box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
-	}
-
-	100% {
-		box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
-	}
-}
-
-.rv-btn-primary:active:not(:disabled) {
-	color: var(--mhm-white) !important;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-	animation: buttonPulse 0.6s ease-out;
-	transform: translateY(-1px) scale(0.98);
-}
-
-/* ========================================
-	Field Hints for Date Inputs
-	======================================== */
-
-.rv-field-hint {
-	display: block;
-	font-size: 12px;
-	color: #6c757d;
-	font-weight: 400;
-	margin-top: 4px;
-	font-style: italic;
-}
-
-.rv-field input[type="date"]:placeholder-shown+.rv-field-hint,
-.rv-field input[type="date"]:not(:placeholder-shown)+.rv-field-hint {
-	display: none;
-}
-
-/* Alternative approach for date inputs */
-.rv-field input[type="date"]:invalid {
-	color: #6c757d;
-}
-
-.rv-field input[type="date"]:invalid::before {
-	content: attr(data-placeholder);
-	color: #6c757d;
-	font-style: italic;
-}
-
-/* Date input styling */
-.rv-date-input {
-	cursor: pointer;
-	background-color: var(--mhm-bg-card);
-	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3e%3cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3e%3c/svg%3e");
-	background-repeat: no-repeat;
-	background-position: right 12px center;
-	background-size: 16px;
-	padding-right: 40px;
-}
-
-.rv-date-input:focus {
-	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%234f46e5'%3e%3cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3e%3c/svg%3e");
-}
-
-/* ===== MODERN JQUERY UI DATEPICKER STYLES ===== */
-.ui-datepicker {
-	background: var(--mhm-bg-card);
-	border: 2px solid var(--mhm-border-primary);
-	border-radius: 12px;
-	box-shadow: var(--mhm-shadow-lg);
-	padding: 0;
-	font-family: var(--mhm-font-primary);
-	font-size: 14px;
-	z-index: 9999;
-	min-width: 280px;
-}
-
-/* ===== DATEPICKER HEADER - REDESIGNED ===== */
-.ui-datepicker .ui-datepicker-header {
-	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%) !important;
-	color: var(--mhm-btn-color) !important;
-	border: none !important;
-	border-radius: 10px 10px 0 0 !important;
-	padding: 0 !important;
-	min-height: 64px !important;
-	height: 64px !important;
-	text-align: center !important;
-	position: relative !important;
-	box-shadow: 0 2px 8px color-mix(in srgb, var(--mhm-btn-bg), transparent 80%) !important;
-	display: flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	overflow: visible !important;
-}
-
-/* Title - Perfectly centered between arrows */
-.ui-datepicker .ui-datepicker-title {
-	font-weight: 700 !important;
-	font-size: 17px !important;
-	line-height: 1.5 !important;
-	color: var(--mhm-btn-color) !important;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
-	letter-spacing: 0.5px !important;
-	text-align: center !important;
-	margin: 0 !important;
-	padding: 0 !important;
-	display: inline-block !important;
-	width: auto !important;
-	position: relative !important;
-	z-index: 5 !important;
-	white-space: nowrap !important;
-	box-sizing: border-box !important;
-}
-
-/* Navigation Arrows - Fixed positions on sides */
-.ui-datepicker .ui-datepicker-prev,
-.ui-datepicker .ui-datepicker-next {
-	position: absolute !important;
-	top: 50% !important;
-	transform: translateY(-50%) !important;
-	width: 36px !important;
-	height: 36px !important;
-	background: color-mix(in srgb, var(--mhm-white), transparent 75%) !important;
-	border: 2px solid color-mix(in srgb, var(--mhm-white), transparent 60%) !important;
-	border-radius: 50% !important;
-	cursor: pointer !important;
-	display: flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	transition: all 0.2s ease !important;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
-	z-index: 10 !important;
-	margin: 0 !important;
-	padding: 0 !important;
-}
-
-.ui-datepicker .ui-datepicker-prev:hover,
-.ui-datepicker .ui-datepicker-next:hover {
-	background: color-mix(in srgb, var(--mhm-white), transparent 60%) !important;
-	border-color: color-mix(in srgb, var(--mhm-white), transparent 40%) !important;
-	transform: translateY(-50%) scale(1.05) !important;
-	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
-}
-
-.ui-datepicker .ui-datepicker-prev {
-	left: 16px !important;
-	right: auto !important;
-}
-
-.ui-datepicker .ui-datepicker-next {
-	right: 16px !important;
-	left: auto !important;
-}
-
-/* Hide "Previous" and "Next" text labels completely */
-.ui-datepicker .ui-datepicker-prev span,
-.ui-datepicker .ui-datepicker-next span,
-.ui-datepicker .ui-datepicker-prev a span,
-.ui-datepicker .ui-datepicker-next a span,
-.ui-datepicker .ui-datepicker-prev .ui-button-text,
-.ui-datepicker .ui-datepicker-next .ui-button-text {
-	display: none !important;
-	visibility: hidden !important;
-	width: 0 !important;
-	height: 0 !important;
-	overflow: hidden !important;
-	text-indent: -9999px !important;
-	position: absolute !important;
-	clip: rect(0, 0, 0, 0) !important;
-	font-size: 0 !important;
-	line-height: 0 !important;
-	opacity: 0 !important;
-}
-
-/* Hide any direct text content in prev/next buttons */
-.ui-datepicker .ui-datepicker-prev,
-.ui-datepicker .ui-datepicker-next {
-	font-size: 0 !important;
-	color: transparent !important;
-	text-indent: -9999px !important;
-}
-
-/* Hide text in anchor elements */
-.ui-datepicker .ui-datepicker-prev a,
-.ui-datepicker .ui-datepicker-next a {
-	font-size: 0 !important;
-	text-indent: -9999px !important;
-	color: transparent !important;
-}
-
-.ui-datepicker .ui-datepicker-prev .ui-icon,
-.ui-datepicker .ui-datepicker-next .ui-icon {
-	background: none !important;
-	width: 18px !important;
-	height: 18px !important;
-	text-indent: 0 !important;
-	color: var(--mhm-white) !important;
-	font-weight: 700 !important;
-	margin: 0 !important;
-	display: flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	position: relative !important;
-}
-
-.ui-datepicker .ui-datepicker-prev .ui-icon::before {
-	content: '' !important;
-	font-size: 20px !important;
-	line-height: 1 !important;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
-	display: block !important;
-	visibility: visible !important;
-	color: var(--mhm-white) !important;
-}
-
-.ui-datepicker .ui-datepicker-next .ui-icon::before {
-	content: '' !important;
-	font-size: 20px !important;
-	line-height: 1 !important;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
-	display: block !important;
-	visibility: visible !important;
-	color: var(--mhm-white) !important;
-}
-
-/* Ensure icon container is visible */
-.ui-datepicker .ui-datepicker-prev .ui-icon,
-.ui-datepicker .ui-datepicker-next .ui-icon {
-	opacity: 1 !important;
-	visibility: visible !important;
-}
-
-.ui-datepicker table {
-	width: 100%;
-	border-collapse: collapse;
-	margin: 0;
-}
-
-.ui-datepicker th,
-.ui-datepicker td {
-	padding: 8px;
-	text-align: center;
-	border: none;
-}
-
-.ui-datepicker th {
-	background: var(--mhm-bg-secondary);
-	color: var(--mhm-text-tertiary);
-	font-weight: 600;
-	font-size: 12px;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-}
-
-.ui-datepicker td a {
-	display: block;
-	width: 32px;
-	height: 32px;
-	line-height: 32px;
-	border-radius: 50%;
-	text-decoration: none;
-	color: var(--mhm-text-secondary);
-	font-weight: 500;
-	transition: all 0.2s ease;
-	margin: 0 auto;
-}
-
-.ui-datepicker td a:hover {
-	background: var(--mhm-bg-secondary);
-	color: var(--mhm-text-primary);
-}
-
-.ui-datepicker .ui-datepicker-today a {
-	background: color-mix(in srgb, var(--mhm-primary), transparent 90%);
-	color: var(--mhm-primary);
-	font-weight: 600;
-}
-
-.ui-datepicker .ui-datepicker-current-day a,
-.ui-datepicker .ui-state-active {
-	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-secondary) 100%) !important;
-	color: var(--mhm-btn-color) !important;
-	font-weight: 600 !important;
-}
-
-.ui-datepicker .ui-datepicker-other-month a {
-	color: var(--mhm-gray-300);
-}
-
-.ui-datepicker .ui-datepicker-buttonpane {
-	background: var(--mhm-bg-secondary);
-	border-top: 1px solid var(--mhm-border-primary);
-	padding: 12px 16px;
-	border-radius: 0 0 10px 10px;
-	text-align: center;
-}
-
-.ui-datepicker .ui-datepicker-buttonpane button {
-	background: var(--mhm-btn-bg);
-	color: var(--mhm-btn-color);
-	border: none;
-	padding: 8px 16px;
-	border-radius: 6px;
-	font-weight: 500;
-	cursor: pointer;
-	font-size: 13px;
-	margin: 0 4px;
-	transition: opacity 0.2s ease;
-}
-
-.ui-datepicker .ui-datepicker-buttonpane button:hover {
-	opacity: 0.9;
-}
-
-/* Month/Year Select Dropdowns */
-.ui-datepicker select {
-	background: color-mix(in srgb, var(--mhm-white), transparent 85%) !important;
-	border: 1px solid color-mix(in srgb, var(--mhm-white), transparent 70%) !important;
-	border-radius: 4px !important;
-	color: var(--mhm-btn-color) !important;
-	font-weight: 600 !important;
-	padding: 4px 8px !important;
-	margin: 0 2px !important;
-	text-align: center !important;
-	text-align-last: center !important;
-	-webkit-appearance: none !important;
-	-moz-appearance: none !important;
-	appearance: none !important;
-}
-
-.ui-datepicker select option {
-	background: var(--mhm-primary) !important;
-	color: var(--mhm-btn-color) !important;
-	text-align: center !important;
-}
-
-/* Responsive DatePicker */
-@media (max-width: 782px) {
-	.ui-datepicker {
-		min-width: 260px;
-		font-size: 13px;
-	}
-
-	.ui-datepicker .ui-datepicker-header {
-		padding: 12px;
-	}
-
-	.ui-datepicker .ui-datepicker-title {
-		font-size: 15px;
-	}
-
-	.ui-datepicker td a {
-		width: 28px;
-		height: 28px;
-		line-height: 28px;
-		font-size: 13px;
-	}
-}
-
-/* Notification System - Moved to global notifications.css */
-
-/* ===== DATEPICKER FIXES ===== */
-/* Robust fix for "V" symbols (theme icons) appearing in datepicker headers */
-#ui-datepicker-div .ui-datepicker-calendar th::after,
-#ui-datepicker-div .ui-datepicker-calendar th::before,
-#ui-datepicker-div .ui-datepicker-calendar td::after,
-#ui-datepicker-div .ui-datepicker-calendar td::before,
-#ui-datepicker-div thead th::after,
-#ui-datepicker-div thead th::before,
-#ui-datepicker-div thead tr::after,
-#ui-datepicker-div thead tr::before,
-#ui-datepicker-div th span::after,
-#ui-datepicker-div th span::before {
-	content: none !important;
-	display: none !important;
-	background: none !important;
-	border: none !important;
-	width: 0 !important;
-	height: 0 !important;
-	opacity: 0 !important;
-}
-
-/* Force cache update: 2025-12-23 14:15 */
-/* Force cache update: 2025-12-23 14:18 */
-/* Fix for "V" symbols (repeating background image) on input fields */
-/* Fix for "V" symbols (repeating background image) on input fields */
-.rv-booking-form input.rv-date-input,
-.rv-booking-form input.rv-input.hasDatepicker,
-.rv-booking-form input[type="date"] {
-	background-image: none !important;
-	background-color: var(--mhm-white) !important;
-	background-repeat: no-repeat !important;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-}
-
-/* =========================================
-	MODAL OVERRIDES (Applied when inside Booking Modal)
-	========================================= */
-
-/* Force Vertical Layout for Vehicle Card inside Modal */
-#rv-booking-modal .rv-selected-vehicle {
-	display: flex !important;
-	flex-direction: column !important;
-	height: auto !important;
-	min-height: auto !important;
-	align-items: flex-start !important;
-}
-
-/* Full Width Image */
-#rv-booking-modal .rv-selected-vehicle .rv-vehicle-image-wrapper {
-	width: 100% !important;
-	height: 200px !important;
-	margin: 0 0 15px 0 !important;
-	flex: none !important;
-}
-
-/* Full Width Details */
-#rv-booking-modal .rv-selected-vehicle .rv-vehicle-details {
-	width: 100% !important;
-	padding: 0 !important;
-	margin: 0 !important;
-	flex: none !important;
-}
-
-/* Features List Wrap */
-#rv-booking-modal .rv-vehicle-features {
-	display: flex !important;
-	flex-direction: row !important;
-	flex-wrap: wrap !important;
-	gap: 8px !important;
-	width: 100% !important;
-	margin-bottom: 15px !important;
-}
-
-#rv-booking-modal .rv-feature-tag {
-	white-space: nowrap !important;
-	width: auto !important;
-	flex: 0 0 auto !important;
-}
-
-/* Single Column Inputs */
-#rv-booking-modal .rv-field-group {
-	grid-template-columns: 1fr !important;
-}
-
-/* Ghost Datepicker Fix */
-#ui-datepicker-div {
-	display: none;
-	/* Hide by default, jQuery will show() it */
-	z-index: 99999 !important;
-}
-
-/* ==========================================================================
-   PREMIUM SINGLE COLUMN LAYOUT (User Request: Jan 2026)
-   ========================================================================= */
-
-/* 1. Layout & Container */
-.rv-booking-form-wrapper {
-	max-width: 900px !important;
-	/* Increased from 800px to prevent overflow */
-	margin: 40px auto !important;
-	padding: 30px !important;
-	background: var(--mhm-bg-card) !important;
-	box-shadow: var(--mhm-shadow-lg) !important;
-	border-radius: 16px !important;
-	border: 1px solid var(--mhm-border-primary) !important;
-	box-sizing: border-box !important;
-	/* Safety Net */
-}
-
-/* Reset any previous grid/flex layouts */
-.rv-booking-form-content,
-.rv-checkout-layout {
-	display: block !important;
-	grid-template-columns: none !important;
-	width: 100% !important;
-}
-
-.rv-checkout-sidebar,
-.rv-checkout-form-main {
-	width: 100% !important;
-	max-width: 100% !important;
-	margin: 0 !important;
-}
-
-/* 2. Top: Vehicle Card (The "Hero") */
-.rv-selected-vehicle {
-	width: 100% !important;
-	display: flex !important;
-	flex-direction: row !important;
-	align-items: center !important;
-	gap: 20px !important;
-	/* Reduced Gap */
-	padding: 15px !important;
-	/* Reduced Padding */
-	margin-bottom: 30px !important;
-	background: var(--mhm-bg-card) !important;
-	border: 1px solid var(--mhm-border-primary) !important;
-	box-shadow: var(--mhm-shadow-sm) !important;
-	border-radius: 16px !important;
-	min-height: auto !important;
-	box-sizing: border-box !important;
-}
-
-/* Vehicle Image */
-.rv-selected-vehicle .rv-vehicle-image-wrapper {
-	width: 200px !important;
-	height: 120px !important;
-	margin: 0 !important;
-	flex-shrink: 0 !important;
-}
-
-.rv-selected-vehicle .rv-vehicle-image {
-	width: 100% !important;
-	height: 100% !important;
-	object-fit: cover !important;
-	border-radius: 12px !important;
-}
-
-/* Vehicle Info */
-.rv-selected-vehicle .rv-vehicle-details {
-	height: auto !important;
-	padding: 0 !important;
-	justify-content: center !important;
-}
-
-/* Title */
-.rv-selected-vehicle .rv-vehicle-title {
-	font-size: 1.5rem !important;
-	font-weight: 800 !important;
-	color: var(--mhm-text-primary) !important;
-	line-height: 1.2 !important;
-	margin-bottom: 8px !important;
-}
-
-/* Features (Visual Chips) */
-.rv-vehicle-features {
-	display: flex !important;
-	flex-wrap: wrap !important;
-	gap: 10px !important;
-	margin: 0 !important;
-}
-
-.rv-feature-tag {
-	display: inline-flex !important;
-	align-items: center !important;
-	gap: 8px !important;
-	padding: 8px 14px !important;
-	background: var(--mhm-bg-secondary) !important;
-	color: var(--mhm-text-secondary) !important;
-	border-radius: 50px !important;
-	/* Pill Shape */
-	font-size: 0.875rem !important;
-	font-weight: 600 !important;
-	border: 1px solid var(--mhm-border-primary) !important;
-	transition: all 0.2s ease !important;
-}
-
-.rv-feature-tag:hover {
-	background: var(--mhm-bg-tertiary) !important;
-	color: var(--mhm-text-primary) !important;
-}
-
-.rv-feature-tag svg {
-	width: 16px !important;
-	height: 16px !important;
-	stroke-width: 2.5px !important;
-	color: var(--mhm-text-tertiary) !important;
-}
-
-/* Price - Reference Style */
-.rv-vehicle-price {
-	font-size: 1.1rem !important;
-	/* Base size for unit */
-	font-weight: 600 !important;
-	color: var(--mhm-text-tertiary) !important;
-	/* Grayish for unit */
-	margin-top: 0px !important;
-	/* Spacing from features */
-	display: flex !important;
-	align-items: baseline !important;
-	gap: 4px !important;
-}
-
-/* The Amount Number Itself (e.g. 6.000) */
-.rv-vehicle-price strong,
-.rv-vehicle-price span.amount,
-.rv-vehicle-price .woocommerce-Price-currencySymbol {
-	font-size: 1.75rem !important;
-	/* Large Hero Number */
-	font-weight: 800 !important;
-	color: var(--mhm-primary) !important;
-	/* Brand Blue */
-	letter-spacing: -0.5px !important;
-}
-
-
-
-/* 3. Middle: Inputs (Date & Time) - Premium Combined Layout */
-.rv-dates-combined-layout {
-	display: grid !important;
-	grid-template-columns: 1fr 1fr !important;
-	gap: 24px !important;
-	margin-bottom: 30px !important;
-}
-
-.rv-combined-field-column {
-	display: flex !important;
-	flex-direction: column !important;
-	gap: 8px !important;
-}
-
-/* Bold Premium Label */
-.rv-label-premium {
-	display: flex !important;
-	align-items: center !important;
-	gap: 6px !important;
-	font-size: 0.95rem !important;
-	font-weight: 700 !important;
-	color: var(--mhm-text-primary) !important;
-	margin-bottom: 2px !important;
-}
-
-/* Info Icon in Label */
-.rv-info-icon-wrapper {
-	display: inline-flex !important;
-	color: var(--mhm-info) !important;
-	/* Primary Blue */
-	cursor: help !important;
-	opacity: 0.8 !important;
-	transition: opacity 0.2s !important;
-}
-
-.rv-info-icon-wrapper:hover {
-	opacity: 1 !important;
-}
-
-/* The Unified Input Box */
-.rv-date-time-picker-wrapper {
-	display: flex !important;
-	align-items: center !important;
-	justify-content: space-between !important;
-	background: var(--mhm-bg-card) !important;
-	border: 1px solid var(--mhm-border-primary) !important;
-	border-radius: 12px !important;
-	padding: 0 16px !important;
-	height: 56px !important;
-	transition: all 0.25s ease !important;
-	cursor: pointer !important;
-}
-
-.rv-date-time-picker-wrapper:hover {
-	border-color: var(--mhm-border-secondary) !important;
-	background: var(--mhm-bg-secondary) !important;
-}
-
-.rv-date-time-picker-wrapper:focus-within {
-	border-color: var(--mhm-primary) !important;
-	box-shadow: 0 0 0 4px color-mix(in srgb, var(--mhm-primary), transparent 90%) !important;
-	background: #ffffff !important;
-}
-
-/* Inner inputs container */
-.rv-inputs-inner {
-	display: flex !important;
-	align-items: center !important;
-	flex: 1 !important;
-	overflow: hidden !important;
-}
-
-/* Borderless Ghost Inputs */
-.rv-input-ghost,
-.rv-select-ghost {
-	border: none !important;
-	background: transparent !important;
-	padding: 0 !important;
-	margin: 0 !important;
-	font-size: 0.95rem !important;
-	color: var(--mhm-text-primary) !important;
-	outline: none !important;
-	box-shadow: none !important;
-	height: 100% !important;
-}
-
-.rv-input-ghost {
-	width: auto !important;
-	flex: 0 0 auto !important;
-	min-width: 120px !important;
-	cursor: pointer !important;
-}
-
-.rv-select-ghost {
-	flex: 1 !important;
-	cursor: pointer !important;
-	/* Remove default arrow to match image */
-	-webkit-appearance: none !important;
-	-moz-appearance: none !important;
-	appearance: none !important;
-	background: none !important;
-	padding-left: 5px !important;
-}
-
-.rv-field-separator {
-	color: var(--mhm-gray-400) !important;
-	margin: 0 4px !important;
-	font-weight: 500 !important;
-}
-
-/* Icon Wrapper */
-.rv-calendar-icon-wrapper {
-	color: var(--mhm-text-tertiary) !important;
-	display: flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	margin-left: 10px !important;
-	pointer-events: none !important;
-}
-
-.rv-calendar-icon-wrapper svg {
-	width: 20px !important;
-	height: 20px !important;
-	stroke-width: 1.5px !important;
-}
-
-/* Description Hint - Premium Single Line */
-.rv-description-hint-premium {
-	font-size: 0.75rem !important;
-	font-weight: 500 !important;
-	color: var(--mhm-text-tertiary) !important;
-	margin-top: 6px !important;
-	font-style: italic !important;
-	white-space: nowrap !important;
-	/* Force single line */
-	display: block !important;
-	overflow: hidden !important;
-	text-overflow: ellipsis !important;
-}
-
-/* ===== MOBILE RESPONSIVE OPTIMIZATIONS ===== */
-@media (max-width: 782px) {
-
-	/* 0. Form Container - Maximize Width */
-	.rv-booking-form-wrapper {
-		padding: 0 12px !important;
-		margin: 20px auto !important;
-	}
-
-	.rv-booking-form-content {
-		gap: 24px !important;
-	}
-
-	/* 1. Date & Time Inputs Stack */
-	.rv-dates-combined-layout {
-		grid-template-columns: 1fr !important;
-		gap: 16px !important;
-		margin-bottom: 24px !important;
-	}
-
-	/* Prevent Grid Blowout from long text */
-	.rv-combined-field-column {
-		min-width: 0 !important;
-		width: 100% !important;
-	}
-
-	/* Allow text wrapping for hints on mobile */
-	.rv-description-hint-premium {
-		white-space: normal !important;
-		height: auto !important;
-		overflow: visible !important;
-		line-height: 1.4 !important;
-	}
-
-	/* Allow flexible height for inputs on very small screens */
-	.rv-date-time-picker-wrapper {
-		height: auto !important;
-		min-height: auto !important;
-		padding: 12px 16px !important;
-		align-items: flex-start !important;
-		width: 100% !important;
-		box-sizing: border-box !important;
-	}
-
-	.rv-inputs-inner {
-		flex-direction: column !important;
-		align-items: stretch !important;
-		gap: 8px !important;
-		width: 100% !important;
-	}
-
-	.rv-field-separator {
-		display: none !important;
-	}
-
-	.rv-input-ghost,
-	.rv-select-ghost {
-		width: 100% !important;
-		min-width: unset !important;
-		height: 30px !important;
-		border-bottom: 1px dashed var(--mhm-border-primary) !important;
-		border-radius: 0 !important;
-		padding-bottom: 4px !important;
-	}
-
-	.rv-select-ghost {
-		border-bottom: none !important;
-		padding-bottom: 0 !important;
-		padding-left: 0 !important;
-	}
-
-	.rv-calendar-icon-wrapper {
-		margin-top: 5px !important;
-		/* Align with top input */
-	}
-
-	/* 2. Vehicle Card - Vertical Stack */
-	.rv-selected-vehicle {
-		padding: 0 !important;
-		overflow: hidden !important;
-		border: 1px solid var(--mhm-border-primary) !important;
-		height: auto !important;
-		min-height: auto !important;
-	}
-
-	/* The inner container holding Image + Details */
-	.rv-vehicle-info {
-		display: flex !important;
-		flex-direction: column !important;
-		width: 100% !important;
-		padding: 0 !important;
-		margin: 0 !important;
-		gap: 0 !important;
-		border: none !important;
-	}
-
-	.rv-selected-vehicle .rv-vehicle-image-wrapper {
-		width: 100% !important;
-		height: 220px !important;
-		margin: 0 !important;
-		border-radius: 0 !important;
-	}
-
-	/* Force Image Fill */
-	.rv-selected-vehicle .rv-vehicle-image {
-		width: 100% !important;
-		height: 100% !important;
-		object-fit: cover !important;
-		border-radius: 0 !important;
-	}
-
-	.rv-selected-vehicle .rv-vehicle-details {
-		padding: 24px 20px !important;
-		width: 100% !important;
-		box-sizing: border-box !important;
-		display: flex !important;
-		flex-direction: column !important;
-		align-items: center !important;
-		text-align: center !important;
-		gap: 8px !important;
-	}
-
-	/* Center Rating Block */
-	.rv-vehicle-rating-block {
-		width: 100% !important;
-		justify-content: center !important;
-		margin: 4px 0 12px 0 !important;
-	}
-
-	/* Position Favorite Icon at Top Right of Image */
-	.rv-vehicle-card__favorite {
-		top: 16px !important;
-		right: 20px !important;
-		/* Ensure it's above image */
-		z-index: 10 !important;
-		background: color-mix(in srgb, var(--mhm-white), transparent 20%) !important;
-		border-radius: 50% !important;
-		width: 32px !important;
-		height: 32px !important;
-		display: flex !important;
-		align-items: center !important;
-		justify-content: center !important;
-	}
-
-	.rv-selected-vehicle .rv-vehicle-card__footer {
-		display: none !important;
-		/* Hide old footer structure if distinct from details */
-	}
-
-	.rv-selected-vehicle .rv-vehicle-title {
-		font-size: 1.35rem !important;
-		text-align: center !important;
-		margin-bottom: 4px !important;
-	}
-
-	.rv-vehicle-features {
-		justify-content: center !important;
-		gap: 8px !important;
-		margin: 8px 0 !important;
-	}
-
-	/* 3. Addons List */
-	.rv-addon-item {
-		padding: 12px !important;
-		width: 100% !important;
-		flex-wrap: wrap !important;
-	}
-
-	.rv-addon-item .rv-addon-title {
-		font-size: 0.9rem !important;
-	}
-
-	/* 4. Price Calculation - Compact View */
-	.rv-price-calculation {
-		padding: 20px !important;
-		margin-top: 24px !important;
-		width: 100% !important;
-		box-sizing: border-box !important;
-	}
-
-	.rv-price-item {
-		font-size: 0.9rem !important;
-	}
-
-	/* 5. Submit Button - Full Width & Height */
-	.rv-submit-btn {
-		height: 54px !important;
-		font-size: 1.1rem !important;
-		width: 100% !important;
-	}
-}
-
-/* 4. Middle: Extras (The "Clean List") */
-.rv-addons-list {
-	display: flex !important;
-	flex-direction: column !important;
-	gap: 0 !important;
-	border-top: 1px solid var(--mhm-border-primary) !important;
-}
-
-.rv-addon-item {
-	display: flex !important;
-	align-items: center !important;
-	width: 100% !important;
-	padding: 16px 10px !important;
-	background: transparent !important;
-	border: none !important;
-	border-bottom: 1px solid var(--mhm-border-primary) !important;
-	border-radius: 8px !important;
-	/* Rounded selection background */
-	box-shadow: none !important;
-	min-height: auto !important;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-	cursor: pointer !important;
-	box-sizing: border-box !important;
-}
-
-/* Hover and Checked states */
-.rv-addon-item:hover {
-	background: var(--mhm-bg-secondary) !important;
-}
-
-.rv-addon-item:has(.rv-addon-checkbox:checked) {
-	background: color-mix(in srgb, var(--mhm-btn-bg), transparent 95%) !important;
-	/* Light tint based on button color for selection */
-	border-bottom-color: transparent !important;
-	/* Hide separator when selected for cleaner look */
-	transform: translateX(4px) !important;
-	/* Subtle 'pop' animation */
-}
-
-/* Remove any accidental focus borders/outlines */
-.rv-addon-item,
-.rv-addon-item *,
-.rv-addon-checkbox:focus {
-	outline: none !important;
-	box-shadow: none !important;
-}
-
-/* Checkbox Style */
-.rv-addon-checkbox {
-	margin-top: 4px !important;
-	margin-inline-end: 16px !important;
-}
-
-/* Active Text Color */
-.rv-addon-item:has(.rv-addon-checkbox:checked) .rv-addon-title {
-	color: var(--mhm-btn-bg) !important;
-}
-
-/* Addon Content Wrapper to push price to right */
-.rv-addon-title {
-	font-size: 1rem !important;
-	font-weight: 600 !important;
-	color: var(--mhm-text-primary) !important;
-	flex-grow: 1 !important;
-	/* Takes up available space */
-}
-
-.rv-addon-price {
-	font-weight: 600 !important;
-	color: var(--mhm-text-secondary) !important;
-	margin-left: auto !important;
-	/* Pushes to far right */
-	white-space: nowrap !important;
-	/* Prevents line checks */
-}
-
-/* 5. Bottom: Price Summary */
-/* 5. Bottom: Price Summary - Professional Receipt Style */
-.rv-price-calculation {
-	background: var(--mhm-bg-secondary) !important;
-	border-radius: 12px !important;
-	padding: 24px !important;
-	margin-top: 32px !important;
-	border: 1px solid var(--mhm-border-primary) !important;
-	text-align: left !important;
-	/* Reset potential centering */
-	width: 100% !important;
-	box-sizing: border-box !important;
-}
-
-.rv-price-breakdown {
-	display: flex !important;
-	flex-direction: column !important;
-	gap: 12px !important;
-	width: 100% !important;
-}
-
-.rv-price-item {
-	display: flex !important;
-	justify-content: space-between !important;
-	align-items: center !important;
-	font-size: 0.95rem !important;
-	color: var(--mhm-text-secondary) !important;
-	width: 100% !important;
-}
-
-.rv-price-value {
-	font-weight: 600 !important;
-	color: var(--mhm-text-primary) !important;
-	text-align: right !important;
-}
-
-/* Total Price Special Style */
-.rv-price-item.rv-total-price {
-	margin-top: 16px !important;
-	padding-top: 20px !important;
-	border-top: 2px solid var(--mhm-border-primary) !important;
-	align-items: flex-end !important;
-}
-
-.rv-price-item.rv-total-price .rv-price-label {
-	font-size: 1.1rem !important;
-	font-weight: 700 !important;
-	color: var(--mhm-text-primary) !important;
-}
-
-.rv-price-item.rv-total-price .rv-price-value {
-	font-size: 1.5rem !important;
-	font-weight: 800 !important;
-	color: var(--mhm-price-color) !important;
-	line-height: 1 !important;
-}
-
-/* Deposit and Remaining Info (Secondary) */
-.rv-price-item.rv-deposit-summary,
-.rv-price-item.rv-remaining-summary {
-	margin-top: 4px !important;
-	font-size: 0.9rem !important;
-	padding-top: 8px !important;
-}
-
-.rv-price-item.rv-deposit-summary {
-	border-top: 1px dashed var(--mhm-border-primary) !important;
-	margin-top: 12px !important;
-}
-
-.rv-price-item.rv-deposit-summary .rv-price-value {
-	color: var(--mhm-price-color) !important;
-}
-
-.rv-price-item.rv-remaining-summary .rv-price-value {
-	color: var(--mhm-price-color) !important;
-	/* Decoupled for pricing control */
-}
-
-.rv-price-item.rv-total-price .rv-price-value {
-	font-size: 1.8rem !important;
-	font-weight: 800 !important;
-	color: var(--mhm-price-color) !important;
-}
-
-.rv-submit-btn {
-	width: 100% !important;
-	height: 60px !important;
-	margin-top: 24px !important;
-	border-radius: 12px !important;
-	font-size: 1.15rem !important;
-	font-weight: 700 !important;
-	color: var(--mhm-btn-color) !important;
-	background: var(--mhm-btn-bg) !important;
-	border: none !important;
-	box-shadow: 0 8px 24px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%) !important;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-	cursor: pointer !important;
-	display: flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	gap: 10px !important;
-}
-
-.rv-submit-btn:hover {
-	background: var(--mhm-btn-hover-bg) !important;
-	transform: translateY(-2px) !important;
-	box-shadow: 0 12px 30px color-mix(in srgb, var(--mhm-btn-bg), transparent 60%) !important;
-}
-
-.rv-submit-btn:active {
-	transform: translateY(0) !important;
-	box-shadow: none !important;
-}
-
-.rv-submit-btn:disabled {
-	background: var(--mhm-gray-300) !important;
-	cursor: not-allowed !important;
-	transform: none !important;
-	box-shadow: none !important;
-}
-
-/* ===== PROFESSIONAL ALTERNATIVE VEHICLES (v4.5) ===== */
-.rv-availability-error {
-	background: transparent !important;
-	box-shadow: none !important;
-	padding: 0 !important;
-	margin-top: 1.5rem;
-}
-
-.rv-availability-error-header {
-	background: color-mix(in srgb, var(--mhm-error), transparent 95%);
-	border: 1px solid color-mix(in srgb, var(--mhm-error), transparent 80%);
-	color: var(--mhm-error-dark);
-	padding: 1.25rem 1.5rem;
-	border-radius: 12px;
-	margin-bottom: 2rem;
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	box-shadow: var(--mhm-shadow-sm);
-}
-
-.rv-availability-error-header .dashicons {
-	background: var(--mhm-error) !important;
-	color: var(--mhm-white) !important;
-	border-radius: 50%;
-	padding: 4px;
-	font-size: 16px;
-	width: 24px;
-	height: 24px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-/* Alternatives Wrapper */
-.rv-alternatives-wrapper {
-	margin-top: 2rem;
-}
-
-.rv-alternatives-title {
-	font-size: 1.125rem;
-	font-weight: 700;
-	color: var(--mhm-text-primary);
-	margin-bottom: 2rem;
-	padding-bottom: 0.75rem;
-	border-bottom: 2px solid var(--mhm-border-primary);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	/* Bal ortala */
-	gap: 0.5rem;
-}
-
-/* ?? GRID LAYOUT - Perfectly Centered & No Overflow */
-.rv-alternatives-grid {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	width: 100%;
-	max-width: 100%;
-	margin: 0 auto;
-	gap: 1.25rem;
-	margin-bottom: 2rem;
-	justify-content: center;
-	box-sizing: border-box;
-}
-
-/* Premium Card Design */
-.rv-alternative-vehicle-card {
-	background: var(--mhm-bg-card);
-	border: 1px solid var(--mhm-border-primary);
-	border-radius: 16px;
-	overflow: hidden;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	box-shadow: var(--mhm-shadow-base);
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	text-align: center;
-	/* erikleri ortala */
-}
-
-.rv-alternative-vehicle-card:hover {
-	transform: translateY(-8px);
-	box-shadow: var(--mhm-shadow-lg);
-	border-color: var(--mhm-primary);
-}
-
-/* Image Section */
-.rv-alternative-vehicle-image {
-	width: 100%;
-	height: 180px;
-	overflow: hidden;
-	background: var(--mhm-bg-secondary);
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.rv-alternative-vehicle-image img {
-	max-width: 90%;
-	height: 100%;
-	object-fit: contain;
-	padding: 1rem;
-	transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.rv-alternative-vehicle-card:hover .rv-alternative-vehicle-image img {
-	transform: scale(1.15);
-}
-
-/* Content Section */
-.rv-alternative-vehicle-content {
-	padding: 1.5rem;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	/* Kart iini dikeyde ortala */
-	flex-grow: 1;
-}
-
-.rv-alternative-vehicle-title {
-	font-size: 1.125rem;
-	font-weight: 700;
-	color: var(--mhm-text-primary);
-	margin: 0 0 1rem 0;
-	height: 2.8rem;
-	overflow: hidden;
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	line-clamp: 2;
-	-webkit-box-orient: vertical;
-	line-height: 1.4;
-	text-align: center;
-}
-
-/* Features Tags */
-.rv-alternative-vehicle-features {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	/* Taglar ortala */
-	gap: 0.5rem;
-	margin-bottom: 1.25rem;
-}
-
-.rv-alternative-feature-tag {
-	font-size: 0.7rem;
-	text-transform: uppercase;
-	font-weight: 700;
-	padding: 3px 10px;
-	background: var(--mhm-bg-secondary);
-	color: var(--mhm-text-secondary);
-	border-radius: 100px;
-	letter-spacing: 0.025em;
-}
-
-/* Pricing Section */
-.rv-alternative-price-details {
-	width: 100%;
-	margin-top: auto;
-	padding-top: 1.25rem;
-	border-top: 1px dashed var(--mhm-border-primary);
-	margin-bottom: 1.5rem;
-}
-
-.rv-alternative-price-row {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 0.4rem;
-}
-
-.rv-alternative-price-label {
-	font-size: 0.8rem;
-	color: var(--mhm-text-tertiary);
-}
-
-.rv-alternative-price-value {
-	font-size: 0.95rem;
-	font-weight: 600;
-	color: var(--mhm-text-secondary);
-}
-
-.rv-alternative-price-total .rv-alternative-price-label {
-	font-weight: 700;
-	color: var(--mhm-text-primary);
-}
-
-.rv-alternative-price-amount {
-	font-size: 1.35rem;
-	font-weight: 800;
-	color: var(--mhm-primary);
-}
-
-/* Select Button */
-.rv-select-alternative-btn {
-	width: 100%;
-	background: var(--mhm-gray-800);
-	color: var(--mhm-white) !important;
-	border: none;
-	padding: 1rem;
-	border-radius: 10px;
-	font-weight: 700;
-	font-size: 0.95rem;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.6rem;
-	box-shadow: var(--mhm-shadow-sm);
-}
-
-.rv-select-alternative-btn:hover {
-	background: var(--mhm-primary);
-	box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--mhm-primary), transparent 60%);
-	transform: translateY(-2px);
-}
-
-/* ?? MOBILE RESPONSIVE */
-@media (max-width: 1024px) {
-	.rv-alternatives-grid {
-		grid-template-columns: repeat(2, 1fr);
-		gap: 1.25rem;
-	}
-}
-
-@media (max-width: 782px) {
-	.rv-alternatives-grid {
-		grid-template-columns: 1fr;
-		gap: 1.5rem;
-	}
-
-	.rv-alternative-vehicle-card {
-		max-width: 400px;
-		margin: 0 auto;
-	}
-
-	.rv-availability-error-header {
-		font-size: 0.9rem;
-		padding: 1rem;
-	}
-}
-
-/* Weekend Price Difference Styling */
-.rv-weekend-summary .rv-price-value {
-	color: var(--mhm-warning-dark);
-	/* Dark amber for visibility manually selected */
-	font-weight: 600;
-}
-
-/* High Contrast Alerts & Badges Fix */
-.rv-availability-alert, .rv-availability-error-header, .rv-alert-warning {
-    background-color: #fff3cd !important;
-    color: #856404 !important;
-    border: 1px solid #ffeeba !important;
-}
-.rv-availability-alert.error, .rv-alert-error {
-    background-color: #f8d7da !important;
-    color: #721c24 !important;
-    border: 1px solid #f5c6cb !important;
-}
-.rv-recommended-vehicle-card {
-    border: 2px solid #2271b1 !important;
-    background-color: #f0f7ff !important;
-}
-
+/* FSE Global Listener - Passes WordPress color choices to the plugin */
+
+[class*="rv-"],
+
+[class*="mhm-"] {
+
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
+
+}
+
+
+
+
+
+/* ===== UTILITY CLASSES (Replaces inline styles) ===== */
+
+.rv-hidden {
+
+	display: none !important;
+
+}
+
+
+
+.rv-select-disabled {
+
+	background-color: var(--mhm-bg-tertiary);
+
+	cursor: not-allowed;
+
+}
+
+
+
+.rv-description-hint {
+
+	display: block;
+
+	margin-top: 5px;
+
+	color: var(--mhm-text-tertiary);
+
+	font-size: 0.875rem;
+
+}
+
+
+
+.rv-form-actions {
+
+	margin-top: 20px;
+
+}
+
+
+
+
+
+/* ===== LOGGED IN USER INFO (v4.0.0) ===== */
+
+.rv-logged-in-info {
+
+	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%);
+
+	border-radius: 12px;
+
+	padding: 20px 24px;
+
+	margin-bottom: 24px;
+
+	box-shadow: 0 4px 15px color-mix(in srgb, var(--mhm-primary), transparent 70%);
+
+	border: 1px solid color-mix(in srgb, var(--mhm-white), transparent 80%);
+
+	position: relative;
+
+	overflow: hidden;
+
+}
+
+
+
+.rv-logged-in-info::before {
+
+	content: '';
+
+	position: absolute;
+
+	top: 0;
+
+	inset-inline-start: 0;
+
+	inset-inline-end: 0;
+
+	height: 2px;
+
+	background: linear-gradient(90deg, var(--mhm-info), var(--mhm-success), var(--mhm-error));
+
+	border-radius: 12px 12px 0 0;
+
+}
+
+
+
+.rv-logged-in-info .rv-info-message {
+
+	color: var(--mhm-btn-color);
+
+	margin: 0;
+
+	display: flex;
+
+	align-items: center;
+
+	gap: 12px;
+
+	font-size: 15px;
+
+	line-height: 1.5;
+
+	font-weight: 500;
+
+}
+
+
+
+.rv-logged-in-info .rv-icon {
+
+	font-size: 28px;
+
+	line-height: 1;
+
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+
+}
+
+
+
+.rv-logged-in-info strong {
+
+	font-weight: 700;
+
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+}
+
+
+
+/* Hover efekti */
+
+.rv-logged-in-info:hover {
+
+	transform: translateY(-1px);
+
+	box-shadow: 0 6px 20px color-mix(in srgb, var(--mhm-primary), transparent 60%);
+
+	transition: all 0.3s ease;
+
+}
+
+
+
+/* ===== FORM CONTAINER ===== */
+
+.rv-booking-form-wrapper {
+
+	max-width: 1200px;
+
+	margin: 40px auto;
+
+	padding: 0 20px;
+
+	box-sizing: border-box;
+
+	width: 100%;
+
+}
+
+
+
+@media (max-width: 782px) {
+
+	.rv-booking-form-wrapper {
+
+		margin: 20px auto;
+
+		padding: 0 10px;
+
+	}
+
+}
+
+
+
+@media (max-width: 480px) {
+
+	.rv-booking-form-wrapper {
+
+		margin: 10px auto;
+
+		padding: 0 5px;
+
+		/* Minimal padding for small screens */
+
+	}
+
+}
+
+
+
+.rv-booking-form {
+
+	background: var(--mhm-bg-card);
+
+	border-radius: 0;
+
+	box-shadow: none;
+
+	font-family: var(--mhm-font-primary);
+
+	width: 100%;
+
+	box-sizing: border-box;
+
+}
+
+
+
+/* ===== TWO COLUMN LAYOUT ===== */
+
+.rv-booking-form-content {
+
+	display: flex !important;
+
+	flex-direction: column !important;
+
+	gap: 2rem !important;
+
+}
+
+
+
+.rv-booking-form-content .rv-form-section {
+
+	margin-bottom: 0;
+
+}
+
+
+
+.rv-form-header {
+
+	margin-bottom: 2rem;
+
+	text-align: center;
+
+}
+
+
+
+.rv-form-title {
+
+	margin: 0;
+
+	font-size: 1.875rem;
+
+	font-weight: 700;
+
+	color: var(--mhm-text-primary);
+
+	border-bottom: 3px solid var(--mhm-primary);
+
+	padding-bottom: 0.5rem;
+
+	display: inline-block;
+
+}
+
+
+
+/* ===== FORM SECTIONS ===== */
+
+.rv-form-section {
+
+	margin-bottom: 20px;
+
+	padding: 0;
+
+	background: var(--mhm-bg-card);
+
+	border-radius: 0;
+
+	border: none;
+
+}
+
+
+
+.rv-section-title {
+
+	margin: 0 0 16px 0;
+
+	font-size: 18px;
+
+	font-weight: 600;
+
+	color: var(--mhm-text-primary);
+
+	display: flex;
+
+	align-items: center;
+
+	gap: 0.5rem;
+
+}
+
+
+
+.rv-section-title::before {
+
+	content: '';
+
+	width: 4px;
+
+	height: 24px;
+
+	background: var(--mhm-primary);
+
+	border-radius: 2px;
+
+}
+
+
+
+.rv-subsection-title {
+
+	margin: 1rem 0 0.75rem 0;
+
+	font-size: 1rem;
+
+	font-weight: 600;
+
+	color: var(--mhm-text-secondary);
+
+}
+
+
+
+/* ===== FORM ELEMENTS ===== */
+
+.rv-field-group {
+
+	display: grid;
+
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+	gap: 1rem;
+
+	margin-bottom: 1rem;
+
+}
+
+
+
+@media (max-width: 782px) {
+
+	.rv-field-group {
+
+		grid-template-columns: 1fr !important;
+
+		gap: 0.75rem;
+
+	}
+
+
+
+	.rv-input,
+
+	.rv-select {
+
+		width: 100% !important;
+
+		max-width: 100% !important;
+
+		box-sizing: border-box !important;
+
+	}
+
+}
+
+
+
+.rv-field {
+
+	display: flex;
+
+	flex-direction: column;
+
+}
+
+
+
+.rv-field-dates {
+
+	grid-template-columns: 1fr 1fr;
+
+}
+
+
+
+.rv-field-times {
+
+	grid-template-columns: 1fr 1fr;
+
+}
+
+
+
+/* Special styling for name fields */
+
+.rv-name-fields {
+
+	grid-template-columns: 1fr 1fr;
+
+	gap: 1rem;
+
+}
+
+
+
+@media (max-width: 782px) {
+
+	.rv-name-fields {
+
+		grid-template-columns: 1fr;
+
+		gap: 0.5rem;
+
+	}
+
+}
+
+
+
+.rv-field-contact {
+
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+}
+
+
+
+.rv-label {
+
+	display: block !important;
+
+	margin-bottom: 0.5rem;
+
+	font-weight: 600;
+
+	color: var(--mhm-text-secondary);
+
+	font-size: 0.875rem;
+
+	visibility: visible !important;
+
+}
+
+
+
+.rv-label .required {
+
+	color: var(--mhm-error);
+
+	margin-inline-start: 0.25rem;
+
+}
+
+
+
+/* Ensure labels are visible in Contact Information section */
+
+.rv-contact-info .rv-label,
+
+.rv-contact-info .rv-field .rv-label,
+
+.rv-contact-info .rv-field-group .rv-field .rv-label {
+
+	display: block !important;
+
+	visibility: visible !important;
+
+	color: var(--mhm-text-secondary) !important;
+
+	font-size: 0.875rem !important;
+
+	font-weight: 600 !important;
+
+	opacity: 1 !important;
+
+	text-indent: 0 !important;
+
+	line-height: 1.5 !important;
+
+	height: auto !important;
+
+	width: auto !important;
+
+	overflow: visible !important;
+
+	clip: auto !important;
+
+	position: static !important;
+
+}
+
+
+
+.rv-input,
+
+.rv-select {
+
+	width: 100%;
+
+	padding: 0.875rem 1rem;
+
+	border: 2px solid var(--mhm-border-primary);
+
+	border-radius: 8px;
+
+	font-size: 1rem;
+
+	transition: all 0.3s ease;
+
+	background: var(--mhm-bg-card);
+
+	color: var(--mhm-text-primary);
+
+	box-sizing: border-box;
+
+}
+
+
+
+/* Select dropdown options styling */
+
+.rv-select option {
+
+	background-color: var(--mhm-bg-card);
+
+	color: var(--mhm-text-primary);
+
+	padding: 0.5rem;
+
+}
+
+
+
+.rv-select option:hover {
+
+	background-color: var(--mhm-bg-secondary);
+
+	color: var(--mhm-text-primary);
+
+}
+
+
+
+.rv-select option:checked,
+
+.rv-select option:selected {
+
+	background-color: var(--mhm-primary);
+
+	color: var(--mhm-btn-color);
+
+}
+
+
+
+.rv-input:focus,
+
+.rv-select:focus {
+
+	outline: none;
+
+	border-color: var(--mhm-primary);
+
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-primary), transparent 90%);
+
+	transform: translateY(-1px);
+
+}
+
+
+
+.rv-input:hover,
+
+.rv-select:hover {
+
+	border-color: var(--mhm-border-secondary);
+
+}
+
+
+
+.rv-input.error,
+
+.rv-select.error {
+
+	border-color: var(--mhm-error);
+
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--mhm-error), transparent 90%);
+
+}
+
+
+
+/* Special styling for date inputs */
+
+.rv-input[type="date"] {
+
+	position: relative;
+
+	cursor: pointer;
+
+	padding-inline-end: 2.5rem;
+
+}
+
+
+
+.rv-input[type="date"]::-webkit-calendar-picker-indicator {
+
+	position: absolute;
+
+	top: 0;
+
+	inset-inline-start: 0;
+
+	inset-inline-end: 0;
+
+	bottom: 0;
+
+	width: 100%;
+
+	height: 100%;
+
+	margin: 0;
+
+	padding: 0;
+
+	cursor: pointer;
+
+	opacity: 0;
+
+	background: transparent;
+
+}
+
+
+
+/* ===== VEHICLE SELECTION ===== */
+
+.rv-vehicle-selection {
+
+	position: relative;
+
+}
+
+
+
+.rv-selected-vehicle-preview {
+
+	margin-top: 1rem;
+
+	padding: 1.5rem;
+
+	background: var(--mhm-bg-card);
+}
+
+.rv-availability-status {
+
+	margin: 1.5rem 0;
+
+	padding: 0px;
+
+	border-radius: 12px;
+
+	overflow: hidden;
+
+	box-shadow: var(--mhm-shadow-base);
+
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+	animation: slideIn 0.4s ease-out;
+
+}
+
+
+
+@keyframes slideIn {
+
+	from {
+
+		opacity: 0;
+
+		transform: translateY(-10px);
+
+	}
+
+
+
+	to {
+
+		opacity: 1;
+
+		transform: translateY(0);
+
+	}
+
+}
+
+
+
+.rv-availability-status.hidden {
+
+	display: none;
+
+}
+
+
+
+/* Success State - Modern Green Card */
+
+.rv-availability-success {
+
+	background: linear-gradient(135deg, var(--mhm-success) 0%, var(--mhm-success-dark) 100%);
+
+	color: var(--mhm-white);
+
+	padding: 1.25rem 1.5rem;
+
+	display: flex;
+
+	align-items: center;
+
+	gap: 0.75rem;
+
+	border-radius: 12px;
+
+	box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--mhm-success), transparent 70%);
+
+}
+
+
+
+.rv-availability-success .dashicons {
+
+	font-size: 24px;
+
+	width: 24px;
+
+	height: 24px;
+
+	color: var(--mhm-white);
+
+	background: rgba(255, 255, 255, 0.2);
+
+	border-radius: 50%;
+
+	padding: 8px;
+
+	display: flex;
+
+	align-items: center;
+
+	justify-content: center;
+
+	flex-shrink: 0;
+
+}
+
+
+
+.rv-availability-success .dashicons::before {
+
+	font-size: 16px;
+
+	line-height: 1;
+
+}
+
+
+
+.rv-availability-success>span:last-child {
+
+	font-size: 1rem;
+
+	font-weight: 600;
+
+	letter-spacing: 0.025em;
+
+}
+
+
+
+/* Error State - Modern Red Card */
+
+.rv-availability-error {
+
+	background: linear-gradient(135deg, var(--mhm-error) 0%, var(--mhm-error-dark) 100%);
+
+	color: var(--mhm-white);
+
+	padding: 1.25rem 1.5rem;
+
+	border-radius: 12px;
+
+	box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--mhm-error), transparent 70%);
+
+}
+
+
+
+
+
+.rv-availability-error-header {
+
+	display: flex;
+
+	align-items: center;
+
+	gap: 0.75rem;
+
+	margin-bottom: 0.5rem;
+
+}
+
+
+
+.rv-availability-error-header .dashicons {
+
+	font-size: 24px;
+
+	width: 24px;
+
+	height: 24px;
+
+	color: var(--mhm-white);
+
+	background: rgba(255, 255, 255, 0.2);
+
+	border-radius: 50%;
+
+	padding: 8px;
+
+	display: flex;
+
+	align-items: center;
+
+	justify-content: center;
+
+	flex-shrink: 0;
+
+}
+
+
+
+.rv-availability-error-header .dashicons::before {
+
+	font-size: 16px;
+
+	line-height: 1;
+
+}
+
+
+
+.rv-availability-error-header strong {
+
+	font-size: 1rem;
+
+	font-weight: 600;
+
+	letter-spacing: 0.025em;
+
+}
+
+
+
+/* Loading State - Modern Blue Card */
+
+.rv-loading-message {
+
+	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%);
+
+	color: var(--mhm-white);
+
+	padding: 1.25rem 1.5rem;
+
+	display: flex;
+
+	align-items: center;
+
+	gap: 0.75rem;
+
+	border-radius: 12px;
+
+	box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--mhm-primary), transparent 70%);
+
+	font-size: 1rem;
+
+	font-weight: 500;
+
+}
+
+
+
+.rv-loading-message .rv-spinner {
+
+	width: 20px;
+
+	height: 20px;
+
+	border: 3px solid rgba(255, 255, 255, 0.3);
+
+	border-top-color: var(--mhm-white);
+
+	border-radius: 50%;
+
+	animation: spin 0.8s linear infinite;
+
+	flex-shrink: 0;
+
+}
+
+
+
+@keyframes spin {
+
+	to {
+
+		transform: rotate(360deg);
+
+	}
+
+}
+
+
+
+/* Footer */
+
+.rv-selected-vehicle .rv-vehicle-card__footer {
+
+	display: flex;
+
+	justify-content: space-between;
+
+	align-items: center;
+
+	margin-top: auto;
+
+	padding-top: 0.75rem;
+
+	border-top: 1px solid var(--mhm-border-primary);
+
+}
+
+
+
+.rv-selected-vehicle .rv-vehicle-card__price {
+
+	display: flex;
+
+	flex-direction: row;
+
+	align-items: baseline;
+
+	gap: 0.25rem;
+
+}
+
+
+
+.rv-selected-vehicle .rv-price-amount {
+
+	font-size: 1.5rem;
+
+	font-weight: 700;
+
+	color: var(--mhm-primary);
+
+	line-height: 1;
+
+}
+
+
+
+.rv-selected-vehicle .rv-price-period {
+
+	font-size: 0.875rem;
+
+	color: var(--mhm-text-tertiary);
+
+}
+
+
+
+.rv-vehicle-image {
+
+	width: 100px;
+
+	height: 75px;
+
+	object-fit: cover;
+
+	border-radius: 8px;
+
+	box-shadow: var(--mhm-shadow-sm);
+
+}
+
+
+
+.rv-vehicle-details h4 {
+
+	margin: 0 0 0.5rem 0;
+
+	font-size: 1.25rem;
+
+	color: var(--mhm-text-primary);
+
+	font-weight: 700;
+
+}
+
+
+
+.rv-vehicle-excerpt {
+
+	margin: 0 0 0.5rem 0;
+
+	color: var(--mhm-text-secondary);
+
+	font-size: 0.875rem;
+
+	line-height: 1.4;
+
+}
+
+
+
+.rv-vehicle-features {
+
+	display: flex;
+
+	flex-wrap: wrap;
+
+	gap: 0.5rem;
+
+	margin-bottom: 0.5rem;
+
+}
+
+
+
+.rv-feature-tag {
+
+	padding: 0.25rem 0.5rem;
+
+	background: var(--mhm-bg-secondary);
+
+	color: var(--mhm-primary);
+
+	border-radius: 4px;
+
+	font-size: 0.75rem;
+
+	font-weight: 500;
+
+}
+
+
+
+.rv-vehicle-price {
+
+	margin: 0;
+
+	font-size: 1rem;
+
+	color: var(--mhm-primary);
+
+	font-weight: 600;
+
+}
+
+
+
+/* ===== ADDONS ===== */
+
+.rv-addons .rv-section-title {
+
+	color: var(--mhm-text-primary);
+
+	font-size: 1.125rem;
+
+	font-weight: 600;
+
+	margin-bottom: 1.25rem;
+
+	position: relative;
+
+	padding-inline-start: 1rem;
+
+}
+
+
+
+.rv-addons .rv-section-title::before {
+
+	content: '';
+
+	position: absolute;
+
+	inset-inline-start: 0;
+
+	top: 50%;
+
+	transform: translateY(-50%);
+
+	width: 4px;
+
+	height: 20px;
+
+	background: linear-gradient(135deg, var(--mhm-primary), var(--mhm-primary-dark));
+
+	border-radius: 2px;
+
+}
+
+
+
+.rv-addons-list {
+
+	display: grid;
+
+	grid-template-columns: repeat(2, 1fr);
+
+	gap: 1rem;
+
+}
+
+
+
+.rv-addon-item {
+
+	display: flex;
+
+	align-items: flex-start;
+
+	gap: 1rem;
+
+	padding: 1.5rem;
+
+	border: 2px solid var(--mhm-border-primary);
+
+	border-radius: 12px;
+
+	cursor: pointer;
+
+	transition: all 0.3s ease;
+
+	background: var(--mhm-bg-card);
+
+	min-height: 100px;
+
+	box-shadow: var(--mhm-shadow-sm);
+
+}
+
+
+
+.rv-addon-item:hover {
+
+	border-color: var(--mhm-primary);
+
+	background: var(--mhm-bg-secondary);
+
+	transform: translateY(-2px);
+
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 85%);
+
+}
+
+
+
+.rv-addon-item:has(.rv-addon-checkbox:checked) {
+
+	border-color: var(--mhm-primary);
+
+	background: var(--mhm-bg-secondary);
+
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 80%);
+
+}
+
+
+
+.rv-addon-checkbox {
+
+	margin: 0;
+
+	width: 20px;
+
+	height: 20px;
+
+	accent-color: var(--mhm-primary);
+
+	cursor: pointer;
+
+}
+
+
+
+.rv-addon-content {
+
+	flex: 1;
+
+}
+
+
+
+.rv-addon-header {
+
+	display: flex;
+
+	justify-content: space-between;
+
+	align-items: flex-start;
+
+	margin-bottom: 0.5rem;
+
+}
+
+
+
+.rv-addon-title {
+
+	font-weight: 600;
+
+	color: var(--mhm-text-primary);
+
+	font-size: 1rem;
+
+	margin: 0;
+
+}
+
+
+
+.rv-addon-price {
+
+	font-weight: 700;
+
+	color: var(--mhm-success);
+
+	font-size: 1rem;
+
+}
+
+
+
+.rv-addon-description {
+
+	margin: 0;
+
+	font-size: 0.875rem;
+
+	color: var(--mhm-text-secondary);
+
+	line-height: 1.4;
+
+}
+
+
+
+/* ===== PRICE CALCULATION ===== */
+
+.rv-price-calculation {
+
+	margin: 2rem 0;
+
+	padding: 2rem;
+
+	background: var(--mhm-bg-card);
+
+	border-radius: 12px;
+
+	border: 2px solid var(--mhm-border-primary);
+
+	box-shadow: var(--mhm-shadow-sm);
+
+}
+
+
+
+.rv-price-breakdown {
+
+	display: grid;
+
+	grid-template-columns: 1fr auto;
+
+	gap: 1rem 2rem;
+
+	align-items: center;
+
+}
+
+
+
+.rv-price-item {
+
+	display: contents;
+
+}
+
+
+
+.rv-price-label {
+
+	font-weight: 500;
+
+	color: var(--mhm-text-secondary);
+
+	text-align: left;
+
+	padding: 0.75rem 0;
+
+	border-bottom: 1px solid var(--mhm-border-primary);
+
+	display: flex;
+
+	align-items: center;
+
+}
+
+
+
+.rv-price-value {
+
+	font-weight: 600;
+
+	color: var(--mhm-text-primary);
+
+	text-align: right;
+
+	padding: 0.75rem 0;
+
+	border-bottom: 1px solid var(--mhm-border-primary);
+
+	display: flex;
+
+	align-items: center;
+
+	justify-content: flex-end;
+
+	min-width: 120px;
+
+}
+
+
+
+.rv-total-price {
+
+	font-size: 1.25rem;
+
+	font-weight: 700;
+
+	color: var(--mhm-success);
+
+	border-top: 2px solid var(--mhm-border-primary);
+
+	margin-top: 1rem;
+
+	padding-top: 1rem;
+
+}
+
+
+
+/* Special grid positioning for total price */
+
+.rv-price-item.rv-total-price .rv-price-label {
+
+	font-size: 1.25rem;
+
+	font-weight: 700;
+
+	color: var(--mhm-success);
+
+	border-top: 2px solid var(--mhm-border-primary);
+
+	border-bottom: none;
+
+	padding-top: 1rem;
+
+	padding-bottom: 0;
+
+	margin-top: 1rem;
+
+}
+
+
+
+.rv-price-item.rv-total-price .rv-price-value {
+
+	font-size: 1.25rem;
+
+	font-weight: 700;
+
+	color: var(--mhm-success);
+
+	border-top: 2px solid var(--mhm-border-primary);
+
+	border-bottom: none;
+
+	padding-top: 1rem;
+
+	padding-bottom: 0;
+
+	margin-top: 1rem;
+
+}
+
+
+
+/* Special styling for deposit and remaining */
+
+.rv-price-item.rv-deposit-summary .rv-price-label,
+
+.rv-price-item.rv-remaining-summary .rv-price-label,
+
+.rv-price-item.rv-deposit-summary .rv-price-value,
+
+.rv-price-item.rv-remaining-summary .rv-price-value {
+
+	color: var(--mhm-secondary);
+
+	font-weight: 600;
+
+}
+
+
+
+.rv-price-actions {
+
+	margin-top: 1.5rem;
+
+	text-align: center;
+
+}
+
+
+
+/* ===== PAYMENT OPTIONS ===== */
+
+.rv-payment-type-selection {
+
+	display: grid;
+
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+	gap: 1rem;
+
+	margin-bottom: 2rem;
+
+}
+
+
+
+@media (max-width: 782px) {
+
+	.rv-payment-type-selection {
+
+		grid-template-columns: 1fr;
+
+		gap: 0.75rem;
+
+	}
+
+}
+
+
+
+.rv-payment-type {
+
+	display: flex;
+
+	align-items: flex-start;
+
+	gap: 1rem;
+
+	padding: 1.5rem;
+
+	border: 2px solid var(--mhm-border-primary);
+
+	border-radius: 12px;
+
+	cursor: pointer;
+
+	transition: all 0.3s ease;
+
+	background: var(--mhm-bg-card);
+
+}
+
+
+
+.rv-payment-type:hover {
+
+	border-color: var(--mhm-primary);
+
+	background: var(--mhm-bg-secondary);
+
+	transform: translateY(-2px);
+
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 85%);
+
+}
+
+
+
+.rv-payment-type:has(input:checked) {
+
+	border-color: var(--mhm-primary);
+
+	background: color-mix(in srgb, var(--mhm-primary), transparent 95%);
+
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 80%);
+
+}
+
+
+
+.rv-payment-type input[type="radio"] {
+
+	margin: 0;
+
+	width: 20px;
+
+	height: 20px;
+
+	accent-color: var(--mhm-primary);
+
+	cursor: pointer;
+
+}
+
+
+
+.rv-payment-type-label {
+
+	flex: 1;
+
+}
+
+
+
+.rv-payment-type-label strong {
+
+	display: block;
+
+	font-size: 1rem;
+
+	color: var(--mhm-text-primary);
+
+	margin-bottom: 0.25rem;
+
+}
+
+
+
+.rv-payment-type-label small {
+
+	display: block;
+
+	font-size: 0.875rem;
+
+	color: var(--mhm-text-secondary);
+
+	line-height: 1.4;
+
+}
+
+
+
+.rv-payment-methods {
+
+	margin-top: 2rem;
+
+}
+
+
+
+.rv-payment-method-selection {
+
+	display: grid;
+
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+	gap: 1rem;
+
+	margin-bottom: 1.5rem;
+
+}
+
+
+
+@media (max-width: 782px) {
+
+	.rv-payment-method-selection {
+
+		grid-template-columns: 1fr;
+
+		gap: 0.75rem;
+
+	}
+
+}
+
+
+
+.rv-payment-method {
+
+	display: flex;
+
+	align-items: flex-start;
+
+	gap: 1rem;
+
+	padding: 1.5rem;
+
+	border: 2px solid var(--mhm-border-primary);
+
+	border-radius: 12px;
+
+	cursor: pointer;
+
+	transition: all 0.3s ease;
+
+	background: var(--mhm-bg-card);
+
+}
+
+
+
+.rv-payment-method:hover {
+
+	border-color: var(--mhm-primary);
+
+	background: var(--mhm-bg-secondary);
+
+	transform: translateY(-2px);
+
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 85%);
+
+}
+
+
+
+.rv-payment-method:has(input:checked) {
+
+	border-color: var(--mhm-primary);
+
+	background: color-mix(in srgb, var(--mhm-primary), transparent 95%);
+
+	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 80%);
+
+}
+
+
+
+.rv-payment-method input[type="radio"] {
+
+	margin: 0;
+
+	width: 20px;
+
+	height: 20px;
+
+	accent-color: var(--mhm-primary);
+
+	cursor: pointer;
+
+}
+
+
+
+.rv-payment-method-label {
+
+	flex: 1;
+
+}
+
+
+
+.rv-payment-method-label strong {
+
+	display: block;
+
+	font-size: 1rem;
+
+	color: var(--mhm-text-primary);
+
+	margin-bottom: 0.25rem;
+
+}
+
+
+
+.rv-payment-method-label small {
+
+	display: block;
+
+	font-size: 0.875rem;
+
+	color: var(--mhm-text-tertiary);
+
+	line-height: 1.4;
+
+}
+
+
+
+.rv-online-payment-details {
+
+	margin-top: 1.5rem;
+
+	padding: 1.5rem;
+
+	background: var(--mhm-bg-secondary);
+
+	border-radius: 8px;
+
+	border: 1px solid var(--mhm-border-primary);
+
+}
+
+
+
+.rv-payment-gateway-title {
+
+	margin: 0 0 1rem 0;
+
+	font-size: 1rem;
+
+	font-weight: 600;
+
+	color: var(--mhm-text-secondary);
+
+}
+
+
+
+.rv-payment-gateways {
+
+	display: grid;
+
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+
+	gap: 1rem;
+
+}
+
+
+
+@media (max-width: 782px) {
+
+	.rv-payment-gateways {
+
+		grid-template-columns: 1fr;
+
+		gap: 0.75rem;
+
+	}
+
+}
+
+
+
+.rv-payment-gateway {
+
+	display: flex;
+
+	align-items: center;
+
+	gap: 0.75rem;
+
+	padding: 1rem;
+
+	border: 2px solid var(--mhm-border-primary);
+
+	border-radius: 8px;
+
+	cursor: pointer;
+
+	transition: all 0.3s ease;
+
+	background: var(--mhm-bg-card);
+
+}
+
+
+
+.rv-payment-gateway:hover {
+
+	border-color: var(--mhm-primary);
+
+	background: var(--mhm-bg-secondary);
+
+}
+
+
+
+.rv-payment-gateway:has(input:checked) {
+
+	border-color: var(--mhm-primary);
+
+	background: color-mix(in srgb, var(--mhm-primary), transparent 95%);
+
+}
+
+
+
+.rv-payment-gateway input[type="radio"] {
+
+	margin: 0;
+
+	width: 18px;
+
+	height: 18px;
+
+	accent-color: var(--mhm-primary);
+
+	cursor: pointer;
+
+}
+
+
+
+.rv-gateway-label {
+
+	display: flex;
+
+	align-items: center;
+
+	gap: 0.5rem;
+
+}
+
+
+
+.rv-gateway-icon {
+
+	font-size: 1.25rem;
+
+}
+
+
+
+.rv-gateway-name {
+
+	font-weight: 500;
+
+	color: var(--mhm-text-primary);
+
+}
+
+
+
+/* ===== FORM ACTIONS ===== */
+
+.rv-form-actions {
+
+	display: flex;
+
+	gap: 1rem;
+
+	justify-content: center;
+
+	margin-top: 2rem;
+
+	padding-top: 2rem;
+
+	border-top: 2px solid var(--mhm-border-primary);
+
+}
+
+
+
+.rv-form-actions {
+
+	margin-top: 1.5rem;
+
+	padding-top: 1.5rem;
+
+	border-top: 2px solid var(--mhm-border-primary);
+
+	justify-content: stretch;
+
+}
+
+
+
+
+
+.rv-form-actions .rv-btn {
+
+	width: 100%;
+
+}
+
+
+
+.rv-btn {
+
+	padding: 1rem 2rem;
+
+	border: 2px solid transparent;
+
+	border-radius: 12px;
+
+	font-size: 1rem;
+
+	font-weight: 600;
+
+	cursor: pointer;
+
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+	text-decoration: none;
+
+	display: inline-flex;
+
+	align-items: center;
+
+	justify-content: center;
+
+	gap: 0.5rem;
+
+	min-width: 140px;
+
+	position: relative;
+
+	overflow: hidden;
+
+	font-family: var(--mhm-font-primary);
+
+	letter-spacing: 0.025em;
+
+	color: var(--mhm-btn-color);
+
+	background-color: var(--mhm-btn-bg);
+
+}
+
+
+
+.rv-btn::before {
+
+	content: '';
+
+	position: absolute;
+
+	top: 0;
+
+	left: 0;
+
+	right: 0;
+
+	bottom: 0;
+
+	background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+
+	opacity: 0;
+
+	transition: opacity 0.3s ease;
+
+	pointer-events: none;
+
+}
+
+
+
+.rv-btn:hover::before {
+
+	opacity: 1;
+
+}
+
+
+
+.rv-btn:hover:not(:disabled) {
+
+	background-color: var(--mhm-btn-hover-bg);
+
+	transform: translateY(-2px);
+
+	box-shadow: var(--mhm-shadow-lg);
+
+}
+
+
+
+.rv-btn:disabled,
+
+.rv-btn[disabled] {
+
+	opacity: 0.6;
+
+	cursor: not-allowed;
+
+	transform: none !important;
+
+	background-color: var(--mhm-gray-400) !important;
+
+	border-color: var(--mhm-gray-400) !important;
+
+	color: var(--mhm-gray-700) !important;
+
+}
+
+
+
+/* Primary Button Override */
+
+.rv-btn-primary {
+
+	background-color: var(--mhm-btn-bg);
+
+	color: var(--mhm-btn-color);
+
+	border: 2px solid color-mix(in srgb, var(--mhm-white), transparent 80%);
+
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+
+	box-shadow: 0 4px 15px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%);
+
+}
+
+
+
+.rv-btn-primary:hover:not(:disabled) {
+
+	background-color: var(--mhm-btn-hover-bg);
+
+	transform: translateY(-3px) scale(1.02);
+
+	box-shadow: 0 8px 25px color-mix(in srgb, var(--mhm-btn-bg), transparent 60%);
+
+}
+
+
+
+.rv-btn-text {
+
+	display: block !important;
+
+	visibility: visible !important;
+
+	color: inherit !important;
+
+	font-weight: 600 !important;
+
+	opacity: 1 !important;
+
+	position: relative !important;
+
+	z-index: 1 !important;
+
+}
+
+
+
+.rv-btn-loading {
+
+	display: none;
+
+	align-items: center;
+
+	gap: 0.5rem;
+
+}
+
+
+
+.rv-btn-loading .rv-spinner {
+
+	width: 16px;
+
+	height: 16px;
+
+	border: 2px solid color-mix(in srgb, var(--mhm-white), transparent 70%);
+
+	border-top: 2px solid var(--mhm-white);
+
+	border-radius: 50%;
+
+	animation: spin 1s linear infinite;
+
+}
+
+
+
+/* ===== MESSAGES ===== */
+
+.rv-messages {
+
+	margin-top: 1.5rem;
+
+}
+
+
+
+.rv-success-message,
+
+.rv-error-message {
+
+	padding: 1.2rem 1.8rem;
+
+	border-radius: 12px;
+
+	font-weight: 600;
+
+	display: flex;
+
+	align-items: center;
+
+	gap: 0.75rem;
+
+	font-size: 15px;
+
+	line-height: 1.5;
+
+	box-shadow: var(--mhm-shadow-base);
+
+	border-left: 4px solid;
+
+	animation: slideInDown 0.3s ease-out;
+
+}
+
+
+
+.rv-success-message {
+
+	background: var(--mhm-bg-secondary);
+
+	border: 1px solid var(--mhm-success);
+
+	border-left-color: var(--mhm-success);
+
+	color: var(--mhm-success-dark);
+
+}
+
+
+
+.rv-error-message {
+
+	background: color-mix(in srgb, var(--mhm-error), transparent 95%);
+
+	border: 1px solid var(--mhm-error);
+
+	border-left-color: var(--mhm-error);
+
+	color: var(--mhm-error-dark);
+
+}
+
+
+
+@keyframes slideInDown {
+
+	from {
+
+		opacity: 0;
+
+		transform: translateY(-10px);
+
+	}
+
+
+
+	to {
+
+		opacity: 1;
+
+		transform: translateY(0);
+
+	}
+
+}
+
+
+
+/* ===== ALTERNATIVE VEHICLES ===== */
+
+.rv-alternatives-wrapper {
+
+	margin-top: 15px;
+
+	padding: 15px;
+
+	background: var(--mhm-bg-secondary);
+
+	border: 1px solid color-mix(in srgb, var(--mhm-success), transparent 80%);
+
+	border-radius: 12px;
+
+	display: flex;
+
+	gap: 15px;
+
+	flex-wrap: wrap;
+
+}
+
+
+
+.rv-alternative-vehicle-card {
+
+	flex: 1;
+
+	min-width: 250px;
+
+	background: var(--mhm-bg-card);
+
+	border: 1px solid var(--mhm-border-primary);
+
+	border-radius: 12px;
+
+	overflow: hidden;
+
+	box-shadow: var(--mhm-shadow-sm);
+
+	transition: all 0.3s ease;
+
+	cursor: pointer;
+
+}
+
+
+
+.rv-alternative-vehicle-card:hover {
+
+	transform: translateY(-3px);
+
+	box-shadow: var(--mhm-shadow-lg);
+
+	border-color: var(--mhm-primary);
+
+}
+
+
+
+.rv-vehicle-features {
+
+	margin-bottom: 8px;
+
+}
+
+
+
+/* ===== SPINNER ===== */
+
+.rv-spinner {
+
+	width: 20px;
+
+	height: 20px;
+
+	border: 2px solid var(--mhm-bg-secondary);
+
+	border-top: 2px solid var(--mhm-primary);
+
+	border-radius: 50%;
+
+	animation: spin 1s linear infinite;
+
+}
+
+
+
+@keyframes spin {
+
+	0% {
+
+		transform: rotate(0deg);
+
+	}
+
+
+
+	100% {
+
+		transform: rotate(360deg);
+
+	}
+
+}
+
+
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 782px) {
+
+	.rv-booking-form-wrapper {
+
+		max-width: 100%;
+
+		margin: 20px auto;
+
+		padding: 0 15px;
+
+	}
+
+
+
+	.rv-booking-form {
+
+		padding: 0;
+
+	}
+
+
+
+	.rv-booking-form-content {
+
+		gap: 1.5rem !important;
+
+	}
+
+
+
+	/* Selected Vehicle - Mobile */
+
+	.rv-selected-vehicle {
+
+		flex-direction: column;
+
+		min-height: auto;
+
+		padding: 1rem;
+
+		margin-bottom: 1.5rem;
+
+	}
+
+
+
+	.rv-selected-vehicle .rv-vehicle-image-wrapper {
+
+		width: 100%;
+
+		height: 160px;
+
+		margin-right: 0;
+
+		margin-bottom: 1rem;
+
+	}
+
+
+
+	.rv-selected-vehicle .rv-vehicle-details {
+
+		height: auto;
+
+		padding-left: 0;
+
+	}
+
+
+
+	.rv-selected-vehicle .rv-vehicle-card__footer {
+
+		flex-direction: column;
+
+		gap: 0.75rem;
+
+	}
+
+
+
+	.rv-form-section {
+
+		padding: 0;
+
+		margin-bottom: 1.5rem;
+
+	}
+
+
+
+	/* Better responsive for input fields */
+
+	.rv-field-group {
+
+		grid-template-columns: 1fr !important;
+
+		gap: 1rem !important;
+
+		margin-bottom: 1rem;
+
+	}
+
+
+
+	.rv-field-dates,
+
+	.rv-field-times {
+
+		grid-template-columns: 1fr 1fr !important;
+
+		gap: 0.75rem !important;
+
+	}
+
+
+
+	/* Input and select widths */
+
+	.rv-input,
+
+	.rv-select {
+
+		width: 100%;
+
+		padding: 0.75rem 1rem;
+
+		font-size: 0.9rem;
+
+		border: 1px solid var(--mhm-border-primary);
+
+		border-radius: 6px;
+
+	}
+
+
+
+	/* Payment options */
+
+	.rv-payment-type-selection,
+
+	.rv-payment-method-selection,
+
+	.rv-payment-gateways {
+
+		grid-template-columns: 1fr !important;
+
+		gap: 0.75rem !important;
+
+	}
+
+
+
+	.rv-payment-type,
+
+	.rv-payment-method {
+
+		padding: 1rem !important;
+
+		margin-bottom: 0 !important;
+
+	}
+
+
+
+	.rv-payment-gateway {
+
+		padding: 0.75rem !important;
+
+		margin-bottom: 0 !important;
+
+	}
+
+
+
+	/* Addons */
+
+	.rv-addons-list {
+
+		grid-template-columns: 1fr !important;
+
+		gap: 0.75rem !important;
+
+	}
+
+
+
+	.rv-addon-item {
+
+		padding: 1rem !important;
+
+	}
+
+
+
+	/* Form actions */
+
+	.rv-form-actions {
+
+		flex-direction: column;
+
+		gap: 0.75rem;
+
+		padding-top: 1rem;
+
+	}
+
+
+
+	.rv-btn {
+
+		width: 100% !important;
+
+		min-width: auto;
+
+		padding: 0.875rem 1.5rem;
+
+		font-size: 0.9rem;
+
+	}
+
+
+
+	/* Vehicle info */
+
+	.rv-vehicle-info {
+
+		flex-direction: column;
+
+		text-align: center;
+
+		gap: 1rem;
+
+	}
+
+
+
+	.rv-vehicle-image {
+
+		width: 100%;
+
+		height: 150px;
+
+		max-width: 300px;
+
+		margin: 0 auto;
+
+	}
+
+
+
+	.rv-addons .rv-section-title {
+
+		font-size: 1rem;
+
+		margin-bottom: 1rem;
+
+	}
+
+}
+
+
+
+@media (max-width: 480px) {
+
+	.rv-booking-form-wrapper {
+
+		padding: 0 10px;
+
+		margin: 10px auto;
+
+	}
+
+
+
+	.rv-booking-form {
+
+		padding: 0;
+
+		margin: 0;
+
+	}
+
+
+
+	.rv-form-section {
+
+		padding: 0;
+
+		margin-bottom: 1rem;
+
+	}
+
+
+
+	/* More compact input fields */
+
+	.rv-input,
+
+	.rv-select {
+
+		padding: 0.625rem 0.875rem;
+
+		font-size: 0.85rem;
+
+		border-radius: 4px;
+
+	}
+
+
+
+	/* Date fields single column */
+
+	.rv-field-dates,
+
+	.rv-field-times {
+
+		grid-template-columns: 1fr !important;
+
+		gap: 0.5rem !important;
+
+	}
+
+
+
+	/* Smaller payment cards */
+
+	.rv-payment-type,
+
+	.rv-payment-method {
+
+		padding: 0.75rem !important;
+
+	}
+
+
+
+	.rv-payment-gateway {
+
+		padding: 0.625rem !important;
+
+	}
+
+
+
+	/* Smaller Addons */
+
+	.rv-addon-item {
+
+		padding: 0.75rem !important;
+
+	}
+
+
+
+	/* Price calculation */
+
+	.rv-price-calculation {
+
+		padding: 0.75rem;
+
+		margin: 1rem 0;
+
+	}
+
+
+
+	.rv-price-breakdown {
+
+		grid-template-columns: 1fr;
+
+		gap: 0.5rem;
+
+	}
+
+
+
+	.rv-price-item {
+
+		display: flex;
+
+		justify-content: space-between;
+
+		align-items: center;
+
+		padding: 0.5rem 0;
+
+		border-bottom: 1px solid var(--mhm-border-primary);
+
+	}
+
+
+
+	.rv-price-label,
+
+	.rv-price-value {
+
+		border-bottom: none;
+
+		padding: 0;
+
+		min-width: auto;
+
+		justify-content: flex-start;
+
+		font-size: 0.9rem;
+
+	}
+
+
+
+	.rv-price-value {
+
+		text-align: right;
+
+		justify-content: flex-end;
+
+	}
+
+
+
+	.rv-price-item.rv-total-price {
+
+		border-top: 2px solid var(--mhm-border-primary);
+
+		margin-top: 0.75rem;
+
+		padding-top: 0.75rem;
+
+	}
+
+
+
+	.rv-price-item.rv-total-price .rv-price-label,
+
+	.rv-price-item.rv-total-price .rv-price-value {
+
+		border-top: none;
+
+		margin-top: 0;
+
+		padding-top: 0;
+
+		font-size: 1.1rem;
+
+	}
+
+
+
+	.rv-form-title {
+
+		font-size: 1.25rem;
+
+	}
+
+
+
+	.rv-btn {
+
+		padding: 0.75rem 1rem !important;
+
+		font-size: 0.85rem !important;
+
+	}
+
+
+
+	/* Ara resmi daha küçük */
+
+	.rv-selected-vehicle .rv-vehicle-image-wrapper {
+
+		height: 140px;
+
+	}
+
+
+
+	.rv-selected-vehicle {
+
+		padding: 0.75rem;
+
+	}
+
+}
+
+
+
+/* ===== ACCESSIBILITY ===== */
+
+.rv-input:focus,
+
+.rv-select:focus,
+
+.rv-btn:focus {
+
+	outline: none;
+
+	border-color: color-mix(in srgb, var(--mhm-white), transparent 50%);
+
+	box-shadow:
+
+		0 4px 15px color-mix(in srgb, var(--mhm-primary), transparent 70%),
+
+		inset 0 1px 0 color-mix(in srgb, var(--mhm-white), transparent 90%),
+
+		0 0 0 3px color-mix(in srgb, var(--mhm-primary), transparent 70%);
+
+}
+
+
+
+
+
+.rv-addon-item:focus-within,
+
+.rv-payment-method:focus-within,
+
+.rv-payment-type:focus-within,
+
+.rv-payment-gateway:focus-within {
+
+	outline: 2px solid var(--mhm-primary);
+
+	outline-offset: 2px;
+
+}
+
+
+
+/* ===== PRINT STYLES ===== */
+
+@media print {
+
+	.rv-booking-form {
+
+		box-shadow: none;
+
+		border: 1px solid var(--mhm-black);
+
+	}
+
+
+
+	.rv-form-actions,
+
+	.rv-btn-loading {
+
+		display: none;
+
+	}
+
+
+
+	.rv-form-section {
+
+		break-inside: avoid;
+
+	}
+
+}
+
+
+
+/* ===== DARK MODE SUPPORT ===== */
+
+@media (prefers-color-scheme: dark) {
+
+	.rv-booking-form {
+
+		background: var(--mhm-gray-800);
+
+		color: var(--mhm-gray-50);
+
+	}
+
+
+
+	.rv-form-section {
+
+		background: var(--mhm-gray-700);
+
+		border-color: var(--mhm-gray-600);
+
+	}
+
+
+
+	.rv-section-title {
+
+		color: var(--mhm-gray-50);
+
+	}
+
+
+
+	.rv-input,
+
+	.rv-select {
+
+		background: var(--mhm-gray-700);
+
+		border-color: var(--mhm-gray-600);
+
+		color: var(--mhm-gray-50);
+
+	}
+
+
+
+	.rv-input:focus,
+
+	.rv-select:focus {
+
+		border-color: var(--mhm-primary);
+
+		background: var(--mhm-gray-700);
+
+	}
+
+}
+
+
+
+/* ===== AVAILABILITY STATUS ===== */
+
+.rv-availability-status {
+
+	margin: 1rem 0;
+
+	padding: 1rem;
+
+	border-radius: 8px;
+
+	font-weight: 500;
+
+}
+
+
+
+/* Old availability styles removed - using modern design above */
+
+
+
+/* Alternatif aralar wrapper - modern tasarm */
+
+.rv-alternatives-wrapper {
+
+	background: color-mix(in srgb, var(--mhm-white), transparent 85%) !important;
+
+	border: 1px solid color-mix(in srgb, var(--mhm-white), transparent 70%) !important;
+
+	border-radius: 12px !important;
+
+	padding: 1.25rem !important;
+
+	margin-top: 1rem !important;
+
+	backdrop-filter: blur(10px);
+
+}
+
+
+
+.rv-alternatives-title {
+
+	font-size: 1rem;
+
+	font-weight: 600;
+
+	color: var(--mhm-white);
+
+	margin-bottom: 1rem;
+
+	letter-spacing: 0.025em;
+
+}
+
+
+
+.rv-alternatives-grid {
+
+	display: grid;
+
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+
+	gap: 1rem;
+
+}
+
+
+
+.rv-alternative-vehicle-card {
+
+	background: color-mix(in srgb, var(--mhm-white), transparent 5%);
+
+	border-radius: 12px;
+
+	overflow: hidden;
+
+	box-shadow: var(--mhm-shadow-base);
+
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+	cursor: pointer;
+
+}
+
+
+
+.rv-alternative-vehicle-card:hover {
+
+	transform: translateY(-4px);
+
+	box-shadow: var(--mhm-shadow-lg);
+
+}
+
+
+
+.rv-alternative-vehicle-image {
+
+	width: 100%;
+
+	height: 140px;
+
+	overflow: hidden;
+
+	background: var(--mhm-bg-secondary);
+
+}
+
+
+
+.rv-alternative-vehicle-image img {
+
+	width: 100%;
+
+	height: 100%;
+
+	object-fit: cover;
+
+	transition: transform 0.3s ease;
+
+}
+
+
+
+.rv-alternative-vehicle-card:hover .rv-alternative-vehicle-image img {
+
+	transform: scale(1.05);
+
+}
+
+
+
+.rv-alternative-vehicle-content {
+
+	padding: 1rem;
+
+}
+
+
+
+.rv-alternative-vehicle-title {
+
+	margin: 0 0 0.75rem 0;
+
+	font-size: 0.9375rem;
+
+	color: var(--mhm-text-primary);
+
+	font-weight: 600;
+
+	line-height: 1.3;
+
+}
+
+
+
+.rv-alternative-vehicle-features {
+
+	display: flex;
+
+	flex-wrap: wrap;
+
+	gap: 0.375rem;
+
+	margin-bottom: 0.75rem;
+
+}
+
+
+
+.rv-alternative-feature-tag {
+
+	background: var(--mhm-bg-secondary);
+
+	color: var(--mhm-secondary);
+
+	padding: 0.25rem 0.5rem;
+
+	border-radius: 12px;
+
+	font-size: 0.6875rem;
+
+	font-weight: 500;
+
+	border: 1px solid var(--mhm-border-primary);
+
+	text-transform: capitalize;
+
+}
+
+
+
+.rv-alternative-price-details {
+
+	margin-bottom: 0.75rem;
+
+	padding-top: 0.75rem;
+
+	border-top: 1px solid var(--mhm-border-primary);
+
+}
+
+
+
+.rv-alternative-price-row {
+
+	display: flex;
+
+	justify-content: space-between;
+
+	align-items: center;
+
+	margin-bottom: 0.375rem;
+
+}
+
+
+
+.rv-alternative-price-row:last-child {
+
+	margin-bottom: 0;
+
+}
+
+
+
+.rv-alternative-price-row.rv-alternative-price-total {
+
+	padding-top: 0.5rem;
+
+	border-top: 1px solid var(--mhm-border-primary);
+
+	margin-top: 0.5rem;
+
+}
+
+
+
+.rv-alternative-price-label {
+
+	font-size: 0.75rem;
+
+	color: var(--mhm-text-tertiary);
+
+}
+
+
+
+.rv-alternative-price-value {
+
+	font-size: 0.75rem;
+
+	color: var(--mhm-primary);
+
+	font-weight: 600;
+
+}
+
+
+
+.rv-alternative-price-amount {
+
+	font-size: 0.875rem;
+
+	color: var(--mhm-success);
+
+	font-weight: 700;
+
+}
+
+
+
+.rv-select-alternative-btn {
+
+	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%);
+
+	color: var(--mhm-btn-color);
+
+	border: none;
+
+	padding: 0.625rem 1rem;
+
+	border-radius: 8px;
+
+	font-size: 0.8125rem;
+
+	font-weight: 600;
+
+	cursor: pointer;
+
+	width: 100%;
+
+	transition: all 0.2s ease;
+
+	box-shadow: 0 2px 4px color-mix(in srgb, var(--mhm-primary), transparent 70%);
+
+}
+
+
+
+.rv-select-alternative-btn:hover {
+
+	background: linear-gradient(135deg, var(--mhm-primary-dark) 0%, var(--mhm-primary) 100%);
+
+	box-shadow: 0 4px 8px color-mix(in srgb, var(--mhm-primary), transparent 60%);
+
+	transform: translateY(-1px);
+
+}
+
+
+
+.rv-select-alternative-btn:active {
+
+	transform: translateY(0);
+
+}
+
+
+
+/* ===== ALTERNATIVE VEHICLES ===== */
+
+.rv-alternative-vehicles {
+
+	margin-top: 1rem;
+
+	display: grid;
+
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+	gap: 1rem;
+
+}
+
+
+
+.rv-alternative-vehicle {
+
+	background: var(--mhm-bg-card);
+
+	border: 1px solid var(--mhm-border-primary);
+
+	border-radius: 8px;
+
+	padding: 1rem;
+
+	transition: all 0.3s ease;
+
+	cursor: pointer;
+
+}
+
+
+
+.rv-alternative-vehicle:hover {
+
+	border-color: var(--mhm-primary);
+
+	box-shadow: 0 2px 8px color-mix(in srgb, var(--mhm-primary), transparent 85%);
+
+	transform: translateY(-2px);
+
+}
+
+
+
+.rv-alternative-vehicle-image {
+
+	width: 100%;
+
+	height: 120px;
+
+	overflow: hidden;
+
+	border-radius: 6px;
+
+	margin-bottom: 0.75rem;
+
+}
+
+
+
+.rv-alternative-vehicle-image img {
+
+	width: 100%;
+
+	height: 100%;
+
+	object-fit: cover;
+
+}
+
+
+
+.rv-alternative-vehicle-info h4 {
+
+	margin: 0 0 0.5rem 0;
+
+	font-size: 1.1rem;
+
+	color: var(--mhm-text-primary);
+
+}
+
+
+
+.rv-alternative-vehicle-price {
+
+	color: var(--mhm-primary);
+
+	font-weight: 600;
+
+	margin: 0.25rem 0;
+
+}
+
+
+
+.rv-alternative-vehicle-total {
+
+	color: var(--mhm-text-tertiary);
+
+	font-size: 0.9rem;
+
+	margin: 0.25rem 0 0.75rem 0;
+
+}
+
+
+
+.rv-select-alternative-btn {
+
+	width: 100%;
+
+	background: var(--mhm-primary);
+
+	color: white;
+
+	border: none;
+
+	padding: 0.75rem;
+
+	border-radius: 6px;
+
+	font-weight: 500;
+
+	cursor: pointer;
+
+	transition: background 0.3s ease;
+
+}
+
+
+
+.rv-select-alternative-btn:hover {
+
+	background: var(--mhm-primary-dark);
+
+}
+
+
+
+.rv-select-alternative-btn:active {
+
+	transform: translateY(1px);
+
+}
+
+
+
+/* ===== RESPONSIVE ALTERNATIVES ===== */
+
+@media (max-width: 782px) {
+
+	.rv-alternative-vehicles {
+
+		grid-template-columns: 1fr;
+
+	}
+
+
+
+	.rv-alternative-vehicle {
+
+		padding: 0.75rem;
+
+	}
+
+
+
+	.rv-alternative-vehicle-image {
+
+		height: 100px;
+
+	}
+
+}
+
+
+
+/* ====================================
+
+	RATING VE FAVORITE STYLES
+
+	(VehiclesList'ten kopyalandı)
+
+	==================================== */
+
+
+
+/* Section Header - For Rating and Favorite */
+
+.rv-section-header {
+
+	display: flex;
+
+	justify-content: space-between;
+
+	align-items: center;
+
+	margin-bottom: 1rem;
+
+}
+
+
+
+/* Vehicle Image Wrapper */
+
+.rv-vehicle-image-wrapper {
+
+	position: relative;
+
+	border-radius: 8px;
+
+	overflow: hidden;
+
+}
+
+
+
+/* Rating Overlay on Vehicle Image */
+
+.rv-vehicle-card__rating-overlay {
+
+	position: absolute;
+
+	top: 0.75rem;
+
+	left: 0.75rem;
+
+	background: color-mix(in srgb, var(--mhm-black), transparent 25%);
+
+	backdrop-filter: blur(8px);
+
+	padding: 0.375rem 0.75rem;
+
+	border-radius: 1.5rem;
+
+	display: flex;
+
+	align-items: center;
+
+	gap: 0.375rem;
+
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+}
+
+
+
+.rv-stars {
+
+	display: flex;
+
+	gap: 0.125rem;
+
+	align-items: center;
+
+}
+
+
+
+.rv-star {
+
+	color: var(--mhm-gray-300) !important;
+
+	stroke: var(--mhm-gray-300) !important;
+
+	fill: none;
+
+}
+
+
+
+.rv-star-filled {
+
+	color: var(--mhm-warning) !important;
+
+	fill: var(--mhm-warning) !important;
+
+	stroke: var(--mhm-warning) !important;
+
+}
+
+
+
+.rv-star-half {
+
+	fill: #fbbf24;
+
+	stroke: #fbbf24;
+
+	background: linear-gradient(90deg, #fbbf24 50%, #d1d5db 50%);
+
+	-webkit-background-clip: text;
+
+	background-clip: text;
+
+	color: transparent;
+
+}
+
+
+
+.rv-rating-count {
+
+	font-size: 0.75rem;
+
+	color: var(--mhm-white);
+
+	font-weight: 500;
+
+}
+
+
+
+/* Favorite Button */
+
+.rv-vehicle-card__favorite {
+
+	background: none;
+
+	border: none;
+
+	cursor: pointer;
+
+	padding: 0.5rem;
+
+	border-radius: 50%;
+
+	transition: all 0.2s ease-in-out;
+
+	color: var(--mhm-error);
+
+	opacity: 0.7;
+
+	display: flex;
+
+	align-items: center;
+
+	justify-content: center;
+
+}
+
+
+
+.rv-vehicle-card__favorite:hover {
+
+	opacity: 1;
+
+	background: color-mix(in srgb, var(--mhm-error), transparent 90%);
+
+	transform: scale(1.1);
+
+}
+
+
+
+.rv-vehicle-card__favorite.favorited,
+
+.rv-vehicle-card__favorite.is-favorited {
+
+	opacity: 1;
+
+}
+
+
+
+.rv-heart-icon {
+
+	fill: none;
+
+	stroke: currentColor;
+
+	transition: all 0.2s ease-in-out;
+
+}
+
+
+
+.rv-heart-icon.favorited,
+
+.rv-vehicle-card__favorite.favorited .rv-heart-icon,
+
+.rv-vehicle-card__favorite.is-favorited .rv-heart-icon {
+
+	fill: currentColor;
+
+}
+
+
+
+/* Loading State */
+
+.rv-vehicle-card__favorite.is-loading {
+
+	opacity: 0.5;
+
+	pointer-events: none;
+
+}
+
+
+
+/* Responsive Rating & Favorite */
+
+@media (max-width: 782px) {
+
+	.rv-section-header {
+
+		flex-direction: row;
+
+		align-items: center;
+
+		gap: 0.5rem;
+
+	}
+
+
+
+	.rv-vehicle-card__favorite {
+
+		padding: 0.375rem;
+
+	}
+
+
+
+	.rv-heart-icon {
+
+		width: 18px;
+
+		height: 18px;
+
+	}
+
+
+
+	.rv-vehicle-card__rating-overlay {
+
+		top: 0.5rem;
+
+		left: 0.5rem;
+
+		padding: 0.25rem 0.5rem;
+
+	}
+
+
+
+	.rv-star {
+
+		width: 12px;
+
+		height: 12px;
+
+	}
+
+
+
+	.rv-rating-count {
+
+		font-size: 0.7rem;
+
+	}
+
+}
+
+
+
+/* Logged-in user information */
+
+.rv-logged-in-info {
+
+	background: var(--mhm-bg-secondary);
+
+	border: 1px solid var(--mhm-border-primary);
+
+	border-radius: 8px;
+
+	padding: 1rem;
+
+	margin-bottom: 1rem;
+
+}
+
+
+
+.rv-user-details {
+
+	display: flex;
+
+	flex-direction: column;
+
+	gap: 0.5rem;
+
+}
+
+
+
+.rv-user-name {
+
+	font-size: 1rem;
+
+	font-weight: 600;
+
+	color: var(--mhm-text-primary);
+
+}
+
+
+
+.rv-user-name strong {
+
+	color: var(--mhm-text-primary);
+
+}
+
+
+
+.rv-user-email {
+
+	font-size: 0.875rem;
+
+	color: var(--mhm-text-secondary);
+
+	font-family: var(--mhm-font-mono);
+
+}
+
+
+
+/* Responsive */
+
+@media (max-width: 782px) {
+
+	.rv-logged-in-info {
+
+		padding: 0.75rem;
+
+	}
+
+
+
+	.rv-user-name {
+
+		font-size: 0.9rem;
+
+	}
+
+
+
+	.rv-user-email {
+
+		font-size: 0.8rem;
+
+	}
+
+}
+
+
+
+/* Button Animations */
+
+@keyframes buttonPulse {
+
+	0% {
+
+		box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4);
+
+	}
+
+
+
+	70% {
+
+		box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+
+	}
+
+
+
+	100% {
+
+		box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+
+	}
+
+}
+
+
+
+.rv-btn-primary:active:not(:disabled) {
+
+	color: var(--mhm-white) !important;
+
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+
+	animation: buttonPulse 0.6s ease-out;
+
+	transform: translateY(-1px) scale(0.98);
+
+}
+
+
+
+/* ========================================
+
+	Field Hints for Date Inputs
+
+	======================================== */
+
+
+
+.rv-field-hint {
+
+	display: block;
+
+	font-size: 12px;
+
+	color: #6c757d;
+
+	font-weight: 400;
+
+	margin-top: 4px;
+
+	font-style: italic;
+
+}
+
+
+
+.rv-field input[type="date"]:placeholder-shown+.rv-field-hint,
+
+.rv-field input[type="date"]:not(:placeholder-shown)+.rv-field-hint {
+
+	display: none;
+
+}
+
+
+
+/* Alternative approach for date inputs */
+
+.rv-field input[type="date"]:invalid {
+
+	color: #6c757d;
+
+}
+
+
+
+.rv-field input[type="date"]:invalid::before {
+
+	content: attr(data-placeholder);
+
+	color: #6c757d;
+
+	font-style: italic;
+
+}
+
+
+
+/* Date input styling */
+
+.rv-date-input {
+
+	cursor: pointer;
+
+	background-color: var(--mhm-bg-card);
+
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236b7280'%3e%3cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3e%3c/svg%3e");
+
+	background-repeat: no-repeat;
+
+	background-position: right 12px center;
+
+	background-size: 16px;
+
+	padding-right: 40px;
+
+}
+
+
+
+.rv-date-input:focus {
+
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%234f46e5'%3e%3cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3e%3c/svg%3e");
+
+}
+
+
+
+/* ===== MODERN JQUERY UI DATEPICKER STYLES ===== */
+
+.ui-datepicker {
+
+	background: var(--mhm-bg-card);
+
+	border: 2px solid var(--mhm-border-primary);
+
+	border-radius: 12px;
+
+	box-shadow: var(--mhm-shadow-lg);
+
+	padding: 0;
+
+	font-family: var(--mhm-font-primary);
+
+	font-size: 14px;
+
+	z-index: 9999;
+
+	min-width: 280px;
+
+}
+
+
+
+/* ===== DATEPICKER HEADER - REDESIGNED ===== */
+
+.ui-datepicker .ui-datepicker-header {
+
+	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-primary-dark) 100%) !important;
+
+	color: var(--mhm-btn-color) !important;
+
+	border: none !important;
+
+	border-radius: 10px 10px 0 0 !important;
+
+	padding: 0 !important;
+
+	min-height: 64px !important;
+
+	height: 64px !important;
+
+	text-align: center !important;
+
+	position: relative !important;
+
+	box-shadow: 0 2px 8px color-mix(in srgb, var(--mhm-btn-bg), transparent 80%) !important;
+
+	display: flex !important;
+
+	align-items: center !important;
+
+	justify-content: center !important;
+
+	overflow: visible !important;
+
+}
+
+
+
+/* Title - Perfectly centered between arrows */
+
+.ui-datepicker .ui-datepicker-title {
+
+	font-weight: 700 !important;
+
+	font-size: 17px !important;
+
+	line-height: 1.5 !important;
+
+	color: var(--mhm-btn-color) !important;
+
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+
+	letter-spacing: 0.5px !important;
+
+	text-align: center !important;
+
+	margin: 0 !important;
+
+	padding: 0 !important;
+
+	display: inline-block !important;
+
+	width: auto !important;
+
+	position: relative !important;
+
+	z-index: 5 !important;
+
+	white-space: nowrap !important;
+
+	box-sizing: border-box !important;
+
+}
+
+
+
+/* Navigation Arrows - Fixed positions on sides */
+
+.ui-datepicker .ui-datepicker-prev,
+
+.ui-datepicker .ui-datepicker-next {
+
+	position: absolute !important;
+
+	top: 50% !important;
+
+	transform: translateY(-50%) !important;
+
+	width: 36px !important;
+
+	height: 36px !important;
+
+	background: color-mix(in srgb, var(--mhm-white), transparent 75%) !important;
+
+	border: 2px solid color-mix(in srgb, var(--mhm-white), transparent 60%) !important;
+
+	border-radius: 50% !important;
+
+	cursor: pointer !important;
+
+	display: flex !important;
+
+	align-items: center !important;
+
+	justify-content: center !important;
+
+	transition: all 0.2s ease !important;
+
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+
+	z-index: 10 !important;
+
+	margin: 0 !important;
+
+	padding: 0 !important;
+
+}
+
+
+
+.ui-datepicker .ui-datepicker-prev:hover,
+
+.ui-datepicker .ui-datepicker-next:hover {
+
+	background: color-mix(in srgb, var(--mhm-white), transparent 60%) !important;
+
+	border-color: color-mix(in srgb, var(--mhm-white), transparent 40%) !important;
+
+	transform: translateY(-50%) scale(1.05) !important;
+
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
+
+}
+
+
+
+.ui-datepicker .ui-datepicker-prev {
+
+	left: 16px !important;
+
+	right: auto !important;
+
+}
+
+
+
+.ui-datepicker .ui-datepicker-next {
+
+	right: 16px !important;
+
+	left: auto !important;
+
+}
+
+
+
+/* Hide "Previous" and "Next" text labels completely */
+
+.ui-datepicker .ui-datepicker-prev span,
+
+.ui-datepicker .ui-datepicker-next span,
+
+.ui-datepicker .ui-datepicker-prev a span,
+
+.ui-datepicker .ui-datepicker-next a span,
+
+.ui-datepicker .ui-datepicker-prev .ui-button-text,
+
+.ui-datepicker .ui-datepicker-next .ui-button-text {
+
+	display: none !important;
+
+	visibility: hidden !important;
+
+	width: 0 !important;
+
+	height: 0 !important;
+
+	overflow: hidden !important;
+
+	text-indent: -9999px !important;
+
+	position: absolute !important;
+
+	clip: rect(0, 0, 0, 0) !important;
+
+	font-size: 0 !important;
+
+	line-height: 0 !important;
+
+	opacity: 0 !important;
+
+}
+
+
+
+/* Hide any direct text content in prev/next buttons */
+
+.ui-datepicker .ui-datepicker-prev,
+
+.ui-datepicker .ui-datepicker-next {
+
+	font-size: 0 !important;
+
+	color: transparent !important;
+
+	text-indent: -9999px !important;
+
+}
+
+
+
+/* Hide text in anchor elements */
+
+.ui-datepicker .ui-datepicker-prev a,
+
+.ui-datepicker .ui-datepicker-next a {
+
+	font-size: 0 !important;
+
+	text-indent: -9999px !important;
+
+	color: transparent !important;
+
+}
+
+
+
+.ui-datepicker .ui-datepicker-prev .ui-icon,
+
+.ui-datepicker .ui-datepicker-next .ui-icon {
+
+	background: none !important;
+
+	width: 18px !important;
+
+	height: 18px !important;
+
+	text-indent: 0 !important;
+
+	color: var(--mhm-white) !important;
+
+	font-weight: 700 !important;
+
+	margin: 0 !important;
+
+	display: flex !important;
+
+	align-items: center !important;
+
+	justify-content: center !important;
+
+	position: relative !important;
+
+}
+
+
+
+.ui-datepicker .ui-datepicker-prev .ui-icon::before {
+
+	content: '' !important;
+
+	font-size: 20px !important;
+
+	line-height: 1 !important;
+
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+
+	display: block !important;
+
+	visibility: visible !important;
+
+	color: var(--mhm-white) !important;
+
+}
+
+
+
+.ui-datepicker .ui-datepicker-next .ui-icon::before {
+
+	content: '' !important;
+
+	font-size: 20px !important;
+
+	line-height: 1 !important;
+
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+
+	display: block !important;
+
+	visibility: visible !important;
+
+	color: var(--mhm-white) !important;
+
+}
+
+
+
+/* Ensure icon container is visible */
+
+.ui-datepicker .ui-datepicker-prev .ui-icon,
+
+.ui-datepicker .ui-datepicker-next .ui-icon {
+
+	opacity: 1 !important;
+
+	visibility: visible !important;
+
+}
+
+
+
+.ui-datepicker table {
+
+	width: 100%;
+
+	border-collapse: collapse;
+
+	margin: 0;
+
+}
+
+
+
+.ui-datepicker th,
+
+.ui-datepicker td {
+
+	padding: 8px;
+
+	text-align: center;
+
+	border: none;
+
+}
+
+
+
+.ui-datepicker th {
+
+	background: var(--mhm-bg-secondary);
+
+	color: var(--mhm-text-tertiary);
+
+	font-weight: 600;
+
+	font-size: 12px;
+
+	text-transform: uppercase;
+
+	letter-spacing: 0.5px;
+
+}
+
+
+
+.ui-datepicker td a {
+
+	display: block;
+
+	width: 32px;
+
+	height: 32px;
+
+	line-height: 32px;
+
+	border-radius: 50%;
+
+	text-decoration: none;
+
+	color: var(--mhm-text-secondary);
+
+	font-weight: 500;
+
+	transition: all 0.2s ease;
+
+	margin: 0 auto;
+
+}
+
+
+
+.ui-datepicker td a:hover {
+
+	background: var(--mhm-bg-secondary);
+
+	color: var(--mhm-text-primary);
+
+}
+
+
+
+.ui-datepicker .ui-datepicker-today a {
+
+	background: color-mix(in srgb, var(--mhm-primary), transparent 90%);
+
+	color: var(--mhm-primary);
+
+	font-weight: 600;
+
+}
+
+
+
+.ui-datepicker .ui-datepicker-current-day a,
+
+.ui-datepicker .ui-state-active {
+
+	background: linear-gradient(135deg, var(--mhm-primary) 0%, var(--mhm-secondary) 100%) !important;
+
+	color: var(--mhm-btn-color) !important;
+
+	font-weight: 600 !important;
+
+}
+
+
+
+.ui-datepicker .ui-datepicker-other-month a {
+
+	color: var(--mhm-gray-300);
+
+}
+
+
+
+.ui-datepicker .ui-datepicker-buttonpane {
+
+	background: var(--mhm-bg-secondary);
+
+	border-top: 1px solid var(--mhm-border-primary);
+
+	padding: 12px 16px;
+
+	border-radius: 0 0 10px 10px;
+
+	text-align: center;
+
+}
+
+
+
+.ui-datepicker .ui-datepicker-buttonpane button {
+
+	background: var(--mhm-btn-bg);
+
+	color: var(--mhm-btn-color);
+
+	border: none;
+
+	padding: 8px 16px;
+
+	border-radius: 6px;
+
+	font-weight: 500;
+
+	cursor: pointer;
+
+	font-size: 13px;
+
+	margin: 0 4px;
+
+	transition: opacity 0.2s ease;
+
+}
+
+
+
+.ui-datepicker .ui-datepicker-buttonpane button:hover {
+
+	opacity: 0.9;
+
+}
+
+
+
+/* Month/Year Select Dropdowns */
+
+.ui-datepicker select {
+
+	background: color-mix(in srgb, var(--mhm-white), transparent 85%) !important;
+
+	border: 1px solid color-mix(in srgb, var(--mhm-white), transparent 70%) !important;
+
+	border-radius: 4px !important;
+
+	color: var(--mhm-btn-color) !important;
+
+	font-weight: 600 !important;
+
+	padding: 4px 8px !important;
+
+	margin: 0 2px !important;
+
+	text-align: center !important;
+
+	text-align-last: center !important;
+
+	-webkit-appearance: none !important;
+
+	-moz-appearance: none !important;
+
+	appearance: none !important;
+
+}
+
+
+
+.ui-datepicker select option {
+
+	background: var(--mhm-primary) !important;
+
+	color: var(--mhm-btn-color) !important;
+
+	text-align: center !important;
+
+}
+
+
+
+/* Responsive DatePicker */
+
+@media (max-width: 782px) {
+
+	.ui-datepicker {
+
+		min-width: 260px;
+
+		font-size: 13px;
+
+	}
+
+
+
+	.ui-datepicker .ui-datepicker-header {
+
+		padding: 12px;
+
+	}
+
+
+
+	.ui-datepicker .ui-datepicker-title {
+
+		font-size: 15px;
+
+	}
+
+
+
+	.ui-datepicker td a {
+
+		width: 28px;
+
+		height: 28px;
+
+		line-height: 28px;
+
+		font-size: 13px;
+
+	}
+
+}
+
+
+
+/* Notification System - Moved to global notifications.css */
+
+
+
+/* ===== DATEPICKER FIXES ===== */
+
+/* Robust fix for "V" symbols (theme icons) appearing in datepicker headers */
+
+#ui-datepicker-div .ui-datepicker-calendar th::after,
+
+#ui-datepicker-div .ui-datepicker-calendar th::before,
+
+#ui-datepicker-div .ui-datepicker-calendar td::after,
+
+#ui-datepicker-div .ui-datepicker-calendar td::before,
+
+#ui-datepicker-div thead th::after,
+
+#ui-datepicker-div thead th::before,
+
+#ui-datepicker-div thead tr::after,
+
+#ui-datepicker-div thead tr::before,
+
+#ui-datepicker-div th span::after,
+
+#ui-datepicker-div th span::before {
+
+	content: none !important;
+
+	display: none !important;
+
+	background: none !important;
+
+	border: none !important;
+
+	width: 0 !important;
+
+	height: 0 !important;
+
+	opacity: 0 !important;
+
+}
+
+
+
+/* Force cache update: 2025-12-23 14:15 */
+
+/* Force cache update: 2025-12-23 14:18 */
+
+/* Fix for "V" symbols (repeating background image) on input fields */
+
+/* Fix for "V" symbols (repeating background image) on input fields */
+
+.rv-booking-form input.rv-date-input,
+
+.rv-booking-form input.rv-input.hasDatepicker,
+
+.rv-booking-form input[type="date"] {
+
+	background-image: none !important;
+
+	background-color: var(--mhm-white) !important;
+
+	background-repeat: no-repeat !important;
+
+	-webkit-appearance: none;
+
+	-moz-appearance: none;
+
+	appearance: none;
+
+}
+
+
+
+/* =========================================
+
+	MODAL OVERRIDES (Applied when inside Booking Modal)
+
+	========================================= */
+
+
+
+/* Force Vertical Layout for Vehicle Card inside Modal */
+
+#rv-booking-modal .rv-selected-vehicle {
+
+	display: flex !important;
+
+	flex-direction: column !important;
+
+	height: auto !important;
+
+	min-height: auto !important;
+
+	align-items: flex-start !important;
+
+}
+
+
+
+/* Full Width Image */
+
+#rv-booking-modal .rv-selected-vehicle .rv-vehicle-image-wrapper {
+
+	width: 100% !important;
+
+	height: 200px !important;
+
+	margin: 0 0 15px 0 !important;
+
+	flex: none !important;
+
+}
+
+
+
+/* Full Width Details */
+
+#rv-booking-modal .rv-selected-vehicle .rv-vehicle-details {
+
+	width: 100% !important;
+
+	padding: 0 !important;
+
+	margin: 0 !important;
+
+	flex: none !important;
+
+}
+
+
+
+/* Features List Wrap */
+
+#rv-booking-modal .rv-vehicle-features {
+
+	display: flex !important;
+
+	flex-direction: row !important;
+
+	flex-wrap: wrap !important;
+
+	gap: 8px !important;
+
+	width: 100% !important;
+
+	margin-bottom: 15px !important;
+
+}
+
+
+
+#rv-booking-modal .rv-feature-tag {
+
+	white-space: nowrap !important;
+
+	width: auto !important;
+
+	flex: 0 0 auto !important;
+
+}
+
+
+
+/* Single Column Inputs */
+
+#rv-booking-modal .rv-field-group {
+
+	grid-template-columns: 1fr !important;
+
+}
+
+
+
+/* Ghost Datepicker Fix */
+
+#ui-datepicker-div {
+
+	display: none;
+
+	/* Hide by default, jQuery will show() it */
+
+	z-index: 99999 !important;
+
+}
+
+
+
+/* ==========================================================================
+
+   PREMIUM SINGLE COLUMN LAYOUT (User Request: Jan 2026)
+
+   ========================================================================= */
+
+
+
+/* 1. Layout & Container */
+
+.rv-booking-form-wrapper {
+
+	max-width: 900px !important;
+
+	/* Increased from 800px to prevent overflow */
+
+	margin: 40px auto !important;
+
+	padding: 30px !important;
+
+	background: var(--mhm-bg-card) !important;
+
+	box-shadow: var(--mhm-shadow-lg) !important;
+
+	border-radius: 16px !important;
+
+	border: 1px solid var(--mhm-border-primary) !important;
+
+	box-sizing: border-box !important;
+
+	/* Safety Net */
+
+}
+
+
+
+/* Reset any previous grid/flex layouts */
+
+.rv-booking-form-content,
+
+.rv-checkout-layout {
+
+	display: block !important;
+
+	grid-template-columns: none !important;
+
+	width: 100% !important;
+
+}
+
+
+
+.rv-checkout-sidebar,
+
+.rv-checkout-form-main {
+
+	width: 100% !important;
+
+	max-width: 100% !important;
+
+	margin: 0 !important;
+
+}
+
+
+
+/* 2. Top: Vehicle Card (The "Hero") */
+
+.rv-selected-vehicle {
+
+	width: 100% !important;
+
+	display: flex !important;
+
+	flex-direction: row !important;
+
+	align-items: center !important;
+
+	gap: 20px !important;
+
+	/* Reduced Gap */
+
+	padding: 15px !important;
+
+	/* Reduced Padding */
+
+	margin-bottom: 30px !important;
+
+	background: var(--mhm-bg-card) !important;
+
+	border: 1px solid var(--mhm-border-primary) !important;
+
+	box-shadow: var(--mhm-shadow-sm) !important;
+
+	border-radius: 16px !important;
+
+	min-height: auto !important;
+
+	box-sizing: border-box !important;
+
+}
+
+
+
+/* Vehicle Image */
+
+.rv-selected-vehicle .rv-vehicle-image-wrapper {
+
+	width: 200px !important;
+
+	height: 120px !important;
+
+	margin: 0 !important;
+
+	flex-shrink: 0 !important;
+
+}
+
+
+
+.rv-selected-vehicle .rv-vehicle-image {
+
+	width: 100% !important;
+
+	height: 100% !important;
+
+	object-fit: cover !important;
+
+	border-radius: 12px !important;
+
+}
+
+
+
+/* Vehicle Info */
+
+.rv-selected-vehicle .rv-vehicle-details {
+
+	height: auto !important;
+
+	padding: 0 !important;
+
+	justify-content: center !important;
+
+}
+
+
+
+/* Title */
+
+.rv-selected-vehicle .rv-vehicle-title {
+
+	font-size: 1.5rem !important;
+
+	font-weight: 800 !important;
+
+	color: var(--mhm-text-primary) !important;
+
+	line-height: 1.2 !important;
+
+	margin-bottom: 8px !important;
+
+}
+
+
+
+/* Features (Visual Chips) */
+
+.rv-vehicle-features {
+
+	display: flex !important;
+
+	flex-wrap: wrap !important;
+
+	gap: 10px !important;
+
+	margin: 0 !important;
+
+}
+
+
+
+.rv-feature-tag {
+
+	display: inline-flex !important;
+
+	align-items: center !important;
+
+	gap: 8px !important;
+
+	padding: 8px 14px !important;
+
+	background: var(--mhm-bg-secondary) !important;
+
+	color: var(--mhm-text-secondary) !important;
+
+	border-radius: 50px !important;
+
+	/* Pill Shape */
+
+	font-size: 0.875rem !important;
+
+	font-weight: 600 !important;
+
+	border: 1px solid var(--mhm-border-primary) !important;
+
+	transition: all 0.2s ease !important;
+
+}
+
+
+
+.rv-feature-tag:hover {
+
+	background: var(--mhm-bg-tertiary) !important;
+
+	color: var(--mhm-text-primary) !important;
+
+}
+
+
+
+.rv-feature-tag svg {
+
+	width: 16px !important;
+
+	height: 16px !important;
+
+	stroke-width: 2.5px !important;
+
+	color: var(--mhm-text-tertiary) !important;
+
+}
+
+
+
+/* Price - Reference Style */
+
+.rv-vehicle-price {
+
+	font-size: 1.1rem !important;
+
+	/* Base size for unit */
+
+	font-weight: 600 !important;
+
+	color: var(--mhm-text-tertiary) !important;
+
+	/* Grayish for unit */
+
+	margin-top: 0px !important;
+
+	/* Spacing from features */
+
+	display: flex !important;
+
+	align-items: baseline !important;
+
+	gap: 4px !important;
+
+}
+
+
+
+/* The Amount Number Itself (e.g. 6.000) */
+
+.rv-vehicle-price strong,
+
+.rv-vehicle-price span.amount,
+
+.rv-vehicle-price .woocommerce-Price-currencySymbol {
+
+	font-size: 1.75rem !important;
+
+	/* Large Hero Number */
+
+	font-weight: 800 !important;
+
+	color: var(--mhm-primary) !important;
+
+	/* Brand Blue */
+
+	letter-spacing: -0.5px !important;
+
+}
+
+
+
+
+
+
+
+/* 3. Middle: Inputs (Date & Time) - Premium Combined Layout */
+
+.rv-dates-combined-layout {
+
+	display: grid !important;
+
+	grid-template-columns: 1fr 1fr !important;
+
+	gap: 24px !important;
+
+	margin-bottom: 30px !important;
+
+}
+
+
+
+.rv-combined-field-column {
+
+	display: flex !important;
+
+	flex-direction: column !important;
+
+	gap: 8px !important;
+
+}
+
+
+
+/* Bold Premium Label */
+
+.rv-label-premium {
+
+	display: flex !important;
+
+	align-items: center !important;
+
+	gap: 6px !important;
+
+	font-size: 0.95rem !important;
+
+	font-weight: 700 !important;
+
+	color: var(--mhm-text-primary) !important;
+
+	margin-bottom: 2px !important;
+
+}
+
+
+
+/* Info Icon in Label */
+
+.rv-info-icon-wrapper {
+
+	display: inline-flex !important;
+
+	color: var(--mhm-info) !important;
+
+	/* Primary Blue */
+
+	cursor: help !important;
+
+	opacity: 0.8 !important;
+
+	transition: opacity 0.2s !important;
+
+}
+
+
+
+.rv-info-icon-wrapper:hover {
+
+	opacity: 1 !important;
+
+}
+
+
+
+/* The Unified Input Box */
+
+.rv-date-time-picker-wrapper {
+
+	display: flex !important;
+
+	align-items: center !important;
+
+	justify-content: space-between !important;
+
+	background: var(--mhm-bg-card) !important;
+
+	border: 1px solid var(--mhm-border-primary) !important;
+
+	border-radius: 12px !important;
+
+	padding: 0 16px !important;
+
+	height: 56px !important;
+
+	transition: all 0.25s ease !important;
+
+	cursor: pointer !important;
+
+}
+
+
+
+.rv-date-time-picker-wrapper:hover {
+
+	border-color: var(--mhm-border-secondary) !important;
+
+	background: var(--mhm-bg-secondary) !important;
+
+}
+
+
+
+.rv-date-time-picker-wrapper:focus-within {
+
+	border-color: var(--mhm-primary) !important;
+
+	box-shadow: 0 0 0 4px color-mix(in srgb, var(--mhm-primary), transparent 90%) !important;
+
+	background: #ffffff !important;
+
+}
+
+
+
+/* Inner inputs container */
+
+.rv-inputs-inner {
+
+	display: flex !important;
+
+	align-items: center !important;
+
+	flex: 1 !important;
+
+	overflow: hidden !important;
+
+}
+
+
+
+/* Borderless Ghost Inputs */
+
+.rv-input-ghost,
+
+.rv-select-ghost {
+
+	border: none !important;
+
+	background: transparent !important;
+
+	padding: 0 !important;
+
+	margin: 0 !important;
+
+	font-size: 0.95rem !important;
+
+	color: var(--mhm-text-primary) !important;
+
+	outline: none !important;
+
+	box-shadow: none !important;
+
+	height: 100% !important;
+
+}
+
+
+
+.rv-input-ghost {
+
+	width: auto !important;
+
+	flex: 0 0 auto !important;
+
+	min-width: 120px !important;
+
+	cursor: pointer !important;
+
+}
+
+
+
+.rv-select-ghost {
+
+	flex: 1 !important;
+
+	cursor: pointer !important;
+
+	/* Remove default arrow to match image */
+
+	-webkit-appearance: none !important;
+
+	-moz-appearance: none !important;
+
+	appearance: none !important;
+
+	background: none !important;
+
+	padding-left: 5px !important;
+
+}
+
+
+
+.rv-field-separator {
+
+	color: var(--mhm-gray-400) !important;
+
+	margin: 0 4px !important;
+
+	font-weight: 500 !important;
+
+}
+
+
+
+/* Icon Wrapper */
+
+.rv-calendar-icon-wrapper {
+
+	color: var(--mhm-text-tertiary) !important;
+
+	display: flex !important;
+
+	align-items: center !important;
+
+	justify-content: center !important;
+
+	margin-left: 10px !important;
+
+	pointer-events: none !important;
+
+}
+
+
+
+.rv-calendar-icon-wrapper svg {
+
+	width: 20px !important;
+
+	height: 20px !important;
+
+	stroke-width: 1.5px !important;
+
+}
+
+
+
+/* Description Hint - Premium Single Line */
+
+.rv-description-hint-premium {
+
+	font-size: 0.75rem !important;
+
+	font-weight: 500 !important;
+
+	color: var(--mhm-text-tertiary) !important;
+
+	margin-top: 6px !important;
+
+	font-style: italic !important;
+
+	white-space: nowrap !important;
+
+	/* Force single line */
+
+	display: block !important;
+
+	overflow: hidden !important;
+
+	text-overflow: ellipsis !important;
+
+}
+
+
+
+/* ===== MOBILE RESPONSIVE OPTIMIZATIONS ===== */
+
+@media (max-width: 782px) {
+
+
+
+	/* 0. Form Container - Maximize Width */
+
+	.rv-booking-form-wrapper {
+
+		padding: 0 12px !important;
+
+		margin: 20px auto !important;
+
+	}
+
+
+
+	.rv-booking-form-content {
+
+		gap: 24px !important;
+
+	}
+
+
+
+	/* 1. Date & Time Inputs Stack */
+
+	.rv-dates-combined-layout {
+
+		grid-template-columns: 1fr !important;
+
+		gap: 16px !important;
+
+		margin-bottom: 24px !important;
+
+	}
+
+
+
+	/* Prevent Grid Blowout from long text */
+
+	.rv-combined-field-column {
+
+		min-width: 0 !important;
+
+		width: 100% !important;
+
+	}
+
+
+
+	/* Allow text wrapping for hints on mobile */
+
+	.rv-description-hint-premium {
+
+		white-space: normal !important;
+
+		height: auto !important;
+
+		overflow: visible !important;
+
+		line-height: 1.4 !important;
+
+	}
+
+
+
+	/* Allow flexible height for inputs on very small screens */
+
+	.rv-date-time-picker-wrapper {
+
+		height: auto !important;
+
+		min-height: auto !important;
+
+		padding: 12px 16px !important;
+
+		align-items: flex-start !important;
+
+		width: 100% !important;
+
+		box-sizing: border-box !important;
+
+	}
+
+
+
+	.rv-inputs-inner {
+
+		flex-direction: column !important;
+
+		align-items: stretch !important;
+
+		gap: 8px !important;
+
+		width: 100% !important;
+
+	}
+
+
+
+	.rv-field-separator {
+
+		display: none !important;
+
+	}
+
+
+
+	.rv-input-ghost,
+
+	.rv-select-ghost {
+
+		width: 100% !important;
+
+		min-width: unset !important;
+
+		height: 30px !important;
+
+		border-bottom: 1px dashed var(--mhm-border-primary) !important;
+
+		border-radius: 0 !important;
+
+		padding-bottom: 4px !important;
+
+	}
+
+
+
+	.rv-select-ghost {
+
+		border-bottom: none !important;
+
+		padding-bottom: 0 !important;
+
+		padding-left: 0 !important;
+
+	}
+
+
+
+	.rv-calendar-icon-wrapper {
+
+		margin-top: 5px !important;
+
+		/* Align with top input */
+
+	}
+
+
+
+	/* 2. Vehicle Card - Vertical Stack */
+
+	.rv-selected-vehicle {
+
+		padding: 0 !important;
+
+		overflow: hidden !important;
+
+		border: 1px solid var(--mhm-border-primary) !important;
+
+		height: auto !important;
+
+		min-height: auto !important;
+
+	}
+
+
+
+	/* The inner container holding Image + Details */
+
+	.rv-vehicle-info {
+
+		display: flex !important;
+
+		flex-direction: column !important;
+
+		width: 100% !important;
+
+		padding: 0 !important;
+
+		margin: 0 !important;
+
+		gap: 0 !important;
+
+		border: none !important;
+
+	}
+
+
+
+	.rv-selected-vehicle .rv-vehicle-image-wrapper {
+
+		width: 100% !important;
+
+		height: 220px !important;
+
+		margin: 0 !important;
+
+		border-radius: 0 !important;
+
+	}
+
+
+
+	/* Force Image Fill */
+
+	.rv-selected-vehicle .rv-vehicle-image {
+
+		width: 100% !important;
+
+		height: 100% !important;
+
+		object-fit: cover !important;
+
+		border-radius: 0 !important;
+
+	}
+
+
+
+	.rv-selected-vehicle .rv-vehicle-details {
+
+		padding: 24px 20px !important;
+
+		width: 100% !important;
+
+		box-sizing: border-box !important;
+
+		display: flex !important;
+
+		flex-direction: column !important;
+
+		align-items: center !important;
+
+		text-align: center !important;
+
+		gap: 8px !important;
+
+	}
+
+
+
+	/* Center Rating Block */
+
+	.rv-vehicle-rating-block {
+
+		width: 100% !important;
+
+		justify-content: center !important;
+
+		margin: 4px 0 12px 0 !important;
+
+	}
+
+
+
+	/* Position Favorite Icon at Top Right of Image */
+
+	.rv-vehicle-card__favorite {
+
+		top: 16px !important;
+
+		right: 20px !important;
+
+		/* Ensure it's above image */
+
+		z-index: 10 !important;
+
+		background: color-mix(in srgb, var(--mhm-white), transparent 20%) !important;
+
+		border-radius: 50% !important;
+
+		width: 32px !important;
+
+		height: 32px !important;
+
+		display: flex !important;
+
+		align-items: center !important;
+
+		justify-content: center !important;
+
+	}
+
+
+
+	.rv-selected-vehicle .rv-vehicle-card__footer {
+
+		display: none !important;
+
+		/* Hide old footer structure if distinct from details */
+
+	}
+
+
+
+	.rv-selected-vehicle .rv-vehicle-title {
+
+		font-size: 1.35rem !important;
+
+		text-align: center !important;
+
+		margin-bottom: 4px !important;
+
+	}
+
+
+
+	.rv-vehicle-features {
+
+		justify-content: center !important;
+
+		gap: 8px !important;
+
+		margin: 8px 0 !important;
+
+	}
+
+
+
+	/* 3. Addons List */
+
+	.rv-addon-item {
+
+		padding: 12px !important;
+
+		width: 100% !important;
+
+		flex-wrap: wrap !important;
+
+	}
+
+
+
+	.rv-addon-item .rv-addon-title {
+
+		font-size: 0.9rem !important;
+
+	}
+
+
+
+	/* 4. Price Calculation - Compact View */
+
+	.rv-price-calculation {
+
+		padding: 20px !important;
+
+		margin-top: 24px !important;
+
+		width: 100% !important;
+
+		box-sizing: border-box !important;
+
+	}
+
+
+
+	.rv-price-item {
+
+		font-size: 0.9rem !important;
+
+	}
+
+
+
+	/* 5. Submit Button - Full Width & Height */
+
+	.rv-submit-btn {
+
+		height: 54px !important;
+
+		font-size: 1.1rem !important;
+
+		width: 100% !important;
+
+	}
+
+}
+
+
+
+/* 4. Middle: Extras (The "Clean List") */
+
+.rv-addons-list {
+
+	display: flex !important;
+
+	flex-direction: column !important;
+
+	gap: 0 !important;
+
+	border-top: 1px solid var(--mhm-border-primary) !important;
+
+}
+
+
+
+.rv-addon-item {
+
+	display: flex !important;
+
+	align-items: center !important;
+
+	width: 100% !important;
+
+	padding: 16px 10px !important;
+
+	background: transparent !important;
+
+	border: none !important;
+
+	border-bottom: 1px solid var(--mhm-border-primary) !important;
+
+	border-radius: 8px !important;
+
+	/* Rounded selection background */
+
+	box-shadow: none !important;
+
+	min-height: auto !important;
+
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+	cursor: pointer !important;
+
+	box-sizing: border-box !important;
+
+}
+
+
+
+/* Hover and Checked states */
+
+.rv-addon-item:hover {
+
+	background: var(--mhm-bg-secondary) !important;
+
+}
+
+
+
+.rv-addon-item:has(.rv-addon-checkbox:checked) {
+
+	background: color-mix(in srgb, var(--mhm-btn-bg), transparent 95%) !important;
+
+	/* Light tint based on button color for selection */
+
+	border-bottom-color: transparent !important;
+
+	/* Hide separator when selected for cleaner look */
+
+	transform: translateX(4px) !important;
+
+	/* Subtle 'pop' animation */
+
+}
+
+
+
+/* Remove any accidental focus borders/outlines */
+
+.rv-addon-item,
+
+.rv-addon-item *,
+
+.rv-addon-checkbox:focus {
+
+	outline: none !important;
+
+	box-shadow: none !important;
+
+}
+
+
+
+/* Checkbox Style */
+
+.rv-addon-checkbox {
+
+	margin-top: 4px !important;
+
+	margin-inline-end: 16px !important;
+
+}
+
+
+
+/* Active Text Color */
+
+.rv-addon-item:has(.rv-addon-checkbox:checked) .rv-addon-title {
+
+	color: var(--mhm-btn-bg) !important;
+
+}
+
+
+
+/* Addon Content Wrapper to push price to right */
+
+.rv-addon-title {
+
+	font-size: 1rem !important;
+
+	font-weight: 600 !important;
+
+	color: var(--mhm-text-primary) !important;
+
+	flex-grow: 1 !important;
+
+	/* Takes up available space */
+
+}
+
+
+
+.rv-addon-price {
+
+	font-weight: 600 !important;
+
+	color: var(--mhm-text-secondary) !important;
+
+	margin-left: auto !important;
+
+	/* Pushes to far right */
+
+	white-space: nowrap !important;
+
+	/* Prevents line checks */
+
+}
+
+
+
+/* 5. Bottom: Price Summary */
+
+/* 5. Bottom: Price Summary - Professional Receipt Style */
+
+.rv-price-calculation {
+
+	background: var(--mhm-bg-secondary) !important;
+
+	border-radius: 12px !important;
+
+	padding: 24px !important;
+
+	margin-top: 32px !important;
+
+	border: 1px solid var(--mhm-border-primary) !important;
+
+	text-align: left !important;
+
+	/* Reset potential centering */
+
+	width: 100% !important;
+
+	box-sizing: border-box !important;
+
+}
+
+
+
+.rv-price-breakdown {
+
+	display: flex !important;
+
+	flex-direction: column !important;
+
+	gap: 12px !important;
+
+	width: 100% !important;
+
+}
+
+
+
+.rv-price-item {
+
+	display: flex !important;
+
+	justify-content: space-between !important;
+
+	align-items: center !important;
+
+	font-size: 0.95rem !important;
+
+	color: var(--mhm-text-secondary) !important;
+
+	width: 100% !important;
+
+}
+
+
+
+.rv-price-value {
+
+	font-weight: 600 !important;
+
+	color: var(--mhm-text-primary) !important;
+
+	text-align: right !important;
+
+}
+
+
+
+/* Total Price Special Style */
+
+.rv-price-item.rv-total-price {
+
+	margin-top: 16px !important;
+
+	padding-top: 20px !important;
+
+	border-top: 2px solid var(--mhm-border-primary) !important;
+
+	align-items: flex-end !important;
+
+}
+
+
+
+.rv-price-item.rv-total-price .rv-price-label {
+
+	font-size: 1.1rem !important;
+
+	font-weight: 700 !important;
+
+	color: var(--mhm-text-primary) !important;
+
+}
+
+
+
+.rv-price-item.rv-total-price .rv-price-value {
+
+	font-size: 1.5rem !important;
+
+	font-weight: 800 !important;
+
+	color: var(--mhm-price-color) !important;
+
+	line-height: 1 !important;
+
+}
+
+
+
+/* Deposit and Remaining Info (Secondary) */
+
+.rv-price-item.rv-deposit-summary,
+
+.rv-price-item.rv-remaining-summary {
+
+	margin-top: 4px !important;
+
+	font-size: 0.9rem !important;
+
+	padding-top: 8px !important;
+
+}
+
+
+
+.rv-price-item.rv-deposit-summary {
+
+	border-top: 1px dashed var(--mhm-border-primary) !important;
+
+	margin-top: 12px !important;
+
+}
+
+
+
+.rv-price-item.rv-deposit-summary .rv-price-value {
+
+	color: var(--mhm-price-color) !important;
+
+}
+
+
+
+.rv-price-item.rv-remaining-summary .rv-price-value {
+
+	color: var(--mhm-price-color) !important;
+
+	/* Decoupled for pricing control */
+
+}
+
+
+
+.rv-price-item.rv-total-price .rv-price-value {
+
+	font-size: 1.8rem !important;
+
+	font-weight: 800 !important;
+
+	color: var(--mhm-price-color) !important;
+
+}
+
+
+
+.rv-submit-btn {
+
+	width: 100% !important;
+
+	height: 60px !important;
+
+	margin-top: 24px !important;
+
+	border-radius: 12px !important;
+
+	font-size: 1.15rem !important;
+
+	font-weight: 700 !important;
+
+	color: var(--mhm-btn-color) !important;
+
+	background: var(--mhm-btn-bg) !important;
+
+	border: none !important;
+
+	box-shadow: 0 8px 24px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%) !important;
+
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+	cursor: pointer !important;
+
+	display: flex !important;
+
+	align-items: center !important;
+
+	justify-content: center !important;
+
+	gap: 10px !important;
+
+}
+
+
+
+.rv-submit-btn:hover {
+
+	background: var(--mhm-btn-hover-bg) !important;
+
+	transform: translateY(-2px) !important;
+
+	box-shadow: 0 12px 30px color-mix(in srgb, var(--mhm-btn-bg), transparent 60%) !important;
+
+}
+
+
+
+.rv-submit-btn:active {
+
+	transform: translateY(0) !important;
+
+	box-shadow: none !important;
+
+}
+
+
+
+.rv-submit-btn:disabled {
+
+	background: var(--mhm-gray-300) !important;
+
+	cursor: not-allowed !important;
+
+	transform: none !important;
+
+	box-shadow: none !important;
+
+}
+
+
+
+/* ===== PROFESSIONAL ALTERNATIVE VEHICLES (v4.5) ===== */
+
+.rv-availability-error {
+
+	background: transparent !important;
+
+	box-shadow: none !important;
+
+	padding: 0 !important;
+
+	margin-top: 1.5rem;
+
+}
+
+
+
+.rv-availability-error-header {
+
+	background: color-mix(in srgb, var(--mhm-error), transparent 95%);
+
+	border: 1px solid color-mix(in srgb, var(--mhm-error), transparent 80%);
+
+	color: var(--mhm-error-dark);
+
+	padding: 1.25rem 1.5rem;
+
+	border-radius: 12px;
+
+	margin-bottom: 2rem;
+
+	display: flex;
+
+	align-items: center;
+
+	gap: 0.75rem;
+
+	box-shadow: var(--mhm-shadow-sm);
+
+}
+
+
+
+.rv-availability-error-header .dashicons {
+
+	background: var(--mhm-error) !important;
+
+	color: var(--mhm-white) !important;
+
+	border-radius: 50%;
+
+	padding: 4px;
+
+	font-size: 16px;
+
+	width: 24px;
+
+	height: 24px;
+
+	display: flex;
+
+	align-items: center;
+
+	justify-content: center;
+
+}
+
+
+
+/* Alternatives Wrapper */
+
+.rv-alternatives-wrapper {
+
+	margin-top: 2rem;
+
+}
+
+
+
+.rv-alternatives-title {
+
+	font-size: 1.125rem;
+
+	font-weight: 700;
+
+	color: var(--mhm-text-primary);
+
+	margin-bottom: 2rem;
+
+	padding-bottom: 0.75rem;
+
+	border-bottom: 2px solid var(--mhm-border-primary);
+
+	display: flex;
+
+	align-items: center;
+
+	justify-content: center;
+
+	/* Bal ortala */
+
+	gap: 0.5rem;
+
+}
+
+
+
+/* ?? GRID LAYOUT - Perfectly Centered & No Overflow */
+
+.rv-alternatives-grid {
+
+	display: grid;
+
+	grid-template-columns: repeat(3, 1fr);
+
+	width: 100%;
+
+	max-width: 100%;
+
+	margin: 0 auto;
+
+	gap: 1.25rem;
+
+	margin-bottom: 2rem;
+
+	justify-content: center;
+
+	box-sizing: border-box;
+
+}
+
+
+
+/* Premium Card Design */
+
+.rv-alternative-vehicle-card {
+
+	background: var(--mhm-bg-card);
+
+	border: 1px solid var(--mhm-border-primary);
+
+	border-radius: 16px;
+
+	overflow: hidden;
+
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+	box-shadow: var(--mhm-shadow-base);
+
+	display: flex;
+
+	flex-direction: column;
+
+	height: 100%;
+
+	text-align: center;
+
+	/* erikleri ortala */
+
+}
+
+
+
+.rv-alternative-vehicle-card:hover {
+
+	transform: translateY(-8px);
+
+	box-shadow: var(--mhm-shadow-lg);
+
+	border-color: var(--mhm-primary);
+
+}
+
+
+
+/* Image Section */
+
+.rv-alternative-vehicle-image {
+
+	width: 100%;
+
+	height: 180px;
+
+	overflow: hidden;
+
+	background: var(--mhm-bg-secondary);
+
+	position: relative;
+
+	display: flex;
+
+	align-items: center;
+
+	justify-content: center;
+
+}
+
+
+
+.rv-alternative-vehicle-image img {
+
+	max-width: 90%;
+
+	height: 100%;
+
+	object-fit: contain;
+
+	padding: 1rem;
+
+	transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+}
+
+
+
+.rv-alternative-vehicle-card:hover .rv-alternative-vehicle-image img {
+
+	transform: scale(1.15);
+
+}
+
+
+
+/* Content Section */
+
+.rv-alternative-vehicle-content {
+
+	padding: 1.5rem;
+
+	display: flex;
+
+	flex-direction: column;
+
+	align-items: center;
+
+	/* Kart iini dikeyde ortala */
+
+	flex-grow: 1;
+
+}
+
+
+
+.rv-alternative-vehicle-title {
+
+	font-size: 1.125rem;
+
+	font-weight: 700;
+
+	color: var(--mhm-text-primary);
+
+	margin: 0 0 1rem 0;
+
+	height: 2.8rem;
+
+	overflow: hidden;
+
+	display: -webkit-box;
+
+	-webkit-line-clamp: 2;
+
+	line-clamp: 2;
+
+	-webkit-box-orient: vertical;
+
+	line-height: 1.4;
+
+	text-align: center;
+
+}
+
+
+
+/* Features Tags */
+
+.rv-alternative-vehicle-features {
+
+	display: flex;
+
+	flex-wrap: wrap;
+
+	justify-content: center;
+
+	/* Taglar ortala */
+
+	gap: 0.5rem;
+
+	margin-bottom: 1.25rem;
+
+}
+
+
+
+.rv-alternative-feature-tag {
+
+	font-size: 0.7rem;
+
+	text-transform: uppercase;
+
+	font-weight: 700;
+
+	padding: 3px 10px;
+
+	background: var(--mhm-bg-secondary);
+
+	color: var(--mhm-text-secondary);
+
+	border-radius: 100px;
+
+	letter-spacing: 0.025em;
+
+}
+
+
+
+/* Pricing Section */
+
+.rv-alternative-price-details {
+
+	width: 100%;
+
+	margin-top: auto;
+
+	padding-top: 1.25rem;
+
+	border-top: 1px dashed var(--mhm-border-primary);
+
+	margin-bottom: 1.5rem;
+
+}
+
+
+
+.rv-alternative-price-row {
+
+	display: flex;
+
+	justify-content: space-between;
+
+	align-items: center;
+
+	margin-bottom: 0.4rem;
+
+}
+
+
+
+.rv-alternative-price-label {
+
+	font-size: 0.8rem;
+
+	color: var(--mhm-text-tertiary);
+
+}
+
+
+
+.rv-alternative-price-value {
+
+	font-size: 0.95rem;
+
+	font-weight: 600;
+
+	color: var(--mhm-text-secondary);
+
+}
+
+
+
+.rv-alternative-price-total .rv-alternative-price-label {
+
+	font-weight: 700;
+
+	color: var(--mhm-text-primary);
+
+}
+
+
+
+.rv-alternative-price-amount {
+
+	font-size: 1.35rem;
+
+	font-weight: 800;
+
+	color: var(--mhm-primary);
+
+}
+
+
+
+/* Select Button */
+
+.rv-select-alternative-btn {
+
+	width: 100%;
+
+	background: var(--mhm-gray-800);
+
+	color: var(--mhm-white) !important;
+
+	border: none;
+
+	padding: 1rem;
+
+	border-radius: 10px;
+
+	font-weight: 700;
+
+	font-size: 0.95rem;
+
+	cursor: pointer;
+
+	transition: all 0.3s ease;
+
+	display: flex;
+
+	align-items: center;
+
+	justify-content: center;
+
+	gap: 0.6rem;
+
+	box-shadow: var(--mhm-shadow-sm);
+
+}
+
+
+
+.rv-select-alternative-btn:hover {
+
+	background: var(--mhm-primary);
+
+	box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--mhm-primary), transparent 60%);
+
+	transform: translateY(-2px);
+
+}
+
+
+
+/* ?? MOBILE RESPONSIVE */
+
+@media (max-width: 1024px) {
+
+	.rv-alternatives-grid {
+
+		grid-template-columns: repeat(2, 1fr);
+
+		gap: 1.25rem;
+
+	}
+
+}
+
+
+
+@media (max-width: 782px) {
+
+	.rv-alternatives-grid {
+
+		grid-template-columns: 1fr;
+
+		gap: 1.5rem;
+
+	}
+
+
+
+	.rv-alternative-vehicle-card {
+
+		max-width: 400px;
+
+		margin: 0 auto;
+
+	}
+
+
+
+	.rv-availability-error-header {
+
+		font-size: 0.9rem;
+
+		padding: 1rem;
+
+	}
+
+}
+
+
+
+/* Weekend Price Difference Styling */
+
+.rv-weekend-summary .rv-price-value {
+
+	color: var(--mhm-warning-dark);
+
+	/* Dark amber for visibility manually selected */
+
+	font-weight: 600;
+
+}
+
+
+
+/* High Contrast Alerts & Badges Fix */
+
+.rv-availability-alert,
+.rv-availability-error-header,
+.rv-alert-warning {
+
+	background-color: #fff3cd !important;
+
+	color: #856404 !important;
+
+	border: 1px solid #ffeeba !important;
+
+}
+
+.rv-availability-alert.error,
+.rv-alert-error {
+background-color: #f8d7da !important;
+color: #721c24 !important;
+border: 1px solid #f5c6cb !important;
+}
+
+.rv-recommended-vehicle-card {
+border: 2px solid #2271b1 !important;
+background-color: #f0f7ff !important;
+}
+
+/* ===== SELECTED VEHICLE SUMMARY (Final UI Contract v4.11) - INJECTED ===== */
+.mhm-rentiva-booking-form .rv-selected-vehicle {
+background: #ffffff !important;
+border-radius: 16px !important;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+display: flex !important;
+overflow: hidden !important;
+margin-bottom: 24px !important;
+border: 1px solid #f1f5f9 !important;
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+min-height: auto !important;
+flex-direction: row !important;
+width: 100% !important;
+padding: 0 !important;
+}
+
+.mhm-rentiva-booking-form .rv-selected-vehicle:hover {
+transform: translateY(-2px) !important;
+box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+.mhm-rentiva-booking-form .rv-sv__media {
+width: 35% !important;
+position: relative !important;
+background: #f8fafc !important;
+aspect-ratio: 4/3 !important;
+flex-shrink: 0 !important;
+overflow: hidden !important;
+padding: 0 !important;
+margin: 0 !important;
+}
+
+.mhm-rentiva-booking-form .rv-sv__img {
+width: 100% !important;
+height: 100% !important;
+object-fit: cover !important;
+display: block !important;
+}
+
+.mhm-rentiva-booking-form .rv-sv__favorite {
+position: absolute !important;
+top: 12px !important;
+right: 12px !important;
+left: auto !important;
+bottom: auto !important;
+width: 36px !important;
+height: 36px !important;
+background: #ffffff !important;
+border-radius: 50% !important;
+display: flex !important;
+align-items: center !important;
+justify-content: center !important;
+border: none !important;
+cursor: pointer !important;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+color: #94a3b8 !important;
+z-index: 10 !important;
+}
+
+.mhm-rentiva-booking-form .rv-sv__favorite.is-active {
+color: #ef4444 !important;
+}
+
+.mhm-rentiva-booking-form .rv-sv__content {
+width: 65% !important;
+padding: 24px !important;
+display: flex !important;
+flex-direction: column !important;
+justify-content: center !important;
+gap: 12px !important;
+}
+
+.mhm-rentiva-booking-form .rv-sv__title {
+margin: 0 0 4px 0 !important;
+font-size: 1.25rem !important;
+font-weight: 700 !important;
+color: #1e293b !important;
+}
+
+.mhm-rentiva-booking-form .rv-sv__meta {
+display: flex !important;
+flex-wrap: wrap !important;
+gap: 8px !important;
+}
+
+.mhm-rentiva-booking-form .rv-sv__chip {
+background: #f3f4f6 !important;
+color: #475569 !important;
+padding: 6px 12px !important;
+border-radius: 99px !important;
+font-size: 11px !important;
+font-weight: 600 !important;
+display: inline-flex !important;
+align-items: center !important;
+gap: 6px !important;
+border: 1px solid #e5e7eb !important;
+}
+
+.mhm-rentiva-booking-form .rv-sv__price {
+margin-top: 8px !important;
+display: flex !important;
+align-items: baseline !important;
+gap: 4px !important;
+}
+
+.mhm-rentiva-booking-form .rv-sv__price-amount {
+font-size: 1.5rem !important;
+font-weight: 700 !important;
+color: var(--mhm-primary) !important;
+}
+
+@media screen and (max-width: 768px) {
+.mhm-rentiva-booking-form .rv-selected-vehicle {
+flex-direction: column !important;
+}
+.mhm-rentiva-booking-form .rv-sv__media,
+.mhm-rentiva-booking-form .rv-sv__content {
+width: 100% !important;
+}
+}

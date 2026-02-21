@@ -56,6 +56,7 @@
 	max-width: 1000px;
 	margin: 2rem auto;
 	padding: 2rem;
+	box-sizing: border-box;
 	background: var(--rv-cal-bg-main);
 	border-radius: var(--rv-cal-radius);
 	box-shadow: var(--rv-cal-shadow-lg);
@@ -652,7 +653,9 @@
 /* Mobile Responsive */
 @media (max-width: 1024px) {
 	.rv-availability-calendar {
-		padding: 0 !important;
+		padding-block: var(--mhm-space-phi-2, 0.8125rem) !important;
+		padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem)) !important;
+		box-sizing: border-box !important;
 		margin: 0 !important;
 		width: 100% !important;
 		max-width: 100% !important;

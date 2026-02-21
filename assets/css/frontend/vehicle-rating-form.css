@@ -347,6 +347,8 @@
 .rv-btn-primary {
 	background-color: var(--mhm-btn-bg);
 	color: var(--mhm-btn-color);
+	box-sizing: border-box;
+	max-width: 100%;
 	padding: 0 32px;
 	height: 48px;
 	border-radius: 8px;
@@ -376,6 +378,8 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+	box-sizing: border-box;
+	max-width: 100%;
 	padding: 12px 24px;
 	font-size: 14px;
 	font-weight: 600;

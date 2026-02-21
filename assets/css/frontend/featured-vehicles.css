@@ -1,9 +1,13 @@
 /* Featured Vehicles Module */
 .mhm-rentiva-featured-wrapper {
     position: relative;
-    padding: 2rem 0;
+    padding-block: var(--mhm-space-phi-4, 2.125rem);
+    padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
     width: 100%;
+    max-width: 100%;
     margin: 0 auto;
+    box-sizing: border-box;
+    overflow-x: clip;
     --mhm-color-primary: var(--wp--preset--color--primary, #2563eb);
     --mhm-color-text-primary: var(--wp--preset--color--black, #1f2937);
     --mhm-color-text-secondary: var(--wp--preset--color--gray-600, #6b7280);
@@ -42,6 +46,17 @@
     display: grid;
     grid-template-columns: repeat(var(--mhm-columns, 3), 1fr);
     gap: 2rem;
+    width: 100%;
+    max-width: 100%;
+}
+
+.mhm-featured-grid-item {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.mhm-featured-grid .mhm-vehicle-card {
+    max-width: 100%;
 }
 
 /* Responsive */
@@ -51,8 +66,18 @@
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 782px) {
     .mhm-featured-grid {
         grid-template-columns: 1fr;
+        gap: var(--mhm-space-phi-3, 1.3125rem);
+    }
+
+    .mhm-rentiva-featured-wrapper {
+        padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem));
+    }
+
+    .mhm-featured-swiper {
+        padding-right: 0;
+        padding-left: 0;
     }
 }

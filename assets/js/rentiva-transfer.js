@@ -1,126 +1,122 @@
 jQuery(document).ready(function ($) {
-    var $origin = $('#mhm-origin');
-    var $destination = $('#mhm-destination');
+    'use strict';
 
-    // 🛑 STRICT CHECK FUNCTION
-    function checkConflict(triggerElement, isSilent) {
+    // 🛑 CENTRALIZED CONFLICT CHECK
+    function checkConflict($form, triggerName, isSilent) {
+        var $origin = $form.find('[name="origin_id"]');
+        var $destination = $form.find('[name="destination_id"]');
         var originVal = $origin.val();
         var destVal = $destination.val();
 
-        // If both are filled and equal
         if (originVal && destVal && originVal === destVal) {
+            // Reset the other one
+            var $targetToClear = (triggerName === 'origin_id') ? $destination : $origin;
+            $targetToClear.val('').trigger('change');
 
-            // If trigger uses 'origin', clear 'destination', otherwise clear other.
-            // Default to clearing destination.
-            var targetToClear = (triggerElement === $origin[0]) ? $destination : $origin;
-
-            // Reset Target
-            targetToClear.val('').trigger('change.select2'); // Select2 support
-
-            // Only alert if NOT silent (User interaction)
             if (!isSilent) {
-                // SAFE MESSAGE READING
-                var errorMessage = "Pick-up and drop-off locations cannot be the same!"; // Fallback
+                var errorMessage = "Pick-up and drop-off locations cannot be the same!";
                 if (typeof rentiva_transfer_vars !== 'undefined' && rentiva_transfer_vars.i18n && rentiva_transfer_vars.i18n.same_location_error) {
                     errorMessage = rentiva_transfer_vars.i18n.same_location_error;
                 }
-                alert(errorMessage);
-            }
 
-            // Force update for UI libraries
-            targetToClear.trigger('select2:select').trigger('update');
+                if (typeof MHMRentivaToast !== 'undefined') {
+                    MHMRentivaToast.show(errorMessage, { type: 'error' });
+                } else {
+                    alert(errorMessage);
+                }
+            }
         }
     }
 
-    // 1. ON PAGE LOAD: Check silently and fix
-    // (If same default selection, clear one without alert)
-    setTimeout(function () {
-        checkConflict(null, true);
-    }, 500); // Wait 500ms for UI libs
+    // 1. DYNAMIC ROUTE FILTERING & CONFLICT MGT
+    $(document).on('change', '.js-unified-transfer-form [name="origin_id"]', function () {
+        var $select = $(this);
+        var $form = $select.closest('.js-unified-transfer-form');
+        var originId = $select.val();
+        var $destination = $form.find('[name="destination_id"]');
 
-    // 2. ON USER CHANGE: Alert loudly & Filter
-    $origin.on('change', function () {
-        var originId = $(this).val();
+        if (originId && typeof rentiva_transfer_vars !== 'undefined' && rentiva_transfer_vars.routes) {
+            var validDestinations = [];
+            $.each(rentiva_transfer_vars.routes, function (i, route) {
+                if (route.origin_id == originId) validDestinations.push(route.destination_id);
+            });
 
-        if (originId) {
-            // FILTER DROPDOWN: Show only valid destinations
-            if (typeof rentiva_transfer_vars !== 'undefined' && rentiva_transfer_vars.routes) {
-                var validDestinations = [];
-
-                // Find valid destinations for this origin
-                $.each(rentiva_transfer_vars.routes, function (index, route) {
-                    if (route.origin_id == originId) {
-                        validDestinations.push(route.destination_id);
-                    }
-                });
-
-                // Reset and filter Dropoff
-                var currentDest = $destination.val();
-                $destination.find('option').each(function () {
-                    var optVal = $(this).attr('value');
-                    if (optVal === "") return; // Skip placeholder
-
-                    if (validDestinations.includes(optVal)) {
-                        $(this).prop('disabled', false).show(); // Native show
-                    } else {
-                        $(this).prop('disabled', true).hide(); // Native hide
-                    }
-                });
-
-                // If current selection is invalid, reset it
-                if (currentDest && !validDestinations.includes(currentDest)) {
-                    $destination.val('').trigger('change.select2');
+            var currentDest = $destination.val();
+            $destination.find('option').each(function () {
+                var optVal = $(this).attr('value');
+                if (!optVal) return;
+                if (validDestinations.includes(optVal)) {
+                    $(this).prop('disabled', false).show();
+                } else {
+                    $(this).prop('disabled', true).hide();
                 }
+            });
+
+            if (currentDest && !validDestinations.includes(currentDest)) {
+                $destination.val('').trigger('change');
             }
         } else {
-            // Reset: Enable all
             $destination.find('option').prop('disabled', false).show();
         }
 
-        // Trigger UI updates
-        $destination.trigger('update'); // For some plugins
-
-        // Run standard conflict check
-        checkConflict(this, false);
+        checkConflict($form, 'origin_id', false);
     });
 
-    $destination.on('change', function () { checkConflict(this, false); });
+    $(document).on('change', '.js-unified-transfer-form [name="destination_id"]', function () {
+        var $form = $(this).closest('.js-unified-transfer-form');
+        checkConflict($form, 'destination_id', false);
+    });
 
-    // --- AJAX Form Submit ---
-    $('.js-unified-transfer-form').on('submit', function (e) {
-        // Final check (on Submit)
-        var originVal = $origin.val();
-        var destVal = $destination.val();
+    // 2. AJAX Form Submit
+    $(document).on('submit', '.js-unified-transfer-form', function (e) {
+        var $form = $(this);
+        var $results = $('#mhm-transfer-results');
 
-        if (originVal === destVal) {
+        // Validation
+        var originVal = $form.find('[name="origin_id"]').val();
+        var destVal = $form.find('[name="destination_id"]').val();
+
+        if (!originVal || !destVal) {
             e.preventDefault();
-            checkConflict(null, false); // Alert
+            var errorMsg = (typeof rentiva_transfer_vars !== 'undefined' && rentiva_transfer_vars.i18n.error_text) ? rentiva_transfer_vars.i18n.error_text : "Please select locations.";
+            if (typeof MHMRentivaToast !== 'undefined') {
+                MHMRentivaToast.show(errorMsg, { type: 'error' });
+            } else {
+                alert(errorMsg);
+            }
             return;
         }
 
-        e.preventDefault();
-        var formData = $(this).serialize();
-        var searchingText = 'Searching...';
-        if (typeof rentiva_transfer_vars !== 'undefined' && rentiva_transfer_vars.i18n && rentiva_transfer_vars.i18n.searching_text) {
-            searchingText = rentiva_transfer_vars.i18n.searching_text;
+        if (originVal === destVal) {
+            e.preventDefault();
+            checkConflict($form, null, false);
+            return;
         }
-        $('#mhm-transfer-results').html('<div class="mhm-loading">' + (rentiva_transfer_vars.icons?.spinner || '') + ' ' + searchingText + '</div>');
 
-        $.ajax({
-            url: rentiva_transfer_vars.ajax_url,
-            type: 'POST',
-            data: formData + '&action=rentiva_transfer_search&security=' + rentiva_transfer_vars.nonce,
-            success: function (response) {
-                if (response.success) {
-                    $('#mhm-transfer-results').html(response.data.html);
-                } else {
-                    $('#mhm-transfer-results').html('<div class="mhm-error">' + response.data.message + '</div>');
+        // AJAX logic
+        if ($results.length > 0) {
+            e.preventDefault();
+            var formData = $form.serialize();
+            var searchingText = (typeof rentiva_transfer_vars !== 'undefined' && rentiva_transfer_vars.i18n.searching_text) ? rentiva_transfer_vars.i18n.searching_text : 'Searching...';
+
+            $results.html('<div class="mhm-loading">' + (rentiva_transfer_vars.icons?.spinner || '⏳') + ' ' + searchingText + '</div>');
+
+            $.ajax({
+                url: rentiva_transfer_vars.ajax_url,
+                type: 'POST',
+                data: formData + '&action=rentiva_transfer_search&security=' + rentiva_transfer_vars.nonce,
+                success: function (response) {
+                    if (response.success) {
+                        $results.html(response.data.html);
+                    } else {
+                        $results.html('<div class="mhm-error">' + response.data.message + '</div>');
+                    }
+                },
+                error: function () {
+                    $results.html('<div class="mhm-error">' + (rentiva_transfer_vars.i18n.error_text || 'Error occurred.') + '</div>');
                 }
-            },
-            error: function () {
-                $('#mhm-transfer-results').html('<div class="mhm-error">' + (rentiva_transfer_vars.i18n.error_text || 'Error occurred.') + '</div>');
-            }
-        });
+            });
+        }
     });
 
     // Add to Cart

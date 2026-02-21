@@ -1601,10 +1601,20 @@ input[type="text"].password-input {
 	========================================================================= */
 .mhm-rentiva-account-page.mhm-integrated {
 	margin: 0;
-	padding: 0;
+	padding-block: 0;
+	padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
 	display: block;
 	gap: 0;
 	max-width: 100%;
+}
+
+@media (max-width: 782px) {
+	.mhm-rentiva-account-page.mhm-integrated {
+		padding-inline: max(
+			var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem)),
+			env(safe-area-inset-left)
+		);
+	}
 }
 
 
@@ -1638,4 +1648,360 @@ input[type="text"].password-input {
 	/* Reduce padding */
 	font-size: 0.85rem;
 	/* Slightly smaller font */
+}
+
+.mhm-rentiva-account-page.mhm-integrated .rv-table-wrapper {
+	width: 100%;
+	max-width: 100%;
+	overflow-x: auto;
+	overflow-y: hidden;
+	-webkit-overflow-scrolling: touch;
+}
+
+.mhm-rentiva-account-page.mhm-integrated .rv-bookings-table {
+	width: 100%;
+	max-width: 100%;
+	table-layout: fixed;
+}
+
+.mhm-rentiva-account-page.mhm-integrated .rv-bookings-table th,
+.mhm-rentiva-account-page.mhm-integrated .rv-bookings-table td {
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+.mhm-rentiva-account-page.mhm-integrated .rv-bookings-table th[style],
+.mhm-rentiva-account-page.mhm-integrated .rv-bookings-table td.rv-booking-actions {
+	width: auto !important;
+}
+
+.mhm-rentiva-account-page.mhm-integrated .rv-booking-date,
+.mhm-rentiva-account-page.mhm-integrated .rv-price-badge {
+	white-space: normal;
+}
+
+@media (max-width: 782px) {
+	.mhm-rentiva-account-page.mhm-integrated .rv-bookings-table th,
+	.mhm-rentiva-account-page.mhm-integrated .rv-bookings-table td {
+		padding: 0.625rem 0.375rem;
+		font-size: 0.8rem;
+	}
+}
+
+/* ============================================================================
+	WOOCOMMERCE MY ACCOUNT - PREMIUM LAYOUT CONTRACT
+	Applied only on WooCommerce account pages to keep all endpoints consistent.
+	========================================================================= */
+.woocommerce-account .woocommerce,
+.woocommerce-account .entry-content .woocommerce {
+	display: grid;
+	grid-template-columns: 280px minmax(0, 1fr);
+	gap: var(--mhm-space-phi-4, 2.125rem);
+	align-items: start;
+	width: 100% !important;
+	max-width: none !important;
+}
+
+.woocommerce-account .entry-content,
+.woocommerce-account .wp-block-post-content {
+	max-width: min(1200px, 100%) !important;
+}
+
+.woocommerce-account .woocommerce > * {
+	min-width: 0;
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation,
+.woocommerce-account .woocommerce-MyAccount-content {
+	float: none;
+	width: auto;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation {
+	grid-column: 1;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content {
+	grid-column: 2;
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation {
+	position: sticky;
+	top: calc(32px + var(--mhm-space-phi-2, 0.8125rem));
+	background: var(--mhm-bg-card, #fff);
+	border: 1px solid var(--mhm-border-primary, #e5e7eb);
+	border-radius: var(--mhm-radius-lg, 12px);
+	box-shadow: var(--mhm-shadow-sm, 0 4px 10px rgba(0, 0, 0, 0.05));
+	padding: var(--mhm-space-phi-2, 0.8125rem);
+	box-sizing: border-box;
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+	box-sizing: border-box;
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation ul li {
+	margin: 0;
+	padding: 0;
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation ul li a {
+	display: block;
+	padding: 0.625rem 0.875rem;
+	border-radius: 0.625rem;
+	border: 1px solid transparent;
+	font-weight: 600;
+	line-height: 1.35;
+	color: var(--mhm-text-primary, #111827);
+	text-decoration: none;
+	transition: all 0.2s ease;
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation ul li a:hover {
+	border-color: color-mix(in srgb, var(--mhm-primary, #2563eb), transparent 75%);
+	background: color-mix(in srgb, var(--mhm-primary, #2563eb), transparent 93%);
+	color: var(--mhm-primary, #2563eb);
+}
+
+.woocommerce-account .woocommerce-MyAccount-navigation ul li.is-active a {
+	color: var(--mhm-primary, #2563eb);
+	border-color: color-mix(in srgb, var(--mhm-primary, #2563eb), transparent 70%);
+	background: color-mix(in srgb, var(--mhm-primary, #2563eb), transparent 90%);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mhm-primary, #2563eb), transparent 85%);
+}
+
+.woocommerce-account .woocommerce-MyAccount-content {
+	min-width: 0;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content > h1:first-child {
+	margin-top: 0;
+	margin-bottom: var(--mhm-space-phi-2, 0.8125rem);
+}
+
+.mhm-rentiva-account-page.mhm-integrated {
+	background: var(--mhm-bg-card, #fff);
+	border: 1px solid var(--mhm-border-primary, #e5e7eb);
+	border-radius: var(--mhm-radius-lg, 12px);
+	box-shadow: var(--mhm-shadow-sm, 0 4px 10px rgba(0, 0, 0, 0.05));
+	padding-block: var(--mhm-space-phi-2, 0.8125rem);
+}
+
+.mhm-rentiva-account-page.mhm-integrated .mhm-account-content {
+	padding-inline: var(--mhm-space-phi-2, 0.8125rem);
+}
+
+.mhm-rentiva-account-page.mhm-integrated .section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	flex-wrap: wrap;
+}
+
+.mhm-rentiva-account-page.mhm-integrated .view-all-link {
+	font-size: 0.875rem;
+}
+
+.mhm-rentiva-account-page.mhm-integrated .form-actions,
+.mhm-rentiva-account-page.mhm-integrated .payment-actions,
+.mhm-rentiva-account-page.mhm-integrated .receipt-preview-wrapper {
+	display: flex;
+	gap: 0.625rem;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.mhm-rentiva-account-page.mhm-integrated .btn,
+.mhm-rentiva-account-page.mhm-integrated .button {
+	max-width: 100%;
+	white-space: normal;
+	word-break: break-word;
+}
+
+.mhm-rentiva-account-page.mhm-integrated .payment-item,
+.mhm-rentiva-account-page.mhm-integrated .message-item,
+.mhm-rentiva-account-page.mhm-integrated .thread-item {
+	border-radius: 12px;
+}
+
+@media (max-width: 992px) {
+	.woocommerce-account .woocommerce,
+	.woocommerce-account .entry-content .woocommerce {
+		grid-template-columns: 1fr;
+		gap: var(--mhm-space-phi-2, 0.8125rem);
+	}
+
+	.woocommerce-account .woocommerce-MyAccount-navigation {
+		position: static;
+		padding: 0.5rem;
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow: hidden;
+	}
+
+	.woocommerce-account .woocommerce-MyAccount-content {
+		width: 100% !important;
+		max-width: 100% !important;
+		grid-column: 1;
+	}
+
+	.woocommerce-account .woocommerce-MyAccount-navigation ul {
+		flex-direction: row;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		padding-bottom: 0.25rem;
+		max-width: 100%;
+	}
+
+	.woocommerce-account .woocommerce-MyAccount-navigation ul li {
+		flex: 0 0 auto;
+	}
+}
+
+@media (max-width: 782px) {
+	.mhm-rentiva-account-page.mhm-integrated .mhm-account-content {
+		padding-inline: 0.5rem;
+	}
+
+	.mhm-rentiva-account-page.mhm-integrated .btn,
+	.mhm-rentiva-account-page.mhm-integrated .button,
+	.mhm-rentiva-account-page.mhm-integrated .form-actions .btn,
+	.mhm-rentiva-account-page.mhm-integrated .payment-actions .btn {
+		width: 100%;
+		min-height: 40px;
+	}
+
+	.mhm-rentiva-account-page.mhm-integrated .payment-header {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.mhm-rentiva-account-page.mhm-integrated .payment-details .meta-item {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem;
+	}
+}
+
+/* ============================================================================
+	WOOCOMMERCE ENDPOINT CONTENT - UNIFIED PREMIUM CONTRACT
+	Normalize default Woo endpoint UI to match Rentiva account design language.
+	========================================================================= */
+.woocommerce-account .woocommerce-MyAccount-content > :first-child {
+	margin-top: 0;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content p,
+.woocommerce-account .woocommerce-MyAccount-content li,
+.woocommerce-account .woocommerce-MyAccount-content label {
+	color: var(--mhm-text-primary, #111827);
+}
+
+.woocommerce-account .woocommerce-MyAccount-content .woocommerce-info,
+.woocommerce-account .woocommerce-MyAccount-content .woocommerce-message,
+.woocommerce-account .woocommerce-MyAccount-content .woocommerce-error {
+	border: 1px solid var(--mhm-border-primary, #e5e7eb);
+	background: var(--mhm-bg-card, #fff);
+	border-radius: 12px;
+	box-shadow: var(--mhm-shadow-sm, 0 4px 10px rgba(0, 0, 0, 0.05));
+	padding: 0.875rem 1rem;
+	margin: 0 0 1rem;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content form {
+	background: var(--mhm-bg-card, #fff);
+	border: 1px solid var(--mhm-border-primary, #e5e7eb);
+	border-radius: 12px;
+	padding: 1rem;
+	box-shadow: var(--mhm-shadow-sm, 0 4px 10px rgba(0, 0, 0, 0.05));
+}
+
+.woocommerce-account .woocommerce-MyAccount-content .form-row {
+	margin-bottom: 0.875rem;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content input[type="text"],
+.woocommerce-account .woocommerce-MyAccount-content input[type="email"],
+.woocommerce-account .woocommerce-MyAccount-content input[type="password"],
+.woocommerce-account .woocommerce-MyAccount-content input[type="tel"],
+.woocommerce-account .woocommerce-MyAccount-content input[type="number"],
+.woocommerce-account .woocommerce-MyAccount-content select,
+.woocommerce-account .woocommerce-MyAccount-content textarea {
+	width: 100%;
+	min-height: 42px;
+	border: 1px solid var(--mhm-border-primary, #d1d5db);
+	border-radius: 10px;
+	padding: 0.625rem 0.75rem;
+	background: #fff;
+	box-sizing: border-box;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	background: var(--mhm-bg-card, #fff);
+	border: 1px solid var(--mhm-border-primary, #e5e7eb);
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content table th,
+.woocommerce-account .woocommerce-MyAccount-content table td {
+	padding: 0.75rem 0.875rem;
+	border-bottom: 1px solid color-mix(in srgb, var(--mhm-border-primary, #e5e7eb), transparent 30%);
+	vertical-align: middle;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content table tr:last-child td {
+	border-bottom: 0;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content .button,
+.woocommerce-account .woocommerce-MyAccount-content button.button,
+.woocommerce-account .woocommerce-MyAccount-content .woocommerce-Button.button {
+	background: var(--mhm-btn-bg, #2271b1);
+	color: var(--mhm-btn-color, #fff);
+	border: 1px solid transparent;
+	border-radius: 10px;
+	min-height: 42px;
+	padding: 0.625rem 1rem;
+	font-weight: 600;
+	text-decoration: none;
+	box-shadow: none;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content .button:hover,
+.woocommerce-account .woocommerce-MyAccount-content button.button:hover,
+.woocommerce-account .woocommerce-MyAccount-content .woocommerce-Button.button:hover {
+	background: var(--mhm-primary-dark, #1d4f7a);
+	color: var(--mhm-btn-color, #fff);
+}
+
+.woocommerce-account .woocommerce-MyAccount-content .button:disabled,
+.woocommerce-account .woocommerce-MyAccount-content button.button:disabled {
+	opacity: 0.65;
+	cursor: not-allowed;
+}
+
+@media (max-width: 992px) {
+	.woocommerce-account .woocommerce-MyAccount-content form {
+		padding: 0.875rem;
+	}
+
+	.woocommerce-account .woocommerce-MyAccount-content table th,
+	.woocommerce-account .woocommerce-MyAccount-content table td {
+		padding: 0.625rem 0.5rem;
+		font-size: 0.85rem;
+	}
 }

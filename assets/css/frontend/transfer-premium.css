@@ -1,0 +1,210 @@
+/**
+ * Transfer Search Premium UI
+ * 
+ * Scoped styles for v4.20.x Premium Upgrade.
+ * Adheres to DESIGN.md and governance rules (Vanilla CSS).
+ */
+
+.mhm-premium-transfer-search {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    padding: 24px;
+    margin: 20px 0;
+    font-family: var(--mhm-font-display, "Plus Jakarta Sans", sans-serif);
+    overflow: visible;
+    /* Fixed: Prevents calendar/datepicker clipping */
+}
+
+.mhm-premium-transfer-search .rv-input-wrapper {
+    position: relative;
+    display: block;
+}
+
+/* Tabs Styling (Visual Header) */
+.mhm-premium-transfer-search .mhm-tabs {
+    display: flex;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 24px;
+    gap: 20px;
+}
+
+.mhm-premium-transfer-search .mhm-tab {
+    padding: 12px 4px;
+    font-size: 14px;
+    cursor: default;
+    transition: all 0.3s ease;
+}
+
+.mhm-premium-transfer-search .mhm-tab.is-active {
+    color: var(--mhm-primary, #137fec);
+    font-weight: 600;
+    border-bottom: 2px solid var(--mhm-primary, #137fec);
+}
+
+/* Grid Spacing & Overflow Fixes */
+.mhm-premium-transfer-search .mhm-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    /* Fixed: Spacing problem */
+}
+
+.mhm-premium-transfer-search .mhm-form-grid>* {
+    min-width: 0;
+    /* Fixed: Prevents luggage/pax overflow */
+}
+
+/* Form Input Styling */
+.mhm-premium-transfer-search .rv-unified-search__field {
+    margin-bottom: 16px;
+}
+
+.mhm-premium-transfer-search .rv-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+}
+
+.mhm-premium-transfer-search input.rv-input,
+.mhm-premium-transfer-search select.rv-select {
+    width: 100%;
+    box-sizing: border-box;
+    /* Fixed: Prevents padding-based overflow */
+    background: var(--mhm-bg-soft, #f8fafc);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px 12px 40px;
+    /* Added 40px left padding for inline icons */
+    font-size: 14px;
+    color: #1e293b;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Datepicker Fixes */
+.mhm-premium-transfer-search input.js-datepicker {
+    position: relative;
+    z-index: 2;
+    /* Ensure datepicker trigger is above other elements */
+}
+
+.ui-datepicker {
+    z-index: 9999 !important;
+    /* Fixed: Calendar visibility */
+}
+
+.mhm-premium-transfer-search input.rv-input:focus,
+.mhm-premium-transfer-search select.rv-select:focus {
+    outline: none;
+    border-color: var(--mhm-primary, #137fec);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(19, 127, 236, 0.1);
+}
+
+/* Premium Button Styling */
+.mhm-premium-transfer-search .rv-btn--primary {
+    width: 100%;
+    background: var(--mhm-primary, #137fec);
+    color: #fff;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(19, 127, 236, 0.25);
+}
+
+.mhm-premium-transfer-search .rv-btn--primary:hover {
+    background: #106fce;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(19, 127, 236, 0.3);
+}
+
+.mhm-premium-transfer-search .rv-btn--primary svg,
+.mhm-premium-transfer-search .rv-btn--primary .rv-icon-search {
+    pointer-events: none;
+}
+
+/* Icon Support - Inline Positioning */
+.mhm-premium-transfer-search .rv-input-wrapper .rv-icon,
+.mhm-premium-transfer-search .rv-input-wrapper svg,
+.mhm-premium-transfer-search .rv-input-wrapper .rv-icon-marker,
+.mhm-premium-transfer-search .rv-input-wrapper .rv-icon-calendar,
+.mhm-premium-transfer-search .rv-input-wrapper .rv-icon-clock,
+.mhm-premium-transfer-search .rv-input-wrapper .rv-icon-luggage {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #64748b;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Responsive Grid & Mobile Optimization */
+@media (max-width: 782px) {
+    .mhm-premium-transfer-search .mhm-form-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    /* Row groupings (Date+Time, Passengers, Bags) as 2-column grids on mobile */
+    .mhm-premium-transfer-search .mhm-row-date-time,
+    .mhm-premium-transfer-search .mhm-row-passengers,
+    .mhm-premium-transfer-search .mhm-row-bags {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    /* Small labels for mobile rows to save space */
+    .mhm-premium-transfer-search .mhm-form-grid .rv-label {
+        font-size: 12px;
+    }
+}
+
+/* Luggage Info Styling */
+.mhm-premium-transfer-search .rv-unified-search__luggage-info {
+    display: block !important;
+    /* Ensure visibility */
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(var(--mhm-primary-rgb, 0, 102, 255), 0.03);
+    border-radius: 8px;
+    border-left: 3px solid var(--mhm-primary, #0066ff);
+}
+
+.mhm-premium-transfer-search .rv-info-item {
+    margin: 4px 0;
+    font-size: 13px;
+    color: var(--mhm-text-secondary, #666);
+    line-height: 1.4;
+}
+
+.mhm-premium-transfer-search .rv-info-item strong {
+    color: var(--mhm-text-primary, #111);
+}
+
+.mhm-premium-transfer-search .rv-bullet {
+    color: var(--mhm-danger, #ff4d4f);
+    margin-right: 4px;
+    font-weight: bold;
+}
+
+@media (min-width: 783px) {
+    .mhm-premium-transfer-search .mhm-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}

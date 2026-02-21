@@ -21,8 +21,8 @@
 	--rv-text-dark: var(--mhm-text-primary);
 	--rv-text-grey: var(--mhm-text-secondary);
 	--rv-bg-chip: var(--mhm-bg-secondary);
-	--rv-radius-card: 16px;
-	--rv-radius-btn: 8px;
+	--rv-radius-card: var(--mhm-radius-card, 0.8125rem);
+	--rv-radius-btn: var(--mhm-radius-input, 0.5rem);
 	--rv-shadow: var(--mhm-shadow-sm);
 	--rv-shadow-hover: var(--mhm-shadow-lg);
 	--rv-img-width: 280px;
@@ -32,7 +32,8 @@
 
 	width: 100%;
 	margin: 0 auto;
-	padding: 1.5rem 0;
+	padding-block: var(--mhm-space-phi-3, 1.3125rem);
+	padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
 	font-family: var(--mhm-font-primary);
 }
 
@@ -87,16 +88,16 @@
 .rv-vehicles-list-container.has-background {
 	/* If background is dark, we might want to invert text, but for now just adhere to settings */
 	background-color: var(--wp--style--color--background) !important;
-	padding: 20px;
+	padding: var(--mhm-space-phi-3, 1.3125rem);
 	/* Add padding when background is present for better look */
-	border-radius: 12px;
+	border-radius: var(--mhm-radius-card, 0.8125rem);
 }
 
 /* 2. Layout Wrapper */
 .rv-vehicles-list__wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	gap: var(--mhm-space-phi-3, 1.3125rem);
 	width: 100%;
 }
 

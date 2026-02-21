@@ -7,7 +7,8 @@
 .rv-search-results {
 	max-width: 1400px;
 	margin: 0 auto;
-	padding: 20px;
+	padding-block: var(--mhm-space-phi-3, 1.3125rem);
+	padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
 	font-family: var(--mhm-font-primary);
 }
 
@@ -392,14 +393,14 @@
 .rv-results-content-wrapper.rv-layout-grid .rv-vehicle-grid-wrapper {
 	display: grid !important;
 	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
-	gap: 24px !important;
+	gap: var(--mhm-space-phi-3, 1.3125rem) !important;
 }
 
 /* List Layout: Cards stacked vertically */
 .rv-results-content-wrapper.rv-layout-list .rv-vehicle-grid-wrapper {
 	display: flex !important;
 	flex-direction: column !important;
-	gap: 28px !important;
+	gap: var(--mhm-space-phi-2, 0.8125rem) !important;
 }
 
 .rv-results-content-wrapper.rv-layout-list .rv-vehicle-grid-wrapper .mhm-vehicle-card {
@@ -515,7 +516,8 @@
 
 @media (max-width: 782px) {
 	.rv-search-results {
-		padding: 15px;
+		padding-block: var(--mhm-space-phi-2, 0.8125rem);
+		padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem));
 	}
 
 	.rv-results-header {
@@ -556,7 +558,8 @@
 
 @media (max-width: 480px) {
 	.rv-search-results {
-		padding: 10px;
+		padding-block: var(--mhm-space-phi-1, 0.5rem);
+		padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem));
 	}
 
 	.rv-results-header h1 {

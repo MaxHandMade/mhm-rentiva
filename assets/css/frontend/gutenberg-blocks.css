@@ -31,6 +31,12 @@
 	Block Wrappers
 	==================================== */
 
+/* Generic safety for all Rentiva Gutenberg blocks */
+[class*="wp-block-mhm-rentiva-"] {
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
 /* Vehicle Card Block */
 .wp-block-mhm-rentiva-vehicle-card {
 	/* Block wrapper styles */
@@ -82,6 +88,21 @@
 .wp-block-mhm-rentiva-vehicle-card.alignfull,
 .wp-block-mhm-rentiva-vehicles-list.alignfull,
 .wp-block-mhm-rentiva-booking-form.alignfull {
+	width: 100vw;
+	max-width: none;
+	margin-left: calc(50% - 50vw);
+	margin-right: calc(50% - 50vw);
+}
+
+/* Generic alignfull/alignwide handling for all plugin blocks */
+[class*="wp-block-mhm-rentiva-"].alignwide {
+	width: 100%;
+	max-width: 1200px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+[class*="wp-block-mhm-rentiva-"].alignfull {
 	width: 100vw;
 	max-width: none;
 	margin-left: calc(50% - 50vw);
@@ -166,6 +187,18 @@
 
 	.wp-block-mhm-rentiva-vehicles-list .rv-vehicles-list--grid {
 		grid-template-columns: 1fr !important;
+	}
+
+	[class*="wp-block-mhm-rentiva-"].alignwide,
+	[class*="wp-block-mhm-rentiva-"].alignfull {
+		width: 100% !important;
+		max-width: 100% !important;
+		margin-left: 0 !important;
+		margin-right: 0 !important;
+	}
+
+	[class*="wp-block-mhm-rentiva-"] {
+		overflow-x: clip;
 	}
 }
 

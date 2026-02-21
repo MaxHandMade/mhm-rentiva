@@ -1,0 +1,128 @@
+/**
+ * MHM Rentiva - Golden Ratio UI Contract
+ *
+ * Shared layout and spacing contract for all shortcode/block render surfaces.
+ * Scope is intentionally broad to keep visual rhythm consistent across modules.
+ */
+
+:root {
+	--mhm-ratio: 1.618;
+
+	/* Golden-ratio spacing steps (8 -> 13 -> 21 -> 34) */
+	--mhm-space-phi-1: 0.5rem;       /* 8px */
+	--mhm-space-phi-2: 0.8125rem;    /* 13px */
+	--mhm-space-phi-3: 1.3125rem;    /* 21px */
+	--mhm-space-phi-4: 2.125rem;     /* 34px */
+
+	--mhm-radius-card: 0.8125rem;    /* 13px */
+	--mhm-radius-input: 0.5rem;      /* 8px */
+	--mhm-shadow-card: 0 8px 21px rgba(0, 0, 0, 0.07);
+	--mhm-surface-gutter-desktop: var(--mhm-space-phi-2, 0.8125rem);
+	--mhm-surface-gutter-mobile: var(--mhm-space-phi-2, 0.8125rem);
+}
+
+/* Shared readability baseline for shortcode and block outputs */
+.rv-search-results,
+.mhm-transfer-results-page,
+.mhm-premium-search {
+	font-family: var(--mhm-font-display, var(--mhm-font-primary));
+	color: var(--mhm-text-primary);
+}
+
+/*
+ * Shared "Pro Surface" wrapper rhythm.
+ * Keeps module blocks off screen edges with consistent margins/padding.
+ */
+:where(
+	.rv-search-results,
+	.rv-unified-search,
+	.rv-vehicles-grid-container,
+	.rv-vehicles-list-container,
+	.mhm-transfer-results-page,
+	.mhm-premium-search,
+	.mhm-premium-transfer-search,
+	.mhm-transfer-search-wrapper,
+	.mhm-rentiva-featured-wrapper,
+	.mhm-rentiva-account-page,
+	.rv-unified-ratings-section,
+	.rv-booking-form-wrapper,
+	.rv-contact-form,
+	.rv-testimonials,
+	.rv-availability-calendar,
+	.rv-booking-confirmation,
+	.rv-vehicle-details,
+	.rv-vehicle-comparison
+):not(.rv-surface--flush) {
+	margin-inline: auto;
+	padding-inline: var(--mhm-surface-gutter-desktop);
+}
+
+/* Shared result card contract */
+.mhm-transfer-card,
+.mhm-vehicle-card {
+	border-radius: var(--mhm-radius-card);
+	box-shadow: var(--mhm-shadow-card);
+}
+
+/* Shared card content rhythm */
+.mhm-transfer-card__info,
+.mhm-vehicle-card__content {
+	padding: var(--mhm-space-phi-3);
+	gap: var(--mhm-space-phi-2);
+}
+
+/* Shared CTA rhythm */
+.mhm-transfer-card__btn,
+.mhm-btn-booking,
+.rv-btn--primary {
+	min-height: 2.625rem; /* 42px */
+	border-radius: var(--mhm-radius-input);
+	font-weight: var(--mhm-font-semibold);
+}
+
+/* Shared grid/list gap contract */
+.rv-results-content-wrapper.rv-layout-grid .rv-vehicle-grid-wrapper,
+.rv-transfer-results--grid .mhm-transfer-results__grid {
+	gap: var(--mhm-space-phi-3);
+}
+
+.rv-results-content-wrapper.rv-layout-list .rv-vehicle-grid-wrapper,
+.rv-transfer-results--list .mhm-transfer-results__grid {
+	gap: var(--mhm-space-phi-2);
+}
+
+/* WordPress-native tablet/mobile breakpoint standard */
+@media (max-width: 782px) {
+	:where(
+		.rv-search-results,
+		.rv-unified-search,
+		.rv-vehicles-grid-container,
+		.rv-vehicles-list-container,
+		.mhm-transfer-results-page,
+		.mhm-premium-search,
+		.mhm-premium-transfer-search,
+		.mhm-transfer-search-wrapper,
+		.mhm-rentiva-featured-wrapper,
+		.mhm-rentiva-account-page,
+		.rv-unified-ratings-section,
+		.rv-booking-form-wrapper,
+		.rv-contact-form,
+		.rv-testimonials,
+		.rv-availability-calendar,
+		.rv-booking-confirmation,
+		.rv-vehicle-details,
+		.rv-vehicle-comparison
+	):not(.rv-surface--flush) {
+		padding-inline: max(var(--mhm-surface-gutter-mobile), env(safe-area-inset-left));
+	}
+
+	.rv-results-content-wrapper.rv-layout-grid .rv-vehicle-grid-wrapper,
+	.rv-transfer-results--grid .mhm-transfer-results__grid {
+		grid-template-columns: 1fr !important;
+	}
+
+	.mhm-transfer-card,
+	.mhm-vehicle-card {
+		max-width: 100%;
+	}
+}
