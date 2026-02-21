@@ -60,6 +60,12 @@ git tag -a v4.10.0 -m "v4.10.0 — Block/Shortcode Parity Stabilization"
 - [x] Parity cleanup completed
 - [x] 19/19 verified
 - [x] M4 gates PASS
+- [x] Phase 4: Performance Profiling & Optimization (B1, B2)
+- [x] **Phase 4 Final Freeze**: Baseline Snapshot document archived and referenced in PROJECT_MEMORIES.
+- [x] Query delta measured and recorded
+- [x] No contract change verified after optimization
+- [x] Performance regression guard
+- [x] Query delta check
 - [x] Tag created
 
 ## Freeze Lock

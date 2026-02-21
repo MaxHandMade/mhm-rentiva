@@ -213,7 +213,7 @@ No fatal errors observed during activation.
 ### BUG #1: Character Encoding Corruption in Shortcode Pages
 **Severity:** MEDIUM
 **Location:** `templates/admin/shortcode-pages.php` (Line 72, 74)
-**Description:** UTF-8 emoji characters (✅/❌) displayed as corrupted text ("ä¸Ğ Ekle", "âŒ") in the Status column of the Shortcode Pages admin screen.
+**Description:** UTF-8 emoji characters (✅/❌) displayed as corrupted text (for example, unreadable symbols) in the Status column of the Shortcode Pages admin screen.
 
 **Root Cause:** 
 - Template file contained hardcoded UTF-8 emoji characters
