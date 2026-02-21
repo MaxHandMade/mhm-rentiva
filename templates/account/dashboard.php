@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
@@ -30,7 +32,7 @@ if ($is_integrated) {
 
 	<!-- Account Navigation (only show if not on WooCommerce My Account page) -->
 	<?php if (! empty($data['navigation'])) : ?>
-		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array('navigation' => $data['navigation']), true)); ?>
+		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array( 'navigation' => $data['navigation'] ), true)); ?>
 	<?php endif; ?>
 
 	<!-- Dashboard Content -->
@@ -102,11 +104,11 @@ if ($is_integrated) {
 					<div class="bookings-list">
 						<?php
 						foreach ($data['recent_bookings'] as $booking) :
-							$vehicle_id   = get_post_meta($booking->ID, '_mhm_vehicle_id', true);
-							$vehicle      = get_post($vehicle_id);
-							$status       = get_post_meta($booking->ID, '_mhm_status', true);
-							$pickup_date  = get_post_meta($booking->ID, '_mhm_pickup_date', true);
-							$dropoff_date = get_post_meta($booking->ID, '_mhm_dropoff_date', true);
+							$vehicle_id     = get_post_meta($booking->ID, '_mhm_vehicle_id', true);
+							$vehicle        = get_post($vehicle_id);
+							$booking_status = get_post_meta($booking->ID, '_mhm_status', true);
+							$pickup_date    = get_post_meta($booking->ID, '_mhm_pickup_date', true);
+							$dropoff_date   = get_post_meta($booking->ID, '_mhm_dropoff_date', true);
 							// Get pickup and dropoff times with fallbacks
 							$pickup_time = get_post_meta($booking->ID, '_mhm_start_time', true);
 							if (! $pickup_time) {
@@ -126,7 +128,7 @@ if ($is_integrated) {
 
 							$status_class = '';
 							$status_label = '';
-							switch ($status) {
+							switch ($booking_status) {
 								case 'confirmed':
 									$status_class = 'status-confirmed';
 									$status_label = esc_html__('Confirmed', 'mhm-rentiva');
@@ -143,7 +145,7 @@ if ($is_integrated) {
 									$status_class = 'status-pending';
 									$status_label = esc_html__('Pending', 'mhm-rentiva');
 							}
-						?>
+							?>
 							<div class="booking-item">
 								<div class="booking-vehicle">
 									<?php if ($vehicle && has_post_thumbnail($vehicle_id)) : ?>
@@ -167,7 +169,7 @@ if ($is_integrated) {
 										<span class="date-label"><?php esc_html_e('Pickup:', 'mhm-rentiva'); ?></span>
 										<span class="date-value">
 											<?php
-											$pickup_dt = trim($pickup_date . ' ' . ($pickup_time ?: ''));
+											$pickup_dt = trim($pickup_date . ' ' . ( $pickup_time ? $pickup_time : '' ));
 											$pickup_ts = strtotime($pickup_dt);
 											$format    = get_option('date_format') . ' ' . get_option('time_format');
 											echo esc_html($pickup_ts ? date_i18n($format, $pickup_ts) : date_i18n(get_option('date_format'), strtotime($pickup_date)));
@@ -178,7 +180,7 @@ if ($is_integrated) {
 										<span class="date-label"><?php esc_html_e('Return:', 'mhm-rentiva'); ?></span>
 										<span class="date-value">
 											<?php
-											$dropoff_dt = trim($dropoff_date . ' ' . ($dropoff_time ?: ''));
+											$dropoff_dt = trim($dropoff_date . ' ' . ( $dropoff_time ? $dropoff_time : '' ));
 											$dropoff_ts = strtotime($dropoff_dt);
 											$format     = get_option('date_format') . ' ' . get_option('time_format');
 											echo esc_html($dropoff_ts ? date_i18n($format, $dropoff_ts) : date_i18n(get_option('date_format'), strtotime($dropoff_date)));
@@ -202,7 +204,7 @@ if ($is_integrated) {
 											$currency_code     = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD');
 											$currency_symbol   = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
 											$currency_position = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
-											$formatted_amount  = number_format((float) $total_price, 2, ',', '.');
+											$formatted_amount  = number_format( (float) $total_price, 2, ',', '.');
 
 											switch ($currency_position) {
 												case 'left':
@@ -321,7 +323,7 @@ if ($is_integrated) {
 		<?php
 		$comm_preferences = SettingsCore::get('mhm_rentiva_customer_comm_preferences', '1');
 		if ($comm_preferences === '1') :
-		?>
+			?>
 			<div class="account-section">
 				<div class="section-header">
 					<h2><?php esc_html_e('Communication Preferences', 'mhm-rentiva'); ?></h2>
@@ -379,7 +381,7 @@ if ($is_integrated) {
 		<?php
 		$gdpr_enabled = SettingsCore::get('mhm_rentiva_customer_gdpr_compliance', '1');
 		if ($gdpr_enabled === '1') :
-		?>
+			?>
 			<div class="account-section">
 				<div class="section-header">
 					<h2><?php esc_html_e('Privacy Controls', 'mhm-rentiva'); ?></h2>

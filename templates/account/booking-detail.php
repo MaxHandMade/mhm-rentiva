@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
@@ -17,9 +19,9 @@ if (! defined('ABSPATH')) {
 
 
 // Get booking data
-$booking    = $data['booking'] ?? null;
-$booking_id = $booking ? $booking->ID : 0;
-$navigation = $data['navigation'] ?? array();
+$booking       = $data['booking'] ?? null;
+$booking_id    = $booking ? $booking->ID : 0;
+$navigation    = $data['navigation'] ?? array();
 $is_integrated = $data['is_integrated'] ?? false;
 
 if (! $booking) {
@@ -34,7 +36,7 @@ $dropoff_date     = get_post_meta($booking_id, '_mhm_dropoff_date', true);
 $pickup_time      = get_post_meta($booking_id, '_mhm_start_time', true);
 $dropoff_time     = get_post_meta($booking_id, '_mhm_end_time', true);
 $total_price      = get_post_meta($booking_id, '_mhm_total_price', true);
-$status           = get_post_meta($booking_id, '_mhm_status', true);
+$booking_status   = get_post_meta($booking_id, '_mhm_status', true);
 $payment_type     = get_post_meta($booking_id, '_mhm_payment_type', true);
 $deposit_amount   = get_post_meta($booking_id, '_mhm_deposit_amount', true);
 $remaining_amount = get_post_meta($booking_id, '_mhm_remaining_amount', true);
@@ -47,6 +49,7 @@ if (! $vehicle_image) {
 }
 
 // Currency
+// phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 $currency_symbol = apply_filters('mhm_rentiva/currency_symbol', '');
 
 // Date format
@@ -62,8 +65,8 @@ $status_text = array(
 	'cancelled'   => __('Cancelled', 'mhm-rentiva'),
 );
 
-$status_display = $status_text[$status] ?? ucfirst($status);
-$status_class   = 'status-' . $status;
+$status_display = $status_text[ $booking_status ] ?? ucfirst($booking_status);
+$status_class   = 'status-' . $booking_status;
 
 $is_integrated = empty($navigation);
 $wrapper_class = 'mhm-rentiva-account-page';
@@ -76,7 +79,7 @@ if ($is_integrated) {
 
 	<!-- Account Navigation -->
 	<?php if (! empty($navigation)) : ?>
-		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array('navigation' => $navigation), true)); ?>
+		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array( 'navigation' => $navigation ), true)); ?>
 	<?php endif; ?>
 
 	<div class="mhm-account-content">
@@ -168,9 +171,9 @@ if ($is_integrated) {
 								foreach ($selected_addons as $addon_id) :
 									$addon = get_post($addon_id);
 									if ($addon) :
-								?>
+										?>
 										<li><?php echo esc_html($addon->post_title); ?></li>
-								<?php
+										<?php
 									endif;
 								endforeach;
 								?>
@@ -199,7 +202,7 @@ if ($is_integrated) {
 			$cancellation_info = \MHMRentiva\Admin\Booking\Helpers\CancellationHandler::get_cancellation_info($booking_id);
 
 			if ($can_cancel) :
-			?>
+				?>
 				<button type="button" id="cancel-booking-btn" class="rv-btn rv-btn-danger" data-booking-id="<?php echo esc_attr($booking_id); ?>">
 					<?php esc_html_e('Cancel Booking', 'mhm-rentiva'); ?>
 				</button>
@@ -217,7 +220,7 @@ if ($is_integrated) {
 				<?php
 				$refund_policy = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_refund_policy', '');
 				if (! empty($refund_policy)) :
-				?>
+					?>
 					<p style="margin: 10px 0 0 0; font-size: 13px; color: #856404; font-style: italic;">
 						<?php echo esc_html($refund_policy); ?>
 					</p>

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
@@ -41,7 +43,7 @@ if ($profile_editable !== '1') {
 
 	<!-- Account Navigation -->
 	<?php if (! empty($navigation)) : ?>
-		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array('navigation' => $navigation), true)); ?>
+		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array( 'navigation' => $navigation ), true)); ?>
 	<?php endif; ?>
 
 	<!-- Account Details Content -->
@@ -150,7 +152,7 @@ if ($profile_editable !== '1') {
 							name="new_password"
 							minlength="<?php echo esc_attr($password_min_length); ?>"
 							<?php if ($password_special === '1') : ?>
-							pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{<?php echo esc_attr((string) $password_min_length); ?>,}$"
+							pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{<?php echo esc_attr( (string) $password_min_length); ?>,}$"
 							title="<?php esc_attr_e('Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character', 'mhm-rentiva'); ?>"
 							<?php endif; ?>
 							autocomplete="new-password">
