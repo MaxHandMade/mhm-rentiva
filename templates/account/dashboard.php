@@ -18,10 +18,15 @@ if (! defined('ABSPATH')) {
 
 
 // Get customer experience settings
-use MHMRentiva\Admin\Settings\Core\SettingsCore;
+$navigation    = $data['navigation'] ?? array();
+$is_integrated = empty($navigation);
+$wrapper_class = 'mhm-rentiva-account-page';
+if ($is_integrated) {
+	$wrapper_class .= ' mhm-integrated';
+}
 ?>
 
-<div class="mhm-rentiva-account-page">
+<div class="<?php echo esc_attr($wrapper_class); ?>">
 
 	<!-- Account Navigation (only show if not on WooCommerce My Account page) -->
 	<?php if (! empty($data['navigation'])) : ?>

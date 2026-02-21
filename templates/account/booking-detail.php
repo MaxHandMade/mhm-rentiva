@@ -65,157 +65,167 @@ $status_text = array(
 $status_display = $status_text[$status] ?? ucfirst($status);
 $status_class   = 'status-' . $status;
 
-$is_integrated = $is_integrated ?? false;
-$wrapper_class = 'rv-account-page';
+$is_integrated = empty($navigation);
+$wrapper_class = 'mhm-rentiva-account-page';
 if ($is_integrated) {
 	$wrapper_class .= ' mhm-integrated';
 }
 ?>
 
 <div class="<?php echo esc_attr($wrapper_class); ?>">
-	<!-- Breadcrumb -->
-	<div class="rv-breadcrumb">
-		<a href="<?php echo esc_url($navigation['dashboard']['url']); ?>"><?php esc_html_e('Dashboard', 'mhm-rentiva'); ?></a>
-		<span>/</span>
-		<a href="<?php echo esc_url($navigation['bookings']['url']); ?>"><?php esc_html_e('My Bookings', 'mhm-rentiva'); ?></a>
-		<span>/</span>
-		<span><?php esc_html_e('Booking Details', 'mhm-rentiva'); ?></span>
-	</div>
 
-	<!-- Header -->
-	<div class="rv-page-header">
-		<h1><?php esc_html_e('Booking Confirmation', 'mhm-rentiva'); ?></h1>
-		<p><?php esc_html_e('Your reservation has been successfully completed. Please find your booking details below.', 'mhm-rentiva'); ?></p>
-	</div>
+	<!-- Account Navigation -->
+	<?php if (! empty($navigation)) : ?>
+		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array('navigation' => $navigation), true)); ?>
+	<?php endif; ?>
 
-	<!-- Booking Details -->
-	<div class="rv-booking-details">
-		<h2><?php esc_html_e('Reservation Details', 'mhm-rentiva'); ?></h2>
+	<div class="mhm-account-content">
 
-		<div class="rv-details-grid">
-			<!-- Booking Reference -->
-			<div class="rv-detail-row">
-				<div class="rv-detail-label"><?php esc_html_e('Booking Reference', 'mhm-rentiva'); ?></div>
-				<div class="rv-detail-value">#<?php echo esc_html($booking_id); ?></div>
-			</div>
-
-			<!-- Vehicle -->
-			<div class="rv-detail-row">
-				<div class="rv-detail-label"><?php esc_html_e('Vehicle', 'mhm-rentiva'); ?></div>
-				<div class="rv-detail-value">
-					<div class="rv-vehicle-info">
-						<img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle->post_title); ?>" class="rv-vehicle-thumb">
-						<span><?php echo esc_html($vehicle->post_title); ?></span>
-					</div>
-				</div>
-			</div>
-
-			<!-- Pickup Date & Time -->
-			<div class="rv-detail-row">
-				<div class="rv-detail-label"><?php esc_html_e('Pickup Date & Time', 'mhm-rentiva'); ?></div>
-				<div class="rv-detail-value"><?php echo esc_html($formatted_pickup_date . ', ' . $pickup_time); ?></div>
-			</div>
-
-			<!-- Return Date & Time -->
-			<div class="rv-detail-row">
-				<div class="rv-detail-label"><?php esc_html_e('Return Date & Time', 'mhm-rentiva'); ?></div>
-				<div class="rv-detail-value"><?php echo esc_html($formatted_dropoff_date . ', ' . $dropoff_time); ?></div>
-			</div>
-
-			<!-- Status -->
-			<div class="rv-detail-row">
-				<div class="rv-detail-label"><?php esc_html_e('Status', 'mhm-rentiva'); ?></div>
-				<div class="rv-detail-value">
-					<span class="rv-status <?php echo esc_attr($status_class); ?>"><?php echo esc_html($status_display); ?></span>
-				</div>
-			</div>
-
-			<!-- Total Cost -->
-			<div class="rv-detail-row">
-				<div class="rv-detail-label"><?php esc_html_e('Total Cost', 'mhm-rentiva'); ?></div>
-				<div class="rv-detail-value rv-price"><?php echo esc_html(number_format($total_price, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
-			</div>
-
-			<?php if ($payment_type === 'deposit' && $deposit_amount > 0) : ?>
-				<!-- Deposit Amount -->
-				<div class="rv-detail-row">
-					<div class="rv-detail-label"><?php esc_html_e('Deposit Paid', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value rv-price"><?php echo esc_html(number_format($deposit_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
-				</div>
-
-				<!-- Remaining Amount -->
-				<div class="rv-detail-row">
-					<div class="rv-detail-label"><?php esc_html_e('Remaining Amount', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value rv-price"><?php echo esc_html(number_format($remaining_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
-				</div>
-			<?php endif; ?>
-
-			<?php if (! empty($selected_addons)) : ?>
-				<!-- Selected Add-ons -->
-				<div class="rv-detail-row">
-					<div class="rv-detail-label"><?php esc_html_e('Additional Services', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value">
-						<ul class="rv-addons-list">
-							<?php
-							foreach ($selected_addons as $addon_id) :
-								$addon = get_post($addon_id);
-								if ($addon) :
-							?>
-									<li><?php echo esc_html($addon->post_title); ?></li>
-							<?php
-								endif;
-							endforeach;
-							?>
-						</ul>
-					</div>
-				</div>
-			<?php endif; ?>
+		<!-- Breadcrumb -->
+		<div class="rv-breadcrumb">
+			<a href="<?php echo esc_url($navigation['dashboard']['url']); ?>"><?php esc_html_e('Dashboard', 'mhm-rentiva'); ?></a>
+			<span>/</span>
+			<a href="<?php echo esc_url($navigation['bookings']['url']); ?>"><?php esc_html_e('My Bookings', 'mhm-rentiva'); ?></a>
+			<span>/</span>
+			<span><?php esc_html_e('Booking Details', 'mhm-rentiva'); ?></span>
 		</div>
-	</div>
 
-	<!-- Next Steps -->
-	<div class="rv-next-steps">
-		<h2><?php esc_html_e('Next Steps', 'mhm-rentiva'); ?></h2>
-		<p><?php esc_html_e('Please arrive at the pickup location 15 minutes prior to your scheduled pickup time. Remember to bring your driver\'s license and the credit card used for the reservation.', 'mhm-rentiva'); ?></p>
-	</div>
+		<!-- Header -->
+		<div class="rv-page-header">
+			<h1><?php esc_html_e('Booking Confirmation', 'mhm-rentiva'); ?></h1>
+			<p><?php esc_html_e('Your reservation has been successfully completed. Please find your booking details below.', 'mhm-rentiva'); ?></p>
+		</div>
 
-	<!-- Actions -->
-	<div class="rv-booking-actions">
-		<a href="<?php echo esc_url($navigation['bookings']['url']); ?>" class="rv-btn rv-btn-secondary">
-			<?php esc_html_e('Back to Bookings', 'mhm-rentiva'); ?>
-		</a>
+		<!-- Booking Details -->
+		<div class="rv-booking-details">
+			<h2><?php esc_html_e('Reservation Details', 'mhm-rentiva'); ?></h2>
 
-		<?php
-		// Check if user can cancel this booking
-		$can_cancel        = \MHMRentiva\Admin\Booking\Helpers\CancellationHandler::user_can_cancel($booking_id);
-		$cancellation_info = \MHMRentiva\Admin\Booking\Helpers\CancellationHandler::get_cancellation_info($booking_id);
+			<div class="rv-details-grid">
+				<!-- Booking Reference -->
+				<div class="rv-detail-row">
+					<div class="rv-detail-label"><?php esc_html_e('Booking Reference', 'mhm-rentiva'); ?></div>
+					<div class="rv-detail-value">#<?php echo esc_html($booking_id); ?></div>
+				</div>
 
-		if ($can_cancel) :
-		?>
-			<button type="button" id="cancel-booking-btn" class="rv-btn rv-btn-danger" data-booking-id="<?php echo esc_attr($booking_id); ?>">
-				<?php esc_html_e('Cancel Booking', 'mhm-rentiva'); ?>
-			</button>
+				<!-- Vehicle -->
+				<div class="rv-detail-row">
+					<div class="rv-detail-label"><?php esc_html_e('Vehicle', 'mhm-rentiva'); ?></div>
+					<div class="rv-detail-value">
+						<div class="rv-vehicle-info">
+							<img src="<?php echo esc_url($vehicle_image); ?>" alt="<?php echo esc_attr($vehicle->post_title); ?>" class="rv-vehicle-thumb">
+							<span><?php echo esc_html($vehicle->post_title); ?></span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Pickup Date & Time -->
+				<div class="rv-detail-row">
+					<div class="rv-detail-label"><?php esc_html_e('Pickup Date & Time', 'mhm-rentiva'); ?></div>
+					<div class="rv-detail-value"><?php echo esc_html($formatted_pickup_date . ', ' . $pickup_time); ?></div>
+				</div>
+
+				<!-- Return Date & Time -->
+				<div class="rv-detail-row">
+					<div class="rv-detail-label"><?php esc_html_e('Return Date & Time', 'mhm-rentiva'); ?></div>
+					<div class="rv-detail-value"><?php echo esc_html($formatted_dropoff_date . ', ' . $dropoff_time); ?></div>
+				</div>
+
+				<!-- Status -->
+				<div class="rv-detail-row">
+					<div class="rv-detail-label"><?php esc_html_e('Status', 'mhm-rentiva'); ?></div>
+					<div class="rv-detail-value">
+						<span class="rv-status <?php echo esc_attr($status_class); ?>"><?php echo esc_html($status_display); ?></span>
+					</div>
+				</div>
+
+				<!-- Total Cost -->
+				<div class="rv-detail-row">
+					<div class="rv-detail-label"><?php esc_html_e('Total Cost', 'mhm-rentiva'); ?></div>
+					<div class="rv-detail-value rv-price"><?php echo esc_html(number_format($total_price, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+				</div>
+
+				<?php if ($payment_type === 'deposit' && $deposit_amount > 0) : ?>
+					<!-- Deposit Amount -->
+					<div class="rv-detail-row">
+						<div class="rv-detail-label"><?php esc_html_e('Deposit Paid', 'mhm-rentiva'); ?></div>
+						<div class="rv-detail-value rv-price"><?php echo esc_html(number_format($deposit_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+					</div>
+
+					<!-- Remaining Amount -->
+					<div class="rv-detail-row">
+						<div class="rv-detail-label"><?php esc_html_e('Remaining Amount', 'mhm-rentiva'); ?></div>
+						<div class="rv-detail-value rv-price"><?php echo esc_html(number_format($remaining_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+					</div>
+				<?php endif; ?>
+
+				<?php if (! empty($selected_addons)) : ?>
+					<!-- Selected Add-ons -->
+					<div class="rv-detail-row">
+						<div class="rv-detail-label"><?php esc_html_e('Additional Services', 'mhm-rentiva'); ?></div>
+						<div class="rv-detail-value">
+							<ul class="rv-addons-list">
+								<?php
+								foreach ($selected_addons as $addon_id) :
+									$addon = get_post($addon_id);
+									if ($addon) :
+								?>
+										<li><?php echo esc_html($addon->post_title); ?></li>
+								<?php
+									endif;
+								endforeach;
+								?>
+							</ul>
+						</div>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+
+		<!-- Next Steps -->
+		<div class="rv-next-steps">
+			<h2><?php esc_html_e('Next Steps', 'mhm-rentiva'); ?></h2>
+			<p><?php esc_html_e('Please arrive at the pickup location 15 minutes prior to your scheduled pickup time. Remember to bring your driver\'s license and the credit card used for the reservation.', 'mhm-rentiva'); ?></p>
+		</div>
+
+		<!-- Actions -->
+		<div class="rv-booking-actions">
+			<a href="<?php echo esc_url($navigation['bookings']['url']); ?>" class="rv-btn rv-btn-secondary">
+				<?php esc_html_e('Back to Bookings', 'mhm-rentiva'); ?>
+			</a>
+
+			<?php
+			// Check if user can cancel this booking
+			$can_cancel        = \MHMRentiva\Admin\Booking\Helpers\CancellationHandler::user_can_cancel($booking_id);
+			$cancellation_info = \MHMRentiva\Admin\Booking\Helpers\CancellationHandler::get_cancellation_info($booking_id);
+
+			if ($can_cancel) :
+			?>
+				<button type="button" id="cancel-booking-btn" class="rv-btn rv-btn-danger" data-booking-id="<?php echo esc_attr($booking_id); ?>">
+					<?php esc_html_e('Cancel Booking', 'mhm-rentiva'); ?>
+				</button>
+			<?php endif; ?>
+
+
+		</div>
+
+		<?php if ($can_cancel) : ?>
+			<!-- Cancellation Info -->
+			<div class="rv-cancellation-info" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107;">
+				<p style="margin: 0; font-size: 14px; color: #856404;">
+					<?php echo esc_html($cancellation_info['message']); ?>
+				</p>
+				<?php
+				$refund_policy = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_refund_policy', '');
+				if (! empty($refund_policy)) :
+				?>
+					<p style="margin: 10px 0 0 0; font-size: 13px; color: #856404; font-style: italic;">
+						<?php echo esc_html($refund_policy); ?>
+					</p>
+				<?php endif; ?>
+			</div>
 		<?php endif; ?>
 
-
-	</div>
-
-	<?php if ($can_cancel) : ?>
-		<!-- Cancellation Info -->
-		<div class="rv-cancellation-info" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107;">
-			<p style="margin: 0; font-size: 14px; color: #856404;">
-				<?php echo esc_html($cancellation_info['message']); ?>
-			</p>
-			<?php
-			$refund_policy = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_refund_policy', '');
-			if (! empty($refund_policy)) :
-			?>
-				<p style="margin: 10px 0 0 0; font-size: 13px; color: #856404; font-style: italic;">
-					<?php echo esc_html($refund_policy); ?>
-				</p>
-			<?php endif; ?>
-		</div>
-	<?php endif; ?>
+	</div><!-- .mhm-account-content -->
 </div>
 
 <!-- Cancel Booking Modal -->
@@ -282,4 +292,3 @@ if ($is_integrated) {
 		color: #721c24;
 	}
 </style>
-
