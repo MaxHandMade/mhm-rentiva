@@ -1,7 +1,20 @@
 [
     {
+        "version": "4.20.0",
+        "date": "2026-02-21",
+        "changes": [
+            "🔒 STABILIZATION: Attribute canonicalization hardened",
+            "🧹 CLEANUP: Allowlist Registry cleanup",
+            "✅ PARITY: Block/shortcode parity fixes",
+            "⚡ PERFORMANCE: ΔQ improvement (-3 queries) - AbstractShortcode double mapping prevention",
+            "🛡️ QUALITY: PHPUnit 100% PASS with 513 Assertions"
+        ],
+        "notice": "v4.20.0 - Stabilization & Attribute Pipeline Hardening"
+    },
+    {
         "version": "4.11.0",
         "date": "2026-02-18",
+        "type": "previous",
         "changes": [
             "💎 SSOT: CanonicalAttributeMapper (CAM) officially recognized as the Single Source of Truth for all shortcodes.",
             "────────────────────────────────────────",

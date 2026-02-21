@@ -28,6 +28,7 @@ class BlockRegistry {
 
 
 
+
 	/**
 	 * Runtime cache for resolved asset versions.
 	 *
@@ -170,12 +171,15 @@ class BlockRegistry {
 	 * Enqueue assets for both frontend and editor iframe
 	 */
 	public static function enqueue_block_assets(): void
-    {
+	{
 		// Ensure core variables are available inside the editor iframe AND frontend
-       wp_enqueue_style('mhm-css-variables');
+		wp_enqueue_style('mhm-css-variables');
 		wp_enqueue_style(
-          'mhm-golden-ratio-contract', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/golden-ratio-contract.css', array( 'mhm-css-variables' ), self::get_asset_version('assets/css/core/golden-ratio-contract.css')
-       );
+			'mhm-golden-ratio-contract',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/golden-ratio-contract.css',
+			array( 'mhm-css-variables' ),
+			self::get_asset_version('assets/css/core/golden-ratio-contract.css')
+		);
 
 		// Note: 'mhm-rentiva-datepicker-custom' and 'mhm-vehicle-card-css' are now loaded
 		// conditionally by the specific blocks/shortcodes that need them.
@@ -185,9 +189,9 @@ class BlockRegistry {
 			add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css');
 			add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/golden-ratio-contract.css');
 			// We might still want datepicker styles in the editor for UX if they use it
-           add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css');
-        }
-  }
+			add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css');
+		}
+	}
 
 	/**
 	 * Enqueue block editor specific assets (Shell/UI)
@@ -446,7 +450,7 @@ class BlockRegistry {
 			// 2. Canonical Attribute Mapping (Registry Driven)
 			$mapped_attributes               = \MHMRentiva\Core\Attribute\CanonicalAttributeMapper::map($tag, $attributes);
 			$mapped_attributes['_canonical'] = true;
-       }
+		}
 
 		// Ensure Search Results runtime JS/localization is always present for block instances.
 		if ($tag === 'rentiva_search_results' && class_exists(\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::class)) {
@@ -494,9 +498,11 @@ class BlockRegistry {
 
 		// Return wrapped content with proper block wrapper attributes (FSE support)
 		return sprintf(
-            '<div %s>%s</div>', get_block_wrapper_attributes($wrapper_args), $shortcode_content
-     );
- }
+			'<div %s>%s</div>',
+			get_block_wrapper_attributes($wrapper_args),
+			$shortcode_content
+		);
+	}
 
 
 	/**

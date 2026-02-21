@@ -1,7 +1,20 @@
 [
     {
+        "version": "4.20.0",
+        "date": "2026-02-21",
+        "changes": [
+            "🔒 STABİLİZASYON: Attribute normalizasyonu güçlendirildi",
+            "🧹 TEMİZLİK: Allowlist Registry çift tanımları temizlendi",
+            "✅ EŞİTLİK: Blok/kısa kod attributes harita uyumu sağlandı",
+            "⚡ PERFORMANS: Sorgu sayısında iyileşme (-3 Delta Q) - Çift sorgu engellendi",
+            "🛡️ KALİTE: PHPUnit %100 Başarı - 513 Assertion doğrulandı"
+        ],
+        "notice": "v4.20.0 - Kararlılık ve Attribute Hattı Güçlendirmesi"
+    },
+    {
         "version": "4.11.0",
         "date": "2026-02-18",
+        "type": "previous",
         "changes": [
             "💎 SSOT: CanonicalAttributeMapper (CAM), tüm kısa kodlar için resmi Tek Gerçek Kaynak (Single Source of Truth) olarak kabul edildi.",
             "────────────────────────────────────────",
