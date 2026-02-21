@@ -28,8 +28,8 @@ if (! defined('ABSPATH')) {
  * - Pagination
  * - SEO-friendly URL parameters
  */
-final class SearchResults extends AbstractShortcode
-{
+final class SearchResults extends AbstractShortcode {
+
 	/**
 	 * Context key for the availability injector filter.
 	 */
@@ -49,58 +49,58 @@ final class SearchResults extends AbstractShortcode
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	private static function get_text(string $key, string $default = ''): string
 	{
 		$get = $GLOBALS['_GET'] ?? [];
-		if (! isset($get[$key])) {
+		if (! isset($get[ $key ])) {
 			return $default;
 		}
 
-		return sanitize_text_field(wp_unslash((string) $get[$key]));
+		return sanitize_text_field(wp_unslash( (string) $get[ $key ]));
 	}
 
 	private static function get_int(string $key, int $default = 0): int
 	{
 		$get = $GLOBALS['_GET'] ?? [];
-		if (! isset($get[$key])) {
+		if (! isset($get[ $key ])) {
 			return $default;
 		}
 
-		return (int) wp_unslash((string) $get[$key]);
+		return (int) wp_unslash( (string) $get[ $key ]);
 	}
 
 	private static function post_text(string $key, string $default = ''): string
 	{
 		$post = $GLOBALS['_POST'] ?? [];
-		if (! isset($post[$key])) {
+		if (! isset($post[ $key ])) {
 			return $default;
 		}
 
-		return sanitize_text_field(wp_unslash((string) $post[$key]));
+		return sanitize_text_field(wp_unslash( (string) $post[ $key ]));
 	}
 
 	private static function post_int(string $key, int $default = 0): int
 	{
 		$post = $GLOBALS['_POST'] ?? [];
-		if (! isset($post[$key])) {
+		if (! isset($post[ $key ])) {
 			return $default;
 		}
 
-		return (int) wp_unslash((string) $post[$key]);
+		return (int) wp_unslash( (string) $post[ $key ]);
 	}
 
 	private static function post_text_or_array(string $key)
 	{
 		$post = $GLOBALS['_POST'] ?? [];
-		if (! isset($post[$key])) {
+		if (! isset($post[ $key ])) {
 			return array();
 		}
 
-		$value = wp_unslash($post[$key]);
-		return is_array($value) ? array_map('sanitize_text_field', $value) : sanitize_text_field((string)$value);
+		$value = wp_unslash($post[ $key ]);
+		return is_array($value) ? array_map('sanitize_text_field', $value) : sanitize_text_field( (string) $value);
 	}
 
 	public static function register(): void
@@ -108,8 +108,8 @@ final class SearchResults extends AbstractShortcode
 		parent::register();
 
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_filter_results', array(self::class, 'ajax_filter_results'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_filter_results', array(self::class, 'ajax_filter_results'));
+		add_action('wp_ajax_mhm_rentiva_filter_results', array( self::class, 'ajax_filter_results' ));
+		add_action('wp_ajax_nopriv_mhm_rentiva_filter_results', array( self::class, 'ajax_filter_results' ));
 	}
 
 	protected static function get_shortcode_tag(): string
@@ -133,7 +133,7 @@ final class SearchResults extends AbstractShortcode
 			'show_view_toggle'     => '1',        // 1/0
 			'show_favorite_button' => '1',        // 1/0
 			'show_compare_button'  => '1',        // 1/0
-			'show_booking_btn'     => '1',        // 1/0
+			'show_booking_button'  => '1',        // 1/0
 			'show_price'           => '1',        // 1/0
 			'show_title'           => '1',        // 1/0
 			'show_features'        => '1',        // 1/0
@@ -183,8 +183,8 @@ final class SearchResults extends AbstractShortcode
 	 */
 	public static function ensure_runtime_assets(array $atts = array()): void
 	{
-		$normalized_atts = shortcode_atts(static::get_default_attributes(), $atts, static::get_shortcode_tag());
-		static::enqueue_assets($normalized_atts);
+		$normalized_atts = shortcode_atts(self::get_default_attributes(), $atts, self::get_shortcode_tag());
+		self::enqueue_assets($normalized_atts);
 	}
 
 	/**
@@ -209,7 +209,7 @@ final class SearchResults extends AbstractShortcode
 		wp_enqueue_style(
 			'mhm-rentiva-search-results-css',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/search-results.css',
-			array('mhm-vehicle-card-css'),
+			array( 'mhm-vehicle-card-css' ),
 			MHM_RENTIVA_VERSION . '-' . filemtime(MHM_RENTIVA_PLUGIN_DIR . 'assets/css/frontend/search-results.css'),
 			'all'
 		);
@@ -218,7 +218,7 @@ final class SearchResults extends AbstractShortcode
 		wp_enqueue_script(
 			'mhm-rentiva-search-results-js',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/search-results.js',
-			array('jquery', 'mhm-vehicle-interactions'),
+			array( 'jquery', 'mhm-vehicle-interactions' ),
 			MHM_RENTIVA_VERSION . '-' . filemtime(MHM_RENTIVA_PLUGIN_DIR . 'assets/js/frontend/search-results.js'),
 			true
 		);
@@ -229,11 +229,11 @@ final class SearchResults extends AbstractShortcode
 				'mhm-vehicle-interactions',
 				'mhm_rentiva_vars',
 				array(
-					'ajax_url'         => admin_url('admin-ajax.php'),
-					'nonce'            => wp_create_nonce('mhm_rentiva_toggle_favorite'),
-					'fav_nonce'        => wp_create_nonce('mhm_rentiva_toggle_favorite'),
-					'compare_nonce'    => wp_create_nonce('mhm_rentiva_toggle_compare'),
-					'compare_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
+					'ajax_url'           => admin_url('admin-ajax.php'),
+					'nonce'              => wp_create_nonce('mhm_rentiva_toggle_favorite'),
+					'fav_nonce'          => wp_create_nonce('mhm_rentiva_toggle_favorite'),
+					'compare_nonce'      => wp_create_nonce('mhm_rentiva_toggle_compare'),
+					'compare_page_url'   => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
 					'favorites_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_favorites'),
 				)
 			);
@@ -324,8 +324,8 @@ final class SearchResults extends AbstractShortcode
 		);
 
 		// ⭐ Submission Integrity: Enforce minimum rental days
-		$pickup_date = ! empty($params['pickup_date']) ? $params['pickup_date'] : (! empty($params['start_date']) ? $params['start_date'] : '');
-		$return_date = ! empty($params['return_date']) ? $params['return_date'] : (! empty($params['end_date']) ? $params['end_date'] : '');
+		$pickup_date = ! empty($params['pickup_date']) ? $params['pickup_date'] : ( ! empty($params['start_date']) ? $params['start_date'] : '' );
+		$return_date = ! empty($params['return_date']) ? $params['return_date'] : ( ! empty($params['end_date']) ? $params['end_date'] : '' );
 
 		if (! empty($pickup_date) && ! empty($return_date)) {
 			$min_days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_min_rental_days', 1);
@@ -333,11 +333,11 @@ final class SearchResults extends AbstractShortcode
 			$end_ts   = strtotime($return_date);
 
 			if ($start_ts && $end_ts) {
-				$diff_days = round(($end_ts - $start_ts) / (60 * 60 * 24));
+				$diff_days = round(( $end_ts - $start_ts ) / ( 60 * 60 * 24 ));
 				if ($diff_days < $min_days) {
 					// Logic: If user bypassed JS and sent invalid date range
 					// Force an impossible condition to return no results safely
-					$args['post__in'] = array(0);
+					$args['post__in'] = array( 0 );
 				}
 			}
 		}
@@ -355,7 +355,7 @@ final class SearchResults extends AbstractShortcode
 			);
 
 			if ($params['min_price'] > 0 && $params['max_price'] > 0) {
-				$price_query['value']   = array($params['min_price'], $params['max_price']);
+				$price_query['value']   = array( $params['min_price'], $params['max_price'] );
 				$price_query['compare'] = 'BETWEEN';
 			} elseif ($params['min_price'] > 0) {
 				$price_query['value']   = $params['min_price'];
@@ -370,7 +370,7 @@ final class SearchResults extends AbstractShortcode
 
 		// Fuel type (process as array)
 		if (! empty($params['fuel_type'])) {
-			$fuel_values          = is_array($params['fuel_type']) ? $params['fuel_type'] : array($params['fuel_type']);
+			$fuel_values          = is_array($params['fuel_type']) ? $params['fuel_type'] : array( $params['fuel_type'] );
 			$args['meta_query'][] = array(
 				'key'     => '_mhm_rentiva_fuel_type',
 				'value'   => $fuel_values,
@@ -380,7 +380,7 @@ final class SearchResults extends AbstractShortcode
 
 		// Transmission type (process as array)
 		if (! empty($params['transmission'])) {
-			$transmission_values  = is_array($params['transmission']) ? $params['transmission'] : array($params['transmission']);
+			$transmission_values  = is_array($params['transmission']) ? $params['transmission'] : array( $params['transmission'] );
 			$args['meta_query'][] = array(
 				'key'     => '_mhm_rentiva_transmission',
 				'value'   => $transmission_values,
@@ -390,7 +390,7 @@ final class SearchResults extends AbstractShortcode
 
 		// Seat count (process as array)
 		if (! empty($params['seats'])) {
-			$seats_values         = is_array($params['seats']) ? $params['seats'] : array($params['seats']);
+			$seats_values         = is_array($params['seats']) ? $params['seats'] : array( $params['seats'] );
 			$args['meta_query'][] = array(
 				'key'     => '_mhm_rentiva_seats',
 				'value'   => $seats_values,
@@ -400,7 +400,7 @@ final class SearchResults extends AbstractShortcode
 
 		// Brand (process as array)
 		if (! empty($params['brand'])) {
-			$brand_values         = is_array($params['brand']) ? $params['brand'] : array($params['brand']);
+			$brand_values         = is_array($params['brand']) ? $params['brand'] : array( $params['brand'] );
 			$args['meta_query'][] = array(
 				'key'     => '_mhm_rentiva_brand',
 				'value'   => $brand_values,
@@ -416,7 +416,7 @@ final class SearchResults extends AbstractShortcode
 			);
 
 			if ($params['year_min'] > 0 && $params['year_max'] > 0) {
-				$year_query['value']   = array($params['year_min'], $params['year_max']);
+				$year_query['value']   = array( $params['year_min'], $params['year_max'] );
 				$year_query['compare'] = 'BETWEEN';
 			} elseif ($params['year_min'] > 0) {
 				$year_query['value']   = $params['year_min'];
@@ -476,8 +476,8 @@ final class SearchResults extends AbstractShortcode
 		}
 
 		// Optimization: Inject Availability Filter
-		$args[self::SEARCH_CONTEXT_KEY] = true;
-		$availability_filter = function ($where, \WP_Query $query) use ($params) {
+		$args[ self::SEARCH_CONTEXT_KEY ] = true;
+		$availability_filter              = function ($where, \WP_Query $query) use ($params) {
 			if ($query->get(self::SEARCH_CONTEXT_KEY) !== true) {
 				return $where;
 			}
@@ -571,7 +571,7 @@ final class SearchResults extends AbstractShortcode
 	private static function format_vehicle_data(int $vehicle_id, array $atts): array
 	{
 		// Default atts for canonical formatting if missing
-		$defaults = array(
+		$defaults    = array(
 			'max_features' => 5,
 			'image_size'   => 'medium',
 			'price_format' => 'daily',
@@ -618,10 +618,10 @@ final class SearchResults extends AbstractShortcode
 		$fuel_types     = array();
 		if (! empty($fuel_type_keys)) {
 			foreach ($fuel_type_keys as $key) {
-				if (isset($fuel_types_map[$key])) {
-					$fuel_types[$key] = $fuel_types_map[$key];
+				if (isset($fuel_types_map[ $key ])) {
+					$fuel_types[ $key ] = $fuel_types_map[ $key ];
 				} else {
-					$fuel_types[$key] = $key; // Fallback to key if label not found
+					$fuel_types[ $key ] = $key; // Fallback to key if label not found
 				}
 			}
 		}
@@ -641,10 +641,10 @@ final class SearchResults extends AbstractShortcode
 		$transmissions     = array();
 		if (! empty($transmission_keys)) {
 			foreach ($transmission_keys as $key) {
-				if (isset($transmissions_map[$key])) {
-					$transmissions[$key] = $transmissions_map[$key];
+				if (isset($transmissions_map[ $key ])) {
+					$transmissions[ $key ] = $transmissions_map[ $key ];
 				} else {
-					$transmissions[$key] = $key; // Fallback to key if label not found
+					$transmissions[ $key ] = $key; // Fallback to key if label not found
 				}
 			}
 		}
@@ -703,12 +703,12 @@ final class SearchResults extends AbstractShortcode
 			'seats'         => $seats ?: array(),
 			'brands'        => $brands ?: array(),
 			'year_range'    => array(
-				'min' => (int) ($year_range->min_year ?? 1990),
-				'max' => (int) ($year_range->max_year ?? gmdate('Y')),
+				'min' => (int) ( $year_range->min_year ?? 1990 ),
+				'max' => (int) ( $year_range->max_year ?? gmdate('Y') ),
 			),
 			'price_range'   => array(
-				'min' => (float) ($price_range->min_price ?? 0),
-				'max' => (float) ($price_range->max_price ?? 10000),
+				'min' => (float) ( $price_range->min_price ?? 0 ),
+				'max' => (float) ( $price_range->max_price ?? 10000 ),
 			),
 		);
 
@@ -769,7 +769,7 @@ final class SearchResults extends AbstractShortcode
 				'results_per_page'     => self::post_int('per_page', 12),
 				'show_favorite_button' => self::post_text('show_favorite_button', '1'),
 				'show_compare_button'  => self::post_text('show_compare_button', '1'),
-				'show_booking_btn'     => self::post_text('show_booking_btn', '1'),
+				'show_booking_button'  => self::post_text('show_booking_button', '1'),
 				'show_price'           => self::post_text('show_price', '1'),
 				'show_title'           => self::post_text('show_title', '1'),
 				'show_features'        => self::post_text('show_features', '1'),
@@ -814,8 +814,8 @@ final class SearchResults extends AbstractShortcode
 	 */
 	private static function check_vehicle_availability(int $vehicle_id): array
 	{
-		$status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
-		$is_available = ($status === 'active');
+		$status       = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
+		$is_available = ( $status === 'active' );
 
 		return array(
 			'is_available' => $is_available,
@@ -863,7 +863,7 @@ final class SearchResults extends AbstractShortcode
 			array(
 				'show_favorite_button' => true,
 				'show_compare_button'  => true,
-				'show_booking_btn'     => true,
+				'show_booking_button'  => true,
 				'show_price'           => true,
 				'show_title'           => true,
 				'show_features'        => true,
@@ -917,4 +917,3 @@ final class SearchResults extends AbstractShortcode
 		return (string) paginate_links($pagination_args);
 	}
 }
-

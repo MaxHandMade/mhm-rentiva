@@ -27,6 +27,7 @@ class VehiclesGrid extends AbstractShortcode {
 
 
 
+
 	/**
 	 * Returns shortcode tag
 	 */
@@ -60,7 +61,7 @@ class VehiclesGrid extends AbstractShortcode {
 			'show_price'             => '1',
 			'show_features'          => '1',
 			'show_rating'            => '1',
-			'show_booking_btn'       => '1',
+			'show_booking_button'    => '1',
 			'show_favorite_btn'      => '1',
 			'show_favorite_button'   => '1',
 			'show_category'          => '1',
@@ -103,7 +104,7 @@ class VehiclesGrid extends AbstractShortcode {
 			'showRating'         => 'show_rating',
 			'showPrice'          => 'show_price',
 			'showFeatures'       => 'show_features',
-			'showBookButton'     => 'show_booking_btn',
+			'showBookButton'     => 'show_booking_button',
 			'showFavoriteButton' => 'show_favorite_button',
 			'showCompareButton'  => 'show_compare_button',
 		);
@@ -156,8 +157,8 @@ class VehiclesGrid extends AbstractShortcode {
 			'post_type'      => 'vehicle',
 			'post_status'    => 'publish',
 			'posts_per_page' => intval($atts['limit'] ?? 12),
-			'orderby'        => (string) ($atts['orderby'] ?? 'title'),
-			'order'          => (string) ($atts['order'] ?? 'ASC'),
+			'orderby'        => (string) ( $atts['orderby'] ?? 'title' ),
+			'order'          => (string) ( $atts['order'] ?? 'ASC' ),
 		);
 
 		// Category filter
@@ -172,7 +173,7 @@ class VehiclesGrid extends AbstractShortcode {
 		}
 
 		// Featured filter
-		if (($atts['featured'] ?? '0') === '1') {
+		if (( $atts['featured'] ?? '0' ) === '1') {
 			$args['meta_query'] = array(
 				array(
 					'key'     => '_mhm_rentiva_featured',
@@ -185,8 +186,8 @@ class VehiclesGrid extends AbstractShortcode {
 		// Rating-based sorting & filtering (opt-in via shortcode attributes)
 		RatingSortHelper::apply_sort_args(
 			$args,
-			(string) ($atts['orderby'] ?? 'title'),
-			(string) ($atts['order'] ?? 'ASC')
+			(string) ( $atts['orderby'] ?? 'title' ),
+			(string) ( $atts['order'] ?? 'ASC' )
 		);
 		RatingSortHelper::apply_filter_args($args, $atts);
 
@@ -205,7 +206,7 @@ class VehiclesGrid extends AbstractShortcode {
 	 */
 	private static function get_vehicle_data_for_shortcode(int $vehicle_id, array $atts): array
 	{
-		$post = get_post($vehicle_id);
+		$post       = get_post($vehicle_id);
 		$image_size = isset($atts['image_size']) && is_string($atts['image_size']) && $atts['image_size'] !== ''
 			? $atts['image_size']
 			: 'medium';
@@ -631,4 +632,3 @@ class VehiclesGrid extends AbstractShortcode {
 		return in_array($vehicle_id, $favorites, true);
 	}
 }
-

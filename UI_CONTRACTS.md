@@ -25,6 +25,17 @@ Bu doküman, MHM Rentiva kısa kodları, Gutenberg blokları ve gelecekteki Elem
 - Required wrapper/slot stabilite kuralı: `mhm-rentiva-*` = Stable, `rv-*` = Semi-stable (required olsa bile kırılmaz garanti seviyesi Stable değildir).
 - ID selector kuralı: `#id` selectorler contract için primary kabul edilmez; class-selector önceliklidir. ID selectorler implementation detail olarak değerlendirilir.
 
+## 1.1 Architectural Layout Invariants
+
+**CSS-Driven Layout Policy:**
+Layout switching (e.g., grid vs. list) MUST NOT mutate the inner DOM structure of cards or containers. It is controlled exclusively by context classes on the wrapper (e.g., `rv-layout-grid` vs `rv-layout-list`) driving CSS Grid/Flexbox properties.
+
+**Grid Isolation Contract:**
+For Search and Transfer results:
+1. The header (route info, summary, sorting) MUST sit strictly outside the main grid container.
+2. The grid wrapper MUST contain ONLY card components. No inline notifications, route summaries, or pagination elements are allowed inside the grid container itself.
+3. The `columns` attribute is consumed entirely as a CSS variable (e.g., `--mhm-columns: 2`) and does not structurally alter the PHP output loop.
+
 ## 2. Shortcodes
 ### 2.1 Inventory
 - Stable/Semi-stable inventory (source of truth):
@@ -48,13 +59,11 @@ Bu doküman, MHM Rentiva kısa kodları, Gutenberg blokları ve gelecekteki Elem
 - `rentiva_vehicle_rating_form` (Stable)
 - `rentiva_messages` (Stable)
 
-Discrepancy Note:
+Resolved Discrepancy (Sequence 5):
 Item: Shortcodes (`rentiva_hero_section`, `rentiva_trust_stats`, `rentiva_brand_scroller`, `rentiva_comparison_table`, `rentiva_extra_services`)
-Legacy (SHORTCODES.md): Elite Edition altında planlanan kısa kodlar olarak listelenmiş.
-Code truth: `src/Admin/Core/ShortcodeServiceProvider.php` registry içinde yok; `add_shortcode` ile kayıtlanmıyor.
-Impact: doc-only
-Resolution: legacy referans olarak tutulur; aktif envanterde gösterilmez.
-
+Legacy (SHORTCODES.md): Elite Edition altında planlanan kısa kodlar olarak listelenmişti.
+Code truth: `src/Admin/Core/ShortcodeServiceProvider.php` registry içinde yok.
+Status: FIXED. SHORTCODES.md has been structurally segmented, clearly separating "Planned / Not Active" shortcodes from the active inventory.
 ### 2.2 Contract per shortcode
 #### `[rentiva_booking_form]`
 Purpose: Rezervasyon formu.
@@ -70,12 +79,11 @@ Source: `src/Admin/Frontend/Shortcodes/BookingForm.php:62`, `src/Admin/Frontend/
 Symbol: `MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::get_shortcode_tag`
 Verified by: shortcode default attributes + template wrapper/form slot scan.
 
-Discrepancy Note:
+Resolved Discrepancy (Sequence 5):
 Item: Shortcode `[rentiva_booking_form]` attribute `show_insurance`
-Legacy (SHORTCODES.md): Parametre mevcut ve destekli gibi listelenmiş.
-Code truth: `src/Admin/Frontend/Shortcodes/BookingForm.php` `get_default_attributes()` içinde `show_insurance` yok.
-Impact: potential breaking
-Resolution: legacy dokümanı güncellenmeli veya alan “legacy/non-active param” olarak açıkça işaretlenmeli.
+Legacy (SHORTCODES.md): Parametre mevcut ve destekli gibi listelenmişti.
+Code truth: `get_default_attributes()` içinde `show_insurance` yoktu.
+Status: FIXED. The canonical mapping and matrices have unified this attribute definitions with the codebase. 
 
 #### `[rentiva_availability_calendar]`
 Purpose: Araç müsaitlik takvimi.
@@ -91,13 +99,11 @@ Source: `src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:62`, `src/Admin/
 Symbol: `MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::get_default_attributes`
 Verified by: default attrs + wrapper + data attribute scan.
 
-Discrepancy Note:
+Resolved Discrepancy (Sequence 5):
 Item: Shortcode `[rentiva_availability_calendar]` attribute envanteri
-Legacy (SHORTCODES.md): Attribute listesi verilmemiş.
-Code truth: `src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php` `get_default_attributes()` birden fazla aktif attribute tanımlıyor.
-Impact: doc-only
-Resolution: legacy doküman güncellenmeli; code-derived attribute listesi referans alınmalı.
-
+Legacy (SHORTCODES.md): Attribute listesi verilmemişti.
+Code truth: `get_default_attributes()` birden fazla aktif attribute tanımlıyor.
+Status: FIXED. A 3-Layer Default Comparison Matrix has comprehensively documented every shortcode's attributes.
 #### `[rentiva_booking_confirmation]`
 Purpose: Rezervasyon onay ekranı.
 Attributes: `booking_id(string,'',booking id)`, `show_details(string-bool,'1',0|1)`, `show_actions(string-bool,'1',0|1)`, `class(string,'',css class)`.
@@ -182,12 +188,11 @@ Source: `src/Admin/Frontend/Shortcodes/SearchResults.php:62`, `src/Admin/Fronten
 Symbol: `MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::get_default_attributes`
 Verified by: shortcode defaults + template IDs used by frontend JS.
 
-Discrepancy Note:
+Resolved Discrepancy (Sequence 5):
 Item: Shortcode `[rentiva_search_results]` filtre parametreleri (`min_price`, `max_price` vb.)
-Legacy (SHORTCODES.md): URL filtreleri shortcode attribute gibi sunulmuş.
-Code truth: `src/Admin/Frontend/Shortcodes/SearchResults.php` default attribute seti farklı; filtrelerin önemli kısmı request/query akışından okunuyor.
-Impact: potential breaking
-Resolution: legacy dokümanda bu alanlar “URL/query inputs” olarak ayrıştırılmalı, shortcode attrs ile karıştırılmamalı.
+Legacy (SHORTCODES.md): URL filtreleri shortcode attribute gibi sunulmuştu.
+Code truth: Default attribute seti farklıdır; filtreler istek akışından okunur.
+Status: FIXED. The 3-layer matrix accurately isolates core shortcode configuration attributes from query parameters, establishing canonical truth.
 
 #### `[rentiva_vehicle_comparison]`
 Purpose: Araç karşılaştırma görünümü.

@@ -1,5 +1,28 @@
 ﻿# PROJECT MEMORIES
 
+### [COMPLETED] Documentation Consolidation & Source of Truth Hardening (Sequence 5) (2026-02-21)
+- **Status:** [COMPLETED] / VERIFIED
+- **Scope:** Hardening the source of truth for shortcodes and UI contracts, eliminating documentation drift.
+- **Key Achievements:**
+    1. **3-Layer Default Matrix:** Generated a deterministic matrix comparing `block.json`, Shortcode classes, and `AllowlistRegistry` to surface and resolve any attribute discrepancies.
+    2. **UI Contracts Resolution:** Resolved legacy discrepancy notes in `UI_CONTRACTS.md` and explicitly documented CSS-Driven layout and Grid Isolation contracts.
+- **Architectural Invariants Established:**
+    - **No Dual Render Pipeline:** The system strictly uses a single rendering path. Gutenberg blocks are purely visual wrappers in the editor; on the frontend, their attributes are dynamically mapped to, and rendered exactly by, the canonical shortcode logic. Block JSON and Shortcode PHP defaults must functionally align.
+    - **Alias Resolution Policy:** Block attributes (often camelCase) are transformed into Shortcode attributes (snake_case) or explicitly mapped (e.g., `bookingId` -> `booking_id`). The `AllowlistRegistry` is the absolute authority defining whether an alias is permitted. There is no undocumented "magic" attribute mapping.
+
+### [COMPLETED] Stabilization & Attribute Pipeline Hardening (v4.20.0) (2026-02-21)
+- **Status:** [COMPLETED] / VERIFIED
+- **Scope:** Strict Governance execution of Sequence-1, Sequence-2, and Sequence-3 to finalize Canonical Attribute Parity.
+- **Key Achievements:**
+    1. **Sequence-1 (Baseline Stabilization):** Enforced overflow safety, eliminated table-layout conflicts in Account dashboards, and enforced strict CSS container queries.
+    2. **Sequence-2 (Vehicle Card Unification):** Eliminated legacy CSS forks (`.mhm-content-actions`). Established single-source-of-truth DOM structure for Grid, List, and Favorites layouts.
+    3. **Sequence-3 (Search/Transfer Parity):** Isolated Header/Route elements from CSS Grids. Standardized Column and Layout mappings directly to CSS variables to prevent double-layout switches between Block Editor and Frontend.
+- **Architectural State:**
+    - Canonical attribute pipeline stabilized.
+    - Editor ↔ Frontend fully aligned.
+    - Layout fork eliminated.
+    - CSS-driven layout switching standardized.
+
 ### [COMPLETED] Observability & Control Layer (v4.19.x) (2026-02-20)
 - **Status:** [COMPLETED] / VERIFIED
 - **Scope:** Implementation of Layout History, Manifest Diff, and Append-only Audit Trail.

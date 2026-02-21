@@ -60,12 +60,12 @@ $show_fav     = ( $fav_val !== '0' && $fav_val !== 'false' && $fav_val !== false
 $comp_val     = $atts['show_compare_button'] ?? ( $atts['show_compare_btn'] ?? true );
 $show_compare = ( $comp_val !== '0' && $comp_val !== 'false' && $comp_val !== false );
 
-$layout        = $layout ?? ( $atts['layout'] ?? 'grid' );
-$columns       = $columns ?? ( $atts['columns'] ?? 2 );
-$wrapper_class = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-results rv-unified-search-results rv-transfer-results--' . esc_attr($layout);
+$active_layout  = $layout ?? ( $atts['layout'] ?? 'grid' );
+$active_columns = $columns ?? ( $atts['columns'] ?? 2 );
+$wrapper_class  = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-results rv-unified-search-results rv-transfer-results--' . esc_attr($active_layout);
 ?>
 
-<div class="<?php echo esc_attr($wrapper_class); ?>" data-columns="<?php echo esc_attr( (string) $columns); ?>" style="--columns: <?php echo esc_attr( (string) $columns); ?>;">
+<div class="<?php echo esc_attr($wrapper_class); ?>" data-columns="<?php echo esc_attr( (string) $active_columns); ?>" style="--columns: <?php echo esc_attr( (string) $active_columns); ?>;">
 	<?php if ($show_summary_route) : ?>
 		<div class="mhm-transfer-results__summary">
 			<div class="mhm-transfer-results__summary-info">
@@ -79,7 +79,7 @@ $wrapper_class = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-res
 						<?php if ($show_summary_date) : ?>
 							<span class="rv-info-item">
 								<?php
-                                Icons::render('calendar', [
+								Icons::render('calendar', [
 									'width'  => '14',
 									'height' => '14',
 								]);
@@ -88,7 +88,7 @@ $wrapper_class = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-res
 							</span>
 							<span class="rv-info-item" style="margin-left: 15px;">
 								<?php
-                                Icons::render('clock', [
+								Icons::render('clock', [
 									'width'  => '14',
 									'height' => '14',
 								]);
@@ -99,7 +99,7 @@ $wrapper_class = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-res
 						<?php if ($show_summary_pax) : ?>
 							<span class="rv-info-item" style="margin-left: 15px;">
 								<?php
-                                Icons::render('users', [
+								Icons::render('users', [
 									'width'  => '14',
 									'height' => '14',
 								]);
