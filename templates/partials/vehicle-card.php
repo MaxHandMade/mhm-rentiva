@@ -4,13 +4,9 @@
 /**
  * Vehicle Card Partial Template
  * 
- * Standardized vehicle card used across Grid, List, Search, and Featured modules.
- * 
  * @var array  $vehicle  Standardized vehicle data.
  * @var string $layout   'grid' or 'list'.
- * @var array  $atts     Shortcode/Block attributes for toggleable elements.
- * 
- * @package MHMRentiva
+ * @var array  $atts     Shortcode/Block attributes.
  */
 
 use MHMRentiva\Helpers\Icons;
@@ -19,117 +15,21 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-// Defaults
+// Logic Layer (SSOT)
+include 'vehicle-card-base.php';
+
+// Context-Specific Defaults
 $layout     = $layout ?? 'grid';
 $card_class = 'mhm-vehicle-card mhm-card--' . esc_attr($layout);
 $is_grid    = ($layout === 'grid');
+$btn_class  = 'mhm-btn-booking';
 
-// v1.0 APPROVED TOGGLES
-// Toggles Normalization (Strict Boolean Conversion)
-$normalize_toggle = function ($val) {
-    if ($val === '0' || $val === 'false' || $val === 0 || $val === false) {
-        return false;
-    }
-    return true;
-};
-
-$show_image       = $normalize_toggle($atts['show_image'] ?? true);
-$show_features    = $normalize_toggle($atts['show_features'] ?? true);
-$show_price       = $normalize_toggle($atts['show_price'] ?? true);
-$show_title       = $normalize_toggle($atts['show_title'] ?? true);
-$show_rating      = $normalize_toggle($atts['show_rating'] ?? true);
-$show_booking     = $normalize_toggle($atts['show_booking_btn'] ?? true);
-$booking_text     = $atts['booking_btn_text'] ?? __('Book Now', 'mhm-rentiva');
-
-// v1.0 DISABLED TOGGLES (Hardcoded FALSE - Deferred to v1.1+)
-$show_category     = false; // FROZEN: $atts['show_category'] ?? true
-$show_brand        = false; // FROZEN: $atts['show_brand'] ?? false
-// v1.3.2.4 PRODUCTIZATION
-$show_title       = $normalize_toggle($atts['show_title'] ?? true);
-$show_description = $normalize_toggle($atts['show_description'] ?? false);
-
-// Force Description OFF for Grid
 if ($is_grid) {
     $show_description = false;
 }
 
-$rating_count = intval($vehicle['rating']['count'] ?? 0);
-// Default ON unless explicitly disabled
-$user_wants_rating = $normalize_toggle($atts['show_rating'] ?? true);
-$show_rating = $user_wants_rating && ($rating_count > 0);
-
-// v1.3.3 Visibility Bridges (Handles _button vs _btn suffixes)
-$show_fav     = $normalize_toggle($atts['show_favorite_button'] ?? ($atts['show_favorite_btn'] ?? true));
-$show_compare = $normalize_toggle($atts['show_compare_button'] ?? ($atts['show_compare_btn'] ?? true));
-
-$show_badges       = false; // FROZEN: $atts['show_badges'] ?? true
-$show_availability = false; // FROZEN: $atts['show_availability'] ?? false
-
-// Data extraction with safe fallbacks
-$vehicle_id   = $vehicle['id'] ?? 0;
-$permalink    = $vehicle['permalink'] ?? '#';
-$title        = $vehicle['title'] ?? '';
-$excerpt      = $vehicle['excerpt'] ?? '';
-$image_url    = $vehicle['image']['url'] ?? '';
-$image_alt    = $vehicle['image']['alt'] ?? $title;
-$price_raw    = $vehicle['price']['raw'] ?? 0;
-$price_fmt    = $vehicle['price']['formatted'] ?? '';
-$is_available = $vehicle['availability']['is_available'] ?? true;
-$status_text  = $vehicle['availability']['text'] ?? '';
-$is_featured  = $vehicle['is_featured'] ?? false;
-$is_favorite  = $vehicle['is_favorite'] ?? false;
-$features     = $vehicle['features'] ?? array();
-$allowed_svg = array(
-    'svg'      => array(
-        'class'           => true,
-        'viewBox'         => true,
-        'fill'            => true,
-        'stroke'          => true,
-        'stroke-width'    => true,
-        'stroke-linecap'  => true,
-        'stroke-linejoin' => true,
-        'xmlns'           => true,
-        'width'           => true,
-        'height'          => true,
-        'aria-hidden'     => true,
-        'focusable'       => true,
-        'role'            => true,
-    ),
-    'path'     => array(
-        'd'               => true,
-        'fill'            => true,
-        'stroke'          => true,
-        'stroke-width'    => true,
-        'stroke-linecap'  => true,
-        'stroke-linejoin' => true,
-    ),
-    'g'        => array('fill' => true, 'stroke' => true, 'class' => true),
-    'circle'   => array('cx' => true, 'cy' => true, 'r' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true),
-    'rect'     => array('x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true, 'ry' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true),
-    'line'     => array('x1' => true, 'y1' => true, 'x2' => true, 'y2' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true),
-    'polyline' => array('points' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true, 'stroke-linejoin' => true),
-    'polygon'  => array('points' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linejoin' => true),
-);
-// Check Service if missing in data object (Source of Truth)
-if (class_exists('\MHMRentiva\Admin\Services\FavoritesService')) {
-    $current_user = get_current_user_id();
-    if ($current_user) {
-        $is_favorite = \MHMRentiva\Admin\Services\FavoritesService::is_favorite($current_user, $vehicle_id);
-    }
-}
-
-$is_in_compare = false;
-if (class_exists('\MHMRentiva\Admin\Services\CompareService')) {
-    $is_in_compare = \MHMRentiva\Admin\Services\CompareService::is_in_compare($vehicle_id);
-}
-
-// Button Logic
-$btn_class = 'mhm-btn-booking';
-$booking_base_url = $vehicle['booking_url'] ?? ($atts['booking_url'] ?? '');
-$btn_url          = add_query_arg('vehicle_id', $vehicle_id, $booking_base_url);
 if (! $is_available) {
     $btn_class .= ' is-disabled';
-    $btn_url    = 'javascript:void(0);';
 }
 ?>
 
@@ -202,7 +102,7 @@ if (! $is_available) {
                 </div>
             <?php endif; ?>
 
-            <?php if ($show_rating && isset($vehicle['rating']['stars'])) : ?>
+            <?php if ($show_rating && isset($vehicle['rating']['stars']) && (int) ($vehicle['rating']['count'] ?? 0) > 0) : ?>
                 <div class="mhm-card-rating" data-testid="mhm-rating" title="<?php
                                                                                 /* translators: %s: average vehicle rating. */
                                                                                 echo esc_attr(sprintf(esc_html__('Rated %s out of 5', 'mhm-rentiva'), (string) $vehicle['rating']['average']));

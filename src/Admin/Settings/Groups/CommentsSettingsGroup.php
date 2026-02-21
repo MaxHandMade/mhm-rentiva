@@ -492,3 +492,4 @@ final class CommentsSettingsGroup {
 		}
 	}
 }
+

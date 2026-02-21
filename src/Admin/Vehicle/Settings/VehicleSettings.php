@@ -1961,3 +1961,4 @@ final class VehicleSettings {
 		wp_send_json_success( array( 'message' => esc_html__( 'Settings reset to defaults.', 'mhm-rentiva' ) ) );
 	}
 }
+

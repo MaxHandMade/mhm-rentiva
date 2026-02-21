@@ -58,8 +58,8 @@ final class Status
 		$allowed_transitions = array(
 			self::DRAFT           => array(self::PENDING_PAYMENT, self::CANCELLED),
 			self::PENDING_PAYMENT => array(self::CONFIRMED, self::CANCELLED), // Payment made or time expired
-			self::PENDING         => array(self::CONFIRMED, self::COMPLETED, self::CANCELLED), // âœ… Allow direct completion
-			self::CONFIRMED       => array(self::IN_PROGRESS, self::COMPLETED, self::CANCELLED, self::NO_SHOW, self::PENDING), // âœ… Allow revert to pending
+			self::PENDING         => array(self::CONFIRMED, self::COMPLETED, self::CANCELLED), // ✅ Allow direct completion
+			self::CONFIRMED       => array(self::IN_PROGRESS, self::COMPLETED, self::CANCELLED, self::NO_SHOW, self::PENDING), // ✅ Allow revert to pending
 			self::IN_PROGRESS     => array(self::COMPLETED, self::CANCELLED),
 			self::COMPLETED       => array(self::REFUNDED),
 			self::CANCELLED       => array(self::PENDING_PAYMENT, self::CONFIRMED, self::PENDING), // Re-booking
@@ -131,3 +131,4 @@ final class Status
 		return $colors[$status] ?? '#6c757d';
 	}
 }
+

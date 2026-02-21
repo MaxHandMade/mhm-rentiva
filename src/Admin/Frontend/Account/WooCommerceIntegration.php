@@ -181,7 +181,10 @@ final class WooCommerceIntegration {
 	 * Favorites endpoint content
 	 */
 	public static function render_favorites(): void {
-		echo wp_kses_post( AccountRenderer::render_favorites( array( 'hide_nav' => true ) ) );
+		// Vehicle cards contain inline SVG icons (favorite/compare/rating/features).
+		// wp_kses_post() strips SVG tags and breaks parity with vehicle grid cards.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is rendered from trusted internal templates with escaped dynamic values.
+		echo AccountRenderer::render_favorites( array( 'hide_nav' => true ) );
 	}
 
 	/**
@@ -218,6 +221,13 @@ final class WooCommerceIntegration {
 		}
 
 		if ( ! $active_key || ! in_the_loop() ) {
+			return $title;
+		}
+
+		// Only replace the main queried page title (My Account page),
+		// never titles of nested content (vehicles, bookings, etc.).
+		$queried_id = (int) get_queried_object_id();
+		if ( $id <= 0 || $queried_id <= 0 || $id !== $queried_id ) {
 			return $title;
 		}
 
@@ -368,3 +378,4 @@ final class WooCommerceIntegration {
 		return null;
 	}
 }
+

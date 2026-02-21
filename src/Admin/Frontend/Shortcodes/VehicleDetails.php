@@ -375,3 +375,4 @@ final class VehicleDetails extends AbstractShortcode {
 		);
 	}
 }
+

@@ -98,12 +98,14 @@ if (empty($navigation)) {
 							// Override is_favorite to true since this is the favorites page
 							$vehicle_data['is_favorite'] = true;
 
-							// Render the standardized vehicle card template
-							echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
+							// Render standardized vehicle card as-is.
+							// Do not pass through wp_kses_post() because it strips SVG icons.
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Template output escapes dynamic values internally.
+							echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
 								'vehicle' => $vehicle_data,
 								'layout'  => 'grid',
 								'atts'    => $card_atts,
-							)));
+							), true);
 						endforeach;
 						?>
 					</div>

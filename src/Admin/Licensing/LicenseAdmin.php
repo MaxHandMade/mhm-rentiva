@@ -465,3 +465,5 @@ final class LicenseAdmin
 		Mode::render_comparison_table(true); // compact mode for License page
 	}
 }
+
+

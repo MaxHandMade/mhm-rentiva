@@ -450,3 +450,4 @@ final class VehiclePricingSettings {
 		echo '</table>';
 	}
 }
+

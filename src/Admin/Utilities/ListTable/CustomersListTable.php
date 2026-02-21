@@ -322,3 +322,4 @@ final class CustomersListTable extends AbstractListTable {
 		return $deleted_count;
 	}
 }
+

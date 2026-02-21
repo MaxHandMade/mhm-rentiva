@@ -117,86 +117,15 @@ $unique_id = uniqid('rv_booking_');
 					</div>
 				</div>
 			<?php elseif ($selected_vehicle) : ?>
-				<!-- Specific Vehicle Selected -->
+				<!-- Final UI Contract: Selected Vehicle Summary -->
 				<input type="hidden" name="vehicle_id" value="<?php echo esc_attr($selected_vehicle['id']); ?>">
 				<?php if ($show_vehicle_info) : ?>
-					<div class="rv-form-section rv-selected-vehicle">
-						<!-- Favorite Button - Top right corner -->
-						<button type="button"
-							class="rv-vehicle-card__favorite <?php echo ($selected_vehicle['favorite'] ?? false) ? 'favorited is-favorited' : ''; ?>"
-							data-vehicle-id="<?php echo esc_attr($selected_vehicle['id']); ?>"
-							aria-label="<?php echo ($selected_vehicle['favorite'] ?? false) ? esc_html__('Remove from favorites', 'mhm-rentiva') : esc_html__('Add to favorites', 'mhm-rentiva'); ?>"
-							aria-pressed="<?php echo ($selected_vehicle['favorite'] ?? false) ? 'true' : 'false'; ?>">
-							<svg class="rv-heart-icon <?php echo ($selected_vehicle['favorite'] ?? false) ? 'favorited' : ''; ?>" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-								<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-							</svg>
-						</button>
-						<div class="rv-vehicle-info">
-							<?php if ($selected_vehicle['image_url']) : ?>
-								<div class="rv-vehicle-image-wrapper">
-									<img class="rv-vehicle-image" src="<?php echo esc_url($selected_vehicle['image_url']); ?>"
-										alt="<?php echo esc_attr($selected_vehicle['title']); ?>">
-
-
-								</div>
-							<?php endif; ?>
-							<div class="rv-vehicle-details">
-								<h4 class="rv-vehicle-title"><?php echo esc_html($selected_vehicle['title']); ?></h4>
-								<?php if ($selected_vehicle['excerpt']) : ?>
-									<p class="rv-vehicle-excerpt"><?php echo esc_html($selected_vehicle['excerpt']); ?></p>
-								<?php endif; ?>
-								<!-- All Features and Meta Information -->
-								<div class="rv-vehicle-features">
-									<?php if (! empty($selected_vehicle['features'])) : ?>
-										<?php foreach ($selected_vehicle['features'] as $feature) : ?>
-											<div class="rv-feature-item">
-												<?php echo $feature['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
-												?>
-												<span class="rv-feature-text"><?php echo esc_html($feature['text']); ?></span>
-											</div>
-										<?php endforeach; ?>
-									<?php endif; ?>
-								</div>
-
-								<!-- Rating (Moved Below Features) -->
-								<?php if (isset($selected_vehicle['rating']) && is_array($selected_vehicle['rating']) && $selected_vehicle['rating']['average'] > 0) : ?>
-									<div class="rv-vehicle-rating-block" style="display: flex; align-items: center; gap: 8px; margin-top: 12px; margin-bottom: 5px;">
-										<div class="rv-stars" style="display: flex; align-items: center; gap: 2px;">
-											<?php
-											$rating_avg = (float)$selected_vehicle['rating']['average'];
-											for ($i = 1; $i <= 5; $i++) :
-												$is_filled = $i <= floor($rating_avg);
-												$is_half = ($i == ceil($rating_avg)) && ($rating_avg - floor($rating_avg) >= 0.5);
-
-												// Inline styles to guarantee visibility
-												$fill_color = $is_filled || $is_half ? '#fbbf24' : '#cbd5e1';
-												$stroke_color = $is_filled || $is_half ? '#d97706' : '#cbd5e1';
-											?>
-												<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="<?php echo esc_attr($stroke_color); ?>" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display: block; width: 16px; height: 16px;">
-													<?php if ($is_half) : ?>
-														<defs>
-															<linearGradient id="halfStar-<?php echo esc_attr($selected_vehicle['id']); ?>-<?php echo esc_attr($i); ?>">
-																<stop offset="50%" stop-color="#fbbf24" />
-																<stop offset="50%" stop-color="#cbd5e1" />
-															</linearGradient>
-														</defs>
-														<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="url(#halfStar-<?php echo esc_attr($selected_vehicle['id']); ?>-<?php echo esc_attr($i); ?>)" stroke="none" />
-													<?php else : ?>
-														<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="<?php echo esc_attr($fill_color); ?>" />
-													<?php endif; ?>
-												</svg>
-											<?php endfor; ?>
-										</div>
-										<span class="rv-rating-count" style="color: #64748b; font-size: 0.875rem;">(<?php echo intval($selected_vehicle['rating']['count']); ?>)</span>
-									</div>
-								<?php endif; ?>
-								<p class="rv-vehicle-price">
-									<?php echo esc_html(number_format($selected_vehicle['price_per_day'], 0, ',', '.')); ?>
-									<?php echo esc_html($selected_vehicle['currency_symbol']); ?><?php echo esc_html(esc_html__('/day', 'mhm-rentiva')); ?>
-								</p>
-							</div>
-						</div>
-					</div>
+					<?php
+					echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/selected-vehicle-summary', array(
+						'vehicle' => $selected_vehicle,
+						'atts'    => $atts,
+					), true);
+					?>
 				<?php endif; ?>
 			<?php endif; ?>
 

@@ -12,6 +12,8 @@ namespace MHMRentiva\Admin\Transfer\Frontend;
 
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Transfer\Engine\TransferSearchEngine;
+use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
+use MHMRentiva\Admin\Core\Utilities\Templates;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -23,11 +25,24 @@ if (! defined('ABSPATH')) {
  * Handles transfer search form and AJAX results.
  * Standardized using AbstractShortcode base.
  */
-final class TransferShortcodes extends AbstractShortcode
-{
+final class TransferShortcodes extends AbstractShortcode {
+
+
+
+	/**
+	 * Tracks if shortcode was rendered for conditional asset loading.
+	 *
+	 * @var bool
+	 */
+	private static bool $rendered_transfer_search = false;
+
 
 	/**
 	 * Resolve transfer table name with fallback.
+	 *
+	 * @param string $legacy_suffix Legacy table suffix.
+	 * @param string $current_suffix Current table suffix.
+	 * @return string
 	 */
 	private static function resolve_transfer_table(string $legacy_suffix, string $current_suffix): string
 	{
@@ -46,7 +61,7 @@ final class TransferShortcodes extends AbstractShortcode
 
 
 	/**
-	 * Returns shortcode tag
+	 * Returns shortcode tag.
 	 */
 	protected static function get_shortcode_tag(): string
 	{
@@ -54,7 +69,7 @@ final class TransferShortcodes extends AbstractShortcode
 	}
 
 	/**
-	 * Registers shortcode to WordPress
+	 * Registers shortcode to WordPress.
 	 */
 	public static function register(): void
 	{
@@ -62,7 +77,7 @@ final class TransferShortcodes extends AbstractShortcode
 	}
 
 	/**
-	 * Returns template file path
+	 * Returns template file path.
 	 */
 	protected static function get_template_path(): string
 	{
@@ -70,7 +85,7 @@ final class TransferShortcodes extends AbstractShortcode
 	}
 
 	/**
-	 * Returns default attributes
+	 * Returns default attributes.
 	 */
 	protected static function get_default_attributes(): array
 	{
@@ -83,20 +98,30 @@ final class TransferShortcodes extends AbstractShortcode
 	}
 
 	/**
-	 * Prepares template data
+	 * Renders the shortcode while tracking usage.
+	 *
+	 * @param array       $atts    Shortcode attributes.
+	 * @param string|null $content Shortcode content.
+	 * @return string
+	 */
+	public static function render(array $atts = array(), ?string $content = null): string
+	{
+		// Force flag to true to ensure local assets (Premium CSS + Datepicker) are loaded.
+		// This applies to both Classic Shortcodes and Gutenberg Blocks (via SSR do_shortcode).
+		self::$rendered_transfer_search = true;
+		return parent::render($atts, $content);
+	}
+
+
+	/**
+	 * Prepares template data.
+	 *
+	 * @param array $atts Attributes.
+	 * @return array
 	 */
 	protected static function prepare_template_data(array $atts): array
 	{
-		global $wpdb;
-		$table_locations = self::resolve_transfer_table('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$locations = $wpdb->get_results(
-			$wpdb->prepare(
-				'SELECT id, name, type FROM %i WHERE is_active = %d ORDER BY priority ASC, name ASC',
-				$table_locations,
-				1
-			)
-		);
+		$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('transfer');
 
 		return array(
 			'locations' => $locations,
@@ -105,27 +130,27 @@ final class TransferShortcodes extends AbstractShortcode
 	}
 
 	/**
-	 * Register hooks and AJAX
+	 * Register hooks and AJAX.
 	 */
 	protected static function register_hooks(): void
 	{
-		add_action('wp_ajax_rentiva_transfer_search', array(self::class, 'handle_search_ajax'));
-		add_action('wp_ajax_nopriv_rentiva_transfer_search', array(self::class, 'handle_search_ajax'));
+		add_action('wp_ajax_rentiva_transfer_search', array( self::class, 'handle_search_ajax' ));
+		add_action('wp_ajax_nopriv_rentiva_transfer_search', array( self::class, 'handle_search_ajax' ));
 	}
 
 	/**
-	 * Loads CSS and JS files
+	 * Loads CSS and JS files.
 	 */
-	protected static function enqueue_assets(array $atts = []): void
+	protected static function enqueue_assets(array $atts = array()): void
 	{
-		// Register CSS
+		// Register Styles.
 		$results_css_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/css/frontend/transfer-results.css';
 		if (file_exists($results_css_path)) {
 			wp_enqueue_style(
 				'mhm-rentiva-transfer-results-css',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/transfer-results.css',
 				array(),
-				MHM_RENTIVA_VERSION . '.' . time() // Force cache bust
+				MHM_RENTIVA_VERSION . '.' . time() // Force cache bust.
 			);
 		}
 
@@ -139,13 +164,26 @@ final class TransferShortcodes extends AbstractShortcode
 			);
 		}
 
-		// Register JS
+		// Enqueue Premium CSS only if shortcode is actually rendered (Governance Check).
+		if (self::$rendered_transfer_search) {
+			wp_enqueue_style(
+				'mhm-rentiva-search-premium',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/search-premium.css',
+				array(),
+				MHM_RENTIVA_VERSION
+			);
+
+			// Ensure datepicker assets are loaded via centralized helper.
+			DatepickerAssets::enqueue();
+		}
+
+		// Register JS.
 		$js_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/js/rentiva-transfer.js';
 		if (file_exists($js_path)) {
 			wp_enqueue_script(
 				'rentiva-transfer',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/rentiva-transfer.js',
-				array('jquery'),
+				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
 				true
 			);
@@ -155,10 +193,8 @@ final class TransferShortcodes extends AbstractShortcode
 			$table_routes = self::resolve_transfer_table('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes');
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 			$routes = $wpdb->get_results(
-				$wpdb->prepare(
-					'SELECT origin_id, destination_id FROM %i',
-					$table_routes
-				)
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_transfer_table().
+				"SELECT origin_id, destination_id FROM {$table_routes}"
 			);
 
 			// Localize Data
@@ -208,7 +244,7 @@ final class TransferShortcodes extends AbstractShortcode
 		$results = TransferSearchEngine::search($criteria);
 
 		if (empty($results)) {
-			wp_send_json_error(array('message' => __('No vehicles found matching your criteria.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('No vehicles found matching your criteria.', 'mhm-rentiva') ));
 		}
 
 		// Initialize names
@@ -219,65 +255,46 @@ final class TransferShortcodes extends AbstractShortcode
 		$table_locations = self::resolve_transfer_table('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
 
 		if (! empty($criteria['origin_id'])) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$origin_name = $wpdb->get_var($wpdb->prepare('SELECT name FROM %i WHERE id = %d', $table_locations, $criteria['origin_id']));
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_transfer_table().
+			$origin_name = $wpdb->get_var($wpdb->prepare("SELECT name FROM $table_locations WHERE id = %d", $criteria['origin_id']));
 		}
 		if (! empty($criteria['destination_id'])) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$destination_name = $wpdb->get_var($wpdb->prepare('SELECT name FROM %i WHERE id = %d', $table_locations, $criteria['destination_id']));
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_transfer_table().
+			$destination_name = $wpdb->get_var($wpdb->prepare("SELECT name FROM $table_locations WHERE id = %d", $criteria['destination_id']));
 		}
 
 		ob_start();
-		echo '<div class="mhm-transfer-results-grid">';
+		echo '<div class="mhm-transfer-results-page mhm-transfer-results rv-transfer-results rv-unified-search-results rv-transfer-results--grid" data-columns="1" style="--columns: 1;">';
+		echo '<div class="mhm-transfer-results__grid">';
+
+		$atts = array(
+			'show_title'           => true,
+			'show_price'           => true,
+			'show_booking_button'  => true,
+			'show_vehicle_details' => true,
+			'show_luggage_info'    => true,
+			'show_passenger_count' => true,
+			'show_route_info'      => true,
+			'show_favorite_button' => true,
+			'show_compare_button'  => true,
+		);
+
 		foreach ($results as $vehicle) {
-			// Prepare Transfer Meta per Vehicle
-			$vehicle_meta                     = $criteria;
-			$vehicle_meta['price']            = $vehicle['price'];
-			$vehicle_meta['duration']         = $vehicle['duration'];
-			$vehicle_meta['distance']         = $vehicle['distance'];
-			$vehicle_meta['origin_name']      = $origin_name;
-			$vehicle_meta['destination_name'] = $destination_name;
-			$transfer_meta_json               = wp_json_encode($vehicle_meta);
-?>
-			<div class="mhm-transfer-card">
-				<div class="mhm-transfer-card-image">
-					<img src="<?php echo esc_url($vehicle['image']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>">
-				</div>
-				<div class="mhm-transfer-card-content">
-					<h3><?php echo esc_html($vehicle['title']); ?></h3>
-					<div class="mhm-transfer-features">
-						<span>
-							<svg class="rv-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-								<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-								<circle cx="9" cy="7" r="4"></circle>
-								<path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-								<path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-							</svg>
-							<?php echo esc_html((string) $vehicle['max_pax']); ?> <?php esc_html_e('Person', 'mhm-rentiva'); ?>
-						</span>
-						<span>
-							<svg class="rv-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-								<circle cx="12" cy="12" r="10"></circle>
-								<polyline points="12 6 12 12 16 14"></polyline>
-							</svg>
-							<?php echo esc_html((string) $vehicle['duration']); ?> <?php esc_html_e('min', 'mhm-rentiva'); ?>
-						</span>
-					</div>
-					<div class="mhm-transfer-price">
-						<strong><?php echo wp_kses_post(wc_price($vehicle['price'])); ?></strong>
-					</div>
-					<button class="mhm-transfer-book-btn"
-						data-vehicle-id="<?php echo esc_attr((string) $vehicle['id']); ?>"
-						data-transfer-meta="<?php echo esc_attr($transfer_meta_json); ?>">
-						<?php esc_html_e('Book Now', 'mhm-rentiva'); ?>
-					</button>
-				</div>
-			</div>
-<?php
+			$transfer_card_html = Templates::render(
+				'partials/transfer-card',
+				array(
+					'item'     => $vehicle,
+					'criteria' => $criteria,
+					'atts'     => $atts,
+				),
+				true
+			);
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Template output is escaped internally at field level.
+			echo $transfer_card_html;
 		}
-		echo '</div>';
+		echo '</div></div>';
 		$html = ob_get_clean();
 
-		wp_send_json_success(array('html' => $html));
+		wp_send_json_success(array( 'html' => $html ));
 	}
 }

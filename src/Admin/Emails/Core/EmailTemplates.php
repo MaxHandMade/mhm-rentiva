@@ -790,3 +790,4 @@ final class EmailTemplates {
 		return '' === $value ? $default : (int) $value;
 	}
 }
+

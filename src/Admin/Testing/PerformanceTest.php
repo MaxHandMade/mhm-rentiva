@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * âœ… 4. STAGE - Performance Test Suite
+ * ✅ 4. STAGE - Performance Test Suite
  */
 final class PerformanceTest {
 
@@ -66,7 +66,7 @@ final class PerformanceTest {
 		if ( $pass ) {
 			$message = sprintf(
 				/* translators: 1: query duration in ms; 2: vehicle count; 3: performance label. */
-				esc_html__( 'âœ… Query completed in %1$.2f ms. Found %2$d vehicles. Performance: %3$s', 'mhm-rentiva' ),
+				esc_html__( '✅ Query completed in %1$.2f ms. Found %2$d vehicles. Performance: %3$s', 'mhm-rentiva' ),
 				$query_time,
 				$vehicles_count,
 				esc_html( $efficiency )
@@ -74,7 +74,7 @@ final class PerformanceTest {
 		} else {
 			$message = sprintf(
 				/* translators: 1: query duration in ms; 2: vehicle count; 3: performance label. */
-				esc_html__( 'âš ï¸ Query took %1$.2f ms (exceeds 100ms limit). Found %2$d vehicles. Performance: %3$s', 'mhm-rentiva' ),
+				esc_html__( '⚠️ Query took %1$.2f ms (exceeds 100ms limit). Found %2$d vehicles. Performance: %3$s', 'mhm-rentiva' ),
 				$query_time,
 				$vehicles_count,
 				esc_html( $efficiency )
@@ -233,7 +233,7 @@ final class PerformanceTest {
 		if ( $pass ) {
 			$message = sprintf(
 				/* translators: 1: %1$d; 2: %2$d; 3: %3$d. */
-				esc_html__( 'âœ… Frontend assets: %1$d KB (CSS: %2$d KB, JS: %3$d KB) - Optimal', 'mhm-rentiva' ),
+				esc_html__( '✅ Frontend assets: %1$d KB (CSS: %2$d KB, JS: %3$d KB) - Optimal', 'mhm-rentiva' ),
 				$frontend_total_kb,
 				round( $frontend_css_size / 1024, 2 ),
 				round( $frontend_js_size / 1024, 2 )
@@ -241,7 +241,7 @@ final class PerformanceTest {
 		} else {
 			$message = sprintf(
 				/* translators: 1: %1$d; 2: %2$d; 3: %4$d. */
-				esc_html__( 'âš ï¸ Frontend assets: %1$d KB exceeds recommended limit (%2$d KB). Consider optimization (CSS: %3$d KB, JS: %4$d KB)', 'mhm-rentiva' ),
+				esc_html__( '⚠️ Frontend assets: %1$d KB exceeds recommended limit (%2$d KB). Consider optimization (CSS: %3$d KB, JS: %4$d KB)', 'mhm-rentiva' ),
 				$frontend_total_kb,
 				$recommended_limit_kb,
 				round( $frontend_css_size / 1024, 2 ),
@@ -296,8 +296,8 @@ final class PerformanceTest {
 			'test'               => __( 'Database Indexes', 'mhm-rentiva' ),
 			'status'             => $pass ? 'pass' : 'warning',
 			'message'            => $pass ?
-				esc_html__( 'âœ… Required indexes are present', 'mhm-rentiva' ) :
-				esc_html__( 'âš ï¸ Some indexes may be missing', 'mhm-rentiva' ),
+				esc_html__( '✅ Required indexes are present', 'mhm-rentiva' ) :
+				esc_html__( '⚠️ Some indexes may be missing', 'mhm-rentiva' ),
 			'has_meta_key_index' => $has_meta_key_index,
 			'has_post_id_index'  => $has_post_id_index,
 			'total_indexes'      => count( $index_names ),
@@ -395,3 +395,6 @@ final class PerformanceTest {
 		);
 	}
 }
+
+
+

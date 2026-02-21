@@ -35,8 +35,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="mhm-detail-content">
 						<label class="mhm-detail-label"><?php esc_html_e( 'Availability Status', 'mhm-rentiva' ); ?></label>
 						<select id="_mhm_vehicle_status" name="_mhm_vehicle_status" class="mhm-availability-dropdown">
-							<option value="active" <?php selected( $available, 'active' ); ?> data-icon="âœ…"><?php esc_html_e( 'Active', 'mhm-rentiva' ); ?></option>
-							<option value="maintenance" <?php selected( $available, 'maintenance' ); ?> data-icon="ğŸ”§"><?php esc_html_e( 'Maintenance', 'mhm-rentiva' ); ?></option>
+							<option value="active" <?php selected( $available, 'active' ); ?> data-icon="✅"><?php esc_html_e( 'Active', 'mhm-rentiva' ); ?></option>
+							<option value="maintenance" <?php selected( $available, 'maintenance' ); ?> data-icon="🔧"><?php esc_html_e( 'Maintenance', 'mhm-rentiva' ); ?></option>
 						</select>
 					</div>
 				</div>
@@ -85,23 +85,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html( \MHMRentiva\Admin\Reports\Reports::get_currency_symbol() ) . '</span>';
 						} elseif ( $key === 'seats' ) {
-							// â­ Get max seats from settings (default: 100)
+							// ⭐ Get max seats from settings (default: 100)
 							$max_seats = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_vehicle_max_seats', 100 );
 							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ?: '5' ) . '" min="1" max="' . esc_attr( $max_seats ) . '" placeholder="5" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html__( 'Person', 'mhm-rentiva' ) . '</span>';
 						} elseif ( $key === 'doors' ) {
-							// â­ Get max doors from settings (default: 20)
+							// ⭐ Get max doors from settings (default: 20)
 							$max_doors = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_vehicle_max_doors', 20 );
 							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ?: '4' ) . '" min="2" max="' . esc_attr( $max_doors ) . '" placeholder="4" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html__( 'Pieces', 'mhm-rentiva' ) . '</span>';
 						} elseif ( $key === 'engine_size' ) {
-							// â­ Get engine size limits from settings (default: 0.0-20.0L)
+							// ⭐ Get engine size limits from settings (default: 0.0-20.0L)
 							$min_engine = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_vehicle_min_engine_size', 0.0 );
 							$max_engine = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_vehicle_max_engine_size', 20.0 );
 							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="' . esc_attr( $min_engine ) . '" max="' . esc_attr( $max_engine ) . '" step="0.1" placeholder="1.6" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html__( 'L', 'mhm-rentiva' ) . '</span>';
 						} elseif ( $key === 'transmission' ) {
-							// â­ Get transmission types dynamically
+							// ⭐ Get transmission types dynamically
 							$transmission_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
 							echo '<select id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
 							foreach ( $transmission_types as $type_key => $type_label ) {
@@ -109,7 +109,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							}
 							echo '</select>';
 						} elseif ( $key === 'fuel_type' ) {
-							// â­ Get fuel types dynamically
+							// ⭐ Get fuel types dynamically
 							$fuel_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
 							echo '<select id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
 							foreach ( $fuel_types as $fuel_key => $fuel_label ) {
@@ -352,3 +352,5 @@ if ( ! defined( 'ABSPATH' ) ) {
 	window.availableVehicleFeatures = <?php echo wp_json_encode( $available_features ); ?>;
 	window.availableVehicleEquipment = <?php echo wp_json_encode( $available_equipment ); ?>;
 </script>
+
+

@@ -354,3 +354,4 @@ final class SecurityTest
 		return $count;
 	}
 }
+

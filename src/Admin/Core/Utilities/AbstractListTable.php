@@ -499,3 +499,4 @@ abstract class AbstractListTable extends \WP_List_Table {
 		return self::sanitize_text_field_safe( (string) $raw_value );
 	}
 }
+

@@ -119,3 +119,4 @@ final class Charts
 		self::render_chart('bookings', $start_date, $end_date);
 	}
 }
+

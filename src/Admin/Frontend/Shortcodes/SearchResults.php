@@ -13,17 +13,13 @@ use MHMRentiva\Admin\Vehicle\PostType\Vehicle as PT_Vehicle;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
 use Exception;
 
+use MHMRentiva\Admin\Core\QueryHelper;
+
 if (! defined('ABSPATH')) {
 	exit;
 }
 
 /**
- * Search Results Shortcode
- *
- * [rentiva_search_results] - Vehicle search results page
- * [rentiva_search_results layout="grid"] - Grid view
- * [rentiva_search_results layout="list"] - List view
- * [rentiva_search_results show_filters="1"] - Show sidebar filters
  *
  * Features:
  * - Sidebar filter system
@@ -34,6 +30,10 @@ if (! defined('ABSPATH')) {
  */
 final class SearchResults extends AbstractShortcode
 {
+	/**
+	 * Context key for the availability injector filter.
+	 */
+	private const SEARCH_CONTEXT_KEY = 'mhm_search_context';
 
 
 	public const SHORTCODE = 'rentiva_search_results';
@@ -156,7 +156,7 @@ final class SearchResults extends AbstractShortcode
 		$filter_options = self::get_filter_options($search_params);
 
 		// Compact Handling: If layout is 'compact', force internal layout to 'grid' but flags 'is_compact'
-		$is_compact = ($atts['layout'] ?? '') === 'compact';
+		$is_compact = $atts['layout'] === 'compact';
 		if ($is_compact) {
 			$atts['layout'] = 'grid'; // Force grid structure for vehicle cards
 		}
@@ -174,14 +174,6 @@ final class SearchResults extends AbstractShortcode
 		);
 	}
 
-	public static function render(array $atts = array(), ?string $content = null): string
-	{
-		// Ensure assets are enqueued even when parent render returns from shortcode HTML cache.
-		$normalized_atts = shortcode_atts(static::get_default_attributes(), $atts, static::get_shortcode_tag());
-		static::enqueue_assets_once($normalized_atts);
-
-		return parent::render($normalized_atts, $content);
-	}
 
 	/**
 	 * Force-enqueue runtime assets for block rendering path.
@@ -483,12 +475,66 @@ final class SearchResults extends AbstractShortcode
 			$args['meta_query']['relation'] = 'AND';
 		}
 
-		// Execute query
-		$query = new \WP_Query($args);
+		// Optimization: Inject Availability Filter
+		$args[self::SEARCH_CONTEXT_KEY] = true;
+		$availability_filter = function ($where, \WP_Query $query) use ($params) {
+			if ($query->get(self::SEARCH_CONTEXT_KEY) !== true) {
+				return $where;
+			}
+
+			// Generate subquery using central helper
+			$subquery = QueryHelper::get_availability_subquery(
+				$params['pickup_date'],
+				$params['return_date']
+			);
+
+			return $where . $subquery;
+		};
+
+		add_filter('posts_where', $availability_filter, 10, 2);
+
+		try {
+			// Execute query
+			$query = new \WP_Query($args);
+		} finally {
+			// Mandatory Scope Isolation
+			remove_filter('posts_where', $availability_filter, 10);
+		}
+
+		// Deep Batch Priming: Optimization for N+1 Attachments and Pages
+		if (! empty($query->posts)) {
+			$vehicle_ids    = wp_list_pluck($query->posts, 'ID');
+			$attachment_ids = array();
+
+			// 1. Prime vehicles and their meta
+			_prime_post_caches($vehicle_ids, true, true);
+
+			// 2. Collect attachment IDs (thumbnails)
+			foreach ($vehicle_ids as $vid) {
+				$tid = get_post_thumbnail_id($vid);
+				if ($tid) {
+					$attachment_ids[] = (int) $tid;
+				}
+			}
+
+			// 3. Collect Booking Page ID for URL cache priming
+			$booking_page_id = ShortcodeUrlManager::get_page_id('rentiva_booking_form');
+			if ($booking_page_id) {
+				$attachment_ids[] = (int) $booking_page_id;
+			}
+
+			// 4. Batch prime all collected dependencies
+			if (! empty($attachment_ids)) {
+				_prime_post_caches(array_unique($attachment_ids), true, true);
+			}
+		}
 
 		// Format results
 		$vehicles = array();
 		if ($query->have_posts()) {
+			// Prime static caches for this batch
+			VehicleFeatureHelper::prime_static_feature_map();
+
 			while ($query->have_posts()) {
 				$query->the_post();
 				$vehicles[] = self::format_vehicle_data(get_the_ID(), $atts);
@@ -871,3 +917,4 @@ final class SearchResults extends AbstractShortcode
 		return (string) paginate_links($pagination_args);
 	}
 }
+

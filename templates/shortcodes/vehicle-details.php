@@ -23,13 +23,30 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+$flag = static function ($value, bool $default = true): bool {
+	if ($value === null || $value === '') {
+		return $default;
+	}
+	return in_array(strtolower((string) $value), array('1', 'true', 'yes', 'on'), true);
+};
+
+$show_gallery_section = $flag($atts['show_gallery'] ?? '1', true);
+$show_features        = $flag($atts['show_features'] ?? '1', true);
+$show_pricing         = $flag($atts['show_pricing'] ?? '1', true);
+$show_price           = $flag($atts['show_price'] ?? '1', true);
+$show_booking         = $flag($atts['show_booking'] ?? '1', true);
+$show_booking_button  = $flag($atts['show_booking_button'] ?? '1', true);
+$show_booking_form    = $flag($atts['show_booking_form'] ?? '1', true);
+$show_calendar        = $flag($atts['show_calendar'] ?? '1', true);
+
 ?>
 
 <div class="rv-vehicle-details-wrapper">
 	<div class="rv-vehicle-details">
 
 		<!-- PART 1: Gallery Section (Images Only) -->
-		<div class="rv-vehicle-gallery-section">
+		<?php if ($show_gallery_section) : ?>
+			<div class="rv-vehicle-gallery-section">
 
 			<!-- Gallery Container -->
 			<div class="rv-gallery-container <?php echo empty($gallery) ? 'no-thumbnails' : ''; ?>">
@@ -84,7 +101,7 @@ if (! defined('ABSPATH')) {
 			<?php endif; ?>
 
 			<!-- Quick Vehicle Features (Chips) - Stays with Gallery -->
-			<?php if (! empty($card_features)) : ?>
+			<?php if ($show_features && ! empty($card_features)) : ?>
 				<div class="rv-vehicle-meta-chips">
 					<?php foreach ($card_features as $feature) : ?>
 						<div class="rv-feature-item">
@@ -96,7 +113,8 @@ if (! defined('ABSPATH')) {
 				</div>
 			<?php endif; ?>
 
-		</div>
+			</div>
+		<?php endif; ?>
 
 		<!-- PART 2: Content Section (Description & Reviews) - Separate for mobile reordering -->
 		<div class="rv-vehicle-content-section">
@@ -112,9 +130,11 @@ if (! defined('ABSPATH')) {
 			<?php endif; ?>
 
 			<!-- Ratings & Reviews -->
-			<div class="rv-integrated-reviews-section">
-				<?php echo do_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . $vehicle_id . '"]'); ?>
-			</div>
+			<?php if ($show_booking_form) : ?>
+				<div class="rv-integrated-reviews-section">
+					<?php echo do_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . $vehicle_id . '"]'); ?>
+				</div>
+			<?php endif; ?>
 
 		</div>
 
@@ -126,7 +146,7 @@ if (! defined('ABSPATH')) {
 				<div class="rv-header-main">
 					<h1 class="rv-vehicle-title"><?php echo esc_html($title ?? ''); ?></h1>
 
-					<?php if (($price_per_day ?? 0)) : ?>
+					<?php if ($show_pricing && $show_price && ($price_per_day ?? 0)) : ?>
 						<div class="rv-price-tag">
 							<div class="rv-price-val">
 								<span class="rv-symbol"><?php echo esc_html($currency_symbol ?? '$'); ?></span>
@@ -156,26 +176,28 @@ if (! defined('ABSPATH')) {
 				</div>
 
 				<!-- Book Now CTA -->
-				<div class="rv-cta-container">
-					<?php
-					$btn_text = $atts['booking_btn_text'] ?? __('Book Now', 'mhm-rentiva');
-					if (isset($is_available) && ! $is_available) : ?>
-						<button class="rv-btn-primary disabled" disabled>
-							<span><?php echo esc_html($btn_text); ?></span>
-						</button>
-					<?php else : ?>
-						<a href="<?php echo esc_url($booking_url ?? ''); ?>" class="rv-btn-primary">
-							<span><?php echo esc_html($btn_text); ?></span>
-							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-								<line x1="5" y1="12" x2="19" y2="12"></line>
-								<polyline points="12 5 19 12 12 19"></polyline>
-							</svg>
-						</a>
-					<?php endif; ?>
-				</div>
+				<?php if ($show_booking && $show_booking_button) : ?>
+					<div class="rv-cta-container">
+						<?php
+						$btn_text = $atts['booking_btn_text'] ?? __('Book Now', 'mhm-rentiva');
+						if (isset($is_available) && ! $is_available) : ?>
+							<button class="rv-btn-primary disabled" disabled>
+								<span><?php echo esc_html($btn_text); ?></span>
+							</button>
+						<?php else : ?>
+							<a href="<?php echo esc_url($booking_url ?? ''); ?>" class="rv-btn-primary">
+								<span><?php echo esc_html($btn_text); ?></span>
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+									<line x1="5" y1="12" x2="19" y2="12"></line>
+									<polyline points="12 5 19 12 12 19"></polyline>
+								</svg>
+							</a>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
 
 				<!-- Availability Calendar -->
-				<?php if ((intval($vehicle_id ?? 0)) > 0) : ?>
+				<?php if ($show_calendar && (intval($vehicle_id ?? 0)) > 0) : ?>
 					<div class="rv-mini-calendar-widget" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>">
 						<div class="rv-cal-header">
 							<h4 class="rv-cal-title"><?php esc_html_e('Availability', 'mhm-rentiva'); ?></h4>

@@ -276,3 +276,4 @@ final class AddCustomerPage {
 		wp_send_json_success( array( 'message' => __( 'Customer added successfully.', 'mhm-rentiva' ) ) );
 	}
 }
+

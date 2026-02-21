@@ -210,7 +210,7 @@ final class BookingColumns {
 					}
 					echo '</div>';
 				} else {
-					echo 'â€”';
+					echo '—';
 				}
 				break;
 
@@ -222,10 +222,10 @@ final class BookingColumns {
 					if ( $license_plate ) {
 						echo '<span class="license-plate">' . esc_html( $license_plate ) . '</span>';
 					} else {
-						echo 'â€”';
+						echo '—';
 					}
 				} else {
-					echo 'â€”';
+					echo '—';
 				}
 				break;
 
@@ -256,14 +256,14 @@ final class BookingColumns {
 					echo '<div class="date-range">' . esc_html( $pickup_datetime . ' - ' . $dropoff_datetime ) . '</div>';
 					echo '</div>';
 				} else {
-					echo 'â€”';
+					echo '—';
 				}
 				break;
 
 			case 'mhm_booking_days':
 				// Check both old and new meta keys
 				$days = (int) ( get_post_meta( $post_id, '_booking_rental_days', true ) ?: get_post_meta( $post_id, '_mhm_rental_days', true ) );
-				echo $days > 0 ? esc_html( (string) $days ) : 'â€”';
+				echo $days > 0 ? esc_html( (string) $days ) : '—';
 				break;
 
 			case 'mhm_booking_total':
@@ -272,7 +272,7 @@ final class BookingColumns {
 				if ( $total > 0 ) {
 					echo '<span class="total-amount">' . esc_html( self::format_price( $total ) ) . '</span>';
 				} else {
-					echo 'â€”';
+					echo '—';
 				}
 				break;
 
@@ -287,11 +287,11 @@ final class BookingColumns {
 					if ( $deposit_amount && $deposit_amount > 0 ) {
 						echo '<span class="deposit-amount">' . esc_html( self::format_price( floatval( $deposit_amount ) ) ) . '</span>';
 					} else {
-						echo 'â€”';
+						echo '—';
 					}
 				} else {
 					// Full payment made
-					echo 'â€”';
+					echo '—';
 				}
 				break;
 
@@ -528,7 +528,7 @@ final class BookingColumns {
 		if ( '' !== $payment_gateway_filter ) {
 			$val = $payment_gateway_filter;
 			if ( $val === 'woocommerce' ) {
-				// â­ WooCommerce only - All payments go through WooCommerce
+				// ⭐ WooCommerce only - All payments go through WooCommerce
 				$meta[] = array(
 					array(
 						'key'     => '_mhm_payment_gateway',
@@ -571,7 +571,7 @@ final class BookingColumns {
 	}
 
 	private static function format_price( float $price ): string {
-		// âœ… Same format as Dashboard/Vehicle
+		// ✅ Same format as Dashboard/Vehicle
 		$amount = number_format( $price, 2, '.', ',' );
 		return $amount . ' ' . self::get_currency_symbol();
 	}
@@ -597,7 +597,7 @@ final class BookingColumns {
 		}
 
 		// Get date format from settings
-		// âœ… Use SettingsCore::get() instead of removed BookingSettings method
+		// ✅ Use SettingsCore::get() instead of removed BookingSettings method
 		$date_format = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_date_format', 'Y-m-d' );
 
 		// If already in desired format, return as is
@@ -1326,16 +1326,16 @@ final class BookingColumns {
 						// Single booking - show in grid format
 						var booking = bookings[0];
 						html = '<div class="booking-info-grid">';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Customer Name:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_name || 'â€”') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Email:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_email || 'â€”') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Phone:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_phone || 'â€”') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Vehicle:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_title || 'â€”') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Plate:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_plate || 'â€”') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Start Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.start_date || 'â€”') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'End Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.end_date || 'â€”') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Total Price:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.total_price || 'â€”') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Status:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.status_label || booking.status || 'â€”') + '</span></div>';
-						html += '<div class="info-item"><label><?php echo esc_js( __( 'Created:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.created_date || 'â€”') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Customer Name:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_name || '—') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Email:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_email || '—') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Phone:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_phone || '—') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Vehicle:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_title || '—') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Plate:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_plate || '—') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Start Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.start_date || '—') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'End Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.end_date || '—') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Total Price:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.total_price || '—') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Status:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.status_label || booking.status || '—') + '</span></div>';
+						html += '<div class="info-item"><label><?php echo esc_js( __( 'Created:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.created_date || '—') + '</span></div>';
 						html += '</div>';
 						html += '<div class="mhm-popup-footer mhm-popup-footer-inline">';
 						html += '<button class="button button-primary popup-edit-booking-btn" data-booking-id="' + (booking.booking_id || '') + '" type="button"><?php echo esc_js( __( 'Edit Booking', 'mhm-rentiva' ) ); ?></button>';
@@ -1346,16 +1346,16 @@ final class BookingColumns {
 						bookings.forEach(function(booking, index) {
 							html += '<div class="booking-item' + (index > 0 ? ' booking-item-separator' : '') + '">';
 							html += '<div class="booking-info-grid">';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Customer Name:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_name || 'â€”') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Email:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_email || 'â€”') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Phone:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_phone || 'â€”') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Vehicle:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_title || 'â€”') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Plate:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_plate || 'â€”') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Start Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.start_date || 'â€”') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'End Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.end_date || 'â€”') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Total Price:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.total_price || 'â€”') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Status:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.status_label || booking.status || 'â€”') + '</span></div>';
-							html += '<div class="info-item"><label><?php echo esc_js( __( 'Created:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.created_date || 'â€”') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Customer Name:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_name || '—') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Email:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_email || '—') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Phone:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.customer_phone || '—') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Vehicle:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_title || '—') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Plate:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.vehicle_plate || '—') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Start Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.start_date || '—') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'End Date:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.end_date || '—') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Total Price:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.total_price || '—') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Status:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.status_label || booking.status || '—') + '</span></div>';
+							html += '<div class="info-item"><label><?php echo esc_js( __( 'Created:', 'mhm-rentiva' ) ); ?></label><span>' + (booking.created_date || '—') + '</span></div>';
 							html += '</div>';
 							html += '<div class="booking-item-footer">';
 							html += '<button class="button button-primary popup-edit-booking-btn" data-booking-id="' + (booking.booking_id || '') + '" type="button"><?php echo esc_js( __( 'Edit Booking', 'mhm-rentiva' ) ); ?></button>';
@@ -1552,7 +1552,7 @@ final class BookingColumns {
 			// Get translated status label
 			$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label( $status );
 
-			// â­ Get customer info using BookingQueryHelper (handles WooCommerce & WordPress integration)
+			// ⭐ Get customer info using BookingQueryHelper (handles WooCommerce & WordPress integration)
 			$customer_info = array();
 			if ( class_exists( '\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper' ) ) {
 				$customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo( (int) $booking->booking_id );
@@ -1674,13 +1674,13 @@ final class BookingColumns {
 	private static function get_status_icon( string $status ): string {
 		switch ( $status ) {
 			case 'confirmed':
-				return 'âœ…';
+				return '✅';
 			case 'pending':
-				return 'â³';
+				return '⏳';
 			case 'cancelled':
-				return 'âŒ';
+				return '❌';
 			default:
-				return 'ğŸ“…';
+				return '📅';
 		}
 	}
 
@@ -1994,3 +1994,6 @@ final class BookingColumns {
 		return ! empty( $new_title ) ? $new_title : $title;
 	}
 }
+
+
+

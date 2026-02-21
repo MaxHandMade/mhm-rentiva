@@ -6,7 +6,6 @@ namespace MHMRentiva\Admin\Frontend\Widgets\Elementor;
 
 use Elementor\Controls_Manager;
 use MHMRentiva\Admin\Frontend\Widgets\Base\ElementorWidgetBase;
-use MHMRentiva\Admin\Frontend\Shortcodes\FeaturedVehicles;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -84,15 +83,14 @@ class FeaturedVehiclesWidget extends ElementorWidgetBase {
 			__( 'Vehicle Title', 'mhm-rentiva' ),
 			'.rv-vehicle-card__title a'
 		);
+
+		$this->register_parity_controls_from_block();
 	}
 
 	protected function render(): void {
-		$atts = $this->get_prepared_atts();
-		$data = FeaturedVehicles::get_data( $atts );
-		if ( ! empty( $data ) ) {
-			$template_path = MHM_RENTIVA_PLUGIN_DIR . 'templates/shortcodes/featured-vehicles.php';
-			self::include_template_with_vars( $template_path, $data );
-		}
+		$atts = $this->prepare_shortcode_attributes( $this->get_settings_for_display() );
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Shortcode output contains HTML.
+		echo $this->render_shortcode( 'rentiva_featured_vehicles', $atts );
 	}
 
 	private static function include_template_with_vars( string $template_path, array $template_data ): void {

@@ -76,14 +76,20 @@ final class AvailabilityCalendar extends AbstractShortcode
 	protected static function get_default_attributes(): array
 	{
 		return array(
-			'vehicle_id'      => '',
-			'show_pricing'    => apply_filters('mhm_rentiva/availability_calendar/show_pricing', '1'),
-			'theme'           => apply_filters('mhm_rentiva/availability_calendar/theme', 'default'),
-			'start_date'      => '',
-			'months_ahead'    => apply_filters('mhm_rentiva/availability_calendar/months_ahead', '3'),
-			'show_weekends'   => apply_filters('mhm_rentiva/availability_calendar/show_weekends', '1'),
-			'show_past_dates' => apply_filters('mhm_rentiva/availability_calendar/show_past_dates', '0'),
-			'class'           => '',
+			'vehicle_id'           => '',
+			'show_pricing'         => apply_filters('mhm_rentiva/availability_calendar/show_pricing', '1'),
+			'show_seasonal_prices' => apply_filters('mhm_rentiva/availability_calendar/show_seasonal_prices', '1'),
+			'show_discounts'       => apply_filters('mhm_rentiva/availability_calendar/show_discounts', '1'),
+			'show_booking_btn'     => apply_filters('mhm_rentiva/availability_calendar/show_booking_btn', '1'),
+			'theme'                => apply_filters('mhm_rentiva/availability_calendar/theme', 'default'),
+			'start_date'           => '',
+			'months_ahead'         => apply_filters('mhm_rentiva/availability_calendar/months_ahead', '3'),
+			'months_to_show'       => apply_filters('mhm_rentiva/availability_calendar/months_to_show', '1'),
+			'start_month'          => '',
+			'show_weekends'        => apply_filters('mhm_rentiva/availability_calendar/show_weekends', '1'),
+			'show_past_dates'      => apply_filters('mhm_rentiva/availability_calendar/show_past_dates', '0'),
+			'integrate_pricing'    => apply_filters('mhm_rentiva/availability_calendar/integrate_pricing', '1'),
+			'class'                => '',
 		);
 	}
 
@@ -325,44 +331,6 @@ final class AvailabilityCalendar extends AbstractShortcode
 
 		return $data;
 	}
-
-	public static function render(array $atts = array(), ?string $content = null): string
-	{
-		$defaults = array(
-			'vehicle_id'           => '',            // Vehicle ID (empty for all vehicles)
-			'show_pricing'         => apply_filters('mhm_rentiva/availability_calendar/show_pricing', '1'),           // Show pricing info
-			'show_seasonal_prices' => apply_filters('mhm_rentiva/availability_calendar/show_seasonal_prices', '1'),           // Show seasonal prices
-			'show_discounts'       => apply_filters('mhm_rentiva/availability_calendar/show_discounts', '1'),           // Show discounts
-			'show_booking_btn'     => apply_filters('mhm_rentiva/availability_calendar/show_booking_btn', '1'),           // Show booking button
-			'theme'                => apply_filters('mhm_rentiva/availability_calendar/theme', 'default'),     // Theme (default, compact, detailed)
-			'months_to_show'       => apply_filters('mhm_rentiva/availability_calendar/months_to_show', '1'),           // How many months to show
-			'start_month'          => '',            // Start month (empty for current month)
-			'class'                => '',            // Custom CSS class
-			'integrate_pricing'    => apply_filters('mhm_rentiva/availability_calendar/integrate_pricing', '1'),           // Integration with pricing shortcode
-		);
-		$atts     = shortcode_atts($defaults, $atts, self::SHORTCODE);
-
-		// Prepare template data
-		$template_data = self::prepare_template_data($atts);
-
-		// Asset loading
-		self::enqueue_assets_once();
-
-		// Render template
-		try {
-			$output = Templates::render('shortcodes/availability-calendar', $template_data, true);
-
-			if (empty($output)) {
-				return '<div class="rv-availability-error">' . __('Template file not found.', 'mhm-rentiva') . '</div>';
-			}
-
-			return $output;
-		} catch (Exception $e) {
-			return '<div class="rv-availability-error">' . __('An error occurred while loading the availability calendar.', 'mhm-rentiva') . '</div>';
-		}
-	}
-
-
 	protected static function prepare_template_data(array $atts): array
 	{
 		// Get vehicle information
@@ -401,9 +369,10 @@ final class AvailabilityCalendar extends AbstractShortcode
 		// Get structured vehicle data (High Fidelity)
 		$selected_vehicle = $vehicle_id > 0 ? self::get_selected_vehicle_data($vehicle_id) : null;
 
-		// Start month
-		$start_month    = ! empty($atts['start_month']) ? $atts['start_month'] : gmdate('Y-m');
-		$months_to_show = intval($atts['months_to_show']);
+		// Start month (Fallback precedence: Attribute > Today)
+		$show_pricing    = $atts['show_pricing'] === '1' || $atts['show_pricing'] === true;
+		$months_to_show  = (int) $atts['months_to_show'];
+		$start_month     = ! empty($atts['start_month']) ? $atts['start_month'] : gmdate('Y-m');
 
 		// Get calendar data (if vehicle exists)
 		$availability_data = array();
@@ -1129,3 +1098,4 @@ final class AvailabilityCalendar extends AbstractShortcode
 		}
 	}
 }
+

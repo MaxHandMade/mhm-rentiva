@@ -529,3 +529,4 @@ final class BookingQueryHelper {
 		);
 	}
 }
+

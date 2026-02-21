@@ -164,3 +164,4 @@ final class SettingsService {
 		return update_option( RESTSettings::OPTION_NAME, $sanitized_settings );
 	}
 }
+

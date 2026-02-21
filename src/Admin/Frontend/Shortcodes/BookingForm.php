@@ -1,7 +1,8 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 declare(strict_types=1);
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 namespace MHMRentiva\Admin\Frontend\Shortcodes;
 
@@ -156,7 +157,7 @@ final class BookingForm extends AbstractShortcode
 	protected static function get_localized_data(): array
 	{
 		return array(
-			'ajax_url'           => admin_url('admin-ajax.php'), // â­ Changed from ajaxUrl to ajax_url for consistency
+			'ajax_url'           => admin_url('admin-ajax.php'), // ⭐ Changed from ajaxUrl to ajax_url for consistency
 			'ajaxUrl'            => admin_url('admin-ajax.php'), // Keep both for backward compatibility
 			'restUrl'            => rest_url('mhm-rentiva/v1/'),
 			'nonce'              => wp_create_nonce('mhm_rentiva_booking_form_nonce'), // Correct nonce
@@ -279,7 +280,7 @@ final class BookingForm extends AbstractShortcode
 			$atts['end_date'] = $end_date_param;
 		}
 
-		// â­ Formatted dates for presentation (WP Global Format)
+		// ⭐ Formatted dates for presentation (WP Global Format)
 		$wp_date_format = get_option('date_format', 'd/m/Y');
 
 		if (! empty($atts['start_date'])) {
@@ -314,7 +315,7 @@ final class BookingForm extends AbstractShortcode
 			}
 		}
 
-		// â­ Moved logic from template to controller
+		// ⭐ Moved logic from template to controller
 		$user_data         = self::prepare_user_data();
 		$validation_result = self::validate_user_access();
 
@@ -334,7 +335,7 @@ final class BookingForm extends AbstractShortcode
 			'default_days'          => (int) $atts['default_days'],
 			'min_days'              => (int) $atts['min_days'],
 			'max_days'              => (int) $atts['max_days'],
-			// â­ User data and validation (moved from template)
+			// ⭐ User data and validation (moved from template)
 			'user_data'             => $user_data,
 			'validation_error'      => $validation_result['error'] ?? null,
 			'customer_settings'     => self::get_customer_settings(),
@@ -348,10 +349,10 @@ final class BookingForm extends AbstractShortcode
 		// If specific vehicle is selected
 		if (! empty($atts['vehicle_id'])) {
 			$vehicle_id = intval($atts['vehicle_id']);
-			$vehicle    = self::get_vehicle_data($vehicle_id);
+			$vehicle    = self::prepare_selected_vehicle($vehicle_id, $atts); // standard provider
 			if ($vehicle) {
 				$data['selected_vehicle'] = $vehicle;
-				// â­ Hide vehicle selector when vehicle is selected
+				// Hide vehicle selector when vehicle is selected
 				$data['show_vehicle_selector'] = false;
 			}
 		}
@@ -413,7 +414,7 @@ final class BookingForm extends AbstractShortcode
 	{
 		$terms_text = SettingsCore::get('mhm_rentiva_customer_terms_text', __('I accept the terms of use and privacy policy.', 'mhm-rentiva'));
 
-		// â­ If the saved text is the default English text, use the translated version
+		// ⭐ If the saved text is the default English text, use the translated version
 		if ($terms_text === 'I accept the terms of use and privacy policy.') {
 			$terms_text = __('I accept the terms of use and privacy policy.', 'mhm-rentiva');
 		}
@@ -427,73 +428,49 @@ final class BookingForm extends AbstractShortcode
 		);
 	}
 
-	private static function get_vehicle_data(int $vehicle_id): ?array
+	/**
+	 * Prepares rich vehicle data for Selected Vehicle Summary.
+	 * 
+	 * @param int   $vehicle_id Vehicle ID.
+	 * @param array $atts       Context attributes.
+	 * @return array|null
+	 */
+	private static function prepare_selected_vehicle(int $vehicle_id, array $atts = array()): ?array
 	{
-		$vehicle = get_post($vehicle_id);
-		if (! $vehicle || $vehicle->post_type !== 'vehicle') {
+		$vehicle_post = get_post($vehicle_id);
+		if (! $vehicle_post || $vehicle_post->post_type !== 'vehicle') {
 			return null;
 		}
 
-		$price_per_day = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
+		// Use standardized VehiclesList data (matches vehicle-card expectation)
+		$atts_placeholder = array_merge($atts, array(
+			'image_size'   => 'medium',
+			'max_features' => 6,
+		));
 
-		$currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
+		$vehicle_data = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_data_for_shortcode($vehicle_id, $atts_placeholder);
 
-		// Vehicle image
-		$image_id  = get_post_thumbnail_id($vehicle_id);
-		$image_url = $image_id ? wp_get_attachment_image_url($image_id, 'medium') : '';
-
-		// Deposit calculation
-		$deposit_amount = 0;
+		// Add booking-specific meta (Deposit etc.)
+		$deposit = 0;
 		if (class_exists('\MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator')) {
-			$deposit_result = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_vehicle_deposit($vehicle_id, 1);
-			if (isset($deposit_result['success']) && $deposit_result['success']) {
-				$deposit_amount = $deposit_result['deposit_amount'] ?? 0;
-			}
+			$calc_result = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_vehicle_deposit($vehicle_id, 1);
+			$deposit     = $calc_result['deposit_amount'] ?? 0;
 		}
 
-		// Rating and Favorite information (from VehiclesList)
-		$rating = VehiclesList::get_vehicle_rating($vehicle_id);
+		$vehicle_data['deposit_amount'] = $deposit;
 
-		// Favorite check (from user meta)
-		$is_favorited = false;
-		if (is_user_logged_in()) {
-			$user_id      = get_current_user_id();
-			$favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
-			if (! is_array($favorites)) {
-				$favorites = array();
-			}
-			$is_favorited = in_array($vehicle_id, $favorites, true);
-		}
+		// Map for vehicle-card-base expectations if nested differently
+		// VehiclesList already returns a robust structure, but we ensure parity.
 
-		// Meta information
-		$year    = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_year($vehicle_id);
-		$mileage = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_mileage($vehicle_id);
-		$seats   = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_seats($vehicle_id);
+		return $vehicle_data;
+	}
 
-		$data = array(
-			'id'              => $vehicle_id,
-			'title'           => $vehicle->post_title,
-			'excerpt'         => $vehicle->post_excerpt,
-			'price_per_day'   => $price_per_day,
-			'currency_symbol' => $currency_symbol,
-			'rating'          => $rating,
-			'favorite'        => $is_favorited,
-			'image_url'       => $image_url,
-			'features'        => (array) VehicleFeatureHelper::collect_items($vehicle_id),
-			'permalink'       => get_permalink($vehicle_id) ? get_permalink($vehicle_id) : '',
-			'deposit_amount'  => $deposit_amount,
-			// Meta information
-			'year'            => $year,
-			'mileage'         => $mileage,
-			'seats'           => $seats,
-		);
-
-		// Add SVGs for features
-		foreach ($data['features'] as &$feature) {
-			$feature['svg'] = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_feature_icon_svg($feature['icon'] ?? '');
-		}
-
-		return $data;
+	/**
+	 * @deprecated Use prepare_selected_vehicle() instead.
+	 */
+	private static function get_vehicle_data(int $vehicle_id): ?array
+	{
+		return self::prepare_selected_vehicle($vehicle_id);
 	}
 
 	private static function get_available_vehicles(): array
@@ -634,7 +611,7 @@ final class BookingForm extends AbstractShortcode
 
 			$guests = max(1, self::post_int('guests', 1));
 
-			// â­ WooCommerce Integration: Customer information is optional
+			// ⭐ WooCommerce Integration: Customer information is optional
 			// WooCommerce checkout will collect customer information
 			// We only use customer info if user is logged in (for cart data)
 			$customer_first_name = '';
@@ -686,22 +663,22 @@ final class BookingForm extends AbstractShortcode
 			}
 			$payment_type = self::post_text('payment_type', 'deposit');
 
-			// â­ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
+			// ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
 			// This ensures we fallback to full payment instead of 0-deposit (free) booking
 			$deposit_check_value = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
 			if (empty($deposit_check_value)) {
 				$payment_type = 'full';
 			}
 
-			// â­ WooCommerce only - payment_method and payment_gateway removed
+			// ⭐ WooCommerce only - payment_method and payment_gateway removed
 			$payment_method  = 'woocommerce';
 			$payment_gateway = 'woocommerce';
 
-			// â­ Terms & Conditions validation removed - WooCommerce handles this on checkout page
+			// ⭐ Terms & Conditions validation removed - WooCommerce handles this on checkout page
 			// If WooCommerce is not active, terms validation would be handled here
 			// But since we're using WooCommerce, validation happens on checkout
 
-			// âœ… JavaScript AJAX: 'addons' (array), Normal form submit: 'selected_addons' (array)
+			// ✅ JavaScript AJAX: 'addons' (array), Normal form submit: 'selected_addons' (array)
 			$selected_addons = array();
 
 			// Check 'addons' parameter sent via AJAX
@@ -739,7 +716,7 @@ final class BookingForm extends AbstractShortcode
 				wp_send_json_error(array('message' => __('Please select dates.', 'mhm-rentiva')));
 			}
 
-			// â­ WooCommerce Integration: Customer information validation removed
+			// ⭐ WooCommerce Integration: Customer information validation removed
 			// WooCommerce checkout will handle customer information collection and validation
 			// We only validate if WooCommerce is NOT active (fallback for non-WooCommerce installations)
 			$is_admin = current_user_can('manage_options');
@@ -815,7 +792,7 @@ final class BookingForm extends AbstractShortcode
 			// 4. Calculate Final Day Count
 			$days = \MHMRentiva\Admin\Booking\Helpers\Util::rental_days($start_ts, $end_ts);
 
-			// â­ ATOMIC OVERLAP CHECK - Final check before creating booking to prevent race conditions
+			// ⭐ ATOMIC OVERLAP CHECK - Final check before creating booking to prevent race conditions
 			// This is the authoritative check - no cache, real-time database query
 
 			// Clear cache before atomic check to ensure fresh data
@@ -833,7 +810,7 @@ final class BookingForm extends AbstractShortcode
 				);
 			}
 
-			// â­ WooCommerce Integration: User account creation removed
+			// ⭐ WooCommerce Integration: User account creation removed
 			// WooCommerce checkout will handle user account creation
 			// We only get user ID if user is already logged in
 			if (is_user_logged_in()) {
@@ -848,21 +825,21 @@ final class BookingForm extends AbstractShortcode
 				$days,
 				$payment_type,
 				$selected_addons,
-				$start_ts // â­ Pass start timestamp for weekend multiplier
+				$start_ts // ⭐ Pass start timestamp for weekend multiplier
 			);
 
 			if (! $deposit_result['success']) {
 				wp_send_json_error(array('message' => __('Price could not be calculated.', 'mhm-rentiva')));
 			}
 
-			// â­ PAYMENT GATEWAY INTEGRATION: Use interface-based payment gateway
+			// ⭐ PAYMENT GATEWAY INTEGRATION: Use interface-based payment gateway
 			// This allows different payment systems (WooCommerce, custom gateways, etc.)
 
 			// Get active payment gateway
 			$payment_gateway = self::get_active_payment_gateway();
 
 			if ($payment_gateway && $payment_gateway->is_available()) {
-				// âœ… Fix: Use raw numeric values instead of formatted string
+				// ✅ Fix: Use raw numeric values instead of formatted string
 				$amount_to_pay = 0.0;
 
 				if ($payment_type === 'deposit') {
@@ -872,7 +849,7 @@ final class BookingForm extends AbstractShortcode
 				}
 
 				// Prepare booking data to store in payment system
-				// â­ Customer information is optional - Payment gateway checkout will collect it
+				// ⭐ Customer information is optional - Payment gateway checkout will collect it
 				$booking_data_for_payment = array(
 					'vehicle_id'            => $vehicle_id,
 					'pickup_date'           => $pickup_date,
@@ -937,7 +914,7 @@ final class BookingForm extends AbstractShortcode
 				}
 			}
 
-			// â­ No payment gateway available
+			// ⭐ No payment gateway available
 			// This code should not be reached if a payment gateway is active (should be handled above)
 			wp_send_json_error(array('message' => __('No payment gateway is available. Please contact the site administrator.', 'mhm-rentiva')));
 			return;
@@ -989,7 +966,7 @@ final class BookingForm extends AbstractShortcode
 				}
 			);
 
-			// âŒ Removed redundant manual data validation (already handled by SecurityHelper above)
+			// ❌ Removed redundant manual data validation (already handled by SecurityHelper above)
 
 			// 1. Refine times
 			$pickup_time  = self::post_text('pickup_time', '10:00');
@@ -1024,11 +1001,11 @@ final class BookingForm extends AbstractShortcode
 			$end_date = new \DateTime();
 			$end_date->setTimestamp($end_ts);
 
-			// â­ Apply Vehicle Management Settings
+			// ⭐ Apply Vehicle Management Settings
 			$base_price_multiplier = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_base_price', 1.0);
 			$weekend_multiplier    = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_weekend_multiplier', 1.0);
 
-			// â­ Tax settings - check WooCommerce first if available
+			// ⭐ Tax settings - check WooCommerce first if available
 			$tax_enabled   = false;
 			$tax_inclusive = false;
 			$tax_rate      = 0;
@@ -1039,7 +1016,7 @@ final class BookingForm extends AbstractShortcode
 				if ($tax_enabled) {
 					$tax_inclusive = \wc_prices_include_tax();
 					// Get default tax rate from WooCommerce
-					// â­ Use global namespace for WC_Tax class
+					// ⭐ Use global namespace for WC_Tax class
 					$tax_rates = \WC_Tax::get_rates();
 					if (! empty($tax_rates)) {
 						// Get first tax rate (usually the default)
@@ -1094,25 +1071,25 @@ final class BookingForm extends AbstractShortcode
 
 			if ($tax_enabled && $tax_rate > 0) {
 				if ($tax_inclusive) {
-					// â­ Tax inclusive pricing:
+					// ⭐ Tax inclusive pricing:
 					// vehicle_price from meta is ALREADY tax-inclusive
 					// vehicle_total (calculated above) is ALREADY tax-inclusive
 					// We need to EXTRACT tax from the total to show breakdown
 					// Formula: tax = total * (rate / (100 + rate))
-					// Example: If total is 1,200 â‚º with 18% tax included:
-					// tax = 1,200 * (18 / 118) = 183.05 â‚º
-					// subtotal = 1,200 - 183.05 = 1,016.95 â‚º
+					// Example: If total is 1,200 ₺ with 18% tax included:
+					// tax = 1,200 * (18 / 118) = 183.05 ₺
+					// subtotal = 1,200 - 183.05 = 1,016.95 ₺
 					$tax_amount       = ($vehicle_total * $tax_rate) / (100 + $tax_rate);
 					$vehicle_subtotal = $vehicle_total - $tax_amount;
 				} else {
-					// â­ Tax exclusive pricing:
+					// ⭐ Tax exclusive pricing:
 					// vehicle_price from meta is tax-exclusive
 					// vehicle_total (calculated above) is tax-exclusive
 					// We need to ADD tax to the total
 					// Formula: tax = total * (rate / 100)
-					// Example: If total is 1,000 â‚º with 18% tax:
-					// tax = 1,000 * 0.18 = 180 â‚º
-					// vehicle_total = 1,000 + 180 = 1,180 â‚º
+					// Example: If total is 1,000 ₺ with 18% tax:
+					// tax = 1,000 * 0.18 = 180 ₺
+					// vehicle_total = 1,000 + 180 = 1,180 ₺
 					$vehicle_subtotal = $vehicle_total; // Subtotal is same as vehicle_total before tax
 					$tax_amount       = ($vehicle_total * $tax_rate) / 100;
 					$vehicle_total    = $vehicle_total + $tax_amount;
@@ -1132,7 +1109,7 @@ final class BookingForm extends AbstractShortcode
 			// Payment type (deposit or full)
 			$payment_type = self::post_text('payment_type', 'deposit');
 
-			// â­ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
+			// ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
 			// This ensures calculations reflect "No Deposit" as "Full Payment Required"
 			$deposit_check_value = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
 			if (empty($deposit_check_value)) {
@@ -1144,7 +1121,7 @@ final class BookingForm extends AbstractShortcode
 				throw new \InvalidArgumentException(__('Invalid payment type.', 'mhm-rentiva'));
 			}
 
-			// â­ Calculate deposit based on FINAL total_price (with tax included)
+			// ⭐ Calculate deposit based on FINAL total_price (with tax included)
 			// This ensures deposit and remaining amounts are calculated correctly
 			$deposit_value    = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
 			$deposit_type     = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::get_deposit_type($deposit_value);
@@ -1179,7 +1156,7 @@ final class BookingForm extends AbstractShortcode
 			$currency        = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD');
 			$currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
 
-			// âœ… Check if pickup date is weekend (Saturday=6, Sunday=7)
+			// ✅ Check if pickup date is weekend (Saturday=6, Sunday=7)
 			$pickup_datetime = new \DateTime($pickup_date);
 			$day_of_week     = (int) $pickup_datetime->format('N'); // 1 (Monday) to 7 (Sunday)
 
@@ -1194,7 +1171,7 @@ final class BookingForm extends AbstractShortcode
 				'currency_symbol'       => $currency_symbol,
 				'deposit_amount'        => $deposit_result['deposit_amount'] ?? 0,
 				'remaining_amount'      => $deposit_result['remaining_amount'] ?? 0,
-				// â­ Vehicle Management Settings information
+				// ⭐ Vehicle Management Settings information
 				'base_price_multiplier' => $base_price_multiplier,
 				'weekend_multiplier'    => $weekend_multiplier,
 				'tax_enabled'           => $tax_enabled,
@@ -1278,7 +1255,7 @@ final class BookingForm extends AbstractShortcode
 			$deadline_minutes = 5;
 		}
 
-		// â­ Use current_time() instead of date() to match WordPress timezone
+		// ⭐ Use current_time() instead of date() to match WordPress timezone
 		// This ensures consistency with AutoCancel which uses current_time('mysql')
 		$current_timestamp  = current_time('timestamp');
 		$deadline_timestamp = $current_timestamp + ($deadline_minutes * 60);
@@ -1319,26 +1296,26 @@ final class BookingForm extends AbstractShortcode
 				wp_send_json_error(array('message' => __('Invalid data.', 'mhm-rentiva')));
 			}
 
-			// â­ 1. Parse timestamps for duration validation
+			// ⭐ 1. Parse timestamps for duration validation
 			$datetime_result = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 			if (is_wp_error($datetime_result)) {
 				wp_send_json_error(array('message' => $datetime_result->get_error_message()));
 				return;
 			}
 
-			// â­ 2. Validate Duration Constraints (Min/Max Days)
+			// ⭐ 2. Validate Duration Constraints (Min/Max Days)
 			$duration_valid = \MHMRentiva\Admin\Booking\Helpers\Util::validate_rental_duration($datetime_result['start_ts'], $datetime_result['end_ts']);
 			if (is_wp_error($duration_valid)) {
 				wp_send_json_error(array('message' => $duration_valid->get_error_message()));
 				return;
 			}
 
-			// â­ Clear cache before checking to ensure fresh data
+			// ⭐ Clear cache before checking to ensure fresh data
 			if (class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
 				\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
 			}
 
-			// â­ ADVANCED AVAILABILITY CHECK - With alternative suggestions
+			// ⭐ ADVANCED AVAILABILITY CHECK - With alternative suggestions
 			$result = \MHMRentiva\Admin\Booking\Helpers\Util::check_availability_with_alternatives(
 				$vehicle_id,
 				$pickup_date,

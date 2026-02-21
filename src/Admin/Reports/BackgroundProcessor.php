@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * âœ… BACKGROUND PROCESSING - Queue System for Heavy Report Operations
+ * ✅ BACKGROUND PROCESSING - Queue System for Heavy Report Operations
  *
  * Processes heavy report generation in the background
  */
@@ -415,7 +415,7 @@ final class BackgroundProcessor {
 			$query_args = $params['query_args'] ?? array();
 			$user_id    = $params['user_id'] ?? get_current_user_id();
 
-			// âœ… Use stream methods from Export.php
+			// ✅ Use stream methods from Export.php
 			$filename_prefix = $post_type === 'vehicle_booking' ? 'bookings' : 'logs';
 			$stamp           = gmdate( 'Ymd-His' );
 
@@ -564,7 +564,7 @@ final class BackgroundProcessor {
 				}
 			}
 
-			// âœ… Send email to user
+			// ✅ Send email to user
 			self::send_export_email( $user_id, $filename, $filename_prefix, $format );
 
 			return array(
@@ -980,3 +980,5 @@ MHM Rentiva Team',
 		dbDelta( $sql );
 	}
 }
+
+

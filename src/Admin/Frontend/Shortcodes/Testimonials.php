@@ -73,6 +73,8 @@ final class Testimonials extends AbstractShortcode {
 			'limit'         => apply_filters('mhm_rentiva/testimonials/limit', '5'),
 			'rating'        => apply_filters('mhm_rentiva/testimonials/rating', ''),
 			'vehicle_id'    => apply_filters('mhm_rentiva/testimonials/vehicle_id', ''),
+			'orderby'       => apply_filters('mhm_rentiva/testimonials/orderby', 'date'),
+			'order'         => apply_filters('mhm_rentiva/testimonials/order', 'DESC'),
 			'show_rating'   => apply_filters('mhm_rentiva/testimonials/show_rating', '1'),
 			'show_date'     => apply_filters('mhm_rentiva/testimonials/show_date', '1'),
 			'show_vehicle'  => apply_filters('mhm_rentiva/testimonials/show_vehicle', '1'),
@@ -191,8 +193,8 @@ final class Testimonials extends AbstractShortcode {
 					'compare' => '=',
 				),
 			),
-			'orderby'        => 'date',
-			'order'          => 'DESC',
+			'orderby'        => self::sanitize_orderby((string) ($atts['orderby'] ?? 'date')),
+			'order'          => self::sanitize_order((string) ($atts['order'] ?? 'DESC')),
 		);
 
 		// Rating filter
@@ -231,6 +233,25 @@ final class Testimonials extends AbstractShortcode {
 		}
 
 		return $testimonials;
+	}
+
+	/**
+	 * Sanitize orderby value for testimonial queries.
+	 */
+	private static function sanitize_orderby(string $value): string
+	{
+		$allowed = array('date', 'title', 'rand', 'modified');
+		$value   = strtolower($value);
+		return in_array($value, $allowed, true) ? $value : 'date';
+	}
+
+	/**
+	 * Sanitize order value for testimonial queries.
+	 */
+	private static function sanitize_order(string $value): string
+	{
+		$value = strtoupper($value);
+		return in_array($value, array('ASC', 'DESC'), true) ? $value : 'DESC';
 	}
 
 	private static function get_testimonials_count(array $atts): int

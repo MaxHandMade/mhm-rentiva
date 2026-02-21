@@ -320,3 +320,4 @@ final class Mode {
 		echo '</table>';
 	}
 }
+

@@ -23,32 +23,35 @@ if (! defined('ABSPATH')) {
  * @method void show_admin_notice(string $message, string $type = 'info', bool $dismissible = true)
  */
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Transfer admin analytics/search operations require controlled aggregate SQL and meta/tax filters.
-final class TransferAdmin {
+final class TransferAdmin
+{
 
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
 	/**
 	 * Sanitize table identifier for safe use with %i placeholders.
 	 */
-	private static function sanitize_table_identifier( string $table_name ): string {
-		return preg_replace( '/[^A-Za-z0-9_]/', '', $table_name ) ?? '';
+	private static function sanitize_table_identifier(string $table_name): string
+	{
+		return preg_replace('/[^A-Za-z0-9_]/', '', $table_name) ?? '';
 	}
 
 	/**
 	 * Resolve current table name with fallback to legacy prefix.
 	 */
-	private static function resolve_table_name( string $new_suffix, string $legacy_suffix ): string {
+	private static function resolve_table_name(string $new_suffix, string $legacy_suffix): string
+	{
 		global $wpdb;
 
-		$new_table = self::sanitize_table_identifier( $wpdb->prefix . $new_suffix );
-		if ( $new_table !== '' ) {
-			$new_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new_table ) );
-			if ( $new_exists === $new_table ) {
+		$new_table = self::sanitize_table_identifier($wpdb->prefix . $new_suffix);
+		if ($new_table !== '') {
+			$new_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $new_table));
+			if ($new_exists === $new_table) {
 				return $new_table;
 			}
 		}
 
-		return self::sanitize_table_identifier( $wpdb->prefix . $legacy_suffix );
+		return self::sanitize_table_identifier($wpdb->prefix . $legacy_suffix);
 	}
 
 
@@ -59,14 +62,14 @@ final class TransferAdmin {
 	{
 
 		// Assets
-		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_assets' ));
+		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_assets'));
 
 		// Form handlers
-		add_action('admin_post_mhm_save_location', array( self::class, 'handle_save_location' ));
-		add_action('admin_post_mhm_delete_location', array( self::class, 'handle_delete_location' ));
-		add_action('admin_post_mhm_save_route', array( self::class, 'handle_save_route' ));
-		add_action('admin_post_mhm_delete_route', array( self::class, 'handle_delete_route' ));
-		add_action('admin_post_mhm_save_transfer_settings', array( self::class, 'handle_save_transfer_settings' ));
+		add_action('admin_post_mhm_save_location', array(self::class, 'handle_save_location'));
+		add_action('admin_post_mhm_delete_location', array(self::class, 'handle_delete_location'));
+		add_action('admin_post_mhm_save_route', array(self::class, 'handle_save_route'));
+		add_action('admin_post_mhm_delete_route', array(self::class, 'handle_delete_route'));
+		add_action('admin_post_mhm_save_transfer_settings', array(self::class, 'handle_save_transfer_settings'));
 
 		// Register Meta Box
 		VehicleTransferMetaBox::register();
@@ -86,7 +89,7 @@ final class TransferAdmin {
 		}
 
 		wp_enqueue_style('mhm-css-variables', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css', array(), MHM_RENTIVA_VERSION);
-		wp_enqueue_style('mhm-stats-cards', MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css', array( 'mhm-css-variables' ), MHM_RENTIVA_VERSION);
+		wp_enqueue_style('mhm-stats-cards', MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css', array('mhm-css-variables'), MHM_RENTIVA_VERSION);
 	}
 
 	/**
@@ -96,17 +99,17 @@ final class TransferAdmin {
 	{
 		global $wpdb;
 
-		$table_locations = self::resolve_table_name( 'rentiva_transfer_locations', 'mhm_rentiva_transfer_locations' );
-		$table_routes    = self::resolve_table_name( 'rentiva_transfer_routes', 'mhm_rentiva_transfer_routes' );
+		$table_locations = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
+		$table_routes    = self::resolve_table_name('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes');
 
 		// 1. Total Locations
 		$total_locations = (int) $wpdb->get_var(
-			$wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table_locations )
+			$wpdb->prepare("SELECT COUNT(*) FROM $table_locations")
 		);
 
 		// 2. Active Routes
 		$total_routes = (int) $wpdb->get_var(
-			$wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table_routes )
+			$wpdb->prepare("SELECT COUNT(*) FROM $table_routes")
 		);
 
 		// 3. Latest Operation (Last booking of type transfer)
@@ -128,7 +131,7 @@ final class TransferAdmin {
 		);
 		$latest_text          = $latest_transfer_date ? date_i18n(get_option('date_format'), strtotime($latest_transfer_date)) : __('No transfers yet', 'mhm-rentiva');
 
-		?>
+?>
 		<div class="mhm-stats-cards" style="margin-bottom: 20px;">
 			<div class="stats-grid">
 				<!-- Total Locations -->
@@ -174,7 +177,7 @@ final class TransferAdmin {
 				</div>
 			</div>
 		</div>
-		<?php
+	<?php
 	}
 
 
@@ -213,7 +216,7 @@ final class TransferAdmin {
 				}
 				// Slug: sanitize title, Label: line
 				$slug                  = sanitize_title($line);
-				$custom_types[ $slug ] = $line;
+				$custom_types[$slug] = $line;
 			}
 			$default_types = array_merge($default_types, $custom_types);
 		}
@@ -241,7 +244,7 @@ final class TransferAdmin {
 			$old = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_transfer_deposit_type');
 			if ($old) {
 				$deposit_type = $old;
-            }
+			}
 		}
 
 		$deposit_rate = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('rentiva_transfer_deposit_rate', '20');
@@ -250,7 +253,7 @@ final class TransferAdmin {
 			$old = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_transfer_deposit_rate');
 			if ($old) {
 				$deposit_rate = $old;
-            }
+			}
 		}
 
 		$custom_types = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('rentiva_transfer_custom_types', '');
@@ -258,14 +261,14 @@ final class TransferAdmin {
 			$old = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_transfer_custom_types');
 			if ($old) {
 				$custom_types = $old;
-            }
+			}
 		}
 
 		// If array (legacy), implode it for display
 		if (is_array($custom_types)) {
 			$custom_types = implode("\n", $custom_types); // Values only? Or keys? Assuming values for simplicity if array was ['slug'=>'Label']
 		}
-		?>
+	?>
 		<?php
 		$buttons = array(
 			array(
@@ -295,7 +298,7 @@ final class TransferAdmin {
 						<p class="description"><?php echo esc_html__('Select how customers should pay for transfers.', 'mhm-rentiva'); ?></p>
 					</td>
 				</tr>
-				<tr id="deposit_rate_row" style="<?php echo ( 'percentage' === $deposit_type ) ? '' : 'display:none;'; ?>">
+				<tr id="deposit_rate_row" style="<?php echo ('percentage' === $deposit_type) ? '' : 'display:none;'; ?>">
 					<th scope="row"><label for="rentiva_transfer_deposit_rate"><?php echo esc_html__('Deposit Rate (%)', 'mhm-rentiva'); ?></label></th>
 					<td>
 						<input name="rentiva_transfer_deposit_rate" type="number" id="rentiva_transfer_deposit_rate" value="<?php echo esc_attr($deposit_rate); ?>" class="regular-text" min="1" max="100" step="1">
@@ -325,7 +328,7 @@ final class TransferAdmin {
 			});
 		</script>
 		</div>
-		<?php
+	<?php
 	}
 
 	/**
@@ -360,22 +363,22 @@ final class TransferAdmin {
 	{
 		global $wpdb;
 
-		$table_name = self::resolve_table_name( 'rentiva_transfer_locations', 'mhm_rentiva_transfer_locations' );
+		$table_name = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
 
 		$locations     = $wpdb->get_results(
-			$wpdb->prepare( 'SELECT * FROM %i ORDER BY priority ASC, name ASC', $table_name )
+			$wpdb->prepare("SELECT * FROM $table_name ORDER BY priority ASC, name ASC")
 		);
 		$edit_location = null;
 
-		$action  = sanitize_key( (string) filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
-		$edit_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, array( 'options' => array( 'default' => 0 ) ));
+		$action  = sanitize_key((string) filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+		$edit_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, array('options' => array('default' => 0)));
 		if ('edit' === $action && $edit_id > 0) {
 			$edit_location = $wpdb->get_row(
-				$wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', $table_name, $edit_id )
+				$wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $edit_id)
 			);
 		}
 
-		?>
+	?>
 		<div class="wrap">
 			<?php
 			$this->render_admin_header(
@@ -505,46 +508,42 @@ final class TransferAdmin {
 				</div>
 			</div>
 		</div>
-		<?php
+	<?php
 	}
 
 	public function render_routes_page(): void
 	{
 		global $wpdb;
 
-		$table_routes    = self::resolve_table_name( 'rentiva_transfer_routes', 'mhm_rentiva_transfer_routes' );
-		$table_locations = self::resolve_table_name( 'rentiva_transfer_locations', 'mhm_rentiva_transfer_locations' );
+		$table_routes    = self::resolve_table_name('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes');
+		$table_locations = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
 
 		$routes = $wpdb->get_results(
 			$wpdb->prepare(
-				'
+				"
             SELECT r.*, 
-                   l1.name as origin_name, 
-                   l2.name as dest_name 
-            FROM %i r
-            LEFT JOIN %i l1 ON r.origin_id = l1.id
-            LEFT JOIN %i l2 ON r.destination_id = l2.id
+                   l1.name as origin_name, l1.allow_transfer as origin_eligible,
+                   l2.name as dest_name, l2.allow_transfer as dest_eligible
+            FROM $table_routes r
+            LEFT JOIN $table_locations l1 ON r.origin_id = l1.id
+            LEFT JOIN $table_locations l2 ON r.destination_id = l2.id
             ORDER BY r.id DESC
-        ',
-				$table_routes,
-				$table_locations,
-				$table_locations
+        "
 			)
 		);
 
-		$locations = $wpdb->get_results(
-			$wpdb->prepare( 'SELECT id, name FROM %i ORDER BY name ASC', $table_locations )
-		);
+		// SSOT: Only eligible locations for selection
+		$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('transfer');
 
 		$edit_route = null;
-		$action     = sanitize_key( (string) filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
-		$edit_id    = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, array( 'options' => array( 'default' => 0 ) ));
+		$action     = sanitize_key((string) filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+		$edit_id    = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, array('options' => array('default' => 0)));
 		if ('edit' === $action && $edit_id > 0) {
 			$edit_route = $wpdb->get_row(
-				$wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', $table_routes, $edit_id )
+				$wpdb->prepare("SELECT * FROM $table_routes WHERE id = %d", $edit_id)
 			);
 		}
-		?>
+	?>
 		<div class="wrap">
 			<?php
 			$this->render_admin_header(
@@ -584,8 +583,27 @@ final class TransferAdmin {
 									<select name="origin_id" id="origin_id" required>
 										<option value=""><?php echo esc_html__('Select Origin', 'mhm-rentiva'); ?></option>
 										<?php foreach ($locations as $loc) : ?>
-											<option value="<?php echo esc_attr($loc->id); ?>" <?php selected($edit_route ? $edit_route->origin_id : '', $loc->id); ?>><?php echo esc_html($loc->name); ?></option>
+											<option value="<?php echo esc_attr($loc->id); ?>" <?php selected($edit_route ? (int) $edit_route->origin_id : 0, (int) $loc->id); ?>><?php echo esc_html($loc->name); ?></option>
 										<?php endforeach; ?>
+										<?php
+										// Soft handling: If currently selected origin is not in the eligible list
+										if ($edit_route && $edit_route->origin_id) {
+											$origin_id = (int) $edit_route->origin_id;
+											$found = false;
+											foreach ($locations as $loc) {
+												if ((int) $loc->id === $origin_id) {
+													$found = true;
+													break;
+												}
+											}
+											if (!$found) {
+												$legacy_origin = $wpdb->get_row($wpdb->prepare("SELECT id, name FROM $table_locations WHERE id = %d", $origin_id));
+												if ($legacy_origin) {
+													echo '<option value="' . esc_attr($legacy_origin->id) . '" selected disabled>' . esc_html($legacy_origin->name) . ' (' . esc_html__('Not eligible for transfer', 'mhm-rentiva') . ')</option>';
+												}
+											}
+										}
+										?>
 									</select>
 								</div>
 
@@ -595,8 +613,27 @@ final class TransferAdmin {
 									<select name="destination_id" id="destination_id" required>
 										<option value=""><?php echo esc_html__('Select Destination', 'mhm-rentiva'); ?></option>
 										<?php foreach ($locations as $loc) : ?>
-											<option value="<?php echo esc_attr($loc->id); ?>" <?php selected($edit_route ? $edit_route->destination_id : '', $loc->id); ?>><?php echo esc_html($loc->name); ?></option>
+											<option value="<?php echo esc_attr($loc->id); ?>" <?php selected($edit_route ? (int) $edit_route->destination_id : 0, (int) $loc->id); ?>><?php echo esc_html($loc->name); ?></option>
 										<?php endforeach; ?>
+										<?php
+										// Soft handling: If currently selected destination is not in the eligible list
+										if ($edit_route && $edit_route->destination_id) {
+											$dest_id = (int) $edit_route->destination_id;
+											$found = false;
+											foreach ($locations as $loc) {
+												if ((int) $loc->id === $dest_id) {
+													$found = true;
+													break;
+												}
+											}
+											if (!$found) {
+												$legacy_dest = $wpdb->get_row($wpdb->prepare("SELECT id, name FROM $table_locations WHERE id = %d", $dest_id));
+												if ($legacy_dest) {
+													echo '<option value="' . esc_attr($legacy_dest->id) . '" selected disabled>' . esc_html($legacy_dest->name) . ' (' . esc_html__('Not eligible for transfer', 'mhm-rentiva') . ')</option>';
+												}
+											}
+										}
+										?>
 									</select>
 								</div>
 
@@ -625,7 +662,7 @@ final class TransferAdmin {
 									<input name="base_price" id="base_price" type="number" step="0.01" value="<?php echo $edit_route ? esc_attr($edit_route->base_price) : ''; ?>" required>
 								</div>
 
-								<div class="form-field" id="min_price_field" style="<?php echo ( $edit_route && 'calculated' === $edit_route->pricing_method ) ? '' : 'display:none;'; ?>">
+								<div class="form-field" id="min_price_field" style="<?php echo ($edit_route && 'calculated' === $edit_route->pricing_method) ? '' : 'display:none;'; ?>">
 									<label for="min_price"><?php echo esc_html__('Minimum Price', 'mhm-rentiva'); ?></label>
 									<input name="min_price" id="min_price" type="number" step="0.01" value="<?php echo $edit_route ? esc_attr($edit_route->min_price) : ''; ?>">
 								</div>
@@ -656,7 +693,13 @@ final class TransferAdmin {
 									<?php foreach ($routes as $route) : ?>
 										<tr>
 											<td>
-												<?php echo esc_html($route->origin_name); ?> &rarr; <?php echo esc_html($route->dest_name); ?>
+												<strong><?php echo esc_html($route->origin_name); ?></strong> &rarr; <strong><?php echo esc_html($route->dest_name); ?></strong>
+												<?php if (!$route->origin_eligible || !$route->dest_eligible) : ?>
+													<br><span class="badge badge-warning" style="background: #fff8e5; color: #856404; padding: 2px 6px; border-radius: 4px; font-size: 11px; border: 1px solid #ffeeba; margin-top: 5px; display: inline-block;">
+														<span class="dashicons dashicons-warning" style="font-size: 14px; width: 14px; height: 14px; margin-top: -2px;"></span>
+														<?php echo esc_html__('Not eligible for transfer', 'mhm-rentiva'); ?>
+													</span>
+												<?php endif; ?>
 											</td>
 											<td>
 												<?php echo esc_html($route->distance_km); ?> km <br>
@@ -702,7 +745,7 @@ final class TransferAdmin {
 				}
 			</script>
 		</div>
-		<?php
+<?php
 	}
 
 	// --- FORM HANDLERS ---
@@ -714,7 +757,7 @@ final class TransferAdmin {
 		}
 
 		global $wpdb;
-		$table_name = self::resolve_table_name( 'rentiva_transfer_locations', 'mhm_rentiva_transfer_locations' );
+		$table_name = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
 
 		$data = array(
 			'name'           => isset($_POST['name']) ? sanitize_text_field(wp_unslash($_POST['name'])) : '',
@@ -725,10 +768,12 @@ final class TransferAdmin {
 		);
 
 		if (! empty($_POST['id'])) {
-			$wpdb->update($table_name, $data, array( 'id' => intval(wp_unslash($_POST['id'])) ));
+			$wpdb->update($table_name, $data, array('id' => intval(wp_unslash($_POST['id']))));
 		} else {
 			$wpdb->insert($table_name, $data);
 		}
+
+		\MHMRentiva\Admin\Transfer\Engine\LocationProvider::clear_cache();
 
 		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-locations&updated=true'));
 		exit;
@@ -741,9 +786,11 @@ final class TransferAdmin {
 		}
 
 		global $wpdb;
-		$table_name = self::resolve_table_name( 'rentiva_transfer_locations', 'mhm_rentiva_transfer_locations' );
+		$table_name = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
 
-		$wpdb->delete($table_name, array( 'id' => isset($_GET['id']) ? intval(wp_unslash($_GET['id'])) : 0 ));
+		$wpdb->delete($table_name, array('id' => isset($_GET['id']) ? intval(wp_unslash($_GET['id'])) : 0));
+
+		\MHMRentiva\Admin\Transfer\Engine\LocationProvider::clear_cache();
 
 		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-locations&deleted=true'));
 		exit;
@@ -756,7 +803,7 @@ final class TransferAdmin {
 		}
 
 		global $wpdb;
-		$table_name = self::resolve_table_name( 'rentiva_transfer_routes', 'mhm_rentiva_transfer_routes' );
+		$table_name = self::resolve_table_name('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes');
 
 		$data = array(
 			'origin_id'      => isset($_POST['origin_id']) ? intval(wp_unslash($_POST['origin_id'])) : 0,
@@ -768,8 +815,27 @@ final class TransferAdmin {
 			'min_price'      => isset($_POST['min_price']) ? floatval(wp_unslash($_POST['min_price'])) : 0.0,
 		);
 
+		// Server-side validation: Check eligibility
+		$table_locations = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
+		$eligibility = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT id, allow_transfer FROM %i WHERE id IN (%d, %d)",
+				$table_locations,
+				$data['origin_id'],
+				$data['destination_id']
+			),
+			OBJECT_K
+		);
+
+		$origin_ok = isset($eligibility[$data['origin_id']]) && (int) $eligibility[$data['origin_id']]->allow_transfer === 1;
+		$dest_ok   = isset($eligibility[$data['destination_id']]) && (int) $eligibility[$data['destination_id']]->allow_transfer === 1;
+
+		if (!$origin_ok || !$dest_ok) {
+			wp_die(esc_html__('Error: One or more selected locations are not eligible for transfer services.', 'mhm-rentiva'));
+		}
+
 		if (! empty($_POST['id'])) {
-			$wpdb->update($table_name, $data, array( 'id' => intval(wp_unslash($_POST['id'])) ));
+			$wpdb->update($table_name, $data, array('id' => intval(wp_unslash($_POST['id']))));
 		} else {
 			$wpdb->insert($table_name, $data);
 		}
@@ -785,9 +851,9 @@ final class TransferAdmin {
 		}
 
 		global $wpdb;
-		$table_name = self::resolve_table_name( 'rentiva_transfer_routes', 'mhm_rentiva_transfer_routes' );
+		$table_name = self::resolve_table_name('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes');
 
-		$wpdb->delete($table_name, array( 'id' => isset($_GET['id']) ? intval(wp_unslash($_GET['id'])) : 0 ));
+		$wpdb->delete($table_name, array('id' => isset($_GET['id']) ? intval(wp_unslash($_GET['id'])) : 0));
 
 		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-routes&deleted=true'));
 		exit;

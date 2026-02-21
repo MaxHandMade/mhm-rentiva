@@ -207,7 +207,7 @@ final class Mailer {
 			return null;
 		}
 
-		// â­ Get data using interface-based provider (loose coupling)
+		// ⭐ Get data using interface-based provider (loose coupling)
 		$provider        = self::get_booking_data_provider();
 		$customer_info   = $provider->getBookingCustomerInfo( $booking_id );
 		$vehicle_info    = $provider->getBookingVehicleInfo( $booking_id );
@@ -356,7 +356,7 @@ final class Mailer {
 			return $stats;
 		}
 
-		// â­ Using WP_Query instead of raw SQL for better maintainability
+		// ⭐ Using WP_Query instead of raw SQL for better maintainability
 		$date_threshold = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
 		// Build meta query
@@ -444,3 +444,4 @@ final class Mailer {
 		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_customer_marketing_emails', '0' ) === '1';
 	}
 }
+

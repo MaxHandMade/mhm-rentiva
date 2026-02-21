@@ -211,3 +211,4 @@ final class MessageQuery {
 		return (bool) $thread_check;
 	}
 }
+

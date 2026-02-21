@@ -192,6 +192,11 @@ final class ShortcodeServiceProvider
 					'method'        => 'render',
 					'requires_auth' => true,
 				),
+				'rentiva_home_poc'           => array(
+					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\HomePoc::class,
+					'dependencies'  => array(),
+					'requires_auth' => false,
+				),
 			),
 		);
 

@@ -29,6 +29,11 @@ $show_add_vehicle = $show_add_vehicle ?? false;
 // Layout settings
 $layout       = $atts['layout'] ?? 'table';
 $show_prices  = ($atts['show_prices'] ?? true) === '1' || ($atts['show_prices'] ?? true) === true;
+$show_booking_buttons = in_array(
+	strtolower((string) ($atts['show_booking_buttons'] ?? ($atts['show_book_button'] ?? '1'))),
+	array('1', 'true', 'yes', 'on'),
+	true
+);
 $custom_class = trim($atts['class'] ?? '');
 
 ?>
@@ -131,9 +136,11 @@ $custom_class = trim($atts['class'] ?? '');
 												$btn_attrs  = 'aria-disabled="true" tabindex="-1"';
 											}
 											?>
-											<a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" style="<?php echo esc_attr($btn_style); ?>" <?php echo wp_kses_post($btn_attrs); ?>>
-												<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
-											</a>
+											<?php if ($show_booking_buttons) : ?>
+												<a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" style="<?php echo esc_attr($btn_style); ?>" <?php echo wp_kses_post($btn_attrs); ?>>
+													<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
+												</a>
+											<?php endif; ?>
 											<!-- Price Display -->
 											<?php
 											$price = $vehicle['features']['price_per_day'] ?? 0;
@@ -264,9 +271,11 @@ $custom_class = trim($atts['class'] ?? '');
 										$btn_attrs  = 'aria-disabled="true"';
 									}
 									?>
-									<a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo wp_kses_post($btn_attrs); ?>>
-										<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
-									</a>
+									<?php if ($show_booking_buttons) : ?>
+										<a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo wp_kses_post($btn_attrs); ?>>
+											<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
+										</a>
+									<?php endif; ?>
 								</div>
 							</div>
 
@@ -343,9 +352,11 @@ $custom_class = trim($atts['class'] ?? '');
 									$btn_attrs  = 'aria-disabled="true" tabindex="-1" style="opacity: 0.6; pointer-events: none; cursor: not-allowed;"';
 								}
 								?>
-								<a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo wp_kses_post($btn_attrs); ?>>
-									<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
-								</a>
+								<?php if ($show_booking_buttons) : ?>
+									<a href="<?php echo esc_url($btn_href); ?>" class="<?php echo esc_attr($btn_class); ?>" <?php echo wp_kses_post($btn_attrs); ?>>
+										<?php echo esc_html__('Make Reservation', 'mhm-rentiva'); ?>
+									</a>
+								<?php endif; ?>
 							</div>
 						</div>
 					<?php endforeach; ?>
@@ -364,9 +375,11 @@ $custom_class = trim($atts['class'] ?? '');
 			<?php
 			$search_url = get_post_type_archive_link('vehicle') ?: home_url('/');
 			?>
-			<a href="<?php echo esc_url($search_url); ?>" class="rv-book-now-btn" style="display: inline-block; margin-top: 25px; padding: 12px 30px; font-size: 1.1em; text-decoration: none; border-radius: 8px;">
-				<?php echo esc_html__('Browse Vehicles', 'mhm-rentiva'); ?>
-			</a>
+			<?php if ($show_booking_buttons) : ?>
+				<a href="<?php echo esc_url($search_url); ?>" class="rv-book-now-btn" style="display: inline-block; margin-top: 25px; padding: 12px 30px; font-size: 1.1em; text-decoration: none; border-radius: 8px;">
+					<?php echo esc_html__('Browse Vehicles', 'mhm-rentiva'); ?>
+				</a>
+			<?php endif; ?>
 		</div>
 	<?php endif; ?>
 

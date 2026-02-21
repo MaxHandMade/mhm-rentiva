@@ -52,6 +52,8 @@ class BookingConfirmationWidget extends ElementorWidgetBase {
 	}
 
 	protected function render(): void {
-		echo do_shortcode( '[rentiva_booking_confirmation]' );
+		$atts = $this->prepare_shortcode_attributes( $this->get_settings_for_display() );
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Shortcode output contains HTML.
+		echo $this->render_shortcode( 'rentiva_booking_confirmation', $atts );
 	}
 }

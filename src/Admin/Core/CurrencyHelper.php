@@ -130,8 +130,8 @@ final class CurrencyHelper {
 	private static function normalize_currency_code( string $currency_code ): string {
 		$aliases = array(
 			"\u{20BA}"   => 'TRY',
-			'â‚º'         => 'TRY',
-			'Ã¢â€šÂº'      => 'TRY',
+			'₺'         => 'TRY',
+			'₺'      => 'TRY',
 			'TL'          => 'TRY',
 			'TL_SYMBOL'   => 'TRY',
 			'LIRA'        => 'TRY',
@@ -257,3 +257,5 @@ final class CurrencyHelper {
 		return apply_filters( 'mhm_rentiva_currency_list', $currencies );
 	}
 }
+
+

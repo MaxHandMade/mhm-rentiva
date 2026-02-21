@@ -432,3 +432,4 @@ trait AdminHelperTrait {
 		$this->show_admin_notice( $message, 'info' );
 	}
 }
+

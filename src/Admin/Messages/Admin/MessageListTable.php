@@ -684,3 +684,4 @@ final class MessageListTable extends AbstractListTable {
 		}
 	}
 }
+

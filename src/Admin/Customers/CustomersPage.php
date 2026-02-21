@@ -467,9 +467,9 @@ final class CustomersPage
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only month/year filters for admin screen rendering.
 				'customerRegistrations' => self::get_customer_registration_days(
 					// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only month filter for admin calendar rendering.
-					isset( $_GET['month'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_GET['month'] ) ) ) : (int) gmdate( 'n' ),
+					isset($_GET['month']) ? absint(sanitize_text_field(wp_unslash((string) $_GET['month']))) : (int) gmdate('n'),
 					// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only year filter for admin calendar rendering.
-					isset( $_GET['year'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_GET['year'] ) ) ) : (int) gmdate( 'Y' )
+					isset($_GET['year']) ? absint(sanitize_text_field(wp_unslash((string) $_GET['year']))) : (int) gmdate('Y')
 				),
 			)
 		);
@@ -652,10 +652,12 @@ final class CustomersPage
 	 */
 	public static function ajax_get_customer_stats(): void
 	{
-		check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce');
+		if (! check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce', false)) {
+			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(esc_html__('No permission.', 'mhm-rentiva'));
+			wp_send_json_error(array('message' => __('No permission.', 'mhm-rentiva')));
 		}
 
 		$stats = self::get_customer_stats();
@@ -667,10 +669,12 @@ final class CustomersPage
 	 */
 	public static function ajax_get_customers_data(): void
 	{
-		check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce');
+		if (! check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce', false)) {
+			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(esc_html__('No permission.', 'mhm-rentiva'));
+			wp_send_json_error(array('message' => __('No permission.', 'mhm-rentiva')));
 		}
 
 		// Return empty data for now
@@ -682,10 +686,12 @@ final class CustomersPage
 	 */
 	public static function ajax_bulk_action_customers(): void
 	{
-		check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce');
+		if (! check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce', false)) {
+			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(esc_html__('No permission.', 'mhm-rentiva'));
+			wp_send_json_error(array('message' => __('No permission.', 'mhm-rentiva')));
 		}
 
 		$action       = sanitize_text_field(wp_unslash($_POST['bulk_action'] ?? ''));
@@ -709,10 +715,12 @@ final class CustomersPage
 	 */
 	public static function ajax_get_customer_details(): void
 	{
-		check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce');
+		if (! check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce', false)) {
+			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(esc_html__('No permission.', 'mhm-rentiva'));
+			wp_send_json_error(array('message' => __('No permission.', 'mhm-rentiva')));
 		}
 
 		$customer_id = intval(wp_unslash($_POST['customer_id'] ?? 0));
@@ -735,10 +743,12 @@ final class CustomersPage
 	 */
 	public static function ajax_export_customers(): void
 	{
-		check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce');
+		if (! check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce', false)) {
+			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(esc_html__('No permission.', 'mhm-rentiva'));
+			wp_send_json_error(array('message' => __('No permission.', 'mhm-rentiva')));
 		}
 
 		// Success message.
@@ -762,7 +772,7 @@ final class CustomersPage
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only customer detail view in admin UI.
-		$customer_id = intval(wp_unslash($_GET['customer_id']));
+		$customer_id = intval(wp_unslash($_GET['customer_id'] ?? 0));
 		$customer    = get_user_by('id', $customer_id);
 
 		if (! $customer) {
@@ -896,7 +906,7 @@ final class CustomersPage
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ID from URL for edit view only.
-		$customer_id = intval(wp_unslash($_GET['customer_id']));
+		$customer_id = intval(wp_unslash($_GET['customer_id'] ?? 0));
 		$customer    = get_user_by('id', $customer_id);
 
 		if (! $customer) {
@@ -905,9 +915,9 @@ final class CustomersPage
 
 		// Form processing.
 		if (isset($_POST['submit']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_edit_customer_nonce'] ?? '')), 'mhm_rentiva_edit_customer')) {
-			$customer_name    = isset( $_POST['customer_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['customer_name'] ) ) : '';
+			$customer_name    = isset($_POST['customer_name']) ? sanitize_text_field(wp_unslash((string) $_POST['customer_name'])) : '';
 			$customer_email   = sanitize_email(wp_unslash($_POST['customer_email'] ?? ''));
-			$customer_phone   = isset( $_POST['customer_phone'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['customer_phone'] ) ) : '';
+			$customer_phone   = isset($_POST['customer_phone']) ? sanitize_text_field(wp_unslash((string) $_POST['customer_phone'])) : '';
 			$customer_address = sanitize_textarea_field(wp_unslash($_POST['customer_address'] ?? ''));
 
 			if (empty($customer_name) || empty($customer_email)) {

@@ -626,3 +626,4 @@ final class Templates {
 		return $cur;
 	}
 }
+

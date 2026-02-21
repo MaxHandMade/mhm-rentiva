@@ -162,16 +162,17 @@ final class Reports
 
 	public static function ajax_get_data(): void
 	{
-		check_ajax_referer('mhm_reports_nonce', 'nonce');
-
-		if (! current_user_can('manage_options')) {
-			wp_send_json_error(__('Unauthorized access', 'mhm-rentiva'));
-			return;
+		if (! check_ajax_referer('mhm_reports_nonce', 'nonce', false)) {
+			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
 		}
 
-		$type       = isset( $_POST['type'] ) ? sanitize_key( wp_unslash( (string) $_POST['type'] ) ) : '';
-		$start_date = isset( $_POST['start_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['start_date'] ) ) : gmdate( 'Y-m-d', strtotime( '-30 days' ) );
-		$end_date   = isset( $_POST['end_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['end_date'] ) ) : gmdate( 'Y-m-d' );
+		if (! current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => __('Unauthorized access', 'mhm-rentiva')));
+		}
+
+		$type       = isset($_POST['type']) ? sanitize_key(wp_unslash((string) $_POST['type'])) : '';
+		$start_date = isset($_POST['start_date']) ? sanitize_text_field(wp_unslash((string) $_POST['start_date'])) : gmdate('Y-m-d', strtotime('-30 days'));
+		$end_date   = isset($_POST['end_date']) ? sanitize_text_field(wp_unslash((string) $_POST['end_date'])) : gmdate('Y-m-d');
 
 		// License check
 		if (! Mode::featureEnabled(Mode::FEATURE_REPORTS_ADV)) {
@@ -216,11 +217,12 @@ final class Reports
 	 */
 	public static function ajax_clear_cache(): void
 	{
-		check_ajax_referer('mhm_reports_nonce', 'nonce');
+		if (! check_ajax_referer('mhm_reports_nonce', 'nonce', false)) {
+			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(__('Unauthorized access', 'mhm-rentiva'));
-			return;
+			wp_send_json_error(array('message' => __('Unauthorized access', 'mhm-rentiva')));
 		}
 
 		// Cache clearing
@@ -362,9 +364,9 @@ final class Reports
 
 		// Filters (read-only querystring values).
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$request    = wp_unslash( $_GET );
-		$start_date = isset( $request['start_date'] ) ? sanitize_text_field( (string) $request['start_date'] ) : gmdate( 'Y-m-d', strtotime( '-30 days' ) );
-		$end_date   = isset( $request['end_date'] ) ? sanitize_text_field( (string) $request['end_date'] ) : gmdate( 'Y-m-d' );
+		$request    = wp_unslash($_GET ?? []);
+		$start_date = isset($request['start_date']) ? sanitize_text_field((string) $request['start_date']) : gmdate('Y-m-d', strtotime('-30 days'));
+		$end_date   = isset($request['end_date']) ? sanitize_text_field((string) $request['end_date']) : gmdate('Y-m-d');
 
 		// Date validation
 		if (! strtotime($start_date) || ! strtotime($end_date)) {
@@ -380,7 +382,7 @@ final class Reports
 		}
 
 		// Cache clearing check - Only if date parameters exist
-		if ( isset( $request['start_date'] ) || isset( $request['end_date'] ) ) {
+		if (isset($request['start_date']) || isset($request['end_date'])) {
 			self::clear_reports_cache();
 		}
 
@@ -409,8 +411,8 @@ final class Reports
 		echo '<input type="hidden" name="page" value="mhm-rentiva-reports">';
 
 		// Preserve current tab
-		if ( isset( $request['tab'] ) ) {
-			echo '<input type="hidden" name="tab" value="' . esc_attr( sanitize_key( (string) $request['tab'] ) ) . '">';
+		if (isset($request['tab'])) {
+			echo '<input type="hidden" name="tab" value="' . esc_attr(sanitize_key((string) $request['tab'])) . '">';
 		}
 
 		echo '<div class="filter-row">';
@@ -450,7 +452,7 @@ final class Reports
 		 */
 		$tabs = apply_filters('mhm_rentiva_report_tabs', $tabs);
 
-		$current_tab = isset( $request['tab'] ) ? sanitize_key( (string) $request['tab'] ) : 'overview';
+		$current_tab = isset($request['tab']) ? sanitize_key((string) $request['tab']) : 'overview';
 
 		echo '<div class="nav-tab-wrapper">';
 		foreach ($tabs as $tab => $label) {

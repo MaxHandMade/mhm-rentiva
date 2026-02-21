@@ -684,3 +684,4 @@ final class LicenseManager
 		return date_i18n($format, (int) $expires_at);
 	}
 }
+

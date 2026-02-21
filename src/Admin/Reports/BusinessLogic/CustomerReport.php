@@ -276,3 +276,4 @@ final class CustomerReport {
 		Export::export_data( $export_data, $filename, $format );
 	}
 }
+

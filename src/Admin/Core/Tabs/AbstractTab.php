@@ -490,3 +490,4 @@ abstract class AbstractTab {
 		return admin_url( $path );
 	}
 }
+

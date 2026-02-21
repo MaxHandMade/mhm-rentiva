@@ -87,6 +87,8 @@ class VehiclesGrid extends AbstractShortcode {
 	 */
 	protected static function prepare_template_data(array $atts): array
 	{
+		$atts = wp_parse_args($atts, self::get_default_attributes());
+
 		$vehicles = self::get_vehicles($atts);
 
 		// Inject custom texts from settings if not already set via shortcode attribute
@@ -148,12 +150,14 @@ class VehiclesGrid extends AbstractShortcode {
 	 */
 	private static function get_vehicles(array $atts): array
 	{
+		$atts = wp_parse_args($atts, self::get_default_attributes());
+
 		$args = array(
 			'post_type'      => 'vehicle',
 			'post_status'    => 'publish',
-			'posts_per_page' => intval($atts['limit']),
-			'orderby'        => $atts['orderby'],
-			'order'          => $atts['order'],
+			'posts_per_page' => intval($atts['limit'] ?? 12),
+			'orderby'        => (string) ($atts['orderby'] ?? 'title'),
+			'order'          => (string) ($atts['order'] ?? 'ASC'),
 		);
 
 		// Category filter
@@ -168,7 +172,7 @@ class VehiclesGrid extends AbstractShortcode {
 		}
 
 		// Featured filter
-		if ($atts['featured'] === '1') {
+		if (($atts['featured'] ?? '0') === '1') {
 			$args['meta_query'] = array(
 				array(
 					'key'     => '_mhm_rentiva_featured',
@@ -179,7 +183,11 @@ class VehiclesGrid extends AbstractShortcode {
 		}
 
 		// Rating-based sorting & filtering (opt-in via shortcode attributes)
-		RatingSortHelper::apply_sort_args($args, $atts['orderby'], $atts['order']);
+		RatingSortHelper::apply_sort_args(
+			$args,
+			(string) ($atts['orderby'] ?? 'title'),
+			(string) ($atts['order'] ?? 'ASC')
+		);
 		RatingSortHelper::apply_filter_args($args, $atts);
 
 		$posts    = get_posts($args);
@@ -198,12 +206,15 @@ class VehiclesGrid extends AbstractShortcode {
 	private static function get_vehicle_data_for_shortcode(int $vehicle_id, array $atts): array
 	{
 		$post = get_post($vehicle_id);
+		$image_size = isset($atts['image_size']) && is_string($atts['image_size']) && $atts['image_size'] !== ''
+			? $atts['image_size']
+			: 'medium';
 
 		$data = array(
 			'id'           => $vehicle_id,
 			'title'        => get_the_title($vehicle_id) ?: '',
 			'permalink'    => get_permalink($vehicle_id) ?: '',
-			'image'        => self::get_vehicle_image($vehicle_id, $atts['image_size']),
+			'image'        => self::get_vehicle_image($vehicle_id, $image_size),
 			'price'        => self::get_vehicle_price($vehicle_id),
 			'features'     => self::get_vehicle_features($vehicle_id),
 			'category'     => self::get_vehicle_category($vehicle_id),
@@ -620,3 +631,4 @@ class VehiclesGrid extends AbstractShortcode {
 		return in_array($vehicle_id, $favorites, true);
 	}
 }
+

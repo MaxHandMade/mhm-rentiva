@@ -243,3 +243,4 @@ final class SecureToken {
 		);
 	}
 }
+

@@ -236,3 +236,4 @@ final class ErrorHandler {
 		return $result;
 	}
 }
+

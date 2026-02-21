@@ -13,12 +13,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Rating Confidence Helper
  *
  * Computes a trust-signal label based on rating_count.
- * Cosmetic only â€” does NOT affect rating aggregation.
+ * Cosmetic only — does NOT affect rating aggregation.
  *
  * Buckets (default thresholds [2, 9]):
- *   - 1â€“2   â†’ "New"
- *   - 3â€“9   â†’ "Reliable"
- *   - 10+   â†’ "Highly Reliable"
+ *   - 1–2   → "New"
+ *   - 3–9   → "Reliable"
+ *   - 10+   → "Highly Reliable"
  *
  * Override via filter: mhm_rentiva_rating_confidence_thresholds
  *
@@ -29,7 +29,7 @@ final class RatingConfidenceHelper {
 
 	/**
 	 * Default thresholds: [upper_bound_new, upper_bound_reliable]
-	 * Meaning: <=2 â†’ new, <=9 â†’ reliable, >=10 â†’ high
+	 * Meaning: <=2 → new, <=9 → reliable, >=10 → high
 	 */
 	private const DEFAULT_THRESHOLDS = array( 2, 9 );
 
@@ -58,9 +58,9 @@ final class RatingConfidenceHelper {
 		 *
 		 * @param array $thresholds [upper_bound_new, upper_bound_reliable]
 		 *   Default: [2, 9]
-		 *   - count <= thresholds[0] â†’ "New"
-		 *   - count <= thresholds[1] â†’ "Reliable"
-		 *   - count > thresholds[1]  â†’ "Highly Reliable"
+		 *   - count <= thresholds[0] → "New"
+		 *   - count <= thresholds[1] → "Reliable"
+		 *   - count > thresholds[1]  → "Highly Reliable"
 		 */
 		$thresholds = apply_filters(
 			'mhm_rentiva_rating_confidence_thresholds',
@@ -94,3 +94,5 @@ final class RatingConfidenceHelper {
 		);
 	}
 }
+
+

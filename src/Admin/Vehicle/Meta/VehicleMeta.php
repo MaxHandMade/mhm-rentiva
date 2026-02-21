@@ -1280,3 +1280,4 @@ final class VehicleMeta extends AbstractMetaBox
 		$wp_meta_boxes['vehicle']['side'] = $reordered_boxes;
 	}
 }
+

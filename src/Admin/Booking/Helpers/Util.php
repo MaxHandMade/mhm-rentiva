@@ -40,7 +40,7 @@ final class Util
 				throw new \InvalidArgumentException(__('Invalid date/time format.', 'mhm-rentiva'));
 			}
 
-			// â­ GLOBAL FIX: Use WordPress timezone for interpretation
+			// ⭐ GLOBAL FIX: Use WordPress timezone for interpretation
 			$tz = wp_timezone();
 			$pickup_dt  = new \DateTime($pickup_date . ' ' . $pickup_time, $tz);
 			$dropoff_dt = new \DateTime($dropoff_date . ' ' . $dropoff_time, $tz);
@@ -177,10 +177,10 @@ final class Util
 	 */
 	public static function has_overlap(int $vehicle_id, int $start_ts, int $end_ts): bool
 	{
-		// âš¡ Optimized: direct SQL query for faster checks
+		// ⚡ Optimized: direct SQL query for faster checks
 		global $wpdb;
 
-		// â­ TIMEZONE SYNC: Ensure MySQL and PHP are using the same timezone offset
+		// ⭐ TIMEZONE SYNC: Ensure MySQL and PHP are using the same timezone offset
 		$gmt_offset = (float) get_option('gmt_offset');
 		$offset_string = ($gmt_offset >= 0 ? '+' : '-') . sprintf('%02d:%02d', abs((int)$gmt_offset), abs(($gmt_offset - (int)$gmt_offset) * 60));
 		$wpdb->query($wpdb->prepare("SET time_zone = %s", $offset_string));
@@ -188,11 +188,11 @@ final class Util
 		$current_time_local = current_time('mysql');
 		$current_time_gmt = current_time('mysql', 1);
 
-		// â­ Get buffer time (default 60 minutes) and convert to seconds
+		// ⭐ Get buffer time (default 60 minutes) and convert to seconds
 		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_buffer_time', '60');
 		$buffer_seconds = $buffer_minutes * 60;
 
-		// â­ OMNI-QUERY: Support legacy, manual, and new frontend bookings simultaneously
+		// ⭐ OMNI-QUERY: Support legacy, manual, and new frontend bookings simultaneously
 		$result = $wpdb->get_var(
 			$wpdb->prepare(
 				"
@@ -261,10 +261,10 @@ final class Util
 		);
 
 		// Conflict check with accurate date interval handling
-		// â­ Exclude pending bookings with expired payment deadline
+		// ⭐ Exclude pending bookings with expired payment deadline
 
 		// BUFFER TIME
-		// â­ TIMEZONE SYNC
+		// ⭐ TIMEZONE SYNC
 		$gmt_offset = (float) get_option('gmt_offset');
 		$offset_string = ($gmt_offset >= 0 ? '+' : '-') . sprintf('%02d:%02d', abs((int)$gmt_offset), abs(($gmt_offset - (int)$gmt_offset) * 60));
 		$wpdb->query($wpdb->prepare("SET time_zone = %s", $offset_string));
@@ -405,12 +405,12 @@ final class Util
 		$start_ts = $datetime_result['start_ts'];
 		$end_ts   = $datetime_result['end_ts'];
 
-		// â­ Check from cache (but with shorter TTL for critical checks)
+		// ⭐ Check from cache (but with shorter TTL for critical checks)
 		// Cache is useful for performance but can show stale data
 		// For critical operations, we'll use has_overlap_locked instead
 		$cached_result = \MHMRentiva\Admin\Booking\Helpers\Cache::getAvailability($vehicle_id, $start_ts, $end_ts);
 		if ($cached_result !== null) {
-			// âš ï¸ Cache hit - but verify with real-time check if result is "available"
+			// ⚠️ Cache hit - but verify with real-time check if result is "available"
 			// This prevents showing stale "available" data when a booking was just created
 			if ($cached_result['ok'] === true) {
 				// Double-check with real-time overlap detection (no cache)
@@ -443,7 +443,7 @@ final class Util
 			$result = array(
 				'ok'            => true,
 				'code'          => 'ok',
-				'message'       => __('âœ… Great! This vehicle is available for your selected dates.', 'mhm-rentiva'),
+				'message'       => __('✅ Great! This vehicle is available for your selected dates.', 'mhm-rentiva'),
 				'days'          => $days,
 				'price_per_day' => $price_per_day,
 				'total_price'   => $total_price,
@@ -489,7 +489,7 @@ final class Util
 		$original_features = get_post_meta($original_vehicle_id, '_mhm_rentiva_features', true);
 		$original_features = is_array($original_features) ? $original_features : array();
 
-		// â­ Get original vehicle category and location (if available)
+		// ⭐ Get original vehicle category and location (if available)
 		$original_category = '';
 		$original_location = '';
 
@@ -511,7 +511,7 @@ final class Util
 
 		// Find available vehicles
 
-		// âš¡ Optimized: fetch only active vehicles with a sane limit
+		// ⚡ Optimized: fetch only active vehicles with a sane limit
 		$query_args = array(
 			'post_type'      => 'vehicle',
 			'post_status'    => 'publish',
@@ -534,7 +534,7 @@ final class Util
 		// We will prioritize same-category vehicles via calculate_vehicle_similarity later 
 		// instead of hard-filtering here, to avoid returning empty suggestions.
 
-		// â­ Filter by location if original vehicle has a location
+		// ⭐ Filter by location if original vehicle has a location
 		if (! empty($original_location)) {
 			// If location is a term ID (taxonomy)
 			if (is_numeric($original_location)) {
@@ -569,13 +569,13 @@ final class Util
 			)
 		);
 
-		// âš¡ Optimized: meta query already filtered â€“ use directly
+		// ⚡ Optimized: meta query already filtered – use directly
 		$available_vehicles = $all_vehicles;
 
 		$alternatives = array();
 		$days         = self::rental_days($start_ts, $end_ts);
 
-		// âš¡ Optimized: batch meta fetch to avoid N+1 queries
+		// ⚡ Optimized: batch meta fetch to avoid N+1 queries
 		$vehicle_ids  = array_map(
 			function ($v) {
 				return $v->ID;
@@ -613,7 +613,7 @@ final class Util
 			$has_overlap = self::has_overlap($vehicle->ID, $start_ts, $end_ts);
 
 			if (! $has_overlap) {
-				// âš¡ Optimized: reuse batch meta result
+				// ⚡ Optimized: reuse batch meta result
 				$price_per_day = (float) ($vehicle_meta[$vehicle->ID]['_mhm_rentiva_price_per_day'] ?? 0);
 				$total_price   = $price_per_day * $days;
 
@@ -629,7 +629,7 @@ final class Util
 					$features     = is_array($unserialized) ? $unserialized : array();
 				}
 
-				// â­ Get vehicle category and location for similarity calculation
+				// ⭐ Get vehicle category and location for similarity calculation
 				$vehicle_category = '';
 				$vehicle_location = '';
 
@@ -683,13 +683,13 @@ final class Util
 			}
 		);
 
-		// âš¡ Optimized: apply limit as early as possible
+		// ⚡ Optimized: apply limit as early as possible
 		return array_slice($alternatives, 0, min($limit, 5)); // Maksimum 5 alternatif
 	}
 
 	/**
 	 * Calculate vehicle similarity score
-	 * â­ Enhanced with category and location matching
+	 * ⭐ Enhanced with category and location matching
 	 */
 	private static function calculate_vehicle_similarity(
 		array $original_features,
@@ -718,7 +718,7 @@ final class Util
 			$score += 20; // Default score (reduced from 30)
 		}
 
-		// â­ Category similarity (20% - NEW)
+		// ⭐ Category similarity (20% - NEW)
 		if (! empty($original_category) && ! empty($alternative_category)) {
 			if ($alternative_category == $original_category) {
 				$score += 20; // Same category - full points
@@ -729,7 +729,7 @@ final class Util
 			$score += 10; // Both have no category - partial points
 		}
 
-		// â­ Location similarity (10% - NEW)
+		// ⭐ Location similarity (10% - NEW)
 		if (! empty($original_location) && ! empty($alternative_location)) {
 			if ($alternative_location == $original_location) {
 				$score += 10; // Same location - full points
@@ -812,3 +812,6 @@ final class Util
 		);
 	}
 }
+
+
+

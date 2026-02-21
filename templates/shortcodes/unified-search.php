@@ -43,7 +43,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
 }
 ?>
 
-<div id="<?php echo esc_attr($uid); ?>" class="rv-unified-search rv-unified-search--<?php echo esc_attr($layout ?? 'horizontal'); ?> rv-unified-search--<?php echo esc_attr($style ?? 'glass'); ?>">
+<div id="<?php echo esc_attr($uid); ?>" class="rv-unified-search mhm-premium-search rv-unified-search--<?php echo esc_attr($layout ?? 'horizontal'); ?> rv-unified-search--<?php echo esc_attr($style ?? 'glass'); ?>">
 
     <!-- 1. Tabs Header (Show if at least one tab is enabled) -->
     <?php if ($show_rental_tab || $show_transfer_tab) : ?>
@@ -89,7 +89,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                         <div class="rv-unified-search__field">
                             <label class="rv-label"><?php esc_html_e('Pick-up', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
-                                <span class="rv-icon-marker"><?php Icons::render('location'); ?></span>
+                                <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
                                 <select name="pickup_location" class="rv-select" required title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
                                     <option value=""><?php esc_html_e('City, Airport, or Hotel', 'mhm-rentiva'); ?></option>
                                     <?php foreach ($locations as $loc): ?>
@@ -103,7 +103,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                             <div class="rv-unified-search__field">
                                 <label class="rv-label"><?php esc_html_e('Drop-off', 'mhm-rentiva'); ?></label>
                                 <div class="rv-input-wrapper">
-                                    <span class="rv-icon-marker"><?php Icons::render('location'); ?></span>
+                                    <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
                                     <select name="dropoff_location" class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
                                         <option value=""><?php esc_html_e('Same as Pick-up', 'mhm-rentiva'); ?></option>
                                         <?php foreach ($locations as $loc): ?>
@@ -117,13 +117,13 @@ if (!$show_rental_tab && $show_transfer_tab) {
                 <?php endif; ?>
 
                 <!-- Dates -->
-                <div class="rv-unified-search__group rv-unified-search__group--mobile-grid">
+                <div class="rv-unified-search__group rv-unified-search__group--mobile-grid mhm-row-date-time">
                     <!-- Pickup Date -->
                     <?php if ($show_date_picker) : ?>
                         <div class="rv-unified-search__field">
                             <label class="rv-label"><?php esc_html_e('Pick-up Date', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
-                                <span class="rv-icon-calendar"><?php Icons::render('calendar'); ?></span>
+                                <?php Icons::render('calendar', ['class' => 'rv-icon-calendar']); ?>
                                 <input type="text" name="pickup_date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off">
                             </div>
                         </div>
@@ -134,7 +134,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                         <div class="rv-unified-search__field rv-unified-search__field--time">
                             <label class="rv-label"><?php esc_html_e('Time', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
-                                <span class="rv-icon-clock"><?php Icons::render('clock'); ?></span>
+                                <?php Icons::render('clock', ['class' => 'rv-icon-clock']); ?>
                                 <select name="pickup_time" class="rv-select">
                                     <?php for ($i = 0; $i < 24; $i++): ?>
                                         <?php $pickup_hour = sprintf('%02d:00', $i); ?>
@@ -152,13 +152,13 @@ if (!$show_rental_tab && $show_transfer_tab) {
                     <?php endif; ?>
                 </div>
 
-                <div class="rv-unified-search__group rv-unified-search__group--mobile-grid">
+                <div class="rv-unified-search__group rv-unified-search__group--mobile-grid mhm-row-date-time">
                     <!-- Return Date -->
                     <?php if ($show_date_picker) : ?>
                         <div class="rv-unified-search__field">
                             <label class="rv-label"><?php esc_html_e('Return Date', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
-                                <span class="rv-icon-calendar"><?php Icons::render('calendar'); ?></span>
+                                <?php Icons::render('calendar', ['class' => 'rv-icon-calendar']); ?>
                                 <input type="text" name="return_date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off">
                             </div>
                         </div>
@@ -169,7 +169,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                         <div class="rv-unified-search__field rv-unified-search__field--time">
                             <label class="rv-label"><?php esc_html_e('Time', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper is-locked">
-                                <span class="rv-icon-lock"><?php Icons::render('lock'); ?></span>
+                                <?php Icons::render('lock', ['class' => 'rv-icon-lock']); ?>
                                 <select name="return_time_display" class="rv-select" disabled>
                                     <?php for ($i = 0; $i < 24; $i++): ?>
                                         <?php $return_hour = sprintf('%02d:00', $i); ?>
@@ -227,7 +227,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                         <div class="rv-unified-search__field">
                             <label class="rv-label"><?php esc_html_e('Dropoff Location', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
-                                <span class="rv-icon-marker dashicons dashicons-location"></span>
+                                <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
                                 <select name="destination_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
                                     <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
                                     <?php foreach ($locations as $loc): ?>
@@ -239,7 +239,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                     </div>
                 <?php endif; ?>
 
-                <div class="rv-unified-search__group rv-unified-search__group--mobile-grid">
+                <div class="rv-unified-search__group rv-unified-search__group--mobile-grid mhm-row-date-time">
                     <?php if ($show_date_picker) : ?>
                         <div class="rv-unified-search__field">
                             <label class="rv-label"><?php esc_html_e('Date', 'mhm-rentiva'); ?></label>
@@ -253,7 +253,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                         <div class="rv-unified-search__field rv-unified-search__field--time">
                             <label class="rv-label"><?php esc_html_e('Time', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
-                                <span class="rv-icon-clock"><?php Icons::render('clock'); ?></span>
+                                <?php Icons::render('clock', ['class' => 'rv-icon-clock']); ?>
                                 <select name="time" class="rv-select">
                                     <?php for ($i = 0; $i < 24; $i++): ?>
                                         <?php $transfer_hour = sprintf('%02d:00', $i); ?>
@@ -272,7 +272,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                 </div>
 
                 <?php if ($show_pax) : ?>
-                    <div class="rv-unified-search__group rv-unified-search__group--pax rv-unified-search__group--mobile-grid">
+                    <div class="rv-unified-search__group rv-unified-search__group--pax rv-unified-search__group--mobile-grid mhm-row-passengers">
                         <div class="rv-unified-search__field">
                             <label class="rv-label"><?php esc_html_e('Adults', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
@@ -292,7 +292,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
 
                 <!-- Functional Parity: Luggage Fields -->
                 <?php if ($show_luggage) : ?>
-                    <div class="rv-unified-search__group rv-unified-search__group--luggage rv-unified-search__group--mobile-grid">
+                    <div class="rv-unified-search__group rv-unified-search__group--luggage rv-unified-search__group--mobile-grid mhm-row-bags">
                         <div class="rv-unified-search__field">
                             <label class="rv-label"><?php esc_html_e('Big Bags', 'mhm-rentiva'); ?> <span class="required" style="color:red;">(*)</span></label>
                             <div class="rv-input-wrapper">

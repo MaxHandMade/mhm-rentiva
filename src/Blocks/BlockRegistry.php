@@ -25,6 +25,9 @@ class BlockRegistry {
 
 
 
+
+
+
 	/**
 	 * Runtime cache for resolved asset versions.
 	 *
@@ -167,9 +170,12 @@ class BlockRegistry {
 	 * Enqueue assets for both frontend and editor iframe
 	 */
 	public static function enqueue_block_assets(): void
-	{
+    {
 		// Ensure core variables are available inside the editor iframe AND frontend
-		wp_enqueue_style('mhm-rentiva-core-variables');
+       wp_enqueue_style('mhm-css-variables');
+		wp_enqueue_style(
+          'mhm-golden-ratio-contract', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/golden-ratio-contract.css', array( 'mhm-css-variables' ), self::get_asset_version('assets/css/core/golden-ratio-contract.css')
+       );
 
 		// Note: 'mhm-rentiva-datepicker-custom' and 'mhm-vehicle-card-css' are now loaded
 		// conditionally by the specific blocks/shortcodes that need them.
@@ -177,10 +183,11 @@ class BlockRegistry {
 		// Apply editor styles for better iframe coverage
 		if (is_admin()) {
 			add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css');
+			add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/golden-ratio-contract.css');
 			// We might still want datepicker styles in the editor for UX if they use it
-			add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css');
-		}
-	}
+           add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css');
+        }
+  }
 
 	/**
 	 * Enqueue block editor specific assets (Shell/UI)
@@ -254,8 +261,8 @@ class BlockRegistry {
 	 * @param string $src Script source URL.
 	 * @return string Modified script tag.
 	 */
-	public static function add_module_type_to_search_block(string $tag, string $handle, string $src): string
-	{ // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	public static function add_module_type_to_search_block(string $tag, string $handle, string $src): string // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	{
 		// NO-OP: We have refactored blocks to use global `wp` variables (IIFE) instead of ES modules.
 		// This avoids "Failed to resolve module specifier" errors in environments without a build step.
 		return $tag;
@@ -404,52 +411,51 @@ class BlockRegistry {
 		$config = self::$blocks[ $slug ];
 		$tag    = $config['tag'];
 
-		// Consolidate dimensions into a single style attribute for the shortcode
-		// We also pass them individually in lowercase to avoid case-sensitivity issues with WP shortcode parser
-		$style_parts = array();
-		if (! empty($attributes['minWidth'])) {
-			$val = $attributes['minWidth'];
-			if (is_numeric($val)) {
-				$val .= 'px';
+		// Guard against double mapping (especially when called recursively or via blocks-in-shortcodes)
+		if (! empty($attributes['_canonical'])) {
+			$mapped_attributes = $attributes;
+		} else {
+			// 1. Extract Wrapper Logic (Dimensions) before CAM drops unknown attributes
+			$style_parts = array();
+			if (! empty($attributes['minWidth'])) {
+				$val = $attributes['minWidth'];
+				if (is_numeric($val)) {
+					$val .= 'px';
+				}
+				$style_parts[] = "min-width:$val";
 			}
-			$style_parts[]          = "min-width:$val";
-			$attributes['minwidth'] = $val;
-		}
-		if (! empty($attributes['maxWidth'])) {
-			$val = $attributes['maxWidth'];
-			if (is_numeric($val)) {
-				$val .= 'px';
+			if (! empty($attributes['maxWidth'])) {
+				$val = $attributes['maxWidth'];
+				if (is_numeric($val)) {
+					$val .= 'px';
+				}
+				$style_parts[] = "max-width:$val";
 			}
-			$style_parts[]          = "max-width:$val";
-			$attributes['maxwidth'] = $val;
-		}
-		if (! empty($attributes['height'])) {
-			$val = $attributes['height'];
-			if (is_numeric($val)) {
-				$val .= 'px';
+			if (! empty($attributes['height'])) {
+				$val = $attributes['height'];
+				if (is_numeric($val)) {
+					$val .= 'px';
+				}
+				$style_parts[] = "height:$val";
 			}
-			$style_parts[]        = "height:$val";
-			$attributes['height'] = $val; // Overwrite with PX if needed
-		}
 
-		if (! empty($style_parts)) {
-			$attributes['style'] = implode(';', $style_parts) . ';';
-		}
+			if (! empty($style_parts)) {
+				$attributes['style'] = implode(';', $style_parts) . ';';
+			}
 
-		/**
-		 * We use do_shortcode() instead of calling classes directly because:
-		 * 1. ShortcodeServiceProvider already handles access control (authentication).
-		 * 2. It handles dependency loading and asset synchronization.
-		 * 3. It ensures third-party filters on shortcodes are respected.
-		 */
-		$mapped_attributes = self::map_attributes_to_shortcode($attributes, $tag);
+			// 2. Canonical Attribute Mapping (Registry Driven)
+			$mapped_attributes               = \MHMRentiva\Core\Attribute\CanonicalAttributeMapper::map($tag, $attributes);
+			$mapped_attributes['_canonical'] = true;
+       }
 
 		// Ensure Search Results runtime JS/localization is always present for block instances.
 		if ($tag === 'rentiva_search_results' && class_exists(\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::class)) {
 			\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::ensure_runtime_assets($mapped_attributes);
 		}
 
-		$shortcode_content = do_shortcode('[' . $tag . ' ' . self::attributes_to_string($mapped_attributes) . ']');
+		$shortcode_attrs_string = self::attributes_to_string($mapped_attributes);
+
+		$shortcode_content = do_shortcode('[' . $tag . ' ' . $shortcode_attrs_string . ']');
 
 		// Prepare wrapper attributes to ensure dimensions are applied to the container
 		$wrapper_args   = array();
@@ -488,129 +494,10 @@ class BlockRegistry {
 
 		// Return wrapped content with proper block wrapper attributes (FSE support)
 		return sprintf(
-			'<div %s data-debug-atts="%s">%s</div>',
-			get_block_wrapper_attributes($wrapper_args),
-			esc_attr(self::attributes_to_string($mapped_attributes)),
-			$shortcode_content
-		);
-	}
+            '<div %s>%s</div>', get_block_wrapper_attributes($wrapper_args), $shortcode_content
+     );
+ }
 
-	/**
-	 * Map block attributes to shortcode attributes
-	 * Handles camelCase to snake_case conversion and specific aliases.
-	 *
-	 * @param array $attributes Block attributes.
-	 * @return array
-	 */
-	private static function map_attributes_to_shortcode(array $attributes, string $tag = ''): array
-	{
-		$mapped = array();
-
-		// Manual mapping table (Aliases/Overrides)
-		$aliases = array(
-			'className'           => 'class', // Standardized for all blocks
-
-			// Visibility Toggles (Gutenberg camelCase to Shortcode snake_case)
-			'showPrice'           => 'show_price',
-			'showRating'          => 'show_rating',
-			'showDescription'     => 'show_description',
-			'showFeatures'        => 'show_features',
-			'showBookingButton'   => 'show_booking_btn',
-			'showBookButton'      => 'show_booking_btn', // Standardized Alias
-			'showImages'          => 'show_image',
-			'showTitle'           => 'show_title',
-			'showBadges'          => 'show_badges',
-			'showFavoriteButton'  => 'show_favorite_button',
-			'showAvailability'    => 'show_availability',
-			'showCompareButton'   => 'show_compare_button',
-
-			// Filter/Sort Mappings (Gutenberg camelCase to Shortcode naming)
-			'filterCategories'    => 'category',
-			'filterBrands'        => 'brands',
-			'sortBy'              => 'orderby',
-			'sortOrder'           => 'order',
-
-			// Dimension Mappings
-			'minWidth'            => 'minwidth',
-			'maxWidth'            => 'maxwidth',
-
-			// Rating Filter Mappings
-			'minRating'           => 'min_rating',
-			'minReviews'          => 'min_reviews',
-			'enableAjaxFiltering' => 'enable_ajax_filtering',
-
-			// Testimonials Mapping Aliases
-			'limitItems'          => 'limit',
-			'autoplay'            => 'auto_rotate',
-			'showAuthorName'      => 'show_customer',
-			'showVehicleName'     => 'show_vehicle',
-		);
-
-		// Global Ignore List (Attributes that should never be passed to shortcodes)
-		$ignored_keys = array(
-			'show_insurance',
-			'show_date_picker',
-		);
-
-		// Specialized Block-Specific Overrides
-		if ($tag === 'rentiva_vehicle_comparison') {
-			$aliases['showPrice']            = 'show_prices';
-			$aliases['showComparisonImages'] = 'show_images';
-			$aliases['showBookButton']       = 'show_booking_buttons';
-			$aliases['showRemoveButton']     = 'show_remove_buttons';
-			$aliases['showAddVehicle']       = 'show_add_vehicle';
-			$aliases['maxVehicles']          = 'max_vehicles';
-			$aliases['vehicleIds']           = 'vehicle_ids';
-
-			// isolated showFeatures transform
-			if (isset($attributes['showFeatures'])) {
-				$attributes['show_features'] = $attributes['showFeatures'] ? 'all' : 'basic';
-				unset($attributes['showFeatures']);
-			}
-		}
-
-		if ($tag === 'rentiva_booking_form') {
-			$aliases['startDate']      = 'start_date';
-			$aliases['endDate']        = 'end_date';
-			$aliases['defaultDays']    = 'default_days';
-			$aliases['minDays']        = 'min_days';
-			$aliases['maxDays']        = 'max_days';
-			$aliases['redirectUrl']    = 'redirect_url';
-			$aliases['defaultPayment'] = 'default_payment';
-		}
-
-		foreach ($attributes as $key => $value) {
-			// 1. Check if key is explicitly ignored
-			if (in_array($key, $ignored_keys, true)) {
-				continue;
-			}
-
-			// 2. Check for manual alias
-			$target_key = $aliases[ $key ] ?? null;
-
-			// 3. If no alias, convert camelCase to snake_case
-			if (! $target_key) {
-				$target_key = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
-			}
-
-			// 4. Final filter: If the resulting key is in ignored list, skip it
-			if (in_array($target_key, $ignored_keys, true)) {
-				continue;
-			}
-
-			// 5. Store mapped value (scalars only for shortcodes)
-			if (is_scalar($value)) {
-				// Convert boolean to string "1"/"0" or "true"/"false" as expected by some shortcodes
-				if (is_bool($value)) {
-					$mapped[ $target_key ] = $value ? '1' : '0';
-				} else {
-					$mapped[ $target_key ] = $value;
-				}
-			}
-		}
-
-		return $mapped;
-	}
 
 	/**
 	 * Convert attributes array to shortcode string
@@ -622,6 +509,9 @@ class BlockRegistry {
 	{
 		$out = '';
 		foreach ($attributes as $key => $value) {
+			if (is_bool($value)) {
+				$value = $value ? '1' : '0';
+			}
 			if (is_scalar($value)) {
 				$out .= sprintf('%s="%s" ', esc_attr($key), esc_attr( (string) $value));
 			}

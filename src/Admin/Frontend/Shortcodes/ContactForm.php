@@ -732,3 +732,4 @@ final class ContactForm extends AbstractShortcode
 		);
 	}
 }
+

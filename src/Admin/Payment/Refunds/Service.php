@@ -407,3 +407,4 @@ final class Service {
 		return $result['amount'] ?? 0;
 	}
 }
+

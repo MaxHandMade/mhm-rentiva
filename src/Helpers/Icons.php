@@ -55,7 +55,7 @@ class Icons {
 
         // Base SVG attributes
         $attrs = sprintf(
-            'class="%s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: %s; height: %s; %s"',
+            'class="%s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" overflow="visible" style="width: %s; height: %s; %s"',
             esc_attr($classes),
             esc_attr($args['width']),
             esc_attr($args['height']),

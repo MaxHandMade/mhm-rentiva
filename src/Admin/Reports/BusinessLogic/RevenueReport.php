@@ -22,10 +22,10 @@ final class RevenueReport {
 		$data      = get_transient( $cache_key );
 
 		if ( $data === false ) {
-			// âœ… OPTIMIZED QUERY - Daily revenue data (COMPLETED AND CONFIRMED ONLY)
+			// ✅ OPTIMIZED QUERY - Daily revenue data (COMPLETED AND CONFIRMED ONLY)
 			$daily_revenue = ReportRepository::get_daily_revenue_data( $start_date, $end_date );
 
-			// âœ… OPTIMIZED QUERY - Payment method distribution
+			// ✅ OPTIMIZED QUERY - Payment method distribution
 			$payment_methods = ReportRepository::get_payment_method_distribution( $start_date, $end_date );
 
 			// Monthly comparison
@@ -177,3 +177,4 @@ final class RevenueReport {
 		Export::export_data( $export_data, $filename, $format );
 	}
 }
+

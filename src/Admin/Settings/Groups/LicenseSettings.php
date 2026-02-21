@@ -251,3 +251,4 @@ final class LicenseSettings {
 		return $sanitized_data;
 	}
 }
+

@@ -6,6 +6,8 @@ namespace MHMRentiva\Admin\Frontend\Widgets\Base;
 
 use Elementor\Widget_Base;
 use Elementor\Controls_Manager;
+use MHMRentiva\Core\Attribute\AllowlistRegistry;
+use MHMRentiva\Core\Attribute\KeyNormalizer;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -28,8 +30,35 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	 * Get Widget Categories
 	 */
 	public function get_categories(): array {
-		return array( 'mhm-rentiva-category' );
+		return array( 'mhm-rentiva' );
 	}
+
+	/**
+	 * Elementor lifecycle entrypoint for controls.
+	 * Child widgets may either override this method directly or implement
+	 * register_content_controls/register_style_controls hooks.
+	 */
+	protected function register_controls(): void {
+		if ( method_exists( $this, 'register_content_controls' ) ) {
+			$this->register_content_controls();
+		}
+
+		if ( method_exists( $this, 'register_style_controls' ) ) {
+			$this->register_style_controls();
+		}
+
+		$this->register_parity_controls_from_block();
+	}
+
+	/**
+	 * Optional hook for child widgets.
+	 */
+	protected function register_content_controls(): void {}
+
+	/**
+	 * Optional hook for child widgets.
+	 */
+	protected function register_style_controls(): void {}
 
 	/**
 	 * Automated Attribute Preparation
@@ -176,7 +205,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	protected function get_vehicle_options(): array {
 		$vehicles = get_posts(
 			array(
-				'post_type'      => 'rentiva_vehicle',
+				'post_type'      => 'vehicle',
 				'posts_per_page' => -1,
 				'post_status'    => 'publish',
 			)
@@ -206,5 +235,239 @@ abstract class ElementorWidgetBase extends Widget_Base {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Auto-add missing widget controls from corresponding Gutenberg block attributes.
+	 * This keeps Elementor controls aligned with canonical block/shortcode contracts.
+	 */
+	protected function register_parity_controls_from_block(): void {
+		$shortcode_tag = $this->get_mapped_shortcode_tag();
+		if ( '' === $shortcode_tag ) {
+			return;
+		}
+
+		$block_slug = self::get_block_slug_by_shortcode_tag( $shortcode_tag );
+		if ( '' === $block_slug ) {
+			return;
+		}
+
+		$json_path = trailingslashit( MHM_RENTIVA_PLUGIN_DIR ) . 'assets/blocks/' . $block_slug . '/block.json';
+		if ( ! file_exists( $json_path ) ) {
+			return;
+		}
+
+		// Local file read for plugin-owned block metadata.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$raw = file_get_contents( $json_path );
+		if ( false === $raw ) {
+			return;
+		}
+
+		$block_json = json_decode( $raw, true );
+		if ( ! is_array( $block_json ) || empty( $block_json['attributes'] ) || ! is_array( $block_json['attributes'] ) ) {
+			return;
+		}
+
+		$schema            = AllowlistRegistry::get_schema( $shortcode_tag );
+		$existing_controls = array_keys( $this->get_controls() );
+		$missing           = array();
+
+		foreach ( $block_json['attributes'] as $attr_name => $attr_config ) {
+			if ( ! is_string( $attr_name ) || '' === $attr_name || ! is_array( $attr_config ) ) {
+				continue;
+			}
+
+			// Skip className because Elementor already provides this in Advanced tab.
+			if ( 'className' === $attr_name ) {
+				continue;
+			}
+
+			if ( in_array( $attr_name, $existing_controls, true ) ) {
+				continue;
+			}
+
+			$canonical = KeyNormalizer::normalize( $attr_name, $schema );
+			if ( ! isset( $schema[ $canonical ] ) ) {
+				continue;
+			}
+
+			$missing[ $attr_name ] = $attr_config;
+		}
+
+		if ( empty( $missing ) ) {
+			return;
+		}
+
+		$this->start_controls_section(
+			'mhm_parity_section',
+			array(
+				'label' => __( 'Parity Controls', 'mhm-rentiva' ),
+				'tab'   => 'content',
+			)
+		);
+
+		foreach ( $missing as $attr_name => $attr_config ) {
+			$this->add_parity_control_from_schema( $attr_name, $attr_config );
+		}
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Adds one Elementor control derived from block attribute schema.
+	 */
+	private function add_parity_control_from_schema( string $attr_name, array $attr_config ): void {
+		$type    = isset( $attr_config['type'] ) && is_string( $attr_config['type'] ) ? $attr_config['type'] : 'string';
+		$default = $attr_config['default'] ?? '';
+		$label   = $this->format_control_label( $attr_name );
+
+		if ( 'boolean' === $type ) {
+			$this->add_control(
+				$attr_name,
+				array(
+					'label'        => $label,
+					'type'         => Controls_Manager::SWITCHER,
+					'return_value' => 'yes',
+					'default'      => $default ? 'yes' : 'no',
+				)
+			);
+			return;
+		}
+
+		if ( ( 'integer' === $type || 'number' === $type ) && isset( $attr_config['enum'] ) && is_array( $attr_config['enum'] ) ) {
+			$options = array();
+			foreach ( $attr_config['enum'] as $enum_value ) {
+				if ( is_scalar( $enum_value ) ) {
+					$enum_key             = (string) $enum_value;
+					$options[ $enum_key ] = $enum_key;
+				}
+			}
+
+			$this->add_control(
+				$attr_name,
+				array(
+					'label'   => $label,
+					'type'    => Controls_Manager::SELECT,
+					'options' => $options,
+					'default' => is_scalar( $default ) ? (string) $default : '',
+				)
+			);
+			return;
+		}
+
+		if ( ( 'string' === $type || 'integer' === $type || 'number' === $type ) && isset( $attr_config['enum'] ) && is_array( $attr_config['enum'] ) ) {
+			$options = array();
+			foreach ( $attr_config['enum'] as $enum_value ) {
+				if ( is_scalar( $enum_value ) ) {
+					$enum_key             = (string) $enum_value;
+					$options[ $enum_key ] = $enum_key;
+				}
+			}
+
+			$this->add_control(
+				$attr_name,
+				array(
+					'label'   => $label,
+					'type'    => Controls_Manager::SELECT,
+					'options' => $options,
+					'default' => is_scalar( $default ) ? (string) $default : '',
+				)
+			);
+			return;
+		}
+
+		if ( 'integer' === $type || 'number' === $type ) {
+			$this->add_control(
+				$attr_name,
+				array(
+					'label'   => $label,
+					'type'    => Controls_Manager::NUMBER,
+					'default' => is_numeric( $default ) ? (float) $default : null,
+				)
+			);
+			return;
+		}
+
+		$this->add_control(
+			$attr_name,
+			array(
+				'label'   => $label,
+				'type'    => Controls_Manager::TEXT,
+				'default' => is_scalar( $default ) ? (string) $default : '',
+			)
+		);
+	}
+
+	/**
+	 * Resolve shortcode tag by widget class for parity mapping.
+	 */
+	protected function get_mapped_shortcode_tag(): string {
+		$class = (string) static::class;
+		$class = str_replace('\\', '/', $class);
+		$class = basename( $class );
+
+		$map = array(
+			'AvailabilityCalendarWidget' => 'rentiva_availability_calendar',
+			'BookingConfirmationWidget'  => 'rentiva_booking_confirmation',
+			'BookingFormWidget'          => 'rentiva_booking_form',
+			'ContactFormWidget'          => 'rentiva_contact',
+			'FeaturedVehiclesWidget'     => 'rentiva_featured_vehicles',
+			'MyBookingsWidget'           => 'rentiva_my_bookings',
+			'MyFavoritesWidget'          => 'rentiva_my_favorites',
+			'MyMessagesWidget'           => 'rentiva_messages',
+			'PaymentHistoryWidget'       => 'rentiva_payment_history',
+			'SearchResultsWidget'        => 'rentiva_search_results',
+			'TestimonialsWidget'         => 'rentiva_testimonials',
+			'TransferResultsWidget'      => 'rentiva_transfer_results',
+			'TransferSearchWidget'       => 'rentiva_transfer_search',
+			'UnifiedSearchWidget'        => 'rentiva_unified_search',
+			'VehicleComparisonWidget'    => 'rentiva_vehicle_comparison',
+			'VehicleDetailsWidget'       => 'rentiva_vehicle_details',
+			'VehicleRatingWidget'        => 'rentiva_vehicle_rating_form',
+			'VehiclesGridWidget'         => 'rentiva_vehicles_grid',
+			'VehiclesListWidget'         => 'rentiva_vehicles_list',
+			'VehicleCardWidget'          => 'rentiva_vehicles_list',
+		);
+
+		return $map[ $class ] ?? '';
+	}
+
+	/**
+	 * Resolve block slug by shortcode tag.
+	 */
+	private static function get_block_slug_by_shortcode_tag( string $shortcode_tag ): string {
+		$map = array(
+			'rentiva_availability_calendar' => 'availability-calendar',
+			'rentiva_booking_confirmation'  => 'booking-confirmation',
+			'rentiva_booking_form'          => 'booking-form',
+			'rentiva_contact'               => 'contact',
+			'rentiva_featured_vehicles'     => 'featured-vehicles',
+			'rentiva_messages'              => 'messages',
+			'rentiva_my_bookings'           => 'my-bookings',
+			'rentiva_my_favorites'          => 'my-favorites',
+			'rentiva_payment_history'       => 'payment-history',
+			'rentiva_search_results'        => 'search-results',
+			'rentiva_testimonials'          => 'testimonials',
+			'rentiva_transfer_results'      => 'transfer-results',
+			'rentiva_transfer_search'       => 'transfer-search',
+			'rentiva_unified_search'        => 'unified-search',
+			'rentiva_vehicle_comparison'    => 'vehicle-comparison',
+			'rentiva_vehicle_details'       => 'vehicle-details',
+			'rentiva_vehicle_rating_form'   => 'vehicle-rating-form',
+			'rentiva_vehicles_grid'         => 'vehicles-grid',
+			'rentiva_vehicles_list'         => 'vehicles-list',
+		);
+
+		return $map[ $shortcode_tag ] ?? '';
+	}
+
+	/**
+	 * Convert control key to readable label.
+	 */
+	private function format_control_label( string $name ): string {
+		$name = preg_replace( '/(?<!^)[A-Z]/', ' $0', $name );
+		$name = str_replace( '_', ' ', (string) $name );
+		return ucwords( trim( (string) $name ) );
 	}
 }

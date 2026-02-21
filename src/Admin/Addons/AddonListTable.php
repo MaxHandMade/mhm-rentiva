@@ -702,3 +702,4 @@ final class AddonListTable extends AbstractListTable {
 		);
 	}
 }
+

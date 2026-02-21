@@ -119,7 +119,7 @@ final class DemoSeeder
 
         $this->disable_email_simulation();
 
-        return $msg . __('âœ… Demo v15 (Notification Suite) Completed! Check CLI logs for email triggers.', 'mhm-rentiva');
+        return $msg . __('✅ Demo v15 (Notification Suite) Completed! Check CLI logs for email triggers.', 'mhm-rentiva');
     }
 
     /**
@@ -214,7 +214,7 @@ final class DemoSeeder
 
         // Security check: Only administrators can run cleanup
         if (! current_user_can('manage_options')) {
-            return __('âŒ Error: You do not have permission to perform this action.', 'mhm-rentiva');
+            return __('❌ Error: You do not have permission to perform this action.', 'mhm-rentiva');
         }
 
         $count = 0;
@@ -401,8 +401,8 @@ final class DemoSeeder
                 '%(SAW)%',
                 'Taksim Square',
                 'Kadikoy Port',
-                'Taksim MeydanÄ±',
-                'KadÄ±kÃ¶y RÄ±htÄ±m'
+                'Taksim Meydanı',
+                'Kadıköy Rıhtım'
             )
         );
         $wpdb->query(
@@ -448,7 +448,7 @@ final class DemoSeeder
 
         return sprintf(
             /* translators: 1: Deleted count, 2: Protected count */
-            __('ğŸ§¹ Surgical cleanup completed: %1$d demo records removed. %2$d manual records/administrators protected.', 'mhm-rentiva'),
+            __('🧹 Surgical cleanup completed: %1$d demo records removed. %2$d manual records/administrators protected.', 'mhm-rentiva'),
             $count,
             $protected_count
         );
@@ -497,7 +497,7 @@ final class DemoSeeder
     {
         $ids = array();
 
-        // ğŸš— Vehicle Fleet Configuration
+        // 🚗 Vehicle Fleet Configuration
         $blueprint = array(
             // 1. ECONOMY
             array('qty' => 3, 'brand' => 'Volkswagen', 'model' => 'Polo', 'price' => 80, 'trans' => 'manual', 'fuel' => 'petrol', 'year' => 2024, 'seats' => 5, 'luggage' => 2, 'cat' => 'Economy', 'color' => 'White', 'engine' => '1.0'),
@@ -789,3 +789,7 @@ final class DemoSeeder
         \wp_insert_comment(array('comment_post_ID' => $pid, 'comment_content' => 'Excellent service and car quality.', 'comment_author' => $name, 'comment_approved' => 1, 'comment_type' => 'review'));
     }
 }
+
+
+
+

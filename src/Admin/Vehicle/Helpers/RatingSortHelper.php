@@ -188,3 +188,4 @@ final class RatingSortHelper {
 	 */
 	private function __construct() {}
 }
+

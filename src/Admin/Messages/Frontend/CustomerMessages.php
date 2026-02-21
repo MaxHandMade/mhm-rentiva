@@ -230,3 +230,5 @@ final class CustomerMessages {
 		<?php
 	}
 }
+
+

@@ -144,3 +144,4 @@ class DepositAjax {
 		wp_send_json_success( $result );
 	}
 }
+

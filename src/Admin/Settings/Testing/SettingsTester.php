@@ -1080,3 +1080,4 @@ final class SettingsTester {
 		return $results;
 	}
 }
+

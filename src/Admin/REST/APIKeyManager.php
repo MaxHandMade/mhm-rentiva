@@ -325,3 +325,4 @@ final class APIKeyManager {
 		return update_option( self::OPTION_NAME, $keys ) !== false;
 	}
 }
+

@@ -278,10 +278,11 @@ final class AccountController
 		// Conditional Loading: Only load account assets on account pages or endpoints
 		// This prevents CSS leakage onto other pages (like Vehicles List).
 		// See M5 Audit (Step 4B).
-		$is_account = self::is_account_page();
-		$has_endpoint = ! empty($endpoint);
+		$is_account             = self::is_account_page();
+		$has_endpoint           = ! empty($endpoint);
+		$is_woocommerce_account = function_exists('is_account_page') && is_account_page();
 
-		if ($is_account || $has_endpoint) {
+		if ($is_account || $has_endpoint || $is_woocommerce_account) {
 			// Load CSS file
 			wp_enqueue_style(
 				'mhm-rentiva-my-account',

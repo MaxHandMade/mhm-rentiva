@@ -369,3 +369,4 @@ final class VehicleGallery extends AbstractMetaBox {
 		return $frontend_images;
 	}
 }
+

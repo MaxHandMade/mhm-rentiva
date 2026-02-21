@@ -237,3 +237,4 @@ class DatabaseCleanupCommand {
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	\WP_CLI::add_command( 'mhm-rentiva cleanup', DatabaseCleanupCommand::class );
 }
+

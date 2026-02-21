@@ -95,8 +95,15 @@ abstract class AbstractShortcode
 		$start_time = microtime(true);
 
 		try {
-			// Normalize attributes
-			$atts = shortcode_atts(static::get_default_attributes(), $atts, static::get_shortcode_tag());
+			$tag = static::get_shortcode_tag();
+
+
+			// 1. Attribute normalization
+			// Canonical payloads come from BlockRegistry/CAM and must not be truncated by shortcode_atts.
+			if (empty($atts['_canonical'])) {
+				$atts = shortcode_atts(static::get_default_attributes(), $atts, $tag);
+				$atts = \MHMRentiva\Core\Attribute\CanonicalAttributeMapper::map($tag, $atts);
+			}
 
 			// Performance: Cache check
 			$cache_key = static::get_cache_key($atts);
@@ -110,6 +117,9 @@ abstract class AbstractShortcode
 			// Prepare template data
 			$template_data = static::prepare_template_data($atts);
 
+			// Internal guard should not leak into template layer.
+			unset($template_data['atts']['_canonical']);
+
 			// Render template
 			$html = static::render_template($template_data);
 
@@ -122,7 +132,7 @@ abstract class AbstractShortcode
 			static::cache_html($cache_key, $html);
 
 			// Filter hook
-			$html = apply_filters('mhm_rentiva/shortcodes/' . static::get_shortcode_tag() . '/html', $html, $atts, $content);
+			$html = apply_filters('mhm_rentiva/shortcodes/' . $tag . '/html', $html, $atts, $content);
 
 			// Performance logging - disabled to reduce debug log noise
 			// $render_time = microtime(true) - $start_time;

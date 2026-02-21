@@ -174,7 +174,7 @@ final class BookingMeta extends AbstractMetaBox
 		// Show admin notices
 		add_action('admin_notices', array(self::class, 'show_admin_notices'));
 
-		// âœ… Auto calculation hook
+		// ✅ Auto calculation hook
 		add_action('mhm_rentiva_booking_meta_updated', array(self::class, 'on_booking_meta_updated'), 10, 3);
 	}
 
@@ -567,7 +567,7 @@ final class BookingMeta extends AbstractMetaBox
 		update_post_meta($post_id, '_mhm_guests', $guests);
 		update_post_meta($post_id, '_mhm_special_notes', $special_notes);
 
-		// âœ… Auto calculation - When date is changed
+		// ✅ Auto calculation - When date is changed
 		if ($pickup_date && $dropoff_date) {
 			self::recalculate_booking_costs($post_id, $pickup_date, $dropoff_date);
 		}
@@ -576,7 +576,7 @@ final class BookingMeta extends AbstractMetaBox
 		update_post_meta($post_id, '_mhm_pickup_time', $pickup_time);
 		update_post_meta($post_id, '_mhm_dropoff_time', $dropoff_time);
 
-		// âœ… WordPress hook with auto calculation
+		// ✅ WordPress hook with auto calculation
 		do_action('mhm_rentiva_booking_meta_updated', $post_id, $pickup_date, $dropoff_date);
 		update_post_meta($post_id, '_booking_pickup_date', $pickup_date);
 		update_post_meta($post_id, '_booking_pickup_time', $pickup_time);
@@ -1016,7 +1016,7 @@ final class BookingMeta extends AbstractMetaBox
 	}
 
 	/**
-	 * âœ… Rezervasyon maliyetlerini yeniden hesapla
+	 * ✅ Rezervasyon maliyetlerini yeniden hesapla
 	 */
 	public static function recalculate_booking_costs(int $booking_id, string $pickup_date, string $dropoff_date): void
 	{
@@ -1053,7 +1053,7 @@ final class BookingMeta extends AbstractMetaBox
 		$additional_services_price = (float) get_post_meta($booking_id, '_mhm_additional_services_price', true);
 		$total_price              += $additional_services_price;
 
-		// âœ… Deposit calculation
+		// ✅ Deposit calculation
 		$payment_type     = get_post_meta($booking_id, '_mhm_payment_type', true);
 		$deposit_amount   = 0;
 		$remaining_amount = $total_price;
@@ -1073,7 +1073,7 @@ final class BookingMeta extends AbstractMetaBox
 		update_post_meta($booking_id, '_mhm_rental_days', $days);
 		update_post_meta($booking_id, '_mhm_total_price', $total_price);
 
-		// âœ… Update deposit meta keys
+		// ✅ Update deposit meta keys
 		if ($payment_type === 'deposit') {
 			update_post_meta($booking_id, '_mhm_deposit_amount', $deposit_amount);
 			update_post_meta($booking_id, '_mhm_remaining_amount', $remaining_amount);
@@ -1085,7 +1085,7 @@ final class BookingMeta extends AbstractMetaBox
 	}
 
 	/**
-	 * âœ… WordPress hook listener - Auto calculation when meta is updated
+	 * ✅ WordPress hook listener - Auto calculation when meta is updated
 	 */
 	public static function on_booking_meta_updated(int $post_id, string $pickup_date, string $dropoff_date): void
 	{
@@ -1321,7 +1321,7 @@ final class BookingMeta extends AbstractMetaBox
 			do_action('mhm_rentiva_booking_status_changed', $booking_id, $old_status, $status);
 		}
 
-		// âœ… Get updated data (for AJAX response)
+		// ✅ Get updated data (for AJAX response)
 		$updated_rental_days      = get_post_meta($booking_id, '_mhm_rental_days', true);
 		$updated_total_price      = get_post_meta($booking_id, '_mhm_total_price', true);
 		$updated_deposit_amount   = get_post_meta($booking_id, '_mhm_deposit_amount', true);
@@ -1400,7 +1400,7 @@ final class BookingMeta extends AbstractMetaBox
 			);
 		}
 
-		// âœ… Successful response - Include updated data
+		// ✅ Successful response - Include updated data
 		wp_send_json_success(
 			array(
 				'message'      => __('Booking updated successfully!', 'mhm-rentiva'),
@@ -1554,3 +1554,4 @@ final class BookingMeta extends AbstractMetaBox
 		}
 	}
 }
+

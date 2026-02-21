@@ -9,7 +9,7 @@ use MHMRentiva\Admin\Reports\Reports;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Vehicle\Settings\VehicleSettings;
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
@@ -18,8 +18,26 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 4.3.9
  */
-final class VehicleFeatureHelper {
+final class VehicleFeatureHelper
+{
+	/**
+	 * Static cache for the available fields map within the same request.
+	 *
+	 * @var array|null
+	 */
+	private static ?array $fields_map_cache = null;
 
+	/**
+	 * Primes the static feature map cache.
+	 * 
+	 * @return void
+	 */
+	public static function prime_static_feature_map(): void
+	{
+		if (null === self::$fields_map_cache) {
+			self::get_available_fields_map();
+		}
+	}
 
 	public const TYPE_DETAIL    = 'detail';
 	public const TYPE_FEATURE   = 'feature';
@@ -32,7 +50,8 @@ final class VehicleFeatureHelper {
 	 *
 	 * @return array
 	 */
-	public static function get_core_fields(): array {
+	public static function get_core_fields(): array
+	{
 		return array(
 			'price_per_day',
 			'availability',
@@ -51,7 +70,8 @@ final class VehicleFeatureHelper {
 	 *
 	 * @return array
 	 */
-	public static function get_standard_attribute_fields(): array {
+	public static function get_standard_attribute_fields(): array
+	{
 		return array(
 			'fuel_type',
 			'transmission',
@@ -67,7 +87,8 @@ final class VehicleFeatureHelper {
 	/**
 	 * Default card field layout (maintains backwards compatibility).
 	 */
-	public static function get_default_card_fields(): array {
+	public static function get_default_card_fields(): array
+	{
 		return array(
 			array(
 				'type' => self::TYPE_DETAIL,
@@ -91,9 +112,10 @@ final class VehicleFeatureHelper {
 	/**
 	 * Returns selected card fields, sanitized against current settings.
 	 */
-	public static function get_selected_card_fields(): array {
-		$raw = SettingsCore::get( 'mhm_rentiva_vehicle_card_fields', self::get_default_card_fields() );
-		return self::sanitize_card_field_selection( $raw );
+	public static function get_selected_card_fields(): array
+	{
+		$raw = SettingsCore::get('mhm_rentiva_vehicle_card_fields', self::get_default_card_fields());
+		return self::sanitize_card_field_selection($raw);
 	}
 
 	/**
@@ -102,15 +124,16 @@ final class VehicleFeatureHelper {
 	 * @param mixed $raw
 	 * @return array<int, array{type:string,key:string}>
 	 */
-	public static function sanitize_card_field_selection( $raw ): array {
-		if ( is_string( $raw ) ) {
-			$decoded = json_decode( $raw, true );
-			if ( is_array( $decoded ) ) {
+	public static function sanitize_card_field_selection($raw): array
+	{
+		if (is_string($raw)) {
+			$decoded = json_decode($raw, true);
+			if (is_array($decoded)) {
 				$raw = $decoded;
 			}
 		}
 
-		if ( ! is_array( $raw ) ) {
+		if (! is_array($raw)) {
 			$raw = array();
 		}
 
@@ -118,28 +141,28 @@ final class VehicleFeatureHelper {
 		$sanitized = array();
 		$dedupe    = array();
 
-		foreach ( $raw as $item ) {
-			if ( ! is_array( $item ) ) {
+		foreach ($raw as $item) {
+			if (! is_array($item)) {
 				continue;
 			}
-			$type = isset( $item['type'] ) ? sanitize_key( $item['type'] ) : '';
-			$key  = isset( $item['key'] ) ? sanitize_key( $item['key'] ) : '';
+			$type = isset($item['type']) ? sanitize_key($item['type']) : '';
+			$key  = isset($item['key']) ? sanitize_key($item['key']) : '';
 
-			if ( $type === '' || $key === '' ) {
+			if ($type === '' || $key === '') {
 				continue;
 			}
 
-			if ( ! isset( $available[ $type ][ $key ] ) ) {
+			if (! isset($available[$type][$key])) {
 				// Skip fields that are no longer active/available.
 				continue;
 			}
 
 			$dedupe_key = $type . ':' . $key;
-			if ( isset( $dedupe[ $dedupe_key ] ) ) {
+			if (isset($dedupe[$dedupe_key])) {
 				continue;
 			}
 
-			$dedupe[ $dedupe_key ] = true;
+			$dedupe[$dedupe_key] = true;
 			$sanitized[]           = array(
 				'type' => $type,
 				'key'  => $key,
@@ -154,47 +177,52 @@ final class VehicleFeatureHelper {
 	 *
 	 * @return array<string, array<string, array{label:string,meta_key:string,type:string}>>
 	 */
-	public static function get_available_fields_map(): array {
+	public static function get_available_fields_map(): array
+	{
+		if (null !== self::$fields_map_cache) {
+			return self::$fields_map_cache;
+		}
+
 		$result = array(
 			self::TYPE_DETAIL   => array(),
 			self::TYPE_TAXONOMY => array(),
 		);
 
 		// Details
-		$selected_details = (array) get_option( 'mhm_selected_details', VehicleSettings::get_default_selected_details() );
-		$default_details  = (array) get_option( 'mhm_vehicle_details', VehicleSettings::get_default_details() );
-		$custom_details   = (array) get_option( 'mhm_custom_details', array() );
-		$all_details      = array_merge( $default_details, $custom_details );
+		$selected_details = (array) get_option('mhm_selected_details', VehicleSettings::get_default_selected_details());
+		$default_details  = (array) get_option('mhm_vehicle_details', VehicleSettings::get_default_details());
+		$custom_details   = (array) get_option('mhm_custom_details', array());
+		$all_details      = array_merge($default_details, $custom_details);
 
 		// If no details are selected, we must at least allow core fields as available
-		if ( empty( $selected_details ) ) {
+		if (empty($selected_details)) {
 			$selected_details = self::get_core_fields();
 		}
 
-		foreach ( $selected_details as $key ) {
-			$key = sanitize_key( $key );
-			if ( $key === '' || ! isset( $all_details[ $key ] ) ) {
+		foreach ($selected_details as $key) {
+			$key = sanitize_key($key);
+			if ($key === '' || ! isset($all_details[$key])) {
 				continue;
 			}
 
-			$result[ self::TYPE_DETAIL ][ $key ] = array(
-				'label'    => self::sanitize_label( $all_details[ $key ], $key ),
-				'meta_key' => self::map_detail_meta_key( $key ),
+			$result[self::TYPE_DETAIL][$key] = array(
+				'label'    => self::sanitize_label($all_details[$key], $key),
+				'meta_key' => self::map_detail_meta_key($key),
 				'type'     => self::TYPE_DETAIL,
 				'key'      => $key,
 			);
 		}
 
 		// Features (Standard + Custom)
-		$default_features = (array) get_option( 'mhm_vehicle_features', VehicleSettings::get_default_features() );
-		$custom_features  = (array) get_option( 'mhm_custom_features', array() );
-		$all_features     = array_merge( $default_features, $custom_features );
+		$default_features = (array) get_option('mhm_vehicle_features', VehicleSettings::get_default_features());
+		$custom_features  = (array) get_option('mhm_custom_features', array());
+		$all_features     = array_merge($default_features, $custom_features);
 
-		foreach ( $all_features as $key => $label ) {
+		foreach ($all_features as $key => $label) {
 			// Include all available features, not just selected ones (Comparison table needs everything)
-			$key                                  = sanitize_key( $key );
-			$result[ self::TYPE_FEATURE ][ $key ] = array(
-				'label'    => self::sanitize_label( $label, $key ),
+			$key                                  = sanitize_key($key);
+			$result[self::TYPE_FEATURE][$key] = array(
+				'label'    => self::sanitize_label($label, $key),
 				'meta_key' => '', // meta key is generic _mhm_rentiva_features array check
 				'type'     => self::TYPE_FEATURE,
 				'key'      => $key,
@@ -202,14 +230,14 @@ final class VehicleFeatureHelper {
 		}
 
 		// Equipment (Standard + Custom)
-		$default_equipment = (array) get_option( 'mhm_vehicle_equipment', VehicleSettings::get_default_equipment() );
-		$custom_equipment  = (array) get_option( 'mhm_custom_equipment', array() );
-		$all_equipment     = array_merge( $default_equipment, $custom_equipment );
+		$default_equipment = (array) get_option('mhm_vehicle_equipment', VehicleSettings::get_default_equipment());
+		$custom_equipment  = (array) get_option('mhm_custom_equipment', array());
+		$all_equipment     = array_merge($default_equipment, $custom_equipment);
 
-		foreach ( $all_equipment as $key => $label ) {
-			$key                                    = sanitize_key( $key );
-			$result[ self::TYPE_EQUIPMENT ][ $key ] = array(
-				'label'    => self::sanitize_label( $label, $key ),
+		foreach ($all_equipment as $key => $label) {
+			$key                                    = sanitize_key($key);
+			$result[self::TYPE_EQUIPMENT][$key] = array(
+				'label'    => self::sanitize_label($label, $key),
 				'meta_key' => '', // meta key is generic _mhm_rentiva_equipment array check
 				'type'     => self::TYPE_EQUIPMENT,
 				'key'      => $key,
@@ -220,9 +248,9 @@ final class VehicleFeatureHelper {
 		// Using centralized logic from VehicleSettings to ensure consistency
 		$tax_features   = VehicleSettings::get_taxonomy_features();
 		$tax_equipment  = VehicleSettings::get_taxonomy_equipment();
-		$all_taxonomies = array_merge( $tax_features, $tax_equipment );
+		$all_taxonomies = array_merge($tax_features, $tax_equipment);
 
-		foreach ( $all_taxonomies as $key => $label ) {
+		foreach ($all_taxonomies as $key => $label) {
 			// Re-construct taxonomy/slug from key for has_term usage or simply use the key
 			// Key format: tax_{taxonomy}_{slug}
 			// For has_term we need strict taxonomy and slug, but we can also use the meta check.
@@ -232,12 +260,12 @@ final class VehicleFeatureHelper {
 			// Try to parse taxonomy and slug if possible, or just store without strict term checking if not needed
 			// vehicle_feature vs mhm_rentiva_feature.
 			// Simple parsing:
-			$parts = explode( '_', $key );
+			$parts = explode('_', $key);
 			// parts[0] is 'tax'.
 			// last part is term slug? No, term slug can have underscores.
 			// It's ambiguous. But we don't strictly NEED has_term if we trust the meta sync.
 
-			$result[ self::TYPE_TAXONOMY ][ $key ] = array(
+			$result[self::TYPE_TAXONOMY][$key] = array(
 				'label'    => $label,
 				'meta_key' => '',
 				'type'     => self::TYPE_TAXONOMY,
@@ -245,6 +273,8 @@ final class VehicleFeatureHelper {
 				// 'taxonomy' => ... // Parsing is safer to skip if relying on meta
 			);
 		}
+
+		self::$fields_map_cache = $result;
 
 		return $result;
 	}
@@ -254,38 +284,39 @@ final class VehicleFeatureHelper {
 	 *
 	 * @return array<int, array{text:string,icon:string|null,type:string,key:string}>
 	 */
-	public static function collect_items( int $vehicle_id ): array {
+	public static function collect_items(int $vehicle_id): array
+	{
 		$selected = self::get_selected_card_fields();
-		if ( empty( $selected ) ) {
+		if (empty($selected)) {
 			return array();
 		}
 
 		$available      = self::get_available_fields_map();
-		$details_meta   = self::preload_detail_meta( $vehicle_id );
-		$features_meta  = self::preload_multi_meta( $vehicle_id, '_mhm_rentiva_features' );
-		$equipment_meta = self::preload_multi_meta( $vehicle_id, '_mhm_rentiva_equipment' );
+		$details_meta   = self::preload_detail_meta($vehicle_id);
+		$features_meta  = self::preload_multi_meta($vehicle_id, '_mhm_rentiva_features');
+		$equipment_meta = self::preload_multi_meta($vehicle_id, '_mhm_rentiva_equipment');
 
 		$items = array();
 
-		foreach ( $selected as $item ) {
+		foreach ($selected as $item) {
 			$type = $item['type'];
 			$key  = $item['key'];
 
-			if ( ! isset( $available[ $type ][ $key ] ) ) {
+			if (! isset($available[$type][$key])) {
 				continue;
 			}
 
-			$label = $available[ $type ][ $key ]['label'];
+			$label = $available[$type][$key]['label'];
 
-			if ( $type === self::TYPE_DETAIL ) {
-				$meta_key = $available[ $type ][ $key ]['meta_key'];
-				$raw      = $details_meta[ $meta_key ] ?? '';
-				if ( ( $raw === '' || $raw === null ) && $key === 'year' ) {
+			if ($type === self::TYPE_DETAIL) {
+				$meta_key = $available[$type][$key]['meta_key'];
+				$raw      = $details_meta[$meta_key] ?? '';
+				if (($raw === '' || $raw === null) && $key === 'year') {
 					$raw = $details_meta['_mhm_rentiva_model_year'] ?? $details_meta['_mhm_rentiva_year'] ?? '';
 				}
-				$formatted = self::format_detail_value( $key, $raw, $details_meta );
+				$formatted = self::format_detail_value($key, $raw, $details_meta);
 
-				if ( $formatted !== null ) {
+				if ($formatted !== null) {
 					$items[] = array(
 						'text' => $formatted['text'],
 						'icon' => $formatted['icon'],
@@ -293,8 +324,8 @@ final class VehicleFeatureHelper {
 						'key'  => $key,
 					);
 				}
-			} elseif ( $type === self::TYPE_FEATURE ) {
-				if ( in_array( $key, $features_meta, true ) ) {
+			} elseif ($type === self::TYPE_FEATURE) {
+				if (in_array($key, $features_meta, true)) {
 					$items[] = array(
 						'text' => $label,
 						'icon' => 'default',
@@ -302,8 +333,8 @@ final class VehicleFeatureHelper {
 						'key'  => $key,
 					);
 				}
-			} elseif ( $type === self::TYPE_EQUIPMENT ) {
-				if ( in_array( $key, $equipment_meta, true ) ) {
+			} elseif ($type === self::TYPE_EQUIPMENT) {
+				if (in_array($key, $equipment_meta, true)) {
 					$items[] = array(
 						'text' => $label,
 						'icon' => 'default',
@@ -311,13 +342,13 @@ final class VehicleFeatureHelper {
 						'key'  => $key,
 					);
 				}
-			} elseif ( $type === self::TYPE_TAXONOMY ) {
+			} elseif ($type === self::TYPE_TAXONOMY) {
 				// Check if vehicle has this term via Meta (Saved from Vehicle Settings)
 				// OR via Term (Saved from Sidebar) - though has_term logic is tricky without parsing.
 				// Checking Meta is 100% reliable for the Vehicle Settings Panel flow.
 
-				$in_features  = in_array( $key, $features_meta, true );
-				$in_equipment = in_array( $key, $equipment_meta, true );
+				$in_features  = in_array($key, $features_meta, true);
+				$in_equipment = in_array($key, $equipment_meta, true);
 
 				// Fallback: Try to guess taxonomy for has_term check?
 				// Given the ambiguity of the key, we rely on the Meta Check which ensures logic consistency.
@@ -325,7 +356,7 @@ final class VehicleFeatureHelper {
 				// This is a trade-off for the "One Central Settings Panel" approach.
 				// But generally acceptable.
 
-				if ( $in_features || $in_equipment ) {
+				if ($in_features || $in_equipment) {
 					$items[] = array(
 						'text' => $label,
 						'icon' => 'check-circle', // Distinction for taxonomy items
@@ -342,17 +373,19 @@ final class VehicleFeatureHelper {
 	/**
 	 * Helper: sanitize label output.
 	 */
-	private static function sanitize_label( $label, string $fallback ): string {
-		$label = is_string( $label ) ? $label : $fallback;
-		$label = trim( $label );
+	private static function sanitize_label($label, string $fallback): string
+	{
+		$label = is_string($label) ? $label : $fallback;
+		$label = trim($label);
 
-		return $label !== '' ? $label : ucfirst( str_replace( '_', ' ', $fallback ) );
+		return $label !== '' ? $label : ucfirst(str_replace('_', ' ', $fallback));
 	}
 
 	/**
 	 * Map detail keys to post meta keys.
 	 */
-	private static function map_detail_meta_key( string $key ): string {
+	private static function map_detail_meta_key(string $key): string
+	{
 		$map = array(
 			'price_per_day' => '_mhm_rentiva_price_per_day',
 			'year'          => '_mhm_rentiva_year',
@@ -371,8 +404,8 @@ final class VehicleFeatureHelper {
 			'deposit'       => '_mhm_rentiva_deposit',
 		);
 
-		if ( isset( $map[ $key ] ) ) {
-			return $map[ $key ];
+		if (isset($map[$key])) {
+			return $map[$key];
 		}
 
 		// Custom details fallback
@@ -384,7 +417,8 @@ final class VehicleFeatureHelper {
 	 *
 	 * @return array<string, mixed>
 	 */
-	private static function preload_detail_meta( int $vehicle_id ): array {
+	private static function preload_detail_meta(int $vehicle_id): array
+	{
 		$meta_keys = array(
 			'_mhm_rentiva_price_per_day',
 			'_mhm_rentiva_model_year',
@@ -404,31 +438,31 @@ final class VehicleFeatureHelper {
 		);
 
 		$meta = array();
-		foreach ( $meta_keys as $key ) {
-			$val = get_post_meta( $vehicle_id, $key, true );
+		foreach ($meta_keys as $key) {
+			$val = get_post_meta($vehicle_id, $key, true);
 
 			// Legacy key check if empty
-			if ( empty( $val ) ) {
-				$legacy_key = str_replace( '_mhm_rentiva_', '_', $key );
-				if ( $legacy_key !== $key ) {
-					$val = get_post_meta( $vehicle_id, $legacy_key, true );
+			if (empty($val)) {
+				$legacy_key = str_replace('_mhm_rentiva_', '_', $key);
+				if ($legacy_key !== $key) {
+					$val = get_post_meta($vehicle_id, $legacy_key, true);
 				}
 
 				// Second level legacy check (no prefix)
-				if ( empty( $val ) ) {
-					$clean_key = str_replace( '_mhm_rentiva_', '', $key );
-					if ( $clean_key !== $key ) {
-						$val = get_post_meta( $vehicle_id, $clean_key, true );
+				if (empty($val)) {
+					$clean_key = str_replace('_mhm_rentiva_', '', $key);
+					if ($clean_key !== $key) {
+						$val = get_post_meta($vehicle_id, $clean_key, true);
 					}
 				}
 			}
 
-			$meta[ $key ] = $val;
+			$meta[$key] = $val;
 		}
 
-		$custom_details = (array) get_option( 'mhm_custom_details', array() );
-		foreach ( array_keys( $custom_details ) as $custom_key ) {
-			$meta[ '_mhm_rentiva_' . $custom_key ] = get_post_meta( $vehicle_id, '_mhm_rentiva_' . $custom_key, true );
+		$custom_details = (array) get_option('mhm_custom_details', array());
+		foreach (array_keys($custom_details) as $custom_key) {
+			$meta['_mhm_rentiva_' . $custom_key] = get_post_meta($vehicle_id, '_mhm_rentiva_' . $custom_key, true);
 		}
 
 		return $meta;
@@ -439,11 +473,12 @@ final class VehicleFeatureHelper {
 	 *
 	 * @return string[]
 	 */
-	private static function preload_multi_meta( int $vehicle_id, string $meta_key ): array {
-		$value = get_post_meta( $vehicle_id, $meta_key, true );
+	private static function preload_multi_meta(int $vehicle_id, string $meta_key): array
+	{
+		$value = get_post_meta($vehicle_id, $meta_key, true);
 
-		if ( is_array( $value ) ) {
-			return array_values( array_unique( array_map( 'sanitize_key', $value ) ) );
+		if (is_array($value)) {
+			return array_values(array_unique(array_map('sanitize_key', $value)));
 		}
 
 		return array();
@@ -454,52 +489,53 @@ final class VehicleFeatureHelper {
 	 *
 	 * @return array{text:string,icon:string}|null
 	 */
-	public static function format_detail_value( string $key, $raw, array $context = array() ): ?array {
+	public static function format_detail_value(string $key, $raw, array $context = array()): ?array
+	{
 		$text = '';
 		$icon = 'default';
 
-		switch ( $key ) {
+		switch ($key) {
 			case 'fuel_type':
 				$map  = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
-				$raw  = sanitize_key( $raw );
-				$text = $map[ $raw ] ?? ucfirst( $raw );
-				$icon = ( $raw === 'electric' ) ? 'bolt' : 'fuel';
+				$raw  = sanitize_key($raw);
+				$text = $map[$raw] ?? ucfirst($raw);
+				$icon = ($raw === 'electric') ? 'bolt' : 'fuel';
 				break;
 
 			case 'transmission':
 				$map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
 				// Backward compatibility for 'automatic' key
-				if ( $raw === 'automatic' ) {
+				if ($raw === 'automatic') {
 					$raw = 'auto';
 				}
-				$raw  = sanitize_key( $raw );
-				$text = $map[ $raw ] ?? ucfirst( $raw );
+				$raw  = sanitize_key($raw);
+				$text = $map[$raw] ?? ucfirst($raw);
 				$icon = 'gear';
 				break;
 
 			case 'seats':
-				$count = intval( $raw );
-				if ( $count <= 0 ) {
+				$count = intval($raw);
+				if ($count <= 0) {
 					return null;
 				}
 				/* translators: %d: number of people */
-				$text = sprintf( __( '%d People', 'mhm-rentiva' ), $count );
+				$text = sprintf(__('%d People', 'mhm-rentiva'), $count);
 				$icon = 'people';
 				break;
 
 			case 'doors':
-				$count = intval( $raw );
-				if ( $count <= 0 ) {
+				$count = intval($raw);
+				if ($count <= 0) {
 					return null;
 				}
 				/* translators: %d: number of doors */
-				$text = sprintf( __( '%d Doors', 'mhm-rentiva' ), $count );
+				$text = sprintf(__('%d Doors', 'mhm-rentiva'), $count);
 				break;
 
 			case 'year':
 			case 'model_year':
-				$value = trim( (string) $raw );
-				if ( $value === '' ) {
+				$value = trim((string) $raw);
+				if ($value === '') {
 					return null;
 				}
 				$text = $value;
@@ -507,77 +543,77 @@ final class VehicleFeatureHelper {
 				break;
 
 			case 'mileage':
-				$numeric = floatval( str_replace( array( '.', ',', ' ' ), '', (string) $raw ) );
-				if ( $numeric <= 0 ) {
+				$numeric = floatval(str_replace(array('.', ',', ' '), '', (string) $raw));
+				if ($numeric <= 0) {
 					return null;
 				}
-				$text = number_format( $numeric, 0, ',', '.' ) . ' ' . __( 'km', 'mhm-rentiva' );
+				$text = number_format($numeric, 0, ',', '.') . ' ' . __('km', 'mhm-rentiva');
 				$icon = 'speedometer';
 				break;
 
 			case 'price_per_day':
-				$numeric = floatval( $raw );
-				if ( $numeric <= 0 ) {
+				$numeric = floatval($raw);
+				if ($numeric <= 0) {
 					return null;
 				}
-				$text = self::format_price( $numeric );
+				$text = self::format_price($numeric);
 				break;
 
 			case 'deposit':
-				$deposit_val = trim( (string) $raw );
-				if ( $deposit_val === '' ) {
+				$deposit_val = trim((string) $raw);
+				if ($deposit_val === '') {
 					return null;
 				}
 
 				// If DepositCalculator exists, use it for calculation
-				if ( class_exists( '\MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator' ) ) {
-					$daily_price = floatval( $context['_mhm_rentiva_price_per_day'] ?? 0 );
-					$calc        = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_deposit( $deposit_val, $daily_price, 1 );
+				if (class_exists('\MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator')) {
+					$daily_price = floatval($context['_mhm_rentiva_price_per_day'] ?? 0);
+					$calc        = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_deposit($deposit_val, $daily_price, 1);
 
-					if ( $calc['deposit_amount'] > 0 ) {
-						$text = __( 'Deposit:', 'mhm-rentiva' ) . ' ' . self::format_price( $calc['deposit_amount'] );
+					if ($calc['deposit_amount'] > 0) {
+						$text = __('Deposit:', 'mhm-rentiva') . ' ' . self::format_price($calc['deposit_amount']);
 					} else {
 						return null; // Don't show if 0
 					}
 				} else {
 					// Fallback
-					$numeric = floatval( $raw );
-					if ( $numeric <= 0 ) {
+					$numeric = floatval($raw);
+					if ($numeric <= 0) {
 						return null;
 					}
-					$text = __( 'Deposit:', 'mhm-rentiva' ) . ' ' . self::format_price( $numeric );
+					$text = __('Deposit:', 'mhm-rentiva') . ' ' . self::format_price($numeric);
 				}
 				break;
 
 			case 'engine_size':
-				$engine = floatval( $raw );
-				if ( $engine <= 0 ) {
+				$engine = floatval($raw);
+				if ($engine <= 0) {
 					return null;
 				}
-				$text = number_format( $engine, 1, '.', ',' ) . ' ' . __( 'L', 'mhm-rentiva' );
+				$text = number_format($engine, 1, '.', ',') . ' ' . __('L', 'mhm-rentiva');
 				break;
 
 			case 'availability':
 				$map  = array(
-					'active'      => __( 'Active', 'mhm-rentiva' ),
-					'inactive'    => __( 'Inactive', 'mhm-rentiva' ),
-					'maintenance' => __( 'Maintenance', 'mhm-rentiva' ),
-					'passive'     => __( 'Inactive', 'mhm-rentiva' ),
+					'active'      => __('Active', 'mhm-rentiva'),
+					'inactive'    => __('Inactive', 'mhm-rentiva'),
+					'maintenance' => __('Maintenance', 'mhm-rentiva'),
+					'passive'     => __('Inactive', 'mhm-rentiva'),
 				);
-				$raw  = sanitize_key( $raw );
-				$text = $map[ $raw ] ?? ucfirst( $raw );
+				$raw  = sanitize_key($raw);
+				$text = $map[$raw] ?? ucfirst($raw);
 				break;
 
 			default:
-				$value = trim( (string) $raw );
-				if ( $value === '' ) {
+				$value = trim((string) $raw);
+				if ($value === '') {
 					return null;
 				}
 				$text = $value;
 				break;
 		}
 
-		if ( $text === '' ) {
+		if ($text === '') {
 			return null;
 		}
 
@@ -590,12 +626,13 @@ final class VehicleFeatureHelper {
 	/**
 	 * Format price with plugin currency configuration.
 	 */
-	private static function format_price( float $price ): string {
+	private static function format_price(float $price): string
+	{
 		$symbol    = Reports::get_currency_symbol();
-		$position  = SettingsCore::get( 'mhm_rentiva_currency_position', 'right_space' );
-		$formatted = number_format( $price, 0, ',', '.' );
+		$position  = SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
+		$formatted = number_format($price, 0, ',', '.');
 
-		switch ( $position ) {
+		switch ($position) {
 			case 'left':
 				return $symbol . $formatted;
 			case 'left_space':

@@ -136,6 +136,17 @@ final class AccountRenderer
 			MHM_RENTIVA_VERSION
 		);
 
+		// Ensure standardized card styles are available on My Account favorites endpoint.
+		if (! wp_style_is('mhm-vehicle-card-css', 'registered')) {
+			wp_register_style(
+				'mhm-vehicle-card-css',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
+				array('mhm-css-variables'),
+				MHM_RENTIVA_VERSION
+			);
+		}
+		wp_enqueue_style('mhm-vehicle-card-css');
+
 		// Enqueue global interactions (v1.3.3)
 		wp_enqueue_script('mhm-vehicle-interactions');
 
@@ -631,3 +642,5 @@ final class AccountRenderer
 		return array_slice($payments, 0, $limit);
 	}
 }
+
+

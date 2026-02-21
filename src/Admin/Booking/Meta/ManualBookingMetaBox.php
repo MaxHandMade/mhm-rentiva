@@ -777,3 +777,4 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 		}
 	}
 }
+

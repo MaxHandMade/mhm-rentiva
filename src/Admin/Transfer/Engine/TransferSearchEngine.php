@@ -11,7 +11,8 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Booking\Helpers\Util;
 
-final class TransferSearchEngine {
+final class TransferSearchEngine
+{
 
 
 	/**
@@ -37,7 +38,7 @@ final class TransferSearchEngine {
 		$luggage_small = intval($criteria['luggage_small']);
 
 		// Calculate Luggage Score
-		$luggage_score = ( $luggage_small * 1 ) + ( $luggage_big * 2.5 );
+		$luggage_score = ($luggage_small * 1) + ($luggage_big * 2.5);
 
 		// 2. Get Route Info
 		// Check for table existence (backward compatibility during migration)
@@ -52,8 +53,7 @@ final class TransferSearchEngine {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$route = $wpdb->get_row(
 			$wpdb->prepare(
-				'SELECT * FROM %i WHERE origin_id = %d AND destination_id = %d',
-				$table_routes,
+				"SELECT * FROM $table_routes WHERE origin_id = %d AND destination_id = %d",
 				$origin_id,
 				$destination_id
 			)
@@ -87,12 +87,12 @@ final class TransferSearchEngine {
 					'relation' => 'OR',
 					array(
 						'key'     => '_rentiva_vehicle_service_type',
-						'value'   => array( 'transfer', 'both' ),
+						'value'   => array('transfer', 'both'),
 						'compare' => 'IN',
 					),
 					array(
 						'key'     => '_mhm_vehicle_service_type',
-						'value'   => array( 'transfer', 'both' ),
+						'value'   => array('transfer', 'both'),
 						'compare' => 'IN',
 					),
 				),
@@ -172,7 +172,7 @@ final class TransferSearchEngine {
 				$price = (float) $route->base_price;
 			} else {
 				$price = (float) $route->distance_km * (float) $route->base_price;
-				if ( (float) $route->min_price > 0 && $price < (float) $route->min_price) {
+				if ((float) $route->min_price > 0 && $price < (float) $route->min_price) {
 					$price = (float) $route->min_price;
 				}
 			}

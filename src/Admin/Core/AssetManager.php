@@ -32,11 +32,15 @@ final class AssetManager
 	private static array $core_css = array(
 		'mhm-css-variables'         => array(
 			'url'  => 'assets/css/core/css-variables.css',
-			'deps' => array(),
+			'deps' => array('mhm-rentiva-google-fonts'),
+		),
+		'mhm-golden-ratio-contract' => array(
+			'url'  => 'assets/css/core/golden-ratio-contract.css',
+			'deps' => array('mhm-css-variables'),
 		),
 		'mhm-core-css'              => array(
 			'url'  => 'assets/css/core/core.css',
-			'deps' => array('mhm-css-variables'),
+			'deps' => array('mhm-css-variables', 'mhm-golden-ratio-contract'),
 		),
 		'mhm-animations'            => array(
 			'url'  => 'assets/css/core/animations.css',
@@ -134,6 +138,15 @@ final class AssetManager
 				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/swiper-bundle.min.css',
 				array(),
 				'11.0.0'
+			);
+		}
+		// Google Fonts: Plus Jakarta Sans
+		if (! wp_style_is('mhm-rentiva-google-fonts', 'registered')) {
+			wp_register_style(
+				'mhm-rentiva-google-fonts',
+				'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap',
+				array(),
+				null
 			);
 		}
 	}
@@ -782,7 +795,7 @@ final class AssetManager
 				true
 			);
 
-			// â­ Get max gallery images from settings (default: 50)
+			// ⭐ Get max gallery images from settings (default: 50)
 			$max_gallery_images = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
 				'mhm_rentiva_vehicle_max_gallery_images',
 				50

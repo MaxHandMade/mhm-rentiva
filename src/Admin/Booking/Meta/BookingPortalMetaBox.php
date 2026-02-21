@@ -113,3 +113,5 @@ final class BookingPortalMetaBox {
 		echo '</div>';
 	}
 }
+
+

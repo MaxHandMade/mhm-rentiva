@@ -417,3 +417,4 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		return $labels[ $deposit_type ] ?? ucfirst( str_replace( '_', ' ', $deposit_type ) );
 	}
 }
+

@@ -61,14 +61,16 @@ final class FeaturedVehicles extends AbstractShortcode
 			'show_favorite_button' => '1',
 			'image_size'           => 'medium_large',
 			'price_format'         => 'daily',
+			'filter_brands'        => '',
+			'filter_categories'    => '',
 		);
 	}
 
 	protected static function prepare_template_data(array $atts): array
 	{
-		// Normalize attributes for helper
-		$atts['show_favorite_button'] = ($atts['show_favorite_button'] ?? $atts['show_favorite_btn'] ?? '1') === '1';
-		$atts['show_compare_button']  = ($atts['show_compare_button'] ?? $atts['show_compare_btn'] ?? '1') === '1';
+		if (defined('WP_DEBUG') && WP_DEBUG) {
+			error_log('[PHASE3] Type check for show_rating: ' . gettype($atts['show_rating']) . ' value: ' . ($atts['show_rating'] ? 'true' : 'false'));
+		}
 
 		$args = array(
 			'post_type'      => PT_Vehicle::POST_TYPE,
@@ -111,6 +113,12 @@ final class FeaturedVehicles extends AbstractShortcode
 			if (! empty($vehicle_ids)) {
 				\MHMRentiva\Admin\Core\Utilities\CacheManager::set_cache('vehicle_list', $cache_key, $vehicle_ids, 3600);
 			}
+		}
+
+		// Performance: Prime caches for all retrieved vehicle IDs (Batch execution to solve N+1)
+		if (! empty($vehicle_ids)) {
+			$int_vehicle_ids = array_map('intval', $vehicle_ids);
+			_prime_post_caches($int_vehicle_ids, true, true);
 		}
 
 		// Standardize vehicle data using canonical VehiclesList helper

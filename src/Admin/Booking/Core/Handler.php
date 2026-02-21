@@ -58,7 +58,7 @@ final class Handler
 
 		// Deposit system fields
 		$payment_type = isset($_POST['payment_type']) ? sanitize_text_field(wp_unslash($_POST['payment_type'])) : 'deposit';
-		// â­ Get default payment method from DepositCalculator (WooCommerce only)
+		// ⭐ Get default payment method from DepositCalculator (WooCommerce only)
 		$available_methods      = DepositCalculator::get_payment_methods();
 		$default_payment_method = ! empty($available_methods) ? array_key_first($available_methods) : 'woocommerce';
 		$payment_method         = isset($_POST['payment_method']) ? sanitize_text_field(wp_unslash($_POST['payment_method'])) : $default_payment_method;
@@ -172,7 +172,7 @@ final class Handler
 
 			self::redirect_success($booking_id);
 		} catch (\Exception $e) {
-			// âœ… UX IMPROVEMENT - User-friendly error handling
+			// ✅ UX IMPROVEMENT - User-friendly error handling
 			$error_message = UXHelper::get_user_friendly_error(
 				UXHelper::ERROR_TYPE_BOOKING,
 				'booking_failed',
@@ -206,7 +206,7 @@ final class Handler
 
 	private static function redirect_success(int $booking_id): void
 	{
-		// â­ Use BookingConfirmation shortcode URL helper if available
+		// ⭐ Use BookingConfirmation shortcode URL helper if available
 		/** @noinspection PhpUndefinedClassInspection */
 		if (class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation')) {
 			$thank_you_url = \MHMRentiva\Admin\Frontend\Shortcodes\BookingConfirmation::get_confirmation_url($booking_id);
@@ -216,7 +216,7 @@ final class Handler
 			}
 		}
 
-		// â­ Fallback: Check for custom thank you page from settings
+		// ⭐ Fallback: Check for custom thank you page from settings
 		$thank_you_page = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_thank_you_page', '');
 
 		if (! empty($thank_you_page) && is_numeric($thank_you_page)) {
@@ -274,7 +274,7 @@ final class Handler
 				);
 
 				if (! $availability_result['ok']) {
-					// âœ… KULLANICI DENEYÄ°MÄ° Ä°YÄ°LEÅTÄ°RMESÄ° - User-friendly error message
+					// ✅ KULLANICI DENEYİMİ İYİLEŞTİRMESİ - User-friendly error message
 					$error_message = UXHelper::get_user_friendly_error(
 						UXHelper::ERROR_TYPE_VEHICLE,
 						'vehicle_unavailable',
@@ -314,7 +314,7 @@ final class Handler
 				$vehicle_title = get_the_title($booking_data['vehicle_id']);
 				$post_title    = sprintf(
 					/* translators: 1: Vehicle ID, 2: Pickup date, 3: Dropoff date */
-					__('Vehicle #%1$d â€“ %2$s â†’ %3$s', 'mhm-rentiva'),
+					__('Vehicle #%1$d – %2$s → %3$s', 'mhm-rentiva'),
 					$booking_data['vehicle_id'],
 					$booking_data['pickup_date'],
 					$booking_data['dropoff_date']
@@ -338,7 +338,7 @@ final class Handler
 				$booking_id = wp_insert_post($post_data);
 
 				if (is_wp_error($booking_id) || ! $booking_id) {
-					// âœ… KULLANICI DENEYÄ°MÄ° Ä°YÄ°LEÅTÄ°RMESÄ° - User-friendly error message
+					// ✅ KULLANICI DENEYİMİ İYİLEŞTİRMESİ - User-friendly error message
 					$error_message = UXHelper::get_user_friendly_error(
 						UXHelper::ERROR_TYPE_SYSTEM,
 						'database_error',
@@ -375,11 +375,11 @@ final class Handler
 					'_mhm_deposit_type'          => $deposit_result['deposit_type'],
 					'_mhm_payment_display'       => $deposit_result['payment_display'],
 
-					// â­ Cancellation policy from settings (default: 24 hours)
+					// ⭐ Cancellation policy from settings (default: 24 hours)
 					'_mhm_cancellation_policy'   => self::get_cancellation_policy(),
 					'_mhm_cancellation_deadline' => self::get_cancellation_deadline(),
 
-					// â­ Payment deadline from settings (default: 30 minutes)
+					// ⭐ Payment deadline from settings (default: 30 minutes)
 					// This ensures auto-cancellation works for all bookings
 					'_mhm_payment_deadline'      => self::get_payment_deadline(),
 				);
@@ -388,7 +388,7 @@ final class Handler
 					update_post_meta($booking_id, $key, $value);
 				}
 
-				// â­ Ensure payment_deadline is set (double-check)
+				// ⭐ Ensure payment_deadline is set (double-check)
 				$payment_deadline = get_post_meta($booking_id, '_mhm_payment_deadline', true);
 				if (empty($payment_deadline)) {
 					$deadline = self::get_payment_deadline();
@@ -396,7 +396,7 @@ final class Handler
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('Payment deadline was missing for booking', array('booking_id' => $booking_id, 'deadline' => $deadline));
 				}
 
-				// âœ… CACHE OPTIMIZATION - Centralized cache clearing
+				// ✅ CACHE OPTIMIZATION - Centralized cache clearing
 				// Invalidate availability cache for this vehicle
 				Cache::invalidateVehicle($booking_data['vehicle_id']);
 
@@ -430,7 +430,7 @@ final class Handler
 			'code'    => $code,
 		);
 
-		// âœ… UX IMPROVEMENT - Add error message to URL
+		// ✅ UX IMPROVEMENT - Add error message to URL
 		if (! empty($message)) {
 			$args['message'] = urlencode($message);
 		}
@@ -442,7 +442,7 @@ final class Handler
 	}
 
 	/**
-	 * â­ Get cancellation policy from settings
+	 * ⭐ Get cancellation policy from settings
 	 *
 	 * @return string Cancellation policy (e.g., '24_hours', '48_hours', 'no_refund')
 	 */
@@ -471,7 +471,7 @@ final class Handler
 	}
 
 	/**
-	 * â­ Get cancellation deadline based on settings
+	 * ⭐ Get cancellation deadline based on settings
 	 *
 	 * @return string Cancellation deadline in 'Y-m-d H:i:s' format
 	 */
@@ -492,7 +492,7 @@ final class Handler
 	}
 
 	/**
-	 * â­ Get payment deadline from settings (consistent with WooCommerceBridge)
+	 * ⭐ Get payment deadline from settings (consistent with WooCommerceBridge)
 	 *
 	 * @return string Payment deadline in 'Y-m-d H:i:s' format (WordPress timezone)
 	 */
@@ -511,10 +511,12 @@ final class Handler
 			$deadline_minutes = $min_minutes;
 		}
 
-		// â­ Use current_time() instead of date() to match WordPress timezone
+		// ⭐ Use current_time() instead of date() to match WordPress timezone
 		// This ensures consistency with AutoCancel which uses current_time('mysql')
 		$current_timestamp  = current_time('timestamp');
 		$deadline_timestamp = $current_timestamp + ($deadline_minutes * 60);
 		return gmdate('Y-m-d H:i:s', $deadline_timestamp);
 	}
 }
+
+
