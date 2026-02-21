@@ -606,8 +606,8 @@
 }
 
 /* Actions Row: Price + Button — v1.1: anchored to bottom */
-.mhm-card--list .mhm-content-actions,
-.rv-layout-list .mhm-vehicle-card .mhm-content-actions {
+.mhm-card--list .mhm-card-footer,
+.rv-layout-list .mhm-vehicle-card .mhm-card-footer {
     width: 100%;
     min-width: unset;
     flex-shrink: 0;
@@ -626,7 +626,7 @@
 }
 
 /* Hide duplicate heart in actions row — heart is shown on image overlay instead */
-.mhm-card--list .mhm-content-actions .mhm-card-favorite {
+.mhm-card--list .mhm-card-footer .mhm-card-favorite {
     display: none;
 }
 
@@ -725,7 +725,7 @@
         width: 100%;
     }
 
-    .mhm-card--list .mhm-content-actions {
+    .mhm-card--list .mhm-card-footer {
         flex-wrap: wrap;
     }
 
@@ -737,7 +737,7 @@
 /* Small Mobile: Stack button full width */
 @media (max-width: 480px) {
 
-    .mhm-card--list .mhm-content-actions {
+    .mhm-card--list .mhm-card-footer {
         flex-direction: column;
         align-items: stretch;
     }
