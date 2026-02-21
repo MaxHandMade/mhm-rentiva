@@ -18,6 +18,7 @@ class APIKeysPageTest extends \WP_Ajax_UnitTestCase
         $this->admin_id = $this->factory->user->create(['role' => 'administrator']);
         $_POST = [];
         $_REQUEST = [];
+        \MHMRentiva\Admin\Settings\APIKeysPage::register();
     }
 
     /**
@@ -66,8 +67,9 @@ class APIKeysPageTest extends \WP_Ajax_UnitTestCase
             // Expected
         }
 
+        var_dump("Response is: " . $this->_last_response);
         $response = json_decode($this->_last_response, true);
-        $this->assertTrue($response['success']);
+        $this->assertTrue($response['success'] ?? false);
         $this->assertArrayHasKey('keys', $response['data']);
         $this->assertArrayHasKey('count', $response['data']);
     }

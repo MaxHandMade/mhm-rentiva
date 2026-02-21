@@ -69,8 +69,8 @@ final class APIKeysPage
 	public static function handle_request(): void
 	{
 		// 1. Security Check (Compatibility with rest-api-keys.js using 'nonce' or 'security' param)
-		$nonce_param = self::post_text('nonce') !== '' ? 'nonce' : 'security';
-		if (! check_ajax_referer(self::ACTION_NONCE, $nonce_param, false)) {
+		$nonce_value = isset($_REQUEST['nonce']) ? (string) wp_unslash($_REQUEST['nonce']) : (isset($_REQUEST['security']) ? (string) wp_unslash($_REQUEST['security']) : '');
+		if (! wp_verify_nonce($nonce_value, self::ACTION_NONCE)) {
 			wp_send_json_error(
 				array(
 					'message' => esc_html__('Invalid security nonce.', 'mhm-rentiva'),
