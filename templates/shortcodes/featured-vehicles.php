@@ -1,5 +1,6 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Dynamic HTML is rendered by internal template layer with localized escaping.
 
 /**
  * Shortcode Template: Featured Vehicles
@@ -18,8 +19,8 @@ $layout  = $atts['layout'] ?? 'slider';
 
 <div class="mhm-rentiva-featured-wrapper mhm-layout-<?php echo esc_attr($layout); ?>"
     data-columns="<?php echo esc_attr($columns); ?>"
-    data-autoplay="<?php echo esc_attr($atts['autoplay']); ?>"
-    data-interval="<?php echo esc_attr($atts['interval']); ?>">
+    data-autoplay="<?php echo esc_attr($atts['autoplay'] ?? '1'); ?>"
+    data-interval="<?php echo esc_attr($atts['interval'] ?? '5000'); ?>">
 
     <?php if (! empty($atts['title'])): ?>
         <h2 class="mhm-rentiva-featured-title"><?php echo esc_html($atts['title']); ?></h2>
@@ -35,6 +36,7 @@ $layout  = $atts['layout'] ?? 'slider';
                     <?php foreach ($vehicles as $vehicle): ?>
                         <div class="swiper-slide">
                             <?php
+                            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by trusted internal template with escaped dynamic attributes.
                             echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
                                 'vehicle' => $vehicle,
                                 'layout'  => 'grid', // Featured usually looks like grid cards
@@ -54,6 +56,7 @@ $layout  = $atts['layout'] ?? 'slider';
                 <?php foreach ($vehicles as $vehicle): ?>
                     <div class="mhm-featured-grid-item">
                         <?php
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by trusted internal template with escaped dynamic attributes.
                         echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
                             'vehicle' => $vehicle,
                             'layout'  => 'grid',

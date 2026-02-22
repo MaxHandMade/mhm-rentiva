@@ -104,6 +104,23 @@ final class AllowlistRegistry
             'aliases' => ['columnsMobile'],
         ],
 
+        // Booking Form – Rental Day Limits
+        'default_days'             => [
+            'type'    => 'int',
+            'group'   => 'workflow',
+            'aliases' => ['defaultDays'],
+        ],
+        'min_days'                 => [
+            'type'    => 'int',
+            'group'   => 'workflow',
+            'aliases' => ['minDays'],
+        ],
+        'max_days'                 => [
+            'type'    => 'int',
+            'group'   => 'workflow',
+            'aliases' => ['maxDays'],
+        ],
+
         // Layout & Styles
         'layout'                   => [
             'type'  => 'string',

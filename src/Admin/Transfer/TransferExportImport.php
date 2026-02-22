@@ -162,9 +162,9 @@ final class TransferExportImport
                 printf(
                     /* translators: %1$d: location count, %2$d: route count, %3$d: waypoint count */
                     esc_html__('%1$d Lokasyon, %2$d Rota, %3$d Waypoint', 'mhm-rentiva'),
-                    $loc_count,
-                    $route_count,
-                    $wp_count
+                    (int) $loc_count,
+                    (int) $route_count,
+                    (int) $wp_count
                 );
                 ?>
             </li>
@@ -329,6 +329,7 @@ final class TransferExportImport
 
         $tables = $this->get_tables();
 
+        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- XML stream output for export file.
         echo "\n<!-- MHM Rentiva Transfer Data -->\n";
         echo "<mhm_rentiva_transfer>\n";
 
@@ -391,6 +392,7 @@ final class TransferExportImport
 
         echo "</mhm_rentiva_transfer>\n";
         echo "<!-- End MHM Rentiva Transfer Data -->\n\n";
+        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
     }
 
     // ─── IMPORT ──────────────────────────────────────────────────────

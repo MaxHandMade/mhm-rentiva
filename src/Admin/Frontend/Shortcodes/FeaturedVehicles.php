@@ -68,9 +68,6 @@ final class FeaturedVehicles extends AbstractShortcode
 
 	protected static function prepare_template_data(array $atts): array
 	{
-		if (defined('WP_DEBUG') && WP_DEBUG) {
-			error_log('[PHASE3] Type check for show_rating: ' . gettype($atts['show_rating']) . ' value: ' . ($atts['show_rating'] ? 'true' : 'false'));
-		}
 
 		$args = array(
 			'post_type'      => PT_Vehicle::POST_TYPE,

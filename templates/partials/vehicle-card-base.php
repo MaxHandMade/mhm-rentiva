@@ -30,7 +30,7 @@ $show_features    = $normalize_toggle($atts['show_features'] ?? true);
 $show_price       = $normalize_toggle($atts['show_price'] ?? true);
 $show_title       = $normalize_toggle($atts['show_title'] ?? true);
 $show_rating      = $normalize_toggle($atts['show_rating'] ?? true);
-$show_booking     = $normalize_toggle($atts['show_booking_btn'] ?? true);
+$show_booking     = $normalize_toggle($atts['show_booking_button'] ?? true);
 $booking_text     = $atts['booking_btn_text'] ?? __('Book Now', 'mhm-rentiva');
 $show_description = $normalize_toggle($atts['show_description'] ?? false);
 
@@ -48,13 +48,13 @@ $status_text   = $vehicle['availability']['text'] ?? '';
 $is_featured   = $vehicle['is_featured'] ?? false;
 $is_favorite   = $vehicle['is_favorite'] ?? false;
 $features      = $vehicle['features'] ?? array();
-$rating_avg    = (float) ( $vehicle['rating']['average'] ?? 0 );
+$rating_avg    = (float) ($vehicle['rating']['average'] ?? 0);
 $rating_count  = intval($vehicle['rating']['count'] ?? 0);
 $rating_stars  = $vehicle['rating']['stars'] ?? '';
 
 // Visibility Bridges
-$show_fav      = $normalize_toggle($atts['show_favorite_button'] ?? ( $atts['show_favorite_btn'] ?? true ));
-$show_compare  = $normalize_toggle($atts['show_compare_button'] ?? ( $atts['show_compare_btn'] ?? true ));
+$show_fav      = $normalize_toggle($atts['show_favorite_button'] ?? ($atts['show_favorite_btn'] ?? true));
+$show_compare  = $normalize_toggle($atts['show_compare_button'] ?? ($atts['show_compare_btn'] ?? true));
 $show_category = $normalize_toggle($atts['show_category'] ?? true);
 $show_brand    = $normalize_toggle($atts['show_brand'] ?? true);
 
@@ -63,13 +63,13 @@ $category_raw = $vehicle['category'] ?? $vehicle['category_name'] ?? '';
 $brand_raw    = $vehicle['brand'] ?? $vehicle['brand_name'] ?? '';
 
 if (is_array($category_raw)) {
-	$category_name = (string) ( $category_raw['name'] ?? $category_raw['slug'] ?? '' );
+	$category_name = (string) ($category_raw['name'] ?? $category_raw['slug'] ?? '');
 } else {
 	$category_name = (string) $category_raw;
 }
 
 if (is_array($brand_raw)) {
-	$brand_name = (string) ( $brand_raw['name'] ?? $brand_raw['slug'] ?? '' );
+	$brand_name = (string) ($brand_raw['name'] ?? $brand_raw['slug'] ?? '');
 } else {
 	$brand_name = (string) $brand_raw;
 }
@@ -89,7 +89,7 @@ if (class_exists('\MHMRentiva\Admin\Services\CompareService')) {
 }
 
 // URL Logic
-$booking_base_url = $vehicle['booking_url'] ?? ( $atts['booking_url'] ?? '' );
+$booking_base_url = $vehicle['booking_url'] ?? ($atts['booking_url'] ?? '');
 $booking_btn_url  = add_query_arg('vehicle_id', $vehicle_id, $booking_base_url);
 
 if (! $is_available) {

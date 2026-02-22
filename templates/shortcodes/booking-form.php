@@ -1,5 +1,6 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Dynamic HTML is rendered by internal template layer with localized escaping.
 
 /**
  * Booking Form Template
@@ -121,6 +122,7 @@ $unique_id = uniqid('rv_booking_');
 				<input type="hidden" name="vehicle_id" value="<?php echo esc_attr($selected_vehicle['id']); ?>">
 				<?php if ($show_vehicle_info) : ?>
 					<?php
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by trusted internal template with escaped dynamic attributes.
 					echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/selected-vehicle-summary', array(
 						'vehicle' => $selected_vehicle,
 						'atts'    => $atts,

@@ -35,6 +35,7 @@ final class BlueprintValidator
             if (! isset($manifest[$key])) {
                 return new WP_Error(
                     'mhm_rentiva_invalid_blueprint',
+                    /* translators: %s: missing root key in manifest. */
                     sprintf(__('Manifest root key missing: %s', 'mhm-rentiva'), $key)
                 );
             }
@@ -47,6 +48,7 @@ final class BlueprintValidator
         ) {
             return new WP_Error(
                 'mhm_rentiva_unsupported_version',
+                /* translators: %s: blueprint version string. */
                 sprintf(__('Unsupported blueprint version: %s', 'mhm-rentiva'), $manifest['version'])
             );
         }
@@ -63,6 +65,7 @@ final class BlueprintValidator
             if (stripos($json_to_scan, $pattern) !== false) {
                 return new WP_Error(
                     'mhm_rentiva_forbidden_pattern',
+                    /* translators: %s: forbidden pattern name. */
                     sprintf(__('Forbidden pattern detected in manifest: %s', 'mhm-rentiva'), $pattern)
                 );
             }
@@ -108,7 +111,8 @@ final class BlueprintValidator
             if (! isset($page[$key])) {
                 return new WP_Error(
                     'mhm_rentiva_invalid_page',
-                    sprintf(__('Page #%d is missing key: %s', 'mhm-rentiva'), $index, $key)
+                    /* translators: 1: page index, 2: missing key. */
+                    sprintf(__('Page #%1$d is missing key: %2$s', 'mhm-rentiva'), $index, $key)
                 );
             }
         }
@@ -126,7 +130,8 @@ final class BlueprintValidator
                 if (! isset($instance['instance_id'])) {
                     return new WP_Error(
                         'mhm_rentiva_invalid_instance',
-                        sprintf(__('Component instance #%d in page #%d missing instance_id', 'mhm-rentiva'), $comp_idx, $index)
+                        /* translators: 1: component index, 2: page index. */
+                        sprintf(__('Component instance #%1$d in page #%2$d missing instance_id', 'mhm-rentiva'), $comp_idx, $index)
                     );
                 }
             }

@@ -23,12 +23,47 @@ final class SecurityHelper
 	/**
 	 * Safe sanitize text field that handles null values
 	 */
-	public static function sanitize_text_field_safe($value)
+	public static function sanitize_text_field_safe($value): string
 	{
 		if ($value === null || $value === '') {
 			return '';
 		}
 		return sanitize_text_field((string) $value);
+	}
+
+	/**
+	 * Safe array value getter with default and type casting
+	 *
+	 * @param array  $array   Source array
+	 * @param string $key     Key to search
+	 * @param mixed  $default Default value if key not set
+	 * @param string $type    Target type (string, int, bool, float, array)
+	 * @return mixed
+	 */
+	public static function get_val(array $array, string $key, $default = '', string $type = 'string')
+	{
+		$value = $array[$key] ?? $default;
+
+		// WordPress global verification (unslash data if it's from globals or expected to be slashed)
+		if (is_string($value)) {
+			$value = wp_unslash($value);
+		} elseif (is_array($value)) {
+			$value = wp_unslash($value);
+		}
+
+		switch ($type) {
+			case 'int':
+				return (int) $value;
+			case 'bool':
+				return (bool) $value;
+			case 'float':
+				return (float) $value;
+			case 'array':
+				return is_array($value) ? $value : (array) $value;
+			case 'string':
+			default:
+				return sanitize_text_field((string) $value);
+		}
 	}
 
 	/**

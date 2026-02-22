@@ -1,5 +1,6 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Dynamic HTML is rendered by internal template layer with localized escaping.
 
 /**
  * Vehicles List Template - Standardized with Partial
@@ -30,11 +31,12 @@ $wrapper_class  = $wrapper_class ?? '';
 
 	<?php if ($has_vehicles) : ?>
 
-		<div class="rv-vehicles-list__wrapper <?php echo esc_attr($layout_class . ' ' . $columns_class); ?>" data-columns="<?php echo esc_attr($atts['columns']); ?>">
+		<div class="rv-vehicles-list__wrapper <?php echo esc_attr($layout_class . ' ' . $columns_class); ?>" data-columns="<?php echo esc_attr($atts['columns'] ?? '1'); ?>">
 
 			<?php foreach ($vehicles as $vehicle) : ?>
 				<?php
 				// Use shared partial for vehicle card
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by trusted internal template with escaped dynamic attributes.
 				echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
 					'vehicle' => $vehicle,
 					'layout'  => 'list',

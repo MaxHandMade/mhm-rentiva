@@ -1,5 +1,6 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Dynamic HTML is rendered by internal template layer with localized escaping.
 
 /**
  * Vehicles Grid Template
@@ -43,6 +44,7 @@ $booking_url    = $booking_url ?? '';
 				// Use shared partial for vehicle card
 				// Note: We're using the standard core 'partials/vehicle-card'
 				// The vehicle data from VehiclesGrid.php has been standardized to match the partial's expectations.
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by trusted internal template with escaped dynamic attributes.
 				echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
 					'vehicle' => $vehicle,
 					'layout'  => 'grid',

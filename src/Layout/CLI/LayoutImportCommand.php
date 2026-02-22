@@ -90,7 +90,14 @@ class LayoutImportCommand
             $this->render_summary_table($summary);
             $this->log_success(__('All pages imported successfully.', 'mhm-rentiva'));
         } catch (Exception $e) {
-            $this->log_error(sprintf(__('Import failed: %s. Rollback executed.', 'mhm-rentiva'), $e->getMessage()));
+            $error_message = sanitize_text_field($e->getMessage());
+            $this->log_error(
+                sprintf(
+                    /* translators: %s: import error message. */
+                    __('Import failed: %s. Rollback executed.', 'mhm-rentiva'),
+                    $error_message
+                )
+            );
         }
     }
 
@@ -122,23 +129,71 @@ class LayoutImportCommand
         if ($dry_run) {
             $this->log(__('Executing side-effect free dry-run for rollback...', 'mhm-rentiva'));
         } else {
-            $this->log(sprintf(__('Initiating atomic rollback for Post ID: %d...', 'mhm-rentiva'), $post_id));
+            $this->log(
+                sprintf(
+                    /* translators: %d: post ID. */
+                    __('Initiating atomic rollback for Post ID: %d...', 'mhm-rentiva'),
+                    $post_id
+                )
+            );
         }
 
         try {
             $result = LayoutRollbackService::rollback($post_id, $dry_run);
 
             if ($dry_run) {
-                $this->log(sprintf(__('Target Hash: %s', 'mhm-rentiva'), $result['target_hash']));
-                $this->log(sprintf(__('Current Hash: %s', 'mhm-rentiva'), $result['current_hash'] ?: '-'));
-                $this->log_success(sprintf(__('Rollback is possible. (%s)', 'mhm-rentiva'), $result['message']));
+                $this->log(
+                    sprintf(
+                        /* translators: %s: target layout hash. */
+                        __('Target Hash: %s', 'mhm-rentiva'),
+                        (string) $result['target_hash']
+                    )
+                );
+                $this->log(
+                    sprintf(
+                        /* translators: %s: current layout hash or dash. */
+                        __('Current Hash: %s', 'mhm-rentiva'),
+                        (string) ($result['current_hash'] ?: '-')
+                    )
+                );
+                $this->log_success(
+                    sprintf(
+                        /* translators: %s: rollback validation message. */
+                        __('Rollback is possible. (%s)', 'mhm-rentiva'),
+                        sanitize_text_field((string) $result['message'])
+                    )
+                );
             } else {
-                $this->log(sprintf(__('Old Hash: %s', 'mhm-rentiva'), $result['old_hash']));
-                $this->log(sprintf(__('New Hash: %s', 'mhm-rentiva'), $result['new_hash']));
-                $this->log_success(sprintf(__('Rollback successful for Post ID: %d.', 'mhm-rentiva'), $post_id));
+                $this->log(
+                    sprintf(
+                        /* translators: %s: old layout hash. */
+                        __('Old Hash: %s', 'mhm-rentiva'),
+                        (string) $result['old_hash']
+                    )
+                );
+                $this->log(
+                    sprintf(
+                        /* translators: %s: new layout hash. */
+                        __('New Hash: %s', 'mhm-rentiva'),
+                        (string) $result['new_hash']
+                    )
+                );
+                $this->log_success(
+                    sprintf(
+                        /* translators: %d: post ID. */
+                        __('Rollback successful for Post ID: %d.', 'mhm-rentiva'),
+                        $post_id
+                    )
+                );
             }
         } catch (Exception $e) {
-            $this->log_error(sprintf(__('Rollback failed: %s', 'mhm-rentiva'), $e->getMessage()));
+            $this->log_error(
+                sprintf(
+                    /* translators: %s: rollback error message. */
+                    __('Rollback failed: %s', 'mhm-rentiva'),
+                    sanitize_text_field($e->getMessage())
+                )
+            );
         }
     }
 
@@ -168,7 +223,13 @@ class LayoutImportCommand
         $format = $assoc_args['format'] ?? 'table';
 
         if ($format === 'table') {
-            $this->log(sprintf(__('Layout History for Post ID: %d', 'mhm-rentiva'), $post_id));
+            $this->log(
+                sprintf(
+                    /* translators: %d: post ID. */
+                    __('Layout History for Post ID: %d', 'mhm-rentiva'),
+                    $post_id
+                )
+            );
             $this->log('--------------------------------------------------');
             foreach ($summary as $key => $value) {
                 $this->log(sprintf('%-15s: %s', ucwords(str_replace('_', ' ', $key)), $value));
@@ -186,10 +247,12 @@ class LayoutImportCommand
             }, array_slice($events, -10));
 
             if (function_exists('\WP_CLI\Utils\format_items')) {
+                // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI formatter handles serialization, not direct browser output.
                 \WP_CLI\Utils\format_items('table', $table_events, ['Date', 'Operation', 'Actor', 'Result']);
             }
         } else {
             if (function_exists('\WP_CLI\Utils\format_items')) {
+                // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI formatter handles serialization, not direct browser output.
                 \WP_CLI\Utils\format_items($format, $events, array_keys($events[0] ?? []));
             }
         }
@@ -222,8 +285,21 @@ class LayoutImportCommand
 
         $diff = LayoutDiffService::diff($current['manifest'], $prev['manifest']);
 
-        $this->log(sprintf(__('Layout Diff for Post ID: %d', 'mhm-rentiva'), $post_id));
-        $this->log(sprintf(__('Comparing %s -> %s', 'mhm-rentiva'), substr($prev['hash'], 0, 8), substr($current['hash'], 0, 8)));
+        $this->log(
+            sprintf(
+                /* translators: %d: post ID. */
+                __('Layout Diff for Post ID: %d', 'mhm-rentiva'),
+                $post_id
+            )
+        );
+        $this->log(
+            sprintf(
+                /* translators: 1: previous hash prefix, 2: current hash prefix. */
+                __('Comparing %1$s -> %2$s', 'mhm-rentiva'),
+                substr((string) $prev['hash'], 0, 8),
+                substr((string) $current['hash'], 0, 8)
+            )
+        );
         $this->log('--------------------------------------------------');
 
         // Tokens Diff
@@ -253,6 +329,7 @@ class LayoutImportCommand
     private function log(string $msg): void
     {
         if (class_exists('WP_CLI')) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI handles terminal-safe output.
             WP_CLI::log($msg);
         }
     }
@@ -260,6 +337,7 @@ class LayoutImportCommand
     private function log_success(string $msg): void
     {
         if (class_exists('WP_CLI')) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI handles terminal-safe output.
             WP_CLI::success($msg);
         }
     }
@@ -267,6 +345,7 @@ class LayoutImportCommand
     private function log_error(string $msg): void
     {
         if (class_exists('WP_CLI')) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI handles terminal-safe output.
             WP_CLI::error($msg);
         } else {
             throw new Exception($msg);

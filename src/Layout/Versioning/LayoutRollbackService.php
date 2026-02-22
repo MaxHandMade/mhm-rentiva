@@ -39,14 +39,14 @@ final class LayoutRollbackService
         // 5.1 Pre-conditions
         $post = get_post($post_id);
         if (! $post) {
-            throw new Exception(__('Post not found.', 'mhm-rentiva'));
+            throw new Exception(esc_html__('Post not found.', 'mhm-rentiva'));
         }
 
         $prev_manifest = get_post_meta($post_id, '_mhm_layout_manifest_previous', true);
         $prev_hash     = get_post_meta($post_id, '_mhm_layout_hash_previous', true);
 
         if (empty($prev_manifest) || empty($prev_hash)) {
-            throw new Exception(__('No rollback version available for this post.', 'mhm-rentiva'));
+            throw new Exception(esc_html__('No rollback version available for this post.', 'mhm-rentiva'));
         }
 
         // STATE A — Snapshot Current (Only if not dry-run)
@@ -85,7 +85,13 @@ final class LayoutRollbackService
             $validator         = new BlueprintValidator();
             $validation_result = $validator->validate($prev_manifest_data);
             if (is_wp_error($validation_result)) {
-                throw new Exception(sprintf(__('Governance validation failed for previous layout: %s', 'mhm-rentiva'), $validation_result->get_error_message()));
+                throw new Exception(
+                    sprintf(
+                        /* translators: %s: governance validation error message. */
+                        __('Governance validation failed for previous layout: %s', 'mhm-rentiva'),
+                        sanitize_text_field((string) $validation_result->get_error_message())
+                    )
+                );
             }
 
             if ($dry_run) {
@@ -134,7 +140,11 @@ final class LayoutRollbackService
             if (! $dry_run && ! empty($snapshot)) {
                 self::restore_snapshot($post_id, $snapshot);
             }
-            throw ($e instanceof Exception) ? $e : new Exception($e->getMessage(), (int) $e->getCode(), $e);
+            if ($e instanceof Exception) {
+                throw $e;
+            }
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Throwable wrapped for upstream CLI/UI handling.
+            throw new Exception(sanitize_text_field($e->getMessage()), (int) $e->getCode(), $e);
         }
     }
 

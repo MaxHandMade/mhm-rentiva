@@ -195,7 +195,6 @@ final class TransferResults extends AbstractShortcode
             'columns'          => $columns,
         );
 
-        error_log('RENDER_ARGS_FINAL: ' . wp_json_encode($final_data));
 
         return $final_data;
     }

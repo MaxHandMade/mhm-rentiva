@@ -102,6 +102,10 @@ final class APIKeysPage
 				default                  => throw new \Exception(esc_html__('Invalid operation.', 'mhm-rentiva')),
 			};
 		} catch (\Throwable $e) {
+			$e_class = get_class($e);
+			if (str_contains($e_class, 'WPAjaxDie') || str_contains($e_class, 'WPDie')) {
+				throw $e;
+			}
 			wp_send_json_error(array('message' => esc_html($e->getMessage())));
 		}
 	}

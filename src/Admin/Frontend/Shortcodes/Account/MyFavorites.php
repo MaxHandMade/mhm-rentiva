@@ -74,7 +74,7 @@ class MyFavorites extends AbstractShortcode
 			$args = array(
 				'post_type'      => PT_Vehicle::POST_TYPE,
 				'post_status'    => 'publish',
-				'posts_per_page' => (int) $atts['limit'],
+				'posts_per_page' => (int) ($atts['limit'] ?? 12),
 				'post__in'       => $favorite_ids,
 				'orderby'        => 'post__in', // Keep order or use atts?
 			);
@@ -82,7 +82,7 @@ class MyFavorites extends AbstractShortcode
 			// If user explicitly asks for sort, use it. Otherwise keep post__in (added order)
 			if (isset($atts['orderby']) && $atts['orderby'] !== 'date') {
 				$args['orderby'] = $atts['orderby'];
-				$args['order']   = $atts['order'];
+				$args['order']   = $atts['order'] ?? 'DESC';
 			}
 
 			$query = new WP_Query($args);
@@ -97,7 +97,7 @@ class MyFavorites extends AbstractShortcode
 			}
 		}
 
-		$layout_class = ($atts['layout'] === 'masonry') ? 'rv-vehicles-masonry' : 'rv-vehicles-grid';
+		$layout_class = (($atts['layout'] ?? 'grid') === 'masonry') ? 'rv-vehicles-masonry' : 'rv-vehicles-grid';
 
 		// Override 'no_vehicles' message if needed via template logic or pass it specifically
 		// But vehicles-grid.php usually has generic "No vehicles found".
@@ -110,9 +110,9 @@ class MyFavorites extends AbstractShortcode
 			'total_vehicles'  => count($vehicles),
 			'has_vehicles'    => ! empty($vehicles),
 			'layout_class'    => $layout_class,
-			'columns_class'   => $layout_class . '--columns-' . $atts['columns'],
+			'columns_class'   => $layout_class . '--columns-' . ($atts['columns'] ?? 3),
 			'wrapper_class'   => 'mhm-my-favorites-container rv-my-favorites-wrapper ' . ($atts['class'] ?? ''),
-			'no_results_text' => $atts['no_results_text'],
+			'no_results_text' => $atts['no_results_text'] ?? __('You have no favorite vehicles yet.', 'mhm-rentiva'),
 		);
 	}
 

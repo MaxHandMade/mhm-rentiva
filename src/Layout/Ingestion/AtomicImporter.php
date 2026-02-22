@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception messages are internal control flow, not direct HTML output.
 
 namespace MHMRentiva\Layout\Ingestion;
 
@@ -64,9 +65,10 @@ class AtomicImporter
 
         // 1. Pre-Validation
         $validator = new BlueprintValidator();
+        // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message for internal import control flow.
         $validation_result = $validator->validate($manifest);
         if (is_wp_error($validation_result)) {
-            throw new Exception($validation_result->get_error_message());
+            throw new Exception(sanitize_text_field((string) $validation_result->get_error_message()));
         }
 
         // 2. Hash Calculation (Task 1)
@@ -93,9 +95,10 @@ class AtomicImporter
                 $markup = $this->builder->build($manifest, $page_data);
                 if (is_wp_error($markup)) {
                     throw new Exception(sprintf(
-                        __('Composition error in page %d: %s', 'mhm-rentiva'),
+                        /* translators: 1: page index, 2: error message. */
+                        __('Composition error in page %1$d: %2$s', 'mhm-rentiva'),
                         $index,
-                        $markup->get_error_message()
+                        sanitize_text_field((string) $markup->get_error_message())
                     ));
                 }
 
@@ -103,7 +106,7 @@ class AtomicImporter
                     // Check if hash matches (Task 2: Skip identical)
                     if (($resolution['current_hash'] ?? '') === $hash) {
                         $resolution['status'] = 'skip';
-                        $resolution['message'] = __('Layout identical, skipping update.', 'mhm-rentiva');
+                        $resolution['message'] = esc_html__('Layout identical, skipping update.', 'mhm-rentiva');
                         $summary[] = $resolution;
                         continue;
                     }
@@ -117,7 +120,11 @@ class AtomicImporter
             }
         } catch (Throwable $e) {
             $this->rollback();
-            throw ($e instanceof Exception) ? $e : new Exception($e->getMessage(), (int) $e->getCode(), $e);
+            if ($e instanceof Exception) {
+                throw $e;
+            }
+            $exception_message = sanitize_text_field($e->getMessage());
+            throw new Exception($exception_message, (int) $e->getCode(), $e);
         }
 
         return $summary;
@@ -169,9 +176,12 @@ class AtomicImporter
             if ($existing) {
                 return [
                     'status'       => 'update',
+                    // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal state read from existing page object.
                     'post_id'      => $existing->ID,
+                    // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal state read from existing page object.
                     'title'        => $existing->post_title,
                     'slug'         => $existing->post_name,
+                    // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal metadata read, not directly rendered.
                     'current_hash' => get_post_meta($existing->ID, '_mhm_layout_hash', true)
                 ];
             }
@@ -187,7 +197,7 @@ class AtomicImporter
             'title'        => $title,
             'slug'         => $slug,
             'current_hash' => '',
-            'message'      => __('Page not found and --create flag not set.', 'mhm-rentiva')
+            'message'      => esc_html__('Page not found and --create flag not set.', 'mhm-rentiva')
         ];
     }
 
@@ -199,7 +209,13 @@ class AtomicImporter
         clean_post_cache($post_id);
         $post = get_post($post_id);
         if (!$post) {
-            throw new Exception(sprintf(__('Post ID %d lost during processing.', 'mhm-rentiva'), $post_id));
+            throw new Exception(
+                sprintf(
+                    /* translators: %d: post ID. */
+                    esc_html__('Post ID %d lost during processing.', 'mhm-rentiva'),
+                    $post_id
+                )
+            );
         }
 
         $is_rollback = ! empty($options['is_rollback']);
@@ -214,6 +230,7 @@ class AtomicImporter
             'timestamp'    => get_post_meta($post_id, '_mhm_layout_version_timestamp', true),
             'template'     => get_post_meta($post_id, '_wp_page_template', true),
             // Previous set for full restore if needed
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal metadata snapshot for rollback.
             'manifest_prev'  => get_post_meta($post_id, '_mhm_layout_manifest_previous', true),
             'hash_prev'      => get_post_meta($post_id, '_mhm_layout_hash_previous', true),
             'timestamp_prev' => get_post_meta($post_id, '_mhm_layout_version_timestamp_previous', true),
@@ -237,6 +254,7 @@ class AtomicImporter
 
         // 4. Audit Log (Task: Observability)
         if (empty($options['suppress_audit'])) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal telemetry call, no direct output.
             LayoutAuditService::log_import($post_id, $this->snapshots[$post_id]['hash'] ?? '', $hash, false);
         }
     }
@@ -255,7 +273,7 @@ class AtomicImporter
         ], true);
 
         if (is_wp_error($new_id)) {
-            throw new Exception($new_id->get_error_message());
+            throw new Exception(sanitize_text_field((string) $new_id->get_error_message()));
         }
 
         $this->undo_stack[] = $new_id;

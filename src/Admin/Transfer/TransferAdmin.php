@@ -103,14 +103,12 @@ final class TransferAdmin
 		$table_routes    = self::resolve_table_name('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes');
 
 		// 1. Total Locations
-		$total_locations = (int) $wpdb->get_var(
-			$wpdb->prepare("SELECT COUNT(*) FROM $table_locations")
-		);
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_table_name.
+		$total_locations = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table_locations}");
 
 		// 2. Active Routes
-		$total_routes = (int) $wpdb->get_var(
-			$wpdb->prepare("SELECT COUNT(*) FROM $table_routes")
-		);
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_table_name.
+		$total_routes = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table_routes}");
 
 		// 3. Latest Operation (Last booking of type transfer)
 		$latest_transfer_date = $wpdb->get_var(
@@ -365,16 +363,16 @@ final class TransferAdmin
 
 		$table_name = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
 
-		$locations     = $wpdb->get_results(
-			$wpdb->prepare("SELECT * FROM $table_name ORDER BY priority ASC, name ASC")
-		);
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_table_name.
+		$locations     = $wpdb->get_results("SELECT * FROM {$table_name} ORDER BY priority ASC, name ASC");
 		$edit_location = null;
 
 		$action  = sanitize_key((string) filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
 		$edit_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, array('options' => array('default' => 0)));
 		if ('edit' === $action && $edit_id > 0) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_table_name.
 			$edit_location = $wpdb->get_row(
-				$wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $edit_id)
+				$wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d", $edit_id)
 			);
 		}
 
@@ -518,18 +516,15 @@ final class TransferAdmin
 		$table_routes    = self::resolve_table_name('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes');
 		$table_locations = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are sanitized via resolve_table_name.
 		$routes = $wpdb->get_results(
-			$wpdb->prepare(
-				"
-            SELECT r.*, 
+			"SELECT r.*, 
                    l1.name as origin_name, l1.allow_transfer as origin_eligible,
                    l2.name as dest_name, l2.allow_transfer as dest_eligible
-            FROM $table_routes r
-            LEFT JOIN $table_locations l1 ON r.origin_id = l1.id
-            LEFT JOIN $table_locations l2 ON r.destination_id = l2.id
-            ORDER BY r.id DESC
-        "
-			)
+            FROM {$table_routes} r
+            LEFT JOIN {$table_locations} l1 ON r.origin_id = l1.id
+            LEFT JOIN {$table_locations} l2 ON r.destination_id = l2.id
+            ORDER BY r.id DESC"
 		);
 
 		// SSOT: Only eligible locations for selection
@@ -539,8 +534,9 @@ final class TransferAdmin
 		$action     = sanitize_key((string) filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
 		$edit_id    = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, array('options' => array('default' => 0)));
 		if ('edit' === $action && $edit_id > 0) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_table_name.
 			$edit_route = $wpdb->get_row(
-				$wpdb->prepare("SELECT * FROM $table_routes WHERE id = %d", $edit_id)
+				$wpdb->prepare("SELECT * FROM {$table_routes} WHERE id = %d", $edit_id)
 			);
 		}
 	?>
@@ -597,7 +593,8 @@ final class TransferAdmin
 												}
 											}
 											if (!$found) {
-												$legacy_origin = $wpdb->get_row($wpdb->prepare("SELECT id, name FROM $table_locations WHERE id = %d", $origin_id));
+												// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_table_name.
+												$legacy_origin = $wpdb->get_row($wpdb->prepare("SELECT id, name FROM {$table_locations} WHERE id = %d", $origin_id));
 												if ($legacy_origin) {
 													echo '<option value="' . esc_attr($legacy_origin->id) . '" selected disabled>' . esc_html($legacy_origin->name) . ' (' . esc_html__('Not eligible for transfer', 'mhm-rentiva') . ')</option>';
 												}
@@ -627,7 +624,8 @@ final class TransferAdmin
 												}
 											}
 											if (!$found) {
-												$legacy_dest = $wpdb->get_row($wpdb->prepare("SELECT id, name FROM $table_locations WHERE id = %d", $dest_id));
+												// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name sanitized via resolve_table_name.
+												$legacy_dest = $wpdb->get_row($wpdb->prepare("SELECT id, name FROM {$table_locations} WHERE id = %d", $dest_id));
 												if ($legacy_dest) {
 													echo '<option value="' . esc_attr($legacy_dest->id) . '" selected disabled>' . esc_html($legacy_dest->name) . ' (' . esc_html__('Not eligible for transfer', 'mhm-rentiva') . ')</option>';
 												}
@@ -817,10 +815,10 @@ final class TransferAdmin
 
 		// Server-side validation: Check eligibility
 		$table_locations = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name sanitized via resolve_table_name.
 		$eligibility = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT id, allow_transfer FROM %i WHERE id IN (%d, %d)",
-				$table_locations,
+				"SELECT id, allow_transfer FROM {$table_locations} WHERE id IN (%d, %d)",
 				$data['origin_id'],
 				$data['destination_id']
 			),

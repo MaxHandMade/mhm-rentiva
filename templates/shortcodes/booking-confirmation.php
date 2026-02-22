@@ -206,8 +206,8 @@ $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('re
 
 		<?php
 		// Payment Deadline Warning (for non-paid statuses)
-		if ($payment_status !== 'completed' && $payment_status !== 'paid') :
-			$payment_deadline = get_post_meta($booking_id, '_mhm_payment_deadline', true);
+		if (($payment_status ?? '') !== 'completed' && ($payment_status ?? '') !== 'paid') :
+			$payment_deadline = get_post_meta(($booking_id ?? 0), '_mhm_payment_deadline', true);
 			if ($payment_deadline) :
 		?>
 				<div class="rv-payment-info-box" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">

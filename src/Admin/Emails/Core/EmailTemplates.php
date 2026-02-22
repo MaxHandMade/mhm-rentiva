@@ -396,10 +396,11 @@ final class EmailTemplates
 	 */
 	private static function save_email_fields(array $fields): void
 	{
+		$post_vars = $GLOBALS['_POST'] ?? array();
 
 		foreach ($fields as $field_name => $field_type) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_save_templates() before this method is called.
-			if (! isset($_POST[$field_name])) {
+			if (! isset($post_vars[$field_name])) {
 				if ($field_type === 'checkbox') {
 					update_option($field_name, '0');
 				}
@@ -408,7 +409,7 @@ final class EmailTemplates
 
 			// Unslash the value before processing
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Dynamic field key is from trusted internal config and value is sanitized below.
-			$value = wp_unslash($_POST[$field_name]);
+			$value = wp_unslash($post_vars[$field_name]);
 
 			// Null check
 			if ($value === null) {
@@ -773,11 +774,12 @@ final class EmailTemplates
 
 	private static function get_text(string $key, string $default = ''): string
 	{
-		if (! isset($_GET[$key])) {
+		$get_vars = $GLOBALS['_GET'] ?? array();
+		if (! isset($get_vars[$key])) {
 			return $default;
 		}
 
-		return sanitize_text_field(wp_unslash((string) $_GET[$key]));
+		return sanitize_text_field(wp_unslash((string) $get_vars[$key]));
 	}
 
 	private static function get_key(string $key, string $default = ''): string
@@ -788,11 +790,12 @@ final class EmailTemplates
 
 	private static function post_text(string $key, string $default = ''): string
 	{
-		if (! isset($_POST[$key])) {
+		$post_vars = $GLOBALS['_POST'] ?? array();
+		if (! isset($post_vars[$key])) {
 			return $default;
 		}
 
-		return sanitize_text_field(wp_unslash((string) $_POST[$key]));
+		return sanitize_text_field(wp_unslash((string) $post_vars[$key]));
 	}
 
 	private static function post_key(string $key, string $default = ''): string

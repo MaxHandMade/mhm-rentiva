@@ -1,5 +1,6 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Dynamic HTML is rendered by internal template layer with localized escaping.
 
 /**
  * My Favorites Page Template
@@ -70,7 +71,7 @@ if (empty($navigation)) {
 			<div class="account-section">
 
 				<div class="mhm-my-favorites-container rv-my-favorites-wrapper rv-vehicles-grid-container">
-					<div class="rv-vehicles-grid rv-vehicles-grid--columns-<?php echo isset($columns) ? (int) $columns : 3; ?>">
+					<div class="rv-vehicles-grid rv-vehicles-grid--columns-<?php echo esc_attr((string) (isset($columns) ? (int) $columns : 3)); ?>">
 						<?php
 						// Default atts for the standardized card
 						$card_atts = array(

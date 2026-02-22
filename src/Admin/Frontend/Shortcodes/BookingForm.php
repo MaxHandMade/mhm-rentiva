@@ -332,9 +332,9 @@ final class BookingForm extends AbstractShortcode
 			'show_payment_options'  => filter_var($atts['show_payment_options'] ?? '1', FILTER_VALIDATE_BOOLEAN),
 			'show_vehicle_info'     => filter_var($atts['show_vehicle_info'] ?? '1', FILTER_VALIDATE_BOOLEAN),
 			'show_time_select'      => filter_var($atts['show_time_select'] ?? '1', FILTER_VALIDATE_BOOLEAN),
-			'default_days'          => (int) $atts['default_days'],
-			'min_days'              => (int) $atts['min_days'],
-			'max_days'              => (int) $atts['max_days'],
+			'default_days'          => (int) ($atts['default_days'] ?? \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_default_rental_days', 1)),
+			'min_days'              => (int) ($atts['min_days'] ?? \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_min_rental_days', 1)),
+			'max_days'              => (int) ($atts['max_days'] ?? \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_max_rental_days', 30)),
 			// ⭐ User data and validation (moved from template)
 			'user_data'             => $user_data,
 			'validation_error'      => $validation_result['error'] ?? null,
