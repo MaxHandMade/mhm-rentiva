@@ -520,7 +520,7 @@ final class AssetManager
 				'locale'           => get_locale(),
 				'currency'         => get_option('mhm_rentiva_currency', 'USD'),
 				'currencySymbol'   => CurrencyHelper::get_currency_symbol(),
-				'currencyPosition' => get_option('mhm_rentiva_currency_position', 'left'),
+				'currencyPosition' => CurrencyHelper::get_currency_position(),
 				'dateFormat'       => get_option('date_format', 'Y-m-d'),
 				'timeFormat'       => get_option('time_format', 'H:i'),
 				'strings'          => array(

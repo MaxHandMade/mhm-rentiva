@@ -69,8 +69,12 @@
             // Check if vehicle is pre-selected (from vehicle list/detail page)
             const preSelectedVehicleId = this.container.attr('data-vehicle-id');
             if (preSelectedVehicleId) {
-                // Set the dropdown value if it exists
-                this.container.find('.rv-vehicle-select').val(preSelectedVehicleId);
+                const $select = this.container.find('.rv-vehicle-select');
+                if ($select.length) {
+                    $select.val(preSelectedVehicleId);
+                    // Trigger UI update for pre-selected vehicle
+                    this.updateVehiclePreview($select[0]);
+                }
             }
 
             this.initializeDatePickers();
@@ -186,9 +190,9 @@
             // Show gateway options when online payment method is selected
             this.paymentMethodRadios.on('change', (e) => {
                 if ($(e.target).val() === 'online') {
-                    this.onlinePaymentDetails.show();
+                    this.onlinePaymentDetails.removeClass('rv-hidden');
                 } else {
-                    this.onlinePaymentDetails.hide();
+                    this.onlinePaymentDetails.addClass('rv-hidden');
                 }
             });
 
@@ -333,7 +337,7 @@
             if (!vehicleSelect.length || !preview.length) return;
 
             // Hide preview on first load
-            preview.hide();
+            preview.addClass('rv-hidden');
         }
 
         setupFormValidation() {
@@ -434,27 +438,43 @@
             const $select = $(selectElement);
             const $option = $select.find('option:selected');
             const preview = this.container.find('.rv-selected-vehicle-preview, .rv-selected-vehicle');
-            const image = preview.find('.rv-vehicle-image');
+            const sidebar = this.container.find('.rv-checkout-sidebar, .rv-checkout-vehicle');
+            const image = preview.find('.rv-vehicle-image, .rv-sv__img');
             const title = preview.find('.rv-vehicle-title');
+            const category = preview.find('.rv-vehicle-category, .rv-sv__category');
+            const ratingOverlay = preview.find('.rv-sv__rating-overlay');
             const price = preview.find('.rv-vehicle-price');
 
             if ($option.val()) {
                 const vehiclePrice = $option.data('price');
                 const vehicleImage = $option.data('image');
+                const vehicleCategory = ($option.data('category') || '').toString().trim();
                 const vehicleTitle = $option.text().split(' (')[0]; // Remove price part
 
                 title.text(vehicleTitle);
-                price.text(this.formatPrice(vehiclePrice) + ' ' + this.getMessage('per_day'));
-
-                if (vehicleImage) {
-                    image.attr('src', vehicleImage).removeClass('rv-hidden').show();
-                } else {
-                    image.addClass('rv-hidden').hide();
+                price.html(`<span class="rv-sv__price-amount rv-price-large">${this.formatMoney(vehiclePrice)}</span><span class="rv-sv__price-period"> ${this.getMessage('per_day')}</span>`);
+                if (category.length) {
+                    category.text(vehicleCategory);
+                    category.toggleClass('rv-hidden', !vehicleCategory);
+                }
+                if (ratingOverlay.length) {
+                    ratingOverlay.removeClass('rv-hidden');
                 }
 
-                preview.removeClass('rv-hidden').show();
+                if (vehicleImage) {
+                    image.attr('src', vehicleImage).removeClass('rv-hidden');
+                } else {
+                    image.addClass('rv-hidden');
+                }
+
+                preview.removeClass('rv-hidden');
+                if (sidebar.length) sidebar.removeClass('rv-hidden');
             } else {
-                preview.hide();
+                preview.addClass('rv-hidden');
+                if (ratingOverlay.length) {
+                    ratingOverlay.addClass('rv-hidden');
+                }
+                if (sidebar.length) sidebar.addClass('rv-hidden');
             }
         }
 
@@ -660,15 +680,15 @@
         updatePriceDisplay(data) {
             const currencySymbol = data.currency_symbol || window.mhmRentivaBookingForm?.currency_symbol;
 
-            this.priceElements.dailyPrice.text(this.formatPrice(data.vehicle_price) + ' ' + currencySymbol);
+            this.priceElements.dailyPrice.text(this.formatMoney(data.vehicle_price, currencySymbol));
 
             this.priceElements.daysCount.text(data.days);
 
             if (data.weekend_extra && data.weekend_extra > 0) {
-                this.priceElements.weekendDiffAmount.text(this.formatPrice(data.weekend_extra) + ' ' + currencySymbol);
-                this.container.find('.rv-weekend-summary').show();
+                this.priceElements.weekendDiffAmount.text(this.formatMoney(data.weekend_extra, currencySymbol));
+                this.container.find('.rv-weekend-summary').removeClass('rv-hidden');
             } else {
-                this.container.find('.rv-weekend-summary').hide();
+                this.container.find('.rv-weekend-summary').addClass('rv-hidden');
             }
 
             const hasTax = data.tax_enabled && data.tax_amount !== undefined && data.tax_amount > 0;
@@ -685,27 +705,27 @@
                         : taxLabel + ' (' + taxRate + '%):')
                     : taxLabel + ':';
                 this.priceElements.taxLabel.text(taxLabelText);
-                this.priceElements.taxAmount.text(this.formatPrice(data.tax_amount) + ' ' + currencySymbol);
-                this.container.find('.rv-tax-summary').show();
+                this.priceElements.taxAmount.text(this.formatMoney(data.tax_amount, currencySymbol));
+                this.container.find('.rv-tax-summary').removeClass('rv-hidden');
             } else {
-                this.container.find('.rv-tax-summary').hide();
+                this.container.find('.rv-tax-summary').addClass('rv-hidden');
             }
 
             if (showDetailedBreakdown) {
-                this.priceElements.vehicleTotal.text(this.formatPrice(data.vehicle_total) + ' ' + currencySymbol);
-                this.container.find('.rv-vehicle-total-detailed').show();
+                this.priceElements.vehicleTotal.text(this.formatMoney(data.vehicle_total, currencySymbol));
+                this.container.find('.rv-vehicle-total-detailed').removeClass('rv-hidden');
             } else {
-                this.container.find('.rv-vehicle-total-detailed').hide();
+                this.container.find('.rv-vehicle-total-detailed').addClass('rv-hidden');
             }
 
             if (hasAddons) {
-                this.priceElements.addonsTotal.text(this.formatPrice(data.addon_total) + ' ' + currencySymbol);
-                this.container.find('.rv-addons-price').show();
+                this.priceElements.addonsTotal.text(this.formatMoney(data.addon_total, currencySymbol));
+                this.container.find('.rv-addons-price').removeClass('rv-hidden');
             } else {
-                this.container.find('.rv-addons-price').hide();
+                this.container.find('.rv-addons-price').addClass('rv-hidden');
             }
 
-            this.priceElements.totalAmount.text(this.formatPrice(data.total_price) + ' ' + currencySymbol);
+            this.priceElements.totalAmount.text(this.formatMoney(data.total_price, currencySymbol));
 
             const paymentTypeRadio = this.form.find('input[name="payment_type"]:checked').val();
             const paymentTypeHidden = this.form.find('input[name="payment_type"][type="hidden"]').val();
@@ -717,18 +737,18 @@
 
             if (depositEnabled && (paymentType === 'deposit' || data.deposit_amount !== undefined) &&
                 data.deposit_amount !== undefined && data.deposit_amount > 0) {
-                this.priceElements.depositAmount.text(this.formatPrice(data.deposit_amount) + ' ' + currencySymbol);
-                this.container.find('.rv-deposit-summary').show();
+                this.priceElements.depositAmount.text(this.formatMoney(data.deposit_amount, currencySymbol));
+                this.container.find('.rv-deposit-summary').removeClass('rv-hidden');
 
                 if (data.remaining_amount !== undefined && data.remaining_amount > 0) {
-                    this.priceElements.remainingAmount.text(this.formatPrice(data.remaining_amount) + ' ' + currencySymbol);
-                    this.container.find('.rv-remaining-summary').show();
+                    this.priceElements.remainingAmount.text(this.formatMoney(data.remaining_amount, currencySymbol));
+                    this.container.find('.rv-remaining-summary').removeClass('rv-hidden');
                 } else {
-                    this.container.find('.rv-remaining-summary').hide();
+                    this.container.find('.rv-remaining-summary').addClass('rv-hidden');
                 }
             } else {
-                this.container.find('.rv-deposit-summary').hide();
-                this.container.find('.rv-remaining-summary').hide();
+                this.container.find('.rv-deposit-summary').addClass('rv-hidden');
+                this.container.find('.rv-remaining-summary').addClass('rv-hidden');
             }
         }
 
@@ -739,14 +759,14 @@
             const formData = this.getFormData();
 
             if (!formData.vehicle_id || !formData.pickup_date || !formData.dropoff_date) {
-                this.container.find('.rv-deposit-summary, .rv-remaining-summary').hide();
+                this.container.find('.rv-deposit-summary, .rv-remaining-summary').addClass('rv-hidden');
                 return;
             }
 
             const days = this.calculateDays(formData.pickup_date, formData.dropoff_date);
 
             if (days <= 0) {
-                this.container.find('.rv-deposit-summary, .rv-remaining-summary').hide();
+                this.container.find('.rv-deposit-summary, .rv-remaining-summary').addClass('rv-hidden');
                 return;
             }
         }
@@ -821,19 +841,19 @@
             const paymentType = this.form.find('input[name="payment_type"]:checked').val();
 
             if (paymentType === 'deposit' && data.deposit_amount > 0) {
-                this.priceElements.depositAmount.text(this.formatPrice(data.deposit_amount) + ' ' + currencySymbol);
-                this.priceElements.remainingAmount.text(this.formatPrice(data.remaining_amount) + ' ' + currencySymbol);
+                this.priceElements.depositAmount.text(this.formatMoney(data.deposit_amount, currencySymbol));
+                this.priceElements.remainingAmount.text(this.formatMoney(data.remaining_amount, currencySymbol));
 
                 if (data.remaining_amount > 0) {
-                    this.container.find('.rv-remaining-summary').show();
+                    this.container.find('.rv-remaining-summary').removeClass('rv-hidden');
                 } else {
-                    this.container.find('.rv-remaining-summary').hide();
+                    this.container.find('.rv-remaining-summary').addClass('rv-hidden');
                 }
 
-                this.container.find('.rv-deposit-summary').show();
+                this.container.find('.rv-deposit-summary').removeClass('rv-hidden');
             } else {
-                this.container.find('.rv-deposit-summary').hide();
-                this.container.find('.rv-remaining-summary').hide();
+                this.container.find('.rv-deposit-summary').addClass('rv-hidden');
+                this.container.find('.rv-remaining-summary').addClass('rv-hidden');
             }
         }
 
@@ -841,9 +861,9 @@
             const paymentMethod = this.form.find('input[name="payment_method"]:checked').val();
 
             if (paymentMethod === 'online') {
-                this.onlinePaymentDetails.show();
+                this.onlinePaymentDetails.removeClass('rv-hidden');
             } else {
-                this.onlinePaymentDetails.hide();
+                this.onlinePaymentDetails.addClass('rv-hidden');
             }
         }
 
@@ -993,9 +1013,6 @@
             // Element for availability status display
             let availabilityStatus = this.form.find('.rv-availability-status');
 
-            // Remove hidden class (if exists)
-            availabilityStatus.removeClass('hidden');
-
             if (!availabilityStatus.length) {
                 availabilityStatus = $('<div class="rv-availability-status"></div>');
 
@@ -1016,7 +1033,9 @@
 
             // Loading status - Modern loading card
             availabilityStatus.removeClass('success error').addClass('loading');
-            availabilityStatus.html(`<div class="rv-loading-message"><span class="rv-spinner"></span> <span>${this.getMessage('checking_availability')}</span></div>`);
+            const checkingAvailabilityText = this.getMessage('checking_availability') || 'Checking availability...';
+            availabilityStatus.html(`<div class="rv-loading-message"><span class="rv-spinner"></span> <span>${this.escapeHtml(checkingAvailabilityText)}</span></div>`);
+            availabilityStatus.removeClass('hidden');
 
 
             // Debug log for AJAX data
@@ -1062,7 +1081,13 @@
                                             <div class="rv-alternatives-grid">
                                     `;
 
-                            response.data.alternatives.forEach(vehicle => {
+                            response.data.alternatives.slice(0, 2).forEach(vehicle => {
+                                const currencySymbol = this.escapeHtml(window.mhmRentivaBookingForm?.currency_symbol || '');
+                                const priceLabel = this.escapeHtml(this.getMessage('daily_price') || 'Daily Price');
+                                const compactPrice = vehicle.price_per_day !== undefined
+                                    ? this.formatMoney(vehicle.price_per_day, currencySymbol)
+                                    : '-';
+
                                 alternativesHtml += `
                                             <div class="rv-alternative-vehicle-card" data-vehicle-id="${this.escapeHtml(vehicle.id)}">
                                                 <div class="rv-alternative-vehicle-image">
@@ -1070,24 +1095,9 @@
                                                 </div>
                                                 <div class="rv-alternative-vehicle-content">
                                                     <h5 class="rv-alternative-vehicle-title">${this.escapeHtml(vehicle.title)}</h5>
-                                                    
-                                                    ${vehicle.features && vehicle.features.length > 0 ? `
-                                                        <div class="rv-alternative-vehicle-features">
-                                                            ${vehicle.features.map(feature => `
-                                                                <span class="rv-alternative-feature-tag">${this.escapeHtml(feature.replace(/_/g, ' '))}</span>
-                                                            `).join('')}
-                                                        </div>
-                                                    ` : ''}
-                                                    
-                                                    <div class="rv-alternative-price-details">
-                                                        <div class="rv-alternative-price-row">
-                                                            <span class="rv-alternative-price-label">${this.escapeHtml(this.getMessage('daily_price'))}:</span>
-                                                            <span class="rv-alternative-price-value">${this.formatPrice(vehicle.price_per_day)} ${this.escapeHtml(window.mhmRentivaBookingForm?.currency_symbol || '')}</span>
-                                                        </div>
-                                                        <div class="rv-alternative-price-row rv-alternative-price-total">
-                                                            <span class="rv-alternative-price-label">${this.escapeHtml(this.getMessage('total'))}:</span>
-                                                            <span class="rv-alternative-price-amount">${this.formatPrice(vehicle.total_price)} ${this.escapeHtml(window.mhmRentivaBookingForm?.currency_symbol || '')}</span>
-                                                        </div>
+                                                    <div class="rv-alternative-price-details rv-alternative-price-compact">
+                                                        <span class="rv-alternative-price-label">${priceLabel}:</span>
+                                                        <span class="rv-alternative-price-amount">${compactPrice}</span>
                                                     </div>
                                                     <button type="button" class="rv-select-alternative-btn" 
                                                         data-vehicle-id="${this.escapeHtml(vehicle.id)}"
@@ -1184,9 +1194,10 @@
         updateVehicleUI(vehicleData) {
             // Find active info card (static or preview)
             const card = this.container.find('.rv-selected-vehicle, .rv-selected-vehicle-preview');
+            const sidebar = this.container.find('.rv-checkout-sidebar, .rv-checkout-vehicle');
             if (!card.length) return;
 
-            const image = card.find('.rv-vehicle-image');
+            const image = card.find('.rv-vehicle-image, .rv-sv__img');
             const title = card.find('.rv-vehicle-title');
             const price = card.find('.rv-vehicle-price');
             const excerpt = card.find('.rv-vehicle-excerpt');
@@ -1195,21 +1206,24 @@
 
             // Update title and basic price
             if (title.length) title.text(vehicleData.title);
-            if (price.length) price.text(this.formatPrice(vehicleData.price) + ' ' + this.getMessage('per_day'));
+            if (price.length) {
+                price.html(`<span class="rv-sv__price-amount rv-price-large">${this.formatMoney(vehicleData.price)}</span><span class="rv-sv__price-period"> ${this.getMessage('per_day')}</span>`);
+            }
 
             // Update image
             if (image.length && vehicleData.image) {
-                image.attr('src', vehicleData.image).show();
-                image.closest('.rv-vehicle-image-wrapper').show();
+                image.attr('src', vehicleData.image).removeClass('rv-hidden');
+                image.closest('.rv-vehicle-image-wrapper').removeClass('rv-hidden');
             }
 
             // Hide/Clear parts we don't have for alternatives to prevent confusion
-            if (excerpt.length) excerpt.hide();
-            if (features.length) features.hide();
-            if (ratings.length) ratings.hide();
+            if (excerpt.length) excerpt.addClass('rv-hidden');
+            if (features.length) features.addClass('rv-hidden');
+            if (ratings.length) ratings.addClass('rv-hidden');
 
             // Ensure the card is visible
-            card.removeClass('rv-hidden').show();
+            card.removeClass('rv-hidden');
+            if (sidebar.length) sidebar.removeClass('rv-hidden');
         }
 
         // Helper methods (showError, showSuccess, showLoading, hideMessages, formatPrice, getMessage, getFavoritesConfig, getAjaxUrl, calculateDays)
@@ -1221,12 +1235,12 @@
             // Check if message contains HTML - simplistic check
             if (message.includes('<') && message.includes('>')) {
                 // If it looks like HTML, use html() but ensure content was sanitized before
-                this.errorEl.html(message).removeClass('rv-hidden').show();
+                this.errorEl.html(message).removeClass('rv-hidden').removeClass('rv-hidden');
             } else {
                 // Otherwise use text() for safety
-                this.errorEl.text(message).removeClass('rv-hidden').show();
+                this.errorEl.text(message).removeClass('rv-hidden').removeClass('rv-hidden');
             }
-            this.successEl.addClass('rv-hidden').hide();
+            this.successEl.addClass('rv-hidden').addClass('rv-hidden');
             // Auto hide after 5 seconds
             setTimeout(() => {
                 this.errorEl.fadeOut();
@@ -1236,28 +1250,28 @@
         showSuccess(message) {
             // Check if message contains HTML - simplistic check
             if (message.includes('<') && message.includes('>')) {
-                this.successEl.html(message).removeClass('rv-hidden').show();
+                this.successEl.html(message).removeClass('rv-hidden').removeClass('rv-hidden');
             } else {
-                this.successEl.text(message).removeClass('rv-hidden').show();
+                this.successEl.text(message).removeClass('rv-hidden').removeClass('rv-hidden');
             }
-            this.errorEl.addClass('rv-hidden').hide();
+            this.errorEl.addClass('rv-hidden').addClass('rv-hidden');
         }
 
         showLoading(isLoading) {
             if (isLoading) {
-                this.loadingEl.removeClass('rv-hidden').show();
+                this.loadingEl.removeClass('rv-hidden').removeClass('rv-hidden');
                 this.submitBtn.prop('disabled', true);
                 this.submitBtn.find('.rv-btn-loading').removeClass('rv-hidden');
             } else {
-                this.loadingEl.addClass('rv-hidden').hide();
+                this.loadingEl.addClass('rv-hidden').addClass('rv-hidden');
                 this.submitBtn.prop('disabled', false);
                 this.submitBtn.find('.rv-btn-loading').addClass('rv-hidden');
             }
         }
 
         hideMessages() {
-            this.errorEl.addClass('rv-hidden').hide();
-            this.successEl.addClass('rv-hidden').hide();
+            this.errorEl.addClass('rv-hidden').addClass('rv-hidden');
+            this.successEl.addClass('rv-hidden').addClass('rv-hidden');
         }
 
         showToast(message, type = 'success') {
@@ -1269,11 +1283,28 @@
         }
 
         formatPrice(price) {
-            // Simple formatter, can be enhanced with locale
             return new Intl.NumberFormat(window.mhmRentivaBookingForm?.locale || 'en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(price);
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(Number(price || 0));
+        }
+
+        formatMoney(price, symbolOverride = null) {
+            const amount = this.formatPrice(price);
+            const symbol = symbolOverride || window.mhmRentivaBookingForm?.currency_symbol || '';
+            const position = window.mhmRentivaBookingForm?.currency_position || 'right_space';
+
+            switch (position) {
+                case 'left':
+                    return `${symbol}${amount}`;
+                case 'left_space':
+                    return `${symbol} ${amount}`;
+                case 'right':
+                    return `${amount}${symbol}`;
+                case 'right_space':
+                default:
+                    return `${amount} ${symbol}`;
+            }
         }
 
         getMessage(key) {

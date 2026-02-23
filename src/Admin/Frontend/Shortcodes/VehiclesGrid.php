@@ -11,6 +11,7 @@ use MHMRentiva\Admin\Vehicle\Helpers\RatingSortHelper;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use Exception;
 
@@ -372,21 +373,7 @@ class VehiclesGrid extends AbstractShortcode {
 	 */
 	private static function format_price_with_position(float $price): string
 	{
-		$symbol           = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
-		$position         = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
-		$formatted_amount = number_format($price, 0, ',', '.');
-
-		switch ($position) {
-			case 'left':
-				return $symbol . $formatted_amount;
-			case 'left_space':
-				return $symbol . ' ' . $formatted_amount;
-			case 'right':
-				return $formatted_amount . $symbol;
-			case 'right_space':
-			default:
-				return $formatted_amount . ' ' . $symbol;
-		}
+		return CurrencyHelper::format_price($price, 0);
 	}
 
 	/**

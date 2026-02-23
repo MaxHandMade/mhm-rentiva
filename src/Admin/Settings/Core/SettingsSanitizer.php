@@ -246,6 +246,8 @@ final class SettingsSanitizer {
 
 		$card_field_payload                     = $input['mhm_rentiva_vehicle_card_fields'] ?? null;
 		$out['mhm_rentiva_vehicle_card_fields'] = VehicleFeatureHelper::sanitize_card_field_selection( $card_field_payload );
+		$detail_field_payload                   = $input['mhm_rentiva_vehicle_detail_fields'] ?? null;
+		$out['mhm_rentiva_vehicle_detail_fields'] = VehicleFeatureHelper::sanitize_card_field_selection( $detail_field_payload );
 
 		return $out;
 	}

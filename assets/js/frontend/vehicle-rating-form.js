@@ -11,6 +11,23 @@
             this.init();
         }
 
+        applySelectedStars($container, value) {
+            const score = parseInt(value, 10) || 0;
+            const $labels = $container.find('label.rv-star-input');
+
+            $labels.removeClass('active');
+            $labels.each(function () {
+                const $label = $(this);
+                const inputId = $label.attr('for');
+                const $input = $container.find('input#' + inputId);
+                const inputScore = parseInt($input.val(), 10) || 0;
+
+                if (inputScore > 0 && inputScore <= score) {
+                    $(this).addClass('active');
+                }
+            });
+        }
+
         init() {
             this.bindEvents();
             this.initStarRating();
@@ -40,6 +57,8 @@
         }
 
         initStarRating() {
+            const self = this;
+
             $('.rv-rating-stars-input').each(function () {
                 const $container = $(this);
                 const $inputs = $container.find('input[type="radio"]');
@@ -55,33 +74,37 @@
                     if ($input.length) {
                         $inputs.prop('checked', false);
                         $input.prop('checked', true);
-
-                        // Clear all stars
-                        $labels.removeClass('active');
-
-                        // Activate all stars before selected one
-                        $labels.each(function (index) {
-                            if (index < value) {
-                                $(this).addClass('active');
-                            }
-                        });
+                        self.applySelectedStars($container, value);
                     }
                 });
 
                 $inputs.on('change', function () {
                     const $input = $(this);
                     const value = parseInt($input.val());
-
-                    // Clear all stars
-                    $labels.removeClass('active');
-
-                    // Activate all stars before selected one
-                    $labels.each(function (index) {
-                        if (index < value) {
-                            $(this).addClass('active');
-                        }
-                    });
+                    self.applySelectedStars($container, value);
                 });
+
+                // Preview selected score while hovering stars.
+                $labels.on('mouseenter', function () {
+                    const $label = $(this);
+                    const inputId = $label.attr('for');
+                    const $input = $container.find('input#' + inputId);
+                    const value = parseInt($input.val(), 10) || 0;
+                    self.applySelectedStars($container, value);
+                });
+
+                // Restore persisted value when hover ends.
+                $container.on('mouseleave', function () {
+                    const $checkedInput = $inputs.filter(':checked').first();
+                    const value = $checkedInput.length ? parseInt($checkedInput.val(), 10) : 0;
+                    self.applySelectedStars($container, value);
+                });
+
+                // Ensure pre-filled user rating is visible on initial render.
+                const $checked = $inputs.filter(':checked').first();
+                if ($checked.length) {
+                    self.applySelectedStars($container, $checked.val());
+                }
             });
         }
 
@@ -236,11 +259,8 @@
 
         handleStarChange(e) {
             const $input = $(e.target);
-            const $label = $input.closest('label');
             const $container = $input.closest('.rv-rating-stars-input');
-
-            $container.find('label').removeClass('active');
-            $label.addClass('active');
+            this.applySelectedStars($container, $input.val());
         }
 
         handleDeleteRating(e) {
@@ -433,7 +453,8 @@
 
             // Fill the form
             const $form = $('.rv-rating-form-content');
-            const $ratingInputs = $form.find('.rv-rating-stars-input input[type="radio"]');
+            const $starsContainer = $form.find('.rv-rating-stars-input');
+            const $ratingInputs = $starsContainer.find('input[type="radio"]');
             const $commentTextarea = $form.find('textarea[name="comment"]');
 
             // Set rating
@@ -441,12 +462,7 @@
             $ratingInputs.filter(`[value="${rating}"]`).prop('checked', true);
 
             // Update star appearance
-            $form.find('.rv-rating-stars-input label').removeClass('active');
-            $ratingInputs.each(function (index) {
-                if (index < rating) {
-                    $(this).siblings('label').addClass('active');
-                }
-            });
+            this.applySelectedStars($starsContainer, rating);
 
             // Set comment
             $commentTextarea.val(comment);

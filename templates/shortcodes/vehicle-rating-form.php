@@ -52,11 +52,62 @@ $can_comment          = $is_logged_in || (! $require_login && $allow_guest_comme
 $current_user_rating  = $user_rating ? floatval($user_rating['rating']) : 0;
 $current_user_comment = $user_rating ? $user_rating['comment'] : '';
 
+// Premium rating distribution (5 / 4 / 3) for summary bars.
+$rating_distribution = array(5 => 0, 4 => 0, 3 => 0);
+$rating_total        = max(0, intval($vehicle_rating['count'] ?? 0));
+if ($vehicle_id > 0) {
+	global $wpdb;
+	$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded aggregate query for one vehicle rating summary.
+		$wpdb->prepare(
+			"SELECT CAST(cm.meta_value AS UNSIGNED) AS rating_value, COUNT(*) AS total
+			FROM {$wpdb->comments} c
+			INNER JOIN {$wpdb->commentmeta} cm ON c.comment_ID = cm.comment_id
+			WHERE c.comment_post_ID = %d
+				AND c.comment_approved = '1'
+				AND c.comment_type = 'review'
+				AND cm.meta_key = 'mhm_rating'
+				AND cm.meta_value IN ('3','4','5')
+			GROUP BY rating_value",
+			$vehicle_id
+		)
+	);
+	if (is_array($rows)) {
+		foreach ($rows as $row) {
+			$key = intval($row->rating_value ?? 0);
+			if (isset($rating_distribution[$key])) {
+				$rating_distribution[$key] = intval($row->total ?? 0);
+			}
+		}
+	}
+}
+
 // Get settings for character limits
 $full_comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
 $display_settings = array_merge(
 	$full_comments_settings['display'] ?? array(),
 	$full_comments_settings['limits'] ?? array()
+);
+
+$allowed_rating_svg_tags = array(
+	'span' => array(
+		'class' => true,
+	),
+	'svg'  => array(
+		'width'       => true,
+		'height'      => true,
+		'viewBox'     => true,
+		'fill'        => true,
+		'xmlns'       => true,
+		'class'       => true,
+		'aria-hidden' => true,
+		'focusable'   => true,
+		'role'        => true,
+		'style'       => true,
+	),
+	'path' => array(
+		'd'    => true,
+		'fill' => true,
+	),
 );
 
 // Debug: Check user rating information
@@ -71,29 +122,36 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 	<!-- Current Rating Display -->
 	<div class="rv-rating-display">
 		<div class="rv-rating-summary">
-			<div class="rv-rating-stars">
-				<?php for ($i = 1; $i <= 5; $i++) : ?>
+			<div class="rv-rating-summary-left">
+				<div class="rv-rating-average"><?php echo esc_html(number_format((float) ($vehicle_rating['average'] ?? 0), 1)); ?></div>
+				<div class="rv-rating-stars">
+					<?php echo wp_kses((string) ($vehicle_rating['stars'] ?? ''), $allowed_rating_svg_tags); ?>
+				</div>
+				<div class="rv-rating-total-label">
 					<?php
-					$is_filled = $i <= floor((float) ($vehicle_rating['average'] ?? 0));
-					$is_half   = ($i == ceil((float) ($vehicle_rating['average'] ?? 0))) &&
-						(((float) ($vehicle_rating['average'] ?? 0)) - floor((float) ($vehicle_rating['average'] ?? 0)) >= 0.5);
+					$count = intval($vehicle_rating['count'] ?? 0);
+					printf(
+						esc_html(_n('%d review', '%d reviews', $count, 'mhm-rentiva')),
+						$count
+					);
 					?>
-					<span class="rv-star <?php echo $is_half ? 'rv-star-half' : ($is_filled ? 'rv-star-filled' : ''); ?>">
-						<?php
-						$star_color = $is_filled || $is_half ? '#fbbf24' : '#d1d5db';
-						Icons::render('star', ['width' => '16', 'height' => '16', 'style' => "fill: $star_color; color: $star_color;"]);
-						?>
-					</span>
-				<?php endfor; ?>
+				</div>
 			</div>
-			<span class="rv-rating-average"><?php echo esc_html(number_format((float) ($vehicle_rating['average'] ?? 0), 1)); ?></span>
-			<span class="rv-rating-count">(<?php echo esc_html((string) ($vehicle_rating['count'] ?? 0)); ?> <?php echo esc_html__('reviews', 'mhm-rentiva'); ?>)</span>
-			<?php if (! empty($vehicle_rating['confidence_label'])) : ?>
-				<span class="mhm-rating-confidence mhm-confidence--<?php echo esc_attr($vehicle_rating['confidence_key']); ?>"
-					title="<?php echo esc_attr($vehicle_rating['confidence_tooltip'] ?? ''); ?>">
-					<?php echo esc_html($vehicle_rating['confidence_label']); ?>
-				</span>
-			<?php endif; ?>
+			<div class="rv-rating-summary-right">
+				<?php foreach (array(5, 4, 3) as $score) : ?>
+					<?php
+					$score_count = intval($rating_distribution[$score] ?? 0);
+					$percent = $rating_total > 0 ? (int) round(($score_count / $rating_total) * 100) : 0;
+					?>
+					<div class="rv-rating-dist-row">
+						<span class="rv-rating-dist-label"><?php echo esc_html((string) $score); ?></span>
+						<div class="rv-rating-dist-track" aria-hidden="true">
+							<span class="rv-rating-dist-fill" style="width: <?php echo esc_attr((string) $percent); ?>%;"></span>
+						</div>
+						<span class="rv-rating-dist-percent"><?php echo esc_html((string) $percent); ?>%</span>
+					</div>
+				<?php endforeach; ?>
+			</div>
 		</div>
 	</div>
 
@@ -270,7 +328,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 								<?php checked($current_user_rating, $i); ?>>
 							<label for="rating-<?php echo esc_attr($vehicle_id); ?>-<?php echo (int) $i; ?>"
 								class="rv-star-input">
-								<?php Icons::render('star', ['width' => '24', 'height' => '24', 'style' => 'color: #d1d5db; fill: #d1d5db;']); ?>
+								<?php Icons::render('star', ['width' => '24', 'height' => '24', 'class' => 'rv-star-icon']); ?>
 							</label>
 						<?php endfor; ?>
 					</div>

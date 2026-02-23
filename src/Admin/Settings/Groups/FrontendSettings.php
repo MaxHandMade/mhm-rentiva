@@ -39,6 +39,7 @@ final class FrontendSettings {
 			'mhm_rentiva_vehicle_show_images'         => '1',
 			'mhm_rentiva_vehicle_show_features'       => '1',
 			'mhm_rentiva_vehicle_card_fields'         => class_exists( '\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper' ) ? \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_default_card_fields() : array(),
+			'mhm_rentiva_vehicle_detail_fields'       => class_exists( '\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper' ) ? \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_default_card_fields() : array(),
 			'mhm_rentiva_vehicle_show_availability'   => '1',
 
 			// Texts & Labels - General Buttons

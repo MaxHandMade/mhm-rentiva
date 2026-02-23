@@ -196,7 +196,7 @@ final class BookingConfirmation extends AbstractShortcode
 		}
 
 		// Currency symbol
-		$currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
+		$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 
 		return array(
 			'booking'             => $booking,

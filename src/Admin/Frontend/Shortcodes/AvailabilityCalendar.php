@@ -8,6 +8,7 @@ namespace MHMRentiva\Admin\Frontend\Shortcodes;
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public shortcode filter names are intentionally stable.
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use Exception;
 
@@ -282,7 +283,8 @@ final class AvailabilityCalendar extends AbstractShortcode
 
 		// Add common Rentiva data
 		$data['isUserLoggedIn'] = is_user_logged_in();
-		$data['currencySymbol'] = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
+		$data['currencySymbol'] = CurrencyHelper::get_currency_symbol();
+		$data['currencyPosition'] = CurrencyHelper::get_currency_position();
 		$data['pluginUrl']      = MHM_RENTIVA_PLUGIN_URL;
 		$data['dateFormat']     = get_option('date_format', 'd.m.Y');
 		$data['timeFormat']     = get_option('time_format', 'H:i');
@@ -411,7 +413,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 		}
 
 		$price_per_day   = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($vehicle_id);
-		$currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
+		$currency_symbol = CurrencyHelper::get_currency_symbol();
 
 		// Vehicle image
 		$image_id  = get_post_thumbnail_id($vehicle_id);
@@ -474,7 +476,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 			'title'           => $vehicle->post_title,
 			'excerpt'         => wp_trim_words($vehicle->post_excerpt, 20),
 			'price_per_day'   => $price_per_day,
-			'formatted_price' => number_format((float) $price_per_day, 0, ',', '.'),
+			'formatted_price' => CurrencyHelper::format_price((float) $price_per_day, 0),
 			'currency_symbol' => $currency_symbol,
 			'rating'          => $rating,
 			'favorite'        => $is_favorited,
@@ -1013,8 +1015,9 @@ final class AvailabilityCalendar extends AbstractShortcode
 				'excerpt'         => $vehicle->post_excerpt ?: wp_trim_words($vehicle->post_content, 15),
 				'image'           => $image_url ?: '',
 				'features'        => $features,
-				'price'           => number_format($price, 0, ',', '.'),
-				'currency_symbol' => \MHMRentiva\Admin\Reports\Reports::get_currency_symbol(),
+				'price'           => (float) $price,
+				'formatted_price' => CurrencyHelper::format_price((float) $price, 0),
+				'currency_symbol' => CurrencyHelper::get_currency_symbol(),
 				'rating'          => $rating,
 				'is_favorite'     => false,
 			);

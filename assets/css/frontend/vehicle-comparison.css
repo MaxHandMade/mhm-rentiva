@@ -10,7 +10,7 @@
 
 .rv-vehicle-comparison {
 	font-family: var(--mhm-font-primary);
-	margin: 20px auto;
+	margin: var(--mhm-space-phi-3, 1.3125rem) auto;
 	/* Centered */
 	background: var(--mhm-white);
 	border-radius: 12px;
@@ -763,7 +763,7 @@
 
 @media (max-width: 480px) {
 	.rv-vehicle-comparison {
-		margin: 10px;
+		margin: var(--mhm-space-phi-2, 0.8125rem) auto;
 		border-radius: 8px;
 	}
 

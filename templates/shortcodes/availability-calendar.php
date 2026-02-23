@@ -176,7 +176,7 @@ if ($vehicle_id > 0) {
 						<div class="rv-vehicle-price-container">
 							<p class="rv-vehicle-price">
 								<?php echo esc_html($selected_vehicle['formatted_price']); ?>
-								<?php echo esc_html($selected_vehicle['currency_symbol']); ?><?php echo esc_html(esc_html__('/day', 'mhm-rentiva')); ?>
+								<?php echo esc_html(esc_html__('/day', 'mhm-rentiva')); ?>
 							</p>
 						</div>
 					</div>
@@ -336,7 +336,7 @@ if ($vehicle_id > 0) {
 						if ($show_pricing === '1' && isset($pricing_data[$month_key]['days'][$date])) {
 							$price_data = $pricing_data[$month_key]['days'][$date];
 							echo '<div class="rv-day-price">';
-							echo '<span class="rv-price-amount">' . esc_html(number_format($price_data['day_price'], 0, ',', '.')) . ' ' . esc_html(apply_filters('mhm_rentiva/currency_symbol', '₺')) . '</span>';
+							echo '<span class="rv-price-amount">' . esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price((float) $price_data['day_price'], 0)) . '</span>';
 							if ($price_data['has_discount']) {
 								echo '<span class="rv-discount-badge">%' . esc_html(round(($price_data['discount_amount'] / $price_data['base_price']) * 100)) . '</span>';
 							}

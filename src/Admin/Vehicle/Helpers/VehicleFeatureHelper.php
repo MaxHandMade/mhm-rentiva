@@ -119,6 +119,19 @@ final class VehicleFeatureHelper
 	}
 
 	/**
+	 * Returns selected vehicle detail fields.
+	 * Falls back to card field selection for backward compatibility.
+	 */
+	public static function get_selected_detail_fields(): array
+	{
+		$fallback = self::get_selected_card_fields();
+		$raw      = SettingsCore::get('mhm_rentiva_vehicle_detail_fields', $fallback);
+		$selected = self::sanitize_card_field_selection($raw);
+
+		return ! empty($selected) ? $selected : $fallback;
+	}
+
+	/**
 	 * Sanitize raw card field selection payload.
 	 *
 	 * @param mixed $raw

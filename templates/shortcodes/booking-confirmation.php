@@ -141,20 +141,20 @@ $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('re
 			<!-- Total Cost -->
 			<div class="rv-detail-row">
 				<div class="rv-detail-label"><?php esc_html_e('Total Cost', 'mhm-rentiva'); ?></div>
-				<div class="rv-detail-value rv-price total-cost"><?php echo esc_html(number_format((float) ($total_price ?? 0), 2, ',', '.') . ' ' . ($currency_symbol ?? '$')); ?></div>
+				<div class="rv-detail-value rv-price total-cost"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price((float) ($total_price ?? 0), 0)); ?></div>
 			</div>
 
 			<?php if ((! empty($payment_type) && $payment_type === 'deposit') && (! empty($deposit_amount) && (float) $deposit_amount > 0)) : ?>
 				<!-- Deposit Amount -->
 				<div class="rv-detail-row">
 					<div class="rv-detail-label"><?php esc_html_e('Deposit Paid', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value rv-price deposit-paid"><?php echo esc_html(number_format((float) ($deposit_amount ?? 0), 2, ',', '.') . ' ' . ($currency_symbol ?? '$')); ?></div>
+					<div class="rv-detail-value rv-price deposit-paid"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price((float) ($deposit_amount ?? 0), 0)); ?></div>
 				</div>
 
 				<!-- Remaining Amount -->
 				<div class="rv-detail-row">
 					<div class="rv-detail-label"><?php esc_html_e('Remaining Amount', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value rv-price remaining-amount"><?php echo esc_html(number_format((float) ($remaining_amount ?? 0), 2, ',', '.') . ' ' . ($currency_symbol ?? '$')); ?></div>
+					<div class="rv-detail-value rv-price remaining-amount"><?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price((float) ($remaining_amount ?? 0), 0)); ?></div>
 				</div>
 			<?php endif; ?>
 

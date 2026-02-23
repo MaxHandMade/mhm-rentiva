@@ -25,6 +25,12 @@
     margin-top: var(--mhm-space-phi-4, 2.125rem) !important;
 }
 
+/* Surface width consistency with other shortcode pages */
+.mhm-transfer-results-page {
+    box-sizing: border-box !important;
+    padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem)) !important;
+}
+
 /* Card Core Specs */
 .rv-unified-search-results .mhm-transfer-card {
     background: #fff !important;
@@ -165,6 +171,10 @@
 
 /* Mobile Responsivity & Parity */
 @media (max-width: 782px) {
+    .mhm-transfer-results-page {
+        padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem)) !important;
+    }
+
     .mhm-transfer-results.rv-unified-search-results .mhm-transfer-results__grid {
         grid-template-columns: 1fr !important;
         gap: 16px !important;

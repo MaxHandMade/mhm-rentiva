@@ -54,8 +54,9 @@
 /* ===== MAIN CONTAINER ===== */
 .rv-availability-calendar {
 	max-width: 1000px;
-	margin: 2rem auto;
-	padding: 2rem;
+	margin: var(--mhm-space-phi-3, 1.3125rem) auto;
+	padding-block: var(--mhm-space-phi-3, 1.3125rem);
+	padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
 	box-sizing: border-box;
 	background: var(--rv-cal-bg-main);
 	border-radius: var(--rv-cal-radius);
@@ -656,7 +657,7 @@
 		padding-block: var(--mhm-space-phi-2, 0.8125rem) !important;
 		padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem)) !important;
 		box-sizing: border-box !important;
-		margin: 0 !important;
+		margin: var(--mhm-space-phi-2, 0.8125rem) auto !important;
 		width: 100% !important;
 		max-width: 100% !important;
 		border: none !important;

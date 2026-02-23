@@ -14,7 +14,9 @@
 	background: var(--rv-glass-bg);
 	border-radius: var(--rv-radius);
 	box-shadow: var(--rv-shadow);
-	padding: var(--mhm-space-6);
+	padding-block: max(var(--mhm-space-phi-3, 1.3125rem), var(--mhm-space-6));
+	padding-inline: max(var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem)), var(--mhm-space-6));
+	width: 100%;
 	max-width: 1140px;
 	margin: 0 auto;
 	box-sizing: border-box;
@@ -306,7 +308,8 @@
 /* Premium Responsive Optimization & UI Restoration */
 @media screen and (max-width: 782px) {
 	.rv-unified-search {
-		padding: var(--mhm-space-4);
+		padding-block: max(var(--mhm-space-phi-2, 0.8125rem), var(--mhm-space-4));
+		padding-inline: max(var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem)), var(--mhm-space-4));
 	}
 
 	.rv-unified-search__group--mobile-grid {

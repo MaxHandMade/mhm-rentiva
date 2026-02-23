@@ -9,6 +9,7 @@
  */
 
 use MHMRentiva\Helpers\Icons;
+use MHMRentiva\Admin\Core\CurrencyHelper;
 
 // Prevent direct access
 if (! defined('ABSPATH')) {
@@ -147,11 +148,10 @@ $custom_class = trim($atts['class'] ?? '');
 											if ($show_prices && $price > 0) :
 											?>
 												<div class="mhm-comparison-price" style="text-align: center; font-weight: bold; font-size: 1.1em; color: #2ecc71; margin-top: 10px;">
-													<?php
-													echo esc_html(number_format($price, 0, ',', '.'));
-													echo ' ' . esc_html($vehicle['features']['currency_symbol'] ?? '$');
-													echo ' <span class="price-suffix" style="font-size: 0.9em; color: #7f8c8d; font-weight: normal;">/ ' . esc_html__('day', 'mhm-rentiva') . '</span>';
-													?>
+													<?php echo esc_html(CurrencyHelper::format_price((float) $price, 0)); ?>
+													<span class="price-suffix" style="font-size: 0.9em; color: #7f8c8d; font-weight: normal;">
+														/ <?php echo esc_html__('day', 'mhm-rentiva'); ?>
+													</span>
 												</div>
 											<?php endif; ?>
 										</div>
@@ -216,8 +216,7 @@ $custom_class = trim($atts['class'] ?? '');
 									if ($show_prices && $price > 0) :
 									?>
 										<div class="rv-mobile-price">
-											<?php echo esc_html(number_format($price, 0, ',', '.')); ?>
-											<?php echo esc_html($vehicle['features']['currency_symbol'] ?? '$'); ?>
+											<?php echo esc_html(CurrencyHelper::format_price((float) $price, 0)); ?>
 											<span class="rv-period">/ <?php echo esc_html__('day', 'mhm-rentiva'); ?></span>
 										</div>
 									<?php endif; ?>
@@ -323,10 +322,7 @@ $custom_class = trim($atts['class'] ?? '');
 
 											if ($feature_key === 'price_per_day' && $show_prices) {
 												if ($value > 0) {
-													echo '<span class="rv-price">';
-													echo esc_html(number_format($value, 0, ',', '.'));
-													echo ' ' . esc_html($vehicle['features']['currency_symbol'] ?? '$');
-													echo '</span>';
+													echo '<span class="rv-price">' . esc_html(CurrencyHelper::format_price((float) $value, 0)) . '</span>';
 												} else {
 													echo '<span class="rv-no-price">-</span>';
 												}

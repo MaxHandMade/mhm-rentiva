@@ -21,6 +21,77 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class CurrencyHelper {
 
 	/**
+	 * Get active currency position.
+	 *
+	 * WooCommerce setting is authoritative when available.
+	 *
+	 * @return string
+	 */
+	public static function get_currency_position(): string {
+		if ( function_exists( 'get_option' ) ) {
+			$wc_position = (string) get_option( 'woocommerce_currency_pos', '' );
+			if ( $wc_position !== '' ) {
+				return $wc_position;
+			}
+		}
+
+		return (string) SettingsCore::get( 'mhm_rentiva_currency_position', 'right_space' );
+	}
+
+	/**
+	 * Format numeric amount with project standard precision.
+	 *
+	 * @param float $amount   Numeric amount.
+	 * @param int   $decimals Decimal precision.
+	 * @return string
+	 */
+	public static function format_amount( float $amount, int $decimals = 0 ): string {
+		$decimal_separator  = function_exists( 'wc_get_price_decimal_separator' ) ? wc_get_price_decimal_separator() : ',';
+		$thousand_separator = function_exists( 'wc_get_price_thousand_separator' ) ? wc_get_price_thousand_separator() : '.';
+
+		return number_format( $amount, max( 0, $decimals ), $decimal_separator, $thousand_separator );
+	}
+
+	/**
+	 * Format price with active currency symbol and position.
+	 *
+	 * WooCommerce settings are used when available. HTML tags are stripped so this
+	 * can be used safely in plain-text contexts and templates.
+	 *
+	 * @param float $amount   Numeric amount.
+	 * @param int   $decimals Decimal precision.
+	 * @return string
+	 */
+	public static function format_price( float $amount, int $decimals = 0 ): string {
+		if ( function_exists( 'wc_price' ) ) {
+			$formatted = (string) wc_price(
+				$amount,
+				array(
+					'decimals' => max( 0, $decimals ),
+				)
+			);
+
+			return trim( html_entity_decode( wp_strip_all_tags( $formatted ), ENT_QUOTES, 'UTF-8' ) );
+		}
+
+		$symbol   = self::get_currency_symbol();
+		$position = self::get_currency_position();
+		$number   = self::format_amount( $amount, $decimals );
+
+		switch ( $position ) {
+			case 'left':
+				return $symbol . $number;
+			case 'left_space':
+				return $symbol . ' ' . $number;
+			case 'right':
+				return $number . $symbol;
+			case 'right_space':
+			default:
+				return $number . ' ' . $symbol;
+		}
+	}
+
+	/**
 	 * Get all supported currency codes and symbols
 	 *
 	 * This list must match exactly with SettingsCore::render_currency_field()

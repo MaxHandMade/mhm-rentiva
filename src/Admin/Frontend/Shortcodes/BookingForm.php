@@ -12,6 +12,7 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Vehicle\PostType\Vehicle as PT_Vehicle;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
@@ -252,7 +253,8 @@ final class BookingForm extends AbstractShortcode
 	protected static function get_js_config(): array
 	{
 		return array(
-			'currency_symbol'      => \MHMRentiva\Admin\Reports\Reports::get_currency_symbol(),
+			'currency_symbol'      => CurrencyHelper::get_currency_symbol(),
+			'currency_position'    => CurrencyHelper::get_currency_position(),
 			'locale'               => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
 			'enable_deposit'       => get_option('mhm_rentiva_enable_deposit', '1') === '1',
 			'default_payment'      => get_option('mhm_rentiva_default_payment', 'deposit'),
@@ -498,6 +500,7 @@ final class BookingForm extends AbstractShortcode
 				'id'             => $vehicle->ID,
 				'title'          => $vehicle->post_title,
 				'price_per_day'  => (string) get_post_meta($vehicle->ID, '_mhm_rentiva_price_per_day', true),
+				'category_name'  => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_category($vehicle->ID),
 				'featured_image' => get_the_post_thumbnail_url($vehicle->ID, 'thumbnail'),
 			);
 		}
@@ -1153,8 +1156,9 @@ final class BookingForm extends AbstractShortcode
 			);
 
 			// Currency
-			$currency        = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD');
-			$currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
+			$currency          = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD');
+			$currency_symbol   = CurrencyHelper::get_currency_symbol();
+			$currency_position = CurrencyHelper::get_currency_position();
 
 			// ✅ Check if pickup date is weekend (Saturday=6, Sunday=7)
 			$pickup_datetime = new \DateTime($pickup_date);
@@ -1169,6 +1173,7 @@ final class BookingForm extends AbstractShortcode
 				'days'                  => $days,
 				'currency'              => $currency,
 				'currency_symbol'       => $currency_symbol,
+				'currency_position'     => $currency_position,
 				'deposit_amount'        => $deposit_result['deposit_amount'] ?? 0,
 				'remaining_amount'      => $deposit_result['remaining_amount'] ?? 0,
 				// ⭐ Vehicle Management Settings information
@@ -1467,20 +1472,6 @@ final class BookingForm extends AbstractShortcode
 	 */
 	public static function format_currency_price(float $price): string
 	{
-		$symbol           = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
-		$position         = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
-		$formatted_amount = number_format($price, 0, ',', '.');
-
-		switch ($position) {
-			case 'left':
-				return $symbol . $formatted_amount;
-			case 'left_space':
-				return $symbol . ' ' . $formatted_amount;
-			case 'right':
-				return $formatted_amount . $symbol;
-			case 'right_space':
-			default:
-				return $formatted_amount . ' ' . $symbol;
-		}
+		return CurrencyHelper::format_price($price, 0);
 	}
 }

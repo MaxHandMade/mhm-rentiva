@@ -8,6 +8,7 @@ if (! defined('ABSPATH')) {
 }
 
 use MHMRentiva\Helpers\Icons;
+use MHMRentiva\Admin\Core\CurrencyHelper;
 
 $item     = isset($item) && is_array($item) ? $item : array();
 $criteria = isset($criteria) && is_array($criteria) ? $criteria : array();
@@ -15,10 +16,7 @@ $atts     = isset($atts) && is_array($atts) ? $atts : array();
 
 if (! isset($format_price) || ! is_callable($format_price)) {
 	$format_price = static function (float $price, string $currency = ''): string {
-		if (function_exists('wc_price')) {
-			return (string) wc_price($price);
-		}
-		return $currency . number_format($price, 2);
+		return CurrencyHelper::format_price($price, 0);
 	};
 }
 

@@ -171,7 +171,7 @@
                                     transition: all 0.2s ease;
                                 " data-vehicle-id="${vehicle.id}">
                                     <strong>${this.escapeHtml(vehicle.title)}</strong>
-                                    <div style="color: #666; font-size: 14px;">${this.formatPrice(vehicle.price || 0)} ${perDay}</div>
+                                    <div style="color: #666; font-size: 14px;">${this.formatMoney(vehicle.price || 0)} ${perDay}</div>
                                 </div>
                             `).join('')}
                         </div>
@@ -290,10 +290,10 @@
             }
 
             // Update price
-            if (vehicleData.price) {
+            if (vehicleData.price !== undefined || vehicleData.formatted_price) {
                 const perDay = (window.mhmRentivaAvailability?.strings?.per_day || '/day');
-                const currencySymbol = vehicleData.currency_symbol || window.mhmRentivaAvailability?.currencySymbol || '$';
-                $('.rv-vehicle-price').html(vehicleData.price + ' ' + currencySymbol + perDay);
+                const formatted = vehicleData.formatted_price || this.formatMoney(vehicleData.price || 0, vehicleData.currency_symbol);
+                $('.rv-vehicle-price').html(`${formatted} ${perDay}`);
             }
 
             // Update data attributes
@@ -573,7 +573,7 @@
                 totalPrice = daysDiff * vehiclePrice;
             }
 
-            $('.rv-price-total').text(this.formatPrice(totalPrice));
+            $('.rv-price-total').text(this.formatMoney(totalPrice));
         }
 
         loadAvailabilityData() {
@@ -697,12 +697,12 @@
                     if ($priceContainer.length === 0) {
                         $day.append(`
                             <div class="rv-day-price">
-                                <span class="rv-price-amount">${this.formatPrice(priceData.day_price)}</span>
+                                <span class="rv-price-amount">${this.formatMoney(priceData.day_price)}</span>
                                 ${priceData.has_discount ? `<span class="rv-discount-badge">%${Math.round((priceData.discount_amount / priceData.base_price) * 100)}</span>` : ''}
                             </div>
                         `);
                     } else {
-                        $priceContainer.find('.rv-price-amount').text(this.formatPrice(priceData.day_price));
+                        $priceContainer.find('.rv-price-amount').text(this.formatMoney(priceData.day_price));
 
                         if (priceData.has_discount) {
                             const discountPercent = Math.round((priceData.discount_amount / priceData.base_price) * 100);
@@ -829,16 +829,28 @@
 
         formatPrice(price) {
             const locale = this.convertLocaleFormat(window.mhmRentivaAvailability?.locale || 'en-US');
-            const currencySymbol = window.mhmRentivaAvailability?.currencySymbol || '$';
-
-            // Format number
-            const formattedNumber = new Intl.NumberFormat(locale, {
+            return new Intl.NumberFormat(locale, {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
-            }).format(price);
+            }).format(Number(price || 0));
+        }
 
-            // Append/Prepend symbol manually to avoid force-changing currency code
-            return `${formattedNumber} ${currencySymbol}`;
+        formatMoney(price, symbolOverride = null) {
+            const amount = this.formatPrice(price);
+            const symbol = symbolOverride || window.mhmRentivaAvailability?.currencySymbol || '$';
+            const position = window.mhmRentivaAvailability?.currencyPosition || 'right_space';
+
+            switch (position) {
+                case 'left':
+                    return `${symbol}${amount}`;
+                case 'left_space':
+                    return `${symbol} ${amount}`;
+                case 'right':
+                    return `${amount}${symbol}`;
+                case 'right_space':
+                default:
+                    return `${amount} ${symbol}`;
+            }
         }
 
         convertLocaleFormat(locale) {

@@ -293,6 +293,54 @@ final class VehicleSettings {
 			);
 		}
 
+		// Detail page highlighted features selection.
+		$detail_selected_rows = VehicleFeatureHelper::get_selected_detail_fields();
+		$available_flat_for_detail = array();
+		foreach ( $available_map as $type => $fields ) {
+			foreach ( $fields as $key => $field ) {
+				if ( ! isset( $field['label'] ) ) {
+					$field['label'] = ucfirst( str_replace( '_', ' ', $key ) );
+				}
+				$available_flat_for_detail[ $type . ':' . $key ] = $field;
+			}
+		}
+
+		$detail_selected_items = array();
+		foreach ( $detail_selected_rows as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+			$type = isset( $item['type'] ) ? sanitize_key( (string) $item['type'] ) : '';
+			$key  = isset( $item['key'] ) ? sanitize_key( (string) $item['key'] ) : '';
+			if ( $type === '' || $key === '' ) {
+				continue;
+			}
+
+			$id    = $type . ':' . $key;
+			$label = '';
+			if ( isset( $available_flat_for_detail[ $id ] ) ) {
+				$label = $available_flat_for_detail[ $id ]['label'];
+				unset( $available_flat_for_detail[ $id ] );
+			} else {
+				$label = ucfirst( str_replace( '_', ' ', $key ) );
+			}
+
+			$detail_selected_items[] = array(
+				'type'  => $type,
+				'key'   => $key,
+				'label' => $label,
+			);
+		}
+
+		$detail_available_items = array();
+		foreach ( $available_flat_for_detail as $id => $data ) {
+			$detail_available_items[] = array(
+				'type'  => $data['type'],
+				'key'   => $data['key'] ?? $id,
+				'label' => $data['label'],
+			);
+		}
+
 		// Remaining items in available_flat are "Available"
 		$available_items = array();
 		foreach ( $available_flat as $id => $data ) {
@@ -303,7 +351,8 @@ final class VehicleSettings {
 			);
 		}
 
-		$hidden_value = esc_attr( wp_json_encode( $selected ) );
+		$hidden_value        = esc_attr( wp_json_encode( $selected ) );
+		$detail_hidden_value = esc_attr( wp_json_encode( $detail_selected_rows ) );
 
 		// 2. Comparison Fields
 		$settings                    = get_option( 'mhm_rentiva_settings', array() );
@@ -326,7 +375,8 @@ final class VehicleSettings {
 								<button type="button" id="clear-card-fields" class="button button-small" style="float: right;"><?php echo esc_html__( 'Clear All', 'mhm-rentiva' ); ?></button>
 							</h4>
 							<p class="description"><?php echo esc_html__( 'Drag to reorder or click to remove items from the vehicle card.', 'mhm-rentiva' ); ?></p>
-							<ul id="mhm-card-fields-selected" class="mhm-card-fields-list" style="min-height: 50px; border: 1px dashed #ccc; padding: 10px;">
+							<input type="search" class="regular-text mhm-card-field-search" data-target="#mhm-card-fields-selected" placeholder="<?php echo esc_attr__( 'Search visible items...', 'mhm-rentiva' ); ?>" style="width: 100%; margin: 0 0 10px 0;">
+							<ul id="mhm-card-fields-selected" class="mhm-card-fields-list" style="min-height: 80px; max-height: 280px; overflow-y: auto; overflow-x: hidden; border: 1px dashed #ccc; padding: 10px;">
 								<?php if ( ! empty( $selected_items ) ) : ?>
 									<?php foreach ( $selected_items as $item ) : ?>
 										<?php echo wp_kses_post( self::render_card_field_list_item( $item['type'], $item['key'], $item['label'], true ) ); ?>
@@ -338,7 +388,8 @@ final class VehicleSettings {
 						<div class="mhm-card-fields-column" style="flex: 1; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
 							<h4><?php echo esc_html__( 'Available Items', 'mhm-rentiva' ); ?></h4>
 							<p class="description"><?php echo esc_html__( 'Drag items here to hide them from the card.', 'mhm-rentiva' ); ?></p>
-							<ul id="mhm-card-fields-available" class="mhm-card-fields-list" style="min-height: 50px; border: 1px dashed #ccc; padding: 10px;">
+							<input type="search" class="regular-text mhm-card-field-search" data-target="#mhm-card-fields-available" placeholder="<?php echo esc_attr__( 'Search available items...', 'mhm-rentiva' ); ?>" style="width: 100%; margin: 0 0 10px 0;">
+							<ul id="mhm-card-fields-available" class="mhm-card-fields-list" style="min-height: 80px; max-height: 380px; overflow-y: auto; overflow-x: hidden; border: 1px dashed #ccc; padding: 10px;">
 								<?php if ( ! empty( $available_items ) ) : ?>
 									<?php foreach ( $available_items as $item ) : ?>
 										<?php echo wp_kses_post( self::render_card_field_list_item( $item['type'], $item['key'], $item['label'], false ) ); ?>
@@ -350,6 +401,46 @@ final class VehicleSettings {
 					</div>
 					<p class="description mhm-card-fields-footer" style="margin-top: 10px;">
 						<?php echo esc_html__( 'Tip: The order you set here applies to vehicle grids, list views and the My Account favorites grid.', 'mhm-rentiva' ); ?>
+					</p>
+				</div>
+			</div>
+
+			<div class="mhm-settings-section">
+				<h2><?php echo esc_html__( 'Vehicle Detail Highlighted Features', 'mhm-rentiva' ); ?></h2>
+				<div class="mhm-card-fields-wrapper mhm-detail-fields-wrapper">
+					<input type="hidden" id="mhm-vehicle-detail-fields-input" name="mhm_rentiva_vehicle_detail_fields" value="<?php echo esc_attr( $detail_hidden_value ); ?>" />
+
+					<div class="mhm-card-fields-columns" style="display: flex; gap: 20px;">
+						<div class="mhm-card-fields-column" style="flex: 1; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+							<h4><?php echo esc_html__( 'Visible in Vehicle Detail', 'mhm-rentiva' ); ?>
+								<button type="button" id="clear-detail-fields" class="button button-small" style="float: right;"><?php echo esc_html__( 'Clear All', 'mhm-rentiva' ); ?></button>
+							</h4>
+							<p class="description"><?php echo esc_html__( 'Drag to reorder or click remove to hide features in the detail page highlighted section.', 'mhm-rentiva' ); ?></p>
+							<input type="search" class="regular-text mhm-card-field-search" data-target="#mhm-detail-fields-selected" placeholder="<?php echo esc_attr__( 'Search visible detail items...', 'mhm-rentiva' ); ?>" style="width: 100%; margin: 0 0 10px 0;">
+							<ul id="mhm-detail-fields-selected" class="mhm-card-fields-list" style="min-height: 80px; max-height: 280px; overflow-y: auto; overflow-x: hidden; border: 1px dashed #ccc; padding: 10px;">
+								<?php if ( ! empty( $detail_selected_items ) ) : ?>
+									<?php foreach ( $detail_selected_items as $item ) : ?>
+										<?php echo wp_kses_post( self::render_card_field_list_item( $item['type'], $item['key'], $item['label'], true ) ); ?>
+									<?php endforeach; ?>
+								<?php endif; ?>
+							</ul>
+						</div>
+
+						<div class="mhm-card-fields-column" style="flex: 1; background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+							<h4><?php echo esc_html__( 'Available for Vehicle Detail', 'mhm-rentiva' ); ?></h4>
+							<p class="description"><?php echo esc_html__( 'Drag items here to hide them from the detail page highlighted section.', 'mhm-rentiva' ); ?></p>
+							<input type="search" class="regular-text mhm-card-field-search" data-target="#mhm-detail-fields-available" placeholder="<?php echo esc_attr__( 'Search available detail items...', 'mhm-rentiva' ); ?>" style="width: 100%; margin: 0 0 10px 0;">
+							<ul id="mhm-detail-fields-available" class="mhm-card-fields-list" style="min-height: 80px; max-height: 380px; overflow-y: auto; overflow-x: hidden; border: 1px dashed #ccc; padding: 10px;">
+								<?php if ( ! empty( $detail_available_items ) ) : ?>
+									<?php foreach ( $detail_available_items as $item ) : ?>
+										<?php echo wp_kses_post( self::render_card_field_list_item( $item['type'], $item['key'], $item['label'], false ) ); ?>
+									<?php endforeach; ?>
+								<?php endif; ?>
+							</ul>
+						</div>
+					</div>
+					<p class="description mhm-card-fields-footer" style="margin-top: 10px;">
+						<?php echo esc_html__( 'Tip: This controls the "Highlighted Features" section in vehicle detail pages and shortcode output.', 'mhm-rentiva' ); ?>
 					</p>
 				</div>
 			</div>
@@ -411,6 +502,96 @@ final class VehicleSettings {
 
 		<script>
 			jQuery(document).ready(function($) {
+				function filterFieldList($input) {
+					var targetSelector = $input.data('target');
+					var query = String($input.val() || '').toLowerCase().trim();
+					var $target = $(targetSelector);
+					if (!$target.length) {
+						return;
+					}
+
+					$target.children('li').each(function() {
+						var labelText = $(this).find('.mhm-card-field-label').text().toLowerCase();
+						$(this).toggle(query === '' || labelText.indexOf(query) !== -1);
+					});
+				}
+
+				function applyAllFieldFilters() {
+					$('.mhm-card-field-search').each(function() {
+						filterFieldList($(this));
+					});
+				}
+
+				$('.mhm-card-field-search').on('input', function() {
+					filterFieldList($(this));
+				});
+
+				if (window.matchMedia('(max-width: 1280px)').matches) {
+					$('.mhm-card-fields-columns').css({
+						display: 'grid',
+						gridTemplateColumns: '1fr',
+						gap: '14px'
+					});
+				}
+
+				function updateDetailFieldsInput() {
+					var items = [];
+					$('#mhm-detail-fields-selected li').each(function() {
+						items.push({
+							type: $(this).data('fieldType'),
+							key: $(this).data('fieldKey')
+						});
+					});
+					$('#mhm-vehicle-detail-fields-input').val(JSON.stringify(items));
+				}
+
+				function refreshDetailEmptyState() {
+					$('#mhm-detail-fields-selected, #mhm-detail-fields-available').each(function() {
+						if ($(this).find('li').length === 0) {
+							$(this).addClass('is-empty');
+						} else {
+							$(this).removeClass('is-empty');
+						}
+					});
+				}
+
+				$('#mhm-detail-fields-selected, #mhm-detail-fields-available').sortable({
+					connectWith: '#mhm-detail-fields-selected, #mhm-detail-fields-available',
+					placeholder: 'mhm-card-fields-placeholder',
+					forcePlaceholderSize: true,
+					tolerance: 'pointer',
+					update: function() {
+						updateDetailFieldsInput();
+						refreshDetailEmptyState();
+						applyAllFieldFilters();
+					},
+					receive: function() {
+						updateDetailFieldsInput();
+						refreshDetailEmptyState();
+						applyAllFieldFilters();
+					}
+				}).disableSelection();
+
+				$('#mhm-detail-fields-available').on('click', 'li', function() {
+					$(this).appendTo('#mhm-detail-fields-selected');
+					updateDetailFieldsInput();
+					refreshDetailEmptyState();
+					applyAllFieldFilters();
+				});
+
+				$('#mhm-detail-fields-selected').on('click', '.remove-field', function(event) {
+					event.preventDefault();
+					event.stopPropagation();
+					$(this).closest('li').appendTo('#mhm-detail-fields-available');
+					updateDetailFieldsInput();
+					refreshDetailEmptyState();
+					applyAllFieldFilters();
+				});
+
+				refreshDetailEmptyState();
+				updateDetailFieldsInput();
+				applyAllFieldFilters();
+
 				// Select all / Deselect all for comparison fields
 				$('.mhm-select-all-btn').on('click', function() {
 					var category = $(this).data('category');
@@ -457,6 +638,22 @@ final class VehicleSettings {
 
 					// Update hidden input to an empty array
 					$('#mhm-vehicle-card-fields-input').val('[]');
+					applyAllFieldFilters();
+				});
+
+				$('#clear-detail-fields').on('click', function() {
+					var selectedList = $('#mhm-detail-fields-selected');
+					var availableList = $('#mhm-detail-fields-available');
+
+					selectedList.children('li').each(function() {
+						var item = $(this);
+						item.find('.remove-field').remove();
+						availableList.append(item);
+					});
+
+					$('#mhm-vehicle-detail-fields-input').val('[]');
+					refreshDetailEmptyState();
+					applyAllFieldFilters();
 				});
 			});
 		</script>
@@ -1616,6 +1813,17 @@ final class VehicleSettings {
 				// Let's assume valid JSON should always be sent if JS works.
 			}
 
+			// Save Vehicle Detail Highlighted Fields
+			if ( isset( $_POST['mhm_rentiva_vehicle_detail_fields'] ) ) {
+				$json_value = self::post_text( 'mhm_rentiva_vehicle_detail_fields' );
+				$decoded    = json_decode( $json_value, true );
+
+				if ( is_array( $decoded ) ) {
+					$settings['mhm_rentiva_vehicle_detail_fields'] = $decoded;
+					$settings_updated                              = true;
+				}
+			}
+
 			// Save Comparison Fields
 			// Note: checkboxes are not sent if unchecked. So we must handle "not set" as "empty" if we know we are in this context.
 			$comparison_fields    = self::post_array( 'comparison_fields' );
@@ -1949,6 +2157,7 @@ final class VehicleSettings {
 			// Reset Display Options to empty arrays
 			$settings                                    = get_option( 'mhm_rentiva_settings', array() );
 			$settings['mhm_rentiva_vehicle_card_fields'] = array();
+			$settings['mhm_rentiva_vehicle_detail_fields'] = array();
 			$settings['comparison_fields']               = array();
 			update_option( 'mhm_rentiva_settings', $settings );
 		} else {

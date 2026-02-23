@@ -9,6 +9,7 @@ if (! defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Core\MetaKeys;
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 
@@ -489,7 +490,7 @@ final class VehicleComparison extends AbstractShortcode
 		}
 
 		$price           = get_post_meta($post->ID, '_mhm_rentiva_price_per_day', true);
-		$currency_symbol = get_option('mhm_rentiva_currency_symbol', '$');
+		$currency_symbol = CurrencyHelper::get_currency_symbol();
 
 		// Canonical data structure expected by template
 		$data = array(

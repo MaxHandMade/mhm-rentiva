@@ -17,9 +17,7 @@
 /* ===== UTILITY CLASSES (Replaces inline styles) ===== */
 
 .rv-hidden {
-
-	display: none !important;
-
+	display: none;
 }
 
 
@@ -170,7 +168,8 @@
 
 	margin: 40px auto;
 
-	padding: 0 20px;
+	padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
+	padding-block: 0;
 
 	box-sizing: border-box;
 
@@ -186,7 +185,8 @@
 
 		margin: 20px auto;
 
-		padding: 0 10px;
+		padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem));
+		padding-block: 0;
 
 	}
 
@@ -200,9 +200,8 @@
 
 		margin: 10px auto;
 
-		padding: 0 5px;
-
-		/* Minimal padding for small screens */
+		padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem));
+		padding-block: 0;
 
 	}
 
@@ -228,16 +227,72 @@
 
 
 
-/* ===== TWO COLUMN LAYOUT ===== */
+/* ===== PREMIUM CHECKOUT LAYOUT ===== */
+.rv-checkout-layout {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mhm-space-8, 2.5rem);
+	width: 100%;
+}
 
-.rv-booking-form-content {
+@media (min-width: 992px) {
+	.rv-checkout-layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		/* Default 1 column */
+		align-items: start;
+	}
 
-	display: flex !important;
+	/* CSS :has() selector for modern layout switching */
+	.rv-checkout-layout:has(.rv-checkout-vehicle:not(.rv-hidden)) {
+		grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+	}
 
-	flex-direction: column !important;
+	.rv-checkout-vehicle {
+		position: sticky;
+		top: var(--mhm-space-8, 2.5rem);
+		align-self: start;
+	}
+}
 
-	gap: 2rem !important;
+/* ===== CARD COMPONENT SYSTEM (PREMIUM UI) ===== */
+.rv-card {
+	background: var(--mhm-bg-card);
+	border-radius: var(--mhm-radius-xl, 1rem);
+	box-shadow: var(--mhm-shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+	border: 1px solid var(--mhm-border-primary, #e2e8f0);
+	overflow: hidden;
+	margin-bottom: var(--mhm-space-6, 1.5rem);
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
 
+.rv-card:hover {
+	border-color: var(--mhm-primary-transparent, rgba(19, 127, 236, 0.3));
+}
+
+.rv-card-header {
+	display: flex;
+	align-items: center;
+	gap: var(--mhm-space-3, 0.75rem);
+	padding: var(--mhm-space-6, 1.5rem) var(--mhm-space-6, 1.5rem) 0;
+	margin-bottom: var(--mhm-space-6, 1.5rem);
+}
+
+.rv-card-header .rv-icon {
+	color: var(--mhm-primary, #137fec);
+	font-size: 1.5rem;
+}
+
+.rv-card-header .rv-section-title {
+	font-size: 1.125rem;
+	font-weight: 700;
+	color: var(--mhm-text-primary, #0f172a);
+	margin: 0;
+	line-height: 1.2;
+}
+
+.rv-card-body {
+	padding: 0 var(--mhm-space-6, 1.5rem) var(--mhm-space-6, 1.5rem);
 }
 
 
@@ -403,9 +458,106 @@
 
 
 .rv-field-dates {
-
 	grid-template-columns: 1fr 1fr;
+}
 
+/* ===== DATE & TIME PREMIUM CARD LAYOUT ===== */
+.rv-dates-combined-layout {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--mhm-space-6, 1.5rem);
+}
+
+@media (min-width: 768px) {
+	.rv-dates-combined-layout {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+.rv-combined-field-column {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.rv-label-premium {
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--mhm-text-secondary);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	display: block;
+}
+
+.rv-date-time-picker-wrapper {
+	position: relative;
+	width: 100%;
+}
+
+.rv-calendar-icon-wrapper {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	padding-left: 0.75rem;
+	display: flex;
+	align-items: center;
+	color: var(--mhm-text-secondary, #64748b);
+	pointer-events: none;
+	transition: color 0.2s ease;
+}
+
+.rv-inputs-inner {
+	display: flex;
+	align-items: center;
+	background: var(--mhm-bg-input, #f8fafc);
+	border: 1px solid var(--mhm-border-primary, #e2e8f0);
+	border-radius: var(--mhm-radius-lg, 0.5rem);
+	padding-left: 2.5rem;
+	/* Make room for the absolute icon */
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	overflow: hidden;
+}
+
+.rv-date-time-picker-wrapper:focus-within .rv-calendar-icon-wrapper {
+	color: var(--mhm-primary);
+}
+
+.rv-date-time-picker-wrapper:focus-within .rv-inputs-inner {
+	border-color: var(--mhm-primary);
+	box-shadow: 0 0 0 1px var(--mhm-primary);
+}
+
+.rv-input-ghost,
+.rv-select-ghost {
+	background: transparent;
+	border: none;
+	padding: 0.75rem 0.5rem;
+	font-size: 0.875rem;
+	color: var(--mhm-text-primary);
+	flex: 1;
+	min-width: 0;
+	outline: none;
+}
+
+/* Specific select reset for ghost */
+.rv-select-ghost {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	cursor: pointer;
+}
+
+.rv-field-separator {
+	color: var(--mhm-text-secondary, #94a3b8);
+	font-weight: 600;
+}
+
+.rv-description-hint-premium {
+	font-size: 0.75rem;
+	color: var(--mhm-text-secondary);
+	display: block;
+	margin-top: 0.25rem;
 }
 
 
@@ -1156,311 +1308,171 @@
 
 
 .rv-addon-item {
-
 	display: flex;
-
-	align-items: flex-start;
-
-	gap: 1rem;
-
-	padding: 1.5rem;
-
-	border: 2px solid var(--mhm-border-primary);
-
-	border-radius: 12px;
-
-	cursor: pointer;
-
-	transition: all 0.3s ease;
-
+	align-items: center;
+	gap: var(--mhm-space-4, 1rem);
+	padding: var(--mhm-space-4, 1rem);
+	border: 1px solid var(--mhm-border-primary, #e2e8f0);
+	border-radius: var(--mhm-radius-xl, 1rem);
 	background: var(--mhm-bg-card);
-
-	min-height: 100px;
-
-	box-shadow: var(--mhm-shadow-sm);
-
+	cursor: pointer;
+	transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
+.rv-addon-item:hover,
+.rv-addon-item:focus-within {
+	border-color: var(--mhm-primary-transparent, rgba(19, 127, 236, 0.5));
+}
 
-
-.rv-addon-item:hover {
-
+.rv-addon-item.selected {
 	border-color: var(--mhm-primary);
-
-	background: var(--mhm-bg-secondary);
-
-	transform: translateY(-2px);
-
-	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 85%);
-
+	background: var(--mhm-bg-primary);
 }
 
-
-
-.rv-addon-item:has(.rv-addon-checkbox:checked) {
-
-	border-color: var(--mhm-primary);
-
-	background: var(--mhm-bg-secondary);
-
-	box-shadow: 0 4px 12px color-mix(in srgb, var(--mhm-primary), transparent 80%);
-
+.rv-addon-icon-circle {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 9999px;
+	background: var(--mhm-primary-transparent, rgba(19, 127, 236, 0.1));
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--mhm-primary);
+	flex-shrink: 0;
 }
 
-
+.rv-addon-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--mhm-space-4, 1rem);
+	flex-shrink: 0;
+}
 
 .rv-addon-checkbox {
-
 	margin: 0;
-
-	width: 20px;
-
-	height: 20px;
-
+	width: 1.25rem;
+	height: 1.25rem;
 	accent-color: var(--mhm-primary);
-
 	cursor: pointer;
-
+	border-radius: 0.25rem;
 }
-
-
 
 .rv-addon-content {
-
 	flex: 1;
-
-}
-
-
-
-.rv-addon-header {
-
 	display: flex;
-
-	justify-content: space-between;
-
-	align-items: flex-start;
-
-	margin-bottom: 0.5rem;
-
+	flex-direction: column;
+	gap: 0.25rem;
 }
-
-
 
 .rv-addon-title {
-
-	font-weight: 600;
-
+	font-weight: 700;
 	color: var(--mhm-text-primary);
-
-	font-size: 1rem;
-
+	font-size: 0.875rem;
 	margin: 0;
-
 }
-
-
 
 .rv-addon-price {
-
 	font-weight: 700;
-
-	color: var(--mhm-success);
-
-	font-size: 1rem;
-
+	color: var(--mhm-text-primary);
+	font-size: 0.875rem;
+	margin: 0;
 }
 
-
-
 .rv-addon-description {
-
 	margin: 0;
-
-	font-size: 0.875rem;
-
 	color: var(--mhm-text-secondary);
-
+	font-size: 0.75rem;
 	line-height: 1.4;
-
 }
 
 
 
 /* ===== PRICE CALCULATION ===== */
-
 .rv-price-calculation {
-
-	margin: 2rem 0;
-
-	padding: 2rem;
-
-	background: var(--mhm-bg-card);
-
-	border-radius: 12px;
-
-	border: 2px solid var(--mhm-border-primary);
-
-	box-shadow: var(--mhm-shadow-sm);
-
+	display: flex;
+	flex-direction: column;
 }
-
-
 
 .rv-price-breakdown {
-
 	display: grid;
-
 	grid-template-columns: 1fr auto;
-
-	gap: 1rem 2rem;
-
+	gap: 0;
 	align-items: center;
-
 }
-
-
 
 .rv-price-item {
-
 	display: contents;
-
 }
-
-
 
 .rv-price-label {
-
 	font-weight: 500;
-
 	color: var(--mhm-text-secondary);
-
 	text-align: left;
-
 	padding: 0.75rem 0;
-
-	border-bottom: 1px solid var(--mhm-border-primary);
-
-	display: flex;
-
-	align-items: center;
-
+	border-bottom: 1px dashed var(--mhm-border-primary, #e2e8f0);
 }
-
-
 
 .rv-price-value {
-
-	font-weight: 600;
-
+	font-weight: 700;
 	color: var(--mhm-text-primary);
-
 	text-align: right;
-
 	padding: 0.75rem 0;
-
-	border-bottom: 1px solid var(--mhm-border-primary);
-
+	border-bottom: 1px dashed var(--mhm-border-primary, #e2e8f0);
 	display: flex;
-
 	align-items: center;
-
 	justify-content: flex-end;
-
-	min-width: 120px;
-
 }
 
-
-
-.rv-total-price {
-
-	font-size: 1.25rem;
-
-	font-weight: 700;
-
-	color: var(--mhm-success);
-
-	border-top: 2px solid var(--mhm-border-primary);
-
-	margin-top: 1rem;
-
-	padding-top: 1rem;
-
-}
-
-
-
-/* Special grid positioning for total price */
-
-.rv-price-item.rv-total-price .rv-price-label {
-
-	font-size: 1.25rem;
-
-	font-weight: 700;
-
-	color: var(--mhm-success);
-
-	border-top: 2px solid var(--mhm-border-primary);
-
-	border-bottom: none;
-
-	padding-top: 1rem;
-
-	padding-bottom: 0;
-
-	margin-top: 1rem;
-
-}
-
-
-
+.rv-price-item.rv-total-price .rv-price-label,
 .rv-price-item.rv-total-price .rv-price-value {
-
-	font-size: 1.25rem;
-
+	font-size: 1.125rem;
 	font-weight: 700;
-
-	color: var(--mhm-success);
-
-	border-top: 2px solid var(--mhm-border-primary);
-
+	color: var(--mhm-text-primary);
+	border-top: 2px solid var(--mhm-border-primary, #e2e8f0);
 	border-bottom: none;
-
-	padding-top: 1rem;
-
-	padding-bottom: 0;
-
-	margin-top: 1rem;
-
+	padding-top: 1.25rem;
+	margin-top: 0.5rem;
 }
-
-
 
 /* Special styling for deposit and remaining */
-
 .rv-price-item.rv-deposit-summary .rv-price-label,
-
 .rv-price-item.rv-remaining-summary .rv-price-label,
-
 .rv-price-item.rv-deposit-summary .rv-price-value,
-
 .rv-price-item.rv-remaining-summary .rv-price-value {
-
 	color: var(--mhm-secondary);
-
 	font-weight: 600;
-
 }
 
+/* Form Actions specific to the card */
+.rv-price-calculation .rv-form-actions {
+	padding: var(--mhm-space-6, 1.5rem);
+	background: var(--mhm-bg-input, #f8fafc);
+	border-top: 1px solid var(--mhm-border-primary, #e2e8f0);
+	margin: var(--mhm-space-6, 1.5rem) calc(var(--mhm-space-6, 1.5rem) * -1) calc(var(--mhm-space-6, 1.5rem) * -1);
+}
 
+.rv-price-calculation .rv-submit-btn {
+	width: 100%;
+	padding: 1rem;
+	border-radius: var(--mhm-radius-lg, 0.5rem);
+	background: var(--mhm-primary);
+	color: #fff;
+	font-weight: 700;
+	font-size: 1rem;
+	border: none;
+	cursor: pointer;
+	transition: background-color 0.2s ease, transform 0.1s ease;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
 
-.rv-price-actions {
+.rv-price-calculation .rv-submit-btn:hover {
+	background: var(--mhm-primary-dark, #0d60b5);
+}
 
-	margin-top: 1.5rem;
-
-	text-align: center;
-
+.rv-price-calculation .rv-submit-btn:active {
+	transform: scale(0.98);
 }
 
 
@@ -2151,6 +2163,14 @@
 
 	animation: slideInDown 0.3s ease-out;
 
+}
+
+.rv-success-message:empty,
+.rv-error-message:empty {
+	display: none;
+	padding: 0;
+	margin: 0;
+	border: none;
 }
 
 
@@ -4734,1357 +4754,398 @@
 
 
 /* ==========================================================================
-
-   PREMIUM SINGLE COLUMN LAYOUT (User Request: Jan 2026)
-
+   PREMIUM CHECKOUT CONTRACT (Desktop 2-column, Mobile single-column)
    ========================================================================= */
 
-
-
-/* 1. Layout & Container */
-
 .rv-booking-form-wrapper {
+	--rv-heading-xl: 28px;
+	--rv-heading-lg: 20px;
+	--rv-heading-md: 16px;
+	--rv-text-sm: 13px;
 
-	max-width: 900px !important;
-
-	/* Increased from 800px to prevent overflow */
-
-	margin: 40px auto !important;
-
-	padding: 30px !important;
-
-	background: var(--mhm-bg-card) !important;
-
-	box-shadow: var(--mhm-shadow-lg) !important;
-
-	border-radius: 16px !important;
-
-	border: 1px solid var(--mhm-border-primary) !important;
-
-	box-sizing: border-box !important;
-
-	/* Safety Net */
-
+	max-width: 1280px;
+	margin: var(--mhm-space-lg, 2rem) auto;
+	padding: 0 var(--mhm-space-md, 1rem);
+	background: #f5f7fb;
+	border-radius: 20px;
+	padding-top: var(--mhm-space-md, 1rem);
+	padding-bottom: var(--mhm-space-md, 1rem);
+	box-shadow: none;
+	border: 0;
 }
 
-
-
-/* Reset any previous grid/flex layouts */
-
-.rv-booking-form-content,
-
-.rv-checkout-layout {
-
-	display: block !important;
-
-	grid-template-columns: none !important;
-
-	width: 100% !important;
-
+.rv-booking-form {
+	background: transparent;
 }
 
-
-
-.rv-checkout-sidebar,
-
-.rv-checkout-form-main {
-
-	width: 100% !important;
-
-	max-width: 100% !important;
-
-	margin: 0 !important;
-
+.rv-form-header {
+	margin-bottom: 24px;
 }
 
-
-
-/* 2. Top: Vehicle Card (The "Hero") */
-
-.rv-selected-vehicle {
-
-	width: 100% !important;
-
-	display: flex !important;
-
-	flex-direction: row !important;
-
-	align-items: center !important;
-
-	gap: 20px !important;
-
-	/* Reduced Gap */
-
-	padding: 15px !important;
-
-	/* Reduced Padding */
-
-	margin-bottom: 30px !important;
-
-	background: var(--mhm-bg-card) !important;
-
-	border: 1px solid var(--mhm-border-primary) !important;
-
-	box-shadow: var(--mhm-shadow-sm) !important;
-
-	border-radius: 16px !important;
-
-	min-height: auto !important;
-
-	box-sizing: border-box !important;
-
+.rv-form-title {
+	font-size: var(--rv-heading-xl);
+	font-weight: 700;
+	line-height: 1.15;
+	letter-spacing: -0.4px;
+	color: #0f172a;
+	border: 0;
+	padding-bottom: 0;
 }
 
-
-
-/* Vehicle Image */
-
-.rv-selected-vehicle .rv-vehicle-image-wrapper {
-
-	width: 200px !important;
-
-	height: 120px !important;
-
-	margin: 0 !important;
-
-	flex-shrink: 0 !important;
-
+.rv-booking-form-content.rv-checkout-layout {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 32px;
+	align-items: start;
 }
 
-
-
-.rv-selected-vehicle .rv-vehicle-image {
-
-	width: 100% !important;
-
-	height: 100% !important;
-
-	object-fit: cover !important;
-
-	border-radius: 12px !important;
-
+.rv-checkout-sidebar {
+	position: relative;
 }
 
-
-
-/* Vehicle Info */
-
-.rv-selected-vehicle .rv-vehicle-details {
-
-	height: auto !important;
-
-	padding: 0 !important;
-
-	justify-content: center !important;
-
+.rv-checkout-main {
+	display: grid;
+	gap: 32px;
 }
 
+@media (min-width: 992px) {
+	.rv-booking-form-content.rv-checkout-layout {
+		grid-template-columns: minmax(0, 40%) minmax(0, 60%);
+	}
 
-
-/* Title */
-
-.rv-selected-vehicle .rv-vehicle-title {
-
-	font-size: 1.5rem !important;
-
-	font-weight: 800 !important;
-
-	color: var(--mhm-text-primary) !important;
-
-	line-height: 1.2 !important;
-
-	margin-bottom: 8px !important;
-
+	.rv-checkout-sidebar {
+		position: sticky;
+		top: 120px;
+	}
 }
 
-
-
-/* Features (Visual Chips) */
-
-.rv-vehicle-features {
-
-	display: flex !important;
-
-	flex-wrap: wrap !important;
-
-	gap: 10px !important;
-
-	margin: 0 !important;
-
+.rv-card {
+	border-radius: 18px;
+	box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+	border: 1px solid #eef1f6;
+	background: #ffffff;
+	transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
-
-
-.rv-feature-tag {
-
-	display: inline-flex !important;
-
-	align-items: center !important;
-
-	gap: 8px !important;
-
-	padding: 8px 14px !important;
-
-	background: var(--mhm-bg-secondary) !important;
-
-	color: var(--mhm-text-secondary) !important;
-
-	border-radius: 50px !important;
-
-	/* Pill Shape */
-
-	font-size: 0.875rem !important;
-
-	font-weight: 600 !important;
-
-	border: 1px solid var(--mhm-border-primary) !important;
-
-	transition: all 0.2s ease !important;
-
+.rv-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 16px 42px rgba(0, 0, 0, 0.09);
 }
 
-
-
-.rv-feature-tag:hover {
-
-	background: var(--mhm-bg-tertiary) !important;
-
-	color: var(--mhm-text-primary) !important;
-
+.rv-card-header {
+	padding: var(--mhm-space-md, 1rem) var(--mhm-space-md, 1rem) 0;
 }
 
-
-
-.rv-feature-tag svg {
-
-	width: 16px !important;
-
-	height: 16px !important;
-
-	stroke-width: 2.5px !important;
-
-	color: var(--mhm-text-tertiary) !important;
-
+.rv-card-header .rv-icon {
+	color: #2a7be4;
 }
 
-
-
-/* Price - Reference Style */
-
-.rv-vehicle-price {
-
-	font-size: 1.1rem !important;
-
-	/* Base size for unit */
-
-	font-weight: 600 !important;
-
-	color: var(--mhm-text-tertiary) !important;
-
-	/* Grayish for unit */
-
-	margin-top: 0px !important;
-
-	/* Spacing from features */
-
-	display: flex !important;
-
-	align-items: baseline !important;
-
-	gap: 4px !important;
-
+.rv-card-body {
+	padding: var(--mhm-space-md, 1rem);
 }
 
-
-
-/* The Amount Number Itself (e.g. 6.000) */
-
-.rv-vehicle-price strong,
-
-.rv-vehicle-price span.amount,
-
-.rv-vehicle-price .woocommerce-Price-currencySymbol {
-
-	font-size: 1.75rem !important;
-
-	/* Large Hero Number */
-
-	font-weight: 800 !important;
-
-	color: var(--mhm-primary) !important;
-
-	/* Brand Blue */
-
-	letter-spacing: -0.5px !important;
-
+.rv-card-footer {
+	padding: 0 var(--mhm-space-md, 1rem) var(--mhm-space-md, 1rem);
 }
 
+.rv-section-title {
+	font-size: var(--rv-heading-lg);
+	font-weight: 600;
+	letter-spacing: -0.3px;
+}
 
+.rv-label-premium,
+.rv-price-label {
+	font-size: var(--rv-text-sm);
+}
 
+.rv-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	border-radius: 999px;
+	font-size: 0.8125rem;
+	background: var(--mhm-bg-secondary, #f1f5f9);
+	border: 1px solid var(--mhm-border-primary, #dbe1ea);
+}
 
+.rv-price-large {
+	font-size: clamp(1.5rem, 2.2vw, 2.2rem);
+	font-weight: 800;
+	color: var(--mhm-primary, #137fec);
+	line-height: 1.1;
+}
 
+.rv-cta-primary {
+	height: 56px;
+	border-radius: 14px;
+	font-weight: 600;
+	background: linear-gradient(135deg, #2a7be4, #1c5ed6);
+	box-shadow: 0 10px 25px rgba(28, 94, 214, 0.35);
+}
 
-
-/* 3. Middle: Inputs (Date & Time) - Premium Combined Layout */
+.rv-cta-primary:hover {
+	filter: brightness(0.97);
+	transform: translateY(-1px);
+	box-shadow: 0 14px 30px rgba(28, 94, 214, 0.4);
+}
 
 .rv-dates-combined-layout {
-
-	display: grid !important;
-
-	grid-template-columns: 1fr 1fr !important;
-
-	gap: 24px !important;
-
-	margin-bottom: 30px !important;
-
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--mhm-space-md, 1rem);
 }
-
-
-
-.rv-combined-field-column {
-
-	display: flex !important;
-
-	flex-direction: column !important;
-
-	gap: 8px !important;
-
-}
-
-
-
-/* Bold Premium Label */
-
-.rv-label-premium {
-
-	display: flex !important;
-
-	align-items: center !important;
-
-	gap: 6px !important;
-
-	font-size: 0.95rem !important;
-
-	font-weight: 700 !important;
-
-	color: var(--mhm-text-primary) !important;
-
-	margin-bottom: 2px !important;
-
-}
-
-
-
-/* Info Icon in Label */
-
-.rv-info-icon-wrapper {
-
-	display: inline-flex !important;
-
-	color: var(--mhm-info) !important;
-
-	/* Primary Blue */
-
-	cursor: help !important;
-
-	opacity: 0.8 !important;
-
-	transition: opacity 0.2s !important;
-
-}
-
-
-
-.rv-info-icon-wrapper:hover {
-
-	opacity: 1 !important;
-
-}
-
-
-
-/* The Unified Input Box */
-
-.rv-date-time-picker-wrapper {
-
-	display: flex !important;
-
-	align-items: center !important;
-
-	justify-content: space-between !important;
-
-	background: var(--mhm-bg-card) !important;
-
-	border: 1px solid var(--mhm-border-primary) !important;
-
-	border-radius: 12px !important;
-
-	padding: 0 16px !important;
-
-	height: 56px !important;
-
-	transition: all 0.25s ease !important;
-
-	cursor: pointer !important;
-
-}
-
-
-
-.rv-date-time-picker-wrapper:hover {
-
-	border-color: var(--mhm-border-secondary) !important;
-
-	background: var(--mhm-bg-secondary) !important;
-
-}
-
-
-
-.rv-date-time-picker-wrapper:focus-within {
-
-	border-color: var(--mhm-primary) !important;
-
-	box-shadow: 0 0 0 4px color-mix(in srgb, var(--mhm-primary), transparent 90%) !important;
-
-	background: #ffffff !important;
-
-}
-
-
-
-/* Inner inputs container */
-
-.rv-inputs-inner {
-
-	display: flex !important;
-
-	align-items: center !important;
-
-	flex: 1 !important;
-
-	overflow: hidden !important;
-
-}
-
-
-
-/* Borderless Ghost Inputs */
-
-.rv-input-ghost,
-
-.rv-select-ghost {
-
-	border: none !important;
-
-	background: transparent !important;
-
-	padding: 0 !important;
-
-	margin: 0 !important;
-
-	font-size: 0.95rem !important;
-
-	color: var(--mhm-text-primary) !important;
-
-	outline: none !important;
-
-	box-shadow: none !important;
-
-	height: 100% !important;
-
-}
-
-
-
-.rv-input-ghost {
-
-	width: auto !important;
-
-	flex: 0 0 auto !important;
-
-	min-width: 120px !important;
-
-	cursor: pointer !important;
-
-}
-
-
-
-.rv-select-ghost {
-
-	flex: 1 !important;
-
-	cursor: pointer !important;
-
-	/* Remove default arrow to match image */
-
-	-webkit-appearance: none !important;
-
-	-moz-appearance: none !important;
-
-	appearance: none !important;
-
-	background: none !important;
-
-	padding-left: 5px !important;
-
-}
-
-
-
-.rv-field-separator {
-
-	color: var(--mhm-gray-400) !important;
-
-	margin: 0 4px !important;
-
-	font-weight: 500 !important;
-
-}
-
-
-
-/* Icon Wrapper */
-
-.rv-calendar-icon-wrapper {
-
-	color: var(--mhm-text-tertiary) !important;
-
-	display: flex !important;
-
-	align-items: center !important;
-
-	justify-content: center !important;
-
-	margin-left: 10px !important;
-
-	pointer-events: none !important;
-
-}
-
-
-
-.rv-calendar-icon-wrapper svg {
-
-	width: 20px !important;
-
-	height: 20px !important;
-
-	stroke-width: 1.5px !important;
-
-}
-
-
-
-/* Description Hint - Premium Single Line */
-
-.rv-description-hint-premium {
-
-	font-size: 0.75rem !important;
-
-	font-weight: 500 !important;
-
-	color: var(--mhm-text-tertiary) !important;
-
-	margin-top: 6px !important;
-
-	font-style: italic !important;
-
-	white-space: nowrap !important;
-
-	/* Force single line */
-
-	display: block !important;
-
-	overflow: hidden !important;
-
-	text-overflow: ellipsis !important;
-
-}
-
-
-
-/* ===== MOBILE RESPONSIVE OPTIMIZATIONS ===== */
 
 @media (max-width: 782px) {
-
-
-
-	/* 0. Form Container - Maximize Width */
-
-	.rv-booking-form-wrapper {
-
-		padding: 0 12px !important;
-
-		margin: 20px auto !important;
-
+	.rv-booking-form-content.rv-checkout-layout {
+		grid-template-columns: 1fr;
 	}
 
-
-
-	.rv-booking-form-content {
-
-		gap: 24px !important;
-
+	.rv-checkout-sidebar {
+		order: -1;
 	}
-
-
-
-	/* 1. Date & Time Inputs Stack */
 
 	.rv-dates-combined-layout {
-
-		grid-template-columns: 1fr !important;
-
-		gap: 16px !important;
-
-		margin-bottom: 24px !important;
-
+		grid-template-columns: 1fr;
+	}
+}
+/* ===== MOBILE RESPONSIVE OPTIMIZATIONS ===== */
+@media (max-width: 782px) {
+	.rv-booking-form-wrapper {
+		margin: var(--mhm-space-md, 1rem) auto;
+		padding: 0 var(--mhm-space-sm, 0.75rem);
 	}
 
-
-
-	/* Prevent Grid Blowout from long text */
-
-	.rv-combined-field-column {
-
-		min-width: 0 !important;
-
-		width: 100% !important;
-
+	.rv-booking-form-content.rv-checkout-layout {
+		gap: var(--mhm-space-md, 1rem);
 	}
 
-
-
-	/* Allow text wrapping for hints on mobile */
-
-	.rv-description-hint-premium {
-
-		white-space: normal !important;
-
-		height: auto !important;
-
-		overflow: visible !important;
-
-		line-height: 1.4 !important;
-
+	.rv-checkout-sidebar {
+		position: static;
+		top: auto;
+		order: -1;
 	}
 
+	.rv-card {
+		border-radius: 14px;
+	}
 
+	.rv-card-header,
+	.rv-card-body,
+	.rv-card-footer {
+		padding-inline: var(--mhm-space-sm, 0.75rem);
+	}
 
-	/* Allow flexible height for inputs on very small screens */
+	.rv-dates-combined-layout {
+		grid-template-columns: 1fr;
+		gap: var(--mhm-space-sm, 0.75rem);
+	}
 
 	.rv-date-time-picker-wrapper {
-
-		height: auto !important;
-
-		min-height: auto !important;
-
-		padding: 12px 16px !important;
-
-		align-items: flex-start !important;
-
-		width: 100% !important;
-
-		box-sizing: border-box !important;
-
+		min-height: 52px;
 	}
-
-
 
 	.rv-inputs-inner {
-
-		flex-direction: column !important;
-
-		align-items: stretch !important;
-
-		gap: 8px !important;
-
-		width: 100% !important;
-
+		width: 100%;
 	}
 
-
-
-	.rv-field-separator {
-
-		display: none !important;
-
+	.rv-section-title {
+		font-size: 1rem;
 	}
 
-
-
-	.rv-input-ghost,
-
-	.rv-select-ghost {
-
-		width: 100% !important;
-
-		min-width: unset !important;
-
-		height: 30px !important;
-
-		border-bottom: 1px dashed var(--mhm-border-primary) !important;
-
-		border-radius: 0 !important;
-
-		padding-bottom: 4px !important;
-
+	.rv-price-large {
+		font-size: 1.65rem;
 	}
-
-
-
-	.rv-select-ghost {
-
-		border-bottom: none !important;
-
-		padding-bottom: 0 !important;
-
-		padding-left: 0 !important;
-
-	}
-
-
-
-	.rv-calendar-icon-wrapper {
-
-		margin-top: 5px !important;
-
-		/* Align with top input */
-
-	}
-
-
-
-	/* 2. Vehicle Card - Vertical Stack */
-
-	.rv-selected-vehicle {
-
-		padding: 0 !important;
-
-		overflow: hidden !important;
-
-		border: 1px solid var(--mhm-border-primary) !important;
-
-		height: auto !important;
-
-		min-height: auto !important;
-
-	}
-
-
-
-	/* The inner container holding Image + Details */
-
-	.rv-vehicle-info {
-
-		display: flex !important;
-
-		flex-direction: column !important;
-
-		width: 100% !important;
-
-		padding: 0 !important;
-
-		margin: 0 !important;
-
-		gap: 0 !important;
-
-		border: none !important;
-
-	}
-
-
-
-	.rv-selected-vehicle .rv-vehicle-image-wrapper {
-
-		width: 100% !important;
-
-		height: 220px !important;
-
-		margin: 0 !important;
-
-		border-radius: 0 !important;
-
-	}
-
-
-
-	/* Force Image Fill */
-
-	.rv-selected-vehicle .rv-vehicle-image {
-
-		width: 100% !important;
-
-		height: 100% !important;
-
-		object-fit: cover !important;
-
-		border-radius: 0 !important;
-
-	}
-
-
-
-	.rv-selected-vehicle .rv-vehicle-details {
-
-		padding: 24px 20px !important;
-
-		width: 100% !important;
-
-		box-sizing: border-box !important;
-
-		display: flex !important;
-
-		flex-direction: column !important;
-
-		align-items: center !important;
-
-		text-align: center !important;
-
-		gap: 8px !important;
-
-	}
-
-
-
-	/* Center Rating Block */
-
-	.rv-vehicle-rating-block {
-
-		width: 100% !important;
-
-		justify-content: center !important;
-
-		margin: 4px 0 12px 0 !important;
-
-	}
-
-
-
-	/* Position Favorite Icon at Top Right of Image */
-
-	.rv-vehicle-card__favorite {
-
-		top: 16px !important;
-
-		right: 20px !important;
-
-		/* Ensure it's above image */
-
-		z-index: 10 !important;
-
-		background: color-mix(in srgb, var(--mhm-white), transparent 20%) !important;
-
-		border-radius: 50% !important;
-
-		width: 32px !important;
-
-		height: 32px !important;
-
-		display: flex !important;
-
-		align-items: center !important;
-
-		justify-content: center !important;
-
-	}
-
-
-
-	.rv-selected-vehicle .rv-vehicle-card__footer {
-
-		display: none !important;
-
-		/* Hide old footer structure if distinct from details */
-
-	}
-
-
-
-	.rv-selected-vehicle .rv-vehicle-title {
-
-		font-size: 1.35rem !important;
-
-		text-align: center !important;
-
-		margin-bottom: 4px !important;
-
-	}
-
-
-
-	.rv-vehicle-features {
-
-		justify-content: center !important;
-
-		gap: 8px !important;
-
-		margin: 8px 0 !important;
-
-	}
-
-
-
-	/* 3. Addons List */
-
-	.rv-addon-item {
-
-		padding: 12px !important;
-
-		width: 100% !important;
-
-		flex-wrap: wrap !important;
-
-	}
-
-
-
-	.rv-addon-item .rv-addon-title {
-
-		font-size: 0.9rem !important;
-
-	}
-
-
-
-	/* 4. Price Calculation - Compact View */
-
-	.rv-price-calculation {
-
-		padding: 20px !important;
-
-		margin-top: 24px !important;
-
-		width: 100% !important;
-
-		box-sizing: border-box !important;
-
-	}
-
-
-
-	.rv-price-item {
-
-		font-size: 0.9rem !important;
-
-	}
-
-
-
-	/* 5. Submit Button - Full Width & Height */
-
-	.rv-submit-btn {
-
-		height: 54px !important;
-
-		font-size: 1.1rem !important;
-
-		width: 100% !important;
-
-	}
-
 }
-
-
-
-/* 4. Middle: Extras (The "Clean List") */
-
+/* 4. Middle: Extras (Premium Selectable Rows) */
 .rv-addons-list {
-
-	display: flex !important;
-
-	flex-direction: column !important;
-
-	gap: 0 !important;
-
-	border-top: 1px solid var(--mhm-border-primary) !important;
-
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--mhm-space-sm, 0.75rem);
+	border-top: 0;
 }
-
-
 
 .rv-addon-item {
-
-	display: flex !important;
-
-	align-items: center !important;
-
-	width: 100% !important;
-
-	padding: 16px 10px !important;
-
-	background: transparent !important;
-
-	border: none !important;
-
-	border-bottom: 1px solid var(--mhm-border-primary) !important;
-
-	border-radius: 8px !important;
-
-	/* Rounded selection background */
-
-	box-shadow: none !important;
-
-	min-height: auto !important;
-
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-
-	cursor: pointer !important;
-
-	box-sizing: border-box !important;
-
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	align-items: center;
+	gap: var(--mhm-space-sm, 0.75rem);
+	width: 100%;
+	padding: var(--mhm-space-sm, 0.75rem);
+	background: #ffffff;
+	border: 1px solid #e6ebf2;
+	border-radius: 14px;
+	box-sizing: border-box;
+	transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease;
+	cursor: pointer;
 }
 
-
-
-/* Hover and Checked states */
-
-.rv-addon-item:hover {
-
-	background: var(--mhm-bg-secondary) !important;
-
+.rv-addon-item:hover,
+.rv-addon-item:focus-within {
+	transform: translateY(-1px);
+	border-color: #cddaf0;
+	box-shadow: 0 8px 20px rgba(17, 24, 39, 0.07);
+	background: #f8fbff;
 }
-
-
 
 .rv-addon-item:has(.rv-addon-checkbox:checked) {
-
-	background: color-mix(in srgb, var(--mhm-btn-bg), transparent 95%) !important;
-
-	/* Light tint based on button color for selection */
-
-	border-bottom-color: transparent !important;
-
-	/* Hide separator when selected for cleaner look */
-
-	transform: translateX(4px) !important;
-
-	/* Subtle 'pop' animation */
-
+	border-color: #2a7be4;
+	background: #f2f7ff;
+	box-shadow: 0 10px 24px rgba(42, 123, 228, 0.16);
 }
-
-
-
-/* Remove any accidental focus borders/outlines */
-
-.rv-addon-item,
-
-.rv-addon-item *,
-
-.rv-addon-checkbox:focus {
-
-	outline: none !important;
-
-	box-shadow: none !important;
-
-}
-
-
-
-/* Checkbox Style */
-
-.rv-addon-checkbox {
-
-	margin-top: 4px !important;
-
-	margin-inline-end: 16px !important;
-
-}
-
-
-
-/* Active Text Color */
-
-.rv-addon-item:has(.rv-addon-checkbox:checked) .rv-addon-title {
-
-	color: var(--mhm-btn-bg) !important;
-
-}
-
-
-
-/* Addon Content Wrapper to push price to right */
 
 .rv-addon-title {
-
-	font-size: 1rem !important;
-
-	font-weight: 600 !important;
-
-	color: var(--mhm-text-primary) !important;
-
-	flex-grow: 1 !important;
-
-	/* Takes up available space */
-
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: #0f172a;
+	line-height: 1.25;
 }
 
-
+.rv-addon-description {
+	font-size: 0.82rem;
+	color: #64748b;
+	margin-top: 2px;
+	line-height: 1.35;
+}
 
 .rv-addon-price {
-
-	font-weight: 600 !important;
-
-	color: var(--mhm-text-secondary) !important;
-
-	margin-left: auto !important;
-
-	/* Pushes to far right */
-
-	white-space: nowrap !important;
-
-	/* Prevents line checks */
-
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: #0f172a;
+	white-space: nowrap;
 }
 
+.rv-addon-checkbox {
+	width: 18px;
+	height: 18px;
+	accent-color: #2a7be4;
+}
 
+.rv-addon-actions {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	justify-self: end;
+	white-space: nowrap;
+}
 
-/* 5. Bottom: Price Summary */
+.rv-addon-content {
+	min-width: 0;
+}
 
-/* 5. Bottom: Price Summary - Professional Receipt Style */
+.rv-addon-icon-circle .rv-addon-generic-icon {
+	width: 18px;
+	height: 18px;
+	color: #2a7be4;
+	stroke: currentColor;
+}
 
+/* 5. Bottom: Payment Summary - Conversion Focus */
 .rv-price-calculation {
-
-	background: var(--mhm-bg-secondary) !important;
-
-	border-radius: 12px !important;
-
-	padding: 24px !important;
-
-	margin-top: 32px !important;
-
-	border: 1px solid var(--mhm-border-primary) !important;
-
-	text-align: left !important;
-
-	/* Reset potential centering */
-
-	width: 100% !important;
-
-	box-sizing: border-box !important;
-
+	background: #ffffff;
+	border-radius: 18px;
+	border: 1px solid #eef1f6;
+	box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+	padding: 0;
+	margin-top: 0;
 }
 
-
+.rv-price-calculation .rv-card-header {
+	padding-top: var(--mhm-space-md, 1rem);
+}
 
 .rv-price-breakdown {
-
-	display: flex !important;
-
-	flex-direction: column !important;
-
-	gap: 12px !important;
-
-	width: 100% !important;
-
+	display: grid;
+	gap: 12px;
+	padding-bottom: var(--mhm-space-sm, 0.75rem);
 }
-
-
 
 .rv-price-item {
-
-	display: flex !important;
-
-	justify-content: space-between !important;
-
-	align-items: center !important;
-
-	font-size: 0.95rem !important;
-
-	color: var(--mhm-text-secondary) !important;
-
-	width: 100% !important;
-
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 10px;
+	align-items: baseline;
+	font-size: 0.95rem;
+	color: #475569;
 }
 
-
+.rv-price-label {
+	font-size: var(--rv-text-sm, 13px);
+	color: #64748b;
+}
 
 .rv-price-value {
-
-	font-weight: 600 !important;
-
-	color: var(--mhm-text-primary) !important;
-
-	text-align: right !important;
-
+	font-weight: 700;
+	color: #0f172a;
+	text-align: right;
 }
-
-
-
-/* Total Price Special Style */
 
 .rv-price-item.rv-total-price {
-
-	margin-top: 16px !important;
-
-	padding-top: 20px !important;
-
-	border-top: 2px solid var(--mhm-border-primary) !important;
-
-	align-items: flex-end !important;
-
+	margin-top: 8px;
+	padding-top: 16px;
+	border-top: 1px solid #dfe7f2;
+	align-items: end;
 }
-
-
 
 .rv-price-item.rv-total-price .rv-price-label {
-
-	font-size: 1.1rem !important;
-
-	font-weight: 700 !important;
-
-	color: var(--mhm-text-primary) !important;
-
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: #0f172a;
+	letter-spacing: -0.2px;
 }
-
-
 
 .rv-price-item.rv-total-price .rv-price-value {
-
-	font-size: 1.5rem !important;
-
-	font-weight: 800 !important;
-
-	color: var(--mhm-price-color) !important;
-
-	line-height: 1 !important;
-
+	font-size: clamp(1.85rem, 2.6vw, 2.5rem);
+	font-weight: 800;
+	color: #1f69de;
+	line-height: 1;
 }
-
-
-
-/* Deposit and Remaining Info (Secondary) */
 
 .rv-price-item.rv-deposit-summary,
-
 .rv-price-item.rv-remaining-summary {
-
-	margin-top: 4px !important;
-
-	font-size: 0.9rem !important;
-
-	padding-top: 8px !important;
-
+	font-size: 0.86rem;
+	padding-top: 8px;
 }
-
-
 
 .rv-price-item.rv-deposit-summary {
-
-	border-top: 1px dashed var(--mhm-border-primary) !important;
-
-	margin-top: 12px !important;
-
+	border-top: 1px dashed #d7e2f2;
+	margin-top: 8px;
 }
 
-
-
-.rv-price-item.rv-deposit-summary .rv-price-value {
-
-	color: var(--mhm-price-color) !important;
-
-}
-
-
-
+.rv-price-item.rv-deposit-summary .rv-price-value,
 .rv-price-item.rv-remaining-summary .rv-price-value {
-
-	color: var(--mhm-price-color) !important;
-
-	/* Decoupled for pricing control */
-
+	color: #0d9f5d;
 }
 
-
-
-.rv-price-item.rv-total-price .rv-price-value {
-
-	font-size: 1.8rem !important;
-
-	font-weight: 800 !important;
-
-	color: var(--mhm-price-color) !important;
-
+.rv-price-calculation .rv-form-actions {
+	margin-top: 0;
 }
 
-
-
-.rv-submit-btn {
-
-	width: 100% !important;
-
-	height: 60px !important;
-
-	margin-top: 24px !important;
-
-	border-radius: 12px !important;
-
-	font-size: 1.15rem !important;
-
-	font-weight: 700 !important;
-
-	color: var(--mhm-btn-color) !important;
-
-	background: var(--mhm-btn-bg) !important;
-
-	border: none !important;
-
-	box-shadow: 0 8px 24px color-mix(in srgb, var(--mhm-btn-bg), transparent 70%) !important;
-
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-
-	cursor: pointer !important;
-
-	display: flex !important;
-
-	align-items: center !important;
-
-	justify-content: center !important;
-
-	gap: 10px !important;
-
+.rv-price-calculation .rv-submit-btn.rv-cta-primary {
+	width: 100%;
+	height: 56px;
+	border-radius: 14px;
+	font-size: 1.04rem;
+	font-weight: 600;
+	letter-spacing: -0.1px;
+	color: #ffffff;
+	background: linear-gradient(135deg, #2a7be4, #1c5ed6);
+	border: 1px solid rgba(17, 86, 191, 0.45);
+	box-shadow: 0 10px 25px rgba(28, 94, 214, 0.35);
+	transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
 }
 
-
-
-.rv-submit-btn:hover {
-
-	background: var(--mhm-btn-hover-bg) !important;
-
-	transform: translateY(-2px) !important;
-
-	box-shadow: 0 12px 30px color-mix(in srgb, var(--mhm-btn-bg), transparent 60%) !important;
-
+.rv-price-calculation .rv-submit-btn.rv-cta-primary:hover {
+	filter: brightness(0.96);
+	transform: translateY(-1px);
+	box-shadow: 0 14px 28px rgba(28, 94, 214, 0.4);
 }
 
-
-
-.rv-submit-btn:active {
-
-	transform: translateY(0) !important;
-
-	box-shadow: none !important;
-
+.rv-price-calculation .rv-submit-btn.rv-cta-primary:active {
+	transform: translateY(0);
+	box-shadow: 0 8px 18px rgba(28, 94, 214, 0.32);
 }
-
-
-
-.rv-submit-btn:disabled {
-
-	background: var(--mhm-gray-300) !important;
-
-	cursor: not-allowed !important;
-
-	transform: none !important;
-
-	box-shadow: none !important;
-
-}
-
-
-
 /* ===== PROFESSIONAL ALTERNATIVE VEHICLES (v4.5) ===== */
 
 .rv-availability-error {
@@ -6605,133 +5666,984 @@
 
 .rv-availability-alert.error,
 .rv-alert-error {
-background-color: #f8d7da !important;
-color: #721c24 !important;
-border: 1px solid #f5c6cb !important;
+	background-color: #f8d7da !important;
+	color: #721c24 !important;
+	border: 1px solid #f5c6cb !important;
 }
 
 .rv-recommended-vehicle-card {
-border: 2px solid #2271b1 !important;
-background-color: #f0f7ff !important;
+	border: 2px solid #2271b1 !important;
+	background-color: #f0f7ff !important;
 }
 
-/* ===== SELECTED VEHICLE SUMMARY (Final UI Contract v4.11) - INJECTED ===== */
-.mhm-rentiva-booking-form .rv-selected-vehicle {
-background: #ffffff !important;
-border-radius: 16px !important;
-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
-display: flex !important;
-overflow: hidden !important;
-margin-bottom: 24px !important;
-border: 1px solid #f1f5f9 !important;
-transition: transform 0.3s ease, box-shadow 0.3s ease;
-min-height: auto !important;
-flex-direction: row !important;
-width: 100% !important;
-padding: 0 !important;
+/* ===== SELECTED VEHICLE SUMMARY (Premium Checkout) ===== */
+.mhm-rentiva-booking-form .rv-selected-vehicle,
+.rv-booking-form-wrapper .rv-selected-vehicle {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	margin-bottom: var(--mhm-space-md, 1rem);
+	padding: 0;
+	border-radius: 18px;
 }
 
-.mhm-rentiva-booking-form .rv-selected-vehicle:hover {
-transform: translateY(-2px) !important;
-box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+.mhm-rentiva-booking-form .rv-sv__media,
+.rv-booking-form-wrapper .rv-sv__media {
+	width: 100%;
+	max-width: 100%;
+	position: relative;
+	background: #f8fafc;
+	aspect-ratio: 16 / 9;
+	flex-shrink: 0;
+	overflow: hidden;
+	border-radius: 18px 18px 0 0;
 }
 
-.mhm-rentiva-booking-form .rv-sv__media {
-width: 35% !important;
-position: relative !important;
-background: #f8fafc !important;
-aspect-ratio: 4/3 !important;
-flex-shrink: 0 !important;
-overflow: hidden !important;
-padding: 0 !important;
-margin: 0 !important;
+.mhm-rentiva-booking-form .rv-sv__media::after,
+.rv-booking-form-wrapper .rv-sv__media::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(180deg, rgba(15, 23, 42, 0) 58%, rgba(15, 23, 42, 0.28) 100%);
+	pointer-events: none;
 }
 
-.mhm-rentiva-booking-form .rv-sv__img {
-width: 100% !important;
-height: 100% !important;
-object-fit: cover !important;
-display: block !important;
+.mhm-rentiva-booking-form .rv-sv__img,
+.rv-booking-form-wrapper .rv-sv__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
 }
 
-.mhm-rentiva-booking-form .rv-sv__favorite {
-position: absolute !important;
-top: 12px !important;
-right: 12px !important;
-left: auto !important;
-bottom: auto !important;
-width: 36px !important;
-height: 36px !important;
-background: #ffffff !important;
-border-radius: 50% !important;
-display: flex !important;
-align-items: center !important;
-justify-content: center !important;
-border: none !important;
-cursor: pointer !important;
-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-color: #94a3b8 !important;
-z-index: 10 !important;
+.mhm-rentiva-booking-form .rv-sv__favorite,
+.rv-booking-form-wrapper .rv-sv__favorite {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	width: 40px;
+	height: 40px;
+	background: #ffffff;
+	border-radius: 999px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #dbe1ea;
+	cursor: pointer;
+	box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
+	color: #94a3b8;
+	z-index: 10;
+	padding: 0;
+	line-height: 1;
+	appearance: none;
+	-webkit-appearance: none;
 }
 
-.mhm-rentiva-booking-form .rv-sv__favorite.is-active {
-color: #ef4444 !important;
+.mhm-rentiva-booking-form .rv-sv__favorite .rv-heart-icon,
+.rv-booking-form-wrapper .rv-sv__favorite .rv-heart-icon {
+	display: block;
+	width: 18px;
+	height: 18px;
+	min-width: 18px;
+	min-height: 18px;
+	stroke: currentColor;
+	fill: none;
 }
 
-.mhm-rentiva-booking-form .rv-sv__content {
-width: 65% !important;
-padding: 24px !important;
-display: flex !important;
-flex-direction: column !important;
-justify-content: center !important;
-gap: 12px !important;
+.mhm-rentiva-booking-form .rv-sv__favorite.is-active,
+.rv-booking-form-wrapper .rv-sv__favorite.is-active {
+	color: #ef4444;
 }
 
-.mhm-rentiva-booking-form .rv-sv__title {
-margin: 0 0 4px 0 !important;
-font-size: 1.25rem !important;
-font-weight: 700 !important;
-color: #1e293b !important;
+.mhm-rentiva-booking-form .rv-sv__favorite.is-active .rv-heart-icon,
+.rv-booking-form-wrapper .rv-sv__favorite.is-active .rv-heart-icon,
+.mhm-rentiva-booking-form .rv-sv__favorite.is-favorited .rv-heart-icon,
+.rv-booking-form-wrapper .rv-sv__favorite.is-favorited .rv-heart-icon {
+	fill: currentColor;
+	stroke: currentColor;
 }
 
-.mhm-rentiva-booking-form .rv-sv__meta {
-display: flex !important;
-flex-wrap: wrap !important;
-gap: 8px !important;
+.mhm-rentiva-booking-form .rv-sv__premium-badge,
+.rv-booking-form-wrapper .rv-sv__premium-badge {
+	display: none;
 }
 
-.mhm-rentiva-booking-form .rv-sv__chip {
-background: #f3f4f6 !important;
-color: #475569 !important;
-padding: 6px 12px !important;
-border-radius: 99px !important;
-font-size: 11px !important;
-font-weight: 600 !important;
-display: inline-flex !important;
-align-items: center !important;
-gap: 6px !important;
-border: 1px solid #e5e7eb !important;
+.mhm-rentiva-booking-form .rv-sv__content,
+.rv-booking-form-wrapper .rv-sv__content {
+	width: 100%;
+	padding: var(--mhm-space-lg, 2rem) var(--mhm-space-md, 1rem) var(--mhm-space-md, 1rem);
+	display: grid;
+	gap: 12px;
 }
 
-.mhm-rentiva-booking-form .rv-sv__price {
-margin-top: 8px !important;
-display: flex !important;
-align-items: baseline !important;
-gap: 4px !important;
+.mhm-rentiva-booking-form .rv-sv__top,
+.rv-booking-form-wrapper .rv-sv__top {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	align-items: center;
 }
 
-.mhm-rentiva-booking-form .rv-sv__price-amount {
-font-size: 1.5rem !important;
-font-weight: 700 !important;
-color: var(--mhm-primary) !important;
+.mhm-rentiva-booking-form .rv-sv__title-wrap,
+.rv-booking-form-wrapper .rv-sv__title-wrap {
+	min-width: 0;
+}
+
+.mhm-rentiva-booking-form .rv-sv__category,
+.rv-booking-form-wrapper .rv-sv__category {
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--mhm-primary, #137fec);
+}
+
+.mhm-rentiva-booking-form .rv-sv__title,
+.rv-booking-form-wrapper .rv-sv__title {
+	margin: 0;
+	font-size: 22px;
+	font-weight: 700;
+	color: #0f172a;
+	letter-spacing: -0.3px;
+}
+
+.mhm-rentiva-booking-form .rv-sv__subtitle,
+.rv-booking-form-wrapper .rv-sv__subtitle {
+	display: none;
+}
+
+.mhm-rentiva-booking-form .rv-sv__rating-inline,
+.mhm-rentiva-booking-form .rv-sv__rating,
+.rv-booking-form-wrapper .rv-sv__rating-inline,
+.rv-booking-form-wrapper .rv-sv__rating {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 0.88rem;
+	color: #64748b;
+	flex-wrap: nowrap;
+	justify-content: flex-end;
+	max-width: 100%;
+	white-space: nowrap;
+}
+
+.mhm-rentiva-booking-form .rv-sv__rating-overlay,
+.rv-booking-form-wrapper .rv-sv__rating-overlay {
+	position: absolute;
+	top: 12px;
+	left: 12px;
+	z-index: 10;
+	padding: 6px 10px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.95);
+	backdrop-filter: blur(4px);
+	box-shadow: 0 6px 14px rgba(15, 23, 42, 0.14);
+}
+
+.mhm-rentiva-booking-form .rv-sv__rating-star,
+.rv-booking-form-wrapper .rv-sv__rating-star {
+	color: #f59e0b;
+	font-size: 1rem;
+	line-height: 1;
+}
+
+.mhm-rentiva-booking-form .rv-sv__rating-value,
+.rv-booking-form-wrapper .rv-sv__rating-value {
+	font-weight: 700;
+	color: #1f2937;
+}
+
+.mhm-rentiva-booking-form .rv-sv__rating-count,
+.rv-booking-form-wrapper .rv-sv__rating-count {
+	display: none;
+}
+
+.mhm-rentiva-booking-form .rv-sv__meta,
+.rv-booking-form-wrapper .rv-sv__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.mhm-rentiva-booking-form .rv-sv__chip,
+.rv-booking-form-wrapper .rv-sv__chip {
+	background: #f1f4f9;
+	border-radius: 999px;
+	padding: 6px 12px;
+	font-size: 13px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: #334155;
+}
+
+.mhm-rentiva-booking-form .rv-sv__chip .rv-icon,
+.mhm-rentiva-booking-form .rv-sv__chip svg,
+.rv-booking-form-wrapper .rv-sv__chip .rv-icon,
+.rv-booking-form-wrapper .rv-sv__chip svg {
+	width: 14px;
+	height: 14px;
+	min-width: 14px;
+	min-height: 14px;
+	display: inline-block;
+	flex: 0 0 14px;
+}
+
+.mhm-rentiva-booking-form .rv-sv__score,
+.rv-booking-form-wrapper .rv-sv__score {
+	display: none;
+}
+
+.mhm-rentiva-booking-form .rv-sv__score-number,
+.rv-booking-form-wrapper .rv-sv__score-number {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--mhm-primary, #137fec);
+}
+
+.mhm-rentiva-booking-form .rv-sv__score-track,
+.rv-booking-form-wrapper .rv-sv__score-track {
+	height: 8px;
+	background: #e2e8f0;
+	border-radius: 999px;
+	overflow: hidden;
+}
+
+.mhm-rentiva-booking-form .rv-sv__score-fill,
+.rv-booking-form-wrapper .rv-sv__score-fill {
+	height: 100%;
+	width: 95%;
+	background: var(--mhm-primary, #137fec);
+}
+
+.mhm-rentiva-booking-form .rv-sv__score-label,
+.rv-booking-form-wrapper .rv-sv__score-label {
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: #64748b;
+}
+
+.mhm-rentiva-booking-form .rv-sv__price,
+.rv-booking-form-wrapper .rv-sv__price {
+	display: none;
+}
+
+.mhm-rentiva-booking-form .rv-sv__price-period,
+.rv-booking-form-wrapper .rv-sv__price-period {
+	display: none;
+}
+
+.mhm-rentiva-booking-form .rv-sv__placeholder,
+.rv-booking-form-wrapper .rv-sv__placeholder {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	align-items: center;
+	justify-content: center;
+	color: #94a3b8;
+}
+
+.mhm-rentiva-booking-form .rv-sv__placeholder-icon,
+.rv-booking-form-wrapper .rv-sv__placeholder-icon {
+	opacity: 0.2;
 }
 
 @media screen and (max-width: 768px) {
-.mhm-rentiva-booking-form .rv-selected-vehicle {
-flex-direction: column !important;
+	.mhm-rentiva-booking-form .rv-sv__media,
+	.mhm-rentiva-booking-form .rv-sv__content,
+	.rv-booking-form-wrapper .rv-sv__media,
+	.rv-booking-form-wrapper .rv-sv__content {
+		max-width: 100%;
+	}
+
+	.mhm-rentiva-booking-form .rv-sv__title,
+	.rv-booking-form-wrapper .rv-sv__title {
+		font-size: 1.25rem;
+	}
 }
-.mhm-rentiva-booking-form .rv-sv__media,
-.mhm-rentiva-booking-form .rv-sv__content {
-width: 100% !important;
+
+/* ===== PHASE-3E LAYOUT STABILIZATION (Responsive Grid + Overflow Fix) ===== */
+.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout {
+	display: grid;
+	grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+	gap: 40px;
+	align-items: start;
 }
+
+.rv-booking-form-wrapper .rv-checkout-sidebar {
+	width: 100%;
+	max-width: 420px;
+	min-width: 320px;
+}
+
+.rv-booking-form-wrapper .rv-checkout-main {
+	min-width: 0;
+	width: 100%;
+}
+
+.rv-booking-form-wrapper .rv-dates-combined-layout {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+
+.rv-booking-form-wrapper .rv-combined-field-column {
+	min-width: 0;
+}
+
+.rv-booking-form-wrapper .rv-date-time-picker-wrapper {
+	width: 100%;
+	max-width: 100%;
+}
+
+.rv-booking-form-wrapper .rv-inputs-inner {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto minmax(86px, auto);
+	gap: 8px;
+	width: 100%;
+	min-width: 0;
+	overflow: visible;
+	align-items: center;
+}
+
+.rv-booking-form-wrapper .rv-input-ghost,
+.rv-booking-form-wrapper .rv-select-ghost {
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
+}
+
+.rv-booking-form-wrapper .rv-field-separator {
+	margin: 0;
+}
+
+@media (max-width: 1280px) {
+	.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout {
+		grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+		gap: 32px;
+	}
+
+	.rv-booking-form-wrapper .rv-checkout-sidebar {
+		max-width: 380px;
+	}
+}
+
+@media (max-width: 1100px) {
+	.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout {
+		grid-template-columns: 320px minmax(0, 1fr);
+		gap: 28px;
+	}
+
+	.rv-booking-form-wrapper .rv-checkout-sidebar {
+		max-width: 320px;
+		min-width: 320px;
+	}
+
+	.rv-booking-form-wrapper .rv-dates-combined-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.rv-booking-form-wrapper .rv-inputs-inner {
+		grid-template-columns: 1fr;
+	}
+
+	.rv-booking-form-wrapper .rv-field-separator {
+		display: none;
+	}
+}
+
+@media (max-width: 992px) {
+	.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout {
+		grid-template-columns: 1fr;
+		gap: 24px;
+	}
+
+	.rv-booking-form-wrapper .rv-checkout-sidebar {
+		position: static;
+		top: auto;
+		order: -1;
+		max-width: 100%;
+		min-width: 0;
+	}
+}
+
+@media (max-width: 768px) {
+	.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout {
+		gap: 20px;
+	}
+
+	.rv-booking-form-wrapper .rv-date-time-picker-wrapper {
+		min-height: 52px;
+	}
+}
+
+
+
+/* ===== PHASE-3D VISUAL PRECISION PASS ===== */
+.rv-booking-form-wrapper {
+	background: #f5f7fb;
+	padding-top: 24px;
+	padding-bottom: 24px;
+	border-radius: 22px;
+}
+
+.rv-booking-form-wrapper .rv-form-header {
+	margin-bottom: 32px;
+	text-align: left;
+}
+
+.rv-booking-form-wrapper .rv-form-title {
+	font-size: clamp(2rem, 2.4vw, 2.9rem);
+	font-weight: 800;
+	line-height: 1.05;
+	letter-spacing: -0.6px;
+	margin: 0;
+}
+
+.rv-booking-form-wrapper .rv-form-subtitle {
+	margin-top: 10px;
+	margin-bottom: 0;
+	font-size: 0.98rem;
+	font-weight: 500;
+	color: #6b7a92;
+	letter-spacing: -0.1px;
+}
+
+.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout {
+	column-gap: 32px;
+	row-gap: 32px;
+}
+
+.rv-booking-form-wrapper .rv-checkout-main {
+	gap: 32px;
+}
+
+.rv-booking-form-wrapper .rv-card {
+	border-radius: 18px;
+	border: 1px solid #eef1f6;
+	box-shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+}
+
+.rv-booking-form-wrapper .rv-card-header,
+.rv-booking-form-wrapper .rv-card-body,
+.rv-booking-form-wrapper .rv-card-footer {
+	padding-left: 24px;
+	padding-right: 24px;
+}
+
+.rv-booking-form-wrapper .rv-card-header {
+	padding-top: 24px;
+}
+
+.rv-booking-form-wrapper .rv-card-body {
+	padding-bottom: 24px;
+}
+
+.rv-booking-form-wrapper .rv-card-footer {
+	padding-bottom: 24px;
+}
+
+.rv-booking-form-wrapper .rv-section-title {
+	font-size: 1.25rem;
+	font-weight: 700;
+	letter-spacing: -0.25px;
+}
+
+.rv-booking-form-wrapper .rv-addon-item {
+	padding: 14px;
+	min-height: 72px;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-breakdown {
+	gap: 14px;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price {
+	margin-top: 14px;
+	padding-top: 18px;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-label {
+	font-size: 1.18rem;
+	font-weight: 800;
+	letter-spacing: -0.2px;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-value {
+	font-size: clamp(2.1rem, 3vw, 2.8rem);
+	color: #1b66df;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-card-footer {
+	padding-top: 8px;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-submit-btn.rv-cta-primary {
+	height: 56px;
+	border-radius: 14px;
+	background: linear-gradient(135deg, #2a7be4, #1c5ed6);
+	box-shadow: 0 12px 28px rgba(28, 94, 214, 0.36);
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-submit-btn.rv-cta-primary:hover {
+	background: linear-gradient(135deg, #2572d7, #174fb8);
+	box-shadow: 0 16px 32px rgba(28, 94, 214, 0.44);
+}
+
+.rv-booking-form-wrapper .rv-payment-disclaimer {
+	margin: 12px 0 0;
+	font-size: 12px;
+	line-height: 1.45;
+	text-align: center;
+	color: #7a8ca8;
+}
+
+@media (max-width: 782px) {
+	.rv-booking-form-wrapper {
+		padding-top: 14px;
+		padding-bottom: 14px;
+	}
+
+	.rv-booking-form-wrapper .rv-form-header {
+		margin-bottom: 24px;
+	}
+
+	.rv-booking-form-wrapper .rv-form-title {
+		font-size: clamp(1.65rem, 6.8vw, 2.1rem);
+	}
+
+	.rv-booking-form-wrapper .rv-form-subtitle {
+		font-size: 0.92rem;
+	}
+
+	.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout,
+	.rv-booking-form-wrapper .rv-checkout-main {
+		gap: 24px;
+	}
+
+	.rv-booking-form-wrapper .rv-card-header,
+	.rv-booking-form-wrapper .rv-card-body,
+	.rv-booking-form-wrapper .rv-card-footer {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+}
+
+/* ===== PHASE-3G LAYOUT: VEHICLE + FORMS LEFT, STICKY SUMMARY RIGHT ===== */
+.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+	gap: 32px;
+	align-items: start;
+}
+
+.rv-booking-form-wrapper .rv-checkout-vehicle {
+	grid-column: 1;
+	grid-row: 1;
+	position: static;
+	top: auto;
+	max-width: none;
+	min-width: 0;
+}
+
+.rv-booking-form-wrapper .rv-checkout-main {
+	grid-column: 1;
+	grid-row: 2;
+	min-width: 0;
+}
+
+.rv-booking-form-wrapper .rv-checkout-summary {
+	grid-column: 2;
+	grid-row: 1 / span 2;
+	align-self: start;
+	position: sticky;
+	top: var(--mhm-space-8, 2.5rem);
+	width: 100%;
+	max-width: 340px;
+}
+
+.rv-booking-form-wrapper .rv-checkout-summary .rv-price-calculation {
+	margin-bottom: 0;
+}
+
+/* Payment summary rows must be single-column list (label/value inside each row). */
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-breakdown {
+	display: grid;
+	grid-template-columns: 1fr !important;
+	gap: 12px;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	align-items: baseline;
+	gap: 10px;
+}
+
+@media (max-width: 1100px) {
+	.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout {
+		grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+		gap: 24px;
+	}
+
+	.rv-booking-form-wrapper .rv-checkout-summary {
+		max-width: 320px;
+	}
+}
+
+@media (max-width: 992px) {
+	.rv-booking-form-wrapper .rv-booking-form-content.rv-checkout-layout {
+		display: flex;
+		flex-direction: column;
+		gap: var(--mhm-space-6, 1.5rem);
+	}
+
+	.rv-booking-form-wrapper .rv-checkout-vehicle,
+	.rv-booking-form-wrapper .rv-checkout-main,
+	.rv-booking-form-wrapper .rv-checkout-summary {
+		grid-column: auto;
+		grid-row: auto;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		position: static;
+		top: auto;
+	}
+}
+
+/* ===== PHASE-3H PAYMENT SUMMARY CLEANUP ===== */
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item,
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-label,
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-value {
+	border: 0 !important;
+	box-shadow: none !important;
+	background: transparent !important;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item {
+	padding: 2px 0;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price {
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 0 !important;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-deposit-summary {
+	margin-top: 0;
+	padding-top: 2px;
+	border-top: 0 !important;
+}
+
+/* ===== PHASE-3M PAYMENT SUMMARY TYPOGRAPHY TUNE ===== */
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price {
+	grid-template-columns: minmax(0, 1fr) auto;
+	column-gap: 12px;
+	align-items: center;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-label {
+	font-size: 1.02rem;
+	font-weight: 700;
+	color: #0f172a;
+	line-height: 1.2;
+	white-space: nowrap;
+	word-break: keep-all;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-total-price .rv-price-value {
+	display: inline-flex;
+	align-items: baseline;
+	justify-content: flex-end;
+	font-size: clamp(1.4rem, 1.9vw, 1.75rem);
+	line-height: 1.05;
+	white-space: nowrap;
+	word-break: keep-all;
+	color: #1f69de;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-deposit-summary .rv-price-label,
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-deposit-summary .rv-price-value {
+	color: #0d9f5d;
+	font-weight: 600;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-remaining-summary .rv-price-label,
+.rv-booking-form-wrapper .rv-price-calculation .rv-price-item.rv-remaining-summary .rv-price-value {
+	color: #0f172a;
+	font-weight: 600;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-form-actions {
+	display: block;
+	margin: 12px 0 0;
+	padding: 0;
+	border-top: 0 !important;
+	background: transparent !important;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-submit-btn.rv-cta-primary {
+	display: block;
+	width: calc(100% - 14px);
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.rv-booking-form-wrapper .rv-price-calculation .rv-payment-disclaimer {
+	display: block;
+	width: 100%;
+	margin: 10px 0 0;
+	font-size: 12px;
+	line-height: 1.45;
+	text-align: center;
+	color: #7a8ca8;
+}
+
+/* ===== PHASE-3N AVAILABILITY STATUS POLISH ===== */
+.rv-booking-form-wrapper .rv-availability-status {
+	margin: 12px 0 0;
+	padding: 0;
+	border-radius: 14px;
+	border: 1px solid #d7e6fb;
+	background: #f8fbff;
+	box-shadow: 0 8px 18px rgba(37, 99, 235, 0.08);
+	overflow: hidden;
+}
+
+.rv-booking-form-wrapper .rv-availability-status .status-message:empty {
+	display: none;
+}
+
+.rv-booking-form-wrapper .rv-availability-status.loading .status-message:empty {
+	display: block;
+}
+
+.rv-booking-form-wrapper .rv-loading-message {
+	background: linear-gradient(135deg, #eef5ff 0%, #f8fbff 100%);
+	color: #1e3a5f;
+	box-shadow: none;
+	border: 1px solid #cfe0fb;
+	border-radius: 12px;
+	font-weight: 600;
+}
+
+.rv-booking-form-wrapper .rv-loading-message .rv-spinner {
+	border: 3px solid rgba(37, 99, 235, 0.2);
+	border-top-color: #2563eb;
+}
+
+.rv-booking-form-wrapper .rv-availability-success {
+	background: linear-gradient(135deg, #ecfdf3 0%, #f4fff8 100%);
+	color: #14532d;
+	box-shadow: none;
+	border: 1px solid #bbf7d0;
+}
+
+.rv-booking-form-wrapper .rv-availability-success .dashicons {
+	background: #16a34a;
+	color: #ffffff;
+}
+
+.rv-booking-form-wrapper .rv-availability-error {
+	background: linear-gradient(135deg, #fff1f2 0%, #fff8f8 100%) !important;
+	color: #7f1d1d;
+	box-shadow: none !important;
+	border: 1px solid #fecdd3;
+}
+
+.rv-booking-form-wrapper .rv-availability-error .rv-availability-error-header {
+	background: transparent !important;
+	border: 0 !important;
+	color: #7f1d1d !important;
+	margin-bottom: 8px;
+	padding: 12px 14px;
+	box-shadow: none !important;
+}
+
+.rv-booking-form-wrapper .rv-availability-error .rv-availability-error-header .dashicons {
+	background: #dc2626 !important;
+	color: #ffffff !important;
+}
+
+/* ===== PHASE-3O COMPACT ALTERNATIVE VEHICLES ===== */
+.rv-booking-form-wrapper .rv-alternatives-wrapper {
+	padding: 10px !important;
+	margin-top: 10px !important;
+	background: #ffffff !important;
+	border: 1px solid #dbe7f6 !important;
+	border-radius: 12px !important;
+	backdrop-filter: none;
+}
+
+.rv-booking-form-wrapper .rv-alternatives-title {
+	font-size: 0.9rem;
+	font-weight: 700;
+	color: #1e293b;
+	margin-bottom: 8px;
+}
+
+.rv-booking-form-wrapper .rv-alternatives-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 8px;
+}
+
+.rv-booking-form-wrapper .rv-alternative-vehicle-card {
+	display: grid;
+	grid-template-columns: 88px minmax(0, 1fr);
+	gap: 10px;
+	align-items: center;
+	padding: 8px;
+	background: #f8fbff;
+	border: 1px solid #dbe7f6;
+	border-radius: 10px;
+	box-shadow: none;
+	transform: none !important;
+}
+
+.rv-booking-form-wrapper .rv-alternative-vehicle-card:hover {
+	box-shadow: 0 6px 14px rgba(37, 99, 235, 0.12);
+}
+
+.rv-booking-form-wrapper .rv-alternative-vehicle-image {
+	height: 64px;
+	border-radius: 8px;
+}
+
+.rv-booking-form-wrapper .rv-alternative-vehicle-content {
+	padding: 0;
+	min-width: 0;
+}
+
+.rv-booking-form-wrapper .rv-alternative-vehicle-title {
+	margin: 0 0 4px;
+	font-size: 0.84rem;
+	line-height: 1.25;
+	font-weight: 700;
+	color: #0f172a;
+}
+
+.rv-booking-form-wrapper .rv-alternative-price-details.rv-alternative-price-compact {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	margin: 0 0 6px;
+	padding: 0;
+	border: 0;
+}
+
+.rv-booking-form-wrapper .rv-alternative-price-details.rv-alternative-price-compact .rv-alternative-price-label {
+	font-size: 0.72rem;
+	color: #64748b;
+}
+
+.rv-booking-form-wrapper .rv-alternative-price-details.rv-alternative-price-compact .rv-alternative-price-amount {
+	font-size: 0.8rem;
+	font-weight: 700;
+	color: #1f69de;
+}
+
+.rv-booking-form-wrapper .rv-select-alternative-btn {
+	padding: 0.48rem 0.65rem;
+	font-size: 0.74rem;
+	border-radius: 8px;
+	width: 100%;
+}
+
+/* ===== PHASE-3I DATE/TIME STACKED LAYOUT ===== */
+.rv-booking-form-wrapper .rv-dates-times .rv-dates-combined-layout {
+	grid-template-columns: 1fr !important;
+	gap: 14px;
+}
+
+.rv-booking-form-wrapper .rv-dates-times .rv-combined-field-column {
+	width: 100%;
+	min-width: 0;
+}
+
+/* ===== PHASE-3J DATE INPUT OVERFLOW FIX ===== */
+.rv-booking-form-wrapper .rv-dates-times .rv-date-time-picker-wrapper {
+	width: 100%;
+	max-width: 100%;
+	overflow: hidden;
+}
+
+.rv-booking-form-wrapper .rv-dates-times .rv-inputs-inner {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 20px minmax(58px, 68px);
+	gap: 3px;
+	width: 100%;
+	min-width: 0;
+	padding-left: 2.25rem;
+	padding-right: 0.4rem;
+	box-sizing: border-box;
+}
+
+.rv-booking-form-wrapper .rv-dates-times .rv-input-ghost {
+	min-width: 0;
+	padding-right: 0.25rem;
+}
+
+.rv-booking-form-wrapper .rv-dates-times .rv-select-ghost {
+	min-width: 0;
+	max-width: 72px;
+	padding-left: 0.2rem;
+	padding-right: 0.2rem;
+	text-align: left;
+}
+
+.rv-booking-form-wrapper .rv-dates-times .rv-field-separator {
+	margin: 0;
+	justify-self: center;
+}
+
+/* ===== PHASE-3K TIME ICON + FLAT TIME SELECT ===== */
+.rv-booking-form-wrapper .rv-dates-times .rv-field-separator {
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	font-size: 0;
+	color: #94a3b8;
+}
+
+.rv-booking-form-wrapper .rv-dates-times .rv-time-separator svg {
+	width: 20px;
+	height: 20px;
+	display: block;
+	color: var(--mhm-text-secondary, #64748b);
+	stroke: currentColor;
+	stroke-width: 2;
+	opacity: 1;
+}
+
+.rv-booking-form-wrapper .rv-dates-times .rv-select-ghost.rv-select {
+	border: 0 !important;
+	outline: 0 !important;
+	box-shadow: none !important;
+	background: transparent !important;
+	background-image: none !important;
+	border-radius: 0 !important;
+	padding-left: 0.15rem;
+	padding-right: 0.15rem;
+}
+
+/* ===== PHASE-3L LEFT COLUMN SPACING TIGHTEN ===== */
+.rv-booking-form-wrapper .rv-checkout-main {
+	gap: 20px;
+}
+
+.rv-booking-form-wrapper .rv-checkout-main .rv-form-section {
+	margin-bottom: 0;
+}
+
+.rv-booking-form-wrapper .rv-checkout-vehicle {
+	margin-bottom: 0;
+}
+
+@media (max-width: 992px) {
+	.rv-booking-form-wrapper .rv-checkout-main {
+		gap: 16px;
+	}
 }

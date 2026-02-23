@@ -1,5 +1,16 @@
 ﻿# PROJECT MEMORIES
 
+### [LOCKED] Foundation Freeze & Attribute Pipeline Hardening — ✅ MISSION COMPLETE (v4.20.0) (2026-02-22)
+- **Status:** [LOCKED] / STABLE
+- **Core Outcome:** Established the official foundation baseline of the Rentiva engine. Canonical attribute pipeline hardened, runtime surface stabilized, and render parity invariant enforced.
+- **Key Achievements:**
+    - **Attribute System Hardening:** Eliminated undefined array key warnings, aligned canonical defaults, and secured `$_POST` / `$_GET` bypass scenarios.
+    - **Runtime Surface Validation:** Clean HTTP lifecycle sweep across all endpoints (0 PHP warnings, 0 deprecated notices, clean debug.log).
+    - **Static Analysis:** Plugin Check (Release Scope) passed with 0 ERRORs.
+    - **Deterministic Quality:** PHPUnit strictly passing (268 tests, 1379 assertions).
+- **Architectural Status:** The official regression anchor and canonical attribute baseline. Future releases build on this locked foundation.
+- **Reference Tag:** `v4.20.0` (Commit: `5f34f4f1343e052acc7fd7f53f8d67a75624f436`)
+
 ### [COMPLETED] Documentation Consolidation & Source of Truth Hardening (Sequence 5) (2026-02-21)
 - **Status:** [COMPLETED] / VERIFIED
 - **Scope:** Hardening the source of truth for shortcodes and UI contracts, eliminating documentation drift.

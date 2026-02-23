@@ -20,6 +20,7 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Helpers\Icons;
 use MHMRentiva\Admin\Core\Utilities\Templates;
+use MHMRentiva\Admin\Core\CurrencyHelper;
 
 // Variables are mapped into local scope from prepare_template_data() return array:
 // $results, $criteria, $origin_name, $destination_name, $atts
@@ -33,10 +34,7 @@ $destination_name = $destination_name ?? '';
  * Local helper to format price
  */
 $format_price = function (float $price, string $currency = '') {
-	if (function_exists('wc_price')) {
-		return wc_price($price);
-	}
-	return $currency . number_format($price, 2);
+	return CurrencyHelper::format_price($price, 0);
 };
 
 // Visibility Controls

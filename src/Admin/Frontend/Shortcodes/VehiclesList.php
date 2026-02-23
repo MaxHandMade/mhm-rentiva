@@ -14,6 +14,7 @@ use MHMRentiva\Admin\Services\FavoritesService;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use Exception;
 
@@ -415,7 +416,7 @@ final class VehiclesList extends AbstractShortcode
 		$daily_price = VehicleDataHelper::get_price_per_day($vehicle_id);
 
 		$currency        = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD');
-		$currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
+		$currency_symbol = CurrencyHelper::get_currency_symbol();
 
 		// Use default value if price is 0
 		if (empty($daily_price) || floatval($daily_price) == 0) {
@@ -436,21 +437,7 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	private static function format_price_with_position(float $price): string
 	{
-		$symbol           = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
-		$position         = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
-		$formatted_amount = number_format($price, 0, ',', '.');
-
-		switch ($position) {
-			case 'left':
-				return $symbol . $formatted_amount;
-			case 'left_space':
-				return $symbol . ' ' . $formatted_amount;
-			case 'right':
-				return $formatted_amount . $symbol;
-			case 'right_space':
-			default:
-				return $formatted_amount . ' ' . $symbol;
-		}
+		return CurrencyHelper::format_price($price, 0);
 	}
 
 	/**
@@ -478,7 +465,20 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	public static function get_vehicle_category(int $vehicle_id): string
 	{
-		return get_post_meta($vehicle_id, MetaKeys::VEHICLE_CATEGORY, true) ?: '';
+		$category = (string) get_post_meta($vehicle_id, MetaKeys::VEHICLE_CATEGORY, true);
+		if ($category !== '') {
+			return $category;
+		}
+
+		$terms = get_the_terms($vehicle_id, 'vehicle_category');
+		if (is_array($terms) && ! empty($terms)) {
+			$first = reset($terms);
+			if ($first instanceof \WP_Term && $first->name !== '') {
+				return (string) $first->name;
+			}
+		}
+
+		return '';
 	}
 
 	/**

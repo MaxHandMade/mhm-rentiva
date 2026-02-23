@@ -62,7 +62,7 @@ get_header(); ?>
 		background: #ffffff;
 		border-radius: 20px;
 		box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-		overflow: hidden;
+		overflow: visible;
 		margin-top: 2rem;
 		border: 1px solid #edf2f7;
 	}
