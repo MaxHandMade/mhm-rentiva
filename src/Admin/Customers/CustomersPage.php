@@ -206,7 +206,7 @@ final class CustomersPage
 				// Last days of previous month
 				$prev_month         = $current_month == 1 ? 12 : $current_month - 1;
 				$prev_year          = $current_month == 1 ? $current_year - 1 : $current_year;
-				$prev_days_in_month = cal_days_in_month(CAL_GREGORIAN, $prev_month, $prev_year);
+				$prev_days_in_month = (int) date('t', mktime(0, 0, 0, $prev_month, 1, $prev_year));
 
 				for ($i = $first_day_of_month; $i > 0; $i--) {
 					$day = $prev_days_in_month - $i + 1;

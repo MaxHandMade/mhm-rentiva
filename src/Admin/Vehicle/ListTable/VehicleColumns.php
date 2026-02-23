@@ -708,7 +708,7 @@ final class VehicleColumns
 								<th class="vehicle-column"><?php esc_html_e('Vehicles', 'mhm-rentiva'); ?></th>
 								<?php
 								// Create days of the month
-								$days_in_month = cal_days_in_month(CAL_GREGORIAN, $current_month, $current_year);
+								$days_in_month = (int) date('t', mktime(0, 0, 0, $current_month, 1, $current_year));
 								for ($day = 1; $day <= $days_in_month; $day++) {
 									echo '<th class="day-header">' . esc_html($day) . '</th>';
 								}
@@ -1153,7 +1153,7 @@ final class VehicleColumns
 		global $wpdb;
 
 		$start_date = sprintf('%04d-%02d-01', $year, $month);
-		$end_date   = sprintf('%04d-%02d-%02d', $year, $month, cal_days_in_month(CAL_GREGORIAN, $month, $year));
+		$end_date   = sprintf('%04d-%02d-%02d', $year, $month, (int) date('t', mktime(0, 0, 0, $month, 1, $year)));
 
 		// Use same meta keys as dashboard - detailed data for popup
 		$bookings = $wpdb->get_results(

@@ -259,8 +259,6 @@ final class DashboardService {
 				'publish'
 			)
 		);
- Broadway
-
 		$inactive    = (int) ( $vehicle_stats->inactive ?? 0 );
 		$maintenance = (int) ( $vehicle_stats->maintenance ?? 0 );
 
@@ -344,8 +342,6 @@ final class DashboardService {
 				'active'
 			)
 		);
- Broadway
-
 		$available = max( 0, $available_vehicles_with_status - $reserved );
 
 		return array(

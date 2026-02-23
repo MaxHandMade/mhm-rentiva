@@ -122,6 +122,10 @@ tests/
 !tests/
 tests/*
 !tests/bootstrap.php
+!tests/bin/
+tests/bin/*
+!tests/bin/install-wp-tests.sh
+!tests/bin/phpunit-bisect.sh
 !tests/Integration/
 tests/Integration/*
 !tests/Integration/Legacy/
@@ -180,6 +184,7 @@ shortcode_analiz.php
 specs/
 stubs/
 bin/
+!tests/bin/
 website/
 .github/
 !.github/

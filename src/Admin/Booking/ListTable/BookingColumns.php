@@ -985,7 +985,7 @@ final class BookingColumns {
 			12 => __( 'December', 'mhm-rentiva' ),
 		);
 
-		$days_in_month     = cal_days_in_month( CAL_GREGORIAN, (int) $current_month, (int) $current_year );
+		$days_in_month     = (int) date( 't', mktime( 0, 0, 0, (int) $current_month, 1, (int) $current_year ) );
 		$today             = (int) gmdate( 'j' );
 		$current_month_num = (int) gmdate( 'n' );
 		$current_year_num  = (int) gmdate( 'Y' );

@@ -1195,6 +1195,7 @@ final class AllowlistRegistry
             'show_similar_vehicles',
             'show_share_btns',
             'show_favorite_button',
+            'show_compare_button',
             'show_breadcrumb',
             'similar_vehicles_limit',
             'show_calendar',

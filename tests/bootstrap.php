@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -10,13 +11,7 @@ declare(strict_types=1);
 $_tests_dir = getenv('WP_TESTS_DIR');
 
 if (! $_tests_dir) {
-	// Windows/XAMPP fallback: Check for local wordpress-develop repository
-	$windows_local_dev = 'C:/xampp/htdocs/wordpress-develop/tests/phpunit';
-	if (file_exists($windows_local_dev . '/includes/functions.php')) {
-		$_tests_dir = $windows_local_dev;
-	} else {
-		$_tests_dir = rtrim(sys_get_temp_dir(), '/\\') . '/wordpress-tests-lib';
-	}
+	$_tests_dir = rtrim(sys_get_temp_dir(), '/\\') . '/wordpress-tests-lib';
 }
 
 // Forward custom PHPUnit Polyfills configuration to PHPUnit bootstrap file.
@@ -62,19 +57,10 @@ function mhm_is_test_discovery_mode(): bool
  * multiple test runs share the same DB.
  */
 $is_discovery_mode = mhm_is_test_discovery_mode();
-$normalized_tests_dir = str_replace('\\', '/', (string) $_tests_dir);
-$is_windows_local_dev = str_contains($normalized_tests_dir, 'wordpress-develop/tests/phpunit');
 $is_ci = 'true' === strtolower((string) getenv('CI'));
 $isolation_flag = strtolower((string) getenv('WP_TESTS_ISOLATE_DB'));
 $isolation_explicitly_enabled = in_array($isolation_flag, array('1', 'true', 'yes'), true);
 $should_isolate_db = ! $is_discovery_mode && ($is_ci || $isolation_explicitly_enabled);
-
-if ($is_windows_local_dev) {
-	$existing_config_path = getenv('WP_TESTS_CONFIG_FILE_PATH');
-	if (is_string($existing_config_path) && str_contains(str_replace('\\', '/', $existing_config_path), '/Temp/')) {
-		putenv('WP_TESTS_CONFIG_FILE_PATH');
-	}
-}
 
 if ($should_isolate_db) {
 	$table_prefix = getenv('WP_TESTS_TABLE_PREFIX');
@@ -151,6 +137,38 @@ function _manually_load_plugin()
 }
 
 tests_add_filter('muplugins_loaded', '_manually_load_plugin');
+
+/**
+ * Run plugin installation (DB table creation) after plugin is loaded.
+ *
+ * Priority 20 ensures this runs after _manually_load_plugin (priority 10),
+ * so DatabaseMigrator class is available. This replicates the activation hook
+ * behaviour so the test DB matches the production activation surface exactly.
+ */
+tests_add_filter('muplugins_loaded', function () {
+	if (! class_exists(\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::class)) {
+		return;
+	}
+
+	\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::run_migrations();
+
+	$critical_tables = array(
+		'payment_log',
+		'sessions',
+		'transfer_locations',
+		'transfer_routes',
+		'ratings',
+		'queue',
+		'report_queue',
+		'message_logs',
+		'notification_queue',
+		'background_jobs',
+	);
+
+	foreach ($critical_tables as $table) {
+		\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::create_table($table);
+	}
+}, 20);
 
 // Start up the WP testing environment.
 require "{$_tests_dir}/includes/bootstrap.php";
