@@ -254,8 +254,8 @@ credentials.php
 # - changelog.json (Version history)
 # ============================================================================
 
-# Keep docs tracked.
+# Keep docs tracked, but ignore internal/ (Stitch exports, etc.)
 !/docs/
-!/docs/**
+/docs/internal/
 
 backups/
