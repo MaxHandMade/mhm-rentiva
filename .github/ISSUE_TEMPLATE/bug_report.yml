@@ -1,0 +1,59 @@
+name: Bug Report
+description: Report a reproducible defect.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe the bug in one clear paragraph.
+      placeholder: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps To Reproduce
+      description: Provide exact steps and input data.
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Error Output
+      description: Include relevant PHP/WordPress/docker logs and stack traces.
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: WordPress, PHP, plugin version, and container info.
+      placeholder: |
+        WordPress:
+        PHP:
+        MHM Rentiva:
+        Docker:
+    validations:
+      required: true

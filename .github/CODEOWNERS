@@ -1,0 +1,5 @@
+* @MaxHandMade
+
+# Critical licensing domain
+/src/Admin/Licensing/ @MaxHandMade
+/tests/Integration/Admin/Licensing/ @MaxHandMade

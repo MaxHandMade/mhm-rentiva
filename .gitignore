@@ -21,6 +21,7 @@
 !/composer.json
 !/composer.lock
 !/phpcs.xml
+!/.editorconfig
 !/changelog.json
 !/changelog-tr.json
 !/phpunit.xml
@@ -192,7 +193,14 @@ website/
 !.github/workflows/
 .github/workflows/*
 !.github/workflows/testing.yml
+!.github/workflows/phpcs.yml
+!.github/workflows/phpunit.yml
 !.github/pull_request_template.md
+!.github/ISSUE_TEMPLATE/
+.github/ISSUE_TEMPLATE/*
+!.github/ISSUE_TEMPLATE/bug_report.yml
+!.github/ISSUE_TEMPLATE/feature_request.yml
+!.github/CODEOWNERS
 .kilocode/
 pcp/
 .clinerules/
