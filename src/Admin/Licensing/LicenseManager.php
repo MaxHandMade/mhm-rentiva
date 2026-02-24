@@ -390,22 +390,39 @@ final class LicenseManager
 	{
 		// 1. Manual override via constant (highest priority).
 		if (defined('MHM_RENTIVA_LICENSE_API_BASE')) {
-			return constant('MHM_RENTIVA_LICENSE_API_BASE');
+			$constant_base = trim((string) constant('MHM_RENTIVA_LICENSE_API_BASE'));
+			if ($constant_base !== '') {
+				return $constant_base;
+			}
 		}
 
-		// 2. WordPress environment detection (WP 5.5+).
+		// 2. Environment override for containerized/dynamic deployments.
+		$env_base = trim((string) getenv('MHM_RENTIVA_LICENSE_API_BASE'));
+		if ($env_base !== '') {
+			return $env_base;
+		}
+
+		// 3. WordPress environment detection (WP 5.5+).
 		if (function_exists('wp_get_environment_type')) {
 			$env_type = wp_get_environment_type();
 
 			// Local/development environments may use local API override.
 			if (in_array($env_type, array('local', 'development'), true)) {
+				$env_local_base = trim((string) getenv('MHM_RENTIVA_LICENSE_API_LOCAL'));
+				if ($env_local_base !== '') {
+					return $env_local_base;
+				}
+
 				if (defined('MHM_RENTIVA_LICENSE_API_LOCAL')) {
-					return constant('MHM_RENTIVA_LICENSE_API_LOCAL');
+					$constant_local_base = trim((string) constant('MHM_RENTIVA_LICENSE_API_LOCAL'));
+					if ($constant_local_base !== '') {
+						return $constant_local_base;
+					}
 				}
 			}
 		}
 
-		// 3. Fallback: production API.
+		// 4. Fallback: production API.
 		return 'https://api.maxhandmade.com/v1';
 	}
 
