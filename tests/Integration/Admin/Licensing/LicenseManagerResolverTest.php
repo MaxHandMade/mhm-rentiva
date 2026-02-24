@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Admin\Licensing;
 
 use MHMRentiva\Admin\Licensing\LicenseManager;
+use WP_Error;
 use WP_UnitTestCase;
 
 final class LicenseManagerResolverTest extends WP_UnitTestCase {
@@ -38,6 +39,27 @@ final class LicenseManagerResolverTest extends WP_UnitTestCase {
 		$value   = $this->get_resolved_url($manager);
 
 		$this->assertSame('https://api.maxhandmade.com/v1', $value);
+		putenv('MHM_RENTIVA_LICENSE_API_BASE');
+	}
+
+	public function test_request_returns_config_error_for_invalid_base_url(): void {
+		putenv('MHM_RENTIVA_LICENSE_API_BASE=invalid-url');
+		$manager = LicenseManager::instance();
+
+		$method = new \ReflectionMethod($manager, 'request');
+		$method->setAccessible(true);
+
+		$result = $method->invoke(
+			$manager,
+			'/licenses/validate',
+			array(
+				'license_key' => 'TEST-KEY',
+				'site_hash'   => 'test-site-hash',
+			)
+		);
+
+		$this->assertInstanceOf(WP_Error::class, $result);
+		$this->assertSame('license_config_error', $result->get_error_code());
 		putenv('MHM_RENTIVA_LICENSE_API_BASE');
 	}
 

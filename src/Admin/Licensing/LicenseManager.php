@@ -474,6 +474,15 @@ final class LicenseManager
 	private function request(string $path, array $body)
 	{
 		$base = $this->getApiBaseUrl();
+		if (! wp_http_validate_url($base)) {
+			return new WP_Error('license_config_error', __('Invalid license API base URL configuration.', 'mhm-rentiva'));
+		}
+
+		$scheme = wp_parse_url($base, PHP_URL_SCHEME);
+		if (! in_array($scheme, array('http', 'https'), true)) {
+			return new WP_Error('license_config_error', __('License API base URL must use http or https.', 'mhm-rentiva'));
+		}
+
 		$url  = rtrim($base, '/') . $path;
 
 		// Prepare request arguments with environment-aware settings
