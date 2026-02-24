@@ -82,6 +82,18 @@ final class LicenseManagerResolverTest extends WP_UnitTestCase {
 		$this->assertArrayHasKey('X-Environment', $headers);
 	}
 
+	public function test_signature_secret_is_resolved_from_env(): void {
+		putenv('MHM_RENTIVA_LICENSE_SIGNATURE_SECRET=secret_test_value');
+		$manager = LicenseManager::instance();
+
+		$method = new \ReflectionMethod($manager, 'resolve_request_signature_secret');
+		$method->setAccessible(true);
+		$secret = $method->invoke($manager);
+
+		$this->assertSame('secret_test_value', $secret);
+		putenv('MHM_RENTIVA_LICENSE_SIGNATURE_SECRET');
+	}
+
 	private function get_resolved_url(LicenseManager $manager): string {
 		$method = new \ReflectionMethod($manager, 'resolve_api_base_url');
 		$method->setAccessible(true);

@@ -480,6 +480,28 @@ final class LicenseManager
 	}
 
 	/**
+	 * Resolve optional request signature shared secret.
+	 *
+	 * @return string
+	 */
+	protected function resolve_request_signature_secret(): string
+	{
+		if (defined('MHM_RENTIVA_LICENSE_SIGNATURE_SECRET')) {
+			$constant_secret = trim((string) constant('MHM_RENTIVA_LICENSE_SIGNATURE_SECRET'));
+			if ($constant_secret !== '') {
+				return $constant_secret;
+			}
+		}
+
+		$env_secret = trim((string) getenv('MHM_RENTIVA_LICENSE_SIGNATURE_SECRET'));
+		if ($env_secret !== '') {
+			return $env_secret;
+		}
+
+		return '';
+	}
+
+	/**
 	 * Make API request to license server
 	 *
 	 * @param string $path API path
@@ -500,11 +522,26 @@ final class LicenseManager
 
 		$url  = rtrim($base, '/') . $path;
 
+		$request_body = wp_json_encode($body);
+		if (! is_string($request_body) || $request_body === '') {
+			$request_body = '{}';
+		}
+
+		$headers = $this->resolve_request_headers();
+		$signature_secret = $this->resolve_request_signature_secret();
+		if ($signature_secret !== '') {
+			$timestamp = (string) time();
+			$payload = $timestamp . '.' . $request_body;
+
+			$headers['X-MHM-Timestamp'] = $timestamp;
+			$headers['X-MHM-Signature'] = hash_hmac('sha256', $payload, $signature_secret);
+		}
+
 		// Prepare request arguments with environment-aware settings
 		$args = array(
-			'headers'   => $this->resolve_request_headers(),
+			'headers'   => $headers,
 			'timeout'   => 15, // 15 seconds timeout to prevent frontend lag
-			'body'      => wp_json_encode($body),
+			'body'      => $request_body,
 			'method'    => 'POST',
 			'sslverify' => $this->shouldVerifySsl(),
 		);
