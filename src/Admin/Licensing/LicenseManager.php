@@ -378,27 +378,34 @@ final class LicenseManager
 	 */
 	protected function getApiBaseUrl(): string
 	{
-		// 1. Manual override via constant (highest priority)
+		return $this->resolve_api_base_url();
+	}
+
+	/**
+	 * Resolve license API base URL.
+	 *
+	 * @return string
+	 */
+	protected function resolve_api_base_url(): string
+	{
+		// 1. Manual override via constant (highest priority).
 		if (defined('MHM_RENTIVA_LICENSE_API_BASE')) {
 			return constant('MHM_RENTIVA_LICENSE_API_BASE');
 		}
 
-		// 2. WordPress environment detection (WP 5.5+)
+		// 2. WordPress environment detection (WP 5.5+).
 		if (function_exists('wp_get_environment_type')) {
 			$env_type = wp_get_environment_type();
 
-			// Local/Development environments use local API (if defined)
+			// Local/development environments may use local API override.
 			if (in_array($env_type, array('local', 'development'), true)) {
-				// Allow local API override for development
 				if (defined('MHM_RENTIVA_LICENSE_API_LOCAL')) {
 					return constant('MHM_RENTIVA_LICENSE_API_LOCAL');
 				}
-				// In dev mode without local API, still use production for license validation
-				// This is intentional: licenses should validate against production server
 			}
 		}
 
-		// 3. Fallback: always use production API for license validation
+		// 3. Fallback: production API.
 		return 'https://api.maxhandmade.com/v1';
 	}
 
@@ -684,4 +691,3 @@ final class LicenseManager
 		return date_i18n($format, (int) $expires_at);
 	}
 }
-
