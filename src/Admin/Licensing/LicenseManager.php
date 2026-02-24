@@ -465,6 +465,21 @@ final class LicenseManager
 	}
 
 	/**
+	 * Resolve request headers for license API calls.
+	 *
+	 * @return array<string,string>
+	 */
+	protected function resolve_request_headers(): array
+	{
+		return array(
+			'Content-Type'  => 'application/json',
+			'Accept'        => 'application/json',
+			'User-Agent'    => 'MHM-Rentiva/' . (defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'dev'),
+			'X-Environment' => $this->getEnvironmentType(),
+		);
+	}
+
+	/**
 	 * Make API request to license server
 	 *
 	 * @param string $path API path
@@ -487,12 +502,7 @@ final class LicenseManager
 
 		// Prepare request arguments with environment-aware settings
 		$args = array(
-			'headers'   => array(
-				'Content-Type'  => 'application/json',
-				'Accept'        => 'application/json',
-				'User-Agent'    => 'MHM-Rentiva/' . (defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'dev'),
-				'X-Environment' => $this->getEnvironmentType(),
-			),
+			'headers'   => $this->resolve_request_headers(),
 			'timeout'   => 15, // 15 seconds timeout to prevent frontend lag
 			'body'      => wp_json_encode($body),
 			'method'    => 'POST',

@@ -63,6 +63,25 @@ final class LicenseManagerResolverTest extends WP_UnitTestCase {
 		putenv('MHM_RENTIVA_LICENSE_API_BASE');
 	}
 
+	public function test_request_headers_include_required_contract_keys(): void {
+		$manager = LicenseManager::instance();
+
+		$this->assertTrue(
+			method_exists($manager, 'resolve_request_headers'),
+			'LicenseManager must expose resolve_request_headers() for consistent request metadata.'
+		);
+
+		$method = new \ReflectionMethod($manager, 'resolve_request_headers');
+		$method->setAccessible(true);
+		$headers = $method->invoke($manager);
+
+		$this->assertIsArray($headers);
+		$this->assertArrayHasKey('Content-Type', $headers);
+		$this->assertArrayHasKey('Accept', $headers);
+		$this->assertArrayHasKey('User-Agent', $headers);
+		$this->assertArrayHasKey('X-Environment', $headers);
+	}
+
 	private function get_resolved_url(LicenseManager $manager): string {
 		$method = new \ReflectionMethod($manager, 'resolve_api_base_url');
 		$method->setAccessible(true);
