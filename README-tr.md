@@ -1392,3 +1392,11 @@ Bu eklentiyi faydalı bulursanız, lütfen GitHub'da yıldız vermeyi düşünü
 
 
 
+
+## Docker / Ortam Degiskenleri (Lisans)
+
+- Birincil override: `MHM_RENTIVA_LICENSE_API_BASE`
+- Yerel override: `MHM_RENTIVA_LICENSE_API_LOCAL`
+- SSL politikasi: `MHM_RENTIVA_SSL_VERIFY` (`1/true/yes/on` ile local/dev ortamda SSL verify acilir)
+- Cozumleme sirasi: explicit base -> local base (local/dev) -> production fallback
+- Oneri: Production icin degiskenleri bos birakin, ortama ozel degerleri `.env` ile yonetin

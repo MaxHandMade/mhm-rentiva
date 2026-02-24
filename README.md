@@ -586,6 +586,13 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 - **Staging Support**: Automatic detection of staging environments
 - **Multi-site Support**: License works across WordPress multisite
 
+**Docker / Environment Configuration:**
+- **Primary Override**: `MHM_RENTIVA_LICENSE_API_BASE`
+- **Local Override**: `MHM_RENTIVA_LICENSE_API_LOCAL`
+- **SSL Policy Toggle**: `MHM_RENTIVA_SSL_VERIFY` (`1/true/yes/on` to enable in local/dev)
+- **Resolution Order**: explicit base -> local base (local/dev) -> production fallback
+- **Recommendation**: Keep production empty and set only environment-specific values in `.env`
+
 **Developer Mode:**
 - **Automatic Detection**: Development environments automatically enable Pro features
 - **Detection Criteria**:

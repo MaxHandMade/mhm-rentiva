@@ -175,3 +175,13 @@ Phase 4:
 2. Production remains HTTPS/SSL-safe by default.
 3. PHPCS and test workflows pass in CI.
 4. License lifecycle behaves consistently across activate/validate/deactivate flows.
+
+## 13. Implementation Progress (Current Branch)
+
+Completed on `feature/license-hardening-sdd`:
+
+1. Resolver baseline and env-aware endpoint resolution.
+2. URL config guard with `license_config_error` for invalid base URLs.
+3. Centralized request header resolver for license API calls.
+4. Dedicated lifecycle integration test (`activate`/`validate`/`deactivate`).
+5. GitHub workflows and repository templates for WPCS/test governance.
