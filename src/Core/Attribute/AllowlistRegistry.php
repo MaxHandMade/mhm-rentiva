@@ -39,7 +39,7 @@ final class AllowlistRegistry
             'type'    => 'enum',
             'group'   => 'sorting',
             'aliases' => ['sortBy', 'orderby'],
-            'values'  => ['price', 'popularity', 'newest', 'capacity', 'title', 'date', 'rand', 'rating'],
+            'values'  => ['price', 'popularity', 'newest', 'capacity', 'title', 'date', 'modified', 'rand', 'post__in', 'rating', 'rating_average', 'rating_count', 'confidence'],
         ],
         'order'                    => [
             'type'    => 'enum',
@@ -390,7 +390,7 @@ final class AllowlistRegistry
             'type'    => 'enum',
             'group'   => 'workflow',
             'aliases' => ['filterStatus', 'status'],
-            'values'  => ['', 'pending', 'confirmed', 'in_progress', 'cancelled', 'completed', 'refunded'],
+            'values'  => ['', 'draft', 'pending_payment', 'pending', 'confirmed', 'in_progress', 'completed', 'cancelled', 'refunded', 'no_show'],
         ],
         'show_status_toggle'       => [
             'type'    => 'bool',
@@ -943,7 +943,7 @@ final class AllowlistRegistry
             'type'    => 'enum',
             'group'   => 'sorting',
             'aliases' => ['sort_by'],
-            'values'  => ['price', 'popularity', 'newest', 'capacity', 'title', 'date', 'rand', 'rating'],
+            'values'  => ['price', 'popularity', 'newest', 'capacity', 'title', 'date', 'modified', 'rand', 'rating', 'rating_average', 'rating_count', 'confidence'],
         ],
         'sort_order'               => [
             'type'    => 'enum',

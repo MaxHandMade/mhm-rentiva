@@ -1,5 +1,11 @@
 ﻿# PROJECT MEMORIES
 
+### [PATCHED] v4.20.3 - Allowlist enum expansion (status, orderby, sort_by) (2026-02-25)
+- **Status:** [PATCHED] / ENUM DRIFT HOTFIX
+- **Instruction:** V4.20.3-ALLOWLIST-ENUM-EXPANSION
+- **Scope:** Allowlist enum expansion only (`status`, `orderby`, `sort_by`). No CAM, TAG_MAPPING, renderer, or Elementor code changes.
+- **Result:** Booking status/runtime sort enums aligned with backend-supported values.
+- **Verification:** `vendor/bin/phpunit --testdox` passed (see `docs/internal/QA_V4203_ALLOWLIST_ENUM_EXPANSION.md`).
 ### [STABILIZED] v4.20.2 Allowlist Contract Integrity Restored (2026-02-25)
 - **Status:** [STABILIZED] / FULL PASS
 - **Instruction:** V4.20.2-ALLOWLIST-STABILIZATION
@@ -1092,5 +1098,6 @@
   - `src/Admin/Frontend/Shortcodes/HomePoc.php`
   - `templates/shortcodes/home-poc.php`
   - `tests/Integration/GovernanceTest.php`
+
 
 

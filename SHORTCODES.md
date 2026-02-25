@@ -859,6 +859,11 @@ Runtime processing order:
 | `enum` | Must exactly match `values` list (strict `in_array`) | `orderby`, `order`, `status`, `service_type` | Fallback to schema default or first allowed value |
 | `string` | `sanitize_text_field` on scalar; else default/empty | `class`, `button_text`, `search_layout` | Non-scalar -> default or empty string |
 
+Enum value sets (v4.20.3):
+- `status`: `""`, `draft`, `pending_payment`, `pending`, `confirmed`, `in_progress`, `completed`, `cancelled`, `refunded`, `no_show`
+- `orderby`: `price`, `popularity`, `newest`, `capacity`, `title`, `date`, `modified`, `rand`, `post__in`, `rating`, `rating_average`, `rating_count`, `confidence`
+- `sort_by`: `price`, `popularity`, `newest`, `capacity`, `title`, `date`, `modified`, `rand`, `rating`, `rating_average`, `rating_count`, `confidence`
+
 Strict mapping contract:
 - `CanonicalAttributeMapper::map(..., true)` drops unknown keys.
 - If strict is `false`, unknown keys pass through after normalization.
