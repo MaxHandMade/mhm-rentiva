@@ -204,4 +204,29 @@ class SchemaParityTest extends WP_UnitTestCase
         $this->assertSame( 'enum', $allowlist['default_tab']['type'], 'default_tab type should be enum, not string' );
         // values constraint is verified in test_enum_attributes_have_values (Task 3/4)
     }
+
+    /**
+     * Verify all enum attributes in ALLOWLIST have non-empty values arrays.
+     * Enum attributes without values cannot perform input validation — M1 defect.
+     *
+     * @covers \MHMRentiva\Core\Attribute\AllowlistRegistry
+     */
+    public function test_enum_attributes_have_values(): void
+    {
+        $allowlist = ( new \ReflectionClass( \MHMRentiva\Core\Attribute\AllowlistRegistry::class ) )
+            ->getReflectionConstant( 'ALLOWLIST' )
+            ->getValue();
+
+        $enum_attrs_without_values = [];
+        foreach ( $allowlist as $key => $config ) {
+            if ( ( $config['type'] ?? '' ) === 'enum' && empty( $config['values'] ) ) {
+                $enum_attrs_without_values[] = $key;
+            }
+        }
+
+        $this->assertEmpty(
+            $enum_attrs_without_values,
+            'These enum attributes are missing values arrays: ' . implode( ', ', $enum_attrs_without_values )
+        );
+    }
 }
