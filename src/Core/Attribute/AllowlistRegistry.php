@@ -214,7 +214,7 @@ final class AllowlistRegistry
         'show_favorite_btn'        => [
             'type'    => 'bool',
             'group'   => 'visibility',
-            'aliases' => ['showFavoriteBtn'],
+            'aliases' => ['showFavoriteBtn', 'show_favorite_button', 'showFavoriteButton'],
         ],
         'show_favorite_button'     => [
             'type'    => 'bool',
@@ -224,7 +224,7 @@ final class AllowlistRegistry
         'show_compare_btn'         => [
             'type'    => 'bool',
             'group'   => 'visibility',
-            'aliases' => ['showCompareBtn'],
+            'aliases' => ['showCompareBtn', 'show_compare_button', 'showCompareButton'],
         ],
         'show_compare_button'      => [
             'type'    => 'bool',
@@ -645,11 +645,6 @@ final class AllowlistRegistry
             'type'  => 'string',
             'group' => 'content',
         ],
-        'ids'                      => [
-            'type'    => 'string',
-            'group'   => 'feature',
-            'aliases' => ['ids'],
-        ],
         'id'                       => [
             'type'  => 'int',
             'group' => 'feature',
@@ -689,21 +684,6 @@ final class AllowlistRegistry
             'type'    => 'string',
             'group'   => 'workflow',
             'aliases' => ['endDate', 'end_date'],
-        ],
-        'default_days'             => [
-            'type'    => 'int',
-            'group'   => 'workflow',
-            'aliases' => ['defaultDays'],
-        ],
-        'min_days'                 => [
-            'type'    => 'int',
-            'group'   => 'workflow',
-            'aliases' => ['minDays'],
-        ],
-        'max_days'                 => [
-            'type'    => 'int',
-            'group'   => 'workflow',
-            'aliases' => ['maxDays'],
         ],
         'months_ahead'             => [
             'type'    => 'int',
@@ -774,11 +754,6 @@ final class AllowlistRegistry
             'group'   => 'workflow',
             'aliases' => ['redirectUrl'],
         ],
-        'redirect_page'            => [
-            'type'    => 'string',
-            'group'   => 'workflow',
-            'aliases' => ['redirectPage'],
-        ],
         'form_title'               => [
             'type'    => 'string',
             'group'   => 'content',
@@ -791,11 +766,6 @@ final class AllowlistRegistry
         ],
 
         // Search Specific
-        'default_tab'              => [
-            'type'    => 'string',
-            'group'   => 'feature',
-            'aliases' => ['defaultTab'],
-        ],
         'default_tab_alias'        => [
             'type'    => 'string',
             'group'   => 'feature',
@@ -870,25 +840,10 @@ final class AllowlistRegistry
             'group'   => 'visibility',
             'aliases' => ['showBooking'],
         ],
-        'show_booking_button'      => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => ['showBookButton'],
-        ],
         'show_booking_btn'         => [
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => ['showBookButton'],
-        ],
-        'show_favorite_btn'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => ['show_favorite_button'],
-        ],
-        'show_compare_btn'         => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => ['show_compare_button'],
         ],
         'show_prices'              => [
             'type'    => 'bool',
@@ -1040,11 +995,6 @@ final class AllowlistRegistry
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => ['showDiscounts'],
-        ],
-        'months_to_show'           => [
-            'type'    => 'int',
-            'group'   => 'feature',
-            'aliases' => ['monthsToShow'],
         ],
         'rating'                   => [
             'type'  => 'int',
