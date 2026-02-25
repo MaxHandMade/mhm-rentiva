@@ -229,4 +229,29 @@ class SchemaParityTest extends WP_UnitTestCase
             'These enum attributes are missing values arrays: ' . implode( ', ', $enum_attrs_without_values )
         );
     }
+
+    /**
+     * Verify all TAG_MAPPING attribute keys have a schema in get_registry().
+     * An empty schema [] means the attribute is untyped (M2 defect).
+     *
+     * @covers \MHMRentiva\Core\Attribute\AllowlistRegistry
+     */
+    public function test_tag_mapping_attributes_have_canonical_schema(): void
+    {
+        $registry = \MHMRentiva\Core\Attribute\AllowlistRegistry::get_registry();
+        $untyped  = [];
+
+        foreach ($registry as $tag => $schema) {
+            foreach ($schema as $attr_key => $attr_config) {
+                if (! isset($attr_config['type'])) {
+                    $untyped[] = "{$tag}.{$attr_key}";
+                }
+            }
+        }
+
+        $this->assertEmpty(
+            $untyped,
+            'These TAG_MAPPING attributes have empty (untyped) schema: ' . implode(', ', $untyped)
+        );
+    }
 }
