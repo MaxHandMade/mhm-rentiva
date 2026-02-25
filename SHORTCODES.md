@@ -1079,3 +1079,12 @@ All `⚠️ Block Only` and `⚠️ SC Only` entries in Section 4.2 are by archi
 
 **Overall QA Decision: CONDITIONAL PASS**
 Documentation updated. Runtime stable. Critical code defect (C1) and major schema gaps (M1, M2) flagged for resolution in a separate authorized task.
+
+### v4.20.2 Resolution Status
+
+| Finding | Status |
+|---|---|
+| C1: 10 duplicate ALLOWLIST keys | ✅ FIXED in v4.20.2 |
+| M1: 4 enum attributes missing values | ✅ FIXED in v4.20.2 |
+| M2: 6 TAG_MAPPING canonical gaps | ✅ FIXED in v4.20.2 |
+| Governance: SHORTCODES.md not tracked | ✅ FIXED in v4.20.2 |

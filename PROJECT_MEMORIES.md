@@ -1,5 +1,18 @@
 ﻿# PROJECT MEMORIES
 
+### [STABILIZED] v4.20.2 Allowlist Contract Integrity Restored (2026-02-25)
+- **Status:** [STABILIZED] / FULL PASS
+- **Instruction:** V4.20.2-ALLOWLIST-STABILIZATION
+- **Changes:**
+    - C1 FIXED: 10 duplicate ALLOWLIST keys removed, aliases merged
+    - M1 FIXED: values arrays added to status, default_payment, service_type, type, default_tab
+    - M2 FIXED: 5 new canonical keys added (show_technical_specs, show_booking_form, show_book_button, sort_by, sort_order); 2 TAG_MAPPING redundancies removed (show_avatar, filter_rating)
+    - GOVERNANCE: SHORTCODES.md added to version control
+- **Test Count:** 273 tests, 1390 assertions — FULL PASS
+- **QA Decision:** FULL PASS — Runtime Verified
+
+---
+
 ### [AUDIT] V4.20.1 Ecosystem X-Ray — CONDITIONAL PASS (2026-02-25)
 - **Status:** [AUDIT] / DOCUMENTED
 - **Instruction:** V4.20.1-ECOSYSTEM-AUDIT
