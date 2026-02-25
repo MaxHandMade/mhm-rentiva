@@ -307,6 +307,10 @@ $analytics = is_array($dashboard['analytics'] ?? null) ? $dashboard['analytics']
 				</div>
 			<?php endif; ?>
 		</div>
+	<?php elseif ($active_tab === 'ledger' && $context === 'vendor') : ?>
+		<div class="mhm-rentiva-dashboard__tab-content">
+			<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-payouts.php'; ?>
+		</div>
 	<?php endif; ?>
 </div>
 </main>
