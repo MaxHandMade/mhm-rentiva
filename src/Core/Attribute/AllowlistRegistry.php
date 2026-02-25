@@ -205,7 +205,7 @@ final class AllowlistRegistry
         'show_features'            => [
             'type'    => 'bool',
             'group'   => 'visibility',
-            'aliases' => ['showFeatures', 'showTechnicalSpecs'],
+            'aliases' => ['showFeatures'],
         ],
         'show_booking_button'      => [
             'type'    => 'bool',
@@ -924,6 +924,33 @@ final class AllowlistRegistry
             'group'   => 'visibility',
             'aliases' => ['showRatingsList'],
         ],
+        'show_technical_specs'     => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => ['showTechnicalSpecs'],
+        ],
+        'show_booking_form'        => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => ['showBookingForm'],
+        ],
+        'show_book_button'         => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => ['showBookButton'],
+        ],
+        'sort_by'                  => [
+            'type'    => 'enum',
+            'group'   => 'sorting',
+            'aliases' => ['sort_by'],
+            'values'  => ['price', 'popularity', 'newest', 'capacity', 'title', 'date', 'rand', 'rating'],
+        ],
+        'sort_order'               => [
+            'type'    => 'enum',
+            'group'   => 'sorting',
+            'aliases' => ['sort_order'],
+            'values'  => ['asc', 'desc', 'ASC', 'DESC'],
+        ],
 
         // Mixed Feature Specific
         'type'                     => [
@@ -1290,7 +1317,6 @@ final class AllowlistRegistry
             'show_author_avatar',
             'show_author_name',
             'show_quotes',
-            'filter_rating',
             'sort_by',
             'sort_order',
             'limit_items',
@@ -1355,7 +1381,6 @@ final class AllowlistRegistry
             'limit',
             'class',
             'show_date',
-            'show_avatar',
             'show_unread_badge',
             'show_thread_preview',
             'show_booking_link',
