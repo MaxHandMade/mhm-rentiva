@@ -120,6 +120,7 @@ final class AnalyticsService
             return null;
         }
 
+        // Banker-safe rounding: PHP_ROUND_HALF_UP for consistent financial reporting precision.
         return round((($current - $previous) / $previous) * 100.0, 2, PHP_ROUND_HALF_UP);
     }
 
