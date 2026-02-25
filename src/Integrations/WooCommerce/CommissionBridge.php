@@ -82,7 +82,10 @@ final class CommissionBridge
             $commission_logic->get_commission_rate_snapshot(),
             $currency,
             'vendor',
-            'pending' // Status is pending until manual administrative payout or further hooks mature clearing
+            'pending', // Status is pending until manual administrative payout or further hooks mature clearing
+            null, // created_at (auto)
+            $commission_logic->get_policy_id(),
+            $commission_logic->get_policy_version_hash()
         );
 
         try {
@@ -149,7 +152,10 @@ final class CommissionBridge
             $commission_logic->get_commission_rate_snapshot(),
             $currency,
             'vendor',
-            'reversed' // Status for refunds represents cancelled financial obligations
+            'reversed', // Status for refunds represents cancelled financial obligations
+            null, // created_at (auto)
+            $commission_logic->get_policy_id(),
+            $commission_logic->get_policy_version_hash()
         );
 
         try {
