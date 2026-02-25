@@ -21,6 +21,7 @@ if (! in_array($context, array('customer', 'vendor'), true)) {
 $nav_items = DashboardNavigation::get_items($context);
 $kpi_items = is_array($dashboard['kpis'] ?? null) ? $dashboard['kpis'] : DashboardConfig::get_kpis($context);
 $kpi_data = is_array($dashboard['kpi_data'] ?? null) ? $dashboard['kpi_data'] : array();
+$analytics = is_array($dashboard['analytics'] ?? null) ? $dashboard['analytics'] : array();
 ?>
 
 <div class="mhm-rentiva-dashboard">
@@ -295,12 +296,16 @@ $kpi_data = is_array($dashboard['kpi_data'] ?? null) ? $dashboard['kpi_data'] : 
 		</div>
 	<?php elseif ($active_tab === 'listings' || $active_tab === 'revenue') : ?>
 		<div class="mhm-rentiva-dashboard__tab-content">
-			<div class="mhm-rentiva-dashboard__section">
-				<div class="mhm-rentiva-dashboard__section-head">
-					<h3><?php echo esc_html((string) ($nav_items[$active_tab]['label'] ?? __('Overview', 'mhm-rentiva'))); ?></h3>
+			<?php if ($active_tab === 'revenue' && $context === 'vendor') : ?>
+				<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-analytics.php'; ?>
+			<?php else : ?>
+				<div class="mhm-rentiva-dashboard__section">
+					<div class="mhm-rentiva-dashboard__section-head">
+						<h3><?php echo esc_html((string) ($nav_items[$active_tab]['label'] ?? __('Overview', 'mhm-rentiva'))); ?></h3>
+					</div>
+					<p><?php esc_html_e('This section will be available in the next dashboard phase.', 'mhm-rentiva'); ?></p>
 				</div>
-				<p><?php esc_html_e('This section will be available in the next dashboard phase.', 'mhm-rentiva'); ?></p>
-			</div>
+			<?php endif; ?>
 		</div>
 	<?php endif; ?>
 </div>

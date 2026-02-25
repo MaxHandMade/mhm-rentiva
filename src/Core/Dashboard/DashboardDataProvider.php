@@ -33,9 +33,16 @@ final class DashboardDataProvider
 			$kpi_data[$key] = self::resolve_metric($metric, $context, $user_id, $user_email, $with_trend);
 		}
 
+		// Vendor-only: build analytics data (ledger-only, deferred — not called for customers).
+		$analytics = array();
+		if ($context === 'vendor' && $user_id > 0) {
+			$analytics = AnalyticsDashboardDataProvider::build($user_id);
+		}
+
 		return array(
 			'kpis'                    => $config,
 			'kpi_data'                => $kpi_data,
+			'analytics'               => $analytics,
 			'recent_bookings'         => self::get_recent_bookings($user_id),
 			'bookings_tab_shortcode'  => '[rentiva_my_bookings hide_nav="1" limit="10"]',
 			'favorites_tab_shortcode' => '[rentiva_my_favorites limit="12"]',
