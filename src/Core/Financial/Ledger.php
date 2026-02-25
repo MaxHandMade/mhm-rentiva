@@ -182,7 +182,7 @@ final class Ledger
         $args[] = absint($limit);
         $args[] = absint($offset);
 
-        $query = "SELECT * FROM {$table} WHERE {$where_sql} ORDER BY created_at DESC LIMIT %d OFFSET %d";
+        $query = "SELECT * FROM {$table} WHERE {$where_sql} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d";
 
         $results = $wpdb->get_results($wpdb->prepare($query, ...$args));
 

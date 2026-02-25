@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Core\Financial;
 
 use MHMRentiva\Admin\PostTypes\Payouts\PostType;
+use MHMRentiva\Core\Services\Metrics\MetricCacheManager;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -83,6 +84,8 @@ final class PayoutService
         // Save the requested amount off-ledger natively.
         update_post_meta($post_id, '_mhm_payout_amount', $amount);
 
+        MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
+
         return $post_id;
     }
 
@@ -109,22 +112,29 @@ final class PayoutService
 
         $vendor_id = (int) $post->post_author;
 
+        $uuid = 'payout_' . $payout_id;
+        $currency = function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'TRY';
+
         // Deduct from ledger formally matching execution structures predictably
         $entry = new LedgerEntry(
+            $uuid,
             $vendor_id,
-            $amount * -1, // Native deductions are safely executed predictably natively
+            null, // booking_id
+            null, // order_id
             'payout_debit',
+            $amount * -1, // Native deductions are safely executed predictably natively
+            null, // gross_amount
+            null, // commission_amount
+            null, // commission_rate
+            $currency,
             'payout',
             'cleared'
         );
 
-        // Guarantee idempotency targeting original workflow objects sequentially uniquely targeting database structures implicitly natively
-        $uuid = 'payout_' . $payout_id;
-        $entry->set_transaction_uuid($uuid);
-
-        $result = Ledger::add_entry($entry);
-        if (is_wp_error($result)) {
-            return $result;
+        try {
+            Ledger::add_entry($entry);
+        } catch (\RuntimeException $e) {
+            return new \WP_Error('ledger_error', $e->getMessage());
         }
 
         // Mark workflow object as complete natively decoupling state securely isolated natively.
@@ -134,6 +144,9 @@ final class PayoutService
                 'post_status' => 'publish', // Approved/Completed natively
             )
         );
+
+        // Invalidate all vendor dashboard metrics cache after ledger mutation
+        MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
 
         return true;
     }
@@ -164,6 +177,9 @@ final class PayoutService
         if ($reason !== '') {
             update_post_meta($payout_id, '_mhm_payout_rejection_reason', sanitize_textarea_field($reason));
         }
+
+        // Invalidate all vendor dashboard metrics cache mapping states globally properly
+        MetricCacheManager::flush_subject_all_metrics((string) $post->post_author);
 
         return true;
     }

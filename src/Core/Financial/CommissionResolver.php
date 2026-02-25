@@ -30,8 +30,8 @@ final class CommissionResolver
         $rate = self::resolve_vendor_rate($vendor_id);
 
         // PHP strict casting prevents arbitrary exponential boundary failure
-        $commission_amount = round(($payment_amount * $rate) / 100.0, 2);
-        $vendor_net_amount = round($payment_amount - $commission_amount, 2);
+        $commission_amount = round(($payment_amount * $rate) / 100.0, 2, PHP_ROUND_HALF_UP);
+        $vendor_net_amount = round($payment_amount - $commission_amount, 2, PHP_ROUND_HALF_UP);
 
         return new CommissionResult(
             $payment_amount,
