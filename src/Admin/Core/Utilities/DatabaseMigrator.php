@@ -23,7 +23,7 @@ final class DatabaseMigrator
 	/**
 	 * Migration version
 	 */
-	private const CURRENT_VERSION = '3.1.0';
+	private const CURRENT_VERSION = '3.2.0';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -46,6 +46,9 @@ final class DatabaseMigrator
 
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\LedgerMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\LedgerMigration::create_table();
+			}
+			if (class_exists(\MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration::class)) {
+				\MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration::create_table();
 			}
 			self::add_performance_indexes();
 			self::optimize_existing_indexes();

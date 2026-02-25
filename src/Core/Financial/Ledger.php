@@ -27,19 +27,21 @@ final class Ledger
         $table = $wpdb->prefix . 'mhm_rentiva_ledger';
 
         $data = array(
-            'transaction_uuid' => $entry->get_transaction_uuid(),
-            'vendor_id'        => $entry->get_vendor_id(),
-            'booking_id'       => $entry->get_booking_id(),
-            'order_id'         => $entry->get_order_id(),
-            'type'             => $entry->get_type(),
-            'amount'           => $entry->get_amount(),
-            'gross_amount'     => $entry->get_gross_amount(),
-            'commission_amount' => $entry->get_commission_amount(),
-            'commission_rate'  => $entry->get_commission_rate(),
-            'currency'         => $entry->get_currency(),
-            'context'          => $entry->get_context(),
-            'status'           => $entry->get_status(),
-            'created_at'       => current_time('mysql', true), // Always enforce UTC for audit logs
+            'transaction_uuid'    => $entry->get_transaction_uuid(),
+            'vendor_id'           => $entry->get_vendor_id(),
+            'booking_id'          => $entry->get_booking_id(),
+            'order_id'            => $entry->get_order_id(),
+            'type'                => $entry->get_type(),
+            'amount'              => $entry->get_amount(),
+            'gross_amount'        => $entry->get_gross_amount(),
+            'commission_amount'   => $entry->get_commission_amount(),
+            'commission_rate'     => $entry->get_commission_rate(),
+            'currency'            => $entry->get_currency(),
+            'context'             => $entry->get_context(),
+            'status'              => $entry->get_status(),
+            'created_at'          => current_time('mysql', true), // Always enforce UTC for audit logs
+            'policy_id'           => $entry->get_policy_id(),
+            'policy_version_hash' => $entry->get_policy_version_hash(),
         );
 
         $formats = array(
@@ -56,6 +58,8 @@ final class Ledger
             '%s', // context
             '%s', // status
             '%s', // created_at
+            '%d', // policy_id
+            '%s', // policy_version_hash
         );
 
         // Suppress database errors to handle expected duplicate idempotency gracefully without polluting logs

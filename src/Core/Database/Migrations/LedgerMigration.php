@@ -40,6 +40,8 @@ final class LedgerMigration
 			context VARCHAR(30) NOT NULL,
 			status VARCHAR(30) NOT NULL,
 			created_at DATETIME NOT NULL,
+			policy_id BIGINT UNSIGNED NULL DEFAULT NULL,
+			policy_version_hash CHAR(64) NULL DEFAULT NULL,
 			UNIQUE KEY transaction_uuid_unique (transaction_uuid),
 			KEY vendor_id_idx (vendor_id),
 			KEY booking_id_idx (booking_id),
@@ -47,7 +49,8 @@ final class LedgerMigration
 			KEY status_idx (status),
 			KEY vendor_created_idx (vendor_id, created_at),
 			KEY vendor_status_idx (vendor_id, status, created_at),
-			KEY vendor_type_idx (vendor_id, type)
+			KEY vendor_type_idx (vendor_id, type),
+			KEY policy_id_idx (policy_id)
 		) {$charset_collate};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
