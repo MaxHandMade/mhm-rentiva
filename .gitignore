@@ -264,5 +264,6 @@ credentials.php
 # Keep docs tracked, but ignore internal/ (Stitch exports, etc.)
 !/docs/
 /docs/internal/
+/docs/stitch-export/
 
 backups/

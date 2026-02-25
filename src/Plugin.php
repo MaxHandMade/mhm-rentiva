@@ -194,6 +194,11 @@ final class Plugin
 		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory')) {
 			\MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory::register();
 		}
+
+		// Payout workflow storage (Model B - Immutability Safe)
+		if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Payouts\PostType')) {
+			\MHMRentiva\Admin\PostTypes\Payouts\PostType::register();
+		}
 	}
 
 	/**
@@ -488,6 +493,11 @@ final class Plugin
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('WooCommerceBridge class NOT FOUND!');
 		}
 
+		// Commission Ledger Bridge
+		if (class_exists(Integrations\WooCommerce\CommissionBridge::class)) {
+			Integrations\WooCommerce\CommissionBridge::boot();
+		}
+
 		// Payment Clients
 
 		// About page
@@ -720,6 +730,10 @@ final class Plugin
 			\MHMRentiva\Admin\Core\ShortcodeServiceProvider::register();
 		}
 
+		if ($this->is_class_available('MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger')) {
+			\MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger::register();
+		}
+
 		// ⭐ Elementor Integration - Register widgets (v3.0.1)
 		$this->initialize_elementor_integration();
 	}
@@ -908,6 +922,3 @@ final class Plugin
 		flush_rewrite_rules();
 	}
 }
-
-
-

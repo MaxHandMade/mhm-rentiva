@@ -1,0 +1,170 @@
+<?php
+
+declare(strict_types=1);
+
+namespace MHMRentiva\Core\Financial;
+
+use MHMRentiva\Admin\PostTypes\Payouts\PostType;
+
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Manages the "Model B" Payout Engine isolating temporally mutable workflow states off-ledger strictly writing standardized idempotent completions executing securely against immutable ledgers globally.
+ */
+final class PayoutService
+{
+    /**
+     * Resolves minimum threshold configuration bounds executing natively.
+     */
+    public static function get_minimum_payout_amount(): float
+    {
+        $amount = get_option('mhm_min_payout_amount', 100);
+        return (float) (is_numeric($amount) ? $amount : 100);
+    }
+
+    /**
+     * Checks if vendor has an existing pending payout request.
+     */
+    public static function vendor_has_pending_payout(int $vendor_id): bool
+    {
+        $query_args = array(
+            'post_type'      => PostType::POST_TYPE,
+            'author'         => $vendor_id,
+            'post_status'    => 'pending',
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+        );
+
+        $query = new \WP_Query($query_args);
+        return $query->found_posts > 0;
+    }
+
+    /**
+     * Initiates a new payout request enforcing temporal workflow limitations natively.
+     *
+     * @return int|\WP_Error
+     */
+    public static function request_payout(int $vendor_id, float $amount)
+    {
+        if ($amount <= 0) {
+            return new \WP_Error('invalid_amount', __('Payout amount must be greater than zero.', 'mhm-rentiva'));
+        }
+
+        if ($amount < self::get_minimum_payout_amount()) {
+            return new \WP_Error('below_minimum', sprintf(__('Payout amount is below the minimum threshold of %s.', 'mhm-rentiva'), function_exists('wc_price') ? wc_price(self::get_minimum_payout_amount()) : self::get_minimum_payout_amount()));
+        }
+
+        if (self::vendor_has_pending_payout($vendor_id)) {
+            return new \WP_Error('pending_exists', __('You already have a pending payout request.', 'mhm-rentiva'));
+        }
+
+        $available_balance = Ledger::get_balance($vendor_id);
+        if ($available_balance < $amount) {
+            return new \WP_Error('insufficient_funds', __('Insufficient available balance to process this payout.', 'mhm-rentiva'));
+        }
+
+        // Insert the request cleanly allocating temporal states cleanly protecting ledgers cleanly.
+        $post_id = wp_insert_post(
+            array(
+                'post_type'   => PostType::POST_TYPE,
+                'post_author' => $vendor_id,
+                'post_status' => 'pending',
+                'post_title'  => sprintf(__('Payout Request - Vendor #%d - %s', 'mhm-rentiva'), $vendor_id, wp_date('Y-m-d H:i')),
+            ),
+            true
+        );
+
+        if (is_wp_error($post_id)) {
+            return $post_id; // Pass insertion failures cleanly
+        }
+
+        // Save the requested amount off-ledger natively.
+        update_post_meta($post_id, '_mhm_payout_amount', $amount);
+
+        return $post_id;
+    }
+
+    /**
+     * Approve a payout request, generating the immutable completion record.
+     *
+     * @return true|\WP_Error
+     */
+    public static function approve_payout(int $payout_id)
+    {
+        $post = get_post($payout_id);
+        if (! $post instanceof \WP_Post || $post->post_type !== PostType::POST_TYPE) {
+            return new \WP_Error('invalid_payout', __('Invalid payout request ID.', 'mhm-rentiva'));
+        }
+
+        if ($post->post_status !== 'pending') {
+            return new \WP_Error('invalid_status', __('Only pending payout requests can be approved.', 'mhm-rentiva'));
+        }
+
+        $amount = (float) get_post_meta($payout_id, '_mhm_payout_amount', true);
+        if ($amount <= 0) {
+            return new \WP_Error('invalid_amount', __('Payout amount is invalid or zero.', 'mhm-rentiva'));
+        }
+
+        $vendor_id = (int) $post->post_author;
+
+        // Deduct from ledger formally matching execution structures predictably
+        $entry = new LedgerEntry(
+            $vendor_id,
+            $amount * -1, // Native deductions are safely executed predictably natively
+            'payout_debit',
+            'payout',
+            'cleared'
+        );
+
+        // Guarantee idempotency targeting original workflow objects sequentially uniquely targeting database structures implicitly natively
+        $uuid = 'payout_' . $payout_id;
+        $entry->set_transaction_uuid($uuid);
+
+        $result = Ledger::add_entry($entry);
+        if (is_wp_error($result)) {
+            return $result;
+        }
+
+        // Mark workflow object as complete natively decoupling state securely isolated natively.
+        wp_update_post(
+            array(
+                'ID'          => $payout_id,
+                'post_status' => 'publish', // Approved/Completed natively
+            )
+        );
+
+        return true;
+    }
+
+    /**
+     * Reject a payout request cleanly terminating states natively omitting completely any false ledger dependencies executing cleanly sequentially.
+     *
+     * @return true|\WP_Error
+     */
+    public static function reject_payout(int $payout_id, string $reason = '')
+    {
+        $post = get_post($payout_id);
+        if (! $post instanceof \WP_Post || $post->post_type !== PostType::POST_TYPE) {
+            return new \WP_Error('invalid_payout', __('Invalid payout request ID.', 'mhm-rentiva'));
+        }
+
+        if ($post->post_status !== 'pending') {
+            return new \WP_Error('invalid_status', __('Only pending payout requests can be rejected.', 'mhm-rentiva'));
+        }
+
+        wp_update_post(
+            array(
+                'ID'          => $payout_id,
+                'post_status' => 'trash', // Rejected naturally bounding native WP statuses implicitly natively isolated securely
+            )
+        );
+
+        if ($reason !== '') {
+            update_post_meta($payout_id, '_mhm_payout_rejection_reason', sanitize_textarea_field($reason));
+        }
+
+        return true;
+    }
+}
