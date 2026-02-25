@@ -178,6 +178,7 @@ final class AllowlistRegistry
             'type'    => 'enum',
             'group'   => 'workflow',
             'aliases' => ['defaultTab'],
+            'values'  => ['rental', 'transfer', 'default'],
         ],
 
         // Visibility Toggles (UI)
@@ -389,6 +390,7 @@ final class AllowlistRegistry
             'type'    => 'enum',
             'group'   => 'workflow',
             'aliases' => ['filterStatus', 'status'],
+            'values'  => ['', 'pending', 'confirmed', 'in_progress', 'cancelled', 'completed', 'refunded'],
         ],
         'show_status_toggle'       => [
             'type'    => 'bool',
@@ -748,6 +750,7 @@ final class AllowlistRegistry
             'type'    => 'enum',
             'group'   => 'workflow',
             'aliases' => ['defaultPayment'],
+            'values'  => ['deposit', 'full'],
         ],
         'redirect_url'             => [
             'type'    => 'string',
@@ -810,6 +813,7 @@ final class AllowlistRegistry
             'type'    => 'enum',
             'group'   => 'feature',
             'aliases' => ['serviceType'],
+            'values'  => ['rental', 'transfer', 'both'],
         ],
         'filter_categories'        => [
             'type'    => 'string',
@@ -923,8 +927,10 @@ final class AllowlistRegistry
 
         // Mixed Feature Specific
         'type'                     => [
-            'type'  => 'enum',
-            'group' => 'feature',
+            'type'    => 'enum',
+            'group'   => 'feature',
+            'aliases' => ['formType'],
+            'values'  => ['general', 'booking', 'support', 'feedback'],
         ],
         'show_phone'               => [
             'type'    => 'bool',
