@@ -84,7 +84,7 @@ final class PayoutCallbackController
     public static function authenticate(\WP_REST_Request $request)
     {
         // Rate limit: 20 callbacks per 60 seconds per signature identity.
-        $rate_id = (string) $request->get_header('X-MHM-Signature');
+        $rate_id = WebhookRateLimiter::build_identifier((string) $request->get_header('X-MHM-Signature'));
         if (! WebhookRateLimiter::check($rate_id, 20, 60)) {
             StructuredLogger::warning(
                 'Webhook rate limit exceeded.',
