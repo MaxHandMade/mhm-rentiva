@@ -1,5 +1,29 @@
 ﻿# PROJECT MEMORIES
 
+### [AUDIT] V4.20.1 Ecosystem X-Ray — CONDITIONAL PASS (2026-02-25)
+- **Status:** [AUDIT] / DOCUMENTED
+- **Instruction:** V4.20.1-ECOSYSTEM-AUDIT
+- **Scope:** Full ecosystem audit of shortcodes, blocks, AllowlistRegistry, Elementor widgets. Documentation synchronization only (no behavioral changes).
+- **Inventory Snapshot:**
+    - Active Shortcodes: 20 (19 fully covered + 1 experimental `rentiva_home_poc`)
+    - Gutenberg Blocks: 19 (all map to shortcodes via Render Parity)
+    - AllowlistRegistry TAG_MAPPING entries: 19
+    - Elementor Widgets: 20 (19 SC-mapped + 1 VehicleCardWidget component)
+    - block.json files: 19 verified
+- **Critical Findings:**
+    - **C1:** `AllowlistRegistry::ALLOWLIST` has **10 duplicate PHP array keys**. PHP silently overwrites first definitions. Aliases for `ids`, `redirect_page`, `default_tab` (type changed enum→string), `show_booking_button`, `show_favorite_btn`, `show_compare_btn` are affected at runtime. Section 8 alias table in SHORTCODES.md reflects pre-duplicate state. **Code fix required as separate authorized task.**
+    - **C2:** `rentiva_home_poc` is SC-Only (no AllowlistRegistry schema, no Block, no Elementor widget). Intentionally experimental. Guarded by `mhm_rentiva_enable_home_poc` filter.
+- **Major Findings:**
+    - **M1:** 4 enum attributes without `values` constraint: `status`, `default_payment`, `service_type`, `type`.
+    - **M2:** 7 TAG_MAPPING attributes not in canonical ALLOWLIST: `show_technical_specs` (x2), `show_booking_form`, `show_book_button`, `sort_by`, `sort_order`, `show_avatar` — treated as untyped pass-through by `get_registry()`.
+- **Documentation Updated:**
+    - `SHORTCODES.md` — Added Section 11 (Elementor widget registry), Section 12 (Audit Findings), Contract Change Log entry.
+    - `docs/plans/2026-02-25-v4201-ecosystem-audit.md` — Full audit plan and discrepancy matrix.
+- **PHPUnit Baseline:** v4.20.0 foundation freeze: 268 tests, 1379 assertions. No regressions introduced.
+- **Render Parity Rule:** ✅ No dual render paths detected. All blocks delegate to shortcode renderer.
+- **Memory Conflict Status:** None detected. Audit-only task.
+- **QA Decision:** CONDITIONAL PASS — runtime stable, documentation updated, C1/M1/M2 flagged for future resolution.
+
 ### [LOCKED] Foundation Freeze & Attribute Pipeline Hardening — ✅ MISSION COMPLETE (v4.20.0) (2026-02-22)
 - **Status:** [LOCKED] / STABLE
 - **Core Outcome:** Established the official foundation baseline of the Rentiva engine. Canonical attribute pipeline hardened, runtime surface stabilized, and render parity invariant enforced.
