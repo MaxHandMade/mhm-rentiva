@@ -1,11 +1,12 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
 namespace MHMRentiva\Admin\PostTypes\Payouts;
 
-use MHMRentiva\Core\Financial\PayoutService;
+use MHMRentiva\Core\Financial\AtomicPayoutService;
 use MHMRentiva\Core\Financial\Ledger;
+use MHMRentiva\Core\Financial\PayoutService;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -202,7 +203,7 @@ final class PayoutListTable extends \WP_List_Table
      * Process bulk actions. Called by the admin page controller.
      *
      * Idempotency guard: only posts with status='pending' are approved.
-     * Any ID not in pending status is silently skipped — no double-debit.
+     * Any ID not in pending status is silently skipped â€” no double-debit.
      *
      * @return array{approved: int, skipped: int, errors: string[]}
      */
@@ -233,7 +234,7 @@ final class PayoutListTable extends \WP_List_Table
                 continue;
             }
 
-            $result = PayoutService::approve_payout($payout_id);
+            $result = AtomicPayoutService::approve($payout_id);
 
             if (is_wp_error($result)) {
                 $errors[] = sprintf('#%d: %s', $payout_id, $result->get_error_message());

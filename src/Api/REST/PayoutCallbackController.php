@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 declare(strict_types=1);
 
@@ -7,6 +7,7 @@ namespace MHMRentiva\Api\REST;
 use MHMRentiva\Admin\PostTypes\Payouts\PostType;
 use MHMRentiva\Core\Financial\Ledger;
 use MHMRentiva\Core\Financial\LedgerEntry;
+use MHMRentiva\Core\Logging\StructuredLogger;
 use MHMRentiva\Core\Services\Metrics\MetricCacheManager;
 
 if (! defined('ABSPATH')) {
@@ -27,9 +28,9 @@ if (! defined('ABSPATH')) {
  *   "external_reference": "PROC_TRX_XYZ" // optional
  * }
  *
- * Ledger rules (immutable — NO UPDATE EVER):
- *   confirmed → CPT meta _mhm_payout_status = 'confirmed'. Ledger unchanged.
- *   failed     → New LedgerEntry (type='payout_reversal', amount=+abs, cleared).
+ * Ledger rules (immutable â€” NO UPDATE EVER):
+ *   confirmed â†’ CPT meta _mhm_payout_status = 'confirmed'. Ledger unchanged.
+ *   failed     â†’ New LedgerEntry (type='payout_reversal', amount=+abs, cleared).
  *                CPT meta _mhm_payout_status = 'failed'.
  *
  * Idempotency guard:
@@ -82,6 +83,22 @@ final class PayoutCallbackController
      */
     public static function authenticate(\WP_REST_Request $request)
     {
+        // Rate limit: 20 callbacks per 60 seconds per signature identity.
+        $rate_id = (string) $request->get_header('X-MHM-Signature');
+        if (! WebhookRateLimiter::check($rate_id, 20, 60)) {
+            StructuredLogger::warning(
+                'Webhook rate limit exceeded.',
+                array('signature_prefix' => substr($rate_id, 0, 16) . '...'),
+                'payout'
+            );
+
+            return new \WP_Error(
+                'mhm_rentiva_rate_limited',
+                __('Too many requests.', 'mhm-rentiva'),
+                array('status' => 429)
+            );
+        }
+
         if (PayoutWebhookAuth::verify($request)) {
             return true;
         }
@@ -133,9 +150,9 @@ final class PayoutCallbackController
             );
         }
 
-        // ─── IDEMPOTENCY GUARD ────────────────────────────────────────────────
+        // â”€â”€â”€ IDEMPOTENCY GUARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         // If processor status already set, this is a duplicate callback.
-        // Return 200 OK silently — do not re-process.
+        // Return 200 OK silently â€” do not re-process.
         $existing_status = (string) get_post_meta($payout_id, '_mhm_payout_status', true);
         if ($existing_status !== '') {
             return new \WP_REST_Response(
@@ -148,7 +165,7 @@ final class PayoutCallbackController
                 200
             );
         }
-        // ─────────────────────────────────────────────────────────────────────
+        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         $vendor_id = (int) $post->post_author;
 
@@ -171,7 +188,7 @@ final class PayoutCallbackController
             );
         }
 
-        // ─── FAILED: Append reversal entry to ledger (NEVER update existing entry) ──
+        // â”€â”€â”€ FAILED: Append reversal entry to ledger (NEVER update existing entry) â”€â”€
         $original_amount = abs((float) get_post_meta($payout_id, '_mhm_payout_amount', true));
         $currency        = function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'TRY';
         $reversal_uuid   = 'payout_reversal_' . $payout_id . '_' . time();
