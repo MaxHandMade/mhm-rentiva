@@ -71,6 +71,7 @@ $unique_id = uniqid('rv_booking_');
 ?>
 
 <div class="rv-booking-form-wrapper mhm-rentiva-booking-form <?php echo esc_attr($class); ?>"
+	data-testid="booking-form-wrapper"
 	data-redirect-url="<?php echo esc_attr($redirect_url); ?>"
 	<?php
 	if (! empty($selected_vehicle['id'])) :
@@ -177,6 +178,7 @@ $unique_id = uniqid('rv_booking_');
 										<input type="text"
 											id="pickup_date-<?php echo esc_attr($unique_id); ?>"
 											name="pickup_date"
+											data-testid="booking-pickup-date"
 											class="rv-input-ghost rv-date-input rv-pickup-date"
 											placeholder="<?php echo esc_attr__('Select date', 'mhm-rentiva'); ?>"
 											value="<?php echo esc_attr($atts['start_date'] ?? ''); ?>"
@@ -320,7 +322,7 @@ $unique_id = uniqid('rv_booking_');
 				<!-- Right Column: Sticky Payment Summary -->
 				<aside class="rv-checkout-summary">
 					<!-- Price Calculation (Payment Summary Card) -->
-					<div class="rv-form-section rv-price-calculation rv-card">
+					<div class="rv-form-section rv-price-calculation rv-card" data-testid="booking-price-summary">
 					<div class="rv-card-header">
 						<span class="rv-icon rv-icon-receipt"></span>
 						<h3 class="rv-section-title"><?php echo esc_html__('Payment Summary', 'mhm-rentiva'); ?></h3>
@@ -354,13 +356,13 @@ $unique_id = uniqid('rv_booking_');
 						</div>
 						<div class="rv-price-item rv-total-price">
 							<span class="rv-price-label"><?php echo esc_html__('Total Amount:', 'mhm-rentiva'); ?></span>
-							<span class="rv-price-value rv-total-amount rv-price-large" id="rv-total-amount-<?php echo esc_attr($unique_id); ?>">-</span>
+							<span class="rv-price-value rv-total-amount rv-price-large" id="rv-total-amount-<?php echo esc_attr($unique_id); ?>" data-testid="booking-total-price">-</span>
 						</div>
 
 						<?php if ($enable_deposit) : ?>
 							<div class="rv-price-item rv-deposit-summary rv-hidden">
 								<span class="rv-price-label"><?php echo esc_html__('Deposit to Pay:', 'mhm-rentiva'); ?></span>
-								<span class="rv-price-value rv-deposit-amount" id="rv-deposit-amount-<?php echo esc_attr($unique_id); ?>">-</span>
+								<span class="rv-price-value rv-deposit-amount" id="rv-deposit-amount-<?php echo esc_attr($unique_id); ?>" data-testid="booking-deposit-amount">-</span>
 							</div>
 							<div class="rv-price-item rv-remaining-summary rv-hidden">
 								<span class="rv-price-label"><?php echo esc_html__('Remaining Amount:', 'mhm-rentiva'); ?></span>
@@ -400,7 +402,7 @@ $unique_id = uniqid('rv_booking_');
 					<!-- Form Buttons -->
 
 					<div class="rv-card-footer rv-form-actions">
-						<button type="button" class="rv-submit-btn rv-btn rv-btn-primary rv-cta-primary">
+						<button type="button" class="rv-submit-btn rv-btn rv-btn-primary rv-cta-primary" data-testid="booking-submit-btn">
 							<span class="rv-btn-text">
 								<?php
 								$make_booking_text = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_make_booking', '');

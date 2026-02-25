@@ -43,7 +43,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
 }
 ?>
 
-<div id="<?php echo esc_attr($uid); ?>" class="rv-unified-search mhm-premium-search rv-unified-search--<?php echo esc_attr($layout ?? 'horizontal'); ?> rv-unified-search--<?php echo esc_attr($style ?? 'glass'); ?>">
+<div id="<?php echo esc_attr($uid); ?>" class="rv-unified-search mhm-premium-search rv-unified-search--<?php echo esc_attr($layout ?? 'horizontal'); ?> rv-unified-search--<?php echo esc_attr($style ?? 'glass'); ?>" data-testid="unified-search">
 
     <!-- 1. Tabs Header (Show if at least one tab is enabled) -->
     <?php if ($show_rental_tab || $show_transfer_tab) : ?>
@@ -52,6 +52,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                 <?php if ($show_rental_tab) : ?>
                     <button class="rv-unified-search__tab <?php echo $default_tab === 'rental' ? 'is-active' : ''; ?>"
                         data-target="rental"
+                        data-testid="tab-rental"
                         role="tab"
                         aria-controls="<?php echo esc_attr($uid); ?>_panel_rental"
                         aria-selected="<?php echo $default_tab === 'rental' ? 'true' : 'false'; ?>">
@@ -62,6 +63,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                 <?php if ($show_transfer_tab) : ?>
                     <button class="rv-unified-search__tab <?php echo $default_tab === 'transfer' ? 'is-active' : ''; ?>"
                         data-target="transfer"
+                        data-testid="tab-transfer"
                         role="tab"
                         aria-controls="<?php echo esc_attr($uid); ?>_panel_transfer"
                         aria-selected="<?php echo $default_tab === 'transfer' ? 'true' : 'false'; ?>">
@@ -81,7 +83,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
             id="<?php echo esc_attr($uid); ?>_panel_rental"
             role="tabpanel">
 
-            <form class="rv-unified-search__form" action="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search_results')); ?>" method="GET">
+            <form class="rv-unified-search__form" action="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_search_results')); ?>" method="GET" data-testid="rental-search-form">
 
                 <!-- Locations -->
                 <?php if ($show_location_select) : ?>
@@ -90,7 +92,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                             <label class="rv-label"><?php esc_html_e('Pick-up', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
-                                <select name="pickup_location" class="rv-select" required title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
+                                <select name="pickup_location" class="rv-select" required title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>" data-testid="search-pickup-location">
                                     <option value=""><?php esc_html_e('City, Airport, or Hotel', 'mhm-rentiva'); ?></option>
                                     <?php foreach ($locations as $loc): ?>
                                         <option value="<?php echo esc_attr((string)$loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
@@ -104,7 +106,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                                 <label class="rv-label"><?php esc_html_e('Drop-off', 'mhm-rentiva'); ?></label>
                                 <div class="rv-input-wrapper">
                                     <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
-                                    <select name="dropoff_location" class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
+                                    <select name="dropoff_location" class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>" data-testid="search-dropoff-location">
                                         <option value=""><?php esc_html_e('Same as Pick-up', 'mhm-rentiva'); ?></option>
                                         <?php foreach ($locations as $loc): ?>
                                             <option value="<?php echo esc_attr((string)$loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
@@ -124,7 +126,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                             <label class="rv-label"><?php esc_html_e('Pick-up Date', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('calendar', ['class' => 'rv-icon-calendar']); ?>
-                                <input type="text" name="pickup_date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off">
+                                <input type="text" name="pickup_date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off" data-testid="search-pickup-date">
                             </div>
                         </div>
                     <?php endif; ?>
@@ -159,7 +161,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                             <label class="rv-label"><?php esc_html_e('Return Date', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('calendar', ['class' => 'rv-icon-calendar']); ?>
-                                <input type="text" name="return_date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off">
+                                <input type="text" name="return_date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off" data-testid="search-return-date">
                             </div>
                         </div>
                     <?php endif; ?>
@@ -190,7 +192,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
 
                 <!-- Action -->
                 <div class="rv-unified-search__action">
-                    <button type="submit" class="rv-btn rv-btn--primary">
+                    <button type="submit" class="rv-btn rv-btn--primary" data-testid="search-submit-rental">
                         <?php Icons::render('search', ['class' => 'rv-icon-search']); ?>
                         <?php esc_html_e('Search', 'mhm-rentiva'); ?>
                     </button>
@@ -207,7 +209,8 @@ if (!$show_rental_tab && $show_transfer_tab) {
             <form class="rv-unified-search__form js-unified-transfer-form"
                 action="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_transfer_results')); ?>"
                 method="GET"
-                id="mhm-transfer-search-form-<?php echo esc_attr($uid); ?>">
+                id="mhm-transfer-search-form-<?php echo esc_attr($uid); ?>"
+                data-testid="transfer-search-form">
 
                 <?php if ($show_location_select) : ?>
                     <div class="rv-unified-search__group">
@@ -215,7 +218,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                             <label class="rv-label"><?php esc_html_e('Pickup Location', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
-                                <select name="origin_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
+                                <select name="origin_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>" data-testid="transfer-origin">
                                     <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
                                     <?php foreach ($locations as $loc): ?>
                                         <option value="<?php echo esc_attr((string)$loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
@@ -228,7 +231,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                             <label class="rv-label"><?php esc_html_e('Dropoff Location', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('location', ['class' => 'rv-icon-marker']); ?>
-                                <select name="destination_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>">
+                                <select name="destination_id" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>" data-testid="transfer-destination">
                                     <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
                                     <?php foreach ($locations as $loc): ?>
                                         <option value="<?php echo esc_attr((string)$loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
@@ -245,7 +248,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                             <label class="rv-label"><?php esc_html_e('Date', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('calendar', ['class' => 'rv-icon-calendar']); ?>
-                                <input type="text" name="date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off">
+                                <input type="text" name="date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off" data-testid="transfer-date">
                             </div>
                         </div>
                     <?php endif; ?>
@@ -311,7 +314,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                 <?php endif; ?>
 
                 <div class="rv-unified-search__action">
-                    <button type="submit" class="rv-btn rv-btn--primary">
+                    <button type="submit" class="rv-btn rv-btn--primary" data-testid="search-submit-transfer">
                         <?php Icons::render('search', ['class' => 'rv-icon-search']); ?>
                         <?php esc_html_e('Search Transfer', 'mhm-rentiva'); ?>
                     </button>

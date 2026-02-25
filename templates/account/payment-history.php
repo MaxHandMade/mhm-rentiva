@@ -67,9 +67,9 @@ if (empty($navigation)) {
 				<!-- Header kept above -->
 
 				<!-- Payment List -->
-				<div class="payment-history-list">
+				<div class="payment-history-list" data-testid="payment-history-list">
 					<?php foreach ($payments as $payment) : ?>
-						<div class="payment-item">
+						<div class="payment-item" data-testid="payment-item">
 							<div class="payment-header">
 								<div class="payment-info">
 									<h3 class="payment-title">

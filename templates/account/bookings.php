@@ -86,7 +86,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 
 	<!-- Bookings Content -->
 	<div class="mhm-account-content">
-		<div class="rv-bookings-page">
+		<div class="rv-bookings-page" data-testid="account-bookings-page">
 
 			<!-- Header -->
 			<div class="section-header">
@@ -100,12 +100,12 @@ if ($is_integrated) { // Use the already determined $is_integrated
 			<div class="rv-filter-section">
 				<h3><?php esc_html_e('Filter', 'mhm-rentiva'); ?></h3>
 
-				<form method="get" action="<?php echo esc_url($current_page_url); ?>" class="rv-filter-form">
+				<form method="get" action="<?php echo esc_url($current_page_url); ?>" class="rv-filter-form" data-testid="bookings-filter-form">
 					<?php wp_nonce_field('mhm_rentiva_filter_bookings', 'filter_nonce'); ?>
 					<input type="hidden" name="endpoint" value="bookings">
 
 					<div class="rv-filter-row">
-						<select name="status_filter" class="rv-filter-select" onchange="this.form.submit()">
+						<select name="status_filter" class="rv-filter-select" data-testid="bookings-status-filter" onchange="this.form.submit()">
 							<option value="all" <?php selected($status_filter, 'all'); ?>><?php esc_html_e('All Status', 'mhm-rentiva'); ?></option>
 							<option value="pending" <?php selected($status_filter, 'pending'); ?>><?php esc_html_e('Pending', 'mhm-rentiva'); ?></option>
 							<option value="confirmed" <?php selected($status_filter, 'confirmed'); ?>><?php esc_html_e('Confirmed', 'mhm-rentiva'); ?></option>
@@ -134,7 +134,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 					</div>
 
 					<div class="rv-table-wrapper">
-						<table class="rv-bookings-table mhm-table">
+						<table class="rv-bookings-table mhm-table" data-testid="bookings-table-upcoming">
 							<thead>
 								<tr>
 									<th style="width: 50px;"><?php esc_html_e('ID', 'mhm-rentiva'); ?></th>
@@ -242,7 +242,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 					</div>
 
 					<div class="rv-table-wrapper">
-						<table class="rv-bookings-table mhm-table">
+						<table class="rv-bookings-table mhm-table" data-testid="bookings-table-past">
 							<thead>
 								<tr>
 									<th style="width: 50px;"><?php esc_html_e('ID', 'mhm-rentiva'); ?></th>

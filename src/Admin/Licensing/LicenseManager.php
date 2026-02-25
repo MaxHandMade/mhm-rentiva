@@ -378,6 +378,11 @@ final class LicenseManager
 	 */
 	protected function getApiBaseUrl(): string
 	{
+		$env_api_base = $this->getEnvValue( 'MHM_RENTIVA_LICENSE_API_BASE' );
+		if ( '' !== $env_api_base ) {
+			return $env_api_base;
+		}
+
 		// 1. Manual override via constant (highest priority)
 		if (defined('MHM_RENTIVA_LICENSE_API_BASE')) {
 			return constant('MHM_RENTIVA_LICENSE_API_BASE');
@@ -389,6 +394,11 @@ final class LicenseManager
 
 			// Local/Development environments use local API (if defined)
 			if (in_array($env_type, array('local', 'development'), true)) {
+				$env_api_local = $this->getEnvValue( 'MHM_RENTIVA_LICENSE_API_LOCAL' );
+				if ( '' !== $env_api_local ) {
+					return $env_api_local;
+				}
+
 				// Allow local API override for development
 				if (defined('MHM_RENTIVA_LICENSE_API_LOCAL')) {
 					return constant('MHM_RENTIVA_LICENSE_API_LOCAL');
@@ -400,6 +410,23 @@ final class LicenseManager
 
 		// 3. Fallback: always use production API for license validation
 		return 'https://api.maxhandmade.com/v1';
+	}
+
+	/**
+	 * Read environment value as trimmed string.
+	 *
+	 * @param string $key Environment key.
+	 * @return string
+	 */
+	private function getEnvValue( string $key ): string
+	{
+		$value = getenv( $key );
+
+		if ( false === $value ) {
+			return '';
+		}
+
+		return trim( (string) $value );
 	}
 
 	/**

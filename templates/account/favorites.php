@@ -70,7 +70,7 @@ if (empty($navigation)) {
 			<!-- Favorite vehicles (STANDARDIZED) -->
 			<div class="account-section">
 
-				<div class="mhm-my-favorites-container rv-my-favorites-wrapper rv-vehicles-grid-container">
+				<div class="mhm-my-favorites-container rv-my-favorites-wrapper rv-vehicles-grid-container" data-testid="favorites-grid">
 					<div class="rv-vehicles-grid rv-vehicles-grid--columns-<?php echo esc_attr((string) (isset($columns) ? (int) $columns : 3)); ?>">
 						<?php
 						// Default atts for the standardized card
@@ -115,7 +115,7 @@ if (empty($navigation)) {
 
 				<!-- Clear Button -->
 				<div class="form-actions">
-					<button type="button" id="clear-all-favorites" class="btn btn-secondary">
+					<button type="button" id="clear-all-favorites" class="btn btn-secondary" data-testid="clear-favorites-btn">
 						<?php esc_html_e('Clear All Favorites', 'mhm-rentiva'); ?>
 					</button>
 				</div>

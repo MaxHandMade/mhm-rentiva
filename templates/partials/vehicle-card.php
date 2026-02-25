@@ -35,7 +35,7 @@ if (! $is_available) {
 }
 ?>
 
-<div class="<?php echo esc_attr($card_class); ?>" data-id="<?php echo esc_attr($vehicle_id); ?>">
+<div class="<?php echo esc_attr($card_class); ?>" data-id="<?php echo esc_attr($vehicle_id); ?>" data-testid="vehicle-card">
     <?php if ($show_image) : ?>
         <div class="mhm-card-image">
             <a href="<?php echo esc_url($permalink); ?>" class="mhm-card-link" aria-hidden="true" tabindex="-1">
@@ -61,6 +61,7 @@ if (! $is_available) {
                     <button class="mhm-card-favorite mhm-vehicle-favorite-btn <?php echo esc_attr($is_favorite ? 'is-active' : ''); ?>"
                         data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
                         data-nonce="<?php echo esc_attr(wp_create_nonce('mhm_rentiva_toggle_favorite')); ?>"
+                        data-testid="vehicle-favorite-btn"
                         title="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
                         aria-label="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>">
                         <?php Icons::render('heart', [ 'class' => 'mhm-heart-icon' ]); ?>
@@ -72,6 +73,7 @@ if (! $is_available) {
                     <button class="mhm-card-compare mhm-vehicle-compare-btn <?php echo esc_attr($is_in_compare ? 'is-active active' : ''); ?>"
                         data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
                         data-nonce="<?php echo esc_attr(wp_create_nonce('mhm_rentiva_toggle_compare')); ?>"
+                        data-testid="vehicle-compare-btn"
                         title="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>"
                         aria-label="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>">
                         <?php Icons::render('compare', [ 'class' => 'mhm-compare-icon' ]); ?>
@@ -174,7 +176,7 @@ if (! $is_available) {
             <?php endif; ?>
 
             <?php if ($show_booking) : ?>
-                <a href="<?php echo esc_url($btn_url); ?>" class="<?php echo esc_attr($btn_class); ?>">
+                <a href="<?php echo esc_url($btn_url); ?>" class="<?php echo esc_attr($btn_class); ?>" data-testid="vehicle-book-btn">
                     <?php echo esc_html($booking_text); ?>
                 </a>
             <?php endif; ?>
