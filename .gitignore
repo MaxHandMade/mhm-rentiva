@@ -69,22 +69,12 @@ dist/
 # SECTION 6: Testing & Development Tools
 # ============================================================================
 # PHPUnit & Testing
-tests/
+# No global ignore for tests/ anymore, handled selectively if needed
+# But for now, let's just make sure tests is tracked.
 !tests/
-tests/*
-!tests/bootstrap.php
-!tests/bin/
-tests/bin/*
-!tests/bin/install-wp-tests.sh
-!tests/bin/phpunit-bisect.sh
-!tests/Integration/
-tests/Integration/*
-!tests/Integration/Legacy/
-tests/Integration/Legacy/*
-!tests/Integration/Legacy/LegacyFeatureFlagTest.php
-.phpunit.result.cache
-coverage/
-.coverage/
+tests/.phpunit.result.cache
+tests/coverage/
+tests/.coverage/
 
 # IDE Analysis Cache
 .intelephense/
@@ -135,11 +125,11 @@ shortcode_analiz.php
 specs/
 stubs/
 bin/
-tests/
+# tests/
 phpunit.xml
 phpunit.xml.dist
 website/
-.github/
+# .github/
 !.github/
 .github/*
 !.github/workflows/
@@ -214,6 +204,6 @@ credentials.php
 
 # General Docs & Tests
 /docs/
-/tests/
+# /tests/ (Selective rules in Section 6 apply)
 
 backups/

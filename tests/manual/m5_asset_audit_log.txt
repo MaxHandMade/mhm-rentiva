@@ -1,0 +1,26 @@
+=== M5 Asset Audit: Vehicles List ===
+
+Total MHM Assets: 4
+Total Other Assets: 9
+
+--- Plugin CSS Details ---
+[mhm-theme-header]
+    File: header.css
+    Status: Unknown
+    Deps: 
+
+[mhm-rentiva-addons]
+    File: addon-booking.css
+    Status: Unknown
+    Deps: 
+
+[mhm-rentiva-notifications]
+    File: notifications.css
+    Status: Component: Notification
+    Deps: 
+
+[mhm-rentiva-vehicles-list]
+    File: vehicles-list.css
+    Status: Unknown
+    Deps: mhm-rentiva-core-variables, mhm-vehicle-card-css
+

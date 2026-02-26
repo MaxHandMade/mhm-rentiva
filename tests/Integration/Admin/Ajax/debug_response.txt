@@ -1,0 +1,1 @@
+{"success":true,"data":{"vehicle_id":4,"action":"added","message":"Added to favorites","is_favorite":true,"count":1}}
