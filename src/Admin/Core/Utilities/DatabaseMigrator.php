@@ -745,8 +745,8 @@ final class DatabaseMigrator
             ip_hash varchar(64) DEFAULT NULL,
             metadata_json text DEFAULT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
-            UNIQUE KEY payout_action_tx (payout_id,action,tx_uuid),
+            PRIMARY KEY  (id),
+            UNIQUE KEY payout_action_tx (payout_id, action, tx_uuid),
             KEY payout_id (payout_id),
             KEY actor_user_id (actor_user_id),
             KEY action (action)
@@ -778,7 +778,7 @@ final class DatabaseMigrator
             raw_data text DEFAULT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
+            PRIMARY KEY  (id),
             KEY booking_id (booking_id),
             KEY transaction_id (transaction_id),
             KEY status (status)
@@ -885,7 +885,6 @@ final class DatabaseMigrator
             expires_at datetime,
             PRIMARY KEY  (id),
             UNIQUE KEY key_uuid (key_uuid),
-            UNIQUE KEY active_key_unique (active_key),
             KEY status (status)
         ) $charset_collate;";
 

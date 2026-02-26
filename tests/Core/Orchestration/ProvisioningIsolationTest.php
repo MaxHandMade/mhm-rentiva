@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Core\Orchestration;
 
-if (!defined('ABSPATH')) {
-    exit;
-}
 
 use MHMRentiva\Core\Orchestration\TenantProvisioner;
 use MHMRentiva\Core\Orchestration\MeteredUsageTracker;
