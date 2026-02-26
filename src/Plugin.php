@@ -1,7 +1,8 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 declare(strict_types=1);
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
+
 
 namespace MHMRentiva;
 
@@ -148,7 +149,7 @@ final class Plugin
 			}
 		}
 
-		// ⭐ CRITICAL: AutoCancel MUST run in ALL contexts (admin, frontend, cron)
+		// â­ CRITICAL: AutoCancel MUST run in ALL contexts (admin, frontend, cron)
 		// Previously was inside is_admin() block which prevented cron from working!
 		if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel')) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::register();
@@ -470,7 +471,7 @@ final class Plugin
 			Admin\REST\Availability::register();
 		}
 
-		// ⭐ New Account System (WordPress Login)
+		// â­ New Account System (WordPress Login)
 		if (class_exists(Admin\Frontend\Account\AccountController::class)) {
 			Admin\Frontend\Account\AccountController::register();
 		}
@@ -486,7 +487,7 @@ final class Plugin
 			Admin\Services\CompareService::register();
 		}
 
-		// ⭐ CRITICAL: WooCommerce Bridge - Handles ALL payment transactions (Single Cash Register)
+		// â­ CRITICAL: WooCommerce Bridge - Handles ALL payment transactions (Single Cash Register)
 		if (class_exists(Admin\Payment\WooCommerce\WooCommerceBridge::class)) {
 			Admin\Payment\WooCommerce\WooCommerceBridge::register();
 		} else {
@@ -544,7 +545,7 @@ final class Plugin
 		// Database migration
 		add_action('admin_init', array(Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations'));
 
-		// Taxonomy migration (vehicle_cat → vehicle_category)
+		// Taxonomy migration (vehicle_cat â†’ vehicle_category)
 		add_action('admin_init', array(Admin\Core\Utilities\TaxonomyMigrator::class, 'migrate_vehicle_cat_to_vehicle_category'), 5);
 
 		// Database cleanup page (admin only)
@@ -578,6 +579,20 @@ final class Plugin
 		// REST API
 		add_action('rest_api_init', array($this, 'register_rest_api'));
 
+		// Operational Resilience: Health & Integrity
+		if (class_exists('MHMRentiva\Api\REST\HealthController')) {
+			\MHMRentiva\Api\REST\HealthController::register();
+		}
+		if (class_exists('MHMRentiva\Core\Financial\Audit\Verification\IntegrityVerificationJob')) {
+			\MHMRentiva\Core\Financial\Audit\Verification\IntegrityVerificationJob::register();
+		}
+		if (class_exists('MHMRentiva\Api\REST\PayoutCallbackController')) {
+			\MHMRentiva\Api\REST\PayoutCallbackController::register();
+		}
+		if (class_exists('MHMRentiva\Core\Financial\Automation\MaturedPayoutJob')) {
+			\MHMRentiva\Core\Financial\Automation\MaturedPayoutJob::register();
+		}
+
 		// Plugin deactivation hook
 		register_deactivation_hook(dirname(__DIR__) . '/mhm-rentiva.php', array(Admin\Licensing\LicenseManager::class, 'deactivatePluginHook'));
 
@@ -596,9 +611,23 @@ final class Plugin
 				\WP_CLI::add_command('mhm-rentiva repair-ratings', \MHMRentiva\Admin\CLI\RepairRatingsCommand::class);
 			}
 
-			// v4.14.x — Layout Import Pipeline (Phase 1)
+			// v4.14.x â€” Layout Import Pipeline (Phase 1)
 			if ($this->is_class_available('MHMRentiva\Layout\CLI\LayoutImportCommand')) {
 				\WP_CLI::add_command('mhm-rentiva layout', \MHMRentiva\Layout\CLI\LayoutImportCommand::class);
+			}
+
+			// Auditing & Integrity
+			if ($this->is_class_available('MHMRentiva\CLI\ExportAuditCommand')) {
+				\WP_CLI::add_command('mhm audit:export', \MHMRentiva\CLI\ExportAuditCommand::class);
+			}
+			if ($this->is_class_available('MHMRentiva\CLI\IntegrityCheckCommand')) {
+				\WP_CLI::add_command('mhm audit:verify', \MHMRentiva\CLI\IntegrityCheckCommand::class);
+			}
+			if ($this->is_class_available('MHMRentiva\CLI\KeyRevokeCommand')) {
+				\WP_CLI::add_command('mhm key:revoke', \MHMRentiva\CLI\KeyRevokeCommand::class);
+			}
+			if ($this->is_class_available('MHMRentiva\CLI\MaturedPayoutCommand')) {
+				\WP_CLI::add_command('mhm payout:execute-matured', \MHMRentiva\CLI\MaturedPayoutCommand::class);
 			}
 		}
 	}
@@ -722,10 +751,10 @@ final class Plugin
 	 */
 	private function initialize_frontend_services(): void
 	{
-		// ⭐ Load AbstractShortcode first - Required for other shortcodes
+		// â­ Load AbstractShortcode first - Required for other shortcodes
 		// Autoloader handles this now
 
-		// ⭐ Shortcode Service Provider - Manages all shortcodes centrally (v3.0.1)
+		// â­ Shortcode Service Provider - Manages all shortcodes centrally (v3.0.1)
 		if ($this->is_class_available('MHMRentiva\Admin\Core\ShortcodeServiceProvider')) {
 			\MHMRentiva\Admin\Core\ShortcodeServiceProvider::register();
 		}
@@ -734,7 +763,7 @@ final class Plugin
 			\MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger::register();
 		}
 
-		// ⭐ Elementor Integration - Register widgets (v3.0.1)
+		// â­ Elementor Integration - Register widgets (v3.0.1)
 		$this->initialize_elementor_integration();
 	}
 
@@ -882,7 +911,7 @@ final class Plugin
 	/**
 	 * Register Customer role
 	 *
-	 * ✅ Safe: If customer role already exists (e.g., from WooCommerce),
+	 * âœ… Safe: If customer role already exists (e.g., from WooCommerce),
 	 * WordPress add_role() does nothing and returns null (no error).
 	 * This ensures compatibility with other plugins.
 	 */

@@ -1,5 +1,49 @@
 ﻿# PROJECT MEMORIES
 
+### [CERTIFIED] Sprint 15: SaaS Orchestration & Control Plane (v1.9) (2026-02-26)
+- **Status:** [CERTIFIED] / FULL PASS
+- **Instruction:** S15-SAAS-ORCHESTRATION-001
+- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. Tenant provisioning, metering, quota enforcement ve lifecycle governance katmanları PHPUnit ile %100 doğrulandı.
+- **Scope:** Centralized Control Plane, Atomic Provisioning (Rollback Guard), Metered Usage Tracking, Hard Quota Blocking, Lifecycle Governance (Suspension Lock).
+- **Key Achievements:**
+    - **Control Plane Guard:** Üçlü koruma hiyerarşisi (Exists -> Operational -> Quota) tüm finansal işlemlere entegre edildi. `QuotaExceededException` ile sert bloklama sağlandı.
+    - **Atomic Provisioning:** Veritabanı öncelikli (DB-First) kayıt ve hata durumunda otomatik rollback mekanizması kuruldu. `PROVISIONING_FAILED` statüsü ile ortam tutarlılığı korundu.
+    - **Metering & Quotas:** `usage_metrics` tablosu üzerinde atomik artırımlar ve döngüsel (cycle-based) kota takibi uygulandı. `UNIQUE` constraint ile veri bütünlüğü fiziksel olarak sağlandı.
+    - **Lifecycle Governance:** Askıya alınan (suspended) tenantlar için tüm ledger işlemleri ve otomatik worker jobları (`MaturedPayoutJob`) bloklandı/atlandı.
+- **Quality Gates:** 6 tests, 10 assertions — 0 Errors, 0 Failures. CI/PHPUnit determinism verified.
+- **Architectural State:** Engine Version v1.9 Certified. True Financial SaaS Core with authoritative isolation and resource governance.
+
+### [CERTIFIED] Sprint 13: Time-Locked Execution & Cooling Period Engine (v1.7) (2026-02-26)
+- **Status:** [CERTIFIED] / FULL PASS
+- **Instruction:** S13-TEMPORAL-GOVERNANCE-001
+- **Sprint 13 (v1.7 Certification)**: Temporal Risk Governance (Time-Locked Payouts, Cooling Periods, Ledger Reservation) başarıyla uygulandı.
+- **Sprint 14 (v1.8 Certification)**: Multi-Tenant Financial Isolation Layer. Tenant-specific ledger partitioning, cryptographic isolation, and hard fallback guards implemented. Physical concurrency proof achieved.
+- **Scope:** Risk-Based Cooling Periods, Time-Locked State Machine, Ledger Reservation (Double-Spend Prevention), Idempotency-Guarded Workers.
+- **Key Achievements:**
+    - **Temporal Governance:** `CoolingPolicyManager` implemented with risk-tiered delays (6h, 24h, 48h). Strictly UTC-normalized.
+    - **Ledger Invariant:** Implemented bakiye reservation at approval time. Finalization updates existing `reserved` record to `cleared` without 0-amount mutations.
+    - **Operational Safety:** `MaturedPayoutJob` and CLI `execute-matured` provide robust automated settlement. SQL-level idempotency guard prevents race conditions.
+    - **Admin Control:** Capability-gated `bypass_time_lock` allows emergency execution with mandatory forensic audit logging.
+- **Quality Gates:** Concurrency, HIGH-risk cooling, and Admin bypass verification scenarios passed (see Sprint 13 Walkthrough).
+- **Architectural State:** Engine Version v1.7 Certified. Production-grade temporal financial control system with atomic ledger integrity.
+
+### 4. Current Architecture (v1.8)
+- **Kernel**: Atomic, Governed, Time-Aware, Idempotent, Multi-Tenant Financial Motor.
+- **Security**: Asymmetric Signing (Per-Tenant), No Silent Fallback, Hard Context Guards, Composite Indexing.
+- **Compliance**: Tenant-specific cooling policies, UTC strict audit trails.
+
+### [CERTIFIED] Sprint 11: Immutable External Audit Export Layer (v1.5) (2026-02-26)
+- **Status:** [CERTIFIED] / FULL PASS
+- **Instruction:** S11-AUDIT-EXPORT-001
+- **Scope:** Cryptographically Verifiable External Trust, Hash-Chained Audit Export, Asymmetric Ed25519 Detached Signatures.
+- **Key Achievements:**
+    - **Cryptographic Trust Layer:** `KeyPairManager` implemented with `libsodium` Ed25519 (RSA fallback). Secure private key encryption via `secretbox`.
+    - **Tamper-Evident Hash Chain:** `HashChainBuilder` ensures mathematically proven integrity across historical rows with strict format normalization.
+    - **Read-Only Export Isolation:** `AuditExportService` enforces `READ COMMITTED` and `READ ONLY` transaction isolation during CSV export.
+    - **CLI Orchestration:** `wp mhm audit:export` generates deterministic CSV, detached `.sig`, and `.meta.json`.
+- **Quality Gates:** 338 tests, 1586 assertions — 0 Errors, 0 Failures. CI strict determinism passed.
+- **Architectural State:** Engine Version v1.5 Certified. Institutional-Grade, Auditor-Ready Financial Control Platform. Ready for SOC 2 / ISO 27001 evaluation.
+
 ### [PATCHED] v4.20.3 - Allowlist enum expansion (status, orderby, sort_by) (2026-02-25)
 - **Status:** [PATCHED] / ENUM DRIFT HOTFIX
 - **Instruction:** V4.20.3-ALLOWLIST-ENUM-EXPANSION

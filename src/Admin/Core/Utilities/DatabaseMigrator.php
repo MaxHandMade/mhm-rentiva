@@ -23,7 +23,7 @@ final class DatabaseMigrator
 	/**
 	 * Migration version
 	 */
-	private const CURRENT_VERSION = '3.2.0';
+	private const CURRENT_VERSION = '3.3.0';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -43,12 +43,22 @@ final class DatabaseMigrator
 		if (version_compare($current_version, self::CURRENT_VERSION, '<')) {
 			self::create_transfer_tables(); // VIP Transfer Tables
 			self::create_table('notification_queue');
+			self::create_table('mhm_rentiva_payout_audit');
+			self::create_key_registry_table();
+			self::register_governance_capabilities();
 
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\LedgerMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\LedgerMigration::create_table();
 			}
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration::create_table();
+			}
+			if (class_exists(\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::class)) {
+				\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::run();
+			}
+			// SaaS Control Plane (v1.9)
+			if (class_exists(\MHMRentiva\Core\Database\Migrations\OrchestrationMigration::class)) {
+				\MHMRentiva\Core\Database\Migrations\OrchestrationMigration::run();
 			}
 			self::add_performance_indexes();
 			self::optimize_existing_indexes();
@@ -689,8 +699,61 @@ final class DatabaseMigrator
 					\MHMRentiva\Admin\Notifications\NotificationManager::create_notification_queue_table();
 				}
 				return true;
+			case 'payout_audit':
+			case 'mhm_rentiva_payout_audit':
+				self::create_payout_audit_table();
+				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Register governance capabilities to the administrator role.
+	 */
+	public static function register_governance_capabilities(): void
+	{
+		$role = get_role('administrator');
+		if ($role instanceof \WP_Role) {
+			$role->add_cap('mhm_rentiva_approve_payout');
+			$role->add_cap('mhm_rentiva_freeze_payouts');
+			$role->add_cap('mhm_rentiva_view_financial_audit');
+
+			// Sprint 10: Multi-Actor Workflow Capabilities
+			$role->add_cap('mhm_rentiva_create_payout');
+			$role->add_cap('mhm_rentiva_review_payout');
+			$role->add_cap('mhm_rentiva_finalize_payout');
+			$role->add_cap('mhm_rentiva_override_maker_checker');
+		}
+	}
+
+	/**
+	 * Create payout audit table (append-only)
+	 */
+	public static function create_payout_audit_table(): void
+	{
+		global $wpdb;
+		$table_name      = $wpdb->prefix . 'mhm_rentiva_payout_audit';
+		$table_escaped   = esc_sql($table_name);
+		$charset_collate = $wpdb->get_charset_collate();
+
+		$sql = "CREATE TABLE `{$table_escaped}` (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            payout_id bigint(20) NOT NULL,
+            actor_user_id bigint(20) NOT NULL,
+            action varchar(50) NOT NULL,
+            tx_uuid varchar(36) NOT NULL,
+            ip_hash varchar(64) DEFAULT NULL,
+            metadata_json text DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY payout_action_tx (payout_id,action,tx_uuid),
+            KEY payout_id (payout_id),
+            KEY actor_user_id (actor_user_id),
+            KEY action (action)
+        ) $charset_collate;";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta($sql);
 	}
 
 	/**
@@ -791,6 +854,39 @@ final class DatabaseMigrator
             KEY level (level),
             KEY created_at (created_at),
             KEY user_id (user_id)
+        ) $charset_collate;";
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		dbDelta($sql);
+	}
+
+	/**
+	 * Create Key Registry table
+	 */
+	public static function create_key_registry_table(): void
+	{
+		global $wpdb;
+		$table_name      = $wpdb->prefix . 'mhm_rentiva_key_registry';
+		$table_escaped   = esc_sql($table_name);
+		$charset_collate = $wpdb->get_charset_collate();
+
+		$sql = "CREATE TABLE `{$table_escaped}` (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            key_uuid varchar(64) NOT NULL,
+            key_algorithm varchar(32) NOT NULL DEFAULT 'ed25519',
+            fingerprint char(64) NOT NULL,
+            public_key text NOT NULL,
+            private_key_encrypted text NOT NULL,
+            status varchar(20) NOT NULL DEFAULT 'active',
+            active_key tinyint(1) DEFAULT NULL,
+            revocation_reason text,
+            created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            signed_at datetime,
+            expires_at datetime,
+            PRIMARY KEY  (id),
+            UNIQUE KEY key_uuid (key_uuid),
+            UNIQUE KEY active_key_unique (active_key),
+            KEY status (status)
         ) $charset_collate;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';

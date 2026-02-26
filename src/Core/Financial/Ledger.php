@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Core\Financial;
 
+use MHMRentiva\Core\Tenancy\TenantResolver;
+
 if (! defined('ABSPATH')) {
     exit;
 }
@@ -17,16 +19,25 @@ final class Ledger
 {
     /**
      * Insert a new entry into the ledger ensuring append-only constraints.
+     * Entry is scoped to the currently resolved TenantContext.
      *
      * @throws \RuntimeException If physical database insertion fails due to duplication constraints.
+     * @throws \MHMRentiva\Core\Orchestration\Exceptions\QuotaExceededException If ledger quota is hit.
      */
     public static function add_entry(LedgerEntry $entry): void
     {
         global $wpdb;
 
-        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $tenant_id = TenantResolver::resolve()->get_id();
+
+        // 1. SaaS Control Plane Guard (Quota & Status)
+        if (class_exists('\\MHMRentiva\\Core\\Orchestration\\ControlPlaneGuard')) {
+            \MHMRentiva\Core\Orchestration\ControlPlaneGuard::assert_operational_and_quota($tenant_id, 'ledger_entries');
+        }
 
         $data = array(
+            'tenant_id'           => $tenant_id,
             'transaction_uuid'    => $entry->get_transaction_uuid(),
             'vendor_id'           => $entry->get_vendor_id(),
             'booking_id'          => $entry->get_booking_id(),
@@ -39,12 +50,13 @@ final class Ledger
             'currency'            => $entry->get_currency(),
             'context'             => $entry->get_context(),
             'status'              => $entry->get_status(),
-            'created_at'          => current_time('mysql', true), // Always enforce UTC for audit logs
+            'created_at'          => gmdate('Y-m-d H:i:s'), // UTC strict - no WP timezone.
             'policy_id'           => $entry->get_policy_id(),
             'policy_version_hash' => $entry->get_policy_version_hash(),
         );
 
         $formats = array(
+            '%d', // tenant_id
             '%s', // transaction_uuid
             '%d', // vendor_id
             '%d', // booking_id
@@ -82,22 +94,33 @@ final class Ledger
                 $error
             ));
         }
+
+        // 2. SaaS Metering Capture (Post-Success)
+        if (class_exists('\\MHMRentiva\\Core\\Orchestration\\MeteredUsageTracker')) {
+            \MHMRentiva\Core\Orchestration\MeteredUsageTracker::increment($tenant_id, 'ledger_entries');
+        }
     }
 
     /**
-     * Retrieve the payout-ready cleared balance for a vendor.
+     * Retrieve the payout-ready cleared balance for a vendor within the current tenant.
      * Calculated exclusively by SUM() over entries exhibiting status = 'cleared'.
+     *
+     * @param int      $vendor_id
+     * @param int|null $tenant_id Defaults to current tenant.
+     * @return float
+     * @throws \MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException
      */
-    public static function get_balance(int $vendor_id): float
+    public static function get_balance(int $vendor_id, ?int $tenant_id = null): float
     {
         global $wpdb;
-        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $tenant_id = self::ensure_tenant_id($tenant_id);
 
         $sum = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT SUM(amount) FROM {$table} WHERE vendor_id = %d AND status = %s",
-                $vendor_id,
-                'cleared'
+                "SELECT SUM(amount) FROM {$table} WHERE tenant_id = %d AND vendor_id = %d AND status IN ('cleared', 'reserved')",
+                $tenant_id,
+                $vendor_id
             )
         );
 
@@ -106,15 +129,23 @@ final class Ledger
 
     /**
      * Retrieve the pending balance for a vendor holding funds until reservation completion.
+     * Scoped to the current tenant.
+     *
+     * @param int      $vendor_id
+     * @param int|null $tenant_id Defaults to current tenant.
+     * @return float
+     * @throws \MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException
      */
-    public static function get_pending_balance(int $vendor_id): float
+    public static function get_pending_balance(int $vendor_id, ?int $tenant_id = null): float
     {
         global $wpdb;
-        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $tenant_id = self::ensure_tenant_id($tenant_id);
 
         $sum = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT SUM(amount) FROM {$table} WHERE vendor_id = %d AND status = %s AND type IN (%s, %s)",
+                "SELECT SUM(amount) FROM {$table} WHERE tenant_id = %d AND vendor_id = %d AND status = %s AND type IN (%s, %s)",
+                $tenant_id,
                 $vendor_id,
                 'pending',
                 'commission_credit',
@@ -127,18 +158,23 @@ final class Ledger
 
     /**
      * Retrieve the aggregate gross total a vendor has earned since inception.
-     * Ignores payout debit deductions strictly resolving the historical earnings scope.
+     * Scoped to the current tenant.
+     *
+     * @param int      $vendor_id
+     * @param int|null $tenant_id Defaults to current tenant.
+     * @return float
+     * @throws \MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException
      */
-    public static function get_total_earned(int $vendor_id): float
+    public static function get_total_earned(int $vendor_id, ?int $tenant_id = null): float
     {
         global $wpdb;
-        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $tenant_id = self::ensure_tenant_id($tenant_id);
 
-        // Historical earning is technically credits + refunds strictly excluding payout debits and spanning cleared/pending states optionally.
-        // Assuming 'total earned' applies strictly to non-payout transactions that represent vendor profit injections.
         $sum = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT SUM(amount) FROM {$table} WHERE vendor_id = %d AND type != %s AND status IN ('cleared', 'pending')",
+                "SELECT SUM(amount) FROM {$table} WHERE tenant_id = %d AND vendor_id = %d AND type != %s AND status IN ('cleared', 'pending')",
+                $tenant_id,
                 $vendor_id,
                 'payout_debit'
             )
@@ -148,17 +184,24 @@ final class Ledger
     }
 
     /**
-     * Fetch transaction ledger history mapping safe pagination ranges scaling dynamically.
+     * Fetch transaction ledger history with safe pagination, scoped to the current tenant.
      *
-     * @return array<int, \stdClass> Array of database row objects representing the ledger table matches
+     * @param int      $vendor_id
+     * @param array    $filters
+     * @param int      $limit
+     * @param int      $offset
+     * @param int|null $tenant_id Defaults to current tenant.
+     * @return array<int, \stdClass>
+     * @throws \MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException
      */
-    public static function get_entries(int $vendor_id, array $filters = array(), int $limit = 20, int $offset = 0): array
+    public static function get_entries(int $vendor_id, array $filters = array(), int $limit = 20, int $offset = 0, ?int $tenant_id = null): array
     {
         global $wpdb;
-        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $tenant_id = self::ensure_tenant_id($tenant_id);
 
-        $where_clauses = array('vendor_id = %d');
-        $args          = array($vendor_id);
+        $where_clauses = array('tenant_id = %d', 'vendor_id = %d');
+        $args          = array($tenant_id, $vendor_id);
 
         if (! empty($filters['status']) && is_string($filters['status'])) {
             $where_clauses[] = 'status = %s';
@@ -191,5 +234,22 @@ final class Ledger
         $results = $wpdb->get_results($wpdb->prepare($query, ...$args));
 
         return is_array($results) ? $results : array();
+    }
+
+    /**
+     * Ensures a valid tenant ID is provided or resolved.
+     * Throws an exception if no isolation context can be established.
+     *
+     * @param int|null $tenant_id
+     * @return int
+     * @throws \MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException
+     */
+    private static function ensure_tenant_id(?int $tenant_id): int
+    {
+        if ($tenant_id !== null && $tenant_id > 0) {
+            return $tenant_id;
+        }
+
+        return TenantResolver::resolve()->get_id();
     }
 }

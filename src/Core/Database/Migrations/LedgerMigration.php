@@ -26,7 +26,8 @@ final class LedgerMigration
 		$charset_collate = 'DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
 
 		$sql = "CREATE TABLE {$table_name} (
-			id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+			tenant_id BIGINT UNSIGNED NOT NULL DEFAULT 1,
 			transaction_uuid CHAR(36) NOT NULL,
 			vendor_id BIGINT UNSIGNED NOT NULL,
 			booking_id BIGINT UNSIGNED NULL,
@@ -43,6 +44,7 @@ final class LedgerMigration
 			policy_id BIGINT UNSIGNED NULL DEFAULT NULL,
 			policy_version_hash CHAR(64) NULL DEFAULT NULL,
 			UNIQUE KEY transaction_uuid_unique (transaction_uuid),
+			KEY tenant_id_idx (tenant_id),
 			KEY vendor_id_idx (vendor_id),
 			KEY booking_id_idx (booking_id),
 			KEY order_id_idx (order_id),
@@ -50,7 +52,8 @@ final class LedgerMigration
 			KEY vendor_created_idx (vendor_id, created_at),
 			KEY vendor_status_idx (vendor_id, status, created_at),
 			KEY vendor_type_idx (vendor_id, type),
-			KEY policy_id_idx (policy_id)
+			KEY policy_id_idx (policy_id),
+			PRIMARY KEY  (id)
 		) {$charset_collate};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';

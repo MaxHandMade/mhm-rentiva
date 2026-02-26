@@ -209,8 +209,8 @@ final class PayoutListTable extends \WP_List_Table
      */
     public static function process_bulk_approve(): array
     {
-        if (! current_user_can('manage_options')) {
-            return array('approved' => 0, 'skipped' => 0, 'errors' => array());
+        if (! current_user_can('mhm_rentiva_approve_payout')) {
+            return array('approved' => 0, 'skipped' => 0, 'errors' => array(__('Permission denied by Governance Layer.', 'mhm-rentiva')));
         }
 
         $raw_ids = isset($_POST['payout_ids']) && is_array($_POST['payout_ids'])
@@ -234,7 +234,7 @@ final class PayoutListTable extends \WP_List_Table
                 continue;
             }
 
-            $result = AtomicPayoutService::approve($payout_id);
+            $result = \MHMRentiva\Core\Financial\GovernanceService::process_approval($payout_id);
 
             if (is_wp_error($result)) {
                 $errors[] = sprintf('#%d: %s', $payout_id, $result->get_error_message());

@@ -7,6 +7,8 @@ namespace MHMRentiva\Core\Financial;
 use MHMRentiva\Admin\PostTypes\Payouts\PostType;
 use MHMRentiva\Core\Logging\StructuredLogger;
 use MHMRentiva\Core\Services\Metrics\MetricCacheManager;
+use MHMRentiva\Core\Financial\Events\DomainEventDispatcher;
+use MHMRentiva\Core\Financial\Events\PayoutApprovedEvent;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -45,11 +47,15 @@ final class AtomicPayoutService
      * Approve a payout atomically.
      *
      * @param  int $payout_id  mhm_payout CPT post ID.
+     * @param  DomainEventDispatcher|null $dispatcher Optional forensic context
      * @return true|\WP_Error
      */
-    public static function approve(int $payout_id)
+    public static function approve(int $payout_id, ?DomainEventDispatcher $dispatcher = null)
     {
         global $wpdb;
+
+        // tx_uuid is generated here to uniquely represent the logical transaction
+        $tx_uuid = wp_generate_uuid4();
 
         // ── Pre-flight validation (outside TX — keep lock window minimal) ──────
         $post = get_post($payout_id);
@@ -70,19 +76,27 @@ final class AtomicPayoutService
         $uuid      = 'payout_' . $payout_id;
         $currency  = function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'TRY';
 
+        // ── SaaS Control Plane Guard (Quota & Status) ────────────────────────────
+        $tenant_id = (int) \MHMRentiva\Core\Tenancy\TenantResolver::resolve()->get_id();
+        try {
+            \MHMRentiva\Core\Orchestration\ControlPlaneGuard::assert_operational_and_quota($tenant_id, 'payouts');
+        } catch (\Exception $e) {
+            return new \WP_Error('saas_block', $e->getMessage());
+        }
+
         $entry = new LedgerEntry(
             $uuid,
             $vendor_id,
             null, // booking_id
             null, // order_id
-            'payout_debit',
+            'payout_pending_debit',
             $amount * -1,
             null, // gross_amount
             null, // commission_amount
             null, // commission_rate
             $currency,
             'payout',
-            'cleared'
+            'reserved'
         );
 
         // ── Atomic transaction block ─────────────────────────────────────────────
@@ -132,7 +146,7 @@ final class AtomicPayoutService
             $updated = wp_update_post(
                 array(
                     'ID'          => $payout_id,
-                    'post_status' => 'publish',
+                    'post_status' => 'publish', // Maintain technical 'publish' but workflow state logic will dominate
                 ),
                 true // return WP_Error on failure
             );
@@ -145,9 +159,18 @@ final class AtomicPayoutService
                 );
             }
 
+            if ($dispatcher !== null) {
+                $dispatcher->dispatch(new PayoutApprovedEvent($payout_id, $tx_uuid));
+                $dispatcher->flush(); // Execute event callbacks inside the transaction window
+            }
+
             $wpdb->query('COMMIT');
         } catch (\RuntimeException $e) {
             $wpdb->query('ROLLBACK');
+
+            if ($dispatcher !== null) {
+                $dispatcher->discard(); // Clear buffer to ensure no audit trace escapes rollback
+            }
 
             StructuredLogger::error(
                 'Atomic payout approve failed — transaction rolled back.',
@@ -164,6 +187,9 @@ final class AtomicPayoutService
         }
 
         // ── Post-COMMIT side effects (outside transaction) ───────────────────────
+        // Capture SaaS Metering
+        \MHMRentiva\Core\Orchestration\MeteredUsageTracker::increment($tenant_id, 'payouts');
+
         MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
 
         StructuredLogger::info(
@@ -175,6 +201,81 @@ final class AtomicPayoutService
                 'uuid'      => $uuid,
             ),
             'payout'
+        );
+
+        return true;
+    }
+
+    /**
+     * Finalizes a time-locked payout by moving it to the 'EXECUTED' lock status.
+     * Implements the strict idempotency guard required for concurrent workers.
+     *
+     * @param int $payout_id
+     * @return true|\WP_Error
+     */
+    public static function finalize_time_locked_payout(int $payout_id)
+    {
+        global $wpdb;
+
+        // 1. Strict SQL-level Idempotency Guard
+        // We update the lock status from LOCKED (or MATURED) to EXECUTED.
+        // If another process already did this, rows_affected will be 0.
+        $updated = $wpdb->query(
+            $wpdb->prepare(
+                "UPDATE {$wpdb->postmeta} 
+                 SET meta_value = %s 
+                 WHERE post_id = %d 
+                 AND meta_key = %s 
+                 AND meta_value IN ('LOCKED', 'MATURED')",
+                'EXECUTED',
+                $payout_id,
+                '_mhm_lock_status'
+            )
+        );
+
+        if ($updated !== 1) {
+            // Already processed by another worker or invalid state
+            return new \WP_Error(
+                'idempotency_abort',
+                sprintf('Payout #%d finalization aborted: already executed or invalid lock status.', $payout_id)
+            );
+        }
+
+        // 2. Clear the Ledger Reservation
+        // Instead of adding a new entry (0-amount finalize entry Prohibited by Chief Engineer),
+        // we update the existing 'payout_pending_debit' entry from 'reserved' to 'cleared'.
+        $payout_uuid = 'payout_' . $payout_id;
+        $wpdb->update(
+            $wpdb->prefix . 'mhm_rentiva_ledger',
+            ['status' => 'cleared'],
+            [
+                'transaction_uuid' => $payout_uuid,
+                'status'           => 'reserved'
+            ],
+            ['%s'],
+            ['%s', '%s']
+        );
+
+        // 3. Update Workflow State to EXECUTED
+        try {
+            ApprovalStateMachine::atomic_update_state($wpdb, $payout_id, ApprovalStateMachine::STATE_TIME_LOCKED, ApprovalStateMachine::STATE_EXECUTED);
+        } catch (\Exception $e) {
+            // Log but don't fail the whole engine if meta update succeeded
+            StructuredLogger::error(
+                'Time-lock finalized but state transition failed.',
+                ['payout_id' => $payout_id, 'error' => $e->getMessage()],
+                'payout'
+            );
+        }
+
+        // 3. Mark Ledger entry as 'cleared' (optional, but good for consistency)
+        // Since we reserved it, we now officially clear it.
+        $wpdb->update(
+            $wpdb->prefix . 'mhm_rentiva_ledger',
+            ['status' => 'cleared'],
+            ['transaction_uuid' => 'payout_' . $payout_id, 'status' => 'reserved'],
+            ['%s'],
+            ['%s', '%s']
         );
 
         return true;

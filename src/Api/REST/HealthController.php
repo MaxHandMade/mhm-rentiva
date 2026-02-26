@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
  * Health check REST endpoint.
  *
  * Route:   GET /mhm-rentiva/v1/health
- * Auth:    None — public endpoint for uptime monitors and load balancers.
+ * Auth:    None â€” public endpoint for uptime monitors and load balancers.
  *
  * Response tiers:
  *
@@ -53,7 +53,7 @@ final class HealthController
             array(
                 'methods'             => \WP_REST_Server::READABLE,
                 'callback'            => array(self::class, 'handle'),
-                'permission_callback' => '__return_true', // Public — tiered in callback.
+                'permission_callback' => '__return_true', // Public â€” tiered in callback.
             )
         );
     }
@@ -61,13 +61,19 @@ final class HealthController
     /**
      * Handle the health check.
      *
-     * @return \WP_REST_Response
+     * @return \WP_REST_Response|\WP_Error
      */
-    public static function handle(): \WP_REST_Response
+    public static function handle(): \WP_REST_Response|\WP_Error
     {
         global $wpdb;
 
-        // ── Run probes ───────────────────────────────────────────────────────────
+        // 1. Rate Limiting enforcement
+        $rate_limit = \MHMRentiva\Admin\Core\Utilities\RateLimiter::middleware('general');
+        if (is_wp_error($rate_limit)) {
+            return $rate_limit;
+        }
+
+        // â”€â”€ Run probes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         $db_status     = 'ok';
         $table_status  = 'ok';
         $engine_status = 'ok';
@@ -79,6 +85,7 @@ final class HealthController
         }
 
         $ledger_table = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $audit_table  = $wpdb->prefix . 'mhm_rentiva_payout_audit';
 
         // Probe 2: Table existence.
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -107,8 +114,8 @@ final class HealthController
 
         $http_status = $overall === 'ok' ? 200 : 503;
 
-        // ── Tiered response ──────────────────────────────────────────────────────
-        // Public monitors: minimal fingerprint surface — status only.
+        // â”€â”€ Tiered response â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Public monitors: minimal fingerprint surface â€” status only.
         if (! current_user_can('manage_options')) {
             return new \WP_REST_Response(
                 array('status' => $overall),
@@ -117,15 +124,38 @@ final class HealthController
         }
 
         // Admin: full diagnostic payload.
+        $integrity_status = \MHMRentiva\Core\Financial\Audit\Verification\IntegrityVerificationService::get_system_status();
+        $last_check       = get_option(\MHMRentiva\Core\Financial\Audit\Verification\IntegrityVerificationService::OPTION_LAST_CHECK, []);
+
+        $active_key_payload = \MHMRentiva\Core\Financial\Audit\Crypto\KeyPairManager::get_active_keypair();
+        $repo               = new \MHMRentiva\Core\Financial\Audit\Crypto\KeyRegistryRepository();
+
+        // Governance metrics
+        $pending_count = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$audit_table} WHERE JSON_UNQUOTE(JSON_EXTRACT(metadata_json, '$.workflow_state')) NOT IN ('executed', 'rejected', 'failed')"
+            )
+        );
+        $high_risk_pending = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$audit_table} WHERE JSON_UNQUOTE(JSON_EXTRACT(metadata_json, '$.risk_level')) = 'high' AND JSON_UNQUOTE(JSON_EXTRACT(metadata_json, '$.workflow_state')) NOT IN ('executed', 'rejected', 'failed')"
+            )
+        );
+
         return new \WP_REST_Response(
             array(
-                'status'        => $overall,
-                'db'            => $db_status,
-                'ledger_table'  => $table_status,
-                'engine'        => $engine_status,
-                'engine_name'   => $engine !== '' ? strtolower($engine) : 'unknown',
-                'version'       => defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'unknown',
-                'timestamp'     => gmdate('Y-m-d\TH:i:s\Z'),
+                'status'                        => $overall,
+                'system_integrity_status'       => $integrity_status,
+                'ledger_row_count'             => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$ledger_table}"),
+                'active_key_id'                => $active_key_payload['key_id'],
+                'revoked_key_count'            => $repo->get_revoked_key_count(),
+                'last_export_hash'             => isset($last_check['tip_hash']) ? substr($last_check['tip_hash'], 0, 12) . '...' : 'none',
+                'last_integrity_check'         => $last_check['timestamp'] ?? 'never',
+                'workflow_pending_count'       => $pending_count,
+                'high_risk_pending_count'      => $high_risk_pending,
+                'db'                            => $db_status,
+                'version'                       => defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'unknown',
+                'timestamp'                     => gmdate('Y-m-d\TH:i:s\Z'),
             ),
             $http_status
         );

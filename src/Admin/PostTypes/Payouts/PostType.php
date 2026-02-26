@@ -67,7 +67,6 @@ final class PostType
             'hierarchical'        => false,
             'menu_position'       => null,
             'supports'            => array('title', 'author'),
-            'map_meta_cap'        => true,
         );
 
         register_post_type(self::POST_TYPE, $args);

@@ -39,7 +39,7 @@ final class CommissionPolicyMigration
         $charset_collate = 'DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
 
         $sql = "CREATE TABLE {$table_name} (
-			id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			label VARCHAR(200) NOT NULL DEFAULT '',
 			global_rate DECIMAL(5,2) NOT NULL,
 			vendor_id BIGINT UNSIGNED NULL DEFAULT NULL,
@@ -51,7 +51,8 @@ final class CommissionPolicyMigration
 			UNIQUE KEY version_hash_unique (version_hash),
 			KEY vendor_effective_idx (vendor_id, effective_from, effective_to),
 			KEY effective_from_idx (effective_from),
-			KEY vendor_id_idx (vendor_id)
+			KEY vendor_id_idx (vendor_id),
+			PRIMARY KEY  (id)
 		) {$charset_collate};";
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';

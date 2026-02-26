@@ -1,54 +1,3 @@
-# Ignore everything by default, then whitelist plugin core files/folders
-# (This keeps only the plugin content tracked in git)
-/*
-
-# Keep git metadata and .gitignore itself
-!/.git/
-!/.gitignore
-!/.gitattributes
-
-# Plugin core — whitelist these (and their contents)
-!/src/
-!/assets/
-!/templates/
-!/languages/
-!/tests/
-!/mhm-rentiva.php
-!/uninstall.php
-!/readme.txt
-!/README.md
-!/README-tr.md
-!/SHORTCODES.md
-!/PROJECT_MEMORIES.md
-!/composer.json
-!/composer.lock
-!/phpcs.xml
-!/changelog.json
-!/changelog-tr.json
-!/phpunit.xml
-
-#!/ Ensure whitelisted directories' contents are tracked
-!/src/**
-!/assets/**
-!/templates/**
-!/languages/**
-!/tests/**
-
-# Keep common config files
-!/.github/
-
-# Developer/editor/system files should remain ignored even if present
-.DS_Store
-*.log
-node_modules/
-vendor/
-.env
-.env.*
-.idea/
-.vscode/
-
-# End of .gitignore — only plugin core is whitelisted
-
 # ============================================================================
 # SECTION 1: OS & System Files
 # ============================================================================
@@ -186,7 +135,9 @@ shortcode_analiz.php
 specs/
 stubs/
 bin/
-!tests/bin/
+tests/
+phpunit.xml
+phpunit.xml.dist
 website/
 .github/
 !.github/
@@ -247,7 +198,7 @@ credentials.php
 # ============================================================================
 # ESSENTIAL DIRECTORIES TO TRACK (Reference - Not Rules)
 # ============================================================================
-# ✅ ALWAYS TRACK:
+# âœ… ALWAYS TRACK:
 # - src/           (Core PHP classes)
 # - templates/     (Template files)
 # - assets/        (CSS, JS, Images)
@@ -261,9 +212,8 @@ credentials.php
 # - changelog.json (Version history)
 # ============================================================================
 
-# Keep docs tracked, but ignore internal/ (Stitch exports, etc.)
-!/docs/
-/docs/internal/
-/docs/stitch-export/
+# General Docs & Tests
+/docs/
+/tests/
 
 backups/

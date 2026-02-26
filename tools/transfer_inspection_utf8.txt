@@ -1,0 +1,77 @@
+=== TRANSFER LOCATIONS ===
+
+ID: 73
+Name: İstanbul Havalimanı (IST)
+Type: airport
+Allow Rental: NO
+Allow Transfer: YES
+---
+ID: 74
+Name: Sabiha Gökçen Havalimanı (SAW)
+Type: airport
+Allow Rental: YES
+Allow Transfer: YES
+---
+ID: 75
+Name: Kadıköy Şehir Merkezi
+Type: city_center
+Allow Rental: YES
+Allow Transfer: YES
+---
+ID: 76
+Name: Taksim Ofis
+Type: city_center
+Allow Rental: YES
+Allow Transfer: NO
+---
+
+=== TRANSFER ROUTES ===
+
+ID: 36
+Route: İstanbul Havalimanı (IST) → Kadıköy Şehir Merkezi
+Distance: 52 km
+Duration: 65 min
+Pricing: fixed
+Base Price: 850.00
+---
+ID: 37
+Route: Kadıköy Şehir Merkezi → İstanbul Havalimanı (IST)
+Distance: 52 km
+Duration: 65 min
+Pricing: fixed
+Base Price: 850.00
+---
+ID: 38
+Route: İstanbul Havalimanı (IST) → Taksim Ofis
+Distance: 35 km
+Duration: 45 min
+Pricing: calculated
+Base Price: 20.00
+---
+ID: 39
+Route: Kadıköy Şehir Merkezi → Taksim Ofis
+Distance: 25 km
+Duration: 40 min
+Pricing: fixed
+Base Price: 750.00
+---
+ID: 40
+Route: Sabiha Gökçen Havalimanı (SAW) → İstanbul Havalimanı (IST)
+Distance: 90 km
+Duration: 110 min
+Pricing: fixed
+Base Price: 1500.00
+---
+ID: 41
+Route: İstanbul Havalimanı (IST) → Sabiha Gökçen Havalimanı (SAW)
+Distance: 90 km
+Duration: 120 min
+Pricing: fixed
+Base Price: 1600.00
+---
+
+=== SUMMARY ===
+Total Locations: 4
+Transfer-enabled Locations: 3
+Rental-only Locations: 1
+Total Routes: 6

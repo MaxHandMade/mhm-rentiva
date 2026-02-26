@@ -162,7 +162,7 @@ final class MetricCacheManager
     /**
      * Meta change callback listener to flag when a user updates their MHM favorites payload.
      */
-    public static function on_user_meta_updated(int $meta_id, int $user_id, string $meta_key, $meta_value): void
+    public static function on_user_meta_updated(int|array $meta_id, int $user_id, string $meta_key, $meta_value): void
     {
         if ($meta_key === 'mhm_rentiva_favorites' && $user_id > 0) {
             self::flush_subject_metric('customer', 'saved_favorites', (string) $user_id);
