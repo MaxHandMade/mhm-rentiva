@@ -10,13 +10,14 @@ if (! defined('ABSPATH')) {
 
 /**
  * Automates Tenant Provisioning for MHM Rentiva SaaS.
- * 
+ *
  * Implements Chief Engineer's "DB First + Failure State" pattern.
  *
  * @since 4.23.0
  */
-final class TenantProvisioner
-{
+final class TenantProvisioner {
+
+
     /**
      * Provisions a new tenant with atomic registry entry and site creation.
      *
@@ -43,8 +44,10 @@ final class TenantProvisioner
 
         try {
             // STEP 1: Authoritative DB Registry (PENDING)
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
             $wpdb->query('START TRANSACTION');
 
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $inserted = $wpdb->insert(
                 $table,
                 [
@@ -53,9 +56,9 @@ final class TenantProvisioner
                     'quota_payouts_limit'        => $payout_limit,
                     'quota_ledger_entries_limit' => $ledger_limit,
                     'quota_risk_events_limit'    => $risk_limit,
-                    'created_at'                 => $now
+                    'created_at'                 => $now,
                 ],
-                ['%d', '%s', '%d', '%d', '%d', '%s']
+                [ '%d', '%s', '%d', '%d', '%d', '%s' ]
             );
 
             if (! $inserted) {
@@ -67,6 +70,7 @@ final class TenantProvisioner
                 \MHMRentiva\Core\Financial\Audit\Crypto\KeyPairManager::rotate_key('retired', null, $tenant_id);
             }
 
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
             $wpdb->query('COMMIT');
 
             // STEP 2: WordPress Site Creation (Not Transactional)
@@ -75,27 +79,30 @@ final class TenantProvisioner
 
             if ($site_id === null) {
                 // STEP 3: Handle Failure State
-                $wpdb->update($table, ['status' => 'PROVISIONING_FAILED'], ['tenant_id' => $tenant_id]);
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->update($table, [ 'status' => 'PROVISIONING_FAILED' ], [ 'tenant_id' => $tenant_id ]);
                 return false;
             }
 
             // STEP 4: Activation
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->update(
                 $table,
                 [
                     'status'  => 'ACTIVE',
-                    'site_id' => $site_id
+                    'site_id' => $site_id,
                 ],
-                ['tenant_id' => $tenant_id]
+                [ 'tenant_id' => $tenant_id ]
             );
 
             return true;
         } catch (\Throwable $e) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
             $wpdb->query('ROLLBACK');
             if (class_exists('\\MHMRentiva\\Admin\\PostTypes\\Logs\\AdvancedLogger')) {
                 \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
                     'Tenant provisioning failed: ' . $e->getMessage(),
-                    ['tenant_id' => $tenant_id],
+                    [ 'tenant_id' => $tenant_id ],
                     'saas_provisioning'
                 );
             }

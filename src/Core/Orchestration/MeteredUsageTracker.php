@@ -10,19 +10,20 @@ if (! defined('ABSPATH')) {
 
 /**
  * Service for atomic usage tracking (Metering).
- * 
+ *
  * Captures payout counts, ledger entries, and risk events per tenant/cycle.
  * Ensures consistent billing and quota enforcement data.
  *
  * @since 4.23.0
  */
-final class MeteredUsageTracker
-{
+final class MeteredUsageTracker {
+
+
     /**
      * Increments a specific metric for a tenant in the current billing cycle.
-     * 
+     *
      * Uses atomic UPSERT logic to handle cycle resets or initial entries.
-     * 
+     *
      * @param int    $tenant_id
      * @param string $metric_type 'payouts'|'ledger_entries'|'exports'|'risk_events'
      * @param int    $increment   Amount to add (default 1)
@@ -55,6 +56,7 @@ final class MeteredUsageTracker
             $increment
         );
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->query($query);
     }
 
@@ -83,6 +85,7 @@ final class MeteredUsageTracker
         $table       = $wpdb->prefix . 'mhm_rentiva_usage_metrics';
         $cycle_start = self::get_current_cycle_start();
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
         return (int) $wpdb->get_var(
             $wpdb->prepare(
                 "SELECT metric_value FROM {$table} WHERE tenant_id = %d AND metric_type = %s AND cycle_start = %s",

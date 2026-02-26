@@ -13,17 +13,19 @@ if (! defined('ABSPATH')) {
 
 /**
  * Authoritative Guard for the SaaS Control Plane.
- * 
+ *
  * Enforces Tenant Existence, Operational Status (Lifecycle), and Quota Availability.
  * This guard stands ABOVE the Financial Kernel (v1.8).
  *
  * @since 4.23.0
  */
-final class ControlPlaneGuard
-{
+final class ControlPlaneGuard {
+
+
+
     /**
      * Asserts that the tenant exists, is operational, and has available quota.
-     * 
+     *
      * Hiyerarşi (Chief Engineer's Triple-Assert Pattern):
      * 1. Existence
      * 2. Operational Status (ACTIVE)
@@ -40,16 +42,19 @@ final class ControlPlaneGuard
 
         // 1. Existence & Provisioning Check
         if (! $tenant) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new \RuntimeException('Tenant does not exist in the Control Plane registry.');
         }
 
         if ($tenant->status === 'PROVISIONING_FAILED') {
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
             throw new \RuntimeException('Tenant is in a failed provisioning state and is prohibited from operations.');
         }
 
         // 2. Operational Status (Lifecycle)
         if ($tenant->status !== 'ACTIVE') {
-            throw new \RuntimeException(sprintf('Tenant is currently %s. Operations are restricted.', $tenant->status));
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+            throw new \RuntimeException(sprintf('Tenant is currently %s. Operations are restricted.', esc_html($tenant->status)));
         }
 
         // 3. Quota Availability
@@ -64,6 +69,7 @@ final class ControlPlaneGuard
         global $wpdb;
         $table = $wpdb->prefix . 'mhm_rentiva_tenants';
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
         return $wpdb->get_row(
             $wpdb->prepare("SELECT * FROM {$table} WHERE tenant_id = %d", $tenant_id)
         );
@@ -87,6 +93,7 @@ final class ControlPlaneGuard
         $table = $wpdb->prefix . 'mhm_rentiva_usage_metrics';
 
         // Get current cycle's usage
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
         $usage = (int) $wpdb->get_var(
             $wpdb->prepare(
                 "SELECT metric_value FROM {$table} WHERE tenant_id = %d AND metric_type = %s ORDER BY cycle_start DESC LIMIT 1",

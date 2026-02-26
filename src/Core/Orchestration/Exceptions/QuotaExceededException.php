@@ -10,13 +10,13 @@ if (! defined('ABSPATH')) {
 
 /**
  * Thrown when a tenant exceeds their allocated resource quota.
- * 
+ *
  * Automatically triggers an 'ACTION_QUOTA_BLOCKED' audit event for forensics.
  *
  * @since 4.23.0
  */
-class QuotaExceededException extends \RuntimeException
-{
+class QuotaExceededException extends \RuntimeException {
+
     private int $tenant_id;
     private string $metric_type;
 
@@ -46,7 +46,7 @@ class QuotaExceededException extends \RuntimeException
                 [
                     'tenant_id'   => $this->tenant_id,
                     'metric_type' => $this->metric_type,
-                    'event'       => 'ACTION_QUOTA_BLOCKED'
+                    'event'       => 'ACTION_QUOTA_BLOCKED',
                 ],
                 'saas_control_plane'
             );
