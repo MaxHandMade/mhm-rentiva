@@ -35,9 +35,9 @@ final class OrchestrationMigration
             created_at datetime NOT NULL,
             updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY  (id),
-            UNIQUE KEY tenant_id (tenant_id),
-            KEY site_idx (site_id),
-            KEY status_idx (status)
+            UNIQUE KEY tenant_id  (tenant_id),
+            KEY site_idx  (site_id),
+            KEY status_idx  (status)
         ) $charset_collate;";
 
         // 2. Usage Metrics Table
@@ -51,8 +51,8 @@ final class OrchestrationMigration
             cycle_end datetime NOT NULL,
             updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY  (id),
-            UNIQUE KEY tenant_metric_cycle (tenant_id, metric_type, cycle_start),
-            KEY tenant_metric_idx (tenant_id, metric_type)
+            UNIQUE KEY tenant_metric_cycle  (tenant_id, metric_type, cycle_start),
+            KEY tenant_metric_idx  (tenant_id, metric_type)
         ) $charset_collate;";
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';

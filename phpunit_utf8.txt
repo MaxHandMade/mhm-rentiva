@@ -1,0 +1,214 @@
+Installing...
+Running as single site... To run multisite, use -c tests/phpunit/multisite.xml
+Not running ajax tests. To execute these, use --group ajax.
+Not running ms-files tests. To execute these, use --group ms-files.
+Not running external-http tests. To execute these, use --group external-http.
+PHPUnit 9.6.32 by Sebastian Bergmann and contributors.
+
+...............................................................  63 / 348 ( 18%)
+...........................string(58) "Response is: {"success":true,"data":{"keys":[],"count":0}}"
+.................................... 126 / 348 ( 36%)
+.............EEEEEEEE.E......EE.E..E..EEEEE..EEEE.............. 189 / 348 ( 54%)
+............................................................... 252 / 348 ( 72%)
+............................................................... 315 / 348 ( 90%)
+...................SSS...........                               348 / 348 (100%)
+
+Time: 00:15.350, Memory: 76.50 MB
+
+There were 22 errors:
+
+1) MHMRentiva\Tests\Core\Financial\AtomicPayoutServiceTest::test_atomic_approve_success
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Ledger.php:32
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/AtomicPayoutServiceTest.php:174
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/AtomicPayoutServiceTest.php:68
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+2) MHMRentiva\Tests\Core\Financial\AtomicPayoutServiceTest::test_rows_affected_zero_triggers_rollback
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Ledger.php:32
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/AtomicPayoutServiceTest.php:174
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/AtomicPayoutServiceTest.php:68
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+3) MHMRentiva\Tests\Core\Financial\AtomicPayoutServiceTest::test_concurrent_approve_guard
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Ledger.php:32
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/AtomicPayoutServiceTest.php:174
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/AtomicPayoutServiceTest.php:68
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+4) MHMRentiva\Tests\Core\Financial\AtomicPayoutServiceTest::test_invalid_payout_id_returns_wp_error
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Ledger.php:32
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/AtomicPayoutServiceTest.php:174
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/AtomicPayoutServiceTest.php:68
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+5) MHMRentiva\Tests\Core\Financial\AtomicRegressionTest::test_governance_wrap_succeeds_atomic_payout
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Ledger.php:32
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/AtomicRegressionTest.php:112
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/AtomicRegressionTest.php:57
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+6) MHMRentiva\Tests\Core\Financial\Audit\Sprint11AuditExportTest::test_audit_export_determinism
+MHMRentiva\Core\Financial\Exceptions\GovernanceException: Export creation failed: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Audit/Export/AuditExportService.php:141
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/Audit/Sprint11AuditExportTest.php:113
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+7) MHMRentiva\Tests\Core\Financial\Audit\Sprint11AuditExportTest::test_signature_verification_integrity
+MHMRentiva\Core\Financial\Exceptions\GovernanceException: Export creation failed: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Audit/Export/AuditExportService.php:141
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/Audit/Sprint11AuditExportTest.php:127
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+8) MHMRentiva\Tests\Core\Financial\Audit\Sprint11AuditExportTest::test_tamper_detection_breaks_signature
+MHMRentiva\Core\Financial\Exceptions\GovernanceException: Export creation failed: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Audit/Export/AuditExportService.php:141
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/Audit/Sprint11AuditExportTest.php:148
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+9) MHMRentiva\Tests\Core\Financial\Audit\Sprint11AuditExportTest::test_key_rotation_preserves_historical_verification
+MHMRentiva\Core\Financial\Exceptions\GovernanceException: Export creation failed: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Audit/Export/AuditExportService.php:141
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/Audit/Sprint11AuditExportTest.php:220
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+10) MHMRentiva\Tests\Core\Financial\ForensicHardeningTest::test_forensic_commit_success
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/AtomicPayoutService.php:80
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/GovernanceService.php:163
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/ForensicHardeningTest.php:84
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+11) MHMRentiva\Tests\Core\Financial\ForensicHardeningTest::test_forensic_rollback_guarantee
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/AtomicPayoutService.php:80
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/GovernanceService.php:163
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/ForensicHardeningTest.php:118
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+12) MHMRentiva\Tests\Core\Financial\ForensicHardeningTest::test_forensic_event_not_duplicated_on_retry
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/AtomicPayoutService.php:80
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/GovernanceService.php:163
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/ForensicHardeningTest.php:169
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+13) MHMRentiva\Tests\Core\Financial\GovernanceAuthorizationTest::test_auth_allowed_with_capability
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Ledger.php:32
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/GovernanceAuthorizationTest.php:106
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/GovernanceAuthorizationTest.php:77
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+14) MHMRentiva\Tests\Core\Financial\LedgerTest::test_duplicate_uuid_silent_ignore
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Ledger.php:32
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/LedgerTest.php:46
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+15) MHMRentiva\Tests\Core\Financial\LedgerTest::test_pending_vs_cleared_separation
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Ledger.php:32
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/LedgerTest.php:59
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+16) MHMRentiva\Tests\Core\Financial\LedgerTest::test_refund_negative_entry_deduction
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Ledger.php:32
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/LedgerTest.php:75
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+17) MHMRentiva\Tests\Core\Financial\LedgerTest::test_payout_debit_balance_reduction
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Ledger.php:32
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/LedgerTest.php:85
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+18) MHMRentiva\Tests\Core\Financial\LedgerTest::test_multiple_vendor_isolation
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/Ledger.php:32
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/LedgerTest.php:98
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+19) MHMRentiva\Tests\Core\Financial\Sprint10GovernanceTest::test_high_risk_auto_freeze
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/GovernanceService.php:97
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/Sprint10GovernanceTest.php:155
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+20) MHMRentiva\Tests\Core\Financial\Sprint10GovernanceTest::test_maker_can_bypass_with_override_capability
+MHMRentiva\Core\Tenancy\Exceptions\TenantResolutionException: Failed to resolve a valid TenantContext. Reason: No valid tenant ID detected in current request scope.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/Exceptions/TenantResolutionException.php:28
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Tenancy/TenantResolver.php:66
+/var/www/html/wp-content/plugins/mhm-rentiva/src/Core/Financial/GovernanceService.php:126
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/Sprint10GovernanceTest.php:179
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+21) MHMRentiva\Tests\Core\Financial\TenantIsolationTest::test_ledger_balance_is_isolated_per_tenant
+Error: Call to undefined method MHMRentiva\Core\Financial\LedgerEntry::create_credit()
+
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/TenantIsolationTest.php:54
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+22) MHMRentiva\Tests\Core\Financial\TenantIsolationTest::test_ledger_entries_are_isolated_per_tenant
+Error: Call to undefined method MHMRentiva\Core\Financial\LedgerEntry::create_credit()
+
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/TenantIsolationTest.php:81
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+ERRORS!
+Tests: 348, Assertions: 1550, Errors: 22, Skipped: 3.

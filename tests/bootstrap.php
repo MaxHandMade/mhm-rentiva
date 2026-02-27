@@ -164,6 +164,15 @@ function _manually_load_plugin()
 tests_add_filter('muplugins_loaded', '_manually_load_plugin');
 
 /**
+ * Force valid Tenant ID for all tests to satisfy v1.9 Orchestration requirements.
+ */
+tests_add_filter('muplugins_loaded', function () {
+	add_filter('mhm_rentiva_filter_tenant_id', function () {
+		return 1;
+	}, 1);
+}, 11);
+
+/**
  * Run plugin installation (DB table creation) after plugin is loaded.
  *
  * Priority 20 ensures this runs after _manually_load_plugin (priority 10),
@@ -192,6 +201,22 @@ tests_add_filter('muplugins_loaded', function () {
 
 	foreach ($critical_tables as $table) {
 		\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::create_table($table);
+	}
+
+	// Ensure Default Tenant (ID 1) exists for Orchestration tests
+	global $wpdb;
+	$tenants_table = $wpdb->prefix . 'mhm_rentiva_tenants';
+	$exists = $wpdb->get_var($wpdb->prepare("SELECT id FROM $tenants_table WHERE tenant_id = %d", 1));
+	if (!$exists) {
+		$wpdb->insert($tenants_table, [
+			'tenant_id' => 1,
+			'status' => 'ACTIVE',
+			'subscription_plan' => 'pro',
+			'quota_payouts_limit' => 1000,
+			'quota_ledger_entries_limit' => 10000,
+			'quota_risk_events_limit' => 500,
+			'created_at' => current_time('mysql')
+		]);
 	}
 }, 20);
 
