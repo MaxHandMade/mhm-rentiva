@@ -25,14 +25,8 @@ namespace PHPUnit\Framework {
             public function assertNotSame(mixed $expected, mixed $actual, string $message = ''): void {}
             public function fail(string $message = ''): void {}
 
-            /** @return void */
-            public function setUp(): void {}
-            /** @return void */
-            public function tearDown(): void {}
-            /** @return void */
-            public function set_up() {}
-            /** @return void */
-            public function tear_down() {}
+            public function setUp() {}
+            public function tearDown() {}
 
             /** @return \PHPUnit\Framework\MockObject\MockObject|mixed */
             public function createMock(string $originalClassName): object
