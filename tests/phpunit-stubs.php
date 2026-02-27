@@ -63,8 +63,8 @@ namespace {
             /** @var WP_UnitTest_Factory */
             public $factory;
 
-            public function setUp(): void {}
-            public function tearDown(): void {}
+            public function setUp() {}
+            public function tearDown() {}
             public function set_up() {}
             public function tear_down() {}
         }
