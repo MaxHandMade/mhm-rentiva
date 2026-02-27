@@ -47,11 +47,11 @@ class ProvisioningIsolationTest extends \WP_UnitTestCase
         $key_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}mhm_rentiva_key_registry WHERE tenant_id = %d", $tenant_id));
         $this->assertGreaterThan(0, $key_count, 'Keys should exist for debugging/trace even if site failed');
     }
-    protected function tearDown(): void
+    public function tear_down()
     {
         global $wpdb;
         $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_tenants");
         $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_key_registry");
-        parent::tearDown();
+        parent::tear_down();
     }
 }

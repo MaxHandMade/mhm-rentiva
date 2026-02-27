@@ -32,9 +32,9 @@ class GovernanceAuthorizationTest extends WP_UnitTestCase
         \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::register_governance_capabilities();
     }
 
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $this->vendor_id = $this->factory->user->create(array('role' => 'customer'));
 

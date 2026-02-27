@@ -29,16 +29,16 @@ class TenantIsolationTest extends WP_UnitTestCase
     private const TENANT_A_ID = 1;
     private const TENANT_B_ID = 2;
 
-    protected function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
         TenantResolver::reset();
     }
 
-    protected function tearDown(): void
+    public function tear_down()
     {
         TenantResolver::reset();
-        parent::tearDown();
+        parent::tear_down();
     }
 
     /**

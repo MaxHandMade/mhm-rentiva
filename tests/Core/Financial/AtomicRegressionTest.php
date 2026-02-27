@@ -30,9 +30,9 @@ class AtomicRegressionTest extends WP_UnitTestCase
         \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::register_governance_capabilities();
     }
 
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $this->vendor_id = $this->factory->user->create(array(
             'role' => 'customer',
@@ -57,13 +57,13 @@ class AtomicRegressionTest extends WP_UnitTestCase
         $this->seed_credit(self::CREDIT);
     }
 
-    public function tearDown(): void
+    public function tear_down()
     {
         global $wpdb;
         $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_ledger"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_key_registry"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         wp_set_current_user(0);
-        parent::tearDown();
+        parent::tear_down();
     }
 
     /** @test */

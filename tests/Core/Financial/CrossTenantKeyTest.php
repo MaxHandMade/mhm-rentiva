@@ -34,20 +34,20 @@ class CrossTenantKeyTest extends WP_UnitTestCase
         \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::create_key_registry_table();
     }
 
-    protected function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
         global $wpdb;
         $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_key_registry");
         TenantResolver::reset();
     }
 
-    protected function tearDown(): void
+    public function tear_down()
     {
         global $wpdb;
         $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_key_registry");
         TenantResolver::reset();
-        parent::tearDown();
+        parent::tear_down();
     }
 
     /**
