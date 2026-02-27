@@ -13,8 +13,6 @@ use MHMRentiva\Core\Tenancy\TenantContext;
 /**
  * Tests that Provisioning process is properly isolated per tenant.
  * 
- * @method void tear_down()
- * @mixin \WP_UnitTestCase
  */
 class ProvisioningIsolationTest extends \WP_UnitTestCase
 {
@@ -55,7 +53,6 @@ class ProvisioningIsolationTest extends \WP_UnitTestCase
         global $wpdb;
         $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_tenants");
         $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_key_registry");
-        /** @noinspection PhpUndefinedMethodInspection */
         parent::tear_down();
     }
 }

@@ -26,9 +26,6 @@ if (! defined('ABSPATH')) {
  *
  * Higher-level integration test for Tenant Isolation.
  *
- * @method void set_up()
- * @method void tear_down()
- * @mixin \WP_UnitTestCase
  */
 class TenantIsolationTest extends WP_UnitTestCase
 {
@@ -37,7 +34,6 @@ class TenantIsolationTest extends WP_UnitTestCase
 
     public function set_up()
     {
-        /** @noinspection PhpUndefinedMethodInspection */
         parent::set_up();
         TenantResolver::reset();
     }
@@ -45,7 +41,6 @@ class TenantIsolationTest extends WP_UnitTestCase
     public function tear_down()
     {
         TenantResolver::reset();
-        /** @noinspection PhpUndefinedMethodInspection */
         parent::tear_down();
     }
 

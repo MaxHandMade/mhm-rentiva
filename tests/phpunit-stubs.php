@@ -29,6 +29,10 @@ namespace PHPUnit\Framework {
             public function setUp(): void {}
             /** @return void */
             public function tearDown(): void {}
+            /** @return void */
+            public function set_up(): void {}
+            /** @return void */
+            public function tear_down(): void {}
 
             /** @return \PHPUnit\Framework\MockObject\MockObject|mixed */
             public function createMock(string $originalClassName): object
@@ -61,6 +65,8 @@ namespace {
 
             public function setUp(): void {}
             public function tearDown(): void {}
+            public function set_up(): void {}
+            public function tear_down(): void {}
         }
     }
 
