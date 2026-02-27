@@ -17,6 +17,7 @@ use WP_UnitTestCase;
  * @since 4.21.0
  * @method void set_up()
  * @method void tear_down()
+ * @mixin \WP_UnitTestCase
  */
 class AtomicRegressionTest extends WP_UnitTestCase
 {
@@ -34,6 +35,7 @@ class AtomicRegressionTest extends WP_UnitTestCase
 
     public function set_up()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         parent::set_up();
 
         $this->vendor_id = $this->factory->user->create(array(
@@ -65,6 +67,7 @@ class AtomicRegressionTest extends WP_UnitTestCase
         $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_ledger"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_key_registry"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         wp_set_current_user(0);
+        /** @noinspection PhpUndefinedMethodInspection */
         parent::tear_down();
     }
 

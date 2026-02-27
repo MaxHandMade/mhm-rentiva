@@ -26,6 +26,7 @@ if (! defined('ABSPATH')) {
  *
  * @method void set_up()
  * @method void tear_down()
+ * @mixin \WP_UnitTestCase
  */
 class CrossTenantKeyTest extends WP_UnitTestCase
 {
@@ -40,6 +41,7 @@ class CrossTenantKeyTest extends WP_UnitTestCase
 
     public function set_up()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         parent::set_up();
         global $wpdb;
         $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_key_registry");
@@ -51,6 +53,7 @@ class CrossTenantKeyTest extends WP_UnitTestCase
         global $wpdb;
         $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_key_registry");
         TenantResolver::reset();
+        /** @noinspection PhpUndefinedMethodInspection */
         parent::tear_down();
     }
 

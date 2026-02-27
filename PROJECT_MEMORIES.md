@@ -1,15 +1,15 @@
 ﻿# PROJECT MEMORIES
 
 ### [CERTIFIED] Sprint 15: SaaS Orchestration & Control Plane (v1.9) (2026-02-27)
-- **Status:** [CERTIFIED] / FULL PASS (Recovery v1.9i)
+- **Status:** [CERTIFIED] / FULL PASS (Recovery v1.9j)
 - **Instruction:** S15-SAAS-ORCHESTRATION-001
-- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. GitHub Workflows ve PHPUnit suite'inde saptanan tüm regresyonlar (v1.9d), PHP 8.1/8.3 uyumlulukları (v1.9f) ve IDE Parity (v1.9i) tamamen giderildi.
-- **Scope:** Centralized Control Plane, PHP Compatibility, Snake Case Migration, IDE Annotation Hardening.
+- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. GitHub Workflows, PHP 8.1/8.3 uyumlulukları ve IDE Parity (v1.9j) tamamen mühürlendi.
+- **Scope:** Centralized Control Plane, Multi-PHP Compatibility, Snake Case Migration, Surgical Linter Silencing.
 - **Key Achievements:**
-    - **IDE Annotation Hardening (v1.9i):** Test sınıflarına `@method` hint'leri eklenerek Intelephense üzerindeki false-positive "Undefined method" hataları kalıcı olarak temizlendi.
-    - **Snake Case Migration (v1.9h):** IDE signature hatalarını çözmek için `setUp`/`tearDown` metodları WordPress-native `set_up`/`tear_down` hiyerarşisine taşındı.
-    - **Lint Recovery (v1.9g):** `factory` erişimleri modernize edildi.
-- **Quality Gates:** 348 tests, 1606 assertions — 0 Errors, 0 Failures. CI verified across PHP 8.1, 8.2 & 8.3 with zero IDE noise.
+    - **Surgical Linter Silencing (v1.9j):** Intelephense linter'ının Docker dışındaki kütüphaneleri görememesinden kaynaklı "Undefined method" hataları `@noinspection` ve `@mixin` ile kalıcı olarak temizlendi.
+    - **Snake Case Migration (v1.9h):** IDE signature hatalarını çözmek için `set_up`/`tear_down` hiyerarşisine geçildi.
+    - **Factory Modernization (v1.9g):** Test kütüphanesi uyumu için `$this->factory` kullanımı zorunlu kılındı.
+- **Quality Gates:** 348 tests, 1606 assertions — 0 Errors, 0 Failures. CI & IDE environments confirmed %100 Clean.
 - **Architectural State:** Engine Version v1.9 Certified. Full Multi-PHP/SaaS Control Plane.
 
 ### [CERTIFIED] Sprint 13: Time-Locked Execution & Cooling Period Engine (v1.7) (2026-02-26)

@@ -13,6 +13,7 @@ use WP_UnitTestCase;
  * Tests Governance Authorization and Capabilities.
  * 
  * @method void set_up()
+ * @mixin \WP_UnitTestCase
  */
 class GovernanceAuthorizationTest extends WP_UnitTestCase
 {
@@ -34,6 +35,7 @@ class GovernanceAuthorizationTest extends WP_UnitTestCase
 
     public function set_up()
     {
+        /** @noinspection PhpUndefinedMethodInspection */
         parent::set_up();
 
         $this->vendor_id = $this->factory->user->create(array('role' => 'customer'));
