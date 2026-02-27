@@ -736,21 +736,21 @@ final class DatabaseMigrator
 		$table_escaped   = esc_sql($table_name);
 		$charset_collate = $wpdb->get_charset_collate();
 
-		$sql = "CREATE TABLE `{$table_escaped}` (
-            id bigint(20) NOT NULL AUTO_INCREMENT,
-            payout_id bigint(20) NOT NULL,
-            actor_user_id bigint(20) NOT NULL,
-            action varchar(50) NOT NULL,
-            tx_uuid varchar(36) NOT NULL,
-            ip_hash varchar(64) DEFAULT NULL,
-            metadata_json text DEFAULT NULL,
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY  (id),
-            UNIQUE KEY payout_action_tx (payout_id, action, tx_uuid),
-            KEY payout_id (payout_id),
-            KEY actor_user_id (actor_user_id),
-            KEY action (action)
-        ) $charset_collate;";
+		$sql = "CREATE TABLE $table_name (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			payout_id bigint(20) unsigned NOT NULL,
+			actor_user_id bigint(20) unsigned NOT NULL,
+			action varchar(50) NOT NULL,
+			tx_uuid varchar(36) NOT NULL,
+			ip_hash varchar(64) DEFAULT NULL,
+			metadata_json text DEFAULT NULL,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY  (id),
+			UNIQUE KEY payout_action_tx  (payout_id, action, tx_uuid),
+			KEY payout_id  (payout_id),
+			KEY actor_user_id  (actor_user_id),
+			KEY action  (action)
+		) $charset_collate;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta($sql);
