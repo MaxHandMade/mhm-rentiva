@@ -141,6 +141,7 @@ pcp/
 .clinerules/
 .cline/
 .clinerules
+.worktrees/
 
 # Test Documentation
 TEST-GUIDE.md

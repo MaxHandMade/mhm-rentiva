@@ -1,13 +1,13 @@
 ﻿# PROJECT MEMORIES
 
 ### [CERTIFIED] Sprint 15: SaaS Orchestration & Control Plane (v1.9) (2026-02-27)
-- **Status:** [CERTIFIED] / FULL PASS (Recovery v1.9o)
+- **Status:** [CERTIFIED] / FULL PASS (Recovery v1.9p)
 - **Instruction:** S15-SAAS-ORCHESTRATION-001
-- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. Multi-PHP uyumluluğu, IDE Parity ve GHA Nuclear Fix (v1.9o) tamamen mühürlendi.
-- **Scope:** Centralized Control Plane, Multi-PHP Compatibility, Hierarchy Sync, GHA nuclear fix.
+- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. Multi-PHP uyumluluğu, IDE Parity ve GHA Git Integrity (v1.9p) tamamen mühürlendi.
+- **Scope:** Centralized Control Plane, Multi-PHP Compatibility, Hierarchy Sync, GHA ghost cleanup.
 - **Key Achievements:**
-    - **GitHub Actions Nuclear Fix (v1.9o):** CI ortamındaki git uyarılarını susturmak için radikal `safe.directory: '*'` ve credential temizliği uygulandı. CI raporları %100 temizlendi.
-    - **Pure Hierarchy Sync (v1.9m):** Stub dosyasındaki hiyerarşik çakışmalar giderildi.
+    - **GitHub Actions Ghost Cleanup (v1.9p):** CI ekranlarındaki `exit code 128` hatasına yol açan `.worktrees` hayalet submodule kaydı temizlendi. CI bütünlüğü sağlandı.
+    - **GitHub Actions Nuclear Fix (v1.9o):** Git güvenlik uyarıları wildcard ile susturuldu.
 - **Quality Gates:** 348 tests, 1606 assertions — 0 Errors, 0 Failures. CI & IDE confirmed %100 Success.
 - **Architectural State:** Engine Version v1.9 Certified. Full Multi-PHP/SaaS Control Plane.
 
