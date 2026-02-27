@@ -15,6 +15,8 @@ use WP_UnitTestCase;
  * Tests Governance layer does not break AtomicPayoutService logic.
  * 
  * @since 4.21.0
+ * @method void set_up()
+ * @method void tear_down()
  */
 class AtomicRegressionTest extends WP_UnitTestCase
 {

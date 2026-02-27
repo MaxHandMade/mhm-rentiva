@@ -11,7 +11,9 @@ use MHMRentiva\Core\Tenancy\TenantResolver;
 use MHMRentiva\Core\Tenancy\TenantContext;
 
 /**
- * Test A: Provisioning Isolation & Rollback.
+ * Tests that Provisioning process is properly isolated per tenant.
+ * 
+ * @method void tear_down()
  */
 class ProvisioningIsolationTest extends \WP_UnitTestCase
 {

@@ -22,6 +22,10 @@ if (! defined('ABSPATH')) {
  * @group multi-tenant
  * @group cryptographic-isolation
  * @since 4.23.0
+ * Tests KeyRegistry isolation between tenants.
+ *
+ * @method void set_up()
+ * @method void tear_down()
  */
 class CrossTenantKeyTest extends WP_UnitTestCase
 {

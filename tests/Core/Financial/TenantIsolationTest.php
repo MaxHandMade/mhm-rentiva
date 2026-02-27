@@ -23,6 +23,11 @@ if (! defined('ABSPATH')) {
  * @group multi-tenant
  * @group isolation
  * @since 4.23.0
+ *
+ * Higher-level integration test for Tenant Isolation.
+ *
+ * @method void set_up()
+ * @method void tear_down()
  */
 class TenantIsolationTest extends WP_UnitTestCase
 {

@@ -10,9 +10,9 @@ use MHMRentiva\Core\Financial\GovernanceService;
 use WP_UnitTestCase;
 
 /**
- * Tests Governance authorization layers.
+ * Tests Governance Authorization and Capabilities.
  * 
- * @since 4.21.0
+ * @method void set_up()
  */
 class GovernanceAuthorizationTest extends WP_UnitTestCase
 {
