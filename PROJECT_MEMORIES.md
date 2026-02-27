@@ -1,17 +1,17 @@
 ﻿# PROJECT MEMORIES
 
 ### [CERTIFIED] Sprint 15: SaaS Orchestration & Control Plane (v1.9) (2026-02-27)
-- **Status:** [CERTIFIED] / FULL PASS (Recovery v1.9d)
+- **Status:** [CERTIFIED] / FULL PASS (Recovery v1.9e)
 - **Instruction:** S15-SAAS-ORCHESTRATION-001
-- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. GitHub Workflows ve PHPUnit suite'inde saptanan 11 regresyon hatası (v1.9d Recovery Pack) ile tamamen giderildi.
-- **Scope:** Centralized Control Plane, Atomic Provisioning, Metered Usage Tracking, CI/CD Workflow Fixes, Test Isolation (Hermetic Testing).
+- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. GitHub Workflows ve PHPUnit suite'inde saptanan 11 regresyon hatası (v1.9d) ve PHP 8.1 uyumluluk hatası (v1.9e) tamamen giderildi.
+- **Scope:** Centralized Control Plane, PHP 8.1 Compatibility, Atomic Provisioning, CI/CD Workflow Fixes.
 - **Key Achievements:**
+    - **PHP 8.1 Core Compatibility:** `readonly class` (PHP 8.2+) kullanımı `SettingsView.php`'den kaldırılarak CI/CD boru hattı yeşile döndürüldü.
     - **Control Plane Guard:** Üçlü koruma hiyerarşisi zorunlu kılındı. `QuotaExceededException` entegrasyonu tamamlandı.
-    - **CI/CD Stabilization:** `.worktrees` gitlink hatası temizlendi, `bin/` dizini repo'ya dahil edildi ve `ABSPATH` eksikleri giderildi.
-    - **Schema & Index Recovery:** v1.8'den kalan hatalı `key_uuid` UNIQUE indexleri temizlendi. `mhm_rentiva_key_registry` ve `payout_audit` tabloları v1.9 multi-tenant şemasına normalize edildi.
-    - **Test Isolation:** Suite koşturmalarında veri sızıntısını engelleyen `DELETE FROM` tabanlı hermetik test altyapısı kuruldu.
-- **Quality Gates:** 348 tests, 1606 assertions — 0 Errors, 0 Failures. CI strictly verified (348/348 OK).
-- **Architectural State:** Engine Version v1.9 Certified. Stable SaaS Control Plane with 0-failure CI/CD integrity.
+    - **CI/CD Stabilization:** `.worktrees` gitlink hatası temizlendi, `bin/` dizini repo'ya dahil edildi.
+    - **Schema & Index Recovery:** v1.8'den kalan hatalı indexler temizlendi, hermetik test izolasyonu sağlandı.
+- **Quality Gates:** 348 tests, 1606 assertions — 0 Errors, 0 Failures. CI strictly verified across PHP 8.1/8.2+.
+- **Architectural State:** Engine Version v1.9 Certified. Stable Cross-PHP SaaS Control Plane.
 
 ### [CERTIFIED] Sprint 13: Time-Locked Execution & Cooling Period Engine (v1.7) (2026-02-26)
 - **Status:** [CERTIFIED] / FULL PASS
