@@ -1,14 +1,15 @@
 ﻿# PROJECT MEMORIES
 
 ### [CERTIFIED] Sprint 15: SaaS Orchestration & Control Plane (v1.9) (2026-02-27)
-- **Status:** [CERTIFIED] / FULL PASS (Recovery v1.9k)
+- **Status:** [CERTIFIED] / FULL PASS (Recovery v1.9l)
 - **Instruction:** S15-SAAS-ORCHESTRATION-001
-- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. GitHub Workflows, PHP 8.1/8.3 uyumlulukları ve Architectural IDE Parity (v1.9k) tamamen mühürlendi.
-- **Scope:** Centralized Control Plane, Multi-PHP Compatibility, Snake Case Migration, IDE Stub Hardening.
+- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. GitHub Workflows, Multi-PHP uyumluluğu ve IDE Signature Parity (v1.9l) tamamen mühürlendi.
+- **Scope:** Centralized Control Plane, Multi-PHP Compatibility, Snake Case Migration, Type Hint Harmony.
 - **Key Achievements:**
-    - **IDE Stub Hardening (v1.9k):** Merkezi `tests/phpunit-stubs.php` dosyası güncellenerek `set_up`/`tear_down` metodları global olarak IDE'ye tanıtıldı. Test dosyalarındaki tüm kirli anotasyonlar temizlenerek tertemiz bir kod tabanı sağlandı.
-    - **Snake Case Migration (v1.9h):** IDE signature hatalarını çözmek için `set_up`/`tear_down` hiyerarşisine geçildi.
-- **Quality Gates:** 348 tests, 1606 assertions — 0 Errors, 0 Failures. CI & IDE environments confirmed %100 Clean.
+    - **Type Hint Harmony (v1.9l):** IDE stub dosyasındaki metod imzaları Child Class'lar ile senkronize edildi (`: void` kısıtı kaldırıldı). Tüm "Incompatible method" hataları temizlendi.
+    - **IDE Stub Hardening (v1.9k):** Merkezi stub dosyasına `set_up`/`tear_down` eklendi.
+    - **Snake Case Migration (v1.9h):** WordPress-native test hiyerarşisine geçildi.
+- **Quality Gates:** 348 tests, 1606 assertions — 0 Errors, 0 Failures. CI & IDE confirmed %100 Success.
 - **Architectural State:** Engine Version v1.9 Certified. Full Multi-PHP/SaaS Control Plane.
 
 ### [CERTIFIED] Sprint 13: Time-Locked Execution & Cooling Period Engine (v1.7) (2026-02-26)
