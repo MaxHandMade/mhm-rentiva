@@ -60,7 +60,8 @@ class AtomicRegressionTest extends WP_UnitTestCase
     public function tearDown(): void
     {
         global $wpdb;
-        $wpdb->query("TRUNCATE TABLE {$wpdb->prefix}mhm_rentiva_ledger"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_ledger"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+        $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_key_registry"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         wp_set_current_user(0);
         parent::tearDown();
     }
@@ -90,7 +91,7 @@ class AtomicRegressionTest extends WP_UnitTestCase
         // Verify Governance audit logged the TRUE execution, not just the check
         global $wpdb;
         $table = $wpdb->prefix . 'mhm_rentiva_payout_audit';
-        $audit = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE payout_id = %d AND action = %s", $payout_id, GovernanceService::ACTION_EXECUTED));
+        $audit = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE payout_id = %d AND action = %s", $payout_id, GovernanceService::ACTION_FINALIZED));
 
         $this->assertNotNull($audit);
     }

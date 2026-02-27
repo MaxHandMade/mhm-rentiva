@@ -1,17 +1,17 @@
 ﻿# PROJECT MEMORIES
 
-### [CERTIFIED] Sprint 15: SaaS Orchestration & Control Plane (v1.9) (2026-02-26)
-- **Status:** [CERTIFIED] / FULL PASS
+### [CERTIFIED] Sprint 15: SaaS Orchestration & Control Plane (v1.9) (2026-02-27)
+- **Status:** [CERTIFIED] / FULL PASS (Recovery v1.9d)
 - **Instruction:** S15-SAAS-ORCHESTRATION-001
-- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. Tenant provisioning, metering, quota enforcement ve lifecycle governance katmanları PHPUnit ile %100 doğrulandı.
-- **Scope:** Centralized Control Plane, Atomic Provisioning (Rollback Guard), Metered Usage Tracking, Hard Quota Blocking, Lifecycle Governance (Suspension Lock).
+- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. GitHub Workflows ve PHPUnit suite'inde saptanan 11 regresyon hatası (v1.9d Recovery Pack) ile tamamen giderildi.
+- **Scope:** Centralized Control Plane, Atomic Provisioning, Metered Usage Tracking, CI/CD Workflow Fixes, Test Isolation (Hermetic Testing).
 - **Key Achievements:**
-    - **Control Plane Guard:** Üçlü koruma hiyerarşisi (Exists -> Operational -> Quota) tüm finansal işlemlere entegre edildi. `QuotaExceededException` ile sert bloklama sağlandı.
-    - **Atomic Provisioning:** Veritabanı öncelikli (DB-First) kayıt ve hata durumunda otomatik rollback mekanizması kuruldu. `PROVISIONING_FAILED` statüsü ile ortam tutarlılığı korundu.
-    - **Metering & Quotas:** `usage_metrics` tablosu üzerinde atomik artırımlar ve döngüsel (cycle-based) kota takibi uygulandı. `UNIQUE` constraint ile veri bütünlüğü fiziksel olarak sağlandı.
-    - **Lifecycle Governance:** Askıya alınan (suspended) tenantlar için tüm ledger işlemleri ve otomatik worker jobları (`MaturedPayoutJob`) bloklandı/atlandı.
-- **Quality Gates:** 6 tests, 10 assertions — 0 Errors, 0 Failures. CI/PHPUnit determinism verified.
-- **Architectural State:** Engine Version v1.9 Certified. True Financial SaaS Core with authoritative isolation and resource governance.
+    - **Control Plane Guard:** Üçlü koruma hiyerarşisi zorunlu kılındı. `QuotaExceededException` entegrasyonu tamamlandı.
+    - **CI/CD Stabilization:** `.worktrees` gitlink hatası temizlendi, `bin/` dizini repo'ya dahil edildi ve `ABSPATH` eksikleri giderildi.
+    - **Schema & Index Recovery:** v1.8'den kalan hatalı `key_uuid` UNIQUE indexleri temizlendi. `mhm_rentiva_key_registry` ve `payout_audit` tabloları v1.9 multi-tenant şemasına normalize edildi.
+    - **Test Isolation:** Suite koşturmalarında veri sızıntısını engelleyen `DELETE FROM` tabanlı hermetik test altyapısı kuruldu.
+- **Quality Gates:** 348 tests, 1606 assertions — 0 Errors, 0 Failures. CI strictly verified (348/348 OK).
+- **Architectural State:** Engine Version v1.9 Certified. Stable SaaS Control Plane with 0-failure CI/CD integrity.
 
 ### [CERTIFIED] Sprint 13: Time-Locked Execution & Cooling Period Engine (v1.7) (2026-02-26)
 - **Status:** [CERTIFIED] / FULL PASS

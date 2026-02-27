@@ -738,6 +738,7 @@ final class DatabaseMigrator
 
 		$sql = "CREATE TABLE $table_name (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			tenant_id bigint(20) unsigned NOT NULL DEFAULT 1,
 			payout_id bigint(20) unsigned NOT NULL,
 			actor_user_id bigint(20) unsigned NOT NULL,
 			action varchar(50) NOT NULL,
@@ -746,7 +747,8 @@ final class DatabaseMigrator
 			metadata_json text DEFAULT NULL,
 			created_at datetime DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY  (id),
-			UNIQUE KEY payout_action_tx  (payout_id, action, tx_uuid),
+			UNIQUE KEY payout_action_tx  (tenant_id, payout_id, action, tx_uuid),
+			KEY tenant_id  (tenant_id),
 			KEY payout_id  (payout_id),
 			KEY actor_user_id  (actor_user_id),
 			KEY action  (action)
@@ -872,6 +874,7 @@ final class DatabaseMigrator
 
 		$sql = "CREATE TABLE `{$table_escaped}` (
             id bigint(20) NOT NULL AUTO_INCREMENT,
+            tenant_id bigint(20) unsigned NOT NULL DEFAULT 1,
             key_uuid varchar(64) NOT NULL,
             key_algorithm varchar(32) NOT NULL DEFAULT 'ed25519',
             fingerprint char(64) NOT NULL,
@@ -884,9 +887,15 @@ final class DatabaseMigrator
             signed_at datetime,
             expires_at datetime,
             PRIMARY KEY  (id),
-            UNIQUE KEY key_uuid (key_uuid),
+            UNIQUE KEY tenant_key_active  (tenant_id, key_uuid, active_key),
+            KEY tenant_id (tenant_id),
             KEY status (status)
         ) $charset_collate;";
+
+		// Drop old non-tenant-aware UNIQUE key if exists (dbDelta won't drop it automatically)
+		if (self::index_exists($table_name, 'key_uuid')) {
+			$wpdb->query("ALTER TABLE `{$table_escaped}` DROP INDEX `key_uuid`");
+		}
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta($sql);

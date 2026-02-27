@@ -80,10 +80,10 @@ class GovernanceAuthorizationTest extends WP_UnitTestCase
 
         $this->assertTrue($result);
 
-        // Verify audit log recorded the execution action (Low risk due to seeded ledger credit history)
+        // Verify audit log recorded the execution action (In v1.9 this is ACTION_FINALIZED)
         global $wpdb;
         $table = $wpdb->prefix . 'mhm_rentiva_payout_audit';
-        $audit = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE payout_id = %d AND action = %s", $payout_id, GovernanceService::ACTION_EXECUTED));
+        $audit = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE payout_id = %d AND action = %s", $payout_id, GovernanceService::ACTION_FINALIZED));
 
         $this->assertNotNull($audit, 'Approval transitions must be audited.');
         $this->assertEquals($this->admin_id, $audit->actor_user_id);

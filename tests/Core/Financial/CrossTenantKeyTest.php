@@ -28,14 +28,24 @@ class CrossTenantKeyTest extends WP_UnitTestCase
     private const TENANT_A_ID = 1;
     private const TENANT_B_ID = 2;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::create_key_registry_table();
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
+        global $wpdb;
+        $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_key_registry");
         TenantResolver::reset();
     }
 
     protected function tearDown(): void
     {
+        global $wpdb;
+        $wpdb->query("DELETE FROM {$wpdb->prefix}mhm_rentiva_key_registry");
         TenantResolver::reset();
         parent::tearDown();
     }
@@ -50,10 +60,11 @@ class CrossTenantKeyTest extends WP_UnitTestCase
         global $wpdb;
         $table = $wpdb->prefix . 'mhm_rentiva_key_registry';
 
+        $key_uuid = 'test-key-tenant-a-' . wp_generate_password(8, false);
         // Insert a synthetic active key for Tenant A only.
         $wpdb->insert($table, [
             'tenant_id'              => self::TENANT_A_ID,
-            'key_uuid'               => 'test-key-tenant-a-001',
+            'key_uuid'               => $key_uuid,
             'status'                 => 'active',
             'active_key'             => 1,
             'fingerprint'            => str_repeat('a', 64),
@@ -72,7 +83,7 @@ class CrossTenantKeyTest extends WP_UnitTestCase
         $repo_a     = new KeyRegistryRepository(self::TENANT_A_ID);
         $active_key = $repo_a->get_active_key();
         $this->assertNotNull($active_key, 'Tenant A should be able to retrieve its own active key.');
-        $this->assertEquals('test-key-tenant-a-001', $active_key['key_uuid']);
+        $this->assertEquals($key_uuid, $active_key['key_uuid']);
     }
 
     /**

@@ -124,7 +124,7 @@ shortcode_analiz.php
 # Development Directories
 specs/
 stubs/
-bin/
+# bin/
 # tests/
 phpunit.xml
 phpunit.xml.dist

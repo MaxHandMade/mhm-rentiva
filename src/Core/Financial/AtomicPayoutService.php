@@ -127,17 +127,17 @@ final class AtomicPayoutService
             }
 
             // ─── LEDGER WRITE ────────────────────────────────────────────────────
-            Ledger::add_entry($entry);
+            $rows_affected = Ledger::add_entry($entry);
 
             // rows_affected guard: ensure the insert physically landed.
-            // Ledger::add_entry() throws RuntimeException on error, but an empty
-            // affected-rows (e.g. duplicate uuid on UNIQUE KEY) must also be caught.
-            if ((int) $wpdb->rows_affected !== 1) {
+            // Ledger::add_entry() returns 1 if new row inserted, 0 if duplicate.
+            // This return value is isolated from potential side-effects like metering increments.
+            if ($rows_affected !== 1) {
                 throw new \RuntimeException(
                     sprintf(
                         'Ledger insert for payout #%d did not affect exactly 1 row (rows_affected=%d). Possible duplicate UUID.',
                         $payout_id,
-                        (int) $wpdb->rows_affected
+                        (int) $rows_affected
                     )
                 );
             }

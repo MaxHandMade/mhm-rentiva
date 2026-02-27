@@ -87,7 +87,7 @@ class ForensicHardeningTest extends WP_UnitTestCase
 
         // Verify the audit log was physically written
         $audit_table = $wpdb->prefix . 'mhm_rentiva_payout_audit';
-        $log = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$audit_table} WHERE payout_id = %d AND action = %s", $payout_id, GovernanceService::ACTION_EXECUTED));
+        $log = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$audit_table} WHERE payout_id = %d AND action = %s", $payout_id, GovernanceService::ACTION_FINALIZED));
 
         $this->assertNotNull($log, 'Audit log must be written on successful commit.');
         $this->assertSame((string) $admin_id, $log->actor_user_id);
@@ -124,7 +124,7 @@ class ForensicHardeningTest extends WP_UnitTestCase
 
         // Crucial Check: Ensure the memory dispatcher was emptied and NO 'approve_payout' audit log was written
         $audit_table = $wpdb->prefix . 'mhm_rentiva_payout_audit';
-        $log_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$audit_table} WHERE payout_id = %d AND action = %s", $payout_id, GovernanceService::ACTION_EXECUTED));
+        $log_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$audit_table} WHERE payout_id = %d AND action = %s", $payout_id, GovernanceService::ACTION_FINALIZED));
 
         $this->assertEquals(0, (int) $log_count, 'Forensic buffer MUST NOT persist an approval if transaction rolls back.');
     }
@@ -139,7 +139,7 @@ class ForensicHardeningTest extends WP_UnitTestCase
         $audit_table = $wpdb->prefix . 'mhm_rentiva_payout_audit';
 
         // Insert first
-        GovernanceService::log_approval_event($payout_id, $actor_id, GovernanceService::ACTION_EXECUTED, $tx_uuid, 'Test');
+        GovernanceService::log_approval_event($payout_id, $actor_id, GovernanceService::ACTION_FINALIZED, $tx_uuid, 'Test');
 
         // Assert 1 row
         $count1 = $wpdb->get_var("SELECT COUNT(*) FROM {$audit_table}");
@@ -147,7 +147,7 @@ class ForensicHardeningTest extends WP_UnitTestCase
 
         $wpdb->suppress_errors(true);
         // Try to insert exact identical tx_uuid
-        GovernanceService::log_approval_event($payout_id, $actor_id, GovernanceService::ACTION_EXECUTED, $tx_uuid, 'Test Again');
+        GovernanceService::log_approval_event($payout_id, $actor_id, GovernanceService::ACTION_FINALIZED, $tx_uuid, 'Test Again');
         $wpdb->suppress_errors(false);
 
         // Assert still 1 row (UNIQUE constraint kicked in)
@@ -176,7 +176,7 @@ class ForensicHardeningTest extends WP_UnitTestCase
 
         // Verify only ONE 'execute_payout' audit log exists for this payout
         $audit_table = $wpdb->prefix . 'mhm_rentiva_payout_audit';
-        $log_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$audit_table} WHERE action = %s AND payout_id = %d", GovernanceService::ACTION_EXECUTED, $payout_id));
+        $log_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$audit_table} WHERE action = %s AND payout_id = %d", GovernanceService::ACTION_FINALIZED, $payout_id));
 
         $this->assertEquals(1, (int) $log_count, 'Only one successful approve audit log must exist despite concurrent retry attempts.');
     }

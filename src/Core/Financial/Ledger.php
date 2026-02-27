@@ -21,10 +21,11 @@ final class Ledger
      * Insert a new entry into the ledger ensuring append-only constraints.
      * Entry is scoped to the currently resolved TenantContext.
      *
+     * @return int Number of affected rows (1 on success, 0 on duplicate/idempotent skip)
      * @throws \RuntimeException If physical database insertion fails due to duplication constraints.
      * @throws \MHMRentiva\Core\Orchestration\Exceptions\QuotaExceededException If ledger quota is hit.
      */
-    public static function add_entry(LedgerEntry $entry): void
+    public static function add_entry(LedgerEntry $entry): int
     {
         global $wpdb;
 
@@ -85,7 +86,7 @@ final class Ledger
         if ($inserted === false) {
             // Idempotently ignore if duplicate key restriction triggered natively by InnoDB
             if (stripos($error, 'Duplicate entry') !== false) {
-                return;
+                return 0;
             }
 
             throw new \RuntimeException(sprintf(
@@ -99,6 +100,8 @@ final class Ledger
         if (class_exists('\\MHMRentiva\\Core\\Orchestration\\MeteredUsageTracker')) {
             \MHMRentiva\Core\Orchestration\MeteredUsageTracker::increment($tenant_id, 'ledger_entries');
         }
+
+        return 1;
     }
 
     /**

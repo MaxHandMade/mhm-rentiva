@@ -51,12 +51,19 @@ class TenantIsolationTest extends WP_UnitTestCase
 
         // Write a ledger entry AS Tenant A
         TenantResolver::set_context(new TenantContext(self::TENANT_A_ID, 'tenant-a', 'en_US'));
-        Ledger::add_entry(LedgerEntry::create_credit(
+        Ledger::add_entry(new LedgerEntry(
             transaction_uuid: 'test-tenant-a-credit-001',
             vendor_id: $vendor_id,
+            booking_id: null,
+            order_id: null,
+            type: 'commission_credit',
             amount: 500.00,
+            gross_amount: 500.00,
+            commission_amount: 0.0,
+            commission_rate: 0.0,
             currency: 'USD',
-            context: 'commission_credit'
+            context: 'commission_credit',
+            status: 'cleared'
         ));
 
         // Query balance AS Tenant A — should see the credit.
@@ -78,12 +85,19 @@ class TenantIsolationTest extends WP_UnitTestCase
 
         // Write AS Tenant A
         TenantResolver::set_context(new TenantContext(self::TENANT_A_ID, 'tenant-a', 'en_US'));
-        Ledger::add_entry(LedgerEntry::create_credit(
+        Ledger::add_entry(new LedgerEntry(
             transaction_uuid: 'test-tenant-a-entry-001',
             vendor_id: $vendor_id,
+            booking_id: null,
+            order_id: null,
+            type: 'commission_credit',
             amount: 200.00,
+            gross_amount: 200.00,
+            commission_amount: 0.0,
+            commission_rate: 0.0,
             currency: 'USD',
-            context: 'commission_credit'
+            context: 'commission_credit',
+            status: 'cleared'
         ));
 
         // Query AS Tenant B

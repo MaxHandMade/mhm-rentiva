@@ -135,19 +135,30 @@ final class GovernanceService
             return new \WP_Error('governance_concurrency', $e->getMessage());
         }
 
-        // Log Workflow Transition
+        // Log Workflow Transition (Deferred to listener if final state, otherwise immediate)
         $action_map = [
             ApprovalStateMachine::STATE_UNDER_REVIEW => self::ACTION_REVIEWED,
             ApprovalStateMachine::STATE_APPROVED_STAGE_1 => self::ACTION_REVIEWED,
             ApprovalStateMachine::STATE_APPROVED_STAGE_2 => self::ACTION_FINALIZED,
         ];
         $action_event = $action_map[$candidate_state] ?? 'state_transition';
-        self::log_approval_event($payout_id, $actor_id, $action_event, '', "State advanced to {$candidate_state}", $risk_result->score, $candidate_state);
 
         // 8. Execute Atomic Core if workflow resolves to final approval or time-lock transition
         if ($candidate_state === ApprovalStateMachine::STATE_APPROVED_STAGE_2 || $candidate_state === ApprovalStateMachine::STATE_TIME_LOCKED) {
             $dispatcher = new DomainEventDispatcher();
-            $dispatcher->listen('payout_approved', static function (PayoutApprovedEvent $event) use ($actor_id, $candidate_state) {
+            $dispatcher->listen('payout_approved', static function (PayoutApprovedEvent $event) use ($actor_id, $candidate_state, $action_event, $risk_result) {
+                // Forensic Log 1: The state transition itself (Now inside the transaction!)
+                self::log_approval_event(
+                    $event->get_payout_id(),
+                    $actor_id,
+                    $action_event,
+                    $event->get_tx_uuid(),
+                    "State advanced to {$candidate_state}",
+                    $risk_result->score,
+                    $candidate_state
+                );
+
+                // Forensic Log 2: The atomic submission
                 self::log_approval_event(
                     $event->get_payout_id(),
                     $actor_id,
@@ -268,19 +279,21 @@ final class GovernanceService
             'workflow_state' => $workflow_state
         ));
 
-        $wpdb->insert(
-            $table,
-            array(
-                'payout_id'     => $payout_id,
-                'actor_user_id' => $actor_id,
-                'action'        => $action,
-                'tx_uuid'       => $tx_uuid,
-                'ip_hash'       => $ip_hash,
-                'metadata_json' => $metadata,
-                'created_at'    => current_time('mysql'),
-            ),
-            array('%d', '%d', '%s', '%s', '%s', '%s', '%s')
-        );
+        $tenant_id = (int) \MHMRentiva\Core\Tenancy\TenantResolver::resolve()->get_id();
+
+        // Use INSERT IGNORE to stay idempotent during retries/concurrent race conditions.
+        $wpdb->query($wpdb->prepare(
+            "INSERT IGNORE INTO $table (tenant_id, payout_id, actor_user_id, action, tx_uuid, ip_hash, metadata_json, created_at)
+             VALUES (%d, %d, %d, %s, %s, %s, %s, %s)",
+            $tenant_id,
+            $payout_id,
+            $actor_id,
+            $action,
+            $tx_uuid,
+            $ip_hash,
+            $metadata,
+            current_time('mysql')
+        ));
     }
 
     /**

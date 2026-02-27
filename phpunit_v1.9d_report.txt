@@ -1,0 +1,134 @@
+Installing...
+Running as single site... To run multisite, use -c tests/phpunit/multisite.xml
+Not running ajax tests. To execute these, use --group ajax.
+Not running ms-files tests. To execute these, use --group ms-files.
+Not running external-http tests. To execute these, use --group external-http.
+PHPUnit 9.6.32 by Sebastian Bergmann and contributors.
+
+...............................................................  63 / 348 ( 18%)
+...........................string(58) "Response is: {"success":true,"data":{"keys":[],"count":0}}"
+.................................... 126 / 348 ( 36%)
+.............F...F.........F<div id="error"><p class="wpdberror"><strong>WordPress database error:</strong> [Duplicate entry &#039;1-1&#039; for key &#039;tenant_active_key_unique&#039;]<br /><code>INSERT INTO `wptests_mhm_rentiva_key_registry` (`tenant_id`, `key_uuid`, `status`, `active_key`, `fingerprint`, `key_algorithm`, `public_key`, `private_key_encrypted`, `created_at`) VALUES (&#039;1&#039;, &#039;test-key-tenant-a-001&#039;, &#039;active&#039;, &#039;1&#039;, &#039;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#039;, &#039;Ed25519&#039;, &#039;dGVuYW50LWEtcHVibGljLWtleQ==&#039;, &#039;dGVuYW50LWEtZW5jcnlwdGVkLXByaXZhdGU=&#039;, &#039;2026-02-27 01:23:00&#039;)</code></p></div>.<div id="error"><p class="wpdberror"><strong>WordPress database error:</strong> [Duplicate entry &#039;1-1&#039; for key &#039;tenant_active_key_unique&#039;]<br /><code>INSERT INTO `wptests_mhm_rentiva_key_registry` (`tenant_id`, `key_uuid`, `status`, `active_key`, `fingerprint`, `key_algorithm`, `public_key`, `private_key_encrypted`, `created_at`) VALUES (&#039;1&#039;, &#039;test-revoke-key-a&#039;, &#039;active&#039;, &#039;1&#039;, &#039;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#039;, &#039;Ed25519&#039;, &#039;dGVuYW50LWEtcHVi&#039;, &#039;dGVuYW50LWEtcHJpdg==&#039;, &#039;2026-02-27 01:23:00&#039;)</code></p></div>F..F..F..........FEE.............. 189 / 348 ( 54%)
+............................................................... 252 / 348 ( 72%)
+............................................................... 315 / 348 ( 90%)
+...................SSS...........                               348 / 348 (100%)
+
+Time: 00:15.455, Memory: 76.50 MB
+
+There were 2 errors:
+
+1) MHMRentiva\Tests\Core\Financial\TenantIsolationTest::test_ledger_balance_is_isolated_per_tenant
+Error: Call to undefined method MHMRentiva\Core\Financial\LedgerEntry::create_credit()
+
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/TenantIsolationTest.php:54
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+2) MHMRentiva\Tests\Core\Financial\TenantIsolationTest::test_ledger_entries_are_isolated_per_tenant
+Error: Call to undefined method MHMRentiva\Core\Financial\LedgerEntry::create_credit()
+
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/TenantIsolationTest.php:81
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+--
+
+There were 7 failures:
+
+1) MHMRentiva\Tests\Core\Financial\AtomicPayoutServiceTest::test_atomic_approve_success
+approve() must return true on success.
+Failed asserting that WP_Error Object &000000000000067d0000000000000000 (
+    'errors' => Array &0 (
+        'atomic_approve_failed' => Array &1 (
+            0 => 'Ledger insert for payout #12 did not affect exactly 1 row (rows_affected=2). Possible duplicate UUID.'
+        )
+    )
+    'error_data' => Array &2 ()
+    'additional_data' => Array &3 ()
+) is true.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/AtomicPayoutServiceTest.php:90
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+2) MHMRentiva\Tests\Core\Financial\AtomicRegressionTest::test_governance_wrap_succeeds_atomic_payout
+Failed asserting that WP_Error Object &00000000000014d70000000000000000 (
+    'errors' => Array &0 (
+        'atomic_approve_failed' => Array &1 (
+            0 => 'Ledger insert for payout #15 did not affect exactly 1 row (rows_affected=2). Possible duplicate UUID.'
+        )
+    )
+    'error_data' => Array &2 ()
+    'additional_data' => Array &3 ()
+) is true.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/AtomicRegressionTest.php:75
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+3) MHMRentiva\Tests\Core\Financial\CrossTenantKeyTest::test_active_key_is_isolated_per_tenant
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'test-key-tenant-a-001'
++'key_ad565f10b485014f'
+
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/CrossTenantKeyTest.php:75
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+4) MHMRentiva\Tests\Core\Financial\ForensicHardeningTest::test_forensic_commit_success
+Process approval should succeed.
+Failed asserting that WP_Error Object &0000000000000fcf0000000000000000 (
+    'errors' => Array &0 (
+        'atomic_approve_failed' => Array &1 (
+            0 => 'Ledger insert for payout #16 did not affect exactly 1 row (rows_affected=2). Possible duplicate UUID.'
+        )
+    )
+    'error_data' => Array &2 ()
+    'additional_data' => Array &3 ()
+) is true.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/ForensicHardeningTest.php:86
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+5) MHMRentiva\Tests\Core\Financial\ForensicHardeningTest::test_forensic_event_not_duplicated_on_retry
+Failed asserting that WP_Error Object &0000000000000fe50000000000000000 (
+    'errors' => Array &0 (
+        'atomic_approve_failed' => Array &1 (
+            0 => 'Ledger insert for payout #19 did not affect exactly 1 row (rows_affected=2). Possible duplicate UUID.'
+        )
+    )
+    'error_data' => Array &2 ()
+    'additional_data' => Array &3 ()
+) is true.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/ForensicHardeningTest.php:170
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+6) MHMRentiva\Tests\Core\Financial\GovernanceAuthorizationTest::test_auth_allowed_with_capability
+Failed asserting that WP_Error Object &00000000000013300000000000000000 (
+    'errors' => Array &0 (
+        'atomic_approve_failed' => Array &1 (
+            0 => 'Ledger insert for payout #22 did not affect exactly 1 row (rows_affected=2). Possible duplicate UUID.'
+        )
+    )
+    'error_data' => Array &2 ()
+    'additional_data' => Array &3 ()
+) is true.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/GovernanceAuthorizationTest.php:81
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+7) MHMRentiva\Tests\Core\Financial\Sprint10GovernanceTest::test_maker_can_bypass_with_override_capability
+Failed asserting that WP_Error Object &0000000000000fff0000000000000000 (
+    'errors' => Array &0 (
+        'atomic_approve_failed' => Array &1 (
+            0 => 'Ledger insert for payout #28 did not affect exactly 1 row (rows_affected=2). Possible duplicate UUID.'
+        )
+    )
+    'error_data' => Array &2 ()
+    'additional_data' => Array &3 ()
+) is true.
+
+/var/www/html/wp-content/plugins/mhm-rentiva/tests/Core/Financial/Sprint10GovernanceTest.php:182
+/var/www/html/wp-content/plugins/mhm-rentiva/vendor/bin/phpunit:122
+
+ERRORS!
+Tests: 348, Assertions: 1588, Errors: 2, Failures: 7, Skipped: 3.
