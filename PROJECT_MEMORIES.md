@@ -1,17 +1,17 @@
 ﻿# PROJECT MEMORIES
 
 ### [CERTIFIED] Sprint 15: SaaS Orchestration & Control Plane (v1.9) (2026-02-27)
-- **Status:** [CERTIFIED] / FULL PASS (Recovery v1.9f)
+- **Status:** [CERTIFIED] / FULL PASS (Recovery v1.9g)
 - **Instruction:** S15-SAAS-ORCHESTRATION-001
-- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. GitHub Workflows ve PHPUnit suite'inde saptanan 11 regresyon hatası (v1.9d), PHP 8.1 uyumluluk hatası (v1.9e) ve PHP 8.3 matris genişletmesi (v1.9f) başarıyla tamamlandı.
-- **Scope:** Centralized Control Plane, PHP 8.1/8.3 Compatibility, Atomic Provisioning, CI/CD Workflow Fixes.
+- **Sprint 15 (v1.9 Certification)**: Authoritative Control Plane mimarisi başarıyla uygulandı. GitHub Workflows ve PHPUnit suite'inde saptanan tüm regresyonlar (v1.9d), PHP 8.1/8.3 uyumlulukları (v1.9f) ve IDE Lint hataları (v1.9g) tamamen giderildi.
+- **Scope:** Centralized Control Plane, PHP Compatibility, Lint Recovery (IDE Parity), CI/CD Workflow Fixes.
 - **Key Achievements:**
-    - **PHP 8.3 Matrix Expansion:** GitHub Workflows matrisine PHP 8.3 eklendi, en güncel PHP sürümü için tam CI/CD desteği sağlandı.
+    - **Lint Recovery (v1.9g):** Test dosyalarındaki `factory` erişimleri modernize edildi ($this->factory), IDE uyarıları temizlendi. `: void` hiyerarşisi runtime bütünlüğü için PHP Unit 9 standartlarına göre korundu.
+    - **PHP 8.3 Matrix Expansion:** GitHub Actions matrisine PHP 8.3 eklendi.
     - **PHP 8.1 Core Compatibility:** `readonly class` kullanımı kaldırılarak geriye dönük uyumluluk sağlandı.
-    - **Control Plane Guard:** Üçlü koruma hiyerarşisi zorunlu kılındı.
     - **Schema & Index Recovery:** v1.8'den kalan hatalı indexler temizlendi, hermetik test izolasyonu sağlandı.
-- **Quality Gates:** 348 tests, 1606 assertions — 0 Errors, 0 Failures. CI verified across PHP 8.1, 8.2 & 8.3.
-- **Architectural State:** Engine Version v1.9 Certified. Full Multi-PHP SaaS Control Plane.
+- **Quality Gates:** 348 tests, 1606 assertions — 0 Errors, 0 Failures. CI verified across PHP 8.1, 8.2 & 8.3 with zero IDE/Annotations noise.
+- **Architectural State:** Engine Version v1.9 Certified. Full Multi-PHP/SaaS Control Plane.
 
 ### [CERTIFIED] Sprint 13: Time-Locked Execution & Cooling Period Engine (v1.7) (2026-02-26)
 - **Status:** [CERTIFIED] / FULL PASS

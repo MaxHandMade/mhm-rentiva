@@ -36,13 +36,13 @@ class GovernanceAuthorizationTest extends WP_UnitTestCase
     {
         parent::setUp();
 
-        $this->vendor_id = self::factory()->user->create(array('role' => 'customer'));
+        $this->vendor_id = $this->factory->user->create(array('role' => 'customer'));
 
-        $this->manager_id = self::factory()->user->create(array('role' => 'editor'));
+        $this->manager_id = $this->factory->user->create(array('role' => 'editor'));
         $manager = new \WP_User($this->manager_id);
         $manager->add_cap('manage_options'); // Has legacy dashboard access, but no governance cap
 
-        $this->admin_id = self::factory()->user->create(array('role' => 'administrator'));
+        $this->admin_id = $this->factory->user->create(array('role' => 'administrator'));
     }
 
     /** @test */

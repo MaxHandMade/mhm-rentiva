@@ -34,11 +34,11 @@ class AtomicRegressionTest extends WP_UnitTestCase
     {
         parent::setUp();
 
-        $this->vendor_id = self::factory()->user->create(array(
+        $this->vendor_id = $this->factory->user->create(array(
             'role' => 'customer',
             'user_registered' => wp_date('Y-m-d H:i:s', strtotime('-100 days')),
         ));
-        $this->admin_id = self::factory()->user->create(array('role' => 'administrator'));
+        $this->admin_id = $this->factory->user->create(array('role' => 'administrator'));
 
         // Grant super admin context for core tearDown delete_post capability checks
         grant_super_admin($this->admin_id);
