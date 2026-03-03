@@ -106,6 +106,7 @@ final class ControlPlaneGuard {
         $limit       = isset($tenant->$limit_field) ? (int) $tenant->$limit_field : 0;
 
         if ($usage >= $limit && $limit > 0) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
             throw new QuotaExceededException($tenant_id, $metric_type);
         }
     }

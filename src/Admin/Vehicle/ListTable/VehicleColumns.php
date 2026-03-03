@@ -708,7 +708,11 @@ final class VehicleColumns
 								<th class="vehicle-column"><?php esc_html_e('Vehicles', 'mhm-rentiva'); ?></th>
 								<?php
 								// Create days of the month
-								$days_in_month = (int) date('t', mktime(0, 0, 0, $current_month, 1, $current_year));
+								$calendar_date = new \DateTimeImmutable(
+									sprintf('%04d-%02d-01', (int) $current_year, (int) $current_month),
+									new \DateTimeZone('UTC')
+								);
+								$days_in_month = (int) $calendar_date->format('t');
 								for ($day = 1; $day <= $days_in_month; $day++) {
 									echo '<th class="day-header">' . esc_html($day) . '</th>';
 								}
@@ -1152,8 +1156,13 @@ final class VehicleColumns
 	{
 		global $wpdb;
 
-		$start_date = sprintf('%04d-%02d-01', $year, $month);
-		$end_date   = sprintf('%04d-%02d-%02d', $year, $month, (int) date('t', mktime(0, 0, 0, $month, 1, $year)));
+		$month_date    = new \DateTimeImmutable(
+			sprintf('%04d-%02d-01', (int) $year, (int) $month),
+			new \DateTimeZone('UTC')
+		);
+		$days_in_month = (int) $month_date->format('t');
+		$start_date    = sprintf('%04d-%02d-01', (int) $year, (int) $month);
+		$end_date      = sprintf('%04d-%02d-%02d', (int) $year, (int) $month, $days_in_month);
 
 		// Use same meta keys as dashboard - detailed data for popup
 		$bookings = $wpdb->get_results(
@@ -1586,5 +1595,4 @@ final class VehicleColumns
 		);
 	}
 }
-
 

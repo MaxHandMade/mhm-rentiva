@@ -89,6 +89,7 @@ class KeyPairManager
         try {
             $repository->rotate_keys($new_key_data, $old_uuid, $old_key_new_status, $revocation_reason);
         } catch (\Exception $e) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
             throw new GovernanceException('Failed to rotate Audit KeyPair: ' . $e->getMessage());
         }
 

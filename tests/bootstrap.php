@@ -25,6 +25,15 @@ if (! file_exists("{$_tests_dir}/includes/functions.php")) {
 	exit(1);
 }
 
+// Test-only cryptographic seed constants for audit key generation paths.
+if (! defined('AUTH_KEY')) {
+	define('AUTH_KEY', 'unit-test-auth-key');
+}
+
+if (! defined('SECURE_AUTH_SALT')) {
+	define('SECURE_AUTH_SALT', 'unit-test-secure-auth-salt');
+}
+
 /**
  * Detect whether PHPUnit is running in test discovery mode.
  *

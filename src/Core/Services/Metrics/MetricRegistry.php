@@ -56,6 +56,7 @@ final class MetricRegistry
 		}
 
 		if (isset(self::$map[$metric])) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
 			throw new \InvalidArgumentException(sprintf('Metric handler "%s" is already registered.', $metric));
 		}
 

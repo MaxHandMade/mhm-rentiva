@@ -82,6 +82,7 @@ class ApprovalStateMachine
             return self::STATE_TIME_LOCKED;
         }
 
+        // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
         throw new GovernanceException("Cannot resolve forward candidate state from: {$current_state}");
     }
 
@@ -104,10 +105,12 @@ class ApprovalStateMachine
         bool $has_override_cap
     ): void {
         if (!isset(self::TRANSITIONS[$current_state])) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
             throw new GovernanceException("Invalid current workflow state: {$current_state}");
         }
 
         if (!in_array($candidate_state, self::TRANSITIONS[$current_state], true)) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
             throw new GovernanceException("Illegal state transition from {$current_state} to {$candidate_state}");
         }
 
@@ -143,20 +146,22 @@ class ApprovalStateMachine
                 }
                 return;
             } else {
+                // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
                 throw new GovernanceException("State mismatch. Expected {$old_state} but found {$existing_state}");
             }
         }
 
-        // Standard strict atomic update for existing explicit states
-        $sql = $wpdb->prepare(
-            "UPDATE {$wpdb->postmeta} SET meta_value = %s WHERE post_id = %d AND meta_key = %s AND meta_value = %s",
-            $new_state,
-            $payout_id,
-            '_mhm_workflow_state',
-            $old_state
+        // Standard strict atomic update for existing explicit states.
+        $rows_affected = $wpdb->query(
+            $wpdb->prepare(
+                'UPDATE %i SET meta_value = %s WHERE post_id = %d AND meta_key = %s AND meta_value = %s',
+                $wpdb->postmeta,
+                (string) $new_state,
+                (int) $payout_id,
+                '_mhm_workflow_state',
+                (string) $old_state
+            )
         );
-
-        $rows_affected = $wpdb->query($sql);
 
         if ($rows_affected !== 1) {
             throw new GovernanceException('Concurrency Error: Workflow state transitioned off-cycle or was modified parallelly.');

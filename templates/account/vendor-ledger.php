@@ -84,7 +84,11 @@ if (! defined('ABSPATH')) {
                         // Context ID mapper cleanly identifying targets.
                         $context_obj = '-';
                         if ($entry->order_id) {
-                            $context_obj = sprintf(__('Order #%d', 'mhm-rentiva'), $entry->order_id);
+                            $context_obj = sprintf(
+                                /* translators: %d: order ID */
+                                __('Order #%d', 'mhm-rentiva'),
+                                (int) $entry->order_id
+                            );
                         } elseif ($entry->context === 'payout') {
                             $context_obj = __('System Payout', 'mhm-rentiva');
                         }

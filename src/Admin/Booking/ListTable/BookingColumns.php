@@ -985,8 +985,13 @@ final class BookingColumns {
 			12 => __( 'December', 'mhm-rentiva' ),
 		);
 
-		$days_in_month     = (int) date( 't', mktime( 0, 0, 0, (int) $current_month, 1, (int) $current_year ) );
-		$today             = (int) gmdate( 'j' );
+		$calendar_date     = new \DateTimeImmutable(
+			sprintf( '%04d-%02d-01', (int) $current_year, (int) $current_month ),
+			new \DateTimeZone( 'UTC' )
+		);
+		$now_utc           = new \DateTimeImmutable( 'now', new \DateTimeZone( 'UTC' ) );
+		$days_in_month     = (int) $calendar_date->format( 't' );
+		$today             = (int) $now_utc->format( 'j' );
 		$current_month_num = (int) gmdate( 'n' );
 		$current_year_num  = (int) gmdate( 'Y' );
 
@@ -1994,6 +1999,5 @@ final class BookingColumns {
 		return ! empty( $new_title ) ? $new_title : $title;
 	}
 }
-
 
 

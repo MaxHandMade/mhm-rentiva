@@ -41,23 +41,24 @@ final class MeteredUsageTracker {
          * If record exists for (tenant, metric, cycle), increment.
          * Else, create first entry for the cycle.
          */
-        $query = $wpdb->prepare(
-            "INSERT INTO {$table} (tenant_id, metric_type, metric_value, cycle_start, cycle_end, updated_at)
-             VALUES (%d, %s, %d, %s, %s, %s)
-             ON DUPLICATE KEY UPDATE 
-             metric_value = metric_value + %d, 
-             updated_at = VALUES(updated_at)",
-            $tenant_id,
-            $metric_type,
-            $increment,
-            $cycle_start,
-            $cycle_end,
-            $now,
-            $increment
-        );
-
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
-        $wpdb->query($query);
+        $wpdb->query(
+            $wpdb->prepare(
+                "INSERT INTO %i (tenant_id, metric_type, metric_value, cycle_start, cycle_end, updated_at)
+                 VALUES (%d, %s, %d, %s, %s, %s)
+                 ON DUPLICATE KEY UPDATE 
+                 metric_value = metric_value + %d, 
+                 updated_at = VALUES(updated_at)",
+                $table,
+                (int) $tenant_id,
+                (string) $metric_type,
+                (int) $increment,
+                (string) $cycle_start,
+                (string) $cycle_end,
+                (string) $now,
+                (int) $increment
+            )
+        );
     }
 
     /**
