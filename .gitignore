@@ -94,6 +94,12 @@ analiz*.php
 ayarlar_*.php
 master_validation_test.php
 test_results.txt
+phpunit_*.txt
+phpunit-*.txt
+phpunit*.txt
+phpunit_report.xml
+concurrency_proof.php
+v1.9_verification*.php
 AUDIT_REPORT_*.md
 *transient*.php
 *db*.php
