@@ -82,8 +82,12 @@ coverage/
 phpunit_*.txt
 phpunit-*.txt
 phpunit*.txt
+phpunit_report.xml
 test_results.txt
 .tmp_debug.log
+concurrency_proof.php
+v1.9_verification.php
+v1.9_verification_clean.php
 
 # Keep docs/governance versioned, ignore raw evidence dumps
 docs/internal/evidence/**/*.log
