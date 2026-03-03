@@ -1,210 +1,113 @@
 # ============================================================================
-# SECTION 1: OS & System Files
+# mhm-rentiva .gitignore (Git tracking friendly)
+# Goal: Keep only temporary/local artifacts ignored so real project files can be
+# added to GitHub and used in git-cli test workflows.
 # ============================================================================
+
+# OS / editor noise
 .DS_Store
 .DS_Store?
 ._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 Desktop.ini
 *.swp
 *.swo
 *~
 
-# ============================================================================
-# SECTION 2: IDE & Editor Configurations
-# ============================================================================
+# IDE / local tooling
 .vscode/
 .idea/
 .cursor/
-*.sublime-project
-*.sublime-workspace
-.project
-.settings/
-.buildpath
-*.code-workspace
 .helix/
 .nvim/
-
-# ============================================================================
-# SECTION 3: Dependency Managers
-# ============================================================================
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.npm/
-.yarn/
-package-lock.json
-
-# Composer (vendor is excluded, but composer.json is kept for reference)
-vendor/
-.phpunit.result.cache
-
-# ============================================================================
-# SECTION 4: WordPress & Local Environment
-# ============================================================================
-wp-config.php
-.htaccess
-error_log
-debug.log
-*.log
-wp-content/debug.log
-wp-content/uploads/
-
-# ============================================================================
-# SECTION 5: Build & Compiled Assets
-# ============================================================================
-*.map
-*.min.css.map
-*.min.js.map
-build/
-dist/
-.cache/
-
-# ============================================================================
-# SECTION 6: Testing & Development Tools
-# ============================================================================
-# PHPUnit & Testing
-# No global ignore for tests/ anymore, handled selectively if needed
-# But for now, let's just make sure tests is tracked.
-!tests/
-tests/.phpunit.result.cache
-tests/coverage/
-tests/.coverage/
-
-# IDE Analysis Cache
 .intelephense/
-
-# Test & Utility Scripts (Root Level)
-test_*.php
-debug_*.php
-debug-*.php
-check_*.php
-check-*.php
-search-*.php
-list-*.php
-*_test.php
-*_debug.php
-*_analiz.php
-analiz*.php
-ayarlar_*.php
-master_validation_test.php
-test_results.txt
-AUDIT_REPORT_*.md
-*transient*.php
-*db*.php
-
-# ============================================================================
-# SECTION 7: MHM Rentiva - Local Development Exclusions
-# ============================================================================
-# Temporary & Backup Files
-*.tmp
-*.bak
-*.backup
-*-backup-*
-*-yedek-*
-yedek/
-temp/
-tmp/
-
-# Development Scripts
-generate-clean-pot.php
-update-pot-ultimate.php
-update_refund_text.php
-test-i18n.php
-reset_endpoints.php
-mhm-tools.php
-flush_rules.php
-shortcode_analiz.php
-
-# Development Directories
-specs/
-stubs/
-# bin/
-# tests/
-phpunit.xml
-phpunit.xml.dist
-website/
-# .github/
-!.github/
-.github/*
-!.github/workflows/
-.github/workflows/*
-!.github/workflows/testing.yml
-!.github/pull_request_template.md
 .kilocode/
-pcp/
-.clinerules/
 .cline/
 .clinerules
+.clinerules/
 .worktrees/
 
-# Test Documentation
-TEST-GUIDE.md
-TEST-CHECKLIST.md
+# Dependencies (local install outputs)
+vendor/
+node_modules/
+.npm/
+.yarn/
 
-# ============================================================================
-# SECTION 8: Language Files (Selective)
-# ============================================================================
-# Keep: mhm-rentiva.pot, mhm-rentiva-tr_TR.po, mhm-rentiva-tr_TR.mo
-# Keep: mhm-rentiva-de_DE.po, mhm-rentiva-de_DE.mo (German)
-languages/*-backup-*.pot~
-languages/*-backup-*.po~
-languages/*.l10n.php
-languages/*-*.json
-languages/mhm-rentiva-en_US.*
-
-# ============================================================================
-# SECTION 9: Archives & Releases
-# ============================================================================
-*.zip
-*.tar.gz
-*.rar
-releases/
-
-# ============================================================================
-# SECTION 10: Security - Sensitive Files
-# ============================================================================
+# Local WP / env / secrets
+wp-config.php
+.htaccess
 .env
 .env.*
-*.pem
-*.key
-*.crt
 config.local.php
 secrets.php
 credentials.php
+*.pem
+*.key
+*.crt
 
-# ============================================================================
-# SECTION 11: Agent & AI Tool Artifacts
-# ============================================================================
-# Note: .agent/ is kept for workflow definitions
-.agent/skills/*/examples/
-.agent/skills/*/scripts/__pycache__/
-*.pyc
+# Build / package artifacts
+dist/
+build/
+releases/
+*.zip
+*.tar.gz
+*.rar
+*.map
+*.min.css.map
+*.min.js.map
+.cache/
 
-# ============================================================================
-# ESSENTIAL DIRECTORIES TO TRACK (Reference - Not Rules)
-# ============================================================================
-# âœ… ALWAYS TRACK:
-# - src/           (Core PHP classes)
-# - templates/     (Template files)
-# - assets/        (CSS, JS, Images)
-# - languages/     (POT, PO, MO files - main ones)
-# - .agent/        (Workflow definitions)
-# - mhm-rentiva.php (Main plugin file)
-# - uninstall.php  (Uninstall script)
-# - readme.txt     (WP.org readme)
-# - README.md      (GitHub readme)
-# - LICENSE        (License file)
-# - changelog.json (Version history)
-# ============================================================================
+# Language transient backups
+languages/*-backup-*.pot~
+languages/*-backup-*.po~
+languages/*.l10n.php
 
-# General Docs & Tests
-/docs/
-# /tests/ (Selective rules in Section 6 apply)
+# Logs and temp files
+error_log
+debug.log
+*.log
+*.tmp
+*.bak
+*.backup
+tmp/
+temp/
+yedek/
 
+# PHPUnit / test execution artifacts (not test source)
+.phpunit.result.cache
+tests/.phpunit.result.cache
+tests/coverage/
+tests/.coverage/
+coverage/
+phpunit_*.txt
+phpunit-*.txt
+phpunit*.txt
+test_results.txt
+.tmp_debug.log
+
+# Keep docs/governance versioned, ignore raw evidence dumps
+docs/internal/evidence/**/*.log
+docs/internal/evidence/**/*.exit
+!docs/internal/evidence/**/run_summary.md
+
+# Local project noise / generated helpers
 backups/
+website/
+specs/
+stubs/
+pcp/
+docs/stitch-export/
+.agent/skills/*/examples/
+languages/*-*.json
+
+# Temporary ad-hoc test/debug scripts
+test_*.php
+debug_*.php
+check_*.php
+*_debug.php
+*_test.php
+
+# Keep all source/docs/config by default:
+# - src/, templates/, assets/, languages/
+# - docs/, .github/, tests/ (source)
+# - README/readme/changelog/composer/phpunit config
