@@ -125,6 +125,13 @@ if ($should_isolate_db) {
 	}
 }
 
+// === Test Mode Flag ===
+// Required by ControlPlaneGuard::is_subscription_bypassed() to authorize
+// the bypass filter during Payment/Subscription activation integration tests.
+if (! defined('MHM_RENTIVA_TEST_MODE')) {
+	define('MHM_RENTIVA_TEST_MODE', true);
+}
+
 // Give access to tests_add_filter() function.
 require_once "{$_tests_dir}/includes/functions.php";
 
@@ -164,13 +171,22 @@ function _manually_load_plugin()
 tests_add_filter('muplugins_loaded', '_manually_load_plugin');
 
 /**
- * Force valid Tenant ID for all tests to satisfy v1.9 Orchestration requirements.
+ * Force valid Tenant ID and Bypass Subscription Check for legacy tests.
  */
 tests_add_filter('muplugins_loaded', function () {
 	add_filter('mhm_rentiva_filter_tenant_id', function () {
 		return 1;
 	}, 1);
 }, 11);
+
+// Deterministic crypto constants required by audit key derivation in tests.
+if (! defined('AUTH_KEY')) {
+	define('AUTH_KEY', 'test_auth_key_static');
+}
+
+if (! defined('SECURE_AUTH_SALT')) {
+	define('SECURE_AUTH_SALT', 'test_secure_salt_static');
+}
 
 /**
  * Run plugin installation (DB table creation) after plugin is loaded.
@@ -210,17 +226,64 @@ tests_add_filter('muplugins_loaded', function () {
 	$seed_tenants = [1, 2];
 	foreach ($seed_tenants as $tid) {
 		$exists = $wpdb->get_var($wpdb->prepare("SELECT id FROM $tenants_table WHERE tenant_id = %d", $tid));
-		if (!$exists) {
+		$seed_payload = [
+			'status' => 'ACTIVE',
+			'subscription_plan' => ($tid === 1) ? 'pro' : 'basic',
+			'quota_payouts_limit' => 1000,
+			'quota_ledger_entries_limit' => 10000,
+			'quota_risk_events_limit' => 500,
+			'created_at' => current_time('mysql')
+		];
+
+		if (! $exists) {
 			$wpdb->insert($tenants_table, [
 				'tenant_id' => $tid,
-				'status' => 'ACTIVE',
-				'subscription_plan' => ($tid === 1) ? 'pro' : 'basic',
-				'quota_payouts_limit' => 1000,
-				'quota_ledger_entries_limit' => 10000,
-				'quota_risk_events_limit' => 500,
-				'created_at' => current_time('mysql')
+				'status' => $seed_payload['status'],
+				'subscription_plan' => $seed_payload['subscription_plan'],
+				'quota_payouts_limit' => $seed_payload['quota_payouts_limit'],
+				'quota_ledger_entries_limit' => $seed_payload['quota_ledger_entries_limit'],
+				'quota_risk_events_limit' => $seed_payload['quota_risk_events_limit'],
+				'created_at' => $seed_payload['created_at']
 			]);
+		} else {
+			$wpdb->update(
+				$tenants_table,
+				$seed_payload,
+				['tenant_id' => $tid],
+				['%s', '%s', '%d', '%d', '%d', '%s'],
+				['%d']
+			);
 		}
+
+		$subscriptions_table = $wpdb->prefix . 'mhm_rentiva_subscriptions';
+		$exists_sub_table = $wpdb->get_var("SHOW TABLES LIKE '$subscriptions_table'");
+
+		if ($exists_sub_table) {
+			$sub_exists = $wpdb->get_var($wpdb->prepare("SELECT id FROM $subscriptions_table WHERE tenant_id = %d AND status = 'ACTIVE'", $tid));
+			if (!$sub_exists) {
+				$wpdb->insert($subscriptions_table, [
+					'tenant_id' => $tid,
+					'plan_id' => ($tid === 1) ? 2 : 1,
+					'status' => 'ACTIVE',
+					'billing_interval' => 'MONTH',
+					'billing_frequency' => 1,
+					'plan_price_cents' => ($tid === 1) ? 50000 : 10000,
+					'currency' => 'TRY',
+					'version' => 1,
+					'current_period_start' => current_time('mysql'),
+					'current_period_end' => gmdate('Y-m-d H:i:s', strtotime('+1 month')),
+					'cancel_at_period_end' => 0,
+					'created_at' => current_time('mysql'),
+					'updated_at' => current_time('mysql')
+				]);
+			}
+		}
+	}
+
+	$usage_metrics_table = $wpdb->prefix . 'mhm_rentiva_usage_metrics';
+	$usage_table_exists = $wpdb->get_var("SHOW TABLES LIKE '$usage_metrics_table'");
+	if ($usage_table_exists) {
+		$wpdb->query("TRUNCATE TABLE {$usage_metrics_table}");
 	}
 }, 20);
 

@@ -23,7 +23,7 @@ final class DatabaseMigrator
 	/**
 	 * Migration version
 	 */
-	private const CURRENT_VERSION = '3.3.0';
+	private const CURRENT_VERSION = '3.5.5';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -55,6 +55,27 @@ final class DatabaseMigrator
 			}
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::run();
+			}
+			if (class_exists(\MHMRentiva\Core\Database\Migrations\SubscriptionMigration::class)) {
+				\MHMRentiva\Core\Database\Migrations\SubscriptionMigration::create_table();
+			}
+			if (class_exists(\MHMRentiva\Core\Database\Migrations\PaymentRegistryMigration::class)) {
+				\MHMRentiva\Core\Database\Migrations\PaymentRegistryMigration::create_table();
+			}
+			if (class_exists(\MHMRentiva\Core\Database\Migrations\UsageBillingFeatureFlagMigration::class)) {
+				\MHMRentiva\Core\Database\Migrations\UsageBillingFeatureFlagMigration::create_table();
+			}
+			if (class_exists(\MHMRentiva\Core\Database\Migrations\PaymentTelemetryMigration::class)) {
+				\MHMRentiva\Core\Database\Migrations\PaymentTelemetryMigration::create_tables();
+			}
+			if (class_exists(\MHMRentiva\Core\Database\Migrations\PaymentTelemetryAggregationMigration::class)) {
+				\MHMRentiva\Core\Database\Migrations\PaymentTelemetryAggregationMigration::create_tables();
+			}
+			if (class_exists(\MHMRentiva\Core\Database\Migrations\PaymentTelemetryAlertingMigration::class)) {
+				\MHMRentiva\Core\Database\Migrations\PaymentTelemetryAlertingMigration::create_tables();
+			}
+			if (class_exists(\MHMRentiva\Core\Observability\Bridge\ExternalAlertBridgeMigration::class)) {
+				\MHMRentiva\Core\Observability\Bridge\ExternalAlertBridgeMigration::create_tables();
 			}
 			// SaaS Control Plane (v1.9)
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\OrchestrationMigration::class)) {

@@ -166,6 +166,24 @@ final class Plugin
 			\MHMRentiva\Admin\Core\Utilities\LogMaintenanceScheduler::init();
 		}
 
+		// Telemetry and alerting orchestration pipeline (Sequence-4 Layer-4)
+		if ($this->is_class_available('\MHMRentiva\Core\Monitoring\Alerting\AlertPipelineWorker')) {
+			\MHMRentiva\Core\Monitoring\Alerting\AlertPipelineWorker::register();
+		} else {
+			// Backward compatibility fallback if Layer-4 pipeline is unavailable.
+			if ($this->is_class_available('\MHMRentiva\Core\Monitoring\Flush\PaymentEventFlushWorker')) {
+				\MHMRentiva\Core\Monitoring\Flush\PaymentEventFlushWorker::register();
+			}
+
+			if ($this->is_class_available('\MHMRentiva\Core\Monitoring\Aggregation\PaymentEventAggregationWorker')) {
+				\MHMRentiva\Core\Monitoring\Aggregation\PaymentEventAggregationWorker::register();
+			}
+
+			if ($this->is_class_available('\MHMRentiva\Core\Monitoring\Alerting\AlertDispatchWorker')) {
+				\MHMRentiva\Core\Monitoring\Alerting\AlertDispatchWorker::register();
+			}
+		}
+
 		// Privacy and Data Retention
 		if ($this->is_class_available('\MHMRentiva\Admin\Privacy\DataRetentionManager')) {
 			\MHMRentiva\Admin\Privacy\DataRetentionManager::init();
@@ -499,6 +517,11 @@ final class Plugin
 			Integrations\WooCommerce\CommissionBridge::boot();
 		}
 
+		// Subscription Payment Bridge (Sprint 17)
+		if (class_exists(Integrations\WooCommerce\SubscriptionPaymentBridge::class)) {
+			Integrations\WooCommerce\SubscriptionPaymentBridge::boot();
+		}
+
 		// Payment Clients
 
 		// About page
@@ -582,6 +605,12 @@ final class Plugin
 		// Operational Resilience: Health & Integrity
 		if (class_exists('MHMRentiva\Api\REST\HealthController')) {
 			\MHMRentiva\Api\REST\HealthController::register();
+		}
+		if (class_exists('MHMRentiva\Api\REST\ObservabilityExportController')) {
+			\MHMRentiva\Api\REST\ObservabilityExportController::register();
+		}
+		if (class_exists('MHMRentiva\Api\REST\PaymentWebhookController')) {
+			\MHMRentiva\Api\REST\PaymentWebhookController::register();
 		}
 		if (class_exists('MHMRentiva\Core\Financial\Audit\Verification\IntegrityVerificationJob')) {
 			\MHMRentiva\Core\Financial\Audit\Verification\IntegrityVerificationJob::register();
@@ -947,6 +976,22 @@ final class Plugin
 	 */
 	public static function deactivate(): void
 	{
+		if (class_exists('\MHMRentiva\Core\Monitoring\Alerting\AlertPipelineWorker')) {
+			\MHMRentiva\Core\Monitoring\Alerting\AlertPipelineWorker::unschedule();
+		}
+
+		if (class_exists('\MHMRentiva\Core\Monitoring\Flush\PaymentEventFlushWorker')) {
+			\MHMRentiva\Core\Monitoring\Flush\PaymentEventFlushWorker::unschedule();
+		}
+
+		if (class_exists('\MHMRentiva\Core\Monitoring\Aggregation\PaymentEventAggregationWorker')) {
+			\MHMRentiva\Core\Monitoring\Aggregation\PaymentEventAggregationWorker::unschedule();
+		}
+
+		if (class_exists('\MHMRentiva\Core\Monitoring\Alerting\AlertDispatchWorker')) {
+			\MHMRentiva\Core\Monitoring\Alerting\AlertDispatchWorker::unschedule();
+		}
+
 		// Flush rewrite rules
 		flush_rewrite_rules();
 	}
