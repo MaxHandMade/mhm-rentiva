@@ -1,5 +1,19 @@
 [
     {
+        "version": "4.20.5",
+        "date": "2026-03-03",
+        "type": "minor",
+        "changes": [
+            "Pro'ya ozel moduller icin deterministik boot-level lisans izolasyonu uygulandi.",
+            "Vendor & Payout modulleri artik yalnizca Pro surumde aktif (CPT, REST callback, shortcode, cron).",
+            "Messages ve Advanced Reports Lite surumde baslatilmaz.",
+            "Pro export uzantilari Lite boot akisindan cikarildi.",
+            "Payout ile ilgili veritabani migration calistirma sureci lisans yetkisine baglandi.",
+            "Lite modunda kalan eski payout cron kayitlari otomatik temizlenir."
+        ],
+        "notice": "v4.20.5 - Lisans Izolasyonu Guclendirme"
+    },
+    {
         "version": "4.20.4",
         "date": "2026-03-03",
         "type": "patch",

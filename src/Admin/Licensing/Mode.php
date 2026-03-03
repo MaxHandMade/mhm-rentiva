@@ -59,6 +59,27 @@ final class Mode {
 
 		return false;
 	}
+
+	/**
+	 * Check if Vendor/Payout module can be used.
+	 */
+	public static function canUseVendorPayout(): bool {
+		return self::isPro();
+	}
+
+	/**
+	 * Check if Messages module can be used.
+	 */
+	public static function canUseMessages(): bool {
+		return self::isPro();
+	}
+
+	/**
+	 * Check if advanced reports module can be used.
+	 */
+	public static function canUseAdvancedReports(): bool {
+		return self::isPro();
+	}
 	// ... (skip until get_pro_features_list)
 	/**
 	 * Get Pro-only features list
@@ -69,6 +90,7 @@ final class Mode {
 		return array(
 			__( 'Advanced Reporting (FEATURE_REPORTS_ADV)', 'mhm-rentiva' ),
 			__( 'Messaging System (FEATURE_MESSAGES)', 'mhm-rentiva' ),
+			__( 'Vendor & Payout (Pro Only)', 'mhm-rentiva' ),
 			__( 'Full REST API Access', 'mhm-rentiva' ),
 			__( 'JSON Export Format', 'mhm-rentiva' ),
 			__( 'Unlimited Date Range for Reports', 'mhm-rentiva' ),
@@ -272,6 +294,13 @@ final class Mode {
 				'lite_icon' => '❌',
 				'pro'       => __( 'Available', 'mhm-rentiva' ),
 				'pro_icon'  => '✅',
+			),
+			array(
+				'name'      => __( 'Vendor & Payout', 'mhm-rentiva' ),
+				'lite'      => __( 'Not available', 'mhm-rentiva' ),
+				'lite_icon' => 'âŒ',
+				'pro'       => __( 'Available', 'mhm-rentiva' ),
+				'pro_icon'  => 'âœ…',
 			),
 			array(
 				'name' => __( 'REST API Access', 'mhm-rentiva' ),

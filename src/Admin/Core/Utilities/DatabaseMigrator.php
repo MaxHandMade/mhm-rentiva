@@ -43,9 +43,11 @@ final class DatabaseMigrator
 		if (version_compare($current_version, self::CURRENT_VERSION, '<')) {
 			self::create_transfer_tables(); // VIP Transfer Tables
 			self::create_table('notification_queue');
-			self::create_table('mhm_rentiva_payout_audit');
 			self::create_key_registry_table();
-			self::register_governance_capabilities();
+			if (\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout()) {
+				self::create_table('mhm_rentiva_payout_audit');
+				self::register_governance_capabilities();
+			}
 
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\LedgerMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\LedgerMigration::create_table();

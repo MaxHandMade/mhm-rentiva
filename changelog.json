@@ -1,5 +1,19 @@
 [
     {
+        "version": "4.20.5",
+        "date": "2026-03-03",
+        "type": "minor",
+        "changes": [
+            "Implemented deterministic boot-level license isolation for Pro-only modules.",
+            "Vendor & Payout modules are now Pro-only (CPT, REST callback, shortcode, cron).",
+            "Messages and Advanced Reports are not initialized in Lite.",
+            "Pro export extensions are excluded from Lite boot path.",
+            "Payout-related migration execution is now license-gated.",
+            "Added stale payout cron cleanup in Lite mode."
+        ],
+        "notice": "v4.20.5 - License Isolation Hardening"
+    },
+    {
         "version": "4.20.4",
         "date": "2026-03-03",
         "type": "patch",

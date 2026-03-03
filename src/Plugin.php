@@ -96,6 +96,7 @@ final class Plugin
 
 		// Initialize services
 		$this->initialize_core_services();
+		$this->cleanup_pro_only_schedules();
 
 		// Register currency helper filter hooks
 		\MHMRentiva\Admin\Core\CurrencyHelper::register_hooks();
@@ -114,6 +115,18 @@ final class Plugin
 
 		// Frontend services (also works outside admin)
 		$this->initialize_frontend_services();
+	}
+
+	/**
+	 * Remove stale schedules for Pro-only modules when running in Lite mode.
+	 */
+	private function cleanup_pro_only_schedules(): void
+	{
+		if (\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout()) {
+			return;
+		}
+
+		wp_clear_scheduled_hook('mhm_rentiva_process_matured_payouts');
 	}
 
 
@@ -196,8 +209,11 @@ final class Plugin
 			\MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory::register();
 		}
 
-		// Payout workflow storage (Model B - Immutability Safe)
-		if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Payouts\PostType')) {
+		// Payout workflow storage (Pro only).
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout() &&
+			$this->is_class_available('\MHMRentiva\Admin\PostTypes\Payouts\PostType')
+		) {
 			\MHMRentiva\Admin\PostTypes\Payouts\PostType::register();
 		}
 	}
@@ -342,7 +358,12 @@ final class Plugin
 		// Export
 		if ($this->is_class_available('\\MHMRentiva\\Admin\\Utilities\\Export\\Export')) {
 			\MHMRentiva\Admin\Utilities\Export\Export::register();
-			\MHMRentiva\Admin\Utilities\Export\ExportStats::register();
+			if (
+				\MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports() &&
+				$this->is_class_available('\\MHMRentiva\\Admin\\Utilities\\Export\\ExportStats')
+			) {
+				\MHMRentiva\Admin\Utilities\Export\ExportStats::register();
+			}
 		}
 
 		// Booking
@@ -356,8 +377,11 @@ final class Plugin
 			\MHMRentiva\Admin\Booking\Core\Hooks::register();
 		}
 
-		// Reports
-		if ($this->is_class_available('\\MHMRentiva\\Admin\\Reports\\Reports')) {
+		// Reports (Pro only).
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports() &&
+			$this->is_class_available('\\MHMRentiva\\Admin\\Reports\\Reports')
+		) {
 			\MHMRentiva\Admin\Reports\Reports::register();
 		}
 
@@ -374,22 +398,24 @@ final class Plugin
 	{
 		$is_admin = is_admin();
 
-		// Messages System
-		if (class_exists(Admin\PostTypes\Message\Message::class)) {
-			Admin\PostTypes\Message\Message::register();
-		}
-		if (class_exists(Admin\Messages\Core\Messages::class)) {
-			Admin\Messages\Core\Messages::register();
-		}
-		if ($is_admin && class_exists(Admin\Messages\Admin\MessageListTable::class)) {
-			Admin\Messages\Admin\MessageListTable::register();
-		}
+		// Messages System (Pro only).
+		if (\MHMRentiva\Admin\Licensing\Mode::canUseMessages()) {
+			if (class_exists(Admin\PostTypes\Message\Message::class)) {
+				Admin\PostTypes\Message\Message::register();
+			}
+			if (class_exists(Admin\Messages\Core\Messages::class)) {
+				Admin\Messages\Core\Messages::register();
+			}
+			if ($is_admin && class_exists(Admin\Messages\Admin\MessageListTable::class)) {
+				Admin\Messages\Admin\MessageListTable::register();
+			}
 
-		if (class_exists(Admin\Messages\REST\Messages::class)) {
-			Admin\Messages\REST\Messages::register();
-		}
-		if (class_exists(Admin\Messages\Notifications\MessageNotifications::class)) {
-			Admin\Messages\Notifications\MessageNotifications::register();
+			if (class_exists(Admin\Messages\REST\Messages::class)) {
+				Admin\Messages\REST\Messages::register();
+			}
+			if (class_exists(Admin\Messages\Notifications\MessageNotifications::class)) {
+				Admin\Messages\Notifications\MessageNotifications::register();
+			}
 		}
 
 		// Email Notifications
@@ -586,10 +612,16 @@ final class Plugin
 		if (class_exists('MHMRentiva\Core\Financial\Audit\Verification\IntegrityVerificationJob')) {
 			\MHMRentiva\Core\Financial\Audit\Verification\IntegrityVerificationJob::register();
 		}
-		if (class_exists('MHMRentiva\Api\REST\PayoutCallbackController')) {
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout() &&
+			class_exists('MHMRentiva\Api\REST\PayoutCallbackController')
+		) {
 			\MHMRentiva\Api\REST\PayoutCallbackController::register();
 		}
-		if (class_exists('MHMRentiva\Core\Financial\Automation\MaturedPayoutJob')) {
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout() &&
+			class_exists('MHMRentiva\Core\Financial\Automation\MaturedPayoutJob')
+		) {
 			\MHMRentiva\Core\Financial\Automation\MaturedPayoutJob::register();
 		}
 
@@ -759,7 +791,10 @@ final class Plugin
 			\MHMRentiva\Admin\Core\ShortcodeServiceProvider::register();
 		}
 
-		if ($this->is_class_available('MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger')) {
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout() &&
+			$this->is_class_available('MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger')
+		) {
 			\MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger::register();
 		}
 
