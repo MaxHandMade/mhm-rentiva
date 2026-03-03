@@ -44,25 +44,30 @@ class IntegrityVerificationService
             $l_table = $wpdb->prefix . 'mhm_rentiva_ledger';
             $a_table = $wpdb->prefix . 'mhm_rentiva_payout_audit';
 
-            // Rebuild query exactly like the Export Service for canonical parity
-            $query = "
-                SELECT 
-                    l.id,
-                    l.transaction_uuid as tx_uuid,
-                    IFNULL(a.payout_id, 0) as payout_id,
-                    l.vendor_id,
-                    l.amount,
-                    IFNULL(a.action, l.type) as action,
-                    l.created_at,
-                    IFNULL(JSON_UNQUOTE(JSON_EXTRACT(a.metadata_json, '$.risk_score')), 0) as risk_score,
-                    IFNULL(JSON_UNQUOTE(JSON_EXTRACT(a.metadata_json, '$.workflow_state')), 'cleared') as approval_stage,
-                    IFNULL(a.actor_user_id, 0) as actor_id
-                FROM {$l_table} l
-                LEFT JOIN {$a_table} a ON l.transaction_uuid = a.payout_id
-                ORDER BY l.created_at ASC, l.id ASC
-            ";
-
-            $results = $wpdb->get_results($query, ARRAY_A);
+            // Rebuild query exactly like the Export Service for canonical parity.
+            $results = $wpdb->get_results(
+                $wpdb->prepare(
+                    "
+                    SELECT 
+                        l.id,
+                        l.transaction_uuid as tx_uuid,
+                        IFNULL(a.payout_id, 0) as payout_id,
+                        l.vendor_id,
+                        l.amount,
+                        IFNULL(a.action, l.type) as action,
+                        l.created_at,
+                        IFNULL(JSON_UNQUOTE(JSON_EXTRACT(a.metadata_json, '$.risk_score')), 0) as risk_score,
+                        IFNULL(JSON_UNQUOTE(JSON_EXTRACT(a.metadata_json, '$.workflow_state')), 'cleared') as approval_stage,
+                        IFNULL(a.actor_user_id, 0) as actor_id
+                    FROM %i l
+                    LEFT JOIN %i a ON l.transaction_uuid = a.payout_id
+                    ORDER BY l.created_at ASC, l.id ASC
+                    ",
+                    $l_table,
+                    $a_table
+                ),
+                ARRAY_A
+            );
             $count = count($results);
 
             $chain = new HashChainBuilder();
@@ -97,6 +102,7 @@ class IntegrityVerificationService
             ];
         } catch (\Exception $e) {
             $wpdb->query('ROLLBACK;');
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
             throw new GovernanceException('Integrity verification failed: ' . $e->getMessage());
         }
     }

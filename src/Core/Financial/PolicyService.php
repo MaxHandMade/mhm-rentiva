@@ -54,7 +54,9 @@ final class PolicyService
                     'No active commission policy found for vendor #%1$d at %2$s. Please configure a platform-wide policy in the admin.',
                     'mhm-rentiva'
                 ),
+                // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
                 $vendor_id,
+                // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
                 $datetime
             ));
         }

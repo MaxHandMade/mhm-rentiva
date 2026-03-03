@@ -78,6 +78,7 @@ final class PayoutCsvExporter
         }
 
         // BOM for Excel UTF-8 compatibility.
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- Streaming CSV output intentionally uses native stream writer.
         fwrite($out, "\xEF\xBB\xBF");
 
         // Header row.
@@ -121,6 +122,7 @@ final class PayoutCsvExporter
             ));
         }
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Streaming CSV output intentionally uses native stream writer.
         fclose($out);
         exit;
     }

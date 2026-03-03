@@ -54,7 +54,14 @@ final class PayoutService
         }
 
         if ($amount < self::get_minimum_payout_amount()) {
-            return new \WP_Error('below_minimum', sprintf(__('Payout amount is below the minimum threshold of %s.', 'mhm-rentiva'), function_exists('wc_price') ? wc_price(self::get_minimum_payout_amount()) : self::get_minimum_payout_amount()));
+            return new \WP_Error(
+                'below_minimum',
+                sprintf(
+                    /* translators: %s: minimum payout amount */
+                    __('Payout amount is below the minimum threshold of %s.', 'mhm-rentiva'),
+                    function_exists('wc_price') ? wc_price(self::get_minimum_payout_amount()) : self::get_minimum_payout_amount()
+                )
+            );
         }
 
         if (self::vendor_has_pending_payout($vendor_id)) {
@@ -72,7 +79,12 @@ final class PayoutService
                 'post_type'   => PostType::POST_TYPE,
                 'post_author' => $vendor_id,
                 'post_status' => 'pending',
-                'post_title'  => sprintf(__('Payout Request - Vendor #%d - %s', 'mhm-rentiva'), $vendor_id, wp_date('Y-m-d H:i')),
+                'post_title'  => sprintf(
+                    /* translators: 1: vendor ID, 2: request datetime */
+                    __('Payout Request - Vendor #%1$d - %2$s', 'mhm-rentiva'),
+                    (int) $vendor_id,
+                    wp_date('Y-m-d H:i')
+                ),
             ),
             true
         );

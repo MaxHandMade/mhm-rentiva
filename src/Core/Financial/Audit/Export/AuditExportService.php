@@ -49,6 +49,7 @@ class AuditExportService
             $export_uuid = uniqid('export_', true);
             $csv_file    = $temp_dir . '/' . $export_uuid . '.csv';
 
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Deterministic export writer uses native file streams by design.
             $fh = fopen($csv_file, 'wb');
             if (!$fh) {
                 throw new GovernanceException('Cannot open export file for writing.');
@@ -75,30 +76,33 @@ class AuditExportService
 
             // THE CANONICAL DETERMINISTIC QUERY
             // Enforces order explicitly
-            $query = $wpdb->prepare(
-                "
-                SELECT 
-                    l.id,
-                    l.transaction_uuid as tx_uuid,
-                    IFNULL(a.payout_id, 0) as payout_id,
-                    l.vendor_id,
-                    l.amount,
-                    IFNULL(a.action, l.type) as action,
-                    l.created_at,
-                    IFNULL(JSON_UNQUOTE(JSON_EXTRACT(a.metadata_json, '$.risk_score')), 0) as risk_score,
-                    IFNULL(JSON_UNQUOTE(JSON_EXTRACT(a.metadata_json, '$.workflow_state')), 'cleared') as approval_stage,
-                    IFNULL(a.actor_user_id, 0) as actor_id
-                FROM {$l_table} l
-                LEFT JOIN {$a_table} a ON l.transaction_uuid = a.payout_id /* Approximate map for system tx vs payout tx */
-                WHERE DATE(l.created_at) >= %s 
-                  AND DATE(l.created_at) <= %s
-                ORDER BY l.created_at ASC, l.id ASC
-                ",
-                $date_from,
-                $date_to
+            $results = $wpdb->get_results(
+                $wpdb->prepare(
+                    "
+                    SELECT 
+                        l.id,
+                        l.transaction_uuid as tx_uuid,
+                        IFNULL(a.payout_id, 0) as payout_id,
+                        l.vendor_id,
+                        l.amount,
+                        IFNULL(a.action, l.type) as action,
+                        l.created_at,
+                        IFNULL(JSON_UNQUOTE(JSON_EXTRACT(a.metadata_json, '$.risk_score')), 0) as risk_score,
+                        IFNULL(JSON_UNQUOTE(JSON_EXTRACT(a.metadata_json, '$.workflow_state')), 'cleared') as approval_stage,
+                        IFNULL(a.actor_user_id, 0) as actor_id
+                    FROM %i l
+                    LEFT JOIN %i a ON l.transaction_uuid = a.payout_id /* Approximate map for system tx vs payout tx */
+                    WHERE DATE(l.created_at) >= %s 
+                      AND DATE(l.created_at) <= %s
+                    ORDER BY l.created_at ASC, l.id ASC
+                    ",
+                    $l_table,
+                    $a_table,
+                    (string) $date_from,
+                    (string) $date_to
+                ),
+                ARRAY_A
             );
-
-            $results = $wpdb->get_results($query, ARRAY_A);
 
             $chain = new HashChainBuilder();
 
@@ -114,6 +118,7 @@ class AuditExportService
                 fputcsv($fh, $export_row);
             }
 
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Deterministic export writer uses native file streams by design.
             fclose($fh);
 
             // Commit implicit Read Only context
@@ -138,6 +143,7 @@ class AuditExportService
             ];
         } catch (\Exception $e) {
             $wpdb->query('ROLLBACK;');
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
             throw new GovernanceException('Export creation failed: ' . $e->getMessage());
         }
     }

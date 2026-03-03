@@ -29,6 +29,7 @@ class ExportSignatureService
     public static function sign_file(string $file_path): array
     {
         if (!file_exists($file_path) || !is_readable($file_path)) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
             throw new GovernanceException(sprintf('Cannot sign export. File not found or unreadable: %s', $file_path));
         }
 

@@ -130,10 +130,8 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 				<div class="rv-rating-total-label">
 					<?php
 					$count = intval($vehicle_rating['count'] ?? 0);
-					printf(
-						esc_html(_n('%d review', '%d reviews', $count, 'mhm-rentiva')),
-						$count
-					);
+					/* translators: %d: number of reviews. */
+					echo esc_html(sprintf(_n('%d review', '%d reviews', $count, 'mhm-rentiva'), $count));
 					?>
 				</div>
 			</div>

@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Core\Financial\Risk;
 
+if (! defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Defines the risk level output of a risk scoring evaluation.
  *

@@ -89,11 +89,13 @@ final class Ledger
                 return 0;
             }
 
+            // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
             throw new \RuntimeException(sprintf(
                 'Failed to write ledger transaction UUID: %s. DB Error: %s',
                 $entry->get_transaction_uuid(),
                 $error
             ));
+            // phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
         }
 
         // 2. SaaS Metering Capture (Post-Success)
@@ -232,9 +234,13 @@ final class Ledger
         $args[] = absint($limit);
         $args[] = absint($offset);
 
-        $query = "SELECT * FROM {$table} WHERE {$where_sql} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d";
-
-        $results = $wpdb->get_results($wpdb->prepare($query, ...$args));
+        $results = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM %i WHERE {$where_sql} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d",
+                $table,
+                ...$args
+            )
+        );
 
         return is_array($results) ? $results : array();
     }
