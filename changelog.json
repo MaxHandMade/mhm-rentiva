@@ -1,5 +1,20 @@
 [
     {
+        "version": "4.20.4",
+        "date": "2026-03-03",
+        "type": "patch",
+        "changes": [
+            "WordPress Plugin Check compliance completed (0 errors in distribution scope).",
+            "SQL queries hardened with strict inline $wpdb->prepare() usage.",
+            "DateTime handling standardized using DateTimeImmutable.",
+            "i18n placeholders ordered and translator comments added.",
+            "Exception handling secured without altering domain behavior.",
+            "BOM artifacts removed and stable tag metadata aligned.",
+            "Deterministic packaging enforced via .distignore."
+        ],
+        "notice": "v4.20.4 - Compliance Stabilization Release"
+    },
+{
         "version": "4.20.0",
         "date": "2026-02-21",
         "changes": [

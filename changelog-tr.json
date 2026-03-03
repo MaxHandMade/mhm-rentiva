@@ -1,5 +1,20 @@
 [
     {
+        "version": "4.20.4",
+        "date": "2026-03-03",
+        "type": "patch",
+        "changes": [
+            "WordPress Plugin Check uyumlulugu tamamlandi (dagitim kapsaminda 0 hata).",
+            "SQL sorgulari strict inline $wpdb->prepare() modeli ile guclendirildi.",
+            "Tarih yonetimi DateTimeImmutable ile standardize edildi.",
+            "i18n placeholder siralamasi ve translators comment yapisi duzeltildi.",
+            "Exception yonetimi domain davranisi degistirilmeden guvence altina alindi.",
+            "BOM kalintilari temizlendi ve stable tag metadata esitlandi.",
+            ".distignore ile deterministik dagitim paketi standardi uygulandi."
+        ],
+        "notice": "v4.20.4 - Compliance Stabilizasyon Surumu"
+    },
+{
         "version": "4.20.0",
         "date": "2026-02-21",
         "changes": [
