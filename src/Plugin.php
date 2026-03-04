@@ -98,6 +98,11 @@ final class Plugin
 		$this->initialize_core_services();
 		$this->cleanup_pro_only_schedules();
 
+		// Register Lite->Pro funnel telemetry contract.
+		if ($this->is_class_available('\MHMRentiva\Admin\Licensing\UpgradeFunnelTelemetry')) {
+			\MHMRentiva\Admin\Licensing\UpgradeFunnelTelemetry::register();
+		}
+
 		// Register currency helper filter hooks
 		\MHMRentiva\Admin\Core\CurrencyHelper::register_hooks();
 

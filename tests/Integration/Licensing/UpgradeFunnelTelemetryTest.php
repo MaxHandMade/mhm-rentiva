@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Licensing;
 
+use MHMRentiva\Admin\Licensing\UpgradeFunnelTelemetry;
 use WP_UnitTestCase;
 
 final class UpgradeFunnelTelemetryTest extends WP_UnitTestCase
@@ -12,10 +13,12 @@ final class UpgradeFunnelTelemetryTest extends WP_UnitTestCase
 	{
 		parent::setUp();
 		delete_option('mhm_rentiva_upgrade_funnel_stats');
+		UpgradeFunnelTelemetry::reset_request_guard_for_tests();
 	}
 
 	protected function tearDown(): void
 	{
+		UpgradeFunnelTelemetry::reset_request_guard_for_tests();
 		delete_option('mhm_rentiva_upgrade_funnel_stats');
 		parent::tearDown();
 	}
