@@ -749,7 +749,6 @@ final class DatabaseMigrator
 			metadata_json text DEFAULT NULL,
 			created_at datetime DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY  (id),
-			UNIQUE KEY payout_action_tx  (tenant_id, payout_id, action, tx_uuid),
 			KEY tenant_id  (tenant_id),
 			KEY payout_id  (payout_id),
 			KEY actor_user_id  (actor_user_id),
@@ -758,6 +757,12 @@ final class DatabaseMigrator
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta($sql);
+
+		// Add unique payout-action idempotency key once; dbDelta re-add attempts can emit duplicate-key warnings on reruns.
+		if (! self::index_exists($table_name, 'payout_action_tx')) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Table identifier cannot be prepared and is strictly sanitized.
+			$wpdb->query("ALTER TABLE `{$table_escaped}` ADD UNIQUE KEY `payout_action_tx` (`tenant_id`, `payout_id`, `action`, `tx_uuid`)");
+		}
 	}
 
 	/**
