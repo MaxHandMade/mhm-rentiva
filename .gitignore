@@ -210,7 +210,9 @@ credentials.php
 # ============================================================================
 
 # General Docs & Tests
-/docs/
+/docs/*
+!/docs/plans/
+!/docs/plans/**
 # /tests/ (Selective rules in Section 6 apply)
 
 backups/
