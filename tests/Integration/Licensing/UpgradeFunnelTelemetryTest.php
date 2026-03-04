@@ -43,4 +43,31 @@ final class UpgradeFunnelTelemetryTest extends WP_UnitTestCase
 
 		$this->assertSame(1, (int) ($stats[$today]['upgrade_cta_click_license_page'] ?? 0));
 	}
+
+	public function test_variant_payload_tracks_variant_buckets(): void
+	{
+		do_action('mhm_rentiva_track_upgrade_funnel_event', 'license_page_view_lite', 'A');
+		do_action('mhm_rentiva_track_upgrade_funnel_event', 'upgrade_cta_click_license_page', 'A');
+
+		$stats = get_option('mhm_rentiva_upgrade_funnel_stats', array());
+		$today = gmdate('Y-m-d');
+
+		$this->assertSame(1, (int) ($stats[$today]['license_page_view_lite'] ?? 0));
+		$this->assertSame(1, (int) ($stats[$today]['upgrade_cta_click_license_page'] ?? 0));
+		$this->assertArrayHasKey('variant', (array) ($stats[$today] ?? array()));
+		$this->assertSame(1, (int) ($stats[$today]['variant']['A']['views'] ?? 0));
+		$this->assertSame(1, (int) ($stats[$today]['variant']['A']['clicks'] ?? 0));
+	}
+
+	public function test_invalid_variant_does_not_create_variant_bucket(): void
+	{
+		do_action('mhm_rentiva_track_upgrade_funnel_event', 'license_page_view_lite', 'INVALID');
+
+		$stats = get_option('mhm_rentiva_upgrade_funnel_stats', array());
+		$today = gmdate('Y-m-d');
+
+		$this->assertSame(1, (int) ($stats[$today]['license_page_view_lite'] ?? 0));
+		$this->assertSame(0, (int) ($stats[$today]['variant']['A']['views'] ?? 0));
+		$this->assertSame(0, (int) ($stats[$today]['variant']['B']['views'] ?? 0));
+	}
 }

@@ -203,7 +203,8 @@ final class LicenseAdmin
 
 			echo '<p>' . esc_html__('All Pro features active: Unlimited vehicles/bookings, export, advanced reports, Vendor & Payout.', 'mhm-rentiva') . '</p>';
 		} else {
-			do_action('mhm_rentiva_track_upgrade_funnel_event', 'license_page_view_lite');
+			$variant = UpgradeFunnelTelemetry::resolve_variant_for_current_user();
+			do_action('mhm_rentiva_track_upgrade_funnel_event', 'license_page_view_lite', $variant);
 
 			echo '<div class="notice notice-warning inline">';
 			echo '<p><strong>' . esc_html__('⚠️ Lite Version', 'mhm-rentiva') . '</strong></p>';
@@ -417,7 +418,8 @@ final class LicenseAdmin
 			return;
 		}
 
-		do_action('mhm_rentiva_track_upgrade_funnel_event', $event);
+		$variant = UpgradeFunnelTelemetry::resolve_variant_for_current_user();
+		do_action('mhm_rentiva_track_upgrade_funnel_event', $event, $variant);
 	}
 
 	/**
