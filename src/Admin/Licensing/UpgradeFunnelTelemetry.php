@@ -17,6 +17,7 @@ final class UpgradeFunnelTelemetry
 {
 	private const OPTION = 'mhm_rentiva_upgrade_funnel_stats';
 	private const MAX_DAYS = 90;
+	private const TRACK_NONCE_ACTION = 'mhm_rentiva_track_upgrade_cta';
 
 	/**
 	 * @var array<string, bool>
@@ -38,10 +39,34 @@ final class UpgradeFunnelTelemetry
 		add_action('mhm_rentiva_track_upgrade_funnel_event', array(self::class, 'track'), 10, 1);
 	}
 
+	public static function build_tracked_cta_url(string $event, string $redirect_to): string
+	{
+		$event = sanitize_key($event);
+		$args = array(
+			'action' => 'mhm_rentiva_track_upgrade_cta',
+			'event' => $event,
+			'redirect_to' => esc_url_raw($redirect_to),
+		);
+
+		$url = add_query_arg($args, admin_url('admin-post.php'));
+
+		return wp_nonce_url($url, self::TRACK_NONCE_ACTION);
+	}
+
+	public static function get_tracking_nonce_action(): string
+	{
+		return self::TRACK_NONCE_ACTION;
+	}
+
+	public static function is_allowed_event(string $event): bool
+	{
+		return in_array(sanitize_key($event), self::ALLOWED_EVENTS, true);
+	}
+
 	public static function track(string $event): void
 	{
 		$event = sanitize_key($event);
-		if (! in_array($event, self::ALLOWED_EVENTS, true)) {
+		if (! self::is_allowed_event($event)) {
 			return;
 		}
 
@@ -103,4 +128,3 @@ final class UpgradeFunnelTelemetry
 		return $stats;
 	}
 }
-

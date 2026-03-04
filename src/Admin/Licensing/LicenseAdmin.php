@@ -6,6 +6,7 @@ namespace MHMRentiva\Admin\Licensing;
 
 use MHMRentiva\Admin\Licensing\LicenseManager;
 use MHMRentiva\Admin\Licensing\Mode;
+use MHMRentiva\Admin\Licensing\UpgradeFunnelTelemetry;
 use MHMRentiva\Admin\Core\Utilities\UXHelper;
 
 if (! defined('ABSPATH')) {
@@ -42,6 +43,7 @@ final class LicenseAdmin
 		add_action('admin_post_mhm_rentiva_activate_license', array(self::class, 'handle_activation'));
 		add_action('admin_post_mhm_rentiva_deactivate_license', array(self::class, 'handle_deactivation'));
 		add_action('admin_post_mhm_rentiva_toggle_dev_mode', array(self::class, 'handle_toggle_dev_mode'));
+		add_action('admin_post_mhm_rentiva_track_upgrade_cta', array(self::class, 'handle_track_upgrade_cta'));
 		add_action('admin_notices', array(self::class, 'admin_notices'));
 	}
 
@@ -201,6 +203,8 @@ final class LicenseAdmin
 
 			echo '<p>' . esc_html__('All Pro features active: Unlimited vehicles/bookings, export, advanced reports, Vendor & Payout.', 'mhm-rentiva') . '</p>';
 		} else {
+			do_action('mhm_rentiva_track_upgrade_funnel_event', 'license_page_view_lite');
+
 			echo '<div class="notice notice-warning inline">';
 			echo '<p><strong>' . esc_html__('⚠️ Lite Version', 'mhm-rentiva') . '</strong></p>';
 			echo '</div>';
@@ -214,6 +218,12 @@ final class LicenseAdmin
 			echo '<li>' . esc_html__('CSV export available', 'mhm-rentiva') . '</li>';
 			echo '<li>' . esc_html__('Report range limited to 30 days', 'mhm-rentiva') . '</li>';
 			echo '</ul>';
+
+			$tracked_upgrade_url = UpgradeFunnelTelemetry::build_tracked_cta_url(
+				'upgrade_cta_click_license_page',
+				admin_url('admin.php?page=mhm-rentiva-license')
+			);
+			echo '<p><a href="' . esc_url($tracked_upgrade_url) . '" class="button button-primary">' . esc_html__('Upgrade to Pro', 'mhm-rentiva') . '</a></p>';
 		}
 
 		// License activation form - only show if no active license
@@ -363,6 +373,67 @@ final class LicenseAdmin
 
 		wp_safe_redirect(add_query_arg(array('license' => 'dev_mode_toggled'), wp_get_referer()));
 		exit;
+	}
+
+	public static function handle_track_upgrade_cta(): void
+	{
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is validated inside process_upgrade_cta_tracking().
+		$request = (array) $_GET;
+		self::process_upgrade_cta_tracking($request);
+
+		$redirect = self::resolve_tracking_redirect($request);
+		wp_safe_redirect($redirect);
+		exit;
+	}
+
+	/**
+	 * Deterministic test seam for security and tracking behavior.
+	 *
+	 * @param array<string,mixed> $request Request payload.
+	 */
+	public static function process_upgrade_cta_tracking_for_tests(array $request): void
+	{
+		self::process_upgrade_cta_tracking($request);
+	}
+
+	/**
+	 * @param array<string,mixed> $request Request payload.
+	 */
+	private static function process_upgrade_cta_tracking(array $request): void
+	{
+		if (! current_user_can('manage_options')) {
+			return;
+		}
+
+		$nonce_raw = isset($request['_wpnonce']) ? (string) $request['_wpnonce'] : '';
+		$nonce = sanitize_text_field(wp_unslash($nonce_raw));
+		if ('' === $nonce || ! wp_verify_nonce($nonce, UpgradeFunnelTelemetry::get_tracking_nonce_action())) {
+			return;
+		}
+
+		$event_raw = isset($request['event']) ? (string) $request['event'] : '';
+		$event = sanitize_key(wp_unslash($event_raw));
+		if ('' === $event || ! UpgradeFunnelTelemetry::is_allowed_event($event)) {
+			return;
+		}
+
+		do_action('mhm_rentiva_track_upgrade_funnel_event', $event);
+	}
+
+	/**
+	 * @param array<string,mixed> $request Request payload.
+	 */
+	private static function resolve_tracking_redirect(array $request): string
+	{
+		$default = admin_url('admin.php?page=mhm-rentiva-license');
+		$redirect_raw = isset($request['redirect_to']) ? (string) $request['redirect_to'] : '';
+		if ('' === $redirect_raw) {
+			return $default;
+		}
+
+		$redirect = esc_url_raw(wp_unslash($redirect_raw));
+
+		return wp_validate_redirect($redirect, $default);
 	}
 
 	public static function admin_notices(): void
