@@ -252,6 +252,9 @@ final class Plugin
 		if ($this->is_class_available('MHMRentiva\Admin\Utilities\Menu\Menu')) {
 			\MHMRentiva\Admin\Utilities\Menu\Menu::register();
 		}
+		if ($this->is_class_available('MHMRentiva\Admin\Growth\FunnelDashboard')) {
+			\MHMRentiva\Admin\Growth\FunnelDashboard::register();
+		}
 
 		// Admin optimizer
 		if ($this->is_class_available('\MHMRentiva\Admin\Utilities\Performance\AdminOptimizer')) {
