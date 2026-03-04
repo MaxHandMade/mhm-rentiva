@@ -232,8 +232,9 @@ register_activation_hook(
 			wp_die(esc_html__('MHM Rentiva plugin requires PHP 8.1 or higher.', 'mhm-rentiva'));
 		}
 
-		// Check for WooCommerce dependency
-		if (! class_exists('WooCommerce')) {
+		// Check for WooCommerce dependency (production default, filterable for tests).
+		$skip_dependency_check = (bool) apply_filters('mhm_rentiva_skip_dependency_check', false);
+		if (! $skip_dependency_check && ! class_exists('WooCommerce')) {
 			wp_die(
 				sprintf(
 					/* translators: %s: Plugin name. */

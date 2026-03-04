@@ -138,6 +138,16 @@ if ($should_isolate_db) {
 require_once "{$_tests_dir}/includes/functions.php";
 
 /**
+ * Allow activation hook dependency guard bypass in test runtime only.
+ *
+ * This keeps production dependency checks intact while permitting
+ * deterministic plugin lifecycle activation tests in CI.
+ */
+tests_add_filter('muplugins_loaded', static function () {
+	add_filter('mhm_rentiva_skip_dependency_check', '__return_true', 1);
+}, 1);
+
+/**
  * Suppress WP auto-update checks during tests.
  *
  * wp_version_check() and wp_maybe_auto_update() fire via admin_init during
