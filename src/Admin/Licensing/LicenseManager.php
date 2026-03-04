@@ -478,6 +478,14 @@ final class LicenseManager
 	{
 		$base = $this->getApiBaseUrl();
 		$url  = rtrim($base, '/') . $path;
+		$raw_body = wp_json_encode(
+			$body,
+			JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+		);
+
+		if (! is_string($raw_body)) {
+			return new WP_Error('license_request_encode', __('Could not encode license request body.', 'mhm-rentiva'));
+		}
 
 		// Prepare request arguments with environment-aware settings
 		$args = array(
@@ -488,10 +496,11 @@ final class LicenseManager
 				'X-Environment' => $this->getEnvironmentType(),
 			),
 			'timeout'   => 15, // 15 seconds timeout to prevent frontend lag
-			'body'      => wp_json_encode($body),
+			'body'      => $raw_body,
 			'method'    => 'POST',
 			'sslverify' => $this->shouldVerifySsl(),
 		);
+		$args['headers'] = $this->buildSignedLicenseHeaders($args['headers'], $path, $raw_body);
 
 		$r = wp_remote_request($url, $args);
 
@@ -555,6 +564,96 @@ final class LicenseManager
 		// Fallback for unexpected responses
 		/* translators: %d: HTTP error code */
 		return new WP_Error('license_http', sprintf(__('Unexpected response from license server (HTTP %d).', 'mhm-rentiva'), $code));
+	}
+
+	/**
+	 * Build security headers for license API requests.
+	 *
+	 * @param array<string,string> $headers Existing headers.
+	 * @param string               $path    API path.
+	 * @param string               $raw_body Encoded body string.
+	 * @return array<string,string>
+	 */
+	private function buildSignedLicenseHeaders(array $headers, string $path, string $raw_body): array
+	{
+		$headers['X-MHM-SITE'] = $this->siteHash();
+
+		$credentials = $this->resolveLicenseApiCredentials();
+		if ($credentials['api_key'] === '' || $credentials['hmac_secret'] === '') {
+			return $headers;
+		}
+
+		$timestamp = (string) time();
+		$canonical_path = $this->canonicalLicensePath($path);
+		$message = $this->buildLicenseCanonicalMessage('POST', $canonical_path, $timestamp, $raw_body);
+		$signature = hash_hmac('sha256', $message, $credentials['hmac_secret']);
+
+		$headers['X-MHM-API-KEY']   = $credentials['api_key'];
+		$headers['X-MHM-TIMESTAMP'] = $timestamp;
+		$headers['X-MHM-SIGNATURE'] = $signature;
+
+		return $headers;
+	}
+
+	/**
+	 * Build canonical path used in HMAC signatures.
+	 *
+	 * @param string $path API path.
+	 * @return string
+	 */
+	private function canonicalLicensePath(string $path): string
+	{
+		$path = '/' . ltrim($path, '/');
+
+		if (substr($path, 0, 16) === '/mhm-license/v1/') {
+			return $path;
+		}
+
+		return '/mhm-license/v1' . $path;
+	}
+
+	/**
+	 * Build canonical message for security signatures.
+	 *
+	 * @param string $method         HTTP method.
+	 * @param string $canonical_path Canonical route path.
+	 * @param string $timestamp      Unix timestamp string.
+	 * @param string $raw_body       Encoded body.
+	 * @return string
+	 */
+	private function buildLicenseCanonicalMessage(string $method, string $canonical_path, string $timestamp, string $raw_body): string
+	{
+		$body_hash = hash('sha256', $raw_body);
+
+		return strtoupper($method) . '|' . $canonical_path . '|' . $timestamp . '|' . $body_hash;
+	}
+
+	/**
+	 * Resolve API credentials for request signing.
+	 *
+	 * @return array{api_key:string,hmac_secret:string}
+	 */
+	private function resolveLicenseApiCredentials(): array
+	{
+		$api_key = '';
+		$hmac_secret = '';
+
+		if (defined('MHM_RENTIVA_LICENSE_API_KEY')) {
+			$api_key = trim((string) constant('MHM_RENTIVA_LICENSE_API_KEY'));
+		} else {
+			$api_key = $this->getEnvValue('MHM_RENTIVA_LICENSE_API_KEY');
+		}
+
+		if (defined('MHM_RENTIVA_LICENSE_HMAC_SECRET')) {
+			$hmac_secret = trim((string) constant('MHM_RENTIVA_LICENSE_HMAC_SECRET'));
+		} else {
+			$hmac_secret = $this->getEnvValue('MHM_RENTIVA_LICENSE_HMAC_SECRET');
+		}
+
+		return array(
+			'api_key'     => $api_key,
+			'hmac_secret' => $hmac_secret,
+		);
 	}
 
 	/**
