@@ -1,5 +1,18 @@
 [
     {
+        "version": "4.20.8",
+        "date": "2026-03-04",
+        "type": "minor",
+        "changes": [
+            "Added deterministic Lite-to-Pro upgrade funnel telemetry (admin-only).",
+            "Standardized and secured upgrade CTA surfaces with nonce and capability enforcement.",
+            "Introduced contract-locked comparison table rows for key Pro differentiators.",
+            "No behavioral changes to booking, financial, or payout systems.",
+            "No database migrations."
+        ],
+        "notice": "v4.20.8 - Lite-to-Pro Upgrade Funnel Optimization"
+    },
+    {
         "version": "4.20.5",
         "date": "2026-03-03",
         "type": "minor",
