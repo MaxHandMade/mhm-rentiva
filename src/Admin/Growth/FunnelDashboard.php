@@ -36,6 +36,7 @@ final class FunnelDashboard
 		$service = new FunnelAnalyticsService();
 		$totals = $service->get_totals();
 		$rows = $service->get_last_30_days();
+		$variant_stats = $service->get_variant_breakdown();
 
 		$views = (int) ($totals['views'] ?? 0);
 		$clicks = (int) ($totals['clicks'] ?? 0);
@@ -89,7 +90,32 @@ final class FunnelDashboard
 
 		echo '</tbody>';
 		echo '</table>';
+
+		echo '<h2 style="margin-top:20px;">' . esc_html__('Variant Performance', 'mhm-rentiva') . '</h2>';
+		echo '<table class="widefat striped">';
+		echo '<thead><tr>';
+		echo '<th>' . esc_html__('Variant', 'mhm-rentiva') . '</th>';
+		echo '<th>' . esc_html__('Views', 'mhm-rentiva') . '</th>';
+		echo '<th>' . esc_html__('Clicks', 'mhm-rentiva') . '</th>';
+		echo '<th>' . esc_html__('Conversion', 'mhm-rentiva') . '</th>';
+		echo '</tr></thead>';
+		echo '<tbody>';
+
+		foreach ($variant_stats as $variant => $data) {
+			$variant_views = (int) ($data['views'] ?? 0);
+			$variant_clicks = (int) ($data['clicks'] ?? 0);
+			$variant_conversion = (float) ($data['conversion'] ?? 0.0);
+
+			echo '<tr>';
+			echo '<td>' . esc_html((string) $variant) . '</td>';
+			echo '<td>' . esc_html((string) $variant_views) . '</td>';
+			echo '<td>' . esc_html((string) $variant_clicks) . '</td>';
+			echo '<td>' . esc_html(number_format_i18n($variant_conversion * 100, 2) . '%') . '</td>';
+			echo '</tr>';
+		}
+
+		echo '</tbody>';
+		echo '</table>';
 		echo '</div>';
 	}
 }
-

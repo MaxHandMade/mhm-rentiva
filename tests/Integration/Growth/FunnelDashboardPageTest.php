@@ -66,6 +66,10 @@ final class FunnelDashboardPageTest extends WP_UnitTestCase
 				$today => array(
 					'license_page_view_lite' => 10,
 					'upgrade_cta_click_license_page' => 2,
+					'variant' => array(
+						'A' => array('views' => 10, 'clicks' => 3),
+						'B' => array('views' => 12, 'clicks' => 2),
+					),
 				),
 			),
 			false
@@ -80,6 +84,13 @@ final class FunnelDashboardPageTest extends WP_UnitTestCase
 		$this->assertStringContainsString('Upgrade CTA Clicks', $html);
 		$this->assertStringContainsString('Conversion Rate', $html);
 		$this->assertStringContainsString($today, $html);
+		$this->assertStringContainsString('Variant Performance', $html);
+		$this->assertStringContainsString('<td>A</td>', $html);
+		$this->assertStringContainsString('<td>B</td>', $html);
+		$this->assertStringContainsString('<td>10</td>', $html);
+		$this->assertStringContainsString('<td>12</td>', $html);
+		$this->assertMatchesRegularExpression('/30[\\.,]00%/', $html);
+		$this->assertMatchesRegularExpression('/16[\\.,]67%/', $html);
 	}
 
 	public function test_dashboard_renders_empty_state_when_no_stats_exist(): void
@@ -91,6 +102,9 @@ final class FunnelDashboardPageTest extends WP_UnitTestCase
 		$html = (string) ob_get_clean();
 
 		$this->assertStringContainsString('No funnel data found for the last 30 days.', $html);
+		$this->assertStringContainsString('Variant Performance', $html);
+		$this->assertStringContainsString('<td>A</td>', $html);
+		$this->assertStringContainsString('<td>B</td>', $html);
 	}
 
 	private function reset_admin_menu_globals(): void
@@ -121,4 +135,3 @@ final class FunnelDashboardPageTest extends WP_UnitTestCase
 		return $slugs;
 	}
 }
-
