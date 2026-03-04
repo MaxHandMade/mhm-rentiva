@@ -16,6 +16,8 @@ final class FunnelAnalyticsService
 	private const OPTION = 'mhm_rentiva_upgrade_funnel_stats';
 	private const EVENT_VIEW = 'license_page_view_lite';
 	private const EVENT_CLICK = 'upgrade_cta_click_license_page';
+	private const VARIANT_A = 'A';
+	private const VARIANT_B = 'B';
 
 	/**
 	 * @return array<int, array<string, float|int|string>>
@@ -108,6 +110,61 @@ final class FunnelAnalyticsService
 		return (float) ($totals['conversion_rate'] ?? 0.0);
 	}
 
+	/**
+	 * @return array<string, array<string, float|int>>
+	 */
+	public function get_variant_breakdown(int $days = 30): array
+	{
+		$days = max(1, $days);
+		$raw_stats = get_option(self::OPTION, array());
+		if (! is_array($raw_stats)) {
+			return $this->create_empty_variant_breakdown();
+		}
+
+		$timezone = new \DateTimeZone('UTC');
+		$today = new \DateTimeImmutable('now', $timezone);
+		$from = $today->sub(new \DateInterval('P' . ($days - 1) . 'D'));
+
+		$breakdown = $this->create_empty_variant_breakdown();
+
+		foreach ($raw_stats as $date => $events) {
+			if (! is_string($date) || ! is_array($events)) {
+				continue;
+			}
+
+			$date_obj = \DateTimeImmutable::createFromFormat('!Y-m-d', $date, $timezone);
+			if (! $date_obj instanceof \DateTimeImmutable) {
+				continue;
+			}
+
+			if ($date_obj < $from || $date_obj > $today) {
+				continue;
+			}
+
+			if (! isset($events['variant']) || ! is_array($events['variant'])) {
+				continue;
+			}
+
+			foreach (array(self::VARIANT_A, self::VARIANT_B) as $variant) {
+				$variant_data = $events['variant'][$variant] ?? null;
+				if (! is_array($variant_data)) {
+					continue;
+				}
+
+				$breakdown[$variant]['views'] += (int) ($variant_data['views'] ?? 0);
+				$breakdown[$variant]['clicks'] += (int) ($variant_data['clicks'] ?? 0);
+			}
+		}
+
+		foreach (array(self::VARIANT_A, self::VARIANT_B) as $variant) {
+			$views = (int) $breakdown[$variant]['views'];
+			$clicks = (int) $breakdown[$variant]['clicks'];
+			$breakdown[$variant]['conversion'] = $this->calculate_conversion($views, $clicks);
+		}
+
+		return $breakdown;
+	}
+
 	private function calculate_conversion(int $views, int $clicks): float
 	{
 		if ($views <= 0) {
@@ -116,5 +173,23 @@ final class FunnelAnalyticsService
 
 		return $clicks / $views;
 	}
-}
 
+	/**
+	 * @return array<string, array<string, float|int>>
+	 */
+	private function create_empty_variant_breakdown(): array
+	{
+		return array(
+			self::VARIANT_A => array(
+				'views' => 0,
+				'clicks' => 0,
+				'conversion' => 0.0,
+			),
+			self::VARIANT_B => array(
+				'views' => 0,
+				'clicks' => 0,
+				'conversion' => 0.0,
+			),
+		);
+	}
+}

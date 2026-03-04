@@ -84,5 +84,86 @@ final class FunnelAnalyticsServiceTest extends WP_UnitTestCase
 		$this->assertSame(0, (int) $totals['clicks']);
 		$this->assertEqualsWithDelta(0.0, (float) $totals['conversion_rate'], 0.0001);
 	}
-}
 
+	public function test_get_variant_breakdown_aggregates_views_clicks_and_conversion(): void
+	{
+		$today = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+		$day_1 = $today->format('Y-m-d');
+		$day_2 = $today->sub(new \DateInterval('P1D'))->format('Y-m-d');
+
+		update_option(
+			'mhm_rentiva_upgrade_funnel_stats',
+			array(
+				$day_1 => array(
+					'license_page_view_lite' => 12,
+					'upgrade_cta_click_license_page' => 3,
+					'variant' => array(
+						'A' => array('views' => 7, 'clicks' => 2),
+						'B' => array('views' => 5, 'clicks' => 1),
+					),
+				),
+				$day_2 => array(
+					'license_page_view_lite' => 8,
+					'upgrade_cta_click_license_page' => 2,
+					'variant' => array(
+						'A' => array('views' => 3, 'clicks' => 1),
+						'B' => array('views' => 5, 'clicks' => 1),
+					),
+				),
+			),
+			false
+		);
+
+		$service = new FunnelAnalyticsService();
+		$breakdown = $service->get_variant_breakdown();
+
+		$this->assertSame(10, (int) $breakdown['A']['views']);
+		$this->assertSame(3, (int) $breakdown['A']['clicks']);
+		$this->assertEqualsWithDelta(0.3, (float) $breakdown['A']['conversion'], 0.0001);
+
+		$this->assertSame(10, (int) $breakdown['B']['views']);
+		$this->assertSame(2, (int) $breakdown['B']['clicks']);
+		$this->assertEqualsWithDelta(0.2, (float) $breakdown['B']['conversion'], 0.0001);
+	}
+
+	public function test_get_variant_breakdown_handles_legacy_daily_data_without_variant_bucket(): void
+	{
+		$today = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d');
+		update_option(
+			'mhm_rentiva_upgrade_funnel_stats',
+			array(
+				$today => array(
+					'license_page_view_lite' => 5,
+					'upgrade_cta_click_license_page' => 1,
+				),
+			),
+			false
+		);
+
+		$service = new FunnelAnalyticsService();
+		$breakdown = $service->get_variant_breakdown();
+
+		$this->assertSame(0, (int) $breakdown['A']['views']);
+		$this->assertSame(0, (int) $breakdown['A']['clicks']);
+		$this->assertEqualsWithDelta(0.0, (float) $breakdown['A']['conversion'], 0.0001);
+		$this->assertSame(0, (int) $breakdown['B']['views']);
+		$this->assertSame(0, (int) $breakdown['B']['clicks']);
+		$this->assertEqualsWithDelta(0.0, (float) $breakdown['B']['conversion'], 0.0001);
+	}
+
+	public function test_get_variant_breakdown_returns_stable_zero_shape_when_dataset_empty(): void
+	{
+		delete_option('mhm_rentiva_upgrade_funnel_stats');
+
+		$service = new FunnelAnalyticsService();
+		$breakdown = $service->get_variant_breakdown();
+
+		$this->assertSame(array('A', 'B'), array_keys($breakdown));
+		$this->assertSame(0, (int) $breakdown['A']['views']);
+		$this->assertSame(0, (int) $breakdown['A']['clicks']);
+		$this->assertEqualsWithDelta(0.0, (float) $breakdown['A']['conversion'], 0.0001);
+		$this->assertSame(0, (int) $breakdown['B']['views']);
+		$this->assertSame(0, (int) $breakdown['B']['clicks']);
+		$this->assertEqualsWithDelta(0.0, (float) $breakdown['B']['conversion'], 0.0001);
+	}
+}
