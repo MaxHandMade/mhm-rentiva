@@ -158,6 +158,37 @@ final class SettingsSanitizer {
 	}
 
 	/**
+	 * Sanitize standalone addon option array (`mhm_rentiva_addon_settings`).
+	 *
+	 * @param mixed $input Raw option payload.
+	 * @return array<string,string>
+	 */
+	public static function sanitize_addon_settings_option( mixed $input ): array {
+		$defaults = \MHMRentiva\Admin\Addons\AddonSettings::defaults();
+
+		if ( ! \is_array( $input ) ) {
+			$input = array();
+		}
+
+		$to_bool_string = static function ( mixed $value ): string {
+			if ( $value === '1' || $value === 1 || $value === true || $value === 'on' || $value === 'yes' ) {
+				return '1';
+			}
+			return '0';
+		};
+
+		$display_order  = isset( $input['display_order'] ) ? self::safe_text( $input['display_order'] ) : '';
+		$allowed_orders = array( 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'menu_order' );
+
+		return array(
+			'system_enabled' => $to_bool_string( $input['system_enabled'] ?? null ),
+			'show_prices'    => $to_bool_string( $input['show_prices'] ?? null ),
+			'allow_multiple' => $to_bool_string( $input['allow_multiple'] ?? null ),
+			'display_order'  => self::validate_enum( $display_order, $allowed_orders, (string) $defaults['display_order'] ),
+		);
+	}
+
+	/**
 	 * Standard Integer Helper with clamping.
 	 *
 	 * @param array  $input   Input data.

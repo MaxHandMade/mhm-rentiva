@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Admin\Addons;
 
 use MHMRentiva\Admin\Addons\AddonManager;
+use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -43,7 +44,7 @@ final class AddonSettings {
 			'mhm_rentiva_addon_settings',
 			array(
 				'type'              => 'array',
-				'sanitize_callback' => array( self::class, 'sanitize' ),
+				'sanitize_callback' => array( SettingsSanitizer::class, 'sanitize_addon_settings_option' ),
 				'default'           => self::defaults(),
 			)
 		);
@@ -89,28 +90,7 @@ final class AddonSettings {
 	 * @return array Sanitized data.
 	 */
 	public static function sanitize( array $input ): array {
-		$output   = array();
-		$defaults = self::defaults();
-
-		// Sanitize input.
-		if ( ! is_array( $input ) ) {
-			$input = array();
-		}
-
-		// Common checkbox handling.
-		$checkbox_fields = array( 'system_enabled', 'show_prices', 'allow_multiple' );
-		foreach ( $checkbox_fields as $field ) {
-			$output[ $field ] = isset( $input[ $field ] ) ? '1' : '0';
-		}
-
-		// display_order - select field sanitization.
-		$display_order           = $input['display_order'] ?? null;
-		$allowed_orders          = array( 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'menu_order' );
-		$output['display_order'] = ( null !== $display_order && in_array( $display_order, $allowed_orders, true ) )
-			? $display_order
-			: $defaults['display_order'];
-
-		return $output;
+		return SettingsSanitizer::sanitize_addon_settings_option( $input );
 	}
 
 	/**

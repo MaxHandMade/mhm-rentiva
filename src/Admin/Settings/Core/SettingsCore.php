@@ -98,6 +98,17 @@ final class SettingsCore
 			)
 		);
 
+		register_setting(
+			'mhm_rentiva_addon_settings',
+			'mhm_rentiva_addon_settings',
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array(\MHMRentiva\Admin\Settings\Core\SettingsSanitizer::class, 'sanitize_addon_settings_option'),
+				'default'           => \MHMRentiva\Admin\Addons\AddonSettings::defaults(),
+				'show_in_rest'      => false,
+			)
+		);
+
 		// Register Sub-groups dynamically
 		self::register_sub_groups();
 	}
