@@ -658,7 +658,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-dashboard',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dashboard.js',
-				array('jquery', 'chart-js'),
+				array('jquery', 'jquery-ui-sortable', 'chart-js'),
 				self::get_file_version('assets/js/admin/dashboard.js'),
 				true
 			);
