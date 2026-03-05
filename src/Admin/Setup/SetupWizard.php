@@ -7,7 +7,6 @@ namespace MHMRentiva\Admin\Setup;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use MHMRentiva\Admin\Licensing\LicenseManager;
-use MHMRentiva\Admin\Licensing\UpgradeFunnelTelemetry;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 if (! defined('ABSPATH')) {
@@ -189,10 +188,6 @@ final class SetupWizard
 		$plan         = $license['plan'] ?: __('Unknown', 'mhm-rentiva');
 		$status       = $license['status'] ?? 'inactive';
 		$license_page = admin_url('admin.php?page=mhm-rentiva-license');
-		$tracked_license_page = UpgradeFunnelTelemetry::build_tracked_cta_url(
-			'upgrade_cta_click_setup_wizard',
-			$license_page
-		);
 		$dev_env      = (bool) ($license['is_dev_env'] ?? false);
 		$dev_disabled = (bool) ($license['dev_mode_disabled'] ?? false);
 		$dev_allowed  = $dev_env && ! $dev_disabled;
@@ -257,7 +252,7 @@ final class SetupWizard
 			</div>
 			<div class="mhm-step-actions">
 				<a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('system')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
-				<a class="button button-secondary" href="<?php echo esc_url($tracked_license_page); ?>" target="_blank"><?php esc_html_e('Open License Page', 'mhm-rentiva'); ?></a>
+				<a class="button button-secondary" href="<?php echo esc_url($license_page); ?>" target="_blank"><?php esc_html_e('Open License Page', 'mhm-rentiva'); ?></a>
 				<a class="button button-primary button-large" href="<?php echo esc_url(self::step_url('pages')); ?>"><?php esc_html_e('Continue to Required Pages', 'mhm-rentiva'); ?></a>
 			</div>
 		<?php else : ?>
@@ -301,7 +296,7 @@ final class SetupWizard
 				printf(
 					/* translators: %s: License page URL */
 					esc_html__('Already have an active license? Review it on the %s.', 'mhm-rentiva'),
-					'<a href="' . esc_url($tracked_license_page) . '" target="_blank">' . esc_html__('License page', 'mhm-rentiva') . '</a>'
+					'<a href="' . esc_url($license_page) . '" target="_blank">' . esc_html__('License page', 'mhm-rentiva') . '</a>'
 				);
 				?>
 			</p>

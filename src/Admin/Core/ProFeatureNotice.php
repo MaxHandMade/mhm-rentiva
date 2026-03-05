@@ -6,7 +6,6 @@ namespace MHMRentiva\Admin\Core;
 
 use MHMRentiva\Admin\Licensing\LicenseManager;
 use MHMRentiva\Admin\Licensing\Mode;
-use MHMRentiva\Admin\Licensing\UpgradeFunnelTelemetry;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -71,10 +70,7 @@ final class ProFeatureNotice {
 			return;
 		}
 
-		$license_url = UpgradeFunnelTelemetry::build_tracked_cta_url(
-			'upgrade_cta_click_pro_notice',
-			admin_url( 'admin.php?page=mhm-rentiva-license' )
-		);
+		$license_url = admin_url( 'admin.php?page=mhm-rentiva-license' );
 
 		if ( $custom_message ) {
 			$message = $custom_message;
@@ -215,10 +211,7 @@ final class ProFeatureNotice {
 		}
 
 		$limits      = \MHMRentiva\Admin\Licensing\Restrictions::check_limits();
-		$license_url = UpgradeFunnelTelemetry::build_tracked_cta_url(
-			'upgrade_cta_click_pro_notice',
-			admin_url( 'admin.php?page=mhm-rentiva-license' )
-		);
+		$license_url = admin_url( 'admin.php?page=mhm-rentiva-license' );
 
 		if ( $type === 'vehicles' && isset( $limits['vehicles'] ) ) {
 			$current    = $limits['vehicles']['current'];
