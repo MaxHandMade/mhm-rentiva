@@ -57,9 +57,121 @@ class SearchResultsWidget extends ElementorWidgetBase {
 		);
 
 		$this->add_control(
+			'limit',
+			array(
+				'label'   => __( 'Results Per Page', 'mhm-rentiva' ),
+				'type'    => 'number',
+				'min'     => 1,
+				'max'     => 100,
+				'default' => 12,
+			)
+		);
+
+		$this->add_control(
+			'layout',
+			array(
+				'label'   => __( 'Layout', 'mhm-rentiva' ),
+				'type'    => 'select',
+				'default' => 'grid',
+				'options' => array(
+					'grid'    => __( 'Grid', 'mhm-rentiva' ),
+					'list'    => __( 'List', 'mhm-rentiva' ),
+					'compact' => __( 'Compact', 'mhm-rentiva' ),
+				),
+			)
+		);
+
+		$this->add_control(
+			'orderby',
+			array(
+				'label'   => __( 'Order By', 'mhm-rentiva' ),
+				'type'    => 'select',
+				'default' => 'date',
+				'options' => array(
+					'date'  => __( 'Date', 'mhm-rentiva' ),
+					'title' => __( 'Title', 'mhm-rentiva' ),
+					'price' => __( 'Price', 'mhm-rentiva' ),
+				),
+			)
+		);
+
+		$this->add_control(
+			'order',
+			array(
+				'label'   => __( 'Order', 'mhm-rentiva' ),
+				'type'    => 'select',
+				'default' => 'DESC',
+				'options' => array(
+					'ASC'  => __( 'Ascending', 'mhm-rentiva' ),
+					'DESC' => __( 'Descending', 'mhm-rentiva' ),
+				),
+			)
+		);
+
+		$this->add_control(
 			'show_filters',
 			array(
 				'label'        => __( 'Show Filters', 'mhm-rentiva' ),
+				'type'         => 'switcher',
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+
+		$this->add_control(
+			'show_pagination',
+			array(
+				'label'        => __( 'Show Pagination', 'mhm-rentiva' ),
+				'type'         => 'switcher',
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+
+		$this->add_control(
+			'show_sorting',
+			array(
+				'label'        => __( 'Show Sorting', 'mhm-rentiva' ),
+				'type'         => 'switcher',
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+
+		$this->add_control(
+			'show_favorite_button',
+			array(
+				'label'        => __( 'Show Favorite Button', 'mhm-rentiva' ),
+				'type'         => 'switcher',
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+
+		$this->add_control(
+			'show_compare_button',
+			array(
+				'label'        => __( 'Show Compare Button', 'mhm-rentiva' ),
+				'type'         => 'switcher',
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+
+		$this->add_control(
+			'show_booking_button',
+			array(
+				'label'        => __( 'Show Booking Button', 'mhm-rentiva' ),
+				'type'         => 'switcher',
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+
+		$this->add_control(
+			'show_price',
+			array(
+				'label'        => __( 'Show Price', 'mhm-rentiva' ),
 				'type'         => 'switcher',
 				'return_value' => 'yes',
 				'default'      => 'yes',
@@ -74,8 +186,25 @@ class SearchResultsWidget extends ElementorWidgetBase {
 	}
 
 	protected function prepare_shortcode_attributes( array $settings ): array {
+		$limit = (string) max( 1, (int) ( $settings['limit'] ?? 12 ) );
+		$order = strtoupper( sanitize_text_field( (string) ( $settings['order'] ?? 'DESC' ) ) );
+		if ( ! in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
+			$order = 'DESC';
+		}
+
 		return array(
-			'show_filters' => ( $settings['show_filters'] === 'yes' ) ? '1' : '0',
+			'limit'                => $limit,
+			'results_per_page'     => $limit,
+			'layout'               => sanitize_text_field( (string) ( $settings['layout'] ?? 'grid' ) ),
+			'orderby'              => sanitize_text_field( (string) ( $settings['orderby'] ?? 'date' ) ),
+			'order'                => $order,
+			'show_filters'         => $this->convert_switcher_to_boolean( $settings['show_filters'] ?? 'yes' ),
+			'show_pagination'      => $this->convert_switcher_to_boolean( $settings['show_pagination'] ?? 'yes' ),
+			'show_sorting'         => $this->convert_switcher_to_boolean( $settings['show_sorting'] ?? 'yes' ),
+			'show_favorite_button' => $this->convert_switcher_to_boolean( $settings['show_favorite_button'] ?? 'yes' ),
+			'show_compare_button'  => $this->convert_switcher_to_boolean( $settings['show_compare_button'] ?? 'yes' ),
+			'show_booking_button'  => $this->convert_switcher_to_boolean( $settings['show_booking_button'] ?? 'yes' ),
+			'show_price'           => $this->convert_switcher_to_boolean( $settings['show_price'] ?? 'yes' ),
 		);
 	}
 

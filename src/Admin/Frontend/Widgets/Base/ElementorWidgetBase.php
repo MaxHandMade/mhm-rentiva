@@ -91,6 +91,20 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	}
 
 	/**
+	 * Convert Elementor switcher-like values to canonical shortcode boolean strings.
+	 *
+	 * @param mixed $value Raw widget setting value.
+	 * @return string '1' for enabled, '0' for disabled.
+	 */
+	protected function convert_switcher_to_boolean( mixed $value ): string {
+		if ( \in_array( $value, array( 'yes', '1', 1, true, 'on' ), true ) ) {
+			return '1';
+		}
+
+		return '0';
+	}
+
+	/**
 	 * Render Shortcode Helper
 	 *
 	 * @param string $tag  Shortcode tag.
