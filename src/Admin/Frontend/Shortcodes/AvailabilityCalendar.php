@@ -81,7 +81,10 @@ final class AvailabilityCalendar extends AbstractShortcode
 			'show_pricing'         => apply_filters('mhm_rentiva/availability_calendar/show_pricing', '1'),
 			'show_seasonal_prices' => apply_filters('mhm_rentiva/availability_calendar/show_seasonal_prices', '1'),
 			'show_discounts'       => apply_filters('mhm_rentiva/availability_calendar/show_discounts', '1'),
-			'show_booking_btn'     => apply_filters('mhm_rentiva/availability_calendar/show_booking_btn', '1'),
+			'show_booking_button'  => apply_filters(
+				'mhm_rentiva/availability_calendar/show_booking_button',
+				apply_filters('mhm_rentiva/availability_calendar/show_booking_btn', '1')
+			),
 			'theme'                => apply_filters('mhm_rentiva/availability_calendar/theme', 'default'),
 			'start_date'           => '',
 			'months_ahead'         => apply_filters('mhm_rentiva/availability_calendar/months_ahead', '3'),
