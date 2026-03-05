@@ -89,11 +89,15 @@ final class SettingsSanitizer {
 			$out['mhm_rentiva_currency'] = strtoupper( substr( self::safe_text( $input['mhm_rentiva_currency'] ), 0, 4 ) );
 		}
 
-		$fields = array( 'mhm_rentiva_currency_position', 'mhm_rentiva_date_format', 'mhm_rentiva_time_format', 'mhm_rentiva_dark_mode' );
+		$fields = array( 'mhm_rentiva_currency_position', 'mhm_rentiva_date_format', 'mhm_rentiva_time_format' );
 		foreach ( $fields as $field ) {
 			if ( isset( $input[ $field ] ) ) {
 				$out[ $field ] = self::safe_text( $input[ $field ] );
 			}
+		}
+
+		if ( isset( $input['mhm_rentiva_dark_mode'] ) ) {
+			$out['mhm_rentiva_dark_mode'] = self::sanitize_dark_mode_option( $input['mhm_rentiva_dark_mode'] );
 		}
 
 		return array_merge(
@@ -131,6 +135,35 @@ final class SettingsSanitizer {
 			return '';
 		}
 		return \sanitize_text_field( (string) $value );
+	}
+
+	/**
+	 * Sanitize dark mode option to canonical values.
+	 *
+	 * @param mixed  $value   Raw value.
+	 * @param string $default Default canonical mode.
+	 * @return string
+	 */
+	public static function sanitize_dark_mode_option( mixed $value, string $default = 'auto' ): string {
+		$normalized = strtolower( self::safe_text( $value ) );
+
+		if ( '' === $normalized ) {
+			return $default;
+		}
+
+		if ( in_array( $normalized, array( 'dark', '1', 'on', 'yes', 'true' ), true ) ) {
+			return 'dark';
+		}
+
+		if ( in_array( $normalized, array( 'light', '0', 'off', 'no', 'false' ), true ) ) {
+			return 'light';
+		}
+
+		if ( 'auto' === $normalized ) {
+			return 'auto';
+		}
+
+		return $default;
 	}
 
 	/**

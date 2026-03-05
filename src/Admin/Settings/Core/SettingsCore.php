@@ -92,7 +92,7 @@ final class SettingsCore
 			'mhm_rentiva_dark_mode',
 			array(
 				'type'              => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => array(\MHMRentiva\Admin\Settings\Core\SettingsSanitizer::class, 'sanitize_dark_mode_option'),
 				'default'           => 'auto',
 				'show_in_rest'      => false,
 			)
@@ -328,19 +328,22 @@ final class SettingsCore
 			wp_send_json_error(__('Permission denied', 'mhm-rentiva'));
 		}
 
-		$mode = sanitize_text_field(wp_unslash($_POST['mode'] ?? 'auto'));
+		$raw_mode = wp_unslash($_POST['mode'] ?? 'auto');
 
-		if (! in_array($mode, array('auto', 'light', 'dark'), true)) {
-			wp_send_json_error(__('Invalid mode', 'mhm-rentiva'));
-		}
+		$sanitized_settings = \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::sanitize(
+			array(
+				'current_active_tab' => 'general',
+				'mhm_rentiva_dark_mode' => $raw_mode,
+			)
+		);
+
+		$mode = (string)($sanitized_settings['mhm_rentiva_dark_mode'] ?? 'auto');
 
 		// 1. Update standalone option (for quick frontend access)
 		update_option('mhm_rentiva_dark_mode', $mode);
 
 		// 2. Sync with Main Settings Array (so the Settings Form reflects the change)
-		$settings                          = get_option(self::OPTION_NAME, array());
-		$settings['mhm_rentiva_dark_mode'] = $mode;
-		update_option(self::OPTION_NAME, $settings);
+		update_option(self::OPTION_NAME, $sanitized_settings);
 
 		wp_send_json_success(array('message' => __('Settings updated', 'mhm-rentiva')));
 	}
