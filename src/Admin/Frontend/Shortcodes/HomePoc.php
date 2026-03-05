@@ -18,7 +18,11 @@ if (!defined('ABSPATH')) {
  * Class HomePoc
  *
  * Minimal homepage composition reusing existing shortcodes.
- * Experimental Version-scoped shortcode.
+ * Experimental version-scoped shortcode.
+ *
+ * Safety:
+ * - Must not render in production by default.
+ * - Enabled only when WP_DEBUG is true or MHM_RENTIVA_ENABLE_HOME_POC is true.
  */
 class HomePoc
 {
@@ -32,6 +36,10 @@ class HomePoc
      */
     public function render(array $atts = []): string
     {
+        if (! self::is_enabled_for_environment()) {
+            return '';
+        }
+
         // Entry-Guard: Check if the Home POC is enabled via filter.
         if (!apply_filters('mhm_rentiva_enable_home_poc', true)) {
             return '';
@@ -48,5 +56,17 @@ class HomePoc
         ob_start();
         include $template_path;
         return (string) ob_get_clean();
+    }
+
+    /**
+     * Guard POC rendering in production.
+     */
+    private static function is_enabled_for_environment(): bool
+    {
+        if (defined('MHM_RENTIVA_ENABLE_HOME_POC')) {
+            return (bool) constant('MHM_RENTIVA_ENABLE_HOME_POC');
+        }
+
+        return defined('WP_DEBUG') && WP_DEBUG;
     }
 }

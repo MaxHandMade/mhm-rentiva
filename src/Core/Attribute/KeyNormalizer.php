@@ -9,10 +9,18 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Key Normalizer for Attributes
+ * Key Normalizer for Attributes (CAM contract)
  *
- * Handles conversion between camelCase (Gutenberg) and snake_case (Shortcode).
- * Also handles explicit alias resolution.
+ * Canonical Attribute Mapper (CAM) relies on this class as the single source
+ * of truth for key normalization.
+ *
+ * Contract:
+ * 1. Explicit alias mapping wins over all fallback logic.
+ * 2. If there is no alias match, camelCase inputs are normalized to snake_case.
+ * 3. Output is always the canonical key expected by shortcode/registry schemas.
+ *
+ * This guarantees that block/editor attributes and shortcode attributes converge
+ * to one canonical key space without duplicating mapping logic.
  *
  * @package MHMRentiva\Core\Attribute
  * @since 4.11.0
@@ -29,7 +37,7 @@ final class KeyNormalizer
      */
     public static function normalize(string $key, array $schema = []): string
     {
-        // 1. Resolve explicit aliases from schema
+        // 1) Explicit alias resolution (highest priority in CAM contract)
         foreach ($schema as $canonical_key => $config) {
             $aliases = $config['aliases'] ?? [];
             if (in_array($key, $aliases, true)) {
@@ -37,7 +45,7 @@ final class KeyNormalizer
             }
         }
 
-        // 2. Fallback: Convert camelCase to snake_case
+        // 2) Fallback: camelCase -> snake_case canonicalization
         return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
     }
 }

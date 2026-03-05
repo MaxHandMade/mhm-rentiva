@@ -366,6 +366,13 @@ class BlockRegistry {
 	 * This method automatically maps the block attributes to the corresponding shortcode,
 	 * ensuring that Gutenberg blocks and shortcodes always share the same logic.
 	 *
+	 * CAM normalization contract in this path:
+	 * - Input attributes may arrive as camelCase (editor controls) or alias keys.
+	 * - CanonicalAttributeMapper resolves aliases via AllowlistRegistry + KeyNormalizer.
+	 * - Result is canonical snake_case attribute keys for shortcode execution.
+	 *
+	 * This keeps block rendering and shortcode rendering semantically identical.
+	 *
 	 * @param array $attributes Block attributes from editor.
 	 * @param string $content Inner block content (if any).
 	 * @param \WP_Block $block The block instance.
@@ -447,7 +454,9 @@ class BlockRegistry {
 				$attributes['style'] = implode(';', $style_parts) . ';';
 			}
 
-			// 2. Canonical Attribute Mapping (Registry Driven)
+			// 2. Canonical Attribute Mapping (Registry + KeyNormalizer driven)
+			//    This is the one-way normalization step from block payload to
+			//    shortcode canonical attributes used by downstream rendering.
 			$mapped_attributes               = \MHMRentiva\Core\Attribute\CanonicalAttributeMapper::map($tag, $attributes);
 			$mapped_attributes['_canonical'] = true;
 		}
