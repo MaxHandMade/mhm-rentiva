@@ -31,6 +31,18 @@ abstract class AbstractShortcode
 	private static array $enqueued_assets = array();
 
 	/**
+	 * Reset asset enqueue tracking.
+	 *
+	 * FOR TESTING ONLY — clears the per-tag enqueue cache so tests can isolate renders.
+	 *
+	 * @internal
+	 */
+	public static function reset_enqueued_assets_for_tests(): void
+	{
+		self::$enqueued_assets = array();
+	}
+
+	/**
 	 * Returns shortcode tag
 	 *
 	 * @return string Shortcode tag (e.g.: 'rentiva_booking_form')

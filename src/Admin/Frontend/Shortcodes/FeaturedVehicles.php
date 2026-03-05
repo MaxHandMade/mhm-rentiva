@@ -25,6 +25,58 @@ final class FeaturedVehicles extends AbstractShortcode
 
 	public const SHORTCODE = 'rentiva_featured_vehicles';
 
+	/**
+	 * Tracks which layout variants have already had their assets enqueued.
+	 * Allows slider/carousel assets to load even if a grid variant was rendered first.
+	 *
+	 * @var array<string, bool>
+	 */
+	private static array $enqueued_layouts = array();
+
+	/**
+	 * Layout-aware asset-once guard.
+	 *
+	 * On the first ever render of this shortcode the parent handles base assets
+	 * (notifications, etc.). For each additional distinct layout variant, only the
+	 * layout-specific assets are enqueued — avoiding double-enqueue of shared assets.
+	 *
+	 * @param array $atts Normalised shortcode attributes.
+	 */
+	protected static function enqueue_assets_once(array $atts = array()): void
+	{
+		$layout = $atts['layout'] ?? 'grid';
+		// Treat 'carousel' as an alias for 'slider'.
+		if ($layout === 'carousel') {
+			$layout = 'slider';
+		}
+
+		$tag        = static::get_shortcode_tag();
+		$layout_key = $tag . ':' . $layout;
+
+		if (! isset(self::$enqueued_layouts[$tag])) {
+			// First render: delegate to parent for base assets (notifications, etc.).
+			parent::enqueue_assets_once($atts);
+			self::$enqueued_layouts[$tag] = true;
+		} elseif (! isset(self::$enqueued_layouts[$layout_key])) {
+			// New layout variant: enqueue only its layout-specific assets.
+			static::enqueue_assets($atts);
+		}
+
+		self::$enqueued_layouts[$layout_key] = true;
+	}
+
+	/**
+	 * Reset layout-specific enqueue tracking.
+	 *
+	 * FOR TESTING ONLY — call alongside AbstractShortcode::reset_enqueued_assets_for_tests().
+	 *
+	 * @internal
+	 */
+	public static function reset_layout_enqueued_for_tests(): void
+	{
+		self::$enqueued_layouts = array();
+	}
+
 	protected static function get_shortcode_tag(): string
 	{
 		return self::SHORTCODE;
@@ -137,11 +189,13 @@ final class FeaturedVehicles extends AbstractShortcode
 	{
 		$files = array();
 
-		// If using slider layout, enqueue Swiper CSS from vendor
+		// If using slider/carousel layout, enqueue Swiper CSS and JS from vendor.
+		// 'carousel' is treated as an alias for 'slider'.
 		$layout = $atts['layout'] ?? 'slider';
 
-		if ($layout === 'slider') {
+		if ($layout === 'slider' || $layout === 'carousel') {
 			wp_enqueue_style('mhm-swiper-css');
+			wp_enqueue_script('mhm-swiper');
 		}
 
 		// Module specific styles
@@ -160,7 +214,7 @@ final class FeaturedVehicles extends AbstractShortcode
 		$files  = array();
 		$layout = $atts['layout'] ?? 'slider';
 
-		if ($layout === 'slider') {
+		if ($layout === 'slider' || $layout === 'carousel') {
 			$files[] = 'assets/js/frontend/featured-vehicles.js';
 		}
 		return $files;

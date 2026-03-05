@@ -177,6 +177,17 @@ final class AssetManager
 			);
 		}
 
+		// mhm-core-js must be registered before mhm-vehicle-interactions (WP 6.9.1 strict dep check).
+		if (! wp_script_is('mhm-core-js', 'registered')) {
+			wp_register_script(
+				'mhm-core-js',
+				self::get_asset_url('assets/js/core/core.js'),
+				array('jquery'),
+				self::get_file_version('assets/js/core/core.js'),
+				true
+			);
+		}
+
 		// Vehicle Interactions JS (Favorites & Compare)
 		if (! wp_script_is('mhm-vehicle-interactions', 'registered')) {
 			wp_register_script(

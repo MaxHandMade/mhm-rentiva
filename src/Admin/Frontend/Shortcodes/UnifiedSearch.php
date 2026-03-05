@@ -131,11 +131,19 @@ final class UnifiedSearch extends AbstractShortcode
 	 */
 	protected static function enqueue_assets(array $atts = array()): void
 	{
-		// Enqueue unified JS/CSS
+		// Base unified-search styles (layout and component foundations).
+		wp_enqueue_style(
+			'mhm-rentiva-unified-search-base',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/unified-search.css',
+			array(),
+			MHM_RENTIVA_VERSION
+		);
+
+		// Premium search overlay styles.
 		wp_enqueue_style(
 			'mhm-rentiva-search-premium',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/search-premium.css',
-			array(),
+			array('mhm-rentiva-unified-search-base'),
 			MHM_RENTIVA_VERSION
 		);
 
