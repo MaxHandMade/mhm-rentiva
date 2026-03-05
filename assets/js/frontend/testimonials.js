@@ -89,7 +89,9 @@ class Testimonials {
     }
 
     initAutoRotate() {
-        const autoRotate = this.container.data('auto-rotate') === '1';
+        // jQuery .data() parses attribute values: '1' becomes the number 1, not string '1'.
+        // Use == (loose) or parseInt to handle both types.
+        const autoRotate = parseInt(this.container.data('auto-rotate'), 10) === 1;
         if (autoRotate && this.totalSlides > 1) {
             this.startAutoRotate();
         }
@@ -145,7 +147,7 @@ class Testimonials {
     }
 
     resumeAutoRotate() {
-        const autoRotate = this.container.data('auto-rotate') === '1';
+        const autoRotate = parseInt(this.container.data('auto-rotate'), 10) === 1;
         if (autoRotate && this.totalSlides > 1) {
             this.startAutoRotate();
         }

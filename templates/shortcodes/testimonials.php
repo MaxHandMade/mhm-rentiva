@@ -58,22 +58,6 @@ $format_name = static function (string $full_name): string {
 
 	<?php if ($has_testimonials) : ?>
 
-		<!-- Testimonials Header -->
-		<div class="rv-testimonials-header">
-			<h3 class="rv-testimonials-title">
-				<?php echo esc_html__('Customer Reviews', 'mhm-rentiva'); ?>
-			</h3>
-			<div class="rv-testimonials-count">
-				<?php
-				printf(
-					/* translators: %d number of reviews */
-					esc_html(_n('%d review', '%d reviews', $total_count, 'mhm-rentiva')),
-					esc_html( (string) $total_count)
-				);
-				?>
-			</div>
-		</div>
-
 		<!-- Testimonials Container -->
 		<div class="rv-testimonials-container">
 

@@ -370,7 +370,10 @@
 
 .rv-carousel-slide {
 	min-width: 100%;
+	width: 100%;
 	flex-shrink: 0;
+	box-sizing: border-box;
+	overflow: hidden;
 }
 
 /* Carousel Controls */
