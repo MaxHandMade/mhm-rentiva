@@ -28,7 +28,7 @@ final class LogRetention {
 	}
 
 	public static function run(): void {
-		$days = (int) get_option( 'mhm_rentiva_log_retention_days', 90 );
+		$days = (int) get_option( 'mhm_rentiva_log_retention_days', 30 );
 		if ( $days <= 0 ) {
 			return; // keep forever, do nothing
 		}

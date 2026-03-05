@@ -73,9 +73,9 @@ final class Actions {
 		}
 		check_admin_referer( 'mhm_rentiva_purge_logs' );
 
-		$days = self::post_int( 'days', (int) get_option( 'mhm_rentiva_log_retention_days', 90 ) );
+		$days = self::post_int( 'days', (int) get_option( 'mhm_rentiva_log_retention_days', 30 ) );
 		if ( $days <= 0 ) {
-			$days = 90;
+			$days = 30;
 		}
 		$limit   = (int) apply_filters( 'mhm_rentiva_log_purge_limit_manual', 1000 );
 		$deleted = LogRetention::purge( $days, $limit );
