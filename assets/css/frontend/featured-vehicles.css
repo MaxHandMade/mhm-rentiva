@@ -7,7 +7,6 @@
     max-width: 100%;
     margin: 0 auto;
     box-sizing: border-box;
-    overflow-x: clip;
     --mhm-color-primary: var(--wp--preset--color--primary, #2563eb);
     --mhm-color-text-primary: var(--wp--preset--color--black, #1f2937);
     --mhm-color-text-secondary: var(--wp--preset--color--gray-600, #6b7280);
@@ -22,26 +21,128 @@
     color: var(--mhm-color-text-primary);
 }
 
-/* Swiper Override */
+/* =========================================
+   Swiper Overrides
+   ========================================= */
 .mhm-featured-swiper {
-    padding-bottom: 4rem !important;
-    /* Space for pagination */
-    padding-right: 1rem;
-    padding-left: 1rem;
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 2.5rem !important;
+    /* Inline padding creates gutter for nav arrows */
+    padding-right: 2.5rem;
+    padding-left: 2.5rem;
+}
+
+/*
+ * Edge masks: cover partial loop-slides that leak into the
+ * padding area. Background matches parent section colour.
+ * z-index sits above slides but below nav arrows.
+ */
+.mhm-featured-swiper::before,
+.mhm-featured-swiper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 2.5rem;
+    /* exclude pagination area */
+    width: 2.5rem;
+    /* matches inline padding */
+    background: var(--wp--preset--color--base, #ffffff);
+    z-index: 2;
+    /* above slides (default z:1), below arrows */
+    pointer-events: none;
+}
+
+.mhm-featured-swiper::before {
+    left: 0;
+}
+
+.mhm-featured-swiper::after {
+    right: 0;
+}
+
+/* Card content: remove excess bottom padding in slider */
+.mhm-featured-swiper .mhm-card-content {
+    padding: 1rem 1.125rem 0.75rem !important;
+    gap: 8px;
+}
+
+/* Footer: remove auto margin that creates gap above button */
+.mhm-featured-swiper .mhm-card-footer {
+    margin-top: 0 !important;
+    padding-top: 8px;
+    padding-bottom: 0.75rem;
+}
+
+/* Tighter title in slider */
+.mhm-featured-swiper .mhm-card-title {
+    font-size: 1rem;
+    min-height: calc(1rem * 1.3 * 2);
+}
+
+/* Compact feature chips */
+.mhm-featured-swiper .mhm-card-features {
+    padding-top: 8px;
+    height: 28px;
+    min-height: 28px;
+    max-height: 28px;
+}
+
+/* Smaller booking button */
+.mhm-featured-swiper .mhm-btn-booking {
+    height: 40px;
+    font-size: 0.875rem;
+}
+
+/* =========================================
+   Nav Arrows: sit in the padding gutter
+   ========================================= */
+.mhm-featured-swiper .swiper-button-next,
+.mhm-featured-swiper .swiper-button-prev {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--mhm-color-primary);
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+    top: 50%;
+    transform: translateY(calc(-50% - 1.25rem));
+    z-index: 5;
+    /* above edge masks */
+}
+
+.mhm-featured-swiper .swiper-button-next:hover,
+.mhm-featured-swiper .swiper-button-prev:hover {
+    background: var(--mhm-color-primary);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    transform: translateY(calc(-50% - 1.25rem)) scale(1.08);
+}
+
+.mhm-featured-swiper .swiper-button-next::after,
+.mhm-featured-swiper .swiper-button-prev::after {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Arrows positioned within swiper padding (no clipping) */
+.mhm-featured-swiper .swiper-button-prev {
+    left: 2px;
+}
+
+.mhm-featured-swiper .swiper-button-next {
+    right: 2px;
 }
 
 .mhm-featured-swiper .swiper-pagination-bullet-active {
     background: var(--mhm-color-primary) !important;
 }
 
-.mhm-featured-swiper .swiper-button-next,
-.mhm-featured-swiper .swiper-button-prev {
-    color: var(--mhm-color-primary) !important;
-}
-
 /* Card Component styles are now handled by core/vehicle-card.css */
 
-/* Grid Layout */
+/* =========================================
+   Grid Layout
+   ========================================= */
 .mhm-featured-grid {
     display: grid;
     grid-template-columns: repeat(var(--mhm-columns, 3), 1fr);
@@ -59,7 +160,9 @@
     max-width: 100%;
 }
 
-/* Responsive */
+/* =========================================
+   Responsive
+   ========================================= */
 @media (max-width: 900px) {
     .mhm-featured-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -79,5 +182,19 @@
     .mhm-featured-swiper {
         padding-right: 0;
         padding-left: 0;
+    }
+
+    /* Hide edge masks on mobile (no padding to mask) */
+    .mhm-featured-swiper::before,
+    .mhm-featured-swiper::after {
+        display: none;
+    }
+
+    .mhm-featured-swiper .swiper-button-prev {
+        left: 8px;
+    }
+
+    .mhm-featured-swiper .swiper-button-next {
+        right: 8px;
     }
 }

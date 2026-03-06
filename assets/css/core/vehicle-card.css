@@ -255,8 +255,8 @@
    ========================================= */
 .mhm-card-content {
     padding: 1.25rem;
-    padding-bottom: 1.5rem;
-    /* Extra space for button hover effects */
+    padding-bottom: 1rem;
+    /* Tighter bottom spacing for compact cards */
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
@@ -273,6 +273,14 @@
     font-weight: 600;
     color: var(--mhm-primary, #2563eb);
     margin-bottom: 4px;
+}
+
+.mhm-card-brand {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-weight: 600;
+    color: var(--mhm-text-secondary, #6b7280);
 }
 
 .mhm-card-title {
@@ -453,6 +461,13 @@
 .mhm-card-footer {
     margin-top: auto;
     padding-top: 12px;
+}
+
+/* Strip wpautop <p> tag margins inside card content */
+.mhm-card-content p,
+.mhm-card-footer p {
+    margin: 0;
+    padding: 0;
 }
 
 .mhm-btn-booking {

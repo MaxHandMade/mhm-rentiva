@@ -9,7 +9,7 @@
     const RentivaInteractions = {
         init: function () {
             if (typeof mhm_rentiva_vars === 'undefined') {
-                console.error('MHM Rentiva: mhm_rentiva_vars is not defined. JS interactions disabled.');
+                // Expected on FSE pages where vehicle interactions data is not localized
                 return;
             }
             $(document).on('click', '.mhm-vehicle-favorite-btn', RentivaInteractions.toggleFavorite);

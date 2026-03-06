@@ -150,16 +150,26 @@
             }
 
             // Fallback: Extract base URL from current script's URL
+            // Use a specific selector to avoid matching jQuery UI's core.js
             const currentScript = document.currentScript ||
-                document.querySelector('script[src*="core.js"]');
+                document.querySelector('script[src*="mhm-rentiva/assets/js/core/core.js"]');
 
             if (currentScript && currentScript.src) {
                 const url = new URL(currentScript.src);
                 return url.origin + url.pathname.replace('/assets/js/core/core.js', '');
             }
 
-            // Final fallback: WordPress plugin URL pattern
-            return window.location.origin + window.location.pathname.replace(/\/assets\/js\/core\/core\.js$/, '');
+            // Final fallback: use plugin URL pattern from any mhm-rentiva script
+            const anyPluginScript = document.querySelector('script[src*="mhm-rentiva/assets/"]');
+            if (anyPluginScript && anyPluginScript.src) {
+                const url = new URL(anyPluginScript.src);
+                const match = url.pathname.match(/(.*\/mhm-rentiva)\//);
+                if (match) {
+                    return url.origin + match[1];
+                }
+            }
+
+            return '';
         },
 
         /**
