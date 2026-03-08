@@ -237,7 +237,7 @@ if ($is_integrated) {
 				<?php else : ?>
 					<div class="no-bookings">
 						<div class="empty-state">
-							<div class="empty-icon">ğŸ“…</div>
+							<div class="empty-icon">&#x1F4C5;</div>
 							<h3><?php esc_html_e('No Bookings Yet', 'mhm-rentiva'); ?></h3>
 							<p><?php esc_html_e('You haven\'t made any vehicle bookings yet. Browse our fleet and make your first booking!', 'mhm-rentiva'); ?></p>
 							<a href="
@@ -278,7 +278,7 @@ if ($is_integrated) {
 				echo esc_url($vehicles_url);
 				?>
 				" class="action-card">
-					<div class="action-icon">ğŸš—</div>
+					<div class="action-icon">&#x1F697;</div>
 					<div class="action-content">
 						<h4><?php esc_html_e('Browse Vehicles', 'mhm-rentiva'); ?></h4>
 						<p><?php esc_html_e('Explore our fleet', 'mhm-rentiva'); ?></p>
@@ -294,7 +294,7 @@ if ($is_integrated) {
 				echo esc_url($booking_url);
 				?>
 				" class="action-card">
-					<div class="action-icon">ğŸ“…</div>
+					<div class="action-icon">&#x1F4C5;</div>
 					<div class="action-content">
 						<h4><?php esc_html_e('New Booking', 'mhm-rentiva'); ?></h4>
 						<p><?php esc_html_e('Make a new reservation', 'mhm-rentiva'); ?></p>
@@ -310,7 +310,7 @@ if ($is_integrated) {
 				echo esc_url($contact_url);
 				?>
 				" class="action-card">
-					<div class="action-icon">ğŸ’¬</div>
+					<div class="action-icon">&#x1F4AC;</div>
 					<div class="action-content">
 						<h4><?php esc_html_e('Contact Support', 'mhm-rentiva'); ?></h4>
 						<p><?php esc_html_e('We\'re here to help', 'mhm-rentiva'); ?></p>

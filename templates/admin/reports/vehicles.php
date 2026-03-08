@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="analytics-card vehicles-analytics">
 			<div class="card-header">
 				<h3><?php echo esc_html__( 'Vehicle Performance', 'mhm-rentiva' ); ?></h3>
-				<span class="card-icon">ğŸš—</span>
+				<span class="card-icon">&#x1F697;</span>
 			</div>
 			<div class="card-content">
 				<div class="analytics-chart">
@@ -82,7 +82,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="analytics-card customers-analytics">
 			<div class="card-header">
 				<h3><?php echo esc_html__( 'Top Vehicles', 'mhm-rentiva' ); ?></h3>
-				<span class="card-icon">ğŸ†</span>
+				<span class="card-icon">&#x1F3C6;</span>
 			</div>
 			<div class="card-content">
 				<div class="analytics-metrics">

@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="analytics-card revenue-analytics">
 			<div class="card-header">
 				<h3><?php echo esc_html__( 'Revenue Analytics', 'mhm-rentiva' ); ?></h3>
-				<span class="card-icon">ğŸ“Š</span>
+				<span class="card-icon">&#x1F4CA;</span>
 			</div>
 			<div class="card-content">
 				<div class="analytics-chart">
@@ -98,7 +98,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="analytics-card bookings-analytics">
 			<div class="card-header">
 				<h3><?php echo esc_html__( 'Bookings Analytics', 'mhm-rentiva' ); ?></h3>
-				<span class="card-icon">ğŸ“ˆ</span>
+				<span class="card-icon">&#x1F4C8;</span>
 			</div>
 			<div class="card-content">
 				<div class="analytics-chart">
@@ -155,7 +155,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="analytics-card customers-analytics">
 			<div class="card-header">
 				<h3><?php echo esc_html__( 'Customer Analytics', 'mhm-rentiva' ); ?></h3>
-				<span class="card-icon">ğŸ‘¥</span>
+				<span class="card-icon">&#x1F465;</span>
 			</div>
 			<div class="card-content">
 				<div class="analytics-chart">
@@ -215,7 +215,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="analytics-card vehicles-analytics">
 			<div class="card-header">
 				<h3><?php echo esc_html__( 'Vehicle Analytics', 'mhm-rentiva' ); ?></h3>
-				<span class="card-icon">ğŸš—</span>
+				<span class="card-icon">&#x1F697;</span>
 			</div>
 			<div class="card-content">
 				<div class="analytics-chart">

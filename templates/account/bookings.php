@@ -346,7 +346,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 			<?php if (empty($upcoming_bookings) && empty($past_bookings)) : ?>
 				<div class="rv-no-bookings">
 					<div class="rv-empty-state">
-						<div class="rv-empty-icon">ğŸ“…</div>
+						<div class="rv-empty-icon">&#x1F4C5;</div>
 						<h3><?php esc_html_e('No Bookings Found', 'mhm-rentiva'); ?></h3>
 						<p><?php esc_html_e('You haven\'t made any vehicle bookings yet. Start exploring our fleet!', 'mhm-rentiva'); ?></p>
 						<a href="<?php echo esc_url($booking_form_url); ?>" class="rv-btn-primary">
