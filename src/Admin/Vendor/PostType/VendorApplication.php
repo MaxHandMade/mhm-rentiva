@@ -40,8 +40,8 @@ final class VendorApplication
             'labels'             => $labels,
             'public'             => false,
             'publicly_queryable' => false,
-            'show_ui'            => true,
-            'show_in_menu'       => 'mhm-rentiva',
+            'show_ui'            => false,
+            'show_in_menu'       => false,
             'query_var'          => false,
             'rewrite'            => false,
             'capabilities'       => array(

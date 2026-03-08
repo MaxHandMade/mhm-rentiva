@@ -12,13 +12,12 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Admin page that lists pending vendor applications and allows approve/reject actions.
+ * Admin pages for vendor management:
+ * - Pending Applications list + detail view with approve/reject
+ * - Active Vendors list with suspend action
  */
 final class AdminVendorApplicationsPage
 {
-    /**
-     * Register admin_menu hook only when the vendor marketplace is available.
-     */
     public static function register(): void
     {
         if (! Mode::canUseVendorMarketplace()) {
@@ -26,47 +25,65 @@ final class AdminVendorApplicationsPage
         }
 
         add_action('admin_menu', array(static::class, 'add_submenu'));
+        add_action('admin_post_mhm_vendor_approve', array(static::class, 'handle_approve_post'));
+        add_action('admin_post_mhm_vendor_reject',  array(static::class, 'handle_reject_post'));
+        add_action('admin_post_mhm_vendor_suspend', array(static::class, 'handle_suspend_post'));
     }
 
-    /**
-     * Add submenu page under the mhm-rentiva top-level menu.
-     */
     public static function add_submenu(): void
     {
         add_submenu_page(
             'mhm-rentiva',
-            __('Vendor Applications', 'mhm-rentiva'),
-            __('Vendor Applications', 'mhm-rentiva'),
+            __('Vendor Management', 'mhm-rentiva'),
+            __('Vendor Management', 'mhm-rentiva'),
             'manage_options',
-            'mhm-rentiva-vendor-applications',
+            'mhm-rentiva-vendors',
             array(static::class, 'render_page')
         );
     }
 
-    /**
-     * Render the admin vendor applications list page.
-     */
+    // ---------------------------------------------------------------
+    // Main router
+    // ---------------------------------------------------------------
+
     public static function render_page(): void
     {
         if (! current_user_can('manage_options')) {
             wp_die(esc_html__('You do not have permission to view this page.', 'mhm-rentiva'));
         }
 
-        // Handle approve/reject form submissions before rendering.
-        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- nonces verified inside handle methods
-        $action         = isset($_GET['mhm_action']) ? sanitize_key($_GET['mhm_action']) : '';
-        $application_id = isset($_GET['application_id']) ? (int) $_GET['application_id'] : 0;
-        $nonce_value    = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        $tab    = isset($_GET['tab'])    ? sanitize_key($_GET['tab'])    : 'pending';
+        $view   = isset($_GET['view'])   ? (int) $_GET['view']           : 0;
         // phpcs:enable
 
-        if ($action === 'approve' && $application_id > 0) {
-            static::handle_approval_request($application_id, $nonce_value);
-        } elseif ($action === 'reject' && $application_id > 0) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            $reason = isset($_GET['reason']) ? sanitize_textarea_field(wp_unslash($_GET['reason'])) : '';
-            static::handle_rejection_request($application_id, $nonce_value, $reason);
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__('Vendor Management', 'mhm-rentiva') . '</h1>';
+
+        // Tab nav
+        $base_url = admin_url('admin.php?page=mhm-rentiva-vendors');
+        echo '<nav class="nav-tab-wrapper" style="margin-bottom:20px">';
+        echo '<a href="' . esc_url($base_url . '&tab=pending') . '" class="nav-tab ' . ($tab === 'pending' ? 'nav-tab-active' : '') . '">' . esc_html__('Pending Applications', 'mhm-rentiva') . '</a>';
+        echo '<a href="' . esc_url($base_url . '&tab=vendors') . '" class="nav-tab ' . ($tab === 'vendors' ? 'nav-tab-active' : '') . '">' . esc_html__('Active Vendors', 'mhm-rentiva') . '</a>';
+        echo '</nav>';
+
+        if ($tab === 'vendors') {
+            static::render_vendors_tab();
+        } elseif ($view > 0) {
+            static::render_application_detail($view);
+        } else {
+            static::render_pending_tab();
         }
 
+        echo '</div>';
+    }
+
+    // ---------------------------------------------------------------
+    // Pending Applications tab
+    // ---------------------------------------------------------------
+
+    private static function render_pending_tab(): void
+    {
         $applications = get_posts(array(
             'post_type'      => VendorApplication::POST_TYPE,
             'post_status'    => VendorApplicationManager::STATUS_PENDING,
@@ -75,134 +92,277 @@ final class AdminVendorApplicationsPage
             'order'          => 'DESC',
         ));
 
-        echo '<div class="wrap">';
-        echo '<h1>' . esc_html__('Vendor Applications', 'mhm-rentiva') . '</h1>';
-
         if (empty($applications)) {
             echo '<p>' . esc_html__('No pending vendor applications.', 'mhm-rentiva') . '</p>';
-        } else {
-            echo '<table class="widefat striped">';
-            echo '<thead><tr>';
-            echo '<th>' . esc_html__('Applicant', 'mhm-rentiva') . '</th>';
-            echo '<th>' . esc_html__('City', 'mhm-rentiva') . '</th>';
-            echo '<th>' . esc_html__('IBAN (masked)', 'mhm-rentiva') . '</th>';
-            echo '<th>' . esc_html__('Date', 'mhm-rentiva') . '</th>';
-            echo '<th>' . esc_html__('Status', 'mhm-rentiva') . '</th>';
-            echo '<th>' . esc_html__('Actions', 'mhm-rentiva') . '</th>';
-            echo '</tr></thead><tbody>';
-
-            foreach ($applications as $app) {
-                $author  = get_userdata((int) $app->post_author);
-                $name    = $author ? $author->display_name : '#' . $app->post_author;
-                $city    = get_post_meta($app->ID, '_vendor_city', true);
-                $status  = get_post_meta($app->ID, '_vendor_status', true);
-
-                $raw_iban = VendorApplicationManager::decrypt_iban(
-                    (string) get_post_meta($app->ID, '_vendor_iban', true)
-                );
-                $masked = strlen($raw_iban) > 4
-                    ? substr($raw_iban, 0, 2) . '** **** ' . substr($raw_iban, -4)
-                    : '—';
-
-                $approve_url = wp_nonce_url(
-                    add_query_arg(
-                        array(
-                            'page'           => 'mhm-rentiva-vendor-applications',
-                            'mhm_action'     => 'approve',
-                            'application_id' => $app->ID,
-                        ),
-                        admin_url('admin.php')
-                    ),
-                    'mhm_vendor_approve_' . $app->ID
-                );
-
-                $reject_url = wp_nonce_url(
-                    add_query_arg(
-                        array(
-                            'page'           => 'mhm-rentiva-vendor-applications',
-                            'mhm_action'     => 'reject',
-                            'application_id' => $app->ID,
-                            'reason'         => urlencode(__('Application does not meet requirements.', 'mhm-rentiva')),
-                        ),
-                        admin_url('admin.php')
-                    ),
-                    'mhm_vendor_reject_' . $app->ID
-                );
-
-                echo '<tr>';
-                echo '<td>' . esc_html($name) . '</td>';
-                echo '<td>' . esc_html((string) $city) . '</td>';
-                echo '<td>' . esc_html($masked) . '</td>';
-                echo '<td>' . esc_html(get_the_date('Y-m-d', $app)) . '</td>';
-                echo '<td>' . esc_html((string) $status) . '</td>';
-                echo '<td>';
-                echo '<a href="' . esc_url($approve_url) . '" class="button button-primary">' . esc_html__('Approve', 'mhm-rentiva') . '</a> ';
-                echo '<a href="' . esc_url($reject_url) . '" class="button button-secondary">' . esc_html__('Reject', 'mhm-rentiva') . '</a>';
-                echo '</td>';
-                echo '</tr>';
-            }
-
-            echo '</tbody></table>';
+            return;
         }
+
+        $base = admin_url('admin.php?page=mhm-rentiva-vendors&tab=pending');
+
+        echo '<table class="widefat fixed striped">';
+        echo '<thead><tr>';
+        echo '<th>' . esc_html__('Applicant', 'mhm-rentiva') . '</th>';
+        echo '<th>' . esc_html__('Email', 'mhm-rentiva') . '</th>';
+        echo '<th>' . esc_html__('City', 'mhm-rentiva') . '</th>';
+        echo '<th style="width:120px">' . esc_html__('Applied', 'mhm-rentiva') . '</th>';
+        echo '<th style="width:160px">' . esc_html__('Actions', 'mhm-rentiva') . '</th>';
+        echo '</tr></thead><tbody>';
+
+        foreach ($applications as $app) {
+            $author     = get_userdata((int) $app->post_author);
+            $name       = $author ? $author->display_name : '#' . $app->post_author;
+            $email      = $author ? $author->user_email : '—';
+            $city       = (string) get_post_meta($app->ID, '_vendor_city', true);
+            $detail_url = esc_url(add_query_arg('view', $app->ID, $base));
+
+            echo '<tr>';
+            echo '<td><a href="' . $detail_url . '"><strong>' . esc_html($name) . '</strong></a></td>';
+            echo '<td>' . esc_html($email) . '</td>';
+            echo '<td>' . esc_html($city) . '</td>';
+            echo '<td>' . esc_html(get_the_date('d.m.Y', $app)) . '</td>';
+            echo '<td><a href="' . $detail_url . '" class="button button-small">' . esc_html__('Review', 'mhm-rentiva') . '</a></td>';
+            echo '</tr>';
+        }
+
+        echo '</tbody></table>';
+    }
+
+    // ---------------------------------------------------------------
+    // Application detail view
+    // ---------------------------------------------------------------
+
+    private static function render_application_detail(int $application_id): void
+    {
+        $app = get_post($application_id);
+        if (! $app || $app->post_type !== VendorApplication::POST_TYPE) {
+            echo '<div class="notice notice-error"><p>' . esc_html__('Application not found.', 'mhm-rentiva') . '</p></div>';
+            return;
+        }
+
+        $author   = get_userdata((int) $app->post_author);
+        $name     = $author ? $author->display_name : '#' . $app->post_author;
+        $email    = $author ? $author->user_email : '—';
+        $phone    = (string) get_post_meta($application_id, '_vendor_phone', true);
+        $city     = (string) get_post_meta($application_id, '_vendor_city', true);
+        $bio      = (string) get_post_meta($application_id, '_vendor_profile_bio', true);
+        $areas    = (array) get_post_meta($application_id, '_vendor_service_areas', true);
+        $tax      = (string) get_post_meta($application_id, '_vendor_tax_number', true);
+
+        $raw_iban = VendorApplicationManager::decrypt_iban(
+            (string) get_post_meta($application_id, '_vendor_iban', true)
+        );
+        $masked_iban = strlen($raw_iban) > 4
+            ? substr($raw_iban, 0, 2) . '** **** ' . substr($raw_iban, -4)
+            : '—';
+
+        $doc_id        = (int) get_post_meta($application_id, '_vendor_doc_id', true);
+        $doc_license   = (int) get_post_meta($application_id, '_vendor_doc_license', true);
+        $doc_address   = (int) get_post_meta($application_id, '_vendor_doc_address', true);
+        $doc_insurance = (int) get_post_meta($application_id, '_vendor_doc_insurance', true);
+
+        $back_url = esc_url(admin_url('admin.php?page=mhm-rentiva-vendors&tab=pending'));
+
+        echo '<p><a href="' . $back_url . '">&larr; ' . esc_html__('Back to applications', 'mhm-rentiva') . '</a></p>';
+        echo '<h2>' . esc_html(sprintf(__('Application: %s', 'mhm-rentiva'), $name)) . '</h2>';
+
+        echo '<table class="form-table"><tbody>';
+        echo '<tr><th>' . esc_html__('Full Name', 'mhm-rentiva') . '</th><td>' . esc_html($name) . '</td></tr>';
+        echo '<tr><th>' . esc_html__('Email', 'mhm-rentiva') . '</th><td>' . esc_html($email) . '</td></tr>';
+        echo '<tr><th>' . esc_html__('Phone', 'mhm-rentiva') . '</th><td>' . esc_html($phone) . '</td></tr>';
+        echo '<tr><th>' . esc_html__('City', 'mhm-rentiva') . '</th><td>' . esc_html($city) . '</td></tr>';
+        echo '<tr><th>' . esc_html__('Service Areas', 'mhm-rentiva') . '</th><td>' . esc_html(implode(', ', $areas)) . '</td></tr>';
+        echo '<tr><th>' . esc_html__('IBAN (masked)', 'mhm-rentiva') . '</th><td><code>' . esc_html($masked_iban) . '</code></td></tr>';
+        echo '<tr><th>' . esc_html__('Tax Number', 'mhm-rentiva') . '</th><td>' . esc_html($tax ?: '—') . '</td></tr>';
+        echo '<tr><th>' . esc_html__('Bio', 'mhm-rentiva') . '</th><td>' . nl2br(esc_html($bio)) . '</td></tr>';
+        echo '<tr><th>' . esc_html__('Applied', 'mhm-rentiva') . '</th><td>' . esc_html(get_the_date('d.m.Y H:i', $app)) . '</td></tr>';
+        echo '</tbody></table>';
+
+        // Documents
+        echo '<h3>' . esc_html__('Documents', 'mhm-rentiva') . '</h3>';
+        echo '<table class="widefat fixed" style="max-width:600px"><tbody>';
+        foreach (array(
+            __('ID Document', 'mhm-rentiva')       => $doc_id,
+            __('Driver\'s License', 'mhm-rentiva')  => $doc_license,
+            __('Address Document', 'mhm-rentiva')   => $doc_address,
+            __('Vehicle Insurance', 'mhm-rentiva')  => $doc_insurance,
+        ) as $label => $attachment_id) {
+            $url  = $attachment_id ? wp_get_attachment_url($attachment_id) : '';
+            $link = $url
+                ? '<a href="' . esc_url($url) . '" target="_blank">' . esc_html__('View', 'mhm-rentiva') . '</a>'
+                : '<em>' . esc_html__('Not uploaded', 'mhm-rentiva') . '</em>';
+            echo '<tr><th style="width:200px">' . esc_html($label) . '</th><td>' . wp_kses($link, array('a' => array('href' => array(), 'target' => array()), 'em' => array())) . '</td></tr>';
+        }
+        echo '</tbody></table>';
+
+        // Action forms
+        echo '<div style="display:flex;gap:32px;margin-top:24px;flex-wrap:wrap">';
+
+        // Approve form
+        echo '<div style="flex:1;min-width:200px">';
+        echo '<h3 style="color:#2e7d32">' . esc_html__('Approve Application', 'mhm-rentiva') . '</h3>';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+        wp_nonce_field('mhm_vendor_approve_' . $application_id, '_wpnonce');
+        echo '<input type="hidden" name="action" value="mhm_vendor_approve">';
+        echo '<input type="hidden" name="application_id" value="' . esc_attr((string) $application_id) . '">';
+        echo '<p>' . esc_html__('This will assign the rentiva_vendor role and notify the applicant.', 'mhm-rentiva') . '</p>';
+        echo '<input type="submit" class="button button-primary" value="' . esc_attr__('Approve & Activate Vendor', 'mhm-rentiva') . '" onclick="return confirm(\'' . esc_js(__('Approve this vendor application?', 'mhm-rentiva')) . '\')">';
+        echo '</form>';
+        echo '</div>';
+
+        // Reject form
+        echo '<div style="flex:1;min-width:280px">';
+        echo '<h3 style="color:#c62828">' . esc_html__('Reject Application', 'mhm-rentiva') . '</h3>';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+        wp_nonce_field('mhm_vendor_reject_' . $application_id, '_wpnonce');
+        echo '<input type="hidden" name="action" value="mhm_vendor_reject">';
+        echo '<input type="hidden" name="application_id" value="' . esc_attr((string) $application_id) . '">';
+        echo '<p><label><strong>' . esc_html__('Rejection Reason (required):', 'mhm-rentiva') . '</strong></label></p>';
+        echo '<textarea name="reason" rows="4" style="width:100%;max-width:400px" required placeholder="' . esc_attr__('Explain why this application is being rejected...', 'mhm-rentiva') . '"></textarea>';
+        echo '<br><br><input type="submit" class="button button-secondary" value="' . esc_attr__('Reject Application', 'mhm-rentiva') . '">';
+        echo '</form>';
+        echo '</div>';
 
         echo '</div>';
     }
 
-    /**
-     * Verify nonce and capability, then run process_approve().
-     *
-     * @param int    $application_id Application post ID.
-     * @param string $nonce_value    Raw nonce value from the request.
-     */
-    public static function handle_approval_request(int $application_id, string $nonce_value): void
+    // ---------------------------------------------------------------
+    // Active Vendors tab
+    // ---------------------------------------------------------------
+
+    private static function render_vendors_tab(): void
     {
-        if (
-            ! current_user_can('manage_options') ||
-            ! wp_verify_nonce($nonce_value, 'mhm_vendor_approve_' . $application_id)
-        ) {
+        $vendors = get_users(array(
+            'role'    => 'rentiva_vendor',
+            'orderby' => 'display_name',
+            'order'   => 'ASC',
+            'number'  => 100,
+        ));
+
+        echo '<h2>' . esc_html__('Active Vendors', 'mhm-rentiva') . '</h2>';
+
+        if (empty($vendors)) {
+            echo '<p>' . esc_html__('No active vendors yet.', 'mhm-rentiva') . '</p>';
+            return;
+        }
+
+        echo '<table class="widefat fixed striped">';
+        echo '<thead><tr>';
+        echo '<th>' . esc_html__('Name', 'mhm-rentiva') . '</th>';
+        echo '<th>' . esc_html__('Email', 'mhm-rentiva') . '</th>';
+        echo '<th>' . esc_html__('City', 'mhm-rentiva') . '</th>';
+        echo '<th>' . esc_html__('Service Areas', 'mhm-rentiva') . '</th>';
+        echo '<th>' . esc_html__('Approved', 'mhm-rentiva') . '</th>';
+        echo '<th style="width:120px">' . esc_html__('Action', 'mhm-rentiva') . '</th>';
+        echo '</tr></thead><tbody>';
+
+        foreach ($vendors as $vendor) {
+            $city      = (string) get_user_meta($vendor->ID, '_rentiva_vendor_city', true);
+            $areas     = (array)  get_user_meta($vendor->ID, '_rentiva_vendor_service_areas', true);
+            $approved  = (string) get_user_meta($vendor->ID, '_rentiva_vendor_approved_at', true);
+            $status    = (string) get_user_meta($vendor->ID, '_rentiva_vendor_status', true);
+
+            $suspend_url = wp_nonce_url(
+                admin_url('admin-post.php?action=mhm_vendor_suspend&vendor_id=' . $vendor->ID),
+                'mhm_vendor_suspend_' . $vendor->ID
+            );
+
+            $badge = $status === 'suspended'
+                ? '<span style="color:#c62828;font-weight:bold">' . esc_html__('Suspended', 'mhm-rentiva') . '</span>'
+                : '<span style="color:#2e7d32">' . esc_html__('Active', 'mhm-rentiva') . '</span>';
+
+            echo '<tr>';
+            echo '<td>' . esc_html($vendor->display_name) . ' ' . wp_kses($badge, array('span' => array('style' => array()))) . '</td>';
+            echo '<td>' . esc_html($vendor->user_email) . '</td>';
+            echo '<td>' . esc_html($city) . '</td>';
+            echo '<td>' . esc_html(implode(', ', $areas)) . '</td>';
+            echo '<td>' . esc_html($approved ? wp_date('d.m.Y', strtotime($approved)) : '—') . '</td>';
+            echo '<td>';
+            if ($status !== 'suspended') {
+                echo '<a href="' . esc_url($suspend_url) . '" class="button button-small" onclick="return confirm(\'' . esc_js(__('Suspend this vendor?', 'mhm-rentiva')) . '\')">' . esc_html__('Suspend', 'mhm-rentiva') . '</a>';
+            } else {
+                echo '<em>' . esc_html__('Suspended', 'mhm-rentiva') . '</em>';
+            }
+            echo '</td>';
+            echo '</tr>';
+        }
+
+        echo '</tbody></table>';
+    }
+
+    // ---------------------------------------------------------------
+    // POST action handlers
+    // ---------------------------------------------------------------
+
+    public static function handle_approve_post(): void
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die(esc_html__('Permission denied.', 'mhm-rentiva'));
+        }
+
+        // phpcs:disable WordPress.Security.NonceVerification.Missing
+        $application_id = isset($_POST['application_id']) ? (int) $_POST['application_id'] : 0;
+        $nonce          = isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '';
+        // phpcs:enable
+
+        if (! wp_verify_nonce($nonce, 'mhm_vendor_approve_' . $application_id)) {
             wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
         }
 
         static::process_approve($application_id);
+        wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-vendors&tab=pending&approved=1'));
+        exit;
     }
 
-    /**
-     * Verify nonce and capability, then run process_reject().
-     *
-     * @param int    $application_id Application post ID.
-     * @param string $nonce_value    Raw nonce value from the request.
-     * @param string $reason         Admin rejection note.
-     */
-    public static function handle_rejection_request(int $application_id, string $nonce_value, string $reason = ''): void
+    public static function handle_reject_post(): void
     {
-        if (
-            ! current_user_can('manage_options') ||
-            ! wp_verify_nonce($nonce_value, 'mhm_vendor_reject_' . $application_id)
-        ) {
+        if (! current_user_can('manage_options')) {
+            wp_die(esc_html__('Permission denied.', 'mhm-rentiva'));
+        }
+
+        // phpcs:disable WordPress.Security.NonceVerification.Missing
+        $application_id = isset($_POST['application_id']) ? (int) $_POST['application_id'] : 0;
+        $nonce          = isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '';
+        $reason         = isset($_POST['reason']) ? sanitize_textarea_field(wp_unslash($_POST['reason'])) : '';
+        // phpcs:enable
+
+        if (! wp_verify_nonce($nonce, 'mhm_vendor_reject_' . $application_id)) {
             wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
         }
 
         static::process_reject($application_id, $reason);
+        wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-vendors&tab=pending&rejected=1'));
+        exit;
     }
 
-    /**
-     * Approve a vendor application. Testable — no redirect.
-     *
-     * @param int $application_id Application post ID.
-     * @return true|\WP_Error
-     */
+    public static function handle_suspend_post(): void
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die(esc_html__('Permission denied.', 'mhm-rentiva'));
+        }
+
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        $vendor_id   = isset($_GET['vendor_id']) ? (int) $_GET['vendor_id'] : 0;
+        $nonce       = isset($_GET['_wpnonce'])  ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+        // phpcs:enable
+
+        if (! wp_verify_nonce($nonce, 'mhm_vendor_suspend_' . $vendor_id)) {
+            wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
+        }
+
+        VendorOnboardingController::suspend($vendor_id);
+        wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-vendors&tab=vendors&suspended=1'));
+        exit;
+    }
+
+    // ---------------------------------------------------------------
+    // Testable delegates (no redirect)
+    // ---------------------------------------------------------------
+
     public static function process_approve(int $application_id)
     {
         return VendorOnboardingController::approve($application_id);
     }
 
-    /**
-     * Reject a vendor application. Testable — no redirect.
-     *
-     * @param int    $application_id Application post ID.
-     * @param string $reason         Admin rejection note.
-     * @return true|\WP_Error
-     */
     public static function process_reject(int $application_id, string $reason = '')
     {
         return VendorOnboardingController::reject($application_id, $reason);
