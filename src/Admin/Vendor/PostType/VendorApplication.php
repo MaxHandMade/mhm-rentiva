@@ -9,7 +9,7 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Registers the mhm_vendor_application custom post type.
+ * Registers the mhm_vendor_app custom post type.
  * Stores vendor onboarding applications with document uploads and status tracking.
  */
 final class VendorApplication
