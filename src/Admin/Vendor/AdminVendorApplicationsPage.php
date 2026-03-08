@@ -30,6 +30,7 @@ final class AdminVendorApplicationsPage
         add_action('admin_post_mhm_vendor_reject',             array(static::class, 'handle_reject_post'));
         add_action('admin_post_mhm_vendor_suspend',            array(static::class, 'handle_suspend_post'));
         add_action('admin_post_mhm_vendor_commission_update',  array(static::class, 'handle_commission_update'));
+        add_action('admin_post_mhm_vendor_settings_save',      array(static::class, 'handle_settings_save'));
     }
 
     public static function add_submenu(): void
@@ -68,12 +69,15 @@ final class AdminVendorApplicationsPage
         echo '<a href="' . esc_url($base_url . '&tab=pending') . '" class="nav-tab ' . ($tab === 'pending' ? 'nav-tab-active' : '') . '">' . esc_html__('Pending Applications', 'mhm-rentiva') . '</a>';
         echo '<a href="' . esc_url($base_url . '&tab=vendors') . '" class="nav-tab ' . ($tab === 'vendors' ? 'nav-tab-active' : '') . '">' . esc_html__('Active Vendors', 'mhm-rentiva') . '</a>';
         echo '<a href="' . esc_url($base_url . '&tab=commission') . '" class="nav-tab ' . ($tab === 'commission' ? 'nav-tab-active' : '') . '">' . esc_html__('Commission', 'mhm-rentiva') . '</a>';
+        echo '<a href="' . esc_url($base_url . '&tab=settings') . '" class="nav-tab ' . ($tab === 'settings' ? 'nav-tab-active' : '') . '">' . esc_html__('Settings', 'mhm-rentiva') . '</a>';
         echo '</nav>';
 
         if ($tab === 'vendors') {
             static::render_vendors_tab();
         } elseif ($tab === 'commission') {
             static::render_commission_tab();
+        } elseif ($tab === 'settings') {
+            static::render_settings_tab();
         } elseif ($view > 0) {
             static::render_application_detail($view);
         } else {
@@ -295,6 +299,95 @@ final class AdminVendorApplicationsPage
     }
 
     // ---------------------------------------------------------------
+    // Settings tab
+    // ---------------------------------------------------------------
+
+    private static function render_settings_tab(): void
+    {
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        $saved = isset($_GET['settings_saved']) && $_GET['settings_saved'] === '1';
+        // phpcs:enable
+
+        if ($saved) {
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved.', 'mhm-rentiva') . '</p></div>';
+        }
+
+        // Current values
+        $min_payout      = (float) get_option('mhm_min_payout_amount', 100);
+        $payout_freeze   = get_option('mhm_rentiva_global_payout_freeze', 'no');
+        $max_photos      = (int) get_option('mhm_vehicle_max_photos', 10);
+        $doc_max_mb      = (int) get_option('mhm_vendor_doc_max_file_size_mb', 5);
+        $min_year        = (int) get_option('mhm_vehicle_min_year', 1990);
+        $bio_max_chars   = (int) get_option('mhm_vendor_bio_max_length', 400);
+        $service_cities_raw = get_option('mhm_vendor_service_cities', '');
+        $default_cities  = array('Istanbul', 'Ankara', 'Izmir', 'Antalya', 'Bursa', 'Adana', 'Konya', 'Other');
+        $service_cities  = $service_cities_raw !== ''
+            ? implode("\n", (array) maybe_unserialize($service_cities_raw))
+            : implode("\n", $default_cities);
+
+        echo '<h2>' . esc_html__('Vendor Marketplace Settings', 'mhm-rentiva') . '</h2>';
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+        wp_nonce_field('mhm_vendor_settings_save', '_wpnonce');
+        echo '<input type="hidden" name="action" value="mhm_vendor_settings_save">';
+
+        echo '<table class="form-table"><tbody>';
+
+        // Payout freeze
+        echo '<tr>';
+        echo '<th><label>' . esc_html__('Global Payout Freeze', 'mhm-rentiva') . '</label></th>';
+        echo '<td>';
+        echo '<label><input type="checkbox" name="payout_freeze" value="yes"' . checked('yes', $payout_freeze, false) . '> ';
+        echo esc_html__('Freeze all vendor payout requests site-wide', 'mhm-rentiva') . '</label>';
+        echo '</td></tr>';
+
+        // Minimum payout amount
+        echo '<tr>';
+        echo '<th><label for="min_payout">' . esc_html__('Minimum Payout Amount (₺)', 'mhm-rentiva') . '</label></th>';
+        echo '<td><input type="number" id="min_payout" name="min_payout" value="' . esc_attr((string) $min_payout) . '" min="0" step="1" style="width:120px">
+            <p class="description">' . esc_html__('Vendors must have at least this balance to request a payout.', 'mhm-rentiva') . '</p></td>';
+        echo '</tr>';
+
+        // Max vehicle photos
+        echo '<tr>';
+        echo '<th><label for="max_photos">' . esc_html__('Max Vehicle Photos', 'mhm-rentiva') . '</label></th>';
+        echo '<td><input type="number" id="max_photos" name="max_photos" value="' . esc_attr((string) $max_photos) . '" min="1" max="20" style="width:80px">
+            <p class="description">' . esc_html__('Maximum number of photos per vehicle listing.', 'mhm-rentiva') . '</p></td>';
+        echo '</tr>';
+
+        // Document file size limit
+        echo '<tr>';
+        echo '<th><label for="doc_max_mb">' . esc_html__('Document Upload Limit (MB)', 'mhm-rentiva') . '</label></th>';
+        echo '<td><input type="number" id="doc_max_mb" name="doc_max_mb" value="' . esc_attr((string) $doc_max_mb) . '" min="1" max="50" style="width:80px">
+            <p class="description">' . esc_html__('Maximum file size for vendor identity documents (ID, license, etc.).', 'mhm-rentiva') . '</p></td>';
+        echo '</tr>';
+
+        // Minimum vehicle year
+        echo '<tr>';
+        echo '<th><label for="min_year">' . esc_html__('Minimum Vehicle Year', 'mhm-rentiva') . '</label></th>';
+        echo '<td><input type="number" id="min_year" name="min_year" value="' . esc_attr((string) $min_year) . '" min="1900" max="' . esc_attr((string) (int) gmdate('Y')) . '" style="width:100px">
+            <p class="description">' . esc_html__('Oldest vehicle year allowed in listings.', 'mhm-rentiva') . '</p></td>';
+        echo '</tr>';
+
+        // Bio max length
+        echo '<tr>';
+        echo '<th><label for="bio_max">' . esc_html__('Vendor Bio Max Characters', 'mhm-rentiva') . '</label></th>';
+        echo '<td><input type="number" id="bio_max" name="bio_max" value="' . esc_attr((string) $bio_max_chars) . '" min="50" max="2000" style="width:100px">
+            <p class="description">' . esc_html__('Maximum character count for the vendor profile bio.', 'mhm-rentiva') . '</p></td>';
+        echo '</tr>';
+
+        // Service cities
+        echo '<tr>';
+        echo '<th><label for="service_cities">' . esc_html__('Service Area Cities', 'mhm-rentiva') . '</label></th>';
+        echo '<td><textarea id="service_cities" name="service_cities" rows="10" style="width:320px;font-family:monospace">' . esc_textarea($service_cities) . '</textarea>
+            <p class="description">' . esc_html__('One city per line. Shown as checkboxes in the vendor application form.', 'mhm-rentiva') . '</p></td>';
+        echo '</tr>';
+
+        echo '</tbody></table>';
+        echo '<p class="submit"><input type="submit" class="button button-primary" value="' . esc_attr__('Save Settings', 'mhm-rentiva') . '"></p>';
+        echo '</form>';
+    }
+
+    // ---------------------------------------------------------------
     // Commission tab
     // ---------------------------------------------------------------
 
@@ -444,6 +537,37 @@ final class AdminVendorApplicationsPage
     // ---------------------------------------------------------------
     // Testable delegates (no redirect)
     // ---------------------------------------------------------------
+
+    public static function handle_settings_save(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('Permission denied.', 'mhm-rentiva'));
+        }
+
+        // phpcs:disable WordPress.Security.NonceVerification.Missing
+        $nonce = isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '';
+        // phpcs:enable
+
+        if (!wp_verify_nonce($nonce, 'mhm_vendor_settings_save')) {
+            wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
+        }
+
+        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        update_option('mhm_rentiva_global_payout_freeze', isset($_POST['payout_freeze']) ? 'yes' : 'no');
+        update_option('mhm_min_payout_amount', max(0, (float) ($_POST['min_payout'] ?? 100)));
+        update_option('mhm_vehicle_max_photos', max(1, min(20, (int) ($_POST['max_photos'] ?? 10))));
+        update_option('mhm_vendor_doc_max_file_size_mb', max(1, min(50, (int) ($_POST['doc_max_mb'] ?? 5))));
+        update_option('mhm_vehicle_min_year', max(1900, min((int) gmdate('Y'), (int) ($_POST['min_year'] ?? 1990))));
+        update_option('mhm_vendor_bio_max_length', max(50, min(2000, (int) ($_POST['bio_max'] ?? 400))));
+
+        $raw_cities = sanitize_textarea_field(wp_unslash($_POST['service_cities'] ?? ''));
+        // phpcs:enable
+        $cities_array = array_values(array_filter(array_map('trim', explode("\n", $raw_cities))));
+        update_option('mhm_vendor_service_cities', $cities_array);
+
+        wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-vendors&tab=settings&settings_saved=1'));
+        exit;
+    }
 
     public static function process_approve(int $application_id)
     {

@@ -112,7 +112,8 @@ final class VehicleSubmit extends AbstractShortcode
         static::enqueue_assets();
 
         $current_year = (int) gmdate('Y');
-        $years        = range($current_year, 1990);
+        $min_year     = (int) get_option('mhm_vehicle_min_year', 1990);
+        $years        = range($current_year, $min_year);
 
         $transmissions = array(
             'auto'      => __('Otomatik', 'mhm-rentiva'),
@@ -305,7 +306,12 @@ final class VehicleSubmit extends AbstractShortcode
                 <!-- Section 6: Fotoğraflar -->
                 <div class="mhm-vendor-form__section">
                     <h3><?php esc_html_e('Fotoğraflar', 'mhm-rentiva'); ?></h3>
-                    <p class="mhm-vendor-form__hint"><?php esc_html_e('En fazla 10 fotoğraf yükleyin. İlk fotoğraf ana görsel olacaktır. Maks. her biri 5 MB.', 'mhm-rentiva'); ?></p>
+                    <?php $max_photos = (int) get_option('mhm_vehicle_max_photos', 10); ?>
+                    <p class="mhm-vendor-form__hint"><?php echo esc_html(sprintf(
+                        /* translators: %d: max number of photos */
+                        __('En fazla %d fotoğraf yükleyin. İlk fotoğraf ana görsel olacaktır.', 'mhm-rentiva'),
+                        $max_photos
+                    )); ?></p>
                     <div class="mhm-vendor-form__field">
                         <input type="file" name="photos[]" accept="image/*" multiple>
                     </div>
@@ -493,7 +499,7 @@ final class VehicleSubmit extends AbstractShortcode
 
             $gallery_images = array();
             $thumbnail_set  = false;
-            $file_count     = min(10, count($_FILES['photos']['name']));
+            $file_count     = min((int) get_option('mhm_vehicle_max_photos', 10), count($_FILES['photos']['name']));
 
             for ($i = 0; $i < $file_count; $i++) {
                 // Rebuild single-file array structure for each photo.

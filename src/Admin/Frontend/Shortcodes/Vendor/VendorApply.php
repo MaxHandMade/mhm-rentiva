@@ -113,7 +113,9 @@ final class VendorApply extends AbstractShortcode
         static::enqueue_assets();
 
         $current_user = wp_get_current_user();
-        $cities = array('Istanbul', 'Ankara', 'Izmir', 'Antalya', 'Bursa', 'Adana', 'Konya', 'Other');
+        $stored_cities = get_option('mhm_vendor_service_cities', array());
+        $cities = !empty($stored_cities) ? (array) $stored_cities : array('Istanbul', 'Ankara', 'Izmir', 'Antalya', 'Bursa', 'Adana', 'Konya', 'Other');
+        $bio_max = (int) get_option('mhm_vendor_bio_max_length', 400);
 
         ob_start();
         ?>
@@ -179,13 +181,18 @@ final class VendorApply extends AbstractShortcode
                     <h3><?php esc_html_e('About You', 'mhm-rentiva'); ?></h3>
                     <div class="mhm-vendor-form__field">
                         <label for="mhm-bio"><?php esc_html_e('Short Bio', 'mhm-rentiva'); ?> <span class="optional">(<?php esc_html_e('optional', 'mhm-rentiva'); ?>)</span></label>
-                        <textarea id="mhm-bio" name="bio" rows="4" maxlength="400" placeholder="<?php esc_attr_e('Tell customers about yourself and your services...', 'mhm-rentiva'); ?>"></textarea>
+                        <textarea id="mhm-bio" name="bio" rows="4" maxlength="<?php echo esc_attr((string) $bio_max); ?>" placeholder="<?php esc_attr_e('Tell customers about yourself and your services...', 'mhm-rentiva'); ?>"></textarea>
                     </div>
                 </div>
 
                 <div class="mhm-vendor-form__section">
                     <h3><?php esc_html_e('Required Documents', 'mhm-rentiva'); ?></h3>
-                    <p class="mhm-vendor-form__hint"><?php esc_html_e('Upload clear photos or scans. Accepted formats: JPG, PNG, PDF (max 5MB each).', 'mhm-rentiva'); ?></p>
+                    <?php $doc_max_mb = (int) get_option('mhm_vendor_doc_max_file_size_mb', 5); ?>
+                    <p class="mhm-vendor-form__hint"><?php echo esc_html(sprintf(
+                        /* translators: %d: max file size in MB */
+                        __('Upload clear photos or scans. Accepted formats: JPG, PNG, PDF (max %dMB each).', 'mhm-rentiva'),
+                        $doc_max_mb
+                    )); ?></p>
                     <div class="mhm-vendor-form__docs">
                         <?php
                         $doc_fields = array(
