@@ -636,3 +636,236 @@ margin: 0;
 .mhm-rentiva-dashboard__analytics-kpis { grid-template-columns: 1fr; }
 .mhm-rentiva-dashboard__sparkline-svg { height: 60px; }
 }
+
+/* ===============================
+   VENDOR LEDGER & PAYOUTS
+================================= */
+
+.mhm-rentiva-dashboard__payouts {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+/* Balance card */
+.mhm-rentiva-dashboard__payout-balance-card {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+	margin-bottom: 8px;
+}
+
+.mhm-rentiva-dashboard__payout-stat {
+	background: #ffffff;
+	border: 1px solid #e4e8f2;
+	border-radius: 14px;
+	padding: 20px 22px;
+	position: relative;
+	overflow: hidden;
+}
+
+.mhm-rentiva-dashboard__payout-stat::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+}
+
+.mhm-rentiva-dashboard__payout-stat--available::before { background: #2f54ff; }
+.mhm-rentiva-dashboard__payout-stat--min::before      { background: #f59e0b; }
+.mhm-rentiva-dashboard__payout-stat--pending::before  { background: #8b5cf6; }
+
+.mhm-rentiva-dashboard__payout-stat-label {
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: #8a94b0;
+	margin-bottom: 8px;
+}
+
+.mhm-rentiva-dashboard__payout-stat-value {
+	font-size: 1.625rem;
+	font-weight: 800;
+	color: #11192b;
+	line-height: 1.1;
+	letter-spacing: -0.02em;
+}
+
+.mhm-rentiva-dashboard__payout-stat--available .mhm-rentiva-dashboard__payout-stat-value {
+	color: #2f54ff;
+}
+
+/* Notice banners */
+.mhm-rentiva-dashboard__notice {
+	padding: 12px 16px;
+	border-radius: 10px;
+	font-size: 0.875rem;
+	font-weight: 500;
+	margin-top: 4px;
+}
+
+.mhm-rentiva-dashboard__notice.is-success {
+	background: #f0fdf4;
+	color: #166534;
+	border: 1px solid #bbf7d0;
+}
+
+.mhm-rentiva-dashboard__notice.is-error {
+	background: #fef2f2;
+	color: #991b1b;
+	border: 1px solid #fecaca;
+}
+
+.mhm-rentiva-dashboard__notice.is-warning {
+	background: #fffbeb;
+	color: #92400e;
+	border: 1px solid #fde68a;
+}
+
+/* Payout request form */
+.mhm-rentiva-dashboard__payout-form {
+	display: flex;
+	align-items: flex-end;
+	gap: 16px;
+	flex-wrap: wrap;
+	margin-top: 16px;
+}
+
+.mhm-rentiva-dashboard__payout-form-group {
+	flex: 1;
+	min-width: 180px;
+}
+
+.mhm-rentiva-dashboard__payout-form-label {
+	display: block;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: #374151;
+	margin-bottom: 6px;
+}
+
+.mhm-rentiva-dashboard__payout-form-input {
+	width: 100%;
+	padding: 10px 14px;
+	border: 1.5px solid #d1d5db;
+	border-radius: 8px;
+	font-size: 1rem;
+	font-weight: 600;
+	color: #111827;
+	box-sizing: border-box;
+	transition: border-color 0.15s ease;
+}
+
+.mhm-rentiva-dashboard__payout-form-input:focus {
+	outline: none;
+	border-color: #2f54ff;
+	box-shadow: 0 0 0 3px rgba(47, 84, 255, 0.1);
+}
+
+.mhm-rentiva-dashboard__payout-submit {
+	padding: 11px 24px;
+	background: #2f54ff;
+	color: #ffffff;
+	border: none;
+	border-radius: 8px;
+	font-size: 0.9375rem;
+	font-weight: 700;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background 0.15s ease;
+}
+
+.mhm-rentiva-dashboard__payout-submit:hover {
+	background: #1a40e8;
+}
+
+/* Payout history table */
+.mhm-rentiva-dashboard__table-wrap {
+	overflow-x: auto;
+	border-radius: 10px;
+	border: 1px solid #e4e8f2;
+}
+
+.mhm-rentiva-dashboard__table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.875rem;
+}
+
+.mhm-rentiva-dashboard__table thead tr {
+	background: #f8faff;
+	border-bottom: 1px solid #e4e8f2;
+}
+
+.mhm-rentiva-dashboard__table th {
+	padding: 12px 16px;
+	text-align: left;
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: #8a94b0;
+}
+
+.mhm-rentiva-dashboard__table td {
+	padding: 14px 16px;
+	color: #374151;
+	border-bottom: 1px solid #f3f4f6;
+}
+
+.mhm-rentiva-dashboard__table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.mhm-rentiva-dashboard__table tbody tr:hover td {
+	background: #f8faff;
+}
+
+.mhm-rentiva-dashboard__table td:first-child {
+	font-weight: 600;
+	color: #11192b;
+}
+
+.mhm-rentiva-dashboard__table .mhm-rentiva-dashboard__payout-amount {
+	font-weight: 700;
+	color: #2f54ff;
+}
+
+.mhm-rentiva-dashboard__table .mhm-rentiva-dashboard__empty-row td {
+	text-align: center;
+	padding: 40px 16px;
+	color: #8a94b0;
+}
+
+/* Status badges */
+.mhm-rentiva-dashboard__status {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: 20px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+}
+
+.mhm-rentiva-dashboard__status.is-pending   { background: #fffbeb; color: #92400e; }
+.mhm-rentiva-dashboard__status.is-confirmed { background: #f0fdf4; color: #166534; }
+.mhm-rentiva-dashboard__status.is-completed { background: #eff6ff; color: #1e40af; }
+.mhm-rentiva-dashboard__status.is-cancelled { background: #fef2f2; color: #991b1b; }
+.mhm-rentiva-dashboard__status.is-refunded  { background: #f3e8ff; color: #5b21b6; }
+
+@media (max-width: 768px) {
+	.mhm-rentiva-dashboard__payout-balance-card {
+		grid-template-columns: 1fr;
+	}
+	.mhm-rentiva-dashboard__payout-form {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.mhm-rentiva-dashboard__payout-submit {
+		width: 100%;
+		text-align: center;
+	}
+}

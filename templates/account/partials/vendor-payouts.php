@@ -76,23 +76,20 @@ $format_currency = static function (float $amount): string {
 
         <div class="mhm-rentiva-dashboard__payout-request-body">
 
-            <!-- Balance summary -->
-            <div class="mhm-rentiva-dashboard__payout-balance">
-                <div class="mhm-rentiva-dashboard__payout-balance-label"><?php esc_html_e('Available Balance', 'mhm-rentiva'); ?></div>
-                <div class="mhm-rentiva-dashboard__payout-balance-value">
-                    <?php echo wp_kses_post($format_currency($available_balance)); ?>
+            <!-- Balance summary cards -->
+            <div class="mhm-rentiva-dashboard__payout-balance-card">
+                <div class="mhm-rentiva-dashboard__payout-stat mhm-rentiva-dashboard__payout-stat--available">
+                    <div class="mhm-rentiva-dashboard__payout-stat-label"><?php esc_html_e('Available Balance', 'mhm-rentiva'); ?></div>
+                    <div class="mhm-rentiva-dashboard__payout-stat-value"><?php echo wp_kses_post($format_currency($available_balance)); ?></div>
                 </div>
-                <?php if ($min_payout > 0.0) : ?>
-                    <div class="mhm-rentiva-dashboard__payout-balance-min">
-                        <?php
-                        printf(
-                            /* translators: %s: minimum payout amount */
-                            esc_html__('Minimum payout: %s', 'mhm-rentiva'),
-                            wp_kses_post($format_currency($min_payout))
-                        );
-                        ?>
-                    </div>
-                <?php endif; ?>
+                <div class="mhm-rentiva-dashboard__payout-stat mhm-rentiva-dashboard__payout-stat--min">
+                    <div class="mhm-rentiva-dashboard__payout-stat-label"><?php esc_html_e('Minimum Payout', 'mhm-rentiva'); ?></div>
+                    <div class="mhm-rentiva-dashboard__payout-stat-value"><?php echo wp_kses_post($format_currency($min_payout)); ?></div>
+                </div>
+                <div class="mhm-rentiva-dashboard__payout-stat mhm-rentiva-dashboard__payout-stat--pending">
+                    <div class="mhm-rentiva-dashboard__payout-stat-label"><?php esc_html_e('Request Status', 'mhm-rentiva'); ?></div>
+                    <div class="mhm-rentiva-dashboard__payout-stat-value"><?php echo $has_pending ? esc_html__('Pending', 'mhm-rentiva') : esc_html__('—', 'mhm-rentiva'); ?></div>
+                </div>
             </div>
 
             <?php if ($form_success !== '') : ?>
@@ -124,8 +121,7 @@ $format_currency = static function (float $amount): string {
             <?php else : ?>
                 <form method="post" class="mhm-rentiva-dashboard__payout-form" novalidate>
                     <?php wp_nonce_field('mhm_payout_request_' . $current_user_id, 'mhm_payout_request_nonce'); ?>
-
-                    <div class="mhm-rentiva-dashboard__payout-form-row">
+                    <div class="mhm-rentiva-dashboard__payout-form-group">
                         <label for="payout_amount" class="mhm-rentiva-dashboard__payout-form-label">
                             <?php esc_html_e('Payout Amount', 'mhm-rentiva'); ?>
                         </label>
@@ -140,7 +136,6 @@ $format_currency = static function (float $amount): string {
                             step="0.01"
                             required>
                     </div>
-
                     <button type="submit" class="mhm-rentiva-dashboard__payout-submit">
                         <?php esc_html_e('Request Payout', 'mhm-rentiva'); ?>
                     </button>
@@ -161,10 +156,10 @@ $format_currency = static function (float $amount): string {
                 <thead>
                     <tr>
                         <th><?php esc_html_e('ID', 'mhm-rentiva'); ?></th>
-                        <th><?php esc_html_e('Amount', 'mhm-rentiva'); ?></th>
-                        <th><?php esc_html_e('Status', 'mhm-rentiva'); ?></th>
+                        <th><?php esc_html_e('Tutar', 'mhm-rentiva'); ?></th>
+                        <th><?php esc_html_e('Durum', 'mhm-rentiva'); ?></th>
                         <th><?php esc_html_e('Reference', 'mhm-rentiva'); ?></th>
-                        <th><?php esc_html_e('Date', 'mhm-rentiva'); ?></th>
+                        <th><?php esc_html_e('Tarih', 'mhm-rentiva'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -180,18 +175,18 @@ $format_currency = static function (float $amount): string {
                             ?>
                             <tr>
                                 <td>#<?php echo esc_html((string) $payout['id']); ?></td>
-                                <td><?php echo wp_kses_post($format_currency($payout['amount'])); ?></td>
+                                <td class="mhm-rentiva-dashboard__payout-amount"><?php echo wp_kses_post($format_currency($payout['amount'])); ?></td>
                                 <td>
                                     <span class="mhm-rentiva-dashboard__status <?php echo esc_attr($status_info['class']); ?>">
                                         <?php echo esc_html($status_info['label']); ?>
                                     </span>
                                 </td>
-                                <td><?php echo esc_html($ext_ref); ?></td>
+                                <td style="font-family:monospace;font-size:0.8125rem;color:#6b7280"><?php echo esc_html($ext_ref); ?></td>
                                 <td><?php echo esc_html($display_date); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else : ?>
-                        <tr>
+                        <tr class="mhm-rentiva-dashboard__empty-row">
                             <td colspan="5"><?php esc_html_e('No payout history yet.', 'mhm-rentiva'); ?></td>
                         </tr>
                     <?php endif; ?>
