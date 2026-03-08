@@ -68,7 +68,12 @@ final class UserDashboard
 		}
 
 		if (is_user_logged_in()) {
-			// /panel/ is vendor-only. Redirect non-vendor users to WC My Account.
+			// Admins can always access the panel (to test/verify vendor features).
+			if (current_user_can('manage_options')) {
+				return;
+			}
+
+			// /panel/ is vendor-only. Redirect non-vendor customers to WC My Account.
 			$context = \MHMRentiva\Core\Dashboard\DashboardContext::resolve();
 			if ($context === 'customer') {
 				$account_url = function_exists('wc_get_page_permalink')
