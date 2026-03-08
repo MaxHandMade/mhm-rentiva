@@ -28,6 +28,8 @@
                     $msg.addClass('mhm-vendor-notice--success')
                         .text(mhmVehicleSubmit.successMsg)
                         .show();
+                    // Notify the dashboard listings panel to refresh.
+                    document.dispatchEvent(new Event('mhm_vehicle_submitted'));
                 } else {
                     var msg = (response.data && response.data.message) ? response.data.message : mhmVehicleSubmit.errorMsg;
                     $msg.addClass('mhm-vendor-notice--error').text(msg).show();

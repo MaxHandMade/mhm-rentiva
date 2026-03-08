@@ -298,12 +298,7 @@ $analytics = is_array($dashboard['analytics'] ?? null) ? $dashboard['analytics']
 			<?php if ($active_tab === 'revenue' && $context === 'vendor') : ?>
 				<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-analytics.php'; ?>
 			<?php else : ?>
-				<div class="mhm-rentiva-dashboard__section">
-					<div class="mhm-rentiva-dashboard__section-head">
-						<h3><?php echo esc_html((string) ($nav_items[$active_tab]['label'] ?? __('Overview', 'mhm-rentiva'))); ?></h3>
-					</div>
-					<p><?php esc_html_e('This section will be available in the next dashboard phase.', 'mhm-rentiva'); ?></p>
-				</div>
+				<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-listings.php'; ?>
 			<?php endif; ?>
 		</div>
 	<?php elseif ($active_tab === 'ledger' && $context === 'vendor') : ?>
