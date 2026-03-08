@@ -60,7 +60,7 @@ final class VehicleSubmit extends AbstractShortcode
             );
         }
 
-        $user    = wp_get_current_user();
+        $user      = wp_get_current_user();
         $is_vendor = in_array('rentiva_vendor', (array) $user->roles, true);
 
         if (! $is_vendor) {
@@ -92,42 +92,144 @@ final class VehicleSubmit extends AbstractShortcode
         $data = static::prepare_template_data($atts);
 
         if (! empty($data['pro_required'])) {
-            return '<div class="mhm-rentiva-notice mhm-rentiva-notice--pro">'
+            return '<div class="mhm-vendor-notice mhm-vendor-notice--pro"><p>'
                 . esc_html__('This feature requires Rentiva Pro.', 'mhm-rentiva')
-                . '</div>';
+                . '</p></div>';
         }
 
         if (! empty($data['login_required'])) {
-            return '<div class="mhm-rentiva-notice mhm-rentiva-notice--login">'
-                . esc_html__('You must be logged in to submit a vehicle.', 'mhm-rentiva')
-                . '</div>';
+            return '<div class="mhm-vendor-notice mhm-vendor-notice--warn"><p>'
+                . esc_html__('Please log in to submit a vehicle.', 'mhm-rentiva')
+                . '</p></div>';
         }
 
         if (! empty($data['vendor_only'])) {
-            return '<div class="mhm-rentiva-notice mhm-rentiva-notice--info">'
-                . esc_html__('Only approved vendors can submit vehicles.', 'mhm-rentiva')
-                . '</div>';
+            return '<div class="mhm-vendor-notice mhm-vendor-notice--info"><p>'
+                . esc_html__('Only approved vendors can submit vehicles. Apply as a vendor first.', 'mhm-rentiva')
+                . '</p></div>';
         }
 
-        $ajax_url = esc_url($data['ajax_url']);
-        $nonce    = esc_attr($data['nonce']);
+        static::enqueue_assets();
 
-        return '<form class="mhm-rentiva-vehicle-submit-form" method="post" action="' . $ajax_url . '">'
-            . '<input type="hidden" name="action" value="mhm_vehicle_submit">'
-            . '<input type="hidden" name="mhm_vehicle_submit_nonce" value="' . $nonce . '">'
-            . '<p><label>' . esc_html__('Make', 'mhm-rentiva') . '<input type="text" name="make"></label></p>'
-            . '<p><label>' . esc_html__('Model', 'mhm-rentiva') . '<input type="text" name="model"></label></p>'
-            . '<p><label>' . esc_html__('Year', 'mhm-rentiva') . '<input type="number" name="year"></label></p>'
-            . '<p><label>' . esc_html__('Price per Day', 'mhm-rentiva') . '<input type="number" step="0.01" name="price_per_day"></label></p>'
-            . '<p><label>' . esc_html__('Description', 'mhm-rentiva') . '<textarea name="description"></textarea></label></p>'
-            . '<p><label>' . esc_html__('City', 'mhm-rentiva') . '<input type="text" name="city"></label></p>'
-            . '<p><label>' . esc_html__('Service Type', 'mhm-rentiva') . '<input type="text" name="service_type"></label></p>'
-            . '<p><button type="submit">' . esc_html__('Submit Vehicle', 'mhm-rentiva') . '</button></p>'
-            . '</form>';
+        $current_year  = (int) gmdate('Y');
+        $years         = range($current_year, 2000);
+        $service_types = array(
+            'rental'   => __('Car Rental', 'mhm-rentiva'),
+            'transfer' => __('VIP Transfer', 'mhm-rentiva'),
+            'both'     => __('Both (Rental & Transfer)', 'mhm-rentiva'),
+        );
+
+        ob_start();
+        ?>
+        <div class="mhm-vendor-apply-wrap">
+            <div id="mhm-vehicle-submit-msg" class="mhm-vendor-notice" style="display:none"></div>
+            <form id="mhm-vehicle-submit-form" class="mhm-vendor-form" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="mhm_vehicle_submit">
+                <input type="hidden" name="mhm_vehicle_submit_nonce" value="<?php echo esc_attr($data['nonce']); ?>">
+
+                <div class="mhm-vendor-form__section">
+                    <h3><?php esc_html_e('Vehicle Details', 'mhm-rentiva'); ?></h3>
+                    <div class="mhm-vendor-form__row">
+                        <div class="mhm-vendor-form__field">
+                            <label for="mhm-make"><?php esc_html_e('Make (Brand)', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                            <input type="text" id="mhm-make" name="make" required placeholder="<?php esc_attr_e('e.g. Toyota', 'mhm-rentiva'); ?>">
+                        </div>
+                        <div class="mhm-vendor-form__field">
+                            <label for="mhm-model"><?php esc_html_e('Model', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                            <input type="text" id="mhm-model" name="model" required placeholder="<?php esc_attr_e('e.g. Corolla', 'mhm-rentiva'); ?>">
+                        </div>
+                    </div>
+                    <div class="mhm-vendor-form__row">
+                        <div class="mhm-vendor-form__field">
+                            <label for="mhm-year"><?php esc_html_e('Year', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                            <select id="mhm-year" name="year" required>
+                                <option value=""><?php esc_html_e('Select Year', 'mhm-rentiva'); ?></option>
+                                <?php foreach ($years as $y) : ?>
+                                    <option value="<?php echo esc_attr((string) $y); ?>"><?php echo esc_html((string) $y); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mhm-vendor-form__field">
+                            <label for="mhm-service-type"><?php esc_html_e('Service Type', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                            <select id="mhm-service-type" name="service_type" required>
+                                <option value=""><?php esc_html_e('Select Service', 'mhm-rentiva'); ?></option>
+                                <?php foreach ($service_types as $val => $label) : ?>
+                                    <option value="<?php echo esc_attr($val); ?>"><?php echo esc_html($label); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mhm-vendor-form__row">
+                        <div class="mhm-vendor-form__field">
+                            <label for="mhm-price"><?php esc_html_e('Daily Price (₺)', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                            <input type="number" id="mhm-price" name="price_per_day" required min="1" step="1" placeholder="0">
+                        </div>
+                        <div class="mhm-vendor-form__field">
+                            <label for="mhm-vehicle-city"><?php esc_html_e('Vehicle Location', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                            <input type="text" id="mhm-vehicle-city" name="city" required placeholder="<?php esc_attr_e('e.g. Istanbul', 'mhm-rentiva'); ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mhm-vendor-form__section">
+                    <h3><?php esc_html_e('Description', 'mhm-rentiva'); ?></h3>
+                    <div class="mhm-vendor-form__field">
+                        <label for="mhm-description"><?php esc_html_e('Vehicle Description', 'mhm-rentiva'); ?></label>
+                        <textarea id="mhm-description" name="description" rows="5" placeholder="<?php esc_attr_e('Describe your vehicle, features, condition...', 'mhm-rentiva'); ?>"></textarea>
+                    </div>
+                </div>
+
+                <div class="mhm-vendor-form__section">
+                    <h3><?php esc_html_e('Photos', 'mhm-rentiva'); ?></h3>
+                    <p class="mhm-vendor-form__hint"><?php esc_html_e('Upload up to 5 photos. First photo will be the main image. JPG or PNG, max 5MB each.', 'mhm-rentiva'); ?></p>
+                    <div class="mhm-vendor-form__field">
+                        <input type="file" name="photos[]" accept="image/*" multiple>
+                    </div>
+                </div>
+
+                <div class="mhm-vendor-form__submit">
+                    <button type="submit" class="mhm-vendor-form__btn mhm-vendor-form__btn--primary" id="mhm-vehicle-submit-btn">
+                        <?php esc_html_e('Submit Vehicle for Review', 'mhm-rentiva'); ?>
+                    </button>
+                    <span class="mhm-vendor-form__spinner" id="mhm-vehicle-submit-spinner" style="display:none">
+                        <?php esc_html_e('Submitting...', 'mhm-rentiva'); ?>
+                    </span>
+                </div>
+            </form>
+        </div>
+        <?php
+        return ob_get_clean();
     }
 
     /**
-     * AJAX handler for vehicle submission.
+     * Enqueue CSS and JS assets for the vehicle submit form.
+     *
+     * @param array $atts Shortcode attributes (unused).
+     */
+    protected static function enqueue_assets(array $atts = array()): void
+    {
+        wp_enqueue_style(
+            'mhm-rentiva-vendor-forms',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vendor-forms.css',
+            array(),
+            MHM_RENTIVA_VERSION
+        );
+        wp_enqueue_script(
+            'mhm-rentiva-vehicle-submit',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicle-submit.js',
+            array('jquery'),
+            MHM_RENTIVA_VERSION,
+            true
+        );
+        wp_localize_script('mhm-rentiva-vehicle-submit', 'mhmVehicleSubmit', array(
+            'ajaxUrl'    => admin_url('admin-ajax.php'),
+            'successMsg' => __('Your vehicle has been submitted for review! We will notify you once approved.', 'mhm-rentiva'),
+            'errorMsg'   => __('Something went wrong. Please try again.', 'mhm-rentiva'),
+        ));
+    }
+
+    /**
+     * AJAX handler for vehicle submission with photo upload support.
      */
     public static function handle_ajax(): void
     {
@@ -139,20 +241,23 @@ final class VehicleSubmit extends AbstractShortcode
 
         $user      = wp_get_current_user();
         $is_vendor = in_array('rentiva_vendor', (array) $user->roles, true);
-
         if (! $is_vendor) {
             wp_send_json_error(array('message' => __('Only approved vendors can submit vehicles.', 'mhm-rentiva')));
         }
 
-        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitization performed below
+        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         $make          = sanitize_text_field(wp_unslash($_POST['make'] ?? ''));
         $model         = sanitize_text_field(wp_unslash($_POST['model'] ?? ''));
         $year          = (int) ($_POST['year'] ?? 0);
         $price_per_day = (float) ($_POST['price_per_day'] ?? 0.0);
         $description   = sanitize_textarea_field(wp_unslash($_POST['description'] ?? ''));
         $city          = sanitize_text_field(wp_unslash($_POST['city'] ?? ''));
-        $service_type  = sanitize_text_field(wp_unslash($_POST['service_type'] ?? ''));
+        $service_type  = sanitize_key(wp_unslash($_POST['service_type'] ?? ''));
         // phpcs:enable
+
+        if ($service_type !== '' && ! in_array($service_type, array('rental', 'transfer', 'both'), true)) {
+            $service_type = '';
+        }
 
         $title = trim(implode(' ', array_filter(array($make, $model, (string) $year))));
         if ($title === '') {
@@ -178,6 +283,41 @@ final class VehicleSubmit extends AbstractShortcode
         update_post_meta($post_id, '_mhm_rentiva_price_per_day', $price_per_day);
         update_post_meta($post_id, '_mhm_rentiva_vehicle_city', $city);
         update_post_meta($post_id, '_mhm_rentiva_service_type', $service_type);
+
+        // Handle photo uploads
+        if (! empty($_FILES['photos']['name'][0])) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            require_once ABSPATH . 'wp-admin/includes/media.php';
+            require_once ABSPATH . 'wp-admin/includes/image.php';
+
+            $photo_ids     = array();
+            $thumbnail_set = false;
+            $file_count    = min(5, count($_FILES['photos']['name']));
+
+            for ($i = 0; $i < $file_count; $i++) {
+                // Rebuild single-file array structure for each photo
+                $_FILES['photo_single'] = array(
+                    'name'     => $_FILES['photos']['name'][ $i ],
+                    'type'     => $_FILES['photos']['type'][ $i ],
+                    'tmp_name' => $_FILES['photos']['tmp_name'][ $i ],
+                    'error'    => $_FILES['photos']['error'][ $i ],
+                    'size'     => $_FILES['photos']['size'][ $i ],
+                );
+
+                $attachment_id = media_handle_upload('photo_single', $post_id);
+                if (! is_wp_error($attachment_id)) {
+                    $photo_ids[] = $attachment_id;
+                    if (! $thumbnail_set) {
+                        set_post_thumbnail($post_id, $attachment_id);
+                        $thumbnail_set = true;
+                    }
+                }
+            }
+
+            if (! empty($photo_ids)) {
+                update_post_meta($post_id, '_mhm_rentiva_vehicle_photos', $photo_ids);
+            }
+        }
 
         wp_send_json_success(array('vehicle_id' => $post_id));
     }
