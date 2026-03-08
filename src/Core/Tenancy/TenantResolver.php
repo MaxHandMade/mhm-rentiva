@@ -43,11 +43,9 @@ final class TenantResolver
             return self::$resolved_context;
         }
 
-        // 1. Identification via WordPress Multisite
-        $tenant_id = null;
-        if (is_multisite()) {
-            $tenant_id = (int) get_current_blog_id();
-        }
+        // 1. Identification via WordPress blog ID.
+        // get_current_blog_id() returns 1 on single-site and the current site ID on Multisite.
+        $tenant_id = (int) get_current_blog_id();
 
         /**
          * Filters the resolved tenant ID before context construction.
