@@ -72,6 +72,9 @@ final class Plugin
 		// Priority 20: Run after WooCommerce and other plugins that might register customer role
 		add_action('init', array(self::class, 'register_customer_role'), 20);
 
+		// Register Vendor role alongside Customer role
+		add_action('init', array(self::class, 'register_vendor_role'), 20);
+
 		// Apply license limits
 		add_filter('wp_insert_post_data', array($this, 'enforce_limits'), 10, 2);
 
@@ -974,6 +977,26 @@ final class Plugin
 		if ($result === null && ! get_role('customer')) {
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('Failed to create customer role (may already exist from another plugin)');
 		}
+	}
+
+	/**
+	 * Register the rentiva_vendor WordPress role.
+	 * Idempotent — safe to call multiple times.
+	 */
+	public static function register_vendor_role(): void
+	{
+		if ( get_role( 'rentiva_vendor' ) ) {
+			return;
+		}
+
+		add_role(
+			'rentiva_vendor',
+			__( 'Rentiva Vendor', 'mhm-rentiva' ),
+			array(
+				'read'         => true,
+				'upload_files' => true,
+			)
+		);
 	}
 
 	/**
