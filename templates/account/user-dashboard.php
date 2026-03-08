@@ -149,9 +149,8 @@ $analytics = is_array($dashboard['analytics'] ?? null) ? $dashboard['analytics']
 								<div class="mhm-rentiva-dashboard__kpi-meta"><?php echo esc_html($kpi_meta); ?></div>
 							<?php endif; ?>
 						</div>
+					<?php endforeach; ?>
 				</div>
-			<?php endforeach; ?>
-		</div>
 
 		<?php
 				$financial_metrics = array('available_balance', 'pending_balance', 'total_paid_out');
