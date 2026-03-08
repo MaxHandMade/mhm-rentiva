@@ -45,6 +45,8 @@ vendor/
 # Re-include plugin source directories whose names collide with 'vendor/' on case-insensitive filesystems (Windows)
 !src/Admin/Vendor/
 !src/Admin/Vendor/**
+!src/Admin/Frontend/Shortcodes/Vendor/
+!src/Admin/Frontend/Shortcodes/Vendor/**
 !tests/Integration/Vendor/
 !tests/Integration/Vendor/**
 .phpunit.result.cache

@@ -142,6 +142,18 @@ final class ShortcodeServiceProvider
 					'requires_auth' => false,
 				),
 			),
+			'vendor'      => array(
+				'rentiva_vendor_apply'   => array(
+					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorApply::class,
+					'method'        => 'render',
+					'requires_auth' => false,
+				),
+				'rentiva_vehicle_submit' => array(
+					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VehicleSubmit::class,
+					'method'        => 'render',
+					'requires_auth' => false,
+				),
+			),
 			'account'     => array(
 				'rentiva_user_dashboard' => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Account\UserDashboard::class,
