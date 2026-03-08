@@ -80,6 +80,13 @@ final class Mode {
 	public static function canUseAdvancedReports(): bool {
 		return self::isPro();
 	}
+
+	/**
+	 * Check if Vendor Marketplace module can be used.
+	 */
+	public static function canUseVendorMarketplace(): bool {
+		return self::isPro();
+	}
 	// ... (skip until get_pro_features_list)
 	/**
 	 * Get Pro-only features list
