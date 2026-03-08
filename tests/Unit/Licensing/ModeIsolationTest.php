@@ -44,6 +44,7 @@ final class ModeIsolationTest extends WP_UnitTestCase
 		$this->assertFalse(Mode::canUseVendorPayout());
 		$this->assertFalse(Mode::canUseMessages());
 		$this->assertFalse(Mode::canUseAdvancedReports());
+		$this->assertFalse(Mode::canUseVendorMarketplace());
 	}
 
 	public function test_pro_helpers_return_true(): void
@@ -53,6 +54,7 @@ final class ModeIsolationTest extends WP_UnitTestCase
 		$this->assertTrue(Mode::canUseVendorPayout());
 		$this->assertTrue(Mode::canUseMessages());
 		$this->assertTrue(Mode::canUseAdvancedReports());
+		$this->assertTrue(Mode::canUseVendorMarketplace());
 	}
 }
 
