@@ -27,6 +27,7 @@ class VendorOnboardingControllerTest extends \WP_UnitTestCase
         // Seed required meta for approval
         update_post_meta($this->application_id, '_vendor_city', 'Istanbul');
         update_post_meta($this->application_id, '_vendor_phone', '+90 555 000 0001');
+        update_post_meta($this->application_id, '_vendor_iban', 'ENCRYPTED_IBAN_PLACEHOLDER');
         update_post_meta($this->application_id, '_vendor_service_areas', array('Istanbul', 'Ankara'));
         update_post_meta($this->application_id, '_vendor_profile_bio', 'Test bio');
     }
@@ -36,6 +37,7 @@ class VendorOnboardingControllerTest extends \WP_UnitTestCase
         VendorOnboardingController::approve($this->application_id);
         $user = get_userdata($this->user_id);
         $this->assertContains('rentiva_vendor', $user->roles);
+        $this->assertGreaterThan(0, did_action('mhm_rentiva_vendor_approved'));
     }
 
     public function test_approve_syncs_user_meta(): void
@@ -44,6 +46,7 @@ class VendorOnboardingControllerTest extends \WP_UnitTestCase
         $this->assertSame('Istanbul', get_user_meta($this->user_id, '_rentiva_vendor_city', true));
         $areas = get_user_meta($this->user_id, '_rentiva_vendor_service_areas', true);
         $this->assertContains('Ankara', $areas);
+        $this->assertNotEmpty(get_user_meta($this->user_id, '_rentiva_vendor_iban', true));
     }
 
     public function test_approve_updates_post_status(): void
@@ -53,11 +56,15 @@ class VendorOnboardingControllerTest extends \WP_UnitTestCase
         $this->assertSame(VendorApplicationManager::STATUS_APPROVED, $post->post_status);
     }
 
-    public function test_reject_stores_rejection_note(): void
+    public function test_reject_stores_sanitized_rejection_note(): void
     {
-        VendorOnboardingController::reject($this->application_id, 'Belgeler eksik.');
+        // Input with HTML that should be stripped by sanitize_textarea_field
+        VendorOnboardingController::reject($this->application_id, '<script>alert(1)</script>Belgeler eksik.');
         $note = get_post_meta($this->application_id, '_vendor_rejection_note', true);
-        $this->assertSame('Belgeler eksik.', $note);
+        // sanitize_textarea_field strips tags
+        $this->assertStringNotContainsString('<script>', $note);
+        $this->assertStringContainsString('Belgeler eksik.', $note);
+        $this->assertGreaterThan(0, did_action('mhm_rentiva_vendor_rejected'));
     }
 
     public function test_reject_does_not_assign_vendor_role(): void
@@ -78,6 +85,7 @@ class VendorOnboardingControllerTest extends \WP_UnitTestCase
         $user = get_userdata($this->user_id);
         $this->assertNotContains('rentiva_vendor', $user->roles);
         $this->assertSame('suspended', get_user_meta($this->user_id, '_rentiva_vendor_status', true));
+        $this->assertGreaterThan(0, did_action('mhm_rentiva_vendor_suspended'));
     }
 
     protected function tearDown(): void

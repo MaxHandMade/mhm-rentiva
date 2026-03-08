@@ -60,10 +60,14 @@ final class VendorOnboardingController
         update_post_meta($application_id, '_vendor_status', VendorApplicationManager::STATUS_APPROVED);
         update_user_meta($user_id, '_rentiva_vendor_approved_at', $now);
 
-        wp_update_post(array(
+        $update_result = wp_update_post(array(
             'ID'          => $application_id,
             'post_status' => VendorApplicationManager::STATUS_APPROVED,
-        ));
+        ), true);
+
+        if (is_wp_error($update_result)) {
+            return $update_result;
+        }
 
         do_action('mhm_rentiva_vendor_approved', $user_id, $application_id);
 
@@ -88,15 +92,20 @@ final class VendorOnboardingController
 
         $user_id = (int) $application->post_author;
 
-        update_post_meta($application_id, '_vendor_rejection_note', sanitize_textarea_field($reason));
+        $sanitized_reason = sanitize_textarea_field($reason);
+        update_post_meta($application_id, '_vendor_rejection_note', $sanitized_reason);
         update_post_meta($application_id, '_vendor_status', VendorApplicationManager::STATUS_REJECTED);
 
-        wp_update_post(array(
+        $update_result = wp_update_post(array(
             'ID'          => $application_id,
             'post_status' => VendorApplicationManager::STATUS_REJECTED,
-        ));
+        ), true);
 
-        do_action('mhm_rentiva_vendor_rejected', $user_id, $application_id, $reason);
+        if (is_wp_error($update_result)) {
+            return $update_result;
+        }
+
+        do_action('mhm_rentiva_vendor_rejected', $user_id, $application_id, $sanitized_reason);
 
         return true;
     }
