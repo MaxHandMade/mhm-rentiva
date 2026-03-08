@@ -194,3 +194,29 @@
     font-size: 0.875rem;
     color: #6b7280;
 }
+
+.mhm-vendor-form__grid-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+@media (max-width: 900px) {
+    .mhm-vendor-form__grid-3 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+    .mhm-vendor-form__grid-3 { grid-template-columns: 1fr; }
+}
+
+.mhm-vendor-form__checkboxes--grid-5 {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+@media (max-width: 900px) {
+    .mhm-vendor-form__checkboxes--grid-5 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 600px) {
+    .mhm-vendor-form__checkboxes--grid-5 { grid-template-columns: repeat(2, 1fr); }
+}
