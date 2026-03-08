@@ -42,6 +42,11 @@ package-lock.json
 
 # Composer (vendor is excluded, but composer.json is kept for reference)
 vendor/
+# Re-include plugin source directories whose names collide with 'vendor/' on case-insensitive filesystems (Windows)
+!src/Admin/Vendor/
+!src/Admin/Vendor/**
+!tests/Integration/Vendor/
+!tests/Integration/Vendor/**
 .phpunit.result.cache
 
 # ============================================================================

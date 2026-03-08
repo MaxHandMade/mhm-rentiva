@@ -219,6 +219,11 @@ final class Plugin
 		) {
 			\MHMRentiva\Admin\PostTypes\Payouts\PostType::register();
 		}
+
+		// Vendor onboarding applications.
+		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\PostType\VendorApplication')) {
+			\MHMRentiva\Admin\Vendor\PostType\VendorApplication::register();
+		}
 	}
 
 	/**
