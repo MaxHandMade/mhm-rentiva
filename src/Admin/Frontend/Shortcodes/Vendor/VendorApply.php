@@ -308,6 +308,9 @@ final class VendorApply extends AbstractShortcode
             wp_send_json_error(array('message' => $result->get_error_message()));
         }
 
+        // Trigger email notifications: confirmation to applicant + alert to admin.
+        do_action('mhm_rentiva_vendor_application_submitted', get_current_user_id());
+
         wp_send_json_success(array('application_id' => $result));
     }
 }

@@ -234,6 +234,11 @@ final class Plugin
 		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\VendorOwnershipEnforcer')) {
 			\MHMRentiva\Admin\Vendor\VendorOwnershipEnforcer::register();
 		}
+
+		// Vendor email notifications — hook into vendor/vehicle lifecycle actions.
+		if ($this->is_class_available('\MHMRentiva\Admin\Emails\Notifications\VendorNotifications')) {
+			\MHMRentiva\Admin\Emails\Notifications\VendorNotifications::register();
+		}
 	}
 
 	/**
