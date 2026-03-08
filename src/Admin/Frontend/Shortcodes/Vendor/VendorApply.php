@@ -311,6 +311,16 @@ final class VendorApply extends AbstractShortcode
         // Trigger email notifications: confirmation to applicant + alert to admin.
         do_action('mhm_rentiva_vendor_application_submitted', get_current_user_id());
 
-        wp_send_json_success(array('application_id' => $result));
+        // Build redirect URL — WC My Account endpoint if available, else current page.
+        $redirect_url = '';
+        if (function_exists('wc_get_account_endpoint_url')) {
+            $endpoint     = apply_filters('mhm_rentiva_vendor_apply_endpoint_slug', 'vendor-apply');
+            $redirect_url = \wc_get_account_endpoint_url($endpoint) . '?applied=1';
+        }
+
+        wp_send_json_success(array(
+            'application_id' => $result,
+            'redirect_url'   => $redirect_url,
+        ));
     }
 }

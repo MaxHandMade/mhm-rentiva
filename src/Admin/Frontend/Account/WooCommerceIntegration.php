@@ -78,6 +78,21 @@ final class WooCommerceIntegration {
 					if ( $e_key === 'messages' && ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::featureEnabled( \MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES ) ) ) {
 						continue;
 					}
+					// vendor_apply: show only when Pro is active and user can still apply
+					if ( $e_key === 'vendor_apply' ) {
+						if ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() ) {
+							continue;
+						}
+						$user_id = get_current_user_id();
+						$user    = $user_id ? get_userdata( $user_id ) : false;
+						// Hide if user is already an approved, active vendor
+						if ( $user && in_array( 'rentiva_vendor', (array) $user->roles, true ) ) {
+							$vendor_status = (string) get_user_meta( $user_id, '_rentiva_vendor_status', true );
+							if ( $vendor_status !== 'suspended' ) {
+								continue;
+							}
+						}
+					}
 
 					$slug               = self::get_endpoint_slug( $e_key );
 					$new_items[ $slug ] = $config['label'];
@@ -95,6 +110,19 @@ final class WooCommerceIntegration {
 				}
 				if ( $e_key === 'messages' && ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::featureEnabled( \MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES ) ) ) {
 					continue;
+				}
+				if ( $e_key === 'vendor_apply' ) {
+					if ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() ) {
+						continue;
+					}
+					$user_id = get_current_user_id();
+					$user    = $user_id ? get_userdata( $user_id ) : false;
+					if ( $user && in_array( 'rentiva_vendor', (array) $user->roles, true ) ) {
+						$vendor_status = (string) get_user_meta( $user_id, '_rentiva_vendor_status', true );
+						if ( $vendor_status !== 'suspended' ) {
+							continue;
+						}
+					}
 				}
 				$slug                   = self::get_endpoint_slug( $e_key );
 				$rentiva_items[ $slug ] = $config['label'];
@@ -195,6 +223,32 @@ final class WooCommerceIntegration {
 	}
 
 	/**
+	 * Vendor Apply endpoint content.
+	 * Shows the vendor application form, or a status message depending on user state.
+	 */
+	public static function render_vendor_apply(): void {
+		if ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() ) {
+			echo '<div class="woocommerce-info">' . esc_html__( 'This feature requires Rentiva Pro.', 'mhm-rentiva' ) . '</div>';
+			return;
+		}
+
+		$user_id = get_current_user_id();
+
+		// Success notice after form submission (redirect with ?applied=1)
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['applied'] ) && '1' === sanitize_key( wp_unslash( $_GET['applied'] ?? '' ) ) ) {
+			echo '<div class="woocommerce-message">'
+				. esc_html__( 'Your application has been submitted! Our team will review it and notify you by email. This process typically takes 1–3 business days.', 'mhm-rentiva' )
+				. '</div>';
+		}
+
+		// Render the shortcode — it handles all states internally:
+		// already_applied → pending notice, already vendor → dashboard link, else → form
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo do_shortcode( '[rentiva_vendor_apply]' );
+	}
+
+	/**
 	 * Messages endpoint content
 	 */
 	public static function render_messages(): void {
@@ -252,7 +306,7 @@ final class WooCommerceIntegration {
 		$version_key = 'mhm_rentiva_woocommerce_endpoints_version';
 		$hash_key    = 'mhm_rentiva_woocommerce_endpoints_hash';
 
-		$current_version = '4.9.8'; // Forced flush version
+		$current_version = '4.21.3'; // Forced flush — vendor_apply endpoint added
 
 		$rentiva_map   = self::get_rentiva_endpoints_map();
 		$current_slugs = array();
@@ -378,4 +432,3 @@ final class WooCommerceIntegration {
 		return null;
 	}
 }
-

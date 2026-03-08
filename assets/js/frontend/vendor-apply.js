@@ -24,6 +24,12 @@
             contentType: false,
             success: function (response) {
                 if (response.success) {
+                    // If server returned a redirect URL (WC My Account endpoint), go there.
+                    if (response.data && response.data.redirect_url) {
+                        window.location.href = response.data.redirect_url;
+                        return;
+                    }
+                    // Fallback: show inline success message.
                     $form.fadeOut(300);
                     $msg.addClass('mhm-vendor-notice--success')
                         .text(mhmVendorApply.successMsg)
