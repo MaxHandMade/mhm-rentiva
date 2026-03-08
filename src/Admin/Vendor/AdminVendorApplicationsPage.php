@@ -342,7 +342,15 @@ final class AdminVendorApplicationsPage
 
         // Minimum payout amount
         echo '<tr>';
-        echo '<th><label for="min_payout">' . esc_html__('Minimum Payout Amount (₺)', 'mhm-rentiva') . '</label></th>';
+        $currency_symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '';
+        $payout_label    = $currency_symbol !== ''
+            ? sprintf(
+                /* translators: %s: currency symbol */
+                __('Minimum Payout Amount (%s)', 'mhm-rentiva'),
+                $currency_symbol
+            )
+            : __('Minimum Payout Amount', 'mhm-rentiva');
+        echo '<th><label for="min_payout">' . esc_html($payout_label) . '</label></th>';
         echo '<td><input type="number" id="min_payout" name="min_payout" value="' . esc_attr((string) $min_payout) . '" min="0" step="1" style="width:120px">
             <p class="description">' . esc_html__('Vendors must have at least this balance to request a payout.', 'mhm-rentiva') . '</p></td>';
         echo '</tr>';
