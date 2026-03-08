@@ -140,7 +140,15 @@ abstract class AbstractShortcode
 				$html = static::get_fallback_html($atts);
 			}
 
-			// Performance: Cache HTML
+			// Core WordPress WPAutoP protection:
+			// Strip newlines and tabs from the final shortcode output to prevent 
+			// wpautop() from injecting <br> or <p> tags into grid/flex layouts when
+			// the block editor evaluates patterns.
+			// CRITICAL: This MUST happen BEFORE caching, so that the cached HTML
+			// is already clean. Otherwise, cache hits bypass this stripping.
+			$html = str_replace(array("\r\n", "\r", "\n", "\t"), '', $html);
+
+			// Performance: Cache HTML (now stores the already-minified output)
 			static::cache_html($cache_key, $html);
 
 			// Filter hook

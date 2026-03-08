@@ -16,7 +16,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 1.2.0
  */
-class Icons {
+class Icons
+{
 
     /**
      * Get SVG iconic markup
@@ -32,14 +33,14 @@ class Icons {
             'people' => 'users',
         ];
 
-        if (isset($icon_aliases[ $icon_name ])) {
-            $icon_name = $icon_aliases[ $icon_name ];
+        if (isset($icon_aliases[$icon_name])) {
+            $icon_name = $icon_aliases[$icon_name];
         }
 
         $default_args = [
             'class'  => 'rv-icon',
-            'width'  => '16px',
-            'height' => '16px',
+            'width'  => '20px',
+            'height' => '20px',
             'style'  => '',
         ];
 

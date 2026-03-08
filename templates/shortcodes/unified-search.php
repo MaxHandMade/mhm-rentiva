@@ -322,16 +322,16 @@ if (!$show_rental_tab && $show_transfer_tab) {
 
                 <?php if ($show_luggage) : ?>
                     <div class="rv-unified-search__luggage-info">
-                        <p class="rv-info-item">
+                        <div class="rv-info-item">
                             <span class="rv-bullet">*</span>
                             <strong><?php esc_html_e('Small Luggage:', 'mhm-rentiva'); ?></strong>
                             <?php esc_html_e('Handbag, backpack or cabin size suitcase.', 'mhm-rentiva'); ?>
-                        </p>
-                        <p class="rv-info-item">
+                        </div>
+                        <div class="rv-info-item">
                             <span class="rv-bullet">*</span>
                             <strong><?php esc_html_e('Big Luggage:', 'mhm-rentiva'); ?></strong>
                             <?php esc_html_e('Medium or large check-in suitcase.', 'mhm-rentiva'); ?>
-                        </p>
+                        </div>
                     </div>
                 <?php endif; ?>
 
