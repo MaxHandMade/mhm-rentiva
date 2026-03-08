@@ -45,5 +45,47 @@ final class DatepickerAssets
             MHM_RENTIVA_VERSION,
             true
         );
+
+        // 5. Pass localized datepicker options to JS
+        wp_localize_script('mhm-datepicker-init', 'mhmDatepickerL10n', self::get_localized_options());
+    }
+
+    /**
+     * Get localized datepicker options for jQuery UI Datepicker.
+     *
+     * @since 4.21.2
+     * @return array<string, mixed>
+     */
+    private static function get_localized_options(): array
+    {
+        return array(
+            'closeText'    => __('Close', 'mhm-rentiva'),
+            'currentText'  => __('Today', 'mhm-rentiva'),
+            'monthNames'   => array(
+                __('January', 'mhm-rentiva'),
+                __('February', 'mhm-rentiva'),
+                __('March', 'mhm-rentiva'),
+                __('April', 'mhm-rentiva'),
+                __('May', 'mhm-rentiva'),
+                __('June', 'mhm-rentiva'),
+                __('July', 'mhm-rentiva'),
+                __('August', 'mhm-rentiva'),
+                __('September', 'mhm-rentiva'),
+                __('October', 'mhm-rentiva'),
+                __('November', 'mhm-rentiva'),
+                __('December', 'mhm-rentiva'),
+            ),
+            'dayNamesMin'  => array(
+                __('Su', 'mhm-rentiva'),
+                __('Mo', 'mhm-rentiva'),
+                __('Tu', 'mhm-rentiva'),
+                __('We', 'mhm-rentiva'),
+                __('Th', 'mhm-rentiva'),
+                __('Fr', 'mhm-rentiva'),
+                __('Sa', 'mhm-rentiva'),
+            ),
+            'firstDay'     => 1,
+            'isRTL'        => is_rtl(),
+        );
     }
 }
