@@ -63,6 +63,10 @@ class VendorApplicationManagerTest extends \WP_UnitTestCase
 
     public function test_encrypt_decrypt_iban_roundtrip(): void
     {
+        if (!extension_loaded('openssl')) {
+            $this->markTestSkipped('OpenSSL extension not available.');
+        }
+
         $plain = 'TR330006100519786457841326';
         $encrypted = VendorApplicationManager::encrypt_iban($plain);
         $this->assertNotSame($plain, $encrypted);

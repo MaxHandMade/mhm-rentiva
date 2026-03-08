@@ -46,7 +46,9 @@ final class VendorApplicationManager
     /**
      * Create a new vendor application.
      *
-     * @return int|\WP_Error Post ID on success.
+     * @param  int   $user_id WordPress user ID.
+     * @param  array $data    Application field data.
+     * @return int|\WP_Error Post ID on success, WP_Error on failure.
      */
     public static function create_application(int $user_id, array $data)
     {
@@ -77,7 +79,15 @@ final class VendorApplicationManager
 
         update_post_meta($post_id, '_vendor_phone',         sanitize_text_field($data['phone'] ?? ''));
         update_post_meta($post_id, '_vendor_city',          sanitize_text_field($data['city'] ?? ''));
-        update_post_meta($post_id, '_vendor_iban',          self::encrypt_iban($data['iban'] ?? ''));
+
+        $encrypted_iban = self::encrypt_iban($data['iban'] ?? '');
+        if (($data['iban'] ?? '') !== '' && $encrypted_iban === '') {
+            return new \WP_Error(
+                'iban_encryption_failed',
+                __('IBAN could not be encrypted. Please contact support.', 'mhm-rentiva')
+            );
+        }
+        update_post_meta($post_id, '_vendor_iban', $encrypted_iban);
         update_post_meta($post_id, '_vendor_service_areas', array_map('sanitize_text_field', (array) ($data['service_areas'] ?? array())));
         update_post_meta($post_id, '_vendor_profile_bio',   sanitize_textarea_field($data['bio'] ?? ''));
         update_post_meta($post_id, '_vendor_tax_number',    sanitize_text_field($data['tax_number'] ?? ''));
@@ -106,7 +116,7 @@ final class VendorApplicationManager
 
     /**
      * Encrypt IBAN for storage.
-     * Falls back to plain text if OpenSSL is unavailable.
+     * Returns empty string if OpenSSL is unavailable or encryption fails — never stores plain text.
      */
     public static function encrypt_iban(string $iban): string
     {
@@ -116,20 +126,23 @@ final class VendorApplicationManager
 
         if (!extension_loaded('openssl')) {
             \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning(
-                'OpenSSL not loaded — IBAN stored unencrypted. Install the OpenSSL PHP extension.'
+                'OpenSSL not loaded — IBAN cannot be encrypted. Install the OpenSSL PHP extension.'
             );
-            return $iban;
+            return ''; // Do NOT store plain text
         }
 
         $key    = substr(hash('sha256', AUTH_KEY . SECURE_AUTH_SALT), 0, 32);
         $iv     = openssl_random_pseudo_bytes(16);
-        $cipher = openssl_encrypt($iban, 'AES-256-CBC', $key, 0, $iv);
+        $cipher = openssl_encrypt($iban, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
 
         if ($cipher === false) {
-            return $iban;
+            \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning(
+                'IBAN encryption failed — openssl_encrypt returned false.'
+            );
+            return '';
         }
 
-        return base64_encode($iv . $cipher);
+        return base64_encode($iv . $cipher); // Both $iv and $cipher are raw bytes — safe concatenation
     }
 
     /**
@@ -142,15 +155,20 @@ final class VendorApplicationManager
         }
 
         if (!extension_loaded('openssl')) {
-            return $encrypted;
+            return '';
         }
 
         $key  = substr(hash('sha256', AUTH_KEY . SECURE_AUTH_SALT), 0, 32);
-        $raw  = base64_decode($encrypted);
+        $raw  = base64_decode($encrypted, true);
+
+        if ($raw === false || strlen($raw) <= 16) {
+            return '';
+        }
+
         $iv   = substr($raw, 0, 16);
         $data = substr($raw, 16);
 
-        $plain = openssl_decrypt($data, 'AES-256-CBC', $key, 0, $iv);
+        $plain = openssl_decrypt($data, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
         return $plain !== false ? $plain : '';
     }
 }
