@@ -21,6 +21,7 @@ final class VendorRoleRegistrationTest extends \WP_UnitTestCase
 
     public function test_register_vendor_role_is_idempotent(): void
     {
+        remove_role('rentiva_vendor');
         \MHMRentiva\Plugin::register_vendor_role();
         \MHMRentiva\Plugin::register_vendor_role();
         $this->assertNotNull(get_role('rentiva_vendor'));
