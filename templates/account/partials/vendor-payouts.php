@@ -156,10 +156,10 @@ $format_currency = static function (float $amount): string {
                 <thead>
                     <tr>
                         <th><?php esc_html_e('ID', 'mhm-rentiva'); ?></th>
-                        <th><?php esc_html_e('Tutar', 'mhm-rentiva'); ?></th>
-                        <th><?php esc_html_e('Durum', 'mhm-rentiva'); ?></th>
+                        <th><?php esc_html_e('Amount', 'mhm-rentiva'); ?></th>
+                        <th><?php esc_html_e('Status', 'mhm-rentiva'); ?></th>
                         <th><?php esc_html_e('Reference', 'mhm-rentiva'); ?></th>
-                        <th><?php esc_html_e('Tarih', 'mhm-rentiva'); ?></th>
+                        <th><?php esc_html_e('Date', 'mhm-rentiva'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
