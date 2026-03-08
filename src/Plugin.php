@@ -229,6 +229,11 @@ final class Plugin
 		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\VendorMediaIsolation')) {
 			\MHMRentiva\Admin\Vendor\VendorMediaIsolation::register();
 		}
+
+		// Vendor ownership enforcement — deny editing/deleting other vendors' vehicles.
+		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\VendorOwnershipEnforcer')) {
+			\MHMRentiva\Admin\Vendor\VendorOwnershipEnforcer::register();
+		}
 	}
 
 	/**
