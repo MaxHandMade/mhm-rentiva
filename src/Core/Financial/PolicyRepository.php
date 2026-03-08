@@ -16,8 +16,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-final class PolicyRepository
-{
+final class PolicyRepository {
+
     /**
      * Resolve the most specific active policy for a vendor at a given datetime.
      *
@@ -77,6 +77,55 @@ final class PolicyRepository
         }
 
         return null;
+    }
+
+    /**
+     * Read the current active global commission rate.
+     * Returns NULL if no platform-wide policy is active.
+     *
+     * @return float|null Current rate as a percentage (e.g. 15.0 = 15%), or null if unset.
+     */
+    public static function get_current_global_rate(): ?float
+    {
+        $now    = current_time('mysql', true);
+        $policy = self::find_active_at(0, $now);
+        return $policy !== null ? $policy->get_global_rate() : null;
+    }
+
+    /**
+     * Insert a new platform-wide commission policy effective from now (open-ended).
+     * Previous global policies remain in history; the newest row wins via find_active_at().
+     *
+     * @param  float  $rate  Commission percentage (e.g. 15.0 for 15%).
+     * @param  string $label Human-readable label for the audit log.
+     * @return bool True on success.
+     */
+    public static function insert_global_policy(float $rate, string $label = ''): bool
+    {
+        global $wpdb;
+        $table = $wpdb->prefix . 'mhm_rentiva_commission_policy';
+
+        if ($rate < 0.0 || $rate > 100.0) {
+            return false;
+        }
+
+        $now  = current_time('mysql', true);
+        $hash = hash('sha256', (string) json_encode(array( null, $rate, $now, null )));
+
+        $inserted = $wpdb->insert(
+            $table,
+            array(
+                'label'          => $label !== '' ? $label : sprintf('Global rate %.2f%%', $rate),
+                'global_rate'    => $rate,
+                'vendor_id'      => null,
+                'effective_from' => $now,
+                'effective_to'   => null,
+                'version_hash'   => $hash,
+            ),
+            array( '%s', '%f', null, '%s', null, '%s' )
+        );
+
+        return $inserted !== false;
     }
 
     /**

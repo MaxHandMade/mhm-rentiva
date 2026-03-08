@@ -6,6 +6,7 @@ namespace MHMRentiva\Admin\Vendor;
 
 use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\Vendor\PostType\VendorApplication;
+use MHMRentiva\Core\Financial\PolicyRepository;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -25,9 +26,10 @@ final class AdminVendorApplicationsPage
         }
 
         add_action('admin_menu', array(static::class, 'add_submenu'));
-        add_action('admin_post_mhm_vendor_approve', array(static::class, 'handle_approve_post'));
-        add_action('admin_post_mhm_vendor_reject',  array(static::class, 'handle_reject_post'));
-        add_action('admin_post_mhm_vendor_suspend', array(static::class, 'handle_suspend_post'));
+        add_action('admin_post_mhm_vendor_approve',            array(static::class, 'handle_approve_post'));
+        add_action('admin_post_mhm_vendor_reject',             array(static::class, 'handle_reject_post'));
+        add_action('admin_post_mhm_vendor_suspend',            array(static::class, 'handle_suspend_post'));
+        add_action('admin_post_mhm_vendor_commission_update',  array(static::class, 'handle_commission_update'));
     }
 
     public static function add_submenu(): void
@@ -65,10 +67,13 @@ final class AdminVendorApplicationsPage
         echo '<nav class="nav-tab-wrapper" style="margin-bottom:20px">';
         echo '<a href="' . esc_url($base_url . '&tab=pending') . '" class="nav-tab ' . ($tab === 'pending' ? 'nav-tab-active' : '') . '">' . esc_html__('Pending Applications', 'mhm-rentiva') . '</a>';
         echo '<a href="' . esc_url($base_url . '&tab=vendors') . '" class="nav-tab ' . ($tab === 'vendors' ? 'nav-tab-active' : '') . '">' . esc_html__('Active Vendors', 'mhm-rentiva') . '</a>';
+        echo '<a href="' . esc_url($base_url . '&tab=commission') . '" class="nav-tab ' . ($tab === 'commission' ? 'nav-tab-active' : '') . '">' . esc_html__('Commission', 'mhm-rentiva') . '</a>';
         echo '</nav>';
 
         if ($tab === 'vendors') {
             static::render_vendors_tab();
+        } elseif ($tab === 'commission') {
+            static::render_commission_tab();
         } elseif ($view > 0) {
             static::render_application_detail($view);
         } else {
@@ -290,6 +295,59 @@ final class AdminVendorApplicationsPage
     }
 
     // ---------------------------------------------------------------
+    // Commission tab
+    // ---------------------------------------------------------------
+
+    private static function render_commission_tab(): void
+    {
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        $saved = isset($_GET['commission_saved']) && $_GET['commission_saved'] === '1';
+        // phpcs:enable
+
+        $current_rate = PolicyRepository::get_current_global_rate();
+
+        echo '<h2>' . esc_html__('Platform Commission Rate', 'mhm-rentiva') . '</h2>';
+
+        if ($saved) {
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Commission rate updated successfully.', 'mhm-rentiva') . '</p></div>';
+        }
+
+        echo '<p>' . esc_html__('Set the global commission percentage applied to all vendor payouts. This creates a new policy record effective immediately. Previous rates are preserved in history for audit purposes.', 'mhm-rentiva') . '</p>';
+
+        if ($current_rate !== null) {
+            echo '<p><strong>' . esc_html__('Current active rate:', 'mhm-rentiva') . '</strong> ' . esc_html(number_format($current_rate, 2)) . '%</p>';
+        } else {
+            echo '<div class="notice notice-warning inline"><p>' . esc_html__('No active commission policy found. Set one below.', 'mhm-rentiva') . '</p></div>';
+        }
+
+        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="max-width:400px;margin-top:20px">';
+        wp_nonce_field('mhm_vendor_commission_update', '_wpnonce');
+        echo '<input type="hidden" name="action" value="mhm_vendor_commission_update">';
+
+        echo '<table class="form-table"><tbody>';
+        echo '<tr>';
+        echo '<th><label for="mhm-commission-rate">' . esc_html__('New Commission Rate (%)', 'mhm-rentiva') . '</label></th>';
+        echo '<td>';
+        echo '<input type="number" id="mhm-commission-rate" name="global_rate" min="0" max="100" step="0.01" required style="width:100px" placeholder="15.00">';
+        echo ' <span class="description">%</span>';
+        echo '<p class="description">' . esc_html__('Enter a value between 0 and 100. E.g. 15 = 15%.', 'mhm-rentiva') . '</p>';
+        echo '</td>';
+        echo '</tr>';
+        echo '<tr>';
+        echo '<th><label for="mhm-commission-label">' . esc_html__('Label (optional)', 'mhm-rentiva') . '</label></th>';
+        echo '<td>';
+        echo '<input type="text" id="mhm-commission-label" name="policy_label" style="width:280px" placeholder="' . esc_attr__('e.g. Q1 2026 standard rate', 'mhm-rentiva') . '">';
+        echo '</td>';
+        echo '</tr>';
+        echo '</tbody></table>';
+
+        echo '<p class="submit">';
+        echo '<input type="submit" class="button button-primary" value="' . esc_attr__('Save Commission Rate', 'mhm-rentiva') . '">';
+        echo '</p>';
+        echo '</form>';
+    }
+
+    // ---------------------------------------------------------------
     // POST action handlers
     // ---------------------------------------------------------------
 
@@ -351,6 +409,35 @@ final class AdminVendorApplicationsPage
 
         VendorOnboardingController::suspend($vendor_id);
         wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-vendors&tab=vendors&suspended=1'));
+        exit;
+    }
+
+    public static function handle_commission_update(): void
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die(esc_html__('Permission denied.', 'mhm-rentiva'));
+        }
+
+        // phpcs:disable WordPress.Security.NonceVerification.Missing
+        $nonce = isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '';
+        // phpcs:enable
+
+        if (! wp_verify_nonce($nonce, 'mhm_vendor_commission_update')) {
+            wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
+        }
+
+        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $rate  = isset($_POST['global_rate'])   ? (float) $_POST['global_rate']                                   : -1.0;
+        $label = isset($_POST['policy_label'])  ? sanitize_text_field(wp_unslash($_POST['policy_label']))         : '';
+        // phpcs:enable
+
+        if ($rate < 0.0 || $rate > 100.0) {
+            wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-vendors&tab=commission&error=invalid_rate'));
+            exit;
+        }
+
+        PolicyRepository::insert_global_policy($rate, $label);
+        wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-vendors&tab=commission&commission_saved=1'));
         exit;
     }
 
