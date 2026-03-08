@@ -696,8 +696,8 @@ msgid ""
 "<a href=\"%s\">Enter your license key</a> to upgrade to Pro for unlimited "
 "bookings."
 msgstr ""
-"Sınırsız rezervasyon için Pro sürümüne yükseltmek üzere <a href=\"%s\">"
-"lisans anahtarınızı girin</a>."
+"Sınırsız rezervasyon için Pro sürümüne yükseltmek üzere <a "
+"href=\"%s\">lisans anahtarınızı girin</a>."
 
 #. translators: Dynamic value.
 #: src/Admin/Core/ProFeatureNotice.php:286
@@ -995,7 +995,8 @@ msgstr "Etkinleştirildi:"
 msgid "Activation Tests"
 msgstr "Aktivasyon Testleri"
 
-#: assets/blocks/my-bookings/index.js:42 src/Admin/About/Tabs/SystemTab.php:143
+#: assets/blocks/my-bookings/index.js:42
+#: src/Admin/About/Tabs/SystemTab.php:143
 #: src/Admin/Addons/AddonListTable.php:195
 #: src/Admin/Addons/AddonListTable.php:389
 #: src/Admin/Addons/AddonListTable.php:464 src/Admin/Addons/AddonMeta.php:85
@@ -2889,8 +2890,8 @@ msgid ""
 "Available placeholders: {booking_id}, {customer_name}, {contact_email}, "
 "{message_body}, {reply_body}, {site_name}"
 msgstr ""
-"Kullanılabilir yer tutucular: {booking_id}, {customer_name}, {contact_email},"
-" {message_body}, {reply_body}, {site_name}"
+"Kullanılabilir yer tutucular: {booking_id}, {customer_name}, "
+"{contact_email}, {message_body}, {reply_body}, {site_name}"
 
 #: src/Admin/Emails/Templates/RefundEmails.php:23
 #, fuzzy
@@ -3418,7 +3419,8 @@ msgstr "Rezervasyon İhracatı"
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:37
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:96
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:41
-#: src/Admin/Setup/SetupWizard.php:968 templates/shortcodes/booking-form.php:51
+#: src/Admin/Setup/SetupWizard.php:968
+#: templates/shortcodes/booking-form.php:51
 msgid "Booking Form"
 msgstr "Rezervasyon Formu"
 
@@ -4450,7 +4452,8 @@ msgstr ""
 msgid "Cleanup Recommended"
 msgstr "Temizlik Önerilir"
 
-#: src/Admin/Addons/AddonListTable.php:493 src/Admin/Core/AssetManager.php:1550
+#: src/Admin/Addons/AddonListTable.php:493
+#: src/Admin/Core/AssetManager.php:1550
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1382
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:271
 msgid "Clear"
@@ -5084,7 +5087,8 @@ msgstr "Müşteri hizmetlerine başvurun"
 #: src/Admin/About/Tabs/SupportTab.php:111
 #: src/Admin/Frontend/Widgets/Elementor/ContactFormWidget.php:23
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:91
-#: src/Admin/Setup/SetupWizard.php:998 templates/shortcodes/contact-form.php:28
+#: src/Admin/Setup/SetupWizard.php:998
+#: templates/shortcodes/contact-form.php:28
 msgid "Contact Form"
 msgstr "İletişim Formu"
 
@@ -5287,8 +5291,8 @@ msgstr "Sayı"
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:62
 #, fuzzy
 msgid ""
-"Create a complete archive of all rental-related tables including Posts, Meta,"
-" and Custom Definitions."
+"Create a complete archive of all rental-related tables including Posts, "
+"Meta, and Custom Definitions."
 msgstr ""
 "Postlar, Meta ve Özel Tanımlar dahil olmak üzere kiralama ile ilgili tüm "
 "tabloların eksiksiz bir arşivini oluşturun."
@@ -5977,8 +5981,8 @@ msgstr ""
 #: src/Admin/Settings/Groups/FrontendSettings.php:326
 #, fuzzy
 msgid ""
-"Customize the text labels and button texts displayed throughout the frontend."
-" Leave empty to use default values."
+"Customize the text labels and button texts displayed throughout the "
+"frontend. Leave empty to use default values."
 msgstr ""
 "Ön uçta görüntülenen metin etiketlerini ve düğme metinlerini özelleştirin. "
 "Varsayılan değerleri kullanmak için boş bırakın."
@@ -7029,7 +7033,8 @@ msgstr "Bu işlemi onaylıyor musunuz?"
 
 #: src/Admin/About/Tabs/SupportTab.php:74
 #: src/Admin/Core/Traits/AdminHelperTrait.php:105
-#: src/Admin/Core/Utilities/UXHelper.php:485 src/Admin/Setup/SetupWizard.php:77
+#: src/Admin/Core/Utilities/UXHelper.php:485
+#: src/Admin/Setup/SetupWizard.php:77
 #: src/Admin/Transfer/TransferAdmin.php:386
 #: src/Admin/Transfer/TransferAdmin.php:549
 #: src/Admin/Utilities/Export/Export.php:1018
@@ -7246,13 +7251,14 @@ msgstr "örn., Otokira Rent a Car"
 msgid "Early Booking"
 msgstr "Erken Rezervasyon"
 
-#: src/Admin/Addons/AddonListTable.php:219 src/Admin/Core/AssetManager.php:1290
-#: src/Admin/Core/AssetManager.php:1539
+#: src/Admin/Addons/AddonListTable.php:219
+#: src/Admin/Core/AssetManager.php:1290 src/Admin/Core/AssetManager.php:1539
 #: src/Admin/Core/Utilities/AbstractListTable.php:387
 #: src/Admin/Core/Utilities/I18nHelper.php:264
 #: src/Admin/Customers/CustomersPage.php:865
 #: src/Admin/Messages/Admin/MessageListTable.php:310
-#: src/Admin/Setup/SetupWizard.php:338 src/Admin/Transfer/TransferAdmin.php:493
+#: src/Admin/Setup/SetupWizard.php:338
+#: src/Admin/Transfer/TransferAdmin.php:493
 #: src/Admin/Transfer/TransferAdmin.php:717
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:111
 #: templates/admin/shortcode-pages.php:81
@@ -8849,7 +8855,8 @@ msgstr "Dosya başarıyla yüklendi."
 msgid "Filesystem initialization failed"
 msgstr "Dosya sistemi başlatma başarısız"
 
-#: src/Admin/Addons/AddonListTable.php:492 src/Admin/Core/AssetManager.php:1543
+#: src/Admin/Addons/AddonListTable.php:492
+#: src/Admin/Core/AssetManager.php:1543
 #: src/Admin/Core/Utilities/I18nHelper.php:269
 #: src/Admin/Messages/Admin/MessageListTable.php:604
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:267
@@ -9646,8 +9653,9 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:811
 #, fuzzy
 msgid ""
-"Hello %1$s,<br><br>This is a reminder about your payment for %2$s.<br><br>"
-"Total Amount: %3$s<br><br>Please complete your payment as soon as possible."
+"Hello %1$s,<br><br>This is a reminder about your payment for %2$s."
+"<br><br>Total Amount: %3$s<br><br>Please complete your payment as soon as "
+"possible."
 msgstr ""
 "Merhaba %1$s,<br><br>Bu, %2$s için yapmanız gereken ödemeyi hatırlatmak için "
 "gönderilmiştir.<br><br>Toplam tutar: %3$s<br><br>Lütfen ödemenizi mümkün "
@@ -9684,9 +9692,9 @@ msgid ""
 "Date: %3$s<br>Return Date: %4$s<br>Total Amount: %5$s<br><br>Thank you for "
 "choosing us!"
 msgstr ""
-"Merhaba %1$s,<br><br>%2$s için yaptığınız rezervasyon onaylanmıştır.<br><br>"
-"Alış Tarihi: %3$s<br>İade Tarihi: %4$s<br>Toplam tutar: %5$s<br><br>Bizi "
-"tercih ettiğiniz için teşekkür ederiz!"
+"Merhaba %1$s,<br><br>%2$s için yaptığınız rezervasyon onaylanmıştır."
+"<br><br>Alış Tarihi: %3$s<br>İade Tarihi: %4$s<br>Toplam tutar: "
+"%5$s<br><br>Bizi tercih ettiğiniz için teşekkür ederiz!"
 
 #. translators: %s placeholder.
 #. translators: %s: customer name.
@@ -10003,8 +10011,8 @@ msgid ""
 "If you want to deactivate your license, click the button below. This will "
 "disable Pro features."
 msgstr ""
-"Lisansınızı devre dışı bırakmak istiyorsanız, aşağıdaki düğmeyi tıklayın. Bu,"
-" Pro özelliklerini devre dışı bırakacaktır."
+"Lisansınızı devre dışı bırakmak istiyorsanız, aşağıdaki düğmeyi tıklayın. "
+"Bu, Pro özelliklerini devre dışı bırakacaktır."
 
 #. translators: %s: illegal template name
 #: src/Admin/Settings/ShortcodePages.php:297
@@ -13231,7 +13239,8 @@ msgstr "Yeni Günlük"
 #: src/Admin/Messages/Frontend/CustomerMessages.php:222
 #: src/Admin/PostTypes/Message/Message.php:51
 #: src/Admin/PostTypes/Message/Message.php:54
-#: src/Admin/PostTypes/Message/Message.php:76 templates/account/messages.php:58
+#: src/Admin/PostTypes/Message/Message.php:76
+#: templates/account/messages.php:58
 msgid "New Message"
 msgstr "Yeni Mesaj"
 
@@ -15874,7 +15883,8 @@ msgid "Previous Status:"
 msgstr "Önceki Durum:"
 
 #: assets/blocks/featured-vehicles/index.js:38
-#: assets/blocks/my-bookings/index.js:55 assets/blocks/my-favorites/index.js:50
+#: assets/blocks/my-bookings/index.js:55
+#: assets/blocks/my-favorites/index.js:50
 #: assets/blocks/search-results/index.js:52
 #: assets/blocks/transfer-results/index.js:52
 #: assets/blocks/vehicles-grid/index.js:50
@@ -16134,8 +16144,8 @@ msgid ""
 "Purge all logs and queue entries older than 30 days? This action is "
 "irreversible."
 msgstr ""
-"30 günden eski tüm günlükleri ve kuyruk girişlerini temizlemek ister misiniz?"
-" Bu işlem geri alınamaz."
+"30 günden eski tüm günlükleri ve kuyruk girişlerini temizlemek ister "
+"misiniz? Bu işlem geri alınamaz."
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:128
 #, fuzzy
@@ -16616,7 +16626,8 @@ msgstr "Geri ödeme hatası"
 msgid "Refund failed"
 msgstr "Geri ödeme başarısız oldu"
 
-#: src/Admin/Actions/Actions.php:115 src/Admin/Utilities/Actions/Actions.php:93
+#: src/Admin/Actions/Actions.php:115
+#: src/Admin/Utilities/Actions/Actions.php:93
 msgid "Refund failed."
 msgstr "Geri ödeme başarısız oldu."
 
@@ -16665,7 +16676,8 @@ msgstr "Rezervasyon #{{booking.id}} için Geri Ödeme İşleme Alındı"
 msgid "Refund processed from Rentiva panel"
 msgstr "Rentiva panelinden işlenen geri ödeme"
 
-#: src/Admin/Actions/Actions.php:115 src/Admin/Utilities/Actions/Actions.php:93
+#: src/Admin/Actions/Actions.php:115
+#: src/Admin/Utilities/Actions/Actions.php:93
 #, fuzzy
 msgid "Refund processed."
 msgstr "Para iadesi işleme alındı."
@@ -18331,8 +18343,8 @@ msgstr "Gönder"
 #: src/Admin/Settings/Groups/CustomerManagementSettings.php:50
 #, fuzzy
 msgid ""
-"Send a custom welcome email when a user registers via Rentiva forms (if used)"
-"."
+"Send a custom welcome email when a user registers via Rentiva forms (if "
+"used)."
 msgstr ""
 "Bir kullanıcı Rentiva formları aracılığıyla kaydolduğunda (kullanılıyorsa) "
 "özel bir hoş geldiniz e-postası gönderin."
@@ -18399,7 +18411,8 @@ msgstr "Müşteriye E-posta Gönder"
 #: src/Admin/Frontend/Account/AccountRenderer.php:316
 #: src/Admin/Messages/Core/Messages.php:860
 #: src/Admin/Messages/Frontend/CustomerMessages.php:173
-#: templates/account/messages.php:156 templates/shortcodes/contact-form.php:216
+#: templates/account/messages.php:156
+#: templates/shortcodes/contact-form.php:216
 msgid "Send Message"
 msgstr "Mesaj Gönder"
 
@@ -18999,8 +19012,8 @@ msgstr "Açıklamayı Göster"
 #: src/Admin/REST/Settings/RESTSettings.php:318
 #, fuzzy
 msgid ""
-"Show detailed error messages and performance traces. (Turn off on live sites)"
-"."
+"Show detailed error messages and performance traces. (Turn off on live "
+"sites)."
 msgstr ""
 "Ayrıntılı hata mesajlarını ve performans izlerini göster. (Canlı sitelerde "
 "kapat)."
@@ -24533,7 +24546,8 @@ msgstr "✅ Veritabanı bütünlüğü kontrolü başarılı"
 #: src/Admin/Testing/DemoSeeder.php:122
 #, fuzzy
 msgid ""
-"✅ Demo v15 (Notification Suite) Completed! Check CLI logs for email triggers."
+"✅ Demo v15 (Notification Suite) Completed! Check CLI logs for email "
+"triggers."
 msgstr ""
 "✅ Demo v15 (Bildirim Paketi) Tamamlandı! E-posta tetikleyicileri için CLI "
 "günlüklerini kontrol edin."
