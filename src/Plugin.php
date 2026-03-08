@@ -224,6 +224,11 @@ final class Plugin
 		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\PostType\VendorApplication')) {
 			\MHMRentiva\Admin\Vendor\PostType\VendorApplication::register();
 		}
+
+		// Vendor media isolation — restrict media library to own uploads.
+		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\VendorMediaIsolation')) {
+			\MHMRentiva\Admin\Vendor\VendorMediaIsolation::register();
+		}
 	}
 
 	/**
