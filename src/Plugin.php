@@ -310,6 +310,11 @@ final class Plugin
 
 		// Maintenance (Moved to initialize_core_services for all-context support)
 
+		// Vendor Applications admin page (Pro only)
+		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage')) {
+			\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage::register();
+		}
+
 		// Setup Wizard
 		if ($this->is_class_available('MHMRentiva\Admin\Setup\SetupWizard')) {
 			\MHMRentiva\Admin\Setup\SetupWizard::register();
