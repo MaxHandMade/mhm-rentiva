@@ -68,6 +68,18 @@ final class UserDashboard
 		}
 
 		if (is_user_logged_in()) {
+			// /panel/ is vendor-only. Redirect non-vendor users to WC My Account.
+			$context = \MHMRentiva\Core\Dashboard\DashboardContext::resolve();
+			if ($context === 'customer') {
+				$account_url = function_exists('wc_get_page_permalink')
+					? (string) wc_get_page_permalink('myaccount')
+					: '';
+				if ($account_url === '') {
+					$account_url = home_url('/hesabim/');
+				}
+				wp_safe_redirect($account_url);
+				exit;
+			}
 			return;
 		}
 
