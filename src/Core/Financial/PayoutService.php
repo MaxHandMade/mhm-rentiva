@@ -195,4 +195,50 @@ final class PayoutService
 
         return true;
     }
+
+    /**
+     * Create a refund ledger entry to reverse a commission credit.
+     * Called when a completed booking is refunded or cancelled after clearing.
+     *
+     * @param  int   $vendor_id
+     * @param  int   $booking_id  0 if not associated with a specific booking.
+     * @param  float $amount      Positive amount (stored as negative debit).
+     * @return true|\WP_Error
+     */
+    public static function create_refund_entry(int $vendor_id, int $booking_id, float $amount)
+    {
+        if ($amount <= 0) {
+            return new \WP_Error(
+                'invalid_amount',
+                __('Refund amount must be greater than zero.', 'mhm-rentiva')
+            );
+        }
+
+        $uuid = 'refund_' . $vendor_id . '_' . $booking_id . '_' . time();
+
+        $entry = new LedgerEntry(
+            $uuid,
+            $vendor_id,
+            $booking_id > 0 ? $booking_id : null,
+            null,           // order_id
+            'refund',
+            $amount * -1.0, // negative amount reduces balance
+            null,           // gross_amount
+            null,           // commission_amount
+            null,           // commission_rate
+            'TRY',          // currency - match existing usage
+            'vendor',       // category
+            'cleared'       // status
+        );
+
+        try {
+            Ledger::add_entry($entry);
+        } catch (\RuntimeException $e) {
+            return new \WP_Error('ledger_error', $e->getMessage());
+        }
+
+        MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
+
+        return true;
+    }
 }
