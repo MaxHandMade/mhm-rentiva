@@ -104,6 +104,20 @@ final class DashboardConfig
 					'icon'      => 'check-circle',
 					'meta'      => __('Lifetime Withdrawals', 'mhm-rentiva'),
 				),
+				'occupancy_rate' => array(
+					'label'     => __('Occupancy %', 'mhm-rentiva'),
+					'metric'    => 'occupancy_rate',
+					'trend'     => false,
+					'icon'      => 'calendar',
+					'meta'      => __('Avg Window Occupancy', 'mhm-rentiva'),
+				),
+				'cancellation_rate' => array(
+					'label'     => __('Cancellation Rate', 'mhm-rentiva'),
+					'metric'    => 'cancellation_rate',
+					'trend'     => false,
+					'icon'      => 'clock',
+					'meta'      => __('Cancelled Bookings %', 'mhm-rentiva'),
+				),
 			),
 		);
 

@@ -26,6 +26,7 @@ final class UserDashboard
 	public static function register(): void
 	{
 		MetricCacheManager::boot();
+		\MHMRentiva\Core\Dashboard\AnalyticsController::register();
 		add_action('template_redirect', array(self::class, 'guard_panel_access'));
 		add_action('wp_enqueue_scripts', array(self::class, 'enqueue_assets'));
 		add_filter('body_class', array(self::class, 'add_body_class'));
@@ -186,18 +187,42 @@ final class UserDashboard
 		}
 
 		wp_enqueue_style(
+			'flatpickr',
+			'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css',
+			array(),
+			'4.6.13'
+		);
+
+		wp_enqueue_style(
 			'mhm-rentiva-user-dashboard',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/user-dashboard.css',
-			array(),
+			array('flatpickr'),
 			MHM_RENTIVA_VERSION
+		);
+
+		wp_enqueue_script(
+			'flatpickr',
+			'https://cdn.jsdelivr.net/npm/flatpickr',
+			array(),
+			'4.6.13',
+			true
 		);
 
 		wp_enqueue_script(
 			'mhm-rentiva-dashboard',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/user-dashboard.js',
-			array(),
+			array('flatpickr', 'jquery'),
 			MHM_RENTIVA_VERSION,
 			true
 		);
+
+		wp_localize_script('mhm-rentiva-dashboard', 'mhmRentivaAnalytics', array(
+			'ajaxUrl' => admin_url('admin-ajax.php'),
+			'nonce'   => wp_create_nonce('mhm_rentiva_vendor_nonce'),
+			'i18n'    => array(
+				'loading' => __('Loading...', 'mhm-rentiva'),
+				'error'   => __('Error fetching analytics data.', 'mhm-rentiva'),
+			),
+		));
 	}
 }

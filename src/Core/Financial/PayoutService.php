@@ -160,6 +160,15 @@ final class PayoutService
         // Invalidate all vendor dashboard metrics cache after ledger mutation
         MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
 
+        /**
+         * Fires when a vendor payout request gets approved.
+         *
+         * @param int   $payout_id The payout post ID.
+         * @param int   $vendor_id The vendor's user ID.
+         * @param float $amount    The payout amount.
+         */
+        do_action('mhm_rentiva_payout_approved', $payout_id, $vendor_id, $amount);
+
         return true;
     }
 
@@ -191,7 +200,20 @@ final class PayoutService
         }
 
         // Invalidate all vendor dashboard metrics cache mapping states globally properly
-        MetricCacheManager::flush_subject_all_metrics((string) $post->post_author);
+        $vendor_id = (int) $post->post_author;
+        MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
+
+        $amount = (float) get_post_meta($payout_id, '_mhm_payout_amount', true);
+
+        /**
+         * Fires when a vendor payout request gets rejected.
+         *
+         * @param int    $payout_id The payout post ID.
+         * @param int    $vendor_id The vendor's user ID.
+         * @param float  $amount    The payout amount.
+         * @param string $reason    The rejection reason.
+         */
+        do_action('mhm_rentiva_payout_rejected', $payout_id, $vendor_id, $amount, $reason);
 
         return true;
     }

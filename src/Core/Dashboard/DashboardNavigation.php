@@ -57,6 +57,10 @@ final class DashboardNavigation
 					'label' => __('Ledger & Payouts', 'mhm-rentiva'),
 					'icon'  => 'chart',
 				),
+				'settings' => array(
+					'label' => __('Payment Settings', 'mhm-rentiva'),
+					'icon'  => 'settings',
+				),
 				'messages' => array(
 					'label' => __('Messages', 'mhm-rentiva'),
 					'icon'  => 'mail',

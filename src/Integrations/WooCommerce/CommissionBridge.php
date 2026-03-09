@@ -98,6 +98,10 @@ final class CommissionBridge
         // Push to cache manager forcing instant dashboard refresh
         if (class_exists(MetricCacheManager::class)) {
             MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
+            $vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+            if ($vehicle_id > 0) {
+                MetricCacheManager::flush_subject_metric('vehicle', 'perf', (string) $vehicle_id);
+            }
         }
     }
 
@@ -166,6 +170,10 @@ final class CommissionBridge
 
         if (class_exists(MetricCacheManager::class)) {
             MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
+            $vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+            if ($vehicle_id > 0) {
+                MetricCacheManager::flush_subject_metric('vehicle', 'perf', (string) $vehicle_id);
+            }
         }
     }
 }

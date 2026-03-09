@@ -31,6 +31,8 @@ final class AdminVendorApplicationsPage
         add_action('admin_post_mhm_vendor_suspend',            array(static::class, 'handle_suspend_post'));
         add_action('admin_post_mhm_vendor_commission_update',  array(static::class, 'handle_commission_update'));
         add_action('admin_post_mhm_vendor_settings_save',      array(static::class, 'handle_settings_save'));
+        add_action('admin_post_mhm_vendor_iban_approve',       array(static::class, 'handle_iban_approve_post'));
+        add_action('admin_post_mhm_vendor_iban_reject',        array(static::class, 'handle_iban_reject_post'));
     }
 
     public static function add_submenu(): void
@@ -65,15 +67,26 @@ final class AdminVendorApplicationsPage
 
         // Tab nav
         $base_url = admin_url('admin.php?page=mhm-rentiva-vendors');
+        $pending_iban_count = static::get_pending_iban_count();
+
         echo '<nav class="nav-tab-wrapper" style="margin-bottom:20px">';
         echo '<a href="' . esc_url($base_url . '&tab=pending') . '" class="nav-tab ' . ($tab === 'pending' ? 'nav-tab-active' : '') . '">' . esc_html__('Pending Applications', 'mhm-rentiva') . '</a>';
         echo '<a href="' . esc_url($base_url . '&tab=vendors') . '" class="nav-tab ' . ($tab === 'vendors' ? 'nav-tab-active' : '') . '">' . esc_html__('Active Vendors', 'mhm-rentiva') . '</a>';
+
+        $iban_title = __('IBAN Requests', 'mhm-rentiva');
+        if ($pending_iban_count > 0) {
+            $iban_title .= ' <span class="update-plugins count-' . esc_attr((string) $pending_iban_count) . '"><span class="plugin-count">' . esc_html((string) $pending_iban_count) . '</span></span>';
+        }
+        echo '<a href="' . esc_url($base_url . '&tab=iban_requests') . '" class="nav-tab ' . ($tab === 'iban_requests' ? 'nav-tab-active' : '') . '">' . wp_kses_post($iban_title) . '</a>';
+
         echo '<a href="' . esc_url($base_url . '&tab=commission') . '" class="nav-tab ' . ($tab === 'commission' ? 'nav-tab-active' : '') . '">' . esc_html__('Commission', 'mhm-rentiva') . '</a>';
         echo '<a href="' . esc_url($base_url . '&tab=settings') . '" class="nav-tab ' . ($tab === 'settings' ? 'nav-tab-active' : '') . '">' . esc_html__('Settings', 'mhm-rentiva') . '</a>';
         echo '</nav>';
 
         if ($tab === 'vendors') {
             static::render_vendors_tab();
+        } elseif ($tab === 'iban_requests') {
+            static::render_iban_requests_tab();
         } elseif ($tab === 'commission') {
             static::render_commission_tab();
         } elseif ($tab === 'settings') {
@@ -189,12 +202,14 @@ final class AdminVendorApplicationsPage
         // Documents
         echo '<h3>' . esc_html__('Documents', 'mhm-rentiva') . '</h3>';
         echo '<table class="widefat fixed" style="max-width:600px"><tbody>';
-        foreach (array(
-            __('ID Document', 'mhm-rentiva')       => $doc_id,
-            __('Driver\'s License', 'mhm-rentiva')  => $doc_license,
-            __('Address Document', 'mhm-rentiva')   => $doc_address,
-            __('Vehicle Insurance', 'mhm-rentiva')  => $doc_insurance,
-        ) as $label => $attachment_id) {
+        foreach (
+            array(
+                __('ID Document', 'mhm-rentiva')       => $doc_id,
+                __('Driver\'s License', 'mhm-rentiva')  => $doc_license,
+                __('Address Document', 'mhm-rentiva')   => $doc_address,
+                __('Vehicle Insurance', 'mhm-rentiva')  => $doc_insurance,
+            ) as $label => $attachment_id
+        ) {
             $url  = $attachment_id ? wp_get_attachment_url($attachment_id) : '';
             $link = $url
                 ? '<a href="' . esc_url($url) . '" target="_blank">' . esc_html__('View', 'mhm-rentiva') . '</a>'
@@ -232,6 +247,90 @@ final class AdminVendorApplicationsPage
         echo '</div>';
 
         echo '</div>';
+    }
+
+    private static function get_pending_iban_count(): int
+    {
+        $query = new \WP_User_Query(array(
+            'role'       => 'rentiva_vendor',
+            'meta_key'   => '_rentiva_iban_change_status', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+            'meta_value' => 'pending', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+            'fields'     => 'ID',
+        ));
+        return (int) $query->get_total();
+    }
+
+    // ---------------------------------------------------------------
+    // IBAN Requests tab
+    // ---------------------------------------------------------------
+
+    private static function render_iban_requests_tab(): void
+    {
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        $approved = isset($_GET['iban_approved']) && $_GET['iban_approved'] === '1';
+        $rejected = isset($_GET['iban_rejected']) && $_GET['iban_rejected'] === '1';
+        // phpcs:enable
+
+        echo '<h2>' . esc_html__('Pending IBAN Change Requests', 'mhm-rentiva') . '</h2>';
+
+        if ($approved) {
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('IBAN request approved and updated.', 'mhm-rentiva') . '</p></div>';
+        }
+        if ($rejected) {
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('IBAN request rejected.', 'mhm-rentiva') . '</p></div>';
+        }
+
+        $vendors = get_users(array(
+            'role'       => 'rentiva_vendor',
+            'meta_key'   => '_rentiva_iban_change_status', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+            'meta_value' => 'pending', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+            'orderby'    => 'display_name',
+            'order'      => 'ASC',
+            'number'     => 100,
+        ));
+
+        if (empty($vendors)) {
+            echo '<p>' . esc_html__('No pending IBAN changes.', 'mhm-rentiva') . '</p>';
+            return;
+        }
+
+        echo '<table class="widefat fixed striped">';
+        echo '<thead><tr>';
+        echo '<th>' . esc_html__('Vendor', 'mhm-rentiva') . '</th>';
+        echo '<th>' . esc_html__('Current IBAN (Masked)', 'mhm-rentiva') . '</th>';
+        echo '<th>' . esc_html__('Requested IBAN', 'mhm-rentiva') . '</th>';
+        echo '<th style="width:200px">' . esc_html__('Actions', 'mhm-rentiva') . '</th>';
+        echo '</tr></thead><tbody>';
+
+        foreach ($vendors as $vendor) {
+            $raw_current = VendorApplicationManager::decrypt_iban((string) get_user_meta($vendor->ID, '_rentiva_vendor_iban', true));
+            $masked_current = strlen($raw_current) > 4 ? substr($raw_current, 0, 2) . '******' . substr($raw_current, -4) : __('Not set', 'mhm-rentiva');
+
+            $raw_pending = VendorApplicationManager::decrypt_iban((string) get_user_meta($vendor->ID, '_rentiva_pending_iban', true));
+
+            $approve_url = wp_nonce_url(
+                admin_url('admin-post.php?action=mhm_vendor_iban_approve&vendor_id=' . $vendor->ID),
+                'mhm_vendor_iban_approve_' . $vendor->ID
+            );
+            $reject_url = wp_nonce_url(
+                admin_url('admin-post.php?action=mhm_vendor_iban_reject&vendor_id=' . $vendor->ID),
+                'mhm_vendor_iban_reject_' . $vendor->ID
+            );
+
+            echo '<tr>';
+            echo '<td><strong>' . esc_html($vendor->display_name) . '</strong><br><small>' . esc_html($vendor->user_email) . '</small></td>';
+            echo '<td><code style="color:#666;">' . esc_html($masked_current) . '</code></td>';
+            echo '<td><code style="color:#2e7d32; font-weight:bold;">' . esc_html($raw_pending) . '</code></td>';
+            echo '<td>';
+            echo '<div style="display:flex; gap:8px;">';
+            echo '<a href="' . esc_url($approve_url) . '" class="button button-primary button-small" onclick="return confirm(\'' . esc_js(__('Approve this new IBAN? The vendor will receive payouts to this new account.', 'mhm-rentiva')) . '\')">' . esc_html__('Approve', 'mhm-rentiva') . '</a>';
+            echo '<a href="' . esc_url($reject_url) . '" class="button button-small" onclick="return confirm(\'' . esc_js(__('Reject this IBAN request? The vendor will continue using their old IBAN.', 'mhm-rentiva')) . '\')" style="color:#c62828; border-color:#c62828;">' . esc_html__('Reject', 'mhm-rentiva') . '</a>';
+            echo '</div>';
+            echo '</td>';
+            echo '</tr>';
+        }
+
+        echo '</tbody></table>';
     }
 
     // ---------------------------------------------------------------
@@ -580,6 +679,80 @@ final class AdminVendorApplicationsPage
     public static function process_approve(int $application_id)
     {
         return VendorOnboardingController::approve($application_id);
+    }
+
+    public static function handle_iban_approve_post(): void
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die(esc_html__('Permission denied.', 'mhm-rentiva'));
+        }
+
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        $vendor_id = isset($_GET['vendor_id']) ? (int) $_GET['vendor_id'] : 0;
+        $nonce     = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+        // phpcs:enable
+
+        if (! wp_verify_nonce($nonce, 'mhm_vendor_iban_approve_' . $vendor_id)) {
+            wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
+        }
+
+        $pending_iban = (string) get_user_meta($vendor_id, '_rentiva_pending_iban', true);
+
+        if ($pending_iban !== '') {
+            update_user_meta($vendor_id, '_rentiva_vendor_iban', $pending_iban);
+        }
+
+        delete_user_meta($vendor_id, '_rentiva_pending_iban');
+        delete_user_meta($vendor_id, '_rentiva_iban_change_status');
+
+        \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info(
+            sprintf('Vendor #%d IBAN change approved by Admin #%d.', $vendor_id, get_current_user_id()),
+            array('vendor' => $vendor_id, 'action' => 'iban_change_approved')
+        );
+
+        /**
+         * Fires when an admin approves a vendor's new IBAN request.
+         *
+         * @param int $vendor_id The vendor's user ID.
+         */
+        do_action('mhm_rentiva_iban_change_approved', $vendor_id);
+
+        wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-vendors&tab=iban_requests&iban_approved=1'));
+        exit;
+    }
+
+    public static function handle_iban_reject_post(): void
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die(esc_html__('Permission denied.', 'mhm-rentiva'));
+        }
+
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        $vendor_id = isset($_GET['vendor_id']) ? (int) $_GET['vendor_id'] : 0;
+        $nonce     = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+        // phpcs:enable
+
+        if (! wp_verify_nonce($nonce, 'mhm_vendor_iban_reject_' . $vendor_id)) {
+            wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
+        }
+
+        delete_user_meta($vendor_id, '_rentiva_pending_iban');
+        delete_user_meta($vendor_id, '_rentiva_iban_change_status');
+
+        \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info(
+            sprintf('Vendor #%d IBAN change rejected by Admin #%d.', $vendor_id, get_current_user_id()),
+            array('vendor' => $vendor_id, 'action' => 'iban_change_rejected')
+        );
+
+        /**
+         * Fires when an admin rejects a vendor's new IBAN request.
+         *
+         * @param int $vendor_id The vendor's user ID.
+         */
+        do_action('mhm_rentiva_iban_change_rejected', $vendor_id);
+
+        wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-vendors&tab=iban_requests&iban_rejected=1'));
+        exit;
     }
 
     public static function process_reject(int $application_id, string $reason = '')

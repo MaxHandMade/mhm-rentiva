@@ -29,24 +29,7 @@ $has_pending        = PayoutService::vendor_has_pending_payout($current_user_id)
 $payout_history     = PayoutHistoryProvider::get_for_vendor($current_user_id, 25);
 
 // Handle payout request form submission.
-$form_error = '';
-$form_success = '';
-if (
-    isset($_POST['mhm_payout_request_nonce']) &&
-    wp_verify_nonce(sanitize_text_field(wp_unslash((string) $_POST['mhm_payout_request_nonce'])), 'mhm_payout_request_' . $current_user_id)
-) {
-    $requested_amount = isset($_POST['payout_amount']) ? (float) sanitize_text_field(wp_unslash((string) $_POST['payout_amount'])) : 0.0;
-    $result = PayoutService::request_payout($current_user_id, $requested_amount);
-
-    if (is_wp_error($result)) {
-        $form_error = $result->get_error_message();
-    } else {
-        $form_success = __('Your payout request has been submitted. We will process it shortly.', 'mhm-rentiva');
-        // Refresh balance and pending state after successful request.
-        $available_balance = Ledger::get_balance($current_user_id);
-        $has_pending       = true;
-    }
-}
+// Payout is now handled by AJAX in PayoutAjaxController.php
 
 // Status display map.
 $status_labels = array(
@@ -92,17 +75,7 @@ $format_currency = static function (float $amount): string {
                 </div>
             </div>
 
-            <?php if ($form_success !== '') : ?>
-                <div class="mhm-rentiva-dashboard__notice is-success">
-                    <?php echo esc_html($form_success); ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($form_error !== '') : ?>
-                <div class="mhm-rentiva-dashboard__notice is-error">
-                    <?php echo esc_html($form_error); ?>
-                </div>
-            <?php endif; ?>
+            <div id="mhm-rentiva-payout-notices"></div>
 
             <?php if ($has_pending) : ?>
                 <div class="mhm-rentiva-dashboard__notice is-warning">
@@ -119,7 +92,7 @@ $format_currency = static function (float $amount): string {
                     ?>
                 </div>
             <?php else : ?>
-                <form method="post" class="mhm-rentiva-dashboard__payout-form" novalidate>
+                <form id="mhm-rentiva-ajax-payout-form" class="mhm-rentiva-dashboard__payout-form" novalidate>
                     <?php wp_nonce_field('mhm_payout_request_' . $current_user_id, 'mhm_payout_request_nonce'); ?>
                     <div class="mhm-rentiva-dashboard__payout-form-group">
                         <label for="payout_amount" class="mhm-rentiva-dashboard__payout-form-label">
@@ -136,9 +109,21 @@ $format_currency = static function (float $amount): string {
                             step="0.01"
                             required>
                     </div>
-                    <button type="submit" class="mhm-rentiva-dashboard__payout-submit">
-                        <?php esc_html_e('Request Payout', 'mhm-rentiva'); ?>
+                    <button type="submit" class="mhm-rentiva-dashboard__payout-submit" id="mhm-rentiva-payout-btn">
+                        <span class="mhm-rentiva-btn-text"><?php esc_html_e('Request Payout', 'mhm-rentiva'); ?></span>
+                        <div class="mhm-rentiva-spinner" style="display:none; width:16px; height:16px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:mhm-spin 1s linear infinite;"></div>
                     </button>
+                    <style>
+                        @keyframes mhm-spin {
+                            0% {
+                                transform: rotate(0deg);
+                            }
+
+                            100% {
+                                transform: rotate(360deg);
+                            }
+                        }
+                    </style>
                 </form>
             <?php endif; ?>
 

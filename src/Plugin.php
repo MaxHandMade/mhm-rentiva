@@ -647,6 +647,12 @@ final class Plugin
 		}
 		if (
 			\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout() &&
+			class_exists('MHMRentiva\Core\Financial\PayoutAjaxController')
+		) {
+			\MHMRentiva\Core\Financial\PayoutAjaxController::register();
+		}
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout() &&
 			class_exists('MHMRentiva\Core\Financial\Automation\MaturedPayoutJob')
 		) {
 			\MHMRentiva\Core\Financial\Automation\MaturedPayoutJob::register();
@@ -1010,13 +1016,13 @@ final class Plugin
 	 */
 	public static function register_vendor_role(): void
 	{
-		if ( get_role( 'rentiva_vendor' ) ) {
+		if (get_role('rentiva_vendor')) {
 			return;
 		}
 
 		add_role(
 			'rentiva_vendor',
-			__( 'Rentiva Vendor', 'mhm-rentiva' ),
+			__('Rentiva Vendor', 'mhm-rentiva'),
 			array(
 				'read'         => true,
 				'upload_files' => true,

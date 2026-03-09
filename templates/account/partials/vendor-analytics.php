@@ -56,7 +56,7 @@ $format_currency = static function (float $amount): string {
 $has_data = $revenue_30d > 0.0 || $avg_booking > 0.0;
 ?>
 
-<div class="mhm-rentiva-dashboard__analytics">
+<div class="mhm-rentiva-dashboard__analytics" id="mhm-vendor-analytics-container">
 
     <!-- KPI Row: Revenue / Growth / Avg Booking -->
     <div class="mhm-rentiva-dashboard__analytics-kpis">
@@ -71,10 +71,10 @@ $has_data = $revenue_30d > 0.0 || $avg_booking > 0.0;
                 </div>
                 <div class="mhm-rentiva-dashboard__kpi-label"><?php esc_html_e('Revenue (30d)', 'mhm-rentiva'); ?></div>
             </div>
-            <div class="mhm-rentiva-dashboard__kpi-value is-currency">
+            <div class="mhm-rentiva-dashboard__kpi-value is-currency" id="kpi-revenue-value">
                 <?php echo wp_kses_post($format_currency($revenue_30d)); ?>
             </div>
-            <div class="mhm-rentiva-dashboard__kpi-meta"><?php esc_html_e('Cleared net, last 30 days', 'mhm-rentiva'); ?></div>
+            <div class="mhm-rentiva-dashboard__kpi-meta" id="kpi-revenue-meta"><?php esc_html_e('Cleared net, last 30 days', 'mhm-rentiva'); ?></div>
         </div>
 
         <!-- 7d Growth -->
@@ -87,12 +87,12 @@ $has_data = $revenue_30d > 0.0 || $avg_booking > 0.0;
                 </div>
                 <div class="mhm-rentiva-dashboard__kpi-label"><?php esc_html_e('Growth (7d)', 'mhm-rentiva'); ?></div>
             </div>
-            <div class="mhm-rentiva-dashboard__kpi-value">
+            <div class="mhm-rentiva-dashboard__kpi-value" id="kpi-growth-container">
                 <span class="mhm-rentiva-dashboard__kpi-trend <?php echo esc_attr($growth_class); ?>">
                     <?php echo esc_html($growth_label); ?>
                 </span>
             </div>
-            <div class="mhm-rentiva-dashboard__kpi-meta">
+            <div class="mhm-rentiva-dashboard__kpi-meta" id="kpi-growth-meta">
                 <?php
                 if ($growth_7d === null) {
                     esc_html_e('No prior period data', 'mhm-rentiva');
@@ -114,10 +114,10 @@ $has_data = $revenue_30d > 0.0 || $avg_booking > 0.0;
                 </div>
                 <div class="mhm-rentiva-dashboard__kpi-label"><?php esc_html_e('Avg Booking Value', 'mhm-rentiva'); ?></div>
             </div>
-            <div class="mhm-rentiva-dashboard__kpi-value is-currency">
+            <div class="mhm-rentiva-dashboard__kpi-value is-currency" id="kpi-avg-booking-value">
                 <?php echo wp_kses_post($format_currency($avg_booking)); ?>
             </div>
-            <div class="mhm-rentiva-dashboard__kpi-meta"><?php esc_html_e('Per booking, last 30 days', 'mhm-rentiva'); ?></div>
+            <div class="mhm-rentiva-dashboard__kpi-meta" id="kpi-avg-booking-meta"><?php esc_html_e('Per booking, last 30 days', 'mhm-rentiva'); ?></div>
         </div>
 
     </div><!-- /.mhm-rentiva-dashboard__analytics-kpis -->
@@ -133,11 +133,21 @@ $has_data = $revenue_30d > 0.0 || $avg_booking > 0.0;
         </div>
     <?php else : ?>
 
+        <!-- Top Vehicles Partial -->
+        <div id="mhm-dashboard-top-vehicles">
+            <?php
+            $top_vehicles = is_array($analytics['top_vehicles'] ?? null) ? $analytics['top_vehicles'] : array();
+            if (!empty($top_vehicles)) {
+                require __DIR__ . '/top-vehicles.php';
+            }
+            ?>
+        </div>
+
         <!-- 30-Day Trend Sparkline -->
         <div class="mhm-rentiva-dashboard__section">
             <div class="mhm-rentiva-dashboard__section-head">
-                <h3><?php esc_html_e('30-Day Revenue Trend', 'mhm-rentiva'); ?></h3>
-                <span class="mhm-rentiva-dashboard__sparkline-range">
+                <h3 id="main-trend-title"><?php esc_html_e('30-Day Revenue Trend', 'mhm-rentiva'); ?></h3>
+                <span class="mhm-rentiva-dashboard__sparkline-range" id="main-trend-range">
                     <?php
                     $from_label = date_i18n(get_option('date_format'), strtotime('-30 days'));
                     $to_label   = date_i18n(get_option('date_format'));
@@ -145,7 +155,7 @@ $has_data = $revenue_30d > 0.0 || $avg_booking > 0.0;
                     ?>
                 </span>
             </div>
-            <div class="mhm-rentiva-dashboard__sparkline">
+            <div class="mhm-rentiva-dashboard__sparkline" id="main-trend-container">
                 <?php
                 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SparklineRenderer output is fully escaped internally.
                 echo SparklineRenderer::render($sparkline_30d, 720, 80, '#2f54ff');
@@ -154,7 +164,7 @@ $has_data = $revenue_30d > 0.0 || $avg_booking > 0.0;
         </div>
 
         <!-- 7-Day Trend Sparkline -->
-        <div class="mhm-rentiva-dashboard__section">
+        <div class="mhm-rentiva-dashboard__section" id="secondary-trend-section">
             <div class="mhm-rentiva-dashboard__section-head">
                 <h3><?php esc_html_e('7-Day Revenue Trend', 'mhm-rentiva'); ?></h3>
                 <span class="mhm-rentiva-dashboard__sparkline-range">

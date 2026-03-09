@@ -16,23 +16,31 @@ if (! defined('ABSPATH')) {
  * Hooks into do_action() calls fired by VendorOnboardingController and VendorVehicleReviewManager.
  * Pro-only: registered only when canUseVendorMarketplace() is true.
  */
-final class VendorNotifications {
+final class VendorNotifications
+{
 
 	/**
 	 * Register hooks and extend the email registry.
 	 */
-	public static function register(): void {
+	public static function register(): void
+	{
 		if (! Mode::canUseVendorMarketplace()) {
 			return;
 		}
 
-		add_filter('mhm_rentiva_email_registry', array( self::class, 'add_templates' ));
+		add_filter('mhm_rentiva_email_registry', array(self::class, 'add_templates'));
 
-		add_action('mhm_rentiva_vendor_approved', array( self::class, 'on_vendor_approved' ), 10, 2);
-		add_action('mhm_rentiva_vendor_rejected', array( self::class, 'on_vendor_rejected' ), 10, 3);
-		add_action('mhm_rentiva_vehicle_approved', array( self::class, 'on_vehicle_approved' ), 10, 2);
-		add_action('mhm_rentiva_vehicle_rejected', array( self::class, 'on_vehicle_rejected' ), 10, 3);
-		add_action('mhm_rentiva_vendor_application_submitted', array( self::class, 'on_application_submitted' ), 10, 1);
+		add_action('mhm_rentiva_vendor_approved', array(self::class, 'on_vendor_approved'), 10, 2);
+		add_action('mhm_rentiva_vendor_rejected', array(self::class, 'on_vendor_rejected'), 10, 3);
+		add_action('mhm_rentiva_vehicle_approved', array(self::class, 'on_vehicle_approved'), 10, 2);
+		add_action('mhm_rentiva_vehicle_rejected', array(self::class, 'on_vehicle_rejected'), 10, 3);
+		add_action('mhm_rentiva_vendor_application_submitted', array(self::class, 'on_application_submitted'), 10, 1);
+
+		// Financial notifications
+		add_action('mhm_rentiva_payout_approved', array(self::class, 'on_payout_approved'), 10, 3);
+		add_action('mhm_rentiva_payout_rejected', array(self::class, 'on_payout_rejected'), 10, 4);
+		add_action('mhm_rentiva_iban_change_approved', array(self::class, 'on_iban_change_approved'), 10, 1);
+		add_action('mhm_rentiva_iban_change_rejected', array(self::class, 'on_iban_change_rejected'), 10, 1);
 	}
 
 	/**
@@ -41,7 +49,8 @@ final class VendorNotifications {
 	 * @param array $registry Existing registry.
 	 * @return array Extended registry.
 	 */
-	public static function add_templates(array $registry): array {
+	public static function add_templates(array $registry): array
+	{
 		$registry['vendor_approved'] = array(
 			'subject' => __('Welcome! Your vendor account is approved — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vendor-approved',
@@ -66,6 +75,22 @@ final class VendorNotifications {
 			'subject' => __('Your vehicle listing — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-rejected',
 		);
+		$registry['payout_approved'] = array(
+			'subject' => __('Payout approved — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'payout-approved',
+		);
+		$registry['payout_rejected'] = array(
+			'subject' => __('Payout request update — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'payout-rejected',
+		);
+		$registry['iban_change_approved'] = array(
+			'subject' => __('IBAN change approved — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'iban-change-approved',
+		);
+		$registry['iban_change_rejected'] = array(
+			'subject' => __('IBAN change update — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'iban-change-rejected',
+		);
 
 		return $registry;
 	}
@@ -75,7 +100,8 @@ final class VendorNotifications {
 	 *
 	 * @param int $user_id Applicant user ID.
 	 */
-	public static function on_application_submitted(int $user_id): void {
+	public static function on_application_submitted(int $user_id): void
+	{
 		$user = get_userdata($user_id);
 		if (! $user) {
 			return;
@@ -97,7 +123,8 @@ final class VendorNotifications {
 	 * @param int $user_id        Approved vendor user ID.
 	 * @param int $application_id Application post ID.
 	 */
-	public static function on_vendor_approved(int $user_id, int $application_id): void {
+	public static function on_vendor_approved(int $user_id, int $application_id): void
+	{
 		$user = get_userdata($user_id);
 		if (! $user) {
 			return;
@@ -114,7 +141,8 @@ final class VendorNotifications {
 	 * @param int    $application_id Application post ID.
 	 * @param string $reason         Rejection reason.
 	 */
-	public static function on_vendor_rejected(int $user_id, int $application_id, string $reason): void {
+	public static function on_vendor_rejected(int $user_id, int $application_id, string $reason): void
+	{
 		$user = get_userdata($user_id);
 		if (! $user) {
 			return;
@@ -132,7 +160,8 @@ final class VendorNotifications {
 	 * @param int $vehicle_id Post ID of the approved vehicle.
 	 * @param int $vendor_id  Vendor user ID.
 	 */
-	public static function on_vehicle_approved(int $vehicle_id, int $vendor_id): void {
+	public static function on_vehicle_approved(int $vehicle_id, int $vendor_id): void
+	{
 		$user = get_userdata($vendor_id);
 		if (! $user) {
 			return;
@@ -154,7 +183,8 @@ final class VendorNotifications {
 	 * @param int    $vendor_id  Vendor user ID.
 	 * @param string $reason     Rejection reason.
 	 */
-	public static function on_vehicle_rejected(int $vehicle_id, int $vendor_id, string $reason): void {
+	public static function on_vehicle_rejected(int $vehicle_id, int $vendor_id, string $reason): void
+	{
 		$user = get_userdata($vendor_id);
 		if (! $user) {
 			return;
@@ -175,7 +205,8 @@ final class VendorNotifications {
 	 * @param \WP_User $user Vendor user object.
 	 * @return array Context data.
 	 */
-	private static function build_vendor_context(\WP_User $user): array {
+	private static function build_vendor_context(\WP_User $user): array
+	{
 		return array(
 			'vendor' => array(
 				'name'  => $user->display_name,
@@ -189,5 +220,108 @@ final class VendorNotifications {
 				'url' => (string) home_url('/panel/'),
 			),
 		);
+	}
+
+	/**
+	 * Format a currency amount for display in emails.
+	 *
+	 * @param float $amount Amount to format.
+	 * @return string Formatted string.
+	 */
+	private static function format_amount(float $amount): string
+	{
+		if (function_exists('wc_price')) {
+			return wp_strip_all_tags((string) wc_price($amount));
+		}
+		$symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₺';
+		return $symbol . number_format(abs($amount), 2, '.', ',');
+	}
+
+	// ---------------------------------------------------------------
+	// Financial notification handlers
+	// ---------------------------------------------------------------
+
+	/**
+	 * Payout approved — notify vendor.
+	 *
+	 * @param int   $payout_id Payout post ID.
+	 * @param int   $vendor_id Vendor user ID.
+	 * @param float $amount    Payout amount.
+	 */
+	public static function on_payout_approved(int $payout_id, int $vendor_id, float $amount): void
+	{
+		$user = get_userdata($vendor_id);
+		if (! $user) {
+			return;
+		}
+
+		$ctx = self::build_vendor_context($user);
+		$ctx['payout'] = array(
+			'id'               => $payout_id,
+			'amount'           => $amount,
+			'amount_formatted' => self::format_amount($amount),
+		);
+
+		Mailer::send('payout_approved', $user->user_email, $ctx);
+	}
+
+	/**
+	 * Payout rejected — notify vendor with reason.
+	 *
+	 * @param int    $payout_id Payout post ID.
+	 * @param int    $vendor_id Vendor user ID.
+	 * @param float  $amount    Payout amount.
+	 * @param string $reason    Rejection reason.
+	 */
+	public static function on_payout_rejected(int $payout_id, int $vendor_id, float $amount, string $reason): void
+	{
+		$user = get_userdata($vendor_id);
+		if (! $user) {
+			return;
+		}
+
+		$ctx = self::build_vendor_context($user);
+		$ctx['payout'] = array(
+			'id'               => $payout_id,
+			'amount'           => $amount,
+			'amount_formatted' => self::format_amount($amount),
+		);
+		$ctx['rejection'] = array(
+			'reason' => $reason,
+		);
+
+		Mailer::send('payout_rejected', $user->user_email, $ctx);
+	}
+
+	/**
+	 * IBAN change approved — notify vendor.
+	 *
+	 * @param int $vendor_id Vendor user ID.
+	 */
+	public static function on_iban_change_approved(int $vendor_id): void
+	{
+		$user = get_userdata($vendor_id);
+		if (! $user) {
+			return;
+		}
+
+		$ctx = self::build_vendor_context($user);
+		Mailer::send('iban_change_approved', $user->user_email, $ctx);
+	}
+
+	/**
+	 * IBAN change rejected — notify vendor.
+	 *
+	 * @param int $vendor_id Vendor user ID.
+	 */
+	public static function on_iban_change_rejected(int $vendor_id): void
+	{
+		$user = get_userdata($vendor_id);
+		if (! $user) {
+			return;
+		}
+
+		$ctx = self::build_vendor_context($user);
+		Mailer::send('iban_change_rejected', $user->user_email, $ctx);
 	}
 }

@@ -213,6 +213,9 @@ final class MetricCacheManager
             if ($vendor_id > 0) {
                 self::flush_subject_all_metrics((string) $vendor_id);
             }
+
+            // Flush isolated vehicle performance cache
+            self::flush_subject_metric('vehicle', 'perf', (string) $vehicle_id);
         }
     }
 }

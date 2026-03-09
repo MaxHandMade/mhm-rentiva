@@ -98,6 +98,20 @@ final class DashboardDataProvider
 				unset($context, $user_id, $user_email);
 				return array('total' => 0);
 			},
+			'occupancy_rate' => static function (string $context, int $user_id, string $user_email): array {
+				unset($context, $user_email);
+				$now_ts  = time();
+				$from_ts = $now_ts - (30 * DAY_IN_SECONDS);
+				$metrics = \MHMRentiva\Core\Financial\AnalyticsService::get_vendor_operational_metrics($user_id, $from_ts, $now_ts);
+				return array('total' => (string) $metrics['occupancy_rate'] . '%');
+			},
+			'cancellation_rate' => static function (string $context, int $user_id, string $user_email): array {
+				unset($context, $user_email);
+				$now_ts  = time();
+				$from_ts = $now_ts - (30 * DAY_IN_SECONDS);
+				$metrics = \MHMRentiva\Core\Financial\AnalyticsService::get_vendor_operational_metrics($user_id, $from_ts, $now_ts);
+				return array('total' => (string) $metrics['cancellation_rate'] . '%');
+			},
 		);
 	}
 

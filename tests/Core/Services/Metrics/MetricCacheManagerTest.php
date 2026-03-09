@@ -86,4 +86,18 @@ class MetricCacheManagerTest extends WP_UnitTestCase
         // User 56 remained completely isolated and untouched
         $this->assertNotEmpty(MetricCacheManager::get('vendor', 'revenue_7d', '56'));
     }
+
+    public function test_flush_vehicle_performance(): void
+    {
+        MetricCacheManager::set('vehicle', 'perf', '101', array('revenue' => 500));
+        MetricCacheManager::set('vehicle', 'perf', '102', array('revenue' => 1000));
+
+        $this->assertNotEmpty(MetricCacheManager::get('vehicle', 'perf', '101'));
+        $this->assertNotEmpty(MetricCacheManager::get('vehicle', 'perf', '102'));
+
+        MetricCacheManager::flush_subject_metric('vehicle', 'perf', '101');
+
+        $this->assertFalse(MetricCacheManager::get('vehicle', 'perf', '101'));
+        $this->assertNotEmpty(MetricCacheManager::get('vehicle', 'perf', '102'));
+    }
 }
