@@ -28,7 +28,9 @@
             'woocommerce-blocktheme-css',
             'mhm-css-variables-css',
             'data-wp-init--refresh-cart-items',
-            'JQMIGRATE: Migrate is installed'
+            'JQMIGRATE: Migrate is installed',
+            'isEditorPanelEnabled is deprecated',
+            'Using custom components as toolbar controls is deprecated'
         ];
         return ignored.some(term => msg.includes(term));
     };
