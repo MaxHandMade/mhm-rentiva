@@ -116,60 +116,60 @@ final class VehicleSubmit extends AbstractShortcode
         $years        = range($current_year, $min_year);
 
         $transmissions = array(
-            'auto'      => __('Otomatik', 'mhm-rentiva'),
-            'manual'    => __('Manuel', 'mhm-rentiva'),
-            'semi_auto' => __('Yarı-Otomatik', 'mhm-rentiva'),
+            'auto'      => __('Automatic', 'mhm-rentiva'),
+            'manual'    => __('Manual', 'mhm-rentiva'),
+            'semi_auto' => __('Semi-Automatic', 'mhm-rentiva'),
             'cvt'       => __('CVT', 'mhm-rentiva'),
         );
 
         $fuel_types = array(
-            'petrol'   => __('Benzin', 'mhm-rentiva'),
-            'diesel'   => __('Dizel', 'mhm-rentiva'),
-            'hybrid'   => __('Hibrit', 'mhm-rentiva'),
-            'electric' => __('Elektrik', 'mhm-rentiva'),
+            'petrol'   => __('Petrol', 'mhm-rentiva'),
+            'diesel'   => __('Diesel', 'mhm-rentiva'),
+            'hybrid'   => __('Hybrid', 'mhm-rentiva'),
+            'electric' => __('Electric', 'mhm-rentiva'),
             'lpg'      => __('LPG', 'mhm-rentiva'),
         );
 
         $service_types = array(
-            'rental'   => __('Sadece Kiralama', 'mhm-rentiva'),
-            'transfer' => __('Sadece Transfer', 'mhm-rentiva'),
-            'both'     => __('Her İkisi', 'mhm-rentiva'),
+            'rental'   => __('Car Rental Only', 'mhm-rentiva'),
+            'transfer' => __('Transfer Only', 'mhm-rentiva'),
+            'both'     => __('Both (Rental & Transfer)', 'mhm-rentiva'),
         );
 
         $features = array(
-            'air_conditioning'  => __('Klima', 'mhm-rentiva'),
-            'power_steering'    => __('Hidrolik Direksiyon', 'mhm-rentiva'),
-            'abs_brakes'        => __('ABS Fren Sistemi', 'mhm-rentiva'),
-            'airbags'           => __('Hava Yastıkları', 'mhm-rentiva'),
-            'central_locking'   => __('Merkezi Kilitleme', 'mhm-rentiva'),
-            'electric_windows'  => __('Elektrikli Pencereler', 'mhm-rentiva'),
-            'power_mirrors'     => __('Elektrikli Aynalar', 'mhm-rentiva'),
-            'fog_lights'        => __('Sis Farları', 'mhm-rentiva'),
-            'cruise_control'    => __('Hız Sabitleyici', 'mhm-rentiva'),
+            'air_conditioning'  => __('Air Conditioning', 'mhm-rentiva'),
+            'power_steering'    => __('Power Steering', 'mhm-rentiva'),
+            'abs_brakes'        => __('ABS Brakes', 'mhm-rentiva'),
+            'airbags'           => __('Airbags', 'mhm-rentiva'),
+            'central_locking'   => __('Central Locking', 'mhm-rentiva'),
+            'electric_windows'  => __('Electricli Pencereler', 'mhm-rentiva'),
+            'power_mirrors'     => __('Electricli Aynalar', 'mhm-rentiva'),
+            'fog_lights'        => __('Fog Lights', 'mhm-rentiva'),
+            'cruise_control'    => __('Cruise Control', 'mhm-rentiva'),
             'bluetooth'         => __('Bluetooth', 'mhm-rentiva'),
-            'usb_port'          => __('USB Bağlantı Noktası', 'mhm-rentiva'),
-            'navigation'        => __('Navigasyon', 'mhm-rentiva'),
-            'sunroof'           => __('Açılır Tavan', 'mhm-rentiva'),
-            'leather_seats'     => __('Deri Koltuklar', 'mhm-rentiva'),
-            'heated_seats'      => __('Isıtmalı Koltuklar', 'mhm-rentiva'),
+            'usb_port'          => __('USB Port', 'mhm-rentiva'),
+            'navigation'        => __('Navigation', 'mhm-rentiva'),
+            'sunroof'           => __('Sunroof', 'mhm-rentiva'),
+            'leather_seats'     => __('Leather Seats', 'mhm-rentiva'),
+            'heated_seats'      => __('Heated Seats', 'mhm-rentiva'),
         );
 
         $equipment = array(
-            'spare_tire'       => __('Yedek Lastik', 'mhm-rentiva'),
+            'spare_tire'       => __('Spare Tire', 'mhm-rentiva'),
             'jack'             => __('Jack', 'mhm-rentiva'),
-            'first_aid_kit'    => __('İlk Yardım Çantası', 'mhm-rentiva'),
-            'fire_extinguisher' => __('Yangın Söndürücü', 'mhm-rentiva'),
-            'warning_triangle' => __('Uyarı Üçgeni', 'mhm-rentiva'),
-            'jumper_cables'    => __('Jumper Kabloları', 'mhm-rentiva'),
-            'ice_scraper'      => __('Buz Kazıyıcı', 'mhm-rentiva'),
-            'car_cover'        => __('Araba Kılıfı', 'mhm-rentiva'),
-            'child_seat'       => __('Çocuk Koltuğu', 'mhm-rentiva'),
-            'gps_tracker'      => __('GPS İzleyici', 'mhm-rentiva'),
+            'first_aid_kit'    => __('First Aid Kit', 'mhm-rentiva'),
+            'fire_extinguisher' => __('Fire Extinguisher', 'mhm-rentiva'),
+            'warning_triangle' => __('Warning Triangle', 'mhm-rentiva'),
+            'jumper_cables'    => __('Jumper Cables', 'mhm-rentiva'),
+            'ice_scraper'      => __('Ice Scraper', 'mhm-rentiva'),
+            'car_cover'        => __('Car Cover', 'mhm-rentiva'),
+            'child_seat'       => __('Child Seat', 'mhm-rentiva'),
+            'gps_tracker'      => __('GPS Tracker', 'mhm-rentiva'),
             'dashcam'          => __('Dashcam', 'mhm-rentiva'),
-            'phone_holder'     => __('Telefon Tutucu', 'mhm-rentiva'),
-            'charger'          => __('Şarj Cihazı', 'mhm-rentiva'),
-            'cleaning_kit'     => __('Temizlik Kiti', 'mhm-rentiva'),
-            'emergency_kit'    => __('Acil Durum Kiti', 'mhm-rentiva'),
+            'phone_holder'     => __('Phone Holder', 'mhm-rentiva'),
+            'charger'          => __('Charger', 'mhm-rentiva'),
+            'cleaning_kit'     => __('Cleaning Kit', 'mhm-rentiva'),
+            'emergency_kit'    => __('Emergency Kit', 'mhm-rentiva'),
         );
 
         ob_start();
@@ -180,64 +180,64 @@ final class VehicleSubmit extends AbstractShortcode
                 <input type="hidden" name="action" value="mhm_vehicle_submit">
                 <input type="hidden" name="mhm_vehicle_submit_nonce" value="<?php echo esc_attr($data['nonce']); ?>">
 
-                <!-- Section 1: Araç Bilgileri -->
+                <!-- Section 1: Vehicle Details -->
                 <div class="mhm-vendor-form__section">
-                    <h3><?php esc_html_e('Araç Bilgileri', 'mhm-rentiva'); ?></h3>
+                    <h3><?php esc_html_e('Vehicle Details', 'mhm-rentiva'); ?></h3>
                     <div class="mhm-vendor-form__row">
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-brand"><?php esc_html_e('Marka', 'mhm-rentiva'); ?> <span class="required">*</span></label>
-                            <input type="text" id="mhm-brand" name="brand" required placeholder="<?php esc_attr_e('ör. Toyota', 'mhm-rentiva'); ?>">
+                            <label for="mhm-brand"><?php esc_html_e('Make (Brand)', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                            <input type="text" id="mhm-brand" name="brand" required placeholder="<?php esc_attr_e('e.g. Toyota', 'mhm-rentiva'); ?>">
                         </div>
                         <div class="mhm-vendor-form__field">
                             <label for="mhm-model"><?php esc_html_e('Model', 'mhm-rentiva'); ?> <span class="required">*</span></label>
-                            <input type="text" id="mhm-model" name="model" required placeholder="<?php esc_attr_e('ör. Corolla', 'mhm-rentiva'); ?>">
+                            <input type="text" id="mhm-model" name="model" required placeholder="<?php esc_attr_e('e.g. Corolla', 'mhm-rentiva'); ?>">
                         </div>
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-year"><?php esc_html_e('Model Yılı', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                            <label for="mhm-year"><?php esc_html_e('Model Year', 'mhm-rentiva'); ?> <span class="required">*</span></label>
                             <select id="mhm-year" name="year" required>
-                                <option value=""><?php esc_html_e('Yıl Seçin', 'mhm-rentiva'); ?></option>
+                                <option value=""><?php esc_html_e('Select Year', 'mhm-rentiva'); ?></option>
                                 <?php foreach ($years as $y) : ?>
                                     <option value="<?php echo esc_attr((string) $y); ?>"><?php echo esc_html((string) $y); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-color"><?php esc_html_e('Renk', 'mhm-rentiva'); ?></label>
-                            <input type="text" id="mhm-color" name="color" placeholder="<?php esc_attr_e('ör. Beyaz', 'mhm-rentiva'); ?>">
+                            <label for="mhm-color"><?php esc_html_e('Color', 'mhm-rentiva'); ?></label>
+                            <input type="text" id="mhm-color" name="color" placeholder="<?php esc_attr_e('e.g. White', 'mhm-rentiva'); ?>">
                         </div>
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-vehicle-city"><?php esc_html_e('Konum/Şehir', 'mhm-rentiva'); ?> <span class="required">*</span></label>
-                            <input type="text" id="mhm-vehicle-city" name="city" required placeholder="<?php esc_attr_e('ör. İstanbul', 'mhm-rentiva'); ?>">
+                            <label for="mhm-vehicle-city"><?php esc_html_e('Location / City', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                            <input type="text" id="mhm-vehicle-city" name="city" required placeholder="<?php esc_attr_e('e.g. Istanbul', 'mhm-rentiva'); ?>">
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 2: Fiyat ve Teknik Bilgiler -->
+                <!-- Section 2: Price & Technical Details -->
                 <div class="mhm-vendor-form__section">
-                    <h3><?php esc_html_e('Fiyat ve Teknik Bilgiler', 'mhm-rentiva'); ?></h3>
+                    <h3><?php esc_html_e('Price & Technical Details', 'mhm-rentiva'); ?></h3>
                     <div class="mhm-vendor-form__row mhm-vendor-form__grid-3">
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-price"><?php esc_html_e('Günlük Fiyat (₺)', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                            <label for="mhm-price"><?php esc_html_e('Daily Rate', 'mhm-rentiva'); ?> <span class="required">*</span></label>
                             <input type="number" id="mhm-price" name="price_per_day" required min="1" step="1" placeholder="0">
                         </div>
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-mileage"><?php esc_html_e('Kilometre', 'mhm-rentiva'); ?></label>
-                            <input type="text" id="mhm-mileage" name="mileage" placeholder="<?php esc_attr_e('ör. 45000', 'mhm-rentiva'); ?>">
+                            <label for="mhm-mileage"><?php esc_html_e('Mileage', 'mhm-rentiva'); ?></label>
+                            <input type="text" id="mhm-mileage" name="mileage" placeholder="<?php esc_attr_e('e.g. 45000', 'mhm-rentiva'); ?>">
                         </div>
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-license-plate"><?php esc_html_e('Plaka', 'mhm-rentiva'); ?></label>
+                            <label for="mhm-license-plate"><?php esc_html_e('License Plate', 'mhm-rentiva'); ?></label>
                             <input type="text" id="mhm-license-plate" name="license_plate" placeholder="<?php esc_attr_e('ör. 34ABC123', 'mhm-rentiva'); ?>">
                         </div>
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-seats"><?php esc_html_e('Koltuk Sayısı', 'mhm-rentiva'); ?></label>
+                            <label for="mhm-seats"><?php esc_html_e('Seats', 'mhm-rentiva'); ?></label>
                             <input type="number" id="mhm-seats" name="seats" min="1" value="5">
                         </div>
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-doors"><?php esc_html_e('Kapı Sayısı', 'mhm-rentiva'); ?></label>
+                            <label for="mhm-doors"><?php esc_html_e('Doors', 'mhm-rentiva'); ?></label>
                             <input type="number" id="mhm-doors" name="doors" min="2" value="4">
                         </div>
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-transmission"><?php esc_html_e('Vites Tipi', 'mhm-rentiva'); ?></label>
+                            <label for="mhm-transmission"><?php esc_html_e('Transmission', 'mhm-rentiva'); ?></label>
                             <select id="mhm-transmission" name="transmission">
                                 <?php foreach ($transmissions as $val => $label) : ?>
                                     <option value="<?php echo esc_attr($val); ?>"><?php echo esc_html($label); ?></option>
@@ -245,7 +245,7 @@ final class VehicleSubmit extends AbstractShortcode
                             </select>
                         </div>
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-fuel-type"><?php esc_html_e('Yakıt Tipi', 'mhm-rentiva'); ?></label>
+                            <label for="mhm-fuel-type"><?php esc_html_e('Fuel Type', 'mhm-rentiva'); ?></label>
                             <select id="mhm-fuel-type" name="fuel_type">
                                 <?php foreach ($fuel_types as $val => $label) : ?>
                                     <option value="<?php echo esc_attr($val); ?>"><?php echo esc_html($label); ?></option>
@@ -253,23 +253,23 @@ final class VehicleSubmit extends AbstractShortcode
                             </select>
                         </div>
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-engine-size"><?php esc_html_e('Motor Hacmi', 'mhm-rentiva'); ?></label>
+                            <label for="mhm-engine-size"><?php esc_html_e('Engine Size (L)', 'mhm-rentiva'); ?></label>
                             <input type="number" id="mhm-engine-size" name="engine_size" min="0" step="0.1" placeholder="0.0">
                         </div>
                         <div class="mhm-vendor-form__field">
-                            <label for="mhm-deposit"><?php esc_html_e('Depozito %', 'mhm-rentiva'); ?></label>
+                            <label for="mhm-deposit"><?php esc_html_e('Deposit %', 'mhm-rentiva'); ?></label>
                             <input type="number" id="mhm-deposit" name="deposit" min="0" max="100" value="10">
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 3: Hizmet Türü -->
+                <!-- Section 3: Service Type -->
                 <div class="mhm-vendor-form__section">
-                    <h3><?php esc_html_e('Hizmet Türü', 'mhm-rentiva'); ?></h3>
+                    <h3><?php esc_html_e('Service Type', 'mhm-rentiva'); ?></h3>
                     <div class="mhm-vendor-form__field">
-                        <label for="mhm-service-type"><?php esc_html_e('Hizmet Türü', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                        <label for="mhm-service-type"><?php esc_html_e('Service Type', 'mhm-rentiva'); ?> <span class="required">*</span></label>
                         <select id="mhm-service-type" name="service_type" required>
-                            <option value=""><?php esc_html_e('Hizmet Seçin', 'mhm-rentiva'); ?></option>
+                            <option value=""><?php esc_html_e('Select Service', 'mhm-rentiva'); ?></option>
                             <?php foreach ($service_types as $val => $label) : ?>
                                 <option value="<?php echo esc_attr($val); ?>"><?php echo esc_html($label); ?></option>
                             <?php endforeach; ?>
@@ -277,9 +277,9 @@ final class VehicleSubmit extends AbstractShortcode
                     </div>
                 </div>
 
-                <!-- Section 4: Araç Özellikleri -->
+                <!-- Section 4: Vehicle Features -->
                 <div class="mhm-vendor-form__section">
-                    <h3><?php esc_html_e('Araç Özellikleri', 'mhm-rentiva'); ?></h3>
+                    <h3><?php esc_html_e('Vehicle Features', 'mhm-rentiva'); ?></h3>
                     <div class="mhm-vendor-form__checkboxes mhm-vendor-form__checkboxes--grid-5">
                         <?php foreach ($features as $val => $label) : ?>
                             <label class="mhm-vendor-form__checkbox">
@@ -290,9 +290,9 @@ final class VehicleSubmit extends AbstractShortcode
                     </div>
                 </div>
 
-                <!-- Section 5: Araç Ekipmanları -->
+                <!-- Section 5: Vehicle Equipment -->
                 <div class="mhm-vendor-form__section">
-                    <h3><?php esc_html_e('Araç Ekipmanları', 'mhm-rentiva'); ?></h3>
+                    <h3><?php esc_html_e('Vehicle Equipment', 'mhm-rentiva'); ?></h3>
                     <div class="mhm-vendor-form__checkboxes mhm-vendor-form__checkboxes--grid-5">
                         <?php foreach ($equipment as $val => $label) : ?>
                             <label class="mhm-vendor-form__checkbox">
@@ -303,13 +303,13 @@ final class VehicleSubmit extends AbstractShortcode
                     </div>
                 </div>
 
-                <!-- Section 6: Fotoğraflar -->
+                <!-- Section 6: Photos -->
                 <div class="mhm-vendor-form__section">
-                    <h3><?php esc_html_e('Fotoğraflar', 'mhm-rentiva'); ?></h3>
+                    <h3><?php esc_html_e('Photos', 'mhm-rentiva'); ?></h3>
                     <?php $max_photos = (int) get_option('mhm_vehicle_max_photos', 10); ?>
                     <p class="mhm-vendor-form__hint"><?php echo esc_html(sprintf(
                         /* translators: %d: max number of photos */
-                        __('En fazla %d fotoğraf yükleyin. İlk fotoğraf ana görsel olacaktır.', 'mhm-rentiva'),
+                        __('Upload up to %d photos. The first photo will be the main image.', 'mhm-rentiva'),
                         $max_photos
                     )); ?></p>
                     <div class="mhm-vendor-form__field">
@@ -320,10 +320,10 @@ final class VehicleSubmit extends AbstractShortcode
                 <!-- Section 7: Submit -->
                 <div class="mhm-vendor-form__submit">
                     <button type="submit" class="mhm-vendor-form__btn mhm-vendor-form__btn--primary" id="mhm-vehicle-submit-btn">
-                        <?php esc_html_e('Aracı İncelemeye Gönder', 'mhm-rentiva'); ?>
+                        <?php esc_html_e('Submit Vehicle for Review', 'mhm-rentiva'); ?>
                     </button>
                     <span class="mhm-vendor-form__spinner" id="mhm-vehicle-submit-spinner" style="display:none">
-                        <?php esc_html_e('Gönderiliyor...', 'mhm-rentiva'); ?>
+                        <?php esc_html_e('Submitting...', 'mhm-rentiva'); ?>
                     </span>
                 </div>
             </form>
@@ -354,8 +354,8 @@ final class VehicleSubmit extends AbstractShortcode
         );
         wp_localize_script('mhm-rentiva-vehicle-submit', 'mhmVehicleSubmit', array(
             'ajaxUrl'    => admin_url('admin-ajax.php'),
-            'successMsg' => __('Aracınız incelemeye gönderildi! Onaylandığında sizi bilgilendireceğiz.', 'mhm-rentiva'),
-            'errorMsg'   => __('Bir hata oluştu. Lütfen tekrar deneyin.', 'mhm-rentiva'),
+            'successMsg' => __('Your vehicle has been submitted for review! We will notify you once approved.', 'mhm-rentiva'),
+            'errorMsg'   => __('Something went wrong. Please try again.', 'mhm-rentiva'),
         ));
     }
 
