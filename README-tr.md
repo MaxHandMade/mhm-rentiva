@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.20.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.21.2-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -47,7 +47,8 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - **Araç Yönetimi**: Galeri, kategoriler, fiyatlandırma ve müsaitlik ile eksiksiz araç envanter yönetimi
 - **Rezervasyon Sistemi**: Gerçek zamanlı müsaitlik kontrolü, rezervasyon yönetimi ve otomatik iptal
 - **Ödeme İşleme**: Tüm frontend rezervasyonları için WooCommerce entegrasyonu ile güvenli ödeme işlemleri
-- **Müşteri Portalı**: Rezervasyon geçmişi, favoriler ve mesajlaşma ile tam özellikli müşteri hesap sistemi
+- **WooCommerce Hesabım Entegrasyonu**: Müşteriler standart WooCommerce "Hesabım" sayfasını kullanır; eklenti bu sayfaya Rezervasyonlarım, Favorilerim, Ödeme Geçmişi ve Mesajlar gibi özel sekmeler ekler
+- **Vendor Marketplace** *(Pro)*: Araç sahiplerinin platforma başvurmasına, araçlarını frontend üzerinden listelemesine (araç gönderme formu), finansal hareketlerini takip etmesine ve vendor dashboard üzerinden durumlarını görüntülemesine olanak tanıyan çok satıcılı pazar yeri sistemi
 - **Analitik ve Raporlama**: Gelir, müşteri ve araç içgörüleri ile kapsamlı analitik dashboard
 - **E-posta Sistemi**: Özelleştirilebilir HTML şablonları ile otomatik e-posta bildirimleri
 - **Mesajlaşma Sistemi**: Thread yönetimi ile yerleşik müşteri destek mesajlaşması
@@ -59,8 +60,9 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - **Araba Kiralama Şirketleri**: Filo, rezervasyon ve müşteri ilişkilerini yönetin
 - **Bisiklet/Motosiklet Kiralama**: Müsaitliği takip edin ve ödemeleri işleyin
 - **Ekipman Kiralama İşletmeleri**: Her türlü araç veya ekipmanı kiralayın
-- **Çok Lokasyonlu Kiralama**: Birden fazla lokasyon ve para birimi desteği
-- **Küresel İşletmeler**: 60+ dil ve 47 para birimi ile tam uluslararasılaştırma
+- **Transfer Lokasyon Yönetimi**: VIP Transfer modülü ile birden fazla alış/bırakış noktası ve para birimi desteği
+- **Pazar Yeri İşletmeleri**: Vendor Marketplace ile çok satıcılı araç kiralama platformu kurun *(Pro)*
+- **Çeviriye Hazır**: Eklenti İngilizce ve Türkçe ile gelir; WooCommerce uyumlu para birimi desteği. Loco Translate üzerinden her dile çevrilebilir
 
 ---
 
@@ -70,7 +72,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 
 **Temel Araç Özellikleri:**
 - **Özel Post Tipi**: Araçlar için yerel WordPress post tipi
-- **Araç Galerisi**: WordPress Medya Kütüphanesi kullanarak araç başına 10'a kadar görsel yükleme
+- **Araç Galerisi**: WordPress Medya Kütüphanesi entegrasyonu ile görsel yükleme (Lite: 3 görsel / Pro: 50'ye kadar, ayarlanabilir)
 - **Sürükle-Bırak Sıralama**: Sezgisel sürükle-bırak arayüzü ile araç görsellerini yeniden sıralama
 - **Araç Kategorileri**: Araçları organize etmek için hiyerarşik taksonomi sistemi
 - **Araç Meta Verileri**: 
@@ -80,16 +82,15 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
   - Depozito ayarları (sabit veya yüzde)
   - Müsaitlik durumu
   - Öne çıkan araç seçeneği
-- **Hızlı Düzenleme**: Liste tablosundan araçları toplu düzenleme
 - **Arama ve Filtreleme**: Kategori, durum ve fiyat aralığına göre gelişmiş filtreleme
 - **Araç Karşılaştırma**: Birden fazla aracı yan yana karşılaştırma
 
 **Araç Görüntüleme Seçenekleri:**
-- Özelleştirilebilir sütunlara sahip grid görünümü
-- Detaylı bilgi içeren liste görünümü
+- Grid ve liste görünümleri (`[rentiva_vehicles_grid]`, `[rentiva_vehicles_list]`)
+- Öne çıkan araçlar slider/grid görünümü (`[rentiva_featured_vehicles]`)
 - Tek araç detay sayfaları
 - Gelişmiş filtrelerle arama sonuçları
-- Müsaitlik takvimi entegrasyonu
+- Müsaitlik takvimi entegrasyonu (`[rentiva_availability_calendar]`)
 
 ### 📅 Rezervasyon Sistemi
 
@@ -97,15 +98,18 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - **Gerçek Zamanlı Müsaitlik**: Otomatik çakışma tespiti ve önleme
 - **Veritabanı Kilitleme**: Satır düzeyinde kilitleme ile çift rezervasyonu önler
 - **Rezervasyon Durumları**: 
-  - Beklemede (ödeme bekleniyor)
-  - Onaylandı (ödeme alındı)
-  - Aktif (şu anda kiralanmış)
-  - Tamamlandı (iade edildi)
-  - İptal edildi
-  - İade edildi
+  - Taslak (`draft`)
+  - Ödeme Bekleniyor (`pending_payment`) — WooCommerce siparişi oluşturuldu, ödeme bekleniyor
+  - Beklemede (`pending`) — Admin onayı bekleniyor
+  - Onaylandı (`confirmed`) — Ödeme alındı
+  - Devam Ediyor (`in_progress`) — Araç teslim edildi, kiralama sürüyor
+  - Tamamlandı (`completed`) — Araç iade edildi
+  - İptal Edildi (`cancelled`)
+  - İade Edildi (`refunded`)
+  - Gelmedi (`no_show`)
 - **Otomatik İptal**: Ödenmemiş rezervasyonlar için yapılandırılabilir otomatik iptal (varsayılan: 30 dakika)
 - **Manuel Rezervasyonlar**: Yönetici, doğrudan yönetim panelinden rezervasyon oluşturabilir
-- **Rezervasyon Takvimi**: Tüm rezervasyonların görsel takvim görünümü
+- **Rezervasyon Takvimi**: Admin panelinde tüm rezervasyonların aylık takvim görünümü
 - **Rezervasyon Geçmişi**: Müşteriler ve admin için tam rezervasyon geçmişi
 
 **Rezervasyon Özellikleri:**
@@ -117,7 +121,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - Offline ödemeler için makbuz yükleme (Manuel rezervasyonlar)
 - E-posta onayları
 - Rezervasyon hatırlatıcıları
-- **VIP Transfer Modülü Entegrasyonu**: Şoförlü hizmetlerin sorunsuz yönetimi
+- **VIP Transfer Modülü Entegrasyonu**: Şoförlü araç rezervasyonları da bu sistem üzerinden yönetilir *(bkz. [VIP Transfer Modülü](#-vip-transfer-modülü-şoförlü-hizmet) bölümü)*
 
 ### 💳 Ödeme Sistemi
 
@@ -130,69 +134,69 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - **Manuel Ödeme Kaydı**: Yöneticiler manuel oluşturulan rezervasyonlar için ödemeleri (Nakit/Havale) sisteme işleyebilir.
 - **Makbuz Yönetimi**: Yöneticiler manuel rezervasyonlara ödeme kanıtı ekleyebilir.
 
+**3. Vendor Finansal Sistemi** *(Pro)*
+- **Komisyon Politikası**: Platforma kayıtlı satıcılar için zaman bazlı komisyon oranı tanımlanabilir (`CommissionPolicy`).
+- **Kademe Sistemi**: Hacim bazlı komisyon indirimi — satıcı ne çok kazanırsa komisyon oranı o kadar düşer (`TierService`).
+- **Finansal Defter (Ledger)**: Satıcı bazında tüm kazanç ve kesinti kayıtları izlenebilir.
+- **Ödeme Yönetimi (Payout)**: Yönetici satıcılara ödeme işleyebilir; tüm hareketler loglanır.
+
 **Ödeme Özellikleri:**
-- Rezervasyon başına çoklu ödeme yöntemi
-- Kısmi ödeme desteği (Depozito sistemi)
-- WooCommerce üzerinden iade yönetimi
+- Kısmi ödeme desteği — Depozito sistemi (yüzde bazlı)
+- Kısmi ve tam iade desteği (WooCommerce API üzerinden)
 - Ödeme durumu takibi
 - Güvenli işlem yönetimi
 
 ### 👥 Müşteri Yönetimi
 
 **Müşteri Hesap Sistemi:**
-- **WordPress Yerel Entegrasyonu**: Standart WordPress kullanıcı sistemini kullanır
-- **Müşteri Rolü**: WordPress "Customer" rolünün otomatik atanması
-- **Hesabım Dashboard**: WooCommerce benzeri hesap yönetim arayüzü
-- **Hesap Özellikleri**:
-  - İstatistikli dashboard
+- **WordPress & WooCommerce Entegrasyonu**: Standart WordPress kullanıcı sistemi ve WooCommerce `customer` rolü kullanılır
+- **WooCommerce Hesabım Entegrasyonu**: Müşteriler WooCommerce'in "Hesabım" sayfasını kullanır; eklenti bu sayfaya özel sekmeler ekler
+- **Hesap Sekmeleri** (WooCommerce Hesabım içinde):
   - Filtre seçenekleri ile rezervasyon geçmişi
   - Favori araçlar listesi
   - Ödeme geçmişi
-  - Hesap detaylarını düzenleme
-  - Şifre yönetimi
-  - Mesaj merkezi
+  - Mesaj merkezi *(Pro)*
+  - Vendor başvuru formu *(Pro)*
 
-**Müşteri Portalı Shortcode'ları:**
+**Hesap Shortcode'ları:**
+- `[rentiva_user_dashboard]` - Kullanıcı/Vendor dashboard (giriş durumuna göre içerik değişir)
 - `[rentiva_my_bookings]` - Rezervasyon geçmişi
 - `[rentiva_my_favorites]` - Favori araçlar
 - `[rentiva_payment_history]` - Ödeme işlemleri
-- `[rentiva_account_details]` - Profil düzenleme
-- `[rentiva_login_form]` - Giriş formu
-- `[rentiva_register_form]` - Kayıt formu
+- `[rentiva_messages]` - Mesaj merkezi *(Pro)*
+- `[rentiva_vendor_ledger]` - Vendor finansal hareketleri *(Pro)*
+
+> **Not:** Giriş, kayıt ve hesap detayları WooCommerce'in kendi sayfaları üzerinden yönetilir.
 
 **Müşteri Özellikleri:**
 - Rezervasyon sırasında otomatik hesap oluşturma
-- İsimden kullanıcı adı oluşturma (e-posta yerine)
-- E-posta doğrulama
 - Şifre sıfırlama işlevi
 - Rezervasyon bildirimleri
 - E-posta bildirimleri
-- Mesaj bildirimleri
+- Mesaj bildirimleri *(Pro)*
 
 ### 📊 Raporlama ve Analitik
 
-**Analitik Dashboard:**
-- **Gelir Analitiği**: 
-  - Toplam gelir
-  - Dönem bazlı gelir (günlük, haftalık, aylık, yıllık)
-  - Araç bazlı gelir
-  - Ödeme yöntemi dağılımı
-- **Rezervasyon Analitiği**:
-  - Toplam rezervasyonlar
-  - Rezervasyon durum dağılımı
-  - Rezervasyon trendleri
-  - En yoğun rezervasyon dönemleri
-- **Araç Analitiği**:
-  - En çok kiralanan araçlar
-  - Araç kullanım oranları
-  - Araç başına gelir
-  - Müsaitlik istatistikleri
-- **Müşteri Analitiği**:
-  - Toplam müşteri sayısı
-  - Müşteri segmentasyonu
-  - Müşteri yaşam döngüsü analizi
-  - Tekrar eden müşteri oranı
-  - Müşteri kazanım trendleri
+**Admin Rapor Sayfası** *(5 sekme, tarih aralığı filtresi ile)*
+
+- **Genel Bakış (Overview)**: Gelir, rezervasyon, müşteri ve araç verilerini özetleyen birleşik görünüm
+- **Gelir Raporu**: Dönem bazlı gelir analizi
+- **Rezervasyon Raporu**: Durum dağılımı ve rezervasyon verileri
+- **Araç Raporu**: En çok kiralanan araçlar, araç başına gelir, kategori performansı, doluluk oranı
+- **Müşteri Raporu**: Müşteri harcamaları, yeni / tekrar eden müşteri ayrımı
+
+> **Lite sürümde** maksimum 30 günlük veri görüntülenir. Daha uzun aralıklar `Pro` gerektirir.
+
+**WordPress Dashboard Widget'ları:**
+- İstatistik kartları (toplam rezervasyon, aylık gelir, aktif kiralama, doluluk oranı)
+- Gelir grafiği (son 30 gün)
+- Yaklaşan işlemler listesi (kiralama + transfer)
+
+**Analitik Özellikleri:**
+- Tarih aralığı bazlı filtreleme
+- Araç kategorisi performans karşılaştırması
+- Müşteri segmentasyonu (yeni / tekrar eden)
+- Rapor önbelleği ve manuel önbellek temizleme
 
 ### 🚀 Lite ve Pro Sürüm Karşılaştırması
 
@@ -203,58 +207,50 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 | **Maksimum Müşteri** | 3 Müşteri | **Sınırsız** |
 | **Ek Hizmetler** | 4 Hizmet | **Sınırsız** |
 | **VIP Transfer Rotası** | 3 Rota | **Sınırsız** |
-| **Galeri Resmi** | 3 Resim / Araç | **Sınırsız** |
+| **Galeri Resmi** | 3 Resim / Araç | **Sınırsız (ayarlanabilir)** |
 | **Rapor Tarih Aralığı** | Son 30 Gün | **Sınırsız** |
 | **Rapor Satır Limiti** | 500 Satır | **Sınırsız** |
 | **Mesajlaşma Sistemi** | ❌ Yok | ✅ Var |
-| **Dışa Aktarım** | Sadece CSV | CSV, JSON |
+| **Vendor & Payout** | ❌ Yok | ✅ Var |
+| **E-posta Bildirimleri** | ✅ Var | ✅ Var |
+| **Dışa Aktarım** | Sadece CSV | CSV + JSON |
 | **Ödeme Altyapısı** | WooCommerce | WooCommerce |
 | **REST API Erişimi** | Sınırlı | Tam Erişim |
 | **Gelişmiş Raporlar** | ❌ Sınırlı | ✅ Tam Erişim |
 
 > **Not:** Lite sürümü küçük işletmeler ve test amaçlı tasarlanmıştır. Sınırsız erişim için Pro sürüme geçiş yapın.
 
-**Rapor Özellikleri:**
-- Gerçek zamanlı veri güncellemeleri
-- Özel tarih aralığı seçimi
-- CSV (Lite) ve CSV/JSON (Pro) formatında dışa aktarma
-- Görsel grafikler ve şemalar
-- Mobil uyumlu tasarım
-- Yazdırma dostu görünümler
-
 ### 📧 E-posta Bildirim Sistemi
 
-**E-posta Şablonları:**
-1. **Rezervasyon E-postaları**:
-   - Rezervasyon oluşturuldu (müşteri)
-   - Rezervasyon oluşturuldu (admin)
-   - Rezervasyon iptal edildi
-   - Rezervasyon durumu değişti
-   - Rezervasyon hatırlatıcı
+**1. Rezervasyon E-postaları:**
+- Yeni rezervasyon oluşturuldu (müşteriye)
+- Yeni rezervasyon oluşturuldu (admin bildirimi)
+- Rezervasyon durumu değişti (müşteriye)
+- Ödeme süresi doldu — otomatik iptal bildirimi
+- Manuel iptal bildirimi (müşteriye)
+- Teslim hatırlatıcısı (pickup reminder)
+- Hoşgeldin e-postası (ilk rezervasyon sonrası)
 
-2. **Ödeme E-postaları**:
-   - Ödeme alındı
-   - Makbuz yüklendi (admin bildirimi)
-   - Makbuz onaylandı (müşteri)
-   - Makbuz reddedildi (müşteri)
-   - İade işlendi
+**2. İade E-postaları:**
+- İade işlendi bildirimi (`RefundNotifications`)
 
-3. **Hesap E-postaları**:
-   - Hoşgeldin e-postası
-   - Hesap oluşturuldu
-   - Şifre sıfırlama
+**3. Mesaj E-postaları** *(Pro)*:
+- Yeni mesaj bildirimi
 
-4. **Mesaj E-postaları**:
-   - Yeni mesaj alındı (admin)
-   - Mesaj yanıtlandı (müşteri)
-   - Mesaj durumu değişti
+**4. Vendor E-postaları** *(Pro — `VendorNotifications`)*:
+- Başvuru alındı (satıcıya + admin)
+- Vendor başvurusu onaylandı / reddedildi
+- Araç listesi onaylandı / reddedildi
+- Ödeme (payout) onaylandı / reddedildi
+- IBAN değişikliği onaylandı / reddedildi
+
+> **Not:** Hesap oluşturma, şifre sıfırlama gibi hesap e-postaları WooCommerce tarafından yönetilir.
 
 **E-posta Özellikleri:**
-- **Modern HTML Şablonlar**: Responsive tasarım, tüm e-posta istemcilerinde çalışır
-- **Özelleştirilebilir**: Admin ayarlardan konu ve içeriği değiştirebilir
-- **Çoklu Dil**: Birden fazla dil desteği
-- **Şablon Sistemi**: Şablon geçersiz kılma (override) ile kolay özelleştirme
-- **E-posta Loglama**: Hata ayıklama için tüm e-postalar loglanır
+- **Özelleştirilebilir**: Admin ayarlarından her şablonun konu ve içeriği değiştirilebilir
+- **HTML Şablonlar**: Dinamik placeholder desteği (`{booking_id}`, `{vehicle_title}`, vb.)
+- **E-posta Loglama**: Hata ayıklama için tüm e-postalar `EmailLog` post tipiyle loglanır
+- **Şablon Sistemi**: Merkezi `Mailer::send()` üzerinden standart gönderim
 
 ### 💬 Mesajlaşma Sistemi
 
@@ -280,43 +276,51 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 ### 🚐 VIP Transfer Modülü (Şoförlü Hizmet)
 
 **Temel Transfer Özellikleri:**
-- **Noktadan Noktaya Rezervasyon**: Önceden tanımlanmış bölgelerden alış ve bırakış konumları seçimi.
-- **Mesafe Bazlı Fiyatlandırma**: Rota mesafesine veya sabit bölgeden bölgeye oranlara göre maliyet hesaplama.
-- **Araç Seçimi**: Farklı kapasitelere sahip transfer hizmetleri için özel araç atama.
-- **Buffer/Hazırlık Süresi**: Rezervasyonlar arasında araç hazırlığını sağlamak için operasyonel tampon süresi.
-- **AJAX Arama**: Gerçek zamanlı sonuçlar içeren modern transfer arama arayüzü.
+- **Noktadan Noktaya Rezervasyon**: Önceden tanımlanmış lokasyonlardan alış ve bırakış noktası seçimi.
+- **Güzergah Bazlı Fiyatlandırma**: Admin panelinde tanımlanan güzergah çiftlerine (origin → destination) göre sabit fiyat.
+- **Araç Seçimi**: Farklı kapasitelere sahip transfer araçları (yolcu sayısı, bagaj kapasitesi).
+- **AJAX Arama**: Gerçek zamanlı sonuçlar içeren transfer arama arayüzü; yolcu sayısı ve bagaj kriterleri ile filtreleme.
 - **WooCommerce Entegrasyonu**: Transfer rezervasyonlarını sepete sorunsuz ekleme (Depozito veya Tam Ödeme).
-- **Frontend Takibi**: Müşteriler transfer detaylarını "Hesabım" alanında görüntüleyebilir.
+- **Frontend Takibi**: Müşteriler transfer detaylarını WooCommerce "Hesabım" alanında görüntüleyebilir.
 
-**Transfer Görüntüleme Seçenekleri:**
-- Özel arama shortcode'u: `[mhm_rentiva_transfer_search]`
-- Müşteri hesabında transfer detay görünümü
-- Admin transfer yönetim paneli
+**Transfer Shortcode'ları:**
+- `[rentiva_transfer_search]` — Alış/bırakış, tarih, saat, yolcu ve bagaj arama formu
+- `[rentiva_transfer_results]` — Arama sonuçlarını listeler
+
+**Admin Özellikleri:**
+- Transfer lokasyon yönetimi
+- Güzergah (rota) tanımlama ve fiyat belirleme
+- Transfer rezervasyon yönetim paneli
+- Dışa/İçe aktarma (`TransferExportImport`)
 
 ### 🌍 Uluslararasılaştırma ve Yerelleştirme
 
 **Dil Desteği:**
-- **60+ Dil**: 60+ WordPress locale için tam destek
-- **Merkezi Yönetim**: Birleşik dil yönetimi için `LanguageHelper` sınıfı
-- **Otomatik Algılama**: WordPress locale ayarını kullanır
-- **JavaScript Yerelleştirme**: JavaScript tarih/saat kütüphaneleri için locale dönüşümü
-- **Çeviriye Hazır**: Tüm metinler WordPress çeviri fonksiyonlarını kullanır
+- **57 Locale**: WordPress locale formatında 57 dil/bölge için destek (`en_US`, `tr_TR`, `de_DE`, `ar` vb.)
+- **Merkezi Yönetim**: `LanguageHelper` sınıfı ile birleşik locale yönetimi
+- **Otomatik Algılama**: WordPress `get_locale()` fonksiyonunu kullanır
+- **JavaScript Locale Dönüşümü**: WordPress locale formatını (`en_US`) JS/API formatına (`en-US`) dönüştürür
+- **Çeviriye Hazır**: Tüm metinler `__()` / `_e()` gibi WordPress çeviri fonksiyonlarını kullanır; Loco Translate ile özelleştirilebilir
 
 **Para Birimi Desteği:**
-- **47 Para Birimi**: 47 farklı para birimi desteği
-- **Merkezi Yönetim**: Birleşik para birimi yönetimi için `CurrencyHelper` sınıfı
-- **Para Birimi Sembolleri**: Tüm para birimleri için doğru sembol gösterimi
-- **Para Birimi Konumu**: Yapılandırılabilir sembol konumu (sol/sağ, boşluklu/boşluksuz)
-- **Desteklenen Ağ Geçitleri**: Tüm WooCommerce Ağ Geçitleri (Frontend), Yerel Offline (Yönetici Manuel Sadece)
+- **47 Para Birimi**: `CurrencyHelper` sınıfında tanımlanmış 47 para birimi sembolü
+- **WooCommerce Önceliği**: WooCommerce aktifse para birimi WooCommerce ayarından alınır; değilse eklenti ayarından
+- **Para Birimi Sembolleri**: Tüm para birimleri için Unicode sembol desteği
+- **Para Birimi Konumu**: Sol / Sağ / Boşluklu + Boşluksuz (WooCommerce `currency_pos` ayarına uyumlu)
+- **Genişletilebilir**: `mhm_rentiva_currency_symbols` filter hook ile özel para birimi eklenebilir
 
 **Desteklenen Para Birimleri:**
 TRY, USD, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, MXN, SGD, HKD, NZD, SEK, NOK, DKK, PLN, CZK, HUF, RON, BGN, HRK, RSD, UAH, BYN, KZT, UZS, KGS, TJS, TMT, AZN, GEL, AMD, AED, SAR, QAR, KWD, BHD, OMR, JOD, LBP, EGP, ILS
 
 ### 🔒 Güvenlik Özellikleri
 
-**Güvenlik Önlemleri:**
-- **XSS Koruması**: Tüm çıktılar uygun şekilde escaped edilir
-- **SQL Enjeksiyon Önleme**: Tüm veritabanı sorguları için prepared statements kullanılır
+MHM Rentiva, WordPress güvenlik standartlarına (WPCS) tam uyumlu olarak geliştirilmiştir:
+
+- **Veri Temizleme (Sanitization)**: Tüm kullanıcı girdileri `sanitize_text_field()`, `absint()` ve eklentiye özel `Sanitizer::text_field_safe()` yardımcı sınıfı ile temizlenir.
+- **Çıktı Güvenliği (Escaping)**: Tüm çıktılar bağlama uygun olarak `esc_html()`, `esc_attr()`, `esc_url()` veya `SecurityHelper::safe_output()` ile kaçırılır (XSS koruması).
+- **SQL Enjeksiyon Önleme**: Veritabanı sorguları istisnasız `$wpdb->prepare()` kullanılarak parametize edilir.
+- **Nonce Doğrulama**: Tüm form gönderimleri ve AJAX istekleri (`SecurityHelper::verify_ajax_request`) nonce kontrolü ile korunur.
+- **Yetki Kontrolü**: Tüm admin işlemleri `current_user_can('manage_options')` ve hassas işlemler için ek yetki kontrolleri içerir.
 
 ---
 
@@ -386,16 +390,14 @@ TRY, USD, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, MXN, SGD, HKD, 
 Eklenti shortcode'lar için sayfaları otomatik olarak oluşturur veya manuel olarak oluşturabilirsiniz:
 
 **Gerekli Sayfalar:**
-- Hesabım sayfası (`[rentiva_my_account]` kullanın)
+- Panel sayfası (`[rentiva_user_dashboard]` kullanın - Giriş/Kayıt ve Hesap yönetimi için)
 - Rezervasyon Formu sayfası (`[rentiva_booking_form]` kullanın)
 - Araç Listesi/Grid sayfası (`[rentiva_vehicles_grid]` veya `[rentiva_vehicles_list]`)
 
 **İsteğe Bağlı Sayfalar:**
-- Arama sayfası (`[rentiva_search]` kullanın)
+- Arama sayfası (`[rentiva_unified_search]` kullanın)
 - İletişim sayfası (`[rentiva_contact]` kullanın)
-- Giriş sayfası (`[rentiva_login_form]` kullanın)
-- Kayıt sayfası (`[rentiva_register_form]` kullanın)
-- VIP Transfer Arama (`[mhm_rentiva_transfer_search]` kullanın)
+- VIP Transfer Arama (`[rentiva_transfer_search]` kullanın)
 
 ### Adım 4: Ödeme Ağ Geçitlerini Yapılandır
 
@@ -486,77 +488,61 @@ Eklenti shortcode'lar için sayfaları otomatik olarak oluşturur veya manuel ol
 
 ## 🎯 Shortcode Referansı
 
-### Hesap Yönetimi Shortcode'ları
+Eklenti, esnek yerleşimler için kapsamlı bir shortcode setine sahiptir.
 
-### Hesap Yönetimi Shortcode'ları
+### Rezervasyon & Araç Görüntüleme
+- `[rentiva_booking_form]` — Ana rezervasyon formu (ID parametresi alabilir).
+- `[rentiva_vehicles_grid]` — Araçları grid (ızgara) görünümünde listeler.
+- `[rentiva_vehicles_list]` — Araçları liste görünümünde listeler.
+- `[rentiva_featured_vehicles]` — Öne çıkan araçları (slider/grid) gösterir.
+- `[rentiva_vehicle_details]` — Tek bir aracın detaylarını gösterir.
+- `[rentiva_search_results]` — Arama sonuçları listesi.
+- `[rentiva_unified_search]` — Gelişmiş tekil arama formu.
+- `[rentiva_availability_calendar]` — Araç müsaitlik takvimi.
+- `[rentiva_testimonials]` — Müşteri yorumları slider'ı.
+- `[rentiva_vehicle_rating_form]` — Araç değerlendirme formu.
 
-#### `[rentiva_my_bookings]`
-**Amaç**: Müşteri rezervasyon geçmişini göster
+### Müşteri Paneli
+- `[rentiva_user_dashboard]` — Müşteri/Vendor ana dashboard'u.
+- `[rentiva_my_bookings]` — Müşterinin mevcut ve geçmiş rezervasyonları.
+- `[rentiva_my_favorites]` — Favoriye eklenen araçlar listesi.
+- `[rentiva_payment_history]` — Ödeme geçmişi ve makbuz detayları.
+- `[rentiva_messages]` — Müşteri ve yönetici arası mesajlaşma (Pro).
 
-#### `[rentiva_booking_form]`
-**Amaç**: Araç kiralama için ana rezervasyon formu
-
-**Kullanım**:
-```php
-[rentiva_booking_form vehicle_id="123"]
-```
-
-#### `[rentiva_my_favorites]`
-**Amaç**: Müşteri favori araç listesini göster
-
-**Kullanım**:
-```php
-[rentiva_my_favorites columns="3" limit="12"]
-```
-
-
-
-#### `[rentiva_vehicles_grid]`
-**Amaç**: Araçları grid düzeninde göster
-
-**Kullanım**:
-```php
-[rentiva_vehicles_grid columns="3" limit="12"]
-```
-
-#### `[mhm_rentiva_transfer_search]`
-**Amaç**: VIP Transfer ve şoförlü araç arama formu.
+### Vendor & Transfer
+- `[rentiva_vendor_apply]` — Yeni satıcı (vendor) başvuru formu.
+- `[rentiva_vehicle_submit]` — Frontend üzerinden araç ekleme/düzenleme (Vendor).
+- `[rentiva_vendor_ledger]` — Satıcı finansal dökümü ve bakiye tablosu (Vendor).
+- `[rentiva_transfer_search]` — VIP Transfer / Şoförlü hizmet arama formu.
+- `[rentiva_transfer_results]` — Transfer arama sonuçları sayfası.
 
 ---
 
 ## 🔌 REST API Dokümantasyonu
 
 ### Temel URL (Base URL)
-
 ```
 /wp-json/mhm-rentiva/v1
 ```
 
-### Kimlik Doğrulama ve Güvenlik
+### Kimlik Doğrulama (Auth)
+REST API, `AuthHelper` sınıfı üzerinden yönetilen çok katmanlı bir güvenlik yapısına sahiptir:
+- **X-WP-Nonce**: Oturum açmış kullanıcılar için standart WordPress nonce doğrulaması.
+- **Secure Tokens**: `SecureToken::create_customer_token` ile oluşturulan, zaman aşımına sahip güvenli müşteri belirteçleri.
+- **API Keys**: Üçüncü taraf entegrasyonlar için `Rentiva > Ayarlar` üzerinden yönetilen anahtarlar.
 
-REST API; **API Anahtarları**, **IP Kısıtlama** ve **Hız Sınırlama (Rate Limiting)** ile korunmaktadır.
+### Hız Sınırlama (Rate Limiting)
+`RateLimiter` sistemi ile Brute Force saldırılarına karşı korunmaktadır:
+- **Genel Limit**: Dakikada 60 istek (Varsayılan).
+- **Hassas İşlemler**: Rezervasyon oluşturma ve ödeme gibi işlemler için daha katı sınırlamalar uygulanır.
+- **Headers**: Yanıtlarda `X-RateLimit-*` başlıkları ile kalan kota bilgisi döner.
 
-1.  **API Anahtarları:** `Rentiva > Ayarlar > Entegrasyon` menüsünden oluşturulabilir.
-2.  **Hız Sınırlama:** Varsayılan limit dakikada 60 istektir. Aşım durumunda `429 Too Many Requests` hatası döner.
-3.  **IP Kısıtlama:** Ayarlardan belirli IP'leri engelleyebilir veya sadece belirli IP'lere izin verebilirsiniz.
-
-Detaylı teknik dokümantasyon için: [Developer Docs (İngilizce)](https://maxhandmade.github.io/mhm-rentiva-docs/docs/developer/rest-api)
-
-### Mevcut Endpoint'ler
-
-#### Müsaitlik
-
-**Araç Müsaitliğini Kontrol Et**
-```
-GET /availability
-```
-
-#### Rezervasyonlar
-
-**Rezervasyon Oluştur**
-```
-POST /bookings
-```
+### Başlıca Endpoint'ler
+- `GET /vehicles` — Araç listeleme ve filtreleme.
+- `GET /availability` — Belirli tarihler için araç müsaitlik kontrolü.
+- `POST /bookings` — Yeni rezervasyon oluşturma.
+- `GET /locations` — Aktif kiralama lokasyonları listesi.
+- `GET /orders` — Müşteri sipariş detayları.
 
 ---
 
@@ -564,701 +550,69 @@ POST /bookings
 
 ```text
 mhm-rentiva/
-├── changelog.json                 # Sürüm geçmişi (İngilizce)
-├── changelog-tr.json              # Sürüm geçmişi (Türkçe)
-├── LICENSE                        # GPL Lisans bilgisi
-├── mhm-rentiva.php                # Ana giriş dosyası
-├── readme.txt                     # WordPress.org meta verileri
-├── README.md                      # Dokümantasyon (İngilizce)
-├── README-tr.md                   # Dokümantasyon (Türkçe)
-├── uninstall.php                  # Silme işlemi temizlik mantığı
-├── assets/
-│   ├── css/
-│   │   ├── admin/
-│   │   │   ├── about.css
-│   │   │   ├── addon-admin.css
-│   │   │   ├── addon-list.css
-│   │   │   ├── admin-reports.css
-│   │   │   ├── booking-calendar.css
-│   │   │   ├── booking-edit-meta.css
-│   │   │   ├── booking-list.css
-│   │   │   ├── booking-meta.css
-│   │   │   ├── customers.css
-│   │   │   ├── dark-mode.css
-│   │   │   ├── dashboard-tooltips.css
-│   │   │   ├── dashboard.css
-│   │   │   ├── database-cleanup.css
-│   │   │   ├── deposit-management.css
-│   │   │   ├── elementor-editor.css
-│   │   │   ├── email-templates.css
-│   │   │   ├── export.css
-│   │   │   ├── gutenberg-blocks-editor.css
-│   │   │   ├── log-metabox.css
-│   │   │   ├── manual-booking-meta.css
-│   │   │   ├── message-list.css
-│   │   │   ├── messages-admin.css
-│   │   │   ├── messages-settings.css
-│   │   │   ├── monitoring.css
-│   │   │   ├── reports-stats.css
-│   │   │   ├── rest-api-keys.css
-│   │   │   ├── settings-testing.css
-│   │   │   ├── settings.css
-│   │   │   ├── test-suite.css
-│   │   │   ├── vehicle-card-fields.css
-│   │   │   └── vehicle-gallery.css
-│   │   ├── components/
-│   │   │   ├── addon-booking.css
-│   │   │   ├── calendars.css
-│   │   │   ├── simple-calendars.css
-│   │   │   ├── stats-cards.css
-│   │   │   └── vehicle-meta.css
-│   │   ├── core/
-│   │   │   ├── animations.css
-│   │   │   ├── core.css
-│   │   │   ├── css-variables.css
-│   │   │   └── ux-notifications.css
-│   │   ├── frontend/
-│   │   │   ├── availability-calendar.css
-│   │   │   ├── booking-confirmation.css
-│   │   │   ├── booking-detail.css
-│   │   │   ├── booking-form.css
-│   │   │   ├── bookings-page.css
-│   │   │   ├── contact-form.css
-│   │   │   ├── customer-messages-standalone.css
-│   │   │   ├── customer-messages.css
-│   │   │   ├── deposit-system.css
-│   │   │   ├── elementor-widgets.css
-│   │   │   ├── gutenberg-blocks.css
-│   │   │   ├── integrated-account.css
-│   │   │   ├── my-account.css
-│   │   │   ├── search-results.css
-│   │   │   ├── testimonials.css
-│   │   │   ├── vehicle-comparison.css
-│   │   │   ├── vehicle-details.css
-│   │   │   ├── vehicle-rating-form.css
-│   │   │   ├── vehicle-search-compact.css
-│   │   │   ├── vehicle-search.css
-│   │   │   ├── vehicles-grid.css
-│   │   │   └── vehicles-list.css
-│   │   ├── payment/
-│   │   │   └── woocommerce-checkout.css
-│   │   └── transfer.css
-│   ├── images/
-│   │   ├── mhm-logo.png
-│   │   └── placeholder-avatar.svg
-│   └── js/
-│       ├── admin/
-│       │   ├── about.js
-│       │   ├── addon-admin.js
-│       │   ├── addon-list.js
-│       │   ├── addon-settings.js
-│       │   ├── booking-bulk-actions.js
-│       │   ├── booking-calendar.js
-│       │   ├── booking-edit-meta.js
-│       │   ├── booking-email-send.js
-│       │   ├── booking-filters.js
-│       │   ├── booking-list-filters.js
-│       │   ├── booking-meta.js
-│       │   ├── cron-monitor.js
-│       │   ├── customers-calendar.js
-│       │   ├── customers.js
-│       │   ├── dark-mode.js
-│       │   ├── dashboard.js
-│       │   ├── database-cleanup.js
-│       │   ├── deposit-management.js
-│       │   ├── elementor-editor.js
-│       │   ├── email-templates.js
-│       │   ├── export.js
-│       │   ├── gutenberg-blocks.js
-│       │   ├── log-metabox.js
-│       │   ├── manual-booking-meta.js
-│       │   ├── message-list.js
-│       │   ├── messages-admin.js
-│       │   ├── messages-settings.js
-│       │   ├── monitoring.js
-│       │   ├── reports-charts.js
-│       │   ├── reports.js
-│       │   ├── rest-api-keys.js
-│       │   ├── settings-form-handler.js
-│       │   ├── settings.js
-│       │   ├── uninstall.js
-│       │   ├── vehicle-card-fields.js
-│       │   └── vehicle-gallery.js
-│       ├── components/
-│       │   ├── addon-booking.js
-│       │   ├── vehicle-meta.js
-│       │   └── vehicle-quick-edit.js
-│       ├── core/
-│       │   ├── admin-notices.js
-│       │   ├── charts.js
-│       │   ├── core.js
-│       │   ├── i18n.js
-│       │   ├── module-loader.js
-│       │   ├── performance.js
-│       │   └── utilities.js
-│       ├── frontend/
-│       │   ├── account-messages.js
-│       │   ├── account-privacy.js
-│       │   ├── availability-calendar.js
-│       │   ├── booking-cancellation.js
-│       │   ├── booking-confirmation.js
-│       │   ├── booking-form.js
-│       │   ├── contact-form.js
-│       │   ├── customer-messages.js
-│       │   ├── elementor-widgets.js
-│       │   ├── my-account.js
-│       │   ├── privacy-controls.js
-│       │   ├── search-results.js
-│       │   ├── testimonials.js
-│       │   ├── vehicle-comparison.js
-│       │   ├── vehicle-details.js
-│       │   ├── vehicle-rating-form.js
-│       │   ├── vehicle-search-compact.js
-│       │   ├── vehicle-search.js
-│       │   ├── vehicles-grid.js
-│       │   └── vehicles-list.js
-│       ├── vendor/
-│       │   └── chart.min.js
-│       └── mhm-rentiva-transfer.js
-├── languages/
-│   ├── mhm-rentiva.pot
-│   ├── mhm-rentiva-tr_TR.mo
-│   └── mhm-rentiva-tr_TR.po
-├── src/
-│   ├── Admin/
-│   │   ├── About/
-│   │   │   ├── Tabs/
-│   │   │   │   ├── DeveloperTab.php
-│   │   │   │   ├── FeaturesTab.php
-│   │   │   │   ├── GeneralTab.php
-│   │   │   │   ├── SupportTab.php
-│   │   │   │   └── SystemTab.php
-│   │   │   ├── About.php
-│   │   │   ├── Helpers.php
-│   │   │   └── SystemInfo.php
-│   │   ├── Actions/
-│   │   │   └── Actions.php
-│   │   ├── Addons/
-│   │   │   ├── AddonListTable.php
-│   │   │   ├── AddonManager.php
-│   │   │   ├── AddonMenu.php
-│   │   │   ├── AddonMeta.php
-│   │   │   ├── AddonPostType.php
-│   │   │   └── AddonSettings.php
-│   │   ├── Auth/
-│   │   │   ├── LockoutManager.php
-│   │   │   ├── SessionManager.php
-│   │   │   └── TwoFactorManager.php
-│   │   ├── Booking/
-│   │   │   ├── Actions/
-│   │   │   │   └── DepositManagementAjax.php
-│   │   │   ├── Addons/
-│   │   │   │   └── AddonBooking.php
-│   │   │   ├── Core/
-│   │   │   │   ├── Handler.php
-│   │   │   │   ├── Hooks.php
-│   │   │   │   └── Status.php
-│   │   │   ├── Exceptions/
-│   │   │   │   └── BookingException.php
-│   │   │   ├── Helpers/
-│   │   │   │   ├── Cache.php
-│   │   │   │   ├── CancellationHandler.php
-│   │   │   │   ├── Locker.php
-│   │   │   │   └── Util.php
-│   │   │   ├── ListTable/
-│   │   │   │   └── BookingColumns.php
-│   │   │   ├── Meta/
-│   │   │   │   ├── BookingDepositMetaBox.php
-│   │   │   │   ├── BookingEditMetaBox.php
-│   │   │   │   ├── BookingMeta.php
-│   │   │   │   ├── BookingPortalMetaBox.php
-│   │   │   │   ├── BookingRefundMetaBox.php
-│   │   │   │   └── ManualBookingMetaBox.php
-│   │   │   └── PostType/
-│   │   │       └── Booking.php
-│   │   ├── CLI/
-│   │   │   └── DatabaseCleanupCommand.php
-│   │   ├── Core/
-│   │   │   ├── Exceptions/
-│   │   │   │   ├── MHMException.php
-│   │   │   │   └── ValidationException.php
-│   │   │   ├── Helpers/
-│   │   │   │   └── Sanitizer.php
-│   │   │   ├── MetaBoxes/
-│   │   │   │   └── AbstractMetaBox.php
-│   │   │   ├── PostTypes/
-│   │   │   │   └── AbstractPostType.php
-│   │   │   ├── Tabs/
-│   │   │   │   └── AbstractTab.php
-│   │   │   ├── Traits/
-│   │   │   │   └── AdminHelperTrait.php
-│   │   │   ├── Utilities/
-│   │   │   │   ├── AbstractListTable.php
-│   │   │   │   ├── BookingQueryHelper.php
-│   │   │   │   ├── CacheManager.php
-│   │   │   │   ├── DatabaseCleaner.php
-│   │   │   │   ├── DatabaseMigrator.php
-│   │   │   │   ├── DebugHelper.php
-│   │   │   │   ├── ErrorHandler.php
-│   │   │   │   ├── I18nHelper.php
-│   │   │   │   ├── License.php
-│   │   │   │   ├── MetaQueryHelper.php
-│   │   │   │   ├── ObjectCache.php
-│   │   │   │   ├── QueueManager.php
-│   │   │   │   ├── RateLimiter.php
-│   │   │   │   ├── RestApiFixer.php
-│   │   │   │   ├── Styles.php
-│   │   │   │   ├── TaxonomyMigrator.php
-│   │   │   │   ├── Templates.php
-│   │   │   │   ├── TypeValidator.php
-│   │   │   │   ├── UXHelper.php
-│   │   │   │   └── WordPressOptimizer.php
-│   │   │   ├── AssetManager.php
-│   │   │   ├── CurrencyHelper.php
-│   │   │   ├── LanguageHelper.php
-│   │   │   ├── MetaKeys.php
-│   │   │   ├── PerformanceHelper.php
-│   │   │   ├── ProFeatureNotice.php
-│   │   │   ├── SecurityHelper.php
-│   │   │   ├── ShortcodeServiceProvider.php
-│   │   │   └── ShortcodeUrlManager.php
-│   │   ├── Customers/
-│   │   │   ├── AddCustomerPage.php
-│   │   │   ├── CustomersListPage.php
-│   │   │   ├── CustomersOptimizer.php
-│   │   │   └── CustomersPage.php
-│   │   ├── Emails/
-│   │   │   ├── Core/
-│   │   │   │   ├── BookingDataProviderInterface.php
-│   │   │   │   ├── BookingQueryHelperAdapter.php
-│   │   │   │   ├── EmailFormRenderer.php
-│   │   │   │   ├── EmailTemplates.php
-│   │   │   │   ├── Mailer.php
-│   │   │   │   └── Templates.php
-│   │   │   ├── Notifications/
-│   │   │   │   ├── BookingNotifications.php
-│   │   │   │   ├── RefundNotifications.php
-│   │   │   │   └── ReminderScheduler.php
-│   │   │   ├── PostTypes/
-│   │   │   │   └── EmailLog.php
-│   │   │   ├── Settings/
-│   │   │   │   ├── EmailTemplateTestAction.php
-│   │   │   │   └── EmailTestAction.php
-│   │   │   └── Templates/
-│   │   │       ├── BookingNotifications.php
-│   │   │       ├── EmailPreview.php
-│   │   │       ├── OfflinePayment.php
-│   │   │       └── RefundEmails.php
-│   │   ├── Frontend/
-│   │   │   ├── Account/
-│   │   │   │   ├── AccountAssets.php
-│   │   │   │   ├── AccountController.php
-│   │   │   │   ├── AccountRenderer.php
-│   │   │   │   └── WooCommerceIntegration.php
-│   │   │   ├── Blocks/
-│   │   │   │   ├── Base/
-│   │   │   │   │   └── GutenbergBlockBase.php
-│   │   │   │   └── Gutenberg/
-│   │   │   │       ├── BookingFormBlock.php
-│   │   │   │       ├── GutenbergIntegration.php
-│   │   │   │       ├── VehicleCardBlock.php
-│   │   │   │       └── VehiclesListBlock.php
-│   │   │   ├── Shortcodes/
-│   │   │   │   ├── Core/
-│   │   │   │   │   └── AbstractShortcode.php
-│   │   │   │   ├── AvailabilityCalendar.php
-│   │   │   │   ├── BookingConfirmation.php
-│   │   │   │   ├── BookingForm.php
-│   │   │   │   ├── ContactForm.php
-│   │   │   │   ├── SearchResults.php
-│   │   │   │   ├── Testimonials.php
-│   │   │   │   ├── VehicleComparison.php
-│   │   │   │   ├── VehicleDetails.php
-│   │   │   │   ├── VehicleRatingForm.php
-│   │   │   │   ├── VehiclesGrid.php
-│   │   │   │   └── VehiclesList.php
-│   │   │   └── Widgets/
-│   │   │       ├── Base/
-│   │   │       │   └── ElementorWidgetBase.php
-│   │   │       └── Elementor/
-│   │   │           ├── AvailabilityCalendarWidget.php
-│   │   │           ├── BookingConfirmationWidget.php
-│   │   │           ├── BookingFormWidget.php
-│   │   │           ├── ContactFormWidget.php
-│   │   │           ├── ElementorIntegration.php
-│   │   │           ├── LoginFormWidget.php
-│   │   │           ├── MyAccountWidget.php
-│   │   │           ├── MyBookingsWidget.php
-│   │   │           ├── MyFavoritesWidget.php
-│   │   │           ├── PaymentHistoryWidget.php
-│   │   │           ├── RegisterFormWidget.php
-│   │   │           ├── SearchResultsWidget.php
-│   │   │           ├── TestimonialsWidget.php
-│   │   │           ├── VehicleCardWidget.php
-│   │   │           ├── VehicleComparisonWidget.php
-│   │   │           ├── VehicleDetailsWidget.php
-│   │   │           ├── VehicleRatingWidget.php
-│   │   │           ├── VehicleSearchWidget.php
-│   │   │           └── VehiclesListWidget.php
-│   │   ├── Licensing/
-│   │   │   ├── LicenseAdmin.php
-│   │   │   ├── LicenseManager.php
-│   │   │   ├── Mode.php
-│   │   │   └── Restrictions.php
-│   │   ├── Messages/
-│   │   │   ├── Admin/
-│   │   │   │   └── MessageListTable.php
-│   │   │   ├── Core/
-│   │   │   │   ├── MessageCache.php
-│   │   │   │   ├── MessageQueryHelper.php
-│   │   │   │   ├── Messages.php
-│   │   │   │   └── MessageUrlHelper.php
-│   │   │   ├── Frontend/
-│   │   │   │   └── CustomerMessages.php
-│   │   │   ├── Monitoring/
-│   │   │   │   ├── MessageLogger.php
-│   │   │   │   ├── MonitoringManager.php
-│   │   │   │   └── PerformanceMonitor.php
-│   │   │   ├── Notifications/
-│   │   │   │   └── MessageNotifications.php
-│   │   │   ├── REST/
-│   │   │   │   ├── Admin/
-│   │   │   │   │   ├── GetMessage.php
-│   │   │   │   │   ├── GetMessages.php
-│   │   │   │   │   ├── ReplyToMessage.php
-│   │   │   │   │   └── UpdateStatus.php
-│   │   │   │   ├── Customer/
-│   │   │   │   │   ├── CloseMessage.php
-│   │   │   │   │   ├── GetBookings.php
-│   │   │   │   │   ├── GetMessages.php
-│   │   │   │   │   ├── GetThread.php
-│   │   │   │   │   ├── SendMessage.php
-│   │   │   │   │   └── SendReply.php
-│   │   │   │   ├── Helpers/
-│   │   │   │   │   ├── Auth.php
-│   │   │   │   │   ├── MessageFormatter.php
-│   │   │   │   │   └── MessageQuery.php
-│   │   │   │   └── Messages.php
-│   │   │   ├── Settings/
-│   │   │   │   └── MessagesSettings.php
-│   │   │   └── Utilities/
-│   │   │       └── MessageUtilities.php
-│   │   ├── Notifications/
-│   │   │   └── NotificationManager.php
-│   │   ├── Payment/
-│   │   │   ├── Core/
-│   │   │   │   ├── PaymentException.php
-│   │   │   │   └── PaymentGatewayInterface.php
-│   │   │   ├── Gateways/
-│   │   │   │   └── Offline/
-│   │   │   │       └── API/
-│   │   │   ├── Refunds/
-│   │   │   │   ├── RefundCalculator.php
-│   │   │   │   ├── RefundValidator.php
-│   │   │   │   └── Service.php
-│   │   │   └── WooCommerce/
-│   │   │       └── WooCommerceBridge.php
-│   │   ├── PostTypes/
-│   │   │   ├── Logs/
-│   │   │   │   ├── AdvancedLogger.php
-│   │   │   │   ├── MetaBox.php
-│   │   │   │   ├── PostType.php
-│   │   │   │   └── PostType.php
-│   │   │   ├── Maintenance/
-│   │   │   │   ├── AutoCancel.php
-│   │   │   │   ├── EmailLogRetention.php
-│   │   │   │   └── LogRetention.php
-│   │   │   ├── Message/
-│   │   │   │   └── Message.php
-│   │   │   └── Utilities/
-│   │   │       └── ClientUtilities.php
-│   │   ├── Privacy/
-│   │   │   ├── DataRetentionManager.php
-│   │   │   └── GDPRManager.php
-│   │   ├── Reports/
-│   │   │   ├── BusinessLogic/
-│   │   │   │   ├── BookingReport.php
-│   │   │   │   ├── CustomerReport.php
-│   │   │   │   └── RevenueReport.php
-│   │   │   ├── Repository/
-│   │   │   │   └── ReportRepository.php
-│   │   │   ├── BackgroundProcessor.php
-│   │   │   ├── Charts.php
-│   │   │   └── Reports.php
-│   │   ├── REST/
-│   │   │   ├── Helpers/
-│   │   │   │   ├── AuthHelper.php
-│   │   │   │   ├── SecureToken.php
-│   │   │   │   └── ValidationHelper.php
-│   │   │   ├── Settings/
-│   │   │   │   └── RESTSettings.php
-│   │   │   ├── APIKeyManager.php
-│   │   │   ├── Availability.php
-│   │   │   ├── EndpointListHelper.php
-│   │   │   └── ErrorHandler.php
-│   │   ├── Security/
-│   │   │   └── SecurityManager.php
-│   │   ├── Settings/
-│   │   │   ├── Comments/
-│   │   │   │   └── CommentsSettings.php
-│   │   │   ├── Core/
-│   │   │   │   ├── RateLimiter.php
-│   │   │   │   ├── SettingsCore.php
-│   │   │   │   ├── SettingsHelper.php
-│   │   │   │   └── SettingsSanitizer.php
-│   │   │   ├── Groups/
-│   │   │   │   ├── AddonSettings.php
-│   │   │   │   ├── BookingSettings.php
-│   │   │   │   ├── CommentsSettingsGroup.php
-│   │   │   │   ├── CoreSettings.php
-│   │   │   │   ├── CustomerManagementSettings.php
-│   │   │   │   ├── EmailSettings.php
-│   │   │   │   ├── GeneralSettings.php
-│   │   │   │   ├── LicenseSettings.php
-│   │   │   │   ├── LogsSettings.php
-│   │   │   │   ├── MaintenanceSettings.php
-│   │   │   │   ├── PaymentSettings.php
-│   │   │   │   ├── ReconcileSettings.php
-│   │   │   │   ├── SecuritySettings.php
-│   │   │   │   ├── VehicleComparisonSettings.php
-│   │   │   │   └── VehicleManagementSettings.php
-│   │   │   ├── Testing/
-│   │   │   │   └── SettingsTester.php
-│   │   │   ├── APIKeysPage.php
-│   │   │   ├── Settings.php
-│   │   │   ├── SettingsHandler.php
-│   │   │   ├── SettingsView.php
-│   │   │   └── ShortcodePages.php
-│   │   ├── Setup/
-│   │   │   └── SetupWizard.php
-│   │   ├── Testing/
-│   │   │   ├── ActivationTest.php
-│   │   │   ├── FunctionalTest.php
-│   │   │   ├── IntegrationTest.php
-│   │   │   ├── PerformanceAnalyzer.php
-│   │   │   ├── PerformanceTest.php
-│   │   │   ├── SecurityTest.php
-│   │   │   ├── ShortcodeTestHandler.php
-│   │   │   ├── TestAdminPage.php
-│   │   │   └── TestRunner.php
-│   │   ├── Transfer/
-│   │   │   ├── Engine/
-│   │   │   │   └── TransferSearchEngine.php
-│   │   │   ├── Frontend/
-│   │   │   │   └── TransferShortcodes.php
-│   │   │   ├── Integration/
-│   │   │   │   ├── TransferBookingHandler.php
-│   │   │   │   └── TransferCartIntegration.php
-│   │   │   ├── TransferAdmin.php
-│   │   │   └── VehicleTransferMetaBox.php
-│   │   ├── Utilities/
-│   │   │   ├── Actions/
-│   │   │   │   └── Actions.php
-│   │   │   ├── Cron/
-│   │   │   │   ├── CronMonitor.php
-│   │   │   │   └── CronMonitorPage.php
-│   │   │   ├── Dashboard/
-│   │   │   │   └── DashboardPage.php
-│   │   │   ├── Database/
-│   │   │   │   ├── DatabaseCleanupPage.php
-│   │   │   │   ├── DatabaseInitialization.php
-│   │   │   │   └── MetaKeysDocumentation.php
-│   │   │   ├── Export/
-│   │   │   │   ├── Export.php
-│   │   │   │   ├── ExportFilters.php
-│   │   │   │   ├── ExportHistory.php
-│   │   │   │   ├── ExportReports.php
-│   │   │   │   └── ExportStats.php
-│   │   │   ├── ListTable/
-│   │   │   │   ├── CustomersListTable.php
-│   │   │   │   └── LogColumns.php
-│   │   │   ├── Menu/
-│   │   │   │   └── Menu.php
-│   │   │   ├── Performance/
-│   │   │   │   └── AdminOptimizer.php
-│   │   │   └── Uninstall/
-│   │   │       ├── Uninstaller.php
-│   │   │       └── UninstallPage.php
-│   │   └── Vehicle/
-│   │       ├── Deposit/
-│   │       │   ├── DepositAjax.php
-│   │       │   └── DepositCalculator.php
-│   │       ├── Frontend/
-│   │       │   └── VehicleSearch.php
-│   │       ├── Helpers/
-│   │       │   ├── VehicleDataHelper.php
-│   │       │   └── VehicleFeatureHelper.php
-│   │       ├── ListTable/
-│   │       │   └── VehicleColumns.php
-│   │       ├── Meta/
-│   │       │   ├── VehicleGallery.php
-│   │       │   └── VehicleMeta.php
-│   │       ├── PostType/
-│   │       │   └── Vehicle.php
-│   │       ├── Reports/
-│   │       │   └── VehicleReport.php
-│   │       ├── Settings/
-│   │       │   ├── VehiclePricingSettings.php
-│   │       │   └── VehicleSettings.php
-│   │       ├── Taxonomies/
-│   │       │   └── VehicleCategory.php
-│   │       └── Templates/
-│   │           ├── vehicle-gallery.php
-│   │           └── vehicle-meta.php
-│   └── Plugin.php
-└── templates/
-    ├── account/
-    │   ├── account-details.php
-    │   ├── booking-detail.php
-    │   ├── bookings.php
-    │   ├── dashboard.php
-    │   ├── favorites.php
-    │   ├── login-form.php
-    │   ├── messages.php
-    │   ├── navigation.php
-    │   ├── payment-history.php
-    │   └── register-form.php
-    ├── admin/
-    │   ├── booking-meta/
-    │   │   ├── booking-status.php
-    │   │   ├── offline-box.php
-    │   │   ├── payment-box.php
-    │   │   └── receipt-box.php
-    │   └── reports/
-    │       ├── bookings.php
-    │       ├── customers.php
-    │       ├── overview.php
-    │       ├── revenue.php
-    │       ├── stats-cards.php
-    │       └── vehicles.php
-    ├── emails/
-    │   ├── booking-cancelled.html.php
-    │   ├── booking-created-admin.html.php
-    │   ├── booking-created-customer.html.php
-    │   ├── booking-reminder-customer.html.php
-    │   ├── booking-status-changed-admin.html.php
-    │   ├── booking-status-changed-customer.html.php
-    │   ├── message-received-admin.html.php
-    │   ├── message-replied-customer.html.php
-    │   ├── offline-receipt-uploaded-admin.html.php
-    │   ├── offline-verified-approved-customer.html.php
-    │   ├── offline-verified-rejected-customer.html.php
-    │   ├── receipt-status-email.html.php
-    │   ├── refund-admin.html.php
-    │   ├── refund-customer.html.php
-    │   └── welcome-customer.html.php
-    ├── messages/
-    │   ├── admin-message-email.html.php
-    │   ├── customer-reply-email.html.php
-    │   ├── customer-status-change-email.html.php
-    │   ├── message-reply-form.html.php
-    │   └── message-thread-view.html.php
-    ├── shortcodes/
-    │   ├── availability-calendar.php
-    │   ├── booking-confirmation.php
-    │   ├── booking-form.php
-    │   ├── contact-form.php
-    │   ├── search-results.php
-    │   ├── testimonials.php
-    │   ├── thank-you.php
-    │   ├── vehicle-comparison.php
-    │   ├── vehicle-details.php
-    │   ├── vehicle-rating-form.php
-    │   ├── vehicle-search-compact.php
-    │   ├── vehicle-search.php
-    │   ├── vehicles-grid.php
-    │   └── vehicles-list.php
-    ├── archive-vehicle.php
-    └── single-vehicle.php
+├── assets/                 # CSS, JS, Grafikler (Minify edilmiş)
+├── docs/                   # Teknik dokümantasyon ve API kılavuzları
+├── languages/              # Dil dosyaları (.pot, .po, .mo)
+├── src/                    # PSR-4 Çekirdek PHP (MHMRentiva\*)
+│   ├── Admin/              # Yönetim Paneli Kontrolcüleri ve Servisler
+│   ├── Api/                # Özel REST API Uç Noktaları
+│   ├── Blocks/             # Gutenberg Blok tanımlamaları
+│   ├── CLI/                # WP-CLI Komutları
+│   ├── Core/               # Finansal motor ve Temel Servisler
+│   ├── Helpers/            # Yardımcı ve Temizleme sınıfları
+│   ├── Integrations/       # Dış dünya köprüleri (WooCommerce vb.)
+│   └── Plugin.php          # Ana başlatıcı sınıf
+├── templates/              # Ön yüz ve E-posta şablonları
+├── mhm-rentiva.php         # Ana giriş dosyası
+└── uninstall.php           # Silme işlemi temizlik dosyası
 ```
 
 ---
 
 ## 📋 Gereksinimler
 
-### WordPress
-- **Minimum Versiyon**: 6.7
-- **Test Edildi**: 6.9'a kadar
-- **Multisite**: Desteklenir
-
-### PHP
-- **Minimum Versiyon**: 8.1
-- **�nerilen**: 8.2 veya �zeri
-- **Gerekli Uzantılar**:
-  - `json`
-  - `curl`
-  - `mbstring`
-  - `openssl`
-
-### Veritabanı
-- **MySQL**: 5.7 veya üzeri
-- **MariaDB**: 10.3 veya üzeri
-
-### Sunucu
-- **HTTPS**: Ödeme işlemleri için önerilir
+### WordPress & PHP
+- **Minimum WordPress**: 6.7
+- **Test Edilen**: 6.9
+- **Minimum PHP**: 8.1 (Önerilen: 8.2+)
 - **Bellek Limiti**: Minimum 128MB (256MB önerilir)
-- **Yükleme Boyutu**: Makbuz yüklemeleri için minimum 10MB
 
-### WordPress İzinleri
-- `manage_options` - Admin ayarları için gerekli
-- `edit_posts` - Rezervasyon yönetimi için gerekli
-- `upload_files` - Araç görselleri ve makbuzlar için gerekli
+### Gerekli Uzantılar
+- `json` — API ve ayarlar için
+- `curl` — Lisans ve dış entegrasyonlar için
+- `mbstring` — Çoklu dil desteği için
+- `openssl` — Güvenli veri şifreleme için
+- `imagick` veya `gd` — Araç görselleri için
+
+### Bağımlılıklar
+- **WooCommerce**: Aktif olmalıdır (Ön yüz ödemeleri ve müşteri yönetimi için).
+- **Veritabanı**: MySQL 5.7+ veya MariaDB 10.3+.
 
 ---
 
 ## 🛠 Geliştirme
 
-### Geliştirme Kurulumu
-
-```bash
-# Depoyu klonlayın
-git clone [repository-url] mhm-rentiva
-cd mhm-rentiva
-
-# wp-config.php dosyasında geliştirme modunu etkinleştirin
-define('WP_DEBUG', true);
-define('WP_DEBUG_LOG', true);
-define('SCRIPT_DEBUG', true);
-```
-
 ### Kod Standartları
+- **PSR-4 Autoloading**: `MHMRentiva\*` namespace yapısı.
+- **Strict Types**: Tüm dosyalarda `declare(strict_types=1);` zorunluluğu.
+- **Prefixing**: Fonksiyonlar için `mhm_rentiva_`, sınıflar için `MHMRentiva` prefixi.
+- **Güvenlik**: Raw SQL yasaktır, her zaman `$wpdb->prepare()` kullanılır.
 
-- **WordPress Kodlama Standartları (WPCS)**: Tam uyumluluk
-- **PSR-4 Autoloading**: Namespace tabanlı otomatik yükleme
-- **Type Hinting**: PHP 8.0+ tip tanımlamaları
-- **Strict Types**: Tüm dosyalarda `declare(strict_types=1)`
-- **Namespace**: `MHMRentiva\Admin\*`
+### ⚓ Geliştirici Kancaları (Hooks)
 
-### Mimari
+#### Önemli Filtreler (Filters)
+- `mhm_rentiva_lite_max_vehicles` — Lite sürümdeki araç limitini filtreler.
+- `mhm_rentiva_currency_symbols` — Desteklenen para birimi sembollerini değiştirir.
+- `mhm_rentiva_attribute_registry` — Araç özellik listesini genişletir.
+- `mhm_rentiva_location_types` — Transfer lokasyon tiplerini düzenler.
+- `mhm_rentiva_dashboard_kpis` — Dashboard istatistik panellerini filtreler.
 
-- **Modüler Tasarım**: Her özellik kendi dizininde
-- **Endişelerin Ayrılması**: Core, Admin, Frontend ayrımı
-- **Singleton Pattern**: Uygun yerlerde kullanıldı
-- **Factory Pattern**: Örnek oluşturma için
-- **Observer Pattern**: WordPress hook sistemi
-
-### Yeni Özellik Ekleme
-
-1. Uygun konumda özellik dizini oluşturun
-2. Ana sınıf dosyasını oluşturun
-3. `register()` statik metodunu uygulayın
-4. `Plugin.php` içinde kaydedin
-5. `register()` metodunda hook'ları ekleyin
-6. WordPress kodlama standartlarına uyun
-
-### Test
-
-**Manuel Test**:
-- WordPress admin panelinde test edin
-- Frontend işlevselliğini test edin
-- Ödeme akışlarını test edin
-- E-posta bildirimlerini test edin
-
-**Otomatik Test**:
-- Aktivasyon testleri
-- Güvenlik testleri
-- Fonksiyonel testler
-- Performans testleri
+#### Önemli Aksiyonlar (Actions)
+- `mhm_rentiva_booking_created` — Yeni rezervasyon oluşturulduğunda tetiklenir.
+- `mhm_rentiva_booking_status_changed` — Rezervasyon durumu değiştiğinde tetiklenir.
+- `mhm_rentiva_vendor_approved` — Satıcı başvurusu onaylandığında tetiklenir.
+- `mhm_rentiva_vehicle_approved` — Araç ilanı onaylandığında tetiklenir.
+- `mhm_rentiva_email_sent` — Sistem tarafından bir e-posta gönderildiğinde tetiklenir.
 
 ---
 
@@ -1275,14 +629,15 @@ Katkılarınızı bekliyoruz! Lütfen şu yönergeleri izleyin:
 
 ---
 
-## 📝 Değişiklik Geçmişi
- 
-### Son Versiyon: 4.9.8 (2026-02-09)
+## 📝 Değişiklik Geçmişi (Changelog)
 
-**Kararl�l�k & CI Standardizasyonu**
-- Eklenti s�r�m kaynaklar� 4.9.8 ile senkronize edildi (header + sabit).
-- Composer/CI komut standard� netle�tirildi (composer test, composer phpcs).
-- D���k riskli performans iyile�tirmeleri tamamland� (asset versioning, localization guard, bootstrap scope).
+### Sürüm 4.21.2 (11.03.2026)
+- **Güvenlik**: REST API altyapısı `SecurityHelper` ve `AuthHelper` ile zırhlandırıldı.
+- **Shortcode'lar**: Tüm kısa kodlar `ShortcodeServiceProvider` üzerinden konsolide edildi.
+- **Altyapı**: PHP 8.1+ ve WP 6.7+ gereksinimleri standardize edildi.
+- **VIP Transfer**: Nokta-tabanlı rota fiyatlandırma motoru devreye alındı.
+
+### Sürüm 4.9.8 (09.02.2026)
 
 ### Versiyon: 4.6.7 (2026-02-01)
 
@@ -1343,7 +698,7 @@ Katkılarınızı bekliyoruz! Lütfen şu yönergeleri izleyin:
 - **Noktadan Noktaya Rezervasyon**: Dinamik alış/varış konumu yönetimi.
 - **Fiyatlandırma Motoru**: Mesafe bazlı veya sabit rota fiyatlandırması.
 - **WooCommerce Entegrasyonu**: Sepet ve ödeme sayfasında transfer desteği.
-- **AJAX Arama**: Yeni `[mhm_rentiva_transfer_search]` shortcode'u.
+- **AJAX Arama**: Yeni `[rentiva_transfer_search]` shortcode'u.
 - **Operasyonel Kontrol**: Araç hazırlığı için Buffer Time (Hazırlık Süresi) mantığı.
 
 ### Versiyon: 4.5.5 (2026-01-15)

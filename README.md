@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.20.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.21.2-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -153,12 +153,11 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
   - Message center
 
 **Customer Portal Shortcodes:**
+- `[rentiva_user_dashboard]` - Main account dashboard (Login/Register/Account)
 - `[rentiva_my_bookings]` - Booking history
 - `[rentiva_my_favorites]` - Favorite vehicles
 - `[rentiva_payment_history]` - Payment transactions
 - `[rentiva_account_details]` - Profile editing
-- `[rentiva_login_form]` - Login form
-- `[rentiva_register_form]` - Registration form
 
 **Customer Features:**
 - Automatic account creation on booking
@@ -218,43 +217,33 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 - Real-time data updates
 - Custom date range selection
 - Export to CSV (Lite) and CSV/JSON (Pro)
-- Visual charts and graphs
-- Responsive design
-- Print-friendly views
-
+- Responive charts
 ### 📧 Email Notification System
 
 **Email Templates:**
 1. **Booking Emails**:
-   - Booking created (customer)
-   - Booking created (admin)
-   - Booking cancelled
-   - Booking status changed
-   - Booking reminder
+   - New Booking (Customer)
+   - New Booking (Admin)
+   - Booking Status Changed
+   - Booking Cancelled (Manual/Auto)
+   - Booking Reminder
+   - Welcome Email
 
-2. **Payment Emails**:
-   - Payment received
-   - Receipt uploaded (admin notification)
-   - Receipt approved (customer)
-   - Receipt rejected (customer)
-   - Refund processed
+2. **Refund Emails**:
+   - Refund Processed Notification
 
-3. **Account Emails**:
-   - Welcome email
-   - Account created
-   - Password reset
-
-4. **Message Emails**:
-   - New message received (admin)
-   - Message replied (customer)
-   - Message status changed
+3. **Vendor Notifications (Pro)**:
+   - Application Submitted (Customer/Admin)
+   - Vendor Approved/Rejected
+   - Vehicle Approved/Rejected
+   - Payout Approved/Rejected
+   - IBAN Change Approved/Rejected
 
 **Email Features:**
-- **Modern HTML Templates**: Responsive design, works on all email clients
-- **Customizable**: Admin can override subject and content from settings
-- **Multi-language**: Support for multiple languages
-- **Template System**: Easy to customize with template overrides
-- **Email Logging**: All emails logged for debugging
+- **Modern HTML Templates**: Responsive design with liquid-like placeholders.
+- **Customization**: Admin can customize subjects and body content from settings.
+- **Logging**: All sent emails are logged via `EmailLog` post type for delivery tracking.
+ging**: All emails logged for debugging
 
 ### 💬 Messaging System
 
@@ -281,26 +270,23 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 
 **Core Transfer Features:**
 - **Point-to-Point Booking**: Select pickup and drop-off locations from predefined zones.
-- **Distance-Based Pricing**: Calculate costs based on route distance or fixed zone-to-zone rates.
-- **Vehicle Selection**: Assign specific vehicles for transfer services with different capacities.
-- **Buffer Time**: Operational buffer between bookings to ensure vehicle readiness.
+- **Route-Based Pricing**: Define fixed prices for specific origin-destination pairs.
+- **Passenger & Luggage Criteria**: Filter vehicles by passenger count and luggage capacity (Big/Small).
 - **AJAX Search**: Modern transfer search interface with real-time results.
 - **WooCommerce Integration**: Seamlessly add transfer bookings to cart (Deposit or Full Payment).
-- **Frontend Tracking**: Customers can view transfer details in their "My Account" area.
+- **Admin Management**: Manage locations, routes, and export/import transfer data.
 
-**Transfer Display Options:**
-- Dedicated search shortcode: `[mhm_rentiva_transfer_search]`
-- Transfer details view in customer account
-- Admin transfer management dashboard
+**Transfer Shortcodes:**
+- `[rentiva_transfer_search]` — Main transfer search form.
+- `[rentiva_transfer_results]` — Transfer search results display.
 
 ### 🌍 Internationalization & Localization
 
 **Language Support:**
-- **60+ Languages**: Full support for 60+ WordPress locales
-- **Centralized Management**: `LanguageHelper` class for unified language management
-- **Automatic Detection**: Uses WordPress locale setting
-- **JavaScript Localization**: Locale conversion for JavaScript date/time libraries
-- **Translation Ready**: All strings use WordPress translation functions
+- **57 Locales**: Full support for 57 WordPress locales.
+- **Centralized Management**: `LanguageHelper` class for unified language management.
+- **Automatic Detection**: Uses WordPress `get_locale()` to detect site language.
+- **JavaScript Localization**: Locale conversion for JS-based components (e.g., `en-US`).
 
 **Currency Support:**
 - **47 Currencies**: Support for 47 different currencies
@@ -314,16 +300,13 @@ TRY, USD, EUR, GBP, JPY, CAD, AUD, CHF, CNY, INR, BRL, RUB, KRW, MXN, SGD, HKD, 
 
 ### 🔒 Security Features
 
-**Security Measures:**
-- **XSS Protection**: All output properly escaped
-- **SQL Injection Prevention**: Prepared statements for all database queries
-- **CSRF Protection**: Nonce verification for all forms
-- **Input Sanitization**: All user input sanitized
-- **File Upload Security**: Secure file upload with type validation
-- **Rate Limiting**: API rate limiting to prevent abuse
-- **Permission Checks**: Capability checks for all admin operations
-- **Security Headers**: Proper security headers
-- **GDPR Compliance**: Data retention and privacy controls
+MHM Rentiva follows WordPress Coding Standards (WPCS) and strict security protocols:
+
+- **Sanitization**: All input is sanitized using `sanitize_text_field()`, `absint()`, and the `Sanitizer::text_field_safe()` helper.
+- **Escaping**: All output is contextually escaped using `esc_html()`, `esc_attr()`, or `SecurityHelper::safe_output()`.
+- **SQLi Prevention**: Database queries strictly use `$wpdb->prepare()` for parametrized execution.
+- **Nonce Verification**: All AJAX and form submissions are protected via `wp_verify_nonce()` and `SecurityHelper::verify_ajax_request()`.
+- **Capability Checks**: Sensitive operations are gated behind `current_user_can('manage_options')` or specific booking roles.
 
 ### ⚡ Performance Features
 
@@ -686,7 +669,7 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 #### Feature Comparison Table
 
 | Feature | Lite Version | Pro Version |
-|---------|--------------|-------------|
+|---------|--------------|-------------
 | **Maximum Vehicles** | 3 | Unlimited |
 | **Maximum Bookings** | 50 | Unlimited |
 | **Maximum Customers** | 3 | Unlimited |
@@ -996,39 +979,62 @@ The plugin will automatically create pages for shortcodes, or you can create the
 
 ---
 
-## 🎯 Shortcode Reference
+## 🎯 Shortcodes Reference
 
-### Account Management Shortcodes
+The plugin provides a comprehensive set of shortcodes for flexible layout building.
 
-#### `[rentiva_my_bookings]`
-**Purpose**: Display customer booking history
+### Booking & Vehicle Display
+- `[rentiva_booking_form]` — Main booking form (accepts `vehicle_id` parameter).
+- `[rentiva_vehicles_grid]` — Displays vehicles in a grid layout.
+- `[rentiva_vehicles_list]` — Displays vehicles in a list layout.
+- `[rentiva_featured_vehicles]` — Displays featured vehicles (slider/grid).
+- `[rentiva_vehicle_details]` — Displays detailed information for a single vehicle.
+- `[rentiva_search_results]` — Active search results page.
+- `[rentiva_unified_search]` — Modern unified search box.
+- `[rentiva_availability_calendar]` — Visual availability calendar.
+- `[rentiva_testimonials]` — Customer testimonials slider.
+- `[rentiva_vehicle_rating_form]` — Vehicle review/rating form.
 
-#### `[rentiva_booking_form]`
-**Purpose**: Main booking form for vehicle rental
+### Customer Account
+- `[rentiva_user_dashboard]` — Customer/Vendor main dashboard.
+- `[rentiva_my_bookings]` — Lists customer's current and past bookings.
+- `[rentiva_my_favorites]` — Lists customer's favorite vehicles.
+- `[rentiva_payment_history]` — Displays payment history and receipt details.
+- `[rentiva_messages]` — Internal messaging system (Pro).
 
-**Usage**:
-```php
-[rentiva_booking_form vehicle_id="123"]
+### Vendor & Transfer
+- `[rentiva_vendor_apply]` — New vendor application form.
+- `[rentiva_vehicle_submit]` — Frontend vehicle submission form (Vendor).
+- `[rentiva_vendor_ledger]` — Vendor financial ledger and balance table (Vendor).
+- `[rentiva_transfer_search]` — VIP Transfer / Chauffeur search form.
+- `[rentiva_transfer_results]` — Transfer search results display.
+
+---
+
+## 🔌 REST API Documentation
+
+### Base URL
+```
+/wp-json/mhm-rentiva/v1
 ```
 
-#### `[rentiva_my_favorites]`
-**Purpose**: Display customer favorite vehicles list
+### Authentication (Auth)
+The REST API is secured via `AuthHelper` with multiple layers:
+- **X-WP-Nonce**: Standard WordPress nonce for logged-in sessions.
+- **Secure Tokens**: Time-limited customer tokens generated via `SecureToken`.
+- **API Keys**: Manageable via `Rentiva > Settings > Integration` for third-party apps.
 
-**Usage**:
-```php
-[rentiva_my_favorites columns="3" limit="12"]
-```
+### Rate Limiting
+Protected against Brute Force via the `RateLimiter` system:
+- **Default Limit**: 60 requests per minute.
+- **Sensitive Endpoints**: Stricter limits for booking creation and payment processing.
 
-#### `[rentiva_vehicles_grid]`
-**Purpose**: Display vehicle inventory in a grid layout
-
-**Usage**:
-```php
-[rentiva_vehicles_grid columns="3" limit="12"]
-```
-
-#### `[mhm_rentiva_transfer_search]`
-**Purpose**: VIP Transfer and chauffeured vehicle search form.
+### Key Endpoints
+- `GET /vehicles` — List and filter vehicles.
+- `GET /availability` — Check vehicle availability for specific dates.
+- `POST /bookings` — Create a new booking.
+- `GET /locations` — List active rental locations.
+- `GET /orders` — View customer order details.
 
 ---
 
@@ -1036,645 +1042,37 @@ The plugin will automatically create pages for shortcodes, or you can create the
 
 ```text
 mhm-rentiva/
-├── changelog.json                 # Version history (English)
-├── changelog-tr.json              # Version history (Turkish)
-├── LICENSE                        # GPL License information
-├── mhm-rentiva.php                # Main entry file
-├── readme.txt                     # WordPress.org metadata
-├── README.md                      # Documentation (English)
-├── README-tr.md                   # Documentation (Turkish)
-├── uninstall.php                  # Cleanup logic on deletion
-├── assets/
-│   ├── css/
-│   │   ├── admin/
-│   │   │   ├── about.css
-│   │   │   ├── addon-admin.css
-│   │   │   ├── addon-list.css
-│   │   │   ├── admin-reports.css
-│   │   │   ├── booking-calendar.css
-│   │   │   ├── booking-edit-meta.css
-│   │   │   ├── booking-list.css
-│   │   │   ├── booking-meta.css
-│   │   │   ├── customers.css
-│   │   │   ├── dark-mode.css
-│   │   │   ├── dashboard-tooltips.css
-│   │   │   ├── dashboard.css
-│   │   │   ├── database-cleanup.css
-│   │   │   ├── deposit-management.css
-│   │   │   ├── elementor-editor.css
-│   │   │   ├── email-templates.css
-│   │   │   ├── export.css
-│   │   │   ├── gutenberg-blocks-editor.css
-│   │   │   ├── log-metabox.css
-│   │   │   ├── manual-booking-meta.css
-│   │   │   ├── message-list.css
-│   │   │   ├── messages-admin.css
-│   │   │   ├── messages-settings.css
-│   │   │   ├── monitoring.css
-│   │   │   ├── reports-stats.css
-│   │   │   ├── rest-api-keys.css
-│   │   │   ├── settings-testing.css
-│   │   │   ├── settings.css
-│   │   │   ├── test-suite.css
-│   │   │   ├── vehicle-card-fields.css
-│   │   │   └── vehicle-gallery.css
-│   │   ├── components/
-│   │   │   ├── addon-booking.css
-│   │   │   ├── calendars.css
-│   │   │   ├── simple-calendars.css
-│   │   │   ├── stats-cards.css
-│   │   │   └── vehicle-meta.css
-│   │   ├── core/
-│   │   │   ├── animations.css
-│   │   │   ├── core.css
-│   │   │   ├── css-variables.css
-│   │   │   └── ux-notifications.css
-│   │   ├── frontend/
-│   │   │   ├── availability-calendar.css
-│   │   │   ├── booking-confirmation.css
-│   │   │   ├── booking-detail.css
-│   │   │   ├── booking-form.css
-│   │   │   ├── bookings-page.css
-│   │   │   ├── contact-form.css
-│   │   │   ├── customer-messages-standalone.css
-│   │   │   ├── customer-messages.css
-│   │   │   ├── deposit-system.css
-│   │   │   ├── elementor-widgets.css
-│   │   │   ├── gutenberg-blocks.css
-│   │   │   ├── integrated-account.css
-│   │   │   ├── my-account.css
-│   │   │   ├── search-results.css
-│   │   │   ├── testimonials.css
-│   │   │   ├── vehicle-comparison.css
-│   │   │   ├── vehicle-details.css
-│   │   │   ├── vehicle-rating-form.css
-│   │   │   ├── vehicle-search-compact.css
-│   │   │   ├── vehicle-search.css
-│   │   │   ├── vehicles-grid.css
-│   │   │   └── vehicles-list.css
-│   │   ├── payment/
-│   │   │   └── woocommerce-checkout.css
-│   │   └── transfer.css
-│   ├── images/
-│   │   ├── mhm-logo.png
-│   │   └── placeholder-avatar.svg
-│   └── js/
-│       ├── admin/
-│       │   ├── about.js
-│       │   ├── addon-admin.js
-│       │   ├── addon-list.js
-│       │   ├── addon-settings.js
-│       │   ├── booking-bulk-actions.js
-│       │   ├── booking-calendar.js
-│       │   ├── booking-edit-meta.js
-│       │   ├── booking-email-send.js
-│       │   ├── booking-filters.js
-│       │   ├── booking-list-filters.js
-│       │   ├── booking-meta.js
-│       │   ├── cron-monitor.js
-│       │   ├── customers-calendar.js
-│       │   ├── customers.js
-│       │   ├── dark-mode.js
-│       │   ├── dashboard.js
-│       │   ├── database-cleanup.js
-│       │   ├── deposit-management.js
-│       │   ├── elementor-editor.js
-│       │   ├── email-templates.js
-│       │   ├── export.js
-│       │   ├── gutenberg-blocks.js
-│       │   ├── log-metabox.js
-│       │   ├── manual-booking-meta.js
-│       │   ├── message-list.js
-│       │   ├── messages-admin.js
-│       │   ├── messages-settings.js
-│       │   ├── monitoring.js
-│       │   ├── reports-charts.js
-│       │   ├── reports.js
-│       │   ├── rest-api-keys.js
-│       │   ├── settings-form-handler.js
-│       │   ├── settings.js
-│       │   ├── uninstall.js
-│       │   ├── vehicle-card-fields.js
-│       │   └── vehicle-gallery.js
-│       ├── components/
-│       │   ├── addon-booking.js
-│       │   ├── vehicle-meta.js
-│       │   └── vehicle-quick-edit.js
-│       ├── core/
-│       │   ├── admin-notices.js
-│       │   ├── charts.js
-│       │   ├── core.js
-│       │   ├── i18n.js
-│       │   ├── module-loader.js
-│       │   ├── performance.js
-│       │   └── utilities.js
-│       ├── frontend/
-│       │   ├── account-messages.js
-│       │   ├── account-privacy.js
-│       │   ├── availability-calendar.js
-│       │   ├── booking-cancellation.js
-│       │   ├── booking-confirmation.js
-│       │   ├── booking-form.js
-│       │   ├── contact-form.js
-│       │   ├── customer-messages.js
-│       │   ├── elementor-widgets.js
-│       │   ├── my-account.js
-│       │   ├── privacy-controls.js
-│       │   ├── search-results.js
-│       │   ├── testimonials.js
-│       │   ├── vehicle-comparison.js
-│       │   ├── vehicle-details.js
-│       │   ├── vehicle-rating-form.js
-│       │   ├── vehicle-search-compact.js
-│       │   ├── vehicle-search.js
-│       │   ├── vehicles-grid.js
-│       │   └── vehicles-list.js
-│       ├── vendor/
-│       │   └── chart.min.js
-│       └── mhm-rentiva-transfer.js
-├── languages/
-│   ├── mhm-rentiva.pot
-│   ├── mhm-rentiva-tr_TR.mo
-│   └── mhm-rentiva-tr_TR.po
-├── src/
-│   ├── Admin/
-│   │   ├── About/
-│   │   │   ├── Tabs/
-│   │   │   │   ├── DeveloperTab.php
-│   │   │   │   ├── FeaturesTab.php
-│   │   │   │   ├── GeneralTab.php
-│   │   │   │   ├── SupportTab.php
-│   │   │   │   └── SystemTab.php
-│   │   │   ├── About.php
-│   │   │   ├── Helpers.php
-│   │   │   └── SystemInfo.php
-│   │   ├── Actions/
-│   │   │   └── Actions.php
-│   │   ├── Addons/
-│   │   │   ├── AddonListTable.php
-│   │   │   ├── AddonManager.php
-│   │   │   ├── AddonMenu.php
-│   │   │   ├── AddonMeta.php
-│   │   │   ├── AddonPostType.php
-│   │   │   └── AddonSettings.php
-│   │   ├── Auth/
-│   │   │   ├── LockoutManager.php
-│   │   │   ├── SessionManager.php
-│   │   │   └── TwoFactorManager.php
-│   │   ├── Booking/
-│   │   │   ├── Actions/
-│   │   │   │   └── DepositManagementAjax.php
-│   │   │   ├── Addons/
-│   │   │   │   └── AddonBooking.php
-│   │   │   ├── Core/
-│   │   │   │   ├── Handler.php
-│   │   │   │   ├── Hooks.php
-│   │   │   │   └── Status.php
-│   │   │   ├── Exceptions/
-│   │   │   │   └── BookingException.php
-│   │   │   ├── Helpers/
-│   │   │   │   ├── Cache.php
-│   │   │   │   ├── CancellationHandler.php
-│   │   │   │   ├── Locker.php
-│   │   │   │   └── Util.php
-│   │   │   ├── ListTable/
-│   │   │   │   └── BookingColumns.php
-│   │   │   ├── Meta/
-│   │   │   │   ├── BookingDepositMetaBox.php
-│   │   │   │   ├── BookingEditMetaBox.php
-│   │   │   │   ├── BookingMeta.php
-│   │   │   │   ├── BookingPortalMetaBox.php
-│   │   │   │   ├── BookingRefundMetaBox.php
-│   │   │   │   └── ManualBookingMetaBox.php
-│   │   │   └── PostType/
-│   │   │       └── Booking.php
-│   │   ├── CLI/
-│   │   │   └── DatabaseCleanupCommand.php
-│   │   ├── Core/
-│   │   │   ├── Exceptions/
-│   │   │   │   ├── MHMException.php
-│   │   │   │   └── ValidationException.php
-│   │   │   ├── Helpers/
-│   │   │   │   └── Sanitizer.php
-│   │   │   ├── MetaBoxes/
-│   │   │   │   └── AbstractMetaBox.php
-│   │   │   ├── PostTypes/
-│   │   │   │   └── AbstractPostType.php
-│   │   │   ├── Tabs/
-│   │   │   │   └── AbstractTab.php
-│   │   │   ├── Traits/
-│   │   │   │   └── AdminHelperTrait.php
-│   │   │   ├── Utilities/
-│   │   │   │   ├── AbstractListTable.php
-│   │   │   │   ├── BookingQueryHelper.php
-│   │   │   │   ├── CacheManager.php
-│   │   │   │   ├── DatabaseCleaner.php
-│   │   │   │   ├── DatabaseMigrator.php
-│   │   │   │   ├── DebugHelper.php
-│   │   │   │   ├── ErrorHandler.php
-│   │   │   │   ├── I18nHelper.php
-│   │   │   │   ├── License.php
-│   │   │   │   ├── MetaQueryHelper.php
-│   │   │   │   ├── ObjectCache.php
-│   │   │   │   ├── QueueManager.php
-│   │   │   │   ├── RateLimiter.php
-│   │   │   │   ├── RestApiFixer.php
-│   │   │   │   ├── Styles.php
-│   │   │   │   ├── TaxonomyMigrator.php
-│   │   │   │   ├── Templates.php
-│   │   │   │   ├── TypeValidator.php
-│   │   │   │   ├── UXHelper.php
-│   │   │   │   └── WordPressOptimizer.php
-│   │   │   ├── AssetManager.php
-│   │   │   ├── CurrencyHelper.php
-│   │   │   ├── LanguageHelper.php
-│   │   │   ├── MetaKeys.php
-│   │   │   ├── PerformanceHelper.php
-│   │   │   ├── ProFeatureNotice.php
-│   │   │   ├── SecurityHelper.php
-│   │   │   ├── ShortcodeServiceProvider.php
-│   │   │   └── ShortcodeUrlManager.php
-│   │   ├── Customers/
-│   │   │   ├── AddCustomerPage.php
-│   │   │   ├── CustomersListPage.php
-│   │   │   ├── CustomersOptimizer.php
-│   │   │   └── CustomersPage.php
-│   │   ├── Emails/
-│   │   │   ├── Core/
-│   │   │   │   ├── BookingDataProviderInterface.php
-│   │   │   │   ├── BookingQueryHelperAdapter.php
-│   │   │   │   ├── EmailFormRenderer.php
-│   │   │   │   ├── EmailTemplates.php
-│   │   │   │   ├── Mailer.php
-│   │   │   │   └── Templates.php
-│   │   │   ├── Notifications/
-│   │   │   │   ├── BookingNotifications.php
-│   │   │   │   ├── RefundNotifications.php
-│   │   │   │   └── ReminderScheduler.php
-│   │   │   ├── PostTypes/
-│   │   │   │   └── EmailLog.php
-│   │   │   ├── Settings/
-│   │   │   │   ├── EmailTemplateTestAction.php
-│   │   │   │   └── EmailTestAction.php
-│   │   │   └── Templates/
-│   │   │       ├── BookingNotifications.php
-│   │   │       ├── EmailPreview.php
-│   │   │       ├── OfflinePayment.php
-│   │   │       └── RefundEmails.php
-│   │   ├── Frontend/
-│   │   │   ├── Account/
-│   │   │   │   ├── AccountAssets.php
-│   │   │   │   ├── AccountController.php
-│   │   │   │   ├── AccountRenderer.php
-│   │   │   │   └── WooCommerceIntegration.php
-│   │   │   ├── Blocks/
-│   │   │   │   ├── Base/
-│   │   │   │   │   └── GutenbergBlockBase.php
-│   │   │   │   └── Gutenberg/
-│   │   │   │       ├── BookingFormBlock.php
-│   │   │   │       ├── GutenbergIntegration.php
-│   │   │   │       ├── VehicleCardBlock.php
-│   │   │   │       └── VehiclesListBlock.php
-│   │   │   ├── Shortcodes/
-│   │   │   │   ├── Core/
-│   │   │   │   │   └── AbstractShortcode.php
-│   │   │   │   ├── AvailabilityCalendar.php
-│   │   │   │   ├── BookingConfirmation.php
-│   │   │   │   ├── BookingForm.php
-│   │   │   │   ├── ContactForm.php
-│   │   │   │   ├── SearchResults.php
-│   │   │   │   ├── Testimonials.php
-│   │   │   │   ├── VehicleComparison.php
-│   │   │   │   ├── VehicleDetails.php
-│   │   │   │   ├── VehicleRatingForm.php
-│   │   │   │   ├── VehiclesGrid.php
-│   │   │   │   └── VehiclesList.php
-│   │   │   └── Widgets/
-│   │   │       ├── Base/
-│   │   │       │   └── ElementorWidgetBase.php
-│   │   │       └── Elementor/
-│   │   │           ├── AvailabilityCalendarWidget.php
-│   │   │           ├── BookingConfirmationWidget.php
-│   │   │           ├── BookingFormWidget.php
-│   │   │           ├── ContactFormWidget.php
-│   │   │           ├── ElementorIntegration.php
-│   │   │           ├── LoginFormWidget.php
-│   │   │           ├── MyAccountWidget.php
-│   │   │           ├── MyBookingsWidget.php
-│   │   │           ├── MyFavoritesWidget.php
-│   │   │           ├── PaymentHistoryWidget.php
-│   │   │           ├── RegisterFormWidget.php
-│   │   │           ├── SearchResultsWidget.php
-│   │   │           ├── TestimonialsWidget.php
-│   │   │           ├── VehicleCardWidget.php
-│   │   │           ├── VehicleComparisonWidget.php
-│   │   │           ├── VehicleDetailsWidget.php
-│   │   │           ├── VehicleRatingWidget.php
-│   │   │           ├── VehicleSearchWidget.php
-│   │   │           └── VehiclesListWidget.php
-│   │   ├── Licensing/
-│   │   │   ├── LicenseAdmin.php
-│   │   │   ├── LicenseManager.php
-│   │   │   ├── Mode.php
-│   │   │   └── Restrictions.php
-│   │   ├── Messages/
-│   │   │   ├── Admin/
-│   │   │   │   └── MessageListTable.php
-│   │   │   ├── Core/
-│   │   │   │   ├── MessageCache.php
-│   │   │   │   ├── MessageQueryHelper.php
-│   │   │   │   ├── Messages.php
-│   │   │   │   └── MessageUrlHelper.php
-│   │   │   ├── Frontend/
-│   │   │   │   └── CustomerMessages.php
-│   │   │   ├── Monitoring/
-│   │   │   │   ├── MessageLogger.php
-│   │   │   │   ├── MonitoringManager.php
-│   │   │   │   └── PerformanceMonitor.php
-│   │   │   ├── Notifications/
-│   │   │   │   └── MessageNotifications.php
-│   │   │   ├── REST/
-│   │   │   │   ├── Admin/
-│   │   │   │   │   ├── GetMessage.php
-│   │   │   │   │   ├── GetMessages.php
-│   │   │   │   │   ├── ReplyToMessage.php
-│   │   │   │   │   └── UpdateStatus.php
-│   │   │   │   ├── Customer/
-│   │   │   │   │   ├── CloseMessage.php
-│   │   │   │   │   ├── GetBookings.php
-│   │   │   │   │   ├── GetMessages.php
-│   │   │   │   │   ├── GetThread.php
-│   │   │   │   │   ├── SendMessage.php
-│   │   │   │   │   └── SendReply.php
-│   │   │   │   ├── Helpers/
-│   │   │   │   │   ├── Auth.php
-│   │   │   │   │   ├── MessageFormatter.php
-│   │   │   │   │   └── MessageQuery.php
-│   │   │   │   └── Messages.php
-│   │   │   ├── Settings/
-│   │   │   │   └── MessagesSettings.php
-│   │   │   └── Utilities/
-│   │   │       └── MessageUtilities.php
-│   │   ├── Notifications/
-│   │   │   └── NotificationManager.php
-│   │   ├── Payment/
-│   │   │   ├── Core/
-│   │   │   │   ├── PaymentException.php
-│   │   │   │   └── PaymentGatewayInterface.php
-│   │   │   ├── Gateways/
-│   │   │   │   └── Offline/
-│   │   │   │       └── API/
-│   │   │   ├── Refunds/
-│   │   │   │   ├── RefundCalculator.php
-│   │   │   │   ├── RefundValidator.php
-│   │   │   │   └── Service.php
-│   │   │   └── WooCommerce/
-│   │   │       └── WooCommerceBridge.php
-│   │   ├── PostTypes/
-│   │   │   ├── Logs/
-│   │   │   │   ├── AdvancedLogger.php
-│   │   │   │   ├── MetaBox.php
-│   │   │   │   └── PostType.php
-│   │   │   ├── Maintenance/
-│   │   │   │   ├── AutoCancel.php
-│   │   │   │   ├── EmailLogRetention.php
-│   │   │   │   └── LogRetention.php
-│   │   │   ├── Message/
-│   │   │   │   └── Message.php
-│   │   │   └── Utilities/
-│   │   │       └── ClientUtilities.php
-│   │   ├── Privacy/
-│   │   │   ├── DataRetentionManager.php
-│   │   │   └── GDPRManager.php
-│   │   ├── Reports/
-│   │   │   ├── BusinessLogic/
-│   │   │   │   ├── BookingReport.php
-│   │   │   │   ├── CustomerReport.php
-│   │   │   │   └── RevenueReport.php
-│   │   │   ├── Repository/
-│   │   │   │   └── ReportRepository.php
-│   │   │   ├── BackgroundProcessor.php
-│   │   │   ├── Charts.php
-│   │   │   └── Reports.php
-│   │   ├── REST/
-│   │   │   ├── Helpers/
-│   │   │   │   ├── AuthHelper.php
-│   │   │   │   ├── SecureToken.php
-│   │   │   │   └── ValidationHelper.php
-│   │   │   ├── Settings/
-│   │   │   │   └── RESTSettings.php
-│   │   │   ├── APIKeyManager.php
-│   │   │   ├── Availability.php
-│   │   │   ├── EndpointListHelper.php
-│   │   │   └── ErrorHandler.php
-│   │   ├── Security/
-│   │   │   └── SecurityManager.php
-│   │   ├── Settings/
-│   │   │   ├── Comments/
-│   │   │   │   └── CommentsSettings.php
-│   │   │   ├── Core/
-│   │   │   │   ├── RateLimiter.php
-│   │   │   │   ├── SettingsCore.php
-│   │   │   │   ├── SettingsHelper.php
-│   │   │   │   └── SettingsSanitizer.php
-│   │   │   ├── Groups/
-│   │   │   │   ├── AddonSettings.php
-│   │   │   │   ├── BookingSettings.php
-│   │   │   │   ├── CommentsSettingsGroup.php
-│   │   │   │   ├── CoreSettings.php
-│   │   │   │   ├── CustomerManagementSettings.php
-│   │   │   │   ├── EmailSettings.php
-│   │   │   │   ├── GeneralSettings.php
-│   │   │   │   ├── LicenseSettings.php
-│   │   │   │   ├── LogsSettings.php
-│   │   │   │   ├── MaintenanceSettings.php
-│   │   │   │   ├── PaymentSettings.php
-│   │   │   │   ├── ReconcileSettings.php
-│   │   │   │   ├── SecuritySettings.php
-│   │   │   │   ├── VehicleComparisonSettings.php
-│   │   │   │   └── VehicleManagementSettings.php
-│   │   │   ├── Testing/
-│   │   │   │   └── SettingsTester.php
-│   │   │   ├── APIKeysPage.php
-│   │   │   ├── Settings.php
-│   │   │   ├── SettingsHandler.php
-│   │   │   ├── SettingsView.php
-│   │   │   └── ShortcodePages.php
-│   │   ├── Setup/
-│   │   │   └── SetupWizard.php
-│   │   ├── Testing/
-│   │   │   ├── ActivationTest.php
-│   │   │   ├── FunctionalTest.php
-│   │   │   ├── IntegrationTest.php
-│   │   │   ├── PerformanceAnalyzer.php
-│   │   │   ├── PerformanceTest.php
-│   │   │   ├── SecurityTest.php
-│   │   │   ├── ShortcodeTestHandler.php
-│   │   │   ├── TestAdminPage.php
-│   │   │   └── TestRunner.php
-│   │   ├── Transfer/
-│   │   │   ├── Engine/
-│   │   │   │   └── TransferSearchEngine.php
-│   │   │   ├── Frontend/
-│   │   │   │   └── TransferShortcodes.php
-│   │   │   ├── Integration/
-│   │   │   │   ├── TransferBookingHandler.php
-│   │   │   │   └── TransferCartIntegration.php
-│   │   │   ├── TransferAdmin.php
-│   │   │   └── VehicleTransferMetaBox.php
-│   │   ├── Utilities/
-│   │   │   ├── Actions/
-│   │   │   │   └── Actions.php
-│   │   │   ├── Cron/
-│   │   │   │   ├── CronMonitor.php
-│   │   │   │   └── CronMonitorPage.php
-│   │   │   ├── Dashboard/
-│   │   │   │   └── DashboardPage.php
-│   │   │   ├── Database/
-│   │   │   │   ├── DatabaseCleanupPage.php
-│   │   │   │   ├── DatabaseInitialization.php
-│   │   │   │   └── MetaKeysDocumentation.php
-│   │   │   ├── Export/
-│   │   │   │   ├── Export.php
-│   │   │   │   ├── ExportFilters.php
-│   │   │   │   ├── ExportHistory.php
-│   │   │   │   ├── ExportReports.php
-│   │   │   │   └── ExportStats.php
-│   │   │   ├── ListTable/
-│   │   │   │   ├── CustomersListTable.php
-│   │   │   │   └── LogColumns.php
-│   │   │   ├── Menu/
-│   │   │   │   └── Menu.php
-│   │   │   ├── Performance/
-│   │   │   │   └── AdminOptimizer.php
-│   │   │   └── Uninstall/
-│   │   │       ├── Uninstaller.php
-│   │   │       └── UninstallPage.php
-│   │   └── Vehicle/
-│   │       ├── Deposit/
-│   │       │   ├── DepositAjax.php
-│   │       │   └── DepositCalculator.php
-│   │       ├── Frontend/
-│   │       │   └── VehicleSearch.php
-│   │       ├── Helpers/
-│   │       │   ├── VehicleDataHelper.php
-│   │       │   └── VehicleFeatureHelper.php
-│   │       ├── ListTable/
-│   │       │   └── VehicleColumns.php
-│   │       ├── Meta/
-│   │       │   ├── VehicleGallery.php
-│   │       │   └── VehicleMeta.php
-│   │       ├── PostType/
-│   │       │   └── Vehicle.php
-│   │       ├── Reports/
-│   │       │   └── VehicleReport.php
-│   │       ├── Settings/
-│   │       │   ├── VehiclePricingSettings.php
-│   │       │   └── VehicleSettings.php
-│   │       ├── Taxonomies/
-│   │       │   └── VehicleCategory.php
-│   │       └── Templates/
-│   │           ├── vehicle-gallery.php
-│   │           └── vehicle-meta.php
-│   └── Plugin.php
-└── templates/
-    ├── account/
-    │   ├── account-details.php
-    │   ├── booking-detail.php
-    │   ├── bookings.php
-    │   ├── dashboard.php
-    │   ├── favorites.php
-    │   ├── login-form.php
-    │   ├── messages.php
-    │   ├── navigation.php
-    │   ├── payment-history.php
-    │   └── register-form.php
-    ├── admin/
-    │   ├── booking-meta/
-    │   │   ├── booking-status.php
-    │   │   ├── offline-box.php
-    │   │   ├── payment-box.php
-    │   │   └── receipt-box.php
-    │   └── reports/
-    │       ├── bookings.php
-    │       ├── customers.php
-    │       ├── overview.php
-    │       ├── revenue.php
-    │       ├── stats-cards.php
-    │       └── vehicles.php
-    ├── emails/
-    │   ├── booking-cancelled.html.php
-    │   ├── booking-created-admin.html.php
-    │   ├── booking-created-customer.html.php
-    │   ├── booking-reminder-customer.html.php
-    │   ├── booking-status-changed-admin.html.php
-    │   ├── booking-status-changed-customer.html.php
-    │   ├── message-received-admin.html.php
-    │   ├── message-replied-customer.html.php
-    │   ├── offline-receipt-uploaded-admin.html.php
-    │   ├── offline-verified-approved-customer.html.php
-    │   ├── offline-verified-rejected-customer.html.php
-    │   ├── receipt-status-email.html.php
-    │   ├── refund-admin.html.php
-    │   ├── refund-customer.html.php
-    │   └── welcome-customer.html.php
-    ├── messages/
-    │   ├── admin-message-email.html.php
-    │   ├── customer-reply-email.html.php
-    │   ├── customer-status-change-email.html.php
-    │   ├── message-reply-form.html.php
-    │   └── message-thread-view.html.php
-    ├── shortcodes/
-    │   ├── availability-calendar.php
-    │   ├── booking-confirmation.php
-    │   ├── booking-form.php
-    │   ├── contact-form.php
-    │   ├── search-results.php
-    │   ├── testimonials.php
-    │   ├── thank-you.php
-    │   ├── vehicle-comparison.php
-    │   ├── vehicle-details.php
-    │   ├── vehicle-rating-form.php
-    │   ├── vehicle-search-compact.php
-    │   ├── vehicle-search.php
-    │   ├── vehicles-grid.php
-    │   └── vehicles-list.php
-    ├── archive-vehicle.php
-    └── single-vehicle.php
-```
+├── assets/                 # CSS, JS, Images (Minified)
+├── docs/                   # Technical documentation & API guides
+├── languages/              # i18n (.pot, .po)
+├── src/                    # PSR-4 Core PHP (MHMRentiva\*)
+│   ├── Admin/              # Admin Module Controllers & Services
+│   ├── Api/                # Custom REST API Endpoints
+│   ├── Blocks/             # Gutenberg Block definitions
+│   ├── CLI/                # WP-CLI Commands
+│   ├── Core/               # Financial engine & Base Services
+│   ├── Helpers/            # Utility & Sanitization classes
+│   ├── Integrations/       # External bridges (WooCommerce, etc.)
+│   └── Plugin.php          # Main initialization class
+├── templates/              # HTML & Email templates
+├── mhm-rentiva.php         # Main entry point
+└── uninstall.php           # Cleanup on deletion
 ```
 
 ---
 
 ## 📋 Requirements
 
-### WordPress
-- **Minimum Version**: 6.7
-- **Tested Up To**: 6.9
-- **Multisite**: Supported
-
-### PHP
-- **Minimum Version**: 8.1
-- **Recommended**: 8.2 or higher
-- **Required Extensions**:
-  - `json`
-  - `curl`
-  - `mbstring`
-  - `openssl`
-
-### Database
-- **MySQL**: 5.7 or higher
-- **MariaDB**: 10.3 or higher
-
-### Server
-- **HTTPS**: Recommended for payment processing
+### WordPress & PHP
+- **WordPress**: 6.7 minimum (Tested up to 6.9)
+- **PHP**: 8.1 minimum (8.2+ recommended)
 - **Memory Limit**: 128MB minimum (256MB recommended)
-- **Upload Size**: 10MB minimum for receipt uploads
 
-### WordPress Permissions
-- `manage_options` - Required for admin settings
-- `edit_posts` - Required for booking management
-- `upload_files` - Required for vehicle images and receipts
+### Required Extensions
+- `json` — For API and settings processing.
+- `curl` — For license and external integrations.
+- `mbstring` — For multi-language support.
+- `openssl` — For secure data encryption.
 
 ---
 
@@ -1738,20 +1136,27 @@ define('SCRIPT_DEBUG', true);
 ## 🔌 REST API Documentation
 
 ### Base URL
-
 ```
 /wp-json/mhm-rentiva/v1
 ```
 
-### Authentication & Security
+### Authentication (Auth)
+The REST API is secured via `AuthHelper` with multiple layers:
+- **X-WP-Nonce**: Standard WordPress nonce for logged-in sessions.
+- **Secure Tokens**: Time-limited customer tokens generated via `SecureToken`.
+- **API Keys**: Manageable via `Rentiva > Settings > Integration` for third-party apps.
 
-The REST API is secured by **API Keys**, **IP Restriction**, and **Rate Limiting**.
+### Rate Limiting
+Protected against Brute Force via the `RateLimiter` system:
+- **Default Limit**: 60 requests per minute.
+- **Sensitive Endpoints**: Stricter limits for booking creation and payment processing.
 
-1.  **API Keys:** Generate API keys from `Rentiva > Settings > Integration > REST API`.
-2.  **Rate Limiting:** Default limit is 60 requests/minute. Exceeding this will result in `429 Too Many Requests`.
-3.  **Authentication:** Pass the API key in the `X-API-Key` header.
-
-For full developer documentation, including endpoint details and parameters, see [Developer Docs](https://maxhandmade.github.io/mhm-rentiva-docs/docs/developer/rest-api).
+### Key Endpoints
+- `GET /vehicles` — List and filter vehicles.
+- `GET /availability` — Check vehicle availability for specific dates.
+- `POST /bookings` — Create a new booking.
+- `GET /locations` — List active rental locations.
+- `GET /orders` — View customer order details.
 
 ---
 
@@ -1766,23 +1171,17 @@ We welcome contributions! Please follow these guidelines:
 5. **Test thoroughly**: Test all functionality
 6. **Submit pull request**: Include description of changes
 
-### Commit Message Format
-
-```
-[Type] Short description
-
-Detailed description (optional)
-
-Fixes #123
-```
-
-**Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
-
 ---
 
 ## 📝 Changelog
- 
-### Latest Version: 4.9.8 (2026-02-09)
+
+### Version 4.21.2 (2026-03-11)
+- **Security**: Hardened REST API with `SecurityHelper` and `AuthHelper`.
+- **Shortcodes**: Consolidated all shortcodes via `ShortcodeServiceProvider`.
+- **Infrastructure**: Standardized PHP 8.1+ and WP 6.7+ requirements.
+- **VIP Transfer**: Introduced point-to-point route pricing engine.
+
+### Version 4.9.8 (2026-02-09)
 
 **Stability & CI Standardization**
 - Synced plugin version sources to 4.9.8 (header + constant).
@@ -1848,7 +1247,7 @@ Fixes #123
 - **Point-to-Point Booking**: Dynamic pickup/drop-off location management.
 - **Pricing Engine**: Distance-based or fixed-rate route pricing.
 - **WooCommerce Integration**: Support for transfer bookings in cart and checkout.
-- **AJAX Search**: New shortcode `[mhm_rentiva_transfer_search]` for real-time results.
+- **AJAX Search**: New shortcode `[rentiva_transfer_search]` for real-time results.
 - **Operational Control**: Added Buffer Time logic for vehicle preparation.
 
 ### Version: 4.5.5 (2026-01-15)

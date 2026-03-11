@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.21.2",
+        "date": "2026-03-11",
+        "type": "patch",
+        "changes": [
+            "Hardened REST API security with SecurityHelper and AuthHelper.",
+            "Consolidated all shortcodes documentation via ShortcodeServiceProvider.",
+            "Standardized minimum requirements: PHP 8.1+ and WordPress 6.7+.",
+            "Updated VIP Transfer module with point-to-point route pricing engine."
+        ],
+        "notice": "v4.21.2 - Security & Shortcode Consolidation"
+    },
+    {
         "version": "4.21.0",
         "date": "2026-03-04",
         "type": "minor",

@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.21.0
+Stable tag:        4.21.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -28,25 +28,29 @@ MHM Rentiva is a comprehensive vehicle rental management solution designed for c
 *   **REST API:** Full REST API support for mobile app or external integrations.
 
 == Project Structure ==
-
+ 
 mhm-rentiva/
-├── assets/             # Frontend assets (CSS, JS, Images)
-├── languages/          # Translation files (14 files)
+├── assets/             # Frontend & Admin assets (CSS, JS, Images)
+├── docs/               # Technical documentation & API guides
+├── languages/          # Translation files (.pot, .po, .mo)
 ├── src/                # PHP Source Code (PSR-4 logic)
-│   ├── Admin/         # Plugin Core Components
-│   │   ├── Booking, Vehicle, Payment, Customers, 
-│   │   ├── Licensing, REST, Reports, Settings,
-│   │   └── Transfer, Utilities, PostTypes...
+│   ├── Admin/         # Admin Module Controllers & Services (Booking, Vehicle, Payment...)
+│   ├── Api/           # Custom REST API Endpoints
+│   ├── Blocks/        # Gutenberg Block definitions
+│   ├── CLI/           # WP-CLI Commands
+│   ├── Core/          # Base logic & Financial Engine
+│   ├── Helpers/       # Utility & Sanitization classes (SecurityHelper, etc.)
+│   ├── Integrations/  # External integrations (WooCommerce, etc.)
 │   └── Plugin.php      # Main initialization class
-├── templates/          # Frontend & Email Templates
-├── mhm-rentiva.php     # Main entry point
-├── uninstall.php       # Cleanup on deletion
-├── changelog.json      # English version history
-├── changelog-tr.json   # Turkish version history
-├── LICENSE             # GPL License
+├── templates/          # Frontend layouts & Email templates
+├── mhm-rentiva.php     # Main plugin entry point
+├── uninstall.php       # Cleanup on plugin deletion
+├── changelog.json      # Version history (English)
+├── changelog-tr.json   # Version history (Turkish)
+├── LICENSE             # GPLv2 License
 ├── readme.txt          # WP.org metadata
-└── README.md           # Documentation (English)
-└── README-tr.md        # Documentation (Turkish)
+├── README.md           # Developer documentation (EN)
+└── README-tr.md        # Developer documentation (TR)
 
 == Installation ==
 
@@ -73,6 +77,26 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+ 
+= 4.21.2 =
+* **Security:** Hardened REST API security with SecurityHelper and AuthHelper enforcement.
+* **Architecture:** Consolidated all shortcodes documentation via ShortcodeServiceProvider.
+* **Compliance:** Standardized minimum requirements to PHP 8.1+ and WordPress 6.7+.
+* **Transfer:** Updated VIP Transfer module with point-to-point route pricing engine.
+* **Cleanup:** Removed obsolete mhm_ prefix from several frontend shortcodes.
+
+= 4.21.0 =
+* **Engine:** Added deterministic A/B variant resolver for upgrade experiments.
+* **Telemetry:** Upgrade telemetry now records variant-aware events.
+* **Analytics:** Funnel analytics aggregates variant performance metrics.
+
+= 4.20.9 =
+* **Dashboard:** Added Upgrade Funnel Analytics dashboard in the admin panel.
+* **Services:** Introduced FunnelAnalyticsService for telemetry aggregation.
+
+= 4.20.8 =
+* **Telemetry:** Added deterministic Lite-to-Pro upgrade funnel telemetry (admin-only).
+* **Security:** Secured upgrade CTA surfaces with nonce and capability enforcement.
 
 = 4.9.9 =
 * **Audit & Optimize (M1-M5):** Finalized the foundational hardening series (Mission Complete).
@@ -99,7 +123,7 @@ Yes, all frontend components and admin settings are fully responsive.
 * **Transfer Module:** Finalized prefix standardization (rentiva_) and database migration logic.
 
 = 4.9.2 =
-* Optimization: Standardized the Transfer Search shortcode from `mhm_rentiva_transfer_search` to `rentiva_transfer_search` for prefix consistency.
+* Optimization: Standardized the Transfer Search shortcode to `rentiva_transfer_search` for prefix consistency.
 * Compatibility: Added a backward compatibility alias for the old transfer shortcode.
 * Documentation: Updated "Kısa Kod Sayfaları" and official documentation to reflect naming standards.
 
@@ -226,7 +250,7 @@ Yes, all frontend components and admin settings are fully responsive.
 * Transfer: Point-to-point booking with distance or fixed pricing.
 * Transfer: Pickup/Dropoff location management and route definitions.
 * Transfer: Seamless integration with WooCommerce Cart and Checkout.
-* Search: New AJAX-based transfer search shortcode [mhm_rentiva_transfer_search].
+* Search: New AJAX-based transfer search shortcode [rentiva_transfer_search].
 * Feature: Added Buffer Time logic for operational control.
 
 = 4.5.5 =
