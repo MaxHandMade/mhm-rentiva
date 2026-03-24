@@ -1,0 +1,254 @@
+/* =============================================
+   MHM Rentiva — License Admin Premium Styles
+   ============================================= */
+
+/* Comparison cards wrapper */
+.mhm-comparison-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    margin: 24px 0;
+    max-width: 820px;
+}
+
+/* Lite column */
+.mhm-plan-lite {
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    padding: 36px 32px;
+    position: relative;
+}
+
+/* Pro column */
+.mhm-plan-pro {
+    background: linear-gradient(145deg, #1d2327 0%, #2c3338 100%);
+    padding: 36px 32px;
+    position: relative;
+    color: #fff;
+}
+
+/* Plan header */
+.mhm-plan-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.mhm-plan-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    line-height: 1.3;
+}
+
+.mhm-plan-lite .mhm-plan-title {
+    color: #1d2327;
+}
+
+.mhm-plan-pro .mhm-plan-title {
+    color: #fff;
+}
+
+.mhm-plan-subtitle {
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.mhm-plan-lite .mhm-plan-subtitle {
+    color: #50575e;
+}
+
+.mhm-plan-pro .mhm-plan-subtitle {
+    color: rgba(255,255,255,0.6);
+}
+
+/* Recommended badge */
+.mhm-plan-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #f0b429;
+    color: #1d2327;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* Feature rows */
+.mhm-plan-features {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.mhm-plan-features li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    font-size: 13px;
+}
+
+.mhm-plan-pro .mhm-plan-features li {
+    border-bottom-color: rgba(255,255,255,0.08);
+}
+
+.mhm-plan-features li:last-child {
+    border-bottom: none;
+}
+
+.mhm-plan-feature-label {
+    color: #3c434a;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mhm-plan-pro .mhm-plan-feature-label {
+    color: rgba(255,255,255,0.85);
+}
+
+/* Value badges */
+.mhm-plan-value {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.mhm-plan-lite .mhm-plan-value {
+    background: #fff;
+    color: #1d2327;
+    border: 1px solid #dcdcde;
+}
+
+.mhm-plan-pro .mhm-plan-value {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* Unavailable feature */
+.mhm-feature-unavailable {
+    color: #cc1818;
+    font-weight: 600;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.mhm-plan-pro .mhm-feature-unavailable {
+    color: rgba(255,255,255,0.3);
+}
+
+.mhm-feature-available {
+    color: #00a32a;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.mhm-plan-pro .mhm-feature-available {
+    color: #a8e6c0;
+}
+
+/* CTA buttons */
+.mhm-plan-cta {
+    margin-top: 28px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.mhm-plan-lite .mhm-plan-cta {
+    background: transparent;
+    border: 2px solid #2271b1;
+    color: #2271b1;
+}
+
+.mhm-plan-pro .mhm-plan-cta {
+    background: #f0b429;
+    border: none;
+    color: #1d2327;
+    box-shadow: 0 2px 8px rgba(240,180,41,0.4);
+    transition: background 0.15s;
+}
+
+.mhm-plan-pro .mhm-plan-cta:hover {
+    background: #e0a820;
+    color: #1d2327;
+    text-decoration: none;
+}
+
+/* Pro feature notice banner */
+.mhm-pro-notice-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fffbeb;
+    border-left: 4px solid #f0b429;
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    margin: 0 0 16px 0;
+    max-width: 820px;
+}
+
+.mhm-pro-notice-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mhm-pro-notice-icon {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.mhm-pro-notice-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #7a4800;
+    margin: 0;
+}
+
+.mhm-pro-notice-link {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    background: #1d2327;
+    padding: 5px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.mhm-pro-notice-link:hover {
+    background: #2c3338;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .mhm-comparison-wrap {
+        grid-template-columns: 1fr;
+    }
+    .mhm-plan-pro {
+        border-top: 3px solid #f0b429;
+    }
+}

@@ -44,6 +44,22 @@ final class LicenseAdmin
 		add_action('admin_post_mhm_rentiva_deactivate_license', array(self::class, 'handle_deactivation'));
 		add_action('admin_post_mhm_rentiva_toggle_dev_mode', array(self::class, 'handle_toggle_dev_mode'));
 		add_action('admin_notices', array(self::class, 'admin_notices'));
+		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_styles'));
+	}
+
+
+
+	public static function enqueue_styles(string $hook): void
+	{
+		if (strpos($hook, 'mhm-rentiva-license') === false) {
+			return;
+		}
+		wp_enqueue_style(
+			'mhm-rentiva-license-admin',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/license-admin.css',
+			array(),
+			MHM_RENTIVA_VERSION
+		);
 	}
 
 
@@ -209,12 +225,24 @@ final class LicenseAdmin
 			echo '<p>' . esc_html__('You are currently using the Lite version. A license key is required for Pro features.', 'mhm-rentiva') . '</p>';
 			echo '<p><strong>' . esc_html__('Lite Version Limits:', 'mhm-rentiva') . '</strong></p>';
 			echo '<ul>';
-			echo '<li>' . esc_html__('Maximum 3 vehicles can be added', 'mhm-rentiva') . '</li>';
-			echo '<li>' . esc_html__('Maximum 50 bookings can be made', 'mhm-rentiva') . '</li>';
-			echo '<li>' . esc_html__('Maximum 3 customers can be added', 'mhm-rentiva') . '</li>';
-			echo '<li>' . esc_html__('WooCommerce integration available', 'mhm-rentiva') . '</li>';
-			echo '<li>' . esc_html__('CSV export available', 'mhm-rentiva') . '</li>';
-			echo '<li>' . esc_html__('Report range limited to 30 days', 'mhm-rentiva') . '</li>';
+			echo '<li>' . esc_html( sprintf(
+				/* translators: %d: max vehicles */
+				__( 'Maximum %d vehicles can be added', 'mhm-rentiva' ),
+				\MHMRentiva\Admin\Licensing\Mode::maxVehicles()
+			) ) . '</li>';
+			echo '<li>' . esc_html( sprintf(
+				/* translators: %d: max bookings */
+				__( 'Maximum %d bookings can be made', 'mhm-rentiva' ),
+				\MHMRentiva\Admin\Licensing\Mode::maxBookings()
+			) ) . '</li>';
+			echo '<li>' . esc_html( sprintf(
+				/* translators: %d: max customers */
+				__( 'Maximum %d customers can be added', 'mhm-rentiva' ),
+				\MHMRentiva\Admin\Licensing\Mode::maxCustomers()
+			) ) . '</li>';
+			echo '<li>' . esc_html__( 'WooCommerce integration available', 'mhm-rentiva' ) . '</li>';
+			echo '<li>' . esc_html__( 'CSV export available', 'mhm-rentiva' ) . '</li>';
+			echo '<li>' . esc_html__( 'Report range limited to 30 days', 'mhm-rentiva' ) . '</li>';
 			echo '</ul>';
 
 			echo '<p><a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-license')) . '" class="button button-primary">' . esc_html__('Upgrade to Pro', 'mhm-rentiva') . '</a></p>';
@@ -466,9 +494,110 @@ final class LicenseAdmin
 
 	private static function render_feature_comparison(): void
 	{
-		echo '<h2>' . esc_html__('Lite vs Pro Comparison', 'mhm-rentiva') . '</h2>';
+		$license_url = admin_url('admin.php?page=mhm-rentiva-license');
+		$is_pro      = \MHMRentiva\Admin\Licensing\Mode::isPro();
 
-		// Use centralized comparison table from Mode class
-		Mode::render_comparison_table(true); // compact mode for License page
+		echo '<h2>' . esc_html__('Lite vs Pro', 'mhm-rentiva') . '</h2>';
+		echo '<div class="mhm-comparison-wrap">';
+
+		// --- LITE COLUMN ---
+		echo '<div class="mhm-plan-lite">';
+		echo '<div class="mhm-plan-header">';
+		echo '<h3 class="mhm-plan-title">' . esc_html__('Lite', 'mhm-rentiva') . '</h3>';
+		echo '<p class="mhm-plan-subtitle">' . esc_html__('Free — Get started', 'mhm-rentiva') . '</p>';
+		echo '</div>';
+
+		echo '<ul class="mhm-plan-features">';
+
+		$max_vehicles  = (int) apply_filters('mhm_rentiva_lite_max_vehicles', 5);
+		$max_bookings  = (int) apply_filters('mhm_rentiva_lite_max_bookings', 50);
+		$max_customers = (int) apply_filters('mhm_rentiva_lite_max_customers', 10);
+		$max_addons    = (int) apply_filters('mhm_rentiva_lite_max_addons', 4);
+		$max_routes    = (int) apply_filters('mhm_rentiva_lite_max_transfer_routes', 3);
+		$max_gallery   = (int) apply_filters('mhm_rentiva_lite_max_gallery_images', 3);
+
+		$lite_rows = array(
+			array('label' => __('Maximum Vehicles', 'mhm-rentiva'),        'value' => sprintf(__('%d vehicles', 'mhm-rentiva'), $max_vehicles)),
+			array('label' => __('Maximum Bookings', 'mhm-rentiva'),        'value' => sprintf(__('%d bookings', 'mhm-rentiva'), $max_bookings)),
+			array('label' => __('Maximum Customers', 'mhm-rentiva'),       'value' => sprintf(__('%d customers', 'mhm-rentiva'), $max_customers)),
+			array('label' => __('Maximum Addons', 'mhm-rentiva'),          'value' => sprintf(__('%d services', 'mhm-rentiva'), $max_addons)),
+			array('label' => __('VIP Transfer Routes', 'mhm-rentiva'),     'value' => sprintf(__('%d routes', 'mhm-rentiva'), $max_routes)),
+			array('label' => __('Gallery Images', 'mhm-rentiva'),          'value' => sprintf(__('%d / vehicle', 'mhm-rentiva'), $max_gallery)),
+			array('label' => __('Export Formats', 'mhm-rentiva'),          'value' => 'CSV'),
+			array('label' => __('Report Date Range', 'mhm-rentiva'),       'value' => sprintf(__('%d days', 'mhm-rentiva'), (int) apply_filters('mhm_rentiva_lite_reports_max_days', 30))),
+			array('label' => __('Payment Gateways', 'mhm-rentiva'),        'value' => 'WooCommerce'),
+			array('label' => __('Advanced Reports', 'mhm-rentiva'),        'unavailable' => true),
+			array('label' => __('Messaging System', 'mhm-rentiva'),        'unavailable' => true),
+			array('label' => __('Vendor & Payout', 'mhm-rentiva'),         'unavailable' => true),
+			array('label' => __('REST API', 'mhm-rentiva'),                'value' => __('Limited', 'mhm-rentiva')),
+		);
+
+		foreach ($lite_rows as $row) {
+			echo '<li>';
+			echo '<span class="mhm-plan-feature-label">' . esc_html($row['label']) . '</span>';
+			if (! empty($row['unavailable'])) {
+				echo '<span class="mhm-feature-unavailable">&#10007; ' . esc_html__('Not available', 'mhm-rentiva') . '</span>';
+			} else {
+				echo '<span class="mhm-plan-value">' . esc_html($row['value']) . '</span>';
+			}
+			echo '</li>';
+		}
+
+		echo '</ul>';
+
+		if ($is_pro) {
+			echo '<span class="mhm-plan-cta">' . esc_html__('Your previous plan', 'mhm-rentiva') . '</span>';
+		} else {
+			echo '<span class="mhm-plan-cta">' . esc_html__('Current Plan', 'mhm-rentiva') . '</span>';
+		}
+		echo '</div>';
+
+		// --- PRO COLUMN ---
+		echo '<div class="mhm-plan-pro">';
+		echo '<span class="mhm-plan-badge">' . esc_html__('RECOMMENDED', 'mhm-rentiva') . '</span>';
+		echo '<div class="mhm-plan-header">';
+		echo '<h3 class="mhm-plan-title">' . esc_html__('Pro', 'mhm-rentiva') . '</h3>';
+		echo '<p class="mhm-plan-subtitle">' . esc_html__('Unlimited everything', 'mhm-rentiva') . '</p>';
+		echo '</div>';
+
+		echo '<ul class="mhm-plan-features">';
+
+		$pro_rows = array(
+			array('label' => __('Maximum Vehicles', 'mhm-rentiva'),    'value' => __('Unlimited', 'mhm-rentiva')),
+			array('label' => __('Maximum Bookings', 'mhm-rentiva'),    'value' => __('Unlimited', 'mhm-rentiva')),
+			array('label' => __('Maximum Customers', 'mhm-rentiva'),   'value' => __('Unlimited', 'mhm-rentiva')),
+			array('label' => __('Maximum Addons', 'mhm-rentiva'),      'value' => __('Unlimited', 'mhm-rentiva')),
+			array('label' => __('VIP Transfer Routes', 'mhm-rentiva'), 'value' => __('Unlimited', 'mhm-rentiva')),
+			array('label' => __('Gallery Images', 'mhm-rentiva'),      'value' => __('Unlimited', 'mhm-rentiva')),
+			array('label' => __('Export Formats', 'mhm-rentiva'),      'value' => 'CSV + JSON'),
+			array('label' => __('Report Date Range', 'mhm-rentiva'),   'value' => __('Unlimited', 'mhm-rentiva')),
+			array('label' => __('Payment Gateways', 'mhm-rentiva'),    'value' => 'WooCommerce'),
+			array('label' => __('Advanced Reports', 'mhm-rentiva'),    'available' => true),
+			array('label' => __('Messaging System', 'mhm-rentiva'),    'available' => true),
+			array('label' => __('Vendor & Payout', 'mhm-rentiva'),     'available' => true),
+			array('label' => __('REST API', 'mhm-rentiva'),            'value' => __('Full Access', 'mhm-rentiva')),
+		);
+
+		foreach ($pro_rows as $row) {
+			echo '<li>';
+			echo '<span class="mhm-plan-feature-label">' . esc_html($row['label']) . '</span>';
+			if (! empty($row['available'])) {
+				echo '<span class="mhm-feature-available">&#10003; ' . esc_html__('Included', 'mhm-rentiva') . '</span>';
+			} else {
+				echo '<span class="mhm-plan-value">' . esc_html($row['value']) . '</span>';
+			}
+			echo '</li>';
+		}
+
+		echo '</ul>';
+
+		if ($is_pro) {
+			echo '<span class="mhm-plan-cta" style="background:#00a32a;color:#fff;display:block;text-align:center;padding:12px;border-radius:6px;font-weight:700;">' . esc_html__('✅ Active Plan', 'mhm-rentiva') . '</span>';
+		} else {
+			echo '<a href="' . esc_url($license_url) . '" class="mhm-plan-cta">' . esc_html__('Enter License Key →', 'mhm-rentiva') . '</a>';
+		}
+		echo '</div>';
+
+		echo '</div>'; // .mhm-comparison-wrap
 	}
 }
