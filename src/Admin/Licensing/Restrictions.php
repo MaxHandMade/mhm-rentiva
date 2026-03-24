@@ -26,18 +26,14 @@ final class Restrictions
 		// Vehicles limit
 		add_action('admin_menu', array(self::class, 'maybeHideAddNewVehicle'));
 		add_action('load-post-new.php', array(self::class, 'maybeBlockVehicleCreation'));
-		add_action('admin_notices', array(self::class, 'vehicleLimitNotice'));
 
 		// Bookings limit
 		add_action('load-post-new.php', array(self::class, 'maybeBlockBookingCreation'));
 		add_action('mhm_rentiva_before_booking_create', array(self::class, 'blockBookingOnFrontend'), 10, 2);
-		add_action('admin_notices', array(self::class, 'bookingLimitNotice'));
-
 
 		// Customers limit
 		add_action('admin_menu', array(self::class, 'maybeHideAddNewCustomer'));
 		add_action('admin_init', array(self::class, 'maybeBlockCustomerCreation'));
-		add_action('admin_notices', array(self::class, 'customerLimitNotice'));
 
 		// Transfer limits
 		add_action('admin_post_mhm_save_route', array(self::class, 'blockTransferRouteCreation'), 5);
@@ -114,26 +110,6 @@ final class Restrictions
 	}
 
 	/**
-	 * Show vehicle limit notice
-	 */
-	public static function vehicleLimitNotice(): void
-	{
-		if (! Mode::isLite()) {
-			return;
-		}
-		$screen = function_exists('get_current_screen') ? get_current_screen() : null;
-		if ($screen && $screen->id === 'edit-vehicle') {
-			$count = self::vehicleCount();
-			$max   = Mode::maxVehicles();
-			printf(
-				'<div class="notice notice-info"><p>%s</p></div>',
-				/* translators: 1: current vehicle count, 2: maximum allowed vehicles. */
-				esc_html(sprintf(__('Rentiva Lite: %1$d/%2$d vehicles used. Enter your license for unlimited vehicles and advanced features.', 'mhm-rentiva'), $count, $max))
-			);
-		}
-	}
-
-	/**
 	 * Get current booking count
 	 *
 	 * @return int Booking count
@@ -196,25 +172,6 @@ final class Restrictions
 	}
 
 
-	/**
-	 * Show booking limit notice
-	 */
-	public static function bookingLimitNotice(): void
-	{
-		if (! Mode::isLite()) {
-			return;
-		}
-		$screen = function_exists('get_current_screen') ? get_current_screen() : null;
-		if ($screen && $screen->id === 'edit-vehicle_booking') {
-			$cnt = self::bookingCount();
-			$max = Mode::maxBookings();
-			printf(
-				'<div class="notice notice-warning"><p>%s</p></div>',
-				/* translators: 1: current booking count, 2: maximum allowed bookings. */
-				esc_html(sprintf(__('Rentiva Lite: %1$d/%2$d bookings used. Activate your license to remove this limit.', 'mhm-rentiva'), $cnt, $max))
-			);
-		}
-	}
 
 	/**
 	 * Clamp export arguments for Lite version
@@ -409,33 +366,6 @@ final class Restrictions
 					)
 				);
 			}
-		}
-	}
-
-	/**
-	 * Show customer limit notice
-	 */
-	public static function customerLimitNotice(): void
-	{
-		if (Mode::isPro()) {
-			return;
-		}
-
-		$screen = get_current_screen();
-		if (! $screen || ! in_array($screen->id, array('mhm-rentiva-customers', 'mhm-rentiva-add-customer'), true)) {
-			return;
-		}
-
-		$current = self::customerCount();
-		$max     = Mode::maxCustomers();
-
-		if ($current >= $max) {
-			$message = sprintf(
-				/* translators: %d: maximum number of customers. */
-				__('You can add up to %d customers in Lite version. Enter your license key to upgrade to Pro.', 'mhm-rentiva'),
-				(int) $max
-			);
-			echo '<div class="notice notice-warning"><p>' . esc_html($message) . '</p></div>';
 		}
 	}
 
