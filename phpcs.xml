@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<ruleset name="MHM Rentiva Standards">
+	<description>MHM Rentiva Custom Ruleset based on WordPress Coding Standards.</description>
+
+	<!-- Enforced CI scope (phased migration) -->
+	<file>tests</file>
+	<file>src/Blocks</file>
+	<file>src/Helpers</file>
+
+	<!-- Exclude directories -->
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
+	<exclude-pattern>*/.agent/*</exclude-pattern>
+	<exclude-pattern>*/.agents/*</exclude-pattern>
+	<exclude-pattern>*/.ai/*</exclude-pattern>
+	<exclude-pattern>*/.intelephense/*</exclude-pattern>
+	<exclude-pattern>*/website/*</exclude-pattern>
+	<exclude-pattern>*/stubs/*</exclude-pattern>
+	<exclude-pattern>cookie_debug.php</exclude-pattern>
+	<exclude-pattern>generate-clean-pot.php</exclude-pattern>
+	<exclude-pattern>update-pot-ultimate.php</exclude-pattern>
+	<exclude-pattern>wp-stubs.php</exclude-pattern>
+	<exclude-pattern>*.js</exclude-pattern>
+	<exclude-pattern>*.css</exclude-pattern>
+
+	<!-- Show progress and sniff codes -->
+	<arg value="ps"/>
+	<arg name="colors"/>
+	<config name="ignore_warnings_on_exit" value="1"/>
+
+	<!-- 
+    =============================================================================
+    SECURITY RULES (STRICT)
+    =============================================================================
+    These rules are critical and should never be excluded globally.
+    -->
+	<rule ref="WordPress.Security"/>
+	<rule ref="WordPress.DB"/>
+	
+	<!-- Enforce strict types -->
+	<rule ref="Generic.PHP.RequireStrictTypes"/>
+
+	<!-- 
+    =============================================================================
+    GENERAL STANDARDS (CUSTOMIZED)
+    =============================================================================
+    Include WordPress standard but exclude "Noise" rules.
+    -->
+	<rule ref="WordPress">
+		<!-- Exclude variable prefix enforcement (too noisy for local variables) -->
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound"/>
+		
+		<!-- Exclude variable name format (snake_case vs camelCase flexibility) -->
+		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
+		
+		<!-- Exclude strict filename enforcement (Class-Filename match is enough) -->
+		<exclude name="WordPress.Files.FileName"/>
+		
+		<!-- Exclude heavy commenting requirements (focus on clean code) -->
+		<exclude name="Squiz.Commenting"/>
+		<exclude name="PEAR.Commenting"/>
+		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
+
+		<!-- Exclude formatting debt sniffs; keep functional/security checks active -->
+		<exclude name="Generic.Files.LineEndings"/>
+		<exclude name="Generic.WhiteSpace.DisallowSpaceIndent"/>
+		<exclude name="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
+		<exclude name="PEAR.Functions.FunctionCallSignature"/>
+		<exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing"/>
+		<exclude name="WordPress.WhiteSpace.ControlStructureSpacing"/>
+		<exclude name="WordPress.WhiteSpace.OperatorSpacing"/>
+		<exclude name="WordPress.PHP.YodaConditions"/>
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+	</rule>
+
+	<!-- Global prefix configuration -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="mhm_rentiva"/>
+				<element value="MHMRentiva"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Set minimum supported WordPress version -->
+	<config name="minimum_supported_wp_version" value="5.0"/>
+
+	<!-- 
+    =============================================================================
+    INTERNATIONALIZATION
+    =============================================================================
+    -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="mhm-rentiva"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- 
+    =============================================================================
+    PHP COMPATIBILITY (REMOVED - Not installed in env)
+    =============================================================================
+    -->
+	<!-- <rule ref="PHPCompatibility"/> -->
+	<!-- <config name="testVersion" value="7.4-"/> -->
+
+</ruleset>

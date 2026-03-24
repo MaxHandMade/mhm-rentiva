@@ -39,9 +39,8 @@ yarn-error.log*
 .npm/
 .yarn/
 package-lock.json
-composer.json
 
-# Composer (vendor is excluded, but composer.json is kept for reference)
+# Composer (vendor is excluded, but composer.json is tracked for CI)
 vendor/
 # Re-include plugin source directories whose names collide with 'vendor/' on case-insensitive filesystems (Windows)
 !src/Admin/Vendor/
@@ -162,8 +161,6 @@ stubs/
 
 # bin/
 # tests/
-phpunit.xml
-phpunit.xml.dist
 website/
 # .github/
 !.github/
@@ -264,3 +261,7 @@ tools/
 AGENTS.md
 build_debug.txt
 test_output.txt
+PROJECT_GUIDE.md
+PROJECT_MEMORIES.md
+SKILLS.md
+UI_CONTRACTS.md

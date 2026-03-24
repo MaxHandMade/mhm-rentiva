@@ -1,0 +1,29 @@
+{
+    "name": "maxhandmade/mhm-rentiva",
+    "description": "Booking Plugin for WordPress",
+    "type": "wordpress-plugin",
+    "license": "GPL-3.0-or-later",
+    "scripts": {
+        "test": "@php ./vendor/bin/phpunit -c phpunit.xml",
+        "phpcs": "@php ./vendor/bin/phpcs --standard=phpcs.xml",
+        "phpcbf": "@php ./vendor/bin/phpcbf --standard=phpcs.xml",
+        "plugin-check:release": "wp plugin check mhm-rentiva --path=C:\\\\xampp\\\\htdocs\\\\otokira --format=strict-json --ignore-codes=hidden_files --exclude-directories=tests,bin,website,.github,.ai,.agent,.agents,pcp,stubs,.intelephense,.vscode,build,docs,specs --exclude-files=.gitignore,.phpunit.result.cache,.tmp_scan.csv,.tmp_phpscan.csv,cookie_debug.php,generate-clean-pot.php,update-pot-ultimate.php,wp-stubs.php,AGENTS.md,PROJECT_GUIDE.md,PROJECT_MEMORIES.md,SHORTCODES.md,SKILLS.md,UI_CONTRACTS.md,README-tr.md,arac-kiralama-vip-transfer-theme-tasarim.md,phpunit.xml.dist,RELEASE_CHECKLIST.md",
+        "check-release": [
+            "@phpcs",
+            "@plugin-check:release",
+            "@test"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.1",
+        "phpunit/phpunit": "^9.6",
+        "php-stubs/woocommerce-stubs": "^10.4",
+        "wp-coding-standards/wpcs": "^3.2",
+        "yoast/phpunit-polyfills": "^2.0"
+    }
+}
