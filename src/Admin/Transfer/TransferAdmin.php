@@ -94,33 +94,13 @@ final class TransferAdmin
 	 */
 	public static function routeLimitNotice(): void
 	{
-		if (! \MHMRentiva\Admin\Licensing\Mode::isLite()) {
-			return;
-		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page query check for displaying admin notice.
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( (string) $_GET['page'] ) ) : '';
 		if ( $page !== 'mhm-rentiva-transfer-routes' ) {
 			return;
 		}
 
-		global $wpdb;
-		$table = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
-		$count = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table ) );
-		$max   = \MHMRentiva\Admin\Licensing\Mode::maxTransferRoutes();
-		$pct   = $max > 0 ? round( ( $count / $max ) * 100 ) : 0;
-		$cls   = $pct >= 80 ? 'notice-warning' : 'notice-info';
-		printf(
-			'<div class="notice %s"><p>%s</p></div>',
-			esc_attr( $cls ),
-			esc_html(
-				sprintf(
-					/* translators: 1: current count, 2: max */
-					__( 'Rentiva Lite: %1$d/%2$d VIP transfer routes used. Activate your license to remove this limit.', 'mhm-rentiva' ),
-					$count,
-					$max
-				)
-			)
-		);
+		\MHMRentiva\Admin\Core\ProFeatureNotice::displayLimitNotice( 'routes' );
 	}
 
 	/**

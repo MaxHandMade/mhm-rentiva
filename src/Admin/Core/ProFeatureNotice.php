@@ -199,7 +199,7 @@ final class ProFeatureNotice {
 	/**
 	 * Display limit usage notice for Lite users
 	 *
-	 * @param string $type Limit type: 'vehicles', 'bookings', or 'customers'
+	 * @param string $type Limit type: 'vehicles', 'bookings', 'customers', 'addons', or 'routes'
 	 */
 	public static function displayLimitNotice( string $type ): void {
 		if ( Mode::isPro() ) {
@@ -284,13 +284,66 @@ final class ProFeatureNotice {
 			);
 			echo '</p>';
 			echo '</div>';
+		} elseif ( $type === 'addons' ) {
+			$count_obj  = wp_count_posts( 'vehicle_addon' );
+			$current    = ( (int) ( $count_obj->publish ?? 0 ) ) + ( (int) ( $count_obj->draft ?? 0 ) ) + ( (int) ( $count_obj->pending ?? 0 ) );
+			$max        = Mode::maxAddons();
+			$percentage = $max > 0 ? round( ( $current / $max ) * 100 ) : 0;
+			$exceeded   = $current >= $max;
+
+			$notice_class = $exceeded ? 'notice-error' : ( $percentage >= 80 ? 'notice-warning' : 'notice-info' );
+			$icon         = $exceeded ? '⚠️' : ( $percentage >= 80 ? '⚠️' : 'ℹ️' );
+
+			echo '<div class="notice ' . esc_attr( $notice_class ) . ' mhm-limit-notice">';
+			echo '<p style="margin: 0; font-size: 14px;">';
+			echo '<strong>' . esc_html( $icon ) . ' ' . esc_html__( 'Rentiva Lite Limit', 'mhm-rentiva' ) . ':</strong> ';
+			/* translators: 1: current count, 2: max limit, 3: percentage */
+			echo esc_html( sprintf( __( 'You have used %1$d out of %2$d addon services (%3$d%%).', 'mhm-rentiva' ), $current, $max, $percentage ) );
+			if ( $exceeded ) {
+				echo ' <strong>' . esc_html__( 'Limit reached!', 'mhm-rentiva' ) . '</strong> ';
+			}
+
+			printf(
+				/* translators: Dynamic value. */
+				wp_kses_post( __( '<a href="%s">Enter your license key</a> to upgrade to Pro for unlimited addon services.', 'mhm-rentiva' ) ),
+				esc_url( $license_url )
+			);
+			echo '</p>';
+			echo '</div>';
+		} elseif ( $type === 'routes' ) {
+			global $wpdb;
+			$table      = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
+			$current    = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table ) );
+			$max        = Mode::maxTransferRoutes();
+			$percentage = $max > 0 ? round( ( $current / $max ) * 100 ) : 0;
+			$exceeded   = $current >= $max;
+
+			$notice_class = $exceeded ? 'notice-error' : ( $percentage >= 80 ? 'notice-warning' : 'notice-info' );
+			$icon         = $exceeded ? '⚠️' : ( $percentage >= 80 ? '⚠️' : 'ℹ️' );
+
+			echo '<div class="notice ' . esc_attr( $notice_class ) . ' mhm-limit-notice">';
+			echo '<p style="margin: 0; font-size: 14px;">';
+			echo '<strong>' . esc_html( $icon ) . ' ' . esc_html__( 'Rentiva Lite Limit', 'mhm-rentiva' ) . ':</strong> ';
+			/* translators: 1: current count, 2: max limit, 3: percentage */
+			echo esc_html( sprintf( __( 'You have used %1$d out of %2$d VIP transfer routes (%3$d%%).', 'mhm-rentiva' ), $current, $max, $percentage ) );
+			if ( $exceeded ) {
+				echo ' <strong>' . esc_html__( 'Limit reached!', 'mhm-rentiva' ) . '</strong> ';
+			}
+
+			printf(
+				/* translators: Dynamic value. */
+				wp_kses_post( __( '<a href="%s">Enter your license key</a> to upgrade to Pro for unlimited transfer routes.', 'mhm-rentiva' ) ),
+				esc_url( $license_url )
+			);
+			echo '</p>';
+			echo '</div>';
 		}
 	}
 
 	/**
 	 * Display Developer Mode banner and limit notices together
 	 *
-	 * @param string $limit_type Limit type: 'vehicles', 'bookings', or 'customers'
+	 * @param string $limit_type Limit type: 'vehicles', 'bookings', 'customers', 'addons', or 'routes'
 	 * @param array  $features Optional list of Pro features to highlight
 	 */
 	public static function displayDeveloperModeAndLimits( string $limit_type = '', array $features = array() ): void {
