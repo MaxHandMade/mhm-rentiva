@@ -3,7 +3,6 @@
 	<description>MHM Rentiva Custom Ruleset based on WordPress Coding Standards.</description>
 
 	<!-- Enforced CI scope (phased migration) -->
-	<file>tests</file>
 	<file>src/Blocks</file>
 	<file>src/Helpers</file>
 
