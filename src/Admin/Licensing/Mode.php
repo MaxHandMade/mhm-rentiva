@@ -179,7 +179,7 @@ final class Mode {
 	 * @return int Maximum images
 	 */
 	public static function maxGalleryImages(): int {
-		return self::isPro() ? PHP_INT_MAX : (int) apply_filters( 'mhm_rentiva_lite_max_gallery_images', 3 );
+		return self::isPro() ? PHP_INT_MAX : (int) apply_filters( 'mhm_rentiva_lite_max_gallery_images', 5 );
 	}
 
 	/**
@@ -259,7 +259,7 @@ final class Mode {
 				'lite' => sprintf(
 					/* translators: %d: maximum number of gallery images allowed per vehicle in Lite version. */
 					__( '%d images/vehicle', 'mhm-rentiva' ),
-					(int) apply_filters( 'mhm_rentiva_lite_max_gallery_images', 3 )
+					(int) apply_filters( 'mhm_rentiva_lite_max_gallery_images', 5 )
 				),
 				'pro'  => __( 'Unlimited', 'mhm-rentiva' ),
 			),
