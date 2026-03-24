@@ -135,7 +135,7 @@ class BlockRegistry {
 			'title' => 'Customer Messages',
 			'css'   => 'customer-messages.css',
 		),
-		'transfer-search'        => array(
+		'transfer-search'       => array(
 			'tag'   => 'rentiva_transfer_search',
 			'title' => 'Transfer Search',
 			'css'   => 'transfer.css',
