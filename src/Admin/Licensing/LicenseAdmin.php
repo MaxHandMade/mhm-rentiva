@@ -514,7 +514,7 @@ final class LicenseAdmin
 		$max_customers = (int) apply_filters('mhm_rentiva_lite_max_customers', 10);
 		$max_addons    = (int) apply_filters('mhm_rentiva_lite_max_addons', 4);
 		$max_routes    = (int) apply_filters('mhm_rentiva_lite_max_transfer_routes', 3);
-		$max_gallery   = (int) apply_filters('mhm_rentiva_lite_max_gallery_images', 3);
+		$max_gallery   = (int) apply_filters('mhm_rentiva_lite_max_gallery_images', 5);
 
 		$lite_rows = array(
 			array('label' => __('Maximum Vehicles', 'mhm-rentiva'),        'value' => sprintf(__('%d vehicles', 'mhm-rentiva'), $max_vehicles)),
