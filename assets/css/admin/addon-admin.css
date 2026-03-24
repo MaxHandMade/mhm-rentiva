@@ -1,0 +1,151 @@
+/* Ek Hizmetler Admin CSS */
+
+.mhm-rentiva-addon-admin {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Status indicators */
+.status-active {
+	color: var(--mhm-success);
+	font-weight: var(--mhm-font-semibold);
+}
+
+.status-inactive {
+	color: var(--mhm-error);
+	font-weight: var(--mhm-font-semibold);
+}
+
+/* Addon list table */
+.wp-list-table .column-addon_price {
+	width: 120px;
+}
+
+.wp-list-table .column-addon_enabled {
+	width: 100px;
+}
+
+.wp-list-table .column-addon_required {
+	width: 80px;
+	text-align: center;
+}
+
+/* Meta box styles */
+.mhm-addon-meta-box {
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: var(--mhm-radius-md);
+	padding: var(--mhm-space-5);
+	margin: var(--mhm-space-5) 0;
+}
+
+.mhm-addon-meta-box h3 {
+	margin-top: 0;
+	color: var(--mhm-text-primary);
+	font-size: 14px;
+	font-weight: var(--mhm-font-semibold);
+}
+
+.mhm-addon-meta-box .form-field {
+	margin-bottom: var(--mhm-space-4);
+}
+
+.mhm-addon-meta-box label {
+	display: block;
+	margin-bottom: var(--mhm-space-1);
+	font-weight: var(--mhm-font-semibold);
+	color: var(--mhm-text-primary);
+}
+
+.mhm-addon-meta-box input[type="text"],
+.mhm-addon-meta-box input[type="number"],
+.mhm-addon-meta-box textarea {
+	width: 100%;
+	max-width: 400px;
+	padding: 8px 12px;
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-sm);
+	font-size: 14px;
+}
+
+.mhm-addon-meta-box input[type="checkbox"] {
+	margin-right: var(--mhm-space-2);
+}
+
+.mhm-addon-meta-box .description {
+	color: var(--mhm-text-secondary);
+	font-style: italic;
+	font-size: 13px;
+	margin-top: var(--mhm-space-1);
+}
+
+/* Settings page */
+.mhm-rentiva-wrap {
+	max-width: 100%;
+}
+
+.mhm-rentiva-wrap h1 {
+	color: var(--mhm-text-primary);
+	margin-bottom: var(--mhm-space-5);
+}
+
+.mhm-rentiva-wrap .form-table th {
+	width: 200px;
+	padding: 20px 10px 20px 0;
+	vertical-align: top;
+}
+
+.mhm-rentiva-wrap .form-table td {
+	padding: 15px 10px;
+}
+
+/* License limit warning */
+.notice.notice-warning.inline {
+	display: inline-block;
+	margin: 0 10px 0 0;
+	padding: 5px 10px;
+	background: var(--mhm-warning-bg);
+	border: 1px solid var(--mhm-warning-border);
+	border-radius: var(--mhm-radius-sm);
+}
+
+.notice.notice-warning.inline p {
+	margin: 0;
+	color: var(--mhm-warning-text);
+}
+
+/* Button styles */
+.button.button-primary {
+	background: var(--mhm-primary);
+	border-color: var(--mhm-primary);
+	color: var(--mhm-white);
+	text-decoration: none;
+	padding: 8px 16px;
+	border-radius: var(--mhm-radius-sm);
+	font-size: 13px;
+	line-height: 1.4;
+	cursor: pointer;
+	border: 1px solid;
+	transition: all var(--mhm-duration-200) ease;
+}
+
+.button.button-primary:hover {
+	background: var(--mhm-primary-dark);
+	border-color: var(--mhm-primary-dark);
+	color: var(--mhm-white);
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+
+	.mhm-addon-meta-box input[type="text"],
+	.mhm-addon-meta-box input[type="number"],
+	.mhm-addon-meta-box textarea {
+		max-width: 100%;
+	}
+
+	.wp-list-table .column-addon_price,
+	.wp-list-table .column-addon_enabled,
+	.wp-list-table .column-addon_required {
+		width: auto;
+	}
+}

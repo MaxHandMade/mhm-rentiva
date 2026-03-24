@@ -1,0 +1,67 @@
+/**
+ * MHM Rentiva - Block Editor Styling Fixes (Compact Horizontal Model)
+ */
+
+/* 1. Appearance Overrides */
+.rv-search-form select,
+.rv-search-form-compact select,
+.rv-date-input {
+    background-image: none !important;
+    appearance: auto !important;
+    -webkit-appearance: auto !important;
+    padding-right: 30px !important;
+}
+
+/* 2. Interaction Bypass: Ensure clicks reach the input */
+.wp-block-mhm-rentiva-search,
+.rv-search-block-wrapper,
+.rv-search-form,
+.js-datepicker,
+input[type="date"] {
+    pointer-events: all !important;
+    user-select: auto !important;
+}
+
+/* Fix for Gutenberg block overlay blocking clicks */
+.block-library-block__edit-overlay {
+    pointer-events: none !important;
+}
+
+/* 3. Layout Sync for Compact Horizontal */
+div.is-root-container .rv-search-main-row,
+.wp-block-mhm-rentiva-search .rv-search-main-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+div.is-root-container .rv-datetime-wrapper,
+.wp-block-mhm-rentiva-search .rv-datetime-wrapper {
+    display: grid !important;
+    grid-template-columns: 135px 70px !important;
+    /* Matches frontend scale */
+    gap: 5px !important;
+    width: 210px !important;
+}
+
+div.is-root-container .rv-search-submit,
+.wp-block-mhm-rentiva-search .rv-search-submit {
+    flex: none !important;
+    width: 110px !important;
+    /* Fixed button width for back-end stability */
+}
+
+div.is-root-container .rv-search-btn,
+.wp-block-mhm-rentiva-search .rv-search-btn {
+    width: 100% !important;
+    font-size: 15px !important;
+}
+
+/* Dimensions Support for Gutenberg */
+.wp-block-mhm-rentiva-search .rv-search-form-compact {
+    min-height: auto !important;
+    width: 100% !important;
+}

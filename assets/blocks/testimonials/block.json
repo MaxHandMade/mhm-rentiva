@@ -1,0 +1,127 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/testimonials",
+    "title": "MHM Testimonials",
+    "category": "widgets",
+    "icon": "format-quote",
+    "description": "Display customer testimonials.",
+    "textdomain": "mhm-rentiva",
+    "supports": {
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "customClassName": true,
+        "align": [
+            "wide",
+            "full",
+            "center"
+        ],
+        "color": {
+            "text": true,
+            "background": true,
+            "link": true,
+            "gradients": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true,
+            "blockGap": true
+        },
+        "border": {
+            "color": true,
+            "radius": true,
+            "style": true,
+            "width": true
+        },
+        "typography": {
+            "fontSize": true,
+            "lineHeight": true,
+            "__experimentalFontFamily": true,
+            "__experimentalFontWeight": true
+        }
+    },
+    "attributes": {
+        "layout": {
+            "type": "string",
+            "default": "grid",
+            "enum": [
+                "carousel",
+                "grid",
+                "list"
+            ]
+        },
+        "showDate": {
+            "type": "boolean",
+            "default": true
+        },
+        "showAuthorAvatar": {
+            "type": "boolean",
+            "default": true
+        },
+        "showAuthorName": {
+            "type": "boolean",
+            "default": true
+        },
+        "showRating": {
+            "type": "boolean",
+            "default": true
+        },
+        "showVehicleName": {
+            "type": "boolean",
+            "default": true
+        },
+        "showQuotes": {
+            "type": "boolean",
+            "default": true
+        },
+        "filterRating": {
+            "type": "string",
+            "default": "",
+            "enum": [
+                "",
+                "5",
+                "4",
+                "3"
+            ]
+        },
+        "sortBy": {
+            "type": "string",
+            "default": "date",
+            "enum": [
+                "date",
+                "rating"
+            ]
+        },
+        "sortOrder": {
+            "type": "string",
+            "default": "desc",
+            "enum": [
+                "asc",
+                "desc"
+            ]
+        },
+        "limitItems": {
+            "type": "string",
+            "default": "5"
+        },
+        "columns": {
+            "type": "string",
+            "default": "3"
+        },
+        "autoplay": {
+            "type": "boolean",
+            "default": false
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "editorStyle": [
+        "mhm-rentiva-core-variables"
+    ],
+    "style": [
+        "mhm-rentiva-testimonials"
+    ]
+}

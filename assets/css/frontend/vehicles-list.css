@@ -1,0 +1,126 @@
+/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
+}
+
+/**
+ * MHM Rentiva - Vehicles List Styles
+ * Premium "Chip Style" - Balanced High-End Layout
+ * @since 4.6.5
+ */
+
+/* 1. Global Reset & Core Variables */
+.rv-vehicles-list-container,
+.rv-vehicles-list-container * {
+	box-sizing: border-box;
+}
+
+.rv-vehicles-list-container {
+	--rv-primary: var(--mhm-primary);
+	--rv-text-dark: var(--mhm-text-primary);
+	--rv-text-grey: var(--mhm-text-secondary);
+	--rv-bg-chip: var(--mhm-bg-secondary);
+	--rv-radius-card: var(--mhm-radius-card, 0.8125rem);
+	--rv-radius-btn: var(--mhm-radius-input, 0.5rem);
+	--rv-shadow: var(--mhm-shadow-sm);
+	--rv-shadow-hover: var(--mhm-shadow-lg);
+	--rv-img-width: 280px;
+	--rv-btn-height: 44px;
+	--rv-padding: 20px;
+	--rv-bg-card: var(--mhm-bg-card);
+
+	width: 100%;
+	margin: 0 auto;
+	padding-block: var(--mhm-space-phi-3, 1.3125rem);
+	padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
+	font-family: var(--mhm-font-primary);
+}
+
+/* Description (List Only) */
+.mhm-card-description {
+	font-size: 0.95em;
+	color: var(--mhm-text-secondary, #6b7280);
+	margin-bottom: 0.75rem;
+	line-height: 1.5;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.mhm-card-rating {
+	margin-bottom: 0.5rem;
+}
+
+/*
+ * FIX: Ensure Block Settings Override Global Theme
+ * When user selects a "Link Color" in Gutenberg, WP adds .has-link-color class.
+ * We must force --rv-primary to use that specific color.
+ */
+.rv-vehicles-list-container.has-link-color {
+	--rv-primary: var(--wp--style--color--link) !important;
+}
+
+/* 
+ * FIX: Ensure Text Color setting overrides
+ */
+.rv-vehicles-list-container.has-text-color {
+	--rv-text-dark: var(--wp--style--color--text) !important;
+
+	/* Make grey text follow the main text color but with 80% opacity */
+	--rv-text-grey: color-mix(in srgb, var(--wp--style--color--text), transparent 20%) !important;
+
+	color: var(--rv-text-dark) !important;
+}
+
+/* Ensure SVG icons respect the forced text color */
+.rv-vehicles-list-container.has-text-color .rv-feature-item svg {
+	stroke: currentColor !important;
+}
+
+/* 
+ * FIX: Ensure Background Color setting overrides
+ * The background color is applied to the wrapper by WP, 
+ * but we need to ensure our internal components respect or contrast it if needed.
+ */
+.rv-vehicles-list-container.has-background {
+	/* If background is dark, we might want to invert text, but for now just adhere to settings */
+	background-color: var(--wp--style--color--background) !important;
+	padding: var(--mhm-space-phi-3, 1.3125rem);
+	/* Add padding when background is present for better look */
+	border-radius: var(--mhm-radius-card, 0.8125rem);
+}
+
+/* 2. Layout Wrapper */
+.rv-vehicles-list__wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: var(--mhm-space-phi-3, 1.3125rem);
+	width: 100%;
+}
+
+/* Empty State */
+.rv-vehicles-list__empty {
+	text-align: center;
+	padding: 50px 0;
+	color: var(--mhm-text-secondary);
+	font-size: 1.1rem;
+}
+
+/* Card styles are handled by core/vehicle-card.css */
+
+/* Vehicle location badge */
+.mhm-vehicle-card .mhm-card-location {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 0.75rem;
+	color: #6c757d;
+	margin-bottom: 6px;
+}
+
+.mhm-vehicle-card .mhm-card-location svg {
+	flex-shrink: 0;
+}

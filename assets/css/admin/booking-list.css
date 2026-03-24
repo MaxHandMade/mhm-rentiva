@@ -1,0 +1,403 @@
+/* Booking List Table Styles */
+.mhm-booking-list {
+	overflow-x: auto;
+	box-sizing: border-box;
+}
+
+.mhm-booking-list .badge {
+	display: inline-block;
+	padding: 0.25rem 0.5rem;
+	border-radius: var(--mhm-radius-sm);
+	font-size: 0.8rem;
+	font-weight: var(--mhm-font-medium);
+	text-align: center;
+	white-space: nowrap;
+	color: var(--mhm-text-primary);
+}
+
+/* Styles for new columns */
+.mhm-booking-list .booking-id {
+	font-family: monospace;
+	font-weight: var(--mhm-font-bold);
+	color: var(--mhm-text-secondary);
+	font-size: 0.9rem;
+}
+
+.mhm-booking-list .license-plate {
+	font-family: monospace;
+	font-weight: var(--mhm-font-bold);
+	background-color: var(--mhm-bg-secondary);
+	padding: 0.2rem 0.4rem;
+	border-radius: var(--mhm-radius-sm);
+	font-size: 0.85rem;
+	border: 1px solid var(--mhm-border-secondary);
+}
+
+.mhm-booking-list .booking-type {
+	display: inline-block;
+	padding: 0.2rem 0.5rem;
+	border-radius: var(--mhm-radius-sm);
+	font-size: 0.8rem;
+	font-weight: var(--mhm-font-medium);
+	text-align: center;
+}
+
+:root {
+	--mhm-booking-type-rental-bg: #e3f2fd;
+	--mhm-booking-type-rental-color: #1565c0;
+	--mhm-booking-type-transfer-bg: #f3e5f5;
+	--mhm-booking-type-transfer-color: #6a1b9a;
+	--mhm-booking-type-manual-bg: #fff3e0;
+	--mhm-booking-type-manual-color: #e65100;
+	--mhm-orange: #fd7e14;
+	--mhm-booking-type-rental-border: #bbdefb;
+	--mhm-booking-type-transfer-border: #ce93d8;
+	--mhm-booking-type-manual-border: #ffcc02;
+	--mhm-completed-payment-bg: #d4edda;
+	--mhm-completed-payment-border: #c3e6cb;
+	--mhm-completed-payment-text: #155724;
+}
+
+.mhm-booking-list .booking-type.rental {
+	background-color: var(--mhm-booking-type-rental-bg);
+	color: var(--mhm-booking-type-rental-color);
+	border: 1px solid var(--mhm-booking-type-rental-border);
+}
+
+.mhm-booking-list .booking-type.transfer {
+	background-color: var(--mhm-booking-type-transfer-bg);
+	color: var(--mhm-booking-type-transfer-color);
+	border: 1px solid var(--mhm-booking-type-transfer-border);
+}
+
+.mhm-booking-list .booking-type.manual {
+	background-color: var(--mhm-booking-type-manual-bg);
+	color: var(--mhm-booking-type-manual-color);
+	border: 1px solid var(--mhm-booking-type-manual-border);
+}
+
+/* Small "M" badge for manually entered bookings */
+.mhm-booking-list .booking-type-manual-badge {
+	display: inline-block;
+	margin-left: 4px;
+	padding: 0 4px;
+	font-size: 0.65rem;
+	font-weight: var(--mhm-font-bold);
+	background: var(--mhm-booking-type-manual-bg);
+	color: var(--mhm-booking-type-manual-color);
+	border: 1px solid var(--mhm-booking-type-manual-border);
+	border-radius: var(--mhm-radius-sm);
+	vertical-align: middle;
+	cursor: default;
+}
+
+/* Styles for deposit amount column */
+.mhm-booking-list .deposit-amount {
+	font-weight: var(--mhm-font-bold);
+	color: var(--mhm-success);
+	font-size: 0.9rem;
+}
+
+/* Styles for remaining amount column */
+.mhm-booking-list .remaining-amount {
+	font-weight: var(--mhm-font-bold);
+	color: var(--mhm-error);
+	font-size: 0.9rem;
+}
+
+.mhm-booking-list .remaining-amount.paid {
+	color: var(--mhm-success);
+}
+
+/* Styles for customer info in title column */
+.mhm-booking-list .column-title strong a {
+	color: var(--mhm-primary);
+	text-decoration: none;
+}
+
+.mhm-booking-list .column-title strong a:hover {
+	color: var(--mhm-primary-dark);
+	text-decoration: underline;
+}
+
+/* Phone number highlight */
+.mhm-booking-list .column-title strong {
+	display: block;
+	margin-bottom: 2px;
+}
+
+
+.mhm-booking-list .postform:focus {
+	border-color: var(--mhm-primary);
+	box-shadow: 0 0 0 1px var(--mhm-primary);
+	outline: none;
+}
+
+/* Custom styles for dropdown fields */
+.mhm-booking-list .postform[class*="postform"] {
+	padding-right: 25px;
+	/* Right padding for dropdown arrow */
+	background-position: right 8px center;
+	/* Dropdown ok konumu */
+	background-repeat: no-repeat;
+	background-size: 12px;
+}
+
+
+.mhm-booking-list select.postform[name="mhm_booking_status"] {
+	min-width: 130px;
+	padding-right: 30px;
+	/* Extra padding for dropdown arrow */
+}
+
+/* General fix for WordPress admin dropdowns */
+.mhm-booking-list select.postform {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+	background-size: 12px;
+	padding-right: 30px;
+}
+
+/* Custom layout for all payments dropdown */
+.mhm-booking-list select.postform[name="mhm_payment_status"] {
+	min-width: 140px;
+	padding-right: 35px;
+}
+
+/* Custom layout for all payment methods dropdown */
+.mhm-booking-list select.postform[name="mhm_payment_method"] {
+	min-width: 160px;
+	padding-right: 35px;
+}
+
+
+/* Status badge colors */
+.mhm-booking-list .badge.status-draft {
+	background-color: var(--mhm-gray-500);
+	color: var(--mhm-white);
+}
+
+.mhm-booking-list .badge.status-pending {
+	background-color: var(--mhm-warning);
+	color: var(--mhm-white);
+}
+
+.mhm-booking-list .badge.status-confirmed {
+	background-color: var(--mhm-success);
+	/* 🟢 Green - Successful, confirmed */
+	color: var(--mhm-white);
+}
+
+.mhm-booking-list .badge.status-in_progress {
+	background-color: var(--mhm-orange);
+	/* Orange */
+	/* 🟠 Turuncu - Aktif, devam eden */
+	color: var(--mhm-white);
+}
+
+.mhm-booking-list .badge.status-completed {
+	background-color: #28a745;
+	/* 🟢 Green - Completed, finished */
+	color: var(--mhm-white);
+}
+
+/* Payment column green treatment when booking is completed */
+.mhm-booking-list tr.status-completed .payment-info .badge.payment-status-paid {
+	background-color: #28a745;
+	color: var(--mhm-white);
+}
+
+.mhm-booking-list tr.status-completed .mhm-gateway-pill {
+	background-color: var(--mhm-completed-payment-bg);
+	border-color: var(--mhm-completed-payment-border);
+	color: var(--mhm-completed-payment-text);
+}
+
+.mhm-booking-list .badge.status-cancelled {
+	background-color: var(--mhm-error);
+	/* 🔴 Red - Cancelled, error */
+	color: var(--mhm-white);
+}
+
+.mhm-booking-list .badge.status-refunded {
+	background-color: var(--mhm-warning);
+	color: #7a5500;
+}
+
+.mhm-booking-list .badge.status-no_show {
+	background-color: var(--mhm-error);
+	color: var(--mhm-white);
+}
+
+/* Payment status styling */
+.mhm-booking-list .payment-info {
+	font-size: 0.9rem;
+	line-height: 1.3;
+}
+
+
+/* Vehicle info styling */
+.mhm-booking-list .vehicle-info {
+	font-size: 0.9rem;
+}
+
+.mhm-booking-list .vehicle-info .vehicle-name {
+	font-weight: var(--mhm-font-medium);
+	color: var(--mhm-text-primary);
+	display: block;
+	margin-bottom: 0.2rem;
+}
+
+.mhm-booking-list .vehicle-info .vehicle-plate {
+	font-size: 0.8rem;
+	color: var(--mhm-text-secondary);
+	font-family: monospace;
+}
+
+/* Date info styling */
+.mhm-booking-list .date-info {
+	font-size: 0.9rem;
+	line-height: 1.3;
+}
+
+.mhm-booking-list .date-info .date-range {
+	font-weight: var(--mhm-font-medium);
+	color: var(--mhm-text-primary);
+}
+
+.mhm-booking-list .date-info .time-info {
+	font-size: 0.8rem;
+	color: var(--mhm-text-secondary);
+}
+
+/* Total amount styling */
+.mhm-booking-list .total-amount {
+	font-weight: var(--mhm-font-bold);
+	color: var(--mhm-text-primary);
+	font-size: 0.9rem;
+}
+
+/* Filter dropdowns styling */
+.mhm-booking-list .postform {
+	margin-right: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 782px) {
+	.mhm-booking-list {
+		overflow-x: auto;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.mhm-booking-list .badge {
+		font-size: 0.7rem;
+		padding: 0.2rem 0.4rem;
+	}
+
+	.mhm-booking-list .vehicle-info,
+	.mhm-booking-list .date-info,
+	.mhm-booking-list .payment-info {
+		font-size: 0.8rem;
+	}
+
+	/* Calendar responsive */
+	.calendar-container {
+		margin: 5px 0;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+
+	.calendar-grid div {
+		padding: 0.3rem 0.05rem;
+		font-size: 0.7rem;
+		min-height: 30px;
+	}
+}
+
+/* ── Payment status badges ── */
+.mhm-booking-list .badge.payment-status-paid {
+	background-color: var(--mhm-success);
+	color: var(--mhm-white);
+}
+
+.mhm-booking-list .badge.payment-status-pending,
+.mhm-booking-list .badge.payment-status-unpaid {
+	background-color: var(--mhm-bg-tertiary);
+	color: var(--mhm-text-secondary);
+	border: 1px solid var(--mhm-border-primary);
+}
+
+.mhm-booking-list .badge.payment-status-partially_paid {
+	background-color: var(--mhm-warning);
+	color: #7a5500;
+}
+
+.mhm-booking-list .badge.payment-status-refunded {
+	background-color: var(--mhm-warning);
+	color: #7a5500;
+}
+
+.mhm-booking-list .badge.payment-status-free {
+	background-color: var(--mhm-bg-secondary);
+	color: var(--mhm-text-tertiary);
+}
+
+.mhm-booking-list .badge.payment-status-failed {
+	background-color: var(--mhm-error);
+	color: var(--mhm-white);
+}
+
+.mhm-booking-list .badge.payment-status-processing {
+	background-color: var(--mhm-primary);
+	color: var(--mhm-white);
+}
+
+.mhm-booking-list .badge.payment-status-unknown,
+.mhm-booking-list .badge.payment-status-pending_verification {
+	background-color: var(--mhm-bg-tertiary);
+	color: var(--mhm-text-secondary);
+	border: 1px solid var(--mhm-border-primary);
+}
+
+/* ── Gateway pill ── */
+.mhm-booking-list .mhm-gateway-pill {
+	display: inline-block;
+	margin-top: var(--mhm-space-1);
+	padding: 2px 8px;
+	background: var(--mhm-bg-secondary);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-full);
+	font-size: 0.75rem;
+	color: var(--mhm-text-secondary);
+	white-space: nowrap;
+}
+
+/* ── Row hover ── */
+.mhm-booking-list .wp-list-table tbody tr {
+	transition: background-color 150ms ease;
+}
+
+.mhm-booking-list .wp-list-table tbody tr:hover td {
+	background-color: var(--mhm-bg-secondary);
+}
+
+/* ── Empty value ── */
+.mhm-empty-value {
+	color: var(--mhm-text-tertiary);
+}
+
+/* ── Fix subsubsub spacing tokens ── */
+.mhm-booking-list .subsubsub {
+	margin-bottom: var(--mhm-space-3);
+}
+
+.mhm-booking-list .subsubsub li {
+	margin-right: var(--mhm-space-4);
+}

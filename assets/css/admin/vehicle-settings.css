@@ -1,0 +1,656 @@
+/*
+ * MHM Rentiva - Vehicle Settings Page Styles
+ * v5.0.0 - Premium Design & Responsive Cleanup
+ * Colors use CSS design tokens. rgba() shadows/overlays use literal values.
+ */
+
+/* ---------------------------------------------------------
+   1. GLOBAL SCALE & CONTAINER NORMALIZATION
+   --------------------------------------------------------- */
+.mhm-settings-container {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: var(--mhm-space-4);
+	margin-top: var(--mhm-space-4);
+	width: 100%;
+	box-sizing: border-box;
+}
+
+/* Compact Premium Card */
+.mhm-settings-card {
+	background: var(--mhm-bg-card);
+	padding: var(--mhm-space-4);
+	border-radius: var(--mhm-radius-lg);
+	box-shadow: var(--mhm-shadow-sm);
+	border: 1px solid var(--mhm-border-primary);
+	box-sizing: border-box;
+	height: fit-content;
+	overflow: hidden;
+}
+
+.mhm-settings-card h2 {
+	font-size: 1rem !important;
+	margin-bottom: var(--mhm-space-1) !important;
+	color: var(--mhm-text-primary);
+	font-weight: var(--mhm-font-semibold) !important;
+}
+
+.mhm-settings-card p {
+	font-size: var(--mhm-text-sm);
+	color: var(--mhm-text-secondary);
+	margin-bottom: var(--mhm-space-3);
+}
+
+/* ---------------------------------------------------------
+   2. UNIFIED CHECKBOX COMPONENT
+   --------------------------------------------------------- */
+.mhm-checkbox-list {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: var(--mhm-space-2);
+	margin-bottom: var(--mhm-space-4);
+	width: 100%;
+}
+
+.mhm-checkbox-item {
+	display: flex !important;
+	justify-content: space-between !important;
+	align-items: center !important;
+	gap: var(--mhm-space-3) !important;
+	padding: 6px 12px !important;
+	background: var(--mhm-bg-card) !important;
+	border: 1px solid var(--mhm-border-primary) !important;
+	border-radius: var(--mhm-radius-base) !important;
+	transition: all 0.15s ease !important;
+	box-sizing: border-box !important;
+	width: 100% !important;
+	min-height: 44px !important;
+	margin: 0 !important;
+}
+
+.mhm-checkbox-item:hover {
+	background: var(--mhm-bg-secondary) !important;
+	border-color: var(--mhm-border-secondary) !important;
+}
+
+.mhm-checkbox-label {
+	display: flex !important;
+	align-items: center !important;
+	gap: 10px !important;
+	flex-grow: 1 !important;
+	cursor: pointer !important;
+	margin: 0 !important;
+}
+
+/* Remove button */
+.mhm-checkbox-item .button-link[class*="remove-"] {
+	padding: 0 5px !important;
+	font-size: 20px !important;
+	line-height: 1 !important;
+	text-decoration: none !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	color: var(--mhm-error) !important;
+	min-width: 24px;
+	height: 24px;
+}
+
+/* Core details (no remove button) */
+.mhm-checkbox-item:not(.mhm-removable-item) {
+	justify-content: flex-start !important;
+}
+
+/* Custom Checkbox appearance */
+.mhm-checkbox-item input[type="checkbox"],
+.mhm-ui-checkbox input[type="checkbox"] {
+	appearance: none !important;
+	-webkit-appearance: none !important;
+	background-color: var(--mhm-bg-card) !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	width: 16px !important;
+	height: 16px !important;
+	border: 2px solid var(--mhm-gray-400) !important;
+	border-radius: 2px !important;
+	cursor: pointer !important;
+	position: relative !important;
+	display: inline-block !important;
+	vertical-align: middle !important;
+	flex-shrink: 0 !important;
+	opacity: 1 !important;
+}
+
+.mhm-checkbox-item input[type="checkbox"]:checked,
+.mhm-ui-checkbox input[type="checkbox"]:checked {
+	background-color: var(--mhm-primary) !important;
+	border-color: var(--mhm-primary) !important;
+}
+
+.mhm-checkbox-item input[type="checkbox"]:checked:before,
+.mhm-ui-checkbox input[type="checkbox"]:checked:before {
+	content: "" !important;
+	position: absolute !important;
+	left: 4px !important;
+	top: 1px !important;
+	width: 4px !important;
+	height: 8px !important;
+	border: solid var(--mhm-bg-card) !important;
+	border-width: 0 2px 2px 0 !important;
+	transform: rotate(45deg) !important;
+	margin: 0 !important;
+	display: block !important;
+}
+
+.mhm-checkbox-item span {
+	font-size: 14px !important;
+	font-weight: var(--mhm-font-medium) !important;
+	color: var(--mhm-text-primary) !important;
+	line-height: 1.4 !important;
+}
+
+/* Section Sub-titles */
+.mhm-card-section-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: var(--mhm-space-4) !important;
+	margin-top: var(--mhm-space-3);
+}
+
+.mhm-card-section-header h4 {
+	margin: 0 !important;
+	font-size: var(--mhm-text-xs) !important;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--mhm-text-tertiary);
+}
+
+/* Header Actions */
+.mhm-category-actions {
+	display: flex;
+	gap: var(--mhm-space-1);
+}
+
+.mhm-category-actions .button {
+	font-size: 11px !important;
+	height: 24px !important;
+	line-height: 22px !important;
+	padding: 0 8px !important;
+}
+
+/* ---------------------------------------------------------
+   3. CUSTOM FIELDS SECTION HEADERS & ADD ROW
+   --------------------------------------------------------- */
+
+/* Replaces inline: margin-top: 20px; font-size: 11px; text-transform: uppercase; color: hardcoded */
+.mhm-custom-section-header {
+	margin-top: var(--mhm-space-5) !important;
+	margin-bottom: var(--mhm-space-2) !important;
+	font-size: var(--mhm-text-xs) !important;
+	font-weight: var(--mhm-font-semibold) !important;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--mhm-text-tertiary);
+}
+
+/* Replaces inline: margin-top: 15px */
+.mhm-add-custom-wrapper {
+	margin-top: var(--mhm-space-4);
+}
+
+/* "Add Custom" row — inputs and button */
+.mhm-add-custom-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--mhm-space-2);
+	align-items: center;
+}
+
+.mhm-add-custom-row input[type="text"] {
+	flex: 1;
+	min-width: 160px;
+	max-width: 250px;
+}
+
+.mhm-add-custom-row select {
+	min-width: 120px;
+	max-width: 160px;
+}
+
+.mhm-add-custom-row .mhm-select-options-input {
+	flex: 2;
+	min-width: 200px;
+}
+
+/* ---------------------------------------------------------
+   4. DROP ZONE & DRAG-AND-DROP (Premium)
+   --------------------------------------------------------- */
+
+/* Two-column layout for visible/available lists */
+.mhm-card-fields-columns {
+	display: flex;
+	gap: var(--mhm-space-5);
+}
+
+.mhm-card-fields-column {
+	flex: 1;
+	background: var(--mhm-bg-card);
+	padding: var(--mhm-space-4);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-lg);
+	min-width: 0;
+}
+
+.mhm-card-fields-column h4 {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin: 0 0 var(--mhm-space-2) 0;
+	font-size: 13px;
+	font-weight: var(--mhm-font-semibold);
+	color: var(--mhm-text-primary);
+}
+
+/* Search input inside column */
+.mhm-card-field-search {
+	width: 100% !important;
+	margin: 0 0 var(--mhm-space-2) 0 !important;
+	box-sizing: border-box;
+}
+
+/* Drop zone list */
+.mhm-card-fields-list {
+	min-height: 80px;
+	max-height: 300px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	border: 2px dashed var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-md);
+	padding: var(--mhm-space-2);
+	background: var(--mhm-bg-secondary);
+	transition: border-color 0.2s ease, background-color 0.2s ease;
+	list-style: none;
+	margin: 0;
+}
+
+.mhm-card-fields-list:hover,
+.mhm-card-fields-list.ui-sortable-over {
+	border-color: var(--mhm-primary);
+	background: color-mix(in srgb, var(--mhm-primary) 4%, var(--mhm-bg-secondary));
+}
+
+.mhm-card-fields-list.is-empty::after {
+	content: attr(data-empty-label);
+	display: block;
+	text-align: center;
+	padding: var(--mhm-space-4);
+	color: var(--mhm-text-tertiary);
+	font-size: var(--mhm-text-sm);
+	font-style: italic;
+}
+
+/* Footer tip */
+.mhm-card-fields-footer {
+	margin-top: var(--mhm-space-3) !important;
+	font-size: var(--mhm-text-sm);
+	color: var(--mhm-text-tertiary);
+}
+
+/* Drag sortable placeholder */
+.mhm-card-fields-placeholder {
+	height: 38px;
+	background: color-mix(in srgb, var(--mhm-primary) 8%, transparent);
+	border: 2px dashed var(--mhm-primary);
+	border-radius: var(--mhm-radius-base);
+	margin: 4px 0;
+	list-style: none;
+}
+
+/* Individual draggable list item */
+.mhm-card-field-item {
+	padding: var(--mhm-space-2) var(--mhm-space-3);
+	margin: 4px 0;
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-base);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: var(--mhm-space-2);
+	cursor: grab;
+	transition: box-shadow 0.15s ease, border-color 0.15s ease;
+	list-style: none;
+}
+
+.mhm-card-field-item:hover {
+	border-color: var(--mhm-border-secondary);
+	box-shadow: var(--mhm-shadow-sm);
+}
+
+.mhm-card-field-item:active {
+	cursor: grabbing;
+	box-shadow: var(--mhm-shadow-base);
+}
+
+/* Drag handle icon */
+.mhm-drag-handle {
+	color: var(--mhm-gray-400);
+	cursor: grab;
+	flex-shrink: 0;
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0.6;
+	transition: opacity 0.15s ease;
+}
+
+.mhm-card-field-item:hover .mhm-drag-handle {
+	opacity: 1;
+	color: var(--mhm-text-secondary);
+}
+
+/* Field label inside list item */
+.mhm-card-field-label {
+	flex: 1;
+	font-weight: var(--mhm-font-medium);
+	font-size: 13px;
+	color: var(--mhm-text-primary);
+}
+
+/* Remove button inside list item */
+.mhm-card-field-item .remove-field {
+	color: var(--mhm-gray-400);
+	font-size: 18px;
+	line-height: 1;
+	padding: 0 4px;
+	text-decoration: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 24px;
+	height: 24px;
+	transition: color 0.15s ease;
+}
+
+.mhm-card-field-item .remove-field:hover {
+	color: var(--mhm-error);
+}
+
+/* Available items (not selected) — slightly muted */
+.mhm-card-field-item:not(.selected) {
+	background: var(--mhm-bg-secondary);
+	cursor: pointer;
+}
+
+.mhm-card-field-item:not(.selected):hover {
+	background: var(--mhm-bg-card);
+}
+
+/* ---------------------------------------------------------
+   5. DISPLAY OPTIONS — SECTION DIVIDER & SAVE ACTIONS
+   --------------------------------------------------------- */
+
+/* Replaces <hr style="margin: 30px 0;"> */
+.mhm-section-divider {
+	border: none;
+	border-top: 1px solid var(--mhm-border-primary);
+	margin: var(--mhm-space-8) 0;
+}
+
+/* Replaces <div style="margin-top: 20px;"> around the save button */
+.mhm-display-save-actions {
+	margin-top: var(--mhm-space-5);
+}
+
+/* ---------------------------------------------------------
+   6. COMPARISON TABLE FIELDS
+   --------------------------------------------------------- */
+.mhm-field-category {
+	background: var(--mhm-bg-secondary);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-md);
+	padding: var(--mhm-space-4);
+	margin-bottom: var(--mhm-space-5);
+}
+
+.mhm-category-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: var(--mhm-space-3);
+}
+
+.mhm-category-header h4 {
+	margin: 0;
+	font-size: var(--mhm-text-sm);
+	font-weight: var(--mhm-font-semibold);
+	color: var(--mhm-text-primary);
+}
+
+.mhm-field-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: var(--mhm-space-2);
+}
+
+.mhm-section-subtitle {
+	margin: 0 !important;
+	margin-bottom: var(--mhm-space-2) !important;
+	font-size: 13px !important;
+	color: var(--mhm-text-secondary);
+	font-weight: var(--mhm-font-semibold) !important;
+}
+
+/* ---------------------------------------------------------
+   7. MOBILE RESPONSIVENESS — 782px (WordPress tablet breakpoint)
+   --------------------------------------------------------- */
+@media screen and (max-width: 782px) {
+
+	/* Definitions tab: single column */
+	.mhm-settings-container {
+		grid-template-columns: 1fr !important;
+		gap: var(--mhm-space-3) !important;
+		width: 100% !important;
+	}
+
+	.mhm-settings-card {
+		padding: var(--mhm-space-3) !important;
+		width: 100% !important;
+	}
+
+	/* Checkbox grids: single column */
+	.mhm-checkbox-list,
+	.mhm-field-list {
+		grid-template-columns: 1fr !important;
+		gap: var(--mhm-space-2) !important;
+	}
+
+	.mhm-checkbox-item,
+	.mhm-checkbox-label {
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: nowrap !important;
+		align-items: center !important;
+		gap: var(--mhm-space-3) !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	.mhm-checkbox-item {
+		min-height: 48px !important;
+		padding: 10px 15px !important;
+	}
+
+	.mhm-checkbox-item span {
+		font-size: 14px !important;
+		white-space: normal !important;
+		flex-grow: 1 !important;
+	}
+
+	/* Display tab: card columns stack vertically */
+	.mhm-card-fields-columns {
+		flex-direction: column !important;
+		gap: var(--mhm-space-3) !important;
+	}
+
+	.mhm-card-fields-list {
+		max-height: 220px;
+	}
+
+	/* Add custom row: stack */
+	.mhm-add-custom-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.mhm-add-custom-row input[type="text"],
+	.mhm-add-custom-row select {
+		max-width: none !important;
+		width: 100% !important;
+	}
+
+	/* Sticky save button (definitions tab header actions) */
+	.mhm-vehicle-settings-wrapper .mhm-admin-header-actions {
+		width: 100% !important;
+		display: flex !important;
+		flex-direction: column !important;
+		gap: var(--mhm-space-2) !important;
+		margin-top: var(--mhm-space-4) !important;
+	}
+
+	.mhm-vehicle-settings-wrapper .mhm-admin-header-actions .button {
+		width: 100% !important;
+		justify-content: center !important;
+		font-size: 13px !important;
+	}
+
+	/* Sticky save — Display tab */
+	.mhm-display-save-actions.submit-section {
+		position: sticky;
+		bottom: 0;
+		background: var(--mhm-bg-card);
+		padding: var(--mhm-space-3) var(--mhm-space-4);
+		margin: 0 calc(-1 * var(--mhm-space-4)) calc(-1 * var(--mhm-space-4));
+		box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+		border-top: 1px solid var(--mhm-border-primary);
+		z-index: 100;
+	}
+
+	.mhm-display-save-actions.submit-section .button-primary {
+		width: 100%;
+		height: 44px;
+		font-size: 16px;
+	}
+}
+
+/* ---------------------------------------------------------
+   8. OVERFLOW SHIELD
+   --------------------------------------------------------- */
+.mhm-rentiva-page-vehicle-settings #wpbody-content {
+	overflow-x: hidden !important;
+}
+
+/* ---------------------------------------------------------
+   CUSTOM ITEM (AJAX-added fields in definitions tab)
+   --------------------------------------------------------- */
+.mhm-custom-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: var(--mhm-space-2);
+	padding: 6px 12px;
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-base);
+	margin-bottom: var(--mhm-space-1);
+}
+
+.mhm-custom-item label {
+	display: flex;
+	align-items: center;
+	gap: var(--mhm-space-2);
+	flex: 1;
+	cursor: pointer;
+	margin: 0;
+}
+
+.mhm-custom-item input[type="checkbox"] {
+	margin: 0;
+	flex-shrink: 0;
+}
+
+.mhm-custom-item .button-link[class*="remove-"],
+.mhm-custom-item button[class*="remove-"] {
+	color: var(--mhm-error);
+	text-decoration: none;
+	flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------
+   RENAME MODAL (inline JS-built modal)
+   --------------------------------------------------------- */
+#mhm-rename-modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 100000;
+	align-items: center;
+	justify-content: center;
+}
+
+#mhm-rename-modal.is-open {
+	display: flex;
+}
+
+.mhm-rename-modal-card {
+	background: var(--mhm-bg-card);
+	border-radius: var(--mhm-radius-lg);
+	padding: var(--mhm-space-6);
+	width: 90%;
+	max-width: 500px;
+	max-height: 80vh;
+	overflow-y: auto;
+	box-shadow: var(--mhm-shadow-xl);
+}
+
+.mhm-rename-modal-card h3 {
+	margin: 0 0 var(--mhm-space-4) 0;
+	font-size: var(--mhm-text-lg);
+	color: var(--mhm-text-primary);
+}
+
+#rename-fields-container {
+	margin-bottom: var(--mhm-space-4);
+}
+
+.mhm-rename-field-row {
+	display: flex;
+	align-items: center;
+	gap: var(--mhm-space-3);
+	margin-bottom: var(--mhm-space-2);
+}
+
+.mhm-rename-field-row label {
+	flex: 0 0 120px;
+	font-size: var(--mhm-text-sm);
+	color: var(--mhm-text-secondary);
+}
+
+.mhm-rename-field-row input[type="text"] {
+	flex: 1;
+}
+
+.mhm-rename-modal-actions {
+	display: flex;
+	gap: var(--mhm-space-2);
+	justify-content: flex-end;
+}

@@ -1,0 +1,194 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/unified-search",
+    "title": "MHM Unified Search",
+    "category": "widgets",
+    "icon": "search",
+    "description": "Unified vehicle and transfer search widget with date picker and location selection.",
+    "textdomain": "mhm-rentiva",
+    "supports": {
+        "html": true,
+        "anchor": true,
+        "className": true,
+        "customClassName": true,
+        "align": [
+            "wide",
+            "full",
+            "center"
+        ],
+        "color": {
+            "text": true,
+            "background": true,
+            "link": true,
+            "gradients": true,
+            "__experimentalDefaultControls": {
+                "background": true,
+                "text": true
+            }
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true,
+            "blockGap": true,
+            "__experimentalDefaultControls": {
+                "padding": true
+            }
+        },
+        "border": {
+            "color": true,
+            "radius": true,
+            "style": true,
+            "width": true,
+            "__experimentalDefaultControls": {
+                "radius": true
+            }
+        },
+        "typography": {
+            "fontSize": true,
+            "lineHeight": true,
+            "__experimentalFontFamily": true,
+            "__experimentalFontWeight": true,
+            "__experimentalFontStyle": true,
+            "__experimentalTextTransform": true,
+            "__experimentalDefaultControls": {
+                "fontSize": true
+            }
+        },
+        "layout": {
+            "allowSizingOnChildren": true
+        }
+    },
+    "attributes": {
+        "search_layout": {
+            "type": "string",
+            "default": "horizontal",
+            "enum": [
+                "horizontal",
+                "vertical",
+                "compact"
+            ]
+        },
+        "default_tab": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+                "default",
+                "rental",
+                "transfer"
+            ]
+        },
+        "show_rental_tab": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+                "default",
+                "true",
+                "false"
+            ]
+        },
+        "show_transfer_tab": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+                "default",
+                "true",
+                "false"
+            ]
+        },
+        "show_location_select": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+                "default",
+                "true",
+                "false"
+            ]
+        },
+        "show_time_select": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+                "default",
+                "true",
+                "false"
+            ]
+        },
+        "show_date_picker": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+                "default",
+                "true",
+                "false"
+            ]
+        },
+        "show_dropoff_location": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+                "default",
+                "true",
+                "false"
+            ]
+        },
+        "show_pax": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+                "default",
+                "true",
+                "false"
+            ]
+        },
+        "show_luggage": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+                "default",
+                "true",
+                "false"
+            ]
+        },
+        "service_type": {
+            "type": "string",
+            "default": "both",
+            "enum": [
+                "rental",
+                "transfer",
+                "both"
+            ]
+        },
+        "filter_categories": {
+            "type": "string",
+            "default": ""
+        },
+        "redirect_page": {
+            "type": "string",
+            "default": "default"
+        },
+        "min_width": {
+            "type": "string",
+            "default": ""
+        },
+        "max_width": {
+            "type": "string",
+            "default": ""
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        },
+        "style": {
+            "type": "string",
+            "default": "glass"
+        }
+    },
+    "editorStyle": [
+        "mhm-rentiva-core-variables",
+        "mhm-rentiva-block-editor-fixes"
+    ],
+    "style": [
+        "mhm-rentiva-unified-search"
+    ]
+}

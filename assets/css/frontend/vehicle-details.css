@@ -1,0 +1,1161 @@
+/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
+}
+
+.rv-vehicle-details-wrapper {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
+	padding-block: 0;
+	font-family: var(--mhm-font-primary);
+}
+
+.rv-vehicle-details {
+	display: grid;
+	grid-template-columns: 1fr 400px;
+	grid-template-areas:
+		"gallery info"
+		"content info";
+	gap: 2.5rem;
+	padding: 2.5rem;
+}
+
+/* Grid Area Assignments */
+.rv-vehicle-gallery-section {
+	grid-area: gallery;
+}
+
+.rv-vehicle-content-section {
+	grid-area: content;
+}
+
+.rv-vehicle-info-section {
+	grid-area: info;
+}
+
+/* ============================================
+   LEFT COLUMN: GALLERY & META
+   ============================================ */
+.rv-vehicle-gallery-section {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+.rv-vehicle-content-section {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+.rv-main-image-wrapper {
+	position: relative;
+	border-radius: var(--mhm-radius-lg);
+	overflow: hidden;
+	background: #f1f5f9;
+	aspect-ratio: 16/9;
+	box-shadow: var(--mhm-shadow-lg);
+}
+
+.rv-featured-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.3s ease;
+}
+
+/* Category & Status Badges */
+.rv-category-badge {
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	z-index: 10;
+}
+
+.rv-category-badge a {
+	background: rgba(255, 255, 255, 0.95);
+	color: var(--mhm-primary);
+	padding: 6px 14px;
+	border-radius: 8px;
+	font-weight: 700;
+	font-size: 13px;
+	text-decoration: none;
+	backdrop-filter: blur(4px);
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.rv-status-badge--unavailable {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	background: var(--mhm-error);
+	color: var(--mhm-white);
+	padding: 6px 14px;
+	border-radius: 8px;
+	font-weight: 700;
+	font-size: 13px;
+}
+
+/* Gallery Thumbnails */
+.rv-gallery-thumbnails {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+	gap: 12px;
+	margin-top: 10px;
+}
+
+.rv-thumbnail-item {
+	aspect-ratio: 4/3;
+	border-radius: 12px;
+	overflow: hidden;
+	cursor: pointer;
+	border: 2px solid transparent;
+	transition: all 0.2s;
+	background: #f8fafc;
+}
+
+.rv-thumbnail-item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.rv-thumbnail-item.active {
+	border-color: var(--mhm-primary);
+	box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.1);
+}
+
+/* Vehicle Meta Chips (Match List View) */
+.rv-vehicle-meta-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.rv-vehicle-meta-chips .rv-feature-item {
+	background: var(--mhm-bg-secondary);
+	color: var(--mhm-text-primary);
+	padding: 4px 10px;
+	border-radius: 6px;
+	font-size: 0.75rem;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	border: 1px solid var(--mhm-border-primary);
+}
+
+.rv-vehicle-meta-chips .rv-feature-item svg {
+	width: 12px;
+	height: 12px;
+	color: var(--mhm-text-secondary);
+}
+
+.rv-feature-text {
+	font-size: 0.75rem;
+	font-weight: 500;
+}
+
+/* Short Description */
+.rv-vehicle-short-description {
+	font-size: 15px;
+	line-height: 1.6;
+	color: var(--mhm-text-secondary);
+	font-style: italic;
+	margin-bottom: 0.5rem;
+}
+
+/* Description */
+.rv-vehicle-description {
+	margin-top: 1rem;
+}
+
+.rv-section-title {
+	font-size: 1.25rem;
+	font-weight: 800;
+	color: var(--mhm-text-primary);
+	margin-bottom: 1.5rem;
+	position: relative;
+	padding-left: 15px;
+}
+
+.rv-section-title::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 4px;
+	bottom: 4px;
+	width: 4px;
+	background: var(--mhm-primary);
+	border-radius: 2px;
+}
+
+.rv-description-text {
+	font-size: 15px;
+	line-height: 1.8;
+	color: #4a5568;
+}
+
+/* Integrated Reviews Aligned with Left Column */
+.rv-integrated-reviews-section {
+	margin-top: 3rem;
+	border-top: 1px solid #edf2f7;
+	padding-top: 3rem;
+}
+
+/* Override Rating Form Internal Padding when integrated */
+.rv-integrated-reviews-section .rv-unified-ratings-section {
+	padding: 0 !important;
+	background: transparent !important;
+}
+
+/* ============================================
+   RIGHT COLUMN: BOOKING & CALENDAR
+   ============================================ */
+.rv-vehicle-info-section {
+	position: relative;
+}
+
+.rv-booking-card-sticky {
+	position: sticky;
+	top: 2rem;
+	background: var(--mhm-white);
+	border: 1px solid var(--mhm-gray-100);
+	border-radius: var(--mhm-radius-lg);
+	padding: 2rem;
+	box-shadow: var(--mhm-shadow-lg);
+}
+
+.rv-header-main {
+	margin-bottom: 1.5rem;
+}
+
+.rv-vehicle-title {
+	font-size: 1.75rem;
+	font-weight: 900;
+	color: var(--mhm-text-primary);
+	margin-bottom: 0.75rem;
+	line-height: 1.2;
+}
+
+.rv-price-tag {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+}
+
+.rv-price-val {
+	font-size: 1.85rem;
+	font-weight: 800;
+	color: var(--mhm-price-color);
+}
+
+.rv-period {
+	color: var(--mhm-text-secondary);
+	font-weight: 500;
+	font-size: 15px;
+}
+
+.rv-stats-bar {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 2rem;
+}
+
+.rv-mini-stars {
+	font-size: 14px;
+	display: flex;
+	gap: 2px;
+}
+
+.rv-mini-stars .rv-star {
+	color: #d1d5db;
+}
+
+.rv-mini-stars .rv-star.filled {
+	color: var(--mhm-warning, #fbbf24);
+}
+
+.rv-stat-text {
+	font-size: 12px;
+	color: var(--mhm-text-secondary);
+}
+
+/* CTA Button */
+.rv-cta-container {
+	margin-bottom: 2.5rem;
+}
+
+.rv-btn-primary {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	box-sizing: border-box;
+	max-width: 100%;
+	width: fit-content;
+	min-width: 220px;
+	padding: 0 35px;
+	height: 56px;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color) !important;
+	text-decoration: none !important;
+	border-radius: 12px;
+	font-weight: 700;
+	font-size: 1.05rem;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	border: none;
+	box-shadow: 0 8px 20px color-mix(in srgb, var(--mhm-btn-bg), transparent 75%);
+}
+
+.rv-btn-primary:hover {
+	background-color: var(--mhm-btn-hover-bg);
+	transform: translateY(-3px);
+	box-shadow: 0 12px 25px color-mix(in srgb, var(--mhm-btn-bg), transparent 65%);
+}
+
+.rv-btn-primary svg {
+	width: 20px;
+	height: 20px;
+	transition: transform 0.2s;
+}
+
+.rv-btn-primary:hover svg {
+	transform: translateX(4px);
+}
+
+/* MINI CALENDAR WIDGET */
+.rv-mini-calendar-widget {
+	border-top: 1px solid #edf2f7;
+	padding-top: 1.5rem;
+}
+
+.rv-cal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1.25rem;
+}
+
+.rv-cal-title {
+	font-size: 0.95rem;
+	font-weight: 800;
+	color: var(--mhm-text-primary);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin: 0;
+}
+
+.rv-cal-nav {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	background: #f8fafc;
+	padding: 4px 10px;
+	border-radius: 100px;
+	border: 1px solid #edf2f7;
+}
+
+.rv-calendar-nav-btn {
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	font-size: 18px;
+	font-weight: 700;
+	color: var(--mhm-primary);
+	line-height: 1;
+	transition: opacity 0.2s;
+}
+
+.rv-calendar-nav-btn:hover {
+	opacity: 0.6;
+}
+
+#rv-current-month-year {
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--mhm-text-primary);
+	min-width: 80px;
+	text-align: center;
+	white-space: nowrap;
+}
+
+/* Calendar Grid Adjustments */
+.rv-calendar-grid {
+	font-size: 13px;
+}
+
+.rv-calendar-header-row {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	margin-bottom: 8px;
+}
+
+.rv-calendar-day-name {
+	text-align: center;
+	font-weight: 600;
+	color: var(--mhm-text-secondary);
+	padding: 5px 0;
+}
+
+.rv-calendar-days {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 2px;
+}
+
+.rv-calendar-day {
+	height: 34px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 6px;
+	transition: all 0.2s;
+	color: var(--mhm-text-primary);
+}
+
+.rv-calendar-day.booked {
+	background: var(--mhm-gray-50);
+	color: var(--mhm-error);
+	text-decoration: line-through;
+	opacity: 0.6;
+}
+
+.rv-calendar-day.today {
+	background: var(--mhm-primary);
+	color: var(--mhm-white);
+	font-weight: 700;
+}
+
+/* Calendar Loading Overlay */
+.rv-cal-body {
+	position: relative;
+	min-height: 180px;
+}
+
+.rv-calendar-loading {
+	position: absolute;
+	inset: 0;
+	background: rgba(255, 255, 255, 0.8);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10;
+	backdrop-filter: blur(2px);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 1024px) {
+	.rv-vehicle-details {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	/* Mobile Order: Gallery (1) -> Info/Price/Calendar (2) -> Content/Reviews (3) */
+	.rv-vehicle-gallery-section {
+		order: 1;
+	}
+
+	.rv-vehicle-info-section {
+		order: 2;
+	}
+
+	.rv-vehicle-content-section {
+		order: 3;
+	}
+
+	.rv-booking-card-sticky {
+		position: static;
+		margin-bottom: 0;
+	}
+}
+
+@media (max-width: 640px) {
+	.rv-vehicle-details {
+		padding: 1rem;
+		gap: 1.5rem;
+	}
+
+	.rv-vehicle-gallery-section {
+		gap: 1rem;
+	}
+
+	.rv-gallery-thumbnails {
+		grid-template-columns: repeat(4, 1fr);
+	}
+
+	.rv-meta-chip {
+		flex: 1 1 calc(50% - 6px);
+		justify-content: center;
+	}
+
+	.rv-booking-card-sticky {
+		padding: 1.25rem;
+	}
+
+	.rv-header-main {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.75rem;
+	}
+
+	.rv-vehicle-title {
+		font-size: 1.25rem;
+	}
+
+	.rv-btn-primary {
+		width: 100%;
+		justify-content: center;
+		max-width: 100%;
+	}
+}
+/* ===== VEHICLE DETAILS PREMIUM REBUILD (Stitch-aligned) ===== */
+.rv-vd2 {
+	max-width: 1200px !important;
+	padding-top: 20px;
+	padding-bottom: 28px;
+}
+
+.rv-vd2-breadcrumbs {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+	font-size: 13px;
+	font-weight: 500;
+	color: #64748b;
+	margin-bottom: 18px;
+}
+
+.rv-vd2-breadcrumbs a {
+	color: #64748b;
+	text-decoration: none;
+}
+
+.rv-vd2-breadcrumbs a:hover {
+	color: #2563eb;
+}
+
+.rv-vd2-sep {
+	opacity: 0.7;
+}
+
+.rv-vd2-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(290px, 330px);
+	gap: 24px;
+	align-items: start;
+	padding: 0;
+	overflow: visible;
+}
+
+.rv-vd2-main {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+.rv-vd2-card {
+	background: #fff;
+	border: 1px solid #e7ecf3;
+	border-radius: 16px;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+	padding: 20px;
+}
+
+.rv-vd2-gallery-card {
+	padding: 0;
+	overflow: hidden;
+}
+
+.rv-vd2-gallery-card .rv-main-image-wrapper {
+	border-radius: 16px 16px 0 0;
+	box-shadow: none;
+}
+
+.rv-vd2-image-actions {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	z-index: 12;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.rv-vd2-image-actions .rv-vd2-action-btn {
+	width: 34px;
+	height: 34px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.96);
+	border: 1px solid #dfe7f3;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: #64748b;
+	box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.rv-vd2-image-actions .rv-vd2-action-btn:hover {
+	transform: translateY(-1px);
+}
+
+.rv-vd2-image-actions .rv-vd2-favorite:hover,
+.rv-vd2-image-actions .rv-vd2-favorite.is-active {
+	color: #ef4444;
+}
+
+.rv-vd2-image-actions .rv-vd2-compare:hover,
+.rv-vd2-image-actions .rv-vd2-compare.is-active,
+.rv-vd2-image-actions .rv-vd2-compare.active {
+	color: #2563eb;
+}
+
+.rv-vd2-image-actions .mhm-heart-icon,
+.rv-vd2-image-actions .mhm-compare-icon {
+	width: 16px;
+	height: 16px;
+	stroke: currentColor;
+}
+
+.rv-vd2-image-actions .rv-vd2-favorite .mhm-heart-icon {
+	fill: none;
+}
+
+.rv-vd2-image-actions .rv-vd2-favorite.is-active .mhm-heart-icon {
+	fill: currentColor;
+}
+
+.rv-vd2-gallery-btn {
+	position: absolute;
+	right: 16px;
+	bottom: 16px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 9px 14px;
+	border: 1px solid #d6e2f2;
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.94);
+	color: #0f172a;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.rv-vd2-gallery-btn:hover {
+	background: #fff;
+}
+
+.rv-vd2-gallery-card .rv-gallery-thumbnails {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 10px;
+	padding: 12px;
+	margin-top: 0;
+}
+
+.rv-vd2-gallery-card .rv-thumbnail-item {
+	border-radius: 10px;
+}
+
+.rv-vd2-section-title {
+	margin: 0 0 12px;
+	font-size: 24px;
+	line-height: 1.2;
+	letter-spacing: -0.02em;
+	font-weight: 800;
+	color: #0f172a;
+}
+
+.rv-vd2-about {
+	font-size: 15px;
+	line-height: 1.7;
+	color: #475569;
+}
+
+.rv-vd2-feature-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.rv-vd2-feature-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px;
+	background: #fff;
+	border: 1px solid #e4ecf7;
+	border-radius: 12px;
+	min-width: 0;
+}
+
+.rv-vd2-feature-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	border-radius: 999px;
+	background: #eaf3ff;
+	color: #2563eb;
+	flex: 0 0 auto;
+}
+
+.rv-vd2-feature-icon svg {
+	width: 17px;
+	height: 17px;
+	stroke: currentColor;
+	fill: none;
+}
+
+.rv-vd2-feature-label {
+	font-size: 14px;
+	font-weight: 600;
+	color: #1e293b;
+	line-height: 1.35;
+	min-width: 0;
+	word-break: break-word;
+}
+
+.rv-vd2-policy-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: grid;
+	gap: 14px;
+}
+
+.rv-vd2-policy-list li {
+	display: grid;
+	gap: 4px;
+	padding-left: 24px;
+	position: relative;
+}
+
+.rv-vd2-policy-list li::before {
+	content: '✓';
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 18px;
+	height: 18px;
+	border-radius: 999px;
+	background: #22c55e;
+	color: #fff;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 18px;
+	text-align: center;
+}
+
+.rv-vd2-policy-list strong {
+	font-size: 15px;
+	color: #0f172a;
+}
+
+.rv-vd2-policy-list span {
+	font-size: 13px;
+	line-height: 1.5;
+	color: #64748b;
+}
+
+.rv-vd2-ratings-card .rv-integrated-reviews-section {
+	margin-top: 0;
+	border-top: 0;
+	padding-top: 0;
+	container-type: inline-size;
+}
+
+.rv-vd2-sidebar {
+	position: sticky;
+	top: 16px;
+	align-self: start;
+	overflow: visible;
+}
+
+.rv-vd2-booking-card {
+	position: relative;
+	background: #fff;
+	border: 1px solid #e7ecf3;
+	border-radius: 16px;
+	box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+	padding: 20px;
+	display: grid;
+	gap: 14px;
+}
+
+.rv-vd2-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 6px 10px;
+	border-radius: 999px;
+	background: #eff6ff;
+	color: #2563eb;
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+}
+
+.rv-vd2-booking-card .rv-vehicle-title {
+	margin: 8px 0 0;
+	font-size: 34px;
+	line-height: 1.15;
+	letter-spacing: -0.03em;
+}
+
+.rv-vd2-rating-line {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 14px;
+}
+
+.rv-vd2-star {
+	color: #f59e0b;
+}
+
+.rv-vd2-rating-value {
+	font-weight: 800;
+	color: #0f172a;
+}
+
+.rv-vd2-rating-count {
+	color: #64748b;
+}
+
+.rv-vd2-meta-row {
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 6px;
+	width: 100%;
+}
+
+.rv-vd2-meta-row span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1 1 0;
+	min-width: 0;
+	padding: 7px 10px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	color: #334155;
+	background: #f8fafc;
+	border: 1px solid #e7edf5;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.rv-vd2-meta-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 12px;
+	height: 12px;
+	margin-right: 5px;
+	color: #64748b;
+}
+
+.rv-vd2-meta-icon svg {
+	width: 12px;
+	height: 12px;
+	stroke: currentColor;
+	stroke-width: 1.9;
+	fill: none;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.rv-vd2-date-boxes {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+}
+
+.rv-vd2-date-box {
+	padding: 10px 12px;
+	border-radius: 10px;
+	background: #f8fafc;
+	border: 1px solid #e7edf5;
+	font-size: 13px;
+	font-weight: 600;
+	color: #334155;
+}
+
+.rv-vd2-price-block {
+	padding-top: 12px;
+	border-top: 1px solid #e8edf4;
+}
+
+.rv-vd2-price-label {
+	margin: 0 0 4px;
+	font-size: 13px;
+	color: #64748b;
+}
+
+.rv-vd2-price-main {
+	margin: 0;
+	font-size: 42px;
+	line-height: 1;
+	font-weight: 900;
+	letter-spacing: -0.03em;
+	color: #0f172a;
+}
+
+.rv-vd2-booking-card .rv-btn-primary {
+	width: 100%;
+	min-width: 0;
+	height: 54px;
+	padding: 0 20px;
+	border-radius: 12px;
+	justify-content: center;
+	background: linear-gradient(135deg, #2a7be4, #1c5ed6);
+	box-shadow: 0 10px 24px rgba(28, 94, 214, 0.35);
+}
+
+.rv-vd2-cancel-note {
+	margin: 10px 0 0;
+	text-align: center;
+	font-size: 12px;
+	font-weight: 500;
+	color: #64748b;
+}
+
+.rv-vd2-booking-card .rv-mini-calendar-widget {
+	border-top: 1px solid #e8edf4;
+	padding-top: 14px;
+	margin-top: 2px;
+}
+
+body.admin-bar .rv-vd2-sidebar {
+	top: 48px;
+}
+
+.rv-vd2-related {
+	margin-top: 26px;
+}
+
+.rv-vd2-related-title {
+	margin: 0;
+	font-size: 30px;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	color: #0f172a;
+}
+
+.rv-vd2-related-subtitle {
+	margin: 6px 0 14px;
+	font-size: 14px;
+	color: #64748b;
+}
+
+@media (max-width: 1100px) {
+	.rv-vd2-layout {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.rv-vd2-main,
+	.rv-vd2-sidebar,
+	.rv-vd2-booking-card,
+	.rv-vd2-card {
+		width: 100%;
+		min-width: 0;
+		box-sizing: border-box;
+	}
+
+	.rv-vd2-sidebar {
+		position: static;
+		top: auto;
+		order: 2;
+		align-self: stretch;
+	}
+
+	.rv-vd2-main {
+		order: 1;
+	}
+
+	.rv-vd2-booking-card {
+		position: static;
+		top: auto;
+	}
+
+}
+
+@media (max-width: 782px) {
+	.rv-vd2-booking-card {
+		--rv-vd2-mobile-content-width: min(100%, 320px);
+	}
+
+	.rv-vd2 {
+		padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem));
+		padding-top: 12px;
+		padding-bottom: 18px;
+	}
+
+	.rv-vd2-card,
+	.rv-vd2-booking-card {
+		padding: 14px;
+		border-radius: 14px;
+	}
+
+	.rv-vd2-section-title {
+		font-size: 20px;
+	}
+
+	.rv-vd2-booking-card .rv-vehicle-title {
+		font-size: 28px;
+	}
+
+	.rv-vd2-price-main {
+		font-size: 34px;
+	}
+
+	.rv-vd2-feature-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.rv-vd2-date-boxes {
+		grid-template-columns: 1fr;
+	}
+
+	.rv-vd2-booking-card .rv-btn-primary {
+		width: var(--rv-vd2-mobile-content-width);
+		max-width: var(--rv-vd2-mobile-content-width);
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.rv-vd2-booking-card .rv-mini-calendar-widget {
+		width: var(--rv-vd2-mobile-content-width);
+		max-width: var(--rv-vd2-mobile-content-width);
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.rv-vd2-booking-card .rv-cal-header {
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+	}
+
+	.rv-vd2-booking-card #rv-current-month-year {
+		min-width: 0;
+	}
+
+	.rv-vd2-booking-card .rv-cal-title {
+		text-align: center;
+	}
+
+	.rv-vd2-booking-card .rv-cal-nav {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.rv-vd2-booking-card .rv-calendar-header-row,
+	.rv-vd2-booking-card .rv-calendar-days,
+	.rv-vd2-booking-card .rv-vd2-rating-line,
+	.rv-vd2-booking-card .rv-vd2-price-block,
+	.rv-vd2-booking-card .rv-vd2-meta-row {
+		width: 100%;
+		max-width: var(--rv-vd2-mobile-content-width);
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.rv-vd2-booking-card .rv-calendar-header-row,
+	.rv-vd2-booking-card .rv-calendar-days {
+		width: 100%;
+		max-width: var(--rv-vd2-mobile-content-width);
+	}
+
+	.rv-vd2-booking-card .rv-calendar-days {
+		gap: 6px;
+	}
+
+	.rv-vd2-booking-card .rv-calendar-day {
+		height: 38px;
+		font-size: 14px;
+	}
+
+	.rv-vd2-booking-card .rv-calendar-day-name {
+		font-size: 13px;
+	}
+
+	.rv-vd2-gallery-card .rv-gallery-thumbnails {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.rv-vd2-related-title {
+		font-size: 30px;
+	}
+
+	.rv-vd2-related .mhm-rentiva-featured-wrapper {
+		padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem));
+		padding-top: 2px;
+		padding-bottom: 6px;
+	}
+
+	.rv-vd2-related .mhm-featured-swiper {
+		padding-bottom: 2.5rem !important;
+	}
+
+	.rv-vd2-related .swiper-button-next,
+	.rv-vd2-related .swiper-button-prev {
+		width: 34px;
+		height: 34px;
+		border-radius: 999px;
+		background: #fff;
+		border: 1px solid #dbe5f1;
+		box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+		top: 44%;
+	}
+
+	.rv-vd2-related .swiper-button-next::after,
+	.rv-vd2-related .swiper-button-prev::after {
+		font-size: 13px;
+		font-weight: 800;
+	}
+
+	/* Stitch benzeri mobil görünüm: nokta pagination kapalı, sadece sağ/sol kontrol açık */
+	.rv-vd2-related .swiper-pagination {
+		display: none;
+	}
+}
+
+@media (max-width: 420px) {
+	.rv-vd2-section-title {
+		font-size: 19px;
+	}
+
+	.rv-vd2-booking-card .rv-vehicle-title {
+		font-size: 24px;
+	}
+
+	.rv-vd2-price-main {
+		font-size: 30px;
+	}
+
+	.rv-vd2-feature-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.rv-vd2-gallery-card .rv-gallery-thumbnails {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}

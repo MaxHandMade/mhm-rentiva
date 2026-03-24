@@ -1,0 +1,154 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/vehicles-list",
+    "title": "MHM Vehicles List",
+    "category": "widgets",
+    "icon": "car",
+    "description": "Display vehicles in a list layout.",
+    "textdomain": "mhm-rentiva",
+    "supports": {
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "customClassName": true,
+        "align": [
+            "wide",
+            "full",
+            "center"
+        ],
+        "color": {
+            "text": true,
+            "background": true,
+            "link": true,
+            "gradients": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true,
+            "blockGap": true
+        },
+        "border": {
+            "color": true,
+            "radius": true,
+            "style": true,
+            "width": true
+        },
+        "typography": {
+            "fontSize": true,
+            "lineHeight": true,
+            "__experimentalFontFamily": true,
+            "__experimentalFontWeight": true
+        }
+    },
+    "attributes": {
+        "showPrice": {
+            "type": "boolean",
+            "default": true
+        },
+        "showRating": {
+            "type": "boolean",
+            "default": true
+        },
+        "showCategory": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBrand": {
+            "type": "boolean",
+            "default": false
+        },
+        "showBookButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showDescription": {
+            "type": "boolean",
+            "default": true
+        },
+        "showFeatures": {
+            "type": "boolean",
+            "default": true
+        },
+        "showImage": {
+            "type": "boolean",
+            "default": true
+        },
+        "showTitle": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBadges": {
+            "type": "boolean",
+            "default": true
+        },
+        "showFavoriteButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showAvailability": {
+            "type": "boolean",
+            "default": false
+        },
+        "showCompareButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "filterCategories": {
+            "type": "string",
+            "default": ""
+        },
+        "filterBrands": {
+            "type": "string",
+            "default": ""
+        },
+        "orderby": {
+            "type": "string",
+            "default": "title",
+            "enum": [
+                "title",
+                "price",
+                "popularity",
+                "newest",
+                "rating",
+                "rating_count",
+                "confidence"
+            ]
+        },
+        "order": {
+            "type": "string",
+            "default": "asc",
+            "enum": [
+                "asc",
+                "desc"
+            ]
+        },
+        "limit": {
+            "type": "string",
+            "default": "12"
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        },
+        "minRating": {
+            "type": "string",
+            "default": ""
+        },
+        "minReviews": {
+            "type": "string",
+            "default": ""
+        },
+        "enableAjaxFiltering": {
+            "type": "boolean",
+            "default": false
+        }
+    },
+    "editorStyle": [
+        "mhm-rentiva-core-variables",
+        "mhm-vehicle-card-css"
+    ],
+    "style": [
+        "mhm-rentiva-vehicles-list"
+    ]
+}

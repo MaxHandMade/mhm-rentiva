@@ -1,0 +1,74 @@
+# Development
+.git
+.github
+.vscode
+.idea
+.agent
+.agents
+.ai
+.gemini
+.intelephense
+.gitattributes
+
+# Build & Dependencies
+vendor/
+node_modules/
+build/
+composer.lock
+package.json
+package-lock.json
+webpack.config.js
+gulpfile.js
+
+# Tests
+tests/
+phpunit.xml
+phpunit.xml.dist
+.phpunit.result.cache
+
+# Documentation & Guidelines
+docs/
+specs/
+AGENTS.md
+PROJECT_GUIDE.md
+PROJECT_MEMORIES.md
+SHORTCODES.md
+SKILLS.md
+UI_CONTRACTS.md
+README-tr.md
+arac-kiralama-vip-transfer-theme-tasarim.md
+RELEASE_CHECKLIST.md
+
+# Scripts & Tools
+bin/
+tools/
+pcp/
+stubs/
+wp-stubs.php
+cookie_debug.php
+generate-clean-pot.php
+update-pot-ultimate.php
+debug_schema.php
+
+# Configs
+phpcs.xml
+phpcs.xml.dist
+.gitignore
+.editorconfig
+.distignore
+
+# Website static exports
+website/
+website/**
+
+# Language artifacts
+languages/*-backup-*.pot~
+languages/*-backup-*.po~
+languages/*.l10n.php
+languages/*-*.json
+
+# Temp
+.tmp_scan.csv
+.tmp_phpscan.csv
+*.log
+*.zip

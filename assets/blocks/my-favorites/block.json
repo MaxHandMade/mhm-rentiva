@@ -1,0 +1,114 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/my-favorites",
+    "title": "MHM My Favorites",
+    "category": "widgets",
+    "icon": "heart",
+    "description": "Display user's favorite vehicles.",
+    "textdomain": "mhm-rentiva",
+    "supports": {
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "customClassName": true,
+        "align": [
+            "wide",
+            "full",
+            "center"
+        ],
+        "color": {
+            "text": true,
+            "background": true,
+            "link": true,
+            "gradients": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true,
+            "blockGap": true
+        },
+        "border": {
+            "color": true,
+            "radius": true,
+            "style": true,
+            "width": true
+        },
+        "typography": {
+            "fontSize": true,
+            "lineHeight": true,
+            "__experimentalFontFamily": true,
+            "__experimentalFontWeight": true
+        }
+    },
+    "attributes": {
+        "layout": {
+            "type": "string",
+            "default": "grid",
+            "enum": [
+                "grid",
+                "list"
+            ]
+        },
+        "showPrice": {
+            "type": "boolean",
+            "default": true
+        },
+        "showAvailabilityStatus": {
+            "type": "boolean",
+            "default": true
+        },
+        "showCategory": {
+            "type": "boolean",
+            "default": true
+        },
+        "showRemoveButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBookButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showRating": {
+            "type": "boolean",
+            "default": true
+        },
+        "showAddedDate": {
+            "type": "boolean",
+            "default": false
+        },
+        "sortBy": {
+            "type": "string",
+            "default": "added",
+            "enum": [
+                "added",
+                "price",
+                "name",
+                "rating"
+            ]
+        },
+        "sortOrder": {
+            "type": "string",
+            "default": "desc",
+            "enum": [
+                "asc",
+                "desc"
+            ]
+        },
+        "columns": {
+            "type": "string",
+            "default": "3"
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "editorStyle": [
+        "mhm-rentiva-core-variables"
+    ],
+    "style": [
+        "mhm-rentiva-my-favorites"
+    ]
+}

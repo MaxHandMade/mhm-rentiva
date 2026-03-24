@@ -1,0 +1,303 @@
+<?php
+declare(strict_types=1);
+
+namespace MHMRentiva\Admin\Utilities\Actions;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
+
+
+
+
+
+use MHMRentiva\Admin\PostTypes\Maintenance\LogRetention;
+use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
+use MHMRentiva\Admin\Payment\Refunds\Service as RefundService;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+
+
+final class Actions {
+
+
+	/**
+	 * Safe sanitize text field that handles null values
+	 */
+	public static function sanitize_text_field_safe( $value ) {
+		if ( $value === null || $value === '' ) {
+			return '';
+		}
+		return sanitize_text_field( (string) $value );
+	}
+
+	public static function register(): void {
+		add_action( 'admin_post_mhm_rentiva_purge_logs', array( self::class, 'purge_logs' ) );
+		add_action( 'admin_notices', array( self::class, 'notices' ) );
+		add_action( 'admin_post_mhm_rentiva_refund_booking', array( self::class, 'refund_booking' ) );
+		add_action( 'wp_ajax_mhm_rentiva_create_my_account_page', array( self::class, 'create_my_account_page' ) );
+	}
+
+	public static function refund_booking(): void {
+		$bid = self::post_int( 'booking_id' );
+
+		// ✅ SECURITY: Granular permission control
+		if ( ! self::checkGranularPermission( 'refund_booking', $bid ) ) {
+			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
+		}
+
+		check_admin_referer( 'mhm_rentiva_refund_booking' );
+		$amount = self::post_int( 'amount_kurus' );
+		$reason = self::post_text( 'reason' );
+		$res    = RefundService::process( $bid, $amount, $reason );
+		wp_safe_redirect( add_query_arg( $res, get_edit_post_link( $bid, '' ) ?: admin_url( 'edit.php?post_type=vehicle_booking' ) ) );
+		exit;
+	}
+
+	public static function purge_logs(): void {
+		// ✅ SECURITY: Granular permission control
+		if ( ! self::checkGranularPermission( 'purge_logs' ) ) {
+			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
+		}
+		check_admin_referer( 'mhm_rentiva_purge_logs' );
+
+		$days = self::post_int( 'days', (int) get_option( 'mhm_rentiva_log_retention_days', 30 ) );
+		if ( $days <= 0 ) {
+			$days = 30;
+		}
+		$limit   = (int) apply_filters( 'mhm_rentiva_log_purge_limit_manual', 1000 );
+		$deleted = LogRetention::purge( $days, $limit );
+
+		$ref = wp_get_referer();
+		if ( ! $ref ) {
+			$ref = admin_url( 'options-general.php' );
+		}
+		$url = add_query_arg(
+			array(
+				'mhm_purged'      => '1',
+				'mhm_purge_count' => (int) $deleted,
+			),
+			$ref
+		);
+		wp_safe_redirect( $url );
+		exit;
+	}
+
+	public static function notices(): void {
+		if ( ! is_admin() ) {
+			return;
+		}
+		// Refund result
+		$refund = self::get_text( 'mhm_refund' );
+		if ( '' !== $refund ) {
+			$ok   = $refund === '1';
+			$msg  = self::get_text( 'mhm_refund_msg' );
+			$type = $ok ? 'success' : 'error';
+			$base = $ok ? esc_html__( 'Refund processed.', 'mhm-rentiva' ) : esc_html__( 'Refund failed.', 'mhm-rentiva' );
+			$full = $msg ? $base . ' ' . $msg : $base;
+			echo '<div class="notice notice-' . esc_attr( $type ) . ' is-dismissible"><p>' . esc_html( $full ) . '</p></div>';
+		}
+
+		if ( self::get_text( 'mhm_purged' ) !== '1' ) {
+			return;
+		}
+		$count = self::get_int( 'mhm_purge_count' );
+		/* translators: %d: number of deleted records */
+		echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( '%d old records deleted.', 'mhm-rentiva' ), (int) $count ) . '</p></div>';
+	}
+
+
+
+	/**
+	 * ✅ SECURITY: Granular permission control
+	 *
+	 * @param string   $action Action type
+	 * @param int|null $resource_id Resource ID (optional)
+	 * @return bool Permission granted?
+	 */
+	private static function checkGranularPermission( string $action, ?int $resource_id = null ): bool {
+		$user = wp_get_current_user();
+
+		switch ( $action ) {
+			case 'refund_booking':
+				// Only admin or booking owner
+				if ( current_user_can( 'manage_options' ) ) {
+					return true;
+				}
+
+				if ( $resource_id ) {
+					$booking_user_id = (int) get_post_meta( $resource_id, '_mhm_user_id', true );
+					return $booking_user_id === $user->ID;
+				}
+
+				return false;
+
+			case 'purge_logs':
+				// Only super admin
+				return current_user_can( 'manage_options' );
+
+			case 'view_booking':
+				// Admin, booking owner or authorized staff
+				if ( current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' ) ) {
+					return true;
+				}
+
+				if ( $resource_id ) {
+					$booking_user_id = (int) get_post_meta( $resource_id, '_mhm_user_id', true );
+					return $booking_user_id === $user->ID;
+				}
+
+				return false;
+
+			case 'edit_booking':
+				// Only admin and authorized staff
+				return current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' );
+
+			case 'delete_booking':
+				// Only super admin
+				return current_user_can( 'manage_options' );
+
+			case 'export_data':
+				// Admin and authorized staff
+				return current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' );
+
+			case 'manage_settings':
+				// Only super admin
+				return current_user_can( 'manage_options' );
+
+			case 'view_reports':
+				// Admin and authorized staff
+				return current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' );
+
+			case 'manage_payments':
+				// Only admin and authorized staff
+				return current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' );
+
+			case 'view_customers':
+				// Admin, authorized staff and booking owner
+				if ( current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' ) ) {
+					return true;
+				}
+
+				if ( $resource_id ) {
+					$booking_user_id = (int) get_post_meta( $resource_id, '_mhm_user_id', true );
+					return $booking_user_id === $user->ID;
+				}
+
+				return false;
+
+			case 'create_my_account':
+				// Admin and authorized staff
+				return current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' );
+
+			default:
+				// Default: manage_options permission required
+				return current_user_can( 'manage_options' );
+		}
+	}
+
+	/**
+	 * ✅ SECURITY: Audit log for permission checks
+	 *
+	 * @param string   $action Action type
+	 * @param bool     $granted Permission granted?
+	 * @param int|null $resource_id Resource ID
+	 */
+	private static function logPermissionCheck( string $action, bool $granted, ?int $resource_id = null ): void {
+		if ( class_exists( AdvancedLogger::class ) ) {
+			AdvancedLogger::info(
+				__( 'Permission check', 'mhm-rentiva' ),
+				array(
+					'action'      => $action,
+					'granted'     => $granted,
+					'resource_id' => $resource_id,
+					'user_id'     => get_current_user_id(),
+					'user_caps'   => wp_get_current_user()->allcaps,
+					'ip_address'  => self::server_text( 'REMOTE_ADDR' ),
+					'user_agent'  => self::server_text( 'HTTP_USER_AGENT' ),
+				),
+				AdvancedLogger::CATEGORY_SECURITY
+			);
+		}
+	}
+
+	/**
+	 * ✅ SECURITY: Role-based access control
+	 *
+	 * @param string   $capability Required capability
+	 * @param int|null $resource_id Resource ID
+	 * @return bool Access granted?
+	 */
+	private static function checkRoleBasedAccess( string $capability, ?int $resource_id = null ): bool {
+		$user = wp_get_current_user();
+
+		// Super Admin - full access
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		// Editor - most access except sensitive operations
+		if ( current_user_can( 'edit_posts' ) ) {
+			$restricted_caps = array( 'delete_booking', 'manage_settings', 'purge_logs' );
+			return ! in_array( $capability, $restricted_caps, true );
+		}
+
+		// Author - limited access
+		if ( current_user_can( 'edit_published_posts' ) ) {
+			$allowed_caps = array( 'view_booking', 'view_customers' );
+			return in_array( $capability, $allowed_caps, true );
+		}
+
+		// Subscriber - very limited access (own bookings only)
+		if ( current_user_can( 'read' ) ) {
+			if ( $resource_id && in_array( $capability, array( 'view_booking', 'view_customers' ), true ) ) {
+				$booking_user_id = (int) get_post_meta( $resource_id, '_mhm_user_id', true );
+				return $booking_user_id === $user->ID;
+			}
+		}
+
+		return false;
+	}
+
+	private static function post_text( string $key, string $default = '' ): string {
+		$raw = filter_input( INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw || false === $raw ) {
+			return $default;
+		}
+
+		return self::sanitize_text_field_safe( (string) $raw );
+	}
+
+	private static function post_int( string $key, int $default = 0 ): int {
+		$value = self::post_text( $key, '' );
+		return '' === $value ? $default : (int) $value;
+	}
+
+	private static function get_text( string $key, string $default = '' ): string {
+		$raw = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw || false === $raw ) {
+			return $default;
+		}
+
+		return self::sanitize_text_field_safe( (string) $raw );
+	}
+
+	private static function get_int( string $key, int $default = 0 ): int {
+		$value = self::get_text( $key, '' );
+		return '' === $value ? $default : (int) $value;
+	}
+
+	private static function server_text( string $key, string $default = '' ): string {
+		$raw = filter_input( INPUT_SERVER, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
+		if ( null === $raw || false === $raw ) {
+			return $default;
+		}
+
+		return self::sanitize_text_field_safe( (string) $raw );
+	}
+}

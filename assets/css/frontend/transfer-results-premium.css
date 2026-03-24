@@ -1,0 +1,189 @@
+/**
+ * MHM Rentiva - Transfer Search Results Premium UI
+ * 
+ * High-fidelity card designs and layout control for transfer results.
+ * Scoped under .mhm-transfer-results-page to prevent global leakage.
+ * Delta Q <= 0 compliance.
+ */
+
+.mhm-transfer-results-page {
+    font-family: var(--mhm-font-display, "Plus Jakarta Sans", sans-serif) !important;
+}
+
+/* 1. Base Card Styling (Premium) */
+.mhm-transfer-results-page .mhm-transfer-card {
+    background: #fff !important;
+    border-radius: 16px !important;
+    border: 1px solid #f1f5f9 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+    overflow: hidden !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    margin: 0 !important;
+    /* Managed by grid gap */
+}
+
+.mhm-transfer-results-page .mhm-transfer-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08) !important;
+    border-color: var(--mhm-primary, #137fec) !important;
+}
+
+/* 2. Card Header (Image) */
+.mhm-transfer-results-page .mhm-card-header {
+    height: 200px !important;
+    background: #f8fafc !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+}
+
+.mhm-transfer-results-page .mhm-card-header img {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+}
+
+/* 3. Card Body Info */
+.mhm-transfer-results-page .mhm-transfer-card__info {
+    padding: 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+}
+
+.mhm-transfer-results-page .mhm-transfer-card__title {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+}
+
+/* 4. Meta Items (Pills) */
+.mhm-transfer-results-page .mhm-transfer-card__meta {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+}
+
+.mhm-transfer-results-page .mhm-transfer-card__meta-item {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    border: none !important;
+}
+
+.mhm-transfer-results-page .mhm-transfer-card__meta-item svg {
+    color: var(--mhm-primary, #137fec) !important;
+    width: 14px !important;
+    height: 14px !important;
+}
+
+/* 5. Footer (Price & Button) */
+.mhm-transfer-results-page .mhm-transfer-card__footer {
+    border-top: 1px solid #f1f5f9 !important;
+    padding: 20px 24px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    background: #fff !important;
+}
+
+.mhm-transfer-results-page .mhm-transfer-card__price-amount {
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+}
+
+.mhm-transfer-results-page .mhm-transfer-card__price-period {
+    font-size: 12px !important;
+    color: #64748b !important;
+    margin-left: 4px !important;
+}
+
+.mhm-transfer-results-page .mhm-transfer-card__btn {
+    background: var(--mhm-primary, #137fec) !important;
+    color: #fff !important;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.mhm-transfer-results-page .mhm-transfer-card__btn:hover {
+    background: #106fce !important;
+    transform: scale(1.02) !important;
+}
+
+/* 6. Layout Specific Styles */
+
+/* Grid Layout */
+.rv-transfer-results--grid .mhm-transfer-results__grid {
+    display: grid !important;
+    grid-template-columns: repeat(var(--columns, 2), 1fr) !important;
+    gap: var(--mhm-space-phi-3, 1.3125rem) !important;
+}
+
+/* List Layout */
+.rv-transfer-results--list .mhm-transfer-results__grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--mhm-space-phi-2, 0.8125rem) !important;
+}
+
+.rv-transfer-results--list .mhm-transfer-card {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.rv-transfer-results--list .mhm-card-header {
+    width: 300px !important;
+    height: auto !important;
+    min-height: 200px !important;
+    border-right: 1px solid #f1f5f9 !important;
+}
+
+.rv-transfer-results--list .mhm-transfer-card__info {
+    flex: 1 !important;
+    justify-content: center !important;
+}
+
+.rv-transfer-results--list .mhm-transfer-card__footer {
+    width: 250px !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    text-align: center !important;
+    border-top: none !important;
+    border-left: 1px solid #f1f5f9 !important;
+    gap: 12px !important;
+}
+
+/* 7. Mobile Optimization */
+@media (max-width: 782px) {
+    .rv-transfer-results--list .mhm-transfer-card {
+        flex-direction: column !important;
+    }
+
+    .rv-transfer-results--list .mhm-card-header,
+    .rv-transfer-results--list .mhm-transfer-card__footer {
+        width: 100% !important;
+        border: none !important;
+    }
+
+    .rv-transfer-results--list .mhm-transfer-card__footer {
+        border-top: 1px solid #f1f5f9 !important;
+        flex-direction: row !important;
+    }
+}

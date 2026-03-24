@@ -1,0 +1,83 @@
+.mhm-test-page {
+	max-width: 1400px;
+}
+
+.mhm-test-controls {
+	background-color: var(--mhm-bg-card);
+	padding: 20px;
+	margin: 20px 0;
+	border: 1px solid var(--mhm-border-secondary);
+	box-shadow: var(--mhm-shadow-sm);
+	border-radius: var(--mhm-radius-md);
+}
+
+.mhm-test-controls .test-options {
+	margin: 20px 0;
+}
+
+.mhm-test-controls .test-options label {
+	display: block;
+	margin: 10px 0;
+	font-size: 14px;
+	color: var(--mhm-text-primary);
+}
+
+.mhm-test-controls .test-options input[type='checkbox'] {
+	margin-right: 8px;
+}
+
+.mhm-test-controls .test-actions {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid var(--mhm-border-secondary);
+}
+
+.mhm-test-controls .test-actions .button {
+	margin-right: 10px;
+}
+
+.mhm-test-welcome {
+	margin: 20px 0;
+}
+
+.mhm-test-welcome .welcome-panel {
+	background-color: var(--mhm-bg-card);
+	padding: 30px;
+	border: 1px solid var(--mhm-border-secondary);
+	box-shadow: var(--mhm-shadow-sm);
+	border-radius: var(--mhm-radius-md);
+}
+
+.mhm-test-welcome .welcome-panel h2 {
+	margin-top: 0;
+	font-size: 24px;
+	color: var(--mhm-text-primary);
+}
+
+.mhm-test-welcome .welcome-panel ul {
+	margin: 20px 0;
+	padding-left: 20px;
+}
+
+.mhm-test-welcome .welcome-panel ul li {
+	margin: 8px 0;
+	font-size: 14px;
+	color: var(--mhm-text-primary);
+}
+
+.mhm-test-results-container .test-export-options {
+	margin: 30px 0;
+	padding: 20px;
+	background-color: var(--mhm-bg-secondary);
+	border-radius: var(--mhm-radius-md);
+	border: 1px solid var(--mhm-border-secondary);
+}
+
+.mhm-test-results-container .test-export-options h3 {
+	margin-top: 0;
+	color: var(--mhm-text-primary);
+}
+
+.mhm-test-results-container .test-export-options .button {
+	margin-right: 10px;
+}

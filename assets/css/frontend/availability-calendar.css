@@ -1,0 +1,782 @@
+/* FSE Global Listener - Passes WordPress color choices to the plugin */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
+}
+
+
+/* ===== CSS VARIABLES ===== */
+:root {
+	/* Palette Mapping to MHM Tokens */
+	--rv-cal-primary: var(--mhm-primary);
+	--rv-cal-primary-hover: var(--mhm-primary-dark);
+	--rv-cal-bg-main: var(--mhm-bg-card);
+	--rv-cal-bg-muted: var(--mhm-bg-secondary);
+	--rv-cal-border: var(--mhm-border-primary);
+	--rv-cal-text-main: var(--mhm-text-primary);
+	--rv-cal-text-muted: var(--mhm-text-secondary);
+
+	/* Status Colors */
+	--rv-cal-status-available: #10b981;
+	--rv-cal-status-partial: #f59e0b;
+	--rv-cal-status-booked: var(--mhm-error);
+	--rv-cal-status-maintenance: var(--mhm-gray-500);
+	--rv-cal-status-weekend: var(--mhm-primary);
+
+	/* Shadows & Radius */
+	--rv-cal-shadow-sm: var(--mhm-shadow-sm);
+	--rv-cal-shadow-md: var(--mhm-shadow-base);
+	--rv-cal-shadow-lg: var(--mhm-shadow-lg);
+	--rv-cal-radius: 12px;
+	--rv-cal-radius-sm: 8px;
+	--rv-cal-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== UTILITIES ===== */
+.rv-hidden {
+	display: none !important;
+}
+
+.rv-availability-error {
+	display: none;
+	padding: 1.5rem;
+	background: var(--mhm-gray-50);
+	border: 1px solid var(--mhm-error);
+	border-radius: var(--rv-cal-radius-sm);
+	color: var(--mhm-error);
+	margin: 1rem 0;
+}
+
+.rv-availability-error.show-error {
+	display: block;
+}
+
+/* ===== MAIN CONTAINER ===== */
+.rv-availability-calendar {
+	max-width: 1000px;
+	margin: var(--mhm-space-phi-3, 1.3125rem) auto;
+	padding-block: var(--mhm-space-phi-3, 1.3125rem);
+	padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
+	box-sizing: border-box;
+	background: var(--rv-cal-bg-main);
+	border-radius: var(--rv-cal-radius);
+	box-shadow: var(--rv-cal-shadow-lg);
+	font-family: 'Inter', -apple-system, sans-serif;
+	color: var(--rv-cal-text-main);
+	border: 1px solid var(--rv-cal-border);
+}
+
+/* ===== VEHICLE CARD (MIGRATED FROM BOOKING FORM) ===== */
+.rv-vehicle-card-hifi-wrapper {
+	margin-bottom: 2.5rem;
+}
+
+.rv-vehicle-card-hifi-modern {
+	background: var(--rv-cal-bg-main);
+	border-radius: 12px;
+	border: 1px solid var(--rv-cal-border);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+	/* Soft Premium Shadow */
+	position: relative;
+	overflow: hidden;
+	transition: var(--rv-cal-transition);
+}
+
+.rv-vehicle-card-hifi-modern:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.rv-vcal-favorite-btn {
+	position: absolute;
+	top: 1.25rem;
+	right: 1.25rem;
+	z-index: 10;
+	background: rgba(255, 255, 255, 0.9);
+	border: 1px solid rgba(0, 0, 0, 0.05);
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	color: #64748b;
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	padding: 0;
+}
+
+.rv-vcal-favorite-btn:hover {
+	transform: scale(1.1);
+	background: #fff;
+	color: #ef4444;
+}
+
+.rv-vcal-favorite-btn.is-favorited,
+.rv-vcal-favorite-btn.favorited {
+	background: #fff;
+	color: #ef4444;
+	border-color: #fee2e2;
+}
+
+.rv-vcal-favorite-btn.loading {
+	opacity: 0.7;
+	pointer-events: none;
+}
+
+.rv-heart-icon {
+	width: 20px;
+	height: 20px;
+	transition: all 0.2s ease;
+}
+
+/* Notification System - Moved to global notifications.css */
+
+.rv-vehicle-info {
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+}
+
+@media (max-width: 782px) {
+	.rv-vehicle-info {
+		flex-direction: column;
+	}
+}
+
+.rv-vehicle-image-wrapper {
+	width: 320px;
+	/* Slightly wider for better balance */
+	min-height: 240px;
+	position: relative;
+	background: #f1f5f9;
+	overflow: hidden;
+	flex-shrink: 0;
+	display: block;
+}
+
+@media (max-width: 782px) {
+	.rv-vehicle-image-wrapper {
+		width: 100%;
+		height: 220px;
+		min-height: auto;
+	}
+}
+
+.rv-vehicle-image {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: cover !important;
+	object-position: center !important;
+	display: block !important;
+	max-width: none !important;
+}
+
+.rv-vehicle-status-badge {
+	position: absolute;
+	top: 1rem;
+	left: 1rem;
+	padding: 0.5rem 1rem;
+	border-radius: 99px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	box-shadow: var(--rv-cal-shadow-md);
+}
+
+.rv-status-unavailable {
+	background: #ef4444;
+	color: white;
+}
+
+.rv-vehicle-details {
+	flex: 1;
+	padding: 1.5rem 2rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.rv-vehicle-title {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin: 0 0 0.5rem 0;
+	color: var(--mhm-text-primary);
+	text-align: center;
+}
+
+.rv-vehicle-excerpt {
+	font-size: 0.875rem;
+	color: var(--mhm-text-secondary);
+	margin-bottom: 1rem;
+	line-height: 1.5;
+	text-align: center;
+}
+
+.rv-vehicle-features {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+	justify-content: center;
+}
+
+.rv-feature-item {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 3px 10px;
+	background: #f3f4f6;
+	/* Gray Pill Style */
+	border-radius: 6px;
+	border: none;
+}
+
+.rv-feature-item svg {
+	width: 13px;
+	height: 13px;
+	color: #6b7280;
+}
+
+.rv-feature-text {
+	font-size: 0.7rem;
+	font-weight: 600;
+	color: #111827;
+}
+
+.rv-vehicle-rating-block {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+	justify-content: center;
+}
+
+.rv-stars {
+	display: flex;
+	gap: 0.25rem;
+}
+
+.rv-rating-count {
+	font-size: 0.875rem;
+	color: var(--rv-cal-text-muted);
+	font-weight: 500;
+}
+
+.rv-vehicle-price-container {
+	border-top: 1px solid #f1f5f9;
+	padding-top: 1rem;
+	margin-top: 0.5rem;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	width: 100%;
+}
+
+.rv-vehicle-price {
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: var(--mhm-text-primary);
+	margin: 0;
+	text-align: center;
+	width: 100%;
+}
+
+.rv-vehicle-switcher-modern {
+	padding: 1.25rem 2.5rem;
+	background: #f8fafc;
+	border-top: 1px solid #f1f5f9;
+	display: flex;
+	justify-content: center;
+}
+
+.rv-switch-vehicle-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	background: var(--rv-cal-primary);
+	color: white !important;
+	border: none;
+	border-radius: var(--rv-cal-radius-sm);
+	font-weight: 600;
+	cursor: pointer;
+	transition: var(--rv-cal-transition);
+}
+
+.rv-switch-vehicle-btn:hover {
+	background: var(--rv-cal-primary-hover);
+	box-shadow: var(--rv-cal-shadow-md);
+}
+
+/* ===== CALENDAR CONTROLS (THE TOP BAR) ===== */
+.rv-calendar-controls {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0;
+	/* Connected to weekdays */
+	padding: 12px 20px;
+	background: #f8fafc;
+	border-radius: 10px 10px 0 0;
+	border: 1px solid #e2e8f0;
+}
+
+.rv-control-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 12px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	color: #64748b;
+	font-weight: 600;
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.rv-control-btn:hover:not(:disabled) {
+	background: #f1f5f9;
+	border-color: #94a3b8;
+	color: #1e293b;
+}
+
+.rv-month-display {
+	font-size: 1.15rem;
+	font-weight: 700;
+	color: var(--mhm-text-primary);
+	text-transform: capitalize;
+}
+
+/* ===== LEGEND ===== */
+/* ===== LEGEND ===== */
+.rv-availability-legend {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+	padding: 0.5rem;
+	background: #ffffff;
+	border: none;
+}
+
+.rv-legend-item {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.rv-legend-color {
+	width: 1rem;
+	height: 1rem;
+	border-radius: 3px;
+}
+
+.rv-legend-text {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: #64748b;
+}
+
+/* Legend & Grid Colors Unified */
+.rv-status-available {
+	background: #e6f7ed !important;
+	border: 1px solid #c3e6cb !important;
+}
+
+.rv-status-partial {
+	background: #fff8e1 !important;
+	border: 1px solid #ffe082 !important;
+}
+
+.rv-status-booked {
+	background: #fde8e8 !important;
+	border: 1px solid #f8b4b4 !important;
+}
+
+.rv-status-maintenance {
+	background: #f3f4f6 !important;
+	border: 1px solid #d1d5db !important;
+}
+
+.rv-status-weekend {
+	background: #e1f5fe !important;
+	border: 1px solid #b3e5fc !important;
+}
+
+/* ===== GRID RECONSTRUCTION ===== */
+.rv-availability-grid {
+	margin-top: 2rem;
+}
+
+.rv-calendar-weekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	margin-bottom: 1rem;
+}
+
+.rv-weekday {
+	text-align: center;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--rv-cal-text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	padding: 1rem 0;
+}
+
+.rv-calendar-days {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 8px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-top: none;
+	border-radius: 0 0 10px 10px;
+	padding: 10px;
+	overflow: visible;
+}
+
+.rv-calendar-day {
+	background: #ffffff;
+	min-height: 85px;
+	padding: 0.75rem;
+	position: relative;
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	transition: all 0.3s ease;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+}
+
+.rv-calendar-day:hover:not(.rv-day-empty):not(.rv-past) {
+	background: #ffffff;
+	z-index: 10;
+	transform: translateY(-3px);
+	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+	border-color: var(--rv-cal-primary);
+}
+
+.rv-day-number {
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: var(--rv-cal-text-main);
+	text-align: left;
+}
+
+.rv-day-price {
+	margin-top: auto;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--mhm-price-color);
+	background: var(--mhm-gray-50);
+	padding: 2px 8px;
+	border-radius: 4px;
+	text-align: center;
+	display: inline-block;
+	align-self: center;
+}
+
+.rv-day-empty {
+	background: transparent;
+	border: 1px solid transparent;
+	cursor: default;
+}
+
+.rv-past {
+	opacity: 0.5;
+	background: #f8fafc;
+	cursor: not-allowed;
+}
+
+.rv-today {
+	background: var(--mhm-white);
+	border: 2px solid var(--mhm-primary) !important;
+}
+
+.rv-today .rv-day-number {
+	color: var(--mhm-primary);
+}
+
+/* Status Overlays - Precise Image Match & Priority Logic */
+.rv-status-available,
+.rv-day-available,
+.rv-day-default {
+	background: #e6f7ed !important;
+	/* Soft Green */
+	border: 1px solid #c3e6cb !important;
+	border-left-width: 4px !important;
+}
+
+.rv-weekend {
+	background: #e1f5fe !important;
+	/* Soft Blue */
+	border: 1px solid #b3e5fc !important;
+	border-left-width: 4px !important;
+}
+
+.rv-status-partial,
+.rv-day-partial {
+	background: #fff8e1 !important;
+	/* Soft Yellow */
+	border: 1px solid #ffe082 !important;
+	border-left-width: 4px !important;
+	cursor: not-allowed;
+}
+
+.rv-status-maintenance,
+.rv-day-maintenance {
+	background: #f3f4f6 !important;
+	/* Soft Gray */
+	border: 1px solid #d1d5db !important;
+	border-left-width: 4px !important;
+	cursor: not-allowed;
+}
+
+.rv-status-booked,
+.rv-day-booked {
+	background: #fde8e8 !important;
+	/* Soft Red */
+	border: 1px solid #f8b4b4 !important;
+	border-left-width: 4px !important;
+	cursor: not-allowed;
+}
+
+/* Selection States */
+.rv-calendar-day.rv-selected {
+	background: var(--rv-cal-primary) !important;
+}
+
+.rv-calendar-day.rv-selected .rv-day-number,
+.rv-calendar-day.rv-selected .rv-day-price {
+	color: white;
+}
+
+.rv-calendar-day.rv-selected .rv-day-price {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.rv-calendar-day.rv-selected-range {
+	background: #dbeafe !important;
+}
+
+/* ===== SELECTED DATES INFO ===== */
+.rv-selected-dates {
+	margin-top: 2.5rem;
+	padding: 2rem;
+	background: #f0f9ff;
+	border-radius: var(--rv-cal-radius);
+	border: 1px solid #bae6fd;
+}
+
+.rv-selected-info h4 {
+	margin: 0 0 1rem 0;
+	font-size: 1.25rem;
+	font-weight: 800;
+}
+
+.rv-date-range {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--mhm-price-color);
+	margin-bottom: 2rem;
+}
+
+.rv-total-amount {
+	font-size: 2rem;
+	font-weight: 800;
+	color: var(--rv-cal-primary);
+}
+
+.rv-book-now-btn {
+	margin-top: 2rem;
+	width: 100%;
+	padding: 1.25rem;
+	font-size: 1.125rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.025em;
+	background-color: var(--mhm-btn-bg);
+	color: var(--mhm-btn-color);
+}
+
+.rv-book-now-btn:hover {
+	background-color: var(--mhm-btn-hover-bg);
+}
+
+/* ===== MODAL ===== */
+/* Info Hint (The blue box above calendar) */
+.rv-calendar-hint {
+	background: #e1f5fe;
+	border: 1px solid #b3e5fc;
+	border-radius: 8px;
+	padding: 12px 20px;
+	margin-bottom: 25px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	color: #0288d1;
+	font-size: 0.95rem;
+	font-weight: 500;
+}
+
+.rv-calendar-hint .dashicons {
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+}
+
+.rv-calendar-weekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	background: #f8fafc;
+	/* Use soft gray background for the top row */
+	border: 1px solid #e2e8f0;
+	border-radius: 10px 10px 0 0;
+	padding: 5px 0;
+}
+
+.rv-weekday {
+	text-align: center;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: #64748b;
+	padding: 10px 0;
+}
+
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+	.rv-availability-calendar {
+		padding-block: var(--mhm-space-phi-2, 0.8125rem) !important;
+		padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem)) !important;
+		box-sizing: border-box !important;
+		margin: var(--mhm-space-phi-2, 0.8125rem) auto !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		border: none !important;
+		box-shadow: none !important;
+		background: transparent !important;
+		border-radius: 0 !important;
+	}
+
+	/* Adjust the inner grid to have some spacing if needed, or full bleed */
+	/* Adjust the inner grid to have some spacing if needed, or full bleed */
+	.rv-availability-grid {
+		overflow-x: hidden;
+		/* Disable scroll */
+		margin-left: 0;
+		margin-right: 0;
+		padding-left: 0;
+		padding-right: 0;
+		margin-top: 1rem;
+		background: #ffffff;
+		border-radius: 12px;
+		box-shadow: var(--rv-cal-shadow-sm);
+		border: 1px solid var(--rv-cal-border);
+		padding: 5px;
+		/* Reduced padding */
+	}
+
+	.rv-calendar-weekdays,
+	.rv-calendar-days {
+		min-width: auto;
+		/* Allow shrinking */
+		gap: 2px;
+		/* Reduce gap significantly */
+	}
+
+	.rv-calendar-days {
+		padding: 2px;
+	}
+
+	.rv-weekday {
+		padding: 5px 0;
+		font-size: 0.65rem;
+		/* Smaller weekday names */
+	}
+
+	.rv-vehicle-image-wrapper {
+		width: 100%;
+		height: 220px;
+		min-height: auto;
+	}
+
+	.rv-vehicle-details {
+		padding: 1.25rem;
+		min-width: 100%;
+		text-align: center;
+		/* Ensure container is centered */
+	}
+
+	.rv-vehicle-title,
+	.rv-vehicle-price-container,
+	.rv-vehicle-price,
+	.rv-vehicle-features {
+		text-align: center !important;
+		justify-content: center !important;
+		width: 100% !important;
+	}
+
+	.rv-calendar-days {
+		padding: 5px;
+	}
+
+	.rv-calendar-day {
+		min-height: 50px;
+		/* Reduced height */
+		padding: 2px;
+		border-radius: 4px;
+		/* Slightly smaller radius */
+	}
+
+	/* Adjust font sizes for mobile */
+	.rv-day-number {
+		font-size: 0.75rem;
+		margin-bottom: 2px;
+		text-align: center;
+		/* Center number in small box */
+	}
+
+	.rv-day-price {
+		font-size: 0.6rem;
+		/* Very small price text */
+		padding: 1px 2px;
+		line-height: 1;
+		letter-spacing: -0.5px;
+	}
+
+	/* Controls optimization */
+	.rv-calendar-controls {
+		padding: 10px;
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+
+	.rv-control-btn {
+		font-size: 0.8rem;
+		padding: 6px 10px;
+		flex: 1;
+		/* Make buttons grow to fill space */
+		justify-content: center;
+	}
+
+	.rv-month-display {
+		order: -1;
+		/* Move month title to top */
+		width: 100%;
+		text-align: center;
+		margin-bottom: 0.5rem;
+		font-size: 1.1rem;
+	}
+}

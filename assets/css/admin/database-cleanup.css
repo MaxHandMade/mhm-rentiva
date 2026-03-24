@@ -1,0 +1,30 @@
+/**
+ * MHM Rentiva Database Cleanup Styles
+ *
+ * @package MHM_Rentiva
+ * @since 1.0.0
+ */
+
+.mhm-cleanup-actions {
+	margin: 20px 0;
+	padding: 20px;
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.mhm-cleanup-actions .button {
+	margin-right: 10px;
+	margin-bottom: 10px;
+}
+
+.mhm-database-cleanup-report {
+	margin-top: 20px;
+	padding: 20px;
+	background: #fff;
+	border: 1px solid #ccd0d4;
+}
+
+.mhm-database-cleanup-report table {
+	margin-top: 15px;
+}

@@ -1,0 +1,1164 @@
+/**
+ * WooCommerce Checkout - Final Polished Version
+ * Fixed: Admin bar conflicts, column proportions, payment location, compact forms
+ */
+
+/* ========================================
+   CRITICAL SCOPING - PREVENT ADMIN BAR CONFLICTS
+   ======================================== */
+
+/* IMPORTANT: All styles MUST be scoped to avoid affecting WordPress admin bar */
+/* Never use global selectors like `input`, `select` without proper scoping */
+
+/* Prevent any bleeding into WordPress admin bar */
+/* Prevent any bleeding into WordPress admin bar */
+/* The best way to prevent conflicts is to scope all other rules to .woocommerce-checkout */
+
+/* Explicit correction for Admin Bar inputs if they are being affected by other global styles */
+#wpadminbar input {
+	height: 28px !important;
+	padding: 0 10px !important;
+	background: rgba(255, 255, 255, 0.9) !important;
+	border: none !important;
+	color: #333 !important;
+	line-height: normal !important;
+	font-size: 13px !important;
+	border-radius: 4px !important;
+}
+
+/* ========================================
+   CRITICAL OVERRIDES FOR WOOCOMMERCE
+   ======================================== */
+
+/* Reset WooCommerce default column system */
+body.woocommerce-checkout .col2-set,
+body.woocommerce-checkout .col2-set .col-1,
+body.woocommerce-checkout .col2-set .col-2,
+body.woocommerce-checkout #customer_details,
+body.woocommerce-checkout #order_review_heading,
+body.woocommerce-checkout #order_review {
+	float: none !important;
+	width: 100% !important;
+	margin: 0 !important;
+}
+
+/* Clear any existing floats */
+body.woocommerce-checkout::after,
+body.woocommerce-checkout form.checkout::after,
+.woocommerce-checkout::after,
+.woocommerce-checkout form.checkout::after {
+	content: "" !important;
+	display: table !important;
+	clear: both !important;
+}
+
+/* ========================================
+   GLOBAL RESET & BASE STYLES (SCOPED)
+   ======================================== */
+
+.woocommerce-checkout {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+	color: #1a202c !important;
+	line-height: 1.6 !important;
+	background-color: #f7fafc !important;
+}
+
+/* Remove default WooCommerce styling that conflicts */
+.woocommerce-checkout * {
+	box-sizing: border-box !important;
+}
+
+/* ========================================
+   MAIN LAYOUT CONTAINER
+   ======================================== */
+
+.woocommerce-checkout-wrapper {
+	max-width: 1400px !important;
+	margin: 0 auto !important;
+	padding: 40px 20px !important;
+	background-color: transparent !important;
+}
+
+form.woocommerce-checkout {
+	max-width: 1400px !important;
+	margin: 0 auto !important;
+	padding: 40px 20px !important;
+	background-color: transparent !important;
+}
+
+/* ========================================
+   2-COLUMN GRID LAYOUT - 58% LEFT / 42% RIGHT
+   ======================================== */
+
+@media (min-width: 992px) {
+
+	/* Target the form itself with proper grid */
+	body.woocommerce-checkout form.checkout,
+	form.woocommerce-checkout,
+	form.checkout.woocommerce-checkout {
+		display: grid !important;
+		grid-template-columns: 58% 40% !important;
+		gap: 2% !important;
+		align-items: start !important;
+	}
+
+	/* Left Column - Customer Details + Payment Type + Payment Methods */
+	body.woocommerce-checkout .col2-set,
+	body.woocommerce-checkout #customer_details,
+	.woocommerce-checkout .col2-set,
+	.woocommerce-checkout #customer_details {
+		grid-column: 1 !important;
+		grid-row: 1 !important;
+		width: 100% !important;
+	}
+
+	/* Right Column - Order Review ONLY (no payment methods) */
+	body.woocommerce-checkout #order_review_heading,
+	.woocommerce-checkout #order_review_heading {
+		display: none !important;
+		/* Hide heading, it's redundant */
+	}
+
+	/* Order Review Container */
+	body.woocommerce-checkout #order_review,
+	.woocommerce-checkout #order_review {
+		grid-column: 2 !important;
+		grid-row: 1 !important;
+		/* Start at top */
+		width: 100% !important;
+	}
+}
+
+/* ========================================
+   LEFT COLUMN - BILLING DETAILS
+   ======================================== */
+
+/* WooCommerce col2-set wrapper */
+.woocommerce-checkout .col2-set,
+.woocommerce-checkout #customer_details {
+	width: 100% !important;
+	float: none !important;
+}
+
+.woocommerce-checkout .col2-set .col-1,
+.woocommerce-checkout .col2-set .col-2 {
+	width: 100% !important;
+	float: none !important;
+}
+
+.woocommerce-checkout #customer_details {
+	background: #ffffff !important;
+	padding: 28px !important;
+	border-radius: 12px !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+	margin-bottom: 24px !important;
+}
+
+.woocommerce-checkout #customer_details h3 {
+	font-size: 18px !important;
+	font-weight: 700 !important;
+	color: #1a202c !important;
+	margin-top: 0 !important;
+	margin-bottom: 20px !important;
+	padding-bottom: 12px !important;
+	border-bottom: 2px solid #e2e8f0 !important;
+}
+
+/* ========================================
+   COMPACT ADDRESS FORM - INLINE FIELDS
+   ======================================== */
+
+/* Billing Fields Wrapper - Flexible Grid */
+.woocommerce-checkout .woocommerce-billing-fields__field-wrapper {
+	display: flex !important;
+	flex-wrap: wrap !important;
+	gap: 16px !important;
+}
+
+/* Form Row Sizing Rules */
+.woocommerce-checkout .form-row {
+	width: 100% !important;
+	/* Default full width */
+	margin: 0 !important;
+	padding: 0 !important;
+	float: none !important;
+	/* Reset floats */
+}
+
+/* --- COMPACT LAYOUT FIXES --- */
+
+/* 1. Ensure 50/50 Rows work perfectly (Country/City, District/Postcode) */
+.woocommerce-checkout .form-row-first,
+.woocommerce-checkout .form-row-last {
+	width: 48% !important;
+	float: left !important;
+	clear: none !important;
+}
+
+.woocommerce-checkout .form-row-last {
+	float: right !important;
+	margin-right: 0 !important;
+}
+
+/* 2. Custom Address Line (Street + Apt) */
+/* Reset custom classes just in case, though PHP removes them */
+.woocommerce-checkout .woocommerce-billing-fields__field-wrapper .mhm-address-street,
+.woocommerce-checkout .woocommerce-billing-fields__field-wrapper .mhm-address-unit {
+	width: 100% !important;
+	float: none !important;
+	clear: both !important;
+}
+
+/* Ensure default wide row is truly wide */
+.woocommerce-checkout .form-row-wide {
+	width: 100% !important;
+	float: none !important;
+	clear: both !important;
+}
+
+/* 3. Fix Select2 Container Widths */
+.woocommerce-checkout .select2-container,
+.woocommerce-checkout .select2-container .select2-selection {
+	width: 100% !important;
+	height: 50px !important;
+	line-height: 50px !important;
+}
+
+.woocommerce-checkout .select2-container .select2-selection__rendered {
+	line-height: 50px !important;
+	padding-left: 12px !important;
+}
+
+.woocommerce-checkout .select2-container .select2-selection__arrow {
+	height: 48px !important;
+}
+
+/* Fallback section removed to resolve empty ruleset warning */
+
+/* Mobile Fallback - Force Stack */
+@media (max-width: 782px) {
+
+	.woocommerce-checkout .form-row-first,
+	.woocommerce-checkout .form-row-last,
+	.woocommerce-checkout .mhm-address-street,
+	.woocommerce-checkout .mhm-address-unit {
+		width: 100% !important;
+		float: none !important;
+	}
+}
+
+
+/* 1. Reduce the main Flexbox Gap (The root cause) */
+/* 1. Reduce the main Flexbox Gap (The root cause) */
+.woocommerce-checkout .woocommerce-billing-fields__field-wrapper {
+	display: flex !important;
+	flex-wrap: wrap !important;
+	gap: 10px !important;
+	/* Reduced to tighten form rows */
+}
+
+/* 2. Ensure individual rows match this spacing */
+.woocommerce-checkout .form-row {
+	display: block !important;
+	margin-bottom: 0 !important;
+	/* Let the 'gap' handle the spacing */
+	padding-bottom: 0 !important;
+	padding: 0 !important;
+}
+
+/* 3. Tighten the specific address fields inside the wrapper if needed */
+.woocommerce-checkout .form-row-first,
+.woocommerce-checkout .form-row-last,
+.woocommerce-checkout .form-row-wide {
+	margin-bottom: 0 !important;
+}
+
+/* Labels - Compact */
+.woocommerce-checkout .form-row label {
+	display: block !important;
+	font-size: 13px !important;
+	font-weight: 600 !important;
+	color: #2d3748 !important;
+	margin-bottom: 4px !important;
+	/* Keep label close to its input */
+	line-height: 1.2 !important;
+}
+
+/* Ensure Select2 containers don't push content down unnecessarily */
+.woocommerce-checkout .select2-container {
+	margin-bottom: 0 !important;
+}
+
+.woocommerce-checkout .form-row label .required {
+	color: #e53e3e !important;
+	margin-left: 2px !important;
+}
+
+/* Input Fields - Properly Scoped to Checkout Only */
+.woocommerce-checkout input[type="text"],
+.woocommerce-checkout input[type="email"],
+.woocommerce-checkout input[type="tel"],
+.woocommerce-checkout input[type="password"],
+.woocommerce-checkout input[type="number"],
+.woocommerce-checkout textarea,
+.woocommerce-checkout select {
+	width: 100% !important;
+	height: 44px !important;
+	padding: 10px 14px !important;
+	font-size: 14px !important;
+	color: #2d3748 !important;
+	background-color: #ffffff !important;
+	border: 2px solid #e2e8f0 !important;
+	border-radius: 8px !important;
+	transition: all 0.2s ease !important;
+	outline: none !important;
+}
+
+.woocommerce-checkout textarea {
+	height: 90px !important;
+	resize: vertical !important;
+	padding-top: 10px !important;
+}
+
+/* Input Focus State */
+.woocommerce-checkout input:focus,
+.woocommerce-checkout select:focus,
+.woocommerce-checkout textarea:focus {
+	border-color: #3182ce !important;
+	box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1) !important;
+}
+
+/* Select Dropdown Styling */
+.woocommerce-checkout select {
+	appearance: none !important;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232d3748' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+	background-repeat: no-repeat !important;
+	background-position: right 14px center !important;
+	background-size: 12px !important;
+	padding-right: 36px !important;
+}
+
+/* ========================================
+   RIGHT COLUMN - ORDER REVIEW ONLY
+   ======================================== */
+
+.woocommerce-checkout #order_review {
+	background: #ffffff !important;
+	padding: 28px !important;
+	border-radius: 12px !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+	border: 1px solid #e2e8f0 !important;
+}
+
+.woocommerce-checkout #order_review table.shop_table {
+	border: none !important;
+	margin: 0 !important;
+}
+
+/* ========================================
+   PAYMENT TYPE SELECTOR - IN LEFT COLUMN
+   ======================================== */
+/* These styles apply to the custom payment type selector (Full vs Deposit) */
+
+.woocommerce-checkout .mhm-checkout-payment-type {
+	background: transparent !important;
+	padding-top: 32px !important;
+	/* Increased from 24px for visual separation */
+	padding-bottom: 24px !important;
+	margin-top: 10px !important;
+	/* Add separation from previous element */
+	margin-bottom: 0 !important;
+	border-top: 1px solid #e2e8f0 !important;
+}
+
+.woocommerce-checkout .mhm-checkout-payment-type h3 {
+	font-size: 18px !important;
+	font-weight: 700 !important;
+	color: #1a202c !important;
+	margin-top: 10 !important;
+	margin-bottom: 16px !important;
+}
+
+/* ========================================
+   PAYMENT TYPE SELECTOR (MODERNIZED & FIXED)
+   ======================================== */
+
+/* 1. Global Container Reset */
+.woocommerce-checkout .wc-deposits-wrapper,
+.woocommerce-checkout .wc-deposits-wrapper ul,
+.woocommerce-checkout .mhm-checkout-payment-type {
+	width: 100% !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	list-style: none !important;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+/* 2. CARD CONTAINER STYLE */
+.woocommerce-checkout .wc-deposits-wrapper ul li,
+.woocommerce-checkout .mhm-payment-type-option {
+	display: flex !important;
+	align-items: flex-start !important;
+	/* Prevent radio stretch */
+	padding: 20px !important;
+	border: 1px solid #e2e8f0 !important;
+	border-radius: 8px !important;
+	background: #ffffff !important;
+	margin-bottom: 16px !important;
+	transition: all 0.2s ease !important;
+	cursor: pointer !important;
+	position: relative !important;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+/* 3. SELECTED STATE (Brand Blue) */
+.woocommerce-checkout .wc-deposits-wrapper ul li:has(input:checked),
+.woocommerce-checkout .mhm-payment-type-option.selected,
+.woocommerce-checkout .mhm-payment-type-option:has(input:checked) {
+	border-color: #3182ce !important;
+	background-color: #ebf8ff !important;
+	/* Lightest blue */
+	box-shadow: 0 0 0 1px #3182ce !important;
+}
+
+/* 4. RADIO BUTTON ALIGNMENT (Critical Fix) */
+.woocommerce-checkout .wc-deposits-wrapper input[type="radio"],
+.woocommerce-checkout .mhm-payment-type-option input[type="radio"] {
+	margin-top: 4px !important;
+	/* Align with Title Text */
+	margin-right: 16px !important;
+	flex-shrink: 0 !important;
+	width: 18px !important;
+	height: 18px !important;
+	accent-color: #3182ce !important;
+	cursor: pointer !important;
+}
+
+/* 5. TYPOGRAPHY & LAYOUT HIERARCHY */
+
+/* Wrapper for text content to ensure it takes remaining width */
+.woocommerce-checkout .mhm-payment-type-option-content,
+.woocommerce-checkout .wc-deposits-wrapper label {
+	flex: 1 !important;
+	width: 100% !important;
+	display: flex !important;
+	flex-direction: column !important;
+}
+
+/* Title Styling */
+.woocommerce-checkout .mhm-payment-type-option-title,
+.woocommerce-checkout .wc-deposits-wrapper strong {
+	display: block !important;
+	font-size: 16px !important;
+	font-weight: 600 !important;
+	color: #1a202c !important;
+	line-height: 1.4 !important;
+	margin-bottom: 4px !important;
+}
+
+/* Description Styling */
+.woocommerce-checkout .mhm-payment-type-option-description,
+.woocommerce-checkout .wc-deposits-wrapper small,
+.woocommerce-checkout .wc-deposits-wrapper .description {
+	display: block !important;
+	font-size: 13px !important;
+	color: #718096 !important;
+	line-height: 1.5 !important;
+	margin-bottom: 12px !important;
+	/* Space before price */
+	font-weight: normal !important;
+}
+
+/* Price Styling */
+.woocommerce-checkout .mhm-payment-option-price,
+.woocommerce-checkout .mhm-payment-type-option-price,
+.woocommerce-checkout .mhm-payment-amount,
+.woocommerce-checkout .wc-deposits-deposit-amount {
+	font-size: 18px !important;
+	font-weight: 700 !important;
+	color: #2b6cb0 !important;
+	/* Brand Blue */
+	display: block !important;
+	margin-top: 5px !important;
+}
+
+/* Remaining Amount Section (Meta Data style) */
+.woocommerce-checkout .mhm-payment-type-option-price-remaining,
+.woocommerce-checkout .mhm-remaining-label,
+.woocommerce-checkout .mhm-remaining-value {
+	margin-top: 8px !important;
+	padding-top: 8px !important;
+	border-top: 1px dashed #cbd5e0 !important;
+	font-size: 14px !important;
+	color: #4a5568 !important;
+	display: flex !important;
+	justify-content: space-between !important;
+	width: 100% !important;
+}
+
+/* Hide legacy elements to prevent duplication */
+.woocommerce-checkout .wc-deposits-wrapper br {
+	display: none !important;
+}
+
+/* Specific Style for Description Text */
+.woocommerce-checkout .wc-deposits-wrapper small {
+	font-weight: 400 !important;
+	color: #718096 !important;
+	font-size: 14px !important;
+}
+
+/* Specific Style for Price */
+.woocommerce-checkout .wc-deposits-wrapper .wc-deposits-deposit-amount strong,
+.woocommerce-checkout .wc-deposits-wrapper .wc-deposits-deposit-amount .amount {
+	color: #2b6cb0 !important;
+	font-size: 16px !important;
+}
+
+.woocommerce-checkout .wc-deposits-wrapper .description,
+.woocommerce-checkout .mhm-payment-type-option .description {
+	font-size: 14px !important;
+	/* Readable */
+	color: #718096 !important;
+	/* Muted */
+	line-height: 1.5 !important;
+	display: block !important;
+	margin-top: 5px !important;
+}
+
+/* Price Styling (Standout) */
+.woocommerce-checkout .wc-deposits-deposit-amount,
+.woocommerce-checkout .mhm-payment-type-price {
+	font-weight: 700 !important;
+	font-size: 18px !important;
+	/* Larger Price */
+	color: #2b6cb0 !important;
+	/* Brand Blue */
+	display: block !important;
+	margin-top: 8px !important;
+}
+
+/* ========================================
+   PAYMENT METHODS - MOVED TO LEFT COLUMN
+   ======================================== */
+/* This styling assumes #payment has been moved to #customer_details via JS */
+
+.woocommerce-checkout #payment {
+	background: #f8fafc !important;
+	padding: 28px !important;
+	border-radius: 12px !important;
+	box-shadow: none !important;
+	border: 2px solid #e2e8f0 !important;
+	margin-top: 24px !important;
+	width: 100% !important;
+}
+
+.woocommerce-checkout #payment h3 {
+	font-size: 18px !important;
+	font-weight: 700 !important;
+	color: #1a202c !important;
+	margin: 0 0 20px 0 !important;
+}
+
+/* Payment Methods List - GRID LAYOUT */
+/* Payment Methods List - STACKED GRID FIX (Strict 2 Columns) */
+.woocommerce-checkout #payment ul.payment_methods {
+	display: grid !important;
+	grid-template-columns: 1fr 1fr !important;
+	/* ⭐ FIX: Strict 2 columns */
+	gap: 20px !important;
+	align-items: start !important;
+	/* FIX: Top Alignment */
+	list-style: none !important;
+	padding: 0 !important;
+	margin: 0 0 20px 0 !important;
+	border-bottom: none !important;
+	width: 100% !important;
+}
+
+/* Remove any clearfix pseudo-elements that might break grid alignment */
+.woocommerce-checkout #payment ul.payment_methods::before,
+.woocommerce-checkout #payment ul.payment_methods::after {
+	display: none !important;
+}
+
+.woocommerce-checkout #payment ul.payment_methods li {
+	width: auto !important;
+	/* Let Grid control width */
+	margin: 0 !important;
+	padding: 15px !important;
+	background: #ffffff !important;
+	border: 1px solid #e2e8f0 !important;
+	border-radius: 8px !important;
+	display: flex !important;
+	flex-wrap: wrap !important;
+	/* Allow wrapping for description */
+	align-items: center !important;
+	align-content: flex-start !important;
+	/* Internal alignment */
+	min-height: fit-content !important;
+	position: relative !important;
+	box-sizing: border-box !important;
+	list-style: none !important;
+	clear: none !important;
+	float: none !important;
+}
+
+/* Mobile Fallback */
+@media (max-width: 600px) {
+	.woocommerce-checkout #payment ul.payment_methods {
+		grid-template-columns: 1fr !important;
+	}
+}
+
+/* Radio Button (Sit Left) */
+.woocommerce-checkout #payment ul.payment_methods li input[type="radio"] {
+	margin: 0 8px 0 0 !important;
+	width: auto !important;
+	height: auto !important;
+	flex-shrink: 0 !important;
+	position: static !important;
+	transform: none !important;
+	accent-color: #3182ce !important;
+}
+
+/* Label (Sit Right of Radio) */
+.woocommerce-checkout #payment ul.payment_methods li label {
+	width: auto !important;
+	flex: 1 !important;
+	/* Fill remaining space */
+	margin: 0 !important;
+	line-height: 1.2 !important;
+	cursor: pointer !important;
+	font-size: 14px !important;
+	font-weight: 600 !important;
+	color: #2d3748 !important;
+	background: transparent !important;
+	border: none !important;
+	display: inline-block !important;
+}
+
+/* Selected State for Card */
+.woocommerce-checkout #payment ul.payment_methods li.wc_payment_method.selected {
+	border-color: #3182ce !important;
+	background-color: #ebf8ff !important;
+	box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2) !important;
+}
+
+/* Description Box (Force New Line) */
+.woocommerce-checkout #payment .payment_box {
+	flex-basis: 100% !important;
+	/* ⭐ FIX: Forces it to new line */
+	width: 100% !important;
+	margin-top: 12px !important;
+	padding-top: 12px !important;
+	border-top: 1px solid #f1f5f9 !important;
+	background: transparent !important;
+	font-size: 13px !important;
+	color: #64748b !important;
+	line-height: 1.4 !important;
+	position: relative !important;
+	clear: both !important;
+}
+
+.woocommerce-checkout #payment .payment_box::before {
+	display: none !important;
+}
+
+/* Reset any interfering child styles */
+.woocommerce-checkout #payment ul.payment_methods li>label {
+	display: inline-block !important;
+	/* Overwrite previous forceful flex */
+}
+
+.woocommerce-checkout #payment .payment_box::before {
+	display: none !important;
+}
+
+/* Privacy Policy & Terms */
+.woocommerce-privacy-policy-text,
+.woocommerce-terms-and-conditions-wrapper {
+	font-size: 11px !important;
+	color: #718096 !important;
+	line-height: 1.4 !important;
+	margin: 15px 0 !important;
+}
+
+/* Place Order Button - Dark Style */
+.woocommerce-checkout #place_order {
+	width: 100% !important;
+	height: 50px !important;
+	font-size: 16px !important;
+	font-weight: 700 !important;
+	background: #1a202c !important;
+	/* Black/Dark Grey */
+	color: white !important;
+	border-radius: 8px !important;
+	cursor: pointer !important;
+	transition: all 0.2s ease !important;
+	margin-top: 10px !important;
+}
+
+.woocommerce-checkout #place_order:hover {
+	background: #2b6cb0 !important;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 991px) {
+
+	/* Stack columns */
+	body.woocommerce-checkout form.checkout,
+	form.woocommerce-checkout {
+		display: block !important;
+	}
+
+	.woocommerce-checkout .woocommerce-billing-fields__field-wrapper #billing_first_name_field,
+	.woocommerce-checkout .woocommerce-billing-fields__field-wrapper #billing_last_name_field,
+	.woocommerce-checkout .woocommerce-billing-fields__field-wrapper #billing_address_2_field,
+	.woocommerce-checkout .woocommerce-billing-fields__field-wrapper #billing_postcode_field,
+	.woocommerce-checkout .woocommerce-billing-fields__field-wrapper #billing_city_field,
+	.woocommerce-checkout .woocommerce-billing-fields__field-wrapper #billing_state_field,
+	.woocommerce-checkout .woocommerce-billing-fields__field-wrapper #billing_phone_field {
+		width: 100% !important;
+		/* Full width on mobile */
+	}
+}
+
+/* --- REFINED ORDER SUMMARY & TYPOGRAPHY --- */
+/* Force Full Width Table */
+.woocommerce-checkout-review-order-table {
+	width: 100% !important;
+	table-layout: fixed !important;
+	/* Prevent cell width dancing */
+	border-collapse: separate !important;
+	border-spacing: 0 15px !important;
+	/* Spacing between rows */
+	margin: 0 !important;
+}
+
+/* Header & Cell Basics */
+.woocommerce-checkout-review-order-table th,
+.woocommerce-checkout-review-order-table td {
+	padding: 0 !important;
+	border: none !important;
+	vertical-align: top !important;
+	/* Top align content */
+}
+
+/* 1. Left Scale (Product Info) - 60% Width (Wider for details) */
+.woocommerce-checkout-review-order-table th.product-name,
+.woocommerce-checkout-review-order-table td.product-name {
+	width: 60% !important;
+	/* Increased from 35% */
+	text-align: left !important;
+	padding-right: 15px !important;
+	box-sizing: border-box !important;
+	white-space: normal !important;
+	/* Allow wrapping */
+}
+
+/* 2. Right Scale (Totals) - 40% Width (Sufficient for Price) */
+.woocommerce-checkout-review-order-table th.product-total,
+.woocommerce-checkout-review-order-table td.product-total {
+	width: 40% !important;
+	/* Variable space */
+	white-space: nowrap !important;
+	/* Prices NEVER wrap */
+	text-align: right !important;
+	/* Pin to right */
+	box-sizing: border-box !important;
+}
+
+/* Product Typography */
+.woocommerce-checkout-review-order-table td.product-name {
+	font-size: 16px !important;
+	font-weight: 700 !important;
+	color: #1a202c !important;
+	line-height: 1.4 !important;
+}
+
+/* Metadata Styling (Dates, Variations) - Vertical Stack Layout */
+.woocommerce-checkout-review-order-table dl.variation,
+.woocommerce-checkout-review-order-table .wc-item-meta {
+	display: block !important;
+	/* No more grid */
+	font-size: 13px !important;
+	font-weight: 400 !important;
+	color: #718096 !important;
+	margin-top: 10px !important;
+	line-height: 1.5 !important;
+}
+
+/* Product Price - Match Grand Total Style */
+.woocommerce-checkout-review-order-table tr.cart_item td.product-total .amount {
+	font-size: 16px !important;
+	font-weight: 700 !important;
+	color: #1e293b !important;
+	/* Match Total Row Dark Slate */
+	display: block !important;
+}
+
+/* Meta Label (Header Style) */
+.woocommerce-checkout-review-order-table dl.variation dt,
+.woocommerce-checkout-review-order-table .wc-item-meta dt {
+	display: block !important;
+	float: none !important;
+	clear: both !important;
+	font-weight: 700 !important;
+	font-size: 11px !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.5px !important;
+	color: #a0aec0 !important;
+	/* Lighter gray */
+	margin: 0 !important;
+	/* Touch the value below */
+	padding-bottom: 0 !important;
+	line-height: 1.2 !important;
+}
+
+/* Meta Value (Content Style) */
+.woocommerce-checkout-review-order-table dl.variation dd,
+.woocommerce-checkout-review-order-table .wc-item-meta dd {
+	display: block !important;
+	float: none !important;
+	margin: 0 0 12px 0 !important;
+	/* Space between groups */
+	font-size: 13px !important;
+	font-weight: 600 !important;
+	color: #2d3748 !important;
+	line-height: 1.3 !important;
+}
+
+
+
+/* ========================================
+   ORDER REVIEW TYPOGRAPHY & LAYOUT
+   ======================================== */
+
+/* 1. Reset & Column Widths (60/40) */
+.woocommerce-checkout-review-order-table tfoot th {
+	width: 60% !important;
+	text-align: left !important;
+	white-space: normal !important;
+}
+
+.woocommerce-checkout-review-order-table tfoot td {
+	width: 40% !important;
+	text-align: right !important;
+	white-space: nowrap !important;
+}
+
+/* 2. Secondary Data (Subtotal, Tax, Fees) - Neutral & Clean */
+/* Target: Subtotal, Tax Rows, Custom Tax Row, Fees */
+.woocommerce-checkout-review-order-table tr.cart-subtotal th,
+.woocommerce-checkout-review-order-table tr.cart-subtotal td,
+.woocommerce-checkout-review-order-table tr.tax-rate th,
+.woocommerce-checkout-review-order-table tr.tax-rate td,
+.woocommerce-checkout-review-order-table tr.fee th,
+/* Adding fee just in case */
+.woocommerce-checkout-review-order-table tr.fee td,
+.woocommerce-checkout-review-order-table tr.mhm-custom-tax-row th,
+.woocommerce-checkout-review-order-table tr.mhm-custom-tax-row td {
+	font-size: 14px !important;
+	font-weight: 500 !important;
+	color: #64748b !important;
+	/* Slate Gray */
+	padding-top: 6px !important;
+	padding-bottom: 6px !important;
+	border-top: 1px solid #f1f5f9 !important;
+	/* Very light separator for internal rows */
+}
+
+/* Override Amount Styles for Secondary Rows to match */
+.woocommerce-checkout-review-order-table tr.cart-subtotal td .amount,
+.woocommerce-checkout-review-order-table tr.tax-rate td .amount,
+.woocommerce-checkout-review-order-table tr.mhm-custom-tax-row td .amount {
+	font-size: 14px !important;
+	font-weight: 500 !important;
+	color: #64748b !important;
+	display: block !important;
+}
+
+/* 3. Primary Data (Grand Total) - Bold & Dark */
+.woocommerce-checkout-review-order-table tr.order-total th,
+.woocommerce-checkout-review-order-table tr.order-total td {
+	font-size: 16px !important;
+	font-weight: 700 !important;
+	color: #1e293b !important;
+	/* Dark Slate / Near Black */
+	border-top: 1px solid #e2e8f0 !important;
+	/* Stronger separator */
+	padding-top: 15px !important;
+	padding-bottom: 5px !important;
+	margin-top: 5px !important;
+}
+
+.woocommerce-checkout-review-order-table tr.order-total td .amount {
+	font-size: 16px !important;
+	font-weight: 700 !important;
+	color: #1e293b !important;
+	display: block !important;
+}
+
+/* Hide old suffix elements just in case */
+.woocommerce-price-suffix,
+small.includes_tax {
+	display: none !important;
+}
+
+/* Edit Cart Link Style */
+.mhm-return-cart-link {
+	transition: color 0.2s ease !important;
+}
+
+.mhm-return-cart-link:hover {
+	color: #3182ce !important;
+	text-decoration: underline !important;
+}
+
+/* Compact input rows */
+.woocommerce-checkout .form-row {
+	margin-bottom: 12px !important;
+}
+
+/* ========================================
+   SELECT2 MODERNIZATION (PREMIUM UI)
+   ======================================== */
+
+/* 1. Closed Input Box (Match standard inputs) */
+.woocommerce-checkout .select2-container .select2-selection--single {
+	height: 50px !important;
+	border: 2px solid #e2e8f0 !important;
+	/* MHM border style */
+	border-radius: 8px !important;
+	background-color: #ffffff !important;
+	display: flex !important;
+	align-items: center !important;
+	padding-left: 5px !important;
+	outline: none !important;
+	transition: all 0.2s ease !important;
+}
+
+.woocommerce-checkout .select2-container--default .select2-selection--single .select2-selection__rendered {
+	color: #2d3748 !important;
+	/* Match text input color */
+	font-size: 14px !important;
+	line-height: normal !important;
+}
+
+/* Focus state for Select2 */
+.woocommerce-checkout .select2-container--open .select2-selection--single {
+	border-color: #3182ce !important;
+	box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1) !important;
+}
+
+/* 2. Opened Dropdown (The List) */
+.select2-dropdown {
+	border: 1px solid #e2e8f0 !important;
+	border-radius: 12px !important;
+	box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12) !important;
+	background-color: #ffffff !important;
+	margin-top: 8px !important;
+	z-index: 9999 !important;
+	overflow: hidden !important;
+}
+
+/* 3. Search Box (Inside Dropdown) */
+.select2-search--dropdown {
+	padding: 10px !important;
+}
+
+.select2-search__field {
+	border-radius: 6px !important;
+	border: 1px solid #cbd5e1 !important;
+	padding: 10px !important;
+	height: 40px !important;
+	outline: none !important;
+	font-size: 14px !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+.select2-search__field:focus {
+	border-color: #3182ce !important;
+}
+
+/* 4. List Items (Options) */
+.select2-results__option {
+	padding: 10px 15px !important;
+	font-size: 14px !important;
+	color: #4a5568 !important;
+	transition: background 0.1s !important;
+}
+
+/* Selected / Highlighted State */
+.select2-container--default .select2-results__option--highlighted[aria-selected],
+.select2-container--default .select2-results__option--highlighted[data-selected] {
+	background-color: #3182ce !important;
+	color: #ffffff !important;
+}
+
+/* Already selected item styled normally or slightly darker */
+.select2-container--default .select2-results__option[aria-selected=true] {
+	background-color: #ebf8ff !important;
+	color: #2c5aa0 !important;
+}
+
+/* 5. Arrow Icon Fix */
+.woocommerce-checkout .select2-container--default .select2-selection--single .select2-selection__arrow {
+	height: 48px !important;
+	top: 1px !important;
+	right: 12px !important;
+	width: 20px !important;
+}
+
+.woocommerce-checkout .select2-container--default .select2-selection--single .select2-selection__arrow b {
+	border-color: #718096 transparent transparent transparent !important;
+	border-width: 5px 4px 0 4px !important;
+	margin-left: -4px !important;
+	margin-top: -2px !important;
+}
+
+/* Open state arrow */
+.woocommerce-checkout .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+	border-color: transparent transparent #3182ce transparent !important;
+	border-width: 0 4px 5px 4px !important;
+}
+
+/* ========================================
+   COLLAPSIBLE ADDITIONAL INFO STYLES
+   ======================================== */
+
+/* The Container */
+.woocommerce-additional-fields {
+	border-top: 1px solid #e2e8f0;
+	margin-top: 20px !important;
+	padding-top: 20px !important;
+}
+
+/* The Clickable Heading */
+.woocommerce-additional-fields h3 {
+	cursor: pointer !important;
+	position: relative !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	user-select: none !important;
+	margin-bottom: 0 !important;
+	/* Remove margin when closed */
+	padding-bottom: 10px !important;
+	transition: color 0.2s ease;
+}
+
+.woocommerce-additional-fields h3:hover {
+	color: #3182ce !important;
+	/* Brand color on hover */
+}
+
+/* The Arrow Icon (CSS Only) */
+.woocommerce-additional-fields h3::after {
+	content: '';
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	border-right: 2px solid #4a5568;
+	border-bottom: 2px solid #4a5568;
+	transform: rotate(45deg);
+	/* Arrow pointing down */
+	transition: transform 0.3s ease;
+	margin-left: 10px;
+	margin-bottom: 4px;
+}
+
+/* State: Closed (Arrow points right/closed) */
+.mhm-accordion-closed h3::after {
+	transform: rotate(-45deg);
+	margin-bottom: 0;
+}
+
+/* State: Open (Add margin to content) */
+.mhm-accordion-open .woocommerce-additional-fields__field-wrapper {
+	margin-top: 15px !important;
+}
+
+/* ========================================
+   MOBILE FIX (NO SCROLLBAR VERSION)
+   ======================================== */
+@media (max-width: 782px) {
+
+	/* 1. Global Overflow Prevention */
+	html,
+	body {
+		overflow-x: hidden !important;
+	}
+
+	.woocommerce-checkout-wrapper,
+	form.woocommerce-checkout {
+		width: 100% !important;
+		max-width: 100vw !important;
+		padding: 10px 0 !important;
+		margin: 0 !important;
+		overflow-x: hidden !important;
+	}
+
+	/* 2. Neutralize Global Padding */
+	.woocommerce-checkout .has-global-padding,
+	.woocommerce-checkout .entry-content {
+		padding-right: 0 !important;
+		padding-left: 0 !important;
+		margin-right: 0 !important;
+		margin-left: 0 !important;
+	}
+
+	/* 3. Cards - Use Margins for Spacing (Fixes Scroll) */
+	/* Instead of width: 96%, we use auto width with side margins */
+	.woocommerce-checkout #customer_details,
+	.woocommerce-checkout #order_review {
+		width: auto !important;
+		/* Let browser calculate width */
+		margin-left: 10px !important;
+		/* Left Gap */
+		margin-right: 10px !important;
+		/* Right Gap */
+		margin-bottom: 20px !important;
+		padding: 20px 15px !important;
+		box-sizing: border-box !important;
+		/* Critical: Include padding in width */
+	}
+
+	/* 4. Heading Alignment */
+	body.woocommerce-checkout #order_review_heading,
+	.woocommerce-checkout #order_review_heading {
+		display: block !important;
+		margin: 20px 10px 10px 14px !important;
+		/* Align with card text */
+		font-size: 20px !important;
+		font-weight: 700 !important;
+		color: #1a202c !important;
+	}
+
+	/* 5. Touch Inputs */
+	.woocommerce-checkout input,
+	.woocommerce-checkout select,
+	.woocommerce-checkout textarea {
+		font-size: 16px !important;
+		/* iOS Zoom Fix */
+		max-width: 100% !important;
+	}
+
+	.woocommerce-checkout .select2-container {
+		max-width: 100% !important;
+	}
+
+	/* 6. Payment Options Layout */
+	.woocommerce-checkout .mhm-payment-type-option {
+		padding: 15px !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+	}
+}

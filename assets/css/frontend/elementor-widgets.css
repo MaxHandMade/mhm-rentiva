@@ -1,0 +1,197 @@
+/**
+ * Elementor Widgets Styles
+ *
+ * MHM Rentiva Elementor widget'ları için özel stiller
+ *
+ * @package MHMRentiva
+ * @since 3.0.1
+ */
+
+/* ====================================
+	Elementor Widget Wrappers
+	==================================== */
+
+/* Vehicle Card Widget */
+.elementor-widget-rv-vehicle-card {
+	/* Widget wrapper styles */
+	position: relative;
+}
+
+.elementor-widget-rv-vehicle-card .rv-vehicle-card {
+	/* Reset any conflicting styles */
+	margin: 0;
+}
+
+/* Vehicles List Widget */
+.elementor-widget-rv-vehicles-list {
+	/* Widget wrapper styles */
+	position: relative;
+	width: 100%;
+}
+
+.elementor-widget-rv-vehicles-list .rv-vehicles-list {
+	/* Reset any conflicting styles */
+	margin: 0;
+}
+
+/* Booking Form Widget */
+.elementor-widget-rv-booking-form {
+	/* Widget wrapper styles */
+	position: relative;
+	width: 100%;
+}
+
+.elementor-widget-rv-booking-form .rv-booking-form {
+	/* Reset any conflicting styles */
+	margin: 0;
+}
+
+/* ====================================
+	Elementor Editor Styles
+	==================================== */
+
+/* Vehicle Card Widget - Editor */
+.elementor-editor .elementor-widget-rv-vehicle-card .rv-vehicle-card {
+	/* Editor specific styles */
+	min-height: 200px;
+	border: 2px dashed #ddd;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #f9f9f9;
+}
+
+.elementor-editor .elementor-widget-rv-vehicle-card .rv-vehicle-card::before {
+	content: 'Vehicle Card Widget';
+	font-size: 16px;
+	color: #666;
+	font-weight: 500;
+}
+
+.elementor-editor .elementor-widget-rv-vehicle-card .rv-vehicle-card:hover {
+	border-color: #007cba;
+	background: #f0f8ff;
+}
+
+/* Vehicles List Widget - Editor */
+.elementor-editor .elementor-widget-rv-vehicles-list .rv-vehicles-list {
+	/* Editor specific styles */
+	min-height: 300px;
+	border: 2px dashed #ddd;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #f9f9f9;
+}
+
+.elementor-editor .elementor-widget-rv-vehicles-list .rv-vehicles-list::before {
+	content: 'Vehicles List Widget';
+	font-size: 16px;
+	color: #666;
+	font-weight: 500;
+}
+
+.elementor-editor .elementor-widget-rv-vehicles-list .rv-vehicles-list:hover {
+	border-color: #007cba;
+	background: #f0f8ff;
+}
+
+/* Booking Form Widget - Editor */
+.elementor-editor .elementor-widget-rv-booking-form .rv-booking-form {
+	/* Editor specific styles */
+	min-height: 400px;
+	border: 2px dashed #ddd;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #f9f9f9;
+}
+
+.elementor-editor .elementor-widget-rv-booking-form .rv-booking-form::before {
+	content: 'Booking Form Widget';
+	font-size: 16px;
+	color: #666;
+	font-weight: 500;
+}
+
+.elementor-editor .elementor-widget-rv-booking-form .rv-booking-form:hover {
+	border-color: #007cba;
+	background: #f0f8ff;
+}
+
+/* ====================================
+	Elementor Preview Styles
+	==================================== */
+
+.elementor-preview .rv-vehicle-card,
+.elementor-preview .rv-vehicles-list,
+.elementor-preview .rv-booking-form {
+	/* Preview specific styles */
+	pointer-events: none;
+}
+
+/* Grid Layout Adjustments in Elementor */
+.elementor-widget-rv-vehicles-list .rv-vehicles-list--grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 1.5rem;
+}
+
+/* Column-specific Grid Layouts */
+.elementor-widget-rv-vehicles-list .rv-vehicles-list--columns-1 {
+	grid-template-columns: 1fr;
+}
+
+.elementor-widget-rv-vehicles-list .rv-vehicles-list--columns-2 {
+	grid-template-columns: repeat(2, 1fr);
+}
+
+.elementor-widget-rv-vehicles-list .rv-vehicles-list--columns-3 {
+	grid-template-columns: repeat(3, 1fr);
+}
+
+.elementor-widget-rv-vehicles-list .rv-vehicles-list--columns-4 {
+	grid-template-columns: repeat(4, 1fr);
+}
+
+/* ====================================
+	Responsive Elementor Controls
+	==================================== */
+
+@media (max-width: 1200px) {
+	.elementor-widget-rv-vehicles-list .rv-vehicles-list--columns-4 {
+		grid-template-columns: repeat(3, 1fr) !important;
+	}
+}
+
+@media (max-width: 900px) {
+
+	.elementor-widget-rv-vehicles-list .rv-vehicles-list--columns-3,
+	.elementor-widget-rv-vehicles-list .rv-vehicles-list--columns-4 {
+		grid-template-columns: repeat(2, 1fr) !important;
+	}
+}
+
+@media (max-width: 782px) {
+
+	.elementor-widget-rv-vehicle-card,
+	.elementor-widget-rv-vehicles-list,
+	.elementor-widget-rv-booking-form {
+		/* Mobile specific styles */
+		width: 100%;
+	}
+
+	.elementor-widget-rv-vehicles-list .rv-vehicles-list--grid {
+		grid-template-columns: 1fr !important;
+	}
+}
+
+@media (max-width: 480px) {
+
+	.elementor-widget-rv-vehicle-card,
+	.elementor-widget-rv-vehicles-list,
+	.elementor-widget-rv-booking-form {
+		/* Small mobile specific styles */
+		padding: 0;
+	}
+}

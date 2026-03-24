@@ -1,0 +1,144 @@
+/* Featured Vehicles Module */
+.mhm-rentiva-featured-wrapper {
+    position: relative;
+    padding-block: var(--mhm-space-phi-4, 2.125rem);
+    padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+    --mhm-color-primary: var(--wp--preset--color--primary, #2563eb);
+    --mhm-color-text-primary: var(--wp--preset--color--black, #1f2937);
+    --mhm-color-text-secondary: var(--wp--preset--color--gray-600, #6b7280);
+    --mhm-color-border: var(--wp--preset--color--gray-200, #e5e7eb);
+}
+
+.mhm-rentiva-featured-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--mhm-color-text-primary);
+}
+
+/* =========================================
+   Swiper Overrides
+   ========================================= */
+.mhm-featured-swiper {
+    position: relative;
+    overflow: hidden;
+    /* Bottom padding for pagination dots */
+    padding-bottom: 2.75rem !important;
+    /* No side padding — nav arrows overlay the slides */
+}
+
+/* Card content: remove excess bottom padding in slider */
+.mhm-featured-swiper .mhm-card-content {
+    padding: 1rem 1.125rem 0.75rem !important;
+    gap: 8px;
+}
+
+/* Footer: remove auto margin that creates gap above button */
+.mhm-featured-swiper .mhm-card-footer {
+    margin-top: 0 !important;
+    padding-top: 8px;
+    padding-bottom: 0.75rem;
+}
+
+/* Tighter title in slider */
+.mhm-featured-swiper .mhm-card-title {
+    font-size: 1rem;
+    min-height: calc(1rem * 1.3 * 2);
+}
+
+/* Compact feature chips */
+.mhm-featured-swiper .mhm-card-features {
+    padding-top: 8px;
+    height: 28px;
+    min-height: 28px;
+    max-height: 28px;
+}
+
+/* Smaller booking button */
+.mhm-featured-swiper .mhm-btn-booking {
+    height: 40px;
+    font-size: 0.875rem;
+}
+
+/* Nav arrows disabled — autoplay only */
+.mhm-featured-swiper .swiper-button-next,
+.mhm-featured-swiper .swiper-button-prev {
+    display: none;
+}
+
+/* Fallback: Swiper not yet initialized (editor/no-JS) → show as grid */
+.mhm-featured-swiper:not(.swiper-initialized) .swiper-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    transform: none !important;
+}
+
+.mhm-featured-swiper:not(.swiper-initialized) .swiper-slide {
+    width: auto !important;
+}
+
+/* Equal-height slides via CSS — no JS height manipulation needed */
+.mhm-featured-swiper .swiper-wrapper {
+    align-items: stretch;
+}
+
+.mhm-featured-swiper .swiper-slide {
+    height: auto;
+}
+
+.mhm-featured-swiper .mhm-vehicle-card {
+    height: 100%;
+}
+
+.mhm-featured-swiper .swiper-pagination-bullet-active {
+    background: var(--mhm-color-primary) !important;
+}
+
+/* Card Component styles are now handled by core/vehicle-card.css */
+
+/* =========================================
+   Grid Layout
+   ========================================= */
+.mhm-featured-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--mhm-columns, 3), 1fr);
+    gap: 2rem;
+    width: 100%;
+    max-width: 100%;
+}
+
+.mhm-featured-grid-item {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.mhm-featured-grid .mhm-vehicle-card {
+    max-width: 100%;
+}
+
+/* =========================================
+   Responsive
+   ========================================= */
+@media (max-width: 900px) {
+    .mhm-featured-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 782px) {
+    .mhm-featured-grid {
+        grid-template-columns: 1fr;
+        gap: var(--mhm-space-phi-3, 1.3125rem);
+    }
+
+    .mhm-rentiva-featured-wrapper {
+        padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem));
+    }
+
+}

@@ -1,0 +1,374 @@
+/* Monitoring Dashboard Styles */
+.mhm-monitoring-dashboard {
+	max-width: 1200px;
+}
+
+.monitoring-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 20px;
+	margin-bottom: 30px;
+}
+
+.monitoring-card {
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: 6px;
+	padding: 20px;
+	box-shadow: var(--mhm-shadow-sm);
+}
+
+.card-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 15px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid var(--mhm-border-secondary);
+}
+
+.card-header h3 {
+	margin: 0;
+	color: var(--mhm-text-primary);
+}
+
+.stat-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	gap: 15px;
+}
+
+.stat-item {
+	text-align: center;
+	padding: 10px;
+	background: var(--mhm-bg-hover);
+	border-radius: 4px;
+}
+
+.stat-label {
+	display: block;
+	font-size: 12px;
+	color: var(--mhm-text-secondary);
+	margin-bottom: 5px;
+}
+
+.stat-value {
+	display: block;
+	font-size: 18px;
+	font-weight: bold;
+	color: var(--mhm-primary);
+}
+
+.log-count-error,
+.log-count-critical {
+	color: var(--mhm-error) !important;
+}
+
+.log-count-warning {
+	color: var(--mhm-warning) !important;
+}
+
+.card-actions {
+	margin-top: 15px;
+	padding-top: 15px;
+	border-top: 1px solid var(--mhm-border-secondary);
+	text-align: center;
+}
+
+.monitoring-section {
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: 6px;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.monitoring-section h3 {
+	margin-top: 0;
+	color: var(--mhm-text-primary);
+}
+
+.chart-container {
+	background: var(--mhm-bg-hover);
+	border-radius: 4px;
+	padding: 20px;
+	text-align: center;
+}
+
+/* Performance Widget Styles */
+.mhm-performance-widget {
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: 4px;
+	padding: 15px;
+	margin: 10px 0;
+}
+
+.performance-stats {
+	margin: 10px 0;
+}
+
+.performance-stats .stat-item {
+	display: flex;
+	justify-content: space-between;
+	margin: 5px 0;
+	padding: 5px 0;
+	border-bottom: 1px solid var(--mhm-border-secondary);
+}
+
+.performance-stats .stat-item:last-child {
+	border-bottom: none;
+}
+
+.performance-stats .stat-item .label {
+	font-weight: 500;
+	color: var(--mhm-text-secondary);
+}
+
+.performance-stats .stat-item .value {
+	color: var(--mhm-primary);
+	font-weight: 600;
+}
+
+.performance-actions {
+	margin-top: 15px;
+	display: flex;
+	gap: 10px;
+}
+
+/* Log Widget Styles */
+.mhm-log-widget {
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: 4px;
+	padding: 15px;
+	margin: 10px 0;
+}
+
+.log-stats {
+	margin: 10px 0;
+}
+
+.log-stats .stat-item {
+	display: flex;
+	justify-content: space-between;
+	margin: 5px 0;
+	padding: 5px 0;
+	border-bottom: 1px solid var(--mhm-border-secondary);
+}
+
+.log-stats .stat-item:last-child {
+	border-bottom: none;
+}
+
+.log-stats .stat-item .label {
+	font-weight: 500;
+	color: var(--mhm-text-secondary);
+}
+
+.log-stats .stat-item .value {
+	color: var(--mhm-primary);
+	font-weight: 600;
+}
+
+.log-level {
+	padding: 2px 6px;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+
+.log-level-debug {
+	background: var(--mhm-bg-secondary);
+	color: var(--mhm-text-secondary);
+}
+
+.log-level-info {
+	background: var(--mhm-bg-secondary);
+	color: var(--mhm-primary);
+}
+
+.log-level-warning {
+	background: var(--mhm-warning-bg);
+	color: var(--mhm-warning);
+}
+
+.log-level-error {
+	background: var(--mhm-error-bg);
+	color: var(--mhm-error);
+}
+
+.log-level-critical {
+	background: var(--mhm-error-bg);
+	color: var(--mhm-error-dark);
+}
+
+.log-actions {
+	margin-top: 15px;
+	display: flex;
+	gap: 10px;
+}
+
+/* Logs Page Styles */
+.mhm-logs-page {
+	max-width: 1200px;
+}
+
+.log-filters {
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: 6px;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.filter-row {
+	display: flex;
+	gap: 20px;
+	align-items: end;
+	flex-wrap: wrap;
+}
+
+.filter-group {
+	display: flex;
+	flex-direction: column;
+	min-width: 150px;
+}
+
+.filter-group label {
+	margin-bottom: 5px;
+	font-weight: 500;
+	color: var(--mhm-text-secondary);
+}
+
+.log-list-container {
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: 6px;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.log-item {
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: 4px;
+	margin-bottom: 10px;
+	padding: 15px;
+	background: var(--mhm-bg-hover);
+}
+
+.log-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.log-timestamp {
+	color: var(--mhm-text-secondary);
+	font-size: 12px;
+}
+
+.log-message {
+	margin: 10px 0;
+	font-family: monospace;
+	white-space: pre-wrap;
+	background: var(--mhm-bg-card);
+	padding: 10px;
+	border-radius: 3px;
+	border: 1px solid var(--mhm-border-secondary);
+}
+
+.log-context {
+	margin-top: 10px;
+	font-size: 12px;
+	color: var(--mhm-text-secondary);
+}
+
+.log-pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 15px;
+	margin-top: 20px;
+}
+
+.log-actions {
+	text-align: center;
+	padding: 20px;
+	background: var(--mhm-bg-hover);
+	border-radius: 6px;
+}
+
+.log-actions .button {
+	margin: 0 10px;
+}
+
+/* Health Status Styles */
+.health-status {
+	margin-top: 10px;
+}
+
+.health-item {
+	display: flex;
+	align-items: center;
+	padding: 8px 0;
+	border-bottom: 1px solid var(--mhm-border-secondary);
+}
+
+.health-item:last-child {
+	border-bottom: none;
+}
+
+.health-ok {
+	color: var(--mhm-success);
+}
+
+.health-warning {
+	color: var(--mhm-warning);
+}
+
+.health-error {
+	color: var(--mhm-error);
+}
+
+.health-icon {
+	margin-right: 10px;
+	font-weight: bold;
+}
+
+.health-message {
+	font-size: 14px;
+}
+
+/* Utility Classes */
+.hidden {
+	display: none !important;
+}
+
+.show {
+	display: block !important;
+}
+
+/* Responsive Design */
+@media (max-width: 782px) {
+	.monitoring-cards {
+		grid-template-columns: 1fr;
+	}
+
+	.filter-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.filter-group {
+		min-width: auto;
+		margin-bottom: 15px;
+	}
+
+	.log-actions {
+		flex-direction: column;
+		gap: 10px;
+	}
+}

@@ -1,0 +1,534 @@
+/**
+ * MHM Rentiva — Blocked Dates Meta Box
+ * Premium inline calendar + chip design for vehicle edit page.
+ */
+
+/* === WRAPPER === */
+.mhm-blocked-dates-wrap {
+	padding: 4px 0 8px;
+}
+
+/* === HEADER ROW === */
+.blocked-dates-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 16px;
+	gap: 12px;
+}
+
+.blocked-dates-description {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+	font-size: 13px;
+	color: #50575e;
+	line-height: 1.5;
+}
+
+.blocked-dates-description .dashicons {
+	color: var(--mhm-primary, #2563eb);
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+}
+
+.blocked-dates-count-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	background: var(--mhm-primary, #2563eb);
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 4px 10px;
+	border-radius: 20px;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+/* === TWO-COLUMN BODY === */
+.blocked-dates-body {
+	display: flex;
+	gap: 20px;
+	align-items: flex-start;
+}
+
+/* === CALENDAR COLUMN === */
+.blocked-dates-calendar-col {
+	flex-shrink: 0;
+	width: 308px;
+}
+
+/* === FLATPICKR INLINE OVERRIDES === */
+
+/* Force inline display — prevent popup positioning */
+.blocked-dates-calendar-col .flatpickr-calendar,
+.blocked-dates-calendar-col .flatpickr-calendar.inline {
+	position: static !important;
+	display: block !important;
+	top: auto !important;
+	left: auto !important;
+	transform: none !important;
+	opacity: 1 !important;
+	visibility: visible !important;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10) !important;
+	border: 1px solid #dcdcde !important;
+	border-radius: 10px !important;
+	overflow: visible !important;
+	width: 308px !important;
+	max-width: 308px !important;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Header */
+.blocked-dates-calendar-col .flatpickr-months {
+	background: var(--mhm-primary, #2563eb) !important;
+	border-radius: 9px 9px 0 0;
+	padding: 8px 0;
+}
+
+.blocked-dates-calendar-col .flatpickr-month {
+	background: transparent !important;
+	color: #fff !important;
+	fill: #fff !important;
+	height: 38px;
+}
+
+/* Month + year text */
+.blocked-dates-calendar-col .flatpickr-current-month {
+	color: #fff !important;
+	font-size: 15px !important;
+	font-weight: 700 !important;
+	padding-top: 4px;
+}
+
+.blocked-dates-calendar-col .flatpickr-current-month .cur-month {
+	color: #fff !important;
+	font-weight: 700 !important;
+}
+
+.blocked-dates-calendar-col .flatpickr-current-month .numInputWrapper input,
+.blocked-dates-calendar-col .flatpickr-current-month input.cur-year {
+	color: #fff !important;
+	font-weight: 700 !important;
+	font-size: 15px !important;
+}
+
+.blocked-dates-calendar-col .flatpickr-current-month .numInputWrapper {
+	color: #fff !important;
+}
+
+.blocked-dates-calendar-col .flatpickr-current-month .numInputWrapper span {
+	border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.blocked-dates-calendar-col .flatpickr-current-month .numInputWrapper span svg path {
+	fill: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Month dropdown select — Flatpickr uses .flatpickr-monthDropdown-months */
+.blocked-dates-calendar-col .flatpickr-current-month .flatpickr-monthDropdown-months {
+	color: #fff !important;
+	background: transparent !important;
+	border: none !important;
+	outline: none !important;
+}
+
+.blocked-dates-calendar-col .flatpickr-current-month .flatpickr-monthDropdown-months:hover,
+.blocked-dates-calendar-col .flatpickr-current-month .flatpickr-monthDropdown-months:focus,
+.blocked-dates-calendar-col .flatpickr-current-month .flatpickr-monthDropdown-months:active {
+	color: #fff !important;
+	background: rgba(255, 255, 255, 0.15) !important;
+	outline: none !important;
+}
+
+/* Dropdown list items — browser renders these on white bg, must use dark text */
+.blocked-dates-calendar-col .flatpickr-current-month .flatpickr-monthDropdown-months option {
+	color: #1d2327 !important;
+	background: #fff !important;
+}
+
+/* Year input hover */
+.blocked-dates-calendar-col .flatpickr-current-month input.cur-year:hover,
+.blocked-dates-calendar-col .flatpickr-current-month input.cur-year:focus {
+	color: #fff !important;
+	background: rgba(255, 255, 255, 0.15) !important;
+	outline: none !important;
+}
+
+/* Nav arrows */
+.blocked-dates-calendar-col .flatpickr-prev-month,
+.blocked-dates-calendar-col .flatpickr-next-month {
+	color: #fff !important;
+	fill: #fff !important;
+	padding: 8px 12px !important;
+}
+
+.blocked-dates-calendar-col .flatpickr-prev-month:hover,
+.blocked-dates-calendar-col .flatpickr-next-month:hover {
+	background: rgba(255, 255, 255, 0.2) !important;
+	border-radius: 6px;
+	color: #fff !important;
+	fill: #fff !important;
+}
+
+.blocked-dates-calendar-col .flatpickr-prev-month svg,
+.blocked-dates-calendar-col .flatpickr-next-month svg {
+	fill: #fff !important;
+}
+
+/* Weekday header row */
+.blocked-dates-calendar-col .flatpickr-weekdays {
+	background: #eef2ff !important;
+	padding: 4px 0 2px;
+}
+
+.blocked-dates-calendar-col span.flatpickr-weekday {
+	color: var(--mhm-primary, #2563eb) !important;
+	font-size: 11px !important;
+	font-weight: 700 !important;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	background: transparent !important;
+}
+
+/* flatpickr-innerContainer has overflow:hidden by default — must override for 6-row months */
+.blocked-dates-calendar-col .flatpickr-innerContainer {
+	overflow: visible !important;
+}
+
+/* Day cells */
+.blocked-dates-calendar-col .flatpickr-days {
+	border: none !important;
+	background: #fff;
+	width: 308px !important;
+	overflow: visible !important;
+}
+
+.blocked-dates-calendar-col .dayContainer {
+	padding: 4px 6px 8px;
+	box-sizing: border-box !important;
+	width: 308px !important;
+	min-width: 308px !important;
+	max-width: 308px !important;
+}
+
+.blocked-dates-calendar-col .flatpickr-day {
+	border-radius: 50% !important;
+	height: 34px !important;
+	line-height: 34px !important;
+	font-size: 13px !important;
+	color: #1d2327 !important;
+	border: none !important;
+	max-width: 34px !important;
+	margin: 2px !important;
+	transition: all 0.15s ease;
+}
+
+.blocked-dates-calendar-col .flatpickr-day:hover {
+	background: #dbeafe !important;
+	color: var(--mhm-primary, #2563eb) !important;
+}
+
+.blocked-dates-calendar-col .flatpickr-day.today {
+	border: 2px solid var(--mhm-primary, #2563eb) !important;
+	color: var(--mhm-primary, #2563eb) !important;
+	font-weight: 700 !important;
+	background: transparent !important;
+}
+
+.blocked-dates-calendar-col .flatpickr-day.today:hover {
+	background: var(--mhm-primary, #2563eb) !important;
+	color: #fff !important;
+}
+
+/* Selected (blocked) days — red */
+.blocked-dates-calendar-col .flatpickr-day.selected,
+.blocked-dates-calendar-col .flatpickr-day.selected:hover,
+.blocked-dates-calendar-col .flatpickr-day.selected:focus {
+	background: #dc3232 !important;
+	border-color: #dc3232 !important;
+	color: #fff !important;
+	font-weight: 700 !important;
+}
+
+/* Other month days */
+.blocked-dates-calendar-col .flatpickr-day.flatpickr-disabled,
+.blocked-dates-calendar-col .flatpickr-day.prevMonthDay,
+.blocked-dates-calendar-col .flatpickr-day.nextMonthDay {
+	color: #c3c4c7 !important;
+}
+
+/* === CHIPS COLUMN === */
+.blocked-dates-chips-col {
+	flex: 1;
+	min-width: 0;
+}
+
+.blocked-dates-chips-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 10px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.blocked-dates-chips-title {
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.6px;
+	color: #50575e;
+}
+
+.blocked-dates-clear-btn {
+	font-size: 12px;
+	color: #d63638 !important;
+	text-decoration: none;
+}
+
+.blocked-dates-clear-btn:hover {
+	color: #b32d2e !important;
+	text-decoration: underline;
+}
+
+/* Empty state */
+.blocked-dates-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 32px 16px;
+	text-align: center;
+	background: #f9f9f9;
+	border: 1px dashed #dcdcde;
+	border-radius: 8px;
+	color: #8c8f94;
+}
+
+.blocked-dates-empty .dashicons {
+	font-size: 32px;
+	width: 32px;
+	height: 32px;
+	color: #c3c4c7;
+	margin-bottom: 8px;
+}
+
+.blocked-dates-empty p {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+/* Chips container */
+.blocked-dates-chips {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	max-height: 260px;
+	overflow-y: auto;
+}
+
+/* Individual chip */
+.blocked-date-chip {
+	background: #fff0f0;
+	border: 1px solid #f5c6c6;
+	border-left: 3px solid #dc3232;
+	border-radius: 6px;
+	overflow: hidden;
+	transition: background 0.15s ease;
+}
+
+.blocked-date-chip:hover {
+	background: #ffe8e8;
+}
+
+/* Chip top row: date + remove button */
+.blocked-date-chip-top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 7px 10px 7px 12px;
+}
+
+.blocked-date-chip-label {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #2c3338;
+}
+
+.blocked-date-chip-label .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	color: #dc3232;
+	flex-shrink: 0;
+}
+
+.blocked-date-chip-remove {
+	background: none;
+	border: none;
+	color: #8c8f94;
+	cursor: pointer;
+	padding: 2px 4px;
+	border-radius: 4px;
+	line-height: 1;
+	font-size: 16px;
+	transition: color 0.15s ease;
+	flex-shrink: 0;
+}
+
+.blocked-date-chip-remove:hover {
+	color: #dc3232;
+	background: rgba(220, 50, 50, 0.1);
+}
+
+/* Chip note row */
+.blocked-date-chip-note-wrap {
+	padding: 0 10px 8px 12px;
+}
+
+.blocked-date-chip-note {
+	width: 100%;
+	font-size: 12px;
+	color: #50575e;
+	background: rgba(255, 255, 255, 0.8);
+	border: 1px solid #e0b8b8;
+	border-radius: 4px;
+	padding: 4px 8px;
+	line-height: 1.4;
+	resize: none;
+	box-shadow: none;
+	transition: border-color 0.15s ease;
+	box-sizing: border-box;
+}
+
+.blocked-date-chip-note:focus {
+	border-color: var(--mhm-primary, #2563eb);
+	background: #fff;
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.blocked-date-chip-note::placeholder {
+	color: #b0b5bb;
+	font-style: italic;
+}
+
+/* === FOOTER: APPLY TO ALL === */
+.blocked-dates-footer {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 16px;
+	padding-top: 14px;
+	border-top: 1px solid #dcdcde;
+}
+
+.blocked-dates-apply-all-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: #fff;
+	border: 1px solid var(--mhm-primary, #2563eb);
+	color: var(--mhm-primary, #2563eb);
+	padding: 6px 14px;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.blocked-dates-apply-all-btn:hover:not(:disabled) {
+	background: var(--mhm-primary, #2563eb);
+	color: #fff;
+}
+
+.blocked-dates-apply-all-btn:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+	border-color: #c3c4c7;
+	color: #8c8f94;
+}
+
+.blocked-dates-apply-all-btn .dashicons {
+	font-size: 15px;
+	width: 15px;
+	height: 15px;
+}
+
+.blocked-dates-apply-all-btn.is-loading {
+	opacity: 0.7;
+	pointer-events: none;
+}
+
+.blocked-dates-apply-all-btn:focus-visible {
+	outline: 2px solid var(--mhm-primary, #2563eb);
+	outline-offset: 2px;
+}
+
+.blocked-dates-apply-result {
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.apply-result-success {
+	color: #0a6b32;
+}
+
+.apply-result-error {
+	color: #d63638;
+}
+
+/* === REMOVE FROM ALL BUTTON (destructive) === */
+.blocked-dates-remove-all-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: #fff;
+	border: 1px solid #d63638;
+	color: #d63638;
+	padding: 6px 14px;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.blocked-dates-remove-all-btn:hover:not(:disabled) {
+	background: #d63638;
+	color: #fff;
+}
+
+.blocked-dates-remove-all-btn:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+	border-color: #c3c4c7;
+	color: #8c8f94;
+}
+
+.blocked-dates-remove-all-btn .dashicons {
+	font-size: 15px;
+	width: 15px;
+	height: 15px;
+}
+
+.blocked-dates-remove-all-btn.is-loading {
+	opacity: 0.7;
+	pointer-events: none;
+}
+
+.blocked-dates-remove-all-btn:focus-visible {
+	outline: 2px solid #d63638;
+	outline-offset: 2px;
+}

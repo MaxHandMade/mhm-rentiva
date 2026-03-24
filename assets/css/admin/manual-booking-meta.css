@@ -1,0 +1,537 @@
+/* Manual Booking Meta Box Styles */
+
+/* Hide default WordPress post fields */
+.post-type-vehicle_booking #titlediv,
+.post-type-vehicle_booking #post-body-content,
+.post-type-vehicle_booking #post-body .metabox-holder,
+.post-type-vehicle_booking #submitdiv,
+.post-type-vehicle_booking #slugdiv,
+.post-type-vehicle_booking #authordiv,
+.post-type-vehicle_booking #postcustom,
+.post-type-vehicle_booking #postexcerpt,
+.post-type-vehicle_booking #trackbacksdiv,
+.post-type-vehicle_booking #commentstatusdiv,
+.post-type-vehicle_booking #commentsdiv,
+.post-type-vehicle_booking #revisionsdiv,
+.post-type-vehicle_booking #pageparentdiv,
+.post-type-vehicle_booking #postimagediv {
+	display: none !important;
+}
+
+/* Show only our meta box */
+.post-type-vehicle_booking #mhm_manual_booking_meta_box {
+	display: block !important;
+}
+
+.mhm-manual-booking-form {
+	padding: var(--mhm-space-5);
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: var(--mhm-radius-md);
+	margin: 20px 0;
+}
+
+
+.mhm-field-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.mhm-field-label {
+	font-weight: var(--mhm-font-semibold);
+	color: var(--mhm-text-primary);
+	font-size: 14px;
+}
+
+.mhm-field-label .required {
+	color: var(--mhm-error);
+}
+
+.mhm-field-input,
+.mhm-field-select,
+.mhm-field-textarea {
+	padding: 8px 12px;
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-sm);
+	font-size: 14px;
+	background: var(--mhm-bg-card);
+	transition: border-color var(--mhm-duration-200) ease;
+}
+
+.mhm-field-input:focus,
+.mhm-field-select:focus,
+.mhm-field-textarea:focus {
+	border-color: var(--mhm-primary);
+	outline: none;
+	box-shadow: 0 0 0 1px var(--mhm-primary);
+}
+
+.mhm-field-textarea {
+	resize: vertical;
+	min-height: 80px;
+}
+
+/* Date/Time Fields */
+.mhm-datetime-fields {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--mhm-space-5);
+}
+
+.mhm-field-half {
+	margin: 0;
+}
+
+
+.mhm-price-details {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 12px;
+}
+
+.mhm-price-item {
+	display: flex;
+	justify-content: space-between;
+	padding: 8px 0;
+	border-bottom: 1px solid var(--mhm-border-secondary);
+}
+
+.mhm-price-item:last-child {
+	border-bottom: none;
+	font-weight: var(--mhm-font-semibold);
+	font-size: 16px;
+	color: var(--mhm-primary);
+}
+
+.mhm-price-label {
+	color: var(--mhm-text-secondary);
+}
+
+.mhm-price-value {
+	font-weight: 500;
+}
+
+/* Buttons */
+.mhm-booking-actions {
+	display: flex;
+	gap: 12px;
+	padding: 20px 0 0 0;
+	border-top: 1px solid var(--mhm-border-secondary);
+}
+
+.mhm-booking-actions .button {
+	padding: 8px 16px;
+	font-size: 14px;
+	border-radius: var(--mhm-radius-sm);
+}
+
+.mhm-booking-actions .button-primary {
+	background: var(--mhm-primary);
+	border-color: var(--mhm-primary);
+	color: var(--mhm-white);
+}
+
+.mhm-booking-actions .button-primary:hover {
+	background: var(--mhm-primary-dark);
+	border-color: var(--mhm-primary-dark);
+	color: var(--mhm-white);
+}
+
+.mhm-booking-actions .button-secondary {
+	background: var(--mhm-bg-secondary);
+	border-color: var(--mhm-border-primary);
+	color: var(--mhm-text-primary);
+}
+
+.mhm-booking-actions .button-secondary:hover {
+	background: var(--mhm-bg-hover);
+	border-color: var(--mhm-border-secondary);
+}
+
+/* Loading State */
+.mhm-calculating {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+
+/* Error/Success Messages */
+.mhm-message {
+	padding: 12px;
+	border-radius: var(--mhm-radius-sm);
+	margin: 12px 0;
+	font-size: 14px;
+}
+
+.mhm-message.success {
+	background: var(--mhm-success-bg);
+	border: 1px solid var(--mhm-success-light);
+	color: var(--mhm-success-dark);
+}
+
+.mhm-message.error {
+	background: var(--mhm-error-bg);
+	border: 1px solid var(--mhm-error-light);
+	color: var(--mhm-error-dark);
+}
+
+.mhm-message.info {
+	background: var(--mhm-bg-secondary);
+	border: 1px solid var(--mhm-primary-light);
+	color: var(--mhm-primary-dark);
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+	.mhm-datetime-fields {
+		grid-template-columns: 1fr;
+	}
+
+	.mhm-price-details {
+		grid-template-columns: 1fr;
+	}
+
+	.mhm-booking-actions {
+		flex-direction: column;
+	}
+
+	.mhm-booking-actions .button {
+		width: 100%;
+	}
+}
+
+/* Form Validation */
+.mhm-field-input.error,
+.mhm-field-select.error,
+.mhm-field-textarea.error {
+	border-color: var(--mhm-error);
+	box-shadow: 0 0 0 1px var(--mhm-error);
+}
+
+.mhm-field-error {
+	color: var(--mhm-error);
+	font-size: 12px;
+	margin-top: 4px;
+}
+
+/* Vehicle Info */
+.mhm-vehicle-info {
+	background: var(--mhm-bg-secondary);
+	border: 1px solid var(--mhm-primary-light);
+	border-radius: var(--mhm-radius-sm);
+	padding: 12px;
+	margin: 12px 0;
+	font-size: 14px;
+}
+
+.mhm-vehicle-info h5 {
+	margin: 0 0 8px 0;
+	color: var(--mhm-primary);
+}
+
+.mhm-vehicle-details {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 8px;
+}
+
+.mhm-vehicle-detail {
+	display: flex;
+	justify-content: space-between;
+}
+
+.mhm-vehicle-detail strong {
+	color: var(--mhm-text-primary);
+}
+
+/* Additional Services Styles */
+.mhm-addon-selection {
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: var(--mhm-radius-sm);
+	padding: 16px;
+	background: var(--mhm-bg-card);
+	margin-top: 8px;
+}
+
+.mhm-addon-selection .description {
+	margin: 0 0 16px 0;
+	color: var(--mhm-text-secondary);
+	font-style: italic;
+	font-size: 13px;
+}
+
+.mhm-addon-item {
+	display: flex;
+	align-items: flex-start;
+	padding: 12px 0;
+	border-bottom: 1px solid var(--mhm-border-secondary);
+	cursor: pointer;
+	transition: background-color var(--mhm-duration-200) ease;
+}
+
+.mhm-addon-item:last-child {
+	border-bottom: none;
+}
+
+.mhm-addon-item:hover {
+	background-color: var(--mhm-bg-hover);
+	border-radius: var(--mhm-radius-sm);
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+.mhm-addon-checkbox {
+	margin-right: 12px;
+	margin-top: 2px;
+	flex-shrink: 0;
+}
+
+.mhm-addon-checkbox:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.mhm-addon-info {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.mhm-addon-title {
+	font-weight: var(--mhm-font-semibold);
+	color: var(--mhm-text-primary);
+	font-size: 14px;
+	line-height: 1.4;
+}
+
+.mhm-addon-title .required {
+	color: var(--mhm-error);
+	font-weight: 700;
+}
+
+.mhm-addon-price {
+	color: var(--mhm-primary);
+	font-weight: var(--mhm-font-semibold);
+	font-size: 14px;
+}
+
+.mhm-addon-description {
+	font-size: 12px;
+	color: var(--mhm-text-secondary);
+	line-height: 1.4;
+	margin-top: 2px;
+}
+
+.mhm-addon-total {
+	background: var(--mhm-bg-secondary);
+	border: 1px solid var(--mhm-primary-light);
+	border-radius: var(--mhm-radius-sm);
+	padding: 12px;
+	margin-top: 16px;
+	text-align: center;
+}
+
+.mhm-addon-total strong {
+	color: var(--mhm-primary);
+	font-size: 14px;
+}
+
+.mhm-addon-total-amount {
+	color: var(--mhm-primary);
+	font-weight: 700;
+	font-size: 16px;
+}
+
+/* Add-on Services Selected State */
+.mhm-addon-item:has(.mhm-addon-checkbox:checked) {
+	background-color: var(--mhm-bg-secondary);
+	border-left: 3px solid var(--mhm-primary);
+	padding-left: 9px;
+}
+
+.mhm-addon-item:has(.mhm-addon-checkbox:checked) .mhm-addon-title {
+	color: var(--mhm-primary);
+}
+
+/* Additional Services Mandatory Status */
+.mhm-addon-item:has(.mhm-addon-checkbox:disabled) {
+	background-color: var(--mhm-bg-hover);
+	border-left: 3px solid var(--mhm-success);
+}
+
+.mhm-addon-item:has(.mhm-addon-checkbox:disabled) .mhm-addon-title {
+	color: var(--mhm-success);
+}
+
+.mhm-addon-item:has(.mhm-addon-checkbox:disabled) .mhm-addon-price {
+	color: var(--mhm-success);
+}
+
+/* New customer fields */
+#mhm_new_customer_fields {
+	margin-top: 15px;
+	padding: 15px;
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-secondary);
+	border-radius: var(--mhm-radius-sm);
+}
+
+#mhm_new_customer_fields h4 {
+	margin: 0 0 15px 0;
+	color: var(--mhm-text-primary);
+	font-size: 14px;
+	font-weight: var(--mhm-font-semibold);
+}
+
+#mhm_new_customer_fields .mhm-field-group {
+	margin-bottom: 10px;
+}
+
+#mhm_new_customer_fields .mhm-field-group:last-child {
+	margin-bottom: 0;
+}
+
+/* Half width for new customer fields */
+#mhm_new_customer_fields .mhm-field-half {
+	display: inline-block;
+	width: 48%;
+	margin-right: 4%;
+}
+
+#mhm_new_customer_fields .mhm-field-half:last-child {
+	margin-right: 0;
+}
+
+/* ════════════════════════════════════════
+   Card structure redesign
+   ════════════════════════════════════════ */
+
+/* Utility: hidden state */
+.mhm-hidden {
+	display: none !important;
+}
+
+/* Form card */
+.mhm-form-card {
+	background: var(--mhm-bg-card);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-lg);
+	margin-bottom: var(--mhm-space-4);
+	overflow: hidden;
+}
+
+.mhm-form-card--nested {
+	border-color: var(--mhm-primary);
+	border-left-width: 3px;
+	margin-top: var(--mhm-space-3);
+}
+
+.mhm-form-card-header {
+	display: flex;
+	align-items: center;
+	gap: var(--mhm-space-2);
+	padding: var(--mhm-space-3) var(--mhm-space-4);
+	background: var(--mhm-bg-secondary);
+	border-bottom: 1px solid var(--mhm-border-primary);
+	font-size: var(--mhm-text-sm);
+	font-weight: var(--mhm-font-semibold);
+	color: var(--mhm-text-primary);
+}
+
+.mhm-form-card-header .dashicons {
+	color: var(--mhm-primary);
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.mhm-form-card-header--sm {
+	padding: var(--mhm-space-2) var(--mhm-space-3);
+	font-size: var(--mhm-text-xs);
+	background: transparent;
+}
+
+.mhm-form-card-body {
+	padding: var(--mhm-space-4);
+}
+
+/* Field row (two halves) */
+.mhm-field-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--mhm-space-3);
+}
+
+/* Narrow number input */
+.mhm-field-input--narrow {
+	max-width: 120px;
+}
+
+/* Addon price badge */
+.mhm-addon-price-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	background: var(--mhm-bg-secondary);
+	border: 1px solid var(--mhm-border-primary);
+	border-radius: var(--mhm-radius-full);
+	font-size: var(--mhm-text-xs);
+	font-weight: var(--mhm-font-semibold);
+	color: var(--mhm-text-secondary);
+	white-space: nowrap;
+}
+
+.mhm-addon-item:has(.mhm-addon-checkbox:checked) .mhm-addon-price-badge {
+	background: var(--mhm-primary);
+	border-color: var(--mhm-primary);
+	color: #fff;
+}
+
+/* Price calculation panel */
+.mhm-price-calculation {
+	border-radius: var(--mhm-radius-lg);
+	padding: var(--mhm-space-4);
+	margin-bottom: var(--mhm-space-4);
+	animation: mhm-fade-in 200ms ease forwards;
+}
+
+.mhm-price-calculation-title {
+	font-size: var(--mhm-text-sm);
+	font-weight: var(--mhm-font-semibold);
+	color: var(--mhm-text-primary);
+	margin: 0 0 var(--mhm-space-3);
+	padding-bottom: var(--mhm-space-2);
+	border-bottom: 1px solid var(--mhm-border-primary);
+}
+
+@keyframes mhm-fade-in {
+	from { opacity: 0; transform: translateY(-4px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Calculate button loading spinner */
+#mhm-calculate-price.mhm-calculating {
+	opacity: 0.7;
+	pointer-events: none;
+	position: relative;
+	padding-left: 32px;
+}
+
+#mhm-calculate-price.mhm-calculating::before {
+	content: '';
+	position: absolute;
+	left: 10px;
+	top: 50%;
+	margin-top: -7px;
+	width: 14px;
+	height: 14px;
+	border: 2px solid currentColor;
+	border-top-color: transparent;
+	border-radius: 50%;
+	animation: mhm-spin 0.6s linear infinite;
+}
+
+@keyframes mhm-spin {
+	to { transform: rotate(360deg); }
+}

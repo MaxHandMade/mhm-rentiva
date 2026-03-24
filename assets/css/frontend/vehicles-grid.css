@@ -1,0 +1,123 @@
+/* FSE Global Listener - WordPress renk seçimlerini eklentiye aktarır */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--style--color--link, var(--wp--preset--color--primary, #2563eb));
+	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
+}
+
+:root {
+	--rv-grid-gap: var(--mhm-space-phi-3, 1.3125rem);
+}
+
+.rv-vehicles-grid-container {
+	width: 100%;
+	padding-block: var(--mhm-space-phi-3, 1.3125rem);
+	padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
+	box-sizing: border-box;
+	font-family: var(--mhm-font-primary);
+}
+
+/* Grid Layout */
+.rv-vehicles-grid {
+	display: grid !important;
+	gap: var(--rv-grid-gap);
+	width: 100%;
+}
+
+.rv-vehicles-grid--columns-2 {
+	grid-template-columns: repeat(2, 1fr) !important;
+}
+
+.rv-vehicles-grid--columns-3 {
+	grid-template-columns: repeat(3, 1fr) !important;
+}
+
+.rv-vehicles-grid--columns-4 {
+	grid-template-columns: repeat(4, 1fr) !important;
+}
+
+/* Responsive Grid */
+@media (max-width: 1024px) {
+
+	.rv-vehicles-grid,
+	.rv-vehicles-grid--columns-2,
+	.rv-vehicles-grid--columns-3,
+	.rv-vehicles-grid--columns-4 {
+		grid-template-columns: repeat(2, 1fr) !important;
+	}
+}
+
+@media (max-width: 782px) {
+
+	.rv-vehicles-grid,
+	.rv-vehicles-grid--columns-2,
+	.rv-vehicles-grid--columns-3,
+	.rv-vehicles-grid--columns-4 {
+		grid-template-columns: 1fr !important;
+	}
+
+	.rv-vehicles-grid-container {
+		padding-inline: var(--mhm-surface-gutter-mobile, var(--mhm-space-phi-2, 0.8125rem));
+	}
+}
+
+/* Masonry Layout */
+.rv-vehicles-masonry {
+	display: block !important;
+	width: 100%;
+}
+
+.rv-vehicles-masonry .rv-vehicle-card {
+	break-inside: avoid;
+	margin-bottom: var(--rv-grid-gap);
+}
+
+.rv-vehicles-masonry--columns-2 {
+	column-count: 2;
+	column-gap: var(--rv-grid-gap);
+}
+
+.rv-vehicles-masonry--columns-3 {
+	column-count: 3;
+	column-gap: var(--rv-grid-gap);
+}
+
+.rv-vehicles-masonry--columns-4 {
+	column-count: 4;
+	column-gap: var(--rv-grid-gap);
+}
+
+/* Responsive Masonry */
+@media (max-width: 1024px) {
+
+	.rv-vehicles-masonry,
+	.rv-vehicles-masonry--columns-2,
+	.rv-vehicles-masonry--columns-3,
+	.rv-vehicles-masonry--columns-4 {
+		column-count: 2 !important;
+	}
+}
+
+/* Vehicle Card styles are now handled by core/vehicle-card.css */
+
+/* Empty State */
+.rv-vehicles-grid__empty {
+	text-align: center;
+	padding: 50px 0;
+	color: var(--mhm-text-secondary);
+	font-size: 1.1rem;
+}
+
+/* Vehicle location badge */
+.mhm-vehicle-card .mhm-card-location {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 0.75rem;
+	color: #6c757d;
+	margin-bottom: 6px;
+	width: 100%;
+}
+
+.mhm-vehicle-card .mhm-card-location svg {
+	flex-shrink: 0;
+}

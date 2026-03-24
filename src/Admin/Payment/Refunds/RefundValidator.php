@@ -1,0 +1,242 @@
+<?php
+declare(strict_types=1);
+
+namespace MHMRentiva\Admin\Payment\Refunds;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+use WP_Post;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+final class RefundValidator {
+
+	/**
+	 * Validates booking for refund
+	 */
+	public static function validateBooking( int $bookingId ): array {
+		if ( $bookingId <= 0 ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'Invalid booking ID', 'mhm-rentiva' ),
+			);
+		}
+
+		$post = get_post( $bookingId );
+		if ( ! $post || $post->post_type !== 'vehicle_booking' ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'Invalid booking type', 'mhm-rentiva' ),
+			);
+		}
+
+		return array(
+			'valid'   => true,
+			'booking' => $post,
+		);
+	}
+
+	/**
+	 * Validates payment gateway
+	 * ⭐ Now supports both 'offline' and 'woocommerce' payment methods
+	 */
+	public static function validateGateway( string $gateway ): array {
+		$supportedGateways = array( 'offline', 'woocommerce' );
+
+		if ( ! in_array( $gateway, $supportedGateways, true ) ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'Unsupported payment method for refund', 'mhm-rentiva' ),
+			);
+		}
+
+		return array(
+			'valid'   => true,
+			'gateway' => $gateway,
+		);
+	}
+
+	/**
+	 * Validates refund amount
+	 */
+	public static function validateAmount( int $bookingId, int $amountKurus ): array {
+		return RefundCalculator::validateRefundAmount( $bookingId, $amountKurus );
+	}
+
+	/**
+	 * Checks payment status
+	 */
+	public static function validatePaymentStatus( int $bookingId ): array {
+		$paymentStatus = (string) get_post_meta( $bookingId, '_mhm_payment_status', true );
+
+		if ( empty( $paymentStatus ) ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'Payment status not found', 'mhm-rentiva' ),
+			);
+		}
+
+		if ( $paymentStatus === 'pending' ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'Pending payments cannot be refunded', 'mhm-rentiva' ),
+			);
+		}
+
+		if ( $paymentStatus === 'failed' ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'Failed payments cannot be refunded', 'mhm-rentiva' ),
+			);
+		}
+
+		if ( $paymentStatus === 'refunded' ) {
+			return array(
+				'valid'   => false,
+				'message' => __( 'Already fully refunded', 'mhm-rentiva' ),
+			);
+		}
+
+		return array(
+			'valid'  => true,
+			'status' => $paymentStatus,
+		);
+	}
+
+	/**
+	 * Performs gateway-specific validation
+	 * ⭐ Now handles both 'offline' and 'woocommerce' gateways
+	 */
+	public static function validateGatewaySpecific( int $bookingId, string $gateway ): array {
+		if ( $gateway === 'woocommerce' ) {
+			// ⭐ For WooCommerce, check if order exists and can be refunded
+			$order_id = (int) get_post_meta( $bookingId, '_mhm_woocommerce_order_id', true );
+			if ( empty( $order_id ) ) {
+				// Try alternative meta keys for backward compatibility
+				$order_id = (int) get_post_meta( $bookingId, '_mhm_wc_order_id', true );
+				if ( empty( $order_id ) ) {
+					$order_id = (int) get_post_meta( $bookingId, '_mhm_order_id', true );
+				}
+			}
+
+			if ( empty( $order_id ) || ! class_exists( 'WooCommerce' ) ) {
+				return array(
+					'valid'   => false,
+					'message' => __( 'WooCommerce order not found for this booking', 'mhm-rentiva' ),
+				);
+			}
+
+			$order = wc_get_order( $order_id );
+			if ( ! $order ) {
+				return array(
+					'valid'   => false,
+					'message' => __( 'WooCommerce order not found', 'mhm-rentiva' ),
+				);
+			}
+
+			// Check if order can be refunded
+			if ( ! $order->is_editable() ) {
+				return array(
+					'valid'   => false,
+					'message' => __( 'Order cannot be refunded (already completed or cancelled)', 'mhm-rentiva' ),
+				);
+			}
+		}
+
+		// No specific validation needed for offline refunds
+		return array(
+			'valid'   => true,
+			'gateway' => $gateway,
+		);
+	}
+
+	/**
+	 * Performs full refund validation
+	 */
+	public static function validateFullRefund( int $bookingId ): array {
+		// Booking validation
+		$bookingValidation = self::validateBooking( $bookingId );
+		if ( ! $bookingValidation['valid'] ) {
+			return $bookingValidation;
+		}
+
+		// Payment status validation
+		$statusValidation = self::validatePaymentStatus( $bookingId );
+		if ( ! $statusValidation['valid'] ) {
+			return $statusValidation;
+		}
+
+		// Gateway validation
+		$gateway           = (string) get_post_meta( $bookingId, '_mhm_payment_gateway', true );
+		$gatewayValidation = self::validateGateway( $gateway );
+		if ( ! $gatewayValidation['valid'] ) {
+			return $gatewayValidation;
+		}
+
+		// Gateway-specific validation
+		$gatewaySpecificValidation = self::validateGatewaySpecific( $bookingId, $gateway );
+		if ( ! $gatewaySpecificValidation['valid'] ) {
+			return $gatewaySpecificValidation;
+		}
+
+		// Amount validation (for full refund)
+		$amountValidation = self::validateAmount( $bookingId, 0 ); // 0 = tam iade
+		if ( ! $amountValidation['valid'] ) {
+			return $amountValidation;
+		}
+
+		return array(
+			'valid'      => true,
+			'booking_id' => $bookingId,
+			'gateway'    => $gateway,
+			'amount'     => $amountValidation['remaining'],
+		);
+	}
+
+	/**
+	 * Performs partial refund validation
+	 */
+	public static function validatePartialRefund( int $bookingId, int $amountKurus ): array {
+		// Booking validation
+		$bookingValidation = self::validateBooking( $bookingId );
+		if ( ! $bookingValidation['valid'] ) {
+			return $bookingValidation;
+		}
+
+		// Payment status validation
+		$statusValidation = self::validatePaymentStatus( $bookingId );
+		if ( ! $statusValidation['valid'] ) {
+			return $statusValidation;
+		}
+
+		// Gateway validation
+		$gateway           = (string) get_post_meta( $bookingId, '_mhm_payment_gateway', true );
+		$gatewayValidation = self::validateGateway( $gateway );
+		if ( ! $gatewayValidation['valid'] ) {
+			return $gatewayValidation;
+		}
+
+		// Gateway-specific validation
+		$gatewaySpecificValidation = self::validateGatewaySpecific( $bookingId, $gateway );
+		if ( ! $gatewaySpecificValidation['valid'] ) {
+			return $gatewaySpecificValidation;
+		}
+
+		// Amount validation
+		$amountValidation = self::validateAmount( $bookingId, $amountKurus );
+		if ( ! $amountValidation['valid'] ) {
+			return $amountValidation;
+		}
+
+		return array(
+			'valid'      => true,
+			'booking_id' => $bookingId,
+			'gateway'    => $gateway,
+			'amount'     => $amountKurus,
+		);
+	}
+}

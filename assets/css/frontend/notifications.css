@@ -1,0 +1,181 @@
+/**
+ * MHM Rentiva - Toast Markup Contract v1.0
+ * Refactored for visual consistency and performance.
+ * 
+ * @package MHMRentiva
+ * @since 4.9.8
+ */
+
+#mhm-toast-container {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    z-index: 99999999;
+    /* ABOVE EVERYTHING: Modals, Forms, Sticky Headers */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+    /* Allow clicks through empty areas */
+    max-width: 400px;
+    width: calc(100% - 60px);
+}
+
+#mhm-toast-container.top-center {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+}
+
+.mhm-toast {
+    position: relative;
+    pointer-events: auto;
+    /* Re-enable clicks for the toast itself */
+    background: var(--mhm-white, #fff);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-left: 4px solid var(--mhm-primary, #2563eb);
+
+    /* Animation base state */
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    transition:
+        opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.mhm-toast.is-active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.mhm-toast.is-dismissing {
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+/* Type Modifiers */
+.mhm-toast.is-success {
+    border-left-color: var(--mhm-success, #10b981);
+}
+
+.mhm-toast.is-warning {
+    border-left-color: var(--mhm-warning, #f59e0b);
+}
+
+.mhm-toast.is-error {
+    border-left-color: var(--mhm-error, #ef4444);
+}
+
+.mhm-toast.is-info {
+    border-left-color: var(--mhm-primary, #2563eb);
+}
+
+.mhm-toast__message {
+    color: var(--mhm-text-primary, #1e293b);
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.4;
+    flex-grow: 1;
+}
+
+.mhm-toast__action {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    background: var(--mhm-primary, #2563eb);
+    color: #fff !important;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none !important;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+}
+
+.mhm-toast__action:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.mhm-toast__action:focus-visible {
+    outline: 2px solid var(--mhm-primary, #2563eb);
+    outline-offset: 2px;
+}
+
+.mhm-toast__close {
+    background: none;
+    border: none;
+    color: var(--mhm-text-secondary, #64748b);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.mhm-toast__close:hover {
+    background: #f1f5f9;
+    color: var(--mhm-error, #ef4444);
+}
+
+.mhm-toast__close:focus-visible {
+    outline: 2px solid var(--mhm-primary, #2563eb);
+    outline-offset: 1px;
+}
+
+/* Pulse Animation for Deduplication */
+@keyframes mhm-toast-pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.03);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.mhm-toast.pulse {
+    animation: mhm-toast-pulse 0.3s ease-in-out;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .mhm-toast {
+        transition-duration: 0.05s !important;
+        animation: none !important;
+    }
+}
+
+/* Mobile Adjustments */
+@media (max-width: 480px) {
+    #mhm-toast-container {
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        width: calc(100% - 40px);
+        max-width: none;
+    }
+
+    #mhm-toast-container.top-center {
+        transform: none;
+        left: 20px;
+    }
+}
