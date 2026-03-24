@@ -3,10 +3,6 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core;
 
-if (!defined('ABSPATH')) {
-    exit;
-}
-
 use MHMRentiva\Admin\Licensing\LicenseManager;
 use MHMRentiva\Admin\Licensing\Mode;
 
@@ -127,10 +123,9 @@ final class ProFeatureNotice {
 	public static function getProFeaturesForPage( string $page_name ): array {
 		$features = array(
 			'export'   => array(
-				__( 'Excel Export (XLS)', 'mhm-rentiva' ),
-				__( 'XML Export', 'mhm-rentiva' ),
-				__( 'PDF Export', 'mhm-rentiva' ),
-				__( 'Advanced Export Filters', 'mhm-rentiva' ),
+				__( 'JSON Export Format', 'mhm-rentiva' ),
+				__( 'Unlimited Date Range', 'mhm-rentiva' ),
+				__( 'Unlimited Export Rows', 'mhm-rentiva' ),
 			),
 			'reports'  => array(
 				__( 'Advanced Reports', 'mhm-rentiva' ),
@@ -145,9 +140,7 @@ final class ProFeatureNotice {
 				__( 'Unlimited Messages', 'mhm-rentiva' ),
 			),
 			'settings' => array(
-				__( 'Excel Export (XLS)', 'mhm-rentiva' ),
-				__( 'XML Export', 'mhm-rentiva' ),
-				__( 'PDF Export', 'mhm-rentiva' ),
+				__( 'JSON Export Format', 'mhm-rentiva' ),
 				__( 'Advanced Reports', 'mhm-rentiva' ),
 				__( 'Unlimited Date Range', 'mhm-rentiva' ),
 				__( 'Unlimited Report Rows', 'mhm-rentiva' ),

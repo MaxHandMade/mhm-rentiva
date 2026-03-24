@@ -39,9 +39,6 @@ final class Restrictions
 		add_action('admin_init', array(self::class, 'maybeBlockCustomerCreation'));
 		add_action('admin_notices', array(self::class, 'customerLimitNotice'));
 
-		// Export gate
-		add_action('admin_init', array(self::class, 'disableExportIfLite'));
-
 		// Transfer limits
 		add_action('admin_post_mhm_save_route', array(self::class, 'blockTransferRouteCreation'), 5);
 
@@ -215,26 +212,6 @@ final class Restrictions
 				'<div class="notice notice-warning"><p>%s</p></div>',
 				/* translators: 1: current booking count, 2: maximum allowed bookings. */
 				esc_html(sprintf(__('Rentiva Lite: %1$d/%2$d bookings used. Activate your license to remove this limit.', 'mhm-rentiva'), $cnt, $max))
-			);
-		}
-	}
-
-	/**
-	 * Disable export if Lite version
-	 */
-	public static function disableExportIfLite(): void
-	{
-		if (! Mode::isLite()) {
-			return;
-		}
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only action query check before rendering notice.
-		$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['action'] ) ) : '';
-		if ( '' !== $action && strpos( $action, 'mhm_rentiva_export' ) !== false ) {
-			add_action(
-				'admin_notices',
-				function () {
-					echo '<div class="notice notice-error"><p>' . esc_html__('Export is available in Pro version. Enter your license key to enable.', 'mhm-rentiva') . '</p></div>';
-				}
 			);
 		}
 	}

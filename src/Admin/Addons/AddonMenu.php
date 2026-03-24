@@ -91,6 +91,27 @@ final class AddonMenu
 
 		echo '<div class="wrap">';
 		$renderer->render();
+
+		// Add-on limit notice for Lite users
+		if (\MHMRentiva\Admin\Licensing\Mode::isLite()) {
+			$count_obj = wp_count_posts('vehicle_addon');
+			$count     = ( (int) ($count_obj->publish ?? 0) ) + ( (int) ($count_obj->draft ?? 0) ) + ( (int) ($count_obj->pending ?? 0) );
+			$max       = \MHMRentiva\Admin\Licensing\Mode::maxAddons();
+			$cls       = $count >= $max ? 'notice-warning' : 'notice-info';
+			printf(
+			    '<div class="notice %s inline"><p>%s</p></div>',
+			    esc_attr($cls),
+			    esc_html(
+			        sprintf(
+			            /* translators: 1: current count, 2: max */
+			            __('Rentiva Lite: %1$d/%2$d additional services used. Activate your license to remove this limit.', 'mhm-rentiva'),
+			            $count,
+			            $max
+			        )
+			    )
+			);
+		}
+
 		echo '</div>';
 	}
 
