@@ -24,10 +24,6 @@ $is_carousel = ( $layout === 'slider' || $layout === 'carousel' )
     data-autoplay="<?php echo esc_attr($atts['autoplay'] ?? '1'); ?>"
     data-interval="<?php echo esc_attr($atts['interval'] ?? '5000'); ?>">
 
-    <?php if (! empty($atts['title'])): ?>
-        <h2 class="mhm-rentiva-featured-title"><?php echo esc_html($atts['title']); ?></h2>
-    <?php endif; ?>
-
     <?php if (empty($vehicles)): ?>
         <p class="mhm-rentiva-no-vehicles"><?php esc_html_e('No featured vehicles found.', 'mhm-rentiva'); ?></p>
     <?php else: ?>

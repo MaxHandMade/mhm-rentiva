@@ -14193,7 +14193,7 @@ msgstr "Yaklaşan operasyon yok."
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:206
 #, fuzzy
 msgid "No vehicles found"
-msgstr "%d araç bulundu"
+msgstr "Araç bulunamadı."
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:842
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:252

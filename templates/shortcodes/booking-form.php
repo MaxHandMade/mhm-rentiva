@@ -48,8 +48,6 @@ $enable_deposit        = $enable_deposit ?? true;
 $default_payment       = $default_payment ?? 'deposit';
 $class                 = $atts['class'] ?? '';
 $redirect_url          = $atts['redirect_url'] ?? '';
-$form_title            = $atts['form_title'] ?? esc_html__('Booking Form', 'mhm-rentiva');
-$form_subtitle         = $atts['description'] ?? esc_html__('Complete your reservation in a few quick steps.', 'mhm-rentiva');
 
 // Location pre-fill variables
 $pickup_location_id   = (int) ($pickup_location_id ?? 0);
@@ -82,13 +80,6 @@ $unique_id = uniqid('rv_booking_');
 	if (! empty($selected_vehicle['id'])) :
 	?>
 	data-vehicle-id="<?php echo esc_attr($selected_vehicle['id']); ?>" <?php endif; ?>>
-
-	<?php if ($form_title) : ?>
-		<div class="rv-form-header">
-			<h2 class="rv-form-title"><?php echo esc_html($form_title); ?></h2>
-			<p class="rv-form-subtitle"><?php echo esc_html($form_subtitle); ?></p>
-		</div>
-	<?php endif; ?>
 
 	<div class="rv-booking-form">
 		<form class="rv-booking-form-content rv-checkout-layout" id="rv-booking-form-<?php echo esc_attr($unique_id); ?>" method="post" onsubmit="return false;">

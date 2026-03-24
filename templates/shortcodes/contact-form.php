@@ -25,8 +25,6 @@ $current_user     = $args['current_user'] ?? null;
 
 // Shortcode parameters
 $type                  = $atts['type'] ?? 'general';
-$title                 = ! empty($atts['title']) ? $atts['title'] : ($form_config['title'] ?? esc_html__('Contact Form', 'mhm-rentiva'));
-$description           = ! empty($atts['description']) ? $atts['description'] : ($form_config['description'] ?? esc_html__('Get in touch with us.', 'mhm-rentiva'));
 $show_phone            = $atts['show_phone'] ?? '1';
 $show_company          = $atts['show_company'] ?? '0';
 $show_vehicle_selector = $atts['show_vehicle_selector'] ?? '0';
@@ -40,21 +38,6 @@ $unique_id             = uniqid('rv_contact_');
 
 <div class="rv-contact-form rv-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($class); ?>"
 	data-form-type="<?php echo esc_attr($type); ?>">
-
-	<div class="rv-contact-header">
-		<h3 class="rv-contact-title">
-			<?php
-			$header_icon = $form_config['icon'] ?? 'email';
-			$icon_name = str_replace(['dashicons-', '-alt'], '', $header_icon);
-			if ($icon_name === 'sos') $icon_name = 'warning'; // SOS mapping to warning alert
-			Icons::render($icon_name);
-			?>
-			<?php echo esc_html($title); ?>
-		</h3>
-		<p class="rv-contact-description">
-			<?php echo esc_html($description); ?>
-		</p>
-	</div>
 
 	<div class="rv-contact-form-container">
 		<form id="rv-contact-form" class="rv-form" enctype="multipart/form-data">
