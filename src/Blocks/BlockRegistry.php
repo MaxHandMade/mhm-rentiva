@@ -140,11 +140,6 @@ class BlockRegistry {
 			'title' => 'Transfer Search',
 			'css'   => 'transfer.css',
 		),
-		'booking-confirmation'   => array(
-			'tag'   => 'rentiva_booking_confirmation',
-			'title' => 'Booking Confirmation',
-			'css'   => 'booking-confirmation.css',
-		),
 	);
 
 	/**

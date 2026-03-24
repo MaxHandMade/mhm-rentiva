@@ -862,12 +862,7 @@ final class AllowlistRegistry
             'group'   => 'visibility',
             'aliases' => ['showBooking'],
         ],
-        'show_booking_details'     => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => ['showBookingDetails'],
-        ],
-        'show_booking_btn'         => [
+'show_booking_btn'         => [
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => ['showBookButton'],
@@ -1452,18 +1447,6 @@ final class AllowlistRegistry
             'button_text',
             'show_pickup',
             'show_dropoff',
-        ],
-        'rentiva_booking_confirmation'  => [
-            'booking_id',
-            'show_booking_details',
-            'show_vehicle_info',
-            'show_payment_summary',
-            'show_pickup_instructions',
-            'show_contact_info',
-            'show_print_btn',
-            'show_download_pdf',
-            'show_cancel_btn',
-            'class',
         ],
     ];
 
