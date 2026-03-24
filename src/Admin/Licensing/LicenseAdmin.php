@@ -88,11 +88,6 @@ final class LicenseAdmin
 			)
 		);
 
-		echo '<p class="description">' . esc_html__('Enter your license key to enable Pro features (unlimited vehicles/bookings, export, advanced reports).', 'mhm-rentiva') . '</p>';
-		/* translators: %s: feature name. */
-		$vendor_payout_pro_only = sprintf( __( '%s (Pro Only)', 'mhm-rentiva' ), __( 'Vendor & Payout', 'mhm-rentiva' ) );
-		echo '<p class="description"><strong>' . esc_html( $vendor_payout_pro_only ) . '</strong></p>';
-
 		// Developer mode warning - only show if no real license is active
 		$disable_dev_mode = get_option('mhm_rentiva_disable_dev_mode', false);
 		$has_real_license = ! empty($license_data['key']) &&
@@ -220,32 +215,10 @@ final class LicenseAdmin
 		} else {
 
 			echo '<div class="notice notice-warning inline">';
-			echo '<p><strong>' . esc_html__('⚠️ Lite Version', 'mhm-rentiva') . '</strong></p>';
+			echo '<p><strong>' . esc_html__('⚠️ Lite Version Active', 'mhm-rentiva') . '</strong> &mdash; ';
+			echo esc_html__('Enter your license key below to unlock unlimited access and Pro features.', 'mhm-rentiva');
+			echo '</p>';
 			echo '</div>';
-			echo '<p>' . esc_html__('You are currently using the Lite version. A license key is required for Pro features.', 'mhm-rentiva') . '</p>';
-			echo '<p><strong>' . esc_html__('Lite Version Limits:', 'mhm-rentiva') . '</strong></p>';
-			echo '<ul>';
-			echo '<li>' . esc_html( sprintf(
-				/* translators: %d: max vehicles */
-				__( 'Maximum %d vehicles can be added', 'mhm-rentiva' ),
-				\MHMRentiva\Admin\Licensing\Mode::maxVehicles()
-			) ) . '</li>';
-			echo '<li>' . esc_html( sprintf(
-				/* translators: %d: max bookings */
-				__( 'Maximum %d bookings can be made', 'mhm-rentiva' ),
-				\MHMRentiva\Admin\Licensing\Mode::maxBookings()
-			) ) . '</li>';
-			echo '<li>' . esc_html( sprintf(
-				/* translators: %d: max customers */
-				__( 'Maximum %d customers can be added', 'mhm-rentiva' ),
-				\MHMRentiva\Admin\Licensing\Mode::maxCustomers()
-			) ) . '</li>';
-			echo '<li>' . esc_html__( 'WooCommerce integration available', 'mhm-rentiva' ) . '</li>';
-			echo '<li>' . esc_html__( 'CSV export available', 'mhm-rentiva' ) . '</li>';
-			echo '<li>' . esc_html__( 'Report range limited to 30 days', 'mhm-rentiva' ) . '</li>';
-			echo '</ul>';
-
-			echo '<p><a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-license')) . '" class="button button-primary">' . esc_html__('Upgrade to Pro', 'mhm-rentiva') . '</a></p>';
 		}
 
 		// License activation form - only show if no active license
@@ -453,7 +426,8 @@ final class LicenseAdmin
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin notices display only, no form processing.
 				$type        = isset($_GET['type']) ? sanitize_text_field(wp_unslash($_GET['type'])) : '';
 				$limit_msg   = match ($type) {
-					'vehicle' => __('Vehicle limit reached (Max 3).', 'mhm-rentiva'),
+					/* translators: %d: max vehicles allowed in Lite */
+				'vehicle' => sprintf(__('Vehicle limit reached (Max %d).', 'mhm-rentiva'), \MHMRentiva\Admin\Licensing\Mode::maxVehicles()),
 					'booking' => __('Booking limit reached (Max 50).', 'mhm-rentiva'),
 					'route' => __('Transfer route limit reached.', 'mhm-rentiva'),
 					'addon' => __('Addon limit reached.', 'mhm-rentiva'),
