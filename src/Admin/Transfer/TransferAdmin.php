@@ -68,8 +68,7 @@ final class TransferAdmin
 	public static function register(): void
 	{
 
-		// Limit notices
-		add_action('admin_notices', array(self::class, 'routeLimitNotice'));
+		// Limit notice rendered inline in render_routes_page() — after KPI cards
 
 		// Assets
 		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_assets'));
@@ -440,6 +439,12 @@ final class TransferAdmin
 								</div>
 
 								<div class="form-field">
+									<label for="city"><?php echo esc_html__('City', 'mhm-rentiva'); ?></label>
+									<input name="city" id="city" type="text" value="<?php echo $edit_location ? esc_attr($edit_location->city) : ''; ?>" placeholder="<?php echo esc_attr__('e.g. Istanbul, Ankara', 'mhm-rentiva'); ?>">
+									<p class="description"><?php echo esc_html__('City this location belongs to. Used to filter locations for vendors.', 'mhm-rentiva'); ?></p>
+								</div>
+
+								<div class="form-field">
 									<label for="type"><?php echo esc_html__('Type', 'mhm-rentiva'); ?></label>
 									<select name="type" id="type">
 										<?php
@@ -489,6 +494,7 @@ final class TransferAdmin
 							<thead>
 								<tr>
 									<th><?php echo esc_html__('Name', 'mhm-rentiva'); ?></th>
+									<th><?php echo esc_html__('City', 'mhm-rentiva'); ?></th>
 									<th><?php echo esc_html__('Type', 'mhm-rentiva'); ?></th>
 									<th><?php echo esc_html__('Priority', 'mhm-rentiva'); ?></th>
 									<th><?php echo esc_html__('Services', 'mhm-rentiva'); ?></th>
@@ -500,6 +506,7 @@ final class TransferAdmin
 									<?php foreach ($locations as $location) : ?>
 										<tr>
 											<td><strong><?php echo esc_html($location->name); ?></strong></td>
+											<td><?php echo esc_html($location->city); ?></td>
 											<td><?php echo esc_html(ucfirst($location->type)); ?></td>
 											<td><?php echo esc_html($location->priority); ?></td>
 											<td>
@@ -521,7 +528,7 @@ final class TransferAdmin
 									<?php endforeach; ?>
 								<?php else : ?>
 									<tr>
-										<td colspan="4"><?php echo esc_html__('No locations found.', 'mhm-rentiva'); ?></td>
+										<td colspan="6"><?php echo esc_html__('No locations found.', 'mhm-rentiva'); ?></td>
 									</tr>
 								<?php endif; ?>
 							</tbody>
@@ -582,6 +589,8 @@ final class TransferAdmin
 			$this->render_developer_mode_banner();
 
 			$this->render_transfer_stats();
+
+			\MHMRentiva\Admin\Core\ProFeatureNotice::displayLimitNotice( 'routes' );
 			?>
 
 			<div id="col-container" class="wp-clearfix">
@@ -689,6 +698,12 @@ final class TransferAdmin
 									<input name="min_price" id="min_price" type="number" step="0.01" value="<?php echo $edit_route ? esc_attr($edit_route->min_price) : ''; ?>">
 								</div>
 
+								<div class="form-field" id="max_price_field">
+									<label for="max_price"><?php echo esc_html__('Maximum Price (Vendor Ceiling)', 'mhm-rentiva'); ?></label>
+									<input name="max_price" id="max_price" type="number" step="0.01" min="0" value="<?php echo $edit_route ? esc_attr($edit_route->max_price) : ''; ?>">
+									<p class="description"><?php echo esc_html__('Maximum price vendors can charge for this route. Leave 0 for no ceiling.', 'mhm-rentiva'); ?></p>
+								</div>
+
 								<?php submit_button($edit_route ? __('Update Route', 'mhm-rentiva') : __('Add Route', 'mhm-rentiva')); ?>
 								<?php if ($edit_route) : ?>
 									<a href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-transfer-routes')); ?>" class="button"><?php echo esc_html__('Cancel', 'mhm-rentiva'); ?></a>
@@ -731,10 +746,23 @@ final class TransferAdmin
 												<?php if ('fixed' === $route->pricing_method) : ?>
 													<span class="badge badge-primary">Fixed</span>
 													<strong><?php echo wp_kses_post(call_user_func('wc_price', $route->base_price)); ?></strong>
+													<?php if ((float) $route->min_price > 0 || (float) $route->max_price > 0) : ?>
+														<br><small>
+														<?php if ((float) $route->min_price > 0) : ?>
+															Min: <?php echo wp_kses_post(call_user_func('wc_price', $route->min_price)); ?>
+														<?php endif; ?>
+														<?php if ((float) $route->max_price > 0) : ?>
+															Max: <?php echo wp_kses_post(call_user_func('wc_price', $route->max_price)); ?>
+														<?php endif; ?>
+														</small>
+													<?php endif; ?>
 												<?php else : ?>
 													<span class="badge badge-secondary">KM</span>
 													<?php echo wp_kses_post(call_user_func('wc_price', $route->base_price)); ?> / km <br>
 													Min: <?php echo wp_kses_post(call_user_func('wc_price', $route->min_price)); ?>
+													<?php if ((float) $route->max_price > 0) : ?>
+														Max: <?php echo wp_kses_post(call_user_func('wc_price', $route->max_price)); ?>
+													<?php endif; ?>
 												<?php endif; ?>
 											</td>
 											<td>
@@ -783,6 +811,7 @@ final class TransferAdmin
 
 		$data = array(
 			'name'           => isset($_POST['name']) ? sanitize_text_field(wp_unslash($_POST['name'])) : '',
+			'city'           => isset($_POST['city']) ? sanitize_text_field(wp_unslash($_POST['city'])) : '',
 			'type'           => isset($_POST['type']) ? sanitize_text_field(wp_unslash($_POST['type'])) : '',
 			'priority'       => isset($_POST['priority']) ? intval(wp_unslash($_POST['priority'])) : 0,
 			'allow_rental'   => isset($_POST['allow_rental']) ? 1 : 0,
@@ -835,6 +864,7 @@ final class TransferAdmin
 			'pricing_method' => isset($_POST['pricing_method']) ? sanitize_text_field(wp_unslash($_POST['pricing_method'])) : '',
 			'base_price'     => isset($_POST['base_price']) ? floatval(wp_unslash($_POST['base_price'])) : 0.0,
 			'min_price'      => isset($_POST['min_price']) ? floatval(wp_unslash($_POST['min_price'])) : 0.0,
+			'max_price'      => isset($_POST['max_price']) ? floatval(wp_unslash($_POST['max_price'])) : 0.0,
 		);
 
 		// Server-side validation: Check eligibility
