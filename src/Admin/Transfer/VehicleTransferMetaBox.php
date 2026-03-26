@@ -42,6 +42,21 @@ final class VehicleTransferMetaBox
 		// Add nonce for security
 		wp_nonce_field('rentiva_vehicle_transfer_settings_nonce', 'rentiva_vehicle_transfer_settings_nonce');
 
+		// Detect if this is a vendor vehicle and show city info.
+		$post_author = (int) get_post_field('post_author', $post->ID);
+		$author_data = get_userdata($post_author);
+		$is_vendor_vehicle = $author_data && in_array('rentiva_vendor', $author_data->roles ?? [], true);
+		if ($is_vendor_vehicle) {
+			$vendor_city = (string) get_user_meta($post_author, '_mhm_rentiva_vendor_city', true);
+			if ($vendor_city !== '') {
+				printf(
+					'<p class="description" style="background:#fff8e5;padding:8px;border-left:3px solid #ffb900;margin-bottom:12px;">%s <strong>%s</strong></p>',
+					esc_html__('Vendor city:', 'mhm-rentiva'),
+					esc_html($vendor_city)
+				);
+			}
+		}
+
 		// Retrieve existing values (with backward compatibility)
 		$service_type  = get_post_meta($post->ID, '_rentiva_vehicle_service_type', true);
 		if (! $service_type) {
