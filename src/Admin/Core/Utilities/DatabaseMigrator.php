@@ -22,7 +22,7 @@ final class DatabaseMigrator
 	/**
 	 * Migration version
 	 */
-	private const CURRENT_VERSION = '3.3.0';
+	private const CURRENT_VERSION = '3.4.0';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -552,6 +552,7 @@ final class DatabaseMigrator
 		$sql_locations = "CREATE TABLE $table_locations (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             name varchar(255) NOT NULL,
+            city varchar(100) NOT NULL DEFAULT '',
             type varchar(50) NOT NULL,
             priority int(11) DEFAULT 0,
             is_active tinyint(1) DEFAULT 1,
@@ -562,7 +563,8 @@ final class DatabaseMigrator
             KEY type (type),
             KEY is_active (is_active),
             KEY allow_rental (allow_rental),
-            KEY allow_transfer (allow_transfer)
+            KEY allow_transfer (allow_transfer),
+            KEY city (city)
         ) $charset_collate;";
 
 		dbDelta($sql_locations);
@@ -587,6 +589,7 @@ final class DatabaseMigrator
             pricing_method enum('fixed', 'calculated') DEFAULT 'fixed',
             base_price decimal(10,2) DEFAULT 0.00,
             min_price decimal(10,2) DEFAULT 0.00,
+            max_price decimal(10,2) DEFAULT 0.00,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY origin_dest (origin_id, destination_id),
