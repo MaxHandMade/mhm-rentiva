@@ -105,7 +105,17 @@ final class VehicleSubmit extends AbstractShortcode
 
                 global $wpdb;
                 $routes_table = $wpdb->prefix . 'rentiva_transfer_routes';
-                $loc_table    = $wpdb->prefix . 'rentiva_transfer_locations';
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                $rt_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $routes_table));
+                if ($rt_exists !== $routes_table) {
+                    $routes_table = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
+                }
+                $loc_table = $wpdb->prefix . 'rentiva_transfer_locations';
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+                $lt_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $loc_table));
+                if ($lt_exists !== $loc_table) {
+                    $loc_table = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
+                }
 
                 $placeholders = implode(',', array_fill(0, count($city_location_ids), '%d'));
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
@@ -769,14 +779,38 @@ final class VehicleSubmit extends AbstractShortcode
             update_post_meta($post_id, '_rentiva_vehicle_max_big_luggage', absint($_POST['transfer_max_big_luggage'] ?? 0));
             update_post_meta($post_id, '_rentiva_vehicle_max_small_luggage', absint($_POST['transfer_max_small_luggage'] ?? 0));
 
-            // Vendor route prices.
+            // Vendor route prices — validate against selected routes and admin min/max.
             $raw_prices  = isset($_POST['route_prices']) ? (array) wp_unslash($_POST['route_prices']) : array();
             $route_prices = array();
-            foreach ($raw_prices as $route_id => $price) {
-                $rid = absint($route_id);
-                $p   = floatval($price);
-                if ($rid > 0 && $p > 0) {
-                    $route_prices[$rid] = $p;
+            if (! empty($raw_prices) && ! empty($transfer_route_ids)) {
+                $allowed_route_ids = array_flip($transfer_route_ids);
+                // Fetch route min/max limits.
+                global $wpdb;
+                $rt = $wpdb->prefix . 'rentiva_transfer_routes';
+                $placeholders_r = implode(',', array_fill(0, count($transfer_route_ids), '%d'));
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+                $route_limits = $wpdb->get_results(
+                    $wpdb->prepare("SELECT id, min_price, max_price FROM {$rt} WHERE id IN ({$placeholders_r})", $transfer_route_ids),
+                    OBJECT_K
+                );
+                foreach ($raw_prices as $route_id => $price) {
+                    $rid = absint($route_id);
+                    $p   = floatval($price);
+                    if ($rid > 0 && $p > 0 && isset($allowed_route_ids[$rid])) {
+                        // Clamp to admin-defined range.
+                        $limit = $route_limits[$rid] ?? null;
+                        if ($limit) {
+                            $min = (float) $limit->min_price;
+                            $max = (float) $limit->max_price;
+                            if ($min > 0 && $p < $min) {
+                                $p = $min;
+                            }
+                            if ($max > 0 && $p > $max) {
+                                $p = $max;
+                            }
+                        }
+                        $route_prices[$rid] = $p;
+                    }
                 }
             }
             update_post_meta($post_id, '_mhm_rentiva_transfer_route_prices', wp_json_encode($route_prices));
@@ -1014,8 +1048,9 @@ final class VehicleSubmit extends AbstractShortcode
         if (in_array($service_type, array('transfer', 'both'), true)) {
             $raw_locs   = isset($_POST['transfer_locations']) ? (array) wp_unslash($_POST['transfer_locations']) : array();
             $raw_routes = isset($_POST['transfer_routes']) ? (array) wp_unslash($_POST['transfer_routes']) : array();
+            $transfer_route_ids = array_map('absint', $raw_routes);
             update_post_meta($vehicle_id, '_mhm_rentiva_transfer_locations', array_map('absint', $raw_locs));
-            update_post_meta($vehicle_id, '_mhm_rentiva_transfer_routes', array_map('absint', $raw_routes));
+            update_post_meta($vehicle_id, '_mhm_rentiva_transfer_routes', $transfer_route_ids);
         }
 
         // Transfer capacity fields.
@@ -1026,13 +1061,38 @@ final class VehicleSubmit extends AbstractShortcode
             update_post_meta($vehicle_id, '_rentiva_vehicle_max_big_luggage', absint($_POST['transfer_max_big_luggage'] ?? 0));
             update_post_meta($vehicle_id, '_rentiva_vehicle_max_small_luggage', absint($_POST['transfer_max_small_luggage'] ?? 0));
 
+            // Vendor route prices — validate against selected routes and admin min/max.
             $raw_prices  = isset($_POST['route_prices']) ? (array) wp_unslash($_POST['route_prices']) : array();
             $route_prices = array();
-            foreach ($raw_prices as $rid => $price) {
-                $r = absint($rid);
-                $p = floatval($price);
-                if ($r > 0 && $p > 0) {
-                    $route_prices[$r] = $p;
+            if (! empty($raw_prices) && ! empty($transfer_route_ids)) {
+                $allowed_route_ids = array_flip($transfer_route_ids);
+                // Fetch route min/max limits.
+                global $wpdb;
+                $rt = $wpdb->prefix . 'rentiva_transfer_routes';
+                $placeholders_r = implode(',', array_fill(0, count($transfer_route_ids), '%d'));
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+                $route_limits = $wpdb->get_results(
+                    $wpdb->prepare("SELECT id, min_price, max_price FROM {$rt} WHERE id IN ({$placeholders_r})", $transfer_route_ids),
+                    OBJECT_K
+                );
+                foreach ($raw_prices as $rid => $price) {
+                    $r = absint($rid);
+                    $p = floatval($price);
+                    if ($r > 0 && $p > 0 && isset($allowed_route_ids[$r])) {
+                        // Clamp to admin-defined range.
+                        $limit = $route_limits[$r] ?? null;
+                        if ($limit) {
+                            $min = (float) $limit->min_price;
+                            $max = (float) $limit->max_price;
+                            if ($min > 0 && $p < $min) {
+                                $p = $min;
+                            }
+                            if ($max > 0 && $p > $max) {
+                                $p = $max;
+                            }
+                        }
+                        $route_prices[$r] = $p;
+                    }
                 }
             }
             update_post_meta($vehicle_id, '_mhm_rentiva_transfer_route_prices', wp_json_encode($route_prices));

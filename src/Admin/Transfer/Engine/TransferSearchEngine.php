@@ -153,13 +153,16 @@ final class TransferSearchEngine
 				continue;
 			}
 
-			// 5a. Route Assignment Check — vehicle must have this route in their selected routes.
+			// 5a. Route Assignment Check.
 			$assigned_routes = get_post_meta($vehicle->ID, '_mhm_rentiva_transfer_routes', true);
-			if (is_array($assigned_routes) && ! empty($assigned_routes)) {
+			if (is_array($assigned_routes)) {
+				// Vehicle has explicit route assignments (vendor vehicle).
+				// Must include the searched route; empty array = no routes = exclude.
 				if (! in_array((int) $route->id, array_map('intval', $assigned_routes), true)) {
 					continue;
 				}
 			}
+			// If meta is not an array (empty string / false), this is a legacy admin vehicle — allow through.
 
 			// 5b. Specific Luggage Limit Check
 			$vehicle_max_big = get_post_meta($vehicle->ID, '_rentiva_vehicle_max_big_luggage', true);
