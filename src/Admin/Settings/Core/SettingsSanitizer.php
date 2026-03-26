@@ -304,9 +304,6 @@ final class SettingsSanitizer {
 			'mhm_rentiva_vehicle_tax_rate'             => self::clamp_value( floatval( $input['mhm_rentiva_vehicle_tax_rate'] ?? 0 ), 0, 100 ),
 			'mhm_rentiva_vehicle_cards_per_page'       => self::get_int( $input, 'mhm_rentiva_vehicle_cards_per_page', 12, 1, 100 ),
 			'mhm_rentiva_vehicle_default_sort'         => self::validate_enum( $input['mhm_rentiva_vehicle_default_sort'] ?? '', array( 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'year_desc', 'year_asc' ), 'price_asc' ),
-			'mhm_rentiva_vehicle_show_images'          => self::get_bool( $input, 'mhm_rentiva_vehicle_show_images' ),
-			'mhm_rentiva_vehicle_show_features'        => self::get_bool( $input, 'mhm_rentiva_vehicle_show_features' ),
-			'mhm_rentiva_vehicle_show_availability'    => self::get_bool( $input, 'mhm_rentiva_vehicle_show_availability' ),
 			'mhm_rentiva_vehicle_min_rental_days'      => self::get_int( $input, 'mhm_rentiva_vehicle_min_rental_days', 1, 1, 365 ),
 			'mhm_rentiva_vehicle_max_rental_days'      => self::get_int( $input, 'mhm_rentiva_vehicle_max_rental_days', 365, 1, 365 ),
 			'mhm_rentiva_vehicle_advance_booking_days' => self::get_int( $input, 'mhm_rentiva_vehicle_advance_booking_days', 365, 1, 365 ),
@@ -387,10 +384,7 @@ final class SettingsSanitizer {
 	}
 
 	private static function sanitize_customer_management_settings( array $input, array $defaults ): array {
-		return array(
-			'mhm_rentiva_customer_welcome_email'         => self::get_bool( $input, 'mhm_rentiva_customer_welcome_email' ),
-			'mhm_rentiva_customer_booking_notifications' => self::get_bool( $input, 'mhm_rentiva_customer_booking_notifications' ),
-		);
+		return array();
 	}
 
 	private static function sanitize_email_brand_settings( array $input, array $defaults ): array {
@@ -427,7 +421,9 @@ final class SettingsSanitizer {
 			'mhm_rentiva_email_template_path'      => self::safe_text( $input['mhm_rentiva_email_template_path'] ?? 'mhm-rentiva/emails/' ),
 			'mhm_rentiva_email_auto_send'          => self::get_bool( $input, 'mhm_rentiva_email_auto_send' ),
 			'mhm_rentiva_email_log_enabled'        => self::get_bool( $input, 'mhm_rentiva_email_log_enabled' ),
-			'mhm_rentiva_email_log_retention_days' => self::get_int( $input, 'mhm_rentiva_email_log_retention_days', 30, 1, 365 ),
+			'mhm_rentiva_email_log_retention_days'       => self::get_int( $input, 'mhm_rentiva_email_log_retention_days', 30, 1, 365 ),
+			'mhm_rentiva_customer_welcome_email'         => self::get_bool( $input, 'mhm_rentiva_customer_welcome_email' ),
+			'mhm_rentiva_customer_booking_notifications' => self::get_bool( $input, 'mhm_rentiva_customer_booking_notifications' ),
 		);
 	}
 
@@ -440,11 +436,8 @@ final class SettingsSanitizer {
 
 	private static function sanitize_frontend_settings( array $input, array $defaults ): array {
 		$out   = array(
-			'mhm_rentiva_vehicle_cards_per_page'    => self::get_int( $input, 'mhm_rentiva_vehicle_cards_per_page', 12, 1, 50 ),
-			'mhm_rentiva_vehicle_default_sort'      => self::validate_enum( $input['mhm_rentiva_vehicle_default_sort'] ?? '', array( 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'year_desc', 'year_asc' ), 'price_asc' ),
-			'mhm_rentiva_vehicle_show_images'       => self::get_bool( $input, 'mhm_rentiva_vehicle_show_images' ),
-			'mhm_rentiva_vehicle_show_features'     => self::get_bool( $input, 'mhm_rentiva_vehicle_show_features' ),
-			'mhm_rentiva_vehicle_show_availability' => self::get_bool( $input, 'mhm_rentiva_vehicle_show_availability' ),
+			'mhm_rentiva_vehicle_cards_per_page' => self::get_int( $input, 'mhm_rentiva_vehicle_cards_per_page', 12, 1, 50 ),
+			'mhm_rentiva_vehicle_default_sort'   => self::validate_enum( $input['mhm_rentiva_vehicle_default_sort'] ?? '', array( 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'year_desc', 'year_asc' ), 'price_asc' ),
 		);
 		$slugs = array( 'mhm_rentiva_endpoint_bookings', 'mhm_rentiva_endpoint_favorites', 'mhm_rentiva_endpoint_payment_history', 'mhm_rentiva_endpoint_messages', 'mhm_rentiva_endpoint_edit_account' );
 		foreach ( $slugs as $s ) {

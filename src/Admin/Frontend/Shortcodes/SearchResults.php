@@ -76,6 +76,22 @@ final class SearchResults extends AbstractShortcode {
 		return (int) wp_unslash( (string) $get[ $key ]);
 	}
 
+	/**
+	 * Get an array of integers from GET parameter (supports both single int and array).
+	 */
+	private static function get_int_array(string $key): array
+	{
+		$get = $GLOBALS['_GET'] ?? [];
+		if (! isset($get[ $key ])) {
+			return array();
+		}
+
+		$raw = wp_unslash($get[ $key ]);
+		$values = is_array($raw) ? $raw : array( $raw );
+
+		return array_filter(array_map('intval', $values));
+	}
+
 	private static function post_text(string $key, string $default = ''): string
 	{
 		$post = $GLOBALS['_POST'] ?? [];
@@ -94,6 +110,22 @@ final class SearchResults extends AbstractShortcode {
 		}
 
 		return (int) wp_unslash( (string) $post[ $key ]);
+	}
+
+	/**
+	 * Get an array of integers from POST parameter.
+	 */
+	private static function post_int_array(string $key): array
+	{
+		$post = $GLOBALS['_POST'] ?? [];
+		if (! isset($post[ $key ])) {
+			return array();
+		}
+
+		$raw = wp_unslash($post[ $key ]);
+		$values = is_array($raw) ? $raw : array( $raw );
+
+		return array_filter(array_map('intval', $values));
 	}
 
 	private static function post_text_or_array(string $key)
@@ -311,7 +343,7 @@ final class SearchResults extends AbstractShortcode {
 			'category'     => self::get_text('category'),
 			'sort'         => self::get_text('sort', 'relevance'),
 			'page'         => self::get_int('page', 1),
-			'pickup_location' => self::get_int('pickup_location'),
+			'pickup_location' => self::get_int_array('pickup_location'),
 		);
 	}
 
@@ -326,6 +358,20 @@ final class SearchResults extends AbstractShortcode {
 			'posts_per_page' => (int) $atts['results_per_page'],
 			'paged'          => $params['page'] ?? 1,
 			'meta_query'     => array(),
+		);
+
+		// Exclude transfer-only vehicles from rental search results.
+		$args['meta_query'][] = array(
+			'relation' => 'OR',
+			array(
+				'key'     => '_rentiva_vehicle_service_type',
+				'value'   => 'transfer',
+				'compare' => '!=',
+			),
+			array(
+				'key'     => '_rentiva_vehicle_service_type',
+				'compare' => 'NOT EXISTS',
+			),
 		);
 
 		// ⭐ Submission Integrity: Enforce minimum rental days
@@ -491,7 +537,7 @@ final class SearchResults extends AbstractShortcode {
 			$subquery = \MHMRentiva\Admin\Core\QueryHelper::get_availability_subquery(
 				$params['pickup_date'],
 				$params['return_date']
-			) . \MHMRentiva\Admin\Core\QueryHelper::get_location_subquery((int) ($params['pickup_location'] ?? 0));
+			) . \MHMRentiva\Admin\Core\QueryHelper::get_location_subquery($params['pickup_location'] ?? array());
 
 			return $where . $subquery;
 		};
@@ -702,11 +748,18 @@ final class SearchResults extends AbstractShortcode {
         "
 		);
 
+		// Rental locations
+		$locations = array();
+		if (class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
+			$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
+		}
+
 		$data = array(
 			'fuel_types'    => $fuel_types ?: array(),
 			'transmissions' => $transmissions ?: array(),
 			'seats'         => $seats ?: array(),
 			'brands'        => $brands ?: array(),
+			'locations'     => $locations,
 			'year_range'    => array(
 				'min' => (int) ( $year_range->min_year ?? 1990 ),
 				'max' => (int) ( $year_range->max_year ?? gmdate('Y') ),
@@ -765,8 +818,9 @@ final class SearchResults extends AbstractShortcode {
 				'year_min'     => self::post_int('year_min'),
 				'year_max'     => self::post_int('year_max'),
 				'mileage_max'  => self::post_int('mileage_max'),
-				'sort'         => self::post_text('sort', 'relevance'),
-				'page'         => self::post_int('page', 1),
+				'sort'            => self::post_text('sort', 'relevance'),
+				'page'            => self::post_int('page', 1),
+				'pickup_location' => self::post_int_array('pickup_location'),
 			);
 
 			$atts = array(

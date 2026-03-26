@@ -418,7 +418,7 @@ final class TransferExportImport
         add_action('admin_notices', function (): void {
             echo '<div class="notice notice-info">';
             echo '<p><strong>MHM Rentiva:</strong> ';
-            echo esc_html__('Transfer verisi tespit edildi. Araçlar → Transfer İçe Aktar ile aktarımı tamamlayın.', 'mhm-rentiva');
+            echo esc_html__('Transfer data detected. Complete the import via Vehicles → Transfer Import.', 'mhm-rentiva');
             echo '</p></div>';
         });
     }

@@ -99,6 +99,11 @@ final class Uninstaller {
 			$wpdb->prefix . 'mhm_message_logs',
 			$wpdb->prefix . 'mhm_rentiva_background_jobs',
 			$wpdb->prefix . 'mhm_backup_records',
+			$wpdb->prefix . 'mhm_notification_queue',
+			$wpdb->prefix . 'mhm_payment_log',
+			$wpdb->prefix . 'mhm_sessions',
+			$wpdb->prefix . 'rentiva_transfer_locations',
+			$wpdb->prefix . 'rentiva_transfer_routes',
 		);
 
 		foreach ( $custom_tables as $table ) {
@@ -272,6 +277,14 @@ final class Uninstaller {
 			$wpdb->prefix . 'mhm_message_logs',
 			$wpdb->prefix . 'mhm_rentiva_background_jobs',
 			$wpdb->prefix . 'mhm_backup_records',
+			$wpdb->prefix . 'mhm_notification_queue',
+			$wpdb->prefix . 'mhm_payment_log',
+			$wpdb->prefix . 'mhm_sessions',
+			$wpdb->prefix . 'rentiva_transfer_locations',
+			$wpdb->prefix . 'rentiva_transfer_routes',
+			// Legacy names before rename migration
+			$wpdb->prefix . 'mhm_rentiva_transfer_locations',
+			$wpdb->prefix . 'mhm_rentiva_transfer_routes',
 		);
 
 		foreach ( $custom_tables as $table ) {

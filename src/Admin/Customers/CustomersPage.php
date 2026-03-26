@@ -109,7 +109,10 @@ final class CustomersPage
 			)
 		);
 
-		// Display Developer Mode banner and limit notices
+		// Customer statistics cards
+		static::render_customer_stats();
+
+		// Display Developer Mode banner and limit notices — after KPI cards
 		\MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeAndLimits(
 			'customers',
 			array(
@@ -117,9 +120,6 @@ final class CustomersPage
 				__('Advanced Customer Management', 'mhm-rentiva'),
 			)
 		);
-
-		// Customer statistics cards
-		static::render_customer_stats();
 
 		// Monthly booking calendar
 		static::render_customer_calendar();

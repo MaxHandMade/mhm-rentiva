@@ -126,15 +126,6 @@ final class TabRendererRegistry {
 
 		$this->register(
 			new BaseSettingsTabRenderer(
-				__( 'Customer Management', 'mhm-rentiva' ),
-				'customer',
-				__( 'Set user permissions, registration options, and profile display.', 'mhm-rentiva' ),
-				'\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings'
-			)
-		);
-
-		$this->register(
-			new BaseSettingsTabRenderer(
 				__( 'Comments & Reviews', 'mhm-rentiva' ),
 				'comments',
 				__( 'Configure comment moderation, rating settings, spam protection, and display options.', 'mhm-rentiva' ),
@@ -160,7 +151,7 @@ final class TabRendererRegistry {
 				'email',
 				__( 'Configure outgoing mail server and sender information.', 'mhm-rentiva' ),
 				null,
-				array( 'mhm_rentiva_email_section' )
+				array( 'mhm_rentiva_email_section', 'mhm_rentiva_email_notifications_section' )
 			)
 		);
 
@@ -191,7 +182,7 @@ final class TabRendererRegistry {
 				'system',
 				__( 'Monitor and configure system health, security, and performance.', 'mhm-rentiva' ),
 				null,
-				array( 'mhm_rentiva_core_section', 'mhm_rentiva_ip_control_section', 'mhm_rentiva_security_rules_section', 'mhm_rentiva_authentication_section', 'mhm_rentiva_maintenance_section' )
+				array( 'mhm_rentiva_ip_control_section', 'mhm_rentiva_security_rules_section', 'mhm_rentiva_authentication_section', 'mhm_rentiva_maintenance_section' )
 			)
 		);
 

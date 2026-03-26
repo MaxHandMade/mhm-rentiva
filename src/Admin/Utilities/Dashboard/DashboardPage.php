@@ -47,6 +47,9 @@ final class DashboardPage
 		add_action('delete_post', array(self::class, 'clear_cache_on_booking_delete'));
 		add_action('save_post_vehicle', array(self::class, 'clear_cache_on_vehicle_change'));
 		add_action('save_post_mhm_message', array(self::class, 'clear_cache_on_message_change'));
+		add_action('mhm_rentiva_booking_status_changed', array(self::class, 'clear_dashboard_cache'));
+		add_action('updated_post_meta', array(self::class, 'clear_cache_on_meta_change'), 10, 4);
+		add_action('added_post_meta', array(self::class, 'clear_cache_on_meta_change'), 10, 4);
 	}
 
 	/**
@@ -251,10 +254,46 @@ final class DashboardPage
 		}
 	}
 
+	/**
+	 * Clear cache when booking-related meta changes (status, payment, etc.).
+	 *
+	 * @param int    $meta_id   Meta ID.
+	 * @param int    $post_id   Post ID.
+	 * @param string $meta_key  Meta key.
+	 * @param mixed  $meta_value Meta value.
+	 */
+	public static function clear_cache_on_meta_change( $meta_id, $post_id, $meta_key, $meta_value ): void {
+		static $cleared = false;
+		if ( $cleared ) {
+			return;
+		}
+		$watched_keys = array( '_mhm_status', '_mhm_payment_status', '_mhm_total_price' );
+		if ( in_array( $meta_key, $watched_keys, true ) && get_post_type( $post_id ) === 'vehicle_booking' ) {
+			$cleared = true;
+			self::clear_dashboard_cache();
+		}
+	}
+
 	public static function clear_dashboard_cache(): void
 	{
 		global $wpdb;
-		$cache_keys = array('mhm_dashboard_stats', 'mhm_dashboard_recent_bookings', 'mhm_revenue_data', 'mhm_vehicle_stats', 'mhm_customer_stats', 'mhm_message_stats', 'mhm_recent_messages', 'mhm_deposit_stats', 'mhm_pending_payments');
+		$cache_keys = array(
+			'mhm_dashboard_stats',
+			'mhm_dashboard_recent_bookings',
+			'mhm_revenue_data',
+			'mhm_vehicle_stats',
+			'mhm_customer_stats',
+			'mhm_message_stats',
+			'mhm_recent_messages',
+			'mhm_deposit_stats',
+			'mhm_pending_payments',
+			// WP Dashboard widget caches (CacheManager keys)
+			'mhm_rentiva_dashboard_stats',
+			// Revenue report caches
+			'mhm_revenue_report_',
+			'mhm_rentiva_reports_revenue',
+			'mhm_rentiva_reports_bookings',
+		);
 		foreach ($cache_keys as $key_prefix) {
 			$prefix_like = $wpdb->esc_like('_transient_' . $key_prefix) . '%';
 			$wpdb->query($wpdb->prepare("DELETE FROM `{$wpdb->options}` WHERE option_name LIKE %s", $prefix_like)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -293,8 +332,8 @@ final class DashboardPage
 			$formatted_date = date_i18n( 'd M Y', $date_time );
 			$formatted_time = ! empty( $op['start_time'] ) ? esc_html( $op['start_time'] ) : wp_date( 'H:i', $date_time );
 
-			$today    = strtotime( 'today' );
-			$tomorrow = strtotime( 'tomorrow' );
+			$today    = strtotime( wp_date( 'Y-m-d' ) );
+			$tomorrow = strtotime( wp_date( 'Y-m-d', strtotime( '+1 day', current_time( 'timestamp' ) ) ) );
 			$op_day   = strtotime( wp_date( 'Y-m-d', $date_time ) );
 
 			if ( $op_day === $today ) {
@@ -327,7 +366,7 @@ final class DashboardPage
 
 			$countdown_html = '';
 			if ( 'confirmed' === $op['status'] ) {
-				$diff = $date_time - time();
+				$diff = $date_time - current_time( 'timestamp' );
 				if ( $diff > 0 ) {
 					$days    = (int) floor( $diff / DAY_IN_SECONDS );
 					$hours   = (int) floor( ( $diff % DAY_IN_SECONDS ) / HOUR_IN_SECONDS );
@@ -335,16 +374,16 @@ final class DashboardPage
 
 					if ( $days >= 3 ) {
 						$cd_class = 'countdown-green';
-						$cd_text  = sprintf( '%dg %dsa', $days, $hours );
+						$cd_text  = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
 					} elseif ( $diff >= DAY_IN_SECONDS ) {
 						$cd_class = 'countdown-orange';
-						$cd_text  = sprintf( '%dg %dsa', $days, $hours );
+						$cd_text  = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
 					} elseif ( $diff >= HOUR_IN_SECONDS ) {
 						$cd_class = 'countdown-red';
-						$cd_text  = sprintf( '%dsa %ddk', $hours, $minutes );
+						$cd_text  = sprintf( __( '%1$dh %2$dm', 'mhm-rentiva' ), $hours, $minutes );
 					} else {
 						$cd_class = 'countdown-red';
-						$cd_text  = $minutes > 0 ? sprintf( '%ddk', $minutes ) : esc_html__( 'Az kaldı!', 'mhm-rentiva' );
+						$cd_text  = $minutes > 0 ? sprintf( __( '%dm', 'mhm-rentiva' ), $minutes ) : esc_html__( 'Almost there!', 'mhm-rentiva' );
 					}
 
 					$countdown_html = '<span class="op-countdown ' . esc_attr( $cd_class ) . '">' . esc_html( $cd_text ) . '</span>';

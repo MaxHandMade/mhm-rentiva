@@ -92,6 +92,12 @@
     border-color: #2271b1;
     box-shadow: 0 0 0 3px rgba(34, 113, 177, 0.12);
 }
+.mhm-vendor-form__field input:focus-visible,
+.mhm-vendor-form__field select:focus-visible,
+.mhm-vendor-form__field textarea:focus-visible {
+    outline: 2px solid #2271b1;
+    outline-offset: 2px;
+}
 .mhm-vendor-form__readonly {
     background: #f9fafb !important;
     color: #6b7280 !important;
@@ -219,4 +225,25 @@
 
 @media (max-width: 600px) {
     .mhm-vendor-form__checkboxes--grid-5 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Keyboard accessibility — visible focus ring for buttons */
+.mhm-vendor-form__btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(34, 113, 177, 0.25);
+}
+.mhm-vendor-form__btn:focus-visible {
+    outline: 2px solid #2271b1;
+    outline-offset: 2px;
+}
+
+/* Keyboard accessibility — visible focus ring for file inputs */
+.mhm-vendor-form__doc-field input[type="file"]:focus {
+    outline: none;
+    border-color: #2271b1;
+    box-shadow: 0 0 0 3px rgba(34, 113, 177, 0.12);
+}
+.mhm-vendor-form__doc-field input[type="file"]:focus-visible {
+    outline: 2px solid #2271b1;
+    outline-offset: 2px;
 }

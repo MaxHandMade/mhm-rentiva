@@ -211,25 +211,15 @@ final class AllowlistRegistry
             'group'   => 'visibility',
             'aliases' => ['showBookButton', 'show_booking_button', 'show_booking_btn', 'showBookBtn', 'show_book_btn'],
         ],
-        'show_favorite_btn'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => ['showFavoriteBtn', 'show_favorite_button', 'showFavoriteButton'],
-        ],
         'show_favorite_button'     => [
             'type'    => 'bool',
             'group'   => 'visibility',
-            'aliases' => ['showFavoriteButton', 'showFavoriteBtn', 'show_favorite_button', 'show_favorite_btn'],
-        ],
-        'show_compare_btn'         => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => ['showCompareBtn', 'show_compare_button', 'showCompareButton'],
+            'aliases' => ['showFavoriteButton', 'showFavoriteBtn', 'show_favorite_btn', 'show_favorite_button'],
         ],
         'show_compare_button'      => [
             'type'    => 'bool',
             'group'   => 'visibility',
-            'aliases' => ['showCompareButton', 'showCompareBtn', 'show_compare_button', 'show_compare_btn'],
+            'aliases' => ['showCompareButton', 'showCompareBtn', 'show_compare_btn', 'show_compare_button'],
         ],
         'show_category'            => [
             'type'    => 'bool',
@@ -812,6 +802,11 @@ final class AllowlistRegistry
             'group'   => 'visibility',
             'aliases' => ['locationRequired'],
         ],
+        'fields_required'          => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => ['fieldsRequired'],
+        ],
         'start_month'              => [
             'type'    => 'string',
             'group'   => 'workflow',
@@ -1373,6 +1368,10 @@ final class AllowlistRegistry
             'order',
             'hide_nav',
         ],
+        'rentiva_vendor_bookings'       => [
+            'limit',
+            'hide_nav',
+        ],
         'rentiva_messages'              => [
             'limit',
             'class',
@@ -1429,6 +1428,7 @@ final class AllowlistRegistry
             'show_date_picker',
             'show_dropoff_location',
             'location_required',
+            'fields_required',
             'show_pax',
             'show_luggage',
             'service_type',
@@ -1447,6 +1447,9 @@ final class AllowlistRegistry
             'button_text',
             'show_pickup',
             'show_dropoff',
+        ],
+        'rentiva_user_dashboard'        => [
+            'class',
         ],
     ];
 

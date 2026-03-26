@@ -41,6 +41,7 @@ final class VendorApply extends AbstractShortcode
     protected static function register_ajax_handlers(): void
     {
         add_action('wp_ajax_mhm_vendor_apply', array(static::class, 'handle_ajax'));
+        add_action('wp_ajax_nopriv_mhm_vendor_apply', array(static::class, 'handle_ajax'));
     }
 
     /**
@@ -64,11 +65,13 @@ final class VendorApply extends AbstractShortcode
 
         $user_id = get_current_user_id();
 
-        if (! VendorApplicationManager::can_apply($user_id)) {
+        $can_apply = VendorApplicationManager::can_apply($user_id);
+        if (is_wp_error($can_apply) || ! $can_apply) {
             return array(
                 'pro_required'    => false,
                 'login_required'  => false,
                 'already_applied' => true,
+                'apply_error'     => is_wp_error($can_apply) ? $can_apply->get_error_message() : '',
             );
         }
 
@@ -274,13 +277,17 @@ final class VendorApply extends AbstractShortcode
         require_once ABSPATH . 'wp-admin/includes/media.php';
         require_once ABSPATH . 'wp-admin/includes/image.php';
 
-        $doc_ids    = array();
-        $doc_fields = array('doc_id', 'doc_license', 'doc_address', 'doc_insurance');
+        $doc_ids      = array();
+        $uploaded_ids = array();
+        $doc_fields   = array('doc_id', 'doc_license', 'doc_address', 'doc_insurance');
 
         foreach ($doc_fields as $field) {
             if (! empty($_FILES[ $field ]['name'])) {
                 $attachment_id = media_handle_upload($field, 0);
                 if (is_wp_error($attachment_id)) {
+                    foreach ($uploaded_ids as $id) {
+                        wp_delete_attachment($id, true);
+                    }
                     wp_send_json_error(array('message' => sprintf(
                         /* translators: 1: field name 2: error message */
                         __('File upload failed for %1$s: %2$s', 'mhm-rentiva'),
@@ -288,10 +295,17 @@ final class VendorApply extends AbstractShortcode
                         $attachment_id->get_error_message()
                     )));
                 }
+                $uploaded_ids[]    = $attachment_id;
                 $doc_ids[ $field ] = $attachment_id;
             } else {
                 // fallback: accept pre-uploaded attachment ID
                 $doc_ids[ $field ] = isset($_POST[ $field ]) ? (int) $_POST[ $field ] : 0;
+                if ($doc_ids[ $field ] > 0) {
+                    $attachment = get_post($doc_ids[ $field ]);
+                    if (!$attachment || $attachment->post_type !== 'attachment' || (int) $attachment->post_author !== get_current_user_id()) {
+                        $doc_ids[ $field ] = 0;
+                    }
+                }
             }
         }
 

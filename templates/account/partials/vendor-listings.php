@@ -23,62 +23,89 @@ $vehicles = get_posts( array(
 $review_status_labels = array(
 	'pending_review' => array(
 		'label' => __( 'Awaiting Review', 'mhm-rentiva' ),
-		'color' => '#f59e0b',
-		'bg'    => '#fef3cd',
+		'class' => 'is-pending',
 	),
-	'approved'       => array(
+	'approved' => array(
 		'label' => __( 'Live', 'mhm-rentiva' ),
-		'color' => '#16a34a',
-		'bg'    => '#dcfce7',
+		'class' => 'is-confirmed',
 	),
-	'rejected'       => array(
+	'rejected' => array(
 		'label' => __( 'Rejected', 'mhm-rentiva' ),
-		'color' => '#dc2626',
-		'bg'    => '#fee2e2',
+		'class' => 'is-cancelled',
 	),
-	'partial_edit'   => array(
+	'partial_edit' => array(
 		'label' => __( 'Re-review Pending', 'mhm-rentiva' ),
-		'color' => '#7c3aed',
-		'bg'    => '#f3e8ff',
+		'class' => 'is-progress',
 	),
 );
+
+$format_currency = static function ( float $amount ): string {
+	if ( function_exists( 'wc_price' ) ) {
+		return (string) wc_price( $amount );
+	}
+	return '₺' . number_format( $amount, 0, ',', '.' );
+};
+
+$vehicle_count = count( $vehicles );
 ?>
 
-<div class="mhm-rentiva-dashboard__section">
+<div class="mhm-vendor-listings-page">
 
-	<div class="mhm-rentiva-dashboard__section-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-		<h3 style="margin:0"><?php esc_html_e( 'My Vehicles', 'mhm-rentiva' ); ?></h3>
+	<!-- Header -->
+	<div class="mhm-vendor-listings-page__header">
+		<div class="mhm-vendor-listings-page__header-info">
+			<h3 class="mhm-vendor-listings-page__title"><?php esc_html_e( 'My Vehicles', 'mhm-rentiva' ); ?></h3>
+			<?php if ( $vehicle_count > 0 ) : ?>
+				<p class="mhm-vendor-listings-page__subtitle">
+					<?php
+					printf(
+						/* translators: %d: number of vehicles */
+						esc_html__( '%d vehicles in your portfolio.', 'mhm-rentiva' ),
+						$vehicle_count
+					);
+					?>
+				</p>
+			<?php endif; ?>
+		</div>
 		<button
 			id="mhm-toggle-add-vehicle"
-			class="button button-primary"
-			style="background:#2271b1;border-color:#2271b1;color:#fff;padding:8px 18px;border-radius:6px;font-weight:600;cursor:pointer"
+			class="mhm-vendor-listings-page__add-btn"
 			aria-expanded="false"
 		>
-			+ <?php esc_html_e( 'Add Vehicle', 'mhm-rentiva' ); ?>
+			<svg viewBox="0 0 24 24" fill="none" width="18" height="18" focusable="false"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+			<?php esc_html_e( 'Add Vehicle', 'mhm-rentiva' ); ?>
 		</button>
 	</div>
 
-	<?php /* ── Inline vehicle submit form (hidden by default) ── */ ?>
-	<div id="mhm-add-vehicle-panel" style="display:none;margin-bottom:32px">
-		<div style="border:2px solid #2271b1;border-radius:10px;padding:0;overflow:hidden">
-			<div style="background:#2271b1;color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center">
-				<strong><?php esc_html_e( 'New Vehicle', 'mhm-rentiva' ); ?></strong>
-				<button id="mhm-close-add-vehicle" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1" aria-label="<?php esc_attr_e( 'Close', 'mhm-rentiva' ); ?>">&times;</button>
+	<!-- Inline Add Form (hidden by default) -->
+	<div id="mhm-add-vehicle-panel" class="mhm-vendor-listings-page__add-panel" style="display:none">
+		<div class="mhm-vendor-listings-page__add-panel-inner">
+			<div class="mhm-vendor-listings-page__add-panel-head">
+				<div class="mhm-vendor-listings-page__add-panel-accent"></div>
+				<strong><?php esc_html_e( 'New Vehicle Details', 'mhm-rentiva' ); ?></strong>
+				<button id="mhm-close-add-vehicle" class="mhm-vendor-listings-page__add-panel-close" aria-label="<?php esc_attr_e( 'Close', 'mhm-rentiva' ); ?>">&times;</button>
 			</div>
-			<div style="padding:24px">
+			<div class="mhm-vendor-listings-page__add-panel-body">
 				<?php echo do_shortcode( '[rentiva_vehicle_submit]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 		</div>
 	</div>
 
-	<?php /* ── Vehicle list ── */ ?>
+	<!-- Vehicle Cards -->
 	<?php if ( empty( $vehicles ) ) : ?>
-		<div style="text-align:center;padding:48px 20px;background:#f9fafb;border-radius:10px;border:2px dashed #e5e7eb">
-			<p style="color:#6b7280;margin:0 0 16px;font-size:1rem"><?php esc_html_e( 'You have not added any vehicles yet.', 'mhm-rentiva' ); ?></p>
-			<p style="color:#9ca3af;margin:0;font-size:0.875rem"><?php esc_html_e( 'Click "Add Vehicle" to submit your first listing for review.', 'mhm-rentiva' ); ?></p>
+		<div class="mhm-vendor-listings-page__empty">
+			<div class="mhm-vendor-listings-page__empty-icon">
+				<svg viewBox="0 0 24 24" fill="none" width="40" height="40" focusable="false">
+					<path d="M4 14.25L5.8 9.75C6.09 9.02 6.79 8.55 7.58 8.55H16.42C17.21 8.55 17.91 9.02 18.2 9.75L20 14.25M5.25 14.25H18.75C19.44 14.25 20 14.81 20 15.5V17.25C20 17.66 19.66 18 19.25 18H18.5M5.5 18H4.75C4.34 18 4 17.66 4 17.25V15.5C4 14.81 4.56 14.25 5.25 14.25Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+					<circle cx="7.5" cy="16.5" r="1" fill="currentColor" />
+					<circle cx="16.5" cy="16.5" r="1" fill="currentColor" />
+				</svg>
+			</div>
+			<h4 class="mhm-vendor-listings-page__empty-title"><?php esc_html_e( 'You have not added any vehicles yet.', 'mhm-rentiva' ); ?></h4>
+			<p class="mhm-vendor-listings-page__empty-text"><?php esc_html_e( 'Click "Add Vehicle" to submit your first listing for review.', 'mhm-rentiva' ); ?></p>
 		</div>
 	<?php else : ?>
-		<div class="mhm-vendor-listings">
+		<div class="mhm-vendor-listings-page__list">
 			<?php foreach ( $vehicles as $vehicle ) : ?>
 				<?php
 				$review_status  = (string) get_post_meta( $vehicle->ID, '_vehicle_review_status', true );
@@ -88,57 +115,90 @@ $review_status_labels = array(
 				$year           = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_year', true );
 				$price          = (float)  get_post_meta( $vehicle->ID, '_mhm_rentiva_price_per_day', true );
 				$city           = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_vehicle_city', true );
+				$plate          = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_plate', true );
 				$status_info    = $review_status_labels[ $review_status ] ?? array(
 					'label' => ucfirst( $review_status ?: __( 'Draft', 'mhm-rentiva' ) ),
-					'color' => '#6b7280',
-					'bg'    => '#f3f4f6',
+					'class' => '',
 				);
-				$thumbnail_url  = get_the_post_thumbnail_url( $vehicle->ID, 'thumbnail' );
+				$thumbnail_url  = get_the_post_thumbnail_url( $vehicle->ID, 'medium' );
+				$vehicle_name   = trim( $brand . ' ' . $model . ( $year ? ' (' . $year . ')' : '' ) );
+				if ( $vehicle_name === '' ) {
+					$vehicle_name = $vehicle->post_title;
+				}
+				$is_rejected = $review_status === 'rejected';
 				?>
-				<div class="mhm-vendor-listing-card" style="display:flex;gap:16px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:12px;align-items:flex-start">
+				<div class="mhm-vendor-listing-card <?php echo $is_rejected ? 'is-rejected' : ''; ?>">
 
-					<?php /* Thumbnail */ ?>
-					<div style="flex-shrink:0;width:80px;height:64px;background:#f3f4f6;border-radius:6px;overflow:hidden">
+					<!-- Thumbnail -->
+					<div class="mhm-vendor-listing-card__thumb">
 						<?php if ( $thumbnail_url ) : ?>
-							<img src="<?php echo esc_url( $thumbnail_url ); ?>" alt="" style="width:100%;height:100%;object-fit:cover">
+							<img src="<?php echo esc_url( $thumbnail_url ); ?>" alt="<?php echo esc_attr( $vehicle_name ); ?>" loading="lazy">
 						<?php else : ?>
-							<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:24px">&#128663;</div>
-						<?php endif; ?>
-					</div>
-
-					<?php /* Info */ ?>
-					<div style="flex:1;min-width:0">
-						<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
-							<strong style="font-size:0.9375rem;color:#111827">
-								<?php echo esc_html( trim( $brand . ' ' . $model . ( $year ? ' (' . $year . ')' : '' ) ) ?: $vehicle->post_title ); ?>
-							</strong>
-							<span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;background:<?php echo esc_attr( $status_info['bg'] ); ?>;color:<?php echo esc_attr( $status_info['color'] ); ?>">
-								<?php echo esc_html( $status_info['label'] ); ?>
-							</span>
-						</div>
-						<p style="margin:0;font-size:0.8125rem;color:#6b7280">
-							<?php if ( $price > 0 ) : ?>
-								<span>&#8378;<?php echo esc_html( number_format( $price, 0 ) ); ?>/<?php esc_html_e( 'day', 'mhm-rentiva' ); ?></span>
-							<?php endif; ?>
-							<?php if ( $city ) : ?>
-								<?php if ( $price > 0 ) : ?> &middot; <?php endif; ?>
-								<span><?php echo esc_html( $city ); ?></span>
-							<?php endif; ?>
-						</p>
-						<?php if ( $review_status === 'rejected' && $rejection_note ) : ?>
-							<div style="margin-top:8px;padding:8px 12px;background:#fef2f2;border-left:3px solid #ef4444;border-radius:0 4px 4px 0;font-size:0.8125rem;color:#991b1b">
-								<strong><?php esc_html_e( 'Rejection reason:', 'mhm-rentiva' ); ?></strong> <?php echo esc_html( $rejection_note ); ?>
+							<div class="mhm-vendor-listing-card__thumb-placeholder">
+								<svg viewBox="0 0 24 24" fill="none" width="32" height="32"><path d="M4 14.25L5.8 9.75C6.09 9.02 6.79 8.55 7.58 8.55H16.42C17.21 8.55 17.91 9.02 18.2 9.75L20 14.25M5.25 14.25H18.75C19.44 14.25 20 14.81 20 15.5V17.25C20 17.66 19.66 18 19.25 18H18.5M5.5 18H4.75C4.34 18 4 17.66 4 17.25V15.5C4 14.81 4.56 14.25 5.25 14.25Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="16.5" r="1" fill="currentColor"/><circle cx="16.5" cy="16.5" r="1" fill="currentColor"/></svg>
 							</div>
 						<?php endif; ?>
 					</div>
 
-					<?php /* Actions */ ?>
-					<div style="flex-shrink:0;display:flex;gap:8px;align-items:center">
-						<?php if ( $review_status === 'approved' && $vehicle->post_status === 'publish' ) : ?>
-							<a href="<?php echo esc_url( get_permalink( $vehicle->ID ) ); ?>" target="_blank" style="font-size:0.8125rem;color:#2271b1;text-decoration:none">
-								<?php esc_html_e( 'View', 'mhm-rentiva' ); ?> &rarr;
-							</a>
+					<!-- Info -->
+					<div class="mhm-vendor-listing-card__info">
+						<div class="mhm-vendor-listing-card__top">
+							<div class="mhm-vendor-listing-card__meta">
+								<h4 class="mhm-vendor-listing-card__name"><?php echo esc_html( $vehicle_name ); ?></h4>
+								<span class="mhm-rentiva-dashboard__status <?php echo esc_attr( $status_info['class'] ); ?>">
+									<?php echo esc_html( $status_info['label'] ); ?>
+								</span>
+							</div>
+							<?php if ( $price > 0 ) : ?>
+								<div class="mhm-vendor-listing-card__price">
+									<span class="mhm-vendor-listing-card__price-label"><?php esc_html_e( 'Daily Price', 'mhm-rentiva' ); ?></span>
+									<span class="mhm-vendor-listing-card__price-value"><?php echo wp_kses_post( $format_currency( $price ) ); ?><small>/<?php esc_html_e( 'day', 'mhm-rentiva' ); ?></small></span>
+								</div>
+							<?php endif; ?>
+						</div>
+
+						<?php if ( $plate || $city ) : ?>
+							<p class="mhm-vendor-listing-card__details">
+								<?php if ( $plate ) : ?>
+									<span><?php esc_html_e( 'Plate:', 'mhm-rentiva' ); ?> <strong><?php echo esc_html( $plate ); ?></strong></span>
+								<?php endif; ?>
+								<?php if ( $plate && $city ) : ?>
+									<span class="mhm-vendor-listing-card__sep">&middot;</span>
+								<?php endif; ?>
+								<?php if ( $city ) : ?>
+									<span><?php echo esc_html( $city ); ?></span>
+								<?php endif; ?>
+							</p>
 						<?php endif; ?>
+
+						<?php if ( $review_status === 'pending_review' ) : ?>
+							<div class="mhm-vendor-listing-card__notice is-warning">
+								<svg viewBox="0 0 24 24" fill="none" width="16" height="16"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+								<?php esc_html_e( 'Your listing will be published after operator approval.', 'mhm-rentiva' ); ?>
+							</div>
+						<?php endif; ?>
+
+						<?php if ( $is_rejected && $rejection_note ) : ?>
+							<div class="mhm-vendor-listing-card__notice is-error">
+								<svg viewBox="0 0 24 24" fill="none" width="16" height="16"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+								<strong><?php esc_html_e( 'Rejection reason:', 'mhm-rentiva' ); ?></strong> <?php echo esc_html( $rejection_note ); ?>
+							</div>
+						<?php endif; ?>
+
+						<!-- Actions -->
+						<div class="mhm-vendor-listing-card__actions">
+							<?php if ( $review_status === 'approved' && $vehicle->post_status === 'publish' ) : ?>
+								<a href="<?php echo esc_url( get_permalink( $vehicle->ID ) ); ?>" target="_blank" class="mhm-vendor-listing-card__action is-outline">
+									<?php esc_html_e( 'View', 'mhm-rentiva' ); ?> &rarr;
+								</a>
+							<?php endif; ?>
+							<?php if ( $review_status !== 'pending_review' ) : ?>
+								<button type="button" class="mhm-vendor-listing-card__action is-outline mhm-edit-vehicle-btn" data-vehicle-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>">
+									<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+									<?php esc_html_e( 'Edit', 'mhm-rentiva' ); ?>
+								</button>
+							<?php endif; ?>
+						</div>
 					</div>
 
 				</div>
@@ -146,41 +206,18 @@ $review_status_labels = array(
 		</div>
 	<?php endif; ?>
 
+	<!-- Edit Vehicle Panel (hidden, populated via AJAX) -->
+	<div id="mhm-edit-vehicle-panel" class="mhm-vendor-listings-page__add-panel" style="display:none">
+		<div class="mhm-vendor-listings-page__add-panel-inner">
+			<div class="mhm-vendor-listings-page__add-panel-head">
+				<div class="mhm-vendor-listings-page__add-panel-accent" style="background:#f59e0b"></div>
+				<strong><?php esc_html_e( 'Edit Vehicle', 'mhm-rentiva' ); ?></strong>
+				<button id="mhm-close-edit-vehicle" class="mhm-vendor-listings-page__add-panel-close" aria-label="<?php esc_attr_e( 'Close', 'mhm-rentiva' ); ?>">&times;</button>
+			</div>
+			<div class="mhm-vendor-listings-page__add-panel-body" id="mhm-edit-vehicle-body">
+				<p class="mhm-vendor-form__hint"><?php esc_html_e( 'Loading...', 'mhm-rentiva' ); ?></p>
+			</div>
+		</div>
+	</div>
+
 </div>
-
-<script>
-(function () {
-	var btn   = document.getElementById('mhm-toggle-add-vehicle');
-	var panel = document.getElementById('mhm-add-vehicle-panel');
-	var close = document.getElementById('mhm-close-add-vehicle');
-
-	if (!btn || !panel) return;
-
-	btn.addEventListener('click', function () {
-		var open = panel.style.display !== 'none';
-		panel.style.display = open ? 'none' : 'block';
-		btn.setAttribute('aria-expanded', open ? 'false' : 'true');
-		if (!open) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-	});
-
-	if (close) {
-		close.addEventListener('click', function () {
-			panel.style.display = 'none';
-			btn.setAttribute('aria-expanded', 'false');
-		});
-	}
-
-	// Auto-open if URL has ?add_vehicle=1
-	if (window.location.search.indexOf('add_vehicle=1') !== -1) {
-		panel.style.display = 'block';
-		btn.setAttribute('aria-expanded', 'true');
-	}
-
-	// After successful vehicle submit, hide the form and reload the listing
-	document.addEventListener('mhm_vehicle_submitted', function () {
-		panel.style.display = 'none';
-		btn.setAttribute('aria-expanded', 'false');
-		setTimeout(function () { window.location.reload(); }, 1500);
-	});
-}());
-</script>

@@ -39,11 +39,8 @@ final class FrontendSettings {
 			// Vehicle Display
 			'mhm_rentiva_vehicle_cards_per_page'      => 12,
 			'mhm_rentiva_vehicle_default_sort'        => 'price_asc',
-			'mhm_rentiva_vehicle_show_images'         => '1',
-			'mhm_rentiva_vehicle_show_features'       => '1',
 			'mhm_rentiva_vehicle_card_fields'         => class_exists( '\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper' ) ? \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_default_card_fields() : array(),
 			'mhm_rentiva_vehicle_detail_fields'       => class_exists( '\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper' ) ? \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_default_card_fields() : array(),
-			'mhm_rentiva_vehicle_show_availability'   => '1',
 
 			// Texts & Labels - General Buttons
 			'mhm_rentiva_text_book_now'               => '',
@@ -134,30 +131,6 @@ final class FrontendSettings {
 			'mhm_rentiva_vehicle_default_sort',
 			__( 'Default Sort Order', 'mhm-rentiva' ),
 			array( self::class, 'render_default_sort_field' ),
-			SettingsCore::PAGE,
-			self::SECTION_VEHICLE_DISPLAY
-		);
-
-		add_settings_field(
-			'mhm_rentiva_vehicle_show_images',
-			__( 'Show Vehicle Images', 'mhm-rentiva' ),
-			array( self::class, 'render_show_images_field' ),
-			SettingsCore::PAGE,
-			self::SECTION_VEHICLE_DISPLAY
-		);
-
-		add_settings_field(
-			'mhm_rentiva_vehicle_show_features',
-			__( 'Show Vehicle Features', 'mhm-rentiva' ),
-			array( self::class, 'render_show_features_field' ),
-			SettingsCore::PAGE,
-			self::SECTION_VEHICLE_DISPLAY
-		);
-
-		add_settings_field(
-			'mhm_rentiva_vehicle_show_availability',
-			__( 'Show Availability Status', 'mhm-rentiva' ),
-			array( self::class, 'render_show_availability_field' ),
 			SettingsCore::PAGE,
 			self::SECTION_VEHICLE_DISPLAY
 		);
@@ -293,33 +266,6 @@ final class FrontendSettings {
 		}
 		echo '</select>';
 		echo '<p class="description">' . esc_html__( 'Default sort order for vehicle listings', 'mhm-rentiva' ) . '</p>';
-	}
-
-	/**
-	 * Show images field
-	 */
-	public static function render_show_images_field(): void {
-		$value = SettingsCore::get( 'mhm_rentiva_vehicle_show_images', '1' );
-		echo '<input type="hidden" name="mhm_rentiva_settings[mhm_rentiva_vehicle_show_images]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_vehicle_show_images]" value="1"' . checked( $value, '1', false ) . '> ' . esc_html__( 'Display vehicle images in listings', 'mhm-rentiva' ) . '</label>';
-	}
-
-	/**
-	 * Show features field
-	 */
-	public static function render_show_features_field(): void {
-		$value = SettingsCore::get( 'mhm_rentiva_vehicle_show_features', '1' );
-		echo '<input type="hidden" name="mhm_rentiva_settings[mhm_rentiva_vehicle_show_features]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_vehicle_show_features]" value="1"' . checked( $value, '1', false ) . '> ' . esc_html__( 'Display vehicle features in listings', 'mhm-rentiva' ) . '</label>';
-	}
-
-	/**
-	 * Show availability field
-	 */
-	public static function render_show_availability_field(): void {
-		$value = SettingsCore::get( 'mhm_rentiva_vehicle_show_availability', '1' );
-		echo '<input type="hidden" name="mhm_rentiva_settings[mhm_rentiva_vehicle_show_availability]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_vehicle_show_availability]" value="1"' . checked( $value, '1', false ) . '> ' . esc_html__( 'Display availability status in listings', 'mhm-rentiva' ) . '</label>';
 	}
 
 	/**

@@ -92,7 +92,7 @@
 			var nonce   = $( '#mhm_apply_to_all_nonce' ).val();
 			var vid     = $( '#mhm_current_vehicle_id' ).val();
 
-			if ( ! confirm( 'Bu araç için seçilen tüm kapalı günler diğer tüm araçlara uygulanacak ve mevcut kapalı günlerin üzerine yazılacak. Devam etmek istiyor musunuz?' ) ) {
+			if ( ! confirm( mhmBlockedDatesL10n.confirmApply ) ) {
 				return;
 			}
 
@@ -105,18 +105,20 @@
 					action:     'mhm_apply_blocked_dates_to_all',
 					nonce:      nonce,
 					vehicle_id: vid,
+					dates:      JSON.stringify( blockedDates ),
+					notes:      JSON.stringify( blockedNotes ),
 				},
 				function ( response ) {
 					$btn.prop( 'disabled', false ).removeClass( 'is-loading' );
 					if ( response.success ) {
 						$result
-							.text( response.data.count + ' araca uygulandı.' )
+							.text( mhmBlockedDatesL10n.appliedTo.replace( '%d', response.data.count ) )
 							.removeClass( 'apply-result-error' )
 							.addClass( 'apply-result-success' )
 							.show();
 					} else {
 						$result
-							.text( response.data || 'Hata oluştu.' )
+							.text( response.data || mhmBlockedDatesL10n.error )
 							.removeClass( 'apply-result-success' )
 							.addClass( 'apply-result-error' )
 							.show();
@@ -133,7 +135,7 @@
 			var nonce   = $( '#mhm_remove_from_all_nonce' ).val();
 			var vid     = $( '#mhm_current_vehicle_id' ).val();
 
-			if ( ! confirm( 'Bu araç için seçilen tüm kapalı günler diğer tüm araçlardan kaldırılacak. Devam etmek istiyor musunuz?' ) ) {
+			if ( ! confirm( mhmBlockedDatesL10n.confirmRemove ) ) {
 				return;
 			}
 
@@ -146,18 +148,19 @@
 					action:     'mhm_remove_blocked_dates_from_all',
 					nonce:      nonce,
 					vehicle_id: vid,
+					dates:      JSON.stringify( blockedDates ),
 				},
 				function ( response ) {
 					$btn.prop( 'disabled', false ).removeClass( 'is-loading' );
 					if ( response.success ) {
 						$result
-							.text( response.data.count + ' araçtan kaldırıldı.' )
+							.text( mhmBlockedDatesL10n.removedFrom.replace( '%d', response.data.count ) )
 							.removeClass( 'apply-result-error' )
 							.addClass( 'apply-result-success' )
 							.show();
 					} else {
 						$result
-							.text( response.data || 'Hata olustu.' )
+							.text( response.data || mhmBlockedDatesL10n.error )
 							.removeClass( 'apply-result-success' )
 							.addClass( 'apply-result-error' )
 							.show();
@@ -238,7 +241,7 @@
 						'<button type="button" class="blocked-date-chip-remove" data-date="' + safeDate + '" title="Remove">&times;</button>' +
 					'</div>' +
 					'<div class="blocked-date-chip-note-wrap">' +
-						'<input type="text" class="blocked-date-chip-note" data-date="' + safeDate + '" value="' + safeNote + '" placeholder="Not ekle... (isteğe bağlı)" maxlength="120">' +
+						'<input type="text" class="blocked-date-chip-note" data-date="' + safeDate + '" value="' + safeNote + '" placeholder="' + ( mhmBlockedDatesL10n.notePlaceholder || 'Add note... (optional)' ) + '" maxlength="120">' +
 					'</div>' +
 				'</div>'
 			);

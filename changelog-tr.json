@@ -1,5 +1,37 @@
 [
     {
+        "version": "4.23.0",
+        "date": "2026-03-26",
+        "type": "minor",
+        "changes": [
+            "🏗️ MİMARİ: Vendor Transfer Lokasyon sistemi — Şehir→Nokta hiyerarşisi ile vendor'lar sadece kendi şehirlerindeki lokasyonları ve rotaları görür.",
+            "💰 FİYATLAMA: Vendor'lar admin tarafından belirlenen min/maks aralığında rota başına fiyat belirleyebilir.",
+            "🔍 ARAMA: Transfer arama motoru rota bazlı araç filtreleme + vendor fiyatı ile güncellendi.",
+            "🗄️ VERİTABANI: v3.4.0 migration — lokasyonlara city sütunu, rotalara max_price sütunu eklendi.",
+            "📊 DASHBOARD: 11 hata düzeltmesi — timezone, cache invalidation, WC email görselleri, istatistik tasarımı, Lite gating.",
+            "🔎 FİLTRE: strtotime('') hatası, lokasyon filtresi checkbox, transfer tab doğrulama düzeltmeleri.",
+            "📅 ENGELLİ TARİHLER: Tümüne Uygula AJAX düzeltmesi — tarayıcı verisi payload'da gönderiliyor.",
+            "📤 DIŞA AKTARIM: 4 hata düzeltmesi (post_type, kayıt sayısı, geçmiş silme, PHP 8 tip hatası).",
+            "👤 VENDOR: Araç ruhsat doğrulama, düzenleme formu yeniden inceleme, vendor rozeti.",
+            "🎨 ELEMENTOR: 7 widget için attribute kontrolü iyileştirildi.",
+            "⚙️ AYARLAR: Cache tekrarı, ölü ayarlar, SetupWizard sayfaları, AssetManager guard düzeltmeleri.",
+            "🌐 ÇEVİRİ: 15+ yeni Türkçe çeviri, WP 6.5+ .l10n.php yenilendi.",
+            "✅ TEST: 567 test, 2036 assertion."
+        ],
+        "notice": "v4.23.0 - Vendor Transfer Mimarisi & Dashboard Denetimi"
+    },
+    {
+        "version": "4.22.2",
+        "date": "2026-03-25",
+        "type": "patch",
+        "changes": [
+            "📋 BİLDİRİM: Tüm Lite limit bildirimleri KPI kartların altında birleşik yüzde formatına standartlaştırıldı.",
+            "📸 LİMİT: Galeri görselleri limiti 3→5, karşılaştırma tablosu yeniden tasarlandı.",
+            "🐛 DÜZELTME: Emoji bozulması ve yanlış dışa aktarım özellikleri düzeltildi."
+        ],
+        "notice": "v4.22.2 - Bildirim Standardizasyonu & Lite Limitleri"
+    },
+    {
         "version": "4.20.0",
         "date": "2026-02-21",
         "changes": [

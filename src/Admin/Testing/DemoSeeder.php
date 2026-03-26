@@ -103,7 +103,10 @@ final class DemoSeeder
     public function run(bool $do_cleanup = false): string
     {
         $this->enable_email_simulation();
-        $msg = $do_cleanup ? $this->cleanup() . "\n" : '';
+
+        // Always cleanup first to ensure idempotency — running seeder
+        // multiple times should not create duplicate data.
+        $msg = $this->cleanup() . "\n";
 
         // 1. Core Data Seed
         $this->seed_categories();
@@ -160,7 +163,9 @@ final class DemoSeeder
         $booking_id = $context['booking']['id'] ?? 'N/A';
         $log_msg = sprintf("Email Template [%s] triggered for Booking #%s to [%s]", $key, $booking_id, $to);
 
-        \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info('Seeder Log', array('message' => $log_msg));
+        if (\class_exists('\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger')) {
+            \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info('Seeder Log', array('message' => $log_msg));
+        }
 
         if (class_exists('\WP_CLI')) {
             \call_user_func(array('\WP_CLI', 'success'), $log_msg);
@@ -506,16 +511,16 @@ final class DemoSeeder
         // 🚗 Vehicle Fleet Configuration
         $blueprint = array(
             // 1. ECONOMY
-            array('qty' => 3, 'brand' => 'Volkswagen', 'model' => 'Polo', 'price' => 80, 'trans' => 'manual', 'fuel' => 'petrol', 'year' => 2024, 'seats' => 5, 'luggage' => 2, 'cat' => 'Economy', 'color' => 'White', 'engine' => '1.0'),
+            array('qty' => 3, 'brand' => 'Volkswagen', 'model' => 'Polo', 'price' => 80, 'trans' => 'manual', 'fuel' => 'petrol', 'year' => 2024, 'seats' => 5, 'doors' => 4, 'luggage' => 2, 'cat' => 'Economy', 'color' => 'White', 'engine' => '1.0', 'features' => array('Bluetooth', 'USB', 'Air Conditioning', 'ABS')),
 
             // 2. MID-RANGE
-            array('qty' => 2, 'brand' => 'Toyota', 'model' => 'Corolla', 'price' => 120, 'trans' => 'auto', 'fuel' => 'hybrid', 'year' => 2024, 'seats' => 5, 'luggage' => 3, 'cat' => 'Mid-Range', 'color' => 'Gray', 'engine' => '1.8'),
+            array('qty' => 2, 'brand' => 'Toyota', 'model' => 'Corolla', 'price' => 120, 'trans' => 'auto', 'fuel' => 'hybrid', 'year' => 2024, 'seats' => 5, 'doors' => 4, 'luggage' => 3, 'cat' => 'Mid-Range', 'color' => 'Gray', 'engine' => '1.8', 'features' => array('GPS Navigation', 'Bluetooth', 'Cruise Control', 'Backup Camera', 'USB', 'Air Conditioning')),
 
             // 3. LUXURY
-            array('qty' => 1, 'brand' => 'Mercedes-Benz', 'model' => 'S-Class', 'price' => 500, 'trans' => 'auto', 'fuel' => 'petrol', 'year' => 2025, 'seats' => 5, 'luggage' => 3, 'cat' => 'Luxury', 'color' => 'Black', 'engine' => '3.0'),
+            array('qty' => 1, 'brand' => 'Mercedes-Benz', 'model' => 'S-Class', 'price' => 500, 'trans' => 'auto', 'fuel' => 'petrol', 'year' => 2025, 'seats' => 5, 'doors' => 4, 'luggage' => 3, 'cat' => 'Luxury', 'color' => 'Black', 'engine' => '3.0', 'features' => array('GPS Navigation', 'Leather Seats', 'Heated Seats', 'Panoramic Roof', 'Cruise Control', 'Bluetooth', 'Wireless Charging', '360 Camera', 'Ambient Lighting')),
 
             // 4. VIP / TRANSFER
-            array('qty' => 2, 'brand' => 'Mercedes-Benz', 'model' => 'V-Class', 'price' => 350, 'trans' => 'auto', 'fuel' => 'diesel', 'year' => 2025, 'seats' => 7, 'luggage' => 5, 'cat' => 'Minivan (VIP)', 'color' => 'Black', 'engine' => '2.2'),
+            array('qty' => 2, 'brand' => 'Mercedes-Benz', 'model' => 'V-Class', 'price' => 350, 'trans' => 'auto', 'fuel' => 'diesel', 'year' => 2025, 'seats' => 7, 'doors' => 5, 'luggage' => 5, 'cat' => 'Minivan (VIP)', 'color' => 'Black', 'engine' => '2.2', 'features' => array('GPS Navigation', 'Leather Seats', 'Climate Control', 'Privacy Glass', 'Bluetooth', 'USB Ports', 'Rear Entertainment')),
         );
 
         foreach ($blueprint as $c) {
@@ -533,6 +538,8 @@ final class DemoSeeder
                     \update_post_meta($id, $this->keys['engine'], $c['engine']);
                     \update_post_meta($id, $this->keys['km'], \wp_rand(5000, 30000));
                     \update_post_meta($id, $this->keys['seats'], $c['seats']);
+                    \update_post_meta($id, '_mhm_rentiva_doors', $c['doors']);
+                    \update_post_meta($id, $this->keys['features'], $c['features']);
 
                     \update_post_meta($id, $this->keys['trans_pax'], $c['seats']);
                     \update_post_meta($id, $this->keys['big_luggage'], $c['luggage']);
@@ -565,7 +572,10 @@ final class DemoSeeder
         foreach ($vids as $vid) {
             $this->create_single_booking($vid, $uids, 'cancelled', '-45 days', 3, false, false);
             $force_deposit = ($counter % 2 === 0);
-            $this->create_single_booking($vid, $uids, 'confirmed', '+' . \wp_rand(1, 10) . ' days', \wp_rand(3, 5), true, $force_deposit);
+            $booking_id = $this->create_single_booking($vid, $uids, 'confirmed', '+' . \wp_rand(1, 10) . ' days', \wp_rand(3, 5), true, $force_deposit);
+            if ($booking_id) {
+                $this->add_booking_review($booking_id);
+            }
             $counter++;
         }
     }
@@ -573,11 +583,11 @@ final class DemoSeeder
     /**
      * Create individual booking record
      */
-    private function create_single_booking(int $vid, array $uids, string $stat, string $off, int $dur, bool $order = false, bool $force_deposit = false): void
+    private function create_single_booking(int $vid, array $uids, string $stat, string $off, int $dur, bool $order = false, bool $force_deposit = false): int
     {
         $uid = $uids[\array_rand($uids)];
         $u   = \get_userdata($uid);
-        if (! $u) return;
+        if (! $u) return 0;
 
         $d_p  = (int) \get_post_meta($vid, $this->keys['price'], true);
         $t_p  = $d_p * $dur;
@@ -666,6 +676,31 @@ final class DemoSeeder
                 }
             }
         }
+        return $id ? (int) $id : 0;
+    }
+
+    /**
+     * Add review meta to a confirmed booking (for Testimonials shortcode)
+     */
+    private function add_booking_review(int $booking_id): void
+    {
+        $reviews = array(
+            array('text' => 'Excellent service and car quality. The vehicle was spotless and well-maintained. Will definitely rent again!', 'rating' => 5),
+            array('text' => 'Very smooth booking process. Pickup was on time and the staff were incredibly professional.', 'rating' => 5),
+            array('text' => 'Great value for money. The car exceeded my expectations for the price range. Highly recommended!', 'rating' => 4),
+            array('text' => 'Perfect for our family vacation. Clean, comfortable, and reliable. Customer support was always responsive.', 'rating' => 5),
+            array('text' => 'Impressive fleet selection. Found exactly what I needed. The online booking system is very user-friendly.', 'rating' => 4),
+            array('text' => 'Second time renting from here. Consistent quality every time. The loyalty benefits are a nice touch.', 'rating' => 5),
+            array('text' => 'Airport pickup was seamless. Driver was waiting on arrival. Car was brand new and fully equipped.', 'rating' => 5),
+            array('text' => 'Good experience overall. Return process was quick and hassle-free. Would use this service again.', 'rating' => 4),
+        );
+        $review = $reviews[\array_rand($reviews)];
+        $name   = \get_post_meta($booking_id, '_mhm_customer_name', true);
+
+        \update_post_meta($booking_id, '_mhm_rentiva_customer_review', $review['text']);
+        \update_post_meta($booking_id, '_mhm_rentiva_customer_rating', $review['rating']);
+        \update_post_meta($booking_id, '_mhm_rentiva_review_approved', '1');
+        \update_post_meta($booking_id, '_mhm_rentiva_customer_name', $name);
     }
 
     /**
@@ -782,7 +817,7 @@ final class DemoSeeder
      */
     private function get_dummy_image_id()
     {
-        $q = new \WP_Query(array('post_type' => 'attachment', 'posts_per_page' => 1, 'post_status' => 'inherit', 'mimetype' => 'image'));
+        $q = new \WP_Query(array('post_type' => 'attachment', 'posts_per_page' => 1, 'post_status' => 'inherit', 'post_mime_type' => 'image'));
         return $q->have_posts() ? $q->posts[0]->ID : false;
     }
 
@@ -791,7 +826,27 @@ final class DemoSeeder
      */
     private function add_dummy_review(int $pid): void
     {
-        $name = $this->names[\array_rand($this->names)];
-        \wp_insert_comment(array('comment_post_ID' => $pid, 'comment_content' => 'Excellent service and car quality.', 'comment_author' => $name, 'comment_approved' => 1, 'comment_type' => 'review'));
+        $reviews = array(
+            array('text' => 'Excellent service and car quality. The vehicle was spotless and well-maintained. Will definitely rent again!', 'rating' => 5),
+            array('text' => 'Very smooth booking process. Pickup was on time and the staff were incredibly professional.', 'rating' => 5),
+            array('text' => 'Great value for money. The car exceeded my expectations for the price range. Highly recommended!', 'rating' => 4),
+            array('text' => 'Perfect for our family vacation. Clean, comfortable, and reliable. Customer support was always responsive.', 'rating' => 5),
+            array('text' => 'Impressive fleet selection. Found exactly what I needed. The online booking system is very user-friendly.', 'rating' => 4),
+            array('text' => 'Second time renting from here. Consistent quality every time. The loyalty benefits are a nice touch.', 'rating' => 5),
+            array('text' => 'Airport pickup was seamless. Driver was waiting on arrival. Car was brand new and fully equipped.', 'rating' => 5),
+            array('text' => 'Good experience overall. Return process was quick and hassle-free. Would use this service again.', 'rating' => 4),
+        );
+        $review = $reviews[\array_rand($reviews)];
+        $name   = $this->names[\array_rand($this->names)];
+        $cid    = \wp_insert_comment(array(
+            'comment_post_ID' => $pid,
+            'comment_content'  => $review['text'],
+            'comment_author'   => $name,
+            'comment_approved'  => 1,
+            'comment_type'     => 'review',
+        ));
+        if ($cid) {
+            \update_comment_meta($cid, 'rating', $review['rating']);
+        }
     }
 }

@@ -75,6 +75,10 @@ final class VendorProfileExtension
      */
     public static function save_location_field(int $user_id): void
     {
+        if (!check_admin_referer('update-user_' . $user_id)) {
+            return;
+        }
+
         if (!current_user_can('edit_user', $user_id)) {
             return;
         }

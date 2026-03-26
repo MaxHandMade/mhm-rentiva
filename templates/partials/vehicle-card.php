@@ -106,6 +106,13 @@ if (! $is_available) {
                         <?php echo esc_html($brand_name); ?>
                     </div>
                 <?php endif; ?>
+
+                <?php if ($is_vendor_vehicle) : ?>
+                    <div class="mhm-card-vendor-badge" data-testid="mhm-vendor-badge" title="<?php esc_attr_e('This vehicle is provided by an authorized dealer.', 'mhm-rentiva'); ?>">
+                        <svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <?php esc_html_e('Dealer', 'mhm-rentiva'); ?>
+                    </div>
+                <?php endif; ?>
             </div>
 
             <h3 class="mhm-card-title">
@@ -126,7 +133,7 @@ if (! $is_available) {
                     <span><?php echo esc_html($location_name); ?></span>
                 </div>
             <?php endif; ?>
-            <?php if ($show_rating && isset($vehicle['rating']['stars']) && (int) ( $vehicle['rating']['count'] ?? 0 ) > 0) : ?>
+            <?php if ($show_rating && isset($vehicle['rating']['stars'])) : ?>
                 <div class="mhm-card-rating" data-testid="mhm-rating" title="
                 <?php
                 /* translators: %s: average vehicle rating. */

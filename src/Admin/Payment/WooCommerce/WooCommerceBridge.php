@@ -52,6 +52,9 @@ final class WooCommerceBridge implements PaymentGatewayInterface
 		add_filter('woocommerce_cart_item_get_taxes', array(self::class, 'adjust_cart_item_taxes'), 10, 2);
 		add_action('woocommerce_cart_calculate_fees', array(self::class, 'adjust_tax_calculation'), 10, 1);
 
+		// Email order item image — replace placeholder with vehicle image
+		add_filter('woocommerce_order_item_thumbnail', array(self::class, 'filter_email_order_item_thumbnail'), 10, 2);
+
 		// Order processing
 		add_action('woocommerce_checkout_create_order_line_item', array(self::class, 'add_order_item_meta'), 10, 4);
 		// ⭐ Create booking when order is processed - use primary hook with fallback
@@ -699,8 +702,49 @@ final class WooCommerceBridge implements PaymentGatewayInterface
 	}
 
 	/**
+	 * Replace placeholder product image with vehicle image in WooCommerce emails.
+	 *
+	 * @param string                $image The order item thumbnail HTML.
+	 * @param \WC_Order_Item_Product $item  The order item.
+	 * @return string
+	 */
+	public static function filter_email_order_item_thumbnail( $image, $item ): string {
+		if ( ! ( $item instanceof \WC_Order_Item_Product ) ) {
+			return $image;
+		}
+
+		// Get vehicle ID from booking meta stored on the order item.
+		$booking_id = (int) $item->get_meta( '_mhm_booking_id' );
+		$vehicle_id = 0;
+
+		if ( $booking_id ) {
+			$vehicle_id = (int) get_post_meta( $booking_id, '_mhm_vehicle_id', true );
+		}
+
+		// Fallback: check pending booking data.
+		if ( ! $vehicle_id ) {
+			$booking_data = $item->get_meta( '_mhm_booking_data' );
+			if ( is_array( $booking_data ) && ! empty( $booking_data['vehicle_id'] ) ) {
+				$vehicle_id = (int) $booking_data['vehicle_id'];
+			}
+		}
+
+		if ( $vehicle_id ) {
+			$thumbnail_id = get_post_thumbnail_id( $vehicle_id );
+			if ( $thumbnail_id ) {
+				return wp_get_attachment_image( $thumbnail_id, 'woocommerce_thumbnail', false, array(
+					'style' => 'width: 80px; height: 80px; object-fit: cover; border-radius: 4px;',
+					'alt'   => esc_attr( get_the_title( $vehicle_id ) ),
+				) );
+			}
+		}
+
+		return $image;
+	}
+
+	/**
 	 * ⭐ Inject vehicle image for WooCommerce Cart Block (Store API)
-	 * 
+	 *
 	 * This filter modifies the image data sent to the Cart Block via Store API.
 	 * 
 	 * @param array $images The current images array

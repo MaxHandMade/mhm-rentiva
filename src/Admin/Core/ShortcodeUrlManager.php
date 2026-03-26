@@ -179,6 +179,8 @@ final class ShortcodeUrlManager {
 			'rentiva_transfer_results',
 			'rentiva_transfer_search',
 			'rentiva_featured_vehicles',
+			'rentiva_vendor_apply',
+			'rentiva_vehicle_submit',
 		);
 	}
 

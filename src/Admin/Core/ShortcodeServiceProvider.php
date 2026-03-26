@@ -149,6 +149,11 @@ final class ShortcodeServiceProvider
 					'method'        => 'render',
 					'requires_auth' => false,
 				),
+				'rentiva_vendor_bookings' => array(
+					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorBookings::class,
+					'method'        => 'render',
+					'requires_auth' => true,
+				),
 			),
 			'account'     => array(
 				'rentiva_user_dashboard' => array(

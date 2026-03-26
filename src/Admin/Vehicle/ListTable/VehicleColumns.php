@@ -350,15 +350,6 @@ final class VehicleColumns
 			return;
 		}
 
-		// Display Developer Mode banner and limit notices
-		\MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeAndLimits(
-			'vehicles',
-			array(
-				__('Unlimited Vehicles', 'mhm-rentiva'),
-				__('Advanced Vehicle Management', 'mhm-rentiva'),
-			)
-		);
-
 		// Get statistics data
 		$stats = self::get_vehicle_stats();
 
@@ -424,7 +415,16 @@ final class VehicleColumns
 				</div>
 			</div>
 		</div>
-	<?php
+
+		<?php
+		// Display Developer Mode banner and limit notices — after KPI cards
+		\MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeAndLimits(
+			'vehicles',
+			array(
+				__('Unlimited Vehicles', 'mhm-rentiva'),
+				__('Advanced Vehicle Management', 'mhm-rentiva'),
+			)
+		);
 	}
 
 	/**

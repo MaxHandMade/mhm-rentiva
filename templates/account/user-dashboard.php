@@ -9,7 +9,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-$dashboard = is_array($dashboard_data ?? null) ? $dashboard_data : (is_array($data ?? null) ? $data : array());
+$dashboard = is_array($dashboard_data ?? null) ? $dashboard_data : array();
 $active_tab = $dashboard['active_tab'] ?? 'overview';
 $dashboard_url = $dashboard['dashboard_url'] ?? home_url('/panel/');
 $recent_bookings = is_array($dashboard['recent_bookings'] ?? null) ? $dashboard['recent_bookings'] : array();
@@ -57,26 +57,11 @@ $analytics = is_array($dashboard['analytics'] ?? null) ? $dashboard['analytics']
 					<h2><?php esc_html_e('Overview', 'mhm-rentiva'); ?></h2>
 				</div>
 
-				<?php if ($context === 'vendor') : ?>
-					<!-- Date Range Filter -->
-					<div class="mhm-rentiva-dashboard__analytics-filters" style="margin-bottom: 24px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-						<div class="mhm-rentiva-dashboard__filter-group">
-							<input type="text" id="mhm-vendor-date-range" class="mhm-rentiva-input" placeholder="<?php esc_attr_e('Select Date Range', 'mhm-rentiva'); ?>" readonly style="min-width: 250px; padding: 8px 12px; border: 1px solid #e1e4eb; border-radius: 6px;">
-						</div>
-						<div class="mhm-rentiva-dashboard__filter-presets" style="display: flex; gap: 8px;">
-							<button type="button" class="mhm-rentiva-preset-btn button" data-preset="7d" style="background:#fff; border:1px solid #e1e4eb; padding:5px 10px; border-radius:4px; cursor:pointer;"><?php esc_html_e('Last 7 Days', 'mhm-rentiva'); ?></button>
-							<button type="button" class="mhm-rentiva-preset-btn button" data-preset="30d" style="background:#fff; border:1px solid #e1e4eb; padding:5px 10px; border-radius:4px; cursor:pointer;"><?php esc_html_e('Last 30 Days', 'mhm-rentiva'); ?></button>
-							<button type="button" class="mhm-rentiva-preset-btn button" data-preset="this_month" style="background:#fff; border:1px solid #e1e4eb; padding:5px 10px; border-radius:4px; cursor:pointer;"><?php esc_html_e('This Month', 'mhm-rentiva'); ?></button>
-							<button type="button" class="mhm-rentiva-preset-btn button" data-preset="last_month" style="background:#fff; border:1px solid #e1e4eb; padding:5px 10px; border-radius:4px; cursor:pointer;"><?php esc_html_e('Last Month', 'mhm-rentiva'); ?></button>
-						</div>
-					</div>
-				<?php endif; ?>
-
 				<div class="mhm-rentiva-dashboard__kpis">
 					<?php foreach ($kpi_items as $kpi_key => $kpi_config) : ?>
 						<?php
-						// Skip purely financial metrics in the main KPI loop
-						if (in_array($kpi_key, array('available_balance', 'pending_balance', 'total_paid_out'), true)) {
+						// Skip financial + analytics metrics — overview shows only 4 core KPIs
+						if (in_array($kpi_key, array('available_balance', 'pending_balance', 'total_paid_out', 'occupancy_rate', 'cancellation_rate'), true)) {
 							continue;
 						}
 
@@ -167,142 +152,123 @@ $analytics = is_array($dashboard['analytics'] ?? null) ? $dashboard['analytics']
 					<?php endforeach; ?>
 				</div>
 
-				<?php
-				$financial_metrics = array('available_balance', 'pending_balance', 'total_paid_out');
-				$has_financials = false;
-				foreach ($financial_metrics as $fm) {
-					if (isset($kpi_items[$fm])) {
-						$has_financials = true;
-						break;
-					}
-				}
-				?>
-
-				<?php if ($has_financials && $context === 'vendor') : ?>
-					<div class="mhm-rentiva-dashboard__section">
+				<div class="mhm-rentiva-dashboard__overview-grid">
+					<!-- Recent Bookings (left, wider) -->
+					<div class="mhm-rentiva-dashboard__overview-bookings mhm-rentiva-dashboard__section">
 						<div class="mhm-rentiva-dashboard__section-head">
-							<h3><?php esc_html_e('Financial Summary', 'mhm-rentiva'); ?></h3>
+							<h3><?php esc_html_e('Recent Bookings', 'mhm-rentiva'); ?></h3>
+							<a href="<?php echo esc_url(add_query_arg('tab', 'bookings', $dashboard_url)); ?>">
+								<?php esc_html_e('View All', 'mhm-rentiva'); ?>
+							</a>
 						</div>
-						<div class="mhm-rentiva-dashboard__kpis mhm-financial-cards">
-							<?php foreach ($financial_metrics as $fm_key) : ?>
-								<?php if (! isset($kpi_items[$fm_key])) {
-									continue;
-								} ?>
-								<?php
-								$fkpi = $kpi_items[$fm_key];
-								$fkpi_label = (string) ($fkpi['label'] ?? '');
-								$fkpi_meta = (string) ($fkpi['meta'] ?? '');
-								$fkpi_icon = sanitize_key((string) ($fkpi['icon'] ?? 'wallet'));
-								$fkpi_item = is_array($kpi_data[$fm_key] ?? null) ? $kpi_data[$fm_key] : array();
-								// Format Currency Value Native
-								$fkpi_value = isset($fkpi_item['total']) ? round((float) $fkpi_item['total'], 2) : 0.00;
-								$fkpi_display = function_exists('wc_price') ? wc_price($fkpi_value) : number_format($fkpi_value, 2) . ' ' . get_woocommerce_currency();
-								?>
-								<div class="mhm-rentiva-dashboard__kpi-card is-financial">
-									<div class="mhm-rentiva-dashboard__kpi-header">
-										<div class="mhm-rentiva-dashboard__kpi-icon" aria-hidden="true">
-											<?php if ($fkpi_icon === 'wallet') : ?>
-												<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-													<path d="M19.5 9.5V17.5C19.5 18.6046 18.6046 19.5 17.5 19.5H6.5C5.39543 19.5 4.5 18.6046 4.5 17.5V6.5C4.5 5.39543 5.39543 4.5 6.5 4.5H16.5C17.6046 4.5 18.5 5.39543 18.5 6.5V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-													<path d="M21 9.5V14.5C21 15.0523 20.5523 15.5 20 15.5H18C16.8954 15.5 16 14.6046 16 13.5V10.5C16 9.39543 16.8954 8.5 18 8.5H20C20.5523 8.5 21 8.94772 21 9.5Z" stroke="currentColor" stroke-width="1.5" />
-													<circle cx="18.5" cy="12" r="0.5" fill="currentColor" />
-												</svg>
-											<?php elseif ($fkpi_icon === 'clock') : ?>
-												<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-													<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
-													<path d="M12 7V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-												</svg>
-											<?php elseif ($fkpi_icon === 'check-circle') : ?>
-												<svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
-													<path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="1.5" />
-													<path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-												</svg>
-											<?php endif; ?>
-										</div>
-										<div class="mhm-rentiva-dashboard__kpi-label"><?php echo esc_html($fkpi_label); ?></div>
-									</div>
-									<div class="mhm-rentiva-dashboard__kpi-value is-currency" data-raw="<?php echo esc_attr((string) $fkpi_value); ?>">
-										<?php echo wp_kses_post($fkpi_display); ?>
-									</div>
-									<div class="mhm-rentiva-dashboard__kpi-meta"><?php echo esc_html($fkpi_meta); ?></div>
-								</div>
-							<?php endforeach; ?>
-						</div>
-					</div>
-				<?php endif; ?>
 
-				<?php if ($context === 'vendor') : ?>
-					<div id="mhm-vendor-analytics-container">
-						<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-analytics.php'; ?>
-					</div>
-				<?php endif; ?>
-
-				<div class="mhm-rentiva-dashboard__section">
-					<div class="mhm-rentiva-dashboard__section-head">
-						<h3><?php esc_html_e('Recent Bookings', 'mhm-rentiva'); ?></h3>
-						<a href="<?php echo esc_url(add_query_arg('tab', 'bookings', $dashboard_url)); ?>">
-							<?php esc_html_e('View All', 'mhm-rentiva'); ?>
-						</a>
-					</div>
-
-					<div class="mhm-rentiva-dashboard__table-wrap">
-						<table class="mhm-rentiva-dashboard__table">
-							<thead>
-								<tr>
-									<th><?php esc_html_e('Booking', 'mhm-rentiva'); ?></th>
-									<th><?php esc_html_e('Service', 'mhm-rentiva'); ?></th>
-									<th><?php esc_html_e('Pickup Date', 'mhm-rentiva'); ?></th>
-									<th><?php esc_html_e('Status', 'mhm-rentiva'); ?></th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php if (! empty($recent_bookings)) : ?>
-									<?php foreach ($recent_bookings as $booking) : ?>
-										<?php
-										$booking_id = (int) ($booking->ID ?? 0);
-										$vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
-										$vehicle_title = $vehicle_id > 0 ? get_the_title($vehicle_id) : __('N/A', 'mhm-rentiva');
-										$pickup_date = (string) get_post_meta($booking_id, '_mhm_pickup_date', true);
-										$booking_status = (string) get_post_meta($booking_id, '_mhm_status', true);
-										$status = sanitize_key($booking_status);
-										$status_class = 'mhm-rentiva-dashboard__status';
-										$status_map = array(
-											'completed'   => 'is-completed',
-											'confirmed'   => 'is-confirmed',
-											'in_progress' => 'is-progress',
-											'pending'     => 'is-pending',
-											'cancelled'   => 'is-cancelled',
-											'refunded'    => 'is-refunded',
-										);
-										if (isset($status_map[$status])) {
-											$status_class .= ' ' . $status_map[$status];
-										}
-										$status_label = $status !== '' ? ucwords(str_replace('_', ' ', $status)) : '-';
-										?>
-										<tr>
-											<td>#<?php echo esc_html((string) mhm_rentiva_get_display_id((int) $booking_id)); ?></td>
-											<td><?php echo esc_html((string) $vehicle_title); ?></td>
-											<td><?php echo esc_html($pickup_date !== '' ? date_i18n(get_option('date_format'), strtotime($pickup_date)) : '-'); ?></td>
-											<td>
-												<span class="<?php echo esc_attr($status_class); ?>">
-													<?php echo esc_html($status_label); ?>
-												</span>
-											</td>
-										</tr>
-									<?php endforeach; ?>
-								<?php else : ?>
+						<div class="mhm-rentiva-dashboard__table-wrap">
+							<table class="mhm-rentiva-dashboard__table">
+								<thead>
 									<tr>
-										<td colspan="4"><?php esc_html_e('No bookings found.', 'mhm-rentiva'); ?></td>
+										<th><?php esc_html_e('Booking', 'mhm-rentiva'); ?></th>
+										<th><?php esc_html_e('Service', 'mhm-rentiva'); ?></th>
+										<th><?php esc_html_e('Pickup Date', 'mhm-rentiva'); ?></th>
+										<th><?php esc_html_e('Status', 'mhm-rentiva'); ?></th>
 									</tr>
-								<?php endif; ?>
-							</tbody>
-						</table>
+								</thead>
+								<tbody>
+									<?php if (! empty($recent_bookings)) : ?>
+										<?php foreach ($recent_bookings as $booking) : ?>
+											<?php
+											$booking_id = (int) ($booking->ID ?? 0);
+											$vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+											$vehicle_title = $vehicle_id > 0 ? get_the_title($vehicle_id) : __('N/A', 'mhm-rentiva');
+											$pickup_date = (string) get_post_meta($booking_id, '_mhm_pickup_date', true);
+											$booking_status = (string) get_post_meta($booking_id, '_mhm_status', true);
+											$status = sanitize_key($booking_status);
+											$status_class = 'mhm-rentiva-dashboard__status';
+											$status_map = array(
+												'completed'   => 'is-completed',
+												'confirmed'   => 'is-confirmed',
+												'in_progress' => 'is-progress',
+												'pending'     => 'is-pending',
+												'cancelled'   => 'is-cancelled',
+												'refunded'    => 'is-refunded',
+											);
+											$status_label_map = array(
+												'completed'   => __('Completed', 'mhm-rentiva'),
+												'confirmed'   => __('Confirmed', 'mhm-rentiva'),
+												'in_progress' => __('In Progress', 'mhm-rentiva'),
+												'pending'     => __('Pending', 'mhm-rentiva'),
+												'cancelled'   => __('Cancelled', 'mhm-rentiva'),
+												'refunded'    => __('Refunded', 'mhm-rentiva'),
+											);
+											if (isset($status_map[$status])) {
+												$status_class .= ' ' . $status_map[$status];
+											}
+											$status_label = $status_label_map[$status] ?? ($status !== '' ? ucwords(str_replace('_', ' ', $status)) : '-');
+											?>
+											<tr>
+												<td>#<?php echo esc_html((string) mhm_rentiva_get_display_id((int) $booking_id)); ?></td>
+												<td><?php echo esc_html((string) $vehicle_title); ?></td>
+												<td><?php echo esc_html($pickup_date !== '' ? date_i18n(get_option('date_format'), strtotime($pickup_date)) : '-'); ?></td>
+												<td>
+													<span class="<?php echo esc_attr($status_class); ?>">
+														<?php echo esc_html($status_label); ?>
+													</span>
+												</td>
+											</tr>
+										<?php endforeach; ?>
+									<?php else : ?>
+										<tr>
+											<td colspan="4"><?php esc_html_e('No bookings found.', 'mhm-rentiva'); ?></td>
+										</tr>
+									<?php endif; ?>
+								</tbody>
+							</table>
+						</div>
 					</div>
+
+					<?php if ($context === 'vendor') : ?>
+					<!-- Quick Actions (right, narrower) -->
+					<div class="mhm-rentiva-dashboard__quick-actions">
+						<h3><?php esc_html_e('Quick Actions', 'mhm-rentiva'); ?></h3>
+						<div class="mhm-rentiva-dashboard__quick-actions-list">
+							<a href="<?php echo esc_url(add_query_arg(array('tab' => 'listings', 'add_vehicle' => '1'), $dashboard_url)); ?>" class="mhm-rentiva-dashboard__quick-action is-primary">
+								<span class="mhm-rentiva-dashboard__quick-action-icon">
+									<svg viewBox="0 0 24 24" fill="none" focusable="false"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+								</span>
+								<span class="mhm-rentiva-dashboard__quick-action-label"><?php esc_html_e('Add New Vehicle', 'mhm-rentiva'); ?></span>
+								<span class="mhm-rentiva-dashboard__quick-action-arrow">&rsaquo;</span>
+							</a>
+							<a href="<?php echo esc_url(add_query_arg('tab', 'bookings', $dashboard_url)); ?>" class="mhm-rentiva-dashboard__quick-action">
+								<span class="mhm-rentiva-dashboard__quick-action-icon">
+									<svg viewBox="0 0 24 24" fill="none" focusable="false"><path d="M7 3.75V6.25M17 3.75V6.25M3.75 9H20.25M3.75 7.75C3.75 6.92 4.42 6.25 5.25 6.25H18.75C19.58 6.25 20.25 6.92 20.25 7.75V18.75C20.25 19.58 19.58 20.25 18.75 20.25H5.25C4.42 20.25 3.75 19.58 3.75 18.75V7.75Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								</span>
+								<span class="mhm-rentiva-dashboard__quick-action-label"><?php esc_html_e('View All Bookings', 'mhm-rentiva'); ?></span>
+								<span class="mhm-rentiva-dashboard__quick-action-arrow">&rsaquo;</span>
+							</a>
+							<a href="<?php echo esc_url(add_query_arg('tab', 'ledger', $dashboard_url)); ?>" class="mhm-rentiva-dashboard__quick-action">
+								<span class="mhm-rentiva-dashboard__quick-action-icon">
+									<svg viewBox="0 0 24 24" fill="none" focusable="false"><path d="M19.5 9.5V17.5C19.5 18.6 18.6 19.5 17.5 19.5H6.5C5.4 19.5 4.5 18.6 4.5 17.5V6.5C4.5 5.4 5.4 4.5 6.5 4.5H16.5C17.6 4.5 18.5 5.4 18.5 6.5V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M21 9.5V14.5C21 15.05 20.55 15.5 20 15.5H18C16.9 15.5 16 14.6 16 13.5V10.5C16 9.4 16.9 8.5 18 8.5H20C20.55 8.5 21 8.95 21 9.5Z" stroke="currentColor" stroke-width="1.5"/></svg>
+								</span>
+								<span class="mhm-rentiva-dashboard__quick-action-label"><?php esc_html_e('Request Payout', 'mhm-rentiva'); ?></span>
+								<span class="mhm-rentiva-dashboard__quick-action-arrow">&rsaquo;</span>
+							</a>
+							<a href="<?php echo esc_url(add_query_arg('tab', 'messages', $dashboard_url)); ?>" class="mhm-rentiva-dashboard__quick-action">
+								<span class="mhm-rentiva-dashboard__quick-action-icon">
+									<svg viewBox="0 0 24 24" fill="none" focusable="false"><path d="M4.5 6.75H19.5C20.33 6.75 21 7.42 21 8.25V15.75C21 16.58 20.33 17.25 19.5 17.25H4.5C3.67 17.25 3 16.58 3 15.75V8.25C3 7.42 3.67 6.75 4.5 6.75Z" stroke="currentColor" stroke-width="1.5"/><path d="M4 8L10.94 12.63C11.57 13.05 12.43 13.05 13.06 12.63L20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								</span>
+								<span class="mhm-rentiva-dashboard__quick-action-label"><?php esc_html_e('Messages', 'mhm-rentiva'); ?></span>
+								<span class="mhm-rentiva-dashboard__quick-action-arrow">&rsaquo;</span>
+							</a>
+						</div>
+					</div>
+					<?php endif; ?>
 				</div>
 			<?php elseif ($active_tab === 'bookings') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
-					<?php echo do_shortcode((string) ($dashboard['bookings_tab_shortcode'] ?? '[rentiva_my_bookings hide_nav="1"]')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
-					?>
+					<?php if ($context === 'vendor') : ?>
+						<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-bookings.php'; ?>
+					<?php else : ?>
+						<?php echo do_shortcode((string) ($dashboard['bookings_tab_shortcode'] ?? '[rentiva_my_bookings hide_nav="1"]')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php endif; ?>
 				</div>
 			<?php elseif ($active_tab === 'favorites') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
@@ -314,13 +280,9 @@ $analytics = is_array($dashboard['analytics'] ?? null) ? $dashboard['analytics']
 					<?php echo do_shortcode((string) ($dashboard['messages_tab_shortcode'] ?? '[rentiva_messages hide_nav="1"]')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
 					?>
 				</div>
-			<?php elseif ($active_tab === 'listings' || $active_tab === 'revenue') : ?>
+			<?php elseif ($active_tab === 'listings') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
-					<?php if ($active_tab === 'revenue' && $context === 'vendor') : ?>
-						<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-analytics.php'; ?>
-					<?php else : ?>
-						<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-listings.php'; ?>
-					<?php endif; ?>
+					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-listings.php'; ?>
 				</div>
 			<?php elseif ($active_tab === 'ledger' && $context === 'vendor') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">

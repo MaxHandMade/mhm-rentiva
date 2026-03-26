@@ -268,20 +268,25 @@ final class TransferShortcodes extends AbstractShortcode {
 			$destination_name = $wpdb->get_var($wpdb->prepare("SELECT name FROM $table_locations WHERE id = %d", $criteria['destination_id']));
 		}
 
+		// Layout & columns: read from POST (allows JS pass-through), fallback to TransferResults defaults.
+		$layout  = isset($_POST['layout']) ? sanitize_text_field(wp_unslash($_POST['layout'])) : 'list';
+		$columns = isset($_POST['columns']) ? absint($_POST['columns']) : 2;
+
 		ob_start();
-		echo '<div class="mhm-transfer-results-page mhm-transfer-results rv-transfer-results rv-unified-search-results rv-transfer-results--grid" data-columns="1" style="--columns: 1;">';
+		echo '<div class="mhm-transfer-results-page mhm-transfer-results rv-transfer-results rv-unified-search-results rv-transfer-results--' . esc_attr($layout) . '" data-columns="' . esc_attr((string) $columns) . '" style="--columns: ' . esc_attr((string) $columns) . ';">';
 		echo '<div class="mhm-transfer-results__grid">';
 
+		// Display attributes: consistent with TransferResults::get_default_attributes() defaults.
 		$atts = array(
-			'show_title'           => true,
-			'show_price'           => true,
-			'show_booking_button'  => true,
-			'show_vehicle_details' => true,
-			'show_luggage_info'    => true,
-			'show_passenger_count' => true,
-			'show_route_info'      => true,
-			'show_favorite_button' => true,
-			'show_compare_button'  => true,
+			'show_title'           => '1',
+			'show_price'           => '1',
+			'show_booking_button'  => '1',
+			'show_vehicle_details' => '1',
+			'show_luggage_info'    => '1',
+			'show_passenger_count' => '1',
+			'show_route_info'      => '1',
+			'show_favorite_button' => '1',
+			'show_compare_button'  => '1',
 		);
 
 		foreach ($results as $vehicle) {

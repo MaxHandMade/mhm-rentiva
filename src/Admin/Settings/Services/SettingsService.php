@@ -153,6 +153,46 @@ final class SettingsService {
 	}
 
 	/**
+	 * Initialize default settings on fresh plugin activation.
+	 *
+	 * Uses add_option() so it is a no-op if the option already exists.
+	 * Prevents "Reset to Defaults" from appearing to change things on fresh installs.
+	 */
+	public static function initialize_defaults_on_activation(): void {
+		$option_name = \MHMRentiva\Admin\Settings\Settings::OPTION_NAME;
+
+		// No-op if settings were already initialized (re-activation or update).
+		if ( get_option( $option_name ) !== false ) {
+			return;
+		}
+
+		// All providers that write to the master mhm_rentiva_settings option.
+		$provider_classes = array(
+			\MHMRentiva\Admin\Settings\Groups\GeneralSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\TransferSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,
+		);
+
+		$defaults = array();
+		foreach ( $provider_classes as $class ) {
+			if ( class_exists( $class ) && method_exists( $class, 'get_default_settings' ) ) {
+				$defaults = array_merge( $defaults, $class::get_default_settings() );
+			}
+		}
+
+		if ( ! empty( $defaults ) ) {
+			add_option( $option_name, $defaults );
+		}
+	}
+
+	/**
 	 * Saves sanitized REST settings.
 	 *
 	 * @param array $settings_data Raw input data from $_POST.

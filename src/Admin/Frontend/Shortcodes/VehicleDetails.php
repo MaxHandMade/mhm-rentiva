@@ -207,7 +207,7 @@ final class VehicleDetails extends AbstractShortcode {
 		$booked_days   = self::get_booked_days( $vehicle_id, $current_month, $current_year );
 		$week_start    = (int) get_option( 'start_of_week', 1 );
 
-		$all_day_names = array( __( 'Paz', 'mhm-rentiva' ), __( 'Pzt', 'mhm-rentiva' ), __( 'Sal', 'mhm-rentiva' ), __( 'Çar', 'mhm-rentiva' ), __( 'Per', 'mhm-rentiva' ), __( 'Cum', 'mhm-rentiva' ), __( 'Cmt', 'mhm-rentiva' ) );
+		$all_day_names = array( __( 'Sun', 'mhm-rentiva' ), __( 'Mon', 'mhm-rentiva' ), __( 'Tue', 'mhm-rentiva' ), __( 'Wed', 'mhm-rentiva' ), __( 'Thu', 'mhm-rentiva' ), __( 'Fri', 'mhm-rentiva' ), __( 'Sat', 'mhm-rentiva' ) );
 		$day_names     = array_merge( array_slice( $all_day_names, $week_start ), array_slice( $all_day_names, 0, $week_start ) );
 
 		$calendar_html  = '<div class="rv-calendar-grid">';

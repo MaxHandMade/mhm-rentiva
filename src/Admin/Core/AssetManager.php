@@ -289,6 +289,11 @@ final class AssetManager
 	 */
 	public static function enqueue_admin_assets(): void
 	{
+		// Only load on Rentiva admin pages — no need to pollute other admin screens.
+		if ( ! self::is_rentiva_admin_page() ) {
+			return;
+		}
+
 		// Load core CSS files
 		self::enqueue_core_css();
 
@@ -304,6 +309,26 @@ final class AssetManager
 
 		// Admin-specific assets
 		self::enqueue_admin_specific_assets();
+	}
+
+	/**
+	 * Detect whether the current admin page belongs to this plugin.
+	 */
+	private static function is_rentiva_admin_page(): bool
+	{
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return false;
+		}
+
+		// Plugin's custom post types that don't carry the 'mhm' prefix in their slug.
+		$plugin_post_types = array( 'vehicle', 'vehicle_booking', 'vehicle_addon', 'mhm_vendor_app' );
+
+		return (
+			str_contains( $screen->id, 'mhm' ) ||
+			str_contains( $screen->post_type ?? '', 'mhm' ) ||
+			in_array( $screen->post_type ?? '', $plugin_post_types, true )
+		);
 	}
 
 	/**

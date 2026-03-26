@@ -214,14 +214,8 @@ final class BookingNotifications {
 			$reminder_fields
 		);
 
-		// Welcome Email
+		// Welcome Email (toggle is in Email Configuration → Customer Notification Toggles)
 		$welcome_fields = array(
-			array(
-				'type'  => 'checkbox',
-				'name'  => 'mhm_rentiva_welcome_email_enabled',
-				'label' => __( 'Enabled', 'mhm-rentiva' ),
-				'value' => get_option( 'mhm_rentiva_welcome_email_enabled', '1' ),
-			),
 			array(
 				'type'  => 'text',
 				'name'  => 'mhm_rentiva_welcome_email_subject',

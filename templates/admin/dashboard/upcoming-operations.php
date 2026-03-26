@@ -45,11 +45,11 @@ $pages    = $result['total_pages'];
 							: $op['start_date'];
 						$date_time = strtotime( $date_str );
 
-						$formatted_date = date_i18n( 'd M Y', $date_time );
+						$formatted_date = date_i18n( get_option( 'date_format' ), $date_time );
 						$formatted_time = ! empty( $op['start_time'] ) ? esc_html( $op['start_time'] ) : wp_date( 'H:i', $date_time );
 
-						$today    = strtotime( 'today' );
-						$tomorrow = strtotime( 'tomorrow' );
+						$today    = strtotime( wp_date( 'Y-m-d' ) );
+						$tomorrow = strtotime( wp_date( 'Y-m-d', strtotime( '+1 day', current_time( 'timestamp' ) ) ) );
 						$op_day   = strtotime( wp_date( 'Y-m-d', $date_time ) );
 
 						if ( $op_day === $today ) {
@@ -82,7 +82,7 @@ $pages    = $result['total_pages'];
 
 						$countdown_html = '';
 						if ( 'confirmed' === $op['status'] ) {
-							$diff = $date_time - time();
+							$diff = $date_time - current_time( 'timestamp' );
 							if ( $diff > 0 ) {
 								$days    = (int) floor( $diff / DAY_IN_SECONDS );
 								$hours   = (int) floor( ( $diff % DAY_IN_SECONDS ) / HOUR_IN_SECONDS );
@@ -90,18 +90,18 @@ $pages    = $result['total_pages'];
 
 								if ( $days >= 3 ) {
 									$cd_class = 'countdown-green';
-									$cd_text  = sprintf( '%dg %dsa', $days, $hours );
+									$cd_text  = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
 								} elseif ( $diff >= DAY_IN_SECONDS ) {
 									$cd_class = 'countdown-orange';
-									$cd_text  = sprintf( '%dg %dsa', $days, $hours );
+									$cd_text  = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
 								} elseif ( $diff >= HOUR_IN_SECONDS ) {
 									$cd_class = 'countdown-red';
-									$cd_text  = sprintf( '%dsa %ddk', $hours, $minutes );
+									$cd_text  = sprintf( __( '%1$dh %2$dm', 'mhm-rentiva' ), $hours, $minutes );
 								} else {
 									$cd_class = 'countdown-red';
 									$cd_text  = $minutes > 0
-										? sprintf( '%ddk', $minutes )
-										: esc_html__( 'Az kaldı!', 'mhm-rentiva' );
+										? sprintf( __( '%dm', 'mhm-rentiva' ), $minutes )
+										: esc_html__( 'Almost there!', 'mhm-rentiva' );
 								}
 
 								$countdown_html = '<span class="op-countdown ' . esc_attr( $cd_class ) . '">' . esc_html( $cd_text ) . '</span>';

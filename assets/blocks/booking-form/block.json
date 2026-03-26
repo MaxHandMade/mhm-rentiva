@@ -95,13 +95,16 @@
             "default": ""
         },
         "defaultDays": {
-            "type": "string"
+            "type": "string",
+            "default": ""
         },
         "minDays": {
-            "type": "string"
+            "type": "string",
+            "default": ""
         },
         "maxDays": {
-            "type": "string"
+            "type": "string",
+            "default": ""
         },
         "redirectUrl": {
             "type": "string",

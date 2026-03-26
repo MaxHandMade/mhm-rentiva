@@ -210,8 +210,25 @@ final class BlockedDatesMetaBox {
 			wp_send_json_error( __( 'Invalid vehicle ID.', 'mhm-rentiva' ) );
 		}
 
-		$dates_json = wp_json_encode( self::get_blocked_dates( $source_id ) );
-		$notes_json = wp_json_encode( (object) self::get_blocked_notes( $source_id ) );
+		// Prefer dates from browser payload (unsaved state); fall back to DB.
+		$dates = self::parse_dates_from_payload();
+		$notes = ! empty( $dates ) ? self::parse_notes_from_payload( $dates ) : array();
+
+		if ( empty( $dates ) ) {
+			$dates = self::get_blocked_dates( $source_id );
+			$notes = self::get_blocked_notes( $source_id );
+		}
+
+		if ( empty( $dates ) ) {
+			wp_send_json_error( __( 'No blocked dates selected.', 'mhm-rentiva' ) );
+		}
+
+		$dates_json = wp_json_encode( $dates );
+		$notes_json = wp_json_encode( (object) $notes );
+
+		// Also save to source vehicle so DB is in sync with browser.
+		update_post_meta( $source_id, self::META_KEY, $dates_json );
+		update_post_meta( $source_id, self::META_KEY_NOTES, $notes_json );
 
 		$vehicles = get_posts( array(
 			'post_type'      => 'vehicle',
@@ -249,7 +266,11 @@ final class BlockedDatesMetaBox {
 			wp_send_json_error( __( 'Invalid vehicle ID.', 'mhm-rentiva' ) );
 		}
 
-		$dates_to_remove = self::get_blocked_dates( $source_id );
+		// Prefer dates from browser payload (unsaved state); fall back to DB.
+		$dates_to_remove = self::parse_dates_from_payload();
+		if ( empty( $dates_to_remove ) ) {
+			$dates_to_remove = self::get_blocked_dates( $source_id );
+		}
 		if ( empty( $dates_to_remove ) ) {
 			wp_send_json_success( array( 'count' => 0 ) );
 			return;
@@ -278,6 +299,60 @@ final class BlockedDatesMetaBox {
 		}
 
 		wp_send_json_success( array( 'count' => count( $vehicles ) ) );
+	}
+
+	/**
+	 * Parse and sanitize blocked dates from AJAX payload.
+	 *
+	 * @return string[] Sanitized date strings in Y-m-d format.
+	 */
+	private static function parse_dates_from_payload(): array {
+		if ( ! isset( $_POST['dates'] ) ) {
+			return array();
+		}
+		$raw   = sanitize_text_field( wp_unslash( $_POST['dates'] ) );
+		$dates = json_decode( $raw, true );
+		if ( ! is_array( $dates ) ) {
+			return array();
+		}
+		$clean = array();
+		foreach ( $dates as $d ) {
+			$sanitized = sanitize_text_field( (string) $d );
+			if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $sanitized ) ) {
+				$clean[] = $sanitized;
+			}
+		}
+		$clean = array_values( array_unique( $clean ) );
+		sort( $clean );
+		return $clean;
+	}
+
+	/**
+	 * Parse and sanitize blocked date notes from AJAX payload.
+	 *
+	 * @param string[] $valid_dates Only keep notes for these dates.
+	 * @return array<string,string> Map of date → note.
+	 */
+	private static function parse_notes_from_payload( array $valid_dates ): array {
+		if ( ! isset( $_POST['notes'] ) ) {
+			return array();
+		}
+		$raw   = wp_unslash( (string) $_POST['notes'] );
+		$notes = json_decode( $raw, true );
+		if ( ! is_array( $notes ) ) {
+			return array();
+		}
+		$clean = array();
+		foreach ( $notes as $d => $note ) {
+			$d = sanitize_text_field( (string) $d );
+			if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $d ) && in_array( $d, $valid_dates, true ) ) {
+				$note = sanitize_textarea_field( (string) $note );
+				if ( $note !== '' ) {
+					$clean[ $d ] = $note;
+				}
+			}
+		}
+		return $clean;
 	}
 
 	public static function ajax_get_blocked_dates(): void {
@@ -323,5 +398,15 @@ final class BlockedDatesMetaBox {
 			MHM_RENTIVA_VERSION,
 			true
 		);
+		wp_localize_script( 'mhm-blocked-dates', 'mhmBlockedDatesL10n', array(
+			'confirmApply'  => __( 'All blocked dates selected for this vehicle will be applied to all other vehicles, overwriting their existing blocked dates. Do you want to continue?', 'mhm-rentiva' ),
+			'confirmRemove' => __( 'All blocked dates selected for this vehicle will be removed from all other vehicles. Do you want to continue?', 'mhm-rentiva' ),
+			/* translators: %d: number of vehicles */
+			'appliedTo'     => __( 'Applied to %d vehicles.', 'mhm-rentiva' ),
+			/* translators: %d: number of vehicles */
+			'removedFrom'   => __( 'Removed from %d vehicles.', 'mhm-rentiva' ),
+			'error'         => __( 'An error occurred.', 'mhm-rentiva' ),
+			'notePlaceholder' => __( 'Add note... (optional)', 'mhm-rentiva' ),
+		) );
 	}
 }

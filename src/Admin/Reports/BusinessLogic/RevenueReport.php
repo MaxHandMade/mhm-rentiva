@@ -33,6 +33,9 @@ final class RevenueReport {
 			// ✅ OPTIMIZED QUERY - Daily revenue data (COMPLETED AND CONFIRMED ONLY)
 			$daily_revenue = ReportRepository::get_daily_revenue_data( $start_date, $end_date );
 
+			// Cancelled bookings daily data
+			$daily_cancelled = ReportRepository::get_daily_cancelled_data( $start_date, $end_date );
+
 			// ✅ OPTIMIZED QUERY - Payment method distribution
 			$payment_methods = ReportRepository::get_payment_method_distribution( $start_date, $end_date );
 
@@ -42,6 +45,17 @@ final class RevenueReport {
 			// Calculate total revenue
 			$total_revenue = array_sum( array_column( $daily_revenue, 'revenue' ) );
 
+			// Format dates using WordPress date_format setting
+			$date_format = get_option( 'date_format', 'Y-m-d' );
+			foreach ( $daily_revenue as &$day ) {
+				$day->label = date_i18n( $date_format, strtotime( $day->date ) );
+			}
+			unset( $day );
+			foreach ( $daily_cancelled as &$day ) {
+				$day->label = date_i18n( $date_format, strtotime( $day->date ) );
+			}
+			unset( $day );
+
 			// Format payment methods
 			foreach ( $payment_methods as &$method ) {
 				$method->method_label = self::get_payment_method_label( $method->method );
@@ -50,6 +64,7 @@ final class RevenueReport {
 
 			$data = array(
 				'daily'      => $daily_revenue,
+				'cancelled'  => $daily_cancelled,
 				'methods'    => $payment_methods,
 				'monthly'    => $monthly_comparison,
 				'total'      => $total_revenue,

@@ -351,7 +351,6 @@ final class EmailTemplates
 			'mhm_rentiva_booking_reminder_enabled'  => 'checkbox',
 			'mhm_rentiva_booking_reminder_subject'  => 'text',
 			'mhm_rentiva_booking_reminder_body'     => 'html',
-			'mhm_rentiva_welcome_email_enabled'     => 'checkbox',
 			'mhm_rentiva_welcome_email_subject'     => 'text',
 			'mhm_rentiva_welcome_email_body'        => 'html',
 		);

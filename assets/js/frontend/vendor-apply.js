@@ -23,6 +23,18 @@
             processData: false,
             contentType: false,
             success: function (response) {
+                if (typeof response !== 'object' || response === null) {
+                    $btn.prop('disabled', false);
+                    $spinner.hide();
+                    $msg.addClass('mhm-vendor-notice--error')
+                        .text(
+                            (typeof mhmVendorApply !== 'undefined' && mhmVendorApply.i18n && mhmVendorApply.i18n.sessionExpired)
+                                ? mhmVendorApply.i18n.sessionExpired
+                                : 'Your session has expired. Please refresh the page and try again.'
+                        )
+                        .show();
+                    return;
+                }
                 if (response.success) {
                     // If server returned a redirect URL (WC My Account endpoint), go there.
                     if (response.data && response.data.redirect_url) {
@@ -41,10 +53,16 @@
                     $spinner.hide();
                 }
             },
-            error: function () {
-                $msg.addClass('mhm-vendor-notice--error').text(mhmVendorApply.errorMsg).show();
+            error: function (xhr) {
                 $btn.prop('disabled', false);
                 $spinner.hide();
+                var msg = (xhr.status === 0 || xhr.status === 403)
+                    ? 'Your session has expired. Please refresh and try again.'
+                    : 'Server error. Please try again.';
+                if (typeof mhmVendorApply !== 'undefined' && mhmVendorApply.i18n) {
+                    msg = mhmVendorApply.i18n.serverError || msg;
+                }
+                $msg.addClass('mhm-vendor-notice--error').text(msg).show();
             }
         });
     });

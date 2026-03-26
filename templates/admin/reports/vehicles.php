@@ -12,8 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			printf(
 				/* translators: 1: %s; 2: %s. */
 				esc_html__( 'Vehicle performance and rental analysis for %1$s to %2$s', 'mhm-rentiva' ),
-				esc_html( wp_date( 'd.m.Y', strtotime( $start_date ) ) ),
-				esc_html( wp_date( 'd.m.Y', strtotime( $end_date ) ) )
+				esc_html( wp_date( get_option( 'date_format' ), strtotime( $start_date ) ) ),
+				esc_html( wp_date( get_option( 'date_format' ), strtotime( $end_date ) ) )
 			);
 			?>
 		</p>

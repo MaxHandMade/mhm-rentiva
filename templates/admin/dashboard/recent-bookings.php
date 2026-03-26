@@ -91,7 +91,7 @@ $booking_stats = $args['booking_stats'] ?? array();
 						</div>
 						<?php endif; ?>
 						<div class="transfer-route-card__meta">
-							<span class="trc-id">#<?php echo esc_html( $booking['id'] ); ?></span>
+							<span class="trc-id">#<?php echo esc_html( mhm_rentiva_get_display_id( (int) $booking['id'] ) ); ?></span>
 							<span class="trc-datetime">
 								<span class="dashicons dashicons-calendar-alt"></span>
 								<?php echo esc_html( $pickup_date ); ?>

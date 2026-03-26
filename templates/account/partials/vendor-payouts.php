@@ -51,6 +51,72 @@ $format_currency = static function (float $amount): string {
 
 <div class="mhm-rentiva-dashboard__payouts">
 
+    <!-- ========= FINANCIAL SUMMARY KPIs ========= -->
+    <?php
+    $financial_metrics = array('available_balance', 'pending_balance', 'total_paid_out');
+    $kpi_items_all = is_array($dashboard['kpis'] ?? null)
+        ? $dashboard['kpis']
+        : \MHMRentiva\Core\Dashboard\DashboardConfig::get_kpis('vendor');
+    $kpi_data_all = is_array($dashboard['kpi_data'] ?? null) ? $dashboard['kpi_data'] : array();
+
+    $has_financials = false;
+    foreach ($financial_metrics as $fm) {
+        if (isset($kpi_items_all[$fm])) {
+            $has_financials = true;
+            break;
+        }
+    }
+
+    if ($has_financials) : ?>
+        <div class="mhm-rentiva-dashboard__section" style="margin-bottom: 24px;">
+            <div class="mhm-rentiva-dashboard__section-head">
+                <h3><?php esc_html_e('Financial Summary', 'mhm-rentiva'); ?></h3>
+            </div>
+            <div class="mhm-rentiva-dashboard__kpis mhm-financial-cards">
+                <?php foreach ($financial_metrics as $fm_key) : ?>
+                    <?php if (! isset($kpi_items_all[$fm_key])) { continue; } ?>
+                    <?php
+                    $fkpi = $kpi_items_all[$fm_key];
+                    $fkpi_label = (string) ($fkpi['label'] ?? '');
+                    $fkpi_meta = (string) ($fkpi['meta'] ?? '');
+                    $fkpi_icon = sanitize_key((string) ($fkpi['icon'] ?? 'wallet'));
+                    $fkpi_item = is_array($kpi_data_all[$fm_key] ?? null) ? $kpi_data_all[$fm_key] : array();
+                    $fkpi_value = isset($fkpi_item['total']) ? round((float) $fkpi_item['total'], 2) : 0.00;
+                    $fkpi_display = function_exists('wc_price') ? wc_price($fkpi_value) : number_format($fkpi_value, 2) . ' ' . get_woocommerce_currency();
+                    ?>
+                    <div class="mhm-rentiva-dashboard__kpi-card is-financial">
+                        <div class="mhm-rentiva-dashboard__kpi-header">
+                            <div class="mhm-rentiva-dashboard__kpi-icon" aria-hidden="true">
+                                <?php if ($fkpi_icon === 'wallet') : ?>
+                                    <svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
+                                        <path d="M19.5 9.5V17.5C19.5 18.6046 18.6046 19.5 17.5 19.5H6.5C5.39543 19.5 4.5 18.6046 4.5 17.5V6.5C4.5 5.39543 5.39543 4.5 6.5 4.5H16.5C17.6046 4.5 18.5 5.39543 18.5 6.5V7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                        <path d="M21 9.5V14.5C21 15.0523 20.5523 15.5 20 15.5H18C16.8954 15.5 16 14.6046 16 13.5V10.5C16 9.39543 16.8954 8.5 18 8.5H20C20.5523 8.5 21 8.94772 21 9.5Z" stroke="currentColor" stroke-width="1.5" />
+                                        <circle cx="18.5" cy="12" r="0.5" fill="currentColor" />
+                                    </svg>
+                                <?php elseif ($fkpi_icon === 'clock') : ?>
+                                    <svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
+                                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" />
+                                        <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                <?php elseif ($fkpi_icon === 'check-circle') : ?>
+                                    <svg viewBox="0 0 24 24" fill="none" role="img" focusable="false">
+                                        <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="1.5" />
+                                        <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                <?php endif; ?>
+                            </div>
+                            <div class="mhm-rentiva-dashboard__kpi-label"><?php echo esc_html($fkpi_label); ?></div>
+                        </div>
+                        <div class="mhm-rentiva-dashboard__kpi-value is-currency" data-raw="<?php echo esc_attr((string) $fkpi_value); ?>">
+                            <?php echo wp_kses_post($fkpi_display); ?>
+                        </div>
+                        <div class="mhm-rentiva-dashboard__kpi-meta"><?php echo esc_html($fkpi_meta); ?></div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- ========= REQUEST PAYOUT FORM ========= -->
     <div class="mhm-rentiva-dashboard__section mhm-rentiva-dashboard__payout-request">
         <div class="mhm-rentiva-dashboard__section-head">
@@ -111,19 +177,8 @@ $format_currency = static function (float $amount): string {
                     </div>
                     <button type="submit" class="mhm-rentiva-dashboard__payout-submit" id="mhm-rentiva-payout-btn">
                         <span class="mhm-rentiva-btn-text"><?php esc_html_e('Request Payout', 'mhm-rentiva'); ?></span>
-                        <div class="mhm-rentiva-spinner" style="display:none; width:16px; height:16px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:mhm-spin 1s linear infinite;"></div>
+                        <div class="mhm-rentiva-spinner" style="display:none;"></div>
                     </button>
-                    <style>
-                        @keyframes mhm-spin {
-                            0% {
-                                transform: rotate(0deg);
-                            }
-
-                            100% {
-                                transform: rotate(360deg);
-                            }
-                        }
-                    </style>
                 </form>
             <?php endif; ?>
 

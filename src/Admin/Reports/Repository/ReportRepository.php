@@ -124,6 +124,35 @@ class ReportRepository {
 	}
 
 	/**
+	 * Get daily cancelled booking amounts.
+	 */
+	public static function get_daily_cancelled_data( string $start_date, string $end_date ): array {
+		global $wpdb;
+		$meta_price  = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE;
+		$meta_status = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS;
+
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT DATE(p.post_date) as date, SUM(CAST(pm_price.meta_value AS DECIMAL(10,2))) as revenue
+             FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
+             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             WHERE p.post_type = %s
+             AND p.post_status != 'trash'
+             AND pm_status.meta_value = 'cancelled'
+             AND p.post_date >= %s AND p.post_date <= %s
+             GROUP BY DATE(p.post_date)
+             ORDER BY date",
+				$meta_price,
+				$meta_status,
+				'vehicle_booking',
+				$start_date . ' 00:00:00',
+				$end_date . ' 23:59:59'
+			)
+		);
+	}
+
+	/**
 	 * Get payment method distribution
 	 */
 	public static function get_payment_method_distribution( string $start_date, string $end_date ): array {
@@ -362,8 +391,8 @@ class ReportRepository {
 	public static function get_upcoming_operations_paginated( int $page = 1, int $per_page = 5, int $days = 7 ): array {
 		global $wpdb;
 		$operations = array();
-		$now        = current_time( 'mysql' );
-		$upper      = $days > 0 ? gmdate( 'Y-m-d H:i:s', strtotime( "+{$days} days" ) ) : null;
+		$now        = current_time( 'Y-m-d' );
+		$upper      = $days > 0 ? wp_date( 'Y-m-d', strtotime( "+{$days} days", current_time( 'timestamp' ) ) ) : null;
 
 		// Optimize: Suppress errors in case return_date column is missing in older DB versions
 		$wpdb->suppress_errors();

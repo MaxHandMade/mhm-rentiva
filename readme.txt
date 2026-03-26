@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.21.2
+Stable tag:        4.23.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -77,7 +77,27 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
- 
+
+= 4.23.0 =
+* **Vendor Transfer Architecture:** City-based location hierarchy for vendor marketplace — vendors see only their city's transfer locations and routes.
+* **Vendor Pricing:** Vendors set per-route transfer prices within admin-defined min/max bounds.
+* **Transfer Search Engine:** Route-based vehicle filtering with vendor-specific pricing (fallback to route base price).
+* **Database Migration:** Added `city` column to transfer locations table, `max_price` to routes table (v3.4.0 migration).
+* **Admin Transfer UI:** City input on location form, max_price on route form, vendor city display on vehicle meta box.
+* **Dashboard Widgets:** 11 bug fixes — timezone corrections, cache invalidation, WC email vehicle thumbnails, stats widget design, Lite gating.
+* **Search & Filters:** Fixed strtotime('') silent success bug, location filter radio→checkbox, transfer tab JS validation.
+* **Blocked Dates:** Fixed "Apply to All" AJAX sending unsaved browser state, PHP now reads from payload with DB fallback.
+* **Export Module:** Fixed payment logs post_type mismatch, record count always 0, delete history placeholder, PHP 8 type error.
+* **Vendor Forms:** Vehicle document verification (ruhsat upload), edit form with re-review on critical changes, vendor badge on cards.
+* **Elementor Widgets:** Attribute exposure improved for VehicleComparison, MyBookings, MyFavorites, VehicleDetails, Testimonials, VehiclesGrid, FeaturedVehicles.
+* **Settings:** Cache section deduplication, dead frontend settings removed, SetupWizard required pages fixed, AssetManager admin scope guard.
+* **i18n:** 15+ new Turkish translations for vendor transfer form labels, .l10n.php regenerated for WP 6.5+ compatibility.
+* **Tests:** 567 tests, 2036 assertions (up from 562/2024).
+
+= 4.22.2 =
+* **Notices:** Standardized all Lite limit notices to unified percentage format below KPI cards.
+* **Lite/Pro:** Raised gallery images limit 3→5, redesigned comparison table, fixed emoji corruption.
+
 = 4.21.2 =
 * **Security:** Hardened REST API security with SecurityHelper and AuthHelper enforcement.
 * **Architecture:** Consolidated all shortcodes documentation via ShortcodeServiceProvider.

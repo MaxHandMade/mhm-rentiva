@@ -36,31 +36,84 @@
 				},
 				success: function (response) {
 					if (response.success && response.data.daily.length > 0) {
+						// Use formatted label from PHP (WordPress date_format), fallback to raw date
+						var labels = response.data.daily.map( function( item ) {
+							return item.label || item.date;
+						});
+
+						var datasets = [{
+							label: mhmRentivaCharts.strings.daily_revenue,
+							data: response.data.daily.map( function( item ) { return item.revenue; } ),
+							borderColor: '#0073aa',
+							backgroundColor: 'rgba(0, 115, 170, 0.1)',
+							fill: true,
+							tension: 0.4
+						}];
+
+						// Add cancelled dataset if data exists
+						var cancelled = response.data.cancelled || [];
+						if (cancelled.length > 0) {
+							// Build a cancelled map keyed by raw date for alignment
+							var cancelledMap = {};
+							cancelled.forEach( function( item ) {
+								cancelledMap[ item.date ] = parseFloat( item.revenue ) || 0;
+							});
+
+							// Align cancelled data to the same labels (dates) as revenue
+							var cancelledData = response.data.daily.map( function( item ) {
+								return cancelledMap[ item.date ] || 0;
+							});
+
+							// Only add if there's at least one non-zero value
+							var hasData = cancelledData.some( function( v ) { return v > 0; } );
+							if (hasData) {
+								datasets.push({
+									label: mhmRentivaCharts.strings.cancelled_revenue || 'Cancelled',
+									data: cancelledData,
+									borderColor: '#dc3545',
+									backgroundColor: 'rgba(220, 53, 69, 0.08)',
+									borderDash: [5, 3],
+									fill: true,
+									tension: 0.4,
+									pointStyle: 'crossRot',
+									pointRadius: 4
+								});
+							}
+						}
+
 						new Chart(
 							ctx,
 							{
 								type: 'line',
 								data: {
-									labels: response.data.daily.map( item => item.date ),
-									datasets: [{
-										label: mhmRentivaCharts.strings.daily_revenue,
-										data: response.data.daily.map( item => item.revenue ),
-										borderColor: '#0073aa',
-										backgroundColor: 'rgba(0, 115, 170, 0.1)',
-										tension: 0.4
-									}]
+									labels: labels,
+									datasets: datasets
 								},
 								options: {
 									responsive: true,
 									maintainAspectRatio: false,
+									interaction: {
+										mode: 'index',
+										intersect: false
+									},
 									scales: {
 										y: {
 											beginAtZero: true,
 											ticks: {
 												callback: function (value) {
-													// WordPress locale'i JavaScript locale'ine çevir (tr_TR -> tr-TR)
-													const jsLocale = mhmRentivaCharts.locale.replace( '_', '-' );
+													var jsLocale = mhmRentivaCharts.locale.replace( '_', '-' );
 													return mhmRentivaCharts.currencySymbol + value.toLocaleString( jsLocale );
+												}
+											}
+										}
+									},
+									plugins: {
+										tooltip: {
+											callbacks: {
+												label: function (context) {
+													var jsLocale = mhmRentivaCharts.locale.replace( '_', '-' );
+													var val = context.parsed.y || 0;
+													return context.dataset.label + ': ' + mhmRentivaCharts.currencySymbol + val.toLocaleString( jsLocale );
 												}
 											}
 										}

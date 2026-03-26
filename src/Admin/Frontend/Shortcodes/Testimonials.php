@@ -184,10 +184,47 @@ final class Testimonials extends AbstractShortcode {
 
 	private static function get_testimonials(array $atts): array
 	{
+		$limit = (int) ( $atts['limit'] ?? 5 );
+
+		// Source 1: Booking post meta reviews
+		$testimonials = self::get_booking_reviews($atts);
+
+		// Source 2: Approved WordPress comments on vehicle posts
+		$testimonials = array_merge($testimonials, self::get_vehicle_comments($atts));
+
+		// Sort merged results
+		$orderby = self::sanitize_orderby((string) ( $atts['orderby'] ?? 'date' ));
+		$order   = self::sanitize_order((string) ( $atts['order'] ?? 'DESC' ));
+
+		if ('rand' === $orderby) {
+			shuffle($testimonials);
+		} else {
+			usort($testimonials, static function (array $a, array $b) use ($order): int {
+				$cmp = strcmp((string) ( $a['date'] ?? '' ), (string) ( $b['date'] ?? '' ));
+				return 'ASC' === $order ? $cmp : -$cmp;
+			});
+		}
+
+		// Apply limit on merged set
+		if ($limit > 0) {
+			$testimonials = \array_slice($testimonials, 0, $limit);
+		}
+
+		return $testimonials;
+	}
+
+	/**
+	 * Get reviews stored as vehicle_booking post meta.
+	 *
+	 * @param array $atts Shortcode attributes.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function get_booking_reviews(array $atts): array
+	{
 		$args = array(
 			'post_type'      => 'vehicle_booking',
 			'post_status'    => 'publish',
-			'posts_per_page' => (int) ( $atts['limit'] ?? 5 ),
+			'posts_per_page' => -1,
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
@@ -200,11 +237,8 @@ final class Testimonials extends AbstractShortcode {
 					'compare' => '=',
 				),
 			),
-			'orderby'        => self::sanitize_orderby((string) ($atts['orderby'] ?? 'date')),
-			'order'          => self::sanitize_order((string) ($atts['order'] ?? 'DESC')),
 		);
 
-		// Rating filter
 		if (! empty($atts['rating'])) {
 			$args['meta_query'][] = array(
 				'key'     => '_mhm_rentiva_customer_rating',
@@ -213,7 +247,6 @@ final class Testimonials extends AbstractShortcode {
 			);
 		}
 
-		// Vehicle filter
 		if (! empty($atts['vehicle_id'])) {
 			$args['meta_query'][] = array(
 				'key'     => '_mhm_rentiva_vehicle_id',
@@ -243,6 +276,66 @@ final class Testimonials extends AbstractShortcode {
 	}
 
 	/**
+	 * Get approved WordPress comments on vehicle posts.
+	 *
+	 * @param array $atts Shortcode attributes.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function get_vehicle_comments(array $atts): array
+	{
+		$comment_args = array(
+			'post_type' => 'vehicle',
+			'status'    => 'approve',
+			'number'    => 0,
+		);
+
+		if (! empty($atts['vehicle_id'])) {
+			$comment_args['post_id'] = (int) $atts['vehicle_id'];
+		}
+
+		if (! empty($atts['rating'])) {
+			$comment_args['meta_query'] = array(
+				array(
+					'key'     => 'mhm_rating',
+					'value'   => (int) $atts['rating'],
+					'compare' => '>=',
+					'type'    => 'NUMERIC',
+				),
+			);
+		}
+
+		$comments     = get_comments($comment_args);
+		$testimonials = array();
+
+		foreach ($comments as $comment) {
+			$rating     = (int) get_comment_meta($comment->comment_ID, 'mhm_rating', true);
+			$vehicle_id = (int) $comment->comment_post_ID;
+
+			// Prefer comment_author; fallback to WP user display_name.
+			$customer_name = $comment->comment_author;
+			if (empty($customer_name) && $comment->user_id) {
+				$user = get_userdata((int) $comment->user_id);
+				if ($user) {
+					$customer_name = $user->display_name;
+				}
+			}
+
+			$testimonials[] = array(
+				'id'             => (int) $comment->comment_ID,
+				'review'         => $comment->comment_content,
+				'rating'         => $rating,
+				'customer_name'  => $customer_name ?: '',
+				'customer_email' => $comment->comment_author_email ?: '',
+				'date'           => $comment->comment_date,
+				'vehicle_id'     => $vehicle_id,
+				'vehicle_name'   => self::get_vehicle_name($vehicle_id),
+			);
+		}
+
+		return $testimonials;
+	}
+
+	/**
 	 * Sanitize orderby value for testimonial queries.
 	 */
 	private static function sanitize_orderby(string $value): string
@@ -263,10 +356,12 @@ final class Testimonials extends AbstractShortcode {
 
 	private static function get_testimonials_count(array $atts): int
 	{
-		$args = array(
+		// Count booking reviews
+		$booking_args = array(
 			'post_type'      => 'vehicle_booking',
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
+			'fields'         => 'ids',
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
@@ -281,26 +376,50 @@ final class Testimonials extends AbstractShortcode {
 			),
 		);
 
-		// Rating filter
 		if (! empty($atts['rating'])) {
-			$args['meta_query'][] = array(
+			$booking_args['meta_query'][] = array(
 				'key'     => '_mhm_rentiva_customer_rating',
 				'value'   => (int) $atts['rating'],
 				'compare' => '>=',
 			);
 		}
 
-		// Vehicle filter
 		if (! empty($atts['vehicle_id'])) {
-			$args['meta_query'][] = array(
+			$booking_args['meta_query'][] = array(
 				'key'     => '_mhm_rentiva_vehicle_id',
 				'value'   => (int) $atts['vehicle_id'],
 				'compare' => '=',
 			);
 		}
 
-		$query = new \WP_Query($args);
-		return (int) $query->found_posts;
+		$booking_query = new \WP_Query($booking_args);
+		$booking_count = (int) $booking_query->found_posts;
+
+		// Count vehicle comments
+		$comment_args = array(
+			'post_type' => 'vehicle',
+			'status'    => 'approve',
+			'count'     => true,
+		);
+
+		if (! empty($atts['vehicle_id'])) {
+			$comment_args['post_id'] = (int) $atts['vehicle_id'];
+		}
+
+		if (! empty($atts['rating'])) {
+			$comment_args['meta_query'] = array(
+				array(
+					'key'     => 'mhm_rating',
+					'value'   => (int) $atts['rating'],
+					'compare' => '>=',
+					'type'    => 'NUMERIC',
+				),
+			);
+		}
+
+		$comment_count = (int) get_comments($comment_args);
+
+		return $booking_count + $comment_count;
 	}
 
 	private static function get_vehicle_name(int $vehicle_id): string

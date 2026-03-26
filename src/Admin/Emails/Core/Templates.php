@@ -496,6 +496,8 @@ final class Templates {
 				return EmailSettings::get_default_message_auto_reply_body();
 			case 'booking_cancelled':
 				return EmailSettings::get_default_booking_cancelled_body();
+			case 'welcome_customer':
+				return EmailSettings::get_default_welcome_email_body();
 			default:
 				return null;
 		}

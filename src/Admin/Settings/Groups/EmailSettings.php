@@ -24,7 +24,8 @@ final class EmailSettings {
 
 
 
-	public const SECTION_ID = 'mhm_rentiva_email_section';
+	public const SECTION_ID            = 'mhm_rentiva_email_section';
+	public const SECTION_NOTIFICATIONS = 'mhm_rentiva_email_notifications_section';
 
 	/**
 	 * Get default settings for email
@@ -71,15 +72,15 @@ final class EmailSettings {
 			'mhm_rentiva_booking_reminder_subject'         => __( 'Reminder: Your Booking #{booking_id} Starts Soon', 'mhm-rentiva' ),
 			'mhm_rentiva_booking_reminder_body'            => self::get_default_booking_reminder_body(),
 
-			// Welcome Email
-			'mhm_rentiva_welcome_email_subject'            => __( 'Welcome to {site_name}', 'mhm-rentiva' ),
-			'mhm_rentiva_welcome_email_body'               => self::get_default_welcome_email_body(),
-
 			// Refund Emails
 			'mhm_rentiva_refund_customer_subject'          => __( 'Refund Processed for Booking #{booking_id}', 'mhm-rentiva' ),
 			'mhm_rentiva_refund_customer_body'             => self::get_default_refund_customer_body(),
 			'mhm_rentiva_refund_admin_subject'             => __( 'Refund Alert: Booking #{booking_id}', 'mhm-rentiva' ),
 			'mhm_rentiva_refund_admin_body'                => self::get_default_refund_admin_body(),
+
+			// Customer Notification Toggles
+			'mhm_rentiva_customer_welcome_email'         => '1',
+			'mhm_rentiva_customer_booking_notifications' => '1',
 
 			// Message Emails
 			'mhm_rentiva_message_received_admin_subject'   => __( 'New Message from {contact_name}', 'mhm-rentiva' ),
@@ -271,6 +272,17 @@ final class EmailSettings {
 		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_email_auto_send', __( 'Automatic Background Sending', 'mhm-rentiva' ), '', self::SECTION_ID );
 		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_email_log_enabled', __( 'Enable Communication Logs', 'mhm-rentiva' ), '', self::SECTION_ID );
 		SettingsHelper::number_field( $page_slug, 'mhm_rentiva_email_log_retention_days', __( 'Log Retention (Days)', 'mhm-rentiva' ), 1, 365, '', self::SECTION_ID );
+
+		// Customer Notification Toggles section
+		add_settings_section(
+			self::SECTION_NOTIFICATIONS,
+			__( 'Customer Notification Toggles', 'mhm-rentiva' ),
+			fn() => print( '<p>' . esc_html__( 'Control which automated emails are sent to customers.', 'mhm-rentiva' ) . '</p>' ),
+			$page_slug
+		);
+
+		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_customer_welcome_email', __( 'Send Welcome Email', 'mhm-rentiva' ), __( 'Send a one-time welcome email to customers on their first booking.', 'mhm-rentiva' ), self::SECTION_NOTIFICATIONS );
+		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_customer_booking_notifications', __( 'Send Booking Notifications', 'mhm-rentiva' ), __( 'Send booking confirmation, reminder, and cancellation emails to customers.', 'mhm-rentiva' ), self::SECTION_NOTIFICATIONS );
 	}
 
 	public static function render_section_description(): void {

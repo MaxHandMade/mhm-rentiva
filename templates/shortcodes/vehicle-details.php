@@ -34,6 +34,10 @@ $flag = static function ($value, bool $default = true): bool {
 	return in_array(strtolower((string) $value), array('1', 'true', 'yes', 'on'), true);
 };
 
+// Service type check: transfer-only vehicles cannot be rented.
+$service_type     = $vehicle_id ? get_post_meta($vehicle_id, '_rentiva_vehicle_service_type', true) : '';
+$is_transfer_only = ( $service_type === 'transfer' );
+
 $show_gallery_section = $flag($atts['show_gallery'] ?? '1', true);
 $show_features        = $flag($atts['show_features'] ?? '1', true);
 $show_pricing         = $flag($atts['show_pricing'] ?? '1', true);
@@ -292,6 +296,20 @@ $allowed_svg_tags = array(
 					<?php endif; ?>
 				</div>
 
+				<?php if ($is_transfer_only) : ?>
+				<div class="rv-transfer-only-notice" style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 16px; text-align: center;">
+					<p style="margin: 0 0 4px; font-weight: 600; color: #856404;">
+						<?php Icons::render('info', array( 'width' => '16', 'height' => '16' )); ?>
+						<?php esc_html_e('This vehicle is for transfer service only.', 'mhm-rentiva'); ?>
+					</p>
+					<p style="margin: 0; font-size: 13px; color: #856404;">
+						<?php esc_html_e('This vehicle cannot be rented. You can book it through VIP Transfer service.', 'mhm-rentiva'); ?>
+					</p>
+					<a href="<?php echo esc_url(home_url('/transfer-hizmeti/')); ?>" class="rv-btn-primary" style="margin-top: 12px; display: inline-block;">
+						<span><?php esc_html_e('Search Transfer', 'mhm-rentiva'); ?></span>
+					</a>
+				</div>
+			<?php else : ?>
 				<?php if ($show_pricing && $show_price && ($price_per_day ?? 0)) : ?>
 					<div class="rv-vd2-price-block">
 						<p class="rv-vd2-price-label"><?php esc_html_e('Daily Rate', 'mhm-rentiva'); ?></p>
@@ -310,6 +328,7 @@ $allowed_svg_tags = array(
 						<p class="rv-vd2-cancel-note"><?php esc_html_e('Free cancellation according to conditions.', 'mhm-rentiva'); ?></p>
 					</div>
 				<?php endif; ?>
+			<?php endif; ?>
 
 				<?php if ($show_calendar && (intval($vehicle_id ?? 0)) > 0) : ?>
 					<div class="rv-mini-calendar-widget" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>">

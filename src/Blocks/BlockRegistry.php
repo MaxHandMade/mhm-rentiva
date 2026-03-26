@@ -140,6 +140,11 @@ class BlockRegistry {
 			'title' => 'Transfer Search',
 			'css'   => 'transfer.css',
 		),
+		'user-dashboard'        => array(
+			'tag'   => 'rentiva_user_dashboard',
+			'title' => 'User Dashboard',
+			'css'   => 'user-dashboard.css',
+		),
 	);
 
 	/**

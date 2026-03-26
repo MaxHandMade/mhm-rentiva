@@ -37,6 +37,14 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	}
 
 	/**
+	 * Get Widget Keywords
+	 * Returns the default keywords so all widgets appear in Elementor search results.
+	 */
+	public function get_keywords(): array {
+		return $this->widget_keywords;
+	}
+
+	/**
 	 * Elementor lifecycle entrypoint for controls.
 	 * Child widgets may either override this method directly or implement
 	 * register_content_controls/register_style_controls hooks.
@@ -444,6 +452,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			'VehiclesGridWidget'         => 'rentiva_vehicles_grid',
 			'VehiclesListWidget'         => 'rentiva_vehicles_list',
 			'VehicleCardWidget'          => 'rentiva_vehicles_list',
+			'UserDashboardWidget'        => 'rentiva_user_dashboard',
 		);
 
 		return $map[ $class ] ?? '';
@@ -472,6 +481,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			'rentiva_vehicle_rating_form'   => 'vehicle-rating-form',
 			'rentiva_vehicles_grid'         => 'vehicles-grid',
 			'rentiva_vehicles_list'         => 'vehicles-list',
+			'rentiva_user_dashboard'        => 'user-dashboard',
 		);
 
 		return $map[ $shortcode_tag ] ?? '';

@@ -79,6 +79,133 @@ class FeaturedVehiclesWidget extends ElementorWidgetBase {
 			)
 		);
 
+		$this->add_control(
+			'orderby',
+			array(
+				'label'   => __( 'Order By', 'mhm-rentiva' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => 'date',
+				'options' => array(
+					'date'  => __( 'Date', 'mhm-rentiva' ),
+					'title' => __( 'Title', 'mhm-rentiva' ),
+					'price' => __( 'Price', 'mhm-rentiva' ),
+					'rand'  => __( 'Random', 'mhm-rentiva' ),
+				),
+			)
+		);
+
+		$this->add_control(
+			'order',
+			array(
+				'label'   => __( 'Order', 'mhm-rentiva' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => 'DESC',
+				'options' => array(
+					'DESC' => __( 'Descending', 'mhm-rentiva' ),
+					'ASC'  => __( 'Ascending', 'mhm-rentiva' ),
+				),
+			)
+		);
+
+		$this->add_control(
+			'show_price',
+			array(
+				'label'        => __( 'Show Price', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => '1',
+			)
+		);
+
+		$this->add_control(
+			'show_rating',
+			array(
+				'label'        => __( 'Show Rating', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => '1',
+			)
+		);
+
+		$this->add_control(
+			'show_features',
+			array(
+				'label'        => __( 'Show Features', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => '1',
+			)
+		);
+
+		$this->add_control(
+			'show_book_button',
+			array(
+				'label'        => __( 'Show Book Button', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => '1',
+			)
+		);
+
+		$this->add_control(
+			'show_favorite_button',
+			array(
+				'label'        => __( 'Show Favorite Button', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => '1',
+			)
+		);
+
+		$this->add_control(
+			'show_compare_button',
+			array(
+				'label'        => __( 'Show Compare Button', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => '1',
+			)
+		);
+
+		$this->add_control(
+			'show_category',
+			array(
+				'label'        => __( 'Show Category', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => '1',
+			)
+		);
+
+		$this->add_control(
+			'autoplay',
+			array(
+				'label'        => __( 'Autoplay Slider', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Yes', 'mhm-rentiva' ),
+				'label_off'    => __( 'No', 'mhm-rentiva' ),
+				'return_value' => '1',
+				'condition'    => array(
+					'layout' => 'slider',
+				),
+			)
+		);
+
 		$this->end_controls_section();
 
 		$this->register_standard_style_controls(

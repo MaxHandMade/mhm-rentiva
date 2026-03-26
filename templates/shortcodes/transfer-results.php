@@ -82,7 +82,13 @@ $wrapper_class  = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-re
 									'height' => '14',
 								]);
 								?>
-								<?php echo esc_html($criteria['date'] ?? ''); ?>
+								<?php
+							$raw_date = $criteria['date'] ?? '';
+							if ($raw_date) {
+								$ts = strtotime($raw_date);
+								echo esc_html($ts ? date_i18n(get_option('date_format'), $ts) : $raw_date);
+							}
+							?>
 							</span>
 							<span class="rv-info-item" style="margin-left: 15px;">
 								<?php

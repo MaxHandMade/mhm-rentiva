@@ -17,11 +17,10 @@ final class VendorDashboard
 	 *
 	 * @param array<string, mixed> $data Dashboard template data.
 	 */
-	public static function render(array $data): string
+	public static function render(array $dashboard_data): string
 	{
 		ob_start();
 
-		$dashboard_data = $data;
 		include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/user-dashboard.php';
 
 		return (string) ob_get_clean();

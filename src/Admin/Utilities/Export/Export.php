@@ -375,8 +375,9 @@ final class Export
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Backward-compatible legacy filter name.
 		$args = apply_filters('mhm_rentiva_export_args', $args); // Lite → tarih/limit kısıtları uygulanır
 
-		// Get record count before export
-		$query          = new WP_Query($args);
+		// Get record count before export (override no_found_rows for counting)
+		$count_args     = array_merge($args, array('no_found_rows' => false, 'posts_per_page' => 1));
+		$query          = new WP_Query($count_args);
 		$exported_count = $query->found_posts;
 
 		// Log export activity with actual exported count
@@ -522,7 +523,7 @@ final class Export
 					$weekly_price  = (float) get_post_meta($pid, '_mhm_rentiva_price_per_week', true);
 					$monthly_price = (float) get_post_meta($pid, '_mhm_rentiva_price_per_month', true);
 					$status        = (string) \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($pid);
-					$availability  = (string) \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status_label($pid);
+					$availability  = (string) \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status_label(\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($pid));
 					$location      = (string) get_post_meta($pid, '_mhm_rentiva_location', true);
 					$description   = $post ? wp_strip_all_tags($post->post_content) : '';
 					$created_date  = $post ? $post->post_date_gmt : '';
@@ -706,7 +707,7 @@ final class Export
 					$weekly_price  = (float) get_post_meta($pid, '_mhm_rentiva_price_per_week', true);
 					$monthly_price = (float) get_post_meta($pid, '_mhm_rentiva_price_per_month', true);
 					$status        = (string) \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($pid);
-					$availability  = (string) \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status_label($pid);
+					$availability  = (string) \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status_label(\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($pid));
 					$location      = (string) get_post_meta($pid, '_mhm_rentiva_location', true);
 					$description   = $post ? wp_strip_all_tags($post->post_content) : '';
 					$created_date  = $post ? $post->post_date_gmt : '';
@@ -1081,7 +1082,7 @@ final class Export
 		echo '<form action="' . esc_url(admin_url('admin-post.php')) . '" method="post" class="export-form">';
 		echo '<input type="hidden" name="action" value="mhm_rentiva_export" />';
 		echo '<input type="hidden" name="_wpnonce" value="' . esc_attr(wp_create_nonce('mhm_rentiva_export')) . '" />';
-		echo '<input type="hidden" name="post_type" value="mhm_payment_log" />';
+		echo '<input type="hidden" name="post_type" value="mhm_app_log" />';
 		echo '<input type="hidden" name="format" value="csv" />';
 		echo '<button type="submit" class="button button-primary">' . esc_html__('Export CSV', 'mhm-rentiva') . '</button>';
 		echo '</form>';
@@ -1090,7 +1091,7 @@ final class Export
 			echo '<form action="' . esc_url(admin_url('admin-post.php')) . '" method="post" class="export-form">';
 			echo '<input type="hidden" name="action" value="mhm_rentiva_export" />';
 			echo '<input type="hidden" name="_wpnonce" value="' . esc_attr(wp_create_nonce('mhm_rentiva_export')) . '" />';
-			echo '<input type="hidden" name="post_type" value="mhm_payment_log" />';
+			echo '<input type="hidden" name="post_type" value="mhm_app_log" />';
 			echo '<input type="hidden" name="format" value="json" />';
 			echo '<button type="submit" class="button button-secondary">' . esc_html__('Export JSON', 'mhm-rentiva') . '</button>';
 			echo '</form>';
@@ -1536,12 +1537,24 @@ final class Export
 			wp_send_json_error(esc_html__('Export ID is required', 'mhm-rentiva'));
 		}
 
-		// For now, just simulate deletion since we don't have a real export storage system
-		// In a real implementation, you would delete the actual export file and database record
+		// Delete from transient-based history (date is used as ID)
+		$export_history = self::get_export_history();
+		$found          = false;
 
-		// Log the deletion
+		foreach ($export_history as $key => $export) {
+			if (isset($export['date']) && $export['date'] === $export_id) {
+				unset($export_history[$key]);
+				$found = true;
+				break;
+			}
+		}
 
-		// Return success response
+		if (! $found) {
+			wp_send_json_error(esc_html__('Export not found.', 'mhm-rentiva'));
+		}
+
+		set_transient('mhm_rentiva_export_history', array_values($export_history), WEEK_IN_SECONDS);
+
 		wp_send_json_success(
 			array(
 				'message'   => esc_html__('Export deleted successfully!', 'mhm-rentiva'),

@@ -54,56 +54,100 @@ final class Reports
 
 	public static function add_dashboard_widgets(): void
 	{
+		// Stats widget — always available (basic stats)
 		wp_add_dashboard_widget(
 			'mhm_rentiva_stats',
 			esc_html__('MHM Rentiva Statistics', 'mhm-rentiva'),
 			array(self::class, 'render_stats_widget')
 		);
 
-		wp_add_dashboard_widget(
-			'mhm_rentiva_revenue_chart',
-			esc_html__('Revenue Chart', 'mhm-rentiva'),
-			array(self::class, 'render_revenue_widget')
-		);
+		// Revenue chart and upcoming ops — Pro only (advanced reports feature)
+		if ( Mode::canUseAdvancedReports() ) {
+			wp_add_dashboard_widget(
+				'mhm_rentiva_revenue_chart',
+				esc_html__('Revenue Chart', 'mhm-rentiva'),
+				array(self::class, 'render_revenue_widget')
+			);
 
-		wp_add_dashboard_widget(
-			'mhm_rentiva_upcoming_ops',
-			esc_html__('Upcoming Operations', 'mhm-rentiva'),
-			array(self::class, 'render_upcoming_ops_widget')
-		);
+			wp_add_dashboard_widget(
+				'mhm_rentiva_upcoming_ops',
+				esc_html__('Upcoming Operations', 'mhm-rentiva'),
+				array(self::class, 'render_upcoming_ops_widget')
+			);
+		}
 	}
 
 	public static function render_stats_widget(): void
 	{
-		$stats = static::get_dashboard_stats();
-?>
-		<div class="mhm-rentiva-dashboard-stats">
-			<div class="stat-item">
-				<span class="stat-number"><?php echo esc_html($stats['total_bookings']); ?></span>
-				<span class="stat-label"><?php esc_html_e('Total Bookings', 'mhm-rentiva'); ?></span>
-			</div>
-			<div class="stat-item">
-				<span class="stat-number">
-					<?php
-					if (function_exists('wc_price')) {
-						echo wp_kses_post(wc_price($stats['monthly_revenue_raw'] ?? 0));
-					} else {
-						echo esc_html($stats['monthly_revenue'] . ' ' . \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol());
-					}
-					?>
-				</span>
-				<span class="stat-label"><?php esc_html_e('This Month Revenue', 'mhm-rentiva'); ?></span>
-			</div>
-			<div class="stat-item">
-				<span class="stat-number"><?php echo esc_html($stats['active_bookings']); ?></span>
-				<span class="stat-label"><?php esc_html_e('Active Reservations', 'mhm-rentiva'); ?></span>
-			</div>
-			<div class="stat-item">
-				<span class="stat-number"><?php echo esc_html((string) $stats['occupancy_rate']); ?>%</span>
-				<span class="stat-label"><?php esc_html_e('Occupancy Rate', 'mhm-rentiva'); ?></span>
+		$stats           = static::get_dashboard_stats();
+		$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
+		$revenue_display = function_exists( 'wc_price' )
+			? wp_strip_all_tags( wc_price( $stats['monthly_revenue_raw'] ?? 0 ) )
+			: $stats['monthly_revenue'] . ' ' . $currency_symbol;
+
+		$items = array(
+			array(
+				'icon'  => 'dashicons-calendar-alt',
+				'value' => $stats['total_bookings'],
+				'label' => __( 'Total Bookings', 'mhm-rentiva' ),
+				'color' => '#2563eb',
+				'bg'    => '#eff6ff',
+			),
+			array(
+				'icon'  => 'dashicons-money-alt',
+				'value' => $revenue_display,
+				'label' => __( 'This Month Revenue', 'mhm-rentiva' ),
+				'color' => '#059669',
+				'bg'    => '#ecfdf5',
+			),
+			array(
+				'icon'  => 'dashicons-car',
+				'value' => $stats['active_bookings'],
+				'label' => __( 'Active Reservations', 'mhm-rentiva' ),
+				'color' => '#d97706',
+				'bg'    => '#fffbeb',
+			),
+			array(
+				'icon'  => 'dashicons-chart-pie',
+				'value' => $stats['occupancy_rate'] . '%',
+				'label' => __( 'Occupancy Rate', 'mhm-rentiva' ),
+				'color' => '#7c3aed',
+				'bg'    => '#f5f3ff',
+			),
+		);
+		?>
+		<style>
+			.mhm-stats-widget { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+			.mhm-stats-widget__card { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 10px; border: 1px solid #f3f4f6; transition: box-shadow 0.15s; }
+			.mhm-stats-widget__card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+			.mhm-stats-widget__icon { flex-shrink: 0; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+			.mhm-stats-widget__icon .dashicons { font-size: 20px; width: 20px; height: 20px; }
+			.mhm-stats-widget__info { min-width: 0; }
+			.mhm-stats-widget__value { font-size: 18px; font-weight: 700; line-height: 1.2; color: #1f2937; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+			.mhm-stats-widget__label { font-size: 11px; color: #6b7280; margin-top: 2px; }
+			.mhm-stats-widget__footer { grid-column: 1 / -1; text-align: center; padding-top: 10px; border-top: 1px solid #e5e7eb; margin-top: 4px; }
+			.mhm-stats-widget__footer a { font-size: 13px; text-decoration: none; color: #2563eb; font-weight: 500; }
+			.mhm-stats-widget__footer a:hover { text-decoration: underline; }
+		</style>
+		<div class="mhm-stats-widget">
+			<?php foreach ( $items as $item ) : ?>
+				<div class="mhm-stats-widget__card">
+					<div class="mhm-stats-widget__icon" style="background:<?php echo esc_attr( $item['bg'] ); ?>;">
+						<span class="dashicons <?php echo esc_attr( $item['icon'] ); ?>" style="color:<?php echo esc_attr( $item['color'] ); ?>;"></span>
+					</div>
+					<div class="mhm-stats-widget__info">
+						<div class="mhm-stats-widget__value"><?php echo esc_html( $item['value'] ); ?></div>
+						<div class="mhm-stats-widget__label"><?php echo esc_html( $item['label'] ); ?></div>
+					</div>
+				</div>
+			<?php endforeach; ?>
+			<div class="mhm-stats-widget__footer">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=mhm-rentiva-dashboard' ) ); ?>">
+					<?php esc_html_e( 'View Full Dashboard', 'mhm-rentiva' ); ?> &rarr;
+				</a>
 			</div>
 		</div>
-<?php
+		<?php
 	}
 
 	public static function render_revenue_widget(): void
@@ -129,11 +173,11 @@ final class Reports
 			$total_bookings = ReportRepository::get_total_bookings_count();
 
 			// This month revenue - ONLY COMPLETED AND CONFIRMED BOOKINGS
-			$current_month_start = gmdate('Y-m-01');
-			$current_month_end   = gmdate('Y-m-t');
+			$current_month_start = wp_date( 'Y-m-01' );
+			$current_month_end   = wp_date( 'Y-m-t' );
 			$monthly_revenue     = ReportRepository::get_monthly_revenue_amount(
 				$current_month_start,
-				gmdate('Y-m-d', strtotime($current_month_end . ' +1 day'))
+				wp_date( 'Y-m-d', strtotime( $current_month_end . ' +1 day' ) )
 			);
 
 			// Active bookings
@@ -677,19 +721,37 @@ final class Reports
 			echo '<tbody>';
 
 			foreach ($operations as $op) {
-				$icon           = ($op['type'] === 'transfer') ? 'dashicons-airplane' : 'dashicons-car';
-				$date_time      = strtotime($op['start_date']);
-				$formatted_time = date_i18n('d M H:i', $date_time);
+				$icon     = ($op['type'] === 'transfer') ? 'dashicons-airplane' : 'dashicons-car';
+				$date_str = ! empty($op['start_time'])
+					? $op['start_date'] . ' ' . $op['start_time']
+					: $op['start_date'];
+				$date_time = strtotime($date_str);
+
+				$formatted_date = date_i18n('d M', $date_time);
+				$formatted_time = ! empty($op['start_time']) ? esc_html($op['start_time']) : wp_date('H:i', $date_time);
 
 				$customer         = esc_html($op['customer_name']);
 				$vehicle_or_route = ($op['type'] === 'transfer')
 					? esc_html($op['origin'] ?? '') . ' &rarr; ' . esc_html($op['destination'] ?? '')
 					: esc_html($op['vehicle_title'] ?? '');
 
+				$booking_id  = (int) ($op['id'] ?? 0);
+				$display_id  = $booking_id ? '#' . mhm_rentiva_get_display_id($booking_id) : '';
+				$booking_url = $booking_id ? esc_url(admin_url('post.php?post=' . $booking_id . '&action=edit')) : '';
+
 				echo '<tr>';
 				echo '<td style="text-align:center;"><span class="dashicons ' . esc_attr($icon) . '"></span></td>';
-				echo '<td>' . esc_html((string) $formatted_time) . '</td>';
-				echo '<td><strong>' . wp_kses_post((string) $vehicle_or_route) . '</strong><br><small>' . esc_html((string) $customer) . '</small></td>';
+				echo '<td>' . esc_html($formatted_date) . '<br><small>' . esc_html($formatted_time) . '</small></td>';
+				echo '<td>';
+				if ($booking_url) {
+					echo '<a href="' . esc_url($booking_url) . '" style="text-decoration:none;">';
+				}
+				echo '<strong>' . wp_kses_post((string) $vehicle_or_route) . '</strong>';
+				echo '<br><small>' . esc_html((string) $customer) . ' ' . esc_html($display_id) . '</small>';
+				if ($booking_url) {
+					echo '</a>';
+				}
+				echo '</td>';
 				echo '</tr>';
 			}
 			echo '</tbody></table>';

@@ -363,7 +363,7 @@ final class SettingsTester {
 		// Test if frontend template files exist
 		$template_files = array(
 			'booking-form.php',
-			'vehicle-search.php',
+			'unified-search.php',
 			'vehicle-details.php',
 		);
 
@@ -951,9 +951,10 @@ final class SettingsTester {
 			'notification'    => __( 'Notification', 'mhm-rentiva' ),
 			'security'        => __( 'Security', 'mhm-rentiva' ),
 			'transfer'        => __( 'Transfer', 'mhm-rentiva' ),
-			'dark_mode'       => __( 'Dark mode', 'mhm-rentiva' ),
-			'rate_limiting'   => __( 'Rate limiting', 'mhm-rentiva' ),
-			'form_validation' => __( 'Form validation', 'mhm-rentiva' ),
+			'dark_mode'                       => __( 'Dark mode', 'mhm-rentiva' ),
+			'rate_limiting'                   => __( 'Rate limiting', 'mhm-rentiva' ),
+			'form_validation'                 => __( 'Form validation', 'mhm-rentiva' ),
+			'security_performance_functional' => __( 'Security & Performance', 'mhm-rentiva' ),
 		);
 
 		return $labels[ $category ] ?? ucfirst( str_replace( '_', ' ', $category ) );

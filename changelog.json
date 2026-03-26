@@ -1,5 +1,37 @@
 [
     {
+        "version": "4.23.0",
+        "date": "2026-03-26",
+        "type": "minor",
+        "changes": [
+            "Vendor Transfer Architecture: City-based location hierarchy — vendors see only their city's transfer locations/routes.",
+            "Vendor Pricing: Per-route transfer prices within admin-defined min/max bounds.",
+            "Transfer Search Engine: Route-based vehicle filtering with vendor-specific pricing.",
+            "Database Migration v3.4.0: city column on locations, max_price on routes.",
+            "Dashboard Widgets: 11 bug fixes (timezone, cache, WC email thumbnails, stats design, Lite gating).",
+            "Search & Filters: strtotime('') bug, location filter checkbox, transfer tab validation.",
+            "Blocked Dates: Apply to All AJAX fix — browser state in payload.",
+            "Export Module: 4 bug fixes (post_type, record count, delete history, PHP 8 type error).",
+            "Vendor Forms: Vehicle document verification, edit form re-review, vendor badge.",
+            "Elementor Widgets: Attribute exposure improved for 7 widgets.",
+            "Settings: Cache dedup, dead settings removed, SetupWizard pages fixed, AssetManager guard.",
+            "i18n: 15+ new Turkish translations, WP 6.5+ .l10n.php regenerated.",
+            "Tests: 567 tests, 2036 assertions."
+        ],
+        "notice": "v4.23.0 - Vendor Transfer Architecture & Dashboard Audit"
+    },
+    {
+        "version": "4.22.2",
+        "date": "2026-03-25",
+        "type": "patch",
+        "changes": [
+            "Standardized all Lite limit notices to unified percentage format below KPI cards.",
+            "Raised gallery images limit 3→5, redesigned comparison table.",
+            "Fixed emoji corruption and false export features in Lite/Pro notices."
+        ],
+        "notice": "v4.22.2 - Notice Standardization & Lite Limits"
+    },
+    {
         "version": "4.21.2",
         "date": "2026-03-11",
         "type": "patch",

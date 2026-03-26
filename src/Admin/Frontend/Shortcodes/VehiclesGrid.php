@@ -186,6 +186,23 @@ class VehiclesGrid extends AbstractShortcode {
 			);
 		}
 
+		// Exclude transfer-only vehicles from rental-oriented listings.
+		if (! isset($args['meta_query'])) {
+			$args['meta_query'] = array();
+		}
+		$args['meta_query'][] = array(
+			'relation' => 'OR',
+			array(
+				'key'     => '_rentiva_vehicle_service_type',
+				'value'   => 'transfer',
+				'compare' => '!=',
+			),
+			array(
+				'key'     => '_rentiva_vehicle_service_type',
+				'compare' => 'NOT EXISTS',
+			),
+		);
+
 		// Rating-based sorting & filtering (opt-in via shortcode attributes)
 		RatingSortHelper::apply_sort_args(
 			$args,
@@ -224,6 +241,10 @@ class VehiclesGrid extends AbstractShortcode {
 		}
 		$vehicle_location_id   = (int) get_post_meta($vehicle_id, '_mhm_rentiva_location_id', true);
 		$vehicle_location_name = $location_map[$vehicle_location_id] ?? '';
+		// Fallback to city meta for vendor-submitted vehicles that have no location_id.
+		if ('' === $vehicle_location_name) {
+			$vehicle_location_name = (string) get_post_meta($vehicle_id, '_mhm_rentiva_vehicle_city', true);
+		}
 
 		$data = array(
 			'id'            => $vehicle_id,

@@ -249,7 +249,7 @@ final class PayoutService
             null,           // gross_amount
             null,           // commission_amount
             null,           // commission_rate
-            'TRY',          // currency - match existing usage
+            (function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'TRY'), // currency
             'vendor',       // category
             'cleared'       // status
         );

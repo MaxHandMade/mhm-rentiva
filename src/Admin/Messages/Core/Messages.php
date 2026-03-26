@@ -82,41 +82,77 @@ final class Messages
 			)
 		)['messages'];
 
-		$pending_count = $dashboard_data['pending_messages'];
-
-?>
-		<div class="mhm-messages-dashboard">
-			<div class="messages-count">
-				<span class="count-number"><?php echo esc_html($pending_count); ?></span>
-				<span class="count-label"><?php esc_html_e('Pending Message', 'mhm-rentiva'); ?></span>
+		$pending_count = (int) $dashboard_data['pending_messages'];
+		$badge_bg      = $pending_count > 0 ? '#e74c3c' : '#27ae60';
+		?>
+		<style>
+			.mhm-msg-widget { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+			.mhm-msg-widget__header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb; }
+			.mhm-msg-widget__badge { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; border-radius: 10px; font-size: 18px; font-weight: 700; color: #fff; padding: 0 10px; }
+			.mhm-msg-widget__header-text { font-size: 13px; color: #6b7280; line-height: 1.3; }
+			.mhm-msg-widget__header-text strong { display: block; font-size: 14px; color: #1f2937; }
+			.mhm-msg-widget__list { margin: 0; padding: 0; list-style: none; }
+			.mhm-msg-widget__item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; margin-bottom: 6px; border-radius: 8px; background: #f9fafb; border: 1px solid #f3f4f6; transition: all 0.15s ease; text-decoration: none; color: inherit; }
+			.mhm-msg-widget__item:hover { background: #eff6ff; border-color: #bfdbfe; }
+			.mhm-msg-widget__avatar { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: #e0e7ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
+			.mhm-msg-widget__content { flex: 1; min-width: 0; }
+			.mhm-msg-widget__sender { font-size: 13px; font-weight: 600; color: #1f2937; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+			.mhm-msg-widget__subject { font-size: 12px; color: #6b7280; margin: 2px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+			.mhm-msg-widget__time { flex-shrink: 0; font-size: 11px; color: #9ca3af; white-space: nowrap; margin-top: 2px; }
+			.mhm-msg-widget__empty { text-align: center; padding: 20px 10px; color: #9ca3af; font-size: 13px; }
+			.mhm-msg-widget__empty .dashicons { font-size: 32px; width: 32px; height: 32px; display: block; margin: 0 auto 8px; color: #d1d5db; }
+			.mhm-msg-widget__footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e5e7eb; text-align: center; }
+			.mhm-msg-widget__footer a { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; background: #2563eb; color: #fff; border-radius: 6px; font-size: 13px; font-weight: 500; text-decoration: none; transition: background 0.15s; }
+			.mhm-msg-widget__footer a:hover { background: #1d4ed8; color: #fff; }
+		</style>
+		<div class="mhm-msg-widget">
+			<div class="mhm-msg-widget__header">
+				<span class="mhm-msg-widget__badge" style="background:<?php echo esc_attr( $badge_bg ); ?>;">
+					<?php echo esc_html( $pending_count ); ?>
+				</span>
+				<div class="mhm-msg-widget__header-text">
+					<strong><?php echo esc_html( sprintf( _n( '%d Pending Message', '%d Pending Messages', $pending_count, 'mhm-rentiva' ), $pending_count ) ); ?></strong>
+					<?php if ( $pending_count > 0 ) : ?>
+						<?php esc_html_e( 'Awaiting your response', 'mhm-rentiva' ); ?>
+					<?php else : ?>
+						<?php esc_html_e( 'All caught up!', 'mhm-rentiva' ); ?>
+					<?php endif; ?>
+				</div>
 			</div>
 
-			<?php if (! empty($recent_messages)) : ?>
-				<div class="recent-messages">
-					<h4><?php esc_html_e('Recent Messages', 'mhm-rentiva'); ?></h4>
-					<ul>
-						<?php foreach ($recent_messages as $message) : ?>
-							<li>
-								<a href="<?php echo esc_url(MessageUrlHelper::get_message_view_url((int) $message->ID)); ?>">
-									<strong><?php echo esc_html($message->customer_name); ?></strong>
-									<br>
-									<small><?php echo esc_html($message->post_title); ?></small>
-									<br>
-									<small class="message-date"><?php echo esc_html(human_time_diff(strtotime($message->post_date), current_time('timestamp'))); ?> <?php esc_html_e('ago', 'mhm-rentiva'); ?></small>
-								</a>
-							</li>
-						<?php endforeach; ?>
-					</ul>
+			<?php if ( ! empty( $recent_messages ) ) : ?>
+				<ul class="mhm-msg-widget__list">
+					<?php foreach ( $recent_messages as $message ) :
+						$name    = $message->customer_name ?: __( 'Unknown', 'mhm-rentiva' );
+						$initial = mb_strtoupper( mb_substr( $name, 0, 1 ) );
+						$url     = MessageUrlHelper::get_message_view_url( (int) $message->ID );
+						$ago     = human_time_diff( strtotime( $message->post_date ), current_time( 'timestamp' ) );
+					?>
+						<a href="<?php echo esc_url( $url ); ?>" class="mhm-msg-widget__item">
+							<span class="mhm-msg-widget__avatar"><?php echo esc_html( $initial ); ?></span>
+							<div class="mhm-msg-widget__content">
+								<p class="mhm-msg-widget__sender"><?php echo esc_html( $name ); ?></p>
+								<p class="mhm-msg-widget__subject"><?php echo esc_html( $message->post_title ); ?></p>
+							</div>
+							<span class="mhm-msg-widget__time"><?php echo esc_html( $ago ); ?></span>
+						</a>
+					<?php endforeach; ?>
+				</ul>
+			<?php else : ?>
+				<div class="mhm-msg-widget__empty">
+					<span class="dashicons dashicons-email-alt"></span>
+					<?php esc_html_e( 'No pending messages.', 'mhm-rentiva' ); ?>
 				</div>
 			<?php endif; ?>
 
-			<div class="messages-actions">
-				<a href="<?php echo esc_url(MessageUrlHelper::get_messages_list_url()); ?>" class="button button-primary">
-					<?php esc_html_e('View All Messages', 'mhm-rentiva'); ?>
+			<div class="mhm-msg-widget__footer">
+				<a href="<?php echo esc_url( MessageUrlHelper::get_messages_list_url() ); ?>">
+					<span class="dashicons dashicons-email" style="font-size:16px;width:16px;height:16px;"></span>
+					<?php esc_html_e( 'View All Messages', 'mhm-rentiva' ); ?>
 				</a>
 			</div>
 		</div>
-	<?php
+		<?php
 	}
 
 	private static function render_messages_list(): void

@@ -1,11 +1,8 @@
-document.addEventListener("DOMContentLoaded", function () {
+function mhmDashboardInit() {
+    // KPI counter animation (overview tab only).
     const counters = document.querySelectorAll(
         "body.rentiva-panel-page .mhm-rentiva-dashboard__kpi-value"
     );
-
-    if (!counters.length) {
-        return;
-    }
 
     counters.forEach((counter) => {
         const target = parseInt(counter.dataset.count, 10);
@@ -34,11 +31,58 @@ document.addEventListener("DOMContentLoaded", function () {
         requestAnimationFrame(animate);
     });
 
+    // Vendor analytics + payout AJAX (overview/ledger tabs).
     if (typeof mhmRentivaAnalytics !== 'undefined') {
         initAnalyticsDashboard();
         initPayoutDashboardAjax();
     }
-});
+
+    // Vendor listings panel toggle (listings tab).
+    if (document.getElementById('mhm-toggle-add-vehicle')) {
+        initVendorListingsPanel();
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", mhmDashboardInit);
+} else {
+    mhmDashboardInit();
+}
+
+function initVendorListingsPanel() {
+    var btn   = document.getElementById('mhm-toggle-add-vehicle');
+    var panel = document.getElementById('mhm-add-vehicle-panel');
+    var close = document.getElementById('mhm-close-add-vehicle');
+
+    if (!btn || !panel) return;
+
+    btn.addEventListener('click', function () {
+        var open = panel.style.display !== 'none';
+        panel.style.display = open ? 'none' : 'block';
+        btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+        if (!open) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    if (close) {
+        close.addEventListener('click', function () {
+            panel.style.display = 'none';
+            btn.setAttribute('aria-expanded', 'false');
+        });
+    }
+
+    // Auto-open if URL has ?add_vehicle=1
+    if (window.location.search.indexOf('add_vehicle=1') !== -1) {
+        panel.style.display = 'block';
+        btn.setAttribute('aria-expanded', 'true');
+    }
+
+    // After successful vehicle submit, hide the form and reload the listing
+    document.addEventListener('mhm_vehicle_submitted', function () {
+        panel.style.display = 'none';
+        btn.setAttribute('aria-expanded', 'false');
+        setTimeout(function () { window.location.reload(); }, 1500);
+    });
+}
 
 function initPayoutDashboardAjax() {
     const form = document.getElementById('mhm-rentiva-ajax-payout-form');
@@ -88,7 +132,12 @@ function initPayoutDashboardAjax() {
                     // Update the request status text manually to pending
                     const pendingLabel = document.querySelector('.mhm-rentiva-dashboard__payout-stat--pending .mhm-rentiva-dashboard__payout-stat-value');
                     if (pendingLabel) {
-                        pendingLabel.innerText = 'Pending';
+                        var _pendingText = (typeof mhmRentivaAnalytics !== 'undefined'
+                            && mhmRentivaAnalytics.i18n
+                            && mhmRentivaAnalytics.i18n.pending)
+                            ? mhmRentivaAnalytics.i18n.pending
+                            : 'Pending';
+                        pendingLabel.innerText = _pendingText;
                     }
                 }
             })

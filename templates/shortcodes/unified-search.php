@@ -34,7 +34,9 @@ $show_location_select  = $show_location_select ?? true;
 $show_time_select      = $show_time_select ?? true;
 $show_date_picker      = $show_date_picker ?? true;
 $show_dropoff_location = $show_dropoff_location ?? true;
-$location_required     = $location_required ?? true;
+$fields_required       = $fields_required ?? true;
+// When fields_required is false, no field should be required — override location_required too.
+$location_required     = $fields_required ? ( $location_required ?? true ) : false;
 
 // Determine which tab to show based on visibility and service type
 if (!$show_rental_tab && $show_transfer_tab) {
@@ -128,7 +130,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                             <label class="rv-label"><?php esc_html_e('Pick-up Date', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('calendar', ['class' => 'rv-icon-calendar']); ?>
-                                <input type="text" name="pickup_date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off" data-testid="search-pickup-date">
+                                <input type="text" name="pickup_date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" <?php echo $fields_required ? 'required' : ''; ?> autocomplete="off" data-testid="search-pickup-date">
                             </div>
                         </div>
                     <?php endif; ?>
@@ -163,7 +165,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                             <label class="rv-label"><?php esc_html_e('Return Date', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('calendar', ['class' => 'rv-icon-calendar']); ?>
-                                <input type="text" name="return_date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off" data-testid="search-return-date">
+                                <input type="text" name="return_date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" <?php echo $fields_required ? 'required' : ''; ?> autocomplete="off" data-testid="search-return-date">
                             </div>
                         </div>
                     <?php endif; ?>

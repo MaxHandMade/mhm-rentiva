@@ -1,0 +1,56 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/user-dashboard",
+    "title": "MHM User Dashboard",
+    "category": "widgets",
+    "icon": "admin-users",
+    "description": "Display the vendor or customer dashboard panel.",
+    "textdomain": "mhm-rentiva",
+    "supports": {
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "customClassName": true,
+        "align": [
+            "wide",
+            "full",
+            "center"
+        ],
+        "color": {
+            "text": true,
+            "background": true,
+            "link": true,
+            "gradients": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true,
+            "blockGap": true
+        },
+        "border": {
+            "color": true,
+            "radius": true,
+            "style": true,
+            "width": true
+        },
+        "typography": {
+            "fontSize": true,
+            "lineHeight": true,
+            "__experimentalFontFamily": true,
+            "__experimentalFontWeight": true
+        }
+    },
+    "attributes": {
+        "className": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "editorStyle": [
+        "mhm-rentiva-core-variables"
+    ],
+    "style": [
+        "mhm-rentiva-user-dashboard"
+    ]
+}

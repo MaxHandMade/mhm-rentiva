@@ -88,12 +88,48 @@ final class DashboardDataProvider
 				);
 			},
 			'active_listings' => static function (string $context, int $user_id, string $user_email): array {
-				unset($context, $user_id, $user_email);
-				return array('total' => 0);
+				unset($context, $user_email);
+				$count = count(get_posts(array(
+					'post_type'      => 'vehicle',
+					'author'         => $user_id,
+					'post_status'    => 'publish',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+				)));
+				return array('total' => $count);
 			},
 			'pending_requests' => static function (string $context, int $user_id, string $user_email): array {
-				unset($context, $user_id, $user_email);
-				return array('total' => 0);
+				unset($context, $user_email);
+				// Booking CPT: 'vehicle_booking'. Vehicle link meta: '_mhm_vehicle_id'.
+				// Status meta: '_mhm_status'. We count bookings on this vendor's vehicles with status 'pending'.
+				global $wpdb;
+				$vehicle_ids = get_posts(array(
+					'post_type'      => 'vehicle',
+					'author'         => $user_id,
+					'post_status'    => array('publish', 'pending'),
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+				));
+				if (empty($vehicle_ids)) {
+					return array('total' => 0);
+				}
+				$placeholders = implode(',', array_fill(0, count($vehicle_ids), '%d'));
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				$count = (int) $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(DISTINCT p.ID)
+						FROM {$wpdb->posts} p
+						INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhm_vehicle_id'
+						INNER JOIN {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhm_status' AND sm.meta_value = 'pending'
+						WHERE p.post_type = 'vehicle_booking'
+						AND p.post_status NOT IN ('trash','auto-draft')
+						AND CAST(vm.meta_value AS UNSIGNED) IN ($placeholders)",
+						...$vehicle_ids
+					)
+				);
+				return array('total' => $count);
 			},
 			'upcoming_rentals' => static function (string $context, int $user_id, string $user_email): array {
 				unset($context, $user_id, $user_email);

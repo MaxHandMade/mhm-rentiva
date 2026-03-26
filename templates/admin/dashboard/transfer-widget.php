@@ -55,7 +55,7 @@ $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 				<div class="transfer-route-list">
 					<?php foreach ( $stats['recent_routes'] as $route ) :
 						$pickup_ts    = ! empty( $route['pickup_date'] ) ? strtotime( $route['pickup_date'] ) : 0;
-						$pickup_date  = $pickup_ts ? date_i18n( 'd M Y', $pickup_ts ) : '-';
+						$pickup_date  = $pickup_ts ? date_i18n( get_option( 'date_format' ), $pickup_ts ) : '-';
 						$pickup_time  = ! empty( $route['pickup_time'] ) ? esc_html( $route['pickup_time'] ) : '';
 						$origin       = $route['origin_name']   ?: __( 'Unknown', 'mhm-rentiva' );
 						$dest         = $route['dest_name']     ?: __( 'Unknown', 'mhm-rentiva' );
@@ -81,7 +81,7 @@ $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 						</div>
 						<?php endif; ?>
 						<div class="transfer-route-card__meta">
-							<span class="trc-id">#<?php echo esc_html( $route['ID'] ); ?></span>
+							<span class="trc-id">#<?php echo esc_html( mhm_rentiva_get_display_id( (int) $route['ID'] ) ); ?></span>
 							<span class="trc-datetime">
 								<span class="dashicons dashicons-calendar-alt"></span>
 								<?php echo esc_html( $pickup_date ); ?>
@@ -89,6 +89,9 @@ $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 									<span class="trc-time"><?php echo esc_html( $pickup_time ); ?></span>
 								<?php endif; ?>
 							</span>
+							<?php if ( $status ) : ?>
+								<span class="trc-status-badge trc-status-<?php echo esc_attr( $status ); ?>"><?php echo esc_html( ucfirst( $status ) ); ?></span>
+							<?php endif; ?>
 						</div>
 					</a>
 					<?php endforeach; ?>

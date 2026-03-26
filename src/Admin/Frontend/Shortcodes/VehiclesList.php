@@ -359,6 +359,10 @@ final class VehiclesList extends AbstractShortcode
 		}
 		$vehicle_location_id   = (int) get_post_meta($vehicle_id, '_mhm_rentiva_location_id', true);
 		$vehicle_location_name = $location_map[$vehicle_location_id] ?? '';
+		// Fallback to city meta for vendor-submitted vehicles that have no location_id.
+		if ('' === $vehicle_location_name) {
+			$vehicle_location_name = (string) get_post_meta($vehicle_id, '_mhm_rentiva_vehicle_city', true);
+		}
 
 		return array(
 			'id'           => $vehicle_id,

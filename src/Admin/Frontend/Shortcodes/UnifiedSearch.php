@@ -60,6 +60,7 @@ final class UnifiedSearch extends AbstractShortcode
 			'show_date_picker'      => 'default',
 			'show_dropoff_location' => 'default',
 			'location_required'     => 'default', // Whether pickup_location select is required
+			'fields_required'       => 'default', // Whether date fields are required (false = browse all vehicles)
 			'show_pax'              => 'default', // Adults/Children
 			'show_luggage'          => 'default', // Luggage inputs
 
@@ -120,6 +121,7 @@ final class UnifiedSearch extends AbstractShortcode
 			'show_date_picker'      => self::resolve_bool($atts['show_date_picker'], 'mhm_rentiva_enable_date_picker', true),
 			'show_dropoff_location' => self::resolve_bool($atts['show_dropoff_location'], 'mhm_rentiva_enable_dropoff', true),
 			'location_required'     => self::resolve_bool($atts['location_required'], 'mhm_rentiva_location_required', true),
+			'fields_required'       => self::resolve_bool($atts['fields_required'], 'mhm_rentiva_fields_required', true),
 			'show_pax'              => self::resolve_bool($atts['show_pax'], 'mhm_rentiva_enable_pax', true),
 			'show_luggage'          => self::resolve_bool($atts['show_luggage'], 'mhm_rentiva_enable_luggage', true),
 

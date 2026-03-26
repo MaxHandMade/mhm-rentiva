@@ -689,15 +689,6 @@ final class BookingColumns {
 			return;
 		}
 
-		// Display Developer Mode banner and limit notices
-		\MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeAndLimits(
-			'bookings',
-			array(
-				__( 'Unlimited Bookings', 'mhm-rentiva' ),
-				__( 'Advanced Booking Management', 'mhm-rentiva' ),
-			)
-		);
-
 		// Get statistics data
 		$stats = self::get_booking_stats();
 
@@ -763,7 +754,16 @@ final class BookingColumns {
 				</div>
 			</div>
 		</div>
+
 		<?php
+		// Display Developer Mode banner and limit notices — after KPI cards
+		\MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeAndLimits(
+			'bookings',
+			array(
+				__( 'Unlimited Bookings', 'mhm-rentiva' ),
+				__( 'Advanced Booking Management', 'mhm-rentiva' ),
+			)
+		);
 	}
 
 	/**
@@ -1610,7 +1610,7 @@ final class BookingColumns {
                 AND (pm_customer_phone.meta_key = '_mhm_customer_phone' OR pm_customer_phone.meta_key = '_customer_phone')
             LEFT JOIN {$wpdb->postmeta} pm_total_price ON p.ID = pm_total_price.post_id 
                 AND (pm_total_price.meta_key = '_mhm_total_price' OR pm_total_price.meta_key = '_total_price')
-            LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id 
+            LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
                 AND (pm_status.meta_key = '_mhm_status' OR pm_status.meta_key = '_booking_status')
             WHERE p.post_type = 'vehicle_booking'
                 AND p.post_status = 'publish'
@@ -1664,6 +1664,17 @@ final class BookingColumns {
 			$start_date_formatted   = $booking->pickup_date ? date_i18n( get_option( 'date_format' ), strtotime( $booking->pickup_date ) ) : '';
 			$end_date_formatted     = $booking->dropoff_date ? date_i18n( get_option( 'date_format' ), strtotime( $booking->dropoff_date ) ) : '';
 			$created_date_formatted = $booking->created_date ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $booking->created_date ) ) : '';
+
+			// Append time to date if available (fetched via get_post_meta to avoid JOIN duplication)
+			$bid = (int) $booking->booking_id;
+			$pickup_time_str  = get_post_meta( $bid, '_mhm_start_time', true ) ?: get_post_meta( $bid, '_mhm_pickup_time', true );
+			$dropoff_time_str = get_post_meta( $bid, '_mhm_end_time', true ) ?: get_post_meta( $bid, '_mhm_dropoff_time', true );
+			if ( $pickup_time_str && $start_date_formatted ) {
+				$start_date_formatted .= ', ' . $pickup_time_str;
+			}
+			if ( $dropoff_time_str && $end_date_formatted ) {
+				$end_date_formatted .= ', ' . $dropoff_time_str;
+			}
 
 			// Format price
 			$currency_symbol       = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();

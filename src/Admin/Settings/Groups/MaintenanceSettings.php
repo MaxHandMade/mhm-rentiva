@@ -143,7 +143,7 @@ final class MaintenanceSettings {
 
 		echo '<div class="mhm-form-group">';
 		echo '<input type="hidden" name="mhm_rentiva_settings[mhm_rentiva_clean_data_on_uninstall]" value="0">';
-		echo '<label style="color:#d63638; font-weight:bold;"><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_clean_data_on_uninstall]" value="1"' . checked( $clean, '1', false ) . '> ' . esc_html__( 'WIPE ALL DATA ON UNINSTALL', 'mhm-rentiva' ) . '</label>';
+		echo '<label style="color:#d63638; font-weight:bold;"><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_clean_data_on_uninstall]" value="1" style="width:auto;"' . checked( $clean, '1', false ) . '> ' . esc_html__( 'WIPE ALL DATA ON UNINSTALL', 'mhm-rentiva' ) . '</label>';
 		echo '<p class="description">' . esc_html__( 'If enabled, all MHM Rentiva database tables and settings will be permanently deleted when the plugin is uninstalled.', 'mhm-rentiva' ) . '</p>';
 		echo '</div>';
 

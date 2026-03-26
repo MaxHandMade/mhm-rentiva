@@ -102,6 +102,54 @@ class VehiclesGridWidget extends ElementorWidgetBase {
 			)
 		);
 
+		$this->add_control(
+			'show_booking_button',
+			array(
+				'label'        => __( 'Show Booking Button', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => '1',
+			)
+		);
+
+		$this->add_control(
+			'show_favorite_button',
+			array(
+				'label'        => __( 'Show Favorite Button', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => '1',
+			)
+		);
+
+		$this->add_control(
+			'show_compare_button',
+			array(
+				'label'        => __( 'Show Compare Button', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => '1',
+			)
+		);
+
+		$this->add_control(
+			'show_features',
+			array(
+				'label'        => __( 'Show Features', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '1',
+				'label_on'     => __( 'Show', 'mhm-rentiva' ),
+				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
+				'return_value' => '1',
+			)
+		);
+
 		$this->end_controls_section();
 
 		$this->register_standard_style_controls(

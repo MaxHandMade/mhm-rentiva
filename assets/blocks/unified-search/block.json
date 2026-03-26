@@ -132,6 +132,24 @@
                 "false"
             ]
         },
+        "locationRequired": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+                "default",
+                "true",
+                "false"
+            ]
+        },
+        "fieldsRequired": {
+            "type": "string",
+            "default": "default",
+            "enum": [
+                "default",
+                "true",
+                "false"
+            ]
+        },
         "show_pax": {
             "type": "string",
             "default": "default",

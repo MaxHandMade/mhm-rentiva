@@ -26,6 +26,7 @@
         var show_dropoff_location = attributes.show_dropoff_location;
         var show_pax = attributes.show_pax;
         var show_luggage = attributes.show_luggage;
+        var fieldsRequired = attributes.fieldsRequired;
         var redirect_page = attributes.redirect_page;
         var search_layout = attributes.search_layout;
         var style = attributes.style;
@@ -172,6 +173,17 @@
                             { label: __('Disabled', 'mhm-rentiva'), value: 'false' },
                         ],
                         onChange: function (val) { setAttributes({ show_dropoff_location: val }); }
+                    }),
+                    el(SelectControl, {
+                        label: __('Require Form Fields', 'mhm-rentiva'),
+                        value: fieldsRequired,
+                        options: [
+                            { label: __('Global Default', 'mhm-rentiva'), value: 'default' },
+                            { label: __('Required', 'mhm-rentiva'), value: 'true' },
+                            { label: __('Optional (Browse All)', 'mhm-rentiva'), value: 'false' },
+                        ],
+                        onChange: function (val) { setAttributes({ fieldsRequired: val }); },
+                        help: __('When optional, users can search without filling any fields to browse all vehicles.', 'mhm-rentiva')
                     }),
                     !isRentalOnly && el(SelectControl, {
                         label: __('Pax Select (Adults/Children)', 'mhm-rentiva'),

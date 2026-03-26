@@ -50,7 +50,7 @@ final class FunctionalTest {
 			'rentiva_vehicle_details',
 			'rentiva_vehicles_list',
 			'rentiva_vehicles_grid',
-			'rentiva_search',
+			'rentiva_unified_search',
 			'rentiva_search_results',
 			'rentiva_vehicle_comparison',
 

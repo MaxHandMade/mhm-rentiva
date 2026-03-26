@@ -38,7 +38,8 @@ final class VendorLedger
         $vendor_id = get_current_user_id();
 
         // Ensure strictly Vendor contexts limit access safely
-        if (! user_can($vendor_id, 'mhm_rentiva_vendor')) {
+        $_ledger_user = get_userdata($vendor_id);
+        if (!$_ledger_user || !in_array('rentiva_vendor', (array) $_ledger_user->roles, true)) {
             return '<div class="mhm-rentiva-notice is-error">' . esc_html__('Access Denied. Only vendors can view the financial ledger.', 'mhm-rentiva') . '</div>';
         }
 
@@ -63,6 +64,12 @@ final class VendorLedger
         }
         if (! empty($raw_get['date_to']) && is_string($raw_get['date_to'])) {
             $filters['date_to'] = sanitize_text_field($raw_get['date_to']);
+        }
+
+        foreach (['date_from', 'date_to'] as $_date_key) {
+            if (!empty($filters[$_date_key]) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $filters[$_date_key])) {
+                unset($filters[$_date_key]);
+            }
         }
 
         $entries = Ledger::get_entries($vendor_id, $filters, $limit, $offset);

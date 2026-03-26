@@ -20,9 +20,74 @@ final class VendorVehicleReviewManager
         'price_per_day',
         'service_type',
         'city',
-        'service_areas',
-        'vehicle_year',
+        'year',
     );
+
+    /**
+     * Register hooks.
+     */
+    public static function register(): void
+    {
+        add_action('save_post_vehicle', array(self::class, 'handle_save_post'), 10, 1);
+        add_action('transition_post_status', array(self::class, 'sync_review_on_publish'), 10, 3);
+    }
+
+    /**
+     * When an admin publishes a pending vehicle, auto-set review status to approved.
+     *
+     * @param string   $new_status
+     * @param string   $old_status
+     * @param \WP_Post $post
+     */
+    public static function sync_review_on_publish(string $new_status, string $old_status, \WP_Post $post): void
+    {
+        if ($post->post_type !== 'vehicle') {
+            return;
+        }
+
+        if ($new_status === 'publish' && $old_status !== 'publish') {
+            $current = (string) get_post_meta($post->ID, '_vehicle_review_status', true);
+            if ($current === 'pending_review' || $current === '') {
+                update_post_meta($post->ID, '_vehicle_review_status', 'approved');
+                delete_post_meta($post->ID, '_vehicle_rejection_note');
+                do_action('mhm_rentiva_vehicle_approved', $post->ID, (int) $post->post_author);
+            }
+        }
+    }
+
+    /**
+     * save_post_vehicle callback. Guards against autosave, non-vendor users, and non-owners.
+     * Builds changed_fields from POST data and delegates to handle_vendor_edit().
+     *
+     * @param int $post_id
+     */
+    public static function handle_save_post(int $post_id): void
+    {
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+
+        // Skip when the AJAX vehicle-update handler manages re-review itself.
+        if (wp_doing_ajax()) {
+            return;
+        }
+
+        if (!in_array('rentiva_vendor', (array) wp_get_current_user()->roles, true)) {
+            return;
+        }
+
+        if ((int) get_post_field('post_author', $post_id) !== get_current_user_id()) {
+            return;
+        }
+
+        // Build changed_fields from submitted POST keys that match known vehicle meta.
+        $submitted = array_intersect_key(
+            array_map('sanitize_text_field', (array) wp_unslash($_POST)), // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            array_flip(self::CRITICAL_FIELDS)
+        );
+
+        self::handle_vendor_edit($post_id, $submitted);
+    }
 
     /**
      * Approve a vehicle: publish it and mark as approved.

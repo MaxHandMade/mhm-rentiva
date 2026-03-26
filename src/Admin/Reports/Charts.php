@@ -56,6 +56,7 @@ final class Charts
 				'currencySymbol' => \MHMRentiva\Admin\Reports\Reports::get_currency_symbol(),
 				'strings'        => array(
 					'daily_revenue'     => __('Daily Revenue', 'mhm-rentiva'),
+					'cancelled_revenue' => __('Cancelled', 'mhm-rentiva'),
 					'daily_bookings'    => __('Daily Bookings', 'mhm-rentiva'),
 					'vip_customers'     => __('VIP Customers', 'mhm-rentiva'),
 					'regular_customers' => __('Regular Customers', 'mhm-rentiva'),

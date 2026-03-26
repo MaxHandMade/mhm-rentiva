@@ -115,6 +115,16 @@ final class ShortcodePageActions {
 				'slug'        => 'featured-vehicles',
 				'description' => __( 'Featured vehicles showcase - highlights premium or recommended vehicles', 'mhm-rentiva' ),
 			),
+			'rentiva_vendor_apply'          => array(
+				'title'       => __( 'Vendor Application', 'mhm-rentiva' ),
+				'slug'        => 'vendor-apply',
+				'description' => __( 'Vendor application form - apply to become a vehicle rental vendor', 'mhm-rentiva' ),
+			),
+			'rentiva_vehicle_submit'        => array(
+				'title'       => __( 'Vehicle Submission', 'mhm-rentiva' ),
+				'slug'        => 'vehicle-submit',
+				'description' => __( 'Vendor vehicle submission form - vendors can add their vehicles', 'mhm-rentiva' ),
+			),
 		);
 
 		ksort( $config );
@@ -178,7 +188,7 @@ final class ShortcodePageActions {
 		$markup = match ( $shortcode ) {
 			'rentiva_vehicle_comparison'    => '[rentiva_vehicle_comparison vehicle_ids="1,2,3"]',
 			'rentiva_availability_calendar' => '[rentiva_availability_calendar vehicle_id="1"]',
-			'rentiva_vehicle_details'       => '[rentiva_vehicle_details vehicle_id="1"]',
+			'rentiva_vehicle_details'       => '[rentiva_vehicle_details]',
 			'rentiva_vehicles_grid'         => '[rentiva_vehicles_grid columns="3" limit="12"]',
 			'rentiva_vehicles_list'         => '[rentiva_vehicles_list limit="10"]',
 			'rentiva_booking_form'          => '[rentiva_booking_form vehicle_id="1"]',

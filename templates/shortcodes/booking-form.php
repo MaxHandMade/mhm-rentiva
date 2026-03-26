@@ -165,7 +165,7 @@ $unique_id = uniqid('rv_booking_');
 				<div class="rv-form-section rv-dates-times rv-card">
 					<div class="rv-card-header">
 						<span class="rv-icon rv-icon-calendar"></span>
-						<h3 class="rv-section-title"><?php echo esc_html__('Tarih ve Saat Seçimi', 'mhm-rentiva'); ?></h3>
+						<h3 class="rv-section-title"><?php echo esc_html__('Date & Time Selection', 'mhm-rentiva'); ?></h3>
 					</div>
 					<div class="rv-card-body">
 
@@ -174,7 +174,7 @@ $unique_id = uniqid('rv_booking_');
 							<!-- Pickup Row -->
 							<div class="rv-bf-datetime-row rv-bf-datetime-row--pickup">
 								<div class="rv-bf-datetime-rowhead">
-									<span class="rv-bf-datetime-rowtitle"><?php esc_html_e('ARAÇ TESLİM ALMA', 'mhm-rentiva'); ?></span>
+									<span class="rv-bf-datetime-rowtitle"><?php esc_html_e('VEHICLE PICKUP', 'mhm-rentiva'); ?></span>
 									<?php if ($pickup_location_id > 0 && $pickup_location_name !== '') : ?>
 										<div class="rv-bf-datetime-loc">
 											<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
@@ -219,7 +219,7 @@ $unique_id = uniqid('rv_booking_');
 							<div class="rv-bf-datetime-row rv-bf-datetime-row--return">
 								<div class="rv-bf-datetime-rowhead">
 									<span class="rv-bf-datetime-rowtitle">
-										<?php esc_html_e('ARAÇ DÖNÜŞ', 'mhm-rentiva'); ?>
+										<?php esc_html_e('VEHICLE RETURN', 'mhm-rentiva'); ?>
 										<span class="rv-info-icon-wrapper" title="<?php echo esc_attr__('Return time is automatically set to match pickup time.', 'mhm-rentiva'); ?>">
 											<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
 										</span>
@@ -227,7 +227,7 @@ $unique_id = uniqid('rv_booking_');
 									<?php if ($pickup_location_id > 0 && $pickup_location_name !== '') : ?>
 										<div class="rv-bf-datetime-loc rv-bf-datetime-loc--same">
 											<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-											<span><?php esc_html_e('Aynı Teslim Alma Yeri', 'mhm-rentiva'); ?></span>
+											<span><?php esc_html_e('Same Pickup Location', 'mhm-rentiva'); ?></span>
 										</div>
 									<?php endif; ?>
 								</div>

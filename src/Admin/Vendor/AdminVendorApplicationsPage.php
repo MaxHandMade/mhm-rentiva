@@ -107,15 +107,28 @@ final class AdminVendorApplicationsPage
 
     private static function render_pending_tab(): void
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $paged          = max(1, absint($_GET['paged'] ?? 1));
+        $per_page       = 20;
+
+        $total_query = get_posts(array(
+            'post_type'      => VendorApplication::POST_TYPE,
+            'post_status'    => VendorApplicationManager::STATUS_PENDING,
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+        ));
+        $total_apps = count($total_query);
+
         $applications = get_posts(array(
             'post_type'      => VendorApplication::POST_TYPE,
             'post_status'    => VendorApplicationManager::STATUS_PENDING,
-            'posts_per_page' => 50,
+            'posts_per_page' => $per_page,
+            'paged'          => $paged,
             'orderby'        => 'date',
             'order'          => 'DESC',
         ));
 
-        if (empty($applications)) {
+        if ($total_apps === 0) {
             echo '<p>' . esc_html__('No pending vendor applications.', 'mhm-rentiva') . '</p>';
             return;
         }
@@ -142,12 +155,39 @@ final class AdminVendorApplicationsPage
             echo '<td><a href="' . $detail_url . '"><strong>' . esc_html($name) . '</strong></a></td>';
             echo '<td>' . esc_html($email) . '</td>';
             echo '<td>' . esc_html($city) . '</td>';
-            echo '<td>' . esc_html(get_the_date('d.m.Y', $app)) . '</td>';
+            echo '<td>' . esc_html(get_the_date(get_option('date_format'), $app)) . '</td>';
             echo '<td><a href="' . $detail_url . '" class="button button-small">' . esc_html__('Review', 'mhm-rentiva') . '</a></td>';
             echo '</tr>';
         }
 
         echo '</tbody></table>';
+
+        // Pagination info and navigation.
+        $total_pages = (int) ceil($total_apps / $per_page);
+        $range_from  = ($paged - 1) * $per_page + 1;
+        $range_to    = min($paged * $per_page, $total_apps);
+
+        echo '<p style="margin-top:8px">' . esc_html(
+            sprintf(
+                /* translators: 1: first item number, 2: last item number, 3: total count */
+                __('Showing %1$d-%2$d of %3$d applications', 'mhm-rentiva'),
+                $range_from,
+                $range_to,
+                $total_apps
+            )
+        ) . '</p>';
+
+        if ($total_pages > 1) {
+            $base_paged_url = admin_url('admin.php?page=mhm-rentiva-vendors&tab=pending');
+            echo '<div style="display:flex;gap:8px;margin-top:4px">';
+            if ($paged > 1) {
+                echo '<a href="' . esc_url(add_query_arg('paged', $paged - 1, $base_paged_url)) . '" class="button button-secondary">&laquo; ' . esc_html__('Previous', 'mhm-rentiva') . '</a>';
+            }
+            if ($paged < $total_pages) {
+                echo '<a href="' . esc_url(add_query_arg('paged', $paged + 1, $base_paged_url)) . '" class="button button-secondary">' . esc_html__('Next', 'mhm-rentiva') . ' &raquo;</a>';
+            }
+            echo '</div>';
+        }
     }
 
     // ---------------------------------------------------------------
@@ -197,7 +237,7 @@ final class AdminVendorApplicationsPage
         echo '<tr><th>' . esc_html__('IBAN (masked)', 'mhm-rentiva') . '</th><td><code>' . esc_html($masked_iban) . '</code></td></tr>';
         echo '<tr><th>' . esc_html__('Tax Number', 'mhm-rentiva') . '</th><td>' . esc_html($tax ?: '—') . '</td></tr>';
         echo '<tr><th>' . esc_html__('Bio', 'mhm-rentiva') . '</th><td>' . nl2br(esc_html($bio)) . '</td></tr>';
-        echo '<tr><th>' . esc_html__('Applied', 'mhm-rentiva') . '</th><td>' . esc_html(get_the_date('d.m.Y H:i', $app)) . '</td></tr>';
+        echo '<tr><th>' . esc_html__('Applied', 'mhm-rentiva') . '</th><td>' . esc_html(get_the_date(get_option('date_format') . ' ' . get_option('time_format'), $app)) . '</td></tr>';
         echo '</tbody></table>';
 
         // Documents
@@ -308,6 +348,9 @@ final class AdminVendorApplicationsPage
             $masked_current = strlen($raw_current) > 4 ? substr($raw_current, 0, 2) . '******' . substr($raw_current, -4) : __('Not set', 'mhm-rentiva');
 
             $raw_pending = VendorApplicationManager::decrypt_iban((string) get_user_meta($vendor->ID, '_rentiva_pending_iban', true));
+            $masked_pending = strlen($raw_pending) > 8
+                ? substr($raw_pending, 0, 4) . str_repeat('*', max(0, strlen($raw_pending) - 8)) . substr($raw_pending, -4)
+                : str_repeat('*', strlen($raw_pending));
 
             $approve_url = wp_nonce_url(
                 admin_url('admin-post.php?action=mhm_vendor_iban_approve&vendor_id=' . $vendor->ID),
@@ -321,7 +364,7 @@ final class AdminVendorApplicationsPage
             echo '<tr>';
             echo '<td><strong>' . esc_html($vendor->display_name) . '</strong><br><small>' . esc_html($vendor->user_email) . '</small></td>';
             echo '<td><code style="color:#666;">' . esc_html($masked_current) . '</code></td>';
-            echo '<td><code style="color:#2e7d32; font-weight:bold;">' . esc_html($raw_pending) . '</code></td>';
+            echo '<td><code style="color:#2e7d32; font-weight:bold;">' . esc_html($masked_pending) . '</code></td>';
             echo '<td>';
             echo '<div style="display:flex; gap:8px;">';
             echo '<a href="' . esc_url($approve_url) . '" class="button button-primary button-small" onclick="return confirm(\'' . esc_js(__('Approve this new IBAN? The vendor will receive payouts to this new account.', 'mhm-rentiva')) . '\')">' . esc_html__('Approve', 'mhm-rentiva') . '</a>';
@@ -384,7 +427,7 @@ final class AdminVendorApplicationsPage
             echo '<td>' . esc_html($vendor->user_email) . '</td>';
             echo '<td>' . esc_html($city) . '</td>';
             echo '<td>' . esc_html(implode(', ', $areas)) . '</td>';
-            echo '<td>' . esc_html($approved ? wp_date('d.m.Y', strtotime($approved)) : '—') . '</td>';
+            echo '<td>' . esc_html($approved ? wp_date(get_option('date_format'), strtotime($approved)) : '—') . '</td>';
             echo '<td>';
             if ($status !== 'suspended') {
                 echo '<a href="' . esc_url($suspend_url) . '" class="button button-small" onclick="return confirm(\'' . esc_js(__('Suspend this vendor?', 'mhm-rentiva')) . '\')">' . esc_html__('Suspend', 'mhm-rentiva') . '</a>';
@@ -415,13 +458,14 @@ final class AdminVendorApplicationsPage
         // Current values
         $min_payout      = (float) get_option('mhm_min_payout_amount', 100);
         $payout_freeze   = get_option('mhm_rentiva_global_payout_freeze', 'no');
-        $max_photos      = (int) get_option('mhm_vehicle_max_photos', 10);
+        $min_photos      = (int) get_option('mhm_vehicle_min_photos', 4);
+        $max_photos      = (int) get_option('mhm_vehicle_max_photos', 8);
         $doc_max_mb      = (int) get_option('mhm_vendor_doc_max_file_size_mb', 5);
         $min_year        = (int) get_option('mhm_vehicle_min_year', 1990);
         $bio_max_chars   = (int) get_option('mhm_vendor_bio_max_length', 400);
         $service_cities_raw = get_option('mhm_vendor_service_cities', '');
         $default_cities  = array('Istanbul', 'Ankara', 'Izmir', 'Antalya', 'Bursa', 'Adana', 'Konya', 'Other');
-        $service_cities  = $service_cities_raw !== ''
+        $service_cities  = !empty($service_cities_raw)
             ? implode("\n", (array) maybe_unserialize($service_cities_raw))
             : implode("\n", $default_cities);
 
@@ -453,6 +497,13 @@ final class AdminVendorApplicationsPage
         echo '<th><label for="min_payout">' . esc_html($payout_label) . '</label></th>';
         echo '<td><input type="number" id="min_payout" name="min_payout" value="' . esc_attr((string) $min_payout) . '" min="0" step="1" style="width:120px">
             <p class="description">' . esc_html__('Vendors must have at least this balance to request a payout.', 'mhm-rentiva') . '</p></td>';
+        echo '</tr>';
+
+        // Min vehicle photos
+        echo '<tr>';
+        echo '<th><label for="min_photos">' . esc_html__('Min Vehicle Photos', 'mhm-rentiva') . '</label></th>';
+        echo '<td><input type="number" id="min_photos" name="min_photos" value="' . esc_attr((string) $min_photos) . '" min="1" max="10" style="width:80px">
+            <p class="description">' . esc_html__('Minimum number of photos required per vehicle listing.', 'mhm-rentiva') . '</p></td>';
         echo '</tr>';
 
         // Max vehicle photos
@@ -663,7 +714,8 @@ final class AdminVendorApplicationsPage
         // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         update_option('mhm_rentiva_global_payout_freeze', isset($_POST['payout_freeze']) ? 'yes' : 'no');
         update_option('mhm_min_payout_amount', max(0, (float) ($_POST['min_payout'] ?? 100)));
-        update_option('mhm_vehicle_max_photos', max(1, min(20, (int) ($_POST['max_photos'] ?? 10))));
+        update_option('mhm_vehicle_min_photos', max(1, min(10, (int) ($_POST['min_photos'] ?? 4))));
+        update_option('mhm_vehicle_max_photos', max(1, min(20, (int) ($_POST['max_photos'] ?? 8))));
         update_option('mhm_vendor_doc_max_file_size_mb', max(1, min(50, (int) ($_POST['doc_max_mb'] ?? 5))));
         update_option('mhm_vehicle_min_year', max(1900, min((int) gmdate('Y'), (int) ($_POST['min_year'] ?? 1990))));
         update_option('mhm_vendor_bio_max_length', max(50, min(2000, (int) ($_POST['bio_max'] ?? 400))));

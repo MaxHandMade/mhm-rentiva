@@ -49,6 +49,7 @@ final class VendorOnboardingController
             '_vendor_iban'          => '_rentiva_vendor_iban',
             '_vendor_service_areas' => '_rentiva_vendor_service_areas',
             '_vendor_profile_bio'   => '_rentiva_vendor_bio',
+            '_vendor_tax_number'    => '_rentiva_vendor_tax_number',
         );
 
         foreach ($meta_map as $post_key => $user_key) {
@@ -109,6 +110,8 @@ final class VendorOnboardingController
 
         do_action('mhm_rentiva_vendor_rejected', $user_id, $application_id, $sanitized_reason);
 
+        set_transient('mhm_vendor_reject_cooldown_' . (int) $user_id, true, DAY_IN_SECONDS);
+
         return true;
     }
 
@@ -128,7 +131,10 @@ final class VendorOnboardingController
         }
 
         $user->remove_role('rentiva_vendor');
-        $user->add_role('customer');
+        $remaining_roles = array_diff((array) $user->roles, ['rentiva_vendor', 'subscriber']);
+        if (empty($remaining_roles)) {
+            $user->add_role('customer');
+        }
         update_user_meta($user_id, '_rentiva_vendor_status', 'suspended');
 
         do_action('mhm_rentiva_vendor_suspended', $user_id);

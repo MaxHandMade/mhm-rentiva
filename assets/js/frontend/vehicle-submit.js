@@ -227,10 +227,14 @@
             });
         }
 
-        // Show transfer section if service type is transfer/both.
+        // Show/hide transfer section based on service type.
         var $transferSec = $form.find('#mhm-transfer-section');
-        if ($transferSec.length && (v.service_type === 'transfer' || v.service_type === 'both')) {
-            $transferSec.show();
+        if ($transferSec.length) {
+            if (v.service_type === 'transfer' || v.service_type === 'both') {
+                $transferSec.show();
+            } else {
+                $transferSec.hide();
+            }
         }
 
         // Photos — make not required for edit (existing photos remain).

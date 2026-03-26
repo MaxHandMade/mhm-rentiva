@@ -245,6 +245,11 @@ final class Plugin
 			\MHMRentiva\Admin\Vendor\VendorOwnershipEnforcer::register();
 		}
 
+		// Vendor vehicle review — trigger re-review when vendor edits critical fields.
+		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\VendorVehicleReviewManager')) {
+			\MHMRentiva\Admin\Vendor\VendorVehicleReviewManager::register();
+		}
+
 		// Vendor email notifications — hook into vendor/vehicle lifecycle actions.
 		if ($this->is_class_available('\MHMRentiva\Admin\Emails\Notifications\VendorNotifications')) {
 			\MHMRentiva\Admin\Emails\Notifications\VendorNotifications::register();
@@ -1037,6 +1042,9 @@ final class Plugin
 
 		// Register Customer role
 		self::register_customer_role();
+
+		// Initialize default settings on fresh install (no-op if already initialized)
+		\MHMRentiva\Admin\Settings\Services\SettingsService::initialize_defaults_on_activation();
 
 		// Flush rewrite rules
 		flush_rewrite_rules();

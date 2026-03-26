@@ -36,6 +36,11 @@ final class VendorNotifications
 		add_action('mhm_rentiva_vehicle_approved', array(self::class, 'on_vehicle_approved'), 10, 2);
 		add_action('mhm_rentiva_vehicle_rejected', array(self::class, 'on_vehicle_rejected'), 10, 3);
 		add_action('mhm_rentiva_vendor_application_submitted', array(self::class, 'on_application_submitted'), 10, 1);
+		add_action('mhm_rentiva_vendor_suspended', array(self::class, 'on_vendor_suspended'), 10, 1);
+
+		// Admin notifications for vendor vehicle activities
+		add_action('mhm_rentiva_vendor_vehicle_submitted', array(self::class, 'on_vehicle_submitted'), 10, 2);
+		add_action('mhm_rentiva_vehicle_needs_rereview', array(self::class, 'on_vehicle_needs_rereview'), 10, 1);
 
 		// Financial notifications
 		add_action('mhm_rentiva_payout_approved', array(self::class, 'on_payout_approved'), 10, 3);
@@ -91,6 +96,18 @@ final class VendorNotifications
 		$registry['iban_change_rejected'] = array(
 			'subject' => __('IBAN change update — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'iban-change-rejected',
+		);
+		$registry['vendor_suspended'] = array(
+			'subject' => __('Your vendor account has been suspended — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vendor-suspended',
+		);
+		$registry['vehicle_submitted_admin'] = array(
+			'subject' => __('[Admin] New vehicle submitted by {{vendor.name}} — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vehicle-submitted-admin',
+		);
+		$registry['vehicle_rereview_admin'] = array(
+			'subject' => __('[Admin] Vehicle edited — re-review needed — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vehicle-rereview-admin',
 		);
 
 		return $registry;
@@ -153,6 +170,22 @@ final class VendorNotifications
 		$ctx['rejection']['reason']   = $reason;
 
 		Mailer::send('vendor_rejected', $user->user_email, $ctx);
+	}
+
+	/**
+	 * Vendor suspended — notify vendor.
+	 *
+	 * @param int $user_id Suspended vendor user ID.
+	 */
+	public static function on_vendor_suspended(int $user_id): void
+	{
+		$user = get_userdata($user_id);
+		if (! $user) {
+			return;
+		}
+
+		$ctx = self::build_vendor_context($user);
+		Mailer::send('vendor_suspended', $user->user_email, $ctx);
 	}
 
 	/**
@@ -236,6 +269,61 @@ final class VendorNotifications
 		}
 		$symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₺';
 		return $symbol . number_format(abs($amount), 2, '.', ',');
+	}
+
+	// ---------------------------------------------------------------
+	// Admin notification handlers (vendor vehicle activities)
+	// ---------------------------------------------------------------
+
+	/**
+	 * Vendor submitted a new vehicle — notify admin.
+	 *
+	 * @param int $vehicle_id Vehicle post ID.
+	 * @param int $vendor_id  Vendor user ID.
+	 */
+	public static function on_vehicle_submitted(int $vehicle_id, int $vendor_id): void
+	{
+		$user = get_userdata($vendor_id);
+		if (! $user) {
+			return;
+		}
+
+		$vehicle     = get_post($vehicle_id);
+		$ctx         = self::build_vendor_context($user);
+		$ctx['vehicle'] = array(
+			'title'    => $vehicle ? (string) $vehicle->post_title : '',
+			'admin_url' => admin_url('post.php?post=' . $vehicle_id . '&action=edit'),
+		);
+
+		$admin_email = (string) get_option('admin_email');
+		Mailer::send('vehicle_submitted_admin', $admin_email, $ctx);
+	}
+
+	/**
+	 * Vendor edited a published vehicle with critical changes — notify admin.
+	 *
+	 * @param int $vehicle_id Vehicle post ID.
+	 */
+	public static function on_vehicle_needs_rereview(int $vehicle_id): void
+	{
+		$vehicle = get_post($vehicle_id);
+		if (! $vehicle) {
+			return;
+		}
+
+		$user = get_userdata((int) $vehicle->post_author);
+		if (! $user) {
+			return;
+		}
+
+		$ctx         = self::build_vendor_context($user);
+		$ctx['vehicle'] = array(
+			'title'     => (string) $vehicle->post_title,
+			'admin_url' => admin_url('post.php?post=' . $vehicle_id . '&action=edit'),
+		);
+
+		$admin_email = (string) get_option('admin_email');
+		Mailer::send('vehicle_rereview_admin', $admin_email, $ctx);
 	}
 
 	// ---------------------------------------------------------------

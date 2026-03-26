@@ -23,7 +23,7 @@ final class VendorApplicationManager
     /**
      * Determine if a user is eligible to submit a vendor application.
      */
-    public static function can_apply(int $user_id): bool
+    public static function can_apply(int $user_id)
     {
         $user = get_userdata($user_id);
         if (!$user) {
@@ -32,6 +32,11 @@ final class VendorApplicationManager
 
         if (in_array('rentiva_vendor', (array) $user->roles, true)) {
             return false;
+        }
+
+        $cooldown_key = 'mhm_vendor_reject_cooldown_' . (int) $user_id;
+        if (get_transient($cooldown_key)) {
+            return new \WP_Error('recent_rejection', __('You must wait 24 hours before submitting a new application.', 'mhm-rentiva'));
         }
 
         $existing = get_posts(array(
@@ -54,7 +59,19 @@ final class VendorApplicationManager
      */
     public static function create_application(int $user_id, array $data)
     {
-        if (!self::can_apply($user_id)) {
+        $lock_key = 'mhm_vendor_apply_lock_' . (int) $user_id;
+        if (get_transient($lock_key)) {
+            return new \WP_Error('duplicate_request', __('Your application is already being processed. Please wait.', 'mhm-rentiva'));
+        }
+        set_transient($lock_key, true, 10);
+
+        $can_apply = self::can_apply($user_id);
+        if (is_wp_error($can_apply)) {
+            delete_transient($lock_key);
+            return $can_apply;
+        }
+        if (!$can_apply) {
+            delete_transient($lock_key);
             return new \WP_Error(
                 'cannot_apply',
                 __('You are not eligible to submit a vendor application.', 'mhm-rentiva')
@@ -76,6 +93,7 @@ final class VendorApplicationManager
         ), true);
 
         if (is_wp_error($post_id)) {
+            delete_transient($lock_key);
             return $post_id;
         }
 
@@ -84,10 +102,9 @@ final class VendorApplicationManager
 
         $encrypted_iban = self::encrypt_iban($data['iban'] ?? '');
         if (($data['iban'] ?? '') !== '' && $encrypted_iban === '') {
-            return new \WP_Error(
-                'iban_encryption_failed',
-                __('IBAN could not be encrypted. Please contact support.', 'mhm-rentiva')
-            );
+            wp_delete_post($post_id, true);
+            delete_transient($lock_key);
+            return new \WP_Error('iban_encryption_failed', __('Could not securely store bank account information. Please try again.', 'mhm-rentiva'));
         }
         update_post_meta($post_id, '_vendor_iban', $encrypted_iban);
         update_post_meta($post_id, '_vendor_service_areas', array_map('sanitize_text_field', (array) ($data['service_areas'] ?? array())));
@@ -99,6 +116,7 @@ final class VendorApplicationManager
         update_post_meta($post_id, '_vendor_doc_insurance', (int) ($data['doc_insurance'] ?? 0));
         update_post_meta($post_id, '_vendor_status',        self::STATUS_PENDING);
 
+        delete_transient($lock_key);
         return $post_id;
     }
 
@@ -133,7 +151,7 @@ final class VendorApplicationManager
             return ''; // Do NOT store plain text
         }
 
-        $key    = substr(hash('sha256', AUTH_KEY . SECURE_AUTH_SALT), 0, 32);
+        $key    = substr(hash('sha256', AUTH_KEY . SECURE_AUTH_SALT, true), 0, 32);
         $iv     = openssl_random_pseudo_bytes(16);
         $cipher = openssl_encrypt($iban, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
 
@@ -160,7 +178,7 @@ final class VendorApplicationManager
             return '';
         }
 
-        $key  = substr(hash('sha256', AUTH_KEY . SECURE_AUTH_SALT), 0, 32);
+        $key  = substr(hash('sha256', AUTH_KEY . SECURE_AUTH_SALT, true), 0, 32);
         $raw  = base64_decode($encrypted, true);
 
         if ($raw === false || strlen($raw) <= 16) {

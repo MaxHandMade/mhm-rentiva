@@ -31,7 +31,7 @@ get_header(); ?>
 				<div class="mhm-navigation-actions">
 					<a href="<?php echo esc_url(\MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list')); ?>" class="btn-back">
 						<?php Icons::render('back-arrow'); ?>
-						<?php echo esc_html__('Araçlara Geri Dön', 'mhm-rentiva'); ?>
+						<?php echo esc_html__('Back to Vehicles', 'mhm-rentiva'); ?>
 					</a>
 				</div>
 			</div>

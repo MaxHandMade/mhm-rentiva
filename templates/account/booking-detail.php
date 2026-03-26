@@ -64,8 +64,9 @@ if (! $vehicle_image) {
 $currency_symbol = apply_filters('mhm_rentiva/currency_symbol', '');
 
 // Date format
-$formatted_pickup_date  = date_i18n('j F Y', strtotime($pickup_date));
-$formatted_dropoff_date = date_i18n('j F Y', strtotime($dropoff_date));
+$wp_date_fmt            = get_option('date_format');
+$formatted_pickup_date  = date_i18n($wp_date_fmt, strtotime($pickup_date));
+$formatted_dropoff_date = date_i18n($wp_date_fmt, strtotime($dropoff_date));
 
 // Status text
 $status_text = array(

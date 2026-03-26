@@ -981,19 +981,14 @@ final class SetupWizard
 				'recommended_url' => '/rentiva/search-results/',
 			),
 			array(
+				'label'           => __('Vehicle Details', 'mhm-rentiva'),
+				'shortcode'       => 'rentiva_vehicle_details',
+				'recommended_url' => '/rentiva/vehicle/',
+			),
+			array(
 				'label'           => __('Vehicles List', 'mhm-rentiva'),
 				'shortcode'       => 'rentiva_vehicles_list',
 				'recommended_url' => '/rentiva/vehicles/',
-			),
-			array(
-				'label'           => __('Vehicles Grid', 'mhm-rentiva'),
-				'shortcode'       => 'rentiva_vehicles_grid',
-				'recommended_url' => '/rentiva/vehicles-grid/',
-			),
-			array(
-				'label'           => __('Vehicle Comparison', 'mhm-rentiva'),
-				'shortcode'       => 'rentiva_vehicle_comparison',
-				'recommended_url' => '/rentiva/compare/',
 			),
 			array(
 				'label'           => __('Contact Form', 'mhm-rentiva'),
