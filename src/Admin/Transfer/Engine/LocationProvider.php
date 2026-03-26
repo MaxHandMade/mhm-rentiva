@@ -42,7 +42,7 @@ final class LocationProvider
         global $wpdb;
         $table_name = self::resolve_table_name();
 
-        $query = "SELECT id, name, type, allow_rental, allow_transfer FROM {$table_name} WHERE is_active = 1";
+        $query = "SELECT id, name, type, city, allow_rental, allow_transfer FROM {$table_name} WHERE is_active = 1";
 
         if ($service_type === 'rental') {
             $query .= " AND allow_rental = 1";
@@ -60,6 +60,41 @@ final class LocationProvider
         set_transient($cache_key, $results, HOUR_IN_SECONDS);
 
         return $results;
+    }
+
+    /**
+     * Get locations filtered by city
+     *
+     * @param string $city         City name to filter by.
+     * @param string $service_type rental|transfer|both
+     * @return array Array of location objects.
+     */
+    public static function get_by_city(string $city, string $service_type = 'both'): array
+    {
+        if ($city === '') {
+            return array();
+        }
+
+        global $wpdb;
+        $table_name = self::resolve_table_name();
+
+        $query = $wpdb->prepare(
+            "SELECT id, name, type, city FROM {$table_name} WHERE is_active = 1 AND LOWER(city) = LOWER(%s)",
+            $city
+        );
+
+        if ($service_type === 'rental') {
+            $query .= " AND allow_rental = 1";
+        } elseif ($service_type === 'transfer') {
+            $query .= " AND allow_transfer = 1";
+        }
+
+        $query .= " ORDER BY priority ASC, name ASC";
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+        $results = $wpdb->get_results($query);
+
+        return is_array($results) ? $results : array();
     }
 
     /**
