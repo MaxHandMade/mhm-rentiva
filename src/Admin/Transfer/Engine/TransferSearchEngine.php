@@ -153,6 +153,14 @@ final class TransferSearchEngine
 				continue;
 			}
 
+			// 5a. Route Assignment Check — vehicle must have this route in their selected routes.
+			$assigned_routes = get_post_meta($vehicle->ID, '_mhm_rentiva_transfer_routes', true);
+			if (is_array($assigned_routes) && ! empty($assigned_routes)) {
+				if (! in_array((int) $route->id, array_map('intval', $assigned_routes), true)) {
+					continue;
+				}
+			}
+
 			// 5b. Specific Luggage Limit Check
 			$vehicle_max_big = get_post_meta($vehicle->ID, '_rentiva_vehicle_max_big_luggage', true);
 			if ($vehicle_max_big === '') {
@@ -172,7 +180,15 @@ final class TransferSearchEngine
 
 			// 6. Pricing Calculation
 			$price = 0.0;
-			if ($route->pricing_method === 'fixed') {
+
+			// 6a. Check for vendor-specific route price first.
+			$vendor_route_prices_json = get_post_meta($vehicle->ID, '_mhm_rentiva_transfer_route_prices', true);
+			$vendor_route_prices      = is_string($vendor_route_prices_json) ? json_decode($vendor_route_prices_json, true) : array();
+			$vendor_price             = $vendor_route_prices[(string) $route->id] ?? $vendor_route_prices[(int) $route->id] ?? null;
+
+			if ($vendor_price !== null && (float) $vendor_price > 0) {
+				$price = (float) $vendor_price;
+			} elseif ($route->pricing_method === 'fixed') {
 				$price = (float) $route->base_price;
 			} else {
 				$price = (float) $route->distance_km * (float) $route->base_price;
@@ -181,12 +197,15 @@ final class TransferSearchEngine
 				}
 			}
 
-			$multiplier = get_post_meta($vehicle->ID, '_rentiva_transfer_price_multiplier', true);
-			if (! $multiplier) {
-				$multiplier = get_post_meta($vehicle->ID, '_mhm_transfer_price_multiplier', true);
-			}
-			if ($multiplier && is_numeric($multiplier)) {
-				$price *= (float) $multiplier;
+			// 6b. Apply multiplier ONLY when using admin base_price (not vendor price).
+			if ($vendor_price === null || (float) $vendor_price <= 0) {
+				$multiplier = get_post_meta($vehicle->ID, '_rentiva_transfer_price_multiplier', true);
+				if (! $multiplier) {
+					$multiplier = get_post_meta($vehicle->ID, '_mhm_transfer_price_multiplier', true);
+				}
+				if ($multiplier && is_numeric($multiplier)) {
+					$price *= (float) $multiplier;
+				}
 			}
 
 			$max_pax = get_post_meta($vehicle->ID, '_rentiva_transfer_max_pax', true);
