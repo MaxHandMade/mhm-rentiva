@@ -22,10 +22,13 @@ MHM Rentiva is a comprehensive vehicle rental management solution designed for c
 *   **Booking System:** Robust booking engine with calendar view, availability checking, and automatic price calculation.
 *   **Payment Integration:** Seamless WooCommerce integration for all frontend payments (Online & Offline methods). Admin-only native offline payment support for manual bookings.
 *   **Customer Management:** Manage customer information and booking history.
-*   **Email Notifications:** Customizable email templates for booking confirmations, cancellations, and more.
+*   **Vendor Marketplace (Pro):** Multi-vendor platform where vehicle owners apply, list vehicles, set route pricing, and manage finances through a dedicated vendor panel.
+*   **VIP Transfer Module:** Point-to-point transfer booking with city-based location hierarchy, route-based pricing, and vendor-specific pricing support (v4.23.0).
+*   **Email Notifications:** Customizable email templates for booking confirmations, cancellations, vendor notifications, and more.
 *   **Shortcode Support:** Easy-to-use shortcodes to display vehicle lists, search forms, and booking wizards anywhere on your site.
-*   **VIP Transfer Module:** Integrated point-to-point transfer booking system with distance-based pricing and vehicle selection.
 *   **REST API:** Full REST API support for mobile app or external integrations.
+*   **Gutenberg Blocks:** 19 blocks with Render Parity architecture — identical output across Gutenberg, Elementor, and shortcodes.
+*   **Elementor Widgets:** 20 widgets with advanced controls, live preview, and responsive design.
 
 == Project Structure ==
  
@@ -97,6 +100,12 @@ Yes, all frontend components and admin settings are fully responsive.
 = 4.22.2 =
 * **Notices:** Standardized all Lite limit notices to unified percentage format below KPI cards.
 * **Lite/Pro:** Raised gallery images limit 3→5, redesigned comparison table, fixed emoji corruption.
+
+= 4.22.0 =
+* **Audit:** Comprehensive AllowlistRegistry, BlockRegistry, and Elementor widget audit.
+* **Tests:** 13 shortcode render test files, 4 SettingsSanitizer test files added.
+* **Fixes:** 6 PHPUnit failures resolved, block.json defaults corrected.
+* **Quality:** 563 tests, 2022 assertions.
 
 = 4.21.2 =
 * **Security:** Hardened REST API security with SecurityHelper and AuthHelper enforcement.
@@ -352,6 +361,12 @@ Yes, all frontend components and admin settings are fully responsive.
 *   Documentation: README badges and release notes updated.
 
 == Upgrade Notice ==
+
+= 4.23.0 =
+Major Update: Vendor Transfer Location architecture with city-based hierarchy, vendor route pricing, 11 dashboard widget fixes, and 567 tests. Recommended for all users.
+
+= 4.22.0 =
+Quality Update: Comprehensive attribute registry, block registry, and Elementor widget audit with 563 tests. Recommended for all users.
 
 = 4.6.1 =
 Critical Update: Includes essential database protection fixes and WooCommerce tax calculation corrections. Highly recommended for all users.

@@ -202,12 +202,12 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 
 | Özellik | Lite (Ücretsiz) | Pro (Premium) |
 | :--- | :--- | :--- |
-| **Maksimum Araç** | 3 Araç | **Sınırsız** |
+| **Maksimum Araç** | 5 Araç | **Sınırsız** |
 | **Maksimum Rezervasyon** | 50 Rezervasyon | **Sınırsız** |
-| **Maksimum Müşteri** | 3 Müşteri | **Sınırsız** |
+| **Maksimum Müşteri** | 10 Müşteri | **Sınırsız** |
 | **Ek Hizmetler** | 4 Hizmet | **Sınırsız** |
 | **VIP Transfer Rotası** | 3 Rota | **Sınırsız** |
-| **Galeri Resmi** | 3 Resim / Araç | **Sınırsız (ayarlanabilir)** |
+| **Galeri Resmi** | 5 Resim / Araç | **Sınırsız (ayarlanabilir)** |
 | **Rapor Tarih Aralığı** | Son 30 Gün | **Sınırsız** |
 | **Rapor Satır Limiti** | 500 Satır | **Sınırsız** |
 | **Mesajlaşma Sistemi** | ❌ Yok | ✅ Var |
@@ -252,7 +252,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - **E-posta Loglama**: Hata ayıklama için tüm e-postalar `EmailLog` post tipiyle loglanır
 - **Şablon Sistemi**: Merkezi `Mailer::send()` üzerinden standart gönderim
 
-### 💬 Mesajlaşma Sistemi
+### 💬 Mesajlaşma Sistemi (Pro)
 
 **Mesaj Özellikleri:**
 - **Konu Tabanlı İletişim**: Konuşmalar konular (thread) halinde organize edilir
@@ -292,6 +292,46 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - Güzergah (rota) tanımlama ve fiyat belirleme
 - Transfer rezervasyon yönetim paneli
 - Dışa/İçe aktarma (`TransferExportImport`)
+
+**v4.23.0 Yenilikleri:**
+- **Şehir → Nokta Hiyerarşisi**: Her lokasyona şehir alanı eklendi; vendor'lar yalnızca kendi şehirlerindeki lokasyonları görür.
+- **Vendor Rota Fiyatlandırması**: Admin'in belirlediği min/max aralığında vendor'lar rota bazlı fiyat belirleyebilir.
+- **Rota Bazlı Araç Filtreleme**: Transfer arama motoru, rota ataması, yolcu ve bagaj kapasitesine göre araçları filtreler. Vendor fiyatı yoksa rotanın `base_price` değeri kullanılır.
+
+### 🏪 Vendor Pazaryeri (Pro)
+
+**Çok Satıcılı Yönetim:**
+- **Vendor Rolü**: İzole izinlerle özel `rentiva_vendor` WordPress rolü
+- **Vendor Başvurusu**: Belge yükleme destekli frontend başvuru formu (kimlik, ehliyet, adres belgesi, sigorta)
+- **Onboarding İş Akışı**: Admin başvuruları onaylama/reddetme/askıya alma
+- **IBAN Şifreleme**: AES-256-CBC ile banka hesap bilgisi şifreleme
+
+**Vendor Araç Yönetimi:**
+- **Frontend Araç Ekleme**: Vendor'lar `[rentiva_vehicle_submit]` shortcode'u ile araç ekler
+- **Araç İnceleme**: Admin onaylama/reddetme (kritik/minör alan ayrımı)
+- **Medya İzolasyonu**: Vendor başına ayrı medya kütüphanesi
+- **Sahiplik Kontrolü**: Vendor yalnızca kendi araçlarını düzenleyebilir
+
+**Vendor Transfer İşlemleri (v4.23.0):**
+- **Şehir Bazlı Filtreleme**: Vendor'lar yalnızca kendi şehirlerindeki lokasyon ve rotaları görür
+- **Rota Fiyatlandırması**: Admin min/max aralığında vendor rota bazlı fiyat belirler
+- **Transfer Arama Entegrasyonu**: Arama motoru vendor fiyatını kullanır, yoksa base_price fallback
+
+**Finansal Sistem:**
+- **Komisyon Yönetimi**: Vendor başına esnek komisyon oranları
+- **Finansal Defter (Ledger)**: Tüm finansal hareket geçmişi
+- **Ödeme Talepleri (Payout)**: Vendor ödeme takibi ve onaylama
+- **İade Kayıtları**: İptallerde otomatik ters defter kaydı
+
+**Vendor Paneli (`/panel/`):**
+- İlanlar: Satır içi ekleme formu ile araç yönetimi
+- Rezervasyon Talepleri: Gelen rezervasyon yönetimi
+- Defter & Ödemeler: Finansal genel bakış ve ödeme talepleri
+
+**Vendor Bildirimleri (6 E-posta Şablonu):**
+- Başvuru gönderildi/onaylandı/reddedildi
+- Araç onaylandı/reddedildi
+- Ödeme onaylandı/reddedildi
 
 ### 🌍 Uluslararasılaştırma ve Yerelleştirme
 
@@ -520,6 +560,8 @@ Eklenti, esnek yerleşimler için kapsamlı bir shortcode setine sahiptir.
 
 ## 🔌 REST API Dokümantasyonu
 
+> **Lite:** Sınırlı API erişimi. **Pro:** Tüm endpointlere tam erişim.
+
 ### Temel URL (Base URL)
 ```
 /wp-json/mhm-rentiva/v1
@@ -630,6 +672,26 @@ Katkılarınızı bekliyoruz! Lütfen şu yönergeleri izleyin:
 ---
 
 ## 📝 Değişiklik Geçmişi (Changelog)
+
+### Sürüm 4.23.0 (26.03.2026)
+- **Mimari**: Vendor Transfer Lokasyon sistemi — Şehir→Nokta hiyerarşisi
+- **Fiyatlandırma**: Vendor rota bazlı fiyatlandırma (admin min/max aralığında)
+- **Arama**: Transfer arama motoru rota bazlı araç filtreleme + vendor fiyatı
+- **Veritabanı**: v3.4.0 migration (lokasyonlara city, rotalara max_price sütunu)
+- **Dashboard**: 11 widget düzeltmesi (timezone, cache, WC email, istatistik tasarımı, Lite gating)
+- **Dışa Aktarım**: 4 hata düzeltmesi (post_type, kayıt sayısı, geçmiş silme, PHP 8 strict types)
+- **Elementor**: 7 widget attribute iyileştirmesi
+- **Test**: 567 test, 2036 assertion
+
+### Sürüm 4.22.2 (25.03.2026)
+- **Bildirimler**: Tüm Lite limit bildirimleri birleşik yüzde formatında standartlaştırıldı
+- **Limitler**: Galeri görselleri limiti 5'e güncellendi, karşılaştırma tablosu yeniden tasarlandı
+- **Düzeltmeler**: Emoji bozulması ve dışa aktarım özellik hataları düzeltildi
+
+### Sürüm 4.22.0 (24.03.2026)
+- **Denetim**: Kapsamlı AllowlistRegistry, BlockRegistry ve Elementor widget denetimi
+- **Test**: 13 shortcode render test dosyası, 4 SettingsSanitizer test dosyası
+- **Düzeltmeler**: 6 PHPUnit hatası çözüldü, block.json varsayılanları düzeltildi
 
 ### Sürüm 4.21.2 (11.03.2026)
 - **Güvenlik**: REST API altyapısı `SecurityHelper` ve `AuthHelper` ile zırhlandırıldı.
