@@ -145,12 +145,22 @@
         // Add vehicle_id hidden field.
         $form.prepend('<input type="hidden" name="vehicle_id" value="' + v.id + '">');
 
+        // Fill location select (if present in form).
+        if (v.location_id) {
+            $form.find('[name="location_id"]').val(String(v.location_id));
+        }
+
         // Fill text/number inputs.
+        $form.find('[name="description"]').val(v.description || '');
         $form.find('[name="brand"]').val(v.brand);
         $form.find('[name="model"]').val(v.model);
         $form.find('[name="year"]').val(String(v.year));
         $form.find('[name="color"]').val(v.color);
-        $form.find('[name="city"]').val(v.city);
+        // City is locked to vendor city — keep existing value, ensure readonly.
+        var $cityInput = $form.find('[name="city"]');
+        if ($cityInput.attr('readonly') === undefined && v.city) {
+            $cityInput.val(v.city);
+        }
         $form.find('[name="price_per_day"]').val(v.price_per_day);
         $form.find('[name="mileage"]').val(v.mileage);
         $form.find('[name="license_plate"]').val(v.license_plate);
@@ -184,10 +194,16 @@
             $(this).prop('checked', tLocs.indexOf($(this).val()) !== -1);
         });
 
-        // Transfer routes.
+        // Transfer routes — check and directly enable price inputs (cloned form has no inline listeners).
         var tRoutes = Array.isArray(v.transfer_routes) ? v.transfer_routes.map(String) : [];
         $form.find('input[name="transfer_routes[]"]').each(function () {
-            $(this).prop('checked', tRoutes.indexOf($(this).val()) !== -1);
+            var checked = tRoutes.indexOf($(this).val()) !== -1;
+            $(this).prop('checked', checked);
+            var routeId = $(this).data('route-id');
+            var $price = $form.find('.mhm-route-price-input[data-route-id="' + routeId + '"]');
+            if ($price.length) {
+                $price.prop('disabled', !checked);
+            }
         });
 
         // Transfer capacity fields
@@ -284,6 +300,16 @@
 
         $container.empty().append($editMsg).append(warning).append($form);
 
+        // Reinitialize route checkbox → price input toggle for the cloned form.
+        $form.find('.mhm-route-checkbox').on('change', function () {
+            var routeId = $(this).data('route-id');
+            var $price = $form.find('.mhm-route-price-input[data-route-id="' + routeId + '"]');
+            if ($price.length) {
+                $price.prop('disabled', !this.checked);
+                if (!this.checked) { $price.val(''); }
+            }
+        });
+
         // Reinitialize transfer toggle for the cloned form.
         var $editServiceType = $form.find('#mhm-service-type');
         if ($editServiceType.length) {
@@ -373,10 +399,13 @@
     $(document).on('submit', '#mhm-vehicle-edit-form', function (e) {
         e.preventDefault();
 
-        var $form = $(this);
-        var $btn  = $form.find('#mhm-vehicle-edit-btn');
-        var $spin = $form.find('#mhm-vehicle-edit-spinner');
-        var $msg  = $('#mhm-vehicle-edit-msg');
+        var $form      = $(this);
+        var $btn       = $form.find('#mhm-vehicle-edit-btn');
+        var $spin      = $form.find('#mhm-vehicle-edit-spinner');
+        var $msg       = $('#mhm-vehicle-edit-msg');
+        var vehicleId  = $form.find('input[name="vehicle_id"]').val();
+        var photoInput = $form.find('input[name="photos[]"]')[0];
+        var hadNewPhotos = photoInput && photoInput.files && photoInput.files.length > 0;
 
         // Update gallery order before submit.
         updateGalleryOrder();
@@ -395,11 +424,38 @@
                 $btn.prop('disabled', false);
                 $spin.hide();
                 if (res.success) {
-                    var cls = res.data.rereview ? 'mhm-vendor-notice--warn' : 'mhm-vendor-notice--success';
-                    $msg.addClass(cls).text(res.data.message).show();
-                    $('html, body').animate({ scrollTop: $msg.offset().top - 100 }, 300);
-                    // Reload after a short delay to reflect changes.
-                    setTimeout(function () { location.reload(); }, 2000);
+                    if (hadNewPhotos) {
+                        // New photos were uploaded — reload the edit form so the user
+                        // can see, reorder and set the featured image before finalising.
+                        var $body = $('#mhm-edit-vehicle-body');
+                        $.ajax({
+                            url: mhmVehicleSubmit.ajaxUrl,
+                            type: 'GET',
+                            data: {
+                                action: 'mhm_vehicle_get_edit_data',
+                                vehicle_id: vehicleId,
+                                nonce: mhmVehicleSubmit.nonce
+                            },
+                            success: function (fetchRes) {
+                                if (fetchRes.success) {
+                                    buildEditForm($body, fetchRes.data);
+                                    $('#mhm-vehicle-edit-msg')
+                                        .addClass('mhm-vendor-notice--success')
+                                        .text('Fotoğraflar yüklendi. Ana resmi ve sıralamayı ayarlayıp tekrar kaydedin.')
+                                        .show();
+                                    $('html, body').animate({ scrollTop: $body.offset().top - 100 }, 300);
+                                } else {
+                                    location.reload();
+                                }
+                            },
+                            error: function () { location.reload(); }
+                        });
+                    } else {
+                        var cls = res.data.rereview ? 'mhm-vendor-notice--warn' : 'mhm-vendor-notice--success';
+                        $msg.addClass(cls).text(res.data.message).show();
+                        $('html, body').animate({ scrollTop: $msg.offset().top - 100 }, 300);
+                        setTimeout(function () { location.reload(); }, 2000);
+                    }
                 } else {
                     var errMsg = (res.data && res.data.message) ? res.data.message : 'Bir hata oluştu.';
                     $msg.addClass('mhm-vendor-notice--error').text(errMsg).show();

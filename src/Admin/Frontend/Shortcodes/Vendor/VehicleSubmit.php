@@ -91,6 +91,9 @@ final class VehicleSubmit extends AbstractShortcode
         $vendor_city = get_user_meta(get_current_user_id(), '_mhm_rentiva_vendor_city', true);
         $vendor_city = is_string($vendor_city) ? trim($vendor_city) : '';
 
+        // Fetch rental pickup locations filtered by vendor's city.
+        $rental_locations = $vendor_city !== '' ? LocationProvider::get_by_city($vendor_city, 'rental') : array();
+
         // Fetch transfer locations filtered by vendor's city.
         $transfer_locations = array();
         $transfer_routes    = array();
@@ -144,6 +147,7 @@ final class VehicleSubmit extends AbstractShortcode
             'ajax_url'           => admin_url('admin-ajax.php'),
             'nonce'              => wp_create_nonce('mhm_vehicle_submit'),
             'categories'         => $categories,
+            'rental_locations'   => $rental_locations,
             'transfer_locations' => $transfer_locations,
             'transfer_routes'    => $transfer_routes,
             'vendor_city'        => $vendor_city,
@@ -283,8 +287,25 @@ final class VehicleSubmit extends AbstractShortcode
                         </div>
                         <div class="mhm-vendor-form__field">
                             <label for="mhm-vehicle-city"><?php esc_html_e('Location / City', 'mhm-rentiva'); ?> <span class="required">*</span></label>
-                            <input type="text" id="mhm-vehicle-city" name="city" required placeholder="<?php esc_attr_e('e.g. Istanbul', 'mhm-rentiva'); ?>">
+                            <input type="text" id="mhm-vehicle-city" name="city" required
+                                   value="<?php echo esc_attr($data['vendor_city'] ?? ''); ?>"
+                                   <?php if (! empty($data['vendor_city'])) : ?>readonly<?php endif; ?>>
+                            <?php if (! empty($data['vendor_city'])) : ?>
+                                <p class="mhm-vendor-form__hint"><?php esc_html_e('City is set based on your vendor profile. Contact admin to change.', 'mhm-rentiva'); ?></p>
+                            <?php endif; ?>
                         </div>
+                        <?php if (! empty($data['rental_locations'])) : ?>
+                        <div class="mhm-vendor-form__field">
+                            <label for="mhm-location-id"><?php esc_html_e('Pickup Location', 'mhm-rentiva'); ?></label>
+                            <select id="mhm-location-id" name="location_id">
+                                <option value=""><?php esc_html_e('Select Pickup Location', 'mhm-rentiva'); ?></option>
+                                <?php foreach ($data['rental_locations'] as $loc) : ?>
+                                    <option value="<?php echo esc_attr((string) $loc->id); ?>"><?php echo esc_html($loc->name); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <p class="mhm-vendor-form__hint"><?php esc_html_e('The main pickup point for this vehicle in your city.', 'mhm-rentiva'); ?></p>
+                        </div>
+                        <?php endif; ?>
                         <?php if (! empty($categories)) : ?>
                         <div class="mhm-vendor-form__field">
                             <label for="mhm-category"><?php esc_html_e('Vehicle Category', 'mhm-rentiva'); ?> <span class="required">*</span></label>
@@ -296,6 +317,15 @@ final class VehicleSubmit extends AbstractShortcode
                             </select>
                         </div>
                         <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Section 1b: Short Description -->
+                <div class="mhm-vendor-form__section">
+                    <h3><?php esc_html_e('Short Description', 'mhm-rentiva'); ?></h3>
+                    <div class="mhm-vendor-form__field">
+                        <label for="mhm-description"><?php esc_html_e('Vehicle Description', 'mhm-rentiva'); ?></label>
+                        <textarea id="mhm-description" name="description" rows="4" placeholder="<?php esc_attr_e('Briefly describe the vehicle — condition, highlights, any extras included.', 'mhm-rentiva'); ?>"></textarea>
                     </div>
                 </div>
 
@@ -617,6 +647,7 @@ final class VehicleSubmit extends AbstractShortcode
         $deposit       = (float) get_option('mhm_rentiva_deposit_percentage', 20);
         $service_type  = sanitize_key(wp_unslash($_POST['service_type'] ?? 'rental'));
         $city          = sanitize_text_field(wp_unslash($_POST['city'] ?? ''));
+        $location_id   = absint($_POST['location_id'] ?? 0);
         $description   = sanitize_textarea_field(wp_unslash($_POST['description'] ?? ''));
         // phpcs:enable
 
@@ -759,6 +790,9 @@ final class VehicleSubmit extends AbstractShortcode
         update_post_meta($post_id, '_mhm_rentiva_deposit', $deposit);
         update_post_meta($post_id, '_rentiva_vehicle_service_type', $service_type);
         update_post_meta($post_id, '_mhm_rentiva_vehicle_city', $city);
+        if ($location_id > 0) {
+            update_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID, $location_id);
+        }
         update_post_meta($post_id, '_mhm_rentiva_features', $features);
         update_post_meta($post_id, '_mhm_rentiva_equipment', $equipment);
 
@@ -913,6 +947,8 @@ final class VehicleSubmit extends AbstractShortcode
 
         wp_send_json_success(array(
             'id'                 => $vehicle_id,
+            'description'        => $post->post_content,
+            'location_id'        => (int) get_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID, true),
             'brand'              => $meta('brand'),
             'model'              => $meta('model'),
             'year'               => $meta('year'),
@@ -1013,9 +1049,10 @@ final class VehicleSubmit extends AbstractShortcode
             }
         }
 
-        // Update post title.
+        // Update post title and description.
+        $description = sanitize_textarea_field(wp_unslash($_POST['description'] ?? ''));
         $title = trim(implode(' ', array_filter(array($fields['brand'], $fields['model'], $fields['year'] > 0 ? (string) $fields['year'] : ''))));
-        wp_update_post(array('ID' => $vehicle_id, 'post_title' => sanitize_text_field($title)));
+        wp_update_post(array('ID' => $vehicle_id, 'post_title' => sanitize_text_field($title), 'post_content' => $description));
 
         // Update meta fields.
         foreach ($fields as $key => $value) {
@@ -1024,6 +1061,14 @@ final class VehicleSubmit extends AbstractShortcode
                 $meta_key = '_mhm_rentiva_vehicle_city';
             }
             update_post_meta($vehicle_id, $meta_key, $value);
+        }
+
+        // Pickup location.
+        $location_id = absint($_POST['location_id'] ?? 0);
+        if ($location_id > 0) {
+            update_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID, $location_id);
+        } else {
+            delete_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID);
         }
 
         // Features and equipment.
@@ -1098,7 +1143,29 @@ final class VehicleSubmit extends AbstractShortcode
             update_post_meta($vehicle_id, '_mhm_rentiva_transfer_route_prices', wp_json_encode($route_prices));
         }
 
-        // Handle new photo uploads (append to gallery).
+        // Handle gallery reorder / featured image / deletions from JS payload first,
+        // so new uploads are appended after the user's current ordering/deletions.
+        if (! empty($_POST['gallery_order'])) {
+            $gallery_order = json_decode(wp_unslash($_POST['gallery_order']), true); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+            if (is_array($gallery_order)) {
+                $reordered = array();
+                foreach ($gallery_order as $img) {
+                    $reordered[] = array(
+                        'id'    => (int) ($img['id'] ?? 0),
+                        'url'   => esc_url_raw($img['url'] ?? ''),
+                        'alt'   => sanitize_text_field($img['alt'] ?? ''),
+                        'title' => sanitize_text_field($img['title'] ?? ''),
+                    );
+                }
+                update_post_meta($vehicle_id, '_mhm_rentiva_gallery_images', wp_json_encode($reordered));
+                // First image = thumbnail.
+                if (! empty($reordered[0]['id'])) {
+                    set_post_thumbnail($vehicle_id, $reordered[0]['id']);
+                }
+            }
+        }
+
+        // Handle new photo uploads (append to gallery after reorder/deletions are applied).
         if (! empty($_FILES['photos']['name'][0])) {
             require_once ABSPATH . 'wp-admin/includes/file.php';
             require_once ABSPATH . 'wp-admin/includes/media.php';
@@ -1133,27 +1200,6 @@ final class VehicleSubmit extends AbstractShortcode
             }
 
             update_post_meta($vehicle_id, '_mhm_rentiva_gallery_images', wp_json_encode($existing_gallery));
-        }
-
-        // Handle gallery reorder / featured image / deletions from JS payload.
-        if (! empty($_POST['gallery_order'])) {
-            $gallery_order = json_decode(wp_unslash($_POST['gallery_order']), true); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-            if (is_array($gallery_order)) {
-                $reordered = array();
-                foreach ($gallery_order as $img) {
-                    $reordered[] = array(
-                        'id'    => (int) ($img['id'] ?? 0),
-                        'url'   => esc_url_raw($img['url'] ?? ''),
-                        'alt'   => sanitize_text_field($img['alt'] ?? ''),
-                        'title' => sanitize_text_field($img['title'] ?? ''),
-                    );
-                }
-                update_post_meta($vehicle_id, '_mhm_rentiva_gallery_images', wp_json_encode($reordered));
-                // First image = thumbnail.
-                if (! empty($reordered[0]['id'])) {
-                    set_post_thumbnail($vehicle_id, $reordered[0]['id']);
-                }
-            }
         }
 
         // If critical field changed on published vehicle → re-review.

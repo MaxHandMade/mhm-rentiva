@@ -109,6 +109,11 @@ $vehicle_count = count( $vehicles );
 			<?php foreach ( $vehicles as $vehicle ) : ?>
 				<?php
 				$review_status  = (string) get_post_meta( $vehicle->ID, '_vehicle_review_status', true );
+				// Auto-correct: published vehicle with stale pending_review meta (e.g. published directly via admin).
+				if ( $vehicle->post_status === 'publish' && $review_status === 'pending_review' ) {
+					update_post_meta( $vehicle->ID, '_vehicle_review_status', 'approved' );
+					$review_status = 'approved';
+				}
 				$rejection_note = (string) get_post_meta( $vehicle->ID, '_vehicle_rejection_note', true );
 				$brand          = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_brand', true );
 				$model          = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_model', true );

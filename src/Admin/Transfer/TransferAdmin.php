@@ -549,13 +549,13 @@ final class TransferAdmin
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are sanitized via resolve_table_name.
 		$routes = $wpdb->get_results(
-			"SELECT r.*, 
-                   l1.name as origin_name, l1.allow_transfer as origin_eligible,
+			"SELECT r.*,
+                   l1.name as origin_name, l1.allow_transfer as origin_eligible, l1.city as city,
                    l2.name as dest_name, l2.allow_transfer as dest_eligible
             FROM {$table_routes} r
             LEFT JOIN {$table_locations} l1 ON r.origin_id = l1.id
             LEFT JOIN {$table_locations} l2 ON r.destination_id = l2.id
-            ORDER BY r.id DESC"
+            ORDER BY l1.city ASC, r.id DESC"
 		);
 
 		// SSOT: Only eligible locations for selection
@@ -719,6 +719,7 @@ final class TransferAdmin
 						<table class="wp-list-table widefat fixed striped">
 							<thead>
 								<tr>
+									<th><?php echo esc_html__('City', 'mhm-rentiva'); ?></th>
 									<th><?php echo esc_html__('Route', 'mhm-rentiva'); ?></th>
 									<th><?php echo esc_html__('Distance/Time', 'mhm-rentiva'); ?></th>
 									<th><?php echo esc_html__('Pricing', 'mhm-rentiva'); ?></th>
@@ -729,6 +730,7 @@ final class TransferAdmin
 								<?php if (! empty($routes)) : ?>
 									<?php foreach ($routes as $route) : ?>
 										<tr>
+											<td><?php echo esc_html($route->city ?? ''); ?></td>
 											<td>
 												<strong><?php echo esc_html($route->origin_name); ?></strong> &rarr; <strong><?php echo esc_html($route->dest_name); ?></strong>
 												<?php if (!$route->origin_eligible || !$route->dest_eligible) : ?>
@@ -773,7 +775,7 @@ final class TransferAdmin
 									<?php endforeach; ?>
 								<?php else : ?>
 									<tr>
-										<td colspan="4"><?php echo esc_html__('No routes found.', 'mhm-rentiva'); ?></td>
+										<td colspan="5"><?php echo esc_html__('No routes found.', 'mhm-rentiva'); ?></td>
 									</tr>
 								<?php endif; ?>
 							</tbody>
