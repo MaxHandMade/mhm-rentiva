@@ -2,6 +2,11 @@
 (function ($) {
     'use strict';
 
+    // Initialize selectWoo on city selects.
+    if ($.fn.selectWoo) {
+        $('.mhm-city-select').selectWoo({ width: '100%' });
+    }
+
     $(document).on('submit', '#mhm-vendor-apply-form', function (e) {
         e.preventDefault();
 

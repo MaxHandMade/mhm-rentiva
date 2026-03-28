@@ -94,6 +94,16 @@
             clearAllFilters($scope);
         });
 
+        // Location accordion toggle
+        $filtersForm.on('click', '.rv-location-group__toggle', function () {
+            var $btn = $(this);
+            var $group = $btn.closest('.rv-location-group');
+            var opening = !$group.hasClass('is-open');
+            $group.toggleClass('is-open', opening);
+            $btn.attr('aria-expanded', opening ? 'true' : 'false');
+            $group.find('.rv-location-group__options').prop('hidden', !opening);
+        });
+
         $filtersForm.find('input[type="number"]').on('input', function () {
             const state = getState($scope);
             clearTimeout(state.filterTimeout);

@@ -44,12 +44,13 @@ final class VendorOnboardingController
 
         // Sync application meta to user meta for fast retrieval.
         $meta_map = array(
-            '_vendor_phone'         => '_rentiva_vendor_phone',
-            '_vendor_city'          => '_rentiva_vendor_city',
-            '_vendor_iban'          => '_rentiva_vendor_iban',
-            '_vendor_service_areas' => '_rentiva_vendor_service_areas',
-            '_vendor_profile_bio'   => '_rentiva_vendor_bio',
-            '_vendor_tax_number'    => '_rentiva_vendor_tax_number',
+            '_vendor_phone'          => '_rentiva_vendor_phone',
+            '_vendor_city'           => '_rentiva_vendor_city',
+            '_vendor_iban'           => '_rentiva_vendor_iban',
+            '_vendor_account_holder' => '_rentiva_vendor_account_holder',
+            '_vendor_tax_office'     => '_rentiva_vendor_tax_office',
+            '_vendor_profile_bio'    => '_rentiva_vendor_bio',
+            '_vendor_tax_number'     => '_rentiva_vendor_tax_number',
         );
 
         foreach ($meta_map as $post_key => $user_key) {
@@ -117,7 +118,8 @@ final class VendorOnboardingController
 
     /**
      * Suspend an approved vendor.
-     * Removes rentiva_vendor role, sets suspended status in user meta.
+     * Removes rentiva_vendor role, sets suspended status in user meta,
+     * and unpublishes all vendor's vehicles so they no longer appear in search.
      * Fires: mhm_rentiva_vendor_suspended( $user_id )
      *
      * @param  int $user_id
@@ -136,6 +138,25 @@ final class VendorOnboardingController
             $user->add_role('customer');
         }
         update_user_meta($user_id, '_rentiva_vendor_status', 'suspended');
+
+        // Unpublish all vendor's vehicles to remove them from search results.
+        $vehicle_ids = get_posts(array(
+            'post_type'      => 'vehicle',
+            'post_status'    => array('publish', 'pending'),
+            'author'         => $user_id,
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+        ));
+
+        foreach ($vehicle_ids as $vehicle_id) {
+            wp_update_post(array(
+                'ID'          => $vehicle_id,
+                'post_status' => 'draft',
+            ));
+            update_post_meta($vehicle_id, '_mhm_vehicle_status', 'inactive');
+            update_post_meta($vehicle_id, '_mhm_vehicle_suspended_by_vendor_ban', '1');
+        }
 
         do_action('mhm_rentiva_vendor_suspended', $user_id);
 

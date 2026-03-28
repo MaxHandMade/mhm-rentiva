@@ -18,6 +18,7 @@ use MHMRentiva\Admin\Transfer\VehicleTransferMetaBox;
 use MHMRentiva\Admin\Transfer\Integration\TransferCartIntegration;
 use MHMRentiva\Admin\Transfer\Integration\TransferBookingHandler;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
+use MHMRentiva\Admin\Core\Utilities\CityHelper;
 use MHMRentiva\Admin\Core\Utilities\UXHelper;
 
 
@@ -113,6 +114,7 @@ final class TransferAdmin
 
 		wp_enqueue_style('mhm-css-variables', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css', array(), MHM_RENTIVA_VERSION);
 		wp_enqueue_style('mhm-stats-cards', MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css', array('mhm-css-variables'), MHM_RENTIVA_VERSION);
+		wp_enqueue_script('wc-enhanced-select'); // WC Select2 for admin
 	}
 
 	/**
@@ -440,7 +442,7 @@ final class TransferAdmin
 
 								<div class="form-field">
 									<label for="city"><?php echo esc_html__('City', 'mhm-rentiva'); ?></label>
-									<input name="city" id="city" type="text" value="<?php echo $edit_location ? esc_attr($edit_location->city) : ''; ?>" placeholder="<?php echo esc_attr__('e.g. Istanbul, Ankara', 'mhm-rentiva'); ?>">
+									<?php echo CityHelper::render_select('city', 'city', $edit_location ? $edit_location->city : ''); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 									<p class="description"><?php echo esc_html__('City this location belongs to. Used to filter locations for vendors.', 'mhm-rentiva'); ?></p>
 								</div>
 

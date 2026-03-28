@@ -279,6 +279,65 @@
 	line-height: 1.4;
 }
 
+/* Location accordion */
+.rv-location-group {
+	border-top: 1px solid var(--mhm-gray-200, #e5e7eb);
+}
+
+.rv-location-group:first-child {
+	border-top: none;
+}
+
+.rv-location-group__toggle {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	padding: 8px 0;
+	background: none;
+	border: none;
+	cursor: pointer;
+	gap: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--mhm-text-primary, #374151);
+	text-align: left;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.rv-location-group__toggle:hover {
+	color: var(--mhm-primary, #2563eb);
+}
+
+.rv-location-group__count {
+	color: #9ca3af;
+	font-weight: 400;
+	font-size: 11px;
+}
+
+.rv-location-group__arrow {
+	margin-left: auto;
+	transition: transform 0.2s ease;
+	flex-shrink: 0;
+	color: #9ca3af;
+}
+
+.rv-location-group.is-open .rv-location-group__arrow {
+	transform: rotate(180deg);
+}
+
+.rv-location-group__options {
+	padding-bottom: 6px;
+}
+
+.rv-location-group__options[hidden] {
+	display: none;
+}
+
+.rv-filter-option--sub {
+	padding-left: 6px;
+}
+
 /* Year Range */
 .rv-year-range {
 	display: flex;

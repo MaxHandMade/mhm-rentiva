@@ -107,13 +107,13 @@ final class VendorApplicationManager
             return new \WP_Error('iban_encryption_failed', __('Could not securely store bank account information. Please try again.', 'mhm-rentiva'));
         }
         update_post_meta($post_id, '_vendor_iban', $encrypted_iban);
-        update_post_meta($post_id, '_vendor_service_areas', array_map('sanitize_text_field', (array) ($data['service_areas'] ?? array())));
-        update_post_meta($post_id, '_vendor_profile_bio',   sanitize_textarea_field($data['bio'] ?? ''));
-        update_post_meta($post_id, '_vendor_tax_number',    sanitize_text_field($data['tax_number'] ?? ''));
-        update_post_meta($post_id, '_vendor_doc_id',        (int) ($data['doc_id'] ?? 0));
-        update_post_meta($post_id, '_vendor_doc_license',   (int) ($data['doc_license'] ?? 0));
-        update_post_meta($post_id, '_vendor_doc_address',   (int) ($data['doc_address'] ?? 0));
-        update_post_meta($post_id, '_vendor_doc_insurance', (int) ($data['doc_insurance'] ?? 0));
+        update_post_meta($post_id, '_vendor_account_holder', sanitize_text_field($data['account_holder'] ?? ''));
+        update_post_meta($post_id, '_vendor_tax_office',     sanitize_text_field($data['tax_office'] ?? ''));
+        update_post_meta($post_id, '_vendor_profile_bio',    sanitize_textarea_field($data['bio'] ?? ''));
+        update_post_meta($post_id, '_vendor_tax_number',     sanitize_text_field($data['tax_number'] ?? ''));
+        update_post_meta($post_id, '_vendor_doc_id',         (int) ($data['doc_id'] ?? 0));
+        update_post_meta($post_id, '_vendor_doc_license',    (int) ($data['doc_license'] ?? 0));
+        update_post_meta($post_id, '_vendor_doc_address',    (int) ($data['doc_address'] ?? 0));
         update_post_meta($post_id, '_vendor_status',        self::STATUS_PENDING);
 
         delete_transient($lock_key);

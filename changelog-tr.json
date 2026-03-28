@@ -1,5 +1,22 @@
 [
     {
+        "version": "4.23.1",
+        "date": "2026-03-28",
+        "type": "patch",
+        "changes": [
+            "🎨 VENDOR AYARLAR: Vendor ayarlar sayfası tamamen yeniden tasarlandı — tüm inline stil kaldırıldı, .mhm-vendor-form__* CSS sınıfları ile vendor-forms.css'e taşındı.",
+            "📝 VENDOR AYARLAR: Yeni alanlar eklendi — Hesap Sahibi (Account Holder), Vergi Dairesi (Tax Office).",
+            "📝 BAŞVURU FORMU: Hizmet Alanları (checkbox) kaldırıldı → bilgi notu ile değiştirildi. Araç Sigortası başvurudan kaldırılıp araç ekleme formuna taşındı.",
+            "📝 BAŞVURU FORMU: Yeni finansal alanlar — Hesap Sahibi (zorunlu), Vergi Dairesi (opsiyonel). VendorApplicationManager ve VendorOnboardingController meta senkronizasyonu güncellendi.",
+            "🔄 ŞEHİR SEÇİCİ: Tüm şehir metin girişleri (<datalist>) → <select> + WooCommerce selectWoo bileşenine dönüştürüldü. CityHelper::render_select() metodu eklendi.",
+            "🔄 ŞEHİR SEÇİCİ: Güncellenen dosyalar — vendor-settings.php, VendorApply.php, VehicleSubmit.php, TransferAdmin.php. CSS/JS enqueue: UserDashboard.php, VendorApply.php, VehicleSubmit.php.",
+            "📄 ARAÇ SİGORTASI: Araç ekleme formuna sigorta belgesi yükleme bölümü eklendi. Meta key: _mhm_rentiva_vehicle_insurance_doc. VehicleSubmit.php AJAX handler güncellendi.",
+            "📋 TASARIM: Araç Yaşam Döngüsü Yönetimi tasarım dokümanı hazırlandı — Aktif/Duraklatıldı/Geri Çekildi/Süresi Doldu durumları, 90 gün listeleme süresi, iptal ceza sistemi, güvenilirlik skoru.",
+            "🐛 KEŞFEDİLEN HATALAR: _mhm_vehicle_status arama sorgularında kontrol edilmiyor (bakımdaki araçlar görünür). VendorOnboardingController::suspend() vendor araçlarını yayından kaldırmıyor."
+        ],
+        "notice": "v4.23.1 - Vendor Form Yeniden Tasarımı & Şehir SelectWoo Migrasyonu"
+    },
+    {
         "version": "4.23.0",
         "date": "2026-03-26",
         "type": "minor",

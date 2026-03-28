@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Core\Utilities\CityHelper;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\Vendor\VendorApplicationManager;
@@ -117,8 +118,6 @@ final class VendorApply extends AbstractShortcode
         static::enqueue_assets();
 
         $current_user = wp_get_current_user();
-        $stored_cities = get_option('mhm_vendor_service_cities', array());
-        $cities = !empty($stored_cities) ? (array) $stored_cities : array('Istanbul', 'Ankara', 'Izmir', 'Antalya', 'Bursa', 'Adana', 'Konya', 'Other');
         $bio_max = (int) get_option('mhm_vendor_bio_max_length', 400);
 
         ob_start();
@@ -148,36 +147,39 @@ final class VendorApply extends AbstractShortcode
                         </div>
                         <div class="mhm-vendor-form__field">
                             <label for="mhm-city"><?php esc_html_e('Base City', 'mhm-rentiva'); ?> <span class="required">*</span></label>
-                            <input type="text" id="mhm-city" name="city" required placeholder="<?php esc_attr_e('e.g. Istanbul', 'mhm-rentiva'); ?>">
+                            <?php echo CityHelper::render_select('city', 'mhm-city', '', array('required' => true)); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                         </div>
-                    </div>
-                </div>
-
-                <div class="mhm-vendor-form__section">
-                    <h3><?php esc_html_e('Service Areas', 'mhm-rentiva'); ?></h3>
-                    <p class="mhm-vendor-form__hint"><?php esc_html_e('Select all cities where you offer services.', 'mhm-rentiva'); ?></p>
-                    <div class="mhm-vendor-form__checkboxes">
-                        <?php foreach ($cities as $city_option) : ?>
-                            <label class="mhm-vendor-form__checkbox">
-                                <input type="checkbox" name="service_areas[]" value="<?php echo esc_attr($city_option); ?>">
-                                <?php echo esc_html($city_option); ?>
-                            </label>
-                        <?php endforeach; ?>
                     </div>
                 </div>
 
                 <div class="mhm-vendor-form__section">
                     <h3><?php esc_html_e('Financial Information', 'mhm-rentiva'); ?></h3>
+
+                    <div class="mhm-vendor-form__field mhm-vendor-form__field--wide">
+                        <label for="mhm-account-holder"><?php esc_html_e('Account Holder Name', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                        <input type="text" id="mhm-account-holder" name="account_holder" required>
+                        <small><?php esc_html_e('Full name as it appears on the bank account.', 'mhm-rentiva'); ?></small>
+                    </div>
+
+                    <div class="mhm-vendor-form__field mhm-vendor-form__field--wide">
+                        <label for="mhm-iban"><?php esc_html_e('IBAN', 'mhm-rentiva'); ?> <span class="required">*</span></label>
+                        <input type="text" id="mhm-iban" name="iban" required placeholder="TR00 0000 0000 0000 0000 0000 00" maxlength="32">
+                        <small><?php esc_html_e('Your payout earnings will be sent to this account.', 'mhm-rentiva'); ?></small>
+                    </div>
+
                     <div class="mhm-vendor-form__row">
-                        <div class="mhm-vendor-form__field mhm-vendor-form__field--wide">
-                            <label for="mhm-iban"><?php esc_html_e('IBAN', 'mhm-rentiva'); ?> <span class="required">*</span></label>
-                            <input type="text" id="mhm-iban" name="iban" required placeholder="TR00 0000 0000 0000 0000 0000 00" maxlength="32" autocomplete="off">
-                            <small><?php esc_html_e('Your payout earnings will be sent to this account.', 'mhm-rentiva'); ?></small>
+                        <div class="mhm-vendor-form__field">
+                            <label for="mhm-tax-office"><?php esc_html_e('Tax Office', 'mhm-rentiva'); ?> <span class="optional">(<?php esc_html_e('optional', 'mhm-rentiva'); ?>)</span></label>
+                            <input type="text" id="mhm-tax-office" name="tax_office">
                         </div>
                         <div class="mhm-vendor-form__field">
                             <label for="mhm-tax"><?php esc_html_e('Tax Number', 'mhm-rentiva'); ?> <span class="optional">(<?php esc_html_e('optional', 'mhm-rentiva'); ?>)</span></label>
                             <input type="text" id="mhm-tax" name="tax_number" placeholder="<?php esc_attr_e('10 or 11 digits', 'mhm-rentiva'); ?>">
                         </div>
+                    </div>
+
+                    <div class="mhm-vendor-notice mhm-vendor-notice--info" style="margin-top:8px;">
+                        <small><?php esc_html_e('Service areas will be determined based on your selected city after your application is approved.', 'mhm-rentiva'); ?></small>
                     </div>
                 </div>
 
@@ -203,7 +205,6 @@ final class VendorApply extends AbstractShortcode
                             'doc_id'        => __('ID Document', 'mhm-rentiva'),
                             'doc_license'   => __("Driver's License", 'mhm-rentiva'),
                             'doc_address'   => __('Address Document', 'mhm-rentiva'),
-                            'doc_insurance' => __('Vehicle Insurance', 'mhm-rentiva'),
                         );
                         foreach ($doc_fields as $field_name => $field_label) :
                         ?>
@@ -248,10 +249,12 @@ final class VendorApply extends AbstractShortcode
             array(),
             MHM_RENTIVA_VERSION
         );
+        wp_enqueue_style('select2', null); // WC registers this
+        wp_enqueue_script('selectWoo');     // WC registers this
         wp_enqueue_script(
             'mhm-rentiva-vendor-apply',
             MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vendor-apply.js',
-            array('jquery'),
+            array('jquery', 'selectWoo'),
             MHM_RENTIVA_VERSION,
             true
         );
@@ -279,7 +282,7 @@ final class VendorApply extends AbstractShortcode
 
         $doc_ids      = array();
         $uploaded_ids = array();
-        $doc_fields   = array('doc_id', 'doc_license', 'doc_address', 'doc_insurance');
+        $doc_fields   = array('doc_id', 'doc_license', 'doc_address');
 
         foreach ($doc_fields as $field) {
             if (! empty($_FILES[ $field ]['name'])) {
@@ -311,16 +314,16 @@ final class VendorApply extends AbstractShortcode
 
         // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         $data = array(
-            'phone'         => sanitize_text_field(wp_unslash($_POST['phone'] ?? '')),
-            'city'          => sanitize_text_field(wp_unslash($_POST['city'] ?? '')),
-            'iban'          => sanitize_text_field(wp_unslash($_POST['iban'] ?? '')),
-            'service_areas' => array_map('sanitize_text_field', (array) (isset($_POST['service_areas']) ? wp_unslash($_POST['service_areas']) : array())),
-            'bio'           => sanitize_textarea_field(wp_unslash($_POST['bio'] ?? '')),
-            'tax_number'    => sanitize_text_field(wp_unslash($_POST['tax_number'] ?? '')),
-            'doc_id'        => $doc_ids['doc_id'],
-            'doc_license'   => $doc_ids['doc_license'],
-            'doc_address'   => $doc_ids['doc_address'],
-            'doc_insurance' => $doc_ids['doc_insurance'],
+            'phone'          => sanitize_text_field(wp_unslash($_POST['phone'] ?? '')),
+            'city'           => sanitize_text_field(wp_unslash($_POST['city'] ?? '')),
+            'iban'           => sanitize_text_field(wp_unslash($_POST['iban'] ?? '')),
+            'account_holder' => sanitize_text_field(wp_unslash($_POST['account_holder'] ?? '')),
+            'tax_office'     => sanitize_text_field(wp_unslash($_POST['tax_office'] ?? '')),
+            'bio'            => sanitize_textarea_field(wp_unslash($_POST['bio'] ?? '')),
+            'tax_number'     => sanitize_text_field(wp_unslash($_POST['tax_number'] ?? '')),
+            'doc_id'         => $doc_ids['doc_id'],
+            'doc_license'    => $doc_ids['doc_license'],
+            'doc_address'    => $doc_ids['doc_address'],
         );
         // phpcs:enable
 

@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Core\Utilities\CityHelper;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\Transfer\Engine\LocationProvider;
@@ -287,11 +288,12 @@ final class VehicleSubmit extends AbstractShortcode
                         </div>
                         <div class="mhm-vendor-form__field">
                             <label for="mhm-vehicle-city"><?php esc_html_e('Location / City', 'mhm-rentiva'); ?> <span class="required">*</span></label>
-                            <input type="text" id="mhm-vehicle-city" name="city" required
-                                   value="<?php echo esc_attr($data['vendor_city'] ?? ''); ?>"
-                                   <?php if (! empty($data['vendor_city'])) : ?>readonly<?php endif; ?>>
                             <?php if (! empty($data['vendor_city'])) : ?>
+                                <input type="text" id="mhm-vehicle-city" name="city" required
+                                       value="<?php echo esc_attr($data['vendor_city']); ?>" readonly class="mhm-vendor-form__readonly">
                                 <p class="mhm-vendor-form__hint"><?php esc_html_e('City is set based on your vendor profile. Contact admin to change.', 'mhm-rentiva'); ?></p>
+                            <?php else : ?>
+                                <?php echo CityHelper::render_select('city', 'mhm-vehicle-city', '', array('required' => true)); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                             <?php endif; ?>
                         </div>
                         <?php if (! empty($data['rental_locations'])) : ?>
@@ -539,6 +541,15 @@ final class VehicleSubmit extends AbstractShortcode
                     </div>
                 </div>
 
+                <!-- Section 6b: Vehicle Insurance -->
+                <div class="mhm-vendor-form__section">
+                    <h3><?php esc_html_e('Vehicle Insurance', 'mhm-rentiva'); ?> <span class="required">*</span></h3>
+                    <p class="mhm-vendor-form__hint"><?php esc_html_e('Upload a clear photo or scan of the current vehicle insurance policy (kasko/trafik sigortası). This document is required for verification and will only be visible to the site administrator.', 'mhm-rentiva'); ?></p>
+                    <div class="mhm-vendor-form__field">
+                        <input type="file" name="vehicle_insurance" accept="image/*,.pdf" required>
+                    </div>
+                </div>
+
                 <!-- Section 7: Photos -->
                 <div class="mhm-vendor-form__section">
                     <h3><?php esc_html_e('Photos', 'mhm-rentiva'); ?> <span class="required">*</span></h3>
@@ -597,10 +608,12 @@ final class VehicleSubmit extends AbstractShortcode
             array(),
             MHM_RENTIVA_VERSION
         );
+        wp_enqueue_style('select2', null); // WC registers this
+        wp_enqueue_script('selectWoo');     // WC registers this
         wp_enqueue_script(
             'mhm-rentiva-vehicle-submit',
             MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicle-submit.js',
-            array('jquery'),
+            array('jquery', 'selectWoo'),
             MHM_RENTIVA_VERSION,
             true
         );
@@ -859,6 +872,18 @@ final class VehicleSubmit extends AbstractShortcode
             $reg_attachment_id = media_handle_upload('vehicle_registration', $post_id);
             if (! is_wp_error($reg_attachment_id)) {
                 update_post_meta($post_id, '_mhm_rentiva_vehicle_registration_doc', $reg_attachment_id);
+            }
+        }
+
+        // Handle vehicle insurance document upload.
+        if (! empty($_FILES['vehicle_insurance']['name'])) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            require_once ABSPATH . 'wp-admin/includes/media.php';
+            require_once ABSPATH . 'wp-admin/includes/image.php';
+
+            $ins_attachment_id = media_handle_upload('vehicle_insurance', $post_id);
+            if (! is_wp_error($ins_attachment_id)) {
+                update_post_meta($post_id, '_mhm_rentiva_vehicle_insurance_doc', $ins_attachment_id);
             }
         }
 

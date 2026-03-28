@@ -15,8 +15,10 @@ final class LicenseManager
 {
 
 
-	public const OPTION    = 'mhm_rentiva_license';
-	public const CRON_HOOK = 'mhm_rentiva_license_daily';
+	public const OPTION         = 'mhm_rentiva_license';
+	public const CRON_HOOK      = 'mhm_rentiva_license_daily';
+	public const CHECKIN_HOOK   = 'mhm_rentiva_instance_checkin';
+	private const CHECKIN_INTERVAL = 'weekly';
 
 	private static ?self $instance = null;
 
@@ -37,9 +39,14 @@ final class LicenseManager
 	{
 		add_action('admin_init', array($this, 'maybeHandleActions'));
 		add_action(self::CRON_HOOK, array($this, 'cronValidate'));
+		add_action(self::CHECKIN_HOOK, array($this, 'cronInstanceCheckin'));
 
 		if (! wp_next_scheduled(self::CRON_HOOK)) {
 			wp_schedule_event(time() + 3600, 'daily', self::CRON_HOOK);
+		}
+
+		if (! wp_next_scheduled(self::CHECKIN_HOOK)) {
+			wp_schedule_event(time() + 7200, self::CHECKIN_INTERVAL, self::CHECKIN_HOOK);
 		}
 
 		add_action('admin_notices', array($this, 'adminNotices'));
@@ -53,6 +60,11 @@ final class LicenseManager
 		$ts = wp_next_scheduled(self::CRON_HOOK);
 		if ($ts) {
 			wp_unschedule_event($ts, self::CRON_HOOK);
+		}
+
+		$ts2 = wp_next_scheduled(self::CHECKIN_HOOK);
+		if ($ts2) {
+			wp_unschedule_event($ts2, self::CHECKIN_HOOK);
 		}
 	}
 
@@ -361,6 +373,48 @@ final class LicenseManager
 	public function cronValidate(): void
 	{
 		$this->validate();
+	}
+
+	/**
+	 * Weekly cron: report instance to license server for usage tracking.
+	 *
+	 * Sends site_url, site_hash, plugin version, PHP/WP versions.
+	 * Does NOT send license keys or any sensitive data.
+	 * Skips development/staging environments to avoid noise.
+	 */
+	public function cronInstanceCheckin(): void
+	{
+		// Skip staging/dev environments — only track real installs
+		if ($this->isStaging() || $this->isDevelopmentEnvironment()) {
+			return;
+		}
+
+		$base = $this->getApiBaseUrl();
+		$url  = rtrim($base, '/') . '/instances/check-in';
+
+		$body = wp_json_encode(array(
+			'site_url'    => home_url(),
+			'site_hash'   => $this->siteHash(),
+			'version'     => defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'unknown',
+			'php_version' => PHP_VERSION,
+			'wp_version'  => get_bloginfo('version'),
+		), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+		if (! is_string($body)) {
+			return;
+		}
+
+		wp_remote_post($url, array(
+			'headers'   => array(
+				'Content-Type' => 'application/json',
+				'Accept'       => 'application/json',
+				'User-Agent'   => 'MHM-Rentiva/' . (defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'dev'),
+			),
+			'body'      => $body,
+			'timeout'   => 10,
+			'blocking'  => false, // fire-and-forget — don't wait for response
+			'sslverify' => $this->shouldVerifySsl(),
+		));
 	}
 
 	/**

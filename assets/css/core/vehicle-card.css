@@ -284,6 +284,10 @@
 }
 
 .mhm-card-vendor-badge {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 10;
     display: inline-flex;
     align-items: center;
     gap: 3px;

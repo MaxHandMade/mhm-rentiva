@@ -2,6 +2,11 @@
 (function ($) {
     'use strict';
 
+    // Initialize selectWoo on city selects.
+    if ($.fn.selectWoo) {
+        $('.mhm-city-select').selectWoo({ width: '100%' });
+    }
+
     // Toggle transfer section visibility based on service type.
     $(document).on('change', '#mhm-service-type', function () {
         var val = $(this).val();

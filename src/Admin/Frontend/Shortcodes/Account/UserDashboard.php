@@ -201,6 +201,16 @@ final class UserDashboard
 			MHM_RENTIVA_VERSION
 		);
 
+		wp_enqueue_style(
+			'mhm-rentiva-vendor-forms',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vendor-forms.css',
+			array(),
+			MHM_RENTIVA_VERSION
+		);
+
+		wp_enqueue_style('select2', null); // WC registers this
+		wp_enqueue_script('selectWoo');     // WC registers this
+
 		wp_enqueue_script(
 			'flatpickr',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.js',

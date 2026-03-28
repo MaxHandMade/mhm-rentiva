@@ -208,8 +208,9 @@ final class AdminVendorApplicationsPage
         $phone    = (string) get_post_meta($application_id, '_vendor_phone', true);
         $city     = (string) get_post_meta($application_id, '_vendor_city', true);
         $bio      = (string) get_post_meta($application_id, '_vendor_profile_bio', true);
-        $areas    = (array) get_post_meta($application_id, '_vendor_service_areas', true);
-        $tax      = (string) get_post_meta($application_id, '_vendor_tax_number', true);
+        $account_holder = (string) get_post_meta($application_id, '_vendor_account_holder', true);
+        $tax_office     = (string) get_post_meta($application_id, '_vendor_tax_office', true);
+        $tax            = (string) get_post_meta($application_id, '_vendor_tax_number', true);
 
         $raw_iban = VendorApplicationManager::decrypt_iban(
             (string) get_post_meta($application_id, '_vendor_iban', true)
@@ -221,7 +222,6 @@ final class AdminVendorApplicationsPage
         $doc_id        = (int) get_post_meta($application_id, '_vendor_doc_id', true);
         $doc_license   = (int) get_post_meta($application_id, '_vendor_doc_license', true);
         $doc_address   = (int) get_post_meta($application_id, '_vendor_doc_address', true);
-        $doc_insurance = (int) get_post_meta($application_id, '_vendor_doc_insurance', true);
 
         $back_url = esc_url(admin_url('admin.php?page=mhm-rentiva-vendors&tab=pending'));
 
@@ -233,8 +233,9 @@ final class AdminVendorApplicationsPage
         echo '<tr><th>' . esc_html__('Email', 'mhm-rentiva') . '</th><td>' . esc_html($email) . '</td></tr>';
         echo '<tr><th>' . esc_html__('Phone', 'mhm-rentiva') . '</th><td>' . esc_html($phone) . '</td></tr>';
         echo '<tr><th>' . esc_html__('City', 'mhm-rentiva') . '</th><td>' . esc_html($city) . '</td></tr>';
-        echo '<tr><th>' . esc_html__('Service Areas', 'mhm-rentiva') . '</th><td>' . esc_html(implode(', ', $areas)) . '</td></tr>';
+        echo '<tr><th>' . esc_html__('Account Holder', 'mhm-rentiva') . '</th><td>' . esc_html($account_holder ?: '—') . '</td></tr>';
         echo '<tr><th>' . esc_html__('IBAN (masked)', 'mhm-rentiva') . '</th><td><code>' . esc_html($masked_iban) . '</code></td></tr>';
+        echo '<tr><th>' . esc_html__('Tax Office', 'mhm-rentiva') . '</th><td>' . esc_html($tax_office ?: '—') . '</td></tr>';
         echo '<tr><th>' . esc_html__('Tax Number', 'mhm-rentiva') . '</th><td>' . esc_html($tax ?: '—') . '</td></tr>';
         echo '<tr><th>' . esc_html__('Bio', 'mhm-rentiva') . '</th><td>' . nl2br(esc_html($bio)) . '</td></tr>';
         echo '<tr><th>' . esc_html__('Applied', 'mhm-rentiva') . '</th><td>' . esc_html(get_the_date(get_option('date_format') . ' ' . get_option('time_format'), $app)) . '</td></tr>';
@@ -248,7 +249,6 @@ final class AdminVendorApplicationsPage
                 __('ID Document', 'mhm-rentiva')       => $doc_id,
                 __('Driver\'s License', 'mhm-rentiva')  => $doc_license,
                 __('Address Document', 'mhm-rentiva')   => $doc_address,
-                __('Vehicle Insurance', 'mhm-rentiva')  => $doc_insurance,
             ) as $label => $attachment_id
         ) {
             $url  = $attachment_id ? wp_get_attachment_url($attachment_id) : '';

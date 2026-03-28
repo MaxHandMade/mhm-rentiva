@@ -88,6 +88,10 @@ final class AccountController
 		add_filter('login_redirect', array(self::class, 'login_redirect'), 10, 3);
 		add_filter('logout_redirect', array(self::class, 'logout_redirect'), 10, 3);
 
+		// Route wp-login.php to WC My Account for non-admin users
+		add_filter('login_url', array(self::class, 'override_login_url'), 10, 3);
+		add_action('login_init', array(self::class, 'redirect_wp_login'));
+
 		// Communication preferences handler
 		add_action('init', array(self::class, 'handle_communication_preferences'));
 	}
@@ -387,16 +391,119 @@ final class AccountController
 	}
 
 	/**
-	 * Login redirect
+	 * Login redirect — route users by role after authentication.
+	 *
+	 * Admin    → default (wp-admin)
+	 * Vendor   → /panel/
+	 * Customer → WC My Account (/hesabim/)
 	 */
 	public static function login_redirect(string $redirect_to, string $request, $user): string
 	{
-		// Is this a Rentiva customer?
-		if (is_a($user, 'WP_User') && get_user_meta($user->ID, 'mhm_rentiva_customer', true)) {
+		if (! is_a($user, 'WP_User')) {
+			return $redirect_to;
+		}
+
+		// Admins go to wp-admin (default behaviour)
+		if ($user->has_cap('manage_options')) {
+			return $redirect_to;
+		}
+
+		// Vendors go to /panel/
+		if (in_array('rentiva_vendor', (array) $user->roles, true)) {
+			$panel_page = get_page_by_path('panel');
+			if ($panel_page instanceof \WP_Post) {
+				return (string) get_permalink($panel_page);
+			}
+			return home_url('/panel/');
+		}
+
+		// Customers go to My Account
+		if (get_user_meta($user->ID, 'mhm_rentiva_customer', true)) {
 			return self::get_account_url();
 		}
 
 		return $redirect_to;
+	}
+
+	/**
+	 * Override wp_login_url() to point to WC My Account login form.
+	 *
+	 * Affects every wp_login_url() call site-wide (VendorApply, VehiclesList,
+	 * SessionManager, etc.) so they all use the WC form instead of wp-login.php.
+	 * Admin-initiated requests (AJAX, REST, wp-admin) are excluded.
+	 *
+	 * @param string $login_url  The default wp-login.php URL.
+	 * @param string $redirect   Where to redirect after login.
+	 * @param bool   $force_reauth Whether to force re-authentication.
+	 */
+	public static function override_login_url(string $login_url, string $redirect, bool $force_reauth): string
+	{
+		// Don't override for admin/AJAX/REST contexts
+		if (is_admin() || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+			return $login_url;
+		}
+
+		$wc_login = self::get_wc_login_url();
+		if ($wc_login === '') {
+			return $login_url;
+		}
+
+		if ($redirect !== '') {
+			$wc_login = add_query_arg('redirect_to', rawurlencode($redirect), $wc_login);
+		}
+
+		return $wc_login;
+	}
+
+	/**
+	 * Redirect wp-login.php to WC My Account for non-admin visitors.
+	 *
+	 * Admins and POST requests (actual login form submissions) are not redirected.
+	 */
+	public static function redirect_wp_login(): void
+	{
+		// Allow POST (form submission) — WP handles auth, then login_redirect takes over
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			return;
+		}
+
+		// Allow specific actions that need wp-login.php (password reset, registration, logout confirmation)
+		$action = isset($_GET['action']) ? sanitize_text_field(wp_unslash($_GET['action'])) : '';
+		$allowed_actions = array('logout', 'lostpassword', 'rp', 'resetpass', 'confirmaction');
+		if (in_array($action, $allowed_actions, true)) {
+			return;
+		}
+
+		// Already logged-in admin — let WP handle normally
+		if (is_user_logged_in() && current_user_can('manage_options')) {
+			return;
+		}
+
+		$wc_login = self::get_wc_login_url();
+		if ($wc_login === '') {
+			return;
+		}
+
+		// Preserve redirect_to parameter
+		$redirect_to = isset($_GET['redirect_to']) ? sanitize_url(wp_unslash($_GET['redirect_to'])) : '';
+		if ($redirect_to !== '') {
+			$wc_login = add_query_arg('redirect_to', rawurlencode($redirect_to), $wc_login);
+		}
+
+		wp_safe_redirect($wc_login);
+		exit;
+	}
+
+	/**
+	 * Get WooCommerce My Account URL (login form).
+	 */
+	private static function get_wc_login_url(): string
+	{
+		if (! function_exists('wc_get_page_permalink')) {
+			return '';
+		}
+		$url = wc_get_page_permalink('myaccount');
+		return (is_string($url) && $url !== '') ? $url : '';
 	}
 
 	/**

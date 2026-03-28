@@ -41,6 +41,11 @@ function mhmDashboardInit() {
     if (document.getElementById('mhm-toggle-add-vehicle')) {
         initVendorListingsPanel();
     }
+
+    // Initialize selectWoo on city selects.
+    if (typeof jQuery !== 'undefined' && jQuery.fn.selectWoo) {
+        jQuery('.mhm-city-select').selectWoo({ width: '100%' });
+    }
 }
 
 if (document.readyState === 'loading') {
