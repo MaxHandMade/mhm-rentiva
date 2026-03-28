@@ -54,6 +54,7 @@ final class TabRendererRegistry {
 			array(
 				'general',
 				'vehicle',
+				'vendor-marketplace',
 				'booking',
 				'transfer',
 				'addons',
@@ -103,6 +104,21 @@ final class TabRendererRegistry {
 				__( 'Configure vehicle pricing, display options, and availability settings.', 'mhm-rentiva' ),
 				'\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings',
 				array( 'mhm_rentiva_vehicle_pricing_section', 'mhm_rentiva_vehicle_display_section', 'mhm_rentiva_vehicle_availability_section', 'mhm_rentiva_vehicle_comparison_section' )
+			)
+		);
+
+		$this->register(
+			new BaseSettingsTabRenderer(
+				__( 'Vendor Marketplace', 'mhm-rentiva' ),
+				'vendor-marketplace',
+				__( 'Configure vendor listing durations, penalty rates, anti-gaming protection, and reliability score weights.', 'mhm-rentiva' ),
+				'\MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings',
+				array(
+					'mhm_rentiva_vendor_listing_section',
+					'mhm_rentiva_vendor_penalty_section',
+					'mhm_rentiva_vendor_anti_gaming_section',
+					'mhm_rentiva_vendor_reliability_section',
+				)
 			)
 		);
 

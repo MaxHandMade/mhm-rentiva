@@ -126,7 +126,7 @@ final class ListingExpiryJob
 	 */
 	private static function auto_withdraw_past_grace(): void
 	{
-		$grace_cutoff = gmdate('Y-m-d H:i:s', strtotime('-' . VehicleLifecycleStatus::EXPIRY_GRACE_DAYS . ' days'));
+		$grace_cutoff = gmdate('Y-m-d H:i:s', strtotime('-' . VehicleLifecycleStatus::expiry_grace_days() . ' days'));
 
 		$query = new WP_Query(array(
 			'post_type'      => 'vehicle',
@@ -166,7 +166,7 @@ final class ListingExpiryJob
 			update_post_meta(
 				$vehicle_id,
 				MetaKeys::VEHICLE_COOLDOWN_ENDS_AT,
-				gmdate('Y-m-d H:i:s', strtotime('+' . VehicleLifecycleStatus::WITHDRAWAL_COOLDOWN_DAYS . ' days'))
+				gmdate('Y-m-d H:i:s', strtotime('+' . VehicleLifecycleStatus::withdrawal_cooldown_days() . ' days'))
 			);
 
 			wp_update_post(array(

@@ -37,6 +37,27 @@ final class PenaltyCalculator
 	public const ROLLING_WINDOW_MONTHS = 12;
 
 	/**
+	 * Get tier 2 penalty rate from settings (settings-aware).
+	 */
+	public static function tier2_rate(): float {
+		return (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_penalty_tier2_rate', 10 ) / 100.0;
+	}
+
+	/**
+	 * Get tier 3 penalty rate from settings (settings-aware).
+	 */
+	public static function tier3_rate(): float {
+		return (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_penalty_tier3_rate', 25 ) / 100.0;
+	}
+
+	/**
+	 * Get rolling window months from settings (settings-aware).
+	 */
+	public static function rolling_window_months(): int {
+		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_penalty_rolling_window_months', self::ROLLING_WINDOW_MONTHS );
+	}
+
+	/**
 	 * Calculate the withdrawal penalty amount for a vehicle.
 	 *
 	 * @param int $vehicle_id Vehicle post ID.
@@ -74,10 +95,10 @@ final class PenaltyCalculator
 		}
 
 		if ($count === 1) {
-			return self::TIER_2_RATE;
+			return self::tier2_rate();
 		}
 
-		return self::TIER_3_RATE;
+		return self::tier3_rate();
 	}
 
 	/**
@@ -90,7 +111,7 @@ final class PenaltyCalculator
 	 */
 	public static function get_rolling_withdrawal_count(int $vendor_id): int
 	{
-		$cutoff = gmdate('Y-m-d H:i:s', strtotime('-' . self::ROLLING_WINDOW_MONTHS . ' months'));
+		$cutoff = gmdate('Y-m-d H:i:s', strtotime('-' . self::rolling_window_months() . ' months'));
 
 		$withdrawn_vehicles = get_posts(array(
 			'post_type'      => 'vehicle',

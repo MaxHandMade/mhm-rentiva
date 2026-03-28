@@ -64,9 +64,10 @@ final class SettingsSanitizer {
 			'system'      => self::sanitize_system_settings( $input, $defaults ),
 			'frontend'    => self::sanitize_frontend_settings( $input, $defaults ),
 			'transfer'    => self::sanitize_transfer_settings( $input, $defaults ),
-			'comments'    => self::sanitize_comments_settings( $input, $current_values ),
-			'addons'      => self::sanitize_addon_settings( $input, $defaults ),
-			default       => $input, // Fallback for programmatic updates
+			'comments'           => self::sanitize_comments_settings( $input, $current_values ),
+			'addons'             => self::sanitize_addon_settings( $input, $defaults ),
+			'vendor-marketplace' => self::sanitize_vendor_marketplace_settings( $input, $defaults ),
+			default              => $input, // Fallback for programmatic updates
 		};
 
 		$out = array_merge( $out, $sanitized_batch );
@@ -636,5 +637,36 @@ final class SettingsSanitizer {
 	 */
 	private static function clamp_value( $value, $min, $max ) {
 		return max( $min, min( $max, $value ) );
+	}
+
+	/**
+	 * Sanitize Vendor Marketplace Settings (Pro feature).
+	 */
+	private static function sanitize_vendor_marketplace_settings( array $input, array $defaults ): array {
+		return array(
+			// Listing & Duration
+			'vendor_listing_duration_days'         => self::get_int( $input, 'vendor_listing_duration_days', 90, 1, 365 ),
+			'vendor_expiry_warning_first_days'     => self::get_int( $input, 'vendor_expiry_warning_first_days', 10, 1, 60 ),
+			'vendor_expiry_warning_second_days'    => self::get_int( $input, 'vendor_expiry_warning_second_days', 3, 1, 30 ),
+			'vendor_expiry_grace_days'             => self::get_int( $input, 'vendor_expiry_grace_days', 7, 0, 30 ),
+			'vendor_withdrawal_cooldown_days'      => self::get_int( $input, 'vendor_withdrawal_cooldown_days', 7, 0, 90 ),
+			'vendor_max_pauses_per_month'          => self::get_int( $input, 'vendor_max_pauses_per_month', 2, 1, 10 ),
+			'vendor_max_pause_duration_days'       => self::get_int( $input, 'vendor_max_pause_duration_days', 30, 1, 180 ),
+
+			// Penalty
+			'vendor_penalty_tier2_rate'            => self::get_int( $input, 'vendor_penalty_tier2_rate', 10, 0, 100 ),
+			'vendor_penalty_tier3_rate'            => self::get_int( $input, 'vendor_penalty_tier3_rate', 25, 0, 100 ),
+			'vendor_penalty_rolling_window_months' => self::get_int( $input, 'vendor_penalty_rolling_window_months', 12, 1, 36 ),
+
+			// Anti-Gaming
+			'vendor_anti_gaming_block_days'        => self::get_int( $input, 'vendor_anti_gaming_block_days', 30, 1, 180 ),
+
+			// Reliability Score
+			'vendor_score_cancel_penalty'          => self::get_int( $input, 'vendor_score_cancel_penalty', 5, 0, 50 ),
+			'vendor_score_withdrawal_penalty'      => self::get_int( $input, 'vendor_score_withdrawal_penalty', 10, 0, 50 ),
+			'vendor_score_pause_penalty'           => self::get_int( $input, 'vendor_score_pause_penalty', 2, 0, 20 ),
+			'vendor_score_completion_bonus'        => self::get_int( $input, 'vendor_score_completion_bonus', 5, 0, 20 ),
+			'vendor_score_max_completion_bonus'    => self::get_int( $input, 'vendor_score_max_completion_bonus', 20, 0, 100 ),
+		);
 	}
 }

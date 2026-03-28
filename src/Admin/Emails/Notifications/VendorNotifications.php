@@ -515,14 +515,14 @@ final class VendorNotifications
 				$penalty = \MHMRentiva\Admin\Vehicle\PenaltyCalculator::calculate_withdrawal_penalty($vehicle_id, $vendor_id);
 				$ctx['lifecycle']['penalty']           = $penalty;
 				$ctx['lifecycle']['penalty_formatted']  = self::format_amount($penalty);
-				$ctx['lifecycle']['cooldown_days']      = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::WITHDRAWAL_COOLDOWN_DAYS;
+				$ctx['lifecycle']['cooldown_days']      = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::withdrawal_cooldown_days();
 			}
 
 			// Add expiry info for activation.
 			if ($new_status === 'active') {
 				$expires = get_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
 				$ctx['lifecycle']['expires_at']   = $expires ?: '';
-				$ctx['lifecycle']['duration_days'] = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::LISTING_DURATION_DAYS;
+				$ctx['lifecycle']['duration_days'] = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::listing_duration_days();
 			}
 
 			Mailer::send($template_map[$new_status], $user->user_email, $ctx);
@@ -580,7 +580,7 @@ final class VendorNotifications
 		$expires = get_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
 		$ctx['lifecycle'] = array(
 			'expires_at'   => $expires ?: '',
-			'duration_days' => \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::LISTING_DURATION_DAYS,
+			'duration_days' => \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::listing_duration_days(),
 		);
 
 		Mailer::send('vehicle_renewed', $user->user_email, $ctx);

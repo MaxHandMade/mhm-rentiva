@@ -136,6 +136,7 @@ final class SettingsCore
 			\MHMRentiva\Admin\Settings\Groups\LicenseSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\LogsSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\TransferSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
 			\MHMRentiva\Admin\REST\Settings\RESTSettings::class,
 		);
@@ -273,6 +274,7 @@ final class SettingsCore
 			\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\TransferSettings::class,
+			\MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\MaintenanceSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,

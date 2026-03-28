@@ -47,6 +47,55 @@ final class VehicleLifecycleStatus
     public const MAX_PAUSE_DURATION_DAYS = 30;
 
     /**
+     * Get listing duration days (settings-aware).
+     */
+    public static function listing_duration_days(): int {
+        return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_listing_duration_days', self::LISTING_DURATION_DAYS );
+    }
+
+    /**
+     * Get first expiry warning days before expiry (settings-aware).
+     */
+    public static function expiry_warning_first(): int {
+        return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_expiry_warning_first_days', self::EXPIRY_WARNING_DAYS_FIRST );
+    }
+
+    /**
+     * Get second expiry warning days before expiry (settings-aware).
+     */
+    public static function expiry_warning_second(): int {
+        return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_expiry_warning_second_days', self::EXPIRY_WARNING_DAYS_SECOND );
+    }
+
+    /**
+     * Get expiry grace period in days (settings-aware).
+     */
+    public static function expiry_grace_days(): int {
+        return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_expiry_grace_days', self::EXPIRY_GRACE_DAYS );
+    }
+
+    /**
+     * Get withdrawal cooldown in days (settings-aware).
+     */
+    public static function withdrawal_cooldown_days(): int {
+        return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_withdrawal_cooldown_days', self::WITHDRAWAL_COOLDOWN_DAYS );
+    }
+
+    /**
+     * Get max pauses per month (settings-aware).
+     */
+    public static function max_pauses_per_month(): int {
+        return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_max_pauses_per_month', self::MAX_PAUSES_PER_MONTH );
+    }
+
+    /**
+     * Get max pause duration in days (settings-aware).
+     */
+    public static function max_pause_duration_days(): int {
+        return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_max_pause_duration_days', self::MAX_PAUSE_DURATION_DAYS );
+    }
+
+    /**
      * All allowed lifecycle statuses.
      *
      * @return string[]

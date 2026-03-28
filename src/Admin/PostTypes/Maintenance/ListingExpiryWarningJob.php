@@ -54,13 +54,13 @@ final class ListingExpiryWarningJob
 	public static function run(): void
 	{
 		self::send_warnings(
-			VehicleLifecycleStatus::EXPIRY_WARNING_DAYS_FIRST,
+			VehicleLifecycleStatus::expiry_warning_first(),
 			'_mhm_vehicle_expiry_warning_first_sent',
 			'mhm_rentiva_vehicle_expiry_warning_first'
 		);
 
 		self::send_warnings(
-			VehicleLifecycleStatus::EXPIRY_WARNING_DAYS_SECOND,
+			VehicleLifecycleStatus::expiry_warning_second(),
 			'_mhm_vehicle_expiry_warning_second_sent',
 			'mhm_rentiva_vehicle_expiry_warning_second'
 		);

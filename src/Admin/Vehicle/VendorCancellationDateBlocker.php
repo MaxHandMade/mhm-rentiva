@@ -30,6 +30,13 @@ final class VendorCancellationDateBlocker
 	private const PENALTY_BLOCKS_META = '_mhm_vehicle_penalty_blocked_dates';
 
 	/**
+	 * Get block duration days from settings (settings-aware).
+	 */
+	private static function block_duration_days(): int {
+		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_anti_gaming_block_days', self::BLOCK_DURATION_DAYS );
+	}
+
+	/**
 	 * Register the hook listener.
 	 */
 	public static function register(): void
@@ -124,7 +131,7 @@ final class VendorCancellationDateBlocker
 			$penalty_blocks = array();
 		}
 
-		$expires_at = gmdate('Y-m-d', strtotime('+' . self::BLOCK_DURATION_DAYS . ' days'));
+		$expires_at = gmdate('Y-m-d', strtotime('+' . self::block_duration_days() . ' days'));
 
 		$penalty_blocks[] = array(
 			'booking_id' => $booking_id,

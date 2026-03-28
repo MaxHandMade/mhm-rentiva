@@ -47,6 +47,41 @@ final class ReliabilityScoreCalculator
 	public const BASE_SCORE = 100;
 
 	/**
+	 * Get cancel penalty points from settings (settings-aware).
+	 */
+	private static function cancel_penalty(): int {
+		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_score_cancel_penalty', self::CANCEL_PENALTY );
+	}
+
+	/**
+	 * Get withdrawal penalty points from settings (settings-aware).
+	 */
+	private static function withdrawal_penalty(): int {
+		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_score_withdrawal_penalty', self::WITHDRAWAL_PENALTY );
+	}
+
+	/**
+	 * Get pause penalty points from settings (settings-aware).
+	 */
+	private static function pause_penalty(): int {
+		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_score_pause_penalty', self::PAUSE_PENALTY );
+	}
+
+	/**
+	 * Get completion bonus points from settings (settings-aware).
+	 */
+	private static function completion_bonus(): int {
+		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_score_completion_bonus', self::COMPLETION_BONUS );
+	}
+
+	/**
+	 * Get max completion bonus points from settings (settings-aware).
+	 */
+	private static function max_completion_bonus(): int {
+		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_score_max_completion_bonus', self::MAX_COMPLETION_BONUS );
+	}
+
+	/**
 	 * Calculate the reliability score for a vendor.
 	 *
 	 * @param int $vendor_id Vendor user ID.
@@ -57,17 +92,17 @@ final class ReliabilityScoreCalculator
 		$score = self::BASE_SCORE;
 
 		// Demerits: vendor-initiated cancellations (6 months).
-		$score -= self::count_vendor_cancellations($vendor_id) * self::CANCEL_PENALTY;
+		$score -= self::count_vendor_cancellations($vendor_id) * self::cancel_penalty();
 
 		// Demerits: withdrawals (12 months).
-		$score -= PenaltyCalculator::get_rolling_withdrawal_count($vendor_id) * self::WITHDRAWAL_PENALTY;
+		$score -= PenaltyCalculator::get_rolling_withdrawal_count($vendor_id) * self::withdrawal_penalty();
 
 		// Demerits: pauses (6 months).
-		$score -= self::count_recent_pauses($vendor_id) * self::PAUSE_PENALTY;
+		$score -= self::count_recent_pauses($vendor_id) * self::pause_penalty();
 
 		// Bonus: completed bookings (6 months).
 		$completions = self::count_completed_bookings($vendor_id);
-		$score += min($completions * self::COMPLETION_BONUS, self::MAX_COMPLETION_BONUS);
+		$score += min($completions * self::completion_bonus(), self::max_completion_bonus());
 
 		return max(0, min(100, $score));
 	}

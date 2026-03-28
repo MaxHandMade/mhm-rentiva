@@ -72,6 +72,7 @@ final class Settings
 		self::register_provider('general', \MHMRentiva\Admin\Settings\Groups\GeneralSettings::class);
 		self::register_provider('booking', \MHMRentiva\Admin\Settings\Groups\BookingSettings::class);
 		self::register_provider('vehicle', \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class);
+		self::register_provider('vendor-marketplace', \MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings::class);
 		self::register_provider('security', \MHMRentiva\Admin\Settings\Groups\SecuritySettings::class);
 
 		// Allow third-party extensions to register providers

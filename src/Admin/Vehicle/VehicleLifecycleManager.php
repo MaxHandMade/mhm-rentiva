@@ -82,7 +82,7 @@ final class VehicleLifecycleManager
 
         if ($reset_timer) {
             $now     = gmdate('Y-m-d H:i:s');
-            $expires = gmdate('Y-m-d H:i:s', strtotime('+' . VehicleLifecycleStatus::LISTING_DURATION_DAYS . ' days'));
+            $expires = gmdate('Y-m-d H:i:s', strtotime('+' . VehicleLifecycleStatus::listing_duration_days() . ' days'));
             update_post_meta($vehicle_id, MetaKeys::VEHICLE_LISTING_STARTED_AT, $now);
             update_post_meta($vehicle_id, MetaKeys::VEHICLE_LISTING_EXPIRES_AT, $expires);
         }
@@ -174,7 +174,7 @@ final class VehicleLifecycleManager
         $paused_at = get_post_meta($vehicle_id, MetaKeys::VEHICLE_PAUSED_AT, true);
         if ($paused_at) {
             $paused_days = (int) ((time() - strtotime($paused_at)) / DAY_IN_SECONDS);
-            if ($paused_days > VehicleLifecycleStatus::MAX_PAUSE_DURATION_DAYS) {
+            if ($paused_days > VehicleLifecycleStatus::max_pause_duration_days()) {
                 return new \WP_Error(
                     'pause_expired',
                     __('Pause duration exceeded. Please withdraw and relist.', 'mhm-rentiva')
@@ -222,7 +222,7 @@ final class VehicleLifecycleManager
         }
 
         $now          = gmdate('Y-m-d H:i:s');
-        $cooldown_end = gmdate('Y-m-d H:i:s', strtotime('+' . VehicleLifecycleStatus::WITHDRAWAL_COOLDOWN_DAYS . ' days'));
+        $cooldown_end = gmdate('Y-m-d H:i:s', strtotime('+' . VehicleLifecycleStatus::withdrawal_cooldown_days() . ' days'));
 
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_LIFECYCLE_STATUS, VehicleLifecycleStatus::WITHDRAWN);
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_STATUS, 'inactive');
@@ -295,7 +295,7 @@ final class VehicleLifecycleManager
         $expires_at = get_post_meta($vehicle_id, MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
         if ($expires_at) {
             $days_since_expiry = (int) ((time() - strtotime($expires_at)) / DAY_IN_SECONDS);
-            if ($days_since_expiry > VehicleLifecycleStatus::EXPIRY_GRACE_DAYS) {
+            if ($days_since_expiry > VehicleLifecycleStatus::expiry_grace_days()) {
                 return new \WP_Error(
                     'grace_period_expired',
                     __('Renewal grace period has passed. Please relist the vehicle.', 'mhm-rentiva')
@@ -304,7 +304,7 @@ final class VehicleLifecycleManager
         }
 
         $now     = gmdate('Y-m-d H:i:s');
-        $expires = gmdate('Y-m-d H:i:s', strtotime('+' . VehicleLifecycleStatus::LISTING_DURATION_DAYS . ' days'));
+        $expires = gmdate('Y-m-d H:i:s', strtotime('+' . VehicleLifecycleStatus::listing_duration_days() . ' days'));
 
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_LIFECYCLE_STATUS, VehicleLifecycleStatus::ACTIVE);
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_STATUS, 'active');
@@ -435,13 +435,13 @@ final class VehicleLifecycleManager
 
         if (is_string($stored) && strpos($stored, $current_month . ':') === 0) {
             $count = (int) substr($stored, strlen($current_month) + 1);
-            if ($count >= VehicleLifecycleStatus::MAX_PAUSES_PER_MONTH) {
+            if ($count >= VehicleLifecycleStatus::max_pauses_per_month()) {
                 return new \WP_Error(
                     'pause_limit_reached',
                     sprintf(
                         __('Monthly pause limit reached (%d/%d). Try again next month.', 'mhm-rentiva'),
                         $count,
-                        VehicleLifecycleStatus::MAX_PAUSES_PER_MONTH
+                        VehicleLifecycleStatus::max_pauses_per_month()
                     )
                 );
             }
