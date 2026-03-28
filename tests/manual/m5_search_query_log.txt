@@ -1,0 +1,29 @@
+=== M5 Search Query Analysis ===
+Duration: 22.58ms
+Captured Queries: 6
+
+=== WP_Query (Meta) (6) ===
+[0]  SELECT DISTINCT meta_value FROM wp_postmeta WHERE meta_key = '_mhm_rentiva_fuel_type' AND meta_value != '' ORDER BY meta_value ASC 
+    Caller:  MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::get_filter_options
+    Time: 0.00229811668396s
+
+[1]  SELECT DISTINCT meta_value FROM wp_postmeta WHERE meta_key = '_mhm_rentiva_transmission' AND meta_value != '' ORDER BY meta_value ASC 
+    Caller:  MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::get_filter_options
+    Time: 0.0023651123046875s
+
+[2]  SELECT DISTINCT meta_value FROM wp_postmeta WHERE meta_key = '_mhm_rentiva_seats' AND meta_value != '' ORDER BY CAST(meta_value AS UNSIGNED) ASC 
+    Caller:  MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::get_filter_options
+    Time: 0.0020420551300049s
+
+[3]  SELECT DISTINCT meta_value FROM wp_postmeta WHERE meta_key = '_mhm_rentiva_brand' AND meta_value != '' ORDER BY meta_value ASC 
+    Caller:  MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::get_filter_options
+    Time: 0.0020790100097656s
+
+[4]  SELECT MIN(CAST(meta_value AS UNSIGNED)) as min_year, MAX(CAST(meta_value AS UNSIGNED)) as max_year FROM wp_postmeta WHERE meta_key = '_mhm_rentiva_year' AND meta_value != '' AND meta_value REGEXP '^
+    Caller:  MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::get_filter_options
+    Time: 0.00042295455932617s
+
+[5]  SELECT MIN(CAST(meta_value AS DECIMAL(10,2))) as min_price, MAX(CAST(meta_value AS DECIMAL(10,2))) as max_price FROM wp_postmeta WHERE meta_key = '_mhm_rentiva_price_per_day' AND meta_value != '' AND
+    Caller:  MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::get_filter_options
+    Time: 0.00042414665222168s
+

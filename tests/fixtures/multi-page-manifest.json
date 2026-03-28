@@ -1,0 +1,70 @@
+{
+    "version": "1.0.0",
+    "source": {
+        "stitch_project_id": "proj_multi",
+        "export_date": "2026-02-19T16:20:00Z",
+        "author": "Antigravity Architect"
+    },
+    "pages": [
+        {
+            "id": "page_alpha",
+            "slug": "alpha-page",
+            "title": "Alpha Page",
+            "layout": [
+                {
+                    "section_id": "sec_hero",
+                    "type": "hero"
+                }
+            ],
+            "composition": [
+                {
+                    "component_id": "comp_search",
+                    "instance_id": "search_1",
+                    "attributes": {
+                        "layout": "horizontal"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "page_beta",
+            "slug": "beta-page",
+            "title": "Beta Page",
+            "layout": [
+                {
+                    "section_id": "sec_grid",
+                    "type": "grid"
+                }
+            ],
+            "composition": [
+                {
+                    "component_id": "comp_featured",
+                    "instance_id": "featured_1",
+                    "attributes": {
+                        "limit": 3
+                    }
+                }
+            ]
+        }
+    ],
+    "tokens": {
+        "colors": {
+            "primary": "#0000ff"
+        }
+    },
+    "components": {
+        "comp_search": {
+            "type": "search_hero",
+            "renderer": "shortcode:rentiva_unified_search"
+        },
+        "comp_featured": {
+            "type": "vehicle_listing",
+            "renderer": "shortcode:rentiva_featured_vehicles"
+        }
+    },
+    "constraints": {
+        "performance": {
+            "max_delta_q": 0
+        }
+    }
+}

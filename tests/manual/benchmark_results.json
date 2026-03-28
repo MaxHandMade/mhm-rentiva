@@ -1,0 +1,94 @@
+{
+    "booking_form": {
+        "Cold": {
+            "duration": 14.5,
+            "memory": 0,
+            "queries": 19,
+            "assets": "CSS:3\/JS:1",
+            "length": 9962
+        },
+        "Warm": {
+            "duration": 3.38,
+            "memory": 0,
+            "queries": 0,
+            "assets": "CSS:3\/JS:1",
+            "length": 9962
+        },
+        "Hot": {
+            "duration": 2.88,
+            "memory": 0,
+            "queries": 0,
+            "assets": "CSS:3\/JS:1",
+            "length": 9962
+        }
+    },
+    "calendar": {
+        "Cold": {
+            "duration": 30.09,
+            "memory": 0,
+            "queries": 22,
+            "assets": "CSS:4\/JS:2",
+            "length": 18097
+        },
+        "Warm": {
+            "duration": 3.35,
+            "memory": 0,
+            "queries": 0,
+            "assets": "CSS:4\/JS:2",
+            "length": 18097
+        },
+        "Hot": {
+            "duration": 3.34,
+            "memory": 0,
+            "queries": 0,
+            "assets": "CSS:4\/JS:2",
+            "length": 18097
+        }
+    },
+    "search_results": {
+        "Cold": {
+            "duration": 30.46,
+            "memory": 0,
+            "queries": 31,
+            "assets": "CSS:8\/JS:8",
+            "length": 37628
+        },
+        "Warm": {
+            "duration": 12.1,
+            "memory": 0,
+            "queries": 0,
+            "assets": "CSS:8\/JS:8",
+            "length": 37628
+        },
+        "Hot": {
+            "duration": 11.44,
+            "memory": 0,
+            "queries": 0,
+            "assets": "CSS:8\/JS:8",
+            "length": 37628
+        }
+    },
+    "vehicle_list": {
+        "Cold": {
+            "duration": 34.9,
+            "memory": 0,
+            "queries": 20,
+            "assets": "CSS:9\/JS:8",
+            "length": 32240
+        },
+        "Warm": {
+            "duration": 10.45,
+            "memory": 0,
+            "queries": 0,
+            "assets": "CSS:9\/JS:8",
+            "length": 32240
+        },
+        "Hot": {
+            "duration": 10.36,
+            "memory": 0,
+            "queries": 0,
+            "assets": "CSS:9\/JS:8",
+            "length": 32240
+        }
+    }
+}
