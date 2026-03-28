@@ -92,7 +92,7 @@ debug_*.php
 debug-*.php
 check_*.php
 check-*.php
-search-*.php
+/search-*.php
 list-*.php
 *_test.php
 *_debug.php
