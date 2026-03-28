@@ -14,8 +14,12 @@ use MHMRentiva\Admin\Licensing\Mode;
 
 /**
  * Sends transactional emails for vendor marketplace events.
- * Hooks into do_action() calls fired by VendorOnboardingController and VendorVehicleReviewManager.
+ *
+ * Hooks into do_action() calls fired by VendorOnboardingController,
+ * VendorVehicleReviewManager, and Vehicle Lifecycle hooks.
  * Pro-only: registered only when canUseVendorMarketplace() is true.
+ *
+ * @since 4.22.0
  */
 final class VendorNotifications
 {

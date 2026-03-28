@@ -8,6 +8,15 @@ if (! defined('ABSPATH')) {
 }
 
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Vehicle admin list-table metrics/filtering intentionally use controlled meta SQL.
+
+/**
+ * Custom columns for the Vehicle admin list table.
+ *
+ * Registers, renders, and sorts additional columns (lifecycle status,
+ * vendor info, financial metrics) on the edit-vehicle screen.
+ *
+ * @since 4.20.0
+ */
 final class VehicleColumns
 {
 
@@ -23,6 +32,11 @@ final class VehicleColumns
 		return sanitize_text_field((string) $value);
 	}
 
+	/**
+	 * Register column hooks for the Vehicle list table.
+	 *
+	 * @since 4.20.0
+	 */
 	public static function register(): void
 	{
 		add_filter('manage_vehicle_posts_columns', array(self::class, 'columns'));
@@ -49,6 +63,12 @@ final class VehicleColumns
 		add_action('admin_notices', array(self::class, 'add_monthly_calendar'));
 	}
 
+	/**
+	 * Define custom columns for the Vehicle list table.
+	 *
+	 * @param array $cols Default columns.
+	 * @return array Modified columns.
+	 */
 	public static function columns(array $cols): array
 	{
 		// Keep title; move date column to end
@@ -71,6 +91,12 @@ final class VehicleColumns
 		return $cols;
 	}
 
+	/**
+	 * Render a custom column value for a vehicle row.
+	 *
+	 * @param string $column  Column identifier.
+	 * @param int    $post_id Vehicle post ID.
+	 */
 	public static function render(string $column, int $post_id): void
 	{
 		switch ($column) {
@@ -185,6 +211,12 @@ final class VehicleColumns
 		}
 	}
 
+	/**
+	 * Define sortable columns for the Vehicle list table.
+	 *
+	 * @param array $cols Default sortable columns.
+	 * @return array Modified sortable columns.
+	 */
 	public static function sortable(array $cols): array
 	{
 		$cols['mhm_price_per_day'] = 'mhm_price_per_day';
