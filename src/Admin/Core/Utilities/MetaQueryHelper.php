@@ -271,4 +271,46 @@ final class MetaQueryHelper
 			'compare' => (is_array($value) && $compare === '=') ? 'IN' : $compare,
 		);
 	}
+
+	/**
+	 * Get meta query that filters only active vehicles for frontend display.
+	 *
+	 * Checks the new lifecycle status meta first; falls back to the legacy
+	 * `_mhm_vehicle_status` key for vehicles not yet migrated.
+	 * Vehicles without either meta are treated as active (legacy default).
+	 *
+	 * @return array WP_Query meta_query fragment (relation OR).
+	 */
+	public static function get_active_vehicle_meta_query(): array
+	{
+		return array(
+			'relation' => 'OR',
+			// New lifecycle meta: explicitly active.
+			array(
+				'key'     => MetaKeys::VEHICLE_LIFECYCLE_STATUS,
+				'value'   => 'active',
+				'compare' => '=',
+			),
+			// Legacy: old status meta = active AND no lifecycle meta yet.
+			array(
+				'relation' => 'AND',
+				array(
+					'key'     => MetaKeys::VEHICLE_LIFECYCLE_STATUS,
+					'compare' => 'NOT EXISTS',
+				),
+				array(
+					'relation' => 'OR',
+					array(
+						'key'     => MetaKeys::VEHICLE_STATUS,
+						'value'   => 'active',
+						'compare' => '=',
+					),
+					array(
+						'key'     => MetaKeys::VEHICLE_STATUS,
+						'compare' => 'NOT EXISTS',
+					),
+				),
+			),
+		);
+	}
 }

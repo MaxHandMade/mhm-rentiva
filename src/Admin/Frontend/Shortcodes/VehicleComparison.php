@@ -492,6 +492,12 @@ final class VehicleComparison extends AbstractShortcode
 			return null;
 		}
 
+		// Exclude maintenance/inactive vehicles from comparison.
+		$status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($post->ID);
+		if ($status !== 'active') {
+			return null;
+		}
+
 		$price           = get_post_meta($post->ID, '_mhm_rentiva_price_per_day', true);
 		$currency_symbol = CurrencyHelper::get_currency_symbol();
 
@@ -673,6 +679,9 @@ final class VehicleComparison extends AbstractShortcode
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
+			'meta_query'     => array(
+				\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_active_vehicle_meta_query(),
+			),
 		);
 
 		$query    = new \WP_Query($args);

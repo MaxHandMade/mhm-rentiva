@@ -211,6 +211,9 @@ final class VehiclesList extends AbstractShortcode
 			'posts_per_page' => intval($atts['limit'] ?? 12),
 			'orderby'        => $atts['orderby'] ?? 'title',
 			'order'          => $atts['order'] ?? 'ASC',
+			'meta_query'     => array(
+				\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_active_vehicle_meta_query(),
+			),
 		);
 
 		// Category filter

@@ -162,6 +162,9 @@ class VehiclesGrid extends AbstractShortcode {
 			'posts_per_page' => intval($atts['limit'] ?? 12),
 			'orderby'        => (string) ( $atts['orderby'] ?? 'title' ),
 			'order'          => (string) ( $atts['order'] ?? 'ASC' ),
+			'meta_query'     => array(
+				\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_active_vehicle_meta_query(),
+			),
 		);
 
 		// Category filter

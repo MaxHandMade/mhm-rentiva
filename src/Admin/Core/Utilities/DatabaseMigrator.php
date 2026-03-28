@@ -22,7 +22,7 @@ final class DatabaseMigrator
 	/**
 	 * Migration version
 	 */
-	private const CURRENT_VERSION = '3.4.0';
+	private const CURRENT_VERSION = '3.5.0';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -66,6 +66,7 @@ final class DatabaseMigrator
 			self::add_missing_indexes();
 			self::cleanup_orphan_data();
 			self::migrate_standalone_settings();
+			self::migrate_vehicle_lifecycle_status();
 
 			// Update version in database
 			update_option('mhm_rentiva_db_version', self::CURRENT_VERSION);
@@ -972,5 +973,65 @@ final class DatabaseMigrator
 		$results = $wpdb->get_results(sprintf('SHOW INDEX FROM `%s` WHERE Key_name = \'%s\'', $table_name, esc_sql($index_name)));
 
 		return ! empty($results);
+	}
+
+	/**
+	 * Migrate existing vehicles to the new lifecycle status meta key.
+	 *
+	 * Maps: active → active, maintenance → paused, inactive → withdrawn (draft).
+	 * Vehicles without _mhm_vehicle_status get 'active' (legacy default).
+	 * Also sets initial listing_started_at and listing_expires_at for published vehicles.
+	 *
+	 * Idempotent — skips vehicles that already have _mhm_vehicle_lifecycle_status set.
+	 */
+	private static function migrate_vehicle_lifecycle_status(): void
+	{
+		if (get_option('mhm_rentiva_lifecycle_migration_done') === '1') {
+			return;
+		}
+
+		global $wpdb;
+
+		// Get all vehicles that do NOT already have the lifecycle meta.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$vehicle_ids = $wpdb->get_col(
+			"SELECT p.ID FROM {$wpdb->posts} p
+			 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_mhm_vehicle_lifecycle_status'
+			 WHERE p.post_type = 'vehicle' AND pm.meta_id IS NULL"
+		);
+
+		if (empty($vehicle_ids)) {
+			update_option('mhm_rentiva_lifecycle_migration_done', '1', false);
+			return;
+		}
+
+		$status_map = array(
+			'active'      => 'active',
+			'maintenance' => 'paused',
+			'inactive'    => 'withdrawn',
+		);
+
+		$now = gmdate('Y-m-d H:i:s');
+
+		foreach ($vehicle_ids as $vid) {
+			$vid        = (int) $vid;
+			$old_status = get_post_meta($vid, '_mhm_vehicle_status', true);
+			$new_status = $status_map[$old_status] ?? 'active';
+
+			update_post_meta($vid, '_mhm_vehicle_lifecycle_status', $new_status);
+
+			// Set listing timer for active/published vehicles.
+			$post_status = get_post_status($vid);
+			if ($new_status === 'active' && $post_status === 'publish') {
+				$published = get_post_field('post_date_gmt', $vid);
+				if (! empty($published) && $published !== '0000-00-00 00:00:00') {
+					update_post_meta($vid, '_mhm_vehicle_listing_started_at', $published);
+					$expires = gmdate('Y-m-d H:i:s', strtotime($now . ' +90 days'));
+					update_post_meta($vid, '_mhm_vehicle_listing_expires_at', $expires);
+				}
+			}
+		}
+
+		update_option('mhm_rentiva_lifecycle_migration_done', '1', false);
 	}
 }

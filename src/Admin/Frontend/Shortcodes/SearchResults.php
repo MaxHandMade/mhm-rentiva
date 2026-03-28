@@ -360,6 +360,9 @@ final class SearchResults extends AbstractShortcode {
 			'meta_query'     => array(),
 		);
 
+		// Only show active vehicles (excludes maintenance/inactive).
+		$args['meta_query'][] = \MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_active_vehicle_meta_query();
+
 		// Exclude transfer-only vehicles from rental search results.
 		$args['meta_query'][] = array(
 			'relation' => 'OR',

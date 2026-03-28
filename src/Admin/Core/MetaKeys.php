@@ -43,6 +43,21 @@ final class MetaKeys
 	public const VEHICLE_LOCATION_ID      = '_mhm_rentiva_location_id';
 	public const VENDOR_LOCATION_ID       = '_mhm_rentiva_vendor_location_id';
 
+	// Vehicle Lifecycle Meta Keys
+	public const VEHICLE_LIFECYCLE_STATUS    = '_mhm_vehicle_lifecycle_status';
+	public const VEHICLE_LISTING_STARTED_AT  = '_mhm_vehicle_listing_started_at';
+	public const VEHICLE_LISTING_EXPIRES_AT  = '_mhm_vehicle_listing_expires_at';
+	public const VEHICLE_LISTING_RENEWED_AT  = '_mhm_vehicle_listing_renewed_at';
+	public const VEHICLE_LISTING_RENEWAL_CNT = '_mhm_vehicle_listing_renewal_count';
+	public const VEHICLE_PAUSED_AT           = '_mhm_vehicle_paused_at';
+	public const VEHICLE_WITHDRAWN_AT        = '_mhm_vehicle_withdrawn_at';
+	public const VEHICLE_COOLDOWN_ENDS_AT    = '_mhm_vehicle_cooldown_ends_at';
+	public const VEHICLE_BLOCKED_DATES       = '_mhm_vehicle_blocked_dates';
+
+	// Vendor Reliability Meta Keys
+	public const VENDOR_RELIABILITY_SCORE      = '_rentiva_vendor_reliability_score';
+	public const VENDOR_RELIABILITY_UPDATED_AT = '_rentiva_vendor_reliability_updated_at';
+
 	// Booking Meta Keys
 	public const BOOKING_STATUS              = '_mhm_status';
 	public const BOOKING_START_TS            = '_mhm_start_ts';

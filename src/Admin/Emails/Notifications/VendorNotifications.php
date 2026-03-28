@@ -42,6 +42,13 @@ final class VendorNotifications
 		add_action('mhm_rentiva_vendor_vehicle_submitted', array(self::class, 'on_vehicle_submitted'), 10, 2);
 		add_action('mhm_rentiva_vehicle_needs_rereview', array(self::class, 'on_vehicle_needs_rereview'), 10, 1);
 
+		// Vehicle lifecycle notifications
+		add_action('mhm_rentiva_vehicle_lifecycle_changed', array(self::class, 'on_lifecycle_changed'), 10, 3);
+		add_action('mhm_rentiva_vehicle_expiry_warning_first', array(self::class, 'on_expiry_warning_first'), 10, 4);
+		add_action('mhm_rentiva_vehicle_expiry_warning_second', array(self::class, 'on_expiry_warning_second'), 10, 4);
+		add_action('mhm_rentiva_vehicle_renewed', array(self::class, 'on_vehicle_renewed'), 10, 1);
+		add_action('mhm_rentiva_vehicle_relist', array(self::class, 'on_vehicle_relisted'), 10, 2);
+
 		// Financial notifications
 		add_action('mhm_rentiva_payout_approved', array(self::class, 'on_payout_approved'), 10, 3);
 		add_action('mhm_rentiva_payout_rejected', array(self::class, 'on_payout_rejected'), 10, 4);
@@ -108,6 +115,44 @@ final class VendorNotifications
 		$registry['vehicle_rereview_admin'] = array(
 			'subject' => __('[Admin] Vehicle edited — re-review needed — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-rereview-admin',
+		);
+
+		// Vehicle Lifecycle Templates
+		$registry['vehicle_activated'] = array(
+			'subject' => __('Your listing is now live! — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vehicle-activated',
+		);
+		$registry['vehicle_paused'] = array(
+			'subject' => __('Vehicle paused — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vehicle-paused',
+		);
+		$registry['vehicle_resumed'] = array(
+			'subject' => __('Vehicle resumed — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vehicle-resumed',
+		);
+		$registry['vehicle_withdrawn'] = array(
+			'subject' => __('Vehicle withdrawn — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vehicle-withdrawn',
+		);
+		$registry['vehicle_expired'] = array(
+			'subject' => __('Your listing has expired — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vehicle-expired',
+		);
+		$registry['vehicle_expiry_warning_first'] = array(
+			'subject' => __('Your listing expires in {{lifecycle.days_remaining}} days — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vehicle-expiry-warning',
+		);
+		$registry['vehicle_expiry_warning_second'] = array(
+			'subject' => __('Urgent: Your listing expires in {{lifecycle.days_remaining}} days — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vehicle-expiry-warning',
+		);
+		$registry['vehicle_renewed'] = array(
+			'subject' => __('Listing renewed — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vehicle-renewed',
+		);
+		$registry['vehicle_relisted'] = array(
+			'subject' => __('Vehicle submitted for review — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vehicle-relisted',
 		);
 
 		return $registry;
@@ -412,5 +457,184 @@ final class VendorNotifications
 
 		$ctx = self::build_vendor_context($user);
 		Mailer::send('iban_change_rejected', $user->user_email, $ctx);
+	}
+
+	// ---------------------------------------------------------------
+	// Vehicle lifecycle notification handlers
+	// ---------------------------------------------------------------
+
+	/**
+	 * Vehicle lifecycle state changed — route to specific email template.
+	 *
+	 * @param int    $vehicle_id Vehicle post ID.
+	 * @param string $old_status Previous lifecycle status.
+	 * @param string $new_status New lifecycle status.
+	 */
+	public static function on_lifecycle_changed(int $vehicle_id, string $old_status, string $new_status): void
+	{
+		$vendor_id = (int) get_post_field('post_author', $vehicle_id);
+		$user      = get_userdata($vendor_id);
+
+		if (! $user) {
+			return;
+		}
+
+		$vehicle = get_post($vehicle_id);
+		$ctx     = self::build_vendor_context($user);
+
+		$ctx['vehicle'] = array(
+			'title' => $vehicle ? (string) $vehicle->post_title : '',
+			'url'   => $vehicle ? (string) get_permalink($vehicle_id) : '',
+			'id'    => $vehicle_id,
+		);
+		$ctx['lifecycle'] = array(
+			'old_status' => $old_status,
+			'new_status' => $new_status,
+		);
+
+		$template_map = array(
+			'active'    => 'vehicle_activated',
+			'paused'    => 'vehicle_paused',
+			'expired'   => 'vehicle_expired',
+			'withdrawn' => 'vehicle_withdrawn',
+		);
+
+		// Resume = paused → active
+		if ($old_status === 'paused' && $new_status === 'active') {
+			Mailer::send('vehicle_resumed', $user->user_email, $ctx);
+			return;
+		}
+
+		if (isset($template_map[$new_status])) {
+			// Add penalty info for withdrawal.
+			if ($new_status === 'withdrawn') {
+				$penalty = \MHMRentiva\Admin\Vehicle\PenaltyCalculator::calculate_withdrawal_penalty($vehicle_id, $vendor_id);
+				$ctx['lifecycle']['penalty']           = $penalty;
+				$ctx['lifecycle']['penalty_formatted']  = self::format_amount($penalty);
+				$ctx['lifecycle']['cooldown_days']      = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::WITHDRAWAL_COOLDOWN_DAYS;
+			}
+
+			// Add expiry info for activation.
+			if ($new_status === 'active') {
+				$expires = get_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
+				$ctx['lifecycle']['expires_at']   = $expires ?: '';
+				$ctx['lifecycle']['duration_days'] = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::LISTING_DURATION_DAYS;
+			}
+
+			Mailer::send($template_map[$new_status], $user->user_email, $ctx);
+		}
+	}
+
+	/**
+	 * First expiry warning (10 days before).
+	 *
+	 * @param int    $vehicle_id Vehicle post ID.
+	 * @param int    $vendor_id  Vendor user ID.
+	 * @param string $expires_at Expiry datetime (UTC).
+	 * @param int    $days_before Days before expiry.
+	 */
+	public static function on_expiry_warning_first(int $vehicle_id, int $vendor_id, string $expires_at, int $days_before): void
+	{
+		self::send_expiry_warning('vehicle_expiry_warning_first', $vehicle_id, $vendor_id, $expires_at, $days_before);
+	}
+
+	/**
+	 * Second expiry warning (3 days before).
+	 *
+	 * @param int    $vehicle_id Vehicle post ID.
+	 * @param int    $vendor_id  Vendor user ID.
+	 * @param string $expires_at Expiry datetime (UTC).
+	 * @param int    $days_before Days before expiry.
+	 */
+	public static function on_expiry_warning_second(int $vehicle_id, int $vendor_id, string $expires_at, int $days_before): void
+	{
+		self::send_expiry_warning('vehicle_expiry_warning_second', $vehicle_id, $vendor_id, $expires_at, $days_before);
+	}
+
+	/**
+	 * Vehicle renewed — notify vendor.
+	 *
+	 * @param int $vehicle_id Vehicle post ID.
+	 */
+	public static function on_vehicle_renewed(int $vehicle_id): void
+	{
+		$vendor_id = (int) get_post_field('post_author', $vehicle_id);
+		$user      = get_userdata($vendor_id);
+
+		if (! $user) {
+			return;
+		}
+
+		$vehicle = get_post($vehicle_id);
+		$ctx     = self::build_vendor_context($user);
+
+		$ctx['vehicle'] = array(
+			'title' => $vehicle ? (string) $vehicle->post_title : '',
+			'url'   => $vehicle ? (string) get_permalink($vehicle_id) : '',
+		);
+
+		$expires = get_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
+		$ctx['lifecycle'] = array(
+			'expires_at'   => $expires ?: '',
+			'duration_days' => \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::LISTING_DURATION_DAYS,
+		);
+
+		Mailer::send('vehicle_renewed', $user->user_email, $ctx);
+	}
+
+	/**
+	 * Vehicle relisted — notify vendor.
+	 *
+	 * @param int $vehicle_id Vehicle post ID.
+	 * @param int $vendor_id  Vendor user ID.
+	 */
+	public static function on_vehicle_relisted(int $vehicle_id, int $vendor_id): void
+	{
+		$user = get_userdata($vendor_id);
+		if (! $user) {
+			return;
+		}
+
+		$vehicle = get_post($vehicle_id);
+		$ctx     = self::build_vendor_context($user);
+
+		$ctx['vehicle'] = array(
+			'title' => $vehicle ? (string) $vehicle->post_title : '',
+		);
+
+		Mailer::send('vehicle_relisted', $user->user_email, $ctx);
+	}
+
+	/**
+	 * Send an expiry warning email.
+	 *
+	 * @param string $template_key Email template key.
+	 * @param int    $vehicle_id   Vehicle post ID.
+	 * @param int    $vendor_id    Vendor user ID.
+	 * @param string $expires_at   Expiry datetime (UTC).
+	 * @param int    $days_before  Days before expiry.
+	 */
+	private static function send_expiry_warning(string $template_key, int $vehicle_id, int $vendor_id, string $expires_at, int $days_before): void
+	{
+		$user = get_userdata($vendor_id);
+		if (! $user) {
+			return;
+		}
+
+		$vehicle = get_post($vehicle_id);
+		$ctx     = self::build_vendor_context($user);
+
+		$ctx['vehicle'] = array(
+			'title' => $vehicle ? (string) $vehicle->post_title : '',
+			'url'   => $vehicle ? (string) get_permalink($vehicle_id) : '',
+		);
+
+		$days_remaining = max(0, (int) ceil((strtotime($expires_at) - time()) / DAY_IN_SECONDS));
+		$ctx['lifecycle'] = array(
+			'expires_at'     => $expires_at,
+			'days_remaining' => $days_remaining,
+		);
+
+		Mailer::send($template_key, $user->user_email, $ctx);
 	}
 }

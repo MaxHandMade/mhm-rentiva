@@ -179,6 +179,9 @@ final class VehicleDetails extends AbstractShortcode {
 				'posts_per_page' => 1,
 				'no_found_rows'  => true,
 				'fields'         => 'ids',
+				'meta_query'     => array(
+					\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_active_vehicle_meta_query(),
+				),
 			) );
 			if ( ! empty( $matches ) ) {
 				return (int) $matches[0];

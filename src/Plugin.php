@@ -187,6 +187,17 @@ final class Plugin
 			\MHMRentiva\Admin\Core\Utilities\LogMaintenanceScheduler::init();
 		}
 
+		// Vehicle Lifecycle Cron Jobs (must run in ALL contexts like AutoCancel)
+		if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob')) {
+			\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob::register();
+		}
+		if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob')) {
+			\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob::register();
+		}
+		if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob')) {
+			\MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob::register();
+		}
+
 		// Privacy and Data Retention
 		if ($this->is_class_available('\MHMRentiva\Admin\Privacy\DataRetentionManager')) {
 			\MHMRentiva\Admin\Privacy\DataRetentionManager::init();
@@ -250,9 +261,29 @@ final class Plugin
 			\MHMRentiva\Admin\Vendor\VendorVehicleReviewManager::register();
 		}
 
+		// Vehicle lifecycle manager — hooks into approval flow to start listing timer.
+		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\VehicleLifecycleManager')) {
+			\MHMRentiva\Admin\Vehicle\VehicleLifecycleManager::register();
+		}
+
 		// Vendor email notifications — hook into vendor/vehicle lifecycle actions.
 		if ($this->is_class_available('\MHMRentiva\Admin\Emails\Notifications\VendorNotifications')) {
 			\MHMRentiva\Admin\Emails\Notifications\VendorNotifications::register();
+		}
+
+		// Vehicle lifecycle AJAX controller (vendor self-service: pause/resume/withdraw/renew/relist).
+		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController')) {
+			\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController::register();
+		}
+
+		// Withdrawal penalty recorder — writes ledger entry on withdrawal hook.
+		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\PenaltyRecorder')) {
+			\MHMRentiva\Admin\Vehicle\PenaltyRecorder::register();
+		}
+
+		// Anti-gaming: block dates when vendor cancels a confirmed booking.
+		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\VendorCancellationDateBlocker')) {
+			\MHMRentiva\Admin\Vehicle\VendorCancellationDateBlocker::register();
 		}
 	}
 
@@ -323,6 +354,16 @@ final class Plugin
 		// List table columns
 		if ($this->is_class_available('MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns')) {
 			\MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::register();
+		}
+
+		// Vehicle lifecycle meta box (admin sidebar).
+		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\Meta\LifecycleMetaBox')) {
+			\MHMRentiva\Admin\Vehicle\Meta\LifecycleMetaBox::register();
+		}
+
+		// Vendor reliability score column in Users table.
+		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\VendorReliabilityColumn')) {
+			\MHMRentiva\Admin\Vehicle\VendorReliabilityColumn::register();
 		}
 
 		if ($this->is_class_available('MHMRentiva\Admin\Booking\ListTable\BookingColumns')) {

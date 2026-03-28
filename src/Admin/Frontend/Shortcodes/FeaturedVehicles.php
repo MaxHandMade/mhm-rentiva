@@ -135,15 +135,18 @@ final class FeaturedVehicles extends AbstractShortcode
 			'fields'         => 'ids', // Only need IDs
 		);
 
+		// Always filter only active vehicles (excludes maintenance/inactive).
+		$args['meta_query'] = array(
+			\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_active_vehicle_meta_query(),
+		);
+
 		// Filter by IDs
 		if (! empty($atts['ids'])) {
 			$args['post__in'] = array_map('intval', explode(',', (string) $atts['ids']));
 			$args['orderby']  = 'post__in';
 		} else {
 			// MUST filter by featured meta if no IDs provided.
-			$args['meta_query'] = array(
-				\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_featured_meta_query('1'),
-			);
+			$args['meta_query'][] = \MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_featured_meta_query('1');
 		}
 
 		// Filter by Category

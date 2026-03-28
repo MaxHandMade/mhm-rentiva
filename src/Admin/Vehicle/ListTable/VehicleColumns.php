@@ -62,6 +62,7 @@ final class VehicleColumns
 		$cols['mhm_transmission']  = __('Transmission', 'mhm-rentiva');
 		$cols['mhm_fuel_type']     = __('Fuel', 'mhm-rentiva');
 		$cols['mhm_available']     = __('Available', 'mhm-rentiva');
+		$cols['mhm_lifecycle']     = __('Lifecycle', 'mhm-rentiva');
 		$cols['mhm_featured']      = __('Featured', 'mhm-rentiva');
 
 		if ($date !== null) {
@@ -156,6 +157,25 @@ final class VehicleColumns
 
 
 				echo '</span>';
+				break;
+
+			case 'mhm_lifecycle':
+				$lifecycle = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::get($post_id);
+				$label     = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::get_label($lifecycle);
+				$color     = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::get_color($lifecycle);
+
+				echo '<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:' . esc_attr($color) . '20;color:' . esc_attr($color) . ';font-weight:600;font-size:12px;">';
+				echo esc_html($label);
+				echo '</span>';
+
+				$expires = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
+				if ($lifecycle === 'active' && $expires) {
+					$days_left = max(0, (int) ceil((strtotime($expires) - time()) / DAY_IN_SECONDS));
+					echo '<br><small style="color:#666;">' . esc_html(
+						/* translators: %d: days remaining */
+						sprintf(__('%d days left', 'mhm-rentiva'), $days_left)
+					) . '</small>';
+				}
 				break;
 
 			case 'mhm_featured':
