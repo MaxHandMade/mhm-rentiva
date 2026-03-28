@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.23.0
+Stable tag:        4.24.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -23,8 +23,9 @@ MHM Rentiva is a comprehensive vehicle rental management solution designed for c
 *   **Payment Integration:** Seamless WooCommerce integration for all frontend payments (Online & Offline methods). Admin-only native offline payment support for manual bookings.
 *   **Customer Management:** Manage customer information and booking history.
 *   **Vendor Marketplace (Pro):** Multi-vendor platform where vehicle owners apply, list vehicles, set route pricing, and manage finances through a dedicated vendor panel.
+*   **Vehicle Lifecycle Management (Pro):** 90-day listing duration with auto-expiry, vendor self-service (pause/resume/withdraw/renew), progressive withdrawal penalties, reliability scoring, and anti-gaming date blocking (v4.24.0).
 *   **VIP Transfer Module:** Point-to-point transfer booking with city-based location hierarchy, route-based pricing, and vendor-specific pricing support (v4.23.0).
-*   **Email Notifications:** Customizable email templates for booking confirmations, cancellations, vendor notifications, and more.
+*   **Email Notifications:** Customizable email templates for booking confirmations, cancellations, vendor lifecycle notifications, and more.
 *   **Shortcode Support:** Easy-to-use shortcodes to display vehicle lists, search forms, and booking wizards anywhere on your site.
 *   **REST API:** Full REST API support for mobile app or external integrations.
 *   **Gutenberg Blocks:** 19 blocks with Render Parity architecture — identical output across Gutenberg, Elementor, and shortcodes.
@@ -80,6 +81,20 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.24.0 =
+* **Vehicle Lifecycle Management:** Complete state machine — Active, Paused, Expired, Withdrawn states with enforced transition rules.
+* **Listing Duration:** 90-day listing period with automatic cron-based expiry and 10-day/3-day warning emails.
+* **Vendor Self-Service:** AJAX endpoints for pause, resume, withdraw, renew, and relist actions.
+* **Progressive Penalties:** Withdrawal penalty system — 1st free, 2nd 10%, 3rd+ 25% of monthly avg revenue (12-month rolling window).
+* **Anti-Gaming:** Vendor-cancelled booking dates re-blocked for 30 days to prevent price manipulation.
+* **Reliability Score:** Vendor reliability score (0-100) with daily cron recalculation based on cancellations, withdrawals, pauses, and completions.
+* **Email Notifications:** 9 new lifecycle email templates — activated, paused, resumed, withdrawn, expired, expiry warnings, renewed, relisted.
+* **Admin UI:** Lifecycle status column on vehicle list table, lifecycle meta box on vehicle edit screen, vendor reliability column on users list.
+* **Active Vehicle Filter:** All 6 frontend shortcodes now filter out maintenance/inactive vehicles via MetaQueryHelper.
+* **Vendor Forms:** City selectWoo migration, vendor settings redesign, account holder/tax office fields, login redirect.
+* **Database Migration:** v3.5.0 — vehicle lifecycle status migration for existing active vehicles.
+* **Tests:** 665 tests, 2248 assertions (up from 567/2036).
 
 = 4.23.0 =
 * **Vendor Transfer Architecture:** City-based location hierarchy for vendor marketplace — vendors see only their city's transfer locations and routes.

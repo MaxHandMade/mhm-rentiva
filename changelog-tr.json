@@ -1,5 +1,25 @@
 [
     {
+        "version": "4.24.0",
+        "date": "2026-03-28",
+        "type": "minor",
+        "changes": [
+            "🚀 YAŞAM DÖNGÜSÜ: Araç Yaşam Döngüsü Yönetimi — Aktif, Duraklatılmış, Süresi Dolmuş, Geri Çekilmiş durumları ile tam durum makinesi.",
+            "⏱️ LİSTELEME SÜRESİ: 90 gün listeleme süresi, cron tabanlı otomatik süre dolumu, 10 gün ve 3 gün uyarı e-postaları.",
+            "🎮 VENDOR SELF-SERVİS: Duraklat, devam et, geri çek, yenile, yeniden listele AJAX uç noktaları.",
+            "💸 CEZA SİSTEMİ: Artan geri çekme cezası — 1. ücretsiz, 2. %10, 3.+ %25 (12 aylık kayan pencere, aylık ortalama gelir üzerinden).",
+            "🛡️ ANTİ-GAMİNG: Vendor iptal ettiği rezervasyon tarihleri 30 gün boyunca yeniden bloklanır — fiyat manipülasyonu engellenir.",
+            "⭐ GÜVENİLİRLİK PUANI: Vendor güvenilirlik skoru (0-100), günlük cron ile yeniden hesaplama. İptal, geri çekme, duraklatma ve tamamlama bazlı formül.",
+            "📧 BİLDİRİMLER: 9 yeni yaşam döngüsü e-posta şablonu — aktifleştirme, duraklatma, devam, geri çekme, süre dolumu, uyarılar, yenileme, yeniden listeleme.",
+            "📊 ADMİN UI: Araç listesinde yaşam döngüsü sütunu, araç düzenleme ekranında meta kutu, kullanıcı listesinde vendor güvenilirlik sütunu.",
+            "🔍 AKTİF FİLTRE: 6 frontend shortcode artık bakımdaki/pasif araçları MetaQueryHelper ile filtreler.",
+            "🔄 VENDOR FORMLARI: Şehir selectWoo migrasyonu, vendor ayarlar yeniden tasarımı, hesap sahibi/vergi dairesi alanları, giriş yönlendirme.",
+            "🗄️ VERİTABANI: v3.5.0 migration — mevcut aktif araçlar için yaşam döngüsü durumu migrasyonu.",
+            "✅ TEST: 665 test, 2248 assertion (567/2036'dan artış)."
+        ],
+        "notice": "v4.24.0 - Araç Yaşam Döngüsü Yönetimi & Vendor Self-Servis"
+    },
+    {
         "version": "4.23.1",
         "date": "2026-03-28",
         "type": "patch",
