@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.23.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.24.0-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -315,10 +315,50 @@ ging**: All emails logged for debugging
 - Booking Requests: Incoming reservation management
 - Ledger & Payouts: Financial overview and payout requests
 
-**Vendor Notifications (6 Email Templates):**
+**Vendor Notifications (15 Email Templates):**
 - Application submitted/approved/rejected
 - Vehicle approved/rejected
 - Payout approved/rejected
+- Lifecycle: activated/paused/resumed/withdrawn/expired/expiry warnings/renewed/relisted
+
+### 🔄 Vehicle Lifecycle Management (Pro, v4.24.0)
+
+**State Machine:**
+- **5 States**: Pending Review, Active, Paused, Expired, Withdrawn
+- **Transition Rules**: Enforced state machine with allowed transitions
+- **90-Day Listings**: Automatic listing duration with cron-based expiry
+
+**Vendor Self-Service:**
+- Pause/Resume: Temporarily hide listing (timer continues)
+- Withdraw: Permanently remove with 7-day cooldown before relisting
+- Renew: Extend active listing for another 90 days
+- Relist: Resubmit withdrawn vehicle for admin review
+
+**Progressive Penalties:**
+- 1st withdrawal: Free
+- 2nd withdrawal: 10% of monthly average revenue
+- 3rd+ withdrawal: 25% of monthly average revenue
+- Rolling 12-month window with ledger-integrated penalty recording
+
+**Reliability Score (0-100):**
+- Daily cron recalculation for all vendors
+- Formula: Base 100, -5/cancellation, -10/withdrawal, -2/pause, +5/completion (max +20)
+- Labels: Excellent (90+), Good (70+), Fair (50+), Poor (<50)
+- Displayed on admin Users list and vehicle edit meta box
+
+**Anti-Gaming Protection:**
+- Vendor-cancelled booking dates re-blocked for 30 days
+- Prevents price manipulation via cancel-and-relist tactics
+
+**Admin UI:**
+- Lifecycle status column on vehicle list table (colored badges with days remaining)
+- Read-only lifecycle meta box on vehicle edit screen
+- Vendor reliability score column on Users list (sortable)
+
+**Automated Notifications:**
+- 10-day and 3-day expiry warning emails
+- Status change notifications (activated, paused, resumed, withdrawn, expired)
+- Renewal and relist confirmation emails
 
 ### 🌍 Internationalization & Localization
 
@@ -726,6 +766,7 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 | **Advanced Reports** | ❌ | ✅ (FEATURE_REPORTS_ADV) |
 | **Messaging System** | ❌ | ✅ (FEATURE_MESSAGES) |
 | **Vendor Marketplace** | ❌ | ✅ (Pro) |
+| **Vehicle Lifecycle Management** | ❌ | ✅ (Pro) |
 | **API Access** | Limited | Full REST API |
 
 #### License Administration

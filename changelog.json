@@ -1,5 +1,25 @@
 [
     {
+        "version": "4.24.0",
+        "date": "2026-03-28",
+        "type": "minor",
+        "changes": [
+            "Vehicle Lifecycle Management: Complete state machine — Active, Paused, Expired, Withdrawn states with enforced transition rules.",
+            "Listing Duration: 90-day listing period with cron-based auto-expiry and 10-day/3-day warning emails.",
+            "Vendor Self-Service: AJAX endpoints for pause, resume, withdraw, renew, and relist actions.",
+            "Progressive Penalties: Withdrawal penalty — 1st free, 2nd 10%, 3rd+ 25% of monthly avg revenue (12-month rolling window).",
+            "Anti-Gaming: Vendor-cancelled booking dates re-blocked for 30 days to prevent price manipulation.",
+            "Reliability Score: Vendor reliability score (0-100) with daily cron recalculation.",
+            "Email Notifications: 9 new lifecycle templates — activated, paused, resumed, withdrawn, expired, expiry warnings, renewed, relisted.",
+            "Admin UI: Lifecycle column on vehicle list, lifecycle meta box on vehicle edit, vendor reliability column on users list.",
+            "Active Vehicle Filter: All 6 frontend shortcodes filter inactive/maintenance vehicles via MetaQueryHelper.",
+            "Vendor Forms: City selectWoo migration, vendor settings redesign, account holder/tax office fields, login redirect.",
+            "Database Migration v3.5.0: Vehicle lifecycle status migration for existing active vehicles.",
+            "Tests: 665 tests, 2248 assertions (up from 567/2036)."
+        ],
+        "notice": "v4.24.0 - Vehicle Lifecycle Management & Vendor Self-Service"
+    },
+    {
         "version": "4.23.0",
         "date": "2026-03-26",
         "type": "minor",

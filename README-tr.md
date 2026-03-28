@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.23.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.24.0-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -49,6 +49,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - **Ödeme İşleme**: Tüm frontend rezervasyonları için WooCommerce entegrasyonu ile güvenli ödeme işlemleri
 - **WooCommerce Hesabım Entegrasyonu**: Müşteriler standart WooCommerce "Hesabım" sayfasını kullanır; eklenti bu sayfaya Rezervasyonlarım, Favorilerim, Ödeme Geçmişi ve Mesajlar gibi özel sekmeler ekler
 - **Vendor Marketplace** *(Pro)*: Araç sahiplerinin platforma başvurmasına, araçlarını frontend üzerinden listelemesine (araç gönderme formu), finansal hareketlerini takip etmesine ve vendor dashboard üzerinden durumlarını görüntülemesine olanak tanıyan çok satıcılı pazar yeri sistemi
+- **Araç Yaşam Döngüsü Yönetimi** *(Pro, v4.24.0)*: 90 gün listeleme süresi, vendor self-servis (duraklat/devam/geri çek/yenile), artan ceza sistemi, güvenilirlik puanı, anti-gaming tarih bloklama
 - **Analitik ve Raporlama**: Gelir, müşteri ve araç içgörüleri ile kapsamlı analitik dashboard
 - **E-posta Sistemi**: Özelleştirilebilir HTML şablonları ile otomatik e-posta bildirimleri
 - **Mesajlaşma Sistemi**: Thread yönetimi ile yerleşik müşteri destek mesajlaşması
@@ -328,10 +329,49 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - Rezervasyon Talepleri: Gelen rezervasyon yönetimi
 - Defter & Ödemeler: Finansal genel bakış ve ödeme talepleri
 
-**Vendor Bildirimleri (6 E-posta Şablonu):**
+**Vendor Bildirimleri (15 E-posta Şablonu):**
 - Başvuru gönderildi/onaylandı/reddedildi
 - Araç onaylandı/reddedildi
 - Ödeme onaylandı/reddedildi
+- Yaşam döngüsü: aktifleştirme/duraklatma/devam/geri çekme/süre dolumu/uyarılar/yenileme/yeniden listeleme
+
+### 🔄 Araç Yaşam Döngüsü Yönetimi (Pro, v4.24.0)
+
+**Durum Makinesi:**
+- **5 Durum**: Onay Bekliyor, Aktif, Duraklatılmış, Süresi Dolmuş, Geri Çekilmiş
+- **Geçiş Kuralları**: Zorunlu durum makinesi ile izin verilen geçişler
+- **90 Gün Listeleme**: Cron tabanlı otomatik süre dolumu
+
+**Vendor Self-Servis:**
+- Duraklat/Devam Et: İlanı geçici olarak gizle (zamanlayıcı devam eder)
+- Geri Çek: Kalıcı olarak kaldır, 7 gün bekleme süresi sonra yeniden listeleme
+- Yenile: Aktif ilanı 90 gün daha uzat
+- Yeniden Listele: Geri çekilen aracı admin onayına tekrar gönder
+
+**Artan Ceza Sistemi:**
+- 1. geri çekme: Ücretsiz
+- 2. geri çekme: Aylık ortalama gelirin %10'u
+- 3.+ geri çekme: Aylık ortalama gelirin %25'i
+- 12 aylık kayan pencere, deftere entegre ceza kaydı
+
+**Güvenilirlik Puanı (0-100):**
+- Tüm vendor'lar için günlük cron ile yeniden hesaplama
+- Formül: Baz 100, -5/iptal, -10/geri çekme, -2/duraklatma, +5/tamamlama (maks +20)
+- Etiketler: Mükemmel (90+), İyi (70+), Orta (50+), Zayıf (<50)
+
+**Anti-Gaming Koruması:**
+- Vendor iptal ettiği rezervasyon tarihleri 30 gün boyunca yeniden bloklanır
+- İptal et-yeniden listele taktiğiyle fiyat manipülasyonunu engeller
+
+**Admin Arayüzü:**
+- Araç listesinde yaşam döngüsü durumu sütunu (renkli rozetler + kalan gün)
+- Araç düzenleme ekranında salt okunur yaşam döngüsü meta kutusu
+- Kullanıcı listesinde vendor güvenilirlik puanı sütunu (sıralanabilir)
+
+**Otomatik Bildirimler:**
+- 10 gün ve 3 gün süre dolumu uyarı e-postaları
+- Durum değişikliği bildirimleri (aktif, duraklatılmış, devam, geri çekilmiş, süresi dolmuş)
+- Yenileme ve yeniden listeleme onay e-postaları
 
 ### 🌍 Uluslararasılaştırma ve Yerelleştirme
 
