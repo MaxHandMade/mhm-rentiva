@@ -87,6 +87,62 @@ function initVendorListingsPanel() {
         btn.setAttribute('aria-expanded', 'false');
         setTimeout(function () { window.location.reload(); }, 1500);
     });
+
+    initVendorLifecycleActions();
+}
+
+function initVendorLifecycleActions() {
+    var confirmMessages = {
+        withdraw: (typeof mhmRentivaAnalytics !== 'undefined' && mhmRentivaAnalytics.i18n && mhmRentivaAnalytics.i18n.confirmWithdraw)
+            ? mhmRentivaAnalytics.i18n.confirmWithdraw
+            : 'Are you sure you want to withdraw this vehicle? A penalty may apply.',
+        relist: (typeof mhmRentivaAnalytics !== 'undefined' && mhmRentivaAnalytics.i18n && mhmRentivaAnalytics.i18n.confirmRelist)
+            ? mhmRentivaAnalytics.i18n.confirmRelist
+            : 'Relist this vehicle for review?',
+    };
+
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('.mhm-lifecycle-btn');
+        if (!btn) return;
+
+        var action = btn.dataset.action;
+        var vehicleId = btn.dataset.vehicleId;
+        if (!action || !vehicleId) return;
+
+        if (confirmMessages[action] && !window.confirm(confirmMessages[action])) return;
+
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+
+        var data = new URLSearchParams();
+        data.append('action', 'mhm_vehicle_lifecycle_' + action);
+        data.append('vehicle_id', vehicleId);
+        data.append('nonce', mhmRentivaAnalytics.lifecycleNonce);
+
+        fetch(mhmRentivaAnalytics.ajaxUrl, { method: 'POST', body: data })
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+                if (res.success) {
+                    var msg = (res.data && res.data.message) ? res.data.message : 'Done.';
+                    if (typeof mhmShowToast === 'function') {
+                        mhmShowToast(msg, 'success');
+                    } else {
+                        alert(msg);
+                    }
+                    setTimeout(function () { window.location.reload(); }, 1200);
+                } else {
+                    var errMsg = (res.data && res.data.message) ? res.data.message : 'An error occurred.';
+                    alert(errMsg);
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }
+            })
+            .catch(function () {
+                alert('Request failed. Please try again.');
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            });
+    });
 }
 
 function initPayoutDashboardAjax() {

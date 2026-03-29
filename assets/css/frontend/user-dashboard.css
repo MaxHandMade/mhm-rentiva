@@ -1299,6 +1299,42 @@ margin: 0;
 	background: #eef2ff;
 }
 
+.mhm-vendor-listing-card__action.is-caution {
+	color: #b45309;
+	border: 1.5px solid rgba(180, 83, 9, 0.2);
+	background: transparent;
+	cursor: pointer;
+}
+
+.mhm-vendor-listing-card__action.is-caution:hover {
+	border-color: rgba(180, 83, 9, 0.4);
+	background: #fffbeb;
+}
+
+.mhm-vendor-listing-card__action.is-success {
+	color: #15803d;
+	border: 1.5px solid rgba(21, 128, 61, 0.2);
+	background: transparent;
+	cursor: pointer;
+}
+
+.mhm-vendor-listing-card__action.is-success:hover {
+	border-color: rgba(21, 128, 61, 0.4);
+	background: #f0fdf4;
+}
+
+.mhm-vendor-listing-card__action.is-danger {
+	color: #dc2626;
+	border: 1.5px solid rgba(220, 38, 38, 0.2);
+	background: transparent;
+	cursor: pointer;
+}
+
+.mhm-vendor-listing-card__action.is-danger:hover {
+	border-color: rgba(220, 38, 38, 0.4);
+	background: #fef2f2;
+}
+
 /* Empty State */
 .mhm-vendor-listings-page__empty {
 	text-align: center;

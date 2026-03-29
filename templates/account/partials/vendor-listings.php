@@ -39,6 +39,14 @@ $review_status_labels = array(
 	),
 );
 
+$lifecycle_status_labels = array(
+	'active'         => array( 'label' => __( 'Active', 'mhm-rentiva' ), 'class' => 'is-confirmed' ),
+	'paused'         => array( 'label' => __( 'Paused', 'mhm-rentiva' ), 'class' => 'is-progress' ),
+	'expired'        => array( 'label' => __( 'Expired', 'mhm-rentiva' ), 'class' => 'is-cancelled' ),
+	'withdrawn'      => array( 'label' => __( 'Withdrawn', 'mhm-rentiva' ), 'class' => 'is-cancelled' ),
+	'pending_review' => array( 'label' => __( 'Awaiting Review', 'mhm-rentiva' ), 'class' => 'is-pending' ),
+);
+
 $format_currency = static function ( float $amount ): string {
 	if ( function_exists( 'wc_price' ) ) {
 		return (string) wc_price( $amount );
@@ -108,11 +116,16 @@ $vehicle_count = count( $vehicles );
 		<div class="mhm-vendor-listings-page__list">
 			<?php foreach ( $vehicles as $vehicle ) : ?>
 				<?php
-				$review_status  = (string) get_post_meta( $vehicle->ID, '_vehicle_review_status', true );
+				$review_status    = (string) get_post_meta( $vehicle->ID, '_vehicle_review_status', true );
+				$lifecycle_status = (string) get_post_meta( $vehicle->ID, '_mhm_vehicle_lifecycle_status', true );
 				// Auto-correct: published vehicle with stale pending_review meta (e.g. published directly via admin).
 				if ( $vehicle->post_status === 'publish' && $review_status === 'pending_review' ) {
 					update_post_meta( $vehicle->ID, '_vehicle_review_status', 'approved' );
 					$review_status = 'approved';
+				}
+				// Default lifecycle status for approved vehicles with no lifecycle meta yet.
+				if ( $lifecycle_status === '' && $review_status === 'approved' ) {
+					$lifecycle_status = 'active';
 				}
 				$rejection_note = (string) get_post_meta( $vehicle->ID, '_vehicle_rejection_note', true );
 				$brand          = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_brand', true );
@@ -121,10 +134,18 @@ $vehicle_count = count( $vehicles );
 				$price          = (float)  get_post_meta( $vehicle->ID, '_mhm_rentiva_price_per_day', true );
 				$city           = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_vehicle_city', true );
 				$plate          = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_plate', true );
-				$status_info    = $review_status_labels[ $review_status ] ?? array(
-					'label' => ucfirst( $review_status ?: __( 'Draft', 'mhm-rentiva' ) ),
-					'class' => '',
-				);
+				// For approved vehicles, show lifecycle status badge instead of review status.
+				if ( $review_status === 'approved' && $lifecycle_status !== '' ) {
+					$status_info = $lifecycle_status_labels[ $lifecycle_status ] ?? array(
+						'label' => ucfirst( $lifecycle_status ),
+						'class' => 'is-confirmed',
+					);
+				} else {
+					$status_info = $review_status_labels[ $review_status ] ?? array(
+						'label' => ucfirst( $review_status ?: __( 'Draft', 'mhm-rentiva' ) ),
+						'class' => '',
+					);
+				}
 				$thumbnail_url  = get_the_post_thumbnail_url( $vehicle->ID, 'medium' );
 				$vehicle_name   = trim( $brand . ' ' . $model . ( $year ? ' (' . $year . ')' : '' ) );
 				if ( $vehicle_name === '' ) {
@@ -192,15 +213,38 @@ $vehicle_count = count( $vehicles );
 
 						<!-- Actions -->
 						<div class="mhm-vendor-listing-card__actions">
-							<?php if ( $review_status === 'approved' && $vehicle->post_status === 'publish' ) : ?>
+							<?php if ( $review_status === 'approved' && $vehicle->post_status === 'publish' && $lifecycle_status === 'active' ) : ?>
 								<a href="<?php echo esc_url( get_permalink( $vehicle->ID ) ); ?>" target="_blank" class="mhm-vendor-listing-card__action is-outline">
 									<?php esc_html_e( 'View', 'mhm-rentiva' ); ?> &rarr;
 								</a>
 							<?php endif; ?>
-							<?php if ( $review_status !== 'pending_review' ) : ?>
+							<?php if ( $review_status !== 'pending_review' && in_array( $lifecycle_status, array( 'active', 'paused' ), true ) ) : ?>
 								<button type="button" class="mhm-vendor-listing-card__action is-outline mhm-edit-vehicle-btn" data-vehicle-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>">
 									<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
 									<?php esc_html_e( 'Edit', 'mhm-rentiva' ); ?>
+								</button>
+							<?php endif; ?>
+							<?php if ( $lifecycle_status === 'active' ) : ?>
+								<button type="button" class="mhm-vendor-listing-card__action is-caution mhm-lifecycle-btn" data-vehicle-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>" data-action="pause">
+									<?php esc_html_e( 'Pause', 'mhm-rentiva' ); ?>
+								</button>
+								<button type="button" class="mhm-vendor-listing-card__action is-danger mhm-lifecycle-btn" data-vehicle-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>" data-action="withdraw">
+									<?php esc_html_e( 'Withdraw', 'mhm-rentiva' ); ?>
+								</button>
+							<?php elseif ( $lifecycle_status === 'paused' ) : ?>
+								<button type="button" class="mhm-vendor-listing-card__action is-success mhm-lifecycle-btn" data-vehicle-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>" data-action="resume">
+									<?php esc_html_e( 'Resume', 'mhm-rentiva' ); ?>
+								</button>
+								<button type="button" class="mhm-vendor-listing-card__action is-danger mhm-lifecycle-btn" data-vehicle-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>" data-action="withdraw">
+									<?php esc_html_e( 'Withdraw', 'mhm-rentiva' ); ?>
+								</button>
+							<?php elseif ( $lifecycle_status === 'expired' ) : ?>
+								<button type="button" class="mhm-vendor-listing-card__action is-outline mhm-lifecycle-btn" data-vehicle-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>" data-action="renew">
+									<?php esc_html_e( 'Renew', 'mhm-rentiva' ); ?>
+								</button>
+							<?php elseif ( $lifecycle_status === 'withdrawn' ) : ?>
+								<button type="button" class="mhm-vendor-listing-card__action is-outline mhm-lifecycle-btn" data-vehicle-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>" data-action="relist">
+									<?php esc_html_e( 'Relist', 'mhm-rentiva' ); ?>
 								</button>
 							<?php endif; ?>
 						</div>
