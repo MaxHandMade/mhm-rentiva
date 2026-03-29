@@ -1,5 +1,14 @@
 [
     {
+        "version": "4.24.1",
+        "date": "2026-03-29",
+        "type": "patch",
+        "changes": [
+            "🔧 DÜZELTME: Lisans sunucusu API adresi düzeltildi — etkinleştirme ve doğrulama işlemleri artık doğru production sunucusuna bağlanıyor."
+        ],
+        "notice": "v4.24.1 - Lisans Sunucusu Bağlantı Düzeltmesi"
+    },
+    {
         "version": "4.24.0",
         "date": "2026-03-28",
         "type": "minor",
