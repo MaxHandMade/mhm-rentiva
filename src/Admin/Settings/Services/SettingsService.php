@@ -53,6 +53,7 @@ final class SettingsService {
 			'transfer' => \MHMRentiva\Admin\Settings\Groups\TransferSettings::class,
 			'addons'   => \MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
 			'comments' => \MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
+			'vendor-marketplace' => \MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings::class,
 			default    => null,
 		};
 
