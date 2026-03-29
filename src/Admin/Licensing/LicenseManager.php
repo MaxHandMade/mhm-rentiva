@@ -464,7 +464,7 @@ final class LicenseManager
 		}
 
 		// 3. Fallback: always use production API for license validation
-		return 'https://api.maxhandmade.com/v1';
+		return 'https://maxhandmade.com/wp-json/mhm-license/v1';
 	}
 
 	/**
