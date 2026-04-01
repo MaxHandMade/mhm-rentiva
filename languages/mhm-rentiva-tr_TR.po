@@ -26220,3 +26220,103 @@ msgstr "IBAN değişiklik talebi reddedildiğinde satıcıya gönderilir."
 #: src/Admin/Emails/Templates/VendorEmails.php
 msgid "Leave empty to use the built-in Gold Standard template. Use \"Send Test Email\" above to preview the current output."
 msgstr "Yerleşik Gold Standard şablonu kullanmak için boş bırakın. Mevcut çıktıyı önizlemek için yukarıdaki \"Test E-postası Gönder\" seçeneğini kullanın."
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Status Change (Admin)"
+msgstr "Durum Değişikliği (Yönetici)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Status Change (Customer)"
+msgstr "Durum Değişikliği (Müşteri)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Auto Reply (Customer)"
+msgstr "Otomatik Yanıt (Müşteri)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Vendor Approved"
+msgstr "Satıcı Onaylandı"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Vendor Rejected"
+msgstr "Satıcı Reddedildi"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Vendor Suspended"
+msgstr "Satıcı Askıya Alındı"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Application Received (Vendor)"
+msgstr "Başvuru Alındı (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "New Application (Admin)"
+msgstr "Yeni Başvuru (Yönetici)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Vehicle Approved (Vendor)"
+msgstr "Araç Onaylandı (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Vehicle Rejected (Vendor)"
+msgstr "Araç Reddedildi (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Vehicle Submitted (Admin)"
+msgstr "Araç Gönderildi (Yönetici)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Vehicle Re-review (Admin)"
+msgstr "Araç Yeniden İnceleme (Yönetici)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Vehicle Activated (Vendor)"
+msgstr "Araç Aktifleşti (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Vehicle Paused (Vendor)"
+msgstr "Araç Duraklatıldı (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Vehicle Resumed (Vendor)"
+msgstr "Araç Yeniden Başlatıldı (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Listing Expired (Vendor)"
+msgstr "İlan Süresi Doldu (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Vehicle Withdrawn (Vendor)"
+msgstr "Araç Geri Çekildi (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Listing Renewed (Vendor)"
+msgstr "İlan Yenilendi (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Vehicle Relisted (Vendor)"
+msgstr "Araç Yeniden Listelendi (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Expiry Warning — 10 Days (Vendor)"
+msgstr "Süre Uyarısı — 10 Gün (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Expiry Warning — 3 Days (Vendor)"
+msgstr "Süre Uyarısı — 3 Gün (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Payout Approved (Vendor)"
+msgstr "Hakediş Onaylandı (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "Payout Rejected (Vendor)"
+msgstr "Hakediş Reddedildi (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "IBAN Change Approved (Vendor)"
+msgstr "IBAN Değişikliği Onaylandı (Satıcı)"
+
+#: src/Admin/Emails/Templates/EmailPreview.php
+msgid "IBAN Change Rejected (Vendor)"
+msgstr "IBAN Değişikliği Reddedildi (Satıcı)"

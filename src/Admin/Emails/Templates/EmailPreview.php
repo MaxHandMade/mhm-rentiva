@@ -43,19 +43,47 @@ final class EmailPreview {
 
 		// Extended Friendly Names Map
 		$friendly_names = array(
+			// Booking
 			'booking_created_customer'        => esc_html__( 'Booking Confirmation (Customer)', 'mhm-rentiva' ),
 			'booking_created_admin'           => esc_html__( 'New Booking Alert (Admin)', 'mhm-rentiva' ),
-			'booking_status_changed_admin'    => esc_html__( 'Status Change: (Admin)', 'mhm-rentiva' ),
-			'booking_status_changed_customer' => esc_html__( 'Status Change: Confirmed (Customer)', 'mhm-rentiva' ),
+			'booking_status_changed_admin'    => esc_html__( 'Status Change (Admin)', 'mhm-rentiva' ),
+			'booking_status_changed_customer' => esc_html__( 'Status Change (Customer)', 'mhm-rentiva' ),
 			'booking_cancelled'               => esc_html__( 'Booking Cancelled (Customer)', 'mhm-rentiva' ),
 			'auto_cancel'                     => esc_html__( 'Auto Cancel Notification (Customer)', 'mhm-rentiva' ),
 			'booking_reminder_customer'       => esc_html__( 'Booking Reminder (Customer)', 'mhm-rentiva' ),
 			'welcome_customer'                => esc_html__( 'Welcome Email (Customer)', 'mhm-rentiva' ),
 			'refund_customer'                 => esc_html__( 'Refund Notification (Customer)', 'mhm-rentiva' ),
 			'refund_admin'                    => esc_html__( 'Refund Alert (Admin)', 'mhm-rentiva' ),
-
+			// Messages
 			'message_received_admin'          => esc_html__( 'New Message (Admin)', 'mhm-rentiva' ),
 			'message_replied_customer'        => esc_html__( 'Message Reply (Customer)', 'mhm-rentiva' ),
+			'message_auto_reply'              => esc_html__( 'Auto Reply (Customer)', 'mhm-rentiva' ),
+			// Vendor Account
+			'vendor_approved'                 => esc_html__( 'Vendor Approved', 'mhm-rentiva' ),
+			'vendor_rejected'                 => esc_html__( 'Vendor Rejected', 'mhm-rentiva' ),
+			'vendor_suspended'                => esc_html__( 'Vendor Suspended', 'mhm-rentiva' ),
+			'vendor_application_received'     => esc_html__( 'Application Received (Vendor)', 'mhm-rentiva' ),
+			'vendor_application_new_admin'    => esc_html__( 'New Application (Admin)', 'mhm-rentiva' ),
+			// Vehicle Review
+			'vehicle_approved'                => esc_html__( 'Vehicle Approved (Vendor)', 'mhm-rentiva' ),
+			'vehicle_rejected'                => esc_html__( 'Vehicle Rejected (Vendor)', 'mhm-rentiva' ),
+			'vehicle_submitted_admin'         => esc_html__( 'Vehicle Submitted (Admin)', 'mhm-rentiva' ),
+			'vehicle_rereview_admin'          => esc_html__( 'Vehicle Re-review (Admin)', 'mhm-rentiva' ),
+			// Vehicle Lifecycle
+			'vehicle_activated'               => esc_html__( 'Vehicle Activated (Vendor)', 'mhm-rentiva' ),
+			'vehicle_paused'                  => esc_html__( 'Vehicle Paused (Vendor)', 'mhm-rentiva' ),
+			'vehicle_resumed'                 => esc_html__( 'Vehicle Resumed (Vendor)', 'mhm-rentiva' ),
+			'vehicle_expired'                 => esc_html__( 'Listing Expired (Vendor)', 'mhm-rentiva' ),
+			'vehicle_withdrawn'               => esc_html__( 'Vehicle Withdrawn (Vendor)', 'mhm-rentiva' ),
+			'vehicle_renewed'                 => esc_html__( 'Listing Renewed (Vendor)', 'mhm-rentiva' ),
+			'vehicle_relisted'                => esc_html__( 'Vehicle Relisted (Vendor)', 'mhm-rentiva' ),
+			'vehicle_expiry_warning_first'    => esc_html__( 'Expiry Warning — 10 Days (Vendor)', 'mhm-rentiva' ),
+			'vehicle_expiry_warning_second'   => esc_html__( 'Expiry Warning — 3 Days (Vendor)', 'mhm-rentiva' ),
+			// Financial
+			'payout_approved'                 => esc_html__( 'Payout Approved (Vendor)', 'mhm-rentiva' ),
+			'payout_rejected'                 => esc_html__( 'Payout Rejected (Vendor)', 'mhm-rentiva' ),
+			'iban_change_approved'            => esc_html__( 'IBAN Change Approved (Vendor)', 'mhm-rentiva' ),
+			'iban_change_rejected'            => esc_html__( 'IBAN Change Rejected (Vendor)', 'mhm-rentiva' ),
 		);
 
 		foreach ( $registry as $key => $def ) {
