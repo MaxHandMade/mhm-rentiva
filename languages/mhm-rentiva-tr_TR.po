@@ -26320,3 +26320,11 @@ msgstr "IBAN Değişikliği Onaylandı (Satıcı)"
 #: src/Admin/Emails/Templates/EmailPreview.php
 msgid "IBAN Change Rejected (Vendor)"
 msgstr "IBAN Değişikliği Reddedildi (Satıcı)"
+
+#: templates/account/partials/vendor-listings.php
+msgid "Pause"
+msgstr "Duraklat"
+
+#: templates/account/partials/vendor-listings.php
+msgid "Withdraw"
+msgstr "Geri Çek"
