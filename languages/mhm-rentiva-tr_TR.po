@@ -25505,3 +25505,424 @@ msgstr "Ödeme sayfasına yönlendiriliyor..."
 #, php-format
 msgid "Remaining: %d days"
 msgstr "Kalan: %d gün"
+
+# ==============================================================
+# VENDOR MARKETPLACE — Admin Ayarları (Lifecycle & Ceza)
+# ==============================================================
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Listing & Duration Settings"
+msgstr "İlan ve Süre Ayarları"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Listing Duration (Days)"
+msgstr "İlan Süresi (Gün)"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "How many days a vehicle listing stays active before expiry."
+msgstr "Bir araç ilanının süresi dolmadan kaç gün aktif kalacağı."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Send first warning email this many days before listing expires."
+msgstr "İlan sona ermeden bu kadar gün önce ilk uyarı e-postası gönderilir."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Send second warning email this many days before listing expires."
+msgstr "İlan sona ermeden bu kadar gün önce ikinci uyarı e-postası gönderilir."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Days after expiry before expired listing is auto-withdrawn."
+msgstr "Süresi dolduktan sonra ilanın otomatik olarak geri çekileceği gün sayısı."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Days a vendor must wait before relisting after withdrawal."
+msgstr "Geri çekildikten sonra satıcının yeniden listelemek için beklemesi gereken gün sayısı."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Max Pauses Per Month"
+msgstr "Aylık Maksimum Duraklatma"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Maximum number of times a vendor can pause a vehicle per calendar month."
+msgstr "Bir satıcının takvim ayı başına bir aracı duraklatabildiği maksimum sayı."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Max Pause Duration (Days)"
+msgstr "Maksimum Duraklatma Süresi (Gün)"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Maximum number of days a vehicle can remain paused."
+msgstr "Bir aracın duraklatılmış hâlde kalabileceği maksimum gün sayısı."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Withdrawal Penalty Settings"
+msgstr "Geri Çekilme Cezası Ayarları"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Configure progressive penalty rates applied when vendors withdraw vehicles."
+msgstr "Satıcılar araçlarını geri çektiğinde uygulanan kademeli ceza oranlarını yapılandırın."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "2nd Withdrawal Penalty (%)"
+msgstr "2. Geri Çekilme Cezası (%)"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Penalty rate (% of monthly avg revenue) for the vendor's second withdrawal in 12 months."
+msgstr "Satıcının 12 ay içindeki ikinci geri çekilmesine uygulanan ceza oranı (aylık ortalama gelirin yüzdesi)."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "3rd+ Withdrawal Penalty (%)"
+msgstr "3. ve Sonraki Geri Çekilme Cezaları (%)"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Penalty rate for 3rd and subsequent withdrawals in the 12-month rolling window."
+msgstr "12 aylık yuvarlanan penceredeki 3. ve sonraki geri çekilmeler için ceza oranı."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Withdrawal Cooldown (Days)"
+msgstr "Geri Çekilme Bekleme Süresi (Gün)"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Anti-Gaming Protection"
+msgstr "Anti-Hile Koruması"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Prevent vendors from gaming the system by cancelling bookings to relist at higher prices."
+msgstr "Satıcıların daha yüksek fiyatla yeniden listelemek için rezervasyonları iptal ederek sistemi istismar etmesini önler."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Cancelled Booking Re-block Period (Days)"
+msgstr "İptal Edilen Rezervasyon Yeniden Engelleme Süresi (Gün)"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "After a vendor cancels a booking, these dates are blocked for new reservations for this many days."
+msgstr "Bir satıcı rezervasyonu iptal ettiğinde, bu tarihler bu kadar gün boyunca yeni rezervasyonlara kapatılır."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Reliability Score Weights"
+msgstr "Güvenilirlik Skoru Ağırlıkları"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Configure the point values used to calculate vendor reliability scores (base 100)."
+msgstr "Satıcı güvenilirlik skorlarını hesaplamak için kullanılan puan değerlerini yapılandırın (taban 100)."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Points Deducted per Cancellation"
+msgstr "İptal Başına Düşülen Puan"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Points deducted from reliability score for each vendor-initiated cancellation (last 6 months)."
+msgstr "Satıcı kaynaklı her iptal için güvenilirlik puanından düşülen puan (son 6 ay)."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Points Deducted per Withdrawal"
+msgstr "Geri Çekilme Başına Düşülen Puan"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Points deducted per withdrawal in rolling window."
+msgstr "Yuvarlanan penceredeki geri çekilme başına düşülen puan."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Points Deducted per Pause"
+msgstr "Duraklatma Başına Düşülen Puan"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Points deducted per pause in last 6 months."
+msgstr "Son 6 aydaki duraklatma başına düşülen puan."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Points added to reliability score per completed booking (last 6 months)."
+msgstr "Tamamlanan rezervasyon başına güvenilirlik puanına eklenen puan (son 6 ay)."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Configure vendor listing durations, penalty rates, anti-gaming protection, and reliability score weights."
+msgstr "Satıcı ilan sürelerini, ceza oranlarını, anti-hile korumasını ve güvenilirlik skoru ağırlıklarını yapılandırın."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Vendor Marketplace"
+msgstr "Satıcı Pazaryeri"
+
+# ==============================================================
+# VENDOR LIFECYCLE — Frontend & Dashboard Durumları
+# ==============================================================
+
+#: src/Admin/Vehicle/VehicleLifecycleStatus.php
+#: templates/account/partials/vendor-listings.php
+msgid "Paused"
+msgstr "Duraklatıldı"
+
+#: templates/account/partials/vendor-listings.php
+msgid "Paused:"
+msgstr "Duraklatıldı:"
+
+#: src/Admin/Vehicle/VehicleLifecycleStatus.php
+#: templates/account/partials/vendor-listings.php
+msgid "Withdrawn"
+msgstr "Geri Çekildi"
+
+#: src/Admin/Vehicle/VehicleLifecycleStatus.php
+#: templates/account/partials/vendor-listings.php
+msgid "Pending Review"
+msgstr "İnceleme Bekliyor"
+
+#: templates/account/partials/vendor-listings.php
+msgid "Renewals:"
+msgstr "Yenilemeler:"
+
+#: templates/account/partials/vendor-listings.php
+#: src/Admin/Vehicle/Meta/LifecycleMetaBox.php
+msgid "Lifecycle"
+msgstr "Yaşam Döngüsü"
+
+#: templates/account/partials/vendor-listings.php
+#: src/Admin/Vehicle/Meta/LifecycleMetaBox.php
+msgid "Lifecycle Status"
+msgstr "Yaşam Döngüsü Durumu"
+
+#: templates/account/partials/vendor-listings.php
+msgid "Vendor Score:"
+msgstr "Satıcı Skoru:"
+
+#: templates/account/partials/vendor-listings.php
+#, php-format
+msgid "Listing expires on: %s"
+msgstr "İlan bitiş tarihi: %s"
+
+#: templates/account/partials/vendor-listings.php
+msgid "Cooldown ends:"
+msgstr "Bekleme süresi bitiyor:"
+
+#: templates/account/partials/vendor-listings.php
+msgid "Manage My Listings"
+msgstr "İlanlarımı Yönet"
+
+#: templates/account/partials/vendor-listings.php
+msgid "Renew My Listing"
+msgstr "İlanımı Yenile"
+
+#: templates/account/partials/vendor-listings.php
+msgid "View Your Listing"
+msgstr "İlanı Görüntüle"
+
+#: templates/account/partials/vendor-listings.php
+msgid "Relist this vehicle for operator review?"
+msgstr "Bu aracı yeniden listelemek istiyor musunuz?"
+
+#: templates/account/partials/vendor-listings.php
+msgid "Are you sure you want to withdraw this vehicle? A penalty may apply."
+msgstr "Bu aracı geri çekmek istediğinizden emin misiniz? Ceza uygulanabilir."
+
+#: templates/account/partials/vendor-listings.php
+msgid "After expiry, you will have a 7-day grace period to renew. If not renewed, the listing will be automatically withdrawn."
+msgstr "Süre dolduktan sonra yenilemek için 7 günlük bir süreniz olacak. Yenilenmezse ilan otomatik olarak geri çekilecek."
+
+#: templates/account/partials/vendor-listings.php
+msgid "You can renew your listing from your vendor dashboard to keep it active for another 90 days. If you do not renew within the grace period, the listing will be automatically withdrawn."
+msgstr "İlanınızı satıcı panelinizden yenileyerek 90 gün daha aktif tutabilirsiniz. Yetkisiz süre içinde yenilenmezse ilan otomatik olarak geri çekilecek."
+
+#: templates/account/partials/vendor-listings.php
+msgid "You can resume your listing at any time from your vendor dashboard. Note: the listing timer continues while paused."
+msgstr "İlanınızı istediğiniz zaman satıcı panelinizden devam ettirebilirsiniz. Not: Duraklatma sırasında ilan sayacı çalışmaya devam eder."
+
+# ==============================================================
+# VENDOR LIFECYCLE — Hata & İşlem Mesajları
+# ==============================================================
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+#, php-format
+msgid "Cooldown period active. %d day(s) remaining."
+msgstr "Bekleme süresi aktif. %d gün kaldı."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+#, php-format
+msgid "Monthly pause limit reached (%d/%d). Try again next month."
+msgstr "Aylık duraklatma limiti doldu (%d/%d). Gelecek ay tekrar deneyin."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+#, php-format
+msgid "You can relist this vehicle after a %d-day cooldown period."
+msgstr "Bu aracı %d günlük bekleme süresinden sonra yeniden listeleyebilirsiniz."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+msgid "Only expired listings can be renewed."
+msgstr "Yalnızca süresi dolmuş ilanlar yenilenebilir."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+msgid "Only withdrawn vehicles can be relisted."
+msgstr "Yalnızca geri çekilmiş araçlar yeniden listelenebilir."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+msgid "Pause duration exceeded. Please withdraw and relist."
+msgstr "Duraklatma süresi aşıldı. Lütfen geri çekin ve yeniden listeleyin."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+msgid "Renewal grace period has passed. Please relist the vehicle."
+msgstr "Yenileme yetkisiz süresi geçti. Lütfen aracı yeniden listeleyin."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+msgid "Vehicle paused successfully."
+msgstr "Araç başarıyla duraklatıldı."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+msgid "Vehicle is not paused."
+msgstr "Araç duraklatılmış değil."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+msgid "Vehicle withdrawn successfully."
+msgstr "Araç başarıyla geri çekildi."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+#, php-format
+msgid "Vehicle withdrawn. A penalty of %s has been applied."
+msgstr "Araç geri çekildi. %s tutarında ceza uygulandı."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+#, php-format
+msgid "Cannot activate vehicle from \"%s\" state."
+msgstr "\"%s\" durumundaki araç aktive edilemez."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+#, php-format
+msgid "Cannot pause vehicle from \"%s\" state."
+msgstr "\"%s\" durumundaki araç duraklatılamaz."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+#, php-format
+msgid "Cannot withdraw vehicle from \"%s\" state."
+msgstr "\"%s\" durumundaki araç geri çekilemez."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+#, php-format
+msgid "Cannot expire vehicle from \"%s\" state."
+msgstr "\"%s\" durumundaki araç için süre sonlandırılamaz."
+
+#: src/Admin/Vehicle/VehicleLifecycleManager.php
+msgid "Listing renewed for another 90 days."
+msgstr "İlan 90 gün daha yenilendi."
+
+# ==============================================================
+# VENDOR LIFECYCLE — E-posta Bildirimleri (Konu Satırları)
+# ==============================================================
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Vehicle paused — {{site.name}}"
+msgstr "Araç duraklatıldı — {{site.name}}"
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Vehicle withdrawn — {{site.name}}"
+msgstr "Araç geri çekildi — {{site.name}}"
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Your listing has expired — {{site.name}}"
+msgstr "İlanınızın süresi doldu — {{site.name}}"
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Your listing is now live! — {{site.name}}"
+msgstr "İlanınız yayında! — {{site.name}}"
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Your listing expires in {{lifecycle.days_remaining}} days — {{site.name}}"
+msgstr "İlanınız {{lifecycle.days_remaining}} gün sonra sona eriyor — {{site.name}}"
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Urgent: Your listing expires in {{lifecycle.days_remaining}} days — {{site.name}}"
+msgstr "Acil: İlanınız {{lifecycle.days_remaining}} gün sonra sona eriyor — {{site.name}}"
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Listing renewed — {{site.name}}"
+msgstr "İlan yenilendi — {{site.name}}"
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "[Admin] New vehicle submitted by {{vendor.name}} — {{site.name}}"
+msgstr "[Yönetici] {{vendor.name}} tarafından yeni araç eklendi — {{site.name}}"
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "[Admin] Vehicle edited — re-review needed — {{site.name}}"
+msgstr "[Yönetici] Araç düzenlendi — yeniden inceleme gerekiyor — {{site.name}}"
+
+# ==============================================================
+# VENDOR LIFECYCLE — E-posta Bildirimleri (Gövde Metinleri)
+# ==============================================================
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+#, php-format
+msgid "Your vehicle \"%1$s\" is now live on the platform! Your listing is active for %2$d days."
+msgstr "\"%1$s\" aracınız platformda yayında! İlanınız %2$d gün boyunca aktif."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+#, php-format
+msgid "Your vehicle \"%s\" has been paused. It will not appear in search results while paused."
+msgstr "\"%s\" aracınız duraklatıldı. Duraklatılmış hâlde arama sonuçlarında görünmeyecek."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+#, php-format
+msgid "Your vehicle \"%s\" has been withdrawn from the platform."
+msgstr "\"%s\" aracınız platformdan geri çekildi."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+#, php-format
+msgid "A withdrawal penalty of %s has been applied to your account."
+msgstr "Hesabınıza %s tutarında geri çekilme cezası uygulandı."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+#, php-format
+msgid "Your listing for \"%s\" has expired."
+msgstr "\"%s\" ilanınızın süresi doldu."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+#, php-format
+msgid "Your listing for \"%1$s\" has been renewed for another %2$d days."
+msgstr "\"%1$s\" ilanınız %2$d gün daha yenilendi."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+#, php-format
+msgid "Your listing for \"%1$s\" will expire in %2$d day(s)."
+msgstr "\"%1$s\" ilanınız %2$d gün içinde sona erecek."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "A vendor has submitted a new vehicle for review."
+msgstr "Bir satıcı incelenmek üzere yeni bir araç gönderdi."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "A vendor has edited a published vehicle with critical field changes. The vehicle has been moved to pending review."
+msgstr "Bir satıcı yayındaki araçta kritik alan değişiklikleri yaptı. Araç inceleme kuyruğuna alındı."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Great news! Your vendor application has been reviewed and approved. You can now log in and start adding your vehicles to the platform."
+msgstr "Harika haber! Satıcı başvurunuz incelendi ve onaylandı. Artık giriş yaparak araçlarınızı platforma ekleyebilirsiniz."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Thank you for applying to become a vendor on our platform. After reviewing your application, we are unable to approve it at this time."
+msgstr "Platformumuzda satıcı olmak için başvurduğunuz için teşekkür ederiz. Başvurunuzu incelememize rağmen şu an onaylayamıyoruz."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "We are writing to inform you that your vendor account has been temporarily suspended on our platform."
+msgstr "Satıcı hesabınızın platformumuzda geçici olarak askıya alındığını bildirmek için yazıyoruz."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Your vendor account and all active listings have been suspended. Your customers will not be able to make new bookings until the suspension is lifted."
+msgstr "Satıcı hesabınız ve tüm aktif ilanlarınız askıya alındı. Askıya alma kaldırılana kadar müşterileriniz yeni rezervasyon yapamayacak."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Settings updated successfully. Your IBAN change is pending admin review."
+msgstr "Ayarlar başarıyla güncellendi. IBAN değişikliğiniz yönetici onayı bekliyor."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Approve this new IBAN? The vendor will receive payouts to this new account."
+msgstr "Bu yeni IBAN'ı onaylıyor musunuz? Satıcı ödemelerini bu yeni hesaba alacak."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Reject this IBAN request? The vendor will continue using their old IBAN."
+msgstr "Bu IBAN isteğini reddediyor musunuz? Satıcı eski IBAN'ını kullanmaya devam edecek."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Your IBAN change request has been reviewed and approved. All future payouts will be sent to your new bank account."
+msgstr "IBAN değişiklik talebiniz incelendi ve onaylandı. Bundan sonraki tüm ödemeler yeni banka hesabınıza gönderilecek."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Your IBAN change request has been reviewed but was not approved. Your payouts will continue to be sent to your previously registered bank account."
+msgstr "IBAN değişiklik talebiniz incelendi ancak onaylanmadı. Ödemeleriniz önceden kayıtlı banka hesabınıza gönderilmeye devam edecek."
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Your recent IBAN update is pending administrator approval. Payouts will continue using your previously approved IBAN until the new one is confirmed."
+msgstr "Son IBAN güncellemeiniz yönetici onayı bekliyor. Yeni IBAN onaylanana kadar ödemeler önceden onaylanan IBAN ile devam edecek."
