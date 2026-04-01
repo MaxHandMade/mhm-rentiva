@@ -25511,12 +25511,82 @@ msgstr "Kalan: %d gün"
 # ==============================================================
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "These settings require a Pro license. Default values are used on Lite installations."
+msgstr "Bu ayarlar Pro lisans gerektirir. Lite kurulumlarında varsayılan değerler kullanılır."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
 msgid "Listing & Duration Settings"
 msgstr "İlan ve Süre Ayarları"
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
 msgid "Listing Duration (Days)"
 msgstr "İlan Süresi (Gün)"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "First Expiry Warning (Days Before)"
+msgstr "İlk Bitiş Uyarısı (Gün Önce)"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Second Expiry Warning (Days Before)"
+msgstr "İkinci Bitiş Uyarısı (Gün Önce)"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Grace Period After Expiry (Days)"
+msgstr "Süre Dolumu Sonrası Hoşgörü Süresi (Gün)"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Rolling Window (Months)"
+msgstr "Yuvarlanan Pencere (Ay)"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Number of months to look back when counting withdrawals for penalty calculation."
+msgstr "Ceza hesabı için geri çekilmeler sayılırken geriye bakılan ay sayısı."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Points Added per Completed Booking"
+msgstr "Tamamlanan Rezervasyon Başına Eklenen Puan"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Points added to reliability score per completed booking (last 6 months)."
+msgstr "Tamamlanan rezervasyon başına güvenilirlik puanına eklenen puan (son 6 ay)."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Max Completion Bonus"
+msgstr "Maksimum Tamamlama Bonusu"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
+msgid "Maximum points that can be earned from completed bookings."
+msgstr "Tamamlanan rezervasyonlardan kazanılabilecek maksimum puan."
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "Maximum Price (Vendor Ceiling)"
+msgstr "Maksimum Fiyat (Satıcı Tavanı)"
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "Maximum price vendors can charge for this route. Leave 0 for no ceiling."
+msgstr "Satıcıların bu rota için talep edebileceği maksimum fiyat. Tavan yok için 0 bırakın."
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "Minimum Price (Vendor Floor)"
+msgstr "Minimum Fiyat (Satıcı Tabanı)"
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "Minimum price vendors can charge for this route. Leave 0 for no floor."
+msgstr "Satıcıların bu rota için talep edebileceği minimum fiyat. Taban yok için 0 bırakın."
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+#: templates/account/partials/vendor-listings.php
+msgid "City is set based on your vendor profile. Contact admin to change."
+msgstr "Şehir, satıcı profilinize göre belirlenmektedir. Değiştirmek için yönetici ile iletişime geçin."
+
+#: src/Admin/Vendor/VendorOwnershipEnforcer.php
+msgid "Only approved vendors can edit vehicles."
+msgstr "Yalnızca onaylı satıcılar araç düzenleyebilir."
+
+#: src/Admin/Vendor/VendorVehicleReviewManager.php
+#: templates/account/partials/vendor-listings.php
+msgid "Please update your listing based on the feedback above and resubmit for review."
+msgstr "Lütfen ilanınızı yukarıdaki geri bildirimi göz önünde bulundurarak güncelleyin ve yeniden inceletmek üzere gönderin."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php
 msgid "How many days a vehicle listing stays active before expiry."
