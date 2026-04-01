@@ -25419,6 +25419,9 @@ msgstr "Araç Ruhsat Belgesi"
 msgid "Upload a clear photo or scan of the vehicle registration certificate (ruhsat). This document is required for verification and will only be visible to the site administrator."
 msgstr "Araç ruhsat belgesinin net bir fotoğrafını veya taramasını yükleyin. Bu belge doğrulama için gereklidir ve yalnızca site yöneticisi tarafından görülebilir."
 
+msgid "Upload a clear photo or scan of the current vehicle insurance policy (kasko/trafik sigortası). This document is required for verification and will only be visible to the site administrator."
+msgstr "Mevcut araç sigortası poliçesinin (kasko/trafik sigortası) net bir fotoğrafını veya taramasını yükleyin. Bu belge doğrulama için gereklidir ve yalnızca site yöneticisi tarafından görülebilir."
+
 msgid "Edit Vehicle"
 msgstr "Aracı Düzenle"
 

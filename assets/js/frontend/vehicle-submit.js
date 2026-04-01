@@ -482,31 +482,42 @@
     });
 
     // ──────────────────────────────────────────────
-    // Photo file input — live preview
+    // File inputs — live preview (photos + documents)
     // ──────────────────────────────────────────────
-    $(document).on('change', 'input[name="photos[]"]', function () {
-        var $input   = $(this);
-        var files    = this.files;
+    function showFilePreview($input, files, isDocument) {
         var $preview = $input.siblings('.mhm-photo-preview');
-
         if (!$preview.length) {
             $preview = $('<div class="mhm-photo-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"></div>');
             $input.after($preview);
         }
         $preview.empty();
-
         if (!files || !files.length) return;
 
         Array.prototype.forEach.call(files, function (file) {
-            if (!file.type.match(/^image\//)) return;
-            var reader = new FileReader();
-            reader.onload = function (e) {
+            if (file.type.match(/^image\//)) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var size = isDocument ? '120px;height:80px' : '90px;height:65px';
+                    $preview.append(
+                        '<img src="' + e.target.result + '" style="width:' + size + ';object-fit:cover;border-radius:6px;border:2px solid #e5e7eb" alt="">'
+                    );
+                };
+                reader.readAsDataURL(file);
+            } else if (file.type === 'application/pdf') {
                 $preview.append(
-                    '<img src="' + e.target.result + '" style="width:90px;height:65px;object-fit:cover;border-radius:6px;border:2px solid #e5e7eb" alt="">'
+                    '<div style="width:120px;height:80px;display:flex;align-items:center;justify-content:center;border-radius:6px;border:2px solid #e5e7eb;background:#f9fafb;font-size:11px;color:#6b7280;text-align:center;padding:4px">' +
+                    '📄 ' + file.name + '</div>'
                 );
-            };
-            reader.readAsDataURL(file);
+            }
         });
+    }
+
+    $(document).on('change', 'input[name="photos[]"]', function () {
+        showFilePreview($(this), this.files, false);
+    });
+
+    $(document).on('change', 'input[name="vehicle_registration"], input[name="vehicle_insurance"]', function () {
+        showFilePreview($(this), this.files, true);
     });
 
 }(jQuery));
