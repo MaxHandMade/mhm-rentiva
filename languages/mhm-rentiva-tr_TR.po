@@ -25996,3 +25996,223 @@ msgstr "IBAN değişiklik talebiniz incelendi ancak onaylanmadı. Ödemeleriniz 
 #: src/Admin/Emails/Notifications/VendorNotifications.php
 msgid "Your recent IBAN update is pending administrator approval. Payouts will continue using your previously approved IBAN until the new one is confirmed."
 msgstr "Son IBAN güncellemeiniz yönetici onayı bekliyor. Yeni IBAN onaylanana kadar ödemeler önceden onaylanan IBAN ile devam edecek."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vendor Notifications"
+msgstr "Satıcı Bildirimleri"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Configure email notifications sent to vendors and admins for marketplace events."
+msgstr "Pazaryeri olayları için satıcı ve yöneticilere gönderilen e-posta bildirimlerini yapılandırın."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Available placeholders (all): {{vendor.name}}, {{site.name}}, {{site.url}}, {{panel.url}}"
+msgstr "Kullanılabilir değişkenler (hepsi): {{vendor.name}}, {{site.name}}, {{site.url}}, {{panel.url}}"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vehicle emails also: {{vehicle.title}}, {{vehicle.url}}"
+msgstr "Araç e-postaları ayrıca: {{vehicle.title}}, {{vehicle.url}}"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Lifecycle emails also: {{lifecycle.days_remaining}}, {{lifecycle.expires_at}}, {{lifecycle.duration_days}}, {{lifecycle.cooldown_days}}"
+msgstr "Yaşam döngüsü e-postaları ayrıca: {{lifecycle.days_remaining}}, {{lifecycle.expires_at}}, {{lifecycle.duration_days}}, {{lifecycle.cooldown_days}}"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Payout emails also: {{payout.amount_formatted}}"
+msgstr "Ödeme e-postaları ayrıca: {{payout.amount_formatted}}"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Note: Leave body empty to use the built-in Gold Standard template."
+msgstr "Not: Yerleşik Altın Standart şablonu kullanmak için gövde alanını boş bırakın."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vendor Account"
+msgstr "Satıcı Hesabı"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vendor Approved"
+msgstr "Satıcı Onaylandı"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when application is approved."
+msgstr "Başvuru onaylandığında satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vendor Rejected"
+msgstr "Satıcı Reddedildi"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when application is rejected."
+msgstr "Başvuru reddedildiğinde satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vendor Suspended"
+msgstr "Satıcı Askıya Alındı"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when account is suspended."
+msgstr "Hesap askıya alındığında satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Application Received"
+msgstr "Başvuru Alındı"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Confirmation sent to applicant when vendor application is received."
+msgstr "Satıcı başvurusu alındığında başvuran kişiye onay gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "New Application (Admin)"
+msgstr "Yeni Başvuru (Yönetici)"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Admin notification when a new vendor application is submitted."
+msgstr "Yeni satıcı başvurusu gönderildiğinde yöneticiye bildirim gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vehicle Review"
+msgstr "Araç İncelemesi"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vehicle Approved"
+msgstr "Araç Onaylandı"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when a vehicle listing is approved."
+msgstr "Araç ilanı onaylandığında satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vehicle Rejected"
+msgstr "Araç Reddedildi"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when a vehicle listing is rejected."
+msgstr "Araç ilanı reddedildiğinde satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vehicle Submitted (Admin)"
+msgstr "Araç Gönderildi (Yönetici)"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Admin notification when a vehicle is submitted for review."
+msgstr "İnceleme için araç gönderildiğinde yöneticiye bildirim gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vehicle Re-review (Admin)"
+msgstr "Araç Yeniden İnceleme (Yönetici)"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Admin notification when a vehicle is resubmitted for re-review."
+msgstr "Araç yeniden inceleme için gönderildiğinde yöneticiye bildirim gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vehicle Lifecycle"
+msgstr "Araç Yaşam Döngüsü"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vehicle Activated"
+msgstr "Araç Aktifleştirildi"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when a listing goes live."
+msgstr "İlan yayına alındığında satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vehicle Paused"
+msgstr "Araç Duraklatıldı"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when they pause a listing."
+msgstr "Satıcı ilanı duraklatığında gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vehicle Resumed"
+msgstr "Araç Yeniden Başlatıldı"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when they resume a paused listing."
+msgstr "Satıcı duraklatılmış ilanı yeniden başlattığında gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Listing Expired"
+msgstr "İlan Süresi Doldu"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when a 90-day listing expires."
+msgstr "90 günlük ilan süresi dolduğunda satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vehicle Withdrawn"
+msgstr "Araç Geri Çekildi"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when a listing is withdrawn."
+msgstr "İlan geri çekildiğinde satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Listing Renewed"
+msgstr "İlan Yenilendi"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when they renew a listing."
+msgstr "Satıcı ilanı yenilediğinde gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Vehicle Relisted"
+msgstr "Araç Yeniden Listelendi"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when a withdrawn vehicle is resubmitted."
+msgstr "Geri çekilen araç yeniden gönderildiğinde satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Expiry Warning (First)"
+msgstr "Bitiş Uyarısı (Birinci)"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "First warning sent to vendor before listing expires."
+msgstr "İlan süresi dolmadan önce satıcıya gönderilen ilk uyarı."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Expiry Warning (Second)"
+msgstr "Bitiş Uyarısı (İkinci)"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Urgent warning sent to vendor before listing expires."
+msgstr "İlan süresi dolmadan önce satıcıya gönderilen acil uyarı."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Financial Emails"
+msgstr "Finansal E-postalar"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Payout Approved"
+msgstr "Hakediş Onaylandı"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when a payout is approved."
+msgstr "Hakediş onaylandığında satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Payout Rejected"
+msgstr "Hakediş Reddedildi"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when a payout is rejected."
+msgstr "Hakediş reddedildiğinde satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "IBAN Change Approved"
+msgstr "IBAN Değişikliği Onaylandı"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when an IBAN change request is approved."
+msgstr "IBAN değişiklik talebi onaylandığında satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "IBAN Change Rejected"
+msgstr "IBAN Değişikliği Reddedildi"
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Sent to vendor when an IBAN change request is rejected."
+msgstr "IBAN değişiklik talebi reddedildiğinde satıcıya gönderilir."

@@ -10,6 +10,7 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\Emails\Templates\BookingNotifications;
 use MHMRentiva\Admin\Emails\Templates\RefundEmails;
 use MHMRentiva\Admin\Emails\Templates\MessageEmails;
+use MHMRentiva\Admin\Emails\Templates\VendorEmails;
 use MHMRentiva\Admin\Emails\Templates\EmailPreview;
 
 
@@ -65,6 +66,7 @@ final class EmailTemplates
 			'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
 			'refund_emails'         => __('Refund Emails', 'mhm-rentiva'),
 			'message_emails'        => __('Message Notifications', 'mhm-rentiva'),
+			'vendor_emails'         => __('Vendor Notifications', 'mhm-rentiva'),
 			'preview'               => __('Email Preview', 'mhm-rentiva'),
 		);
 
@@ -170,6 +172,8 @@ final class EmailTemplates
 			RefundEmails::render();
 		} elseif ($current_type === 'message_emails') {
 			MessageEmails::render();
+		} elseif ($current_type === 'vendor_emails') {
+			VendorEmails::render();
 		} elseif ($current_type === 'preview') {
 			EmailPreview::render();
 		}
@@ -189,6 +193,7 @@ final class EmailTemplates
 			'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
 			'refund_emails'         => __('Refund Emails', 'mhm-rentiva'),
 			'message_emails'        => __('Message Notifications', 'mhm-rentiva'),
+			'vendor_emails'         => __('Vendor Notifications', 'mhm-rentiva'),
 			'preview'               => __('Email Preview', 'mhm-rentiva'),
 		);
 
@@ -250,6 +255,8 @@ final class EmailTemplates
 				RefundEmails::render();
 			} elseif ($current_type === 'message_emails') {
 				MessageEmails::render();
+			} elseif ($current_type === 'vendor_emails') {
+				VendorEmails::render();
 			} elseif ($current_type === 'preview') {
 				EmailPreview::render();
 			}
@@ -310,6 +317,8 @@ final class EmailTemplates
 			self::save_refund_emails();
 		} elseif ($current_tab === 'message_emails') {
 			self::save_message_emails();
+		} elseif ($current_tab === 'vendor_emails') {
+			self::save_vendor_emails();
 		}
 
 		// Success message - success flag instead of redirect
@@ -384,6 +393,58 @@ final class EmailTemplates
 			'mhm_rentiva_message_replied_customer_body'    => 'html',
 			'mhm_rentiva_message_auto_reply_subject'       => 'text',
 			'mhm_rentiva_message_auto_reply_body'          => 'html',
+		);
+
+		self::save_email_fields($fields);
+	}
+
+	private static function save_vendor_emails(): void
+	{
+		$fields = array(
+			'mhm_rentiva_vendor_approved_subject'                  => 'text',
+			'mhm_rentiva_vendor_approved_body'                     => 'html',
+			'mhm_rentiva_vendor_rejected_subject'                  => 'text',
+			'mhm_rentiva_vendor_rejected_body'                     => 'html',
+			'mhm_rentiva_vendor_suspended_subject'                 => 'text',
+			'mhm_rentiva_vendor_suspended_body'                    => 'html',
+			'mhm_rentiva_vendor_application_received_subject'      => 'text',
+			'mhm_rentiva_vendor_application_received_body'         => 'html',
+			'mhm_rentiva_vendor_application_new_admin_subject'     => 'text',
+			'mhm_rentiva_vendor_application_new_admin_body'        => 'html',
+			'mhm_rentiva_vehicle_approved_subject'                 => 'text',
+			'mhm_rentiva_vehicle_approved_body'                    => 'html',
+			'mhm_rentiva_vehicle_rejected_subject'                 => 'text',
+			'mhm_rentiva_vehicle_rejected_body'                    => 'html',
+			'mhm_rentiva_vehicle_submitted_admin_subject'          => 'text',
+			'mhm_rentiva_vehicle_submitted_admin_body'             => 'html',
+			'mhm_rentiva_vehicle_rereview_admin_subject'           => 'text',
+			'mhm_rentiva_vehicle_rereview_admin_body'              => 'html',
+			'mhm_rentiva_vehicle_activated_subject'                => 'text',
+			'mhm_rentiva_vehicle_activated_body'                   => 'html',
+			'mhm_rentiva_vehicle_paused_subject'                   => 'text',
+			'mhm_rentiva_vehicle_paused_body'                      => 'html',
+			'mhm_rentiva_vehicle_resumed_subject'                  => 'text',
+			'mhm_rentiva_vehicle_resumed_body'                     => 'html',
+			'mhm_rentiva_vehicle_expired_subject'                  => 'text',
+			'mhm_rentiva_vehicle_expired_body'                     => 'html',
+			'mhm_rentiva_vehicle_withdrawn_subject'                => 'text',
+			'mhm_rentiva_vehicle_withdrawn_body'                   => 'html',
+			'mhm_rentiva_vehicle_renewed_subject'                  => 'text',
+			'mhm_rentiva_vehicle_renewed_body'                     => 'html',
+			'mhm_rentiva_vehicle_relisted_subject'                 => 'text',
+			'mhm_rentiva_vehicle_relisted_body'                    => 'html',
+			'mhm_rentiva_vehicle_expiry_warning_first_subject'     => 'text',
+			'mhm_rentiva_vehicle_expiry_warning_first_body'        => 'html',
+			'mhm_rentiva_vehicle_expiry_warning_second_subject'    => 'text',
+			'mhm_rentiva_vehicle_expiry_warning_second_body'       => 'html',
+			'mhm_rentiva_payout_approved_subject'                  => 'text',
+			'mhm_rentiva_payout_approved_body'                     => 'html',
+			'mhm_rentiva_payout_rejected_subject'                  => 'text',
+			'mhm_rentiva_payout_rejected_body'                     => 'html',
+			'mhm_rentiva_iban_change_approved_subject'             => 'text',
+			'mhm_rentiva_iban_change_approved_body'                => 'html',
+			'mhm_rentiva_iban_change_rejected_subject'             => 'text',
+			'mhm_rentiva_iban_change_rejected_body'                => 'html',
 		);
 
 		self::save_email_fields($fields);

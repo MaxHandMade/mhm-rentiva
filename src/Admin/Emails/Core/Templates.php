@@ -463,6 +463,72 @@ final class Templates {
 			case 'message_auto_reply':
 				$opt = 'mhm_rentiva_message_auto_reply_subject';
 				break;
+			case 'vendor_approved':
+				$opt = 'mhm_rentiva_vendor_approved_subject';
+				break;
+			case 'vendor_rejected':
+				$opt = 'mhm_rentiva_vendor_rejected_subject';
+				break;
+			case 'vendor_suspended':
+				$opt = 'mhm_rentiva_vendor_suspended_subject';
+				break;
+			case 'vendor_application_received':
+				$opt = 'mhm_rentiva_vendor_application_received_subject';
+				break;
+			case 'vendor_application_new_admin':
+				$opt = 'mhm_rentiva_vendor_application_new_admin_subject';
+				break;
+			case 'vehicle_approved':
+				$opt = 'mhm_rentiva_vehicle_approved_subject';
+				break;
+			case 'vehicle_rejected':
+				$opt = 'mhm_rentiva_vehicle_rejected_subject';
+				break;
+			case 'vehicle_submitted_admin':
+				$opt = 'mhm_rentiva_vehicle_submitted_admin_subject';
+				break;
+			case 'vehicle_rereview_admin':
+				$opt = 'mhm_rentiva_vehicle_rereview_admin_subject';
+				break;
+			case 'vehicle_activated':
+				$opt = 'mhm_rentiva_vehicle_activated_subject';
+				break;
+			case 'vehicle_paused':
+				$opt = 'mhm_rentiva_vehicle_paused_subject';
+				break;
+			case 'vehicle_resumed':
+				$opt = 'mhm_rentiva_vehicle_resumed_subject';
+				break;
+			case 'vehicle_expired':
+				$opt = 'mhm_rentiva_vehicle_expired_subject';
+				break;
+			case 'vehicle_withdrawn':
+				$opt = 'mhm_rentiva_vehicle_withdrawn_subject';
+				break;
+			case 'vehicle_renewed':
+				$opt = 'mhm_rentiva_vehicle_renewed_subject';
+				break;
+			case 'vehicle_relisted':
+				$opt = 'mhm_rentiva_vehicle_relisted_subject';
+				break;
+			case 'vehicle_expiry_warning_first':
+				$opt = 'mhm_rentiva_vehicle_expiry_warning_first_subject';
+				break;
+			case 'vehicle_expiry_warning_second':
+				$opt = 'mhm_rentiva_vehicle_expiry_warning_second_subject';
+				break;
+			case 'payout_approved':
+				$opt = 'mhm_rentiva_payout_approved_subject';
+				break;
+			case 'payout_rejected':
+				$opt = 'mhm_rentiva_payout_rejected_subject';
+				break;
+			case 'iban_change_approved':
+				$opt = 'mhm_rentiva_iban_change_approved_subject';
+				break;
+			case 'iban_change_rejected':
+				$opt = 'mhm_rentiva_iban_change_rejected_subject';
+				break;
 			default:
 				$opt = '';
 		}
@@ -523,6 +589,72 @@ final class Templates {
 				break;
 			case 'booking_cancelled':
 				$opt = 'mhm_rentiva_booking_cancelled_body';
+				break;
+			case 'vendor_approved':
+				$opt = 'mhm_rentiva_vendor_approved_body';
+				break;
+			case 'vendor_rejected':
+				$opt = 'mhm_rentiva_vendor_rejected_body';
+				break;
+			case 'vendor_suspended':
+				$opt = 'mhm_rentiva_vendor_suspended_body';
+				break;
+			case 'vendor_application_received':
+				$opt = 'mhm_rentiva_vendor_application_received_body';
+				break;
+			case 'vendor_application_new_admin':
+				$opt = 'mhm_rentiva_vendor_application_new_admin_body';
+				break;
+			case 'vehicle_approved':
+				$opt = 'mhm_rentiva_vehicle_approved_body';
+				break;
+			case 'vehicle_rejected':
+				$opt = 'mhm_rentiva_vehicle_rejected_body';
+				break;
+			case 'vehicle_submitted_admin':
+				$opt = 'mhm_rentiva_vehicle_submitted_admin_body';
+				break;
+			case 'vehicle_rereview_admin':
+				$opt = 'mhm_rentiva_vehicle_rereview_admin_body';
+				break;
+			case 'vehicle_activated':
+				$opt = 'mhm_rentiva_vehicle_activated_body';
+				break;
+			case 'vehicle_paused':
+				$opt = 'mhm_rentiva_vehicle_paused_body';
+				break;
+			case 'vehicle_resumed':
+				$opt = 'mhm_rentiva_vehicle_resumed_body';
+				break;
+			case 'vehicle_expired':
+				$opt = 'mhm_rentiva_vehicle_expired_body';
+				break;
+			case 'vehicle_withdrawn':
+				$opt = 'mhm_rentiva_vehicle_withdrawn_body';
+				break;
+			case 'vehicle_renewed':
+				$opt = 'mhm_rentiva_vehicle_renewed_body';
+				break;
+			case 'vehicle_relisted':
+				$opt = 'mhm_rentiva_vehicle_relisted_body';
+				break;
+			case 'vehicle_expiry_warning_first':
+				$opt = 'mhm_rentiva_vehicle_expiry_warning_first_body';
+				break;
+			case 'vehicle_expiry_warning_second':
+				$opt = 'mhm_rentiva_vehicle_expiry_warning_second_body';
+				break;
+			case 'payout_approved':
+				$opt = 'mhm_rentiva_payout_approved_body';
+				break;
+			case 'payout_rejected':
+				$opt = 'mhm_rentiva_payout_rejected_body';
+				break;
+			case 'iban_change_approved':
+				$opt = 'mhm_rentiva_iban_change_approved_body';
+				break;
+			case 'iban_change_rejected':
+				$opt = 'mhm_rentiva_iban_change_rejected_body';
 				break;
 			default:
 				$opt = '';
