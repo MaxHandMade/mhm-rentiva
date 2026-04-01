@@ -8,6 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use MHMRentiva\Admin\Emails\Core\EmailFormRenderer;
+use MHMRentiva\Admin\Emails\Core\Templates;
 
 final class VendorEmails {
 
@@ -18,11 +19,29 @@ final class VendorEmails {
 		echo '<p class="description">' . esc_html__( 'Vehicle emails also: {{vehicle.title}}, {{vehicle.url}}', 'mhm-rentiva' ) . '</p>';
 		echo '<p class="description">' . esc_html__( 'Lifecycle emails also: {{lifecycle.days_remaining}}, {{lifecycle.expires_at}}, {{lifecycle.duration_days}}, {{lifecycle.cooldown_days}}', 'mhm-rentiva' ) . '</p>';
 		echo '<p class="description">' . esc_html__( 'Payout emails also: {{payout.amount_formatted}}', 'mhm-rentiva' ) . '</p>';
-		echo '<p class="description">' . esc_html__( 'Note: Leave body empty to use the built-in Gold Standard template.', 'mhm-rentiva' ) . '</p>';
 
-		$get_val = function ( string $opt_key ): string {
+		// Registry provides default subjects. Body: leave empty = built-in file template is used.
+		$registry = Templates::registry();
+
+		/**
+		 * Get saved subject, falling back to registry default when not yet customised.
+		 */
+		$get_subject = function ( string $opt_key, string $template_key ) use ( $registry ): string {
+			$val = (string) get_option( $opt_key, '' );
+			if ( $val !== '' ) {
+				return $val;
+			}
+			return (string) ( $registry[ $template_key ]['subject'] ?? '' );
+		};
+
+		/**
+		 * Get saved body; empty string = system uses built-in file template.
+		 */
+		$get_body = function ( string $opt_key ): string {
 			return (string) get_option( $opt_key, '' );
 		};
+
+		$body_ph = __( 'Leave empty to use the built-in Gold Standard template. Use "Send Test Email" above to preview the current output.', 'mhm-rentiva' );
 
 		// -----------------------------------------------------------------------
 		// Section 1: Vendor Account
@@ -37,14 +56,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vendor_approved_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vendor_approved_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vendor_approved_subject', 'vendor_approved' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vendor_approved_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vendor_approved_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vendor_approved_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vendor_approved_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -57,14 +77,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vendor_rejected_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vendor_rejected_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vendor_rejected_subject', 'vendor_rejected' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vendor_rejected_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vendor_rejected_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vendor_rejected_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vendor_rejected_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -77,14 +98,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vendor_suspended_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vendor_suspended_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vendor_suspended_subject', 'vendor_suspended' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vendor_suspended_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vendor_suspended_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vendor_suspended_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vendor_suspended_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -97,14 +119,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vendor_application_received_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vendor_application_received_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vendor_application_received_subject', 'vendor_application_received' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vendor_application_received_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vendor_application_received_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vendor_application_received_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vendor_application_received_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -117,14 +140,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vendor_application_new_admin_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vendor_application_new_admin_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vendor_application_new_admin_subject', 'vendor_application_new_admin' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vendor_application_new_admin_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vendor_application_new_admin_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vendor_application_new_admin_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vendor_application_new_admin_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -142,14 +166,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_approved_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_approved_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_approved_subject', 'vehicle_approved' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_approved_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_approved_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_approved_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_approved_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -162,14 +187,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_rejected_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_rejected_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_rejected_subject', 'vehicle_rejected' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_rejected_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_rejected_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_rejected_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_rejected_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -182,14 +208,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_submitted_admin_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_submitted_admin_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_submitted_admin_subject', 'vehicle_submitted_admin' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_submitted_admin_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_submitted_admin_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_submitted_admin_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_submitted_admin_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -202,14 +229,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_rereview_admin_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_rereview_admin_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_rereview_admin_subject', 'vehicle_rereview_admin' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_rereview_admin_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_rereview_admin_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_rereview_admin_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_rereview_admin_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -227,14 +255,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_activated_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_activated_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_activated_subject', 'vehicle_activated' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_activated_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_activated_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_activated_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_activated_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -247,14 +276,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_paused_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_paused_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_paused_subject', 'vehicle_paused' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_paused_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_paused_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_paused_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_paused_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -267,14 +297,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_resumed_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_resumed_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_resumed_subject', 'vehicle_resumed' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_resumed_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_resumed_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_resumed_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_resumed_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -287,14 +318,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_expired_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_expired_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_expired_subject', 'vehicle_expired' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_expired_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_expired_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_expired_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_expired_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -307,14 +339,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_withdrawn_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_withdrawn_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_withdrawn_subject', 'vehicle_withdrawn' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_withdrawn_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_withdrawn_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_withdrawn_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_withdrawn_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -327,14 +360,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_renewed_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_renewed_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_renewed_subject', 'vehicle_renewed' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_renewed_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_renewed_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_renewed_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_renewed_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -347,14 +381,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_relisted_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_relisted_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_relisted_subject', 'vehicle_relisted' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_relisted_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_relisted_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_relisted_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_relisted_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -367,14 +402,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_expiry_warning_first_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_expiry_warning_first_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_expiry_warning_first_subject', 'vehicle_expiry_warning_first' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_expiry_warning_first_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_expiry_warning_first_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_expiry_warning_first_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_expiry_warning_first_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -387,14 +423,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_vehicle_expiry_warning_second_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_expiry_warning_second_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_vehicle_expiry_warning_second_subject', 'vehicle_expiry_warning_second' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_vehicle_expiry_warning_second_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_vehicle_expiry_warning_second_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_vehicle_expiry_warning_second_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_vehicle_expiry_warning_second_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -412,14 +449,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_payout_approved_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_payout_approved_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_payout_approved_subject', 'payout_approved' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_payout_approved_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_payout_approved_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_payout_approved_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_payout_approved_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -432,14 +470,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_payout_rejected_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_payout_rejected_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_payout_rejected_subject', 'payout_rejected' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_payout_rejected_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_payout_rejected_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_payout_rejected_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_payout_rejected_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -452,14 +491,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_iban_change_approved_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_iban_change_approved_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_iban_change_approved_subject', 'iban_change_approved' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_iban_change_approved_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_iban_change_approved_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_iban_change_approved_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_iban_change_approved_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);
@@ -472,14 +512,15 @@ final class VendorEmails {
 					'type'  => 'text',
 					'name'  => 'mhm_rentiva_iban_change_rejected_subject',
 					'label' => __( 'Subject', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_iban_change_rejected_subject' ),
+					'value' => $get_subject( 'mhm_rentiva_iban_change_rejected_subject', 'iban_change_rejected' ),
 				),
 				array(
-					'type'  => 'textarea',
-					'name'  => 'mhm_rentiva_iban_change_rejected_body',
-					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
-					'value' => $get_val( 'mhm_rentiva_iban_change_rejected_body' ),
-					'rows'  => 12,
+					'type'        => 'textarea',
+					'name'        => 'mhm_rentiva_iban_change_rejected_body',
+					'label'       => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value'       => $get_body( 'mhm_rentiva_iban_change_rejected_body' ),
+					'rows'        => 12,
+					'placeholder' => $body_ph,
 				),
 			)
 		);

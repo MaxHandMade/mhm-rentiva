@@ -26216,3 +26216,7 @@ msgstr "IBAN Değişikliği Reddedildi"
 #: src/Admin/Emails/Templates/VendorEmails.php
 msgid "Sent to vendor when an IBAN change request is rejected."
 msgstr "IBAN değişiklik talebi reddedildiğinde satıcıya gönderilir."
+
+#: src/Admin/Emails/Templates/VendorEmails.php
+msgid "Leave empty to use the built-in Gold Standard template. Use \"Send Test Email\" above to preview the current output."
+msgstr "Yerleşik Gold Standard şablonu kullanmak için boş bırakın. Mevcut çıktıyı önizlemek için yukarıdaki \"Test E-postası Gönder\" seçeneğini kullanın."
