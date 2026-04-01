@@ -212,6 +212,29 @@ $vehicle_count = count( $vehicles );
 						<?php endif; ?>
 
 						<?php
+						// Withdrawal cooldown badge (shown on the withdrawn vehicle card).
+						if ( $lifecycle_status === 'withdrawn' ) :
+							$cooldown_ends_at = (string) get_post_meta( $vehicle->ID, '_mhm_vehicle_cooldown_ends_at', true );
+							if ( $cooldown_ends_at ) :
+								$cooldown_ts        = strtotime( $cooldown_ends_at );
+								$cooldown_remaining = (int) ceil( ( $cooldown_ts - time() ) / DAY_IN_SECONDS );
+								if ( $cooldown_remaining > 0 ) :
+									?>
+									<div class="mhm-vendor-listing-card__remaining is-red">
+										<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+										<?php
+										printf(
+											/* translators: %d: number of days until new listing ban is lifted */
+											esc_html( _n( 'New listing ban: %d more day', 'New listing ban: %d more days', $cooldown_remaining, 'mhm-rentiva' ) ),
+											$cooldown_remaining
+										);
+										?>
+									</div>
+									<?php
+								endif;
+							endif;
+						endif;
+
 						// Remaining listing time display
 						if ( in_array( $lifecycle_status, array( 'active', 'paused' ), true ) ) :
 							$expires_at = get_post_meta( $vehicle->ID, '_mhm_vehicle_listing_expires_at', true );

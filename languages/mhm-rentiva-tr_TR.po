@@ -25509,6 +25509,13 @@ msgstr "Ödeme sayfasına yönlendiriliyor..."
 msgid "Remaining: %d days"
 msgstr "Kalan: %d gün"
 
+#: templates/account/partials/vendor-listings.php
+#, php-format
+msgid "New listing ban: %d more day"
+msgid_plural "New listing ban: %d more days"
+msgstr[0] "Yeni ilan yasağı: %d gün daha"
+msgstr[1] "Yeni ilan yasağı: %d gün daha"
+
 # ==============================================================
 # VENDOR MARKETPLACE — Admin Ayarları (Lifecycle & Ceza)
 # ==============================================================
