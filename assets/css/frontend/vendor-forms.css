@@ -274,3 +274,15 @@
     color: #dc2626;
     background: #fee2e2;
 }
+
+/* Transfer route price input + hint layout */
+.mhm-vendor-form__route-price {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.mhm-vendor-form__checkbox-hint {
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color: #6b7280;
+}

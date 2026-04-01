@@ -470,7 +470,7 @@ final class VehicleSubmit extends AbstractShortcode
                                         <input type="checkbox" name="transfer_routes[]" value="<?php echo esc_attr((string) $route->id); ?>" class="mhm-route-checkbox" data-route-id="<?php echo esc_attr((string) $route->id); ?>">
                                         <?php echo esc_html($route->origin_name . ' → ' . $route->destination_name); ?>
                                     </label>
-                                    <div class="mhm-vendor-form__route-price" style="width:140px;">
+                                    <div class="mhm-vendor-form__route-price" style="min-width:160px;">
                                         <input type="number" name="route_prices[<?php echo esc_attr((string) $route->id); ?>]"
                                                step="0.01"
                                                <?php if ($min_p > 0) : ?>min="<?php echo esc_attr((string) $min_p); ?>"<?php endif; ?>
