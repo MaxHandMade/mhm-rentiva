@@ -25777,6 +25777,11 @@ msgstr "İlanımı Yenile"
 msgid "View Your Listing"
 msgstr "İlanı Görüntüle"
 
+#: templates/emails/vehicle-resumed.html.php
+#, php-format
+msgid "Your vehicle \"%s\" is active again and visible to customers."
+msgstr "Aracınız \"%s\" tekrar aktif ve müşterilere görünür durumda."
+
 #: templates/account/partials/vendor-listings.php
 msgid "Relist this vehicle for operator review?"
 msgstr "Bu aracı yeniden listelemek istiyor musunuz?"
@@ -25880,6 +25885,10 @@ msgstr "İlan 90 gün daha yenilendi."
 #: src/Admin/Emails/Notifications/VendorNotifications.php
 msgid "Vehicle paused — {{site.name}}"
 msgstr "Araç duraklatıldı — {{site.name}}"
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php
+msgid "Vehicle resumed — {{site.name}}"
+msgstr "Araç yeniden aktifleştirildi — {{site.name}}"
 
 #: src/Admin/Emails/Notifications/VendorNotifications.php
 msgid "Vehicle withdrawn — {{site.name}}"
