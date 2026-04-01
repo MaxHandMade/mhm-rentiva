@@ -26328,3 +26328,31 @@ msgstr "Duraklat"
 #: templates/account/partials/vendor-listings.php
 msgid "Withdraw"
 msgstr "Geri Çek"
+
+#: templates/account/partials/vendor-settings.php
+msgid "Profile Information"
+msgstr "Profil Bilgileri"
+
+#: templates/account/partials/vendor-settings.php
+msgid "Account Holder Name"
+msgstr "Hesap Sahibi Adı"
+
+#: templates/account/partials/vendor-settings.php
+msgid "Full name as it appears on the bank account."
+msgstr "Banka hesabında göründüğü şekliyle tam adınız."
+
+#: templates/account/partials/vendor-settings.php
+msgid "Max %d characters"
+msgstr "Maksimum %d karakter"
+
+#: templates/account/partials/vendor-settings.php
+msgid "e.g. TR33 0006 1005 1978 6457 8413 26"
+msgstr "örn. TR33 0006 1005 1978 6457 8413 26"
+
+#: templates/account/partials/vendor-settings.php
+msgid "Tax Office"
+msgstr "Vergi Dairesi"
+
+#: src/Admin/Core/Utilities/CityHelper.php
+msgid "Select a city..."
+msgstr "Şehir seçin..."
