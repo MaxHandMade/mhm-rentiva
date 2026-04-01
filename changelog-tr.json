@@ -1,5 +1,20 @@
 [
     {
+        "version": "4.25.0",
+        "date": "2026-04-01",
+        "type": "minor",
+        "changes": [
+            "✉️ VENDOR E-POSTA: 22 vendor bildirim şablonu artık admin panelinden düzenlenebilir (Ayarlar → Bildirim Şablonları → Vendor Bildirimleri sekmesi).",
+            "4 bölüm: Vendor Hesap (5), Araç İnceleme (4), Araç Yaşam Döngüsü (9), Finansal E-postalar (4).",
+            "Konu alanları boşken şablon kayıtları varsayılanlarını gösteriyor — admin ne gönderileceğini görebiliyor.",
+            "Gövde alanı boş = Gold Standard HTML dosya fallback — özelleştirme yapılmadığında profesyonel tasarım korunuyor.",
+            "🎨 E-POSTA DÜZENİ: Gold Standard şablonunda gradient oluşturma iyileştirildi (header başlığında gerçek renk geçişi).",
+            "♿ ERİŞİLEBİLİRLİK: Araç yeniden inceleme admin e-postasındaki amber CTA butonunun kontrast oranı 2.97:1'den 6.8:1'e yükseltildi (WCAG AA geçiyor).",
+            "🌐 ÇEVİRİ: Vendor e-posta admin arayüzü için 56 yeni Türkçe çeviri eklendi."
+        ],
+        "notice": "v4.25.0 - Yönetici Tarafından Düzenlenebilir Vendor E-posta Şablonları"
+    },
+    {
         "version": "4.24.1",
         "date": "2026-03-29",
         "type": "patch",

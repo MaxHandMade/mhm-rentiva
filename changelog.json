@@ -1,5 +1,20 @@
 [
     {
+        "version": "4.25.0",
+        "date": "2026-04-01",
+        "type": "minor",
+        "changes": [
+            "Vendor Email Templates: 22 vendor notification templates are now editable from the admin panel (Settings → Notification Templates → Vendor Notifications tab).",
+            "4 template sections: Vendor Account (5), Vehicle Review (4), Vehicle Lifecycle (9), Financial Emails (4).",
+            "Subject fields show registry defaults when empty — admins can see what will be sent before overriding.",
+            "Body field empty = Gold Standard HTML file fallback, preserving the premium email design when no custom content is provided.",
+            "Email Layout: Improved gradient rendering in Gold Standard layout (computed darker shade for header gradient instead of flat color).",
+            "WCAG Fix: Amber CTA button in vehicle-rereview-admin email raised from 2.97:1 to 6.8:1 contrast ratio (dark amber #92400e).",
+            "i18n: 56 new Turkish translations for vendor email admin UI."
+        ],
+        "notice": "v4.25.0 - Admin-Editable Vendor Email Templates"
+    },
+    {
         "version": "4.24.1",
         "date": "2026-03-29",
         "type": "patch",
