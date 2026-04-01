@@ -25500,3 +25500,8 @@ msgstr "Yeniden Listeleme"
 #: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:142
 msgid "Redirecting to payment..."
 msgstr "Ödeme sayfasına yönlendiriliyor..."
+
+#: templates/account/partials/vendor-listings.php:241
+#, php-format
+msgid "Remaining: %d days"
+msgstr "Kalan: %d gün"
