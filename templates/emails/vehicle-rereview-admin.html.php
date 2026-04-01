@@ -18,7 +18,7 @@
 		</tr>
 	</table>
 	<p style="text-align:center">
-		<a class="cta-button" href="<?php echo esc_url( (string) ( $data['vehicle']['admin_url'] ?? admin_url('edit.php?post_type=vehicle') )); ?>" style="display:inline-block;background:#d97706;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">
+		<a class="cta-button" href="<?php echo esc_url( (string) ( $data['vehicle']['admin_url'] ?? admin_url('edit.php?post_type=vehicle') )); ?>" style="display:inline-block;background:#92400e;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">
 			<?php esc_html_e('Review Changes', 'mhm-rentiva'); ?>
 		</a>
 	</p>

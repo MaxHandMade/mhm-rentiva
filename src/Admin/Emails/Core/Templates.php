@@ -251,6 +251,21 @@ final class Templates {
 		);
 		$content = wp_kses( $innerHtml, $allowed );
 
+		// Compute a darker gradient end-stop from the base color
+		$gradientEnd = $baseColor;
+		$hexVal      = ltrim( $baseColor, '#' );
+		if ( ctype_xdigit( $hexVal ) ) {
+			if ( strlen( $hexVal ) === 3 ) {
+				$hexVal = $hexVal[0] . $hexVal[0] . $hexVal[1] . $hexVal[1] . $hexVal[2] . $hexVal[2];
+			}
+			if ( strlen( $hexVal ) === 6 ) {
+				$r           = max( 0, hexdec( substr( $hexVal, 0, 2 ) ) - 38 );
+				$g           = max( 0, hexdec( substr( $hexVal, 2, 2 ) ) - 38 );
+				$b           = max( 0, hexdec( substr( $hexVal, 4, 2 ) ) - 38 );
+				$gradientEnd = sprintf( '#%02x%02x%02x', $r, $g, $b );
+			}
+		}
+
 		ob_start();
 		?>
 		<!DOCTYPE html>
@@ -264,51 +279,110 @@ final class Templates {
 				body {
 					font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
 					line-height: 1.6;
-					color: #333;
+					color: #1a1a1a;
 					margin: 0;
-					padding: 20px;
-					background: #f5f5f5;
+					padding: 24px 16px;
+					background: #eef2f7;
 				}
 
 				.container {
 					max-width: 600px;
 					margin: 0 auto;
-					background: #fff;
-					border-radius: 8px;
+					background: #ffffff;
+					border-radius: 10px;
 					overflow: hidden;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
 				}
 
 				.header {
 					background: <?php echo esc_attr( $baseColor ); ?>;
-					background: linear-gradient(135deg, <?php echo esc_attr( $baseColor ); ?> 0%, <?php echo esc_attr( $baseColor ); ?> 100%);
-					color: white;
-					padding: 30px;
+					background: linear-gradient(135deg, <?php echo esc_attr( $baseColor ); ?> 0%, <?php echo esc_attr( $gradientEnd ); ?> 100%);
+					color: #ffffff;
+					padding: 32px 36px;
 					text-align: center;
 				}
 
 				.header h1 {
 					margin: 0;
-					font-size: 22px;
+					font-size: 21px;
+					font-weight: 700;
+					letter-spacing: -0.2px;
+					text-shadow: 0 1px 2px rgba(0,0,0,0.15);
 				}
 
 				.header-logo {
-					max-height: 80px;
-					max-width: 200px;
-					margin-bottom: 15px;
+					max-height: 72px;
+					max-width: 180px;
+					margin-bottom: 14px;
+					display: block;
+					margin-left: auto;
+					margin-right: auto;
 				}
 
 				.content {
-					padding: 30px;
+					padding: 32px 36px;
 					text-align: left;
 				}
 
+				.content p {
+					margin: 0 0 16px 0;
+					font-size: 15px;
+					line-height: 1.7;
+					color: #374151;
+				}
+
+				.content p:last-child {
+					margin-bottom: 0;
+				}
+
+				.content strong {
+					color: #111827;
+				}
+
+				.content table {
+					width: 100%;
+					border-collapse: collapse;
+					margin: 16px 0;
+					font-size: 14px;
+				}
+
+				.content table td {
+					padding: 10px 12px;
+					border: 1px solid #e5e7eb;
+					vertical-align: top;
+				}
+
+				.content table tr:nth-child(even) td {
+					background: #f9fafb;
+				}
+
+				.cta-button {
+					display: inline-block;
+					padding: 13px 28px;
+					text-decoration: none;
+					border-radius: 7px;
+					font-weight: 700;
+					font-size: 15px;
+					letter-spacing: 0.2px;
+					line-height: 1;
+				}
+
+				.cta-button:hover {
+					opacity: 0.88;
+				}
+
 				.footer {
-					background: #f8f9fa;
-					padding: 20px;
+					background: #f3f4f6;
+					padding: 20px 36px;
 					text-align: center;
 					font-size: 12px;
-					color: #888;
+					color: #9ca3af;
+					border-top: 1px solid #e5e7eb;
+				}
+
+				.footer p {
+					margin: 4px 0;
+					line-height: 1.5;
 				}
 			</style>
 		</head>
