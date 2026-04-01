@@ -481,4 +481,32 @@
         });
     });
 
+    // ──────────────────────────────────────────────
+    // Photo file input — live preview
+    // ──────────────────────────────────────────────
+    $(document).on('change', 'input[name="photos[]"]', function () {
+        var $input   = $(this);
+        var files    = this.files;
+        var $preview = $input.siblings('.mhm-photo-preview');
+
+        if (!$preview.length) {
+            $preview = $('<div class="mhm-photo-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"></div>');
+            $input.after($preview);
+        }
+        $preview.empty();
+
+        if (!files || !files.length) return;
+
+        Array.prototype.forEach.call(files, function (file) {
+            if (!file.type.match(/^image\//)) return;
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $preview.append(
+                    '<img src="' + e.target.result + '" style="width:90px;height:65px;object-fit:cover;border-radius:6px;border:2px solid #e5e7eb" alt="">'
+                );
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
 }(jQuery));
