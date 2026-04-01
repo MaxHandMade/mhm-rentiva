@@ -26329,8 +26329,16 @@ msgid "Pause"
 msgstr "Duraklat"
 
 #: templates/account/partials/vendor-listings.php
+msgid "Resume"
+msgstr "Devam Et"
+
+#: templates/account/partials/vendor-listings.php
 msgid "Withdraw"
 msgstr "Geri Çek"
+
+#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php
+msgid "Vehicle resumed successfully."
+msgstr "Araç başarıyla yeniden aktifleştirildi."
 
 #: templates/account/partials/vendor-settings.php
 msgid "Profile Information"
