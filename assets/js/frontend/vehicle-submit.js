@@ -151,6 +151,9 @@
         $form.attr('id', 'mhm-vehicle-edit-form');
         $form.find('input[name="action"]').val('mhm_vehicle_update');
 
+        // Document and photo inputs are optional on edit (existing docs/photos are preserved).
+        $form.find('input[name="vehicle_registration"], input[name="vehicle_insurance"], input[name="photos[]"]').removeAttr('required');
+
         // Add vehicle_id hidden field.
         $form.prepend('<input type="hidden" name="vehicle_id" value="' + v.id + '">');
 

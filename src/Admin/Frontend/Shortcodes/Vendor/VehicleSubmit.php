@@ -1185,6 +1185,30 @@ final class VehicleSubmit extends AbstractShortcode
             update_post_meta($vehicle_id, '_mhm_rentiva_transfer_route_prices', wp_json_encode($route_prices));
         }
 
+        // Handle vehicle registration document upload (optional on edit).
+        if (! empty($_FILES['vehicle_registration']['name'])) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            require_once ABSPATH . 'wp-admin/includes/media.php';
+            require_once ABSPATH . 'wp-admin/includes/image.php';
+
+            $reg_attachment_id = media_handle_upload('vehicle_registration', $vehicle_id);
+            if (! is_wp_error($reg_attachment_id)) {
+                update_post_meta($vehicle_id, '_mhm_rentiva_vehicle_registration_doc', $reg_attachment_id);
+            }
+        }
+
+        // Handle vehicle insurance document upload (optional on edit).
+        if (! empty($_FILES['vehicle_insurance']['name'])) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            require_once ABSPATH . 'wp-admin/includes/media.php';
+            require_once ABSPATH . 'wp-admin/includes/image.php';
+
+            $ins_attachment_id = media_handle_upload('vehicle_insurance', $vehicle_id);
+            if (! is_wp_error($ins_attachment_id)) {
+                update_post_meta($vehicle_id, '_mhm_rentiva_vehicle_insurance_doc', $ins_attachment_id);
+            }
+        }
+
         // Handle gallery reorder / featured image / deletions from JS payload first,
         // so new uploads are appended after the user's current ordering/deletions.
         if (! empty($_POST['gallery_order'])) {
