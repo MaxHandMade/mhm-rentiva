@@ -778,6 +778,23 @@ final class VehicleSubmit extends AbstractShortcode
             return;
         }
 
+        // --- Listing Fee Payment Gate ---
+        if ( \MHMRentiva\Admin\Vehicle\ListingFeeManager::requires_payment( 'new' ) ) {
+            wp_update_post( array(
+                'ID'          => $post_id,
+                'post_status' => 'draft',
+            ) );
+            update_post_meta( $post_id, '_vehicle_review_status', 'awaiting_payment' );
+
+            $checkout_url = \MHMRentiva\Admin\Vehicle\ListingFeeManager::add_to_cart( $post_id, 'new' );
+            wp_send_json_success( array(
+                'vehicle_id'       => $post_id,
+                'requires_payment' => true,
+                'checkout_url'     => $checkout_url,
+            ) );
+            return;
+        }
+
         update_post_meta($post_id, '_vehicle_review_status', 'pending_review');
 
         // Notify admin about new vehicle submission.

@@ -108,6 +108,17 @@ final class VehicleLifecycleAjaxController
 			return;
 		}
 
+		// --- Listing Fee Payment Gate ---
+		if ( ListingFeeManager::requires_payment( 'renew' ) ) {
+			$checkout_url = ListingFeeManager::add_to_cart( $vehicle_id, 'renew' );
+			wp_send_json_success( array(
+				'requires_payment' => true,
+				'checkout_url'     => $checkout_url,
+				'message'          => __( 'Redirecting to payment...', 'mhm-rentiva' ),
+			) );
+			return;
+		}
+
 		$result = VehicleLifecycleManager::renew($vehicle_id, get_current_user_id());
 		self::send_result($result, __('Listing renewed for another 90 days.', 'mhm-rentiva'));
 	}
@@ -119,6 +130,17 @@ final class VehicleLifecycleAjaxController
 	{
 		$vehicle_id = self::validate_request();
 		if ($vehicle_id === 0) {
+			return;
+		}
+
+		// --- Listing Fee Payment Gate ---
+		if ( ListingFeeManager::requires_payment( 'relist' ) ) {
+			$checkout_url = ListingFeeManager::add_to_cart( $vehicle_id, 'relist' );
+			wp_send_json_success( array(
+				'requires_payment' => true,
+				'checkout_url'     => $checkout_url,
+				'message'          => __( 'Redirecting to payment...', 'mhm-rentiva' ),
+			) );
 			return;
 		}
 

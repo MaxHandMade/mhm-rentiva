@@ -79,6 +79,10 @@
                     return;
                 }
                 if (response.success) {
+                    if ( response.data && response.data.requires_payment && response.data.checkout_url ) {
+                        window.location.href = response.data.checkout_url;
+                        return;
+                    }
                     $form.fadeOut(300);
                     $msg.addClass('mhm-vendor-notice--success').text(mhmVehicleSubmit.successMsg).show();
                     document.dispatchEvent(new Event('mhm_vehicle_submitted'));

@@ -24,6 +24,7 @@ final class VendorMarketplaceSettings {
 	public const SECTION_PENALTY     = 'mhm_rentiva_vendor_penalty_section';
 	public const SECTION_ANTI_GAMING = 'mhm_rentiva_vendor_anti_gaming_section';
 	public const SECTION_RELIABILITY = 'mhm_rentiva_vendor_reliability_section';
+	public const SECTION_LISTING_FEE = 'mhm_rentiva_vendor_listing_fee_section';
 
 	/**
 	 * Get default settings.
@@ -55,6 +56,11 @@ final class VendorMarketplaceSettings {
 			'vendor_score_pause_penalty'          => 2,
 			'vendor_score_completion_bonus'       => 5,
 			'vendor_score_max_completion_bonus'   => 20,
+
+			// Listing Fee
+			'mhm_rentiva_listing_fee_enabled'    => false,
+			'mhm_rentiva_listing_fee_model'      => 'one_time',
+			'mhm_rentiva_listing_fee_amount'     => 0.0,
 		);
 	}
 
@@ -72,6 +78,7 @@ final class VendorMarketplaceSettings {
 			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_PENALTY );
 			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_ANTI_GAMING );
 			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_RELIABILITY );
+			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_LISTING_FEE );
 		}
 	}
 
@@ -271,6 +278,45 @@ final class VendorMarketplaceSettings {
 			100,
 			__( 'Maximum points that can be earned from completed bookings.', 'mhm-rentiva' ),
 			self::SECTION_RELIABILITY
+		);
+
+		// Section 5: Listing Fee
+		add_settings_section(
+			self::SECTION_LISTING_FEE,
+			__( 'Listing Fee', 'mhm-rentiva' ),
+			fn() => print( '<p>' . esc_html__( 'Configure fees charged to vendors for listing vehicles on the marketplace.', 'mhm-rentiva' ) . '</p>' ),
+			$page_slug
+		);
+
+		SettingsHelper::checkbox_field(
+			$page_slug,
+			'mhm_rentiva_listing_fee_enabled',
+			__( 'Enable Listing Fee', 'mhm-rentiva' ),
+			__( 'Charge vendors a fee for listing vehicles.', 'mhm-rentiva' ),
+			self::SECTION_LISTING_FEE
+		);
+
+		SettingsHelper::select_field(
+			$page_slug,
+			'mhm_rentiva_listing_fee_model',
+			__( 'Fee Model', 'mhm-rentiva' ),
+			array(
+				'one_time'   => __( 'One Time', 'mhm-rentiva' ),
+				'per_period' => __( 'Per Period', 'mhm-rentiva' ),
+			),
+			__( 'Whether the fee is charged once or per listing period.', 'mhm-rentiva' ),
+			self::SECTION_LISTING_FEE
+		);
+
+		SettingsHelper::number_field(
+			$page_slug,
+			'mhm_rentiva_listing_fee_amount',
+			__( 'Listing Fee Amount', 'mhm-rentiva' ),
+			0,
+			99999,
+			__( 'The fee amount charged to vendors for listing a vehicle.', 'mhm-rentiva' ),
+			self::SECTION_LISTING_FEE,
+			0.01
 		);
 	}
 }

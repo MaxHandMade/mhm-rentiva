@@ -247,3 +247,30 @@
     outline: 2px solid #2271b1;
     outline-offset: 2px;
 }
+
+/* Listing remaining time badge */
+.mhm-vendor-listing-card__remaining {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-top: 6px;
+}
+
+.mhm-vendor-listing-card__remaining.is-green {
+    color: #15803d;
+    background: #dcfce7;
+}
+
+.mhm-vendor-listing-card__remaining.is-yellow {
+    color: #a16207;
+    background: #fef9c3;
+}
+
+.mhm-vendor-listing-card__remaining.is-red {
+    color: #dc2626;
+    background: #fee2e2;
+}

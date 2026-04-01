@@ -211,6 +211,41 @@ $vehicle_count = count( $vehicles );
 							</div>
 						<?php endif; ?>
 
+						<?php
+						// Remaining listing time display
+						if ( in_array( $lifecycle_status, array( 'active', 'paused' ), true ) ) :
+							$expires_at = get_post_meta( $vehicle->ID, '_mhm_vehicle_listing_expires_at', true );
+							$started_at = get_post_meta( $vehicle->ID, '_mhm_vehicle_listing_started_at', true );
+
+							if ( $expires_at ) :
+								$now            = time();
+								$expires_ts     = strtotime( $expires_at );
+								$started_ts     = $started_at ? strtotime( $started_at ) : $now;
+								$total_days     = max( 1, (int) round( ( $expires_ts - $started_ts ) / DAY_IN_SECONDS ) );
+								$remaining_days = max( 0, (int) ceil( ( $expires_ts - $now ) / DAY_IN_SECONDS ) );
+								$pct            = ( $remaining_days / $total_days ) * 100;
+
+								if ( $pct > 50 ) {
+									$color_class = 'is-green';
+								} elseif ( $pct > 20 ) {
+									$color_class = 'is-yellow';
+								} else {
+									$color_class = 'is-red';
+								}
+								?>
+								<div class="mhm-vendor-listing-card__remaining <?php echo esc_attr( $color_class ); ?>">
+									<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+									<?php
+									printf(
+										/* translators: %d: number of remaining days */
+										esc_html__( 'Remaining: %d days', 'mhm-rentiva' ),
+										$remaining_days
+									);
+									?>
+								</div>
+							<?php endif; ?>
+						<?php endif; ?>
+
 						<!-- Actions -->
 						<div class="mhm-vendor-listing-card__actions">
 							<?php if ( $review_status === 'approved' && $vehicle->post_status === 'publish' && $lifecycle_status === 'active' ) : ?>

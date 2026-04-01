@@ -266,6 +266,11 @@ final class Plugin
 			\MHMRentiva\Admin\Vehicle\VehicleLifecycleManager::register();
 		}
 
+		// Listing fee manager — WooCommerce hooks for paid vehicle listings.
+		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\ListingFeeManager')) {
+			\MHMRentiva\Admin\Vehicle\ListingFeeManager::register();
+		}
+
 		// Vendor email notifications — hook into vendor/vehicle lifecycle actions.
 		if ($this->is_class_available('\MHMRentiva\Admin\Emails\Notifications\VendorNotifications')) {
 			\MHMRentiva\Admin\Emails\Notifications\VendorNotifications::register();

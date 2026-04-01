@@ -3242,6 +3242,10 @@ msgstr "İlk yorum yapan siz olun!"
 msgid "Become a Vendor"
 msgstr "Satıcı Olun"
 
+#: src/Admin/Frontend/Account/WooCommerceIntegration.php
+msgid "Vendor Panel"
+msgstr "Satıcı Paneli"
+
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:590
 
 msgid "Below Image"
@@ -25435,3 +25439,64 @@ msgstr "Bu araç yetkili bir bayi tarafından sağlanmaktadır."
 
 msgid "Vendor city:"
 msgstr "Bayi şehri:"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:286
+msgid "Listing Fee"
+msgstr "İlan Ücreti"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:294
+msgid "Enable Listing Fee"
+msgstr "İlan Ücretini Etkinleştir"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:295
+msgid "Charge vendors a fee for listing vehicles."
+msgstr "Bir araç ilanı yayına alındığında satıcılardan ücret alın."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:287
+msgid "Configure fees charged to vendors for listing vehicles on the marketplace."
+msgstr "Pazar yerinde araç ilanı vermek için satıcılardan alınan ücretleri yapılandırın."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:302
+msgid "Fee Model"
+msgstr "Ücret Modeli"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:304
+msgid "One Time"
+msgstr "Tek Seferlik"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:305
+msgid "Per Period"
+msgstr "Dönemsel"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:307
+msgid "Whether the fee is charged once or per listing period."
+msgstr "Ücretin bir kez mi yoksa her ilan döneminde mi alınacağı."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:314
+msgid "Listing Fee Amount"
+msgstr "İlan Ücreti Tutarı"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:317
+msgid "The fee amount charged to vendors for listing a vehicle."
+msgstr "Satıcılardan araç ilanı için alınan ücret tutarı."
+
+#: src/Admin/Vehicle/ListingFeeManager.php:120
+msgid "Vehicle Listing Fee"
+msgstr "Araç İlan Ücreti"
+
+#: src/Admin/Vehicle/ListingFeeManager.php:236
+msgid "New Listing"
+msgstr "Yeni İlan"
+
+#: src/Admin/Vehicle/ListingFeeManager.php:237
+msgid "Renewal"
+msgstr "Yenileme"
+
+#: src/Admin/Vehicle/ListingFeeManager.php:238
+msgid "Relist"
+msgstr "Yeniden Listeleme"
+
+#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:117
+#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:142
+msgid "Redirecting to payment..."
+msgstr "Ödeme sayfasına yönlendiriliyor..."

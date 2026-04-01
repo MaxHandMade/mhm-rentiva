@@ -123,6 +123,10 @@ function initVendorLifecycleActions() {
             .then(function (r) { return r.json(); })
             .then(function (res) {
                 if (res.success) {
+                    if ( res.data && res.data.requires_payment && res.data.checkout_url ) {
+                        window.location.href = res.data.checkout_url;
+                        return;
+                    }
                     var msg = (res.data && res.data.message) ? res.data.message : 'Done.';
                     if (typeof mhmShowToast === 'function') {
                         mhmShowToast(msg, 'success');

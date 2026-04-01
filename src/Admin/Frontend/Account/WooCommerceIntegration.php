@@ -34,6 +34,9 @@ final class WooCommerceIntegration {
 		// Add tabs to WooCommerce My Account
 		add_filter( 'woocommerce_account_menu_items', array( self::class, 'add_menu_items' ), 20 );
 
+		// Vendor Panel: external link for vendor users in WC My Account menu
+		add_filter( 'woocommerce_get_endpoint_url', array( self::class, 'vendor_panel_endpoint_url' ), 5, 4 );
+
 		// Add endpoints (priority 5 to run before WooCommerce's default endpoints)
 		add_action( 'init', array( self::class, 'add_endpoints' ), 5 );
 
@@ -91,10 +94,11 @@ final class WooCommerceIntegration {
 						}
 						$user_id = get_current_user_id();
 						$user    = $user_id ? get_userdata( $user_id ) : false;
-						// Hide if user is already an approved, active vendor
+						// Active vendor: show "Vendor Panel" link instead of "Become a Vendor"
 						if ( $user && in_array( 'rentiva_vendor', (array) $user->roles, true ) ) {
 							$vendor_status = (string) get_user_meta( $user_id, '_rentiva_vendor_status', true );
 							if ( $vendor_status !== 'suspended' ) {
+								$new_items['vendor-panel'] = __( 'Vendor Panel', 'mhm-rentiva' );
 								continue;
 							}
 						}
@@ -126,6 +130,7 @@ final class WooCommerceIntegration {
 					if ( $user && in_array( 'rentiva_vendor', (array) $user->roles, true ) ) {
 						$vendor_status = (string) get_user_meta( $user_id, '_rentiva_vendor_status', true );
 						if ( $vendor_status !== 'suspended' ) {
+							$rentiva_items['vendor-panel'] = __( 'Vendor Panel', 'mhm-rentiva' );
 							continue;
 						}
 					}
@@ -367,6 +372,28 @@ final class WooCommerceIntegration {
 	}
 
 	// Logic moved to EndpointHelperTrait
+
+	/**
+	 * Redirect vendor-panel menu item to the /panel/ page URL.
+	 *
+	 * @param string $url      Original URL.
+	 * @param string $endpoint Endpoint slug.
+	 * @param string $value    Endpoint value.
+	 * @param string $permalink Permalink.
+	 * @return string Modified URL.
+	 */
+	public static function vendor_panel_endpoint_url( string $url, string $endpoint, string $value, string $permalink ): string {
+		if ( $endpoint !== 'vendor-panel' ) {
+			return $url;
+		}
+
+		$panel_page = get_page_by_path( 'panel' );
+		if ( $panel_page instanceof \WP_Post ) {
+			return (string) get_permalink( $panel_page );
+		}
+
+		return home_url( '/panel/' );
+	}
 
 	/**
 	 * Filter WooCommerce endpoint URLs to support translated slugs within My Account.
