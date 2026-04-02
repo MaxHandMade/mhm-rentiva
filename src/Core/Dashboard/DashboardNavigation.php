@@ -60,9 +60,13 @@ final class DashboardNavigation
 					'label' => __('Payment Settings', 'mhm-rentiva'),
 					'icon'  => 'settings',
 				),
-				'messages' => array(
+				'messages'    => array(
 					'label' => __('Messages', 'mhm-rentiva'),
 					'icon'  => 'mail',
+				),
+				'reliability' => array(
+					'label' => __('Reliability & Penalties', 'mhm-rentiva'),
+					'icon'  => 'shield',
 				),
 			),
 		);

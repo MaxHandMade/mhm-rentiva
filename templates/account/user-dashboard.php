@@ -292,6 +292,10 @@ $analytics = is_array($dashboard['analytics'] ?? null) ? $dashboard['analytics']
 				<div class="mhm-rentiva-dashboard__tab-content">
 					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-settings.php'; ?>
 				</div>
+			<?php elseif ($active_tab === 'reliability' && $context === 'vendor') : ?>
+				<div class="mhm-rentiva-dashboard__tab-content">
+					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-reliability.php'; ?>
+				</div>
 			<?php endif; ?>
 		</div>
 	</main>

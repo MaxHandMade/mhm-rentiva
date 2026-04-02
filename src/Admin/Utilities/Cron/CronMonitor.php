@@ -66,6 +66,10 @@ final class CronMonitor {
 				'name'        => __( 'App Log Maintenance (Modern)', 'mhm-rentiva' ),
 				'description' => __( 'Advanced log management and rotation for system logs', 'mhm-rentiva' ),
 			),
+			'mhm_rentiva_instance_checkin'      => array(
+				'name'        => __( 'Site Instance Check-in', 'mhm-rentiva' ),
+				'description' => __( 'Reports site URL, version and environment to license server for usage tracking', 'mhm-rentiva' ),
+			),
 		);
 
 		foreach ( $crons as $timestamp => $cron ) {
@@ -167,6 +171,7 @@ final class CronMonitor {
 			'mhm_rentiva_email_log_purge_event',
 			'mhm_rentiva_log_purge_event',
 			'mhm_rentiva_daily_log_cleanup',
+			'mhm_rentiva_instance_checkin',
 		);
 
 		if ( ! in_array( $hook, $plugin_hooks, true ) ) {
@@ -261,6 +266,7 @@ final class CronMonitor {
 			'mhm_rentiva_email_log_purge_event',
 			'mhm_rentiva_log_purge_event',
 			'mhm_rentiva_daily_log_cleanup',
+			'mhm_rentiva_instance_checkin',
 		);
 
 		// Ensure all plugin hooks are loaded

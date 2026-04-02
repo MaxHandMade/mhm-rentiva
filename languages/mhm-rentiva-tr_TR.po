@@ -15337,6 +15337,238 @@ msgstr "Ödeme Talep Limiti"
 msgid "Payment Settings"
 msgstr "Ödeme Ayarları"
 
+#: src/Core/Dashboard/DashboardNavigation.php
+msgid "Reliability & Penalties"
+msgstr "Güvenilirlik & Ceza"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Your performance score and the penalty system that keeps the marketplace fair for everyone."
+msgstr "Performans puanınız ve pazaryerini herkes için adil tutan ceza sistemi."
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Your Reliability Score"
+msgstr "Güvenilirlik Puanınız"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Calculated daily from your booking completions, cancellations, withdrawals, and pauses over the last 6–12 months. A higher score signals trustworthiness to customers and to Rentiva."
+msgstr "Son 6–12 ayda tamamlanan rezervasyonlarınız, iptalleriniz, araç geri çekmeleriniz ve duraklatmalarınız temel alınarak her gün hesaplanır. Yüksek puan, müşterilere ve Rentiva'ya güvenilirliğinizi gösterir."
+
+#: templates/account/partials/vendor-reliability.php
+msgid "/ 100"
+msgstr "/ 100"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "90–100"
+msgstr "90–100"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "70–89"
+msgstr "70–89"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "50–69"
+msgstr "50–69"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "0–49"
+msgstr "0–49"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "How Your Score Is Calculated"
+msgstr "Puanınız Nasıl Hesaplanır?"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Your score starts at 100 and is adjusted based on your actions. Scores are clamped between 0 and 100."
+msgstr "Puanınız 100'den başlar ve eylemlerinize göre artıp azalır. Puan her zaman 0–100 arasında tutulur."
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Action"
+msgstr "Eylem"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Window"
+msgstr "Süre"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Effect"
+msgstr "Etki"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Bonus"
+msgstr "Bonus"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Completed booking"
+msgstr "Tamamlanan rezervasyon"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Last 6 months"
+msgstr "Son 6 ay"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Last 12 months"
+msgstr "Son 12 ay"
+
+#: templates/account/partials/vendor-reliability.php
+#. translators: %d: points per completed booking
+msgid "+%d pts each (max +%d)"
+msgstr "Her biri +%d puan (maks. +%d)"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Penalty"
+msgstr "Ceza"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Vendor-initiated cancellation"
+msgstr "Satıcı kaynaklı iptal"
+
+#: templates/account/partials/vendor-reliability.php
+#. translators: %d: points deducted per cancellation
+msgid "-%d pts each"
+msgstr "Her biri -%d puan"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Vehicle withdrawal"
+msgstr "Araç geri çekme"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Minor"
+msgstr "Hafif"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Vehicle pause"
+msgstr "Araç duraklatma"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Withdrawal Penalty Tiers"
+msgstr "Geri Çekme Ceza Kademeleri"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Repeated vehicle withdrawals carry financial penalties based on your rolling 12-month history. Penalties are deducted from your next payout."
+msgstr "Tekrarlanan araç geri çekmeler, son 12 aylık geçmişinize göre mali cezalar doğurur. Cezalar bir sonraki ödemenizden düşülür."
+
+#: templates/account/partials/vendor-reliability.php
+msgid "1st Withdrawal"
+msgstr "1. Geri Çekme"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Free"
+msgstr "Ücretsiz"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "No financial penalty for your first withdrawal in any 12-month window."
+msgstr "12 aylık herhangi bir penceredeki ilk geri çekme için mali ceza uygulanmaz."
+
+#: templates/account/partials/vendor-reliability.php
+msgid "2nd Withdrawal"
+msgstr "2. Geri Çekme"
+
+#: templates/account/partials/vendor-reliability.php
+#. translators: %d: penalty percentage
+msgid "%d%% of monthly avg. revenue"
+msgstr "Aylık ortalama gelirin %d%%'si"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Deducted from your ledger balance at time of withdrawal."
+msgstr "Geri çekme anında muhasebe bakiyenizden düşülür."
+
+#: templates/account/partials/vendor-reliability.php
+msgid "3rd+ Withdrawal"
+msgstr "3. ve Sonraki Geri Çekmeler"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Each subsequent withdrawal within the 12-month window carries this rate."
+msgstr "12 aylık penceredeki sonraki her geri çekme bu oran üzerinden cezalandırılır."
+
+#: templates/account/partials/vendor-reliability.php
+#. translators: %d: rolling window in months
+msgid "The withdrawal counter resets after %d months of no withdrawals."
+msgstr "Geri çekme sayacı %d ay boyunca yeni geri çekme yapılmadığında sıfırlanır."
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Why Does This System Exist?"
+msgstr "Bu Sistem Neden Var?"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Customer Trust"
+msgstr "Müşteri Güveni"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Customers rely on vehicles being available on the dates they book. Sudden withdrawals or cancellations erode trust in the entire marketplace."
+msgstr "Müşteriler rezervasyon yaptıkları tarihlerde araçların hazır olmasına güvenir. Ani geri çekmeler veya iptaller, pazaryerinin tamamına duyulan güveni zedeler."
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Fair Competition"
+msgstr "Adil Rekabet"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Vendors who consistently deliver receive better visibility. The score ensures that reliable vendors are rewarded and unreliable behaviour carries a proportionate cost."
+msgstr "Tutarlı performans sergileyen satıcılar daha fazla görünürlük kazanır. Puan sistemi, güvenilir satıcıları ödüllendirirken güvenilmez davranışların orantılı bir bedeli olmasını sağlar."
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Your Growth"
+msgstr "Büyümeniz"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "A high score is your reputation on Rentiva. It signals to customers that you are a dependable partner, which translates directly into more bookings and revenue."
+msgstr "Yüksek puan, Rentiva'daki itibarınızdır. Müşterilere güvenilir bir ortak olduğunuzu gösterir; bu da doğrudan daha fazla rezervasyon ve gelir anlamına gelir."
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Score History"
+msgstr "Puan Geçmişi"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "A log of every event that affected your reliability score. Up to 50 entries are kept."
+msgstr "Güvenilirlik puanınızı etkileyen tüm olayların kaydı. En fazla 50 kayıt tutulur."
+
+#: templates/account/partials/vendor-reliability.php
+msgid "No score events recorded yet. Events appear here when your score changes."
+msgstr "Henüz puan değişikliği kaydedilmedi. Puanınız değiştiğinde olaylar burada görünür."
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Date"
+msgstr "Tarih"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Event"
+msgstr "Olay"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Vehicle"
+msgstr "Araç"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Change"
+msgstr "Değişim"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Score"
+msgstr "Puan"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Vehicle paused"
+msgstr "Araç duraklatıldı"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Vehicle withdrawn"
+msgstr "Araç geri çekildi"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Booking cancelled"
+msgstr "Rezervasyon iptal edildi"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Booking completed"
+msgstr "Rezervasyon tamamlandı"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "Daily recalculation"
+msgstr "Günlük yeniden hesaplama"
+
+#: templates/account/partials/vendor-reliability.php
+msgid "pts"
+msgstr "puan"
+
 #: src/Admin/Reports/BackgroundProcessor.php:463
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:223
 #: src/Admin/Utilities/Export/Export.php:141
@@ -25370,6 +25602,46 @@ msgstr "Plaka:"
 
 msgid "Select Category"
 msgstr "Kategori Seçin"
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "Select Pickup Location"
+msgstr "Teslim Noktası Seçin"
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "Short Description"
+msgstr "Kısa Açıklama"
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "Vehicle Description"
+msgstr "Araç Açıklaması"
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "Briefly describe the vehicle — condition, highlights, any extras included."
+msgstr "Aracı kısaca tanıtın — durumu, öne çıkan özellikleri, dahil olan ekstralar."
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "Vehicle updated successfully."
+msgstr "Araç başarıyla güncellendi."
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "Invalid vehicle."
+msgstr "Geçersiz araç."
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "Invalid vehicle or permission denied."
+msgstr "Geçersiz araç veya yetki reddedildi."
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "You do not own this vehicle."
+msgstr "Bu araç size ait değil."
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "The main pickup point for this vehicle in your city."
+msgstr "Bu aracın şehirinizdeki ana teslim noktası."
+
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
+msgid "Vehicle updated. Critical fields were changed — your listing will be reviewed again before publishing."
+msgstr "Araç güncellendi. Kritik alanlar değiştirildi — ilanınız yayımlanmadan önce tekrar incelenecek."
 
 msgid "Transfer Service Settings"
 msgstr "Transfer Hizmeti Ayarları"

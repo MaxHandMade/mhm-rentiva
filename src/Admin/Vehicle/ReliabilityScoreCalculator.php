@@ -110,17 +110,67 @@ final class ReliabilityScoreCalculator
 	/**
 	 * Calculate and persist the reliability score for a vendor.
 	 *
-	 * @param int $vendor_id Vendor user ID.
+	 * Optionally records a history entry when an explicit event triggers the update.
+	 * For cron-driven updates, a history entry is only recorded when the score changes.
+	 *
+	 * @param int    $vendor_id  Vendor user ID.
+	 * @param string $event_type Event that triggered the update: 'pause', 'withdraw', 'cancel', 'complete', 'cron'.
+	 * @param int    $vehicle_id Vehicle post ID associated with the event (0 if not applicable).
 	 * @return int The calculated score.
 	 */
-	public static function update(int $vendor_id): int
+	public static function update(int $vendor_id, string $event_type = 'cron', int $vehicle_id = 0): int
 	{
-		$score = self::calculate($vendor_id);
+		$old_score = self::get($vendor_id);
+		$new_score = self::calculate($vendor_id);
 
-		update_user_meta($vendor_id, MetaKeys::VENDOR_RELIABILITY_SCORE, $score);
+		update_user_meta($vendor_id, MetaKeys::VENDOR_RELIABILITY_SCORE, $new_score);
 		update_user_meta($vendor_id, MetaKeys::VENDOR_RELIABILITY_UPDATED_AT, gmdate('Y-m-d H:i:s'));
 
-		return $score;
+		// Log explicit events always; log cron only when the score actually changed.
+		if ($event_type !== 'cron' || $new_score !== $old_score) {
+			self::append_history($vendor_id, $event_type, $vehicle_id, $old_score, $new_score);
+		}
+
+		return $new_score;
+	}
+
+	/**
+	 * Append a score history entry to the vendor's history log.
+	 *
+	 * Stores the newest entry first. Trims to a maximum of 50 entries.
+	 *
+	 * @param int    $vendor_id    Vendor user ID.
+	 * @param string $event_type   Event type: 'pause', 'withdraw', 'cancel', 'complete', 'cron'.
+	 * @param int    $vehicle_id   Vehicle post ID (0 if not applicable).
+	 * @param int    $score_before Score before the update.
+	 * @param int    $score_after  Score after the update.
+	 */
+	private static function append_history(
+		int $vendor_id,
+		string $event_type,
+		int $vehicle_id,
+		int $score_before,
+		int $score_after
+	): void {
+		$history = get_user_meta($vendor_id, MetaKeys::VENDOR_SCORE_HISTORY, true);
+
+		if (! is_array($history)) {
+			$history = array();
+		}
+
+		$vehicle_title = $vehicle_id > 0 ? (string) get_the_title($vehicle_id) : '';
+
+		array_unshift($history, array(
+			'ts'            => gmdate('Y-m-d H:i:s'),
+			'event_type'    => $event_type,
+			'vehicle_id'    => $vehicle_id,
+			'vehicle_title' => $vehicle_title,
+			'score_before'  => $score_before,
+			'score_after'   => $score_after,
+			'delta'         => $score_after - $score_before,
+		));
+
+		update_user_meta($vendor_id, MetaKeys::VENDOR_SCORE_HISTORY, array_slice($history, 0, 50));
 	}
 
 	/**

@@ -1763,3 +1763,445 @@ margin: 0;
 		justify-content: center;
 	}
 }
+
+/* ============================================================
+   Vendor Reliability & Penalties Tab
+   ============================================================ */
+
+.mhm-vendor-reliability {
+	display: flex;
+	flex-direction: column;
+	gap: 28px;
+}
+
+.mhm-vendor-reliability__subtitle {
+	font-size: 0.875rem;
+	color: #64748b;
+	margin: -10px 0 0;
+}
+
+/* ── Score Card ──────────────────────────────── */
+
+.mhm-vendor-reliability__score-card {
+	display: flex;
+	align-items: flex-start;
+	gap: 32px;
+	background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+	border-radius: 20px;
+	padding: 32px;
+	box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
+}
+
+.mhm-vendor-reliability__score-ring-wrap {
+	position: relative;
+	flex-shrink: 0;
+	width: 120px;
+	height: 120px;
+}
+
+.mhm-vendor-reliability__ring {
+	width: 120px;
+	height: 120px;
+	transform: rotate(0deg);
+}
+
+.mhm-vendor-reliability__ring-inner {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+}
+
+.mhm-vendor-reliability__ring-score {
+	font-size: 2rem;
+	font-weight: 800;
+	line-height: 1;
+}
+
+.mhm-vendor-reliability__ring-max {
+	font-size: 0.75rem;
+	color: #94a3b8;
+	font-weight: 600;
+}
+
+.mhm-vendor-reliability__score-info {
+	flex: 1;
+	min-width: 0;
+}
+
+.mhm-vendor-reliability__score-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 12px;
+	border-radius: 20px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	border: 1px solid;
+	margin-bottom: 10px;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+}
+
+.mhm-vendor-reliability__score-title {
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #f8fafc;
+	margin: 0 0 8px;
+}
+
+.mhm-vendor-reliability__score-desc {
+	font-size: 0.8125rem;
+	color: #94a3b8;
+	margin: 0 0 18px;
+	line-height: 1.6;
+}
+
+/* Tier pills row */
+
+.mhm-vendor-reliability__tiers {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.mhm-vendor-reliability__tier {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 5px 12px;
+	border-radius: 20px;
+	border: 1px solid #2d3748;
+	background: #1e293b;
+	font-size: 0.75rem;
+	color: #94a3b8;
+}
+
+.mhm-vendor-reliability__tier.is-active {
+	color: #f8fafc;
+	font-weight: 700;
+}
+
+.mhm-vendor-reliability__tier-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.mhm-vendor-reliability__tier-range {
+	color: inherit;
+	opacity: 0.7;
+}
+
+/* ── Section ─────────────────────────────────── */
+
+.mhm-vendor-reliability__section {
+	background: #ffffff;
+	border: 1px solid #e4e8f2;
+	border-radius: 16px;
+	padding: 24px 24px 20px;
+	box-shadow: 0 2px 8px rgba(22, 34, 66, 0.04);
+}
+
+.mhm-vendor-reliability__section-title {
+	font-size: 1rem;
+	font-weight: 700;
+	color: #1e293b;
+	margin: 0 0 6px;
+}
+
+.mhm-vendor-reliability__section-desc {
+	font-size: 0.8125rem;
+	color: #64748b;
+	margin: 0 0 18px;
+	line-height: 1.6;
+}
+
+/* ── Score Table ─────────────────────────────── */
+
+.mhm-vendor-reliability__table-wrap {
+	overflow-x: auto;
+	border-radius: 10px;
+	border: 1px solid #e4e8f2;
+}
+
+.mhm-vendor-reliability__table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.875rem;
+}
+
+.mhm-vendor-reliability__table th {
+	background: #f8fafc;
+	padding: 10px 16px;
+	text-align: left;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: #64748b;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	border-bottom: 1px solid #e4e8f2;
+}
+
+.mhm-vendor-reliability__table td {
+	padding: 12px 16px;
+	border-bottom: 1px solid #f1f5f9;
+	vertical-align: middle;
+	color: #334155;
+}
+
+.mhm-vendor-reliability__table tr:last-child td {
+	border-bottom: none;
+}
+
+.mhm-vendor-reliability__table tr.is-bonus td {
+	background: #f0fdf4;
+}
+
+.mhm-vendor-reliability__tag {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 6px;
+	font-size: 0.7rem;
+	font-weight: 700;
+	margin-right: 6px;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+.mhm-vendor-reliability__tag.is-green  { background: #dcfce7; color: #166534; }
+.mhm-vendor-reliability__tag.is-red    { background: #fee2e2; color: #991b1b; }
+.mhm-vendor-reliability__tag.is-orange { background: #fff7ed; color: #9a3412; }
+
+strong.is-green  { color: #16a34a; }
+strong.is-red    { color: #dc2626; }
+strong.is-orange { color: #ea580c; }
+
+/* ── Penalty Cards ───────────────────────────── */
+
+.mhm-vendor-reliability__penalty-cards {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 14px;
+	margin-bottom: 14px;
+}
+
+.mhm-vendor-reliability__penalty-card {
+	display: flex;
+	gap: 14px;
+	align-items: flex-start;
+	padding: 18px;
+	border-radius: 14px;
+	border: 1px solid #e4e8f2;
+	background: #f9fbff;
+}
+
+.mhm-vendor-reliability__penalty-card.is-free     { border-color: #bbf7d0; background: #f0fdf4; }
+.mhm-vendor-reliability__penalty-card.is-moderate { border-color: #fed7aa; background: #fff7ed; }
+.mhm-vendor-reliability__penalty-card.is-severe   { border-color: #fecaca; background: #fef2f2; }
+
+.mhm-vendor-reliability__penalty-number {
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.875rem;
+	font-weight: 800;
+	flex-shrink: 0;
+	background: #e2e8f0;
+	color: #334155;
+}
+
+.mhm-vendor-reliability__penalty-card.is-free .mhm-vendor-reliability__penalty-number     { background: #dcfce7; color: #166534; }
+.mhm-vendor-reliability__penalty-card.is-moderate .mhm-vendor-reliability__penalty-number { background: #fed7aa; color: #9a3412; }
+.mhm-vendor-reliability__penalty-card.is-severe .mhm-vendor-reliability__penalty-number   { background: #fecaca; color: #991b1b; }
+
+.mhm-vendor-reliability__penalty-title {
+	font-size: 0.8125rem;
+	font-weight: 700;
+	color: #1e293b;
+	margin-bottom: 4px;
+}
+
+.mhm-vendor-reliability__penalty-amount {
+	font-size: 1rem;
+	font-weight: 800;
+	margin-bottom: 6px;
+}
+
+.mhm-vendor-reliability__penalty-amount.is-green  { color: #16a34a; }
+.mhm-vendor-reliability__penalty-amount.is-orange { color: #ea580c; }
+.mhm-vendor-reliability__penalty-amount.is-red    { color: #dc2626; }
+
+.mhm-vendor-reliability__penalty-note {
+	font-size: 0.75rem;
+	color: #64748b;
+	line-height: 1.5;
+}
+
+.mhm-vendor-reliability__penalty-footnote {
+	font-size: 0.8rem;
+	color: #94a3b8;
+	margin: 0;
+	font-style: italic;
+}
+
+/* ── Why Section ─────────────────────────────── */
+
+.mhm-vendor-reliability__why {
+	border-color: #e0e7ff;
+	background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 100%);
+}
+
+.mhm-vendor-reliability__why-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+}
+
+.mhm-vendor-reliability__why-card {
+	padding: 18px;
+	border-radius: 12px;
+	border: 1px solid #e0e7ff;
+	background: #ffffff;
+}
+
+.mhm-vendor-reliability__why-icon {
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	background: #e0e7ff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #4338ca;
+	margin-bottom: 12px;
+}
+
+.mhm-vendor-reliability__why-icon svg {
+	width: 18px;
+	height: 18px;
+}
+
+.mhm-vendor-reliability__why-card h4 {
+	font-size: 0.875rem;
+	font-weight: 700;
+	color: #1e293b;
+	margin: 0 0 6px;
+}
+
+.mhm-vendor-reliability__why-card p {
+	font-size: 0.8125rem;
+	color: #64748b;
+	margin: 0;
+	line-height: 1.6;
+}
+
+/* ── Score History ───────────────────────────── */
+
+.mhm-vendor-reliability__history-table td {
+	font-size: 0.8125rem;
+}
+
+.mhm-vendor-reliability__history-date {
+	white-space: nowrap;
+	color: #94a3b8;
+	font-size: 0.75rem !important;
+}
+
+.mhm-vendor-reliability__history-event {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 3px 10px;
+	border-radius: 6px;
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+
+.mhm-vendor-reliability__history-event.is-pause    { background: #eff6ff; color: #1d4ed8; }
+.mhm-vendor-reliability__history-event.is-withdraw { background: #fff1f2; color: #be123c; }
+.mhm-vendor-reliability__history-event.is-cancel   { background: #fff7ed; color: #c2410c; }
+.mhm-vendor-reliability__history-event.is-complete { background: #f0fdf4; color: #15803d; }
+.mhm-vendor-reliability__history-event.is-cron     { background: #f8fafc; color: #475569; }
+
+.mhm-vendor-reliability__history-vehicle {
+	color: #334155;
+	max-width: 180px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mhm-vendor-reliability__history-na {
+	color: #cbd5e1;
+}
+
+.mhm-vendor-reliability__history-score {
+	font-weight: 700;
+	color: #1e293b;
+	text-align: right;
+}
+
+.is-neutral { color: #94a3b8; }
+
+.mhm-vendor-reliability__history-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	padding: 32px 20px;
+	color: #94a3b8;
+	text-align: center;
+}
+
+.mhm-vendor-reliability__history-empty svg {
+	width: 36px;
+	height: 36px;
+	opacity: 0.4;
+}
+
+.mhm-vendor-reliability__history-empty p {
+	margin: 0;
+	font-size: 0.875rem;
+}
+
+/* ── Responsive ──────────────────────────────── */
+
+@media (max-width: 900px) {
+	.mhm-vendor-reliability__score-card {
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	.mhm-vendor-reliability__tiers {
+		justify-content: center;
+	}
+
+	.mhm-vendor-reliability__penalty-cards,
+	.mhm-vendor-reliability__why-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 600px) {
+	.mhm-vendor-reliability__score-card {
+		padding: 22px 18px;
+	}
+
+	.mhm-vendor-reliability__section {
+		padding: 18px 16px;
+	}
+
+	.mhm-vendor-reliability__penalty-card {
+		flex-direction: column;
+		gap: 10px;
+	}
+}
+}

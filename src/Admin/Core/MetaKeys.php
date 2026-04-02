@@ -57,6 +57,7 @@ final class MetaKeys
 	// Vendor Reliability Meta Keys
 	public const VENDOR_RELIABILITY_SCORE      = '_rentiva_vendor_reliability_score';
 	public const VENDOR_RELIABILITY_UPDATED_AT = '_rentiva_vendor_reliability_updated_at';
+	public const VENDOR_SCORE_HISTORY          = '_rentiva_vendor_score_history';
 
 	// Booking Meta Keys
 	public const BOOKING_STATUS              = '_mhm_status';

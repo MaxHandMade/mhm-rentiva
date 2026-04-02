@@ -58,7 +58,7 @@ final class ReliabilityScoreJob
 		$updated = 0;
 
 		foreach ($vendors as $vendor_id) {
-			ReliabilityScoreCalculator::update((int) $vendor_id);
+			ReliabilityScoreCalculator::update((int) $vendor_id, 'cron');
 			++$updated;
 		}
 

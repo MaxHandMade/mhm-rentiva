@@ -10,7 +10,9 @@
             "Gövde alanı boş = Gold Standard HTML dosya fallback — özelleştirme yapılmadığında profesyonel tasarım korunuyor.",
             "🎨 E-POSTA DÜZENİ: Gold Standard şablonunda gradient oluşturma iyileştirildi (header başlığında gerçek renk geçişi).",
             "♿ ERİŞİLEBİLİRLİK: Araç yeniden inceleme admin e-postasındaki amber CTA butonunun kontrast oranı 2.97:1'den 6.8:1'e yükseltildi (WCAG AA geçiyor).",
-            "🌐 ÇEVİRİ: Vendor e-posta admin arayüzü için 56 yeni Türkçe çeviri eklendi."
+            "🌐 ÇEVİRİ: Vendor e-posta admin arayüzü için 56 yeni Türkçe çeviri eklendi.",
+            "🔧 DÜZELTME: Site Instance Check-in cronu (`mhm_rentiva_instance_checkin`) artık Cron İş Monitörü'nde görünüyor ve 'Şimdi Çalıştır' butonu aktif.",
+            "🔧 DÜZELTME: `weekly` WP cron interval'i artık eklenti tarafından garantili kayıt ediliyor — harici eklentiye bağımlılık kaldırıldı."
         ],
         "notice": "v4.25.0 - Yönetici Tarafından Düzenlenebilir Vendor E-posta Şablonları"
     },

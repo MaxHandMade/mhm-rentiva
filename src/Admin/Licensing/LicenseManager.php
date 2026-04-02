@@ -41,6 +41,8 @@ final class LicenseManager
 		add_action(self::CRON_HOOK, array($this, 'cronValidate'));
 		add_action(self::CHECKIN_HOOK, array($this, 'cronInstanceCheckin'));
 
+		add_filter('cron_schedules', array($this, 'registerCronSchedules'));
+
 		if (! wp_next_scheduled(self::CRON_HOOK)) {
 			wp_schedule_event(time() + 3600, 'daily', self::CRON_HOOK);
 		}
@@ -50,6 +52,23 @@ final class LicenseManager
 		}
 
 		add_action('admin_notices', array($this, 'adminNotices'));
+	}
+
+	/**
+	 * Register custom cron schedules required by this class.
+	 *
+	 * @param array $schedules Existing cron schedules.
+	 * @return array
+	 */
+	public function registerCronSchedules(array $schedules): array
+	{
+		if (! isset($schedules['weekly'])) {
+			$schedules['weekly'] = array(
+				'interval' => WEEK_IN_SECONDS,
+				'display'  => 'Once Weekly',
+			);
+		}
+		return $schedules;
 	}
 
 	/**

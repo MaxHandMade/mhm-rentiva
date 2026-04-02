@@ -144,6 +144,8 @@ final class VehicleLifecycleManager
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_PAUSED_AT, gmdate('Y-m-d H:i:s'));
         self::increment_pause_count($vehicle_id);
 
+        ReliabilityScoreCalculator::update($vendor_id, 'pause', $vehicle_id);
+
         do_action('mhm_rentiva_vehicle_paused', $vehicle_id, $vendor_id);
         do_action('mhm_rentiva_vehicle_lifecycle_changed', $vehicle_id, $current, VehicleLifecycleStatus::PAUSED);
 
@@ -237,6 +239,9 @@ final class VehicleLifecycleManager
 
         // Calculate progressive penalty based on withdrawal history.
         $penalty = PenaltyCalculator::calculate_withdrawal_penalty($vehicle_id, $vendor_id);
+
+        ReliabilityScoreCalculator::update($vendor_id, 'withdraw', $vehicle_id);
+
         do_action('mhm_rentiva_vehicle_withdrawn', $vehicle_id, $vendor_id, $penalty);
         do_action('mhm_rentiva_vehicle_lifecycle_changed', $vehicle_id, $current, VehicleLifecycleStatus::WITHDRAWN);
 
