@@ -138,7 +138,10 @@ final class LicenseManager
 	}
 
 	/**
-	 * Check if license is active
+	 * Check if license is active (local data only — no API calls).
+	 *
+	 * Server validation is handled by the daily cron (cronValidate).
+	 * This method must be fast since it's called on every admin page load.
 	 *
 	 * @return bool True if active
 	 */
@@ -148,67 +151,33 @@ final class LicenseManager
 		$has_license_key   = ! empty($o['key']);
 		$has_activation_id = ! empty($o['activation_id']);
 
-		// BUG FIX: If there's a license key but no activation_id, license is not truly active
-		// This means the license was never successfully activated on the server
+		// License key exists but never successfully activated on server
 		if ($has_license_key && ! $has_activation_id) {
-			return false; // License key exists but not activated on server
+			return false;
 		}
 
-		// Check if developer mode is manually disabled
+		// Developer mode: only if no real license key AND not manually disabled
 		$disable_dev_mode = get_option('mhm_rentiva_disable_dev_mode', false);
-
-		// Only automatic developer mode (secure) - unless manually disabled
-		// Developer mode should only work if there's NO real license key
 		if (! $disable_dev_mode && $this->isDevelopmentEnvironment() && ! $has_license_key) {
-			return true; // Developer mode only if no real license exists
+			return true;
 		}
 
-		// If we have a license key, check server status immediately
-		// Use transient cache to prevent excessive API calls (30 seconds cache)
-		if ($has_license_key) {
-			$cache_key     = 'mhm_rentiva_license_status_' . md5($o['key'] . $o['activation_id']);
-			$cached_status = get_transient($cache_key);
-
-			if ($cached_status !== false) {
-				// Use cached status (30 seconds)
-				return (bool) $cached_status;
-			}
-
-			// Validate with server immediately
-			// Use transient lock to prevent multiple simultaneous validations
-			$validation_transient = 'mhm_rentiva_license_validating';
-			if (! get_transient($validation_transient)) {
-				set_transient($validation_transient, true, 10); // Lock for 10 seconds
-
-				// Validate synchronously to get immediate result (silent mode for status checks)
-				$this->validate( true );
-
-				// Refresh license data after validation
-				$o = $this->get();
-				delete_transient($validation_transient);
-			} else {
-				// Another validation is in progress, use current data
-				$o = $this->get();
-			}
-
-			// Check status after validation
-			$is_active = false;
-			if (($o['status'] ?? '') === 'active') {
-				$exp = $o['expires_at'] ?? null;
-				if ($exp && is_numeric($exp)) {
-					$is_active = (int) $exp > time() && ! empty($o['activation_id']);
-				} else {
-					$is_active = ! empty($o['activation_id']);
-				}
-			}
-
-			// Cache result for 30 seconds to prevent excessive API calls
-			set_transient($cache_key, $is_active ? 1 : 0, 30);
-
-			return $is_active;
+		if (! $has_license_key) {
+			return false;
 		}
 
-		return false; // No license key, not active
+		// Check local license data — cron keeps this up to date
+		if (($o['status'] ?? '') !== 'active') {
+			return false;
+		}
+
+		// Check expiration
+		$exp = $o['expires_at'] ?? null;
+		if ($exp && is_numeric($exp) && (int) $exp < time()) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -281,6 +250,7 @@ final class LicenseManager
 			'activation_id' => $resp['activation_id'] ?? '',
 			'token'         => $resp['token'] ?? '',
 			'last_check_at' => time(),
+			'hash_v2'       => true,
 		);
 		$this->save($data);
 		return true;
@@ -740,8 +710,6 @@ final class LicenseManager
 		$payload = array(
 			'home' => home_url(),
 			'site' => site_url(),
-			'wp'   => get_bloginfo('version'),
-			'php'  => PHP_VERSION,
 		);
 		return hash('sha256', wp_json_encode($payload));
 	}
@@ -859,6 +827,14 @@ final class LicenseManager
 			echo '<div class="notice notice-warning"><p>';
 			echo '<strong>' . esc_html__('⚠️ Connection Warning', 'mhm-rentiva') . ': </strong>';
 			echo esc_html__('Connection to license server failed. System is running in 7-day grace mode. Please check your internet.', 'mhm-rentiva');
+			echo '</p></div>';
+		}
+
+		// HASH MIGRATION NOTICE: One-time reactivation required after v4.25.1 update
+		if (! empty($o['key']) && ! empty($o['activation_id']) && empty($o['hash_v2'])) {
+			echo '<div class="notice notice-warning"><p>';
+			echo '<strong>' . esc_html__('Rentiva License Update', 'mhm-rentiva') . ': </strong>';
+			echo esc_html__('A security update improved license verification. Please deactivate and reactivate your license once. Go to Rentiva > License.', 'mhm-rentiva');
 			echo '</p></div>';
 		}
 	}
