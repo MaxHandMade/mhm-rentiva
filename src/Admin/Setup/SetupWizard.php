@@ -108,6 +108,9 @@ final class SetupWizard
 				case 'frontend':
 					self::render_step_frontend();
 					break;
+				case 'demo':
+					self::render_step_demo();
+					break;
 				case 'summary':
 				default:
 					self::render_step_summary();
@@ -565,6 +568,135 @@ final class SetupWizard
 	<?php
 	}
 
+	private static function render_step_demo(): void
+	{
+		$is_active  = \MHMRentiva\Admin\Testing\DemoNoticeManager::is_demo_active();
+		$seed_steps    = \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_seed_steps();
+		$cleanup_steps = \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_cleanup_steps();
+		$nonce         = \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_nonce();
+	?>
+		<h2><?php esc_html_e( 'Demo Data', 'mhm-rentiva' ); ?></h2>
+		<p><?php esc_html_e( 'Load sample vehicles, customers, bookings, add-ons, transfer points and messages so you can explore every feature without entering real data.', 'mhm-rentiva' ); ?></p>
+
+		<?php if ( $is_active ) : ?>
+			<div class="notice notice-warning inline" style="margin: 0 0 16px;">
+				<p><strong><?php esc_html_e( '⚠️ Demo data is currently active.', 'mhm-rentiva' ); ?></strong>
+				<?php esc_html_e( 'Use "Clean Up" to remove all demo data before going live.', 'mhm-rentiva' ); ?></p>
+			</div>
+		<?php endif; ?>
+
+		<div id="mhm-demo-seed-wrap" style="max-width:640px;">
+			<div id="mhm-demo-progress-bar" style="display:none; margin-bottom:16px;">
+				<div style="background:#e0e0e0; border-radius:4px; height:12px; overflow:hidden;">
+					<div id="mhm-demo-progress-fill" style="background:#2271b1; height:100%; width:0; transition:width .3s;"></div>
+				</div>
+				<p id="mhm-demo-progress-label" style="margin:6px 0 0; font-size:13px; color:#555;"></p>
+			</div>
+			<div id="mhm-demo-result" style="display:none; margin-bottom:16px;" class="notice notice-success inline">
+				<p id="mhm-demo-result-msg"></p>
+			</div>
+			<div id="mhm-demo-error" style="display:none; margin-bottom:16px;" class="notice notice-error inline">
+				<p id="mhm-demo-error-msg"></p>
+			</div>
+
+			<p style="display:flex; gap:10px; flex-wrap:wrap;">
+				<button id="mhm-btn-seed" class="button button-primary button-large">
+					<?php esc_html_e( 'Load Demo Data', 'mhm-rentiva' ); ?>
+				</button>
+				<?php if ( $is_active ) : ?>
+				<button id="mhm-btn-cleanup" class="button button-secondary button-large" style="color:#b32d2e; border-color:#b32d2e;">
+					<?php esc_html_e( 'Clean Up Demo Data', 'mhm-rentiva' ); ?>
+				</button>
+				<?php endif; ?>
+			</p>
+		</div>
+
+		<script>
+		(function() {
+			var ajaxUrl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
+			var nonce   = <?php echo wp_json_encode( $nonce ); ?>;
+			var seedSteps    = <?php echo wp_json_encode( array_keys( $seed_steps ) ); ?>;
+			var cleanupSteps = <?php echo wp_json_encode( array_keys( $cleanup_steps ) ); ?>;
+
+			function setProgress(pct, label) {
+				document.getElementById('mhm-demo-progress-bar').style.display = 'block';
+				document.getElementById('mhm-demo-progress-fill').style.width  = pct + '%';
+				document.getElementById('mhm-demo-progress-label').textContent = label;
+			}
+			function showResult(msg) {
+				var el = document.getElementById('mhm-demo-result');
+				el.style.display = 'block';
+				document.getElementById('mhm-demo-result-msg').textContent = msg;
+			}
+			function showError(msg) {
+				var el = document.getElementById('mhm-demo-error');
+				el.style.display = 'block';
+				document.getElementById('mhm-demo-error-msg').textContent = msg;
+			}
+			function clearFeedback() {
+				document.getElementById('mhm-demo-progress-bar').style.display  = 'none';
+				document.getElementById('mhm-demo-result').style.display         = 'none';
+				document.getElementById('mhm-demo-error').style.display          = 'none';
+				document.getElementById('mhm-demo-progress-fill').style.width    = '0';
+			}
+
+			function runSteps(steps, action, onDone) {
+				var i = 0;
+				function next() {
+					if (i >= steps.length) { onDone(); return; }
+					var step = steps[i++];
+					var fd   = new FormData();
+					fd.append('action', action);
+					fd.append('nonce',  nonce);
+					fd.append('step',   step);
+					fetch(ajaxUrl, { method: 'POST', body: fd })
+						.then(function(r) { return r.json(); })
+						.then(function(data) {
+							if (data.success) {
+								setProgress(data.data.progress, data.data.message);
+								next();
+							} else {
+								showError(data.data && data.data.message ? data.data.message : 'Error during step: ' + step);
+							}
+						})
+						.catch(function() { showError('Network error during step: ' + step); });
+				}
+				next();
+			}
+
+			var btnSeed = document.getElementById('mhm-btn-seed');
+			if (btnSeed) {
+				btnSeed.addEventListener('click', function() {
+					clearFeedback();
+					btnSeed.disabled = true;
+					runSteps(seedSteps, 'mhm_rentiva_demo_seed', function() {
+						showResult(<?php echo wp_json_encode( __( 'Demo data loaded successfully! Refresh the page to see the cleanup button.', 'mhm-rentiva' ) ); ?>);
+						btnSeed.disabled = false;
+					});
+				});
+			}
+
+			var btnCleanup = document.getElementById('mhm-btn-cleanup');
+			if (btnCleanup) {
+				btnCleanup.addEventListener('click', function() {
+					clearFeedback();
+					btnCleanup.disabled = true;
+					runSteps(cleanupSteps, 'mhm_rentiva_demo_cleanup', function() {
+						showResult(<?php echo wp_json_encode( __( 'Demo data removed. Refresh the page to continue.', 'mhm-rentiva' ) ); ?>);
+						btnCleanup.disabled = false;
+					});
+				});
+			}
+		})();
+		</script>
+
+		<div class="mhm-step-actions" style="margin-top:24px;">
+			<a class="button button-secondary button-large align-left" href="<?php echo esc_url( self::step_url( 'frontend' ) ); ?>">&larr; <?php esc_html_e( 'Back', 'mhm-rentiva' ); ?></a>
+			<a class="button button-primary button-large" href="<?php echo esc_url( self::step_url( 'summary' ) ); ?>"><?php esc_html_e( 'Continue to Summary', 'mhm-rentiva' ); ?></a>
+		</div>
+	<?php
+	}
+
 	private static function render_step_summary(): void
 	{
 		$steps     = self::get_steps();
@@ -631,7 +763,7 @@ final class SetupWizard
 			}
 			?>
 			<div class="mhm-step-actions">
-				<a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('frontend')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
+				<a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('demo')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
 				<a class="button button-secondary button-large" href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-dashboard')); ?>"><?php esc_html_e('Go to Dashboard', 'mhm-rentiva'); ?></a>
 				<button type="submit" class="button button-primary button-large"><?php esc_html_e('Complete Setup', 'mhm-rentiva'); ?></button>
 			</div>
@@ -893,6 +1025,7 @@ final class SetupWizard
 			'pages'    => __('Required Pages', 'mhm-rentiva'),
 			'email'    => __('Email Settings', 'mhm-rentiva'),
 			'frontend' => __('Frontend & Display', 'mhm-rentiva'),
+			'demo'     => __('Demo Data', 'mhm-rentiva'),
 			'summary'  => __('Summary & Tests', 'mhm-rentiva'),
 		);
 	}

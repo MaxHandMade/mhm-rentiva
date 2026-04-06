@@ -401,6 +401,14 @@ final class Plugin
 		if ($this->is_class_available('MHMRentiva\Admin\Setup\SetupWizard')) {
 			\MHMRentiva\Admin\Setup\SetupWizard::register();
 		}
+		// Demo seed AJAX handlers
+		if ($this->is_class_available('MHMRentiva\Admin\Testing\DemoAjaxHandler')) {
+			\MHMRentiva\Admin\Testing\DemoAjaxHandler::register();
+		}
+		// Demo notice manager (5-layer warning system)
+		if ($this->is_class_available('MHMRentiva\Admin\Testing\DemoNoticeManager')) {
+			\MHMRentiva\Admin\Testing\DemoNoticeManager::register();
+		}
 		// REST API Settings AJAX
 		add_action('wp_ajax_mhm_create_api_key', array(\MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_create_api_key'));
 		add_action('wp_ajax_mhm_list_api_keys', array(\MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_list_api_keys'));
