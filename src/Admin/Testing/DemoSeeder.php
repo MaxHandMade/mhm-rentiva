@@ -665,6 +665,8 @@ final class DemoSeeder
             // Add canonical pickup/return keys used by dashboard and reports.
             \update_post_meta($id, '_mhm_pickup_date', $pickup_date);
             \update_post_meta($id, '_mhm_return_date', $dropoff_date);
+            // _mhm_dropoff_date is required by VehicleColumns calendar query (pm_end JOIN).
+            \update_post_meta($id, '_mhm_dropoff_date', $dropoff_date);
             foreach ($metas as $k => $v) {
                 \update_post_meta($id, $this->keys[$k] ?? $k, $v);
             }
@@ -999,6 +1001,20 @@ final class DemoSeeder
      */
     public function step_finalize(): array
     {
+        // Assign first available demo location to all demo vehicles.
+        // Locations are seeded in step_transfers (before finalize), so IDs are available here.
+        $loc_ids = $this->get_demo_location_ids();
+        if ( ! empty( $loc_ids ) ) {
+            $first_loc_id  = (int) array_values( $loc_ids )[0];
+            $second_loc_id = count( $loc_ids ) >= 2 ? (int) array_values( $loc_ids )[1] : $first_loc_id;
+            $vehicle_ids   = $this->get_demo_vehicle_ids();
+            foreach ( $vehicle_ids as $idx => $vid ) {
+                // Alternate between first two locations for variety.
+                $loc = ( $idx % 2 === 0 ) ? $first_loc_id : $second_loc_id;
+                \update_post_meta( $vid, '_mhm_rentiva_location_id', $loc );
+            }
+        }
+
         update_option( 'mhm_rentiva_demo_active', '1' );
         update_option( 'mhm_rentiva_demo_seeded_at', time() );
         return array(
@@ -1306,6 +1322,7 @@ final class DemoSeeder
     {
         $vehicles = DemoDataProvider::get_vehicles();
         $ids      = array();
+        $i        = 0;
 
         foreach ( $vehicles as $v ) {
             $id = \wp_insert_post( array(
@@ -1354,8 +1371,21 @@ final class DemoSeeder
             // Demo tag
             \update_post_meta( $id, '_mhm_is_demo', '1' );
 
+            // Featured: mark first 3 vehicles as "öne çıkan".
+            if ( $i < 3 ) {
+                \update_post_meta( $id, '_mhm_rentiva_featured', '1' );
+            }
+
+            // Blocked dates: 2 upcoming days so the calendar shows "Kapalı Gün" cells.
+            $blocked = array(
+                \gmdate( 'Y-m-d', \strtotime( '+14 days' ) ),
+                \gmdate( 'Y-m-d', \strtotime( '+15 days' ) ),
+            );
+            \update_post_meta( $id, '_mhm_blocked_dates', \wp_json_encode( $blocked ) );
+
             $this->add_dummy_review( $id );
             $ids[] = $id;
+            $i++;
         }
 
         return $ids;
@@ -1448,10 +1478,12 @@ final class DemoSeeder
 
         foreach ( $locations as $l ) {
             $wpdb->insert( $table, array(
-                'name'      => $l['name'],
-                'type'      => 'city',
-                'priority'  => 0,
-                'is_active' => 1,
+                'name'           => $l['name'],
+                'type'           => 'city',
+                'priority'       => 0,
+                'is_active'      => 1,
+                'allow_rental'   => 1,
+                'allow_transfer' => 1,
             ) );
             if ( $wpdb->insert_id ) {
                 $ids[ $l['name'] ] = (int) $wpdb->insert_id;
