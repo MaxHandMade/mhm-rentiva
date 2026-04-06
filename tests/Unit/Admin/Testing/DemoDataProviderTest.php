@@ -146,4 +146,22 @@ final class DemoDataProviderTest extends WP_UnitTestCase
 
         $this->assertFalse($result);
     }
+
+    public function test_get_vehicles_returns_turkish_data_for_tr_locale(): void
+    {
+        add_filter( 'locale', static function () { return 'tr_TR'; } );
+        $vehicles = DemoDataProvider::get_vehicles();
+        remove_all_filters( 'locale' );
+
+        $this->assertStringContainsString( 'Egea', $vehicles[0]['title'] );
+    }
+
+    public function test_get_vehicles_returns_english_data_for_en_locale(): void
+    {
+        add_filter( 'locale', static function () { return 'en_US'; } );
+        $vehicles = DemoDataProvider::get_vehicles();
+        remove_all_filters( 'locale' );
+
+        $this->assertStringContainsString( 'Tipo', $vehicles[0]['title'] );
+    }
 }

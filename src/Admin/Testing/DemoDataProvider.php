@@ -221,7 +221,7 @@ final class DemoDataProvider
     private static function addons_tr(): array
     {
         return array(
-            array( 'title' => 'Bebek Koltugu',  'price' => 150, 'type' => 'per_day' ),
+            array( 'title' => 'Bebek Koltuğu',  'price' => 150, 'type' => 'per_day' ),
             array( 'title' => 'Ek Surucu',      'price' => 200, 'type' => 'per_day' ),
             array( 'title' => 'GPS Navigasyon', 'price' => 100, 'type' => 'per_day' ),
         );
