@@ -7,6 +7,8 @@ if (! defined('ABSPATH')) {
 
 namespace MHMRentiva\Admin\Testing;
 
+// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Demo image cleanup intentionally queries by meta to perform surgical removal.
+
 /**
  * DemoImageImporter
  *
@@ -111,6 +113,7 @@ final class DemoImageImporter
         $attach_id = wp_insert_attachment($attachment, $target_path);
 
         if (is_wp_error($attach_id) || $attach_id <= 0) {
+            @unlink( $target_path ); // Remove orphaned physical file
             return 0;
         }
 
@@ -159,6 +162,7 @@ final class DemoImageImporter
                 'fields'         => 'ids',
                 'meta_key'       => '_mhm_is_demo',
                 'meta_value'     => '1',
+                'no_found_rows'  => true,
             )
         );
 

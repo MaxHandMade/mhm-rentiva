@@ -77,7 +77,7 @@ final class DemoImageImporterTest extends WP_UnitTestCase
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('count', $result);
-        $this->assertGreaterThanOrEqual(1, $result['count']);
+        $this->assertSame(1, $result['count']);
 
         // The attachment should no longer exist.
         $post = get_post($attach_id);
@@ -91,5 +91,26 @@ final class DemoImageImporterTest extends WP_UnitTestCase
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('count', $result);
+    }
+
+    public function test_import_succeeds_with_real_demo_image(): void
+    {
+        $importer = new \ReflectionClass( DemoImageImporter::class );
+        $images_dir = DemoImageImporter::get_images_dir();
+
+        // Skip if no demo images exist (e.g. missing assets in CI)
+        $available = DemoImageImporter::get_available_images();
+        if ( empty( $available ) ) {
+            $this->markTestSkipped( 'No demo images found in assets/demo/images/' );
+        }
+
+        $filename   = array_key_first( $available );
+        $attach_id  = DemoImageImporter::import( $filename );
+
+        $this->assertGreaterThan( 0, $attach_id, 'import() should return a positive attachment ID' );
+        $this->assertSame( '1', get_post_meta( $attach_id, '_mhm_is_demo', true ) );
+
+        // Cleanup after test
+        wp_delete_attachment( $attach_id, true );
     }
 }
