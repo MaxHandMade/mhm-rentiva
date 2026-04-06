@@ -569,16 +569,34 @@ final class DemoSeeder
     /**
      * Seed demo bookings
      */
-    private function seed_bookings(array $vids, array $uids): void
+    private function seed_bookings(array $vids, array $uids, array $loc_ids = array()): void
     {
-        $counter = 0;
+        $loc_id_values = array_values($loc_ids);
+        $counter       = 0;
+
         foreach ($vids as $vid) {
+            // Cancelled booking in the past (for history).
             $this->create_single_booking($vid, $uids, 'cancelled', '-45 days', 3, false, false);
-            $force_deposit = ($counter % 2 === 0);
-            $booking_id = $this->create_single_booking($vid, $uids, 'confirmed', '+' . \wp_rand(1, 10) . ' days', \wp_rand(3, 5), true, $force_deposit);
-            if ($booking_id) {
-                $this->add_booking_review($booking_id);
+
+            // Confirmed booking in the past (populates Gelir Eğilimi / revenue trend).
+            $past_days  = $counter % 2 === 0 ? '-3 days' : '-6 days';
+            $past_id    = $this->create_single_booking($vid, $uids, 'confirmed', $past_days, \wp_rand(2, 4), true, false);
+            if ($past_id) {
+                $this->add_booking_review($past_id);
             }
+
+            // Upcoming confirmed booking (populates Yaklaşan Operasyonlar).
+            $force_deposit  = ($counter % 2 === 0);
+            $future_id      = $this->create_single_booking($vid, $uids, 'confirmed', '+' . \wp_rand(1, 7) . ' days', \wp_rand(3, 5), true, $force_deposit);
+
+            // Make every other upcoming booking a transfer booking (populates Transfer Özeti).
+            if ($future_id && count($loc_id_values) >= 2 && $counter % 2 === 0) {
+                $origin      = $loc_id_values[ $counter % count($loc_id_values) ];
+                $destination = $loc_id_values[ ($counter + 1) % count($loc_id_values) ];
+                \update_post_meta($future_id, '_mhm_transfer_origin_id', $origin);
+                \update_post_meta($future_id, '_mhm_transfer_destination_id', $destination);
+            }
+
             $counter++;
         }
     }
@@ -644,6 +662,9 @@ final class DemoSeeder
                 'cust_email'   => $u->user_email,
                 'cust_phone'   => \get_user_meta($uid, 'billing_phone', true)
             );
+            // Add canonical pickup/return keys used by dashboard and reports.
+            \update_post_meta($id, '_mhm_pickup_date', $pickup_date);
+            \update_post_meta($id, '_mhm_return_date', $dropoff_date);
             foreach ($metas as $k => $v) {
                 \update_post_meta($id, $this->keys[$k] ?? $k, $v);
             }
@@ -752,22 +773,37 @@ final class DemoSeeder
     private function seed_routes_sql(array $loc_ids): void
     {
         global $wpdb;
-        $table = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
-        if (count($loc_ids) < 2) return;
-        $routes = array(
-            array('f' => 'Istanbul Airport (IST)', 't' => 'Taksim Square', 'k' => 45, 'p' => 60),
-            array('f' => 'Sabiha Gokcen Airport (SAW)', 't' => 'Kadikoy Port', 'k' => 35, 'p' => 50)
-        );
-        foreach ($routes as $r) {
-            if (isset($loc_ids[$r['f']], $loc_ids[$r['t']])) {
-                $wpdb->insert($table, array(
-                    'origin_id' => (int) $loc_ids[$r['f']],
-                    'destination_id' => (int) $loc_ids[$r['t']],
-                    'distance_km' => $r['k'],
-                    'duration_min' => 60,
+
+        $new_table = $wpdb->prefix . 'rentiva_transfer_routes';
+        $old_table = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
+        $table     = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new_table ) ) === $new_table )
+            ? $new_table
+            : $old_table;
+
+        if ( count( $loc_ids ) < 2 ) {
+            return;
+        }
+
+        $loc_names = array_keys( $loc_ids );
+        // Build two routes from the first four available location names.
+        $routes = array();
+        if ( isset( $loc_names[0], $loc_names[1] ) ) {
+            $routes[] = array( 'f' => $loc_names[0], 't' => $loc_names[1], 'k' => 45, 'p' => 60 );
+        }
+        if ( isset( $loc_names[2], $loc_names[3] ) ) {
+            $routes[] = array( 'f' => $loc_names[2], 't' => $loc_names[3], 'k' => 35, 'p' => 50 );
+        }
+
+        foreach ( $routes as $r ) {
+            if ( isset( $loc_ids[ $r['f'] ], $loc_ids[ $r['t'] ] ) ) {
+                $wpdb->insert( $table, array(
+                    'origin_id'      => (int) $loc_ids[ $r['f'] ],
+                    'destination_id' => (int) $loc_ids[ $r['t'] ],
+                    'distance_km'    => $r['k'],
+                    'duration_min'   => 60,
                     'pricing_method' => 'fixed',
-                    'base_price' => (float) $r['p']
-                ));
+                    'base_price'     => (float) $r['p'],
+                ) );
             }
         }
     }
@@ -931,8 +967,9 @@ final class DemoSeeder
     {
         $vehicle_ids = $this->get_demo_vehicle_ids();
         $user_ids    = $this->get_demo_user_ids();
-        $this->seed_bookings( $vehicle_ids, $user_ids );
-        $count = count( $vehicle_ids ) * 2;
+        $loc_ids     = $this->get_demo_location_ids();
+        $this->seed_bookings( $vehicle_ids, $user_ids, $loc_ids );
+        $count = count( $vehicle_ids ) * 3; // cancelled + past-confirmed + future-confirmed
         return array(
             /* translators: %d: number of bookings created */
             'message' => sprintf( __( '%d bookings created.', 'mhm-rentiva' ), $count ),
@@ -1399,8 +1436,15 @@ final class DemoSeeder
         global $wpdb;
 
         $locations = DemoDataProvider::get_locations();
-        $table     = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
-        $ids       = array();
+
+        // Resolve table name: new schema uses 'rentiva_transfer_locations', legacy uses 'mhm_rentiva_transfer_locations'.
+        $new_table = $wpdb->prefix . 'rentiva_transfer_locations';
+        $old_table = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
+        $table     = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new_table ) ) === $new_table )
+            ? $new_table
+            : $old_table;
+
+        $ids = array();
 
         foreach ( $locations as $l ) {
             $wpdb->insert( $table, array(
@@ -1412,6 +1456,31 @@ final class DemoSeeder
             if ( $wpdb->insert_id ) {
                 $ids[ $l['name'] ] = (int) $wpdb->insert_id;
             }
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Get IDs of demo transfer locations already in the database.
+     *
+     * @return array<string, int> name => location_id
+     */
+    private function get_demo_location_ids(): array
+    {
+        global $wpdb;
+
+        $new_table = $wpdb->prefix . 'rentiva_transfer_locations';
+        $old_table = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
+        $table     = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new_table ) ) === $new_table )
+            ? $new_table
+            : $old_table;
+
+        $rows = $wpdb->get_results( "SELECT id, name FROM {$table} LIMIT 10", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is built from safe prefix + literal string.
+        $ids  = array();
+
+        foreach ( (array) $rows as $row ) {
+            $ids[ $row['name'] ] = (int) $row['id'];
         }
 
         return $ids;
