@@ -103,7 +103,7 @@ final class DemoNoticeManager
             array(
                 'id'    => 'mhm-demo-active',
                 'title' => '&#128992; DEMO ACTIVE',
-                'href'  => admin_url( 'admin.php?page=mhm-rentiva-settings&tab=test' ),
+                'href'  => admin_url( 'admin.php?page=mhm-rentiva-setup&step=demo' ),
                 'meta'  => array( 'class' => 'mhm-demo-admin-bar-badge' ),
             )
         );
