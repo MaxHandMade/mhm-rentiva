@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Testing;
 
+use MHMRentiva\Admin\Testing\DemoDataProvider;
+use MHMRentiva\Admin\Testing\DemoImageImporter;
+
 if (! defined('ABSPATH')) {
     exit;
 }
@@ -810,6 +813,648 @@ final class DemoSeeder
                 \update_post_meta($id, '_mhm_is_demo', '1');
             }
         }
+    }
+
+    // =========================================================================
+    // STEP-BASED PUBLIC METHODS (AJAX pipeline)
+    // =========================================================================
+
+    /**
+     * Step: cleanup — wraps existing cleanup() for AJAX consumers.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function step_cleanup(): array
+    {
+        $msg = $this->cleanup();
+        return array( 'message' => $msg, 'count' => 0 );
+    }
+
+    /**
+     * Step: seed vehicle categories.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function step_categories(): array
+    {
+        $this->seed_categories();
+        return array(
+            'message' => __( 'Categories created.', 'mhm-rentiva' ),
+            'count'   => count( $this->categories ),
+        );
+    }
+
+    /**
+     * Step: import demo vehicle images.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function step_images(): array
+    {
+        $imported = DemoImageImporter::import_all();
+        $count    = count( $imported );
+        return array(
+            /* translators: %d: number of images uploaded */
+            'message' => sprintf( __( '%d vehicle images uploaded.', 'mhm-rentiva' ), $count ),
+            'count'   => $count,
+        );
+    }
+
+    /**
+     * Step: seed vehicles using DemoDataProvider.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function step_vehicles(): array
+    {
+        $image_map   = $this->build_image_map();
+        $vehicle_ids = $this->seed_vehicles_from_provider( $image_map );
+        $count       = count( $vehicle_ids );
+        return array(
+            /* translators: %d: number of vehicles created */
+            'message' => sprintf( __( '%d vehicles created.', 'mhm-rentiva' ), $count ),
+            'count'   => $count,
+        );
+    }
+
+    /**
+     * Step: seed customers using DemoDataProvider.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function step_users(): array
+    {
+        $user_ids = $this->seed_users_from_provider();
+        $count    = count( $user_ids );
+        return array(
+            /* translators: %d: number of customers created */
+            'message' => sprintf( __( '%d customers created.', 'mhm-rentiva' ), $count ),
+            'count'   => $count,
+        );
+    }
+
+    /**
+     * Step: seed add-on services using DemoDataProvider.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function step_addons(): array
+    {
+        $this->seed_addons_from_provider();
+        return array(
+            'message' => __( 'Add-on services created.', 'mhm-rentiva' ),
+            'count'   => 3,
+        );
+    }
+
+    /**
+     * Step: seed transfer locations and routes using DemoDataProvider.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function step_transfers(): array
+    {
+        $loc_ids = $this->seed_transfers_from_provider();
+        $this->seed_routes_sql( $loc_ids );
+        return array(
+            'message' => __( 'Transfer points and routes created.', 'mhm-rentiva' ),
+            'count'   => count( $loc_ids ),
+        );
+    }
+
+    /**
+     * Step: seed bookings.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function step_bookings(): array
+    {
+        $vehicle_ids = $this->get_demo_vehicle_ids();
+        $user_ids    = $this->get_demo_user_ids();
+        $this->seed_bookings( $vehicle_ids, $user_ids );
+        $count = count( $vehicle_ids ) * 2;
+        return array(
+            /* translators: %d: number of bookings created */
+            'message' => sprintf( __( '%d bookings created.', 'mhm-rentiva' ), $count ),
+            'count'   => $count,
+        );
+    }
+
+    /**
+     * Step: seed messages.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function step_messages(): array
+    {
+        $user_ids = $this->get_demo_user_ids();
+        $this->seed_messages_expanded( $user_ids );
+        return array(
+            'message' => __( 'Demo messages created.', 'mhm-rentiva' ),
+            'count'   => 0,
+        );
+    }
+
+    /**
+     * Step: finalize — set demo_active flag and seed timestamp.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function step_finalize(): array
+    {
+        update_option( 'mhm_rentiva_demo_active', '1' );
+        update_option( 'mhm_rentiva_demo_seeded_at', time() );
+        return array(
+            'message' => __( 'Demo data loaded successfully.', 'mhm-rentiva' ),
+            'count'   => 0,
+        );
+    }
+
+    // =========================================================================
+    // CLEANUP STEP METHODS (AJAX pipeline)
+    // =========================================================================
+
+    /**
+     * Cleanup step: delete demo posts (vehicles, bookings, services, messages, WC orders).
+     *
+     * @return array{message: string, count: int}
+     */
+    public function cleanup_posts(): array
+    {
+        $count      = 0;
+        $post_types = array( self::PT_VEHICLE, self::PT_BOOKING, self::PT_SERVICE, self::PT_MESSAGE );
+
+        foreach ( $post_types as $pt ) {
+            $posts = \get_posts( array(
+                'post_type'   => $pt,
+                'numberposts' => -1,
+                'post_status' => 'any',
+                'meta_query'  => array(
+                    'relation' => 'OR',
+                    array( 'key' => '_mhm_is_demo',      'value' => '1', 'compare' => '=' ),
+                    array( 'key' => '_mhm_is_demo_user', 'value' => '1', 'compare' => '=' ),
+                ),
+                'fields'      => 'ids',
+            ) );
+
+            foreach ( $posts as $pid ) {
+                if ( \wp_delete_post( $pid, true ) ) {
+                    $count++;
+                }
+            }
+
+            if ( $pt === self::PT_VEHICLE ) {
+                $untagged = \get_posts( array(
+                    'post_type'   => self::PT_VEHICLE,
+                    'title'       => 'Manual Vehicle',
+                    'post_status' => 'any',
+                    'numberposts' => -1,
+                    'fields'      => 'ids',
+                ) );
+                foreach ( $untagged as $pid ) {
+                    if ( \wp_delete_post( $pid, true ) ) {
+                        $count++;
+                    }
+                }
+            }
+        }
+
+        // WooCommerce orders
+        if ( \function_exists( '\wc_get_orders' ) ) {
+            $orders = \call_user_func( '\wc_get_orders', array(
+                'limit'      => -1,
+                'return'     => 'ids',
+                'meta_key'   => '_mhm_is_demo',
+                'meta_value' => '1',
+            ) );
+            if ( is_array( $orders ) ) {
+                foreach ( $orders as $order_id ) {
+                    $order = \call_user_func( '\wc_get_order', $order_id );
+                    if ( $order && \method_exists( $order, 'delete' ) ) {
+                        if ( \call_user_func( array( $order, 'delete' ), true ) ) {
+                            $count++;
+                        }
+                    }
+                }
+            }
+        }
+
+        return array(
+            /* translators: %d: number of posts removed */
+            'message' => sprintf( __( '%d demo posts removed.', 'mhm-rentiva' ), $count ),
+            'count'   => $count,
+        );
+    }
+
+    /**
+     * Cleanup step: delete demo users.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function cleanup_users(): array
+    {
+        $count           = 0;
+        $current_user_id = \get_current_user_id();
+        $users           = \get_users( array(
+            'meta_key'   => '_mhm_is_demo_user',
+            'meta_value' => '1',
+            'fields'     => 'ID',
+        ) );
+
+        require_once ABSPATH . 'wp-admin/includes/user.php';
+        foreach ( $users as $uid ) {
+            $uid = (int) $uid;
+            if ( $uid === $current_user_id || \user_can( $uid, 'manage_options' ) ) {
+                continue;
+            }
+            if ( \wp_delete_user( $uid ) ) {
+                $count++;
+            }
+        }
+
+        return array(
+            /* translators: %d: number of users removed */
+            'message' => sprintf( __( '%d demo users removed.', 'mhm-rentiva' ), $count ),
+            'count'   => $count,
+        );
+    }
+
+    /**
+     * Cleanup step: delete demo taxonomy terms.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function cleanup_terms(): array
+    {
+        $count      = 0;
+        $demo_terms = \get_terms( array(
+            'taxonomy'   => self::TAX_CAT,
+            'hide_empty' => false,
+            'meta_key'   => '_mhm_is_demo',
+            'meta_value' => '1',
+        ) );
+
+        if ( ! \is_wp_error( $demo_terms ) ) {
+            foreach ( $demo_terms as $term ) {
+                \wp_delete_term( $term->term_id, self::TAX_CAT );
+                $count++;
+            }
+        }
+
+        // Safety fallback: delete by name even if meta is absent
+        foreach ( $this->categories as $cat_name ) {
+            $term = \get_term_by( 'name', $cat_name, self::TAX_CAT );
+            if ( $term ) {
+                \wp_delete_term( (int) $term->term_id, self::TAX_CAT );
+                $count++;
+            }
+        }
+
+        return array(
+            /* translators: %d: number of terms removed */
+            'message' => sprintf( __( '%d demo terms removed.', 'mhm-rentiva' ), $count ),
+            'count'   => $count,
+        );
+    }
+
+    /**
+     * Cleanup step: purge demo rows from custom plugin tables.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function cleanup_tables(): array
+    {
+        global $wpdb;
+
+        $loc_table   = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
+        $route_table = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
+        $notif_table = $wpdb->prefix . 'mhm_notification_queue';
+        $queue_table = $wpdb->prefix . 'mhm_rentiva_queue';
+        $payment_log = $wpdb->prefix . 'mhm_payment_log';
+        $msg_logs    = $wpdb->prefix . 'mhm_message_logs';
+        $wc_customers = $wpdb->prefix . 'wc_customer_lookup';
+
+        // Notification queue
+        $wpdb->query( $wpdb->prepare(
+            'DELETE n FROM %i n INNER JOIN %i um ON n.user_id = um.user_id WHERE um.meta_key = %s AND um.meta_value = %s',
+            $notif_table, $wpdb->usermeta, '_mhm_is_demo_user', '1'
+        ) );
+
+        // Payment log
+        $wpdb->query( $wpdb->prepare(
+            'DELETE l FROM %i l INNER JOIN %i pm ON l.booking_id = pm.post_id WHERE pm.meta_key = %s AND pm.meta_value = %s',
+            $payment_log, $wpdb->postmeta, '_mhm_is_demo', '1'
+        ) );
+
+        // Message logs and queue (user-based)
+        foreach ( array( $msg_logs, $queue_table ) as $table ) {
+            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) ) {
+                $wpdb->query( $wpdb->prepare(
+                    'DELETE t FROM %i t INNER JOIN %i um ON t.user_id = um.user_id WHERE um.meta_key = %s AND um.meta_value = %s',
+                    $table, $wpdb->usermeta, '_mhm_is_demo_user', '1'
+                ) );
+            }
+        }
+
+        // Transfer locations (seeded demo names)
+        $wpdb->query( $wpdb->prepare(
+            'DELETE FROM %i WHERE name LIKE %s OR name LIKE %s OR name = %s OR name = %s OR name = %s OR name = %s OR name = %s OR name = %s',
+            $loc_table,
+            '%(IST)%', '%(SAW)%',
+            'Taksim Square', 'Kadikoy Port',
+            'Taksim Meydanı', 'Kadıköy Rıhtım',
+            'Taksim Meydanı', 'Kadıköy İskele'
+        ) );
+        $wpdb->query( $wpdb->prepare(
+            'DELETE FROM %i WHERE origin_id NOT IN (SELECT id FROM %i) OR destination_id NOT IN (SELECT id FROM %i)',
+            $route_table, $loc_table, $loc_table
+        ) );
+
+        // WC customer lookup
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wc_customers ) ) ) {
+            $wpdb->query( $wpdb->prepare(
+                'DELETE FROM %i WHERE email LIKE %s',
+                $wc_customers, 'demo%@example.com'
+            ) );
+        }
+
+        return array(
+            'message' => __( 'Custom plugin tables cleaned.', 'mhm-rentiva' ),
+            'count'   => 0,
+        );
+    }
+
+    /**
+     * Cleanup step: remove demo images from the Media Library.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function cleanup_images(): array
+    {
+        $result = DemoImageImporter::cleanup();
+        return array(
+            /* translators: %d: number of images removed */
+            'message' => sprintf( __( '%d demo images removed.', 'mhm-rentiva' ), $result['count'] ),
+            'count'   => $result['count'],
+        );
+    }
+
+    /**
+     * Cleanup step: clear all MHM transients and plugin caches.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function cleanup_cache(): array
+    {
+        global $wpdb;
+
+        if ( \class_exists( '\MHMRentiva\Admin\Utilities\Dashboard\DashboardPage' ) ) {
+            \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage::clear_dashboard_cache();
+        }
+        if ( \class_exists( '\MHMRentiva\Admin\Core\Utilities\CacheManager' ) ) {
+            \MHMRentiva\Admin\Core\Utilities\CacheManager::clear_cache();
+        }
+
+        $wpdb->query( $wpdb->prepare(
+            'DELETE FROM %i WHERE option_name LIKE %s OR option_name LIKE %s',
+            $wpdb->options, '_transient_mhm_%', '_transient_timeout_mhm_%'
+        ) );
+
+        return array(
+            'message' => __( 'Cache cleared.', 'mhm-rentiva' ),
+            'count'   => 0,
+        );
+    }
+
+    /**
+     * Cleanup step: remove demo_active flag and seed timestamp.
+     *
+     * @return array{message: string, count: int}
+     */
+    public function cleanup_finalize(): array
+    {
+        delete_option( 'mhm_rentiva_demo_active' );
+        delete_option( 'mhm_rentiva_demo_seeded_at' );
+        return array(
+            'message' => __( 'Demo data removed successfully.', 'mhm-rentiva' ),
+            'count'   => 0,
+        );
+    }
+
+    // =========================================================================
+    // PROVIDER-BASED PRIVATE SEED METHODS
+    // =========================================================================
+
+    /**
+     * Build a filename => attachment_id map using DemoImageImporter.
+     * Calling import_all() is idempotent — already-imported files are skipped
+     * by the importer (it re-imports if the file was deleted, otherwise returns
+     * the existing ID via a fresh copy — callers must handle duplicates at
+     * the query level if needed; the map is suitable for one-time seeding).
+     *
+     * @return array<string, int>
+     */
+    private function build_image_map(): array
+    {
+        return DemoImageImporter::import_all();
+    }
+
+    /**
+     * Seed vehicles from DemoDataProvider.
+     *
+     * @param  array<string, int> $image_map filename => attachment_id
+     * @return int[]  Created post IDs.
+     */
+    private function seed_vehicles_from_provider( array $image_map ): array
+    {
+        $vehicles = DemoDataProvider::get_vehicles();
+        $ids      = array();
+
+        foreach ( $vehicles as $v ) {
+            $id = \wp_insert_post( array(
+                'post_title'  => $v['title'],
+                'post_type'   => self::PT_VEHICLE,
+                'post_status' => 'publish',
+            ) );
+
+            if ( ! $id || \is_wp_error( $id ) ) {
+                continue;
+            }
+
+            // Core meta
+            \update_post_meta( $id, $this->keys['price'],        $v['price_per_day'] );
+            \update_post_meta( $id, $this->keys['brand'],        $v['brand'] );
+            \update_post_meta( $id, $this->keys['model'],        $v['model'] );
+            \update_post_meta( $id, $this->keys['year'],         $v['year'] );
+            \update_post_meta( $id, $this->keys['color'],        $v['color'] );
+            \update_post_meta( $id, $this->keys['engine'],       $v['engine_power'] );
+            \update_post_meta( $id, $this->keys['plate'],        $v['license_plate'] );
+            \update_post_meta( $id, $this->keys['km'],           $v['mileage'] );
+            \update_post_meta( $id, $this->keys['seats'],        $v['seats'] );
+            \update_post_meta( $id, $this->keys['doors'],        $v['doors'] );
+            \update_post_meta( $id, $this->keys['transmission'], $v['transmission'] );
+            \update_post_meta( $id, $this->keys['fuel'],         $v['fuel_type'] );
+            \update_post_meta( $id, $this->keys['features'],     $v['features'] );
+
+            // Transfer / service meta
+            \update_post_meta( $id, $this->keys['trans_pax'],   $v['seats'] );
+            \update_post_meta( $id, $this->keys['big_luggage'], 2 );
+            \update_post_meta( $id, $this->keys['service_type'], 'both' );
+
+            // Business rules
+            \update_post_meta( $id, $this->keys['status_veh'],   'active' );
+            \update_post_meta( $id, $this->keys['deposit_rate'], 10 );
+
+            // Taxonomy
+            \wp_set_object_terms( $id, $v['category'], self::TAX_CAT );
+
+            // Featured image
+            $thumb_id = $image_map[ $v['image_file'] ] ?? 0;
+            if ( $thumb_id > 0 ) {
+                \set_post_thumbnail( $id, $thumb_id );
+            }
+
+            // Demo tag
+            \update_post_meta( $id, '_mhm_is_demo', '1' );
+
+            $this->add_dummy_review( $id );
+            $ids[] = $id;
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Seed customers from DemoDataProvider.
+     *
+     * @return int[] Created user IDs.
+     */
+    private function seed_users_from_provider(): array
+    {
+        $customers = DemoDataProvider::get_customers();
+        $user_ids  = array();
+
+        foreach ( $customers as $c ) {
+            $existing = \get_user_by( 'email', $c['email'] );
+            if ( $existing ) {
+                if ( \get_user_meta( $existing->ID, '_mhm_is_demo_user', true ) ) {
+                    $user_ids[] = $existing->ID;
+                }
+                continue;
+            }
+
+            $uid = \wp_create_user( $c['email'], 'demo123', $c['email'] );
+            if ( \is_wp_error( $uid ) ) {
+                continue;
+            }
+
+            \wp_update_user( array(
+                'ID'           => $uid,
+                'role'         => 'customer',
+                'display_name' => $c['name'],
+                'first_name'   => $c['first'],
+                'last_name'    => $c['last'],
+            ) );
+            \update_user_meta( $uid, '_mhm_is_demo_user',    '1' );
+            \update_user_meta( $uid, 'billing_phone',        $c['phone'] );
+            \update_user_meta( $uid, 'phone',                $c['phone'] );
+            \update_user_meta( $uid, 'mobile',               $c['phone'] );
+            \update_user_meta( $uid, '_mhm_customer_phone',  $c['phone'] );
+            $user_ids[] = $uid;
+        }
+
+        return $user_ids;
+    }
+
+    /**
+     * Seed add-ons from DemoDataProvider.
+     */
+    private function seed_addons_from_provider(): void
+    {
+        $addons = DemoDataProvider::get_addons();
+
+        foreach ( $addons as $a ) {
+            $id = \wp_insert_post( array(
+                'post_title'  => $a['title'],
+                'post_type'   => self::PT_SERVICE,
+                'post_status' => 'publish',
+            ) );
+
+            if ( $id && ! \is_wp_error( $id ) ) {
+                \update_post_meta( $id, 'addon_price',   (float) $a['price'] );
+                \update_post_meta( $id, 'addon_type',    $a['type'] );
+                \update_post_meta( $id, 'addon_enabled', '1' );
+                \update_post_meta( $id, '_mhm_is_demo',  '1' );
+            }
+        }
+    }
+
+    /**
+     * Seed transfer locations from DemoDataProvider.
+     *
+     * @return array<string, int> name => location_id
+     */
+    private function seed_transfers_from_provider(): array
+    {
+        global $wpdb;
+
+        $locations = DemoDataProvider::get_locations();
+        $table     = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
+        $ids       = array();
+
+        foreach ( $locations as $l ) {
+            $wpdb->insert( $table, array(
+                'name'      => $l['name'],
+                'type'      => 'city',
+                'priority'  => 0,
+                'is_active' => 1,
+            ) );
+            if ( $wpdb->insert_id ) {
+                $ids[ $l['name'] ] = (int) $wpdb->insert_id;
+            }
+        }
+
+        return $ids;
+    }
+
+    // =========================================================================
+    // QUERY HELPERS
+    // =========================================================================
+
+    /**
+     * Get all demo vehicle IDs from the database.
+     *
+     * @return int[]
+     */
+    private function get_demo_vehicle_ids(): array
+    {
+        $posts = \get_posts( array(
+            'post_type'      => self::PT_VEHICLE,
+            'posts_per_page' => -1,
+            'post_status'    => 'any',
+            'meta_key'       => '_mhm_is_demo',
+            'meta_value'     => '1',
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+        ) );
+
+        return array_map( 'intval', (array) $posts );
+    }
+
+    /**
+     * Get all demo user IDs from the database.
+     *
+     * @return int[]
+     */
+    private function get_demo_user_ids(): array
+    {
+        $users = \get_users( array(
+            'meta_key'   => '_mhm_is_demo_user',
+            'meta_value' => '1',
+            'fields'     => 'ID',
+        ) );
+
+        return array_map( 'intval', (array) $users );
     }
 
     /**
