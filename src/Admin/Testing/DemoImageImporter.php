@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
+namespace MHMRentiva\Admin\Testing;
+
 if (! defined('ABSPATH')) {
     exit;
 }
-
-namespace MHMRentiva\Admin\Testing;
 
 // phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Demo image cleanup intentionally queries by meta to perform surgical removal.
 

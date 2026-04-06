@@ -1,10 +1,6 @@
 <?php
 declare(strict_types=1);
 
-if (! defined('ABSPATH')) {
-    exit;
-}
-
 namespace MHMRentiva\Tests\Unit\Admin\Testing;
 
 use MHMRentiva\Admin\Testing\DemoImageImporter;
