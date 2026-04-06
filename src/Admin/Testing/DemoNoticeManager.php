@@ -102,7 +102,7 @@ final class DemoNoticeManager
         $wp_admin_bar->add_node(
             array(
                 'id'    => 'mhm-demo-active',
-                'title' => '&#128992; DEMO ACTIVE',
+                'title' => '&#128992; ' . __( 'DEMO ACTIVE', 'mhm-rentiva' ),
                 'href'  => admin_url( 'admin.php?page=mhm-rentiva-setup&step=demo' ),
                 'meta'  => array( 'class' => 'mhm-demo-admin-bar-badge' ),
             )
