@@ -191,14 +191,14 @@ final class DemoDataProvider
     private static function customers_tr(): array
     {
         return array(
-            array( 'name' => 'Ahmet Yilmaz',  'first' => 'Ahmet',  'last' => 'Yilmaz',  'email' => 'demo1@example.com', 'phone' => '+90 532 111 0001' ),
-            array( 'name' => 'Ayse Demir',    'first' => 'Ayse',   'last' => 'Demir',   'email' => 'demo2@example.com', 'phone' => '+90 532 111 0002' ),
+            array( 'name' => 'Ahmet Yılmaz',  'first' => 'Ahmet',  'last' => 'Yılmaz',  'email' => 'demo1@example.com', 'phone' => '+90 532 111 0001' ),
+            array( 'name' => 'Ayşe Demir',    'first' => 'Ayşe',   'last' => 'Demir',   'email' => 'demo2@example.com', 'phone' => '+90 532 111 0002' ),
             array( 'name' => 'Mehmet Kaya',   'first' => 'Mehmet', 'last' => 'Kaya',    'email' => 'demo3@example.com', 'phone' => '+90 532 111 0003' ),
-            array( 'name' => 'Fatma Celik',   'first' => 'Fatma',  'last' => 'Celik',   'email' => 'demo4@example.com', 'phone' => '+90 532 111 0004' ),
-            array( 'name' => 'Ali Ozturk',    'first' => 'Ali',    'last' => 'Ozturk',  'email' => 'demo5@example.com', 'phone' => '+90 532 111 0005' ),
+            array( 'name' => 'Fatma Çelik',   'first' => 'Fatma',  'last' => 'Çelik',   'email' => 'demo4@example.com', 'phone' => '+90 532 111 0004' ),
+            array( 'name' => 'Ali Öztürk',    'first' => 'Ali',    'last' => 'Öztürk',  'email' => 'demo5@example.com', 'phone' => '+90 532 111 0005' ),
             array( 'name' => 'Zeynep Arslan', 'first' => 'Zeynep', 'last' => 'Arslan',  'email' => 'demo6@example.com', 'phone' => '+90 532 111 0006' ),
-            array( 'name' => 'Hasan Sahin',   'first' => 'Hasan',  'last' => 'Sahin',   'email' => 'demo7@example.com', 'phone' => '+90 532 111 0007' ),
-            array( 'name' => 'Elif Koc',      'first' => 'Elif',   'last' => 'Koc',     'email' => 'demo8@example.com', 'phone' => '+90 532 111 0008' ),
+            array( 'name' => 'Hasan Şahin',   'first' => 'Hasan',  'last' => 'Şahin',   'email' => 'demo7@example.com', 'phone' => '+90 532 111 0007' ),
+            array( 'name' => 'Elif Koç',      'first' => 'Elif',   'last' => 'Koç',     'email' => 'demo8@example.com', 'phone' => '+90 532 111 0008' ),
         );
     }
 
@@ -208,10 +208,10 @@ final class DemoDataProvider
     private static function locations_tr(): array
     {
         return array(
-            array( 'name' => 'Istanbul Havalimani',          'code' => 'IST' ),
-            array( 'name' => 'Sabiha Gokcen Havalimani',     'code' => 'SAW' ),
-            array( 'name' => 'Taksim Meydani',               'code' => 'TAK' ),
-            array( 'name' => 'Kadikoy Iskele',               'code' => 'KAD' ),
+            array( 'name' => 'İstanbul Havalimanı',          'code' => 'IST' ),
+            array( 'name' => 'Sabiha Gökçen Havalimanı',     'code' => 'SAW' ),
+            array( 'name' => 'Taksim Meydanı',               'code' => 'TAK' ),
+            array( 'name' => 'Kadıköy İskele',               'code' => 'KAD' ),
         );
     }
 
