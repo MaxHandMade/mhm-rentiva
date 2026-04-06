@@ -6,7 +6,7 @@ namespace MHMRentiva\Tests\Unit\Admin\Testing;
 use MHMRentiva\Admin\Testing\DemoAjaxHandler;
 use WP_UnitTestCase;
 
-class DemoAjaxHandlerTest extends WP_UnitTestCase
+final class DemoAjaxHandlerTest extends WP_UnitTestCase
 {
     public function test_get_seed_steps_returns_ten_steps(): void {
         $steps = DemoAjaxHandler::get_seed_steps();
