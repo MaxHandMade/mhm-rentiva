@@ -26663,3 +26663,135 @@ msgstr "Site Instance Check-in"
 #: src/Admin/Utilities/Cron/CronMonitor.php:71
 msgid "Reports site URL, version and environment to license server for usage tracking"
 msgstr "Site URL'si, sürüm ve ortam bilgisini lisans sunucusuna kullanım takibi için iletir"
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Demo Data"
+msgstr "Demo Veriler"
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Load sample vehicles, customers, bookings, add-ons, transfer points and messages so you can explore every feature without entering real data."
+msgstr "Gerçek veri girmeden tüm özellikleri keşfedebilmek için örnek araçlar, müşteriler, rezervasyonlar, ek hizmetler, transfer noktaları ve mesajlar yükleyin."
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "⚠️ Demo data is currently active."
+msgstr "⚠️ Demo veriler şu an aktif."
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Use \"Clean Up\" to remove all demo data before going live."
+msgstr "Yayına geçmeden önce tüm demo verileri kaldırmak için \"Temizle\" butonunu kullanın."
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Load Demo Data"
+msgstr "Demo Verileri Yükle"
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Clean Up Demo Data"
+msgstr "Demo Verileri Temizle"
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Demo data loaded successfully."
+msgstr "Demo veriler başarıyla yüklendi."
+
+#: src/Admin/Testing/DemoNoticeManager.php
+msgid "⚠️ Demo data has been active for 7+ days. Clean up before using in production."
+msgstr "⚠️ Demo veriler 7+ gündür aktif. Canlıya geçmeden önce temizleyin."
+
+#: src/Admin/Testing/DemoNoticeManager.php
+msgid "ℹ️ Demo data is active. Remember to clean up before going live."
+msgstr "ℹ️ Demo veriler aktif. Yayına geçmeden önce temizlemeyi unutmayın."
+
+#: src/Admin/Testing/DemoNoticeManager.php
+msgid "⚠️ This is a demo record and will be removed during cleanup."
+msgstr "⚠️ Bu bir demo kaydıdır ve temizleme işleminde kaldırılacaktır."
+
+#: src/Admin/Testing/DemoNoticeManager.php
+msgid "[DEMO]"
+msgstr "[DEMO]"
+
+#: src/Admin/Testing/DemoNoticeManager.php
+msgid "Blocked Day"
+msgstr "Kapalı Gün"
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Cleaning old demo data..."
+msgstr "Eski demo veriler temizleniyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Creating categories..."
+msgstr "Kategoriler oluşturuluyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Uploading vehicle images..."
+msgstr "Araç görselleri yükleniyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Creating vehicles..."
+msgstr "Araçlar oluşturuluyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Creating customers..."
+msgstr "Müşteriler oluşturuluyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Creating add-on services..."
+msgstr "Ek hizmetler oluşturuluyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Creating transfer points..."
+msgstr "Transfer noktaları oluşturuluyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Creating bookings..."
+msgstr "Rezervasyonlar oluşturuluyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Creating messages..."
+msgstr "Mesajlar oluşturuluyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Finalizing..."
+msgstr "Tamamlanıyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Removing demo records..."
+msgstr "Demo kayıtlar kaldırılıyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Removing demo customers..."
+msgstr "Demo müşteriler kaldırılıyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Removing demo categories..."
+msgstr "Demo kategoriler kaldırılıyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Cleaning custom tables..."
+msgstr "Özel tablolar temizleniyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Removing demo images..."
+msgstr "Demo görseller kaldırılıyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Clearing cache..."
+msgstr "Önbellek temizleniyor..."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Permission denied."
+msgstr "Erişim reddedildi."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Invalid step."
+msgstr "Geçersiz adım."
+
+#: src/Admin/Testing/DemoAjaxHandler.php
+msgid "Step not implemented."
+msgstr "Adım henüz uygulanmadı."
+
+#: src/Admin/Testing/DemoNoticeManager.php
+msgid "DEMO ACTIVE"
+msgstr "DEMO AKTİF"
+
+#: src/Admin/Setup/SetupWizard.php
+msgid "Continue to Summary"
+msgstr "Özete Devam Et"
