@@ -273,13 +273,6 @@ final class AccountRenderer
 			MHM_RENTIVA_VERSION
 		);
 
-		wp_enqueue_style(
-			'mhm-customer-messages-standalone',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/customer-messages-standalone.css',
-			array(),
-			MHM_RENTIVA_VERSION
-		);
-
 		// ⭐ Load JavaScript file (required for messages functionality)
 		wp_enqueue_script(
 			'mhm-rentiva-account-messages',

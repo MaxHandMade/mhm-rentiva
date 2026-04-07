@@ -40,7 +40,6 @@
    so our content area isn't constrained to a narrow column. */
 .woocommerce-account .woocommerce-my-account-wrapper {
 	grid-column: 1 / -1;
-	width: 100%;
 }
 
 .mhm-rentiva-account-page.mhm-integrated {
