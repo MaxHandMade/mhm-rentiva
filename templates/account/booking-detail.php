@@ -186,6 +186,23 @@ if ($is_integrated) {
 						<div class="rv-detail-label"><?php esc_html_e('Remaining Amount', 'mhm-rentiva'); ?></div>
 						<div class="rv-detail-value rv-price"><?php echo esc_html(number_format((float) $remaining_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
 					</div>
+
+					<?php if ( (float) $remaining_amount > 0 && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) : ?>
+					<div class="rv-detail-row rv-pay-remaining-row">
+						<div class="rv-detail-label"></div>
+						<div class="rv-detail-value">
+							<button
+								type="button"
+								class="rv-btn rv-btn-primary rv-pay-remaining-btn"
+								data-booking-id="<?php echo esc_attr( (string) $booking_id ); ?>"
+								data-nonce="<?php echo esc_attr( wp_create_nonce( 'mhm_pay_remaining_' . $booking_id ) ); ?>"
+							>
+								<?php esc_html_e( 'Pay Remaining Amount', 'mhm-rentiva' ); ?>
+							</button>
+							<span class="rv-pay-remaining-spinner" style="display:none;"></span>
+						</div>
+					</div>
+					<?php endif; ?>
 				<?php endif; ?>
 
 				<?php if (! empty($selected_addons)) : ?>
@@ -256,6 +273,49 @@ if ($is_integrated) {
 
 	</div><!-- .mhm-account-content -->
 </div>
+
+<!-- Pay Remaining Amount Script -->
+<script>
+(function () {
+	var btn = document.querySelector('.rv-pay-remaining-btn');
+	if (!btn) { return; }
+
+	btn.addEventListener('click', function () {
+		var bookingId = this.dataset.bookingId;
+		var nonce     = this.dataset.nonce;
+		btn.disabled  = true;
+		btn.textContent = '<?php echo esc_js( __( 'Processing...', 'mhm-rentiva' ) ); ?>';
+
+		var formData = new FormData();
+		formData.append('action', 'mhm_pay_remaining');
+		formData.append('booking_id', bookingId);
+		formData.append('nonce', nonce);
+
+		fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', {
+			method: 'POST',
+			credentials: 'same-origin',
+			body: formData,
+		})
+		.then(function (r) { return r.json(); })
+		.then(function (data) {
+			if (data.success && data.data && data.data.payment_url) {
+				window.location.href = data.data.payment_url;
+			} else {
+				var msg = (data.data && data.data.message)
+					? data.data.message
+					: '<?php echo esc_js( __( 'An error occurred.', 'mhm-rentiva' ) ); ?>';
+				alert(msg);
+				btn.disabled    = false;
+				btn.textContent = '<?php echo esc_js( __( 'Pay Remaining Amount', 'mhm-rentiva' ) ); ?>';
+			}
+		})
+		.catch(function () {
+			btn.disabled    = false;
+			btn.textContent = '<?php echo esc_js( __( 'Pay Remaining Amount', 'mhm-rentiva' ) ); ?>';
+		});
+	});
+})();
+</script>
 
 <!-- Cancel Booking Modal -->
 <div id="cancel-booking-modal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">

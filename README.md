@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.25.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.26.0-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -1187,6 +1187,24 @@ We welcome contributions! Please follow these guidelines:
 ---
 
 ## 📝 Changelog
+
+### Version 4.26.0 (2026-04-07)
+- **Pay Remaining Amount**: Customers with deposit bookings can now pay the remaining balance directly from My Account → Booking Detail via a "Pay Remaining Amount" button.
+- **WooCommerce Native Flow**: A minimal WC order is created programmatically for the remaining amount and the customer is redirected to the native WC order-pay page — any active payment gateway works without code changes.
+- **Duplicate Guard**: If a pending remaining-payment order already exists, the same order is reused instead of creating a new one (`_mhm_remaining_order_id` meta).
+- **Fix**: CSS scoping — all generic account page classes now scoped under `.mhm-rentiva-account-page` wrapper to prevent theme conflicts.
+
+### Version 4.25.1 (2026-04-07)
+- **Fix**: CSS scoping — all generic account page classes now scoped under `.mhm-rentiva-account-page` wrapper to prevent WoodMart and other theme conflicts.
+- **Fix**: WC My Account grid layout fix (`grid-column: 1/-1`) for integrated mode.
+
+### Version 4.25.0 (2026-04-01)
+- **Vendor Email Templates**: 22 vendor notification templates are now editable from the admin panel.
+- **Email Layout**: Improved gradient rendering in Gold Standard layout.
+- **Accessibility**: Amber CTA button contrast raised from 2.97:1 to 6.8:1 (WCAG AA).
+- **i18n**: 56 new Turkish translations for vendor email admin UI.
+- **Fix**: Site Instance Check-in cron now visible in Cron Job Monitor.
+- **Fix**: Plugin now explicitly registers the `weekly` WP cron interval.
 
 ### Version 4.23.0 (2026-03-26)
 - **Architecture**: Vendor Transfer Location system with city→point hierarchy

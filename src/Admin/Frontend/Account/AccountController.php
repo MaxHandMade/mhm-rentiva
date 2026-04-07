@@ -94,6 +94,9 @@ final class AccountController
 
 		// Communication preferences handler
 		add_action('init', array(self::class, 'handle_communication_preferences'));
+
+		// Remaining payment AJAX handler
+		\MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::register();
 	}
 
 	// Logic moved to EndpointHelperTrait

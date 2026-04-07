@@ -1,5 +1,18 @@
 [
     {
+        "version": "4.26.0",
+        "date": "2026-04-07",
+        "type": "minor",
+        "changes": [
+            "Pay Remaining Amount: Customers with deposit bookings can now pay the remaining balance from My Account → Booking Detail using a 'Pay Remaining Amount' button.",
+            "WooCommerce Native Flow: A minimal WC order is created programmatically for the remaining amount; customer is redirected to the native WC order-pay page — any active payment gateway works without code changes.",
+            "Duplicate Guard: If a pending remaining-payment order already exists, the same order is reused instead of creating a new one.",
+            "Fix: CSS scoping — all generic account page classes now scoped under .mhm-rentiva-account-page wrapper to prevent WoodMart and other theme conflicts.",
+            "Fix: WC My Account grid layout fix (grid-column: 1/-1) for integrated mode."
+        ],
+        "notice": "v4.26.0 - Pay Remaining Amount for Deposit Bookings"
+    },
+    {
         "version": "4.25.0",
         "date": "2026-04-01",
         "type": "minor",

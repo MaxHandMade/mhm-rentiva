@@ -1238,8 +1238,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface
 						// Full payment: clear remaining. Both types confirm the booking.
 						if (get_post_meta($booking_id, '_mhm_payment_type', true) === 'full') {
 							update_post_meta($booking_id, '_mhm_remaining_amount', 0);
-						Status::update_status($booking_id, 'confirmed', get_current_user_id());
+							Status::update_status($booking_id, 'confirmed', get_current_user_id());
 						} else {
+							// If this is a remaining payment order, clear remaining amount too
+							if ($order->get_meta('_mhm_is_remaining_payment') === '1') {
+								update_post_meta($booking_id, '_mhm_remaining_amount', 0);
+							}
 							Status::update_status($booking_id, 'confirmed', get_current_user_id());
 						}
 						break;

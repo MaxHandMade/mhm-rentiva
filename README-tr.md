@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.25.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.26.0-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
@@ -712,6 +712,16 @@ Katkılarınızı bekliyoruz! Lütfen şu yönergeleri izleyin:
 ---
 
 ## 📝 Değişiklik Geçmişi (Changelog)
+
+### Sürüm 4.26.0 (07.04.2026)
+- **Kalan Ödeme**: Depozito ile oluşturulan rezervasyonlarda müşteriler, Hesabım → Rezervasyon Detayı sayfasından "Kalan Ödemeyi Yap" butonuyla kalan bakiyeyi ödeyebilir.
+- **WooCommerce Native Akışı**: Kalan tutar için programatik minimal WC siparişi oluşturulur, müşteri WC'nin native order-pay sayfasına yönlendirilir — aktif tüm ödeme altyapıları kod değişikliği gerektirmeden çalışır.
+- **Tekrar Sipariş Koruması**: Bekleyen kalan ödeme siparişi varsa yeni sipariş oluşturulmaz, mevcut sipariş yeniden kullanılır.
+- **Düzeltme**: CSS kapsam — tüm genel hesap sayfası sınıfları `.mhm-rentiva-account-page` sarmalayıcısı altına alındı; tema çakışmaları engellendi.
+
+### Sürüm 4.25.1 (07.04.2026)
+- **Düzeltme**: CSS kapsam — genel sınıflar `.mhm-rentiva-account-page` altına scope'landı; WoodMart ve diğer temalarda çakışma sorunu giderildi.
+- **Düzeltme**: WC Hesabım ızgara düzeni düzeltmesi (`grid-column: 1/-1`).
 
 ### Sürüm 4.23.0 (26.03.2026)
 - **Mimari**: Vendor Transfer Lokasyon sistemi — Şehir→Nokta hiyerarşisi

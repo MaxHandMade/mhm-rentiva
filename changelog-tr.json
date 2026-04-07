@@ -1,5 +1,18 @@
 [
     {
+        "version": "4.26.0",
+        "date": "2026-04-07",
+        "type": "minor",
+        "changes": [
+            "💳 KALAN ÖDEME: Depozito ile oluşturulan rezervasyonlarda müşteriler Hesabım → Rezervasyon Detayı sayfasından 'Kalan Ödemeyi Yap' butonuyla kalan bakiyeyi ödeyebilir.",
+            "🔗 WOOCOMMERCE NATIVE AKIŞ: Kalan tutar için programatik minimal WC siparişi oluşturulur, müşteri WC'nin native order-pay sayfasına yönlendirilir — aktif tüm ödeme altyapıları kod değişikliği gerektirmeden çalışır.",
+            "🛡️ TEKRAR SİPARİŞ KORUMASI: Bekleyen kalan ödeme siparişi varsa yeni sipariş oluşturulmaz, mevcut sipariş yeniden kullanılır.",
+            "🔧 DÜZELTME: CSS kapsam — tüm genel hesap sayfası sınıfları .mhm-rentiva-account-page sarmalayıcısı altına alındı; WoodMart ve diğer tema çakışmaları engellendi.",
+            "🔧 DÜZELTME: WC Hesabım ızgara düzeni düzeltmesi (grid-column: 1/-1) entegre mod için."
+        ],
+        "notice": "v4.26.0 - Depozito Rezervasyonlarında Kalan Ödeme"
+    },
+    {
         "version": "4.25.0",
         "date": "2026-04-01",
         "type": "minor",
