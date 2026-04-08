@@ -488,6 +488,12 @@
 	flex: 1 1 170px;
 }
 
+.rv-rating-submit .rv-btn-primary {
+	background-color: var(--mhm-btn-bg) !important;
+	color: var(--mhm-btn-color, #fff) !important;
+	border: none !important;
+}
+
 /* Base Button */
 .rv-btn {
 	display: inline-flex;
