@@ -562,15 +562,12 @@ form.woocommerce-checkout {
 	margin: 0 0 20px 0 !important;
 }
 
-/* Payment Methods List - GRID LAYOUT */
-/* Payment Methods List - STACKED GRID FIX (Strict 2 Columns) */
+/* Payment Methods List - single column stacked */
 .woocommerce-checkout #payment ul.payment_methods {
 	display: grid !important;
-	grid-template-columns: 1fr 1fr !important;
-	/* ⭐ FIX: Strict 2 columns */
-	gap: 20px !important;
+	grid-template-columns: 1fr !important;
+	gap: 12px !important;
 	align-items: start !important;
-	/* FIX: Top Alignment */
 	list-style: none !important;
 	padding: 0 !important;
 	margin: 0 0 20px 0 !important;
