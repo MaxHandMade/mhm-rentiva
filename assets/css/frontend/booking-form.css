@@ -5700,7 +5700,7 @@
 	width: 100%;
 	max-width: 100%;
 	position: relative;
-	background: #f8fafc;
+	background: radial-gradient(ellipse at 50% 60%, #dce4f0 0%, #eef1f7 55%, #f5f7fb 100%);
 	aspect-ratio: 16 / 9;
 	flex-shrink: 0;
 	overflow: hidden;
@@ -6090,17 +6090,16 @@
 
 /* ===== PHASE-3D VISUAL PRECISION PASS ===== */
 .rv-booking-form-wrapper {
-	background: #f5f7fb;
-	padding-top: 24px;
-	padding-bottom: 24px;
-	border-radius: 22px;
-	/* Fill the full container width — max-width comes from the block theme
-	   alignwide constraint or the wrapper's own 1280px cap. */
+	background: transparent;
+	padding-top: 0;
+	padding-bottom: 32px;
+	border-radius: 0;
 	width: 100%;
 	max-width: 1280px;
 	margin-left: auto;
 	margin-right: auto;
 }
+
 
 .rv-booking-form-wrapper .rv-form-header {
 	margin-bottom: 32px;
@@ -6135,8 +6134,8 @@
 
 .rv-booking-form-wrapper .rv-card {
 	border-radius: 18px;
-	border: 1px solid #eef1f6;
-	box-shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+	border: 1px solid #e8edf6;
+	box-shadow: 0 4px 6px rgba(15, 23, 42, 0.04), 0 16px 40px rgba(15, 23, 42, 0.10);
 }
 
 .rv-booking-form-wrapper .rv-card-header,
@@ -6216,8 +6215,7 @@
 
 @media (max-width: 782px) {
 	.rv-booking-form-wrapper {
-		padding-top: 14px;
-		padding-bottom: 14px;
+		padding-bottom: 20px;
 	}
 
 	.rv-booking-form-wrapper .rv-form-header {
