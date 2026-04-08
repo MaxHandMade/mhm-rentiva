@@ -175,21 +175,23 @@ $allowed_svg_tags = array(
 						<img src="<?php echo esc_url($featured_image['url'] ?? ''); ?>"
 							alt="<?php echo esc_attr($title ?? ''); ?>"
 							class="rv-featured-image">
-						<button type="button" class="rv-vd2-gallery-btn" aria-label="<?php echo esc_attr__('View all photos', 'mhm-rentiva'); ?>">
-							<span aria-hidden="true">▦</span>
-							<?php esc_html_e('All Photos', 'mhm-rentiva'); ?>
-						</button>
+						<?php if (! empty($gallery) && count($gallery) > 3) : ?>
+							<button type="button" class="rv-vd2-gallery-btn" aria-label="<?php echo esc_attr__('View all photos', 'mhm-rentiva'); ?>">
+								<span aria-hidden="true">▦</span>
+								<?php esc_html_e('All Photos', 'mhm-rentiva'); ?>
+							</button>
+						<?php endif; ?>
 					</div>
 
 					<?php if (! empty($gallery)) : ?>
-						<div class="rv-gallery-thumbnails">
+						<div class="rv-gallery-thumbnails" data-total="<?php echo esc_attr(count($gallery) + 1); ?>">
 							<div class="rv-thumbnail-item active" data-index="main">
 								<img src="<?php echo esc_url($featured_image['url'] ?? ''); ?>"
 									alt="<?php echo esc_attr($title ?? ''); ?>"
 									data-large="<?php echo esc_url($featured_image['url'] ?? ''); ?>">
 							</div>
-							<?php foreach (array_slice($gallery, 0, 4) as $index => $image) : ?>
-								<div class="rv-thumbnail-item" data-index="<?php echo esc_attr($index); ?>">
+							<?php foreach ($gallery as $index => $image) : ?>
+								<div class="rv-thumbnail-item<?php echo $index >= 3 ? ' rv-thumb-hidden' : ''; ?>" data-index="<?php echo esc_attr($index); ?>">
 									<img src="<?php echo esc_url($image['url']); ?>"
 										alt="<?php echo esc_attr($image['alt']); ?>"
 										data-large="<?php echo esc_url($image['url_large']); ?>"

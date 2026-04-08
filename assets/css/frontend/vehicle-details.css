@@ -127,6 +127,14 @@
 	box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.1);
 }
 
+.rv-thumbnail-item.rv-thumb-hidden {
+	display: none;
+}
+
+.rv-gallery-thumbnails.rv-gallery-expanded .rv-thumbnail-item.rv-thumb-hidden {
+	display: block;
+}
+
 /* Vehicle Meta Chips (Match List View) */
 .rv-vehicle-meta-chips {
 	display: flex;

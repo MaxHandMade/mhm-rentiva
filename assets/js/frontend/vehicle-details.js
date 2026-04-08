@@ -188,6 +188,19 @@
 				}
 			}
 		);
+
+		// Handle "All Photos" button — show hidden extra thumbnails
+		$(document).on(
+			'click',
+			'.rv-vd2-gallery-btn',
+			function () {
+				const $btn = $(this);
+				const $thumbsContainer = $('.rv-gallery-thumbnails');
+
+				$thumbsContainer.addClass('rv-gallery-expanded');
+				$btn.hide();
+			}
+		);
 	}
 
 })(jQuery);
