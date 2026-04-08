@@ -800,6 +800,7 @@
 	box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
 	padding: 20px;
 	display: grid;
+	grid-template-columns: minmax(0, 1fr);
 	gap: 14px;
 }
 
@@ -844,7 +845,7 @@
 
 .rv-vd2-meta-row {
 	display: flex;
-	flex-wrap: nowrap;
+	flex-wrap: wrap;
 	gap: 6px;
 	width: 100%;
 }
@@ -853,8 +854,7 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	flex: 1 1 0;
-	min-width: 0;
+	flex: 0 0 auto;
 	padding: 7px 10px;
 	border-radius: 999px;
 	font-size: 11px;
@@ -863,8 +863,6 @@
 	background: #f8fafc;
 	border: 1px solid #e7edf5;
 	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
 .rv-vd2-meta-icon {
