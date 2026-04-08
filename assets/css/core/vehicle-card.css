@@ -78,10 +78,14 @@
     background: var(--mhm-gray-100, #f3f4f6);
 }
 
-.mhm-card-image img {
+/* Specificity (0,2,1) — beats .elementor img { height: auto } (0,1,1) */
+.mhm-vehicle-card .mhm-card-image img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
     transition: transform 0.5s ease;
 }
 
