@@ -666,6 +666,80 @@
 	padding: 2px 8px;
 }
 
+/* Login Required Notice (shown to logged-out users) */
+.rv-rating-login-notice {
+	margin-top: 1.5rem;
+}
+
+.rv-login-required {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	padding: 2rem 1.5rem;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	gap: 0.5rem;
+}
+
+.rv-login-icon {
+	color: #64748b;
+	margin-bottom: 0.25rem;
+}
+
+.rv-login-required h4 {
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--mhm-text-primary);
+	margin: 0;
+}
+
+.rv-login-required p {
+	font-size: 14px;
+	color: #64748b;
+	margin: 0;
+}
+
+.rv-login-actions {
+	display: flex;
+	gap: 0.75rem;
+	margin-top: 0.75rem;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.rv-login-actions .rv-btn {
+	min-width: 120px;
+	width: auto;
+	height: 44px;
+	padding: 0 24px;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	background-color: var(--mhm-btn-bg) !important;
+	color: var(--mhm-btn-color) !important;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.rv-login-actions .rv-btn:hover {
+	background-color: var(--mhm-btn-hover-bg) !important;
+	transform: translateY(-1px);
+}
+
+.rv-login-actions .rv-btn-secondary {
+	background-color: transparent !important;
+	color: var(--mhm-primary) !important;
+	border: 1.5px solid var(--mhm-primary) !important;
+}
+
+.rv-login-actions .rv-btn-secondary:hover {
+	background-color: var(--mhm-primary) !important;
+	color: #fff !important;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
 	.rv-unified-ratings-section {

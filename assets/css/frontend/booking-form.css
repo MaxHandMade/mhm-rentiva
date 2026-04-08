@@ -3551,6 +3551,14 @@
 
 }
 
+.rv-star.filled {
+
+	color: var(--mhm-warning) !important;
+
+	stroke: var(--mhm-warning) !important;
+
+}
+
 
 
 .rv-star-filled {

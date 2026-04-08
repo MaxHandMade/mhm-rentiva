@@ -182,8 +182,8 @@
 	justify-content: flex-end;
 }
 
-.rv-btn {
-	background: var(--rv-primary) !important;
+.rv-unified-search .rv-btn {
+	background: var(--rv-primary, var(--mhm-btn-bg)) !important;
 	color: #ffffff !important;
 	border: none;
 	padding: 0 32px;
@@ -199,18 +199,18 @@
 	font-size: var(--mhm-text-base);
 }
 
-.rv-btn:hover {
+.rv-unified-search .rv-btn:hover {
 	background: var(--mhm-btn-hover-bg) !important;
 }
 
-.rv-btn.is-loading {
+.rv-unified-search .rv-btn.is-loading {
 	opacity: 0.8 !important;
 	cursor: wait !important;
 	position: relative;
 	color: transparent !important;
 }
 
-.rv-btn.is-loading::after {
+.rv-unified-search .rv-btn.is-loading::after {
 	content: "";
 	position: absolute;
 	width: 20px;
