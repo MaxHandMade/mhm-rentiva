@@ -956,6 +956,14 @@
 	margin-top: 2px;
 }
 
+/* Override availability-calendar.css global styles that bleed into the sidebar widget */
+.rv-vd2-booking-card .rv-calendar-days {
+	background: transparent;
+	border: none;
+	border-radius: 0;
+	padding: 0;
+}
+
 body.admin-bar .rv-vd2-sidebar {
 	top: 48px;
 }
