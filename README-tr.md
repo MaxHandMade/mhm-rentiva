@@ -143,6 +143,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 
 **Ödeme Özellikleri:**
 - Kısmi ödeme desteği — Depozito sistemi (yüzde bazlı)
+- **Kalan Ödeme**: Depozito ile oluşturulan rezervasyonlarda müşteriler, Hesabım → Rezervasyon Detayı sayfasından kalan bakiyeyi ödeyebilir — aktif tüm WooCommerce ödeme altyapıları kod değişikliği gerektirmeden çalışır
 - Kısmi ve tam iade desteği (WooCommerce API üzerinden)
 - Ödeme durumu takibi
 - Güvenli işlem yönetimi

@@ -132,6 +132,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 **Payment Features:**
 - Multiple payment methods per booking
 - Partial payments support (Deposit system)
+- **Pay Remaining Amount**: Customers with deposit bookings can pay the outstanding balance directly from My Account → Booking Detail — any active WooCommerce payment gateway works without code changes
 - Refund management via WooCommerce
 - Payment status tracking
 - Secure transaction handling
