@@ -143,6 +143,16 @@ final class WooCommerceBridge implements PaymentGatewayInterface
 			wp_localize_script('mhm-woocommerce-cart-block', 'mhmRentivaCartImages', $cart_images);
 		}
 
+		// Cart page
+		if ($is_cart_page) {
+			wp_enqueue_style(
+				'mhm-woocommerce-cart',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/payment/woocommerce-cart.css',
+				array(),
+				MHM_RENTIVA_VERSION
+			);
+		}
+
 		// Checkout page
 		if (function_exists('is_checkout') && \is_checkout()) {
 			wp_enqueue_style(

@@ -1,0 +1,47 @@
+/**
+ * WooCommerce Cart - Reservation Details Styling
+ * Converts inline " / " separated meta into stacked label: value rows
+ */
+
+/* ========================================
+   RESERVATION META — STACKED LAYOUT
+   ======================================== */
+
+/* Container: vertical stack */
+.wc-block-components-product-details {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 3px !important;
+	margin-top: 6px !important;
+}
+
+/* Each row: label + value side by side */
+.wc-block-components-product-details [class*="wc-block-components-product-details__"] {
+	display: flex !important;
+	align-items: baseline !important;
+	gap: 5px !important;
+	flex-wrap: nowrap !important;
+}
+
+/* Label (e.g. "Araç:", "Alma Tarihi ve Saati:") */
+.wc-block-components-product-details__name {
+	font-size: 0.72rem !important;
+	font-weight: 600 !important;
+	color: #94a3b8 !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.04em !important;
+	white-space: nowrap !important;
+	flex-shrink: 0 !important;
+}
+
+/* Value */
+.wc-block-components-product-details__value {
+	font-size: 0.82rem !important;
+	font-weight: 500 !important;
+	color: #334155 !important;
+}
+
+/* Hide " / " separators */
+.wc-block-components-product-details [aria-hidden="true"] {
+	display: none !important;
+}
