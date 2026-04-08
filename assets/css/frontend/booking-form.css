@@ -6146,10 +6146,14 @@
 }
 
 .rv-booking-form-wrapper .rv-card-header {
-	padding-top: 24px;
+	padding-top: 22px;
+	padding-bottom: 16px;
+	border-bottom: none;
+	margin-bottom: 0;
 }
 
 .rv-booking-form-wrapper .rv-card-body {
+	padding-top: 20px;
 	padding-bottom: 24px;
 }
 
@@ -6157,10 +6161,45 @@
 	padding-bottom: 24px;
 }
 
+/* Unified section title — normalize all ::before conflicts */
 .rv-booking-form-wrapper .rv-section-title {
-	font-size: 1.25rem;
+	display: flex;
+	align-items: center;
+	gap: 0;
+	padding-inline-start: 0;
+	position: static;
+	font-size: 1.15rem;
 	font-weight: 700;
 	letter-spacing: -0.25px;
+	margin: 0;
+}
+
+.rv-booking-form-wrapper .rv-section-title::before {
+	content: '';
+	position: static;
+	display: inline-block;
+	flex-shrink: 0;
+	width: 3px;
+	height: 20px;
+	background: var(--mhm-primary, #2563eb);
+	border-radius: 2px;
+	margin-right: 10px;
+	transform: none;
+	inset: auto;
+}
+
+/* Fix addons section title ::before conflict */
+.rv-booking-form-wrapper .rv-addons .rv-section-title {
+	padding-inline-start: 0;
+	position: static;
+}
+
+.rv-booking-form-wrapper .rv-addons .rv-section-title::before {
+	position: static;
+	inset-inline-start: auto;
+	transform: none;
+	top: auto;
+	background: var(--mhm-primary, #2563eb);
 }
 
 .rv-booking-form-wrapper .rv-addon-item {
