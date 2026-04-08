@@ -45,3 +45,16 @@
 .wc-block-components-product-details [aria-hidden="true"] {
 	display: none !important;
 }
+
+/* ========================================
+   CHECKOUT BUTTON — HOVER FIX
+   reset.css global a:hover sets dark color,
+   making text invisible on dark background
+   ======================================== */
+
+.wc-block-cart__submit-button:hover,
+.wc-block-cart__submit-button:focus {
+	color: #ffffff !important;
+	background-color: #1d4ed8 !important;
+	opacity: 1 !important;
+}
