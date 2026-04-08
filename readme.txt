@@ -82,6 +82,13 @@ Yes, all frontend components and admin settings are fully responsive.
 
 == Changelog ==
 
+= 4.26.0 =
+* **Pay Remaining Amount:** Customers with deposit bookings can now pay the remaining balance from My Account → Booking Detail using a 'Pay Remaining Amount' button.
+* **WooCommerce Native Flow:** A minimal WC order is created for the remaining amount; customer is redirected to the native WC order-pay page — any active payment gateway works without code changes.
+* **Duplicate Guard:** If a pending remaining-payment order already exists, it is reused instead of creating a new one.
+* **Fix:** CSS scoping — all generic account page classes now scoped under .mhm-rentiva-account-page wrapper to prevent theme conflicts.
+* **Fix:** WC My Account grid layout fix (grid-column: 1/-1) for integrated mode.
+
 = 4.25.0 =
 * **Vendor Email Templates:** 22 vendor notification templates now editable from admin panel (Settings → Notification Templates → Vendor Notifications).
 * **Email Layout:** Improved gradient rendering in Gold Standard layout; WCAG AA contrast fix for amber CTA button (2.97:1 → 6.8:1).
