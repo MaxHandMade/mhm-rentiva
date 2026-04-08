@@ -422,20 +422,30 @@
 	align-items: center;
 	justify-content: center;
 	border-radius: 6px;
-	transition: all 0.2s;
+	transition: background 0.15s, color 0.15s;
 	color: var(--mhm-text-primary);
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.rv-calendar-day.empty {
+	pointer-events: none;
+}
+
+.rv-calendar-day:not(.empty) {
+	background: #f8fafc;
 }
 
 .rv-calendar-day.booked {
-	background: var(--mhm-gray-50);
+	background: #fee2e2;
 	color: var(--mhm-error);
 	text-decoration: line-through;
-	opacity: 0.6;
+	opacity: 0.75;
 }
 
 .rv-calendar-day.today {
 	background: var(--mhm-primary);
-	color: var(--mhm-white);
+	color: #fff;
 	font-weight: 700;
 }
 

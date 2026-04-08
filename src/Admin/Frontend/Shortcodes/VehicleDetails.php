@@ -233,7 +233,10 @@ final class VehicleDetails extends AbstractShortcode {
 			$calendar_html .= '<div class="' . esc_attr( $class ) . '">' . absint( $day ) . '</div>';
 		}
 
-		for ( $i = 0; $i < ( 42 - ( $days_in_month + $first_day_adjusted ) ); $i++ ) {
+		$total_content_cells = $first_day_adjusted + $days_in_month;
+		$rows_needed         = (int) ceil( $total_content_cells / 7 );
+		$trailing_empties    = ( $rows_needed * 7 ) - $total_content_cells;
+		for ( $i = 0; $i < $trailing_empties; $i++ ) {
 			$calendar_html .= '<div class="rv-calendar-day empty"></div>';
 		}
 
