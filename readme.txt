@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.26.0
+Stable tag:        4.26.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,13 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.26.1 =
+* **Fix:** Vehicle details sidebar — spec chips no longer overflow card edge; hybrid fuel icon corrected.
+* **Fix:** Calendar — trailing empty row removed; box-within-box appearance in sidebar eliminated.
+* **Fix:** Booking form — vehicle image visibility improved with gradient background; card header styling unified across all sections.
+* **Fix:** Checkout — payment methods now stacked vertically (1 column); coupon notice broken icon replaced with emoji.
+* **Fix:** Cart — reservation meta displayed as stacked label/value rows instead of inline sentence; checkout button hover text now visible.
 
 = 4.26.0 =
 * **Pay Remaining Amount:** Customers with deposit bookings can now pay the remaining balance from My Account → Booking Detail using a 'Pay Remaining Amount' button.

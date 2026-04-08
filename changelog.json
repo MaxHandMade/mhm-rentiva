@@ -1,5 +1,18 @@
 [
     {
+        "version": "4.26.1",
+        "date": "2026-04-08",
+        "type": "patch",
+        "changes": [
+            "Fix: Vehicle details sidebar — spec chips no longer overflow card edge; hybrid fuel icon corrected.",
+            "Fix: Calendar — trailing empty row removed; box-within-box appearance in sidebar eliminated.",
+            "Fix: Booking form — vehicle image visibility improved with gradient background; card header styling unified across all sections.",
+            "Fix: Checkout — payment methods now stacked vertically (1 column); coupon notice broken icon replaced with emoji.",
+            "Fix: Cart — reservation meta displayed as stacked label/value rows instead of inline sentence; checkout button hover text now visible."
+        ],
+        "notice": "v4.26.1 - UI polish fixes across vehicle details, booking form, checkout and cart pages"
+    },
+    {
         "version": "4.26.0",
         "date": "2026-04-07",
         "type": "minor",

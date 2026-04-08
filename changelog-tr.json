@@ -1,5 +1,18 @@
 [
     {
+        "version": "4.26.1",
+        "date": "2026-04-08",
+        "type": "patch",
+        "changes": [
+            "🔧 DÜZELTME: Araç detayları kenar çubuğu — özellik etiketleri kart kenarını artık taşmıyor; hibrit yakıt ikonu düzeltildi.",
+            "🔧 DÜZELTME: Takvim — fazladan boş satır kaldırıldı; kenar çubuğunda kutu içinde kutu görünümü giderildi.",
+            "🔧 DÜZELTME: Rezervasyon formu — araç görseli görünürlüğü degrade arka planla iyileştirildi; tüm bölümlerde kart başlık stili birleştirildi.",
+            "🔧 DÜZELTME: Ödeme sayfası — ödeme yöntemleri dikey sıralandı (tek sütun); kupon alanındaki bozuk ikon emoji ile değiştirildi.",
+            "🔧 DÜZELTME: Sepet — rezervasyon meta bilgileri cümle yerine etiket/değer satırları olarak gösteriliyor; ödemeye git butonu hover rengi düzeltildi."
+        ],
+        "notice": "v4.26.1 - Araç detayları, rezervasyon formu, ödeme ve sepet sayfalarında görsel iyileştirmeler"
+    },
+    {
         "version": "4.26.0",
         "date": "2026-04-07",
         "type": "minor",
