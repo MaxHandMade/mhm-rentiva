@@ -72,3 +72,4 @@ languages/*-*.json
 .tmp_phpscan.csv
 *.log
 *.zip
+build_debug.txt
