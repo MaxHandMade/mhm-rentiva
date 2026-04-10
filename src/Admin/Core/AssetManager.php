@@ -1038,7 +1038,7 @@ final class AssetManager
 				'mhm-notifications',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/notifications.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHM_RENTIVA_VERSION . '.toast2'
 			);
 
 			wp_localize_script(

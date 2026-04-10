@@ -421,7 +421,7 @@ final class SettingsCore
 			'mhm-rentiva-settings',
 			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/settings.css',
 			array(),
-			\MHM_RENTIVA_VERSION
+			\MHM_RENTIVA_VERSION . '.toast2'
 		);
 
 		wp_enqueue_style(

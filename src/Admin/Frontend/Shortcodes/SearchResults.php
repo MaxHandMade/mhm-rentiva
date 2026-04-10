@@ -624,10 +624,12 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	private static function format_vehicle_data(int $vehicle_id, array $atts): array
 	{
-		// Default atts for canonical formatting if missing
+		// Default atts for canonical formatting if missing.
+		// Use 'large' to match VehiclesGrid / VehiclesList / FeaturedVehicles —
+		// 'medium' (300px) produced visibly blurry cards in the search results.
 		$defaults    = array(
 			'max_features' => 5,
-			'image_size'   => 'medium',
+			'image_size'   => 'large',
 			'price_format' => 'daily',
 		);
 		$merged_atts = wp_parse_args($atts, $defaults);

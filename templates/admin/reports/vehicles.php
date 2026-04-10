@@ -72,7 +72,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						?>
 					</div>
 					<div class="chart-labels">
-						<span>Hatchback</span><span>Sedan</span><span>SUV</span><span>Coupe</span>
+						<span><?php esc_html_e( 'Hatchback', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Sedan', 'mhm-rentiva' ); ?></span><span>SUV</span><span><?php esc_html_e( 'Coupe', 'mhm-rentiva' ); ?></span>
 					</div>
 				</div>
 			</div>
@@ -97,7 +97,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						?>
 						<div class="metric-row">
 							<span class="metric-label"><?php echo esc_html( $vehicle->vehicle_title ?? 'Unknown' ); ?></span>
-							<span class="metric-value"><?php echo number_format( (int) ( $vehicle->booking_count ?? 0 ) ); ?> rentals</span>
+							<span class="metric-value"><?php echo esc_html( number_format( (int) ( $vehicle->booking_count ?? 0 ) ) . ' ' . __( 'rentals', 'mhm-rentiva' ) ); ?></span>
 						</div>
 						<?php
 						++$display_count;

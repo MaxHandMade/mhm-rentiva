@@ -163,6 +163,12 @@ trait AdminHelperTrait {
 		}
 
 		$html .= '</div>';
+		// WordPress common.js relocates admin notices to the element marked with
+		// `wp-header-end`. Without this marker WP falls back to the first h1/h2
+		// inside `.wrap` — which is our flex container — and the notices get
+		// squeezed into the header column and clipped. Emitting the marker right
+		// after the flex container moves notices below it, full-width.
+		$html .= '<hr class="wp-header-end" />';
 
 		if ( $echo ) {
 			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

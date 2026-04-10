@@ -1,5 +1,20 @@
 [
     {
+        "version": "4.26.3",
+        "date": "2026-04-11",
+        "type": "patch",
+        "changes": [
+            "Fix: Search results vehicle images no longer rendered from the 300px medium thumbnail — search cards now match the quality of vehicles grid, list and featured sections.",
+            "Fix: Vehicle card responsive sizes attribute corrected. The hardcoded 220px slot forced every browser to pick the blurry 300w variant on listings, favorites, archive and search results — now advertises 500px so retina and wide cards load the sharp large variant.",
+            "Fix: Admin settings page 'saved' toast no longer gets clipped. The WordPress success notice is now released from the header flex container via the official wp-header-end marker, and the custom toast markup wraps long messages instead of forcing nowrap on a fixed width.",
+            "Fix: Multiple admin toasts now stack vertically in a dedicated fixed-position container and the newest one appears on top; previously a second save would hide the first toast mid-animation.",
+            "Fix: Admin toast messages are now rendered with jQuery .text() instead of string interpolation so any future hook-generated notice content is safe from HTML injection.",
+            "Fix: .distignore no longer excludes assets/js/vendor/chart.min.js (and other in-tree vendored libraries) from the release ZIP. The vendor/ pattern was matching every vendor path segment — it is now root-anchored to /vendor/ so only the Composer dir is stripped. Restores dashboard charts on WordPress.org-installed copies.",
+            "Build: bin/build-release.py now supports .gitignore-style leading-slash anchoring in .distignore patterns."
+        ],
+        "notice": "v4.26.3 - Search results image quality, admin toast clipping and release ZIP chart.js fix"
+    },
+    {
         "version": "4.26.2",
         "date": "2026-04-10",
         "type": "patch",

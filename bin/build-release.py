@@ -68,9 +68,22 @@ def is_excluded(rel_path: str, patterns: list[str]) -> bool:
 
     A pattern matches if it equals the path, is a prefix directory of the path,
     or matches any path component via glob (e.g. '*.zip', 'languages/*~').
+
+    A leading "/" anchors the pattern to the plugin root (.gitignore semantics).
+    Without a leading "/", a plain name matches on any path component — so
+    "vendor" excludes both "/vendor/" (Composer) AND "/assets/js/vendor/".
+    Use "/vendor/" when you only want to exclude the root Composer dir.
     """
     parts = rel_path.split("/")
     for pat in patterns:
+        # Leading "/" => root-anchored match (like .gitignore).
+        if pat.startswith("/"):
+            anchored = pat[1:]
+            if not anchored:
+                continue
+            if rel_path == anchored or rel_path.startswith(anchored + "/"):
+                return True
+            continue
         if "/" in pat or "*" in pat or "?" in pat:
             # Glob / path pattern: test against full path and each suffix
             if fnmatch.fnmatch(rel_path, pat):
@@ -79,7 +92,7 @@ def is_excluded(rel_path: str, patterns: list[str]) -> bool:
             if rel_path == pat or rel_path.startswith(pat + "/"):
                 return True
         else:
-            # Plain name: match on any path component (e.g. 'vendor', '.git')
+            # Plain name: match on any path component (e.g. '.git', 'node_modules')
             if pat in parts:
                 return True
     return False

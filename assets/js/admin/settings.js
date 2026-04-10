@@ -11,6 +11,15 @@ jQuery(document).ready(
 		/**
 		 * 🚀 AUTO-CONVERT WP NOTICES TO MODERN TOASTS
 		 */
+		const getOrCreateAdminToastContainer = function () {
+			let $container = $('#mhm-admin-toast-container');
+			if (!$container.length) {
+				$container = $('<div id="mhm-admin-toast-container" role="region" aria-live="polite" aria-label="Notifications"></div>');
+				$('body').append($container);
+			}
+			return $container;
+		};
+
 		const convertWPNoticesToToasts = function () {
 			// Select standard WordPress notices that appear after saving
 			const $wpNotices = $('.wrap .notice, .wrap .updated, .wrap .error, #setting-error-settings_updated').not('.inline');
@@ -44,12 +53,15 @@ jQuery(document).ready(
 							`<div class="rv-notification rv-notification--${type} mhm-admin-toast">
 								<div class="rv-notification-body">
 									<span class="rv-notification-icon-badge">${icon}</span>
-									<span class="rv-notification-text">${message}</span>
+									<span class="rv-notification-text"></span>
 								</div>
 							</div>`
 						);
+						// Use .text() to avoid any HTML injection from notice content
+						$notification.find('.rv-notification-text').text(message);
 
-						$('body').append($notification);
+						// Prepend so newest toast appears on top and older ones slide down
+						getOrCreateAdminToastContainer().prepend($notification);
 
 						// Show animation
 						setTimeout(() => {

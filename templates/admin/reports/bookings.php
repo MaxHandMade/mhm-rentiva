@@ -31,11 +31,11 @@ use MHMRentiva\Admin\Booking\Core\Status;
 			<div class="card-content">
 				<div class="analytics-metrics">
 					<div class="metric-row">
-						<span class="metric-label">Total Bookings</span>
+						<span class="metric-label"><?php esc_html_e( 'Total Bookings', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value"><?php echo esc_html( number_format( (int) ( $data['total_bookings'] ?? 0 ) ) ); ?></span>
 					</div>
 					<div class="metric-row">
-						<span class="metric-label">Cancellation Rate</span>
+						<span class="metric-label"><?php esc_html_e( 'Cancellation Rate', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value">%<?php echo esc_html( (string) ( $data['cancellation_rate'] ?? 0 ) ); ?></span>
 					</div>
 				</div>
@@ -82,7 +82,7 @@ use MHMRentiva\Admin\Booking\Core\Status;
 						?>
 					</div>
 					<div class="chart-labels">
-						<span>Confirmed</span><span>Pending</span><span>Cancelled</span><span>Completed</span>
+						<span><?php esc_html_e( 'Confirmed', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Pending', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Cancelled', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Completed', 'mhm-rentiva' ); ?></span>
 					</div>
 				</div>
 			</div>

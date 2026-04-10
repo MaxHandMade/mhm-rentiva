@@ -29,11 +29,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="card-content">
 				<div class="analytics-metrics">
 					<div class="metric-row">
-						<span class="metric-label">Total Revenue</span>
+						<span class="metric-label"><?php esc_html_e( 'Total Revenue', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value"><?php echo esc_html( number_format( (float) ( $data['total'] ?? 0 ), 0, ',', '.' ) . \MHMRentiva\Admin\Reports\Reports::get_currency_symbol() ); ?></span>
 					</div>
 					<div class="metric-row">
-						<span class="metric-label">Daily Average</span>
+						<span class="metric-label"><?php esc_html_e( 'Daily Average', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value"><?php echo esc_html( number_format( (float) ( ( $data['total'] ?? 0 ) / max( 1, count( $data['daily'] ?? array() ) ) ), 0, ',', '.' ) . \MHMRentiva\Admin\Reports\Reports::get_currency_symbol() ); ?></span>
 					</div>
 				</div>
@@ -89,7 +89,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						?>
 					</div>
 					<div class="chart-labels">
-						<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+						<span><?php esc_html_e( 'Mon', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Tue', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Wed', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Thu', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Fri', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Sat', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Sun', 'mhm-rentiva' ); ?></span>
 					</div>
 				</div>
 			</div>

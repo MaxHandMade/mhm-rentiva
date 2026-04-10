@@ -116,7 +116,7 @@ final class FeaturedVehicles extends AbstractShortcode
 			'show_compare_button'  => '1',
 			'show_badges'          => '1',
 			'show_favorite_button' => '1',
-			'image_size'           => 'medium_large',
+			'image_size'           => 'large',
 			'price_format'         => 'daily',
 			'filter_brands'        => '',
 			'filter_categories'    => '',

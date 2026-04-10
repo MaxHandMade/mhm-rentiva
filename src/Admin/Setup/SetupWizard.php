@@ -83,8 +83,16 @@ final class SetupWizard
 			),
 		);
 
+		$title = sprintf(
+			'%s <span class="version-badge">v%s</span> <span class="license-badge %s">%s</span>',
+			esc_html((string) get_admin_page_title()),
+			esc_html(MHM_RENTIVA_VERSION),
+			\MHMRentiva\Admin\Licensing\Mode::isPro() ? 'pro' : 'lite',
+			\MHMRentiva\Admin\Licensing\Mode::isPro() ? esc_html__('Pro', 'mhm-rentiva') : esc_html__('Lite', 'mhm-rentiva')
+		);
+
 		echo '<div class="wrap mhm-setup-wrapper">';
-		$this->render_admin_header((string) get_admin_page_title(), $buttons);
+		$this->render_admin_header($title, $buttons);
 
 		echo '<p>' . esc_html__('Follow the steps below to prepare Rentiva on a fresh WordPress installation. You can re-open this wizard later from the MHM Rentiva menu.', 'mhm-rentiva') . '</p>';
 
@@ -186,19 +194,39 @@ final class SetupWizard
 
 	private static function render_step_license(array $license): void
 	{
-		$license_key  = (string) ($license['key'] ?? '');
-		$is_active    = (bool) ($license['is_active'] ?? false);
-		$expires_at   = $license['expires_at'] ?? null;
-		$plan         = $license['plan'] ?: __('Unknown', 'mhm-rentiva');
-		$status       = $license['status'] ?? 'inactive';
-		$license_page = admin_url('admin.php?page=mhm-rentiva-license');
-		$dev_env      = (bool) ($license['is_dev_env'] ?? false);
-		$dev_disabled = (bool) ($license['dev_mode_disabled'] ?? false);
-		$dev_allowed  = $dev_env && ! $dev_disabled;
+		$license_key   = (string) ($license['key'] ?? '');
+		$is_active     = (bool) ($license['is_active'] ?? false);
+		$activation_id = (string) ($license['activation_id'] ?? '');
+		$expires_at    = $license['expires_at'] ?? null;
+		$plan          = $license['plan'] ?: __('Unknown', 'mhm-rentiva');
+		$status        = $license['status'] ?? 'inactive';
+		$license_page  = admin_url('admin.php?page=mhm-rentiva-license');
+		$dev_env       = (bool) ($license['is_dev_env'] ?? false);
+		$dev_disabled  = (bool) ($license['dev_mode_disabled'] ?? false);
+		$dev_allowed   = $dev_env && ! $dev_disabled;
+		// A "real" license requires an activation ID from the server; dev mode
+		// alone is not enough. Show the purchase CTA whenever this is missing.
+		$has_real_license = $license_key !== '' && $status === 'active' && $activation_id !== '';
 
 	?>
 		<h2><?php esc_html_e('Step 2: License Activation', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Activate your license to unlock Pro features (online payments, unlimited vehicles, advanced export and more).', 'mhm-rentiva'); ?></p>
+
+		<?php if (! $has_real_license) : ?>
+			<div class="mhm-license-purchase-cta" style="margin: 15px 0 20px; padding: 15px; background: #f6f7f7; border-left: 4px solid #2271b1;">
+				<p class="description" style="margin: 0 0 10px;">
+					<?php esc_html_e('Don\'t have a license yet? Get one from our store, then paste the key below.', 'mhm-rentiva'); ?>
+				</p>
+				<a class="button button-secondary"
+					href="<?php echo esc_url(\MHMRentiva\Admin\Core\Utilities\UXHelper::get_product_url()); ?>"
+					target="_blank"
+					rel="noopener noreferrer">
+					<span class="dashicons dashicons-cart" style="margin-top: 4px;"></span>
+					<?php esc_html_e('Get a License', 'mhm-rentiva'); ?>
+					<span class="dashicons dashicons-external" style="margin-top: 4px;"></span>
+				</a>
+			</div>
+		<?php endif; ?>
 
 		<?php
 		// ⭐ Show error messages if any

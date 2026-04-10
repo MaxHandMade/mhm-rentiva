@@ -225,6 +225,18 @@ final class LicenseAdmin
 		if (! $is_active || $is_dev_mode) {
 			echo '<h2>' . esc_html__('License Activation', 'mhm-rentiva') . '</h2>';
 
+			// CTA to open the product/purchase page in a new tab.
+			echo '<div class="mhm-license-purchase-cta" style="margin: 10px 0 20px;">';
+			echo '<p class="description" style="margin: 0 0 8px;">';
+			echo esc_html__('Don\'t have a license yet? Get one from our store, then paste the key below.', 'mhm-rentiva');
+			echo '</p>';
+			echo '<a class="button button-secondary" href="' . esc_url(UXHelper::get_product_url()) . '" target="_blank" rel="noopener noreferrer">';
+			echo '<span class="dashicons dashicons-cart" style="margin-top: 4px;"></span> ';
+			echo esc_html__('Get a License', 'mhm-rentiva');
+			echo ' <span class="dashicons dashicons-external" style="margin-top: 4px;"></span>';
+			echo '</a>';
+			echo '</div>';
+
 			echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
 			wp_nonce_field('mhm_rentiva_license_action', 'mhm_rentiva_license_nonce');
 			echo '<input type="hidden" name="action" value="mhm_rentiva_activate_license">';

@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.26.2
+Stable tag:        4.26.3
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,15 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.26.3 =
+* **Fix:** Search results vehicle images no longer rendered from the 300px `medium` thumbnail — search cards now match the quality of vehicles grid, list and featured sections.
+* **Fix:** Vehicle card responsive `sizes` attribute corrected. The hardcoded `220px` slot forced every browser to pick the blurry 300w variant on listings, favorites, archive and search results — now advertises `500px` so retina and wide cards load the sharp `large` variant.
+* **Fix:** Admin settings page "saved" toast no longer gets clipped. The WordPress success notice is now released from the header flex container via the official `wp-header-end` marker, and the custom toast markup wraps long messages instead of forcing `nowrap` on a fixed width.
+* **Fix:** Multiple admin toasts now stack vertically in a dedicated fixed-position container and the newest one appears on top; previously a second save would hide the first toast mid-animation.
+* **Fix:** Admin toast messages are now rendered with `.text()` instead of string interpolation so any future hook-generated notice content is safe from HTML injection.
+* **Fix:** `.distignore` no longer excludes `assets/js/vendor/chart.min.js` (and other in-tree vendored libs) from the release ZIP. The `vendor/` pattern was matching every `vendor` path segment — it is now root-anchored to `/vendor/` so only the Composer dir is stripped. Restores dashboard charts on WP.org-installed copies.
+* **Build:** `bin/build-release.py` now supports `.gitignore`-style leading-slash anchoring in `.distignore` patterns.
 
 = 4.26.2 =
 * **Uninstall:** Complete removal now drops all 27 plugin tables. Previously 14 subsystem tables (ledger, key_registry, commission_policy, payout_audit, tenants, usage_metrics and orphaned alert/payment subsystem tables) were left behind in the database after delete with the cleanup option enabled.

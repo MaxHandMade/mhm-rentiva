@@ -1,5 +1,20 @@
 [
     {
+        "version": "4.26.3",
+        "date": "2026-04-11",
+        "type": "patch",
+        "changes": [
+            "🖼️ DÜZELTME: Arama sonuçları sayfasındaki araç görselleri artık 300px'lik 'medium' küçük resim yerine kaliteli 'large' varyanttan yükleniyor — arama kartları artık araç ızgarası, listesi ve öne çıkan araçlar bölümleriyle aynı netlikte.",
+            "🖼️ DÜZELTME: Araç kartı responsive 'sizes' özniteliği düzeltildi. Sabit kodlanmış 220px değeri, tarayıcıyı listeleme, favoriler, arşiv ve arama sonuçları sayfalarında bulanık 300w varyantını seçmeye zorluyordu — artık 500px bildirerek retina ekranların ve geniş kartların keskin 'large' varyantı yüklemesini sağlıyor.",
+            "🔔 DÜZELTME: Admin ayarlar sayfasındaki 'kaydedildi' toast bildirimi artık kesilmiyor. WordPress başarı bildirimi, resmi 'wp-header-end' işaretçisi sayesinde başlık flex konteynerinden çıkarıldı; özel toast işaretlemesi de sabit genişlikte 'nowrap' zorlamak yerine uzun mesajları alt satıra kaydırıyor.",
+            "🔔 DÜZELTME: Birden fazla admin toast bildirimi artık sabit konumlu özel bir konteynerde dikey olarak istifleniyor ve en yenisi üstte görünüyor; önceden ikinci bir kaydetme, ilk toast'u animasyon ortasında gizliyordu.",
+            "🛡️ GÜVENLİK: Admin toast mesajları artık dize yerleştirme yerine jQuery .text() ile yazılıyor — gelecekteki hook kaynaklı bildirim içerikleri HTML enjeksiyonuna karşı güvende.",
+            "📦 DÜZELTME: .distignore artık assets/js/vendor/chart.min.js (ve diğer ağaç içi vendor kütüphaneleri) release ZIP'inden dışlamıyor. 'vendor/' paterni her 'vendor' yol segmentini eşleştiriyordu — artık yalnızca Composer dizinini dışlamak için '/vendor/' olarak kök yola sabitlendi. WordPress.org üzerinden kurulan sürümlerde dashboard grafikleri geri geldi.",
+            "🔧 BUILD: bin/build-release.py artık .distignore paternlerinde .gitignore tarzı baştaki eğik çizgi ile kök sabitlemeyi destekliyor."
+        ],
+        "notice": "v4.26.3 - Arama sonuçları görsel kalitesi, admin toast kesilmesi ve release ZIP chart.js düzeltmesi"
+    },
+    {
         "version": "4.26.2",
         "date": "2026-04-10",
         "type": "patch",

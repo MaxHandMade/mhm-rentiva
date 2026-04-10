@@ -208,7 +208,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 			'mhm-rentiva-notifications',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/notifications.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHM_RENTIVA_VERSION . '.toast2'
 		);
 
 		// Load CSS

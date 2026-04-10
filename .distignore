@@ -11,7 +11,9 @@
 .gitattributes
 
 # Build & Dependencies
-vendor/
+# NOTE: leading "/" anchors to plugin root — otherwise "vendor/" would also
+# exclude assets/js/vendor/chart.min.js and other in-tree vendored libraries.
+/vendor/
 node_modules/
 build/
 composer.lock

@@ -29,15 +29,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="card-content">
 				<div class="analytics-metrics">
 					<div class="metric-row">
-						<span class="metric-label">Total Customers</span>
+						<span class="metric-label"><?php esc_html_e( 'Total Customers', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value"><?php echo esc_html( number_format( (int) $customer_segments['total'] ) ); ?></span>
 					</div>
 					<div class="metric-row">
-						<span class="metric-label">Repeat Customers</span>
+						<span class="metric-label"><?php esc_html_e( 'Repeat Customers', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value"><?php echo esc_html( number_format( (int) $customer_segments['returning'] ) ); ?></span>
 					</div>
 					<div class="metric-row">
-						<span class="metric-label">Average Spending</span>
+						<span class="metric-label"><?php esc_html_e( 'Average Spending', 'mhm-rentiva' ); ?></span>
 						<?php $avg_spending = ! empty( $real_customers ) ? array_sum( array_column( $real_customers, 'total_spent' ) ) / count( $real_customers ) : 0; ?>
 						<span class="metric-value"><?php echo esc_html( number_format( (float) $avg_spending, 2, ',', '.' ) . \MHMRentiva\Admin\Reports\Reports::get_currency_symbol() ); ?></span>
 					</div>
@@ -68,7 +68,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						?>
 					</div>
 					<div class="chart-labels">
-						<span>New</span><span>Returning</span><span>Active</span><span>Total</span>
+						<span><?php esc_html_e( 'New', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Returning', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Active', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Total', 'mhm-rentiva' ); ?></span>
 					</div>
 				</div>
 			</div>

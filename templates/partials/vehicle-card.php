@@ -41,8 +41,12 @@ if (! $is_available) {
             <a href="<?php echo esc_url($permalink); ?>" class="mhm-card-link" aria-hidden="true" tabindex="-1">
                 <?php if ($image_url) : ?>
                     <?php
+                    // Use 'large' (1024w) as the srcset base so retina and wide
+                    // cards (search results ~440px, grid ~350px) can pick a
+                    // sharp variant. The old sizes attribute claimed 220px which
+                    // forced every browser to the 300w thumbnail → visibly blurry.
                     $srcset = $image_id ? wp_get_attachment_image_srcset($image_id, 'large') : '';
-                    $sizes  = $image_id ? '(max-width: 782px) 100vw, (max-width: 900px) 180px, 220px' : '';
+                    $sizes  = $image_id ? '(max-width: 782px) 100vw, 500px' : '';
                     ?>
                     <img src="<?php echo esc_url($image_url); ?>"
                          alt="<?php echo esc_attr($image_alt); ?>"

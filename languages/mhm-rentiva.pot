@@ -10,7 +10,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-01 03:44+0000\n"
+"POT-Creation-Date: 2026-04-08 14:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: mhm-rentiva\n"
@@ -248,11 +248,21 @@ msgstr ""
 msgid "%d bookings"
 msgstr ""
 
+#. %d: number of bookings created
+#: src/Admin/Testing/DemoSeeder.php:977
+msgid "%d bookings created."
+msgstr ""
+
 #. %d: maximum number of customers allowed in Lite version.
 #: src/Admin/Licensing/LicenseAdmin.php:496 src/Admin/Licensing/Mode.php:234
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseAdmin.php:496
 #: build/mhm-rentiva/src/Admin/Licensing/Mode.php:234
 msgid "%d customers"
+msgstr ""
+
+#. %d: number of customers created
+#: src/Admin/Testing/DemoSeeder.php:929
+msgid "%d customers created."
 msgstr ""
 
 #. %d placeholder.
@@ -268,7 +278,7 @@ msgid "%d customers exported."
 msgstr ""
 
 #. %d placeholder.
-#: src/Admin/Customers/CustomersPage.php:717
+#: src/Admin/Customers/CustomersPage.php:704
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:717
 msgid "%d customers processed."
 msgstr ""
@@ -303,6 +313,26 @@ msgstr ""
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseAdmin.php:202
 #: build/mhm-rentiva/src/Admin/About/Tabs/GeneralTab.php:193
 msgid "%d days remaining"
+msgstr ""
+
+#. %d: number of images removed
+#: src/Admin/Testing/DemoSeeder.php:1250
+msgid "%d demo images removed."
+msgstr ""
+
+#. %d: number of posts removed
+#: src/Admin/Testing/DemoSeeder.php:1097
+msgid "%d demo posts removed."
+msgstr ""
+
+#. %d: number of terms removed
+#: src/Admin/Testing/DemoSeeder.php:1168
+msgid "%d demo terms removed."
+msgstr ""
+
+#. %d: number of users removed
+#: src/Admin/Testing/DemoSeeder.php:1130
+msgid "%d demo users removed."
 msgstr ""
 
 #. %d: number of doors
@@ -445,6 +475,11 @@ msgid_plural "%d vehicles found"
 msgstr[0] ""
 msgstr[1] ""
 
+#. %d: number of images uploaded
+#: src/Admin/Testing/DemoSeeder.php:896
+msgid "%d vehicle images uploaded."
+msgstr ""
+
 #. %d: maximum number of vehicles allowed in Lite version.
 #: src/Admin/Licensing/LicenseAdmin.php:494 src/Admin/Licensing/Mode.php:216
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseAdmin.php:494
@@ -460,6 +495,11 @@ msgstr ""
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/VehicleComparison.php:120
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/VehicleComparison.php:420
 msgid "%d vehicles being compared"
+msgstr ""
+
+#. %d: number of vehicles created
+#: src/Admin/Testing/DemoSeeder.php:913
+msgid "%d vehicles created."
 msgstr ""
 
 #. %d: number of vehicles.
@@ -478,6 +518,13 @@ msgstr ""
 #: templates/account/partials/vendor-listings.php:71
 #: build/mhm-rentiva/templates/account/partials/vendor-listings.php:63
 msgid "%d vehicles in your portfolio."
+msgstr ""
+
+#. %d: penalty percentage
+#: templates/account/partials/vendor-reliability.php:231
+#: templates/account/partials/vendor-reliability.php:245
+#, php-format
+msgid "%d%% of monthly avg. revenue"
 msgstr ""
 
 #: templates/admin/dashboard/upcoming-operations.php:103
@@ -676,7 +723,7 @@ msgstr ""
 msgid "(Full Payment)"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2386
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2390
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2386
 msgid "(incl. tax)"
 msgstr ""
@@ -684,6 +731,11 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:280
 #: build/mhm-rentiva/src/Admin/Booking/Meta/ManualBookingMetaBox.php:280
 msgid "+ Create New Customer"
+msgstr ""
+
+#. %d: points per completed booking
+#: templates/account/partials/vendor-reliability.php:150
+msgid "+%d pts each (max +%d)"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:161
@@ -708,6 +760,15 @@ msgstr ""
 msgid "-"
 msgstr ""
 
+#. %d: points deducted per cancellation
+#. %d: points deducted per withdrawal
+#. %d: points deducted per pause
+#: templates/account/partials/vendor-reliability.php:165
+#: templates/account/partials/vendor-reliability.php:180
+#: templates/account/partials/vendor-reliability.php:195
+msgid "-%d pts each"
+msgstr ""
+
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1790
 #: build/mhm-rentiva/src/Admin/Core/Utilities/DatabaseCleaner.php:1790
 msgid ".htaccess file exists but does not deny access properly"
@@ -716,6 +777,10 @@ msgstr ""
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1786
 #: build/mhm-rentiva/src/Admin/Core/Utilities/DatabaseCleaner.php:1786
 msgid ".htaccess file missing - directory is not protected from web access"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:65
+msgid "/ 100"
 msgstr ""
 
 #: templates/partials/vehicle-card.php:194
@@ -748,6 +813,10 @@ msgstr ""
 #: src/Admin/Settings/Groups/GeneralSettings.php:149
 #: build/mhm-rentiva/src/Admin/Settings/Groups/GeneralSettings.php:149
 msgid "09:00 - 18:00"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:111
+msgid "0–49"
 msgstr ""
 
 #: src/Admin/Licensing/LicenseAdmin.php:168
@@ -793,9 +862,17 @@ msgstr ""
 msgid "1000-4999 total spending"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1220
+#: templates/account/partials/vendor-reliability.php:218
+msgid "1st Withdrawal"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php:1353
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1220
 msgid "256 MB recommended"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:227
+msgid "2nd Withdrawal"
 msgstr ""
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:180
@@ -805,6 +882,10 @@ msgstr ""
 #: templates/account/partials/vendor-analytics.php:149
 #: build/mhm-rentiva/templates/account/partials/vendor-analytics.php:149
 msgid "30-Day Revenue Trend"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:241
+msgid "3rd+ Withdrawal"
 msgstr ""
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:190
@@ -826,7 +907,11 @@ msgstr ""
 msgid "5000+ total spending"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1234
+#: templates/account/partials/vendor-reliability.php:109
+msgid "50–69"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php:1367
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1234
 msgid "60s+"
 msgstr ""
@@ -844,6 +929,14 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:145
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/ContactForm.php:145
 msgid "7/24 Support"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:107
+msgid "70–89"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:105
+msgid "90–100"
 msgstr ""
 
 #. Dynamic value.
@@ -933,6 +1026,10 @@ msgstr ""
 msgid "[Admin] Vehicle edited — re-review needed — {{site.name}}"
 msgstr ""
 
+#: src/Admin/Testing/DemoNoticeManager.php:150
+msgid "[DEMO]"
+msgstr ""
+
 #. %s: Log entry title
 #: src/Admin/PostTypes/Logs/AdvancedLogger.php:561
 #: build/mhm-rentiva/src/Admin/PostTypes/Logs/AdvancedLogger.php:561
@@ -953,6 +1050,19 @@ msgstr ""
 #: src/Admin/PostTypes/Logs/AdvancedLogger.php:566
 #: build/mhm-rentiva/src/Admin/PostTypes/Logs/AdvancedLogger.php:566
 msgid "A critical error was detected on your site."
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:298
+msgid ""
+"A high score is your reputation on Rentiva. It signals to customers that you "
+"are a dependable partner, which translates directly into more bookings and "
+"revenue."
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:330
+msgid ""
+"A log of every event that affected your reliability score. Up to 50 entries "
+"are kept."
 msgstr ""
 
 #: templates/emails/booking-created-admin.html.php:7
@@ -992,6 +1102,12 @@ msgstr ""
 #: src/Admin/Settings/Groups/EmailSettings.php:216
 #: build/mhm-rentiva/src/Admin/Settings/Groups/EmailSettings.php:216
 msgid "A refund of {amount} has been processed for your booking #{booking_id}."
+msgstr ""
+
+#: src/Admin/Licensing/LicenseManager.php:837
+msgid ""
+"A security update improved license verification. Please deactivate and "
+"reactivate your license once. Go to Rentiva > License."
 msgstr ""
 
 #: templates/emails/vehicle-rereview-admin.html.php:4
@@ -1081,6 +1197,10 @@ msgstr ""
 msgid "Access Denied"
 msgstr ""
 
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:59
+msgid "Access denied."
+msgstr ""
+
 #: src/Admin/Frontend/Shortcodes/Account/VendorLedger.php:43
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/VendorLedger.php:43
 msgid "Access Denied. Only vendors can view the financial ledger."
@@ -1118,7 +1238,7 @@ msgstr ""
 msgid "Account & Navigation"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:255
+#: src/Admin/Frontend/Account/AccountController.php:258
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:255
 msgid "Account deleted successfully. You will be redirected to the homepage."
 msgstr ""
@@ -1127,12 +1247,12 @@ msgstr ""
 #: templates/account/account-details.php:53
 #: build/mhm-rentiva/templates/account/account-details.php:37
 #: build/mhm-rentiva/templates/account/account-details.php:53
-#: src/Admin/Frontend/Account/AccountRenderer.php:456
+#: src/Admin/Frontend/Account/AccountRenderer.php:449
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:456
 msgid "Account Details"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:353
+#: src/Admin/Frontend/Account/AccountController.php:356
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:68
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:353
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:68
@@ -1177,7 +1297,7 @@ msgstr ""
 msgid "Account Status:"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:770
+#: src/Admin/Frontend/Account/AccountController.php:773
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:770
 msgid "Account updated successfully."
 msgstr ""
@@ -1191,6 +1311,7 @@ msgstr ""
 #: src/Admin/Reports/BackgroundProcessor.php:477
 #: src/Admin/Vehicle/ListingFeeManager.php:243
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:407
+#: templates/account/partials/vendor-reliability.php:134
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:911
 #: src/Admin/Utilities/ListTable/LogColumns.php:47
 #: build/mhm-rentiva/src/Admin/Reports/BackgroundProcessor.php:477
@@ -1220,7 +1341,7 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:275
+#: src/Admin/Setup/SetupWizard.php:278
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:275
 msgid "Activate & Continue"
 msgstr ""
@@ -1232,7 +1353,7 @@ msgstr ""
 msgid "Activate License"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:198
+#: src/Admin/Setup/SetupWizard.php:201
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:198
 msgid ""
 "Activate your license to unlock Pro features (online payments, unlimited "
@@ -1253,12 +1374,14 @@ msgstr ""
 #: src/Admin/Addons/AddonListTable.php:200
 #: src/Admin/Addons/AddonListTable.php:394
 #: src/Admin/Addons/AddonListTable.php:469 src/Admin/Addons/AddonMeta.php:92
-#: src/Admin/Customers/CustomersPage.php:539
-#: src/Admin/Setup/SetupWizard.php:1192 src/Admin/Setup/SetupWizard.php:1251
+#: src/Admin/Customers/CustomersPage.php:526
+#: src/Admin/Setup/SetupWizard.php:1325 src/Admin/Setup/SetupWizard.php:1384
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:165
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:423
 #: templates/account/partials/vendor-bookings.php:195
 #: templates/account/partials/vendor-listings.php:43
+#: templates/admin/reports/customers.php:71
+#: templates/admin/reports/overview.php:198
 #: build/mhm-rentiva/templates/admin/shortcode-pages.php:72
 #: build/mhm-rentiva/templates/admin/shortcode-pages.php:72
 #: src/Admin/About/Tabs/SystemTab.php:146
@@ -1306,7 +1429,7 @@ msgstr ""
 msgid "Active Bookings"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:537
+#: src/Admin/Customers/CustomersPage.php:524
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:537
 msgid "ACTIVE CUSTOMERS"
 msgstr ""
@@ -1385,7 +1508,7 @@ msgid "Add"
 msgstr ""
 
 #. %s: link to wp-config.php documentation
-#: src/Admin/Setup/SetupWizard.php:1224
+#: src/Admin/Setup/SetupWizard.php:1357
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1224
 #, php-format
 msgid "Add %s to your wp-config.php file to increase memory."
@@ -1629,6 +1752,10 @@ msgstr ""
 msgid "Add-on Services"
 msgstr ""
 
+#: src/Admin/Testing/DemoSeeder.php:943
+msgid "Add-on services created."
+msgstr ""
+
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:211
 #: build/mhm-rentiva/src/Admin/Booking/Meta/ManualBookingMetaBox.php:211
 msgid "Add-on Services Total"
@@ -1739,7 +1866,7 @@ msgstr ""
 msgid "Additional Service System"
 msgstr ""
 
-#: templates/account/booking-detail.php:194
+#: templates/account/booking-detail.php:211
 #: templates/shortcodes/booking-form.php:288 src/Admin/Addons/AddonMenu.php:72
 #: src/Admin/Addons/AddonPostType.php:58
 #: build/mhm-rentiva/templates/account/booking-detail.php:194
@@ -1807,8 +1934,8 @@ msgstr ""
 
 #: templates/account/account-details.php:123
 #: src/Admin/Customers/AddCustomerPage.php:168
-#: src/Admin/Customers/CustomersPage.php:827
-#: src/Admin/Customers/CustomersPage.php:992
+#: src/Admin/Customers/CustomersPage.php:814
+#: src/Admin/Customers/CustomersPage.php:979
 #: build/mhm-rentiva/templates/account/account-details.php:123
 #: build/mhm-rentiva/src/Admin/Customers/AddCustomerPage.php:168
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:827
@@ -1893,8 +2020,8 @@ msgstr ""
 
 #: templates/messages/message-thread-view.html.php:59
 #: build/mhm-rentiva/templates/messages/message-thread-view.html.php:59
-#: src/Admin/Frontend/Account/AccountController.php:201
-#: src/Admin/Frontend/Account/AccountRenderer.php:314
+#: src/Admin/Frontend/Account/AccountController.php:204
+#: src/Admin/Frontend/Account/AccountRenderer.php:307
 #: src/Admin/Messages/Core/Messages.php:349
 #: src/Admin/Messages/Core/Messages.php:431
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:201
@@ -2007,7 +2134,7 @@ msgid ""
 "the listing will be automatically withdrawn."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:619
+#: src/Admin/Setup/SetupWizard.php:751
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:619
 msgid "After updating, click \"Save Changes\" to refresh permalinks."
 msgstr ""
@@ -2172,13 +2299,13 @@ msgid "All Customers"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountAssets.php:62
-#: src/Admin/Frontend/Account/AccountController.php:570
+#: src/Admin/Frontend/Account/AccountController.php:573
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountAssets.php:62
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:570
 msgid "All favorites cleared"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:356
+#: src/Admin/Frontend/Account/AccountController.php:359
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:71
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:356
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:71
@@ -2448,7 +2575,7 @@ msgid "Already have account?"
 msgstr ""
 
 #. %s: License page URL
-#: src/Admin/Setup/SetupWizard.php:299
+#: src/Admin/Setup/SetupWizard.php:302
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:299
 #, php-format
 msgid "Already have an active license? Review it on the %s."
@@ -2558,12 +2685,12 @@ msgstr ""
 msgid "An error occurred while adding vehicle."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:256
+#: src/Admin/Frontend/Account/AccountController.php:259
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:256
 msgid "An error occurred while deleting account"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:247
+#: src/Admin/Frontend/Account/AccountController.php:250
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:247
 msgid "An error occurred while exporting data"
 msgstr ""
@@ -2602,7 +2729,7 @@ msgstr ""
 msgid "An error occurred while sending message."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:774
+#: src/Admin/Frontend/Account/AccountController.php:777
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:774
 msgid "An error occurred while updating your account."
 msgstr ""
@@ -2612,7 +2739,7 @@ msgstr ""
 msgid "An error occurred while uploading file."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:251
+#: src/Admin/Frontend/Account/AccountController.php:254
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:251
 msgid "An error occurred while withdrawing consent"
 msgstr ""
@@ -2638,10 +2765,11 @@ msgstr ""
 msgid "An error occurred!"
 msgstr ""
 
-#: src/Admin/About/About.php:202 src/Admin/Customers/CustomersPage.php:406
-#: src/Admin/Customers/CustomersPage.php:495
+#: templates/account/booking-detail.php:306 src/Admin/About/About.php:202
+#: src/Admin/Customers/CustomersPage.php:392
+#: src/Admin/Customers/CustomersPage.php:482
 #: src/Admin/Frontend/Account/AccountAssets.php:55
-#: src/Admin/Frontend/Account/AccountController.php:347
+#: src/Admin/Frontend/Account/AccountController.php:350
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:303
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:401
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:222
@@ -2664,8 +2792,8 @@ msgstr ""
 #: src/Admin/Addons/AddonManager.php:235 src/Admin/Core/AssetManager.php:1074
 #: src/Admin/Core/AssetManager.php:1150
 #: src/Admin/Emails/Core/EmailTemplates.php:661
-#: src/Admin/Frontend/Account/AccountController.php:211
-#: src/Admin/Frontend/Account/AccountController.php:283
+#: src/Admin/Frontend/Account/AccountController.php:214
+#: src/Admin/Frontend/Account/AccountController.php:286
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:290
 #: src/Admin/Frontend/Shortcodes/UnifiedSearch.php:195
 #: src/Admin/Messages/Core/Messages.php:1444
@@ -2984,7 +3112,7 @@ msgstr ""
 msgid "are"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:253
+#: src/Admin/Frontend/Account/AccountController.php:256
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:253
 msgid ""
 "Are you absolutely sure? This will permanently delete your account and all "
@@ -3001,7 +3129,7 @@ msgstr ""
 msgid "Are you sure you want to attempt to create/repair this table?"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:358
+#: src/Admin/Frontend/Account/AccountController.php:361
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:73
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:358
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:73
@@ -3015,7 +3143,7 @@ msgstr ""
 msgid "Are you sure you want to cancel this booking?"
 msgstr ""
 
-#: templates/account/booking-detail.php:269
+#: templates/account/booking-detail.php:329
 #: build/mhm-rentiva/templates/account/booking-detail.php:269
 msgid ""
 "Are you sure you want to cancel this booking? This action cannot be undone."
@@ -3044,8 +3172,8 @@ msgstr ""
 msgid "Are you sure you want to clear performance data?"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:190
-#: src/Admin/Frontend/Account/AccountRenderer.php:303
+#: src/Admin/Frontend/Account/AccountController.php:193
+#: src/Admin/Frontend/Account/AccountRenderer.php:296
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:190
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:303
 msgid ""
@@ -3096,8 +3224,8 @@ msgstr ""
 msgid "Are you sure you want to delete this category?"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:408
-#: src/Admin/Customers/CustomersPage.php:497
+#: src/Admin/Customers/CustomersPage.php:394
+#: src/Admin/Customers/CustomersPage.php:484
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:408
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:497
 msgid "Are you sure you want to delete this customer?"
@@ -3135,7 +3263,7 @@ msgstr ""
 msgid "Are you sure you want to enable selected additional services?"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:244
+#: src/Admin/Frontend/Account/AccountController.php:247
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:244
 msgid "Are you sure you want to export your data? This may take a few minutes."
 msgstr ""
@@ -3268,7 +3396,7 @@ msgstr ""
 msgid "Are you sure you want to withdraw this vehicle? A penalty may apply."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:248
+#: src/Admin/Frontend/Account/AccountController.php:251
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:248
 msgid ""
 "Are you sure you want to withdraw your consent? This will disable data "
@@ -3280,7 +3408,7 @@ msgstr ""
 #: src/Admin/Transfer/TransferAdmin.php:527
 #: src/Admin/Transfer/TransferAdmin.php:774
 #: src/Admin/Frontend/Account/AccountAssets.php:57
-#: src/Admin/Frontend/Account/AccountController.php:349
+#: src/Admin/Frontend/Account/AccountController.php:352
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:102
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:573
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:1447
@@ -3523,7 +3651,7 @@ msgid ""
 "Automatic developer mode is disabled. Real license validation is required."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:428
+#: src/Admin/Setup/SetupWizard.php:431
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:428
 msgid "Automatic email sending enabled"
 msgstr ""
@@ -3558,7 +3686,7 @@ msgstr ""
 msgid "Automatically delete old logs based on retention period."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:425
+#: src/Admin/Setup/SetupWizard.php:428
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:425
 msgid "Automation"
 msgstr ""
@@ -3713,9 +3841,17 @@ msgstr ""
 msgid "Average rating (0-5)"
 msgstr ""
 
+#: templates/admin/reports/customers.php:40
+msgid "Average Spending"
+msgstr ""
+
 #: templates/account/partials/vendor-analytics.php:115
 #: build/mhm-rentiva/templates/account/partials/vendor-analytics.php:115
 msgid "Avg Booking Value"
+msgstr ""
+
+#: templates/admin/reports/overview.php:274
+msgid "Avg Occupancy"
 msgstr ""
 
 #: src/Core/Dashboard/DashboardConfig.php:111
@@ -3749,10 +3885,10 @@ msgstr ""
 msgid "Awaiting your response"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1589 src/Admin/Setup/SetupWizard.php:255
-#: src/Admin/Setup/SetupWizard.php:273 src/Admin/Setup/SetupWizard.php:360
-#: src/Admin/Setup/SetupWizard.php:434 src/Admin/Setup/SetupWizard.php:561
-#: src/Admin/Setup/SetupWizard.php:634
+#: src/Admin/Core/AssetManager.php:1589 src/Admin/Setup/SetupWizard.php:258
+#: src/Admin/Setup/SetupWizard.php:276 src/Admin/Setup/SetupWizard.php:363
+#: src/Admin/Setup/SetupWizard.php:437 src/Admin/Setup/SetupWizard.php:564
+#: src/Admin/Setup/SetupWizard.php:694 src/Admin/Setup/SetupWizard.php:766
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:1589
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:255
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:273
@@ -3775,7 +3911,7 @@ msgstr ""
 msgid "Back to applications"
 msgstr ""
 
-#: templates/account/booking-detail.php:223
+#: templates/account/booking-detail.php:240
 #: build/mhm-rentiva/templates/account/booking-detail.php:223
 #: src/Admin/Settings/Groups/FrontendSettings.php:391
 #: build/mhm-rentiva/src/Admin/Settings/Groups/FrontendSettings.php:391
@@ -3796,7 +3932,7 @@ msgstr ""
 
 #: templates/account/messages.php:71
 #: build/mhm-rentiva/templates/account/messages.php:71
-#: src/Admin/Frontend/Account/AccountRenderer.php:328
+#: src/Admin/Frontend/Account/AccountRenderer.php:321
 #: src/Admin/Messages/Core/Messages.php:992
 #: src/Admin/Messages/Core/Messages.php:1242
 #: src/Admin/Messages/Frontend/CustomerMessages.php:122
@@ -4274,6 +4410,10 @@ msgstr ""
 msgid "Bluetooth"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:142
+msgid "Bonus"
+msgstr ""
+
 #: templates/archive-vehicle.php:54 templates/account/favorites.php:86
 #: templates/partials/transfer-card.php:170
 #: templates/partials/vehicle-card-base.php:36
@@ -4458,6 +4598,10 @@ msgstr ""
 msgid "Booking Cancelled"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:311
+msgid "Booking cancelled"
+msgstr ""
+
 #: src/Admin/Emails/Templates/EmailPreview.php:51
 #: build/mhm-rentiva/src/Admin/Emails/Templates/EmailPreview.php:50
 msgid "Booking Cancelled (Customer)"
@@ -4470,7 +4614,7 @@ msgstr ""
 msgid "Booking Cancelled (Payment Timeout): #{booking_id}"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1332
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1336
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1332
 msgid "Booking cancelled by customer."
 msgstr ""
@@ -4480,7 +4624,7 @@ msgstr ""
 msgid "Booking cancelled successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:902
+#: src/Admin/Frontend/Account/AccountController.php:905
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:902
 msgid "Booking cancelled successfully. A confirmation email has been sent."
 msgstr ""
@@ -4495,7 +4639,11 @@ msgstr ""
 msgid "Booking cancelled: Vehicle already booked for selected dates."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1322
+#: templates/account/partials/vendor-reliability.php:312
+msgid "Booking completed"
+msgstr ""
+
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1326
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1322
 msgid "Booking completed — rental period ended."
 msgstr ""
@@ -4616,7 +4764,7 @@ msgstr ""
 msgid "Booking Export"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:969
+#: src/Admin/Setup/SetupWizard.php:1102
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:44
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:969
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:40
@@ -4712,7 +4860,7 @@ msgstr ""
 msgid "Booking No:"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1730
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1734
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1730
 msgid "Booking not found in cart"
 msgstr ""
@@ -4725,7 +4873,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:138
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:48
 #: src/Admin/Emails/Templates/EmailPreview.php:151
-#: src/Admin/Frontend/Account/AccountRenderer.php:370
+#: src/Admin/Frontend/Account/AccountRenderer.php:363
 #: build/mhm-rentiva/src/Admin/Booking/Actions/DepositManagementAjax.php:64
 #: build/mhm-rentiva/src/Admin/Booking/Actions/DepositManagementAjax.php:132
 #: build/mhm-rentiva/src/Admin/Booking/Actions/DepositManagementAjax.php:186
@@ -4750,6 +4898,14 @@ msgstr ""
 #: src/Admin/Booking/Helpers/CancellationHandler.php:180
 #: build/mhm-rentiva/src/Admin/Booking/Helpers/CancellationHandler.php:180
 msgid "Booking pickup date is missing."
+msgstr ""
+
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:87
+msgid "Booking product could not be loaded."
+msgstr ""
+
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:82
+msgid "Booking product not found. Please contact support."
 msgstr ""
 
 #: templates/account/booking-detail.php:120
@@ -4822,7 +4978,7 @@ msgstr ""
 msgid "Booking Settings"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:843
+#: src/Admin/Customers/CustomersPage.php:830
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:843
 msgid "Booking Statistics"
 msgstr ""
@@ -5146,6 +5302,10 @@ msgstr ""
 msgid "Cache cleared successfully."
 msgstr ""
 
+#: src/Admin/Testing/DemoSeeder.php:1277
+msgid "Cache cleared."
+msgstr ""
+
 #: src/Admin/Settings/Groups/CommentsSettingsGroup.php:421
 #: build/mhm-rentiva/src/Admin/Settings/Groups/CommentsSettingsGroup.php:421
 msgid "Cache Duration (minutes)"
@@ -5244,6 +5404,13 @@ msgstr ""
 msgid "Calculate Price"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:77
+msgid ""
+"Calculated daily from your booking completions, cancellations, withdrawals, "
+"and pauses over the last 6–12 months. A higher score signals trustworthiness "
+"to customers and to Rentiva."
+msgstr ""
+
 #: src/Admin/Settings/Groups/FrontendSettings.php:370
 #: build/mhm-rentiva/src/Admin/Settings/Groups/FrontendSettings.php:370
 msgid "Calculating"
@@ -5323,14 +5490,14 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1373 src/Admin/Core/AssetManager.php:1413
 #: src/Admin/Core/AssetManager.php:1578
 #: src/Admin/Customers/AddCustomerPage.php:177
-#: src/Admin/Customers/CustomersPage.php:1001
+#: src/Admin/Customers/CustomersPage.php:988
 #: src/Admin/Transfer/TransferAdmin.php:485
 #: src/Admin/Transfer/TransferAdmin.php:711
 #: build/mhm-rentiva/templates/account/account-details.php:189
 #: build/mhm-rentiva/templates/account/messages.php:87
 #: build/mhm-rentiva/templates/account/messages.php:159
 #: build/mhm-rentiva/templates/messages/message-reply-form.html.php:65
-#: src/Admin/Frontend/Account/AccountRenderer.php:327
+#: src/Admin/Frontend/Account/AccountRenderer.php:320
 #: src/Admin/Messages/Core/Messages.php:499
 #: src/Admin/Messages/Core/Messages.php:905
 #: src/Admin/Messages/Core/Messages.php:1324
@@ -5358,12 +5525,12 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: templates/account/booking-detail.php:234
-#: templates/account/booking-detail.php:264
+#: templates/account/booking-detail.php:251
+#: templates/account/booking-detail.php:324
 #: build/mhm-rentiva/templates/account/booking-detail.php:234
 #: build/mhm-rentiva/templates/account/booking-detail.php:264
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:352
-#: src/Admin/Frontend/Account/AccountController.php:361
+#: src/Admin/Frontend/Account/AccountController.php:364
 #: src/Admin/Settings/Groups/FrontendSettings.php:292
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:76
 #: build/mhm-rentiva/src/Admin/Booking/Meta/BookingDepositMetaBox.php:352
@@ -5438,6 +5605,7 @@ msgid "Cancellation policy"
 msgstr ""
 
 #: src/Core/Dashboard/DashboardConfig.php:114
+#: templates/admin/reports/bookings.php:38
 #: build/mhm-rentiva/src/Core/Dashboard/DashboardConfig.php:114
 msgid "Cancellation Rate"
 msgstr ""
@@ -5459,6 +5627,8 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:769 src/Admin/Reports/Charts.php:59
 #: templates/account/partials/vendor-bookings.php:37
 #: templates/account/partials/vendor-bookings.php:66
+#: templates/admin/reports/bookings.php:85
+#: templates/admin/reports/overview.php:138
 #: build/mhm-rentiva/templates/account/booking-detail.php:77
 #: build/mhm-rentiva/templates/account/bookings.php:114
 #: build/mhm-rentiva/templates/account/bookings.php:180
@@ -5473,7 +5643,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:1151
 #: src/Admin/Emails/Notifications/BookingNotifications.php:157
 #: src/Admin/Emails/Templates/EmailPreview.php:294
-#: src/Admin/Frontend/Account/AccountRenderer.php:596
+#: src/Admin/Frontend/Account/AccountRenderer.php:589
 #: src/Admin/Settings/Groups/EmailSettings.php:209
 #: src/Admin/Utilities/Export/ExportFilters.php:48
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:598
@@ -5518,7 +5688,7 @@ msgstr ""
 msgid "Cancelled Bookings %"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:282
+#: src/Admin/Frontend/Account/AccountController.php:285
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:282
 msgid "Cancelling..."
 msgstr ""
@@ -5539,12 +5709,12 @@ msgstr ""
 msgid "Cannot cancel a refunded booking."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:419
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:424
 #: build/mhm-rentiva/src/Admin/Vehicle/VehicleLifecycleManager.php:419
 msgid "Cannot change vehicle status while it has active bookings."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:259
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:264
 #: build/mhm-rentiva/src/Admin/Vehicle/VehicleLifecycleManager.php:259
 #, php-format
 msgid "Cannot expire vehicle from \"%s\" state."
@@ -5561,7 +5731,7 @@ msgstr ""
 msgid "Cannot pause vehicle from \"%s\" state."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:214
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:216
 #: build/mhm-rentiva/src/Admin/Vehicle/VehicleLifecycleManager.php:214
 #, php-format
 msgid "Cannot withdraw vehicle from \"%s\" state."
@@ -5615,7 +5785,7 @@ msgstr ""
 msgid "Cards"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1659
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1663
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1659
 msgid "Cart not available"
 msgstr ""
@@ -5643,6 +5813,10 @@ msgstr ""
 #: build/mhm-rentiva/src/Admin/Vehicle/Taxonomies/VehicleCategory.php:188
 #: build/mhm-rentiva/src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php:74
 msgid "Categories"
+msgstr ""
+
+#: src/Admin/Testing/DemoSeeder.php:880
+msgid "Categories created."
 msgstr ""
 
 #: src/Admin/Vehicle/Taxonomies/VehicleCategory.php:76
@@ -5710,6 +5884,10 @@ msgstr ""
 #: build/mhm-rentiva/src/Admin/Vehicle/Settings/VehicleSettings.php:1465
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:225
 msgid "Central Locking"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:348
+msgid "Change"
 msgstr ""
 
 #: src/Admin/Messages/Admin/MessageListTable.php:281
@@ -5827,7 +6005,7 @@ msgstr ""
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:142
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:235
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:404
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2296
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2300
 #: build/mhm-rentiva/src/Admin/Transfer/TransferAdmin.php:444
 #: build/mhm-rentiva/src/Admin/Transfer/TransferAdmin.php:499
 #: build/mhm-rentiva/src/Admin/Transfer/TransferAdmin.php:724
@@ -5888,10 +6066,18 @@ msgstr ""
 msgid "Clean Orphaned Meta"
 msgstr ""
 
+#: src/Admin/Setup/SetupWizard.php:608
+msgid "Clean Up Demo Data"
+msgstr ""
+
 #. %d: number of deleted log entries
 #: src/Admin/PostTypes/Logs/AdvancedLogger.php:467
 #: build/mhm-rentiva/src/Admin/PostTypes/Logs/AdvancedLogger.php:467
 msgid "Cleaned up %d old log entries."
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:37
+msgid "Cleaning custom tables..."
 msgstr ""
 
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:503
@@ -5901,6 +6087,10 @@ msgstr ""
 #: build/mhm-rentiva/src/Admin/Vehicle/Settings/VehicleSettings.php:1497
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:252
 msgid "Cleaning Kit"
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:19
+msgid "Cleaning old demo data..."
 msgstr ""
 
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:87
@@ -6030,6 +6220,10 @@ msgstr ""
 msgid "Cleared net, last 30 days"
 msgstr ""
 
+#: src/Admin/Testing/DemoAjaxHandler.php:39
+msgid "Clearing cache..."
+msgstr ""
+
 #: templates/admin/shortcode-pages.php:157
 #: build/mhm-rentiva/templates/admin/shortcode-pages.php:157
 msgid ""
@@ -6060,7 +6254,7 @@ msgstr ""
 #: src/Blocks/BlockRegistry.php:252 src/Admin/Core/AssetManager.php:1152
 #: src/Admin/Core/AssetManager.php:1332 src/Admin/Core/AssetManager.php:1588
 #: templates/account/partials/vendor-listings.php:94
-#: templates/account/partials/vendor-listings.php:299
+#: templates/account/partials/vendor-listings.php:322
 #: build/mhm-rentiva/src/Blocks/BlockRegistry.php:252
 #: src/Admin/Booking/ListTable/BookingColumns.php:1298
 #: src/Admin/Core/Assets/DatepickerAssets.php:61
@@ -6087,8 +6281,8 @@ msgstr ""
 msgid "Close conversation after this reply"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:205
-#: src/Admin/Frontend/Account/AccountRenderer.php:318
+#: src/Admin/Frontend/Account/AccountController.php:208
+#: src/Admin/Frontend/Account/AccountRenderer.php:311
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:205
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:318
 msgid "Close Message"
@@ -6103,8 +6297,8 @@ msgstr ""
 msgid "Closed"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:191
-#: src/Admin/Frontend/Account/AccountRenderer.php:304
+#: src/Admin/Frontend/Account/AccountController.php:194
+#: src/Admin/Frontend/Account/AccountRenderer.php:297
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:191
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:304
 msgid "Closing..."
@@ -6340,7 +6534,7 @@ msgstr ""
 msgid "Complaint"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:636
+#: src/Admin/Setup/SetupWizard.php:768
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:636
 msgid "Complete Setup"
 msgstr ""
@@ -6356,6 +6550,8 @@ msgstr ""
 #: templates/account/partials/vendor-bookings.php:36
 #: templates/account/partials/vendor-bookings.php:65
 #: templates/account/partials/vendor-bookings.php:204
+#: templates/admin/reports/bookings.php:85
+#: templates/admin/reports/overview.php:138
 #: build/mhm-rentiva/templates/account/booking-detail.php:76
 #: build/mhm-rentiva/templates/account/bookings.php:113
 #: build/mhm-rentiva/templates/account/bookings.php:179
@@ -6371,7 +6567,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:252
 #: src/Admin/Booking/Meta/BookingMeta.php:1150
 #: src/Admin/Emails/Notifications/BookingNotifications.php:156
-#: src/Admin/Frontend/Account/AccountRenderer.php:595
+#: src/Admin/Frontend/Account/AccountRenderer.php:588
 #: src/Admin/Utilities/Export/Export.php:1226
 #: src/Admin/Utilities/Export/ExportFilters.php:47
 #: src/Admin/Utilities/Export/ExportHistory.php:205
@@ -6398,6 +6594,10 @@ msgstr ""
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/VendorBookings.php:126
 #: build/mhm-rentiva/src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:72
 msgid "Completed"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:143
+msgid "Completed booking"
 msgstr ""
 
 #: templates/admin/dashboard/deposit-stats.php:58
@@ -6531,7 +6731,7 @@ msgid ""
 "additional services."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1263
+#: src/Admin/Setup/SetupWizard.php:1396
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1263
 msgid "Configure SMTP (WP Mail SMTP, Post SMTP, etc.) for reliable delivery."
 msgstr ""
@@ -6557,7 +6757,7 @@ msgid ""
 "100)."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:378
+#: src/Admin/Setup/SetupWizard.php:381
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:378
 msgid ""
 "Configure the sender information and enable automatic notifications for "
@@ -6630,6 +6830,8 @@ msgstr ""
 #: templates/account/partials/vendor-bookings.php:63
 #: templates/account/partials/vendor-payouts.php:38
 #: templates/admin/dashboard/recent-bookings.php:37
+#: templates/admin/reports/bookings.php:85
+#: templates/admin/reports/overview.php:138
 #: build/mhm-rentiva/templates/account/booking-detail.php:74
 #: build/mhm-rentiva/templates/account/bookings.php:111
 #: build/mhm-rentiva/templates/account/bookings.php:177
@@ -6696,7 +6898,7 @@ msgstr ""
 msgid "Connection error"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:842
+#: src/Admin/Licensing/LicenseManager.php:829
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:842
 msgid ""
 "Connection to license server failed. System is running in 7-day grace mode. "
@@ -6708,7 +6910,7 @@ msgstr ""
 msgid "Consent recorded."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:250
+#: src/Admin/Frontend/Account/AccountController.php:253
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:250
 msgid "Consent withdrawn successfully!"
 msgstr ""
@@ -6725,7 +6927,7 @@ msgstr ""
 msgid "Contact"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:994 src/Admin/About/Tabs/SupportTab.php:117
+#: src/Admin/Setup/SetupWizard.php:1127 src/Admin/About/Tabs/SupportTab.php:117
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:89
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:994
 #: src/Admin/Frontend/Widgets/Elementor/ContactFormWidget.php:26
@@ -6883,19 +7085,23 @@ msgstr ""
 msgid "Context:"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:361
+#: src/Admin/Setup/SetupWizard.php:364
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:361
 msgid "Continue to Email"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:179
+#: src/Admin/Setup/SetupWizard.php:182
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:179
 msgid "Continue to License"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:257
+#: src/Admin/Setup/SetupWizard.php:260
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:257
 msgid "Continue to Required Pages"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php:695
+msgid "Continue to Summary"
 msgstr ""
 
 #: src/Admin/CLI/DatabaseCleanupCommand.php:135
@@ -6928,7 +7134,7 @@ msgstr ""
 msgid "Cooldown ends:"
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:349
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:354
 #: build/mhm-rentiva/src/Admin/Vehicle/VehicleLifecycleManager.php:349
 msgid "Cooldown period active. %d day(s) remaining."
 msgstr ""
@@ -6988,13 +7194,13 @@ msgid ""
 msgstr ""
 
 #. %s: connection error message
-#: src/Admin/Licensing/LicenseManager.php:588
+#: src/Admin/Licensing/LicenseManager.php:577
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:588
 #, php-format
 msgid "Could not connect to license server: %s"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:542
+#: src/Admin/Licensing/LicenseManager.php:531
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:542
 msgid "Could not encode license request body."
 msgstr ""
@@ -7009,6 +7215,11 @@ msgstr ""
 #: build/mhm-rentiva/templates/admin/reports/bookings.php:99
 #: build/mhm-rentiva/src/Admin/Core/Utilities/DatabaseCleaner.php:909
 msgid "Count"
+msgstr ""
+
+#: templates/admin/reports/overview.php:265
+#: templates/admin/reports/vehicles.php:75
+msgid "Coupe"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:65
@@ -7071,7 +7282,7 @@ msgstr ""
 msgid "Create meta key names consistently"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:354
+#: src/Admin/Setup/SetupWizard.php:357
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:354
 msgid "Create Missing Pages"
 msgstr ""
@@ -7095,6 +7306,34 @@ msgstr ""
 #: build/mhm-rentiva/src/Admin/Booking/ListTable/BookingColumns.php:1364
 #: build/mhm-rentiva/src/Admin/Vehicle/ListTable/VehicleColumns.php:1054
 msgid "Created"
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:24
+msgid "Creating add-on services..."
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:26
+msgid "Creating bookings..."
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:20
+msgid "Creating categories..."
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:23
+msgid "Creating customers..."
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:27
+msgid "Creating messages..."
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:25
+msgid "Creating transfer points..."
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:22
+msgid "Creating vehicles..."
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:635
@@ -7139,7 +7378,7 @@ msgid "Croatian"
 msgstr ""
 
 #. Dynamic value.
-#: src/Admin/Utilities/Cron/CronMonitor.php:204
+#: src/Admin/Utilities/Cron/CronMonitor.php:209
 #: build/mhm-rentiva/src/Admin/Utilities/Cron/CronMonitor.php:204
 #, php-format
 msgid ""
@@ -7148,7 +7387,7 @@ msgid ""
 msgstr ""
 
 #. Dynamic value.
-#: src/Admin/Utilities/Cron/CronMonitor.php:186
+#: src/Admin/Utilities/Cron/CronMonitor.php:191
 #: build/mhm-rentiva/src/Admin/Utilities/Cron/CronMonitor.php:186
 #, php-format
 msgid "Cron hook \"%s\" is not registered. The function may not be active."
@@ -7160,7 +7399,7 @@ msgid "Cron hook is required"
 msgstr ""
 
 #. 1: cron hook name; 2: execution time in milliseconds.
-#: src/Admin/Utilities/Cron/CronMonitor.php:219
+#: src/Admin/Utilities/Cron/CronMonitor.php:224
 #: build/mhm-rentiva/src/Admin/Utilities/Cron/CronMonitor.php:219
 #, php-format
 msgid "Cron job \"%1$s\" executed successfully in %2$s ms"
@@ -7213,7 +7452,7 @@ msgstr ""
 
 #: src/Admin/Reports/BackgroundProcessor.php:467
 #: src/Admin/Reports/BackgroundProcessor.php:481
-#: src/Admin/Setup/SetupWizard.php:481
+#: src/Admin/Setup/SetupWizard.php:484
 #: src/Admin/Settings/Groups/GeneralSettings.php:81
 #: build/mhm-rentiva/src/Admin/Reports/BackgroundProcessor.php:467
 #: build/mhm-rentiva/src/Admin/Reports/BackgroundProcessor.php:481
@@ -7222,7 +7461,7 @@ msgstr ""
 msgid "Currency"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:509
+#: src/Admin/Setup/SetupWizard.php:512
 #: src/Admin/Settings/Groups/GeneralSettings.php:90
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:509
 #: build/mhm-rentiva/src/Admin/Settings/Groups/GeneralSettings.php:90
@@ -7281,7 +7520,7 @@ msgstr ""
 msgid "Current Plan"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:154
+#: src/Admin/Setup/SetupWizard.php:157
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:154
 msgid "Current Value"
 msgstr ""
@@ -7435,6 +7674,10 @@ msgstr ""
 msgid "Custom or unknown tab detected. Attempting legacy hook dispatch."
 msgstr ""
 
+#: src/Admin/Testing/DemoSeeder.php:1235
+msgid "Custom plugin tables cleaned."
+msgstr ""
+
 #: src/Admin/About/Tabs/DeveloperTab.php:117
 #: build/mhm-rentiva/src/Admin/About/Tabs/DeveloperTab.php:117
 msgid "Custom plugins, theme development, performance optimization"
@@ -7465,7 +7708,7 @@ msgstr ""
 msgid "Custom Tables:"
 msgstr ""
 
-#: src/Plugin.php:1123 templates/messages/message-thread-view.html.php:56
+#: src/Plugin.php:1131 templates/messages/message-thread-view.html.php:56
 #: build/mhm-rentiva/src/Plugin.php:1118
 #: templates/admin/dashboard/pending-payments.php:27
 #: templates/admin/dashboard/upcoming-operations.php:32
@@ -7474,8 +7717,8 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1310
 #: src/Admin/Booking/ListTable/BookingColumns.php:1486
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:277
-#: src/Admin/Frontend/Account/AccountController.php:200
-#: src/Admin/Frontend/Account/AccountRenderer.php:313
+#: src/Admin/Frontend/Account/AccountController.php:203
+#: src/Admin/Frontend/Account/AccountRenderer.php:306
 #: src/Admin/Messages/Admin/MessageListTable.php:231
 #: src/Admin/Messages/Core/Messages.php:342
 #: src/Admin/Messages/Core/Messages.php:343
@@ -7559,7 +7802,7 @@ msgid "Customer Contact"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1326
-#: src/Admin/Customers/CustomersPage.php:800
+#: src/Admin/Customers/CustomersPage.php:787
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:1326
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:800
 msgid "Customer Details"
@@ -7592,7 +7835,7 @@ msgstr ""
 msgid "Customer full name"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:738
+#: src/Admin/Customers/CustomersPage.php:725
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:738
 msgid "Customer ID required."
 msgstr ""
@@ -7602,7 +7845,7 @@ msgstr ""
 msgid "Customer Information"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:952
+#: src/Admin/Customers/CustomersPage.php:939
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:952
 msgid "Customer information updated successfully."
 msgstr ""
@@ -7625,8 +7868,8 @@ msgid ""
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:153
-#: src/Admin/Customers/CustomersPage.php:807
-#: src/Admin/Customers/CustomersPage.php:977
+#: src/Admin/Customers/CustomersPage.php:794
+#: src/Admin/Customers/CustomersPage.php:964
 #: build/mhm-rentiva/src/Admin/Customers/AddCustomerPage.php:153
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:807
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:977
@@ -7635,16 +7878,16 @@ msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:78
 #: src/Admin/Customers/AddCustomerPage.php:224
-#: src/Admin/Customers/CustomersPage.php:933
+#: src/Admin/Customers/CustomersPage.php:920
 #: build/mhm-rentiva/src/Admin/Customers/AddCustomerPage.php:78
 #: build/mhm-rentiva/src/Admin/Customers/AddCustomerPage.php:224
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:933
 msgid "Customer name and email fields are required."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:744
-#: src/Admin/Customers/CustomersPage.php:788
-#: src/Admin/Customers/CustomersPage.php:922
+#: src/Admin/Customers/CustomersPage.php:731
+#: src/Admin/Customers/CustomersPage.php:775
+#: src/Admin/Customers/CustomersPage.php:909
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:682
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:744
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:788
@@ -7675,7 +7918,7 @@ msgstr ""
 msgid "Customer Refund Email"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:192
+#: src/Admin/Customers/CustomersPage.php:177
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:192
 msgid "Customer Registrations"
 msgstr ""
@@ -7711,6 +7954,10 @@ msgstr ""
 #: templates/admin/reports/customers.php:26
 #: build/mhm-rentiva/templates/admin/reports/customers.php:26
 msgid "Customer Summary"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:275
+msgid "Customer Trust"
 msgstr ""
 
 #: src/Admin/Utilities/Database/DatabaseInitialization.php:615
@@ -7752,9 +7999,15 @@ msgstr ""
 msgid "Customers"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:793
+#: src/Admin/Customers/CustomersPage.php:780
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:793
 msgid "Customers List"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:276
+msgid ""
+"Customers rely on vehicles being available on the dates they book. Sudden "
+"withdrawals or cancellations erode trust in the entire marketplace."
 msgstr ""
 
 #: src/Admin/Emails/Core/EmailTemplates.php:212
@@ -7786,6 +8039,11 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:725
 #: build/mhm-rentiva/src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:725
 msgid "Daily"
+msgstr ""
+
+#: templates/admin/reports/overview.php:90
+#: templates/admin/reports/revenue.php:36
+msgid "Daily Average"
 msgstr ""
 
 #: src/Admin/Reports/Charts.php:60
@@ -7839,6 +8097,10 @@ msgstr ""
 msgid "Daily Rate"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:313
+msgid "Daily recalculation"
+msgstr ""
+
 #: src/Admin/Utilities/Database/DatabaseInitialization.php:130
 #: build/mhm-rentiva/src/Admin/Utilities/Database/DatabaseInitialization.php:130
 msgid "Daily rental price"
@@ -7879,7 +8141,7 @@ msgstr ""
 
 #: templates/account/booking-detail.php:100
 #: build/mhm-rentiva/templates/account/booking-detail.php:100
-#: src/Admin/Frontend/Account/AccountRenderer.php:431
+#: src/Admin/Frontend/Account/AccountRenderer.php:424
 #: src/Admin/Utilities/Menu/Menu.php:40 src/Admin/Utilities/Menu/Menu.php:41
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:431
 #: build/mhm-rentiva/src/Admin/Utilities/Menu/Menu.php:40
@@ -7926,7 +8188,7 @@ msgstr ""
 msgid "Data Export"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:246
+#: src/Admin/Frontend/Account/AccountController.php:249
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:246
 msgid "Data exported successfully!"
 msgstr ""
@@ -7998,7 +8260,7 @@ msgstr ""
 msgid "Database Operations"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1211
+#: src/Admin/Setup/SetupWizard.php:1344
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1211
 msgid "Database Version"
 msgstr ""
@@ -8010,6 +8272,7 @@ msgstr ""
 #: src/Admin/Reports/BackgroundProcessor.php:461
 #: src/Admin/Reports/BackgroundProcessor.php:475
 #: templates/account/partials/vendor-payouts.php:202
+#: templates/account/partials/vendor-reliability.php:345
 #: templates/admin/reports/revenue.php:105
 #: build/mhm-rentiva/templates/account/vendor-ledger.php:63
 #: build/mhm-rentiva/templates/shortcodes/transfer-search.php:80
@@ -8268,6 +8531,10 @@ msgstr ""
 msgid "Decline"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:234
+msgid "Deducted from your ledger balance at time of withdrawal."
+msgstr ""
+
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php:185
 #: build/mhm-rentiva/src/Admin/Settings/Groups/VehicleManagementSettings.php:185
 msgid "Default (None)"
@@ -8313,7 +8580,7 @@ msgstr ""
 msgid "Default Payment Type"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:541
+#: src/Admin/Setup/SetupWizard.php:544
 #: src/Admin/Settings/Groups/BookingSettings.php:78
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:541
 #: build/mhm-rentiva/src/Admin/Settings/Groups/BookingSettings.php:78
@@ -8340,7 +8607,7 @@ msgstr ""
 msgid "Default sort order for vehicle listings"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1260
+#: src/Admin/Setup/SetupWizard.php:1393
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1260
 msgid "Default wp_mail()"
 msgstr ""
@@ -8459,7 +8726,7 @@ msgstr ""
 msgid "Deleted successfully!"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:254
+#: src/Admin/Frontend/Account/AccountController.php:257
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:254
 msgid "Deleting..."
 msgstr ""
@@ -8467,6 +8734,35 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:735
 #: build/mhm-rentiva/src/Admin/Emails/Core/EmailTemplates.php:674
 msgid "Delivery rate"
+msgstr ""
+
+#: src/Admin/Testing/DemoNoticeManager.php:105
+msgid "DEMO ACTIVE"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php:578 src/Admin/Setup/SetupWizard.php:1028
+msgid "Demo Data"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php:673
+msgid ""
+"Demo data loaded successfully! Refresh the page to see the cleanup button."
+msgstr ""
+
+#: src/Admin/Testing/DemoSeeder.php:1021
+msgid "Demo data loaded successfully."
+msgstr ""
+
+#: src/Admin/Testing/DemoSeeder.php:1292
+msgid "Demo data removed successfully."
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php:685
+msgid "Demo data removed. Refresh the page to continue."
+msgstr ""
+
+#: src/Admin/Testing/DemoSeeder.php:992
+msgid "Demo messages created."
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:646
@@ -8555,7 +8851,7 @@ msgstr ""
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:482
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:541
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:932
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1509
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1513
 #: src/Admin/Transfer/Integration/TransferCartIntegration.php:411
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:251
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:482
@@ -8746,7 +9042,7 @@ msgstr ""
 msgid "Developer Mode Active"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:283
+#: src/Admin/Setup/SetupWizard.php:286
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:283
 msgid ""
 "Developer mode detected: this local/staging domain can test the plugin "
@@ -8754,7 +9050,7 @@ msgid ""
 "enabled."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:289
+#: src/Admin/Setup/SetupWizard.php:292
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:289
 msgid ""
 "Developer mode has been disabled for this installation. Activate a valid "
@@ -8822,7 +9118,7 @@ msgstr ""
 msgid "Disable selected add-ons?"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1251
+#: src/Admin/Setup/SetupWizard.php:1384
 #: src/Admin/Settings/Core/SettingsHelper.php:339
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1251
 #: build/mhm-rentiva/src/Admin/Settings/Core/SettingsHelper.php:339
@@ -8844,7 +9140,7 @@ msgstr ""
 msgid "Discount Percentage"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:876
+#: src/Admin/Setup/SetupWizard.php:1008
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:876
 msgid "Dismiss"
 msgstr ""
@@ -8973,7 +9269,7 @@ msgstr ""
 msgid "Distance/Time"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2304
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2308
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2304
 msgid "District / Neighborhood"
 msgstr ""
@@ -9303,6 +9599,11 @@ msgstr ""
 msgid "e.g., Otokira Rent a Car"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:248
+msgid ""
+"Each subsequent withdrawal within the 12-month window carries this rate."
+msgstr ""
+
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:76
 #: build/mhm-rentiva/src/Admin/Vehicle/Settings/VehiclePricingSettings.php:76
 msgid "Early Booking"
@@ -9317,10 +9618,10 @@ msgstr ""
 #: templates/shortcodes/vehicle-rating-form.php:264
 #: src/Admin/Addons/AddonListTable.php:224 src/Admin/Core/AssetManager.php:1333
 #: src/Admin/Core/AssetManager.php:1582
-#: src/Admin/Customers/CustomersPage.php:874
-#: src/Admin/Setup/SetupWizard.php:339 src/Admin/Transfer/TransferAdmin.php:526
+#: src/Admin/Customers/CustomersPage.php:861
+#: src/Admin/Setup/SetupWizard.php:342 src/Admin/Transfer/TransferAdmin.php:526
 #: src/Admin/Transfer/TransferAdmin.php:773
-#: templates/account/partials/vendor-listings.php:259
+#: templates/account/partials/vendor-listings.php:282
 #: build/mhm-rentiva/templates/admin/shortcode-pages.php:81
 #: build/mhm-rentiva/templates/shortcodes/vehicle-rating-form.php:264
 #: src/Admin/Core/Utilities/AbstractListTable.php:390
@@ -9371,7 +9672,7 @@ msgstr ""
 msgid "Edit Category"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:968
+#: src/Admin/Customers/CustomersPage.php:955
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:968
 msgid "Edit Customer"
 msgstr ""
@@ -9438,9 +9739,13 @@ msgstr ""
 msgid "Edit Time Limit (hours)"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:298
+#: templates/account/partials/vendor-listings.php:321
 #: build/mhm-rentiva/templates/account/partials/vendor-listings.php:219
 msgid "Edit Vehicle"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:136
+msgid "Effect"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:484
@@ -9485,8 +9790,8 @@ msgstr ""
 #: templates/shortcodes/contact-form.php:62
 #: src/Admin/Core/AssetManager.php:1328
 #: src/Admin/Customers/AddCustomerPage.php:158
-#: src/Admin/Customers/CustomersPage.php:812
-#: src/Admin/Customers/CustomersPage.php:982
+#: src/Admin/Customers/CustomersPage.php:799
+#: src/Admin/Customers/CustomersPage.php:969
 #: src/Admin/Reports/BackgroundProcessor.php:469
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:141
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:233
@@ -9569,7 +9874,7 @@ msgstr ""
 msgid "Email count"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1259
+#: src/Admin/Setup/SetupWizard.php:1392
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1259
 msgid "Email Delivery"
 msgstr ""
@@ -9621,7 +9926,7 @@ msgstr ""
 msgid "Email Preview"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:427
+#: src/Admin/Setup/SetupWizard.php:430
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:427
 msgid "Email sending enabled"
 msgstr ""
@@ -9665,7 +9970,7 @@ msgstr ""
 msgid "Email sent when booking status changes."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:894
+#: src/Admin/Setup/SetupWizard.php:1026
 #: src/Admin/Emails/Core/EmailTemplates.php:87
 #: src/Admin/Emails/Core/EmailTemplates.php:218
 #: src/Admin/Messages/Settings/MessagesSettings.php:53
@@ -9879,7 +10184,7 @@ msgstr ""
 msgid "Enable spam protection for comments."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:416
+#: src/Admin/Setup/SetupWizard.php:419
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:416
 msgid "Enable test mode (emails will be sent only to the test address)"
 msgstr ""
@@ -9904,12 +10209,12 @@ msgstr ""
 msgid "Enable to allow customers to book for the same day."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1254
+#: src/Admin/Setup/SetupWizard.php:1387
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1254
 msgid "Enable WP-Cron or set a real cron job for reminders."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1242
+#: src/Admin/Setup/SetupWizard.php:1375
 #: src/Admin/Emails/Templates/BookingNotifications.php:48
 #: src/Admin/Emails/Templates/BookingNotifications.php:77
 #: src/Admin/Emails/Templates/BookingNotifications.php:106
@@ -10176,7 +10481,7 @@ msgstr ""
 
 #: src/Admin/About/SystemInfo.php:225 src/Admin/Core/AssetManager.php:1008
 #: src/Admin/Core/AssetManager.php:1572
-#: src/Admin/Frontend/Account/AccountController.php:257
+#: src/Admin/Frontend/Account/AccountController.php:260
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:307
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:261
 #: src/Admin/Settings/Groups/FrontendSettings.php:314
@@ -10206,7 +10511,7 @@ msgid "Error calculating cancellation deadline."
 msgstr ""
 
 #. %s placeholder.
-#: src/Admin/Utilities/Cron/CronMonitor.php:226
+#: src/Admin/Utilities/Cron/CronMonitor.php:231
 #: build/mhm-rentiva/src/Admin/Utilities/Cron/CronMonitor.php:226
 #, php-format
 msgid "Error executing cron job: %s"
@@ -10410,6 +10715,10 @@ msgstr ""
 msgid "Estonian"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:346
+msgid "Event"
+msgstr ""
+
 #: src/Admin/PostTypes/Maintenance/AutoCancel.php:68
 #: src/Admin/PostTypes/Maintenance/AutoComplete.php:33
 #: build/mhm-rentiva/src/Admin/PostTypes/Maintenance/AutoCancel.php:68
@@ -10448,7 +10757,8 @@ msgid "Excel/CSV export is available in Pro version."
 msgstr ""
 
 #: src/Admin/Testing/TestRunner.php:165
-#: src/Admin/Vehicle/ReliabilityScoreCalculator.php:154
+#: src/Admin/Vehicle/ReliabilityScoreCalculator.php:204
+#: templates/account/partials/vendor-reliability.php:84
 #: build/mhm-rentiva/src/Admin/Testing/TestRunner.php:165
 #: build/mhm-rentiva/src/Admin/Vehicle/ReliabilityScoreCalculator.php:119
 msgid "Excellent"
@@ -10514,7 +10824,7 @@ msgid "Expired"
 msgstr ""
 
 #. 1: %1$s; 2: %2$s.
-#: src/Admin/Setup/SetupWizard.php:1285
+#: src/Admin/Setup/SetupWizard.php:1418
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1285
 #, php-format
 msgid "Expired %1$s (%2$s ago)"
@@ -10533,13 +10843,13 @@ msgid "Expired Transients: %1$d records (~%2$s)"
 msgstr ""
 
 #. 1: %1$s; 2: %2$s.
-#: src/Admin/Setup/SetupWizard.php:1280
+#: src/Admin/Setup/SetupWizard.php:1413
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1280
 #, php-format
 msgid "Expires %1$s (%2$s remaining)"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:246
+#: src/Admin/Setup/SetupWizard.php:249
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:246
 msgid "Expires At"
 msgstr ""
@@ -10732,7 +11042,7 @@ msgstr ""
 msgid "Export process started"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:766
+#: src/Admin/Customers/CustomersPage.php:753
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:766
 msgid "Export process started."
 msgstr ""
@@ -10768,7 +11078,7 @@ msgid ""
 "and backup purposes."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:245
+#: src/Admin/Frontend/Account/AccountController.php:248
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:245
 msgid "Exporting..."
 msgstr ""
@@ -10823,7 +11133,7 @@ msgstr ""
 msgid "Failed payments cannot be refunded"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2226
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2230
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2226
 msgid "Failed to add booking to cart."
 msgstr ""
@@ -10848,8 +11158,8 @@ msgstr ""
 msgid "Failed to clear data"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:193
-#: src/Admin/Frontend/Account/AccountRenderer.php:306
+#: src/Admin/Frontend/Account/AccountController.php:196
+#: src/Admin/Frontend/Account/AccountRenderer.php:299
 #: src/Admin/Messages/REST/Customer/CloseMessage.php:73
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:193
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:306
@@ -10871,6 +11181,10 @@ msgstr ""
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:449
 #: build/mhm-rentiva/src/Admin/Utilities/Database/DatabaseCleanupPage.php:449
 msgid "Failed to create backup"
+msgstr ""
+
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:107
+msgid "Failed to create payment order. Please try again."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:777
@@ -10928,15 +11242,15 @@ msgstr ""
 msgid "Failed to initialize filesystem."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:196
-#: src/Admin/Frontend/Account/AccountRenderer.php:309
+#: src/Admin/Frontend/Account/AccountController.php:199
+#: src/Admin/Frontend/Account/AccountRenderer.php:302
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:196
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:309
 msgid "Failed to load messages."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:203
-#: src/Admin/Frontend/Account/AccountRenderer.php:316
+#: src/Admin/Frontend/Account/AccountController.php:206
+#: src/Admin/Frontend/Account/AccountRenderer.php:309
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:203
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:316
 msgid "Failed to load thread."
@@ -10952,7 +11266,7 @@ msgstr ""
 msgid "Failed to read backup file"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:703
+#: src/Admin/Frontend/Account/AccountController.php:706
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:703
 msgid "Failed to remove receipt file."
 msgstr ""
@@ -11003,7 +11317,7 @@ msgstr ""
 msgid "Failed to send email. Please check your WordPress email configuration."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:323
+#: src/Admin/Frontend/Account/AccountRenderer.php:316
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:323
 msgid "Failed to send message."
 msgstr ""
@@ -11013,8 +11327,8 @@ msgstr ""
 msgid "Failed to send notification"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:214
-#: src/Admin/Frontend/Account/AccountRenderer.php:321
+#: src/Admin/Frontend/Account/AccountController.php:217
+#: src/Admin/Frontend/Account/AccountRenderer.php:314
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:214
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:321
 msgid "Failed to send reply."
@@ -11060,14 +11374,19 @@ msgstr ""
 msgid "Failed:"
 msgstr ""
 
-#: src/Admin/Vehicle/ReliabilityScoreCalculator.php:160
+#: src/Admin/Vehicle/ReliabilityScoreCalculator.php:210
+#: templates/account/partials/vendor-reliability.php:86
 #: build/mhm-rentiva/src/Admin/Vehicle/ReliabilityScoreCalculator.php:125
 msgid "Fair"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:286
+msgid "Fair Competition"
+msgstr ""
+
 #: templates/account/dashboard.php:78
 #: build/mhm-rentiva/templates/account/dashboard.php:78
-#: src/Admin/Frontend/Account/AccountRenderer.php:441
+#: src/Admin/Frontend/Account/AccountRenderer.php:434
 #: src/Admin/Frontend/Account/EndpointHelperTrait.php:39
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:441
 #: build/mhm-rentiva/src/Admin/Frontend/Account/EndpointHelperTrait.php:39
@@ -11315,9 +11634,14 @@ msgstr ""
 msgid "Filters reset successfully"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:573
+#: src/Admin/Setup/SetupWizard.php:705
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:573
 msgid "Final Step: Summary & Tests"
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:28
+#: src/Admin/Testing/DemoAjaxHandler.php:40
+msgid "Finalizing..."
 msgstr ""
 
 #: templates/account/partials/vendor-settings.php:143
@@ -11354,7 +11678,7 @@ msgstr ""
 msgid "Find Your Perfect Rental"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:475
+#: src/Admin/Setup/SetupWizard.php:478
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:475
 msgid ""
 "Fine tune the visible defaults that appear on booking forms and vehicle "
@@ -11384,7 +11708,7 @@ msgstr ""
 msgid "First Aid Kit"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:863
+#: src/Admin/Customers/CustomersPage.php:850
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:863
 msgid "First Booking"
 msgstr ""
@@ -11467,7 +11791,7 @@ msgstr ""
 msgid "Footer Text"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:386
+#: src/Admin/Setup/SetupWizard.php:389
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:386
 msgid ""
 "For uninterrupted communication and delivery of booking notifications, "
@@ -11542,6 +11866,10 @@ msgstr ""
 msgid "Fr"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:219
+msgid "Free"
+msgstr ""
+
 #: templates/shortcodes/vehicle-details.php:328
 #: build/mhm-rentiva/templates/shortcodes/vehicle-details.php:328
 msgid "Free cancellation according to conditions."
@@ -11568,7 +11896,9 @@ msgid "French (Canada)"
 msgstr ""
 
 #: templates/shortcodes/availability-calendar.php:280
-#: src/Admin/Customers/CustomersPage.php:200
+#: src/Admin/Customers/CustomersPage.php:185
+#: templates/admin/reports/overview.php:81
+#: templates/admin/reports/revenue.php:92
 #: build/mhm-rentiva/templates/shortcodes/availability-calendar.php:280
 #: src/Admin/Booking/ListTable/BookingColumns.php:1105
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:279
@@ -11606,7 +11936,7 @@ msgstr ""
 msgid "Frontend"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:895
+#: src/Admin/Setup/SetupWizard.php:1027
 #: src/Admin/Settings/View/TabRendererRegistry.php:208
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:895
 #: build/mhm-rentiva/src/Admin/Settings/View/TabRendererRegistry.php:192
@@ -11696,7 +12026,7 @@ msgstr ""
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:482
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:541
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:933
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1534
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1538
 #: src/Admin/Transfer/Integration/TransferCartIntegration.php:229
 #: src/Admin/Transfer/Integration/TransferCartIntegration.php:412
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:211
@@ -11942,7 +12272,7 @@ msgstr ""
 msgid "Global Request Limit"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:876
+#: src/Admin/Customers/CustomersPage.php:863
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:876
 msgid "Go Back"
 msgstr ""
@@ -11950,7 +12280,7 @@ msgstr ""
 #: templates/emails/vehicle-paused.html.php:22
 #: templates/emails/vehicle-relisted.html.php:19
 #: templates/emails/vehicle-withdrawn.html.php:33
-#: src/Admin/Setup/SetupWizard.php:635
+#: src/Admin/Setup/SetupWizard.php:767
 #: build/mhm-rentiva/templates/emails/vehicle-paused.html.php:22
 #: build/mhm-rentiva/templates/emails/vehicle-relisted.html.php:19
 #: build/mhm-rentiva/templates/emails/vehicle-withdrawn.html.php:33
@@ -11976,7 +12306,8 @@ msgid "Go to Reports"
 msgstr ""
 
 #: src/Admin/Testing/TestRunner.php:166
-#: src/Admin/Vehicle/ReliabilityScoreCalculator.php:157
+#: src/Admin/Vehicle/ReliabilityScoreCalculator.php:207
+#: templates/account/partials/vendor-reliability.php:85
 #: build/mhm-rentiva/src/Admin/Testing/TestRunner.php:166
 #: build/mhm-rentiva/src/Admin/Vehicle/ReliabilityScoreCalculator.php:122
 msgid "Good"
@@ -12075,6 +12406,11 @@ msgstr ""
 #: src/Layout/Versioning/LayoutRollbackService.php:82
 #: build/mhm-rentiva/src/Layout/Versioning/LayoutRollbackService.php:82
 msgid "Hash mismatch: Previous manifest data corruption detected."
+msgstr ""
+
+#: templates/admin/reports/overview.php:265
+#: templates/admin/reports/vehicles.php:75
+msgid "Hatchback"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php:264
@@ -12512,7 +12848,11 @@ msgstr ""
 msgid "How many days to keep logs before deleting them."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1241
+#: templates/account/partials/vendor-reliability.php:124
+msgid "How Your Score Is Calculated"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php:1374
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1241
 msgid "HTTPS / SSL"
 msgstr ""
@@ -12883,7 +13223,7 @@ msgstr ""
 msgid "Incorrect attempts allowed before lockout."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1236
+#: src/Admin/Setup/SetupWizard.php:1369
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1236
 msgid "Increase max_execution_time to 60 seconds for large imports."
 msgstr ""
@@ -12962,7 +13302,7 @@ msgstr ""
 msgid "Inspecting Data..."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1245
+#: src/Admin/Setup/SetupWizard.php:1378
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1245
 msgid "Install an SSL certificate to secure customer data."
 msgstr ""
@@ -12977,7 +13317,7 @@ msgstr ""
 msgid "Installation Date:"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1191
+#: src/Admin/Setup/SetupWizard.php:1324
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1191
 msgid "Installed"
 msgstr ""
@@ -13108,7 +13448,7 @@ msgstr ""
 msgid "Invalid booking data."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1922
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1926
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1922
 msgid "Invalid booking dates. Please try again."
 msgstr ""
@@ -13133,11 +13473,11 @@ msgstr ""
 #: src/Admin/Booking/Helpers/CancellationHandler.php:53
 #: src/Admin/Booking/Meta/BookingMeta.php:717
 #: src/Admin/Booking/Meta/BookingMeta.php:1258
-#: src/Admin/Frontend/Account/AccountController.php:593
-#: src/Admin/Frontend/Account/AccountController.php:677
-#: src/Admin/Frontend/Account/AccountController.php:875
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2190
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2249
+#: src/Admin/Frontend/Account/AccountController.php:596
+#: src/Admin/Frontend/Account/AccountController.php:680
+#: src/Admin/Frontend/Account/AccountController.php:878
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2194
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2253
 #: build/mhm-rentiva/src/Admin/Booking/Actions/DepositManagementAjax.php:57
 #: build/mhm-rentiva/src/Admin/Booking/Actions/DepositManagementAjax.php:125
 #: build/mhm-rentiva/src/Admin/Booking/Actions/DepositManagementAjax.php:179
@@ -13164,6 +13504,10 @@ msgstr ""
 msgid "Invalid booking type"
 msgstr ""
 
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:39
+msgid "Invalid booking."
+msgstr ""
+
 #: src/Admin/Reports/BackgroundProcessor.php:661
 #: build/mhm-rentiva/src/Admin/Reports/BackgroundProcessor.php:661
 msgid "Invalid bulk operation parameters"
@@ -13183,13 +13527,13 @@ msgstr ""
 msgid "Invalid choice. Allowed: %s"
 msgstr ""
 
-#: src/Admin/Utilities/Cron/CronMonitor.php:175
+#: src/Admin/Utilities/Cron/CronMonitor.php:180
 #: build/mhm-rentiva/src/Admin/Utilities/Cron/CronMonitor.php:175
 msgid "Invalid cron hook"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:780
-#: src/Admin/Customers/CustomersPage.php:914
+#: src/Admin/Customers/CustomersPage.php:767
+#: src/Admin/Customers/CustomersPage.php:901
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:780
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:914
 msgid "Invalid customer ID."
@@ -13282,7 +13626,7 @@ msgstr ""
 msgid "Invalid file type."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:621
+#: src/Admin/Frontend/Account/AccountController.php:624
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:621
 msgid "Invalid file type. Allowed: JPG, PNG, PDF."
 msgstr ""
@@ -13318,7 +13662,7 @@ msgstr ""
 msgid "Invalid license key."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:215
+#: src/Admin/Setup/SetupWizard.php:218
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:215
 msgid "Invalid license key. Please check your key and try again."
 msgstr ""
@@ -13380,14 +13724,14 @@ msgstr ""
 msgid "Invalid page ID."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:710
+#: src/Admin/Customers/CustomersPage.php:697
 #: src/Admin/Messages/Core/Messages.php:656
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:710
 #: build/mhm-rentiva/src/Admin/Messages/Core/Messages.php:656
 msgid "Invalid parameters."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2257
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2261
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2257
 msgid "Invalid payment amount."
 msgstr ""
@@ -13476,17 +13820,17 @@ msgstr ""
 msgid "Invalid report type: %s"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:665
-#: src/Admin/Customers/CustomersPage.php:682
-#: src/Admin/Customers/CustomersPage.php:699
-#: src/Admin/Customers/CustomersPage.php:728
-#: src/Admin/Customers/CustomersPage.php:756 src/Admin/Reports/Reports.php:214
+#: src/Admin/Customers/CustomersPage.php:652
+#: src/Admin/Customers/CustomersPage.php:669
+#: src/Admin/Customers/CustomersPage.php:686
+#: src/Admin/Customers/CustomersPage.php:715
+#: src/Admin/Customers/CustomersPage.php:743 src/Admin/Reports/Reports.php:214
 #: src/Admin/Reports/Reports.php:269 src/Admin/Settings/APIKeysPage.php:79
 #: src/Admin/Settings/Settings.php:155 src/Admin/Messages/Core/Messages.php:509
 #: src/Admin/Messages/Core/Messages.php:577
 #: src/Admin/Messages/Core/Messages.php:644
 #: src/Admin/Messages/Core/Messages.php:679
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1650
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1654
 #: src/Admin/REST/Settings/RESTSettings.php:333
 #: src/Admin/REST/Settings/RESTSettings.php:347
 #: src/Admin/REST/Settings/RESTSettings.php:358
@@ -13578,6 +13922,11 @@ msgstr ""
 #: build/mhm-rentiva/src/Admin/Booking/Exceptions/BookingException.php:76
 #, php-format
 msgid "Invalid status transition from \"%1$s\" to \"%2$s\"."
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:56
+#: src/Admin/Testing/DemoAjaxHandler.php:80
+msgid "Invalid step."
 msgstr ""
 
 #: src/Admin/About/About.php:162
@@ -13832,7 +14181,13 @@ msgstr ""
 msgid "Just now"
 msgstr ""
 
-#: templates/account/booking-detail.php:282
+#. 1: vehicle name, 2: booking ID
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:113
+#, php-format
+msgid "Kalan Odeme - %1$s #%2$d"
+msgstr ""
+
+#: templates/account/booking-detail.php:342
 #: build/mhm-rentiva/templates/account/booking-detail.php:282
 msgid "Keep Booking"
 msgstr ""
@@ -13897,9 +14252,19 @@ msgstr ""
 msgid "Large output size (%.2f KB). Consider lazy loading."
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:175
+msgid "Last 12 months"
+msgstr ""
+
 #: src/Admin/Utilities/Export/ExportFilters.php:31
 #: build/mhm-rentiva/src/Admin/Utilities/Export/ExportFilters.php:31
 msgid "Last 30 days"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:145
+#: templates/account/partials/vendor-reliability.php:160
+#: templates/account/partials/vendor-reliability.php:190
+msgid "Last 6 months"
 msgstr ""
 
 #: src/Admin/Utilities/Export/ExportFilters.php:30
@@ -13919,7 +14284,7 @@ msgid "Last 7 Days vs Previous 7 Days"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1331
-#: src/Admin/Customers/CustomersPage.php:858
+#: src/Admin/Customers/CustomersPage.php:845
 #: templates/admin/reports/customers.php:87
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:76
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:270
@@ -14071,7 +14436,7 @@ msgid "Left ($100)"
 msgstr ""
 
 #. %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:460
+#: src/Admin/Setup/SetupWizard.php:463
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:460
 #, php-format
 msgid "Left (%s100)"
@@ -14083,19 +14448,19 @@ msgid "Left Space ($ 100)"
 msgstr ""
 
 #. %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:462
+#: src/Admin/Setup/SetupWizard.php:465
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:462
 #, php-format
 msgid "Left Space (%s 100)"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:892 src/Admin/Utilities/Menu/Menu.php:206
+#: src/Admin/Setup/SetupWizard.php:1024 src/Admin/Utilities/Menu/Menu.php:206
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:892
 #: build/mhm-rentiva/src/Admin/Utilities/Menu/Menu.php:206
 msgid "License"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:229
+#: src/Admin/Setup/SetupWizard.php:232
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:229
 msgid "License activated successfully!"
 msgstr ""
@@ -14105,7 +14470,7 @@ msgstr ""
 msgid "License activated successfully."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:212
+#: src/Admin/Licensing/LicenseManager.php:200
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:212
 msgid "License activated."
 msgstr ""
@@ -14117,17 +14482,17 @@ msgstr ""
 msgid "License Activation"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:253
+#: src/Admin/Licensing/LicenseManager.php:241
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:253
 msgid "License activation failed."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:212
+#: src/Admin/Setup/SetupWizard.php:215
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:212
 msgid "License activation failed. Please check your key and try again."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:221
+#: src/Admin/Setup/SetupWizard.php:224
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:221
 msgid "License activation failed. Please try again."
 msgstr ""
@@ -14144,7 +14509,7 @@ msgstr ""
 msgid "License deactivated successfully."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:215
+#: src/Admin/Licensing/LicenseManager.php:203
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:215
 msgid "License deactivated."
 msgstr ""
@@ -14167,7 +14532,7 @@ msgid ""
 "License is already activated on another site. Maximum 1 activation allowed."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:347
+#: src/Admin/Licensing/LicenseManager.php:336
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:347
 msgid "License is not active on this site."
 msgstr ""
@@ -14177,8 +14542,8 @@ msgstr ""
 msgid "License is not active."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:234 src/Admin/Setup/SetupWizard.php:238
-#: src/Admin/Setup/SetupWizard.php:265
+#: src/Admin/Licensing/LicenseAdmin.php:234 src/Admin/Setup/SetupWizard.php:241
+#: src/Admin/Setup/SetupWizard.php:268
 #: src/Admin/Settings/Groups/LicenseSettings.php:52
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseAdmin.php:234
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:238
@@ -14223,7 +14588,7 @@ msgstr ""
 msgid "License Management"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:300
+#: src/Admin/Setup/SetupWizard.php:303
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:300
 msgid "License page"
 msgstr ""
@@ -14252,7 +14617,7 @@ msgstr ""
 msgid "License plate"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:599
+#: src/Admin/Licensing/LicenseManager.php:588
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:599
 msgid "License server error."
 msgstr ""
@@ -14263,7 +14628,7 @@ msgid "License server error. Please try again later."
 msgstr ""
 
 #. 1: HTTP error code; 2: response body snippet.
-#: src/Admin/Licensing/LicenseManager.php:608
+#: src/Admin/Licensing/LicenseManager.php:597
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:608
 #, php-format
 msgid "License server returned error (HTTP %1$d): %2$s"
@@ -14279,7 +14644,7 @@ msgstr ""
 msgid "License Status:"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:218
+#: src/Admin/Licensing/LicenseManager.php:206
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:218
 msgid "License validated."
 msgstr ""
@@ -14315,7 +14680,7 @@ msgstr ""
 msgid "Lifecycle Status"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:862
+#: src/Admin/Licensing/LicenseManager.php:857
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:862
 msgid "Lifetime"
 msgstr ""
@@ -14480,11 +14845,21 @@ msgstr ""
 msgid "Live"
 msgstr ""
 
+#: src/Admin/Setup/SetupWizard.php:604
+msgid "Load Demo Data"
+msgstr ""
+
 #: templates/shortcodes/testimonials.php:229
 #: build/mhm-rentiva/templates/shortcodes/testimonials.php:229
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:154
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Testimonials.php:154
 msgid "Load More Reviews"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php:579
+msgid ""
+"Load sample vehicles, customers, bookings, add-ons, transfer points and "
+"messages so you can explore every feature without entering real data."
 msgstr ""
 
 #: src/Admin/Settings/Groups/FrontendSettings.php:313
@@ -14504,8 +14879,8 @@ msgstr ""
 
 #: templates/account/messages.php:64
 #: build/mhm-rentiva/templates/account/messages.php:64
-#: src/Admin/Frontend/Account/AccountController.php:194
-#: src/Admin/Frontend/Account/AccountRenderer.php:307
+#: src/Admin/Frontend/Account/AccountController.php:197
+#: src/Admin/Frontend/Account/AccountRenderer.php:300
 #: src/Admin/Messages/Frontend/CustomerMessages.php:117
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:194
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:307
@@ -14533,8 +14908,8 @@ msgstr ""
 msgid "Loading template..."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:202
-#: src/Admin/Frontend/Account/AccountRenderer.php:315
+#: src/Admin/Frontend/Account/AccountController.php:205
+#: src/Admin/Frontend/Account/AccountRenderer.php:308
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:202
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:315
 msgid "Loading thread..."
@@ -14544,12 +14919,12 @@ msgstr ""
 #: src/Admin/About/About.php:201 src/Admin/Core/AssetManager.php:570
 #: src/Admin/Core/AssetManager.php:1285 src/Admin/Core/AssetManager.php:1444
 #: src/Admin/Core/AssetManager.php:1571
-#: src/Admin/Customers/CustomersPage.php:405
-#: src/Admin/Customers/CustomersPage.php:494
-#: templates/account/partials/vendor-listings.php:302
+#: src/Admin/Customers/CustomersPage.php:391
+#: src/Admin/Customers/CustomersPage.php:481
+#: templates/account/partials/vendor-listings.php:325
 #: build/mhm-rentiva/templates/shortcodes/availability-calendar.php:421
 #: src/Admin/Frontend/Account/AccountAssets.php:54
-#: src/Admin/Frontend/Account/AccountController.php:346
+#: src/Admin/Frontend/Account/AccountController.php:349
 #: src/Admin/Frontend/Account/AccountRenderer.php:170
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:245
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:415
@@ -14641,7 +15016,7 @@ msgstr ""
 msgid "Log"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:429
+#: src/Admin/Setup/SetupWizard.php:432
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:429
 msgid "Log emails in the email log post type"
 msgstr ""
@@ -14745,7 +15120,7 @@ msgstr ""
 msgid "Login with your registered email and password"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:461
+#: src/Admin/Frontend/Account/AccountRenderer.php:454
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:461
 msgid "Logout"
 msgstr ""
@@ -14953,7 +15328,7 @@ msgstr ""
 msgid "Managed by WooCommerce/Settings"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:485 src/Admin/Setup/SetupWizard.php:517
+#: src/Admin/Setup/SetupWizard.php:488 src/Admin/Setup/SetupWizard.php:520
 #: src/Admin/Settings/Groups/GeneralSettings.php:158
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:485
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:517
@@ -15362,7 +15737,7 @@ msgid ""
 "Maximum price vendors can charge for this route. Leave 0 for no ceiling."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:549
+#: src/Admin/Setup/SetupWizard.php:552
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php:158
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:549
 #: build/mhm-rentiva/src/Admin/Settings/Groups/VehicleManagementSettings.php:158
@@ -15525,8 +15900,8 @@ msgstr ""
 msgid "Message category"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:192
-#: src/Admin/Frontend/Account/AccountRenderer.php:305
+#: src/Admin/Frontend/Account/AccountController.php:195
+#: src/Admin/Frontend/Account/AccountRenderer.php:298
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:192
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:305
 msgid "Message closed successfully."
@@ -15559,7 +15934,7 @@ msgstr ""
 msgid "Message could not be sent"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:210
+#: src/Admin/Frontend/Account/AccountController.php:213
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:210
 msgid "Message could not be sent."
 msgstr ""
@@ -15643,8 +16018,8 @@ msgstr ""
 msgid "Message Reply Notification (Customer)"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:209
-#: src/Admin/Frontend/Account/AccountRenderer.php:322
+#: src/Admin/Frontend/Account/AccountController.php:212
+#: src/Admin/Frontend/Account/AccountRenderer.php:315
 #: src/Admin/Messages/Core/Messages.php:1121
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:209
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:322
@@ -15746,7 +16121,7 @@ msgstr ""
 #: templates/admin/dashboard/quick-actions.php:78
 #: build/mhm-rentiva/templates/account/messages.php:56
 #: build/mhm-rentiva/templates/account/user-dashboard.php:258
-#: src/Admin/Frontend/Account/AccountRenderer.php:451
+#: src/Admin/Frontend/Account/AccountRenderer.php:444
 #: src/Admin/Frontend/Account/EndpointHelperTrait.php:49
 #: src/Admin/PostTypes/Message/Message.php:53
 #: src/Admin/PostTypes/Message/Message.php:55
@@ -16120,7 +16495,7 @@ msgstr ""
 msgid "Minimum Rating"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:545
+#: src/Admin/Setup/SetupWizard.php:548
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php:148
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:545
 #: build/mhm-rentiva/src/Admin/Settings/Groups/VehicleManagementSettings.php:148
@@ -16152,6 +16527,10 @@ msgstr ""
 msgid "Minimum Vehicle Year"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:187
+msgid "Minor"
+msgstr ""
+
 #: src/Admin/Core/AssetManager.php:1224
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:1224
 msgid "minutes ago"
@@ -16162,8 +16541,8 @@ msgstr ""
 msgid "Minutes allowed for payment completion. Set to 0 to disable deadline."
 msgstr ""
 
-#: templates/admin/shortcode-pages.php:74 src/Admin/Setup/SetupWizard.php:327
-#: src/Admin/Setup/SetupWizard.php:1191
+#: templates/admin/shortcode-pages.php:74 src/Admin/Setup/SetupWizard.php:330
+#: src/Admin/Setup/SetupWizard.php:1324
 #: build/mhm-rentiva/templates/admin/shortcode-pages.php:74
 #: build/mhm-rentiva/templates/admin/shortcode-pages.php:74
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:327
@@ -16252,7 +16631,9 @@ msgid "Modify resources"
 msgstr ""
 
 #: templates/shortcodes/availability-calendar.php:276
-#: src/Admin/Customers/CustomersPage.php:196
+#: src/Admin/Customers/CustomersPage.php:181
+#: templates/admin/reports/overview.php:81
+#: templates/admin/reports/revenue.php:92
 #: build/mhm-rentiva/templates/shortcodes/availability-calendar.php:276
 #: src/Admin/Booking/ListTable/BookingColumns.php:1101
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:275
@@ -16292,7 +16673,7 @@ msgstr ""
 msgid "Monthly"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:565
+#: src/Admin/Customers/CustomersPage.php:552
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:565
 msgid "MONTHLY AVERAGE CUSTOMERS"
 msgstr ""
@@ -16329,7 +16710,7 @@ msgstr ""
 msgid "Monthly message limit of %d in Lite version"
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:442
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:447
 #: build/mhm-rentiva/src/Admin/Vehicle/VehicleLifecycleManager.php:442
 msgid "Monthly pause limit reached (%d/%d). Try again next month."
 msgstr ""
@@ -16418,7 +16799,7 @@ msgstr ""
 #: templates/account/booking-detail.php:102
 #: src/Core/Dashboard/DashboardNavigation.php:30
 #: build/mhm-rentiva/templates/account/booking-detail.php:102
-#: src/Admin/Frontend/Account/AccountRenderer.php:436
+#: src/Admin/Frontend/Account/AccountRenderer.php:429
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:28
 #: build/mhm-rentiva/src/Core/Dashboard/DashboardNavigation.php:30
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:25
@@ -16457,7 +16838,7 @@ msgstr ""
 msgid "My Vehicles"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1213
+#: src/Admin/Setup/SetupWizard.php:1346
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1213
 msgid "MySQL 5.7+ / MariaDB 10.3+"
 msgstr ""
@@ -16555,7 +16936,7 @@ msgstr ""
 msgid "Navigation"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:251
+#: src/Admin/Setup/SetupWizard.php:254
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:251
 msgid ""
 "Need to deactivate or change the key? Use the License page from the main "
@@ -16579,9 +16960,11 @@ msgstr ""
 msgid "Never"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:553
-#: src/Admin/Frontend/Account/AccountController.php:199
-#: src/Admin/Frontend/Account/AccountRenderer.php:312
+#: src/Admin/Customers/CustomersPage.php:540
+#: templates/admin/reports/customers.php:71
+#: templates/admin/reports/overview.php:198
+#: src/Admin/Frontend/Account/AccountController.php:202
+#: src/Admin/Frontend/Account/AccountRenderer.php:305
 #: src/Admin/Messages/Admin/MessageListTable.php:327
 #: src/Admin/Messages/Core/Messages.php:345
 #: src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php:85
@@ -16716,6 +17099,13 @@ msgstr ""
 msgid "New Listing"
 msgstr ""
 
+#. %d: number of days until new listing ban is lifted
+#: templates/account/partials/vendor-listings.php:228
+msgid "New listing ban: %d more day"
+msgid_plural "New listing ban: %d more days"
+msgstr[0] ""
+msgstr[1] ""
+
 #: src/Admin/PostTypes/Logs/PostType.php:30
 #: build/mhm-rentiva/src/Admin/PostTypes/Logs/PostType.php:30
 msgid "New Log"
@@ -16723,7 +17113,7 @@ msgstr ""
 
 #: templates/account/messages.php:58
 #: build/mhm-rentiva/templates/account/messages.php:58
-#: src/Admin/Frontend/Account/AccountRenderer.php:329
+#: src/Admin/Frontend/Account/AccountRenderer.php:322
 #: src/Admin/Messages/Core/Messages.php:752
 #: src/Admin/Messages/Frontend/CustomerMessages.php:112
 #: src/Admin/Messages/Frontend/CustomerMessages.php:228
@@ -16824,7 +17214,7 @@ msgstr ""
 msgid "New Status:"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:551
+#: src/Admin/Customers/CustomersPage.php:538
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:551
 msgid "NEW THIS MONTH"
 msgstr ""
@@ -16894,7 +17284,7 @@ msgstr ""
 msgid "Next month"
 msgstr ""
 
-#: templates/account/booking-detail.php:216
+#: templates/account/booking-detail.php:233
 #: build/mhm-rentiva/templates/account/booking-detail.php:216
 msgid "Next Steps"
 msgstr ""
@@ -17151,8 +17541,8 @@ msgstr ""
 msgid "No customer email found."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:409
-#: src/Admin/Customers/CustomersPage.php:498
+#: src/Admin/Customers/CustomersPage.php:395
+#: src/Admin/Customers/CustomersPage.php:485
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:409
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:498
 msgid "No customers found."
@@ -17221,7 +17611,7 @@ msgstr ""
 msgid "No favorite vehicles yet"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:359
+#: src/Admin/Frontend/Account/AccountController.php:362
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:74
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:359
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:74
@@ -17233,9 +17623,13 @@ msgstr ""
 msgid "No featured vehicles found."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:603
+#: src/Admin/Frontend/Account/AccountController.php:606
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:603
 msgid "No file uploaded."
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:220
+msgid "No financial penalty for your first withdrawal in any 12-month window."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:894
@@ -17307,16 +17701,16 @@ msgid "No messages found in Trash"
 msgstr ""
 
 #: templates/admin/dashboard/messages-widget.php:75
-#: src/Admin/Frontend/Account/AccountController.php:195
-#: src/Admin/Frontend/Account/AccountRenderer.php:308
+#: src/Admin/Frontend/Account/AccountController.php:198
+#: src/Admin/Frontend/Account/AccountRenderer.php:301
 #: build/mhm-rentiva/templates/admin/dashboard/messages-widget.php:75
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:195
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:308
 msgid "No messages found yet."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:204
-#: src/Admin/Frontend/Account/AccountRenderer.php:317
+#: src/Admin/Frontend/Account/AccountController.php:207
+#: src/Admin/Frontend/Account/AccountRenderer.php:310
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:204
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:317
 msgid "No messages found."
@@ -17384,11 +17778,11 @@ msgstr ""
 msgid "No pending vendor applications."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:669
-#: src/Admin/Customers/CustomersPage.php:686
-#: src/Admin/Customers/CustomersPage.php:703
-#: src/Admin/Customers/CustomersPage.php:732
-#: src/Admin/Customers/CustomersPage.php:760
+#: src/Admin/Customers/CustomersPage.php:656
+#: src/Admin/Customers/CustomersPage.php:673
+#: src/Admin/Customers/CustomersPage.php:690
+#: src/Admin/Customers/CustomersPage.php:719
+#: src/Admin/Customers/CustomersPage.php:747
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:669
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:686
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:703
@@ -17407,7 +17801,7 @@ msgstr ""
 msgid "No prior period data"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:688
+#: src/Admin/Frontend/Account/AccountController.php:691
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:688
 msgid "No receipt found to remove."
 msgstr ""
@@ -17422,6 +17816,10 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:43
 #: build/mhm-rentiva/src/Admin/Booking/Meta/BookingRefundMetaBox.php:43
 msgid "No refundable payment found for this booking."
+msgstr ""
+
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:67
+msgid "No remaining amount due for this booking."
 msgstr ""
 
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:77
@@ -17454,9 +17852,14 @@ msgstr ""
 msgid "No routes found."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:313
+#: src/Admin/Licensing/LicenseManager.php:302
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:313
 msgid "No saved license key found."
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:338
+msgid ""
+"No score events recorded yet. Events appear here when your score changes."
 msgstr ""
 
 #: src/Admin/Transfer/TransferAdmin.php:522
@@ -17633,7 +18036,7 @@ msgstr ""
 msgid "Not available"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1242
+#: src/Admin/Setup/SetupWizard.php:1375
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1242
 msgid "Not detected"
 msgstr ""
@@ -17661,12 +18064,12 @@ msgstr ""
 msgid "Not logged in."
 msgstr ""
 
-#: src/Admin/Utilities/Cron/CronMonitor.php:83
-#: src/Admin/Utilities/Cron/CronMonitor.php:100
-#: src/Admin/Utilities/Cron/CronMonitor.php:126
-#: src/Admin/Utilities/Cron/CronMonitor.php:129
-#: src/Admin/Utilities/Cron/CronMonitor.php:278
-#: src/Admin/Utilities/Cron/CronMonitor.php:295
+#: src/Admin/Utilities/Cron/CronMonitor.php:87
+#: src/Admin/Utilities/Cron/CronMonitor.php:104
+#: src/Admin/Utilities/Cron/CronMonitor.php:130
+#: src/Admin/Utilities/Cron/CronMonitor.php:133
+#: src/Admin/Utilities/Cron/CronMonitor.php:284
+#: src/Admin/Utilities/Cron/CronMonitor.php:301
 #: build/mhm-rentiva/src/Admin/Utilities/Cron/CronMonitor.php:83
 #: build/mhm-rentiva/src/Admin/Utilities/Cron/CronMonitor.php:100
 #: build/mhm-rentiva/src/Admin/Utilities/Cron/CronMonitor.php:126
@@ -18028,7 +18431,7 @@ msgstr ""
 msgid "Only approved vendors can submit vehicles. Apply as a vendor first."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:291
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:296
 #: build/mhm-rentiva/src/Admin/Vehicle/VehicleLifecycleManager.php:291
 msgid "Only expired listings can be renewed."
 msgstr ""
@@ -18055,28 +18458,28 @@ msgstr ""
 msgid "Only time-locked payouts can be bypassed."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:340
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:345
 #: build/mhm-rentiva/src/Admin/Vehicle/VehicleLifecycleManager.php:340
 msgid "Only withdrawn vehicles can be relisted."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:256
+#: src/Admin/Setup/SetupWizard.php:259
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:256
 msgid "Open License Page"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:616 src/Admin/Setup/SetupWizard.php:873
+#: src/Admin/Setup/SetupWizard.php:748 src/Admin/Setup/SetupWizard.php:1005
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:616
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:873
 msgid "Open Permalink Settings"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:597
+#: src/Admin/Setup/SetupWizard.php:729
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:597
 msgid "Open Settings"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:356
+#: src/Admin/Setup/SetupWizard.php:359
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:356
 msgid "Open Shortcode Pages"
 msgstr ""
@@ -18122,8 +18525,8 @@ msgstr ""
 msgid "Operation successful!"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:407
-#: src/Admin/Customers/CustomersPage.php:496
+#: src/Admin/Customers/CustomersPage.php:393
+#: src/Admin/Customers/CustomersPage.php:483
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:304
 #: src/Admin/Messages/Core/Messages.php:1445
 #: src/Admin/Messages/Core/Messages.php:1534
@@ -18195,7 +18598,7 @@ msgstr ""
 msgid "Options (comma separated: Petrol, Diesel)"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:390
+#: src/Admin/Setup/SetupWizard.php:393
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:390
 msgid "or"
 msgstr ""
@@ -18380,7 +18783,7 @@ msgid "Padding"
 msgstr ""
 
 #: templates/admin/shortcode-pages.php:27 src/Admin/Core/AssetManager.php:1011
-#: src/Admin/Setup/SetupWizard.php:317
+#: src/Admin/Setup/SetupWizard.php:320
 #: build/mhm-rentiva/templates/admin/shortcode-pages.php:27
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:1011
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:317
@@ -18537,7 +18940,7 @@ msgid ""
 "one number, and one special character"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:357
+#: src/Admin/Frontend/Account/AccountController.php:360
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:72
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:357
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:72
@@ -18549,7 +18952,7 @@ msgstr ""
 msgid "Past Reservations"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:268
+#: src/Admin/Setup/SetupWizard.php:271
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:268
 msgid "Paste the key from your purchase receipt or customer dashboard."
 msgstr ""
@@ -18564,11 +18967,11 @@ msgstr ""
 msgid "Paste your Pro license key and click the Activate button."
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:264
+#: templates/account/partials/vendor-listings.php:287
 msgid "Pause"
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:180
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:182
 #: build/mhm-rentiva/src/Admin/Vehicle/VehicleLifecycleManager.php:180
 msgid "Pause duration exceeded. Please withdraw and relist."
 msgstr ""
@@ -18591,14 +18994,20 @@ msgstr ""
 msgid "Pax"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1512
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1516
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1512
 msgid "Pay deposit for booking, pay remaining amount at vehicle delivery"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1537
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1541
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1537
 msgid "Pay full amount now"
+msgstr ""
+
+#: templates/account/booking-detail.php:200
+#: templates/account/booking-detail.php:309
+#: templates/account/booking-detail.php:314
+msgid "Pay Remaining Amount"
 msgstr ""
 
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:270
@@ -18627,7 +19036,7 @@ msgstr ""
 msgid "Payment & Notes"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2201
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2205
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2201
 msgid "Payment already processed by WooCommerce."
 msgstr ""
@@ -18742,7 +19151,7 @@ msgstr ""
 
 #: templates/account/payment-history.php:41
 #: build/mhm-rentiva/templates/account/payment-history.php:41
-#: src/Admin/Frontend/Account/AccountRenderer.php:446
+#: src/Admin/Frontend/Account/AccountRenderer.php:439
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:38
 #: src/Admin/Frontend/Widgets/Elementor/PaymentHistoryWidget.php:25
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:446
@@ -18810,7 +19219,7 @@ msgstr ""
 msgid "Payment Method:"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1497
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1501
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1497
 msgid "Payment Options"
 msgstr ""
@@ -18962,7 +19371,7 @@ msgstr ""
 msgid "Payment type"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1739
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1743
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1739
 msgid "Payment type updated"
 msgstr ""
@@ -19123,6 +19532,11 @@ msgstr ""
 msgid "Peak Memory:"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:157
+#: templates/account/partials/vendor-reliability.php:172
+msgid "Penalty"
+msgstr ""
+
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:183
 msgid ""
 "Penalty rate (% of monthly avg revenue) for the vendor's second withdrawal "
@@ -19150,6 +19564,8 @@ msgstr ""
 #: templates/account/partials/vendor-payouts.php:140
 #: templates/admin/dashboard/messages-widget.php:29
 #: templates/admin/dashboard/recent-bookings.php:45
+#: templates/admin/reports/bookings.php:85
+#: templates/admin/reports/overview.php:138
 #: build/mhm-rentiva/templates/account/booking-detail.php:73
 #: build/mhm-rentiva/templates/account/bookings.php:110
 #: build/mhm-rentiva/templates/account/bookings.php:176
@@ -19168,7 +19584,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:1147
 #: src/Admin/Emails/Core/EmailTemplates.php:612
 #: src/Admin/Emails/Notifications/BookingNotifications.php:153
-#: src/Admin/Frontend/Account/AccountRenderer.php:594
+#: src/Admin/Frontend/Account/AccountRenderer.php:587
 #: src/Admin/Messages/Settings/MessagesSettings.php:222
 #: src/Admin/PostTypes/Message/Message.php:342
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:164
@@ -19418,7 +19834,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:320
 #: src/Admin/Settings/Core/SettingsCore.php:333
 #: src/Admin/Settings/Core/SettingsCore.php:366
-#: src/Admin/Utilities/Cron/CronMonitor.php:157
+#: src/Admin/Utilities/Cron/CronMonitor.php:161
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:33
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:56
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:91
@@ -19477,7 +19893,8 @@ msgstr ""
 msgid "Permission denied by Governance Layer."
 msgstr ""
 
-#: src/Admin/About/About.php:223
+#: src/Admin/About/About.php:223 src/Admin/Testing/DemoAjaxHandler.php:51
+#: src/Admin/Testing/DemoAjaxHandler.php:75
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:609
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:629
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:650
@@ -19560,8 +19977,8 @@ msgstr ""
 #: templates/shortcodes/contact-form.php:74
 #: src/Admin/Core/AssetManager.php:1329
 #: src/Admin/Customers/AddCustomerPage.php:163
-#: src/Admin/Customers/CustomersPage.php:819
-#: src/Admin/Customers/CustomersPage.php:987
+#: src/Admin/Customers/CustomersPage.php:806
+#: src/Admin/Customers/CustomersPage.php:974
 #: src/Admin/Reports/BackgroundProcessor.php:470
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:234
 #: templates/account/partials/vendor-settings.php:125
@@ -19634,17 +20051,17 @@ msgstr ""
 msgid "PHP Information"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1232
+#: src/Admin/Setup/SetupWizard.php:1365
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1232
 msgid "PHP max_execution_time"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1218
+#: src/Admin/Setup/SetupWizard.php:1351
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1218
 msgid "PHP Memory Limit"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1197
+#: src/Admin/Setup/SetupWizard.php:1330
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1197
 msgid "PHP Version"
 msgstr ""
@@ -19817,7 +20234,7 @@ msgstr ""
 msgid "Pieces"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:242
+#: src/Admin/Setup/SetupWizard.php:245
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:242
 msgid "Plan"
 msgstr ""
@@ -19852,7 +20269,7 @@ msgstr ""
 msgid "Please allow 1–3 business days for the funds to arrive in your account."
 msgstr ""
 
-#: templates/account/booking-detail.php:217
+#: templates/account/booking-detail.php:234
 #: build/mhm-rentiva/templates/account/booking-detail.php:217
 msgid ""
 "Please arrive at the pickup location 15 minutes prior to your scheduled "
@@ -19880,8 +20297,8 @@ msgstr ""
 msgid "Please enter a category name"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:234
-#: src/Admin/Setup/SetupWizard.php:209
+#: src/Admin/Licensing/LicenseManager.php:222
+#: src/Admin/Setup/SetupWizard.php:212
 #: src/Admin/Settings/Groups/LicenseSettings.php:157
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:234
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:209
@@ -19944,7 +20361,7 @@ msgstr ""
 msgid "Please enter your phone number"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:212
+#: src/Admin/Frontend/Account/AccountController.php:215
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:212
 msgid "Please enter your reply."
 msgstr ""
@@ -19956,7 +20373,7 @@ msgid "Please fill all required fields"
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:199
-#: src/Admin/Frontend/Account/AccountController.php:207
+#: src/Admin/Frontend/Account/AccountController.php:210
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:390
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:411
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:412
@@ -20010,8 +20427,8 @@ msgstr ""
 msgid "Please login to access your bookings."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:197
-#: src/Admin/Frontend/Account/AccountRenderer.php:310
+#: src/Admin/Frontend/Account/AccountController.php:200
+#: src/Admin/Frontend/Account/AccountRenderer.php:303
 #: src/Admin/Messages/REST/Customer/GetMessages.php:29
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:197
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:310
@@ -20049,7 +20466,7 @@ msgstr ""
 msgid "Please login to view this content."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:721
+#: src/Admin/Frontend/Account/AccountController.php:724
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:721
 msgid "Please login."
 msgstr ""
@@ -20166,7 +20583,7 @@ msgstr ""
 msgid "Please set your password using the button below:"
 msgstr ""
 
-#: templates/account/booking-detail.php:276
+#: templates/account/booking-detail.php:336
 #: build/mhm-rentiva/templates/account/booking-detail.php:276
 msgid "Please tell us why you're cancelling..."
 msgstr ""
@@ -20180,7 +20597,7 @@ msgstr ""
 msgid "Please try again"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1208
+#: src/Admin/Setup/SetupWizard.php:1341
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1208
 msgid "Please update WordPress to the latest version."
 msgstr ""
@@ -20265,7 +20682,8 @@ msgid "Polish"
 msgstr ""
 
 #: src/Admin/Testing/TestRunner.php:168
-#: src/Admin/Vehicle/ReliabilityScoreCalculator.php:163
+#: src/Admin/Vehicle/ReliabilityScoreCalculator.php:213
+#: templates/account/partials/vendor-reliability.php:87
 #: build/mhm-rentiva/src/Admin/Testing/TestRunner.php:168
 #: build/mhm-rentiva/src/Admin/Vehicle/ReliabilityScoreCalculator.php:128
 msgid "Poor"
@@ -20361,7 +20779,7 @@ msgstr ""
 msgid "Premium"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:327
+#: src/Admin/Setup/SetupWizard.php:330
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:327
 msgid "Present"
 msgstr ""
@@ -20693,6 +21111,7 @@ msgstr ""
 msgid "Processing refund..."
 msgstr ""
 
+#: templates/account/booking-detail.php:287
 #: templates/shortcodes/booking-form.php:416
 #: src/Admin/Addons/AddonListTable.php:547
 #: src/Admin/Addons/AddonManager.php:234 src/Admin/Core/AssetManager.php:577
@@ -20703,7 +21122,7 @@ msgstr ""
 #: build/mhm-rentiva/templates/shortcodes/booking-form.php:416
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:115
 #: src/Admin/Emails/Core/EmailTemplates.php:660
-#: src/Admin/Frontend/Account/AccountController.php:249
+#: src/Admin/Frontend/Account/AccountController.php:252
 #: src/Admin/Messages/Core/Messages.php:1447
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:219
 #: build/mhm-rentiva/src/Admin/Addons/AddonListTable.php:547
@@ -20736,7 +21155,7 @@ msgstr ""
 
 #: templates/account/account-details.php:37
 #: build/mhm-rentiva/templates/account/account-details.php:37
-#: src/Admin/Frontend/Account/AccountController.php:727
+#: src/Admin/Frontend/Account/AccountController.php:730
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:727
 msgid "Profile editing is currently disabled."
 msgstr ""
@@ -20749,6 +21168,10 @@ msgstr ""
 #: src/Admin/Testing/ActivationTest.php:145
 #: build/mhm-rentiva/src/Admin/Testing/ActivationTest.php:145
 msgid "PSR-4 Autoloader"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:384
+msgid "pts"
 msgstr ""
 
 #: src/Admin/REST/Settings/RESTSettings.php:275
@@ -20946,7 +21369,7 @@ msgstr ""
 msgid "Re-review Pending"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1291
+#: src/Admin/Setup/SetupWizard.php:1424
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1291
 msgid "Ready"
 msgstr ""
@@ -20961,7 +21384,7 @@ msgstr ""
 msgid "Reason (optional)"
 msgstr ""
 
-#: templates/account/booking-detail.php:274
+#: templates/account/booking-detail.php:334
 #: build/mhm-rentiva/templates/account/booking-detail.php:274
 msgid "Reason for cancellation (optional):"
 msgstr ""
@@ -20993,7 +21416,7 @@ msgstr ""
 msgid "Receipt file:"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:701
+#: src/Admin/Frontend/Account/AccountController.php:704
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:701
 msgid "Receipt removed successfully."
 msgstr ""
@@ -21008,7 +21431,7 @@ msgstr ""
 msgid "Receipt upload date"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:352
+#: src/Admin/Frontend/Account/AccountController.php:355
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:67
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:352
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:67
@@ -21020,8 +21443,8 @@ msgstr ""
 msgid "Receipt Uploaded (Admin)"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:351
-#: src/Admin/Frontend/Account/AccountController.php:653
+#: src/Admin/Frontend/Account/AccountController.php:354
+#: src/Admin/Frontend/Account/AccountController.php:656
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:66
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:351
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:653
@@ -21071,17 +21494,17 @@ msgstr ""
 msgid "RECOMMENDED"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:155
+#: src/Admin/Setup/SetupWizard.php:158
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:155
 msgid "Recommended"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:389
+#: src/Admin/Setup/SetupWizard.php:392
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:389
 msgid "Recommended Plugins:"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:320
+#: src/Admin/Setup/SetupWizard.php:323
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:320
 msgid "Recommended URL"
 msgstr ""
@@ -21118,7 +21541,7 @@ msgstr ""
 msgid "Redirect all outgoing mails to the test address below."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2219
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2223
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2219
 msgid "Redirecting to checkout..."
 msgstr ""
@@ -21385,12 +21808,12 @@ msgstr ""
 msgid "Register"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:525
+#: src/Admin/Customers/CustomersPage.php:512
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:525
 msgid "Registered"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:833
+#: src/Admin/Customers/CustomersPage.php:820
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:833
 msgid "Registration Date"
 msgstr ""
@@ -21467,6 +21890,11 @@ msgstr ""
 msgid "Reliability"
 msgstr ""
 
+#: src/Core/Dashboard/DashboardNavigation.php:68
+#: templates/account/partials/vendor-reliability.php:32
+msgid "Reliability & Penalties"
+msgstr ""
+
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:228
 msgid "Reliability Score Weights"
 msgstr ""
@@ -21477,7 +21905,7 @@ msgid "Reliable"
 msgstr ""
 
 #: src/Admin/Vehicle/ListingFeeManager.php:238
-#: templates/account/partials/vendor-listings.php:282
+#: templates/account/partials/vendor-listings.php:305
 msgid "Relist"
 msgstr ""
 
@@ -21545,13 +21973,13 @@ msgstr ""
 msgid "Remaining refundable"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1518
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1522
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1518
 msgid "Remaining:"
 msgstr ""
 
 #. %d: number of remaining days
-#: templates/account/partials/vendor-listings.php:241
+#: templates/account/partials/vendor-listings.php:264
 msgid "Remaining: %d days"
 msgstr ""
 
@@ -21719,6 +22147,22 @@ msgstr ""
 msgid "Removed from favorites."
 msgstr ""
 
+#: src/Admin/Testing/DemoAjaxHandler.php:36
+msgid "Removing demo categories..."
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:35
+msgid "Removing demo customers..."
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:38
+msgid "Removing demo images..."
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:34
+msgid "Removing demo records..."
+msgstr ""
+
 #: src/Admin/Core/AssetManager.php:263
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:263
 msgid "Removing from comparison..."
@@ -21729,7 +22173,7 @@ msgstr ""
 msgid "Removing from favorites..."
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:278
+#: templates/account/partials/vendor-listings.php:301
 msgid "Renew"
 msgstr ""
 
@@ -21742,7 +22186,7 @@ msgstr ""
 msgid "Renewal"
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:301
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:306
 #: build/mhm-rentiva/src/Admin/Vehicle/VehicleLifecycleManager.php:301
 msgid "Renewal grace period has passed. Please relist the vehicle."
 msgstr ""
@@ -21807,9 +22251,17 @@ msgstr ""
 msgid "Rental Period:"
 msgstr ""
 
+#: templates/admin/reports/vehicles.php:100
+msgid "rentals"
+msgstr ""
+
 #: src/Admin/Utilities/Export/Export.php:110
 #: build/mhm-rentiva/src/Admin/Utilities/Export/Export.php:110
 msgid "Rentiva Export Filters"
+msgstr ""
+
+#: src/Admin/Licensing/LicenseManager.php:836
+msgid "Rentiva License Update"
 msgstr ""
 
 #: src/Admin/Core/ProFeatureNotice.php:223
@@ -21825,13 +22277,13 @@ msgstr ""
 msgid "Rentiva Lite Limit"
 msgstr ""
 
-#: src/Plugin.php:824 build/mhm-rentiva/src/Plugin.php:819
+#: src/Plugin.php:832 build/mhm-rentiva/src/Plugin.php:819
 msgid ""
 "Rentiva Lite version allows you to add up to 3 vehicles. Activate your "
 "license to add more vehicles."
 msgstr ""
 
-#: src/Plugin.php:827 build/mhm-rentiva/src/Plugin.php:822
+#: src/Plugin.php:835 build/mhm-rentiva/src/Plugin.php:822
 msgid ""
 "Rentiva Lite version has reached the booking limit. Activate your license to "
 "add more bookings."
@@ -21842,7 +22294,7 @@ msgstr ""
 msgid "Rentiva Panel"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:313
+#: src/Admin/Setup/SetupWizard.php:316
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:313
 msgid ""
 "Rentiva uses dedicated WordPress pages for booking, confirmation and "
@@ -21850,7 +22302,7 @@ msgid ""
 "existing ones."
 msgstr ""
 
-#: src/Plugin.php:1145 build/mhm-rentiva/src/Plugin.php:1140
+#: src/Plugin.php:1153 build/mhm-rentiva/src/Plugin.php:1140
 msgid "Rentiva Vendor"
 msgstr ""
 
@@ -21862,6 +22314,16 @@ msgstr ""
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1024
 #: build/mhm-rentiva/src/Admin/Core/Utilities/DatabaseCleaner.php:1024
 msgid "Repair/Create"
+msgstr ""
+
+#: templates/admin/reports/customers.php:36
+msgid "Repeat Customers"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:211
+msgid ""
+"Repeated vehicle withdrawals carry financial penalties based on your rolling "
+"12-month history. Penalties are deducted from your next payout."
 msgstr ""
 
 #: templates/messages/message-thread-view.html.php:44
@@ -21890,8 +22352,8 @@ msgstr ""
 msgid "Reply sent successfully"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:213
-#: src/Admin/Frontend/Account/AccountRenderer.php:320
+#: src/Admin/Frontend/Account/AccountController.php:216
+#: src/Admin/Frontend/Account/AccountRenderer.php:313
 #: src/Admin/Messages/Core/Messages.php:635
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:213
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:320
@@ -21909,7 +22371,7 @@ msgstr ""
 msgid "Reply to your message: {{subject}}"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:408
+#: src/Admin/Setup/SetupWizard.php:411
 #: src/Admin/Settings/Groups/EmailSettings.php:254
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:408
 #: build/mhm-rentiva/src/Admin/Settings/Groups/EmailSettings.php:254
@@ -21954,6 +22416,12 @@ msgstr ""
 #: src/Admin/Utilities/Export/Export.php:1140
 #: build/mhm-rentiva/src/Admin/Utilities/Export/Export.php:1140
 msgid "Reports Export"
+msgstr ""
+
+#: src/Admin/Utilities/Cron/CronMonitor.php:71
+msgid ""
+"Reports site URL, version and environment to license server for usage "
+"tracking"
 msgstr ""
 
 #: templates/account/partials/vendor-payouts.php:123
@@ -22016,7 +22484,7 @@ msgid "Require users to be logged in to comment."
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:156 src/Admin/Addons/AddonMeta.php:98
-#: src/Admin/Setup/SetupWizard.php:1293
+#: src/Admin/Setup/SetupWizard.php:1426
 #: src/Admin/Utilities/Database/MetaKeysDocumentation.php:626
 #: build/mhm-rentiva/src/Admin/Addons/AddonListTable.php:156
 #: build/mhm-rentiva/src/Admin/Addons/AddonMeta.php:98
@@ -22064,17 +22532,17 @@ msgstr ""
 msgid "Required for Booking"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1252
+#: src/Admin/Setup/SetupWizard.php:1385
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1252
 msgid "Required for scheduled emails & jobs"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:893
+#: src/Admin/Setup/SetupWizard.php:1025
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:893
 msgid "Required Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:153
+#: src/Admin/Setup/SetupWizard.php:156
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:153
 msgid "Requirement"
 msgstr ""
@@ -22271,8 +22739,12 @@ msgstr ""
 msgid "Results:"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:271
+#: templates/account/partials/vendor-listings.php:294
 msgid "Resume"
+msgstr ""
+
+#: templates/admin/reports/overview.php:207
+msgid "Retention Rate"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1347
@@ -22340,7 +22812,7 @@ msgstr ""
 msgid "Return time is automatically set to match pickup time."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2346
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2350
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2346
 msgid "Return to Cart"
 msgstr ""
@@ -22348,6 +22820,11 @@ msgstr ""
 #: templates/account/dashboard.php:170
 #: build/mhm-rentiva/templates/account/dashboard.php:170
 msgid "Return:"
+msgstr ""
+
+#: templates/admin/reports/customers.php:71
+#: templates/admin/reports/overview.php:198
+msgid "Returning"
 msgstr ""
 
 #: templates/account/partials/top-vehicles.php:32
@@ -22448,12 +22925,12 @@ msgstr ""
 msgid "Review Error"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:598
+#: src/Admin/Setup/SetupWizard.php:730
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:598
 msgid "Review Shortcode Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:574
+#: src/Admin/Setup/SetupWizard.php:706
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:574
 msgid ""
 "Review the checklist below and run a quick booking to confirm everything is "
@@ -22498,7 +22975,7 @@ msgid "Right (100$)"
 msgstr ""
 
 #. %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:464
+#: src/Admin/Setup/SetupWizard.php:467
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:464
 #, php-format
 msgid "Right (100%s)"
@@ -22510,7 +22987,7 @@ msgid "Right Space (100 $)"
 msgstr ""
 
 #. %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:466
+#: src/Admin/Setup/SetupWizard.php:469
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:466
 #, php-format
 msgid "Right Space (100 %s)"
@@ -22661,14 +23138,14 @@ msgstr ""
 msgid "Sample Booking 2"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:294
+#: src/Admin/Customers/CustomersPage.php:279
 #: src/Admin/Booking/ListTable/BookingColumns.php:1561
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:294
 #: build/mhm-rentiva/src/Admin/Booking/ListTable/BookingColumns.php:1561
 msgid "Sample Customer 1"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:299
+#: src/Admin/Customers/CustomersPage.php:284
 #: src/Admin/Booking/ListTable/BookingColumns.php:1566
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:299
 #: build/mhm-rentiva/src/Admin/Booking/ListTable/BookingColumns.php:1566
@@ -22686,7 +23163,9 @@ msgid "Sanitizes inputs against cross-site scripting."
 msgstr ""
 
 #: templates/shortcodes/availability-calendar.php:281
-#: src/Admin/Customers/CustomersPage.php:201
+#: src/Admin/Customers/CustomersPage.php:186
+#: templates/admin/reports/overview.php:81
+#: templates/admin/reports/revenue.php:92
 #: build/mhm-rentiva/templates/shortcodes/availability-calendar.php:281
 #: src/Admin/Booking/ListTable/BookingColumns.php:1106
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:280
@@ -22718,7 +23197,7 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:435 src/Admin/Setup/SetupWizard.php:562
+#: src/Admin/Setup/SetupWizard.php:438 src/Admin/Setup/SetupWizard.php:565
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:435
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:562
 msgid "Save & Continue"
@@ -22729,7 +23208,7 @@ msgstr ""
 #: build/mhm-rentiva/templates/account/account-details.php:186
 #: build/mhm-rentiva/templates/admin/settings-page.php:82
 #: src/Admin/Emails/Core/EmailTemplates.php:181
-#: src/Admin/Frontend/Account/AccountController.php:362
+#: src/Admin/Frontend/Account/AccountController.php:365
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:77
 #: build/mhm-rentiva/src/Admin/Emails/Core/EmailTemplates.php:177
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:362
@@ -22803,6 +23282,14 @@ msgstr ""
 msgid "Scheduled Notifications"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:349
+msgid "Score"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:327
+msgid "Score History"
+msgstr ""
+
 #: templates/shortcodes/unified-search.php:201
 #: src/Admin/Core/AssetManager.php:1585
 #: build/mhm-rentiva/templates/shortcodes/unified-search.php:201
@@ -22866,7 +23353,7 @@ msgstr ""
 msgid "Search Payout Requests"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:979
+#: src/Admin/Setup/SetupWizard.php:1112
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:54
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:979
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:31
@@ -23047,10 +23534,10 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:306
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:32
 #: src/Admin/Emails/Settings/EmailTestAction.php:31
-#: src/Admin/Frontend/Account/AccountController.php:587
-#: src/Admin/Frontend/Account/AccountController.php:670
-#: src/Admin/Frontend/Account/AccountController.php:716
-#: src/Admin/Frontend/Account/AccountController.php:824
+#: src/Admin/Frontend/Account/AccountController.php:590
+#: src/Admin/Frontend/Account/AccountController.php:673
+#: src/Admin/Frontend/Account/AccountController.php:719
+#: src/Admin/Frontend/Account/AccountController.php:827
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:897
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:619
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1006
@@ -23063,6 +23550,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:671
 #: src/Admin/Messages/Core/Messages.php:1009
 #: src/Admin/Messages/Core/Messages.php:1144
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:45
 #: build/mhm-rentiva/src/Admin/About/About.php:217
 #: build/mhm-rentiva/src/Admin/Addons/AddonManager.php:449
 #: build/mhm-rentiva/src/Admin/Addons/AddonManager.php:594
@@ -23162,7 +23650,7 @@ msgstr ""
 msgid "Security error"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:558
+#: src/Admin/Frontend/Account/AccountController.php:561
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:202
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:258
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:558
@@ -23181,7 +23669,7 @@ msgstr ""
 msgid "Security Tests"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:864
+#: src/Admin/Frontend/Account/AccountController.php:867
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:864
 msgid "Security verification failed. Please refresh and try again."
 msgstr ""
@@ -23194,6 +23682,11 @@ msgstr ""
 #: src/Admin/Testing/TestAdminPage.php:141
 #: build/mhm-rentiva/src/Admin/Testing/TestAdminPage.php:141
 msgid "Security: Nonce, sanitization, escaping"
+msgstr ""
+
+#: templates/admin/reports/overview.php:265
+#: templates/admin/reports/vehicles.php:75
+msgid "Sedan"
 msgstr ""
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:904
@@ -23547,8 +24040,8 @@ msgid "Selected Customer:"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:929 src/Admin/Core/AssetManager.php:952
-#: src/Admin/Customers/CustomersPage.php:390
-#: src/Admin/Customers/CustomersPage.php:474
+#: src/Admin/Customers/CustomersPage.php:376
+#: src/Admin/Customers/CustomersPage.php:461
 #: src/Admin/Booking/ListTable/BookingColumns.php:191
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:929
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:952
@@ -23685,7 +24178,7 @@ msgstr ""
 #: templates/account/messages.php:156 templates/shortcodes/contact-form.php:199
 #: build/mhm-rentiva/templates/account/messages.php:156
 #: build/mhm-rentiva/templates/shortcodes/contact-form.php:199
-#: src/Admin/Frontend/Account/AccountRenderer.php:325
+#: src/Admin/Frontend/Account/AccountRenderer.php:318
 #: src/Admin/Messages/Core/Messages.php:903
 #: src/Admin/Messages/Frontend/CustomerMessages.php:179
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:325
@@ -23735,7 +24228,7 @@ msgstr ""
 #: build/mhm-rentiva/templates/account/messages.php:84
 #: build/mhm-rentiva/templates/messages/message-reply-form.html.php:21
 #: build/mhm-rentiva/templates/messages/message-reply-form.html.php:64
-#: src/Admin/Frontend/Account/AccountRenderer.php:326
+#: src/Admin/Frontend/Account/AccountRenderer.php:319
 #: src/Admin/Messages/Core/Messages.php:409
 #: src/Admin/Messages/Core/Messages.php:498
 #: src/Admin/Messages/Core/Messages.php:1448
@@ -23775,7 +24268,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1107 src/Admin/Core/AssetManager.php:1113
 #: src/Admin/Core/AssetManager.php:1365 src/Admin/Core/AssetManager.php:1371
-#: src/Admin/Setup/SetupWizard.php:599
+#: src/Admin/Setup/SetupWizard.php:731
 #: src/Admin/Emails/Core/EmailTemplates.php:108
 #: src/Admin/Emails/Core/EmailTemplates.php:149
 #: src/Admin/Emails/Templates/EmailPreview.php:98
@@ -23804,7 +24297,7 @@ msgstr ""
 msgid "Send Welcome Email"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:404
+#: src/Admin/Setup/SetupWizard.php:407
 #: src/Admin/Messages/Settings/MessagesSettings.php:391
 #: src/Admin/Settings/Groups/EmailSettings.php:253
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:404
@@ -23818,7 +24311,7 @@ msgstr ""
 msgid "Sender email address is required"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:400
+#: src/Admin/Setup/SetupWizard.php:403
 #: src/Admin/Messages/Settings/MessagesSettings.php:383
 #: src/Admin/Settings/Groups/EmailSettings.php:252
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:400
@@ -23840,8 +24333,8 @@ msgstr ""
 #: templates/shortcodes/contact-form.php:212
 #: build/mhm-rentiva/templates/shortcodes/contact-form.php:212
 #: src/Admin/Booking/Meta/BookingMeta.php:254
-#: src/Admin/Frontend/Account/AccountController.php:208
-#: src/Admin/Frontend/Account/AccountRenderer.php:324
+#: src/Admin/Frontend/Account/AccountController.php:211
+#: src/Admin/Frontend/Account/AccountRenderer.php:317
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:387
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:407
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:408
@@ -24205,7 +24698,7 @@ msgstr ""
 msgid "Setup Wizard"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:630
+#: src/Admin/Setup/SetupWizard.php:762
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:630
 msgid ""
 "Setup wizard was completed previously. You can still finish again to return "
@@ -24251,7 +24744,7 @@ msgstr ""
 msgid "Short Description"
 msgstr ""
 
-#: templates/admin/shortcode-pages.php:26 src/Admin/Setup/SetupWizard.php:318
+#: templates/admin/shortcode-pages.php:26 src/Admin/Setup/SetupWizard.php:321
 #: build/mhm-rentiva/templates/admin/shortcode-pages.php:26
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:318
 msgid "Shortcode"
@@ -24416,7 +24909,7 @@ msgstr ""
 msgid "Show Availability"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:556
+#: src/Admin/Setup/SetupWizard.php:559
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:556
 msgid "Show availability badge"
 msgstr ""
@@ -24529,7 +25022,7 @@ msgstr ""
 msgid "Show Favorite Button"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:555
+#: src/Admin/Setup/SetupWizard.php:558
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:555
 msgid "Show feature badges"
 msgstr ""
@@ -24748,6 +25241,10 @@ msgid ""
 "form"
 msgstr ""
 
+#: src/Admin/Utilities/Cron/CronMonitor.php:70
+msgid "Site Instance Check-in"
+msgstr ""
+
 #: src/Admin/About/Tabs/SystemTab.php:70
 #: build/mhm-rentiva/src/Admin/About/Tabs/SystemTab.php:70
 msgid "Site URL:"
@@ -24770,12 +25267,12 @@ msgstr ""
 msgid "Size (MB)"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:274
+#: src/Admin/Setup/SetupWizard.php:277
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:274
 msgid "Skip for now"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:178
+#: src/Admin/Setup/SetupWizard.php:181
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:178
 msgid "Skip wizard"
 msgstr ""
@@ -24816,12 +25313,12 @@ msgstr ""
 msgid "Small Luggage:"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1261
+#: src/Admin/Setup/SetupWizard.php:1394
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1261
 msgid "SMTP provider recommended"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1260
+#: src/Admin/Setup/SetupWizard.php:1393
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1260
 msgid "SMTP/Provider detected"
 msgstr ""
@@ -24839,8 +25336,8 @@ msgid "Something went wrong. Please try again."
 msgstr ""
 
 #. %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1882
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1976
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1886
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1980
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1882
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1976
 #, php-format
@@ -24855,7 +25352,7 @@ msgid "Sorry, no vehicle found for selected dates. Please try different dates."
 msgstr ""
 
 #. 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1833
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1837
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1833
 #, php-format
 msgid ""
@@ -24864,7 +25361,7 @@ msgid ""
 msgstr ""
 
 #. 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1941
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1945
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1941
 #, php-format
 msgid ""
@@ -25043,8 +25540,8 @@ msgstr ""
 #: src/Admin/Addons/AddonListTable.php:155 src/Admin/Core/AssetManager.php:1163
 #: src/Admin/Reports/BackgroundProcessor.php:462
 #: src/Admin/Reports/BackgroundProcessor.php:478
-#: src/Admin/Setup/SetupWizard.php:156 src/Admin/Setup/SetupWizard.php:319
-#: src/Admin/Setup/SetupWizard.php:579 src/Admin/Testing/TestRunner.php:186
+#: src/Admin/Setup/SetupWizard.php:159 src/Admin/Setup/SetupWizard.php:322
+#: src/Admin/Setup/SetupWizard.php:711 src/Admin/Testing/TestRunner.php:186
 #: templates/account/partials/vendor-payouts.php:200
 #: templates/admin/dashboard/pending-payments.php:30
 #: templates/admin/dashboard/upcoming-operations.php:36
@@ -25207,34 +25704,39 @@ msgstr ""
 msgid "Statuses"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:578
+#: src/Admin/Setup/SetupWizard.php:710
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:578
 msgid "Step"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:148
+#: src/Admin/Setup/SetupWizard.php:151
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:148
 msgid "Step 1: System Requirements"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:197
+#: src/Admin/Setup/SetupWizard.php:200
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:197
 msgid "Step 2: License Activation"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:312
+#: src/Admin/Setup/SetupWizard.php:315
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:312
 msgid "Step 3: Required Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:377
+#: src/Admin/Setup/SetupWizard.php:380
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:377
 msgid "Step 4: Email & Notifications"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:474
+#: src/Admin/Setup/SetupWizard.php:477
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:474
 msgid "Step 5: Frontend & Display"
+msgstr ""
+
+#: src/Admin/Testing/DemoAjaxHandler.php:61
+#: src/Admin/Testing/DemoAjaxHandler.php:85
+msgid "Step not implemented."
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:155
@@ -25386,6 +25888,7 @@ msgstr ""
 msgid "Success"
 msgstr ""
 
+#: templates/admin/reports/overview.php:147
 #: src/Admin/Emails/Core/EmailTemplates.php:733
 #: src/Admin/Utilities/Export/Export.php:1361
 #: build/mhm-rentiva/src/Admin/Emails/Core/EmailTemplates.php:672
@@ -25399,7 +25902,7 @@ msgid "Success Rate:"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountAssets.php:56
-#: src/Admin/Frontend/Account/AccountController.php:348
+#: src/Admin/Frontend/Account/AccountController.php:351
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:63
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountAssets.php:56
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:348
@@ -25427,7 +25930,7 @@ msgstr ""
 msgid "Summary"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:896
+#: src/Admin/Setup/SetupWizard.php:1029
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:896
 msgid "Summary & Tests"
 msgstr ""
@@ -25438,7 +25941,9 @@ msgid "Summer"
 msgstr ""
 
 #: templates/shortcodes/availability-calendar.php:282
-#: src/Admin/Customers/CustomersPage.php:202
+#: src/Admin/Customers/CustomersPage.php:187
+#: templates/admin/reports/overview.php:81
+#: templates/admin/reports/revenue.php:92
 #: build/mhm-rentiva/templates/shortcodes/availability-calendar.php:282
 #: src/Admin/Booking/ListTable/BookingColumns.php:1100
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:281
@@ -25591,7 +26096,7 @@ msgstr ""
 msgid "System Actions"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:891
+#: src/Admin/Setup/SetupWizard.php:1023
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:891
 msgid "System Check"
 msgstr ""
@@ -25909,7 +26414,7 @@ msgstr ""
 msgid "Test Email"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:421
+#: src/Admin/Setup/SetupWizard.php:424
 #: src/Admin/Settings/Groups/EmailSettings.php:269
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:421
 #: build/mhm-rentiva/src/Admin/Settings/Groups/EmailSettings.php:269
@@ -25934,7 +26439,7 @@ msgstr ""
 msgid "Test email sent successfully!"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:412
+#: src/Admin/Setup/SetupWizard.php:415
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:412
 msgid "Test Mode"
 msgstr ""
@@ -26038,7 +26543,7 @@ msgstr ""
 msgid "Thank you,"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:383
+#: src/Admin/Setup/SetupWizard.php:386
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:383
 msgid ""
 "The default WordPress email system can be unreliable depending on server "
@@ -26103,6 +26608,11 @@ msgstr ""
 msgid "The URL of your custom registration page."
 msgstr ""
 
+#. %d: rolling window in months
+#: templates/account/partials/vendor-reliability.php:256
+msgid "The withdrawal counter resets after %d months of no withdrawals."
+msgstr ""
+
 #. %d: existing additional services count.
 #: src/Admin/Addons/AddonSettings.php:216
 #: build/mhm-rentiva/src/Admin/Addons/AddonSettings.php:216
@@ -26122,7 +26632,7 @@ msgstr ""
 msgid "This action cannot be undone"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:252
+#: src/Admin/Frontend/Account/AccountController.php:255
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:252
 msgid ""
 "This action cannot be undone. Type \"DELETE\" to confirm account deletion:"
@@ -26183,8 +26693,8 @@ msgstr ""
 msgid "This conversation is closed"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:206
-#: src/Admin/Frontend/Account/AccountRenderer.php:319
+#: src/Admin/Frontend/Account/AccountController.php:209
+#: src/Admin/Frontend/Account/AccountRenderer.php:312
 #: src/Admin/Messages/Core/Messages.php:292
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:206
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:319
@@ -26217,8 +26727,8 @@ msgstr ""
 msgid "This email was sent from %s"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:791
-#: src/Admin/Frontend/Account/AccountController.php:804
+#: src/Admin/Frontend/Account/AccountController.php:794
+#: src/Admin/Frontend/Account/AccountController.php:807
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:791
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:804
 msgid "This endpoint is deprecated. Please refresh your page."
@@ -26294,7 +26804,7 @@ msgstr ""
 msgid "This is a sample reply for preview."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:218
+#: src/Admin/Setup/SetupWizard.php:221
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:218
 msgid ""
 "This license is already activated on another site. Maximum 1 activation "
@@ -26502,8 +27012,8 @@ msgstr ""
 msgid "Thread ID is required."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:189
-#: src/Admin/Frontend/Account/AccountRenderer.php:302
+#: src/Admin/Frontend/Account/AccountController.php:192
+#: src/Admin/Frontend/Account/AccountRenderer.php:295
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:189
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:302
 msgid "Thread ID not found."
@@ -26527,7 +27037,9 @@ msgid "Through your customer dashboard, you can:"
 msgstr ""
 
 #: templates/shortcodes/availability-calendar.php:279
-#: src/Admin/Customers/CustomersPage.php:199
+#: src/Admin/Customers/CustomersPage.php:184
+#: templates/admin/reports/overview.php:81
+#: templates/admin/reports/revenue.php:92
 #: build/mhm-rentiva/templates/shortcodes/availability-calendar.php:279
 #: src/Admin/Booking/ListTable/BookingColumns.php:1104
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:278
@@ -26649,14 +27161,14 @@ msgid "Title Style"
 msgstr ""
 
 #. %s: link to WooCommerce settings
-#: src/Admin/Setup/SetupWizard.php:492
+#: src/Admin/Setup/SetupWizard.php:495
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:492
 #, php-format
 msgid "To change the currency, please visit %s."
 msgstr ""
 
 #. %s: link to WooCommerce settings
-#: src/Admin/Setup/SetupWizard.php:524
+#: src/Admin/Setup/SetupWizard.php:527
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:524
 #, php-format
 msgid "To change the position, please visit %s."
@@ -26780,6 +27292,8 @@ msgstr ""
 #: src/Admin/Reports/BackgroundProcessor.php:465
 #: templates/admin/dashboard/messages-widget.php:47
 #: templates/admin/dashboard/transfer-widget.php:37
+#: templates/admin/reports/customers.php:71
+#: templates/admin/reports/overview.php:198
 #: templates/admin/reports/stats-cards.php:17
 #: src/Admin/Booking/ListTable/BookingColumns.php:128
 #: src/Admin/Booking/ListTable/BookingColumns.php:1489
@@ -26848,9 +27362,11 @@ msgid "Total Amount:"
 msgstr ""
 
 #: templates/account/dashboard.php:50 src/Admin/Core/AssetManager.php:1330
-#: src/Admin/Customers/CustomersPage.php:848 src/Admin/Reports/Reports.php:92
+#: src/Admin/Customers/CustomersPage.php:835 src/Admin/Reports/Reports.php:92
 #: src/Core/Dashboard/DashboardConfig.php:26
 #: templates/admin/reports/bookings.php:28
+#: templates/admin/reports/bookings.php:34
+#: templates/admin/reports/overview.php:143
 #: templates/admin/reports/stats-cards.php:15
 #: build/mhm-rentiva/templates/account/dashboard.php:50
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:1330
@@ -26872,12 +27388,14 @@ msgstr ""
 msgid "Total Cost"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:523
+#: src/Admin/Customers/CustomersPage.php:510
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:523
 msgid "TOTAL CUSTOMERS"
 msgstr ""
 
 #: templates/admin/dashboard/customer-stats.php:28
+#: templates/admin/reports/customers.php:32
+#: templates/admin/reports/overview.php:203
 #: build/mhm-rentiva/templates/admin/dashboard/customer-stats.php:28
 msgid "Total Customers"
 msgstr ""
@@ -26940,7 +27458,9 @@ msgstr ""
 
 #: templates/account/partials/vendor-bookings.php:213
 #: templates/admin/dashboard/transfer-widget.php:45
+#: templates/admin/reports/overview.php:86
 #: templates/admin/reports/revenue.php:26
+#: templates/admin/reports/revenue.php:32
 #: templates/admin/reports/vehicles.php:119
 #: build/mhm-rentiva/templates/account/partials/vendor-bookings.php:213
 #: build/mhm-rentiva/templates/admin/dashboard/transfer-widget.php:45
@@ -26964,7 +27484,7 @@ msgstr ""
 msgid "Total Shortcodes"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:853
+#: src/Admin/Customers/CustomersPage.php:840
 #: templates/admin/reports/customers.php:86
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:853
 #: build/mhm-rentiva/templates/admin/reports/customers.php:86
@@ -26996,6 +27516,7 @@ msgid "Total Value"
 msgstr ""
 
 #: templates/admin/dashboard/stats-cards.php:56
+#: templates/admin/reports/overview.php:270
 #: build/mhm-rentiva/templates/admin/dashboard/stats-cards.php:56
 msgid "Total Vehicles"
 msgstr ""
@@ -27082,6 +27603,10 @@ msgstr ""
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:216
 #: build/mhm-rentiva/src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:93
 msgid "Transfer Only"
+msgstr ""
+
+#: src/Admin/Testing/DemoSeeder.php:958
+msgid "Transfer points and routes created."
 msgstr ""
 
 #: src/Admin/Transfer/VehicleTransferMetaBox.php:144
@@ -27206,7 +27731,9 @@ msgid "Tu"
 msgstr ""
 
 #: templates/shortcodes/availability-calendar.php:277
-#: src/Admin/Customers/CustomersPage.php:197
+#: src/Admin/Customers/CustomersPage.php:182
+#: templates/admin/reports/overview.php:81
+#: templates/admin/reports/revenue.php:92
 #: build/mhm-rentiva/templates/shortcodes/availability-calendar.php:277
 #: src/Admin/Booking/ListTable/BookingColumns.php:1102
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:276
@@ -27349,7 +27876,7 @@ msgid "Unavailable"
 msgstr ""
 
 #. %d: HTTP error code
-#: src/Admin/Licensing/LicenseManager.php:621
+#: src/Admin/Licensing/LicenseManager.php:610
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:621
 msgid "Unexpected response from license server (HTTP %d)."
 msgstr ""
@@ -27361,7 +27888,7 @@ msgstr ""
 msgid "Unfortunately, your payout request of %s has been declined."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:974
+#: src/Admin/Setup/SetupWizard.php:1107
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:49
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:974
 #: build/mhm-rentiva/src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:49
@@ -27389,9 +27916,9 @@ msgid "Uninstall failed"
 msgstr ""
 
 #: src/Admin/About/SystemInfo.php:98 src/Admin/About/SystemInfo.php:99
-#: src/Admin/Setup/SetupWizard.php:189 src/Admin/Setup/SetupWizard.php:1184
-#: src/Admin/Setup/SetupWizard.php:1185 src/Admin/Setup/SetupWizard.php:1272
-#: src/Admin/Setup/SetupWizard.php:1295 src/Admin/Testing/TestRunner.php:170
+#: src/Admin/Setup/SetupWizard.php:192 src/Admin/Setup/SetupWizard.php:1317
+#: src/Admin/Setup/SetupWizard.php:1318 src/Admin/Setup/SetupWizard.php:1405
+#: src/Admin/Setup/SetupWizard.php:1428 src/Admin/Testing/TestRunner.php:170
 #: templates/account/partials/vendor-bookings.php:249
 #: templates/account/partials/vendor-bookings.php:272
 #: templates/admin/dashboard/transfer-widget.php:60
@@ -27441,7 +27968,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1262
 #: src/Admin/Booking/Meta/BookingMeta.php:257
-#: src/Admin/Frontend/Account/AccountController.php:258
+#: src/Admin/Frontend/Account/AccountController.php:261
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:270
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:1262
 #: build/mhm-rentiva/src/Admin/Booking/Meta/BookingMeta.php:257
@@ -27503,8 +28030,8 @@ msgstr ""
 #: src/Admin/Licensing/Mode.php:228 src/Admin/Licensing/Mode.php:237
 #: src/Admin/Licensing/Mode.php:246 src/Admin/Licensing/Mode.php:255
 #: src/Admin/Licensing/Mode.php:264 src/Admin/Licensing/Mode.php:273
-#: src/Admin/Licensing/Mode.php:282 src/Admin/Setup/SetupWizard.php:1219
-#: src/Admin/Setup/SetupWizard.php:1233
+#: src/Admin/Licensing/Mode.php:282 src/Admin/Setup/SetupWizard.php:1352
+#: src/Admin/Setup/SetupWizard.php:1366
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseAdmin.php:540
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseAdmin.php:541
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseAdmin.php:542
@@ -27664,7 +28191,7 @@ msgid "Upcoming Reservations"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1584
-#: src/Admin/Customers/CustomersPage.php:1000
+#: src/Admin/Customers/CustomersPage.php:987
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:1584
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:1000
 msgid "Update"
@@ -27697,7 +28224,7 @@ msgstr ""
 msgid "Update Message"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1201
+#: src/Admin/Setup/SetupWizard.php:1334
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1201
 msgid "Update PHP to 7.4 or higher."
 msgstr ""
@@ -27759,7 +28286,7 @@ msgid ""
 "."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:616
+#: src/Admin/Frontend/Account/AccountController.php:619
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:616
 msgid "Upload error."
 msgstr ""
@@ -27786,7 +28313,11 @@ msgstr ""
 msgid "Uploaded to this message"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:350
+#: src/Admin/Testing/DemoAjaxHandler.php:21
+msgid "Uploading vehicle images..."
+msgstr ""
+
+#: src/Admin/Frontend/Account/AccountController.php:353
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:139
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:65
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:350
@@ -27853,6 +28384,10 @@ msgstr ""
 #: build/mhm-rentiva/src/Admin/Vehicle/Settings/VehicleSettings.php:1471
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:231
 msgid "USB Port"
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php:584
+msgid "Use \"Clean Up\" to remove all demo data before going live."
 msgstr ""
 
 #. %s placeholder.
@@ -27950,7 +28485,7 @@ msgstr ""
 msgid "Valid format"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1243
+#: src/Admin/Setup/SetupWizard.php:1376
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1243
 msgid "Valid SSL certificate"
 msgstr ""
@@ -28003,6 +28538,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:638
 #: src/Admin/Vehicle/ListingFeeManager.php:230
 #: templates/account/partials/top-vehicles.php:29
+#: templates/account/partials/vendor-reliability.php:347
 #: templates/admin/dashboard/upcoming-operations.php:34
 #: templates/admin/reports/vehicles.php:117
 #: build/mhm-rentiva/templates/account/booking-detail.php:126
@@ -28014,6 +28550,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:183
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:203
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:497
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:93
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:449
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:503
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:917
@@ -28084,7 +28621,7 @@ msgstr ""
 msgid "Vehicle added to comparison."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:355
+#: src/Admin/Frontend/Account/AccountController.php:358
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:70
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:355
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:70
@@ -28135,7 +28672,7 @@ msgstr ""
 msgid "Vehicle Card"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:553
+#: src/Admin/Setup/SetupWizard.php:556
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:553
 msgid "Vehicle Cards"
 msgstr ""
@@ -28191,7 +28728,7 @@ msgstr ""
 msgid "VEHICLE DETAILS"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:984
+#: src/Admin/Setup/SetupWizard.php:1117
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:74
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:146
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:153
@@ -28323,7 +28860,7 @@ msgstr ""
 msgid "Vehicle Image"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:363
+#: src/Admin/Frontend/Account/AccountController.php:366
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:78
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:363
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:78
@@ -28372,7 +28909,7 @@ msgstr ""
 msgid "Vehicle is not available in the selected date range."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:170
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:172
 #: build/mhm-rentiva/src/Admin/Vehicle/VehicleLifecycleManager.php:170
 msgid "Vehicle is not paused."
 msgstr ""
@@ -28419,7 +28956,7 @@ msgid "Vehicle not found"
 msgstr ""
 
 #: templates/shortcodes/availability-calendar.php:50
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:380
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:385
 #: build/mhm-rentiva/templates/shortcodes/availability-calendar.php:50
 #: src/Admin/Booking/Helpers/Util.php:769
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:190
@@ -28429,8 +28966,16 @@ msgstr ""
 msgid "Vehicle not found."
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:188
+msgid "Vehicle pause"
+msgstr ""
+
 #: src/Admin/Emails/Templates/VendorEmails.php:264
 msgid "Vehicle Paused"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:309
+msgid "Vehicle paused"
 msgstr ""
 
 #: src/Admin/Emails/Templates/EmailPreview.php:74
@@ -28531,7 +29076,7 @@ msgstr ""
 msgid "Vehicle removed from comparison."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:354
+#: src/Admin/Frontend/Account/AccountController.php:357
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:69
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:354
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:69
@@ -28649,12 +29194,12 @@ msgstr ""
 msgid "Vehicle Unavailable"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1261
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1285
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1244
 msgid "Vehicle updated successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1254
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1278
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1237
 msgid ""
 "Vehicle updated. Critical fields were changed — your listing will be "
@@ -28671,8 +29216,16 @@ msgstr ""
 msgid "Vehicle URL Settings"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:173
+msgid "Vehicle withdrawal"
+msgstr ""
+
 #: src/Admin/Emails/Templates/VendorEmails.php:324
 msgid "Vehicle Withdrawn"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:310
+msgid "Vehicle withdrawn"
 msgstr ""
 
 #: src/Admin/Emails/Templates/EmailPreview.php:77
@@ -28761,14 +29314,14 @@ msgstr ""
 msgid "Vehicles Grid"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:364
+#: src/Admin/Frontend/Account/AccountController.php:367
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:79
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:364
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:79
 msgid "vehicles in your favorites"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:989
+#: src/Admin/Setup/SetupWizard.php:1122
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:84
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:989
 #: build/mhm-rentiva/src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:84
@@ -28912,9 +29465,20 @@ msgstr ""
 msgid "Vendor vehicle submission form - vendors can add their vehicles"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:158
+msgid "Vendor-initiated cancellation"
+msgstr ""
+
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:499
 #: build/mhm-rentiva/src/Admin/Vendor/AdminVendorApplicationsPage.php:499
 msgid "Vendors must have at least this balance to request a payout."
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:287
+msgid ""
+"Vendors who consistently deliver receive better visibility. The score "
+"ensures that reliable vendors are rewarded and unreliable behaviour carries "
+"a proportionate cost."
 msgstr ""
 
 #: templates/shortcodes/vehicle-rating-form.php:236
@@ -28969,9 +29533,9 @@ msgstr ""
 
 #: templates/account/dashboard.php:221 templates/admin/shortcode-pages.php:84
 #: templates/admin/shortcode-pages.php:93
-#: src/Admin/Customers/CustomersPage.php:961
+#: src/Admin/Customers/CustomersPage.php:948
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:256
-#: templates/account/partials/vendor-listings.php:253
+#: templates/account/partials/vendor-listings.php:276
 #: build/mhm-rentiva/templates/account/dashboard.php:221
 #: build/mhm-rentiva/templates/admin/shortcode-pages.php:84
 #: build/mhm-rentiva/templates/admin/shortcode-pages.php:93
@@ -29060,7 +29624,7 @@ msgstr ""
 
 #: templates/emails/booking-status-changed-admin.html.php:44
 #: templates/emails/refund-admin.html.php:41
-#: src/Admin/Customers/CustomersPage.php:875
+#: src/Admin/Customers/CustomersPage.php:862
 #: build/mhm-rentiva/templates/emails/booking-status-changed-admin.html.php:44
 #: build/mhm-rentiva/templates/emails/refund-admin.html.php:41
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:875
@@ -29295,7 +29859,7 @@ msgstr ""
 msgid "Visit Our Website"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:567
+#: src/Admin/Customers/CustomersPage.php:554
 #: src/Admin/Booking/ListTable/BookingColumns.php:750
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:463
 #: build/mhm-rentiva/src/Admin/Customers/CustomersPage.php:567
@@ -29316,7 +29880,7 @@ msgstr ""
 msgid "WAF Blocked Request: %1$s in %2$s[%3$s]"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1574 src/Admin/Setup/SetupWizard.php:1292
+#: src/Admin/Core/AssetManager.php:1574 src/Admin/Setup/SetupWizard.php:1425
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:260
 #: src/Admin/Settings/Groups/LogsSettings.php:69
 #: build/mhm-rentiva/src/Admin/Core/AssetManager.php:1574
@@ -29445,7 +30009,7 @@ msgstr ""
 msgid "We received your message - {{site.name}}"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:149
+#: src/Admin/Setup/SetupWizard.php:152
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:149
 msgid ""
 "We scanned your WordPress environment to ensure Rentiva can run reliably. "
@@ -29475,7 +30039,9 @@ msgid "Website:"
 msgstr ""
 
 #: templates/shortcodes/availability-calendar.php:278
-#: src/Admin/Customers/CustomersPage.php:198
+#: src/Admin/Customers/CustomersPage.php:183
+#: templates/admin/reports/overview.php:81
+#: templates/admin/reports/revenue.php:92
 #: build/mhm-rentiva/templates/shortcodes/availability-calendar.php:278
 #: src/Admin/Booking/ListTable/BookingColumns.php:1103
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:277
@@ -29588,6 +30154,10 @@ msgstr ""
 msgid "Whitelisted IPs"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:264
+msgid "Why Does This System Exist?"
+msgstr ""
+
 #: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php:143
 #: build/mhm-rentiva/src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php:143
 msgid "Widget Capacity"
@@ -29604,6 +30174,10 @@ msgstr ""
 msgid "Widget max messages must be between 1-20"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:135
+msgid "Window"
+msgstr ""
+
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:51
 #: build/mhm-rentiva/src/Admin/Vehicle/Settings/VehiclePricingSettings.php:51
 msgid "Winter"
@@ -29614,8 +30188,8 @@ msgstr ""
 msgid "WIPE ALL DATA ON UNINSTALL"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:267
-#: templates/account/partials/vendor-listings.php:274
+#: templates/account/partials/vendor-listings.php:290
+#: templates/account/partials/vendor-listings.php:297
 msgid "Withdraw"
 msgstr ""
 
@@ -29638,6 +30212,10 @@ msgstr ""
 msgid "Withdrawal Penalty Settings"
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:208
+msgid "Withdrawal Penalty Tiers"
+msgstr ""
+
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:168
 #: templates/account/partials/vendor-listings.php:46
 #: build/mhm-rentiva/src/Admin/Vehicle/VehicleLifecycleStatus.php:119
@@ -29650,8 +30228,8 @@ msgid "Wk"
 msgstr ""
 
 #: src/Admin/Licensing/Mode.php:286 src/Admin/Licensing/Mode.php:287
-#: src/Admin/Setup/SetupWizard.php:1190
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2145
+#: src/Admin/Setup/SetupWizard.php:1323
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2149
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:91
 #: src/Admin/Utilities/Export/ExportFilters.php:71
 #: build/mhm-rentiva/src/Admin/Licensing/Mode.php:286
@@ -29688,12 +30266,12 @@ msgstr ""
 msgid "WooCommerce Integration Active"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2242
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2246
 #: build/mhm-rentiva/src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2242
 msgid "WooCommerce is not installed or activated."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1194
+#: src/Admin/Setup/SetupWizard.php:1327
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1194
 msgid "WooCommerce is required for payments and account management."
 msgstr ""
@@ -29726,7 +30304,7 @@ msgstr ""
 msgid "WooCommerce Required"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:493 src/Admin/Setup/SetupWizard.php:525
+#: src/Admin/Setup/SetupWizard.php:496 src/Admin/Setup/SetupWizard.php:528
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:493
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:525
 msgid "WooCommerce Settings"
@@ -29752,7 +30330,7 @@ msgstr ""
 msgid "WordPress Support Forum"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1204
+#: src/Admin/Setup/SetupWizard.php:1337
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1204
 msgid "WordPress Version"
 msgstr ""
@@ -29808,7 +30386,7 @@ msgstr ""
 msgid "WP Mail Available"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1250
+#: src/Admin/Setup/SetupWizard.php:1383
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:1250
 msgid "WP-Cron"
 msgstr ""
@@ -29918,7 +30496,7 @@ msgstr ""
 msgid "yes"
 msgstr ""
 
-#: templates/account/booking-detail.php:283
+#: templates/account/booking-detail.php:343
 #: build/mhm-rentiva/templates/account/booking-detail.php:283
 msgid "Yes, Cancel Booking"
 msgstr ""
@@ -29938,10 +30516,10 @@ msgstr ""
 msgid "You already have a pending payout request."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:645 src/Admin/Setup/SetupWizard.php:696
-#: src/Admin/Setup/SetupWizard.php:718 src/Admin/Setup/SetupWizard.php:740
-#: src/Admin/Setup/SetupWizard.php:775 src/Admin/Setup/SetupWizard.php:795
-#: src/Admin/Setup/SetupWizard.php:807
+#: src/Admin/Setup/SetupWizard.php:777 src/Admin/Setup/SetupWizard.php:828
+#: src/Admin/Setup/SetupWizard.php:850 src/Admin/Setup/SetupWizard.php:872
+#: src/Admin/Setup/SetupWizard.php:907 src/Admin/Setup/SetupWizard.php:927
+#: src/Admin/Setup/SetupWizard.php:939
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:645
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:696
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:718
@@ -29952,12 +30530,12 @@ msgstr ""
 msgid "You are not allowed to perform this action."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:683
+#: src/Admin/Frontend/Account/AccountController.php:686
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:683
 msgid "You are not allowed to remove receipt for this booking."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:599
+#: src/Admin/Frontend/Account/AccountController.php:602
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:599
 msgid "You are not allowed to upload for this booking."
 msgstr ""
@@ -30050,7 +30628,7 @@ msgid ""
 "You can add up to 10 images. You can drag and drop images to reorder them."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:360
+#: src/Admin/Frontend/Account/AccountController.php:363
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:75
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:360
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:75
@@ -30181,8 +30759,8 @@ msgstr ""
 msgid "You do not have permission for this operation."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:198
-#: src/Admin/Frontend/Account/AccountRenderer.php:311
+#: src/Admin/Frontend/Account/AccountController.php:201
+#: src/Admin/Frontend/Account/AccountRenderer.php:304
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:198
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:311
 msgid "You do not have permission to access messages."
@@ -30248,7 +30826,7 @@ msgstr ""
 msgid "You do not have permission to send emails."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountRenderer.php:378
+#: src/Admin/Frontend/Account/AccountRenderer.php:371
 #: src/Admin/Frontend/Account/WooCommerceIntegration.php:222
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:378
 #: build/mhm-rentiva/src/Admin/Frontend/Account/WooCommerceIntegration.php:217
@@ -30287,7 +30865,7 @@ msgstr ""
 msgid "You do not have the capability to review payouts."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:384
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:389
 #: build/mhm-rentiva/src/Admin/Vehicle/VehicleLifecycleManager.php:384
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:977
 #: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:960
@@ -30414,7 +30992,7 @@ msgstr ""
 msgid "You must accept the terms and conditions to complete your booking."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:562
+#: src/Admin/Frontend/Account/AccountController.php:565
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:562
 msgid "You must be logged in"
 msgstr ""
@@ -30436,7 +31014,7 @@ msgstr ""
 msgid "You must be logged in to add to favorites"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:854
+#: src/Admin/Frontend/Account/AccountController.php:857
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountController.php:854
 msgid "You must be logged in to cancel a booking."
 msgstr ""
@@ -30446,8 +31024,9 @@ msgstr ""
 msgid "You must be logged in to submit a rating and review."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:583
-#: src/Admin/Frontend/Account/AccountController.php:666
+#: src/Admin/Frontend/Account/AccountController.php:586
+#: src/Admin/Frontend/Account/AccountController.php:669
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:50
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:638
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1043
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:276
@@ -30617,6 +31196,10 @@ msgstr ""
 #: build/mhm-rentiva/src/Admin/Utilities/Export/Export.php:1174
 msgid ""
 "Your export request has been queued and will be processed in the background."
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:297
+msgid "Your Growth"
 msgstr ""
 
 #: templates/emails/iban-change-approved.html.php:12
@@ -30793,6 +31376,12 @@ msgid ""
 "registered bank account."
 msgstr ""
 
+#: templates/account/partials/vendor-reliability.php:34
+msgid ""
+"Your performance score and the penalty system that keeps the marketplace "
+"fair for everyone."
+msgstr ""
+
 #: src/Admin/Licensing/LicenseAdmin.php:523
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseAdmin.php:523
 msgid "Your previous plan"
@@ -30824,7 +31413,11 @@ msgid ""
 "days. The refund will be credited to the original payment method you used."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:835
+#: templates/account/partials/vendor-reliability.php:74
+msgid "Your Reliability Score"
+msgstr ""
+
+#: src/Admin/Licensing/LicenseManager.php:822
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:835
 msgid ""
 "Your Rentiva license will expire soon. Please renew for Pro features and "
@@ -30845,7 +31438,7 @@ msgstr ""
 #: templates/messages/message-reply-form.html.php:41
 #: build/mhm-rentiva/templates/account/messages.php:79
 #: build/mhm-rentiva/templates/messages/message-reply-form.html.php:41
-#: src/Admin/Frontend/Account/AccountRenderer.php:330
+#: src/Admin/Frontend/Account/AccountRenderer.php:323
 #: src/Admin/Messages/Core/Messages.php:475
 #: src/Admin/Messages/Frontend/CustomerMessages.php:129
 #: build/mhm-rentiva/src/Admin/Frontend/Account/AccountRenderer.php:330
@@ -30859,6 +31452,12 @@ msgstr ""
 msgid ""
 "Your reservation has been successfully completed. Please find your booking "
 "details below."
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:127
+msgid ""
+"Your score starts at 100 and is adjusted based on your actions. Scores are "
+"clamped between 0 and 100."
 msgstr ""
 
 #: templates/emails/booking-created-customer.html.php:152
@@ -30957,7 +31556,7 @@ msgstr ""
 msgid "Your vendor application — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:869
+#: src/Admin/Setup/SetupWizard.php:1001
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:869
 msgid ""
 "Your WordPress permalink structure is set to \"Plain\". For the frontend "
@@ -30965,7 +31564,7 @@ msgid ""
 "your permalink settings to a SEO-friendly structure."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:612
+#: src/Admin/Setup/SetupWizard.php:744
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:612
 msgid ""
 "Your WordPress permalink structure is set to \"Plain\". For the frontend "
@@ -30986,6 +31585,10 @@ msgstr ""
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1467
 #: build/mhm-rentiva/src/Admin/Vehicle/ListTable/VehicleColumns.php:1467
 msgid "— No Location —"
+msgstr ""
+
+#: src/Admin/Testing/DemoNoticeManager.php:83
+msgid "ℹ️ Demo data is active. Remember to clean up before going live."
 msgstr ""
 
 #: src/Admin/Licensing/LicenseAdmin.php:118
@@ -31023,9 +31626,19 @@ msgstr ""
 msgid "⚠️ %d critical CPTs missing"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseManager.php:841
+#: src/Admin/Licensing/LicenseManager.php:828
 #: build/mhm-rentiva/src/Admin/Licensing/LicenseManager.php:841
 msgid "⚠️ Connection Warning"
+msgstr ""
+
+#: src/Admin/Testing/DemoNoticeManager.php:82
+msgid ""
+"⚠️ Demo data has been active for 7+ days. Clean up before using in "
+"production."
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php:583
+msgid "⚠️ Demo data is currently active."
 msgstr ""
 
 #: src/Admin/Testing/IntegrationTest.php:385
@@ -31047,12 +31660,12 @@ msgstr ""
 msgid "⚠️ IMPORTANT:"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:611
+#: src/Admin/Setup/SetupWizard.php:743
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:611
 msgid "⚠️ Important: Permalink Settings"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:866
+#: src/Admin/Setup/SetupWizard.php:998
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:866
 msgid "⚠️ Important: Permalink Settings Required"
 msgstr ""
@@ -31128,6 +31741,10 @@ msgstr ""
 #: src/Admin/Testing/PerformanceTest.php:306
 #: build/mhm-rentiva/src/Admin/Testing/PerformanceTest.php:306
 msgid "⚠️ Some indexes may be missing"
+msgstr ""
+
+#: src/Admin/Testing/DemoNoticeManager.php:133
+msgid "⚠️ This is a demo record and will be removed during cleanup."
 msgstr ""
 
 #: src/Admin/Testing/ActivationTest.php:294
@@ -31247,7 +31864,7 @@ msgstr ""
 msgid "✅ Database integrity check passed"
 msgstr ""
 
-#: src/Admin/Testing/DemoSeeder.php:131
+#: src/Admin/Testing/DemoSeeder.php:134
 #: build/mhm-rentiva/src/Admin/Testing/DemoSeeder.php:131
 msgid ""
 "✅ Demo v15 (Notification Suite) Completed! Check CLI logs for email triggers."
@@ -31316,7 +31933,7 @@ msgstr ""
 msgid "✅ Pro License Active"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:235
+#: src/Admin/Setup/SetupWizard.php:238
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:235
 msgid "✅ Pro license active on this site"
 msgstr ""
@@ -31415,7 +32032,7 @@ msgstr ""
 msgid "❌ Database access issue"
 msgstr ""
 
-#: src/Admin/Testing/DemoSeeder.php:228
+#: src/Admin/Testing/DemoSeeder.php:231
 #: build/mhm-rentiva/src/Admin/Testing/DemoSeeder.php:228
 msgid "❌ Error: You do not have permission to perform this action."
 msgstr ""
@@ -31474,7 +32091,7 @@ msgstr ""
 msgid "📋 Meta Key Usage Rules"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:381
+#: src/Admin/Setup/SetupWizard.php:384
 #: build/mhm-rentiva/src/Admin/Setup/SetupWizard.php:381
 msgid "📧 Important: Email Delivery Security"
 msgstr ""
@@ -31500,7 +32117,7 @@ msgid "🧪 Test Suite"
 msgstr ""
 
 #. 1: Deleted count, 2: Protected count
-#: src/Admin/Testing/DemoSeeder.php:462
+#: src/Admin/Testing/DemoSeeder.php:465
 #: build/mhm-rentiva/src/Admin/Testing/DemoSeeder.php:462
 #, php-format
 msgid ""

@@ -17,8 +17,11 @@
     gap: 12px;
     pointer-events: none;
     /* Allow clicks through empty areas */
-    max-width: 400px;
-    width: calc(100% - 60px);
+    /* Newest toast is prepended (flex column, top) so it stays in view;
+       older ones slide downward. Width grows with content up to max. */
+    max-width: min(480px, calc(100vw - 60px));
+    width: max-content;
+    min-width: 280px;
 }
 
 #mhm-toast-container.top-center {
@@ -84,6 +87,12 @@
     font-weight: 500;
     line-height: 1.4;
     flex-grow: 1;
+    /* Allow flex item to shrink below content size and wrap long text
+       instead of getting clipped by parent's overflow:hidden */
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    white-space: normal;
 }
 
 .mhm-toast__action {

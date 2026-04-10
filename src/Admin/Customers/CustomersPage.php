@@ -162,23 +162,8 @@ final class CustomersPage
 			$current_year = (int) gmdate('Y');
 		}
 
-		// Month names - Manual for global compatibility
-		$month_names = array(
-			1  => 'January',
-			2  => 'February',
-			3  => 'March',
-			4  => 'April',
-			5  => 'May',
-			6  => 'June',
-			7  => 'July',
-			8  => 'August',
-			9  => 'September',
-			10 => 'October',
-			11 => 'November',
-			12 => 'December',
-		);
-
-		$current_month_name = $month_names[$current_month];
+		// Locale-aware month name via WordPress i18n.
+		$current_month_name = date_i18n( 'F', mktime( 0, 0, 0, $current_month, 1, $current_year ) );
 		$days_in_month      = (int) gmdate('t', mktime(0, 0, 0, $current_month, 1, $current_year));
 		$today              = gmdate('j');
 
@@ -386,6 +371,7 @@ final class CustomersPage
 			'mhm-customers-calendar',
 			'mhmCustomersCalendar',
 			array(
+				'locale'                => str_replace( '_', '-', get_locale() ),
 				'strings'               => array(
 					'selectedDate' => __('Selected date', 'mhm-rentiva'),
 				),
@@ -470,6 +456,7 @@ final class CustomersPage
 			'mhm-customers-calendar',
 			'mhmCustomersCalendar',
 			array(
+				'locale'                => str_replace( '_', '-', get_locale() ),
 				'strings'               => array(
 					'selectedDate' => __('Selected date', 'mhm-rentiva'),
 				),

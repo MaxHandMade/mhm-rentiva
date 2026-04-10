@@ -78,16 +78,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 						?>
 					</div>
 					<div class="chart-labels">
-						<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+						<span><?php esc_html_e( 'Mon', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Tue', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Wed', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Thu', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Fri', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Sat', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Sun', 'mhm-rentiva' ); ?></span>
 					</div>
 				</div>
 				<div class="analytics-metrics">
 					<div class="metric-row">
-						<span class="metric-label">Total Revenue</span>
+						<span class="metric-label"><?php esc_html_e( 'Total Revenue', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value"><?php echo esc_html( number_format( (float) ( $revenue_data['total'] ?? 0 ), 0, ',', '.' ) . \MHMRentiva\Admin\Reports\Reports::get_currency_symbol() ); ?></span>
 					</div>
 					<div class="metric-row">
-						<span class="metric-label">Daily Average</span>
+						<span class="metric-label"><?php esc_html_e( 'Daily Average', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value"><?php echo esc_html( number_format( (float) ( $revenue_data['avg_daily'] ?? 0 ), 0, ',', '.' ) . \MHMRentiva\Admin\Reports\Reports::get_currency_symbol() ); ?></span>
 					</div>
 				</div>
@@ -135,16 +135,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 						?>
 					</div>
 					<div class="chart-labels">
-						<span>Confirmed</span><span>Pending</span><span>Cancelled</span><span>Completed</span>
+						<span><?php esc_html_e( 'Confirmed', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Pending', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Cancelled', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Completed', 'mhm-rentiva' ); ?></span>
 					</div>
 				</div>
 				<div class="analytics-metrics">
 					<div class="metric-row">
-						<span class="metric-label">Total Bookings</span>
+						<span class="metric-label"><?php esc_html_e( 'Total Bookings', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value"><?php echo esc_html( number_format( (int) ( $booking_data['total_bookings'] ?? 0 ) ) ); ?></span>
 					</div>
 					<div class="metric-row">
-						<span class="metric-label">Success Rate</span>
+						<span class="metric-label"><?php esc_html_e( 'Success Rate', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value">%<?php echo esc_html( (string) ( 100 - ( (float) ( $booking_data['cancellation_rate'] ?? 0 ) ) ) ); ?></span>
 					</div>
 				</div>
@@ -195,16 +195,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 						?>
 					</div>
 					<div class="chart-labels">
-						<span>New</span><span>Returning</span><span>Active</span><span>Total</span>
+						<span><?php esc_html_e( 'New', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Returning', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Active', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Total', 'mhm-rentiva' ); ?></span>
 					</div>
 				</div>
 				<div class="analytics-metrics">
 					<div class="metric-row">
-						<span class="metric-label">Total Customers</span>
+						<span class="metric-label"><?php esc_html_e( 'Total Customers', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value"><?php echo esc_html( number_format( (int) ( $customer_data['summary']['total_customers'] ?? 0 ) ) ); ?></span>
 					</div>
 					<div class="metric-row">
-						<span class="metric-label">Retention Rate</span>
+						<span class="metric-label"><?php esc_html_e( 'Retention Rate', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value">%<?php echo esc_html( (string) ( (float) ( $customer_data['summary']['retention_rate'] ?? 0 ) ) ); ?></span>
 					</div>
 				</div>
@@ -262,16 +262,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 						?>
 					</div>
 					<div class="chart-labels">
-						<span>Hatchback</span><span>Sedan</span><span>SUV</span><span>Coupe</span>
+						<span><?php esc_html_e( 'Hatchback', 'mhm-rentiva' ); ?></span><span><?php esc_html_e( 'Sedan', 'mhm-rentiva' ); ?></span><span>SUV</span><span><?php esc_html_e( 'Coupe', 'mhm-rentiva' ); ?></span>
 					</div>
 				</div>
 				<div class="analytics-metrics">
 					<div class="metric-row">
-						<span class="metric-label">Total Vehicles</span>
+						<span class="metric-label"><?php esc_html_e( 'Total Vehicles', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value"><?php echo esc_html( number_format( (int) ( $vehicle_data['summary']['total_vehicles'] ?? 0 ) ) ); ?></span>
 					</div>
 					<div class="metric-row">
-						<span class="metric-label">Avg Occupancy</span>
+						<span class="metric-label"><?php esc_html_e( 'Avg Occupancy', 'mhm-rentiva' ); ?></span>
 						<span class="metric-value">%<?php echo esc_html( (string) ( (float) ( $vehicle_data['summary']['avg_occupancy_rate'] ?? 0 ) ) ); ?></span>
 					</div>
 				</div>
