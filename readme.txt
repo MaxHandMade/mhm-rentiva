@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.26.1
+Stable tag:        4.26.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,15 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.26.2 =
+* **Uninstall:** Complete removal now drops all 27 plugin tables. Previously 14 subsystem tables (ledger, key_registry, commission_policy, payout_audit, tenants, usage_metrics and orphaned alert/payment subsystem tables) were left behind in the database after delete with the cleanup option enabled.
+* **Uninstall:** Pattern-based safety net added — any orphaned table matching the plugin's unique mhm_rentiva_* prefix is now caught even if not in the explicit whitelist.
+* **Uninstall:** Stale postmeta_backup_invalid_* recovery tables created by DatabaseCleaner are now dropped on uninstall.
+* **Uninstall:** Drop list and stat counter now share a single source of truth so they cannot drift apart.
+* **Uninstall:** Defensive guards added to uninstall.php and the taxonomy cleanup step so a corrupted settings option or missing taxonomy can no longer abort the cleanup silently.
+* **Migration:** Schema migrations now run automatically when the plugin file version changes, even when WordPress core does not invoke the activation hook (manual upload, FTP update, wp-cli plugin update).
+* **Fix:** CLI bootstrap fatal — SettingsCore::get()/has() now tolerate a non-array settings option, and AdvancedLogger::log() bails out when called before WordPress is fully loaded. Previously a corrupted settings option or an early-bootstrap log attempt could crash wp-cli commands.
 
 = 4.26.1 =
 * **Fix:** Vehicle details sidebar — spec chips no longer overflow card edge; hybrid fuel icon corrected.

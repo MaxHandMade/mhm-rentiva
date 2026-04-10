@@ -1,5 +1,20 @@
 [
     {
+        "version": "4.26.2",
+        "date": "2026-04-10",
+        "type": "patch",
+        "changes": [
+            "Uninstall: Complete removal now drops all 27 plugin tables. Previously 14 subsystem tables (ledger, key_registry, commission_policy, payout_audit, tenants, usage_metrics, and orphaned alert/payment subsystem tables) were left behind in the database after delete with the cleanup option enabled.",
+            "Uninstall: Pattern-based safety net added — any orphaned table matching the plugin's unique mhm_rentiva_* prefix is now caught even if not in the explicit whitelist.",
+            "Uninstall: Stale postmeta_backup_invalid_* recovery tables created by DatabaseCleaner are now dropped on uninstall.",
+            "Uninstall: Drop list and stat counter now share a single source of truth so they cannot drift apart.",
+            "Uninstall: Defensive guards added to uninstall.php and the taxonomy cleanup step so a corrupted settings option or missing taxonomy can no longer abort the cleanup silently.",
+            "Migration: Schema migrations now run automatically when the plugin file version changes, even when WordPress core does not invoke the activation hook (manual upload, FTP update, wp-cli plugin update). Previously a manual reactivation was required to apply schema changes.",
+            "Fix: CLI bootstrap fatal — SettingsCore::get()/has() now tolerate a non-array settings option, and AdvancedLogger::log() bails out when called before WordPress is fully loaded. Previously a corrupted settings option or an early-bootstrap log attempt could crash wp-cli commands with a TypeError or an is_user_logged_in() undefined function error."
+        ],
+        "notice": "v4.26.2 - Critical uninstall cleanup fix, CLI bootstrap hardening, and automatic migration on version drift"
+    },
+    {
         "version": "4.26.1",
         "date": "2026-04-08",
         "type": "patch",

@@ -75,6 +75,14 @@ final class AdvancedLogger {
 	 * } $args
 	 */
 	public static function log( array $args ): int {
+		// Bail early if WordPress is not fully loaded yet (e.g., logging from
+		// plugin bootstrap before pluggable.php is included). wp_insert_post()
+		// fires transition_post_status hooks that depend on is_user_logged_in(),
+		// so attempting to log this early causes a fatal error.
+		if ( ! function_exists( 'is_user_logged_in' ) || ! did_action( 'plugins_loaded' ) ) {
+			return 0;
+		}
+
 		$level    = strtolower( (string) ( $args['level'] ?? self::LEVEL_INFO ) );
 		$category = strtolower( (string) ( $args['category'] ?? self::CATEGORY_SYSTEM ) );
 		$message  = (string) ( $args['message'] ?? '' );

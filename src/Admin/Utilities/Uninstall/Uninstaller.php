@@ -91,20 +91,8 @@ final class Uninstaller {
 		);
 		$stats['postmeta'] = (int) $postmeta;
 
-		// Count custom tables
-		$custom_tables = array(
-			$wpdb->prefix . 'mhm_rentiva_queue',
-			$wpdb->prefix . 'mhm_rentiva_ratings',
-			$wpdb->prefix . 'mhm_rentiva_report_queue',
-			$wpdb->prefix . 'mhm_message_logs',
-			$wpdb->prefix . 'mhm_rentiva_background_jobs',
-			$wpdb->prefix . 'mhm_backup_records',
-			$wpdb->prefix . 'mhm_notification_queue',
-			$wpdb->prefix . 'mhm_payment_log',
-			$wpdb->prefix . 'mhm_sessions',
-			$wpdb->prefix . 'rentiva_transfer_locations',
-			$wpdb->prefix . 'rentiva_transfer_routes',
-		);
+		// Count custom tables — centralized via get_all_plugin_tables() so stats and drop stay in sync.
+		$custom_tables = self::get_all_plugin_tables();
 
 		foreach ( $custom_tables as $table ) {
 			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -269,23 +257,8 @@ final class Uninstaller {
 		);
 		$results['postmeta_deleted'] = (int) $postmeta_deleted;
 
-		// 5. Drop custom tables
-		$custom_tables = array(
-			$wpdb->prefix . 'mhm_rentiva_queue',
-			$wpdb->prefix . 'mhm_rentiva_ratings',
-			$wpdb->prefix . 'mhm_rentiva_report_queue',
-			$wpdb->prefix . 'mhm_message_logs',
-			$wpdb->prefix . 'mhm_rentiva_background_jobs',
-			$wpdb->prefix . 'mhm_backup_records',
-			$wpdb->prefix . 'mhm_notification_queue',
-			$wpdb->prefix . 'mhm_payment_log',
-			$wpdb->prefix . 'mhm_sessions',
-			$wpdb->prefix . 'rentiva_transfer_locations',
-			$wpdb->prefix . 'rentiva_transfer_routes',
-			// Legacy names before rename migration
-			$wpdb->prefix . 'mhm_rentiva_transfer_locations',
-			$wpdb->prefix . 'mhm_rentiva_transfer_routes',
-		);
+		// 5. Drop custom tables (whitelist + pattern-based safety net for orphaned tables)
+		$custom_tables = self::get_all_plugin_tables();
 
 		foreach ( $custom_tables as $table ) {
 			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -294,6 +267,24 @@ final class Uninstaller {
 				$safe_table = esc_sql( $table );
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is safe/sanitized.
 				$wpdb->query( "DROP TABLE IF EXISTS `{$safe_table}`" );
+				++$results['tables_dropped'];
+			}
+		}
+
+		// 5b. Safety net: drop any remaining orphan tables that match plugin prefixes.
+		// This catches tables from removed subsystems that were never added to the whitelist.
+		// Patterns are plugin-unique (mhm_rentiva_*, mhm_postmeta_backup_invalid_*), so no cross-plugin risk.
+		$orphan_patterns = array(
+			$wpdb->prefix . 'mhm_rentiva_%',
+			$wpdb->prefix . 'mhm_postmeta_backup_invalid_%',
+		);
+
+		foreach ( $orphan_patterns as $pattern ) {
+			$orphans = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $pattern ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			foreach ( $orphans as $orphan_table ) {
+				$safe_orphan = esc_sql( $orphan_table );
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table identifier sanitized.
+				$wpdb->query( "DROP TABLE IF EXISTS `{$safe_orphan}`" );
 				++$results['tables_dropped'];
 			}
 		}
@@ -355,6 +346,10 @@ final class Uninstaller {
 		// 9. Delete taxonomies and terms
 		$taxonomies = array( 'vehicle_category', 'vehicle_cat' ); // vehicle_cat is deprecated
 		foreach ( $taxonomies as $taxonomy ) {
+			if ( ! taxonomy_exists( $taxonomy ) ) {
+				continue;
+			}
+
 			$terms = get_terms(
 				array(
 					'taxonomy'   => $taxonomy,
@@ -362,8 +357,14 @@ final class Uninstaller {
 				)
 			);
 
+			if ( is_wp_error( $terms ) || ! is_array( $terms ) ) {
+				continue;
+			}
+
 			foreach ( $terms as $term ) {
-				wp_delete_term( $term->term_id, $taxonomy );
+				if ( $term instanceof \WP_Term ) {
+					wp_delete_term( $term->term_id, $taxonomy );
+				}
 			}
 		}
 
@@ -376,6 +377,58 @@ final class Uninstaller {
 		);
 	}
 
+
+	/**
+	 * Canonical list of every custom table the plugin has ever created.
+	 *
+	 * Used by both stat counting and the DROP phase so the two cannot drift.
+	 * Includes active tables, legacy names, and orphaned subsystem tables
+	 * from removed feature branches. Pattern-based cleanup in uninstall_direct()
+	 * provides a final safety net for anything missed here.
+	 *
+	 * @return array<string> Table names prefixed with $wpdb->prefix.
+	 */
+	public static function get_all_plugin_tables(): array {
+		global $wpdb;
+
+		return array(
+			// --- Active tables (created by DatabaseMigrator / QueueManager / etc.) ---
+			$wpdb->prefix . 'mhm_rentiva_queue',
+			$wpdb->prefix . 'mhm_rentiva_ratings',
+			$wpdb->prefix . 'mhm_rentiva_background_jobs',
+			$wpdb->prefix . 'mhm_rentiva_payout_audit',
+			$wpdb->prefix . 'mhm_rentiva_ledger',
+			$wpdb->prefix . 'mhm_rentiva_commission_policy',
+			$wpdb->prefix . 'mhm_rentiva_tenants',
+			$wpdb->prefix . 'mhm_rentiva_usage_metrics',
+			$wpdb->prefix . 'mhm_rentiva_key_registry',
+			$wpdb->prefix . 'mhm_message_logs',
+			$wpdb->prefix . 'mhm_notification_queue',
+			$wpdb->prefix . 'mhm_payment_log',
+			$wpdb->prefix . 'mhm_sessions',
+			$wpdb->prefix . 'mhm_backup_records',
+			$wpdb->prefix . 'rentiva_transfer_locations',
+			$wpdb->prefix . 'rentiva_transfer_routes',
+
+			// --- Legacy names before rename migration ---
+			$wpdb->prefix . 'mhm_rentiva_transfer_locations',
+			$wpdb->prefix . 'mhm_rentiva_transfer_routes',
+			$wpdb->prefix . 'mhm_rentiva_report_queue',
+
+			// --- Orphan tables from removed subsystems (kept for cleanup on historic installs) ---
+			$wpdb->prefix . 'mhm_rentiva_subscriptions',
+			$wpdb->prefix . 'mhm_rentiva_usage_billing_feature_flags',
+			$wpdb->prefix . 'mhm_rentiva_payment_events_raw',
+			$wpdb->prefix . 'mhm_rentiva_payment_event_aggregates',
+			$wpdb->prefix . 'mhm_rentiva_payment_event_aggregate_windows',
+			$wpdb->prefix . 'mhm_rentiva_payment_registry',
+			$wpdb->prefix . 'mhm_rentiva_alert_state',
+			$wpdb->prefix . 'mhm_rentiva_alert_dispatch_state',
+			$wpdb->prefix . 'mhm_rentiva_external_alert_bridge_queue',
+			$wpdb->prefix . 'mhm_rentiva_external_alert_bridge_circuit',
+			$wpdb->prefix . 'mhm_rentiva_event_queue',
+		);
+	}
 
 	/**
 	 * Initialize Filesystem

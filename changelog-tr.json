@@ -1,5 +1,20 @@
 [
     {
+        "version": "4.26.2",
+        "date": "2026-04-10",
+        "type": "patch",
+        "changes": [
+            "🧹 KALDIRMA: Eklenti silindiğinde 'verileri temizle' seçeneği aktifken artık tüm 27 özel tablo siliniyor. Önceden 14 alt sistem tablosu (ledger, key_registry, commission_policy, payout_audit, tenants, usage_metrics ve eski alert/payment alt sistemlerine ait yetim tablolar) veritabanında yetim olarak kalıyordu.",
+            "🛡️ KALDIRMA: Pattern tabanlı güvenlik ağı eklendi — listede olmayan ama mhm_rentiva_* önekiyle başlayan herhangi bir yetim tablo da otomatik olarak yakalanıp siliniyor.",
+            "🧹 KALDIRMA: DatabaseCleaner tarafından oluşturulan eski postmeta_backup_invalid_* kurtarma tabloları da kaldırma sırasında temizleniyor.",
+            "🔧 KALDIRMA: Silme listesi ve istatistik sayacı artık tek bir kaynaktan okuyor — birbirinden uzaklaşamazlar.",
+            "🛡️ KALDIRMA: uninstall.php ve taksonomi temizleme adımına savunma mekanizmaları eklendi; bozuk bir ayar kaydı veya eksik bir taksonomi temizliği artık sessizce durduramıyor.",
+            "🔄 GÜNCELLEME: Şema migration'ları artık eklenti dosya sürümü değiştiğinde otomatik çalışıyor; WordPress aktivasyon hook'unu çağırmasa bile (manuel yükleme, FTP güncelleme, wp-cli plugin update). Önceden yeni tabloları oluşturmak için eklentiyi pasifleştirip tekrar etkinleştirmek gerekiyordu.",
+            "🔧 DÜZELTME: CLI bootstrap fatal hatası — SettingsCore::get()/has() artık dizi olmayan bir ayar değerini tolere ediyor, AdvancedLogger::log() ise WordPress tam yüklenmeden çağrıldığında güvenli biçimde dönüyor. Önceden bozuk bir ayar kaydı veya bootstrap sırasında log denemesi wp-cli komutlarını TypeError ya da is_user_logged_in() tanımsız fonksiyon hatasıyla çökertebiliyordu."
+        ],
+        "notice": "v4.26.2 - Kritik kaldırma temizliği düzeltmesi, CLI bootstrap güçlendirmesi ve sürüm değişikliğinde otomatik migration"
+    },
+    {
         "version": "4.26.1",
         "date": "2026-04-08",
         "type": "patch",

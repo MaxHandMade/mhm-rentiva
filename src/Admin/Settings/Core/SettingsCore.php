@@ -167,6 +167,9 @@ final class SettingsCore
 	public static function has(string $key): bool
 	{
 		$settings = get_option(self::OPTION_NAME, array());
+		if (! is_array($settings)) {
+			$settings = array();
+		}
 		return array_key_exists($key, $settings);
 	}
 
@@ -176,6 +179,9 @@ final class SettingsCore
 	public static function get(string $key, mixed $default = null): mixed
 	{
 		$settings = get_option(self::OPTION_NAME, array());
+		if (! is_array($settings)) {
+			$settings = array();
+		}
 		$defaults = self::get_defaults();
 
 		if (array_key_exists($key, $settings)) {

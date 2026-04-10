@@ -4,7 +4,7 @@
  * Plugin Name:       MHM Rentiva
  * Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
  * Description:       MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
- * Version:           4.26.1
+ * Version:           4.26.2
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      8.1
@@ -62,7 +62,7 @@ function mhm_rentiva_get_display_id(int $booking_id): int
 }
 
 // Define Version (Updated via build script)
-define('MHM_RENTIVA_VERSION', '4.26.1');
+define('MHM_RENTIVA_VERSION', '4.26.2');
 
 // PHP version check
 if (version_compare(PHP_VERSION, '8.1', '<')) {
@@ -189,6 +189,40 @@ add_action(
 ); // Priority -10: Load very early (critical for AJAX)
 
 /**
+ * Version drift migration trigger.
+ *
+ * Fires on every request after bootstrap. Compares the plugin file constant
+ * (MHM_RENTIVA_VERSION) against the stored option (mhm_rentiva_plugin_version).
+ * If they differ, run_migrations() is invoked so schema changes from an update
+ * are applied even when the user installs via manual upload / FTP / wp-cli —
+ * paths that never trigger the activation hook.
+ *
+ * DatabaseMigrator is idempotent (guarded by mhm_rentiva_db_version) so this
+ * is safe to call on every version bump with no duplicate work.
+ */
+add_action(
+	'plugins_loaded',
+	function () {
+		if (! is_admin() && ! wp_doing_cron() && ! (defined('WP_CLI') && WP_CLI)) {
+			// Only check on admin / cron / cli to avoid front-end overhead.
+			return;
+		}
+
+		$stored_version = get_option('mhm_rentiva_plugin_version', '');
+
+		if ($stored_version === MHM_RENTIVA_VERSION) {
+			return;
+		}
+
+		if (class_exists('MHMRentiva\\Admin\\Core\\Utilities\\DatabaseMigrator')) {
+			\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::run_migrations();
+			update_option('mhm_rentiva_plugin_version', MHM_RENTIVA_VERSION);
+		}
+	},
+	20
+);
+
+/**
  * Single site activation operations
  */
 function mhm_rentiva_single_site_activation()
@@ -234,6 +268,9 @@ function mhm_rentiva_single_site_activation()
 
 	// Trigger setup wizard redirect on new installations
 	update_option('mhm_rentiva_setup_redirect', '1');
+
+	// Seed plugin version so version drift hook does not fire on fresh install.
+	update_option('mhm_rentiva_plugin_version', MHM_RENTIVA_VERSION);
 }
 
 // Activation hook - CPT and taxonomy registration + rewrite flush + Multisite support
