@@ -1,7 +1,91 @@
-/* 
- * EMERGENCY UI ENFORCEMENT - VIP TRANSFER GRID CARD 
+/*
+ * EMERGENCY UI ENFORCEMENT - VIP TRANSFER GRID CARD
  * DO NOT OVERRIDE WITHOUT LEAD APPROVAL
  */
+
+/* Summary Header — route + trip chips */
+.mhm-transfer-results__summary {
+    margin-bottom: 24px !important;
+}
+
+.mhm-transfer-results__summary-route {
+    font-size: 26px !important;
+    font-weight: 700 !important;
+    color: var(--mhm-text-primary, #1a1a1a) !important;
+    margin: 0 0 16px 0 !important;
+    line-height: 1.25 !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+}
+
+.mhm-transfer-results__summary-route .mhm-transfer-card__route-arrow {
+    color: var(--mhm-primary, #0073aa) !important;
+    font-weight: 400 !important;
+}
+
+.mhm-transfer-summary__chips {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+}
+
+.mhm-transfer-summary__chip {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    padding: 10px 16px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.2s ease !important;
+}
+
+.mhm-transfer-summary__chip:hover {
+    border-color: var(--mhm-primary, #0073aa) !important;
+    box-shadow: 0 4px 12px rgba(0, 115, 170, 0.12) !important;
+}
+
+.mhm-transfer-summary__chip-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 36px !important;
+    height: 36px !important;
+    background: linear-gradient(135deg, rgba(0, 115, 170, 0.08), rgba(0, 115, 170, 0.02)) !important;
+    color: var(--mhm-primary, #0073aa) !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
+}
+
+.mhm-transfer-summary__chip-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+}
+
+.mhm-transfer-summary__chip-body {
+    display: inline-flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    line-height: 1.2 !important;
+}
+
+.mhm-transfer-summary__chip-label {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #6b7280 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.mhm-transfer-summary__chip-value {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: var(--mhm-text-primary, #1a1a1a) !important;
+}
+
 
 /* Layout Variants */
 .mhm-transfer-results.rv-transfer-results--grid .mhm-transfer-results__grid {
@@ -267,5 +351,27 @@
         border-left: none !important;
         border-top: 1px solid #f0f0f0 !important;
         justify-content: space-between !important;
+    }
+
+    .mhm-transfer-results__summary-route {
+        font-size: 20px !important;
+    }
+
+    .mhm-transfer-summary__chips {
+        gap: 8px !important;
+    }
+
+    .mhm-transfer-summary__chip {
+        padding: 8px 12px !important;
+        gap: 10px !important;
+    }
+
+    .mhm-transfer-summary__chip-icon {
+        width: 32px !important;
+        height: 32px !important;
+    }
+
+    .mhm-transfer-summary__chip-value {
+        font-size: 13px !important;
     }
 }

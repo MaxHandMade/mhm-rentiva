@@ -73,42 +73,68 @@ $wrapper_class  = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-re
 					<?php echo esc_html($destination_name); ?>
 				</h2>
 				<?php if ($show_summary_date || $show_summary_pax) : ?>
-					<div class="mhm-transfer-results__summary-date">
+					<div class="mhm-transfer-summary__chips">
 						<?php if ($show_summary_date) : ?>
-							<span class="rv-info-item">
-								<?php
-								Icons::render('calendar', [
-									'width'  => '14',
-									'height' => '14',
-								]);
-								?>
-								<?php
-							$raw_date = $criteria['date'] ?? '';
-							if ($raw_date) {
-								$ts = strtotime($raw_date);
-								echo esc_html($ts ? date_i18n(get_option('date_format'), $ts) : $raw_date);
-							}
-							?>
+							<span class="mhm-transfer-summary__chip">
+								<span class="mhm-transfer-summary__chip-icon">
+									<?php Icons::render('calendar', [ 'width' => '18', 'height' => '18' ]); ?>
+								</span>
+								<span class="mhm-transfer-summary__chip-body">
+									<span class="mhm-transfer-summary__chip-label"><?php esc_html_e('Date', 'mhm-rentiva'); ?></span>
+									<span class="mhm-transfer-summary__chip-value">
+										<?php
+										$raw_date = $criteria['date'] ?? '';
+										if ($raw_date) {
+											$ts = strtotime($raw_date);
+											echo esc_html($ts ? date_i18n(get_option('date_format'), $ts) : $raw_date);
+										}
+										?>
+									</span>
+								</span>
 							</span>
-							<span class="rv-info-item" style="margin-left: 15px;">
-								<?php
-								Icons::render('clock', [
-									'width'  => '14',
-									'height' => '14',
-								]);
-								?>
-								<?php echo esc_html($criteria['time'] ?? ''); ?>
+							<span class="mhm-transfer-summary__chip">
+								<span class="mhm-transfer-summary__chip-icon">
+									<?php Icons::render('clock', [ 'width' => '18', 'height' => '18' ]); ?>
+								</span>
+								<span class="mhm-transfer-summary__chip-body">
+									<span class="mhm-transfer-summary__chip-label"><?php esc_html_e('Time', 'mhm-rentiva'); ?></span>
+									<span class="mhm-transfer-summary__chip-value"><?php echo esc_html($criteria['time'] ?? ''); ?></span>
+								</span>
 							</span>
 						<?php endif; ?>
 						<?php if ($show_summary_pax) : ?>
-							<span class="rv-info-item" style="margin-left: 15px;">
-								<?php
-								Icons::render('users', [
-									'width'  => '14',
-									'height' => '14',
-								]);
-								?>
-								<?php echo esc_html( (string) ( ( $criteria['adults'] ?? 0 ) + ( $criteria['children'] ?? 0 ) )); ?> <?php esc_html_e('Pax', 'mhm-rentiva'); ?>
+							<span class="mhm-transfer-summary__chip">
+								<span class="mhm-transfer-summary__chip-icon">
+									<?php Icons::render('users', [ 'width' => '18', 'height' => '18' ]); ?>
+								</span>
+								<span class="mhm-transfer-summary__chip-body">
+									<span class="mhm-transfer-summary__chip-label"><?php esc_html_e('Passengers', 'mhm-rentiva'); ?></span>
+									<span class="mhm-transfer-summary__chip-value">
+										<?php echo esc_html( (string) ( ( $criteria['adults'] ?? 0 ) + ( $criteria['children'] ?? 0 ) )); ?> <?php esc_html_e('Pax', 'mhm-rentiva'); ?>
+									</span>
+								</span>
+							</span>
+						<?php endif; ?>
+						<?php
+						$luggage_big   = (int) ( $criteria['luggage_big'] ?? 0 );
+						$luggage_small = (int) ( $criteria['luggage_small'] ?? 0 );
+						if ($luggage_big > 0 || $luggage_small > 0) :
+							$parts = array();
+							if ($luggage_big > 0) {
+								$parts[] = $luggage_big . ' ' . __('Big Bags', 'mhm-rentiva');
+							}
+							if ($luggage_small > 0) {
+								$parts[] = $luggage_small . ' ' . __('Small Bags', 'mhm-rentiva');
+							}
+							?>
+							<span class="mhm-transfer-summary__chip">
+								<span class="mhm-transfer-summary__chip-icon">
+									<?php Icons::render('luggage', [ 'width' => '18', 'height' => '18' ]); ?>
+								</span>
+								<span class="mhm-transfer-summary__chip-body">
+									<span class="mhm-transfer-summary__chip-label"><?php esc_html_e('Luggage', 'mhm-rentiva'); ?></span>
+									<span class="mhm-transfer-summary__chip-value"><?php echo esc_html(implode(' + ', $parts)); ?></span>
+								</span>
 							</span>
 						<?php endif; ?>
 					</div>

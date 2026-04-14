@@ -32877,3 +32877,7 @@ msgstr "Henüz lisansınız yok mu? Mağazamızdan bir tane edinin ve anahtarı 
 #: src/Admin/Licensing/LicenseAdmin.php
 msgid "Get a License"
 msgstr "Lisans Satın Al"
+
+#: templates/shortcodes/transfer-results.php
+msgid "Passengers"
+msgstr "Yolcu"
