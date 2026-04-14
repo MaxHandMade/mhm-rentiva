@@ -151,6 +151,52 @@ final class VendorEmails {
 		);
 
 		// -----------------------------------------------------------------------
+		// Section: Booking Notifications (sent to vendor)
+		// -----------------------------------------------------------------------
+		echo '<h3>' . esc_html__( 'Booking Notifications', 'mhm-rentiva' ) . '</h3>';
+		echo '<p class="description">' . esc_html__( 'Booking emails use these placeholders: {{customer.name}}, {{customer.email}}, {{customer.phone}}, {{vehicle.title}}, {{booking.order_id}}, {{booking.pickup_date}}, {{booking.return_date}}, {{booking.total_price}}, {{booking.service_type}}.', 'mhm-rentiva' ) . '</p>';
+
+		EmailFormRenderer::render_form(
+			__( 'New Reservation (Vendor)', 'mhm-rentiva' ),
+			__( 'Sent to the vendor when a customer reserves one of their vehicles.', 'mhm-rentiva' ),
+			array(
+				array(
+					'type'  => 'text',
+					'name'  => 'mhm_rentiva_booking_created_vendor_subject',
+					'label' => __( 'Subject', 'mhm-rentiva' ),
+					'value' => $get_subject( 'mhm_rentiva_booking_created_vendor_subject', 'booking_created_vendor' ),
+				),
+				array(
+					'type'  => 'textarea',
+					'name'  => 'mhm_rentiva_booking_created_vendor_body',
+					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value' => $get_body( 'mhm_rentiva_booking_created_vendor_body', 'booking_created_vendor' ),
+					'rows'  => 12,
+				),
+			)
+		);
+
+		EmailFormRenderer::render_form(
+			__( 'Reservation Status Changed (Vendor)', 'mhm-rentiva' ),
+			__( 'Sent to the vendor when a reservation status changes (e.g. confirmed, cancelled).', 'mhm-rentiva' ),
+			array(
+				array(
+					'type'  => 'text',
+					'name'  => 'mhm_rentiva_booking_status_vendor_subject',
+					'label' => __( 'Subject', 'mhm-rentiva' ),
+					'value' => $get_subject( 'mhm_rentiva_booking_status_vendor_subject', 'booking_status_changed_vendor' ),
+				),
+				array(
+					'type'  => 'textarea',
+					'name'  => 'mhm_rentiva_booking_status_vendor_body',
+					'label' => __( 'Content (HTML)', 'mhm-rentiva' ),
+					'value' => $get_body( 'mhm_rentiva_booking_status_vendor_body', 'booking_status_changed_vendor' ),
+					'rows'  => 12,
+				),
+			)
+		);
+
+		// -----------------------------------------------------------------------
 		// Section 2: Vehicle Review
 		// -----------------------------------------------------------------------
 		echo '<h3>' . esc_html__( 'Vehicle Review', 'mhm-rentiva' ) . '</h3>';
@@ -552,6 +598,26 @@ final class VendorEmails {
 			),
 			'payout'    => array( 'amount_formatted' => '{{payout.amount_formatted}}' ),
 			'application' => array( 'id' => '{{application.id}}' ),
+			'customer'    => array(
+				'name'  => '{{customer.name}}',
+				'email' => '{{customer.email}}',
+				'phone' => '{{customer.phone}}',
+			),
+			'booking'     => array(
+				'id'             => '{{booking.id}}',
+				'order_id'       => '{{booking.order_id}}',
+				'service_type'   => '{{booking.service_type}}',
+				'pickup_date'    => '{{booking.pickup_date}}',
+				'return_date'    => '{{booking.return_date}}',
+				'total_price'    => '{{booking.total_price}}',
+				'payment_status' => '{{booking.payment_status}}',
+			),
+			'status_change' => array(
+				'old_status'       => '{{status_change.old_status}}',
+				'new_status'       => '{{status_change.new_status}}',
+				'old_status_label' => '{{status_change.old_status_label}}',
+				'new_status_label' => '{{status_change.new_status_label}}',
+			),
 		);
 	}
 }

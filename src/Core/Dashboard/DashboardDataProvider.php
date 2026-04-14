@@ -44,7 +44,7 @@ final class DashboardDataProvider
 			'kpis'                    => $config,
 			'kpi_data'                => $kpi_data,
 			'analytics'               => $analytics,
-			'recent_bookings'         => self::get_recent_bookings($user_id),
+			'recent_bookings'         => self::get_recent_bookings($context, $user_id),
 			'bookings_tab_shortcode'  => '[rentiva_my_bookings hide_nav="1" limit="10"]',
 			'favorites_tab_shortcode' => '[rentiva_my_favorites limit="12"]',
 			'messages_tab_shortcode'  => '[rentiva_messages hide_nav="1"]',
@@ -132,8 +132,40 @@ final class DashboardDataProvider
 				return array('total' => $count);
 			},
 			'upcoming_rentals' => static function (string $context, int $user_id, string $user_email): array {
-				unset($context, $user_id, $user_email);
-				return array('total' => 0);
+				unset($context, $user_email);
+				global $wpdb;
+				$vehicle_ids = get_posts(array(
+					'post_type'      => 'vehicle',
+					'author'         => $user_id,
+					'post_status'    => array('publish', 'pending'),
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+				));
+				if (empty($vehicle_ids)) {
+					return array('total' => 0);
+				}
+				$placeholders = implode(',', array_fill(0, count($vehicle_ids), '%d'));
+				$today        = gmdate('Y-m-d');
+				$active       = array('confirmed', 'pending_payment', 'in_progress', 'pending');
+				$status_ph    = implode(',', array_fill(0, count($active), '%s'));
+				$args         = array_merge($active, $vehicle_ids, array($today));
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				$count = (int) $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(DISTINCT p.ID)
+						FROM {$wpdb->posts} p
+						INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhm_vehicle_id'
+						INNER JOIN {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhm_status' AND sm.meta_value IN ($status_ph)
+						INNER JOIN {$wpdb->postmeta} dm ON dm.post_id = p.ID AND dm.meta_key IN ('_mhm_pickup_date','_booking_pickup_date')
+						WHERE p.post_type = 'vehicle_booking'
+						AND p.post_status NOT IN ('trash','auto-draft')
+						AND CAST(vm.meta_value AS UNSIGNED) IN ($placeholders)
+						AND dm.meta_value >= %s",
+						...$args
+					)
+				);
+				return array('total' => $count);
 			},
 			'occupancy_rate' => static function (string $context, int $user_id, string $user_email): array {
 				unset($context, $user_email);
@@ -191,10 +223,14 @@ final class DashboardDataProvider
 	/**
 	 * @return array<int, \WP_Post>
 	 */
-	private static function get_recent_bookings(int $user_id): array
+	private static function get_recent_bookings(string $context, int $user_id): array
 	{
 		if ($user_id <= 0) {
 			return array();
+		}
+
+		if ($context === 'vendor') {
+			return self::get_vendor_recent_bookings($user_id);
 		}
 
 		$bookings_data = AccountRenderer::get_bookings_data(
@@ -211,5 +247,44 @@ final class DashboardDataProvider
 		$recent_bookings = is_array($recent_bookings) ? $recent_bookings : array();
 
 		return array_slice($recent_bookings, 0, 5);
+	}
+
+	/**
+	 * Recent bookings for a vendor: bookings of vehicles the vendor owns.
+	 *
+	 * @return array<int, \WP_Post>
+	 */
+	private static function get_vendor_recent_bookings(int $user_id): array
+	{
+		$vehicle_ids = get_posts(array(
+			'post_type'      => 'vehicle',
+			'author'         => $user_id,
+			'post_status'    => array('publish', 'pending'),
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+		));
+
+		if (empty($vehicle_ids)) {
+			return array();
+		}
+
+		$bookings = get_posts(array(
+			'post_type'      => 'vehicle_booking',
+			'post_status'    => array('publish', 'private'),
+			'posts_per_page' => 5,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'no_found_rows'  => true,
+			'meta_query'     => array(
+				array(
+					'key'     => '_mhm_vehicle_id',
+					'value'   => array_map('strval', $vehicle_ids),
+					'compare' => 'IN',
+				),
+			),
+		));
+
+		return is_array($bookings) ? $bookings : array();
 	}
 }

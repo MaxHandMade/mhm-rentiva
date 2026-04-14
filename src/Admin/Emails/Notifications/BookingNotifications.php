@@ -71,6 +71,12 @@ final class BookingNotifications {
 		if ( $send_admin ) {
 			Mailer::sendBookingEmail( 'booking_created_admin', $booking_id, 'admin' );
 		}
+
+		// Vendor email — notify the marketplace vehicle owner
+		$send_vendor = SettingsCore::get( 'mhm_rentiva_booking_vendor_notifications', '1' ) === '1';
+		if ( $send_vendor ) {
+			Mailer::sendBookingEmail( 'booking_created_vendor', $booking_id, 'vendor' );
+		}
 	}
 
 	/**
@@ -139,6 +145,11 @@ final class BookingNotifications {
 		$send_admin = SettingsCore::get( 'mhm_rentiva_booking_admin_notifications', '1' ) === '1';
 		if ( $send_admin ) {
 			Mailer::sendBookingEmail( 'booking_status_changed_admin', $booking_id, 'admin', $additional_context );
+		}
+
+		$send_vendor = SettingsCore::get( 'mhm_rentiva_booking_vendor_notifications', '1' ) === '1';
+		if ( $send_vendor ) {
+			Mailer::sendBookingEmail( 'booking_status_changed_vendor', $booking_id, 'vendor', $additional_context );
 		}
 	}
 

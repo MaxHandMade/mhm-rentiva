@@ -45,6 +45,10 @@ final class Templates {
 					'subject' => __( 'New Booking Request #{{booking.order_id}} - {{site.name}}', 'mhm-rentiva' ),
 					'file'    => 'booking-created-admin',
 				),
+				'booking_created_vendor'          => array(
+					'subject' => __( 'New Reservation: {{vehicle.title}} (#{{booking.order_id}}) - {{site.name}}', 'mhm-rentiva' ),
+					'file'    => 'booking-created-vendor',
+				),
 				'booking_status_changed_customer' => array(
 					'subject' => __( 'Booking #{{booking.order_id}} Status Updated - {{site.name}}', 'mhm-rentiva' ),
 					'file'    => 'booking-status-changed-customer',
@@ -52,6 +56,10 @@ final class Templates {
 				'booking_status_changed_admin'    => array(
 					'subject' => __( 'Booking #{{booking.order_id}} Status Updated - {{site.name}}', 'mhm-rentiva' ),
 					'file'    => 'booking-status-changed-admin',
+				),
+				'booking_status_changed_vendor'   => array(
+					'subject' => __( 'Reservation #{{booking.order_id}} Status Updated - {{site.name}}', 'mhm-rentiva' ),
+					'file'    => 'booking-status-changed-vendor',
 				),
 				'booking_reminder_customer'       => array(
 					'subject' => __( 'Reminder: Your Booking #{{booking.order_id}} Starts Soon - {{site.name}}', 'mhm-rentiva' ),
@@ -439,11 +447,17 @@ final class Templates {
 			case 'booking_created_customer':
 				$opt = 'mhm_rentiva_booking_created_subject';
 				break;
+			case 'booking_created_vendor':
+				$opt = 'mhm_rentiva_booking_created_vendor_subject';
+				break;
 			case 'booking_status_changed_customer':
 				$opt = 'mhm_rentiva_booking_status_subject';
 				break;
 			case 'booking_status_changed_admin':
 				$opt = 'mhm_rentiva_booking_status_admin_subject';
+				break;
+			case 'booking_status_changed_vendor':
+				$opt = 'mhm_rentiva_booking_status_vendor_subject';
 				break;
 			case 'booking_reminder_customer':
 				$opt = 'mhm_rentiva_booking_reminder_subject';
@@ -563,11 +577,17 @@ final class Templates {
 			case 'booking_created_customer':
 				$opt = 'mhm_rentiva_booking_created_body';
 				break;
+			case 'booking_created_vendor':
+				$opt = 'mhm_rentiva_booking_created_vendor_body';
+				break;
 			case 'booking_status_changed_customer':
 				$opt = 'mhm_rentiva_booking_status_body';
 				break;
 			case 'booking_status_changed_admin':
 				$opt = 'mhm_rentiva_booking_status_admin_body';
+				break;
+			case 'booking_status_changed_vendor':
+				$opt = 'mhm_rentiva_booking_status_vendor_body';
 				break;
 			case 'booking_reminder_customer':
 				$opt = 'mhm_rentiva_booking_reminder_body';

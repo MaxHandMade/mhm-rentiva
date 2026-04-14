@@ -170,7 +170,7 @@ final class Mailer {
 	 *
 	 * @param string $template_key Template key
 	 * @param int    $booking_id Booking ID
-	 * @param string $recipient_type 'customer' or 'admin'
+	 * @param string $recipient_type 'customer', 'admin', or 'vendor'
 	 * @param array  $additional_context Additional context data
 	 * @return bool Success status
 	 */
@@ -191,6 +191,12 @@ final class Mailer {
 		} elseif ( $recipient_type === 'admin' ) {
 			$email = get_option( 'admin_email' );
 			if ( empty( $email ) ) {
+				return false;
+			}
+			return self::send( $template_key, $email, $context );
+		} elseif ( $recipient_type === 'vendor' ) {
+			$email = $context['vendor']['email'] ?? '';
+			if ( empty( $email ) || ! is_email( $email ) ) {
 				return false;
 			}
 			return self::send( $template_key, $email, $context );
@@ -232,12 +238,48 @@ final class Mailer {
 		$payment_deadline = get_post_meta( $booking_id, '_mhm_payment_deadline', true );
 		$wc_order_id      = (int) get_post_meta( $booking_id, '_mhm_woocommerce_order_id', true );
 
+		// Service type: 'rental' (default) or 'transfer'
+		$service_type  = (string) get_post_meta( $booking_id, '_mhm_service_type', true );
+		$transfer_flag = (string) get_post_meta( $booking_id, '_mhm_is_transfer', true );
+		if ( $service_type === '' && $transfer_flag === 'yes' ) {
+			$service_type = 'transfer';
+		}
+		if ( $service_type === '' ) {
+			$service_type = 'rental';
+		}
+
+		// Vendor context — derived from vehicle post author
+		$vendor_context = array(
+			'id'    => 0,
+			'name'  => '',
+			'email' => '',
+		);
+		$vehicle_id = (int) ( $vehicle_info['id'] ?? 0 );
+		if ( $vehicle_id > 0 ) {
+			$vendor_id = (int) get_post_field( 'post_author', $vehicle_id );
+			if ( $vendor_id > 0 ) {
+				$vendor_user = get_userdata( $vendor_id );
+				if ( $vendor_user ) {
+					$display = trim( (string) $vendor_user->display_name );
+					if ( $display === '' ) {
+						$display = (string) $vendor_user->user_login;
+					}
+					$vendor_context = array(
+						'id'    => $vendor_id,
+						'name'  => $display,
+						'email' => (string) $vendor_user->user_email,
+					);
+				}
+			}
+		}
+
 		return array(
 			'booking'  => array(
 				'id'               => $booking_id,
 				'order_id'         => $wc_order_id ?: $booking_id,
 				'title'            => $post->post_title,
 				'status'           => $post->post_status,
+				'service_type'     => $service_type,
 				'payment_status'   => $payment_status,
 				'payment_gateway'  => $payment_gateway,
 				'total_price'      => $total_price,
@@ -262,6 +304,10 @@ final class Mailer {
 				'title'          => $vehicle_info['title'] ?? '',
 				'price_per_day'  => $vehicle_info['price_per_day'] ?? 0,
 				'featured_image' => $vehicle_info['featured_image'] ?? '',
+			),
+			'vendor'   => $vendor_context,
+			'panel'    => array(
+				'url' => home_url( '/panel/' ),
 			),
 			'site'     => array(
 				'name'        => get_bloginfo( 'name' ),
