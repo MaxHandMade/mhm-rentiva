@@ -13,6 +13,7 @@ use MHMRentiva\Admin\Core\CurrencyHelper;
 $item     = isset($item) && is_array($item) ? $item : array();
 $criteria = isset($criteria) && is_array($criteria) ? $criteria : array();
 $atts     = isset($atts) && is_array($atts) ? $atts : array();
+$layout   = $atts['layout'] ?? 'grid';
 
 if (! isset($format_price) || ! is_callable($format_price)) {
 	$format_price = static function (float $price, string $currency = ''): string {
@@ -40,9 +41,23 @@ $show_passenger_count = $atts['show_passenger_count'] ?? true;
 $show_route_info      = $atts['show_route_info'] ?? true;
 $show_fav             = $atts['show_favorite_button'] ?? true;
 $show_compare         = $atts['show_compare_button'] ?? true;
+
+// Vendor badge — check if vehicle author has rentiva_vendor role.
+$is_vendor_vehicle = false;
+if ($vehicle_id > 0) {
+	$vehicle_author_id = (int) get_post_field('post_author', $vehicle_id);
+	if ($vehicle_author_id > 0) {
+		$author_user = get_userdata($vehicle_author_id);
+		if ($author_user && in_array('rentiva_vendor', (array) $author_user->roles, true)) {
+			$is_vendor_vehicle = true;
+		}
+	}
+}
+
+$card_class = 'mhm-transfer-card mhm-transfer-card--' . esc_attr($layout);
 ?>
 
-<div class="mhm-transfer-card" data-vehicle-id="<?php echo esc_attr( (string) $vehicle_id); ?>">
+<div class="<?php echo esc_attr($card_class); ?>" data-vehicle-id="<?php echo esc_attr( (string) $vehicle_id); ?>">
 	<div class="mhm-card-header">
 		<?php if ($image_url) : ?>
 			<img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($vehicle_title); ?>" class="mhm-transfer-card__image" loading="lazy">
@@ -90,6 +105,13 @@ $show_compare         = $atts['show_compare_button'] ?? true;
 					<?php Icons::render('compare'); ?>
 				</button>
 			<?php endif; ?>
+
+			<?php if ($is_vendor_vehicle) : ?>
+				<div class="mhm-card-vendor-badge" data-testid="mhm-vendor-badge" title="<?php esc_attr_e('This vehicle is provided by an authorized dealer.', 'mhm-rentiva'); ?>">
+					<svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+					<?php esc_html_e('Dealer', 'mhm-rentiva'); ?>
+				</div>
+			<?php endif; ?>
 		</div>
 	</div>
 
@@ -102,74 +124,54 @@ $show_compare         = $atts['show_compare_button'] ?? true;
 			<div class="mhm-transfer-card__meta">
 				<?php if ($max_pax && $show_passenger_count) : ?>
 					<div class="mhm-transfer-card__meta-item" title="<?php esc_attr_e('Max Passengers', 'mhm-rentiva'); ?>">
-						<?php
-                        Icons::render('users', array(
-							'width'  => '14',
-							'height' => '14',
-						));
-						?>
+						<?php Icons::render('users', array( 'width' => '14', 'height' => '14' )); ?>
 						<span><?php echo esc_html( (string) $max_pax); ?> <?php esc_html_e('Pax', 'mhm-rentiva'); ?></span>
 					</div>
 				<?php endif; ?>
 				<?php if ($luggage_cap && $show_luggage_info) : ?>
 					<div class="mhm-transfer-card__meta-item" title="<?php esc_attr_e('Luggage Capacity', 'mhm-rentiva'); ?>">
-						<?php
-                        Icons::render('portfolio', array(
-							'width'  => '14',
-							'height' => '14',
-						));
-						?>
+						<?php Icons::render('portfolio', array( 'width' => '14', 'height' => '14' )); ?>
 						<span><?php echo esc_html( (string) $luggage_cap); ?> <?php esc_html_e('Luggage', 'mhm-rentiva'); ?></span>
 					</div>
 				<?php endif; ?>
 				<?php if ($distance && $show_route_info) : ?>
 					<div class="mhm-transfer-card__meta-item" title="<?php esc_attr_e('Distance', 'mhm-rentiva'); ?>">
-						<?php
-                        Icons::render('location', array(
-							'width'  => '14',
-							'height' => '14',
-						));
-						?>
+						<?php Icons::render('location', array( 'width' => '14', 'height' => '14' )); ?>
 						<span><?php echo esc_html( (string) $distance); ?> km</span>
 					</div>
 				<?php endif; ?>
 				<?php if ($duration && $show_vehicle_details) : ?>
 					<div class="mhm-transfer-card__meta-item" title="<?php esc_attr_e('Duration', 'mhm-rentiva'); ?>">
-						<?php
-                        Icons::render('clock', array(
-							'width'  => '14',
-							'height' => '14',
-						));
-						?>
+						<?php Icons::render('clock', array( 'width' => '14', 'height' => '14' )); ?>
 						<span><?php echo esc_html( (string) $duration); ?> <?php esc_html_e('min', 'mhm-rentiva'); ?></span>
 					</div>
 				<?php endif; ?>
 			</div>
 		<?php endif; ?>
+	</div>
 
-		<div class="mhm-transfer-card__footer">
-			<?php if ($show_price) : ?>
-				<div class="mhm-transfer-card__price">
-					<span class="mhm-transfer-card__price-amount"><?php echo wp_kses_post( (string) $format_price($price, $currency)); ?></span>
-					<span class="mhm-transfer-card__price-period"><?php esc_html_e('/total', 'mhm-rentiva'); ?></span>
-				</div>
-			<?php endif; ?>
+	<div class="mhm-transfer-card__footer">
+		<?php if ($show_price) : ?>
+			<div class="mhm-transfer-card__price">
+				<span class="mhm-transfer-card__price-amount"><?php echo wp_kses_post( (string) $format_price($price, $currency)); ?></span>
+				<span class="mhm-transfer-card__price-period"><?php esc_html_e('/total', 'mhm-rentiva'); ?></span>
+			</div>
+		<?php endif; ?>
 
-			<?php if ($show_booking_button) : ?>
-				<button class="mhm-transfer-card__btn js-mhm-transfer-book mhm-transfer-book-btn"
-					data-vehicle-id="<?php echo esc_attr( (string) $vehicle_id); ?>"
-					data-price="<?php echo esc_attr( (string) $price); ?>"
-					data-origin-id="<?php echo esc_attr( (string) ( $criteria['origin_id'] ?? '' )); ?>"
-					data-destination-id="<?php echo esc_attr( (string) ( $criteria['destination_id'] ?? '' )); ?>"
-					data-date="<?php echo esc_attr($criteria['date'] ?? ''); ?>"
-					data-time="<?php echo esc_attr($criteria['time'] ?? ''); ?>"
-					data-adults="<?php echo esc_attr( (string) ( $criteria['adults'] ?? 1 )); ?>"
-					data-children="<?php echo esc_attr( (string) ( $criteria['children'] ?? 0 )); ?>"
-					data-luggage-big="<?php echo esc_attr( (string) ( $criteria['luggage_big'] ?? 0 )); ?>"
-					data-luggage-small="<?php echo esc_attr( (string) ( $criteria['luggage_small'] ?? 0 )); ?>">
-					<?php esc_html_e('Book Now', 'mhm-rentiva'); ?>
-				</button>
-			<?php endif; ?>
-		</div>
+		<?php if ($show_booking_button) : ?>
+			<button class="mhm-transfer-card__btn js-mhm-transfer-book mhm-transfer-book-btn"
+				data-vehicle-id="<?php echo esc_attr( (string) $vehicle_id); ?>"
+				data-price="<?php echo esc_attr( (string) $price); ?>"
+				data-origin-id="<?php echo esc_attr( (string) ( $criteria['origin_id'] ?? '' )); ?>"
+				data-destination-id="<?php echo esc_attr( (string) ( $criteria['destination_id'] ?? '' )); ?>"
+				data-date="<?php echo esc_attr($criteria['date'] ?? ''); ?>"
+				data-time="<?php echo esc_attr($criteria['time'] ?? ''); ?>"
+				data-adults="<?php echo esc_attr( (string) ( $criteria['adults'] ?? 1 )); ?>"
+				data-children="<?php echo esc_attr( (string) ( $criteria['children'] ?? 0 )); ?>"
+				data-luggage-big="<?php echo esc_attr( (string) ( $criteria['luggage_big'] ?? 0 )); ?>"
+				data-luggage-small="<?php echo esc_attr( (string) ( $criteria['luggage_small'] ?? 0 )); ?>">
+				<?php esc_html_e('Book Now', 'mhm-rentiva'); ?>
+			</button>
+		<?php endif; ?>
 	</div>
 </div>
