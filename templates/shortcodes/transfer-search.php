@@ -33,7 +33,7 @@ if (! empty($atts['class'])) {
 <div id="<?php echo esc_attr($uid); ?>" class="<?php echo esc_attr($container_class); ?>">
     <div class="mhm-tabs">
         <div role="tab" aria-selected="true" class="mhm-tab is-active">
-            <?php esc_html_e('Airport Transfer', 'mhm-rentiva'); ?>
+            <?php esc_html_e('Transfer Search', 'mhm-rentiva'); ?>
         </div>
     </div>
 

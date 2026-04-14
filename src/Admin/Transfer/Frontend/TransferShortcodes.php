@@ -209,7 +209,7 @@ final class TransferShortcodes extends AbstractShortcode {
 				array(
 					'ajax_url' => admin_url('admin-ajax.php'),
 					'nonce'    => wp_create_nonce('rentiva_transfer_nonce'),
-					'cart_url' => function_exists('wc_get_cart_url') ? wc_get_cart_url() : '',
+					'cart_url' => function_exists('wc_get_cart_url') ? \wc_get_cart_url() : '',
 					'routes'   => $routes,
 					'i18n'     => array(
 						'same_location_error' => __('Pick-up and Drop-off locations cannot be the same.', 'mhm-rentiva'),
