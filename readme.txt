@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.26.3
+Stable tag:        4.26.4
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,11 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.26.4 =
+* **Fix:** Transfer Search Elementor widget now exposes `Button Text`, `Show Pickup Location` and `Show Dropoff Location` as native, properly-labeled controls in the Content Settings panel. Previously these attributes were only surfaced through the auto-generated "Parity Controls" section with raw attribute names.
+* **Fix:** Search Results block no longer declares `button_text`, `show_pickup` and `show_dropoff` attributes. These had leaked in from the Transfer Search block and showed up as controls in the block editor sidebar while silently being ignored at render time.
+* **Fix:** Unified Search block no longer declares duplicate `min_width` / `max_width` attributes alongside the canonical `minwidth` / `maxwidth`. The canonical keys remain; the duplicates never reached the shortcode.
 
 = 4.26.3 =
 * **Fix:** Search results vehicle images no longer rendered from the 300px `medium` thumbnail — search cards now match the quality of vehicles grid, list and featured sections.

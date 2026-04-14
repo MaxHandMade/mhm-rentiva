@@ -185,14 +185,6 @@
             "type": "string",
             "default": "default"
         },
-        "min_width": {
-            "type": "string",
-            "default": ""
-        },
-        "max_width": {
-            "type": "string",
-            "default": ""
-        },
         "default_tab_alias": {
             "type": "string",
             "default": ""

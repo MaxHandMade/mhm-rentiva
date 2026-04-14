@@ -54,6 +54,36 @@ class TransferSearchWidget extends ElementorWidgetBase {
 			)
 		);
 
+		$this->add_control(
+			'buttonText',
+			array(
+				'label'       => __( 'Button Text', 'mhm-rentiva' ),
+				'type'        => Controls_Manager::TEXT,
+				'default'     => '',
+				'placeholder' => __( 'Search Transfers', 'mhm-rentiva' ),
+			)
+		);
+
+		$this->add_control(
+			'showPickup',
+			array(
+				'label'        => __( 'Show Pickup Location', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+
+		$this->add_control(
+			'showDropoff',
+			array(
+				'label'        => __( 'Show Dropoff Location', 'mhm-rentiva' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+
 		$this->end_controls_section();
 
 		$this->register_parity_controls_from_block();

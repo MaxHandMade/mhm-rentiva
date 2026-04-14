@@ -1,5 +1,16 @@
 [
     {
+        "version": "4.26.4",
+        "date": "2026-04-15",
+        "type": "patch",
+        "changes": [
+            "🎛️ DÜZELTME: Transfer Arama Elementor widget'ı artık 'Buton Metni', 'Varış Noktasını Göster' ve 'Kalkış Noktasını Göster' ayarlarını 'İçerik Ayarları' panelinde düzgün etiketlerle native kontroller olarak sunuyor. Önceden bu ayarlar sadece otomatik oluşturulan 'Parity Controls' bölümünde ham öznitelik isimleriyle görünüyordu ve fark edilmesi zordu.",
+            "🧹 DÜZELTME: Arama Sonuçları bloğu artık button_text, show_pickup ve show_dropoff özniteliklerini tanımlamıyor. Bu öznitelikler Transfer Arama bloğundan sızıntıyla gelmişti ve blok editör kenar çubuğunda ayar olarak görünüyorken render sırasında sessizce yok sayılıyordu — kafa karıştırıcı hayalet ayarlar.",
+            "🧹 DÜZELTME: Birleşik Arama bloğunda artık canonical minwidth / maxwidth ile birlikte kopya min_width / max_width öznitelikleri tanımlanmıyor. Canonical anahtarlar olduğu gibi duruyor; sadece kullanılmayan kopyalar kaldırıldı."
+        ],
+        "notice": "v4.26.4 - Transfer Arama widget UX iyileştirmesi ve öznitelik parite temizliği"
+    },
+    {
         "version": "4.26.3",
         "date": "2026-04-11",
         "type": "patch",

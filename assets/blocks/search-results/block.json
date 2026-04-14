@@ -152,18 +152,6 @@
                 "desc"
             ]
         },
-        "button_text": {
-            "type": "string",
-            "default": ""
-        },
-        "show_pickup": {
-            "type": "boolean",
-            "default": true
-        },
-        "show_dropoff": {
-            "type": "boolean",
-            "default": true
-        },
         "className": {
             "type": "string",
             "default": ""

@@ -1,5 +1,16 @@
 [
     {
+        "version": "4.26.4",
+        "date": "2026-04-15",
+        "type": "patch",
+        "changes": [
+            "Fix: Transfer Search Elementor widget now exposes Button Text, Show Pickup Location and Show Dropoff Location as native, properly-labeled controls inside the Content Settings panel. Previously these attributes only appeared in the auto-generated 'Parity Controls' section with raw attribute names, making them hard to discover.",
+            "Fix: Search Results block no longer declares button_text, show_pickup and show_dropoff attributes. These had leaked in from the Transfer Search block and showed up as controls in the block editor sidebar while silently being ignored at render time, causing confusing no-op settings.",
+            "Fix: Unified Search block no longer declares duplicate min_width and max_width attributes alongside the canonical minwidth / maxwidth. The canonical keys remain unchanged; only the unused duplicates were removed."
+        ],
+        "notice": "v4.26.4 - Transfer Search widget UX polish and attribute parity cleanup"
+    },
+    {
         "version": "4.26.3",
         "date": "2026-04-11",
         "type": "patch",
