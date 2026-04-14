@@ -146,6 +146,62 @@
         "enableAjaxFiltering": {
             "type": "boolean",
             "default": false
+        },
+        "category": {
+            "type": "string",
+            "default": ""
+        },
+        "featured": {
+            "type": "boolean",
+            "default": false
+        },
+        "showBadges": {
+            "type": "boolean",
+            "default": true
+        },
+        "showDescription": {
+            "type": "boolean",
+            "default": false
+        },
+        "enableLazyLoad": {
+            "type": "boolean",
+            "default": true
+        },
+        "enableInfiniteScroll": {
+            "type": "boolean",
+            "default": false
+        },
+        "imageSize": {
+            "type": "string",
+            "default": "large"
+        },
+        "customCssClass": {
+            "type": "string",
+            "default": ""
+        },
+        "orderby": {
+            "type": "string",
+            "default": "date"
+        },
+        "order": {
+            "type": "string",
+            "default": "desc",
+            "enum": [
+                "asc",
+                "desc"
+            ]
+        },
+        "show_booking_button": {
+            "type": "boolean",
+            "default": true
+        },
+        "columns_tablet": {
+            "type": "string",
+            "default": "2"
+        },
+        "columns_mobile": {
+            "type": "string",
+            "default": "1"
         }
     },
     "editorStyle": [

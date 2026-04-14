@@ -142,6 +142,50 @@
         "enableAjaxFiltering": {
             "type": "boolean",
             "default": false
+        },
+        "columns": {
+            "type": "string",
+            "default": "1"
+        },
+        "category": {
+            "type": "string",
+            "default": ""
+        },
+        "featured": {
+            "type": "boolean",
+            "default": false
+        },
+        "enableLazyLoad": {
+            "type": "boolean",
+            "default": true
+        },
+        "enableInfiniteScroll": {
+            "type": "boolean",
+            "default": false
+        },
+        "imageSize": {
+            "type": "string",
+            "default": "large"
+        },
+        "ids": {
+            "type": "string",
+            "default": ""
+        },
+        "maxFeatures": {
+            "type": "string",
+            "default": "5"
+        },
+        "priceFormat": {
+            "type": "string",
+            "default": "daily"
+        },
+        "customCssClass": {
+            "type": "string",
+            "default": ""
+        },
+        "show_booking_button": {
+            "type": "boolean",
+            "default": true
         }
     },
     "editorStyle": [

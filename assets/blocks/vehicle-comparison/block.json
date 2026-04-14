@@ -90,6 +90,42 @@
             "type": "string",
             "default": "4"
         },
+        "layout": {
+            "type": "string",
+            "default": "table",
+            "enum": [
+                "table",
+                "cards"
+            ]
+        },
+        "title": {
+            "type": "string",
+            "default": ""
+        },
+        "manualAdd": {
+            "type": "boolean",
+            "default": false
+        },
+        "showAddVehicle": {
+            "type": "boolean",
+            "default": true
+        },
+        "showRemoveButtons": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBookingButtons": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_images": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_prices": {
+            "type": "boolean",
+            "default": true
+        },
         "className": {
             "type": "string",
             "default": ""

@@ -98,6 +98,30 @@
             "type": "string",
             "default": "4"
         },
+        "showPricing": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBooking": {
+            "type": "boolean",
+            "default": true
+        },
+        "showCalendar": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBookingButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showCompareButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_share_btns": {
+            "type": "boolean",
+            "default": true
+        },
         "className": {
             "type": "string",
             "default": ""

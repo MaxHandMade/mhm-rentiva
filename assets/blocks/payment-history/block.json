@@ -98,6 +98,30 @@
             "type": "boolean",
             "default": true
         },
+        "limit": {
+            "type": "string",
+            "default": "20"
+        },
+        "hideNav": {
+            "type": "boolean",
+            "default": false
+        },
+        "status": {
+            "type": "string",
+            "default": "all"
+        },
+        "orderby": {
+            "type": "string",
+            "default": "date"
+        },
+        "order": {
+            "type": "string",
+            "default": "desc",
+            "enum": [
+                "asc",
+                "desc"
+            ]
+        },
         "className": {
             "type": "string",
             "default": ""

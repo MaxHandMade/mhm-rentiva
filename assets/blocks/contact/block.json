@@ -82,6 +82,54 @@
             "type": "string",
             "default": ""
         },
+        "type": {
+            "type": "string",
+            "default": "general"
+        },
+        "title": {
+            "type": "string",
+            "default": ""
+        },
+        "description": {
+            "type": "string",
+            "default": ""
+        },
+        "showPhone": {
+            "type": "boolean",
+            "default": true
+        },
+        "showCompany": {
+            "type": "boolean",
+            "default": false
+        },
+        "showVehicleSelector": {
+            "type": "boolean",
+            "default": false
+        },
+        "showPriority": {
+            "type": "boolean",
+            "default": false
+        },
+        "showAttachment": {
+            "type": "boolean",
+            "default": true
+        },
+        "redirectUrl": {
+            "type": "string",
+            "default": ""
+        },
+        "emailTo": {
+            "type": "string",
+            "default": ""
+        },
+        "autoReply": {
+            "type": "boolean",
+            "default": true
+        },
+        "theme": {
+            "type": "string",
+            "default": "default"
+        },
         "className": {
             "type": "string",
             "default": ""

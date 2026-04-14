@@ -90,6 +90,58 @@
             "type": "string",
             "default": "auto"
         },
+        "theme": {
+            "type": "string",
+            "default": "default"
+        },
+        "startDate": {
+            "type": "string",
+            "default": ""
+        },
+        "monthsAhead": {
+            "type": "string",
+            "default": "3"
+        },
+        "startMonth": {
+            "type": "string",
+            "default": ""
+        },
+        "showWeekends": {
+            "type": "boolean",
+            "default": true
+        },
+        "showPastDates": {
+            "type": "boolean",
+            "default": false
+        },
+        "showSeasonalPrices": {
+            "type": "boolean",
+            "default": true
+        },
+        "showDiscounts": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBookingButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "integratePricing": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_month_nav": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_today_btn": {
+            "type": "boolean",
+            "default": true
+        },
+        "height": {
+            "type": "string",
+            "default": "auto"
+        },
         "className": {
             "type": "string",
             "default": ""

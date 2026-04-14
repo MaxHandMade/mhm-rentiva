@@ -100,6 +100,50 @@
             "type": "string",
             "default": "3"
         },
+        "limit": {
+            "type": "string",
+            "default": "12"
+        },
+        "showFavoriteButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showImage": {
+            "type": "boolean",
+            "default": true
+        },
+        "showTitle": {
+            "type": "boolean",
+            "default": true
+        },
+        "showFeatures": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBadges": {
+            "type": "boolean",
+            "default": true
+        },
+        "noResultsText": {
+            "type": "string",
+            "default": ""
+        },
+        "show_booking_button": {
+            "type": "boolean",
+            "default": true
+        },
+        "orderby": {
+            "type": "string",
+            "default": "added"
+        },
+        "order": {
+            "type": "string",
+            "default": "desc",
+            "enum": [
+                "asc",
+                "desc"
+            ]
+        },
         "className": {
             "type": "string",
             "default": ""

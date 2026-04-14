@@ -86,6 +86,18 @@
             "type": "string",
             "default": "50"
         },
+        "showRatingDisplay": {
+            "type": "boolean",
+            "default": true
+        },
+        "showForm": {
+            "type": "boolean",
+            "default": true
+        },
+        "showRatingsList": {
+            "type": "boolean",
+            "default": true
+        },
         "className": {
             "type": "string",
             "default": ""

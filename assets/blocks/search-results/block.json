@@ -105,6 +105,65 @@
             "type": "boolean",
             "default": true
         },
+        "showBookingButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "showTitle": {
+            "type": "boolean",
+            "default": true
+        },
+        "showFeatures": {
+            "type": "boolean",
+            "default": true
+        },
+        "showBadges": {
+            "type": "boolean",
+            "default": true
+        },
+        "showViewToggle": {
+            "type": "boolean",
+            "default": true
+        },
+        "resultsPerPage": {
+            "type": "string",
+            "default": "12"
+        },
+        "defaultSort": {
+            "type": "string",
+            "default": "price_asc",
+            "enum": [
+                "price_asc",
+                "price_desc",
+                "newest",
+                "popularity",
+                "rating"
+            ]
+        },
+        "orderby": {
+            "type": "string",
+            "default": "price"
+        },
+        "order": {
+            "type": "string",
+            "default": "asc",
+            "enum": [
+                "asc",
+                "desc"
+            ]
+        },
+        "button_text": {
+            "type": "string",
+            "default": ""
+        },
+        "show_pickup": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_dropoff": {
+            "type": "boolean",
+            "default": true
+        },
         "className": {
             "type": "string",
             "default": ""

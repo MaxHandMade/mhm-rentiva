@@ -131,6 +131,54 @@
             "type": "string",
             "default": "3"
         },
+        "title": {
+            "type": "string",
+            "default": ""
+        },
+        "ids": {
+            "type": "string",
+            "default": ""
+        },
+        "category": {
+            "type": "string",
+            "default": ""
+        },
+        "autoplay": {
+            "type": "boolean",
+            "default": true
+        },
+        "interval": {
+            "type": "string",
+            "default": "5000"
+        },
+        "showBookingButton": {
+            "type": "boolean",
+            "default": true
+        },
+        "maxFeatures": {
+            "type": "string",
+            "default": "5"
+        },
+        "imageSize": {
+            "type": "string",
+            "default": "large"
+        },
+        "priceFormat": {
+            "type": "string",
+            "default": "daily"
+        },
+        "orderby": {
+            "type": "string",
+            "default": "date"
+        },
+        "order": {
+            "type": "string",
+            "default": "desc",
+            "enum": [
+                "asc",
+                "desc"
+            ]
+        },
         "className": {
             "type": "string",
             "default": ""

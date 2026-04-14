@@ -106,6 +106,46 @@
             "type": "boolean",
             "default": true
         },
+        "limit": {
+            "type": "string",
+            "default": "10"
+        },
+        "hideNav": {
+            "type": "boolean",
+            "default": false
+        },
+        "show_image": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_status_toggle": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_cancel_btn": {
+            "type": "boolean",
+            "default": true
+        },
+        "show_modify_btn": {
+            "type": "boolean",
+            "default": true
+        },
+        "status": {
+            "type": "string",
+            "default": "all"
+        },
+        "orderby": {
+            "type": "string",
+            "default": "date"
+        },
+        "order": {
+            "type": "string",
+            "default": "desc",
+            "enum": [
+                "asc",
+                "desc"
+            ]
+        },
         "className": {
             "type": "string",
             "default": ""

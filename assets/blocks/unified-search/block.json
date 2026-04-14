@@ -193,6 +193,22 @@
             "type": "string",
             "default": ""
         },
+        "default_tab_alias": {
+            "type": "string",
+            "default": ""
+        },
+        "layout": {
+            "type": "string",
+            "default": "horizontal"
+        },
+        "minwidth": {
+            "type": "string",
+            "default": ""
+        },
+        "maxwidth": {
+            "type": "string",
+            "default": ""
+        },
         "className": {
             "type": "string",
             "default": ""

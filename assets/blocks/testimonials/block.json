@@ -113,6 +113,46 @@
             "type": "boolean",
             "default": false
         },
+        "limit": {
+            "type": "string",
+            "default": "5"
+        },
+        "category": {
+            "type": "string",
+            "default": ""
+        },
+        "vehicleId": {
+            "type": "string",
+            "default": ""
+        },
+        "showVehicle": {
+            "type": "boolean",
+            "default": true
+        },
+        "showCustomer": {
+            "type": "boolean",
+            "default": true
+        },
+        "autoRotate": {
+            "type": "boolean",
+            "default": false
+        },
+        "rating": {
+            "type": "string",
+            "default": ""
+        },
+        "orderby": {
+            "type": "string",
+            "default": "date"
+        },
+        "order": {
+            "type": "string",
+            "default": "desc",
+            "enum": [
+                "asc",
+                "desc"
+            ]
+        },
         "className": {
             "type": "string",
             "default": ""
