@@ -101,18 +101,6 @@
             "type": "string",
             "default": "2"
         },
-        "orderby": {
-            "type": "string",
-            "default": "price"
-        },
-        "order": {
-            "type": "string",
-            "default": "asc",
-            "enum": [
-                "asc",
-                "desc"
-            ]
-        },
         "show_booking_button": {
             "type": "boolean",
             "default": true

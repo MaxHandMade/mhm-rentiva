@@ -32,7 +32,7 @@ $show_features    = $normalize_toggle($atts['show_features'] ?? true);
 $show_price       = $normalize_toggle($atts['show_price'] ?? true);
 $show_title       = $normalize_toggle($atts['show_title'] ?? true);
 $show_rating      = $normalize_toggle($atts['show_rating'] ?? true);
-$show_booking     = $normalize_toggle($atts['show_booking_button'] ?? true);
+$show_booking     = $normalize_toggle($atts['show_booking_button'] ?? ($atts['show_book_button'] ?? true));
 $booking_text     = $atts['booking_btn_text'] ?? __('Book Now', 'mhm-rentiva');
 $show_description = $normalize_toggle($atts['show_description'] ?? false);
 
@@ -78,6 +78,9 @@ if (is_array($brand_raw)) {
 	$brand_name = (string) $brand_raw;
 }
 $location_name = (string) ($vehicle['location_name'] ?? '');
+
+// Service type badge — rental / transfer / both.
+$service_type = $vehicle_id > 0 ? (string) get_post_meta($vehicle_id, '_rentiva_vehicle_service_type', true) : '';
 
 // Vendor badge — check if vehicle author has rentiva_vendor role.
 $is_vendor_vehicle = false;

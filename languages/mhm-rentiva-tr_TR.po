@@ -21060,6 +21060,10 @@ msgstr "Transfer verisi tespit edildi. Araçlar → Transfer İçe Aktar ile akt
 msgid "Transfer Only"
 msgstr "Sadece Transfer"
 
+#: templates/partials/vehicle-card.php
+msgid "Transfer + Rental"
+msgstr "Transfer + Kiralama"
+
 #: src/Admin/Testing/DemoSeeder.php:958
 msgid "Transfer points and routes created."
 msgstr ""

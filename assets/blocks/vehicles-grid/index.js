@@ -37,6 +37,8 @@
             var className = attributes.className;
             var minRating = attributes.minRating;
             var minReviews = attributes.minReviews;
+            var viewAllUrl = attributes.viewAllUrl;
+            var viewAllText = attributes.viewAllText;
 
             return el('div', blockProps,
                 el(InspectorControls, {},
@@ -152,11 +154,6 @@
                             onChange: function (val) { setAttributes({ showRating: val }); }
                         }),
                         el(ToggleControl, {
-                            label: __('Show Filters', 'mhm-rentiva'),
-                            checked: attributes.enableAjaxFiltering,
-                            onChange: function (val) { setAttributes({ enableAjaxFiltering: val }); }
-                        }),
-                        el(ToggleControl, {
                             label: __('Show Price', 'mhm-rentiva'),
                             checked: showPrice,
                             onChange: function (val) { setAttributes({ showPrice: val }); }
@@ -180,6 +177,22 @@
                             label: __('Show Compare Button', 'mhm-rentiva'),
                             checked: showCompareButton,
                             onChange: function (val) { setAttributes({ showCompareButton: val }); }
+                        })
+                    ),
+
+                    /* PANEL 5: VIEW ALL LINK */
+                    el(PanelBody, { title: __('View All Link', 'mhm-rentiva'), initialOpen: false },
+                        el(TextControl, {
+                            label: __('View All URL', 'mhm-rentiva'),
+                            value: viewAllUrl,
+                            onChange: function (val) { setAttributes({ viewAllUrl: val }); },
+                            help: __('Adds a "View All" button below the grid. Leave empty to hide.', 'mhm-rentiva')
+                        }),
+                        el(TextControl, {
+                            label: __('Button Text', 'mhm-rentiva'),
+                            value: viewAllText,
+                            onChange: function (val) { setAttributes({ viewAllText: val }); },
+                            help: __('Default: "View All Vehicles"', 'mhm-rentiva')
                         })
                     )
                 ),

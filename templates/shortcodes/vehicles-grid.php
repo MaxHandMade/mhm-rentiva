@@ -62,4 +62,12 @@ $booking_url    = $booking_url ?? '';
 
 	<?php endif; ?>
 
+	<?php if ( ! empty( $atts['view_all_url'] ) ) : ?>
+		<div class="rv-vehicles-grid__footer">
+			<a href="<?php echo esc_url( $atts['view_all_url'] ); ?>" class="rv-vehicles-grid__view-all">
+				<?php echo esc_html( ! empty( $atts['view_all_text'] ) ? $atts['view_all_text'] : __( 'View All Vehicles', 'mhm-rentiva' ) ); ?>
+			</a>
+		</div>
+	<?php endif; ?>
+
 </div>

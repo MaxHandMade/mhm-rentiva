@@ -150,6 +150,27 @@ class VehiclesGridWidget extends ElementorWidgetBase {
 			)
 		);
 
+		$this->add_control(
+			'view_all_url',
+			array(
+				'label'       => __( 'View All URL', 'mhm-rentiva' ),
+				'type'        => Controls_Manager::TEXT,
+				'default'     => '',
+				'placeholder' => __( 'https://your-site.com/vehicles/', 'mhm-rentiva' ),
+			)
+		);
+
+		$this->add_control(
+			'view_all_text',
+			array(
+				'label'       => __( 'View All Button Text', 'mhm-rentiva' ),
+				'type'        => Controls_Manager::TEXT,
+				'default'     => '',
+				'placeholder' => __( 'View All Vehicles', 'mhm-rentiva' ),
+				'condition'   => array( 'view_all_url!' => '' ),
+			)
+		);
+
 		$this->end_controls_section();
 
 		$this->register_standard_style_controls(

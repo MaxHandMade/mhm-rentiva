@@ -143,10 +143,6 @@
             "type": "string",
             "default": ""
         },
-        "enableAjaxFiltering": {
-            "type": "boolean",
-            "default": false
-        },
         "category": {
             "type": "string",
             "default": ""
@@ -167,10 +163,6 @@
             "type": "boolean",
             "default": true
         },
-        "enableInfiniteScroll": {
-            "type": "boolean",
-            "default": false
-        },
         "imageSize": {
             "type": "string",
             "default": "large"
@@ -178,18 +170,6 @@
         "customCssClass": {
             "type": "string",
             "default": ""
-        },
-        "orderby": {
-            "type": "string",
-            "default": "date"
-        },
-        "order": {
-            "type": "string",
-            "default": "desc",
-            "enum": [
-                "asc",
-                "desc"
-            ]
         },
         "show_booking_button": {
             "type": "boolean",
@@ -202,6 +182,14 @@
         "columns_mobile": {
             "type": "string",
             "default": "1"
+        },
+        "viewAllUrl": {
+            "type": "string",
+            "default": ""
+        },
+        "viewAllText": {
+            "type": "string",
+            "default": ""
         }
     },
     "editorStyle": [

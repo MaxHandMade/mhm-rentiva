@@ -71,10 +71,12 @@
     display: none;
 }
 
-/* Fallback: Swiper not yet initialized (editor/no-JS) → show as grid */
+/* Fallback: Swiper not yet initialized (editor/no-JS) → show as grid.
+   --mhm-columns is set via inline style from PHP so the fallback column
+   count matches the configured value — prevents the 3→N flash on load. */
 .mhm-featured-swiper:not(.swiper-initialized) .swiper-wrapper {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(var(--mhm-columns, 3), 1fr);
     gap: 20px;
     transform: none !important;
 }

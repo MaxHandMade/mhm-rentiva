@@ -615,6 +615,16 @@ final class AllowlistRegistry
             'group'   => 'data',
             'aliases' => ['filterBrands'],
         ],
+        'view_all_url'             => [
+            'type'    => 'string',
+            'group'   => 'content',
+            'aliases' => ['viewAllUrl'],
+        ],
+        'view_all_text'            => [
+            'type'    => 'string',
+            'group'   => 'content',
+            'aliases' => ['viewAllText'],
+        ],
         'show_remove_button'       => [
             'type'    => 'bool',
             'group'   => 'visibility',
@@ -1214,8 +1224,6 @@ final class AllowlistRegistry
             'show_availability',
             'show_compare_button',
             'enable_lazy_load',
-            'enable_ajax_filtering',
-            'enable_infinite_scroll',
             'image_size',
             'class',
             'custom_css_class',
@@ -1226,6 +1234,10 @@ final class AllowlistRegistry
             'layout',
             'filter_categories',
             'filter_brands',
+            'view_all_url',
+            'view_all_text',
+            'sort_by',
+            'sort_order',
         ],
         'rentiva_vehicle_rating_form'   => [
             'vehicle_id',

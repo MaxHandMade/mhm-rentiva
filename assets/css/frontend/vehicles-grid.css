@@ -121,3 +121,29 @@
 .mhm-vehicle-card .mhm-card-location svg {
 	flex-shrink: 0;
 }
+
+/* View All Footer */
+.rv-vehicles-grid__footer {
+	text-align: center;
+	margin-top: var(--mhm-space-phi-4, 2.125rem);
+}
+
+.rv-vehicles-grid__view-all {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.625rem 1.75rem;
+	border: 2px solid var(--mhm-primary, #2563eb);
+	border-radius: var(--mhm-radius-input, 8px);
+	color: var(--mhm-primary, #2563eb);
+	font-weight: var(--mhm-font-semibold, 600);
+	font-size: 0.9375rem;
+	text-decoration: none;
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.rv-vehicles-grid__view-all:hover,
+.rv-vehicles-grid__view-all:focus {
+	background-color: var(--mhm-primary, #2563eb);
+	color: #fff;
+	text-decoration: none;
+}

@@ -36,7 +36,8 @@ $is_carousel = ( $layout === 'slider' || $layout === 'carousel' )
                 'interval' => (int) ($atts['interval'] ?? 5000),
             ));
             ?>
-            <div class="swiper mhm-featured-swiper" data-swiper='<?php echo esc_attr($swiper_config); ?>'>
+            <div class="swiper mhm-featured-swiper" data-swiper='<?php echo esc_attr($swiper_config); ?>'
+                style="--mhm-columns: <?php echo esc_attr($columns); ?>">
                 <div class="swiper-wrapper">
                     <?php foreach ($vehicles as $vehicle): ?>
                         <div class="swiper-slide">

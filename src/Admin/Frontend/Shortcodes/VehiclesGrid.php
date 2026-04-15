@@ -75,9 +75,9 @@ class VehiclesGrid extends AbstractShortcode {
 			'show_availability'      => '0',
 			'show_compare_button'    => '1',
 			'enable_lazy_load'       => '1',
-			'enable_ajax_filtering'  => '0',
-			'enable_infinite_scroll' => '0',
 			'image_size'             => 'large',
+			'view_all_url'           => '',
+			'view_all_text'          => '',
 			'class'                  => '',
 			'custom_css_class'       => '',
 			'min_rating'             => '',
@@ -92,6 +92,24 @@ class VehiclesGrid extends AbstractShortcode {
 	protected static function prepare_template_data(array $atts): array
 	{
 		$atts = wp_parse_args($atts, self::get_default_attributes());
+
+		// Map Gutenberg block sortBy/sortOrder → shortcode orderby/order.
+		if ( ! empty( $atts['sort_by'] ) ) {
+			$sort_map = array(
+				'newest'      => array( 'orderby' => 'date',         'order' => 'DESC' ),
+				'price'       => array( 'orderby' => 'price',        'order' => strtoupper( $atts['sort_order'] ?? 'asc' ) ),
+				'title'       => array( 'orderby' => 'title',        'order' => strtoupper( $atts['sort_order'] ?? 'asc' ) ),
+				'popularity'  => array( 'orderby' => 'comment_count', 'order' => 'DESC' ),
+				'rating'      => array( 'orderby' => 'rating',       'order' => strtoupper( $atts['sort_order'] ?? 'desc' ) ),
+				'rating_count' => array( 'orderby' => 'rating_count', 'order' => strtoupper( $atts['sort_order'] ?? 'desc' ) ),
+				'confidence'  => array( 'orderby' => 'confidence',   'order' => strtoupper( $atts['sort_order'] ?? 'desc' ) ),
+			);
+			$mapping = $sort_map[ $atts['sort_by'] ] ?? null;
+			if ( $mapping ) {
+				$atts['orderby'] = $mapping['orderby'];
+				$atts['order']   = $mapping['order'];
+			}
+		}
 
 		$vehicles = self::get_vehicles($atts);
 
@@ -189,22 +207,23 @@ class VehiclesGrid extends AbstractShortcode {
 			);
 		}
 
-		// Exclude transfer-only vehicles from rental-oriented listings.
-		if (! isset($args['meta_query'])) {
-			$args['meta_query'] = array();
+		// All vehicle service types (rental, transfer, both) are shown.
+		// The vehicle card displays a service type badge so users can distinguish transfer-only vehicles.
+
+		// Meta-based sorting via meta_key + meta_value_num (standard WP pattern).
+		// WP_Query merges meta_key into meta_query internally — no JOIN conflict with the
+		// active vehicle meta_query above.
+		$orderby_key = strtolower( (string) ( $atts['orderby'] ?? 'title' ) );
+		$sort_order  = strtoupper( (string) ( $atts['order'] ?? 'ASC' ) );
+		if ( $orderby_key === 'price' ) {
+			$args['meta_key'] = \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_PRICE_PER_DAY;
+			$args['orderby']  = 'meta_value_num';
+			$args['order']    = $sort_order;
+		} elseif ( $orderby_key === 'featured' ) {
+			$args['meta_key'] = '_mhm_rentiva_featured';
+			$args['orderby']  = 'meta_value';
+			$args['order']    = $sort_order;
 		}
-		$args['meta_query'][] = array(
-			'relation' => 'OR',
-			array(
-				'key'     => '_rentiva_vehicle_service_type',
-				'value'   => 'transfer',
-				'compare' => '!=',
-			),
-			array(
-				'key'     => '_rentiva_vehicle_service_type',
-				'compare' => 'NOT EXISTS',
-			),
-		);
 
 		// Rating-based sorting & filtering (opt-in via shortcode attributes)
 		RatingSortHelper::apply_sort_args(
@@ -585,9 +604,9 @@ class VehiclesGrid extends AbstractShortcode {
 	{
 		parent::register_hooks();
 
-		// Clear cache on page changes
-		add_action('wp_head', array( self::class, 'clear_page_cache' ), 1);
-		add_action('template_redirect', array( self::class, 'clear_page_cache' ), 1);
+		// Clear cache when vehicle data changes, not on every page load.
+		add_action('save_post_vehicle', array( self::class, 'clear_page_cache' ));
+		add_action('deleted_post', array( self::class, 'clear_page_cache' ));
 	}
 
 	/**
@@ -626,8 +645,7 @@ class VehiclesGrid extends AbstractShortcode {
 			return false;
 		}
 
-		// Temporarily turn off cache for testing
-		return false;
+		return true;
 	}
 
 

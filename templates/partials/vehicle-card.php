@@ -67,6 +67,16 @@ if (! $is_available) {
                     <?php endif; ?>
             </a>
 
+            <?php if ($service_type === 'transfer' || $service_type === 'both') : ?>
+                <div class="mhm-card-service-badge mhm-card-service-badge--<?php echo esc_attr($service_type); ?>">
+                    <?php if ($service_type === 'both') : ?>
+                        <?php esc_html_e('Transfer + Rental', 'mhm-rentiva'); ?>
+                    <?php else : ?>
+                        <?php esc_html_e('Transfer Only', 'mhm-rentiva'); ?>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
             <div class="mhm-card-actions-overlay">
                 <?php if ($show_fav) : ?>
                     <button class="mhm-card-favorite mhm-vehicle-favorite-btn <?php echo esc_attr($is_favorite ? 'is-active' : ''); ?>"

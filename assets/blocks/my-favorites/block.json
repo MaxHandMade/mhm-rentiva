@@ -132,18 +132,6 @@
             "type": "boolean",
             "default": true
         },
-        "orderby": {
-            "type": "string",
-            "default": "added"
-        },
-        "order": {
-            "type": "string",
-            "default": "desc",
-            "enum": [
-                "asc",
-                "desc"
-            ]
-        },
         "className": {
             "type": "string",
             "default": ""

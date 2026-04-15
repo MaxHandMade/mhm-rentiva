@@ -140,18 +140,6 @@
                 "rating"
             ]
         },
-        "orderby": {
-            "type": "string",
-            "default": "price"
-        },
-        "order": {
-            "type": "string",
-            "default": "asc",
-            "enum": [
-                "asc",
-                "desc"
-            ]
-        },
         "className": {
             "type": "string",
             "default": ""
