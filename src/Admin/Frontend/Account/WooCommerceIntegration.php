@@ -213,12 +213,18 @@ final class WooCommerceIntegration {
 
 		$id = (int) $id;
 
-		// Security: Early Ownership Check
+		// Security: Early Ownership Check (customer | vendor | admin)
 		if ( $id > 0 ) {
 			$booking_owner_id = (int) get_post_meta( $id, '_mhm_customer_user_id', true );
 			$current_user_id  = (int) get_current_user_id();
+			$vehicle_id       = (int) get_post_meta( $id, '_mhm_vehicle_id', true );
+			$vendor_id        = $vehicle_id > 0 ? (int) get_post_field( 'post_author', $vehicle_id ) : 0;
 
-			if ( $booking_owner_id !== $current_user_id && ! current_user_can( 'manage_options' ) ) {
+			$is_customer = ( $booking_owner_id > 0 && $booking_owner_id === $current_user_id );
+			$is_vendor   = ( $vendor_id > 0 && $vendor_id === $current_user_id );
+			$is_admin    = current_user_can( 'manage_options' );
+
+			if ( ! $is_customer && ! $is_vendor && ! $is_admin ) {
 				echo '<div class="notice notice-error"><p>' . esc_html__( 'You do not have permission to view this booking.', 'mhm-rentiva' ) . '</p></div>';
 				return;
 			}

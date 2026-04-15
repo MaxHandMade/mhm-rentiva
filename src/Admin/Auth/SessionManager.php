@@ -32,7 +32,7 @@ final class SessionManager
 	public static function init(): void
 	{
 		add_action('init', array(self::class, 'check_session_timeout'));
-		add_action('wp_login', array(self::class, 'set_session_timeout'));
+		add_action('wp_login', array(self::class, 'set_session_timeout'), 10, 2);
 		add_action('wp_logout', array(self::class, 'clear_session_timeout'));
 	}
 
@@ -76,14 +76,25 @@ final class SessionManager
 	}
 
 	/**
-	 * Set session timeout on login
+	 * Set session timeout on login and record last successful login timestamp.
+	 *
+	 * @param string       $user_login The user login name (provided by wp_login action).
+	 * @param \WP_User|null $user       The logged-in user object.
 	 */
-	public static function set_session_timeout(): void
+	public static function set_session_timeout($user_login = '', $user = null): void
 	{
-		$user_id = get_current_user_id();
-		if ($user_id) {
-			update_user_meta($user_id, 'mhm_rentiva_last_activity', time());
+		$user_id = 0;
+		if ($user instanceof \WP_User) {
+			$user_id = (int) $user->ID;
 		}
+		if (! $user_id) {
+			$user_id = get_current_user_id();
+		}
+		if (! $user_id) {
+			return;
+		}
+		update_user_meta($user_id, 'mhm_rentiva_last_activity', time());
+		update_user_meta($user_id, 'last_login', current_time('mysql'));
 	}
 
 	/**

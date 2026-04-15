@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-14T23:26:06+00:00\n"
+"POT-Creation-Date: 2026-04-14T23:39:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -185,7 +185,7 @@ msgstr ""
 #: src/Admin/Messages/Core/Messages.php:1532
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:88
-#: templates/account/partials/vendor-listings.php:325
+#: templates/account/partials/vendor-listings.php:404
 #: templates/shortcodes/availability-calendar.php:421
 msgid "Loading..."
 msgstr ""
@@ -315,8 +315,8 @@ msgstr ""
 #: src/Admin/Setup/SetupWizard.php:1433
 #: src/Admin/Setup/SetupWizard.php:1456
 #: src/Admin/Testing/TestRunner.php:170
-#: templates/account/partials/vendor-bookings.php:249
-#: templates/account/partials/vendor-bookings.php:272
+#: templates/account/partials/vendor-bookings.php:245
+#: templates/account/partials/vendor-bookings.php:283
 #: templates/admin/dashboard/transfer-widget.php:60
 #: templates/admin/dashboard/transfer-widget.php:61
 msgid "Unknown"
@@ -990,7 +990,7 @@ msgstr ""
 #: src/Admin/Transfer/TransferAdmin.php:526
 #: src/Admin/Transfer/TransferAdmin.php:773
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:114
-#: templates/account/partials/vendor-listings.php:282
+#: templates/account/partials/vendor-listings.php:361
 #: templates/admin/shortcode-pages.php:81
 #: templates/shortcodes/vehicle-rating-form.php:264
 msgid "Edit"
@@ -1592,7 +1592,7 @@ msgid "Booking Request: %1$s (%2$s) between %3$s - %4$s dates."
 msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:109
-#: templates/account/partials/vendor-listings.php:145
+#: templates/account/partials/vendor-listings.php:202
 msgid "Draft"
 msgstr ""
 
@@ -2208,6 +2208,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:133
 #: src/Admin/Settings/Testing/SettingsTester.php:953
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:350
+#: templates/account/partials/vendor-bookings.php:260
 #: templates/admin/dashboard/upcoming-operations.php:66
 #: templates/emails/booking-created-vendor.html.php:14
 #: assets/blocks/featured-vehicles/index.js:28
@@ -2570,8 +2571,8 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1440
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:993
 #: src/Blocks/BlockRegistry.php:252
-#: templates/account/partials/vendor-listings.php:94
-#: templates/account/partials/vendor-listings.php:322
+#: templates/account/partials/vendor-listings.php:151
+#: templates/account/partials/vendor-listings.php:401
 msgid "Close"
 msgstr ""
 
@@ -3409,7 +3410,7 @@ msgstr ""
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:171
 #: src/Admin/Vehicle/Reports/VehicleReport.php:105
 #: templates/account/booking-detail.php:33
-#: templates/account/partials/vendor-bookings.php:266
+#: templates/account/partials/vendor-bookings.php:277
 msgid "Unknown Vehicle"
 msgstr ""
 
@@ -3742,7 +3743,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:336
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:443
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1507
-#: templates/account/partials/vendor-listings.php:180
+#: templates/account/partials/vendor-listings.php:259
 msgid "Daily Price"
 msgstr ""
 
@@ -3808,7 +3809,7 @@ msgid "Select a vehicle..."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:267
-#: templates/account/partials/vendor-listings.php:181
+#: templates/account/partials/vendor-listings.php:260
 #: templates/shortcodes/vehicle-comparison.php:153
 #: templates/shortcodes/vehicle-comparison.php:220
 msgid "day"
@@ -6248,7 +6249,7 @@ msgstr ""
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:109
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:256
 #: templates/account/dashboard.php:221
-#: templates/account/partials/vendor-listings.php:276
+#: templates/account/partials/vendor-listings.php:355
 #: templates/admin/shortcode-pages.php:84
 #: templates/admin/shortcode-pages.php:93
 msgid "View"
@@ -6981,7 +6982,7 @@ msgstr ""
 msgid "Email templates saved successfully!"
 msgstr ""
 
-#: src/Admin/Emails/Core/Mailer.php:359
+#: src/Admin/Emails/Core/Mailer.php:362
 #: src/Admin/Messages/Admin/MessageListTable.php:122
 #: src/Admin/Messages/Admin/MessageListTable.php:377
 #: src/Admin/Messages/Admin/MessageListTable.php:384
@@ -9280,7 +9281,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:115
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:411
-#: templates/account/partials/vendor-listings.php:84
+#: templates/account/partials/vendor-listings.php:141
 #: templates/admin/dashboard/quick-actions.php:22
 #: templates/shortcodes/vehicle-comparison.php:58
 msgid "Add Vehicle"
@@ -13532,7 +13533,7 @@ msgid "Accept"
 msgstr ""
 
 #: src/Admin/Privacy/GDPRManager.php:143
-#: templates/account/partials/vendor-bookings.php:360
+#: templates/account/partials/vendor-bookings.php:379
 msgid "Decline"
 msgstr ""
 
@@ -16379,6 +16380,7 @@ msgid "Scheduled"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:110
+#: templates/account/partials/vendor-listings.php:108
 msgid "Idle"
 msgstr ""
 
@@ -19573,7 +19575,7 @@ msgid "Filter bookings by date, status, payment method, and amount range."
 msgstr ""
 
 #: src/Admin/Utilities/Export/ExportFilters.php:361
-#: templates/account/partials/vendor-bookings.php:322
+#: templates/account/partials/vendor-bookings.php:341
 msgid "Date Range"
 msgstr ""
 
@@ -19846,7 +19848,7 @@ msgid "Renewal"
 msgstr ""
 
 #: src/Admin/Vehicle/ListingFeeManager.php:238
-#: templates/account/partials/vendor-listings.php:305
+#: templates/account/partials/vendor-listings.php:384
 msgid "Relist"
 msgstr ""
 
@@ -21048,7 +21050,7 @@ msgid "Approve this new IBAN? The vendor will receive payouts to this new accoun
 msgstr ""
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:370
-#: templates/account/partials/vendor-bookings.php:357
+#: templates/account/partials/vendor-bookings.php:376
 msgid "Approve"
 msgstr ""
 
@@ -22168,12 +22170,17 @@ msgstr ""
 msgid "When customers book your vehicles, their requests will appear here."
 msgstr ""
 
-#: templates/account/partials/vendor-bookings.php:335
+#: templates/account/partials/vendor-bookings.php:261
+#: templates/emails/booking-created-vendor.html.php:15
+msgid "Car Rental"
+msgstr ""
+
+#: templates/account/partials/vendor-bookings.php:354
 msgid "Duration & Price"
 msgstr ""
 
 #. translators: %d: number of days
-#: templates/account/partials/vendor-bookings.php:344
+#: templates/account/partials/vendor-bookings.php:363
 #, php-format
 msgid "%d day total"
 msgid_plural "%d days total"
@@ -22193,42 +22200,54 @@ msgstr ""
 msgid "Re-review Pending"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:65
+#: templates/account/partials/vendor-listings.php:109
+msgid "Rented"
+msgstr ""
+
+#: templates/account/partials/vendor-listings.php:110
+msgid "On Transfer"
+msgstr ""
+
+#: templates/account/partials/vendor-listings.php:111
+msgid "In Maintenance"
+msgstr ""
+
+#: templates/account/partials/vendor-listings.php:122
 msgid "My Vehicles"
 msgstr ""
 
 #. translators: %d: number of vehicles
-#: templates/account/partials/vendor-listings.php:71
+#: templates/account/partials/vendor-listings.php:128
 #, php-format
 msgid "%d vehicles in your portfolio."
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:93
+#: templates/account/partials/vendor-listings.php:150
 msgid "New Vehicle Details"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:112
+#: templates/account/partials/vendor-listings.php:169
 msgid "You have not added any vehicles yet."
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:113
+#: templates/account/partials/vendor-listings.php:170
 msgid "Click \"Add Vehicle\" to submit your first listing for review."
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:189
+#: templates/account/partials/vendor-listings.php:268
 msgid "Plate:"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:203
+#: templates/account/partials/vendor-listings.php:282
 msgid "Your listing will be published after operator approval."
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:210
+#: templates/account/partials/vendor-listings.php:289
 msgid "Rejection reason:"
 msgstr ""
 
 #. translators: %d: number of days until new listing ban is lifted
-#: templates/account/partials/vendor-listings.php:228
+#: templates/account/partials/vendor-listings.php:307
 #, php-format
 msgid "New listing ban: %d more day"
 msgid_plural "New listing ban: %d more days"
@@ -22236,29 +22255,29 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of remaining days
-#: templates/account/partials/vendor-listings.php:264
+#: templates/account/partials/vendor-listings.php:343
 #, php-format
 msgid "Remaining: %d days"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:287
+#: templates/account/partials/vendor-listings.php:366
 msgid "Pause"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:290
-#: templates/account/partials/vendor-listings.php:297
+#: templates/account/partials/vendor-listings.php:369
+#: templates/account/partials/vendor-listings.php:376
 msgid "Withdraw"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:294
+#: templates/account/partials/vendor-listings.php:373
 msgid "Resume"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:301
+#: templates/account/partials/vendor-listings.php:380
 msgid "Renew"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:321
+#: templates/account/partials/vendor-listings.php:400
 msgid "Edit Vehicle"
 msgstr ""
 
@@ -23210,10 +23229,6 @@ msgstr ""
 
 #: templates/emails/booking-created-customer.html.php:187
 msgid "Save your login credentials for faster bookings in the future!"
-msgstr ""
-
-#: templates/emails/booking-created-vendor.html.php:15
-msgid "Car Rental"
 msgstr ""
 
 #: templates/emails/booking-created-vendor.html.php:43
@@ -25189,4 +25204,79 @@ msgstr ""
 #: assets/blocks/vehicles-list/block.json
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
+msgstr ""
+
+#: templates/account/vendor-booking-detail.php
+msgid "Reservation No"
+msgstr ""
+
+#. translators: %s: reservation display id
+#: templates/account/vendor-booking-detail.php
+#, php-format
+msgid "Reservation #%s"
+msgstr ""
+
+#: templates/account/vendor-booking-detail.php
+msgid "Arrival"
+msgstr ""
+
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+msgid "Transfer Route"
+msgstr ""
+
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+msgid "From"
+msgstr ""
+
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+msgid "To"
+msgstr ""
+
+#. translators: %d km
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+#, php-format
+msgid "%d km"
+msgstr ""
+
+#. translators: %d minutes
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+#, php-format
+msgid "%d min"
+msgstr ""
+
+#. translators: %d adults
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+#, php-format
+msgid "%d adult"
+msgid_plural "%d adults"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d children
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+#, php-format
+msgid "%d child"
+msgid_plural "%d children"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d large bags
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+#, php-format
+msgid "%d large"
+msgstr ""
+
+#. translators: %d small bags
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+#, php-format
+msgid "%d small"
 msgstr ""

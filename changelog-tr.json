@@ -1,5 +1,24 @@
 [
     {
+        "version": "4.26.5",
+        "date": "2026-04-15",
+        "type": "patch",
+        "changes": [
+            "👤 YENİ: Bayi paneli sol menüsünde artık kullanıcının Gravatar fotoğrafı, görünen adı ve son başarılı giriş tarihi/saati yer alıyor. 'Çıkış Yap' butonu tek başına bir aksiyon olarak yeniden tasarlandı; hover durumunda kırmızıya dönüyor.",
+            "🔐 YENİ: Her başarılı WordPress girişi artık kullanıcının 'last_login' meta alanına işleniyor. GDPR/veri saklama araçları bu anahtarı zaten okuyordu ama yazma tarafı eksikti — artık tamamlandı.",
+            "📥 YENİ: Yeni Mesaj formundaki 'İlgili Rezervasyon' dropdown'u bayilere de dolu geliyor. Daha önce endpoint yalnızca müşteriye ait rezervasyonları dönüyordu; bayiler her zaman boş liste görüyordu.",
+            "🎨 YENİ: Mesaj listesi kartları premium tasarıma kavuştu — gradyan arka plan, hap şeklinde ID rozeti, turuncu 'YENİ' durum etiketi, hover aksan şeridi ve okunmamış mesajlar için kehribar vurgu. Mobilde padding ve tipografi otomatik uyarlanıyor.",
+            "🗂️ DÜZELTME: Mesajlar panelinde liste / konuşma / yeni mesaj formu görünümleri artık birbirinin yerine geçiyor. Eksik olan '.hidden' CSS kuralı yüzünden üçü aynı anda render oluyor ve kafa karıştırıcı üst üste yığılmış bir arayüz oluşturuyordu.",
+            "🔁 DÜZELTME: Konuşma görünümü aynı threadi tekrar açtığında 'Mesajı Kapat' butonunu ve kapalı uyarı afişini üst üste biriktirmiyor. Yeniden render öncesi eski elementler temizleniyor.",
+            "🔣 DÜZELTME: Mesajlar sayfasındaki geri ok glyph'i '&larr;' HTML entity'sine çevrildi ve şablondaki bozuk C1 kontrol baytı silindi — 'İletilere dön' yazısının önündeki kare mojibake kutusu gitti.",
+            "🇹🇷 DÜZELTME: 'Booking Association' etiketi Türkçeye 'Rezervasyon Derneği' olarak yanlış çevrilmişti. Doğrusu 'İlgili Rezervasyon' olarak düzeltildi.",
+            "🛡️ DÜZELTME: Bayi rezervasyon kartı tam sayı gösterim ID'lerinde render sırasında çökmeyecek. ltrim() çağrısı artık güvenli şekilde string'e cast ediliyor.",
+            "📦 BUILD: customer-messages CSS/JS ve account-messages JS asset'leri artık filemtime tabanlı cache busting kullanıyor — şablon düzenlemeleri bir sonraki sayfa yüklemesinde otomatik görünüyor, Ctrl+F5'e gerek yok.",
+            "🌐 i18n: 'Last login: %s' ve 'Last successful login' için Türkçe çeviriler eklendi; .mo / .l10n.php yeniden üretildi."
+        ],
+        "notice": "v4.26.5 - Bayi paneli kimlik kartı, bayiler için rezervasyon dropdown paritesi ve premium mesaj listesi tasarımı"
+    },
+    {
         "version": "4.26.4",
         "date": "2026-04-15",
         "type": "patch",

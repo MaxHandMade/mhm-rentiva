@@ -265,20 +265,28 @@ final class AccountRenderer
 
 		$user = wp_get_current_user();
 
-		// Load CSS files
+		// Load CSS files (filemtime-based version avoids stale browser cache during dev).
+		$customer_messages_css_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/css/frontend/customer-messages.css';
+		$customer_messages_css_ver  = file_exists($customer_messages_css_path)
+			? MHM_RENTIVA_VERSION . '.' . filemtime($customer_messages_css_path)
+			: MHM_RENTIVA_VERSION;
 		wp_enqueue_style(
 			'mhm-customer-messages',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/customer-messages.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			$customer_messages_css_ver
 		);
 
 		// ⭐ Load JavaScript file (required for messages functionality)
+		$account_messages_js_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/js/frontend/account-messages.js';
+		$account_messages_js_ver  = file_exists($account_messages_js_path)
+			? MHM_RENTIVA_VERSION . '.' . filemtime($account_messages_js_path)
+			: MHM_RENTIVA_VERSION;
 		wp_enqueue_script(
 			'mhm-rentiva-account-messages',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-messages.js',
 			array('jquery'),
-			MHM_RENTIVA_VERSION,
+			$account_messages_js_ver,
 			true
 		);
 
@@ -349,6 +357,10 @@ final class AccountRenderer
 		if (isset($data_res['error'])) {
 			return $data_res['error'];
 		}
+		// Vendor sees a dedicated detail view (mirrors the vendor email)
+		if (! empty($data_res['data']['is_vendor_view'])) {
+			return Templates::render('account/vendor-booking-detail', $data_res, true);
+		}
 		return Templates::render('account/booking-detail', $data_res, true);
 	}
 
@@ -363,11 +375,17 @@ final class AccountRenderer
 			return array('error' => '<p>' . __('Booking not found.', 'mhm-rentiva') . '</p>');
 		}
 
-		// User check
+		// User check — customer, vendor (vehicle owner), or admin may view
 		$user            = wp_get_current_user();
-		$booking_user_id = get_post_meta($booking_id, '_mhm_customer_user_id', true);
+		$booking_user_id = (int) get_post_meta($booking_id, '_mhm_customer_user_id', true);
+		$vehicle_id      = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+		$vendor_user_id  = $vehicle_id > 0 ? (int) get_post_field('post_author', $vehicle_id) : 0;
 
-		if ($booking_user_id != $user->ID && ! current_user_can('manage_options')) {
+		$is_customer = ($booking_user_id > 0 && $booking_user_id === (int) $user->ID);
+		$is_vendor   = ($vendor_user_id > 0 && $vendor_user_id === (int) $user->ID);
+		$is_admin    = current_user_can('manage_options');
+
+		if (! $is_customer && ! $is_vendor && ! $is_admin) {
 			return array('error' => '<p>' . __('You do not have permission to view this booking.', 'mhm-rentiva') . '</p>');
 		}
 
@@ -395,10 +413,12 @@ final class AccountRenderer
 		}
 
 		$data = array(
-			'booking'       => $booking,
-			'booking_id'    => $booking_id,
-			'navigation'    => $navigation,
-			'is_integrated' => $hide_nav,
+			'booking'        => $booking,
+			'booking_id'     => $booking_id,
+			'navigation'     => $navigation,
+			'is_integrated'  => $hide_nav,
+			'is_vendor_view' => ($is_vendor && ! $is_customer),
+			'is_admin_view'  => $is_admin,
 		);
 
 		return array('data' => $data);

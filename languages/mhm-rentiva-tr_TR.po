@@ -251,7 +251,7 @@ msgid "%d customers processed."
 msgstr "%d müşteri işlendi."
 
 #. translators: %d: number of days
-#: templates/account/partials/vendor-bookings.php:344
+#: templates/account/partials/vendor-bookings.php:363
 #, php-format
 msgid "%d day total"
 msgid_plural "%d days total"
@@ -481,7 +481,7 @@ msgid "%d vehicles in your favorites"
 msgstr "%d favori araçlarınız"
 
 #. translators: %d: number of vehicles
-#: templates/account/partials/vendor-listings.php:71
+#: templates/account/partials/vendor-listings.php:128
 #, php-format
 msgid "%d vehicles in your portfolio."
 msgstr "Portföyünüzde %d araç bulunuyor."
@@ -1429,7 +1429,7 @@ msgstr "Galeriye Ekle"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:115
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:411
-#: templates/account/partials/vendor-listings.php:84
+#: templates/account/partials/vendor-listings.php:141
 #: templates/admin/dashboard/quick-actions.php:22
 #: templates/shortcodes/vehicle-comparison.php:58
 msgid "Add Vehicle"
@@ -2251,7 +2251,7 @@ msgstr "ve"
 msgid "Android Auto"
 msgstr "Android Otomatik"
 
-#: src/Admin/Emails/Core/Mailer.php:359
+#: src/Admin/Emails/Core/Mailer.php:362
 #: src/Admin/Messages/Admin/MessageListTable.php:122
 #: src/Admin/Messages/Admin/MessageListTable.php:377
 #: src/Admin/Messages/Admin/MessageListTable.php:384
@@ -2371,7 +2371,7 @@ msgid "Apply to All Vehicles"
 msgstr "Tüm Araçlara Uygula"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:370
-#: templates/account/partials/vendor-bookings.php:357
+#: templates/account/partials/vendor-bookings.php:376
 msgid "Approve"
 msgstr "Onayla"
 
@@ -3534,12 +3534,12 @@ msgstr "%1$s ila %2$s için rezervasyon analizi ve durum dağılımı"
 
 #: src/Admin/Messages/Core/Messages.php:1297
 msgid "Booking Association"
-msgstr "Rezervasyon Derneği"
+msgstr "İlgili Rezervasyon"
 
 #: src/Admin/Messages/Frontend/CustomerMessages.php:170
 #: templates/account/messages.php:147
 msgid "Booking Association (Optional):"
-msgstr "Rezervasyon Derneği (İsteğe bağlı):"
+msgstr "İlgili Rezervasyon (İsteğe bağlı):"
 
 #: src/Admin/Emails/Core/EmailTemplates.php:756
 msgid "Booking Cancellation"
@@ -4784,7 +4784,7 @@ msgstr "Önbellek temizleniyor..."
 msgid "Clears shortcode page cache and performs a deep scan for shortcode placements. Use after manual page updates."
 msgstr "Kısa kod sayfası önbelleğini temizler ve kısa kod yerleşimleri için derinlemesine tarama gerçekleştirir. Manuel sayfa güncellemelerinden sonra kullanın."
 
-#: templates/account/partials/vendor-listings.php:113
+#: templates/account/partials/vendor-listings.php:170
 msgid "Click \"Add Vehicle\" to submit your first listing for review."
 msgstr "İlk ilanınızı incelemeye göndermek için \"Araç Ekle\"ye tıklayın."
 
@@ -4809,8 +4809,8 @@ msgstr "Müşteri Kimliği"
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1440
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:993
 #: src/Blocks/BlockRegistry.php:252
-#: templates/account/partials/vendor-listings.php:94
-#: templates/account/partials/vendor-listings.php:322
+#: templates/account/partials/vendor-listings.php:151
+#: templates/account/partials/vendor-listings.php:401
 msgid "Close"
 msgstr "Kapat"
 
@@ -6198,7 +6198,7 @@ msgstr "Günlük kilometre sınırı geçerlidir. Fazla kilometreler faturaland�
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:336
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:443
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1507
-#: templates/account/partials/vendor-listings.php:180
+#: templates/account/partials/vendor-listings.php:259
 msgid "Daily Price"
 msgstr "Günlük Fiyat"
 
@@ -6384,7 +6384,7 @@ msgid "Date Added"
 msgstr "Eklenme Tarihi"
 
 #: src/Admin/Utilities/Export/ExportFilters.php:361
-#: templates/account/partials/vendor-bookings.php:322
+#: templates/account/partials/vendor-bookings.php:341
 msgid "Date Range"
 msgstr "Tarih aralığı"
 
@@ -6412,7 +6412,7 @@ msgid "Dates:"
 msgstr "Tarihliler:"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:267
-#: templates/account/partials/vendor-listings.php:181
+#: templates/account/partials/vendor-listings.php:260
 #: templates/shortcodes/vehicle-comparison.php:153
 #: templates/shortcodes/vehicle-comparison.php:220
 msgid "day"
@@ -6534,7 +6534,7 @@ msgid "Decimal Places"
 msgstr "Ondalık"
 
 #: src/Admin/Privacy/GDPRManager.php:143
-#: templates/account/partials/vendor-bookings.php:360
+#: templates/account/partials/vendor-bookings.php:379
 msgid "Decline"
 msgstr "Reddet"
 
@@ -7194,7 +7194,7 @@ msgid "Download Report"
 msgstr "Raporu İndir"
 
 #: src/Admin/Booking/Core/Status.php:109
-#: templates/account/partials/vendor-listings.php:145
+#: templates/account/partials/vendor-listings.php:202
 msgid "Draft"
 msgstr "Taslak"
 
@@ -7309,7 +7309,7 @@ msgstr "Yinelenen durum adlarına izin verilmez"
 msgid "Duration"
 msgstr "Süre"
 
-#: templates/account/partials/vendor-bookings.php:335
+#: templates/account/partials/vendor-bookings.php:354
 msgid "Duration & Price"
 msgstr "Süre ve Ücret"
 
@@ -7391,7 +7391,7 @@ msgstr "Kazançlar"
 #: src/Admin/Transfer/TransferAdmin.php:526
 #: src/Admin/Transfer/TransferAdmin.php:773
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:114
-#: templates/account/partials/vendor-listings.php:282
+#: templates/account/partials/vendor-listings.php:361
 #: templates/admin/shortcode-pages.php:81
 #: templates/shortcodes/vehicle-rating-form.php:264
 msgid "Edit"
@@ -7472,7 +7472,7 @@ msgstr "Şablonu Düzenle"
 msgid "Edit Time Limit (hours)"
 msgstr "Düzenleme Süresi Sınırı (saat)"
 
-#: templates/account/partials/vendor-listings.php:321
+#: templates/account/partials/vendor-listings.php:400
 msgid "Edit Vehicle"
 msgstr "Aracı Düzenle"
 
@@ -10000,6 +10000,7 @@ msgid "Identify new message category..."
 msgstr "Yeni mesaj kategorisini tanımlayın..."
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:110
+#: templates/account/partials/vendor-listings.php:108
 msgid "Idle"
 msgstr "Boşta"
 
@@ -11457,7 +11458,7 @@ msgstr "Konu yükleniyor..."
 #: src/Admin/Messages/Core/Messages.php:1532
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:88
-#: templates/account/partials/vendor-listings.php:325
+#: templates/account/partials/vendor-listings.php:404
 #: templates/shortcodes/availability-calendar.php:421
 msgid "Loading..."
 msgstr "Yükleniyor..."
@@ -12897,7 +12898,7 @@ msgstr "Mesajlarım"
 msgid "My Reservations"
 msgstr "Rezervasyonlarım"
 
-#: templates/account/partials/vendor-listings.php:65
+#: templates/account/partials/vendor-listings.php:122
 msgid "My Vehicles"
 msgstr "Araçlarım"
 
@@ -13101,7 +13102,7 @@ msgid "New Listing"
 msgstr "Yeni İlan"
 
 #. translators: %d: number of days until new listing ban is lifted
-#: templates/account/partials/vendor-listings.php:228
+#: templates/account/partials/vendor-listings.php:307
 #, php-format
 msgid "New listing ban: %d more day"
 msgid_plural "New listing ban: %d more days"
@@ -13196,7 +13197,7 @@ msgstr "BU AYIN YENİLİKLERİ"
 msgid "New This Month"
 msgstr "Bu Ayın Yenilikleri"
 
-#: templates/account/partials/vendor-listings.php:93
+#: templates/account/partials/vendor-listings.php:150
 msgid "New Vehicle Details"
 msgstr "Yeni Araç Bilgileri"
 
@@ -14510,7 +14511,7 @@ msgstr "Lisans anahtarınızı yapıştırın ve Etkinleştir düğmesine tıkla
 msgid "Paste your Pro license key and click the Activate button."
 msgstr "Pro lisans anahtarınızı yapıştırın ve Etkinleştir düğmesine tıklayın."
 
-#: templates/account/partials/vendor-listings.php:287
+#: templates/account/partials/vendor-listings.php:366
 msgid "Pause"
 msgstr "Duraklat"
 
@@ -15452,7 +15453,7 @@ msgstr "Plan"
 msgid "Plate"
 msgstr "Plaka:"
 
-#: templates/account/partials/vendor-listings.php:189
+#: templates/account/partials/vendor-listings.php:268
 msgid "Plate:"
 msgstr "Plaka:"
 
@@ -16706,7 +16707,7 @@ msgstr "Reddedildi"
 msgid "Rejection Reason (required):"
 msgstr "Ret Nedeni (zorunlu):"
 
-#: templates/account/partials/vendor-listings.php:210
+#: templates/account/partials/vendor-listings.php:289
 msgid "Rejection reason:"
 msgstr "Ret nedeni:"
 
@@ -16732,7 +16733,7 @@ msgid "Reliable"
 msgstr "Güvenilir"
 
 #: src/Admin/Vehicle/ListingFeeManager.php:238
-#: templates/account/partials/vendor-listings.php:305
+#: templates/account/partials/vendor-listings.php:384
 msgid "Relist"
 msgstr "Yeniden Listeleme"
 
@@ -16788,7 +16789,7 @@ msgid "Remaining:"
 msgstr "Geriye kalan:"
 
 #. translators: %d: number of remaining days
-#: templates/account/partials/vendor-listings.php:264
+#: templates/account/partials/vendor-listings.php:343
 #, php-format
 msgid "Remaining: %d days"
 msgstr "Kalan: %d gün"
@@ -16932,7 +16933,7 @@ msgstr "Karşılaştırmadan kaldırma..."
 msgid "Removing from favorites..."
 msgstr "Sık kullanılanlardan kaldırılıyor..."
 
-#: templates/account/partials/vendor-listings.php:301
+#: templates/account/partials/vendor-listings.php:380
 msgid "Renew"
 msgstr ""
 
@@ -17373,7 +17374,7 @@ msgstr "Sayfa Başına Sonuç"
 msgid "Results:"
 msgstr "Sonuçlar:"
 
-#: templates/account/partials/vendor-listings.php:294
+#: templates/account/partials/vendor-listings.php:373
 msgid "Resume"
 msgstr "Devam Et"
 
@@ -19273,6 +19274,15 @@ msgstr "%3$d başvurudan %1$d-%2$d arası gösteriliyor"
 msgid "Sign Out"
 msgstr "Çıkış Yap"
 
+#: templates/account/user-dashboard.php
+msgid "Last successful login"
+msgstr "Son başarılı giriş"
+
+#: templates/account/user-dashboard.php
+#. translators: %s: formatted date/time of last login
+msgid "Last login: %s"
+msgstr "Son giriş: %s"
+
 #: templates/shortcodes/vehicle-details.php:355
 msgid "Similar Premium Vehicles"
 msgstr "Benzer Premium Araçlar"
@@ -21019,6 +21029,7 @@ msgstr "İşlem e-postaları WooCommerce tarafından yönetilir. Bu ayarlar, ekl
 #: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:133
 #: src/Admin/Settings/Testing/SettingsTester.php:953
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:350
+#: templates/account/partials/vendor-bookings.php:260
 #: templates/admin/dashboard/upcoming-operations.php:66
 #: templates/emails/booking-created-vendor.html.php:14
 #: assets/blocks/featured-vehicles/index.js:28
@@ -21287,8 +21298,8 @@ msgstr "Kaldırma işlemi başarısız oldu"
 #: src/Admin/Setup/SetupWizard.php:1433
 #: src/Admin/Setup/SetupWizard.php:1456
 #: src/Admin/Testing/TestRunner.php:170
-#: templates/account/partials/vendor-bookings.php:249
-#: templates/account/partials/vendor-bookings.php:272
+#: templates/account/partials/vendor-bookings.php:245
+#: templates/account/partials/vendor-bookings.php:283
 #: templates/admin/dashboard/transfer-widget.php:60
 #: templates/admin/dashboard/transfer-widget.php:61
 msgid "Unknown"
@@ -21339,7 +21350,7 @@ msgstr "Bilinmeyen sekme istendi."
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:171
 #: src/Admin/Vehicle/Reports/VehicleReport.php:105
 #: templates/account/booking-detail.php:33
-#: templates/account/partials/vendor-bookings.php:266
+#: templates/account/partials/vendor-bookings.php:277
 msgid "Unknown Vehicle"
 msgstr "Bilinmeyen Araç"
 
@@ -22517,7 +22528,7 @@ msgstr "Vietnam"
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:109
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:256
 #: templates/account/dashboard.php:221
-#: templates/account/partials/vendor-listings.php:276
+#: templates/account/partials/vendor-listings.php:355
 #: templates/admin/shortcode-pages.php:84
 #: templates/admin/shortcode-pages.php:93
 msgid "View"
@@ -22996,8 +23007,8 @@ msgstr "Kış"
 msgid "WIPE ALL DATA ON UNINSTALL"
 msgstr "SİLME İŞLEMİNDE TÜM VERİLERİ SİL"
 
-#: templates/account/partials/vendor-listings.php:290
-#: templates/account/partials/vendor-listings.php:297
+#: templates/account/partials/vendor-listings.php:369
+#: templates/account/partials/vendor-listings.php:376
 msgid "Withdraw"
 msgstr "Geri Çek"
 
@@ -23513,7 +23524,7 @@ msgstr "Henüz favori aracınız yok."
 msgid "You have no vehicle listings yet."
 msgstr "Henüz araç ilanınız yok."
 
-#: templates/account/partials/vendor-listings.php:112
+#: templates/account/partials/vendor-listings.php:169
 msgid "You have not added any vehicles yet."
 msgstr "Henüz araç eklemediniz."
 
@@ -23783,7 +23794,7 @@ msgstr "İlanınızın süresi doldu — {{site.name}}"
 msgid "Your listing is now live! — {{site.name}}"
 msgstr "İlanınız yayında! — {{site.name}}"
 
-#: templates/account/partials/vendor-listings.php:203
+#: templates/account/partials/vendor-listings.php:282
 msgid "Your listing will be published after operator approval."
 msgstr "İlanınız operatör onayından sonra yayınlanacaktır."
 
@@ -24517,6 +24528,7 @@ msgstr ""
 msgid "Show Dropoff Location"
 msgstr ""
 
+#: templates/account/partials/vendor-bookings.php:261
 #: templates/emails/booking-created-vendor.html.php:15
 msgid "Car Rental"
 msgstr "Araç Kiralama"
@@ -25218,3 +25230,90 @@ msgstr ""
 #: assets/blocks/vehicles-grid/index.js:126
 msgid "Masonry"
 msgstr ""
+
+#: templates/account/partials/vendor-listings.php:109
+msgid "Rented"
+msgstr "Kirada"
+
+#: templates/account/partials/vendor-listings.php:110
+msgid "On Transfer"
+msgstr "Transferde"
+
+#: templates/account/partials/vendor-listings.php:111
+msgid "In Maintenance"
+msgstr "Bakımda"
+
+#: templates/account/vendor-booking-detail.php
+msgid "Reservation No"
+msgstr "Rezervasyon No"
+
+#. translators: %s: reservation display id
+#: templates/account/vendor-booking-detail.php
+#, php-format
+msgid "Reservation #%s"
+msgstr "Rezervasyon #%s"
+
+#: templates/account/vendor-booking-detail.php
+msgid "Arrival"
+msgstr "Varış"
+
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+msgid "Transfer Route"
+msgstr "Transfer Güzergahı"
+
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+msgid "From"
+msgstr "Nereden"
+
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+msgid "To"
+msgstr "Nereye"
+
+#. translators: %d km
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+#, php-format
+msgid "%d km"
+msgstr "%d km"
+
+#. translators: %d minutes
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+#, php-format
+msgid "%d min"
+msgstr "%d dk"
+
+#. translators: %d adults
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+#, php-format
+msgid "%d adult"
+msgid_plural "%d adults"
+msgstr[0] "%d yetişkin"
+msgstr[1] "%d yetişkin"
+
+#. translators: %d children
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+#, php-format
+msgid "%d child"
+msgid_plural "%d children"
+msgstr[0] "%d çocuk"
+msgstr[1] "%d çocuk"
+
+#. translators: %d large bags
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+#, php-format
+msgid "%d large"
+msgstr "%d büyük"
+
+#. translators: %d small bags
+#: templates/account/vendor-booking-detail.php
+#: templates/emails/booking-created-vendor.html.php
+#, php-format
+msgid "%d small"
+msgstr "%d küçük"

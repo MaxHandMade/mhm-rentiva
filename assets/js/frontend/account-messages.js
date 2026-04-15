@@ -375,6 +375,10 @@ jQuery(document).ready(
 
 				$threadMessages.html(html);
 
+				// Remove stale buttons / notices from previous renders (prevents duplication).
+				$('#message-thread .close-thread-btn').remove();
+				$('#message-thread .thread-closed-notice').remove();
+
 				// Show reply form if thread is open
 				if (threadData.can_reply !== false && threadData.status !== 'closed') {
 					$threadReply.removeClass('hidden');
@@ -529,11 +533,6 @@ jQuery(document).ready(
 			loadBookings: function () {
 				const self = this;
 				const $bookingSelect = $('#message-booking');
-
-				// Don't reload if already populated
-				if ($bookingSelect.find('option').length > 1) {
-					return;
-				}
 
 				$.ajax(
 					{

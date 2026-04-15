@@ -3,6 +3,14 @@
  * Müşteri mesaj paneli stilleri
  */
 
+/* Utility: hide toggled views (list / thread / new-message form are mutually exclusive). */
+.mhm-messages-section .hidden,
+.mhm-messages-section .thread-reply.hidden,
+.mhm-messages-section .new-message-form.hidden,
+.mhm-messages-section .message-thread.hidden {
+	display: none !important;
+}
+
 /* Portal Section */
 .messages-section {
 	background: #fff;
@@ -33,64 +41,106 @@
 }
 
 .message-item {
-	background: #f9f9f9;
-	border: 1px solid #ddd;
-	border-radius: 6px;
-	padding: 15px;
-	margin-bottom: 10px;
+	position: relative;
+	background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+	border: 1px solid #e4e7ef;
+	border-radius: 12px;
+	padding: 16px 18px;
+	margin-bottom: 12px;
 	cursor: pointer;
-	transition: all 0.2s ease;
+	transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.message-item::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 14px;
+	bottom: 14px;
+	width: 3px;
+	border-radius: 0 3px 3px 0;
+	background: transparent;
+	transition: background 0.18s ease;
 }
 
 .message-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 8px;
+	margin-bottom: 10px;
 	flex-wrap: wrap;
 	gap: 8px;
 }
 
 .message-id {
-	font-weight: 600;
-	color: #2271b1;
-	font-size: 0.9em;
-	background: #e7f3ff;
-	padding: 4px 8px;
-	border-radius: 4px;
+	font-weight: 700;
+	color: #4f46e5;
+	font-size: 0.8125rem;
+	background: #eef2ff;
+	border: 1px solid #e0e7ff;
+	padding: 3px 10px;
+	border-radius: 999px;
+	letter-spacing: 0.02em;
 }
 
 .status-badge-new {
-	background: #ff9800;
-	color: white;
-	padding: 2px 8px;
-	border-radius: 3px;
-	font-size: 11px;
-	font-weight: 600;
+	background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+	color: #fff;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 10.5px;
+	font-weight: 700;
 	text-transform: uppercase;
+	letter-spacing: 0.04em;
 	white-space: nowrap;
+	box-shadow: 0 2px 6px rgba(245, 158, 11, 0.25);
 }
 
 .message-item:hover {
-	background: #f0f0f0;
-	border-color: #2271b1;
-	transform: translateY(-1px);
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	border-color: #c7d2fe;
+	transform: translateY(-2px);
+	box-shadow: 0 8px 20px rgba(79, 70, 229, 0.08);
+}
+
+.message-item:hover::before {
+	background: linear-gradient(180deg, #6366f1, #4f46e5);
 }
 
 .message-item.unread {
-	background: #fff8e1;
-	border-left: 4px solid #ff9800;
+	background: linear-gradient(180deg, #fffdf5 0%, #fff8e1 100%);
+	border-color: #fde68a;
+}
+
+.message-item.unread::before {
+	background: linear-gradient(180deg, #f59e0b, #d97706);
+}
+
+.message-subject {
+	font-weight: 700;
+	color: #111827;
+	margin-bottom: 6px;
+	font-size: 0.9375rem;
+	line-height: 1.35;
+}
+
+@media (max-width: 600px) {
+	.message-item {
+		padding: 14px 16px;
+		border-radius: 10px;
+	}
+
+	.message-header {
+		margin-bottom: 8px;
+	}
+
+	.message-id {
+		font-size: 0.75rem;
+	}
 }
 
 .message-info {
 	margin-bottom: 8px;
-}
-
-.message-subject {
-	font-weight: 600;
-	color: #333;
-	margin-bottom: 5px;
 }
 
 .message-meta {

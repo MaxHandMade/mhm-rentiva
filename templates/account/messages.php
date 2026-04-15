@@ -68,7 +68,7 @@ if (empty($navigation)) {
 			<div id="message-thread" class="message-thread hidden">
 				<div class="thread-header">
 					<button type="button" class="back-to-list btn btn-secondary">
-						â† <?php esc_html_e('Back to Messages', 'mhm-rentiva'); ?>
+						<span aria-hidden="true">&larr;</span> <?php esc_html_e('Back to Messages', 'mhm-rentiva'); ?>
 					</button>
 					<h3 id="thread-subject"></h3>
 				</div>

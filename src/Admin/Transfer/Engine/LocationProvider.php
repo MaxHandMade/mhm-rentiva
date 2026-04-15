@@ -108,6 +108,26 @@ final class LocationProvider
     }
 
     /**
+     * Get a single location by ID
+     *
+     * @param int $location_id
+     * @return object|null
+     */
+    public static function get_by_id(int $location_id): ?object
+    {
+        if ($location_id <= 0) {
+            return null;
+        }
+
+        global $wpdb;
+        $table_name = self::resolve_table_name();
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $row = $wpdb->get_row($wpdb->prepare("SELECT id, name, type, city FROM {$table_name} WHERE id = %d", $location_id));
+        return $row ?: null;
+    }
+
+    /**
      * Resolve table name with fallback
      */
     private static function resolve_table_name(): string

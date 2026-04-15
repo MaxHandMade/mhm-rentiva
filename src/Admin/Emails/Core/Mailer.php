@@ -241,11 +241,35 @@ final class Mailer {
 		// Service type: 'rental' (default) or 'transfer'
 		$service_type  = (string) get_post_meta( $booking_id, '_mhm_service_type', true );
 		$transfer_flag = (string) get_post_meta( $booking_id, '_mhm_is_transfer', true );
-		if ( $service_type === '' && $transfer_flag === 'yes' ) {
+		if ( $service_type === '' && (int) get_post_meta( $booking_id, '_mhm_transfer_origin_id', true ) > 0 ) {
+			$service_type = 'transfer';
+		}
+		if ( $service_type === '' && in_array( $transfer_flag, array( '1', 'yes', 'true' ), true ) ) {
 			$service_type = 'transfer';
 		}
 		if ( $service_type === '' ) {
 			$service_type = 'rental';
+		}
+
+		// Transfer route context (origin + destination + meta)
+		$transfer_context = array();
+		if ( $service_type === 'transfer' ) {
+			$origin_id      = (int) get_post_meta( $booking_id, '_mhm_transfer_origin_id', true );
+			$destination_id = (int) get_post_meta( $booking_id, '_mhm_transfer_destination_id', true );
+			$origin_loc     = $origin_id > 0 ? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id( $origin_id ) : null;
+			$dest_loc       = $destination_id > 0 ? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id( $destination_id ) : null;
+			$transfer_context = array(
+				'origin_name'      => $origin_loc ? (string) $origin_loc->name : '',
+				'origin_city'      => $origin_loc && ! empty( $origin_loc->city ) ? (string) $origin_loc->city : '',
+				'destination_name' => $dest_loc ? (string) $dest_loc->name : '',
+				'destination_city' => $dest_loc && ! empty( $dest_loc->city ) ? (string) $dest_loc->city : '',
+				'distance_km'      => (int) get_post_meta( $booking_id, '_mhm_transfer_distance_km', true ),
+				'duration_min'     => (int) get_post_meta( $booking_id, '_mhm_transfer_duration_min', true ),
+				'adults'           => (int) get_post_meta( $booking_id, '_mhm_transfer_adults', true ),
+				'children'         => (int) get_post_meta( $booking_id, '_mhm_transfer_children', true ),
+				'luggage_big'      => (int) get_post_meta( $booking_id, '_mhm_transfer_luggage_big', true ),
+				'luggage_small'    => (int) get_post_meta( $booking_id, '_mhm_transfer_luggage_small', true ),
+			);
 		}
 
 		// Vendor context — derived from vehicle post author
@@ -306,6 +330,7 @@ final class Mailer {
 				'featured_image' => $vehicle_info['featured_image'] ?? '',
 			),
 			'vendor'   => $vendor_context,
+			'transfer' => $transfer_context,
 			'panel'    => array(
 				'url' => home_url( '/panel/' ),
 			),

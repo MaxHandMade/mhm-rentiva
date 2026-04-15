@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.26.4
+Stable tag:        4.26.5
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,19 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.26.5 =
+* **Feature:** Vendor panel sidebar now shows the user's Gravatar avatar, display name and the timestamp of the last successful login. Sign Out button restyled as a standalone action with a destructive hover state.
+* **Feature:** Authenticated logins are now recorded in the user `last_login` meta — previously read by GDPR/retention tooling but never written to.
+* **Feature:** Vendor-side reservations now appear in the New Message form's "Booking Association" dropdown. Previously the endpoint only returned customer-owned bookings, so vendors always saw an empty list when starting a new thread.
+* **Feature:** Message list cards redesigned with premium styling — gradient background, pill-shaped ID badges, orange "NEW" status chips, hover accent bar and amber unread state.
+* **Fix:** Messages panel list / thread / new-message views are now mutually exclusive. A missing `.hidden` utility rule previously caused all three to render simultaneously.
+* **Fix:** Thread view no longer accumulates duplicate "Close Thread" buttons when the same thread is reopened.
+* **Fix:** Messages page back-arrow glyph replaced with `&larr;` HTML entity and stray C1 control byte in the template stripped — the mojibake box before "Back to Messages" is gone.
+* **Fix:** "Booking Association" dropdown label was mistranslated to Turkish. Corrected from "Rezervasyon Derneği" to "İlgili Rezervasyon".
+* **Fix:** Vendor bookings card no longer crashes mid-render on integer display IDs. `ltrim()` call is now safely cast to string.
+* **Build:** Customer-messages CSS/JS and account-messages JS assets now use filemtime-based cache busting.
+* **i18n:** Turkish translations added for "Last login: %s" and "Last successful login"; .mo / .l10n.php regenerated.
 
 = 4.26.4 =
 * **Fix:** Transfer Search Elementor widget now exposes `Button Text`, `Show Pickup Location` and `Show Dropoff Location` as native, properly-labeled controls in the Content Settings panel. Previously these attributes were only surfaced through the auto-generated "Parity Controls" section with raw attribute names.

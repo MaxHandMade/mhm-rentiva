@@ -1,5 +1,24 @@
 [
     {
+        "version": "4.26.5",
+        "date": "2026-04-15",
+        "type": "patch",
+        "changes": [
+            "Feature: Vendor panel sidebar now shows the user's Gravatar avatar, display name, and the timestamp of the last successful login. Sign Out button restyled as a standalone action with a destructive hover state.",
+            "Feature: Authenticated logins are now recorded in the user 'last_login' meta — previously read by GDPR/retention tooling but never written to.",
+            "Feature: Vendor-side reservations now appear in the New Message form's 'Booking Association' dropdown. Previously the endpoint only returned customer-owned bookings, so vendors always saw an empty list when starting a new thread.",
+            "Feature: Message list cards redesigned with premium styling — gradient background, pill-shaped ID badges, orange 'NEW' status chips, hover accent bar and amber unread state. Responsive breakpoint adjusts padding and typography on small screens.",
+            "Fix: Messages panel list / thread / new-message views are now mutually exclusive. A missing '.hidden' utility rule previously caused all three to render simultaneously on the same page, producing a confusing stacked UI.",
+            "Fix: Thread view no longer accumulates duplicate 'Close Thread' buttons and closed-notice banners when the same thread is reopened. Stale elements are now removed before re-rendering.",
+            "Fix: Messages page back-arrow glyph replaced with the '&larr;' HTML entity and stray C1 control byte in the template stripped — the mojibake box that appeared before 'Back to Messages' is gone.",
+            "Fix: 'Booking Association' dropdown label was mistranslated to Turkish as 'Rezervasyon Derneği' (Booking Society). Translation corrected to 'İlgili Rezervasyon' (Related Reservation).",
+            "Fix: Vendor bookings card no longer crashes mid-render on integer display IDs. ltrim() call is now safely cast to string.",
+            "Build: Customer-messages CSS/JS and account-messages JS assets now use filemtime-based cache busting so template edits are picked up on the next page load without a forced Ctrl+F5.",
+            "i18n: Turkish translations added for 'Last login: %s' and 'Last successful login'; .mo / .l10n.php regenerated."
+        ],
+        "notice": "v4.26.5 - Vendor panel sidebar identity card, messages dropdown parity for vendors, and premium message-list styling"
+    },
+    {
         "version": "4.26.4",
         "date": "2026-04-15",
         "type": "patch",

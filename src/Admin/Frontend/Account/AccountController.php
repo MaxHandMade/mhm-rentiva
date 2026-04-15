@@ -166,12 +166,16 @@ final class AccountController
 				999
 			);
 
-			// Enqueue Account Messages JS
+			// Enqueue Account Messages JS (filemtime-based version avoids stale browser cache during dev).
+			$account_messages_js_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/js/frontend/account-messages.js';
+			$account_messages_js_ver  = file_exists($account_messages_js_path)
+				? MHM_RENTIVA_VERSION . '.' . filemtime($account_messages_js_path)
+				: MHM_RENTIVA_VERSION;
 			wp_enqueue_script(
 				'mhm-rentiva-account-messages',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-messages.js',
 				array('jquery'),
-				MHM_RENTIVA_VERSION,
+				$account_messages_js_ver,
 				true
 			);
 

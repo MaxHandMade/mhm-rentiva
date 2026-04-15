@@ -54,6 +54,63 @@ $format_currency = static function ( float $amount ): string {
 	return '₺' . number_format( $amount, 0, ',', '.' );
 };
 
+/**
+ * Resolve a vehicle's current operational state based on active bookings.
+ *
+ * Returns one of: 'rented' | 'on_transfer' | 'maintenance' | 'idle'.
+ * A vehicle is "active" when a booking exists whose date range covers today
+ * and whose status is pending_payment/confirmed/in_progress.
+ */
+$resolve_operational_state = static function ( int $vehicle_id ): string {
+	global $wpdb;
+	$today = gmdate( 'Y-m-d' );
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	$active = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT p.ID,
+				stm.meta_value AS service_type,
+				trm.meta_value AS transfer_origin
+			 FROM {$wpdb->posts} p
+			 INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhm_vehicle_id'
+			 INNER JOIN {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhm_status'
+			   AND sm.meta_value IN ('pending_payment','confirmed','in_progress')
+			 INNER JOIN {$wpdb->postmeta} dm ON dm.post_id = p.ID AND dm.meta_key = '_mhm_pickup_date'
+			 INNER JOIN {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhm_dropoff_date'
+			 LEFT JOIN  {$wpdb->postmeta} stm ON stm.post_id = p.ID AND stm.meta_key = '_mhm_service_type'
+			 LEFT JOIN  {$wpdb->postmeta} trm ON trm.post_id = p.ID AND trm.meta_key = '_mhm_transfer_origin_id'
+			 WHERE p.post_type = 'vehicle_booking'
+			 AND p.post_status NOT IN ('trash','auto-draft')
+			 AND CAST(vm.meta_value AS UNSIGNED) = %d
+			 AND dm.meta_value <= %s
+			 AND em.meta_value >= %s
+			 ORDER BY p.ID DESC
+			 LIMIT 1",
+			$vehicle_id,
+			$today,
+			$today
+		)
+	);
+
+	if ( ! $active ) {
+		return 'idle';
+	}
+	$service_type = (string) ( $active->service_type ?? '' );
+	if ( $service_type === 'maintenance' ) {
+		return 'maintenance';
+	}
+	if ( $service_type === 'transfer' || (int) ( $active->transfer_origin ?? 0 ) > 0 ) {
+		return 'on_transfer';
+	}
+	return 'rented';
+};
+
+$operational_labels = array(
+	'idle'        => array( 'label' => __( 'Idle', 'mhm-rentiva' ),            'class' => 'is-idle' ),
+	'rented'      => array( 'label' => __( 'Rented', 'mhm-rentiva' ),          'class' => 'is-rented' ),
+	'on_transfer' => array( 'label' => __( 'On Transfer', 'mhm-rentiva' ),     'class' => 'is-transfer' ),
+	'maintenance' => array( 'label' => __( 'In Maintenance', 'mhm-rentiva' ),  'class' => 'is-maintenance' ),
+);
+
 $vehicle_count = count( $vehicles );
 ?>
 
@@ -152,6 +209,14 @@ $vehicle_count = count( $vehicles );
 					$vehicle_name = $vehicle->post_title;
 				}
 				$is_rejected = $review_status === 'rejected';
+
+				// Operational state: only meaningful for approved + active vehicles.
+				$operational_state = null;
+				$operational_info  = null;
+				if ( $review_status === 'approved' && in_array( $lifecycle_status, array( 'active', 'paused' ), true ) ) {
+					$operational_state = $resolve_operational_state( (int) $vehicle->ID );
+					$operational_info  = $operational_labels[ $operational_state ] ?? null;
+				}
 				?>
 				<div class="mhm-vendor-listing-card <?php echo $is_rejected ? 'is-rejected' : ''; ?>">
 
@@ -174,6 +239,20 @@ $vehicle_count = count( $vehicles );
 								<span class="mhm-rentiva-dashboard__status <?php echo esc_attr( $status_info['class'] ); ?>">
 									<?php echo esc_html( $status_info['label'] ); ?>
 								</span>
+								<?php if ( $operational_info ) : ?>
+									<span class="mhm-vendor-listing-card__op-state <?php echo esc_attr( $operational_info['class'] ); ?>">
+										<?php if ( $operational_state === 'on_transfer' ) : ?>
+											<svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M3 12h13m0 0l-4-4m4 4l-4 4M21 6v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+										<?php elseif ( $operational_state === 'rented' ) : ?>
+											<svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M5 17h14M6 14l1.5-4.5A2 2 0 019.4 8h5.2a2 2 0 011.9 1.5L18 14M7 17v2M17 17v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+										<?php elseif ( $operational_state === 'maintenance' ) : ?>
+											<svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+										<?php else : ?>
+											<svg viewBox="0 0 24 24" fill="none" width="12" height="12"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
+										<?php endif; ?>
+										<?php echo esc_html( $operational_info['label'] ); ?>
+									</span>
+								<?php endif; ?>
 							</div>
 							<?php if ( $price > 0 ) : ?>
 								<div class="mhm-vendor-listing-card__price">

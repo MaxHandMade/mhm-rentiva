@@ -89,45 +89,91 @@ final class GetBookings {
 	}
 
 	/**
-	 * Get user bookings (same logic as AccountRenderer::get_user_bookings)
+	 * Get bookings visible to the current user.
+	 *
+	 * Returns bookings where the user is either:
+	 *  - the customer (_mhm_customer_user_id = $user_id), OR
+	 *  - the vendor (booking's vehicle post_author = $user_id)
+	 *
+	 * Results are merged, deduplicated and sorted by date DESC.
 	 */
 	private static function get_user_bookings( int $user_id, array $args = array() ): array {
 		$defaults = array(
-			'limit'   => 50, // Get more bookings for dropdown
-			'status'  => '',
+			'limit'   => 50,
 			'orderby' => 'date',
 			'order'   => 'DESC',
 		);
-
 		$args = wp_parse_args( $args, $defaults );
 
-		// Meta query
-		$meta_query = array(
-			array(
-				'key'     => '_mhm_customer_user_id',
-				'value'   => $user_id,
-				'compare' => '=',
-			),
-		);
+		$limit   = (int) $args['limit'];
+		$orderby = sanitize_text_field( $args['orderby'] );
+		$order   = sanitize_text_field( $args['order'] );
 
-		// Status filter - only show active bookings (not cancelled)
-		$meta_query[] = array(
-			'key'     => '_mhm_status',
-			'value'   => 'cancelled',
-			'compare' => '!=',
-		);
-
-		$query_args = array(
+		// 1) Customer-side bookings
+		$customer_query = new \WP_Query( array(
 			'post_type'      => 'vehicle_booking',
 			'post_status'    => 'publish',
-			'posts_per_page' => (int) $args['limit'],
-			'orderby'        => sanitize_text_field( $args['orderby'] ),
-			'order'          => sanitize_text_field( $args['order'] ),
-			'meta_query'     => $meta_query,
-		);
+			'posts_per_page' => $limit,
+			'orderby'        => $orderby,
+			'order'          => $order,
+			'meta_query'     => array(
+				array(
+					'key'     => '_mhm_customer_user_id',
+					'value'   => $user_id,
+					'compare' => '=',
+				),
+				array(
+					'key'     => '_mhm_status',
+					'value'   => 'cancelled',
+					'compare' => '!=',
+				),
+			),
+		) );
 
-		$query = new \WP_Query( $query_args );
+		// 2) Vendor-side bookings — bookings on vehicles owned by this user
+		$vendor_vehicle_ids = get_posts( array(
+			'post_type'      => 'vehicle',
+			'author'         => $user_id,
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'post_status'    => array( 'publish', 'draft', 'pending' ),
+		) );
 
-		return $query->posts;
+		$vendor_posts = array();
+		if ( ! empty( $vendor_vehicle_ids ) ) {
+			$vendor_query = new \WP_Query( array(
+				'post_type'      => 'vehicle_booking',
+				'post_status'    => 'publish',
+				'posts_per_page' => $limit,
+				'orderby'        => $orderby,
+				'order'          => $order,
+				'meta_query'     => array(
+					array(
+						'key'     => '_mhm_vehicle_id',
+						'value'   => array_map( 'intval', $vendor_vehicle_ids ),
+						'compare' => 'IN',
+					),
+					array(
+						'key'     => '_mhm_status',
+						'value'   => 'cancelled',
+						'compare' => '!=',
+					),
+				),
+			) );
+			$vendor_posts = $vendor_query->posts;
+		}
+
+		// Merge + deduplicate by ID
+		$merged = array();
+		foreach ( array_merge( $customer_query->posts, $vendor_posts ) as $post ) {
+			$merged[ (int) $post->ID ] = $post;
+		}
+
+		// Sort by post_date DESC (most recent first)
+		usort( $merged, static function ( $a, $b ) {
+			return strcmp( (string) $b->post_date, (string) $a->post_date );
+		} );
+
+		return array_slice( $merged, 0, $limit );
 	}
 }

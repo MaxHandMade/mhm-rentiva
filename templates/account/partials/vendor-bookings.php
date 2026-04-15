@@ -195,15 +195,6 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 					<span class="mhm-vendor-bookings-page__stat-label"><?php esc_html_e( 'Active', 'mhm-rentiva' ); ?></span>
 				</div>
 			</div>
-			<div class="mhm-vendor-bookings-page__stat is-completed">
-				<div class="mhm-vendor-bookings-page__stat-icon">
-					<svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="currentColor" stroke-width="1.5"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-				</div>
-				<div class="mhm-vendor-bookings-page__stat-info">
-					<span class="mhm-vendor-bookings-page__stat-value"><?php echo esc_html( (string) $stats['completed'] ); ?></span>
-					<span class="mhm-vendor-bookings-page__stat-label"><?php esc_html_e( 'Completed', 'mhm-rentiva' ); ?></span>
-				</div>
-			</div>
 			<div class="mhm-vendor-bookings-page__stat is-revenue">
 				<div class="mhm-vendor-bookings-page__stat-icon">
 					<svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -238,16 +229,27 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 					$b_pickup      = (string) ( $booking->pickup_date ?? '' );
 					$b_dropoff     = (string) ( $booking->dropoff_date ?? '' );
 
-					// Get additional meta via get_post_meta (avoids JOIN explosion).
-					$customer_first = (string) get_post_meta( $booking->ID, '_mhm_customer_first_name', true );
-					$customer_last  = (string) get_post_meta( $booking->ID, '_mhm_customer_last_name', true );
-					$customer_name  = trim( $customer_first . ' ' . $customer_last );
-					if ( $customer_name === '' ) {
-						$customer_name = (string) get_post_meta( $booking->ID, '_mhm_customer_name', true );
-					}
+					// Resolve customer name via centralized helper (meta → WC order → WP user fallback chain).
+					$customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo( (int) $booking->ID );
+					$customer_name = trim( ( $customer_info['first_name'] ?? '' ) . ' ' . ( $customer_info['last_name'] ?? '' ) );
 					if ( $customer_name === '' ) {
 						$customer_name = __( 'Unknown', 'mhm-rentiva' );
 					}
+
+					// Service type detection (transfer vs rental).
+					$service_type = (string) get_post_meta( $booking->ID, '_mhm_service_type', true );
+					if ( $service_type === '' && (string) get_post_meta( $booking->ID, '_mhm_is_transfer', true ) === 'yes' ) {
+						$service_type = 'transfer';
+					}
+					if ( $service_type === '' && (int) get_post_meta( $booking->ID, '_mhm_transfer_origin_id', true ) > 0 ) {
+						$service_type = 'transfer';
+					}
+					if ( $service_type === '' ) {
+						$service_type = 'rental';
+					}
+					$service_label = $service_type === 'transfer'
+						? __( 'Transfer', 'mhm-rentiva' )
+						: __( 'Car Rental', 'mhm-rentiva' );
 
 					$pickup_time  = (string) get_post_meta( $booking->ID, '_mhm_start_time', true );
 					if ( $pickup_time === '' ) {
@@ -304,17 +306,30 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 							<?php endif; ?>
 						</div>
 
-						<!-- Identity: Vehicle + Customer + Status -->
+						<!-- Identity: Vehicle + Customer + Status + Service -->
 						<div class="mhm-vendor-booking-card__identity">
 							<span class="mhm-vendor-booking-card__vehicle-name"><?php echo esc_html( $vehicle_name ); ?></span>
 							<span class="mhm-vendor-booking-card__customer-name">
 								<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
 								<?php echo esc_html( $customer_name ); ?>
 							</span>
+							<span class="mhm-vendor-booking-card__service is-<?php echo esc_attr( $service_type ); ?>">
+								<?php if ( $service_type === 'transfer' ) : ?>
+									<svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M3 12h13m0 0l-4-4m4 4l-4 4M21 6v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								<?php else : ?>
+									<svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M5 17h14M6 14l1.5-4.5A2 2 0 019.4 8h5.2a2 2 0 011.9 1.5L18 14M7 17v2M17 17v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								<?php endif; ?>
+								<?php echo esc_html( $service_label ); ?>
+							</span>
 							<span class="mhm-rentiva-dashboard__status <?php echo esc_attr( $status_info['class'] ); ?>">
 								<?php echo esc_html( $status_info['label'] ); ?>
 							</span>
-							<span class="mhm-vendor-booking-card__ref"><?php echo esc_html( $display_id ); ?></span>
+							<?php
+							$booking_view_url = \MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url( (int) $booking->ID );
+							?>
+							<a href="<?php echo esc_url( $booking_view_url ); ?>" class="mhm-vendor-booking-card__ref" title="<?php esc_attr_e( 'View booking details', 'mhm-rentiva' ); ?>">
+								#<?php echo esc_html( ltrim( (string) $display_id, '#' ) ); ?>
+							</a>
 						</div>
 
 						<!-- Date Range -->
@@ -349,18 +364,17 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 							<?php endif; ?>
 						</div>
 
-						<!-- Actions (pending only) -->
-						<?php if ( $is_pending ) : ?>
-							<div class="mhm-vendor-booking-card__actions">
-								<button class="mhm-vendor-booking-card__action is-approve" data-booking-id="<?php echo esc_attr( (string) $booking->ID ); ?>">
-									<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-									<?php esc_html_e( 'Approve', 'mhm-rentiva' ); ?>
-								</button>
-								<button class="mhm-vendor-booking-card__action is-reject" data-booking-id="<?php echo esc_attr( (string) $booking->ID ); ?>">
-									<?php esc_html_e( 'Decline', 'mhm-rentiva' ); ?>
-								</button>
-							</div>
-						<?php endif; ?>
+						<!-- Actions: View detail + Report issue -->
+						<div class="mhm-vendor-booking-card__actions">
+							<a href="<?php echo esc_url( $booking_view_url ); ?>" class="mhm-vendor-booking-card__action is-view">
+								<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
+								<?php esc_html_e( 'View Details', 'mhm-rentiva' ); ?>
+							</a>
+							<button type="button" class="mhm-vendor-booking-card__action is-report" data-booking-id="<?php echo esc_attr( (string) $booking->ID ); ?>">
+								<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+								<?php esc_html_e( 'Report Issue', 'mhm-rentiva' ); ?>
+							</button>
+						</div>
 
 					</div>
 				<?php endforeach; ?>
