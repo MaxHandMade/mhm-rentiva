@@ -185,6 +185,11 @@ final class SearchResults extends AbstractShortcode {
 		// Get search criteria from URL parameters
 		$search_params = self::get_search_params_from_url();
 
+		// If no explicit sort in request, apply shortcode's default_sort attribute.
+		if ( ! isset($_GET['sort']) && ! isset($_POST['sort']) ) {
+			$search_params['sort'] = $atts['default_sort'] ?? 'relevance';
+		}
+
 		// Get search results
 		$results = self::perform_search($search_params, $atts);
 

@@ -71,7 +71,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
                         aria-controls="<?php echo esc_attr($uid); ?>_panel_transfer"
                         aria-selected="<?php echo $default_tab === 'transfer' ? 'true' : 'false'; ?>">
                         <?php Icons::render('location', ['class' => 'rv-icon']); ?>
-                        <?php esc_html_e('VIP Transfer', 'mhm-rentiva'); ?>
+                        <?php esc_html_e('Transfer', 'mhm-rentiva'); ?>
                     </button>
                 <?php endif; ?>
             </div>
@@ -301,14 +301,26 @@ if (!$show_rental_tab && $show_transfer_tab) {
                 <?php if ($show_luggage) : ?>
                     <div class="rv-unified-search__group rv-unified-search__group--luggage rv-unified-search__group--mobile-grid mhm-row-bags">
                         <div class="rv-unified-search__field">
-                            <label class="rv-label"><?php esc_html_e('Big Bags', 'mhm-rentiva'); ?> <span class="required" style="color:red;">(*)</span></label>
+                            <label class="rv-label">
+                                <?php esc_html_e('Big Bags', 'mhm-rentiva'); ?>
+                                <span class="rv-luggage-tooltip" tabindex="0" aria-label="<?php esc_attr_e('Medium or large check-in suitcase.', 'mhm-rentiva'); ?>">
+                                    <?php Icons::render('info', ['class' => 'rv-icon-info']); ?>
+                                    <span class="rv-luggage-tooltip__text"><?php esc_html_e('Medium or large check-in suitcase.', 'mhm-rentiva'); ?></span>
+                                </span>
+                            </label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('luggage', ['class' => 'rv-icon']); ?>
                                 <input type="number" name="luggage_big" value="0" min="0" class="rv-input" required>
                             </div>
                         </div>
                         <div class="rv-unified-search__field">
-                            <label class="rv-label"><?php esc_html_e('Small Bags', 'mhm-rentiva'); ?> <span class="required" style="color:red;">(*)</span></label>
+                            <label class="rv-label">
+                                <?php esc_html_e('Small Bags', 'mhm-rentiva'); ?>
+                                <span class="rv-luggage-tooltip" tabindex="0" aria-label="<?php esc_attr_e('Handbag, backpack or cabin size suitcase.', 'mhm-rentiva'); ?>">
+                                    <?php Icons::render('info', ['class' => 'rv-icon-info']); ?>
+                                    <span class="rv-luggage-tooltip__text"><?php esc_html_e('Handbag, backpack or cabin size suitcase.', 'mhm-rentiva'); ?></span>
+                                </span>
+                            </label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('luggage', ['class' => 'rv-icon']); ?>
                                 <input type="number" name="luggage_small" value="0" min="0" class="rv-input" required>
