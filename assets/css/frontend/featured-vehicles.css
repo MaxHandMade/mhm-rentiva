@@ -71,18 +71,17 @@
     display: none;
 }
 
-/* Fallback: Swiper not yet initialized (editor/no-JS) → show as grid.
-   --mhm-columns is set via inline style from PHP so the fallback column
-   count matches the configured value — prevents the 3→N flash on load. */
-.mhm-featured-swiper:not(.swiper-initialized) .swiper-wrapper {
-    display: grid;
-    grid-template-columns: repeat(var(--mhm-columns, 3), 1fr);
-    gap: 20px;
-    transform: none !important;
+/* Pre-init: hide the raw unprocessed Swiper markup to eliminate the
+   flex→slider flash. opacity:0 keeps the element in the layout (no CLS).
+   The transition on the base rule creates a smooth fade-in once Swiper
+   adds .swiper-initialized and the :not() condition becomes false. */
+.mhm-featured-swiper {
+    transition: opacity 0.2s ease;
 }
 
-.mhm-featured-swiper:not(.swiper-initialized) .swiper-slide {
-    width: auto !important;
+.mhm-featured-swiper:not(.swiper-initialized) {
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* Equal-height slides via CSS — no JS height manipulation needed */
