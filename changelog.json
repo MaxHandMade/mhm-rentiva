@@ -1,5 +1,24 @@
 [
     {
+        "version": "4.26.6",
+        "date": "2026-04-15",
+        "type": "patch",
+        "changes": [
+            "Fix: Vehicles Grid price sort now works correctly. The previous named meta_query clause approach produced incorrect ordering when combined with the compound vehicle availability filter. Replaced with the standard WordPress meta_key + meta_value_num pattern — WP-CLI verified both ASC and DESC sort orders.",
+            "Fix: Vehicles Grid caching was always disabled due to a logic inversion in the condition guard. Caching is now active in production and disabled only when WP_DEBUG is true or when rendering in the admin context.",
+            "Fix: Vehicles Grid cache was being cleared on every wp_head hook call instead of on actual vehicle changes. Cache invalidation now fires only on save_post_vehicle and deleted_post.",
+            "Fix: Nine Gutenberg blocks (Vehicles Grid, Featured Vehicles, Search Results, and others) were injecting hardcoded 'title / ASC' defaults for orderby and order into every block render, silently overwriting the sort_by attribute coming from the CAM pipeline. The injected defaults are removed.",
+            "Fix: Vehicles Grid block.json declared two unused legacy attributes (enable_ajax_filtering, enable_infinite_scroll) that no longer map to any shortcode parameter. Removed to prevent confusing no-op settings in the block editor.",
+            "Feature: Vehicles Grid now accepts view_all_url and view_all_text attributes. When view_all_url is set, a 'View All' button appears in the section footer. Supported in classic shortcode, Gutenberg block editor, and Elementor widget.",
+            "Feature: Vehicle cards in the grid now display a service type badge (Transfer Only or Transfer + Rental) based on the vehicle's service configuration. The badge is suppressed for standard rental-only vehicles.",
+            "Fix: Featured Vehicles Swiper slider now initializes without a visible flash. The raw card markup is hidden with opacity:0 until Swiper adds its initialization class, then revealed with a 0.2s fade transition. No layout shift (CLS) since the element retains its space while invisible.",
+            "Fix: Featured Vehicles 'show_book_button' attribute now correctly hides the booking button. The vehicle card template was only checking 'show_booking_button' while the Featured Vehicles shortcode and its Elementor widget send 'show_book_button' — the template now accepts both keys.",
+            "Fix: Search Results shortcode default_sort attribute is now applied when no sort parameter is present in the request URL. Previously the default sort was ignored if the user had not explicitly interacted with the sort control.",
+            "Feature: Luggage information tooltip added to the Unified Search bar. Hovering or focusing the luggage count field shows a tooltip with capacity details."
+        ],
+        "notice": "v4.26.6 - Vehicles Grid price sort, caching and block fixes; Featured Vehicles flash fix; Search Results default sort and luggage tooltip"
+    },
+    {
         "version": "4.26.5",
         "date": "2026-04-15",
         "type": "patch",

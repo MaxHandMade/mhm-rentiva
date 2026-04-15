@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.26.5
+Stable tag:        4.26.6
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,19 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.26.6 =
+* **Fix:** Vehicles Grid price sort now uses `meta_key + meta_value_num` — the standard WordPress approach. The previous named meta_query clause produced incorrect ordering when combined with the compound vehicle availability filter.
+* **Fix:** Vehicles Grid caching was always disabled due to a logic inversion. Caching is now active in production and disabled only when WP_DEBUG is true or rendering in the admin context.
+* **Fix:** Vehicles Grid cache invalidation now fires only on `save_post_vehicle` and `deleted_post` instead of on every `wp_head` call.
+* **Fix:** Nine Gutenberg blocks were injecting hardcoded `orderby=title, order=ASC` defaults into every render, silently overwriting the `sort_by` attribute coming from the CAM pipeline. Removed.
+* **Fix:** Vehicles Grid `block.json` no longer declares unused `enable_ajax_filtering` and `enable_infinite_scroll` attributes that never mapped to a shortcode parameter.
+* **Feature:** Vehicles Grid now accepts `view_all_url` and `view_all_text` attributes. When `view_all_url` is set, a "View All" button appears in the section footer. Supported in classic shortcode, Gutenberg, and Elementor.
+* **Feature:** Vehicle cards now show a service type badge (Transfer Only or Transfer + Rental) based on the vehicle configuration. Badge is suppressed for standard rental-only vehicles.
+* **Fix:** Featured Vehicles Swiper slider now initializes without a visible flash. Content is hidden with `opacity:0` until Swiper adds its initialization class, then revealed with a 0.2s fade transition — no layout shift (CLS).
+* **Fix:** Featured Vehicles `show_book_button` attribute now correctly hides the booking button. The template was only checking `show_booking_button`; it now accepts both keys.
+* **Fix:** Search Results `default_sort` attribute is now applied when no sort parameter is present in the request URL.
+* **Feature:** Unified Search bar now shows a luggage information tooltip on the luggage capacity field.
 
 = 4.26.5 =
 * **Feature:** Vendor panel sidebar now shows the user's Gravatar avatar, display name and the timestamp of the last successful login. Sign Out button restyled as a standalone action with a destructive hover state.

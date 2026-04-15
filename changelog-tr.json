@@ -1,5 +1,24 @@
 [
     {
+        "version": "4.26.6",
+        "date": "2026-04-15",
+        "type": "patch",
+        "changes": [
+            "🔧 DÜZELTME: Araç Izgarası fiyat sıralaması artık doğru çalışıyor. Named meta_query clause yaklaşımı, araç uygunluk filtresiyle birleştiğinde yanlış sıralama üretiyordu. Standart WordPress meta_key + meta_value_num kalıbıyla değiştirildi — WP-CLI ile hem artan hem azalan sıralama doğrulandı.",
+            "🔧 DÜZELTME: Araç Izgarası önbelleği, koşul mantığındaki ters kontrol yüzünden her zaman devre dışı kalıyordu. Önbellek artık üretim ortamında aktif; yalnızca WP_DEBUG açıkken veya yönetici panelinde devre dışı bırakılıyor.",
+            "🔧 DÜZELTME: Araç Izgarası önbelleği her wp_head hook çağrısında temizleniyordu. Önbellek geçersizleştirme artık yalnızca araç kaydedildiğinde veya silindiğinde tetikleniyor.",
+            "🧹 DÜZELTME: Dokuz Gutenberg bloğu, her render işleminde CAM pipeline'dan gelen sort_by özniteliğini geçersiz kılan sabit kodlu 'title / ASC' varsayılanlarını enjekte ediyordu. Gereksiz varsayılanlar kaldırıldı.",
+            "🧹 DÜZELTME: Araç Izgarası block.json'da, shortcode parametresiyle eşleşmeyen iki kullanılmayan eski öznitelik (enable_ajax_filtering, enable_infinite_scroll) kaldırıldı — blok editörde görünen kafa karıştırıcı hayalet ayarlar temizlendi.",
+            "✨ YENİ: Araç Izgarası artık view_all_url ve view_all_text özniteliklerini destekliyor. view_all_url girildiğinde bölüm altbilgisinde 'Tümünü Gör' butonu beliriyor. Klasik shortcode, Gutenberg blok editörü ve Elementor widget'ında kullanılabilir.",
+            "✨ YENİ: Araç kartları artık aracın servis yapılandırmasına göre servis türü rozeti gösteriyor (Yalnızca Transfer veya Transfer + Kiralık). Yalnızca kiralık araçlarda rozet gösterilmiyor.",
+            "🔧 DÜZELTME: Öne Çıkan Araçlar Swiper slider'ı artık görünür bir flash olmadan başlatılıyor. Ham kart işaretlemesi, Swiper başlatma sınıfını ekleyene kadar opacity:0 ile gizleniyor, ardından 0,2 saniyelik geçişle beliriyor. Element görünmez durumdayken alanını koruduğundan sayfa kaydırması oluşmuyor.",
+            "🔧 DÜZELTME: Öne Çıkan Araçlar 'show_book_button' özniteliği artık rezervasyon butonunu doğru biçimde gizliyor. Araç kartı şablonu yalnızca 'show_booking_button' anahtarını kontrol ediyordu; Öne Çıkan Araçlar shortcode ve Elementor widget'ı 'show_book_button' gönderiyordu — şablon artık her iki anahtarı da kabul ediyor.",
+            "🔧 DÜZELTME: Arama Sonuçları shortcode'undaki default_sort özniteliği, URL'de sıralama parametresi yoksa artık uygulanıyor. Daha önce kullanıcı sıralama kontrolüyle etkileşime girmemişse varsayılan sıralama görmezden geliniyordu.",
+            "✨ YENİ: Birleşik Arama çubuğuna bagaj bilgi ipucu eklendi. Bagaj alanı alanına gelindiğinde veya odaklanıldığında kapasite detaylarını gösteren bir ipucu beliriyor."
+        ],
+        "notice": "v4.26.6 - Araç Izgarası fiyat sıralaması, önbellek ve blok düzeltmeleri; Öne Çıkan Araçlar flash düzeltmesi; Arama Sonuçları varsayılan sıralama ve bagaj ipucu"
+    },
+    {
         "version": "4.26.5",
         "date": "2026-04-15",
         "type": "patch",
