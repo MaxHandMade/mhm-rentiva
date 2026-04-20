@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.26.6
+Stable tag:        4.26.7
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,9 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.26.7 =
+* **Chore:** All product and support URLs migrated from maxhandmade.com to wpalemi.com.
 
 = 4.26.6 =
 * **Fix:** Vehicles Grid price sort now uses `meta_key + meta_value_num` — the standard WordPress approach. The previous named meta_query clause produced incorrect ordering when combined with the compound vehicle availability filter.

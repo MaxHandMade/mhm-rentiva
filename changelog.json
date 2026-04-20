@@ -1,5 +1,13 @@
 [
     {
+        "version": "4.26.7",
+        "date": "2026-04-20",
+        "type": "patch",
+        "changes": [
+            "Chore: All product and support URLs migrated from maxhandmade.com to wpalemi.com. Affected files: plugin header, SupportTab, UXHelper, LicenseManager, SettingsCore."
+        ]
+    },
+    {
         "version": "4.26.6",
         "date": "2026-04-15",
         "type": "patch",
