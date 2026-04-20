@@ -113,7 +113,7 @@ final class SupportTab extends AbstractTab
 		echo '<div class="support-links">';
 		echo wp_kses_post(
 			Helpers::render_external_link(
-				'https://maxhandmade.com/iletisim/',
+				'https://wpalemi.com/support/',
 				esc_html__('Contact Form', 'mhm-rentiva'),
 				array('class' => 'button button-primary')
 			)

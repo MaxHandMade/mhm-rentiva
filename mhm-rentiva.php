@@ -2,14 +2,14 @@
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 /*
  * Plugin Name:       MHM Rentiva
- * Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
+ * Plugin URI:        https://wpalemi.com/rentiva/
  * Description:       MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
  * Version:           4.26.6
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      8.1
  * Author:            MHM Development Team
- * Author URI:        https://maxhandmade.com/
+ * Author URI:        https://wpalemi.com/
  * License:           GPL v2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       mhm-rentiva

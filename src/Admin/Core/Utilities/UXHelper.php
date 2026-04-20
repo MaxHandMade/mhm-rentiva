@@ -480,7 +480,7 @@ final class UXHelper {
 	public static function get_product_url(): string {
 		return (string) apply_filters(
 			'mhm_rentiva_product_url',
-			'https://maxhandmade.com/urun/mhm-rentiva/'
+			'https://wpalemi.com/rentiva/'
 		);
 	}
 

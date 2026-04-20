@@ -239,7 +239,7 @@ final class SettingsCore
 	 */
 	public static function get_company_website(): string
 	{
-		return 'https://maxhandmade.com';
+		return 'https://wpalemi.com';
 	}
 
 	/**
