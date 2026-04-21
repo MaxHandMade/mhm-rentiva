@@ -22,8 +22,7 @@
 	<exclude-pattern>*.js</exclude-pattern>
 	<exclude-pattern>*.css</exclude-pattern>
 
-	<!-- Show progress and sniff codes -->
-	<arg value="ps"/>
+	<!-- Show sniff codes without progress noise -->
 	<arg name="colors"/>
 	<config name="ignore_warnings_on_exit" value="1"/>
 
