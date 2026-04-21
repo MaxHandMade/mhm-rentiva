@@ -2,24 +2,23 @@
 <ruleset name="MHM Rentiva Standards">
 	<description>MHM Rentiva Custom Ruleset based on WordPress Coding Standards.</description>
 
-	<!-- Enforced CI scope (phased migration) -->
-	<file>src/Blocks</file>
-	<file>src/Helpers</file>
+	<!-- Release scan scope: distributable PHP files only -->
+	<file>mhm-rentiva.php</file>
+	<file>uninstall.php</file>
+	<file>src</file>
+	<file>templates</file>
+	<file>assets/blocks</file>
 
-	<!-- Exclude directories -->
+	<!-- Release scan exclusions -->
 	<exclude-pattern>*/vendor/*</exclude-pattern>
-	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/tests/*</exclude-pattern>
 	<exclude-pattern>*/.agent/*</exclude-pattern>
 	<exclude-pattern>*/.agents/*</exclude-pattern>
-	<exclude-pattern>*/.ai/*</exclude-pattern>
-	<exclude-pattern>*/.intelephense/*</exclude-pattern>
-	<exclude-pattern>*/website/*</exclude-pattern>
+	<exclude-pattern>*/build/*</exclude-pattern>
+	<exclude-pattern>*/docs/*</exclude-pattern>
+	<exclude-pattern>*/bin/*</exclude-pattern>
 	<exclude-pattern>*/stubs/*</exclude-pattern>
-	<exclude-pattern>cookie_debug.php</exclude-pattern>
-	<exclude-pattern>generate-clean-pot.php</exclude-pattern>
-	<exclude-pattern>update-pot-ultimate.php</exclude-pattern>
-	<exclude-pattern>wp-stubs.php</exclude-pattern>
+	<exclude-pattern>*/website/*</exclude-pattern>
 	<exclude-pattern>*.js</exclude-pattern>
 	<exclude-pattern>*.css</exclude-pattern>
 

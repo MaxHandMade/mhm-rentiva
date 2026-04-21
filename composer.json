@@ -7,6 +7,8 @@
         "test": "@php ./vendor/bin/phpunit -c phpunit.xml",
         "phpcs": "@php ./vendor/bin/phpcs --standard=phpcs.xml",
         "phpcbf": "@php ./vendor/bin/phpcbf --standard=phpcs.xml",
+        "phpcs:release": "@php ./vendor/bin/phpcs --standard=phpcs.xml mhm-rentiva.php uninstall.php src templates assets/blocks",
+        "phpcbf:release": "@php ./vendor/bin/phpcbf --standard=phpcs.xml mhm-rentiva.php uninstall.php src templates assets/blocks",
         "plugin-check:release": "wp plugin check mhm-rentiva --path=C:\\\\xampp\\\\htdocs\\\\otokira --format=strict-json --ignore-codes=hidden_files --exclude-directories=tests,bin,website,.github,.ai,.agent,.agents,pcp,stubs,.intelephense,.vscode,build,docs,specs --exclude-files=.gitignore,.phpunit.result.cache,.tmp_scan.csv,.tmp_phpscan.csv,cookie_debug.php,generate-clean-pot.php,update-pot-ultimate.php,wp-stubs.php,AGENTS.md,PROJECT_GUIDE.md,PROJECT_MEMORIES.md,SHORTCODES.md,SKILLS.md,UI_CONTRACTS.md,README-tr.md,arac-kiralama-vip-transfer-theme-tasarim.md,phpunit.xml.dist,RELEASE_CHECKLIST.md",
         "check-release": [
             "@phpcs",
