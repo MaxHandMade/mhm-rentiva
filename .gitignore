@@ -251,10 +251,12 @@ backups/
 # ============================================================================
 # SECTION 12: Public Repo — Developer-Only Directories
 # ============================================================================
-docs/
+docs/*
 .agent/
 .agents/
 .ai/
+!docs/plans/
+!docs/plans/**
 # bin/ is dev-only, but build tooling + its doc must be tracked
 bin/*
 !bin/build-release.py
