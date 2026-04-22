@@ -18,8 +18,8 @@ if (! defined('ABSPATH')) {
 /**
  * Asset Manager - Manages CSS and JS files centrally
  */
-final class AssetManager
-{
+final class AssetManager {
+
 	/**
 	 * Guard to prevent duplicate core script localization in same request.
 	 */
@@ -38,23 +38,23 @@ final class AssetManager
 	private static array $core_css = array(
 		'mhm-css-variables'         => array(
 			'url'  => 'assets/css/core/css-variables.css',
-			'deps' => array('mhm-rentiva-google-fonts'),
+			'deps' => array( 'mhm-rentiva-google-fonts' ),
 		),
 		'mhm-golden-ratio-contract' => array(
 			'url'  => 'assets/css/core/golden-ratio-contract.css',
-			'deps' => array('mhm-css-variables'),
+			'deps' => array( 'mhm-css-variables' ),
 		),
 		'mhm-core-css'              => array(
 			'url'  => 'assets/css/core/core.css',
-			'deps' => array('mhm-css-variables', 'mhm-golden-ratio-contract'),
+			'deps' => array( 'mhm-css-variables', 'mhm-golden-ratio-contract' ),
 		),
 		'mhm-animations'            => array(
 			'url'  => 'assets/css/core/animations.css',
-			'deps' => array('mhm-css-variables'),
+			'deps' => array( 'mhm-css-variables' ),
 		),
 		'mhm-rentiva-notifications' => array(
 			'url'  => 'assets/css/frontend/notifications.css',
-			'deps' => array('mhm-css-variables'),
+			'deps' => array( 'mhm-css-variables' ),
 		),
 	);
 
@@ -64,11 +64,11 @@ final class AssetManager
 	private static array $component_css = array(
 		'mhm-stats-cards' => array(
 			'url'  => 'assets/css/components/stats-cards.css',
-			'deps' => array('mhm-core-css'),
+			'deps' => array( 'mhm-core-css' ),
 		),
 		'mhm-calendars'   => array(
 			'url'  => 'assets/css/components/calendars.css',
-			'deps' => array('mhm-core-css'),
+			'deps' => array( 'mhm-core-css' ),
 		),
 	);
 
@@ -78,27 +78,27 @@ final class AssetManager
 	private static array $core_js = array(
 		'mhm-core-js'       => array(
 			'url'       => 'assets/js/core/core.js',
-			'deps'      => array('jquery'),
+			'deps'      => array( 'jquery' ),
 			'in_footer' => true,
 		),
 		'mhm-utilities'     => array(
 			'url'       => 'assets/js/core/utilities.js',
-			'deps'      => array('jquery', 'mhm-core-js'),
+			'deps'      => array( 'jquery', 'mhm-core-js' ),
 			'in_footer' => true,
 		),
 		'mhm-i18n'          => array(
 			'url'       => 'assets/js/core/i18n.js',
-			'deps'      => array('jquery', 'mhm-core-js'),
+			'deps'      => array( 'jquery', 'mhm-core-js' ),
 			'in_footer' => true,
 		),
 		'mhm-performance'   => array(
 			'url'       => 'assets/js/core/performance.js',
-			'deps'      => array('jquery', 'mhm-utilities'),
+			'deps'      => array( 'jquery', 'mhm-utilities' ),
 			'in_footer' => true,
 		),
 		'mhm-module-loader' => array(
 			'url'       => 'assets/js/core/module-loader.js',
-			'deps'      => array('jquery', 'mhm-core-js'),
+			'deps'      => array( 'jquery', 'mhm-core-js' ),
 			'in_footer' => true,
 		),
 	);
@@ -108,17 +108,17 @@ final class AssetManager
 	 */
 	public static function init(): void
 	{
-		add_action('wp_enqueue_scripts', array(self::class, 'enqueue_frontend_assets'));
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_admin_assets'));
+		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_frontend_assets' ));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_admin_assets' ));
 		// Correct way to load assets specifically for the block editor (parent and iframe)
-		add_action('enqueue_block_editor_assets', array(self::class, 'enqueue_editor_assets'));
+		add_action('enqueue_block_editor_assets', array( self::class, 'enqueue_editor_assets' ));
 
 		// Register Vendor Assets
-		add_action('init', array(self::class, 'register_vendor_assets'));
+		add_action('init', array( self::class, 'register_vendor_assets' ));
 		// Register Common Assets (Shared but not Global)
-		add_action('init', array(self::class, 'register_common_assets'));
-		add_action('wp_head', array(self::class, 'add_inline_styles'));
-		add_action('admin_head', array(self::class, 'add_inline_styles'));
+		add_action('init', array( self::class, 'register_common_assets' ));
+		add_action('wp_head', array( self::class, 'add_inline_styles' ));
+		add_action('admin_head', array( self::class, 'add_inline_styles' ));
 	}
 
 	/**
@@ -152,7 +152,7 @@ final class AssetManager
 				'mhm-rentiva-google-fonts',
 				'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap',
 				array(),
-				null
+				MHM_RENTIVA_VERSION
 			);
 		}
 	}
@@ -168,7 +168,7 @@ final class AssetManager
 			wp_register_style(
 				'mhm-vehicle-card-css',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
-				array('mhm-css-variables', 'mhm-core-css'),
+				array( 'mhm-css-variables', 'mhm-core-css' ),
 				self::get_file_version('assets/css/core/vehicle-card.css')
 			);
 		}
@@ -178,7 +178,7 @@ final class AssetManager
 			wp_register_style(
 				'mhm-rentiva-datepicker-custom',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
-				array('mhm-css-variables'),
+				array( 'mhm-css-variables' ),
 				self::get_file_version('assets/css/frontend/datepicker-custom.css')
 			);
 		}
@@ -188,7 +188,7 @@ final class AssetManager
 			wp_register_script(
 				'mhm-core-js',
 				self::get_asset_url('assets/js/core/core.js'),
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/core/core.js'),
 				true
 			);
@@ -199,7 +199,7 @@ final class AssetManager
 			wp_register_script(
 				'mhm-vehicle-interactions',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicle-interactions.js',
-				array('jquery', 'mhm-core-js', 'mhm-rentiva-toast'),
+				array( 'jquery', 'mhm-core-js', 'mhm-rentiva-toast' ),
 				self::get_file_version('assets/js/frontend/vehicle-interactions.js'),
 				true
 			);
@@ -244,13 +244,13 @@ final class AssetManager
 				'mhm-vehicle-interactions',
 				'mhm_rentiva_vars',
 				array(
-					'ajax_url'         => admin_url('admin-ajax.php'),
-					'nonce'            => wp_create_nonce('mhm_rentiva_toggle_favorite'), // Fallback generic
-					'fav_nonce'        => wp_create_nonce('mhm_rentiva_toggle_favorite'),
-					'compare_nonce'    => wp_create_nonce('mhm_rentiva_toggle_compare'),
-					'compare_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
+					'ajax_url'           => admin_url('admin-ajax.php'),
+					'nonce'              => wp_create_nonce('mhm_rentiva_toggle_favorite'), // Fallback generic
+					'fav_nonce'          => wp_create_nonce('mhm_rentiva_toggle_favorite'),
+					'compare_nonce'      => wp_create_nonce('mhm_rentiva_toggle_compare'),
+					'compare_page_url'   => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
 					'favorites_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_favorites'),
-					'i18n'             => array(
+					'i18n'               => array(
 						'add_favorite'         => __('Add to Favorites', 'mhm-rentiva'),
 						'remove_favorite'      => __('Remove from Favorites', 'mhm-rentiva'),
 						'adding_favorite'      => __('Adding to favorites...', 'mhm-rentiva'),
@@ -372,8 +372,8 @@ final class AssetManager
 	 */
 	public static function enqueue_component_css(string $component): void
 	{
-		if (isset(self::$component_css[$component])) {
-			$asset = self::$component_css[$component];
+		if (isset(self::$component_css[ $component ])) {
+			$asset = self::$component_css[ $component ];
 			wp_enqueue_style(
 				$component,
 				self::get_asset_url($asset['url']),
@@ -393,20 +393,20 @@ final class AssetManager
 		$components = array(
 			'addon-booking'      => array(
 				'url'  => 'assets/js/components/addon-booking.js',
-				'deps' => array('jquery'),
+				'deps' => array( 'jquery' ),
 			),
 			'vehicle-meta'       => array(
 				'url'  => 'assets/js/components/vehicle-meta.js',
-				'deps' => array('jquery', 'jquery-ui-sortable'),
+				'deps' => array( 'jquery', 'jquery-ui-sortable' ),
 			),
 			'vehicle-quick-edit' => array(
 				'url'  => 'assets/js/components/vehicle-quick-edit.js',
-				'deps' => array('jquery', 'inline-edit-post'),
+				'deps' => array( 'jquery', 'inline-edit-post' ),
 			),
 		);
 
-		if (isset($components[$component])) {
-			$asset = $components[$component];
+		if (isset($components[ $component ])) {
+			$asset = $components[ $component ];
 			wp_enqueue_script(
 				'mhm-' . $component,
 				self::get_asset_url($asset['url']),
@@ -612,7 +612,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-manual-booking-meta',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/manual-booking-meta.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/manual-booking-meta.js'),
 				true
 			);
@@ -656,7 +656,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-booking-edit-meta',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-edit-meta.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/booking-edit-meta.js'),
 				true
 			);
@@ -701,7 +701,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-dashboard',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dashboard.js',
-				array('jquery', 'jquery-ui-sortable', 'chart-js'),
+				array( 'jquery', 'jquery-ui-sortable', 'chart-js' ),
 				self::get_file_version('assets/js/admin/dashboard.js'),
 				true
 			);
@@ -740,7 +740,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-reports-charts',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/reports-charts.js',
-				array('jquery', 'chart-js'),
+				array( 'jquery', 'chart-js' ),
 				self::get_file_version('assets/js/admin/reports-charts.js'),
 				true
 			);
@@ -778,7 +778,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-deposit-management',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/deposit-management.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/deposit-management.js'),
 				true
 			);
@@ -806,7 +806,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-shortcode-settings',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/shortcode-settings.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/shortcode-settings.js'),
 				true
 			);
@@ -833,7 +833,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-vehicle-gallery',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-gallery.js',
-				array('jquery', 'jquery-ui-sortable'),
+				array( 'jquery', 'jquery-ui-sortable' ),
 				self::get_file_version('assets/js/admin/vehicle-gallery.js'),
 				true
 			);
@@ -880,7 +880,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-messages-settings',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/messages-settings.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/messages-settings.js'),
 				true
 			);
@@ -915,7 +915,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-customers-calendar',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers-calendar.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/customers-calendar.js'),
 				true
 			);
@@ -938,7 +938,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-booking-calendar',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-calendar.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/booking-calendar.js'),
 				true
 			);
@@ -960,7 +960,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-booking-bulk-actions',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-bulk-actions.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/booking-bulk-actions.js'),
 				true
 			);
@@ -987,7 +987,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-monitoring',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/monitoring.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/monitoring.js'),
 				true
 			);
@@ -1019,7 +1019,7 @@ final class AssetManager
 			wp_enqueue_style(
 				'mhm-test-suite',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/test-suite.css',
-				array('mhm-core-css'),
+				array( 'mhm-core-css' ),
 				self::get_file_version('assets/css/admin/test-suite.css')
 			);
 		}
@@ -1029,7 +1029,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-settings',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/settings.js',
-				array('jquery'),
+				array( 'jquery' ),
 				time(), // Force fresh load with current timestamp
 				true
 			);
@@ -1092,7 +1092,7 @@ final class AssetManager
 				wp_enqueue_script(
 					'mhm-email-templates',
 					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
-					array('jquery'),
+					array( 'jquery' ),
 					self::get_file_version('assets/js/admin/email-templates.js'),
 					true
 				);
@@ -1131,7 +1131,7 @@ final class AssetManager
 				wp_enqueue_script(
 					'mhm-rest-api-keys',
 					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/rest-api-keys.js',
-					array('jquery'),
+					array( 'jquery' ),
 					self::get_file_version('assets/js/admin/rest-api-keys.js'),
 					true
 				);
@@ -1180,14 +1180,14 @@ final class AssetManager
 			wp_enqueue_style(
 				'mhm-vehicle-settings-css',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-settings.css',
-				array('mhm-core-css'),
+				array( 'mhm-core-css' ),
 				self::get_file_version('assets/css/admin/vehicle-settings.css')
 			);
 
 			wp_enqueue_script(
 				'mhm-vehicle-card-fields',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-card-fields.js',
-				array('jquery', 'jquery-ui-sortable'),
+				array( 'jquery', 'jquery-ui-sortable' ),
 				self::get_file_version('assets/js/admin/vehicle-card-fields.js'),
 				true
 			);
@@ -1198,7 +1198,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-messages-admin',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/messages-admin.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/messages-admin.js'),
 				true
 			);
@@ -1236,7 +1236,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-addon-list',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-list.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/addon-list.js'),
 				true
 			);
@@ -1270,7 +1270,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-about',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/about.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/about.js'),
 				true
 			);
@@ -1299,7 +1299,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-customers',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/customers.js'),
 				true
 			);
@@ -1350,7 +1350,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-email-templates',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/email-templates.js'),
 				true
 			);
@@ -1388,7 +1388,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-message-list',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/message-list.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/message-list.js'),
 				true
 			);
@@ -1422,14 +1422,14 @@ final class AssetManager
 			wp_enqueue_style(
 				'mhm-export',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/export.css',
-				array('mhm-core-css'),
+				array( 'mhm-core-css' ),
 				MHM_RENTIVA_VERSION
 			);
 
 			wp_enqueue_script(
 				'mhm-export',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/export.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/export.js'),
 				true
 			);
@@ -1469,7 +1469,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-booking-meta',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-meta.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/booking-meta.js'),
 				true
 			);
@@ -1483,7 +1483,7 @@ final class AssetManager
 			wp_enqueue_script(
 				'mhm-addon-admin',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-admin.js',
-				array('jquery'),
+				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/addon-admin.js'),
 				true
 			);
@@ -1618,7 +1618,7 @@ final class AssetManager
 		$css_variables = self::get_css_variables();
 		if ($css_variables) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo '<style id="mhm-css-variables">' . wp_strip_all_tags((string) $css_variables) . '</style>';
+			echo '<style id="mhm-css-variables">' . wp_strip_all_tags( (string) $css_variables) . '</style>';
 		}
 	}
 
@@ -1730,7 +1730,7 @@ final class AssetManager
 	 */
 	public static function get_asset_url(string $path): string
 	{
-		$use_min = ! (defined('SCRIPT_DEBUG') && SCRIPT_DEBUG);
+		$use_min = ! ( defined('SCRIPT_DEBUG') && SCRIPT_DEBUG );
 
 		if ($use_min) {
 			$path_parts = pathinfo($path);
