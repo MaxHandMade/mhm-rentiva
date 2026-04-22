@@ -71,6 +71,7 @@ final class AnalyticsDashboardDataProvider
     {
         global $wpdb;
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Analytics dashboard needs a live post lookup for vendor-owned vehicle IDs.
         $vehicle_ids_raw = $wpdb->get_col(
             $wpdb->prepare(
                 "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND post_author = %d AND post_status = 'publish'",

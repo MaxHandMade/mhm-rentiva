@@ -82,6 +82,7 @@ class AnalyticsController
 
         // Top Vehicles
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Analytics needs a live post lookup for the vendor-owned vehicle list.
         $vehicle_ids_raw = $wpdb->get_col(
             $wpdb->prepare(
                 "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND post_author = %d AND post_status = 'publish'",
