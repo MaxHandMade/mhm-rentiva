@@ -99,6 +99,7 @@ final class MetricCacheManager
         // $wpdb->esc_like escapes special characters so they act as literals, allowing us to safely append real SQL '%' wildcards.
         $like_pattern = '_transient_' . $wpdb->esc_like(self::PREFIX) . '%' . $wpdb->esc_like('_' . $subjectKey);
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cache invalidation requires a live lookup of matching transient option rows.
         $results = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
