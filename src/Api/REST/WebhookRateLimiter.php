@@ -33,8 +33,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.21.0 (v1.1: identifier now includes REMOTE_ADDR)
  */
-final class WebhookRateLimiter
-{
+final class WebhookRateLimiter {
+
     /**
      * Check if identifier is within rate limit. Increments counter on each call.
      *
@@ -80,7 +80,7 @@ final class WebhookRateLimiter
     public static function build_identifier(string $signature_header): string
     {
         $ip = isset($_SERVER['REMOTE_ADDR'])
-            ? sanitize_text_field(wp_unslash((string) $_SERVER['REMOTE_ADDR']))
+            ? sanitize_text_field(wp_unslash( (string) $_SERVER['REMOTE_ADDR']))
             : '0.0.0.0';
         // Take only the first 32 chars of signature to prevent key collision farming.
         $sig_prefix = substr($signature_header, 0, 32);
