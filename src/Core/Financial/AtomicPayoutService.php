@@ -42,8 +42,8 @@ use MHMRentiva\Core\Financial\Events\PayoutApprovedEvent;
  *
  * @since 4.21.0
  */
-final class AtomicPayoutService
-{
+final class AtomicPayoutService {
+
     /**
      * Approve a payout atomically.
      *
@@ -101,6 +101,7 @@ final class AtomicPayoutService
         );
 
         // ── Atomic transaction block ─────────────────────────────────────────────
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Explicit transaction boundary for atomic payout approval.
         $wpdb->query('START TRANSACTION');
 
         try {
@@ -165,8 +166,10 @@ final class AtomicPayoutService
                 $dispatcher->flush(); // Execute event callbacks inside the transaction window
             }
 
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Explicit transaction boundary for atomic payout approval.
             $wpdb->query('COMMIT');
         } catch (\RuntimeException $e) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Explicit transaction boundary for atomic payout approval.
             $wpdb->query('ROLLBACK');
 
             if ($dispatcher !== null) {
@@ -191,7 +194,7 @@ final class AtomicPayoutService
         // Capture SaaS Metering
         \MHMRentiva\Core\Orchestration\MeteredUsageTracker::increment($tenant_id, 'payouts');
 
-        MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
+        MetricCacheManager::flush_subject_all_metrics( (string) $vendor_id);
 
         StructuredLogger::info(
             'Payout approved atomically.',
@@ -221,13 +224,15 @@ final class AtomicPayoutService
         // 1. Strict SQL-level Idempotency Guard
         // We update the lock status from LOCKED (or MATURED) to EXECUTED.
         // If another process already did this, rows_affected will be 0.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Time-lock finalization must atomically update the live lock row.
         $updated = $wpdb->query(
             $wpdb->prepare(
-                "UPDATE {$wpdb->postmeta} 
+                "UPDATE %i
                  SET meta_value = %s 
                  WHERE post_id = %d 
                  AND meta_key = %s 
                  AND meta_value IN ('LOCKED', 'MATURED')",
+                $wpdb->postmeta,
                 'EXECUTED',
                 $payout_id,
                 '_mhm_lock_status'
@@ -246,15 +251,16 @@ final class AtomicPayoutService
         // Instead of adding a new entry (0-amount finalize entry Prohibited by Chief Engineer),
         // we update the existing 'payout_pending_debit' entry from 'reserved' to 'cleared'.
         $payout_uuid = 'payout_' . $payout_id;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger reservation must be cleared immediately after time-lock execution.
         $wpdb->update(
             $wpdb->prefix . 'mhm_rentiva_ledger',
-            ['status' => 'cleared'],
+            [ 'status' => 'cleared' ],
             [
                 'transaction_uuid' => $payout_uuid,
-                'status'           => 'reserved'
+                'status'           => 'reserved',
             ],
-            ['%s'],
-            ['%s', '%s']
+            [ '%s' ],
+            [ '%s', '%s' ]
         );
 
         // 3. Update Workflow State to EXECUTED
@@ -264,19 +270,26 @@ final class AtomicPayoutService
             // Log but don't fail the whole engine if meta update succeeded
             StructuredLogger::error(
                 'Time-lock finalized but state transition failed.',
-                ['payout_id' => $payout_id, 'error' => $e->getMessage()],
+                [
+					'payout_id' => $payout_id,
+					'error'     => $e->getMessage(),
+				],
                 'payout'
             );
         }
 
         // 3. Mark Ledger entry as 'cleared' (optional, but good for consistency)
         // Since we reserved it, we now officially clear it.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger reservation reconciliation must hit the live ledger row immediately.
         $wpdb->update(
             $wpdb->prefix . 'mhm_rentiva_ledger',
-            ['status' => 'cleared'],
-            ['transaction_uuid' => 'payout_' . $payout_id, 'status' => 'reserved'],
-            ['%s'],
-            ['%s', '%s']
+            [ 'status' => 'cleared' ],
+            [
+				'transaction_uuid' => 'payout_' . $payout_id,
+				'status'           => 'reserved',
+			],
+            [ '%s' ],
+            [ '%s', '%s' ]
         );
 
         return true;
