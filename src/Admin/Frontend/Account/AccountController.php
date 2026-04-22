@@ -470,12 +470,15 @@ final class AccountController
 	public static function redirect_wp_login(): void
 	{
 		// Allow POST (form submission) — WP handles auth, then login_redirect takes over
-		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+		$request_method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
+		if ($request_method === 'POST') {
 			return;
 		}
 
 		// Allow specific actions that need wp-login.php (password reset, registration, logout confirmation)
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only wp-login routing parameter; no state change occurs here.
 		$action = isset($_GET['action']) ? sanitize_text_field(wp_unslash($_GET['action'])) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		$allowed_actions = array('logout', 'lostpassword', 'rp', 'resetpass', 'confirmaction');
 		if (in_array($action, $allowed_actions, true)) {
 			return;
@@ -492,7 +495,9 @@ final class AccountController
 		}
 
 		// Preserve redirect_to parameter
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only wp-login redirect hint; no state change occurs here.
 		$redirect_to = isset($_GET['redirect_to']) ? sanitize_url(wp_unslash($_GET['redirect_to'])) : '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		if ($redirect_to !== '') {
 			$wc_login = add_query_arg('redirect_to', rawurlencode($redirect_to), $wc_login);
 		}

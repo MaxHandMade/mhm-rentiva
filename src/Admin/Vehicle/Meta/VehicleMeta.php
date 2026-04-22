@@ -764,7 +764,9 @@ final class VehicleMeta extends AbstractMetaBox
 		}
 
 		if (isset($_POST['_mhm_vehicle_status']) || isset($_POST['mhm_rentiva_available'])) {
-			$status_val = $_POST['_mhm_vehicle_status'] ?? ($_POST['mhm_rentiva_available'] ?? '');
+			$status_val = isset($_POST['_mhm_vehicle_status'])
+				? self::post_text('_mhm_vehicle_status')
+				: self::post_text('mhm_rentiva_available');
 			$normalized = self::normalize_availability($status_val);
 			update_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS, $normalized);
 		}

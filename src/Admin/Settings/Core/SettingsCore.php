@@ -339,7 +339,7 @@ final class SettingsCore
 			wp_send_json_error(__('Permission denied', 'mhm-rentiva'));
 		}
 
-		$raw_mode = wp_unslash($_POST['mode'] ?? 'auto');
+		$raw_mode = isset($_POST['mode']) ? sanitize_text_field(wp_unslash($_POST['mode'])) : 'auto';
 
 		$sanitized_settings = \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::sanitize(
 			array(
