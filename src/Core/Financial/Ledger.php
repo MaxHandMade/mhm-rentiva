@@ -32,7 +32,7 @@ final class Ledger
     {
         global $wpdb;
 
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_ledger' );
+        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
         $tenant_id = TenantResolver::resolve()->get_id();
 
         // 1. SaaS Control Plane Guard (Quota & Status)
@@ -81,6 +81,7 @@ final class Ledger
         // Suppress database errors to handle expected duplicate idempotency gracefully without polluting logs
         $suppress = $wpdb->suppress_errors(true);
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Ledger is the intentional write boundary for immutable financial entries.
         $inserted = $wpdb->insert($table, $data, $formats);
 
         $error = $wpdb->last_error;
@@ -121,12 +122,14 @@ final class Ledger
     public static function get_balance(int $vendor_id, ?int $tenant_id = null): float
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_ledger' );
+        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
         $tenant_id = self::ensure_tenant_id($tenant_id);
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger reads are an intentional repository boundary for live financial totals.
         $sum = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT SUM(amount) FROM {$table} WHERE tenant_id = %d AND vendor_id = %d AND status IN ('cleared', 'reserved')",
+                'SELECT SUM(amount) FROM %i WHERE tenant_id = %d AND vendor_id = %d AND status IN (\'cleared\', \'reserved\')',
+                $table,
                 $tenant_id,
                 $vendor_id
             )
@@ -147,12 +150,14 @@ final class Ledger
     public static function get_pending_balance(int $vendor_id, ?int $tenant_id = null): float
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_ledger' );
+        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
         $tenant_id = self::ensure_tenant_id($tenant_id);
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger reads are an intentional repository boundary for live financial totals.
         $sum = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT SUM(amount) FROM {$table} WHERE tenant_id = %d AND vendor_id = %d AND status = %s AND type IN (%s, %s)",
+                'SELECT SUM(amount) FROM %i WHERE tenant_id = %d AND vendor_id = %d AND status = %s AND type IN (%s, %s)',
+                $table,
                 $tenant_id,
                 $vendor_id,
                 'pending',
@@ -176,12 +181,14 @@ final class Ledger
     public static function get_total_earned(int $vendor_id, ?int $tenant_id = null): float
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_ledger' );
+        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
         $tenant_id = self::ensure_tenant_id($tenant_id);
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger reads are an intentional repository boundary for live financial totals.
         $sum = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT SUM(amount) FROM {$table} WHERE tenant_id = %d AND vendor_id = %d AND type != %s AND status IN ('cleared', 'pending')",
+                'SELECT SUM(amount) FROM %i WHERE tenant_id = %d AND vendor_id = %d AND type != %s AND status IN (\'cleared\', \'pending\')',
+                $table,
                 $tenant_id,
                 $vendor_id,
                 'payout_debit'
@@ -205,7 +212,7 @@ final class Ledger
     public static function get_entries(int $vendor_id, array $filters = array(), int $limit = 20, int $offset = 0, ?int $tenant_id = null): array
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_ledger' );
+        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
         $tenant_id = self::ensure_tenant_id($tenant_id);
 
         $where_clauses = array('tenant_id = %d', 'vendor_id = %d');
@@ -222,13 +229,23 @@ final class Ledger
         }
 
         if (! empty($filters['date_from']) && is_string($filters['date_from'])) {
+            $date_from = strtotime($filters['date_from']);
+            if (false === $date_from) {
+                return array();
+            }
+
             $where_clauses[] = 'created_at >= %s';
-            $args[]          = gmdate('Y-m-d 00:00:00', strtotime($filters['date_from']));
+            $args[]          = gmdate('Y-m-d 00:00:00', $date_from);
         }
 
         if (! empty($filters['date_to']) && is_string($filters['date_to'])) {
+            $date_to = strtotime($filters['date_to']);
+            if (false === $date_to) {
+                return array();
+            }
+
             $where_clauses[] = 'created_at <= %s';
-            $args[]          = gmdate('Y-m-d 23:59:59', strtotime($filters['date_to']));
+            $args[]          = gmdate('Y-m-d 23:59:59', $date_to);
         }
 
         $where_sql = implode(' AND ', $where_clauses);
@@ -237,6 +254,8 @@ final class Ledger
         $args[] = absint($limit);
         $args[] = absint($offset);
 
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- $where_sql is assembled only from fixed clause fragments above; runtime values are bound through $wpdb->prepare().
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger history is intentionally queried live for financial reporting screens.
         $results = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT * FROM %i WHERE {$where_sql} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d",
@@ -244,6 +263,7 @@ final class Ledger
                 ...$args
             )
         );
+        // phpcs:enable
 
         return is_array($results) ? $results : array();
     }

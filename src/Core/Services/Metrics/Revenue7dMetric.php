@@ -62,19 +62,21 @@ final class Revenue7dMetric implements MetricInterface
 	private function query_period_sum(int $vendor_id, int $start_ts, int $end_ts): float
 	{
 		global $wpdb;
-		$table = esc_sql( $wpdb->prefix . 'mhm_rentiva_ledger' );
+		$table = $wpdb->prefix . 'mhm_rentiva_ledger';
 
 		$start_date = gmdate('Y-m-d H:i:s', $start_ts);
 		$end_date   = gmdate('Y-m-d H:i:s', $end_ts);
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Metric resolution intentionally reads live ledger data for dashboard calculations.
 		$sum = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT SUM(amount) FROM {$table} 
+				"SELECT SUM(amount) FROM %i 
 				WHERE vendor_id = %d 
 				AND type != %s 
 				AND status IN ('cleared', 'pending') 
 				AND created_at >= %s 
 				AND created_at < %s",
+				$table,
 				$vendor_id,
 				'payout_debit',
 				$start_date,
