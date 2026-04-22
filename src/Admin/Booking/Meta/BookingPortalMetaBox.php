@@ -123,7 +123,7 @@ final class BookingPortalMetaBox {
 		}
 
 		// Get and validate input
-		$booking_id = isset( $_POST['booking_id'] ) ? absint( wp_unslash( $_POST['booking_id'] ) ) : 0;
+		$booking_id = isset( $_POST['booking_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['booking_id'] ) ) : 0;
 		$email      = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 		$name       = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
 
