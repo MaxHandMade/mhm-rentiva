@@ -28,8 +28,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.21.0 (v1.1: tiered response, InnoDB engine probe)
  */
-final class HealthController
-{
+final class HealthController {
+
     private const REST_NAMESPACE = 'mhm-rentiva/v1';
     private const ROUTE          = '/health';
 
@@ -38,7 +38,7 @@ final class HealthController
      */
     public static function register(): void
     {
-        add_action('rest_api_init', array(self::class, 'register_route'));
+        add_action('rest_api_init', array( self::class, 'register_route' ));
     }
 
     /**
@@ -51,7 +51,7 @@ final class HealthController
             self::ROUTE,
             array(
                 'methods'             => \WP_REST_Server::READABLE,
-                'callback'            => array(self::class, 'handle'),
+                'callback'            => array( self::class, 'handle' ),
                 'permission_callback' => '__return_true', // Public â€” tiered in callback.
             )
         );
@@ -107,7 +107,7 @@ final class HealthController
             $engine_status = 'error';
         }
 
-        $overall = ($db_status === 'ok' && $table_status === 'ok' && $engine_status === 'ok')
+        $overall = ( $db_status === 'ok' && $table_status === 'ok' && $engine_status === 'ok' )
             ? 'ok'
             : 'degraded';
 
@@ -117,7 +117,7 @@ final class HealthController
         // Public monitors: minimal fingerprint surface â€” status only.
         if (! current_user_can('manage_options')) {
             return new \WP_REST_Response(
-                array('status' => $overall),
+                array( 'status' => $overall ),
                 $http_status
             );
         }
@@ -130,31 +130,38 @@ final class HealthController
         $repo               = new \MHMRentiva\Core\Financial\Audit\Crypto\KeyRegistryRepository();
 
         // Governance metrics
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Health endpoint must report live governance counters.
         $pending_count = (int) $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$audit_table} WHERE JSON_UNQUOTE(JSON_EXTRACT(metadata_json, '$.workflow_state')) NOT IN ('executed', 'rejected', 'failed')"
+                "SELECT COUNT(*) FROM %i WHERE JSON_UNQUOTE(JSON_EXTRACT(metadata_json, '$.workflow_state')) NOT IN ('executed', 'rejected', 'failed')",
+                $audit_table
             )
         );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Health endpoint must report live high-risk workflow counters.
         $high_risk_pending = (int) $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$audit_table} WHERE JSON_UNQUOTE(JSON_EXTRACT(metadata_json, '$.risk_level')) = 'high' AND JSON_UNQUOTE(JSON_EXTRACT(metadata_json, '$.workflow_state')) NOT IN ('executed', 'rejected', 'failed')"
+                "SELECT COUNT(*) FROM %i WHERE JSON_UNQUOTE(JSON_EXTRACT(metadata_json, '$.risk_level')) = 'high' AND JSON_UNQUOTE(JSON_EXTRACT(metadata_json, '$.workflow_state')) NOT IN ('executed', 'rejected', 'failed')",
+                $audit_table
             )
         );
 
         return new \WP_REST_Response(
             array(
-                'status'                        => $overall,
-                'system_integrity_status'       => $integrity_status,
-                'ledger_row_count'             => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$ledger_table}"),
-                'active_key_id'                => $active_key_payload['key_id'],
-                'revoked_key_count'            => $repo->get_revoked_key_count(),
-                'last_export_hash'             => isset($last_check['tip_hash']) ? substr($last_check['tip_hash'], 0, 12) . '...' : 'none',
-                'last_integrity_check'         => $last_check['timestamp'] ?? 'never',
-                'workflow_pending_count'       => $pending_count,
-                'high_risk_pending_count'      => $high_risk_pending,
-                'db'                            => $db_status,
-                'version'                       => defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'unknown',
-                'timestamp'                     => gmdate('Y-m-d\TH:i:s\Z'),
+                'status'                  => $overall,
+                'system_integrity_status' => $integrity_status,
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Health diagnostics must expose the live ledger row count.
+                'ledger_row_count'        => (int) $wpdb->get_var(
+                    $wpdb->prepare('SELECT COUNT(*) FROM %i', $ledger_table)
+                ),
+                'active_key_id'           => $active_key_payload['key_id'],
+                'revoked_key_count'       => $repo->get_revoked_key_count(),
+                'last_export_hash'        => isset($last_check['tip_hash']) ? substr($last_check['tip_hash'], 0, 12) . '...' : 'none',
+                'last_integrity_check'    => $last_check['timestamp'] ?? 'never',
+                'workflow_pending_count'  => $pending_count,
+                'high_risk_pending_count' => $high_risk_pending,
+                'db'                      => $db_status,
+                'version'                 => defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'unknown',
+                'timestamp'               => gmdate('Y-m-d\TH:i:s\Z'),
             ),
             $http_status
         );
