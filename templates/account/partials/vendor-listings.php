@@ -25,26 +25,41 @@ $review_status_labels = array(
 		'label' => __( 'Awaiting Review', 'mhm-rentiva' ),
 		'class' => 'is-pending',
 	),
-	'approved' => array(
+	'approved'       => array(
 		'label' => __( 'Live', 'mhm-rentiva' ),
 		'class' => 'is-confirmed',
 	),
-	'rejected' => array(
+	'rejected'       => array(
 		'label' => __( 'Rejected', 'mhm-rentiva' ),
 		'class' => 'is-cancelled',
 	),
-	'partial_edit' => array(
+	'partial_edit'   => array(
 		'label' => __( 'Re-review Pending', 'mhm-rentiva' ),
 		'class' => 'is-progress',
 	),
 );
 
 $lifecycle_status_labels = array(
-	'active'         => array( 'label' => __( 'Active', 'mhm-rentiva' ), 'class' => 'is-confirmed' ),
-	'paused'         => array( 'label' => __( 'Paused', 'mhm-rentiva' ), 'class' => 'is-progress' ),
-	'expired'        => array( 'label' => __( 'Expired', 'mhm-rentiva' ), 'class' => 'is-cancelled' ),
-	'withdrawn'      => array( 'label' => __( 'Withdrawn', 'mhm-rentiva' ), 'class' => 'is-cancelled' ),
-	'pending_review' => array( 'label' => __( 'Awaiting Review', 'mhm-rentiva' ), 'class' => 'is-pending' ),
+	'active'         => array(
+		'label' => __( 'Active', 'mhm-rentiva' ),
+		'class' => 'is-confirmed',
+	),
+	'paused'         => array(
+		'label' => __( 'Paused', 'mhm-rentiva' ),
+		'class' => 'is-progress',
+	),
+	'expired'        => array(
+		'label' => __( 'Expired', 'mhm-rentiva' ),
+		'class' => 'is-cancelled',
+	),
+	'withdrawn'      => array(
+		'label' => __( 'Withdrawn', 'mhm-rentiva' ),
+		'class' => 'is-cancelled',
+	),
+	'pending_review' => array(
+		'label' => __( 'Awaiting Review', 'mhm-rentiva' ),
+		'class' => 'is-pending',
+	),
 );
 
 $format_currency = static function ( float $amount ): string {
@@ -105,10 +120,22 @@ $resolve_operational_state = static function ( int $vehicle_id ): string {
 };
 
 $operational_labels = array(
-	'idle'        => array( 'label' => __( 'Idle', 'mhm-rentiva' ),            'class' => 'is-idle' ),
-	'rented'      => array( 'label' => __( 'Rented', 'mhm-rentiva' ),          'class' => 'is-rented' ),
-	'on_transfer' => array( 'label' => __( 'On Transfer', 'mhm-rentiva' ),     'class' => 'is-transfer' ),
-	'maintenance' => array( 'label' => __( 'In Maintenance', 'mhm-rentiva' ),  'class' => 'is-maintenance' ),
+	'idle'        => array(
+		'label' => __( 'Idle', 'mhm-rentiva' ),
+		'class' => 'is-idle',
+	),
+	'rented'      => array(
+		'label' => __( 'Rented', 'mhm-rentiva' ),
+		'class' => 'is-rented',
+	),
+	'on_transfer' => array(
+		'label' => __( 'On Transfer', 'mhm-rentiva' ),
+		'class' => 'is-transfer',
+	),
+	'maintenance' => array(
+		'label' => __( 'In Maintenance', 'mhm-rentiva' ),
+		'class' => 'is-maintenance',
+	),
 );
 
 $vehicle_count = count( $vehicles );
@@ -123,11 +150,8 @@ $vehicle_count = count( $vehicles );
 			<?php if ( $vehicle_count > 0 ) : ?>
 				<p class="mhm-vendor-listings-page__subtitle">
 					<?php
-					printf(
-						/* translators: %d: number of vehicles */
-						esc_html__( '%d vehicles in your portfolio.', 'mhm-rentiva' ),
-						$vehicle_count
-					);
+					/* translators: %d: number of vehicles */
+					echo esc_html( sprintf( __( '%d vehicles in your portfolio.', 'mhm-rentiva' ), (int) $vehicle_count ) );
 					?>
 				</p>
 			<?php endif; ?>
@@ -187,11 +211,16 @@ $vehicle_count = count( $vehicles );
 				$rejection_note = (string) get_post_meta( $vehicle->ID, '_vehicle_rejection_note', true );
 				$brand          = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_brand', true );
 				$model          = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_model', true );
-				$year           = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_year', true );
-				$price          = (float)  get_post_meta( $vehicle->ID, '_mhm_rentiva_price_per_day', true );
+				$vehicle_year   = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_year', true );
+				$price          = (float) get_post_meta( $vehicle->ID, '_mhm_rentiva_price_per_day', true );
 				$city           = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_vehicle_city', true );
 				$plate          = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_plate', true );
 				// For approved vehicles, show lifecycle status badge instead of review status.
+				$status_fallback_label = __( 'Draft', 'mhm-rentiva' );
+				if ( $review_status !== '' ) {
+					$status_fallback_label = ucfirst( $review_status );
+				}
+
 				if ( $review_status === 'approved' && $lifecycle_status !== '' ) {
 					$status_info = $lifecycle_status_labels[ $lifecycle_status ] ?? array(
 						'label' => ucfirst( $lifecycle_status ),
@@ -199,12 +228,12 @@ $vehicle_count = count( $vehicles );
 					);
 				} else {
 					$status_info = $review_status_labels[ $review_status ] ?? array(
-						'label' => ucfirst( $review_status ?: __( 'Draft', 'mhm-rentiva' ) ),
+						'label' => $status_fallback_label,
 						'class' => '',
 					);
 				}
-				$thumbnail_url  = get_the_post_thumbnail_url( $vehicle->ID, 'medium' );
-				$vehicle_name   = trim( $brand . ' ' . $model . ( $year ? ' (' . $year . ')' : '' ) );
+				$thumbnail_url = get_the_post_thumbnail_url( $vehicle->ID, 'medium' );
+				$vehicle_name  = trim( $brand . ' ' . $model . ( $vehicle_year ? ' (' . $vehicle_year . ')' : '' ) );
 				if ( $vehicle_name === '' ) {
 					$vehicle_name = $vehicle->post_title;
 				}
@@ -302,11 +331,8 @@ $vehicle_count = count( $vehicles );
 									<div class="mhm-vendor-listing-card__remaining is-red">
 										<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
 										<?php
-										printf(
-											/* translators: %d: number of days until new listing ban is lifted */
-											esc_html( _n( 'New listing ban: %d more day', 'New listing ban: %d more days', $cooldown_remaining, 'mhm-rentiva' ) ),
-											$cooldown_remaining
-										);
+										/* translators: %d: number of days until new listing ban is lifted */
+										echo esc_html( sprintf( _n( 'New listing ban: %d more day', 'New listing ban: %d more days', $cooldown_remaining, 'mhm-rentiva' ), (int) $cooldown_remaining ) );
 										?>
 									</div>
 									<?php
@@ -338,11 +364,8 @@ $vehicle_count = count( $vehicles );
 								<div class="mhm-vendor-listing-card__remaining <?php echo esc_attr( $color_class ); ?>">
 									<svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
 									<?php
-									printf(
-										/* translators: %d: number of remaining days */
-										esc_html__( 'Remaining: %d days', 'mhm-rentiva' ),
-										$remaining_days
-									);
+									/* translators: %d: number of remaining days */
+									echo esc_html( sprintf( __( 'Remaining: %d days', 'mhm-rentiva' ), (int) $remaining_days ) );
 									?>
 								</div>
 							<?php endif; ?>
