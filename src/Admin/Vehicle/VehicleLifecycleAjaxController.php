@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.24.0
  */
-final class VehicleLifecycleAjaxController
-{
+final class VehicleLifecycleAjaxController {
+
 	private const NONCE_ACTION = 'mhm_rentiva_vehicle_lifecycle';
 
 	/**
@@ -24,11 +24,11 @@ final class VehicleLifecycleAjaxController
 	 */
 	public static function register(): void
 	{
-		add_action('wp_ajax_mhm_vehicle_lifecycle_pause', array(self::class, 'handle_pause'));
-		add_action('wp_ajax_mhm_vehicle_lifecycle_resume', array(self::class, 'handle_resume'));
-		add_action('wp_ajax_mhm_vehicle_lifecycle_withdraw', array(self::class, 'handle_withdraw'));
-		add_action('wp_ajax_mhm_vehicle_lifecycle_renew', array(self::class, 'handle_renew'));
-		add_action('wp_ajax_mhm_vehicle_lifecycle_relist', array(self::class, 'handle_relist'));
+		add_action('wp_ajax_mhm_vehicle_lifecycle_pause', array( self::class, 'handle_pause' ));
+		add_action('wp_ajax_mhm_vehicle_lifecycle_resume', array( self::class, 'handle_resume' ));
+		add_action('wp_ajax_mhm_vehicle_lifecycle_withdraw', array( self::class, 'handle_withdraw' ));
+		add_action('wp_ajax_mhm_vehicle_lifecycle_renew', array( self::class, 'handle_renew' ));
+		add_action('wp_ajax_mhm_vehicle_lifecycle_relist', array( self::class, 'handle_relist' ));
 	}
 
 	/**
@@ -157,14 +157,15 @@ final class VehicleLifecycleAjaxController
 	{
 		check_ajax_referer(self::NONCE_ACTION, 'nonce');
 
-		if (! current_user_can('rentiva_vendor')) {
-			wp_send_json_error(array('message' => __('Unauthorized.', 'mhm-rentiva')), 403);
+		$current_user = wp_get_current_user();
+		if (! $current_user instanceof \WP_User || ! in_array('rentiva_vendor', (array) $current_user->roles, true)) {
+			wp_send_json_error(array( 'message' => __('Unauthorized.', 'mhm-rentiva') ), 403);
 			exit;
 		}
 
 		$vehicle_id = isset($_POST['vehicle_id']) ? (int) sanitize_text_field(wp_unslash($_POST['vehicle_id'])) : 0;
 		if ($vehicle_id < 1) {
-			wp_send_json_error(array('message' => __('Invalid vehicle ID.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid vehicle ID.', 'mhm-rentiva') ));
 			exit;
 		}
 
@@ -180,11 +181,14 @@ final class VehicleLifecycleAjaxController
 	private static function send_result($result, string $success_message): void
 	{
 		if (is_wp_error($result)) {
-			wp_send_json_error(array('message' => $result->get_error_message(), 'code' => $result->get_error_code()));
+			wp_send_json_error(array(
+				'message' => $result->get_error_message(),
+				'code'    => $result->get_error_code(),
+			));
 			exit;
 		}
 
-		wp_send_json_success(array('message' => $success_message));
+		wp_send_json_success(array( 'message' => $success_message ));
 		exit;
 	}
 }

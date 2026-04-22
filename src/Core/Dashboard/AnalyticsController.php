@@ -15,19 +15,20 @@ use MHMRentiva\Core\Services\Metrics\MetricCacheManager;
 /**
  * Handle AJAX requests for vendor analytics.
  */
-class AnalyticsController
-{
+class AnalyticsController {
+
     public static function register(): void
     {
-        add_action('wp_ajax_mhm_fetch_vendor_stats', array(self::class, 'fetch_vendor_stats'));
+        add_action('wp_ajax_mhm_fetch_vendor_stats', array( self::class, 'fetch_vendor_stats' ));
     }
 
     public static function fetch_vendor_stats(): void
     {
         check_ajax_referer('mhm_rentiva_vendor_nonce', 'nonce');
 
-        if (! current_user_can('rentiva_vendor')) {
-            wp_send_json_error(array('message' => __('Unauthorized', 'mhm-rentiva')), 403);
+        $current_user = wp_get_current_user();
+        if (! $current_user instanceof \WP_User || ! in_array('rentiva_vendor', (array) $current_user->roles, true)) {
+            wp_send_json_error(array( 'message' => __('Unauthorized', 'mhm-rentiva') ), 403);
             exit;
         }
 
@@ -40,14 +41,14 @@ class AnalyticsController
         $end_ts   = strtotime($end_date_raw);
 
         if (! $start_ts || ! $end_ts || $start_ts > $end_ts) {
-            wp_send_json_error(array('message' => __('Invalid date range', 'mhm-rentiva')), 400);
+            wp_send_json_error(array( 'message' => __('Invalid date range', 'mhm-rentiva') ), 400);
             exit;
         }
 
         // Include end of day
-        $end_ts = $end_ts + 86399;
+        $end_ts         = $end_ts + 86399;
         $window_seconds = $end_ts - $start_ts;
-        $window_days = max(1, (int) round($window_seconds / DAY_IN_SECONDS));
+        $window_days    = max(1, (int) round($window_seconds / DAY_IN_SECONDS));
 
         // Previous period for growth calculation
         $prev_start_ts = $start_ts - $window_seconds;
@@ -58,18 +59,18 @@ class AnalyticsController
         $metrics = array();
 
         // Current revenue
-        $metrics['revenue'] = AnalyticsService::get_revenue_period($vendor_id, $start_ts, $end_ts);
+        $metrics['revenue']      = AnalyticsService::get_revenue_period($vendor_id, $start_ts, $end_ts);
         $metrics['revenue_prev'] = AnalyticsService::get_revenue_period($vendor_id, $prev_start_ts, $prev_end_ts);
 
         // Vendor generic metrics
-        $vendor_metrics = AnalyticsService::get_vendor_operational_metrics($vendor_id, $start_ts, $end_ts);
+        $vendor_metrics               = AnalyticsService::get_vendor_operational_metrics($vendor_id, $start_ts, $end_ts);
         $metrics['occupancy_rate']    = $vendor_metrics['occupancy_rate'] ?? 0.0;
         $metrics['cancellation_rate'] = $vendor_metrics['cancellation_rate'] ?? 0.0;
 
         // Growth (Sıfır Bölme Koruması implemented in get_growth_rate natively or handled manually)
         $metrics['growth'] = null;
         if ($metrics['revenue_prev'] > 0) {
-            $metrics['growth'] = (($metrics['revenue'] - $metrics['revenue_prev']) / max(1, $metrics['revenue_prev'])) * 100;
+            $metrics['growth'] = ( ( $metrics['revenue'] - $metrics['revenue_prev'] ) / max(1, $metrics['revenue_prev']) ) * 100;
         } elseif ($metrics['revenue'] > 0) {
             $metrics['growth'] = 100.0; // From 0 to something
         }
@@ -128,8 +129,8 @@ class AnalyticsController
             return $symbol . number_format($amount, 2, '.', ',');
         };
 
-        $metrics['revenue_formatted'] = $format_currency((float) $metrics['revenue']);
-        $metrics['avg_booking_formatted'] = $format_currency((float) $metrics['avg_booking_value']);
+        $metrics['revenue_formatted']     = $format_currency( (float) $metrics['revenue']);
+        $metrics['avg_booking_formatted'] = $format_currency( (float) $metrics['avg_booking_value']);
 
         $growth_class = 'is-neutral';
         $growth_label = '—';
@@ -150,19 +151,20 @@ class AnalyticsController
         // Format top vehicles to HTML table rows
         ob_start();
         foreach ($metrics['top_vehicles'] as $vehicle) {
-?>
+			?>
             <tr>
                 <td><?php echo esc_html($vehicle['title']); ?></td>
-                <td class="is-currency"><?php echo esc_html($format_currency((float) $vehicle['revenue'])); ?></td>
-                <td><?php echo esc_html(number_format((float) $vehicle['occupancy_rate'], 1)); ?>%</td>
+                <td class="is-currency"><?php echo esc_html($format_currency( (float) $vehicle['revenue'])); ?></td>
+                <td><?php echo esc_html(number_format( (float) $vehicle['occupancy_rate'], 1)); ?>%</td>
                 <td>
                     <div class="mhm-rentiva-dashboard__inline-sparkline">
-                        <?php echo $vehicle['sparkline']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+                        <?php
+                        echo $vehicle['sparkline']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
                         ?>
                     </div>
                 </td>
             </tr>
-<?php
+			<?php
         }
         $metrics['top_vehicles_html'] = ob_get_clean();
 
