@@ -7,9 +7,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-use MHMRentiva\Core\Financial\AtomicPayoutService;
 use MHMRentiva\Core\Financial\Ledger;
-use MHMRentiva\Core\Financial\PayoutService;
 
 
 
@@ -23,8 +21,8 @@ if (! class_exists('WP_List_Table')) {
  *
  * @since 4.21.0
  */
-final class PayoutListTable extends \WP_List_Table
-{
+final class PayoutListTable extends \WP_List_Table {
+
     /**
      * Action handle for bulk approve.
      */
@@ -50,13 +48,13 @@ final class PayoutListTable extends \WP_List_Table
     public function get_columns(): array
     {
         return array(
-            'cb'         => '<input type="checkbox">',
-            'payout_id'  => __('ID', 'mhm-rentiva'),
-            'vendor'     => __('Vendor', 'mhm-rentiva'),
-            'amount'     => __('Amount', 'mhm-rentiva'),
-            'balance'    => __('Available Balance', 'mhm-rentiva'),
-            'status'     => __('Status', 'mhm-rentiva'),
-            'requested'  => __('Requested', 'mhm-rentiva'),
+            'cb'        => '<input type="checkbox">',
+            'payout_id' => __('ID', 'mhm-rentiva'),
+            'vendor'    => __('Vendor', 'mhm-rentiva'),
+            'amount'    => __('Amount', 'mhm-rentiva'),
+            'balance'   => __('Available Balance', 'mhm-rentiva'),
+            'status'    => __('Status', 'mhm-rentiva'),
+            'requested' => __('Requested', 'mhm-rentiva'),
         );
     }
 
@@ -75,11 +73,11 @@ final class PayoutListTable extends \WP_List_Table
      */
     public function prepare_items(): void
     {
-        $this->_column_headers = array($this->get_columns(), array(), array());
+        $this->_column_headers = array( $this->get_columns(), array(), array() );
 
         $posts = get_posts(array(
             'post_type'      => PostType::POST_TYPE,
-            'post_status'    => array('pending', 'publish', 'trash'),
+            'post_status'    => array( 'pending', 'publish', 'trash' ),
             'posts_per_page' => 100,
             'orderby'        => 'date',
             'order'          => 'DESC',
@@ -111,7 +109,7 @@ final class PayoutListTable extends \WP_List_Table
      */
     protected function column_payout_id(\WP_Post $item): string
     {
-        return '#' . esc_html((string) $item->ID);
+        return '#' . esc_html( (string) $item->ID);
     }
 
     /**
@@ -125,7 +123,12 @@ final class PayoutListTable extends \WP_List_Table
             return esc_html__('Unknown', 'mhm-rentiva');
         }
 
-        return esc_html($user->display_name ?: $user->user_login) . ' <small>#' . esc_html((string) $vendor_id) . '</small>';
+        $vendor_name = $user->display_name;
+        if ('' === $vendor_name) {
+            $vendor_name = $user->user_login;
+        }
+
+        return esc_html($vendor_name) . ' <small>#' . esc_html( (string) $vendor_id) . '</small>';
     }
 
     /**
@@ -161,12 +164,24 @@ final class PayoutListTable extends \WP_List_Table
     protected function column_status(\WP_Post $item): string
     {
         $status_map = array(
-            'pending' => array('label' => __('Pending', 'mhm-rentiva'),  'color' => '#ca8a04'),
-            'publish' => array('label' => __('Approved', 'mhm-rentiva'), 'color' => '#2f54ff'),
-            'trash'   => array('label' => __('Rejected', 'mhm-rentiva'), 'color' => '#ef4444'),
+            'pending' => array(
+				'label' => __('Pending', 'mhm-rentiva'),
+				'color' => '#ca8a04',
+			),
+            'publish' => array(
+				'label' => __('Approved', 'mhm-rentiva'),
+				'color' => '#2f54ff',
+			),
+            'trash'   => array(
+				'label' => __('Rejected', 'mhm-rentiva'),
+				'color' => '#ef4444',
+			),
         );
 
-        $info  = $status_map[$item->post_status] ?? array('label' => esc_html($item->post_status), 'color' => '#64748b');
+        $info  = $status_map[ $item->post_status ] ?? array(
+			'label' => esc_html($item->post_status),
+			'color' => '#64748b',
+		);
         $label = esc_html($info['label']);
         $color = esc_attr($info['color']);
 
@@ -210,16 +225,41 @@ final class PayoutListTable extends \WP_List_Table
      */
     public static function process_bulk_approve(): array
     {
+        // phpcs:ignore WordPress.WP.Capabilities.Unknown -- Custom payout approval capability is registered by the plugin migration bootstrap.
         if (! current_user_can('mhm_rentiva_approve_payout')) {
-            return array('approved' => 0, 'skipped' => 0, 'errors' => array(__('Permission denied by Governance Layer.', 'mhm-rentiva')));
+            return array(
+				'approved' => 0,
+				'skipped'  => 0,
+				'errors'   => array( __('Permission denied by Governance Layer.', 'mhm-rentiva') ),
+			);
         }
 
-        $raw_ids = isset($_POST['payout_ids']) && is_array($_POST['payout_ids'])
-            ? array_map('absint', $_POST['payout_ids'])
-            : array();
+        $nonce       = isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '';
+        $valid_nonce = false;
+        if ('' !== $nonce) {
+            $valid_nonce = wp_verify_nonce($nonce, self::BULK_ACTION_APPROVE)
+                || wp_verify_nonce($nonce, 'bulk-payouts');
+        }
+
+        if (! $valid_nonce) {
+            return array(
+				'approved' => 0,
+				'skipped'  => 0,
+				'errors'   => array( __('Security check failed.', 'mhm-rentiva') ),
+			);
+        }
+
+        $raw_ids = array();
+        if (isset($_POST['payout_ids']) && is_array($_POST['payout_ids'])) {
+            $raw_ids = array_map('absint', wp_unslash($_POST['payout_ids']));
+        }
 
         if (empty($raw_ids)) {
-            return array('approved' => 0, 'skipped' => 0, 'errors' => array());
+            return array(
+				'approved' => 0,
+				'skipped'  => 0,
+				'errors'   => array(),
+			);
         }
 
         $approved = 0;
@@ -231,7 +271,7 @@ final class PayoutListTable extends \WP_List_Table
 
             // Idempotency: skip anything that isn't truly pending.
             if (! $post instanceof \WP_Post || $post->post_status !== 'pending') {
-                $skipped++;
+                ++$skipped;
                 continue;
             }
 
@@ -240,7 +280,7 @@ final class PayoutListTable extends \WP_List_Table
             if (is_wp_error($result)) {
                 $errors[] = sprintf('#%d: %s', $payout_id, $result->get_error_message());
             } else {
-                $approved++;
+                ++$approved;
             }
         }
 
