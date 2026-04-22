@@ -28,8 +28,8 @@ if (!defined('ABSPATH')) {
  *
  * Handles integration with WordPress export/import system for Transfer data.
  */
-final class TransferExportImport
-{
+final class TransferExportImport {
+
 
     /**
      * @var self|null Singleton instance
@@ -70,16 +70,16 @@ final class TransferExportImport
     private function register_hooks(): void
     {
         // Add "Transfer Verileri" radio button to export page
-        add_action('export_filters', [$this, 'render_export_filter']);
+        add_action('export_filters', [ $this, 'render_export_filter' ]);
 
         // Handle export: when "Transfer Verileri" is selected
-        add_action('export_wp', [$this, 'handle_export'], 10, 1);
+        add_action('export_wp', [ $this, 'handle_export' ], 10, 1);
 
         // Add Transfer data to any WP export via rss2_head
-        add_action('rss2_head', [$this, 'export_transfer_data']);
+        add_action('rss2_head', [ $this, 'export_transfer_data' ]);
 
         // Import Transfer data from XML
-        add_action('import_end', [$this, 'import_transfer_data']);
+        add_action('import_end', [ $this, 'import_transfer_data' ]);
     }
 
     // ─── TABLE RESOLUTION ────────────────────────────────────────────
@@ -107,7 +107,7 @@ final class TransferExportImport
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $legacy_table));
 
-        return ($exists === $legacy_table) ? $legacy_table : null;
+        return ( $exists === $legacy_table ) ? $legacy_table : null;
     }
 
     /**
@@ -118,9 +118,9 @@ final class TransferExportImport
     private function get_tables(): array
     {
         return [
-            'locations'  => $this->resolve_table('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations'),
-            'routes'     => $this->resolve_table('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes'),
-            'waypoints'  => $this->resolve_table('rentiva_transfer_waypoints', 'mhm_rentiva_transfer_waypoints'),
+            'locations' => $this->resolve_table('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations'),
+            'routes'    => $this->resolve_table('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes'),
+            'waypoints' => $this->resolve_table('rentiva_transfer_waypoints', 'mhm_rentiva_transfer_waypoints'),
         ];
     }
 
@@ -136,25 +136,31 @@ final class TransferExportImport
     {
         global $wpdb;
 
-        $tables  = $this->get_tables();
+        $tables      = $this->get_tables();
         $loc_count   = 0;
         $route_count = 0;
         $wp_count    = 0;
 
         if ($tables['locations'] !== null) {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $loc_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$tables['locations']}");
+            $loc_count = (int) $wpdb->get_var(
+                $wpdb->prepare('SELECT COUNT(*) FROM %i', $tables['locations'])
+            );
         }
         if ($tables['routes'] !== null) {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $route_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$tables['routes']}");
+            $route_count = (int) $wpdb->get_var(
+                $wpdb->prepare('SELECT COUNT(*) FROM %i', $tables['routes'])
+            );
         }
         if ($tables['waypoints'] !== null) {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $wp_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$tables['waypoints']}");
+            $wp_count = (int) $wpdb->get_var(
+                $wpdb->prepare('SELECT COUNT(*) FROM %i', $tables['waypoints'])
+            );
         }
 
-?>
+		?>
         <p>
             <label>
                 <input type="radio" name="content" value="<?php echo esc_attr(self::CONTENT_TYPE); ?>" />
@@ -174,7 +180,7 @@ final class TransferExportImport
                 ?>
             </li>
         </ul>
-<?php
+		<?php
     }
 
     // ─── CUSTOM EXPORT HANDLER ───────────────────────────────────────
@@ -234,8 +240,10 @@ final class TransferExportImport
         // ── Locations ──────────────────────────────────────
         if ($tables['locations'] !== null) {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $locations = $wpdb->get_results("SELECT * FROM {$tables['locations']} ORDER BY id", ARRAY_A);
+            $locations = $wpdb->get_results(
+                $wpdb->prepare('SELECT * FROM %i ORDER BY id', $tables['locations']),
+                ARRAY_A
+            );
 
             if (!empty($locations)) {
                 $sql .= "-- Transfer Locations\n";
@@ -251,8 +259,10 @@ final class TransferExportImport
         // ── Routes ─────────────────────────────────────────
         if ($tables['routes'] !== null) {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $routes = $wpdb->get_results("SELECT * FROM {$tables['routes']} ORDER BY id", ARRAY_A);
+            $routes = $wpdb->get_results(
+                $wpdb->prepare('SELECT * FROM %i ORDER BY id', $tables['routes']),
+                ARRAY_A
+            );
 
             if (!empty($routes)) {
                 $sql .= "-- Transfer Routes\n";
@@ -268,7 +278,10 @@ final class TransferExportImport
         // ── Waypoints ──────────────────────────────────────
         if ($tables['waypoints'] !== null) {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $waypoints = $wpdb->get_results("SELECT * FROM {$tables['waypoints']} ORDER BY id", ARRAY_A);
+            $waypoints = $wpdb->get_results(
+                $wpdb->prepare('SELECT * FROM %i ORDER BY id', $tables['waypoints']),
+                ARRAY_A
+            );
 
             if (!empty($waypoints)) {
                 $sql .= "-- Transfer Waypoints\n";
@@ -341,7 +354,10 @@ final class TransferExportImport
         // Export Locations
         if ($tables['locations'] !== null) {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $locations = $wpdb->get_results("SELECT * FROM {$tables['locations']}", ARRAY_A);
+            $locations = $wpdb->get_results(
+                $wpdb->prepare('SELECT * FROM %i', $tables['locations']),
+                ARRAY_A
+            );
 
             if (!empty($locations)) {
                 echo "\t<transfer_locations>\n";
@@ -360,7 +376,10 @@ final class TransferExportImport
         // Export Routes
         if ($tables['routes'] !== null) {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $routes = $wpdb->get_results("SELECT * FROM {$tables['routes']}", ARRAY_A);
+            $routes = $wpdb->get_results(
+                $wpdb->prepare('SELECT * FROM %i', $tables['routes']),
+                ARRAY_A
+            );
 
             if (!empty($routes)) {
                 echo "\t<transfer_routes>\n";
@@ -379,7 +398,10 @@ final class TransferExportImport
         // Export Waypoints
         if ($tables['waypoints'] !== null) {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $waypoints = $wpdb->get_results("SELECT * FROM {$tables['waypoints']}", ARRAY_A);
+            $waypoints = $wpdb->get_results(
+                $wpdb->prepare('SELECT * FROM %i', $tables['waypoints']),
+                ARRAY_A
+            );
 
             if (!empty($waypoints)) {
                 echo "\t<transfer_waypoints>\n";
@@ -461,7 +483,7 @@ final class TransferExportImport
             foreach ($transfer_data->transfer_locations->location as $location) {
                 $loc_data = [];
                 foreach ($location->children() as $field) {
-                    $loc_data[$field->getName()] = (string) $field;
+                    $loc_data[ $field->getName() ] = (string) $field;
                 }
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->insert($tables['locations'], $loc_data);
@@ -473,7 +495,7 @@ final class TransferExportImport
             foreach ($transfer_data->transfer_routes->route as $route) {
                 $route_data = [];
                 foreach ($route->children() as $field) {
-                    $route_data[$field->getName()] = (string) $field;
+                    $route_data[ $field->getName() ] = (string) $field;
                 }
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->insert($tables['routes'], $route_data);
@@ -485,7 +507,7 @@ final class TransferExportImport
             foreach ($transfer_data->transfer_waypoints->waypoint as $waypoint) {
                 $wp_data = [];
                 foreach ($waypoint->children() as $field) {
-                    $wp_data[$field->getName()] = (string) $field;
+                    $wp_data[ $field->getName() ] = (string) $field;
                 }
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->insert($tables['waypoints'], $wp_data);
