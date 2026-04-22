@@ -29,14 +29,38 @@ $vehicle_ids = get_posts( array(
 ) );
 
 $status_labels = array(
-	'pending'         => array( 'label' => __( 'Pending', 'mhm-rentiva' ),         'class' => 'is-pending' ),
-	'pending_payment' => array( 'label' => __( 'Awaiting Payment', 'mhm-rentiva' ), 'class' => 'is-pending' ),
-	'confirmed'       => array( 'label' => __( 'Confirmed', 'mhm-rentiva' ),        'class' => 'is-confirmed' ),
-	'in_progress'     => array( 'label' => __( 'In Progress', 'mhm-rentiva' ),      'class' => 'is-progress' ),
-	'completed'       => array( 'label' => __( 'Completed', 'mhm-rentiva' ),        'class' => 'is-completed' ),
-	'cancelled'       => array( 'label' => __( 'Cancelled', 'mhm-rentiva' ),        'class' => 'is-cancelled' ),
-	'refunded'        => array( 'label' => __( 'Refunded', 'mhm-rentiva' ),         'class' => 'is-refunded' ),
-	'no_show'         => array( 'label' => __( 'No Show', 'mhm-rentiva' ),          'class' => 'is-cancelled' ),
+	'pending'         => array(
+		'label' => __( 'Pending', 'mhm-rentiva' ),
+		'class' => 'is-pending',
+	),
+	'pending_payment' => array(
+		'label' => __( 'Awaiting Payment', 'mhm-rentiva' ),
+		'class' => 'is-pending',
+	),
+	'confirmed'       => array(
+		'label' => __( 'Confirmed', 'mhm-rentiva' ),
+		'class' => 'is-confirmed',
+	),
+	'in_progress'     => array(
+		'label' => __( 'In Progress', 'mhm-rentiva' ),
+		'class' => 'is-progress',
+	),
+	'completed'       => array(
+		'label' => __( 'Completed', 'mhm-rentiva' ),
+		'class' => 'is-completed',
+	),
+	'cancelled'       => array(
+		'label' => __( 'Cancelled', 'mhm-rentiva' ),
+		'class' => 'is-cancelled',
+	),
+	'refunded'        => array(
+		'label' => __( 'Refunded', 'mhm-rentiva' ),
+		'class' => 'is-refunded',
+	),
+	'no_show'         => array(
+		'label' => __( 'No Show', 'mhm-rentiva' ),
+		'class' => 'is-cancelled',
+	),
 );
 
 $format_currency = static function ( float $amount ): string {
@@ -57,7 +81,7 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 		<h3 class="mhm-vendor-bookings-page__title"><?php esc_html_e( 'Booking Requests', 'mhm-rentiva' ); ?></h3>
 	</div>
 	<?php
-	$filter_tabs = array(
+	$filter_tabs   = array(
 		''            => __( 'All', 'mhm-rentiva' ),
 		'pending'     => __( 'Pending', 'mhm-rentiva' ),
 		'confirmed'   => __( 'Confirmed', 'mhm-rentiva' ),
@@ -70,7 +94,14 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 	<nav class="mhm-vendor-bookings-page__tabs">
 		<?php foreach ( $filter_tabs as $tab_key => $tab_label ) : ?>
 			<a
-				href="<?php echo esc_url( add_query_arg( array_filter( array( 'tab' => 'bookings', 'booking_status' => $tab_key ) ), $dashboard_url ) ); ?>"
+				href="
+                <?php
+                echo esc_url( add_query_arg( array_filter( array(
+					'tab'            => 'bookings',
+					'booking_status' => $tab_key,
+				) ), $dashboard_url ) );
+				?>
+                        "
 				class="mhm-vendor-bookings-page__tab <?php echo $filter_status === $tab_key ? 'is-active' : ''; ?>"
 			><?php echo esc_html( $tab_label ); ?></a>
 		<?php endforeach; ?>
@@ -99,13 +130,13 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 		$status_where = '';
 		$query_params = $vehicle_ids;
 		if ( $filter_status !== '' && isset( $status_labels[ $filter_status ] ) ) {
-			$status_where = ' AND sm.meta_value = %s';
+			$status_where   = ' AND sm.meta_value = %s';
 			$query_params[] = $filter_status;
 		}
 
 		$query_params[] = 50; // LIMIT
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders/$status_where are safe.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders and $status_where are assembled only from fixed placeholder fragments above.
 		$bookings = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT DISTINCT p.ID,
@@ -129,18 +160,19 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 				...$query_params
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Count stats (use PHP since we already have results — avoids extra queries).
 		$stats = array(
-			'pending'     => 0,
-			'in_progress' => 0,
-			'completed'   => 0,
+			'pending'       => 0,
+			'in_progress'   => 0,
+			'completed'     => 0,
 			'total_revenue' => 0.0,
 		);
 
 		// For stats, we need unfiltered counts if a filter is active.
 		if ( $filter_status !== '' ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders is assembled only from fixed %d fragments above.
 			$all_statuses = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT sm.meta_value AS booking_status, tm.meta_value AS total_price
@@ -155,21 +187,22 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 					...$vehicle_ids
 				)
 			);
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		} else {
 			$all_statuses = $bookings;
 		}
 
 		$this_month_start = wp_date( 'Y-m-01' );
 		foreach ( $all_statuses as $b ) {
-			$s = (string) ( $b->booking_status ?? '' );
-			if ( $s === 'pending' || $s === 'pending_payment' ) {
-				$stats['pending']++;
-			} elseif ( $s === 'in_progress' || $s === 'confirmed' ) {
-				$stats['in_progress']++;
-			} elseif ( $s === 'completed' ) {
-				$stats['completed']++;
+			$booking_status_value = (string) ( $b->booking_status ?? '' );
+			if ( $booking_status_value === 'pending' || $booking_status_value === 'pending_payment' ) {
+				++$stats['pending'];
+			} elseif ( $booking_status_value === 'in_progress' || $booking_status_value === 'confirmed' ) {
+				++$stats['in_progress'];
+			} elseif ( $booking_status_value === 'completed' ) {
+				++$stats['completed'];
 			}
-			if ( in_array( $s, array( 'completed', 'confirmed', 'in_progress' ), true ) ) {
+			if ( in_array( $booking_status_value, array( 'completed', 'confirmed', 'in_progress' ), true ) ) {
 				$stats['total_revenue'] += (float) ( $b->total_price ?? 0 );
 			}
 		}
@@ -223,11 +256,11 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 			<div class="mhm-vendor-bookings-page__list">
 				<?php foreach ( $bookings as $booking ) : ?>
 					<?php
-					$b_status      = (string) ( $booking->booking_status ?? '' );
-					$b_vehicle_id  = (int) ( $booking->vehicle_id ?? 0 );
-					$b_price       = (float) ( $booking->total_price ?? 0 );
-					$b_pickup      = (string) ( $booking->pickup_date ?? '' );
-					$b_dropoff     = (string) ( $booking->dropoff_date ?? '' );
+					$b_status     = (string) ( $booking->booking_status ?? '' );
+					$b_vehicle_id = (int) ( $booking->vehicle_id ?? 0 );
+					$b_price      = (float) ( $booking->total_price ?? 0 );
+					$b_pickup     = (string) ( $booking->pickup_date ?? '' );
+					$b_dropoff    = (string) ( $booking->dropoff_date ?? '' );
 
 					// Resolve customer name via centralized helper (meta → WC order → WP user fallback chain).
 					$customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo( (int) $booking->ID );
@@ -251,7 +284,7 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 						? __( 'Transfer', 'mhm-rentiva' )
 						: __( 'Car Rental', 'mhm-rentiva' );
 
-					$pickup_time  = (string) get_post_meta( $booking->ID, '_mhm_start_time', true );
+					$pickup_time = (string) get_post_meta( $booking->ID, '_mhm_start_time', true );
 					if ( $pickup_time === '' ) {
 						$pickup_time = (string) get_post_meta( $booking->ID, '_mhm_pickup_time', true );
 					}
@@ -265,13 +298,23 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 					$vehicle_model = (string) get_post_meta( $b_vehicle_id, '_mhm_rentiva_model', true );
 					$vehicle_name  = trim( $vehicle_brand . ' ' . $vehicle_model );
 					if ( $vehicle_name === '' ) {
-						$vehicle_name = get_the_title( $b_vehicle_id ) ?: __( 'Unknown Vehicle', 'mhm-rentiva' );
+						$vehicle_title = get_the_title( $b_vehicle_id );
+						if ( $vehicle_title ) {
+							$vehicle_name = $vehicle_title;
+						} else {
+							$vehicle_name = __( 'Unknown Vehicle', 'mhm-rentiva' );
+						}
 					}
 					$vehicle_thumb = get_the_post_thumbnail_url( $b_vehicle_id, 'thumbnail' );
 
 					// Status info.
+					$status_fallback_label = __( 'Unknown', 'mhm-rentiva' );
+					if ( $b_status !== '' ) {
+						$status_fallback_label = ucfirst( $b_status );
+					}
+
 					$status_info = $status_labels[ $b_status ] ?? array(
-						'label' => ucfirst( $b_status ?: __( 'Unknown', 'mhm-rentiva' ) ),
+						'label' => $status_fallback_label,
 						'class' => '',
 					);
 
@@ -282,8 +325,17 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 					// Duration in days.
 					$duration_days = 0;
 					if ( $b_pickup && $b_dropoff ) {
-						$diff = strtotime( $b_dropoff ) - strtotime( $b_pickup );
+						$diff          = strtotime( $b_dropoff ) - strtotime( $b_pickup );
 						$duration_days = max( 1, (int) ceil( $diff / 86400 ) );
+					}
+
+					$pickup_time_display  = $pickup_time;
+					$dropoff_time_display = $dropoff_time;
+					if ( $pickup_time_display === '' ) {
+						$pickup_time_display = '—';
+					}
+					if ( $dropoff_time_display === '' ) {
+						$dropoff_time_display = '—';
 					}
 
 					// Display ID.
@@ -340,6 +392,7 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 							</span>
 							<span class="mhm-vendor-booking-card__dates-meta">
 								<?php if ( $pickup_time || $dropoff_time ) : ?>
+									<?php // phpcs:ignore Universal.Operators.DisallowShortTernary.Found,Universal.Operators.DisallowShortTernary.Found -- Template fallback renders a literal em dash when a time value is absent. ?>
 									<?php echo esc_html( $pickup_time ?: '—' ); ?> - <?php echo esc_html( $dropoff_time ?: '—' ); ?>
 								<?php endif; ?>
 							</span>
@@ -354,11 +407,8 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 							<?php if ( $duration_days > 0 ) : ?>
 								<span class="mhm-vendor-booking-card__dates-meta">
 									<?php
-									printf(
-										/* translators: %d: number of days */
-										esc_html( _n( '%d day total', '%d days total', $duration_days, 'mhm-rentiva' ) ),
-										$duration_days
-									);
+									/* translators: %d: number of days */
+									echo esc_html( sprintf( _n( '%d day total', '%d days total', $duration_days, 'mhm-rentiva' ), (int) $duration_days ) );
 									?>
 								</span>
 							<?php endif; ?>
