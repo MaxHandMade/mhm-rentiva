@@ -22,8 +22,8 @@ use MHMRentiva\Admin\Core\MetaKeys;
  *
  * @since 4.24.0
  */
-final class PenaltyCalculator
-{
+final class PenaltyCalculator {
+
 	/** First withdrawal is free. */
 	public const TIER_1_RATE = 0.0;
 
@@ -67,7 +67,7 @@ final class PenaltyCalculator
 	public static function calculate_withdrawal_penalty(int $vehicle_id, int $vendor_id): float
 	{
 		$withdrawal_count = self::get_rolling_withdrawal_count($vendor_id);
-		$rate = self::get_penalty_rate($withdrawal_count);
+		$rate             = self::get_penalty_rate($withdrawal_count);
 
 		if ($rate <= 0.0) {
 			return 0.0;
@@ -145,17 +145,18 @@ final class PenaltyCalculator
 	{
 		global $wpdb;
 
-		$table  = esc_sql($wpdb->prefix . 'mhm_rentiva_ledger');
+		$table  = $wpdb->prefix . 'mhm_rentiva_ledger';
 		$cutoff = gmdate('Y-m-d H:i:s', strtotime('-6 months'));
 
 		$result = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT COALESCE(SUM(amount), 0) as total, COUNT(DISTINCT DATE_FORMAT(created_at, '%%Y-%%m')) as months
-				 FROM `{$table}`
+				 FROM %i
 				 WHERE vendor_id = %d
 				   AND type = 'commission_credit'
 				   AND status IN ('cleared', 'pending')
 				   AND created_at >= %s",
+				$table,
 				$vendor_id,
 				$cutoff
 			)
@@ -165,6 +166,6 @@ final class PenaltyCalculator
 			return 0.0;
 		}
 
-		return round((float) $result->total / (int) $result->months, 2);
+		return round( (float) $result->total / (int) $result->months, 2);
 	}
 }
