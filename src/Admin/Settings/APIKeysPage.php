@@ -72,7 +72,12 @@ final class APIKeysPage
 	public static function handle_request(): void
 	{
 		// 1. Security Check (Compatibility with rest-api-keys.js using 'nonce' or 'security' param)
-		$nonce_value = isset($_REQUEST['nonce']) ? (string) wp_unslash($_REQUEST['nonce']) : (isset($_REQUEST['security']) ? (string) wp_unslash($_REQUEST['security']) : '');
+		$nonce_value = '';
+		if (isset($_REQUEST['nonce'])) {
+			$nonce_value = sanitize_text_field(wp_unslash((string) $_REQUEST['nonce']));
+		} elseif (isset($_REQUEST['security'])) {
+			$nonce_value = sanitize_text_field(wp_unslash((string) $_REQUEST['security']));
+		}
 		if (! wp_verify_nonce($nonce_value, self::ACTION_NONCE)) {
 			wp_send_json_error(
 				array(
@@ -235,7 +240,7 @@ final class APIKeysPage
 	 */
 	private static function post_text(string $key, string $fallback = ''): string
 	{
-		$post = $_POST ?? array();
+		$post = $_POST ?? array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
 		if (! isset($post[$key])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
 			return $fallback;
 		}
@@ -260,7 +265,7 @@ final class APIKeysPage
 	 */
 	private static function post_array(string $key): array
 	{
-		$post = $_POST ?? array();
+		$post = $_POST ?? array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
 		if (! isset($post[$key]) || ! is_array($post[$key])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
 			return array();
 		}

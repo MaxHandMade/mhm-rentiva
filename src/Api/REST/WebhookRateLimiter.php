@@ -79,7 +79,9 @@ final class WebhookRateLimiter
      */
     public static function build_identifier(string $signature_header): string
     {
-        $ip = (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $ip = isset($_SERVER['REMOTE_ADDR'])
+            ? sanitize_text_field(wp_unslash((string) $_SERVER['REMOTE_ADDR']))
+            : '0.0.0.0';
         // Take only the first 32 chars of signature to prevent key collision farming.
         $sig_prefix = substr($signature_header, 0, 32);
         return $ip . ':' . $sig_prefix;
