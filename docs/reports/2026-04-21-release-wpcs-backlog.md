@@ -22,8 +22,8 @@ Representative findings are abbreviated per file; the PHPCS JSON remains the sou
 - `src/Admin/Booking/Meta/BookingEditMetaBox.php` - Booking edit path is release-sensitive and tends to combine admin output plus request handling.
 - `src/Admin/Booking/Core/Hooks.php` - Booking orchestration hotspot that was previously omitted and must stay visible in the first pass.
 - `src/Admin/Booking/Core/Status.php` - Booking status transitions are release-sensitive and should be reviewed alongside hooks/meta flows.
-- `templates/account/partials/vendor-bookings.php` - Template blocker with both escaping and SQL findings; pull it forward once bootstrap files are queued.
 - `src/Core/Dashboard/DashboardDataProvider.php` - Shared core reporting/query hotspot with direct database findings.
+- `templates/account/partials/vendor-bookings.php` - Template blocker with both escaping and SQL findings; pull it forward once bootstrap files are queued.
 
 ## Blocker
 
