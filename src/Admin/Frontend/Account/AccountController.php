@@ -28,8 +28,8 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  *
  * @since 4.0.0
  */
-final class AccountController
-{
+final class AccountController {
+
 
 	use EndpointHelperTrait;
 
@@ -43,7 +43,7 @@ final class AccountController
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 
@@ -68,32 +68,32 @@ final class AccountController
 		$instance = self::instance();
 
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_update_account', array(self::class, 'ajax_update_account'));
-		add_action('wp_ajax_mhm_rentiva_add_favorite', array(self::class, 'ajax_add_favorite'));
-		add_action('wp_ajax_mhm_rentiva_remove_favorite', array(self::class, 'ajax_remove_favorite'));
-		add_action('wp_ajax_mhm_rentiva_clear_favorites', array(self::class, 'ajax_clear_favorites'));
-		add_action('wp_ajax_mhm_rentiva_cancel_booking', array(self::class, 'ajax_cancel_booking'));
+		add_action('wp_ajax_mhm_rentiva_update_account', array( self::class, 'ajax_update_account' ));
+		add_action('wp_ajax_mhm_rentiva_add_favorite', array( self::class, 'ajax_add_favorite' ));
+		add_action('wp_ajax_mhm_rentiva_remove_favorite', array( self::class, 'ajax_remove_favorite' ));
+		add_action('wp_ajax_mhm_rentiva_clear_favorites', array( self::class, 'ajax_clear_favorites' ));
+		add_action('wp_ajax_mhm_rentiva_cancel_booking', array( self::class, 'ajax_cancel_booking' ));
 
 		// Receipt management
-		add_action('wp_ajax_mhm_rentiva_upload_receipt', array(self::class, 'ajax_upload_receipt'));
-		add_action('wp_ajax_mhm_rentiva_remove_receipt', array(self::class, 'ajax_remove_receipt'));
+		add_action('wp_ajax_mhm_rentiva_upload_receipt', array( self::class, 'ajax_upload_receipt' ));
+		add_action('wp_ajax_mhm_rentiva_remove_receipt', array( self::class, 'ajax_remove_receipt' ));
 
 		// Assets
-		add_action('wp_enqueue_scripts', array(self::class, 'enqueue_assets'));
+		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_assets' ));
 
 		// Rewrite endpoints
-		add_action('init', array(self::class, 'add_endpoints'));
+		add_action('init', array( self::class, 'add_endpoints' ));
 
 		// Login/Logout redirects
-		add_filter('login_redirect', array(self::class, 'login_redirect'), 10, 3);
-		add_filter('logout_redirect', array(self::class, 'logout_redirect'), 10, 3);
+		add_filter('login_redirect', array( self::class, 'login_redirect' ), 10, 3);
+		add_filter('logout_redirect', array( self::class, 'logout_redirect' ), 10, 3);
 
 		// Route wp-login.php to WC My Account for non-admin users
-		add_filter('login_url', array(self::class, 'override_login_url'), 10, 3);
-		add_action('login_init', array(self::class, 'redirect_wp_login'));
+		add_filter('login_url', array( self::class, 'override_login_url' ), 10, 3);
+		add_action('login_init', array( self::class, 'redirect_wp_login' ));
 
 		// Communication preferences handler
-		add_action('init', array(self::class, 'handle_communication_preferences'));
+		add_action('init', array( self::class, 'handle_communication_preferences' ));
 
 		// Remaining payment AJAX handler
 		\MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler::register();
@@ -115,25 +115,8 @@ final class AccountController
 		add_rewrite_endpoint(self::get_endpoint_slug('bookings', 'rentiva-bookings'), EP_ROOT | EP_PAGES);
 		add_rewrite_endpoint(self::get_endpoint_slug('favorites', 'rentiva-favorites'), EP_ROOT | EP_PAGES);
 		add_rewrite_endpoint(self::get_endpoint_slug('payment_history', 'rentiva-payment-history'), EP_ROOT | EP_PAGES);
-		// add_rewrite_endpoint(self::get_endpoint_slug('edit_account', 'rentiva-edit-account'), EP_ROOT | EP_PAGES); // Removed
 		add_rewrite_endpoint(self::get_endpoint_slug('messages', 'rentiva-messages'), EP_ROOT | EP_PAGES);
 	}
-
-	/**
-	 * My Account shortcode render
-	 */
-	// render_my_account method has been removed.
-
-	/**
-	 * Account Details shortcode render (Removed)
-	 */
-	/*
-	public static function render_account_details(array $atts = []): string
-	{
-		// Removed as per request
-		return '';
-	}
-	*/
 
 
 
@@ -149,8 +132,12 @@ final class AccountController
 
 		// Check if we're on messages endpoint - dequeue customer-messages scripts
 		$messages_slug = self::get_endpoint_slug('messages', 'rentiva-messages');
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is only used for conditional asset loading
-		$endpoint = get_query_var('endpoint') ?: (isset($_GET['endpoint']) ? sanitize_text_field(wp_unslash($_GET['endpoint'])) : '');
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only endpoint hint used only for conditional asset loading.
+		$endpoint = get_query_var('endpoint');
+		if (! is_string($endpoint) || '' === $endpoint) {
+			$endpoint = isset($_GET['endpoint']) ? sanitize_text_field(wp_unslash($_GET['endpoint'])) : '';
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Check both logical name and dynamic slug query var
 		if ($endpoint === 'messages' || get_query_var($messages_slug) !== '' || apply_filters('mhm_rentiva_force_messages_assets', false)) {
@@ -174,7 +161,7 @@ final class AccountController
 			wp_enqueue_script(
 				'mhm-rentiva-account-messages',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-messages.js',
-				array('jquery'),
+				array( 'jquery' ),
 				$account_messages_js_ver,
 				true
 			);
@@ -183,7 +170,11 @@ final class AccountController
 			wp_enqueue_style('dashicons');
 
 			// Localize Account Messages JS
-			$current_user = wp_get_current_user();
+			$current_user  = wp_get_current_user();
+			$customer_name = $current_user->display_name;
+			if (! $customer_name) {
+				$customer_name = $current_user->user_login;
+			}
 			wp_localize_script(
 				'mhm-rentiva-account-messages',
 				'mhmRentivaMessages',
@@ -191,7 +182,7 @@ final class AccountController
 					'restUrl'       => rest_url('mhm-rentiva/v1/'),
 					'restNonce'     => wp_create_nonce('wp_rest'),
 					'customerEmail' => $current_user->user_email,
-					'customerName'  => $current_user->display_name ?: $current_user->user_login,
+					'customerName'  => $customer_name,
 					'i18n'          => array(
 						'threadIdNotFound'   => __('Thread ID not found.', 'mhm-rentiva'),
 						'confirmClose'       => __('Are you sure you want to close this conversation? You won\'t be able to send more messages.', 'mhm-rentiva'),
@@ -235,7 +226,7 @@ final class AccountController
 			wp_enqueue_script(
 				'mhm-rentiva-account-privacy',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-privacy.js',
-				array('jquery'),
+				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
 				true
 			);
@@ -274,7 +265,7 @@ final class AccountController
 			wp_enqueue_script(
 				'mhm-rentiva-booking-cancellation',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/booking-cancellation.js',
-				array('jquery'),
+				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
 				true
 			);
@@ -335,7 +326,7 @@ final class AccountController
 		wp_enqueue_script(
 			'mhm-rentiva-my-account',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/my-account.js',
-			array('jquery'),
+			array( 'jquery' ),
 			MHM_RENTIVA_VERSION,
 			true
 		);
@@ -445,8 +436,10 @@ final class AccountController
 	 */
 	public static function override_login_url(string $login_url, string $redirect, bool $force_reauth): string
 	{
+		unset($force_reauth);
+
 		// Don't override for admin/AJAX/REST contexts
-		if (is_admin() || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+		if (is_admin() || wp_doing_ajax() || ( defined('REST_REQUEST') && REST_REQUEST )) {
 			return $login_url;
 		}
 
@@ -479,7 +472,7 @@ final class AccountController
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only wp-login routing parameter; no state change occurs here.
 		$action = isset($_GET['action']) ? sanitize_text_field(wp_unslash($_GET['action'])) : '';
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		$allowed_actions = array('logout', 'lostpassword', 'rp', 'resetpass', 'confirmaction');
+		$allowed_actions = array( 'logout', 'lostpassword', 'rp', 'resetpass', 'confirmaction' );
 		if (in_array($action, $allowed_actions, true)) {
 			return;
 		}
@@ -515,7 +508,7 @@ final class AccountController
 			return '';
 		}
 		$url = wc_get_page_permalink('myaccount');
-		return (is_string($url) && $url !== '') ? $url : '';
+		return ( is_string($url) && $url !== '' ) ? $url : '';
 	}
 
 	/**
@@ -523,6 +516,8 @@ final class AccountController
 	 */
 	public static function logout_redirect(string $redirect_to, string $requested_redirect_to, $user): string
 	{
+		unset($user);
+
 		// If logging out from My Account, redirect to homepage
 		$account_url  = self::get_account_url();
 		$account_path = wp_parse_url($account_url, PHP_URL_PATH);
@@ -567,11 +562,11 @@ final class AccountController
 	{
 		$nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
 		if (empty($nonce) || ! wp_verify_nonce($nonce, 'mhm_rentiva_account')) {
-			wp_send_json_error(array('message' => __('Security error.', 'mhm-rentiva')), 400);
+			wp_send_json_error(array( 'message' => __('Security error.', 'mhm-rentiva') ), 400);
 		}
 
 		if (! is_user_logged_in()) {
-			wp_send_json_error(array('message' => __('You must be logged in', 'mhm-rentiva')), 403);
+			wp_send_json_error(array( 'message' => __('You must be logged in', 'mhm-rentiva') ), 403);
 		}
 
 		$user_id = get_current_user_id();
@@ -592,27 +587,27 @@ final class AccountController
 	public static function ajax_upload_receipt(): void
 	{
 		if (! is_user_logged_in()) {
-			wp_send_json_error(array('message' => __('You must be logged in.', 'mhm-rentiva')), 403);
+			wp_send_json_error(array( 'message' => __('You must be logged in.', 'mhm-rentiva') ), 403);
 		}
 
 		if (! isset($_POST['nonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_rentiva_upload_receipt')) {
-			wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')), 400);
+			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ), 400);
 		}
 
 		$user_id    = get_current_user_id();
 		$booking_id = isset($_POST['booking_id']) ? (int) $_POST['booking_id'] : 0;
 		if ($booking_id <= 0) {
-			wp_send_json_error(array('message' => __('Invalid booking ID.', 'mhm-rentiva')), 400);
+			wp_send_json_error(array( 'message' => __('Invalid booking ID.', 'mhm-rentiva') ), 400);
 		}
 
 		// Ownership check
 		$booking_author = (int) get_post_field('post_author', $booking_id);
 		if ($booking_author !== $user_id && ! current_user_can('edit_post', $booking_id)) {
-			wp_send_json_error(array('message' => __('You are not allowed to upload for this booking.', 'mhm-rentiva')), 403);
+			wp_send_json_error(array( 'message' => __('You are not allowed to upload for this booking.', 'mhm-rentiva') ), 403);
 		}
 
 		if (empty($_FILES['receipt'])) {
-			wp_send_json_error(array('message' => __('No file uploaded.', 'mhm-rentiva')), 400);
+			wp_send_json_error(array( 'message' => __('No file uploaded.', 'mhm-rentiva') ), 400);
 		}
 
 		// Allow only images/pdf
@@ -625,19 +620,19 @@ final class AccountController
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File array is validated by wp_handle_upload().
 		$file = isset($_FILES['receipt']) ? wp_unslash($_FILES['receipt']) : array();
 		if (empty($file) || ! isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
-			wp_send_json_error(array('message' => __('Upload error.', 'mhm-rentiva')), 400);
+			wp_send_json_error(array( 'message' => __('Upload error.', 'mhm-rentiva') ), 400);
 		}
 
 		$filetype = wp_check_filetype_and_ext($file['tmp_name'], $file['name']);
-		if (empty($filetype['type']) || ! isset($allowed_mimes[$filetype['type']])) {
-			wp_send_json_error(array('message' => __('Invalid file type. Allowed: JPG, PNG, PDF.', 'mhm-rentiva')), 400);
+		if (empty($filetype['type']) || ! isset($allowed_mimes[ $filetype['type'] ])) {
+			wp_send_json_error(array( 'message' => __('Invalid file type. Allowed: JPG, PNG, PDF.', 'mhm-rentiva') ), 400);
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
-		$overrides = array('test_form' => false);
+		$overrides = array( 'test_form' => false );
 		$upload    = wp_handle_upload($file, $overrides);
 		if (isset($upload['error'])) {
-			wp_send_json_error(array('message' => $upload['error']), 400);
+			wp_send_json_error(array( 'message' => $upload['error'] ), 400);
 		}
 
 		// Create attachment
@@ -675,29 +670,29 @@ final class AccountController
 	public static function ajax_remove_receipt(): void
 	{
 		if (! is_user_logged_in()) {
-			wp_send_json_error(array('message' => __('You must be logged in.', 'mhm-rentiva')), 403);
+			wp_send_json_error(array( 'message' => __('You must be logged in.', 'mhm-rentiva') ), 403);
 		}
 
 		if (! isset($_POST['nonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_rentiva_upload_receipt')) {
-			wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')), 400);
+			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ), 400);
 		}
 
 		$user_id    = get_current_user_id();
 		$booking_id = isset($_POST['booking_id']) ? (int) $_POST['booking_id'] : 0;
 
 		if ($booking_id <= 0) {
-			wp_send_json_error(array('message' => __('Invalid booking ID.', 'mhm-rentiva')), 400);
+			wp_send_json_error(array( 'message' => __('Invalid booking ID.', 'mhm-rentiva') ), 400);
 		}
 
 		// Ownership check
 		$booking_author = (int) get_post_field('post_author', $booking_id);
 		if ($booking_author !== $user_id && ! current_user_can('edit_post', $booking_id)) {
-			wp_send_json_error(array('message' => __('You are not allowed to remove receipt for this booking.', 'mhm-rentiva')), 403);
+			wp_send_json_error(array( 'message' => __('You are not allowed to remove receipt for this booking.', 'mhm-rentiva') ), 403);
 		}
 
 		$attachment_id = (int) get_post_meta($booking_id, '_mhm_receipt_attachment_id', true);
 		if (! $attachment_id) {
-			wp_send_json_error(array('message' => __('No receipt found to remove.', 'mhm-rentiva')), 404);
+			wp_send_json_error(array( 'message' => __('No receipt found to remove.', 'mhm-rentiva') ), 404);
 		}
 
 		// Remove attachment
@@ -710,9 +705,9 @@ final class AccountController
 			delete_post_meta($booking_id, '_mhm_receipt_uploaded_by');
 			delete_post_meta($booking_id, '_mhm_receipt_uploaded_at');
 
-			wp_send_json_success(array('message' => __('Receipt removed successfully.', 'mhm-rentiva')));
+			wp_send_json_success(array( 'message' => __('Receipt removed successfully.', 'mhm-rentiva') ));
 		} else {
-			wp_send_json_error(array('message' => __('Failed to remove receipt file.', 'mhm-rentiva')), 500);
+			wp_send_json_error(array( 'message' => __('Failed to remove receipt file.', 'mhm-rentiva') ), 500);
 		}
 	}
 
@@ -725,27 +720,27 @@ final class AccountController
 		try {
 			// Nonce verification
 			if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_account')) {
-				wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
 			}
 
 			// Login check
 			if (! is_user_logged_in()) {
-				wp_send_json_error(array('message' => __('Please login.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => __('Please login.', 'mhm-rentiva') ));
 			}
 
 			// Profile editing check
 			$profile_editable = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_profile_editable', '1');
 			if ($profile_editable !== '1') {
-				wp_send_json_error(array('message' => __('Profile editing is currently disabled.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => __('Profile editing is currently disabled.', 'mhm-rentiva') ));
 			}
 
 			$user_id = get_current_user_id();
 
 			// Get and sanitize data - apply wp_unslash() before sanitization
-			$display_name = isset($_POST['display_name']) ? sanitize_text_field(wp_unslash((string) $_POST['display_name'])) : '';
-			$first_name   = isset($_POST['first_name']) ? sanitize_text_field(wp_unslash((string) $_POST['first_name'])) : '';
-			$last_name    = isset($_POST['last_name']) ? sanitize_text_field(wp_unslash((string) $_POST['last_name'])) : '';
-			$phone        = isset($_POST['phone']) ? sanitize_text_field(wp_unslash((string) $_POST['phone'])) : '';
+			$display_name = isset($_POST['display_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['display_name'])) : '';
+			$first_name   = isset($_POST['first_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['first_name'])) : '';
+			$last_name    = isset($_POST['last_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['last_name'])) : '';
+			$phone        = isset($_POST['phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['phone'])) : '';
 			$address      = isset($_POST['address']) ? sanitize_textarea_field(wp_unslash($_POST['address'])) : '';
 
 			// Update user information
@@ -766,7 +761,7 @@ final class AccountController
 			$result = wp_update_user($user_data);
 
 			if (is_wp_error($result)) {
-				wp_send_json_error(array('message' => $result->get_error_message()));
+				wp_send_json_error(array( 'message' => $result->get_error_message() ));
 			}
 
 			// Update meta information
@@ -783,7 +778,7 @@ final class AccountController
 				)
 			);
 		} catch (\Exception $e) {
-			wp_send_json_error(array('message' => __('An error occurred while updating your account.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('An error occurred while updating your account.', 'mhm-rentiva') ));
 		}
 	}
 
@@ -800,7 +795,7 @@ final class AccountController
 		// Forward to shared service logic or just die if dead?
 		// Since JS is cleaned up, this shouldn't be called.
 		// We'll return error to signal deprecation if hit.
-		wp_send_json_error(array('message' => __('This endpoint is deprecated. Please refresh your page.', 'mhm-rentiva')), 410);
+		wp_send_json_error(array( 'message' => __('This endpoint is deprecated. Please refresh your page.', 'mhm-rentiva') ), 410);
 	}
 
 	/**
@@ -813,7 +808,7 @@ final class AccountController
 	 */
 	public static function ajax_remove_favorite(): void
 	{
-		wp_send_json_error(array('message' => __('This endpoint is deprecated. Please refresh your page.', 'mhm-rentiva')), 410);
+		wp_send_json_error(array( 'message' => __('This endpoint is deprecated. Please refresh your page.', 'mhm-rentiva') ), 410);
 	}
 
 
