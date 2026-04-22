@@ -1,11 +1,13 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
-
 /**
  * Payment History Page Template
  *
  * Displays user's payment history
  */
+
+declare(strict_types=1);
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -19,11 +21,14 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 $currency_code   = SettingsCore::get('mhm_rentiva_currency', 'USD');
 $currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
 
-$payments     = $data['payments'] ?? array();
-$navigation   = $data['navigation'] ?? array();
-$total        = $data['total'] ?? 0;
-$total_pages  = $data['total_pages'] ?? 1;
-$current_page = $data['current_page'] ?? 1;
+$payments          = $data['payments'] ?? array();
+$navigation        = $data['navigation'] ?? array();
+$total             = $data['total'] ?? 0;
+$total_pages       = $data['total_pages'] ?? 1;
+$current_page      = $data['current_page'] ?? 1;
+$vehicles_page_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
+// phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- Public filter name kept for backward compatibility.
+$vehicles_page_url = (string) apply_filters('mhm_rentiva/vehicles_page_url', $vehicles_page_url);
 
 $wrapper_class = 'mhm-rentiva-account-page';
 if (empty($navigation)) {
@@ -33,7 +38,7 @@ if (empty($navigation)) {
 
 <div class="<?php echo esc_attr($wrapper_class); ?>">
 	<?php if (! empty($navigation)) : ?>
-		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array('navigation' => $navigation), true)); ?>
+		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array( 'navigation' => $navigation ), true)); ?>
 	<?php endif; ?>
 
 	<div class="mhm-account-content">
@@ -42,7 +47,7 @@ if (empty($navigation)) {
 			<span class="view-all-link">
 				<?php
 				/* translators: %d: total payments count. */
-				printf( esc_html__( '%d payments total', 'mhm-rentiva' ), $total );
+				echo esc_html( sprintf( __( '%d payments total', 'mhm-rentiva' ), (int) $total ) );
 				?>
 			</span>
 		</div>
@@ -60,7 +65,7 @@ if (empty($navigation)) {
 				</div>
 				<h3><?php esc_html_e('No payment records yet', 'mhm-rentiva'); ?></h3>
 				<p><?php esc_html_e('Your payment history will appear here when you make a reservation.', 'mhm-rentiva'); ?></p>
-				<a href="<?php echo esc_url(apply_filters('mhm_rentiva/vehicles_page_url', \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list'))); ?>" class="btn btn-primary">
+				<a href="<?php echo esc_url( $vehicles_page_url ); ?>" class="btn btn-primary">
 					<?php esc_html_e('View Vehicles', 'mhm-rentiva'); ?>
 				</a>
 			</div>
@@ -83,7 +88,7 @@ if (empty($navigation)) {
 									</span>
 								</div>
 								<div class="payment-amount">
-									<span class="amount"><?php echo esc_html($currency_symbol); ?><?php echo esc_html(number_format_i18n((float) ($payment['amount'] ?? 0), 2)); ?></span>
+									<span class="amount"><?php echo esc_html($currency_symbol); ?><?php echo esc_html(number_format_i18n( (float) ( $payment['amount'] ?? 0 ), 2)); ?></span>
 									<?php if ($payment['type'] === 'deposit') : ?>
 										<span class="amount-type"><?php esc_html_e('(Deposit)', 'mhm-rentiva'); ?></span>
 									<?php else : ?>
@@ -114,7 +119,7 @@ if (empty($navigation)) {
 										<div class="meta-item">
 											<span class="meta-label"><?php esc_html_e('Total Amount:', 'mhm-rentiva'); ?></span>
 											<span class="total-amount">
-												<?php echo esc_html($currency_symbol); ?><?php echo esc_html(number_format_i18n((float) ($payment['total'] ?? 0), 2)); ?>
+												<?php echo esc_html($currency_symbol); ?><?php echo esc_html(number_format_i18n( (float) ( $payment['total'] ?? 0 ), 2)); ?>
 											</span>
 										</div>
 									<?php endif; ?>
@@ -122,16 +127,16 @@ if (empty($navigation)) {
 
 								<div class="payment-actions">
 																		<?php
-									$receipt     = $payment['receipt'] ?? array();
-									$has_receipt = ! empty($receipt['attachment_id']);
-									?>
+																		$receipt     = $payment['receipt'] ?? array();
+																		$has_receipt = ! empty($receipt['attachment_id']);
+																		?>
 									<?php if (! empty($payment['receipt']['url'])) : ?>
 										<div class="receipt-preview-wrapper" style="display: flex; align-items: center; gap: 10px;">
 											<a href="<?php echo esc_url($payment['receipt']['url']); ?>" target="_blank" class="receipt-thumbnail" style="display: block; width: 40px; height: 40px; border-radius: 4px; overflow: hidden; border: 1px solid #ddd;">
 												<?php
 												$ext = pathinfo($payment['receipt']['url'], PATHINFO_EXTENSION);
-												if (in_array(strtolower($ext), array('jpg', 'jpeg', 'png', 'gif'))) :
-												?>
+												if (in_array(strtolower($ext), array( 'jpg', 'jpeg', 'png', 'gif' ), true)) :
+													?>
 													<img src="<?php echo esc_url($payment['receipt']['url']); ?>" alt="Receipt" style="width: 100%; height: 100%; object-fit: cover;">
 												<?php else : ?>
 													<span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: #f5f5f5; font-size: 10px; color: #666; font-weight: bold;">
@@ -148,7 +153,7 @@ if (empty($navigation)) {
 										</div>
 									<?php else : ?>
 										<?php
-										$is_paid = ($payment['status'] === 'paid'); // Assuming 'paid' is the status that disables upload
+										$is_paid = ( $payment['status'] === 'paid' ); // Assuming 'paid' is the status that disables upload
 										?>
 										<label class="btn btn-primary btn-sm mhm-upload-label <?php echo $is_paid ? 'disabled' : ''; ?>" style="margin-left:8px;">
 											<?php esc_html_e('Upload Receipt', 'mhm-rentiva'); ?>
@@ -177,7 +182,7 @@ if (empty($navigation)) {
 					<span style="font-size:14px;color:#666;">
 						<?php
 						/* translators: 1: current page, 2: total pages */
-						printf( esc_html__( 'Page %1$d / %2$d', 'mhm-rentiva' ), $current_page, $total_pages );
+						echo esc_html( sprintf( __( 'Page %1$d / %2$d', 'mhm-rentiva' ), (int) $current_page, (int) $total_pages ) );
 						?>
 					</span>
 
@@ -192,7 +197,7 @@ if (empty($navigation)) {
 					<span style="font-size:12px;color:#999;margin-left:auto;">
 						<?php
 						/* translators: %d: total number of payments */
-						printf( esc_html__( '%d payments total', 'mhm-rentiva' ), $total );
+						echo esc_html( sprintf( __( '%d payments total', 'mhm-rentiva' ), (int) $total ) );
 						?>
 					</span>
 				</div><!-- .mhm-pagination -->
