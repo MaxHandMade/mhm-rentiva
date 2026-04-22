@@ -17,8 +17,8 @@ if (!defined('ABSPATH')) {
  *
  * @shortcode rentiva_vendor_bookings
  */
-final class VendorBookings extends AbstractAccountShortcode
-{
+final class VendorBookings extends AbstractAccountShortcode {
+
 
     protected static function get_shortcode_tag(): string
     {
@@ -44,29 +44,29 @@ final class VendorBookings extends AbstractAccountShortcode
 
         // Require rentiva_vendor role.
         if (!$user->exists() || !in_array('rentiva_vendor', (array) $user->roles, true)) {
-            return array('error' => 'not_vendor');
+            return array( 'error' => 'not_vendor' );
         }
 
         // Fetch vehicle IDs owned by this vendor.
         $vehicle_ids = get_posts(array(
             'post_type'      => 'vehicle',
             'author'         => $user->ID,
-            'post_status'    => array('publish', 'pending'),
+            'post_status'    => array( 'publish', 'pending' ),
             'posts_per_page' => -1,
             'fields'         => 'ids',
             'no_found_rows'  => true,
         ));
 
         if (empty($vehicle_ids)) {
-            return array('error' => 'no_vehicles');
+            return array( 'error' => 'no_vehicles' );
         }
 
         global $wpdb;
 
-        $per_page     = max(1, (int) ($atts['limit'] ?? 10));
+        $per_page     = max(1, (int) ( $atts['limit'] ?? 10 ));
         $placeholders = implode(',', array_fill(0, count($vehicle_ids), '%d'));
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders contains only %d tokens.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is assembled only from fixed %d fragments above.
         $bookings = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT DISTINCT p.ID, p.post_status,
@@ -86,9 +86,10 @@ final class VendorBookings extends AbstractAccountShortcode
                  AND CAST(vm.meta_value AS UNSIGNED) IN ($placeholders)
                  ORDER BY p.ID DESC
                  LIMIT %d",
-                ...[...$vehicle_ids, $per_page]
+                ...[ ...$vehicle_ids, $per_page ]
             )
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         return array(
             'bookings'    => $bookings ?? array(),
@@ -166,10 +167,13 @@ final class VendorBookings extends AbstractAccountShortcode
                                 <tbody>
                                     <?php foreach ($bookings as $booking) : ?>
                                         <?php
-                                        $booking_status = (string) ($booking->booking_status ?? '');
+                                        $booking_status = (string) ( $booking->booking_status ?? '' );
                                         $label          = $status_labels[ $booking_status ] ?? esc_html(ucfirst($booking_status));
                                         $badge_style    = $status_colors[ $booking_status ] ?? 'background:#6c757d;color:#fff;';
-                                        $vehicle_title  = get_the_title((int) $booking->vehicle_id) ?: esc_html__('N/A', 'mhm-rentiva');
+                                        $vehicle_title  = get_the_title( (int) $booking->vehicle_id );
+                                        if ( ! $vehicle_title ) {
+                                            $vehicle_title = esc_html__( 'N/A', 'mhm-rentiva' );
+                                        }
                                         $date_format    = get_option('date_format');
                                         $date_start_fmt = $booking->date_start ? date_i18n($date_format, strtotime($booking->date_start)) : '—';
                                         $date_end_fmt   = $booking->date_end   ? date_i18n($date_format, strtotime($booking->date_end))   : '—';
@@ -182,7 +186,7 @@ final class VendorBookings extends AbstractAccountShortcode
                                             <td class="rv-booking-date"><?php echo esc_html($date_end_fmt); ?></td>
                                             <td class="rv-booking-status">
                                                 <span class="status-badge status-<?php echo esc_attr($booking_status); ?>"
-                                                      style="<?php echo esc_attr($badge_style); ?> padding:2px 8px; border-radius:4px; font-size:0.85em; white-space:nowrap;">
+                                                        style="<?php echo esc_attr($badge_style); ?> padding:2px 8px; border-radius:4px; font-size:0.85em; white-space:nowrap;">
                                                     <?php echo esc_html($label); ?>
                                                 </span>
                                             </td>
