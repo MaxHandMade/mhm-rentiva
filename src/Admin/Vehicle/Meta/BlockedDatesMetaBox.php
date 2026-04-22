@@ -205,7 +205,7 @@ final class BlockedDatesMetaBox {
 			wp_send_json_error( __( 'Insufficient permissions.', 'mhm-rentiva' ) );
 		}
 
-		$source_id = isset( $_POST['vehicle_id'] ) ? absint( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
+		$source_id = isset( $_POST['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
 		if ( $source_id <= 0 ) {
 			wp_send_json_error( __( 'Invalid vehicle ID.', 'mhm-rentiva' ) );
 		}
@@ -261,7 +261,7 @@ final class BlockedDatesMetaBox {
 			wp_send_json_error( __( 'Insufficient permissions.', 'mhm-rentiva' ) );
 		}
 
-		$source_id = isset( $_POST['vehicle_id'] ) ? absint( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
+		$source_id = isset( $_POST['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
 		if ( $source_id <= 0 ) {
 			wp_send_json_error( __( 'Invalid vehicle ID.', 'mhm-rentiva' ) );
 		}
@@ -357,7 +357,7 @@ final class BlockedDatesMetaBox {
 
 	public static function ajax_get_blocked_dates(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public read endpoint; no state change.
-		$vehicle_id = isset( $_GET['vehicle_id'] ) ? absint( wp_unslash( $_GET['vehicle_id'] ) ) : 0;
+		$vehicle_id = isset( $_GET['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_GET['vehicle_id'] ) ) : 0;
 		if ( $vehicle_id <= 0 ) {
 			wp_send_json_error( 'Invalid vehicle ID' );
 		}
