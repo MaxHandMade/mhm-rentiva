@@ -16,8 +16,8 @@ use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
  *
  * Security controls and helper methods for shortcodes
  */
-final class SecurityHelper
-{
+final class SecurityHelper {
+
 
 
 
@@ -29,7 +29,7 @@ final class SecurityHelper
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	/**
@@ -41,9 +41,9 @@ final class SecurityHelper
 	 * @param string $type    Target type (string, int, bool, float, array)
 	 * @return mixed
 	 */
-	public static function get_val(array $array, string $key, $default = '', string $type = 'string')
+	public static function get_val(array $source, string $key, $fallback = '', string $type = 'string')
 	{
-		$value = $array[$key] ?? $default;
+		$value = $source[ $key ] ?? $fallback;
 
 		// WordPress global verification (unslash data if it's from globals or expected to be slashed)
 		if (is_string($value)) {
@@ -63,7 +63,7 @@ final class SecurityHelper
 				return is_array($value) ? $value : (array) $value;
 			case 'string':
 			default:
-				return sanitize_text_field((string) $value);
+				return sanitize_text_field( (string) $value);
 		}
 	}
 
@@ -80,13 +80,13 @@ final class SecurityHelper
 		$get   = $GLOBALS['_GET'] ?? [];
 		$nonce = '';
 
-		foreach (array('nonce', 'security', '_ajax_nonce') as $key) {
-			if (isset($post[$key])) {
-				$nonce = self::sanitize_text_field_safe((string) wp_unslash($post[$key]));
+		foreach (array( 'nonce', 'security', '_ajax_nonce' ) as $key) {
+			if (isset($post[ $key ])) {
+				$nonce = self::sanitize_text_field_safe( (string) wp_unslash($post[ $key ]));
 				break;
 			}
-			if (isset($get[$key])) {
-				$nonce = self::sanitize_text_field_safe((string) wp_unslash($get[$key]));
+			if (isset($get[ $key ])) {
+				$nonce = self::sanitize_text_field_safe( (string) wp_unslash($get[ $key ]));
 				if ($nonce !== '') {
 					break;
 				}
@@ -95,11 +95,12 @@ final class SecurityHelper
 		if (! wp_verify_nonce($nonce, $nonce_name)) {
 			// Debug log for admins only
 			if (current_user_can('manage_options')) {
+				$logged_nonce = '' !== $nonce ? $nonce : 'EMPTY';
 				AdvancedLogger::security(
 					'Nonce verification failed',
 					array(
 						'action' => $nonce_name,
-						'nonce'  => $nonce ?: 'EMPTY',
+						'nonce'  => $logged_nonce,
 					)
 				);
 			}
@@ -126,7 +127,8 @@ final class SecurityHelper
 	{
 		if (! self::verify_ajax_request($nonce_name, $capability)) {
 			$default_message = __('Security check failed.', 'mhm-rentiva');
-			wp_send_json_error(array('message' => $error_message ?: $default_message));
+			$message         = '' !== $error_message ? $error_message : $default_message;
+			wp_send_json_error(array( 'message' => $message ));
 			return false;
 		}
 
@@ -154,7 +156,10 @@ final class SecurityHelper
 		}
 
 		$key      = "mhm_rate_limit_{$action}_{$user_id}";
-		$attempts = get_transient($key) ?: 0;
+		$attempts = get_transient($key);
+		if (false === $attempts) {
+			$attempts = 0;
+		}
 
 		if ($attempts >= $limit) {
 			return false; // Rate limit exceeded
@@ -177,7 +182,8 @@ final class SecurityHelper
 	{
 		if (! self::check_rate_limit($action, $limit, $window)) {
 			$default_message = __('Too many requests. Please wait.', 'mhm-rentiva');
-			wp_send_json_error(array('message' => $error_message ?: $default_message));
+			$message         = '' !== $error_message ? $error_message : $default_message;
+			wp_send_json_error(array( 'message' => $message ));
 			return false;
 		}
 
@@ -191,12 +197,12 @@ final class SecurityHelper
 	 */
 	public static function get_client_ip(): string
 	{
-		$ip_keys = array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR');
+		$ip_keys = array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR' );
 		$server  = $GLOBALS['_SERVER'] ?? [];
 
 		foreach ($ip_keys as $key) {
-			if (isset($server[$key])) {
-				$ip = self::sanitize_text_field_safe((string) wp_unslash($server[$key]));
+			if (isset($server[ $key ])) {
+				$ip = self::sanitize_text_field_safe( (string) wp_unslash($server[ $key ]));
 				if (strpos($ip, ',') !== false) {
 					$ip = explode(',', $ip)[0];
 				}
@@ -248,7 +254,7 @@ final class SecurityHelper
 		}
 
 		// Common formats fallback
-		$common_formats = array('d/m/Y', 'm/d/Y', 'd-m-Y', 'Y/m/d');
+		$common_formats = array( 'd/m/Y', 'm/d/Y', 'd-m-Y', 'Y/m/d' );
 		foreach ($common_formats as $fmt) {
 			$obj = \DateTime::createFromFormat($fmt, $date);
 			if ($obj && $obj->format($fmt) === $date) {
@@ -258,7 +264,7 @@ final class SecurityHelper
 
 		// Final fallback to strtotime (but normalize common separators first)
 		// PHP prefers m/d/y with / but d-m-y with -; replace common separators with '-'
-		$norm_date = str_replace(array('/', '.', ' '), '-', $date);
+		$norm_date = str_replace(array( '/', '.', ' ' ), '-', $date);
 		$time      = strtotime($norm_date);
 
 		if (! $time) {
@@ -273,7 +279,7 @@ final class SecurityHelper
 		if ($email === null || $email === '') {
 			throw new \InvalidArgumentException(esc_html__('Invalid email address.', 'mhm-rentiva'));
 		}
-		$email = sanitize_email((string) ($email ?: ''));
+		$email = sanitize_email( (string) $email );
 		if (empty($email) || ! is_email($email)) {
 			throw new \InvalidArgumentException(esc_html__('Invalid email address.', 'mhm-rentiva'));
 		}
@@ -296,18 +302,20 @@ final class SecurityHelper
 		return $phone;
 	}
 
-	public static function validate_numeric_array($array, string $field_name = 'array'): array
+	public static function validate_numeric_array($values, string $field_name = 'array'): array
 	{
+		unset($field_name);
+
 		// Convert string to array if needed (jQuery sends single-value arrays as strings)
-		if (is_string($array) || is_numeric($array)) {
-			$array = array($array);
+		if (is_string($values) || is_numeric($values)) {
+			$values = array( $values );
 		}
 
-		if (! is_array($array)) {
+		if (! is_array($values)) {
 			throw new \InvalidArgumentException(esc_html__('Invalid array format.', 'mhm-rentiva'));
 		}
 
-		$result = array_map('intval', $array);
+		$result = array_map('intval', $values);
 		$result = array_filter(
 			$result,
 			function ($value) {
@@ -348,7 +356,7 @@ final class SecurityHelper
 		return array(
 			'key'     => sanitize_key($meta_key),
 			'value'   => $meta_value,
-			'compare' => in_array($compare, array('=', '!=', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN', 'EXISTS', 'NOT EXISTS')) ? $compare : '=',
+			'compare' => in_array($compare, array( '=', '!=', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN', 'EXISTS', 'NOT EXISTS' ), true ) ? $compare : '=',
 		);
 	}
 
@@ -362,7 +370,7 @@ final class SecurityHelper
 	public static function safe_output($data, string $context = 'html'): string
 	{
 		// Context validation
-		$allowed_contexts = array('html', 'attr', 'url', 'js', 'json');
+		$allowed_contexts = array( 'html', 'attr', 'url', 'js', 'json' );
 		if (! in_array($context, $allowed_contexts, true)) {
 			// If context is invalid, default to html for safety,
 			// but we could also throw an exception in dev mode
@@ -376,18 +384,18 @@ final class SecurityHelper
 
 		switch ($context) {
 			case 'html':
-				return esc_html((string) $data);
+				return esc_html( (string) $data);
 			case 'attr':
-				return esc_attr((string) $data);
+				return esc_attr( (string) $data);
 			case 'url':
-				return esc_url((string) $data);
+				return esc_url( (string) $data);
 			case 'js':
-				return esc_js((string) $data);
+				return esc_js( (string) $data);
 			case 'json':
 				// JSON generated via wp_json_encode is already safe for script tags
 				return (string) $data;
 			default:
-				return esc_html((string) $data);
+				return esc_html( (string) $data);
 		}
 	}
 }
