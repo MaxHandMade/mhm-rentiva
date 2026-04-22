@@ -101,18 +101,20 @@ final class TierService
     private static function get_net_cleared_revenue_30d(int $vendor_id, string $as_of_datetime): float
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_ledger' );
+        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
 
         $window_start = gmdate('Y-m-d H:i:s', strtotime($as_of_datetime . ' -30 days'));
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Tier resolution intentionally reads live ledger data.
         $sum = $wpdb->get_var(
             $wpdb->prepare(
                 "SELECT SUM(amount)
-				FROM {$table}
+				FROM %i
 				WHERE vendor_id = %d
 				AND status = %s
 				AND type IN (%s, %s)
 				AND created_at >= %s",
+                $table,
                 $vendor_id,
                 'cleared',
                 'commission_credit',

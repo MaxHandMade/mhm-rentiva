@@ -102,4 +102,12 @@ class LedgerTest extends WP_UnitTestCase
         $this->assertEquals(700.0, Ledger::get_balance($this->vendor_id));
         $this->assertEquals(300.0, Ledger::get_balance($vendor_two));
     }
+
+    public function test_invalid_date_filters_fail_closed(): void
+    {
+        Ledger::add_entry(new LedgerEntry(wp_generate_password(12, false), $this->vendor_id, 1, 1, 'commission_credit', 250.0, 250.0, 0.0, 0.0, 'TRY', 'vendor', 'cleared'));
+
+        $this->assertSame(array(), Ledger::get_entries($this->vendor_id, array('date_from' => 'not-a-date')));
+        $this->assertSame(array(), Ledger::get_entries($this->vendor_id, array('date_to' => 'still-not-a-date')));
+    }
 }
