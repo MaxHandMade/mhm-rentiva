@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Booking\Helpers\Util;
 
-final class TransferSearchEngine
-{
+final class TransferSearchEngine {
+
 
 
 	/**
@@ -42,7 +42,7 @@ final class TransferSearchEngine
 		$luggage_small = intval($criteria['luggage_small']);
 
 		// Calculate Luggage Score
-		$luggage_score = ($luggage_small * 1) + ($luggage_big * 2.5);
+		$luggage_score = ( $luggage_small * 1 ) + ( $luggage_big * 2.5 );
 
 		// 2. Get Route Info
 		// Check for table existence (backward compatibility during migration)
@@ -57,7 +57,8 @@ final class TransferSearchEngine
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$route = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM $table_routes WHERE origin_id = %d AND destination_id = %d",
+				'SELECT * FROM %i WHERE origin_id = %d AND destination_id = %d',
+				$table_routes,
 				$origin_id,
 				$destination_id
 			)
@@ -91,12 +92,12 @@ final class TransferSearchEngine
 					'relation' => 'OR',
 					array(
 						'key'     => '_rentiva_vehicle_service_type',
-						'value'   => array('transfer', 'both'),
+						'value'   => array( 'transfer', 'both' ),
 						'compare' => 'IN',
 					),
 					array(
 						'key'     => '_mhm_vehicle_service_type',
-						'value'   => array('transfer', 'both'),
+						'value'   => array( 'transfer', 'both' ),
 						'compare' => 'IN',
 					),
 				),
@@ -158,7 +159,7 @@ final class TransferSearchEngine
 			if (is_array($assigned_routes)) {
 				// Vehicle has explicit route assignments (vendor vehicle).
 				// Must include the searched route; empty array = no routes = exclude.
-				if (! in_array((int) $route->id, array_map('intval', $assigned_routes), true)) {
+				if (! in_array( (int) $route->id, array_map('intval', $assigned_routes), true)) {
 					continue;
 				}
 			}
@@ -187,7 +188,7 @@ final class TransferSearchEngine
 			// 6a. Check for vendor-specific route price first.
 			$vendor_route_prices_json = get_post_meta($vehicle->ID, '_mhm_rentiva_transfer_route_prices', true);
 			$vendor_route_prices      = is_string($vendor_route_prices_json) ? json_decode($vendor_route_prices_json, true) : array();
-			$vendor_price             = $vendor_route_prices[(string) $route->id] ?? $vendor_route_prices[(int) $route->id] ?? null;
+			$vendor_price             = $vendor_route_prices[ (string) $route->id ] ?? $vendor_route_prices[ (int) $route->id ] ?? null;
 
 			if ($vendor_price !== null && (float) $vendor_price > 0) {
 				$price = (float) $vendor_price;
@@ -195,7 +196,7 @@ final class TransferSearchEngine
 				$price = (float) $route->base_price;
 			} else {
 				$price = (float) $route->distance_km * (float) $route->base_price;
-				if ((float) $route->min_price > 0 && $price < (float) $route->min_price) {
+				if ( (float) $route->min_price > 0 && $price < (float) $route->min_price) {
 					$price = (float) $route->min_price;
 				}
 			}

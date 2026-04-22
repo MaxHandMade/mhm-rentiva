@@ -9,7 +9,7 @@ if (! defined('ABSPATH')) {
 
 /**
  * Transfer Search Results Shortcode
- * 
+ *
  * @package MHMRentiva
  */
 
@@ -28,8 +28,8 @@ use MHMRentiva\Admin\Transfer\Engine\TransferSearchEngine;
  *
  * [rentiva_transfer_results]
  */
-final class TransferResults extends AbstractShortcode
-{
+final class TransferResults extends AbstractShortcode {
+
 
     /**
      * Returns shortcode tag
@@ -79,7 +79,7 @@ final class TransferResults extends AbstractShortcode
      */
     protected static function get_cache_key(array $atts): string
     {
-        $tag = static::get_shortcode_tag();
+        $tag = self::get_shortcode_tag();
 
         // Get version for cache invalidation
         $version = get_transient('mhm_rv_cache_v_' . $tag);
@@ -90,8 +90,8 @@ final class TransferResults extends AbstractShortcode
 
         // Include URL query parameters in cache key for unique search results
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $query_params = isset($_GET) ? array_filter((array) $_GET, function ($key) {
-            return in_array((string) $key, ['origin_id', 'destination_id', 'date', 'time', 'adults', 'children', 'luggage_big', 'luggage_small', 'layout'], true);
+        $query_params = isset($_GET) ? array_filter( (array) $_GET, function ($key) {
+            return in_array( (string) $key, [ 'origin_id', 'destination_id', 'date', 'time', 'adults', 'children', 'luggage_big', 'luggage_small', 'layout' ], true);
         }, ARRAY_FILTER_USE_KEY) : [];
 
         $cache_factors = array(
@@ -104,7 +104,7 @@ final class TransferResults extends AbstractShortcode
             'v'            => $version,
         );
 
-        return 'mhm_shc_' . substr(md5($tag), 0, 8) . '_' . md5(serialize($cache_factors));
+        return 'mhm_shc_' . substr(md5($tag), 0, 8) . '_' . md5( (string) wp_json_encode($cache_factors));
     }
 
     /**
@@ -114,16 +114,16 @@ final class TransferResults extends AbstractShortcode
     {
         // Read-only frontend filters from querystring; this shortcode does not mutate state.
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $request = wp_unslash(isset($_GET) ? (array) $_GET : []);
+        $request  = wp_unslash(isset($_GET) ? (array) $_GET : []);
         $criteria = array(
-            'origin_id'      => isset($request['origin_id']) ? absint((string) $request['origin_id']) : absint($atts['origin_id'] ?? 0),
-            'destination_id' => isset($request['destination_id']) ? absint((string) $request['destination_id']) : absint($atts['destination_id'] ?? 0),
-            'date'           => isset($request['date']) ? sanitize_text_field((string) $request['date']) : sanitize_text_field($atts['date'] ?? ''),
-            'time'           => isset($request['time']) ? sanitize_text_field((string) $request['time']) : sanitize_text_field($atts['time'] ?? ''),
-            'adults'         => isset($request['adults']) ? absint((string) $request['adults']) : absint($atts['adults'] ?? 1),
-            'children'       => isset($request['children']) ? absint((string) $request['children']) : absint($atts['children'] ?? 0),
-            'luggage_big'    => isset($request['luggage_big']) ? absint((string) $request['luggage_big']) : absint($atts['luggage_big'] ?? 0),
-            'luggage_small'  => isset($request['luggage_small']) ? absint((string) $request['luggage_small']) : absint($atts['luggage_small'] ?? 0),
+            'origin_id'      => isset($request['origin_id']) ? absint( (string) $request['origin_id']) : absint($atts['origin_id'] ?? 0),
+            'destination_id' => isset($request['destination_id']) ? absint( (string) $request['destination_id']) : absint($atts['destination_id'] ?? 0),
+            'date'           => isset($request['date']) ? sanitize_text_field( (string) $request['date']) : sanitize_text_field($atts['date'] ?? ''),
+            'time'           => isset($request['time']) ? sanitize_text_field( (string) $request['time']) : sanitize_text_field($atts['time'] ?? ''),
+            'adults'         => isset($request['adults']) ? absint( (string) $request['adults']) : absint($atts['adults'] ?? 1),
+            'children'       => isset($request['children']) ? absint( (string) $request['children']) : absint($atts['children'] ?? 0),
+            'luggage_big'    => isset($request['luggage_big']) ? absint( (string) $request['luggage_big']) : absint($atts['luggage_big'] ?? 0),
+            'luggage_small'  => isset($request['luggage_small']) ? absint( (string) $request['luggage_small']) : absint($atts['luggage_small'] ?? 0),
         );
 
         $results = array();
@@ -136,13 +136,13 @@ final class TransferResults extends AbstractShortcode
 
             if ('price' === $orderby) {
                 usort($results, function ($a, $b) use ($order) {
-                    $val_a = (float) ($a['price'] ?? 0);
-                    $val_b = (float) ($b['price'] ?? 0);
-                    if ($val_a == $val_b) {
+                    $val_a = (float) ( $a['price'] ?? 0 );
+                    $val_b = (float) ( $b['price'] ?? 0 );
+                    if ($val_a === $val_b) {
                         return 0;
                     }
-                    $cmp = ($val_a < $val_b) ? -1 : 1;
-                    return ('ASC' === $order) ? $cmp : -$cmp;
+                    $cmp = ( $val_a < $val_b ) ? -1 : 1;
+                    return ( 'ASC' === $order ) ? $cmp : -$cmp;
                 });
             }
 
@@ -167,12 +167,12 @@ final class TransferResults extends AbstractShortcode
 
         if (! empty($criteria['origin_id'])) {
             $origin_name = (string) $wpdb->get_var(
-                $wpdb->prepare("SELECT name FROM $table_locations WHERE id = %d", $criteria['origin_id'])
+                $wpdb->prepare('SELECT name FROM %i WHERE id = %d', $table_locations, $criteria['origin_id'])
             );
         }
         if (! empty($criteria['destination_id'])) {
             $destination_name = (string) $wpdb->get_var(
-                $wpdb->prepare("SELECT name FROM $table_locations WHERE id = %d", $criteria['destination_id'])
+                $wpdb->prepare('SELECT name FROM %i WHERE id = %d', $table_locations, $criteria['destination_id'])
             );
         }
 
@@ -183,7 +183,7 @@ final class TransferResults extends AbstractShortcode
         // Allow URL override only if NOT coming from a canonical block instance
         if (empty($atts['_canonical'])) {
             if (isset($request['layout'])) {
-                $layout = sanitize_text_field((string) $request['layout']);
+                $layout = sanitize_text_field( (string) $request['layout']);
             }
             if (isset($request['columns'])) {
                 $columns = absint($request['columns']);
@@ -200,7 +200,6 @@ final class TransferResults extends AbstractShortcode
             'columns'          => $columns,
         );
 
-
         return $final_data;
     }
 
@@ -216,7 +215,7 @@ final class TransferResults extends AbstractShortcode
         wp_enqueue_style(
             'mhm-rentiva-transfer-results-premium',
             MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/transfer-results-premium.css',
-            ['mhm-rentiva-transfer-results-css', 'mhm-rentiva-google-fonts'],
+            [ 'mhm-rentiva-transfer-results-css', 'mhm-rentiva-google-fonts' ],
             MHM_RENTIVA_VERSION . '.' . time() // Cache busting for dev
         );
     }
