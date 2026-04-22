@@ -31,8 +31,8 @@ use MHMRentiva\Admin\Core\Utilities\UXHelper;
  * @method void show_admin_notice(string $message, string $type = 'info', bool $dismissible = true)
  */
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Transfer admin analytics/search operations require controlled aggregate SQL and meta/tax filters.
-final class TransferAdmin
-{
+final class TransferAdmin {
+
 
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
@@ -72,14 +72,14 @@ final class TransferAdmin
 		// Limit notice rendered inline in render_routes_page() — after KPI cards
 
 		// Assets
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_assets'));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_assets' ));
 
 		// Form handlers
-		add_action('admin_post_mhm_save_location', array(self::class, 'handle_save_location'));
-		add_action('admin_post_mhm_delete_location', array(self::class, 'handle_delete_location'));
-		add_action('admin_post_mhm_save_route', array(self::class, 'handle_save_route'));
-		add_action('admin_post_mhm_delete_route', array(self::class, 'handle_delete_route'));
-		add_action('admin_post_mhm_save_transfer_settings', array(self::class, 'handle_save_transfer_settings'));
+		add_action('admin_post_mhm_save_location', array( self::class, 'handle_save_location' ));
+		add_action('admin_post_mhm_delete_location', array( self::class, 'handle_delete_location' ));
+		add_action('admin_post_mhm_save_route', array( self::class, 'handle_save_route' ));
+		add_action('admin_post_mhm_delete_route', array( self::class, 'handle_delete_route' ));
+		add_action('admin_post_mhm_save_transfer_settings', array( self::class, 'handle_save_transfer_settings' ));
 
 		// Register Meta Box
 		VehicleTransferMetaBox::register();
@@ -92,6 +92,7 @@ final class TransferAdmin
 	/**
 	 * Show transfer route limit notice for Lite users
 	 */
+	// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Legacy public method name retained for compatibility.
 	public static function routeLimitNotice(): void
 	{
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only page query check for displaying admin notice.
@@ -113,7 +114,7 @@ final class TransferAdmin
 		}
 
 		wp_enqueue_style('mhm-css-variables', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css', array(), MHM_RENTIVA_VERSION);
-		wp_enqueue_style('mhm-stats-cards', MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css', array('mhm-css-variables'), MHM_RENTIVA_VERSION);
+		wp_enqueue_style('mhm-stats-cards', MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css', array( 'mhm-css-variables' ), MHM_RENTIVA_VERSION);
 		wp_enqueue_script('wc-enhanced-select'); // WC Select2 for admin
 	}
 
@@ -128,25 +129,29 @@ final class TransferAdmin
 		$table_routes    = self::resolve_table_name('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes');
 
 		// 1. Total Locations
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_table_name.
-		$total_locations = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table_locations}");
+		$total_locations = (int) $wpdb->get_var(
+			$wpdb->prepare('SELECT COUNT(*) FROM %i', $table_locations)
+		);
 
 		// 2. Active Routes
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_table_name.
-		$total_routes = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table_routes}");
+		$total_routes = (int) $wpdb->get_var(
+			$wpdb->prepare('SELECT COUNT(*) FROM %i', $table_routes)
+		);
 
 		// 3. Latest Operation (Last booking of type transfer)
 		$latest_transfer_date = $wpdb->get_var(
 			$wpdb->prepare(
-				"
+				'
 				SELECT p.post_date 
-				FROM {$wpdb->posts} p 
-				INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id 
+				FROM %i p 
+				INNER JOIN %i pm ON p.ID = pm.post_id 
 				WHERE p.post_type = %s 
 				  AND pm.meta_key = %s 
 				  AND pm.meta_value = %s 
 				ORDER BY p.post_date DESC LIMIT 1
-				",
+				',
+				$wpdb->posts,
+				$wpdb->postmeta,
 				'vehicle_booking',
 				'mhm_booking_type',
 				'transfer'
@@ -154,7 +159,7 @@ final class TransferAdmin
 		);
 		$latest_text          = $latest_transfer_date ? date_i18n(get_option('date_format'), strtotime($latest_transfer_date)) : __('No transfers yet', 'mhm-rentiva');
 
-?>
+		?>
 		<div class="mhm-stats-cards" style="margin-bottom: 20px;">
 			<div class="stats-grid">
 				<!-- Total Locations -->
@@ -200,7 +205,7 @@ final class TransferAdmin
 				</div>
 			</div>
 		</div>
-	<?php
+		<?php
 	}
 
 
@@ -239,12 +244,11 @@ final class TransferAdmin
 				}
 				// Slug: sanitize title, Label: line
 				$slug                  = sanitize_title($line);
-				$custom_types[$slug] = $line;
+				$custom_types[ $slug ] = $line;
 			}
 			$default_types = array_merge($default_types, $custom_types);
-		}
-		// Backward compatibility if it was saved as array mainly
-		elseif (is_array($custom_types_raw) && ! empty($custom_types_raw)) {
+		} elseif (is_array($custom_types_raw) && ! empty($custom_types_raw)) {
+			// Backward compatibility if it was saved as array mainly.
 			$default_types = array_merge($default_types, $custom_types_raw);
 		}
 
@@ -291,7 +295,7 @@ final class TransferAdmin
 		if (is_array($custom_types)) {
 			$custom_types = implode("\n", $custom_types); // Values only? Or keys? Assuming values for simplicity if array was ['slug'=>'Label']
 		}
-	?>
+		?>
 		<?php
 		$buttons = array(
 			array(
@@ -321,7 +325,7 @@ final class TransferAdmin
 						<p class="description"><?php echo esc_html__('Select how customers should pay for transfers.', 'mhm-rentiva'); ?></p>
 					</td>
 				</tr>
-				<tr id="deposit_rate_row" style="<?php echo ('percentage' === $deposit_type) ? '' : 'display:none;'; ?>">
+				<tr id="deposit_rate_row" style="<?php echo ( 'percentage' === $deposit_type ) ? '' : 'display:none;'; ?>">
 					<th scope="row"><label for="rentiva_transfer_deposit_rate"><?php echo esc_html__('Deposit Rate (%)', 'mhm-rentiva'); ?></label></th>
 					<td>
 						<input name="rentiva_transfer_deposit_rate" type="number" id="rentiva_transfer_deposit_rate" value="<?php echo esc_attr($deposit_rate); ?>" class="regular-text" min="1" max="100" step="1">
@@ -351,7 +355,7 @@ final class TransferAdmin
 			});
 		</script>
 		</div>
-	<?php
+		<?php
 	}
 
 	/**
@@ -388,20 +392,20 @@ final class TransferAdmin
 
 		$table_name = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_table_name.
-		$locations     = $wpdb->get_results("SELECT * FROM {$table_name} ORDER BY priority ASC, name ASC");
+		$locations     = $wpdb->get_results(
+			$wpdb->prepare('SELECT * FROM %i ORDER BY priority ASC, name ASC', $table_name)
+		);
 		$edit_location = null;
 
-		$action  = sanitize_key((string) filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
-		$edit_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, array('options' => array('default' => 0)));
+		$action  = sanitize_key( (string) filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+		$edit_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, array( 'options' => array( 'default' => 0 ) ));
 		if ('edit' === $action && $edit_id > 0) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_table_name.
 			$edit_location = $wpdb->get_row(
-				$wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d", $edit_id)
+				$wpdb->prepare('SELECT * FROM %i WHERE id = %d', $table_name, $edit_id)
 			);
 		}
 
-	?>
+		?>
 		<div class="wrap">
 			<?php
 			$this->render_admin_header(
@@ -539,7 +543,7 @@ final class TransferAdmin
 				</div>
 			</div>
 		</div>
-	<?php
+		<?php
 	}
 
 	public function render_routes_page(): void
@@ -549,30 +553,33 @@ final class TransferAdmin
 		$table_routes    = self::resolve_table_name('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes');
 		$table_locations = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are sanitized via resolve_table_name.
 		$routes = $wpdb->get_results(
-			"SELECT r.*,
+			$wpdb->prepare(
+				'SELECT r.*,
                    l1.name as origin_name, l1.allow_transfer as origin_eligible, l1.city as city,
                    l2.name as dest_name, l2.allow_transfer as dest_eligible
-            FROM {$table_routes} r
-            LEFT JOIN {$table_locations} l1 ON r.origin_id = l1.id
-            LEFT JOIN {$table_locations} l2 ON r.destination_id = l2.id
-            ORDER BY l1.city ASC, r.id DESC"
+            FROM %i r
+            LEFT JOIN %i l1 ON r.origin_id = l1.id
+            LEFT JOIN %i l2 ON r.destination_id = l2.id
+            ORDER BY l1.city ASC, r.id DESC',
+				$table_routes,
+				$table_locations,
+				$table_locations
+			)
 		);
 
 		// SSOT: Only eligible locations for selection
 		$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('transfer');
 
 		$edit_route = null;
-		$action     = sanitize_key((string) filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
-		$edit_id    = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, array('options' => array('default' => 0)));
+		$action     = sanitize_key( (string) filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+		$edit_id    = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, array( 'options' => array( 'default' => 0 ) ));
 		if ('edit' === $action && $edit_id > 0) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_table_name.
 			$edit_route = $wpdb->get_row(
-				$wpdb->prepare("SELECT * FROM {$table_routes} WHERE id = %d", $edit_id)
+				$wpdb->prepare('SELECT * FROM %i WHERE id = %d', $table_routes, $edit_id)
 			);
 		}
-	?>
+		?>
 		<div class="wrap">
 			<?php
 			$this->render_admin_header(
@@ -620,16 +627,17 @@ final class TransferAdmin
 										// Soft handling: If currently selected origin is not in the eligible list
 										if ($edit_route && $edit_route->origin_id) {
 											$origin_id = (int) $edit_route->origin_id;
-											$found = false;
+											$found     = false;
 											foreach ($locations as $loc) {
-												if ((int) $loc->id === $origin_id) {
+												if ( (int) $loc->id === $origin_id) {
 													$found = true;
 													break;
 												}
 											}
 											if (!$found) {
-												// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is sanitized via resolve_table_name.
-												$legacy_origin = $wpdb->get_row($wpdb->prepare("SELECT id, name FROM {$table_locations} WHERE id = %d", $origin_id));
+												$legacy_origin = $wpdb->get_row(
+													$wpdb->prepare('SELECT id, name FROM %i WHERE id = %d', $table_locations, $origin_id)
+												);
 												if ($legacy_origin) {
 													echo '<option value="' . esc_attr($legacy_origin->id) . '" selected disabled>' . esc_html($legacy_origin->name) . ' (' . esc_html__('Not eligible for transfer', 'mhm-rentiva') . ')</option>';
 												}
@@ -651,16 +659,17 @@ final class TransferAdmin
 										// Soft handling: If currently selected destination is not in the eligible list
 										if ($edit_route && $edit_route->destination_id) {
 											$dest_id = (int) $edit_route->destination_id;
-											$found = false;
+											$found   = false;
 											foreach ($locations as $loc) {
-												if ((int) $loc->id === $dest_id) {
+												if ( (int) $loc->id === $dest_id) {
 													$found = true;
 													break;
 												}
 											}
 											if (!$found) {
-												// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name sanitized via resolve_table_name.
-												$legacy_dest = $wpdb->get_row($wpdb->prepare("SELECT id, name FROM {$table_locations} WHERE id = %d", $dest_id));
+												$legacy_dest = $wpdb->get_row(
+													$wpdb->prepare('SELECT id, name FROM %i WHERE id = %d', $table_locations, $dest_id)
+												);
 												if ($legacy_dest) {
 													echo '<option value="' . esc_attr($legacy_dest->id) . '" selected disabled>' . esc_html($legacy_dest->name) . ' (' . esc_html__('Not eligible for transfer', 'mhm-rentiva') . ')</option>';
 												}
@@ -695,7 +704,7 @@ final class TransferAdmin
 									<input name="base_price" id="base_price" type="number" step="0.01" value="<?php echo $edit_route ? esc_attr($edit_route->base_price) : ''; ?>" required>
 								</div>
 
-								<div class="form-field" id="min_price_field" style="<?php echo ($edit_route && 'calculated' === $edit_route->pricing_method) ? '' : 'display:none;'; ?>">
+								<div class="form-field" id="min_price_field" style="<?php echo ( $edit_route && 'calculated' === $edit_route->pricing_method ) ? '' : 'display:none;'; ?>">
 									<label for="min_price"><?php echo esc_html__('Minimum Price', 'mhm-rentiva'); ?></label>
 									<input name="min_price" id="min_price" type="number" step="0.01" value="<?php echo $edit_route ? esc_attr($edit_route->min_price) : ''; ?>">
 								</div>
@@ -750,12 +759,12 @@ final class TransferAdmin
 												<?php if ('fixed' === $route->pricing_method) : ?>
 													<span class="badge badge-primary">Fixed</span>
 													<strong><?php echo wp_kses_post(call_user_func('wc_price', $route->base_price)); ?></strong>
-													<?php if ((float) $route->min_price > 0 || (float) $route->max_price > 0) : ?>
+													<?php if ( (float) $route->min_price > 0 || (float) $route->max_price > 0) : ?>
 														<br><small>
-														<?php if ((float) $route->min_price > 0) : ?>
+														<?php if ( (float) $route->min_price > 0) : ?>
 															Min: <?php echo wp_kses_post(call_user_func('wc_price', $route->min_price)); ?>
 														<?php endif; ?>
-														<?php if ((float) $route->max_price > 0) : ?>
+														<?php if ( (float) $route->max_price > 0) : ?>
 															Max: <?php echo wp_kses_post(call_user_func('wc_price', $route->max_price)); ?>
 														<?php endif; ?>
 														</small>
@@ -764,7 +773,7 @@ final class TransferAdmin
 													<span class="badge badge-secondary">KM</span>
 													<?php echo wp_kses_post(call_user_func('wc_price', $route->base_price)); ?> / km <br>
 													Min: <?php echo wp_kses_post(call_user_func('wc_price', $route->min_price)); ?>
-													<?php if ((float) $route->max_price > 0) : ?>
+													<?php if ( (float) $route->max_price > 0) : ?>
 														Max: <?php echo wp_kses_post(call_user_func('wc_price', $route->max_price)); ?>
 													<?php endif; ?>
 												<?php endif; ?>
@@ -799,7 +808,7 @@ final class TransferAdmin
 				}
 			</script>
 		</div>
-<?php
+		<?php
 	}
 
 	// --- FORM HANDLERS ---
@@ -823,7 +832,7 @@ final class TransferAdmin
 		);
 
 		if (! empty($_POST['id'])) {
-			$wpdb->update($table_name, $data, array('id' => intval(wp_unslash($_POST['id']))));
+			$wpdb->update($table_name, $data, array( 'id' => intval(wp_unslash($_POST['id'])) ));
 		} else {
 			$wpdb->insert($table_name, $data);
 		}
@@ -843,7 +852,7 @@ final class TransferAdmin
 		global $wpdb;
 		$table_name = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
 
-		$wpdb->delete($table_name, array('id' => isset($_GET['id']) ? intval(wp_unslash($_GET['id'])) : 0));
+		$wpdb->delete($table_name, array( 'id' => isset($_GET['id']) ? intval(wp_unslash($_GET['id'])) : 0 ));
 
 		\MHMRentiva\Admin\Transfer\Engine\LocationProvider::clear_cache();
 
@@ -873,25 +882,25 @@ final class TransferAdmin
 
 		// Server-side validation: Check eligibility
 		$table_locations = self::resolve_table_name('rentiva_transfer_locations', 'mhm_rentiva_transfer_locations');
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name sanitized via resolve_table_name.
-		$eligibility = $wpdb->get_results(
+		$eligibility     = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT id, allow_transfer FROM {$table_locations} WHERE id IN (%d, %d)",
+				'SELECT id, allow_transfer FROM %i WHERE id IN (%d, %d)',
+				$table_locations,
 				$data['origin_id'],
 				$data['destination_id']
 			),
 			OBJECT_K
 		);
 
-		$origin_ok = isset($eligibility[$data['origin_id']]) && (int) $eligibility[$data['origin_id']]->allow_transfer === 1;
-		$dest_ok   = isset($eligibility[$data['destination_id']]) && (int) $eligibility[$data['destination_id']]->allow_transfer === 1;
+		$origin_ok = isset($eligibility[ $data['origin_id'] ]) && (int) $eligibility[ $data['origin_id'] ]->allow_transfer === 1;
+		$dest_ok   = isset($eligibility[ $data['destination_id'] ]) && (int) $eligibility[ $data['destination_id'] ]->allow_transfer === 1;
 
 		if (!$origin_ok || !$dest_ok) {
 			wp_die(esc_html__('Error: One or more selected locations are not eligible for transfer services.', 'mhm-rentiva'));
 		}
 
 		if (! empty($_POST['id'])) {
-			$wpdb->update($table_name, $data, array('id' => intval(wp_unslash($_POST['id']))));
+			$wpdb->update($table_name, $data, array( 'id' => intval(wp_unslash($_POST['id'])) ));
 		} else {
 			$wpdb->insert($table_name, $data);
 		}
@@ -909,7 +918,7 @@ final class TransferAdmin
 		global $wpdb;
 		$table_name = self::resolve_table_name('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes');
 
-		$wpdb->delete($table_name, array('id' => isset($_GET['id']) ? intval(wp_unslash($_GET['id'])) : 0));
+		$wpdb->delete($table_name, array( 'id' => isset($_GET['id']) ? intval(wp_unslash($_GET['id'])) : 0 ));
 
 		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-routes&deleted=true'));
 		exit;
