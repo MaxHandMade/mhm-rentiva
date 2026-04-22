@@ -23,8 +23,8 @@ use MHMRentiva\Core\Tenancy\TenantResolver;
  * @since 4.22.0
  * @updated 4.23.0 Added tenant isolation.
  */
-class KeyRegistryRepository
-{
+class KeyRegistryRepository {
+
     private string $table_name;
     private int $tenant_id;
 
@@ -48,15 +48,17 @@ class KeyRegistryRepository
     {
         global $wpdb;
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository performs live scoped key lookup.
         $row = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT * FROM {$this->table_name} WHERE tenant_id = %d AND active_key = 1 AND status = 'active' LIMIT 1",
+                "SELECT * FROM %i WHERE tenant_id = %d AND active_key = 1 AND status = 'active' LIMIT 1",
+                $this->table_name,
                 $this->tenant_id
             ),
             ARRAY_A
         );
 
-        return $row ?: null;
+        return is_array($row) ? $row : null;
     }
 
     /**
@@ -69,21 +71,23 @@ class KeyRegistryRepository
     {
         global $wpdb;
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository performs live scoped key lookup.
         $row = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT * FROM {$this->table_name} WHERE tenant_id = %d AND key_uuid = %s LIMIT 1",
+                'SELECT * FROM %i WHERE tenant_id = %d AND key_uuid = %s LIMIT 1',
+                $this->table_name,
                 $this->tenant_id,
                 $uuid
             ),
             ARRAY_A
         );
 
-        return $row ?: null;
+        return is_array($row) ? $row : null;
     }
 
     /**
      * Atomically rotate keys: create a new active key and retire/revoke the old one.
-     * 
+     *
      * @param array $new_key_data
      * @param string|null $old_key_uuid
      * @param string $old_key_new_status 'retired' or 'revoked'
@@ -99,27 +103,37 @@ class KeyRegistryRepository
     ): bool {
         global $wpdb;
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Explicit transaction boundary for atomic key rotation.
         $wpdb->query('START TRANSACTION');
 
         try {
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching -- Transactional key state changes must hit the database immediately.
             // 1. Deactivate existing active key FOR THIS TENANT ONLY (defensive)
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository performs immediate transactional key state updates.
             $wpdb->update(
                 $this->table_name,
-                ['active_key' => null],
-                ['active_key' => 1, 'tenant_id' => $this->tenant_id]
+                [ 'active_key' => null ],
+                [
+					'active_key' => 1,
+					'tenant_id'  => $this->tenant_id,
+				]
             );
 
             // 2. Update status of the specific old key if provided
             if ($old_key_uuid) {
-                $update_data = ['status' => $old_key_new_status];
+                $update_data = [ 'status' => $old_key_new_status ];
                 if ($revocation_reason) {
                     $update_data['revocation_reason'] = $revocation_reason;
                 }
 
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository performs immediate transactional key state updates.
                 $wpdb->update(
                     $this->table_name,
                     $update_data,
-                    ['key_uuid' => $old_key_uuid, 'tenant_id' => $this->tenant_id]
+                    [
+						'key_uuid'  => $old_key_uuid,
+						'tenant_id' => $this->tenant_id,
+					]
                 );
             }
 
@@ -129,15 +143,19 @@ class KeyRegistryRepository
             $new_key_data['tenant_id']  = $this->tenant_id;
             $new_key_data['created_at'] = gmdate('Y-m-d H:i:s'); // UTC strict.
 
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository performs immediate transactional key creation.
             $inserted = $wpdb->insert($this->table_name, $new_key_data);
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.NoCaching
 
             if (!$inserted) {
                 throw new \Exception('Failed to insert new key into registry: ' . $wpdb->last_error);
             }
 
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Explicit transaction boundary for atomic key rotation.
             $wpdb->query('COMMIT');
             return true;
         } catch (\Exception $e) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Explicit transaction boundary for atomic key rotation.
             $wpdb->query('ROLLBACK');
             throw $e;
         }
@@ -154,15 +172,23 @@ class KeyRegistryRepository
     {
         global $wpdb;
 
-        return (bool) $wpdb->update(
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching -- Revocation writes must persist immediately.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository performs immediate scoped key revocation.
+        $updated = (bool) $wpdb->update(
             $this->table_name,
             [
                 'status'            => 'revoked',
                 'active_key'        => null,
-                'revocation_reason' => $reason
+                'revocation_reason' => $reason,
             ],
-            ['key_uuid' => $uuid, 'tenant_id' => $this->tenant_id]
+            [
+				'key_uuid'  => $uuid,
+				'tenant_id' => $this->tenant_id,
+			]
         );
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.NoCaching
+
+        return $updated;
     }
 
     /**
@@ -174,11 +200,19 @@ class KeyRegistryRepository
     {
         global $wpdb;
 
-        return (int) $wpdb->get_var(
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching -- Audit diagnostics require a live tenant-scoped count.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository reports live tenant-scoped key count.
+        $revoked_count = (int) $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$this->table_name} WHERE tenant_id = %d AND status = 'revoked'",
-                $this->tenant_id
+                'SELECT COUNT(*) FROM %i WHERE tenant_id = %d AND status = %s',
+                $this->table_name,
+                $this->tenant_id,
+
+                'revoked'
             )
         );
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.NoCaching
+
+        return $revoked_count;
     }
 }
