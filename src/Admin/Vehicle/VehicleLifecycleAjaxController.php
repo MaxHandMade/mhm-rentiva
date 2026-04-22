@@ -162,7 +162,7 @@ final class VehicleLifecycleAjaxController
 			exit;
 		}
 
-		$vehicle_id = (int) ($_POST['vehicle_id'] ?? 0);
+		$vehicle_id = isset($_POST['vehicle_id']) ? (int) sanitize_text_field(wp_unslash($_POST['vehicle_id'])) : 0;
 		if ($vehicle_id < 1) {
 			wp_send_json_error(array('message' => __('Invalid vehicle ID.', 'mhm-rentiva')));
 			exit;
