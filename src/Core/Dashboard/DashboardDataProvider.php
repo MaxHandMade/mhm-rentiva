@@ -104,19 +104,20 @@ final class DashboardDataProvider
 				// Booking CPT: 'vehicle_booking'. Vehicle link meta: '_mhm_vehicle_id'.
 				// Status meta: '_mhm_status'. We count bookings on this vendor's vehicles with status 'pending'.
 				global $wpdb;
-				$vehicle_ids = get_posts(array(
+				$vehicle_ids = array_map('intval', get_posts(array(
 					'post_type'      => 'vehicle',
 					'author'         => $user_id,
 					'post_status'    => array('publish', 'pending'),
 					'posts_per_page' => -1,
 					'fields'         => 'ids',
 					'no_found_rows'  => true,
-				));
+				)));
 				if (empty($vehicle_ids)) {
 					return array('total' => 0);
 				}
-				$placeholders = implode(',', array_fill(0, count($vehicle_ids), '%d'));
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				$placeholders = implode(', ', array_fill(0, count($vehicle_ids), '%d'));
+				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Dynamic IN placeholder list is generated from the vehicle count; values are passed via $wpdb->prepare().
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregated dashboard metrics are intentionally queried live for the current request.
 				$count = (int) $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT COUNT(DISTINCT p.ID)
@@ -126,31 +127,33 @@ final class DashboardDataProvider
 						WHERE p.post_type = 'vehicle_booking'
 						AND p.post_status NOT IN ('trash','auto-draft')
 						AND CAST(vm.meta_value AS UNSIGNED) IN ($placeholders)",
-						...$vehicle_ids
+						$vehicle_ids
 					)
 				);
+				// phpcs:enable
 				return array('total' => $count);
 			},
 			'upcoming_rentals' => static function (string $context, int $user_id, string $user_email): array {
 				unset($context, $user_email);
 				global $wpdb;
-				$vehicle_ids = get_posts(array(
+				$vehicle_ids = array_map('intval', get_posts(array(
 					'post_type'      => 'vehicle',
 					'author'         => $user_id,
 					'post_status'    => array('publish', 'pending'),
 					'posts_per_page' => -1,
 					'fields'         => 'ids',
 					'no_found_rows'  => true,
-				));
+				)));
 				if (empty($vehicle_ids)) {
 					return array('total' => 0);
 				}
-				$placeholders = implode(',', array_fill(0, count($vehicle_ids), '%d'));
+				$placeholders = implode(', ', array_fill(0, count($vehicle_ids), '%d'));
 				$today        = gmdate('Y-m-d');
 				$active       = array('confirmed', 'pending_payment', 'in_progress', 'pending');
-				$status_ph    = implode(',', array_fill(0, count($active), '%s'));
+				$status_ph    = implode(', ', array_fill(0, count($active), '%s'));
 				$args         = array_merge($active, $vehicle_ids, array($today));
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Dynamic IN placeholder lists are generated from bounded status/vehicle arrays; values are passed via $wpdb->prepare().
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregated dashboard metrics are intentionally queried live for the current request.
 				$count = (int) $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT COUNT(DISTINCT p.ID)
@@ -162,9 +165,10 @@ final class DashboardDataProvider
 						AND p.post_status NOT IN ('trash','auto-draft')
 						AND CAST(vm.meta_value AS UNSIGNED) IN ($placeholders)
 						AND dm.meta_value >= %s",
-						...$args
+						$args
 					)
 				);
+				// phpcs:enable
 				return array('total' => $count);
 			},
 			'occupancy_rate' => static function (string $context, int $user_id, string $user_email): array {

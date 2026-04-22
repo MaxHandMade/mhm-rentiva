@@ -100,8 +100,15 @@ class QueryHelper
         $vendor_loc_key = MetaKeys::VENDOR_LOCATION_ID;
         $global_default = (int) SettingsCore::get('mhm_rentiva_default_rental_location', 0);
 
-        // Build safe IN clause: implode sanitized integers.
-        $in_clause = implode(',', $ids);
+        $in_clause = implode(', ', array_fill(0, count($ids), '%d'));
+        $prepare_args = array_merge(
+            array($loc_meta_key),
+            $ids,
+            array($loc_meta_key, $vendor_loc_key),
+            $ids,
+            array($vendor_loc_key, $global_default),
+            $ids
+        );
 
         /**
          * SQL Logic for Hybrid Location (Full Hierarchy):
@@ -110,7 +117,7 @@ class QueryHelper
          * 2. OR: If vehicle has NO location meta, inherit from author (vendor) meta (_mhm_rentiva_vendor_location_id)
          * 3. OR: If neither vehicle nor author has location meta, inherit from Global Default (Option)
          */
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $in_clause is built from intval'd values above.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic IN placeholder lists are generated from count($ids); all values are passed via $wpdb->prepare().
         return $wpdb->prepare(
             " AND (
                 /* 1. Direct match on vehicle meta */
@@ -143,15 +150,13 @@ class QueryHelper
                                 AND vendor_exists.meta_key = %s
                                 AND vendor_exists.meta_value != ''
                             )
-                            AND {$global_default} IN ({$in_clause})
+                            AND %d IN ({$in_clause})
                         )
                     )
                 )
             )",
-            $loc_meta_key,
-            $loc_meta_key,
-            $vendor_loc_key,
-            $vendor_loc_key
+            ...$prepare_args
         );
+        // phpcs:enable
     }
 }
