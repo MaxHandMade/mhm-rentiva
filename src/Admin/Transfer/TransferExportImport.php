@@ -326,7 +326,7 @@ final class TransferExportImport
     public function export_transfer_data(): void
     {
         // Only run during export
-        if (!isset($_GET['download']) || !current_user_can('export')) {
+        if (!$this->is_download_request() || !current_user_can('export')) {
             return;
         }
 
@@ -398,6 +398,16 @@ final class TransferExportImport
         echo "</mhm_rentiva_transfer>\n";
         echo "<!-- End MHM Rentiva Transfer Data -->\n\n";
         // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+    }
+
+    /**
+     * Detect whether the current request is an export download request.
+     */
+    private function is_download_request(): bool
+    {
+        $download = filter_input(INPUT_GET, 'download', FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+
+        return null !== $download && false !== $download;
     }
 
     // ─── IMPORT ──────────────────────────────────────────────────────

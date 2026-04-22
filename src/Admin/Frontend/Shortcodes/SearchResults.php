@@ -186,7 +186,12 @@ final class SearchResults extends AbstractShortcode {
 		$search_params = self::get_search_params_from_url();
 
 		// If no explicit sort in request, apply shortcode's default_sort attribute.
-		if ( ! isset($_GET['sort']) && ! isset($_POST['sort']) ) {
+		$request_sort = self::get_text('sort');
+		if ('' === $request_sort) {
+			$request_sort = self::post_text('sort');
+		}
+
+		if ('' === $request_sort) {
 			$search_params['sort'] = $atts['default_sort'] ?? 'relevance';
 		}
 

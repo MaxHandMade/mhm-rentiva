@@ -640,8 +640,8 @@ class VehiclesGrid extends AbstractShortcode {
 			return false;
 		}
 
-		// Turn off cache for admin users
-		if (is_admin() || current_user_can('administrator')) {
+		// Turn off cache for administrators using capability-based gating.
+		if (is_admin() || current_user_can('manage_options')) {
 			return false;
 		}
 

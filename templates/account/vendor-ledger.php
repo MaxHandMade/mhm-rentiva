@@ -24,8 +24,8 @@ if (! defined('ABSPATH')) {
     <!-- Basic Filter Form Handling Pagination Context implicitly without AJAX dependency targeting stable GET protocols. -->
     <form method="GET" class="mhm-rentiva-ledger__filters" action="">
         <!-- Retain existing URL parameters -->
-        <?php if (! empty($_GET['tab'])) : ?>
-            <input type="hidden" name="tab" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['tab']))); ?>">
+        <?php if (! empty($ledger_tab)) : ?>
+            <input type="hidden" name="tab" value="<?php echo esc_attr($ledger_tab); ?>">
         <?php endif; ?>
 
         <div class="mhm-rentiva-ledger__filter-group">
@@ -49,10 +49,7 @@ if (! defined('ABSPATH')) {
 
         <div class="mhm-rentiva-ledger__filter-actions">
             <button type="submit" class="button button-primary"><?php esc_html_e('Filter', 'mhm-rentiva'); ?></button>
-            <?php
-            $reset_url = remove_query_arg(array('filter_status', 'filter_type', 'date_from', 'date_to', 'paged'));
-            ?>
-            <a href="<?php echo esc_url($reset_url); ?>" class="button"><?php esc_html_e('Reset', 'mhm-rentiva'); ?></a>
+            <a href="<?php echo esc_url($ledger_reset_url); ?>" class="button"><?php esc_html_e('Reset', 'mhm-rentiva'); ?></a>
         </div>
     </form>
 

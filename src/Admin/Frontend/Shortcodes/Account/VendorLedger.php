@@ -44,26 +44,27 @@ final class VendorLedger
         }
 
         $limit  = 15;
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only queries over public grids perfectly permissible implicitly.
-        $paged  = isset($_GET['paged']) ? max(1, absint($_GET['paged'])) : 1;
+        $paged  = max(1, self::get_query_int('paged', 1));
         $offset = ($paged - 1) * $limit;
 
         // Extract filter constraints securely
         $filters = array();
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Pure read filters implicitly protected via sanitize functions below mapping strictly strings natively.
-        $raw_get = $_GET;
+        $filter_status = self::get_query_key('filter_status');
+        $filter_type   = self::get_query_text('filter_type');
+        $date_from     = self::get_query_text('date_from');
+        $date_to       = self::get_query_text('date_to');
 
-        if (! empty($raw_get['filter_status']) && is_string($raw_get['filter_status'])) {
-            $filters['status'] = sanitize_key($raw_get['filter_status']);
+        if ('' !== $filter_status) {
+            $filters['status'] = $filter_status;
         }
-        if (! empty($raw_get['filter_type']) && is_string($raw_get['filter_type'])) {
-            $filters['type'] = sanitize_text_field($raw_get['filter_type']);
+        if ('' !== $filter_type) {
+            $filters['type'] = $filter_type;
         }
-        if (! empty($raw_get['date_from']) && is_string($raw_get['date_from'])) {
-            $filters['date_from'] = sanitize_text_field($raw_get['date_from']);
+        if ('' !== $date_from) {
+            $filters['date_from'] = $date_from;
         }
-        if (! empty($raw_get['date_to']) && is_string($raw_get['date_to'])) {
-            $filters['date_to'] = sanitize_text_field($raw_get['date_to']);
+        if ('' !== $date_to) {
+            $filters['date_to'] = $date_to;
         }
 
         foreach (['date_from', 'date_to'] as $_date_key) {
@@ -74,7 +75,14 @@ final class VendorLedger
 
         $entries = Ledger::get_entries($vendor_id, $filters, $limit, $offset);
 
-        return self::render_template($entries, $filters, $paged, $limit);
+        return self::render_template(
+            $entries,
+            $filters,
+            $paged,
+            $limit,
+            self::get_query_text('tab'),
+            remove_query_arg(array('filter_status', 'filter_type', 'date_from', 'date_to', 'paged'))
+        );
     }
 
     /**
@@ -83,7 +91,7 @@ final class VendorLedger
      * @param array<int, \stdClass> $entries
      * @param array<string, string> $filters
      */
-    private static function render_template(array $entries, array $filters, int $paged, int $limit): string
+    private static function render_template(array $entries, array $filters, int $paged, int $limit, string $current_tab, string $reset_url): string
     {
         ob_start();
 
@@ -100,6 +108,8 @@ final class VendorLedger
             $ledger_filters = $filters;
             $ledger_paged   = $paged;
             $ledger_limit   = $limit;
+            $ledger_tab     = $current_tab;
+            $ledger_reset_url = $reset_url;
 
             include $internal_path;
         } else {
@@ -107,5 +117,32 @@ final class VendorLedger
         }
 
         return (string) ob_get_clean();
+    }
+
+    private static function get_query_text(string $key, string $default = ''): string
+    {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+        if (!is_string($value)) {
+            return $default;
+        }
+
+        return sanitize_text_field(wp_unslash($value));
+    }
+
+    private static function get_query_key(string $key, string $default = ''): string
+    {
+        $value = self::get_query_text($key, $default);
+
+        return '' === $value ? $default : sanitize_key($value);
+    }
+
+    private static function get_query_int(string $key, int $default = 0): int
+    {
+        $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
+        if (!is_string($value)) {
+            return $default;
+        }
+
+        return (int) absint(wp_unslash($value));
     }
 }
