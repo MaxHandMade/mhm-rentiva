@@ -24,8 +24,8 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  *
  * @since 4.0.0
  */
-final class AccountRenderer
-{
+final class AccountRenderer {
+
 
 
 
@@ -37,7 +37,7 @@ final class AccountRenderer
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	/**
@@ -53,6 +53,8 @@ final class AccountRenderer
 	 */
 	public static function get_dashboard_data(array $atts = array()): array
 	{
+		unset($atts);
+
 		$user = wp_get_current_user();
 
 		// User bookings
@@ -61,7 +63,7 @@ final class AccountRenderer
 			$bookings,
 			function ($booking) {
 				$status = get_post_meta($booking->ID, '_mhm_status', true);
-				return in_array($status, array('confirmed', 'in_progress'));
+				return in_array($status, array( 'confirmed', 'in_progress' ), true);
 			}
 		);
 
@@ -76,7 +78,7 @@ final class AccountRenderer
 			'welcome_message'       => SettingsCore::get('mhm_rentiva_customer_dashboard_welcome', __('Welcome to your dashboard. From your account dashboard you can view your recent orders, manage your shipping and billing addresses, and edit your password and account details.', 'mhm-rentiva')),
 		);
 
-		return array('data' => $data);
+		return array( 'data' => $data );
 	}
 
 	/**
@@ -95,7 +97,7 @@ final class AccountRenderer
 		$user = wp_get_current_user();
 
 		$args = array(
-			'limit'   => (int) ($atts['limit'] ?? 10),
+			'limit'   => (int) ( $atts['limit'] ?? 10 ),
 			'status'  => self::sanitize_text_field_safe($atts['status'] ?? ''),
 			'orderby' => self::sanitize_text_field_safe($atts['orderby'] ?? 'date'),
 			'order'   => self::sanitize_text_field_safe($atts['order'] ?? 'DESC'),
@@ -106,10 +108,10 @@ final class AccountRenderer
 		$data = array(
 			'user'       => $user,
 			'bookings'   => $bookings,
-			'navigation' => (isset($atts['hide_nav']) && $atts['hide_nav']) ? array() : self::get_navigation(),
+			'navigation' => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
 		);
 
-		return array('data' => $data);
+		return array( 'data' => $data );
 	}
 
 	/**
@@ -145,7 +147,7 @@ final class AccountRenderer
 			wp_register_style(
 				'mhm-vehicle-card-css',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
-				array('mhm-css-variables'),
+				array( 'mhm-css-variables' ),
 				MHM_RENTIVA_VERSION
 			);
 		}
@@ -182,11 +184,11 @@ final class AccountRenderer
 		$data = array(
 			'user'       => $user,
 			'favorites'  => $favorites,
-			'columns'    => (int) ($atts['columns'] ?? 3),
-			'navigation' => (isset($atts['hide_nav']) && $atts['hide_nav']) ? array() : self::get_navigation(),
+			'columns'    => (int) ( $atts['columns'] ?? 3 ),
+			'navigation' => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
 		);
 
-		return array('data' => $data);
+		return array( 'data' => $data );
 	}
 
 	/**
@@ -205,7 +207,7 @@ final class AccountRenderer
 		$user     = wp_get_current_user();
 		$per_page = 10;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination parameter.
-		$page     = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
+		$page = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
 
 		$result = self::get_user_payments($user->ID, $per_page, $page);
 
@@ -215,24 +217,13 @@ final class AccountRenderer
 			'total'        => $result['total'],
 			'total_pages'  => $result['total_pages'],
 			'current_page' => $result['current_page'],
-			'navigation'   => (isset($atts['hide_nav']) && $atts['hide_nav']) ? array() : self::get_navigation(),
+			'navigation'   => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
 		);
 
-		return array('data' => $data);
+		return array( 'data' => $data );
 	}
 
-	/**
-	 * Account Details render (Removed)
-	 *
-	 * @see WooCommerce My Account
-	 */
-	/*
-	public static function render_account_details(array $atts = []): string
-	{
-		// Removed as per request (redundant with WooCommerce)
-		return '';
-	}
-	*/
+	// Account details rendering stays with WooCommerce My Account.
 
 	/**
 	 * Messages render
@@ -263,7 +254,11 @@ final class AccountRenderer
 			);
 		}
 
-		$user = wp_get_current_user();
+		$user          = wp_get_current_user();
+		$customer_name = $user->display_name;
+		if (! $customer_name) {
+			$customer_name = $user->user_login;
+		}
 
 		// Load CSS files (filemtime-based version avoids stale browser cache during dev).
 		$customer_messages_css_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/css/frontend/customer-messages.css';
@@ -285,7 +280,7 @@ final class AccountRenderer
 		wp_enqueue_script(
 			'mhm-rentiva-account-messages',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-messages.js',
-			array('jquery'),
+			array( 'jquery' ),
 			$account_messages_js_ver,
 			true
 		);
@@ -298,7 +293,7 @@ final class AccountRenderer
 				'restUrl'       => rest_url('mhm-rentiva/v1/'),
 				'restNonce'     => wp_create_nonce('wp_rest'),
 				'customerEmail' => $user->user_email,
-				'customerName'  => $user->display_name ?: $user->user_login,
+				'customerName'  => $customer_name,
 				'i18n'          => array(
 					'threadIdNotFound'   => __('Thread ID not found.', 'mhm-rentiva'),
 					'confirmClose'       => __('Are you sure you want to close this conversation? You won\'t be able to send more messages.', 'mhm-rentiva'),
@@ -336,11 +331,11 @@ final class AccountRenderer
 		$data = array(
 			'user'           => $user,
 			'customer_email' => $user->user_email,
-			'customer_name'  => $user->display_name ?: $user->user_login,
-			'navigation'     => (isset($atts['hide_nav']) && $atts['hide_nav']) ? array() : self::get_navigation(),
+			'customer_name'  => $customer_name,
+			'navigation'     => ( isset($atts['hide_nav']) && $atts['hide_nav'] ) ? array() : self::get_navigation(),
 		);
 
-		return array('data' => $data);
+		return array( 'data' => $data );
 	}
 
 
@@ -372,7 +367,7 @@ final class AccountRenderer
 		$booking = get_post($booking_id);
 
 		if (! $booking || $booking->post_type !== 'vehicle_booking') {
-			return array('error' => '<p>' . __('Booking not found.', 'mhm-rentiva') . '</p>');
+			return array( 'error' => '<p>' . __('Booking not found.', 'mhm-rentiva') . '</p>' );
 		}
 
 		// User check — customer, vendor (vehicle owner), or admin may view
@@ -381,12 +376,12 @@ final class AccountRenderer
 		$vehicle_id      = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
 		$vendor_user_id  = $vehicle_id > 0 ? (int) get_post_field('post_author', $vehicle_id) : 0;
 
-		$is_customer = ($booking_user_id > 0 && $booking_user_id === (int) $user->ID);
-		$is_vendor   = ($vendor_user_id > 0 && $vendor_user_id === (int) $user->ID);
+		$is_customer = ( $booking_user_id > 0 && $booking_user_id === (int) $user->ID );
+		$is_vendor   = ( $vendor_user_id > 0 && $vendor_user_id === (int) $user->ID );
 		$is_admin    = current_user_can('manage_options');
 
 		if (! $is_customer && ! $is_vendor && ! $is_admin) {
-			return array('error' => '<p>' . __('You do not have permission to view this booking.', 'mhm-rentiva') . '</p>');
+			return array( 'error' => '<p>' . __('You do not have permission to view this booking.', 'mhm-rentiva') . '</p>' );
 		}
 
 		$navigation = $hide_nav ? array() : self::get_navigation();
@@ -407,8 +402,8 @@ final class AccountRenderer
 			}
 
 			$navigation = array(
-				'dashboard' => array('url' => $dashboard_url),
-				'bookings'  => array('url' => $bookings_url),
+				'dashboard' => array( 'url' => $dashboard_url ),
+				'bookings'  => array( 'url' => $bookings_url ),
 			);
 		}
 
@@ -417,11 +412,11 @@ final class AccountRenderer
 			'booking_id'     => $booking_id,
 			'navigation'     => $navigation,
 			'is_integrated'  => $hide_nav,
-			'is_vendor_view' => ($is_vendor && ! $is_customer),
+			'is_vendor_view' => ( $is_vendor && ! $is_customer ),
 			'is_admin_view'  => $is_admin,
 		);
 
-		return array('data' => $data);
+		return array( 'data' => $data );
 	}
 
 	/**
@@ -552,7 +547,7 @@ final class AccountRenderer
 	private static function get_user_payments(int $user_id, int $per_page = 10, int $page = 1): array
 	{
 		// Get all user bookings
-		$bookings = self::get_user_bookings($user_id, array('limit' => -1));
+		$bookings = self::get_user_bookings($user_id, array( 'limit' => -1 ));
 
 		$payments = array();
 
@@ -565,7 +560,7 @@ final class AccountRenderer
 			$payment_type    = get_post_meta($booking->ID, '_mhm_payment_type', true);
 
 			// Normalize status values from various sources
-			$status_key = strtolower((string) $payment_status);
+			$status_key = strtolower( (string) $payment_status);
 			$status_key = str_replace(' ', '_', $status_key);
 			switch ($status_key) {
 				case 'pending_verification':
@@ -587,18 +582,29 @@ final class AccountRenderer
 					break;
 				default:
 					// Fallback to original or pending when unknown
-					$payment_status = $status_key ?: 'pending';
+					$payment_status = ! empty($status_key) ? $status_key : 'pending';
 			}
 
 			// Fallback gateway if empty (manual/offline)
 			if (empty($payment_gateway)) {
-				$payment_gateway = $payment_method ?: 'woocommerce';
+				$payment_gateway = ! empty($payment_method) ? $payment_method : 'woocommerce';
 			}
 
 			// Build date with time if available
-			$pickup_date    = get_post_meta($booking->ID, '_mhm_pickup_date', true) ?: get_post_meta($booking->ID, '_booking_pickup_date', true);
-			$pickup_time    = get_post_meta($booking->ID, '_mhm_start_time', true) ?: get_post_meta($booking->ID, '_mhm_pickup_time', true) ?: get_post_meta($booking->ID, '_booking_pickup_time', true);
-			$date_str       = trim($pickup_date . ' ' . ($pickup_time ?: ''));
+			$pickup_date = get_post_meta($booking->ID, '_mhm_pickup_date', true);
+			if (empty($pickup_date)) {
+				$pickup_date = get_post_meta($booking->ID, '_booking_pickup_date', true);
+			}
+
+			$pickup_time = get_post_meta($booking->ID, '_mhm_start_time', true);
+			if (empty($pickup_time)) {
+				$pickup_time = get_post_meta($booking->ID, '_mhm_pickup_time', true);
+			}
+			if (empty($pickup_time)) {
+				$pickup_time = get_post_meta($booking->ID, '_booking_pickup_time', true);
+			}
+
+			$date_str       = trim($pickup_date . ' ' . ( ! empty($pickup_time) ? $pickup_time : '' ));
 			$date_formatted = $date_str ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($date_str)) : get_the_date('', $booking->ID);
 
 			if ($payment_status) {
@@ -608,7 +614,7 @@ final class AccountRenderer
 					'completed' => __('Completed', 'mhm-rentiva'),
 					'cancelled' => __('Cancelled', 'mhm-rentiva'),
 				);
-				$status_label  = $status_labels[$payment_status] ?? ucfirst($payment_status);
+				$status_label  = $status_labels[ $payment_status ] ?? ucfirst($payment_status);
 
 				// Format Gateway/Method
 				$woocommerce_method_title = '';
@@ -633,22 +639,23 @@ final class AccountRenderer
 					$method_display = $payment_gateway === 'woocommerce' ? 'WooCommerce' : ucfirst($payment_gateway);
 				}
 
+				$receipt_attachment_id = (int) get_post_meta($booking->ID, '_mhm_receipt_attachment_id', true);
+
 				$payments[] = array(
 					'booking_id'    => $booking->ID,
 					'booking_title' => get_the_title($booking->ID),
 					'date'          => $date_formatted,
-				'sort_ts'       => $date_str ? strtotime($date_str) : 0,
+					'sort_ts'       => $date_str ? strtotime($date_str) : 0,
 					'status'        => $payment_status,
 					'status_label'  => $status_label,
 					'method'        => $method_display,
-					// 'gateway' => $gateway_label, // Removed as requested
 					'amount'        => $payment_type === 'deposit' ? $deposit_amount : $total_price,
 					'total'         => $total_price,
 					'type'          => $payment_type,
 					'receipt'       => array(
-						'attachment_id' => (int) get_post_meta($booking->ID, '_mhm_receipt_attachment_id', true),
+						'attachment_id' => $receipt_attachment_id,
 						'status'        => get_post_meta($booking->ID, '_mhm_receipt_status', true),
-						'url'           => ($id = (int) get_post_meta($booking->ID, '_mhm_receipt_attachment_id', true)) ? wp_get_attachment_url($id) : '',
+						'url'           => $receipt_attachment_id > 0 ? wp_get_attachment_url($receipt_attachment_id) : '',
 					),
 				);
 			}
@@ -663,7 +670,7 @@ final class AccountRenderer
 		);
 
 		$total  = count($payments);
-		$offset = ($page - 1) * $per_page;
+		$offset = ( $page - 1 ) * $per_page;
 
 		return array(
 			'items'        => array_slice($payments, $offset, $per_page),
