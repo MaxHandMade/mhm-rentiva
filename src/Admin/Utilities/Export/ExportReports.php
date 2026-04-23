@@ -82,7 +82,7 @@ final class ExportReports {
 			$clean_row = array_map(
 				function ( $value ) {
 					if ( is_array( $value ) || is_object( $value ) ) {
-						return json_encode( $value );
+						return wp_json_encode( $value );
 					}
 					return (string) $value;
 				},
@@ -126,7 +126,7 @@ final class ExportReports {
 		foreach ( $data as $row ) {
 			echo '<tr>';
 			foreach ( $row as $cell ) {
-				$value = is_array( $cell ) || is_object( $cell ) ? json_encode( $cell ) : $cell;
+				$value = is_array( $cell ) || is_object( $cell ) ? wp_json_encode( $cell ) : $cell;
 				echo '<td>' . esc_html( $value ) . '</td>';
 			}
 			echo '</tr>';
@@ -164,7 +164,7 @@ final class ExportReports {
 		foreach ( $data as $row ) {
 			echo '<tr>';
 			foreach ( $row as $cell ) {
-				$value = is_array( $cell ) || is_object( $cell ) ? json_encode( $cell ) : $cell;
+				$value = is_array( $cell ) || is_object( $cell ) ? wp_json_encode( $cell ) : $cell;
 				echo '<td style="padding: 8px;">' . esc_html( $value ) . '</td>';
 			}
 			echo '</tr>';
@@ -196,7 +196,7 @@ final class ExportReports {
 			'data'        => $data,
 		);
 
-		echo json_encode( $export_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
+		echo wp_json_encode( $export_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
 		exit;
 	}
 
@@ -224,7 +224,7 @@ final class ExportReports {
 			echo '    <record id="' . esc_attr( $index + 1 ) . '">' . "\n";
 			foreach ( $row as $key => $value ) {
 				$clean_key   = preg_replace( '/[^a-zA-Z0-9_-]/', '_', $key );
-				$clean_value = is_array( $value ) || is_object( $value ) ? json_encode( $value ) : $value;
+				$clean_value = is_array( $value ) || is_object( $value ) ? wp_json_encode( $value ) : $value;
 				echo '      <' . esc_html( $clean_key ) . '><![CDATA[' . esc_html( $clean_value ) . ']]></' . esc_html( $clean_key ) . '>' . "\n";
 			}
 			echo '    </record>' . "\n";
@@ -295,7 +295,7 @@ final class ExportReports {
 
 		// Update log file (simple approach)
 		$log_file  = wp_upload_dir()['basedir'] . '/mhm-rentiva-exports.log';
-		$log_entry = current_time( 'Y-m-d H:i:s' ) . ' - ' . json_encode( $log_data ) . "\n";
+		$log_entry = current_time( 'Y-m-d H:i:s' ) . ' - ' . wp_json_encode( $log_data ) . "\n";
 
 		global $wp_filesystem;
 		if ( empty( $wp_filesystem ) ) {

@@ -123,6 +123,7 @@ $format_dt = static function (string $date, string $time = '') {
 						<?php esc_html_e('Car Rental', 'mhm-rentiva'); ?>
 					<?php endif; ?>
 				</span>
+				<?php /* translators: %s: human-readable reservation/booking display ID */ ?>
 				<?php printf(esc_html__('Reservation #%s', 'mhm-rentiva'), esc_html( (string) $display_id)); ?>
 			</h2>
 			<p class="mhm-vendor-booking-detail__subtitle"><?php echo esc_html($vehicle_title); ?></p>

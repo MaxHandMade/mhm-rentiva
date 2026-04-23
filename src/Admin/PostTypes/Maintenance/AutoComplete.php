@@ -127,7 +127,10 @@ final class AutoComplete {
 
 				do_action('mhm_rentiva_booking_auto_completed', $bid);
 			} catch (\Throwable $e) {
-				// Silent in production
+				// Per-booking failure must not abort the cron sweep; log and continue.
+				if (function_exists('error_log')) {
+					error_log('[mhm-rentiva] auto-complete skipped booking ' . $bid . ': ' . $e->getMessage());
+				}
 			}
 		}
 

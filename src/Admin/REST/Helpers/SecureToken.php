@@ -48,8 +48,8 @@ final class SecureToken {
 		);
 
 		// Base64 URL encode
-		$encoded_header  = self::base64url_encode( json_encode( $header ) );
-		$encoded_payload = self::base64url_encode( json_encode( $payload ) );
+		$encoded_header  = self::base64url_encode( wp_json_encode( $header ) );
+		$encoded_payload = self::base64url_encode( wp_json_encode( $payload ) );
 
 		// Create signature
 		$signature         = hash_hmac( 'sha256', $encoded_header . '.' . $encoded_payload, self::get_secret_key(), true );

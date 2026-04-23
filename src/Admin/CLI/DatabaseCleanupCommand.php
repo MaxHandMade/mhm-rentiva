@@ -227,7 +227,7 @@ class DatabaseCleanupCommand {
 		\WP_CLI::log( __( 'Results:', 'mhm-rentiva' ) );
 
 		foreach ( $result['operations'] as $operation => $op_result ) {
-			\WP_CLI::log( sprintf( '  - %s: %s', $operation, json_encode( $op_result ) ) );
+			\WP_CLI::log( sprintf( '  - %s: %s', $operation, wp_json_encode( $op_result ) ) );
 		}
 
 		if ( $dry_run ) {

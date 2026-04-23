@@ -137,11 +137,12 @@ final class ClientUtilities {
 		}
 
 		$parts = explode('.', $ip);
-		if (count($parts) !== 4) {
+		$total = count($parts);
+		if ($total !== 4) {
 			return $ip; // IPv6 or invalid format
 		}
 
-		for ($i = count($parts) - $mask_last_octets; $i < count($parts); $i++) {
+		for ($i = $total - $mask_last_octets; $i < $total; $i++) {
 			$parts[ $i ] = 'xxx';
 		}
 

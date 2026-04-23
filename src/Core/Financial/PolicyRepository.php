@@ -115,7 +115,7 @@ final class PolicyRepository {
         }
 
         $now  = current_time('mysql', true);
-        $hash = hash('sha256', (string) json_encode(array( null, $rate, $now, null )));
+        $hash = hash('sha256', (string) wp_json_encode(array( null, $rate, $now, null )));
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Repository is the intentional write boundary for commission policies.
         $inserted = $wpdb->insert(

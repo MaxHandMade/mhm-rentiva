@@ -1690,11 +1690,9 @@ final class VehicleSettings {
 					$settings['mhm_rentiva_vehicle_card_fields'] = $decoded;
 					$settings_updated                            = true;
 				}
-			} else {
-				// If not set, it might mean empty?
-				// Hidden input usually sends "[]" if empty via JS, but if empty string...
-				// Let's assume valid JSON should always be sent if JS works.
 			}
+			// If the field is not present in $_POST we leave the existing setting in place.
+			// JS submits "[]" for an explicit empty selection; missing field means "no change".
 
 			// Save Vehicle Detail Highlighted Fields
 			if ( isset( $_POST['mhm_rentiva_vehicle_detail_fields'] ) ) {

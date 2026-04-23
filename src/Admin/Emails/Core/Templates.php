@@ -428,9 +428,8 @@ final class Templates {
 	 */
 	private static function getSubjectOverride( string $key, array $context ): ?string {
 		$base = self::$overrideMap[ $key ] ?? '';
-		if ( $base === '' ) {
-			// Check direct new keys if not in overrideMap
-		}
+		// Note: when $base is empty, the switch below handles the direct-new-keys
+		// fallback by name. No explicit branch needed here.
 
 		// Special cases where option keys differ
 		switch ( $key ) {

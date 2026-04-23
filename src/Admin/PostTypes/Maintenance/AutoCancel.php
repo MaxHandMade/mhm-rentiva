@@ -253,7 +253,10 @@ final class AutoCancel {
 
 				do_action('mhm_rentiva_booking_auto_cancelled', $bid, $newStatus);
 			} catch (\Throwable $e) {
-				// Handle silently in production or use plugin's error handler
+				// Per-booking failure must not abort the cron sweep; log and continue.
+				if (function_exists('error_log')) {
+					error_log('[mhm-rentiva] auto-cancel skipped booking ' . $bid . ': ' . $e->getMessage());
+				}
 			}
 		}
 		wp_reset_postdata();

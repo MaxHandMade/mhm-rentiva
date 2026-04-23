@@ -297,7 +297,6 @@ final class SearchResults extends AbstractShortcode {
 				'i18n'            => array(
 					'loading'                => __('Loading...', 'mhm-rentiva'),
 					'no_results'             => __('No vehicles found', 'mhm-rentiva'),
-					'error'                  => __('An error occurred. Please try again.', 'mhm-rentiva'),
 					'filter_applied'         => __('Filter applied', 'mhm-rentiva'),
 					'clear_filters'          => __('Clear all filters', 'mhm-rentiva'),
 					'clear_all'              => __('Clear All', 'mhm-rentiva'),

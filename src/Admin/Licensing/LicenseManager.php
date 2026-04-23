@@ -811,7 +811,8 @@ final class LicenseManager {
 			return;
 		}
 
-		if ($n = get_transient('mhm_license_notice')) {
+		$n = get_transient('mhm_license_notice');
+		if ($n) {
 			delete_transient('mhm_license_notice');
 			$class = $n[0] === 'success' ? 'notice-success' : 'notice-error';
 			echo '<div class="notice ' . esc_attr($class) . '"><p>' . esc_html($n[1]) . '</p></div>';

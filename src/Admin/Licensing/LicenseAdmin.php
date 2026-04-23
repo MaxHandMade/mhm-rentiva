@@ -505,26 +505,32 @@ final class LicenseAdmin {
 		$lite_rows = array(
 			array(
 				'label' => __('Maximum Vehicles', 'mhm-rentiva'),
+				/* translators: %d: maximum number of vehicles allowed in Lite tier */
 				'value' => sprintf(__('%d vehicles', 'mhm-rentiva'), $max_vehicles),
 			),
 			array(
 				'label' => __('Maximum Bookings', 'mhm-rentiva'),
+				/* translators: %d: maximum number of bookings allowed in Lite tier */
 				'value' => sprintf(__('%d bookings', 'mhm-rentiva'), $max_bookings),
 			),
 			array(
 				'label' => __('Maximum Customers', 'mhm-rentiva'),
+				/* translators: %d: maximum number of customers allowed in Lite tier */
 				'value' => sprintf(__('%d customers', 'mhm-rentiva'), $max_customers),
 			),
 			array(
 				'label' => __('Maximum Addons', 'mhm-rentiva'),
+				/* translators: %d: maximum number of add-on services allowed in Lite tier */
 				'value' => sprintf(__('%d services', 'mhm-rentiva'), $max_addons),
 			),
 			array(
 				'label' => __('VIP Transfer Routes', 'mhm-rentiva'),
+				/* translators: %d: maximum number of transfer routes allowed in Lite tier */
 				'value' => sprintf(__('%d routes', 'mhm-rentiva'), $max_routes),
 			),
 			array(
 				'label' => __('Gallery Images', 'mhm-rentiva'),
+				/* translators: %d: maximum number of gallery images per vehicle in Lite tier */
 				'value' => sprintf(__('%d / vehicle', 'mhm-rentiva'), $max_gallery),
 			),
 			array(
@@ -533,6 +539,7 @@ final class LicenseAdmin {
 			),
 			array(
 				'label' => __('Report Date Range', 'mhm-rentiva'),
+				/* translators: %d: maximum report date range in days for Lite tier */
 				'value' => sprintf(__('%d days', 'mhm-rentiva'), (int) apply_filters('mhm_rentiva_lite_reports_max_days', 30)),
 			),
 			array(

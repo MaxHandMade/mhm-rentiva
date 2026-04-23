@@ -204,11 +204,12 @@ final class MetaQueryHelper {
 			),
 		);
 
-		// FEATURE: Phase 1 Transition - Add legacy fallback in DEV MODE ONLY
-		if (self::is_migration_fallback_active()) {
-			// Note: We keep the target as primary, but developers can see if data is missing
-			// In Phase 2, this block will be removed and legacy keys marked @deprecated.
-		}
+		// FEATURE: Phase 1 Transition - Add legacy fallback in DEV MODE ONLY.
+		// Note: We keep the target as primary, but developers can see if data is missing.
+		// In Phase 2, this block will be removed and legacy keys marked @deprecated.
+		// is_migration_fallback_active() is intentionally called here (and its return
+		// value discarded) to surface dev-mode warnings via the helper's internal logging.
+		self::is_migration_fallback_active();
 
 		return self::build_meta_joins($meta_fields);
 	}

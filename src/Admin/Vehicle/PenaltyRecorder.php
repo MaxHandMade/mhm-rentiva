@@ -66,7 +66,8 @@ final class PenaltyRecorder {
 		try {
 			Ledger::add_entry($entry);
 		} catch (\RuntimeException $e) {
-			// Idempotent: duplicate UUID is silently ignored.
+			// Idempotent: duplicate UUID is silently ignored — entry is already recorded.
+			unset($e);
 		}
 
 		do_action('mhm_rentiva_withdrawal_penalty_recorded', $vehicle_id, $vendor_id, $penalty_amount);
