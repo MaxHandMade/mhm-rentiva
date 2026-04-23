@@ -70,7 +70,13 @@ final class AddonMenu {
 
 			public function render()
 			{
-				// Standardized Header
+				// Standardized Header — skip the trailing wp-header-end marker
+				// because WordPress core already emits one for the built-in
+				// post-type list H1 above us. Two markers make WP's notice
+				// relocator clone each admin notice (jQuery `.before()` on
+				// multiple targets) and that's what produced the duplicated
+				// "Rentiva Lite Limit" banner on this screen. See the
+				// `$skip_wp_header_end` docblock in AdminHelperTrait.
 				$this->render_admin_header(
 					esc_html__('Additional Services', 'mhm-rentiva'),
 					array(
@@ -84,7 +90,10 @@ final class AddonMenu {
 							'type' => 'documentation',
 							'url'  => \MHMRentiva\Admin\Core\Utilities\UXHelper::get_docs_url(),
 						),
-					)
+					),
+					true,
+					'',
+					true
 				);
 
 				// Developer Mode Banner

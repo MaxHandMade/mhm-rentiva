@@ -1,5 +1,14 @@
 [
     {
+        "version": "4.27.3",
+        "date": "2026-04-23",
+        "type": "patch",
+        "changes": [
+            "Fix: v4.27.2's attempt to de-duplicate the Lite 'Additional Services limit' admin notice was incomplete; the notice still rendered twice on production. Root cause (confirmed via live DOM inspection): the custom page header emitted a second <hr class='wp-header-end'> marker, and WordPress core already emits one for the built-in post-type list heading. WP's common.js relocator uses jQuery .before() which clones the notice for every matched marker except the last, producing a ghost duplicate. Fix: AdminHelperTrait::render_admin_header() accepts a new $skip_wp_header_end parameter; AddonMenu::add_addon_page_title() passes true so only WP's own marker remains in the DOM."
+        ],
+        "notice": "v4.27.3 — duplicate addon limit notice actually fixed this time (verified in the live browser)."
+    },
+    {
         "version": "4.27.2",
         "date": "2026-04-23",
         "type": "patch",

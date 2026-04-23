@@ -1,5 +1,14 @@
 [
     {
+        "version": "4.27.3",
+        "date": "2026-04-23",
+        "type": "patch",
+        "changes": [
+            "🔧 DÜZELTME: v4.27.2'deki 'Ek Hizmetler limit uyarısı iki kez gösteriliyor' çözümü eksikti; canlı sitede uyarı hâlâ çift çıkıyordu. Kök neden (canlı DOM incelemesiyle doğrulandı): custom page header ikinci bir <hr class='wp-header-end'> marker emit ediyordu, WordPress core da kendi başlığı için birini emit ediyordu. WP'nin common.js notice-relocator'ı jQuery .before() kullanıyor — birden fazla hedef varsa, son hedef hariç her birine klon koyuyor, tek bir notice DOM'da iki kez çıkıyor. Düzeltme: AdminHelperTrait::render_admin_header() artık $skip_wp_header_end parametresi kabul ediyor; AddonMenu::add_addon_page_title() bu parametreyi true olarak geçiyor, DOM'da sadece WP'nin kendi marker'ı kalıyor. Canlı tarayıcıda deploy sonrası doğrulandı."
+        ],
+        "notice": "v4.27.3 — Ek Hizmetler duplicate uyarısı bu sefer GERÇEKTEN düzeltildi (canlı tarayıcıda empirik doğrulandı)."
+    },
+    {
         "version": "4.27.2",
         "date": "2026-04-23",
         "type": "patch",

@@ -63,14 +63,23 @@ trait AdminHelperTrait {
 	/**
 	 * Renders a standardized admin page header with a title and action buttons.
 	 *
-	 * @param string $title    The page title to display in H1.
-	 * @param array  $buttons  Optional array of buttons to display on the right.
-	 *                         Format: [['text' => 'Label', 'url' => 'URL', 'class' => 'class', 'icon' => 'dashicons-xxx', 'id' => 'id', 'target' => '_blank', 'data' => []]]
-	 * @param bool   $echo     Whether to echo the output or return it.
-	 * @param string $subtitle Optional subtitle to display next to the main title.
+	 * @param string $title              The page title to display in H1.
+	 * @param array  $buttons            Optional array of buttons to display on the right.
+	 *                                   Format: [['text' => 'Label', 'url' => 'URL', 'class' => 'class', 'icon' => 'dashicons-xxx', 'id' => 'id', 'target' => '_blank', 'data' => []]]
+	 * @param bool   $echo               Whether to echo the output or return it.
+	 * @param string $subtitle           Optional subtitle to display next to the main title.
+	 * @param bool   $skip_wp_header_end When true, do NOT emit a trailing `<hr class="wp-header-end" />`.
+	 *                                   Use this on post-type list screens (edit.php) where WordPress
+	 *                                   core already emits its own `wp-header-end` marker for the built-in
+	 *                                   `<h1 class="wp-heading-inline">`. With two markers in the DOM,
+	 *                                   WP's admin-notice relocator in common.js uses jQuery `.before()`
+	 *                                   which clones the notice for every matched marker except the last,
+	 *                                   producing duplicate admin notices on the page. Default false keeps
+	 *                                   backward compatibility with custom admin pages that don't have a
+	 *                                   default WP header (About, License, Customers detail, etc.).
 	 * @return string The generated HTML.
 	 */
-	protected function render_admin_header( string $title, array $buttons = array(), bool $echo = true, string $subtitle = '' ): string {
+	protected function render_admin_header( string $title, array $buttons = array(), bool $echo = true, string $subtitle = '', bool $skip_wp_header_end = false ): string {
 		$allowed_tags = array(
 			'span'   => array(
 				'class' => array(),
@@ -168,7 +177,17 @@ trait AdminHelperTrait {
 		// inside `.wrap` — which is our flex container — and the notices get
 		// squeezed into the header column and clipped. Emitting the marker right
 		// after the flex container moves notices below it, full-width.
-		$html .= '<hr class="wp-header-end" />';
+		//
+		// IMPORTANT: on post-type list screens (edit.php) WordPress core already
+		// emits its own `<hr class="wp-header-end">` for the built-in heading.
+		// If we add a second marker here, WP's notice relocator (jQuery
+		// `.before($notice)` against *every* matched `hr.wp-header-end`) clones
+		// the notice for each marker except the last, producing ghost duplicates
+		// of the same admin notice on the page. The caller passes
+		// `$skip_wp_header_end = true` in those contexts.
+		if ( ! $skip_wp_header_end ) {
+			$html .= '<hr class="wp-header-end" />';
+		}
 
 		if ( $echo ) {
 			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
