@@ -20,8 +20,8 @@ use Exception;
  * [rentiva_contact type="support"] - Technical support form
  * [rentiva_contact type="feedback"] - Feedback form
  */
-final class ContactForm extends AbstractShortcode
-{
+final class ContactForm extends AbstractShortcode {
+
 
 
 
@@ -36,7 +36,7 @@ final class ContactForm extends AbstractShortcode
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	protected static function get_shortcode_tag(): string
@@ -90,7 +90,7 @@ final class ContactForm extends AbstractShortcode
 		wp_enqueue_script(
 			'mhm-rentiva-contact-form',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/contact-form.js',
-			array('jquery'),
+			array( 'jquery' ),
 			MHM_RENTIVA_VERSION,
 			true
 		);
@@ -102,11 +102,11 @@ final class ContactForm extends AbstractShortcode
 	protected static function register_ajax_handlers(): void
 	{
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_submit_contact_form', array(self::class, 'ajax_submit_contact_form'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_submit_contact_form', array(self::class, 'ajax_submit_contact_form'));
+		add_action('wp_ajax_mhm_rentiva_submit_contact_form', array( self::class, 'ajax_submit_contact_form' ));
+		add_action('wp_ajax_nopriv_mhm_rentiva_submit_contact_form', array( self::class, 'ajax_submit_contact_form' ));
 
-		add_action('wp_ajax_mhm_rentiva_upload_attachment', array(self::class, 'ajax_upload_attachment'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_upload_attachment', array(self::class, 'ajax_upload_attachment'));
+		add_action('wp_ajax_mhm_rentiva_upload_attachment', array( self::class, 'ajax_upload_attachment' ));
+		add_action('wp_ajax_nopriv_mhm_rentiva_upload_attachment', array( self::class, 'ajax_upload_attachment' ));
 	}
 
 	/**
@@ -117,22 +117,22 @@ final class ContactForm extends AbstractShortcode
 	 */
 	private static function prepare_template_data_legacy(array $atts): array
 	{
-		$form_config = self::get_form_config((string) ($atts['type'] ?? 'general'));
+		$form_config = self::get_form_config( (string) ( $atts['type'] ?? 'general' ));
 
 		// Vehicle list (for booking form)
 		$vehicles = array();
-		if (($atts['show_vehicle_selector'] ?? '0') === '1') {
+		if (( $atts['show_vehicle_selector'] ?? '0' ) === '1') {
 			$vehicles = self::get_vehicles();
 		}
 
 		// Priority options (for support form)
 		$priorities = array();
-		if (($atts['show_priority'] ?? '0') === '1') {
+		if (( $atts['show_priority'] ?? '0' ) === '1') {
 			$priorities = self::get_priority_options();
 		}
 
 		// Email recipients
-		$email_recipients = self::get_email_recipients((string) ($atts['type'] ?? 'general'), (string) ($atts['email_to'] ?? ''));
+		$email_recipients = self::get_email_recipients( (string) ( $atts['type'] ?? 'general' ), (string) ( $atts['email_to'] ?? '' ));
 
 		return array(
 			'atts'             => $atts,
@@ -154,37 +154,37 @@ final class ContactForm extends AbstractShortcode
 				'title'           => __('General Contact', 'mhm-rentiva'),
 				'description'     => __('Contact us. We are happy to answer your questions.', 'mhm-rentiva'),
 				'icon'            => 'dashicons-email-alt',
-				'required_fields' => array('name', 'email', 'message'),
-				'optional_fields' => array('phone', 'company'),
+				'required_fields' => array( 'name', 'email', 'message' ),
+				'optional_fields' => array( 'phone', 'company' ),
 				'email_template'  => 'contact-general',
 			),
 			'booking'  => array(
 				'title'           => __('Booking Inquiry', 'mhm-rentiva'),
 				'description'     => __('Write to us to make a booking or get information about your existing booking.', 'mhm-rentiva'),
 				'icon'            => 'dashicons-calendar-alt',
-				'required_fields' => array('name', 'email', 'phone', 'message'),
-				'optional_fields' => array('vehicle_id', 'preferred_date', 'company'),
+				'required_fields' => array( 'name', 'email', 'phone', 'message' ),
+				'optional_fields' => array( 'vehicle_id', 'preferred_date', 'company' ),
 				'email_template'  => 'contact-booking',
 			),
 			'support'  => array(
 				'title'           => __('Technical Support', 'mhm-rentiva'),
 				'description'     => __('Our support team will help you with your technical issues.', 'mhm-rentiva'),
 				'icon'            => 'dashicons-sos',
-				'required_fields' => array('name', 'email', 'priority', 'message'),
-				'optional_fields' => array('phone', 'company', 'attachment'),
+				'required_fields' => array( 'name', 'email', 'priority', 'message' ),
+				'optional_fields' => array( 'phone', 'company', 'attachment' ),
 				'email_template'  => 'contact-support',
 			),
 			'feedback' => array(
 				'title'           => __('Feedback', 'mhm-rentiva'),
 				'description'     => __('Share your experience with us. Your feedback is valuable to us.', 'mhm-rentiva'),
 				'icon'            => 'dashicons-star-filled',
-				'required_fields' => array('name', 'email', 'rating', 'message'),
-				'optional_fields' => array('phone', 'company'),
+				'required_fields' => array( 'name', 'email', 'rating', 'message' ),
+				'optional_fields' => array( 'phone', 'company' ),
 				'email_template'  => 'contact-feedback',
 			),
 		);
 
-		return $configs[$type] ?? $configs['general'];
+		return $configs[ $type ] ?? $configs['general'];
 	}
 
 	private static function get_vehicles(): array
@@ -235,7 +235,7 @@ final class ContactForm extends AbstractShortcode
 	private static function get_email_recipients(string $type, string $custom_email = ''): array
 	{
 		if (! empty($custom_email)) {
-			return array($custom_email);
+			return array( $custom_email );
 		}
 
 		$default_emails = array(
@@ -245,7 +245,7 @@ final class ContactForm extends AbstractShortcode
 			'feedback' => get_option('mhm_rentiva_feedback_email', get_option('admin_email')),
 		);
 
-		return array($default_emails[$type] ?? get_option('admin_email'));
+		return array( $default_emails[ $type ] ?? get_option('admin_email') );
 	}
 
 	public static function ajax_submit_contact_form(): void
@@ -333,7 +333,7 @@ final class ContactForm extends AbstractShortcode
 		try {
 			// Nonce check
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is validated via verify_nonce() in this condition.
-			if (! self::verify_nonce(isset($_POST['nonce']) ? sanitize_text_field(wp_unslash((string) $_POST['nonce'])) : '')) {
+			if (! self::verify_nonce(isset($_POST['nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['nonce'])) : '')) {
 				self::ajax_error(__('Security check failed.', 'mhm-rentiva'));
 				return;
 			}
@@ -382,7 +382,7 @@ final class ContactForm extends AbstractShortcode
 			'ajaxUrl'          => admin_url('admin-ajax.php'),
 			'nonce'            => wp_create_nonce('mhm_rentiva_contact_form_nonce'),
 			'maxFileSize'      => wp_max_upload_size(),
-			'allowedFileTypes' => array('jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx'),
+			'allowedFileTypes' => array( 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx' ),
 			'messages'         => array(
 				'submitting'      => __('Sending...', 'mhm-rentiva'),
 				'success'         => __('Your message has been sent successfully.', 'mhm-rentiva'),
@@ -391,8 +391,8 @@ final class ContactForm extends AbstractShortcode
 				'confirm_reset'   => __('Are you sure you want to reset the form?', 'mhm-rentiva'),
 			),
 			'icons'            => array(
-				'success' => \MHMRentiva\Helpers\Icons::get('success', array('class' => 'rv-icon-success')),
-				'warning' => \MHMRentiva\Helpers\Icons::get('warning', array('class' => 'rv-icon-warning')),
+				'success' => \MHMRentiva\Helpers\Icons::get('success', array( 'class' => 'rv-icon-success' )),
+				'warning' => \MHMRentiva\Helpers\Icons::get('warning', array( 'class' => 'rv-icon-warning' )),
 			),
 			'strings'          => self::get_localized_strings(),
 		);
@@ -432,7 +432,7 @@ final class ContactForm extends AbstractShortcode
 			'preferred_date' => self::sanitize_text_field_safe($data['preferred_date'] ?? ''),
 			'priority'       => self::sanitize_text_field_safe($data['priority'] ?? ''),
 			'rating'         => intval($data['rating'] ?? 0),
-			'message'        => ($data['message'] ?? '') !== null ? sanitize_textarea_field((string) ($data['message'] ?? '')) : '',
+			'message'        => ( $data['message'] ?? '' ) !== null ? sanitize_textarea_field( (string) ( $data['message'] ?? '' )) : '',
 			'attachment'     => self::sanitize_text_field_safe($data['attachment'] ?? ''),
 			'auto_reply'     => self::sanitize_text_field_safe($data['auto_reply'] ?? '1'),
 			'ip_address'     => sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? '')),
@@ -447,9 +447,9 @@ final class ContactForm extends AbstractShortcode
 		$required_fields = self::get_required_fields($data['type']);
 
 		foreach ($required_fields as $field) {
-			if (empty($data[$field])) {
+			if (empty($data[ $field ])) {
 				/* translators: %s: field label. */
-				$errors[$field] = sprintf(__('%s field is required.', 'mhm-rentiva'), self::get_field_label($field));
+				$errors[ $field ] = sprintf(__('%s field is required.', 'mhm-rentiva'), self::get_field_label($field));
 			}
 		}
 
@@ -464,7 +464,7 @@ final class ContactForm extends AbstractShortcode
 		}
 
 		// Rating validation
-		if ($data['type'] === 'feedback' && ($data['rating'] < 1 || $data['rating'] > 5)) {
+		if ($data['type'] === 'feedback' && ( $data['rating'] < 1 || $data['rating'] > 5 )) {
 			$errors['rating'] = __('Please rate between 1-5.', 'mhm-rentiva');
 		}
 
@@ -478,13 +478,13 @@ final class ContactForm extends AbstractShortcode
 	private static function get_required_fields(string $type): array
 	{
 		$configs = array(
-			'general'  => array('name', 'email', 'message'),
-			'booking'  => array('name', 'email', 'phone', 'message'),
-			'support'  => array('name', 'email', 'priority', 'message'),
-			'feedback' => array('name', 'email', 'rating', 'message'),
+			'general'  => array( 'name', 'email', 'message' ),
+			'booking'  => array( 'name', 'email', 'phone', 'message' ),
+			'support'  => array( 'name', 'email', 'priority', 'message' ),
+			'feedback' => array( 'name', 'email', 'rating', 'message' ),
 		);
 
-		return $configs[$type] ?? $configs['general'];
+		return $configs[ $type ] ?? $configs['general'];
 	}
 
 	private static function get_field_label(string $field): string
@@ -501,7 +501,7 @@ final class ContactForm extends AbstractShortcode
 			'message'        => __('Message', 'mhm-rentiva'),
 		);
 
-		return $labels[$field] ?? $field;
+		return $labels[ $field ] ?? $field;
 	}
 
 	private static function save_contact_message(array $data): int
@@ -651,7 +651,7 @@ final class ContactForm extends AbstractShortcode
 
 		if (! empty($data['priority'])) {
 			$priorities     = self::get_priority_options();
-			$priority_label = $priorities[$data['priority']]['label'] ?? $data['priority'];
+			$priority_label = $priorities[ $data['priority'] ]['label'] ?? $data['priority'];
 			$message       .= '<p><strong>' . __('Priority:', 'mhm-rentiva') . '</strong> ' . esc_html($priority_label) . '</p>';
 		}
 
@@ -706,7 +706,7 @@ final class ContactForm extends AbstractShortcode
 		}
 
 		// File type check
-		$allowed_types  = array('jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx');
+		$allowed_types  = array( 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx' );
 		$file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
 		if (! in_array($file_extension, $allowed_types)) {
@@ -717,7 +717,7 @@ final class ContactForm extends AbstractShortcode
 		}
 
 		// WordPress upload fonksiyonunu kullan
-		$upload = wp_handle_upload($file, array('test_form' => false));
+		$upload = wp_handle_upload($file, array( 'test_form' => false ));
 
 		if (isset($upload['error'])) {
 			return array(

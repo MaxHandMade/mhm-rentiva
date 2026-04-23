@@ -23,8 +23,8 @@ use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
  *
  * @since 4.0.0
  */
-final class UnifiedSearch extends AbstractShortcode
-{
+final class UnifiedSearch extends AbstractShortcode {
+
 
 	/**
 	 * @return string Shortcode tag.
@@ -151,7 +151,7 @@ final class UnifiedSearch extends AbstractShortcode
 		wp_enqueue_style(
 			'mhm-rentiva-search-premium',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/search-premium.css',
-			array('mhm-rentiva-unified-search-base'),
+			array( 'mhm-rentiva-unified-search-base' ),
 			MHM_RENTIVA_VERSION
 		);
 
@@ -161,7 +161,7 @@ final class UnifiedSearch extends AbstractShortcode
 		wp_enqueue_script(
 			'mhm-rentiva-unified-search',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/unified-search.js',
-			array('jquery', 'jquery-ui-datepicker', 'rentiva-transfer'),
+			array( 'jquery', 'jquery-ui-datepicker', 'rentiva-transfer' ),
 			MHM_RENTIVA_VERSION,
 			true
 		);
@@ -229,7 +229,7 @@ final class UnifiedSearch extends AbstractShortcode
 
 		// %i identifier placeholder is used for dynamic table names.
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$results = $wpdb->get_results($query);
+		$results      = $wpdb->get_results($query);
 		$routes_cache = is_array($results) ? $results : array();
 
 		return $routes_cache;

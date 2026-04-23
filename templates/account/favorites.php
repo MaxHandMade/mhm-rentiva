@@ -1,12 +1,10 @@
 <?php
+declare(strict_types=1);
+
+// My Favorites page template.
+
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Dynamic HTML is rendered by internal template layer with localized escaping.
-
-/**
- * My Favorites Page Template
- *
- * Displays user's favorite vehicles
- */
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -14,8 +12,8 @@ if (! defined('ABSPATH')) {
 
 
 
-$user_id   = get_current_user_id();
-$favorites = $data['favorites'] ?? array();
+$user_id    = get_current_user_id();
+$favorites  = $data['favorites'] ?? array();
 $navigation = $data['navigation'] ?? array();
 $columns    = $data['columns'] ?? 3;
 
@@ -27,7 +25,7 @@ if (empty($navigation)) {
 
 <div class="<?php echo esc_attr($wrapper_class); ?>">
 	<?php if (! empty($navigation)) : ?>
-		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array('navigation' => $navigation), true)); ?>
+		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array( 'navigation' => $navigation ), true)); ?>
 	<?php endif; ?>
 
 	<div class="mhm-account-content">
@@ -71,7 +69,7 @@ if (empty($navigation)) {
 			<div class="account-section">
 
 				<div class="mhm-my-favorites-container rv-my-favorites-wrapper rv-vehicles-grid-container" data-testid="favorites-grid">
-					<div class="rv-vehicles-grid rv-vehicles-grid--columns-<?php echo esc_attr((string) (isset($columns) ? (int) $columns : 3)); ?>">
+					<div class="rv-vehicles-grid rv-vehicles-grid--columns-<?php echo esc_attr( (string) ( isset($columns) ? (int) $columns : 3 )); ?>">
 						<?php
 						// Default atts for the standardized card
 						$card_atts = array(
@@ -91,7 +89,7 @@ if (empty($navigation)) {
 
 						foreach ($favorites as $vehicle_id) :
 							// Use the standardized data method from VehiclesList
-							$vehicle_data = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_data_for_shortcode((int) $vehicle_id, $card_atts);
+							$vehicle_data = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_data_for_shortcode( (int) $vehicle_id, $card_atts);
 							if (! $vehicle_data) {
 								continue;
 							}

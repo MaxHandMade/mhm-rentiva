@@ -25,8 +25,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-final class PolicyService
-{
+final class PolicyService {
+
     /**
      * Resolve the commission policy active for a vendor at the given UTC datetime.
      *

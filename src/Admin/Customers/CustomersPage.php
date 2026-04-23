@@ -23,8 +23,8 @@ if (! defined('ABSPATH')) {
 /**
  * Handles the display and processing of the customers management page.
  */
-final class CustomersPage
-{
+final class CustomersPage {
+
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
 
@@ -39,7 +39,7 @@ final class CustomersPage
 		if (null === $value || '' === $value) {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	/**
@@ -47,17 +47,17 @@ final class CustomersPage
 	 */
 	public static function register(): void
 	{
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_assets'));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_assets' ));
 
 		// Register AJAX actions.
-		add_action('wp_ajax_mhm_rentiva_get_customer_stats', array(self::class, 'ajax_get_customer_stats'));
-		add_action('wp_ajax_mhm_rentiva_get_customers_data', array(self::class, 'ajax_get_customers_data'));
-		add_action('wp_ajax_mhm_rentiva_bulk_action_customers', array(self::class, 'ajax_bulk_action_customers'));
-		add_action('wp_ajax_mhm_rentiva_get_customer_details', array(self::class, 'ajax_get_customer_details'));
-		add_action('wp_ajax_mhm_rentiva_export_customers', array(self::class, 'ajax_export_customers'));
+		add_action('wp_ajax_mhm_rentiva_get_customer_stats', array( self::class, 'ajax_get_customer_stats' ));
+		add_action('wp_ajax_mhm_rentiva_get_customers_data', array( self::class, 'ajax_get_customers_data' ));
+		add_action('wp_ajax_mhm_rentiva_bulk_action_customers', array( self::class, 'ajax_bulk_action_customers' ));
+		add_action('wp_ajax_mhm_rentiva_get_customer_details', array( self::class, 'ajax_get_customer_details' ));
+		add_action('wp_ajax_mhm_rentiva_export_customers', array( self::class, 'ajax_export_customers' ));
 
 		// Create database indexes
-		add_action('admin_init', array(self::class, 'maybe_create_database_indexes'));
+		add_action('admin_init', array( self::class, 'maybe_create_database_indexes' ));
 
 		// Register new customer page hooks
 		AddCustomerPage::register();
@@ -97,10 +97,10 @@ final class CustomersPage
 			(string) get_admin_page_title(),
 			array(
 				array(
-					'text'   => esc_html__('Add New Customer', 'mhm-rentiva'),
-					'url'    => admin_url('admin.php?page=mhm-rentiva-customers&action=add-customer'),
-					'class'  => 'button button-primary',
-					'icon'   => 'dashicons-plus-alt',
+					'text'  => esc_html__('Add New Customer', 'mhm-rentiva'),
+					'url'   => admin_url('admin.php?page=mhm-rentiva-customers&action=add-customer'),
+					'class' => 'button button-primary',
+					'icon'  => 'dashicons-plus-alt',
 				),
 				array(
 					'type' => 'documentation',
@@ -110,7 +110,7 @@ final class CustomersPage
 		);
 
 		// Customer statistics cards
-		static::render_customer_stats();
+		self::render_customer_stats();
 
 		// Display Developer Mode banner and limit notices — after KPI cards
 		\MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeAndLimits(
@@ -122,7 +122,7 @@ final class CustomersPage
 		);
 
 		// Monthly booking calendar
-		static::render_customer_calendar();
+		self::render_customer_calendar();
 
 		// WordPress standard edit.php style.
 		echo '<div class="wrap">';
@@ -152,7 +152,7 @@ final class CustomersPage
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display filter only.
 		$current_month = isset($_GET['month']) ? (int) sanitize_text_field(wp_unslash($_GET['month'])) : (int) gmdate('n');
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display filter only.
-		$current_year  = isset($_GET['year']) ? (int) sanitize_text_field(wp_unslash($_GET['year'])) : (int) gmdate('Y');
+		$current_year = isset($_GET['year']) ? (int) sanitize_text_field(wp_unslash($_GET['year'])) : (int) gmdate('Y');
 
 		// Check invalid values.
 		if ($current_month < 1 || $current_month > 12) {
@@ -170,7 +170,7 @@ final class CustomersPage
 		// Get customer registration dates
 		$customer_registration_days = self::get_customer_registration_days($current_month, $current_year);
 
-?>
+		?>
 		<div class="calendar-container customers-page">
 			<div class="calendar-header">
 				<button id="prevMonth">&lt;</button>
@@ -191,7 +191,7 @@ final class CustomersPage
 				// Find which day of the week the first day of the month is.
 				$first_day_of_month = (int) gmdate('w', mktime(0, 0, 0, $current_month, 1, $current_year));
 				// Adjust so Monday = 1, Sunday = 0.
-				$first_day_of_month = (0 === $first_day_of_month) ? 6 : $first_day_of_month - 1;
+				$first_day_of_month = ( 0 === $first_day_of_month ) ? 6 : $first_day_of_month - 1;
 
 				// Last days of previous month
 				$prev_month         = $current_month == 1 ? 12 : $current_month - 1;
@@ -204,13 +204,13 @@ final class CustomersPage
 
 				for ($i = $first_day_of_month; $i > 0; $i--) {
 					$day = $prev_days_in_month - $i + 1;
-					echo '<div class="prev-date">' . esc_html((string) $day) . '</div>';
+					echo '<div class="prev-date">' . esc_html( (string) $day) . '</div>';
 				}
 
 				// Days of this month.
 				for ($day = 1; $day <= $days_in_month; $day++) {
-					$is_today                  = ($day === (int) $today && $current_month === (int) gmdate('n') && $current_year === (int) gmdate('Y'));
-					$has_customer_registration = isset($customer_registration_days[$day]);
+					$is_today                  = ( $day === (int) $today && $current_month === (int) gmdate('n') && $current_year === (int) gmdate('Y') );
+					$has_customer_registration = isset($customer_registration_days[ $day ]);
 
 					$classes = array();
 					if ($is_today) {
@@ -220,10 +220,10 @@ final class CustomersPage
 						$classes[] = 'customer-registered';
 					}
 
-					echo '<div class="' . esc_attr(implode(' ', $classes)) . '" data-day="' . esc_attr((string) $day) . '">';
-					echo esc_html((string) $day);
+					echo '<div class="' . esc_attr(implode(' ', $classes)) . '" data-day="' . esc_attr( (string) $day) . '">';
+					echo esc_html( (string) $day);
 					if ($has_customer_registration) {
-						$customer_info  = $customer_registration_days[$day];
+						$customer_info  = $customer_registration_days[ $day ];
 						$customer_name  = $customer_info['name'] ?? 'Unknown';
 						$customer_email = $customer_info['email'] ?? '';
 						echo '<span class="customer-icon" title="' . esc_attr($customer_name . ' - ' . $customer_email) . '">👤</span>';
@@ -233,16 +233,16 @@ final class CustomersPage
 
 				// First days of next month.
 				$last_day_of_month = (int) gmdate('w', mktime(0, 0, 0, $current_month, (int) $days_in_month, $current_year));
-				$last_day_of_month = (0 === $last_day_of_month) ? 6 : $last_day_of_month - 1;
+				$last_day_of_month = ( 0 === $last_day_of_month ) ? 6 : $last_day_of_month - 1;
 				$next_days         = 6 - $last_day_of_month;
 
 				for ($j = 1; $j <= $next_days; $j++) {
-					echo '<div class="next-date">' . esc_html((string) $j) . '</div>';
+					echo '<div class="next-date">' . esc_html( (string) $j) . '</div>';
 				}
 				?>
 			</div>
 		</div>
-	<?php
+		<?php
 	}
 
 	/**
@@ -315,14 +315,14 @@ final class CustomersPage
 		wp_enqueue_style(
 			'mhm-core-css',
 			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/core.css',
-			array('mhm-css-variables'),
+			array( 'mhm-css-variables' ),
 			\MHM_RENTIVA_VERSION
 		);
 
 		wp_enqueue_style(
 			'mhm-animations',
 			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/animations.css',
-			array('mhm-css-variables'),
+			array( 'mhm-css-variables' ),
 			\MHM_RENTIVA_VERSION
 		);
 
@@ -330,14 +330,14 @@ final class CustomersPage
 		wp_enqueue_style(
 			'mhm-stats-cards',
 			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
-			array('mhm-core-css'),
+			array( 'mhm-core-css' ),
 			\MHM_RENTIVA_VERSION
 		);
 
 		wp_enqueue_style(
 			'mhm-calendars',
 			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
-			array('mhm-core-css'),
+			array( 'mhm-core-css' ),
 			\MHM_RENTIVA_VERSION
 		);
 
@@ -352,7 +352,7 @@ final class CustomersPage
 		wp_enqueue_script(
 			'mhm-rentiva-customers',
 			\MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers.js',
-			array('jquery'),
+			array( 'jquery' ),
 			\MHM_RENTIVA_VERSION,
 			true
 		);
@@ -376,7 +376,7 @@ final class CustomersPage
 					'selectedDate' => __('Selected date', 'mhm-rentiva'),
 				),
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only month/year filters for admin screen rendering.
-				'customerRegistrations' => self::get_customer_registration_days((int) (sanitize_text_field(wp_unslash($_GET['month'] ?? gmdate('n')))), (int) (sanitize_text_field(wp_unslash($_GET['year'] ?? gmdate('Y'))))),
+				'customerRegistrations' => self::get_customer_registration_days( (int) ( sanitize_text_field(wp_unslash($_GET['month'] ?? gmdate('n'))) ), (int) ( sanitize_text_field(wp_unslash($_GET['year'] ?? gmdate('Y'))) )),
 			)
 		);
 
@@ -437,7 +437,7 @@ final class CustomersPage
 		wp_enqueue_script(
 			'mhm-rentiva-customers',
 			\MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers.js',
-			array('jquery'),
+			array( 'jquery' ),
 			\MHM_RENTIVA_VERSION,
 			true
 		);
@@ -463,9 +463,9 @@ final class CustomersPage
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only month/year filters for admin screen rendering.
 				'customerRegistrations' => self::get_customer_registration_days(
 					// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only month filter for admin calendar rendering.
-					isset($_GET['month']) ? absint(sanitize_text_field(wp_unslash((string) $_GET['month']))) : (int) gmdate('n'),
+					isset($_GET['month']) ? absint(sanitize_text_field(wp_unslash( (string) $_GET['month']))) : (int) gmdate('n'),
 					// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only year filter for admin calendar rendering.
-					isset($_GET['year']) ? absint(sanitize_text_field(wp_unslash((string) $_GET['year']))) : (int) gmdate('Y')
+					isset($_GET['year']) ? absint(sanitize_text_field(wp_unslash( (string) $_GET['year']))) : (int) gmdate('Y')
 				),
 			)
 		);
@@ -497,7 +497,7 @@ final class CustomersPage
 	{
 		$stats = self::get_customer_stats();
 
-	?>
+		?>
 		<div class="mhm-stats-cards">
 			<div class="stats-grid">
 				<!-- Total Customers -->
@@ -506,10 +506,10 @@ final class CustomersPage
 						<span class="dashicons dashicons-groups"></span>
 					</div>
 					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html((string) $stats['total']); ?></div>
+						<div class="stat-number"><?php echo esc_html( (string) $stats['total']); ?></div>
 						<div class="stat-label"><?php esc_html_e('TOTAL CUSTOMERS', 'mhm-rentiva'); ?></div>
 						<div class="stat-trend">
-							<span class="trend-text"><?php echo esc_html((string) $stats['total']); ?> <?php esc_html_e('Registered', 'mhm-rentiva'); ?></span>
+							<span class="trend-text"><?php echo esc_html( (string) $stats['total']); ?> <?php esc_html_e('Registered', 'mhm-rentiva'); ?></span>
 						</div>
 					</div>
 				</div>
@@ -520,10 +520,10 @@ final class CustomersPage
 						<span class="dashicons dashicons-yes-alt"></span>
 					</div>
 					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html((string) $stats['active']); ?></div>
+						<div class="stat-number"><?php echo esc_html( (string) $stats['active']); ?></div>
 						<div class="stat-label"><?php esc_html_e('ACTIVE CUSTOMERS', 'mhm-rentiva'); ?></div>
 						<div class="stat-trend">
-							<span class="trend-text"><?php echo esc_html((string) $stats['active']); ?> <?php esc_html_e('Active', 'mhm-rentiva'); ?></span>
+							<span class="trend-text"><?php echo esc_html( (string) $stats['active']); ?> <?php esc_html_e('Active', 'mhm-rentiva'); ?></span>
 						</div>
 					</div>
 				</div>
@@ -534,10 +534,10 @@ final class CustomersPage
 						<span class="dashicons dashicons-plus-alt"></span>
 					</div>
 					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html((string) $stats['new']); ?></div>
+						<div class="stat-number"><?php echo esc_html( (string) $stats['new']); ?></div>
 						<div class="stat-label"><?php esc_html_e('NEW THIS MONTH', 'mhm-rentiva'); ?></div>
 						<div class="stat-trend">
-							<span class="trend-text"><?php echo esc_html((string) $stats['new']); ?> <?php esc_html_e('New', 'mhm-rentiva'); ?></span>
+							<span class="trend-text"><?php echo esc_html( (string) $stats['new']); ?> <?php esc_html_e('New', 'mhm-rentiva'); ?></span>
 						</div>
 					</div>
 				</div>
@@ -548,7 +548,7 @@ final class CustomersPage
 						<span class="dashicons dashicons-chart-line"></span>
 					</div>
 					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html((string) $stats['average']); ?></div>
+						<div class="stat-number"><?php echo esc_html( (string) $stats['average']); ?></div>
 						<div class="stat-label"><?php esc_html_e('MONTHLY AVERAGE CUSTOMERS', 'mhm-rentiva'); ?></div>
 						<div class="stat-trend">
 							<span class="trend-text"><?php echo esc_html($stats['average_trend']); ?> <?php esc_html_e('vs last month', 'mhm-rentiva'); ?></span>
@@ -557,7 +557,7 @@ final class CustomersPage
 				</div>
 			</div>
 		</div>
-<?php
+		<?php
 	}
 
 
@@ -608,11 +608,11 @@ final class CustomersPage
 			$customer_email = $result->customer_email;
 
 			// Store as array if multiple customers on same day
-			if (! isset($registration_days[$day])) {
-				$registration_days[$day] = array();
+			if (! isset($registration_days[ $day ])) {
+				$registration_days[ $day ] = array();
 			}
 
-			$registration_days[$day][] = array(
+			$registration_days[ $day ][] = array(
 				'name'  => $customer_name,
 				'email' => $customer_email,
 			);
@@ -649,11 +649,11 @@ final class CustomersPage
 	public static function ajax_get_customer_stats(): void
 	{
 		if (! check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('No permission.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('No permission.', 'mhm-rentiva') ));
 		}
 
 		$stats = self::get_customer_stats();
@@ -666,11 +666,11 @@ final class CustomersPage
 	public static function ajax_get_customers_data(): void
 	{
 		if (! check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('No permission.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('No permission.', 'mhm-rentiva') ));
 		}
 
 		// Return empty data for now
@@ -683,15 +683,15 @@ final class CustomersPage
 	public static function ajax_bulk_action_customers(): void
 	{
 		if (! check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('No permission.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('No permission.', 'mhm-rentiva') ));
 		}
 
 		$action       = sanitize_text_field(wp_unslash($_POST['bulk_action'] ?? ''));
-		$customer_ids = array_map('intval', (array) (wp_unslash($_POST['customer_ids'] ?? array())));
+		$customer_ids = array_map('intval', (array) ( wp_unslash($_POST['customer_ids'] ?? array()) ));
 
 		if (empty($action) || empty($customer_ids)) {
 			wp_send_json_error(esc_html__('Invalid parameters.', 'mhm-rentiva'));
@@ -712,11 +712,11 @@ final class CustomersPage
 	public static function ajax_get_customer_details(): void
 	{
 		if (! check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('No permission.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('No permission.', 'mhm-rentiva') ));
 		}
 
 		$customer_id = intval(wp_unslash($_POST['customer_id'] ?? 0));
@@ -740,11 +740,11 @@ final class CustomersPage
 	public static function ajax_export_customers(): void
 	{
 		if (! check_ajax_referer('mhm_rentiva_customers_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('No permission.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('No permission.', 'mhm-rentiva') ));
 		}
 
 		// Success message.
@@ -777,9 +777,9 @@ final class CustomersPage
 
 		$buttons = array(
 			array(
-				'text'   => esc_html__('Customers List', 'mhm-rentiva'),
-				'url'    => admin_url('admin.php?page=mhm-rentiva-customers'),
-				'class'  => 'button',
+				'text'  => esc_html__('Customers List', 'mhm-rentiva'),
+				'url'   => admin_url('admin.php?page=mhm-rentiva-customers'),
+				'class' => 'button',
 			),
 		);
 
@@ -911,9 +911,9 @@ final class CustomersPage
 
 		// Form processing.
 		if (isset($_POST['submit']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_edit_customer_nonce'] ?? '')), 'mhm_rentiva_edit_customer')) {
-			$customer_name    = isset($_POST['customer_name']) ? sanitize_text_field(wp_unslash((string) $_POST['customer_name'])) : '';
+			$customer_name    = isset($_POST['customer_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['customer_name'])) : '';
 			$customer_email   = sanitize_email(wp_unslash($_POST['customer_email'] ?? ''));
-			$customer_phone   = isset($_POST['customer_phone']) ? sanitize_text_field(wp_unslash((string) $_POST['customer_phone'])) : '';
+			$customer_phone   = isset($_POST['customer_phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['customer_phone'])) : '';
 			$customer_address = sanitize_textarea_field(wp_unslash($_POST['customer_address'] ?? ''));
 
 			if (empty($customer_name) || empty($customer_email)) {
@@ -945,9 +945,9 @@ final class CustomersPage
 
 		$buttons = array(
 			array(
-				'text'   => esc_html__('View', 'mhm-rentiva'),
-				'url'    => admin_url('admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . $customer_id),
-				'class'  => 'button',
+				'text'  => esc_html__('View', 'mhm-rentiva'),
+				'url'   => admin_url('admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . $customer_id),
+				'class' => 'button',
 			),
 		);
 

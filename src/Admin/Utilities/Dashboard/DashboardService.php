@@ -350,7 +350,6 @@ final class DashboardService {
 			)
 		);
 
-
 		$inactive    = (int) ( $vehicle_stats->inactive ?? 0 );
 		$maintenance = (int) ( $vehicle_stats->maintenance ?? 0 );
 
@@ -429,7 +428,6 @@ final class DashboardService {
 				'active'
 			)
 		);
-
 
 		$available = max( 0, $available_vehicles_with_status - $reserved );
 
@@ -800,11 +798,11 @@ final class DashboardService {
 		);
 
 		return array(
-			'deposit_bookings'       => $deposit_bookings,
-			'deposit_trend'          => 0,
-			'pending_deposits'       => (int) ( $pending_row->cnt ?? 0 ),
-			'pending_deposit_amount' => (float) ( $pending_row->total ?? 0 ),
-			'completed_deposits'     => (int) ( $completed_row->cnt ?? 0 ),
+			'deposit_bookings'         => $deposit_bookings,
+			'deposit_trend'            => 0,
+			'pending_deposits'         => (int) ( $pending_row->cnt ?? 0 ),
+			'pending_deposit_amount'   => (float) ( $pending_row->total ?? 0 ),
+			'completed_deposits'       => (int) ( $completed_row->cnt ?? 0 ),
 			'completed_deposit_amount' => (float) ( $completed_row->total ?? 0 ),
 		);
 	}
@@ -846,10 +844,10 @@ final class DashboardService {
 		) ?: array();
 
 		$status_labels = array(
-			'pending'    => __( 'Pending', 'mhm-rentiva' ),
-			'confirmed'  => __( 'Confirmed', 'mhm-rentiva' ),
-			'active'     => __( 'Active', 'mhm-rentiva' ),
-			'deposit'    => __( 'Deposit', 'mhm-rentiva' ),
+			'pending'   => __( 'Pending', 'mhm-rentiva' ),
+			'confirmed' => __( 'Confirmed', 'mhm-rentiva' ),
+			'active'    => __( 'Active', 'mhm-rentiva' ),
+			'deposit'   => __( 'Deposit', 'mhm-rentiva' ),
 		);
 
 		$payments = array();

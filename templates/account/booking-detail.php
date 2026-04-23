@@ -44,7 +44,7 @@ $remaining_amount = get_post_meta($booking_id, '_mhm_remaining_amount', true);
 $selected_addons  = get_post_meta($booking_id, '_mhm_selected_addons', true);
 
 // Payment method from WooCommerce order
-$wc_order_id      = (int) get_post_meta($booking_id, '_mhm_woocommerce_order_id', true);
+$wc_order_id          = (int) get_post_meta($booking_id, '_mhm_woocommerce_order_id', true);
 $payment_method_title = '';
 if ($wc_order_id && function_exists('wc_get_order')) {
 	$wc_order = wc_get_order($wc_order_id);
@@ -118,7 +118,7 @@ if ($is_integrated) {
 				<!-- Booking Reference -->
 				<div class="rv-detail-row">
 					<div class="rv-detail-label"><?php esc_html_e('Booking Reference', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value">#<?php echo esc_html(mhm_rentiva_get_display_id((int) $booking_id)); ?></div>
+					<div class="rv-detail-value">#<?php echo esc_html(mhm_rentiva_get_display_id( (int) $booking_id)); ?></div>
 				</div>
 
 				<!-- Vehicle -->
@@ -171,20 +171,20 @@ if ($is_integrated) {
 				<!-- Total Cost -->
 				<div class="rv-detail-row">
 					<div class="rv-detail-label"><?php esc_html_e('Total Cost', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value rv-price"><?php echo esc_html(number_format((float) $total_price, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+					<div class="rv-detail-value rv-price"><?php echo esc_html(number_format( (float) $total_price, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
 				</div>
 
 				<?php if ($payment_type === 'deposit' && $deposit_amount > 0) : ?>
 					<!-- Deposit Amount -->
 					<div class="rv-detail-row">
 						<div class="rv-detail-label"><?php esc_html_e('Deposit Paid', 'mhm-rentiva'); ?></div>
-						<div class="rv-detail-value rv-price"><?php echo esc_html(number_format((float) $deposit_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+						<div class="rv-detail-value rv-price"><?php echo esc_html(number_format( (float) $deposit_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
 					</div>
 
 					<!-- Remaining Amount -->
 					<div class="rv-detail-row">
 						<div class="rv-detail-label"><?php esc_html_e('Remaining Amount', 'mhm-rentiva'); ?></div>
-						<div class="rv-detail-value rv-price"><?php echo esc_html(number_format((float) $remaining_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
+						<div class="rv-detail-value rv-price"><?php echo esc_html(number_format( (float) $remaining_amount, 2, ',', '.') . ' ' . $currency_symbol); ?></div>
 					</div>
 
 					<?php if ( (float) $remaining_amount > 0 && in_array( $booking_status, array( 'pending', 'confirmed' ), true ) ) : ?>

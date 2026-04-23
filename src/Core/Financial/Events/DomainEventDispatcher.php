@@ -15,8 +15,8 @@ if (!defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-final class DomainEventDispatcher
-{
+final class DomainEventDispatcher {
+
     /** @var array<string, callable[]> */
     private array $listeners = array();
 
@@ -28,10 +28,10 @@ final class DomainEventDispatcher
      */
     public function listen(string $event_name, callable $callback): void
     {
-        if (! isset($this->listeners[$event_name])) {
-            $this->listeners[$event_name] = array();
+        if (! isset($this->listeners[ $event_name ])) {
+            $this->listeners[ $event_name ] = array();
         }
-        $this->listeners[$event_name][] = $callback;
+        $this->listeners[ $event_name ][] = $callback;
     }
 
     /**
@@ -54,8 +54,8 @@ final class DomainEventDispatcher
 
         foreach ($events_to_flush as $event) {
             $name = $event->get_event_name();
-            if (isset($this->listeners[$name])) {
-                foreach ($this->listeners[$name] as $listener) {
+            if (isset($this->listeners[ $name ])) {
+                foreach ($this->listeners[ $name ] as $listener) {
                     $listener($event);
                 }
             }

@@ -16,10 +16,9 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.23.0
  */
-final 
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-class MultiTenantMigration
-{
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Controlled migration file intentionally performs schema changes.
+final class MultiTenantMigration {
+
     /**
      * Executes the multi-tenant column additions.
      *
@@ -40,9 +39,12 @@ class MultiTenantMigration
 
         foreach ($tables as $table) {
             if (! self::column_exists($wpdb, $table, 'tenant_id')) {
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name validated in $tables array above
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migration intentionally alters schema during controlled upgrade.
                 $result = $wpdb->query(
-                    "ALTER TABLE `{$table}` ADD COLUMN `tenant_id` BIGINT UNSIGNED NOT NULL DEFAULT 1 AFTER `id`"
+                    $wpdb->prepare(
+                        'ALTER TABLE %i ADD COLUMN `tenant_id` BIGINT UNSIGNED NOT NULL DEFAULT 1 AFTER `id`',
+                        $table
+                    )
                 );
 
                 if (false === $result) {
@@ -51,24 +53,34 @@ class MultiTenantMigration
                 }
 
                 // Add index for performance
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name validated above
-                $wpdb->query("ALTER TABLE `{$table}` ADD INDEX `tenant_id_idx` (`tenant_id`)");
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migration intentionally alters schema during controlled upgrade.
+                $wpdb->query(
+                    $wpdb->prepare(
+                        'ALTER TABLE %i ADD INDEX `tenant_id_idx` (`tenant_id`)',
+                        $table
+                    )
+                );
             }
 
             // ADD COMPOSITE INDEXES (V1.8 HARDENING)
             if ($table === $wpdb->prefix . 'mhm_rentiva_ledger' || $table === $wpdb->prefix . 'mhm_rentiva_payout_audit') {
-                $index_name = 'tenant_created_idx';
+                $index_name   = 'tenant_created_idx';
                 $index_exists = (int) $wpdb->get_var(
                     $wpdb->prepare(
-                        "SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = %s AND INDEX_NAME = %s AND TABLE_SCHEMA = DATABASE()",
+                        'SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = %s AND INDEX_NAME = %s AND TABLE_SCHEMA = DATABASE()',
                         $table,
                         $index_name
                     )
                 );
 
                 if ($index_exists === 0) {
-                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix, index name is static
-                    $wpdb->query("ALTER TABLE `{$table}` ADD INDEX `{$index_name}` (`tenant_id`, `created_at`)");
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migration intentionally alters schema during controlled upgrade.
+                    $wpdb->query(
+                        $wpdb->prepare(
+                            'ALTER TABLE %i ADD INDEX `tenant_created_idx` (`tenant_id`, `created_at`)',
+                            $table
+                        )
+                    );
                 }
             }
         }
@@ -91,7 +103,7 @@ class MultiTenantMigration
     {
         $result = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = %s AND COLUMN_NAME = %s AND TABLE_SCHEMA = DATABASE()",
+                'SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = %s AND COLUMN_NAME = %s AND TABLE_SCHEMA = DATABASE()',
                 $table,
                 $column_name
             )
@@ -108,34 +120,44 @@ class MultiTenantMigration
      */
     private static function enforce_key_registry_tenant_constraint(\wpdb $wpdb): void
     {
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_key_registry' );
+        $table = $wpdb->prefix . 'mhm_rentiva_key_registry';
 
         // Drop legacy single-tenant "one active key" index if it exists.
         $old_index_exists = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = %s AND INDEX_NAME = %s AND TABLE_SCHEMA = DATABASE()",
+                'SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = %s AND INDEX_NAME = %s AND TABLE_SCHEMA = DATABASE()',
                 $table,
                 'active_key_unique'
             )
         );
 
-        if ((int) $old_index_exists > 0) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix, safe
-            $wpdb->query("ALTER TABLE `{$table}` DROP INDEX `active_key_unique`");
+        if ( (int) $old_index_exists > 0) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migration intentionally alters schema during controlled upgrade.
+            $wpdb->query(
+                $wpdb->prepare(
+                    'ALTER TABLE %i DROP INDEX `active_key_unique`',
+                    $table
+                )
+            );
         }
 
         // Create the new per-tenant unique index if it doesn't already exist.
         $new_index_exists = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = %s AND INDEX_NAME = %s AND TABLE_SCHEMA = DATABASE()",
+                'SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = %s AND INDEX_NAME = %s AND TABLE_SCHEMA = DATABASE()',
                 $table,
                 'tenant_active_key_unique'
             )
         );
 
-        if ((int) $new_index_exists === 0) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix, safe
-            $wpdb->query("ALTER TABLE `{$table}` ADD UNIQUE INDEX `tenant_active_key_unique` (`tenant_id`, `active_key`)");
+        if ( (int) $new_index_exists === 0) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migration intentionally alters schema during controlled upgrade.
+            $wpdb->query(
+                $wpdb->prepare(
+                    'ALTER TABLE %i ADD UNIQUE INDEX `tenant_active_key_unique` (`tenant_id`, `active_key`)',
+                    $table
+                )
+            );
         }
     }
 }

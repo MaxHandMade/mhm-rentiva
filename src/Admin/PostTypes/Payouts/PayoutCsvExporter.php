@@ -23,14 +23,14 @@ use MHMRentiva\Admin\PostTypes\Payouts\PostType;
  *
  * @since 4.21.0
  */
-final class PayoutCsvExporter
-{
+final class PayoutCsvExporter {
+
     /**
      * Register the admin-post.php action hook.
      */
     public static function register(): void
     {
-        add_action('admin_post_' . self::action_name(), array(self::class, 'handle'));
+        add_action('admin_post_' . self::action_name(), array( self::class, 'handle' ));
     }
 
     /**
@@ -51,14 +51,14 @@ final class PayoutCsvExporter
             wp_die(esc_html__('Insufficient permissions.', 'mhm-rentiva'), 403);
         }
 
-        $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash((string) $_GET['_wpnonce'])) : '';
+        $nonce = isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash( (string) $_GET['_wpnonce'])) : '';
         if (! wp_verify_nonce($nonce, self::action_name())) {
             wp_die(esc_html__('Nonce verification failed.', 'mhm-rentiva'), 403);
         }
 
         $posts = get_posts(array(
             'post_type'      => PostType::POST_TYPE,
-            'post_status'    => array('pending', 'publish', 'trash'),
+            'post_status'    => array( 'pending', 'publish', 'trash' ),
             'posts_per_page' => -1,
             'orderby'        => 'date',
             'order'          => 'DESC',
@@ -100,10 +100,10 @@ final class PayoutCsvExporter
                 continue;
             }
 
-            $vendor_id  = (int) $post->post_author;
-            $user       = get_userdata($vendor_id);
+            $vendor_id   = (int) $post->post_author;
+            $user        = get_userdata($vendor_id);
             $vendor_name = $user instanceof \WP_User
-                ? ($user->display_name ?: $user->user_login)
+                ? ( $user->display_name ?: $user->user_login )
                 : 'Unknown';
 
             $amount           = (float) get_post_meta($post->ID, '_mhm_payout_amount', true);

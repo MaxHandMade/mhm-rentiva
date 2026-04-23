@@ -26,8 +26,8 @@ use MHMRentiva\Admin\Core\MetaKeys;
  *
  * @since 4.24.0
  */
-final class ReliabilityScoreCalculator
-{
+final class ReliabilityScoreCalculator {
+
 	/** Points deducted per vendor cancellation. */
 	public const CANCEL_PENALTY = 5;
 
@@ -102,7 +102,7 @@ final class ReliabilityScoreCalculator
 
 		// Bonus: completed bookings (6 months).
 		$completions = self::count_completed_bookings($vendor_id);
-		$score += min($completions * self::completion_bonus(), self::max_completion_bonus());
+		$score      += min($completions * self::completion_bonus(), self::max_completion_bonus());
 
 		return max(0, min(100, $score));
 	}
@@ -290,10 +290,10 @@ final class ReliabilityScoreCalculator
 		$count = 0;
 
 		foreach ($cancelled_bookings as $booking_id) {
-			$cancellation_data = get_post_meta((int) $booking_id, '_mhm_cancellation_data', true);
+			$cancellation_data = get_post_meta( (int) $booking_id, '_mhm_cancellation_data', true);
 
 			if (is_array($cancellation_data) && isset($cancellation_data['cancelled_by'])) {
-				if ((int) $cancellation_data['cancelled_by'] === $vendor_id) {
+				if ( (int) $cancellation_data['cancelled_by'] === $vendor_id) {
 					++$count;
 				}
 			}
@@ -322,14 +322,14 @@ final class ReliabilityScoreCalculator
 			return 0;
 		}
 
-		$total = 0;
+		$total         = 0;
 		$current_month = new \DateTime('first day of this month');
 
 		for ($i = 0; $i < 6; $i++) {
 			$month_key = $current_month->format('Y-m');
 
 			foreach ($vehicle_ids as $vid) {
-				$stored = get_post_meta((int) $vid, '_mhm_vehicle_pause_count_month', true);
+				$stored = get_post_meta( (int) $vid, '_mhm_vehicle_pause_count_month', true);
 				if (is_string($stored) && strpos($stored, $month_key . ':') === 0) {
 					$total += (int) substr($stored, strlen($month_key) + 1);
 				}

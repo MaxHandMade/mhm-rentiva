@@ -346,7 +346,7 @@ final class GDPRManager {
 		$data    = self::export_user_data( $user_id );
 
 		// Return JSON data directly for JavaScript blob creation
-		wp_send_json_success( json_encode( $data, JSON_PRETTY_PRINT ) );
+		wp_send_json_success( wp_json_encode( $data, JSON_PRETTY_PRINT ) );
 	}
 
 	/**

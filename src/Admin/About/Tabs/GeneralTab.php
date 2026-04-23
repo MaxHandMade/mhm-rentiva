@@ -26,8 +26,8 @@ use MHMRentiva\Admin\Licensing\LicenseManager;
 /**
  * General Information Tab
  */
-final class GeneralTab extends AbstractTab
-{
+final class GeneralTab extends AbstractTab {
+
 
 
 
@@ -179,7 +179,7 @@ WHERE meta_key = %s AND meta_value != ''
 
 				// Calculate days remaining.
 				$current_time   = time();
-				$days_remaining = $is_expired ? 0 : (int) floor(($expires_timestamp - $current_time) / DAY_IN_SECONDS);
+				$days_remaining = $is_expired ? 0 : (int) floor(( $expires_timestamp - $current_time ) / DAY_IN_SECONDS);
 
 				$expires_value = $expires_date;
 				if (! $is_expired) {

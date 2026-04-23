@@ -21,8 +21,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Admin\Testing
  * @since   4.25.1
  */
-final class DemoImageImporter
-{
+final class DemoImageImporter {
+
     /**
      * Returns the absolute path to the assets/demo/images/ directory.
      *
@@ -75,8 +75,8 @@ final class DemoImageImporter
      */
     public static function import(string $filename): int
     {
-        $images     = self::get_available_images();
-        $source     = $images[ $filename ] ?? '';
+        $images = self::get_available_images();
+        $source = $images[ $filename ] ?? '';
 
         if ('' === $source || ! file_exists($source)) {
             return 0;
@@ -99,8 +99,8 @@ final class DemoImageImporter
             return 0;
         }
 
-        $target_url  = $upload_dir['url'] . '/' . $filename;
-        $file_type   = wp_check_filetype($filename, null);
+        $target_url = $upload_dir['url'] . '/' . $filename;
+        $file_type  = wp_check_filetype($filename, null);
 
         $attachment = array(
             'guid'           => $target_url,
@@ -169,7 +169,7 @@ final class DemoImageImporter
         $count = 0;
 
         foreach ($posts as $id) {
-            $deleted = wp_delete_attachment((int) $id, true);
+            $deleted = wp_delete_attachment( (int) $id, true);
 
             if (false !== $deleted && null !== $deleted) {
                 ++$count;

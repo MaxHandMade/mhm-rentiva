@@ -17,8 +17,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.23.0
  */
-final class TenantResolver
-{
+final class TenantResolver {
+
     /**
      * Cache for the resolved context within a single request.
      *
@@ -57,7 +57,7 @@ final class TenantResolver
 
         if ($tenant_id <= 0) {
             // Fallback for Test Environment / CI / CLI
-            $is_testing = defined('WP_TESTS_DIR') || defined('CI') || defined('PHPUNIT_COMPOSER_INSTALL') || (defined('WP_CLI') && WP_CLI);
+            $is_testing = defined('WP_TESTS_DIR') || defined('CI') || defined('PHPUNIT_COMPOSER_INSTALL') || ( defined('WP_CLI') && WP_CLI );
             if ($is_testing) {
                 $tenant_id = 1;
             } else {

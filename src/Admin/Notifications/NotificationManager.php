@@ -22,8 +22,8 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  *
  * @since 4.0.0
  */
-final class NotificationManager
-{
+final class NotificationManager {
+
 	/**
 	 * Resolve and sanitize notification queue table name.
 	 */
@@ -39,9 +39,9 @@ final class NotificationManager
 	public static function init(): void
 	{
 		// Register cron hook - must be registered before scheduling
-		add_action('mhm_send_scheduled_notifications', array(self::class, 'process_notification_queue'));
+		add_action('mhm_send_scheduled_notifications', array( self::class, 'process_notification_queue' ));
 		// Schedule notifications - use higher priority to ensure SettingsCore is loaded
-		add_action('init', array(self::class, 'schedule_notifications'), 99);
+		add_action('init', array( self::class, 'schedule_notifications' ), 99);
 	}
 
 	/**
@@ -59,7 +59,7 @@ final class NotificationManager
 	{
 		// Get frequency, but if immediate, default to hourly for queue processing
 		$frequency_setting = SettingsCore::get('mhm_rentiva_customer_notification_frequency', 'immediate');
-		$frequency         = ($frequency_setting === 'immediate') ? 'hourly' : $frequency_setting;
+		$frequency         = ( $frequency_setting === 'immediate' ) ? 'hourly' : $frequency_setting;
 
 		// Check if already scheduled with correct frequency
 		$next_scheduled = wp_next_scheduled('mhm_send_scheduled_notifications');
@@ -78,9 +78,12 @@ final class NotificationManager
 
 		if ($result === false) {
 			$error = error_get_last();
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('Notification Schedule Failed', array('frequency' => $frequency, 'error' => $error));
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('Notification Schedule Failed', array(
+				'frequency' => $frequency,
+				'error'     => $error,
+			));
 		} else {
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info('Notification Scheduled', array('frequency' => $frequency));
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info('Notification Scheduled', array( 'frequency' => $frequency ));
 		}
 	}
 
@@ -136,7 +139,7 @@ final class NotificationManager
 			array(
 				'user_id'           => $user_id,
 				'notification_type' => $type,
-				'notification_data' => json_encode($data),
+				'notification_data' => wp_json_encode($data),
 				'scheduled_for'     => self::get_next_send_time(),
 				'status'            => 'pending',
 				'created_at'        => current_time('mysql'),
@@ -191,9 +194,9 @@ final class NotificationManager
 						'status'  => 'sent',
 						'sent_at' => current_time('mysql'),
 					),
-					array('id' => $notification->id),
-					array('%s', '%s'),
-					array('%d')
+					array( 'id' => $notification->id ),
+					array( '%s', '%s' ),
+					array( '%d' )
 				);
 			} else {
 				// Mark as failed
@@ -203,9 +206,9 @@ final class NotificationManager
 						'status'        => 'failed',
 						'error_message' => __('Failed to send notification', 'mhm-rentiva'),
 					),
-					array('id' => $notification->id),
-					array('%s', '%s'),
-					array('%d')
+					array( 'id' => $notification->id ),
+					array( '%s', '%s' ),
+					array( '%d' )
 				);
 			}
 		}
@@ -270,7 +273,7 @@ final class NotificationManager
 		return \MHMRentiva\Admin\Emails\Core\Mailer::send(
 			$type,
 			$user->user_email,
-			array_merge($data, array('customer' => array('email' => $user->user_email)))
+			array_merge($data, array( 'customer' => array( 'email' => $user->user_email ) ))
 		);
 	}
 
@@ -332,10 +335,10 @@ final class NotificationManager
 		);
 
 		$stats = array(
-			'total_notifications'   => (int) ($stats_query['total_notifications'] ?? 0),
-			'pending_notifications' => (int) ($stats_query['pending_notifications'] ?? 0),
-			'sent_notifications'    => (int) ($stats_query['sent_notifications'] ?? 0),
-			'failed_notifications'  => (int) ($stats_query['failed_notifications'] ?? 0),
+			'total_notifications'   => (int) ( $stats_query['total_notifications'] ?? 0 ),
+			'pending_notifications' => (int) ( $stats_query['pending_notifications'] ?? 0 ),
+			'sent_notifications'    => (int) ( $stats_query['sent_notifications'] ?? 0 ),
+			'failed_notifications'  => (int) ( $stats_query['failed_notifications'] ?? 0 ),
 			'frequency'             => self::get_notification_frequency(),
 		);
 

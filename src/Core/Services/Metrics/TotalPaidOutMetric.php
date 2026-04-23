@@ -10,8 +10,8 @@ if (! defined('ABSPATH')) {
 /**
  * Metric aggregating lifetime absolute payout values strictly parsing explicit cleared withdrawals scaling positively natively protecting presentation rules dynamically.
  */
-final class TotalPaidOutMetric implements MetricInterface
-{
+final class TotalPaidOutMetric implements MetricInterface {
+
     public function key(): string
     {
         return 'total_paid_out';
@@ -51,11 +51,13 @@ final class TotalPaidOutMetric implements MetricInterface
     private function query_absolute_payout_sum(int $vendor_id): float
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_ledger' );
+        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Metric resolution intentionally reads live ledger data for dashboard calculations.
         $sum = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT SUM(ABS(amount)) FROM {$table} WHERE vendor_id = %d AND type = %s AND status = %s",
+                'SELECT SUM(ABS(amount)) FROM %i WHERE vendor_id = %d AND type = %s AND status = %s',
+                $table,
                 $vendor_id,
                 'payout_debit',
                 'cleared'

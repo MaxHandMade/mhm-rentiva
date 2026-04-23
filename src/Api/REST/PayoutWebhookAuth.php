@@ -26,8 +26,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-final class PayoutWebhookAuth
-{
+final class PayoutWebhookAuth {
+
     /**
      * Tolerance window in seconds for replay attack prevention.
      */
@@ -53,8 +53,8 @@ final class PayoutWebhookAuth
             return false;
         }
 
-        $timestamp_header   = (string) $request->get_header('X-MHM-Timestamp');
-        $signature_header   = (string) $request->get_header('X-MHM-Signature');
+        $timestamp_header = (string) $request->get_header('X-MHM-Timestamp');
+        $signature_header = (string) $request->get_header('X-MHM-Signature');
 
         // Both headers are mandatory.
         if ($timestamp_header === '' || $signature_header === '') {

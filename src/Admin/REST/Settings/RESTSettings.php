@@ -10,8 +10,8 @@ if (! defined('ABSPATH')) {
 /**
  * ✅ REST SETTINGS - Dynamic REST API Settings
  */
-final class RESTSettings
-{
+final class RESTSettings {
+
 
 	public const OPTION_NAME = 'mhm_rentiva_rest_settings';
 
@@ -43,7 +43,7 @@ final class RESTSettings
 				'ip_blacklist_enabled'  => true,
 				'ip_blacklist'          => array(),
 				'user_agent_validation' => true,
-				'blocked_user_agents'   => array('curl', 'wget', 'python', 'bot', 'spider', 'crawler'),
+				'blocked_user_agents'   => array( 'curl', 'wget', 'python', 'bot', 'spider', 'crawler' ),
 			),
 			'api'           => array(
 				'version'              => 'v1',
@@ -87,14 +87,14 @@ final class RESTSettings
 
 		foreach ($keys as $k) {
 			if (is_array($value) && array_key_exists($k, $value)) {
-				$value = $value[$k];
+				$value = $value[ $k ];
 			} else {
 				// Fallback to default settings
 				$full_defaults = self::get_default_settings();
 				$val           = $full_defaults;
 				foreach ($keys as $dk) {
 					if (is_array($val) && array_key_exists($dk, $val)) {
-						$val = $val[$dk];
+						$val = $val[ $dk ];
 					} else {
 						return $default;
 					}
@@ -139,7 +139,7 @@ final class RESTSettings
 	public static function is_development_mode(): bool
 	{
 		$dev = self::get_development_settings();
-		return ($dev['debug_mode'] ?? false) || self::is_wp_debug_enabled();
+		return ( $dev['debug_mode'] ?? false ) || self::is_wp_debug_enabled();
 	}
 
 	public static function register(): void
@@ -148,7 +148,7 @@ final class RESTSettings
 			'mhm_rentiva_rest_settings',
 			self::OPTION_NAME,
 			array(
-				'sanitize_callback' => array(self::class, 'sanitize_settings'),
+				'sanitize_callback' => array( self::class, 'sanitize_settings' ),
 				'default'           => self::get_default_settings(),
 			)
 		);
@@ -172,12 +172,12 @@ final class RESTSettings
 			$rl                         = $input['rate_limiting'];
 			$sanitized['rate_limiting'] = array(
 				'enabled'        => ! empty($rl['enabled']),
-				'default_limit'  => max(1, (int) ($rl['default_limit'] ?? 60)),
-				'default_window' => max(1, (int) ($rl['default_window'] ?? 60)),
-				'strict_limit'   => max(1, (int) ($rl['strict_limit'] ?? 10)),
-				'strict_window'  => max(1, (int) ($rl['strict_window'] ?? 60)),
-				'burst_limit'    => max(1, (int) ($rl['burst_limit'] ?? 100)),
-				'burst_window'   => max(1, (int) ($rl['burst_window'] ?? 300)),
+				'default_limit'  => max(1, (int) ( $rl['default_limit'] ?? 60 )),
+				'default_window' => max(1, (int) ( $rl['default_window'] ?? 60 )),
+				'strict_limit'   => max(1, (int) ( $rl['strict_limit'] ?? 10 )),
+				'strict_window'  => max(1, (int) ( $rl['strict_window'] ?? 60 )),
+				'burst_limit'    => max(1, (int) ( $rl['burst_limit'] ?? 100 )),
+				'burst_window'   => max(1, (int) ( $rl['burst_window'] ?? 300 )),
 			);
 		}
 
@@ -185,7 +185,7 @@ final class RESTSettings
 		if (isset($input['tokens']) && is_array($input['tokens'])) {
 			$tokens              = $input['tokens'];
 			$sanitized['tokens'] = array(
-				'default_expiry_hours'   => max(1, min(168, (int) ($tokens['default_expiry_hours'] ?? 24))),
+				'default_expiry_hours'   => max(1, min(168, (int) ( $tokens['default_expiry_hours'] ?? 24 ))),
 				'max_expiry_hours'       => 168,
 				'refresh_enabled'        => ! empty($tokens['refresh_enabled']),
 				'auto_refresh_threshold' => 2,
@@ -226,7 +226,7 @@ final class RESTSettings
 			$cache              = $input['cache'];
 			$sanitized['cache'] = array(
 				'enabled'               => ! empty($cache['enabled']),
-				'duration_seconds'      => max(60, (int) ($cache['duration_seconds'] ?? 300)),
+				'duration_seconds'      => max(60, (int) ( $cache['duration_seconds'] ?? 300 )),
 				'long_duration_seconds' => 1800,
 				'cache_headers'         => true,
 				'etag_enabled'          => true,
@@ -298,7 +298,7 @@ final class RESTSettings
 		echo '<p class="description">' . esc_html__('Blocks known bots and scraping tools (curl, wget, bot etc.).', 'mhm-rentiva') . '</p><br>';
 
 		echo '<label for="rest_ip_whitelist">' . esc_html__('IP Whitelist', 'mhm-rentiva') . '</label><br>';
-		echo '<textarea id="rest_ip_whitelist" name="mhm_rentiva_rest_settings[security][ip_whitelist]" rows="2" cols="50" class="regular-text" placeholder="1.2.3.4, 5.6.7.8">' . esc_textarea(implode(', ', (array) ($sec['ip_whitelist'] ?? array()))) . '</textarea>';
+		echo '<textarea id="rest_ip_whitelist" name="mhm_rentiva_rest_settings[security][ip_whitelist]" rows="2" cols="50" class="regular-text" placeholder="1.2.3.4, 5.6.7.8">' . esc_textarea(implode(', ', (array) ( $sec['ip_whitelist'] ?? array() ))) . '</textarea>';
 		echo '<p class="description">' . esc_html__('Comma separated list of allowed IP addresses.', 'mhm-rentiva') . '</p>';
 		echo '</td></tr>';
 
@@ -330,59 +330,59 @@ final class RESTSettings
 	public static function ajax_create_api_key(): void
 	{
 		if (! check_ajax_referer('mhm_rest_api_keys_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('Insufficient permissions.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Insufficient permissions.', 'mhm-rentiva') ));
 		}
-		$name  = isset($_POST['name']) ? sanitize_text_field(wp_unslash((string) $_POST['name'])) : '';
-		$perms = isset($_POST['permissions']) ? array_map('sanitize_text_field', (array) wp_unslash($_POST['permissions'])) : array('read');
+		$name  = isset($_POST['name']) ? sanitize_text_field(wp_unslash( (string) $_POST['name'])) : '';
+		$perms = isset($_POST['permissions']) ? array_map('sanitize_text_field', (array) wp_unslash($_POST['permissions'])) : array( 'read' );
 		$key   = \MHMRentiva\Admin\REST\APIKeyManager::create_api_key($name, $perms);
-		$key ? wp_send_json_success(array('key' => $key)) : wp_send_json_error();
+		$key ? wp_send_json_success(array( 'key' => $key )) : wp_send_json_error();
 	}
 
 	public static function ajax_list_api_keys(): void
 	{
 		if (! check_ajax_referer('mhm_rest_api_keys_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('Insufficient permissions.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Insufficient permissions.', 'mhm-rentiva') ));
 		}
-		wp_send_json_success(array('keys' => \MHMRentiva\Admin\REST\APIKeyManager::list_api_keys()));
+		wp_send_json_success(array( 'keys' => \MHMRentiva\Admin\REST\APIKeyManager::list_api_keys() ));
 	}
 
 	public static function ajax_revoke_api_key(): void
 	{
 		if (! check_ajax_referer('mhm_rest_api_keys_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('Insufficient permissions.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Insufficient permissions.', 'mhm-rentiva') ));
 		}
-		$key_id = isset($_POST['key_id']) ? sanitize_text_field(wp_unslash((string) $_POST['key_id'])) : '';
+		$key_id = isset($_POST['key_id']) ? sanitize_text_field(wp_unslash( (string) $_POST['key_id'])) : '';
 		\MHMRentiva\Admin\REST\APIKeyManager::revoke_api_key($key_id) ? wp_send_json_success() : wp_send_json_error();
 	}
 
 	public static function ajax_delete_api_key(): void
 	{
 		if (! check_ajax_referer('mhm_rest_api_keys_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('Insufficient permissions.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Insufficient permissions.', 'mhm-rentiva') ));
 		}
-		$key_id = isset($_POST['key_id']) ? sanitize_text_field(wp_unslash((string) $_POST['key_id'])) : '';
+		$key_id = isset($_POST['key_id']) ? sanitize_text_field(wp_unslash( (string) $_POST['key_id'])) : '';
 		\MHMRentiva\Admin\REST\APIKeyManager::delete_api_key($key_id) ? wp_send_json_success() : wp_send_json_error();
 	}
 
 	public static function ajax_list_endpoints(): void
 	{
 		if (! check_ajax_referer('mhm_rest_api_keys_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('Insufficient permissions.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Insufficient permissions.', 'mhm-rentiva') ));
 		}
 		wp_send_json_success(
 			array(

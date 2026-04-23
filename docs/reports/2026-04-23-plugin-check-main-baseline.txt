@@ -1,0 +1,200 @@
+[{"line":145,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_vehicle_dates_penalty_blocked&quot;.","docs":""}]
+
+FILE: build/zip-staging/mhm-rentiva/src/Core/Attribute/AllowlistRegistry.php
+[{"line":1494,"column":30,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_attribute_registry&quot;.","docs":""}]
+
+FILE: build/zip-staging/mhm-rentiva/src/Core/Dashboard/DashboardConfig.php
+[{"line":130,"column":30,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_dashboard_kpi_{$context}&quot;.","docs":""}]
+
+FILE: build/zip-staging/mhm-rentiva/src/Core/Financial/PayoutService.php
+[{"line":171,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_payout_approved&quot;.","docs":""},{"line":217,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_payout_rejected&quot;.","docs":""}]
+
+FILE: build/zip-staging/mhm-rentiva/src/Core/Financial/Risk/CoolingPolicyManager.php
+[{"line":84,"column":13,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_cooling_policy_map&quot;.","docs":""}]
+
+FILE: build/zip-staging/mhm-rentiva/src/Core/Orchestration/TenantProvisioner.php
+[{"line":77,"column":38,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_provisioning_site_id&quot;.","docs":""}]
+
+FILE: build/zip-staging/mhm-rentiva/src/Core/Services/Metrics/MetricRegistry.php
+[{"line":95,"column":35,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_registered_metrics&quot;.","docs":""}]
+
+FILE: build/zip-staging/mhm-rentiva/src/Core/Tenancy/TenantResolver.php
+[{"line":56,"column":42,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_tenant_id&quot;.","docs":""},{"line":69,"column":54,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_tenant_key&quot;.","docs":""},{"line":70,"column":54,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_tenant_compliance_profile&quot;.","docs":""},{"line":71,"column":54,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_tenant_locale&quot;.","docs":""}]
+
+FILE: build/zip-staging/mhm-rentiva/templates/admin/dashboard/quick-actions.php
+[{"line":14,"column":1,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound","message":"Global variables defined by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;$pending_messages&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Admin/Frontend/Shortcodes/Account/VendorLedger.php
+[{"line":92,"column":13,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_template_path&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Admin/Frontend/Shortcodes/HomePoc.php
+[{"line":49,"column":28,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_enable_home_poc&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Admin/PostTypes/Maintenance/AutoComplete.php
+[{"line":128,"column":27,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_booking_auto_completed&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Admin/PostTypes/Maintenance/ListingExpiryJob.php
+[{"line":177,"column":23,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_vehicle_auto_withdrawn&quot;.","docs":""},{"line":178,"column":23,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_vehicle_lifecycle_changed&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Admin/PostTypes/Maintenance/ListingExpiryWarningJob.php
+[{"line":137,"column":23,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;$action_hook&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Admin/Vehicle/ListingFeeManager.php
+[{"line":344,"column":23,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_listing_fee_completed&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Admin/Vehicle/PenaltyRecorder.php
+[{"line":72,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_withdrawal_penalty_recorded&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Admin/Vehicle/VendorCancellationDateBlocker.php
+[{"line":145,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_vehicle_dates_penalty_blocked&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Core/Attribute/AllowlistRegistry.php
+[{"line":1482,"column":30,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_attribute_registry&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Core/Dashboard/DashboardConfig.php
+[{"line":130,"column":30,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_dashboard_kpi_{$context}&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Core/Financial/PayoutService.php
+[{"line":171,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_payout_approved&quot;.","docs":""},{"line":217,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_payout_rejected&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Core/Financial/Risk/CoolingPolicyManager.php
+[{"line":84,"column":13,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_cooling_policy_map&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Core/Orchestration/TenantProvisioner.php
+[{"line":77,"column":38,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_provisioning_site_id&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Core/Services/Metrics/MetricRegistry.php
+[{"line":95,"column":35,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_registered_metrics&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Core/Tenancy/TenantResolver.php
+[{"line":56,"column":42,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_tenant_id&quot;.","docs":""},{"line":69,"column":54,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_tenant_key&quot;.","docs":""},{"line":70,"column":54,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_tenant_compliance_profile&quot;.","docs":""},{"line":71,"column":54,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_tenant_locale&quot;.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/templates/admin/dashboard/quick-actions.php
+[{"line":14,"column":1,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound","message":"Global variables defined by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;$pending_messages&quot;.","docs":""}]
+
+FILE: src/Admin/Core/Utilities/UXHelper.php
+[{"line":482,"column":13,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_product_url&quot;.","docs":""}]
+
+FILE: src/Admin/Frontend/Shortcodes/Account/VendorLedger.php
+[{"line":92,"column":13,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_template_path&quot;.","docs":""}]
+
+FILE: src/Admin/Frontend/Shortcodes/HomePoc.php
+[{"line":49,"column":28,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_enable_home_poc&quot;.","docs":""}]
+
+FILE: src/Admin/PostTypes/Maintenance/AutoComplete.php
+[{"line":128,"column":27,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_booking_auto_completed&quot;.","docs":""}]
+
+FILE: src/Admin/PostTypes/Maintenance/ListingExpiryJob.php
+[{"line":177,"column":23,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_vehicle_auto_withdrawn&quot;.","docs":""},{"line":178,"column":23,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_vehicle_lifecycle_changed&quot;.","docs":""}]
+
+FILE: src/Admin/PostTypes/Maintenance/ListingExpiryWarningJob.php
+[{"line":137,"column":23,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;$action_hook&quot;.","docs":""}]
+
+FILE: src/Admin/Vehicle/ListingFeeManager.php
+[{"line":344,"column":23,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_listing_fee_completed&quot;.","docs":""}]
+
+FILE: src/Admin/Vehicle/PenaltyRecorder.php
+[{"line":72,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_withdrawal_penalty_recorded&quot;.","docs":""}]
+
+FILE: src/Admin/Vehicle/VendorCancellationDateBlocker.php
+[{"line":145,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_vehicle_dates_penalty_blocked&quot;.","docs":""}]
+
+FILE: src/Core/Attribute/AllowlistRegistry.php
+[{"line":1494,"column":30,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_attribute_registry&quot;.","docs":""}]
+
+FILE: src/Core/Dashboard/DashboardConfig.php
+[{"line":130,"column":30,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_dashboard_kpi_{$context}&quot;.","docs":""}]
+
+FILE: src/Core/Financial/PayoutService.php
+[{"line":171,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_payout_approved&quot;.","docs":""},{"line":217,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_payout_rejected&quot;.","docs":""}]
+
+FILE: src/Core/Financial/Risk/CoolingPolicyManager.php
+[{"line":84,"column":13,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_cooling_policy_map&quot;.","docs":""}]
+
+FILE: src/Core/Orchestration/TenantProvisioner.php
+[{"line":77,"column":38,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_provisioning_site_id&quot;.","docs":""}]
+
+FILE: src/Core/Services/Metrics/MetricRegistry.php
+[{"line":95,"column":35,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_registered_metrics&quot;.","docs":""}]
+
+FILE: src/Core/Tenancy/TenantResolver.php
+[{"line":56,"column":42,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_tenant_id&quot;.","docs":""},{"line":69,"column":54,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_tenant_key&quot;.","docs":""},{"line":70,"column":54,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_tenant_compliance_profile&quot;.","docs":""},{"line":71,"column":54,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;mhm_rentiva_filter_tenant_locale&quot;.","docs":""}]
+
+FILE: stubs/phpunit-stubs.php
+[{"line":59,"column":9,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound","message":"Classes declared by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;WPAjaxDieContinueException&quot;.","docs":""},{"line":63,"column":9,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound","message":"Classes declared by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;WPAjaxDieStopException&quot;.","docs":""}]
+
+FILE: templates/admin/dashboard/quick-actions.php
+[{"line":14,"column":1,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound","message":"Global variables defined by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;$pending_messages&quot;.","docs":""}]
+
+FILE: tests/Integration/Admin/CoreAdminPagesTest.php
+[{"line":66,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;add_meta_boxes_vehicle&quot;.","docs":""}]
+
+FILE: tests/Integration/BootIsolation/LicenseIsolationDowngradeTest.php
+[{"line":57,"column":18,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound","message":"Global variables defined by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;$wp_rest_server&quot;.","docs":""},{"line":70,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;rest_api_init&quot;.","docs":""}]
+
+FILE: tests/Integration/BootIsolation/LicenseIsolationProStateTest.php
+[{"line":50,"column":18,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound","message":"Global variables defined by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;$wp_rest_server&quot;.","docs":""},{"line":63,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;rest_api_init&quot;.","docs":""}]
+
+FILE: tests/manual/analyze_vehicles_list_assets.php
+[{"line":16,"column":1,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound","message":"Classes declared by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;M5_Asset_Analyzer&quot;.","docs":""},{"line":28,"column":19,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound","message":"Hook names invoked by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;wp_enqueue_scripts&quot;.","docs":""},{"line":85,"column":1,"type":"WARNING","code":"WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound","message":"Global variables defined by a theme\/plugin should start with the theme\/plugin prefix. Found: &quot;$analyzer&quot;.","docs":""}]
+
+FILE: .worktrees/release-wpcs/src/Admin/Core/Utilities/DatabaseMigrator.php
+[{"line":1004,"column":21,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_name used in $wpdb-&gt;get_results()\\n$table_name assigned unsafely at line 998.","docs":""}]
+
+FILE: .worktrees/release-wpcs/src/Admin/Frontend/Shortcodes/UnifiedSearch.php
+[{"line":232,"column":21,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $query used in $wpdb-&gt;get_results()\\n$query assigned unsafely at line 228.","docs":""}]
+
+FILE: .worktrees/release-wpcs/src/Admin/Reports/Repository/ReportRepository.php
+[{"line":481,"column":22,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $sql used in $wpdb-&gt;get_results()\\n$sql assigned unsafely at line 479.","docs":""},{"line":522,"column":24,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $transfer_sql used in $wpdb-&gt;get_results()\\n$transfer_sql assigned unsafely at line 520.","docs":""}]
+
+FILE: .worktrees/release-wpcs/src/Admin/Transfer/Engine/LocationProvider.php
+[{"line":56,"column":27,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $query used in $wpdb-&gt;get_results()\\n$query assigned unsafely at line 53.","docs":""},{"line":96,"column":27,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $query used in $wpdb-&gt;get_results()\\n$query assigned unsafely at line 93.","docs":""}]
+
+FILE: .worktrees/release-wpcs/src/Admin/Transfer/Frontend/TransferShortcodes.php
+[{"line":200,"column":21,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_routes used in $wpdb-&gt;get_results()\\n$table_routes assigned unsafely at line 198.","docs":""},{"line":264,"column":26,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_locations used in $wpdb-&gt;get_var()\\n$table_locations assigned unsafely at line 260.","docs":""},{"line":268,"column":31,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_locations used in $wpdb-&gt;get_var()\\n$table_locations assigned unsafely at line 260.","docs":""}]
+
+FILE: .worktrees/release-wpcs/src/Core/Financial/PolicyRepository.php
+[{"line":44,"column":30,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table used in $wpdb-&gt;get_row()\\n$table assigned unsafely at line 39.","docs":""},{"line":66,"column":30,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table used in $wpdb-&gt;get_row()\\n$table assigned unsafely at line 39.","docs":""}]
+
+FILE: .worktrees/release-wpcs/src/Core/Orchestration/ControlPlaneGuard.php
+[{"line":75,"column":23,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table used in $wpdb-&gt;get_row()\\n$table assigned unsafely at line 71.","docs":""},{"line":101,"column":31,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table used in $wpdb-&gt;get_var()","docs":""}]
+
+FILE: .worktrees/release-wpcs/templates/account/partials/vendor-bookings.php
+[{"line":140,"column":22,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $status_where used in $wpdb-&gt;get_results()\\n$status_where assigned unsafely at line 133.","docs":""}]
+
+FILE: build/mhm-rentiva/src/Admin/Frontend/Shortcodes/UnifiedSearch.php
+[{"line":232,"column":21,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $query used in $wpdb-&gt;get_results()\\n$query assigned unsafely at line 228.","docs":""}]
+
+FILE: build/mhm-rentiva/src/Admin/Reports/Repository/ReportRepository.php
+[{"line":481,"column":22,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $sql used in $wpdb-&gt;get_results()\\n$sql assigned unsafely at line 479.","docs":""},{"line":522,"column":24,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $transfer_sql used in $wpdb-&gt;get_results()\\n$transfer_sql assigned unsafely at line 520.","docs":""}]
+
+FILE: build/mhm-rentiva/src/Admin/Transfer/Frontend/TransferShortcodes.php
+[{"line":200,"column":21,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_routes used in $wpdb-&gt;get_results()\\n$table_routes assigned unsafely at line 198.","docs":""},{"line":264,"column":26,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_locations used in $wpdb-&gt;get_var()\\n$table_locations assigned unsafely at line 260.","docs":""},{"line":268,"column":31,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_locations used in $wpdb-&gt;get_var()\\n$table_locations assigned unsafely at line 260.","docs":""}]
+
+FILE: build/zip-staging/mhm-rentiva/src/Admin/Frontend/Shortcodes/UnifiedSearch.php
+[{"line":232,"column":21,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $query used in $wpdb-&gt;get_results()\\n$query assigned unsafely at line 228.","docs":""}]
+
+FILE: build/zip-staging/mhm-rentiva/src/Admin/Reports/Repository/ReportRepository.php
+[{"line":481,"column":22,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $sql used in $wpdb-&gt;get_results()\\n$sql assigned unsafely at line 479.","docs":""},{"line":522,"column":24,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $transfer_sql used in $wpdb-&gt;get_results()\\n$transfer_sql assigned unsafely at line 520.","docs":""}]
+
+FILE: build/zip-staging/mhm-rentiva/src/Admin/Transfer/Frontend/TransferShortcodes.php
+[{"line":200,"column":21,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_routes used in $wpdb-&gt;get_results()\\n$table_routes assigned unsafely at line 198.","docs":""},{"line":264,"column":26,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_locations used in $wpdb-&gt;get_var()\\n$table_locations assigned unsafely at line 260.","docs":""},{"line":268,"column":31,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_locations used in $wpdb-&gt;get_var()\\n$table_locations assigned unsafely at line 260.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Admin/Frontend/Shortcodes/UnifiedSearch.php
+[{"line":232,"column":21,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $query used in $wpdb-&gt;get_results()\\n$query assigned unsafely at line 228.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Admin/Reports/Repository/ReportRepository.php
+[{"line":481,"column":22,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $sql used in $wpdb-&gt;get_results()\\n$sql assigned unsafely at line 479.","docs":""},{"line":522,"column":24,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $transfer_sql used in $wpdb-&gt;get_results()\\n$transfer_sql assigned unsafely at line 520.","docs":""}]
+
+FILE: build/zip-staging2/mhm-rentiva/src/Admin/Transfer/Frontend/TransferShortcodes.php
+[{"line":200,"column":21,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_routes used in $wpdb-&gt;get_results()\\n$table_routes assigned unsafely at line 198.","docs":""},{"line":264,"column":26,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_locations used in $wpdb-&gt;get_var()\\n$table_locations assigned unsafely at line 260.","docs":""},{"line":268,"column":31,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_locations used in $wpdb-&gt;get_var()\\n$table_locations assigned unsafely at line 260.","docs":""}]
+
+FILE: src/Admin/Frontend/Shortcodes/UnifiedSearch.php
+[{"line":232,"column":21,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $query used in $wpdb-&gt;get_results()\\n$query assigned unsafely at line 228.","docs":""}]
+
+FILE: src/Admin/Reports/Repository/ReportRepository.php
+[{"line":481,"column":22,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $sql used in $wpdb-&gt;get_results()\\n$sql assigned unsafely at line 479.","docs":""},{"line":522,"column":24,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $transfer_sql used in $wpdb-&gt;get_results()\\n$transfer_sql assigned unsafely at line 520.","docs":""}]
+
+FILE: src/Admin/Transfer/Frontend/TransferShortcodes.php
+[{"line":200,"column":21,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_routes used in $wpdb-&gt;get_results()\\n$table_routes assigned unsafely at line 198.","docs":""},{"line":264,"column":26,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_locations used in $wpdb-&gt;get_var()\\n$table_locations assigned unsafely at line 260.","docs":""},{"line":268,"column":31,"type":"WARNING","code":"PluginCheck.Security.DirectDB.UnescapedDBParameter","message":"Unescaped parameter $table_locations used in $wpdb-&gt;get_var()\\n$table_locations assigned unsafely at line 260.","docs":""}]
+

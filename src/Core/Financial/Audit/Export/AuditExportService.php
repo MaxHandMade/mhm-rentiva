@@ -21,8 +21,8 @@ use MHMRentiva\Core\Financial\Exceptions\GovernanceException;
  *
  * @since 4.22.0
  */
-class AuditExportService
-{
+class AuditExportService {
+
     /**
      * Executes the immutable CSV generation.
      *
@@ -36,7 +36,9 @@ class AuditExportService
         global $wpdb;
 
         // Force a read-only perspective just for logical encapsulation, though we only execute SELECTs.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Export session must set a live read-only isolation boundary.
         $wpdb->query('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;');
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Export session must open a live read-only transaction.
         $wpdb->query('START TRANSACTION READ ONLY;');
 
         try {
@@ -69,7 +71,7 @@ class AuditExportService
                 'approval_stage',
                 'actor_id',
                 'PREVIOUS_HASH',     // Cryptographic Bind Pre-Row
-                'CURRENT_HASH'       // Cryptographic Verification Tip
+                'CURRENT_HASH',       // Cryptographic Verification Tip
             ]);
 
             $l_table = $wpdb->prefix . 'mhm_rentiva_ledger';
@@ -77,6 +79,7 @@ class AuditExportService
 
             // THE CANONICAL DETERMINISTIC QUERY
             // Enforces order explicitly
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Audit export must stream a live deterministic snapshot.
             $results = $wpdb->get_results(
                 $wpdb->prepare(
                     "
@@ -108,12 +111,12 @@ class AuditExportService
             $chain = new HashChainBuilder();
 
             foreach ($results as $row) {
-                $hash_data = $chain->advance((array) $row);
+                $hash_data = $chain->advance( (array) $row);
 
                 // Build Final Export Row
                 $export_row = array_merge($hash_data['csv_row'], [
                     $hash_data['previous_hash'],
-                    $hash_data['current_hash']
+                    $hash_data['current_hash'],
                 ]);
 
                 fputcsv($fh, $export_row);
@@ -123,6 +126,7 @@ class AuditExportService
             fclose($fh);
 
             // Commit implicit Read Only context
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Export session must close the live read-only transaction.
             $wpdb->query('COMMIT;');
 
             // Cryptographic File Sealing
@@ -133,16 +137,19 @@ class AuditExportService
             $sig_file  = $temp_dir . '/' . $export_uuid . '.sig';
             $meta_file = $temp_dir . '/' . $export_uuid . '.meta.json';
 
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Deterministic export writer persists generated signature bytes directly.
             file_put_contents($sig_file, $sig_data['signature']);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Deterministic export writer persists generated metadata bytes directly.
             file_put_contents($meta_file, wp_json_encode($meta_data, JSON_PRETTY_PRINT));
 
             return [
                 'csv_path'  => $csv_file,
                 'sig_path'  => $sig_file,
                 'meta_path' => $meta_file,
-                'file_hash' => $sig_data['file_hash']
+                'file_hash' => $sig_data['file_hash'],
             ];
         } catch (\Exception $e) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Export session must roll back the live read-only transaction on failure.
             $wpdb->query('ROLLBACK;');
             // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
             throw new GovernanceException('Export creation failed: ' . $e->getMessage());
@@ -174,9 +181,9 @@ class AuditExportService
                 'approval_stage',
                 'actor_id',
                 'PREVIOUS_HASH',
-                'CURRENT_HASH'
+                'CURRENT_HASH',
             ],
-            'generation_utc' => gmdate('Y-m-d\TH:i:s\Z')
+            'generation_utc' => gmdate('Y-m-d\TH:i:s\Z'),
         ];
     }
 }

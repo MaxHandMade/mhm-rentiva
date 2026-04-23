@@ -10,8 +10,8 @@ if (!defined('ABSPATH')) {
 /**
  * Migration for SaaS Orchestration Layer (v1.9).
  */
-final class OrchestrationMigration
-{
+final class OrchestrationMigration {
+
     /**
      * Create SaaS Orchestration tables.
      */
@@ -22,7 +22,7 @@ final class OrchestrationMigration
 
         // 1. Tenants Registry Table
         $tenants_table = $wpdb->prefix . 'mhm_rentiva_tenants';
-        $sql1 = "CREATE TABLE $tenants_table (
+        $sql1          = "CREATE TABLE $tenants_table (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             tenant_id bigint(20) unsigned NOT NULL,
             site_id bigint(20) unsigned DEFAULT NULL,
@@ -41,7 +41,7 @@ final class OrchestrationMigration
 
         // 2. Usage Metrics Table
         $metrics_table = $wpdb->prefix . 'mhm_rentiva_usage_metrics';
-        $sql2 = "CREATE TABLE $metrics_table (
+        $sql2          = "CREATE TABLE $metrics_table (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             tenant_id bigint(20) unsigned NOT NULL,
             metric_type enum('payouts', 'ledger_entries', 'risk_events') NOT NULL,

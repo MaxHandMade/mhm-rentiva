@@ -1,0 +1,9 @@
+FILE: .github
+[{"line":0,"column":0,"type":"WARNING","code":"github_directory","message":"GitHub workflow directory \".github\" detected. This directory should not be included in production plugins.","docs":""}]
+
+FILE: README-tr.md
+[{"line":0,"column":0,"type":"WARNING","code":"unexpected_markdown_file","message":"Unexpected markdown file \"README-tr.md\" detected in plugin root. Only specific markdown files are expected in production plugins.","docs":""}]
+
+FILE: SHORTCODES.md
+[{"line":0,"column":0,"type":"WARNING","code":"unexpected_markdown_file","message":"Unexpected markdown file \"SHORTCODES.md\" detected in plugin root. Only specific markdown files are expected in production plugins.","docs":""}]
+

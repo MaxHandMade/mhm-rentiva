@@ -36,7 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						if ( isset( $revenue_data['daily'] ) ) {
 							$raw_data = $revenue_data['daily'];
 							if ( is_object( $raw_data ) ) {
-								$daily_revenue = json_decode( json_encode( $raw_data ), true );
+								$daily_revenue = json_decode( wp_json_encode( $raw_data ), true );
 							} elseif ( is_array( $raw_data ) ) {
 								$daily_revenue = $raw_data;
 							}

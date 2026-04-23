@@ -24,8 +24,8 @@ use MHMRentiva\Admin\Core\Utilities\Templates;
 
 
 
-final class Reports
-{
+final class Reports {
+
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
 
@@ -40,16 +40,16 @@ final class Reports
 	public static function register(): void
 	{
 		// Add dashboard widgets
-		add_action('wp_dashboard_setup', array(self::class, 'add_dashboard_widgets'));
+		add_action('wp_dashboard_setup', array( self::class, 'add_dashboard_widgets' ));
 
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_reports_data', array(self::class, 'ajax_get_data'));
+		add_action('wp_ajax_mhm_rentiva_reports_data', array( self::class, 'ajax_get_data' ));
 
 		// Admin scripts
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_scripts'));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
 
 		// Cache clearing
-		add_action('wp_ajax_mhm_rentiva_clear_reports_cache', array(self::class, 'ajax_clear_cache'));
+		add_action('wp_ajax_mhm_rentiva_clear_reports_cache', array( self::class, 'ajax_clear_cache' ));
 	}
 
 	public static function add_dashboard_widgets(): void
@@ -58,7 +58,7 @@ final class Reports
 		wp_add_dashboard_widget(
 			'mhm_rentiva_stats',
 			esc_html__('MHM Rentiva Statistics', 'mhm-rentiva'),
-			array(self::class, 'render_stats_widget')
+			array( self::class, 'render_stats_widget' )
 		);
 
 		// Revenue chart and upcoming ops — Pro only (advanced reports feature)
@@ -66,20 +66,20 @@ final class Reports
 			wp_add_dashboard_widget(
 				'mhm_rentiva_revenue_chart',
 				esc_html__('Revenue Chart', 'mhm-rentiva'),
-				array(self::class, 'render_revenue_widget')
+				array( self::class, 'render_revenue_widget' )
 			);
 
 			wp_add_dashboard_widget(
 				'mhm_rentiva_upcoming_ops',
 				esc_html__('Upcoming Operations', 'mhm-rentiva'),
-				array(self::class, 'render_upcoming_ops_widget')
+				array( self::class, 'render_upcoming_ops_widget' )
 			);
 		}
 	}
 
 	public static function render_stats_widget(): void
 	{
-		$stats           = static::get_dashboard_stats();
+		$stats           = self::get_dashboard_stats();
 		$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 		$revenue_display = function_exists( 'wc_price' )
 			? wp_strip_all_tags( wc_price( $stats['monthly_revenue_raw'] ?? 0 ) )
@@ -188,7 +188,7 @@ final class Reports
 
 			$occupancy_rate = 0;
 			if ($total_vehicles > 0 && $active_bookings > 0) {
-				$occupancy_rate = min(100, round(($active_bookings / $total_vehicles) * 100));
+				$occupancy_rate = min(100, round(( $active_bookings / $total_vehicles ) * 100));
 			}
 
 			$stats = array(
@@ -211,21 +211,21 @@ final class Reports
 	public static function ajax_get_data(): void
 	{
 		if (! check_ajax_referer('mhm_reports_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('Unauthorized access', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Unauthorized access', 'mhm-rentiva') ));
 		}
 
-		$type       = isset($_POST['type']) ? sanitize_key(wp_unslash((string) $_POST['type'])) : '';
-		$start_date = isset($_POST['start_date']) ? sanitize_text_field(wp_unslash((string) $_POST['start_date'])) : gmdate('Y-m-d', strtotime('-30 days'));
-		$end_date   = isset($_POST['end_date']) ? sanitize_text_field(wp_unslash((string) $_POST['end_date'])) : gmdate('Y-m-d');
+		$type       = isset($_POST['type']) ? sanitize_key(wp_unslash( (string) $_POST['type'])) : '';
+		$start_date = isset($_POST['start_date']) ? sanitize_text_field(wp_unslash( (string) $_POST['start_date'])) : gmdate('Y-m-d', strtotime('-30 days'));
+		$end_date   = isset($_POST['end_date']) ? sanitize_text_field(wp_unslash( (string) $_POST['end_date'])) : gmdate('Y-m-d');
 
 		// License check
 		if (! Mode::featureEnabled(Mode::FEATURE_REPORTS_ADV)) {
 			$max_days  = Mode::reportsMaxRangeDays();
-			$date_diff = (strtotime($end_date) - strtotime($start_date)) / (60 * 60 * 24);
+			$date_diff = ( strtotime($end_date) - strtotime($start_date) ) / ( 60 * 60 * 24 );
 
 			if ($date_diff > $max_days) {
 				wp_send_json_error(__('Maximum 30 days of data can be displayed in Lite version.', 'mhm-rentiva'));
@@ -266,11 +266,11 @@ final class Reports
 	public static function ajax_clear_cache(): void
 	{
 		if (! check_ajax_referer('mhm_reports_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('Unauthorized access', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Unauthorized access', 'mhm-rentiva') ));
 		}
 
 		// Cache clearing
@@ -338,14 +338,14 @@ final class Reports
 		wp_enqueue_style(
 			'mhm-core-css',
 			plugins_url('assets/css/core/core.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
-			array('mhm-css-variables'),
+			array( 'mhm-css-variables' ),
 			MHM_RENTIVA_VERSION
 		);
 
 		wp_enqueue_style(
 			'mhm-animations',
 			plugins_url('assets/css/core/animations.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
-			array('mhm-css-variables'),
+			array( 'mhm-css-variables' ),
 			MHM_RENTIVA_VERSION
 		);
 
@@ -353,7 +353,7 @@ final class Reports
 		wp_enqueue_style(
 			'mhm-stats-cards',
 			plugins_url('assets/css/components/stats-cards.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
-			array('mhm-core-css'),
+			array( 'mhm-core-css' ),
 			MHM_RENTIVA_VERSION
 		);
 
@@ -361,21 +361,21 @@ final class Reports
 		wp_enqueue_style(
 			'mhm-admin-reports',
 			plugins_url('assets/css/admin/admin-reports.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
-			array('mhm-core-css'),
-			(MHM_RENTIVA_VERSION) . '.4' // Add version for cache busting
+			array( 'mhm-core-css' ),
+			( MHM_RENTIVA_VERSION ) . '.4' // Add version for cache busting
 		);
 
 		// Reports JavaScript
 		wp_enqueue_script(
 			'mhm-admin-reports',
 			plugins_url('assets/js/admin/reports.js', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
-			array('jquery'),
+			array( 'jquery' ),
 			MHM_RENTIVA_VERSION,
 			true
 		);
 
 		// AJAX nonce for reports
-		wp_localize_script('mhm-admin-reports', 'mhm_reports_nonce', array('nonce' => wp_create_nonce('mhm_reports_nonce')));
+		wp_localize_script('mhm-admin-reports', 'mhm_reports_nonce', array( 'nonce' => wp_create_nonce('mhm_reports_nonce') ));
 
 		Charts::enqueue_scripts();
 	}
@@ -408,13 +408,13 @@ final class Reports
 		\MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice('reports');
 
 		// Statistics cards - at the top of page
-		static::render_stats_cards();
+		self::render_stats_cards();
 
 		// Filters (read-only querystring values).
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$request    = wp_unslash($_GET ?? []);
-		$start_date = isset($request['start_date']) ? sanitize_text_field((string) $request['start_date']) : gmdate('Y-m-d', strtotime('-30 days'));
-		$end_date   = isset($request['end_date']) ? sanitize_text_field((string) $request['end_date']) : gmdate('Y-m-d');
+		$start_date = isset($request['start_date']) ? sanitize_text_field( (string) $request['start_date']) : gmdate('Y-m-d', strtotime('-30 days'));
+		$end_date   = isset($request['end_date']) ? sanitize_text_field( (string) $request['end_date']) : gmdate('Y-m-d');
 
 		// Date validation
 		if (! strtotime($start_date) || ! strtotime($end_date)) {
@@ -460,7 +460,7 @@ final class Reports
 
 		// Preserve current tab
 		if (isset($request['tab'])) {
-			echo '<input type="hidden" name="tab" value="' . esc_attr(sanitize_key((string) $request['tab'])) . '">';
+			echo '<input type="hidden" name="tab" value="' . esc_attr(sanitize_key( (string) $request['tab'])) . '">';
 		}
 
 		echo '<div class="filter-row">';
@@ -500,7 +500,7 @@ final class Reports
 		 */
 		$tabs = apply_filters('mhm_rentiva_report_tabs', $tabs);
 
-		$current_tab = isset($request['tab']) ? sanitize_key((string) $request['tab']) : 'overview';
+		$current_tab = isset($request['tab']) ? sanitize_key( (string) $request['tab']) : 'overview';
 
 		echo '<div class="nav-tab-wrapper">';
 		foreach ($tabs as $tab => $label) {
@@ -539,7 +539,7 @@ final class Reports
 		 *     }
 		 * }, 10, 4);
 		 */
-		do_action_ref_array('mhm_rentiva_render_report_tab', array(&$current_tab, &$start_date, &$end_date, &$custom_tab_handled));
+		do_action_ref_array('mhm_rentiva_render_report_tab', array( &$current_tab, &$start_date, &$end_date, &$custom_tab_handled ));
 
 		// If custom tab was handled, skip default rendering
 		if (! $custom_tab_handled) {
@@ -721,8 +721,8 @@ final class Reports
 			echo '<tbody>';
 
 			foreach ($operations as $op) {
-				$icon     = ($op['type'] === 'transfer') ? 'dashicons-airplane' : 'dashicons-car';
-				$date_str = ! empty($op['start_time'])
+				$icon      = ( $op['type'] === 'transfer' ) ? 'dashicons-airplane' : 'dashicons-car';
+				$date_str  = ! empty($op['start_time'])
 					? $op['start_date'] . ' ' . $op['start_time']
 					: $op['start_date'];
 				$date_time = strtotime($date_str);
@@ -731,11 +731,11 @@ final class Reports
 				$formatted_time = ! empty($op['start_time']) ? esc_html($op['start_time']) : wp_date('H:i', $date_time);
 
 				$customer         = esc_html($op['customer_name']);
-				$vehicle_or_route = ($op['type'] === 'transfer')
+				$vehicle_or_route = ( $op['type'] === 'transfer' )
 					? esc_html($op['origin'] ?? '') . ' &rarr; ' . esc_html($op['destination'] ?? '')
 					: esc_html($op['vehicle_title'] ?? '');
 
-				$booking_id  = (int) ($op['id'] ?? 0);
+				$booking_id  = (int) ( $op['id'] ?? 0 );
 				$display_id  = $booking_id ? '#' . mhm_rentiva_get_display_id($booking_id) : '';
 				$booking_url = $booking_id ? esc_url(admin_url('post.php?post=' . $booking_id . '&action=edit')) : '';
 
@@ -746,8 +746,8 @@ final class Reports
 				if ($booking_url) {
 					echo '<a href="' . esc_url($booking_url) . '" style="text-decoration:none;">';
 				}
-				echo '<strong>' . wp_kses_post((string) $vehicle_or_route) . '</strong>';
-				echo '<br><small>' . esc_html((string) $customer) . ' ' . esc_html($display_id) . '</small>';
+				echo '<strong>' . wp_kses_post( (string) $vehicle_or_route) . '</strong>';
+				echo '<br><small>' . esc_html( (string) $customer) . ' ' . esc_html($display_id) . '</small>';
 				if ($booking_url) {
 					echo '</a>';
 				}

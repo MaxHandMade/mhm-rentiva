@@ -20,8 +20,8 @@ $locations    = $locations ?? array();
 $atts         = $atts ?? array();
 $layout       = $atts['layout'] ?? 'horizontal';
 $button_text  = $atts['button_text'] ?? '';
-$show_pickup  = (bool) ($atts['show_pickup'] ?? true);
-$show_dropoff = (bool) ($atts['show_dropoff'] ?? true);
+$show_pickup  = (bool) ( $atts['show_pickup'] ?? true );
+$show_dropoff = (bool) ( $atts['show_dropoff'] ?? true );
 $uid          = uniqid('rv_transfer_search_');
 
 $container_class = 'rv-transfer-search mhm-premium-search mhm-premium-transfer-search rv-layout-' . esc_attr($layout);
@@ -48,11 +48,11 @@ if (! empty($atts['class'])) {
                 <div class="rv-unified-search__field">
                     <label class="rv-label"><?php esc_html_e('Pickup Location', 'mhm-rentiva'); ?></label>
                     <div class="rv-input-wrapper">
-                        <?php Icons::render('location', array('class' => 'rv-icon-marker')); ?>
+                        <?php Icons::render('location', array( 'class' => 'rv-icon-marker' )); ?>
                         <select name="origin_id" id="mhm-origin" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>" data-testid="transfer-origin">
                             <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
                             <?php foreach ($locations as $loc) : ?>
-                                <option value="<?php echo esc_attr((string) $loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
+                                <option value="<?php echo esc_attr( (string) $loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -63,11 +63,11 @@ if (! empty($atts['class'])) {
                 <div class="rv-unified-search__field">
                     <label class="rv-label"><?php esc_html_e('Dropoff Location', 'mhm-rentiva'); ?></label>
                     <div class="rv-input-wrapper">
-                        <?php Icons::render('location', array('class' => 'rv-icon-marker')); ?>
+                        <?php Icons::render('location', array( 'class' => 'rv-icon-marker' )); ?>
                         <select name="destination_id" id="mhm-destination" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>" data-testid="transfer-destination">
                             <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
                             <?php foreach ($locations as $loc) : ?>
-                                <option value="<?php echo esc_attr((string) $loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
+                                <option value="<?php echo esc_attr( (string) $loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -79,14 +79,14 @@ if (! empty($atts['class'])) {
             <div class="rv-unified-search__field">
                 <label class="rv-label"><?php esc_html_e('Date', 'mhm-rentiva'); ?></label>
                 <div class="rv-input-wrapper">
-                    <?php Icons::render('calendar', array('class' => 'rv-icon-calendar')); ?>
+                    <?php Icons::render('calendar', array( 'class' => 'rv-icon-calendar' )); ?>
                     <input type="text" name="date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" required autocomplete="off" data-testid="transfer-date">
                 </div>
             </div>
             <div class="rv-unified-search__field rv-unified-search__field--time">
                 <label class="rv-label"><?php esc_html_e('Time', 'mhm-rentiva'); ?></label>
                 <div class="rv-input-wrapper">
-                    <?php Icons::render('clock', array('class' => 'rv-icon-clock')); ?>
+                    <?php Icons::render('clock', array( 'class' => 'rv-icon-clock' )); ?>
                     <select name="time" class="rv-select">
                         <?php for ($i = 0; $i < 24; $i++) : ?>
                             <?php $time_hour = sprintf('%02d:00', $i); ?>
@@ -107,14 +107,14 @@ if (! empty($atts['class'])) {
             <div class="rv-unified-search__field">
                 <label class="rv-label"><?php esc_html_e('Adults', 'mhm-rentiva'); ?></label>
                 <div class="rv-input-wrapper">
-                    <?php Icons::render('users', array('class' => 'rv-icon')); ?>
+                    <?php Icons::render('users', array( 'class' => 'rv-icon' )); ?>
                     <input type="number" name="adults" value="1" min="1" class="rv-input">
                 </div>
             </div>
             <div class="rv-unified-search__field">
                 <label class="rv-label"><?php esc_html_e('Children', 'mhm-rentiva'); ?></label>
                 <div class="rv-input-wrapper">
-                    <?php Icons::render('users', array('class' => 'rv-icon')); ?>
+                    <?php Icons::render('users', array( 'class' => 'rv-icon' )); ?>
                     <input type="number" name="children" value="0" min="0" class="rv-input">
                 </div>
             </div>
@@ -124,14 +124,14 @@ if (! empty($atts['class'])) {
             <div class="rv-unified-search__field">
                 <label class="rv-label"><?php esc_html_e('Big Bags', 'mhm-rentiva'); ?> <span class="required" style="color:red;">(*)</span></label>
                 <div class="rv-input-wrapper">
-                    <?php Icons::render('luggage', array('class' => 'rv-icon')); ?>
+                    <?php Icons::render('luggage', array( 'class' => 'rv-icon' )); ?>
                     <input type="number" name="luggage_big" value="0" min="0" class="rv-input" required>
                 </div>
             </div>
             <div class="rv-unified-search__field">
                 <label class="rv-label"><?php esc_html_e('Small Bags', 'mhm-rentiva'); ?> <span class="required" style="color:red;">(*)</span></label>
                 <div class="rv-input-wrapper">
-                    <?php Icons::render('luggage', array('class' => 'rv-icon')); ?>
+                    <?php Icons::render('luggage', array( 'class' => 'rv-icon' )); ?>
                     <input type="number" name="luggage_small" value="0" min="0" class="rv-input" required>
                 </div>
             </div>
@@ -139,7 +139,7 @@ if (! empty($atts['class'])) {
 
         <div class="rv-unified-search__action">
             <button type="submit" class="rv-btn rv-btn--primary" data-testid="search-submit-transfer">
-                <?php Icons::render('search', array('class' => 'rv-icon-search')); ?>
+                <?php Icons::render('search', array( 'class' => 'rv-icon-search' )); ?>
                 <?php echo ! empty($button_text) ? esc_html($button_text) : esc_html__('Search Transfer', 'mhm-rentiva'); ?>
             </button>
         </div>

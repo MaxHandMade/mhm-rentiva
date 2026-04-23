@@ -12,8 +12,8 @@ if (! defined('ABSPATH')) {
  *
  * Centralizes client information for all PostTypes classes
  */
-final class ClientUtilities
-{
+final class ClientUtilities {
+
 
 	/**
 	 * Get client IP address securely
@@ -35,8 +35,8 @@ final class ClientUtilities
 		);
 
 		foreach ($ip_headers as $header) {
-			if (! empty($_SERVER[$header])) {
-				$ip = sanitize_text_field(wp_unslash($_SERVER[$header]));
+			if (! empty($_SERVER[ $header ])) {
+				$ip = sanitize_text_field(wp_unslash($_SERVER[ $header ]));
 
 				// X-Forwarded-For can contain multiple IPs (comma separated)
 				if (strpos($ip, ',') !== false) {
@@ -137,12 +137,13 @@ final class ClientUtilities
 		}
 
 		$parts = explode('.', $ip);
-		if (count($parts) !== 4) {
+		$total = count($parts);
+		if ($total !== 4) {
 			return $ip; // IPv6 or invalid format
 		}
 
-		for ($i = count($parts) - $mask_last_octets; $i < count($parts); $i++) {
-			$parts[$i] = 'xxx';
+		for ($i = $total - $mask_last_octets; $i < $total; $i++) {
+			$parts[ $i ] = 'xxx';
 		}
 
 		return implode('.', $parts);

@@ -16,8 +16,8 @@ use WP_CLI_Command;
  *
  * @since 4.22.0
  */
-class ExportAuditCommand extends WP_CLI_Command
-{
+class ExportAuditCommand extends WP_CLI_Command {
+
     /**
      * Generates a Cryptographically Verifiable Audit Export.
      *

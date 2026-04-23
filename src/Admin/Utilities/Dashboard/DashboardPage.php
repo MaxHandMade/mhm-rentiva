@@ -25,8 +25,8 @@ use MHMRentiva\Admin\Core\CurrencyHelper;
  *
  * @since 4.6.3
  */
-final class DashboardPage
-{
+final class DashboardPage {
+
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
 
@@ -35,21 +35,21 @@ final class DashboardPage
 	 */
 	public static function register(): void
 	{
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_scripts'));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
 
-		add_action('wp_ajax_mhm_refresh_dashboard_data', array(self::class, 'ajax_refresh_dashboard_data'));
-		add_action('wp_ajax_mhm_clear_dashboard_cache', array(self::class, 'ajax_clear_dashboard_cache'));
-		add_action('wp_ajax_mhm_save_dashboard_order', array(self::class, 'ajax_save_dashboard_order'));
-		add_action('wp_ajax_mhm_reset_dashboard_layout', array(self::class, 'ajax_reset_dashboard_layout'));
-		add_action('wp_ajax_mhm_upcoming_operations_page', array(self::class, 'ajax_upcoming_operations_page'));
+		add_action('wp_ajax_mhm_refresh_dashboard_data', array( self::class, 'ajax_refresh_dashboard_data' ));
+		add_action('wp_ajax_mhm_clear_dashboard_cache', array( self::class, 'ajax_clear_dashboard_cache' ));
+		add_action('wp_ajax_mhm_save_dashboard_order', array( self::class, 'ajax_save_dashboard_order' ));
+		add_action('wp_ajax_mhm_reset_dashboard_layout', array( self::class, 'ajax_reset_dashboard_layout' ));
+		add_action('wp_ajax_mhm_upcoming_operations_page', array( self::class, 'ajax_upcoming_operations_page' ));
 
-		add_action('save_post_vehicle_booking', array(self::class, 'clear_cache_on_booking_change'));
-		add_action('delete_post', array(self::class, 'clear_cache_on_booking_delete'));
-		add_action('save_post_vehicle', array(self::class, 'clear_cache_on_vehicle_change'));
-		add_action('save_post_mhm_message', array(self::class, 'clear_cache_on_message_change'));
-		add_action('mhm_rentiva_booking_status_changed', array(self::class, 'clear_dashboard_cache'));
-		add_action('updated_post_meta', array(self::class, 'clear_cache_on_meta_change'), 10, 4);
-		add_action('added_post_meta', array(self::class, 'clear_cache_on_meta_change'), 10, 4);
+		add_action('save_post_vehicle_booking', array( self::class, 'clear_cache_on_booking_change' ));
+		add_action('delete_post', array( self::class, 'clear_cache_on_booking_delete' ));
+		add_action('save_post_vehicle', array( self::class, 'clear_cache_on_vehicle_change' ));
+		add_action('save_post_mhm_message', array( self::class, 'clear_cache_on_message_change' ));
+		add_action('mhm_rentiva_booking_status_changed', array( self::class, 'clear_dashboard_cache' ));
+		add_action('updated_post_meta', array( self::class, 'clear_cache_on_meta_change' ), 10, 4);
+		add_action('added_post_meta', array( self::class, 'clear_cache_on_meta_change' ), 10, 4);
 	}
 
 	/**
@@ -82,7 +82,7 @@ final class DashboardPage
 		);
 
 		// Centralized header rendering (echo=false to capture output)
-		$admin_header = $this->render_admin_header((string) get_admin_page_title(), $buttons, false);
+		$admin_header = $this->render_admin_header( (string) get_admin_page_title(), $buttons, false);
 
 		// Capture Developer Mode Banner (if active)
 		ob_start();
@@ -185,7 +185,7 @@ final class DashboardPage
 		}
 
 		// If explicit dashboard slug is not present, check generic top level
-		// But wait, other pages like settings also have 'mhm-rentiva' in hook. 
+		// But wait, other pages like settings also have 'mhm-rentiva' in hook.
 		// We only want to load DASHBOARD assets on dashboard.
 
 		$is_dashboard = (
@@ -202,14 +202,14 @@ final class DashboardPage
 		}
 
 		wp_enqueue_style('mhm-css-variables', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css', array(), MHM_RENTIVA_VERSION);
-		wp_enqueue_style('mhm-core-css', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/core.css', array('mhm-css-variables'), MHM_RENTIVA_VERSION);
-		wp_enqueue_style('mhm-animations', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/animations.css', array('mhm-css-variables'), MHM_RENTIVA_VERSION);
-		wp_enqueue_style('mhm-stats-cards', MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css', array('mhm-core-css'), MHM_RENTIVA_VERSION);
-		wp_enqueue_style('mhm-dashboard', MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/dashboard.css', array('mhm-stats-cards'), MHM_RENTIVA_VERSION);
-		wp_enqueue_style('mhm-dashboard-tooltips', MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/dashboard-tooltips.css', array('mhm-dashboard'), MHM_RENTIVA_VERSION);
+		wp_enqueue_style('mhm-core-css', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/core.css', array( 'mhm-css-variables' ), MHM_RENTIVA_VERSION);
+		wp_enqueue_style('mhm-animations', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/animations.css', array( 'mhm-css-variables' ), MHM_RENTIVA_VERSION);
+		wp_enqueue_style('mhm-stats-cards', MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css', array( 'mhm-core-css' ), MHM_RENTIVA_VERSION);
+		wp_enqueue_style('mhm-dashboard', MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/dashboard.css', array( 'mhm-stats-cards' ), MHM_RENTIVA_VERSION);
+		wp_enqueue_style('mhm-dashboard-tooltips', MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/dashboard-tooltips.css', array( 'mhm-dashboard' ), MHM_RENTIVA_VERSION);
 
 		wp_enqueue_script('chart-js', MHM_RENTIVA_PLUGIN_URL . 'assets/js/vendor/chart.min.js', array(), '3.9.1', true);
-		wp_enqueue_script('mhm-dashboard', MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dashboard.js', array('jquery', 'jquery-ui-sortable', 'chart-js'), MHM_RENTIVA_VERSION, true);
+		wp_enqueue_script('mhm-dashboard', MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dashboard.js', array( 'jquery', 'jquery-ui-sortable', 'chart-js' ), MHM_RENTIVA_VERSION, true);
 
 		$currency_symbol = CurrencyHelper::get_currency_symbol();
 		$revenue_data    = DashboardService::get_revenue_data();
@@ -374,16 +374,20 @@ final class DashboardPage
 
 					if ( $days >= 3 ) {
 						$cd_class = 'countdown-green';
-						$cd_text  = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
+						/* translators: 1: days remaining, 2: hours remaining (countdown >= 3 days) */
+						$cd_text = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
 					} elseif ( $diff >= DAY_IN_SECONDS ) {
 						$cd_class = 'countdown-orange';
-						$cd_text  = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
+						/* translators: 1: days remaining, 2: hours remaining (countdown < 3 days) */
+						$cd_text = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
 					} elseif ( $diff >= HOUR_IN_SECONDS ) {
 						$cd_class = 'countdown-red';
-						$cd_text  = sprintf( __( '%1$dh %2$dm', 'mhm-rentiva' ), $hours, $minutes );
+						/* translators: 1: hours remaining, 2: minutes remaining */
+						$cd_text = sprintf( __( '%1$dh %2$dm', 'mhm-rentiva' ), $hours, $minutes );
 					} else {
 						$cd_class = 'countdown-red';
-						$cd_text  = $minutes > 0 ? sprintf( __( '%dm', 'mhm-rentiva' ), $minutes ) : esc_html__( 'Almost there!', 'mhm-rentiva' );
+						/* translators: %d: minutes remaining */
+						$cd_text = $minutes > 0 ? sprintf( __( '%dm', 'mhm-rentiva' ), $minutes ) : esc_html__( 'Almost there!', 'mhm-rentiva' );
 					}
 
 					$countdown_html = '<span class="op-countdown ' . esc_attr( $cd_class ) . '">' . esc_html( $cd_text ) . '</span>';

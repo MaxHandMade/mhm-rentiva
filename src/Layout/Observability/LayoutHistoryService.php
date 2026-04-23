@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Layout\Observability
  * @since 4.19.0
  */
-class LayoutHistoryService
-{
+class LayoutHistoryService {
+
     /**
      * Get current version info for a post.
      */

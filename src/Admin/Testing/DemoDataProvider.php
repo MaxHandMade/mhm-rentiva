@@ -16,8 +16,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Admin\Testing
  * @since   4.25.1
  */
-final class DemoDataProvider
-{
+final class DemoDataProvider {
+
     /**
      * Detect whether the current locale is Turkish.
      */
@@ -191,14 +191,62 @@ final class DemoDataProvider
     private static function customers_tr(): array
     {
         return array(
-            array( 'name' => 'Ahmet Yılmaz',  'first' => 'Ahmet',  'last' => 'Yılmaz',  'email' => 'demo1@example.com', 'phone' => '+90 532 111 0001' ),
-            array( 'name' => 'Ayşe Demir',    'first' => 'Ayşe',   'last' => 'Demir',   'email' => 'demo2@example.com', 'phone' => '+90 532 111 0002' ),
-            array( 'name' => 'Mehmet Kaya',   'first' => 'Mehmet', 'last' => 'Kaya',    'email' => 'demo3@example.com', 'phone' => '+90 532 111 0003' ),
-            array( 'name' => 'Fatma Çelik',   'first' => 'Fatma',  'last' => 'Çelik',   'email' => 'demo4@example.com', 'phone' => '+90 532 111 0004' ),
-            array( 'name' => 'Ali Öztürk',    'first' => 'Ali',    'last' => 'Öztürk',  'email' => 'demo5@example.com', 'phone' => '+90 532 111 0005' ),
-            array( 'name' => 'Zeynep Arslan', 'first' => 'Zeynep', 'last' => 'Arslan',  'email' => 'demo6@example.com', 'phone' => '+90 532 111 0006' ),
-            array( 'name' => 'Hasan Şahin',   'first' => 'Hasan',  'last' => 'Şahin',   'email' => 'demo7@example.com', 'phone' => '+90 532 111 0007' ),
-            array( 'name' => 'Elif Koç',      'first' => 'Elif',   'last' => 'Koç',     'email' => 'demo8@example.com', 'phone' => '+90 532 111 0008' ),
+            array(
+				'name'  => 'Ahmet Yılmaz',
+				'first' => 'Ahmet',
+				'last'  => 'Yılmaz',
+				'email' => 'demo1@example.com',
+				'phone' => '+90 532 111 0001',
+			),
+            array(
+				'name'  => 'Ayşe Demir',
+				'first' => 'Ayşe',
+				'last'  => 'Demir',
+				'email' => 'demo2@example.com',
+				'phone' => '+90 532 111 0002',
+			),
+            array(
+				'name'  => 'Mehmet Kaya',
+				'first' => 'Mehmet',
+				'last'  => 'Kaya',
+				'email' => 'demo3@example.com',
+				'phone' => '+90 532 111 0003',
+			),
+            array(
+				'name'  => 'Fatma Çelik',
+				'first' => 'Fatma',
+				'last'  => 'Çelik',
+				'email' => 'demo4@example.com',
+				'phone' => '+90 532 111 0004',
+			),
+            array(
+				'name'  => 'Ali Öztürk',
+				'first' => 'Ali',
+				'last'  => 'Öztürk',
+				'email' => 'demo5@example.com',
+				'phone' => '+90 532 111 0005',
+			),
+            array(
+				'name'  => 'Zeynep Arslan',
+				'first' => 'Zeynep',
+				'last'  => 'Arslan',
+				'email' => 'demo6@example.com',
+				'phone' => '+90 532 111 0006',
+			),
+            array(
+				'name'  => 'Hasan Şahin',
+				'first' => 'Hasan',
+				'last'  => 'Şahin',
+				'email' => 'demo7@example.com',
+				'phone' => '+90 532 111 0007',
+			),
+            array(
+				'name'  => 'Elif Koç',
+				'first' => 'Elif',
+				'last'  => 'Koç',
+				'email' => 'demo8@example.com',
+				'phone' => '+90 532 111 0008',
+			),
         );
     }
 
@@ -208,10 +256,22 @@ final class DemoDataProvider
     private static function locations_tr(): array
     {
         return array(
-            array( 'name' => 'İstanbul Havalimanı',          'code' => 'IST' ),
-            array( 'name' => 'Sabiha Gökçen Havalimanı',     'code' => 'SAW' ),
-            array( 'name' => 'Taksim Meydanı',               'code' => 'TAK' ),
-            array( 'name' => 'Kadıköy İskele',               'code' => 'KAD' ),
+            array(
+				'name' => 'İstanbul Havalimanı',
+				'code' => 'IST',
+			),
+            array(
+				'name' => 'Sabiha Gökçen Havalimanı',
+				'code' => 'SAW',
+			),
+            array(
+				'name' => 'Taksim Meydanı',
+				'code' => 'TAK',
+			),
+            array(
+				'name' => 'Kadıköy İskele',
+				'code' => 'KAD',
+			),
         );
     }
 
@@ -221,9 +281,21 @@ final class DemoDataProvider
     private static function addons_tr(): array
     {
         return array(
-            array( 'title' => 'Bebek Koltuğu',  'price' => 150, 'type' => 'per_day' ),
-            array( 'title' => 'Ek Surucu',      'price' => 200, 'type' => 'per_day' ),
-            array( 'title' => 'GPS Navigasyon', 'price' => 100, 'type' => 'per_day' ),
+            array(
+				'title' => 'Bebek Koltuğu',
+				'price' => 150,
+				'type'  => 'per_day',
+			),
+            array(
+				'title' => 'Ek Surucu',
+				'price' => 200,
+				'type'  => 'per_day',
+			),
+            array(
+				'title' => 'GPS Navigasyon',
+				'price' => 100,
+				'type'  => 'per_day',
+			),
         );
     }
 
@@ -336,14 +408,62 @@ final class DemoDataProvider
     private static function customers_en(): array
     {
         return array(
-            array( 'name' => 'John Smith',    'first' => 'John',    'last' => 'Smith',   'email' => 'demo1@example.com', 'phone' => '+1 555 000 0001' ),
-            array( 'name' => 'Jane Doe',      'first' => 'Jane',    'last' => 'Doe',     'email' => 'demo2@example.com', 'phone' => '+1 555 000 0002' ),
-            array( 'name' => 'Michael Brown', 'first' => 'Michael', 'last' => 'Brown',   'email' => 'demo3@example.com', 'phone' => '+1 555 000 0003' ),
-            array( 'name' => 'Emily Davis',   'first' => 'Emily',   'last' => 'Davis',   'email' => 'demo4@example.com', 'phone' => '+1 555 000 0004' ),
-            array( 'name' => 'David Wilson',  'first' => 'David',   'last' => 'Wilson',  'email' => 'demo5@example.com', 'phone' => '+1 555 000 0005' ),
-            array( 'name' => 'Sarah Taylor',  'first' => 'Sarah',   'last' => 'Taylor',  'email' => 'demo6@example.com', 'phone' => '+1 555 000 0006' ),
-            array( 'name' => 'James Miller',  'first' => 'James',   'last' => 'Miller',  'email' => 'demo7@example.com', 'phone' => '+1 555 000 0007' ),
-            array( 'name' => 'Linda White',   'first' => 'Linda',   'last' => 'White',   'email' => 'demo8@example.com', 'phone' => '+1 555 000 0008' ),
+            array(
+				'name'  => 'John Smith',
+				'first' => 'John',
+				'last'  => 'Smith',
+				'email' => 'demo1@example.com',
+				'phone' => '+1 555 000 0001',
+			),
+            array(
+				'name'  => 'Jane Doe',
+				'first' => 'Jane',
+				'last'  => 'Doe',
+				'email' => 'demo2@example.com',
+				'phone' => '+1 555 000 0002',
+			),
+            array(
+				'name'  => 'Michael Brown',
+				'first' => 'Michael',
+				'last'  => 'Brown',
+				'email' => 'demo3@example.com',
+				'phone' => '+1 555 000 0003',
+			),
+            array(
+				'name'  => 'Emily Davis',
+				'first' => 'Emily',
+				'last'  => 'Davis',
+				'email' => 'demo4@example.com',
+				'phone' => '+1 555 000 0004',
+			),
+            array(
+				'name'  => 'David Wilson',
+				'first' => 'David',
+				'last'  => 'Wilson',
+				'email' => 'demo5@example.com',
+				'phone' => '+1 555 000 0005',
+			),
+            array(
+				'name'  => 'Sarah Taylor',
+				'first' => 'Sarah',
+				'last'  => 'Taylor',
+				'email' => 'demo6@example.com',
+				'phone' => '+1 555 000 0006',
+			),
+            array(
+				'name'  => 'James Miller',
+				'first' => 'James',
+				'last'  => 'Miller',
+				'email' => 'demo7@example.com',
+				'phone' => '+1 555 000 0007',
+			),
+            array(
+				'name'  => 'Linda White',
+				'first' => 'Linda',
+				'last'  => 'White',
+				'email' => 'demo8@example.com',
+				'phone' => '+1 555 000 0008',
+			),
         );
     }
 
@@ -353,10 +473,22 @@ final class DemoDataProvider
     private static function locations_en(): array
     {
         return array(
-            array( 'name' => 'Istanbul Airport',      'code' => 'IST' ),
-            array( 'name' => 'Sabiha Gokcen Airport', 'code' => 'SAW' ),
-            array( 'name' => 'Taksim Square',         'code' => 'TAK' ),
-            array( 'name' => 'Kadikoy Ferry Port',    'code' => 'KAD' ),
+            array(
+				'name' => 'Istanbul Airport',
+				'code' => 'IST',
+			),
+            array(
+				'name' => 'Sabiha Gokcen Airport',
+				'code' => 'SAW',
+			),
+            array(
+				'name' => 'Taksim Square',
+				'code' => 'TAK',
+			),
+            array(
+				'name' => 'Kadikoy Ferry Port',
+				'code' => 'KAD',
+			),
         );
     }
 
@@ -366,9 +498,21 @@ final class DemoDataProvider
     private static function addons_en(): array
     {
         return array(
-            array( 'title' => 'Baby Seat',           'price' => 10, 'type' => 'per_day' ),
-            array( 'title' => 'Additional Driver',   'price' => 15, 'type' => 'per_day' ),
-            array( 'title' => 'GPS Navigation',      'price' =>  8, 'type' => 'per_day' ),
+            array(
+				'title' => 'Baby Seat',
+				'price' => 10,
+				'type'  => 'per_day',
+			),
+            array(
+				'title' => 'Additional Driver',
+				'price' => 15,
+				'type'  => 'per_day',
+			),
+            array(
+				'title' => 'GPS Navigation',
+				'price' =>  8,
+				'type'  => 'per_day',
+			),
         );
     }
 }

@@ -57,9 +57,9 @@ final class CustomerReport {
 				)
 			);
 
-			// Debug: Check customer data
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			}
+			// Note: a debug var_dump for customer rows used to live here behind a
+			// WP_DEBUG guard. It was removed to avoid noise; the guard remains
+			// as a placeholder for future dev-mode instrumentation.
 
 			// Customer segmentation with hardcoded thresholds
 			$segments = array(

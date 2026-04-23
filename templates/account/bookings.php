@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**

@@ -19,8 +19,8 @@ use MHMRentiva\Core\Financial\Exceptions\GovernanceException;
  *
  * @since 4.22.0
  */
-class HashChainBuilder
-{
+class HashChainBuilder {
+
     private string $previous_hash = 'GENESIS';
 
     /**
@@ -88,12 +88,12 @@ class HashChainBuilder
 
     private static function parse_int($value): string
     {
-        return (string) ((int) $value);
+        return (string) ( (int) $value );
     }
 
     private static function parse_amount($value): string
     {
-        // Float conversion in PHP is non-deterministic. We force a strict 2-decimal string formatting. 
+        // Float conversion in PHP is non-deterministic. We force a strict 2-decimal string formatting.
         // Example: 15.5 -> "15.50"
         return sprintf('%.2f', (float) $value);
     }

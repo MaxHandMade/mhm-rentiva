@@ -13,7 +13,8 @@ if (! defined('ABSPATH')) {
 }
 ?>
 <div class="wrap mhm-rentiva-admin" id="mhm-shortcode-pages-container">
-	<?php echo $header_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+	<?php
+    echo $header_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
 	?>
 	<p class="description" id="shortcode-pages-desc">
 		<?php esc_html_e('Below is a list of all MHM Rentiva shortcodes and which pages they are used on.', 'mhm-rentiva'); ?>
@@ -33,12 +34,12 @@ if (! defined('ABSPATH')) {
 			<tbody>
 				<?php
 				foreach ($shortcodes_config as $shortcode => $info) :
-					$page_data = $pages[$shortcode] ?? null;
+					$page_data = $pages[ $shortcode ] ?? null;
 					$page_id   = $page_data['id'] ?? null;
 					$url       = $page_data['url'] ?? '';
 					$has_url   = $page_data['has_url'] ?? false;
 					$page      = $page_id ? get_post($page_id) : null;
-				?>
+					?>
 					<tr>
 						<td>
 							<code class="mhm-shortcode-tag"><?php echo esc_html($shortcode); ?></code>
@@ -116,11 +117,11 @@ if (! defined('ABSPATH')) {
 	$missing_count = 0;
 
 	foreach ($shortcodes_config as $shortcode => $info) {
-		$has_url = $pages[$shortcode]['has_url'] ?? false;
-		if ((isset($pages[$shortcode]['id']) && $pages[$shortcode]['id'] > 0) || $has_url) {
-			$active_count++;
+		$has_url = $pages[ $shortcode ]['has_url'] ?? false;
+		if (( isset($pages[ $shortcode ]['id']) && $pages[ $shortcode ]['id'] > 0 ) || $has_url) {
+			++$active_count;
 		} else {
-			$missing_count++;
+			++$missing_count;
 		}
 	}
 	?>

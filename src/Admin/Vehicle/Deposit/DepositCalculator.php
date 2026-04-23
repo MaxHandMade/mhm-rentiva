@@ -13,8 +13,8 @@ if (! defined('ABSPATH')) {
  * This class manages vehicle deposit calculations.
  * Supports fixed amount and percentage deposit options.
  */
-final class DepositCalculator
-{
+final class DepositCalculator {
+
 
 
 	/**
@@ -43,7 +43,7 @@ final class DepositCalculator
 		if ($deposit_type === 'percentage') {
 			$percentage     = self::extract_percentage($deposit_value);
 			$total_amount   = $daily_price * $rental_days;
-			$deposit_amount = ($total_amount * $percentage) / 100;
+			$deposit_amount = ( $total_amount * $percentage ) / 100;
 		}
 
 		$total_amount     = $daily_price * $rental_days;
@@ -219,7 +219,7 @@ final class DepositCalculator
 
 		if ($deposit_type === 'percentage') {
 			$percentage     = self::extract_percentage($deposit_value);
-			$deposit_amount = ($total_amount * $percentage) / 100;
+			$deposit_amount = ( $total_amount * $percentage ) / 100;
 		}
 
 		$remaining_amount = max(0, $total_amount - $deposit_amount);

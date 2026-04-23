@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Layout\Adapters
  * @since 4.14.0
  */
-final class SearchHeroAdapter extends BaseAdapter
-{
+final class SearchHeroAdapter extends BaseAdapter {
+
     /**
      * @var string Target shortcode tag.
      */

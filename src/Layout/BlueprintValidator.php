@@ -20,8 +20,8 @@ use WP_Error;
  * @package MHMRentiva\Layout
  * @since 4.14.0
  */
-final class BlueprintValidator
-{
+final class BlueprintValidator {
+
     /**
      * Validates raw manifest data.
      *
@@ -31,9 +31,9 @@ final class BlueprintValidator
     public function validate(array $manifest)
     {
         // 1. Root structure check
-        $required_keys = ['version', 'source', 'pages', 'tokens', 'components', 'constraints'];
+        $required_keys = [ 'version', 'source', 'pages', 'tokens', 'components', 'constraints' ];
         foreach ($required_keys as $key) {
-            if (! isset($manifest[$key])) {
+            if (! isset($manifest[ $key ])) {
                 return new WP_Error(
                     'mhm_rentiva_invalid_blueprint',
                     /* translators: %s: missing root key in manifest. */
@@ -44,8 +44,8 @@ final class BlueprintValidator
 
         // 1.1 Strict Version Check (Phase 1 supports v1.x)
         if (
-            version_compare((string) $manifest['version'], '1.0.0', '<') ||
-            version_compare((string) $manifest['version'], '2.0.0', '>=')
+            version_compare( (string) $manifest['version'], '1.0.0', '<') ||
+            version_compare( (string) $manifest['version'], '2.0.0', '>=')
         ) {
             return new WP_Error(
                 'mhm_rentiva_unsupported_version',
@@ -60,7 +60,7 @@ final class BlueprintValidator
             'pages'  => $manifest['pages']  ?? [],
             'tokens' => $manifest['tokens'] ?? [],
         ];
-        $json_to_scan = (string) wp_json_encode($scannable_data);
+        $json_to_scan   = (string) wp_json_encode($scannable_data);
 
         foreach (ContractRules::FORBIDDEN_PATTERNS as $pattern) {
             if (stripos($json_to_scan, $pattern) !== false) {
@@ -107,9 +107,9 @@ final class BlueprintValidator
      */
     private function validate_page(array $page, int $index): ?WP_Error
     {
-        $required_keys = ['slug', 'layout', 'composition'];
+        $required_keys = [ 'slug', 'layout', 'composition' ];
         foreach ($required_keys as $key) {
-            if (! isset($page[$key])) {
+            if (! isset($page[ $key ])) {
                 return new WP_Error(
                     'mhm_rentiva_invalid_page',
                     /* translators: 1: page index, 2: missing key. */

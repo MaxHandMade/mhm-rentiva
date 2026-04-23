@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Layout\Config
  * @since 4.14.1
  */
-class ContractRules
-{
+class ContractRules {
+
     /**
      * Allowed wrapper component types.
      */

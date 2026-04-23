@@ -50,7 +50,7 @@ final class About {
 
 		// Determine the active tab from the URL or default to 'general'.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab switch parameter, no state-changing action.
-      $active_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'general';
+		$active_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'general';
 
 		?>
 		<div class="wrap mhm-rentiva-about-wrap">

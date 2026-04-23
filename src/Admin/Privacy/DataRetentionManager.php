@@ -22,8 +22,8 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  *
  * @since 4.0.0
  */
-final class DataRetentionManager
-{
+final class DataRetentionManager {
+
 
 
 	/**
@@ -31,11 +31,11 @@ final class DataRetentionManager
 	 */
 	public static function init(): void
 	{
-		add_action('wp_scheduled_delete', array(self::class, 'cleanup_expired_data'));
+		add_action('wp_scheduled_delete', array( self::class, 'cleanup_expired_data' ));
 		// Register cron hook for scheduled cleanup - must be registered before scheduling
-		add_action('mhm_data_retention_cleanup', array(self::class, 'cleanup_expired_data'));
+		add_action('mhm_data_retention_cleanup', array( self::class, 'cleanup_expired_data' ));
 		// Schedule cleanup - use higher priority to ensure SettingsCore is loaded
-		add_action('init', array(self::class, 'schedule_cleanup'), 99);
+		add_action('init', array( self::class, 'schedule_cleanup' ), 99);
 	}
 
 	/**
@@ -61,7 +61,7 @@ final class DataRetentionManager
 		$result = wp_schedule_event(time(), 'daily', 'mhm_data_retention_cleanup');
 
 		if ($result === false) {
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('Failed to schedule cleanup event', array('error' => error_get_last()));
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('Failed to schedule cleanup event', array( 'error' => error_get_last() ));
 		} else {
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info('Successfully scheduled cleanup event');
 		}
@@ -119,11 +119,17 @@ final class DataRetentionManager
 			if ($anonymization_enabled === '1') {
 				// Anonymize instead of delete
 				GDPRManager::anonymize_user_data($user->ID);
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info('User data anonymized', array('user_email' => $user->user_email, 'user_id' => $user->ID));
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info('User data anonymized', array(
+					'user_email' => $user->user_email,
+					'user_id'    => $user->ID,
+				));
 			} else {
 				// Delete user data
 				GDPRManager::delete_user_data($user->ID);
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info('User data deleted', array('user_email' => $user->user_email, 'user_id' => $user->ID));
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info('User data deleted', array(
+					'user_email' => $user->user_email,
+					'user_id'    => $user->ID,
+				));
 			}
 		}
 	}
@@ -152,7 +158,10 @@ final class DataRetentionManager
 		foreach ($old_bookings as $booking) {
 			// Delete booking and its meta
 			wp_delete_post($booking->ID, true);
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info('Old booking deleted', array('booking_title' => $booking->post_title, 'booking_id' => $booking->ID));
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info('Old booking deleted', array(
+				'booking_title' => $booking->post_title,
+				'booking_id'    => $booking->ID,
+			));
 		}
 	}
 
@@ -196,10 +205,10 @@ final class DataRetentionManager
 		return array(
 			'retention_days' => $retention_days,
 			'cutoff_date'    => $cutoff_date,
-			'total_users'    => (int) ($stats_data['total_users'] ?? 0),
-			'inactive_users' => (int) ($stats_data['inactive_users'] ?? 0),
-			'total_bookings' => (int) ($stats_data['total_bookings'] ?? 0),
-			'old_bookings'   => (int) ($stats_data['old_bookings'] ?? 0),
+			'total_users'    => (int) ( $stats_data['total_users'] ?? 0 ),
+			'inactive_users' => (int) ( $stats_data['inactive_users'] ?? 0 ),
+			'total_bookings' => (int) ( $stats_data['total_bookings'] ?? 0 ),
+			'old_bookings'   => (int) ( $stats_data['old_bookings'] ?? 0 ),
 		);
 	}
 

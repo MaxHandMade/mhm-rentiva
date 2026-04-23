@@ -19,8 +19,8 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  *
  * @since 4.25.0
  */
-final class ListingFeeManager
-{
+final class ListingFeeManager {
+
     /** @var string WooCommerce product SKU for listing fee items. */
     public const PRODUCT_SKU = 'mhm-rentiva-listing-fee';
 
@@ -31,10 +31,10 @@ final class ListingFeeManager
     public const META_ACTION = '_mhm_listing_action';
 
     /** @var string[] Allowed fee model values. */
-    private const ALLOWED_FEE_MODELS = array('one_time', 'per_listing', 'per_renewal');
+    private const ALLOWED_FEE_MODELS = array( 'one_time', 'per_listing', 'per_renewal' );
 
     /** @var string[] Actions that may require payment. */
-    private const PAYABLE_ACTIONS = array('new', 'renew', 'relist');
+    private const PAYABLE_ACTIONS = array( 'new', 'renew', 'relist' );
 
     // ── Task 2: Core Settings ────────────────────────────────
 
@@ -179,10 +179,10 @@ final class ListingFeeManager
             return;
         }
 
-        add_action('woocommerce_before_calculate_totals', array(self::class, 'set_cart_item_price'), 20, 1);
-        add_filter('woocommerce_get_item_data', array(self::class, 'display_cart_item_meta'), 10, 2);
-        add_action('woocommerce_checkout_create_order_line_item', array(self::class, 'save_order_item_meta'), 10, 4);
-        add_action('woocommerce_order_status_completed', array(self::class, 'on_order_completed'), 10, 1);
+        add_action('woocommerce_before_calculate_totals', array( self::class, 'set_cart_item_price' ), 20, 1);
+        add_filter('woocommerce_get_item_data', array( self::class, 'display_cart_item_meta' ), 10, 2);
+        add_action('woocommerce_checkout_create_order_line_item', array( self::class, 'save_order_item_meta' ), 10, 4);
+        add_action('woocommerce_order_status_completed', array( self::class, 'on_order_completed' ), 10, 1);
     }
 
     /**
@@ -202,8 +202,8 @@ final class ListingFeeManager
             }
 
             $product = $cart_item['data'] ?? null;
-            if ($product && is_callable(array($product, 'set_price'))) {
-                $product->set_price((float) $cart_item['mhm_listing_amount']);
+            if ($product && is_callable(array( $product, 'set_price' ))) {
+                $product->set_price( (float) $cart_item['mhm_listing_amount']);
             }
         }
     }
@@ -238,10 +238,10 @@ final class ListingFeeManager
             'relist' => __('Relist', 'mhm-rentiva'),
         );
 
-        if (isset($action_labels[$action])) {
+        if (isset($action_labels[ $action ])) {
             $item_data[] = array(
                 'name'  => __('Action', 'mhm-rentiva'),
-                'value' => $action_labels[$action],
+                'value' => $action_labels[ $action ],
             );
         }
 
@@ -324,7 +324,7 @@ final class ListingFeeManager
         }
 
         // For 'new' and 'relist': set to pending review for admin approval.
-        if (in_array($action, array('new', 'relist'), true)) {
+        if (in_array($action, array( 'new', 'relist' ), true)) {
             wp_update_post(array(
                 'ID'          => $vehicle_id,
                 'post_status' => 'pending',

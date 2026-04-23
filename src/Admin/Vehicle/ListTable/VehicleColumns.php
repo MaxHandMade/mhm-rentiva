@@ -17,8 +17,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.20.0
  */
-final class VehicleColumns
-{
+final class VehicleColumns {
+
 
 
 	/**
@@ -29,7 +29,7 @@ final class VehicleColumns
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	/**
@@ -39,28 +39,28 @@ final class VehicleColumns
 	 */
 	public static function register(): void
 	{
-		add_filter('manage_vehicle_posts_columns', array(self::class, 'columns'));
-		add_action('manage_vehicle_posts_custom_column', array(self::class, 'render'), 10, 2);
-		add_filter('manage_edit-vehicle_sortable_columns', array(self::class, 'sortable'));
-		add_action('pre_get_posts', array(self::class, 'apply_sorting'));
-		add_action('restrict_manage_posts', array(self::class, 'availability_filter'));
-		add_action('pre_get_posts', array(self::class, 'apply_availability_filter'));
+		add_filter('manage_vehicle_posts_columns', array( self::class, 'columns' ));
+		add_action('manage_vehicle_posts_custom_column', array( self::class, 'render' ), 10, 2);
+		add_filter('manage_edit-vehicle_sortable_columns', array( self::class, 'sortable' ));
+		add_action('pre_get_posts', array( self::class, 'apply_sorting' ));
+		add_action('restrict_manage_posts', array( self::class, 'availability_filter' ));
+		add_action('pre_get_posts', array( self::class, 'apply_availability_filter' ));
 
 		// Add custom columns for quick editing
-		add_action('quick_edit_custom_box', array(self::class, 'quick_edit_fields'), 10, 2);
-		add_action('save_post', array(self::class, 'save_quick_edit'));
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_scripts'));
+		add_action('quick_edit_custom_box', array( self::class, 'quick_edit_fields' ), 10, 2);
+		add_action('save_post', array( self::class, 'save_quick_edit' ));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
 
 		// Cache clearing hooks
-		add_action('save_post_vehicle', array(self::class, 'clear_vehicle_cache'));
-		add_action('delete_post', array(self::class, 'clear_vehicle_cache_on_delete'));
-		add_action('save_post_vehicle_booking', array(self::class, 'clear_vehicle_cache'));
+		add_action('save_post_vehicle', array( self::class, 'clear_vehicle_cache' ));
+		add_action('delete_post', array( self::class, 'clear_vehicle_cache_on_delete' ));
+		add_action('save_post_vehicle_booking', array( self::class, 'clear_vehicle_cache' ));
 
 		// Add statistics cards
-		add_action('admin_notices', array(self::class, 'add_vehicle_stats_cards'));
+		add_action('admin_notices', array( self::class, 'add_vehicle_stats_cards' ));
 
 		// Add monthly reservation calendar
-		add_action('admin_notices', array(self::class, 'add_monthly_calendar'));
+		add_action('admin_notices', array( self::class, 'add_monthly_calendar' ));
 	}
 
 	/**
@@ -111,7 +111,7 @@ final class VehicleColumns
 				if ($location_id > 0) {
 					$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
 					foreach ($locations as $loc) {
-						if ((int) $loc->id === $location_id) {
+						if ( (int) $loc->id === $location_id) {
 							$location_name = $loc->name;
 							break;
 						}
@@ -132,20 +132,19 @@ final class VehicleColumns
 
 			case 'mhm_seats':
 				$v = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_seats($post_id);
-				echo $v > 0 ? esc_html((string) $v) : '—';
+				echo $v > 0 ? esc_html( (string) $v) : '—';
 				break;
-
 
 			case 'mhm_transmission':
 				$map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
 				$v   = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_TRANSMISSION, true);
-				echo isset($map[$v]) ? esc_html($map[$v]) : '—';
+				echo isset($map[ $v ]) ? esc_html($map[ $v ]) : '—';
 				break;
 
 			case 'mhm_fuel_type':
 				$map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
 				$v   = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FUEL_TYPE, true);
-				echo isset($map[$v]) ? esc_html($map[$v]) : '—';
+				echo isset($map[ $v ]) ? esc_html($map[ $v ]) : '—';
 				break;
 
 			case 'mhm_available':
@@ -170,7 +169,7 @@ final class VehicleColumns
 					),
 				);
 
-				$config = $status_config[$v] ?? array(
+				$config = $status_config[ $v ] ?? array(
 					'color' => 'var(--mhm-muted-color, #6c757d)',
 					'icon'  => '',
 					'class' => 'status-default',
@@ -180,7 +179,6 @@ final class VehicleColumns
 				echo '<span class="vehicle-status ' . esc_attr($config['class']) . '" data-status="' . esc_attr($v) . '" style="color: ' . esc_attr($config['color']) . '; font-weight: bold;">';
 				echo $config['icon'] ? esc_html($config['icon']) . ' ' : '';
 				echo esc_html($label);
-
 
 				echo '</span>';
 				break;
@@ -196,7 +194,7 @@ final class VehicleColumns
 
 				$expires = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
 				if ($lifecycle === 'active' && $expires) {
-					$days_left = max(0, (int) ceil((strtotime($expires) - time()) / DAY_IN_SECONDS));
+					$days_left = max(0, (int) ceil(( strtotime($expires) - time() ) / DAY_IN_SECONDS));
 					echo '<br><small style="color:#666;">' . esc_html(
 						/* translators: %d: days remaining */
 						sprintf(__('%d days left', 'mhm-rentiva'), $days_left)
@@ -230,7 +228,7 @@ final class VehicleColumns
 		if (! is_admin() || ! $q->is_main_query()) {
 			return;
 		}
-		if (($q->get('post_type') ?? '') !== 'vehicle') {
+		if (( $q->get('post_type') ?? '' ) !== 'vehicle') {
 			return;
 		}
 		$orderby = $q->get('orderby');
@@ -255,9 +253,9 @@ final class VehicleColumns
 		// Security: Sanitize GET parameter
 		$current = '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
-		$request = wp_unslash((array) ($_GET ?? array()));
+		$request = wp_unslash( (array) ( $_GET ?? array() ));
 		if (isset($request['mhm_available'])) {
-			$current = sanitize_text_field((string) $request['mhm_available']);
+			$current = sanitize_text_field( (string) $request['mhm_available']);
 		}
 
 		// Dynamic status values
@@ -280,7 +278,7 @@ final class VehicleColumns
 		echo '</select>';
 
 		// Location filter dropdown
-		$locations   = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
+		$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
 		$current_loc = isset($request['mhm_location_filter']) ? (int) $request['mhm_location_filter'] : 0;
 		echo '<select name="mhm_location_filter" class="postform">';
@@ -288,7 +286,7 @@ final class VehicleColumns
 		foreach ($locations as $loc) {
 			$loc_id   = (int) $loc->id;
 			$loc_name = (string) $loc->name;
-			echo '<option value="' . esc_attr((string) $loc_id) . '"' . selected($current_loc, $loc_id, false) . '>' . esc_html($loc_name) . '</option>';
+			echo '<option value="' . esc_attr( (string) $loc_id) . '"' . selected($current_loc, $loc_id, false) . '>' . esc_html($loc_name) . '</option>';
 		}
 		echo '</select>';
 	}
@@ -298,7 +296,7 @@ final class VehicleColumns
 		if (! is_admin() || ! $q->is_main_query()) {
 			return;
 		}
-		if (($q->get('post_type') ?? '') !== 'vehicle') {
+		if (( $q->get('post_type') ?? '' ) !== 'vehicle') {
 			return;
 		}
 
@@ -308,16 +306,16 @@ final class VehicleColumns
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
-		$request    = wp_unslash((array) ($_GET ?? array()));
+		$request    = wp_unslash( (array) ( $_GET ?? array() ));
 		$meta_query = array();
 
 		// Availability status filter
-		$val = isset($request['mhm_available']) ? sanitize_text_field((string) $request['mhm_available']) : '';
+		$val = isset($request['mhm_available']) ? sanitize_text_field( (string) $request['mhm_available']) : '';
 		if ($val !== '') {
 			// Dynamic status values validation
 			$status_values  = array_keys(self::get_vehicle_status_values());
 			$legacy_values  = array_keys(self::get_legacy_status_values());
-			$allowed_values = array_merge($status_values, $legacy_values, array('inactive'));
+			$allowed_values = array_merge($status_values, $legacy_values, array( 'inactive' ));
 
 			if (in_array($val, $allowed_values, true)) {
 				$meta_query[] = \MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_status_meta_query($val);
@@ -350,7 +348,7 @@ final class VehicleColumns
 			wp_enqueue_script(
 				'mhm-vehicle-quick-edit',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/components/vehicle-quick-edit.js',
-				array('jquery'),
+				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
 				true
 			);
@@ -456,11 +454,11 @@ final class VehicleColumns
 						<span class="dashicons dashicons-money-alt"></span>
 					</div>
 					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html(self::format_currency((float) ($stats['monthly_avg_revenue'] ?? 0))); ?></div>
+						<div class="stat-number"><?php echo esc_html(self::format_currency( (float) ( $stats['monthly_avg_revenue'] ?? 0 ))); ?></div>
 						<div class="stat-label"><?php esc_html_e('This Month Revenue', 'mhm-rentiva'); ?></div>
 						<div class="stat-trend">
-							<span class="trend-text <?php echo ($stats['revenue_trend'] ?? 0) >= 0 ? 'trend-up' : 'trend-down'; ?>">
-								<?php echo ($stats['revenue_trend'] ?? 0) >= 0 ? '+' : ''; ?><?php echo esc_html($stats['revenue_trend'] ?? 0); ?>% <?php esc_html_e('vs last month', 'mhm-rentiva'); ?>
+							<span class="trend-text <?php echo ( $stats['revenue_trend'] ?? 0 ) >= 0 ? 'trend-up' : 'trend-down'; ?>">
+								<?php echo ( $stats['revenue_trend'] ?? 0 ) >= 0 ? '+' : ''; ?><?php echo esc_html($stats['revenue_trend'] ?? 0); ?>% <?php esc_html_e('vs last month', 'mhm-rentiva'); ?>
 							</span>
 						</div>
 					</div>
@@ -543,13 +541,13 @@ final class VehicleColumns
 			)
 		);
 
-		$total_vehicles         = (int) ($vehicle_stats->total_vehicles ?? 0);
-		$reserved_all_time      = (int) ($vehicle_stats->reserved ?? 0);
-		$passive                = (int) ($vehicle_stats->passive ?? 0);
-		$maintenance            = (int) ($vehicle_stats->maintenance ?? 0);
-		$reserved_this_week     = (int) ($vehicle_stats->reserved_this_week ?? 0);
-		$passive_this_month     = (int) ($vehicle_stats->passive_this_month ?? 0);
-		$maintenance_this_month = (int) ($vehicle_stats->maintenance_this_month ?? 0);
+		$total_vehicles         = (int) ( $vehicle_stats->total_vehicles ?? 0 );
+		$reserved_all_time      = (int) ( $vehicle_stats->reserved ?? 0 );
+		$passive                = (int) ( $vehicle_stats->passive ?? 0 );
+		$maintenance            = (int) ( $vehicle_stats->maintenance ?? 0 );
+		$reserved_this_week     = (int) ( $vehicle_stats->reserved_this_week ?? 0 );
+		$passive_this_month     = (int) ( $vehicle_stats->passive_this_month ?? 0 );
+		$maintenance_this_month = (int) ( $vehicle_stats->maintenance_this_month ?? 0 );
 
 		// Calculate reserved vehicles for current month (similar to dashboard logic)
 		$current_month_start = gmdate('Y-m-01 00:00:00');
@@ -601,7 +599,7 @@ final class VehicleColumns
 				}
 
 				// Check if booking overlaps with current month
-				$overlaps = ($pickup_ts <= $month_end_ts && $return_ts >= $month_start_ts);
+				$overlaps = ( $pickup_ts <= $month_end_ts && $return_ts >= $month_start_ts );
 
 				if ($overlaps) {
 					$reserved_vehicle_ids_this_month[] = (int) $booking->vehicle_id;
@@ -668,15 +666,15 @@ final class VehicleColumns
 
 			// Trend calculation
 			if ($last_month_revenue > 0) {
-				$revenue_trend = round((($current_month_revenue - $last_month_revenue) / $last_month_revenue) * 100);
+				$revenue_trend = round(( ( $current_month_revenue - $last_month_revenue ) / $last_month_revenue ) * 100);
 			} else {
 				$revenue_trend = $current_month_revenue > 0 ? 100 : 0;
 			}
 		}
 		// Occupancy rate: booked vehicle-days / (total_vehicles x elapsed days this month)
-		$today        = gmdate('Y-m-d');
-		$today_ts     = strtotime($today);
-		$elapsed_days = (int) gmdate('j');
+		$today             = gmdate('Y-m-d');
+		$today_ts          = strtotime($today);
+		$elapsed_days      = (int) gmdate('j');
 		$booked_days_total = 0;
 
 		if ($bookings && $total_vehicles > 0) {
@@ -689,13 +687,13 @@ final class VehicleColumns
 				$overlap_start = max($pickup_ts, $month_start_ts);
 				$overlap_end   = min($return_ts, $today_ts);
 				if ($overlap_end >= $overlap_start) {
-					$booked_days_total += (int) round(($overlap_end - $overlap_start) / DAY_IN_SECONDS) + 1;
+					$booked_days_total += (int) round(( $overlap_end - $overlap_start ) / DAY_IN_SECONDS) + 1;
 				}
 			}
 		}
 
 		$possible_days  = $total_vehicles * max($elapsed_days, 1);
-		$occupancy_rate = $possible_days > 0 ? round(($booked_days_total / $possible_days) * 100) : 0;
+		$occupancy_rate = $possible_days > 0 ? round(( $booked_days_total / $possible_days ) * 100) : 0;
 
 		// Active today: vehicles with a booking spanning today
 		$active_today = 0;
@@ -715,13 +713,13 @@ final class VehicleColumns
 		}
 
 		$stats = array(
-			'reserved'           => $reserved_this_month,
-			'reserved_all_time'  => $reserved_all_time,
-			'occupancy_rate'     => $occupancy_rate,
-			'active_today'       => $active_today,
-			'total_vehicles'     => $total_vehicles,
-			'monthly_avg_revenue' => (float) ($monthly_avg_revenue ?? 0),
-			'revenue_trend'       => (float) ($revenue_trend ?? 0),
+			'reserved'            => $reserved_this_month,
+			'reserved_all_time'   => $reserved_all_time,
+			'occupancy_rate'      => $occupancy_rate,
+			'active_today'        => $active_today,
+			'total_vehicles'      => $total_vehicles,
+			'monthly_avg_revenue' => (float) ( $monthly_avg_revenue ?? 0 ),
+			'revenue_trend'       => (float) ( $revenue_trend ?? 0 ),
 		);
 
 		// Debug: Log final stats
@@ -750,16 +748,16 @@ final class VehicleColumns
 		$current_year  = (int) gmdate('Y');
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin screen query filters.
-		$request = wp_unslash((array) ($_GET ?? array()));
+		$request = wp_unslash( (array) ( $_GET ?? array() ));
 		if (isset($request['month'])) {
-			$month = absint(sanitize_text_field((string) $request['month']));
+			$month = absint(sanitize_text_field( (string) $request['month']));
 			if ($month >= 1 && $month <= 12) {
 				$current_month = $month;
 			}
 		}
 
 		if (isset($request['year'])) {
-			$year = absint(sanitize_text_field((string) $request['year']));
+			$year = absint(sanitize_text_field( (string) $request['year']));
 			if ($year >= 2020 && $year <= 2030) {
 				$current_year = $year;
 			}
@@ -797,7 +795,7 @@ final class VehicleColumns
 		// Get reservation data
 		$bookings = self::get_monthly_bookings($current_month, $current_year);
 
-	?>
+		?>
 		<div class="mhm-calendars">
 			<!-- Calendar Header -->
 			<div class="calendar-header">
@@ -826,11 +824,11 @@ final class VehicleColumns
 								"
 						class="calendar-nav-btn prev-btn" data-action="prev">
 						<span class="dashicons dashicons-arrow-left-alt2"></span>
-						<?php echo esc_html($month_names[$prev_month]); ?>
+						<?php echo esc_html($month_names[ $prev_month ]); ?>
 					</a>
 
 					<div class="calendar-current">
-						<strong><?php echo esc_html($month_names[$current_month] . ' ' . $current_year); ?></strong>
+						<strong><?php echo esc_html($month_names[ $current_month ] . ' ' . $current_year); ?></strong>
 					</div>
 
 					<a href="
@@ -846,7 +844,7 @@ final class VehicleColumns
 					?>
 								"
 						class="calendar-nav-btn next-btn" data-action="next">
-						<?php echo esc_html($month_names[$next_month]); ?>
+						<?php echo esc_html($month_names[ $next_month ]); ?>
 						<span class="dashicons dashicons-arrow-right-alt2"></span>
 					</a>
 				</div>
@@ -882,7 +880,7 @@ final class VehicleColumns
 									<?php
 									// Check reservation status for each day
 									for ($day = 1; $day <= $days_in_month; $day++) {
-										$date      = sprintf('%04d-%02d-%02d', $current_year, $current_month, $day);
+										$date = sprintf('%04d-%02d-%02d', $current_year, $current_month, $day);
 
 										// Blocked day check — takes priority over booking logic
 										$date_str   = gmdate( 'Y-m-d', mktime( 0, 0, 0, $current_month, $day, $current_year ) );
@@ -893,12 +891,12 @@ final class VehicleColumns
 											continue;
 										}
 
-										$is_booked = isset($bookings[$vehicle['id']][$date]);
+										$is_booked = isset($bookings[ $vehicle['id'] ][ $date ]);
 
 										$class = $is_booked ? 'day-cell booked' : 'day-cell available';
 
 										if ($is_booked) {
-											$booking_data = $bookings[$vehicle['id']][$date];
+											$booking_data = $bookings[ $vehicle['id'] ][ $date ];
 											/* translators: %s: customer name. */
 											$title = sprintf(esc_attr__('Reserved: %s', 'mhm-rentiva'), $booking_data['customer_name']);
 
@@ -911,7 +909,7 @@ final class VehicleColumns
 												'cancelled' => 'status-cancelled',   // 🔴 Red
 											);
 
-											$status_class = $status_colors[$status] ?? 'status-pending';
+											$status_class = $status_colors[ $status ] ?? 'status-pending';
 											$class        = 'day-cell booked ' . $status_class;
 
 											// Get translated status label
@@ -1138,7 +1136,7 @@ final class VehicleColumns
 				});
 			});
 		</script>
-<?php
+		<?php
 	}
 
 	/**
@@ -1258,7 +1256,7 @@ final class VehicleColumns
 			// Get customer info using BookingQueryHelper (handles WooCommerce & WordPress integration)
 			$customer_info = array();
 			if (class_exists('\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper')) {
-				$customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo((int) $booking->booking_id);
+				$customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo( (int) $booking->booking_id);
 			}
 
 			// Build customer name from first_name and last_name
@@ -1277,8 +1275,8 @@ final class VehicleColumns
 			}
 
 			// Use customer info from BookingQueryHelper (prioritizes WooCommerce/WordPress data)
-			$customer_email = ! empty($customer_info['email']) ? $customer_info['email'] : ($booking->customer_email ?: '');
-			$customer_phone = ! empty($customer_info['phone']) ? $customer_info['phone'] : ($booking->customer_phone ?: '');
+			$customer_email = ! empty($customer_info['email']) ? $customer_info['email'] : ( $booking->customer_email ?: '' );
+			$customer_phone = ! empty($customer_info['phone']) ? $customer_info['phone'] : ( $booking->customer_phone ?: '' );
 
 			// Normalize date format
 			$start_date = self::normalize_date($booking->start_date);
@@ -1294,7 +1292,7 @@ final class VehicleColumns
 
 			while ($current <= $end) {
 				$date                                    = $current->format('Y-m-d');
-				$result[$booking->vehicle_id][$date] = array(
+				$result[ $booking->vehicle_id ][ $date ] = array(
 					'customer_name'  => $customer_name ?: __('Reserved', 'mhm-rentiva'),
 					'booking_id'     => $booking->booking_id,
 					'booking_title'  => $booking->booking_title,
@@ -1466,7 +1464,7 @@ final class VehicleColumns
 				echo '<select name="mhm_location" class="mhm_location">';
 				echo '<option value="0">' . esc_html__('— No Location —', 'mhm-rentiva') . '</option>';
 				foreach ($locations as $loc) {
-					echo '<option value="' . esc_attr((string)(int)$loc->id) . '">' . esc_html($loc->name) . '</option>';
+					echo '<option value="' . esc_attr( (string) (int) $loc->id) . '">' . esc_html($loc->name) . '</option>';
 				}
 				echo '</select>';
 				echo '</label>';
@@ -1533,16 +1531,16 @@ final class VehicleColumns
 		);
 
 		foreach ($meta_fields as $field_name => $config) {
-			if (! isset($_POST[$field_name])) {
+			if (! isset($_POST[ $field_name ])) {
 				continue;
 			}
 
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Dynamic field is unslashed and sanitized immediately.
-			$raw_value = wp_unslash($_POST[$field_name]);
-			$value     = is_array($raw_value) ? array_map('sanitize_text_field', $raw_value) : sanitize_text_field((string) $raw_value);
+			$raw_value = wp_unslash($_POST[ $field_name ]);
+			$value     = is_array($raw_value) ? array_map('sanitize_text_field', $raw_value) : sanitize_text_field( (string) $raw_value);
 
 			if ($config['sanitize'] === 'sanitize_text_field') {
-				$sanitized_value = sanitize_text_field((string) ($value ?: ''));
+				$sanitized_value = sanitize_text_field( (string) ( $value ?: '' ));
 			} else {
 				$sanitized_value = call_user_func($config['sanitize'], $value);
 			}
@@ -1557,7 +1555,6 @@ final class VehicleColumns
 				update_post_meta($post_id, $config['key'], $sanitized_value);
 			}
 		}
-
 
 		// Location — 0 means unset
 		if (isset($_POST['mhm_location'])) {
@@ -1617,18 +1614,18 @@ final class VehicleColumns
 		$status_values = array_keys(self::get_vehicle_status_values());
 
 		$mapping = array(
-			'1'        => 'active',
-			'active'   => 'active',
-			'yes'      => 'active',
-			'0'        => 'inactive',
-			'passive'  => 'inactive',
-			'inactive' => 'inactive',
-			'no'       => 'inactive',
+			'1'           => 'active',
+			'active'      => 'active',
+			'yes'         => 'active',
+			'0'           => 'inactive',
+			'passive'     => 'inactive',
+			'inactive'    => 'inactive',
+			'no'          => 'inactive',
 			'maintenance' => 'maintenance',
 		);
 
-		if (isset($mapping[$value])) {
-			return $mapping[$value];
+		if (isset($mapping[ $value ])) {
+			return $mapping[ $value ];
 		}
 
 		// New format validation

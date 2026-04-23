@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
 /**
@@ -26,8 +28,8 @@ if (class_exists(\MHMRentiva\Admin\Messages\Settings\MessagesSettings::class)) {
 
 // Ensure variables are set (from template data)
 $user           = $data['user'] ?? wp_get_current_user();
-$customer_email = $data['customer_email'] ?? ($user->user_email ?? '');
-$customer_name  = $data['customer_name'] ?? ($user->display_name ?? $user->user_login ?? '');
+$customer_email = $data['customer_email'] ?? ( $user->user_email ?? '' );
+$customer_name  = $data['customer_name'] ?? ( $user->display_name ?? $user->user_login ?? '' );
 $navigation     = $data['navigation'] ?? array();
 
 // REST API URL - use helper for consistency
@@ -44,7 +46,7 @@ if (empty($navigation)) {
 
 	<!-- Account Navigation -->
 	<?php if (! empty($navigation)) : ?>
-		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array('navigation' => $navigation), true)); ?>
+		<?php echo wp_kses_post(\MHMRentiva\Admin\Core\Utilities\Templates::render('account/navigation', array( 'navigation' => $navigation ), true)); ?>
 	<?php endif; ?>
 
 	<!-- Messages Content -->

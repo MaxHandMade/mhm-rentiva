@@ -44,7 +44,10 @@ final class Vehicle extends AbstractPostType {
 			'query_var'           => 'vehicle',
 			'has_archive'         => false,
 			'supports'            => self::get_supports_array( array( 'editor', 'thumbnail', 'excerpt', 'comments' ) ),
-			'rewrite'             => array( 'slug' => $url_base, 'with_front' => false ),
+			'rewrite'             => array(
+				'slug'       => $url_base,
+				'with_front' => false,
+			),
 			'map_meta_cap'        => true,
 		);
 	}

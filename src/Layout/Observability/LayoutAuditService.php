@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Layout\Observability
  * @since 4.19.0
  */
-class LayoutAuditService
-{
+class LayoutAuditService {
+
     private const META_KEY      = '_mhm_layout_audit_log';
     private const RETENTION_CAP = 200;
 
@@ -44,8 +44,8 @@ class LayoutAuditService
 
         // Enforce retention cap
         if (count($log) > self::RETENTION_CAP) {
-            $log = array_slice($log, -self::RETENTION_CAP);
-            $log[count($log) - 1]['truncated'] = true;
+            $log                                 = array_slice($log, -self::RETENTION_CAP);
+            $log[ count($log) - 1 ]['truncated'] = true;
         }
 
         return (bool) update_post_meta($post_id, self::META_KEY, $log);
@@ -60,7 +60,7 @@ class LayoutAuditService
             'operation'     => 'import',
             'previous_hash' => $prev_hash,
             'new_hash'      => $new_hash,
-            'dry_run'       => $dry_run
+            'dry_run'       => $dry_run,
         ]);
     }
 
@@ -73,7 +73,7 @@ class LayoutAuditService
             'operation'     => 'rollback',
             'previous_hash' => $prev_hash,
             'new_hash'      => $new_hash,
-            'dry_run'       => $dry_run
+            'dry_run'       => $dry_run,
         ]);
     }
 

@@ -19,15 +19,15 @@ use MHMRentiva\Admin\Core\MetaKeys;
  *
  * @since 4.24.0
  */
-final class VehicleLifecycleManager
-{
+final class VehicleLifecycleManager {
+
     /**
      * Register hooks that trigger lifecycle transitions.
      */
     public static function register(): void
     {
         // When a vehicle is approved (admin or auto-publish), activate its lifecycle.
-        add_action('mhm_rentiva_vehicle_approved', array(self::class, 'on_vehicle_approved'), 10, 2);
+        add_action('mhm_rentiva_vehicle_approved', array( self::class, 'on_vehicle_approved' ), 10, 2);
     }
 
     /**
@@ -73,6 +73,7 @@ final class VehicleLifecycleManager
         if (! VehicleLifecycleStatus::can_transition($current, VehicleLifecycleStatus::ACTIVE)) {
             return new \WP_Error(
                 'invalid_transition',
+                /* translators: %s: current vehicle lifecycle state name */
                 sprintf(__('Cannot activate vehicle from "%s" state.', 'mhm-rentiva'), $current)
             );
         }
@@ -96,7 +97,7 @@ final class VehicleLifecycleManager
             ));
         }
 
-        $vendor_id = (int) get_post_field('post_author', $vehicle_id);
+        $vendor_id  = (int) get_post_field('post_author', $vehicle_id);
         $old_status = $current;
 
         do_action('mhm_rentiva_vehicle_lifecycle_changed', $vehicle_id, $old_status, VehicleLifecycleStatus::ACTIVE);
@@ -123,6 +124,7 @@ final class VehicleLifecycleManager
         if (! VehicleLifecycleStatus::can_transition($current, VehicleLifecycleStatus::PAUSED)) {
             return new \WP_Error(
                 'invalid_transition',
+                /* translators: %s: current vehicle lifecycle state name */
                 sprintf(__('Cannot pause vehicle from "%s" state.', 'mhm-rentiva'), $current)
             );
         }
@@ -175,7 +177,7 @@ final class VehicleLifecycleManager
         // Check max pause duration.
         $paused_at = get_post_meta($vehicle_id, MetaKeys::VEHICLE_PAUSED_AT, true);
         if ($paused_at) {
-            $paused_days = (int) ((time() - strtotime($paused_at)) / DAY_IN_SECONDS);
+            $paused_days = (int) ( ( time() - strtotime($paused_at) ) / DAY_IN_SECONDS );
             if ($paused_days > VehicleLifecycleStatus::max_pause_duration_days()) {
                 return new \WP_Error(
                     'pause_expired',
@@ -213,6 +215,7 @@ final class VehicleLifecycleManager
         if (! VehicleLifecycleStatus::can_transition($current, VehicleLifecycleStatus::WITHDRAWN)) {
             return new \WP_Error(
                 'invalid_transition',
+                /* translators: %s: current vehicle lifecycle state name */
                 sprintf(__('Cannot withdraw vehicle from "%s" state.', 'mhm-rentiva'), $current)
             );
         }
@@ -261,6 +264,7 @@ final class VehicleLifecycleManager
         if (! VehicleLifecycleStatus::can_transition($current, VehicleLifecycleStatus::EXPIRED)) {
             return new \WP_Error(
                 'invalid_transition',
+                /* translators: %s: current vehicle lifecycle state name */
                 sprintf(__('Cannot expire vehicle from "%s" state.', 'mhm-rentiva'), $current)
             );
         }
@@ -299,7 +303,7 @@ final class VehicleLifecycleManager
         // Check if within grace period.
         $expires_at = get_post_meta($vehicle_id, MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
         if ($expires_at) {
-            $days_since_expiry = (int) ((time() - strtotime($expires_at)) / DAY_IN_SECONDS);
+            $days_since_expiry = (int) ( ( time() - strtotime($expires_at) ) / DAY_IN_SECONDS );
             if ($days_since_expiry > VehicleLifecycleStatus::expiry_grace_days()) {
                 return new \WP_Error(
                     'grace_period_expired',
@@ -348,9 +352,10 @@ final class VehicleLifecycleManager
         // Cooldown check.
         $cooldown_ends = get_post_meta($vehicle_id, MetaKeys::VEHICLE_COOLDOWN_ENDS_AT, true);
         if ($cooldown_ends && strtotime($cooldown_ends) > time()) {
-            $remaining = (int) ceil((strtotime($cooldown_ends) - time()) / DAY_IN_SECONDS);
+            $remaining = (int) ceil(( strtotime($cooldown_ends) - time() ) / DAY_IN_SECONDS);
             return new \WP_Error(
                 'cooldown_active',
+                /* translators: %d: number of days remaining in cooldown period */
                 sprintf(__('Cooldown period active. %d day(s) remaining.', 'mhm-rentiva'), $remaining)
             );
         }
@@ -385,7 +390,7 @@ final class VehicleLifecycleManager
             return new \WP_Error('invalid_vehicle', __('Vehicle not found.', 'mhm-rentiva'));
         }
 
-        if ((int) $post->post_author !== $vendor_id) {
+        if ( (int) $post->post_author !== $vendor_id) {
             return new \WP_Error('not_owner', __('You do not own this vehicle.', 'mhm-rentiva'));
         }
 
@@ -412,7 +417,7 @@ final class VehicleLifecycleManager
                 ),
                 array(
                     'key'     => '_mhm_status',
-                    'value'   => array('confirmed', 'in_progress'),
+                    'value'   => array( 'confirmed', 'in_progress' ),
                     'compare' => 'IN',
                 ),
             ),
@@ -436,7 +441,7 @@ final class VehicleLifecycleManager
     private static function check_pause_limit(int $vehicle_id)
     {
         $current_month = gmdate('Y-m');
-        $stored = get_post_meta($vehicle_id, '_mhm_vehicle_pause_count_month', true);
+        $stored        = get_post_meta($vehicle_id, '_mhm_vehicle_pause_count_month', true);
 
         if (is_string($stored) && strpos($stored, $current_month . ':') === 0) {
             $count = (int) substr($stored, strlen($current_month) + 1);
@@ -444,7 +449,8 @@ final class VehicleLifecycleManager
                 return new \WP_Error(
                     'pause_limit_reached',
                     sprintf(
-                        __('Monthly pause limit reached (%d/%d). Try again next month.', 'mhm-rentiva'),
+                        /* translators: 1: current pause count this month, 2: maximum pauses allowed per month */
+                        __('Monthly pause limit reached (%1$d/%2$d). Try again next month.', 'mhm-rentiva'),
                         $count,
                         VehicleLifecycleStatus::max_pauses_per_month()
                     )
@@ -461,13 +467,13 @@ final class VehicleLifecycleManager
     private static function increment_pause_count(int $vehicle_id): void
     {
         $current_month = gmdate('Y-m');
-        $stored = get_post_meta($vehicle_id, '_mhm_vehicle_pause_count_month', true);
-        $count = 0;
+        $stored        = get_post_meta($vehicle_id, '_mhm_vehicle_pause_count_month', true);
+        $count         = 0;
 
         if (is_string($stored) && strpos($stored, $current_month . ':') === 0) {
             $count = (int) substr($stored, strlen($current_month) + 1);
         }
 
-        update_post_meta($vehicle_id, '_mhm_vehicle_pause_count_month', $current_month . ':' . ($count + 1));
+        update_post_meta($vehicle_id, '_mhm_vehicle_pause_count_month', $current_month . ':' . ( $count + 1 ));
     }
 }

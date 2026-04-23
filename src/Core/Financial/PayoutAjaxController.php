@@ -10,33 +10,34 @@ if (! defined('ABSPATH')) {
 /**
  * Handle AJAX requests for Payout actions in the Vendor Dashboard.
  */
-class PayoutAjaxController
-{
+class PayoutAjaxController {
+
     public static function register(): void
     {
-        add_action('wp_ajax_mhm_request_payout', array(self::class, 'handle_request_payout'));
+        add_action('wp_ajax_mhm_request_payout', array( self::class, 'handle_request_payout' ));
     }
 
     public static function handle_request_payout(): void
     {
         check_ajax_referer('mhm_rentiva_vendor_nonce', 'nonce');
 
-        if (! current_user_can('rentiva_vendor')) {
-            wp_send_json_error(array('message' => __('Unauthorized', 'mhm-rentiva')), 403);
+        $current_user = wp_get_current_user();
+        if (! $current_user instanceof \WP_User || ! in_array('rentiva_vendor', (array) $current_user->roles, true)) {
+            wp_send_json_error(array( 'message' => __('Unauthorized', 'mhm-rentiva') ), 403);
             exit;
         }
 
-        $vendor_id = get_current_user_id();
-        $requested_amount = isset($_POST['payout_amount']) ? (float) sanitize_text_field(wp_unslash((string) $_POST['payout_amount'])) : 0.0;
+        $vendor_id        = get_current_user_id();
+        $requested_amount = isset($_POST['payout_amount']) ? (float) sanitize_text_field(wp_unslash( (string) $_POST['payout_amount'])) : 0.0;
 
         // Perform fast validations before hitting the service logic
         if ($requested_amount <= 0) {
-            wp_send_json_error(array('message' => __('Invalid payout amount requested.', 'mhm-rentiva')), 400);
+            wp_send_json_error(array( 'message' => __('Invalid payout amount requested.', 'mhm-rentiva') ), 400);
             exit;
         }
 
         if (PayoutService::vendor_has_pending_payout($vendor_id)) {
-            wp_send_json_error(array('message' => __('You have a pending payout request. You cannot submit another until it is processed.', 'mhm-rentiva')), 400);
+            wp_send_json_error(array( 'message' => __('You have a pending payout request. You cannot submit another until it is processed.', 'mhm-rentiva') ), 400);
             exit;
         }
 
@@ -47,7 +48,7 @@ class PayoutAjaxController
                     /* translators: %s: minimum payout amount */
                     __('Requested amount is below the minimum payout threshold of %s.', 'mhm-rentiva'),
                     $min_payout
-                )
+                ),
             ), 400);
             exit;
         }
@@ -56,10 +57,10 @@ class PayoutAjaxController
         $result = PayoutService::request_payout($vendor_id, $requested_amount);
 
         if (is_wp_error($result)) {
-            wp_send_json_error(array('message' => $result->get_error_message()), 400);
+            wp_send_json_error(array( 'message' => $result->get_error_message() ), 400);
         } else {
             wp_send_json_success(array(
-                'message' => __('Your payout request has been submitted. We will process it shortly.', 'mhm-rentiva')
+                'message' => __('Your payout request has been submitted. We will process it shortly.', 'mhm-rentiva'),
             ));
         }
 

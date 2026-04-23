@@ -20,8 +20,8 @@ use MHMRentiva\Core\Financial\Exceptions\GovernanceException;
  *
  * @since 4.22.0
  */
-class KeyPairManager
-{
+class KeyPairManager {
+
     /**
      * Retrieves the currently active signing KeyPair (Private + Public).
      * If one does not exist or is malformed, generates a new one.
@@ -73,7 +73,7 @@ class KeyPairManager
         $secret_key = sodium_crypto_sign_secretkey($keypair);
         $public_key = sodium_crypto_sign_publickey($keypair);
 
-        $key_uuid = 'key_' . substr(hash('sha256', $public_key), 0, 16);
+        $key_uuid    = 'key_' . substr(hash('sha256', $public_key), 0, 16);
         $fingerprint = hash('sha256', base64_encode($public_key));
 
         $encrypted_secret = self::encrypt_private_key($secret_key);
@@ -84,7 +84,7 @@ class KeyPairManager
             'fingerprint'           => $fingerprint,
             'public_key'            => base64_encode($public_key),
             'private_key_encrypted' => $encrypted_secret,
-            'expires_at'            => gmdate('Y-m-d H:i:s', time() + (365 * 24 * 60 * 60)), // 1 year default
+            'expires_at'            => gmdate('Y-m-d H:i:s', time() + ( 365 * 24 * 60 * 60 )), // 1 year default
         ];
 
         try {
@@ -104,7 +104,7 @@ class KeyPairManager
 
     /**
      * Revokes the current active key and immediately generates a replacement.
-     * 
+     *
      * @param string $reason
      * @return array The new active keypair
      * @throws GovernanceException
@@ -123,7 +123,7 @@ class KeyPairManager
     public static function get_public_key(string $key_uuid, ?int $tenant_id = null): ?string
     {
         $repository = new KeyRegistryRepository($tenant_id);
-        $key = $repository->get_key_by_uuid($key_uuid);
+        $key        = $repository->get_key_by_uuid($key_uuid);
 
         return $key ? $key['public_key'] : null;
     }
@@ -154,7 +154,7 @@ class KeyPairManager
      */
     private static function encrypt_private_key(string $raw_secret_key): string
     {
-        $key = self::derive_encryption_key();
+        $key   = self::derive_encryption_key();
         $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
 
         $ciphertext = sodium_crypto_secretbox($raw_secret_key, $nonce, $key);

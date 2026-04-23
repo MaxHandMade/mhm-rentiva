@@ -77,7 +77,12 @@ $wrapper_class  = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-re
 						<?php if ($show_summary_date) : ?>
 							<span class="mhm-transfer-summary__chip">
 								<span class="mhm-transfer-summary__chip-icon">
-									<?php Icons::render('calendar', [ 'width' => '18', 'height' => '18' ]); ?>
+									<?php
+                                    Icons::render('calendar', [
+										'width'  => '18',
+										'height' => '18',
+									]);
+									?>
 								</span>
 								<span class="mhm-transfer-summary__chip-body">
 									<span class="mhm-transfer-summary__chip-label"><?php esc_html_e('Date', 'mhm-rentiva'); ?></span>
@@ -94,7 +99,12 @@ $wrapper_class  = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-re
 							</span>
 							<span class="mhm-transfer-summary__chip">
 								<span class="mhm-transfer-summary__chip-icon">
-									<?php Icons::render('clock', [ 'width' => '18', 'height' => '18' ]); ?>
+									<?php
+                                    Icons::render('clock', [
+										'width'  => '18',
+										'height' => '18',
+									]);
+									?>
 								</span>
 								<span class="mhm-transfer-summary__chip-body">
 									<span class="mhm-transfer-summary__chip-label"><?php esc_html_e('Time', 'mhm-rentiva'); ?></span>
@@ -105,7 +115,12 @@ $wrapper_class  = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-re
 						<?php if ($show_summary_pax) : ?>
 							<span class="mhm-transfer-summary__chip">
 								<span class="mhm-transfer-summary__chip-icon">
-									<?php Icons::render('users', [ 'width' => '18', 'height' => '18' ]); ?>
+									<?php
+                                    Icons::render('users', [
+										'width'  => '18',
+										'height' => '18',
+									]);
+									?>
 								</span>
 								<span class="mhm-transfer-summary__chip-body">
 									<span class="mhm-transfer-summary__chip-label"><?php esc_html_e('Passengers', 'mhm-rentiva'); ?></span>
@@ -129,7 +144,12 @@ $wrapper_class  = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-re
 							?>
 							<span class="mhm-transfer-summary__chip">
 								<span class="mhm-transfer-summary__chip-icon">
-									<?php Icons::render('luggage', [ 'width' => '18', 'height' => '18' ]); ?>
+									<?php
+                                    Icons::render('luggage', [
+										'width'  => '18',
+										'height' => '18',
+									]);
+									?>
 								</span>
 								<span class="mhm-transfer-summary__chip-body">
 									<span class="mhm-transfer-summary__chip-label"><?php esc_html_e('Luggage', 'mhm-rentiva'); ?></span>

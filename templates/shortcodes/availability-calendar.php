@@ -65,10 +65,10 @@ if (empty($vehicles_list)) {
 
 <?php
 // Get vehicle price
-$vehicle_price = 0;
+$vehicle_price       = 0;
 $vehicle_location_id = 0;
-$is_available  = true;
-$status_text   = '';
+$is_available        = true;
+$status_text         = '';
 
 if ($vehicle_id > 0) {
 	$vehicle_price = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true) ?: 0);
@@ -88,8 +88,8 @@ if ($vehicle_id > 0) {
 		}
 	}
 
-	$is_available = ($status === 'active');
-	$status_text  = $is_available ? __('Available', 'mhm-rentiva') : __('Out of Order', 'mhm-rentiva');
+	$is_available        = ( $status === 'active' );
+	$status_text         = $is_available ? __('Available', 'mhm-rentiva') : __('Out of Order', 'mhm-rentiva');
 	$vehicle_location_id = (int) get_post_meta($vehicle_id, '_mhm_rentiva_location_id', true);
 }
 ?>
@@ -110,15 +110,15 @@ if ($vehicle_id > 0) {
 			<div class="rv-vehicle-card-hifi-modern">
 				<!-- Favorite Button - Top right corner -->
 				<button type="button"
-					class="rv-vcal-favorite-btn <?php echo ($selected_vehicle['favorite'] ?? false) ? 'favorited is-favorited' : ''; ?>"
+					class="rv-vcal-favorite-btn <?php echo ( $selected_vehicle['favorite'] ?? false ) ? 'favorited is-favorited' : ''; ?>"
 					data-vehicle-id="<?php echo esc_attr($selected_vehicle['id']); ?>"
-					aria-label="<?php echo ($selected_vehicle['favorite'] ?? false) ? esc_html__('Remove from favorites', 'mhm-rentiva') : esc_html__('Add to favorites', 'mhm-rentiva'); ?>"
-					aria-pressed="<?php echo ($selected_vehicle['favorite'] ?? false) ? 'true' : 'false'; ?>">
+					aria-label="<?php echo ( $selected_vehicle['favorite'] ?? false ) ? esc_html__('Remove from favorites', 'mhm-rentiva') : esc_html__('Add to favorites', 'mhm-rentiva'); ?>"
+					aria-pressed="<?php echo ( $selected_vehicle['favorite'] ?? false ) ? 'true' : 'false'; ?>">
 					<?php
 					Icons::render('heart', [
-						'width' => '20',
+						'width'  => '20',
 						'height' => '20',
-						'class' => 'rv-heart-icon' . (($selected_vehicle['favorite'] ?? false) ? ' favorited' : '')
+						'class'  => 'rv-heart-icon' . ( ( $selected_vehicle['favorite'] ?? false ) ? ' favorited' : '' ),
 					]);
 					?>
 				</button>
@@ -146,7 +146,8 @@ if ($vehicle_id > 0) {
 							<?php if (! empty($selected_vehicle['features'])) : ?>
 								<?php foreach (array_slice($selected_vehicle['features'], 0, 4) as $feature) : ?>
 									<div class="rv-feature-item">
-										<?php echo $feature['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+										<?php
+                                        echo $feature['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
 										?>
 										<span class="rv-feature-text"><?php echo esc_html($feature['text']); ?></span>
 									</div>
@@ -159,23 +160,44 @@ if ($vehicle_id > 0) {
 							<div class="rv-vehicle-rating-block" style="display: flex; align-items: center; gap: 8px; margin-top: 12px; margin-bottom: 5px;">
 								<div class="rv-stars" style="display: flex; align-items: center; gap: 2px;">
 									<?php
-									$rating_avg = (float)$selected_vehicle['rating']['average'];
+									$rating_avg = (float) $selected_vehicle['rating']['average'];
 									for ($i = 1; $i <= 5; $i++) :
-										$is_filled = $i <= floor($rating_avg);
-										$is_half = ($i == ceil($rating_avg)) && ($rating_avg - floor($rating_avg) >= 0.5);
+										$is_filled  = $i <= floor($rating_avg);
+										$is_half    = ( $i == ceil($rating_avg) ) && ( $rating_avg - floor($rating_avg) >= 0.5 );
 										$star_color = $is_filled || $is_half ? '#fbbf24' : '#cbd5e1';
 
-										if ($is_half) : ?>
+										if ($is_half) :
+											?>
 											<div style="position: relative; width: 16px; height: 16px;">
 												<div style="position: absolute; overflow: hidden; width: 50%;">
-													<?php Icons::render('star', ['width' => '16', 'height' => '16', 'style' => 'color: #fbbf24; fill: #fbbf24;']); ?>
+													<?php
+                                                    Icons::render('star', [
+														'width'  => '16',
+														'height' => '16',
+														'style'  => 'color: #fbbf24; fill: #fbbf24;',
+													]);
+													?>
 												</div>
-												<?php Icons::render('star', ['width' => '16', 'height' => '16', 'style' => 'color: #cbd5e1; fill: #cbd5e1;']); ?>
+												<?php
+                                                Icons::render('star', [
+													'width'  => '16',
+													'height' => '16',
+													'style'  => 'color: #cbd5e1; fill: #cbd5e1;',
+												]);
+												?>
 											</div>
 										<?php else : ?>
-											<?php Icons::render('star', ['width' => '16', 'height' => '16', 'style' => "color: $star_color; fill: $star_color;"]); ?>
-									<?php endif;
-									endfor; ?>
+											<?php
+                                            Icons::render('star', [
+												'width'  => '16',
+												'height' => '16',
+												'style'  => "color: $star_color; fill: $star_color;",
+											]);
+											?>
+											<?php
+                                    endif;
+									endfor;
+                                    ?>
 								</div>
 								<span class="rv-rating-count" style="color: #64748b; font-size: 0.875rem;">(<?php echo intval($selected_vehicle['rating']['count']); ?>)</span>
 							</div>
@@ -269,7 +291,7 @@ if ($vehicle_id > 0) {
 			</div>
 		<?php else : ?>
 			<?php $month_key = array_key_first($availability_data); ?>
-			<?php $month_data = $availability_data[$month_key]; ?>
+			<?php $month_data = $availability_data[ $month_key ]; ?>
 			<div class="rv-month-container" data-month="<?php echo esc_attr($month_key); ?>">
 				<!-- Weekday Headers -->
 				<div class="rv-calendar-weekdays">
@@ -286,13 +308,13 @@ if ($vehicle_id > 0) {
 				<div class="rv-calendar-days">
 					<?php
 					// Find which day of the week the first day of the month is
-					$first_day = (int) gmdate('N', strtotime((string) $month_key . '-01')); // Monday = 1, Sunday = 7
+					$first_day = (int) gmdate('N', strtotime( (string) $month_key . '-01')); // Monday = 1, Sunday = 7
 					$first_day = $first_day === 7 ? 0 : $first_day; // Adjusted for simplified loop below if needed, but keeping current logic:
-					$first_day = ($first_day === 7) ? 0 : $first_day - 1; // Monday = 0, Sunday = 6 actually?
+					$first_day = ( $first_day === 7 ) ? 0 : $first_day - 1; // Monday = 0, Sunday = 6 actually?
 					// Wait, standard WP calendar logic: Sunday is 0 if needed, but here it says Monday=0.
 					// Let's stick closer to core but fix date() -> gmdate()
 					$first_day = (int) gmdate('N', strtotime($month_key . '-01'));
-					$first_day = ($first_day === 7) ? 0 : $first_day - 1;
+					$first_day = ( $first_day === 7 ) ? 0 : $first_day - 1;
 
 
 					// Placeholder for empty days
@@ -322,8 +344,8 @@ if ($vehicle_id > 0) {
 
 						// Price information
 						$price_info = '';
-						if ($show_pricing === '1' && isset($pricing_data[$month_key]['days'][$date])) {
-							$price_data = $pricing_data[$month_key]['days'][$date];
+						if ($show_pricing === '1' && isset($pricing_data[ $month_key ]['days'][ $date ])) {
+							$price_data = $pricing_data[ $month_key ]['days'][ $date ];
 							$price_info = 'data-price="' . esc_attr($price_data['day_price']) . '"';
 							if ($price_data['has_discount']) {
 								$price_info .= ' data-discount="' . esc_attr($price_data['discount_amount']) . '"';
@@ -333,20 +355,20 @@ if ($vehicle_id > 0) {
 						printf(
 							'<div class="%s" data-date="%s" %s %s>',
 							esc_attr($day_class),
-							esc_attr((string) $date),
-							wp_kses_post((string) $tooltip_content),
-							wp_kses_post((string) $price_info)
+							esc_attr( (string) $date),
+							wp_kses_post( (string) $tooltip_content),
+							wp_kses_post( (string) $price_info)
 						);
 
 						echo '<span class="rv-day-number">' . esc_html($day_data['day_number']) . '</span>';
 
 						// Price indicator
-						if ($show_pricing === '1' && isset($pricing_data[$month_key]['days'][$date])) {
-							$price_data = $pricing_data[$month_key]['days'][$date];
+						if ($show_pricing === '1' && isset($pricing_data[ $month_key ]['days'][ $date ])) {
+							$price_data = $pricing_data[ $month_key ]['days'][ $date ];
 							echo '<div class="rv-day-price">';
-							echo '<span class="rv-price-amount">' . esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price((float) $price_data['day_price'], 0)) . '</span>';
+							echo '<span class="rv-price-amount">' . esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $price_data['day_price'], 0)) . '</span>';
 							if ($price_data['has_discount']) {
-								echo '<span class="rv-discount-badge">%' . esc_html(round(($price_data['discount_amount'] / $price_data['base_price']) * 100)) . '</span>';
+								echo '<span class="rv-discount-badge">%' . esc_html(round(( $price_data['discount_amount'] / $price_data['base_price'] ) * 100)) . '</span>';
 							}
 							echo '</div>';
 						}

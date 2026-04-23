@@ -21,8 +21,8 @@ use MHMRentiva\Admin\Core\Tabs\AbstractTab;
 /**
  * Developer tab
  */
-final class DeveloperTab extends AbstractTab
-{
+final class DeveloperTab extends AbstractTab {
+
 
 
 	protected static function get_tab_id(): string
@@ -48,22 +48,22 @@ final class DeveloperTab extends AbstractTab
 			'sections'    => array(
 				array(
 					'type'          => 'custom',
-					'custom_render' => array(self::class, 'render_developer_header'),
+					'custom_render' => array( self::class, 'render_developer_header' ),
 				),
 				array(
 					'type'          => 'custom',
 					'title'         => __('Our Expertise', 'mhm-rentiva'),
-					'custom_render' => array(self::class, 'render_expertise_grid'),
+					'custom_render' => array( self::class, 'render_expertise_grid' ),
 				),
 				array(
 					'type'          => 'custom',
 					'title'         => __('Contact', 'mhm-rentiva'),
-					'custom_render' => array(self::class, 'render_contact_info'),
+					'custom_render' => array( self::class, 'render_contact_info' ),
 				),
 				array(
 					'type'          => 'custom',
 					'title'         => __('Our Other Projects', 'mhm-rentiva'),
-					'custom_render' => array(self::class, 'render_other_projects'),
+					'custom_render' => array( self::class, 'render_other_projects' ),
 				),
 			),
 		);
@@ -205,7 +205,7 @@ final class DeveloperTab extends AbstractTab
 				Helpers::render_external_link(
 					$company_website,
 					esc_html__('Learn More', 'mhm-rentiva'),
-					array('class' => 'button button-small')
+					array( 'class' => 'button button-small' )
 				)
 			);
 			echo '</div>';

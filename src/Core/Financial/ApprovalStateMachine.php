@@ -16,42 +16,42 @@ use MHMRentiva\Core\Financial\Exceptions\GovernanceException;
  *
  * @since 4.21.0
  */
-class ApprovalStateMachine
-{
-    public const STATE_PENDING        = 'pending';
-    public const STATE_UNDER_REVIEW   = 'under_review';
+class ApprovalStateMachine {
+
+    public const STATE_PENDING          = 'pending';
+    public const STATE_UNDER_REVIEW     = 'under_review';
     public const STATE_APPROVED_STAGE_1 = 'approved_stage_1';
     public const STATE_APPROVED_STAGE_2 = 'approved_stage_2';
-    public const STATE_REJECTED       = 'rejected';
-    public const STATE_TIME_LOCKED    = 'time_locked';
-    public const STATE_EXECUTED       = 'executed';
+    public const STATE_REJECTED         = 'rejected';
+    public const STATE_TIME_LOCKED      = 'time_locked';
+    public const STATE_EXECUTED         = 'executed';
 
     /**
      * Strict hardcoded transition matrix. Dynamics are forbidden.
      * format: [from_state => [allowed_to_states]]
      */
     private const TRANSITIONS = [
-        self::STATE_PENDING => [
+        self::STATE_PENDING          => [
             self::STATE_UNDER_REVIEW,
             self::STATE_APPROVED_STAGE_2, // Fast-track for low risk + single approval
-            self::STATE_REJECTED
+            self::STATE_REJECTED,
         ],
-        self::STATE_UNDER_REVIEW => [
+        self::STATE_UNDER_REVIEW     => [
             self::STATE_APPROVED_STAGE_1,
-            self::STATE_REJECTED
+            self::STATE_REJECTED,
         ],
         self::STATE_APPROVED_STAGE_1 => [
             self::STATE_APPROVED_STAGE_2,
-            self::STATE_REJECTED
+            self::STATE_REJECTED,
         ],
         self::STATE_APPROVED_STAGE_2 => [
             self::STATE_TIME_LOCKED, // Moved to time-lock before execution
-            self::STATE_REJECTED
+            self::STATE_REJECTED,
         ],
-        self::STATE_TIME_LOCKED => [
+        self::STATE_TIME_LOCKED      => [
             self::STATE_EXECUTED,
-            self::STATE_REJECTED
-        ]
+            self::STATE_REJECTED,
+        ],
     ];
 
     /**
@@ -107,18 +107,18 @@ class ApprovalStateMachine
         int $actor_id,
         bool $has_override_cap
     ): void {
-        if (!isset(self::TRANSITIONS[$current_state])) {
+        if (!isset(self::TRANSITIONS[ $current_state ])) {
             // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
             throw new GovernanceException("Invalid current workflow state: {$current_state}");
         }
 
-        if (!in_array($candidate_state, self::TRANSITIONS[$current_state], true)) {
+        if (!in_array($candidate_state, self::TRANSITIONS[ $current_state ], true)) {
             // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
             throw new GovernanceException("Illegal state transition from {$current_state} to {$candidate_state}");
         }
 
         // Maker-Checker Enforcement
-        // A user cannot advance their own payout. They can, however, reject things if they have cap? 
+        // A user cannot advance their own payout. They can, however, reject things if they have cap?
         // Typically Maker != Checker applies to advancing approval.
         if ($maker_id === $actor_id && $candidate_state !== self::STATE_REJECTED) {
             if (!$has_override_cap) {
@@ -143,7 +143,8 @@ class ApprovalStateMachine
         if ($old_state === self::STATE_PENDING) {
             $existing_state = get_post_meta($payout_id, '_mhm_workflow_state', true);
             if (empty($existing_state) || $existing_state === self::STATE_PENDING) {
-                $inserted = update_post_meta($payout_id, '_mhm_workflow_state', $new_state, $old_state ?: '');
+                $previous_state = '' !== $old_state ? $old_state : '';
+                $inserted       = update_post_meta($payout_id, '_mhm_workflow_state', $new_state, $previous_state);
                 if (!$inserted) {
                     throw new GovernanceException('Concurrency Error: Workflow state was modified by another process.');
                 }
@@ -155,6 +156,7 @@ class ApprovalStateMachine
         }
 
         // Standard strict atomic update for existing explicit states.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Workflow transition guard must update the live state row atomically.
         $rows_affected = $wpdb->query(
             $wpdb->prepare(
                 'UPDATE %i SET meta_value = %s WHERE post_id = %d AND meta_key = %s AND meta_value = %s',

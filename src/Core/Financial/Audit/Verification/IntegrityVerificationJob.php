@@ -10,8 +10,8 @@ if (!defined('ABSPATH')) {
 /**
  * Scheduled Job for Daily Ledger Integrity Checks.
  */
-class IntegrityVerificationJob
-{
+class IntegrityVerificationJob {
+
 
     public const CRON_HOOK = 'mhm_rentiva_daily_integrity_check';
 
@@ -20,7 +20,7 @@ class IntegrityVerificationJob
      */
     public static function register(): void
     {
-        add_action(self::CRON_HOOK, [self::class, 'execute']);
+        add_action(self::CRON_HOOK, [ self::class, 'execute' ]);
 
         if (!wp_next_scheduled(self::CRON_HOOK)) {
             wp_schedule_event(time(), 'daily', self::CRON_HOOK);
@@ -40,7 +40,7 @@ class IntegrityVerificationJob
             if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
                 \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::critical(
                     'Integrity Verification Job FAILED to execute: ' . $e->getMessage(),
-                    ['trace' => $e->getTraceAsString()],
+                    [ 'trace' => $e->getTraceAsString() ],
                     \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
                 );
             }

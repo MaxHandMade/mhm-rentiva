@@ -79,8 +79,8 @@ final class EmailSettings {
 			'mhm_rentiva_refund_admin_body'                => self::get_default_refund_admin_body(),
 
 			// Customer Notification Toggles
-			'mhm_rentiva_customer_welcome_email'         => '1',
-			'mhm_rentiva_customer_booking_notifications' => '1',
+			'mhm_rentiva_customer_welcome_email'           => '1',
+			'mhm_rentiva_customer_booking_notifications'   => '1',
 
 			// Message Emails
 			'mhm_rentiva_message_received_admin_subject'   => __( 'New Message from {contact_name}', 'mhm-rentiva' ),

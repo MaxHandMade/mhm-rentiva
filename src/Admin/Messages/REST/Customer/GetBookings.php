@@ -103,7 +103,7 @@ final class GetBookings {
 			'orderby' => 'date',
 			'order'   => 'DESC',
 		);
-		$args = wp_parse_args( $args, $defaults );
+		$args     = wp_parse_args( $args, $defaults );
 
 		$limit   = (int) $args['limit'];
 		$orderby = sanitize_text_field( $args['orderby'] );

@@ -144,9 +144,9 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		$display_id        = mhm_rentiva_get_display_id( $post->ID );
 		$booking_prefix    = __( 'BK-', 'mhm-rentiva' );
 		$booking_reference = $booking_prefix . str_pad( (string) $display_id, 6, '0', STR_PAD_LEFT );
-		$booking_type  = get_post_meta( $post->ID, '_mhm_booking_type', true ) ?: 'online';
-		$rental_days   = get_post_meta( $post->ID, '_mhm_rental_days', true );
-		$special_notes = get_post_meta( $post->ID, '_mhm_special_notes', true ) ?: '';
+		$booking_type      = get_post_meta( $post->ID, '_mhm_booking_type', true ) ?: 'online';
+		$rental_days       = get_post_meta( $post->ID, '_mhm_rental_days', true );
+		$special_notes     = get_post_meta( $post->ID, '_mhm_special_notes', true ) ?: '';
 
 		// Calculate rental days if not set
 		if ( empty( $rental_days ) && $pickup_date && $dropoff_date ) {

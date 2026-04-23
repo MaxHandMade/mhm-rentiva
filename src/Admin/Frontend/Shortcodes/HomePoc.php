@@ -29,8 +29,8 @@ if (!defined('ABSPATH')) {
  * - Must not render in production by default.
  * - Enabled only when WP_DEBUG is true or MHM_RENTIVA_ENABLE_HOME_POC is true.
  */
-class HomePoc
-{
+class HomePoc {
+
 
 
     /**

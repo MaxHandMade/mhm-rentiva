@@ -42,19 +42,21 @@ final class CycleManager {
     public static function perform_monthly_reset(int $batch_size = 50): void
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_usage_metrics' );
+        $table      = $wpdb->prefix . 'mhm_rentiva_usage_metrics';
         $new_cycle  = MeteredUsageTracker::get_current_cycle_start();
         $last_month = gmdate('Y-m-d H:i:s', strtotime('first day of last month midnight'));
 
         // Identify tenants needing a new cycle record
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Cycle reset must inspect live tenant usage rows before creating the new cycle.
         $tenants_to_reset = $wpdb->get_col(
             $wpdb->prepare(
-                "SELECT DISTINCT tenant_id FROM {$table} 
+                'SELECT DISTINCT tenant_id FROM %i 
                  WHERE cycle_start <= %s 
-                 AND tenant_id NOT IN (SELECT tenant_id FROM {$table} WHERE cycle_start = %s)
-                 LIMIT %d",
+                 AND tenant_id NOT IN (SELECT tenant_id FROM %i WHERE cycle_start = %s)
+                 LIMIT %d',
+                $table,
                 $last_month,
+                $table,
                 $new_cycle,
                 $batch_size
             )

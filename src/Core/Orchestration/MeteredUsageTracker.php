@@ -30,7 +30,7 @@ final class MeteredUsageTracker {
     public static function increment(int $tenant_id, string $metric_type, int $increment = 1): void
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_usage_metrics' );
+        $table       = $wpdb->prefix . 'mhm_rentiva_usage_metrics';
         $cycle_start = self::get_current_cycle_start();
         $cycle_end   = self::get_current_cycle_end();
         $now         = current_time('mysql', 1);
@@ -40,14 +40,14 @@ final class MeteredUsageTracker {
          * If record exists for (tenant, metric, cycle), increment.
          * Else, create first entry for the cycle.
          */
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Metering must persist live cycle usage atomically.
         $wpdb->query(
             $wpdb->prepare(
-                "INSERT INTO %i (tenant_id, metric_type, metric_value, cycle_start, cycle_end, updated_at)
+                'INSERT INTO %i (tenant_id, metric_type, metric_value, cycle_start, cycle_end, updated_at)
                  VALUES (%d, %s, %d, %s, %s, %s)
                  ON DUPLICATE KEY UPDATE 
                  metric_value = metric_value + %d, 
-                 updated_at = VALUES(updated_at)",
+                 updated_at = VALUES(updated_at)',
                 $table,
                 (int) $tenant_id,
                 (string) $metric_type,
@@ -82,13 +82,14 @@ final class MeteredUsageTracker {
     public static function get_usage(int $tenant_id, string $metric_type): int
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_usage_metrics' );
+        $table       = $wpdb->prefix . 'mhm_rentiva_usage_metrics';
         $cycle_start = self::get_current_cycle_start();
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Quota checks require a live cycle usage read.
         return (int) $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT metric_value FROM {$table} WHERE tenant_id = %d AND metric_type = %s AND cycle_start = %s",
+                'SELECT metric_value FROM %i WHERE tenant_id = %d AND metric_type = %s AND cycle_start = %s',
+                $table,
                 $tenant_id,
                 $metric_type,
                 $cycle_start

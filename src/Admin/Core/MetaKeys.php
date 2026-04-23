@@ -16,17 +16,17 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Admin\Core
  * @since 4.5.0
  */
-final class MetaKeys
-{
+final class MetaKeys {
+
 
 
 	// Vehicle Meta Keys
-	public const VEHICLE_LICENSE_PLATE    = '_mhm_rentiva_license_plate';
-	public const VEHICLE_PRICE_PER_DAY    = '_mhm_rentiva_price_per_day';
-	public const VEHICLE_SEATS            = '_mhm_rentiva_seats';
-	public const VEHICLE_TRANSMISSION     = '_mhm_rentiva_transmission';
-	public const VEHICLE_FUEL_TYPE        = '_mhm_rentiva_fuel_type';
-	public const VEHICLE_STATUS           = '_mhm_vehicle_status';
+	public const VEHICLE_LICENSE_PLATE = '_mhm_rentiva_license_plate';
+	public const VEHICLE_PRICE_PER_DAY = '_mhm_rentiva_price_per_day';
+	public const VEHICLE_SEATS         = '_mhm_rentiva_seats';
+	public const VEHICLE_TRANSMISSION  = '_mhm_rentiva_transmission';
+	public const VEHICLE_FUEL_TYPE     = '_mhm_rentiva_fuel_type';
+	public const VEHICLE_STATUS        = '_mhm_vehicle_status';
 	/** @deprecated 3.0.0 Use VEHICLE_STATUS instead */
 	public const VEHICLE_AVAILABILITY     = '_mhm_vehicle_availability'; // Legacy
 	public const VEHICLE_CATEGORY         = '_mhm_rentiva_category'; // Legacy field (prefer taxonomy)

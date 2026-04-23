@@ -17,8 +17,8 @@ if (! defined('ABSPATH')) {
  * This class initializes and coordinates all plugin services.
  * Designed in a modular structure where each service takes its own responsibility.
  */
-final class Plugin
-{
+final class Plugin {
+
 
 	public const VERSION = MHM_RENTIVA_VERSION;
 
@@ -52,9 +52,9 @@ final class Plugin
 	/**
 	 * Check if class exists
 	 */
-	private function is_class_available(string $class): bool
+	private function is_class_available(string $class_name): bool
 	{
-		return class_exists($class);
+		return class_exists($class_name);
 	}
 
 	/**
@@ -63,29 +63,29 @@ final class Plugin
 	private function __construct()
 	{
 		// Ensure theme support for thumbnails
-		add_action('after_setup_theme', array($this, 'setup_theme_support'));
+		add_action('after_setup_theme', array( $this, 'setup_theme_support' ));
 
 		// Load text domain
 		// Priority 1: Load translations before any output
-		add_action('init', array($this, 'load_textdomain'), 1);
+		add_action('init', array( $this, 'load_textdomain' ), 1);
 
 		// Register Customer role (also for existing installations)
 		// Priority 20: Run after WooCommerce and other plugins that might register customer role
-		add_action('init', array(self::class, 'register_customer_role'), 20);
+		add_action('init', array( self::class, 'register_customer_role' ), 20);
 
 		// Register Vendor role alongside Customer role
-		add_action('init', array(self::class, 'register_vendor_role'), 20);
+		add_action('init', array( self::class, 'register_vendor_role' ), 20);
 
 		// Apply license limits
-		add_filter('wp_insert_post_data', array($this, 'enforce_limits'), 10, 2);
+		add_filter('wp_insert_post_data', array( $this, 'enforce_limits' ), 10, 2);
 
 		// Cache invalidation hooks
-		add_action('save_post', array($this, 'invalidate_cache_on_save'));
-		add_action('delete_post', array($this, 'invalidate_cache_on_delete'));
-		add_action('updated_post_meta', array($this, 'invalidate_cache_on_meta_update'), 10, 4);
+		add_action('save_post', array( $this, 'invalidate_cache_on_save' ));
+		add_action('delete_post', array( $this, 'invalidate_cache_on_delete' ));
+		add_action('updated_post_meta', array( $this, 'invalidate_cache_on_meta_update' ), 10, 4);
 
 		// Delay service graph init until after textdomain is loaded on `init`.
-		add_action('init', array($this, 'initialize_services'), 2);
+		add_action('init', array( $this, 'initialize_services' ), 2);
 	}
 
 	/**
@@ -146,7 +146,7 @@ final class Plugin
 
 		// Governance Enforcement
 		if ($this->is_class_available('\MHMRentiva\Admin\Core\Governance')) {
-			(new \MHMRentiva\Admin\Core\Governance())->register();
+			( new \MHMRentiva\Admin\Core\Governance() )->register();
 		}
 
 		// WordPress optimizer
@@ -410,11 +410,11 @@ final class Plugin
 			\MHMRentiva\Admin\Testing\DemoNoticeManager::register();
 		}
 		// REST API Settings AJAX
-		add_action('wp_ajax_mhm_create_api_key', array(\MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_create_api_key'));
-		add_action('wp_ajax_mhm_list_api_keys', array(\MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_list_api_keys'));
-		add_action('wp_ajax_mhm_revoke_api_key', array(\MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_revoke_api_key'));
-		add_action('wp_ajax_mhm_delete_api_key', array(\MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_delete_api_key'));
-		add_action('wp_ajax_mhm_list_endpoints', array(\MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_list_endpoints'));
+		add_action('wp_ajax_mhm_create_api_key', array( \MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_create_api_key' ));
+		add_action('wp_ajax_mhm_list_api_keys', array( \MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_list_api_keys' ));
+		add_action('wp_ajax_mhm_revoke_api_key', array( \MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_revoke_api_key' ));
+		add_action('wp_ajax_mhm_delete_api_key', array( \MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_delete_api_key' ));
+		add_action('wp_ajax_mhm_list_endpoints', array( \MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_list_endpoints' ));
 
 		// Add Documentation button to standard WP pages
 		add_action(
@@ -676,10 +676,10 @@ final class Plugin
 		$is_admin = is_admin();
 
 		// Database migration
-		add_action('admin_init', array(Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations'));
+		add_action('admin_init', array( Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations' ));
 
 		// Taxonomy migration (vehicle_cat â†’ vehicle_category)
-		add_action('admin_init', array(Admin\Core\Utilities\TaxonomyMigrator::class, 'migrate_vehicle_cat_to_vehicle_category'), 5);
+		add_action('admin_init', array( Admin\Core\Utilities\TaxonomyMigrator::class, 'migrate_vehicle_cat_to_vehicle_category' ), 5);
 
 		// Database cleanup page (admin only)
 		if ($is_admin && class_exists('MHMRentiva\\Admin\\Utilities\\Database\\DatabaseCleanupPage')) {
@@ -707,13 +707,13 @@ final class Plugin
 		}
 
 		// Vehicle detail page rewrite rules (SEO-friendly sub-path URLs)
-		add_action('init', array($this, 'register_vehicle_rewrite_rules'), 15);
+		add_action('init', array( $this, 'register_vehicle_rewrite_rules' ), 15);
 
 		// Template loading
-		add_action('template_redirect', array($this, 'load_vehicle_templates'));
+		add_action('template_redirect', array( $this, 'load_vehicle_templates' ));
 
 		// REST API
-		add_action('rest_api_init', array($this, 'register_rest_api'));
+		add_action('rest_api_init', array( $this, 'register_rest_api' ));
 
 		// Operational Resilience: Health & Integrity
 		if (class_exists('MHMRentiva\Api\REST\HealthController')) {
@@ -742,13 +742,14 @@ final class Plugin
 		}
 
 		// Plugin deactivation hook
-		register_deactivation_hook(dirname(__DIR__) . '/mhm-rentiva.php', array(Admin\Licensing\LicenseManager::class, 'deactivatePluginHook'));
+		register_deactivation_hook(dirname(__DIR__) . '/mhm-rentiva.php', array( Admin\Licensing\LicenseManager::class, 'deactivatePluginHook' ));
 
 		// Shortcode URL cache temizleme
-		add_action('save_post', array(Admin\Core\ShortcodeUrlManager::class, 'clear_cache_on_page_update'));
+		add_action('save_post', array( Admin\Core\ShortcodeUrlManager::class, 'clear_cache_on_page_update' ));
 		add_action(
 			'delete_post',
 			function ($post_id) {
+				unset($post_id);
 				Admin\Core\ShortcodeUrlManager::clear_cache();
 			}
 		);
@@ -821,7 +822,7 @@ final class Plugin
 		$post_id     = $postarr['ID'] ?? 0;
 		$post_status = $data['post_status'] ?? '';
 
-		if ($post_id > 0 || in_array($post_status, array('trash', 'delete'), true)) {
+		if ($post_id > 0 || in_array($post_status, array( 'trash', 'delete' ), true)) {
 			return $data;
 		}
 
@@ -872,7 +873,7 @@ final class Plugin
 			return;
 		}
 
-		$page_path = ltrim((string) parse_url((string) get_permalink($page_id), PHP_URL_PATH), '/');
+		$page_path = ltrim( (string) wp_parse_url( (string) get_permalink($page_id), PHP_URL_PATH), '/');
 		$page_path = rtrim($page_path, '/');
 		if ('' === $page_path) {
 			return;
@@ -886,7 +887,7 @@ final class Plugin
 		// Auto-flush if our rule is missing from the cached rewrite rules in the DB.
 		// This handles the case where flush was triggered before the page was configured.
 		$cached_rules = (array) get_option('rewrite_rules', array());
-		if (! isset($cached_rules[$rule_regex])) {
+		if (! isset($cached_rules[ $rule_regex ])) {
 			flush_rewrite_rules(false);
 		}
 	}
@@ -907,9 +908,9 @@ final class Plugin
 		// provide for FSE block themes whose navigation lives in block templates.
 		$details_page_id = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_id('rentiva_vehicle_details');
 		if ($details_page_id) {
-			$vehicle_post   = get_queried_object();
-			$details_base   = untrailingslashit((string) get_permalink($details_page_id));
-			$clean_url      = $details_base . '/' . $vehicle_post->post_name . '/';
+			$vehicle_post = get_queried_object();
+			$details_base = untrailingslashit( (string) get_permalink($details_page_id));
+			$clean_url    = $details_base . '/' . $vehicle_post->post_name . '/';
 			wp_safe_redirect($clean_url, 301);
 			exit;
 		}
@@ -1038,6 +1039,8 @@ final class Plugin
 	 */
 	public function invalidate_cache_on_meta_update(int $meta_id, int $post_id, string $meta_key, $meta_value): void
 	{
+		unset($meta_id, $meta_value);
+
 		$post_type = get_post_type($post_id);
 
 		// Vehicle meta changes
@@ -1107,6 +1110,7 @@ final class Plugin
 	/**
 	 * Register Customer role
 	 *
+	 * Safe: If the customer role already exists (for example from WooCommerce),
 	 * âœ… Safe: If customer role already exists (e.g., from WooCommerce),
 	 * WordPress add_role() does nothing and returns null (no error).
 	 * This ensures compatibility with other plugins.
@@ -1122,7 +1126,7 @@ final class Plugin
 
 		// Get subscriber role capabilities as base
 		$subscriber   = get_role('subscriber');
-		$capabilities = $subscriber ? $subscriber->capabilities : array('read' => true);
+		$capabilities = $subscriber ? $subscriber->capabilities : array( 'read' => true );
 
 		// Add Customer role with subscriber-like capabilities
 		// Note: If role already exists, add_role() safely returns null without error

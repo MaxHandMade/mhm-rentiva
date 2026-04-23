@@ -1,0 +1,105 @@
+
+PHP CODE SNIFFER VIOLATION SOURCE SUMMARY
+----------------------------------------------------------------------------------------------------------
+    STANDARD  CATEGORY            SNIFF                                                              COUNT
+----------------------------------------------------------------------------------------------------------
+[x] Normaliz  Arrays              Array brace spacing space after array opener single line           1231
+[x] Normaliz  Arrays              Array brace spacing space before array closer single line          1231
+[x] WordPres  Arrays              Multiple statement alignment double arrow not aligned              504
+[x] Generic   White space         Arbitrary parentheses spacing space after open                     350
+[x] Generic   White space         Arbitrary parentheses spacing space before close                   350
+[x] WordPres  Arrays              Array key spacing restrictions no spaces around array keys         318
+[ ] Universa  Operators           Disallow short ternary found                                       316
+[x] Generic   Formatting          Multiple statement alignment not same warning                      308
+[x] WordPres  White space         Cast structure spacing no space before open parenthesis            278
+[ ] WordPres  Naming conventions  Valid function name method name invalid                            194
+[x] Generic   Classes             Opening brace same line brace on new line                          163
+[x] WordPres  Arrays              Array declaration spacing associative array found                  147
+[x] Universa  White space         Comma spacing too much space after                                 90
+[ ] Generic   PHP                 Require strict types missing declaration                           72
+[x] WordPres  Arrays              Array declaration spacing array item no new line                   69
+[ ] Generic   Code analysis       Unused function parameter found after last used                    66
+[ ] Universa  Naming conventions  No reserved keyword parameter names default found                  62
+[x] Generic   White space         Scope indent incorrect exact                                       54
+[ ] WordPres  PHP                 Strict in array missing true strict                                51
+[ ] WordPres  Naming conventions  Valid hook name use underscores                                    45
+[ ] Squiz     PHP                 Commented out code found                                           44
+[x] Squiz     White space         Superfluous whitespace end line                                    36
+[x] Generic   White space         Scope indent incorrect                                             31
+[ ] WordPres  WP                  Global variables override prohibited                               28
+[ ] WordPres  WP                  I 18n missing translators comment                                  24
+[x] Generic   Functions           Function call argument spacing too much space after comma          23
+[ ] WordPres  Date time           Current time timestamp requested                                   22
+[x] Generic   Formatting          Multiple statement alignment incorrect warning                     20
+[x] Universa  Operators           Strict comparisons loose equal                                     20
+[ ] WordPres  WP                  Alternative functions json_encode_json_encode                      18
+[ ] Generic   Code analysis       Unused function parameter found                                    16
+[x] Generic   Formatting          Space after cast no space                                          16
+[ ] Squiz     Control structures  Control signature space after close brace                          16
+[x] Squiz     PHP                 Embedded php content after open                                    13
+[x] Normaliz  Arrays              Comma after last missing multi line                                12
+[x] Squiz     Control structures  Control signature space after close parenthesis                    11
+[x] Generic   Control structures  Inline control structure not allowed                               10
+[x] Squiz     Strings             Double quote usage not required                                    8
+[x] Squiz     White space         Superfluous whitespace empty lines                                 8
+[ ] WordPres  DB                  Slow DBQuery slow_db_query_meta_query                              8
+[ ] Generic   Code analysis       Empty statement detected if                                        7
+[ ] PSR2      Methods             Method declaration underscore                                      7
+[x] WordPres  Arrays              Multiple statement alignment long index space before double arrow  7
+[ ] WordPres  PHP                 Discouraged PHPFunctions obfuscation_base 64_encode                7
+[x] Squiz     Control structures  Control signature newline after open brace                         6
+[x] Squiz     PHP                 Embedded php content before end                                    6
+[x] Universa  Code analysis       Static in final class scope resolution                             6
+[ ] WordPres  PHP                 Discouraged PHPFunctions obfuscation_base 64_decode                6
+[ ] WordPres  PHP                 Discouraged PHPFunctions serialize_serialize                       6
+[ ] WordPres  WP                  Alternative functions file_get_contents_file_get_contents          6
+[ ] Generic   Code analysis       Empty statement detected catch                                     5
+[ ] Universa  Control structures  Disallow lonely if found                                           5
+[x] Universa  Operators           Disallow standalone post increment decrement post increment found  5
+[ ] Universa  Naming conventions  No reserved keyword parameter names class found                    4
+[x] Universa  White space         Precision alignment found                                          4
+[x] WordPres  Arrays              Array indentation item not aligned                                 4
+[ ] WordPres  PHP                 Discouraged PHPFunctions urlencode_urlencode                       4
+[ ] WordPres  WP                  Cron interval cron schedules interval                              4
+[ ] Generic   Code analysis       Useless overriding method found                                    3
+[ ] Universa  Arrays              Duplicate array key found                                          3
+[ ] Universa  Naming conventions  No reserved keyword parameter names echo found                     3
+[ ] Generic   Code analysis       Assignment in condition found                                      2
+[x] Squiz     Control structures  Control signature space after keyword                              2
+[ ] Squiz     PHP                 Disallow multiple assignments found in control structure           2
+[ ] Universa  Naming conventions  No reserved keyword parameter names list found                     2
+[x] Universa  Operators           Strict comparisons loose not equal                                 2
+[ ] WordPres  PHP                 Development functions error_log_error_log                          2
+[x] WordPres  WP                  I 18n unordered placeholders text                                  2
+[ ] WordPres  WP                  Posts per page posts_per_page_posts_per_page                       2
+[x] Generic   Code analysis       Empty PHPStatement empty PHPOpen close tags detected               1
+[ ] Generic   Code analysis       Empty statement detected else                                      1
+[ ] Generic   Code analysis       Empty statement detected foreach                                   1
+[ ] Generic   Code analysis       For loop with test function call not allowed                       1
+[x] PEAR      Files               Including file use require                                         1
+[ ] PSR12     Files               File header incorrect order                                        1
+[ ] Squiz     PHP                 Disallow size functions in loops found                             1
+[x] Squiz     PHP                 Embedded php content after end                                     1
+[x] Squiz     PHP                 Embedded php content before open                                   1
+[x] Squiz     PHP                 Embedded php empty                                                 1
+[ ] Squiz     PHP                 Non executable code return not required                            1
+[ ] Squiz     PHP                 Non executable code unreachable                                    1
+[x] Squiz     White space         Superfluous whitespace end file                                    1
+[x] Universa  Classes             Require anon class parentheses missing                             1
+[ ] Universa  Naming conventions  No reserved keyword parameter names array found                    1
+[ ] Universa  Naming conventions  No reserved keyword parameter names return found                   1
+[x] WordPres  Arrays              Array indentation close brace not aligned                          1
+[x] WordPres  Arrays              Array indentation multi line array item not aligned                1
+[ ] WordPres  Naming conventions  Prefix all globals dynamic hookname found                          1
+[ ] WordPres  PHP                 Discouraged PHPFunctions runtime_configuration_error_reporting     1
+[ ] WordPres  PHP                 No silenced errors discouraged                                     1
+[ ] WordPres  WP                  Alternative functions file_system_operations_file_put_contents     1
+[ ] WordPres  WP                  Alternative functions unlink_unlink                                1
+[ ] WordPres  WP                  Cron interval change detected                                      1
+----------------------------------------------------------------------------------------------------------
+A TOTAL OF 6431 SNIFF VIOLATIONS WERE FOUND IN 93 SOURCES
+----------------------------------------------------------------------------------------------------------
+PHPCBF CAN FIX THE 44 MARKED SOURCES AUTOMATICALLY (5356 VIOLATIONS IN TOTAL)
+----------------------------------------------------------------------------------------------------------
+
+

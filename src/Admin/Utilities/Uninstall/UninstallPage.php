@@ -10,13 +10,13 @@ if (! defined('ABSPATH')) {
 /**
  * Uninstall Admin Page (AJAX Handlers)
  */
-final class UninstallPage
-{
+final class UninstallPage {
+
 
 	public static function register(): void
 	{
-		add_action('wp_ajax_mhm_get_uninstall_stats', array(self::class, 'ajax_get_uninstall_stats'));
-		add_action('wp_ajax_mhm_uninstall_plugin', array(self::class, 'ajax_uninstall_plugin'));
+		add_action('wp_ajax_mhm_get_uninstall_stats', array( self::class, 'ajax_get_uninstall_stats' ));
+		add_action('wp_ajax_mhm_uninstall_plugin', array( self::class, 'ajax_uninstall_plugin' ));
 	}
 
 	/**
@@ -25,11 +25,11 @@ final class UninstallPage
 	public static function ajax_get_uninstall_stats(): void
 	{
 		if (! check_ajax_referer('mhm_uninstall', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('Permission denied', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Permission denied', 'mhm-rentiva') ));
 		}
 
 		$stats = Uninstaller::get_uninstall_stats();
@@ -43,11 +43,11 @@ final class UninstallPage
 	public static function ajax_uninstall_plugin(): void
 	{
 		if (! check_ajax_referer('mhm_uninstall', 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => __('Permission denied', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Permission denied', 'mhm-rentiva') ));
 		}
 
 		$delete_backups = isset($_POST['delete_backups']) && $_POST['delete_backups'] === '1';
